@@ -1,0 +1,65 @@
+/*.stage {
+	display: block;
+	width: 800px;
+	height: 534px;
+	background: url('room.jpg');
+	margin: 0 auto;
+	position: relative;
+}*/
+
+.node {
+	display: block;
+	width: 40px;
+	height: 40px;
+	position: absolute;
+	border: dotted transparent 1px;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	cursor: pointer;
+	text-indent: -99999px;
+}
+
+.node:hover {
+	border-color: #ff6600;
+}
+
+.node.discovered {
+	border-color: #0084ff;
+	border-style: solid;
+}
+
+.node.crossword.node_1 {
+	width: 60px;
+	height: 60px;
+	top: 422px;
+	left: 482px;
+}
+
+.node.crossword.node_2 {
+	width: 144px;
+	height: 96px;
+	top: 400px;
+	left: 588px;
+}
+
+.node.crossword.node_3 {
+	width: 130px;
+	height: 50px;
+	top: 332px;
+	left: 117px;
+}
+
+.node.crossword.node_4 {
+	width: 96px;
+	height: 50px;
+	top: 319px;
+	left: 72px;
+}
+
+.node.crossword.node_5 {
+	width: 117px;
+	height: 390px;
+	top: 0px;
+	left: 651px;
+}
