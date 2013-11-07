@@ -1,0 +1,165 @@
+<?php
+/**
+ * Materia
+ * License outlined in licenses folder
+ */
+
+class Controller_Scores extends Controller
+{
+
+	protected $_header = 'partials/header';
+
+	public function before()
+	{
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/main');
+	}
+
+	public function after($response)
+	{
+		// If no response object was returned by the action,
+		if (empty($response) or ! $response instanceof Response)
+		{
+			// render the defined template
+			$this->theme->set_partial('header', $this->_header)->set('me', Model_User::find_current());
+			// add google analytics
+			if ($gid = Config::get('materia.google_tracking_id', false))
+			{
+				Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+			}
+
+			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			$response = Response::forge(Theme::instance()->render());
+		}
+
+		return parent::after($response);
+	}
+
+	public function action_show($inst_id)
+	{
+		if (Materia\Api::session_valid() !== true)
+		{
+			Session::set_flash('notice', 'Please log in to view your scores.');
+			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
+		}
+
+		Package::load('casset');
+		Casset::enable_js(['scores']);
+		Casset::enable_css(['scores']);
+
+		$this->theme->get_template()
+			->set('title', 'Score Results')
+			->set('page_type', 'scores');
+
+		$this->theme->set_partial('content', 'partials/score/full');
+	}
+
+	public function action_show_embedded($inst_id)
+	{
+		if (Materia\Api::session_valid() !== true)
+		{
+			Session::set_flash('notice', 'Please log in to view your scores.');
+			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
+		}
+
+		Package::load('casset');
+		Casset::enable_js(['embed_scores']);
+		Casset::enable_css(['embed_scores']);
+
+		$lti_token = \Input::get('ltitoken', false);
+		if($lti_token)
+		{
+			Casset::js_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+		}
+
+		$this->theme->get_template()
+			->set('title', 'Score Results')
+			->set('page_type', 'scores');
+
+		$this->theme->set_partial('content', 'partials/score/embed');
+		$this->_header = 'partials/header_empty';
+	}
+
+	/**
+	 * Prepares and then pushes a csv file
+	 *
+	 * @param int the game instance id
+	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
+	 */
+	public function action_csv($inst_id, $semesters_string)
+	{
+
+		if (Materia\Api::session_valid() !== true)
+		{
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your scores.');
+			Response::redirect(Router::get('login'));
+		}
+
+		$inst = Materia\Widget_Instance_Manager::get($inst_id);
+
+		if ( ! Materia\Perm_Manager::check_user_perm_to_object(\Auth::instance()->get_user_id()[1], $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::VISIBLE, Materia\Perm::FULL]) && ! \Model_User::verify_session(\RocketDuck\Perm_Role::SU))
+		{
+			return new Response('', 403);
+		}
+
+		$semesters = explode(',', $semesters_string);
+		$play_logs = [];
+		$results   = [];
+
+		foreach ($semesters as $semester)
+		{
+			list($year, $term) = explode('-', $semester);
+		 	// Get all scores for each semester
+		 	$logs = $play_logs[$year.' '.$term] = Materia\Session_Play::get_by_inst_id($inst_id, $term, $year);
+
+			foreach ($logs as $play)
+			{
+				$uname = $play['username'];
+
+				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
+
+				$results[$uname]['semester']   = $semester;
+				$results[$uname]['last_name']  = $play['last'];
+				$results[$uname]['first_name'] = $play['first'];
+				$results[$uname]['score']      = max($results[$uname]['score'], $play['perc']);
+			}
+		}
+
+		// If there aren't any logs throw a 404 error
+		if (count($play_logs) == 0) throw new HttpNotFoundException;
+
+		// Table headers
+		$csv = "User ID,Last Name,First Name,Score,Semester\r\n";
+
+		foreach ($results as $userid => $r)
+		{
+			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
+		}
+
+		return $this->build_csv_response($csv, $inst->name);
+	}
+
+	public function action_storage($inst_id, $table_name, $semesters)
+	{
+		$table_name = html_entity_decode($table_name);
+		$csv        = \Materia\Storage_Manager::get_csv_logs_by_inst_id($inst_id, $table_name, explode(',', $semesters));
+		$inst       = \Materia\Widget_Instance_Manager::get($inst_id);
+
+		return $this->build_csv_response($csv, "$table_name [$inst->name]");
+	}
+
+	private function build_csv_response($data, $filename)
+	{
+		return Response::forge()
+			->body($data)
+			->set_header('Pragma', 'public')
+			->set_header('Expires', '0')
+			->set_header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+			->set_header('Content-Type', 'application/force-download')
+			->set_header('Content-Type', 'application/octet-stream')
+			->set_header('Content-Type', 'application/download')
+			->set_header('Content-Disposition', "attachment; filename=\"$filename.csv\"");
+	}
+
+}

@@ -1,0 +1,121 @@
+.store .page {
+	margin-top:30px;
+}
+
+.store section.store_bottom {
+	overflow:auto;
+}
+.store section.store_bottom section:first-child {
+	float: left;
+}
+/*.store section.store_bottom section:last-child {
+	float:right;
+}*/
+.store section.store_bottom section:nth-child(2) {
+	margin: 0 60px;
+}
+.store section.store_bottom section {
+	width: 250px;
+	padding: 7px 0 20px 33px;
+}
+.store section.store_bottom section section{
+	width: 218px;
+	border: #D6D6D6 1px solid;
+	  
+/*       -moz-box-shadow: 1px 3px 10px #888;
+	   -webkit-box-shadow: 1px 3px 10px #888;*/
+	   box-shadow: 1px 5px 10px #888;
+	border-top:none;
+	font-family: Lato;
+	height: 270px;
+	background: #fff url(../img/bar-top.png) top repeat-x;
+	padding:15px;
+}
+.store section.store_bottom section section h3 {
+		font-family: Lato;
+	color: #6b6b6b;
+	font-size: 17px;
+	padding-bottom: 20px;
+}
+.store section.store_bottom section section div {
+	margin-left: 100px;	
+}
+.store section.store_bottom section section h4, .store section.store_bottom section section p {
+	margin: 0;
+	padding: 0;
+	color:#6b6b6b;
+}
+.store section.store_bottom section section h4 {
+	color:#000;
+}
+.store section.store_bottom section section p:last-child {
+	margin-top: 10px;
+}
+.store section.store_bottom section section p a {
+	color: #0093e7;
+	text-decoration:underline;
+	font-weight:bold;
+	font-size:.8em;
+}
+.shadow {
+}
+
+
+.store_main {
+	padding: 0px;
+	overflow:visible;
+	position: absolute;
+}
+.main_container {
+	position: relative;
+	width: 960px;
+	height: 320px;
+	margin: 0 auto;
+	border:rgba(0,0,0,0.11) 1px solid;   
+	-moz-box-shadow: 1px 3px 10px #888;
+	-webkit-box-shadow: 1px 3px 10px #888;
+	box-shadow: 1px 3px 10px #888;
+	overflow: visible;
+}
+.program_main {
+	   background: #FFF url(../img/pop_back.png) center bottom no-repeat;	
+}
+.main section, store_main section {
+	   padding: 20px;
+}
+.hidden {
+	display: none;
+}
+.cycler {
+	width: 60px;
+	margin: -22px auto 0;
+	position: relative;
+	z-index: 10;
+	padding: 0 3px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+.cycler input {
+	display: inline-block;
+	text-indent: -999999px;
+}
+.cycler .span_next {
+	vertical-align: middle;
+	background: #d7d7d7;
+	display: inline-block;
+	width : 5px;
+	height : 5px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	margin: 0 3px 1px 3px;
+	cursor: pointer;
+}
+.cycler span.spotlight_selected {
+	background: #0093e7;
+	width : 8px;
+	height : 8px;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+}

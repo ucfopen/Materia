@@ -1,0 +1,85 @@
+# FUELPHP Ignore
+/composer.lock
+*~
+*.bak
+Thumbs.db
+desktop.ini
+.DS_Store
+.buildpath
+.project
+.settings
+*.tmproj
+build
+.idea
+/fuel/vendor
+/fuel/app/logs/*/*/*
+/fuel/app/cache/*/*
+/fuel/app/config/crypt.php
+nbproject/
+
+# OSX metadata
+.DS_Store
+
+# SVN folders
+.svn
+
+# system files
+*._*
+*.log
+
+# windows thumbnails
+thumbs.db
+
+# local config
+fuel/app/config/*/migrations.php
+fuel/app/config/production/*
+fuel/app/config/migrations.php
+fuel/app/modules/*/config/development/*
+fuel/app/modules/*/config/production/*
+
+# helper files
+fuelhelper.php
+
+# log files
+fuel/packages/materia/logs/*
+
+# media files
+fuel/packages/materia/media/*
+
+# Fuelphp logs
+fuel/app/logs/*
+
+# Project Files
+.buildpath
+*.iml
+.project
+.settings/
+logs/
+*.iml
+
+# Installed Widgets
+public/assets/widget/*
+static/widget/*
+!static/widget/test
+static/widget/test/*
+
+# Any widget zip packages
+*.zip
+
+# Cache Files
+fuel/app/cache/*
+fuel/app/tmp/*
+public/assets/cache/*
+
+=======
+# Vagrant Files
+vagrant/
+.vagrant
+
+# Debug Build Widgets
+public/assets/widget-debug/*
+
+=======
+# Static Development folder
+static/develop/*
+!static/develop/.gitkeep
