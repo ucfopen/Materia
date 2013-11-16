@@ -7,13 +7,10 @@
       return _gatewayURL = newGateway;
     };
     send = function(method, args, callback, ignoreError) {
-      var callbackInterrupt, nameArr, widgetId;
+      var callbackInterrupt;
       if (_gatewayURL == null) {
         _gatewayURL = API_LINK;
       }
-      nameArr = window.location.pathname.replace("/widgets/", '').split("/");
-      nameArr.pop().split('-').shift();
-      widgetId = nameArr.join('-');
       if (callback == null) {
         callback = $.noop();
       }

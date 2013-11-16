@@ -19,14 +19,14 @@
 		<section class="right widget_right_selection">
 			<h4>Want to see it in action?</h4>
 			<p>
-				<a id="demoLink" class="action_button green circle_button" href='/widgets/clean_name/demo' target="_blank">
+				<a id="demoLink" class="action_button green circle_button" href='' target="_blank">
 					<span class="arrow arrow_right"></span>
 					Play a demo now!
 				</a>
 			</p>
 
 			<h4>Want to use it in your course?</h4>
-			<p><a id ="createLink" href='/widgets/clean_name/create' class="action_button green">Create your widget</a></p>
+			<p><a id ="createLink" href='' class="action_button green">Create your widget</a></p>
 		</section>
 	</article>
 </section>

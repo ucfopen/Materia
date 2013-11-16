@@ -71,8 +71,8 @@
       }, function() {
         return Materia.Widget.Detail.hideToolTip();
       });
-      $('#demoLink').attr('href', '/widgets/' + widget.id + '-' + clean_name + '/demo');
-      $('#createLink').attr('href', '/widgets/' + widget.id + '-' + clean_name + '/create');
+      $('#demoLink').attr('href', document.location.pathname + '/demo');
+      $('#createLink').attr('href', document.location.pathname + '/create');
       return $('.page').show();
     };
     showToolTip = function(pos, description, type) {
