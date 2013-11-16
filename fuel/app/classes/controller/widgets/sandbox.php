@@ -89,7 +89,6 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 
 		Package::load('casset');
 		Casset::js('static::materia.coms.sandbox.js', 'widget_play');
-		Casset::js('static::materia.image.sandbox.js', 'widget_play');
 		Casset::js_inline('var demo_qset = '.$qset);
 		Casset::js_inline('var widget_inst = '.json_encode($inst));
 
@@ -107,7 +106,6 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 		$widget->player = 'widget.html';
 		Package::load('casset');
 		Casset::js('static::materia.coms.sandbox.js', 'widget_editor');
-		Casset::js('static::materia.image.sandbox.js', 'widget_editor');
 		Casset::js_inline('var widget_info = ['.json_encode($widget).'];');
 
 		$this->_show_editor('Create Widget', (object)$widget);
