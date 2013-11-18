@@ -59,7 +59,7 @@ class Widget
 			}
 			// if a clean name wasn't created already, make one based on the name
 			if ( ! empty($properties['name']) && empty($this->clean_name)) $this->clean_name = \Inflector::friendly_title($this->name, '-', true);
-			$this->dir = \Config::get('materia.debug_engines', false) ? "debug/{$this->clean_name}/" : "{$this->id}-{$this->clean_name}/";
+			$this->dir = "{$this->id}-{$this->clean_name}/";
 			if ($this->api_version == 0) $this->api_version = \Config::get('materia.default_api_version');
 		}
 	}

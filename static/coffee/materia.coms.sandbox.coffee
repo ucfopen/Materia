@@ -6,9 +6,6 @@ Namespace('Materia.Coms').Json = do ->
 
 	send = (method, args, callback, ignoreError) ->
 		unless _gatewayURL? then _gatewayURL = API_LINK
-		nameArr = window.location.pathname.replace("/widgets/", '').split("/");
-		nameArr.pop().split('-').shift();
-		widgetId = nameArr.join('-');
 
 		callback = $.noop() if !callback?
 		args = [] if !args?

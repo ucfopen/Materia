@@ -4,13 +4,14 @@
  * License outlined in licenses folder
  */
 
-class Controller_Widgets_Develop extends Controller_Widgets
+class Controller_Widgets_Sandbox extends Controller_Widgets
 {
 	public function before() 
 	{
 		parent::before();
 		if (\Fuel::$env != \Fuel::DEVELOPMENT) throw new HttpNotFoundException;
 	}
+
 	public function after($response)
 	{
 		// If no response object was returned by the action,
@@ -38,7 +39,7 @@ class Controller_Widgets_Develop extends Controller_Widgets
 			}
 
 			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
-			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.static').'develop/";');
+			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.static').'widget/sandbox/";');
 			Casset::js_inline('var STATIC_URL = "'.Config::get('materia.urls.static').'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
@@ -50,14 +51,13 @@ class Controller_Widgets_Develop extends Controller_Widgets
 	{
 		$widget = json_encode($this->_create_development_widget($this->param('clean_name')));
 
-		if ( ! $widget) Response::redirect('widgets');
+		if ( ! $widget) throw new HttpNotFoundException;
 
 		Package::load('casset');
 		Casset::js_inline('var widget_info = ['.$widget.'];');
 		// This line overrides the Coms class with the development Coms class.
 		// (So we can develop with custom Coms to not touch the database)
-		Casset::js('static::materia.coms.dev.js', 'widget_detail');
-		Casset::js('static::materia.image.dev.js', 'widget_detail');
+		Casset::js('static::materia.coms.sandbox.js', 'widget_detail');
 		Casset::enable_js(['widget_detail']);
 		Casset::enable_css(['widget_detail']);
 
@@ -72,15 +72,13 @@ class Controller_Widgets_Develop extends Controller_Widgets
 	{
 		$widget = $this->_create_development_widget($this->param('clean_name'));
 
-
-		if ( ! $widget) Response::redirect('widgets');
-		if (is_file(\Config::get('materia.dirs.static').'/develop/'.$this->param('clean_name').'/demo.yaml') ) $this->action_play_widget($this->param('clean_name'), true);
+		if ( ! $widget) throw new HttpNotFoundException;
+		if (is_file(\Config::get('materia.dirs.static').'widget/sandbox/'.$this->param('clean_name').'/demo.yaml') ) $this->action_play_widget($this->param('clean_name'), true);
 		else throw new HttpNotFoundException;
-
 	}
+
 	public function action_play_widget($inst_id, $demo=false, $embed=false, $play_id=false)
 	{
-
 		$clean_name = $this->param('clean_name');
 		$inst = $this->_create_development_widget_instance($clean_name);
 		$demo = $this->_load_demo_instance($clean_name);
@@ -88,13 +86,13 @@ class Controller_Widgets_Develop extends Controller_Widgets
 		$inst->name = $demo['name'];
 
 		Package::load('casset');
-		Casset::js('static::materia.coms.dev.js', 'widget_play');
-		Casset::js('static::materia.image.dev.js', 'widget_play');
+		Casset::js('static::materia.coms.sandbox.js', 'widget_play');
 		Casset::js_inline('var demo_qset = '.$qset);
 		Casset::js_inline('var widget_inst = '.json_encode($inst));
 
 		$this->_display_widget($inst, $embed);
 	}
+
 	public function action_create()
 	{
 		$widget = $this->_create_development_widget($this->param('clean_name'));
@@ -105,8 +103,7 @@ class Controller_Widgets_Develop extends Controller_Widgets
 		$widget->dir = $this->param('clean_name').'/';
 		$widget->player = 'widget.html';
 		Package::load('casset');
-		Casset::js('static::materia.coms.dev.js', 'widget_editor');
-		Casset::js('static::materia.image.dev.js', 'widget_editor');
+		Casset::js('static::materia.coms.sandbox.js', 'widget_editor');
 		Casset::js_inline('var widget_info = ['.json_encode($widget).'];');
 
 		$this->_show_editor('Create Widget', (object)$widget);
@@ -115,7 +112,7 @@ class Controller_Widgets_Develop extends Controller_Widgets
 	public function action_dump()
 	{		
 		// load the demo yaml, setup the qset as needed
-		$demo_file = \Config::get('materia.dirs.static').'/develop/'.$this->param('clean_name').'/demo.yaml';
+		$demo_file = \Config::get('materia.dirs.static').'widget/sandbox/'.$this->param('clean_name').'/demo.yaml';
 		$demo_text = \File::read($demo_file, true);
 		$demo_text = \Format::forge($demo_text, 'yaml')->to_array();
 		$demo_text = ['version' => $demo_text['qset']['version'], 'data' => $demo_text['qset']['data']];
@@ -127,7 +124,7 @@ class Controller_Widgets_Develop extends Controller_Widgets
 	private function _create_development_widget($clean_name)
 	{
 		// load the demo yaml, setup the qset as needed
-		$install_file = \Config::get('materia.dirs.static').'/develop/'.$clean_name.'/install.yaml';
+		$install_file = \Config::get('materia.dirs.static').'widget/sandbox/'.$clean_name.'/install.yaml';
 		$install      = \File::read($install_file, true);
 		$widget_data  = \Format::forge($install, 'yaml')->to_array();
 
@@ -141,7 +138,9 @@ class Controller_Widgets_Develop extends Controller_Widgets
 		// flash_version must be cast as a string, or swfobject will crash
 		$widget['flash_version'] = (string)$widget['flash_version'];
 
-		return new \Materia\Widget($widget);
+		$widget = new \Materia\Widget($widget);
+		$widget->dir = $clean_name.'/';
+		return $widget;
 	}
 
 	private function _create_development_widget_instance($clean_name)
@@ -166,7 +165,7 @@ class Controller_Widgets_Develop extends Controller_Widgets
 
 	private function _load_demo_instance($clean_name)
 	{
-		$demo_file = \Config::get('materia.dirs.static').'/develop/'.$clean_name.'/demo.yaml';
+		$demo_file = \Config::get('materia.dirs.static').'widget/sandbox/'.$clean_name.'/demo.yaml';
 		$demo_text = \File::read($demo_file, true);
 		$demo_text = \Format::forge($demo_text, 'yaml')->to_array();
 		$demo_text['qset']['data'] = json_decode(json_encode($demo_text['qset']['data']), true);
