@@ -218,7 +218,7 @@ class Controller_Widgets extends Controller
 			->where('id', $this->param('id'))
 			->execute();
 
-		if ( ! $widget) Response::redirect('widgets');
+		if ( ! $widget) throw new HttpNotFoundException;
 
 		$widget = new Materia\Widget();
 		$widget->get($this->param('id'));

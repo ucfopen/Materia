@@ -72,7 +72,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 	{
 		$widget = $this->_create_development_widget($this->param('clean_name'));
 
-		if ( ! $widget) Response::redirect('widgets');
+		if ( ! $widget) throw new HttpNotFoundException;
 		if (is_file(\Config::get('materia.dirs.static').'widget/sandbox/'.$this->param('clean_name').'/demo.yaml') ) $this->action_play_widget($this->param('clean_name'), true);
 		else throw new HttpNotFoundException;
 	}
@@ -80,9 +80,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 	public function action_play_widget($inst_id, $demo=false, $embed=false, $play_id=false)
 	{
 		$clean_name = $this->param('clean_name');
-		trace($clean_name);
 		$inst = $this->_create_development_widget_instance($clean_name);
-		trace($inst);
 		$demo = $this->_load_demo_instance($clean_name);
 		$qset = json_encode($demo['qset']);
 		$inst->name = $demo['name'];
