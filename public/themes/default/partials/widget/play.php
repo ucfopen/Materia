@@ -7,5 +7,5 @@
 </section>
 
 <script type="text/javascript">
-	Materia.Player.init(API_LINK, "<?= $inst_id ?>", "container");
+	Materia.Player.init(API_LINK, "<?= $inst_id ?>", "container", BASE_URL);
 </script>

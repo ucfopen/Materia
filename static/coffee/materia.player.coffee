@@ -1,4 +1,5 @@
 Namespace('Materia').Player = do ->
+	_baseUrl             = null
 	_convertedInstance   = null
 	_embedDoneDfD        = null
 	_embedTarget         = null
@@ -35,7 +36,7 @@ Namespace('Materia').Player = do ->
 		dfd = $.Deferred().resolve()
 		_convertedInstance = _translateForApiVersion _instance
 		_startTime = (new Date()).getTime()
-		_sendToWidget 'initWidget', [_qset, _convertedInstance]
+		_sendToWidget 'initWidget', [_qset, _convertedInstance, _baseUrl]
 		if !_isPreview
 			_heartbeatIntervalId = setInterval sendPendingLogs, _logInterval # if not in preview mode, set the interval to send logs
 
@@ -258,9 +259,10 @@ Namespace('Materia').Player = do ->
 			min_h = _instance.widget.height
 			if h > min_h then $('#container').height h else $('#container').height min_h
 
-	init = (gateway, inst_id, embedTarget) ->
+	init = (gateway, inst_id, embedTarget, baseUrl) ->
 		_embedTarget = embedTarget
 		_inst_id     = inst_id
+		_baseUrl     = baseUrl
 
 		# search for preview or embed directory in the url
 		checkForContext = String(window.location).split '/'
