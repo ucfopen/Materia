@@ -1,1 +1,0 @@
-(function(){Namespace("Materia").User=function(){var currentUser,getCurrentUser;return currentUser=null,getCurrentUser=function(callback){return null!=currentUser?callback(currentUser):Materia.Coms.Json.send("user_get",null,function(user){return currentUser=user,callback(currentUser)})},{getCurrentUser:getCurrentUser}}()}).call(this);

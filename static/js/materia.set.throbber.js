@@ -1,1 +1,0 @@
-(function(){Namespace("Materia.Set").Throbber=function(){var startSpin,stopSpin;return startSpin=function(element,opts){return $(element).spin(opts)},stopSpin=function(element){return $(element).spin(!1)},{startSpin:startSpin,stopSpin:stopSpin}}()}).call(this);

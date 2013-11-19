@@ -1,1 +1,0 @@
-(function(){Namespace("Materia").Util=function(){var escapeUntrustedContent;return escapeUntrustedContent=function(text){return text.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot").replace(/'/g,"&#x27").replace(/\//g,"&#x2F")},{escapeUntrustedContent:escapeUntrustedContent}}()}).call(this);

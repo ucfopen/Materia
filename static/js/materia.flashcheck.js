@@ -1,1 +1,0 @@
-(function(){Namespace("Materia").Flashcheck=function(){var getFlashVersion,_flashVersionObj;return _flashVersionObj=null,getFlashVersion=function(callback){var return_val;return _flashVersionObj=swfobject.getFlashPlayerVersion(),return_val=0!==_flashVersionObj.major?_flashVersionObj:!1,null!=callback?callback(return_val):void 0},{flashInstalled:getFlashVersion}}()}).call(this);
