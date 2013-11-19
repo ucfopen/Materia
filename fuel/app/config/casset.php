@@ -11,7 +11,9 @@ return [
 			'js_dir' => 'js/',
 		],
 		'cdnjs' => [
-			'path' => '//cdnjs.cloudflare.com/ajax/libs/',
+			'combine' => false,
+			'min' => false,
+			'path' => 'https://cdnjs.cloudflare.com/ajax/libs/',
 			'js_dir' => '',
 		],
 	],
@@ -20,33 +22,45 @@ return [
 
 		'js' => [
 			'modernizr' => [
-				'files' => [['lib/cdn/modernizr.js', 'cdnjs::modernizr/2.6.2/modernizr.min.js']],
+				'files' => ['cdnjs::modernizr/2.6.2/modernizr.min.js'],
 				'enabled' => true,
+				'combine' => false,
+				'min' => false,
 				'attr' => ['data-src' => 'modernizr'],
 			],
 			'jquery' => [
-				'files' => [['lib/cdn/jquery-1.7.2.js', 'cdnjs::jquery/1.7.2/jquery.min.js']],
+				'files' => ['cdnjs::jquery/1.7.2/jquery.min.js'],
 				'enabled' => true,
+				'combine' => false,
+				'min' => false,
 				'attr' => ['data-src' => 'jquery'],
 			],
 			'underscore' => [
-				'files' => [['lib/cdn/underscore-1.5.2.min.js', 'cdnjs::underscore.js/1.5.2/underscore-min.js']],
+				'files' => ['cdnjs::underscore.js/1.5.2/underscore-min.js'],
 				'enabled' => false,
+				'combine' => false,
+				'min' => false,
 				'attr' => ['TT-src' => 'underscore'],
 			],
 			'swfobject' => [
-				'files' => [['lib/cdn/swfobject.js', 'cdnjs::swfobject/2.2/swfobject.js']],
+				'files' => ['cdnjs::swfobject/2.2/swfobject.js'],
 				'enabled' => false,
+				'combine' => false,
+				'min' => false,
 				'attr' => ['data-src' => 'swfobject'],
 			],
 			'dataTables' => [
-				'files' => [['lib/cdn/jquery.dataTables.js', 'cdnjs::datatables/1.9.4/jquery.dataTables.min.js']],
+				'files' => ['cdnjs::datatables/1.9.4/jquery.dataTables.min.js'],
 				'enabled' => false,
+				'combine' => false,
+				'min' => false,
 				'attr' => ['data-src' => 'datatables'],
 			],
 			'datejs' => [
-				'files' => [['lib/cdn/date.js', 'cdnjs::datejs/1.0/date.min.js']],
+				'files' => ['cdnjs::datejs/1.0/date.min.js'],
 				'enabled' => false,
+				'combine' => false,
+				'min' => false,
 				'attr' => ['data-src' => 'datejs'],
 			],
 			'fancybox' => [

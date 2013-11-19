@@ -23,7 +23,6 @@ module.exports = (grunt) ->
 			static:
 				options:
 					report: 'gzip'
-					mangle: false
 				files: [
 						expand: true,
 						cwd: 'static/js',
