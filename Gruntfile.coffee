@@ -7,7 +7,7 @@ module.exports = (grunt) ->
 
 	grunt.initConfig
 		coffee:
-			compile:
+			static:
 				expand: true
 				flatten: true
 				cwd: 'static/coffee'
@@ -18,8 +18,9 @@ module.exports = (grunt) ->
 					filename = src.substring(src.lastIndexOf('/'), src.length)
 					filename = filename.substring(0, filename.lastIndexOf('.'))
 					return "#{dest}#{folder}#{filename}.js"
+
 		uglify:
-			build:
+			static:
 				options:
 					report: 'gzip'
 					mangle: false
@@ -29,10 +30,11 @@ module.exports = (grunt) ->
 						src: '**/*.js',
 						dest: 'static/js'
 				]
+
 		watch:
 			coffee:
 				files: ['static/coffee/*']
-				tasks: ['coffee', 'uglify']
+				tasks: ['coffee:static', 'uglify:static']
 				options:
 					spawn: false
 					debounceDelay: 500

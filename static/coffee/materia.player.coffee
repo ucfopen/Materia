@@ -22,6 +22,71 @@ Namespace('Materia').Player = do ->
 	_heartbeatIntervalId = -1
 	_scoreScreenURL      = null
 
+	init = (gateway, inst_id, embedTarget, baseUrl) ->
+		_embedTarget = embedTarget
+		_inst_id     = inst_id
+		_baseUrl     = baseUrl
+
+		# search for preview or embed directory in the url
+		checkForContext = String(window.location).split '/'
+		for word in checkForContext
+			if word == 'preview'
+				_isPreview = true
+				$('body').addClass 'preview'
+				$('.center').prepend $('<header>').addClass 'preview-bar'
+				break
+
+		_isEmbedded = top.location != self.location
+
+		$.when(_getWidgetInstance(), _startPlaySession())
+			.pipe(_getQuestionSet)
+			.pipe(_embed)
+			.pipe(_sendWidgetInit)
+			.pipe(_startHeartBeat)
+			.fail(_onLoadFail)
+
+	sendPendingLogs = (callback) ->
+		callback = $.noop if !callback?
+
+		$.when(_sendPendingStorageLogs())
+			.pipe(_sendPendingPlayLogs)
+			.done(callback)
+			.fail( -> alert('There was a problem saving.'))
+
+	onWidgetReady = ->
+		_widget = $('#container').get(0)
+		switch
+			when !_qset? then _embedDoneDfD.reject 'Unable to load widget data.'
+			when !_widget? then _embedDoneDfD.reject 'Unable to load widget.'
+			else _embedDoneDfD.resolve()
+
+	addLog = (log) ->
+		# add to pending logs
+		log['game_time'] = ((new Date()).getTime() - _startTime) / 1000 # log time in seconds
+		_pendingLogs.play.push log
+
+	sendStorage = (log) ->
+		_pendingLogs.storage.push log if !_isPreview
+
+	end = (showScoreScreenAfter = yes) ->
+		switch _endState
+			when 'sent'
+				_showScoreScreen() if showScoreScreenAfter
+			when 'pending'
+				if showScoreScreenAfter then _scoreScreenPending = yes
+			else
+				_endState = 'pending'
+				# kill the heartbeat
+				clearInterval _heartbeatIntervalId
+				# required to end a play
+				addLog({type:2, item_id:0, text:'', value:null})
+				# send anything remaining
+				sendPendingLogs ->
+					# Async callback after final logs are sent
+					_endState = 'sent'
+					# shows the score screen upon callback if requested any time betwen method call and now
+					if showScoreScreenAfter or _scoreScreenPending then _showScoreScreen()
+
 	_startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
@@ -35,8 +100,9 @@ Namespace('Materia').Player = do ->
 	_sendWidgetInit = ->
 		dfd = $.Deferred().resolve()
 		_convertedInstance = _translateForApiVersion _instance
+		debugger
 		_startTime = (new Date()).getTime()
-		_sendToWidget 'initWidget', [_qset, _convertedInstance, _baseUrl]
+		_sendToWidget 'initWidget', if _widgetType is '.swf' then [_qset, _convertedInstance] else [_qset, _convertedInstance, _baseUrl]
 		if !_isPreview
 			_heartbeatIntervalId = setInterval sendPendingLogs, _logInterval # if not in preview mode, set the interval to send logs
 
@@ -179,6 +245,7 @@ Namespace('Materia').Player = do ->
 		dfd = $.Deferred()
 		# TODO: if bad qSet : dfd.reject('Unable to load questions.')
 		Materia.Coms.Json.send 'question_set_get', [_inst_id, _play_id], (result) ->
+			debugger
 			_qset = result
 			dfd.resolve()
 
@@ -259,56 +326,6 @@ Namespace('Materia').Player = do ->
 			min_h = _instance.widget.height
 			if h > min_h then $('#container').height h else $('#container').height min_h
 
-	init = (gateway, inst_id, embedTarget, baseUrl) ->
-		_embedTarget = embedTarget
-		_inst_id     = inst_id
-		_baseUrl     = baseUrl
-
-		# search for preview or embed directory in the url
-		checkForContext = String(window.location).split '/'
-		for word in checkForContext
-			if word == 'preview'
-				_isPreview = true
-				$('body').addClass 'preview'
-				$('.center').prepend $('<header>').addClass 'preview-bar'
-				break
-
-		_isEmbedded = top.location != self.location
-
-		$.when(_getWidgetInstance(), _startPlaySession())
-			.pipe(_getQuestionSet)
-			.pipe(_embed)
-			.pipe(_sendWidgetInit)
-			.pipe(_startHeartBeat)
-			.fail(_onLoadFail)
-
-	addLog = (log) ->
-		# add to pending logs
-		log['game_time'] = ((new Date()).getTime() - _startTime) / 1000 # log time in seconds
-		_pendingLogs.play.push log
-
-	sendStorage = (log) ->
-		_pendingLogs.storage.push log if !_isPreview
-
-	end = (showScoreScreenAfter = yes) ->
-		switch _endState
-			when 'sent'
-				_showScoreScreen() if showScoreScreenAfter
-			when 'pending'
-				if showScoreScreenAfter then _scoreScreenPending = yes
-			else
-				_endState = 'pending'
-				# kill the heartbeat
-				clearInterval _heartbeatIntervalId
-				# required to end a play
-				addLog({type:2, item_id:0, text:'', value:null})
-				# send anything remaining
-				sendPendingLogs ->
-					# Async callback after final logs are sent
-					_endState = 'sent'
-					# shows the score screen upon callback if requested any time betwen method call and now
-					if showScoreScreenAfter or _scoreScreenPending then _showScoreScreen()
-
 	_showScoreScreen = ->
 		if _scoreScreenURL == null
 			if _isPreview
@@ -319,21 +336,6 @@ Namespace('Materia').Player = do ->
 				_scoreScreenURL = "#{BASE_URL}scores/#{_inst_id}"
 
 		window.location = _scoreScreenURL
-
-	sendPendingLogs = (callback) ->
-		callback = $.noop if !callback?
-
-		$.when(_sendPendingStorageLogs())
-			.pipe(_sendPendingPlayLogs)
-			.done(callback)
-			.fail( -> alert('There was a problem saving.'))
-
-	onWidgetReady = ->
-		_widget = $('#container').get(0)
-		switch
-			when !_qset? then _embedDoneDfD.reject 'Unable to load widget data.'
-			when !_widget? then _embedDoneDfD.reject 'Unable to load widget.'
-			else _embedDoneDfD.resolve()
 
 	_alert = (options) ->
 		title = options.title

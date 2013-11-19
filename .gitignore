@@ -84,5 +84,8 @@ public/assets/widget-debug/*
 static/develop/*
 !static/develop/.gitkeep
 
+# Static compile js
+static/js/*
+
 # NPM modules
 node_modules
