@@ -100,7 +100,6 @@ Namespace('Materia').Player = do ->
 	_sendWidgetInit = ->
 		dfd = $.Deferred().resolve()
 		_convertedInstance = _translateForApiVersion _instance
-		debugger
 		_startTime = (new Date()).getTime()
 		_sendToWidget 'initWidget', if _widgetType is '.swf' then [_qset, _convertedInstance] else [_qset, _convertedInstance, _baseUrl]
 		if !_isPreview
@@ -245,7 +244,6 @@ Namespace('Materia').Player = do ->
 		dfd = $.Deferred()
 		# TODO: if bad qSet : dfd.reject('Unable to load questions.')
 		Materia.Coms.Json.send 'question_set_get', [_inst_id, _play_id], (result) ->
-			debugger
 			_qset = result
 			dfd.resolve()
 
