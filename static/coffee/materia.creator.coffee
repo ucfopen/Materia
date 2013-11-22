@@ -219,6 +219,10 @@ Namespace('Materia').Creator = do ->
 	# Resizes the swf according to the window height
 	_resizeCreator = ->
 		$('.center').height $(window).height()-145
+		# This fixes a bug in chrome where the iframe (#container)
+		# doesn't correctly fill 100% of the height. Doing this with
+		# just CSS doesn't work - it needs to be done in JS
+		$('#container').css('position', 'relative');
 
 	# Show the buttons that interact with the creator
 	_showButtons = ->
