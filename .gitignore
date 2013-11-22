@@ -83,3 +83,9 @@ public/assets/widget-debug/*
 # Static Development folder
 static/develop/*
 !static/develop/.gitkeep
+
+# Static compile js
+static/js/*
+
+# NPM modules
+node_modules

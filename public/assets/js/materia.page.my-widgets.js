@@ -14,7 +14,7 @@ $(document).ready(function()
 	Materia.MyWidgets.Csv.init();
 
 	//================== SHARE DIALOG SETUP =========================
-	$('.share').jqmodal(
+	$('#share_widget_link').jqmodal(
 	{
 		modal            : true,
 		backgroundStyle  : 'light',
@@ -157,7 +157,7 @@ $(document).ready(function()
 		var inst_id = $('.gameSelected').attr('id').split('_')[1];
 
 		Materia.MyWidgets.Tasks.deleteWidget(inst_id);
-		$('.delete').click();
+		$('#delete_widget_link').click();
 	});
 
 	// ================= SIDEBAR SETUP =======================================
