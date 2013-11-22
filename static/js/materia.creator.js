@@ -225,7 +225,8 @@
       }
     };
     _resizeCreator = function() {
-      return $('.center').height($(window).height() - 145);
+      $('.center').height($(window).height() - 145);
+      return $('#container').css('position', 'relative');
     };
     _showButtons = function() {
       var dfd;
