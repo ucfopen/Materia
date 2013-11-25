@@ -204,7 +204,7 @@ Namespace('Materia').Creator = do ->
 				allowFullScreen: 'true'
 				AllowScriptAccess: 'always'
 
-			attributes = {id: _embedTarget}
+			attributes = {id: _embedTarget, wmode: 'opaque' }
 			expressSwf = "#{BASE_URL}assets/flash/expressInstall.swf"
 			width      = '100%'
 			height     = '100%'
@@ -310,11 +310,31 @@ Namespace('Materia').Creator = do ->
 		$('#creatorSaveBtn').on 'click',  -> _requestSave 'save'
 
 		_embedDoneDfd.resolve() # used to keep events synchronous
+	
+	# Show an embedded dialog, as opposed to a popup
+	_showEmbedDialog = (url) ->
+		# if one exists, rip it off
+		$('#embed_dialog').remove()
+		
+		# make the iframe dialog and load url, like a window
+		embed = $("<iframe src='" + url + "' id='embed_dialog' frameborder=0 width=675 height=500></iframe>")
+
+		# animate in
+		embed.load ->
+			embed.css('top','50%')
+				.css('opacity',1)
+
+		$('body').append embed
+
+	# move the embed dialog off to invisibility
+	_hideEmbedDialog = ->
+		$('#embed_dialog')
+			.css('top','-50%')
+			.css('opacity',0)
 
 	# Note this is psuedo public as it's exposed to flash
 	_showMediaImporter = ->
-		_importerPopup.close() if _importerPopup?
-		_importerPopup = window.open '/media/import', 'question_import', 'width=675,height=600'
+		_showEmbedDialog '/media/import'
 		null # else Safari will give the .swf data that it can't handle
 
 	# save called by the widget creator
@@ -414,7 +434,7 @@ Namespace('Materia').Creator = do ->
 
 	# Exposed to the media importer screen
 	onMediaImportComplete = (media) ->
-		_importerPopup.close() if _importerPopup?
+		_hideEmbedDialog()
 
 		# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
 		anArray = []
