@@ -2,11 +2,12 @@ module.exports = (grunt) ->
 
 	# Directory must be specified for watching a widget.
 	# When compiling this may be entered as an argument.
-	widget = 'hangman'
+	widget = grunt.option('widget')
+	if not widget?
+		grunt.log.write("--widget option is required")
 
 	# Directory for placing the .wigt package from a compiled widget.
-	# May be entered as an arugment.
-	output = '<%= widget %>/output'
+	output = "source/#{widget}/_output"
 
 	# Tasks are organized into arrays.
 	# Preproccessors shold be included or commented out
@@ -16,12 +17,10 @@ module.exports = (grunt) ->
 		'copy:init'
 		'coffee:creator'
 		'coffee:engine'
-		# 'less:creator'
-		# 'less:engine'
-		# 'sass:creator'
-		# 'sass:engine'
-		'stylus:creator'
-		'stylus:engine'
+		'less:creator'
+		'less:engine'
+		'sass:creator'
+		'sass:engine'
 		'jade:engine'
 		'jade:creator'
 		'autoprefixer'
@@ -53,9 +52,15 @@ module.exports = (grunt) ->
 	# Packages the widget and erases temp files/folders.
 	packageTasks = [
 		'compress'
+		'compress' # BUGFIX  running this twice works?!!
 		'copy:package'
 		'clean:package'
 	]
+
+	if grunt.option('minify') == true
+		tasksToRun = compileTasks.concat minifyTasks.concat endTasks
+	else
+		tasksToRun = compileTasks.concat nonMinifyTasks.concat endTasks
 
 	grunt.initConfig
 		pkg: grunt.file.readJSON 'package.json'
@@ -66,44 +71,41 @@ module.exports = (grunt) ->
 		watch:
 			options:
 				livereload: true
-			compress:
-				files: ['source/<%= widget %>/**', 'gruntfile.coffee']
-				tasks: compileTasks.concat minifyTasks.concat endTasks
-			nocompress:
-				files: ['source/<%= widget %>/**', 'gruntfile.coffee']
-				tasks: compileTasks.concat nonMinifyTasks.concat endTasks
+			sandbox:
+				files: ["source/#{widget}/**", 'gruntfile.coffee']
+				tasks: tasksToRun
 
 		copy: 
 			init:
 				files: [
 					# Copy non-prepocessed files
-					{expand: true, cwd: 'source/<%= widget %>/_engine/', src: ['**/*.html, **/*.js', '**/*.css'], dest: 'temp/'}
-					{expand: true, cwd: 'source/<%= widget %>/_creator/', src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
+					{expand: true, cwd: "source/#{widget}/_engine/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
+					{expand: true, cwd: "source/#{widget}/_creator/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
 
 					# Copy assets
-					{expand: true, cwd: 'source/<%= widget %>/_assets', src: ['**'], dest: '<%= widget %>/_assets'}
-					{expand: true, cwd: 'source/<%= widget %>/_icons', src: ['**'], dest: '<%= widget %>/img'}
-					{expand: true, cwd: 'source/<%= widget %>/_screen-shots', src: ['**'], dest: '<%= widget %>/img/screen-shots'}
+					{expand: true, cwd: "source/#{widget}/_assets", src: ['**'], dest: "#{widget}/_assets"}
+					{expand: true, cwd: "source/#{widget}/_icons", src: ['**'], dest: "#{widget}/img"}
+					{expand: true, cwd: "source/#{widget}/_screen-shots", src: ['**'], dest: "#{widget}/img/screen-shots"}
 
 					# Copy YAML
-					{expand: true, cwd: 'source/<%= widget %>/_score', src: ['**'], dest: '<%= widget %>/_score-modules'}
-					{expand: true, cwd: 'source/<%= widget %>', src: ['install.yaml', 'demo.yaml'], dest: '<%= widget %>/'}
+					{expand: true, cwd: "source/#{widget}/_score", src: ['**'], dest: "#{widget}/_score-modules"}
+					{expand: true, cwd: "source/#{widget}", src: ['install.yaml', 'demo.yaml'], dest: "#{widget}/"}
 				]
 			JS_CSS:
 				files: [
-					{expand: true, cwd: 'temp', src: ['*.css', '*.js'], dest: '<%= widget %>'}
+					{expand: true, cwd: 'temp', src: ['*.css', '*.js'], dest: widget}
 				]
 			html:
 				files: [
-					{expand: true, cwd: 'temp', src: ['widget.html'],  dest: '<%= widget %>'}
-					{expand: true, cwd: 'temp', src: ['creator.html'], dest: '<%= widget %>'}
+					{expand: true, cwd: 'temp', src: ['widget.html'],  dest: widget}
+					{expand: true, cwd: 'temp', src: ['creator.html'], dest: widget}
 				]
 			package:
 				files: [{
 					expand: true
-					cwd: '<%= output %>/'
+					cwd: "#{output}/"
 					src: ['*.zip']
-					dest: '<%= output %>/'
+					dest: "#{output}/"
 					rename: (dest, src) ->
 						dest + src.replace '.zip', '.wigt'
 				}]
@@ -111,29 +113,24 @@ module.exports = (grunt) ->
 		# Compilation.
 		coffee:
 			engine:
-				files: {'temp/widget.js': 'source/<%= widget %>/_engine/js/*.coffee'}
+				files: {'temp/widget.js': "source/#{widget}/_engine/js/*.coffee"}
 			creator:
-				files: {'temp/creator.js': 'source/<%= widget %>/_creator/js/*.coffee'}
+				files: {'temp/creator.js': "source/#{widget}/_creator/js/*.coffee"}
 		less:
 			engine:
-				files: {'temp/widget.css': 'source/<%= widget %>/_engine/css/*.less'}
+				files: {'temp/widget.css': "source/#{widget}/_engine/css/*.less"}
 			creator:
-				files: {'temp/creator.css': 'source/<%= widget %>/_creator/css/*.less'}
+				files: {'temp/creator.css': "source/#{widget}/_creator/css/*.less"}
 		sass:
 			engine:
-				files: {'temp/widget.css': 'source/<%= widget %>/_engine/css/*.scss'}
+				files: {'temp/widget.css': "source/#{widget}/_engine/css/*.scss"}
 			creator:
-				files: {'temp/creator.css': 'source/<%= widget %>/_creator/css/*.scss'}
-		stylus:
-			engine:
-				files: {'temp/widget.css': 'source/<%= widget %>/_engine/css/*.styl'}
-			creator:
-				files: {'temp/creator.css': 'source/<%= widget %>/_creator/css/*.styl'}
+				files: {'temp/creator.css': "source/#{widget}/_creator/css/*.scss"}
 		jade:
 			engine:
-				files: {'temp/widget.html': 'source/<%= widget %>/_engine/*.jade'}
+				files: {'temp/widget.html': "source/#{widget}/_engine/*.jade"}
 			creator:
-				files: {'temp/creator.html': 'source/<%= widget %>/_creator/*.jade'}
+				files: {'temp/creator.html': "source/#{widget}/_creator/*.jade"}
 		autoprefixer:
 			engine:
 				src: 'temp/widget.css'
@@ -192,85 +189,55 @@ module.exports = (grunt) ->
 		compress:
 			build:
 				options:
-					archive: '<%= output %>/<%= widget %>.zip'
+					archive: "#{output}/#{widget}.zip"
+					mode: 'zip'
+					pretty:true
 				files: [
-					{expand: true, cwd: '<%= widget %>/', src: ['**']}
+					{expand:true, cwd: "#{widget}", src:['**/**']}
 				]
 
 		# Cleanup.
 		clean:
-			pre: ['<%= widget %>/']
+			pre: ["#{widget}/"]
 			post: ['temp/']
-			package: ['<%= widget %>/output/<%= widget %>.zip']
+			package: ["#{output}/#{widget}.zip"]
 
 	# Load Grunt Plugins.
 	require('load-grunt-tasks')(grunt)
 
 	# Show General Documentation.
-	grunt.registerTask 'default', () -> showDocs()
+	grunt.registerTask 'default', -> showDocs()
 
-	# Make a widget.
-	grunt.registerTask 'scaffold', () ->
+	# Prepare a basic widget.
+	grunt.registerTask 'scaffold', ->
 		grunt.config.set 'widget', arguments[0]
 
 		# TODO: ADD THIS TASK
 
-	grunt.registerTask 'compile', () ->
-		# Get arguments
-		tasks = checkArgs arguments
+	grunt.registerTask 'sandbox', ->
+		grunt.task.run tasksToRun
 
-		if tasks.compile
-			# The first argument will be the widget name
-			grunt.config.set 'widget', arguments[0]
+	grunt.registerTask 'package', ->
+		grunt.log.writeln "output: #{output}"
+		grunt.task.run tasksToRun.concat packageTasks
 
-			# Compiling is always run if parameters are correct
-			grunt.task.run compileTasks
-		else return grunt.log.writeln 'Enter a widget title.'
 
-		if tasks.compress
-			grunt.task.run minifyTasks
-		else 
-			grunt.task.run nonMinifyTasks
-		grunt.task.run endTasks
-		_packageWidget arguments
-
-	_packageWidget = (args) ->
-		if args[1]? and args[1] isnt 'compress' and args[1] isnt 'nocompress'
-			grunt.config.set 'output', args[1]
-		else if args[2]?
-			grunt.config.set 'output', args[2]
-		else
-			grunt.config.set 'output', '<%= widget %>/output'
-
-		grunt.log.writeln 'output' + grunt.config.get 'output'
-
-		grunt.task.run packageTasks
-
-	checkArgs = (args) ->
-		# We cannot compile without a widget specified
-		if not args[0]?
-			grunt.log.error 'You must specify a widget name as your first argument.'
-			return false
-
-		minify = if args[1]? and args[1] is 'nocompress' then false else true
-
-		return {compile: true, compress: minify}
-
-	showDocs = () ->
+	showDocs = ->
 		grunt.log.writeln '''
 			Mako Grunt Version 0.1.0
 			Mako Grunt helps you develop and package HTML widgets for the Materia Platform.
 
-
-
 			Usage:
-				grunt scaffold:<widget>:[minify]          Creates a scaffold of a development widget.
-				grunt watch:<widget>:[minify]             Builds a widget for Materia Platform Sandbox.
-				grunt compile:<widget>:[minify]:<output>  Builds a widget for instillation into Materia.
+				grunt sandbox                  Builds widget for Materia Platform Sandbox.
+				grunt watch                    Watches source files for changes and automatically runs build.
+				grunt package                  Builds and packages widget for instillation into Materia.
+
+			Required:
+				--widget=widgetdir             Widget name (matching directory inside static/widget/sandbox/source).
 
 			Options:
-				<widget>   Widget directory name if compiling/watching or desired name if scaffolding.
-				[minify]   Set to 'compress' or 'nocompress'. Default is 'compress'.
-				<output>   Output file path.
-		'''
+				--minify=[true|false]          Minify mode compresses images, html, js, and css. Default is true.
 
+			Example:
+				grunt --widget=flashcards --minify=false watch
+		'''
