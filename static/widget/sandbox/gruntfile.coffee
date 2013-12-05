@@ -31,7 +31,7 @@ module.exports = (grunt) ->
 		'embed'
 	]
 
-	if grunt.option('htmlmin') != false then minifyTasks.push 'htmlmin', 'replace'
+	if grunt.option('minify-html') != false then minifyTasks.push 'htmlmin', 'replace'
 
 	# Places prepared HTML into output folder.
 	endTasks = [
@@ -48,7 +48,7 @@ module.exports = (grunt) ->
 		'clean:package'
 	]
 
-	if grunt.option('minify') == true
+	if grunt.option('minify-assets') != false
 		tasksToRun = compileTasks.concat minifyTasks.concat endTasks
 	else
 		compileTasks.push 'copy:compiledLocals'
@@ -223,8 +223,8 @@ module.exports = (grunt) ->
 
 	showDocs = ->
 		grunt.log.writeln '''
-			Mako Grunt Version 0.1.0
 			Mako Grunt helps you develop and package HTML widgets for the Materia Platform.
+			Place your development widget in static/widget/sandbox/source/myWidget
 
 			Usage:
 				grunt sandbox                  Builds widget for Materia Platform Sandbox.
@@ -235,7 +235,8 @@ module.exports = (grunt) ->
 				--widget=widgetdir             Widget name (matching directory inside static/widget/sandbox/source).
 
 			Options:
-				--minify=[true|false]          Minify mode compresses images, html, js, and css. Default is true.
+				--minify-assets=[true|false]   Minify mode compresses images, html, js, and css. Default is true.
+				--minify-html=[true|false]     Minify HTML code by ruthlessly removing space
 
 			Example:
 				grunt --widget=flashcards --minify=false watch
