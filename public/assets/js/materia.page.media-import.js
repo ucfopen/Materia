@@ -56,8 +56,13 @@ $(document).ready(function() {
 
 	$('#submit-button').click( function(e) {
 		e.stopPropagation();
-		window.opener.Materia.Creator.onMediaImportComplete(selectedAssets);
+		window.parent.Materia.Creator.onMediaImportComplete(selectedAssets);
 		return false;
+	} );
+
+	$('#cancel-button').click( function(e) {
+		e.stopPropagation();
+		window.parent.Materia.Creator.onMediaImportComplete(null);
 	} );
 
 	// on resize, re-fit the table size
