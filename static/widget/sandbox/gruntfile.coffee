@@ -161,14 +161,16 @@ module.exports = (grunt) ->
 		embed:
 			options:
 				threshold: '1000KB'
-			build:
+			player:
 				files:
 					'temp/player.html': 'temp/player.html'
+			creator:
+				files:
 					'temp/creator.html': 'temp/creator.html'
 		htmlmin:
 			options:
-				removeComments    : false
-				collapseWhitespace: false
+				removeComments    : true
+				collapseWhitespace: true
 			build:
 				files:
 					'temp/player.html': 'temp/player.html'
@@ -239,5 +241,5 @@ module.exports = (grunt) ->
 				--minify-html=[true|false]     Minify HTML code by ruthlessly removing space
 
 			Example:
-				grunt --widget=flashcards --minify=false watch
+				grunt --widget=flashcards --minify-assets=false watch
 		'''

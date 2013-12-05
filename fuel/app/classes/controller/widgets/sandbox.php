@@ -151,8 +151,8 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 		$instance->clean_name    = \Inflector::friendly_title($instance->widget->name, '-', true);
 		$instance->id            = $instance->clean_name;
 		$instance->created_at    = time();
-		$instance->widget->dir   = $instance->widget->name.'/';
-		$instance->dir           = $instance->widget->name.'/';
+		$instance->widget->dir   = $instance->clean_name.'/';
+		$instance->dir           = $instance->clean_name.'/';
 		$instance->attempts      = -1;
 		$instance->close_at      = -1;
 		$instance->is_draft      = false;
