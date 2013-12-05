@@ -112,13 +112,13 @@ module.exports = (grunt) ->
 				cwd: "source/#{widget}/_engine"
 				src: '*.coffee'
 				dest: 'temp/'
-				ext: '.js'
+				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
 			assets:
 				expand:true
 				cwd: "source/#{widget}/assets"
 				src: '**/*.coffee'
 				dest: 'temp/assets/'
-				ext: '.js'
+				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
 		less:
 			engine:
 				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.less'], dest: 'temp/', ext:'.css'}]
@@ -230,7 +230,7 @@ module.exports = (grunt) ->
 
 			Usage:
 				grunt sandbox                  Builds widget for Materia Platform Sandbox.
-				grunt watch                    Watches source files for changes and automatically runs build.
+				grunt watch                    Watches source files for changes and automatically runs sandbox.
 				grunt package                  Builds and packages widget for instillation into Materia.
 
 			Required:
