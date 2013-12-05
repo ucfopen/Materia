@@ -15,14 +15,10 @@ module.exports = (grunt) ->
 	compileTasks = [
 		'clean:pre'
 		'copy:init'
-		'coffee:creator'
-		'coffee:engine'
-		'less:creator'
-		'less:engine'
-		'sass:creator'
-		'sass:engine'
-		'jade:engine'
-		'jade:creator'
+		'coffee'
+		'less'
+		'sass'
+		'jade'
 		'autoprefixer'
 	]
 
@@ -33,18 +29,13 @@ module.exports = (grunt) ->
 		'uglify'
 		'cssmin'
 		'embed'
-		'htmlmin'
-		'replace'
 	]
 
-	# Copies JS and CSS into output folder
-	# when minifying is off.
-	nonMinifyTasks = [
-		'copy:JS_CSS'
-	]
+	if grunt.option('htmlmin') != false then minifyTasks.push 'htmlmin', 'replace'
 
 	# Places prepared HTML into output folder.
 	endTasks = [
+		'copy:compiledAssets'
 		'copy:html'
 		'clean:post'
 	]
@@ -60,7 +51,8 @@ module.exports = (grunt) ->
 	if grunt.option('minify') == true
 		tasksToRun = compileTasks.concat minifyTasks.concat endTasks
 	else
-		tasksToRun = compileTasks.concat nonMinifyTasks.concat endTasks
+		compileTasks.push 'copy:compiledLocals'
+		tasksToRun = compileTasks.concat endTasks
 
 	grunt.initConfig
 		pkg: grunt.file.readJSON 'package.json'
@@ -80,10 +72,9 @@ module.exports = (grunt) ->
 				files: [
 					# Copy non-prepocessed files
 					{expand: true, cwd: "source/#{widget}/_engine/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
-					{expand: true, cwd: "source/#{widget}/_creator/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
 
 					# Copy assets
-					{expand: true, cwd: "source/#{widget}/_assets", src: ['**'], dest: "#{widget}/_assets"}
+					{expand: true, cwd: "source/#{widget}/assets", src: ['**', '!**/*.coffee', '!**/*.less', '!**/*.scss', '!**/*.jade'], dest: "#{widget}/assets"}
 					{expand: true, cwd: "source/#{widget}/_icons", src: ['**'], dest: "#{widget}/img"}
 					{expand: true, cwd: "source/#{widget}/_screen-shots", src: ['**'], dest: "#{widget}/img/screen-shots"}
 
@@ -91,14 +82,18 @@ module.exports = (grunt) ->
 					{expand: true, cwd: "source/#{widget}/_score", src: ['**'], dest: "#{widget}/_score-modules"}
 					{expand: true, cwd: "source/#{widget}", src: ['install.yaml', 'demo.yaml'], dest: "#{widget}/"}
 				]
-			JS_CSS:
+			compiledLocals:
 				files: [
-					{expand: true, cwd: 'temp', src: ['*.css', '*.js'], dest: widget}
+					{expand: true, cwd: 'temp/', src: ['*.css', '*.js'], dest: "#{widget}/"}
+				]
+
+			compiledAssets:
+				files: [
+					{expand: true, cwd: 'temp/assets/', src: ['**/*.css', '**/*.js'], dest: "#{widget}/assets"}
 				]
 			html:
 				files: [
-					{expand: true, cwd: 'temp', src: ['widget.html'],  dest: widget}
-					{expand: true, cwd: 'temp', src: ['creator.html'], dest: widget}
+					{expand: true, cwd: 'temp', src: ['**/*.html'],  dest: widget}
 				]
 			package:
 				files: [{
@@ -113,24 +108,32 @@ module.exports = (grunt) ->
 		# Compilation.
 		coffee:
 			engine:
-				files: {'temp/widget.js': "source/#{widget}/_engine/js/*.coffee"}
-			creator:
-				files: {'temp/creator.js': "source/#{widget}/_creator/js/*.coffee"}
+				expand:true
+				cwd: "source/#{widget}/_engine"
+				src: '*.coffee'
+				dest: 'temp/'
+				ext: '.js'
+			assets:
+				expand:true
+				cwd: "source/#{widget}/assets"
+				src: '**/*.coffee'
+				dest: 'temp/assets/'
+				ext: '.js'
 		less:
 			engine:
-				files: {'temp/widget.css': "source/#{widget}/_engine/css/*.less"}
-			creator:
-				files: {'temp/creator.css': "source/#{widget}/_creator/css/*.less"}
+				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.less'], dest: 'temp/', ext:'.css'}]
+			assets:
+				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.less'], dest: 'temp/assets/', ext:'.css'}]
 		sass:
 			engine:
-				files: {'temp/widget.css': "source/#{widget}/_engine/css/*.scss"}
-			creator:
-				files: {'temp/creator.css': "source/#{widget}/_creator/css/*.scss"}
+				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.scss'], dest: 'temp/', ext:'.css'}]
+			assets:
+				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.scss'], dest: 'temp/assets/', ext:'.css'}]
 		jade:
 			engine:
-				files: {'temp/widget.html': "source/#{widget}/_engine/*.jade"}
-			creator:
-				files: {'temp/creator.html': "source/#{widget}/_creator/*.jade"}
+				files: {'temp/player.html': "source/#{widget}/_engine/*.jade"}
+			assets:
+				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.jade'], dest: 'temp/assets/', ext:'.html'}]
 		autoprefixer:
 			engine:
 				src: 'temp/widget.css'
@@ -151,28 +154,24 @@ module.exports = (grunt) ->
 					]
 				preserveComments: false
 			build:
-				files:
-					'temp/widget.js': 'temp/widget.js'
-					'temp/creator.js': 'temp/creator.js'
+				files: [{expand:true, cwd:"temp/", src:['*.js', '!*.min.js', '!*.pack.js'], dest: 'temp/', ext:'.js'}]
 		cssmin:
 			build:
-				files:
-					'temp/widget.css': 'temp/widget.css'
-					'temp/creator.css': 'temp/creator.css'
+				files: [{expand:true, cwd:"temp/", src:['*.css'], dest: 'temp/', ext:'.css'}]
 		embed:
 			options:
 				threshold: '1000KB'
 			build:
 				files:
-					'temp/widget.html': 'temp/widget.html'
+					'temp/player.html': 'temp/player.html'
 					'temp/creator.html': 'temp/creator.html'
 		htmlmin:
 			options:
-				removeComments    : true
-				collapseWhitespace: true
+				removeComments    : false
+				collapseWhitespace: false
 			build:
 				files:
-					'temp/widget.html': 'temp/widget.html'
+					'temp/player.html': 'temp/player.html'
 					'temp/creator.html': 'temp/creator.html'
 		replace:
 			build:
