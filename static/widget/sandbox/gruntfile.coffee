@@ -10,8 +10,6 @@ module.exports = (grunt) ->
 	output = "source/#{widget}/_output"
 
 	# Tasks are organized into arrays.
-	# Preproccessors shold be included or commented out
-	# depending on workflow preferences.
 	compileTasks = [
 		'clean:pre'
 		'copy:init'
@@ -43,7 +41,7 @@ module.exports = (grunt) ->
 	# Packages the widget and erases temp files/folders.
 	packageTasks = [
 		'compress'
-		'compress' # BUGFIX  running this twice works?!!
+		'compress' # BUGFIX running this twice works?!!
 		'copy:package'
 		'clean:package'
 	]
@@ -108,13 +106,13 @@ module.exports = (grunt) ->
 		# Compilation.
 		coffee:
 			engine:
-				expand:true
+				expand: true
 				cwd: "source/#{widget}/_engine"
 				src: '*.coffee'
 				dest: 'temp/'
 				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
 			assets:
-				expand:true
+				expand: true
 				cwd: "source/#{widget}/assets"
 				src: '**/*.coffee'
 				dest: 'temp/assets/'
@@ -131,13 +129,13 @@ module.exports = (grunt) ->
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.scss'], dest: 'temp/assets/', ext:'.css'}]
 		jade:
 			engine:
-				files: {'temp/player.html': "source/#{widget}/_engine/*.jade"}
+				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.jade'], dest: 'temp/', ext:'.html'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.jade'], dest: 'temp/assets/', ext:'.html'}]
 		autoprefixer:
 			engine:
-				src: 'temp/widget.css'
-				dest: 'temp/widget.css'
+				src: 'temp/player.css'
+				dest: 'temp/player.css'
 			creator:
 				src: 'temp/creator.css'
 				dest: 'temp/creator.css'
@@ -221,7 +219,6 @@ module.exports = (grunt) ->
 	grunt.registerTask 'package', ->
 		grunt.log.writeln "output: #{output}"
 		grunt.task.run tasksToRun.concat packageTasks
-
 
 	showDocs = ->
 		grunt.log.writeln '''
