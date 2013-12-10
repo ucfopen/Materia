@@ -26,10 +26,12 @@ module.exports = (grunt) ->
 	minifyTasks = [
 		'uglify'
 		'cssmin'
-		'embed'
 	]
 
 	if grunt.option('minify-html') != false then minifyTasks.push 'htmlmin', 'replace'
+
+	# Embed scripts last to avoid overzealous JS/CSS whitespace stripping.
+	minifyTasks.push 'embed'
 
 	# Places prepared HTML into output folder.
 	endTasks = [
