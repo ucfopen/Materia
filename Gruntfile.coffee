@@ -21,8 +21,6 @@ module.exports = (grunt) ->
 
 		uglify:
 			static:
-				options:
-					report: 'gzip'
 				files: [
 						expand: true,
 						cwd: 'static/js',
