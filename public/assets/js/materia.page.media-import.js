@@ -50,8 +50,8 @@ $(document).ready(function() {
 
 		var index = $('#question-table').dataTable().fnGetPosition( this );
 
-		if(selected) selectedAssets.push(data[index]);
-		else selectedAssets.splice( selectedAssets.indexOf( data[index] ), 1);
+		selectedAssets = [data[index]]
+
 	});
 
 	$('#submit-button').click( function(e) {
