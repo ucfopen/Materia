@@ -170,7 +170,6 @@ module.exports = (grunt) ->
 		htmlmin:
 			options:
 				removeComments    : true
-				collapseWhitespace: true
 			build:
 				files:
 					'temp/player.html': 'temp/player.html'
