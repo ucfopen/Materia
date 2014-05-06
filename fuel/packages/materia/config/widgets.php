@@ -2,6 +2,7 @@
 
 return [
 	'default' => [
+		'git@clu.cdl.ucf.edu:materia/adventure.git',
 		'git@clu.cdl.ucf.edu:materia/crossword.git',
 		'git@clu.cdl.ucf.edu:materia/enigma.git',
 		'git@clu.cdl.ucf.edu:materia/flash-cards.git',
