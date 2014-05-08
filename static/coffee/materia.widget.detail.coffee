@@ -92,6 +92,8 @@ Namespace('Materia.Widget').Detail = do ->
 				text = 'Users provide a typed response or associate a predefined answer wih each question.';
 			when 'Multiple Choice'
 				text = 'Users select a response from a collection of possible answers to questions provided by the widget.';
+			when 'Mobile Friendly'
+				text = 'Designed with HTML5 to work on mobile devices like the iPad and iPhone';
 			else
 				text = 'This feature has no additional information associated with it.';
 
