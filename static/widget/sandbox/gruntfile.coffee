@@ -62,6 +62,7 @@ module.exports = (grunt) ->
 		# For development.
 		watch:
 			options:
+				atBegin: true
 				livereload: true
 			sandbox:
 				files: ["source/#{widget}/**", 'gruntfile.coffee']
