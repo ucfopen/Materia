@@ -93,25 +93,26 @@ class Widget
 			->where('widget_id', $w['id'])
 			->execute();
 
-		$meta_data = [];
-		$meta_data['features'] = [];
-		$meta_data['supported_data'] = [];
-		foreach ($meta_results as $r)
+		$meta_data = [
+			'features' => [],
+			'supported_data' => [],
+		];
+
+		foreach ($meta_results as $meta)
 		{
-			// Features
-			if ($r['name'] == 'features' && ! in_array($r['value'], $meta_data['features']))
+			$name = $meta['name'];
+			$value = $meta['value'];
+
+			switch ($name)
 			{
-				$meta_data['features'][] = $r['value'];
-			}
-			// Supported Data
-			elseif ($r['name'] == 'supported_data' && ! in_array($r['value'], $meta_data['supported_data']))
-			{
-				$meta_data['supported_data'][] = $r['value'];
-			}
-			// Anything Else
-			else
-			{
-				$meta_data[$r['name']] = $r['value'];
+				case 'features':
+				case 'supported_data':
+					$meta_data[$name][] = $value;
+					break;
+
+				default:
+					$meta_data[$name] = $value;
+					break;
 			}
 		}
 

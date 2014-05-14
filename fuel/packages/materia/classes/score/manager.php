@@ -170,43 +170,24 @@ class Score_Manager
 
 	static public function get_widget_score_summary($inst_id)
 	{
-		// select completed scores by semester, returning the total players and the accurate average score
-		$result = \DB::query(
-				'SELECT
-					T2.id,
-					year,
-					semester as term,
-					Count(*) as students,
-					ROUND(AVG(percent)) as average
-				FROM
-					(
-						SELECT
-							D.id,
-							D.year,
-							D.semester,
-							T1.user_id,
-							T1.percent,
-							T1.created_at
-						FROM
-						(
-							SELECT
-								*
-							FROM
-								'.\DB::quote_table('log_play').'
-							WHERE
-								inst_id = :inst_id
-							AND
-								is_complete = \'1\'
-							ORDER BY percent DESC
-						) T1
 
-						JOIN '.\DB::quote_table('date_range').' D
-							ON created_at Between D.start_at AND D.end_at
-						GROUP BY D.id, T1.user_id
-					) T2
-				GROUP BY T2.id
-				ORDER BY T2.created_at DESC'
-				, \DB::SELECT)
+		// select completed scores by semester, returning the total players and the accurate average score
+		$result = \DB::query("
+			SELECT
+				D.id,
+				D.year,
+				D.semester as term,
+				COUNT(DISTINCT(L.user_id)) as students,
+				ROUND(AVG(L.percent)) as average
+			FROM
+				".\DB::quote_table('log_play')." AS L
+				FORCE INDEX(inst_id)
+			JOIN ".\DB::quote_table('date_range')." D
+				ON L.created_at BETWEEN D.start_at AND D.end_at
+			WHERE L.inst_id = :inst_id
+			AND L.`is_complete` = '1'
+			GROUP BY D.id
+		", \DB::SELECT)
 			->param('inst_id', $inst_id)
 			->execute()
 			->as_array();
@@ -215,6 +196,7 @@ class Score_Manager
 		$return = [];
 		foreach ($result as $table)
 		{
+			// TODO: this seems a little redundant no?
 			$return[$table['id']] = [
 				'id'       => (int)$table['id'],
 				'term'     => $table['term'],
@@ -234,11 +216,11 @@ class Score_Manager
 
 		foreach ($raw_logs as $log)
 		{
-			$type      = isset($log->type)      	? Session_Logger::get_type($log->type)      : 0;
-			$item_id   = isset($log->item_id)   	? $log->item_id   							: 0;
-			$text      = isset($log->text)      	? $log->text      							: '';
-			$value     = isset($log->value)     	? $log->value     							: '';
-			$game_time = isset($log->game_time) 	? $log->game_time 							: '';
+			$type      = isset($log->type) ? Session_Logger::get_type($log->type) : 0;
+			$item_id   = isset($log->item_id) ? $log->item_id : 0;
+			$text      = isset($log->text) ? $log->text : '';
+			$value     = isset($log->value) ? $log->value : '';
+			$game_time = isset($log->game_time) ? $log->game_time : '';
 
 			$new_log = Session_Logger::add_log(-1, $type, $item_id, $text,  $value, $game_time, time());
 			$logs[] = $new_log;

@@ -13,31 +13,30 @@ Namespace('Materia.Storage').Table = ->
 		_id = Materia.Storage.Manager.clean(id);
 		_columns = []
 		_rows = []
-		len = columns.length
-		for i in [0..len] by 1
-			_columns.push(Materia.Storage.Manager.clean(String(_columns[i])))
+		for name in columns
+			_columns.push Materia.Storage.Manager.clean(name)
 		null
 
 	# Inserts a new row into this table.
 	# @param values The values to insert into the table. Make sure the number
 	# of arguments passed match the number of columns pertaining to this table.
 
-	insert = ->
+	insert = (values) ->
 		# Make sure arguments match number of columns
-		if arguments.length is not _columns.length
+		if values.length is not _columns.length
 			throw new Error("StorageTable '#{_id}' requires #{_columns.length} value(s) and received #{arguments.length}");
 			return
 
 		# Create the row to add to the list of rows
 		result = {}
 
-		len = arguments.length
-		for i in [0..len] by 1
-			result[Materia.Storage.Manager.clean(_columns[i])] = String(arguments[i]);
+		for i, value of values
+			result[_columns[i]] = String(value)
 
-		_rows.push(result);
+		_rows.push(result)
 		# Send this row to the server
-		{name:_id, data:result}
+		name: _id
+		data: result
 
 	getValues = ->
 		values = []

@@ -2,16 +2,17 @@
 
 return [
 	'default' => [
-		'git@10.171.155.123:materia/crossword.git',
-		'git@10.171.155.123:materia/enigma.git',
-		'git@10.171.155.123:materia/flash-cards.git',
-		'git@10.171.155.123:materia/hangman.git',
-		'git@10.171.155.123:materia/labeling.git',
-		'git@10.171.155.123:materia/last-chance-cadet.git',
-		'git@10.171.155.123:materia/matching.git',
-		'git@10.171.155.123:materia/sequencer.git',
-		'git@10.171.155.123:materia/timeline.git',
-		'git@10.171.155.123:materia/word-search.git',
+		'git@clu.cdl.ucf.edu:materia/adventure.git',
+		'git@clu.cdl.ucf.edu:materia/crossword.git',
+		'git@clu.cdl.ucf.edu:materia/enigma.git',
+		'git@clu.cdl.ucf.edu:materia/flash-cards.git',
+		'git@clu.cdl.ucf.edu:materia/hangman.git',
+		'git@clu.cdl.ucf.edu:materia/labeling.git',
+		'git@clu.cdl.ucf.edu:materia/last-chance-cadet.git',
+		'git@clu.cdl.ucf.edu:materia/matching.git',
+		'git@clu.cdl.ucf.edu:materia/sequencer.git',
+		'git@clu.cdl.ucf.edu:materia/timeline.git',
+		'git@clu.cdl.ucf.edu:materia/word-search.git',
 	],
 	'custom' => [
 	]
