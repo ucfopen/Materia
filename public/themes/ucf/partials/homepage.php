@@ -55,7 +55,7 @@
 			In fact, if you have an idea for a new widget or simply would like to give us feedback, we'd love to hear from you. 
 		</p>
 		<p class="copyright">
-			&copy; 2012 University of Central Florida
+			&copy; <?= date("Y") ?> University of Central Florida
 		</p>
 	</section>
 </section>
