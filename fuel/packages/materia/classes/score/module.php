@@ -40,6 +40,9 @@ abstract class Score_Module
 	protected $questions       = [];
 	protected $score_display   = [];
 
+	protected $_ss_table_title   = 'Responses:';
+	protected $_ss_table_headers = ['Question Score', 'The Question', 'Your Response', 'Correct Answer'];
+
 	/**
 	 * NEEDS DOCUMENTATION
 	 *
@@ -190,8 +193,10 @@ abstract class Score_Module
 
 	protected function get_score_overview()
 	{
-		return ['score' => $this->calculated_percent,
-						'table' => $this->get_overview_items()];
+		return [
+			'score' => $this->calculated_percent,
+			'table' => $this->get_overview_items()
+		];
 	}
 
 	protected function get_overview_items()
@@ -204,9 +209,7 @@ abstract class Score_Module
 
 	protected function get_score_details()
 	{
-		$details  = [];
-		$title    = 'Responses:';
-		$header   = ['Question Score', 'The Question', 'Your Response', 'Correct Answer'];
+		$details = [];
 
 		foreach ($this->logs as $log)
 		{
@@ -215,65 +218,43 @@ abstract class Score_Module
 				case Session_Log::TYPE_QUESTION_ANSWERED:
 					if (isset($this->questions[$log->item_id]))
 					{
-						$q = $this->questions[$log->item_id];
-
-						$feedback;
-						$question_text = $q->questions[0]['text'];
-
-						switch ($q->type)
-						{
-							case 'MC':
-								$max_value = 0;
-								$max_answers = [];
-
-								// find the correct answer(s)
-								foreach ($q->answers as $answer)
-								{
-									if ((int)$answer['value'] > $max_value)
-									{
-										$max_value = (int)$answer['value'];
-										$max_answers = [];
-										$max_answers[] = $answer['text'];
-									}
-									elseif ((int)$answer['value'] == $max_value)
-									{
-										$max_answers[] = $answer['text'];
-									}
-								}
-
-								// display all of the correct answers
-								$correct_answers = implode(' or ', $max_answers);
-								break;
-
-							case 'QA':
-								$correct_answers = $q->answers[0]['text'];
-								break;
-						}
-
-						$score       = $this->check_answer($log);
-						$user_answer = $this->get_score_page_answer($log);
-						$feedback    = $this->get_feedback($log, $q->answers);
-						$details[]   = [
-							'data'          => [$question_text, $user_answer, $correct_answers],
-							'data_style'    => ['question', 'response', 'answer'],
-							'score'         => $score,
-							'feedback'      => $feedback,
-							'type'          => $log->type,
-							'style'         => $this->get_detail_style($score),
-							'tag'           => 'div',
-							'symbol'        => '%',
-							'graphic'       => 'score',
-							'display_score' => true
-						];
+						$details[] = $this->details_for_question_answered($log);
 					}
+					break;
 			}
 		}
 
 		// return an array of tables
-		return [['title'    => $title,
-						 'header'   => $header,
-						 'table'    => $details]];
+		return [[
+				'title'  => $this->_ss_table_title,
+				'header' => $this->_ss_table_headers,
+				'table'  => $details
+		]];
 	}
+
+	protected function details_for_question_answered($log)
+	{
+		$q         = $this->questions[$log->item_id];
+		$score     = $this->check_answer($log);
+		
+		return [
+			'data' => [
+				$this->get_ss_question($log, $q),
+				$this->get_ss_answer($log, $q),
+				$this->get_ss_expected_answers($log, $q)
+			],
+			'data_style'    => ['question', 'response', 'answer'],
+			'score'         => $score,
+			'feedback'      => $this->get_feedback($log, $q->answers),
+			'type'          => $log->type,
+			'style'         => $this->get_detail_style($score),
+			'tag'           => 'div',
+			'symbol'        => '%',
+			'graphic'       => 'score',
+			'display_score' => true
+		];
+	}
+
 
 	protected function get_feedback($log, $answers)
 	{
@@ -338,13 +319,51 @@ abstract class Score_Module
 	 */
 	abstract public function check_answer($log);
 
+
+	protected function get_ss_expected_answers($log, $question)
+	{
+		switch ($question->type)
+		{
+			case 'MC':
+				$max_value   = 0;
+				$max_answers = [];
+
+				// find the correct answer(s)
+				foreach ($question->answers as $answer)
+				{
+					if ((int)$answer['value'] > $max_value)
+					{
+						$max_value     = (int)$answer['value'];
+						$max_answers   = [];
+						$max_answers[] = $answer['text'];
+					}
+					elseif ((int)$answer['value'] == $max_value)
+					{
+						$max_answers[] = $answer['text'];
+					}
+				}
+
+				// display all of the correct answers
+				return implode(' or ', $max_answers);
+
+			case 'QA':
+			default:
+				return $question->answers[0]['text'];
+		}
+	}
+
 	/**
 	 * Determine what the score page should display for the user's answer
 	 *
 	 * @param Session_Log Contains information about this play session
 	 */
-	public function get_score_page_answer($log)
+	public function get_ss_answer($log, $question)
 	{
 		return $log->text;
+	}
+
+	public function get_ss_question($log, $question)
+	{
+		return $question->questions[0]['text'];
 	}
 }
