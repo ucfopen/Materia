@@ -48,6 +48,9 @@ class Controller_Widgets extends Controller
 			$response = Response::forge(Theme::instance()->render());
 		}
 
+		// prevent caching the widget page, since the __play_id is hard coded into the page
+		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+
 		return parent::after($response);
 	}
 
