@@ -40,7 +40,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 
 			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
 			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.static').'widget/sandbox/";');
-			Casset::js_inline('var STATIC_URL = "'.Config::get('materia.urls.static').'";');
+			Casset::js_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
 

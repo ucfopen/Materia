@@ -133,7 +133,7 @@ class Controller_Lti extends \Controller
 		\Casset::add_group('css', 'lti_picker', ['lti.css']);
 		\Casset::js_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Casset::js_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
-		\Casset::js_inline('var STATIC_URL = "'.\Config::get('materia.urls.static').'";');
+		\Casset::js_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 		\Casset::js_inline($this->theme->view('partials/select_item_js')
 			->set('system', $system));
 

@@ -33,13 +33,14 @@ return [
 	*
 	*/
 	'urls' => [
-		'root'    => \Uri::create(''), // root directory http:://siteurl.com/
-		'media'   => \Uri::create('assets/uploads/'), // where the media is stored http:://siteurl.com/assets/upload/
-		'play'    => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
-		'embed'   => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
-		'preview' => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'  => str_replace('//', '//static.', \Uri::create()), // http://static.siteurl.com/
-		'engines' => str_replace('//', '//static.', \Uri::create('widget/')), // engine swf locations
+		'root'               => \Uri::create(''), // root directory http:://siteurl.com/
+		'media'              => \Uri::create('assets/uploads/'), // where the media is stored http:://siteurl.com/assets/upload/
+		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
+		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
+		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
+		'static'             => str_replace('//', '//static.', \Uri::create()), // http://static.siteurl.com/
+		'engines'            => str_replace('//', '//static.', \Uri::create('widget/')), // engine swf locations
+		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks 
 	],
 
 	/*

@@ -9,6 +9,19 @@ module.exports = (grunt) ->
 	# Directory for placing the .wigt package from a compiled widget.
 	output = "source/#{widget}/_output"
 
+	# the materiajs folder is different in sandbox mode vs production mode
+	materiaJsFolder = if grunt.cli.tasks.indexOf('package') != -1 then '../../js/' else '../../../js/'
+	noEmbed = ' data-embed="false"'
+
+	materiaJsReplacements = [
+		{match: /src="materia.enginecore.js"/g, replacement: 'src="'+materiaJsFolder+'materia.enginecore.js"'+noEmbed}
+		{match: /src="materia.score.js"/g, replacement: 'src="'+materiaJsFolder+'materia.score.js"'+noEmbed}
+		{match: /src="materia.creatorcore.js"/g, replacement: 'src="'+materiaJsFolder+'materia.creatorcore.js"'+noEmbed}
+		{match: /src="materia.creatorcore.js"/g, replacement: 'src="'+materiaJsFolder+'materia.creatorcore.js"'+noEmbed}
+		{match: /src="materia.storage.manager.js"/g, replacement: 'src="'+materiaJsFolder+'materia.storage.manager.js"'+noEmbed}
+		{match: /src="materia.storage.table.js"/g, replacement: 'src="'+materiaJsFolder+'materia.storage.table.js"'+noEmbed}
+	]
+
 	# Tasks are organized into arrays.
 	compileTasks = [
 		'clean:pre'
@@ -18,6 +31,7 @@ module.exports = (grunt) ->
 		'sass'
 		'jade'
 		'autoprefixer'
+		'replace:materiaJS'
 	]
 
 	# Minifies JS, CSS, HTML.
@@ -28,7 +42,8 @@ module.exports = (grunt) ->
 		'cssmin'
 	]
 
-	if grunt.option('minify-html') != false then minifyTasks.push 'htmlmin', 'replace'
+	if grunt.option('minify-html') != false
+		minifyTasks.push 'htmlmin', 'replace:build'
 
 	# Embed scripts last to avoid overzealous JS/CSS whitespace stripping.
 	minifyTasks.push 'embed'
@@ -53,6 +68,7 @@ module.exports = (grunt) ->
 	else
 		compileTasks.push 'copy:compiledLocals'
 		tasksToRun = compileTasks.concat endTasks
+
 
 	grunt.initConfig
 		pkg: grunt.file.readJSON 'package.json'
@@ -185,7 +201,13 @@ module.exports = (grunt) ->
 						{match: /\n\t/g, replacement: ''}
 						{match: /\s{2,}/g, replacement: ' '}
 					]
-
+			materiaJS:
+				files: [
+					{expand: true, src: ['temp/*.html'], dest: ''}
+				]
+				options:
+					patterns: materiaJsReplacements
+			
 		# Packaging.
 		compress:
 			build:

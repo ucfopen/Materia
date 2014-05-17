@@ -234,8 +234,8 @@ abstract class Score_Module
 
 	protected function details_for_question_answered($log)
 	{
-		$q         = $this->questions[$log->item_id];
-		$score     = $this->check_answer($log);
+		$q     = $this->questions[$log->item_id];
+		$score = $this->check_answer($log);
 		
 		return [
 			'data' => [

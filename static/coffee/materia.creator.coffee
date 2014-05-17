@@ -81,7 +81,7 @@ Namespace('Materia').Creator = do ->
 			when '.swf'
 				_creator[type].apply _creator, args
 			when '.html'
-				_creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_URL)
+				_creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN)
 
 	# send a save request to the creator
 	_requestSave = (mode) ->
@@ -152,7 +152,7 @@ Namespace('Materia').Creator = do ->
 
 		_onPostMessage = (e) ->
 			origin = "#{e.origin}/"
-			if origin == STATIC_URL or origin == BASE_URL
+			if origin == STATIC_CROSSDOMAIN or origin == BASE_URL
 				msg = JSON.parse e.data
 				switch msg.type
 					when 'start' # The creator notifies us when its ready

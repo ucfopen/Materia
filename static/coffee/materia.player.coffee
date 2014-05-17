@@ -112,7 +112,7 @@ Namespace('Materia').Player = do ->
 			when '.swf'
 				_widget[type].apply _widget, args
 			when '.html'
-				_widget.contentWindow.postMessage JSON.stringify({type:type, data:args}), STATIC_URL
+				_widget.contentWindow.postMessage JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN
 
 	_onLoadFail = (msg) ->
 			alert "Failure: #{msg}"
@@ -169,7 +169,7 @@ Namespace('Materia').Player = do ->
 		# build a link element to deconstruct the static url
 		# this helps us match static url against the event origin
 		a = document.createElement('a')
-		a.href = STATIC_URL
+		a.href = STATIC_CROSSDOMAIN
 		expectedOrigin = a.href.substr(0, a.href.length - 1)
 
 		_onPostMessage = (e) ->

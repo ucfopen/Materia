@@ -10,10 +10,6 @@ return [
 		'encrypt_answers' => false,
 	],
 
-	'crossdomain' => [
-		'obo',
-	],
-
 	'debug_engines' => false,
 	'send_emails' => false,
 
@@ -27,8 +23,12 @@ return [
 		// 'play'    => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		// 'embed'   => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		// 'preview' => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'  => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
-		'engines' => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')), // engine swf locations
+		'static'             => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
+		'engines'            => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')), // engine swf locations
+		'static_crossdomain' => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
+		// 'static'             => \Uri::create('/static/'), // http://static.siteurl.com/
+		// 'engines'            => \Uri::create('/static/widget/'), // engine swf locations
+		// 'static_crossdomain' => \Uri::create(), // http://static.siteurl.com/
 	],
 
 ];
