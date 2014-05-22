@@ -10,7 +10,7 @@ module.exports = (grunt) ->
 	output = "source/#{widget}/_output"
 
 	# the materiajs folder is different in sandbox mode vs production mode
-	materiaJsFolder = if grunt.cli.tasks.indexOf('package') != -1 then '../../js/' else '../../../js/'
+	materiaJsFolder = '../../js/'
 	noEmbed = ' data-embed="false"'
 
 	materiaJsReplacements = [

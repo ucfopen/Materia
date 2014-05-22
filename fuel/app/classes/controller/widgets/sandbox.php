@@ -39,7 +39,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 			}
 
 			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
-			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.static').'widget/sandbox/";');
+			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.static').'sandbox/";');
 			Casset::js_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
@@ -73,7 +73,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 		$widget = $this->_create_development_widget($this->param('clean_name'));
 
 		if ( ! $widget) throw new HttpNotFoundException;
-		if (is_file(\Config::get('materia.dirs.static').'widget/sandbox/'.$this->param('clean_name').'/demo.yaml') ) $this->action_play_widget($this->param('clean_name'), true);
+		if (is_file(\Config::get('materia.dirs.static').'sandbox/'.$this->param('clean_name').'/demo.yaml') ) $this->action_play_widget($this->param('clean_name'), true);
 		else throw new HttpNotFoundException;
 	}
 
@@ -112,7 +112,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 	public function action_dump()
 	{		
 		// load the demo yaml, setup the qset as needed
-		$demo_file = \Config::get('materia.dirs.static').'widget/sandbox/'.$this->param('clean_name').'/demo.yaml';
+		$demo_file = \Config::get('materia.dirs.static').'sandbox/'.$this->param('clean_name').'/demo.yaml';
 		$demo_text = \File::read($demo_file, true);
 		$demo_text = \Format::forge($demo_text, 'yaml')->to_array();
 		$demo_text = ['version' => $demo_text['qset']['version'], 'data' => $demo_text['qset']['data']];
@@ -124,7 +124,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 	private function _create_development_widget($clean_name)
 	{
 		// load the demo yaml, setup the qset as needed
-		$install_file = \Config::get('materia.dirs.static').'widget/sandbox/'.$clean_name.'/install.yaml';
+		$install_file = \Config::get('materia.dirs.static').'sandbox/'.$clean_name.'/install.yaml';
 		$install      = \File::read($install_file, true);
 		$widget_data  = \Format::forge($install, 'yaml')->to_array();
 
@@ -165,7 +165,7 @@ class Controller_Widgets_Sandbox extends Controller_Widgets
 
 	private function _load_demo_instance($clean_name)
 	{
-		$demo_file = \Config::get('materia.dirs.static').'widget/sandbox/'.$clean_name.'/demo.yaml';
+		$demo_file = \Config::get('materia.dirs.static').'sandbox/'.$clean_name.'/demo.yaml';
 		$demo_text = \File::read($demo_file, true);
 		$demo_text = \Format::forge($demo_text, 'yaml')->to_array();
 		$demo_text['qset']['data'] = json_decode(json_encode($demo_text['qset']['data']), true);
