@@ -323,7 +323,7 @@ class Widget  extends \Basetask
 
 	public static function import_qset($inst_id)
 	{
-		$file_area = \File::forge(['basedir' => '/']);
+		$file_area = \File::forge(['basedir' => null]);
 		$qset_file = \Cli::option('qset');
 		if ($qset_file == '')
 		{
@@ -369,7 +369,7 @@ class Widget  extends \Basetask
 			// clean up after ourselves by removing the extracted directory.
 			\Cli::write("Error extracting $widget_file to $extract_location");
 			\Cli::write('Error: '.$e->getMessage());
-			$file_area = \File::forge(['basedir' => '/']);
+			$file_area = \File::forge(['basedir' => null]);
 			$file_area->delete_dir($extract_location);
 		}
 
@@ -512,7 +512,7 @@ class Widget  extends \Basetask
 
 		if (isset($output_dir))
 		{
-			$area = \File::forge(['basedir' => dirname($output_dir)]);
+			$area = \File::forge(['basedir' => null]);
 			$area->delete_dir($output_dir);
 		}
 	}
@@ -520,7 +520,7 @@ class Widget  extends \Basetask
 	private static function install_one($widget_file, $validate_only = false, $assume_upgrade = false, $force = false, $db_only = false)
 	{
 		try {
-			$file_area = \File::forge(['basedir' => '/']);
+			$file_area = \File::forge(['basedir' => null]);
 			$upgrade_id = 0;
 			$dir = self::extract_widget($widget_file);
 			self::validate_widget($dir);
@@ -820,7 +820,7 @@ class Widget  extends \Basetask
 	{
 		try
 		{
-			$file_area = \File::forge(['basedir' => '/']);
+			$file_area = \File::forge(['basedir' => null]);
 			$ext = pathinfo($file, PATHINFO_EXTENSION);
 			// we need to move the file manually to the media/uploads directory
 			// so process_upload can move it to the correct place
@@ -874,7 +874,7 @@ class Widget  extends \Basetask
 			self::abort('Missing manifest yaml file', true);
 		}
 
-		$file_area = \File::forge(['basedir' => '/']);
+		$file_area = \File::forge(['basedir' => null]);
 		$manifest_data = \Format::forge($file_area->read($manifest_file, true), 'yaml')->to_array();
 		return $manifest_data;
 	}
@@ -885,7 +885,7 @@ class Widget  extends \Basetask
 		$demo_file = $dir.'/demo.yaml';
 		if (file_exists($demo_file))
 		{
-			$file_area = \File::forge(['basedir' => '/']);
+			$file_area = \File::forge(['basedir' => null]);
 			$demo_text = $file_area->read($demo_file, true);
 		}
 
@@ -1253,7 +1253,7 @@ class Widget  extends \Basetask
 		}
 
 		$qset_yaml = \Format::forge($inst->qset->data)->to_yaml();
-		$file_area = \File::forge(['basedir' => '/']);
+		$file_area = \File::forge(['basedir' => null]);
 		if ($file_area->create(DOCROOT, $output_file, $qset_yaml))
 		{
 			\Cli::write($output_file.' created', 'green');
@@ -1269,7 +1269,7 @@ class Widget  extends \Basetask
 		{
 			$output_dir = $inst_id.'-'.mt_rand().'-exported';
 		}
-		$file_area = \File::forge(['basedir' => '/']);
+		$file_area = \File::forge(['basedir' => null]);
 		$file_area->create_dir(DOCROOT, $output_dir, 0777);
 
 		self::generate_files_for_demo(DOCROOT.$output_dir, $inst_id);
@@ -1293,7 +1293,7 @@ class Widget  extends \Basetask
 
 			$asset_folder = $data['output_dir'].'/_assets/';
 
-			$file_area = \File::forge(['basedir' => '/']);
+			$file_area = \File::forge(['basedir' => null]);
 			if ( ! is_dir($asset_folder))
 			{
 				$file_area->create_dir($data['output_dir'], '_assets');
@@ -1313,7 +1313,7 @@ class Widget  extends \Basetask
 		}, $data);
 
 		$demo_yaml = self::build_demo_yaml($demo);
-		$file_area = \File::forge(['basedir' => '/']);
+		$file_area = \File::forge(['basedir' => null]);
 		$file_area->create($output_dir, 'demo.yaml', $demo_yaml);
 	}
 
@@ -1321,7 +1321,7 @@ class Widget  extends \Basetask
 	{
 		$instance_to_use_as_demo = \Cli::option('demo-instance', false);
 
-		$file_area = \File::forge(['basedir' => '/']);
+		$file_area = \File::forge(['basedir' => null]);
 		$widget_ids = func_get_args();
 		if (count($widget_ids) === 0)
 		{

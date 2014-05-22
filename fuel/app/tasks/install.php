@@ -15,16 +15,23 @@ class Install
 			// custom materia stuff
 			PKGPATH.'materia/media',
 			PKGPATH.'materia/media/large',
-			PKGPATH.'materia/media/thumbnail'
+			PKGPATH.'materia/media/thumbnail',
+			PKGPATH.'materia/media/uploads',
+			PKGPATH.'materia/vendor/widget/score_module',
+			PKGPATH.'materia/vendor/widget/test',
+			DOCROOT.'static/widget'
 		];
 
 		foreach ($writable_paths as $path)
 		{
+			if ( ! file_exists($path))
+			{
+				mkdir($path);
+			}
 			if (@chmod($path, 0777))
 			{
 				\Cli::write("\t".'Made writable: '.$path, 'green');
 			}
-
 			else
 			{
 				\Cli::write("\t".'Failed to make writable: '.$path, 'red');
