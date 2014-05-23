@@ -33,14 +33,6 @@ return [
 
 	'default_users' => [
 		[
-			'name'       => '~admin',
-			'first_name' => 'Materia',
-			'last_name'  => 'Admin',
-			'email'      => 'fake@fake.com',
-			'password'   => 'kogneato',
-			'roles'      => ['basic_author']
-		],
-		[
 			'name'       => '~author',
 			'first_name' => 'Prof',
 			'last_name'  => 'Author',

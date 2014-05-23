@@ -167,7 +167,6 @@ return array(
 			'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
-			'RocketDuck\\Auth_User',
 			'RocketDuck\\Msg',
 			'Materia\\Score_Record',
 			'Materia\\Widget',
