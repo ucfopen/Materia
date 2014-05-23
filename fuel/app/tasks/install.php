@@ -51,9 +51,9 @@ class Install
 
 		\Fuel\Tasks\Admin::clear_cache();
 		\Fuel\Tasks\Admin::setup_migrations();
-
-		$admin_pass = \Cli::option('p');
-		\Fuel\Tasks\Admin::populate(true, $admin_pass);
+		\Fuel\Tasks\Admin::populate_roles();
+		\Fuel\Tasks\Admin::populate_semesters();
+		\Fuel\Tasks\Admin::create_default_users();
 
 		if (\Cli::option('install_widgets', $install_widgets) === true)
 		{

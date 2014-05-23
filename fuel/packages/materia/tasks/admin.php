@@ -24,6 +24,51 @@ class Admin extends \Basetask
 		}
 	}
 
+	public static function create_default_users()
+	{
+		$default_users = \Config::get('materia.default_users', []);
+
+		foreach ($default_users as $user)
+		{
+			// make a random password if needed
+			if ( ! isset($user['password'])) $user['password'] = \Str::random('alnum', 16);
+			
+			// exists?
+			$e_user = \Model_User::query()
+				->where('username', '=', $user['name'])
+				->get_one();
+
+			if ($e_user)
+			{
+				// update?
+				$e_user->first_name =  $user['first_name'];
+				$e_user->last_name  =  $user['last_name'];
+				$e_user->email      =  $user['email'];
+				$e_user->password   =  \Auth::instance()->hash_password($user['password']);
+				$e_user->save();
+				\Cli::write("updating user {$user['name']}");
+			}
+			else
+			{
+				// create
+
+				// create user
+				static::new_user($user['name'], $user['first_name'], '',  $user['last_name'], $user['email'], $user['password']);
+				\Cli::write("adding user {$user['name']}");
+
+				if ( ! empty($user['roles']))
+				{
+					// add to roles
+					foreach ($user['roles'] as $role)
+					{
+						static::give_user_role($user['name'], $role);
+					}
+				}
+			}
+
+		}
+	}
+
 	public static function score_play($play_id, $update_score = false)
 	{
 		$play_session = new \Materia\Session_Play();
@@ -159,55 +204,13 @@ class Admin extends \Basetask
 	/**
 	 * Migrations setup db structure, populate fills the default data needed to run
 	 */
-	public static function populate($auto_admin_user=false, $admin_pass='')
+	public static function populate()
 	{
-		$username_prefix = \Config::get('rocketduck.username.prefix');
+		static::populate_roles();
 
-		self::populate_roles();
+		static::populate_semesters();
 
-		self::populate_semesters();
-
-		$add_user = false;
-		if ($auto_admin_user || \Cli::option('auto-admin-user'))
-		{
-			$username = $username_prefix.'admin';
-			$first    = 'Materia';
-			$last     = 'Admin';
-			$email    = 'nobody@nobody.nobody';
-			$password = $admin_pass == '' ? \Str::random('alnum', 16) : $admin_pass;
-			\Cli::write('Auto generating admin user...', 'green');
-			\Cli::write('Admin User:     '.\Cli::color($username, 'yellow'));
-			\Cli::write('Admin Password: '.\Cli::color($password, 'yellow'));
-			$add_user = true;
-		}
-		else
-		{
-			$ready = \Cli::prompt('Create admin user?', array('y', 'n'));
-
-			if ($ready == 'y')
-			{
-				while ( ! isset($username[0]) || $username[0] != $username_prefix)
-				{
-					$username = \Cli::prompt("admin username (must start with \"{$username_prefix}\")");
-				}
-
-				$first = \Cli::prompt('admin first name');
-				$last  = \Cli::prompt('admin last name');
-				$email = \Cli::prompt('admin email');
-				while ( ! isset($pw2) || ! isset($password) || $pw2 !== $password)
-				{
-					$password = \Cli::prompt('admin password');
-					$pw2 = \Cli::prompt('password again');
-				}
-				$add_user = true;
-			}
-		}
-
-		if ($add_user && $userid = self::new_user($username, $first, 'q', $last, $email, $password))
-		{
-			self::give_user_role($username, 'super_user');
-			self::give_user_role($username, 'basic_author');
-		}
+		static::create_default_users();
 	}
 
 	public static function populate_semesters()

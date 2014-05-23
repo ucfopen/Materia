@@ -31,4 +31,30 @@ return [
 		// 'static_crossdomain' => \Uri::create(), // http://static.siteurl.com/
 	],
 
+	'default_users' => [
+		[
+			'name'       => '~admin',
+			'first_name' => 'Materia',
+			'last_name'  => 'Admin',
+			'email'      => 'fake@fake.com',
+			'password'   => 'kogneato',
+			'roles'      => ['basic_author']
+		],
+		[
+			'name'       => '~author',
+			'first_name' => 'Prof',
+			'last_name'  => 'Author',
+			'email'      => 'author@materia.com',
+			'password'   => 'kogneato',
+			'roles'      => ['basic_author']
+		],
+		[
+			'name'       => '~student',
+			'first_name' => 'John',
+			'last_name'  => 'Student',
+			'email'      => 'student@materia.com',
+			'password'   => 'kogneato',
+		]
+	],
+
 ];

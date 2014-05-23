@@ -72,4 +72,13 @@ return [
 		'login' => APPPATH.DS
 	],
 
+	'default_users' => [
+		[
+			'name'       => '~admin',
+			'first_name' => 'Materia',
+			'last_name'  => 'Admin',
+			'email'      => 'fake@fake.com',
+			'roles'      => ['super_user','basic_author']
+		],
+	],
 ];
