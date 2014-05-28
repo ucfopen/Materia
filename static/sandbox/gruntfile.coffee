@@ -223,7 +223,10 @@ module.exports = (grunt) ->
 		clean:
 			pre: ["#{widget}/"]
 			post: ['temp/']
-			package: ["#{output}/#{widget}.zip"]
+			package:
+				src: ["#{output}/#{widget}.zip"]
+				options:
+					force: true
 
 	# Load Grunt Plugins.
 	require('load-grunt-tasks')(grunt)
