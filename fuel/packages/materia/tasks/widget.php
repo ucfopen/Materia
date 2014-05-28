@@ -720,7 +720,7 @@ class Widget  extends \Basetask
 			trace($e);
 			print_r($e);
 			\Cli::error($widget_file.' not installed!');
-			//$file_area->delete_dir($dir);
+			$file_area->delete_dir($dir);
 			return;
 		}
 
