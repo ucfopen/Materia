@@ -63,6 +63,10 @@ module.exports = (grunt) ->
 		'clean:package'
 	]
 
+	installTasks = [
+		'exec'
+	]
+
 	if grunt.option('minify-assets') != false
 		tasksToRun = compileTasks.concat minifyTasks.concat endTasks
 	else
@@ -88,7 +92,7 @@ module.exports = (grunt) ->
 			init:
 				files: [
 					# Copy non-prepocessed files
-					{expand: true, cwd: "source/#{widget}/_engine/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
+					{expand: true, cwd: "source/#{widget}/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
 
 					# Copy assets
 					{expand: true, cwd: "source/#{widget}/assets", src: ['**', '!**/*.coffee', '!**/*.less', '!**/*.scss', '!**/*.jade'], dest: "#{widget}/assets"}
@@ -97,6 +101,7 @@ module.exports = (grunt) ->
 
 					# Copy YAML
 					{expand: true, cwd: "source/#{widget}/_score", src: ['**'], dest: "#{widget}/_score-modules"}
+					{expand: true, cwd: "source/#{widget}/spec", src: ['**'], dest: "#{widget}/spec"}
 					{expand: true, cwd: "source/#{widget}", src: ['install.yaml', 'demo.yaml'], dest: "#{widget}/"}
 				]
 			compiledLocals:
@@ -126,7 +131,7 @@ module.exports = (grunt) ->
 		coffee:
 			engine:
 				expand: true
-				cwd: "source/#{widget}/_engine"
+				cwd: "source/#{widget}/"
 				src: '*.coffee'
 				dest: 'temp/'
 				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
@@ -138,17 +143,17 @@ module.exports = (grunt) ->
 				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
 		less:
 			engine:
-				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.less'], dest: 'temp/', ext:'.css'}]
+				files: [{expand:true, cwd:"source/#{widget}/", src:['**/*.less'], dest: 'temp/', ext:'.css'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.less'], dest: 'temp/assets/', ext:'.css'}]
 		sass:
 			engine:
-				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.scss'], dest: 'temp/', ext:'.css'}]
+				files: [{expand:true, cwd:"source/#{widget}/", src:['**/*.scss'], dest: 'temp/', ext:'.css'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.scss'], dest: 'temp/assets/', ext:'.css'}]
 		jade:
 			engine:
-				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.jade'], dest: 'temp/', ext:'.html'}]
+				files: [{expand:true, cwd:"source/#{widget}/", src:['**/*.jade'], dest: 'temp/', ext:'.html'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.jade'], dest: 'temp/assets/', ext:'.html'}]
 		autoprefixer:
@@ -225,6 +230,11 @@ module.exports = (grunt) ->
 			post: ['temp/']
 			package: ["#{output}/#{widget}.zip"]
 
+		exec:
+			install:
+				cmd: "php oil r widget:install static/sandbox/source/#{widget}/_output/#{widget}.wigt -f -u"
+				cwd: "../../"
+
 	# Load Grunt Plugins.
 	require('load-grunt-tasks')(grunt)
 
@@ -244,6 +254,11 @@ module.exports = (grunt) ->
 		grunt.log.writeln "output: #{output}"
 		grunt.task.run tasksToRun.concat packageTasks
 
+	grunt.registerTask 'install', ->
+		grunt.log.writeln "output: #{output}"
+		tasksToRun = tasksToRun.concat packageTasks.concat installTasks
+		grunt.task.run tasksToRun
+
 	showDocs = ->
 		grunt.log.writeln '''
 			Mako Grunt helps you develop and package HTML widgets for the Materia Platform.
@@ -253,6 +268,7 @@ module.exports = (grunt) ->
 				grunt sandbox                  Builds widget for Materia Platform Sandbox.
 				grunt watch                    Watches source files for changes and automatically runs sandbox.
 				grunt package                  Builds and packages widget for instillation into Materia.
+				grunt install                  Installs the widget into Materia for testing scoring and creating 
 
 			Required:
 				--widget=widgetdir             Widget name (matching directory inside static/widget/sandbox/source).
