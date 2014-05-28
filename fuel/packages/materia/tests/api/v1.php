@@ -897,9 +897,9 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::users_search('~author');
+		$output = \Materia\Api_V1::users_search('~test');
 		$this->assertInternalType('object', $output);
-		$this->assertCount(3, $output);
+		$this->assertCount(2, $output);
 		$this->assertIsUser($output[0]);
 
 		// ======= AUTHOR ========
@@ -915,9 +915,9 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= SU ========
 		$this->_asSu();
-		$output = \Materia\Api_V1::users_search('~author');
+		$output = \Materia\Api_V1::users_search('~');
 		$this->assertInternalType('object', $output);
-		$this->assertCount(3, $output);
+		$this->assertCount(4, $output);
 		$this->assertIsUser($output[0]);
 
 	}
