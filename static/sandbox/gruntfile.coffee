@@ -63,6 +63,10 @@ module.exports = (grunt) ->
 		'clean:package'
 	]
 
+	installTasks = [
+		'exec'
+	]
+
 	if grunt.option('minify-assets') != false
 		tasksToRun = compileTasks.concat minifyTasks.concat endTasks
 	else
@@ -228,6 +232,11 @@ module.exports = (grunt) ->
 				options:
 					force: true
 
+		exec:
+			install:
+				cmd: "php oil r widget:install static/sandbox/source/#{widget}/_output/#{widget}.wigt -f -u"
+				cwd: "../../"
+
 	# Load Grunt Plugins.
 	require('load-grunt-tasks')(grunt)
 
@@ -247,6 +256,11 @@ module.exports = (grunt) ->
 		grunt.log.writeln "output: #{output}"
 		grunt.task.run tasksToRun.concat packageTasks
 
+	grunt.registerTask 'install', ->
+		grunt.log.writeln "output: #{output}"
+		tasksToRun = tasksToRun.concat packageTasks.concat installTasks
+		grunt.task.run tasksToRun
+
 	showDocs = ->
 		grunt.log.writeln '''
 			Mako Grunt helps you develop and package HTML widgets for the Materia Platform.
@@ -256,6 +270,7 @@ module.exports = (grunt) ->
 				grunt sandbox                  Builds widget for Materia Platform Sandbox.
 				grunt watch                    Watches source files for changes and automatically runs sandbox.
 				grunt package                  Builds and packages widget for instillation into Materia.
+				grunt install                  Installs the widget into Materia for testing scoring and creating 
 
 			Required:
 				--widget=widgetdir             Widget name (matching directory inside static/widget/sandbox/source).

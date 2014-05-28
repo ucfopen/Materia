@@ -19,5 +19,8 @@
     "grunt-contrib-less": "~0.8.2",
     "grunt-contrib-compress": "~0.5.2",
     "grunt-replace": "~0.7.7"
+  },
+  "dependencies": {
+    "grunt-exec": "~0.4.5"
   }
 }
