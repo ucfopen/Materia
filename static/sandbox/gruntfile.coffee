@@ -101,6 +101,7 @@ module.exports = (grunt) ->
 
 					# Copy YAML
 					{expand: true, cwd: "source/#{widget}/_score", src: ['**'], dest: "#{widget}/_score-modules"}
+					{expand: true, cwd: "source/#{widget}/spec", src: ['**'], dest: "#{widget}/spec"}
 					{expand: true, cwd: "source/#{widget}", src: ['install.yaml', 'demo.yaml'], dest: "#{widget}/"}
 				]
 			compiledLocals:
