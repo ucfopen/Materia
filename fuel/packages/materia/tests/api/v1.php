@@ -335,10 +335,10 @@ class Test_Api_V1 extends \Basetest
 		$this->assertFalse($output);
 
 		// ======= STUDENT ========
-		$output = \Materia\Api_V1::session_login('~testStudent', 'interstellar555!');
+		$output = \Materia\Api_V1::session_login('~student', 'kogneato');
 		$this->assertTrue($output);
 		// ======= AUTHOR ========
-		$output = \Materia\Api_V1::session_login('~testAuthor', 'interstellar555!');
+		$output = \Materia\Api_V1::session_login('~author', 'kogneato');
 		$this->assertTrue($output);
 		// ======= SU ========
 		$output = \Materia\Api_V1::session_login('~testSu', 'interstellar555!');
@@ -361,7 +361,7 @@ class Test_Api_V1 extends \Basetest
 		\Materia\Api_V1::session_logout();
 
 		// Login as non-Superuser
-		\Materia\Api_V1::session_login('~testAuthor', 'interstellar555!');
+		\Materia\Api_V1::session_login('~author', 'kogneato');
 		$output = \RocketDuck\Perm_Manager::is_super_user();
 		$this->assertFalse($output);
 		\Materia\Api_V1::session_logout();
@@ -633,12 +633,12 @@ class Test_Api_V1 extends \Basetest
 		$this->_asStudent();
 		$output = \Materia\Api_V1::user_get();
 		$this->assertIsUser($output);
-		$this->assertEquals('~testStudent', $output->username);
+		$this->assertEquals('~student', $output->username);
 		// ======= AUTHOR ========
 		$this->_asAuthor();
 		$output = \Materia\Api_V1::user_get();
 		$this->assertIsUser($output);
-		$this->assertEquals('~testAuthor', $output->username);
+		$this->assertEquals('~author', $output->username);
 		// ======= SU ========
 		$this->_asSu();
 		$output = \Materia\Api_V1::user_get();
@@ -693,7 +693,7 @@ class Test_Api_V1 extends \Basetest
 
 		//give author2 and author3 full access from author
 
-		$author             = \Model_User::find()->where('username', '~testAuthor')->get_one();
+		$author             = \Model_User::find()->where('username', '~author')->get_one();
 		$author2            = \Model_User::find()->where('username', '~testAuthor2')->get_one();
 		$author3            = \Model_User::find()->where('username', '~testAuthor3')->get_one();
 		$accessObj          = new stdClass();
@@ -897,7 +897,7 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::users_search('~testAuthor');
+		$output = \Materia\Api_V1::users_search('~author');
 		$this->assertInternalType('object', $output);
 		$this->assertCount(3, $output);
 		$this->assertIsUser($output[0]);
@@ -909,13 +909,13 @@ class Test_Api_V1 extends \Basetest
 		$this->assertCount(1, $output);
 		$this->assertIsUser($output[0]);
 
-		$output = \Materia\Api_V1::users_search('~testStudent');
+		$output = \Materia\Api_V1::users_search('~student');
 		$this->assertInternalType('object', $output);
 		$this->assertCount(1, $output);
 
 		// ======= SU ========
 		$this->_asSu();
-		$output = \Materia\Api_V1::users_search('~testAuthor');
+		$output = \Materia\Api_V1::users_search('~author');
 		$this->assertInternalType('object', $output);
 		$this->assertCount(3, $output);
 		$this->assertIsUser($output[0]);

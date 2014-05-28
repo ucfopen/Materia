@@ -237,7 +237,7 @@ describe 'Login Page', ->
                 expect(title).toBe('My Widgets | Materia')
             .getText '.user', (err, text) ->
                 expect(err).toBeNull()
-                expect(text).toBe('Welcome test author')
+                expect(text).toBe('Welcome Prof Author')
             .getText '.logout', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toBe('Logout')
@@ -272,7 +272,7 @@ describe 'Profile page', ->
                 expect(title).toBe('Profile | Materia')
             .getText '.page h2', (err, text) ->
                 expect(err).toBeNull()
-                expect(text).toContain('test author')
+                expect(text).toContain('Prof Author')
             .isVisible('.avatar_big')
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
@@ -631,7 +631,7 @@ describe 'When I create a widget', ->
                 expect(result.value).toBe(1)
             .getText '.access_list .user_perm:first-child .name', (err, name) ->
                 expect(err).toBeNull()
-                expect(name).toContain('test author')
+                expect(name).toContain('Prof Author')
             .getValue '.access_list .user_perm:first-child select.perm', (err, value) ->
                 expect(err).toBeNull()
                 expect(value).toBe('30')

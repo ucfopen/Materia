@@ -40,8 +40,8 @@ class Basetest extends TestCase
 	protected function _asStudent()
 	{
 		\Auth::logout();
-		$uname = '~testStudent';
-		$pword = 'interstellar555!';
+		$uname = '~student';
+		$pword = 'kogneato';
 
 		$user = \Model_User::find()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
@@ -60,14 +60,14 @@ class Basetest extends TestCase
 	protected function _asAuthor()
 	{
 		\Auth::logout();
-		$uname = '~testAuthor';
-		$pword = 'interstellar555!';
+		$uname = '~author';
+		$pword = 'kogneato';
 
 		$user = \Model_User::find()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
 			require_once(PKGPATH . 'materia/tasks/admin.php');
-			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor@ucf.edu', $pword);
+			\Fuel\Tasks\Admin::new_user($uname, 'Prof', 'd', 'Author', 'testAuthor@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::find()->where('username', $uname)->get_one();
 		}
