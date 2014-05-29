@@ -92,7 +92,7 @@ module.exports = (grunt) ->
 			init:
 				files: [
 					# Copy non-prepocessed files
-					{expand: true, cwd: "source/#{widget}/_engine/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
+					{expand: true, cwd: "source/#{widget}/", src: ['**/*.html', '**/*.js', '**/*.css'], dest: 'temp/'}
 
 					# Copy assets
 					{expand: true, cwd: "source/#{widget}/assets", src: ['**', '!**/*.coffee', '!**/*.less', '!**/*.scss', '!**/*.jade'], dest: "#{widget}/assets"}
@@ -101,6 +101,7 @@ module.exports = (grunt) ->
 
 					# Copy YAML
 					{expand: true, cwd: "source/#{widget}/_score", src: ['**'], dest: "#{widget}/_score-modules"}
+					{expand: true, cwd: "source/#{widget}/spec", src: ['**'], dest: "#{widget}/spec"}
 					{expand: true, cwd: "source/#{widget}", src: ['install.yaml', 'demo.yaml'], dest: "#{widget}/"}
 				]
 			compiledLocals:
@@ -130,7 +131,7 @@ module.exports = (grunt) ->
 		coffee:
 			engine:
 				expand: true
-				cwd: "source/#{widget}/_engine"
+				cwd: "source/#{widget}/"
 				src: '*.coffee'
 				dest: 'temp/'
 				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
@@ -142,17 +143,17 @@ module.exports = (grunt) ->
 				rename: (dest, src) -> "#{dest}/#{src.replace(/\.coffee$/, '.js')}"
 		less:
 			engine:
-				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.less'], dest: 'temp/', ext:'.css'}]
+				files: [{expand:true, cwd:"source/#{widget}/", src:['**/*.less'], dest: 'temp/', ext:'.css'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.less'], dest: 'temp/assets/', ext:'.css'}]
 		sass:
 			engine:
-				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.scss'], dest: 'temp/', ext:'.css'}]
+				files: [{expand:true, cwd:"source/#{widget}/", src:['**/*.scss'], dest: 'temp/', ext:'.css'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.scss'], dest: 'temp/assets/', ext:'.css'}]
 		jade:
 			engine:
-				files: [{expand:true, cwd:"source/#{widget}/_engine/", src:['**/*.jade'], dest: 'temp/', ext:'.html'}]
+				files: [{expand:true, cwd:"source/#{widget}/", src:['**/*.jade'], dest: 'temp/', ext:'.html'}]
 			assets:
 				files: [{expand:true, cwd:"source/#{widget}/assets/", src:['**/*.jade'], dest: 'temp/assets/', ext:'.html'}]
 		autoprefixer:
@@ -231,6 +232,11 @@ module.exports = (grunt) ->
 				src: ["#{output}/#{widget}.zip"]
 				options:
 					force: true
+
+		exec:
+			install:
+				cmd: "php oil r widget:install static/sandbox/source/#{widget}/_output/#{widget}.wigt -f -u"
+				cwd: "../../"
 
 		exec:
 			install:
