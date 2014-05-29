@@ -238,11 +238,6 @@ module.exports = (grunt) ->
 				cmd: "php oil r widget:install static/sandbox/source/#{widget}/_output/#{widget}.wigt -f -u"
 				cwd: "../../"
 
-		exec:
-			install:
-				cmd: "php oil r widget:install static/sandbox/source/#{widget}/_output/#{widget}.wigt -f -u"
-				cwd: "../../"
-
 	# Load Grunt Plugins.
 	require('load-grunt-tasks')(grunt)
 
