@@ -18,15 +18,15 @@
 # http://pivotal.github.io/jasmine/
 # https://github.com/camme/webdriverjs/blob/master/examples/webdriverjs.with.jasmine.spec.js
 
-webdriverjs = require('webdriverjs');
+webdriverjs = require('webdriverjs')
 testBrowser = process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
-jasmine.getEnv().defaultTimeoutInterval = 10000
+jasmine.getEnv().defaultTimeoutInterval = 30000
 author =
-    username: '~author'
-    password: 'kogneato'
+	username: '~author'
+	password: 'kogneato'
 student =
-    username: '~student'
-    password: 'kogneato'
+	username: '~student'
+	password: 'kogneato'
 
 console.log "Running #{testBrowser} with #{author.username} and #{student.username}"
 
@@ -47,16 +47,16 @@ describe 'Homepage', ->
                 expect(err).toBeNull()
                 expect(title).toBe('Welcome to Materia | Materia')
             )
-            .waitFor('.store_main', 1000)
+            .waitFor('.store_main', 7000)
             .isVisible('.store_main:first-child section')
             .execute('return $(".store_main section").length;', null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBeGreaterThan(0)
             )
             .click('.span_next:last-child')
-            .pause(500)
+            .pause(1500)
             .isVisible('.store_main:last-child section')
-            .pause(1000)
+            .pause(2000)
             .call(done)
 
 describe 'Widget Catalog Page', ->
@@ -72,7 +72,7 @@ describe 'Widget Catalog Page', ->
                 expect(title).toBe('Widget Catalog | Materia')
 
             # make sure the widgets get loaded
-            .waitFor('.widget', 5000)
+            .waitFor('.widget', 7000)
             .execute 'return $(".widget").length;', null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBeGreaterThan(0)
@@ -92,7 +92,7 @@ describe 'Widget Catalog Page', ->
             # make sure the check boxes do stuff
             .click('#form_filter_tracks_student_data')
             .click('#form_filter_collects_scores')
-            .pause(500) # wait for a transition to animate
+            .pause(1500) # wait for a transition to animate
             .getElementCssProperty 'class name', 'flash-cards', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
@@ -103,7 +103,7 @@ describe 'Widget Catalog Page', ->
                 expect(err).toBeNull()
                 expect(opacity).toBe('1')
             .click('#form_supported_data_qa')
-            .pause(500)
+            .pause(1500)
             .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
@@ -111,7 +111,7 @@ describe 'Widget Catalog Page', ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
             .click('#form_supported_data_media')
-            .pause(500)
+            .pause(1500)
             .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
@@ -125,7 +125,7 @@ describe 'Widget Catalog Page', ->
             .click('#form_filter_collects_scores')
             .click('#form_supported_data_qa')
             .click('#form_supported_data_media')
-            .pause(800)
+            .pause(1800)
             .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
@@ -144,7 +144,7 @@ describe 'Widget Catalog Page', ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(0)
             .moveToObject('.labeling')
-            .pause(500)
+            .pause(1500)
             .isVisible '.infocard', (err, result) ->
                 expect(err).toBeNull()
                 expect(result).toBe(true)
@@ -169,7 +169,7 @@ describe 'Login Page', ->
                 expect(title).toBe('Login | Materia')
             .getText '.detail h3', (err, text) ->
                 expect(err).toBeNull()
-                expect(text).toBe('Using your UCF NID and NID Password')
+                expect(text).toContain('Using your')
             .click('form input.action_button')
             .isVisible('.error')
             .getText '.error', (err, text) ->
@@ -184,12 +184,12 @@ describe 'Login Page', ->
                 expect(err).toBeNull()
                 expect(title).toBe('Login | Materia')
             .setValue('#username', 'someusername')
-            .pause(500)
+            .pause(1500)
             .getElementCssProperty 'id', 'username_label', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
             .setValue('#password', 'somepassword')
-            .pause(500)
+            .pause(1500)
             .getElementCssProperty 'id', 'password_label', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
@@ -355,7 +355,7 @@ describe 'Settings page', ->
             .click('form input.action_button')
 
             # Check that page displays expected options
-            .waitFor('.settingSaveAlert', 500)
+            .waitFor('.settingSaveAlert', 7000)
             .isSelected('#avatar_default')
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
@@ -389,7 +389,7 @@ describe 'Settings page', ->
             .click('form input.action_button')
 
             # check that new options are set
-            .waitFor('.settingSaveAlert', 500)
+            .waitFor('.settingSaveAlert', 7000)
             .isSelected('#avatar_gravatar')
             .isVisible('#notify_on_perm_change:checked')
             .getAttribute '.avatar_big img', 'src', (err, src) ->
@@ -502,7 +502,7 @@ describe 'Widget Exists', ->
                 expect(err).toBeNull()
                 expect(title).toBe('Widget Catalog | Materia')
             # make sure the widgets get loaded
-            .waitFor('.widget', 5000)
+            .waitFor('.widget', 4000)
             .execute 'return $(".widget").length;', null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBeGreaterThan(0)
@@ -510,7 +510,7 @@ describe 'Widget Exists', ->
 
                 for i in [1...result.value]
                     client
-                        .waitFor('.widget', 5000)
+                        .waitFor('.widget', 4000)
                         .moveToObject('.widget:nth-child('+i+')')
                         .getText '.widget:nth-child('+i+') .header h1', (err, title) ->
                             expect(err).toBeNull()
@@ -519,13 +519,14 @@ describe 'Widget Exists', ->
                             expect(err).toBeNull()
                             expect(currentTitle).toBe(infoCardTitle)
                         .click('.infocard .card-content')
-                        .waitFor('.detail h1', 5000)
+                        .waitFor('.detail h1', 4000)
+                        .pause 500
                         .getText '.detail h1', (err, widgetPageTitle) ->
                             expect(err).toBeNull()
                             expect(widgetPageTitle).toBe(currentTitle)
                         .back()
             .call(done)
-    , 25000
+    , 55000
 
 describe 'When I create a widget', ->
     client = {}
@@ -544,10 +545,10 @@ describe 'When I create a widget', ->
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('Widget Catalog | Materia')
-            .waitFor('.widget.enigma', 6000)
+            .waitFor('.widget.enigma', 7000)
             .moveToObject('.widget.enigma')
             .click('.infocard .card-content')
-            .waitFor('#createLink', 800)
+            .waitFor('#createLink', 7000)
             .click('#createLink')
             .getTitle (err, title) ->
                 expect(err).toBeNull()
@@ -558,13 +559,17 @@ describe 'When I create a widget', ->
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('Create Widget | Materia')
-            .waitFor('#container')
+            .waitFor('#container', 7000)
             .frame('container') # switch into widget frame
-            .waitFor('#title', 1000)
-            .setValue('#title', title)
+            .waitFor('.intro.show', 7000)
+            .setValue('.intro.show input', title)
+            .click('.intro.show input[type=button]')
+            .setValue('#category_0', 'Test')
+            .click('button.add')
+            .setValue('#question_text', 'Test question')
             .frame(null) # switch back to main content
             .click('#creatorSaveBtn')
-            .waitFor('#saveBtnTxt:contains("Saved!")')
+            .waitFor('#saveBtnTxt:contains("Saved!")', 7000)
             .execute "return document.location.href.split('#')[1];", null, (err, result) ->
                 console.log 'instance id', result.value
                 instanceID = result.value
@@ -576,21 +581,22 @@ describe 'When I create a widget', ->
     it 'it should appear as a draft', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
+            .pause(1000)
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('My Widgets | Materia')
-            .waitFor('#widget_'+instanceID, 1000)
+            .waitFor('#widget_'+instanceID, 7000)
             .getText '#widget_'+instanceID+' .score', (err, mode) ->
                 expect(err).toBeNull()
                 expect(mode).toBe('Draft')
             .call(done)
-    , 12000
+    , 22000
 
     it 'it should display correctly on my widgets page', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
-            .waitFor('#widget_'+instanceID, 1000)
-            .pause(500)
+            .waitFor('#widget_'+instanceID, 7000)
+            .pause(1000)
             .getElementCssProperty 'class name', 'share-widget-container', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
@@ -611,15 +617,15 @@ describe 'When I create a widget', ->
     it 'it should collaborate', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
-            .waitFor('#widget_'+instanceID, 1000)
-            .pause(300)
+            .waitFor('#widget_'+instanceID, 7000)
+            .pause(1500)
             .click('#share_widget_link')
-            .waitFor('#popup', 1000)
+            .waitFor('#popup', 7000)
             .isVisible('#popup')
             .getText '#popup h2', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toBe('Collaboration:')
-            .waitFor('.access_list .user_perm', 500)
+            .waitFor('.access_list .user_perm', 7000)
             .execute "return $('.access_list .user_perm').length;", null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(1)
@@ -639,10 +645,11 @@ describe 'When I create a widget', ->
         copyTitle = 'Selenium Copy Test '+randomId
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
-            .waitFor('#widget_'+instanceID, 1000)
-            .waitFor('.widget.gameSelected li.title:contains("'+title+'")', 1000)
+            .pause 1900
+            .waitFor('#widget_'+instanceID, 7000)
+            .waitFor('.widget.gameSelected li.title:contains("'+title+'")', 7000)
             .click('#copy_widget_link')
-            .waitFor('#popup .newtitle', 1000)
+            .waitFor('#popup .newtitle', 7000)
             .isVisible('#popup')
             .getText '#popup h2', (err, text) ->
                 expect(err).toBeNull()
@@ -650,40 +657,44 @@ describe 'When I create a widget', ->
             .setValue('.newtitle', copyTitle)
             .click('.copy_button.action_button')
             # copy shows up in list
-            .waitFor('li.title:contains("'+copyTitle+'")', 1000)
+            .pause 1900
+            .waitFor('li.title:contains("'+copyTitle+'")', 7000)
             # copy is auto-selected
-            .waitFor('.widget.gameSelected li.title:contains("'+copyTitle+'")', 1000)
+            .pause 1900
+            .waitFor('.widget.gameSelected li.title:contains("'+copyTitle+'")', 7000)
             # copy is selected and displayed on main section
             .getText '.container .page h1', (err, mode) ->
                 expect(err).toBeNull()
                 expect(mode).toBe(copyTitle)
             .click('#delete_widget_link')
-            .waitFor('.delete_dialogue', 1000)
+            .waitFor('.delete_dialogue', 7000)
             .isVisible('.delete_dialogue')
             .click('.delete_button') # just delete it, we'll test deletion in another step
             .call(done)
-    , 15000
+    , 25000
 
     it 'it should delete using the delete button', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
-            .waitFor('#widget_'+instanceID+'.gameSelected', 1000)
-            .pause(1000)
+            .pause(2000)
+            .waitFor('#widget_'+instanceID+'.gameSelected', 5000)
             .click('.controls #delete_widget_link')
-            .waitFor('.controls .delete_dialogue', 1000)
+            .waitFor('.controls .delete_dialogue', 5000)
             .isVisible('.delete_dialogue')
             .click('.delete_button')
-            .pause(500)
+            .pause(2000)
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(0)
             .refresh()
-            .waitFor('.widget', 1000)
+            .waitFor('.widget', 5000)
+            .pause(2000)
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(0)
-            .pause(300)
+            .pause(1800)
             .isVisible('.error-nowidget')
             .call(done)
             .call -> client.end(done)
-    , 15000
+    , 25000
+

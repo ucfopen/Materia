@@ -685,6 +685,17 @@ class Widget  extends \Basetask
 				}
 				$file_area->rename($dir.'/_score-modules/test_score_module.php', $new_test);
 
+				// move spec to the main materia spec folder, if it exists
+				$widgetspec = $dir.'/spec/spec.coffee';
+				if (file_exists($widgetspec)) {
+					$new_spec = "spec/$clean_name.spec.coffee";
+					if (file_exists($new_spec))
+					{
+						$file_area->delete($new_spec);
+					}
+					$file_area->rename($widgetspec, $new_spec);
+				}
+
 				// delete the score modules folder so it won't get copied over
 				$file_area->delete_dir($dir.'/_score-modules');
 
