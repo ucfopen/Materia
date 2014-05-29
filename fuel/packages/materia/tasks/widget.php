@@ -718,7 +718,6 @@ class Widget  extends \Basetask
 		catch (\Exception $e)
 		{
 			trace($e);
-			print_r($e);
 			\Cli::error($widget_file.' not installed!');
 			$file_area->delete_dir($dir);
 			return;
