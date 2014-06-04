@@ -5,8 +5,7 @@ class File extends Fuel\Core\File
 
 	public static function render($path, $name = null, $mime = null, $area = null)
 	{
-
-		$info = static::file_info($path, $area);
+		$info = static::file_info(realpath($path), $area);
 		empty($mime) and $mime = $info['mimetype'];
 		empty($name) and $name = $info['basename'];
 
@@ -29,7 +28,9 @@ class File extends Fuel\Core\File
 
 		if (\Config::get('file.enable_x_accel', false))
 		{
-			header('X-Accel-Redirect: /protected_media/'.$info['basename']);
+			$media_path_partial = str_replace(realpath(\Config::get('materia.dirs.media')), '', $info['realpath']);
+			header('X-Accel-Redirect: /protected_media/'.$media_path_partial);
+			exit;
 		}
 
 		// send the file by chunking it
