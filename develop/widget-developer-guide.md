@@ -146,7 +146,7 @@ This file provides a title and qSet which will be used when installed to create 
 
 If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.yaml file with `<%MEDIA="assets/1.jpg"%>`, `<%MEDIA="assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
 
-## Optional Score Module: _score-modules
+## Optional Score Module: ```_score-modules```
 
 You'll need both a score module and unit test file if your widget is scorable.  The `score_module.php` file is a php class which extends `Score_Module`.  Your score module should override the `checkAnswer` method.  Your implementation of this method should return a number of 0-100 representing the score for the given question response.  The `$log` object contains any data saved to the server by your widget (usually question or performance data).
 
