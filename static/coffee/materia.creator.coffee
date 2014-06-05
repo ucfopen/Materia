@@ -110,11 +110,11 @@ Namespace('Materia').Creator = do ->
 	# Popup a question importer dialog
 	_showQuestionImporter = ->
 		# must be loose comparison
-		_importerPopup.close() if _importerPopup?
 		types = _widget_info.meta_data.supported_data
 		#the value passed on needs to be a list of one or two elements, i.e.
 		#?type=QA or ?type=MC or ?type=QA,MC
-		_importerPopup = window.open '/questions/import/?type='+encodeURIComponent(types.join()), 'question_import', 'width=600,height=600'
+		_showEmbedDialog '/questions/import/?type='+encodeURIComponent(types.join())
+		null # else Safari will give the .swf data that it can't handle
 
 	# build a my-widgets url to a specific widget
 	_getMyWidgetsUrl = (inst_id) ->
@@ -430,7 +430,8 @@ Namespace('Materia').Creator = do ->
 		# assumes questions is already a JSON string
 		questions = JSON.parse questions
 		_sendToCreator 'onQuestionImportComplete', [questions]
-		_importerPopup.close() if _importerPopup?
+		
+		_hideEmbedDialog()
 
 	# Exposed to the media importer screen
 	onMediaImportComplete = (media) ->
