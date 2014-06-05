@@ -39,36 +39,36 @@ Namespace('Materia').QuestionImporter = do ->
 
 		# setup the table
 		$table = $('#question-table').dataTable
-			bPaginate: false, # don't paginate
-			bLengthChange: true, # resize the fields
-			bAutoWidth: true,
-			bProcessing: true, # show processing dialog
-			sScrollY: '500px',  # setup to be a scrollable table
-			oLanguage:
-				sSearch : '',
-				sInfoFiltered: ' / _MAX_',
-				sInfo: 'showing: _TOTAL_'
+			paginate: false, # don't paginate
+			lengthChange: true, # resize the fields
+			autoWidth: true,
+			processing: true, # show processing dialog
+			scrollY: '500px',  # setup to be a scrollable table
+			language:
+				search : '',
+				infoFiltered: ' / _MAX_',
+				info: 'showing: _TOTAL_'
 			# columsn to display
-			aoColumns: [
-				{ mDataProp: 'text' },
-				{ mDataProp: 'type' },
-				{ mDataProp: 'created_at' },
-				{ mDataProp: 'uses' }
+			columns: [
+				{ data: 'text' },
+				{ data: 'type' },
+				{ data: 'created_at' },
+				{ data: 'uses' }
 			]
 			# special sorting options
-			aaSorting: [[2, 'desc']]
+			sorting: [[2, 'desc']]
 			# item renderers
-			aoColumnDefs: [
+			columnDefs: [
 					# date render
-					fnRender: ( oObj, sVal ) ->
-						d = new Date sVal*1000
-						return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
-					aTargets: [ 2 ]
+					render: ( data, type, full, meta ) ->
+						d = new Date data*1000
+						(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+					targets: 2
 				,
 					# select box
-					fnRender: ( oObj, sVal ) ->
-						return '<input type="checkbox" name="id" value="'+oObj.aData['id']+'" > <span class="q">'+sVal+'</span>'
-					aTargets: [ 0 ]
+					render: ( data, type, full, meta  ) ->
+						'<input type="checkbox" name="id" value="'+full.id+'" > <span class="q">'+data+'</span>'
+					targets: 0
 			]
 
 		# re-fit the table now

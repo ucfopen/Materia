@@ -50,7 +50,7 @@ return [
 				'attr' => ['data-src' => 'swfobject'],
 			],
 			'dataTables' => [
-				'files' => ['cdnjs::datatables/1.9.4/jquery.dataTables.min.js'],
+				'files' => ['cdnjs::datatables/1.10.0/jquery.dataTables.min.js'],
 				'enabled' => false,
 				'combine' => false,
 				'min' => false,

@@ -50,7 +50,7 @@ $(document).ready(function() {
 
 		var index = $('#question-table').dataTable().fnGetPosition( this );
 
-		selectedAssets = [data[index]]
+		selectedAssets = [data[index]];
 
 	});
 
@@ -74,62 +74,61 @@ $(document).ready(function() {
 	// setup the table
 
 	dt = $('#question-table').dataTable({
-		"bPaginate": false, // don't paginate
-		"bLengthChange": true, // resize the fields
-		"bAutoWidth": false, //
-		"bProcessing": true, // show processing dialog
-		"sScrollY": "300px",  // setup to be a scrollable table
-		"oLanguage": {
-			"sSearch" : '',
-			"sInfoFiltered": ' / _MAX_',
-			"sInfo": "showing: _TOTAL_"
+		"paginate": false, // don't paginate
+		"lengthChange": true, // resize the fields
+		"autoWidth": false, //
+		"processing": true, // show processing dialog
+		"scrollY": "300px",  // setup to be a scrollable table
+		"language": {
+			"search" : '',
+			"infoFiltered": ' / _MAX_',
+			"info": "showing: _TOTAL_"
 		}, // hide search label
 		// columsn to display
-		"aoColumns": [
-			{ "mDataProp": null  },
-			{ "mDataProp": "id" },
-			{ "mDataProp": "title" },
-			{ "mDataProp": "type" },
-			{ "mDataProp": "file_size" },
-			{ "mDataProp": "created_at" }
+		"columns": [
+			{ "data": null  }, // radio button
+			{ "data": "id" },
+			{ "data": "title" },
+			{ "data": "type" },
+			{ "data": "file_size" },
+			{ "data": "created_at" }
 		],
 		// special sorting options
-		"aaSorting": [[5, "desc"]],
+		"sorting": [[5, "desc"]],
 		// item renderers
-		"aoColumnDefs": [
+		"columnDefs": [
 			{
-				// date render
-				"fnRender": function ( oObj, sVal ) {
-					var d = new Date(sVal * 1000);
-					return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+				// date column
+				"render": function (data, type, full, meta) {
+					var d = new Date(data * 1000);
+					return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
 				},
-				"bUseRendered": false,
-				"aTargets": [ 5 ]
+				"targets": 5
 			},
 			{
-				"fnRender": function ( oObj, sVal ) {
-					return '<span class="numeric">' + Math.round(sVal/1024) + ' kb</span>' ;
+				// file size column
+				"render": function (data, type, full, meta) {
+					return '<span class="numeric">'+Math.round(data/1024)+' kb</span>' ;
 				},
-				"bUseRendered": false,
-				"aTargets": [ 4 ]
+				"targets": 4
 			},
 			{
-			// select box
-				"fnRender": function ( oObj, sVal ) {
-					return '<img src="/media/' + sVal + '/thumbnail">';
+				// thumbnail column
+				"render": function (data, type, full, meta) {
+					return '<img src="/media/'+data+'/thumbnail">';
 				},
-				"bSearchable": false,
-				"bSortable": false,
-				"aTargets": [ 1 ]
+				"searchable": false,
+				"sortable": false,
+				"targets": 1
 			},
 			{
-				// select box
-				"fnRender": function ( oObj, sVal ) {
-					return '<input type="radio" name="id" >';
+				// radio column
+				"render": function (data, type, full, meta) {
+					return '<input type="radio" name="id" />';
 				},
-				"bSearchable": false,
-				"bSortable": false,
-				"aTargets": [ 0 ]
+				"searchable": false,
+				"sortable": false,
+				"targets": 0
 			}
 		]
 
