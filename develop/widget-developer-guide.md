@@ -6,23 +6,20 @@ class: developers
 ---
 {% include JB/setup %}
 
-# Developing Widgets for the Materia Platform #
+# Developing Widgets for the Materia Platform
 
 Materia is built to be customizable and infinitely expandable.  Since it is merely a platform for serving and distributing widgets, more can be added.  Widgets are packaged into a single file and easily installed with a single command. This page describes the widget development process and tools required to create a widget package that can be installed in any Materia distribution.  The following guide will walk you through the steps required to build or customize the existing widgets.
 
-# Prerequisites #
+# Prerequisites
 
 * A Running <a href="{{BASE_PATH}}/develop/deploying-materia.html">Materia Dev Server</a>
-* [Materia-Widget-Dev_Kit](https://github.com/ucfcdl/Materia-Widget-Dev-Kit) repository
-* [Materia-Core-Widgets](https://github.com/ucfcdl/Materia-Core-Widgets) repository (for examples and prototype code)
-* [Flex SDK](http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk) (for Flash/Flex-based widgets like the core widgets)
 
 
 <aside>
-	Materia core widgets are built in Flash/Flex and are compiled by the <code>Flex 3.6 SDK.</code> Future development is headed in the direction of HTML widgets so our dev kit will change as we build more support for them.
+	Materia widgets are written in HTML5 to be complaint and supported on all platforms, making the lives of students, faculty, and developers a bliss.
 </aside>
 
-# The Anatomy of a Widget #
+# The Anatomy of a Widget
 
 A widget is a little application that depends on the Materia platform for authentication, authorization, analytics, and distribution.
 
@@ -33,25 +30,24 @@ The simplest widgets can be simply static web pages; however Materia is designed
 * **Scorable** widgets that can be used to determine a student's performance.  A 0-100% score is saved by the widget and is verified on the server using a **Score Module** built for each widget.
 * **Statistical Storage** that allows widgets to save custom statistical data (such as reaction times or click coordinates) by using Materia's storage API. This is a great tool for statistical analysis and experiments.
 
-## The Structure of a Widget ##
+## The Structure of a Widget
 
 Widgets are made up of several files that get compressed into a single `.wigt` package for easy distribution.
 A widget package (`.wigt`) is comprised of the following directories:
 
 	widget-name/
-			_assets/ #optional directory to store assest for the demo
-			_creator/ # where all the creator files are
-			_engine/ # where all the creator files are
+			assets/ #optional directory to store assest for the demo
 			_icons/ # icons for display in Materia
 			_output/ # .wigt file is compiled into this directory
 			_score/ # score module located here
 			_screen-shots/ # screen shots for the widget preview
-			build.yaml # describes how to build the widget
+			player.html # the player, or game, content that is presented to the student
+			creator.html # the creator for the widget that is presented to faculty and staff
 			demo.yaml # builds a qset for the demo widget
 			install.yaml # describes how to install the widget
 			README
 
-## Installation Config: install.yaml ##
+## Installation Config: install.yaml
 
 Every widget needs an `install.yaml` file which describes the various settings that will be put into your Materia database.
 
@@ -70,26 +66,26 @@ Here is an example install.yaml file from the Crossword widget:
 	  is_answer_encrypted: Yes
 	  is_storage_enabled: No
 	  api_version: 2
-	  files:
-	    creator: swf/Creator.swf
-	    player: swf/Engine.swf
+	files:
+	  creator: creator.html
+	  player: player.html
 	  flash_version: 10
-	  score:
-	  	is_scorable: Yes
-	    score_module: Crossword
-	    score_type: SERVER-CLIENT
-	  meta_data:
-	    features:
-	    - Customizable
-	    - Scorable
+	score:
+	  is_scorable: Yes
+	  score_module: Crossword
+	meta_data:
+	  features:
+		- Customizable
+		- Scorable
+		- Mobile Friendly
 	  supported_data:
-	  - Question/Answer
+		- Question/Answer
 	  about: 'In Crossword, fill in the blank squares with: (a) words based on the clues provided in the text and/or (b) by the letters overlapping from other words.'
 	  excerpt: >
-	    A quiz tool that uses words and clues to
-	    randomly generate a crossword puzzle.
+		A quiz tool that uses words and clues to
+		randomly generate a crossword puzzle.
 
-### General Settings ###
+### General Settings
 
 * **name:** The displayed name of the widget
 * **group:** The group name for the widget.
@@ -107,13 +103,12 @@ Here is an example install.yaml file from the Crossword widget:
 	Group is currently only for your organizational purposes. Later versions of Materia may use this property to help better organize the widget catalog.
 </aside>
 
-### Files Settings ###
+### Files Settings
 
-* **creator:** Location of the creator swf or html file. Not required if <strong>is_editable</strong> is set to 'No.'
-* **player:** Location of the player swf or html file.
-* **flash_version:** Minimum flash version required to view the player (and creator).
+* **creator:** Location of the creator html file. Not required if <strong>is_editable</strong> is set to 'No.'
+* **player:** Location of the player html file.
 
-### score ###
+### score
 
 <aside>
 	Widgets that don't record scores still require a score module, though scoring logic may be omitted.
@@ -126,7 +121,7 @@ Here is an example install.yaml file from the Crossword widget:
 	* CLIENT - means your widget will tell Materia what the widget score should be.
 	* SERVER-CLIENT - utilizes both methods.
 
-### meta_data ###
+### meta_data
 
 * **features:** A list of features which will be presented in the widget catalog.<aside>While your widget can specify any number of features, Materia specifically looks for two defined features. If your widget is scorable you'll want to include <em>Scorable</em> here. If your widget includes a creator you'll want to include <em>Customizable</em>. These features allow users to filter the catalog page to find the widget they're looking for.</aside>
 * **supported_data:** A list of the types of data which this widget supports. This will be presented in the widget catalog.<aside>Similarly, Materia looks for a few specific features here: <em>Question/Answer</em> and/or <em>Multiple Choice</em>.</aside>
@@ -134,11 +129,11 @@ Here is an example install.yaml file from the Crossword widget:
 * **excerpt:** The text displayed on the widget catalog page.
 
 
-## Demo Question Set: demo.yaml ##
+## Demo Question Set: demo.yaml
 
 This file provides a title and qSet which will be used when installed to create a widget demo.  Again, some great examples can be seen in the [Materia Core Widgets](https://github.com/ucfcdl/Materia-Core-Widgets).
 
-## Example ##
+## Example
 
 	---
 	name: Math Quiz
@@ -147,15 +142,15 @@ This file provides a title and qSet which will be used when installed to create 
 	  data:
 	    questions...
 
-## Optional Demo Media Assets: _assets_ ##
+## Optional Demo Media Assets:
 
-If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.yaml file with `<%MEDIA="_assets/1.jpg"%>`, `<%MEDIA="_assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
+If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.yaml file with `<%MEDIA="assets/1.jpg"%>`, `<%MEDIA="assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
 
-## Optional Score Module: _score-modules_ ##
+## Optional Score Module: _score-modules
 
 You'll need both a score module and unit test file if your widget is scorable.  The `score_module.php` file is a php class which extends `Score_Module`.  Your score module should override the `checkAnswer` method.  Your implementation of this method should return a number of 0-100 representing the score for the given question response.  The `$log` object contains any data saved to the server by your widget (usually question or performance data).
 
-### Basic score module example ##
+### Basic score module example
 
 	<?php
 	namespace Materia;
@@ -188,7 +183,7 @@ This example uses `Score_Module's` `questions` property which contains a referen
 	Look at the <code>Score_Module</code> class for all of the properties available to you.
 </aside>
 
-### Score Module Unit Tests ###
+### Score Module Unit Tests
 
 The `test_score_module.php` file is a unit test which should extend FuelPHP's `TestCase` class.  This file typically should create a widget instance, create play logs, save those logs, then test to make sure your score module's `checkAnswer` function returns the correct score on each log.
 
@@ -271,7 +266,7 @@ The `test_score_module.php` file is a unit test which should extend FuelPHP's `T
 	}
 	?>
 
-## Display Icons: _icons_ ##
+## Display Icons: _icons_
 
 This folder should contain the icons for your widget. A total of four icons at various pixel sizes should be provided: icon-60.png, icon-92.png, icon-275.png and icon-394.png.
 
@@ -283,44 +278,29 @@ This folder should contain screen shots and corresponding thumbnails for your wi
 	You will need to provide three screen shots.
 </aside>
 
-
-# Building HTML Widgets
+# Building Widget Code
 
 ## Getting Started
 
-Create a project directory by running [mako scaffold]({{BASE_PATH}}/develop/mako.html) in any directory.
+[Download](https://clu.cdl.ucf.edu/materia/hello-world-widget/repository/archive.zip?ref=master) the Hello World Widget from Clu
 
-	cd path/to/dev/area
-	mako scaffold "WIDGET NAME"
+Extract this folder to `materia/current/static/sandbox/source`
 
+<aside>
+	Be careful when editing files:
 
-## Developing with Javascript
+	`static/sandbox/` is where compiled widgets are loaded from in the sandbox environment
 
-We prefer to use the [Revealing Module Pattern](https://www.google.com/search?q=revealing+module+pattern) in our code, so you may wish to utilize the same pattern for consistency.  Materia widgets use require.js to make sure the required libraries are included.  
+	`static/sandbox/source` is where your working directories go
+</aside>
 
-### Including Common Libraries
+Edit `install.yaml` to your desired widget name, and rename the `hello-world-widget` folder to match a dash separated, all lowercase version of the widget's name.
 
-We use [requireJS](http://requirejs.org/) to manage loading javascript dependencies. We have a couple of defaults defined for common libraries, but you can easily add your own.  In the template, you can see how this is initiated in the head of `widget.html`.
+The `player.html` is the code that is loaded into Materia for the student-facing game, whereas `creator.html` is loaded to the instructor to build the question data for each widget instance.
 
-	<script type="text/javascript">
-		require(['enginecore', 'score', 'underscore', 'js/widget'], function(util) {
-			Materia.Engine.start(MyWidget.Engine);
-		});
-	</script>
+Read through each and use them as a barebones example of how to develop your own widget
 
-In the above code, `enginecore` is the required Materia.Engine code required to get your widget working.  To add scoring support, we added a `require` for `score`, `underscore` for templating, and the final require is the actual Widget Engine located at `widget_dir/_engine/js/widget.js`.
-
-Once everything is loaded, Materia.Engine is started and passed a reference to your own Widget Engine.
-
-Your Widget Engine: WidgetName.Engine
-
-The Engine Core: Materia.Engine
-
-We recommend you use our built-in namespace implementation for your main javascript file. This is easy; simply define your object using `Namespace('MyWidgetName').Engine = function() {}`
-
-Your Widget.Engine will be passed to `Materia.Engine.start()` as a callback and all you need to do is define a `start()` method in your engine.  It will be called as soon as Materia has loaded all the required assets.
-
-## Materia.Score ##
+## Materia.Score
 
 The following methods are available for submitting score logs related to events that occur in your widget:
 
@@ -335,54 +315,11 @@ The following methods are available for submitting score logs related to events 
 * **submitOverallForScoring**
 * **addGlobalScoreFeedback**
 
-## Materia.Storage ##
+## Materia.Storage
 
 Implementation incomplete, check back again.
 
-# Building HTML Widget Creators #
-
-Incomplete at this time
-
-# Building Flash or Flex Widget Engines #
-
-Your widget engine needs to reference the Flex 3.6 SDK and the `flash_widget_dev_core.swc` from the [Materia-Widget-Dev-Kit](https://github.com/ucfcdl/Materia-Widget-Dev-Kit) repository. You'll need an `Engine.as` file which extends `nm.gameServ.engines.EngineCore`. Your engine file should override the `startEngine` method which is called when Materia has initialized all variables and the engine can allow the user to begin interacting. If your widget is customizable you'll want to use the `EngineCore.qSetData` static property which will contain a reference to the available `QuestionSet` object. If your widget is scorable you'll want to utilize the EngineCore's `scoring` instance of the `ScoreManager` class.  You may want to utilize the EngineCore's `storage` instance of the `StorageManager` class as well. Typically any graphics you need should be compiled into a `swc` and placed in the libs directory. When interaction with a widget is complete, your widget should call EngineCore's `end` method.
-
-## A basic customizable and scorable widget engine example: ##
-
-	package
-	{
-		// import statements ...
-
-		public class Engine extends EngineCore
-		{
-			public override function startEngine
-			{
-				// generate display
-				for each(var question in EngineCore.qSetData.items)
-				{
-					// draw questions here, using data from the question object
-					// (i.e.) var questionSprite:Sprite = new Sprite(); ...
-					questionSprite.addEventListener('clickAnswer', clickAnswer);
-				}
-				// create quiz submit button here
-				// ...
-				submitButton.addEventListener(MouseEvent.CLICK, clickSubmit);
-			}
-
-			private function clickAnswer(event)
-			{
-				// ...
-				scoring.submitQuestionForScoring(questionID, userAnswer);
-			}
-
-			private function clickSubmit(event:MouseEvent)
-			{
-				end();
-			}
-		}
-	}
-
-# qSet Structure #
+# qSet Structure
 
 The qSet, at minimum, contains the following:
 
@@ -397,7 +334,7 @@ The `version` property allows you to version qSets. If you later modify your wid
 
 The qSet data property doesn't enforce a schema but Materia defines a standard structure that defines Multiple Choice and Single Answer questions. Conforming to this standard structure allows Materia to add questions to the question bank. Users can then use the 'import question' functionality to re-use questions created with your widget creator. If possible it is recommended to conform to this standard structure.
 
-### Question Template ###
+### Question Template
 
 <pre><code class="language-javascript">{
 	// tells Materia this is a question
@@ -439,7 +376,7 @@ The qSet data property doesn't enforce a schema but Materia defines a standard s
 
 }</code></pre>
 
-### Multiple Choice Example ###
+### Multiple Choice Example
 
 A full qSet containing one Multiple Choice question.  This question has two possible answers, one worth 0 percent (wrong), and the other worth 100 percent (correct).
 
@@ -471,7 +408,7 @@ A full qSet containing one Multiple Choice question.  This question has two poss
 	}
 }</code></pre>
 
-### Question/Answer Example ###
+### Question/Answer Example
 
 A Question/Answer question.  This question has one correct answer.
 
@@ -493,7 +430,7 @@ A Question/Answer question.  This question has one correct answer.
 	You can define additional data in your qSet and still conform to the standard structure as long as you provide the fields as shown in the example above.  For example, it's common to add an 'options' object either in the data object or in question or answer objects.
 </aside>
 
-## Asset Structure ##
+## Asset Structure
 
 <pre><code class="language-javascript">{
 	materiaType: 'asset', // tells Materia this is an asset
@@ -506,9 +443,9 @@ A Question/Answer question.  This question has one correct answer.
 	}
 }</code></pre>
 
-### Assets in a Question ###
+### Assets in a Question
 
-Assets within the scope of the entire question.  Like an song that plays durring the question.
+Assets within the scope of the entire question.  Like an song that plays during the question.
 
 <pre><code class="language-javascript">{
 	materiaType: 'question',
@@ -575,72 +512,43 @@ Keep an array of assets that aren't associated with the questions at all (like t
 Assets can be placed just about anywhere arbitrarily, but we advise you keep them linked with the data that makes the most sense.  If the image is part of the answer, place it in the options of each individual answer.  If the asset is not tied to a question at all, save it outside the scope of that question. 
 </aside>
 
-# Building Flash or Flex Widget Creators #
+# Compiling with Grunt
 
-If you intend for your widget to be customizable then you'll want to develop a widget creator. Your widget creator should be a Flex 3.6 project which will provide a UI to help users create a qSet which your widget engine can use. Your default file should be of type `materia:CreatorBase`.
+Grunt automates the process of building and compiling the `.wigt` files.
 
-Some important methods you may want to override:
+## Development sandbox
 
-* init: Called when the interface is ready to be built.
-* checkForSave: Called when a user attempts to save their work. Return `false` to prevent the save action, `true` to allow it.
-* getQSetForPublish: Should return a valid qSet.
-* addImportedQuestion: Called for every question added via the 'Import questions' feature.
-* importableQuestionTestFunction: Allows you to determine if a given question can be imported successfully. Return `false` to prevent a question from being imported and `true` to allow it.
+To test your widget's player and creator live, open a terminal to `static/sandbox` and run:
+
+`grunt --widget=hello-world-widget --minify-assets=false watch`
+
+where `hello-world-widget` is your widget's name.
+
+Grunt will automatically rebuild the widget for the sandbox environment whenever a file is changed.
+
+To access the widget, navigate to:
+
+`http://localhost:8080/sandbox/hello-world-widget/`
+
+### Caveats
 
 <aside>
-	More functions are available - take a look at <code>CreatorBase.mxml</code> for more information.
+	Because the widget is being run in a sandbox, only the demo qset can be used, scoring will not run, and widgets cannot be saved. To test that functionality, see the compiling section below.
 </aside>
 
-# Basic Widget Creator Example #
+## Compiling for production
 
-<pre><code>&lt;materia:CreatorBase xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:components="materia.components.*"
-	xmlns:materia="materia.*"
-	xmlns:qaGrid="materia.components.questionAnswerDataGrid.*" xmlns:local="*"
-	width="100%" height="100%"&gt;
+To compile a .wigt package, run:
 
-	&lt;!-- Flex UI code for your Widget here --&gt;
+`grunt --widget=hello-world-widget package`
 
-	&lt;mx:Script&gt;
-		public override function checkForSave():Boolean
-		{
-			if(myQuestionsList.numQuestions == 0)
-			{
-				Alert.show("You don't have any questions!");
-				return false;
-			}
+This creates a .wigt file in the `_output` directory. You can then easily install the widget using via the [widget:install]({BASE_PATH}/develop/installing-widgets.html).
 
-			return true;
-		}
+**Or** run:
 
-		public override function getQSetForSave():Object
-		{
-			var qSet:Object = {version:1, data:{}};
-			// generate qset ...
-			return qSet;
-		}
-	&lt;/mx:Script&gt;
-&lt;/materia:CreatorBase&gt;</code></pre>
+`grunt --widget=hello-world-widget install`
 
-# Compiling with Mako #
-
-[Mako]({BASE_PATH}}/develop/mako.html) automates the process of building and compiling the `.wigt` files.
-
-## build.yaml ##
-
-build.yaml files are used by [Mako]({BASE_PATH}}/develop/mako.html) to understand how to compile a widget.  There's a top-level `build.yaml` of type 'package' which points to the individual build.yaml files of each portion of the widget. Finally, the engine and creator have build files of type 'compile' which describe how to compile that portion of the widget.
-
-## Compiling for production ##
-
-To compile a .wigt package navigate into the directory of the widget you want to build and run
-
-<pre><code class="bash">mako build</code></pre>
-
-This creates a .wigt file in the `_output` directory. You can then easily install the widget using via the [widget:install]({BASE_PATH}/develop/installing-widgets.html) task or use mako develop to quickly test your widget.
-
-## Compiling for development &amp; testing ##
-
-You can skip package creation using mako develop.
+which will package and install into the current Materia instance in a single step. This is useful for testing scoring modules and creators.
 
 ### Validating packages
 
@@ -648,64 +556,3 @@ You can validate your package structure and install.yaml and demo.yaml files by 
 
 <pre><code class="bash">php oil r widget:install --validate-only packages/your-widget.wigt</code></pre>
 
-# How Widget Creators Work #
-
-Widget creators are loaded by the Javascript creator wrapper (materia.creator.js) using SWFObject (a Javascript library) and Actionscript’s ExternalInterface library. Flash creators are loaded in the embed function of materia.creator.js, where some important variables are passed to the creator and received in the init function of CreatorBase.mxml. This init function also sets up the ExternalInterface functions that are made available to the creator wrapper. For example: the save function of the creator wrapper calls the function getQSetForSave() which is made available in the init function of the CreatorBase.
-
-Every Flash creator in our library extends CreatorBase and most override the ExternalInterface methods. Below is a list of the main methods that should be overridden and their purposes. As always, make sure to call `super.methodName()` when overriding.
-
-* `public function init():void`
-
-	This is the first function called when the creator is loaded and it is called both when creating a new widget and when editing one.
-* `public function initNewWidget():void`
-
-	This function is called after `init()` and is only called when creating a new widget. This distinction is important because creators sometimes need to be set-up differently when creating a new widget than when editing an existing one.
-
-* `public function initExistingWidget(qset:QuestionGroup):void`
-
-	This function is also called after `init()` and is only called when editing an existing widget. The qset for the widget being edited is passed in so it should be stored for future reference.
-
-* `public function getQSetForSave():Object`
-	This function is called by the creator wrapper and the object returned is stored in the database as the qset for this widget. If this widget is ever edited, an exact copy of this object should be provided in the initExistingWidget function.
-
-* `public function getQSetForPublish():Object`
-	This function is also called by the creator wrapper and has the same purpose as getQSetForSave except that the object returned here is expected to be final and error-proof. If the widget is incomplete or has errors, this function should return null and possibly show an alert (using the alert function built into CreatorBase).
-
-There are a few other functions creators should override that aren’t essential for basic functionality but are often needed for a finished widget ready to go into the catalog. For example:
-
-* `public function startImportingSet():void`
-
-	This function is called when imported questions are about to be sent. This function allows the creator to make any preparations for importing questions.
-* `public function addImportedQuestion(question:Question):void`
-
-	This function is called once for every question that will be imported. For example, if 20 questions are imported, startImportingSet() is called once, addImportedQuestions() is called 20 times, and doneImportingSet() is called once afterwards.
-
-* `public function doneImportingSet():void`
-
-	This function is called once all questions are imported and passed in through the addImportedQuestions() function.
-
-That’s about it for functions that should be overloaded but there are some functions that are still necessary to call sometimes. `CreatorBase.openMediaScreen(callback:Function)` is used to open the media screen and load an image. The callback provided will be passed an array of media items loaded. To get the URL to the image, use `CreatorConfig.getKogneatoAssetLink(input[0].ASETID)`.
-
-# How Widget Engines (Players) Work #
-
-Similar to the creators, engines are loaded by a Javascript player wrapper using SWFObject and Actionscript’s ExternalInterface. Unlike the creator where there are many methods to override, engines typically only override one function and go the rest of the way by using inherited functions. First we’ll go over the one function that should be overridden:
-
-* `private function initWidget(qset:Object, instance:Object):void`
-
-	This is the first function that is called (apart from the constructor) when the engine is loaded. It passes in the qset that was saved from the creator.
-
-The following functions should most likely be used in engine development (our utility functions):
-
-* `public function alert(title, message, type):void`
-
-	This alert function is used by many players to display a dialog. The type parameter specifies the type of alert it will be (See constants in the AlertWindow class). To listen for a confirmation click, add an event listener using the string "dialogClick". This will fire when "OK" or "YES" is clicked but not when "Cancel" or "No" is clicked.
-
-* `public function getImageAssetSprite(assetId, callback, data):void`
-
-	This function loads an asset into a DisplayObject and passes it into the callback function. The EngineCore.as file contains thorough documentation on this function.
-
-* `public function end(showScoreScreen, feedback):void`
-
-	This function ends the game, submits the scores to the server, and takes the student to the score screen to see the final score.
-
-There are also several functions that facilitate scoring in an instance of the Scoring class held in EngineCore. If your engine extends EngineCore (as it should), these functions should be available by typing scoring.functionName(). Note that the functionality of some scoring functions depends on the score type set in the database for that particular widget. The Scoring class is extensively documented and a quick look-over of its source code will provide all the necessary details.
