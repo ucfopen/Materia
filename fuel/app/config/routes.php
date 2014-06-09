@@ -35,6 +35,10 @@ return [
 	'scores/semesters?'                                   => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                               => 'scores/show/$1',
 
+	'simplesaml(.*)?' => function () {
+		require(VENDORPATH . "/ucfcdl/simplesamlphp/www/module.php");
+	},
+
 	// ================================= DOCS ======================================
 
 	'help' => ['site/help', 'name' => 'help'],    // The main docs page
@@ -58,3 +62,4 @@ return [
 	'login'    => ['users/login', 'name' => 'login'],
 	'profile'  => ['users/profile/', 'name' => 'profile'],
 ];
+

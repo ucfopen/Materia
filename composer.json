@@ -15,10 +15,16 @@
         "irc": "irc://irc.freenode.org/fuelphp",
         "forum": "http://fuelphp.com/forums"
     },
+    "repositories": [
+        { "type": "vcs", "url": "http://github.com/ucfcdl/saml2" },
+        { "type": "vcs", "url": "http://github.com/ucfcdl/simplesamlphp" }
+    ],
     "require": {
         "php": ">=5.3.3",
         "monolog/monolog": "1.5.*",
-    	"fuelphp/upload": "2.0"
+    	"fuelphp/upload": "2.0",
+    	"ucfcdl/saml2": "~0.3",
+        "ucfcdl/simplesamlphp": "dev-master"
     },
     "suggest": {
         "mustache/mustache": "Allow Mustache templating with the Parser package",
