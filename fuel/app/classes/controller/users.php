@@ -60,35 +60,21 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
-		if (Input::method() == 'POST')
+		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
+		if ($login === true)
 		{
-			$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
-			if ($login === true)
+			// if the location is the profile and they are an author, send them to my-widgets instead
+			if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
 			{
-				// if the location is the profile and they are an author, send them to my-widgets instead
-				if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
-				{
-					$redirect = 'my-widgets';
-				}
-				Response::redirect($redirect);
+				$redirect = 'my-widgets';
 			}
-			else
-			{
-				$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
-				Session::set_flash('login_error', $msg);
-			}
+			Response::redirect($redirect);
 		}
-
-		Package::load('casset');
-		Casset::enable_js(['login']);
-		Casset::enable_css(['login']);
-
-		$this->theme->get_template()
-			->set('title', 'Login')
-			->set('page_type', 'login');
-
-		$this->theme->set_partial('content', 'partials/login')
-			->set('redirect', urlencode($redirect));
+		else
+		{
+			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
+			Session::set_flash('login_error', $msg);
+		}
 	}
 	/**
 	 * Uses Materia API's remote_logout function to log the user in.
@@ -97,7 +83,7 @@ class Controller_Users extends Controller
 	public function action_logout()
 	{
 		Materia\Api::session_logout();
-		Response::redirect(Router::get('login'));
+		Response::redirect('/');
 	}
 
 	/**
