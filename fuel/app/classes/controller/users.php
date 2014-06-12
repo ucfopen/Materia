@@ -75,6 +75,17 @@ class Controller_Users extends Controller
 			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
 			Session::set_flash('login_error', $msg);
 		}
+
+		Package::load('casset');
+		Casset::enable_js(['login']);
+		Casset::enable_css(['login']);
+
+		$this->theme->get_template()
+			->set('title', 'Login')
+			->set('page_type', 'login');
+
+		$this->theme->set_partial('content', 'partials/login')
+			->set('redirect', urlencode($redirect));
 	}
 	/**
 	 * Uses Materia API's remote_logout function to log the user in.
