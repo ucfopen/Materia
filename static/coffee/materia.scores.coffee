@@ -46,7 +46,8 @@ Namespace('Materia').Scores = do ->
 	displayScoreData = (inst_id, play_id) ->
 		$.when( getWidgetInstance(inst_id), getInstanceScores(inst_id)  )
 			.done ->
-				displayAttempts(play_id)
+				#displayAttempts(play_id)
+				Materia.Coms.Json.send('widget_instance_play_scores_get', [play_id], displayDetails)
 				displayWidgetInstance()
 			.fail ->
 				# Failed!?!?
@@ -68,6 +69,7 @@ Namespace('Materia').Scores = do ->
 			dfd.resolve() # skip, preview doesn't support this
 		else
 			Materia.Coms.Json.send 'widget_instance_scores_get', [inst_id], (scores) ->
+				###
 				if(scores == null || scores.length < 1)
 					#load up an error screen of some sort
 					$('article.container').remove()
@@ -79,7 +81,8 @@ Namespace('Materia').Scores = do ->
 				# Round scores
 				for attemptScore in scores
 					attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
-				attempts = scores
+				###
+				attempts = scores or []
 				dfd.resolve()
 		return dfd.promise()
 
@@ -92,7 +95,7 @@ Namespace('Materia').Scores = do ->
 			hash = getAttemptNumberFromHash()
 			return if currentAttempt == hash
 			currentAttempt = hash
-			play_id = attempts[attempts.length - currentAttempt]['id']
+			#play_id = attempts[attempts.length - currentAttempt]['id']
 
 			# The Materia sendoff link requires currentAttempt to be set, so it's here instead of displayWidgetInstance
 			if isEmbedded == true
@@ -257,6 +260,7 @@ Namespace('Materia').Scores = do ->
 			barPlot = $.jqplot('graph', [_graphData], jqOptions)
 
 	displayDetails = (results) ->
+		console.log results
 
 		if !results
 			$('article.container').remove()
