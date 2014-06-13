@@ -63,7 +63,6 @@ class Score_Manager
 		{
 			$play = new Session_Play();
 			$play->get_by_id($play_id);
-			trace($play);
 
 			if ($play->user_id != $curr_user_id)
 			{

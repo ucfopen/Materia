@@ -87,7 +87,6 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 			$.each log, (i, playLog) ->
 				uid  = playLog.user_id
 				name = playLog.last+", "+playLog.first
-				console.log playLog
 
 				if !usersFound[uid]?
 					usersFound[uid] = users.length
@@ -131,8 +130,6 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 					$userTableBody = $('<tbody>')
 					$userTable.append $userTableBody
 
-					console.log(user.scores)
-
 					$.each user.scores, (j, score) ->
 						scoreMins      = (score.elapsed - score.elapsed % 60) / 60
 						scoreSecs      = score.elapsed % 60
@@ -146,8 +143,7 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 						$userTr.append $userElapsedTd.addClass 'elapsed'
 
 						$userTr.click ->
-							console.log score
-							location.href = "scores/" + inst_id + "/#play-" + score.id
+							window.open "scores/" + inst_id + "/#single-" + score.id
 
 						$userTableBody.append $userTr
 
