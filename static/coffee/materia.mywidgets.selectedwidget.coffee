@@ -579,7 +579,6 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 
 		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
 		getPlayLogs selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
-			console.log logsBySemester
 			$table = $scoreWrapper.find('.display.table')
 			tableSort = $table.attr('data-sort')
 			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, selectedWidgetInstId)
