@@ -86,7 +86,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_time_csv($inst_id, $semesters_string)
+	public function action_csv($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)
@@ -146,7 +146,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_csv($inst_id, $semesters_string)
+	public function action_raw($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)

@@ -146,6 +146,9 @@ Namespace('Materia.MyWidgets').Csv = do ->
 				.removeClass('disabled')
 				.attr('href', "/scores/csv/#{inst_id}/#{chosenSemesters.join(',').replace(/\s/g, '-')}")
 				.click(-> window.location = $(this).attr 'href')
+			$('#popup.csv_popup p.raw a')
+				.attr('href', "/scores/raw/#{inst_id}/#{chosenSemesters.join(',').replace(/\s/g, '-')}")
+				.click(-> window.location = $(this).attr 'href')
 		else
 			$('#popup.csv_popup p.download a')
 				.addClass('disabled')
