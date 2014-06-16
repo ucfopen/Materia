@@ -86,7 +86,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_csv($inst_id, $semesters_string)
+	public function action_time_csv($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)
@@ -137,7 +137,151 @@ class Controller_Scores extends Controller
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return $this->build_csv_response($csv, $inst->name);
+		return $this->build_download_response($csv, $inst->name . ".csv");
+	}
+
+	/**
+	 * Prepares and then pushes a csv file
+	 *
+	 * @param int the game instance id
+	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
+	 */
+	public function action_csv($inst_id, $semesters_string)
+	{
+
+		if (Materia\Api::session_valid() !== true)
+		{
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your scores.');
+			Response::redirect(Router::get('login'));
+		}
+
+		$inst = Materia\Widget_Instance_Manager::get($inst_id);
+
+		if ( ! Materia\Perm_Manager::check_user_perm_to_object(\Auth::instance()->get_user_id()[1], $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::VISIBLE, Materia\Perm::FULL]) && ! \Model_User::verify_session(\RocketDuck\Perm_Role::SU))
+		{
+			return new Response('', 403);
+		}
+
+		$semesters = explode(',', $semesters_string);
+		$play_logs = [];
+		$results   = [];
+
+		foreach ($semesters as $semester)
+		{
+			list($year, $term) = explode('-', $semester);
+		 	// Get all scores for each semester
+		 	$logs = $play_logs[$year.' '.$term] = Materia\Session_Play::get_by_inst_id($inst_id, $term, $year);
+
+			foreach ($logs as $play)
+			{
+				$uname = $play['username'];
+
+				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
+
+				$play_events = Materia\Session_Logger::get_logs($play["id"]);
+
+				foreach ($play_events as $play_event) {
+					$r = [];
+					$r['semester']   = $semester;
+					$r['last_name']  = $play['last'];
+					$r['first_name'] = $play['first'];
+					$r['type']       = $play_event->type;
+					$r['item_id']	 = $play_event->item_id;
+					$r['text']       = $play_event->text;
+					$r['value']      = $play_event->value;
+					$r['game_time']  = $play_event->game_time;
+					$r['created_at'] = $play_event->created_at;
+					$results[$uname][] = $r;
+				}
+			}
+		}
+
+		// If there aren't any logs throw a 404 error
+		if (count($play_logs) == 0) throw new HttpNotFoundException;
+
+		// Table headers
+		$csv = "User ID,Last Name,First Name,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
+
+		foreach ($results as $userid => $userlog)
+		{
+			foreach ($userlog as $r) {
+				$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
+			}
+		}
+
+		$inst->get_qset($inst_id);
+
+		trace($inst);
+		$questions = $inst->qset->data['items'];
+
+		if (isset($questions[0]) && isset($questions[0]['items']))
+		{
+			$questions = $questions[0]['items'];
+		}
+
+		$csv_answers = [];
+		$csv_questions = [];
+		$options = [];
+
+		foreach ($questions as $question) {
+			foreach ($question['questions'] as $q) {
+				$csv_question = [];
+				$csv_question['question_id'] = $question['id'];
+				$csv_question['id'] = isset($q['id']) ? $q['id'] : "";
+				$csv_question['options'] = $question['options'];
+				$csv_question['text'] = $q['text'];
+				$csv_questions[] = $csv_question;
+			}
+
+			foreach ($question['options'] as $key => $value) {
+				if (!in_array($key, $options))
+					$options[] = $key;
+			}
+
+			foreach ($question['answers'] as $answer) {
+				$csv_answer = [];
+				$csv_answer['id'] = isset($answer['id']) ? $answer['id'] : "";
+				$csv_answer['text'] = isset($answer['text']) ? $answer['text'] : "";
+				$csv_answer['value'] = isset($answer['value']) ? $answer['value'] : "";
+				$csv_answer['question_id'] = $question['id'];
+				$csv_answers[] = $csv_answer;
+			}
+		}
+
+		$csv_question_text = "question_id,id,text";
+
+		foreach ($options as $key) {
+			$csv_question_text .= ",$key";
+		}
+
+		foreach ($csv_questions as $question) {
+			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$question['text']}";
+
+			foreach ($options as $key) {
+				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : "";
+				$csv_question_text .= ",$val";
+			}
+		}
+
+		$csv_answer_text = "question_id,id,text,value";
+		foreach ($csv_answers as $answer) {
+			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
+		}
+
+		$tempname = tempnam("/tmp", "materia_csv");
+
+		$zip = new ZipArchive();
+		$zip->open($tempname);
+		$zip->addFromString("questions.csv", $csv_question_text);
+		$zip->addFromString("answers.csv", $csv_answer_text);
+		$zip->addFromString("logs.csv", $csv);
+		$zip->close();
+
+		$data = file_get_contents($tempname);
+		unlink($tempname);
+
+		return $this->build_download_response($data, $inst->name . ".zip");
 	}
 
 	public function action_storage($inst_id, $table_name, $semesters)
@@ -146,10 +290,10 @@ class Controller_Scores extends Controller
 		$csv        = \Materia\Storage_Manager::get_csv_logs_by_inst_id($inst_id, $table_name, explode(',', $semesters));
 		$inst       = \Materia\Widget_Instance_Manager::get($inst_id);
 
-		return $this->build_csv_response($csv, "$table_name [$inst->name]");
+		return $this->build_download_response($csv, "$table_name [$inst->name].csv");
 	}
 
-	private function build_csv_response($data, $filename)
+	private function build_download_response($data, $filename)
 	{
 		return Response::forge()
 			->body($data)
@@ -159,7 +303,6 @@ class Controller_Scores extends Controller
 			->set_header('Content-Type', 'application/force-download')
 			->set_header('Content-Type', 'application/octet-stream')
 			->set_header('Content-Type', 'application/download')
-			->set_header('Content-Disposition', "attachment; filename=\"$filename.csv\"");
+			->set_header('Content-Disposition', "attachment; filename=\"$filename\"");
 	}
-
 }
