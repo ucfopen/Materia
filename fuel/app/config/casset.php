@@ -69,7 +69,7 @@ return [
 				'attr' => ['data-src' => 'fancybox'],
 			],
 			'core' => [
-				'files' => ['materia.page.default.js',],
+				'files' => ['static::materia.page.default.js',],
 				'enabled' => true,
 				'attr' => ['data-src' => 'core'],
 			],
@@ -189,7 +189,7 @@ return [
 			],
 			'widget_catalog' => [
 				'files' => [
-					'materia.page.catalog.js',
+					'static::materia.page.catalog.js',
 					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
