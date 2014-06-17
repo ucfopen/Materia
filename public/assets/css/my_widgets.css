@@ -2449,7 +2449,7 @@
 	z-index: 100;
 	top: -1px;
 }
-#popup.csv_popup div.score_table p.download {
+#popup.csv_popup div.score_table div.download-controls {
 	position: relative;
 	z-index: 1;
 	margin: 0;

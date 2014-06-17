@@ -285,9 +285,11 @@
 			</tr>
 		</table>
 		<span id="sample-notification">Sample</span>
-		<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
-		<p class="raw"><a href="#">Export raw data</a></p>
+		<div class="download-controls">
+			<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
+			<p class="raw"><a href="#">Export raw data</a></p>
 		</div>
+	</div>
 
 	<p class="cancel"><a href="#">Cancel</a></p>
 </div>
