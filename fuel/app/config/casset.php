@@ -76,7 +76,7 @@ return [
 			'help' => [
 				'files' => [
 					'static::materia.flashcheck.js',
-					'materia.page.help.js',
+					'static::materia.page.help.js',
 				],
 				'deps' => ['swfobject'],
 				'enabled' => false,
