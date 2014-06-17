@@ -201,18 +201,18 @@ class Controller_Scores extends Controller
 		if (count($play_logs) == 0) throw new HttpNotFoundException;
 
 		// Table headers
-		$csv = "User ID,Last Name,First Name,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
+		$csv_playlog_text = "User ID,Last Name,First Name,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
 
 		foreach ($results as $userid => $userlog)
 		{
-			foreach ($userlog as $r) {
-				$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
+			foreach ($userlog as $r)
+			{
+				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
 			}
 		}
 
 		$inst->get_qset($inst_id);
 
-		trace($inst);
 		$questions = $inst->qset->data['items'];
 
 		if (isset($questions[0]) && isset($questions[0]['items']))
@@ -224,8 +224,10 @@ class Controller_Scores extends Controller
 		$csv_questions = [];
 		$options = [];
 
-		foreach ($questions as $question) {
-			foreach ($question['questions'] as $q) {
+		foreach ($questions as $question)
+		{
+			foreach ($question['questions'] as $q)
+			{
 				$csv_question = [];
 				$csv_question['question_id'] = $question['id'];
 				$csv_question['id'] = isset($q['id']) ? $q['id'] : "";
@@ -234,12 +236,14 @@ class Controller_Scores extends Controller
 				$csv_questions[] = $csv_question;
 			}
 
-			foreach ($question['options'] as $key => $value) {
+			foreach ($question['options'] as $key => $value)
+			{
 				if (!in_array($key, $options))
 					$options[] = $key;
 			}
 
-			foreach ($question['answers'] as $answer) {
+			foreach ($question['answers'] as $answer)
+			{
 				$csv_answer = [];
 				$csv_answer['id'] = isset($answer['id']) ? $answer['id'] : "";
 				$csv_answer['text'] = isset($answer['text']) ? $answer['text'] : "";
@@ -251,21 +255,25 @@ class Controller_Scores extends Controller
 
 		$csv_question_text = "question_id,id,text";
 
-		foreach ($options as $key) {
+		foreach ($options as $key)
+		{
 			$csv_question_text .= ",$key";
 		}
 
-		foreach ($csv_questions as $question) {
+		foreach ($csv_questions as $question)
+		{
 			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$question['text']}";
 
-			foreach ($options as $key) {
+			foreach ($options as $key)
+			{
 				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : "";
 				$csv_question_text .= ",$val";
 			}
 		}
 
 		$csv_answer_text = "question_id,id,text,value";
-		foreach ($csv_answers as $answer) {
+		foreach ($csv_answers as $answer)
+		{
 			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
 		}
 
@@ -275,7 +283,7 @@ class Controller_Scores extends Controller
 		$zip->open($tempname);
 		$zip->addFromString("questions.csv", $csv_question_text);
 		$zip->addFromString("answers.csv", $csv_answer_text);
-		$zip->addFromString("logs.csv", $csv);
+		$zip->addFromString("logs.csv", $csv_playlog_text);
 		$zip->close();
 
 		$data = file_get_contents($tempname);
