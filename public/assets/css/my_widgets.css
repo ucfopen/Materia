@@ -2471,8 +2471,8 @@
 	text-align: center;
 }
 #popup.csv_popup div.score_table p.download a {
-	margin-top: 24px;
-	margin-bottom: 11px;
+	margin-top: 8px;
+	margin-bottom: 0px;
 }
 #popup.csv_popup h4 {
 	text-align: center;
