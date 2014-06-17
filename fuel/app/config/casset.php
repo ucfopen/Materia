@@ -161,7 +161,7 @@ return [
 					'lib/jquery.infieldlabel.js',
 					'static::materia.set.availability.js',
 					'static::materia.set.datetime.js',
-					'materia.page.login.js'
+					'static::materia.page.login.js'
 				],
 				'enabled' => false,
 				'attr' => ['data-src' => 'login'],
