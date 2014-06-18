@@ -84,7 +84,7 @@ return [
 			],
 			'homepage' => [
 				'files' => [
-					'materia.page.notification.js',
+					'static::materia.page.notification.js',
 					'static::materia.notification.js',
 					'static::materia.coms.json.js',
 					'static::materia.permissions.user.js',
