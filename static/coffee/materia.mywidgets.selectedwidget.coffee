@@ -205,7 +205,16 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 
 					$('.overview .icon').attr('src', Materia.Image.iconUrl(inst.widget.dir, 275))
 
-					if typeof BEARD_MODE != 'undefined' && BEARD_MODE == true
+					if BEARD_MODE? == true
+
+						$('.widget .icon').each (index) ->
+							rand = Math.floor((Math.random()*beards.length)+1) - 1
+
+							$(this).addClass('small_'+beards[rand])
+
+							if ($(this).parent().hasClass('gameSelected'))
+								$('.icon_container').addClass('med_'+beards[rand])
+
 						existing = $('.overview .icon_container').attr('class').split(' ')
 
 						for e in existing
@@ -215,8 +224,10 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 						beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
 						beardType = 'med'+beardType.substring(5)
 
-						$('.overview .icon_container').addClass('big_bearded')
-						$('.overview .icon_container').addClass(beardType)
+						$('.widget .icon').addClass('bearded')
+						$('.icon_container')
+							.addClass('big_bearded')
+							.addClass(beardType)
 
 					if($('.page').is(':hidden'))
 						$('.page').show()
