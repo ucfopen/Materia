@@ -29,6 +29,10 @@ Namespace('Materia').QuestionImporter = do ->
 			_loadSelectedQuestions $selectedAssets
 			return false
 
+		$('#cancel-button').click (e) ->
+			e.stopPropagation()
+			window.parent.Materia.Creator.onMediaImportComplete(null)
+
 		# when the url has changes, reload the questions
 		$(window).bind 'hashchange', _loadAllQuestions
 
@@ -92,7 +96,7 @@ Namespace('Materia').QuestionImporter = do ->
 	_loadSelectedQuestions = (questionIds) ->
 		_getQuestions questionIds, null, (result) ->
 			if result? and 'msg' not of result and result.length > 0
-				window.opener.Materia.Creator.onQuestionImportComplete(JSON.stringify(result))
+				window.parent.Materia.Creator.onQuestionImportComplete(JSON.stringify(result))
 
 	_getType = ->
 		l = document.location.href

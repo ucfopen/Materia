@@ -38,6 +38,7 @@ module.exports = (grunt) ->
 	# Embeds JS and CSS in HTML.
 	# Minifies script within HTML.
 	minifyTasks = [
+		'ngmin'
 		'uglify'
 		'cssmin'
 	]
@@ -165,6 +166,9 @@ module.exports = (grunt) ->
 				dest: 'temp/creator.css'
 
 		# Minification.
+		ngmin: 
+			build:
+				files: [{expand:true, cwd:"temp/", src:['*.js', '!*.min.js', '!*.pack.js'], dest: 'temp/', ext:'.js'}]
 		uglify:
 			options:
 				mangle:
