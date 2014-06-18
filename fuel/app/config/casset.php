@@ -260,7 +260,7 @@ return [
 					'static::materia.mywidgets.tasks.js',
 					'static::materia.mywidgets.csv.js',
 					'static::materia.set.availability.js',
-					'materia.page.my-widgets.js',
+					'static::materia.page.my-widgets.js',
 					'lib/jquery.jqplot.min.js',
 					'lib/jquery.qtip-1.0.0-rc3.min.js',
 					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
