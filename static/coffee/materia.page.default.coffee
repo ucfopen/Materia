@@ -59,7 +59,7 @@ $(document).ready ->
 				$('.icon_container').removeClass('big_bearded')
 
 				$('.widget .icon').each (index) ->
-					for [0...beards.length]
+					for j in [0...beards.length]
 						if $(this).hasClass('small_'+beards[j])
 							$(this).removeClass('small_'+beards[j])
 
