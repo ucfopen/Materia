@@ -193,7 +193,7 @@ return [
 					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
-					'materia.page.notification.js',
+					'static::materia.page.notification.js',
 					'static::materia.coms.json.js',
 					'static::materia.widget.catalog.js',
 					'static::materia.sorter.filter.js',
@@ -211,7 +211,7 @@ return [
 					'static::materia.image.js',
 					'static::materia.coms.json.js',
 					'static::materia.widget.detail.js',
-					'materia.page.widget-detail.js'
+					'static::materia.page.widget-detail.js'
 				],
 				'deps' => ['fancybox'],
 				'enabled' => false,
@@ -239,7 +239,7 @@ return [
 					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
-					'materia.page.notification.js',
+					'static::materia.page.notification.js',
 					'static::materia.image.js',
 					'static::materia.textfilter.js',
 					'lib/jqmodal.js',
