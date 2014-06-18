@@ -168,7 +168,7 @@ return [
 			],
 			'settings' => [
 				'files' => [
-					'materia.page.settings.js',
+					'static::materia.page.settings.js',
 					'lib/spin.js',
 					'lib/spin.jquery.js',
 					'static::materia.set.throbber.js',
