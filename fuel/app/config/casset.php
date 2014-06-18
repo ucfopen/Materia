@@ -179,7 +179,7 @@ return [
 			'profile' => [
 				'files' => [
 					'static::materia.profile.activity.load.js',
-					'materia.page.profile.js',
+					'static::materia.page.profile.js',
 					'static::materia.coms.json.js',
 					'static::materia.set.datetime.js',
 				],
