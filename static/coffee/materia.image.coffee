@@ -13,6 +13,6 @@ Namespace('Materia').Image = do ->
 		WIDGET_URL+widgetDir+'img/screen-shots/'+size+'-thumb.png'
 
 
-	iconUrl : iconUrl	
-	screenshotUrl : screenshotUrl	
+	iconUrl : iconUrl
+	screenshotUrl : screenshotUrl
 	screenshotThumbUrl : screenshotThumbUrl

@@ -231,7 +231,7 @@ Namespace('Materia').Player = do ->
 			when _isPreview then dfd.resolve()
 			else
 				# get the play id from the embedded variable on the page:
-				_play_id = __PLAY_ID;
+				_play_id = __PLAY_ID
 
 				if _play_id?
 					dfd.resolve()

@@ -3,7 +3,7 @@ Namespace('Materia').WidgetInstance = do ->
 	_widgetIds = {}
 	_gotAll = no
 
-	_getFromServer = (getWhat, callback) =>
+	_getFromServer = (getWhat, callback) ->
 		if getWhat? then getWhat = [[getWhat]]
 
 		Materia.Coms.Json.send 'widget_instances_get', getWhat, (widgets) ->

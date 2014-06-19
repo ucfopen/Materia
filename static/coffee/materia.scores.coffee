@@ -150,31 +150,31 @@ Namespace('Materia').Scores = do ->
 
 	displayAttempts = (play_id) ->
 		if(isPreview)
-			$('header').addClass('preview');
-			currentAttempt = 1;
-			getScoreDetails();
+			$('header').addClass('preview')
+			currentAttempt = 1
+			getScoreDetails()
 		else
 			if(attempts instanceof Array && attempts.length > 0)
-				matchedAttempt = false;
+				matchedAttempt = false
 				for i in [0..attempts.length-1]
-					d = new Date(attempts[i].created_at * 1000);
+					d = new Date(attempts[i].created_at * 1000)
 
 					# attempt_dates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
-					attempt_dates[i] = ((d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear());
+					attempt_dates[i] = ((d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear())
 
-					if(play_id == attempts[i].id) then  matchedAttempt = attempts.length - i;
+					if(play_id == attempts[i].id) then  matchedAttempt = attempts.length - i
 
 				if(isPreview)
-					window.location.hash = '#attempt-'+1;
+					window.location.hash = '#attempt-'+1
 				else if(matchedAttempt != false)
-					# chainging the hash will call getScoreDetails();
+					# chainging the hash will call getScoreDetails()
 					# currentAttempt = matchedAttempt
-					window.location.hash = '#attempt-'+matchedAttempt;
-					getScoreDetails();
+					window.location.hash = '#attempt-'+matchedAttempt
+					getScoreDetails()
 				else if(getAttemptNumberFromHash() == undefined)
-					window.location.hash = '#attempt-'+attempts.length;
+					window.location.hash = '#attempt-'+attempts.length
 				else
-					getScoreDetails();
+					getScoreDetails()
 
 	# Uses jPlot to create the bargraph and piechart
 	# @param    type		The type of graph that will be made (bargraph | pieChart)
@@ -289,8 +289,8 @@ Namespace('Materia').Scores = do ->
 		updateHtmlTemplate(deets.overview, 'overview')
 
 		if(!isEmbedded)
-			updateHtmlTemplate(deets.details, 'details');
-			addCircleToDetailTable(deets.details);
+			updateHtmlTemplate(deets.details, 'details')
+			addCircleToDetailTable(deets.details)
 
 		if isPreview
 			$('.overview hgroup h1').css('margin-top', 10)
