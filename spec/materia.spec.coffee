@@ -455,6 +455,7 @@ describe 'My Widgets Page', ->
             .setValue('#username', author.username)
             .setValue('#password', author.password)
             .click('form input.action_button')
+            .pause 500
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('My Widgets | Materia')
