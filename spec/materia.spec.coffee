@@ -455,10 +455,10 @@ describe 'My Widgets Page', ->
             .setValue('#username', author.username)
             .setValue('#password', author.password)
             .click('form input.action_button')
-            .pause 500
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('My Widgets | Materia')
+            .waitFor '.directions.unchosen p', 5000
             .getText '.directions.unchosen p', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toBe('Choose a widget from the list on the left.')
