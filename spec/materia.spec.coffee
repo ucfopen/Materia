@@ -632,6 +632,7 @@ describe 'When I create a widget', ->
             .call(done)
     , 25000
 
+    ###
     it 'it should delete using the delete button', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
@@ -656,6 +657,7 @@ describe 'When I create a widget', ->
             .call(done)
             .call -> client.end(done)
     , 25000
+    ###
 
 describe 'My Widgets Page', ->
     client = {}
