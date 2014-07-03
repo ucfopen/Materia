@@ -625,14 +625,9 @@ describe 'When I create a widget', ->
             .getText '.container .page h1', (err, mode) ->
                 expect(err).toBeNull()
                 expect(mode).toBe(copyTitle)
-            .click('#delete_widget_link')
-            .waitFor('.delete_dialogue', 7000)
-            .isVisible('.delete_dialogue')
-            .click('.delete_button') # just delete it, we'll test deletion in another step
             .call(done)
     , 25000
 
-    ###
     it 'it should delete using the delete button', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
@@ -657,7 +652,6 @@ describe 'When I create a widget', ->
             .call(done)
             .call -> client.end(done)
     , 25000
-    ###
 
 describe 'My Widgets Page', ->
     client = {}
