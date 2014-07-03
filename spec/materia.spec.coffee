@@ -640,13 +640,13 @@ describe 'When I create a widget', ->
             .pause(2000)
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(result.value).toBe(0)
+                expect(result.value).toBe(1)
             .refresh()
             .waitFor('.widget', 5000)
             .pause(2000)
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(result.value).toBe(0)
+                expect(result.value).toBe(1)
             .pause(1800)
             .isVisible('.error-nowidget')
             .call(done)
