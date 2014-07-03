@@ -422,48 +422,6 @@ describe 'Settings page', ->
 
             .call(done)
 
-describe 'My Widgets Page', ->
-    client = {}
-    
-    beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
-        client.init()
-
-    afterEach (done) ->
-        client.end(done)
-
-    it 'should relocate to my widgets on author login', (done) ->
-        client
-            .url('http://localhost:8080/login')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Login | Materia')
-            .setValue('#username', author.username)
-            .setValue('#password', author.password)
-            .click('form input.action_button')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('My Widgets | Materia')
-            .call(done)
-
-    it 'should display instructions by default', (done) ->
-        client
-            .url('http://localhost:8080/login')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Login | Materia')
-            .setValue('#username', author.username)
-            .setValue('#password', author.password)
-            .click('form input.action_button')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('My Widgets | Materia')
-            .waitFor '.directions.unchosen p', 5000
-            .getText '.directions.unchosen p', (err, text) ->
-                expect(err).toBeNull()
-                expect(text).toBe('Choose a widget from the list on the left.')
-            .call(done)
-
 describe 'Help Page', ->
     client = {}
     
@@ -698,4 +656,46 @@ describe 'When I create a widget', ->
             .call(done)
             .call -> client.end(done)
     , 25000
+
+describe 'My Widgets Page', ->
+    client = {}
+    
+    beforeEach ->
+        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client.init()
+
+    afterEach (done) ->
+        client.end(done)
+
+    it 'should relocate to my widgets on author login', (done) ->
+        client
+            .url('http://localhost:8080/login')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('Login | Materia')
+            .setValue('#username', author.username)
+            .setValue('#password', author.password)
+            .click('form input.action_button')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('My Widgets | Materia')
+            .call(done)
+
+    it 'should display instructions by default', (done) ->
+        client
+            .url('http://localhost:8080/login')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('Login | Materia')
+            .setValue('#username', author.username)
+            .setValue('#password', author.password)
+            .click('form input.action_button')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('My Widgets | Materia')
+            .waitFor '.directions.unchosen p', 5000
+            .getText '.directions.unchosen p', (err, text) ->
+                expect(err).toBeNull()
+                expect(text).toBe('Choose a widget from the list on the left.')
+            .call(done)
 
