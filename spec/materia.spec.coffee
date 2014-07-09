@@ -28,13 +28,15 @@ student =
 	username: '~student'
 	password: 'kogneato'
 
+webdriverOptions = { desiredCapabilities: {browserName: testBrowser}, logLevel: "silent" }
+
 console.log "Running #{testBrowser} with #{author.username} and #{student.username}"
 
 describe 'Homepage', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -61,7 +63,7 @@ describe 'Homepage', ->
 
 describe 'Widget Catalog Page', ->
     client = {}
-    client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+    client = webdriverjs.remote(webdriverOptions)
     client.init()
 
     it 'should display widgets', (done) ->
@@ -155,7 +157,7 @@ describe 'Login Page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -248,7 +250,7 @@ describe 'Profile page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -283,7 +285,7 @@ describe 'Profile page', ->
 
 describe 'When not logged in', ->
     client = {}
-    client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+    client = webdriverjs.remote(webdriverOptions)
     client.init()
 
     it ' settings should redirect to login', (done) ->
@@ -316,7 +318,7 @@ describe 'Settings page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -427,7 +429,7 @@ describe 'Help Page', ->
     
 
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -448,7 +450,7 @@ describe 'Widget Exists', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -495,7 +497,7 @@ describe 'When I create a widget', ->
     instanceID = null
 
     # Reuse session to keep from having to log in
-    client = webdriverjs.remote({ singleton:true, desiredCapabilities: {browserName: testBrowser} })
+    client = webdriverjs.remote(webdriverOptions)
     client.init()
 
     it 'it should update hash url', (done) ->
@@ -657,7 +659,7 @@ describe 'My Widgets Page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
