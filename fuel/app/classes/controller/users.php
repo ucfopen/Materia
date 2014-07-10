@@ -87,6 +87,29 @@ class Controller_Users extends Controller
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
 	}
+
+	/**
+	 * Show just the login page
+	 * Used for bypassing Shibboleth when UCF Auth is enabled
+	 */
+	public function action_internal_login()
+	{
+		// figure out where to send if logged in
+		$redirect = Input::get('redirect') ?: Router::get('profile');
+
+		Package::load('casset');
+		Casset::enable_js(['login']);
+		Casset::enable_css(['login']);
+
+		$this->theme->get_template()
+			->set('title', 'Login')
+			->set('page_type', 'login');
+
+		$this->theme->set_partial('content', 'partials/login')
+			->set('redirect', urlencode($redirect));
+	}
+
+
 	/**
 	 * Uses Materia API's remote_logout function to log the user in.
 	 *
