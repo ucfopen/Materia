@@ -70,29 +70,22 @@ class Controller_Users extends Controller
 			}
 			Response::redirect($redirect);
 		}
-		else
+		// only show flash if they actually input a username
+		else if (Input::post('username'))
 		{
 			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
 			Session::set_flash('login_error', $msg);
 		}
 
-		Package::load('casset');
-		Casset::enable_js(['login']);
-		Casset::enable_css(['login']);
-
-		$this->theme->get_template()
-			->set('title', 'Login')
-			->set('page_type', 'login');
-
-		$this->theme->set_partial('content', 'partials/login')
-			->set('redirect', urlencode($redirect));
+		// show the login page
+		$this::action_login_page();
 	}
 
 	/**
 	 * Show just the login page
 	 * Used for bypassing Shibboleth when UCF Auth is enabled
 	 */
-	public function action_internal_login()
+	public function action_login_page()
 	{
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
