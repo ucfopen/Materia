@@ -285,3 +285,27 @@ box-shadow: 1px 2px 4px #888;*/
 .login .server_date {
 	display:none;
 }
+
+.login .container.widget section.page.small {
+	min-height: 100px;
+	width: 380px;
+	padding-left: 100px;
+}
+
+.login .container.widget section.page.small .action_button {
+	margin-left: 100px;
+	margin-top: 20px;
+}
+
+.login .container.widget section.page.small .help_links {
+	margin-left: -100px;
+}
+
+.login h1 {
+	width: 600px;
+	text-align: center;
+	position: relative;
+	margin: auto;
+	margin-bottom: 20px;
+}
+
