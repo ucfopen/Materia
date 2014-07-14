@@ -25,7 +25,7 @@
 				</div>
 			<? endif ?>
 			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= urlencode(URI::current()) ?>" class="form-content" >
-				<input type="submit" value="Login with UCF" tabindex="3" class="action_button" />
+				<input type="submit" value="Log in with UCF" tabindex="3" class="action_button" />
 				<ul class="help_links footer">
 					<? foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
 					<li><a href="/help">Help</a></li>
