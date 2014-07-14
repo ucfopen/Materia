@@ -52,13 +52,15 @@ class Controller_Users extends Controller
 	public function action_login()
 	{
 		// figure out where to send if logged in
-		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$redirect = Input::get('redirect') ?: Session::get('redirect') ?: Router::get('profile');
 
 		if (Model_User::find_current())
 		{
 			// already logged in
 			Response::redirect($redirect);
 		}
+
+		Session::set('redirect', $redirect);
 
 		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
 		if ($login === true)
