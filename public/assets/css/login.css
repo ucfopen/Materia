@@ -301,7 +301,7 @@ box-shadow: 1px 2px 4px #888;*/
 	margin-left: -100px;
 }
 
-.login h1 {
+.login h1.title {
 	width: 600px;
 	text-align: center;
 	position: relative;

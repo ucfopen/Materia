@@ -1,5 +1,5 @@
 <div class="container <?= $classes ?>">
-	<h1><?= $name ?></h1>
+	<h1 class="title"><?= $name ?></h1>
 	<section class="page small">
 		<div class="widget_info">
 			<div class="widget_icon">
