@@ -291,7 +291,6 @@
 				<option value="raw">All raw data</option>
 			</select>
 			<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
-			<!--<p class="raw"><a href="#">Export raw data</a></p>-->
 		</div>
 	</div>
 
