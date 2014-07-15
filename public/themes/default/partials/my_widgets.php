@@ -275,7 +275,7 @@
 			</tr>
 			<tr>
 				<td>lf33422i</td>
-				<td class="name">Lou Firecheif</td>
+				<td class="name">Lou Firechief</td>
 				<td>0</td>
 			</tr>
 			<tr>
