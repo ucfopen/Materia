@@ -73,7 +73,7 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 		// only show flash if they actually input a username
-		else if (Input::post('username'))
+		elseif (Input::post('username'))
 		{
 			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
 			Session::set_flash('login_error', $msg);
@@ -185,7 +185,7 @@ class Controller_Users extends Controller
 
 			if (Materia\Api::session_valid() === true)
 			{
-				if(count($set_meta) > 0)
+				if (count($set_meta) > 0)
 				{
 					$success = Materia\Api::user_update_meta($set_meta);
 				}
