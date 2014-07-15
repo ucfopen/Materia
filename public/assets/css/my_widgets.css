@@ -2528,13 +2528,17 @@
 .arrow_down_button {
 	padding: 7px 12px 8px 12px;
 }
-#popup.csv_popup p.cancel, p.raw {
+#popup.csv_popup p.cancel {
 	text-align: center;
 }
-#popup.csv_popup p.cancel a, p.raw a {
+#popup.csv_popup p.cancel a {
 	font-size: 0.9em;
 	color: #bbb;
 	text-decoration: underline;
+}
+#popup.csv_popup select {
+	margin-top: 10px;
+	margin-bottom: -10px;
 }
 #popup.csv_popup table tr td {
 	width: 30%;

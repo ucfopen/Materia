@@ -286,8 +286,12 @@
 		</table>
 		<span id="sample-notification">Sample</span>
 		<div class="download-controls">
+			<select id="export-select">
+				<option value="csv" selected>Scores</option>
+				<option value="raw">All raw data</option>
+			</select>
 			<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
-			<p class="raw"><a href="#">Export raw data</a></p>
+			<!--<p class="raw"><a href="#">Export raw data</a></p>-->
 		</div>
 	</div>
 
