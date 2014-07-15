@@ -67,7 +67,7 @@ class Controller_Scores extends Controller
 		Casset::enable_css(['embed_scores']);
 
 		$lti_token = \Input::get('ltitoken', false);
-		if($lti_token)
+		if ($lti_token)
 		{
 			Casset::js_inline('var __LTI_TOKEN = "'.$lti_token.'";');
 		}
@@ -137,7 +137,7 @@ class Controller_Scores extends Controller
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return $this->build_download_response($csv, $inst->name . ".csv");
+		return $this->build_download_response($csv, $inst->name.'.csv');
 	}
 
 	/**
@@ -179,9 +179,10 @@ class Controller_Scores extends Controller
 
 				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
 
-				$play_events = Materia\Session_Logger::get_logs($play["id"]);
+				$play_events = Materia\Session_Logger::get_logs($play['id']);
 
-				foreach ($play_events as $play_event) {
+				foreach ($play_events as $play_event)
+				{
 					$r = [];
 					$r['semester']   = $semester;
 					$r['last_name']  = $play['last'];
@@ -230,7 +231,7 @@ class Controller_Scores extends Controller
 			{
 				$csv_question = [];
 				$csv_question['question_id'] = $question['id'];
-				$csv_question['id'] = isset($q['id']) ? $q['id'] : "";
+				$csv_question['id'] = isset($q['id']) ? $q['id'] : '';
 				$csv_question['options'] = $question['options'];
 				$csv_question['text'] = $q['text'];
 				$csv_questions[] = $csv_question;
@@ -238,22 +239,24 @@ class Controller_Scores extends Controller
 
 			foreach ($question['options'] as $key => $value)
 			{
-				if (!in_array($key, $options))
+				if ( ! in_array($key, $options))
+				{
 					$options[] = $key;
+				}
 			}
 
 			foreach ($question['answers'] as $answer)
 			{
 				$csv_answer = [];
-				$csv_answer['id'] = isset($answer['id']) ? $answer['id'] : "";
-				$csv_answer['text'] = isset($answer['text']) ? $answer['text'] : "";
-				$csv_answer['value'] = isset($answer['value']) ? $answer['value'] : "";
+				$csv_answer['id'] = isset($answer['id']) ? $answer['id'] : '';
+				$csv_answer['text'] = isset($answer['text']) ? $answer['text'] : '';
+				$csv_answer['value'] = isset($answer['value']) ? $answer['value'] : '';
 				$csv_answer['question_id'] = $question['id'];
 				$csv_answers[] = $csv_answer;
 			}
 		}
 
-		$csv_question_text = "question_id,id,text";
+		$csv_question_text = 'question_id,id,text';
 
 		foreach ($options as $key)
 		{
@@ -266,30 +269,30 @@ class Controller_Scores extends Controller
 
 			foreach ($options as $key)
 			{
-				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : "";
+				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : '';
 				$csv_question_text .= ",$val";
 			}
 		}
 
-		$csv_answer_text = "question_id,id,text,value";
+		$csv_answer_text = 'question_id,id,text,value';
 		foreach ($csv_answers as $answer)
 		{
 			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
 		}
 
-		$tempname = tempnam("/tmp", "materia_csv");
+		$tempname = tempnam('/tmp', 'materia_csv');
 
 		$zip = new ZipArchive();
 		$zip->open($tempname);
-		$zip->addFromString("questions.csv", $csv_question_text);
-		$zip->addFromString("answers.csv", $csv_answer_text);
-		$zip->addFromString("logs.csv", $csv_playlog_text);
+		$zip->addFromString('questions.csv', $csv_question_text);
+		$zip->addFromString('answers.csv', $csv_answer_text);
+		$zip->addFromString('logs.csv', $csv_playlog_text);
 		$zip->close();
 
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return $this->build_download_response($data, $inst->name . ".zip");
+		return $this->build_download_response($data, $inst->name.'.zip');
 	}
 
 	public function action_storage($inst_id, $table_name, $semesters)
