@@ -205,7 +205,7 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 
 					$('.overview .icon').attr('src', Materia.Image.iconUrl(inst.widget.dir, 275))
 
-					if BEARD_MODE? == true
+					if BEARD_MODE? and BEARD_MODE == true
 
 						$('.widget .icon').each (index) ->
 							rand = Math.floor((Math.random()*beards.length)+1) - 1
