@@ -85,7 +85,7 @@ class Controller_Media extends Controller
 			}
 		}
 
-		return File::render($resized_file);
+		return File::render($resized_file, null, null, 'media');
 	}
 
 

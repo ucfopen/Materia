@@ -26,9 +26,6 @@ body, html {
 
 }
 
-#question-table_filter label{
-	/*display:none;*/
-}
 #question-table_filter input[type="text"]
 {
 	width: 124px;
@@ -106,7 +103,7 @@ h1{
 
 table.dataTable thead th{
 	border-bottom:1px solid #DDD;
-	padding:6px 10px;
+	padding:10px 18px;
 	color: #666;
 }
 
@@ -114,7 +111,6 @@ table.dataTable thead th{
 	display: block;
 	position: absolute;
 	bottom: 75px;
-	white-space: ;
 	left: 10px;
 	right: 10px;
 	z-index:4;

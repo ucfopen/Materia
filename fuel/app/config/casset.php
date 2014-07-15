@@ -50,7 +50,7 @@ return [
 				'attr' => ['data-src' => 'swfobject'],
 			],
 			'dataTables' => [
-				'files' => ['cdnjs::datatables/1.9.4/jquery.dataTables.min.js'],
+				'files' => ['cdnjs::datatables/1.10.0/jquery.dataTables.min.js'],
 				'enabled' => false,
 				'combine' => false,
 				'min' => false,
@@ -103,7 +103,7 @@ return [
 			],
 			'media_catalog' => [
 				'files' => [
-					'materia.page.media-import.js',
+					'static::materia.page.media-import.js',
 					'static::materia.coms.json.js',
 					'lib/jquery.plupload.queue.js',
 					'lib/plupload.js',

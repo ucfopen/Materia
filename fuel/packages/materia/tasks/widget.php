@@ -22,7 +22,7 @@ class Widget  extends \Basetask
 					->where('object_id', $widget_id)
 					->where('user_id', $user->id)
 					->execute();
-				\Cli::write(\Cli::color("Widget visibility removed from user $user_name",'green'));	
+				\Cli::write(\Cli::color("Widget visibility removed from user $user_name",'green'));
 			}
 			//Grants widget visibility
 			elseif ( ! $count)
@@ -31,7 +31,7 @@ class Widget  extends \Basetask
 					->columns(['object_id', 'user_id', 'perm','object_type'])
 					->values([$widget_id, $user->id, 0, 3])
 					->execute();
-				\Cli::write(\Cli::color("Widget visibility granted to user $user_name",'green'));	
+				\Cli::write(\Cli::color("Widget visibility granted to user $user_name",'green'));
 			}
 		}
 		else
@@ -189,9 +189,10 @@ class Widget  extends \Basetask
 	}
 
 
-	//create_instance --as-user=1 --widget-id=20 --widget-name="Fruits"  --owner=2927
 	public static function create_instance()
 	{
+		$owner = $create_stub_qset = false;
+
 		$interactive = \Cli::option('i');
 		if ( ! $interactive)
 		{
@@ -199,13 +200,14 @@ class Widget  extends \Basetask
 			$engine_id = \Cli::option('engine-id');
 			$widget_name = \Cli::option('widget-name');
 			$owner = \Cli::option('owner');
+			$create_stub_qset = \Cli::option('stub-qset');
 
 			if ( ! $as_user || ! $engine_id || ! $widget_name)
 			{
 				\Cli::error('Invalid arguments!');
 				\Cli::write('Examples:');
 				\Cli::write('Interactive:     '.\Cli::color('php oil refine widget:create_instance -i', 'yellow'));
-				\Cli::write('Non-interactive: '.\Cli::color('php oil refine widget:create_instance --as-user=1 --engine-id=20 --widget-name="Example" [--owner=2] [--qset=file.yaml]', 'yellow'));
+				\Cli::write('Non-interactive: '.\Cli::color('php oil refine widget:create_instance --as-user=1 --engine-id=20 --widget-name="Example" [--owner=2] [--qset=file.yaml | --stub-qset]', 'yellow'));
 				self::quit();
 			}
 		}
@@ -241,6 +243,21 @@ class Widget  extends \Basetask
 		}
 
 		\Cli::write(\Cli::color('Widget was created', 'green'));
+
+		// stub qset
+		if ($interactive)
+		{
+			if (\Cli::prompt("Do you want this widget to have a stub qset?", ['n', 'y']) === 'y')
+			{
+				$create_stub_qset = true;
+			}
+		}
+
+		if ($create_stub_qset)
+		{
+			$result->qset->data = [1];
+			$result->db_store();
+		}
 
 		if ($interactive)
 		{
@@ -458,7 +475,7 @@ class Widget  extends \Basetask
 			\Cli::write('Cloning git repository...');
 			trace('installing widget from git repository', $git_url);
 			passthru("git clone -q --recursive $git_url $output_dir");
-		
+
 			// make sure outputdir has a trailing slash
 			if (substr($output_dir, -1) != '/') $output_dir .= '/';
 
@@ -1095,7 +1112,7 @@ class Widget  extends \Basetask
 
 	/**
 	 * Removes ids from a qset
-	 * 
+	 *
 	 * @param object $qset The qset to strip
 	 * @param array $excluded_types List of materiaTypes to exclude (i.e. 'asset')
 	 * @param array $excluded_keys List of keys to avoiding stripping (i.e. 'option')
@@ -1389,7 +1406,7 @@ class Widget  extends \Basetask
 			// make a array of all the files, ignoring .yaml files
 			//$files = self::list_files($source_dir);
 			//\Cli::write(print_r($files, true));
-			
+
 			$demo = $instance_to_use_as_demo;
 			if( ! $demo && isset($widget->meta_data['demo']))
 			{

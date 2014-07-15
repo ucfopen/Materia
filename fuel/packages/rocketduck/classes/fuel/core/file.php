@@ -5,8 +5,7 @@ class File extends Fuel\Core\File
 
 	public static function render($path, $name = null, $mime = null, $area = null)
 	{
-
-		$info = static::file_info($path, $area);
+		$info = static::file_info(realpath($path), $area);
 		empty($mime) and $mime = $info['mimetype'];
 		empty($name) and $name = $info['basename'];
 
@@ -21,9 +20,16 @@ class File extends Fuel\Core\File
 		header('Cache-Control: max-age=172800, public, must-revalidate');
 
 		// send the file using mod_xsendfile
-		if (\Config::get('file.enable_mod_xsendfile', false) && in_array('mod_xsendfile', apache_get_modules()))
+		if (\Config::get('file.enable_mod_xsendfile', false) && function_exists('apache_get_modules') && in_array('mod_xsendfile', apache_get_modules()))
 		{
 			header('X-SendFile: '.$info['realpath']);
+			exit;
+		}
+
+		if (\Config::get('file.enable_x_accel', false))
+		{
+			$media_path_partial = str_replace(realpath(\Config::get('materia.dirs.media')), '', $info['realpath']);
+			header('X-Accel-Redirect: /protected_media/'.$media_path_partial);
 			exit;
 		}
 
