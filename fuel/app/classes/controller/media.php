@@ -118,8 +118,9 @@ class Controller_Media extends Controller
 		if (Materia\Api::session_valid() !== true ) throw new HttpNotFoundException;
 
 		Event::register('media-upload-complete', '\Controller_Media::on_upload_complete');
+
 		Package::load('plupload');
-		require PKGPATH.'/plupload/classes/upload.php';
+		return \Plupload\Plupload::upload();
 	}
 
 	// Event handler called when an upload via plupload is complete
