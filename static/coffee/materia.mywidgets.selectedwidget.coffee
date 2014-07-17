@@ -592,7 +592,7 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 		getPlayLogs selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
 			$table = $scoreWrapper.find('.display.table')
 			tableSort = $table.attr('data-sort')
-			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort)
+			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, selectedWidgetInstId)
 			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
 
 	updateData = ($scoreWrapper) ->

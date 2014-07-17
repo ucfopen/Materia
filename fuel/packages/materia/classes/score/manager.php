@@ -66,7 +66,8 @@ class Score_Manager
 
 			if ($play->user_id != $curr_user_id)
 			{
-				return new \RocketDuck\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');
+				if ( ! Perm_Manager::check_user_perm_to_object($curr_user_id, $play->inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]))
+					return new \RocketDuck\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');
 			}
 
 			// run the data through the score module

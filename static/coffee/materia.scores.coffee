@@ -9,6 +9,7 @@ Namespace('Materia').Scores = do ->
 	templates = {}
 	widgetInstance = null
 	isPreview = false
+	single_id = null
 	isEmbedded = false
 	barPlot = null
 	_graphData = []
@@ -25,8 +26,11 @@ Namespace('Materia').Scores = do ->
 		# scores embed URL this will need to be modified!
 		isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
 
-		play_id    = window.location.hash.split('play-')[1] # this is only actually set to something when coming from the profile page
+		single_id  = window.location.hash.split('single-')[1]
 		widget_id  = document.URL.match( /^[\.\w\/:]+\/([a-z0-9]+)/i )[1]
+
+		# this is only actually set to something when coming from the profile page
+		play_id    = window.location.hash.split('play-')[1]
 
 		attempts = []
 		attempt_dates = []
@@ -63,7 +67,7 @@ Namespace('Materia').Scores = do ->
 
 	getInstanceScores = (inst_id) ->
 		dfd = $.Deferred()
-		if(isPreview)
+		if isPreview or single_id
 			attempts = [{'id': -1, 'created_at' : 0, 'percent' : 0}]
 			dfd.resolve() # skip, preview doesn't support this
 		else
@@ -87,6 +91,8 @@ Namespace('Materia').Scores = do ->
 		if(isPreview)
 			currentAttempt = 1
 			Materia.Coms.Json.send('widget_instance_play_scores_get', [null, widgetInstance.id], displayDetails)
+		else if single_id
+			Materia.Coms.Json.send('widget_instance_play_scores_get', [single_id], displayDetails)
 		else
 			# get the current attempt from the url
 			hash = getAttemptNumberFromHash()
@@ -111,7 +117,7 @@ Namespace('Materia').Scores = do ->
 			attempts : attempts
 			dates    : attempt_dates
 
-		if( widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && attempts.length < widgetInstance.attempts) || isPreview)
+		if( widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && attempts.length < widgetInstance.attempts) || isPreview) && !single_id
 			prefix = if isEmbedded then '/embed/' else ( if isPreview then '/preview/' else '/play/')
 
 			overview_data.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
@@ -147,6 +153,8 @@ Namespace('Materia').Scores = do ->
 
 		if (hidePlayAgain)
 			$('#play-again').hide()
+		if single_id
+			$('.previous-attempts').hide()
 
 	displayAttempts = (play_id) ->
 		if(isPreview)
@@ -257,7 +265,6 @@ Namespace('Materia').Scores = do ->
 			barPlot = $.jqplot('graph', [_graphData], jqOptions)
 
 	displayDetails = (results) ->
-
 		if !results
 			$('article.container').remove()
 			widget_data =
@@ -274,6 +281,8 @@ Namespace('Materia').Scores = do ->
 
 		details[attempts.length - currentAttempt] = results
 		deets = results[0]
+
+		return if not deets
 
 		# Round the score for display
 		deets.overview.score = Math.round deets.overview.score

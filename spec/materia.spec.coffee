@@ -28,13 +28,15 @@ student =
 	username: '~student'
 	password: 'kogneato'
 
+webdriverOptions = { desiredCapabilities: {browserName: testBrowser}, logLevel: "silent" }
+
 console.log "Running #{testBrowser} with #{author.username} and #{student.username}"
 
 describe 'Homepage', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -61,7 +63,7 @@ describe 'Homepage', ->
 
 describe 'Widget Catalog Page', ->
     client = {}
-    client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+    client = webdriverjs.remote(webdriverOptions)
     client.init()
 
     it 'should display widgets', (done) ->
@@ -155,7 +157,7 @@ describe 'Login Page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -248,7 +250,7 @@ describe 'Profile page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -283,7 +285,7 @@ describe 'Profile page', ->
 
 describe 'When not logged in', ->
     client = {}
-    client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+    client = webdriverjs.remote(webdriverOptions)
     client.init()
 
     it ' settings should redirect to login', (done) ->
@@ -316,7 +318,7 @@ describe 'Settings page', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -422,53 +424,12 @@ describe 'Settings page', ->
 
             .call(done)
 
-describe 'My Widgets Page', ->
-    client = {}
-    
-    beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
-        client.init()
-
-    afterEach (done) ->
-        client.end(done)
-
-    it 'should relocate to my widgets on author login', (done) ->
-        client
-            .url('http://localhost:8080/login')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Login | Materia')
-            .setValue('#username', author.username)
-            .setValue('#password', author.password)
-            .click('form input.action_button')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('My Widgets | Materia')
-            .call(done)
-
-    it 'should display instructions by default', (done) ->
-        client
-            .url('http://localhost:8080/login')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Login | Materia')
-            .setValue('#username', author.username)
-            .setValue('#password', author.password)
-            .click('form input.action_button')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('My Widgets | Materia')
-            .getText '.directions.unchosen p', (err, text) ->
-                expect(err).toBeNull()
-                expect(text).toBe('Choose a widget from the list on the left.')
-            .call(done)
-
 describe 'Help Page', ->
     client = {}
     
 
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -489,7 +450,7 @@ describe 'Widget Exists', ->
     client = {}
     
     beforeEach ->
-        client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+        client = webdriverjs.remote(webdriverOptions)
         client.init()
 
     afterEach (done) ->
@@ -536,7 +497,7 @@ describe 'When I create a widget', ->
     instanceID = null
 
     # Reuse session to keep from having to log in
-    client = webdriverjs.remote({ singleton:true, desiredCapabilities: {browserName: testBrowser} })
+    client = webdriverjs.remote(webdriverOptions)
     client.init()
 
     it 'it should update hash url', (done) ->
@@ -666,10 +627,6 @@ describe 'When I create a widget', ->
             .getText '.container .page h1', (err, mode) ->
                 expect(err).toBeNull()
                 expect(mode).toBe(copyTitle)
-            .click('#delete_widget_link')
-            .waitFor('.delete_dialogue', 7000)
-            .isVisible('.delete_dialogue')
-            .click('.delete_button') # just delete it, we'll test deletion in another step
             .call(done)
     , 25000
 
@@ -685,16 +642,58 @@ describe 'When I create a widget', ->
             .pause(2000)
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(result.value).toBe(0)
+                expect(result.value).toBe(1)
             .refresh()
             .waitFor('.widget', 5000)
             .pause(2000)
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(result.value).toBe(0)
+                expect(result.value).toBe(1)
             .pause(1800)
             .isVisible('.error-nowidget')
             .call(done)
             .call -> client.end(done)
     , 25000
+
+describe 'My Widgets Page', ->
+    client = {}
+    
+    beforeEach ->
+        client = webdriverjs.remote(webdriverOptions)
+        client.init()
+
+    afterEach (done) ->
+        client.end(done)
+
+    it 'should relocate to my widgets on author login', (done) ->
+        client
+            .url('http://localhost:8080/login')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('Login | Materia')
+            .setValue('#username', author.username)
+            .setValue('#password', author.password)
+            .click('form input.action_button')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('My Widgets | Materia')
+            .call(done)
+
+    it 'should display instructions by default', (done) ->
+        client
+            .url('http://localhost:8080/login')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('Login | Materia')
+            .setValue('#username', author.username)
+            .setValue('#password', author.password)
+            .click('form input.action_button')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('My Widgets | Materia')
+            .waitFor '.directions.unchosen p', 5000
+            .getText '.directions.unchosen p', (err, text) ->
+                expect(err).toBeNull()
+                expect(text).toBe('Choose a widget from the list on the left.')
+            .call(done)
 
