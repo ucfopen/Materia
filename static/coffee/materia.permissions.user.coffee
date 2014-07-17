@@ -129,12 +129,12 @@ Namespace('Materia.Permissions').User = do ->
 			$row.find('.remove').css('visibility', 'hidden')
 
 	updateExpirationLinkUI = ($row, expiration_date) ->
-		$row.find(".exp-date").val(getExpirationDateString(expiration_date));
+		$row.find(".exp-date").val(getExpirationDateString(expiration_date))
 
 		if expiration_date?
-			$row.find('.remove-expiration').show();
+			$row.find('.remove-expiration').show()
 		else
-			$row.find('.remove-expiration').hide();
+			$row.find('.remove-expiration').hide()
 
 	# Will attempt to remove a collaborator. First shows a confirmation
 	# warning if the user is attempting to remove themselves

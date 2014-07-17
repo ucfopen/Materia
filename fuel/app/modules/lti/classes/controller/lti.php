@@ -128,7 +128,7 @@ class Controller_Lti extends \Controller
 				'static::materia.widgetinstance.js',
 				'static::materia.set.availability.js',
 				'static::materia.set.datetime.js',
-				'materia.page.lti.js'
+				'static::materia.page.lti.js'
 		]);
 		\Casset::add_group('css', 'lti_picker', ['lti.css']);
 		\Casset::js_inline('var BASE_URL = "'.\Uri::base().'";');

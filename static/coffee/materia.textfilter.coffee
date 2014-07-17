@@ -60,11 +60,15 @@ Namespace('Materia').TextFilter = do ->
 			start = index[0]
 			end = index[1]
 
-			if pair[start]? pair[start]++
-			else pair[start] = 1
+			if pair[start]?
+				pair[start]++
+			else
+				pair[start] = 1
 
-			if pair[end]? then pair[end]--
-			else pair[end] = -1
+			if pair[end]?
+				pair[end]--
+			else
+				pair[end] = -1
 
 		for val, i in pair
 			if val?
@@ -118,7 +122,8 @@ Namespace('Materia').TextFilter = do ->
 			when 'nozebra' # non-zebra striping default, for score table
 				$hits.slideDown('fast')
 				$misses.slideUp('fast')
-			when 'hide' # intentional fall-through
+			when 'hide'
+				# intentional fall-through
 			else
 				$hits.show()
 				$misses.hide()

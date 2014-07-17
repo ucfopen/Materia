@@ -69,14 +69,14 @@ return [
 				'attr' => ['data-src' => 'fancybox'],
 			],
 			'core' => [
-				'files' => ['materia.page.default.js',],
+				'files' => ['static::materia.page.default.js',],
 				'enabled' => true,
 				'attr' => ['data-src' => 'core'],
 			],
 			'help' => [
 				'files' => [
 					'static::materia.flashcheck.js',
-					'materia.page.help.js',
+					'static::materia.page.help.js',
 				],
 				'deps' => ['swfobject'],
 				'enabled' => false,
@@ -84,7 +84,7 @@ return [
 			],
 			'homepage' => [
 				'files' => [
-					'materia.page.notification.js',
+					'static::materia.page.notification.js',
 					'static::materia.notification.js',
 					'static::materia.coms.json.js',
 					'static::materia.permissions.user.js',
@@ -161,14 +161,14 @@ return [
 					'lib/jquery.infieldlabel.js',
 					'static::materia.set.availability.js',
 					'static::materia.set.datetime.js',
-					'materia.page.login.js'
+					'static::materia.page.login.js'
 				],
 				'enabled' => false,
 				'attr' => ['data-src' => 'login'],
 			],
 			'settings' => [
 				'files' => [
-					'materia.page.settings.js',
+					'static::materia.page.settings.js',
 					'lib/spin.js',
 					'lib/spin.jquery.js',
 					'static::materia.set.throbber.js',
@@ -179,7 +179,7 @@ return [
 			'profile' => [
 				'files' => [
 					'static::materia.profile.activity.load.js',
-					'materia.page.profile.js',
+					'static::materia.page.profile.js',
 					'static::materia.coms.json.js',
 					'static::materia.set.datetime.js',
 				],
@@ -189,11 +189,11 @@ return [
 			],
 			'widget_catalog' => [
 				'files' => [
-					'materia.page.catalog.js',
+					'static::materia.page.catalog.js',
 					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
-					'materia.page.notification.js',
+					'static::materia.page.notification.js',
 					'static::materia.coms.json.js',
 					'static::materia.widget.catalog.js',
 					'static::materia.sorter.filter.js',
@@ -211,7 +211,7 @@ return [
 					'static::materia.image.js',
 					'static::materia.coms.json.js',
 					'static::materia.widget.detail.js',
-					'materia.page.widget-detail.js'
+					'static::materia.page.widget-detail.js'
 				],
 				'deps' => ['fancybox'],
 				'enabled' => false,
@@ -239,7 +239,7 @@ return [
 					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
-					'materia.page.notification.js',
+					'static::materia.page.notification.js',
 					'static::materia.image.js',
 					'static::materia.textfilter.js',
 					'lib/jqmodal.js',
@@ -260,7 +260,7 @@ return [
 					'static::materia.mywidgets.tasks.js',
 					'static::materia.mywidgets.csv.js',
 					'static::materia.set.availability.js',
-					'materia.page.my-widgets.js',
+					'static::materia.page.my-widgets.js',
 					'lib/jquery.jqplot.min.js',
 					'lib/jquery.qtip-1.0.0-rc3.min.js',
 					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
