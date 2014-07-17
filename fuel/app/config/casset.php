@@ -103,7 +103,7 @@ return [
 			],
 			'media_catalog' => [
 				'files' => [
-					'materia.page.media-import.js',
+					'static::materia.page.media-import.js',
 					'static::materia.coms.json.js',
 					'lib/jquery.plupload.queue.js',
 					'lib/plupload.js',

@@ -68,6 +68,11 @@ class Model_User extends Orm\Model
 		return $array[1];
 	}
 
+	public static function find_by_username($username)
+	{
+		return static::find()->where('username', $username)->get_one();
+	}
+
 	static public function find_by_name_search($name)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
@@ -104,8 +109,21 @@ class Model_User extends Orm\Model
 		$val = Validation::forge($factory);
 		$val->add_field('username', 'Username', 'required|trim|max_length[50]');
 		$val->add_field('password', 'Password', 'required|trim|min_length[8]');
-			// ->add_rule('match_pattern', '/^(?=.*(\d|[^a-zA-Z]))(?=.*[A-Z])(?!.*\s).{6,256}$/');
+		$val->add_field('first', 'First Name', 'required|trim|min_length[1]');
+		$val->add_field('last', 'Last Name', 'required|trim|min_length[1]');
 		$val->add_field('email', 'Email', 'required|trim|max_length[255]|valid_email');
+		$val->add_field('group', 'Group', 'trim|numeric');
+
+		return $val;
+	}
+
+	public static function validate_update($factory)
+	{
+		$val = Validation::forge($factory);
+		$val->add_field('first', 'First Name', 'required|trim|min_length[1]');
+		$val->add_field('last', 'Last Name', 'required|trim|min_length[1]');
+		$val->add_field('email', 'Email', 'required|trim|max_length[255]|valid_email');
+		$val->add_field('group', 'Group', 'trim|numeric');
 
 		return $val;
 	}

@@ -897,10 +897,18 @@
 			.my_widgets .page .scores .table .scoreTableContainer .scoreTable {
 				width:95%;
 				margin-left:10px;
+				border-collapse: collapse;
 			}
 
 				.my_widgets .page .scores .table .scoreTableContainer .scoreTable td {
+					border: none;
 					border-bottom:solid #dbdbdb 1px;
+				}
+				.my_widgets .page .scores .table .scoreTableContainer .scoreTable tr {
+					cursor: pointer;
+				}
+				.my_widgets .page .scores .table .scoreTableContainer .scoreTable tr:hover {
+					background:#ffe0a5;
 				}
 
 					.my_widgets .page .scores .table .scoreTableContainer .scoreTable tr:last-child td {

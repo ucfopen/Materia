@@ -62,7 +62,7 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 	 # @param sort 		the method used to sort the names (asc | desc | newest)
 	 # @return void
 
-	createTable = ($tableContainer, log, sort = 'dec') ->
+	createTable = ($tableContainer, log, sort = 'dec', inst_id) ->
 		_curTableOrder = sort
 		gameId        = $('.gameSelected').attr('id')
 		$table        = $tableContainer.find('.scoreListTable')
@@ -100,6 +100,7 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 					percent : playLog.perc
 					elapsed : playLog.elapsed
 					complete : playLog.done
+					id: playLog.id
 
 			# sort completed array based on sorting param
 			switch sort
@@ -140,6 +141,10 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 						$userTr.append $userDateTd
 						$userTr.append $userPctTd
 						$userTr.append $userElapsedTd.addClass 'elapsed'
+
+						$userTr.click ->
+							window.open "scores/" + inst_id + "/#single-" + score.id
+
 						$userTableBody.append $userTr
 
 					$userTableBox.css {opacity:1.00, right:'12px'}
