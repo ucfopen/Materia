@@ -286,6 +286,12 @@ box-shadow: 1px 2px 4px #888;*/
 	display:none;
 }
 
+.login div.availability {
+	text-align: center;
+	margin-bottom: 14px;
+	color: #6a6a6a;
+}
+
 .login .container.widget section.page.small {
 	min-height: 100px;
 	width: 380px;

@@ -1,5 +1,6 @@
 <div class="container <?= $classes ?>">
 	<h1 class="title"><?= $name ?></h1>
+	<div class="availability"><?= $avail ?></div>
 	<section class="page small">
 		<div class="widget_info">
 			<div class="widget_icon">
