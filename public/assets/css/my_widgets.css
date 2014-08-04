@@ -2457,7 +2457,7 @@
 	z-index: 100;
 	top: -1px;
 }
-#popup.csv_popup div.score_table p.download {
+#popup.csv_popup div.score_table div.download-controls {
 	position: relative;
 	z-index: 1;
 	margin: 0;
@@ -2479,8 +2479,8 @@
 	text-align: center;
 }
 #popup.csv_popup div.score_table p.download a {
-	margin-top: 24px;
-	margin-bottom: 11px;
+	margin-top: 8px;
+	margin-bottom: 0px;
 }
 #popup.csv_popup h4 {
 	text-align: center;
@@ -2543,6 +2543,10 @@
 	font-size: 0.9em;
 	color: #bbb;
 	text-decoration: underline;
+}
+#popup.csv_popup select {
+	margin-top: 10px;
+	margin-bottom: -10px;
 }
 #popup.csv_popup table tr td {
 	width: 30%;

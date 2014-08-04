@@ -31,6 +31,7 @@ return [
 	'scores/preview/(:alnum)(/.*)?'                       => 'scores/show/$1',
 	'scores/embed/(:alnum)(/.*)?'                         => 'scores/show_embedded/$1',
 	'scores/csv/(:alnum)/(:segment)(.*)?'                 => 'scores/csv/$1/$2',
+	'scores/raw/(:alnum)/(:segment)(.*)?'                 => 'scores/raw/$1/$2',
 	'scores/storage/(:alnum)/(:segment)/(:segment)(./*)?' => 'scores/storage/$1/$2/$3',
 	'scores/semesters?'                                   => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                               => 'scores/show/$1',
