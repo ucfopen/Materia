@@ -52,7 +52,7 @@ class Controller_Users extends Controller
 	public function action_login()
 	{
 		// figure out where to send if logged in
-		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$redirect = Input::get('redirect') ?: Session::get('redirect') ?: Router::get('profile');
 
 		if (Model_User::find_current())
 		{
@@ -60,24 +60,37 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
-		if (Input::method() == 'POST')
+		Session::set('redirect', $redirect);
+
+		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
+		if ($login === true)
 		{
-			$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
-			if ($login === true)
+			// if the location is the profile and they are an author, send them to my-widgets instead
+			if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
 			{
-				// if the location is the profile and they are an author, send them to my-widgets instead
-				if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
-				{
-					$redirect = 'my-widgets';
-				}
-				Response::redirect($redirect);
+				$redirect = 'my-widgets';
 			}
-			else
-			{
-				$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
-				Session::set_flash('login_error', $msg);
-			}
+			Response::redirect($redirect);
 		}
+		// only show flash if they actually input a username
+		elseif (Input::post('username'))
+		{
+			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
+			Session::set_flash('login_error', $msg);
+		}
+
+		// show the login page
+		$this::action_login_page();
+	}
+
+	/**
+	 * Show just the login page
+	 * Used for bypassing Shibboleth when UCF Auth is enabled
+	 */
+	public function action_login_page()
+	{
+		// figure out where to send if logged in
+		$redirect = Input::get('redirect') ?: Router::get('profile');
 
 		Package::load('casset');
 		Casset::enable_js(['login']);
@@ -90,6 +103,8 @@ class Controller_Users extends Controller
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
 	}
+
+
 	/**
 	 * Uses Materia API's remote_logout function to log the user in.
 	 *
@@ -97,7 +112,7 @@ class Controller_Users extends Controller
 	public function action_logout()
 	{
 		Materia\Api::session_logout();
-		Response::redirect(Router::get('login'));
+		Response::redirect('/');
 	}
 
 	/**
@@ -170,7 +185,7 @@ class Controller_Users extends Controller
 
 			if (Materia\Api::session_valid() === true)
 			{
-				if(count($set_meta) > 0)
+				if (count($set_meta) > 0)
 				{
 					$success = Materia\Api::user_update_meta($set_meta);
 				}

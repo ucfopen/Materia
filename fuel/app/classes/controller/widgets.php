@@ -235,7 +235,7 @@ class Controller_Widgets extends Controller
 		// not logged in
 		if (Materia\Api::session_valid() !== true)
 		{
-			$this->_build_widget_login('Login to play this widget', $inst_id, $embed);
+			$this->_build_widget_login('Please log in to play', $inst_id, $embed);
 		}
 		else
 		{
@@ -317,7 +317,7 @@ class Controller_Widgets extends Controller
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
-			$this->_build_widget_login('Login to preview this widget', $inst_id);
+			$this->_build_widget_login('Please log in to preview', $inst_id);
 		}
 		else
 		{
@@ -496,7 +496,9 @@ class Controller_Widgets extends Controller
 				->set('type',$inst->widget->name)
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-				->set_safe('avail', $summary));
+				->set_safe('avail', $summary))
+			->set('name', $inst->name)
+			->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png");
 
 		if ($embed) $this->_header = 'partials/header_empty';
 	}
