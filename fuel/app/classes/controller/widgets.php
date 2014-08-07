@@ -497,6 +497,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
 				->set_safe('avail', $summary))
+			->set_safe('avail', $summary)
 			->set('name', $inst->name)
 			->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png");
 
