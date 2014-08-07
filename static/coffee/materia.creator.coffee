@@ -243,12 +243,12 @@ Namespace('Materia').Creator = do ->
 		if _inst_id?
 			# editing
 			$('#returnLink')
-				.html('&larr Return to my widgets')
+				.html("&larr; Return to my widgets")
 				.attr('href', _getMyWidgetsUrl(_inst_id))
 		else
 			# new
 			$('#returnLink')
-				.html('&larr Return to widget catalog')
+				.html("&larr; Return to widget catalog")
 				.attr('href', BASE_URL+'widgets')
 
 	_onPublishPressed = ->
