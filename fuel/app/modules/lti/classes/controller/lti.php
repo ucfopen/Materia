@@ -113,9 +113,8 @@ class Controller_Lti extends \Controller
 		$this->theme->set_template('layouts/main');
 
 		\Package::load('casset');
-		\Casset::add_group('js', 'lti_picker',
+		\Casset::add_group('js', 'lti_picker', 'swfobject',
 			[
-				'swfobject.js',
 				'plugins/spin.js',
 				'plugins/spin.jquery.js',
 				'plugins/jquery.qtip-1.0.0-rc3.min.js',
