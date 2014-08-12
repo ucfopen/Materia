@@ -116,11 +116,10 @@ class Controller_Lti extends \Controller
 		\Casset::enable_js('swfobject');
 		\Casset::add_group('js', 'lti_picker',
 			[
-				'swfobject.js',
-				'plugins/spin.js',
-				'plugins/spin.jquery.js',
-				'plugins/jquery.qtip-1.0.0-rc3.min.js',
-				'jquery-ui-1.10.3.custom.min.js',
+				'lib/spin.js',
+				'lib/spin.jquery.js',
+				'lib/jquery.qtip-1.0.0-rc3.min.js',
+				'lib/jquery-ui-1.10.3.custom.min.js',
 				'static::materia.set.throbber.js',
 				'static::materia.image.js',
 				'static::materia.coms.json.js',
