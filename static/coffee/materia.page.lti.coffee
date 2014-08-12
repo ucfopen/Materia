@@ -1,4 +1,20 @@
 $ ->
+	SEARCH_DELAY_MS = 200
+	REFRESH_FAKE_DELAY_MS = 500
+	CHANGE_SECTION_FADE_DELAY_MS = 250
+
+	$widgetList = $('#list-container ul')
+	selectedWidget = null
+	widgetsLoaded = false
+
+	if system != ''
+		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
+		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
+
+	h1String = 'Select a Widget' + (system == '' ? '' : ' for use in ' + system) + ':'
+
+	$('h1').html(h1String)
+
 	hideRefreshLinkCallout = ->
 		if $('#refresh').attr('showing-qtip') == 'true'
 			$('#refresh').qtip('api').hide()
@@ -247,18 +263,6 @@ $ ->
 			if(parent.postMessage)
 				parent.postMessage(JSON.stringify(widgetData), '*')
 
-	SEARCH_DELAY_MS = 200
-	REFRESH_FAKE_DELAY_MS = 500
-	CHANGE_SECTION_FADE_DELAY_MS = 250
-
-	$widgetList = $('#list-container ul')
-	selectedWidget = null
-	widgetsLoaded = false
-
-	h1String = 'Select a Widget' + (system == '' ? '' : ' for use in ' + system) + ':'
-
-	$('h1').html(h1String)
-
 	$('#goto-new-widgets').click (event) ->
 		calloutRefreshLink()
 
@@ -283,10 +287,6 @@ $ ->
 					selectWidget(widget)
 		else if(event.keyCode == 27) #esc
 			clearSearch()
-
-	if system != ''
-		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
-		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
 
 	Materia.TextFilter.setupInput $('#search'), search, SEARCH_DELAY_MS
 
