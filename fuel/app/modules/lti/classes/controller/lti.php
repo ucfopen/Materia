@@ -77,7 +77,7 @@ class Controller_Lti extends \Controller
 			->set('page_type', 'preview');
 
 		\Package::load('casset');
-		\Casset::add_group('css', 'lti_picker', ['lti.css']);
+		\Casset::css('lti.css');
 
 		$this->theme->get_template();
 
@@ -130,7 +130,7 @@ class Controller_Lti extends \Controller
 				'static::materia.set.datetime.js',
 				'static::materia.page.lti.js'
 		]);
-		\Casset::add_group('css', 'lti_picker', ['lti.css']);
+		\Casset::css('lti.css');
 		\Casset::js_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Casset::js_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Casset::js_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
