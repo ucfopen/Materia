@@ -6,7 +6,7 @@ class Api
 {
 	/**
 	 * FUEL EVENT Fired by the score manager when it saves a score from the 'score_updated' event
-	 * @param array [0] is an instance id, [1] is the student user_id, [2] is the score 
+	 * @param array [0] is an instance id, [1] is the student user_id, [2] is the score
 	 * @return boolean True if successfully sent to the requester
 	 */
 	public static function on_send_score_event($event_args)
@@ -144,6 +144,8 @@ class Api
 				{
 					$user = \Model_User::find($user_id);
 
+					static::update_user($user, $launch->username, $launch->first, $launch->last, $launch->email);
+
 					static::update_user_roles($user);
 
 					return $user;
@@ -269,6 +271,15 @@ class Api
 		$remote_id_field   = \Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username');
 		$remote_user_field = \Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id');
 
+		$email = \Input::post('lis_person_contact_email_primary');
+		$username = \Input::post($remote_user_field);
+
+		if (empty($email))
+		{
+			trace("$username has no email from cerebro, using default", true);
+			$email = "$username@ucf.edu";
+		}
+
 		return (object) [
 			'source_id'      => \Input::post('lis_result_sourcedid', false), // the unique id for this course&context&user&launch used for returning scores
 			'service_url'    => \Input::post('lis_outcome_service_url', false), // where to send score data back to, can be blank if not supported
@@ -278,13 +289,13 @@ class Api
 			'consumer_id'    => \Input::post('tool_consumer_instance_guid', false), // unique install id of this tool
 			'consumer'       => $consumer,
 			'custom_inst_id' => \Input::post('custom_widget_instance_id', false), // Some tools will pass which inst_id they want
-			'email'          => \Input::post('lis_person_contact_email_primary'),
+			'email'          => $email,
 			'last'           => \Input::post('lis_person_name_family'),
 			'first'          => \Input::post('lis_person_name_given'),
 			'fullname'       => \Input::post('lis_person_name_full'),
 			'roles'          => explode(',', \Input::post('roles')),
 			'remote_id'      => \Input::post($remote_id_field),
-			'username'       => \Input::post($remote_user_field),
+			'username'       => $username,
 		];
 	}
 

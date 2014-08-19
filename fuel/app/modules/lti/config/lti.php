@@ -35,7 +35,7 @@ return [
 			// This means it will create users we don't have and update their user
 			// data if it changes. It will NOT update any external roles
 			// (see 'use_launch_roles')
-			'creates_users'     => false,
+			'creates_users'     => true,
 
 			// allow an external system to define user roles in Materia
 			'use_launch_roles'  => false,
@@ -85,7 +85,7 @@ return [
 			'remote_username'   => 'lis_person_sourcedid',
 			'remote_identifier' => 'lis_person_sourcedid',
 			'local_identifier'  => 'username',
-			'creates_users'     => false,
+			'creates_users'     => true,
 			'use_launch_roles'  => false,
 			'auth_driver'       => 'SimpleAuth',
 			'save_assoc'        => false,
