@@ -35,34 +35,28 @@ class Controller_Lti extends \Controller
 	{
 		if ( ! Api::authenticate()) return $this->action_error('Unknown User');
 
-		switch (Api::get_role())
+		$inst_id = \Input::get('widget');
+
+		if (Api::can_create())
 		{
-			case 'Administrator':
-			case 'Instructor':
-				$inst_id = \Input::get('widget');
-				if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
-				{
-					return $this->action_error('Unknown Assignment');
-				}
-				return \Request::forge('lti/preview/'.$inst_id, true)->execute();
-
-			case 'Learner':
-			case 'Student':
-				$inst_id = \Input::get('widget');
-
-				$play = Api::init_assessment_session($inst_id);
-
-				if ( ! $play || ! isset($play->inst_id))
-				{
-					return $this->action_error('Unknown Assignment');
-				}
-				else
-				{
-					return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
-				}
+			if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
+			{
+				return $this->action_error('Unknown Assignment');
+			}
+			return \Request::forge('lti/preview/'.$inst_id, true)->execute();
 		}
 
-		return $this->action_error('Unknown Role');
+		$play = Api::init_assessment_session($inst_id);
+
+		if ( ! $play || ! isset($play->inst_id))
+		{
+			return $this->action_error('Unknown Assignment');
+		}
+		else
+		{
+			return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
+		}
+
 	}
 
 	public function action_preview($inst_id)
@@ -193,12 +187,6 @@ class Controller_Lti extends \Controller
 
 			case 'Unknown Assignment':
 				$this->theme->set_partial('content', 'partials/no_assignment')
-					->set('system', $consumer)
-					->set('title', 'Error - '.$msg);
-				break;
-
-			case 'Unknown Role':
-				$this->theme->set_partial('content', 'partials/no_role')
 					->set('system', $consumer)
 					->set('title', 'Error - '.$msg);
 				break;

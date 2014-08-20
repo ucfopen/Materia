@@ -88,20 +88,22 @@ class Api
 	}
 
 	/**
-	 * Get the LTI role of the user sent via post
+	 * Can the user create stuff based on the LTI role sent via post
 	 * @return String Role depending on input
 	 */
-	public static function get_role()
+	public static function can_create()
 	{
-		$roles = explode(',', \Input::post('roles'));
+		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
+		$student_roles = ['Student'];
 
-		if (in_array('Administrator', $roles)) return 'Administrator';
-		if (in_array('Instructor', $roles)) return 'Instructor';
-		if (in_array('ContentDeveloper', $roles)) return 'Instructor';
-		if (in_array('urn:lti:role:ims/lis/TeachingAssistant', $roles)) return 'Instructor';
-		if (in_array('Learner', $roles)) return 'Learner';
-		if (in_array('Student', $roles)) return 'Student';
-		return 'None';
+		$launch_roles = explode(',', \Input::post('roles'));
+
+		if (count(array_intersect($launch_roles, $staff_roles))) return true;
+		if (count(array_intersect($launch_roles, $student_roles))) return false;
+
+		// log a user that has no identified roles
+		\RocketDuck\Log::profile(['no-known-role', \Input::post('roles')], 'lti-error');
+		return false;
 	}
 
 	/**
@@ -121,16 +123,21 @@ class Api
 	{
 		// allow any auth module that needs to look up external users to create them as needed
 		\Event::trigger('lti_get_or_create_user', $launch->username, 'json');
+		$auth = \Auth::instance($auth_driver);
+
+		// items to update in the user if we need to
+		$items_to_update = [
+			'first' => $launch->first,
+			'last'  => $launch->last,
+			'email' => $launch->email,
+		];
 
 		if ($user = \Model_User::find()->where($search_field, $launch->remote_id)->get_one())
 		{
 			// User already exists, so update?
-			if ($creates_users)
-			{
-				static::update_user($user, $launch->username, $launch->first, $launch->last, $launch->email);
-			}
+			if ($creates_users) $auth->update_user($items_to_update, $user->username);
 
-			static::update_user_roles($user);
+			static::update_user_roles($user, $launch, $auth);
 
 			return $user;
 		}
@@ -139,21 +146,18 @@ class Api
 		{
 			try
 			{
-				$consumer_id = \Input::post('tool_consumer_instance_guid');
-				if ($user_id = \Auth::instance($auth_driver)->create_user($launch->username, uniqid(), $launch->email, 1, ['created_by' => $consumer_id]))
+				$user_id = $auth->create_user($launch->username, uniqid(), $launch->email, 1, ['created_by' => $launch->consumer_id]);
+				if ($user_id)
 				{
 					$user = \Model_User::find($user_id);
 
-					static::update_user($user, $launch->username, $launch->first, $launch->last, $launch->email);
+					$auth->update_user($items_to_update, $user->username);
 
-					static::update_user_roles($user);
+					static::update_user_roles($user, $launch, $auth);
 
 					return $user;
 				}
-				else
-				{
-					\RocketDuck\Log::profile(['unable-to-create-user', $launch->username, $launch->email], 'lti-error');
-				}
+				\RocketDuck\Log::profile(['unable-to-create-user', $launch->username, $launch->email], 'lti-error');
 			}
 			catch (\SimpleUserUpdateException $e)
 			{
@@ -161,27 +165,8 @@ class Api
 			}
 		}
 
+		\RocketDuck\Log::profile(['unable-to-locate-user', $launch->username, $launch->email], 'lti-error');
 		return false;
-	}
-
-	/**
-	 * Update the user's data
-	 * @param  \Model_User  $user  User to update
-	 * @param  string  $username   New username
-	 * @param  string  $first      New First Name
-	 * @param  string  $last       New Last Name
-	 * @param  string  $email      New Email Address
-	 * @return void
-	 */
-	protected static function update_user(\Model_User $user, $username, $first, $last, $email)
-	{
-		// Update the user:
-		$user->username = $username;
-		$user->email    = $email;
-		$user->first    = $first;
-		$user->last     = $last;
-
-		$user->save();
 	}
 
 	/**
@@ -189,21 +174,16 @@ class Api
 	 * @param   \Model_User $user User to update
 	 * @return  void
 	 */
-	protected static function update_user_roles(\Model_User $user)
+	protected static function update_user_roles(\Model_User $user, $launch, $auth)
 	{
-		$launch = static::get_launch_vars();
-
 		if(\Config::get("lti::lti.consumers.$launch->consumer.use_launch_roles", false))
 		{
-			// add or remove basic_author role
-			if (in_array(self::get_role(), ['Administrator', 'Instructor']))
+
+			if (method_exists($auth, 'update_role'))
 			{
-				\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], ['basic_author']);
+				$auth->update_role($user, static::can_create());
 			}
-			else
-			{
-				\RocketDuck\Perm_Manager::remove_users_from_roles_system_only([$user->id], ['basic_author']);
-			}
+
 		}
 	}
 
@@ -267,34 +247,27 @@ class Api
 	protected static function get_launch_vars()
 	{
 		// these are configurable to let username and user_id come from custom launch variables
-		$consumer          = \Input::post('tool_consumer_info_product_family_code', false);
-		$remote_id_field   = \Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username');
-		$remote_user_field = \Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id');
-
-		$email = \Input::post('lis_person_contact_email_primary');
-		$username = \Input::post($remote_user_field);
-
-		if (empty($email))
-		{
-			trace("$username has no email from cerebro, using default", true);
-			$email = "$username@ucf.edu";
-		}
+		$consumer          = trim(\Input::post('tool_consumer_info_product_family_code', false));
+		$remote_id_field   = trim(\Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username'));
+		$remote_user_field = trim(\Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id'));
+		$email             = trim(\Input::post('lis_person_contact_email_primary'));
+		$username          = trim(\Input::post($remote_user_field));
 
 		return (object) [
-			'source_id'      => \Input::post('lis_result_sourcedid', false), // the unique id for this course&context&user&launch used for returning scores
-			'service_url'    => \Input::post('lis_outcome_service_url', false), // where to send score data back to, can be blank if not supported
-			'resource_id'    => \Input::post('resource_link_id', false), // unique placement of this tool in the consumer
-			'context_id'     => \Input::post('context_id', false),
-			'context_title'  => \Input::post('context_title', false),
-			'consumer_id'    => \Input::post('tool_consumer_instance_guid', false), // unique install id of this tool
+			'source_id'      => trim(\Input::post('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores
+			'service_url'    => trim(\Input::post('lis_outcome_service_url', false)), // where to send score data back to, can be blank if not supported
+			'resource_id'    => trim(\Input::post('resource_link_id', false)), // unique placement of this tool in the consumer
+			'context_id'     => trim(\Input::post('context_id', false)),
+			'context_title'  => trim(\Input::post('context_title', false)),
+			'consumer_id'    => trim(\Input::post('tool_consumer_instance_guid', false)), // unique install id of this tool
 			'consumer'       => $consumer,
-			'custom_inst_id' => \Input::post('custom_widget_instance_id', false), // Some tools will pass which inst_id they want
+			'custom_inst_id' => trim(\Input::post('custom_widget_instance_id', false)), // Some tools will pass which inst_id they want
 			'email'          => $email,
-			'last'           => \Input::post('lis_person_name_family'),
-			'first'          => \Input::post('lis_person_name_given'),
-			'fullname'       => \Input::post('lis_person_name_full'),
-			'roles'          => explode(',', \Input::post('roles')),
-			'remote_id'      => \Input::post($remote_id_field),
+			'last'           => trim(\Input::post('lis_person_name_family')),
+			'first'          => trim(\Input::post('lis_person_name_given')),
+			'fullname'       => trim(\Input::post('lis_person_name_full')),
+			'roles'          => trim(explode(',', \Input::post('roles'))),
+			'remote_id'      => trim(\Input::post($remote_id_field)),
 			'username'       => $username,
 		];
 	}
