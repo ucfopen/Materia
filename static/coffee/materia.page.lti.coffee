@@ -7,11 +7,11 @@ $ ->
 	selectedWidget = null
 	widgetsLoaded = false
 
-	if system != ''
+	h1String = 'Select a Widget:'
+	if system? and system != ''
+		h1String = 'Select a Widget for use in ' + system + ':'
 		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
 		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
-
-	h1String = 'Select a Widget' + (system == '' ? '' : ' for use in ' + system) + ':'
 
 	$('h1').html(h1String)
 
