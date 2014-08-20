@@ -38,7 +38,7 @@ return [
 			'creates_users'     => true,
 
 			// allow an external system to define user roles in Materia
-			'use_launch_roles'  => false,
+			'use_launch_roles'  => true,
 
 			// which auth driver will do the final work authenticating this user
 			'auth_driver'       => 'SimpleAuth',
@@ -86,7 +86,7 @@ return [
 			'remote_identifier' => 'lis_person_sourcedid',
 			'local_identifier'  => 'username',
 			'creates_users'     => true,
-			'use_launch_roles'  => false,
+			'use_launch_roles'  => true,
 			'auth_driver'       => 'SimpleAuth',
 			'save_assoc'        => false,
 			'timeout'           => 3600,
