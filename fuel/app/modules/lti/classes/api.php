@@ -4,6 +4,8 @@ namespace Lti;
 
 class Api
 {
+	protected static $lti_vars;
+
 	/**
 	 * FUEL EVENT Fired by the score manager when it saves a score from the 'score_updated' event
 	 * @param array [0] is an instance id, [1] is the student user_id, [2] is the score
@@ -94,7 +96,7 @@ class Api
 	public static function can_create()
 	{
 		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
-		$student_roles = ['Student'];
+		$student_roles = ['Student', 'Learner'];
 
 		$launch_roles = explode(',', \Input::post('roles'));
 
@@ -125,17 +127,15 @@ class Api
 		\Event::trigger('lti_get_or_create_user', $launch->username, 'json');
 		$auth = \Auth::instance($auth_driver);
 
-		// items to update in the user if we need to
-		$items_to_update = [
-			'first' => $launch->first,
-			'last'  => $launch->last,
-			'email' => $launch->email,
-		];
+		if( ! $auth)
+		{
+			throw new \Exception("Unable to find auth driver for $auth_driver");
+		}
 
 		if ($user = \Model_User::find()->where($search_field, $launch->remote_id)->get_one())
 		{
 			// User already exists, so update?
-			if ($creates_users) $auth->update_user($items_to_update, $user->username);
+			if ($creates_users) static::update_user_if_empty($user, $launch, $auth);
 
 			static::update_user_roles($user, $launch, $auth);
 
@@ -151,7 +151,7 @@ class Api
 				{
 					$user = \Model_User::find($user_id);
 
-					$auth->update_user($items_to_update, $user->username);
+					static::update_user_if_empty($user, $launch, $auth);
 
 					static::update_user_roles($user, $launch, $auth);
 
@@ -169,6 +169,17 @@ class Api
 		return false;
 	}
 
+	protected static function update_user_if_empty(\Model_User $user, $launch, $auth)
+	{
+		// items to update in the user if we need to
+		$items_to_update = [];
+		if ( empty($user->first)) $items_to_update['first'] = $launch->first;
+		if ( empty($user->last))  $items_to_update['last'] = $launch->last;
+		if ( empty($user->email)) $items_to_update['email'] = $launch->email;
+
+		if ( ! empty($items_to_update)) $auth->update_user($items_to_update, $user->username);
+	}
+
 	/**
 	 * Update user roles
 	 * @param   \Model_User $user User to update
@@ -178,10 +189,9 @@ class Api
 	{
 		if(\Config::get("lti::lti.consumers.$launch->consumer.use_launch_roles", false))
 		{
-
 			if (method_exists($auth, 'update_role'))
 			{
-				$auth->update_role($user, static::can_create());
+				$auth->update_role($user->id, static::can_create());
 			}
 
 		}
@@ -207,9 +217,9 @@ class Api
 			$creates_users = true;
 		}
 
-		if (empty($launch->remote_id) || empty($launch->username) || empty($launch->email) || empty($launch->consumer))
+		if (empty($launch->remote_id) || empty($launch->username) || empty($launch->consumer))
 		{
-			\RocketDuck\Log::profile(['auth-data-missing', $launch->remote_id, $launch->username, $launch->email, $launch->consumer, \Input::post('resource_link_id')], 'lti');
+			\RocketDuck\Log::profile(['auth-data-missing', $launch->remote_id, $launch->username, $launch->consumer, \Input::post('resource_link_id')], 'lti');
 			return false;
 		}
 
@@ -244,32 +254,41 @@ class Api
 		return  \Input::post('resource_link_id', false) && \Input::post('tool_consumer_instance_guid', false);
 	}
 
-	protected static function get_launch_vars()
+	public static function get_launch_vars()
 	{
-		// these are configurable to let username and user_id come from custom launch variables
-		$consumer          = trim(\Input::post('tool_consumer_info_product_family_code', false));
-		$remote_id_field   = trim(\Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username'));
-		$remote_user_field = trim(\Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id'));
-		$email             = trim(\Input::post('lis_person_contact_email_primary'));
-		$username          = trim(\Input::post($remote_user_field));
+		if ( ! isset(static::$lti_vars))
+		{
+			// these are configurable to let username and user_id come from custom launch variables
+			$consumer          = trim(\Input::post('tool_consumer_info_product_family_code', false));
+			$remote_id_field   = trim(\Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username'));
+			$remote_user_field = trim(\Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id'));
+			$email             = trim(\Input::post('lis_person_contact_email_primary'));
+			$username          = trim(\Input::post($remote_user_field));
 
-		return (object) [
-			'source_id'      => trim(\Input::post('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores
-			'service_url'    => trim(\Input::post('lis_outcome_service_url', false)), // where to send score data back to, can be blank if not supported
-			'resource_id'    => trim(\Input::post('resource_link_id', false)), // unique placement of this tool in the consumer
-			'context_id'     => trim(\Input::post('context_id', false)),
-			'context_title'  => trim(\Input::post('context_title', false)),
-			'consumer_id'    => trim(\Input::post('tool_consumer_instance_guid', false)), // unique install id of this tool
-			'consumer'       => $consumer,
-			'custom_inst_id' => trim(\Input::post('custom_widget_instance_id', false)), // Some tools will pass which inst_id they want
-			'email'          => $email,
-			'last'           => trim(\Input::post('lis_person_name_family')),
-			'first'          => trim(\Input::post('lis_person_name_given')),
-			'fullname'       => trim(\Input::post('lis_person_name_full')),
-			'roles'          => trim(explode(',', \Input::post('roles'))),
-			'remote_id'      => trim(\Input::post($remote_id_field)),
-			'username'       => $username,
-		];
+			// trim all the roles
+			$roles = explode(',', \Input::post('roles'));
+			$roles = array_map( function($role) { return trim($role); }, $roles);
+
+			static::$lti_vars = (object) [
+				'source_id'      => trim(\Input::post('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores
+				'service_url'    => trim(\Input::post('lis_outcome_service_url', false)), // where to send score data back to, can be blank if not supported
+				'resource_id'    => trim(\Input::post('resource_link_id', false)), // unique placement of this tool in the consumer
+				'context_id'     => trim(\Input::post('context_id', false)),
+				'context_title'  => trim(\Input::post('context_title', false)),
+				'consumer_id'    => trim(\Input::post('tool_consumer_instance_guid', false)), // unique install id of this tool
+				'consumer'       => $consumer,
+				'custom_inst_id' => trim(\Input::post('custom_widget_instance_id', false)), // Some tools will pass which inst_id they want
+				'email'          => $email,
+				'last'           => trim(\Input::post('lis_person_name_family')),
+				'first'          => trim(\Input::post('lis_person_name_given')),
+				'fullname'       => trim(\Input::post('lis_person_name_full')),
+				'roles'          => $roles,
+				'remote_id'      => trim(\Input::post($remote_id_field)),
+				'username'       => $username,
+			];
+		}
+
+		return static::$lti_vars;
 	}
 
 	public static function create_lti_association_if_needed($item_id, $launch)
