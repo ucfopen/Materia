@@ -157,13 +157,9 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_error($msg)
 	{
-		$source_id   = \Input::post('lis_result_sourcedid', false); // the unique id for this course&context&user&launch used for returning scores
-		$service_url = \Input::post('lis_outcome_service_url', false); // where to send score data back to, can be blank if not supported
-		$resource_id = \Input::post('resource_link_id', false); // unique placement of this tool in the consumer
-		$consumer_id = \Input::post('tool_consumer_instance_guid', false); // unique install id of this tool
-		$consumer    = \Input::post('tool_consumer_info_product_family_code', 'this system');
-		$inst_id     = \Input::post('custom_widget_instance_id', false); // Some tools will pass which inst_id they want
-		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, Api::get_role(), $source_id, $resource_id, $consumer_id, $consumer, $inst_id], 'lti');
+		$launch = Api::get_launch_vars();
+
+		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, print_r($launch, true)], 'lti');
 		\RocketDuck\Log::profile([print_r($_POST, true)], 'lti-error-dump');
 
 		$this->theme = \Theme::instance();
@@ -181,13 +177,13 @@ class Controller_Lti extends \Controller
 		{
 			case 'Unknown User':
 				$this->theme->set_partial('content', 'partials/no_user')
-					->set('system', $consumer)
+					->set('system', $launch->consumer)
 					->set('title', 'Error - '.$msg);
 				break;
 
 			case 'Unknown Assignment':
 				$this->theme->set_partial('content', 'partials/no_assignment')
-					->set('system', $consumer)
+					->set('system', $launch->consumer)
 					->set('title', 'Error - '.$msg);
 				break;
 
