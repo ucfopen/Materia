@@ -1,9 +1,6 @@
-# FUELPHP Ignore
-/composer.lock
+# temp files from editors
 *~
 *.bak
-Thumbs.db
-desktop.ini
 .DS_Store
 .buildpath
 .project
@@ -11,51 +8,37 @@ desktop.ini
 *.tmproj
 build
 .idea
+nbproject/
+
+# hidden files created by Windows
+Thumbs.db
+desktop.ini
+
+# the composer package lock file and install directory
+/composer.lock
 /fuel/vendor
+
+# any of the fuel packages installed by default
+/docs/
+/fuel/core/
+/fuel/packages/auth/
+/fuel/packages/email/
+/fuel/packages/oil/
+/fuel/packages/orm/
+/fuel/packages/parser/
+
+# dynamically generated files
 /fuel/app/logs/*/*/*
 /fuel/app/cache/*/*
 /fuel/app/config/crypt.php
-nbproject/
 
-# OSX metadata
-.DS_Store
 
-# SVN folders
-.svn
+## Materia Specific Stuff
+# Static compile js
+static/js/*
 
-# system files
-*._*
-*.log
-
-# windows thumbnails
-thumbs.db
-
-# local config
-fuel/app/config/*/migrations.php
-fuel/app/config/production/*
-fuel/app/config/migrations.php
-fuel/app/modules/*/config/development/*
-fuel/app/modules/*/config/production/*
-
-# helper files
-fuelhelper.php
-
-# log files
-fuel/packages/materia/logs/*
-
-# media files
-fuel/packages/materia/media/*
-
-# Fuelphp logs
-fuel/app/logs/*
-
-# Project Files
-.buildpath
-*.iml
-.project
-.settings/
-logs/
-*.iml
+# NPM modules
+node_modules
 
 # Installed Widgets
 public/assets/widget/*
@@ -66,26 +49,5 @@ static/widget/test/*
 # Any widget zip packages
 *.zip
 
-# Cache Files
-fuel/app/cache/*
-fuel/app/tmp/*
-public/assets/cache/*
-
-=======
-# Vagrant Files
-vagrant/
-.vagrant
-
-# Debug Build Widgets
-public/assets/widget-debug/*
-
-=======
-# Static Development folder
-static/develop/*
-!static/develop/.gitkeep
-
-# Static compile js
-static/js/*
-
-# NPM modules
-node_modules
+# media files
+fuel/packages/materia/media/*
