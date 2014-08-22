@@ -1,9 +1,4 @@
 <?php
-
-// Load in the Autoloader
-require COREPATH.'classes'.DIRECTORY_SEPARATOR.'autoloader.php';
-class_alias('Fuel\\Core\\Autoloader', 'Autoloader');
-
 // Bootstrap the framework DO NOT edit this
 require COREPATH.'bootstrap.php';
 
@@ -23,7 +18,7 @@ Autoloader::register();
  *
  * Fuel::DEVELOPMENT
  * Fuel::TEST
- * Fuel::STAGE
+ * Fuel::STAGING
  * Fuel::PRODUCTION
  */
 Fuel::$env = (isset($_SERVER['FUEL_ENV']) ? $_SERVER['FUEL_ENV'] : Fuel::DEVELOPMENT);
