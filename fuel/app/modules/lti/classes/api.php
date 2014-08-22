@@ -122,7 +122,7 @@ class Api
 		// allow any auth module that needs to look up external users to create them as needed
 		\Event::trigger('lti_get_or_create_user', $launch->username, 'json');
 
-		if ($user = \Model_User::find()->where($search_field, $launch->remote_id)->get_one())
+		if ($user = \Model_User::query()->where($search_field, $launch->remote_id)->get_one())
 		{
 			// User already exists, so update?
 			if ($creates_users)
