@@ -718,29 +718,7 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 		rightSide.children('h1').html('You have no widgets!')
 		rightSide.children('p').html('Make a new widget in the widget catalog.')
 
-		$('header nav ul li:first-child').qtip
-			content: 'Click here to start making a new widget!'
-			position:
-				corner:
-					target: 'bottomMiddle'
-					tooltip: 'topMiddle'
-				adjust:
-					y: 15
-			style:
-				background: '#b944cc'
-				color: '#ffffff'
-				padding: 10
-				border:
-					width: 2
-					radius: 5
-					color: '#b944cc'
-				tip:
-					corner: 'topMiddle'
-					size:
-						width: 15
-						height: 10
-			show:
-				ready: true
+		$('body').append('<div class="qtip nowidgets">Click here to start making a new widget!</div>')
 
 	init						: init
 	noAccess					: noAccess
