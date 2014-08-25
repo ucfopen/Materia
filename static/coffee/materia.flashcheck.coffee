@@ -4,7 +4,7 @@ Namespace('Materia').Flashcheck = do ->
 	
 	# Returns the flash version, false if not installed.
 	getFlashVersion = (callback) ->
-		_flashVersionObj = swfobject.getFlashPlayerVersion();
+		_flashVersionObj = swfobject.getFlashPlayerVersion()
 
 		if _flashVersionObj.major != 0
 			return_val = _flashVersionObj

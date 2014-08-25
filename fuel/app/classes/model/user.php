@@ -70,7 +70,7 @@ class Model_User extends Orm\Model
 
 	public static function find_by_username($username)
 	{
-		return static::find()->where('username', $username)->get_one();
+		return static::query()->where('username', $username)->get_one();
 	}
 
 	static public function find_by_name_search($name)

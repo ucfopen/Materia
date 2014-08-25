@@ -3,10 +3,10 @@
  * Fuel is a fast, lightweight, community driven PHP5 framework.
  *
  * @package    Fuel
- * @version    1.5
+ * @version    1.7
  * @author     Fuel Development Team
  * @license    MIT License
- * @copyright  2010 - 2013 Fuel Development Team
+ * @copyright  2010 - 2014 Fuel Development Team
  * @link       http://fuelphp.com
  */
 
@@ -40,6 +40,10 @@ define('COREPATH', realpath(__DIR__.'/../fuel/core/').DIRECTORY_SEPARATOR);
 defined('FUEL_START_TIME') or define('FUEL_START_TIME', microtime(true));
 defined('FUEL_START_MEM') or define('FUEL_START_MEM', memory_get_usage());
 
+// Load in the Fuel autoloader
+require COREPATH.'classes'.DIRECTORY_SEPARATOR.'autoloader.php';
+class_alias('Fuel\\Core\\Autoloader', 'Autoloader');
+
 // Boot the app
 require APPPATH.'bootstrap.php';
 
@@ -50,6 +54,8 @@ try
 }
 catch (HttpNotFoundException $e)
 {
+	\Request::reset_request(true);
+
 	$route = array_key_exists('_404_', Router::$routes) ? Router::$routes['_404_']->translation : Config::get('routes._404_');
 
 	if($route instanceof Closure)
@@ -71,15 +77,6 @@ catch (HttpNotFoundException $e)
 	}
 }
 
-// This will add the execution time and memory usage to the output.
-// Comment this out if you don't use it.
-$bm = Profiler::app_total();
-$response->body(
-	str_replace(
-		array('{exec_time}', '{mem_usage}'),
-		array(round($bm[0], 4), round($bm[1] / pow(1024, 2), 3)),
-		$response->body()
-	)
-);
+$response->body((string) $response);
 
 $response->send(true);

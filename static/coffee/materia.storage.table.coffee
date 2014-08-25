@@ -10,7 +10,7 @@ Namespace('Materia.Storage').Table = ->
 	# @param columns The names of each of the columns for this table
 
 	init = (id, columns) ->
-		_id = Materia.Storage.Manager.clean(id);
+		_id = Materia.Storage.Manager.clean(id)
 		_columns = []
 		_rows = []
 		for name in columns
@@ -24,7 +24,7 @@ Namespace('Materia.Storage').Table = ->
 	insert = (values) ->
 		# Make sure arguments match number of columns
 		if values.length is not _columns.length
-			throw new Error("StorageTable '#{_id}' requires #{_columns.length} value(s) and received #{arguments.length}");
+			throw new Error("StorageTable '#{_id}' requires #{_columns.length} value(s) and received #{arguments.length}")
 			return
 
 		# Create the row to add to the list of rows

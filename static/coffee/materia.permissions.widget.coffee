@@ -74,7 +74,7 @@ Namespace('Materia.Permissions').Widget = do ->
 					for i of users
 						collaborator = users[i]
 						collaboratorAccess = parseInt(access_list[collaborator.id][0], 10)
-						collaboratorExpirationTimestamp = if expiration_bridge[collaborator.id]? then expiration_bridge[collaborator.id] else access_list[collaborator.id][1];
+						collaboratorExpirationTimestamp = if expiration_bridge[collaborator.id]? then expiration_bridge[collaborator.id] else access_list[collaborator.id][1]
 #@TODO
 						Materia.Permissions.User.createCollaboratorRow(collaborator, collaboratorAccess, accessLevel, collaboratorExpirationTimestamp)
 					$perm_temp.remove()
