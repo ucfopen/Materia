@@ -171,7 +171,7 @@ abstract class Score_Module
 		}
 		else
 		{
-			$points = 100 + $this->verified_score + $global_mod;
+			$points = $this->verified_score + $global_mod;
 			$this->calculated_percent = $points;
 		}
 		if ($this->calculated_percent < 0) $this->calculated_percent = 0;
