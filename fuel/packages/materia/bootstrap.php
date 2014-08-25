@@ -6,7 +6,7 @@ Autoloader::add_classes([
 	'Materia\\Community_manager'        => __DIR__.'/classes/community/manager.php',
 	'Materia\\Notification_manager'     => __DIR__.'/classes/notification/manager.php',
 	'Materia\\Perm_manager'             => __DIR__.'/classes/perm/manager.php',
-	'Materia\\Score_manager'            => __DIR__.'/classes/score/mmanager.php',
+	'Materia\\Score_manager'            => __DIR__.'/classes/score/manager.php',
 	'Materia\\Score_record'             => __DIR__.'/classes/score/record.php',
 	'Materia\\Session_activity'         => __DIR__.'/classes/session/activity.php',
 	'Materia\\Session_log'              => __DIR__.'/classes/session/log.php',
