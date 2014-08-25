@@ -1,15 +1,4 @@
 <?php
-/**
- * Part of the Fuel framework.
- *
- * @package    Fuel
- * @version    1.6
- * @author     Fuel Development Team
- * @license    MIT License
- * @copyright  2010 - 2013 Fuel Development Team
- * @link       http://fuelphp.com
- */
-
 
 return array(
 
@@ -162,9 +151,9 @@ return array(
 		 * throw exceptions unless they are instances of the classes in this array.
 		 */
 		'whitelisted_classes' => array(
+			'Fuel\\Core\\Presenter',
 			'Fuel\\Core\\Response',
 			'Fuel\\Core\\View',
-			'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
 			'RocketDuck\\Msg',
@@ -250,31 +239,13 @@ return array(
 	/**************************************************************************/
 	'always_load'  => array(
 
-		/**
-		 * These packages are loaded on Fuel's startup.
-		 * You can specify them in the following manner:
-		 *
-		 * array('auth'); // This will assume the packages are in PKGPATH
-		 *
-		 * // Use this format to specify the path to the package explicitly
-		 * array(
-		 *     array('auth'	=> PKGPATH.'auth/')
-		 * );
-		 */
 		'packages'  => array(
 			'orm',
 			'materia',
 			'rocketDuck',
 			'auth',
 		),
-		/**
-		 * These modules are always loaded on Fuel's startup. You can specify them
-		 * in the following manner:
-		 *
-		 * ['module_name');
-		 *
-		 * A path must be set in module_paths for this to work.
-		 */
+
 		'modules' => array(
 			'Lti',
 		),

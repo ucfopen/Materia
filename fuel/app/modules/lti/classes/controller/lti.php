@@ -77,7 +77,7 @@ class Controller_Lti extends \Controller
 			->set('page_type', 'preview');
 
 		\Package::load('casset');
-		\Casset::add_group('css', 'lti_picker', ['lti.css']);
+		\Casset::css('lti.css');
 
 		$this->theme->get_template();
 
@@ -113,13 +113,13 @@ class Controller_Lti extends \Controller
 		$this->theme->set_template('layouts/main');
 
 		\Package::load('casset');
+		\Casset::enable_js('swfobject');
 		\Casset::add_group('js', 'lti_picker',
 			[
-				'swfobject.js',
-				'plugins/spin.js',
-				'plugins/spin.jquery.js',
-				'plugins/jquery.qtip-1.0.0-rc3.min.js',
-				'jquery-ui-1.10.3.custom.min.js',
+				'lib/spin.js',
+				'lib/spin.jquery.js',
+				'lib/jquery.qtip-1.0.0-rc3.min.js',
+				'lib/jquery-ui-1.10.3.custom.min.js',
 				'static::materia.set.throbber.js',
 				'static::materia.image.js',
 				'static::materia.coms.json.js',
@@ -128,12 +128,12 @@ class Controller_Lti extends \Controller
 				'static::materia.widgetinstance.js',
 				'static::materia.set.availability.js',
 				'static::materia.set.datetime.js',
-				'materia.page.lti.js'
+				'static::materia.page.lti.js'
 		]);
-		\Casset::add_group('css', 'lti_picker', ['lti.css']);
+		\Casset::css('lti.css');
 		\Casset::js_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Casset::js_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
-		\Casset::js_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+		\Casset::js_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
 		\Casset::js_inline($this->theme->view('partials/select_item_js')
 			->set('system', $system));
 

@@ -62,10 +62,8 @@ Namespace('Materia').Widget = do ->
 			myWidgets.push(clonedListItem)
 
 		$(widgetList).append(myWidgets)
-		$('.courses').animate
-				opacity: 0.1
-			, 100
-			, ->
+		$('.courses').animate opacity: 0.1
+			, 100, ->
 				$('.courses').html(widgetList)
 				selectedId = Materia.MyWidgets.SelectedWidget.getSelectedId()
 				if selectedId
@@ -118,10 +116,10 @@ Namespace('Materia').Widget = do ->
 				sortWidgets()
 
 	removeWidget = (inst_id) ->
-		widgetList = $('.widget_list').children();
-		widgetListLength = widgetList.size();
+		widgetList = $('.widget_list').children()
+		widgetListLength = widgetList.size()
 
-		newID = null;
+		newID = null
 
 		if widgetListLength > 1
 			#get the id of the next widget in the list
@@ -133,17 +131,17 @@ Namespace('Materia').Widget = do ->
 			curWidge.remove()
 
 			#reset the odds/evens after the deleted widget is removed from the list
-			$('.odd').removeClass('odd');
-			$('.even').removeClass('even');
+			$('.odd').removeClass('odd')
+			$('.even').removeClass('even')
 			for i in [0..widgetListLength]
-				$(widgetList[i]).addClass( if i % 2 == 0 then 'odd' else 'even');
+				$(widgetList[i]).addClass( if i % 2 == 0 then 'odd' else 'even')
 		else
 			$('.gameSelected').remove()
 
 		if newID?
-			Materia.MyWidgets.SelectedWidget.setSelected(newID);
+			Materia.MyWidgets.SelectedWidget.setSelected(newID)
 		else
-			Materia.MyWidgets.SelectedWidget.noWidgets();
+			Materia.MyWidgets.SelectedWidget.noWidgets()
 
 
 	getWidgets: getWidgets

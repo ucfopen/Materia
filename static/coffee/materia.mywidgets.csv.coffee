@@ -7,11 +7,14 @@ Namespace('Materia.MyWidgets').Csv = do ->
 	# var currentSemester = false
 	inst_id = null
 	chosenSemesters = null
+	selectedType = "csv"
 
 	init = (gateway) ->
 
 	# Builds the inital version of the popup window
 	buildPopup = ->
+		selectedType = "csv"
+
 		$('.csv_popup').hide()
 		getScores($('.gameSelected').attr('id').split('_')[1])
 		$('.download_options').css
@@ -19,6 +22,9 @@ Namespace('Materia.MyWidgets').Csv = do ->
 		$('.show_options').click (e) ->
 			e.preventDefault()
 			showOptions()
+		$('#export-select').change (e) ->
+			selectedType = e.target.value
+			enableDownload(chosenSemesters.length > 0)
 		$('#checkall').click -> checkAllToggle(this)
 		$('.csv_popup').fadeIn()
 
@@ -144,7 +150,7 @@ Namespace('Materia.MyWidgets').Csv = do ->
 		if enable
 			$('#popup.csv_popup p.download a')
 				.removeClass('disabled')
-				.attr('href', "/scores/csv/#{inst_id}/#{chosenSemesters.join(',').replace(/\s/g, '-')}")
+				.attr('href', "/scores/#{selectedType}/#{inst_id}/#{chosenSemesters.join(',').replace(/\s/g, '-')}")
 				.click(-> window.location = $(this).attr 'href')
 		else
 			$('#popup.csv_popup p.download a')

@@ -163,8 +163,10 @@ Namespace('Materia').Player = do ->
 
 	_embedHTML = (enginePath, dfd) ->
 		_embedDoneDfD = dfd
-		$iframe = $('<iframe src="'+enginePath+'" id="container" class="html"></iframe>')
+		$iframe = $('<iframe src="'+enginePath+'" id="container" scrolling="no" class="html"></iframe>')
 		$('#container').replaceWith($iframe)
+		$('#container').width _instance.widget.width if _instance.widget.width > 0
+		$('#container').height _instance.widget.height if _instance.widget.height > 0
 
 		# build a link element to deconstruct the static url
 		# this helps us match static url against the event origin
@@ -231,7 +233,7 @@ Namespace('Materia').Player = do ->
 			when _isPreview then dfd.resolve()
 			else
 				# get the play id from the embedded variable on the page:
-				_play_id = __PLAY_ID;
+				_play_id = __PLAY_ID
 
 				if _play_id?
 					dfd.resolve()

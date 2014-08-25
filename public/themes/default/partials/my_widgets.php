@@ -275,7 +275,7 @@
 			</tr>
 			<tr>
 				<td>lf33422i</td>
-				<td class="name">Lou Firecheif</td>
+				<td class="name">Lou Firechief</td>
 				<td>0</td>
 			</tr>
 			<tr>
@@ -285,8 +285,14 @@
 			</tr>
 		</table>
 		<span id="sample-notification">Sample</span>
-		<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
+		<div class="download-controls">
+			<select id="export-select">
+				<option value="csv" selected>Scores</option>
+				<option value="raw">All raw data</option>
+			</select>
+			<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
 		</div>
+	</div>
 
 	<p class="cancel"><a href="#">Cancel</a></p>
 </div>

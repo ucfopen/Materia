@@ -132,7 +132,7 @@ Namespace('Materia').Creator = do ->
 		else
 			creatorPath = WIDGET_URL+_widget_info.dir+_widget_info.creator
 
-		_type = creatorPath.split('.').pop();
+		_type = creatorPath.split('.').pop()
 		switch _type
 			when 'html'
 				_embedHTML creatorPath, dfd
@@ -222,7 +222,7 @@ Namespace('Materia').Creator = do ->
 		# This fixes a bug in chrome where the iframe (#container)
 		# doesn't correctly fill 100% of the height. Doing this with
 		# just CSS doesn't work - it needs to be done in JS
-		$('#container').css('position', 'relative');
+		$('#container').css('position', 'relative')
 
 	# Show the buttons that interact with the creator
 	_showButtons = ->
@@ -243,12 +243,12 @@ Namespace('Materia').Creator = do ->
 		if _inst_id?
 			# editing
 			$('#returnLink')
-				.html('&larr; Return to my widgets')
+				.html("&larr; Return to my widgets")
 				.attr('href', _getMyWidgetsUrl(_inst_id))
 		else
 			# new
 			$('#returnLink')
-				.html('&larr; Return to widget catalog')
+				.html("&larr; Return to widget catalog")
 				.attr('href', BASE_URL+'widgets')
 
 	_onPublishPressed = ->
