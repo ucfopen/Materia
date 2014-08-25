@@ -693,9 +693,9 @@ class Test_Api_V1 extends \Basetest
 
 		//give author2 and author3 full access from author
 
-		$author             = \Model_User::find()->where('username', '~author')->get_one();
-		$author2            = \Model_User::find()->where('username', '~testAuthor2')->get_one();
-		$author3            = \Model_User::find()->where('username', '~testAuthor3')->get_one();
+		$author             = \Model_User::query()->where('username', '~author')->get_one();
+		$author2            = \Model_User::query()->where('username', '~testAuthor2')->get_one();
+		$author3            = \Model_User::query()->where('username', '~testAuthor3')->get_one();
 		$accessObj          = new stdClass();
 		$accessObj->user_id = $author2->id;
 		$accessObj->perms   = [\Materia\Perm::FULL => true];
