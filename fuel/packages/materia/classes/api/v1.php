@@ -736,7 +736,7 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
 
-		$notifications = \Model_Notification::find()
+		$notifications = \Model_Notification::query()
 			->where('to_id', \Model_User::find_current_id())
 			->get();
 
@@ -763,7 +763,7 @@ class Api_V1
 
 		$user = \Model_User::find_current();
 
-		$note = \Model_Notification::find()
+		$note = \Model_Notification::query()
 			->where('id', $note_id)
 			->where('to_id', $user->id)
 			->get();
