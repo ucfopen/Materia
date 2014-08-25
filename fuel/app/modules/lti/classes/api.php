@@ -132,7 +132,7 @@ class Api
 			throw new \Exception("Unable to find auth driver for $auth_driver");
 		}
 
-		if ($user = \Model_User::find()->where($search_field, $launch->remote_id)->get_one())
+		if ($user = \Model_User::query()->where($search_field, $launch->remote_id)->get_one())
 		{
 			// User already exists, so update?
 			if ($creates_users) static::update_user_if_empty($user, $launch, $auth);
