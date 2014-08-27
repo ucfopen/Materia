@@ -148,7 +148,7 @@ public static function on_widget_delete_event($assoc_param_array)
 		\Package::load('email');
 		$email = \Email::forge();
 
-		$notes = \Model_Notification::find()
+		$notes = \Model_Notification::query()
 			->where('is_email_sent', '0')
 			->limit(100)
 			->get();
