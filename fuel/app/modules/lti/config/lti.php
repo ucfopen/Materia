@@ -69,7 +69,7 @@ return [
 			'local_identifier'  => 'username',
 			'creates_users'     => true,
 			'use_launch_roles'  => true,
-			'auth_driver'       => 'SimpleAuth',
+			'auth_driver'       => 'UcfAuth',
 			'save_assoc'        => true,
 			'timeout'           => 3600,
 			'privacy'           => 'public',
