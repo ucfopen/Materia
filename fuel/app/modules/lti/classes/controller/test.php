@@ -95,8 +95,8 @@ class Controller_Test extends \Controller_Rest
 
 	public function get_provider()
 	{
-		$assignment_url = \Uri::create('lti/test/assignment');
-		$picker_url = \Uri::create('lti/test/picker');
+		$assignment_url = \Uri::create('lti/assignment');
+		$picker_url = \Uri::create('lti/picker');
 		$validate_url = \Uri::create('lti/test/validate');
 
 		$validation_params = $this->create_test_case([], $validate_url);
@@ -150,18 +150,6 @@ class Controller_Test extends \Controller_Rest
 	{
 		var_dump(\Input::post());
 		echo \Lti\Oauth::validate_post() ? 'PASSED!' : 'FAILED';
-	}
-
-	public function post_assignment()
-	{
-		// these are used so that the test config in 'before()' is run
-		echo \Request::forge('lti/assignment', false)->execute();
-	}
-
-	public function post_picker()
-	{
-		// these are used so that the test config in 'before()' is run
-		echo \Request::forge('lti/picker', false)->execute();
 	}
 
 	public function post_learner()
