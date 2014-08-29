@@ -7,7 +7,7 @@ class Widget  extends \Basetask
 	//Grants widget visibility to specified user in catalog
 	public static function set_user_catalog_visibility($user_name, $widget_id, $visibility = null)
 	{
-		if ($user = \Model_User::find()->where('username', (string) $user_name)->get_one())
+		if ($user = \Model_User::query()->where('username', (string) $user_name)->get_one())
 		{
 			$count = \DB::select()
 					->from('perm_object_to_user')
