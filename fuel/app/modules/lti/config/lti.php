@@ -26,7 +26,7 @@ return [
 			// When looking or creating local users based on the external system, what fields do we use as an identifier?
 			// remote_identifier is the name of the lti data sent
 			// local_identifier is the name of the user object property that we will match the remote identifier against
-			// ex: incoming lis_person_sourceid = 'dave', we'll look for Model_User::find()->where($local_identifier, Input::post($remote_identifier))
+			// ex: incoming lis_person_sourceid = 'dave', we'll look for Model_User::query()->where($local_identifier, Input::post($remote_identifier))
 			// another option is to use email instead of sourcedid, remote = 'lis_person_contact_email_primary' and local = 'email'
 			'remote_identifier' => 'lis_person_sourcedid',
 			'local_identifier'  => 'username',

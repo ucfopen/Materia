@@ -7,42 +7,13 @@ $ ->
 	selectedWidget = null
 	widgetsLoaded = false
 
-	h1String = 'Select a Widget' + (system == '' ? '' : ' for use in ' + system) + ':'
-
-	$('h1').html(h1String)
-
-	$('#goto-new-widgets').click (event) ->
-		calloutRefreshLink()
-
-	$('#create-widget-button').click (event) ->
-		calloutRefreshLink()
-
-	$('#refresh').click (event) ->
-		event.preventDefault()
-		hideRefreshLinkCallout()
-		loadWidgets(REFRESH_FAKE_DELAY_MS)
-
-	$('.cancel-button').click (event) ->
-		event.preventDefault()
-		setDisplayState('widgetSelected')
-
-	$('#search').keyup (event) ->
-		if event.keyCode == 13 # enter
-			$selected = $('#list-container li.selected')
-			if $selected.length == 1
-				inst_id = $($selected[0]).attr('data-inst_id')
-				Materia.Widget.getWidget inst_id, (widget) ->
-					selectWidget(widget)
-		else if(event.keyCode == 27) #esc
-			clearSearch()
-
 	if system != ''
 		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
 		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
 
-	Materia.TextFilter.setupInput $('#search'), search, SEARCH_DELAY_MS
+	h1String = 'Select a Widget' + (system == '' ? '' : ' for use in ' + system) + ':'
 
-	setDisplayState 'selectWidget'
+	$('h1').html(h1String)
 
 	hideRefreshLinkCallout = ->
 		if $('#refresh').attr('showing-qtip') == 'true'
@@ -292,3 +263,31 @@ $ ->
 			if(parent.postMessage)
 				parent.postMessage(JSON.stringify(widgetData), '*')
 
+	$('#goto-new-widgets').click (event) ->
+		calloutRefreshLink()
+
+	$('#create-widget-button').click (event) ->
+		calloutRefreshLink()
+
+	$('#refresh').click (event) ->
+		event.preventDefault()
+		hideRefreshLinkCallout()
+		loadWidgets(REFRESH_FAKE_DELAY_MS)
+
+	$('.cancel-button').click (event) ->
+		event.preventDefault()
+		setDisplayState('widgetSelected')
+
+	$('#search').keyup (event) ->
+		if event.keyCode == 13 # enter
+			$selected = $('#list-container li.selected')
+			if $selected.length == 1
+				inst_id = $($selected[0]).attr('data-inst_id')
+				Materia.Widget.getWidget inst_id, (widget) ->
+					selectWidget(widget)
+		else if(event.keyCode == 27) #esc
+			clearSearch()
+
+	Materia.TextFilter.setupInput $('#search'), search, SEARCH_DELAY_MS
+
+	setDisplayState 'selectWidget'
