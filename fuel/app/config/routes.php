@@ -12,7 +12,7 @@ return [
 
 	// ================================= API ======================================
 
-	'api/(?<version>[0-9]*)/:format/:method' => 'api/call/$1/$2/$3', // JSON API GATEWAY
+	'api/json/:method' => 'api/call/1/json/$1', // JSON API GATEWAY
 
 	// ================================= WIDGETS ======================================
 	// NOTE: develop routes are in the development config
