@@ -10,6 +10,10 @@ return [
 	'permission-denied' => ['site/permission_denied', 'name' => 'nopermission'],
 	'crossdomain'       => 'site/crossdomain',
 
+	// ================================= API ======================================
+
+	'api/(?<version>[0-9]*)/:format/:method' => 'api/call/$1/$2/$3', // JSON API GATEWAY
+
 	// ================================= WIDGETS ======================================
 	// NOTE: develop routes are in the development config
 
