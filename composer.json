@@ -139,6 +139,9 @@
         "monolog/monolog": "1.5.*",
         "michelf/php-markdown": "1.4.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "4.1.*"
+    },
     "suggest": {
         "dwoo/dwoo" : "Allow Dwoo templating with the Parser package",
         "mustache/mustache": "Allow Mustache templating with the Parser package",
