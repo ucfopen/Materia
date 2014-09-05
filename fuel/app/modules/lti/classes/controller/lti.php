@@ -118,7 +118,6 @@ class Controller_Lti extends \Controller
 			[
 				'lib/spin.js',
 				'lib/spin.jquery.js',
-				'lib/jquery.qtip-1.0.0-rc3.min.js',
 				'lib/jquery-ui-1.10.3.custom.min.js',
 				'static::materia.set.throbber.js',
 				'static::materia.image.js',
