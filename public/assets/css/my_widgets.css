@@ -2042,41 +2042,9 @@
 .qtip-content {
 	font-weight: 900;
 }
-.nowidgets {
-	position: absolute;
+.qtip.nowidgets {
 	top: 110px;
 	left: 74px;
-	background: #b944cc;
-	border: 4px solid #b944cc;
-	z-index: 100;
-	color: #fff;
-	padding: 10px;
-	border-radius: 5px;
-	width: 230px;
-	font-weight: bold;
-}
-.nowidgets:after, .nowidgets:before {
-	bottom: 100%;
-	left: 50%;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-}
-
-.nowidgets:after {
-	border-color: rgba(185, 68, 204, 0);
-	border-bottom-color: #b944cc;
-	border-width: 20px;
-	margin-left: -20px;
-}
-.nowidgets:before {
-	border-color: rgba(185, 68, 204, 0);
-	border-bottom-color: #b944cc;
-	border-width: 26px;
-	margin-left: -26px;
 }
 
 /* *************************************************************** */
