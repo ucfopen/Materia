@@ -11,54 +11,19 @@ $ ->
 		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
 		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
 
-	h1String = 'Select a Widget' + (system == '' ? '' : ' for use in ' + system) + ':'
+	h1String = 'Select a Widget' + if system == '' then '' else ' for use in ' + system + ':'
 
 	$('h1').html(h1String)
 
 	hideRefreshLinkCallout = ->
 		if $('#refresh').attr('showing-qtip') == 'true'
-			$('#refresh').qtip('api').hide()
+			$('.qtip').hide()
 
 	calloutRefreshLink = ->
 		if $('#refresh').attr('showing-qtip') != 'true'
 			$('#refresh').attr('showing-qtip', 'true')
 
-			$('#refresh').qtip({
-				content: 'Click here to see your new widget',
-				position: {
-					corner: {
-						target: 'leftMiddle',
-						tooltip: 'rightMiddle'
-					},
-					adjust: {
-						x: -10
-					}
-				},
-				style: {
-					background: '#b944cc',
-					color: '#ffffff',
-
-					padding: 10,
-					border: {
-						width: 2,
-						radius: 5,
-						color: '#b944cc'
-					},
-					tip:{
-						corner: 'rightMiddle',
-						size: {
-							width: 10,
-							height: 10
-						}
-					}
-				},
-				show: {
-					ready: true
-				}
-			})
-			$('#refresh').qtip('api').onHide = (event) ->
-				$('#refresh').qtip('destroy')
-				$('#refresh').attr('showing-qtip', 'false')
+			$('body').append('<div class="qtip right lti">Click to see your new widget</div>')
 
 	search = ->
 		$('#list-container li').removeClass('selected')

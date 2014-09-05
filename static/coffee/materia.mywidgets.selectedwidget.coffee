@@ -718,7 +718,7 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 		rightSide.children('h1').html('You have no widgets!')
 		rightSide.children('p').html('Make a new widget in the widget catalog.')
 
-		$('body').append('<div class="qtip nowidgets">Click here to start making a new widget!</div>')
+		$('body').append('<div class="qtip top nowidgets">Click here to start making a new widget!</div>')
 
 	init						: init
 	noAccess					: noAccess
