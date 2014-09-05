@@ -45,6 +45,7 @@ public/assets/widget/*
 static/widget/*
 !static/widget/test
 static/widget/test/*
+fuel/packages/materia/vendor/widget/*
 
 # Any widget zip packages
 *.zip
