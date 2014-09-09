@@ -2615,3 +2615,15 @@
 	animation-duration: 15s;
 	animation-iteration-count: infinite;
 }
+
+.dataTable {
+	width: 100%;
+	overflow: auto;
+	display: block;
+}
+
+.paginate_button {
+	margin-right: 5px;
+	cursor: pointer;
+}
+
