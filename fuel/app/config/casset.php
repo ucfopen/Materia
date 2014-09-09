@@ -29,7 +29,7 @@ return [
 				'attr' => ['data-src' => 'modernizr'],
 			],
 			'jquery' => [
-				'files' => ['cdnjs::jquery/1.7.2/jquery.min.js'],
+				'files' => ['cdnjs::jquery/1.8.1/jquery.min.js'],
 				'enabled' => true,
 				'combine' => false,
 				'min' => false,

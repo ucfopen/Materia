@@ -577,10 +577,10 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 
 	updateGraph = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]')
 
 		getScoreSummaries selectedWidgetInstId, (data) ->
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]')
 			brackets = data.map[semester].distribution
 			Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
 
@@ -679,8 +679,7 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 
 			$table.append($tbody)
 			$element.append($table)
-			$table.dataTable
-				sScrollX: '100%'
+			$table.dataTable()
 
 	toggleTableSort = (semester) ->
 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
