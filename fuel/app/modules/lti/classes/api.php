@@ -291,6 +291,14 @@ class Api
 		return static::$lti_vars;
 	}
 
+	// This function is mostly used in testing, since we might need to modify
+	// the launch vars multiple times and get_launch_vars returns a cached
+	// value
+	public static function clear_launch_vars()
+	{
+		static::$lti_vars = null;
+	}
+
 	public static function create_lti_association_if_needed($item_id, $launch)
 	{
 		// Search for any associations with this item id and resource link

@@ -102,33 +102,44 @@ class Test_Api extends \Basetest
 		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken");
 	}
 
-	public function test_get_role()
+	/*
+	public static function can_create()
 	{
+		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
+		$student_roles = ['Student', 'Learner'];
+	*/
 
+	public function test_can_create()
+	{
 		$_POST = ['roles' => 'Administrator'];
-
-		$this->assertEquals('Administrator', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Instructor'];
-		$this->assertEquals('Instructor', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Learner'];
-		$this->assertEquals('Learner', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Student'];
-		$this->assertEquals('Student', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
+
+		$_POST = ['roles' => 'Instructor,Instructor'];
+		$this->assertTrue(\Lti\Api::can_create());
+
+		$_POST = ['roles' => 'Student,Student'];
+		$this->assertFalse(\Lti\Api::can_create());
 
 		$_POST = ['roles' => ''];
-		$this->assertEquals('None', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Student,Learner,Administrator'];
-		$this->assertEquals('Administrator', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Instructor,Student,Dogs'];
-		$this->assertEquals('Instructor', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'DaftPunk,student,Shaq'];
-		$this->assertEquals('None', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
 	}
 
 	public function test_authenticate()
@@ -197,6 +208,8 @@ class Test_Api extends \Basetest
 
 		// init_assessment_session gets launch vars from POST, so we need to
 		// add the testing launch_vars into POST
+		\Lti\Api::clear_launch_vars();
+		$_POST = [];
 		$_POST['resource_link_id'] = $launch->resource_id;
 		$_POST['context_id'] = $launch->context_id;
 		$_POST['roles'] = 'Learner';
@@ -349,6 +362,139 @@ class Test_Api extends \Basetest
 		\Lti\Api::disassociate_lti_data($play_id);
 
 		$this->assertEquals(\Session::get("lti-$play_id", 'deleted'), 'deleted');
+	}
+
+	public function test_get_launch_vars()
+	{
+		\Lti\Api::clear_launch_vars();
+		$_POST = ['context_id' => 'context1234'];
+		$vars = \Lti\Api::get_launch_vars();
+		$this->assertEquals($vars->context_id, 'context1234');
+		$vars2 = \Lti\Api::get_launch_vars();
+		$this->assertSame($vars, $vars2);
+	}
+
+	public function test_clear_launch_vars()
+	{
+		\Lti\Api::clear_launch_vars();
+		$_POST = ['context_id' => 'context1234'];
+		$vars = \Lti\Api::get_launch_vars();
+		$this->assertEquals($vars->context_id, 'context1234');
+		\Lti\Api::clear_launch_vars();
+		$vars2 = \Lti\Api::get_launch_vars();
+		$this->assertNotSame($vars, $vars2);
+	}
+
+	// Tests the creates_users config setting.
+	//
+	// User data (First, last, middle name) with creates_users = false
+	// -------------------------------------------
+	// MATERIA   | A |   | A | A | A |   |   |   |
+	// LTI       | B | B |   | B |   | B |   |   |
+	// INSTUTION | C | C | C |   |   |   | C |   |
+	// -------------------------------------------
+	// Result    | C | C | C | A | A |   | C |   | (= INSTUTION, MATERIA)
+	//
+	// User data (First, last, middle name) with creates_users = true
+	// -------------------------------------------
+	// MATERIA   | A |   | A | A | A |   |   |   |
+	// LTI       | B | B |   | B |   | B |   |   |
+	// INSTUTION | C | C | C |   |   |   | C |   |
+	// -------------------------------------------
+	// Result    | C | C | C | B | A | B | C |   | (= INSTUTION, LTI, MATERIA)
+	//
+	// Email with creates_users = false (A* = Generated Email)
+	// -------------------------------------------
+	// MATERIA   | A |   | A | A | A |   |   |   |
+	// LTI       | B | B |   | B |   | B |   |   |
+	// INSTUTION | C | C | C |   |   |   | C |   |
+	// -------------------------------------------
+	// Result    | C | C | C | A | A | A*| C | A*| (= INSTUTION, MATERIA, GENERATED)
+	//
+	// Email with creates_users = true (A* = Generated Email)
+	// -------------------------------------------
+	// MATERIA   | A |   | A | A | A |   |   |   |
+	// LTI       | B | B |   | B |   | B |   |   |
+	// INSTUTION | C | C | C |   |   |   | C |   |
+	// -------------------------------------------
+	// Result    | C | C | C | B | A | B | C | A*| (= INSTUTION, LTI, MATERIA, GENERATED)
+	//
+	// can_create with use_launch_roles = false
+	// -------------------------------------------
+	// MATERIA   | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 |
+	// LTI       | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
+	// INSTUTION | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
+	// -------------------------------------------
+	// Result    | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | (= INSTUITION)
+	//
+	// can_create with use_launch_roles = true
+	// -------------------------------------------
+	// MATERIA   | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 |
+	// LTI       | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
+	// INSTUTION | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
+	// -------------------------------------------
+	// Result    | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | (= INSTUTION or LTI)
+	public function test_creates_users()
+	{
+		// creates_users = false
+		\Config::set("lti::lti.consumers.materia.creates_users", false);
+
+		$uniq_username = md5(uniqid(rand(), TRUE));
+
+		// create a Materia user (first name A)
+		$query = \DB::insert('users')
+			->columns(['username', 'first', 'last', 'email'])
+			->values([$uniq_username, 'A', 'Last', 'fake@fake.fake'])
+			->execute();
+
+		// create a LTI user (first name B)
+		$launch = $this->create_testing_launch_vars(1, $uniq_username, 'test-resource-CU', ['Learner']);
+		$launch->first = 'B';
+
+		// create a UCF user (first name C)
+		//$db2 = \Database_Connection::instance('ucf');
+		$query = \DB::insert('CDLPS_PEOPLE')
+			->columns(['pps_number', 'network_id', 'first_name', 'middle_name', 'last_name', 'email'])
+			->values(['1234321', $uniq_username, 'C', 'Middle', 'Last', 'fake@fake.fake'])
+			->execute('ucf');
+
+		// create instance
+		$this->_asAuthor();
+		$qset = $this->create_new_qset('question', 'answer');
+		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance-CU', $qset, false);
+
+		// Setup some testing variables
+		$item_id = $widget_instance->id;
+		$resource_link = 'test-resource-CU';
+
+		// Create the association
+		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
+
+		// init_assessment_session gets launch vars from POST, so we need to
+		// add the testing launch_vars into POST
+		\Lti\Api::clear_launch_vars();
+		$_POST = [];
+		$_POST['resource_link_id'] = $launch->resource_id;
+		$_POST['context_id'] = $launch->context_id;
+		$_POST['roles'] = 'Learner';
+		$_POST['tool_consumer_info_product_family_code'] = 'materia';
+		$_POST['tool_consumer_instance_guid'] = 'materia';
+
+		// Call with a valid association
+		$result = \Lti\Api::init_assessment_session($item_id);
+		$this->assertEquals($result->inst_id, $item_id);
+
+		// Retrieve user
+		$user = \Model_User::query()->where('username', $uniq_username)->get_one();
+		$this->assertTrue($user instanceof \Model_User);
+		// if ( ! $user instanceof \Model_User)
+		// {
+		// 	require_once(PKGPATH . 'materia/tasks/admin.php');
+		// 	\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
+		// 	$user = \Model_User::query()->where('username', $uname)->get_one();
+		// }
+
+		$this->assertEquals($user->first, 'C');
 	}
 
 	protected function create_testing_vars_and_create_lti_association_if_needed($item_id, $resource_link)
