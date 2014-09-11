@@ -89,7 +89,7 @@ return [
 					'static::materia.coms.json.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
-					'lib/jquery-ui-1.8.21.custom.min.js',
+					'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
 					'static::materia.store.spotlight.js',
 					'static::materia.store.slideshow.js',
 				],
