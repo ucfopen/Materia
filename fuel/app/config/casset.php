@@ -248,7 +248,7 @@ return [
 					'lib/spin.js',
 					'lib/spin.jquery.js',
 					'static::materia.coms.json.js',
-					'lib/jquery-ui-1.8.21.custom.min.js',
+					'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
 					'lib/jquery-ui-timepicker-addon.js',
 					'static::materia.user.js',
 					'static::materia.widget.js',
