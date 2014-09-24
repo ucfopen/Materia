@@ -756,60 +756,6 @@ class Test_Api extends \Basetest
 		$this->assertNotSame($vars, $vars2);
 	}
 
-	// Tests the creates_users config setting.
-	//
-	// User data (First, last, middle name) with creates_users = false
-	// -------------------------------------------
-	// MATERIA   | A |   | A | A | A |   |   |   |
-	// LTI       | B | B |   | B |   | B |   |   |
-	// INSTUTION | C | C | C |   |   |   | C |   |
-	// -------------------------------------------
-	// Result    | C | C | C | A | A |   | C |   | (= INSTUTION, MATERIA)
-	//
-	// User data (First, last, middle name) with creates_users = true
-	// -------------------------------------------
-	// MATERIA   | A |   | A | A | A |   |   |   |
-	// LTI       | B | B |   | B |   | B |   |   |
-	// INSTUTION | C | C | C |   |   |   | C |   |
-	// -------------------------------------------
-	// Result    | C | C | C | B | A | B | C |   | (= INSTUTION, LTI, MATERIA)
-	//
-	// Email with creates_users = false (A* = Generated Email)
-	// -------------------------------------------
-	// MATERIA   | A |   | A | A | A |   |   |   |
-	// LTI       | B | B |   | B |   | B |   |   |
-	// INSTUTION | C | C | C |   |   |   | C |   |
-	// -------------------------------------------
-	// Result    | C | C | C | A | A | A*| C | A*| (= INSTUTION, MATERIA, GENERATED)
-	//
-	// Email with creates_users = true (A* = Generated Email)
-	// -------------------------------------------
-	// MATERIA   | A |   | A | A | A |   |   |   |
-	// LTI       | B | B |   | B |   | B |   |   |
-	// INSTUTION | C | C | C |   |   |   | C |   |
-	// -------------------------------------------
-	// Result    | C | C | C | B | A | B | C | A*| (= INSTUTION, LTI, MATERIA, GENERATED)
-	//
-	// can_create with use_launch_roles = false
-	// -------------------------------------------
-	// MATERIA   | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 |
-	// LTI       | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
-	// INSTUTION | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
-	// -------------------------------------------
-	// Result    | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | (= INSTUITION)
-	//
-	// can_create with use_launch_roles = true
-	// -------------------------------------------
-	// MATERIA   | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 |
-	// LTI       | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
-	// INSTUTION | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
-	// -------------------------------------------
-	// Result    | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | (= INSTUTION or LTI)
-	public function test_creates_users()
-	{
-		$this->assertTrue(true);
-	}
-
 	protected function create_testing_vars_and_create_lti_association_if_needed($item_id, $resource_link)
 	{
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
