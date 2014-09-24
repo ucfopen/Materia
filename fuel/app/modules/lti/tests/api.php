@@ -142,9 +142,380 @@ class Test_Api extends \Basetest
 		$this->assertFalse(\Lti\Api::can_create());
 	}
 
+	protected function create_use_launch_role_test_case($uniq_username, $uses_launch_roles, $data, $expect_instructor)
+	{
+		\Config::set("lti::lti.consumers.Materia.use_launch_roles", $uses_launch_roles);
+
+		$email = substr(md5(uniqid(rand(), TRUE)), 0, 8).'@fake.fake';
+		if(isset($data['ucf']))
+		{
+			$pid = mt_rand(1111111, 9999999);
+			$query = \DB::insert('CDLPS_PEOPLE')
+				->columns(['pps_number', 'network_id', 'first_name', 'middle_name', 'last_name', 'email', 'student', 'staff'])
+				->values([$pid, $uniq_username, 'First', 'Middle', 'Last', $email, $data['ucf']['instructor'] ? '0' : '1', $data['ucf']['instructor'] ? '1' : '0'])
+				->execute('ucf');
+		}
+
+		if(isset($data['materia']))
+		{
+			$query = \DB::insert('users')
+				->columns(['username', 'first', 'last', 'email'])
+				->values([$uniq_username, 'First', 'Last', $email])
+				->execute();
+
+			$user = \Model_User::query()->where('username', (string)$uniq_username)->get_one();
+			if($data['materia']['instructor'])
+			{
+				\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], ['basic_author']);
+			}
+		}
+
+		if(isset($data['lti']))
+		{
+			\Lti\Api::clear_launch_vars();
+			$role = $data['lti']['instructor'] ? 'Instructor' : 'Learner';
+			$launch = $this->create_testing_launch_vars($uniq_username, $uniq_username, 'test-resource-'.$uniq_username, [$role]);
+			$_POST['roles'] = $role;
+			$launch->email = $email;
+		}
+
+		// create instance
+		$this->_asAuthor();
+		$qset = $this->create_new_qset('question', 'answer');
+		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance-'.$uniq_username, $qset, false);
+
+		// Setup some testing variables
+		$item_id = $widget_instance->id;
+		$resource_link = 'test-resource-'.$uniq_username;
+
+		// Create the association
+		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
+
+		// init_assessment_session gets launch vars from POST, so we need to
+		// add the testing launch_vars into POST
+		\Lti\Api::clear_launch_vars();
+
+		$local_id_field = \Config::get("lti::lti.consumers.materia.local_identifier", 'username');
+		$auth_driver    = \Config::get("lti::lti.consumers.materia.auth_driver", '');
+		$creates_users  = \Config::get("lti::lti.consumers.materia.creates_users");
+
+		$user = \Lti\Api::get_or_create_user($launch, $local_id_field, $auth_driver, $creates_users);
+
+		// Retrieve user
+		$user = \Model_User::query()->where('username', $uniq_username)->get_one();
+
+		$is_instructor = \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id);
+
+		$this->assertEquals($expect_instructor, $is_instructor);
+	}
+
+	protected function create_update_user_testcase($uniq_username, $creates_users, $data, $expected_name, $expected_email)
+	{
+		if(isset($data['ucf']))
+		{
+			$pid = mt_rand(1111111, 9999999);
+			$query = \DB::insert('CDLPS_PEOPLE')
+				->columns(['pps_number', 'network_id', 'first_name', 'middle_name', 'last_name', 'email'])
+				->values([$pid, $uniq_username, $data['ucf']['first_name'], 'Middle', 'Last', $data['ucf']['email']])
+				->execute('ucf');
+		}
+
+		if(isset($data['materia']))
+		{
+			$query = \DB::insert('users')
+				->columns(['username', 'first', 'last', 'email'])
+				->values([$uniq_username, $data['materia']['first_name'], 'Last', $data['materia']['email']])
+				->execute();
+		}
+
+		if(isset($data['lti']))
+		{
+			\Lti\Api::clear_launch_vars();
+			$launch = $this->create_testing_launch_vars($uniq_username, $uniq_username, 'test-resource-'.$uniq_username, ['Learner']);
+			$launch->first = $data['lti']['first_name'];
+			$launch->email = $data['lti']['email'];
+		}
+
+		// create instance
+		$this->_asAuthor();
+		$qset = $this->create_new_qset('question', 'answer');
+		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance-'.$uniq_username, $qset, false);
+
+		// Setup some testing variables
+		$item_id = $widget_instance->id;
+		$resource_link = 'test-resource-'.$uniq_username;
+
+		// Create the association
+		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
+
+		// init_assessment_session gets launch vars from POST, so we need to
+		// add the testing launch_vars into POST
+		\Lti\Api::clear_launch_vars();
+
+		$local_id_field = \Config::get("lti::lti.consumers.materia.local_identifier", 'username');
+		$auth_driver    = \Config::get("lti::lti.consumers.materia.auth_driver", '');
+		//$creates_users  = \Config::get("lti::lti.consumers.materia.creates_users");
+
+		$user = \Lti\Api::get_or_create_user($launch, $local_id_field, $auth_driver, $creates_users);
+
+		//$this->assertTrue($auth_result);
+
+		// Retrieve user
+		$user = \Model_User::query()->where('username', $uniq_username)->get_one();
+
+		if($expected_name === false)
+		{
+			$this->assertEquals(null, $user);
+		}
+		else
+		{
+			$this->assertTrue($user instanceof \Model_User);
+			$this->assertEquals($expected_name, $user->first);
+			$this->assertEquals($expected_email, $user->email);
+		}
+	}
+
 	public function test_authenticate()
 	{
 		$this->assertFalse(\Lti\Api::authenticate());
+	}
+
+	public function test_get_or_create_user()
+	{
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], 'A', $username.'@materia.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], 'A', $username.'@materia.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], '', $username.'@ucf.edu'); //generated email
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, false, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], '', $username.'@ucf.edu'); //generated email
+
+
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], 'A', $username.'@materia.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => 'A', 'email' => $username.'@materia.com'],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], 'A', $username.'@materia.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => 'B', 'email' => $username.'@lti.com'],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], 'B', $username.'@ucf.edu');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => 'C', 'email' => $username.'@ucf.com']
+		], 'C', $username.'@ucf.com');
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_update_user_testcase($username, true, [
+			'materia' => ['first_name' => '', 'email' => ''],
+			'lti'     => ['first_name' => '', 'email' => ''],
+			'ucf'     => ['first_name' => '', 'email' => '']
+		], '', $username.'@ucf.edu'); //generated email
+
+
+
+
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => false]
+		], false);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => true]
+		], true);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => false]
+		], false);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => true]
+		], true);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => false]
+		], false);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => true]
+		], true);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => false]
+		], false);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, false, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => true]
+		], true);
+
+
+
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => false]
+		], false);
+
+		// fails
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => true]
+		], false);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => false]
+		], true);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => false],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => true]
+		], true);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => false]
+		], false);
+
+		// fails
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => false],
+			'ucf'     => ['instructor' => true]
+		], false);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => false]
+		], true);
+
+		$username = substr(md5(uniqid(rand(), TRUE)), 0, 8);
+		$this->create_use_launch_role_test_case($username, true, [
+			'materia' => ['instructor' => true],
+			'lti'     => ['instructor' => true],
+			'ucf'     => ['instructor' => true]
+		], true);
 	}
 
 	public function test_get_widget_association()
@@ -436,65 +807,7 @@ class Test_Api extends \Basetest
 	// Result    | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | (= INSTUTION or LTI)
 	public function test_creates_users()
 	{
-		// creates_users = false
-		\Config::set("lti::lti.consumers.materia.creates_users", false);
-
-		$uniq_username = md5(uniqid(rand(), TRUE));
-
-		// create a Materia user (first name A)
-		$query = \DB::insert('users')
-			->columns(['username', 'first', 'last', 'email'])
-			->values([$uniq_username, 'A', 'Last', 'fake@fake.fake'])
-			->execute();
-
-		// create a LTI user (first name B)
-		$launch = $this->create_testing_launch_vars(1, $uniq_username, 'test-resource-CU', ['Learner']);
-		$launch->first = 'B';
-
-		// create a UCF user (first name C)
-		//$db2 = \Database_Connection::instance('ucf');
-		$query = \DB::insert('CDLPS_PEOPLE')
-			->columns(['pps_number', 'network_id', 'first_name', 'middle_name', 'last_name', 'email'])
-			->values(['1234321', $uniq_username, 'C', 'Middle', 'Last', 'fake@fake.fake'])
-			->execute('ucf');
-
-		// create instance
-		$this->_asAuthor();
-		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance-CU', $qset, false);
-
-		// Setup some testing variables
-		$item_id = $widget_instance->id;
-		$resource_link = 'test-resource-CU';
-
-		// Create the association
-		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
-
-		// init_assessment_session gets launch vars from POST, so we need to
-		// add the testing launch_vars into POST
-		\Lti\Api::clear_launch_vars();
-		$_POST = [];
-		$_POST['resource_link_id'] = $launch->resource_id;
-		$_POST['context_id'] = $launch->context_id;
-		$_POST['roles'] = 'Learner';
-		$_POST['tool_consumer_info_product_family_code'] = 'materia';
-		$_POST['tool_consumer_instance_guid'] = 'materia';
-
-		// Call with a valid association
-		$result = \Lti\Api::init_assessment_session($item_id);
-		$this->assertEquals($result->inst_id, $item_id);
-
-		// Retrieve user
-		$user = \Model_User::query()->where('username', $uniq_username)->get_one();
-		$this->assertTrue($user instanceof \Model_User);
-		// if ( ! $user instanceof \Model_User)
-		// {
-		// 	require_once(PKGPATH . 'materia/tasks/admin.php');
-		// 	\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
-		// 	$user = \Model_User::query()->where('username', $uname)->get_one();
-		// }
-
-		$this->assertEquals($user->first, 'C');
+		$this->assertTrue(true);
 	}
 
 	protected function create_testing_vars_and_create_lti_association_if_needed($item_id, $resource_link)
