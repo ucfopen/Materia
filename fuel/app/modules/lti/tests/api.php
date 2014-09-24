@@ -102,13 +102,6 @@ class Test_Api extends \Basetest
 		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken");
 	}
 
-	/*
-	public static function can_create()
-	{
-		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
-		$student_roles = ['Student', 'Learner'];
-	*/
-
 	public function test_can_create()
 	{
 		$_POST = ['roles' => 'Administrator'];
