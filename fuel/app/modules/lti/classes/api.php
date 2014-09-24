@@ -121,7 +121,7 @@ class Api
 	 * @param  boolean $creates_users       Create & update the user if it doesnt exist
 	 * @return mixed                        Either return a Model_User or false if the user couldnt be found or created
 	 */
-	protected static function get_or_create_user($launch, $search_field, $auth_driver, $creates_users = false)
+	public static function get_or_create_user($launch, $search_field, $auth_driver, $creates_users = false)
 	{
 		// allow any auth module that needs to look up external users to create them as needed
 		\Event::trigger('lti_get_or_create_user', $launch->username, 'json');
@@ -173,8 +173,11 @@ class Api
 	{
 		// items to update in the user if we need to
 		$items_to_update = [];
+
 		if ( empty($user->first)) $items_to_update['first'] = $launch->first;
 		if ( empty($user->last))  $items_to_update['last'] = $launch->last;
+		// NOTE: Since emails are generated if none exist then this value will
+		// not be empty when we expect it to.
 		if ( empty($user->email)) $items_to_update['email'] = $launch->email;
 
 		if ( ! empty($items_to_update)) $auth->update_user($items_to_update, $user->username);
