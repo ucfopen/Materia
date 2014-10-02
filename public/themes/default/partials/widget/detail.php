@@ -14,7 +14,7 @@
 
 		<ul class="pics">
 			<li ng-repeat="screenshot in widget.screenshots">
-				<a class="grouped_elements" rel="group1" href="{{ screenshot.a }}"><img src="{{ screenshot.img }}" alt=""></a>
+				<a class="grouped_elements" rel="group1" href="{{ screenshot.a }}" fancybox><img src="{{ screenshot.img }}" alt=""></a>
 			</li>
 		</ul>
 		<p class="thumbnail_explination">Click on a thumbnail to view a screenshot</p>

@@ -1,4 +1,16 @@
 WidgetDetails = angular.module('widgetDetails', [])
+WidgetDetails.directive 'fancybox', ($compile, $timeout) ->
+	link: ($scope, element, attrs) ->
+		element.fancybox
+			hideOnOverlayClick:false
+			hideOnContentClick:false
+			enableEscapeButton:false
+			showNavArrows:false
+			onComplete: ->
+				$timeout ->
+					$compile($("#fancybox-content"))($scope)
+					$scope.$apply()
+					$.fancybox.resize()
 
 WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 
@@ -55,7 +67,6 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 				img: Materia.Image.screenshotThumbUrl(widget.dir, x)
 
 		$scope.$apply()
-		$('a.grouped_elements').fancybox()
 
 	tooltipObject = (txt) ->
 		text: txt
@@ -64,7 +75,5 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 
 	Namespace('Materia.Widget').Detail =
 		init        : init,
-		prepare     : prepare,
-		showToolTip : showToolTip,
-		hideToolTip : hideToolTip
+		prepare     : prepare
 
