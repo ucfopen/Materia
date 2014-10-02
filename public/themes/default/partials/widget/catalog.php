@@ -4,33 +4,38 @@
 			<h1>Widget Catalog</h1>
 		</div>
 		<div class="widgets" ng-controller="widgetCtrl">
-			<section ng-repeat="widget in widgets" class="widget {{widget.clean_name}}" ng-mouseenter="showInfoCard(widget.id)">
-				<a href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img src='{{widget.icon}}'></a>
-				<div class="header">
-					<h1><a href="/widgets/{{widget.id}}-{{widget.clean_name}}" class="searchable">{{widget.name}}</a></h1>
+			<section ng-repeat="widget in widgets" class="widget {{widget.clean_name}}" ng-mouseenter="showInfoCard(widget.id)" ng-mouseleave="hideInfoCard()">
+				<div class="widgetMin {{widget.clean_name}}">
+					<a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img src='{{widget.icon}}'></a>
+					<div class="header">
+						<h1><a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}" class="searchable">{{widget.name}}</a></h1>
+					</div>
+					<dl class="left inline_def blurb">
+						<dt data-type="description">Description:</dt>
+						<dd>{{widget.meta_data['excerpt']}}</dd>
+					</dl>
+					<dl class="left inline_def features_list">
+						<dt data-type="features">Features:</dt>
+						<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
+						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
+						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
 				</div>
-				<dl class="left inline_def blurb">
-					<dt data-type="description">Description:</dt>
-					<dd>{{widget.meta_data['excerpt']}}</dd>
-				</dl>
-				<div ng-show="infoCard[widget.id]" class="infocard" style="width: 356px; display: block; margin-top: 5px; -webkit-transition: 1s ease-in-out;" ng-mouseleave="hideInfoCard()">
-					<a class="card-content" href="/widgets/{{widget.id}}-{{widget.clean_name}}" style="padding: 0">
-						<a href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img src='{{widget.icon}}'></a>
-						<div class="header">
-							<h1 style="margin: 5px auto;"><a href="/widgets/{{widget.id}}-{{widget.clean_name}}" class="searchable" style="color: #fff; text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);">{{widget.name}}</a></h1>
-						</div>
-						<dl class="left inline_def blurb">
-							<dt data-type="description">Description:</dt>
-							<dd>{{widget.meta_data['excerpt']}}</dd>
-						</dl>
-						<dl class="left inline_def features_list" style="display: block">
-							<dt data-type="features">Features:</dt>
-							<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
-							<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
-							<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
-						</dl>
-					</a>
-				</div>
+				<a class="infocard" ng-show="infoCard[widget.id]" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
+					<img src='{{widget.icon}}'>
+					<div class="header">
+						<h1 class="infoHeader">{{widget.name}}</h1>
+					</div>
+					<dl class="left inline_def blurb">
+						<dt data-type="description">Description:</dt>
+						<dd>{{widget.meta_data['excerpt']}}</dd>
+					</dl>
+					<dl class="left inline_def features_list">
+						<dt data-type="features">Features:</dt>
+						<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
+						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
+						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
+					</dl>
+				</a>
 			</section>
 		</div>
 	</section>
