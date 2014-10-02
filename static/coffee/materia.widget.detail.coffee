@@ -2,10 +2,6 @@ WidgetDetails = angular.module('widgetDetails', [])
 WidgetDetails.directive 'fancybox', ($compile, $timeout) ->
 	link: ($scope, element, attrs) ->
 		element.fancybox
-			hideOnOverlayClick:false
-			hideOnContentClick:false
-			enableEscapeButton:false
-			showNavArrows:false
 			onComplete: ->
 				$timeout ->
 					$compile($("#fancybox-content"))($scope)
