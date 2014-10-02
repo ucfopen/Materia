@@ -1,4 +1,10 @@
-Namespace('Materia.Widget').Detail = do ->
+WidgetDetails = angular.module('widgetDetails', [])
+
+WidgetDetails.controller 'widgetDetailsController', ($scope) ->
+
+	$scope.widget =
+		icon: "/assets/img/default/default-icon-275.png"
+
 	SCREENSHOT_AMOUNT = 3
 
 	init = (gateway) ->
@@ -18,64 +24,34 @@ Namespace('Materia.Widget').Detail = do ->
 	populateDefaults = (widget) ->
 		clean_name = widget.clean_name
 
-		$('.widget_icon').attr('src', Materia.Image.iconUrl(widget.dir, 394))
-
-		$('.detail').children('h1').html(widget.name)
-
-		if widget.meta_data['subheader']?
-			$('.detail').children('h2').html(widget.meta_data['subheader'])
-		else
-			$('.detail').children('h2').remove()
-
-		templateLi = $('.pics').children('li')
+		$scope.widget =
+			name: widget.name
+			icon: Materia.Image.iconUrl(widget.dir, 394)
+			subheader: widget.meta_data['subheader']
+			about: widget.meta_data['about']
+			demourl: document.location.pathname+'/demo'
+			creatorurl: document.location.pathname+'/create'
+			supported_data: widget.meta_data['supported_data']
+			features: widget.meta_data['features']
+		$scope.show = true
 
 		if widget.meta_data['about'] == 'undefined'
-			widget.meta_data['about'] = 'No description available.'
+			$scope.widget.about = 'No description available.'
 
-		$('.detail').after(widget.meta_data['about'])
+		$scope.widget.screenshots = []
 
 		for x in [1..SCREENSHOT_AMOUNT]
-			clonedLi = $(templateLi).clone()
-			$(clonedLi)
-				.children('a').attr('href', Materia.Image.screenshotUrl(widget.dir, x))
-				.children('img').attr('src', Materia.Image.screenshotThumbUrl(widget.dir, x))
-			$(templateLi).before(clonedLi)
+			$scope.widget.screenshots.push
+				a: Materia.Image.screenshotUrl(widget.dir, x)
+				img: Materia.Image.screenshotThumbUrl(widget.dir, x)
 
+		$scope.showtooltip = (feature, index, type) ->
+			Materia.Widget.Detail.showToolTip(index, feature, type)
+		$scope.hidetooltip = ->
+			Materia.Widget.Detail.hideToolTip()
+
+		$scope.$apply()
 		$('a.grouped_elements').fancybox()
-		$(templateLi).remove()
-
-		$meta_dataDl = $('#metaData')
-
-		if widget.meta_data['features']? && widget.meta_data['features'].length > 0
-			$meta_dataDl.append('<dt>Features:</dt>')
-			for feature in widget.meta_data['features']
-				$meta_dataDl.append($('<dd>').append($('<a>').addClass('feature').html(feature)))
-
-		if widget.meta_data['supported_data']? && widget.meta_data['supported_data'].length > 0
-			$meta_dataDl.append('<dt>Supported Data:</dt>')
-			for data in widget.meta_data['supported_data']
-				$meta_dataDl.append($('<dd>').append($('<a>').addClass('supported_data').html(data)))
-
-		$('.widget_detail .feature, .widget_detail .supported_data').hover ->
-			pos = null
-			type = null
-
-			if ($(this).hasClass('feature'))
-				pos = $(this).index('.widget_detail .feature')
-				type = '.feature'
-			else if ($(this).hasClass('supported_data'))
-				pos = $(this).index('.widget_detail .supported_data')
-				type = '.supported_data'
-
-			description = $(this).html()
-			Materia.Widget.Detail.showToolTip(pos, description, type)
-
-		, -> Materia.Widget.Detail.hideToolTip()
-
-		$('#demoLink').attr('href', document.location.pathname+'/demo')
-		$('#createLink').attr('href', document.location.pathname+'/create')
-
-		$('.page').show()
 
 
 	showToolTip = (pos, description, type) ->
@@ -116,8 +92,9 @@ Namespace('Materia.Widget').Detail = do ->
 		tt = $('.widget_detail').find('.tooltip')
 		$(tt).remove()
 
-	init        : init,
-	prepare     : prepare,
-	showToolTip : showToolTip,
-	hideToolTip : hideToolTip
+	Namespace('Materia.Widget').Detail =
+		init        : init,
+		prepare     : prepare,
+		showToolTip : showToolTip,
+		hideToolTip : hideToolTip
 
