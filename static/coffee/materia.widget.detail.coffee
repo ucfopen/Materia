@@ -5,6 +5,14 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 	$scope.widget =
 		icon: "/assets/img/default/default-icon-275.png"
 
+	tooltipDescriptions =
+		'Customizable': 'As the widget creator, you supply the widget with data to make it relevant to your course.'
+		'Scorable': 'This widget collects scores, and is well suited to gauge performance.'
+		'Media': 'This widget uses image media as part of its supported data.'
+		'Question/Answer': 'Users provide a typed response or associate a predefined answer wih each question.'
+		'Multiple Choice': 'Users select a response from a collection of possible answers to questions provided by the widget.'
+		'Mobile Friendly': 'Designed with HTML5 to work on mobile devices like the iPad and iPhone'
+
 	SCREENSHOT_AMOUNT = 3
 
 	init = (gateway) ->
@@ -31,8 +39,9 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 			about: widget.meta_data['about']
 			demourl: document.location.pathname+'/demo'
 			creatorurl: document.location.pathname+'/create'
-			supported_data: widget.meta_data['supported_data']
-			features: widget.meta_data['features']
+			supported_data: widget.meta_data['supported_data'].map tooltipObject
+			features: widget.meta_data['features'].map tooltipObject
+
 		$scope.show = true
 
 		if widget.meta_data['about'] == 'undefined'
@@ -45,52 +54,13 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 				a: Materia.Image.screenshotUrl(widget.dir, x)
 				img: Materia.Image.screenshotThumbUrl(widget.dir, x)
 
-		$scope.showtooltip = (feature, index, type) ->
-			Materia.Widget.Detail.showToolTip(index, feature, type)
-		$scope.hidetooltip = ->
-			Materia.Widget.Detail.hideToolTip()
-
 		$scope.$apply()
 		$('a.grouped_elements').fancybox()
 
-
-	showToolTip = (pos, description, type) ->
-		text = ''
-
-		switch description
-			when 'Customizable'
-				text = 'As the widget creator, you supply the widget with data to make it relevant to your course.'
-			when 'Scorable'
-				text = 'This widget collects scores, and is well suited to gauge performance.'
-			when 'Media'
-				text = 'This widget uses image media as part of its supported data.'
-			when 'Question/Answer'
-				text = 'Users provide a typed response or associate a predefined answer wih each question.'
-			when 'Multiple Choice'
-				text = 'Users select a response from a collection of possible answers to questions provided by the widget.'
-			when 'Mobile Friendly'
-				text = 'Designed with HTML5 to work on mobile devices like the iPad and iPhone'
-			else
-				text = 'This feature has no additional information associated with it.'
-
-		tt = $('<div>').addClass('tooltip').html(text)
-		$('.widget_detail').append(tt)
-
-		featureItem = $(type).eq(pos)
-
-		left = featureItem.position().left
-		height = tt.height()
-		top = featureItem.position().top - height - 40
-
-		tt.css
-			'top' : top,
-			'left' : left
-
-		tt.fadeIn('fast')
-
-	hideToolTip = ->
-		tt = $('.widget_detail').find('.tooltip')
-		$(tt).remove()
+	tooltipObject = (txt) ->
+		text: txt
+		show: false
+		description: tooltipDescriptions[txt] or 'This feature has no additional information associated with it.'
 
 	Namespace('Materia.Widget').Detail =
 		init        : init,
