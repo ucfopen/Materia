@@ -35,6 +35,13 @@ return [
 				'min' => false,
 				'attr' => ['data-src' => 'jquery'],
 			],
+			'angular' => [
+				'files' => ['cdnjs::angular.js/1.2.20/angular.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'angular'],
+			],
 			'underscore' => [
 				'files' => ['cdnjs::underscore.js/1.5.2/underscore-min.js'],
 				'enabled' => false,
@@ -213,7 +220,7 @@ return [
 					'static::materia.widget.detail.js',
 					'static::materia.page.widget-detail.js'
 				],
-				'deps' => ['fancybox'],
+				'deps' => ['fancybox', 'angular'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'widget_detail'],
 			],
