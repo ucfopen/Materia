@@ -16,6 +16,9 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 
 	$scope.widget =
 		icon: "/assets/img/default/default-icon-275.png"
+	$scope.goback =
+		text: "Go back to the widget catalog"
+		url: "/widgets"
 
 	tooltipDescriptions =
 		'Customizable': 'As the widget creator, you supply the widget with data to make it relevant to your course.'
@@ -36,8 +39,9 @@ WidgetDetails.controller 'widgetDetailsController', ($scope) ->
 		Materia.Coms.Json.send 'widgets_get', [[widgetID]], (data) ->
 			populateDefaults(data[0])
 			if nameArr.length > 1
-				$('.widget_catalog_button').attr('href','/')
-				$('.goBackText').text('Go back to the front page')
+				$scope.goback =
+					url: "/"
+					text: "Go back to the front page"
 
 	# Populates the details page with content
 	# @object The current widget.

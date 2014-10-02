@@ -1,7 +1,7 @@
 <section class="page" ng-show="show" ng-app="widgetDetails" ng-controller="widgetDetailsController">
-	<a href="/widgets" class="action_button widget_catalog_button">
+	<a href="{{ goback.url }}" class="action_button widget_catalog_button">
 		<span class="arrow"></span>
-		<span class="goBackText">Go back to the widget catalog</span>
+		<span class="goBackText">{{ goback.text }}</span>
 	</a>
 
 	<article class="widget_detail">
@@ -21,12 +21,12 @@
 		<dl id="metaData" class="left inline_def">
 			<dt ng-show='widget.features.length'>Features:</dt>
 			<dd ng-repeat='feature in widget.features'>
-				<a class="feature" ng-mouseover="feature.show = true" ng-mouseout="feature.show=false">{{ feature.text }}</a>
+				<a class="feature" ng-mouseover="feature.show = true" ng-mouseout="feature.show = false">{{ feature.text }}</a>
 				<div class="tooltip" style="display: {{ feature.show ? 'inline-block' : 'none' }}">{{ feature.description }}</div>
 			</dd>
 			<dt ng-show='widget.supported_data.length'>Supported Data:</dt>
 			<dd ng-repeat='data in widget.supported_data'>
-				<a class="supported_data" ng-mouseover="data.show=true" ng-mouseout="data.show=false">{{ data.text }}</a>
+				<a class="supported_data" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</a>
 				<div class="tooltip" style="display: {{ data.show ? 'inline-block' : 'none' }}">{{ data.description }}</div>
 			</dd>
 		</dl>
