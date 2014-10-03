@@ -20,7 +20,7 @@
 						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
 						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
 				</div>
-				<a class="infocard" ng-show="infoCard[widget.id]" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
+				<a class="infocard" ng-class="{ show: infoCard[widget.id] }" ng-show="infoCard[widget.id]" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
 					<img src='{{widget.icon}}'>
 					<div class="header">
 						<h1 class="infoHeader">{{widget.name}}</h1>
