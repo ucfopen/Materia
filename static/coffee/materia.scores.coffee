@@ -1,5 +1,7 @@
+ScorePage = angular.module('scorePage', [])
 
-Namespace('Materia').Scores = do ->
+ScorePage.controller 'scorePageController', ($scope) ->
+
 	# attempts is an array of attempts, [0] is the newest
 	attempts = null
 	attempt_dates = null
@@ -84,11 +86,13 @@ Namespace('Materia').Scores = do ->
 				for attemptScore in scores
 					attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
 				attempts = scores
+				$scope.attempts = scores
+				$scope.$apply()
 				dfd.resolve()
 		return dfd.promise()
 
 	getScoreDetails = ->
-		if(isPreview)
+		if isPreview
 			currentAttempt = 1
 			Materia.Coms.Json.send('widget_instance_play_scores_get', [null, widgetInstance.id], displayDetails)
 		else if single_id
@@ -155,6 +159,8 @@ Namespace('Materia').Scores = do ->
 			$('#play-again').hide()
 		if single_id
 			$('.previous-attempts').hide()
+		$scope.widget = overview_data
+		$scope.$apply()
 
 	displayAttempts = (play_id) ->
 		if(isPreview)
@@ -299,7 +305,7 @@ Namespace('Materia').Scores = do ->
 
 		if(!isEmbedded)
 			updateHtmlTemplate(deets.details, 'details')
-			addCircleToDetailTable(deets.details)
+			#addCircleToDetailTable(deets.details)
 
 		if isPreview
 			$('.overview hgroup h1').css('margin-top', 10)
@@ -380,5 +386,8 @@ Namespace('Materia').Scores = do ->
 
 	$(document).ready -> Materia.Scores.init(API_LINK)
 
-	init              : init
-	displayScoreData  : displayScoreData
+	Materia.Scores.init = init
+	Materia.Scores.displayScoreData = displayScoreData
+
+Namespace('Materia').Scores = {}
+
