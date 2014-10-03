@@ -264,8 +264,12 @@
 	overflow:visible;
 
 	color:#000000;
+}
 
+.catalog .infocard.show {
 	-webkit-animation: animateShow .3s;
+	-moz-animation: animateShow .3s;
+	animation: animateShow .3s;
 }
 
 .catalog .infocard h1 {
@@ -295,6 +299,16 @@
 }
 
 @-webkit-keyframes animateShow {
+	0%   {opacity: 0}
+	100% {opacity: 1}
+}
+
+@-moz-keyframes animateShow {
+	0%   {opacity: 0}
+	100% {opacity: 1}
+}
+
+@keyframes animateShow {
 	0%   {opacity: 0}
 	100% {opacity: 1}
 }
