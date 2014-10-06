@@ -114,6 +114,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 			# display existing data or get more from the server
 			if details[attempts.length - currentAttempt]? displayDetails( details[attempts.length - currentAttempt] )
 			else Materia.Coms.Json.send('widget_instance_play_scores_get', [play_id], displayDetails)
+		$scope.$apply()
 
 	displayWidgetInstance = ->
 		# Build the data for the overview section, prep for display through Underscore
@@ -196,6 +197,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 	# @param    type		The type of graph that will be made (bargraph | pieChart)
 	# @return   void
 	toggleClassRankGraph = ->
+		console.log 'toggled'
 		# toggle button text
 		text = $('#class-rank-button').html()
 		$('#class-rank-button').html( if text == 'Close Graph' then "Compare With Class" else 'Close Graph')
@@ -307,7 +309,9 @@ ScorePage.controller 'scorePageController', ($scope) ->
 
 		if(!isEmbedded)
 			updateHtmlTemplate(deets.details, 'details')
-			#addCircleToDetailTable(deets.details)
+			setTimeout ->
+				addCircleToDetailTable(deets.details)
+			, 10
 
 		if isPreview
 			$('.overview hgroup h1').css('margin-top', 10)
@@ -317,7 +321,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 			if(isPreview)
 				$('#class-rank-button').remove()
 			else
-				$('#class-rank-button').css('display', 'inline-block').on('click', toggleClassRankGraph)
+				$('#class-rank-button').css('display', 'inline-block')
 
 		# TODO: This could really use cleaning up. It's still pretty hackish.
 

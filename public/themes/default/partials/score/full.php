@@ -5,8 +5,8 @@
 		<nav class="previous-attempts">
 			<h1>Prev. Attempts</h1>
 			<ul>
-				<li ng-repeat="attempt in data.attempts" ng-init="data.attempts.length - $index">
-					<a href="#attempt-{{ attempt_num }}">Attempt {{ attempt.attempt_num }}: <span class="score">{{ attempt.roundedPercent }}%</span> <span class="date">{{ data.dates[$index] }}</span>
+				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
+					<a href="#attempt-{{ num }}">Attempt {{ num }}: <span class="score">{{ attempt.roundedPercent }}%</span> <span class="date">{{ data.dates[$index] }}</span>
 				</a></li>
 			</ul>
 		</nav>
@@ -54,8 +54,8 @@
 			</li>
 			<li class="{{ row.style }}" ng-repeat-start="row in detail.table">
 				<div class="index" ng-if="row.graphic != 'none'">
-					<canvas class="question-number" id="question-{{ $parent.$index+1 }}-{{ $index+1 }}" >
-						<p>{{ $parent.$index+1 }}</p>
+					<canvas class="question-number" id="question-{{ $parent.index+1 }}-{{ $index+1 }}" >
+						<p>{{ $index+1 }}</p>
 					</canvas>
 					<span ng-if="row.display_score">
 						{{ row.score }}{{ row.symbol }}
