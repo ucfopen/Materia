@@ -45,7 +45,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 		templates.overview = $('.overview').clone()
 		templates.details = $('.details').clone()
 		templates.title = $('article.container header > h1').clone()
-		if(!isPreview && !isEmbedded)
+		if !isPreview and !isEmbedded
 			$('#class-rank-button').show()
 			$('#class-rank-button').on('click', toggleClassRankGraph)
 
@@ -85,8 +85,10 @@ ScorePage.controller 'scorePageController', ($scope) ->
 				# Round scores
 				for attemptScore in scores
 					attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
+					console.log attemptScore
 				attempts = scores
 				$scope.attempts = scores
+				$scope.attempt = scores[0]
 				$scope.$apply()
 				dfd.resolve()
 		return dfd.promise()
@@ -163,20 +165,20 @@ ScorePage.controller 'scorePageController', ($scope) ->
 		$scope.$apply()
 
 	displayAttempts = (play_id) ->
-		if(isPreview)
+		if isPreview
 			$('header').addClass('preview')
 			currentAttempt = 1
 			getScoreDetails()
 		else
-			if(attempts instanceof Array && attempts.length > 0)
+			if attempts instanceof Array && attempts.length > 0
 				matchedAttempt = false
 				for i in [0..attempts.length-1]
 					d = new Date(attempts[i].created_at * 1000)
 
 					# attempt_dates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
-					attempt_dates[i] = ((d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear())
+					attempt_dates[i] = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear()
 
-					if(play_id == attempts[i].id) then  matchedAttempt = attempts.length - i
+					matchedAttempt = attempts.length - i if play_id == attempts[i].id
 
 				if(isPreview)
 					window.location.hash = '#attempt-'+1
@@ -344,9 +346,14 @@ ScorePage.controller 'scorePageController', ($scope) ->
 					$previousAttempts.removeClass('open')
 
 		sendPostMessage(deets.overview.score)
+		$scope.overview = deets.overview
+		$scope.data = deets.details[0]
+		$scope.details = deets.details
+		$scope.$apply()
 
 	updateHtmlTemplate = (data, template_name) ->
 		data.attempt_num = currentAttempt
+		$scope.attempt_num = currentAttempt
 		markup = $('#score_'+template_name+'_template').html()
 		if markup?
 			compiled = _.template(markup, data, {'variable' : 'data'})
@@ -372,12 +379,12 @@ ScorePage.controller 'scorePageController', ($scope) ->
 							Materia.Scores.Scoregraphics.drawScoreCircle(canvas_id, index, percent, greyMode)
 
 	sendPostMessage = (score) ->
-		if(parent.postMessage && JSON.stringify)
-			parent.postMessage(JSON.stringify({
+		if parent.postMessage and JSON.stringify
+			parent.postMessage JSON.stringify(
 				type:'materiaScoreRecorded',
 				widget:widgetInstance,
 				score:score
-			}), '*')
+			), '*'
 
 
 	getAttemptNumberFromHash = ->
