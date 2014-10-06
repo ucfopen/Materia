@@ -13,7 +13,6 @@ app.controller 'profileCtrl', ['$scope', ($scope) ->
 	# Executes the API function and an optional callback function
 	# @param   callback	optional callback
 	$scope.getLogs = (callback) ->
-		$('#activity_logs_loading').show()
 		$scope.loading = true
 
 		#Gets current user
