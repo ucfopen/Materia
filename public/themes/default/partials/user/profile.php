@@ -40,7 +40,7 @@
 
 	</div>
 
-	<a href="#" class="show_more_activity" ng-show="more" ng-click="loading = true; getLogs()"><span class="message_loading" ng-show="loading">Loading...</span> Show more</a>
+	<a class="show_more_activity" ng-show="more" ng-click="loading = true; getLogs()"><span class="message_loading" ng-show="loading">Loading...</span> Show more</a>
 
 	<p class="no_logs" ng-show="activities && activities.length == 0">You don't have any activity! Start doing stuff.</p>
 
