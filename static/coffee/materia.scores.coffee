@@ -56,6 +56,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 				$previousAttempts.removeClass('open')
 
 		$scope.isPreview = isPreview
+		$scope.isEmbedded = isEmbedded
 		$scope.showCompareWithClass = !isPreview and !isEmbedded
 
 	displayScoreData = (inst_id, play_id) ->
@@ -115,7 +116,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 			# The Materia sendoff link requires currentAttempt to be set, so it's here instead of displayWidgetInstance
 			if isEmbedded
 				prefix = '/scores/'
-				$('#visit-materia').attr 'href', prefix+widgetInstance.id+'#attempt-'+currentAttempt
+				$scope.moreInfoLink = prefix+widgetInstance.id+'#attempt-'+currentAttempt
 
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]? displayDetails( details[$scope.attempts.length - currentAttempt] )
