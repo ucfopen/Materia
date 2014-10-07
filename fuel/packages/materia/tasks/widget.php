@@ -761,6 +761,12 @@ class Widget  extends \Basetask
 			return false;
 		}
 
+		// Ignore the existing in_catalog flag
+		if (array_key_exists('in_catalog', $params))
+		{
+			unset($params['in_catalog']);
+		}
+
 		$num = \DB::update('widget')
 			->set($params)
 			->where('id', $widget_id)
