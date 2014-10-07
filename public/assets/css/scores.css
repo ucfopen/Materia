@@ -433,7 +433,6 @@ body.scores section.score-graph{
 }
 
 body.scores #class-rank-button{
-	display: none;
 	font-size: 12px;
 	margin: 10px 0px 10px;
 }
@@ -485,4 +484,8 @@ body.scores #class-rank-button{
 
 .expired.container .page {
 	text-align:center !important;
+}
+
+.preview hgroup h1 {
+	margin-top: 10px;
 }
