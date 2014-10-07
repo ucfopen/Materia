@@ -1,33 +1,33 @@
 <article class="container" ng-app="scorePage" ng-controller="scorePageController">
-	<header class="header">
-		<h1>{{ widget.title }} Scores:</h1>
+	<header class="header" ng-class="{ preview: isPreview }">
+		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
 
-		<nav class="previous-attempts">
+		<nav class="previous-attempts" ng-hide="hidePreviousAttempts || isPreview">
 			<h1>Prev. Attempts</h1>
 			<ul>
 				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
-					<a href="#attempt-{{ num }}">Attempt {{ num }}: <span class="score">{{ attempt.roundedPercent }}%</span> <span class="date">{{ data.dates[$index] }}</span>
+					<a href="#attempt-{{ num }}">Attempt {{ num }}: <span class="score">{{ attempt.roundedPercent }}%</span> <span class="date">{{ dates[$index] }}</span>
 				</a></li>
 			</ul>
 		</nav>
 
 		<nav class="play-again">
-			<h1><a id="play-again" class="action_button" href="{{ widget.href }}">{{ widget.play_again }}</a></h1>
+			<h1><a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ widget.href }}">{{ widget.play_again }}</a></h1>
 		</nav>
 
 	</header>
-	<section class="overview">
+	<section class="overview" ng-class="{ preview: isPreview }">
 		<div id="overview-score">
 			<hgroup>
 				<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
 				<h2 class="overall_score">{{ overview.score }}<span class="percent">%</span></h2>
 			</hgroup>
-			<div id="class-rank-button" class="action_button gray" >Compare With Class</div>
+			<div id="class-rank-button" class="action_button gray" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">
 			<table>
 				<tbody>
-					<tr ng-repeat="row in overview.table">
+					<tr ng-repeat="row in overview.table track by $index">
 						<td>{{ row.message }}</td>
 						<td class="{{ (row.value > -1) ? 'positive' : 'negative' }} number">
 							{{ row.value }}{{ (row.symbol == null) ? '%' : row.symbol }}
@@ -61,7 +61,7 @@
 						{{ row.score }}{{ row.symbol }}
 					</span>
 				</div>
-				<div class="{{ row.data_style[$index] }}" ng-repeat="data in row.data">{{ data }}</div>
+				<div class="{{ row.data_style[$index] }}" ng-repeat="data in row.data track by $index">{{ data }}</div>
 			</li>
 			<li ng-if="row.feedback != null" class="feedback single_column" ng-repeat-end>
 				<p>{{ row.feedback }}</p>
