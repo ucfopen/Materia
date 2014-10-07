@@ -69,6 +69,12 @@
 		</ul>
 	</section>
 
+	<section class="materia-sendoff" ng-show="isEmbedded">
+		<div>
+			<h1>More information about your score can be found by <a id="visit-materia" href="{{ moreInfoLink }}" target="blank">visiting Materia</a>.</h1>
+		</div>
+	</section>
+
 </article>
 
 <?= Theme::instance()->view('partials/score/expired'); ?>
