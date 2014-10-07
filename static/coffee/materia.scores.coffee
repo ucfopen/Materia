@@ -127,7 +127,6 @@ ScorePage.controller 'scorePageController', ($scope) ->
 		hidePlayAgain = false
 		widget =
 			title : widgetInstance.name
-			attempts : $scope.attempts
 			dates    : attempt_dates
 
 		if (widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && $scope.attempts.length < widgetInstance.attempts) || isPreview) && !single_id
@@ -142,7 +141,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 			hidePlayAgain = true
 
 		# Modify display of several elements after HTML is outputted
-		lengthRange = Math.floor(widgetInstance.name.length/10)
+		lengthRange = Math.floor widgetInstance.name.length / 10
 		textSize    = parseInt($('article.container header > h1').css('font-size'))
 		paddingSize = parseInt($('article.container header > h1').css('padding-top'))
 
@@ -296,7 +295,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 		# Round the score for display
 		deets.overview.score = Math.round deets.overview.score
 		for tableItem in deets.overview.table
-			if tableItem.value.constructor is String then tableItem.value = parseFloat(tableItem.value)
+			tableItem.value = parseFloat(tableItem.value) if tableItem.value.constructor is String
 			tableItem.value = tableItem.value.toFixed(2)
 
 		for tableItem in deets.details[0].table
@@ -309,12 +308,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 				addCircleToDetailTable(deets.details)
 			, 10
 
-		if isPreview
-			$('.overview hgroup h1').css('margin-top', 10)
-			$('.previous-attempts').hide()
-
 		$('.container').fadeIn()
-
 
 		sendPostMessage deets.overview.score
 		$scope.overview = deets.overview
@@ -332,16 +326,16 @@ ScorePage.controller 'scorePageController', ($scope) ->
 					greyMode = false
 					index = j+1
 					canvas_id = 'question-'+(i+1)+'-'+index
-					percent = table[j].score/100
+					percent = table[j].score / 100
 					switch table[j].graphic
 						when 'modifier'
 							greyMode = table[j].score == 0
-							Materia.Scores.Scoregraphics.drawModifierCircle(canvas_id, index, percent, greyMode)
+							Materia.Scores.Scoregraphics.drawModifierCircle canvas_id, index, percent, greyMode
 						when 'final'
-							Materia.Scores.Scoregraphics.drawFinalScoreCircle(canvas_id, index, percent)
+							Materia.Scores.Scoregraphics.drawFinalScoreCircle canvas_id, index, percent
 						when 'score'
 							greyMode = table[j].score == -1
-							Materia.Scores.Scoregraphics.drawScoreCircle(canvas_id, index, percent, greyMode)
+							Materia.Scores.Scoregraphics.drawScoreCircle canvas_id, index, percent, greyMode
 
 	sendPostMessage = (score) ->
 		if parent.postMessage and JSON.stringify
