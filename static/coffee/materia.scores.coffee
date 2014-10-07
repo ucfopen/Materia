@@ -85,11 +85,8 @@ ScorePage.controller 'scorePageController', ($scope) ->
 			Materia.Coms.Json.send 'widget_instance_scores_get', [inst_id], (scores) ->
 				if scores == null or scores.length < 1
 					#load up an error screen of some sort
-					$('article.container').remove()
-					$error = $($('#t-restricted').html())
-					$error.find('.page').css('width','auto')
-					$('body').append($error)
-					$error.show()
+					$scope.restricted = true
+					$scope.$apply()
 					dfd.reject 'No scores for this widget'
 				# Round scores
 				for attemptScore in scores
@@ -119,7 +116,7 @@ ScorePage.controller 'scorePageController', ($scope) ->
 				$scope.moreInfoLink = prefix+widgetInstance.id+'#attempt-'+currentAttempt
 
 			# display existing data or get more from the server
-			if details[$scope.attempts.length - currentAttempt]? displayDetails( details[$scope.attempts.length - currentAttempt] )
+			if details[$scope.attempts.length - currentAttempt]? displayDetails details[$scope.attempts.length - currentAttempt]
 			else Materia.Coms.Json.send 'widget_instance_play_scores_get', [play_id], displayDetails
 		$scope.$apply()
 
@@ -276,17 +273,15 @@ ScorePage.controller 'scorePageController', ($scope) ->
 			$.jqplot('graph', [_graphData], jqOptions)
 
 	displayDetails = (results) ->
+		$scope.show = true
+
 		if !results
-			$('article.container').remove()
 			widget_data =
 				href : "/preview/#{widgetInstance.id}/#{widgetInstance.clean_name}"
 
-			$error = $('#t-expired')
-			$error.find('.page').css('width','auto')
-			$error.show()
+			$scope.expired = true
+			$scope.$apply()
 			return
-		else
-			$('div.expired').remove()
 
 		details[$scope.attempts.length - currentAttempt] = results
 		deets = results[0]
@@ -301,15 +296,13 @@ ScorePage.controller 'scorePageController', ($scope) ->
 
 		for tableItem in deets.details[0].table
 			score = parseFloat(tableItem.score)
-			if(score != 0 && score != 100)
+			if score != 0 and score != 100
 				tableItem.score = score.toFixed(2)
 
-		if(!isEmbedded)
+		if !isEmbedded
 			setTimeout ->
 				addCircleToDetailTable(deets.details)
 			, 10
-
-		$('.container').fadeIn()
 
 		sendPostMessage deets.overview.score
 		$scope.overview = deets.overview

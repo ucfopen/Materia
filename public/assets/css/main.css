@@ -747,10 +747,10 @@ transform:rotate(360deg)}
 }
 
 .container.general .page{
-	border:rgba(0,0,0,0.22) 1px solid;
+	/* border:rgba(0,0,0,0.22) 1px solid; */
 	-moz-box-shadow: 1px 3px 10px #888;
-	-webkit-box-shadow: 1px 3px 10px #888;
-	box-shadow: 1px 3px 10px #888;
+	/* -webkit-box-shadow: 1px 3px 10px #888; */
+	/* box-shadow: 1px 3px 10px #888; */
 
 	margin:0 auto;
 	top:0;

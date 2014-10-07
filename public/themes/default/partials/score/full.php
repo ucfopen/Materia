@@ -1,5 +1,5 @@
-<article class="container" ng-app="scorePage" ng-controller="scorePageController">
-	<header class="header" ng-class="{ preview: isPreview }">
+<article class="container" ng-class="{ show: show }" ng-app="scorePage" ng-controller="scorePageController">
+	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
 
 		<nav class="previous-attempts" ng-hide="hidePreviousAttempts || isPreview">
@@ -16,7 +16,7 @@
 		</nav>
 
 	</header>
-	<section class="overview" ng-class="{ preview: isPreview }">
+	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<div id="overview-score">
 			<hgroup>
 				<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
@@ -38,7 +38,7 @@
 		</div>
 	</section>
 
-	<section class="score-graph">
+	<section class="score-graph" ng-show="!restricted && !expired">
 		<div class="graph">
 			<div id="graph">
 			</div>
@@ -46,7 +46,7 @@
 	</section>
 
 
-	<section class="details" ng-repeat="detail in details">
+	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired">
 		<h1>{{ detail.title }}</h1>
 		<ul>
 			<li class="details_header">
@@ -69,13 +69,33 @@
 		</ul>
 	</section>
 
-	<section class="materia-sendoff" ng-show="isEmbedded">
+	<section class="materia-sendoff" ng-show="isEmbedded && !restricted && !expired">
 		<div>
 			<h1>More information about your score can be found by <a id="visit-materia" href="{{ moreInfoLink }}" target="blank">visiting Materia</a>.</h1>
 		</div>
 	</section>
 
+	<div class="expired container general" ng-show="expired">
+		<section class="page score_expired">
+			<h2 class="logo">The preview score for this widget has expired.</h2>
+			<a class="action_button" href="{{ widget.href }}">Preview Again</a>
+		</section>
+	</div>
+
+	<div class="score_restrict container general" ng-show="restricted">
+		<section class="page score_restrict">
+			<h2 class="logo">You don't have any scores for this widget.</h2>
+
+			<p>You may need to:</p>
+			<ul>
+				<li>Make sure the score you're trying to access belongs to you.</li>
+				<li>Try to access this score through your profile page.</li>
+				<li>Check out our documentation.</li>
+			</ul>
+
+			<?= Theme::instance()->view('partials/help/support_info') ?>
+
+		</section>
+	</div>
 </article>
 
-<?= Theme::instance()->view('partials/score/expired'); ?>
-<?= Theme::instance()->view('partials/score/restricted'); ?>
