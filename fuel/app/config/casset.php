@@ -42,6 +42,25 @@ return [
 				'min' => false,
 				'attr' => ['TT-src' => 'underscore'],
 			],
+			'angular' => [
+				'files' => ['cdnjs::angular.js/1.2.2/angular.min.js'],
+				'enabled' => false,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'angular'],
+			],
+			'jqplot' => [
+				'files' => [
+					'lib/jquery.jqplot.min.js',
+					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
+					'lib/jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
+					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
+					'lib/jqplot_plugins/jqplot.pointLabels.min.js',
+					'lib/jqplot_plugins/jqplot.canvasAxisLabelRenderer.min.js'
+				],
+				'enabled' => false,
+				'attr' => ['async' => 'true']
+			],
 			'swfobject' => [
 				'files' => ['cdnjs::swfobject/2.2/swfobject.js'],
 				'enabled' => false,
@@ -129,14 +148,8 @@ return [
 					'static::materia.coms.json.js',
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
-					'lib/jquery.jqplot.min.js',
-					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.pointLabels.min.js',
-					'lib/jqplot_plugins/jqplot.canvasAxisLabelRenderer.min.js'
 				],
-				'deps' => ['underscore'],
+				'deps' => ['angular', 'jqplot'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'scores'],
 			],
@@ -145,14 +158,8 @@ return [
 					'static::materia.coms.json.js',
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
-					'lib/jquery.jqplot.min.js',
-					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.pointLabels.min.js',
-					'lib/jqplot_plugins/jqplot.canvasAxisLabelRenderer.min.js'
 				],
-				'deps' => ['underscore'],
+				'deps' => ['angular', 'jqplot'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'embed_scores'],
 			],
