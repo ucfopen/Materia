@@ -2,11 +2,11 @@
 	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
 
-		<nav class="previous-attempts" ng-hide="hidePreviousAttempts || isPreview">
-			<h1>Prev. Attempts</h1>
-			<ul>
+		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
+			<h1 ng-click="prevClick()">Prev. Attempts</h1>
+			<ul ng-mouseover="prevMouseOver()">
 				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
-					<a href="#attempt-{{ num }}">Attempt {{ num }}: <span class="score">{{ attempt.roundedPercent }}%</span> <span class="date">{{ dates[$index] }}</span>
+					<a href="#attempt-{{ num }}" ng-click="attemptClick()">Attempt {{ num }}: <span class="score">{{ attempt.roundedPercent }}%</span> <span class="date">{{ dates[$index] }}</span>
 				</a></li>
 			</ul>
 		</nav>
