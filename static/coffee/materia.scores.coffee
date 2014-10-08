@@ -42,18 +42,15 @@ ScorePage.controller 'scorePageController', ($scope) ->
 		# when the url has changes, reload the questions
 		$(window).bind 'hashchange', getScoreDetails
 
-		# setup Prev. Attempts menu
-		$previousAttempts = $('.previous-attempts')
-		if isMobile.any()
-			$('.previous-attempts h1').on 'click', ->
-				$previousAttempts.toggleClass('open')
-			$('.previous-attempts a').on 'click', ->
-				$previousAttempts.removeClass('open')
-		else
-			$previousAttempts.on 'mouseover', ->
-				$previousAttempts.addClass('open')
-			$previousAttempts.on 'mouseout', ->
-				$previousAttempts.removeClass('open')
+		$scope.prevMouseOver = ->
+			$scope.prevAttemptClass = "open"
+		$scope.prevMouseOut = ->
+			$scope.prevAttemptClass = ""
+		$scope.prevClick = ->
+			$scope.prevAttemptClass = "open"
+		$scope.attemptClick = ->
+			if isMobile.any()
+				$scope.prevAttemptClass = ""
 
 		$scope.isPreview = isPreview
 		$scope.isEmbedded = isEmbedded
