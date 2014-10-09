@@ -749,6 +749,8 @@ class Widget  extends \Basetask
 		$existing_widget = new \Materia\Widget();
 		$existing_widget->get($widget_id);
 
+		$params['in_catalog'] = $existing_widget->in_catalog;
+
 		if ($existing_widget->id !== $widget_id)
 		{
 			\Cli::write('Not upgrading since existing Widget not found: '.$widget_id, 'red');
