@@ -61,6 +61,13 @@ return [
 				'enabled' => false,
 				'attr' => ['async' => 'true']
 			],
+			'labjs' => [
+				'files' => ['cdnjs::labjs/2.0.3/LAB.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'jquery'],
+			],
 			'swfobject' => [
 				'files' => ['cdnjs::swfobject/2.2/swfobject.js'],
 				'enabled' => false,
