@@ -49,18 +49,6 @@ return [
 				'min' => false,
 				'attr' => ['data-src' => 'angular'],
 			],
-			'jqplot' => [
-				'files' => [
-					'lib/jquery.jqplot.min.js',
-					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.pointLabels.min.js',
-					'lib/jqplot_plugins/jqplot.canvasAxisLabelRenderer.min.js'
-				],
-				'enabled' => false,
-				'attr' => ['async' => 'true']
-			],
 			'labjs' => [
 				'files' => ['cdnjs::labjs/2.0.3/LAB.min.js'],
 				'enabled' => true,
@@ -156,7 +144,7 @@ return [
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
 				],
-				'deps' => ['angular', 'jqplot'],
+				'deps' => ['angular'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'scores'],
 			],
@@ -166,7 +154,7 @@ return [
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
 				],
-				'deps' => ['angular', 'jqplot'],
+				'deps' => ['angular'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'embed_scores'],
 			],
