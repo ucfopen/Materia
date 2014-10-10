@@ -206,68 +206,70 @@ ScorePage.controller 'scorePageController', ($scope) ->
 		# return if preview
 		return if isPreview
 
-		# ========== BUILD THE GRAPH =============
-		Materia.Coms.Json.send 'score_summary_get', [widgetInstance.id], (data) ->
+		$LAB.script("/assets/js/lib/jquery.jqplot.min.cat.js").wait ->
 
-			# add up all semesters data into one dataset
-			_graphData = [
-				['0-9%',    0],
-				['10-19%',  0],
-				['20-29%',  0],
-				['30-39%',  0],
-				['40-49%',  0],
-				['50-59%',  0],
-				['60-69%',  0],
-				['70-79%',  0],
-				['80-89%',  0],
-				['90-100%', 0]
-			]
+			# ========== BUILD THE GRAPH =============
+			Materia.Coms.Json.send 'score_summary_get', [widgetInstance.id], (data) ->
 
-			for d in data
-				for bracket, n in _graphData
-					bracket[1] += d.distribution[n]
-
-			# setup options
-			jqOptions =
-				animate: true,
-				animateReplot: true,
-				series: [
-						renderer:$.jqplot.BarRenderer,
-						shadow: false,
-						color: '#1e91e1',
-						rendererOptions:
-							animation:
-								speed: 500
+				# add up all semesters data into one dataset
+				_graphData = [
+					['0-9%',    0],
+					['10-19%',  0],
+					['20-29%',  0],
+					['30-39%',  0],
+					['40-49%',  0],
+					['50-59%',  0],
+					['60-69%',  0],
+					['70-79%',  0],
+					['80-89%',  0],
+					['90-100%', 0]
 				]
-				seriesDefaults:
-					showMarker:false,
-					pointLabels:
-						show: true,
-						formatString:'%.0f',
-						color: '#000'
-				title:
-					text: "Compare Your Score With Everyone Else's",
-					fontFamily: 'Lato, Lucida Grande, Arial, sans'
-				axesDefaults:
-					tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-					tickOptions:
-						angle: 0,
-						fontSize: '8pt',
-						color: '#000'
-				axes:
-					xaxis:
-						renderer: $.jqplot.CategoryAxisRenderer,
-						label:'Score Percent'
-					yaxis:
-						tickOptions:{formatString:'%.1f', angle: 45},
-						label:'Number of Scores',
-						labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-						color: '#000'
-				cursor: {show: false},
-				grid:{shadow: false}
 
-			# light the fuse
-			$.jqplot('graph', [_graphData], jqOptions)
+				for d in data
+					for bracket, n in _graphData
+						bracket[1] += d.distribution[n]
+
+				# setup options
+				jqOptions =
+					animate: true,
+					animateReplot: true,
+					series: [
+							renderer:$.jqplot.BarRenderer,
+							shadow: false,
+							color: '#1e91e1',
+							rendererOptions:
+								animation:
+									speed: 500
+					]
+					seriesDefaults:
+						showMarker:false,
+						pointLabels:
+							show: true,
+							formatString:'%.0f',
+							color: '#000'
+					title:
+						text: "Compare Your Score With Everyone Else's",
+						fontFamily: 'Lato, Lucida Grande, Arial, sans'
+					axesDefaults:
+						tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+						tickOptions:
+							angle: 0,
+							fontSize: '8pt',
+							color: '#000'
+					axes:
+						xaxis:
+							renderer: $.jqplot.CategoryAxisRenderer,
+							label:'Score Percent'
+						yaxis:
+							tickOptions:{formatString:'%.1f', angle: 45},
+							label:'Number of Scores',
+							labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+							color: '#000'
+					cursor: {show: false},
+					grid:{shadow: false}
+
+				# light the fuse
+				$.jqplot('graph', [_graphData], jqOptions)
 
 	displayDetails = (results) ->
 		$scope.show = true
