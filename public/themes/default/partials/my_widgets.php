@@ -1,9 +1,9 @@
-<div class="container">
+<div class="container" ng-app="MyWidgets">
 	<section class="directions">
 		<h1>Your Widgets</h1>
 		<p>Choose a widget from the list on the left.</p>
 	</section>
-	<section class="page">
+	<section class="page" ng-controller="SelectedWidgetController">
 		<hgroup>
 			<h1>_template_title</h1>
 			<h3>_template_type</h3>
@@ -61,7 +61,7 @@
 				<span class="arrow_down"></span>
 				Export Scores
 			</span>
-			<div class="scoreWrapper">
+			<div class="scoreWrapper" ng-controller="ScoreReportingController">
 				<h3 class="view">Semester X</h3>
 				<ul class="choices">
 					<li class="scoreTypeSelected"><a class="graph" href="#">Graph</a></li>

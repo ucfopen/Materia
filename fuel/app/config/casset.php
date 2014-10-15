@@ -35,6 +35,13 @@ return [
 				'min' => false,
 				'attr' => ['data-src' => 'jquery'],
 			],
+			'angular' => [
+				'files' => ['cdnjs::angular.js/1.2.20/angular.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'angular'],
+			],
 			'underscore' => [
 				'files' => ['cdnjs::underscore.js/1.5.2/underscore-min.js'],
 				'enabled' => false,
@@ -271,7 +278,7 @@ return [
 					'lib/jqplot_plugins/jqplot.highlighter.min.js',
 					'lib/md5.js'
 				],
-				'deps' => ['dataTables', 'datejs'],
+				'deps' => ['dataTables', 'datejs', 'angular'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'my_widgets'],
 			],
