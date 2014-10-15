@@ -7,11 +7,11 @@ $ ->
 	selectedWidget = null
 	widgetsLoaded = false
 
-	if system != ''
+	h1String = 'Select a Widget:'
+	if system? and system != ''
+		h1String = 'Select a Widget for use in ' + system + ':'
 		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
 		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
-
-	h1String = 'Select a Widget' + if system == '' then '' else ' for use in ' + system + ':'
 
 	$('h1').html(h1String)
 
@@ -186,7 +186,7 @@ $ ->
 		# create a random number of progress bar stops
 		availStops = [1,2,3,4,5,6,7,8,9]
 		stops = tick: 0
-	
+
 		len = getRandInt(3, 5)
 		for i in [0...len]
 			stops[availStops.splice(getRandInt(0, availStops.length), 1)] = true
