@@ -17,48 +17,13 @@ $ ->
 
 	hideRefreshLinkCallout = ->
 		if $('#refresh').attr('showing-qtip') == 'true'
-			$('#refresh').qtip('api').hide()
+			$('.qtip').hide()
 
 	calloutRefreshLink = ->
 		if $('#refresh').attr('showing-qtip') != 'true'
 			$('#refresh').attr('showing-qtip', 'true')
 
-			$('#refresh').qtip({
-				content: 'Click here to see your new widget',
-				position: {
-					corner: {
-						target: 'leftMiddle',
-						tooltip: 'rightMiddle'
-					},
-					adjust: {
-						x: -10
-					}
-				},
-				style: {
-					background: '#b944cc',
-					color: '#ffffff',
-
-					padding: 10,
-					border: {
-						width: 2,
-						radius: 5,
-						color: '#b944cc'
-					},
-					tip:{
-						corner: 'rightMiddle',
-						size: {
-							width: 10,
-							height: 10
-						}
-					}
-				},
-				show: {
-					ready: true
-				}
-			})
-			$('#refresh').qtip('api').onHide = (event) ->
-				$('#refresh').qtip('destroy')
-				$('#refresh').attr('showing-qtip', 'false')
+			$('body').append('<div class="qtip right lti">Click to see your new widget</div>')
 
 	search = ->
 		$('#list-container li').removeClass('selected')
@@ -221,7 +186,7 @@ $ ->
 		# create a random number of progress bar stops
 		availStops = [1,2,3,4,5,6,7,8,9]
 		stops = tick: 0
-	
+
 		len = getRandInt(3, 5)
 		for i in [0...len]
 			stops[availStops.splice(getRandInt(0, availStops.length), 1)] = true
