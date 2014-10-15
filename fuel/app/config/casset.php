@@ -262,7 +262,6 @@ return [
 					'static::materia.set.availability.js',
 					'static::materia.page.my-widgets.js',
 					'lib/jquery.jqplot.min.js',
-					'lib/jquery.qtip-1.0.0-rc3.min.js',
 					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
 					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
 					'lib/jqplot_plugins/jqplot.canvasAxisTickRenderer.min.js',
