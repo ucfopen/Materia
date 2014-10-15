@@ -478,3 +478,11 @@ header > h1
 .progress-container.success .ui-progressbar-value {
 	background: #37c89c;
 }
+
+.qtip.lti {
+	right: 155px;
+	top: 111px;
+	font-size: 13px;
+	width: 195px;
+}
+
