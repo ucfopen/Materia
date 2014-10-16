@@ -393,6 +393,10 @@ return [
 				'files' => [],
 				'attr' => ['data-src' => 'page'],
 			],
+			'upload' => [
+				'files' => ['upload.css'],
+				'enabled' => true,
+			],
 		],
 	],
 ];
