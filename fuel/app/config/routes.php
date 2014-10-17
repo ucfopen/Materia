@@ -36,9 +36,6 @@ return [
 	'scores/semesters?'                                   => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                               => 'scores/show/$1',
 
-	'upload'   => 'upload/index',
-	'upload/upload'   => 'upload/upload',
-
 	// ================================= DOCS ======================================
 
 	'help' => ['site/help', 'name' => 'help'],    // The main docs page
