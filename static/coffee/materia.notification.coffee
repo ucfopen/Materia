@@ -1,14 +1,28 @@
-Namespace('Materia').Notification = do ->
+app = angular.module('notificationApp', [])
+
+Namespace('Materia').Notification = null
+
+app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
+	$scope.notifications = []
+	$scope.clicked = false
+
 	init = (gateway) ->
 
 	getNotifications = ->
 		Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
-			displayNotifications(notifications) if $.isArray(notifications)
+			$scope.notifications = notifications
+			console.log($scope.notifications)
+			$scope.$apply()
+			displayNotifications() if $.isArray(notifications)
 			return false
 		,
 		true
 
+	$scope.trust = (notification) ->
+		$sce.trustAsHtml(notification)
+
 	checkForOverflow = ->
+		###
 		holder = $('#notices')[0]
 		if !$.data holder, 'info'
 			$.data holder, 'info', last:0
@@ -17,19 +31,31 @@ Namespace('Materia').Notification = do ->
 		else if holder.clientWidth != $.data(holder, 'info').last
 			$(holder).css 'padding-right', 0
 		$.data holder, 'info', last:holder.clientWidth
+		###
 
-	displayNotifications = (notifications) ->
-		return if notifications.msg && notifications.msg.title == 'Invalid Login'
+	$scope.clickNotification = ->
+		if $scope.clicked
+			$('#notices').slideUp ->
+				$('#notifications_link').removeClass 'selected'
+				if ie8Browser?
+					$('#swfplaceholder').hide()
+					$('object').css 'visibility', 'visible'
+		else
+			$object = $('object')
+			if ie8Browser?
+				$('#swfplaceholder').show() if $('#swfplaceholder').length > 0
+				$object.css 'visibility', 'hidden'
+			$('#notifications_link').addClass 'selected'
+			$('#notifications_link').show()
+			$('#notices').children().fadeIn()
+			$('#notices').slideDown ->
+		$scope.clicked = !$scope.clicked
 
-		areaHeight = $(window).height()-$('header').height()
-		$('#notices').css 'max-height',areaHeight
-		$('#notices').hide()
-		num = notifications.length
+	displayNotifications = ->
+		return if $scope.notifications.msg && $scope.notifications.msg.title == 'Invalid Login'
 
-		return if num == 0
 
-		$('#notifications_link').show()
-		$('#notifications_link').attr 'data-notifications', num
+		###
 		$('#notifications_link').click ->
 			if $(this).hasClass 'selected'
 				$('#notices').slideUp ->
@@ -46,9 +72,11 @@ Namespace('Materia').Notification = do ->
 				$('#notifications_link').show()
 				$('#notices').children().fadeIn()
 				$('#notices').slideDown -> checkForOverflow()
+		###
 
+		###
 		$noticeSrc = $($('#t-notification').html())
-		for note in notifications
+		for note in $scope.notifications
 			$notice = $noticeSrc.clone()
 			$notice.removeAttr 'id'
 			$.data $notice[0], 'info', {id:note.id}
@@ -71,7 +99,14 @@ Namespace('Materia').Notification = do ->
 				false
 			$('#notices').append $notice
 			$($notice).hide()
+	###
 
-	init				: init,
-	checkForOverflow	: checkForOverflow,
-	getNotifications	: getNotifications
+	$scope.removeNotification = (index) ->
+		Materia.Coms.Json.send 'notification_delete', [$scope.notifications[index].id]
+		$scope.notifications.splice(index, 1)
+
+	Namespace('Materia').Notification =
+		init: init
+		checkForOverflow: checkForOverflow
+		getNotifications: getNotifications
+]
