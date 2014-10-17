@@ -61,7 +61,14 @@ class Controller_Lti extends \Controller
 
 	public function action_preview($inst_id)
 	{
-		if ( ! Api::authenticate()) return $this->action_error('Unknown User');
+		// allow hmvc and authenticated requests to bypass lti auth
+		if ( ! (\Request::is_hmvc() && \Auth::check()) )
+		{
+			if (! Api::authenticate())
+			{
+				return $this->action_error('Unknown User');
+			}
+		}
 
 		if ( ! $inst_id) return $this->action_error('Unknown Assignment');
 
