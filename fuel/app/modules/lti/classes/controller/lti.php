@@ -43,7 +43,7 @@ class Controller_Lti extends \Controller
 			{
 				return $this->action_error('Unknown Assignment');
 			}
-			return \Request::forge('lti/preview/'.$inst_id, true)->execute();
+			return $this->_authenticated_preview($inst_id);
 		}
 
 		$play = Api::init_assessment_session($inst_id);
@@ -52,26 +52,13 @@ class Controller_Lti extends \Controller
 		{
 			return $this->action_error('Unknown Assignment');
 		}
-		else
-		{
-			return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
-		}
 
+		return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
 	}
 
-	public function action_preview($inst_id)
+	// expects that the user is all ready authenticated
+	protected function _authenticated_preview($inst_id)
 	{
-		// allow hmvc and authenticated requests to bypass lti auth
-		if ( ! (\Request::is_hmvc() && \Auth::check()) )
-		{
-			if (! Api::authenticate())
-			{
-				return $this->action_error('Unknown User');
-			}
-		}
-
-		if ( ! $inst_id) return $this->action_error('Unknown Assignment');
-
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')
@@ -85,9 +72,6 @@ class Controller_Lti extends \Controller
 		$this->theme->set_partial('content', 'partials/open_preview')
 			->set('preview_url', \Uri::create('/preview/'.$inst_id));
 
-		//$this->theme->set_partial('header', 'partials/header_empty');
-
-		// add google analytics
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
 			\Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
