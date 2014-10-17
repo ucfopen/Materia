@@ -26,8 +26,18 @@
 	</nav>
 
 	<? if ( ! empty($me)) : ?>
-		<a id="notifications_link" data-notifications="0"></a>
-		<div id="notices"></div>
+		<div ng-app="notificationApp" ng-controller="notificationCtrl">
+			<a id="notifications_link" ng-show="notifications.length > 0" data-notifications="{{notifications.length}}" ng-click="clickNotification()"></a>
+			<div id="notices">
+				<div class="notice" ng-repeat="notification in notifications">
+					<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
+					<p class="icon"><img class="senderAvatar" src="{{notification.avatar}}"></img></p>
+					<div class="notice_right_side">
+						<p class="subject" ng-bind-html="trust(notification.subject)"></p>
+					</div>
+				</div>
+			</div>
+		</div>
 	<? endif; ?>
 
 </header>
