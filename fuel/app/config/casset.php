@@ -290,6 +290,10 @@ return [
 		],
 
 		'css' => [
+			'upload' => [
+				'files' => ['upload.css'],
+				'enabled' => false,
+			],
 			'widget_play' => [
 				'files' => ['play.css'],
 				'enabled' => false,
@@ -392,10 +396,6 @@ return [
 			'page' => [
 				'files' => [],
 				'attr' => ['data-src' => 'page'],
-			],
-			'upload' => [
-				'files' => ['upload.css'],
-				'enabled' => true,
 			],
 		],
 	],
