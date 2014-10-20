@@ -202,8 +202,6 @@
 	<a tabindex="0" class="action_button green save_button">Save</a>
 </div></script>
 
-<?= Theme::instance()->view('partials/notification') ?>
-
 <script type="text/template" id="t-share-person"><a tabindex="0" href="#" class="remove">&#88;</a>
 <img class="avatar"/>
 
