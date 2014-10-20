@@ -55,9 +55,11 @@ class Controller_Upload extends Controller
 	}
 
 	/**
-	 * Catalog page to show all the available widgets
+	 * Interface for sideloading widgets into Materia
 	 *
-	 * @login Not required
+	 * @login Required
+	 *
+	 * TODO: Clean this up, make it less dirty
 	 */
 	public function action_index()
 	{
@@ -72,6 +74,11 @@ class Controller_Upload extends Controller
 		Casset::enable_js(['upload']);
 		Casset::enable_css(['upload']);
 
+		if (!Config::get('enable_uploader', false))
+		{
+			Session::set_flash('notice', 'Widget uploader is disabled.');
+		}
+
 		$this->theme->get_template()
 			->set('title', 'Upload a widget')
 			->set('page_type', 'upload');
@@ -81,11 +88,28 @@ class Controller_Upload extends Controller
 
 	public function action_upload()
 	{
+		Package::load('casset');
+		Casset::enable_js(['upload']);
+		Casset::enable_css(['upload']);
+
+		$this->theme->get_template()
+			->set('title', 'Upload a widget')
+			->set('page_type', 'upload');
+
+		$this->theme->set_partial('content', 'partials/upload');
+
+		if (!Config::get('enable_uploader', false))
+		{
+			trace("Widget uploader is not enabled in config, but the route was accessed.");
+			return;
+		}
+
 		if (Materia\Api::session_valid() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			return;
 		}
 
 		// Custom configuration for this upload
@@ -125,17 +149,8 @@ class Controller_Upload extends Controller
 		{
 			Session::set_flash('notice', 'Failed');
 		}
-
-		Package::load('casset');
-		Casset::enable_js(['upload']);
-		Casset::enable_css(['upload']);
-
-		$this->theme->get_template()
-			->set('title', 'Upload a widget')
-			->set('page_type', 'upload');
-
 		Response::redirect(Router::get('upload'));
-		$this->theme->set_partial('content', 'partials/upload');
+
 	}
 }
 
