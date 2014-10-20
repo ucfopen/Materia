@@ -649,6 +649,111 @@ class Widget extends \Basetask
 		}
 
 		\Materia\Widget_Installer::cleanup($dir);
+		return;
+	}
+
+
+	private static function upgrade_widget($widget_id, $params, $package_hash, $force = false)
+	{
+		$existing_widget = new \Materia\Widget();
+		$existing_widget->get($widget_id);
+
+		if ($existing_widget->id !== $widget_id)
+		{
+			\Cli::write('Not upgrading since existing Widget not found: '.$widget_id, 'red');
+			return false;
+		}
+
+		if ( ! $force && $existing_widget->package_hash == $package_hash)
+		{
+			\Cli::write('Not upgrading since installed widget appears to be the same.', 'red');
+			return false;
+		}
+
+		// Ignore the existing in_catalog flag
+		if (array_key_exists('in_catalog', $params))
+		{
+			unset($params['in_catalog']);
+		}
+
+		$num = \DB::update('widget')
+			->set($params)
+			->where('id', $widget_id)
+			->limit(1)
+			->execute();
+
+		if ($num != 1)
+		{
+			\Cli::write('Existing Widget not updatable: '.$widget_id, 'red');
+			return false;
+		}
+
+		// delete any existing metadata
+		\DB::delete('widget_metadata')
+			->where('widget_id', $widget_id)
+			->execute();
+
+		return $existing_widget;
+	}
+
+	private static function install_demo($widget_id, $package_dir, $existing_inst_id = null)
+	{
+		// ADD the Demo
+		if (file_exists($package_dir.'/demo.yaml'))
+		{
+			$demo_text = self::get_demo_text($package_dir);
+			$demo_data = \Format::forge($demo_text, 'yaml')->to_array();
+			self::validate_demo($demo_data);
+			try
+			{
+				$demo_text = self::preprocess_yaml_and_upload_assets($package_dir, $demo_text);
+			}
+			catch (\Exception $e)
+			{
+				trace($e);
+				self::abort("Couldn't upload demo assets.");
+			}
+			$demo_data = \Format::forge($demo_text, 'yaml')->to_array();
+
+			self::login_as_admin();
+
+			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
+			\Cli::write("Exising demo id: $existing_inst_id", 'yellow');
+			$saved_demo = \Materia\API::widget_instance_save($widget_id, $demo_data['name'], $qset, false, $existing_inst_id);
+			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
+			{
+				trace($saved_demo);
+				self::abort('Unable to create demo instance.', true);
+				return false;
+			}
+			else
+			{
+				return $saved_demo->id;
+			}
+		}
+	}
+
+	private static function preprocess_yaml_and_upload_assets($base_dir, $yaml_text)
+	{
+		preg_match_all('/<%\s*MEDIA\s*=\s*(\'|")(.*)(\'|")\s*%>/', $yaml_text, $matches);
+
+		$preprocess_tags = $matches[0];
+		$files_to_upload = $matches[2];
+		$files_uploaded = [];
+		$asset_ids = [];
+		for ($i = 0; $i < count($files_to_upload); $i++)
+		{
+			$file = $files_to_upload[$i];
+			if ( ! in_array($file, $files_uploaded))
+			{
+				$actual_file_path = join('/', [rtrim($base_dir, '/'), ltrim($file, '/')]);
+				$asset_ids[$file] = self::sideload_asset($actual_file_path);
+				$files_uploaded[] = $file;
+			}
+
+			$asset_id = $asset_ids[$file];
+			$yaml_text = str_replace($preprocess_tags[$i], $asset_id, $yaml_text);
+		}
 
 		return;
 	}
