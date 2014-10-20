@@ -24,8 +24,6 @@
 	</aside>
 </div>
 
-<?= Theme::instance()->view('partials/notification') ?>
-
 <script type="text/template" id="t-widget-card"><section class="widget template" data-template="catalog-widget">
 	<a href="/widgets/detail/_template_clean_name"><img src='/assets/img/default/default-icon-92.png'></a>
 	<div class="header">
