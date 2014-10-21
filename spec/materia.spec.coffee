@@ -754,8 +754,8 @@ describe 'LTI iframe test', ->
             .pause 1000
             .execute '$("a.button:first").click()', null, (err, result) ->
                 true
-            .waitFor '*:contains("Success!")', 5000
-            .pause 3000
+            .waitFor '*:contains("Success!")', 8000
+            .pause 4000
             .getText 'body', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toContain("basic_lti")
