@@ -32,7 +32,6 @@ webdriverOptions = { desiredCapabilities: {browserName: testBrowser}, logLevel: 
 
 console.log "Running #{testBrowser} with #{author.username} and #{student.username}"
 
-###
 describe 'Homepage', ->
     client = {}
     
@@ -698,7 +697,6 @@ describe 'My Widgets Page', ->
                 expect(text).toBe('Choose a widget from the list on the left.')
             .call(done)
 
-###
 describe 'LTI iframe test', ->
     client = {}
 
