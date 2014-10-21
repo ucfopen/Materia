@@ -32,6 +32,7 @@ webdriverOptions = { desiredCapabilities: {browserName: testBrowser}, logLevel: 
 
 console.log "Running #{testBrowser} with #{author.username} and #{student.username}"
 
+###
 describe 'Homepage', ->
     client = {}
     
@@ -697,6 +698,7 @@ describe 'My Widgets Page', ->
                 expect(text).toBe('Choose a widget from the list on the left.')
             .call(done)
 
+###
 describe 'LTI iframe test', ->
     client = {}
 
@@ -781,11 +783,7 @@ testEnigma = (client) ->
         .click('#creatorSaveBtn')
         .waitFor('#saveBtnTxt:contains("Saved!")', 7000)
         .click('#creatorPublishBtn')
+        .waitFor('.action_button.green', 1000)
         .click('.action_button.green')
-        .execute "return document.location.href.split('#')[1];", null, (err, result) ->
-            console.log 'instance id', result.value
-            instanceID = result.value
-            expect(err).toBeNull()
-            #expect(instanceID.length).toBe(5)
     true
 
