@@ -753,11 +753,11 @@ describe 'LTI iframe test', ->
             .url('http://localhost:8080/lti/test/provider')
             .click('input[value="As Instructor"]')
             .frame('embed_iframe') # switch into lti frame
-            .pause 1000
+            .pause 3000
             .execute '$("a.button:first").click()', null, (err, result) ->
                 true
-            .waitFor '*:contains("Success!")', 8000
-            .pause 4000
+            .waitFor '*:contains("Success!")', 10000
+            .pause 5000
             .getText 'body', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toContain("basic_lti")
