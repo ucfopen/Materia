@@ -185,6 +185,7 @@ return [
 			],
 			'profile' => [
 				'files' => [
+					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.profile.activity.load.js',
 					'static::materia.page.profile.js',
 					'static::materia.coms.json.js',
