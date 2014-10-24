@@ -103,10 +103,17 @@ return [
 				'enabled' => false,
 				'attr' => ['data-src' => 'help'],
 			],
+			'notifications' => [
+				'files' => ['static::materia.notification.js'],
+				'deps' => ['angular'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'notifications'],
+			],
 			'homepage' => [
 				'files' => [
 					'static::materia.page.notification.js',
-					'static::materia.notification.js',
 					'static::materia.coms.json.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
@@ -201,7 +208,6 @@ return [
 				'files' => [
 					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.page.catalog.js',
-					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
 					'static::materia.page.notification.js',
@@ -247,7 +253,6 @@ return [
 				'files' => [
 					'static::materia.set.datetime.js',
 					'static::materia.validate.textfield.js',
-					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
 					'static::materia.page.notification.js',

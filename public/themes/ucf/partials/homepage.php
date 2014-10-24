@@ -70,5 +70,3 @@ $(function()
 	});
 });
 </script>
-
-<?= Theme::instance()->view('partials/notification') ?>

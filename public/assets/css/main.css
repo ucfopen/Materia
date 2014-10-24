@@ -384,9 +384,11 @@ dl.blurb dt {
 	right: 80px;
 	top: 78px;
 	width: 380px;
+	max-height: 400px;
 
 	padding: 0;
 	overflow: auto;
+	overflow-x: hidden;
 
 	border: 1px solid rgba(0,0,0,.25);
 	background: #ffffff;
@@ -423,7 +425,6 @@ dl.blurb dt {
 }
 
 .notice {
-	width:375px;
 	padding: 0;
 
 	display: block;
@@ -495,8 +496,6 @@ dl.blurb dt {
 }
 #notifications_link
 {
-	display:none;
-
 	position:absolute;
 	right:86px;
 	bottom: 16px;
