@@ -1,5 +1,4 @@
-WidgetDetails = angular.module('widgetDetails', [])
-WidgetDetails.directive 'fancybox', ($compile, $timeout) ->
+Materia.App.directive 'fancybox', ($compile, $timeout) ->
 	link: ($scope, element, attrs) ->
 		element.fancybox
 			onComplete: ->
@@ -8,7 +7,7 @@ WidgetDetails.directive 'fancybox', ($compile, $timeout) ->
 					$scope.$apply()
 					$.fancybox.resize()
 
-WidgetDetails.controller 'widgetDetailsController', ($scope) ->
+Materia.App.controller 'widgetDetailsController', ($scope) ->
 
 	$scope.widget =
 		icon: "/assets/img/default/default-icon-275.png"

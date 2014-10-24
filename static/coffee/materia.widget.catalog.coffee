@@ -1,8 +1,6 @@
-app = angular.module('widgetApp', [])
-
 Namespace('Materia.Widget').Catalog = null
 
-app.controller 'widgetCtrl', ['$scope', ($scope) ->
+Materia.App.controller 'widgetCtrl', ['$scope', ($scope) ->
 	$scope.widgets = []
 	$scope.infoCard = []
 	$scope.card = 0

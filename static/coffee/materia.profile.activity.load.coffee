@@ -1,8 +1,6 @@
-app = angular.module('profileApp', [])
-
 Namespace('Materia.Profile.Activity').Load = null
 
-app.controller 'profileCtrl', ['$scope', ($scope) ->
+Materia.App.controller 'profileCtrl', ['$scope', ($scope) ->
 	$scope.more = false
 	$scope.loading = false
 	_offset = 0

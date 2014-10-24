@@ -1,4 +1,4 @@
-<section class="page" ng-show="show" ng-app="widgetDetails" ng-controller="widgetDetailsController">
+<section class="page" ng-show="show" ng-controller="widgetDetailsController">
 	<a href="{{ goback.url }}" class="action_button widget_catalog_button">
 		<span class="arrow"></span>
 		<span class="goBackText">{{ goback.text }}</span>
