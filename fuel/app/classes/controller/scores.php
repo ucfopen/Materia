@@ -76,7 +76,7 @@ class Controller_Scores extends Controller
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
 
-		$this->theme->set_partial('content', 'partials/score/embed');
+		$this->theme->set_partial('content', 'partials/score/full');
 		$this->_header = 'partials/header_empty';
 	}
 

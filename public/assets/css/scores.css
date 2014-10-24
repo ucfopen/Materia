@@ -3,7 +3,6 @@ body.scores .container{
 	margin:0 auto;
 
 	background-color: #929AA4;
-
 	background-image: -ms-linear-gradient(top, #929AA4 0%, #72808F 20%); /* IE10 */
 	background-image: -moz-linear-gradient(top, #929AA4 0%, #72808F 20%); /* Mozilla Firefox */
 	background-image: -o-linear-gradient(top, #929AA4 0%, #72808F 20%); /* Opera */
@@ -14,7 +13,9 @@ body.scores .container{
 
 	margin-top: 55px;
 	text-align:center;
-	display: none;
+
+	opacity: 0;
+	transition: all 0.5s ease;
 }
 
 body.scores .overview {
@@ -421,8 +422,6 @@ body.scores .graph {
 	padding: 20px 16px 0 16px;
 	width: 746px;
 	height:320px;
-	-moz-box-shadow: inset 0px 1px 6px #333;
-	-webkit-box-shadow: inset 0px 1px 6px #333;
 	box-shadow: inset 0px 1px 6px #333;
 }
 body.scores .graph .jqplot-yaxis-label {
@@ -433,7 +432,6 @@ body.scores section.score-graph{
 }
 
 body.scores #class-rank-button{
-	display: none;
 	font-size: 12px;
 	margin: 10px 0px 10px;
 }
@@ -486,3 +484,26 @@ body.scores #class-rank-button{
 .expired.container .page {
 	text-align:center !important;
 }
+
+.preview hgroup h1 {
+	margin-top: 10px;
+}
+
+body.scores .expired.container, body.scores .score_restrict.container {
+	opacity: 1;
+	background: #fff;
+	box-shadow: none;
+	border: none;
+	outline: none;
+}
+
+body.scores .expired.container section, body.scores .score_restrict.container section {
+	box-shadow: none;
+	border: none;
+	outline: none;
+}
+
+body.scores .container.show {
+	opacity: 1;
+}
+
