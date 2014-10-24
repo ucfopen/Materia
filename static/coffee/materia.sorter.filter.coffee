@@ -1,7 +1,7 @@
 Namespace('Materia.Sorter').Filter = do ->
 	filter = (programSort) ->
 		#Defines the elements which should be shown, if nothing is selected, then everything should be shown.
-		contains = '.widget'
+		contains = '.widgetMin'
 		#Contains the elements that should be hidden.
 		notcontains = ''
 		programName = programSort.val()
@@ -10,18 +10,13 @@ Namespace('Materia.Sorter').Filter = do ->
 
 		#Goes thrhough each feature to check for a check.
 		$('.features dt input[type="checkbox"]:checked').each (event) ->
-			contains += ":.widget:contains('"+$(this).val()+"')"
-			notcontains += ".widget:not(:contains('"+$(this).val()+"')), "
+			contains += ":contains('"+$(this).val()+"')"
+			notcontains += ".widgetMin:not(:contains('"+$(this).val()+"')), "
 
 		#Goes though each supported data option to check for a check.
 		$('.features .supported-data input[type="checkbox"]:checked').each (event) ->
-			contains += ":.widget:contains('"+$(this).val()+"')"
-			notcontains += ".widget:not(:contains('"+$(this).val()+"')), "
-
-		#Check to make sure the Progam isn't the default value.
-		if(programName != defaultProgram)
-			contains += ":.widget:contains("+programName+")"
-			notcontains += ".widget:not(:contains("+programName+")), "
+			contains += ":contains('"+$(this).val()+"')"
+			notcontains += ".widgetMin:not(:contains('"+$(this).val()+"')), "
 
 		#Hides elements that should be hidden.
 		$(notcontains).fadeTo('fast', 0.2)
@@ -39,12 +34,6 @@ Namespace('Materia.Sorter').Filter = do ->
 		$widgets = $('.widgets')
 		for data in sortedData
 			$widgets.append(data)
-		$('.widget').mouseenter ->
-			pos = $(this).index('.widget')
-			card = Materia.Widget.Catalog.showInfocard(pos)
-
-			if card?
-				card.mouseleave -> Materia.Widget.Catalog.removeInfocard()
 
 	widgetSearch = (searchValue, section) ->
 		found = false
@@ -69,3 +58,4 @@ Namespace('Materia.Sorter').Filter = do ->
 
 	filter: filter,
 	sort: sort,
+

@@ -244,7 +244,9 @@
 .catalog .infocard {
 	position:absolute;
 	z-index:10;
+	width: 356px;
 
+	margin-top: 5px;
 	padding-bottom:10px;
 
 	background:url('../img/infocard_topbar_bg.png') repeat-x top;
@@ -257,59 +259,57 @@
 	-webkit-border-radius:5px;
 	-moz-border-radius:5px;
 	border-radius:5px;
+
+	display:block;
+	overflow:visible;
+
+	color:#000000;
 }
 
-	.catalog .infocard a.card-content {
-		display:block;
-		overflow:visible;
-		padding:0 0 10px 0;
+.catalog .infocard.show {
+	-webkit-animation: animateShow .3s;
+	-moz-animation: animateShow .3s;
+	animation: animateShow .3s;
+}
 
-		color:#000000;
-	} 
+.catalog .infocard h1 {
+	font-size:18px;
+	font-family: 'Lato-Black', arial, serif;
+	margin-top:5px;
+	margin-bottom:5px;
+	color:#FFFFFF;
+	text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
 
-	.catalog .infocard .card-content:hover {
-		text-decoration:none;
+	.catalog .infocard .header {
+		margin-top: -4px;
 	}
 
-	.catalog .infocard .card-content img {
-		float:left;
-		margin:5px 10px 10px 10px;
-		width: 92px;
-		height: 92px;
-	}
+.catalog .infocard h1:hover {
+	text-decoration: underline;
+}
 
-	.catalog .infocard .card-content hgroup {
-		float:left;
-		display:block;
-	}
+.catalog .infocard dl {
+	overflow-y:auto;
+	overflow-x:visible;
+	display:block;
+	float:left;
+	margin-top:5px;
+	margin-bottom:5px;
+}
 
-		.catalog .infocard .card-content h1 {
-			font-size:18px;
-			font-family: 'Lato-Black', arial, serif;
-			margin-top:5px;
-			margin-bottom:5px;
-		}
+@-webkit-keyframes animateShow {
+	0%   {opacity: 0}
+	100% {opacity: 1}
+}
 
-			.catalog .infocard .card-content h1 a {
-				color:#FFFFFF;
-				text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-			}
+@-moz-keyframes animateShow {
+	0%   {opacity: 0}
+	100% {opacity: 1}
+}
 
-	.catalog .infocard .card-content .left {
-		float:left;
-	}
+@keyframes animateShow {
+	0%   {opacity: 0}
+	100% {opacity: 1}
+}
 
-	.catalog .infocard .card-content dl {
-		overflow-y:auto;
-		overflow-x:visible;
-		display:block;
-		float:left;
-		margin-top:5px;
-		margin-bottom:5px;
-	}
-
-	.catalog .infocard .card-content .clear {
-		clear:both;
-		width:100%;
-		height:1px;
-	}
