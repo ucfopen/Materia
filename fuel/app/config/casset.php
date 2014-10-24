@@ -197,6 +197,7 @@ return [
 			],
 			'widget_catalog' => [
 				'files' => [
+					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.page.catalog.js',
 					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
