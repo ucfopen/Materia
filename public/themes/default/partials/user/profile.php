@@ -1,4 +1,4 @@
-<div class="container">
+<div ng-app="profileApp" ng-controller="profileCtrl" class="container">
 	<section class="page">
 
 	<ul class="main_navigation">
@@ -27,22 +27,22 @@
 	<div class="activity">
 
 		<ul class="activity_list">
-			<li class="activity_log activity_logs_template" id="activity_logs_template">
-				<a class="score-link" href="">
-					<div class="status"></div>
-					<div class="widget"></div>
-					<div class="title"></div>
-					<div class="date"></div>
-					<div class="score"></div>
+			<li class="activity_log" ng-repeat="activity in activities" ng-class="{perfect_score: activity.percent == 100, complete: activity.is_complete == 1, incomplete: activity.is_complete != 1}">
+				<a class="score-link" ng-href="{{getLink(activity)}}">
+					<div class="status">{{getStatus(activity)}}</div>
+					<div class="widget">{{activity.widget_name}}</div>
+					<div class="title">{{activity.inst_name}}</div>
+					<div class="date">{{getDate(activity)}}</div>
+					<div class="score">{{getScore(activity)}}</div>
 				</a>
 			</li>
 		</ul>
 
 	</div>
 
-	<a href="#" class="show_more_activity" id="show_more_activity"><span class="message_loading" id="activity_logs_loading">Loading...</span> Show more</a>
+	<a class="show_more_activity" ng-show="more" ng-click="loading = true; getLogs()"><span class="message_loading" ng-show="loading">Loading...</span> Show more</a>
 
-	<p class="no_logs">You don't have any activity! Start doing stuff.</p>
+	<p class="no_logs" ng-show="activities && activities.length == 0">You don't have any activity! Start doing stuff.</p>
 
 </section>
 </div>
