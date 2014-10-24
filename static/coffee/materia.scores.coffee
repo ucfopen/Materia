@@ -1,6 +1,4 @@
-ScorePage = angular.module('scorePage', [])
-
-ScorePage.controller 'scorePageController', ($scope) ->
+Materia.App.controller 'scorePageController', ($scope) ->
 
 	# attempts is an array of attempts, [0] is the newest
 	attempt_dates = []

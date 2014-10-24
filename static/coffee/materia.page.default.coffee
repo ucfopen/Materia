@@ -9,6 +9,8 @@ window.Namespace = (ns) ->
 		o = o[a[i]]
 	o
 
+Namespace("Materia").App = angular.module('materiaApp', [])
+
 window.API_LINK = '/api/json/'
 
 window.isMobile =

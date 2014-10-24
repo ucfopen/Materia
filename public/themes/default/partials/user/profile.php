@@ -1,4 +1,4 @@
-<div ng-app="profileApp" ng-controller="profileCtrl" class="container">
+<div ng-controller="profileCtrl" class="container">
 	<section class="page">
 
 	<ul class="main_navigation">

@@ -32,7 +32,7 @@
 	</script>
 <![endif]-->
 </head>
-	<body class="<? if (isset($page_type)) { echo $page_type; } else { echo(''); } ?>">
+	<body class="<? if (isset($page_type)) { echo $page_type; } else { echo(''); } ?>" ng-app="materiaApp">
 	<? if ( isset($partials['header']) ) { echo $partials['header']; } ?>
 	<?= $partials['content'] ?>
 	</body>

@@ -1,8 +1,7 @@
-app = angular.module('notificationApp', [])
 
 Namespace('Materia').Notification = null
 
-app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
+Materia.App.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.notifications = []
 	$scope.clicked = false
 

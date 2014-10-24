@@ -1,4 +1,4 @@
-<article class="container" ng-class="{ show: show }" ng-app="scorePage" ng-controller="scorePageController">
+<article class="container" ng-class="{ show: show }" ng-controller="scorePageController">
 	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
 

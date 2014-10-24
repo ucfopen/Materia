@@ -1,4 +1,4 @@
-<div ng-app="widgetApp" class="container">
+<div class="container">
 	<section class="page">
 		<div class="top">
 			<h1>Widget Catalog</h1>
@@ -57,6 +57,4 @@
 		</dl>
 	</aside>
 </div>
-
-<?= Theme::instance()->view('partials/notification') ?>
 
