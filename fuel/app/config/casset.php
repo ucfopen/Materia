@@ -49,13 +49,6 @@ return [
 				'min' => false,
 				'attr' => ['TT-src' => 'underscore'],
 			],
-			'angular' => [
-				'files' => ['cdnjs::angular.js/1.2.2/angular.min.js'],
-				'enabled' => false,
-				'combine' => false,
-				'min' => false,
-				'attr' => ['data-src' => 'angular'],
-			],
 			'labjs' => [
 				'files' => ['cdnjs::labjs/2.0.3/LAB.min.js'],
 				'enabled' => true,
@@ -105,7 +98,6 @@ return [
 			],
 			'notifications' => [
 				'files' => ['static::materia.notification.js'],
-				'deps' => ['angular'],
 				'enabled' => true,
 				'combine' => false,
 				'min' => false,
@@ -158,7 +150,6 @@ return [
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
 				],
-				'deps' => ['angular'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'scores'],
 			],
@@ -168,7 +159,6 @@ return [
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
 				],
-				'deps' => ['angular'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'embed_scores'],
 			],
@@ -194,7 +184,6 @@ return [
 			],
 			'profile' => [
 				'files' => [
-					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.profile.activity.load.js',
 					'static::materia.page.profile.js',
 					'static::materia.coms.json.js',
@@ -206,7 +195,6 @@ return [
 			],
 			'widget_catalog' => [
 				'files' => [
-					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.page.catalog.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
@@ -230,7 +218,7 @@ return [
 					'static::materia.widget.detail.js',
 					'static::materia.page.widget-detail.js'
 				],
-				'deps' => ['fancybox', 'angular'],
+				'deps' => ['fancybox'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'widget_detail'],
 			],
