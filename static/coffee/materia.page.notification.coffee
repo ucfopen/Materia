@@ -1,4 +1,6 @@
 $(document).ready ->
+	return if not Materia.Notification
+
 	Materia.Notification.init(API_LINK)
 
 	if $('header').hasClass('logged_in')
