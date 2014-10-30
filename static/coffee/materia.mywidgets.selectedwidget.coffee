@@ -1,10 +1,10 @@
 # Handles the widget currently selected (on the big screeny thing)
 # TODO: needs some serious refactoring to reduce complexity of large methods
 
-MyWidgets = angular.module('MyWidgets',[])
+MyWidgets = angular.module 'MyWidgets'
+MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidgetSrv) ->
 
-MyWidgets.controller 'SelectedWidgetController', ($scope) ->
-
+	# old stuff
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 	$scope.selectedWidgetInstId = 0
 	$scope.scoreSummaries = {}
@@ -13,6 +13,16 @@ MyWidgets.controller 'SelectedWidgetController', ($scope) ->
 	$scope.selectedData = null
 	$scope.dateRanges = null
 
+	# refactoring scope variables
+	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
+
+	$scope.user = null # TODO should be updated automagically with user service
+
+	# hook to update selected widget when service updates
+	$scope.$on 'selectedWidget.update', (evt) ->
+		$scope.selectedWidget = selectedWidgetSrv.get()
+		setSelectedWidget()
+
 	# Initializes the gateway for the api
 	# @string path to gateway
 	init = (gateway) ->
@@ -20,16 +30,20 @@ MyWidgets.controller 'SelectedWidgetController', ($scope) ->
 			e.preventDefault()
 			Materia.MyWidgets.SelectedWidget.showAllScores()
 
-	getSelectedId = ->
-		$scope.selectedWidgetInstId
+	# Migrating to service
+	# getSelectedId = ->
+	# 	# $scope.selectedWidgetInstId
+	# 	$scope.selectedWidget.id
 
-	setSelected = (inst_id) ->
+	# This doesn't actually "set" the widget, it just kicks off updating the display
+	setSelectedWidget = ->
+
+		# this stuff will eventually be replaced with a much cleaner solution
 		if $('.page').is ':visible' and not $('section .error').is ':visible'
 			Materia.Set.Throbber.startSpin '.page'
 
-		$scope.selectedWidgetInstId = inst_id
 		$('.gameSelected').removeClass 'gameSelected'
-		$('#widget_' + $scope.selectedWidgetInstId).addClass 'gameSelected'
+		$('#widget_' + $scope.selectedWidget.id).addClass 'gameSelected'
 
 		Materia.MyWidgets.Statistics.clearGraphs()
 
@@ -80,7 +94,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope) ->
 
 	# Shows selected game information on the mainscreen.
 	# @param   element   The element that was clicked ($('.widget_list').children('div'))
-	populateDisplay = ->
+	populateDisplay = (id) ->
 		count = null
 		widgetID = null
 
@@ -88,12 +102,18 @@ MyWidgets.controller 'SelectedWidgetController', ($scope) ->
 
 		Materia.Coms.Json.send 'session_valid', ['basic_author'], (data) ->
 			loadDateRanges ->
-				Materia.Widget.getWidget $scope.selectedWidgetInstId, (inst) ->
+				# widgetSrv.getWidget selectedWidgetSrv.getSelectedId(), (inst) ->
+
+					# this should instead reference scope selectedWidget variable
+					# all references to inst should be replaced as such
+					inst = selectedWidgetSrv.get()
+					# these are superfluous - remove references
 					clean_name = widgetName = inst.clean_name
 					widgetID = inst.widget.id
 					$editButton = $('#edit_button')
 
 					# Gets current user
+					# TODO should be put in user service & referenced thusly
 					Materia.User.getCurrentUser (user) ->
 						# Gets who is currently using this widget (i.e. sharing)
 						Materia.Coms.Json.send 'permissions_get', [0, inst.id], (perms) ->
@@ -894,10 +914,11 @@ MyWidgets.controller 'SelectedWidgetController', ($scope) ->
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
-		getSelectedId				: getSelectedId,
-		setSelected					: setSelected,
+		# getSelectedId				: getSelectedId,
+		setSelectedWidget			: setSelectedWidget,
 		noAccess					: noAccess,
 		populateAvailability		: populateAvailability,
+		populateDisplay				: populateDisplay,
 		# selectedWidgetInstId		: selectedWidgetInstId
 
 		populateAttempts			: populateAttempts
@@ -908,7 +929,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope) ->
 		toggleShareWidgetContainer	: toggleShareWidgetContainer
 		# selectedWidgetInstId		: selectedWidgetInstId
 		noWidgets					: noWidgets
-		getSelectedId				:getSelectedId
+		# getSelectedId				:getSelectedId
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'

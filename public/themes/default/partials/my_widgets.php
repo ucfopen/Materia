@@ -5,8 +5,8 @@
 	</section>
 	<section class="page" ng-controller="SelectedWidgetController">
 		<hgroup>
-			<h1>_template_title</h1>
-			<h3>_template_type</h3>
+			<h1>{{selectedWidget.name}}</h1>
+			<h3>{{selectedWidget.widget.type}}</h3>
 		</hgroup>
 		<div class="overview">
 			<div class="icon_container">
@@ -100,7 +100,7 @@
 			<p class="noScores">There are no scores to display</p>
 		</div>
 	</section>
-	<aside>
+	<aside ng-controller="SidebarController">
 		<div class="top">
 			<h1>Your Widgets:</h1>
 		</div>

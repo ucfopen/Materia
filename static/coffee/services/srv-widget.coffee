@@ -1,4 +1,6 @@
-Namespace('Materia').Widget = do ->
+MyWidgets = angular.module('MyWidgets')
+MyWidgets.service 'widgetSrv', (selectedWidgetSrv) ->
+
 	_widgets = []
 	widgetTemplate = null
 	cache = null
@@ -65,7 +67,7 @@ Namespace('Materia').Widget = do ->
 		$('.courses').animate opacity: 0.1
 			, 100, ->
 				$('.courses').html(widgetList)
-				selectedId = Materia.MyWidgets.SelectedWidget.getSelectedId()
+				selectedId = selectedWidgetSrv.getSelectedId()
 				if selectedId
 					$currentWidget = $('#widget_' + selectedId)
 					$currentWidget.addClass('gameSelected')
@@ -76,7 +78,7 @@ Namespace('Materia').Widget = do ->
 					opacity: 1
 					,100
 					, ->
-						if Materia.MyWidgets.SelectedWidget.getSelectedId()
+						if selectedWidgetSrv.getSelectedId()
 							pos = $('.gameSelected').position()
 							$('.courses').animate scrollTop: pos.top-200
 
@@ -112,7 +114,7 @@ Namespace('Materia').Widget = do ->
 
 				#  removing the typeSelected class in advance to force sortWidgets to properly do its job.
 				element.removeClass('typeSelected')
-				Materia.MyWidgets.SelectedWidget.setSelected(inst_id)
+				selectedWidgetSrv.setSelectedWidget(inst_id)
 				sortWidgets()
 
 	removeWidget = (inst_id) ->
@@ -139,9 +141,9 @@ Namespace('Materia').Widget = do ->
 			$('.gameSelected').remove()
 
 		if newID?
-			Materia.MyWidgets.SelectedWidget.setSelected(newID)
+			selectedWidgetSrv.setSelected(newID)
 		else
-			Materia.MyWidgets.SelectedWidget.noWidgets()
+			selectedWidgetSrv.noWidgets()
 
 
 	getWidgets: getWidgets
