@@ -95,32 +95,32 @@ describe 'Widget Catalog Page', ->
             .click('#form_filter_tracks_student_data')
             .click('#form_filter_collects_scores')
             .pause(1500) # wait for a transition to animate
-            .getElementCssProperty 'class name', 'flash-cards', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
-            .getElementCssProperty 'class name', 'timeline', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
-            .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(opacity).toBe('1')
             .click('#form_supported_data_qa')
             .pause(1500)
-            .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
-            .getElementCssProperty 'class name', 'timeline', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
             .click('#form_supported_data_media')
             .pause(1500)
-            .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
-            .getElementCssProperty 'class name', 'timeline', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
-            .getElementCssProperty 'class name', 'labeling', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.labeling.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(opacity).toBe('1')
             .click('#form_filter_tracks_student_data')
@@ -128,28 +128,28 @@ describe 'Widget Catalog Page', ->
             .click('#form_supported_data_qa')
             .click('#form_supported_data_media')
             .pause(1800)
-            .getElementCssProperty 'class name', 'enigma', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
-            .getElementCssProperty 'class name', 'timeline', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
-            .getElementCssProperty 'class name', 'flash-cards', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
-            .getElementCssProperty 'class name', 'labeling', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.labeling.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
 
             # Check mouse over info card functions
-            .execute 'return $(".infocard").length;', null, (err, result) ->
+            .execute 'return $(".infocard.show").length;', null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(0)
             .moveToObject('.labeling')
             .pause(1500)
-            .isVisible '.infocard', (err, result) ->
+            .execute 'return $(".infocard.show").length;', null, (err, result) ->
                 expect(err).toBeNull()
-                expect(result).toBe(true)
+                expect(result.value).toBe(1)
             .call(done)
             .call -> client.end(done)
 
@@ -558,7 +558,7 @@ describe 'When I create a widget', ->
             .url('http://localhost:8080/my-widgets#'+instanceID)
             .waitFor('#widget_'+instanceID, 7000)
             .pause(1000)
-            .getElementCssProperty 'class name', 'share-widget-container', 'opacity', (err, opacity) ->
+            .getElementCssProperty 'css selector', '.share-widget-container', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
             .getElementCssProperty 'id', 'embed_link', 'display', (err, display) ->
