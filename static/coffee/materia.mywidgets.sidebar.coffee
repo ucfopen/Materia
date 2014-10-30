@@ -1,9 +1,18 @@
 # Handles all of the calls for the sidebar
-Namespace('Materia.MyWidgets').Sidebar = do ->
+MyWidgets = angular.module 'MyWidgets'
+
+MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
+
+	$scope.selectedWidget = null
+
+	$scope.$on 'selectedWidget.update', (evt) ->
+		$scope.selectedWidget = selectedWidgetSrv.get()
+
+	$scope.widgets = []
 
 	# ============ GET WIDGETS FROM SERVER =========================
 	prepare = ->
-		Materia.Widget.getWidgets (widgets) ->
+		widgetSrv.getWidgets (widgets) ->
 			buildDefaultList widgets
 
 			# if there's a hash, select it
@@ -16,8 +25,12 @@ Namespace('Materia.MyWidgets').Sidebar = do ->
 						found = true
 						break
 				if found
-					Materia.MyWidgets.SelectedWidget.setSelected selID
+					# selectedWidgetSrv.setSelectedId selID
+					widgetSrv.getWidget selID, (inst) ->
+						selectedWidgetSrv.set inst
+
 				else
+					#TODO: Update
 					Materia.MyWidgets.SelectedWidget.noAccess()
 
 	# Builds the sidebar with all of the widgets that come back from the api.
@@ -30,15 +43,22 @@ Namespace('Materia.MyWidgets').Sidebar = do ->
 		rightSide = $('section.directions')
 
 		if len == 0
+			# TODO: Update
 			Materia.MyWidgets.SelectedWidget.noWidgets()
 		else
 			rightSide.addClass 'unchosen'
-			Materia.Widget.sortWidgets()
+			widgetSrv.sortWidgets()
 
 			#@TODO: This probably shouldn't happen until we're sure the widget list is filled.
 			$('.courses').on 'click', '.widget', (event) ->
 				event.preventDefault()
-				Materia.MyWidgets.SelectedWidget.setSelected $(this).attr('id').split('_')[1]
+
+				# instead of referencing selectedWidget, just set the new widget through the service
+				# the update will be broadcast to the controller
+				inst_id = $(this).attr('id').split('_')[1]
+				widgetSrv.getWidget inst_id, (inst) ->
+					selectedWidgetSrv.set inst
+
 				return false
 
 			$('.my_widgets aside .courses .course_list').css overflow:'visible' if bearded
@@ -51,7 +71,7 @@ Namespace('Materia.MyWidgets').Sidebar = do ->
 			$(this).prev().addClass 'widget_list_category'
 
 	search = (searchString) ->
-		Materia.Widget.getWidgets (widgets) ->
+		widgetSrv.getWidgets (widgets) ->
 			searchString = $.trim searchString.toLowerCase().replace(/,/g, ' ')
 			hits = []
 			misses = []
@@ -89,11 +109,13 @@ Namespace('Materia.MyWidgets').Sidebar = do ->
 		if tar.length > 0
 			tar.trigger 'click'
 		else
+			#TODO: Update
 			Materia.MyWidgets.SelectedWidget.noAccess()
 
 		false
 
-	prepare              : prepare
-	showWidgetCatNumbers : showWidgetCatNumbers
-	search               : search
-	getWidgetByURL       : getWidgetByURL
+	Namespace('Materia.MyWidgets').Sidebar =
+		prepare              : prepare,
+		showWidgetCatNumbers : showWidgetCatNumbers,
+		search               : search,
+		getWidgetByURL       : getWidgetByURL

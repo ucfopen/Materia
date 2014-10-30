@@ -9,9 +9,9 @@ module.exports = (grunt) ->
 		coffee:
 			static:
 				expand: true
-				flatten: true
+				flatten: false
 				cwd: 'static/coffee'
-				src: ['*']
+				src: ['*.coffee','*/**/*.coffee']
 				dest: 'static/js/'
 				rename: (dest, src) ->
 					folder = src.substring(0, src.lastIndexOf('/'))
@@ -30,8 +30,8 @@ module.exports = (grunt) ->
 
 		watch:
 			coffee:
-				files: ['static/coffee/*']
-				tasks: ['coffee:static', 'uglify:static']
+				files: ['static/coffee/**/*.coffee']
+				tasks: ['coffee:static']
 				options:
 					spawn: false
 					debounceDelay: 500
