@@ -14,14 +14,18 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 	$scope.dateRanges = null
 
 	# refactoring scope variables
+
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
-
-	$scope.user = null # TODO should be updated automagically with user service
-
-	# hook to update selected widget when service updates
-	$scope.$on 'selectedWidget.update', (evt) ->
+	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
 		$scope.selectedWidget = selectedWidgetSrv.get()
 		setSelectedWidget()
+
+	$scope.noWidgetState = false
+	$scope.$on 'selectedWidget.noWidgets', (evt) ->
+		$scope.noWidgetState = true
+		$scope.$apply()
+
+	$scope.user = null # TODO should be updated automagically with user service
 
 	# Initializes the gateway for the api
 	# @string path to gateway
@@ -36,15 +40,12 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 	# 	$scope.selectedWidget.id
 
 	# This doesn't actually "set" the widget, it just kicks off updating the display
+	# This whole method will likely be deprecated eventually
 	setSelectedWidget = ->
 
-		# this stuff will eventually be replaced with a much cleaner solution
-		if $('.page').is ':visible' and not $('section .error').is ':visible'
-			Materia.Set.Throbber.startSpin '.page'
-
-		$('.gameSelected').removeClass 'gameSelected'
-		$('#widget_' + $scope.selectedWidget.id).addClass 'gameSelected'
-
+		# Moved to the sidebar controller(?) still needs to be implemented
+		# if $('.page').is ':visible' and not $('section .error').is ':visible'
+		# Materia.Set.Throbber.startSpin '.page'
 		Materia.MyWidgets.Statistics.clearGraphs()
 
 		populateDisplay()
@@ -880,37 +881,38 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 	createSemesterString = (o) ->
 		return (o.year + '_' + o.term).toLowerCase()
 
-	noWidgets = ->
-		$('section.page').hide()
+ 	# *snip*
+	# noWidgets = ->
+	# 	$('section.page').hide()
 
-		rightSide = $('section.directions')
-		rightSide.show()
-		rightSide.children('h1').html('You have no widgets!')
-		rightSide.children('p').html('Make a new widget in the widget catalog.')
+	# 	rightSide = $('section.directions')
+	# 	rightSide.show()
+	# 	rightSide.children('h1').html('You have no widgets!')
+	# 	rightSide.children('p').html('Make a new widget in the widget catalog.')
 
-		$('header nav ul li:first-child').qtip
-			content: 'Click here to start making a new widget!'
-			position:
-				corner:
-					target: 'bottomMiddle'
-					tooltip: 'topMiddle'
-				adjust:
-					y: 15
-			style:
-				background: '#b944cc'
-				color: '#ffffff'
-				padding: 10
-				border:
-					width: 2
-					radius: 5
-					color: '#b944cc'
-				tip:
-					corner: 'topMiddle'
-					size:
-						width: 15
-						height: 10
-			show:
-				ready: true
+	# 	$('header nav ul li:first-child').qtip
+	# 		content: 'Click here to start making a new widget!'
+	# 		position:
+	# 			corner:
+	# 				target: 'bottomMiddle'
+	# 				tooltip: 'topMiddle'
+	# 			adjust:
+	# 				y: 15
+	# 		style:
+	# 			background: '#b944cc'
+	# 			color: '#ffffff'
+	# 			padding: 10
+	# 			border:
+	# 				width: 2
+	# 				radius: 5
+	# 				color: '#b944cc'
+	# 			tip:
+	# 				corner: 'topMiddle'
+	# 				size:
+	# 					width: 15
+	# 					height: 10
+	# 		show:
+	# 			ready: true
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
@@ -928,7 +930,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 		showAllScores				: showAllScores
 		toggleShareWidgetContainer	: toggleShareWidgetContainer
 		# selectedWidgetInstId		: selectedWidgetInstId
-		noWidgets					: noWidgets
+		# noWidgets					: noWidgets
 		# getSelectedId				:getSelectedId
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->

@@ -1,105 +1,111 @@
 <div class="container" ng-app="MyWidgets">
-	<section class="directions">
-		<h1>Your Widgets</h1>
-		<p>Choose a widget from the list on the left.</p>
-	</section>
-	<section class="page" ng-controller="SelectedWidgetController">
-		<hgroup>
-			<h1>{{selectedWidget.name}}</h1>
-			<h3>{{selectedWidget.widget.type}}</h3>
-		</hgroup>
-		<div class="overview">
-			<div class="icon_container">
-				<img class="icon" src='/assets/img/default/default-icon-275.png' height="275px" width="275px"/>
-			</div>
-			<div class="controls">
-				<ul>
-					<li>
-						<a id="preview_button" class="action_button green circle_button" target="_blank">
-							<span class="arrow arrow_right"></span>
-							Preview
-						</a>
-					</li>
-					<li>
-						<a id="edit_button" class="action_button aux_button">
-							<span class="pencil"></span>
-							Edit Widget
-						</a>
-					</li>
-				</ul>
-				<ul class="options">
-					<li class="share"><a href="#" id="share_widget_link">Collaborate</a></li>
-					<li class="copy"><a href="#" id="copy_widget_link">Make a Copy</a></li>
-					<li class="delete"><a href="#" id="delete_widget_link">Delete</a></li>
-				</ul>
-				<div class="delete_dialogue">
-					<span class="delete-warning">Are you sure you want to delete this widget?</span>
-					<a class="cancel_button" href="#">Cancel</a>
-					<a class="action_button red delete_button" href="#">Delete</a>
+	<div ng-controller="SelectedWidgetController">
+		<section class="directions" ng-show="noWidgetState == false">
+			<h1>Your Widgets</h1>
+			<p>Choose a widget from the list on the left.</p>
+		</section>
+		<section class="directions" ng-show="noWidgetState == true">
+			<h1>You have no widgets!</h1>
+			<p>Make a new widget in the widget catalog.</p>
+		</section>
+		<section class="page"  ng-hide="noWidgetState == true">
+			<hgroup>
+				<h1>{{selectedWidget.name}}</h1>
+				<h3>{{selectedWidget.widget.type}}</h3>
+			</hgroup>
+			<div class="overview">
+				<div class="icon_container">
+					<img class="icon" src='/assets/img/default/default-icon-275.png' height="275px" width="275px"/>
 				</div>
-				<div class="additional_options">
-					<h3>Settings:</h3>
-					<dl class="attempts_parent">
-						<dt>Attempts:</dt>
-						<dd id="attempts"></dd>
-						<dt>Available:</dt>
-						<dd id="avaliability"></dd>
-					</dl>
-					<a id="edit-avaliability-button" role="button" href="#">Edit settings...</a>
-				</div>
-			</div>
-			<div class="share-widget-container closed">
-				<h3>Share with your students</h3>
-				<input id="play_link" type="text"/>
-				<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link">use the embed code</span>).</p>
-				<textarea id="embed_link"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
-			</div>
-		</div>
-		<div class="scores">
-			<h2>Student Activity</h2>
-			<span id="export_scores_button" class="action_button aux_button">
-				<span class="arrow_down"></span>
-				Export Scores
-			</span>
-			<div class="scoreWrapper" ng-controller="ScoreReportingController">
-				<h3 class="view">Semester X</h3>
-				<ul class="choices">
-					<li class="scoreTypeSelected"><a class="graph" href="#">Graph</a></li>
-					<li><a class="table" href="#">Individual Scores</a></li>
-					<li><a class="data" href="#">Data</a></li>
-				</ul>
-				<div class="display table">
-					<div class="score-search">
-						<input type="text" placeholder="Search Students" />
+				<div class="controls">
+					<ul>
+						<li>
+							<a id="preview_button" class="action_button green circle_button" target="_blank">
+								<span class="arrow arrow_right"></span>
+								Preview
+							</a>
+						</li>
+						<li>
+							<a id="edit_button" class="action_button aux_button">
+								<span class="pencil"></span>
+								Edit Widget
+							</a>
+						</li>
+					</ul>
+					<ul class="options">
+						<li class="share"><a href="#" id="share_widget_link">Collaborate</a></li>
+						<li class="copy"><a href="#" id="copy_widget_link">Make a Copy</a></li>
+						<li class="delete"><a href="#" id="delete_widget_link">Delete</a></li>
+					</ul>
+					<div class="delete_dialogue">
+						<span class="delete-warning">Are you sure you want to delete this widget?</span>
+						<a class="cancel_button" href="#">Cancel</a>
+						<a class="action_button red delete_button" href="#">Delete</a>
 					</div>
-					<h3>Select a student to view their scores.</h3>
-					<div class="scoreListContainer">
-						<!-- <div class="scoreListTitle"></div> -->
-						<div class="scoreListScrollContainer">
-							<table class="scoreListTable"></table>
+					<div class="additional_options">
+						<h3>Settings:</h3>
+						<dl class="attempts_parent">
+							<dt>Attempts:</dt>
+							<dd id="attempts"></dd>
+							<dt>Available:</dt>
+							<dd id="avaliability"></dd>
+						</dl>
+						<a id="edit-avaliability-button" role="button" href="#">Edit settings...</a>
+					</div>
+				</div>
+				<div class="share-widget-container closed">
+					<h3>Share with your students</h3>
+					<input id="play_link" type="text"/>
+					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link">use the embed code</span>).</p>
+					<textarea id="embed_link"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
+				</div>
+			</div>
+			<div class="scores">
+				<h2>Student Activity</h2>
+				<span id="export_scores_button" class="action_button aux_button">
+					<span class="arrow_down"></span>
+					Export Scores
+				</span>
+				<div class="scoreWrapper" ng-controller="ScoreReportingController">
+					<h3 class="view">Semester X</h3>
+					<ul class="choices">
+						<li class="scoreTypeSelected"><a class="graph" href="#">Graph</a></li>
+						<li><a class="table" href="#">Individual Scores</a></li>
+						<li><a class="data" href="#">Data</a></li>
+					</ul>
+					<div class="display table">
+						<div class="score-search">
+							<input type="text" placeholder="Search Students" />
+						</div>
+						<h3>Select a student to view their scores.</h3>
+						<div class="scoreListContainer">
+							<!-- <div class="scoreListTitle"></div> -->
+							<div class="scoreListScrollContainer">
+								<table class="scoreListTable"></table>
+							</div>
+						</div>
+						<div class="scoreTableContainer">
+							<!-- <div class="scoreTableTitle"></div> -->
+							<table class="scoreTable"></table>
 						</div>
 					</div>
-					<div class="scoreTableContainer">
-						<!-- <div class="scoreTableTitle"></div> -->
-						<table class="scoreTable"></table>
+					<div class="display graph">
+						<div class="chart"></div>
 					</div>
-				</div>
-				<div class="display graph">
-					<div class="chart"></div>
-				</div>
-				<div class="display data">
-				</div>
-				<ul class="numeric">
-					<li><h4>Students</h4><p class="players" class="playerShrink">&nbsp;</p></li>
-					<li><h4>Scores</h4><p class="score-count">&nbsp;</p></li>
-					<li><h4>Avg Final Score</h4><p class="final-average">&nbsp;</p></li>
+					<div class="display data">
+					</div>
+					<ul class="numeric">
+						<li><h4>Students</h4><p class="players" class="playerShrink">&nbsp;</p></li>
+						<li><h4>Scores</h4><p class="score-count">&nbsp;</p></li>
+						<li><h4>Avg Final Score</h4><p class="final-average">&nbsp;</p></li>
 
-				</ul>
-				<a role="button" class="show-older-scores-button" href="#">Show older scores...</a>
+					</ul>
+					<a role="button" class="show-older-scores-button" href="#">Show older scores...</a>
+				</div>
+				<p class="noScores">There are no scores to display</p>
 			</div>
-			<p class="noScores">There are no scores to display</p>
-		</div>
-	</section>
+		</section>
+	</div>
 	<aside ng-controller="SidebarController">
 		<div class="top">
 			<h1>Your Widgets:</h1>
@@ -112,8 +118,18 @@
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div id="_template_gameID" class="template _template_evenOdd" data-course="uncategorized" data-template="widget-list" data-created='0'>
-					<img class="icon"/>
+				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : $index % 2 == 0, 'odd': $index % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
+					<img class="icon" src="{{instance.icon}}" />
+					<ul>
+						<li class="title searchable">{{instance.name}}</li>
+						<li class="type searchable">{{instance.widget.name}}</li>
+						<li class="score">{{instance.is_draft == true ? 'Draft' : ''}}</li>
+					</ul>
+				</div>
+			</div>
+			<!--
+			<div class="widget_list" data-container="widget-list">
+				<div ng-repeat="widget in widgets" id="_template_gameID" class="template _template_evenOdd" data-course="uncategorized" data-template="widget-list" data-created='0'>
 					<ul>
 						<li class="title searchable">_template_title</li>
 						<li class="type searchable">_template_type</li>
@@ -121,6 +137,7 @@
 					</ul>
 				</div>
 			</div>
+			-->
 		</div>
 	 </aside>
 </div>
