@@ -1,86 +1,47 @@
 MyWidgets = angular.module('MyWidgets')
-MyWidgets.service 'widgetSrv', (selectedWidgetSrv) ->
+MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q) ->
 
+	deferred = $q.defer()
 	_widgets = []
 	widgetTemplate = null
 	cache = null
 
-	sortWidgets = ->
-		unless cache?
-			cache = _widgets.slice()
-			cache.sort (a,b) -> return b.created_at - a.created_at
-		_buildSidebar cache
+	sortWidgets = -> # find all references and remove? Necessary?
+		# unless cache?
+		# 	cache = _widgets.slice()
+		# 	cache.sort (a,b) -> return b.created_at - a.created_at
+		# _buildSidebar cache
 
-	getWidgets = (callback) ->
+	getWidgets = ->
 		if _widgets.length == 0
 			Materia.WidgetInstance.clearAll()
 			Materia.WidgetInstance.getAll (widgets) ->
-				_widgets = widgets
-				callback _widgets
-		else
-			callback _widgets
+				_widgets = widgets.slice(0)
+				deferred.resolve _widgets
 
 	_buildSidebar = (cachedWidgets) ->
 		myWidgets = []
 
-		unless widgetTemplate
-			widgetTemplate = $("div[data-template=widget-list]")
+		### Not all this stuff is baked into Angular functionality, so leaving commented code ###
 
-		$clone = widgetTemplate
-			.clone()
-			.removeClass('_template_evenOdd')
-			.removeClass('template')
-			.removeAttr('data-template')
-			.addClass('widget')
-
-		clonedHtml = $clone.wrap('<div>').parent().html()
-		widgetList = $('<div class="widget_list"></div>')
-
-		for cached, i in cachedWidgets
-			fixedHtml = clonedHtml
-				.replace('_template_title', cached.name)
-				.replace('_template_type', cached.widget.name)
-				.replace('_template_scores', cached.numPlays + (cached.numPlays > 1 ? 's' : ''))
-
-			$clonedListItem = $(fixedHtml)
-				.attr('id', 'widget_' + cached.id)
-				.attr('data-created', cached.dateCreate)
-				.addClass( if i % 2 == 0 then 'odd' else 'even')
-
-			if cached.is_draft is yes
-				$clonedListItem.addClass("is_draft")
-				$clonedListItem.find('.score').html('Draft')
-
-			# Checks to make sure the image is there before overwriting the default icon.
-			$clonedListItem.children('.icon').attr('src', Materia.Image.iconUrl(cached.widget.dir, 60))
-
-			if BEARD_MODE? and BEARD_MODE is on
-				rand = Math.floor((Math.random()*beards.length)+1) - 1
-				$clonedListItem.children('div:first-child').addClass('small_'+beards[rand])
-
-			clonedListItem = $clonedListItem.get(0)
-			cached.element = clonedListItem
-
-			myWidgets.push(clonedListItem)
-
-		$(widgetList).append(myWidgets)
-		$('.courses').animate opacity: 0.1
-			, 100, ->
-				$('.courses').html(widgetList)
-				selectedId = selectedWidgetSrv.getSelectedId()
-				if selectedId
-					$currentWidget = $('#widget_' + selectedId)
-					$currentWidget.addClass('gameSelected')
-					$courses = $currentWidget.parent().parent().parent()
-					parPos = $courses.offset()
-					$('.courses').scrollTop(0)
-				$('.courses').animate
-					opacity: 1
-					,100
-					, ->
-						if selectedWidgetSrv.getSelectedId()
-							pos = $('.gameSelected').position()
-							$('.courses').animate scrollTop: pos.top-200
+		# $(widgetList).append(myWidgets)
+		# $('.courses').animate opacity: 0.1
+		# 	, 100, ->
+		# 		$('.courses').html(widgetList)
+		# 		selectedId = selectedWidgetSrv.getSelectedId()
+		# 		if selectedId
+		# 			$currentWidget = $('#widget_' + selectedId)
+		# 			$currentWidget.addClass('gameSelected')
+		# 			$courses = $currentWidget.parent().parent().parent()
+		# 			parPos = $courses.offset()
+		# 			$('.courses').scrollTop(0)
+		# 		$('.courses').animate
+		# 			opacity: 1
+		# 			,100
+		# 			, ->
+		# 				if selectedWidgetSrv.getSelectedId()
+		# 					pos = $('.gameSelected').position()
+		# 					$('.courses').animate scrollTop: pos.top-200
 
 
 	getWidget = (inst_id, callback) ->

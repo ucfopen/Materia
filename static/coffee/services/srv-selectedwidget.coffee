@@ -11,6 +11,7 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope) ->
 	# Refactored variables
 	_widget = null
 	_BEARD_MODE = false
+	_noWidgetsFlag = false
 
 	# get and set _widget
 	set = (widget) ->
@@ -26,6 +27,40 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope) ->
 
 	setSelectedId = (id) ->
 		instId = id
+
+	noWidgets = ->
+		_noWidgetsFlag
+
+	setNoWidgets = (bool) ->
+		_noWidgetsFlag = bool
+		$rootScope.$broadcast 'selectedWidget.noWidgets'
+
+		if bool is true
+			# This is temporary, we should look for an alternative to qtip
+			# Or just a cleaner, more angular-y implementation in general
+			$('header nav ul li:first-child').qtip
+				content: 'Click here to start making a new widget!'
+				position:
+					corner:
+						target: 'bottomMiddle'
+						tooltip: 'topMiddle'
+					adjust:
+						y: 15
+				style:
+					background: '#b944cc'
+					color: '#ffffff'
+					padding: 10
+					border:
+						width: 2
+						radius: 5
+						color: '#b944cc'
+					tip:
+						corner: 'topMiddle'
+						size:
+							width: 15
+							height: 10
+				show:
+					ready: true
 
 	getCurrentSemester = ->
 		return selectedData.year + ' ' + selectedData.term
@@ -65,6 +100,8 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope) ->
 	get : get
 	getSelectedId: getSelectedId
 	setSelectedId: setSelectedId
+	noWidgets: noWidgets
+	setNoWidgets: setNoWidgets
 	getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
 	getStorageData: getStorageData
