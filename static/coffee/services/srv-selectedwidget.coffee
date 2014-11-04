@@ -1,5 +1,5 @@
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.service 'selectedWidgetSrv', ($rootScope) ->
+MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 
 	STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 
@@ -62,6 +62,17 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope) ->
 				show:
 					ready: true
 
+	getUserPermissions = ->
+		deferred = $q.defer()
+		Materia.Coms.Json.send 'permissions_get', [0, _widget.id], (perms) ->
+			permsObject =
+				user : perms.user_perms
+				widget: perms.widget_user_perms
+
+			deferred.resolve permsObject
+
+		deferred.promise
+
 	getCurrentSemester = ->
 		return selectedData.year + ' ' + selectedData.term
 
@@ -102,6 +113,7 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope) ->
 	setSelectedId: setSelectedId
 	noWidgets: noWidgets
 	setNoWidgets: setNoWidgets
+	getUserPermissions: getUserPermissions
 	getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
 	getStorageData: getStorageData

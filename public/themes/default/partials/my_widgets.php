@@ -26,7 +26,7 @@
 							</a>
 						</li>
 						<li>
-							<a id="edit_button" class="action_button aux_button">
+							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : accessLevel == 0 || selectedWidget.widget.is_ediable == 0}">
 								<span class="pencil"></span>
 								Edit Widget
 							</a>
@@ -34,8 +34,8 @@
 					</ul>
 					<ul class="options">
 						<li class="share"><a href="#" id="share_widget_link">Collaborate</a></li>
-						<li class="copy"><a href="#" id="copy_widget_link">Make a Copy</a></li>
-						<li class="delete"><a href="#" id="delete_widget_link">Delete</a></li>
+						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}">Make a Copy</a></li>
+						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}">Delete</a></li>
 					</ul>
 					<div class="delete_dialogue">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
