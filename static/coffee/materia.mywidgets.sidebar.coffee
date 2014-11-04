@@ -66,8 +66,10 @@ app.controller 'sidebarCtrl', ['$scope', '$location', ($scope, $location) ->
 			else
 				newSelected = i - 1
 			Materia.MyWidgets.SelectedWidget.setSelected($scope.widgets[newSelected].id)
+			$scope.setSelected($scope.widgets[newSelected].id)
 		else
 			Materia.MyWidgets.SelectedWidget.noWidgets()
+			$scope.selected = null
 
 	# Builds the sidebar with all of the widgets that come back from the api.
 	# @var array A list of widget objects
