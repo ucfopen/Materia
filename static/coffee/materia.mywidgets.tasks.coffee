@@ -8,7 +8,7 @@ Namespace('Materia.MyWidgets').Tasks = do ->
 
 	deleteWidget = (inst_id) ->
 		Materia.Coms.Json.send 'widget_instance_delete', [inst_id], (results) ->
-			Materia.Widget.removeWidget inst_id if results
+			Materia.MyWidgets.Sidebar.removeWidget inst_id if results
 
 	init : init
 	copyWidget : copyWidget

@@ -123,15 +123,12 @@ $(document).ready ->
 
 	$('.delete_dialogue .delete_button').click (e) ->
 		e.preventDefault()
-		inst_id = $('.gameSelected').attr('id').split('_')[1]
+		inst_id = Materia.MyWidgets.Sidebar.getSelected()
 
 		Materia.MyWidgets.Tasks.deleteWidget(inst_id)
 		$('#delete_widget_link').click()
 
 	# ================= SIDEBAR SETUP =======================================
-	Materia.TextFilter.setupInput $('.search .textbox'),
-		Materia.MyWidgets.Sidebar.search, SEARCH_DELAY_MS
-
 	$('#page').hide()
 	$(".widget_list h2").click ->
 		Materia.MyWidgets.Sidebar.hideAndShowSidebar(this)
