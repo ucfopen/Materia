@@ -1,6 +1,4 @@
-Namespace('Materia.Profile.Activity').Load = null
-
-Materia.App.controller 'profileCtrl', ['$scope', ($scope) ->
+app.controller 'profileCtrl', ['$scope', ($scope) ->
 	$scope.more = false
 	$scope.loading = false
 	_offset = 0
@@ -55,3 +53,4 @@ Materia.App.controller 'profileCtrl', ['$scope', ($scope) ->
 		init: init
 		getLogs: $scope.getLogs
 ]
+

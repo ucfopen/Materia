@@ -1,4 +1,4 @@
-Materia.App.controller 'scorePageController', ($scope) ->
+app.controller 'scorePageController', ($scope) ->
 
 	# attempts is an array of attempts, [0] is the newest
 	attempt_dates = []
@@ -346,4 +346,5 @@ Materia.App.controller 'scorePageController', ($scope) ->
 	Materia.Scores.displayScoreData = displayScoreData
 
 Namespace('Materia').Scores = {}
+
 

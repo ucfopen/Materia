@@ -1,7 +1,4 @@
-
-Namespace('Materia').Notification = null
-
-Materia.App.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
+app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.notifications = []
 	$scope.clicked = false
 
@@ -40,8 +37,5 @@ Materia.App.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.removeNotification = (index) ->
 		Materia.Coms.Json.send 'notification_delete', [$scope.notifications[index].id]
 		$scope.notifications.splice(index, 1)
-
-	Namespace('Materia').Notification =
-		init: $scope.init
-		getNotifications: $scope.getNotifications
 ]
+

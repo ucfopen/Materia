@@ -1,6 +1,6 @@
 Namespace('Materia.Widget').Catalog = null
 
-Materia.App.controller 'widgetCtrl', ['$scope', ($scope) ->
+app.controller 'widgetCtrl', ['$scope', ($scope) ->
 	$scope.widgets = []
 	$scope.infoCard = []
 	$scope.card = 0
@@ -36,3 +36,4 @@ Materia.App.controller 'widgetCtrl', ['$scope', ($scope) ->
 	Namespace('Materia.Widget').Catalog =
 		prepare : prepare
 ]
+
