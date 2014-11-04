@@ -1,3 +1,4 @@
+app = angular.module 'materia'
 app.controller 'scorePageController', ($scope) ->
 
 	# attempts is an array of attempts, [0] is the newest

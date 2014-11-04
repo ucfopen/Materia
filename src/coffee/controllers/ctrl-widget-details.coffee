@@ -1,13 +1,5 @@
-Materia.App.directive 'fancybox', ($compile, $timeout) ->
-	link: ($scope, element, attrs) ->
-		element.fancybox
-			onComplete: ->
-				$timeout ->
-					$compile($("#fancybox-content"))($scope)
-					$scope.$apply()
-					$.fancybox.resize()
-
-Materia.App.controller 'widgetDetailsController', ($scope) ->
+app = angular.module 'materia'
+app.controller 'widgetDetailsController', ($scope) ->
 
 	$scope.widget =
 		icon: "/assets/img/default/default-icon-275.png"
@@ -27,16 +19,15 @@ Materia.App.controller 'widgetDetailsController', ($scope) ->
 
 	init = (gateway) ->
 
-	prepare = (callback) ->
-		nameArr = window.location.pathname.replace("/widgets/", '').split("/")
-		widgetID = nameArr.pop().split('-').shift()
-		
-		Materia.Coms.Json.send 'widgets_get', [[widgetID]], (data) ->
-			populateDefaults(data[0])
-			if nameArr.length > 1
-				$scope.goback =
-					url: "/"
-					text: "Go back to the front page"
+	nameArr = window.location.pathname.replace("/widgets/", '').split("/")
+	widgetID = nameArr.pop().split('-').shift()
+
+	Materia.Coms.Json.send 'widgets_get', [[widgetID]], (data) ->
+		populateDefaults(data[0])
+		if nameArr.length > 1
+			$scope.goback =
+				url: "/"
+				text: "Go back to the front page"
 
 	# Populates the details page with content
 	# @object The current widget.
@@ -74,6 +65,6 @@ Materia.App.controller 'widgetDetailsController', ($scope) ->
 
 	Namespace('Materia.Widget').Detail =
 		init        : init,
-		prepare     : prepare
+		prepare     : init
 
 

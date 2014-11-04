@@ -18,8 +18,6 @@ class Controller_Widgets_Test extends Controller_Widgets
 
 	public function action_external($widget_id)
 	{
-		Package::load('casset');
-
 		$this->theme->set_template('test/layouts/test_external_system');
 
 		$this->theme->get_template()

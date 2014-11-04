@@ -82,7 +82,7 @@ nav ul li a, h3, #main a {
 }
 #main h2, #store_main h2 {
 	color: #000;
-	-webkit-mask-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,3)), to(rgba(0,0,0,0)));
+	-webkit-mask-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));
 	text-transform:uppercase;
 	font-weight:900;
 	font-size: 20pt;
@@ -155,7 +155,7 @@ h3 {
 	border:#fdb34f 1px solid;
 	font-weight:bold;
 	color:rgba(48,48,48,0.7);
-	text-shadow: 1px 1px 1px rgba(256, 256, 256, 0.5);
+	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 	-moz-box-shadow: 1px 2px 5px #888;
 	-webkit-box-shadow: 1px 2px 5px #888;
 	box-shadow: 1px 2px 5px #888;

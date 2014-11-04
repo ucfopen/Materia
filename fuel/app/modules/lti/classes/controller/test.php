@@ -136,9 +136,9 @@ class Controller_Test extends \Controller_Rest
 			'learner_endpoint'            => \Uri::create('lti/test/learner')
 		];
 
-		\Package::load('casset');
+		/*\Package::load('casset');
 		\Casset::disable_css('core');
-		\Casset::disable_js('core');
+		\Casset::disable_js('core');*/
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/test_provider')
 			->set($view_args);
@@ -222,9 +222,9 @@ class Controller_Test extends \Controller_Rest
 			], $lti_url);
 		}
 
-		\Package::load('casset');
+		/*\Package::load('casset');
 		\Casset::disable_css('core');
-		\Casset::disable_js('core');
+		\Casset::disable_js('core');*/
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/test_learner')
 			->set_safe(['post' => json_encode($learner_params[0])])
