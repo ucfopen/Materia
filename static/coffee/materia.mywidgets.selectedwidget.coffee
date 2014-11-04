@@ -364,7 +364,7 @@ Namespace('Materia.MyWidgets').SelectedWidget = do ->
 		field = $('#popup.copy input.newtitle')
 
 		if (field.val().length > 0 && field.val() != newTitle)
-			inst_id = $('.gameSelected').attr('id').split('_')[1]
+			inst_id = Materia.MyWidgets.Sidebar.getSelected()
 
 			Materia.MyWidgets.Tasks.copyWidget(inst_id, field.val())
 			$('#popup.copy .cancel_button').click()
