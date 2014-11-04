@@ -76,3 +76,4 @@ Materia.App.controller 'widgetDetailsController', ($scope) ->
 		init        : init,
 		prepare     : prepare
 
+
