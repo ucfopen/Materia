@@ -1,3 +1,4 @@
+app = angular.module 'materia'
 app.controller 'profileCtrl', ['$scope', ($scope) ->
 	$scope.more = false
 	$scope.loading = false

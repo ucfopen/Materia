@@ -13,6 +13,8 @@ class Controller_Widgets extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
+		Js::push_group('core');
+		Css::push_group('core');
 	}
 
 	public function after($response)
@@ -27,9 +29,11 @@ class Controller_Widgets extends Controller
 				// add beardmode
 				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
 				{
+					/*
 					Casset::js_inline('var BEARD_MODE = true;');
 					Casset::js_inline('var beards = ["black_chops", "dusty_full", "grey_gandalf", "red_soul"];');
 					Casset::css('beard_mode.css', false, 'page');
+					 */
 				}
 			}
 
@@ -38,18 +42,22 @@ class Controller_Widgets extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				//Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
+			/*
 			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
 			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 			Casset::js_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+			 */
 
 			$response = Response::forge(Theme::instance()->render());
 		}
 
 		// prevent caching the widget page, since the __play_id is hard coded into the page
 		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+
 
 		return parent::after($response);
 	}
@@ -61,15 +69,13 @@ class Controller_Widgets extends Controller
 	 */
 	public function action_index()
 	{
-		Package::load('casset');
-		Casset::enable_js(['widget_catalog']);
-		Casset::enable_css(['widget_catalog']);
-
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
 			->set('page_type', 'catalog');
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
+		Js::push_group('widget_catalog');
+		Css::push_group('widget_catalog');
 	}
 
 	/**
@@ -87,16 +93,13 @@ class Controller_Widgets extends Controller
 
 		if ( ! $widget) throw new HttpNotFoundException;
 
-		Package::load('casset');
-		Casset::enable_css(['widget_detail']);
-		Casset::enable_js(['widget_detail']);
-
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
 		$this->theme->set_partial('content', 'partials/widget/detail');
 
+		Css::push_group('widget_detail');
 	}
 
 	/**
@@ -163,10 +166,6 @@ class Controller_Widgets extends Controller
 
 	protected function _show_editor($title, $widget, $inst_id=null)
 	{
-		Package::load('casset');
-		Casset::enable_css(['widget_editor']);
-		Casset::enable_js(['widget_editor']);
-
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
@@ -192,10 +191,6 @@ class Controller_Widgets extends Controller
 
 		if (Materia\Api::session_valid('basic_author') != true) return $this->_mywidgets_student();
 
-		Package::load('casset');
-		Casset::enable_js(['my_widgets']);
-		Casset::enable_css(['my_widgets']);
-
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
 			->set('page_type', 'my_widgets');
@@ -206,7 +201,6 @@ class Controller_Widgets extends Controller
 
 	protected function _mywidgets_student()
 	{
-		Package::load('casset');
 		$this->theme->get_template()
 			->set('title', '')
 			->set('page_type', 'my_widgets');
@@ -293,8 +287,6 @@ class Controller_Widgets extends Controller
 
 	public function action_draft_not_playable()
 	{
-			Package::load('casset');
-
 			$this->theme->get_template()
 				->set('title', 'Draft Not Playable')
 				->set('page_type', '');
@@ -304,8 +296,6 @@ class Controller_Widgets extends Controller
 
 	public function action_retired()
 	{
-			Package::load('casset');
-
 			$this->theme->get_template()
 				->set('title', 'Retired Widget')
 				->set('page_type', '');
@@ -350,10 +340,7 @@ class Controller_Widgets extends Controller
 
 	protected function _display_widget(\Materia\Widget_Instance $inst, $play_id=false, $embed=false)
 	{
-		Package::load('casset');
-		Casset::enable_css(['widget_play']);
-		Casset::enable_js(['widget_play']);
-		Casset::js_inline('var __PLAY_ID = "'.$play_id.'";');
+		//Casset::js_inline('var __PLAY_ID = "'.$play_id.'";');
 
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
@@ -460,10 +447,6 @@ class Controller_Widgets extends Controller
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
 
 		// ===================== RENDER ==========================
-		Package::load('casset');
-		Casset::enable_js(['login']);
-		Casset::enable_css(['login']);
-
 		$this->theme->get_template()
 			->set('title', $login_title ?: 'Login')
 			->set('page_type', 'login');
@@ -503,10 +486,6 @@ class Controller_Widgets extends Controller
 
 	protected function no_permission()
 	{
-		Package::load('casset');
-		Casset::enable_js(['homepage']);
-		Casset::enable_css(['homepage']);
-
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
@@ -516,9 +495,6 @@ class Controller_Widgets extends Controller
 
 public function action_no_attempts($inst)
 	{
-		Package::load('casset');
-		Casset::enable_css(['login']);
-
 		$this->theme->get_template()
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');

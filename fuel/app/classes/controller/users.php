@@ -17,7 +17,6 @@ class Controller_Users extends Controller
 		// If no response object was returned by the action,
 		if (empty($response) or ! $response instanceof Response)
 		{
-			Package::load('casset');
 			// render the defined template
 			$me = Model_User::find_current();
 			if ($me)
@@ -25,9 +24,9 @@ class Controller_Users extends Controller
 				// add beardmode
 				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
 				{
-					Casset::js_inline('var BEARD_MODE = true;');
+					/*Casset::js_inline('var BEARD_MODE = true;');
 					Casset::js_inline('var beards = ["black_chops", "dusty_full", "grey_gandalf", "red_soul"];');
-					Casset::css('beard_mode.css', false, 'page');
+					Casset::css('beard_mode.css', false, 'page');*/
 				}
 			}
 			$this->theme->set_partial('header', 'partials/header')->set('me', $me);
@@ -35,10 +34,10 @@ class Controller_Users extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				//Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			//Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
 
@@ -79,10 +78,6 @@ class Controller_Users extends Controller
 			}
 		}
 
-		Package::load('casset');
-		Casset::enable_js(['login']);
-		Casset::enable_css(['login']);
-
 		$this->theme->get_template()
 			->set('title', 'Login')
 			->set('page_type', 'login');
@@ -115,10 +110,7 @@ class Controller_Users extends Controller
 		// to properly fix the date display, we need to provide the raw server date for JS to access
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
 
-		Package::load('casset');
-		Casset::enable_js(['profile']);
-		Casset::enable_css(['profile']);
-		Casset::js_inline("var DATE = '$server_date'");
+		//Casset::js_inline("var DATE = '$server_date'");
 
 		$this->theme->get_template()
 			->set('title', 'Profile')
@@ -139,10 +131,6 @@ class Controller_Users extends Controller
 			Session::set_flash('notice', 'Please log in to view this page.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
-
-		Package::load('casset');
-		Casset::enable_js(['settings']);
-		Casset::enable_css(['profile']);
 
 		$this->theme->get_template()
 			->set('title', 'Settings')

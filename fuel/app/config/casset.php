@@ -378,11 +378,6 @@ return [
 				'enabled' => true,
 				'attr' => ['data-src' => 'core'],
 			],
-			'ie8' => [
-				'files' => ['ie8.css'],
-				'enabled' => false,
-				'attr' => ['data-src' => 'ie8'],
-			],
 			'fonts' => [
 				'files' => [
 					'gfonts::css?family=Kameron:700&text=0123456789%25',

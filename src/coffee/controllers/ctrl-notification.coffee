@@ -1,3 +1,4 @@
+app = angular.module 'materia'
 app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.notifications = []
 	$scope.clicked = false

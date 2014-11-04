@@ -1,5 +1,6 @@
 Namespace('Materia.Widget').Catalog = null
 
+app = angular.module 'materia'
 app.controller 'widgetCtrl', ['$scope', ($scope) ->
 	$scope.widgets = []
 	$scope.infoCard = []

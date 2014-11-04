@@ -94,10 +94,6 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if (Materia\Api::session_valid() !== true ) throw new HttpNotFoundException;
 
-		Package::load('casset');
-		Casset::enable_js(['media_catalog']);
-		Casset::enable_css(['media_catalog']);
-
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
 
@@ -107,7 +103,6 @@ class Controller_Media extends Controller
 
 		$this->theme->set_partial('content', 'partials/catalog/media');
 
-		Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
 		return Response::forge(Theme::instance()->render());
 	}
 

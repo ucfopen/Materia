@@ -25,4 +25,5 @@ return [
 	],
 	'packages'  => array(
 	),
+	'enable_uploader' => true
 ];

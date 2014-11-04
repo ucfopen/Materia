@@ -1,4 +1,4 @@
-Namespace('Materia.Coms').Json = do ->
+Namespace('Materia.Coms').JsonSandbox = do ->
 	_gatewayURL = ''
 
 	setGateway = (newGateway) ->

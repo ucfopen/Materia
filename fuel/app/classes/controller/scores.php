@@ -25,10 +25,10 @@ class Controller_Scores extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				//Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			//Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
 
@@ -42,10 +42,6 @@ class Controller_Scores extends Controller
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
-
-		Package::load('casset');
-		Casset::enable_js(['scores']);
-		Casset::enable_css(['scores']);
 
 		$this->theme->get_template()
 			->set('title', 'Score Results')
@@ -62,14 +58,11 @@ class Controller_Scores extends Controller
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
 
-		Package::load('casset');
-		Casset::enable_js(['embed_scores']);
-		Casset::enable_css(['embed_scores']);
 
 		$lti_token = \Input::get('ltitoken', false);
 		if ($lti_token)
 		{
-			Casset::js_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			//Casset::js_inline('var __LTI_TOKEN = "'.$lti_token.'";');
 		}
 
 		$this->theme->get_template()
