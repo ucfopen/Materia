@@ -234,6 +234,7 @@ return [
 			],
 			'my_widgets' => [
 				'files' => [
+					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.set.datetime.js',
 					'static::materia.validate.textfield.js',
 					'static::materia.notification.js',

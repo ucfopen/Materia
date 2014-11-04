@@ -100,24 +100,24 @@
 			<p class="noScores">There are no scores to display</p>
 		</div>
 	</section>
-	<aside>
+	<aside ng-app="sidebarApp" ng-controller="sidebarCtrl">
 		<div class="top">
 			<h1>Your Widgets:</h1>
 		</div>
 		<div class="search">
 			<div   class="textbox-background"></div>
-			<input class="textbox" type="text">
+			<input class="textbox" ng-model="searchText.searchCache" type="text">
 			<div   class="search-icon"></div>
-			<div   class="search-close">x</div>
+			<div   class="search-close" ng-click="searchText = ''" ng-show="searchText">x</div>
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div id="_template_gameID" class="template _template_evenOdd" data-course="uncategorized" data-template="widget-list" data-created='0'>
-					<img class="icon"/>
+				<div ng-repeat="widget in widgets | filter:searchText" id="widget_{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.selected}" ng-click="setSelected(widget.id)">
+					<img class="icon" ng-src="{{getIcon(widget.widget)}}" ng-class="{bearded: beard}"/>
 					<ul>
-						<li class="title searchable">_template_title</li>
-						<li class="type searchable">_template_type</li>
-						<li class="score"></li>
+						<li class="title searchable">{{widget.name}}</li>
+						<li class="type searchable">{{widget.widget.name}}</li>
+						<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
 					</ul>
 				</div>
 			</div>

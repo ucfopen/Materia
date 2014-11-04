@@ -100,7 +100,7 @@ Namespace('Materia.Permissions').Widget = do ->
 				if delete_self
 					# update user's permissions and
 					Materia.Permissions.User.updatePerms [{user_id:current_user.id, expiration:null, perms:[false]}], ->
-						Materia.Widget.removeWidget inst_id
+						Materia.MyWidgets.Sidebar.removeWidget inst_id
 				Materia.Set.Throbber.stopSpin '#popup'
 				return
 
@@ -128,7 +128,7 @@ Namespace('Materia.Permissions').Widget = do ->
 			Materia.Permissions.User.updatePerms allUserPerms, ->
 				Materia.Set.Throbber.stopSpin '#popup'
 				if(delete_self)
-					Materia.Widget.removeWidget inst_id
+					Materia.MyWidgets.Sidebar.removeWidget inst_id
 					return
 
 			# update collaboration link count
