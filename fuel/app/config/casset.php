@@ -258,6 +258,7 @@ return [
 					'lib/jquery-ui-1.8.21.custom.min.js',
 					'lib/jquery-ui-timepicker-addon.js',
 					'static::materia.mywidgets.app.js',
+					'static::services/srv-user.js',
 					'static::services/srv-selectedWidget.js',
 					'static::services/srv-widget.js',
 					'static::directives/dir-sidebarselection.js',

@@ -2,7 +2,7 @@
 # TODO: needs some serious refactoring to reduce complexity of large methods
 
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidgetSrv) ->
+MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userSrv) ->
 
 	# old stuff
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
@@ -14,6 +14,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 	$scope.dateRanges = null
 
 	# refactoring scope variables
+	$scope.perms = null
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -25,7 +26,14 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 		$scope.noWidgetState = true
 		$scope.$apply()
 
-	$scope.user = null # TODO should be updated automagically with user service
+	$scope.user = null # grab current user, link it to service
+	# userSrv.grabCurrentUser()
+	$scope.$on 'user.update', (evt) ->
+		$scope.user = userSrv.get()
+		$scope.$apply()
+
+	$scope.accessLevel = 0
+	$scope.test = "disabled"
 
 	# Initializes the gateway for the api
 	# @string path to gateway
@@ -34,21 +42,32 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 			e.preventDefault()
 			Materia.MyWidgets.SelectedWidget.showAllScores()
 
+
 	# Migrating to service
 	# getSelectedId = ->
 	# 	# $scope.selectedWidgetInstId
 	# 	$scope.selectedWidget.id
 
-	# This doesn't actually "set" the widget, it just kicks off updating the display
-	# This whole method will likely be deprecated eventually
+	# This doesn't actually "set" the widget
+	# It ensures required scope objects have been acquired before kicking off the display
 	setSelectedWidget = ->
+
+		$q.all([
+			userSrv.get(),
+			selectedWidgetSrv.getUserPermissions()
+		])
+		.then (data) ->
+			$scope.user = data[0]
+			$scope.perms = data[1]
+
+			Materia.MyWidgets.Statistics.clearGraphs()
+
+			populateDisplay()
 
 		# Moved to the sidebar controller(?) still needs to be implemented
 		# if $('.page').is ':visible' and not $('section .error').is ':visible'
 		# Materia.Set.Throbber.startSpin '.page'
-		Materia.MyWidgets.Statistics.clearGraphs()
 
-		populateDisplay()
 
 	getCurrentSemester = ->
 		return $scope.selectedData.year+' '+$scope.selectedData.term
@@ -97,291 +116,293 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, widgetSrv,selectedWidg
 	# @param   element   The element that was clicked ($('.widget_list').children('div'))
 	populateDisplay = (id) ->
 		count = null
-		widgetID = null
+		# widgetID = null
 
 		if $('section .error').is(':visible') then $('section .error').remove()
 
 		Materia.Coms.Json.send 'session_valid', ['basic_author'], (data) ->
-			loadDateRanges ->
-				# widgetSrv.getWidget selectedWidgetSrv.getSelectedId(), (inst) ->
+			# loadDateRanges -> # WHY WAS THIS EVEN HEEEEEERE?!
 
-					# this should instead reference scope selectedWidget variable
-					# all references to inst should be replaced as such
-					inst = selectedWidgetSrv.get()
-					# these are superfluous - remove references
-					clean_name = widgetName = inst.clean_name
-					widgetID = inst.widget.id
-					$editButton = $('#edit_button')
+			# required?
+				# # this should instead reference scope selectedWidget variable
+				# # all references to inst should be replaced as such
+				# inst = selectedWidgetSrv.get()
+				# # these are superfluous - remove references
+				# clean_name = widgetName = inst.clean_name
+				# widgetID = inst.widget.id
+				$editButton = $('#edit_button')
 
-					# Gets current user
-					# TODO should be put in user service & referenced thusly
-					Materia.User.getCurrentUser (user) ->
-						# Gets who is currently using this widget (i.e. sharing)
-						Materia.Coms.Json.send 'permissions_get', [0, inst.id], (perms) ->
-							user_perms = perms['user_perms']
-							widget_user_perms = perms['widget_user_perms']
+				# Gets current user
+				# TODO should be put in user service & referenced thusly
+				# Materia.User.getCurrentUser (user) ->
+				# Gets who is currently using this widget (i.e. sharing)
+				# Materia.Coms.Json.send 'permissions_get', [0, inst.id], (perms) ->
+				# user_perms = perms['user_perms']
+				# widget_user_perms = perms['widget_user_perms']
 
-							accessLevel = 0
-							if(typeof user_perms[user.id] != 'undefined' && typeof user_perms[user.id][0] != 'undefined')
-								accessLevel = Number(user_perms[user.id][0])
+				# accessLevel = 0
 
-							# disable certain interactions if the user's access is view-only or widget isn't editable
-							if(accessLevel == 0)
-								$editButton.unbind()
-								$editButton.attr('href','#')
-								$editButton.click -> return false
-								$editButton.addClass('disabled')
+				if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
+					$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
 
-								$('.copy').addClass('disabled')
-								$('#copy_widget_link').addClass('disabled')
-								$('#delete_widget_link').addClass('disabled').parent().addClass('disabled')
-							else
-								if Number(inst.widget.is_editable) == 1
-									$editButton.removeClass('disabled')
-								else
-									$editButton.unbind()
-									$editButton.attr('href','#')
-									$editButton.click -> return false
-									$editButton.addClass('disabled')
 
-								$('.copy').removeClass('disabled')
-								$('#copy_widget_link').removeClass('disabled')
-								$('#delete_widget_link').removeClass('disabled').parent().removeClass('disabled')
+				# disable certain interactions if the user's access is view-only or widget isn't editable
+				if($scope.accessLevel == 0)
+					$editButton.unbind()
+					$editButton.attr('href','#')
+					$editButton.click -> return false
+					$editButton.addClass('disabled')
 
-							if accessLevel == 0 || inst.is_draft == true
-								# CSS to disable additional options needs to be re-worked
-								$('.attempts_parent').addClass('disabled')
-								$('#edit-avaliability-button').addClass('disabled')
-								$('#attempts').addClass('disabled')
-								$('#avaliability').addClass('disabled')
-							else
-								$('.attempts_parent').removeClass('disabled')
-								$('.copy').removeClass('disabled')
-								$('#copy_widget_link').removeClass('disabled')
-								$('#copy_widget_link').unbind('click')
-								$('#delete_widget_link').removeClass('disabled')
-								$('#delete_widget_link').unbind('click')
-								$('#edit-avaliability-button').removeClass('disabled')
-								$('#attempts').removeClass('disabled')
-								$('#avaliability').removeClass('disabled')
-
-							$('#edit-avaliability-button').unbind('click')
-							$('#attempts').unbind('click')
-							$('#avaliability').unbind('click')
-							jqmodalOptions =
-								modal            : true,
-								backgroundStyle  : 'light',
-								className        : 'availability',
-								html             : $('#t-availibility').html(),
-								closingSelectors : ['.cancel_button']
-
-							$('#edit-avaliability-button').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-							$('#attempts').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-							$('#avaliability').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-
-							$('.copy').unbind('click')
-							$('.copy.disabled').click -> return false
-							$('.copy').not('.disabled').jqmodal
-								modal            : true,
-								backgroundStyle  : 'light',
-								className        : 'copy',
-								html             : $('#t-copy-popup').html(),
-								closingSelectors : ['.cancel_button']
-							, ->
-								$('#popup.copy input').focus()
-
-								newTitle = $('#popup.copy input.newtitle').val()
-
-								$('#popup.copy input.newtitle').keypress (e) ->
-									if e.which == 10 or e.which == 13
-										copyWidget()
-
-								$('#popup.copy .copy_button').click (e) ->
-									e.preventDefault()
-									copyWidget()
-							$('.delete_dialogue').hide()
-							$('.additional_options').fadeIn('fast')
-
-							$('.delete').unbind('click')
-							$('.delete.disabled').click -> return false
-							$('.delete').not('.disabled').toggle ->
-								$('.additional_options').hide()
-								$('.delete_dialogue').fadeIn('fast')
-								$('.delete_dialogue').show()
-							, ->
-								$('.delete_dialogue').hide()
-								$('.additional_options').fadeIn('fast')
-
-							# count up the number of other users collaboratin
-							count = 0
-							for id of widget_user_perms
-								if id != user.id then count++
-
-							str = 'Collaborate'
-							str += ' ('+count+')' if count > 0
-							$('#share_widget_link').text(str)
-
-					populateAvailability(inst.open_at, inst.close_at)
-					populateAttempts(inst.attempts)
-
-					$('.page hgroup h1').html(inst.name)
-					$('.page hgroup h3').html(inst.widget.name)
-
-					$('.overview .icon').attr('src', Materia.Image.iconUrl(inst.widget.dir, 275))
-
-					if BEARD_MODE? and BEARD_MODE == true
-
-						$('.widget .icon').each (index) ->
-							rand = Math.floor((Math.random()*beards.length)+1) - 1
-
-							$(this).addClass('small_'+beards[rand])
-
-							if ($(this).parent().hasClass('gameSelected'))
-								$('.icon_container').addClass('med_'+beards[rand])
-
-						existing = $('.overview .icon_container').attr('class').split(' ')
-
-						for e in existing
-							if e != 'icon_container' && e != 'big_bearded'
-								$('.overview .icon_container').removeClass(e)
-
-						beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
-						beardType = 'med'+beardType.substring(5)
-
-						$('.widget .icon').addClass('bearded')
-						$('.icon_container')
-							.addClass('big_bearded')
-							.addClass(beardType)
-
-					if($('.page').is(':hidden'))
-						$('.page').show()
+					# $('.copy').addClass('disabled')
+					# $('#copy_widget_link').addClass('disabled')
+					# $('#delete_widget_link').addClass('disabled').parent().addClass('disabled')
+				else
+					if Number($scope.selectedWidget.widget.is_editable) == 1
+						# $editButton.removeClass('disabled')
 					else
-						$('.page').children().show()
+						$editButton.unbind()
+						$editButton.attr('href','#')
+						$editButton.click -> return false
+						$editButton.addClass('disabled')
 
-					$('#preview_button').attr('href','/preview/'+$scope.selectedWidgetInstId+'/'+inst.clean_name).click ->
-						return false if $(this).hasClass('disabled')
+					# $('.copy').removeClass('disabled')
+					# $('#copy_widget_link').removeClass('disabled')
+					# $('#delete_widget_link').removeClass('disabled').parent().removeClass('disabled')
 
-					#  Bind the edit button
-					$editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+inst.clean_name)
-					$editButton.unbind('click')
+				if $scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true
+					# CSS to disable additional options needs to be re-worked
+					$('.attempts_parent').addClass('disabled')
+					$('#edit-avaliability-button').addClass('disabled')
+					$('#attempts').addClass('disabled')
+					$('#avaliability').addClass('disabled')
+				else
+					$('.attempts_parent').removeClass('disabled')
+					$('.copy').removeClass('disabled')
+					$('#copy_widget_link').removeClass('disabled')
+					$('#copy_widget_link').unbind('click')
+					$('#delete_widget_link').removeClass('disabled')
+					$('#delete_widget_link').unbind('click')
+					$('#edit-avaliability-button').removeClass('disabled')
+					$('#attempts').removeClass('disabled')
+					$('#avaliability').removeClass('disabled')
 
-					# update display if not playable
-					if inst.is_draft or inst.widget.is_playable == 0
-						$('.share-widget-container')
-							.addClass('draft')
-							.fadeTo('fast', 0.3)
-							.children('h3')
-							.html('Publish to share with your students')
+				$('#edit-avaliability-button').unbind('click')
+				$('#attempts').unbind('click')
+				$('#avaliability').unbind('click')
+				jqmodalOptions =
+					modal            : true,
+					backgroundStyle  : 'light',
+					className        : 'availability',
+					html             : $('#t-availibility').html(),
+					closingSelectors : ['.cancel_button']
 
-						$('#play_link').attr('disabled', 'disabled')
+				$('#edit-avaliability-button').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+				$('#attempts').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+				$('#avaliability').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
 
-						$editButton.click ->
-							Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
-								if success
-									window.location = $editButton.attr('href')
-								else
-									alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
+				$('.copy').unbind('click')
+				$('.copy.disabled').click -> return false
+				$('.copy').not('.disabled').jqmodal
+					modal            : true,
+					backgroundStyle  : 'light',
+					className        : 'copy',
+					html             : $('#t-copy-popup').html(),
+					closingSelectors : ['.cancel_button']
+				, ->
+					$('#popup.copy input').focus()
 
-							return false
-					# update display if playable
-					# TODO: this case should probably be combined with the is not a draft case below?
-					else
-						$('.share-widget-container')
-							.removeClass('draft')
-							.fadeTo('fast', 1)
-							.children('h3')
-							.html('Share with your students')
+					newTitle = $('#popup.copy input.newtitle').val()
 
-						$('#play_link')
-							.unbind('click')
-							.val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+inst.clean_name)
-							.click(->$(this).select())
+					$('#popup.copy input.newtitle').keypress (e) ->
+						if e.which == 10 or e.which == 13
+							copyWidget()
 
-						$('#embed_link')
-							.unbind('click')
-							.val(getEmbedLink(inst))
-							.click(->$(this).select())
+					$('#popup.copy .copy_button').click (e) ->
+						e.preventDefault()
+						copyWidget()
+				$('.delete_dialogue').hide()
+				$('.additional_options').fadeIn('fast')
 
-						$('.share-widget-container input').removeAttr('disabled')
+				$('.delete').unbind('click')
+				$('.delete.disabled').click -> return false
+				$('.delete').not('.disabled').toggle ->
+					$('.additional_options').hide()
+					$('.delete_dialogue').fadeIn('fast')
+					$('.delete_dialogue').show()
+				, ->
+					$('.delete_dialogue').hide()
+					$('.additional_options').fadeIn('fast')
 
-						$editButton.jqmodal
-							modal            : true,
-							backgroundStyle  : 'light',
-							className        : 'edit-published-widget',
-							html             : $('#t-edit-widget-published').html(),
-							closingSelectors : ['.cancel_button']
-						, ->
-							$('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
+				# count up the number of other users collaboratin
+				count = 0
+				for id of $scope.perms.widget
+					if id != $scope.user.id then count++
 
-					# TODO: this case should probably be combined with the else case above?
-					if !inst.widget.is_draft
-						$('.my_widgets .page .scores').show()
-						$('.my_widgets .page .embed').show()
+				str = 'Collaborate'
+				str += ' ('+count+')' if count > 0
+				$('#share_widget_link').text(str)
 
-						$('.my_widgets .page .scores').hide() if !inst.widget.is_scorable
-						$('#play_link').val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+inst.clean_name)
-						$('#embed_link').val(getEmbedLink(inst))
+				populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
+				populateAttempts($scope.selectedWidget.attempts)
 
-						$('#embed_link').hide()
-						$('.share-widget-container span').unbind('click')
-						$('.share-widget-container span').click (e) ->
-							e.preventDefault
-							$('#embed_link').slideToggle 'fast'
+				$('.page hgroup h1').html($scope.selectedWidget.name)
+				$('.page hgroup h3').html($scope.selectedWidget.widget.name)
 
-						toggleShareWidgetContainer('close')
-						$('.container').fadeIn() if $('.container:hidden').length > 0
+				$('.overview .icon').attr('src', Materia.Image.iconUrl($scope.selectedWidget.widget.dir, 275))
 
-						#  reset scores & data ui:
-						$scoreWrapper = $('.scoreWrapper')
-						$scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
+				if BEARD_MODE? and BEARD_MODE == true
 
-						$('.show-older-scores-button').hide()
-						$('.chart').attr('id', '').empty()
+					$('.widget .icon').each (index) ->
+						rand = Math.floor((Math.random()*beards.length)+1) - 1
 
-						getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-							$('#export_scores_button').unbind()
-							$exportScoresButton = $('#export_scores_button')
+						$(this).addClass('small_'+beards[rand])
 
-							#  no data
-							if data.list.length == 0
+						if ($(this).parent().hasClass('gameSelected'))
+							$('.icon_container').addClass('med_'+beards[rand])
+
+					existing = $('.overview .icon_container').attr('class').split(' ')
+
+					for e in existing
+						if e != 'icon_container' && e != 'big_bearded'
+							$('.overview .icon_container').removeClass(e)
+
+					beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
+					beardType = 'med'+beardType.substring(5)
+
+					$('.widget .icon').addClass('bearded')
+					$('.icon_container')
+						.addClass('big_bearded')
+						.addClass(beardType)
+
+				if($('.page').is(':hidden'))
+					$('.page').show()
+				else
+					$('.page').children().show()
+
+				$('#preview_button').attr('href','/preview/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name).click ->
+					return false if $(this).hasClass('disabled')
+
+				#  Bind the edit button
+				$editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
+				$editButton.unbind('click')
+
+				# update display if not playable
+				if $scope.selectedWidget.is_draft or $scope.selectedWidget.widget.is_playable == 0
+					$('.share-widget-container')
+						.addClass('draft')
+						.fadeTo('fast', 0.3)
+						.children('h3')
+						.html('Publish to share with your students')
+
+					$('#play_link').attr('disabled', 'disabled')
+
+					$editButton.click ->
+						Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
+							if success
+								window.location = $editButton.attr('href')
+							else
+								alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
+
+						return false
+				# update display if playable
+				# TODO: this case should probably be combined with the is not a draft case below?
+				else
+					$('.share-widget-container')
+						.removeClass('draft')
+						.fadeTo('fast', 1)
+						.children('h3')
+						.html('Share with your students')
+
+					$('#play_link')
+						.unbind('click')
+						.val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
+						.click(->$(this).select())
+
+					$('#embed_link')
+						.unbind('click')
+						.val(getEmbedLink($scope.selectedWidget))
+						.click(->$(this).select())
+
+					$('.share-widget-container input').removeAttr('disabled')
+
+					$editButton.jqmodal
+						modal            : true,
+						backgroundStyle  : 'light',
+						className        : 'edit-published-widget',
+						html             : $('#t-edit-widget-published').html(),
+						closingSelectors : ['.cancel_button']
+					, ->
+						$('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
+
+				# TODO: this case should probably be combined with the else case above?
+				if !$scope.selectedWidget.widget.is_draft
+					$('.my_widgets .page .scores').show()
+					$('.my_widgets .page .embed').show()
+
+					$('.my_widgets .page .scores').hide() if !$scope.selectedWidget.widget.is_scorable
+					$('#play_link').val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
+					$('#embed_link').val(getEmbedLink($scope.selectedWidget))
+
+					$('#embed_link').hide()
+					$('.share-widget-container span').unbind('click')
+					$('.share-widget-container span').click (e) ->
+						e.preventDefault
+						$('#embed_link').slideToggle 'fast'
+
+					toggleShareWidgetContainer('close')
+					$('.container').fadeIn() if $('.container:hidden').length > 0
+
+					#  reset scores & data ui:
+					$scoreWrapper = $('.scoreWrapper')
+					$scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
+
+					$('.show-older-scores-button').hide()
+					$('.chart').attr('id', '').empty()
+
+					getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+						$('#export_scores_button').unbind()
+						$exportScoresButton = $('#export_scores_button')
+
+						#  no data
+						if data.list.length == 0
+							$exportScoresButton.addClass('disabled')
+							$('.noScores').show()
+							$scoreWrapper.hide()
+						else
+							$('.noScores').hide()
+							populateScoreWrapper($scoreWrapper, data.last)
+							if(data.list.length > 1)
+								$('.show-older-scores-button').show()
+
+							hasScores = false
+							for d in data.list
+								if d.distribution?
+									hasScores = true
+									break
+
+							if hasScores
+								$exportScoresButton.removeClass('disabled')
+							else
 								$exportScoresButton.addClass('disabled')
-								$('.noScores').show()
-								$scoreWrapper.hide()
-							else
-								$('.noScores').hide()
-								populateScoreWrapper($scoreWrapper, data.last)
-								if(data.list.length > 1)
-									$('.show-older-scores-button').show()
+							$('#export_scores_button:not(".disabled")').jqmodal
+								modal            : true,
+								className        : 'csv_popup',
+								html             : $('#t-csv').html(),
+								closingSelectors : ['.cancel','.download']
+							, ->
+								Materia.MyWidgets.Csv.buildPopup()
+				else
+					$('.my_widgets .page .scores').hide()
+					$('.my_widgets .page .embed').hide()
 
-								hasScores = false
-								for d in data.list
-									if d.distribution?
-										hasScores = true
-										break
+				if $scope.selectedWidget.widget.is_playable == 0
+					$('#preview_button').addClass('disabled')
+					$('.arrow_right').addClass('disabled')
+				else
+					$('#preview_button').removeClass('disabled')
+					$('.arrow_right').removeClass('disabled')
 
-								if hasScores
-									$exportScoresButton.removeClass('disabled')
-								else
-									$exportScoresButton.addClass('disabled')
-								$('#export_scores_button:not(".disabled")').jqmodal
-									modal            : true,
-									className        : 'csv_popup',
-									html             : $('#t-csv').html(),
-									closingSelectors : ['.cancel','.download']
-								, ->
-									Materia.MyWidgets.Csv.buildPopup()
-					else
-						$('.my_widgets .page .scores').hide()
-						$('.my_widgets .page .embed').hide()
-
-					if inst.widget.is_playable == 0
-						$('#preview_button').addClass('disabled')
-						$('.arrow_right').addClass('disabled')
-					else
-						$('#preview_button').removeClass('disabled')
-						$('.arrow_right').removeClass('disabled')
-
-					Materia.Set.Throbber.stopSpin('.page')
+				Materia.Set.Throbber.stopSpin('.page')
 
 	copyWidget = () ->
 		$('#popup.copy .copy_error').hide()
