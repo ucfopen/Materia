@@ -10,6 +10,9 @@ class Controller_Users extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
+
+		Css::push_group("core");
+		Js::push_group("core");
 	}
 
 	public function after($response)
@@ -24,9 +27,7 @@ class Controller_Users extends Controller
 				// add beardmode
 				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
 				{
-					/*Casset::js_inline('var BEARD_MODE = true;');
-					Casset::js_inline('var beards = ["black_chops", "dusty_full", "grey_gandalf", "red_soul"];');
-					Casset::css('beard_mode.css', false, 'page');*/
+					Js::push_inline('var BEARD_MODE = true;');
 				}
 			}
 			$this->theme->set_partial('header', 'partials/header')->set('me', $me);
@@ -34,10 +35,10 @@ class Controller_Users extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				//Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			//Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
 
@@ -84,6 +85,8 @@ class Controller_Users extends Controller
 
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
+
+		Css::push_group("login");
 	}
 	/**
 	 * Uses Materia API's remote_logout function to log the user in.
@@ -110,7 +113,7 @@ class Controller_Users extends Controller
 		// to properly fix the date display, we need to provide the raw server date for JS to access
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
 
-		//Casset::js_inline("var DATE = '$server_date'");
+		Js::push_inline("var DATE = '$server_date'");
 
 		$this->theme->get_template()
 			->set('title', 'Profile')
@@ -118,6 +121,8 @@ class Controller_Users extends Controller
 
 		$this->theme->set_partial('content', 'partials/user/profile')
 			->set('me', \Model_User::find_current());
+
+		Css::push_group("profile");
 	}
 
 	/**
@@ -139,6 +144,7 @@ class Controller_Users extends Controller
 		$this->theme->set_partial('content', 'partials/user/settings')
 			->set('me', \Model_User::find_current());
 
+		Css::push_group("profile");
 	}
 
 	// TODO: move this to the api

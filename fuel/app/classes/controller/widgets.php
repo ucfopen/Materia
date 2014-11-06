@@ -29,11 +29,7 @@ class Controller_Widgets extends Controller
 				// add beardmode
 				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
 				{
-					/*
-					Casset::js_inline('var BEARD_MODE = true;');
-					Casset::js_inline('var beards = ["black_chops", "dusty_full", "grey_gandalf", "red_soul"];');
-					Casset::css('beard_mode.css', false, 'page');
-					 */
+					Js::push_inline('var BEARD_MODE = true;');
 				}
 			}
 
@@ -42,14 +38,12 @@ class Controller_Widgets extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				//Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			/*
-			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
-			Casset::js_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-			Casset::js_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-			 */
+			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+			Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 
 			$response = Response::forge(Theme::instance()->render());
 		}
@@ -173,6 +167,8 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/create')
 			->set('widget', $widget)
 			->set('inst_id', $inst_id);
+
+		Css::push_group("widget_editor");
 	}
 
 	/**
@@ -197,6 +193,7 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/my_widgets');
 
+		Css::push_group("my_widgets");
 	}
 
 	protected function _mywidgets_student()
@@ -331,6 +328,8 @@ class Controller_Widgets extends Controller
 			}
 		}
 
+		Css::push_group("widget_play");
+
 	}
 
 	public function action_play_embedded($inst_id, $play_id=false)
@@ -340,7 +339,8 @@ class Controller_Widgets extends Controller
 
 	protected function _display_widget(\Materia\Widget_Instance $inst, $play_id=false, $embed=false)
 	{
-		//Casset::js_inline('var __PLAY_ID = "'.$play_id.'";');
+		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
+		Css::push_group("widget_play");
 
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
@@ -482,6 +482,7 @@ class Controller_Widgets extends Controller
 				->set_safe('avail', $summary));
 
 		if ($embed) $this->_header = 'partials/header_empty';
+		Css::push_group("login");
 	}
 
 	protected function no_permission()

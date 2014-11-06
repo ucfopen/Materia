@@ -13,6 +13,10 @@ class Controller_Scores extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
+
+		Js::push_group("core");
+		Css::push_group("scores");
+		Css::push_group("core");
 	}
 
 	public function after($response)
@@ -25,12 +29,13 @@ class Controller_Scores extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				//Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			//Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
+
 
 		return parent::after($response);
 	}
@@ -48,6 +53,7 @@ class Controller_Scores extends Controller
 			->set('page_type', 'scores');
 
 		$this->theme->set_partial('content', 'partials/score/full');
+		Js::push_group("scores");
 	}
 
 	public function action_show_embedded($inst_id)
@@ -62,7 +68,7 @@ class Controller_Scores extends Controller
 		$lti_token = \Input::get('ltitoken', false);
 		if ($lti_token)
 		{
-			//Casset::js_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
 		}
 
 		$this->theme->get_template()

@@ -71,7 +71,7 @@ class Controller_Lti extends \Controller
 
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
-			//\Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 		}
 
 		return \Response::forge(\Theme::instance()->render());
@@ -94,35 +94,18 @@ class Controller_Lti extends \Controller
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/main');
 
-		/*
-		\Package::load('casset');
-		\Casset::enable_js('swfobject');
-		\Casset::add_group('js', 'lti_picker',
-			[
-				'lib/spin.js',
-				'lib/spin.jquery.js',
-				'lib/jquery-ui-1.10.3.custom.min.js',
-				'static::materia.set.throbber.js',
-				'static::materia.image.js',
-				'static::materia.coms.json.js',
-				'static::materia.textfilter.js',
-				'static::materia.widget.js',
-				'static::materia.widgetinstance.js',
-				'static::materia.set.availability.js',
-				'static::materia.set.datetime.js',
-				'static::materia.page.lti.js'
-		]);
-		\Casset::css('lti.css');
-		\Casset::js_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Casset::js_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
-		\Casset::js_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
-		\Casset::js_inline($this->theme->view('partials/select_item_js')
+		\Js::push_group('core');
+		\Js::push_group('lti_picker');
+		\Css::push_group('lti');
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+		\Js::push_inline($this->theme->view('partials/select_item_js')
 			->set('system', $system));
-		 */
 
 		if ($is_selector_mode && ! empty($return_url))
 		{
-			//\Casset::js_inline('var RETURN_URL = "'.$return_url.'"');
+			\Js::push_inline('var RETURN_URL = "'.$return_url.'"');
 		}
 
 		$this->theme->get_template()
@@ -135,7 +118,7 @@ class Controller_Lti extends \Controller
 		// add google analytics
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
-			//\Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 		}
 
 		return \Response::forge(\Theme::instance()->render());
@@ -183,7 +166,7 @@ class Controller_Lti extends \Controller
 		// add google analytics
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
-			//\Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 		}
 
 		return \Response::forge(\Theme::instance()->render());

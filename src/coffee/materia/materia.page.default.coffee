@@ -1,5 +1,5 @@
 # Namespace function for defining namespaces
-Namespace("Materia").App = angular.module('materiaApp', [])
+app = angular.module 'materia', []
 
 window.API_LINK = '/api/json/'
 

@@ -8,4 +8,3 @@ window.Namespace = (ns) ->
 		o = o[a[i]]
 	o
 
-app = angular.module 'materia', []

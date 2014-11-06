@@ -1,4 +1,4 @@
-<section class="page spotlight">
+<section class="page spotlight" ng-controller="spotlightCtrl">
 	<section class="main_container">
 	</section>
 	<div class="cycler">
@@ -60,13 +60,3 @@
 	</section>
 </section>
 
-<script type="text/javascript">
-$(function() 
-{
-	Materia.Store.Spotlight.init(API_LINK);
-	Materia.Store.Spotlight.get(function() 
-	{
-		Materia.Store.SlideShow.formatCycler();
-	});
-});
-</script>
