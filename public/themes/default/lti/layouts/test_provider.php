@@ -5,8 +5,8 @@
 		<meta charset="utf-8" />
 		<script type="text/javascript"></script>
 		<style type="text/css"></style>
-		<?= \Casset::render() ?>
-		<?= \Casset::render_js_inline() ?>
+		<?= Css::render() ?>
+		<?= Js::render() ?>
 		<script type="text/javascript">
 			$(function() {
 				if(typeof window.localStorage !== 'undefined' && typeof localStorage.ltiUrl !== 'undefined')

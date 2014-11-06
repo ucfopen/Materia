@@ -4,8 +4,8 @@
 		<title>Materia Test as Provider</title>
 		<meta charset="utf-8" />
 		<style type="text/css"></style>
-		<?= \Casset::render() ?>
-		<?= \Casset::render_js_inline() ?>
+		<?= Css::render() ?>
+		<?= Js::render() ?>
 	</head>
 	<body>
 		<p>Loading...</p>

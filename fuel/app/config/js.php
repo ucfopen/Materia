@@ -43,7 +43,7 @@ return [
 		],
 		'core' => [
 			'cdnjs::angular.js/1.3.0/angular.min.js',
-			'cdnjs::jquery/2.1.1/jquery.min.js',
+			'cdnjs::jquery/1.8.1/jquery.min.js',
 			'theme::main.js',
 			'theme::materia.js',
 			'theme::controllers.js',
@@ -56,13 +56,7 @@ return [
 			'theme::materia.notification.js',
 		],
 		'homepage' => [
-			'theme::materia.page.notification.js',
-			'theme::materia.coms.json.js',
-			'theme::materia.permissions.user.js',
-			'theme::materia.permissions.widget.js',
 			'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
-			'theme::materia.store.spotlight.js',
-			'theme::materia.store.slideshow.js',
 		],
 		'media_catalog' => [
 			'theme::materia.page.media-import.js',
@@ -78,9 +72,14 @@ return [
 			'theme::materia.coms.json.js',
 		],
 		'scores' => [
-			'theme::materia.coms.json.js',
-			'theme::materia.scores.js',
-			'theme::materia.scores.scoregraphics.js',
+			'lib::jquery.jqplot.min.js',
+			'lib::jqplot_plugins/jqplot.barRenderer.min.js',
+			'lib::jqplot_plugins/jqplot.canvasTextRenderer.min.js',
+			'lib::jqplot_plugins/jqplot.canvasAxisTickRenderer.min.js',
+			'lib::jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
+			'lib::jqplot_plugins/jqplot.cursor.min.js',
+			'lib::jqplot_plugins/jqplot.highlighter.min.js',
+			'cdnjs::labjs/2.0.3/LAB.min.js',
 		],
 		'embed_scores' => [
 			'theme::materia.coms.json.js',
@@ -168,6 +167,11 @@ return [
 			'lib::jquery-ui-1.8.21.custom.min.js',
 			'theme::materia.coms.json.js',
 			'theme::materia.player.js'
+		],
+		'lti_picker' => [
+				'lib::spin.js',
+				'lib::spin.jquery.js',
+				'lib::jquery-ui-1.10.3.custom.min.js',
 		],
 	],
 ];

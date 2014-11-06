@@ -1,12 +1,11 @@
-Namespace('Materia.Store').Spotlight = do ->
+app = angular.module 'materia'
+app.controller 'spotlightCtrl', ['$scope', ($scope) ->
 	spotlightArray = null
 
-	init = (gateway) ->
-
-	get = (callback) ->
-		Materia.Coms.Json.send 'widget_spotlight_get', null, (data) ->
-			spotlightArray = data
-			populateSpotlight -> if callback then callback()
+	Materia.Coms.Json.send 'widget_spotlight_get', null, (data) ->
+		spotlightArray = data
+		populateSpotlight ->
+			Materia.Store.SlideShow.formatCycler()
 
 	populateSpotlight = (callback) ->
 		for spotlight, i in spotlightArray
@@ -18,6 +17,5 @@ Namespace('Materia.Store').Spotlight = do ->
 			$('.cycler').append('<input type="radio" name="spotlight" id="slide_'+i+'" '+checked+' class="radio_spotlight" />')
 
 		if callback then callback()
+]
 
-	init : init
-	get  : get

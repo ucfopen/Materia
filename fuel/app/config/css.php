@@ -14,17 +14,17 @@ return [
 
 	'groups' => [
 		'widget_play' => [
-			'play.css',
+			'theme::play.css',
 		],
 		'my_widgets' => [
-			'my_widgets.css',
+			'theme::my_widgets.css',
 			'jquery.jqplot.min.css',
 			'ui-lightness/jquery-ui-1.8.21.custom.css',
 			'ui-lightness/jquery-ui-timepicker-addon.css',
 			'jquery.dataTables.css'
 		],
 		'widget_editor' => [
-			'create.css',
+			'theme::create.css',
 		],
 		'widget_detail' => [
 			'jquery.fancybox-1.3.4.css',
@@ -34,13 +34,14 @@ return [
 			'theme::catalog.css',
 		],
 		'profile' => [
-			'user.css',
+			'theme::user.css',
 		],
 		'login' => [
-			'login.css',
+			'theme::login.css',
 		],
 		'scores' => [
-			'jquery.jqplot.min.css', 'scores.css',
+			'theme::jquery.jqplot.min.css',
+			'theme::scores.css',
 		],
 		'embed_scores' => [
 			'jquery.jqplot.min.css', 'scores_embedded.css',
@@ -51,19 +52,21 @@ return [
 		'media_catalog' => [
 			'jquery.dataTables.css',
 			'jquery.plupload.queue.css',
-			'media-import.css'
+			'theme::media-import.css'
 		],
 		'homepage' => [
-			'store.css','widget.css',
+			'theme::store.css',
+			'theme::widget.css',
 		],
 		'help' => [
-			'docs.css',
+			'theme::docs.css',
 		],
 		'404' => [
 			'404.css',
 		],
 		'core' => [
 			'theme::main.css',
+			'theme::beard_mode.css',
 		],
 		'fonts' => [
 			'gfonts::css?family=Kameron:700&text=0123456789%25',

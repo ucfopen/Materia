@@ -19,41 +19,37 @@ app.controller 'scorePageController', ($scope) ->
 	COMPARE_TEXT_OPEN = "Compare With Class"
 	$scope.classRankText = COMPARE_TEXT_OPEN
 
-	init = (gateway) ->
-		isPreview = /\/preview\//i.test(document.URL)
+	isPreview = /\/preview\//i.test(document.URL)
 
-		# @TODO @IE8 This method of checking for isEmbedded is hacky, but
-		# IE8 didn't like "window.self == window.top" (which also might be
-		# problematic with weird plugins that put the page in an iframe).
-		# This should work pretty well but if we ever decide to change the
-		# scores embed URL this will need to be modified!
-		isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
+	# @TODO @IE8 This method of checking for isEmbedded is hacky, but
+	# IE8 didn't like "window.self == window.top" (which also might be
+	# problematic with weird plugins that put the page in an iframe).
+	# This should work pretty well but if we ever decide to change the
+	# scores embed URL this will need to be modified!
+	isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
 
-		single_id  = window.location.hash.split('single-')[1]
-		widget_id  = document.URL.match( /^[\.\w\/:]+\/([a-z0-9]+)/i )[1]
+	single_id  = window.location.hash.split('single-')[1]
+	widget_id  = document.URL.match( /^[\.\w\/:]+\/([a-z0-9]+)/i )[1]
 
-		# this is only actually set to something when coming from the profile page
-		play_id    = window.location.hash.split('play-')[1]
+	# this is only actually set to something when coming from the profile page
+	play_id    = window.location.hash.split('play-')[1]
 
-		# this was originally called in document.ready, but there's no reason to not put it in init
-		Materia.Scores.displayScoreData widget_id, play_id
+	# when the url has changes, reload the questions
+	$(window).bind 'hashchange', getScoreDetails
 
-		# when the url has changes, reload the questions
-		$(window).bind 'hashchange', getScoreDetails
-
-		$scope.prevMouseOver = ->
-			$scope.prevAttemptClass = "open"
-		$scope.prevMouseOut = ->
+	$scope.prevMouseOver = ->
+		$scope.prevAttemptClass = "open"
+	$scope.prevMouseOut = ->
+		$scope.prevAttemptClass = ""
+	$scope.prevClick = ->
+		$scope.prevAttemptClass = "open"
+	$scope.attemptClick = ->
+		if isMobile.any()
 			$scope.prevAttemptClass = ""
-		$scope.prevClick = ->
-			$scope.prevAttemptClass = "open"
-		$scope.attemptClick = ->
-			if isMobile.any()
-				$scope.prevAttemptClass = ""
 
-		$scope.isPreview = isPreview
-		$scope.isEmbedded = isEmbedded
-		$scope.showCompareWithClass = !isPreview and !isEmbedded
+	$scope.isPreview = isPreview
+	$scope.isEmbedded = isEmbedded
+	$scope.showCompareWithClass = !isPreview and !isEmbedded
 
 	displayScoreData = (inst_id, play_id) ->
 		$.when(getWidgetInstance(inst_id), getInstanceScores(inst_id))
@@ -341,11 +337,7 @@ app.controller 'scorePageController', ($scope) ->
 		hashStr = window.location.hash.split('-')[1]
 		unless hashStr? then $scope.attempts.length else hashStr
 
-	$(document).ready -> Materia.Scores.init(API_LINK)
-
-	Materia.Scores.init = init
-	Materia.Scores.displayScoreData = displayScoreData
-
-Namespace('Materia').Scores = {}
+	# this was originally called in document.ready, but there's no reason to not put it in init
+	displayScoreData widget_id, play_id
 
 

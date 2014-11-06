@@ -54,7 +54,7 @@
 			</li>
 			<li class="{{ row.style }}" ng-repeat-start="row in detail.table">
 				<div class="index" ng-if="row.graphic != 'none'">
-					<canvas class="question-number" id="question-{{ $parent.index+1 }}-{{ $index+1 }}" >
+					<canvas class="question-number" id="question-{{ $parent.$parent.$index+1 }}-{{ $index+1 }}" >
 						<p>{{ $index+1 }}</p>
 					</canvas>
 					<span ng-if="row.display_score">
