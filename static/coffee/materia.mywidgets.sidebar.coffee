@@ -109,3 +109,17 @@ app.controller 'sidebarCtrl', ['$scope', '$location', ($scope, $location) ->
 		resetSearch: $scope.resetSearch
 		removeWidget: $scope.removeWidget
 ]
+
+app.filter 'highlight', [ '$sce', ($sce) ->
+	return (text, search) ->
+		if search
+			searchTerms = search.searchCache.split(" ")
+			for search in searchTerms
+				text = text.replace(new RegExp('(' + search + ')', 'gi'), (a, b, c, d) ->
+					t = d.substr(c).split("<")
+					if t[0].indexOf(">") != -1
+						return a
+					return '<span class="highlighted">' + a + '</span>'
+				)
+		return $sce.trustAsHtml(text)
+]

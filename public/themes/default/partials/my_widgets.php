@@ -115,8 +115,8 @@
 				<div ng-repeat="widget in widgets | filter:searchText" id="widget_{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.selected}" ng-click="setSelected(widget.id)">
 					<img class="icon" ng-src="{{getIcon(widget.widget)}}" ng-class="{bearded: beard}"/>
 					<ul>
-						<li class="title searchable">{{widget.name}}</li>
-						<li class="type searchable">{{widget.widget.name}}</li>
+						<li class="title searchable" ng-bind-html="widget.name | highlight:searchText"></li>
+						<li class="type searchable" ng-bind-html="widget.widget.name | highlight:searchText"></li>
 						<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
 					</ul>
 				</div>
