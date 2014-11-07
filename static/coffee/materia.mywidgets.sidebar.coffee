@@ -12,7 +12,6 @@ app.controller 'sidebarCtrl', ['$scope', '$location', ($scope, $location) ->
 	$scope.prepare = ->
 		Materia.Widget.getWidgets (widgets) ->
 			$scope.widgets = widgets
-			console.log($scope.widgets)
 			$scope.beard = BEARD_MODE? && BEARD_MODE == true
 			$scope.$apply()
 			Materia.Set.Throbber.stopSpin '.courses'
