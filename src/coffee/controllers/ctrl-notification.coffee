@@ -3,16 +3,27 @@ app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.notifications = []
 	$scope.clicked = false
 
-	$scope.init = (gateway) ->
+	Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
+		$scope.notifications = notifications
+		console.log($scope.notifications)
+		$scope.$apply()
 
-	$scope.getNotifications = ->
-		Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
-			$scope.notifications = notifications
-			console.log($scope.notifications)
-			$scope.$apply()
-			return false
-		,
-		true
+		if $('header').hasClass('logged_in')
+			Materia.Notification.getNotifications()
+
+		Materia.Permissions.User.init(API_LINK)
+		Materia.Permissions.Widget.init(API_LINK)
+
+		$(document).on 'click', '.notice .close', (event) ->
+			event.preventDefault()
+			$('.notice').slideToggle(150)
+
+		# when the transfer ownership button is pressed
+		$(document).on 'click', '.owner a', (e) ->
+			e.preventDefault()
+
+			Materia.Permissions.Widget.transferView()
+		return false
 
 	$scope.trust = (notification) ->
 		$sce.trustAsHtml(notification)
@@ -38,5 +49,6 @@ app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.removeNotification = (index) ->
 		Materia.Coms.Json.send 'notification_delete', [$scope.notifications[index].id]
 		$scope.notifications.splice(index, 1)
+
 ]
 

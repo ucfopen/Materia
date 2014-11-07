@@ -1,4 +1,5 @@
-$(document).ready ->
+app = angular.module 'materia'
+app.controller 'mywidgetsCtrl', ['$scope', ($scope) ->
 	# ===================== INIT ==================================
 
 	Materia.Set.Throbber.startSpin('.courses')
@@ -163,4 +164,6 @@ $(document).ready ->
 
 	# ================= WATCH FOR URL CHANGES =======================
 	$(window).bind 'hashchange', Materia.MyWidgets.Sidebar.getWidgetByURL
+
+]
 
