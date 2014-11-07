@@ -44,6 +44,7 @@ return [
 		'core' => [
 			'cdnjs::angular.js/1.3.0/angular.min.js',
 			'cdnjs::jquery/1.8.1/jquery.min.js',
+			'cdnjs::swfobject/2.2/swfobject.min.js',
 			'theme::main.js',
 			'theme::materia.js',
 			'theme::controllers.js',

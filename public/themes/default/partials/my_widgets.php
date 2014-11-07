@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-controller="mywidgetsCtrl">
 	<section class="directions">
 		<h1>Your Widgets</h1>
 		<p>Choose a widget from the list on the left.</p>

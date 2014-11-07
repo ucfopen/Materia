@@ -1,4 +1,5 @@
-$ ->
+app = angular.module 'materia'
+app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	SEARCH_DELAY_MS = 200
 	REFRESH_FAKE_DELAY_MS = 500
 	CHANGE_SECTION_FADE_DELAY_MS = 250
@@ -256,3 +257,6 @@ $ ->
 	Materia.TextFilter.setupInput $('#search'), search, SEARCH_DELAY_MS
 
 	setDisplayState 'selectWidget'
+]
+
+
