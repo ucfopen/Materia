@@ -20,13 +20,13 @@
 				<div class="controls">
 					<ul>
 						<li>
-							<a id="preview_button" class="action_button green circle_button" target="_blank">
+							<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{preview}}">
 								<span class="arrow arrow_right"></span>
 								Preview
 							</a>
 						</li>
 						<li>
-							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : accessLevel == 0 || selectedWidget.widget.is_ediable == 0}">
+							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : accessLevel == 0 || selectedWidget.widget.is_editable == 0}" ng-disabled="{{accessLevel == 0}}" href="{{edit}}">
 								<span class="pencil"></span>
 								Edit Widget
 							</a>
@@ -34,7 +34,7 @@
 					</ul>
 					<ul class="options">
 						<li class="share"><a href="#" id="share_widget_link">Collaborate</a></li>
-						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}">Make a Copy</a></li>
+						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="">Make a Copy</a></li>
 						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}">Delete</a></li>
 					</ul>
 					<div class="delete_dialogue">
@@ -42,20 +42,20 @@
 						<a class="cancel_button" href="#">Cancel</a>
 						<a class="action_button red delete_button" href="#">Delete</a>
 					</div>
-					<div class="additional_options">
+					<div class="additional_options" ng-class="{'disabled': !playable}">
 						<h3>Settings:</h3>
 						<dl class="attempts_parent">
 							<dt>Attempts:</dt>
-							<dd id="attempts"></dd>
+							<dd id="attempts" ng-class="{'disabled':!playable}"></dd>
 							<dt>Available:</dt>
-							<dd id="avaliability"></dd>
+							<dd id="avaliability" ng-class="{'disabled':!playable}"></dd>
 						</dl>
-						<a id="edit-avaliability-button" role="button" href="#">Edit settings...</a>
+						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !playable}" href="#" ng-disabled="!playable">Edit settings...</a>
 					</div>
 				</div>
-				<div class="share-widget-container closed">
-					<h3>Share with your students</h3>
-					<input id="play_link" type="text"/>
+				<div class="share-widget-container closed" ng-class="{'draft' : playable}" ng-disabled="playable">
+					<h3>{{playable ? "Publish to share" : "Share"}} with your students</h3>
+					<input id="play_link" type="text" ng-disabled="playable"/>
 					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link">use the embed code</span>).</p>
 					<textarea id="embed_link"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
 				</div>

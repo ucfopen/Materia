@@ -2,7 +2,7 @@
 # TODO: needs some serious refactoring to reduce complexity of large methods
 
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userSrv) ->
+MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetSrv,selectedWidgetSrv, userSrv) ->
 
 	# old stuff
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
@@ -33,7 +33,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$scope.$apply()
 
 	$scope.accessLevel = 0
-	$scope.test = "disabled"
+	$scope.playable = true
+
+	$scope.baseUrl = BASE_URL
 
 	# Initializes the gateway for the api
 	# @string path to gateway
@@ -67,6 +69,18 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		# Moved to the sidebar controller(?) still needs to be implemented
 		# if $('.page').is ':visible' and not $('section .error').is ':visible'
 		# Materia.Set.Throbber.startSpin '.page'
+
+	$scope.preview = ""
+	$scope.edit = ""
+	# TODO Attempting to use $location.url is NOT WORKING due to missing configs for html5Mode.
+	# $scope.preview = "preview"
+	# $scope.edit = "edit"
+	# $scope.navigate = (type) ->
+	# 	switch type
+	# 		when $scope.preview
+	# 			console.log $location.path()
+	# 			#$location.url "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+	# 			$location.path "bitches"
 
 
 	getCurrentSemester = ->
@@ -130,6 +144,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 				# # these are superfluous - remove references
 				# clean_name = widgetName = inst.clean_name
 				# widgetID = inst.widget.id
+
+				# This reference is staying until it's not needed...
 				$editButton = $('#edit_button')
 
 				# Gets current user
@@ -145,46 +161,55 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 				if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 					$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
 
+				$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
-				# disable certain interactions if the user's access is view-only or widget isn't editable
-				if($scope.accessLevel == 0)
-					$editButton.unbind()
-					$editButton.attr('href','#')
-					$editButton.click -> return false
-					$editButton.addClass('disabled')
+				# There are cleaner implementations, but this is clean..... ish
+				if $scope.accessLevel == 0 or $scope.selectedWidget.widget.is_editable == 0 then $scope.edit = "#"
+				else $scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
-					# $('.copy').addClass('disabled')
-					# $('#copy_widget_link').addClass('disabled')
-					# $('#delete_widget_link').addClass('disabled').parent().addClass('disabled')
-				else
-					if Number($scope.selectedWidget.widget.is_editable) == 1
-						# $editButton.removeClass('disabled')
-					else
-						$editButton.unbind()
-						$editButton.attr('href','#')
-						$editButton.click -> return false
-						$editButton.addClass('disabled')
+				$scope.$apply()
+
+				# # disable certain interactions if the user's access is view-only or widget isn't editable
+				# if($scope.accessLevel == 0)
+				# 	$editButton.unbind()
+				# 	$editButton.attr('href','#')
+				# 	$editButton.click -> return false
+				# 	$editButton.addClass('disabled')
+
+				# 	# $('.copy').addClass('disabled')
+				# 	# $('#copy_widget_link').addClass('disabled')
+				# 	# $('#delete_widget_link').addClass('disabled').parent().addClass('disabled')
+				# else
+				# 	if Number($scope.selectedWidget.widget.is_editable) == 1
+				# 		# $editButton.removeClass('disabled')
+				# 	else
+				# 		$editButton.unbind()
+				# 		$editButton.attr('href','#')
+				# 		$editButton.click -> return false
+				# 		$editButton.addClass('disabled')
 
 					# $('.copy').removeClass('disabled')
 					# $('#copy_widget_link').removeClass('disabled')
 					# $('#delete_widget_link').removeClass('disabled').parent().removeClass('disabled')
+				$scope.playable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
+				$scope.$apply()
 
-				if $scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true
-					# CSS to disable additional options needs to be re-worked
-					$('.attempts_parent').addClass('disabled')
-					$('#edit-avaliability-button').addClass('disabled')
-					$('#attempts').addClass('disabled')
-					$('#avaliability').addClass('disabled')
-				else
-					$('.attempts_parent').removeClass('disabled')
-					$('.copy').removeClass('disabled')
-					$('#copy_widget_link').removeClass('disabled')
-					$('#copy_widget_link').unbind('click')
-					$('#delete_widget_link').removeClass('disabled')
-					$('#delete_widget_link').unbind('click')
-					$('#edit-avaliability-button').removeClass('disabled')
-					$('#attempts').removeClass('disabled')
-					$('#avaliability').removeClass('disabled')
+				# if !$scope.playable
+				# 	# CSS to disable additional options needs to be re-worked
+				# 	$('.attempts_parent').addClass('disabled')
+				# 	$('#edit-avaliability-button').addClass('disabled')
+				# 	$('#attempts').addClass('disabled')
+				# 	$('#avaliability').addClass('disabled')
+				# else
+				# 	$('.attempts_parent').removeClass('disabled')
+				# 	$('.copy').removeClass('disabled')
+				# 	$('#copy_widget_link').removeClass('disabled')
+				# 	$('#copy_widget_link').unbind('click')
+				# 	$('#delete_widget_link').removeClass('disabled')
+				# 	$('#delete_widget_link').unbind('click')
+				# 	$('#edit-avaliability-button').removeClass('disabled')
+				# 	$('#attempts').removeClass('disabled')
+				# 	$('#avaliability').removeClass('disabled')
 
 				$('#edit-avaliability-button').unbind('click')
 				$('#attempts').unbind('click')
@@ -274,25 +299,25 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 						.addClass('big_bearded')
 						.addClass(beardType)
 
-				if($('.page').is(':hidden'))
-					$('.page').show()
-				else
-					$('.page').children().show()
+				# if($('.page').is(':hidden'))
+				# 	$('.page').show()
+				# else
+				# 	$('.page').children().show()
 
-				$('#preview_button').attr('href','/preview/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name).click ->
-					return false if $(this).hasClass('disabled')
+				# $('#preview_button').attr('href','/preview/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name).click ->
+				# 	return false if $(this).hasClass('disabled')
 
 				#  Bind the edit button
-				$editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
-				$editButton.unbind('click')
+				# $editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
+				# $editButton.unbind('click')
 
 				# update display if not playable
 				if $scope.selectedWidget.is_draft or $scope.selectedWidget.widget.is_playable == 0
-					$('.share-widget-container')
-						.addClass('draft')
-						.fadeTo('fast', 0.3)
-						.children('h3')
-						.html('Publish to share with your students')
+					# $('.share-widget-container')
+					# 	.addClass('draft')
+					# 	.fadeTo('fast', 0.3)
+					# 	.children('h3')
+					# 	.html('Publish to share with your students')
 
 					$('#play_link').attr('disabled', 'disabled')
 
@@ -403,6 +428,16 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 					$('.arrow_right').removeClass('disabled')
 
 				Materia.Set.Throbber.stopSpin('.page')
+
+	copyWidgetWindow = ->
+		$('.copy').not('.disabled').jqmodal
+			modal            : true,
+			backgroundStyle  : 'light',
+			className        : 'copy',
+			html             : $('#t-copy-popup').html(),
+			closingSelectors : ['.cancel_button']
+		, ->
+			$('#popup.copy input').focus()
 
 	copyWidget = () ->
 		$('#popup.copy .copy_error').hide()
