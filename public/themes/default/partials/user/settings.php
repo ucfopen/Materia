@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-controller="settingsController">
 	<section class="page">
 
 	<ul class="main_navigation">

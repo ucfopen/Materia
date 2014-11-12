@@ -6,7 +6,7 @@ return [
 		'theme'  => '/themes/default/assets/js/',
 		'cdnjs' =>
 			'https://cdnjs.cloudflare.com/ajax/libs/',
-		'lib' => 'assets/js/lib/',
+		'lib' => '/assets/js/lib/',
 	],
 
 	'groups' => [
@@ -94,10 +94,8 @@ return [
 			'theme::materia.page.login.js'
 		],
 		'settings' => [
-			'theme::materia.page.settings.js',
 			'lib::spin.js',
 			'lib::spin.jquery.js',
-			'theme::materia.set.throbber.js',
 		],
 		'profile' => [
 			'theme::materia.profile.activity.load.js',

@@ -35,7 +35,8 @@ app.controller 'scorePageController', ($scope) ->
 	play_id    = window.location.hash.split('play-')[1]
 
 	# when the url has changes, reload the questions
-	$(window).bind 'hashchange', getScoreDetails
+	$(window).bind 'hashchange', ->
+		getScoreDetails()
 
 	$scope.prevMouseOver = ->
 		$scope.prevAttemptClass = "open"
@@ -108,7 +109,8 @@ app.controller 'scorePageController', ($scope) ->
 				$scope.moreInfoLink = prefix+widgetInstance.id+'#attempt-'+currentAttempt
 
 			# display existing data or get more from the server
-			if details[$scope.attempts.length - currentAttempt]? displayDetails details[$scope.attempts.length - currentAttempt]
+			if details[$scope.attempts.length - currentAttempt]?
+				displayDetails details[$scope.attempts.length - currentAttempt]
 			else Materia.Coms.Json.send 'widget_instance_play_scores_get', [play_id], displayDetails
 		$scope.$apply()
 
