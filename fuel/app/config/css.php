@@ -16,6 +16,10 @@ return [
 		'widget_play' => [
 			'theme::play.css',
 		],
+		'lti' => [
+			'theme::main.css',
+			'theme::lti.css',
+		],
 		'my_widgets' => [
 			'theme::my_widgets.css',
 			'jquery.jqplot.min.css',

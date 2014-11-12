@@ -4,27 +4,23 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	REFRESH_FAKE_DELAY_MS = 500
 	CHANGE_SECTION_FADE_DELAY_MS = 250
 
-	$widgetList = $('#list-container ul')
 	selectedWidget = null
 	widgetsLoaded = false
 
-	h1String = 'Select a Widget:'
+	$scope.strHeader = 'Select a Widget:'
+
 	if system? and system != ''
-		h1String = 'Select a Widget for use in ' + system + ':'
-		$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
-		$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
+		$scope.strHeader = 'Select a Widget for use in ' + system + ':'
+		#$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
+		#$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
 
-	$('h1').html(h1String)
+	$scope.hideRefreshLinkCallout = ->
+		$scope.showRefreshArrow = false
+		$scope.$apply()
 
-	hideRefreshLinkCallout = ->
-		if $('#refresh').attr('showing-qtip') == 'true'
-			$('.qtip').hide()
-
-	calloutRefreshLink = ->
-		if $('#refresh').attr('showing-qtip') != 'true'
-			$('#refresh').attr('showing-qtip', 'true')
-
-			$('body').append('<div class="qtip right lti">Click to see your new widget</div>')
+	$scope.calloutRefreshLink = ->
+		$scope.showRefreshArrow = true
+		$scope.$apply()
 
 	search = ->
 		$('#list-container li').removeClass('selected')
@@ -67,22 +63,17 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 		Materia.TextFilter.clearSearch('#list-container li')
 
 	loadWidgets = (fakeDelay) ->
-		$('#list-container li:not(.template)').remove()
-		clearSearch()
+		#$('#list-container li:not(.template)').remove()
+		#clearSearch()
 
-		$('#refresh').hide()
-		$('#no-widgets-container').hide()
-		$('#goto-new-widgets').hide()
-
-		Materia.Set.Throbber.startSpin('#list-container', {withBackground:false, withDelay:false})
+		#Materia.Set.Throbber.startSpin('#list-container', {withBackground:false, withDelay:false})
+		#
 
 		if fakeDelay?
 			fakeDelay = 1
 
 		setTimeout ->
 			Materia.Widget.getWidgets (widgets) ->
-				$('#refresh').show()
-
 				widgetsLoaded = true
 
 				Materia.Set.Throbber.stopSpin('#list-container')
@@ -90,22 +81,23 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 				len = widgets.length
 				curWidget = null
 
+				for widget in widgets
+					widget.img = Materia.Image.iconUrl(widget.widget.dir, 60)
+					widget.preview_url = BASE_URL + 'preview/' + widget.id
+					widget.edit_url = BASE_URL + 'my-widgets/#' + widget.id
+
+				$scope.widgets = widgets
+				$scope.$apply()
+
 				if len == 0
-					$('#no-widgets-container').show()
-					$('#goto-new-widgets').hide()
+					# no op
 				else
-					$('#no-widgets-container').hide()
-					$('#goto-new-widgets').show()
-
-					for i in [0...len]
-						addWidgetToList(widgets[i])
-
 					$('.embed-button').click (event) ->
 						event.preventDefault()
 
 						inst_id = $(this).parents('#list-container li').attr('data-inst_id')
 						Materia.Widget.getWidget inst_id, (widget) ->
-							selectWidget(widget)
+							selectWidget(widget[0])
 
 					$('#list-container li').click (event) ->
 						$('#list-container li').removeClass('selected')
@@ -113,26 +105,8 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			,
 				ignoreCache: true,
 				sort: 'alpha'
+
 		, fakeDelay
-
-	addWidgetToList = (instance) ->
-		if instance.is_draft
-			$newItem = $('.template.draft').clone()
-			$newItem.removeClass('template')
-			$newItem.find('.view-at-materia').attr('href', BASE_URL + 'my-widgets/#' + instance.id)
-		else
-			$newItem = $('.template:not(.draft)').clone().removeClass('template')
-
-		$newItem.find('h2').html(instance.name)
-		$newItem.find('h3').html(instance.widget.name)
-		$newItem.find('.preview').attr('href', BASE_URL + 'preview/' + instance.id)
-		$newItem.attr('data-inst_id', instance.id)
-
-		$newItem.find('img').attr('src', Materia.Image.iconUrl(instance.widget.dir, 60))
-
-		$widgetList.append($newItem)
-
-		instance.element = $newItem.get(0)
 
 	selectWidget = (widget) ->
 		if selectedWidget?.state?.state == 'pending'
@@ -140,6 +114,9 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 		selectedWidget = widget
 		selectedWidget.state = 'pending'
+
+		widget.img = Materia.Image.iconUrl widget.widget.dir, 60
+		$scope.selectedWidget = widget
 
 		setDisplayState('progress')
 
@@ -156,6 +133,7 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 		, 1000
 
 	setDisplayState = (newSection) ->
+		$scope.section = newSection
 		$('body')
 			.removeClass('selectWidget')
 			.removeClass('widgetSelected')
@@ -164,7 +142,6 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 		if newSection == 'selectWidget'
 			$('#list-container li').removeClass('selected')
-			$('h1').html(h1String)
 			if selectedWidget?
 				$('.cancel-button').show()
 			clearSearch()
@@ -174,12 +151,9 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 			$('#select-widget').fadeIn(CHANGE_SECTION_FADE_DELAY_MS)
 		else if newSection == 'progress'
-			$('#select-widget').fadeOut CHANGE_SECTION_FADE_DELAY_MS, ->
-				$('#progress').fadeIn(CHANGE_SECTION_FADE_DELAY_MS)
 			$('.progressbar').progressbar()
-			$('#progress h1').html(selectedWidget.name)
 			startProgressBar()
-			$('#progress').find('.widget-icon').attr('src', Materia.Image.iconUrl(selectedWidget.widget.dir, 92))
+		$scope.$apply()
 
 	getRandInt = (min, max) -> Math.floor(Math.random() * (max - min + 1)) + min
 
@@ -204,8 +178,8 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 		$(document).on 'keyup', (event) ->
 			if event.keyCode == 16 # shift
-				$('.progress-container').find('span').html('Reticulating splines...')
-				$(document).off('keyup')
+				$scope.easterMode = true
+				$scope.$apply()
 
 	getAvailabilityStr = (startDate, endDate) ->
 		availability = Materia.Set.Availability.get(startDate, endDate)
@@ -220,7 +194,7 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			return 'From ' + availability.start.date + ' at ' + availability.start.time + ' until ' + availability.end.date + ' at  ' + availability.end.time
 
 	announceChoice = ->
-		widgetData = $.extend({}, selectedWidget)
+		widgetData = $scope.selectedWidget
 		delete widgetData.element
 		delete widgetData.searchCache
 
@@ -229,15 +203,8 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			if(parent.postMessage)
 				parent.postMessage(JSON.stringify(widgetData), '*')
 
-	$('#goto-new-widgets').click (event) ->
-		calloutRefreshLink()
-
-	$('#create-widget-button').click (event) ->
-		calloutRefreshLink()
-
-	$('#refresh').click (event) ->
-		event.preventDefault()
-		hideRefreshLinkCallout()
+	$scope.refreshListing = ->
+		#$scope.hideRefreshLinkCallout()
 		loadWidgets(REFRESH_FAKE_DELAY_MS)
 
 	$('.cancel-button').click (event) ->
@@ -251,12 +218,11 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 				inst_id = $($selected[0]).attr('data-inst_id')
 				Materia.Widget.getWidget inst_id, (widget) ->
 					selectWidget(widget)
-		else if(event.keyCode == 27) #esc
+		else if event.keyCode == 27 #esc
 			clearSearch()
 
 	Materia.TextFilter.setupInput $('#search'), search, SEARCH_DELAY_MS
 
 	setDisplayState 'selectWidget'
 ]
-
 

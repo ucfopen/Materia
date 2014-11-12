@@ -145,6 +145,7 @@ class Controller_Users extends Controller
 			->set('me', \Model_User::find_current());
 
 		Css::push_group("profile");
+		Js::push_group("settings");
 	}
 
 	// TODO: move this to the api

@@ -202,7 +202,6 @@ header > h1
 	right: 0;
 	top: 40px;
 	text-align: center;
-	display: none;
 }
 
 #no-widgets
@@ -353,7 +352,6 @@ header > h1
 	height: 35px;
 	padding-top: 35px;
 	line-height: 0;
-	display: none;
 }
 
 .cancel-button
@@ -403,17 +401,6 @@ header > h1
 }
 .ie9 .preview-button:hover .arrow_right {
 	background: url(../img/ie9_button_arrow_circle_green_hover.png) no-repeat bottom;
-}
-
-#materia-lti-swf-bridge
-{
-	display: inline-block;
-	visibility: hidden !important;
-}
-
-
-#progress {
-	display: none;
 }
 
 #progress .widget-info {
