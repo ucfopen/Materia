@@ -9,8 +9,8 @@ Namespace('Materia').Widget = do ->
 			cache.sort (a,b) -> return b.created_at - a.created_at
 		_buildSidebar cache
 
-	getWidgets = (callback) ->
-		if _widgets.length == 0
+	getWidgets = (callback, options) ->
+		if _widgets.length == 0 or options.ignoreCache
 			Materia.WidgetInstance.clearAll()
 			Materia.WidgetInstance.getAll (widgets) ->
 				_widgets = widgets
