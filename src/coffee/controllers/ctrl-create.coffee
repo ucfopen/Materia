@@ -1,4 +1,5 @@
-Namespace('Materia').Creator = do ->
+app = angular.module 'materia'
+app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	_creator       = null
 	_embedDoneDfd  = null
 	_embedTarget   = null
@@ -12,6 +13,30 @@ Namespace('Materia').Creator = do ->
 	_widget_id     = null
 	_widget_info   = null
 	_widgetType    = null
+
+	# get the _instance_id from the url if needed
+	_inst_id = window.location.hash.substr(1) if window.location.hash
+	_widget_id = window.location.href.match(/widgets\/([\d+])/)[1]
+
+	Namespace("Materia").Creator =
+		# Exposed to the question importer screen
+		onQuestionImportComplete: (questions) ->
+			# assumes questions is already a JSON string
+			questions = JSON.parse questions
+			_sendToCreator 'onQuestionImportComplete', [questions]
+			_hideEmbedDialog()
+
+		# Exposed to the media importer screen
+		onMediaImportComplete: (media) ->
+			_hideEmbedDialog()
+
+			# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
+			anArray = []
+			for element in media
+				anArray.push element
+			_sendToCreator 'onMediaImportComplete', [anArray]
+
+		init: (container, widget_id, inst_id) ->
 
 	# If Initialization Fails
 	_onInitFail = (msg) ->
@@ -52,11 +77,6 @@ Namespace('Materia').Creator = do ->
 
 		dfd.promise()
 
-	# Allow questions to be imported
-	# Currently no way to turn this off
-	_enableQuestionImport = ->
-		$('#importLink').on 'click', _showQuestionImporter
-
 	# Gets the qset of a loaded instance
 	_getQset = ->
 		dfd = $.Deferred()
@@ -84,9 +104,9 @@ Namespace('Materia').Creator = do ->
 				_creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN)
 
 	# send a save request to the creator
-	_requestSave = (mode) ->
-		_cancelPublish null, true # make sure publish dialog is closed
-		_cancelPreview null, true # make sure preview dialog is closed
+	$scope.requestSave = (mode) ->
+		$scope.cancelPublish null, true # make sure publish dialog is closed
+		$scope.cancelPreview null, true # make sure preview dialog is closed
 		_saveMode = mode
 		switch _saveMode
 			when 'publish'
@@ -108,7 +128,7 @@ Namespace('Materia').Creator = do ->
 				,5000
 
 	# Popup a question importer dialog
-	_showQuestionImporter = ->
+	$scope.showQuestionImporter = ->
 		# must be loose comparison
 		types = _widget_info.meta_data.supported_data
 		#the value passed on needs to be a list of one or two elements, i.e.
@@ -133,6 +153,8 @@ Namespace('Materia').Creator = do ->
 			creatorPath = WIDGET_URL+_widget_info.dir+_widget_info.creator
 
 		_type = creatorPath.split('.').pop()
+		$scope.type = _type
+
 		switch _type
 			when 'html'
 				_embedHTML creatorPath, dfd
@@ -146,9 +168,8 @@ Namespace('Materia').Creator = do ->
 		dfd.promise()
 
 	_embedHTML = (htmlPath, dfd) ->
+		$scope.htmlPath = htmlPath
 		_embedDoneDfd = dfd
-		$iframe = $('<iframe src="'+htmlPath+'" id="container" class="html"></iframe>')
-		$('#container').replaceWith $iframe
 
 		_onPostMessage = (e) ->
 			origin = "#{e.origin}/"
@@ -234,7 +255,6 @@ Namespace('Materia').Creator = do ->
 			$('#creatorSaveBtn').hide()
 			$('#action-bar .dot').hide()
 		_enableReturnLink()
-		_enableQuestionImport()
 		$('#action-bar').css 'visibility', 'visible'
 		dfd.promise()
 
@@ -251,35 +271,28 @@ Namespace('Materia').Creator = do ->
 				.html("&larr; Return to widget catalog")
 				.attr('href', BASE_URL+'widgets')
 
-	_onPublishPressed = ->
+	$scope.onPublishPressed = ->
 		_cancelPreview null, true # make sure preview dialog is closed
 		if _inst_id? && _instance? && !_instance.is_draft
 			# Show the Update Dialog
-			dialogTemplate = _.template $('#t-update-dialog').html()
+			$scope.popup = "update"
 		else
 			# Show the Publish Dialog
-			dialogTemplate = _.template $('#t-publish-dialog').html()
-
-		# populate dialog
-		$dialog = $(dialogTemplate())
-		$dialog.hide()
-		$dialog.find('.cancel_button').on 'click', _cancelPublish
-		$dialog.find('.action_button').on 'click', -> _requestSave 'publish'
-		$('#creatorPublishBtn').unbind 'click'
+			$scope.popup = "publish"
 
 		# put it on the dom and animate
 		$('.page').prepend $dialog
 		$('.publish').slideDown('slow')
 
-	_cancelPublish = (e, instant = false) ->
+	$scope.cancelPublish = (e, instant = false) ->
 		e.preventDefault() if e?
 		$('.publish .action_button, .publish .cancel_button').unbind 'click'
 		$('.publish').slideUp (if instant then 'fast' else 'slow'), ->
 			$('.publish').remove()
-			$('#creatorPublishBtn').on 'click', _onPublishPressed
 
 	_onPreviewPopupBlocked = (url) ->
-		dialogTemplate = _.template $('#t-popup-blocked').html()
+		$scope.popup = "blocked"
+		$scope.$apply()
 
 		# populate dialog
 		$dialog = $(dialogTemplate()).hide()
@@ -292,7 +305,7 @@ Namespace('Materia').Creator = do ->
 		$('.page').prepend $dialog
 		$('.preview').slideDown('slow')
 
-	_cancelPreview = (e, instant = false) ->
+	$scope.cancelPreview = (e, instant = false) ->
 		e.preventDefault() if e?
 		$('.preview .action_button, .preview .cancel_button').unbind 'click'
 		$('.preview').slideUp (if instant then 'fast' else 'slow'), ->
@@ -305,26 +318,17 @@ Namespace('Materia').Creator = do ->
 		# resize swf now and when window resizes
 		$(window).resize _resizeCreator
 		_resizeCreator()
-		$('#creatorPublishBtn').on 'click', _onPublishPressed
-		$('#creatorPreviewBtn').on 'click',  -> _requestSave 'preview'
-		$('#creatorSaveBtn').on 'click',  -> _requestSave 'save'
 
 		_embedDoneDfd.resolve() # used to keep events synchronous
-	
+
 	# Show an embedded dialog, as opposed to a popup
 	_showEmbedDialog = (url) ->
-		# if one exists, rip it off
-		$('#embed_dialog').remove()
-		
-		# make the iframe dialog and load url, like a window
-		embed = $("<iframe src='" + url + "' id='embed_dialog' frameborder=0 width=675 height=500></iframe>")
+		$scope.iframeUrl = url
 
 		# animate in
-		embed.load ->
+		$('#embed_dialog').load ->
 			embed.css('top','50%')
 				.css('opacity',1)
-
-		$('body').append embed
 
 	# move the embed dialog off to invisibility
 	_hideEmbedDialog = ->
@@ -399,51 +403,21 @@ Namespace('Materia').Creator = do ->
 			closingSelectors : ['button']
 		}
 
-	# Exposed to the Creator Page
-	init = (container, widget_id, inst_id) ->
-		_widget_id   = widget_id
-		_inst_id     = inst_id
-		_embedTarget = container
+	# synchronise the asynchronous events
+	if _inst_id?
+		$.when(_getWidgetInstance())
+			.pipe(_embed)
+			.pipe(_getQset)
+			.pipe(_initCreator)
+			.pipe(_showButtons)
+			.pipe(_startHeartBeat)
+			.fail(_onInitFail)
+	else
+		$.when(_getWidgetInfo())
+			.pipe(_embed)
+			.pipe(_initCreator)
+			.pipe(_showButtons)
+			.pipe(_startHeartBeat)
+			.fail(_onInitFail)
+]
 
-		# get the _instance_id from the url if needed
-		_inst_id = window.location.hash.substr(1) if window.location.hash
-
-		# synchronise the asynchronous events
-		if _inst_id?
-			$.when(_getWidgetInstance())
-				.pipe(_embed)
-				.pipe(_getQset)
-				.pipe(_initCreator)
-				.pipe(_showButtons)
-				.pipe(_startHeartBeat)
-				.fail(_onInitFail)
-		else
-			$.when(_getWidgetInfo())
-				.pipe(_embed)
-				.pipe(_initCreator)
-				.pipe(_showButtons)
-				.pipe(_startHeartBeat)
-				.fail(_onInitFail)
-
-	# Exposed to the question importer screen
-	onQuestionImportComplete = (questions) ->
-		# assumes questions is already a JSON string
-		questions = JSON.parse questions
-		_sendToCreator 'onQuestionImportComplete', [questions]
-		
-		_hideEmbedDialog()
-
-	# Exposed to the media importer screen
-	onMediaImportComplete = (media) ->
-		_hideEmbedDialog()
-
-		# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
-		anArray = []
-		for element in media
-			anArray.push element
-		_sendToCreator 'onMediaImportComplete', [anArray]
-
-	# Public Methods
-	init:init
-	onQuestionImportComplete:onQuestionImportComplete # callback for the question importer window to send questions back
-	onMediaImportComplete:onMediaImportComplete
