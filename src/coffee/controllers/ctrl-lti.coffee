@@ -1,6 +1,5 @@
 app = angular.module 'materia'
 app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
-	SEARCH_DELAY_MS = 200
 	REFRESH_FAKE_DELAY_MS = 500
 	CHANGE_SECTION_FADE_DELAY_MS = 250
 
@@ -8,68 +7,18 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	widgetsLoaded = false
 
 	$scope.strHeader = 'Select a Widget:'
+	$scope.query = {}
 
 	if system? and system != ''
 		$scope.strHeader = 'Select a Widget for use in ' + system + ':'
-		#$('#success-message li:first-child').html('Students can interact with this widget in ' + system + '.')
-		#$('#success-message li:nth-child(2)').html('Any scores will be passed to ' + system + '.' )
-
-	$scope.hideRefreshLinkCallout = ->
-		$scope.showRefreshArrow = false
-		$scope.$apply()
 
 	$scope.calloutRefreshLink = ->
 		$scope.showRefreshArrow = true
-		$scope.$apply()
-
-	search = ->
-		$('#list-container li').removeClass('selected')
-
-		Materia.Widget.getWidgets (widgets) ->
-			searchString = $.trim($('#search').val().toLowerCase().replace(/,/g, ' '))
-
-			hits = []
-			misses = []
-			terms = searchString.split(' ')
-			len = widgets.length
-			len2 = terms.length
-			match = $hits = null
-
-			for i in [0...len]
-				match = false
-				for j in [0...len2]
-					if(widgets[i].searchCache.indexOf(terms[j]) > -1)
-						match = true
-					else
-						match = false
-						break
-				if match
-					hits.push(widgets[i].element)
-				else
-					misses.push(widgets[i].element)
-
-			$hits = $(hits)
-			Materia.TextFilter.renderSearch($hits, $(misses), 'slide')
-
-			Materia.TextFilter.clearHighlights($('#list-container li'))
-			$hits.each ->
-				Materia.TextFilter.highlight(searchString, $(this))
-
-			if hits.length == 1
-				$(hits[0]).addClass('selected')
-
-	clearSearch = ->
-		$('#search').val('')
-		Materia.TextFilter.clearSearch('#list-container li')
 
 	loadWidgets = (fakeDelay) ->
-		#$('#list-container li:not(.template)').remove()
-		#clearSearch()
+		Materia.Set.Throbber.startSpin('#list-container', {withBackground:false, withDelay:false})
 
-		#Materia.Set.Throbber.startSpin('#list-container', {withBackground:false, withDelay:false})
-		#
-
-		if fakeDelay?
+		if not fakeDelay?
 			fakeDelay = 1
 
 		setTimeout ->
@@ -89,24 +38,18 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 				$scope.widgets = widgets
 				$scope.$apply()
 
-				if len == 0
-					# no op
-				else
-					$('.embed-button').click (event) ->
-						event.preventDefault()
-
-						inst_id = $(this).parents('#list-container li').attr('data-inst_id')
-						Materia.Widget.getWidget inst_id, (widget) ->
-							selectWidget(widget[0])
-
-					$('#list-container li').click (event) ->
-						$('#list-container li').removeClass('selected')
-						$(this).addClass('selected')
 			,
 				ignoreCache: true,
-				sort: 'alpha'
 
 		, fakeDelay
+
+	$scope.highlight = (widget) ->
+		for w in $scope.widgets
+			w.selected = false
+		widget.selected = true
+
+	$scope.embedWidget = (widget) ->
+		selectWidget(widget)
 
 	selectWidget = (widget) ->
 		if selectedWidget?.state?.state == 'pending'
@@ -141,10 +84,8 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			.addClass(newSection)
 
 		if newSection == 'selectWidget'
-			$('#list-container li').removeClass('selected')
 			if selectedWidget?
 				$('.cancel-button').show()
-			clearSearch()
 
 			if !widgetsLoaded
 				loadWidgets()
@@ -153,7 +94,6 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 		else if newSection == 'progress'
 			$('.progressbar').progressbar()
 			startProgressBar()
-		$scope.$apply()
 
 	getRandInt = (min, max) -> Math.floor(Math.random() * (max - min + 1)) + min
 
@@ -204,24 +144,8 @@ app.controller 'ltiCtrl', ['$scope', '$sce', ($scope, $sce) ->
 				parent.postMessage(JSON.stringify(widgetData), '*')
 
 	$scope.refreshListing = ->
-		#$scope.hideRefreshLinkCallout()
+		$scope.showRefreshArrow = false
 		loadWidgets(REFRESH_FAKE_DELAY_MS)
-
-	$('.cancel-button').click (event) ->
-		event.preventDefault()
-		setDisplayState('widgetSelected')
-
-	$('#search').keyup (event) ->
-		if event.keyCode == 13 # enter
-			$selected = $('#list-container li.selected')
-			if $selected.length == 1
-				inst_id = $($selected[0]).attr('data-inst_id')
-				Materia.Widget.getWidget inst_id, (widget) ->
-					selectWidget(widget)
-		else if event.keyCode == 27 #esc
-			clearSearch()
-
-	Materia.TextFilter.setupInput $('#search'), search, SEARCH_DELAY_MS
 
 	setDisplayState 'selectWidget'
 ]
