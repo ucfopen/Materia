@@ -14,6 +14,9 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	_widget_info   = null
 	_widgetType    = null
 
+	$scope.saveText = "Save Draft"
+	$scope.previewText = "Preview"
+
 	# get the _instance_id from the url if needed
 	_inst_id = window.location.hash.substr(1) if window.location.hash
 	_widget_id = window.location.href.match(/widgets\/([\d+])/)[1]
@@ -105,14 +108,16 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 	# send a save request to the creator
 	$scope.requestSave = (mode) ->
-		$scope.cancelPublish null, true # make sure publish dialog is closed
-		$scope.cancelPreview null, true # make sure preview dialog is closed
+		# hide dialogs
+		$scope.popup = ""
+		console.log mode
+
 		_saveMode = mode
 		switch _saveMode
 			when 'publish'
-				$('#previewBtnTxt').html 'Saving...'
+				$scope.previewText = "Saving..."
 			when 'save'
-				$('#saveBtnTxt').html 'Saving...'
+				$scope.saveText = "Saving..."
 
 		_sendToCreator 'onRequestSave', [mode]
 
@@ -262,17 +267,15 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	_enableReturnLink = ->
 		if _inst_id?
 			# editing
-			$('#returnLink')
-				.html("&larr; Return to my widgets")
-				.attr('href', _getMyWidgetsUrl(_inst_id))
+			$scope.returnUrl = _getMyWidgetsUrl(_inst_id)
+			$scope.returnPlace = "my widgets"
 		else
 			# new
-			$('#returnLink')
-				.html("&larr; Return to widget catalog")
-				.attr('href', BASE_URL+'widgets')
+			$scope.returnUrl = BASE_URL+'widgets'
+			$scope.returnPlace = "widget catalog"
+		$scope.$apply()
 
 	$scope.onPublishPressed = ->
-		_cancelPreview null, true # make sure preview dialog is closed
 		if _inst_id? && _instance? && !_instance.is_draft
 			# Show the Update Dialog
 			$scope.popup = "update"
@@ -280,36 +283,16 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			# Show the Publish Dialog
 			$scope.popup = "publish"
 
-		# put it on the dom and animate
-		$('.page').prepend $dialog
-		$('.publish').slideDown('slow')
-
 	$scope.cancelPublish = (e, instant = false) ->
-		e.preventDefault() if e?
-		$('.publish .action_button, .publish .cancel_button').unbind 'click'
-		$('.publish').slideUp (if instant then 'fast' else 'slow'), ->
-			$('.publish').remove()
+		$scope.popup = ""
 
 	_onPreviewPopupBlocked = (url) ->
 		$scope.popup = "blocked"
+		$scope.previewUrl = url
 		$scope.$apply()
 
-		# populate dialog
-		$dialog = $(dialogTemplate()).hide()
-		$dialog.find('.cancel_button').on 'click', _cancelPreview
-		$dialog.find('.action_button')
-			.attr('href', url)
-			.attr('target', '_blank')
-			.on 'click', -> _cancelPreview()
-		# put it on the dom and animate
-		$('.page').prepend $dialog
-		$('.preview').slideDown('slow')
-
 	$scope.cancelPreview = (e, instant = false) ->
-		e.preventDefault() if e?
-		$('.preview .action_button, .preview .cancel_button').unbind 'click'
-		$('.preview').slideUp (if instant then 'fast' else 'slow'), ->
-			$('.preview').remove()
+		$scope.popup = ""
 
 	# When the creator says it's ready
 	# Note this is psuedo public as it's exposed to flash
@@ -326,7 +309,8 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 		$scope.iframeUrl = url
 
 		# animate in
-		$('#embed_dialog').load ->
+		embed = $('#embed_dialog')
+		embed.load ->
 			embed.css('top','50%')
 				.css('opacity',1)
 
@@ -365,43 +349,29 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 						when 'publish'
 							window.location = _getMyWidgetsUrl(inst.id)
 						when 'save'
-							_fadeSaveButton $('#saveBtnTxt'), 'Saved!', 'Save Draft'
+							$scope.saveText = "Saved!"
 							_sendToCreator 'onSaveComplete', [inst.name, inst.widget, inst.qset.data, inst.qset.version]
 							_inst_id  = inst.id
 							_instance = inst
+					$scope.$apply()
+					setTimeout ->
+						$scope.saveText = "Save Draft"
+						$scope.$apply()
+					, 5000
 		)
 
 	# When the Creator cancels a save request
 	# Note this is psuedo public as it's exposed to flash
 	_onSaveCanceled = (msg) ->
-		_fadeSaveButton $('#saveBtnTxt'), 'Can Not Save!', 'Save Draft'
+		$scope.saveText = "Can Not Save!"
 		alert "Can not currently save. #{msg}" if msg
 
 	_setHeight = (h) ->
 		$('#container').height h
 
 	_alert = (options) ->
-		title = options.title
-		msg = options.msg
-		type = options.type
-		alertWindow = $("<div>")
-		alertWindow.append('<h1>'+title+'</h1>')
-		alertWindow.append('<p>'+msg+'</p>')
-
-		buttons = []
-		switch type
-			when 1 then buttons = ['OK']
-			when 2 then buttons = ['OK', 'Cancel']
-			when 3 then buttons = ['Yes', 'No']
-		alertWindow.append('<button class="action_button">'+b+'</button>') for b in buttons
-
-		$.jqmodal.standalone {
-			modal            : true,
-			backgroundStyle  : 'light',
-			className        : 'alert',
-			html             : alertWindow.html(),
-			closingSelectors : ['button']
-		}
+		# TODO: Replace with a angular modal
+		alert(options.msg)
 
 	# synchronise the asynchronous events
 	if _inst_id?
