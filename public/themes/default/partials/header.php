@@ -31,7 +31,7 @@
 			<div id="notices">
 				<div class="notice" ng-repeat="notification in notifications">
 					<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
-					<p class="icon"><img class="senderAvatar" src="{{notification.avatar}}"></img></p>
+					<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></img></p>
 					<div class="notice_right_side">
 						<p class="subject" ng-bind-html="trust(notification.subject)"></p>
 					</div>
