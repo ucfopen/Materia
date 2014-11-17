@@ -5,7 +5,7 @@
 	</a>
 
 	<article class="widget_detail">
-		<img src="{{ widget.icon }}" alt="" class="widget_icon">
+		<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
 		<hgroup class="detail">
 			<h1>{{ widget.name }}</h1>
 			<h2>{{ widget.subheader }}</h2>
@@ -14,7 +14,7 @@
 
 		<ul class="pics">
 			<li ng-repeat="screenshot in widget.screenshots">
-				<a class="grouped_elements" rel="group1" href="{{ screenshot.a }}" fancybox><img src="{{ screenshot.img }}" alt=""></a>
+				<a class="grouped_elements" rel="group1" href="{{ screenshot.a }}" fancybox><img ng-src="{{ screenshot.img }}" alt=""></a>
 			</li>
 		</ul>
 		<p class="thumbnail_explination">Click on a thumbnail to view a screenshot</p>

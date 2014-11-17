@@ -6,7 +6,7 @@
 		<div class="widgets" ng-controller="widgetCtrl">
 			<section ng-repeat="widget in widgets" class="widget {{widget.clean_name}}" ng-mouseenter="showInfoCard(widget.id)" ng-mouseleave="hideInfoCard()">
 				<div class="widgetMin {{widget.clean_name}}">
-					<a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img src='{{widget.icon}}'></a>
+					<a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img ng-src='{{widget.icon}}'></a>
 					<div class="header">
 						<h1><a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}" class="searchable">{{widget.name}}</a></h1>
 					</div>
@@ -21,7 +21,7 @@
 						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
 				</div>
 				<a class="infocard" ng-class="{ show: infoCard[widget.id] }" ng-show="infoCard[widget.id]" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
-					<img src='{{widget.icon}}'>
+					<img ng-src='{{widget.icon}}'>
 					<div class="header">
 						<h1 class="infoHeader">{{widget.name}}</h1>
 					</div>
