@@ -3,6 +3,7 @@ return [
 	'paths' => [
 		'gfonts' => 'https://fonts.googleapis.com/',
 		'theme'  => '/themes/default/assets/css/',
+		'lib'  => '/assets/css/',
 	],
 
 	'always_load_groups' => [
@@ -31,7 +32,7 @@ return [
 			'theme::create.css',
 		],
 		'widget_detail' => [
-			'jquery.fancybox-1.3.4.css',
+			'lib::jquery.fancybox-1.3.4.css',
 			'theme::widget.css',
 		],
 		'widget_catalog' => [
@@ -44,7 +45,7 @@ return [
 			'theme::login.css',
 		],
 		'scores' => [
-			'theme::jquery.jqplot.min.css',
+			'lib::jquery.jqplot.min.css',
 			'theme::scores.css',
 		],
 		'embed_scores' => [

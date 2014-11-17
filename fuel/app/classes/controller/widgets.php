@@ -14,7 +14,6 @@ class Controller_Widgets extends Controller
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
 		Js::push_group('core');
-		Css::push_group('core');
 	}
 
 	public function after($response)
@@ -51,6 +50,7 @@ class Controller_Widgets extends Controller
 		// prevent caching the widget page, since the __play_id is hard coded into the page
 		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		Css::push_group('core');
 
 
 		return parent::after($response);
@@ -93,6 +93,7 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/widget/detail');
 
+		Js::push_group('widget_detail');
 		Css::push_group('widget_detail');
 	}
 

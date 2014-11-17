@@ -28,7 +28,8 @@ module.exports = (grunt) ->
 			controllers:
 				files:
 					'public/themes/default/assets/js/controllers.js': [
-						srcDir+'coffee/controllers/*'
+						srcDir+'coffee/controllers/*',
+						srcDir+'coffee/directives/*',
 					]
 
 			materia:
