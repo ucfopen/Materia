@@ -19,7 +19,7 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 	# get the _instance_id from the url if needed
 	_inst_id = window.location.hash.substr(1) if window.location.hash
-	_widget_id = window.location.href.match(/widgets\/([\d+])/)[1]
+	_widget_id = window.location.href.match(/widgets\/([\d]+)/)[1]
 
 	Namespace("Materia").Creator =
 		# Exposed to the question importer screen
