@@ -109,10 +109,7 @@ return [
 			'lib::sorted.js',
 		],
 		'widget_detail' => [
-			'theme::materia.image.js',
-			'theme::materia.coms.json.js',
-			'theme::materia.widget.detail.js',
-			'theme::materia.page.widget-detail.js'
+			'lib::jquery.fancybox-1.3.4.pack.js',
 		],
 		'widget_editor' => [
 			'theme::materia.set.throbber.js',
