@@ -53,6 +53,7 @@ class Controller_Lti extends \Controller
 			return $this->action_error('Unknown Assignment');
 		}
 
+		\Js::push_group('core');
 		return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
 	}
 
@@ -168,6 +169,8 @@ class Controller_Lti extends \Controller
 		{
 			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 		}
+		\Js::push_group('core');
+		\Css::push_group('lti');
 
 		return \Response::forge(\Theme::instance()->render());
 	}
