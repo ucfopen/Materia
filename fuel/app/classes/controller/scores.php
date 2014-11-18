@@ -15,7 +15,6 @@ class Controller_Scores extends Controller
 		$this->theme->set_template('layouts/main');
 
 		Js::push_group("core");
-		Css::push_group("scores");
 		Css::push_group("core");
 	}
 
@@ -57,6 +56,7 @@ class Controller_Scores extends Controller
 
 		$this->theme->set_partial('content', 'partials/score/full');
 		Js::push_group("scores");
+		Css::push_group("scores");
 	}
 
 	public function action_show_embedded($inst_id)
@@ -80,6 +80,7 @@ class Controller_Scores extends Controller
 
 		$this->theme->set_partial('content', 'partials/score/full');
 		$this->_header = 'partials/header_empty';
+		Css::push_group("embed_scores");
 	}
 
 	/**

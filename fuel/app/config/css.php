@@ -49,7 +49,7 @@ return [
 			'theme::scores.css',
 		],
 		'embed_scores' => [
-			'jquery.jqplot.min.css', 'scores_embedded.css',
+			'theme::scores_embedded.css',
 		],
 		'question_catalog' => [
 			'jquery.dataTables.css','question-import.css',
