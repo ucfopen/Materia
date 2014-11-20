@@ -1,12 +1,7 @@
-Namespace('Materia').QuestionImporter = do ->
+app = angular.module 'materia'
+app.controller 'questionImporterCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$selectedAssets = []
 	$table = null
-
-	init = (gateway) ->
-
-		$(document).ready ->
-			_setupTable()
-			_loadAllQuestions()
 
 	_setupTable = ->
 		# listener for selecting a question row
@@ -31,7 +26,7 @@ Namespace('Materia').QuestionImporter = do ->
 
 		$('#cancel-button').click (e) ->
 			e.stopPropagation()
-			window.parent.Materia.Creator.onMediaImportComplete(null)
+			window.parent.Materia.Creator.onQuestionImportComplete(null)
 
 		# when the url has changes, reload the questions
 		$(window).bind 'hashchange', _loadAllQuestions
@@ -103,4 +98,7 @@ Namespace('Materia').QuestionImporter = do ->
 		type = l.substring(l.lastIndexOf('=')+1)
 		type
 
-	init:init
+	_setupTable()
+	_loadAllQuestions()
+]
+

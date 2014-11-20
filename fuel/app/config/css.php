@@ -52,11 +52,11 @@ return [
 			'theme::scores_embedded.css',
 		],
 		'question_catalog' => [
-			'jquery.dataTables.css','question-import.css',
+			'lib::jquery.dataTables.css','theme::question-import.css',
 		],
 		'media_catalog' => [
-			'jquery.dataTables.css',
-			'jquery.plupload.queue.css',
+			'lib::jquery.dataTables.css',
+			'lib::jquery.plupload.queue.css',
 			'theme::media-import.css'
 		],
 		'homepage' => [
