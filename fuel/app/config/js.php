@@ -43,6 +43,7 @@ return [
 		],
 		'core' => [
 			'cdnjs::angular.js/1.3.0/angular.min.js',
+			'cdnjs::angular.js/1.3.0/angular-animate.min.js',
 			'cdnjs::jquery/1.8.1/jquery.min.js',
 			'cdnjs::swfobject/2.2/swfobject.min.js',
 			'theme::main.js',
@@ -60,17 +61,11 @@ return [
 			'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
 		],
 		'media_catalog' => [
-			'theme::materia.page.media-import.js',
-			'theme::materia.coms.json.js',
 			'lib::jquery.plupload.queue.js',
 			'lib::plupload.js',
 			'lib::plupload.flash.js',
 			'lib::plupload.html5.js',
 			'lib::plupload.html4.js',
-		],
-		'question_catalog' => [
-			'theme::materia.questionimporter.js',
-			'theme::materia.coms.json.js',
 		],
 		'scores' => [
 			'lib::jquery.jqplot.min.js',

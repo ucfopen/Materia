@@ -24,10 +24,11 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	Namespace("Materia").Creator =
 		# Exposed to the question importer screen
 		onQuestionImportComplete: (questions) ->
+			_hideEmbedDialog()
+			return if !questions
 			# assumes questions is already a JSON string
 			questions = JSON.parse questions
 			_sendToCreator 'onQuestionImportComplete', [questions]
-			_hideEmbedDialog()
 
 		# Exposed to the media importer screen
 		onMediaImportComplete: (media) ->
@@ -308,21 +309,15 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	_showEmbedDialog = (url) ->
 		$scope.iframeUrl = url
 
-		# animate in
-		embed = $('#embed_dialog')
-		embed.load ->
-			embed.css('top','50%')
-				.css('opacity',1)
-
 	# move the embed dialog off to invisibility
 	_hideEmbedDialog = ->
-		$('#embed_dialog')
-			.css('top','-50%')
-			.css('opacity',0)
+		$scope.iframeUrl = ""
+		$scope.$apply()
 
 	# Note this is psuedo public as it's exposed to flash
 	_showMediaImporter = ->
 		_showEmbedDialog '/media/import'
+		$scope.$apply()
 		null # else Safari will give the .swf data that it can't handle
 
 	# save called by the widget creator

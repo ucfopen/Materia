@@ -1,5 +1,5 @@
 <section class="page" ng-controller="createCtrl">
-	<div class="preview" ng-show="popup == 'blocked'">
+	<div class="preview animate-show" ng-show="popup == 'blocked'">
 		<p>Your browser blocked the preview popup, click below to preview the widget.</p>
 		<div class="publish_container">
 			<a class="cancel_button" ng-click="cancelPreview()">Close</a>
@@ -7,7 +7,7 @@
 		</div>
 	</div>
 
-	<div class="publish" ng-show="popup == 'update'">
+	<div class="publish animate-show" ng-show="popup == 'update'">
 		<h1>Update Widget</h1>
 		<p>Updating this published widget will instantly allow your students to see your changes.</p>
 
@@ -17,7 +17,7 @@
 		</div>
 	</div>
 
-	<div class="publish" ng-show="popup == 'publish'">
+	<div class="publish animate-show" ng-show="popup == 'publish'">
 		<h1>Publish Widget</h1>
 		<p>Publishing removes the "Draft" status of a widget, which grants you the ability to use it in your course and collect student scores &amp; data.</p>
 		<div class="publish_container">
@@ -42,5 +42,5 @@
 		</div>
 	</div>
 
-	<iframe src="{{ iframeUrl }}" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
+	<iframe src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
 </section>
