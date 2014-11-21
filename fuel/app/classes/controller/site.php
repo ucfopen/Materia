@@ -13,6 +13,8 @@ class Controller_Site extends Controller
 		$this->theme->set_template('layouts/main');
 
 		Js::push_group('core');
+		Js::push_group('author');
+		Js::push_group('student');
 		Css::push_group('core');
 	}
 

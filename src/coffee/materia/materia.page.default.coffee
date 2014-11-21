@@ -76,4 +76,3 @@ $(document).ready ->
 						$('.icon_container').addClass('med_'+beards[rand])
 			$.post('/settings', meta)
 			konami = ''
-

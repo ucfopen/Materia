@@ -15,6 +15,7 @@ class Controller_Scores extends Controller
 		$this->theme->set_template('layouts/main');
 
 		Js::push_group("core");
+		Js::push_group("student");
 	}
 
 	public function after($response)
