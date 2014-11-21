@@ -13,6 +13,7 @@ class Controller_Users extends Controller
 
 		Css::push_group("core");
 		Js::push_group("core");
+		Js::push_group("student");
 	}
 
 	public function after($response)

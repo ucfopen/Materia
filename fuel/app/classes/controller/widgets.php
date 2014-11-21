@@ -14,6 +14,7 @@ class Controller_Widgets extends Controller
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
 		Js::push_group('core');
+		Js::push_group("author");
 	}
 
 	public function after($response)

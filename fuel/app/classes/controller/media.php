@@ -106,6 +106,7 @@ class Controller_Media extends Controller
 		Css::push_group("core");
 		Css::push_group("media_catalog");
 		Js::push_group("core");
+		Js::push_group("author");
 		Js::push_group("dataTables");
 		Js::push_group("media_catalog");
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
