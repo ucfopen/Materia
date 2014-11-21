@@ -54,6 +54,7 @@ class Controller_Lti extends \Controller
 		}
 
 		\Js::push_group('core');
+		\Js::push_group('student');
 		return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
 	}
 
@@ -74,6 +75,8 @@ class Controller_Lti extends \Controller
 		{
 			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 		}
+
+		\Css::push_group('lti');
 
 		return \Response::forge(\Theme::instance()->render());
 	}
@@ -96,13 +99,14 @@ class Controller_Lti extends \Controller
 		$this->theme->set_template('layouts/main');
 
 		\Js::push_group('core');
+		\Js::push_group('author');
 		\Js::push_group('lti_picker');
-		\Css::push_group('lti');
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
 		\Js::push_inline($this->theme->view('partials/select_item_js')
 			->set('system', $system));
+		\Css::push_group('lti');
 
 		if ($is_selector_mode && ! empty($return_url))
 		{
