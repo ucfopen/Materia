@@ -432,7 +432,6 @@
 	}
 
 	.my_widgets .page .controls div.delete_dialogue {
-			display:none;
 			background: url(../img/delete-dialogue-bg.png) no-repeat center;
 			padding: 20px 0;
 			margin-bottom: 5px;
@@ -572,9 +571,9 @@
 			margin-bottom: 6px;
 		}
 
-		.my_widgets .page .share-widget-container.closed textarea {
+		/*.my_widgets .page .share-widget-container.closed textarea {
 			display: none;
-		}
+		}*/
 
 		.my_widgets .page .share-widget-container input {
 			width: 548px;
@@ -605,6 +604,8 @@
 			padding-bottom: 46px;
 			cursor: default;
 
+			opacity: 0.5;
+
 			-ms-user-select: none;
 			-webkit-user-select: none;
 			-khtml-user-select: none;
@@ -612,6 +613,10 @@
 			-o-user-select: none;
 			user-select: none;
 		}
+
+		/*.my_widgets .page .share-widget-container.draft h3 {
+			color: #C5C5C5;
+		}*/
 
 		.my_widgets .page .share-widget-container.draft p {
 			display:none;
@@ -1035,6 +1040,7 @@
 		}
 
 		.attempts_parent dd.disabled {
+			color: #C5C5C5;
 			cursor: default;
 		}
 		.attempts_parent dd.disabled:hover {

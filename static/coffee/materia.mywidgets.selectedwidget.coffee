@@ -15,6 +15,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	# refactoring scope variables
 	$scope.perms = null
+	$scope.scores = null
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -32,8 +33,20 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$scope.user = userSrv.get()
 		$scope.$apply()
 
+	# Flags to help condense conditional statement checks
 	$scope.accessLevel = 0
-	$scope.playable = true
+	$scope.editable = true
+	$scope.shareable = false
+	$scope.hasScores = false
+
+	$scope.storageNotScoreData = false
+	$scope.selectedScoreView = "graph"
+
+	$scope.collaborators = 0
+
+	$scope.viewGraph = "graph"
+	$scope.viewTable = "table"
+	$scope.viewData = "data"
 
 	$scope.baseUrl = BASE_URL
 
@@ -56,11 +69,13 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		$q.all([
 			userSrv.get(),
-			selectedWidgetSrv.getUserPermissions()
+			selectedWidgetSrv.getUserPermissions(),
+			selectedWidgetSrv.getScoreSummaries()
 		])
 		.then (data) ->
 			$scope.user = data[0]
 			$scope.perms = data[1]
+			$scope.scores = data[2]
 
 			Materia.MyWidgets.Statistics.clearGraphs()
 
@@ -158,15 +173,27 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 				# accessLevel = 0
 
+				# accessLevel == 0 is effectively read-only
 				if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 					$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
+					# $scope.accessLevel = 0
 
 				$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
-				# There are cleaner implementations, but this is clean..... ish
-				if $scope.accessLevel == 0 or $scope.selectedWidget.widget.is_editable == 0 then $scope.edit = "#"
-				else $scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+				# TODO edit button should be disabled IF:
+					# - accesslevel == 0
+					# - is_editable flag is 0
+				$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
+				console.log "widget is EDITABLE: " + $scope.editable
+
+				# There are cleaner implementations, but this is clean..... ish
+				if $scope.editable
+					$scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+				else
+					$scope.edit = "#"
+
+				# TODO consolidate all $scope.$apply calls
 				$scope.$apply()
 
 				# # disable certain interactions if the user's access is view-only or widget isn't editable
@@ -191,10 +218,10 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					# $('.copy').removeClass('disabled')
 					# $('#copy_widget_link').removeClass('disabled')
 					# $('#delete_widget_link').removeClass('disabled').parent().removeClass('disabled')
-				$scope.playable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
+				$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
 				$scope.$apply()
 
-				# if !$scope.playable
+				# if !$scope.editable
 				# 	# CSS to disable additional options needs to be re-worked
 				# 	$('.attempts_parent').addClass('disabled')
 				# 	$('#edit-avaliability-button').addClass('disabled')
@@ -211,22 +238,30 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# 	$('#attempts').removeClass('disabled')
 				# 	$('#avaliability').removeClass('disabled')
 
-				$('#edit-avaliability-button').unbind('click')
-				$('#attempts').unbind('click')
-				$('#avaliability').unbind('click')
-				jqmodalOptions =
-					modal            : true,
-					backgroundStyle  : 'light',
-					className        : 'availability',
-					html             : $('#t-availibility').html(),
-					closingSelectors : ['.cancel_button']
+				if $scope.shareable
+					# $('#edit-avaliability-button').unbind('click')
+					# $('#attempts').unbind('click')
+					# $('#avaliability').unbind('click')
+					jqmodalOptions =
+						modal            : true,
+						backgroundStyle  : 'light',
+						className        : 'availability',
+						html             : $('#t-availibility').html(),
+						closingSelectors : ['.cancel_button']
 
-				$('#edit-avaliability-button').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-				$('#attempts').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-				$('#avaliability').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+					# TODO: Replace with ng-modal functionality
+					$('#edit-avaliability-button').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+					$('#attempts').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+					$('#avaliability').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
 
-				$('.copy').unbind('click')
-				$('.copy.disabled').click -> return false
+				# $('#edit-avaliability-button').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+				# $('#attempts').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+				# $('#avaliability').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+
+				# $('.copy').unbind('click')
+				# $('.copy.disabled').click -> return false
+
+				# TODO replace with ng-modal functionality
 				$('.copy').not('.disabled').jqmodal
 					modal            : true,
 					backgroundStyle  : 'light',
@@ -245,59 +280,68 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					$('#popup.copy .copy_button').click (e) ->
 						e.preventDefault()
 						copyWidget()
-				$('.delete_dialogue').hide()
-				$('.additional_options').fadeIn('fast')
 
-				$('.delete').unbind('click')
-				$('.delete.disabled').click -> return false
-				$('.delete').not('.disabled').toggle ->
-					$('.additional_options').hide()
-					$('.delete_dialogue').fadeIn('fast')
-					$('.delete_dialogue').show()
-				, ->
-					$('.delete_dialogue').hide()
-					$('.additional_options').fadeIn('fast')
+				# $('.delete_dialogue').hide()
+				# $('.additional_options').fadeIn('fast')
+				# $('.delete').unbind('click')
+				# $('.delete.disabled').click -> return false
+				# $('.delete').not('.disabled').toggle ->
+				# 	$('.additional_options').hide()
+				# 	$('.delete_dialogue').fadeIn('fast')
+				# 	$('.delete_dialogue').show()
+				# , ->
+				# 	$('.delete_dialogue').hide()
+				# 	$('.additional_options').fadeIn('fast')
 
 				# count up the number of other users collaboratin
 				count = 0
 				for id of $scope.perms.widget
 					if id != $scope.user.id then count++
 
-				str = 'Collaborate'
-				str += ' ('+count+')' if count > 0
-				$('#share_widget_link').text(str)
+				$scope.collaborators = count
+				$scope.$apply()
 
+				# str = 'Collaborate'
+				# str += ' ('+count+')' if count > 0
+				# $('#share_widget_link').text(str)
+
+				# TODO: Fix dis
 				populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 				populateAttempts($scope.selectedWidget.attempts)
 
-				$('.page hgroup h1').html($scope.selectedWidget.name)
-				$('.page hgroup h3').html($scope.selectedWidget.widget.name)
+				# $('.page hgroup h1').html($scope.selectedWidget.name)
+				# $('.page hgroup h3').html($scope.selectedWidget.widget.name)
 
-				$('.overview .icon').attr('src', Materia.Image.iconUrl($scope.selectedWidget.widget.dir, 275))
+				# $('.overview .icon').attr('src', Materia.Image.iconUrl($scope.selectedWidget.widget.dir, 275))
 
-				if BEARD_MODE? and BEARD_MODE == true
+				# default: /assets/img/default/default-icon-275.png
+				$scope.selectedWidget.icon = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
+				$scope.$apply()
 
-					$('.widget .icon').each (index) ->
-						rand = Math.floor((Math.random()*beards.length)+1) - 1
+				# TODO re-implement beard mode
+				# if BEARD_MODE? and BEARD_MODE == true
 
-						$(this).addClass('small_'+beards[rand])
+				# 	$('.widget .icon').each (index) ->
+				# 		rand = Math.floor((Math.random()*beards.length)+1) - 1
 
-						if ($(this).parent().hasClass('gameSelected'))
-							$('.icon_container').addClass('med_'+beards[rand])
+				# 		$(this).addClass('small_'+beards[rand])
 
-					existing = $('.overview .icon_container').attr('class').split(' ')
+				# 		if ($(this).parent().hasClass('gameSelected'))
+				# 			$('.icon_container').addClass('med_'+beards[rand])
 
-					for e in existing
-						if e != 'icon_container' && e != 'big_bearded'
-							$('.overview .icon_container').removeClass(e)
+				# 	existing = $('.overview .icon_container').attr('class').split(' ')
 
-					beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
-					beardType = 'med'+beardType.substring(5)
+				# 	for e in existing
+				# 		if e != 'icon_container' && e != 'big_bearded'
+				# 			$('.overview .icon_container').removeClass(e)
 
-					$('.widget .icon').addClass('bearded')
-					$('.icon_container')
-						.addClass('big_bearded')
-						.addClass(beardType)
+				# 	beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
+				# 	beardType = 'med'+beardType.substring(5)
+
+				# 	$('.widget .icon').addClass('bearded')
+				# 	$('.icon_container')
+				# 		.addClass('big_bearded')
+				# 		.addClass(beardType)
 
 				# if($('.page').is(':hidden'))
 				# 	$('.page').show()
@@ -312,15 +356,20 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# $editButton.unbind('click')
 
 				# update display if not playable
-				if $scope.selectedWidget.is_draft or $scope.selectedWidget.widget.is_playable == 0
+				# This formerly checked if widget.is_playable was set - but was it needed??
+				$scope.shareable = !$scope.selectedWidget.is_draft
+				$scope.$apply()
+				if !$scope.shareable
+					console.log "Widget is UNPLAYABLE"
 					# $('.share-widget-container')
 					# 	.addClass('draft')
 					# 	.fadeTo('fast', 0.3)
 					# 	.children('h3')
 					# 	.html('Publish to share with your students')
 
-					$('#play_link').attr('disabled', 'disabled')
+					# $('#play_link').attr('disabled', 'disabled')
 
+					# TODO replace dis
 					$editButton.click ->
 						Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
 							if success
@@ -328,28 +377,31 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 							else
 								alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
 
-						return false
+					# 	return false
 				# update display if playable
 				# TODO: this case should probably be combined with the is not a draft case below?
 				else
-					$('.share-widget-container')
-						.removeClass('draft')
-						.fadeTo('fast', 1)
-						.children('h3')
-						.html('Share with your students')
+					console.log "Widget is PLAYABLE"
+					# $('.share-widget-container')
+					# 	.removeClass('draft')
+					# 	.fadeTo('fast', 1)
+					# 	.children('h3')
+					# 	.html('Share with your students')
 
 					$('#play_link')
-						.unbind('click')
-						.val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
+						# .unbind('click')
+						# .val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
 						.click(->$(this).select())
 
-					$('#embed_link')
-						.unbind('click')
-						.val(getEmbedLink($scope.selectedWidget))
-						.click(->$(this).select())
+					# $('#embed_link')
+					# 	.unbind('click')
+					# 	.val(getEmbedLink($scope.selectedWidget))
+					# 	.click(->$(this).select())
 
-					$('.share-widget-container input').removeAttr('disabled')
+					# $('.share-widget-container input').removeAttr('disabled')
 
+				# TODO Temporary
+				if $scope.editable
 					$editButton.jqmodal
 						modal            : true,
 						backgroundStyle  : 'light',
@@ -360,74 +412,78 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 						$('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
 
 				# TODO: this case should probably be combined with the else case above?
+				# TODO: Determine if this note is still relevant ^
 				if !$scope.selectedWidget.widget.is_draft
-					$('.my_widgets .page .scores').show()
-					$('.my_widgets .page .embed').show()
+					# $('.my_widgets .page .scores').show()
+					$('.my_widgets .page .embed').show() # WHERE IS THIS??
 
-					$('.my_widgets .page .scores').hide() if !$scope.selectedWidget.widget.is_scorable
-					$('#play_link').val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
-					$('#embed_link').val(getEmbedLink($scope.selectedWidget))
+					# $('.my_widgets .page .scores').hide() if !$scope.selectedWidget.widget.is_scorable
+					# $('#play_link').val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
+					# $('#embed_link').val(getEmbedLink($scope.selectedWidget))
 
-					$('#embed_link').hide()
-					$('.share-widget-container span').unbind('click')
-					$('.share-widget-container span').click (e) ->
-						e.preventDefault
-						$('#embed_link').slideToggle 'fast'
+					# $('#embed_link').hide()
+					# $('.share-widget-container span').unbind('click')
+					# $('.share-widget-container span').click (e) ->
+					# 	e.preventDefault
+					# 	$('#embed_link').slideToggle 'fast'
 
-					toggleShareWidgetContainer('close')
-					$('.container').fadeIn() if $('.container:hidden').length > 0
+					# toggleShareWidgetContainer('close')
+					# $('.container').fadeIn() if $('.container:hidden').length > 0
 
 					#  reset scores & data ui:
 					$scoreWrapper = $('.scoreWrapper')
 					$scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
 
-					$('.show-older-scores-button').hide()
-					$('.chart').attr('id', '').empty()
+					# $('.show-older-scores-button').hide()
+					# $('.chart').attr('id', '').empty()
 
-					getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-						$('#export_scores_button').unbind()
-						$exportScoresButton = $('#export_scores_button')
+					# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
 
-						#  no data
-						if data.list.length == 0
-							$exportScoresButton.addClass('disabled')
-							$('.noScores').show()
-							$scoreWrapper.hide()
-						else
-							$('.noScores').hide()
-							populateScoreWrapper($scoreWrapper, data.last)
-							if(data.list.length > 1)
-								$('.show-older-scores-button').show()
+					# $('#export_scores_button').unbind()
+					$exportScoresButton = $('#export_scores_button')
+					console.log $scope.scores
 
-							hasScores = false
-							for d in data.list
-								if d.distribution?
-									hasScores = true
-									break
+					#  no data
+					# if $scope.scores.list.length == 0
+					# 	console.log "list length = 0"
+					# else
+					if $scope.scores.list.length > 0
+						populateScoreWrapper($scoreWrapper, $scope.scores.last)
 
-							if hasScores
-								$exportScoresButton.removeClass('disabled')
-							else
-								$exportScoresButton.addClass('disabled')
-							$('#export_scores_button:not(".disabled")').jqmodal
-								modal            : true,
-								className        : 'csv_popup',
-								html             : $('#t-csv').html(),
-								closingSelectors : ['.cancel','.download']
-							, ->
-								Materia.MyWidgets.Csv.buildPopup()
+						# hasScores = false
+
+						console.log $scope.scores.list
+
+						for d in $scope.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
+							if d.distribution?
+								$scope.hasScores = true
+								break
+
+						# if hasScores
+						# 	$exportScoresButton.removeClass('disabled')
+						# else
+						# 	$exportScoresButton.addClass('disabled')
+
+						# TODO Replace jqmodal
+						$('#export_scores_button:not(".disabled")').jqmodal
+							modal            : true,
+							className        : 'csv_popup',
+							html             : $('#t-csv').html(),
+							closingSelectors : ['.cancel','.download']
+						, ->
+							Materia.MyWidgets.Csv.buildPopup()
 				else
-					$('.my_widgets .page .scores').hide()
-					$('.my_widgets .page .embed').hide()
+					# $('.my_widgets .page .scores').hide()
+					$('.my_widgets .page .embed').hide() # WHERE IS THIS????
 
-				if $scope.selectedWidget.widget.is_playable == 0
-					$('#preview_button').addClass('disabled')
-					$('.arrow_right').addClass('disabled')
-				else
-					$('#preview_button').removeClass('disabled')
-					$('.arrow_right').removeClass('disabled')
+				# if $scope.selectedWidget.widget.is_playable == 0
+				# 	$('#preview_button').addClass('disabled')
+				# 	$('.arrow_right').addClass('disabled')
+				# else
+				# 	$('#preview_button').removeClass('disabled')
+				# 	$('.arrow_right').removeClass('disabled')
 
-				Materia.Set.Throbber.stopSpin('.page')
+				# Materia.Set.Throbber.stopSpin('.page')
 
 	copyWidgetWindow = ->
 		$('.copy').not('.disabled').jqmodal
@@ -454,11 +510,14 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			#  throw some sort of validation error
 			#
 
-	getEmbedLink = (inst) ->
-		width = if String(inst.widget.width) != '0' then  inst.widget.width else 800
-		height = if String(inst.widget.height) != '0' then inst.widget.height else 600
-		draft = if inst.is_draft then "#{inst.widget.name} Widget" else inst.name
-		"<iframe src='#{BASE_URL}embed/#{$scope.selectedWidgetInstId}/#{inst.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selectedWidgetInstId}/#{inst.clean_name}'>#{draft}</a></iframe>"
+	$scope.getEmbedLink = ->
+		if $scope.selectedWidget is null then return ""
+
+		width = if String($scope.selectedWidget.widget.width) != '0' then  $scope.selectedWidget.widget.width else 800
+		height = if String($scope.selectedWidget.widget.height) != '0' then $scope.selectedWidget.widget.height else 600
+		draft = if $scope.selectedWidget.is_draft then "#{$scope.selectedWidget.widget.name} Widget" else $scope.selectedWidget.name
+
+		"<iframe src='#{BASE_URL}embed/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}'>#{draft}</a></iframe>"
 
 	loadDateRanges = (callback) ->
 		unless $scope.dateRanges?
@@ -479,20 +538,28 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		else if state == 'close'
 			$shareWidgetContainer.switchClass('', 'closed', 200)
 
-	populateScoreWrapper = ($scoreWrapper, data) ->
+	populateScoreWrapper = ($scoreWrapper) ->
+
+		data = $scope.scores.last
+
+		# don't think these will be necessary eventually
 		$scoreWrapper.attr('data-semester', data.id)
 		$scoreWrapper.attr('data-semester-str', createSemesterString(data))
 		$scoreWrapper.find('.view').html(data.term+' '+data.year)
 
 		#  no scores, but we do have storage data
-		if typeof data.distribution == 'undefined' && typeof data.storage != 'undefined'
-			$scoreWrapper.show()
+		if typeof data.distribution == 'undefined' and typeof data.storage != 'undefined'
+			$scope.storageNotScoreData = true
 
-			$scoreWrapper.find('li:nth-child(1) a').hide()
-			$scoreWrapper.find('li:nth-child(2) a').hide()
-			$scoreWrapper.find('li:nth-child(3) a').show()
+			# $scoreWrapper.show()
 
-			setScoreView(data.id, 'data')
+			# $scoreWrapper.find('li:nth-child(1) a').hide()
+			# $scoreWrapper.find('li:nth-child(2) a').hide()
+			# $scoreWrapper.find('li:nth-child(3) a').show()
+
+			# setScoreView(data.id, $scope.viewData)
+			setScoreView($scope.viewData)
+
 		else #  has scores, might have storage data
 			$scoreWrapper.show()
 
@@ -546,30 +613,37 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		rows
 
-	setScoreView = (semester, newScoreView) ->
-		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-		$scoreWrapper.attr('data-score-view', newScoreView)
+	setScoreView = (view) ->
 
-		$scoreWrapper.find('.choices li.scoreTypeSelected').removeClass('scoreTypeSelected')
-		$scoreWrapper.find('.display.table').hide()
-		$scoreWrapper.find('.display.graph').hide()
-		$scoreWrapper.find('.display.data').hide()
+		console.log view
 
-		switch newScoreView
-			when 'graph'
-				$scoreWrapper.find('.display.graph').show()
-				$scoreWrapper.find('.choices li:first-child').addClass('scoreTypeSelected')
-				$scoreWrapper.find('.numeric li').show()
-			when 'table'
-				$scoreWrapper.find('.display.table').show()
-				$scoreWrapper.find('.choices li:nth-child(2)').addClass('scoreTypeSelected')
-				$scoreWrapper.find('.numeric li').show()
-			when 'data'
-				$scoreWrapper.find('.display.data').show()
-				$scoreWrapper.find('.choices li:nth-child(3)').addClass('scoreTypeSelected')
-				$scoreWrapper.find('.numeric li').hide()
+		$scope.selectedScoreView = view
+		$scope.$apply()
+		# $scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
+		# $scoreWrapper.attr('data-score-view', newScoreView)
 
-		updateSemesterScores(semester)
+		# $scoreWrapper.find('.choices li.scoreTypeSelected').removeClass('scoreTypeSelected')
+		# $scoreWrapper.find('.display.table').hide()
+		# $scoreWrapper.find('.display.graph').hide()
+		# $scoreWrapper.find('.display.data').hide()
+
+		console.log $scope.selectedScoreView
+
+		# switch newScoreView
+		# 	when 'graph'
+		# 		# $scoreWrapper.find('.display.graph').show()
+		# 		# # $scoreWrapper.find('.choices li:first-child').addClass('scoreTypeSelected')
+		# 		# $scoreWrapper.find('.numeric li').show()
+		# 	when 'table'
+		# 		# $scoreWrapper.find('.display.table').show()
+		# 		# # $scoreWrapper.find('.choices li:nth-child(2)').addClass('scoreTypeSelected')
+		# 		# $scoreWrapper.find('.numeric li').show()
+		# 	when 'data'
+		# 		# $scoreWrapper.find('.display.data').show()
+		# 		# # $scoreWrapper.find('.choices li:nth-child(3)').addClass('scoreTypeSelected')
+		# 		# $scoreWrapper.find('.numeric li').hide()
+
+		# updateSemesterScores(semester)
 
 	updateSemesterScores = (semester) ->
 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
@@ -583,25 +657,25 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		updateSummary(semester)
 
-	getScoreSummaries = (inst_id, callback) ->
-		#  if we didn't already get this data, get it now
-		if typeof $scope.scoreSummaries[inst_id] == 'undefined'
-			Materia.Coms.Json.send 'score_summary_get', [inst_id, true], (data) ->
-				if(data != null && data.length > 0)
-					o = {}
-					last = data[0].id
-					for d in data
-						o[d.id] = d
-					#  we more conviently store the data in an array (list) and an object (map).
-					#  list is an ordered list of summary data by semesters (in descending order).
-					#  map is an object where the semester_id (database semester code) is the key.
-					$scope.scoreSummaries[inst_id] = {list:data, map:o, last:data[0]}
-					# scoreSummaries[inst_id] = data
-				else
-					$scope.scoreSummaries[inst_id] = {list:[], map:{}, last:undefined}
-				callback($scope.scoreSummaries[inst_id])
-		else
-			callback($scope.scoreSummaries[inst_id])
+	# getScoreSummaries = (inst_id, callback) ->
+	# 	#  if we didn't already get this data, get it now
+	# 	if typeof $scope.scoreSummaries[inst_id] == 'undefined'
+	# 		Materia.Coms.Json.send 'score_summary_get', [inst_id, true], (data) ->
+	# 			if(data != null && data.length > 0)
+	# 				o = {}
+	# 				last = data[0].id
+	# 				for d in data
+	# 					o[d.id] = d
+	# 				#  we more conviently store the data in an array (list) and an object (map).
+	# 				#  list is an ordered list of summary data by semesters (in descending order).
+	# 				#  map is an object where the semester_id (database semester code) is the key.
+	# 				$scope.scoreSummaries[inst_id] = {list:data, map:o, last:data[0]}
+	# 				# scoreSummaries[inst_id] = data
+	# 			else
+	# 				$scope.scoreSummaries[inst_id] = {list:[], map:{}, last:undefined}
+	# 			callback($scope.scoreSummaries[inst_id])
+	# 	else
+	# 		callback($scope.scoreSummaries[inst_id])
 
 	getPlayLogs = (inst_id, semester, year, callback) ->
 		# key our logs off of semester+year+instanceID

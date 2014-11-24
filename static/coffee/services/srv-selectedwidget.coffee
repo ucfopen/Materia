@@ -62,6 +62,33 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 				show:
 					ready: true
 
+	getScoreSummaries = ->
+		deferred = $q.defer()
+		Materia.Coms.Json.send 'score_summary_get', [_widget.id, true], (data) ->
+			console.log data
+
+			scoreData =
+				list: []
+				map: {}
+				last: undefined
+
+			if data isnt null and data.length > 0
+				o = {}
+				last = data[0].id
+				for d in data
+					o[d.id] = d
+
+				# deferred.resolve {list:data, map:0, last:data[0]}
+				scoreData =
+					list: data
+					map: o
+					last: data[0]
+
+			console.log scoreData
+
+			deferred.resolve scoreData
+		deferred.promise
+
 	getUserPermissions = ->
 		deferred = $q.defer()
 		Materia.Coms.Json.send 'permissions_get', [0, _widget.id], (perms) ->
@@ -113,6 +140,7 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	setSelectedId: setSelectedId
 	noWidgets: noWidgets
 	setNoWidgets: setNoWidgets
+	getScoreSummaries: getScoreSummaries
 	getUserPermissions: getUserPermissions
 	getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp

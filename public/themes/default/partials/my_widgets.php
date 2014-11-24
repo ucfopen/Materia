@@ -11,69 +11,69 @@
 		<section class="page"  ng-hide="noWidgetState == true">
 			<hgroup>
 				<h1>{{selectedWidget.name}}</h1>
-				<h3>{{selectedWidget.widget.type}}</h3>
+				<h3>{{selectedWidget.widget.name}}</h3>
 			</hgroup>
 			<div class="overview">
 				<div class="icon_container">
-					<img class="icon" src='/assets/img/default/default-icon-275.png' height="275px" width="275px"/>
+					<img class="icon" src='{{selectedWidget.icon}}' height="275px" width="275px"/>
 				</div>
 				<div class="controls">
 					<ul>
 						<li>
-							<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{preview}}">
+							<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{preview}}" ng-class="{'disabled': !selectedWidget.widget.is_playable}">
 								<span class="arrow arrow_right"></span>
 								Preview
 							</a>
 						</li>
 						<li>
-							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : accessLevel == 0 || selectedWidget.widget.is_editable == 0}" ng-disabled="{{accessLevel == 0}}" href="{{edit}}">
+							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : editable==false}" ng-disabled="{{editable}}" ng-href="{{edit}}">
 								<span class="pencil"></span>
 								Edit Widget
 							</a>
 						</li>
 					</ul>
 					<ul class="options">
-						<li class="share"><a href="#" id="share_widget_link">Collaborate</a></li>
+						<li class="share"><a href="#" id="share_widget_link">Collaborate {{collaborators > 0 ? "("+collaborators+")" : ""}}</a></li>
 						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="">Make a Copy</a></li>
-						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}">Delete</a></li>
+						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}"  ng-click="deleteToggled = !deleteToggled">Delete</a></li>
 					</ul>
-					<div class="delete_dialogue">
+					<div class="delete_dialogue" ng-show="deleteToggled">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
 						<a class="cancel_button" href="#">Cancel</a>
 						<a class="action_button red delete_button" href="#">Delete</a>
 					</div>
-					<div class="additional_options" ng-class="{'disabled': !playable}">
+					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!deleteToggled">
 						<h3>Settings:</h3>
-						<dl class="attempts_parent">
+						<dl class="attempts_parent" ng-class="{'disabled': !editable || !shareable}">
 							<dt>Attempts:</dt>
-							<dd id="attempts" ng-class="{'disabled':!playable}"></dd>
+							<dd id="attempts" ng-class="{'disabled':!editable || !shareable}"></dd>
 							<dt>Available:</dt>
-							<dd id="avaliability" ng-class="{'disabled':!playable}"></dd>
+							<dd id="avaliability" ng-class="{'disabled':!editable || !shareable}"></dd>
 						</dl>
-						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !playable}" href="#" ng-disabled="!playable">Edit settings...</a>
+						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
 					</div>
 				</div>
-				<div class="share-widget-container closed" ng-class="{'draft' : playable}" ng-disabled="playable">
-					<h3>{{playable ? "Publish to share" : "Share"}} with your students</h3>
-					<input id="play_link" type="text" ng-disabled="playable"/>
-					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link">use the embed code</span>).</p>
-					<textarea id="embed_link"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
+				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
+					<h3>{{shareable ? "Share" : "Publish to share"}} with your students</h3>
+					<input id="play_link" type="text" ng-disabled="!shareable" ng-disabled="!shareable" value="{{baseUrl}}play/{{selectedWidget.id}}/{{selectedWidget.clean_name}}"/>
+					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
+					<textarea id="embed_link" ng-show="embedToggle && shareable"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;" value="{{getEmbedLink()}}">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
 				</div>
 			</div>
-			<div class="scores">
+			<div class="scores" ng-show="shareable && selectedWidget.widget.is_scorable">
 				<h2>Student Activity</h2>
-				<span id="export_scores_button" class="action_button aux_button">
+				<span id="export_scores_button" class="action_button aux_button" ng-disabled="scores.list.length == 0 || !hasScores" ng-class="{'disabled': scores.list.length == 0}">
 					<span class="arrow_down"></span>
 					Export Scores
 				</span>
-				<div class="scoreWrapper" ng-controller="ScoreReportingController">
+				<div class="scoreWrapper" ng-show="scores.list.length > 0 || storageNotScoreData">
 					<h3 class="view">Semester X</h3>
 					<ul class="choices">
-						<li class="scoreTypeSelected"><a class="graph" href="#">Graph</a></li>
-						<li><a class="table" href="#">Individual Scores</a></li>
-						<li><a class="data" href="#">Data</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView == viewGraph}"><a class="graph" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView(viewGraph)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView == viewTable}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView(viewTable)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView == viewData}"><a class="data" href="#" ng-click="setScoreView(viewData)">Data</a></li>
 					</ul>
-					<div class="display table">
+					<div class="display table" ng-show="selectedScoreView == viewTable">
 						<div class="score-search">
 							<input type="text" placeholder="Search Students" />
 						</div>
@@ -89,20 +89,20 @@
 							<table class="scoreTable"></table>
 						</div>
 					</div>
-					<div class="display graph">
+					<div class="display graph" ng-show="selectedScoreView == viewGraph">
 						<div class="chart"></div>
 					</div>
-					<div class="display data">
+					<div class="display data" ng-show="selectedScoreView == viewData">
 					</div>
-					<ul class="numeric">
+					<ul class="numeric" ng-show="selectedScoreView != data">
 						<li><h4>Students</h4><p class="players" class="playerShrink">&nbsp;</p></li>
 						<li><h4>Scores</h4><p class="score-count">&nbsp;</p></li>
 						<li><h4>Avg Final Score</h4><p class="final-average">&nbsp;</p></li>
 
 					</ul>
-					<a role="button" class="show-older-scores-button" href="#">Show older scores...</a>
+					<a role="button" class="show-older-scores-button" href="#" ng-show="scores.list.length > 1">Show older scores...</a>
 				</div>
-				<p class="noScores">There are no scores to display</p>
+				<p class="noScores" ng-show="scores.list.length == 0">There are no scores to display</p>
 			</div>
 		</section>
 	</div>
