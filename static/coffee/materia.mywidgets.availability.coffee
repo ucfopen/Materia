@@ -264,6 +264,7 @@ Namespace('Materia.MyWidgets').Availability = do ->
 				_setSlider()
 
 			$('.save').click (e) ->
+				console.log "click saved!"
 				e.preventDefault()
 				_changeAvailability( -> $.jqmodal('close')) if _parseSubmittedInfo()
 				false

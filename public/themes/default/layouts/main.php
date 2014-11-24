@@ -8,7 +8,7 @@
 <![endif]-->
 
 <head>
-<base href="/" />
+<!-- <base href="/" /> -->
 <meta charset="utf-8" />
 <title><?= $title ?> | Materia</title>
 <?= Casset::render() ?>
