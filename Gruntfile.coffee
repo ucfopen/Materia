@@ -17,26 +17,56 @@ module.exports = (grunt) ->
 						srcDir+'coffee/app.coffee'
 					]
 
-			main:
+			# Student view
+			student:
 				files:
-					'public/themes/default/assets/js/main.js': [
-						srcDir+'coffee/controllers/ctrl-page.coffee'
-						srcDir+'coffee/materia.notification.coffee'
-						srcDir+'coffee/materia.page.notification.coffee'
-					]
-
-			controllers:
-				files:
-					'public/themes/default/assets/js/controllers.js': [
-						srcDir+'coffee/controllers/*',
+					'public/themes/default/assets/js/student.js': [
+						srcDir+'coffee/controllers/ctrl-page.coffee',
+						srcDir+'coffee/controllers/ctrl-notification.coffee',
+						srcDir+'coffee/controllers/ctrl-login.coffee',
+						srcDir+'coffee/controllers/ctrl-profile.coffee',
+						srcDir+'coffee/controllers/ctrl-scores.coffee',
+						srcDir+'coffee/controllers/ctrl-settings.coffee',
+						srcDir+'coffee/controllers/ctrl-help.coffee',
 						srcDir+'coffee/directives/*',
 					]
 
+			# Author view
+			author:
+				files:
+					'public/themes/default/assets/js/author.js': [
+						srcDir+'coffee/controllers/ctrl-page.coffee',
+						srcDir+'coffee/controllers/ctrl-notification.coffee',
+						srcDir+'coffee/controllers/ctrl-create.coffee',
+						srcDir+'coffee/controllers/ctrl-lti.coffee',
+						srcDir+'coffee/controllers/ctrl-media-import.coffee',
+						srcDir+'coffee/controllers/ctrl-question-import.coffee',
+						srcDir+'coffee/controllers/ctrl-my-widgets.coffee',
+						srcDir+'coffee/controllers/ctrl-spotlight.coffee',
+						srcDir+'coffee/controllers/ctrl-widget-catalog.coffee',
+						srcDir+'coffee/controllers/ctrl-widget-details.coffee',
+						srcDir+'coffee/directives/*',
+					]
+
+			# Materia APIs
 			materia:
 				files:
 					'public/themes/default/assets/js/materia.js': [
+						srcDir+'coffee/materia/materia.namespace.coffee',
 						srcDir+'coffee/materia/*.coffee'
 					]
+
+			all_js:
+				expand: true,
+				flatten: true,
+				cwd: srcDir+"coffee/materia/",
+				src: ['*'],
+				dest: 'static/js/',
+				rename: (dest, src) ->
+					folder = src.substring(0, src.lastIndexOf('/'))
+					filename = src.substring(src.lastIndexOf('/'), src.length)
+					filename = filename.substring(0, filename.lastIndexOf('.'))
+					return "#{dest}#{folder}#{filename}.js"
 
 			styleguide:
 				files:
