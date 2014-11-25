@@ -42,7 +42,7 @@ Namespace('Materia.Permissions').User = do ->
 	getExpirationDateString = (timestamp) ->
 		#unless timestamp? then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
 		timestamp = parseInt(timestamp, 10)
-		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+		
 
 	# Creates a new collaborator row in the collaboration dialog representing a persons access to a widget
 	#
