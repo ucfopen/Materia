@@ -161,33 +161,18 @@
 				<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
 			</li>
 		<ul class="toFrom">
-			<li><h3>Available</h3>
+			<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
 				<ul class="datePicker">
-					<li><input type="radio" name="fromAvailability" class="anytime availability" id="anytimeFrom" ng-click="start.anytime = true" ng-checked="start.anytime"/> <label for="anytimeFrom">Now</label></li>
-					<li>
-						<input type="radio"  name="fromAvailability" class="specify availability" id="specifyFrom" ng-checked="!start.anytime"/>
-						<label for="specifyFrom">On</label>
-						<input type="text" class="date from" placeholder="Date" ng-click="start.anytime = false" ng-model="start.date"/> at
-						<input type="text" id="startTime" class="time" placeholder="Time"  ng-click="start.anytime = false" ng-model="start.time"/>
-						<span class="am start ampm" ng-class="{selected: start.period == 'am'}" ng-click="changePeriod(1, 'am')">am</span><span class="pm start ampm" ng-class="{selected: start.period == 'pm'}" ng-click="changePeriod(1, 'pm')">pm</span>
+					<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+					<li ng-click="available.anytime = false">
+						<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+						<label>On</label>
+						<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" placeholder="Date" ng-model="available.date"/> at
+						<input type="text" class="time" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time"/>
+						<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="changePeriod($index, 'am')">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="changePeriod($index, 'pm')">pm</span>
 					</li>
 				</ul>
 			</li>
-			<li><h3>Closes</h3>
-				<ul class="datePicker">
-					<li><input type="radio" name="toAvailability" class="anytime availability" id="anytimeTo"  ng-click="end.anytime = true" ng-checked="end.anytime"/> <label for="anytimeTo">Never</label></li> 
-					<li>
-						<input type="radio"  name="toAvailability" class="specify availability" id="specifyTo" ng-checked="!end.anytime"/>
-						<label for="specifyTo">On</label>
-						<input type="text" class="date to" placeholder="Date" ng-click="end.anytime = false" ng-model="end.date"/> at
-						<input type="text" id="endTime" class="time" placeholder="Time" ng-click="end.anytime = false" ng-model="end.time" ng-blur="checkTime()"/>
-						<span class="am end ampm" ng-class="{selected: end.period == 'am'}" ng-click="changePeriod(0, 'am')">am</span><span class="pm end ampm" ng-class="{selected: end.period =='pm'}" ng-click="changePeriod(0, 'pm')">pm</span>
-					</li>
-				</ul>
-				<p class="data_explination">These fields define when a student can access your widget.</p>
-			</li>
-		</ul>
-
 		<ul class="inline">
 			<li><a href="#" class="cancel_button">Cancel</a></li>
 			<li><a href class="action_button green save" ng-click="parseSubmittedInfo()">Save</a></li>
