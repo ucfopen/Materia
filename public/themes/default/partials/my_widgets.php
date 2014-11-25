@@ -16,19 +16,19 @@
 					<div class="options" ng-repeat-end>
 						<span class="owner">Full</span>
 						<span class="undo">Removed <a href="#">Undo</a></span>
-						<select tabindex="0" id="perm" class="perm">
+						<select tabindex="0" id="perm" class="perm" ng-model="user.access">
 							<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
 							<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
 						</select>
 
-						<a tabindex="0" href="#" class="remove-expiration" role="button" ng-show="user.expires">X</a>
-						<span class="expires">Expires: </span><input type="text" class="exp-date" ng-model="user.expiresText" readonly="true" />
+						<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
+						<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
 
 					</div>
 				</div>
 				<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
 				<a tabindex="0" class="cancel_button" ng-click="showCollaborationModal = false">Cancel</a>
-				<a tabindex="0" class="action_button green save_button">Save</a>
+				<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
 			</div>
 		</div>
 		<section class="directions" ng-show="noWidgetState == false">
