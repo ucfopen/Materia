@@ -997,14 +997,25 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			$scope.$apply()
 
 			# fill in the expiration link text & setup click event
-			$expirationButton = $(".exp-date")
-			$expirationButton.datepicker
-				minDate: getDateForBeginningOfTomorrow()
-				onSelect: (dateText, inst) ->
-					modifyExpiration(collaborator, $(this).datepicker('getDate').getTime() / 1000, $row)
+			for user in users
+				$(".exp-date.user" + user.id).datepicker
+					minDate: getDateForBeginningOfTomorrow()
+					onSelect: (dateText, inst) ->
+						timestamp = $(this).datepicker('getDate').getTime() / 1000
+						user.expires = timestamp
+						user.expiresText = getExpiresText(timestamp)
+						$scope.$apply()
 
 			console.log users
 		$scope.showCollaborationModal = true
+
+	$scope.removeExpires = (user) ->
+		user.expires = null
+		user.expiresText = getExpiresText(user.expires)
+
+	getExpiresText = (timestamp) ->
+		timestamp = parseInt(timestamp, 10)
+		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
@@ -1030,3 +1041,15 @@ MyWidgets.controller 'ScoreReportingController', ($scope) ->
 
 MyWidgets.controller 'CollaborationController', ($scope) ->
 	console.log $scope
+	$scope.updatePermissions = (users) ->
+		permObj = []
+
+		for user in users
+			permObj.push
+				user_id: user.id
+				expiration: user.expires
+				perms: [null] #.access
+
+		console.log $scope.$parent.selectedWidget
+		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
+			console.log returnData
