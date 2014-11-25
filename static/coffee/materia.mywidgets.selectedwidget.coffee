@@ -970,6 +970,42 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# 		show:
 	# 			ready: true
 
+	getDateForBeginningOfTomorrow = ->
+		d = new Date()
+		d.setDate(d.getDate() + 1)
+		new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+	$scope.showCollaboration = ->
+		user_ids = []
+		for user of $scope.perms.widget
+			user_ids.push user
+
+		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
+			users.sort (a,b) ->
+				if(a.first < b.first || (a.first == b.first && a.last < b.last) || (a.last == b.last && a.middle < b.middle))
+					return -1
+				return 1
+
+			for user in users
+				user.access = $scope.perms.widget[user.id][0]
+				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
+				user.expires = timestamp
+				user.expiresText = if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+				user.gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+
+			$scope.collaborators = users
+			$scope.$apply()
+
+			# fill in the expiration link text & setup click event
+			$expirationButton = $(".exp-date")
+			$expirationButton.datepicker
+				minDate: getDateForBeginningOfTomorrow()
+				onSelect: (dateText, inst) ->
+					modifyExpiration(collaborator, $(this).datepicker('getDate').getTime() / 1000, $row)
+
+			console.log users
+		$scope.showCollaborationModal = true
+
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
 		# getSelectedId				: getSelectedId,
@@ -991,3 +1027,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
+
+MyWidgets.controller 'CollaborationController', ($scope) ->
+	console.log $scope
