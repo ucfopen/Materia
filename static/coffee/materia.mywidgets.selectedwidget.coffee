@@ -37,6 +37,11 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	$scope.baseUrl = BASE_URL
 
+	$scope.popup = () ->
+		console.log("hello")
+		Materia.MyWidgets.Availability.popup()
+		return
+
 	# Initializes the gateway for the api
 	# @string path to gateway
 	init = (gateway) ->
@@ -211,7 +216,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# 	$('#attempts').removeClass('disabled')
 				# 	$('#avaliability').removeClass('disabled')
 
-				$('#edit-avaliability-button').unbind('click')
+				# $('#edit-avaliability-button').unbind('click')
 				$('#attempts').unbind('click')
 				$('#avaliability').unbind('click')
 				jqmodalOptions =
@@ -357,7 +362,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 						html             : $('#t-edit-widget-published').html(),
 						closingSelectors : ['.cancel_button']
 					, ->
-						$('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
+						# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
 
 				# TODO: this case should probably be combined with the else case above?
 				if !$scope.selectedWidget.widget.is_draft
