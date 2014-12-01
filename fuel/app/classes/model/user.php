@@ -54,11 +54,6 @@ class Model_User extends Orm\Model
 		$this->set('profile_fields', array_merge(static::$_default_profile_fields, $profile_fields));
 	}
 
-	public static function find_clean($id)
-	{
-		return static::sanitize_user_array([self::find($id)])[0];
-	}
-
 	public static function find_current()
 	{
 		$array = Auth::instance()->get_user_id();
@@ -71,11 +66,6 @@ class Model_User extends Orm\Model
 		$array = Auth::instance()->get_user_id();
 		if ( empty($array)) return false;
 		return $array[1];
-	}
-
-	public static function find_by_username($username)
-	{
-		return static::sanitize_user_array(static::query()->where('username', $username)->get_one());
 	}
 
 	static public function find_by_name_search($name)
@@ -107,7 +97,7 @@ class Model_User extends Orm\Model
 					->as_object("Model_User")
 					->execute();
 
-		return static::sanitize_user_array($matches);
+		return $matches;
 	}
 
 	public static function validate($factory)
@@ -229,16 +219,4 @@ class Model_User extends Orm\Model
 		return $logged_in;
 	}
 
-	// Explicitly removes sensitive data from user arrays returned from database,
-	// since Fuel's _to_array_exclude isn't being used in a lot of cases
-	static function sanitize_user_array($users)
-	{
-		foreach ($users as $user)
-		{
-			unset($user["password"]);
-			unset($user["login_hash"]);
-		}
-
-		return $users;
-	}
 }
