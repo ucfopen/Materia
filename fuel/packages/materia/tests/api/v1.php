@@ -632,18 +632,18 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUser($output);
-		$this->assertEquals('~student', $output->username);
+		$this->assertIsUserArray($output);
+		$this->assertEquals('~student', $output['username']);
 		// ======= AUTHOR ========
 		$this->_asAuthor();
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUser($output);
-		$this->assertEquals('~author', $output->username);
+		$this->assertIsUserArray($output);
+		$this->assertEquals('~author', $output['username']);
 		// ======= SU ========
 		$this->_asSu();
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUser($output);
-		$this->assertEquals('~testSu', $output->username);
+		$this->assertIsUserArray($output);
+		$this->assertEquals('~testSu', $output['username']);
 	}
 
 	public function test_user_update_meta()
@@ -659,9 +659,9 @@ class Test_Api_V1 extends \Basetest
 
 		// test that the metadata exists
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUser($output);
-		$this->assertArrayHasKey('test', $output->profile_fields);
-		$this->assertEquals('value', $output->profile_fields['test']);
+		$this->assertIsUserArray($output);
+		$this->assertArrayHasKey('test', $output['profile_fields']);
+		$this->assertEquals('value', $output['profile_fields']['test']);
 
 		// ======= SU ========
 		// $this->_asSu();
@@ -898,27 +898,35 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::users_search('~test');
-		$this->assertInternalType('object', $output);
+		$this->assertInternalType('array', $output);
 		$this->assertCount(2, $output);
-		$this->assertIsUser($output[0]);
+		$this->assertIsUserArray($output[0]);
+		$this->assertFalse(array_key_exists('password', $output));
+		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
 		$output = \Materia\Api_V1::users_search('~testAuthor2');
-		$this->assertInternalType('object', $output);
+		$this->assertInternalType('array', $output);
 		$this->assertCount(1, $output);
-		$this->assertIsUser($output[0]);
+		$this->assertIsUserArray($output[0]);
+		$this->assertFalse(array_key_exists('password', $output));
+		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		$output = \Materia\Api_V1::users_search('~student');
-		$this->assertInternalType('object', $output);
+		$this->assertInternalType('array', $output);
 		$this->assertCount(1, $output);
+		$this->assertFalse(array_key_exists('password', $output));
+		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		// ======= SU ========
 		$this->_asSu();
 		$output = \Materia\Api_V1::users_search('~');
-		$this->assertInternalType('object', $output);
+		$this->assertInternalType('array', $output);
 		$this->assertCount(4, $output);
-		$this->assertIsUser($output[0]);
+		$this->assertIsUserArray($output[0]);
+		$this->assertFalse(array_key_exists('password', $output[0]));
+		$this->assertFalse(array_key_exists('login_hash', $output[0]));
 
 	}
 
