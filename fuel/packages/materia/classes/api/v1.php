@@ -618,7 +618,7 @@ class Api_V1
 			{
 				if (\RocketDuck\Util_Validator::is_pos_int($id))
 				{
-					$user = \Model_User::find($id);
+					$user = \Model_User::find_clean($id);
 					$user['isCurrentUser'] = ($id == $me);
 					$results[] = $user;
 				}
