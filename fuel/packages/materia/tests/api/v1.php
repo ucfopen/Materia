@@ -633,17 +633,17 @@ class Test_Api_V1 extends \Basetest
 		$this->_asStudent();
 		$output = \Materia\Api_V1::user_get();
 		$this->assertIsUserArray($output);
-		$this->assertEquals('~student', $output->username);
+		$this->assertEquals('~student', $output['username']);
 		// ======= AUTHOR ========
 		$this->_asAuthor();
 		$output = \Materia\Api_V1::user_get();
 		$this->assertIsUserArray($output);
-		$this->assertEquals('~author', $output->username);
+		$this->assertEquals('~author', $output['username']);
 		// ======= SU ========
 		$this->_asSu();
 		$output = \Materia\Api_V1::user_get();
 		$this->assertIsUserArray($output);
-		$this->assertEquals('~testSu', $output->username);
+		$this->assertEquals('~testSu', $output['username']);
 	}
 
 	public function test_user_update_meta()
@@ -660,8 +660,8 @@ class Test_Api_V1 extends \Basetest
 		// test that the metadata exists
 		$output = \Materia\Api_V1::user_get();
 		$this->assertIsUserArray($output);
-		$this->assertArrayHasKey('test', $output->profile_fields);
-		$this->assertEquals('value', $output->profile_fields['test']);
+		$this->assertArrayHasKey('test', $output['profile_fields']);
+		$this->assertEquals('value', $output['profile_fields']['test']);
 
 		// ======= SU ========
 		// $this->_asSu();
