@@ -596,7 +596,7 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
 
-		return \Model_User::find_by_name_search($search);
+		return \Model_User::find_by_name_search($search)->to_array();
 	}
 	/**
 	 * Gets information about the current user
@@ -608,7 +608,7 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
 		//no user ids provided, return current user
-		if ($user_ids === null) return \Model_User::find_current();
+		if ($user_ids === null) return \Model_User::find_current()->to_array();
 		else
 		{
 			if ( ! is_array($user_ids) || empty($user_ids)) return \RocketDuck\Msg::invalid_input();
@@ -618,9 +618,9 @@ class Api_V1
 			{
 				if (\RocketDuck\Util_Validator::is_pos_int($id))
 				{
-					$user = \Model_User::find_clean($id);
+					$user = \Model_User::find($id);
 					$user['isCurrentUser'] = ($id == $me);
-					$results[] = $user;
+					$results[] = $user->to_array();
 				}
 			}
 			return $results;
