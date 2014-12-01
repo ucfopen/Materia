@@ -1045,10 +1045,14 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 		permObj = []
 
 		for user in users
+			access = []
+			for i in [0...user.access]
+				access.push null
+			access.push true
 			permObj.push
 				user_id: user.id
 				expiration: user.expires
-				perms: [null] #.access
+				perms: access
 
 		console.log $scope.$parent.selectedWidget
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
