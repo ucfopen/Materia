@@ -901,6 +901,8 @@ class Test_Api_V1 extends \Basetest
 		$this->assertInternalType('object', $output);
 		$this->assertCount(2, $output);
 		$this->assertIsUser($output[0]);
+		$this->assertFalse(array_key_exists('password', $output));
+		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
@@ -908,10 +910,14 @@ class Test_Api_V1 extends \Basetest
 		$this->assertInternalType('object', $output);
 		$this->assertCount(1, $output);
 		$this->assertIsUser($output[0]);
+		$this->assertFalse(array_key_exists('password', $output));
+		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		$output = \Materia\Api_V1::users_search('~student');
 		$this->assertInternalType('object', $output);
 		$this->assertCount(1, $output);
+		$this->assertFalse(array_key_exists('password', $output));
+		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		// ======= SU ========
 		$this->_asSu();
@@ -919,6 +925,8 @@ class Test_Api_V1 extends \Basetest
 		$this->assertInternalType('object', $output);
 		$this->assertCount(4, $output);
 		$this->assertIsUser($output[0]);
+		$this->assertFalse(array_key_exists('password', $output[0]));
+		$this->assertFalse(array_key_exists('login_hash', $output[0]));
 
 	}
 

@@ -596,18 +596,19 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
 
-		$people = \Model_User::find_by_name_search($search);
+		$user_objects = \Model_User::find_by_name_search($search);
+		$user_arrays = [];
 
 		// scrub the user models with to_array
-		if (count($people))
+		if (count($user_objects))
 		{
-			foreach ($people as $key => $person)
+			foreach ($user_objects as $key => $person)
 			{
-				$people[$key] = $person->to_array();
+				$user_arrays[$key] = $person->to_array();
 			}
 		}
 
-		return $people;
+		return $user_arrays;
 	}
 	/**
 	 * Gets information about the current user
