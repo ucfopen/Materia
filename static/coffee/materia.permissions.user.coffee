@@ -188,100 +188,6 @@ Namespace('Materia.Permissions').User = do ->
 			showSelfDemotionWarning $row, EXPIRE_SELF_MSG, (confirmed) ->
 				modifyFunction(confirmed ? newExpirationTimestamp : null)
 
-	search = (nameOrFragment) ->
-		Materia.Set.Throbber.startSpin '.search_list',
-			withDelay: false
-			withBackground: false
-			absolute: false
-
-		inputArray = nameOrFragment.split(',')
-		nameOrFragment = inputArray[inputArray.length - 1]
-
-		if(nameOrFragment.length < 1)
-			stopSpin()
-			return
-		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
-			if(matches == null || typeof matches == 'undefined' || matches.length < 1)
-				noMatchMsg = "The person you're searching for may need to log in to create an account."
-				$('#popup .search_list').html("<p class='no_match_message'>No matches found.</p>")
-				$('#popup .search_list .no_match_message').after("<p class='no_match_reason'>"+noMatchMsg+"</p>")
-				stopSpin()
-				return
-
-			matchesHolder = $("<div></div>")
-
-			for user in matches
-				#match = $("#matchdump").clone()
-				match = $('<div><img class="user_match_avatar" src=""></img><p class="user_match_name"></p></div>')
-
-				$(match).attr('id','match_user_'+user.id)
-				$(match).addClass('search_match')
-				$(match).attr('tabindex',0)
-				gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
-				$(match).find('.user_match_avatar').attr('src',gravatar)
-				$(match).find('.user_match_email').attr('value',user.email)
-				$(match).find('.user_match_name').html(user.first + " " + user.last)
-
-				$.data(match[0],"info",{id: user.id, first:user.first, last:user.last, email: user.email})
-				matchesHolder.append(match)
-
-				if(matches.length == 1)
-					$(match).css('background-color','#7fc9f3')
-
-			$('#popup .search_list').empty()
-			matchesHolder.children().each ->
-				$new_perm = this
-				$('#popup .search_list').append($new_perm)
-
-			$("#popup").tablock("reset")
-			$('.search_match').click(searchMatchClick)
-			targetIndex = -1
-			searchList = $('#popup .search_list').children()
-
-			$('#popup.share').keyup (e) ->
-				if(e.which >= 37 && e.which <= 40) #arrow keys
-					e.preventDefault()
-					targetIndex = $.inArray(searchList[targetIndex],searchList)
-
-					switch e.which
-						when 37 #left arrow
-							if targetIndex > -1
-								targetIndex--
-							else
-								stopSpin()
-								return
-						when 38 #up arrow
-							if(targetIndex < 2)
-								$('#popup .user_add').focus()
-								targetIndex = -1
-								stopSpin()
-								return
-							else
-								targetIndex-=2
-						when 39  #right arrow
-							if(targetIndex > -1)
-								targetIndex++
-							else
-								stopSpin()
-								return
-						when 40 #down arrow
-							if(targetIndex == -1)
-								targetIndex = 0
-							else
-								targetIndex+=2
-
-					$(searchList[targetIndex]).focus()
-
-				else if(e.which == 13) #enter
-					if (searchList.length == 1)
-						$(searchList[0]).click()
-					else if (searchList.length > 1)
-						$(searchList[targetIndex]).click()
-			stopSpin()
-
-	stopSpin = ->
-		Materia.Set.Throbber.stopSpin('.search_list')
-
 	searchMatchClick = ->
 		clickedMatch = $(this)[0]
 		info = $.data(clickedMatch, "info")
@@ -335,6 +241,6 @@ Namespace('Materia.Permissions').User = do ->
 
 	init                    : init
 	createCollaboratorRow   : createCollaboratorRow
-	search                  : search
+	#search                  : search
 	repositionSearchWindow  : repositionSearchWindow
 	updatePerms             : updatePerms

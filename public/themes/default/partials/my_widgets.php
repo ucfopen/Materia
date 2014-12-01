@@ -4,7 +4,7 @@
 			<h2>Collaboration:</h2>
 			<div id="access" class="container">
 				<div class="list_tab_lock">
-					<span class="input_label">Add people:</span><input tabindex="0" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail"/>
+					<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
 					<div class="search_list"></div>
 				</div>
 				<div class="access_list">
