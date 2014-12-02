@@ -1070,6 +1070,7 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 
 		$scope.$parent.collaborators.push
 			id: user.id
+			isCurrentUser: user.isCurrentUser
 			expires: null
 			expiresText: "Never"
 			first: user.first
@@ -1088,6 +1089,10 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 		permObj = []
 
 		for user in users
+			# Do not allow saving if a demotion dialog is on the screen
+			if user.warning
+				return
+
 			access = []
 			for i in [0...user.access]
 				access.push null
@@ -1100,3 +1105,18 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 				perms: access
 
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
+			if returnData == true
+				$scope.$parent.showCollaborationModal = false
+			else
+				alert(returnData.msg)
+			$scope.$apply()
+
+	$scope.checkForWarning = (user) ->
+		if user.isCurrentUser and user.access < 30
+			user.warning = true
+
+	$scope.cancelDemote = (user) ->
+		user.warning = false
+		user.access = 30
+
+
