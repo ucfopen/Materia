@@ -1597,7 +1597,8 @@
 	overflow: auto;
 	z-index:3;
 	text-align: left;
-	display:none;
+	top: 50px;
+	left: 120px;
 }
 .popup.share .no_match_message, .popup.share .no_match_reason
 {
