@@ -996,18 +996,21 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			$scope.collaborators = users
 			$scope.$apply()
 
-			# fill in the expiration link text & setup click event
-			for user in users
-				$(".exp-date.user" + user.id).datepicker
-					minDate: getDateForBeginningOfTomorrow()
-					onSelect: (dateText, inst) ->
-						timestamp = $(this).datepicker('getDate').getTime() / 1000
-						user.expires = timestamp
-						user.expiresText = getExpiresText(timestamp)
-						$scope.$apply()
+			$scope.setupPickers()
 
 			console.log users
 		$scope.showCollaborationModal = true
+
+	$scope.setupPickers = ->
+		# fill in the expiration link text & setup click event
+		for user in $scope.collaborators
+			$(".exp-date.user" + user.id).datepicker
+				minDate: getDateForBeginningOfTomorrow()
+				onSelect: (dateText, inst) ->
+					timestamp = $(this).datepicker('getDate').getTime() / 1000
+					user.expires = timestamp
+					user.expiresText = getExpiresText(timestamp)
+					$scope.$apply()
 
 	$scope.removeExpires = (user) ->
 		user.expires = null
@@ -1043,11 +1046,9 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 	console.log $scope
 
 	$scope.search = (nameOrFragment) ->
+		$scope.searching = true
+
 		console.log nameOrFragment
-		Materia.Set.Throbber.startSpin '.search_list',
-			withDelay: false
-			withBackground: false
-			absolute: false
 
 		inputArray = nameOrFragment.split(',')
 		nameOrFragment = inputArray[inputArray.length - 1]
@@ -1057,12 +1058,15 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 			return
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
 			if(matches == null || typeof matches == 'undefined' || matches.length < 1)
-				noMatchMsg = "The person you're searching for may need to log in to create an account."
-				$('#popup .search_list').html("<p class='no_match_message'>No matches found.</p>")
-				$('#popup .search_list .no_match_message').after("<p class='no_match_reason'>"+noMatchMsg+"</p>")
+				$scope.searchResults = []
 				stopSpin()
 				return
 
+			for user in matches
+				user.gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+			$scope.searchResults = matches
+			$scope.$apply()
+			###
 			matchesHolder = $("<div></div>")
 
 			for user in matches
@@ -1133,9 +1137,35 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 					else if (searchList.length > 1)
 						$(searchList[targetIndex]).click()
 			stopSpin()
+			###
+			stopSpin()
 
 	stopSpin = ->
 		Materia.Set.Throbber.stopSpin('.search_list')
+
+	$scope.searchMatchClick = (user) ->
+		$scope.searching = false
+
+		# Do not add duplicates
+		for existing_user in $scope.$parent.collaborators
+			if user.id == existing_user.id
+				return
+
+		$scope.$parent.collaborators.push
+			id: user.id
+			expires: null
+			expiresText: "Never"
+			first: user.first
+			last: user.last
+			gravatar: 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+			access: 0
+
+		setTimeout ->
+			$scope.$parent.setupPickers()
+		, 1
+
+	$scope.removeAccess = (user) ->
+		user.remove = true
 
 	$scope.updatePermissions = (users) ->
 		permObj = []
@@ -1144,7 +1174,9 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 			access = []
 			for i in [0...user.access]
 				access.push null
-			access.push true
+
+			access.push if user.remove then false else true
+
 			permObj.push
 				user_id: user.id
 				expiration: user.expires

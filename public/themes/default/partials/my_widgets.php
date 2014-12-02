@@ -5,25 +5,36 @@
 			<div id="access" class="container">
 				<div class="list_tab_lock">
 					<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
-					<div class="search_list"></div>
+					<div class="search_list" ng-show="searching">
+						<div ng-show="searchResults.length == 0">
+							<p class="no_match_message">No matches found.</p>
+							<p class="no_match_reason">The person you're searching for may need to log in to create an account.</p>
+						</div>
+						<div ng-repeat="result in searchResults" ng-click="searchMatchClick(result)" class="search_match">
+							<img class="user_match_avatar" ng-src="{{ result.gravatar }}">
+							<p class="user_match_name">{{ result.first }} {{ result.last }}</p>
+						</div>
+					</div>
 				</div>
 				<div class="access_list">
-					<a tabindex="0" href="#" ng-click="removeAccess(user)" class="remove" ng-repeat-start="user in $parent.collaborators">&#88;</a>
-					<img class="avatar" ng-src="{{ user.gravatar }}" />
+					<div ng-repeat="user in $parent.collaborators" ng-show="!user.remove" class="user_perm">
+						<a tabindex="0" href="javascript:;" ng-click="removeAccess(user)" class="remove">&#88;</a>
+						<img class="avatar" ng-src="{{ user.gravatar }}" />
 
-					<span class="name">{{ user.first }} {{ user.last }}</span>
+						<span class="name">{{ user.first }} {{ user.last }}</span>
 
-					<div class="options" ng-repeat-end>
-						<span class="owner">Full</span>
-						<span class="undo">Removed <a href="#">Undo</a></span>
-						<select tabindex="0" id="perm" class="perm" ng-model="user.access">
-							<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
-							<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
-						</select>
+						<div class="options">
+							<span class="owner">Full</span>
+							<span class="undo">Removed <a href="#">Undo</a></span>
+							<select tabindex="0" id="perm" class="perm" ng-model="user.access">
+								<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
+								<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
+							</select>
 
-						<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
-						<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
+							<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
+							<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
 
+						</div>
 					</div>
 				</div>
 				<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>

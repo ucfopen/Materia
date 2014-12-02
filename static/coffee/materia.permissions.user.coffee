@@ -188,38 +188,6 @@ Namespace('Materia.Permissions').User = do ->
 			showSelfDemotionWarning $row, EXPIRE_SELF_MSG, (confirmed) ->
 				modifyFunction(confirmed ? newExpirationTimestamp : null)
 
-	searchMatchClick = ->
-		clickedMatch = $(this)[0]
-		info = $.data(clickedMatch, "info")
-		selectedUsers = $('#popup #access .access_list .user_perm')
-		popup_data = $('#popup.share').data()
-
-		for user in selectedUsers
-			if(user.id.split('-')[1] == info.id)
-				alert("This user already has access to this widget.")
-				# clear input field and hide slider -- should be moved to a function
-				$('#popup .user_add').val("")
-				$('#popup .search_list').empty().slideUp(50)
-				return
-
-		newDiv = $('<input class="share_user_to_add" type="button" value="'+info.first+" "+info.last+'"/>')
-
-		$(newDiv).click ->
-			lastHeight = $('#popup  #input_area').height()
-			$(this).remove()
-			if($('#popup  #input_area').height() != lastHeight)
-				Permissions.User.repositionSearchWindow()
-		# add the new user
-		popup_data.usersToAdd.push(info.id)
-
-		$('.search_match').remove()
-
-		$('.user_add').val("")
-		$('#popup .search_list').hide()
-		$('#popup .adding_shadow').hide()
-
-		Materia.Permissions.Widget.buildPermsList()
-
 	repositionSearchWindow = ->
 		addPos = $('#popup .user_add').offset()
 		addPosHeight = $('#popup .user_add').height()
