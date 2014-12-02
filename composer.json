@@ -11,14 +11,10 @@
                 "name": "fuel/auth",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/auth/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/auth.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -28,14 +24,10 @@
                 "name": "fuel/email",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/email/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/email.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -45,14 +37,10 @@
                 "name": "fuel/oil",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/oil/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/oil.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -62,14 +50,10 @@
                 "name": "fuel/orm",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/orm/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/orm.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -79,14 +63,10 @@
                 "name": "fuel/parser",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/parser/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/parser.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -96,14 +76,10 @@
                 "name": "fuel/core",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/core/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/core.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -113,14 +89,10 @@
                 "name": "fuel/docs",
                 "type": "fuel-package",
                 "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/docs/archive/1.7/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/fuel/docs.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         }
