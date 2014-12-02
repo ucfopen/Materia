@@ -990,7 +990,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
 				user.expiresText = if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
-				user.gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+				user.gravatar = getGravatar(user.email)
 
 			$scope.collaborators = users
 			$scope.$apply()
@@ -1017,6 +1017,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	getExpiresText = (timestamp) ->
 		timestamp = parseInt(timestamp, 10)
 		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+
+	$scope.getGravatar = getGravatar = (email) ->
+		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
@@ -1057,7 +1060,7 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 				return
 
 			for user in matches
-				user.gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+				user.gravatar = $scope.$parent.getGravatar(user.email)
 			$scope.searchResults = matches
 			$scope.$apply()
 
@@ -1076,7 +1079,7 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 			expiresText: "Never"
 			first: user.first
 			last: user.last
-			gravatar: 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+			gravatar: user.gravatar
 			access: 0
 
 		setTimeout ->
