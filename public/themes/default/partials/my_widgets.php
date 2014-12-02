@@ -1,6 +1,6 @@
 <div class="container" ng-app="MyWidgets">
 	<div ng-controller="SelectedWidgetController">
-		<div ng-controller="CollaborationController" class="popup light share" ng-show="showCollaborationModal">
+		<div ng-controller="CollaborationController" class="popup light share" ng-show="$parent.showCollaborationModal">
 			<h2>Collaboration:</h2>
 			<div id="access" class="container">
 				<div class="list_tab_lock">
@@ -38,7 +38,7 @@
 					</div>
 				</div>
 				<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-				<a tabindex="0" class="cancel_button" ng-click="showCollaborationModal = false">Cancel</a>
+				<a tabindex="0" class="cancel_button" ng-click="$parent.showCollaborationModal = false">Cancel</a>
 				<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
 			</div>
 		</div>
@@ -75,7 +75,7 @@
 						</li>
 					</ul>
 					<ul class="options">
-						<li class="share"><a href="javascript:;" ng-click="showCollaboration()">Collaborate</a></li>
+						<li class="share"><a href="javascript:;" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</a></li>
 						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="">Make a Copy</a></li>
 						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}">Delete</a></li>
 					</ul>
