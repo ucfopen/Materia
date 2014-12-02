@@ -11,6 +11,10 @@
                 "name": "fuel/auth",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/auth/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/auth.git",
                     "type": "git",
@@ -24,6 +28,10 @@
                 "name": "fuel/email",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/email/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/email.git",
                     "type": "git",
@@ -37,6 +45,10 @@
                 "name": "fuel/oil",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/oil/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/oil.git",
                     "type": "git",
@@ -50,6 +62,10 @@
                 "name": "fuel/orm",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/orm/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/orm.git",
                     "type": "git",
@@ -63,6 +79,10 @@
                 "name": "fuel/parser",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/parser/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/parser.git",
                     "type": "git",
@@ -76,6 +96,10 @@
                 "name": "fuel/core",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/core/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/core.git",
                     "type": "git",
@@ -89,6 +113,10 @@
                 "name": "fuel/docs",
                 "type": "fuel-package",
                 "version": "1.7.2",
+                "dist": {
+                    "url": "https://github.com/fuel/docs/archive/1.7/master.zip",
+                    "type": "zip"
+                },
                 "source": {
                     "url": "https://github.com/fuel/docs.git",
                     "type": "git",
@@ -100,21 +128,21 @@
     "require": {
         "php": ">=5.3.3",
         "composer/installers": "~1.0",
-        "fuel/docs": "1.7.2",
         "fuel/core": "1.7.2",
         "fuel/auth": "1.7.2",
         "fuel/email": "1.7.2",
         "fuel/oil": "1.7.2",
         "fuel/orm": "1.7.2",
         "fuel/parser": "1.7.2",
-        "fuelphp/upload": "2.0.1",
-        "monolog/monolog": "1.5.*",
-        "michelf/php-markdown": "1.4.0"
+        "monolog/monolog": "1.5.*"
     },
     "require-dev": {
         "phpunit/phpunit": "4.1.*"
     },
     "suggest": {
+        "fuel/docs": "FuelPHP documentation",
+        "fuelphp/upload": "FuelPHP Uploader",
+        "michelf/php-markdown": "FuelPHP Parser Markdown",
         "dwoo/dwoo" : "Allow Dwoo templating with the Parser package",
         "mustache/mustache": "Allow Mustache templating with the Parser package",
         "smarty/smarty": "Allow Smarty templating with the Parser package",
