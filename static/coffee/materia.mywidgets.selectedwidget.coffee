@@ -977,6 +977,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		user_ids = []
 		for user of $scope.perms.widget
 			user_ids.push user
+		$scope.collaborators = []
 
 		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
 			users.sort (a,b) ->
