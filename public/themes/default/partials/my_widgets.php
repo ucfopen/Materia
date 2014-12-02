@@ -23,10 +23,18 @@
 
 						<span class="name">{{ user.first }} {{ user.last }}</span>
 
+						<div class="demote_dialogue" ng-show="user.warning">
+							<div class="arrow"></div>
+							<div class="warning">Are you sure you want to limit <strong>your</strong> access?
+							</div>
+							<a href="javascript:;" ng-click="cancelDemote(user)" class="no_button">No</a>
+							<a href="javascript:;" ng-click="user.warning = false" class="button red action_button yes_button">Yes</a>
+						</div>
+
 						<div class="options">
 							<span class="owner">Full</span>
 							<span class="undo">Removed <a href="#">Undo</a></span>
-							<select tabindex="0" id="perm" class="perm" ng-model="user.access">
+							<select tabindex="0" id="perm" class="perm" ng-model="user.access" ng-change="checkForWarning(user)">
 								<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
 								<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
 							</select>

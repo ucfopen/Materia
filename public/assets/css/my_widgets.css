@@ -1936,6 +1936,9 @@
 	text-align: center;
 	background: #fcdbdb;
 	height: 40px;
+	z-index: 10000;
+	position:absolute;
+	margin-left: 90px;
 }
 
 .popup.share .demote_dialogue .arrow
