@@ -263,9 +263,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				for id of $scope.perms.widget
 					if id != $scope.user.id then count++
 
-				str = 'Collaborate'
-				str += ' ('+count+')' if count > 0
-				$('#share_widget_link').text(str)
+				$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
 
 				populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 				populateAttempts($scope.selectedWidget.attempts)
@@ -998,7 +996,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 			$scope.setupPickers()
 
-			console.log users
 		$scope.showCollaborationModal = true
 
 	$scope.setupPickers = ->
@@ -1043,12 +1040,8 @@ MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
 
 MyWidgets.controller 'CollaborationController', ($scope) ->
-	console.log $scope
-
 	$scope.search = (nameOrFragment) ->
 		$scope.searching = true
-
-		console.log nameOrFragment
 
 		inputArray = nameOrFragment.split(',')
 		nameOrFragment = inputArray[inputArray.length - 1]
@@ -1066,82 +1059,6 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 				user.gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
 			$scope.searchResults = matches
 			$scope.$apply()
-			###
-			matchesHolder = $("<div></div>")
-
-			for user in matches
-				#match = $("#matchdump").clone()
-				match = $('<div><img class="user_match_avatar" src=""></img><p class="user_match_name"></p></div>')
-
-				$(match).attr('id','match_user_'+user.id)
-				$(match).addClass('search_match')
-				$(match).attr('tabindex',0)
-				gravatar = 'https://secure.gravatar.com/avatar/'+hex_md5(user.email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
-				$(match).find('.user_match_avatar').attr('src',gravatar)
-				$(match).find('.user_match_email').attr('value',user.email)
-				$(match).find('.user_match_name').html(user.first + " " + user.last)
-
-				$.data(match[0],"info",{id: user.id, first:user.first, last:user.last, email: user.email})
-				matchesHolder.append(match)
-
-				if(matches.length == 1)
-					$(match).css('background-color','#7fc9f3')
-
-			$('#popup .search_list').empty()
-			matchesHolder.children().each ->
-				$new_perm = this
-				$('#popup .search_list').append($new_perm)
-
-			$("#popup").tablock("reset")
-			$('.search_match').click(searchMatchClick)
-			targetIndex = -1
-			searchList = $('#popup .search_list').children()
-
-			$('#popup.share').keyup (e) ->
-				if(e.which >= 37 && e.which <= 40) #arrow keys
-					e.preventDefault()
-					targetIndex = $.inArray(searchList[targetIndex],searchList)
-
-					switch e.which
-						when 37 #left arrow
-							if targetIndex > -1
-								targetIndex--
-							else
-								stopSpin()
-								return
-						when 38 #up arrow
-							if(targetIndex < 2)
-								$('#popup .user_add').focus()
-								targetIndex = -1
-								stopSpin()
-								return
-							else
-								targetIndex-=2
-						when 39  #right arrow
-							if(targetIndex > -1)
-								targetIndex++
-							else
-								stopSpin()
-								return
-						when 40 #down arrow
-							if(targetIndex == -1)
-								targetIndex = 0
-							else
-								targetIndex+=2
-
-					$(searchList[targetIndex]).focus()
-
-				else if(e.which == 13) #enter
-					if (searchList.length == 1)
-						$(searchList[0]).click()
-					else if (searchList.length > 1)
-						$(searchList[targetIndex]).click()
-			stopSpin()
-			###
-			stopSpin()
-
-	stopSpin = ->
-		Materia.Set.Throbber.stopSpin('.search_list')
 
 	$scope.searchMatchClick = (user) ->
 		$scope.searching = false
@@ -1182,6 +1099,4 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 				expiration: user.expires
 				perms: access
 
-		console.log $scope.$parent.selectedWidget
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
-			console.log returnData
