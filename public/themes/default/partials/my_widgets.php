@@ -39,8 +39,8 @@
 					</ul>
 					<div class="delete_dialogue" ng-show="deleteToggled">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
-						<a class="cancel_button" href="#">Cancel</a>
-						<a class="action_button red delete_button" href="#">Delete</a>
+						<a class="cancel_button" href="javascript:;" ng-click="deleteToggled = false">Cancel</a>
+						<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 					</div>
 					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!deleteToggled">
 						<h3>Settings:</h3>

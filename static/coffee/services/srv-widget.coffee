@@ -73,32 +73,27 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 			selectedWidgetSrv.set widget[0]
 
 	removeWidget = (inst_id) ->
-		widgetList = $('.widget_list').children()
-		widgetListLength = widgetList.size()
-
-		newID = null
-
-		if widgetListLength > 1
-			#get the id of the next widget in the list
-			curWidge = $('.gameSelected')
-			if curWidge.is(":first-child")
-				newID = curWidge.next().attr('id').split('_')[1]
+		index = -1
+		_widgets = _widgets.filter (widget, i) ->
+			if widget.id is inst_id
+				index = i
+				return null
 			else
-				newID = curWidge.prev().attr('id').split('_')[1]
-			curWidge.remove()
+				widget
 
-			#reset the odds/evens after the deleted widget is removed from the list
-			$('.odd').removeClass('odd')
-			$('.even').removeClass('even')
-			for i in [0..widgetListLength]
-				$(widgetList[i]).addClass( if i % 2 == 0 then 'odd' else 'even')
-		else
-			$('.gameSelected').remove()
+		return if index is -1
 
-		if newID?
-			selectedWidgetSrv.setSelected(newID)
+		if index == 0
+			selectedIndex = 0
+		else if index > 1
+			selectedIndex = index - 1
+
+		newWidget = _widgets[selectedIndex]
+		if newWidget
+			selectedWidgetSrv.set(newWidget)
 		else
 			selectedWidgetSrv.noWidgets()
+		$rootScope.$broadcast 'widgetList.update', ''
 
 
 	getWidgets: getWidgets
