@@ -261,26 +261,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# $('.copy').unbind('click')
 				# $('.copy.disabled').click -> return false
 
-				# TODO replace with ng-modal functionality
-				$('.copy').not('.disabled').jqmodal
-					modal            : true,
-					backgroundStyle  : 'light',
-					className        : 'copy',
-					html             : $('#t-copy-popup').html(),
-					closingSelectors : ['.cancel_button']
-				, ->
-					$('#popup.copy input').focus()
-
-					newTitle = $('#popup.copy input.newtitle').val()
-
-					$('#popup.copy input.newtitle').keypress (e) ->
-						if e.which == 10 or e.which == 13
-							copyWidget()
-
-					$('#popup.copy .copy_button').click (e) ->
-						e.preventDefault()
-						copyWidget()
-
 				# $('.delete_dialogue').hide()
 				# $('.additional_options').fadeIn('fast')
 				# $('.delete').unbind('click')
@@ -298,6 +278,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				for id of $scope.perms.widget
 					if id != $scope.user.id then count++
 
+				$scope.copy_title = $scope.selectedWidget.name + " copy"
 				$scope.collaborators = count
 				$scope.$apply()
 
@@ -485,30 +466,11 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 				# Materia.Set.Throbber.stopSpin('.page')
 
-	copyWidgetWindow = ->
-		$('.copy').not('.disabled').jqmodal
-			modal            : true,
-			backgroundStyle  : 'light',
-			className        : 'copy',
-			html             : $('#t-copy-popup').html(),
-			closingSelectors : ['.cancel_button']
-		, ->
-			$('#popup.copy input').focus()
-
-	copyWidget = () ->
-		$('#popup.copy .copy_error').hide()
-		field = $('#popup.copy input.newtitle')
-
-		if (field.val().length > 0 && field.val() != newTitle)
-			inst_id = $('.gameSelected').attr('id').split('_')[1]
-
-			Materia.MyWidgets.Tasks.copyWidget(inst_id, field.val())
-			$('#popup.copy .cancel_button').click()
-		else
-			$('#popup.copy .copy_error').css('display', 'block')
-			newTitle = field.val()
-			#  throw some sort of validation error
-			#
+	$scope.copyWidget = () ->
+		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
+			$scope.copyToggled = false
+			widgetSrv.addWidget(inst_id)
+			$scope.$apply()
 
 	$scope.getEmbedLink = ->
 		if $scope.selectedWidget is null then return ""
