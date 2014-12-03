@@ -117,7 +117,7 @@
 					<h3>{{shareable ? "Share" : "Publish to share"}} with your students</h3>
 					<input id="play_link" type="text" ng-disabled="!shareable" ng-disabled="!shareable" value="{{baseUrl}}play/{{selectedWidget.id}}/{{selectedWidget.clean_name}}"/>
 					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
-					<textarea id="embed_link" ng-show="embedToggle && shareable"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;" value="{{getEmbedLink()}}">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
+					<textarea id="embed_link" ng-show="embedToggle && shareable">{{ getEmbedLink() }}</textarea>
 				</div>
 			</div>
 			<div class="scores" ng-show="shareable && selectedWidget.widget.is_scorable">
