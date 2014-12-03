@@ -52,7 +52,7 @@
 						</dl>
 						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
 					</div>
-					<div class="copy_dialogue" ng-show="copyToggled">
+					<div class="copy_dialogue popup light copy" ng-show="copyToggled">
 						<h2>Make a Copy:</h2>
 						<div class="container">
 							<span class="input_label">New Title:</span>

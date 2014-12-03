@@ -436,7 +436,8 @@
 		position: absolute;
 		z-index: 9999;
 		display: block;
-		left: 2px;
+		left: 20px;
+		border: solid 1px #555;
 	}
 
 	.my_widgets .page .controls div.delete_dialogue {
@@ -2061,7 +2062,7 @@
 /*        Copying Popup                                            */
 /* *************************************************************** */
 
-		#popup.copy
+		.popup.copy
 		{
 			text-align: center;
 			-webkit-border-radius: 3px;
@@ -2072,7 +2073,7 @@
 			height: 220px;
 		}
 
-		#popup.copy .adding_shadow
+		.popup.copy .adding_shadow
 		{
 			width: 640px;
 			height: 480px;
@@ -2088,7 +2089,7 @@
 			filter:alpha(opacity=0);
 		}
 
-		#popup.copy .container
+		.popup.copy .container
 		{
 			position: absolute;
 			left: 20px;
@@ -2098,7 +2099,7 @@
 			padding-top: 15px;
 		}
 
-		#popup.copy h2
+		.popup.copy h2
 		{
 			font-family: Lato, arial, serif;
 			font-weight: bold;
@@ -2110,7 +2111,7 @@
 			margin: 4px;
 		}
 
-		#popup.copy a.close
+		.popup.copy a.close
 		{
 			display:block;
 			position: absolute;
@@ -2123,13 +2124,13 @@
 			height: 19px;
 		}
 
-		#popup.copy .input_label
+		.popup.copy .input_label
 		{
 			font-size: 16px;
 			margin: 0 25px 0 0;
 		}
 
-		#popup.copy input.newtitle
+		.popup.copy input.newtitle
 		{
 			width: 450px;
 			height: 30px;
@@ -2138,12 +2139,12 @@
 			z-index:2;
 		}
 
-		#popup.copy .copy_button
+		.popup.copy .copy_button
 		{
 			margin-top:20px;
 		}
 
-		#popup.copy .copy_error
+		.popup.copy .copy_error
 		{
 			display:none;
 			color:#EE0000;
