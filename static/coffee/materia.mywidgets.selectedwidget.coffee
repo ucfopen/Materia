@@ -472,6 +472,13 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
 
+	$scope.deleteWidget = ->
+		Materia.MyWidgets.Tasks.deleteWidget $scope.selectedWidget.id, (results) ->
+			if results
+				$scope.deleteToggled = false
+				widgetSrv.removeWidget($scope.selectedWidget.id)
+				$scope.$apply()
+
 	$scope.getEmbedLink = ->
 		if $scope.selectedWidget is null then return ""
 
