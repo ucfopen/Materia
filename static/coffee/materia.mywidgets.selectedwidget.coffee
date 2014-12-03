@@ -296,7 +296,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# $('.overview .icon').attr('src', Materia.Image.iconUrl($scope.selectedWidget.widget.dir, 275))
 
 				# default: /assets/img/default/default-icon-275.png
-				$scope.selectedWidget.icon = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
+				$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
 				$scope.$apply()
 
 				# TODO re-implement beard mode

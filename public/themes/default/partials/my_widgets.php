@@ -65,7 +65,7 @@
 			</hgroup>
 			<div class="overview">
 				<div class="icon_container">
-					<img class="icon" src='{{selectedWidget.icon}}' height="275px" width="275px"/>
+					<img class="icon" ng-src='{{selectedWidget.iconbig}}' height="275px" width="275px"/>
 				</div>
 				<div class="controls">
 					<ul>
