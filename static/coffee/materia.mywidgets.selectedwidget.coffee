@@ -279,7 +279,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					if id != $scope.user.id then count++
 
 				$scope.copy_title = $scope.selectedWidget.name + " copy"
-				$scope.collaborators = count
+				$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
 				$scope.$apply()
 
 				# str = 'Collaborate'
@@ -1013,6 +1013,59 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# 		show:
 	# 			ready: true
 
+	getDateForBeginningOfTomorrow = ->
+		d = new Date()
+		d.setDate(d.getDate() + 1)
+		new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
+	$scope.showCollaboration = ->
+		user_ids = []
+		for user of $scope.perms.widget
+			user_ids.push user
+		$scope.collaborators = []
+
+		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
+			users.sort (a,b) ->
+				if(a.first < b.first || (a.first == b.first && a.last < b.last) || (a.last == b.last && a.middle < b.middle))
+					return -1
+				return 1
+
+			for user in users
+				user.access = $scope.perms.widget[user.id][0]
+				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
+				user.expires = timestamp
+				user.expiresText = if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+				user.gravatar = getGravatar(user.email)
+
+			$scope.collaborators = users
+			$scope.$apply()
+
+			$scope.setupPickers()
+
+		$scope.showCollaborationModal = true
+
+	$scope.setupPickers = ->
+		# fill in the expiration link text & setup click event
+		for user in $scope.collaborators
+			$(".exp-date.user" + user.id).datepicker
+				minDate: getDateForBeginningOfTomorrow()
+				onSelect: (dateText, inst) ->
+					timestamp = $(this).datepicker('getDate').getTime() / 1000
+					user.expires = timestamp
+					user.expiresText = getExpiresText(timestamp)
+					$scope.$apply()
+
+	$scope.removeExpires = (user) ->
+		user.expires = null
+		user.expiresText = getExpiresText(user.expires)
+
+	getExpiresText = (timestamp) ->
+		timestamp = parseInt(timestamp, 10)
+		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+
+	$scope.getGravatar = getGravatar = (email) ->
+		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
 		# getSelectedId				: getSelectedId,
@@ -1034,3 +1087,84 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
+
+MyWidgets.controller 'CollaborationController', ($scope) ->
+	$scope.search = (nameOrFragment) ->
+		$scope.searching = true
+
+		inputArray = nameOrFragment.split(',')
+		nameOrFragment = inputArray[inputArray.length - 1]
+
+		if(nameOrFragment.length < 1)
+			stopSpin()
+			return
+		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
+			if(matches == null || typeof matches == 'undefined' || matches.length < 1)
+				$scope.searchResults = []
+				stopSpin()
+				return
+
+			for user in matches
+				user.gravatar = $scope.$parent.getGravatar(user.email)
+			$scope.searchResults = matches
+			$scope.$apply()
+
+	$scope.searchMatchClick = (user) ->
+		$scope.searching = false
+
+		# Do not add duplicates
+		for existing_user in $scope.$parent.collaborators
+			if user.id == existing_user.id
+				return
+
+		$scope.$parent.collaborators.push
+			id: user.id
+			isCurrentUser: user.isCurrentUser
+			expires: null
+			expiresText: "Never"
+			first: user.first
+			last: user.last
+			gravatar: user.gravatar
+			access: 0
+
+		setTimeout ->
+			$scope.$parent.setupPickers()
+		, 1
+
+	$scope.removeAccess = (user) ->
+		user.remove = true
+
+	$scope.updatePermissions = (users) ->
+		permObj = []
+
+		for user in users
+			# Do not allow saving if a demotion dialog is on the screen
+			if user.warning
+				return
+
+			access = []
+			for i in [0...user.access]
+				access.push null
+
+			access.push if user.remove then false else true
+
+			permObj.push
+				user_id: user.id
+				expiration: user.expires
+				perms: access
+
+		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
+			if returnData == true
+				$scope.$parent.showCollaborationModal = false
+			else
+				alert(returnData.msg)
+			$scope.$apply()
+
+	$scope.checkForWarning = (user) ->
+		if user.isCurrentUser and user.access < 30
+			user.warning = true
+
+	$scope.cancelDemote = (user) ->
+		user.warning = false
+		user.access = 30
+
