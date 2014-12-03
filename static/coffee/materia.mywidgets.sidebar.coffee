@@ -8,13 +8,13 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 	$scope.$on 'selectedWidget.update', (evt) ->
 		$scope.selectedWidget = selectedWidgetSrv.get()
 
+	$scope.$on 'widgetList.update', (evt) ->
+		updateWidgets widgetSrv.getWidgets()
+
 	$scope.widgets = []
 
-	# Populate the widget list
-	# This was originally part of prepare(), but is prepare really necessary now?
-	deferredWidgets = widgetSrv.getWidgets()
-	deferredWidgets.then (data) ->
-
+	updateWidgets = (data) ->
+		console.log data
 		if !data then selectedWidgetSrv.setNoWidgets true
 		else
 			angular.forEach data, (widget, key) ->
@@ -26,6 +26,12 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 
 			# TODO clean up
 			Materia.Set.Throbber.stopSpin '.courses'
+
+	# Populate the widget list
+	# This was originally part of prepare(), but is prepare really necessary now?
+	deferredWidgets = widgetSrv.getWidgets()
+	deferredWidgets.then updateWidgets
+
 
 	# TODO check for Beard Mode & apply styles
 

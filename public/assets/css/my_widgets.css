@@ -431,6 +431,14 @@
 		border: none;
 	}
 
+	.my_widgets .copy_dialogue {
+		background: #fff;
+		position: absolute;
+		z-index: 9999;
+		display: block;
+		left: 2px;
+	}
+
 	.my_widgets .page .controls div.delete_dialogue {
 			background: url(../img/delete-dialogue-bg.png) no-repeat center;
 			padding: 20px 0;

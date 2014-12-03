@@ -1,5 +1,5 @@
 MyWidgets = angular.module('MyWidgets')
-MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q) ->
+MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 	deferred = $q.defer()
 	_widgets = []
@@ -17,7 +17,9 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q) ->
 			Materia.WidgetInstance.clearAll()
 			Materia.WidgetInstance.getAll (widgets) ->
 				_widgets = widgets.slice(0)
-				deferred.resolve _widgets
+				return deferred.resolve _widgets
+		else
+			return _widgets
 
 	_buildSidebar = (cachedWidgets) ->
 		myWidgets = []
@@ -65,18 +67,10 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q) ->
 				callback(widget)
 
 	addWidget = (inst_id) ->
-		# forces loading of the new widget
-		Materia.WidgetInstance.get inst_id, ->
-			# gets all of the widgets
-			Materia.WidgetInstance.get null, (widgets) ->
-				_widgets = widgets
-				cache = null
-				element = $('.typeSelected')
-
-				#  removing the typeSelected class in advance to force sortWidgets to properly do its job.
-				element.removeClass('typeSelected')
-				selectedWidgetSrv.setSelectedWidget(inst_id)
-				sortWidgets()
+		Materia.WidgetInstance.get inst_id, (widget) ->
+			_widgets.push widget[0]
+			$rootScope.$broadcast 'widgetList.update', ''
+			selectedWidgetSrv.set widget[0]
 
 	removeWidget = (inst_id) ->
 		widgetList = $('.widget_list').children()

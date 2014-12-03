@@ -34,7 +34,7 @@
 					</ul>
 					<ul class="options">
 						<li class="share"><a href="#" id="share_widget_link">Collaborate {{collaborators > 0 ? "("+collaborators+")" : ""}}</a></li>
-						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="">Make a Copy</a></li>
+						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="" ng-click="copyToggled = true">Make a Copy</a></li>
 						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}"  ng-click="deleteToggled = !deleteToggled">Delete</a></li>
 					</ul>
 					<div class="delete_dialogue" ng-show="deleteToggled">
@@ -51,6 +51,16 @@
 							<dd id="avaliability" ng-class="{'disabled':!editable || !shareable}"></dd>
 						</dl>
 						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
+					</div>
+					<div class="copy_dialogue" ng-show="copyToggled">
+						<h2>Make a Copy:</h2>
+						<div class="container">
+							<span class="input_label">New Title:</span>
+							<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
+							<span class="copy_error">Please enter a valid widget title.</span>
+							<a class="cancel_button" href="javascript:;" ng-click="copyToggled = false">Cancel</a>
+							<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
+						</div>
 					</div>
 				</div>
 				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
@@ -181,14 +191,6 @@
 	<li><a href="#" class="cancel_button">Cancel</a></li>
 	<li><a href="#" class="action_button green save">Save</a></li>
 </ul></script>
-
-<script type="text/template" id="t-copy-popup"><h2>Make a Copy:</h2>
-<div class="container">
-	<span class="input_label">New Title:</span><input class="newtitle" type="text" placeholder="New Widget Title" />
-	<span class="copy_error">Please enter a valid widget title.</span>
-	<a class="cancel_button" href="#">Cancel</a>
-	<a class="action_button green copy_button" href="#">Copy</a>
-</div></script>
 
 <script type="text/template" id="t-edit-widget-published"><h2>Warning About Editing Published Widgets:</h2>
 <div class="container">
