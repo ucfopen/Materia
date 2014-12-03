@@ -6,17 +6,15 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 	widgetTemplate = null
 	cache = null
 
-	sortWidgets = -> # find all references and remove? Necessary?
-		# unless cache?
-		# 	cache = _widgets.slice()
-		# 	cache.sort (a,b) -> return b.created_at - a.created_at
-		# _buildSidebar cache
+	sortWidgets = ->
+		_widgets.sort (a,b) -> return b.created_at - a.created_at
 
 	getWidgets = ->
 		if _widgets.length == 0
 			Materia.WidgetInstance.clearAll()
 			Materia.WidgetInstance.getAll (widgets) ->
 				_widgets = widgets.slice(0)
+				sortWidgets()
 				return deferred.resolve _widgets
 		else
 			return _widgets
@@ -69,6 +67,7 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 	addWidget = (inst_id) ->
 		Materia.WidgetInstance.get inst_id, (widget) ->
 			_widgets.push widget[0]
+			sortWidgets()
 			$rootScope.$broadcast 'widgetList.update', ''
 			selectedWidgetSrv.set widget[0]
 
@@ -85,7 +84,7 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 		if index == 0
 			selectedIndex = 0
-		else if index > 1
+		else if index > 0
 			selectedIndex = index - 1
 
 		newWidget = _widgets[selectedIndex]
@@ -93,6 +92,7 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 			selectedWidgetSrv.set(newWidget)
 		else
 			selectedWidgetSrv.noWidgets()
+		sortWidgets()
 		$rootScope.$broadcast 'widgetList.update', ''
 
 
