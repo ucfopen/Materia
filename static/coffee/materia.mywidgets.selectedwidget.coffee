@@ -48,8 +48,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.viewData = "data"
 
 	$scope.baseUrl = BASE_URL
-	rand = Math.floor((Math.random()*beards.length)+1) - 1
-	$scope.beard = beards[rand]
 
 	$scope.popup = () ->
 		console.log("hello")
