@@ -50,6 +50,11 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	$scope.baseUrl = BASE_URL
 
+	$scope.popup = () ->
+		console.log("hello")
+		Materia.MyWidgets.Availability.popup()
+		return
+
 	# Initializes the gateway for the api
 	# @string path to gateway
 	init = (gateway) ->
@@ -390,7 +395,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 						html             : $('#t-edit-widget-published').html(),
 						closingSelectors : ['.cancel_button']
 					, ->
-						$('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
+						# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
 
 				# TODO: this case should probably be combined with the else case above?
 				# TODO: Determine if this note is still relevant ^
