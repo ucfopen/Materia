@@ -64,7 +64,7 @@
 				<h3>{{selectedWidget.widget.name}}</h3>
 			</hgroup>
 			<div class="overview">
-				<div class="icon_container">
+				<div class="icon_container med_{{ beard }}" ng-class="{ big_bearded: beard }">
 					<img class="icon" ng-src='{{selectedWidget.iconbig}}' height="275px" width="275px"/>
 				</div>
 				<div class="controls">
@@ -179,7 +179,7 @@
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
 				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : $index % 2 == 0, 'odd': $index % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
-					<img class="icon" src="{{instance.icon}}" />
+					<img class="icon" ng-src="{{instance.icon}}" />
 					<ul>
 						<li class="title searchable">{{instance.name}}</li>
 						<li class="type searchable">{{instance.widget.name}}</li>
