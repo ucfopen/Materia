@@ -200,47 +200,48 @@
 			-->
 		</div>
 	 </aside>
+	<!-- begin -->
+	<div ng-controller="WidgetSettingsController" id="popup" class="light availability">
+		<h2>Settings</h2>
+		<p class="availabilityError" ng-show="errors.type.length > 0">{{errors.type[0]}}{{errors.type[1] ? "s and " + errors.type[1] + "s are" : " is"}} {{errors.reason[0]}}{{errors.reason[1] ? "/" + errors.reason[1] : ""}}.</p>
+		<ul class="attemptsPopup">
+			<li><h3>Attempts</h3>
+				<div class="selector"></div>
+				<ul class="attemptHolder">
+					<li id="value_1" ng-class="{selected: selectedWidget.attempts == 1}">1</li>
+					<li id="value_2" ng-class="{selected: selectedWidget.attempts == 2}">2</li>
+					<li id="value_3" ng-class="{selected: selectedWidget.attempts == 3}">3</li>
+					<li id="value_4" ng-class="{selected: selectedWidget.attempts == 4}">4</li>
+					<li id="value_5" ng-class="{selected: selectedWidget.attempts == 5}">5</li>
+					<li id="value_10" class="step first" ng-class="{selected: selectedWidget.attempts == 10}">10</li>
+					<li id="value_15" class="step" ng-class="{selected: selectedWidget.attempts == 15}">15</li>
+					<li id="value_20" class="step" ng-class="{selected: selectedWidget.attempts == 20}">20</li>
+					<li id="value_25" class="step last" ng-class="{selected: selectedWidget.attempts == -1}">Unlimited</li>
+				</ul>
+				<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
+			</li>
+		<ul class="toFrom">
+			<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+				<ul class="datePicker">
+					<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+					<li ng-click="available.anytime = false">
+						<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+						<label>On</label>
+						<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" placeholder="Date" ng-model="available.date"/> at
+						<input type="text" class="time" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time"/>
+						<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="changePeriod($index, 'am')">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="changePeriod($index, 'pm')">pm</span>
+					</li>
+				</ul>
+			</li>
+		<ul class="inline">
+			<li><a href="#" class="cancel_button">Cancel</a></li>
+			<li><a href class="action_button green save" ng-click="parseSubmittedInfo()">Save</a></li>
+		</ul>
+	</div>
+	<!-- end -->
 </div>
 
 <script type="text/template" id="t-error"><div class="error error-nowidget"><p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p></div></script>
-
-<script type="text/template" id="t-availibility"><h2>Settings</h2>
-<ul class="attemptsPopup">
-	<li><h3>Attempts</h3>
-		<div class="selector"></div>
-		<ul class="attemptHolder">
-			<li id="value_1">1</li>
-			<li id="value_2">2</li>
-			<li id="value_3">3</li>
-			<li id="value_4">4</li>
-			<li id="value_5">5</li>
-			<li id="value_10" class="step first">10</li>
-			<li id="value_15" class="step">15</li>
-			<li id="value_20" class="step">20</li>
-			<li id="value_25" class="step last">Unlimited</li>
-		</ul>
-		<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
-	</li>
-<ul class="toFrom">
-	<li><h3>Available</h3>
-		<ul class="datePicker">
-			<li><input type="radio" name="fromAvailability" class="anytime availability" id="anytimeFrom"/> <label for="anytimeFrom">Now</label></li>
-			<li><input type="radio"  name="fromAvailability" class="specify availability" id="specifyFrom"/> <label for="specifyFrom">On</label> <input type="text" class="date from" placeholder="Date"/> at <input type="text" id="startTime" class="time" placeholder="Time" /> <span class="am start ampm">am</span><span class="pm start ampm">pm</span></li>
-		</ul>
-	</li>
-	<li><h3>Closes</h3>
-		<ul class="datePicker">
-			<li><input type="radio" name="toAvailability" class="anytime availability" id="anytimeTo" /> <label for="anytimeTo">Never</label></li> 
-			<li><input type="radio"  name="toAvailability" class="specify availability" id="specifyTo" /> <label for="specifyTo">On</label> <input type="text" class="date to" placeholder="Date" /> at <input type="text" id="endTime" class="time" placeholder="Time" /> <span class="am end ampm">am</span><span class="pm end ampm">pm</span></li>
-		</ul>
-		<p class="data_explination">These fields define when a student can access your widget.</p>
-	</li>
-</ul>
-
-<ul class="inline">
-	<li><a href="#" class="cancel_button">Cancel</a></li>
-	<li><a href="#" class="action_button green save">Save</a></li>
-</ul></script>
 
 <script type="text/template" id="t-edit-widget-published"><h2>Warning About Editing Published Widgets:</h2>
 <div class="container">
