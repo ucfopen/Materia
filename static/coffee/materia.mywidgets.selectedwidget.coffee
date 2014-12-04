@@ -48,6 +48,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.viewData = "data"
 
 	$scope.baseUrl = BASE_URL
+	rand = Math.floor((Math.random()*beards.length)+1) - 1
+	$scope.beard = beards[rand]
 
 	$scope.popup = () ->
 		console.log("hello")
@@ -203,30 +205,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
 				$scope.$apply()
 
-				# TODO re-implement beard mode
-				# if BEARD_MODE? and BEARD_MODE == true
-
-				# 	$('.widget .icon').each (index) ->
-				# 		rand = Math.floor((Math.random()*beards.length)+1) - 1
-
-				# 		$(this).addClass('small_'+beards[rand])
-
-				# 		if ($(this).parent().hasClass('gameSelected'))
-				# 			$('.icon_container').addClass('med_'+beards[rand])
-
-				# 	existing = $('.overview .icon_container').attr('class').split(' ')
-
-				# 	for e in existing
-				# 		if e != 'icon_container' && e != 'big_bearded'
-				# 			$('.overview .icon_container').removeClass(e)
-
-				# 	beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
-				# 	beardType = 'med'+beardType.substring(5)
-
-				# 	$('.widget .icon').addClass('bearded')
-				# 	$('.icon_container')
-				# 		.addClass('big_bearded')
-				# 		.addClass(beardType)
+				if window.BEARD_MODE
+					rand = Math.floor((Math.random()*beards.length)+1) - 1
+					$scope.beard = beards[rand]
 
 				$scope.shareable = !$scope.selectedWidget.is_draft
 				$scope.$apply()
