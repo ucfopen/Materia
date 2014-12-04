@@ -178,7 +178,7 @@
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : $index % 2 == 0, 'odd': $index % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
+				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : ($index + 1) % 2 == 0, 'odd': ($index + 1) % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
 					<img class="icon" ng-src="{{instance.icon}}" />
 					<ul>
 						<li class="title searchable">{{instance.name}}</li>

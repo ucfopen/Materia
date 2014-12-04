@@ -7,7 +7,6 @@ $(document).ready ->
 	searchDelayTimeoutId = 0
 
 	Materia.MyWidgets.SelectedWidget.init()
-	Materia.MyWidgets.Sidebar.prepare()
 	Materia.MyWidgets.Availability.init()
 	Materia.MyWidgets.Tasks.init()
 	Materia.MyWidgets.Csv.init()
