@@ -50,7 +50,7 @@
 				<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
 			</div>
 		</div>
-		<section class="directions" ng-show="noWidgetState == false">
+		<section class="directions unchosen" ng-show="noWidgetState == false">
 			<h1>Your Widgets</h1>
 			<p>Choose a widget from the list on the left.</p>
 		</section>
