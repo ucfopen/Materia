@@ -1,48 +1,25 @@
 <?php
 /**
  * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2014 New Media
- * @link       http://materia.ucf.edu
- */
-
-
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget installer for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
+ * License outlined in licenses folder
  */
 
 namespace Materia;
 
 class Widget_Installer
 {
-	private static function tempdir()
+	private static function get_temp_dir()
 	{
 		$tempfile = tempnam(sys_get_temp_dir(), '');
-		if (file_exists($tempfile))
-		{
-			unlink($tempfile);
-		}
+		if (file_exists($tempfile)) unlink($tempfile);
 		mkdir($tempfile);
-		if (is_dir($tempfile))
-		{
-			return $tempfile;
-		}
-
+		if (is_dir($tempfile)) return $tempfile;
 		return false;
 	}
 
 	public static function extract_widget($widget_file)
 	{
-		$extract_location = self::tempdir();
+		$extract_location = self::get_temp_dir();
 		if ( ! $extract_location)
 		{
 			self::end('Unable to extract widget.', true);
@@ -192,8 +169,8 @@ class Widget_Installer
 		\DB::insert('widget_metadata')
 			->set([
 				'widget_id' => $id,
-				'name' => $key,
-				'value' => $value
+				'name'      => $key,
+				'value'     => $value
 			])
 			->execute();
 	}
