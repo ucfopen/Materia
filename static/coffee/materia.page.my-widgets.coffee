@@ -142,24 +142,24 @@ $(document).ready ->
 		Materia.MyWidgets.Statistics.searchScores, SEARCH_DELAY_MS
 
 	# Switches between the graph and table, depending on which choice is clicked
-	$(document).on 'click', '.choices li a', (event) ->
-		event.preventDefault()
+	# $(document).on 'click', '.choices li a', (event) ->
+	# 	event.preventDefault()
 
-		type = $(this).attr('class')
-		if  !$(this).parent().hasClass('scoreTypeSelected')
-			semester = $(this).parents('.scoreWrapper').attr('data-semester')
-			Materia.MyWidgets.SelectedWidget.setScoreView(semester, type)
-		false
+	# 	type = $(this).attr('class')
+	# 	if  !$(this).parent().hasClass('scoreTypeSelected')
+	# 		semester = $(this).parents('.scoreWrapper').attr('data-semester')
+	# 		Materia.MyWidgets.SelectedWidget.setScoreView(semester, type)
+	# 	false
 
-	$(".type li a").click (event) ->
-		event.preventDefault()
+	# $(".type li a").click (event) ->
+	# 	event.preventDefault()
 
-		type = $(this).attr("id")
-		if not $(this).hasClass('graphSelected')
-			$('.type li a.graphSelected').removeClass('graphSelected')
-			$(this).addClass('graphSelected')
-			Materia.MyWidgets.Statistics.createGraph(type)
-		false
+	# 	type = $(this).attr("id")
+	# 	if not $(this).hasClass('graphSelected')
+	# 		$('.type li a.graphSelected').removeClass('graphSelected')
+	# 		$(this).addClass('graphSelected')
+	# 		Materia.MyWidgets.Statistics.createGraph(type)
+	# 	false
 
 	# ================= WATCH FOR URL CHANGES =======================
 	$(window).bind 'hashchange', Materia.MyWidgets.Sidebar.getWidgetByURL
