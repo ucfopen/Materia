@@ -90,11 +90,10 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 		newWidget = _widgets[selectedIndex]
 		if newWidget
 			selectedWidgetSrv.set(newWidget)
+			sortWidgets()
 		else
 			selectedWidgetSrv.noWidgets()
-		sortWidgets()
 		$rootScope.$broadcast 'widgetList.update', ''
-
 
 	getWidgets: getWidgets
 	getWidget: getWidget

@@ -104,9 +104,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$('#attempts').html(if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited')
 
 	populateAvailability = (startDateInt, endDateInt) ->
-		if $('section.directions').is(':visible')
-			$('section.directions').hide()
-			$('section.page').show()
+		#if $('section.directions').is(':visible')
+			#$('section.directions').hide()
+			#$('section.page').show()
 
 		availability = Materia.Set.Availability.get(startDateInt, endDateInt)
 
@@ -130,14 +130,14 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	noAccess = ->
-		$('section.page').children().hide()
+		#$('section.page').children().hide()
 
-		if($('section.directions').is(':visible'))
-			$('section.directions').hide()
-			$('section.page').show()
+		#if($('section.directions').is(':visible'))
+			#$('section.directions').hide()
+			#$('section.page').show()
 
 		#  put the error template on screen
-		$('section.page').append($('#t-error').html())
+		#$('section.page').append($('#t-error').html())
 
 	# Shows selected game information on the mainscreen.
 	# @param   element   The element that was clicked ($('.widget_list').children('div'))

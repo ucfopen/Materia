@@ -15,7 +15,12 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 	updateWidgets = (data) ->
 		Materia.Set.Throbber.stopSpin '.courses'
 
-		if !data then selectedWidgetSrv.setNoWidgets true
+		if !data
+			selectedWidgetSrv.setNoWidgets true
+			$scope.widgets = []
+			$scope.$apply()
+		else if data.then?
+			data.then updateWidgets
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
