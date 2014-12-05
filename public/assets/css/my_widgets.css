@@ -43,9 +43,6 @@
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
-.my_widgets section.page{
-	display: none;
-}
 .my_widgets section.directions{
 	background: #fff;
 	text-align: center;
