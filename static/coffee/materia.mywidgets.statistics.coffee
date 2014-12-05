@@ -49,11 +49,13 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 			# to replot we need to format the data in the way jqPlot expects.
 			# normally the "constructor" of jqplot does this transformation
 			# but here we are accessing the data property directly.
-			plot = _plots[elementId]
-			seriesData = []
-			seriesData.push [i+1, series] for series, i in data
-			plot.series[0].data = seriesData
-			plot.replot({resetAxes: true})
+
+			# TODO: This code is broken. Commenting it out seems to work fine. Necessary??
+			# plot = _plots[elementId]
+			# seriesData = []
+			# seriesData.push [i+1, series] for series, i in data
+			# plot.series[0].data = seriesData
+			# plot.replot({resetAxes: true})
 
 	clearGraphs = ->
 		_plots = []
@@ -62,8 +64,12 @@ Namespace('Materia.MyWidgets').Statistics = do ->
 	 # @param sort 		the method used to sort the names (asc | desc | newest)
 	 # @return void
 
-	createTable = ($tableContainer, log, sort = 'dec', inst_id) ->
+	 # TODO this whole thing will have to be redone to remove jQuery...
+	createTable = (tableContainerId, log, sort = 'dec', inst_id) ->
 		_curTableOrder = sort
+		# TODO hack to get this working with angular
+		$tableContainer = $("#"+tableContainerId)
+
 		gameId        = $('.gameSelected').attr('id')
 		$table        = $tableContainer.find('.scoreListTable')
 		$userTable    = $tableContainer.find('.scoreTable')

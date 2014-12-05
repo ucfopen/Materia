@@ -6,10 +6,10 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	selectedData = null
 	storageData = null
 	instId = null
-	dateRanges = null
 
 	# Refactored variables
 	_widget = null
+	_dateRanges = null
 	_BEARD_MODE = false
 	_noWidgetsFlag = false
 
@@ -100,11 +100,56 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 
 		deferred.promise
 
+	getPlayLogsForSemester = (term, year) ->
+		deferred = $q.defer()
+
+		Materia.Coms.Json.send 'play_logs_get', [_widget.id, term, year], (logs) ->
+
+			semesterKey = "#{year}#{term.toLowerCase()}"
+
+			logsForSemester = []
+
+			angular.forEach logs, (log, key) ->
+
+				timestamp = log.time
+				logMeta = getSemesterFromTimestamp(timestamp)
+				semesterString = logMeta.year + logMeta.semester.toLowerCase()
+
+				if semesterString == semesterKey
+					logsForSemester.push log
+
+			deferred.resolve logsForSemester
+		deferred.promise
+
+	# processDataIntoSemesters = (logs, getTimestampFunction) ->
+	# 	semesters = {}
+	# 	timestamp = null
+
+	# 	$.each logs, (i, log) ->
+	# 		timestamp = getTimestampFunction(log)
+	# 		logMeta = getSemesterFromTimestamp(timestamp)
+	# 		semesterString = logMeta.year + ' ' + logMeta.semester.toLowerCase()
+
+	# 		if(!semesters[semesterString])
+	# 			semesters[semesterString] = []
+	# 		semesters[semesterString].push(log)
+	# 	return semesters
+
+	getDateRanges = ->
+		deferred = $q.defer()
+		unless _dateRanges?
+			Materia.Coms.Json.send 'semester_date_ranges_get', [], (data) ->
+				_dateRanges = data
+				deferred.resolve data
+		else
+			deferred.resolve _dateRanges
+		deferred.promise
+
 	getCurrentSemester = ->
 		return selectedData.year + ' ' + selectedData.term
 
 	getSemesterFromTimestamp = (timestamp) ->
-		for range in dateRanges
+		for range in _dateRanges
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
 
@@ -142,6 +187,8 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	setNoWidgets: setNoWidgets
 	getScoreSummaries: getScoreSummaries
 	getUserPermissions: getUserPermissions
+	getPlayLogsForSemester: getPlayLogsForSemester
+	getDateRanges: getDateRanges
 	getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
 	getStorageData: getStorageData

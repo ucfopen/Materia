@@ -31,7 +31,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# userSrv.grabCurrentUser()
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userSrv.get()
-		$scope.$apply()
+		# $scope.$apply() # required?
 
 	# Flags to help condense conditional statement checks
 	$scope.accessLevel = 0
@@ -40,22 +40,20 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.hasScores = false
 
 	$scope.storageNotScoreData = false
-	$scope.selectedScoreView = "graph"
+	$scope.hasStorage = false
+	$scope.selectedScoreView = 0 # 0 is graph, 1 is table, 2 is data
 
 	$scope.collaborators = 0
-
-	$scope.viewGraph = "graph"
-	$scope.viewTable = "table"
-	$scope.viewData = "data"
 
 	$scope.baseUrl = BASE_URL
 
 	# Initializes the gateway for the api
 	# @string path to gateway
 	init = (gateway) ->
+
 		$('.show-older-scores-button').click (e) ->
 			e.preventDefault()
-			Materia.MyWidgets.SelectedWidget.showAllScores()
+			# Materia.MyWidgets.SelectedWidget.showAllScores()
 
 
 	# Migrating to service
@@ -70,7 +68,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$q.all([
 			userSrv.get(),
 			selectedWidgetSrv.getUserPermissions(),
-			selectedWidgetSrv.getScoreSummaries()
+			selectedWidgetSrv.getScoreSummaries(),
+			selectedWidgetSrv.getDateRanges()
 		])
 		.then (data) ->
 			$scope.user = data[0]
@@ -194,7 +193,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					$scope.edit = "#"
 
 				# TODO consolidate all $scope.$apply calls
-				$scope.$apply()
+				# $scope.$apply()
 
 				# # disable certain interactions if the user's access is view-only or widget isn't editable
 				# if($scope.accessLevel == 0)
@@ -219,7 +218,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					# $('#copy_widget_link').removeClass('disabled')
 					# $('#delete_widget_link').removeClass('disabled').parent().removeClass('disabled')
 				$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
-				$scope.$apply()
+				# $scope.$apply()
 
 				# if !$scope.editable
 				# 	# CSS to disable additional options needs to be re-worked
@@ -299,7 +298,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					if id != $scope.user.id then count++
 
 				$scope.collaborators = count
-				$scope.$apply()
+				# $scope.$apply()
 
 				# str = 'Collaborate'
 				# str += ' ('+count+')' if count > 0
@@ -316,7 +315,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 				# default: /assets/img/default/default-icon-275.png
 				$scope.selectedWidget.icon = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-				$scope.$apply()
+				# $scope.$apply()
 
 				# TODO re-implement beard mode
 				# if BEARD_MODE? and BEARD_MODE == true
@@ -358,7 +357,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# update display if not playable
 				# This formerly checked if widget.is_playable was set - but was it needed??
 				$scope.shareable = !$scope.selectedWidget.is_draft
-				$scope.$apply()
+				# $scope.$apply()
 				if !$scope.shareable
 					console.log "Widget is UNPLAYABLE"
 					# $('.share-widget-container')
@@ -447,12 +446,15 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					# if $scope.scores.list.length == 0
 					# 	console.log "list length = 0"
 					# else
+
+					## MASTER SCOPE APPLY CALL
+					$scope.$apply()
+
 					if $scope.scores.list.length > 0
-						populateScoreWrapper($scoreWrapper, $scope.scores.last)
+						# TODO populateScoreWrapper should be called via ng-repeat for all semester instances
+						populateScoreWrapper()
 
 						# hasScores = false
-
-						console.log $scope.scores.list
 
 						for d in $scope.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
 							if d.distribution?
@@ -474,7 +476,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 							Materia.MyWidgets.Csv.buildPopup()
 				else
 					# $('.my_widgets .page .scores').hide()
-					$('.my_widgets .page .embed').hide() # WHERE IS THIS????
+					$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
 				# if $scope.selectedWidget.widget.is_playable == 0
 				# 	$('#preview_button').addClass('disabled')
@@ -519,13 +521,10 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		"<iframe src='#{BASE_URL}embed/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}'>#{draft}</a></iframe>"
 
-	loadDateRanges = (callback) ->
-		unless $scope.dateRanges?
-			Materia.Coms.Json.send 'semester_date_ranges_get', [], (data) ->
-				$scope.dateRanges = data
-				callback()
-		else
-			callback()
+	# loadDateRanges = ->
+	# 	unless $scope.dateRanges?
+	# 		Materia.Coms.Json.send 'semester_date_ranges_get', [], (data) ->
+	# 			$scope.dateRanges = data
 
 	toggleShareWidgetContainer = (state) ->
 		$shareWidgetContainer = $('.share-widget-container')
@@ -538,14 +537,16 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		else if state == 'close'
 			$shareWidgetContainer.switchClass('', 'closed', 200)
 
-	populateScoreWrapper = ($scoreWrapper) ->
+	populateScoreWrapper = () ->
 
+		# un-temporary dis
+		# data should be a reference to whatever semester is being used for this particular chart
 		data = $scope.scores.last
 
 		# don't think these will be necessary eventually
-		$scoreWrapper.attr('data-semester', data.id)
-		$scoreWrapper.attr('data-semester-str', createSemesterString(data))
-		$scoreWrapper.find('.view').html(data.term+' '+data.year)
+		# $scoreWrapper.attr('data-semester', data.id)
+		# $scoreWrapper.attr('data-semester-str', createSemesterString(data))
+		# $scoreWrapper.find('.view').html(data.term+' '+data.year)
 
 		#  no scores, but we do have storage data
 		if typeof data.distribution == 'undefined' and typeof data.storage != 'undefined'
@@ -557,23 +558,25 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			# $scoreWrapper.find('li:nth-child(2) a').hide()
 			# $scoreWrapper.find('li:nth-child(3) a').show()
 
-			# setScoreView(data.id, $scope.viewData)
-			setScoreView($scope.viewData)
+			# $scope.setScoreView(data.id, $scope.viewData)
+			$scope.setScoreView(2) # TODO eventually needs a reference to the proper semester
 
 		else #  has scores, might have storage data
-			$scoreWrapper.show()
+			# $scoreWrapper.show()
 
-			$scoreWrapper.find('li:nth-child(1) a').show()
-			$scoreWrapper.find('li:nth-child(2) a').show()
+			# $scoreWrapper.find('li:nth-child(1) a').show()
+			# $scoreWrapper.find('li:nth-child(2) a').show()
 
-			if typeof data.storage == 'undefined'
-				$scoreWrapper.find('li:nth-child(3) a').hide()
-			else
-				$scoreWrapper.find('li:nth-child(3) a').show()
+			if typeof data.storage == 'undefined' then $scope.hasStorage = true
 
-			$scoreWrapper.find('.chart').attr('id', 'chart_' + data.id)
+			# console.log $scope.hasStorage
+				# $scoreWrapper.find('li:nth-child(3) a').hide()
+			# else
+			# 	$scoreWrapper.find('li:nth-child(3) a').show()
 
-			setScoreView(data.id, 'graph')
+			# $scoreWrapper.find('.chart').attr('id', 'chart_' + data.id)
+
+			$scope.setScoreView(0)
 
 	processDataIntoSemesters = (logs, getTimestampFunction) ->
 		semesters = {}
@@ -613,12 +616,10 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		rows
 
-	setScoreView = (view) ->
-
-		console.log view
+	$scope.setScoreView = (view) ->
 
 		$scope.selectedScoreView = view
-		$scope.$apply()
+		# $scope.$apply()
 		# $scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
 		# $scoreWrapper.attr('data-score-view', newScoreView)
 
@@ -627,7 +628,21 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		# $scoreWrapper.find('.display.graph').hide()
 		# $scoreWrapper.find('.display.data').hide()
 
-		console.log $scope.selectedScoreView
+		switch view
+			when 0 # graph
+				# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+				# Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+				brackets = $scope.scores.map[$scope.scores.last.id].distribution # TODO replace scores.last with dynamic reference
+
+				Materia.MyWidgets.Statistics.createGraph('chart_' + $scope.scores.last.id, brackets) # TODO replace scores.last with dynamic reference
+
+			when 1 # table
+				deferredPlayLogs = selectedWidgetSrv.getPlayLogsForSemester $scope.scores.map[$scope.scores.last.id].term, $scope.scores.map[$scope.scores.last.id].year
+				deferredPlayLogs.then (data) ->
+
+					tableSort = 'desc'
+
+					Materia.MyWidgets.Statistics.createTable('table_'+$scope.scores.last.id, data, tableSort, $scope.selectedWidget.id)
 
 		# switch newScoreView
 		# 	when 'graph'
@@ -646,6 +661,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		# updateSemesterScores(semester)
 
 	updateSemesterScores = (semester) ->
+
+		# Everything below will be effectively deprecated
 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
 		scoreView = $scoreWrapper.attr('data-score-view')
 
@@ -654,8 +671,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			when 'data' then updateData($scoreWrapper)
 			else
 				updateGraph($scoreWrapper)
+		# Everything above will be effectively deprecated
 
-		updateSummary(semester)
+		# updateSummary(semester)
 
 	# getScoreSummaries = (inst_id, callback) ->
 	# 	#  if we didn't already get this data, get it now
@@ -714,6 +732,155 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		else
 			callback($scope.storageData[inst_id])
 
+	# updateSummary = (semester) ->
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		semesterData = data.map[semester]
+	# 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
+	# 		plays = 0
+
+	# 		if semesterData.students?
+	# 			$scoreWrapper.find('.players').html(semesterData.students)
+	# 		if semesterData.average?
+	# 			$scoreWrapper.find('.final-average').html(semesterData.average)
+
+	# 		if semesterData.distribution?
+	# 			plays += dis for dis in semesterData.distribution
+	# 			$scoreWrapper.find('.score-count').html(plays)
+
+	updateGraph = ($scoreWrapper) ->
+		semester = $scoreWrapper.attr('data-semester')
+		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+
+		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+			brackets = data.map[semester].distribution
+			Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
+
+	updateTable = ($scoreWrapper) ->
+		semester = $scoreWrapper.attr('data-semester')
+		semesterStr = $scoreWrapper.attr('data-semester-str')
+
+		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
+		getPlayLogs $scope.selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
+			$table = $scoreWrapper.find('.display.table')
+			tableSort = $table.attr('data-sort')
+			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, $scope.selectedWidgetInstId)
+			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
+
+	updateData = ($scoreWrapper) ->
+		semester = $scoreWrapper.attr('data-semester')
+		semesterStr = $scoreWrapper.attr('data-semester-str')
+		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
+		getStorageData $scope.selectedWidgetInstId, (data) ->
+			createStorageDataTables(data[semesterStr.replace('_', ' ')], $scoreWrapper.find('.display.data'))
+			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
+
+	createStorageDataTables = (tables, $element) ->
+		$element.empty()
+
+		tableNames = []
+		$label = $('<div class="table-label"><h4>Table:</h4></div>')
+		$select = null
+
+		tableNames.push(tableName) for tableName, tableData of tables
+
+		if tableNames.length == 1
+			$label.append('<span>' + tableNames[0] + '</span>')
+		else
+			$select = $('<select></select>')
+			for name in tableNames
+				$select.append('<option value="'+name+'">'+name+'</option>')
+
+			$select.change (event) ->
+				semester = $(event.target).parents('.scoreWrapper').attr('data-semester-str')
+				selectedTableName = $(event.target).find(':selected').val()
+				getStorageData $scope.selectedWidgetInstId, (data) ->
+					createStorageDataTable(data[semester.toLowerCase().replace('_', ' ')][selectedTableName], $element)
+			$label.append($select)
+
+		$element.append($label)
+		$element.prepend('<a class="storage">Download Table</a>')
+
+		$('.storage').click (event) ->
+			event.preventDefault()
+
+			$scoreWrapper = $(event.target).parents('.scoreWrapper')
+			$tableLabel = $scoreWrapper.find('.table-label')
+			table = ''
+			if($tableLabel.find('select').length > 0)
+				table = $tableLabel.find('select').val()
+			else
+				table = $tableLabel.find('span').text()
+			if table != ''
+				semester = $scoreWrapper.attr('data-semester-str').replace('_', '-')
+				window.location = '/scores/storage/' + $scope.selectedWidgetInstId + '/' + table + '/' + semester
+		createStorageDataTable(tables[tableNames[0]], $element)
+
+	createStorageDataTable = (tableObject, $element) ->
+		$element.find('.dataTables_wrapper').remove()
+
+		$element.find('.truncated-table').remove()
+		if(tableObject.truncated)
+			$element.append('<p class="truncated-table">Showing only the first ' + STORAGE_TABLE_MAX_ROWS_SHOWN + ' entries of this table. Download the table to see all ' + tableObject.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' entries.</p>')
+
+		rows = tableObject.data
+
+		if(rows.length > 0)
+			$table = $('<table></table>')
+			$headers = $('<tr><th>user</th><th>firstName</th><th>lastName</th><th>time</th></tr>')
+			$tbody = $('<tbody></tbody>')
+			$curTr
+			nullValue
+			len = rows.length
+
+			$headers.append('<th>' + rowName + '</th>') for rowName, rowData of rows[0].data
+
+			$headers.wrap('<thead>')
+			$table.append($headers.parent())
+
+			for row in rows
+				$curTr = $('<tr><td>'+row.play.user+'</td><td>'+row.play.firstName+'</td><td>'+row.play.lastName+'</td><td>'+row.play.time+'</td></tr>')
+				for fieldName, fieldData of row.data
+					nullValue = fieldData == null
+					if nullValue
+						fieldData = '--'
+
+					$curTr.append('<td'+( if nullValue then ' class="null"' else '')+'>'+fieldData+'</td>')
+
+				$tbody.append($curTr)
+
+			$table.append($tbody)
+			$element.append($table)
+			$table.dataTable
+				sScrollX: '100%'
+
+	toggleTableSort = (semester) ->
+		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
+		$table = $scoreWrapper.find('.display.table')
+		tableSort = $table.attr('data-sort')
+
+		if ($(this).hasClass('up'))
+			$(this).removeClass('up').addClass('down')
+		else if ($(this).hasClass('down'))
+			$(this).removeClass('down').addClass('up')
+
+		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
+		updateTable($scoreWrapper)
+
+	showAllScores = ->
+		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+			$semester = $('.scoreWrapper')
+			$scores = $('.scores')
+
+			$('.show-older-scores-button').hide()
+
+			# TODO Replace this with ng-repeat
+			for i in [1..data.list.length-1]
+				$clone = $semester.clone()
+				$scores.append($clone)
+
+				# populateScoreWrapper($clone, data.list[i])
+
 	updateSummary = (semester) ->
 		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
 			semesterData = data.map[semester]
@@ -849,164 +1016,17 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
 		updateTable($scoreWrapper)
 
-	showAllScores = ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			$semester = $('.scoreWrapper')
-			$scores = $('.scores')
+	# showAllScores = ->
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		$semester = $('.scoreWrapper')
+	# 		$scores = $('.scores')
 
-			$('.show-older-scores-button').hide()
+	# 		$('.show-older-scores-button').hide()
 
-			for i in [1..data.list.length-1]
-				$clone = $semester.clone()
-				$scores.append($clone)
-				populateScoreWrapper($clone, data.list[i])
-
-	updateSummary = (semester) ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			semesterData = data.map[semester]
-			$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-			plays = 0
-
-			if semesterData.students?
-				$scoreWrapper.find('.players').html(semesterData.students)
-			if semesterData.average?
-				$scoreWrapper.find('.final-average').html(semesterData.average)
-
-			if semesterData.distribution?
-				plays += dis for dis in semesterData.distribution
-				$scoreWrapper.find('.score-count').html(plays)
-
-	updateGraph = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-			brackets = data.map[semester].distribution
-			Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
-
-	updateTable = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		semesterStr = $scoreWrapper.attr('data-semester-str')
-
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
-		getPlayLogs $scope.selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
-			$table = $scoreWrapper.find('.display.table')
-			tableSort = $table.attr('data-sort')
-			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, $scope.selectedWidgetInstId)
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
-
-	updateData = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		semesterStr = $scoreWrapper.attr('data-semester-str')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
-		getStorageData $scope.selectedWidgetInstId, (data) ->
-			createStorageDataTables(data[semesterStr.replace('_', ' ')], $scoreWrapper.find('.display.data'))
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
-
-	createStorageDataTables = (tables, $element) ->
-		$element.empty()
-
-		tableNames = []
-		$label = $('<div class="table-label"><h4>Table:</h4></div>')
-		$select = null
-
-		tableNames.push(tableName) for tableName, tableData of tables
-
-		if tableNames.length == 1
-			$label.append('<span>' + tableNames[0] + '</span>')
-		else
-			$select = $('<select></select>')
-			for name in tableNames
-				$select.append('<option value="'+name+'">'+name+'</option>')
-
-			$select.change (event) ->
-				semester = $(event.target).parents('.scoreWrapper').attr('data-semester-str')
-				selectedTableName = $(event.target).find(':selected').val()
-				getStorageData $scope.selectedWidgetInstId, (data) ->
-					createStorageDataTable(data[semester.toLowerCase().replace('_', ' ')][selectedTableName], $element)
-			$label.append($select)
-
-		$element.append($label)
-		$element.prepend('<a class="storage">Download Table</a>')
-
-		$('.storage').click (event) ->
-			event.preventDefault()
-
-			$scoreWrapper = $(event.target).parents('.scoreWrapper')
-			$tableLabel = $scoreWrapper.find('.table-label')
-			table = ''
-			if($tableLabel.find('select').length > 0)
-				table = $tableLabel.find('select').val()
-			else
-				table = $tableLabel.find('span').text()
-			if table != ''
-				semester = $scoreWrapper.attr('data-semester-str').replace('_', '-')
-				window.location = '/scores/storage/' + $scope.selectedWidgetInstId + '/' + table + '/' + semester
-		createStorageDataTable(tables[tableNames[0]], $element)
-
-	createStorageDataTable = (tableObject, $element) ->
-		$element.find('.dataTables_wrapper').remove()
-
-		$element.find('.truncated-table').remove()
-		if(tableObject.truncated)
-			$element.append('<p class="truncated-table">Showing only the first ' + STORAGE_TABLE_MAX_ROWS_SHOWN + ' entries of this table. Download the table to see all ' + tableObject.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' entries.</p>')
-
-		rows = tableObject.data
-
-		if(rows.length > 0)
-			$table = $('<table></table>')
-			$headers = $('<tr><th>user</th><th>firstName</th><th>lastName</th><th>time</th></tr>')
-			$tbody = $('<tbody></tbody>')
-			$curTr
-			nullValue
-			len = rows.length
-
-			$headers.append('<th>' + rowName + '</th>') for rowName, rowData of rows[0].data
-
-			$headers.wrap('<thead>')
-			$table.append($headers.parent())
-
-			for row in rows
-				$curTr = $('<tr><td>'+row.play.user+'</td><td>'+row.play.firstName+'</td><td>'+row.play.lastName+'</td><td>'+row.play.time+'</td></tr>')
-				for fieldName, fieldData of row.data
-					nullValue = fieldData == null
-					if nullValue
-						fieldData = '--'
-
-					$curTr.append('<td'+( if nullValue then ' class="null"' else '')+'>'+fieldData+'</td>')
-
-				$tbody.append($curTr)
-
-			$table.append($tbody)
-			$element.append($table)
-			$table.dataTable
-				sScrollX: '100%'
-
-	toggleTableSort = (semester) ->
-		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-		$table = $scoreWrapper.find('.display.table')
-		tableSort = $table.attr('data-sort')
-
-		if ($(this).hasClass('up'))
-			$(this).removeClass('up').addClass('down')
-		else if ($(this).hasClass('down'))
-			$(this).removeClass('down').addClass('up')
-
-		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
-		updateTable($scoreWrapper)
-
-	showAllScores = ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			$semester = $('.scoreWrapper')
-			$scores = $('.scores')
-
-			$('.show-older-scores-button').hide()
-
-			for i in [1..data.list.length-1]
-				$clone = $semester.clone()
-				$scores.append($clone)
-				populateScoreWrapper($clone, data.list[i])
+	# 		for i in [1..data.list.length-1]
+	# 			$clone = $semester.clone()
+	# 			$scores.append($clone)
+	# 			populateScoreWrapper($clone, data.list[i])
 
 	createSemesterString = (o) ->
 		return (o.year + '_' + o.term).toLowerCase()
@@ -1055,7 +1075,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		populateAttempts			: populateAttempts
 		getCurrentSemester			: getCurrentSemester
-		setScoreView				: setScoreView
+		# $scope.setScoreView				: $scope.setScoreView
 		toggleTableSort				: toggleTableSort
 		showAllScores				: showAllScores
 		toggleShareWidgetContainer	: toggleShareWidgetContainer

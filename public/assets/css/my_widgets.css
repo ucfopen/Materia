@@ -659,9 +659,9 @@
 				color: #000000;
 				padding: 6px 10px 4px 10px;
 			}
-				.my_widgets .page .scores ul.choices li:nth-child(3) a {
+				/*.my_widgets .page .scores ul.choices li:nth-child(3) a {
 					display: none;
-				}
+				}*/
 
 				.my_widgets .page .scores ul.choices li a:hover {
 					text-decoration: none;
@@ -764,7 +764,6 @@
 		padding: 20px;
 		border: solid #dbdbdb 1px;
 		float:left;
-		display:none;
 	}
 
 	.my_widgets .page .scores .display.table
