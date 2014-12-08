@@ -2,79 +2,55 @@
 MyWidgets = angular.module 'MyWidgets'
 
 MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
-
 	$scope.selectedWidget = null
 
 	$scope.$on 'selectedWidget.update', (evt) ->
 		$scope.selectedWidget = selectedWidgetSrv.get()
 
+	$scope.$on 'widgetList.update', (evt) ->
+		updateWidgets widgetSrv.getWidgets()
+
 	$scope.widgets = []
 
-	# Populate the widget list
-	# This was originally part of prepare(), but is prepare really necessary now?
-	deferredWidgets = widgetSrv.getWidgets()
-	deferredWidgets.then (data) ->
+	updateWidgets = (data) ->
+		Materia.Set.Throbber.stopSpin '.courses'
 
-		if !data then selectedWidgetSrv.setNoWidgets true
+		if !data
+			selectedWidgetSrv.setNoWidgets true
+			$scope.widgets = []
+			$scope.$apply()
+		else if data.then?
+			data.then updateWidgets
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
 
 			$scope.$apply ->
-				data.sort (a,b) -> return b.created_at - a.created_at
 				$scope.widgets = data
 
-			# TODO clean up
-			Materia.Set.Throbber.stopSpin '.courses'
+	# Populate the widget list
+	# This was originally part of prepare(), but is prepare really necessary now?
+	deferredWidgets = widgetSrv.getWidgets()
+	deferredWidgets.then updateWidgets
 
-	# TODO check for Beard Mode & apply styles
+	if window.location.hash
+		found = false
+		selID = window.location.hash.substr(1)
 
-	# ============ GET WIDGETS FROM SERVER =========================
-	prepare = ->
+		for widget in $scope.widgets
+			if widget.id == selID
+				found = true
+				break
 
-		# TODO: Throbber functionality needs to be taken care of
-		# Materia.Set.Throbber.startSpin '.page'
-		# buildDefaultList()
-
-		# if there's a hash, select it
-		# TODO clean this ish up
-		# TODO: determine if this whole function is necessary or if it should just be dumped in controller
-		if window.location.hash
-			found = false
-			selID = window.location.hash.substr(1)
-
-			for widget in $scope.widgets
-				if widget.id == selID
-					found = true
-					break
-
-			if found then $scope.setSelected(selID)
-
-			else
-				#TODO: Update
-				Materia.MyWidgets.SelectedWidget.noAccess()
+		if found
+			$scope.setSelected(selID)
+		else
+			#TODO: Update
+			Materia.MyWidgets.SelectedWidget.noAccess()
 
 	$scope.setSelected = (id) ->
 		widgetSrv.getWidget id, (inst) ->
 			selectedWidgetSrv.set inst
-
-	# Builds the sidebar with all of the widgets that come back from the api.
-	# @var array A list of widget objects
-	buildDefaultList = ->
-		bearded = BEARD_MODE? && BEARD_MODE == true
-		$("div[data-template=widget-list] .icon").addClass 'bearded' if bearded
-
-		len = $scope.widgets.length
-		rightSide = $('section.directions')
-
-		if len == 0
-			# TODO: Update
-			Materia.MyWidgets.SelectedWidget.noWidgets()
-		else
-			rightSide.addClass 'unchosen'
-			return false
-
-			$('.my_widgets aside .courses .course_list').css overflow:'visible' if bearded
 
 	showWidgetCatNumbers = ->
 		$('.widget_list').each (i) ->
@@ -126,7 +102,6 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 		false
 
 	Namespace('Materia.MyWidgets').Sidebar =
-		prepare              : prepare,
 		showWidgetCatNumbers : showWidgetCatNumbers,
 		search               : search,
 		getWidgetByURL       : getWidgetByURL

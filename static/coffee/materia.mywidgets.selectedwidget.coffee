@@ -28,7 +28,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$scope.$apply()
 
 	$scope.user = null # grab current user, link it to service
-	# userSrv.grabCurrentUser()
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userSrv.get()
 		# $scope.$apply() # required?
@@ -47,6 +46,11 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	$scope.baseUrl = BASE_URL
 
+	$scope.popup = () ->
+		console.log("hello")
+		Materia.MyWidgets.Availability.popup()
+		return
+
 	# Initializes the gateway for the api
 	# @string path to gateway
 	init = (gateway) ->
@@ -54,12 +58,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$('.show-older-scores-button').click (e) ->
 			e.preventDefault()
 			# Materia.MyWidgets.SelectedWidget.showAllScores()
-
-
-	# Migrating to service
-	# getSelectedId = ->
-	# 	# $scope.selectedWidgetInstId
-	# 	$scope.selectedWidget.id
 
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
@@ -105,9 +103,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$('#attempts').html(if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited')
 
 	populateAvailability = (startDateInt, endDateInt) ->
-		if $('section.directions').is(':visible')
-			$('section.directions').hide()
-			$('section.page').show()
+		#if $('section.directions').is(':visible')
+			#$('section.directions').hide()
+			#$('section.page').show()
 
 		availability = Materia.Set.Availability.get(startDateInt, endDateInt)
 
@@ -131,14 +129,14 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	noAccess = ->
-		$('section.page').children().hide()
+		#$('section.page').children().hide()
 
-		if($('section.directions').is(':visible'))
-			$('section.directions').hide()
-			$('section.page').show()
+		#if($('section.directions').is(':visible'))
+			#$('section.directions').hide()
+			#$('section.page').show()
 
 		#  put the error template on screen
-		$('section.page').append($('#t-error').html())
+		#$('section.page').append($('#t-error').html())
 
 	# Shows selected game information on the mainscreen.
 	# @param   element   The element that was clicked ($('.widget_list').children('div'))
@@ -149,28 +147,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		if $('section .error').is(':visible') then $('section .error').remove()
 
 		Materia.Coms.Json.send 'session_valid', ['basic_author'], (data) ->
-			# loadDateRanges -> # WHY WAS THIS EVEN HEEEEEERE?!
-
-			# required?
-				# # this should instead reference scope selectedWidget variable
-				# # all references to inst should be replaced as such
-				# inst = selectedWidgetSrv.get()
-				# # these are superfluous - remove references
-				# clean_name = widgetName = inst.clean_name
-				# widgetID = inst.widget.id
-
 				# This reference is staying until it's not needed...
 				$editButton = $('#edit_button')
-
-				# Gets current user
-				# TODO should be put in user service & referenced thusly
-				# Materia.User.getCurrentUser (user) ->
-				# Gets who is currently using this widget (i.e. sharing)
-				# Materia.Coms.Json.send 'permissions_get', [0, inst.id], (perms) ->
-				# user_perms = perms['user_perms']
-				# widget_user_perms = perms['widget_user_perms']
-
-				# accessLevel = 0
 
 				# accessLevel == 0 is effectively read-only
 				if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
@@ -179,63 +157,18 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 				$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
-				# TODO edit button should be disabled IF:
+				# edit button should be disabled IF:
 					# - accesslevel == 0
 					# - is_editable flag is 0
 				$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
-				console.log "widget is EDITABLE: " + $scope.editable
-
-				# There are cleaner implementations, but this is clean..... ish
 				if $scope.editable
 					$scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 				else
 					$scope.edit = "#"
 
-				# TODO consolidate all $scope.$apply calls
-				# $scope.$apply()
-
-				# # disable certain interactions if the user's access is view-only or widget isn't editable
-				# if($scope.accessLevel == 0)
-				# 	$editButton.unbind()
-				# 	$editButton.attr('href','#')
-				# 	$editButton.click -> return false
-				# 	$editButton.addClass('disabled')
-
-				# 	# $('.copy').addClass('disabled')
-				# 	# $('#copy_widget_link').addClass('disabled')
-				# 	# $('#delete_widget_link').addClass('disabled').parent().addClass('disabled')
-				# else
-				# 	if Number($scope.selectedWidget.widget.is_editable) == 1
-				# 		# $editButton.removeClass('disabled')
-				# 	else
-				# 		$editButton.unbind()
-				# 		$editButton.attr('href','#')
-				# 		$editButton.click -> return false
-				# 		$editButton.addClass('disabled')
-
-					# $('.copy').removeClass('disabled')
-					# $('#copy_widget_link').removeClass('disabled')
-					# $('#delete_widget_link').removeClass('disabled').parent().removeClass('disabled')
 				$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
 				# $scope.$apply()
-
-				# if !$scope.editable
-				# 	# CSS to disable additional options needs to be re-worked
-				# 	$('.attempts_parent').addClass('disabled')
-				# 	$('#edit-avaliability-button').addClass('disabled')
-				# 	$('#attempts').addClass('disabled')
-				# 	$('#avaliability').addClass('disabled')
-				# else
-				# 	$('.attempts_parent').removeClass('disabled')
-				# 	$('.copy').removeClass('disabled')
-				# 	$('#copy_widget_link').removeClass('disabled')
-				# 	$('#copy_widget_link').unbind('click')
-				# 	$('#delete_widget_link').removeClass('disabled')
-				# 	$('#delete_widget_link').unbind('click')
-				# 	$('#edit-avaliability-button').removeClass('disabled')
-				# 	$('#attempts').removeClass('disabled')
-				# 	$('#avaliability').removeClass('disabled')
 
 				if $scope.shareable
 					# $('#edit-avaliability-button').unbind('click')
@@ -253,109 +186,26 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					$('#attempts').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
 					$('#avaliability').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
 
-				# $('#edit-avaliability-button').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-				# $('#attempts').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-				# $('#avaliability').not('.disabled').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-
-				# $('.copy').unbind('click')
-				# $('.copy.disabled').click -> return false
-
-				# TODO replace with ng-modal functionality
-				$('.copy').not('.disabled').jqmodal
-					modal            : true,
-					backgroundStyle  : 'light',
-					className        : 'copy',
-					html             : $('#t-copy-popup').html(),
-					closingSelectors : ['.cancel_button']
-				, ->
-					$('#popup.copy input').focus()
-
-					newTitle = $('#popup.copy input.newtitle').val()
-
-					$('#popup.copy input.newtitle').keypress (e) ->
-						if e.which == 10 or e.which == 13
-							copyWidget()
-
-					$('#popup.copy .copy_button').click (e) ->
-						e.preventDefault()
-						copyWidget()
-
-				# $('.delete_dialogue').hide()
-				# $('.additional_options').fadeIn('fast')
-				# $('.delete').unbind('click')
-				# $('.delete.disabled').click -> return false
-				# $('.delete').not('.disabled').toggle ->
-				# 	$('.additional_options').hide()
-				# 	$('.delete_dialogue').fadeIn('fast')
-				# 	$('.delete_dialogue').show()
-				# , ->
-				# 	$('.delete_dialogue').hide()
-				# 	$('.additional_options').fadeIn('fast')
-
 				# count up the number of other users collaboratin
 				count = 0
 				for id of $scope.perms.widget
 					if id != $scope.user.id then count++
 
-				$scope.collaborators = count
-				# $scope.$apply()
-
-				# str = 'Collaborate'
-				# str += ' ('+count+')' if count > 0
-				# $('#share_widget_link').text(str)
+				$scope.copy_title = $scope.selectedWidget.name + " copy"
+				$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
+				$scope.$apply()
 
 				# TODO: Fix dis
 				populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 				populateAttempts($scope.selectedWidget.attempts)
 
-				# $('.page hgroup h1').html($scope.selectedWidget.name)
-				# $('.page hgroup h3').html($scope.selectedWidget.widget.name)
-
-				# $('.overview .icon').attr('src', Materia.Image.iconUrl($scope.selectedWidget.widget.dir, 275))
-
-				# default: /assets/img/default/default-icon-275.png
-				$scope.selectedWidget.icon = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-				# $scope.$apply()
-
-				# TODO re-implement beard mode
-				# if BEARD_MODE? and BEARD_MODE == true
-
-				# 	$('.widget .icon').each (index) ->
-				# 		rand = Math.floor((Math.random()*beards.length)+1) - 1
-
-				# 		$(this).addClass('small_'+beards[rand])
-
-				# 		if ($(this).parent().hasClass('gameSelected'))
-				# 			$('.icon_container').addClass('med_'+beards[rand])
-
-				# 	existing = $('.overview .icon_container').attr('class').split(' ')
-
-				# 	for e in existing
-				# 		if e != 'icon_container' && e != 'big_bearded'
-				# 			$('.overview .icon_container').removeClass(e)
-
-				# 	beardType = $('.widget.gameSelected .icon').attr('class').split(' ')[2]
-				# 	beardType = 'med'+beardType.substring(5)
-
-				# 	$('.widget .icon').addClass('bearded')
-				# 	$('.icon_container')
-				# 		.addClass('big_bearded')
-				# 		.addClass(beardType)
-
-				# if($('.page').is(':hidden'))
-				# 	$('.page').show()
-				# else
-				# 	$('.page').children().show()
-
-				# $('#preview_button').attr('href','/preview/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name).click ->
-				# 	return false if $(this).hasClass('disabled')
+				$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
+				$scope.$apply()
 
 				#  Bind the edit button
 				# $editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
 				# $editButton.unbind('click')
 
-				# update display if not playable
-				# This formerly checked if widget.is_playable was set - but was it needed??
 				$scope.shareable = !$scope.selectedWidget.is_draft
 				# $scope.$apply()
 				if !$scope.shareable
@@ -376,7 +226,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 							else
 								alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
 
-					# 	return false
 				# update display if playable
 				# TODO: this case should probably be combined with the is not a draft case below?
 				else
@@ -408,26 +257,13 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 						html             : $('#t-edit-widget-published').html(),
 						closingSelectors : ['.cancel_button']
 					, ->
-						$('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
+						# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
 
 				# TODO: this case should probably be combined with the else case above?
 				# TODO: Determine if this note is still relevant ^
 				if !$scope.selectedWidget.widget.is_draft
 					# $('.my_widgets .page .scores').show()
 					$('.my_widgets .page .embed').show() # WHERE IS THIS??
-
-					# $('.my_widgets .page .scores').hide() if !$scope.selectedWidget.widget.is_scorable
-					# $('#play_link').val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
-					# $('#embed_link').val(getEmbedLink($scope.selectedWidget))
-
-					# $('#embed_link').hide()
-					# $('.share-widget-container span').unbind('click')
-					# $('.share-widget-container span').click (e) ->
-					# 	e.preventDefault
-					# 	$('#embed_link').slideToggle 'fast'
-
-					# toggleShareWidgetContainer('close')
-					# $('.container').fadeIn() if $('.container:hidden').length > 0
 
 					#  reset scores & data ui:
 					$scoreWrapper = $('.scoreWrapper')
@@ -478,39 +314,20 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 					# $('.my_widgets .page .scores').hide()
 					$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
-				# if $scope.selectedWidget.widget.is_playable == 0
-				# 	$('#preview_button').addClass('disabled')
-				# 	$('.arrow_right').addClass('disabled')
-				# else
-				# 	$('#preview_button').removeClass('disabled')
-				# 	$('.arrow_right').removeClass('disabled')
-
 				# Materia.Set.Throbber.stopSpin('.page')
 
-	copyWidgetWindow = ->
-		$('.copy').not('.disabled').jqmodal
-			modal            : true,
-			backgroundStyle  : 'light',
-			className        : 'copy',
-			html             : $('#t-copy-popup').html(),
-			closingSelectors : ['.cancel_button']
-		, ->
-			$('#popup.copy input').focus()
+	$scope.copyWidget = () ->
+		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
+			$scope.copyToggled = false
+			widgetSrv.addWidget(inst_id)
+			$scope.$apply()
 
-	copyWidget = () ->
-		$('#popup.copy .copy_error').hide()
-		field = $('#popup.copy input.newtitle')
-
-		if (field.val().length > 0 && field.val() != newTitle)
-			inst_id = $('.gameSelected').attr('id').split('_')[1]
-
-			Materia.MyWidgets.Tasks.copyWidget(inst_id, field.val())
-			$('#popup.copy .cancel_button').click()
-		else
-			$('#popup.copy .copy_error').css('display', 'block')
-			newTitle = field.val()
-			#  throw some sort of validation error
-			#
+	$scope.deleteWidget = ->
+		Materia.MyWidgets.Tasks.deleteWidget $scope.selectedWidget.id, (results) ->
+			if results
+				$scope.deleteToggled = false
+				widgetSrv.removeWidget($scope.selectedWidget.id)
+				$scope.$apply()
 
 	$scope.getEmbedLink = ->
 		if $scope.selectedWidget is null then return ""
@@ -1031,47 +848,65 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	createSemesterString = (o) ->
 		return (o.year + '_' + o.term).toLowerCase()
 
- 	# *snip*
-	# noWidgets = ->
-	# 	$('section.page').hide()
+	getDateForBeginningOfTomorrow = ->
+		d = new Date()
+		d.setDate(d.getDate() + 1)
+		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
-	# 	rightSide = $('section.directions')
-	# 	rightSide.show()
-	# 	rightSide.children('h1').html('You have no widgets!')
-	# 	rightSide.children('p').html('Make a new widget in the widget catalog.')
+	$scope.showCollaboration = ->
+		user_ids = []
+		for user of $scope.perms.widget
+			user_ids.push user
+		$scope.collaborators = []
 
-	# 	$('header nav ul li:first-child').qtip
-	# 		content: 'Click here to start making a new widget!'
-	# 		position:
-	# 			corner:
-	# 				target: 'bottomMiddle'
-	# 				tooltip: 'topMiddle'
-	# 			adjust:
-	# 				y: 15
-	# 		style:
-	# 			background: '#b944cc'
-	# 			color: '#ffffff'
-	# 			padding: 10
-	# 			border:
-	# 				width: 2
-	# 				radius: 5
-	# 				color: '#b944cc'
-	# 			tip:
-	# 				corner: 'topMiddle'
-	# 				size:
-	# 					width: 15
-	# 					height: 10
-	# 		show:
-	# 			ready: true
+		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
+			users.sort (a,b) ->
+				if(a.first < b.first || (a.first == b.first && a.last < b.last) || (a.last == b.last && a.middle < b.middle))
+					return -1
+				return 1
+
+			for user in users
+				user.access = $scope.perms.widget[user.id][0]
+				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
+				user.expires = timestamp
+				user.expiresText = if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+				user.gravatar = getGravatar(user.email)
+
+			$scope.collaborators = users
+			$scope.$apply()
+
+			$scope.setupPickers()
+
+		$scope.showCollaborationModal = true
+
+	$scope.setupPickers = ->
+		# fill in the expiration link text & setup click event
+		for user in $scope.collaborators
+			$(".exp-date.user" + user.id).datepicker
+				minDate: getDateForBeginningOfTomorrow()
+				onSelect: (dateText, inst) ->
+					timestamp = $(this).datepicker('getDate').getTime() / 1000
+					user.expires = timestamp
+					user.expiresText = getExpiresText(timestamp)
+					$scope.$apply()
+
+	$scope.removeExpires = (user) ->
+		user.expires = null
+		user.expiresText = getExpiresText(user.expires)
+
+	getExpiresText = (timestamp) ->
+		timestamp = parseInt(timestamp, 10)
+		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+
+	$scope.getGravatar = getGravatar = (email) ->
+		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
-		# getSelectedId				: getSelectedId,
 		setSelectedWidget			: setSelectedWidget,
 		noAccess					: noAccess,
 		populateAvailability		: populateAvailability,
 		populateDisplay				: populateDisplay,
-		# selectedWidgetInstId		: selectedWidgetInstId
 
 		populateAttempts			: populateAttempts
 		getCurrentSemester			: getCurrentSemester
@@ -1079,9 +914,87 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		toggleTableSort				: toggleTableSort
 		showAllScores				: showAllScores
 		toggleShareWidgetContainer	: toggleShareWidgetContainer
-		# selectedWidgetInstId		: selectedWidgetInstId
-		# noWidgets					: noWidgets
-		# getSelectedId				:getSelectedId
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
+
+MyWidgets.controller 'CollaborationController', ($scope) ->
+	$scope.search = (nameOrFragment) ->
+		$scope.searching = true
+
+		inputArray = nameOrFragment.split(',')
+		nameOrFragment = inputArray[inputArray.length - 1]
+
+		if(nameOrFragment.length < 1)
+			stopSpin()
+			return
+		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
+			if(matches == null || typeof matches == 'undefined' || matches.length < 1)
+				$scope.searchResults = []
+				stopSpin()
+				return
+
+			for user in matches
+				user.gravatar = $scope.$parent.getGravatar(user.email)
+			$scope.searchResults = matches
+			$scope.$apply()
+
+	$scope.searchMatchClick = (user) ->
+		$scope.searching = false
+
+		# Do not add duplicates
+		for existing_user in $scope.$parent.collaborators
+			if user.id == existing_user.id
+				return
+
+		$scope.$parent.collaborators.push
+			id: user.id
+			isCurrentUser: user.isCurrentUser
+			expires: null
+			expiresText: "Never"
+			first: user.first
+			last: user.last
+			gravatar: user.gravatar
+			access: 0
+
+		setTimeout ->
+			$scope.$parent.setupPickers()
+		, 1
+
+	$scope.removeAccess = (user) ->
+		user.remove = true
+
+	$scope.updatePermissions = (users) ->
+		permObj = []
+
+		for user in users
+			# Do not allow saving if a demotion dialog is on the screen
+			if user.warning
+				return
+
+			access = []
+			for i in [0...user.access]
+				access.push null
+
+			access.push if user.remove then false else true
+
+			permObj.push
+				user_id: user.id
+				expiration: user.expires
+				perms: access
+
+		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
+			if returnData == true
+				$scope.$parent.showCollaborationModal = false
+			else
+				alert(returnData.msg)
+			$scope.$apply()
+
+	$scope.checkForWarning = (user) ->
+		if user.isCurrentUser and user.access < 30
+			user.warning = true
+
+	$scope.cancelDemote = (user) ->
+		user.warning = false
+		user.access = 30
+

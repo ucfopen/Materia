@@ -1,23 +1,23 @@
 MyWidgets = angular.module('MyWidgets')
-MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q) ->
+MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 	deferred = $q.defer()
 	_widgets = []
 	widgetTemplate = null
 	cache = null
 
-	sortWidgets = -> # find all references and remove? Necessary?
-		# unless cache?
-		# 	cache = _widgets.slice()
-		# 	cache.sort (a,b) -> return b.created_at - a.created_at
-		# _buildSidebar cache
+	sortWidgets = ->
+		_widgets.sort (a,b) -> return b.created_at - a.created_at
 
 	getWidgets = ->
 		if _widgets.length == 0
 			Materia.WidgetInstance.clearAll()
 			Materia.WidgetInstance.getAll (widgets) ->
 				_widgets = widgets.slice(0)
-				deferred.resolve _widgets
+				sortWidgets()
+				return deferred.resolve _widgets
+		else
+			return _widgets
 
 	_buildSidebar = (cachedWidgets) ->
 		myWidgets = []
@@ -65,47 +65,35 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q) ->
 				callback(widget)
 
 	addWidget = (inst_id) ->
-		# forces loading of the new widget
-		Materia.WidgetInstance.get inst_id, ->
-			# gets all of the widgets
-			Materia.WidgetInstance.get null, (widgets) ->
-				_widgets = widgets
-				cache = null
-				element = $('.typeSelected')
-
-				#  removing the typeSelected class in advance to force sortWidgets to properly do its job.
-				element.removeClass('typeSelected')
-				selectedWidgetSrv.setSelectedWidget(inst_id)
-				sortWidgets()
+		Materia.WidgetInstance.get inst_id, (widget) ->
+			_widgets.push widget[0]
+			sortWidgets()
+			$rootScope.$broadcast 'widgetList.update', ''
+			selectedWidgetSrv.set widget[0]
 
 	removeWidget = (inst_id) ->
-		widgetList = $('.widget_list').children()
-		widgetListLength = widgetList.size()
-
-		newID = null
-
-		if widgetListLength > 1
-			#get the id of the next widget in the list
-			curWidge = $('.gameSelected')
-			if curWidge.is(":first-child")
-				newID = curWidge.next().attr('id').split('_')[1]
+		index = -1
+		_widgets = _widgets.filter (widget, i) ->
+			if widget.id is inst_id
+				index = i
+				return null
 			else
-				newID = curWidge.prev().attr('id').split('_')[1]
-			curWidge.remove()
+				widget
 
-			#reset the odds/evens after the deleted widget is removed from the list
-			$('.odd').removeClass('odd')
-			$('.even').removeClass('even')
-			for i in [0..widgetListLength]
-				$(widgetList[i]).addClass( if i % 2 == 0 then 'odd' else 'even')
-		else
-			$('.gameSelected').remove()
+		return if index is -1
 
-		if newID?
-			selectedWidgetSrv.setSelected(newID)
+		if index == 0
+			selectedIndex = 0
+		else if index > 0
+			selectedIndex = index - 1
+
+		newWidget = _widgets[selectedIndex]
+		if newWidget
+			selectedWidgetSrv.set(newWidget)
+			sortWidgets()
 		else
 			selectedWidgetSrv.noWidgets()
-
+		$rootScope.$broadcast 'widgetList.update', ''
 
 	getWidgets: getWidgets
 	getWidget: getWidget
