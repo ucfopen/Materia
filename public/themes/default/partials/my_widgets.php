@@ -1,6 +1,56 @@
 <div class="container" ng-app="MyWidgets">
 	<div ng-controller="SelectedWidgetController">
-		<section class="directions" ng-show="noWidgetState == false">
+		<div ng-controller="CollaborationController" class="popup light share" ng-show="$parent.showCollaborationModal">
+			<h2>Collaboration:</h2>
+			<div id="access" class="container">
+				<div class="list_tab_lock">
+					<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
+					<div class="search_list" ng-show="searching">
+						<div ng-show="searchResults.length == 0">
+							<p class="no_match_message">No matches found.</p>
+							<p class="no_match_reason">The person you're searching for may need to log in to create an account.</p>
+						</div>
+						<div ng-repeat="result in searchResults" ng-click="searchMatchClick(result)" class="search_match">
+							<img class="user_match_avatar" ng-src="{{ result.gravatar }}">
+							<p class="user_match_name">{{ result.first }} {{ result.last }}</p>
+						</div>
+					</div>
+				</div>
+				<div class="access_list">
+					<div ng-repeat="user in $parent.collaborators" ng-show="!user.remove" class="user_perm">
+						<a tabindex="0" href="javascript:;" ng-click="removeAccess(user)" class="remove">&#88;</a>
+						<img class="avatar" ng-src="{{ user.gravatar }}" />
+
+						<span class="name">{{ user.first }} {{ user.last }}</span>
+
+						<div class="demote_dialogue" ng-show="user.warning">
+							<div class="arrow"></div>
+							<div class="warning">Are you sure you want to limit <strong>your</strong> access?
+							</div>
+							<a href="javascript:;" ng-click="cancelDemote(user)" class="no_button">No</a>
+							<a href="javascript:;" ng-click="user.warning = false" class="button red action_button yes_button">Yes</a>
+						</div>
+
+						<div class="options">
+							<span class="owner">Full</span>
+							<span class="undo">Removed <a href="#">Undo</a></span>
+							<select tabindex="0" id="perm" class="perm" ng-model="user.access" ng-change="checkForWarning(user)">
+								<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
+								<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
+							</select>
+
+							<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
+							<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
+
+						</div>
+					</div>
+				</div>
+				<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
+				<a tabindex="0" class="cancel_button" ng-click="$parent.showCollaborationModal = false">Cancel</a>
+				<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
+			</div>
+		</div>
+		<section class="directions unchosen" ng-show="noWidgetState == false && !selectedWidget">
 			<h1>Your Widgets</h1>
 			<p>Choose a widget from the list on the left.</p>
 		</section>
@@ -14,8 +64,8 @@
 				<h3>{{selectedWidget.widget.name}}</h3>
 			</hgroup>
 			<div class="overview">
-				<div class="icon_container">
-					<img class="icon" src='{{selectedWidget.icon}}' height="275px" width="275px"/>
+				<div class="icon_container med_{{ beard }}" ng-class="{ big_bearded: beard }">
+					<img class="icon" ng-src='{{selectedWidget.iconbig}}' height="275px" width="275px"/>
 				</div>
 				<div class="controls">
 					<ul>
@@ -33,14 +83,14 @@
 						</li>
 					</ul>
 					<ul class="options">
-						<li class="share"><a href="#" id="share_widget_link">Collaborate {{collaborators > 0 ? "("+collaborators+")" : ""}}</a></li>
-						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="">Make a Copy</a></li>
+						<li class="share"><a href="javascript:;" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</a></li>
+						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-disabled="" ng-click="copyToggled = true">Make a Copy</a></li>
 						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}"  ng-click="deleteToggled = !deleteToggled">Delete</a></li>
 					</ul>
 					<div class="delete_dialogue" ng-show="deleteToggled">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
-						<a class="cancel_button" href="#">Cancel</a>
-						<a class="action_button red delete_button" href="#">Delete</a>
+						<a class="cancel_button" href="javascript:;" ng-click="deleteToggled = false">Cancel</a>
+						<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 					</div>
 					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!deleteToggled">
 						<h3>Settings:</h3>
@@ -52,12 +102,22 @@
 						</dl>
 						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
 					</div>
+					<div class="copy_dialogue popup light copy" ng-show="copyToggled">
+						<h2>Make a Copy:</h2>
+						<div class="container">
+							<span class="input_label">New Title:</span>
+							<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
+							<span class="copy_error">Please enter a valid widget title.</span>
+							<a class="cancel_button" href="javascript:;" ng-click="copyToggled = false">Cancel</a>
+							<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
+						</div>
+					</div>
 				</div>
 				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
 					<h3>{{shareable ? "Share" : "Publish to share"}} with your students</h3>
 					<input id="play_link" type="text" ng-disabled="!shareable" ng-disabled="!shareable" value="{{baseUrl}}play/{{selectedWidget.id}}/{{selectedWidget.clean_name}}"/>
 					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
-					<textarea id="embed_link" ng-show="embedToggle && shareable"><iframe src="<?= Uri::base() ?>embed/847" width="800" height="634" style="margin:0;padding:0;border:0;" value="{{getEmbedLink()}}">Oops! There was a problem displaying this Kogneato Widget. Try a direct <?= Html::anchor('play/847', 'link') ?>.</iframe></textarea>
+					<textarea id="embed_link" ng-show="embedToggle && shareable">{{ getEmbedLink() }}</textarea>
 				</div>
 			</div>
 			<div class="scores" ng-show="shareable && selectedWidget.widget.is_scorable">
@@ -117,8 +177,8 @@
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : $index % 2 == 0, 'odd': $index % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
-					<img class="icon" src="{{instance.icon}}" />
+				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : ($index + 1) % 2 == 0, 'odd': ($index + 1) % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
+					<img class="icon" ng-src="{{instance.icon}}" />
 					<ul>
 						<li class="title searchable">{{instance.name}}</li>
 						<li class="type searchable">{{instance.widget.name}}</li>
@@ -139,55 +199,48 @@
 			-->
 		</div>
 	 </aside>
+	<!-- begin -->
+	<div ng-controller="WidgetSettingsController" id="popup" class="light availability" ng-hide="true"><!-- TODO remove ng-hide, it's temporary -->
+		<h2>Settings</h2>
+		<p class="availabilityError" ng-show="errors.type.length > 0">{{errors.type[0]}}{{errors.type[1] ? "s and " + errors.type[1] + "s are" : " is"}} {{errors.reason[0]}}{{errors.reason[1] ? "/" + errors.reason[1] : ""}}.</p>
+		<ul class="attemptsPopup">
+			<li><h3>Attempts</h3>
+				<div class="selector"></div>
+				<ul class="attemptHolder">
+					<li id="value_1" ng-class="{selected: selectedWidget.attempts == 1}">1</li>
+					<li id="value_2" ng-class="{selected: selectedWidget.attempts == 2}">2</li>
+					<li id="value_3" ng-class="{selected: selectedWidget.attempts == 3}">3</li>
+					<li id="value_4" ng-class="{selected: selectedWidget.attempts == 4}">4</li>
+					<li id="value_5" ng-class="{selected: selectedWidget.attempts == 5}">5</li>
+					<li id="value_10" class="step first" ng-class="{selected: selectedWidget.attempts == 10}">10</li>
+					<li id="value_15" class="step" ng-class="{selected: selectedWidget.attempts == 15}">15</li>
+					<li id="value_20" class="step" ng-class="{selected: selectedWidget.attempts == 20}">20</li>
+					<li id="value_25" class="step last" ng-class="{selected: selectedWidget.attempts == -1}">Unlimited</li>
+				</ul>
+				<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
+			</li>
+		<ul class="toFrom">
+			<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+				<ul class="datePicker">
+					<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+					<li ng-click="available.anytime = false">
+						<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+						<label>On</label>
+						<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" placeholder="Date" ng-model="available.date"/> at
+						<input type="text" class="time" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time"/>
+						<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="changePeriod($index, 'am')">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="changePeriod($index, 'pm')">pm</span>
+					</li>
+				</ul>
+			</li>
+		<ul class="inline">
+			<li><a href="#" class="cancel_button">Cancel</a></li>
+			<li><a href class="action_button green save" ng-click="parseSubmittedInfo()">Save</a></li>
+		</ul>
+	</div>
+	<!-- end -->
 </div>
 
 <script type="text/template" id="t-error"><div class="error error-nowidget"><p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p></div></script>
-
-<script type="text/template" id="t-availibility"><h2>Settings</h2>
-<ul class="attemptsPopup">
-	<li><h3>Attempts</h3>
-		<div class="selector"></div>
-		<ul class="attemptHolder">
-			<li id="value_1">1</li>
-			<li id="value_2">2</li>
-			<li id="value_3">3</li>
-			<li id="value_4">4</li>
-			<li id="value_5">5</li>
-			<li id="value_10" class="step first">10</li>
-			<li id="value_15" class="step">15</li>
-			<li id="value_20" class="step">20</li>
-			<li id="value_25" class="step last">Unlimited</li>
-		</ul>
-		<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
-	</li>
-<ul class="toFrom">
-	<li><h3>Available</h3>
-		<ul class="datePicker">
-			<li><input type="radio" name="fromAvailability" class="anytime availability" id="anytimeFrom"/> <label for="anytimeFrom">Now</label></li>
-			<li><input type="radio"  name="fromAvailability" class="specify availability" id="specifyFrom"/> <label for="specifyFrom">On</label> <input type="text" class="date from" placeholder="Date"/> at <input type="text" id="startTime" class="time" placeholder="Time" /> <span class="am start ampm">am</span><span class="pm start ampm">pm</span></li>
-		</ul>
-	</li>
-	<li><h3>Closes</h3>
-		<ul class="datePicker">
-			<li><input type="radio" name="toAvailability" class="anytime availability" id="anytimeTo" /> <label for="anytimeTo">Never</label></li> 
-			<li><input type="radio"  name="toAvailability" class="specify availability" id="specifyTo" /> <label for="specifyTo">On</label> <input type="text" class="date to" placeholder="Date" /> at <input type="text" id="endTime" class="time" placeholder="Time" /> <span class="am end ampm">am</span><span class="pm end ampm">pm</span></li>
-		</ul>
-		<p class="data_explination">These fields define when a student can access your widget.</p>
-	</li>
-</ul>
-
-<ul class="inline">
-	<li><a href="#" class="cancel_button">Cancel</a></li>
-	<li><a href="#" class="action_button green save">Save</a></li>
-</ul></script>
-
-<script type="text/template" id="t-copy-popup"><h2>Make a Copy:</h2>
-<div class="container">
-	<span class="input_label">New Title:</span><input class="newtitle" type="text" placeholder="New Widget Title" />
-	<span class="copy_error">Please enter a valid widget title.</span>
-	<a class="cancel_button" href="#">Cancel</a>
-	<a class="action_button green copy_button" href="#">Copy</a>
-</div></script>
 
 <script type="text/template" id="t-edit-widget-published"><h2>Warning About Editing Published Widgets:</h2>
 <div class="container">
@@ -206,37 +259,7 @@
 	</span>
 </div></script>
 
-<script type="text/template" id="t-share-popup"><h2>Collaboration:</h2>
-<div id="access" class="container">
-	<div class="list_tab_lock">
-		<span class="input_label">Add people:</span><input tabindex="0" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail"/>
-		<div class="search_list"></div>
-	</div>
-	<div class="access_list"></div>
-	<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-	<a tabindex="0" class="cancel_button">Cancel</a>
-	<a tabindex="0" class="action_button green save_button">Save</a>
-</div></script>
-
 <?= Theme::instance()->view('partials/notification') ?>
-
-<script type="text/template" id="t-share-person"><a tabindex="0" href="#" class="remove">&#88;</a>
-<img class="avatar"/>
-
-<span class="name"></span>
-
-<div class="options">
-	<span class="owner">Full</span>
-	<span class="undo">Removed <a href="#">Undo</a></span>
-	<select tabindex="0" id="perm" class="perm">
-		<option value="30">Full</option>
-		<option value="0">View Scores</option>
-	</select>
-
-	<a tabindex="0" href="#" class="remove-expiration" role="button">X</a>
-	<span class="expires">Expires: </span><input type="text" class="exp-date" readonly="true" />
-
-</div></script>
 
 <script type="text/template" id="t-csv"><div class="download_wrapper">
 	<h3>Export Scores</h3>
