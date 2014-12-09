@@ -874,7 +874,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
 
-MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv) ->
+MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv) ->
 	$scope.search = (nameOrFragment) ->
 		$scope.searching = true
 
@@ -934,6 +934,8 @@ MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv) ->
 				access.push null
 
 			access.push if user.remove then false else true
+			if user.isCurrentUser and user.remove
+				widgetSrv.removeWidget($scope.$parent.selectedWidget.id)
 
 			user_ids[user.id] = [user.access, user.expires]
 			permObj.push
