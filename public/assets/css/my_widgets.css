@@ -1080,12 +1080,12 @@
 /*        Avalability Popup                                        */
 /* *************************************************************** */
 
-		.popup.availability
+		.ng-modal.availability .ng-modal-dialog
 		{
 			padding: 20px 20px 5px 20px;
 			min-width: 500px;
 		}
-		.popup.availability h2
+		.ng-modal.availability .ng-modal-title
 		{
 			margin: 0;
 			padding: 0;
@@ -1094,48 +1094,50 @@
 			border-bottom: #999 dotted 1px;
 			padding-bottom: 20px;
 			margin-bottom: 20px;
+			position: relative;
+			text-align: left;
 		}
-		.popup.availability ul.inline li
+		.ng-modal.availability ul.inline li
 		{
 			list-style: none;
 			display: inline-block;
 			padding: 0;
 			margin: 0;
 		}
-		.popup.availability ul.inline
+		.ng-modal.availability ul.inline
 		{
 			margin: 50px auto 20px auto;
 			padding: 0;
 			width: 255px;
 		}
-		.popup.availability ul.attemptsPopup
+		.ng-modal.availability ul.attemptsPopup
 		{
-			margin: 0 0 10px 0;
+			margin: 4px 0 10px 0;
 			padding: 0 0 0 10px;
 		}
-		.popup.availability ul.attemptsPopup li
+		.ng-modal.availability ul.attemptsPopup li
 		{
 			list-style: none;
 		}
-		.popup.availability ul.toFrom
+		.ng-modal.availability ul.toFrom
 		{
 			margin: 0;
 			padding: 0;
 		}
-		.popup.availability .availabilityError {
+		.ng-modal.availability .availabilityError {
 			position: absolute;
 			top: 8px;
 			right: 20px;
 			color: #F00;
 			font-weight: bold;
 		}
-		.popup.availability ul.toFrom>li
+		.ng-modal.availability ul.toFrom>li
 		{
 			list-style: none;
 			margin: 20px 0 0 0;
 			padding: 0;
 		}
-		.popup.availability ul.toFrom li span.text-right
+		.ng-modal.availability ul.toFrom li span.text-right
 		{
 			text-align: right;
 			display: inline-block;
@@ -1144,7 +1146,7 @@
 			font-weight: bold;
 		}
 
-		.popup.availability ul li.save a
+		.ng-modal.availability ul li.save a
 		{
 			display: inline-block;
 			background: #0093e7;
@@ -1154,7 +1156,7 @@
 			border-radius: 5px;
 			margin: 0 10px;
 		}
-		.popup.availability h3
+		.ng-modal.availability h3
 		{
 			vertical-align: top;
 			display: inline-block;
@@ -1163,41 +1165,41 @@
 			margin-right: 30px;
 			text-align: right;
 		}
-		.popup.availability .datePicker
+		.ng-modal.availability .datePicker
 		{
 			display: inline-block;
 			padding: 0;
 			margin-left: -12px;
 		}
-		.popup.availability .datePicker input[type=text]
+		.ng-modal.availability .datePicker input[type=text]
 		{
 			border: 1px solid rgba(0, 0, 0, 0.2);
 			padding: 7px;
 			font-size: .8em;
 			border-radius: 7px;
 		}
-		.popup.availability .datePicker input[type=text]:focus
+		.ng-modal.availability .datePicker input[type=text]:focus
 		{
 			outline: none;
 			box-shadow: 0px 0px 1px 1px #0094e2;
 		}
-		.popup.availability .datePicker input[type=radio]
+		.ng-modal.availability .datePicker input[type=radio]
 		{
 			height: 15px;
 		}
-		.popup.availability .attemptHolder li.selected {
+		.ng-modal.availability .attemptHolder li.selected {
 		 color: #000 !important;
 		}
-		.popup.availability .selector
+		.ng-modal.availability .selector
 		{
 			width: 400px;
 			margin: 20px 0 0 0;
 			display: inline-block;
 		}
-		.popup.availability .attemptHolder li {
+		.ng-modal.availability .attemptHolder li {
 		  display: inline-block;
 		}
-		.popup.availability .attemptHolder
+		.ng-modal.availability .attemptHolder
 		{
 			margin: 0 0 0 129px;
 			padding: 0;
@@ -1210,26 +1212,26 @@
 			-o-user-select: none;
 			user-select: none;
 		}
-		.popup.availability .data_explination
+		.ng-modal.availability .data_explination
 		{
 			margin-left: 125px;
 			width: 450px;
 			font-size: 14px;
 		}
-		.popup.availability .ui-slider-handle.ui-state-default.ui-corner-all
+		.ng-modal.availability .ui-slider-handle.ui-state-default.ui-corner-all
 		{
 			outline: none;
 			margin-top: -3px;
 			background: #519BD1;
 			border: #4380AD 1px solid;
 		}
-		.popup.availability .date.error, .popup.availability .time.error
+		.ng-modal.availability .date.error, .ng-modal.availability .time.error
 		{
 			border: 2px solid rgba(255, 0, 0, 0.2);
 			background: rgba(255, 0, 0, 0.2);
 			font-color: #000000;
 		}
-		.popup.availability .am, .popup.availability .pm {
+		.ng-modal.availability .am, .ng-modal.availability .pm {
 			border: 1px solid rgba(0,0,0,0.2);
 			color: rgba(0,0,0,0.2);
 			padding: 5px;
@@ -1246,55 +1248,55 @@
 			-o-user-select: none;
 			user-select: none;
 		}
-		.popup.availability .ui-slider-handle
+		.ng-modal.availability .ui-slider-handle
 		{
 			height: 16px;
 			width: 16px;
 			border-radius: 100%;
 		}
-		.popup.availability .ui-slider
+		.ng-modal.availability .ui-slider
 		{
 			height: 1px;
 			margin-top: -6px;
 			padding-top: 1px;
 			vertical-align: middle;
 		}
-		.popup.availability .am.selected, .popup.availability .pm.selected  {
+		.ng-modal.availability .am.selected, .ng-modal.availability .pm.selected  {
 			background: #0094e2;
 			color: #FFFFFF;
 		}
-		.popup.availability .am
+		.ng-modal.availability .am
 		{
 			border-right: none;
 			border-radius: 4px 0 0 4px;
 		}
-		.popup.availability .pm {
+		.ng-modal.availability .pm {
 			border-radius: 0 4px 4px 0;
 		}
 
-		.popup.availability .attemptHolder li
+		.ng-modal.availability .attemptHolder li
 		{
 			margin-right: 0.23em;
 			color: rgba(0,0,0,0.3);
 		}
-		.popup.availability .attemptHolder li:hover
+		.ng-modal.availability .attemptHolder li:hover
 		{
 			color: black;
 		}
-		.popup.availability .attemptHolder li.step
+		.ng-modal.availability .attemptHolder li.step
 		{
 			margin-right: 3.85em;
 		}
-		.popup.availability .step.first
+		.ng-modal.availability .step.first
 		{
 			margin-left: 3.8em;
 		}
-		.popup.availability .step.last
+		.ng-modal.availability .step.last
 		{
 			margin-left: -23px;
 		}
 ​
-		.popup.availability ul li ul.hide
+		.ng-modal.availability ul li ul.hide
 		{
 			display: none;
 		}
