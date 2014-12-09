@@ -42,6 +42,13 @@ return [
 				'min' => false,
 				'attr' => ['data-src' => 'angular'],
 			],
+			'ngModal' => [
+				'files' => ['lib/bower/ngModal/dist/ng-modal.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'ngModal'],
+			],
 			'underscore' => [
 				'files' => ['cdnjs::underscore.js/1.5.2/underscore-min.js'],
 				'enabled' => false,
@@ -284,7 +291,7 @@ return [
 					'lib/jqplot_plugins/jqplot.highlighter.min.js',
 					'lib/md5.js'
 				],
-				'deps' => ['dataTables', 'datejs', 'angular'],
+				'deps' => ['dataTables', 'datejs', 'angular', 'ngModal'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'my_widgets'],
 			],
@@ -314,6 +321,7 @@ return [
 					'jquery.jqplot.min.css',
 					'ui-lightness/jquery-ui-1.8.21.custom.css',
 					'ui-lightness/jquery-ui-timepicker-addon.css',
+					'../js/lib/bower/ngModal/dist/ng-modal.css',
 					'jquery.dataTables.css'
 				],
 				'enabled' => false,

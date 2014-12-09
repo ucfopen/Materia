@@ -1,1 +1,1 @@
-angular.module 'MyWidgets', []
+angular.module 'MyWidgets', ["ngModal"]
