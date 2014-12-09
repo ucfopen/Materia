@@ -52,9 +52,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.baseUrl = BASE_URL
 
 	$scope.popup = () ->
-		console.log("hello")
+		$scope.showAvailabilityModal = true
 		Materia.MyWidgets.Availability.popup()
-		return
 
 	# Initializes the gateway for the api
 	# @string path to gateway
@@ -114,7 +113,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		availability = Materia.Set.Availability.get(startDateInt, endDateInt)
 
-		$availability = $('#avaliability')
+		$availability = $('#availability')
 
 		if endDateInt < 0 && startDateInt < 0
 			$availability.removeAttr('data-type')
@@ -170,19 +169,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
 		# $scope.$apply()
-
-		if $scope.shareable
-			jqmodalOptions =
-				modal            : true,
-				backgroundStyle  : 'light',
-				className        : 'availability',
-				html             : $('#t-availibility').html(),
-				closingSelectors : ['.cancel_button']
-
-			# TODO: Replace with ng-modal functionality
-			$('#edit-avaliability-button').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-			$('#attempts').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-			$('#avaliability').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
 
 		# count up the number of other users collaboratin
 		count = 0

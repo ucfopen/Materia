@@ -51,6 +51,43 @@
 				</div>
 			</div>
 		</modal-dialog>
+		<div ng-controller="WidgetSettingsController" class="popup light availability" ng-show="$parent.showAvailabilityModal">
+			<h2>Settings</h2>
+			<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
+			<ul class="attemptsPopup">
+				<li><h3>Attempts</h3>
+					<div class="selector"></div>
+					<ul class="attemptHolder">
+						<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
+						<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
+						<li id="value_3" ng-class="{selected: attempts == 3}" ng-click="changeSlider(3)">3</li>
+						<li id="value_4" ng-class="{selected: attempts == 4}" ng-click="changeSlider(4)">4</li>
+						<li id="value_5" ng-class="{selected: attempts == 5}" ng-click="changeSlider(5)">5</li>
+						<li id="value_10" class="step first" ng-class="{selected: attempts == 10}" ng-click="changeSlider(10)">10</li>
+						<li id="value_15" class="step" ng-class="{selected: attempts == 15}" ng-click="changeSlider(15)">15</li>
+						<li id="value_20" class="step" ng-class="{selected: attempts == 20}" ng-click="changeSlider(20)">20</li>
+						<li id="value_25" class="step last" ng-class="{selected: attempts == 25}" ng-click="changeSlider(25)">Unlimited</li>
+					</ul>
+					<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
+				</li>
+			<ul class="toFrom">
+				<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+					<ul class="datePicker">
+						<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+						<li ng-click="available.anytime = false">
+							<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+							<label>On</label>
+							<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
+							<input type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
+							<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
+						</li>
+					</ul>
+				</li>
+			<ul class="inline">
+				<li><a href class="cancel_button" ng-click="$parent.showAvailabilityModal = false">Cancel</a></li>
+				<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="$parent.showAvailabilityModal = false">Save</a></li>
+			</ul>
+		</div>
 		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
 			<div class="container">
 				<span class="input_label">New Title:</span>
@@ -106,11 +143,11 @@
 						<h3>Settings:</h3>
 						<dl class="attempts_parent" ng-class="{'disabled': !editable || !shareable}">
 							<dt>Attempts:</dt>
-							<dd id="attempts" ng-class="{'disabled':!editable || !shareable}"></dd>
+							<dd id="attempts" ng-class="{'disabled':!editable || !shareable}" ng-click="popup()"></dd>
 							<dt>Available:</dt>
-							<dd id="avaliability" ng-class="{'disabled':!editable || !shareable}"></dd>
+							<dd id="availability" ng-class="{'disabled':!editable || !shareable}" ng-click="popup()"></dd>
 						</dl>
-						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
+						<a id="edit-availability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href ng-disabled="!editable" ng-click="popup()">Edit settings...</a>
 					</div>
 				</div>
 				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
@@ -199,45 +236,6 @@
 			-->
 		</div>
 	 </aside>
-	<!-- begin -->
-	<div ng-controller="WidgetSettingsController" id="popup" class="light availability" ng-hide="true"><!-- TODO remove ng-hide, it's temporary -->
-		<h2>Settings</h2>
-		<p class="availabilityError" ng-show="errors.type.length > 0">{{errors.type[0]}}{{errors.type[1] ? "s and " + errors.type[1] + "s are" : " is"}} {{errors.reason[0]}}{{errors.reason[1] ? "/" + errors.reason[1] : ""}}.</p>
-		<ul class="attemptsPopup">
-			<li><h3>Attempts</h3>
-				<div class="selector"></div>
-				<ul class="attemptHolder">
-					<li id="value_1" ng-class="{selected: selectedWidget.attempts == 1}">1</li>
-					<li id="value_2" ng-class="{selected: selectedWidget.attempts == 2}">2</li>
-					<li id="value_3" ng-class="{selected: selectedWidget.attempts == 3}">3</li>
-					<li id="value_4" ng-class="{selected: selectedWidget.attempts == 4}">4</li>
-					<li id="value_5" ng-class="{selected: selectedWidget.attempts == 5}">5</li>
-					<li id="value_10" class="step first" ng-class="{selected: selectedWidget.attempts == 10}">10</li>
-					<li id="value_15" class="step" ng-class="{selected: selectedWidget.attempts == 15}">15</li>
-					<li id="value_20" class="step" ng-class="{selected: selectedWidget.attempts == 20}">20</li>
-					<li id="value_25" class="step last" ng-class="{selected: selectedWidget.attempts == -1}">Unlimited</li>
-				</ul>
-				<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
-			</li>
-		<ul class="toFrom">
-			<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
-				<ul class="datePicker">
-					<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
-					<li ng-click="available.anytime = false">
-						<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
-						<label>On</label>
-						<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" placeholder="Date" ng-model="available.date"/> at
-						<input type="text" class="time" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time"/>
-						<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="changePeriod($index, 'am')">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="changePeriod($index, 'pm')">pm</span>
-					</li>
-				</ul>
-			</li>
-		<ul class="inline">
-			<li><a href="#" class="cancel_button">Cancel</a></li>
-			<li><a href class="action_button green save" ng-click="parseSubmittedInfo()">Save</a></li>
-		</ul>
-	</div>
-	<!-- end -->
 </div>
 
 <script type="text/template" id="t-error"><div class="error error-nowidget"><p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p></div></script>
