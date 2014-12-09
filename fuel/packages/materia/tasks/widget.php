@@ -479,6 +479,8 @@ class Widget extends \Basetask
 	private static function install_one($widget_file, $validate_only = false, $assume_upgrade = false, $force = false, $db_only = false)
 	{
 		try {
+			self::login_as_admin();
+
 			$file_area = \File::forge(['basedir' => null]);
 			$upgrade_id = 0;
 
@@ -607,12 +609,9 @@ class Widget extends \Basetask
 			\Cli::write("Existing demo id: $demo_instance_id", 'yellow');
 
 			// ADD the Demo
-			if ($demo_id = \Materia\Widget_Installer::install_demo($id, $dir, $demo_instance_id))
-			{
-				\Cli::write('Demo installed', 'green');
-				$manifest_data['meta_data']['demo'] = $demo_id;
-			}
-			else
+			$demo_id = \Materia\Widget_Installer::install_demo($id, $dir, $demo_instance_id);
+
+			if (is_int($demo_id))
 			{
 				switch ($demo_id)
 				{
@@ -622,7 +621,15 @@ class Widget extends \Basetask
 					case -2:
 						self::abort('Unable to create demo instance.', true);
 						return;
+					default:
+						self::abort("Unknown error: $demo_id", true);
+						return;
 				}
+			}
+			else
+			{
+				\Cli::write('Demo installed', 'green');
+				$manifest_data['meta_data']['demo'] = $demo_id;
 			}
 
 			\Materia\Widget_Installer::add_manifest($id, $manifest_data);
