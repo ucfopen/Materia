@@ -1,55 +1,56 @@
 <div class="container" ng-app="MyWidgets">
 	<div ng-controller="SelectedWidgetController">
-		<div ng-controller="CollaborationController" class="popup light share" ng-show="$parent.showCollaborationModal">
-			<h2>Collaboration:</h2>
-			<div id="access" class="container">
-				<div class="list_tab_lock">
-					<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
-					<div class="search_list" ng-show="searching">
-						<div ng-show="searchResults.length == 0">
-							<p class="no_match_message">No matches found.</p>
-							<p class="no_match_reason">The person you're searching for may need to log in to create an account.</p>
-						</div>
-						<div ng-repeat="result in searchResults" ng-click="searchMatchClick(result)" class="search_match">
-							<img class="user_match_avatar" ng-src="{{ result.gravatar }}">
-							<p class="user_match_name">{{ result.first }} {{ result.last }}</p>
-						</div>
-					</div>
-				</div>
-				<div class="access_list">
-					<div ng-repeat="user in $parent.collaborators" ng-show="!user.remove" class="user_perm">
-						<a tabindex="0" href="javascript:;" ng-click="removeAccess(user)" class="remove">&#88;</a>
-						<img class="avatar" ng-src="{{ user.gravatar }}" />
-
-						<span class="name">{{ user.first }} {{ user.last }}</span>
-
-						<div class="demote_dialogue" ng-show="user.warning">
-							<div class="arrow"></div>
-							<div class="warning">Are you sure you want to limit <strong>your</strong> access?
+		<modal-dialog  class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
+			<div ng-controller="CollaborationController">
+				<div id="access" class="container">
+					<div class="list_tab_lock">
+						<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
+						<div class="search_list" ng-show="searching">
+							<div ng-show="searchResults.length == 0">
+								<p class="no_match_message">No matches found.</p>
+								<p class="no_match_reason">The person you're searching for may need to log in to create an account.</p>
 							</div>
-							<a href="javascript:;" ng-click="cancelDemote(user)" class="no_button">No</a>
-							<a href="javascript:;" ng-click="user.warning = false" class="button red action_button yes_button">Yes</a>
-						</div>
-
-						<div class="options">
-							<span class="owner">Full</span>
-							<span class="undo">Removed <a href="#">Undo</a></span>
-							<select tabindex="0" id="perm" class="perm" ng-model="user.access" ng-change="checkForWarning(user)">
-								<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
-								<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
-							</select>
-
-							<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
-							<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
-
+							<div ng-repeat="result in searchResults" ng-click="searchMatchClick(result)" class="search_match">
+								<img class="user_match_avatar" ng-src="{{ result.gravatar }}">
+								<p class="user_match_name">{{ result.first }} {{ result.last }}</p>
+							</div>
 						</div>
 					</div>
+					<div class="access_list">
+						<div ng-repeat="user in $parent.collaborators" ng-show="!user.remove" class="user_perm">
+							<a tabindex="0" href="javascript:;" ng-click="removeAccess(user)" class="remove">&#88;</a>
+							<img class="avatar" ng-src="{{ user.gravatar }}" />
+
+							<span class="name">{{ user.first }} {{ user.last }}</span>
+
+							<div class="demote_dialogue" ng-show="user.warning">
+								<div class="arrow"></div>
+								<div class="warning">Are you sure you want to limit <strong>your</strong> access?
+								</div>
+								<a href="javascript:;" ng-click="cancelDemote(user)" class="no_button">No</a>
+								<a href="javascript:;" ng-click="user.warning = false" class="button red action_button yes_button">Yes</a>
+							</div>
+
+							<div class="options">
+								<span class="owner">Full</span>
+								<span class="undo">Removed <a href="#">Undo</a></span>
+								<select tabindex="0" id="perm" class="perm" ng-model="user.access" ng-change="checkForWarning(user)">
+									<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
+									<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
+								</select>
+
+								<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
+								<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
+
+							</div>
+						</div>
+					</div>
+					<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
+					<a tabindex="0" class="cancel_button" ng-click="$parent.$parent.showCollaborationModal = false">Cancel</a>
+					<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
 				</div>
-				<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-				<a tabindex="0" class="cancel_button" ng-click="$parent.showCollaborationModal = false">Cancel</a>
-				<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
 			</div>
-		</div>
+		</modal-dialog>
 		<section class="directions unchosen" ng-show="noWidgetState == false && !selectedWidget">
 			<h1>Your Widgets</h1>
 			<p>Choose a widget from the list on the left.</p>
