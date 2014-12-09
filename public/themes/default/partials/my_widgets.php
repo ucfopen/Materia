@@ -58,7 +58,7 @@
 			<h1>You have no widgets!</h1>
 			<p>Make a new widget in the widget catalog.</p>
 		</section>
-		<section class="page"  ng-hide="noWidgetState == true">
+		<section class="page"  ng-hide="noWidgetState == true || !selectedWidget">
 			<hgroup>
 				<h1>{{selectedWidget.name}}</h1>
 				<h3>{{selectedWidget.widget.name}}</h3>
@@ -133,7 +133,7 @@
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 1}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView(1)">Individual Scores</a></li>
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 2}"><a class="data" href="#" ng-show="hasStorage" ng-click="setScoreView(2)">Data</a></li>
 					</ul>
-					<div class="display table" id="table_{{semester.id}}" ng-show="selectedScoreView == 1">
+					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView == 1">
 						<div class="score-search">
 							<input type="text" placeholder="Search Students" />
 						</div>
@@ -150,7 +150,7 @@
 						</div>
 					</div>
 					<div class="display graph" ng-show="selectedScoreView == 0">
-						<div class="chart" id="chart_{{semester.id}}"></div>
+						<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 					</div>
 					<div class="display data" ng-show="selectedScoreView == 2">
 					</div>

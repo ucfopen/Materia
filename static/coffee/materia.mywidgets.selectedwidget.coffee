@@ -20,7 +20,12 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
 		$scope.selectedWidget = selectedWidgetSrv.get()
-		setSelectedWidget()
+
+		# this check was originally in populateDisplay, we're moving it here so it's called before widget data is fetched
+		sessionCheck = userSrv.checkValidSession()
+		sessionCheck.then (check) ->
+
+			if check? then setSelectedWidget()
 
 	$scope.noWidgetState = false
 	$scope.$on 'selectedWidget.noWidgets', (evt) ->
@@ -146,175 +151,156 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		if $('section .error').is(':visible') then $('section .error').remove()
 
-		Materia.Coms.Json.send 'session_valid', ['basic_author'], (data) ->
-				# This reference is staying until it's not needed...
-				$editButton = $('#edit_button')
+		# This reference is staying until it's not needed...
+		$editButton = $('#edit_button')
 
-				# accessLevel == 0 is effectively read-only
-				if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
-					$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
-					# $scope.accessLevel = 0
+		# accessLevel == 0 is effectively read-only
+		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
+			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
+			# $scope.accessLevel = 0
 
-				$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
-				# edit button should be disabled IF:
-					# - accesslevel == 0
-					# - is_editable flag is 0
-				$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
+		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
-				if $scope.editable
-					$scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
-				else
-					$scope.edit = "#"
+		if $scope.editable
+			$scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+		else
+			$scope.edit = "#"
 
-				$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
-				# $scope.$apply()
+		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
+		# $scope.$apply()
 
-				if $scope.shareable
-					# $('#edit-avaliability-button').unbind('click')
-					# $('#attempts').unbind('click')
-					# $('#avaliability').unbind('click')
-					jqmodalOptions =
-						modal            : true,
-						backgroundStyle  : 'light',
-						className        : 'availability',
-						html             : $('#t-availibility').html(),
-						closingSelectors : ['.cancel_button']
+		if $scope.shareable
+			jqmodalOptions =
+				modal            : true,
+				backgroundStyle  : 'light',
+				className        : 'availability',
+				html             : $('#t-availibility').html(),
+				closingSelectors : ['.cancel_button']
 
-					# TODO: Replace with ng-modal functionality
-					$('#edit-avaliability-button').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-					$('#attempts').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
-					$('#avaliability').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+			# TODO: Replace with ng-modal functionality
+			$('#edit-avaliability-button').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+			$('#attempts').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
+			$('#avaliability').jqmodal(jqmodalOptions, Materia.MyWidgets.Availability.popup)
 
-				# count up the number of other users collaboratin
-				count = 0
-				for id of $scope.perms.widget
-					if id != $scope.user.id then count++
+		# count up the number of other users collaboratin
+		count = 0
+		for id of $scope.perms.widget
+			if id != $scope.user.id then count++
 
-				$scope.copy_title = $scope.selectedWidget.name + " copy"
-				$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
-				$scope.$apply()
+		$scope.copy_title = $scope.selectedWidget.name + " copy"
+		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
+		# $scope.$apply()
 
-				# TODO: Fix dis
-				populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
-				populateAttempts($scope.selectedWidget.attempts)
+		# TODO: Fix dis
+		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
+		populateAttempts($scope.selectedWidget.attempts)
 
-				$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-				$scope.$apply()
+		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
+		# $scope.$apply()
 
-				#  Bind the edit button
-				# $editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
-				# $editButton.unbind('click')
+		#  Bind the edit button
+		# $editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
+		# $editButton.unbind('click')
 
-				$scope.shareable = !$scope.selectedWidget.is_draft
-				# $scope.$apply()
-				if !$scope.shareable
-					console.log "Widget is UNPLAYABLE"
-					# $('.share-widget-container')
-					# 	.addClass('draft')
-					# 	.fadeTo('fast', 0.3)
-					# 	.children('h3')
-					# 	.html('Publish to share with your students')
+		$scope.shareable = !$scope.selectedWidget.is_draft
+		# $scope.$apply()
+		if !$scope.shareable
+			console.log "Widget is UNPLAYABLE"
 
-					# $('#play_link').attr('disabled', 'disabled')
+			# TODO replace dis
+			$editButton.click ->
+				Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
+					if success
+						window.location = $editButton.attr('href')
+					else
+						alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
 
-					# TODO replace dis
-					$editButton.click ->
-						Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
-							if success
-								window.location = $editButton.attr('href')
-							else
-								alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
+		# update display if playable
+		# TODO: this case should probably be combined with the is not a draft case below?
+		else
+			console.log "Widget is PLAYABLE"
 
-				# update display if playable
-				# TODO: this case should probably be combined with the is not a draft case below?
-				else
-					console.log "Widget is PLAYABLE"
-					# $('.share-widget-container')
-					# 	.removeClass('draft')
-					# 	.fadeTo('fast', 1)
-					# 	.children('h3')
-					# 	.html('Share with your students')
+			$('#play_link')
+				# .unbind('click')
+				# .val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
+				.click(->$(this).select())
 
-					$('#play_link')
-						# .unbind('click')
-						# .val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
-						.click(->$(this).select())
+			# $('#embed_link')
+			# 	.unbind('click')
+			# 	.val(getEmbedLink($scope.selectedWidget))
+			# 	.click(->$(this).select())
 
-					# $('#embed_link')
-					# 	.unbind('click')
-					# 	.val(getEmbedLink($scope.selectedWidget))
-					# 	.click(->$(this).select())
+			# $('.share-widget-container input').removeAttr('disabled')
 
-					# $('.share-widget-container input').removeAttr('disabled')
+		# TODO Temporary
+		if $scope.editable
+			$editButton.jqmodal
+				modal            : true,
+				backgroundStyle  : 'light',
+				className        : 'edit-published-widget',
+				html             : $('#t-edit-widget-published').html(),
+				closingSelectors : ['.cancel_button']
+			, ->
+				# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
 
-				# TODO Temporary
-				if $scope.editable
-					$editButton.jqmodal
-						modal            : true,
-						backgroundStyle  : 'light',
-						className        : 'edit-published-widget',
-						html             : $('#t-edit-widget-published').html(),
-						closingSelectors : ['.cancel_button']
-					, ->
-						# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
+		## MASTER SCOPE APPLY CALL
+		# $scope.$apply()
 
-				# TODO: this case should probably be combined with the else case above?
-				# TODO: Determine if this note is still relevant ^
-				if !$scope.selectedWidget.widget.is_draft
-					# $('.my_widgets .page .scores').show()
-					$('.my_widgets .page .embed').show() # WHERE IS THIS??
+		# TODO: this case should probably be combined with the else case above?
+		# TODO: Determine if this note is still relevant ^
+		if !$scope.selectedWidget.widget.is_draft
+			# $('.my_widgets .page .scores').show()
+			$('.my_widgets .page .embed').show() # WHERE IS THIS??
 
-					#  reset scores & data ui:
-					$scoreWrapper = $('.scoreWrapper')
-					$scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
+			#  reset scores & data ui:
+			$scoreWrapper = $('.scoreWrapper')
+			$scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
 
-					# $('.show-older-scores-button').hide()
-					# $('.chart').attr('id', '').empty()
+			# $('.show-older-scores-button').hide()
+			# $('.chart').attr('id', '').empty()
 
-					# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+			# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
 
-					# $('#export_scores_button').unbind()
-					$exportScoresButton = $('#export_scores_button')
-					console.log $scope.scores
+			# $('#export_scores_button').unbind()
+			$exportScoresButton = $('#export_scores_button')
+			console.log $scope.scores
 
-					#  no data
-					# if $scope.scores.list.length == 0
-					# 	console.log "list length = 0"
-					# else
+			#  no data
+			# if $scope.scores.list.length == 0
+			# 	console.log "list length = 0"
+			# else
 
-					## MASTER SCOPE APPLY CALL
-					$scope.$apply()
+			if $scope.scores.list.length > 0
+				# TODO populateScoreWrapper should be called via ng-repeat for all semester instances
+				populateScoreWrapper()
 
-					if $scope.scores.list.length > 0
-						# TODO populateScoreWrapper should be called via ng-repeat for all semester instances
-						populateScoreWrapper()
+				# hasScores = false
 
-						# hasScores = false
+				for d in $scope.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
+					if d.distribution?
+						$scope.hasScores = true
+						break
 
-						for d in $scope.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
-							if d.distribution?
-								$scope.hasScores = true
-								break
+				# if hasScores
+				# 	$exportScoresButton.removeClass('disabled')
+				# else
+				# 	$exportScoresButton.addClass('disabled')
 
-						# if hasScores
-						# 	$exportScoresButton.removeClass('disabled')
-						# else
-						# 	$exportScoresButton.addClass('disabled')
+				# TODO Replace jqmodal
+				$('#export_scores_button:not(".disabled")').jqmodal
+					modal            : true,
+					className        : 'csv_popup',
+					html             : $('#t-csv').html(),
+					closingSelectors : ['.cancel','.download']
+				, ->
+					Materia.MyWidgets.Csv.buildPopup()
+		else
+			# $('.my_widgets .page .scores').hide()
+			$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
-						# TODO Replace jqmodal
-						$('#export_scores_button:not(".disabled")').jqmodal
-							modal            : true,
-							className        : 'csv_popup',
-							html             : $('#t-csv').html(),
-							closingSelectors : ['.cancel','.download']
-						, ->
-							Materia.MyWidgets.Csv.buildPopup()
-				else
-					# $('.my_widgets .page .scores').hide()
-					$('.my_widgets .page .embed').hide() # WHERE IS THIS???
-
-				# Materia.Set.Throbber.stopSpin('.page')
+		# Materia.Set.Throbber.stopSpin('.page')
 
 	$scope.copyWidget = () ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
@@ -360,54 +346,33 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		# data should be a reference to whatever semester is being used for this particular chart
 		data = $scope.scores.last
 
-		# don't think these will be necessary eventually
-		# $scoreWrapper.attr('data-semester', data.id)
-		# $scoreWrapper.attr('data-semester-str', createSemesterString(data))
-		# $scoreWrapper.find('.view').html(data.term+' '+data.year)
-
 		#  no scores, but we do have storage data
 		if typeof data.distribution == 'undefined' and typeof data.storage != 'undefined'
 			$scope.storageNotScoreData = true
 
-			# $scoreWrapper.show()
-
-			# $scoreWrapper.find('li:nth-child(1) a').hide()
-			# $scoreWrapper.find('li:nth-child(2) a').hide()
-			# $scoreWrapper.find('li:nth-child(3) a').show()
-
-			# $scope.setScoreView(data.id, $scope.viewData)
 			$scope.setScoreView(2) # TODO eventually needs a reference to the proper semester
 
 		else #  has scores, might have storage data
-			# $scoreWrapper.show()
 
-			# $scoreWrapper.find('li:nth-child(1) a').show()
-			# $scoreWrapper.find('li:nth-child(2) a').show()
-
-			if typeof data.storage == 'undefined' then $scope.hasStorage = true
-
-			# console.log $scope.hasStorage
-				# $scoreWrapper.find('li:nth-child(3) a').hide()
-			# else
-			# 	$scoreWrapper.find('li:nth-child(3) a').show()
+			if typeof data.storage != 'undefined' then $scope.hasStorage = true
 
 			# $scoreWrapper.find('.chart').attr('id', 'chart_' + data.id)
 
 			$scope.setScoreView(0)
 
-	processDataIntoSemesters = (logs, getTimestampFunction) ->
-		semesters = {}
-		timestamp = null
+	# processDataIntoSemesters = (logs, getTimestampFunction) ->
+	# 	semesters = {}
+	# 	timestamp = null
 
-		$.each logs, (i, log) ->
-			timestamp = getTimestampFunction(log)
-			logMeta = getSemesterFromTimestamp(timestamp)
-			semesterString = logMeta.year + ' ' + logMeta.semester.toLowerCase()
+	# 	$.each logs, (i, log) ->
+	# 		timestamp = getTimestampFunction(log)
+	# 		logMeta = getSemesterFromTimestamp(timestamp)
+	# 		semesterString = logMeta.year + ' ' + logMeta.semester.toLowerCase()
 
-			if(!semesters[semesterString])
-				semesters[semesterString] = []
-			semesters[semesterString].push(log)
-		return semesters
+	# 		if(!semesters[semesterString])
+	# 			semesters[semesterString] = []
+	# 		semesters[semesterString].push(log)
+	# 	return semesters
 
 	getSemesterFromTimestamp = (timestamp) ->
 		for range in $scope.dateRanges
@@ -445,21 +410,21 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		# $scoreWrapper.find('.display.graph').hide()
 		# $scoreWrapper.find('.display.data').hide()
 
-		switch view
-			when 0 # graph
-				# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-				# Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-				brackets = $scope.scores.map[$scope.scores.last.id].distribution # TODO replace scores.last with dynamic reference
+		# switch view
+		# 	when 0 # graph
+		# 		# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+		# 		# Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+		# 		brackets = $scope.scores.map[$scope.scores.last.id].distribution # TODO replace scores.last with dynamic reference
 
-				Materia.MyWidgets.Statistics.createGraph('chart_' + $scope.scores.last.id, brackets) # TODO replace scores.last with dynamic reference
+		# 		# Materia.MyWidgets.Statistics.createGraph('chart_' + $scope.scores.last.id, brackets) # TODO replace scores.last with dynamic reference
 
-			when 1 # table
-				deferredPlayLogs = selectedWidgetSrv.getPlayLogsForSemester $scope.scores.map[$scope.scores.last.id].term, $scope.scores.map[$scope.scores.last.id].year
-				deferredPlayLogs.then (data) ->
+		# 	when 1 # table
+		# 		deferredPlayLogs = selectedWidgetSrv.getPlayLogsForSemester $scope.scores.map[$scope.scores.last.id].term, $scope.scores.map[$scope.scores.last.id].year
+		# 		deferredPlayLogs.then (data) ->
 
-					tableSort = 'desc'
+		# 			tableSort = 'desc'
 
-					Materia.MyWidgets.Statistics.createTable('table_'+$scope.scores.last.id, data, tableSort, $scope.selectedWidget.id)
+					# Materia.MyWidgets.Statistics.createTable('table_'+$scope.scores.last.id, data, tableSort, $scope.selectedWidget.id)
 
 		# switch newScoreView
 		# 	when 'graph'
@@ -512,16 +477,16 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# 	else
 	# 		callback($scope.scoreSummaries[inst_id])
 
-	getPlayLogs = (inst_id, semester, year, callback) ->
-		# key our logs off of semester+year+instanceID
-		logKey = "#{semester}_#{year}_#{inst_id}"
-		# If we haven't loaded them yet, load em
-		unless $scope.semesterPlayLogs[logKey]?
-			Materia.Coms.Json.send 'play_logs_get', [inst_id, semester, year], (logs) ->
-				$scope.semesterPlayLogs[logKey] = processDataIntoSemesters(logs, (o) -> return o.time)
-				callback $scope.semesterPlayLogs[logKey]
-		else
-			callback $scope.semesterPlayLogs[logKey]
+	# getPlayLogs = (inst_id, semester, year, callback) ->
+	# 	# key our logs off of semester+year+instanceID
+	# 	logKey = "#{semester}_#{year}_#{inst_id}"
+	# 	# If we haven't loaded them yet, load em
+	# 	unless $scope.semesterPlayLogs[logKey]?
+	# 		Materia.Coms.Json.send 'play_logs_get', [inst_id, semester, year], (logs) ->
+	# 			$scope.semesterPlayLogs[logKey] = processDataIntoSemesters(logs, (o) -> return o.time)
+	# 			callback $scope.semesterPlayLogs[logKey]
+	# 	else
+	# 		callback $scope.semesterPlayLogs[logKey]
 
 	getStorageData = (inst_id, callback) ->
 		if typeof $scope.storageData[inst_id] == 'undefined'
@@ -564,25 +529,25 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# 			plays += dis for dis in semesterData.distribution
 	# 			$scoreWrapper.find('.score-count').html(plays)
 
-	updateGraph = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+	# updateGraph = ($scoreWrapper) ->
+	# 	semester = $scoreWrapper.attr('data-semester')
+	# 	Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
 
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-			brackets = data.map[semester].distribution
-			Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+	# 		brackets = data.map[semester].distribution
+	# 		Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
 
-	updateTable = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		semesterStr = $scoreWrapper.attr('data-semester-str')
+	# updateTable = ($scoreWrapper) ->
+	# 	semester = $scoreWrapper.attr('data-semester')
+	# 	semesterStr = $scoreWrapper.attr('data-semester-str')
 
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
-		getPlayLogs $scope.selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
-			$table = $scoreWrapper.find('.display.table')
-			tableSort = $table.attr('data-sort')
-			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, $scope.selectedWidgetInstId)
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
+	# 	Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
+	# 	getPlayLogs $scope.selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
+	# 		$table = $scoreWrapper.find('.display.table')
+	# 		tableSort = $table.attr('data-sort')
+	# 		Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, $scope.selectedWidgetInstId)
+	# 		Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
 
 	updateData = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
