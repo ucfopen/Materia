@@ -1308,7 +1308,7 @@
 			display: none;
 		}
 		/* date picker overrides */
-		.ui-datepicker
+		.hasDatePicker
 		{
 			z-index: 1500 !important;
 			font-size: 75% !important;
@@ -2159,13 +2159,13 @@
 			margin-top:5px;
 		}
 
-.popup.share .perm-text
+.share .perm-text
 {
 	width: 100%;
 	display: inline-block;
 }
 
-.popup.share .exp-date
+.share .exp-date
 {
 	padding: 0;
 	text-decoration:underline;
@@ -2176,30 +2176,30 @@
 	border: none;
 	width: 85px;
 }
-.popup.share .exp-date:hover
+.share .exp-date:hover
 {
 	color: #969696;
 }
-.popup.share .exp-date.disabled,
-.popup.share .exp-date.disabled:hover {
+.share .exp-date.disabled,
+.share .exp-date.disabled:hover {
 	cursor: default;
 	color: #c5c5c5;
 	text-decoration: none;
 }
 
-.popup.share .exp-date:focus
+.share .exp-date:focus
 {
 	outline:none;
 	background:#fff;
 	border:solid 1px #f7b64a;
 }
 
-.popup.share .expires
+.share .expires
 {
 	font-size: 8pt;
 }
 
-.popup.share .remove-expiration
+.share .remove-expiration
 {
 	font-size: 8pt;
 }

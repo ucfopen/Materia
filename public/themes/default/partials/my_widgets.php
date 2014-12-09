@@ -1,6 +1,6 @@
 <div class="container" ng-app="MyWidgets">
 	<div ng-controller="SelectedWidgetController">
-		<modal-dialog  class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
+		<modal-dialog class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
 			<div ng-controller="CollaborationController">
 				<div id="access" class="container">
 					<div class="list_tab_lock">
