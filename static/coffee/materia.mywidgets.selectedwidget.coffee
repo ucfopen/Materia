@@ -807,6 +807,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.showCollaboration = ->
 		user_ids = []
 		for user of $scope.perms.widget
+			console.log "go stage"
+			console.log user
 			user_ids.push user
 		$scope.collaborators = []
 
@@ -820,7 +822,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				user.access = $scope.perms.widget[user.id][0]
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
-				user.expiresText = if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
+				user.expiresText = getExpiresText(timestamp)
 				user.gravatar = getGravatar(user.email)
 
 			$scope.collaborators = users
@@ -833,13 +835,16 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.setupPickers = ->
 		# fill in the expiration link text & setup click event
 		for user in $scope.collaborators
-			$(".exp-date.user" + user.id).datepicker
-				minDate: getDateForBeginningOfTomorrow()
-				onSelect: (dateText, inst) ->
-					timestamp = $(this).datepicker('getDate').getTime() / 1000
-					user.expires = timestamp
-					user.expiresText = getExpiresText(timestamp)
-					$scope.$apply()
+			do (user) ->
+				$(".exp-date.user" + user.id).datepicker
+					minDate: getDateForBeginningOfTomorrow()
+					onSelect: (dateText, inst) ->
+						console.log 'updating ' + user.id
+						timestamp = $(this).datepicker('getDate').getTime() / 1000
+						user.expires = timestamp
+						console.log(timestamp)
+						user.expiresText = getExpiresText(timestamp)
+						$scope.$apply()
 
 	$scope.removeExpires = (user) ->
 		user.expires = null
@@ -869,7 +874,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
 
-MyWidgets.controller 'CollaborationController', ($scope) ->
+MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv) ->
 	$scope.search = (nameOrFragment) ->
 		$scope.searching = true
 
@@ -917,6 +922,7 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 
 	$scope.updatePermissions = (users) ->
 		permObj = []
+		user_ids = {}
 
 		for user in users
 			# Do not allow saving if a demotion dialog is on the screen
@@ -929,11 +935,13 @@ MyWidgets.controller 'CollaborationController', ($scope) ->
 
 			access.push if user.remove then false else true
 
+			user_ids[user.id] = [user.access, user.expires]
 			permObj.push
 				user_id: user.id
 				expiration: user.expires
 				perms: access
 
+		$scope.$parent.$parent.perms.widget = user_ids
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
 			if returnData == true
 				$scope.$parent.$parent.showCollaborationModal = false
