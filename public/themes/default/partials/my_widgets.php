@@ -51,43 +51,44 @@
 				</div>
 			</div>
 		</modal-dialog>
-		<div ng-controller="WidgetSettingsController" class="popup light availability" ng-show="$parent.showAvailabilityModal">
-			<h2>Settings</h2>
-			<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
-			<ul class="attemptsPopup">
-				<li><h3>Attempts</h3>
-					<div class="selector"></div>
-					<ul class="attemptHolder">
-						<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
-						<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
-						<li id="value_3" ng-class="{selected: attempts == 3}" ng-click="changeSlider(3)">3</li>
-						<li id="value_4" ng-class="{selected: attempts == 4}" ng-click="changeSlider(4)">4</li>
-						<li id="value_5" ng-class="{selected: attempts == 5}" ng-click="changeSlider(5)">5</li>
-						<li id="value_10" class="step first" ng-class="{selected: attempts == 10}" ng-click="changeSlider(10)">10</li>
-						<li id="value_15" class="step" ng-class="{selected: attempts == 15}" ng-click="changeSlider(15)">15</li>
-						<li id="value_20" class="step" ng-class="{selected: attempts == 20}" ng-click="changeSlider(20)">20</li>
-						<li id="value_25" class="step last" ng-class="{selected: attempts == 25}" ng-click="changeSlider(25)">Unlimited</li>
-					</ul>
-					<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
-				</li>
-			<ul class="toFrom">
-				<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
-					<ul class="datePicker">
-						<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
-						<li ng-click="available.anytime = false">
-							<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
-							<label>On</label>
-							<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
-							<input type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
-							<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
-						</li>
-					</ul>
-				</li>
-			<ul class="inline">
-				<li><a href class="cancel_button" ng-click="$parent.showAvailabilityModal = false">Cancel</a></li>
-				<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="$parent.showAvailabilityModal = false">Save</a></li>
-			</ul>
-		</div>
+		<modal-dialog class="availability" show="showAvailabilityModal" dialog-title="Settings" width="660px" height="440px">
+			<div ng-controller="WidgetSettingsController">
+				<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
+				<ul class="attemptsPopup">
+					<li><h3>Attempts</h3>
+						<div class="selector"></div>
+						<ul class="attemptHolder">
+							<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
+							<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
+							<li id="value_3" ng-class="{selected: attempts == 3}" ng-click="changeSlider(3)">3</li>
+							<li id="value_4" ng-class="{selected: attempts == 4}" ng-click="changeSlider(4)">4</li>
+							<li id="value_5" ng-class="{selected: attempts == 5}" ng-click="changeSlider(5)">5</li>
+							<li id="value_10" class="step first" ng-class="{selected: attempts == 10}" ng-click="changeSlider(10)">10</li>
+							<li id="value_15" class="step" ng-class="{selected: attempts == 15}" ng-click="changeSlider(15)">15</li>
+							<li id="value_20" class="step" ng-class="{selected: attempts == 20}" ng-click="changeSlider(20)">20</li>
+							<li id="value_25" class="step last" ng-class="{selected: attempts == 25}" ng-click="changeSlider(25)">Unlimited</li>
+						</ul>
+						<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
+					</li>
+				<ul class="toFrom">
+					<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+						<ul class="datePicker">
+							<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+							<li ng-click="available.anytime = false">
+								<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+								<label>On</label>
+								<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
+								<input type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
+								<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
+							</li>
+						</ul>
+					</li>
+				<ul class="inline">
+					<li><a href class="cancel_button" ng-click="$parent.$parent.showAvailabilityModal = false">Cancel</a></li>
+					<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="$parent.showAvailabilityModal = false">Save</a></li>
+				</ul>
+			</div>
+		</modal-dialog>
 		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
 			<div class="container">
 				<span class="input_label">New Title:</span>

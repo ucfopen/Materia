@@ -211,7 +211,7 @@ MyWidgets.controller 'WidgetSettingsController', ($scope, $filter, selectedWidge
 	# @return void
 	$scope.changeAvailability = ->
 		# Close the modal
-		$scope.$parent.showAvailabilityModal = false
+		$scope.$parent.$parent.showAvailabilityModal = false
 		attempts = if $scope.attempts < 25 then $scope.attempts else -1
 
 		# Update the widget instance.
