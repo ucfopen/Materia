@@ -52,8 +52,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.baseUrl = BASE_URL
 
 	$scope.popup = () ->
-		$scope.showAvailabilityModal = true
-		Materia.MyWidgets.Availability.popup()
+		if $scope.editable and $scope.shareable
+			$scope.showAvailabilityModal = true
+			Materia.MyWidgets.Availability.popup()
 
 	# Initializes the gateway for the api
 	# @string path to gateway
@@ -804,6 +805,12 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		d.setDate(d.getDate() + 1)
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
+	$scope.showCopyDialog = ->
+		$scope.copyDialog = true if $scope.accessLevel != 0
+
+	$scope.showDeleteDialog = ->
+		$scope.deleteToggled = !$scope.deleteToggled if $scope.accessLevel != 0
+
 	$scope.showCollaboration = ->
 		user_ids = []
 		for user of $scope.perms.widget
@@ -874,7 +881,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
 
-MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv) ->
+MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv) ->
 	$scope.search = (nameOrFragment) ->
 		$scope.searching = true
 
@@ -934,6 +941,8 @@ MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv) ->
 				access.push null
 
 			access.push if user.remove then false else true
+			if user.isCurrentUser and user.remove
+				widgetSrv.removeWidget($scope.$parent.selectedWidget.id)
 
 			user_ids[user.id] = [user.access, user.expires]
 			permObj.push
