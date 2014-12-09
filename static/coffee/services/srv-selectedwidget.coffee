@@ -181,6 +181,12 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 		else
 			callback(storageData[inst_id])
 
+	updateAvailability = (attempts, open_at, close_at) ->
+		_widget.attempts = attempts
+		_widget.open_at = open_at
+		_widget.close_at = close_at
+		$rootScope.$broadcast 'selectedWidget.update'
+
 	set : set
 	get : get
 	getSelectedId: getSelectedId
@@ -194,3 +200,4 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
 	getStorageData: getStorageData
+	updateAvailability: updateAvailability

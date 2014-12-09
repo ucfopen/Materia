@@ -1056,7 +1056,7 @@
 			cursor: pointer;
 		}
 
-		#edit-avaliability-button {
+		#edit-availability-button {
 			font-family: "Lucida Grande", sans-serif;
 			font-size: 10pt;
 			font-weight: bold;
@@ -1064,15 +1064,15 @@
 			margin-left: 98px;
 			color: #1778AF;
 		}
-		#edit-avaliability-button:hover {
+		#edit-availability-button:hover {
 			color: #0093E7;
 		}
-		#edit-avaliability-button.disabled {
+		#edit-availability-button.disabled {
 			background: none;
 			text-decoration: none;
 			color: #C5C5C5;
 		}
-		#edit-avaliability-button.disabled:hover {
+		#edit-availability-button.disabled:hover {
 			color: #C5C5C5;
 		}
 
