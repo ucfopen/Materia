@@ -51,6 +51,15 @@
 				</div>
 			</div>
 		</modal-dialog>
+		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
+			<div class="container">
+				<span class="input_label">New Title:</span>
+				<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
+				<span class="copy_error">Please enter a valid widget title.</span>
+				<a class="cancel_button" href="javascript:;" ng-click="$parent.copyToggled = false">Cancel</a>
+				<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
+			</div>
+		</modal-dialog>
 		<section class="directions unchosen" ng-show="noWidgetState == false && !selectedWidget">
 			<h1>Your Widgets</h1>
 			<p>Choose a widget from the list on the left.</p>
@@ -59,7 +68,7 @@
 			<h1>You have no widgets!</h1>
 			<p>Make a new widget in the widget catalog.</p>
 		</section>
-		<section class="page"  ng-hide="noWidgetState == true">
+		<section class="page"  ng-hide="noWidgetState == true || !selectedWidget">
 			<hgroup>
 				<h1>{{selectedWidget.name}}</h1>
 				<h3>{{selectedWidget.widget.name}}</h3>
@@ -103,16 +112,6 @@
 						</dl>
 						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
 					</div>
-					<div class="copy_dialogue popup light copy" ng-show="copyToggled">
-						<h2>Make a Copy:</h2>
-						<div class="container">
-							<span class="input_label">New Title:</span>
-							<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
-							<span class="copy_error">Please enter a valid widget title.</span>
-							<a class="cancel_button" href="javascript:;" ng-click="copyToggled = false">Cancel</a>
-							<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
-						</div>
-					</div>
 				</div>
 				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
 					<h3>{{shareable ? "Share" : "Publish to share"}} with your students</h3>
@@ -134,7 +133,7 @@
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 1}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView(1)">Individual Scores</a></li>
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 2}"><a class="data" href="#" ng-show="hasStorage" ng-click="setScoreView(2)">Data</a></li>
 					</ul>
-					<div class="display table" id="table_{{semester.id}}" ng-show="selectedScoreView == 1">
+					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView == 1">
 						<div class="score-search">
 							<input type="text" placeholder="Search Students" />
 						</div>
@@ -151,7 +150,7 @@
 						</div>
 					</div>
 					<div class="display graph" ng-show="selectedScoreView == 0">
-						<div class="chart" id="chart_{{semester.id}}"></div>
+						<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 					</div>
 					<div class="display data" ng-show="selectedScoreView == 2">
 					</div>

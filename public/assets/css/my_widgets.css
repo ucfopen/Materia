@@ -428,15 +428,6 @@
 		border: none;
 	}
 
-	.my_widgets .copy_dialogue {
-		background: #fff;
-		position: absolute;
-		z-index: 9999;
-		display: block;
-		left: 20px;
-		border: solid 1px #555;
-	}
-
 	.my_widgets .page .controls div.delete_dialogue {
 			background: url(../img/delete-dialogue-bg.png) no-repeat center;
 			padding: 20px 0;
@@ -1394,19 +1385,6 @@
 	text-decoration:none;
 }
 
-.ng-modal.share .ng-modal-dialog
-{
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-	border: #f0f0f0 3px solid;
-	box-shadow: none!important;
-}
-
-.ng-modal.share .ng-modal-overlay
-{
-	opacity: 0.5;
-}
-
 .ng-modal.share
 {
 	text-align: center;
@@ -1432,15 +1410,8 @@
 
 .ng-modal.share .ng-modal-title
 {
-	font-family: Lato, arial, serif;
-	font-weight: bold;
-	font-size: 24px;
-	text-align: center;
-	position: absolute;
 	top: 15px;
 	left: 27px;
-	margin: 4px;
-	border-bottom: none;
 }
 
 .ng-modal.share a.close
@@ -2070,18 +2041,12 @@
 /*        Copying Popup                                            */
 /* *************************************************************** */
 
-		.popup.copy
+		.ng-modal.copy
 		{
 			text-align: center;
-			-webkit-border-radius: 3px;
-			-moz-border-radius: 3px;
-			border-radius: 3px;
-			border: #f0f0f0 3px solid;
-			width: 620px;
-			height: 220px;
 		}
 
-		.popup.copy .adding_shadow
+		.ng-modal.copy .adding_shadow
 		{
 			width: 640px;
 			height: 480px;
@@ -2097,29 +2062,22 @@
 			filter:alpha(opacity=0);
 		}
 
-		.popup.copy .container
+		.ng-modal.copy .container
 		{
 			position: absolute;
 			left: 20px;
 			top: 40px;
 			width: 600px;
-			height: 390px;
 			padding-top: 15px;
 		}
 
-		.popup.copy h2
+		.ng-modal.copy .ng-modal-title
 		{
-			font-family: Lato, arial, serif;
-			font-weight: bold;
-			font-size: 24px;
-			text-align: center;
-			position: absolute;
 			top: 3px;
 			left: 12px;
-			margin: 4px;
 		}
 
-		.popup.copy a.close
+		.ng-modal.copy a.close
 		{
 			display:block;
 			position: absolute;
@@ -2132,13 +2090,13 @@
 			height: 19px;
 		}
 
-		.popup.copy .input_label
+		.ng-modal.copy .input_label
 		{
 			font-size: 16px;
 			margin: 0 25px 0 0;
 		}
 
-		.popup.copy input.newtitle
+		.ng-modal.copy input.newtitle
 		{
 			width: 450px;
 			height: 30px;
@@ -2147,12 +2105,12 @@
 			z-index:2;
 		}
 
-		.popup.copy .copy_button
+		.ng-modal.copy .copy_button
 		{
 			margin-top:20px;
 		}
 
-		.popup.copy .copy_error
+		.ng-modal.copy .copy_error
 		{
 			display:none;
 			color:#EE0000;
@@ -2573,6 +2531,30 @@
 }
 .popup.csv_popup table tr td {
 	width: 30%;
+}
+
+.ng-modal .ng-modal-overlay
+{
+	opacity: 0.5;
+}
+
+.ng-modal .ng-modal-dialog
+{
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: #f0f0f0 3px solid;
+	box-shadow: none!important;
+}
+
+.ng-modal .ng-modal-title
+{
+	font-family: Lato, arial, serif;
+	font-weight: bold;
+	font-size: 24px;
+	text-align: center;
+	position: absolute;
+	margin: 4px;
+	border-bottom: none;
 }
 
 #twitchStop, #wobbleStop {
