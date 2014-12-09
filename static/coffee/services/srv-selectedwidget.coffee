@@ -12,9 +12,11 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	_dateRanges = null
 	_BEARD_MODE = false
 	_noWidgetsFlag = false
+	_scoreData = null
 
 	# get and set _widget
 	set = (widget) ->
+		_scoreData = null
 		_widget = widget
 		$rootScope.$broadcast 'selectedWidget.update'
 		console.log _widget
@@ -64,29 +66,29 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 
 	getScoreSummaries = ->
 		deferred = $q.defer()
-		Materia.Coms.Json.send 'score_summary_get', [_widget.id, true], (data) ->
-			console.log data
 
-			scoreData =
-				list: []
-				map: {}
-				last: undefined
+		if _scoreData? then deferred.resolve _scoreData
+		else
+			Materia.Coms.Json.send 'score_summary_get', [_widget.id, true], (data) ->
 
-			if data isnt null and data.length > 0
-				o = {}
-				last = data[0].id
-				for d in data
-					o[d.id] = d
+				_scoreData =
+					list: []
+					map: {}
+					last: undefined
 
-				# deferred.resolve {list:data, map:0, last:data[0]}
-				scoreData =
-					list: data
-					map: o
-					last: data[0]
+				if data isnt null and data.length > 0
+					o = {}
+					last = data[0].id
+					for d in data
+						o[d.id] = d
 
-			console.log scoreData
+					_scoreData =
+						list: data
+						map: o
+						last: data[0]
 
-			deferred.resolve scoreData
+				deferred.resolve _scoreData
+
 		deferred.promise
 
 	getUserPermissions = ->
