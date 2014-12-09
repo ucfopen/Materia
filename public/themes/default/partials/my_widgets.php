@@ -51,6 +51,15 @@
 				</div>
 			</div>
 		</modal-dialog>
+		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
+			<div class="container">
+				<span class="input_label">New Title:</span>
+				<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
+				<span class="copy_error">Please enter a valid widget title.</span>
+				<a class="cancel_button" href="javascript:;" ng-click="$parent.copyToggled = false">Cancel</a>
+				<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
+			</div>
+		</modal-dialog>
 		<section class="directions unchosen" ng-show="noWidgetState == false && !selectedWidget">
 			<h1>Your Widgets</h1>
 			<p>Choose a widget from the list on the left.</p>
@@ -102,16 +111,6 @@
 							<dd id="avaliability" ng-class="{'disabled':!editable || !shareable}"></dd>
 						</dl>
 						<a id="edit-avaliability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href="#" ng-disabled="!editable">Edit settings...</a>
-					</div>
-					<div class="copy_dialogue popup light copy" ng-show="copyToggled">
-						<h2>Make a Copy:</h2>
-						<div class="container">
-							<span class="input_label">New Title:</span>
-							<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
-							<span class="copy_error">Please enter a valid widget title.</span>
-							<a class="cancel_button" href="javascript:;" ng-click="copyToggled = false">Cancel</a>
-							<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
-						</div>
 					</div>
 				</div>
 				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
