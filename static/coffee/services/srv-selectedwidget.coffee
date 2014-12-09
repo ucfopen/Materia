@@ -82,6 +82,17 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 					for d in data
 						o[d.id] = d
 
+					## START DUMMY SEMESTER CODE ##
+					# Leaving this in until old semester support is properly tested!
+					# for index in [1..5]
+					# 	dataClone = {}
+					# 	angular.copy data[0], dataClone
+
+					# 	dataClone.year = "200" + index
+
+					# 	data[index] = dataClone
+					## END DUMMY SEMESTER CODE ##
+
 					_scoreData =
 						list: data
 						map: o
