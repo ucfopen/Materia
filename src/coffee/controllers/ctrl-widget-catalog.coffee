@@ -2,54 +2,52 @@ Namespace('Materia.Widget').Catalog = null
 
 app = angular.module 'materia'
 app.controller 'widgetCtrl', ['$scope', ($scope) ->
+
+	featureKeys =
+		customizable: 'Customizable'
+		scorable: 'Scorable'
+		mobile: 'Mobile Friendly'
+		qa: 'Question/Answer'
+		mc: 'Multiple Choice'
+		media: 'Media'
+
 	$scope.widgets = []
-	$scope.infoCard = []
-	$scope.card = 0
-	_callback = null
+	$scope.filters =
+		scorable:no
+		customizable:no
+		qa:no
+		mc:no
+		media:no
 
-	#Executes the API function and then calls the replace default content
-	prepare = (callback) ->
-		_callback = callback
-		Materia.Coms.Json.send 'widgets_get', null, (data) ->
-			Materia.Set.Throbber.startSpin('.page')
+	hideFiltered = ->
+		for widget, i in $scope.widgets
+			wFeatures = widget.meta_data.features
+			wSupport = widget.meta_data.supported_data
+			widget.visible = yes
 
-			$scope.widgets = data
-			for widget, i in $scope.widgets
-				widget.icon = Materia.Image.iconUrl(widget.dir, 92)
+			for filterName, filterOn of $scope.filters
+				metaValue = featureKeys[filterName]
 
-			Materia.Set.Throbber.stopSpin('.page')
+				if filterOn and wFeatures.indexOf(metaValue) < 0 and wSupport.indexOf(metaValue) < 0
+					widget.visible = no
+					break;
 
-			if _callback? then _callback()
-			$scope.$apply()
 
-	$scope.showInfoCard = (id) ->
-		if $scope.card != 0
-			$scope.hideInfoCard()
+	# Load the widgets
+	Materia.Coms.Json.send 'widgets_get', null, (widgets) ->
+		Materia.Set.Throbber.startSpin '.page'
 
-		$scope.infoCard[id] = true
-		$scope.card = id
+		# setup some default values
+		for widget, i in widgets
+			widget.icon = Materia.Image.iconUrl widget.dir, 92
+			widget.visible = yes
 
-	$scope.hideInfoCard = ->
-		if $scope.card != 0
-			$scope.infoCard[$scope.card] = false
-			$scope.card = 0
+		Materia.Set.Throbber.stopSpin '.page'
 
-	prepare ($widgets) ->
-		# default sorting (skipping animations):
-		Materia.Sorter.Filter.sort $widgets, false, 'title'
+		$scope.$watchCollection 'filters', hideFiltered
 
-		filterType   = $('.features input[type="checkbox"]')
-		programSort  = $('.program-department')
-		filterButton = $('a.feature')
+		$scope.widgets = widgets
+		$scope.$apply()
 
-		filterType.click ->
-			Materia.Sorter.Filter.filter(programSort)
 
-		$('.feature').click ->
-			featureName = $(this).text()
-			featureChoice = $('.features').find('[value='+featureName+']')
-			featureChoice.click()
-			Materia.Sorter.Filter.filter(programSort)
-			return false
 ]
-

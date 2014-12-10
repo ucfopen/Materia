@@ -43,9 +43,9 @@ class Utils
 	{
 		$default = \Uri::create('/assets/img/default-avatar.jpg');
 		if ( ! $user) $user = \Model_User::find_current();
-		if ( ! isset($user->profile_fields['avatar']) || $user->profile_fields['avatar'] == 'gravatar')
+		if ( $user instanceof \Model_User && (! isset($user->profile_fields['avatar']) || $user->profile_fields['avatar'] == 'gravatar'))
 		{
-			return 'https://secure.gravatar.com/avatar/'.md5(strtolower($user->email)).'?d='.urlencode($default).'&s='.$size;
+			return 'https://secure.gravatar.com/avatar/'.md5(strtolower($user->email)).'?d=https://robohash.org/gameserv?set=set3&size='.$size.'x'.$size;
 		}
 		else
 		{

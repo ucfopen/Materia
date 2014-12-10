@@ -1,43 +1,48 @@
-<header class="<?= empty($me) ? '' : 'logged_in' ?>">
+<header ng-controller="currentUserCtrl" class="{loggedIn: loggedIn==true}" >
+
+	<? /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
+	<? if (empty($me)): ?>
+		<span id="current-user" data-logged-in="false" />
+	<? else: ?>
+		<span id="current-user" data-logged-in="true" data-name="<?= "{$me->first} {$me->last}" ?>" data-avatar="<?= \Materia\Utils::get_avatar() ?>"/>
+	<? endif ?>
+
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
-	<? if (empty($me)) : ?>
-		<p class="user">Not logged in. <?= Html::anchor(Router::get('login'), 'Login with your '.__('login.user')) ?></p>
-	<? else : ?>
-		<p class="user avatar">
-			<img src="<?= \Materia\Utils::get_avatar(); ?>" />
-			Welcome <a href="/profile"><?= "$me->first $me->last" ?></a>
+	<span ng-switch="loggedIn">
+		<p ng-switch-when="true" class="user avatar">
+			<img ng-src="{{currentUser.avatar}}" />
+			Welcome <a href="/profile">{{currentUser.name}}</a>
 		</p>
-	<? endif; ?>
-
+		<p ng-switch-when="false" class="user">
+			Not logged in. <a href="/users/login">Login with your <?= __('login.user') ?></a>
+		</p>
+	</span>
 	<nav>
 		<ul>
-			<li><?= Html::anchor('/widgets', 'Widget Catalog') ?></li>
-			<li><?= Html::anchor('/my-widgets', 'My Widgets') ?></li>
-			<li><?= Html::anchor('/help', 'Help') ?></li>
+			<li><a href="/widgets" >Widget Catalog</a></li>
+			<li><a href="/my-widgets">My Widgets</a></li>
+			<li><a href="/help">Help</a></li>
 
-			<? if (empty($me)) : ?>
-				<li class="logout"><?= Html::anchor(Router::get('login'), 'Login with your '.__('login.user')) ?></a></li>
-			<? /*elseif (isset($page_type) && $page_type != 'login')*/ else : ?>
-				<li class="logout"><?= Html::anchor('/users/logout', 'Logout') ?></li>
-			<? endif; ?>
+			<li ng-switch="loggedIn" class="logout">
+				<a ng-switch-when="true" href="/users/logout">Logout</a>
+				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
+			</li
 
 		</ul>
 	</nav>
 
-	<? if ( ! empty($me)) : ?>
-		<div ng-controller="notificationCtrl">
-			<a id="notifications_link" ng-show="notifications.length > 0" data-notifications="{{notifications.length}}" ng-click="clickNotification()"></a>
-			<div id="notices">
-				<div class="notice" ng-repeat="notification in notifications">
-					<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
-					<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></img></p>
-					<div class="notice_right_side">
-						<p class="subject" ng-bind-html="trust(notification.subject)"></p>
-					</div>
+	<div ng-if="loggedIn" ng-controller="notificationCtrl">
+		<a id="notifications_link" ng-show="notifications.length > 0" data-notifications="{{notifications.length}}" ng-click="clickNotification()"></a>
+		<div id="notices">
+			<div class="notice" ng-repeat="notification in notifications">
+				<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
+				<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></img></p>
+				<div class="notice_right_side">
+					<p class="subject" ng-bind-html="trust(notification.subject)"></p>
 				</div>
 			</div>
 		</div>
-	<? endif; ?>
+	</div>
 
 </header>

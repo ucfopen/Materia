@@ -11,15 +11,11 @@ app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			Materia.Permissions.User.init(API_LINK)
 			Materia.Permissions.Widget.init(API_LINK)
 
+			# @TODO: replace with css animations?
 			$(document).on 'click', '.notice .close', (event) ->
 				event.preventDefault()
 				$('.notice').slideToggle(150)
 
-			# when the transfer ownership button is pressed
-			$(document).on 'click', '.owner a', (e) ->
-				e.preventDefault()
-
-				Materia.Permissions.Widget.transferView()
 			return false
 
 	$scope.trust = (notification) ->

@@ -41,15 +41,13 @@ class Controller_Widgets extends Controller
 				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-			Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-			Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-
 			$response = Response::forge(Theme::instance()->render());
 		}
 
 		// prevent caching the widget page, since the __play_id is hard coded into the page
 		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
+		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Css::push_group('core');
 

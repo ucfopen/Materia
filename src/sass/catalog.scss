@@ -1,3 +1,5 @@
+@import 'partials/beard_mode';
+
 /* *************************************************************** */
 /*        Catalog                                                              */
 /* *************************************************************** */
@@ -182,7 +184,20 @@
 	-webkit-border-radius:0 5px 5px 0;
 	-moz-border-radius:0 5px 5px 0;
 	border-radius:0 5px 5px 0;
+	.widgetMin {
+		opacity: 1;
+	  -webkit-transition: opacity .3s ease-in-out;
+	  -moz-transition: opacity .3s ease-in-out;
+	  -ms-transition: opacity .3s ease-in-out;
+	  -o-transition: opacity .3s ease-in-out;
+	  transition: opacity .3s ease-in-out;
+		&.hidden	{
+			opacity:0.3;
+			display:block;
+		}
+	}
 }
+
 
 	.catalog div.widgets {
 		overflow: hidden;
@@ -245,6 +260,7 @@
 	position:absolute;
 	z-index:10;
 	width: 356px;
+	opacity:0;
 
 	margin-top: 5px;
 	padding-bottom:10px;
@@ -264,30 +280,29 @@
 	overflow:visible;
 
 	color:#000000;
-}
-
-.catalog .infocard.show {
-	-webkit-animation: animateShow .3s;
-	-moz-animation: animateShow .3s;
-	animation: animateShow .3s;
-}
-
-.catalog .infocard h1 {
-	font-size:18px;
-	font-family: 'Lato-Black', arial, serif;
-	margin-top:5px;
-	margin-bottom:5px;
-	color:#FFFFFF;
-	text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-}
-
-	.catalog .infocard .header {
+	&:hover{
+		-webkit-animation: animateShow .3s;
+		-moz-animation: animateShow .3s;
+		animation: animateShow .3s;
+		opacity:1;
+		z-index:20;
+	}
+	h1{
+		font-size:18px;
+		font-family: 'Lato-Black', arial, serif;
+		margin-top:5px;
+		margin-bottom:5px;
+		color:#FFFFFF;
+		text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+		&:hover{
+			text-decoration: underline;
+		}
+	}
+	.header{
 		margin-top: -4px;
 	}
-
-.catalog .infocard h1:hover {
-	text-decoration: underline;
 }
+
 
 .catalog .infocard dl {
 	overflow-y:auto;
