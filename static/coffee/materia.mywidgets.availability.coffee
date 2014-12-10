@@ -225,7 +225,7 @@ MyWidgets.controller 'WidgetSettingsController', ($scope, $filter, selectedWidge
 			Materia.MyWidgets.SelectedWidget.populateAvailability $scope.times[0], $scope.times[1]
 			Materia.MyWidgets.SelectedWidget.populateAttempts parseInt(attempts, 10)
 
-		selectedWidgetSrv.updateAvailability(attempts, $scope.times[1], $scope.times[0])
+		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1])
 
 	Namespace('Materia.MyWidgets').Availability =
 		init  : $scope.init
