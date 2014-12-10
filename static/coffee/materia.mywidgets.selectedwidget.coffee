@@ -153,9 +153,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		if $('section .error').is(':visible') then $('section .error').remove()
 
-		# This reference is staying until it's not needed...
-		$editButton = $('#edit_button')
-
 		# accessLevel == 0 is effectively read-only
 		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
@@ -170,6 +167,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		else
 			$scope.edit = "#"
 
+		# DeMorgan's, anyone?
 		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
 		# $scope.$apply()
 
@@ -187,52 +185,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		populateAttempts($scope.selectedWidget.attempts)
 
 		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-		# $scope.$apply()
-
-		#  Bind the edit button
-		# $editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
-		# $editButton.unbind('click')
-
-		$scope.shareable = !$scope.selectedWidget.is_draft
-		# $scope.$apply()
-		if !$scope.shareable
-			console.log "Widget is UNPLAYABLE"
-
-			# TODO replace dis
-			$editButton.click ->
-				Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
-					if success
-						window.location = $editButton.attr('href')
-					else
-						alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
-
-		# update display if playable
-		# TODO: this case should probably be combined with the is not a draft case below?
-		else
-			console.log "Widget is PLAYABLE"
-
-			$('#play_link')
-				# .unbind('click')
-				# .val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
-				.click(->$(this).select())
-
-			# $('#embed_link')
-			# 	.unbind('click')
-			# 	.val(getEmbedLink($scope.selectedWidget))
-			# 	.click(->$(this).select())
-
-			# $('.share-widget-container input').removeAttr('disabled')
 
 		# TODO Temporary
-		if $scope.editable
-			$editButton.jqmodal
-				modal            : true,
-				backgroundStyle  : 'light',
-				className        : 'edit-published-widget',
-				html             : $('#t-edit-widget-published').html(),
-				closingSelectors : ['.cancel_button']
-			, ->
-				# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
 
 		## MASTER SCOPE APPLY CALL
 		# $scope.$apply()
@@ -293,6 +247,21 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				$scope.deleteToggled = false
 				widgetSrv.removeWidget($scope.selectedWidget.id)
 				$scope.$apply()
+
+	$scope.editWidget = ->
+		if $scope.editable
+			console.log 'yep edit it'
+			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
+				if success
+					if $scope.shareable
+						$scope.showEditPublishedWarning = true
+					else
+						#window.location = $scope.edit
+				else
+					alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
+				$scope.$apply()
+
+		return false
 
 	$scope.getEmbedLink = ->
 		if $scope.selectedWidget is null then return ""

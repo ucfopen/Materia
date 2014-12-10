@@ -1,5 +1,24 @@
 <div class="container" ng-app="MyWidgets">
 	<div ng-controller="SelectedWidgetController">
+
+		<modal-dialog class="edit-published-widget" show="showEditPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
+			<div class="container">
+				<p>Editing a published widget may affect statistical analysis when comparing data collected prior to your edits.</p>
+				<h3>Caution should be taken when:</h3>
+				<ul>
+					<li>Students have already completed your widget</li>
+					<li>You make significant content changes</li>
+					<li>Edits change the difficulty level</li>
+					<li>Statistics will be used for research</li>
+				</ul>
+
+				<span class="center">
+					<a class="cancel_button" href="javascript:;" ng-click="$parent.showEditPublishedWarning = false">Cancel</a>
+					<a class="action_button green" ng-href="{{edit}}">Edit Published Widget</a>
+				</span>
+			</div>
+		</modal-dialog>
+
 		<modal-dialog class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
 			<div ng-controller="CollaborationController">
 				<div id="access" class="container">
@@ -124,7 +143,7 @@
 							</a>
 						</li>
 						<li>
-							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : editable==false}" ng-disabled="{{editable}}" ng-href="{{edit}}">
+							<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : editable==false}" ng-disabled="{{editable}}" ng-click="editWidget()">
 								<span class="pencil"></span>
 								Edit Widget
 							</a>
@@ -240,23 +259,6 @@
 </div>
 
 <script type="text/template" id="t-error"><div class="error error-nowidget"><p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p></div></script>
-
-<script type="text/template" id="t-edit-widget-published"><h2>Warning About Editing Published Widgets:</h2>
-<div class="container">
-	<p>Editing a published widget may affect statistical analysis when comparing data collected prior to your edits.</p>
-	<h3>Caution should be taken when:</h3>
-	<ul>
-		<li>Students have already completed your widget</li>
-		<li>You make significant content changes</li>
-		<li>Edits change the difficulty level</li>
-		<li>Statistics will be used for research</li>
-	</ul>
-
-	<span class="center">
-		<a class="cancel_button" href="#">Cancel</a>
-		<a class="action_button green" href="#">Edit Published Widget</a>
-	</span>
-</div></script>
 
 <?= Theme::instance()->view('partials/notification') ?>
 

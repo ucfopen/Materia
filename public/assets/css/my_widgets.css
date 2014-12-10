@@ -2168,7 +2168,7 @@
 /*        Edit Published Widget Popup                              	*/
 /* *************************************************************** */
 
-		.popup.edit-published-widget
+		.edit-published-widget
 		{
 			-webkit-border-radius: 3px;
 			-moz-border-radius: 3px;
@@ -2178,14 +2178,14 @@
 			height: 320px;
 		}
 
-		.popup.edit-published-widget .container
+		.edit-published-widget .container
 		{
 			width: 450px;
 			height: 300px;
 			padding-top: 30px;
 		}
 
-		.popup.edit-published-widget h2
+		.edit-published-widget h2
 		{
 			font-family: Lato, arial, serif;
 			font-weight: bold;
@@ -2197,7 +2197,7 @@
 			margin: 4px;
 		}
 
-		.popup.edit-published-widget a.close
+		.edit-published-widget a.close
 		{
 			display:block;
 			position: absolute;
@@ -2210,13 +2210,13 @@
 			height: 19px;
 		}
 
-		.popup.edit-published-widget span.center
+		.edit-published-widget span.center
 		{
 			text-align: center;
 			display:block;
 		}
 
-		.popup.edit-published-widget .action_button
+		.edit-published-widget .action_button
 		{
 			margin-top:20px;
 		}
