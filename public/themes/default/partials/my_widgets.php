@@ -164,14 +164,14 @@
 					<span class="arrow_down"></span>
 					Export Scores
 				</span>
-				<div class="scoreWrapper" ng-show="scores.list.length > 0" ng-repeat="semester in scores.list">
+				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="showOlderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 0}"><a class="graph" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView(0)">Graph</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 1}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView(1)">Individual Scores</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView == 2}"><a class="data" href="#" ng-show="hasStorage" ng-click="setScoreView(2)">Data</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 0)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" href="#" ng-show="hasStorage" ng-click="setScoreView($index, 2)">Data</a></li>
 					</ul>
-					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView == 1">
+					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
 						<div class="score-search">
 							<input type="text" placeholder="Search Students" />
 						</div>
@@ -187,17 +187,17 @@
 							<table class="scoreTable"></table>
 						</div>
 					</div>
-					<div class="display graph" ng-show="selectedScoreView == 0">
+					<div class="display graph" ng-show="selectedScoreView[$index] == 0">
 						<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 					</div>
-					<div class="display data" ng-show="selectedScoreView == 2">
+					<div class="display data" ng-show="selectedScoreView[$index] == 2">
 					</div>
-					<ul class="numeric" ng-show="selectedScoreView != 2">
+					<ul class="numeric" ng-show="selectedScoreView[$index] != 2">
 						<li><h4>Students</h4><p class="players" class="playerShrink">{{semester.students}}</p></li>
 						<li><h4>Scores</h4><p class="score-count">{{semester.distribution.length}}</p></li>
 						<li><h4>Avg Final Score</h4><p class="final-average">{{semester.average}}</p></li>
 					</ul>
-					<a role="button" class="show-older-scores-button" href="#" ng-show="scores.list.length > 1">Show older scores...</a>
+					<a role="button" class="show-older-scores-button" href="#" ng-show="scores.list.length > 1 && showOlderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
 				</div>
 				<p class="noScores" ng-show="scores.list.length == 0">There are no scores to display</p>
 			</div>
