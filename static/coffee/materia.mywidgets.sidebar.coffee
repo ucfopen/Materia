@@ -2,6 +2,8 @@
 MyWidgets = angular.module 'MyWidgets'
 
 MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
+	firstRun = true
+
 	$scope.selectedWidget = null
 
 	$scope.$on 'selectedWidget.update', (evt) ->
@@ -27,26 +29,26 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 
 			$scope.$apply ->
 				$scope.widgets = data
+		if firstRun and window.location.hash
+			found = false
+			selID = window.location.hash.substr(1)
+
+			for widget in $scope.widgets
+				if widget.id == selID
+					found = true
+					break
+
+			if found
+				$scope.setSelected(selID)
+			else
+				#TODO: Update
+				Materia.MyWidgets.SelectedWidget.noAccess()
+			firstRun = false
 
 	# Populate the widget list
 	# This was originally part of prepare(), but is prepare really necessary now?
 	deferredWidgets = widgetSrv.getWidgets()
 	deferredWidgets.then updateWidgets
-
-	if window.location.hash
-		found = false
-		selID = window.location.hash.substr(1)
-
-		for widget in $scope.widgets
-			if widget.id == selID
-				found = true
-				break
-
-		if found
-			$scope.setSelected(selID)
-		else
-			#TODO: Update
-			Materia.MyWidgets.SelectedWidget.noAccess()
 
 	$scope.setSelected = (id) ->
 		widgetSrv.getWidget id, (inst) ->

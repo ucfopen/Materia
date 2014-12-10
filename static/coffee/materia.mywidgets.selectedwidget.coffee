@@ -2,8 +2,7 @@
 # TODO: needs some serious refactoring to reduce complexity of large methods
 
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetSrv,selectedWidgetSrv, userSrv) ->
-
+MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userSrv) ->
 	# old stuff
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 	$scope.selectedWidgetInstId = 0
