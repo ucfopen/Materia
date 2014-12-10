@@ -45,9 +45,10 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 	$scope.storageNotScoreData = false
 	$scope.hasStorage = false
-	$scope.selectedScoreView = 0 # 0 is graph, 1 is table, 2 is data
+	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
 
 	$scope.collaborators = 0
+	$scope.showOlderScores = false
 
 	$scope.baseUrl = BASE_URL
 
@@ -147,6 +148,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# @param   element   The element that was clicked ($('.widget_list').children('div'))
 	populateDisplay = (id) ->
 		count = null
+		$scope.showOlderScores = false
 		# widgetID = null
 
 		if $('section .error').is(':visible') then $('section .error').remove()
@@ -235,33 +237,23 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		## MASTER SCOPE APPLY CALL
 		# $scope.$apply()
 
-		# TODO: this case should probably be combined with the else case above?
-		# TODO: Determine if this note is still relevant ^
 		if !$scope.selectedWidget.widget.is_draft
-			# $('.my_widgets .page .scores').show()
+
 			$('.my_widgets .page .embed').show() # WHERE IS THIS??
 
-			#  reset scores & data ui:
-			$scoreWrapper = $('.scoreWrapper')
-			$scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
-
-			# $('.show-older-scores-button').hide()
-			# $('.chart').attr('id', '').empty()
-
-			# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+			# #  reset scores & data ui:
+			# $scoreWrapper = $('.scoreWrapper')
+			# $scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
 
 			# $('#export_scores_button').unbind()
 			$exportScoresButton = $('#export_scores_button')
-			console.log $scope.scores
-
-			#  no data
-			# if $scope.scores.list.length == 0
-			# 	console.log "list length = 0"
-			# else
+			# console.log $scope.scores
 
 			if $scope.scores.list.length > 0
-				# TODO populateScoreWrapper should be called via ng-repeat for all semester instances
-				populateScoreWrapper()
+
+				# TODO determine if populateScoreWrapper functionality can be implemented differently
+				angular.forEach $scope.scores.list, (semester, index) ->
+					populateScoreWrapper(semester, index)
 
 				# hasScores = false
 
@@ -311,11 +303,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		"<iframe src='#{BASE_URL}embed/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}'>#{draft}</a></iframe>"
 
-	# loadDateRanges = ->
-	# 	unless $scope.dateRanges?
-	# 		Materia.Coms.Json.send 'semester_date_ranges_get', [], (data) ->
-	# 			$scope.dateRanges = data
-
 	toggleShareWidgetContainer = (state) ->
 		$shareWidgetContainer = $('.share-widget-container')
 
@@ -327,39 +314,25 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		else if state == 'close'
 			$shareWidgetContainer.switchClass('', 'closed', 200)
 
-	populateScoreWrapper = () ->
-
-		# un-temporary dis
-		# data should be a reference to whatever semester is being used for this particular chart
-		data = $scope.scores.last
+	populateScoreWrapper = (semester, index) ->
 
 		#  no scores, but we do have storage data
-		if typeof data.distribution == 'undefined' and typeof data.storage != 'undefined'
-			$scope.storageNotScoreData = true
+		if typeof semester.distribution == 'undefined' and typeof semester.storage != 'undefined'
+			$scope.storageNotScoresemester = true
 
-			$scope.setScoreView(2) # TODO eventually needs a reference to the proper semester
+			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
 
-			if typeof data.storage != 'undefined' then $scope.hasStorage = true
+			if typeof semester.storage != 'undefined' then $scope.hasStorage = true
 
-			# $scoreWrapper.find('.chart').attr('id', 'chart_' + data.id)
+			$scope.setScoreView(index, 0)
 
-			$scope.setScoreView(0)
+	$scope.setScoreView = (index, view) ->
+		$scope.selectedScoreView[index] = view
 
-	# processDataIntoSemesters = (logs, getTimestampFunction) ->
-	# 	semesters = {}
-	# 	timestamp = null
-
-	# 	$.each logs, (i, log) ->
-	# 		timestamp = getTimestampFunction(log)
-	# 		logMeta = getSemesterFromTimestamp(timestamp)
-	# 		semesterString = logMeta.year + ' ' + logMeta.semester.toLowerCase()
-
-	# 		if(!semesters[semesterString])
-	# 			semesters[semesterString] = []
-	# 		semesters[semesterString].push(log)
-	# 	return semesters
+	$scope.enableOlderScores = ->
+		$scope.showOlderScores = true
 
 	getSemesterFromTimestamp = (timestamp) ->
 		for range in $scope.dateRanges
@@ -384,96 +357,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			r.data = $.extend({}, fields, r.data)
 
 		rows
-
-	$scope.setScoreView = (view) ->
-
-		$scope.selectedScoreView = view
-		# $scope.$apply()
-		# $scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-		# $scoreWrapper.attr('data-score-view', newScoreView)
-
-		# $scoreWrapper.find('.choices li.scoreTypeSelected').removeClass('scoreTypeSelected')
-		# $scoreWrapper.find('.display.table').hide()
-		# $scoreWrapper.find('.display.graph').hide()
-		# $scoreWrapper.find('.display.data').hide()
-
-		# switch view
-		# 	when 0 # graph
-		# 		# getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-		# 		# Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-		# 		brackets = $scope.scores.map[$scope.scores.last.id].distribution # TODO replace scores.last with dynamic reference
-
-		# 		# Materia.MyWidgets.Statistics.createGraph('chart_' + $scope.scores.last.id, brackets) # TODO replace scores.last with dynamic reference
-
-		# 	when 1 # table
-		# 		deferredPlayLogs = selectedWidgetSrv.getPlayLogsForSemester $scope.scores.map[$scope.scores.last.id].term, $scope.scores.map[$scope.scores.last.id].year
-		# 		deferredPlayLogs.then (data) ->
-
-		# 			tableSort = 'desc'
-
-					# Materia.MyWidgets.Statistics.createTable('table_'+$scope.scores.last.id, data, tableSort, $scope.selectedWidget.id)
-
-		# switch newScoreView
-		# 	when 'graph'
-		# 		# $scoreWrapper.find('.display.graph').show()
-		# 		# # $scoreWrapper.find('.choices li:first-child').addClass('scoreTypeSelected')
-		# 		# $scoreWrapper.find('.numeric li').show()
-		# 	when 'table'
-		# 		# $scoreWrapper.find('.display.table').show()
-		# 		# # $scoreWrapper.find('.choices li:nth-child(2)').addClass('scoreTypeSelected')
-		# 		# $scoreWrapper.find('.numeric li').show()
-		# 	when 'data'
-		# 		# $scoreWrapper.find('.display.data').show()
-		# 		# # $scoreWrapper.find('.choices li:nth-child(3)').addClass('scoreTypeSelected')
-		# 		# $scoreWrapper.find('.numeric li').hide()
-
-		# updateSemesterScores(semester)
-
-	updateSemesterScores = (semester) ->
-
-		# Everything below will be effectively deprecated
-		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-		scoreView = $scoreWrapper.attr('data-score-view')
-
-		switch scoreView
-			when 'table' then updateTable($scoreWrapper)
-			when 'data' then updateData($scoreWrapper)
-			else
-				updateGraph($scoreWrapper)
-		# Everything above will be effectively deprecated
-
-		# updateSummary(semester)
-
-	# getScoreSummaries = (inst_id, callback) ->
-	# 	#  if we didn't already get this data, get it now
-	# 	if typeof $scope.scoreSummaries[inst_id] == 'undefined'
-	# 		Materia.Coms.Json.send 'score_summary_get', [inst_id, true], (data) ->
-	# 			if(data != null && data.length > 0)
-	# 				o = {}
-	# 				last = data[0].id
-	# 				for d in data
-	# 					o[d.id] = d
-	# 				#  we more conviently store the data in an array (list) and an object (map).
-	# 				#  list is an ordered list of summary data by semesters (in descending order).
-	# 				#  map is an object where the semester_id (database semester code) is the key.
-	# 				$scope.scoreSummaries[inst_id] = {list:data, map:o, last:data[0]}
-	# 				# scoreSummaries[inst_id] = data
-	# 			else
-	# 				$scope.scoreSummaries[inst_id] = {list:[], map:{}, last:undefined}
-	# 			callback($scope.scoreSummaries[inst_id])
-	# 	else
-	# 		callback($scope.scoreSummaries[inst_id])
-
-	# getPlayLogs = (inst_id, semester, year, callback) ->
-	# 	# key our logs off of semester+year+instanceID
-	# 	logKey = "#{semester}_#{year}_#{inst_id}"
-	# 	# If we haven't loaded them yet, load em
-	# 	unless $scope.semesterPlayLogs[logKey]?
-	# 		Materia.Coms.Json.send 'play_logs_get', [inst_id, semester, year], (logs) ->
-	# 			$scope.semesterPlayLogs[logKey] = processDataIntoSemesters(logs, (o) -> return o.time)
-	# 			callback $scope.semesterPlayLogs[logKey]
-	# 	else
-	# 		callback $scope.semesterPlayLogs[logKey]
 
 	getStorageData = (inst_id, callback) ->
 		if typeof $scope.storageData[inst_id] == 'undefined'
@@ -500,41 +383,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				callback($scope.storageData[inst_id])
 		else
 			callback($scope.storageData[inst_id])
-
-	# updateSummary = (semester) ->
-	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-	# 		semesterData = data.map[semester]
-	# 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-	# 		plays = 0
-
-	# 		if semesterData.students?
-	# 			$scoreWrapper.find('.players').html(semesterData.students)
-	# 		if semesterData.average?
-	# 			$scoreWrapper.find('.final-average').html(semesterData.average)
-
-	# 		if semesterData.distribution?
-	# 			plays += dis for dis in semesterData.distribution
-	# 			$scoreWrapper.find('.score-count').html(plays)
-
-	# updateGraph = ($scoreWrapper) ->
-	# 	semester = $scoreWrapper.attr('data-semester')
-	# 	Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-
-	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-	# 		Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-	# 		brackets = data.map[semester].distribution
-	# 		Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
-
-	# updateTable = ($scoreWrapper) ->
-	# 	semester = $scoreWrapper.attr('data-semester')
-	# 	semesterStr = $scoreWrapper.attr('data-semester-str')
-
-	# 	Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
-	# 	getPlayLogs $scope.selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
-	# 		$table = $scoreWrapper.find('.display.table')
-	# 		tableSort = $table.attr('data-sort')
-	# 		Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, $scope.selectedWidgetInstId)
-	# 		Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
 
 	updateData = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
