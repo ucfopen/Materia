@@ -4,7 +4,7 @@ return [
 
 	'paths' => [
 		'theme'  => '/themes/default/assets/js/',
-		'cdnjs' => 'https://cdnjs.cloudflare.com/ajax/libs/',
+		'cdnjs' => '//cdnjs.cloudflare.com/ajax/libs/',
 		'lib' => '/assets/js/lib/',
 	],
 
@@ -12,7 +12,6 @@ return [
 		'core' => [
 			'cdnjs::angular.js/1.3.0/angular.min.js',
 			'cdnjs::jquery/1.8.1/jquery.min.js',
-			'cdnjs::swfobject/2.2/swfobject.min.js',
 			'theme::materia.js',
 		],
 		'author' => [
@@ -86,6 +85,7 @@ return [
 			'lib::md5.js'
 		],
 		'widget_play' => [
+			'cdnjs::swfobject/2.2/swfobject.min.js',
 			'lib::jqmodal.js',
 			'lib::tablock.js',
 			'lib::jquery-ui-1.8.21.custom.min.js',

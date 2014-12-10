@@ -3,7 +3,8 @@ module.exports = (grunt) ->
 	# load all grunt tasks
 	require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks)
 
-	srcDir = 'src/' # Base Source dir for coffeescript
+	coffeeSrc = 'src/coffee'
+	sassSrc   = 'src/sass'
 
 	grunt.initConfig
 
@@ -14,52 +15,54 @@ module.exports = (grunt) ->
 			dashboard:
 				files:
 					'public/themes/default/assets/js/dashboard.js': [
-						srcDir+'coffee/app.coffee'
+						coffeeSrc+'/app.coffee'
 					]
 
 			# Student view
 			student:
 				files:
 					'public/themes/default/assets/js/student.js': [
-						srcDir+'coffee/controllers/ctrl-page.coffee',
-						srcDir+'coffee/controllers/ctrl-notification.coffee',
-						srcDir+'coffee/controllers/ctrl-login.coffee',
-						srcDir+'coffee/controllers/ctrl-profile.coffee',
-						srcDir+'coffee/controllers/ctrl-scores.coffee',
-						srcDir+'coffee/controllers/ctrl-settings.coffee',
-						srcDir+'coffee/controllers/ctrl-help.coffee',
-						srcDir+'coffee/directives/*',
+						coffeeSrc+'/controllers/ctrl-page.coffee',
+						coffeeSrc+'/controllers/ctrl-current-user.coffee',
+						coffeeSrc+'/controllers/ctrl-notification.coffee',
+						coffeeSrc+'/controllers/ctrl-login.coffee',
+						coffeeSrc+'/controllers/ctrl-profile.coffee',
+						coffeeSrc+'/controllers/ctrl-scores.coffee',
+						coffeeSrc+'/controllers/ctrl-settings.coffee',
+						coffeeSrc+'/controllers/ctrl-help.coffee',
+						coffeeSrc+'/directives/*',
 					]
 
 			# Author view
 			author:
 				files:
 					'public/themes/default/assets/js/author.js': [
-						srcDir+'coffee/controllers/ctrl-page.coffee',
-						srcDir+'coffee/controllers/ctrl-notification.coffee',
-						srcDir+'coffee/controllers/ctrl-create.coffee',
-						srcDir+'coffee/controllers/ctrl-lti.coffee',
-						srcDir+'coffee/controllers/ctrl-media-import.coffee',
-						srcDir+'coffee/controllers/ctrl-question-import.coffee',
-						srcDir+'coffee/controllers/ctrl-my-widgets.coffee',
-						srcDir+'coffee/controllers/ctrl-spotlight.coffee',
-						srcDir+'coffee/controllers/ctrl-widget-catalog.coffee',
-						srcDir+'coffee/controllers/ctrl-widget-details.coffee',
-						srcDir+'coffee/directives/*',
+						coffeeSrc+'/controllers/ctrl-page.coffee',
+						coffeeSrc+'/controllers/ctrl-current-user.coffee',
+						coffeeSrc+'/controllers/ctrl-notification.coffee',
+						coffeeSrc+'/controllers/ctrl-create.coffee',
+						coffeeSrc+'/controllers/ctrl-lti.coffee',
+						coffeeSrc+'/controllers/ctrl-media-import.coffee',
+						coffeeSrc+'/controllers/ctrl-question-import.coffee',
+						coffeeSrc+'/controllers/ctrl-my-widgets.coffee',
+						coffeeSrc+'/controllers/ctrl-spotlight.coffee',
+						coffeeSrc+'/controllers/ctrl-widget-catalog.coffee',
+						coffeeSrc+'/controllers/ctrl-widget-details.coffee',
+						coffeeSrc+'/directives/*',
 					]
 
 			# Materia APIs
 			materia:
 				files:
 					'public/themes/default/assets/js/materia.js': [
-						srcDir+'coffee/materia/materia.namespace.coffee',
-						srcDir+'coffee/materia/*.coffee'
+						coffeeSrc+'/materia/materia.namespace.coffee',
+						coffeeSrc+'/materia/*.coffee'
 					]
 
 			all_js:
 				expand: true,
 				flatten: true,
-				cwd: srcDir+"coffee/materia/",
+				cwd: coffeeSrc+'/materia/',
 				src: ['*'],
 				dest: 'static/js/',
 				rename: (dest, src) ->
@@ -70,7 +73,7 @@ module.exports = (grunt) ->
 
 			styleguide:
 				files:
-					'public/themes/default/assets/js/style-guide.js': [srcDir+'coffee/style-guide.coffee']
+					'public/themes/default/assets/js/style-guide.js': [coffeeSrc+'/style-guide.coffee']
 
 		sass:
 			compile:
@@ -78,7 +81,7 @@ module.exports = (grunt) ->
 					style: 'expanded'
 				files: [
 					expand: true
-					cwd: srcDir+'sass/'
+					cwd: sassSrc
 					src: ['*.scss']
 					dest: 'public/themes/default/assets/css'
 					ext: '.css',
@@ -87,11 +90,11 @@ module.exports = (grunt) ->
 		watch:
 			# Coffee script apps (keeping them separate will only build what needs to be built)
 			coffee:
-				files: [srcDir+'coffee/**/*.coffee']
+				files: [coffeeSrc+'/**/*.coffee']
 				tasks: ['coffee']
 
 			sass:
-				files: [srcDir+'sass/**/*']
+				files: [sassSrc+'/**/*']
 				tasks: ['sass']
 
 	grunt.registerTask('default', 'watch')

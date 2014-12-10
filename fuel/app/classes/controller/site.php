@@ -84,6 +84,7 @@ class Controller_Site extends Controller
 		$this->theme->set_partial('content', 'partials/help/main');
 
 		Css::push_group("help");
+		Js::push('cdnjs::swfobject/2.2/swfobject.min.js'); // add swf object for flash testing
 	}
 
 	/**

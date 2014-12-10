@@ -1,7 +1,7 @@
 <?php
 return [
 	'paths' => [
-		'gfonts' => 'https://fonts.googleapis.com/',
+		'gfonts' => '//fonts.googleapis.com/',
 		'theme'  => '/themes/default/assets/css/',
 		'lib'  => '/assets/css/',
 	],
@@ -71,7 +71,6 @@ return [
 		],
 		'core' => [
 			'theme::main.css',
-			'theme::beard_mode.css',
 		],
 		'fonts' => [
 			'gfonts::css?family=Kameron:700&text=0123456789%25',
