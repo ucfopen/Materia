@@ -2622,3 +2622,8 @@
 	animation-duration: 15s;
 	animation-iteration-count: infinite;
 }
+
+.ui-datepicker {
+	font-size: 12px !important;
+}
+
