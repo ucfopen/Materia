@@ -13,7 +13,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	$scope.dateRanges = null
 
 	# refactoring scope variables
-	$scope.perms = null
+	$scope.perms = {}
 	$scope.scores = null
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
@@ -31,7 +31,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$scope.noWidgetState = true
 		$scope.$apply()
 
-	$scope.user = null # grab current user, link it to service
+	$scope.user = {} # grab current user, link it to service
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userSrv.get()
 		# $scope.$apply() # required?
@@ -67,6 +67,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
 	setSelectedWidget = ->
+		populateDisplay()
+
+		currentId = $scope.selectedWidget.id
 
 		$q.all([
 			userSrv.get(),
@@ -75,13 +78,17 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 			selectedWidgetSrv.getDateRanges()
 		])
 		.then (data) ->
+			# don't render an old display if they user has clicked another widget
+			if $scope.selectedWidget.id != currentId
+				console.log("Ignoring old data as focus has changed")
+				return
 			$scope.user = data[0]
 			$scope.perms = data[1]
 			$scope.scores = data[2]
 
 			Materia.MyWidgets.Statistics.clearGraphs()
 
-			populateDisplay()
+			populateAccess()
 
 		# Moved to the sidebar controller(?) still needs to be implemented
 		# if $('.page').is ':visible' and not $('section .error').is ':visible'
@@ -150,14 +157,34 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$scope.showOlderScores = false
 		# widgetID = null
 
-		if $('section .error').is(':visible') then $('section .error').remove()
+		# TODO
+		#if $('section .error').is(':visible') then $('section .error').remove()
 
+		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+
+		# count up the number of other users collaborating
+		count = 0
+		for id of $scope.perms.widget
+			if id != $scope.user.id then count++
+
+		$scope.copy_title = $scope.selectedWidget.name + " copy"
+		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
+		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
+
+		# TODO Temporary
+
+		## MASTER SCOPE APPLY CALL
+		# $scope.$apply()
+
+
+		# Materia.Set.Throbber.stopSpin('.page')
+
+	# Second half of populateDisplay
+	# This allows us to update the display before the callback of scores finishes, which speeds up UI
+	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
 		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
-			# $scope.accessLevel = 0
-
-		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
@@ -168,32 +195,12 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 		# DeMorgan's, anyone?
 		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
-		# $scope.$apply()
-
-		# count up the number of other users collaboratin
-		count = 0
-		for id of $scope.perms.widget
-			if id != $scope.user.id then count++
-
-		$scope.copy_title = $scope.selectedWidget.name + " copy"
-		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
-		# $scope.$apply()
 
 		# TODO: Fix dis
 		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 		populateAttempts($scope.selectedWidget.attempts)
 
-		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-
-		# TODO Temporary
-
-		## MASTER SCOPE APPLY CALL
-		# $scope.$apply()
-
 		if !$scope.selectedWidget.widget.is_draft
-
-			$('.my_widgets .page .embed').show() # WHERE IS THIS??
-
 			# #  reset scores & data ui:
 			# $scoreWrapper = $('.scoreWrapper')
 			# $scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
@@ -228,11 +235,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 					closingSelectors : ['.cancel','.download']
 				, ->
 					Materia.MyWidgets.Csv.buildPopup()
-		else
-			# $('.my_widgets .page .scores').hide()
-			$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
-		# Materia.Set.Throbber.stopSpin('.page')
 
 	$scope.copyWidget = () ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
