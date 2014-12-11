@@ -228,9 +228,9 @@
 		</div>
 		<div class="search">
 			<div   class="textbox-background"></div>
-			<input class="textbox" type="text">
+			<input class="textbox" type="text" ng-change="search(query)" ng-model="query">
 			<div   class="search-icon"></div>
-			<div   class="search-close">x</div>
+			<div   class="search-close" ng-show="query" ng-click="search('')">x</div>
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
@@ -243,17 +243,6 @@
 					</ul>
 				</div>
 			</div>
-			<!--
-			<div class="widget_list" data-container="widget-list">
-				<div ng-repeat="widget in widgets" id="_template_gameID" class="template _template_evenOdd" data-course="uncategorized" data-template="widget-list" data-created='0'>
-					<ul>
-						<li class="title searchable">_template_title</li>
-						<li class="type searchable">_template_type</li>
-						<li class="score"></li>
-					</ul>
-				</div>
-			</div>
-			-->
 		</div>
 	 </aside>
 </div>
