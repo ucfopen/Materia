@@ -295,18 +295,18 @@
 		</div>
 		<div class="search">
 			<div   class="textbox-background"></div>
-			<input class="textbox" type="text" ng-change="search(query)" ng-model="query">
+			<input class="textbox" ng-model="searchText.searchCache" type="text">
 			<div   class="search-icon"></div>
-			<div   class="search-close" ng-show="query" ng-click="search('')">x</div>
+			<div   class="search-close" ng-click="searchText = ''" ng-show="searchText">x</div>
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div ng-repeat="instance in widgets" id="{{instance.id}}" class="widget" ng-class="{'even' : ($index + 1) % 2 == 0, 'odd': ($index + 1) % 2 != 0, 'is_draft' : instance.is_draft, 'gameSelected': instance.id == selectedWidget.id}" ng-click="setSelected(instance.id)">
-					<img class="icon" ng-src="{{instance.icon}}" />
+				<div ng-repeat="widget in widgets | filter:searchText" id="{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.selected}" ng-click="setSelected(widget.id)">
+					<img class="icon" ng-src="{{widget.icon}}" ng-class="{bearded: beard}"/>
 					<ul>
-						<li class="title searchable">{{instance.name}}</li>
-						<li class="type searchable">{{instance.widget.name}}</li>
-						<li class="score">{{instance.is_draft == true ? 'Draft' : ''}}</li>
+						<li class="title searchable" ng-bind-html="widget.name | highlight:searchText"></li>
+						<li class="type searchable" ng-bind-html="widget.widget.name | highlight:searchText"></li>
+						<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
 					</ul>
 				</div>
 			</div>
