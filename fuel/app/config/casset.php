@@ -273,6 +273,7 @@ return [
 					'static::directives/dir-sidebarselection.js',
 					'static::directives/dir-scoregraph.js',
 					'static::directives/dir-scoretable.js',
+					'static::directives/dir-scoredata.js',
 					'static::materia.user.js',
 					'static::materia.widgetinstance.js',
 					'static::materia.mywidgets.availability.js',
