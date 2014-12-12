@@ -188,7 +188,7 @@
 					<ul class="choices">
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 0)">Graph</a></li>
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" href="#" ng-show="hasStorage" ng-click="setScoreView($index, 2)">Data</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" href="#" ng-show="semester.storage" ng-click="setScoreView($index, 2)">Data</a></li>
 					</ul>
 					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
 						<div class="score-search">
@@ -209,7 +209,31 @@
 					<div class="display graph" ng-show="selectedScoreView[$index] == 0">
 						<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 					</div>
-					<div class="display data" ng-show="selectedScoreView[$index] == 2">
+					<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == 2">
+						<a class="storage" ng-click="handleStorageDownload()">Download Table</a>
+						<div class="table label" ng-if="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
+						<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
+						<table ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
+							<p ng-if="table.truncated" class="truncated-table">Showing only the first {{MAX_ROWS}} entries of this table. Download the table to see all entries.</p>
+							<thead>
+								<tr>
+									<th>user</th>
+									<th>firstName</th>
+									<th>lastName</th>
+									<th>time</th>
+									<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="row in table.data">
+									<td>{{row.play.user}}</td>
+									<td>{{row.play.firstName}}</td>
+									<td>{{row.play.lastName}}</td>
+									<td>{{row.play.time}}</td>
+									<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 					<ul class="numeric" ng-show="selectedScoreView[$index] != 2">
 						<li><h4>Students</h4><p class="players" class="playerShrink">{{semester.students}}</p></li>
