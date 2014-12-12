@@ -295,17 +295,17 @@
 		</div>
 		<div class="search">
 			<div   class="textbox-background"></div>
-			<input class="textbox" ng-model="searchText.searchCache" type="text">
+			<input class="textbox" ng-model="query" ng-change="search(query)" type="text">
 			<div   class="search-icon"></div>
-			<div   class="search-close" ng-click="searchText = ''" ng-show="searchText">x</div>
+			<div   class="search-close" ng-click="search('')" ng-show="query">x</div>
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div ng-repeat="widget in widgets | filter:searchText" id="{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.selected}" ng-click="setSelected(widget.id)">
+				<div ng-repeat="widget in widgets" id="{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.selected}" ng-click="setSelected(widget.id)">
 					<img class="icon" ng-src="{{widget.icon}}" ng-class="{bearded: beard}"/>
 					<ul>
-						<li class="title searchable" ng-bind-html="widget.name | highlight:searchText"></li>
-						<li class="type searchable" ng-bind-html="widget.widget.name | highlight:searchText"></li>
+						<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
+						<li class="type searchable" ng-bind-html="widget.widget.name | highlight:query"></li>
 						<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
 					</ul>
 				</div>

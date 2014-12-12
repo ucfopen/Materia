@@ -81,11 +81,12 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 				hits.push widget
 			else
 				misses.push widget
+		$scope.widgets = hits
 
 MyWidgets.filter 'highlight', ($sce) ->
 	return (text, search) ->
 		if search
-			searchTerms = search.searchCache.split(" ")
+			searchTerms = search.split(" ")
 			for search in searchTerms
 				text = text.replace(new RegExp('(' + search + ')', 'gi'), (a, b, c, d) ->
 					t = d.substr(c).split("<")
