@@ -474,7 +474,7 @@ class Widget  extends \Basetask
 			$output_dir = self::tempdir();
 			\Cli::write('Cloning git repository...');
 			trace('installing widget from git repository', $git_url);
-			passthru("git clone -q --recursive $git_url $output_dir");
+			passthru("git archive --remote=$git_url HEAD _output/ | tar -x -C $output_dir/");
 
 			// make sure outputdir has a trailing slash
 			if (substr($output_dir, -1) != '/') $output_dir .= '/';

@@ -14,7 +14,7 @@ class Controller_Test extends \Controller_Rest
 		if (\Fuel::$env == \Fuel::PRODUCTION)
 		{
 			trace('these tests are not availible in production mode');
-			throw new HttpNotFoundException;
+			throw new \HttpNotFoundException;
 		}
 		parent::before();
 	}

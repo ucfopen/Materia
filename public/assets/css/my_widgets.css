@@ -2038,6 +2038,10 @@
 .qtip-content {
 	font-weight: 900;
 }
+.qtip.nowidgets {
+	top: 110px;
+	left: 74px;
+}
 
 /* *************************************************************** */
 /*        Copying Popup                                            */
@@ -2625,5 +2629,15 @@
 
 .ui-datepicker {
 	font-size: 12px !important;
+}
+.dataTable {
+	width: 100%;
+	overflow: auto;
+	display: block;
+}
+
+.paginate_button {
+	margin-right: 5px;
+	cursor: pointer;
 }
 
