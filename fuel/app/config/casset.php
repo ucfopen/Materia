@@ -29,7 +29,7 @@ return [
 				'attr' => ['data-src' => 'modernizr'],
 			],
 			'jquery' => [
-				'files' => ['cdnjs::jquery/1.7.2/jquery.min.js'],
+				'files' => ['cdnjs::jquery/1.8.1/jquery.min.js'],
 				'enabled' => true,
 				'combine' => false,
 				'min' => false,
@@ -103,7 +103,7 @@ return [
 					'static::materia.coms.json.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
-					'lib/jquery-ui-1.8.21.custom.min.js',
+					'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
 					'static::materia.store.spotlight.js',
 					'static::materia.store.slideshow.js',
 				],
@@ -248,6 +248,7 @@ return [
 			],
 			'my_widgets' => [
 				'files' => [
+					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.set.datetime.js',
 					'static::materia.validate.textfield.js',
 					'static::materia.notification.js',
@@ -262,7 +263,7 @@ return [
 					'lib/spin.js',
 					'lib/spin.jquery.js',
 					'static::materia.coms.json.js',
-					'lib/jquery-ui-1.8.21.custom.min.js',
+					'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
 					'lib/jquery-ui-timepicker-addon.js',
 					'static::materia.mywidgets.app.js',
 					'static::routes/route-mywidgets.js',
@@ -284,7 +285,6 @@ return [
 					'static::materia.set.availability.js',
 					'static::materia.page.my-widgets.js',
 					'lib/jquery.jqplot.min.js',
-					'lib/jquery.qtip-1.0.0-rc3.min.js',
 					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
 					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
 					'lib/jqplot_plugins/jqplot.canvasAxisTickRenderer.min.js',
