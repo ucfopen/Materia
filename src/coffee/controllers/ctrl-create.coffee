@@ -148,6 +148,7 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 	# Embeds the creator
 	_embed = ->
+		console.log 'embedding'
 		dfd = $.Deferred()
 		_widgetType = _widget_info.creator.slice _widget_info.creator.lastIndexOf('.')
 
@@ -175,6 +176,7 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 	_embedHTML = (htmlPath, dfd) ->
 		$scope.htmlPath = htmlPath
+		$scope.$apply()
 		_embedDoneDfd = dfd
 
 		_onPostMessage = (e) ->
