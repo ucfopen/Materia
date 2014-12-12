@@ -267,19 +267,14 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				# else
 				# 	$exportScoresButton.addClass('disabled')
 
-				# TODO Replace jqmodal
-				$('#export_scores_button:not(".disabled")').jqmodal
-					modal            : true,
-					className        : 'csv_popup',
-					html             : $('#t-csv').html(),
-					closingSelectors : ['.cancel','.download']
-				, ->
-					Materia.MyWidgets.Csv.buildPopup()
 		else
 			# $('.my_widgets .page .scores').hide()
 			$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
 		# Materia.Set.Throbber.stopSpin('.page')
+
+	$scope.exportPopup =  ->
+		Materia.MyWidgets.Csv.buildPopup()
 
 	$scope.copyWidget = () ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->

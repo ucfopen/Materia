@@ -2326,19 +2326,18 @@
  * CSV POPUP PAGE
  * * * * * * * * * * * * * * * * * */
 
- .popup.csv_popup {
-	background: #FFF;
-	padding-right: 0;
-	padding-top: 0;
-	padding-bottom: 0;
- }
- .popup.csv_popup table {
+.ng-modal.csv_popup .ng-modal-dialog {
+	border-radius: 0!important;
+	border: none;
+}
+
+ .ng-modal.csv_popup table {
 	border-collapse:collapse;
 	width: 450px;
 	position: relative;
 	z-index: 0;
  }
- .popup.csv_popup div.score_table {
+ .ng-modal.csv_popup div.score_table {
 	background: #fffdf9;
 	-moz-box-shadow: -1px 3px 6px #DDD;
 	-webkit-box-shadow: -1px 3px 6px #DDD;
@@ -2347,7 +2346,7 @@
 	position: relative;
 	display: inline-block;
  }
- .popup.csv_popup #sample-notification {
+ .ng-modal.csv_popup #sample-notification {
 	font-family: Lato;
 	left: 0;
 	top: 104px;
@@ -2365,42 +2364,40 @@
 	-o-transform:rotate(-15deg);
 	transform:rotate(-15deg);
  }
- .popup.csv_popup div.download_wrapper {
+ .ng-modal.csv_popup div.download_wrapper {
 	display: inline-block;
-	position: relative;
  }
- .popup.csv_popup div.download_options {
+ .ng-modal.csv_popup div.download_options {
 	display: inline-block;
 	background: #eeeeee;
 	vertical-align: top;
 	height: 100%;
-	margin-left: -3px;
-	display: none;
+	margin-left: 20px;
 	position: absolute;
 	top: 0;
 	width: 300px;
 	padding-left: 20px;
 	padding-right: 20px;
  }
- .popup.csv_popup div.download_options h4{
+ .ng-modal.csv_popup div.download_options h4{
 	margin: 0;
 	color: #555555;
 	text-align: left;
 	padding: 22px 0 0 0;
 	font-size: 20px;
  }
- .popup.csv_popup div.download_options ul, .popup.csv_popup div.download_options ul li {
+ .ng-modal.csv_popup div.download_options ul, .ng-modal.csv_popup div.download_options ul li {
 	margin: 0;
 	padding: 0;
 	list-style: none;
  }
- .popup.csv_popup div.download_options ul li span.grey {
+ .ng-modal.csv_popup div.download_options ul li span.grey {
 	color: #898989;
  }
- .popup.csv_popup div.download_options ul li {
+ .ng-modal.csv_popup div.download_options ul li {
 	padding-bottom: 10px;
  }
- .popup.csv_popup div.download_options ul li.checkallLi {
+ .ng-modal.csv_popup div.download_options ul li.checkallLi {
 	font-size: 12px;
 	vertical-align: top;
 	color: #898989;
@@ -2408,17 +2405,17 @@
 	padding-bottom: 5px;
 	margin-bottom: 10px;
  }
- .popup.csv_popup div.download_options p.export_which {
+ .ng-modal.csv_popup div.download_options p.export_which {
 	margin-top: 22px;
 	font-weight: bold;
 	font-size: 16px;
  }
- .popup.csv_popup div.download_options ul li input {
+ .ng-modal.csv_popup div.download_options ul li input {
 	margin-right: 15px;
 	display: inline-block;
  }
 
- .popup.csv_popup table tr td,  .popup.csv_popup table tr th {
+ .ng-modal.csv_popup table tr td,  .ng-modal.csv_popup table tr th {
 	border: #e5e4e2 solid 1px;
 	padding: 5px;
 	border-bottom: none;
@@ -2426,21 +2423,21 @@
 	text-align: left;
 	font-size: 15px;
  }
-.popup.csv_popup ul.options {
+.ng-modal.csv_popup ul.options {
 	position: absolute;
 	right: 0;
-	top: 0;
+	top: 15px;
 }
-.popup.csv_popup ul.options li {
+.ng-modal.csv_popup ul.options li {
 	list-style: none;
 }
-.popup.csv_popup div.score_table img {
+.ng-modal.csv_popup div.score_table img {
 	right: -2px;
 	position: absolute;
 	z-index: 100;
 	top: -1px;
 }
-.popup.csv_popup div.score_table div.download-controls {
+.ng-modal.csv_popup div.score_table div.download-controls {
 	position: relative;
 	z-index: 1;
 	margin: 0;
@@ -2461,14 +2458,14 @@
 	);
 	text-align: center;
 }
-.popup.csv_popup div.score_table p.download a {
+.ng-modal.csv_popup div.score_table p.download a {
 	margin-top: 8px;
 	margin-bottom: 0px;
 }
-.popup.csv_popup h4 {
+.ng-modal.csv_popup h4 {
 	text-align: center;
 }
-.popup.csv_popup h3 {
+.ng-modal.csv_popup h3 {
 	margin: 0;
 	padding: 23px 0 20px 0;
 	font-size: 1.3em;
@@ -2476,7 +2473,7 @@
 	border-bottom: #999 dotted 1px;
 	margin-bottom: 20px;
 }
-.popup.csv_popup div.score_table p.download a.disabled,
+.ng-modal.csv_popup div.score_table p.download a.disabled,
 .my_widgets .page .scores #export_scores_button.disabled {
 	background:#aeaeae;
 	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
@@ -2487,7 +2484,7 @@
 	color:#545454;
 	opacity: 0.5;
 }
-.popup.csv_popup ul.options li a {
+.ng-modal.csv_popup ul.options li a {
 	background: #EEE;
 	padding: 10px;
 	font-size: 0.9em;
@@ -2496,7 +2493,7 @@
 	text-align: center;
 	display: inline-block;
 }
-.popup.csv_popup p.download a.disabled:hover {
+.ng-modal.csv_popup p.download a.disabled:hover {
 	background:#ffba5d;
 	background-image: -webkit-linear-gradient(top, #ffce8c, #ffa42a);
 	background-image: -moz-linear-gradient(top, #ffce8c, #ffa42a);
@@ -2505,7 +2502,7 @@
 	text-decoration: none;
 	cursor: default;
 }
-.popup.csv_popup div.score_table p.download a span.arrow_down,
+.ng-modal.csv_popup div.score_table p.download a span.arrow_down,
 .my_widgets .page .scores a span.arrow_down {
 	background: url(../img/arrow_down.png) no-repeat center bottom;
 	margin: 0;
@@ -2519,19 +2516,19 @@
 .arrow_down_button {
 	padding: 7px 12px 8px 12px;
 }
-.popup.csv_popup p.cancel {
+.ng-modal.csv_popup p.cancel {
 	text-align: center;
 }
-.popup.csv_popup p.cancel a {
+.ng-modal.csv_popup p.cancel a {
 	font-size: 0.9em;
 	color: #bbb;
 	text-decoration: underline;
 }
-.popup.csv_popup select {
+.ng-modal.csv_popup select {
 	margin-top: 10px;
 	margin-bottom: -10px;
 }
-.popup.csv_popup table tr td {
+.ng-modal.csv_popup table tr td {
 	width: 30%;
 }
 
