@@ -2,8 +2,7 @@
 # TODO: needs some serious refactoring to reduce complexity of large methods
 
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetSrv,selectedWidgetSrv, userSrv) ->
-
+MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userSrv, $anchorScroll) ->
 	# old stuff
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 	$scope.selectedWidgetInstId = 0
@@ -14,8 +13,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.dateRanges = null
 
 	# refactoring scope variables
-	$scope.perms = null
+	$scope.perms = {}
 	$scope.scores = null
+	$scope.storage = null
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -32,7 +32,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$scope.noWidgetState = true
 		$scope.$apply()
 
-	$scope.user = null # grab current user, link it to service
+	$scope.user = {} # grab current user, link it to service
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userSrv.get()
 		# $scope.$apply() # required?
@@ -44,7 +44,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	$scope.hasScores = false
 
 	$scope.storageNotScoreData = false
-	$scope.hasStorage = false
 	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
 
 	$scope.collaborators = 0
@@ -68,6 +67,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
 	setSelectedWidget = ->
+		populateDisplay()
+
+		currentId = $scope.selectedWidget.id
 
 		$q.all([
 			userSrv.get(),
@@ -76,13 +78,17 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			selectedWidgetSrv.getDateRanges()
 		])
 		.then (data) ->
+			# don't render an old display if they user has clicked another widget
+			if $scope.selectedWidget.id != currentId
+				console.log("Ignoring old data as focus has changed")
+				return
 			$scope.user = data[0]
 			$scope.perms = data[1]
 			$scope.scores = data[2]
 
 			Materia.MyWidgets.Statistics.clearGraphs()
 
-			populateDisplay()
+			populateAccess()
 
 		# Moved to the sidebar controller(?) still needs to be implemented
 		# if $('.page').is ':visible' and not $('section .error').is ':visible'
@@ -145,21 +151,45 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		#$('section.page').append($('#t-error').html())
 
 	# Shows selected game information on the mainscreen.
-	# @param   element   The element that was clicked ($('.widget_list').children('div'))
-	populateDisplay = (id) ->
+	populateDisplay = ->
+		# reset scope variables to defaults
 		count = null
 		$scope.showOlderScores = false
-		# widgetID = null
+		$scope.accessLevel = 0
+		$scope.editable = true
+		$scope.shareable = false
+		$scope.hasScores = false
+		$scope.storageNotScoreData = false
+		$scope.collaborators = 0
 
-		if $('section .error').is(':visible') then $('section .error').remove()
+		# TODO
+		#if $('section .error').is(':visible') then $('section .error').remove()
 
-		# This reference is staying until it's not needed...
-		$editButton = $('#edit_button')
+		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
+		# count up the number of other users collaborating
+		count = 0
+		for id of $scope.perms.widget
+			if id != $scope.user.id then count++
+
+		$scope.copy_title = $scope.selectedWidget.name + " copy"
+		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
+		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
+
+		# TODO Temporary
+
+		## MASTER SCOPE APPLY CALL
+		# $scope.$apply()
+
+
+		# Materia.Set.Throbber.stopSpin('.page')
+
+	# Second half of populateDisplay
+	# This allows us to update the display before the callback of scores finishes, which speeds up UI
+	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
 		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
-			# $scope.accessLevel = 0
 
 		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
@@ -170,77 +200,14 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		else
 			$scope.edit = "#"
 
+		# DeMorgan's, anyone?
 		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
-		# $scope.$apply()
-
-		# count up the number of other users collaboratin
-		count = 0
-		for id of $scope.perms.widget
-			if id != $scope.user.id then count++
-
-		$scope.copy_title = $scope.selectedWidget.name + " copy"
-		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
-		# $scope.$apply()
 
 		# TODO: Fix dis
 		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 		populateAttempts($scope.selectedWidget.attempts)
 
-		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-		# $scope.$apply()
-
-		#  Bind the edit button
-		# $editButton.attr('href', BASE_URL + 'edit/'+$scope.selectedWidgetInstId+'/'+$scope.selectedWidget.clean_name)
-		# $editButton.unbind('click')
-
-		$scope.shareable = !$scope.selectedWidget.is_draft
-		# $scope.$apply()
-		if !$scope.shareable
-			console.log "Widget is UNPLAYABLE"
-
-			# TODO replace dis
-			$editButton.click ->
-				Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
-					if success
-						window.location = $editButton.attr('href')
-					else
-						alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
-
-		# update display if playable
-		# TODO: this case should probably be combined with the is not a draft case below?
-		else
-			console.log "Widget is PLAYABLE"
-
-			$('#play_link')
-				# .unbind('click')
-				# .val(BASE_URL + 'play/'+String($scope.selectedWidgetInstId)+'/'+$scope.selectedWidget.clean_name)
-				.click(->$(this).select())
-
-			# $('#embed_link')
-			# 	.unbind('click')
-			# 	.val(getEmbedLink($scope.selectedWidget))
-			# 	.click(->$(this).select())
-
-			# $('.share-widget-container input').removeAttr('disabled')
-
-		# TODO Temporary
-		if $scope.editable
-			$editButton.jqmodal
-				modal            : true,
-				backgroundStyle  : 'light',
-				className        : 'edit-published-widget',
-				html             : $('#t-edit-widget-published').html(),
-				closingSelectors : ['.cancel_button']
-			, ->
-				# $('.edit-published-widget .action_button').attr('href', $editButton.attr('href'))
-
-		## MASTER SCOPE APPLY CALL
-		# $scope.$apply()
-
 		if !$scope.selectedWidget.widget.is_draft
-
-			$('.my_widgets .page .embed').show() # WHERE IS THIS??
-
 			# #  reset scores & data ui:
 			# $scoreWrapper = $('.scoreWrapper')
 			# $scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
@@ -271,7 +238,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			# $('.my_widgets .page .scores').hide()
 			$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
-		# Materia.Set.Throbber.stopSpin('.page')
 
 	$scope.exportPopup =  ->
 		Materia.MyWidgets.Csv.buildPopup()
@@ -288,6 +254,21 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 				$scope.deleteToggled = false
 				widgetSrv.removeWidget($scope.selectedWidget.id)
 				$scope.$apply()
+
+	$scope.editWidget = ->
+		if $scope.editable
+			console.log 'yep edit it'
+			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
+				if success
+					if $scope.shareable
+						$scope.showEditPublishedWarning = true
+					else
+						#window.location = $scope.edit
+				else
+					alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
+				$scope.$apply()
+
+		return false
 
 	$scope.getEmbedLink = ->
 		if $scope.selectedWidget is null then return ""
@@ -313,13 +294,15 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 
 		#  no scores, but we do have storage data
 		if typeof semester.distribution == 'undefined' and typeof semester.storage != 'undefined'
-			$scope.storageNotScoresemester = true
+			$scope.storageNotScoreData = true
 
 			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
 
-			if typeof semester.storage != 'undefined' then $scope.hasStorage = true
+			# if typeof semester.storage != 'undefined'
+			# 	$scope.hasStorage = true
+			# 	selectedWidgetSrv.setStorageFlag true
 
 			$scope.setScoreView(index, 0)
 
@@ -334,50 +317,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
 
-	#  storage data doesn't really enforce a schema.
-	#  this function determines every field used throughout the
-	#  storage data and then applies that schema to each item.
-	normalizeStorageDataColumns = (rows) ->
-		#  go through all the rows and collect the fields used:
-		curRow
-		fields = {}
-		for r in rows
-			curRow = r.data
-			for j in curRow
-				if typeof j == 'undefined'
-					j = null
-
-		#  now go through each row again and add in the missing fields
-		for r in rows
-			r.data = $.extend({}, fields, r.data)
-
-		rows
-
-	getStorageData = (inst_id, callback) ->
-		if typeof $scope.storageData[inst_id] == 'undefined'
-			Materia.Coms.Json.send 'play_storage_get', [inst_id], (data) ->
-				$scope.storageData[inst_id] = {}
-				temp = {}
-				getPlayTime = (o) -> return o.play.time
-				#table
-				#semester
-
-				for tableName, tableData of data
-					temp[tableName] = processDataIntoSemesters(tableData, getPlayTime)
-				for tableName, semestersData of temp
-					for semesterId, semesterData of semestersData
-						if typeof $scope.storageData[inst_id][semesterId] == 'undefined'
-							$scope.storageData[inst_id][semesterId] = {}
-						if semesterData.length > STORAGE_TABLE_MAX_ROWS_SHOWN
-							$scope.storageData[inst_id][semesterId][tableName] = {truncated:true, total:semesterData.length, data:semesterData.slice(0, STORAGE_TABLE_MAX_ROWS_SHOWN)}
-						else
-							$scope.storageData[inst_id][semesterId][tableName] = {truncated:false, data:semesterData}
-
-						$scope.storageData[inst_id][semesterId][tableName].data = normalizeStorageDataColumns($scope.storageData[inst_id][semesterId][tableName].data)
-
-				callback($scope.storageData[inst_id])
-		else
-			callback($scope.storageData[inst_id])
 
 	updateData = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
@@ -479,34 +418,34 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
 		updateTable($scoreWrapper)
 
-	showAllScores = ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			$semester = $('.scoreWrapper')
-			$scores = $('.scores')
+	# showAllScores = ->
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		$semester = $('.scoreWrapper')
+	# 		$scores = $('.scores')
 
-			$('.show-older-scores-button').hide()
+	# 		$('.show-older-scores-button').hide()
 
-			# TODO Replace this with ng-repeat
-			for i in [1..data.list.length-1]
-				$clone = $semester.clone()
-				$scores.append($clone)
+	# 		# TODO Replace this with ng-repeat
+	# 		for i in [1..data.list.length-1]
+	# 			$clone = $semester.clone()
+	# 			$scores.append($clone)
 
-				# populateScoreWrapper($clone, data.list[i])
+	# 			# populateScoreWrapper($clone, data.list[i])
 
-	updateSummary = (semester) ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			semesterData = data.map[semester]
-			$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-			plays = 0
+	# updateSummary = (semester) ->
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		semesterData = data.map[semester]
+	# 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
+	# 		plays = 0
 
-			if semesterData.students?
-				$scoreWrapper.find('.players').html(semesterData.students)
-			if semesterData.average?
-				$scoreWrapper.find('.final-average').html(semesterData.average)
+	# 		if semesterData.students?
+	# 			$scoreWrapper.find('.players').html(semesterData.students)
+	# 		if semesterData.average?
+	# 			$scoreWrapper.find('.final-average').html(semesterData.average)
 
-			if semesterData.distribution?
-				plays += dis for dis in semesterData.distribution
-				$scoreWrapper.find('.score-count').html(plays)
+	# 		if semesterData.distribution?
+	# 			plays += dis for dis in semesterData.distribution
+	# 			$scoreWrapper.find('.score-count').html(plays)
 
 	updateGraph = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
@@ -718,7 +657,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, $location, widgetS
 		getCurrentSemester			: getCurrentSemester
 		# $scope.setScoreView				: $scope.setScoreView
 		toggleTableSort				: toggleTableSort
-		showAllScores				: showAllScores
+		# showAllScores				: showAllScores
 		toggleShareWidgetContainer	: toggleShareWidgetContainer
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
