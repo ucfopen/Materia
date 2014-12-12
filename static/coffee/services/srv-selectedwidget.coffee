@@ -13,10 +13,14 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	_BEARD_MODE = false
 	_noWidgetsFlag = false
 	_scoreData = null
+	_hasStorage = false
+	_storageData = null
 
 	# get and set _widget
 	set = (widget) ->
 		_scoreData = null
+		_hasStorage = false
+		_storageData = null
 		_widget = widget
 		$rootScope.$broadcast 'selectedWidget.update'
 		console.log _widget
@@ -134,20 +138,6 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 			deferred.resolve logsForSemester
 		deferred.promise
 
-	# processDataIntoSemesters = (logs, getTimestampFunction) ->
-	# 	semesters = {}
-	# 	timestamp = null
-
-	# 	$.each logs, (i, log) ->
-	# 		timestamp = getTimestampFunction(log)
-	# 		logMeta = getSemesterFromTimestamp(timestamp)
-	# 		semesterString = logMeta.year + ' ' + logMeta.semester.toLowerCase()
-
-	# 		if(!semesters[semesterString])
-	# 			semesters[semesterString] = []
-	# 		semesters[semesterString].push(log)
-	# 	return semesters
-
 	getDateRanges = ->
 		deferred = $q.defer()
 		unless _dateRanges?
@@ -158,39 +148,97 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 			deferred.resolve _dateRanges
 		deferred.promise
 
-	getCurrentSemester = ->
-		return selectedData.year + ' ' + selectedData.term
+	# getCurrentSemester = ->
+	# 	return selectedData.year + ' ' + selectedData.term
 
 	getSemesterFromTimestamp = (timestamp) ->
 		for range in _dateRanges
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
 
-	getStorageData = (inst_id, callback) ->
-		if typeof storageData[inst_id] == 'undefined'
-			Materia.Coms.Json.send 'play_storage_get', [inst_id], (data) ->
-				storageData[inst_id] = {}
-				temp = {}
-				getPlayTime = (o) -> return o.play.time
-				#table
-				#semester
+	setStorageFlag = (flag) ->
+		_hasStorage = flag
 
-				for tableName, tableData of data
-					temp[tableName] = processDataIntoSemesters(tableData, getPlayTime)
-				for tableName, semestersData of temp
-					for semesterId, semesterData of semestersData
-						if typeof storageData[inst_id][semesterId] == 'undefined'
-							storageData[inst_id][semesterId] = {}
-						if semesterData.length > STORAGE_TABLE_MAX_ROWS_SHOWN
-							storageData[inst_id][semesterId][tableName] = {truncated:true, total:semesterData.length, data:semesterData.slice(0, STORAGE_TABLE_MAX_ROWS_SHOWN)}
-						else
-							storageData[inst_id][semesterId][tableName] = {truncated:false, data:semesterData}
+		if flag
+			$rootScope.$broadcast 'selectedWidget.hasStorage'
 
-						storageData[inst_id][semesterId][tableName].data = normalizeStorageDataColumns(storageData[inst_id][semesterId][tableName].data)
+	getStorageFlag = ->
+		_hasStorage
 
-				callback(storageData[inst_id])
+	getStorageData = ->
+
+		deferred = $q.defer()
+
+		if _storageData? then deferred.resolve _storageData
 		else
-			callback(storageData[inst_id])
+			Materia.Coms.Json.send 'play_storage_get', [_widget.id], (data) ->
+
+				_storageData = {}
+
+				temp = {}
+
+				# process semester data and organize by table name
+				angular.forEach data, (tableData, tableName) ->
+
+					temp[tableName] = processDataIntoSemesters tableData
+
+				# have to loop through each table present in the storage data
+				angular.forEach temp, (semesters, tableName) ->
+
+					# have to loop through each semester contained within each table
+					angular.forEach semesters, (semesterData, semesterId) ->
+
+						if typeof _storageData[semesterId] == 'undefined'
+							_storageData[semesterId] = {}
+
+						if semesterData.length > STORAGE_TABLE_MAX_ROWS_SHOWN
+							_storageData[semesterId][tableName] = {truncated:true, total:semesterData.length, data:semesterData.slice(0, STORAGE_TABLE_MAX_ROWS_SHOWN)}
+						else
+							_storageData[semesterId][tableName] = {truncated:false, data:semesterData}
+
+						_storageData[semesterId][tableName].data = normalizeStorageDataColumns _storageData[semesterId][tableName].data
+
+				deferred.resolve _storageData
+
+		deferred.promise
+
+	processDataIntoSemesters = (logs) ->
+		semesters = {}
+		timestamp = null
+
+		angular.forEach logs, (log, index) ->
+
+			timestamp = log.play.time
+			logMeta = getSemesterFromTimestamp timestamp
+			semesterString = logMeta.year + ' ' + logMeta.semester.toLowerCase()
+
+			unless semesters[semesterString]
+				semesters[semesterString] = []
+			semesters[semesterString].push log
+
+		semesters
+
+	#  storage data doesn't really enforce a schema.
+	#  this function determines every field used throughout the
+	#  storage data and then applies that schema to each item.
+	normalizeStorageDataColumns = (rows) ->
+		#  go through all the rows and collect the fields used:
+		curRow
+		fields = {}
+		for r in rows
+			curRow = r.data
+			for j in curRow
+				if typeof j == 'undefined'
+					j = null
+
+		#  now go through each row again and add in the missing fields
+		for r in rows
+			r.data = $.extend({}, fields, r.data)
+
+		rows
+
+	getMaxRows = ->
+		STORAGE_TABLE_MAX_ROWS_SHOWN
 
 	updateAvailability = (attempts, open_at, close_at) ->
 		_widget.attempts = attempts
@@ -208,7 +256,10 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getUserPermissions: getUserPermissions
 	getPlayLogsForSemester: getPlayLogsForSemester
 	getDateRanges: getDateRanges
-	getCurrentSemester: getCurrentSemester
+	# getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
+	getStorageData : getStorageData
+	setStorageFlag : setStorageFlag
 	getStorageData: getStorageData
+	getMaxRows : getMaxRows
 	updateAvailability: updateAvailability

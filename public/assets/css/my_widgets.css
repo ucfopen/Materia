@@ -621,7 +621,8 @@
 
 	.my_widgets .page .scores {
 		margin: 10px;
-		overflow-x: visible;
+		overflow-x: hidden;
+		/*overflow-x: visible;*/
 		overflow-y: auto;
 		padding-bottom: 1em;
 	}
@@ -774,10 +775,15 @@
 	{
 		width: 638px;
 		font-family: 'Lucida Grande', sans-serif;
+		overflow-x:scroll;
 	}
 
+		.my_widgets .page .scores .display.data table
+		{
+			margin-top:20px;
+		}
+
 	.my_widgets .page .scores .data {
-		
 		min-height: 393px;
 	}
 
