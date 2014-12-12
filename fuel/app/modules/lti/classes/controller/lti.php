@@ -35,42 +35,30 @@ class Controller_Lti extends \Controller
 	{
 		if ( ! Api::authenticate()) return $this->action_error('Unknown User');
 
-		switch (Api::get_role())
+		$inst_id = \Input::get('widget');
+
+		if (Api::can_create())
 		{
-			case 'Administrator':
-			case 'Instructor':
-				$inst_id = \Input::get('widget');
-				if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
-				{
-					return $this->action_error('Unknown Assignment');
-				}
-				return \Request::forge('lti/preview/'.$inst_id, true)->execute();
-
-			case 'Learner':
-			case 'Student':
-				$inst_id = \Input::get('widget');
-
-				$play = Api::init_assessment_session($inst_id);
-
-				if ( ! $play || ! isset($play->inst_id))
-				{
-					return $this->action_error('Unknown Assignment');
-				}
-				else
-				{
-					return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
-				}
+			if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
+			{
+				return $this->action_error('Unknown Assignment');
+			}
+			return $this->_authenticated_preview($inst_id);
 		}
 
-		return $this->action_error('Unknown Role');
+		$play = Api::init_assessment_session($inst_id);
+
+		if ( ! $play || ! isset($play->inst_id))
+		{
+			return $this->action_error('Unknown Assignment');
+		}
+
+		return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
 	}
 
-	public function action_preview($inst_id)
+	// expects that the user is all ready authenticated
+	protected function _authenticated_preview($inst_id)
 	{
-		if ( ! Api::authenticate()) return $this->action_error('Unknown User');
-
-		if ( ! $inst_id) return $this->action_error('Unknown Assignment');
-
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')
@@ -84,9 +72,6 @@ class Controller_Lti extends \Controller
 		$this->theme->set_partial('content', 'partials/open_preview')
 			->set('preview_url', \Uri::create('/preview/'.$inst_id));
 
-		//$this->theme->set_partial('header', 'partials/header_empty');
-
-		// add google analytics
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
 			\Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
@@ -118,7 +103,6 @@ class Controller_Lti extends \Controller
 			[
 				'lib/spin.js',
 				'lib/spin.jquery.js',
-				'lib/jquery.qtip-1.0.0-rc3.min.js',
 				'lib/jquery-ui-1.10.3.custom.min.js',
 				'static::materia.set.throbber.js',
 				'static::materia.image.js',
@@ -163,13 +147,9 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_error($msg)
 	{
-		$source_id   = \Input::post('lis_result_sourcedid', false); // the unique id for this course&context&user&launch used for returning scores
-		$service_url = \Input::post('lis_outcome_service_url', false); // where to send score data back to, can be blank if not supported
-		$resource_id = \Input::post('resource_link_id', false); // unique placement of this tool in the consumer
-		$consumer_id = \Input::post('tool_consumer_instance_guid', false); // unique install id of this tool
-		$consumer    = \Input::post('tool_consumer_info_product_family_code', 'this system');
-		$inst_id     = \Input::post('custom_widget_instance_id', false); // Some tools will pass which inst_id they want
-		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, Api::get_role(), $source_id, $resource_id, $consumer_id, $consumer, $inst_id], 'lti');
+		$launch = Api::get_launch_vars();
+
+		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, print_r($launch, true)], 'lti');
 		\RocketDuck\Log::profile([print_r($_POST, true)], 'lti-error-dump');
 
 		$this->theme = \Theme::instance();
@@ -187,19 +167,13 @@ class Controller_Lti extends \Controller
 		{
 			case 'Unknown User':
 				$this->theme->set_partial('content', 'partials/no_user')
-					->set('system', $consumer)
+					->set('system', $launch->consumer)
 					->set('title', 'Error - '.$msg);
 				break;
 
 			case 'Unknown Assignment':
 				$this->theme->set_partial('content', 'partials/no_assignment')
-					->set('system', $consumer)
-					->set('title', 'Error - '.$msg);
-				break;
-
-			case 'Unknown Role':
-				$this->theme->set_partial('content', 'partials/no_role')
-					->set('system', $consumer)
+					->set('system', $launch->consumer)
 					->set('title', 'Error - '.$msg);
 				break;
 

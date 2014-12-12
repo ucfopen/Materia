@@ -102,38 +102,185 @@ class Test_Api extends \Basetest
 		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken");
 	}
 
-	public function test_get_role()
+	public function test_can_create()
 	{
-
 		$_POST = ['roles' => 'Administrator'];
-
-		$this->assertEquals('Administrator', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Instructor'];
-		$this->assertEquals('Instructor', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Learner'];
-		$this->assertEquals('Learner', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Student'];
-		$this->assertEquals('Student', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
+
+		$_POST = ['roles' => 'Instructor,Instructor'];
+		$this->assertTrue(\Lti\Api::can_create());
+
+		$_POST = ['roles' => 'Student,Student'];
+		$this->assertFalse(\Lti\Api::can_create());
 
 		$_POST = ['roles' => ''];
-		$this->assertEquals('None', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Student,Learner,Administrator'];
-		$this->assertEquals('Administrator', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'Instructor,Student,Dogs'];
-		$this->assertEquals('Instructor', \Lti\Api::get_role());
+		$this->assertTrue(\Lti\Api::can_create());
 
 		$_POST = ['roles' => 'DaftPunk,student,Shaq'];
-		$this->assertEquals('None', \Lti\Api::get_role());
+		$this->assertFalse(\Lti\Api::can_create());
 	}
 
 	public function test_authenticate()
 	{
 		$this->assertFalse(\Lti\Api::authenticate());
+	}
+
+	protected function create_materia_user($username, $email, $first, $last, $make_instructor = false)
+	{
+		$user = \Model_User::forge([
+			'username'        => (string) $username,
+			'first'           => (string) $first,
+			'last'            => (string) $last,
+			'password'        => uniqid(),
+			'email'           => $email,
+			'group'           => 1,
+			'profile_fields'  => [],
+			'last_login'      => 0,
+			'login_hash'      => '',
+		]);
+
+		// save the new user record
+		try
+		{
+			$result = $user->save();
+		}
+		catch (\Exception $e)
+		{
+			$result = false;
+		}
+
+		if($make_instructor)
+		{
+			$result = \RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], ['basic_author']);
+
+			if(!$result)
+			{
+				return false;
+			}
+		}
+
+		return $user;
+	}
+
+	protected function is_instructor($user_id)
+	{
+		return \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user_id);
+	}
+
+	public function test_get_or_create_user()
+	{
+		\Auth::forge(['driver' => 'LtiTestAuthDriver']);
+
+		$search_field = \Config::get("lti::lti.consumers.materia.local_identifier", 'username');
+		$auth_driver  = 'LtiTestAuthDriver';
+
+		// Exception thrown for auth driver that can't be found
+		try
+		{
+			$launch = $this->create_testing_launch_vars(1, '~admin', 'resource-link', ['Learner']);
+			\Lti\Api::get_or_create_user($launch, $search_field, 'PotatoAuthDriver');
+		}
+		catch(\Exception $e)
+		{
+			$this->assertEquals("Unable to find auth driver for PotatoAuthDriver", $e->getMessage());
+		}
+
+		// Find existing user
+		$user = $this->create_materia_user('gocu1', 'gocu1@test.test', 'First', 'Last');
+		$this->assertFalse($user === false);
+		\Lti\Api::clear_launch_vars();
+		$_POST = [];
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
+		$_POST['roles'] = 'Learner';
+		$launch->email = 'gocu1@test.test';
+		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertEquals($user->id, $user2->id);
+
+		// Fail at updating roles with config option disabled
+		\Config::set("lti::lti.consumers.Materia.use_launch_roles", false);
+		\Lti\Api::clear_launch_vars();
+		$_POST = [];
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Instructor']);
+		$_POST['roles'] = 'Instructor';
+		$launch->email = 'gocu1@test.test';
+		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertFalse($this->is_instructor($user2->id));
+
+		// Update role (Student -> Instructor) with config option enabled
+		\Config::set("lti::lti.consumers.Materia.use_launch_roles", true);
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Instructor']);
+		$_POST['roles'] = 'Instructor';
+		$launch->email = 'gocu1@test.test';
+		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertTrue($this->is_instructor($user2->id));
+
+		// Find existing instructor
+		$user = $this->create_materia_user('gocu2', 'gocu2@test.test', 'First', 'Last', true);
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Instructor']);
+		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertSame($user, $user2);
+
+		// Fail at updating roles with config option disabled
+		\Config::set("lti::lti.consumers.Materia.use_launch_roles", false);
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
+		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertTrue($this->is_instructor($user2->id));
+
+		// // Update role (Instructor -> Student) with config option enabled
+		\Config::set("lti::lti.consumers.Materia.use_launch_roles", true);
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
+		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertTrue($this->is_instructor($user2->id));
+
+		// Fail at finding a non-existant user
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars('potato', 'potato', 'resource-link-gocu1', ['Learner']);
+		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertFalse($user);
+
+		// Create a new user from LTI (with creates_users = true)
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars('potato', 'potato', 'resource-link-gocu1', ['Learner']);
+		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver, true);
+		$this->assertEquals('potato', $user->username);
+
+		// Don't update an existing user (with creates_users = false)
+		$user = $this->create_materia_user('gocu3', 'gocu3@test.test', '', 'Last');
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
+		$launch->email = 'gocu3@test.test';
+		$launch->first = 'First2';
+		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$this->assertSame('', $user->first);
+
+		// Update an existing user (with creates_users = true)
+		$user = $this->create_materia_user('gocu4', 'gocu4@test.test', '', 'Last');
+		\Lti\Api::clear_launch_vars();
+		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
+		$launch->email = 'gocu4@test.test';
+		$launch->first = 'First2';
+		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver, true);
+		$user = \Model_User::query()->where('username', 'gocu4')->get_one();
+		$this->assertSame('First2', $user->first);
 	}
 
 	public function test_get_widget_association()
@@ -197,6 +344,8 @@ class Test_Api extends \Basetest
 
 		// init_assessment_session gets launch vars from POST, so we need to
 		// add the testing launch_vars into POST
+		\Lti\Api::clear_launch_vars();
+		$_POST = [];
 		$_POST['resource_link_id'] = $launch->resource_id;
 		$_POST['context_id'] = $launch->context_id;
 		$_POST['roles'] = 'Learner';
@@ -351,6 +500,27 @@ class Test_Api extends \Basetest
 		$this->assertEquals(\Session::get("lti-$play_id", 'deleted'), 'deleted');
 	}
 
+	public function test_get_launch_vars()
+	{
+		\Lti\Api::clear_launch_vars();
+		$_POST = ['context_id' => 'context1234'];
+		$vars = \Lti\Api::get_launch_vars();
+		$this->assertEquals($vars->context_id, 'context1234');
+		$vars2 = \Lti\Api::get_launch_vars();
+		$this->assertSame($vars, $vars2);
+	}
+
+	public function test_clear_launch_vars()
+	{
+		\Lti\Api::clear_launch_vars();
+		$_POST = ['context_id' => 'context1234'];
+		$vars = \Lti\Api::get_launch_vars();
+		$this->assertEquals($vars->context_id, 'context1234');
+		\Lti\Api::clear_launch_vars();
+		$vars2 = \Lti\Api::get_launch_vars();
+		$this->assertNotSame($vars, $vars2);
+	}
+
 	protected function create_testing_vars_and_create_lti_association_if_needed($item_id, $resource_link)
 	{
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
@@ -450,5 +620,91 @@ class Test_Api extends \Basetest
 
 		return $associations_for_original_item_id;
 	}
+}
 
+
+
+
+
+class Auth_Login_LtiTestAuthDriver extends \Auth_Login_Driver
+{
+	public function get_id()
+	{
+		return 'LtiTestAuthDriver';
+	}
+
+	public function validate_user($username_or_email = '', $password = '')
+	{
+		return false;
+	}
+
+	public function create_user($username, $password, $email, $group = 1, Array $profile_fields = [])
+	{
+		$user = array(
+			'username'        => (string) $username,
+			'password'        => $password,
+			'email'           => $email,
+			'group'           => (int) $group,
+			'profile_fields'  => serialize($profile_fields),
+			'last_login'      => 0,
+			'login_hash'      => '',
+			'created_at'      => \Date::forge()->get_timestamp()
+		);
+		$result = \DB::insert('users')
+			->set($user)
+			->execute();
+
+		return ($result[1] > 0) ? $result[0] : false;
+	}
+
+	public function update_user($values, $username = null)
+	{
+		$username = $username ?: $this->user['username'];
+		$user     = \Model_User::query()->where('username', $username)->get_one();
+
+		if ( ! $user) throw new \Exception('Username not found', 4);
+
+		// save the new user record
+		try
+		{
+			$user->set($values);
+			$user->save();
+		}
+		catch (\Exception $e)
+		{
+			return false;
+		}
+	}
+
+	public function update_role($user_id, $is_employee = false)
+	{
+		$user = \Model_User::find($user_id);
+
+		// grab our user first to see if overrrideRoll has been set to 1
+		if ($user instanceof \Model_User)
+		{
+			// add employee role
+			if ($is_employee)
+			{
+				return \RocketDuck\Perm_Manager::add_users_to_role_system_only([$user->id], \RocketDuck\Perm_Role::AUTHOR);
+			}
+			// not an employee anymore, remove role
+			else
+			{
+				return \RocketDuck\Perm_Manager::remove_users_from_roles_system_only([$user->id], [\RocketDuck\Perm_Role::AUTHOR]);
+			}
+		}
+	}
+
+	public function change_password() { }
+	public function reset_password() { }
+	public function delete_user() { }
+	public function perform_check() { }
+	public function get_user_id() { }
+	public function get_groups() { }
+	public function get_email() { }
+	public function get_screen_name() { }
+	public function login($username_or_email = '', $password = '') { }
+	public function force_login($user_id = '') { }
+	public function logout() { }
 }

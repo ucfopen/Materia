@@ -486,7 +486,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 	updateGraph = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]"')
+		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]')
 
 		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
 			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
@@ -588,8 +588,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 			$table.append($tbody)
 			$element.append($table)
-			$table.dataTable
-				sScrollX: '100%'
+			$table.dataTable()
 
 	toggleTableSort = (semester) ->
 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
