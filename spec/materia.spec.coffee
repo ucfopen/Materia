@@ -90,44 +90,41 @@ describe 'Widget Catalog Page', ->
             .isVisible '.labeling', (err, result) ->
                 expect(err).toBeNull()
                 expect(result).toBe(true)
-
             # make sure the check boxes do stuff
-            .click('#form_filter_tracks_student_data')
-            .click('#form_filter_collects_scores')
-            .pause(1500) # wait for a transition to animate
+            .click('#filter-scorable')
+            .pause(500) # wait for a transition to animate
             .getElementCssProperty 'css selector', '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
             .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
             .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(opacity).toBe('1')
-            .click('#form_supported_data_qa')
-            .pause(1500)
+            .click('#filter-qa')
+            .pause(500)
             .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
             .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
-            .click('#form_supported_data_media')
-            .pause(1500)
+                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
+            .click('#filter-media')
+            .pause(500)
             .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
             .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
             .getElementCssProperty 'css selector', '.labeling.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(opacity).toBe('1')
-            .click('#form_filter_tracks_student_data')
-            .click('#form_filter_collects_scores')
-            .click('#form_supported_data_qa')
-            .click('#form_supported_data_media')
-            .pause(1800)
+            .click('#filter-scorable')
+            .click('#filter-qa')
+            .click('#filter-media')
+            .pause(500)
             .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
@@ -142,12 +139,12 @@ describe 'Widget Catalog Page', ->
                 expect(parseFloat(opacity)).toBeCloseTo(1, 2)
 
             # Check mouse over info card functions
-            .execute 'return $(".infocard.show").length;', null, (err, result) ->
+            .execute 'return $(".infocard:hover").length;', null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(0)
             .moveToObject('.labeling')
-            .pause(1500)
-            .execute 'return $(".infocard.show").length;', null, (err, result) ->
+            .pause(1000)
+            .execute 'return $(".infocard:hover").length;', null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(1)
             .call(done)
@@ -189,12 +186,12 @@ describe 'Login Page', ->
             .pause(1500)
             .getElementCssProperty 'id', 'username_label', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0, 2)
             .setValue('#password', 'somepassword')
             .pause(1500)
             .getElementCssProperty 'id', 'password_label', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.2, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0, 2)
             .call(done)
 
     it 'should relocate to my widgets on author login', (done) ->
@@ -279,7 +276,7 @@ describe 'Profile page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
                 expect(src).toContain('100')
             .call(done)
 
@@ -362,14 +359,14 @@ describe 'Settings page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).not().toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
             .execute 'return $("#notify_on_perm_change:checked").length;', null, (err, isChecked) ->
                 expect(err).toBeNull()
                 expect(isChecked.value).toBe(0)
             .getAttribute 'header .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).not().toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
 
             .refresh()
 
@@ -381,7 +378,7 @@ describe 'Settings page', ->
             .getAttribute 'header .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).not().toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
 
             # Turn on stuff
             # gravatar yes
@@ -397,12 +394,12 @@ describe 'Settings page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
                 expect(src).toContain('100')
             .getAttribute 'header .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
                 expect(src).toContain('24')
 
             .refresh()
@@ -413,13 +410,13 @@ describe 'Settings page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
                 expect(src).toContain('100')
             # check the header too
             .getAttribute 'header .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('default-avatar.jpg')
+                expect(src).toContain('robohash.org/gameserv')
                 expect(src).toContain('24')
 
             .call(done)
@@ -476,13 +473,10 @@ describe 'Widget Exists', ->
                         .getText '.widget:nth-child('+i+') .header h1', (err, title) ->
                             expect(err).toBeNull()
                             currentTitle = title
-                        .getText '.infocard .header h1', (err, infoCardTitle) ->
-                            expect(err).toBeNull()
-                            expect(currentTitle).toBe(infoCardTitle)
                         .click('.infocard .card-content')
-                        .waitFor('.detail h1', 4000)
-                        .pause 500
-                        .getText '.detail h1', (err, widgetPageTitle) ->
+                        .waitFor('.infocard:hover .header h1', 4000)
+                        .pause 50
+                        .getText '.infocard:hover .header h1', (err, widgetPageTitle) ->
                             expect(err).toBeNull()
                             expect(widgetPageTitle).toBe(currentTitle)
                         .back()
@@ -508,7 +502,7 @@ describe 'When I create a widget', ->
                 expect(title).toBe('Widget Catalog | Materia')
             .waitFor('.widget.enigma', 7000)
             .moveToObject('.widget.enigma')
-            .click('.infocard .card-content')
+            .click('.infocard:hover .header')
             .waitFor('#createLink', 7000)
             .click('#createLink')
             .getTitle (err, title) ->
@@ -520,6 +514,7 @@ describe 'When I create a widget', ->
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('Create Widget | Materia')
+            .call(done)
             .waitFor('#container', 7000)
             .frame('container') # switch into widget frame
             .waitFor('.intro.show', 7000)

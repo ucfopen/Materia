@@ -179,7 +179,7 @@ class Controller_Users extends Controller
 			$reply = json_encode([
 				'success'        => $success,
 				'meta'           => $me->profile_fields,
-				'default_avatar' => \Uri::create('assets/img/default-avatar.jpg'),
+				'default_avatar' => \Uri::create('https://robohash.org/gameserv?set=set3'),
 				'md5_email'      => Input::post('avatar', '') == 'gravatar' ? md5(strtolower($me->email)) : ''
 			]);
 
