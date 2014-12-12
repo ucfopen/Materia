@@ -2,7 +2,7 @@
 # TODO: needs some serious refactoring to reduce complexity of large methods
 
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userSrv) ->
+MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userSrv, $anchorScroll) ->
 	# old stuff
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 	$scope.selectedWidgetInstId = 0
@@ -15,6 +15,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	# refactoring scope variables
 	$scope.perms = {}
 	$scope.scores = null
+	$scope.storage = null
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -43,7 +44,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	$scope.hasScores = false
 
 	$scope.storageNotScoreData = false
-	$scope.hasStorage = false
 	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
 
 	$scope.collaborators = 0
@@ -151,11 +151,16 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		#$('section.page').append($('#t-error').html())
 
 	# Shows selected game information on the mainscreen.
-	# @param   element   The element that was clicked ($('.widget_list').children('div'))
-	populateDisplay = (id) ->
+	populateDisplay = ->
+		# reset scope variables to defaults
 		count = null
 		$scope.showOlderScores = false
-		# widgetID = null
+		$scope.accessLevel = 0
+		$scope.editable = true
+		$scope.shareable = false
+		$scope.hasScores = false
+		$scope.storageNotScoreData = false
+		$scope.collaborators = 0
 
 		# TODO
 		#if $('section .error').is(':visible') then $('section .error').remove()
@@ -185,6 +190,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		# accessLevel == 0 is effectively read-only
 		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
+
+		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
@@ -289,13 +296,15 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 		#  no scores, but we do have storage data
 		if typeof semester.distribution == 'undefined' and typeof semester.storage != 'undefined'
-			$scope.storageNotScoresemester = true
+			$scope.storageNotScoreData = true
 
 			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
 
-			if typeof semester.storage != 'undefined' then $scope.hasStorage = true
+			# if typeof semester.storage != 'undefined'
+			# 	$scope.hasStorage = true
+			# 	selectedWidgetSrv.setStorageFlag true
 
 			$scope.setScoreView(index, 0)
 
@@ -310,50 +319,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
 
-	#  storage data doesn't really enforce a schema.
-	#  this function determines every field used throughout the
-	#  storage data and then applies that schema to each item.
-	normalizeStorageDataColumns = (rows) ->
-		#  go through all the rows and collect the fields used:
-		curRow
-		fields = {}
-		for r in rows
-			curRow = r.data
-			for j in curRow
-				if typeof j == 'undefined'
-					j = null
-
-		#  now go through each row again and add in the missing fields
-		for r in rows
-			r.data = $.extend({}, fields, r.data)
-
-		rows
-
-	getStorageData = (inst_id, callback) ->
-		if typeof $scope.storageData[inst_id] == 'undefined'
-			Materia.Coms.Json.send 'play_storage_get', [inst_id], (data) ->
-				$scope.storageData[inst_id] = {}
-				temp = {}
-				getPlayTime = (o) -> return o.play.time
-				#table
-				#semester
-
-				for tableName, tableData of data
-					temp[tableName] = processDataIntoSemesters(tableData, getPlayTime)
-				for tableName, semestersData of temp
-					for semesterId, semesterData of semestersData
-						if typeof $scope.storageData[inst_id][semesterId] == 'undefined'
-							$scope.storageData[inst_id][semesterId] = {}
-						if semesterData.length > STORAGE_TABLE_MAX_ROWS_SHOWN
-							$scope.storageData[inst_id][semesterId][tableName] = {truncated:true, total:semesterData.length, data:semesterData.slice(0, STORAGE_TABLE_MAX_ROWS_SHOWN)}
-						else
-							$scope.storageData[inst_id][semesterId][tableName] = {truncated:false, data:semesterData}
-
-						$scope.storageData[inst_id][semesterId][tableName].data = normalizeStorageDataColumns($scope.storageData[inst_id][semesterId][tableName].data)
-
-				callback($scope.storageData[inst_id])
-		else
-			callback($scope.storageData[inst_id])
 
 	updateData = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
@@ -455,34 +420,34 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
 		updateTable($scoreWrapper)
 
-	showAllScores = ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			$semester = $('.scoreWrapper')
-			$scores = $('.scores')
+	# showAllScores = ->
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		$semester = $('.scoreWrapper')
+	# 		$scores = $('.scores')
 
-			$('.show-older-scores-button').hide()
+	# 		$('.show-older-scores-button').hide()
 
-			# TODO Replace this with ng-repeat
-			for i in [1..data.list.length-1]
-				$clone = $semester.clone()
-				$scores.append($clone)
+	# 		# TODO Replace this with ng-repeat
+	# 		for i in [1..data.list.length-1]
+	# 			$clone = $semester.clone()
+	# 			$scores.append($clone)
 
-				# populateScoreWrapper($clone, data.list[i])
+	# 			# populateScoreWrapper($clone, data.list[i])
 
-	updateSummary = (semester) ->
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			semesterData = data.map[semester]
-			$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-			plays = 0
+	# updateSummary = (semester) ->
+	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
+	# 		semesterData = data.map[semester]
+	# 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
+	# 		plays = 0
 
-			if semesterData.students?
-				$scoreWrapper.find('.players').html(semesterData.students)
-			if semesterData.average?
-				$scoreWrapper.find('.final-average').html(semesterData.average)
+	# 		if semesterData.students?
+	# 			$scoreWrapper.find('.players').html(semesterData.students)
+	# 		if semesterData.average?
+	# 			$scoreWrapper.find('.final-average').html(semesterData.average)
 
-			if semesterData.distribution?
-				plays += dis for dis in semesterData.distribution
-				$scoreWrapper.find('.score-count').html(plays)
+	# 		if semesterData.distribution?
+	# 			plays += dis for dis in semesterData.distribution
+	# 			$scoreWrapper.find('.score-count').html(plays)
 
 	updateGraph = ($scoreWrapper) ->
 		semester = $scoreWrapper.attr('data-semester')
@@ -694,7 +659,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		getCurrentSemester			: getCurrentSemester
 		# $scope.setScoreView				: $scope.setScoreView
 		toggleTableSort				: toggleTableSort
-		showAllScores				: showAllScores
+		# showAllScores				: showAllScores
 		toggleShareWidgetContainer	: toggleShareWidgetContainer
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
