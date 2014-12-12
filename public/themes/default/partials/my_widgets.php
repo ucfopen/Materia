@@ -89,6 +89,49 @@
 				</ul>
 			</div>
 		</modal-dialog>
+		<modal-dialog class="default csv_popup" show="showExportModal" width="580px" height="580px">
+			<div ng-controller="ExportScoresController">
+				<div class="download_wrapper">
+					<h3>Export Scores</h3>
+					<ul class="options">
+						<li><a href class="show_options" ng-click="showOptions()">{{options ? "Hide" : "Semesters..."}}</a></li>
+					</ul>
+
+					<h4>{{header || "None Selected"}}</h4>
+
+					<div class="score_table">
+						<img src="/assets/img/paper_fold.png" />
+						<table>
+							<tr class="header">
+								<th scope="col">User ID</th>
+								<th scope="col">User</th>
+								<th scope="col">Score</th>
+							</tr>
+							<tr ng-repeat="data in mockData">
+								<td>{{data.userID}}</td>
+								<td class="name">{{data.name}}</td>
+								<td>{{data.score}}</td>
+							</tr>
+						</table>
+						<span id="sample-notification">Sample</span>
+						<div class="download-controls">
+							<select ng-model="exportType" ng-options="select.option for select in exportSelect"></select>
+							<p class="download"><a href ng-href="{{getDownloadLink()}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
+						</div>
+					</div>
+
+					<p class="cancel"><a href ng-click="$parent.$parent.showExportModal = false">Cancel</a></p>
+				</div>
+				<div class="download_options" ng-show="options">
+					<h4>Semesters</h4>
+					<p class="export_which">Export which semesters?</p>
+					<ul>
+						<li class="checkallLi" ng-show="semesters.length > 1"><input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/><label for="checkall"> - Check all</label></li>
+						<li ng-repeat="semester in semesters" ng-click="changeSemester($index)"><input type="checkbox" class="semester" id="{{semester.id}}"  ng-model="semester.checked" ng-disabled="semesters.length == 1"/> <label>{{semester.label}}</label></li>
+					</ul>
+				</div>
+			</div>
+		</modal-dialog>
 		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
 			<div class="container">
 				<span class="input_label">New Title:</span>
@@ -160,7 +203,7 @@
 			</div>
 			<div class="scores" ng-show="shareable && selectedWidget.widget.is_scorable">
 				<h2>Student Activity</h2>
-				<span id="export_scores_button" class="action_button aux_button" ng-disabled="scores.list.length == 0 || !hasScores" ng-class="{'disabled': scores.list.length == 0}">
+				<span id="export_scores_button" class="action_button aux_button" ng-disabled="scores.list.length == 0 || !hasScores" ng-class="{'disabled': scores.list.length == 0}" ng-click="exportPopup()">
 					<span class="arrow_down"></span>
 					Export Scores
 				</span>
@@ -259,86 +302,3 @@
 </div></script>
 
 <?= Theme::instance()->view('partials/notification') ?>
-
-<script type="text/template" id="t-csv"><div class="download_wrapper">
-	<h3>Export Scores</h3>
-	<ul class="options">
-		<li><a href="#" class="show_options">Semesters...</a></li>
-	</ul>
-
-	<h4>(None Selected)</h4>
-
-	<div class="score_table">
-		<img src="/assets/img/paper_fold.png" />
-		<table>
-			<tr class="header">
-				<th scope="col">User ID</th>
-				<th scope="col">User</th>
-				<th scope="col">Score</th>
-			</tr>
-			<tr>
-				<td>fw33255p</td>
-				<td class="name">Felix Wembly</td>
-				<td>94</td>
-			</tr>
-			<tr>
-				<td>gm42334a</td>
-				<td class="name">Gillis Mokey</td>
-				<td>35</td>
-			</tr>
-			<tr>
-				<td>ha432343s</td>
-				<td class="name">Herkimer Archbanger</td>
-				<td>100</td>
-			</tr>
-			<tr>
-				<td>fg3421tr</td>
-				<td class="name">Fiona Gobo</td>
-				<td>100</td>
-			</tr>
-			<tr>
-				<td>mr2342123d</td>
-				<td class="name">Marvin Red</td>
-				<td>43</td>
-			</tr>
-			<tr>
-				<td>mt343223o</td>
-				<td class="name">Morris Tosh</td>
-				<td>93</td>
-			</tr>
-			<tr>
-				<td>pf32343t3</td>
-				<td class="name">Phil Feenie</td>
-				<td>67</td>
-			</tr>
-			<tr>
-				<td>lf33422i</td>
-				<td class="name">Lou Firechief</td>
-				<td>0</td>
-			</tr>
-			<tr>
-				<td>cb3311rt</td>
-				<td class="name">Cantus Blundig</td>
-				<td>59</td>
-			</tr>
-		</table>
-		<span id="sample-notification">Sample</span>
-		<div class="download-controls">
-			<select id="export-select">
-				<option value="csv" selected>Scores</option>
-				<option value="raw">All raw data</option>
-			</select>
-			<p class="download"><a href="#" class="action_button arrow_down_button"><span class="arrow_down"></span>Download File</a></p>
-		</div>
-	</div>
-
-	<p class="cancel"><a href="#">Cancel</a></p>
-</div>
-<div class="download_options">
-	<h4>Semesters</h4>
-	<p class="export_which">Export which semesters?</p>
-	<ul>
-		<li class="checkallLi"><input type="checkbox" id="checkall" value="null"/><label for="checkall"> - Check all</label></li>
-		<li><input type="checkbox" class="semester" value="_template_semester" /> <label>_template_semester <span>(_template_count)</span></label></li>
-	</ul>
-</div></script>
