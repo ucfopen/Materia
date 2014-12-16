@@ -160,15 +160,20 @@
 				<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 			</div>
 		</modal-dialog>
-		<section class="directions unchosen" ng-show="noWidgetState == false && !selectedWidget">
+		<section class="directions" ng-show="error">
+			<div class="error error-nowidget">
+				<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
+			</div>
+		</section>
+		<section class="directions unchosen" ng-show="noWidgetState == false && !selectedWidget && !error">
 			<h1>Your Widgets</h1>
 			<p>Choose a widget from the list on the left.</p>
 		</section>
-		<section class="directions" ng-show="noWidgetState == true">
+		<section class="directions" ng-show="noWidgetState == true && !error">
 			<h1>You have no widgets!</h1>
 			<p>Make a new widget in the widget catalog.</p>
 		</section>
-		<section class="page"  ng-hide="noWidgetState == true || !selectedWidget">
+		<section class="page"  ng-hide="noWidgetState == true || !selectedWidget && !error">
 			<hgroup>
 				<h1>{{selectedWidget.name}}</h1>
 				<h3>{{selectedWidget.widget.name}}</h3>
@@ -305,9 +310,6 @@
 		</section>
 	</div>
 	<aside ng-controller="SidebarController">
-		<div class="error error-nowidget" ng-show="error">
-			<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
-		</div>
 		<div class="top">
 			<h1>Your Widgets:</h1>
 		</div>

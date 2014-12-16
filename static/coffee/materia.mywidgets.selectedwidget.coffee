@@ -109,6 +109,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	noAccess = ->
 		$scope.error = true
+		$scope.$apply()
 
 	# Shows selected game information on the mainscreen.
 	populateDisplay = ->
