@@ -56,14 +56,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 			$scope.showAvailabilityModal = true
 			Materia.MyWidgets.Availability.popup()
 
-	# Initializes the gateway for the api
-	# @string path to gateway
-	init = (gateway) ->
-
-		$('.show-older-scores-button').click (e) ->
-			e.preventDefault()
-			# Materia.MyWidgets.SelectedWidget.showAllScores()
-
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
 	setSelectedWidget = ->
@@ -90,22 +82,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 			populateAccess()
 
-		# Moved to the sidebar controller(?) still needs to be implemented
-		# if $('.page').is ':visible' and not $('section .error').is ':visible'
-		# Materia.Set.Throbber.startSpin '.page'
-
 	$scope.preview = ""
 	$scope.edit = ""
-	# TODO Attempting to use $location.url is NOT WORKING due to missing configs for html5Mode.
-	# $scope.preview = "preview"
-	# $scope.edit = "edit"
-	# $scope.navigate = (type) ->
-	# 	switch type
-	# 		when $scope.preview
-	# 			console.log $location.path()
-	# 			#$location.url "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
-	# 			$location.path "bitches"
-
 
 	getCurrentSemester = ->
 		return $scope.selectedData.year+' '+$scope.selectedData.term
@@ -115,10 +93,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$('#attempts').html(if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited')
 
 	populateAvailability = (startDateInt, endDateInt) ->
-		#if $('section.directions').is(':visible')
-			#$('section.directions').hide()
-			#$('section.page').show()
-
 		availability = Materia.Set.Availability.get(startDateInt, endDateInt)
 
 		$availability = $('#availability')
@@ -141,14 +115,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	noAccess = ->
-		#$('section.page').children().hide()
-
-		#if($('section.directions').is(':visible'))
-			#$('section.directions').hide()
-			#$('section.page').show()
-
-		#  put the error template on screen
-		#$('section.page').append($('#t-error').html())
+		$scope.error = true
 
 	# Shows selected game information on the mainscreen.
 	populateDisplay = ->
@@ -162,9 +129,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$scope.storageNotScoreData = false
 		$scope.collaborators = 0
 
-		# TODO
-		#if $('section .error').is(':visible') then $('section .error').remove()
-
+		$scope.error = false
 		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
 
 		# count up the number of other users collaborating
@@ -178,14 +143,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 		# Tell Materia we are still logged in
 		sendHeartbeat()
-
-		# TODO Temporary
-
-		## MASTER SCOPE APPLY CALL
-		# $scope.$apply()
-
-
-		# Materia.Set.Throbber.stopSpin('.page')
 
 	# Second half of populateDisplay
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
@@ -225,21 +182,10 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 				angular.forEach $scope.scores.list, (semester, index) ->
 					populateScoreWrapper(semester, index)
 
-				# hasScores = false
-
 				for d in $scope.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
 					if d.distribution?
 						$scope.hasScores = true
 						break
-
-				# if hasScores
-				# 	$exportScoresButton.removeClass('disabled')
-				# else
-				# 	$exportScoresButton.addClass('disabled')
-
-		else
-			# $('.my_widgets .page .scores').hide()
-			$('.my_widgets .page .embed').hide() # WHERE IS THIS???
 
 
 	$scope.exportPopup =  ->
@@ -260,13 +206,12 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 	$scope.editWidget = ->
 		if $scope.editable
-			console.log 'yep edit it'
 			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
 				if success
 					if $scope.shareable
 						$scope.showEditPublishedWarning = true
 					else
-						#window.location = $scope.edit
+						window.location = $scope.edit
 				else
 					alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
 				$scope.$apply()
@@ -653,18 +598,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 			true
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
-		init						: init,
-		setSelectedWidget			: setSelectedWidget,
 		noAccess					: noAccess,
 		populateAvailability		: populateAvailability,
-		populateDisplay				: populateDisplay,
-
 		populateAttempts			: populateAttempts
-		getCurrentSemester			: getCurrentSemester
-		# $scope.setScoreView				: $scope.setScoreView
-		toggleTableSort				: toggleTableSort
-		# showAllScores				: showAllScores
-		toggleShareWidgetContainer	: toggleShareWidgetContainer
 
 MyWidgets.controller 'ScoreReportingController', ($scope) ->
 	console.log 'stuff'
