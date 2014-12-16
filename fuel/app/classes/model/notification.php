@@ -63,7 +63,7 @@ public static function on_widget_delete_event($assoc_param_array)
 
 		// if the user has the email notifications setting turned on
 		$user_meta = \Model_User::find($to_user_id)->profile_fields;
-		$send_email = (isset($user_meta['notify_on_perm_change']) && $user_meta['notify_on_perm_change'] == 'on');
+		$send_email = ( ! empty($user_meta['notify']));
 
 		switch ($item_type)
 		{

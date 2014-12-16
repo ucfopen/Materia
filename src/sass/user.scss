@@ -454,7 +454,8 @@
 	margin-top: 3em;
 }
 
-.user.settings form .action_button.disabled, 
+.user.settings form .action_button.disabled,
+.user.settings form .action_button:disabled,
 .user.settings form .action_button.disabled:hover {
 	background:#aeaeae;
 	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
