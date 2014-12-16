@@ -1,74 +1,38 @@
 app = angular.module 'materia'
-app.controller 'settingsController', ($scope) ->
-	SAVED_MESSAGE_DISPLAY_DELAY = 1000
+app.controller 'settingsController', ($scope, $http, userServ) ->
+	# SAVED_MESSAGE_DISPLAY_DELAY = 1000
 
-	die = ->
-		alert('There was a problem updating your settings.')
-		window.location = window.location
+	$scope.user = userServ.getCurrentUser()
+	$scope.avatar = userServ.getCurrentUserAvatar(100)
+	$scope.useGravatar = $scope.user.avatar.indexOf('gravatar') > -1
+	$scope.showBeardMode = $scope.user.beardMode == true
 
-	meta = {}
+	$scope.saveSettings = ->
+		Materia.Set.Throbber.startSpin '.page'
 
-	# we only set values if the user actually changes the inputs.
-	$('#notify_on_perm_change').change (event) ->
-		$('.action_button').removeClass('disabled')
-		meta.notify_on_perm_change = $('#notify_on_perm_change:checked').length > 0 ? 'on' : 'off'
+		newSettings =
+			notify: $scope.user.notify
+			beardMode: $scope.user.beardMode == true
+			useGravatar: $scope.useGravatar
 
-	$('input[name="avatar"]').change (event) ->
-		$('.action_button').removeClass('disabled')
-		meta.avatar = $('input[name="avatar"]:checked').val()
+		$http.post(window.location, newSettings)
+			.success (data, status, headers, config) ->
+				Materia.Set.Throbber.stopSpin('.page')
+				$scope.settingsForm.$setPristine()
+				if data.success
 
-	$('#activate_beard_mode').change (event) ->
-		$('.action_button').removeClass('disabled')
-		meta.beardmode = $('#activate_beard_mode:checked').length > 0 ? 'on' : 'off'
+					# update my scope object
+					for k, v of data.meta
+						userServ.updateSettings k, v
 
-	$('.action_button').click (event) ->
-		event.preventDefault()
+					console.log userServ.getCurrentUser()
 
-		if !$(this).hasClass('disabled')
-			Materia.Set.Throbber.startSpin('.page')
+					# update the user avatar
+					if data.avatar?.length > 0
+						console.log 'update data'
+						userServ.updateSettings 'avatar', data.avatar
+						$scope.avatar = userServ.getCurrentUserAvatar(100)
 
-			$.post window.location,
-				meta,
-				(data) ->
-					Materia.Set.Throbber.stopSpin('.page')
-
-					try
-						data = $.parseJSON(data)
-					catch e
-						die()
-						return
-
-					if data?.success? == true and data?.meta?
-						# check to make sure the saved settings match
-						match = true
-						for key in meta
-							if  meta[key] isnt data.meta[key]
-								die()
-								return
-
-						# update avatars on page if needed
-						if meta.avatar?
-							if data.md5_email?.length > 0
-								$('.avatar img').each (index, value) ->
-									$img = $(this)
-									$img.attr('src', 'https://secure.gravatar.com/avatar/' + data.md5_email + '?d=' + data.default_avatar + '&s=' + $img.width())
-							else
-								$('.avatar img').attr('src', data.default_avatar)
-
-						$('.settingSaveAlert').remove()
-						$('.action_button').after('<p class="settingSaveAlert">Settings saved!</p>')
-
-						saveAlert = $('.settingSaveAlert')
-						saveAlert
-							.hide()
-							.fadeIn()
-							.delay(SAVED_MESSAGE_DISPLAY_DELAY)
-							.fadeOut ->
-								saveAlert.remove()
-						$('.action_button').addClass('disabled')
-
-						meta = {}
-					else
-						die()
-
-
+			.error (data, status, headers, config) ->
+				console.log 'error', data
+				Materia.Set.Throbber.stopSpin('.page')

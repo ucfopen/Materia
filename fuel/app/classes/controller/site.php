@@ -28,7 +28,7 @@ class Controller_Site extends Controller
 			if ($me)
 			{
 				// add beardmode
-				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
+				if ( ! empty($me->profile_fields['beardMode']))
 				{
 					Js::push_inline('var BEARD_MODE = true;');
 				}

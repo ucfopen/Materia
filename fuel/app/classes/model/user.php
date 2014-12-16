@@ -6,9 +6,9 @@ class Model_User extends Orm\Model
 	const RATE_LIMITER_WINDOW    = 60; // 60 seconds
 
 	protected static $_default_profile_fields = [
-		'avatar' => 'gravatar',
-		'notify_on_perm_change' => 'on',
-		'beardmode' => 'off',
+		'useGravatar' => true,
+		'notify'      => true,
+		'beardMode'   => false,
 	];
 
 	protected static $_properties = [
