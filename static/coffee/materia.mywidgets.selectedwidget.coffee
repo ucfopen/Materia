@@ -176,6 +176,9 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
 		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
 
+		# Tell Materia we are still logged in
+		sendHeartbeat()
+
 		# TODO Temporary
 
 		## MASTER SCOPE APPLY CALL
@@ -644,6 +647,10 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 	$scope.getGravatar = getGravatar = (email) ->
 		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
+
+	sendHeartbeat = ->
+		Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
+			true
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		init						: init,
