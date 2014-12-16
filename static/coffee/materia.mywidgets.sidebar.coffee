@@ -32,6 +32,8 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 		if firstRun and window.location.hash
 			found = false
 			selID = window.location.hash.substr(1)
+			if selID.substr(0, 1) == "/"
+				selID = selID.substr(1)
 
 			for widget in $scope.widgets
 				if widget.id == selID
