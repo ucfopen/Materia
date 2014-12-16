@@ -90,28 +90,21 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 	populateAttempts = (attemptsAllowed) ->
 		attemptsAllowed = parseInt attemptsAllowed, 10
-		$('#attempts').html(if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited')
+		$scope.attemptText = if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited'
 
 	populateAvailability = (startDateInt, endDateInt) ->
-		availability = Materia.Set.Availability.get(startDateInt, endDateInt)
-
-		$availability = $('#availability')
+		$scope.availability = Materia.Set.Availability.get(startDateInt, endDateInt)
+		$scope.availabilityStart = startDateInt
+		$scope.availabilityEnd = endDateInt
 
 		if endDateInt < 0 && startDateInt < 0
-			$availability.removeAttr('data-type')
-			$availability.html('Anytime')
+			$scope.availabilityMode = 0
 		else if startDateInt < 0 && endDateInt > 0
-			$availability.attr('data-type', 'endDateOnly')
-			$availability.html('Open until <span class="available_date">'+availability.end.date+'</span> at <span class="available_time">'+availability.end.time+'</span>')
+			$scope.availabilityMode = 1
 		else if startDateInt > 0 && endDateInt < 0
-			start = new Date(startDateInt)
-			$availability.attr('data-type', 'startDateOnly')
-			$availability.html('Anytime after <span class="available_date">'+availability.start.date+'</span> at <span class="available_time">'+availability.start.time+'</span>')
+			$scope.availabilityMode = 2
 		else
-			start = new Date(startDateInt)
-			end = new Date(endDateInt)
-			$availability.removeAttr('data-type')
-			$availability.html('From <span class="available_date">'+availability.start.date+'</span> at <span class="available_time">'+availability.start.time+'</span> until <span class="available_date">'+availability.end.date+'</span> at <span class="available_time">'+availability.end.time+'</span>')
+			$scope.availabilityMode = 3
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	noAccess = ->

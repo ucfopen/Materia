@@ -206,9 +206,24 @@
 						<h3>Settings:</h3>
 						<dl class="attempts_parent" ng-class="{'disabled': !editable || !shareable}">
 							<dt>Attempts:</dt>
-							<dd id="attempts" ng-class="{'disabled':!editable || !shareable}" ng-click="popup()"></dd>
+							<dd ng-class="{'disabled':!editable || !shareable}" ng-click="popup()">
+								{{ attemptText }}
+							</dd>
 							<dt>Available:</dt>
-							<dd id="availability" ng-class="{'disabled':!editable || !shareable}" ng-click="popup()"></dd>
+							<dd ng-class="{'disabled':!editable || !shareable}" ng-click="popup()" ng-switch="availabilityMode">
+								<span ng-switch-when="0">
+									Anytime
+								</span>
+								<span ng-switch-when="1">
+									Open until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time }}</span>
+								</span>
+								<span ng-switch-when="2">
+									Anytime after <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span>
+								</span>
+								<span ng-switch-when="3">
+									From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
+								</span>
+							</dd>
 						</dl>
 						<a id="edit-availability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href ng-disabled="!editable" ng-click="popup()">Edit settings...</a>
 					</div>
