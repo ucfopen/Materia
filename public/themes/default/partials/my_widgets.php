@@ -290,6 +290,9 @@
 		</section>
 	</div>
 	<aside ng-controller="SidebarController">
+		<div class="error error-nowidget" ng-show="error">
+			<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
+		</div>
 		<div class="top">
 			<h1>Your Widgets:</h1>
 		</div>
@@ -313,7 +316,5 @@
 		</div>
 	 </aside>
 </div>
-
-<script type="text/template" id="t-error"><div class="error error-nowidget"><p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p></div></script>
 
 <?= Theme::instance()->view('partials/notification') ?>
