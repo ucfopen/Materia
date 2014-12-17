@@ -123,16 +123,18 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		$scope.storageNotScoreData = false
 		$scope.collaborators = 0
 
+		# TODO
+		#if $('section .error').is(':visible') then $('section .error').remove()
 		$scope.error = false
-		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+		#$scope.preview =  "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
 
 		# count up the number of other users collaborating
 		count = 0
 		for id of $scope.perms.widget
 			if id != $scope.user.id then count++
 
-		$scope.copy_title = $scope.selectedWidget.name + " copy"
-		$scope.collaborateCount = if count > 0 then ' ('+count+')' else ''
+		$scope.copy_title =  "#{$scope.selectedWidget.name} copy"
+		$scope.collaborateCount = if count > 0 then  "(#{count})"  else ""
 		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
 
 		# Tell Materia we are still logged in
@@ -145,12 +147,12 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
 
-		$scope.preview = "preview/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+		$scope.preview = "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
 
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
 		if $scope.editable
-			$scope.edit = "edit/" + $scope.selectedWidget.id + "/" + $scope.selectedWidget.clean_name
+			$scope.edit =  "edit/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
 		else
 			$scope.edit = "#"
 
@@ -241,10 +243,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 		else #  has scores, might have storage data
 
-			# if typeof semester.storage != 'undefined'
-			# 	$scope.hasStorage = true
-			# 	selectedWidgetSrv.setStorageFlag true
-
 			$scope.setScoreView(index, 0)
 
 	$scope.setScoreView = (index, view) ->
@@ -257,267 +255,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		for range in $scope.dateRanges
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
-
-
-	updateData = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		semesterStr = $scoreWrapper.attr('data-semester-str')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
-		getStorageData $scope.selectedWidgetInstId, (data) ->
-			createStorageDataTables(data[semesterStr.replace('_', ' ')], $scoreWrapper.find('.display.data'))
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
-
-	createStorageDataTables = (tables, $element) ->
-		$element.empty()
-
-		tableNames = []
-		$label = $('<div class="table-label"><h4>Table:</h4></div>')
-		$select = null
-
-		tableNames.push(tableName) for tableName, tableData of tables
-
-		if tableNames.length == 1
-			$label.append('<span>' + tableNames[0] + '</span>')
-		else
-			$select = $('<select></select>')
-			for name in tableNames
-				$select.append('<option value="'+name+'">'+name+'</option>')
-
-			$select.change (event) ->
-				semester = $(event.target).parents('.scoreWrapper').attr('data-semester-str')
-				selectedTableName = $(event.target).find(':selected').val()
-				getStorageData $scope.selectedWidgetInstId, (data) ->
-					createStorageDataTable(data[semester.toLowerCase().replace('_', ' ')][selectedTableName], $element)
-			$label.append($select)
-
-		$element.append($label)
-		$element.prepend('<a class="storage">Download Table</a>')
-
-		$('.storage').click (event) ->
-			event.preventDefault()
-
-			$scoreWrapper = $(event.target).parents('.scoreWrapper')
-			$tableLabel = $scoreWrapper.find('.table-label')
-			table = ''
-			if($tableLabel.find('select').length > 0)
-				table = $tableLabel.find('select').val()
-			else
-				table = $tableLabel.find('span').text()
-			if table != ''
-				semester = $scoreWrapper.attr('data-semester-str').replace('_', '-')
-				window.location = '/scores/storage/' + $scope.selectedWidgetInstId + '/' + table + '/' + semester
-		createStorageDataTable(tables[tableNames[0]], $element)
-
-	createStorageDataTable = (tableObject, $element) ->
-		$element.find('.dataTables_wrapper').remove()
-
-		$element.find('.truncated-table').remove()
-		if(tableObject.truncated)
-			$element.append('<p class="truncated-table">Showing only the first ' + STORAGE_TABLE_MAX_ROWS_SHOWN + ' entries of this table. Download the table to see all ' + tableObject.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' entries.</p>')
-
-		rows = tableObject.data
-
-		if(rows.length > 0)
-			$table = $('<table></table>')
-			$headers = $('<tr><th>user</th><th>firstName</th><th>lastName</th><th>time</th></tr>')
-			$tbody = $('<tbody></tbody>')
-			$curTr
-			nullValue
-			len = rows.length
-
-			$headers.append('<th>' + rowName + '</th>') for rowName, rowData of rows[0].data
-
-			$headers.wrap('<thead>')
-			$table.append($headers.parent())
-
-			for row in rows
-				$curTr = $('<tr><td>'+row.play.user+'</td><td>'+row.play.firstName+'</td><td>'+row.play.lastName+'</td><td>'+row.play.time+'</td></tr>')
-				for fieldName, fieldData of row.data
-					nullValue = fieldData == null
-					if nullValue
-						fieldData = '--'
-
-					$curTr.append('<td'+( if nullValue then ' class="null"' else '')+'>'+fieldData+'</td>')
-
-				$tbody.append($curTr)
-
-			$table.append($tbody)
-			$element.append($table)
-			$table.dataTable
-				sScrollX: '100%'
-
-	toggleTableSort = (semester) ->
-		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-		$table = $scoreWrapper.find('.display.table')
-		tableSort = $table.attr('data-sort')
-
-		if ($(this).hasClass('up'))
-			$(this).removeClass('up').addClass('down')
-		else if ($(this).hasClass('down'))
-			$(this).removeClass('down').addClass('up')
-
-		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
-		updateTable($scoreWrapper)
-
-	# showAllScores = ->
-	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-	# 		$semester = $('.scoreWrapper')
-	# 		$scores = $('.scores')
-
-	# 		$('.show-older-scores-button').hide()
-
-	# 		# TODO Replace this with ng-repeat
-	# 		for i in [1..data.list.length-1]
-	# 			$clone = $semester.clone()
-	# 			$scores.append($clone)
-
-	# 			# populateScoreWrapper($clone, data.list[i])
-
-	# updateSummary = (semester) ->
-	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-	# 		semesterData = data.map[semester]
-	# 		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-	# 		plays = 0
-
-	# 		if semesterData.students?
-	# 			$scoreWrapper.find('.players').html(semesterData.students)
-	# 		if semesterData.average?
-	# 			$scoreWrapper.find('.final-average').html(semesterData.average)
-
-	# 		if semesterData.distribution?
-	# 			plays += dis for dis in semesterData.distribution
-	# 			$scoreWrapper.find('.score-count').html(plays)
-
-	updateGraph = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"]')
-
-		getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"]"')
-			brackets = data.map[semester].distribution
-			Materia.MyWidgets.Statistics.createGraph('chart_' + semester, brackets)
-
-	updateTable = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		semesterStr = $scoreWrapper.attr('data-semester-str')
-
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
-		getPlayLogs $scope.selectedWidgetInstId, semesterStr.split('_')[1], semesterStr.split('_')[0], (logsBySemester) ->
-			$table = $scoreWrapper.find('.display.table')
-			tableSort = $table.attr('data-sort')
-			Materia.MyWidgets.Statistics.createTable($table, logsBySemester[semesterStr.replace('_', ' ')], tableSort, $scope.selectedWidgetInstId)
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .display.table')
-
-	updateData = ($scoreWrapper) ->
-		semester = $scoreWrapper.attr('data-semester')
-		semesterStr = $scoreWrapper.attr('data-semester-str')
-		Materia.Set.Throbber.startSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
-		getStorageData $scope.selectedWidgetInstId, (data) ->
-			createStorageDataTables(data[semesterStr.replace('_', ' ')], $scoreWrapper.find('.display.data'))
-			Materia.Set.Throbber.stopSpin('.scoreWrapper[data-semester="' + semester + '"] .data')
-
-	createStorageDataTables = (tables, $element) ->
-		$element.empty()
-
-		tableNames = []
-		$label = $('<div class="table-label"><h4>Table:</h4></div>')
-		$select = null
-
-		tableNames.push(tableName) for tableName, tableData of tables
-
-		if tableNames.length == 1
-			$label.append('<span>' + tableNames[0] + '</span>')
-		else
-			$select = $('<select></select>')
-			for name in tableNames
-				$select.append('<option value="'+name+'">'+name+'</option>')
-
-			$select.change (event) ->
-				semester = $(event.target).parents('.scoreWrapper').attr('data-semester-str')
-				selectedTableName = $(event.target).find(':selected').val()
-				getStorageData $scope.selectedWidgetInstId, (data) ->
-					createStorageDataTable(data[semester.toLowerCase().replace('_', ' ')][selectedTableName], $element)
-			$label.append($select)
-
-		$element.append($label)
-		$element.prepend('<a class="storage">Download Table</a>')
-
-		$('.storage').click (event) ->
-			event.preventDefault()
-
-			$scoreWrapper = $(event.target).parents('.scoreWrapper')
-			$tableLabel = $scoreWrapper.find('.table-label')
-			table = ''
-			if($tableLabel.find('select').length > 0)
-				table = $tableLabel.find('select').val()
-			else
-				table = $tableLabel.find('span').text()
-			if table != ''
-				semester = $scoreWrapper.attr('data-semester-str').replace('_', '-')
-				window.location = '/scores/storage/' + $scope.selectedWidgetInstId + '/' + table + '/' + semester
-		createStorageDataTable(tables[tableNames[0]], $element)
-
-	createStorageDataTable = (tableObject, $element) ->
-		$element.find('.dataTables_wrapper').remove()
-
-		$element.find('.truncated-table').remove()
-		if(tableObject.truncated)
-			$element.append('<p class="truncated-table">Showing only the first ' + STORAGE_TABLE_MAX_ROWS_SHOWN + ' entries of this table. Download the table to see all ' + tableObject.total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' entries.</p>')
-
-		rows = tableObject.data
-
-		if(rows.length > 0)
-			$table = $('<table></table>')
-			$headers = $('<tr><th>user</th><th>firstName</th><th>lastName</th><th>time</th></tr>')
-			$tbody = $('<tbody></tbody>')
-			$curTr
-			nullValue
-			len = rows.length
-
-			$headers.append('<th>' + rowName + '</th>') for rowName, rowData of rows[0].data
-
-			$headers.wrap('<thead>')
-			$table.append($headers.parent())
-
-			for row in rows
-				$curTr = $('<tr><td>'+row.play.user+'</td><td>'+row.play.firstName+'</td><td>'+row.play.lastName+'</td><td>'+row.play.time+'</td></tr>')
-				for fieldName, fieldData of row.data
-					nullValue = fieldData == null
-					if nullValue
-						fieldData = '--'
-
-					$curTr.append('<td'+( if nullValue then ' class="null"' else '')+'>'+fieldData+'</td>')
-
-				$tbody.append($curTr)
-
-			$table.append($tbody)
-			$element.append($table)
-			$table.dataTable()
-
-	toggleTableSort = (semester) ->
-		$scoreWrapper = $('.scoreWrapper[data-semester="' + semester + '"]')
-		$table = $scoreWrapper.find('.display.table')
-		tableSort = $table.attr('data-sort')
-
-		if ($(this).hasClass('up'))
-			$(this).removeClass('up').addClass('down')
-		else if ($(this).hasClass('down'))
-			$(this).removeClass('down').addClass('up')
-
-		$table.attr('data-sort', if tableSort == 'desc' then 'asc' else 'desc')
-		updateTable($scoreWrapper)
-
-	# showAllScores = ->
-	# 	getScoreSummaries $scope.selectedWidgetInstId, (data) ->
-	# 		$semester = $('.scoreWrapper')
-	# 		$scores = $('.scores')
-
-	# 		$('.show-older-scores-button').hide()
-
-	# 		for i in [1..data.list.length-1]
-	# 			$clone = $semester.clone()
-	# 			$scores.append($clone)
-	# 			populateScoreWrapper($clone, data.list[i])
 
 	createSemesterString = (o) ->
 		return (o.year + '_' + o.term).toLowerCase()
@@ -579,6 +316,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		timestamp = parseInt(timestamp, 10)
 		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
 
+
 	$scope.getGravatar = getGravatar = (email) ->
 		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
 
@@ -589,9 +327,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		populateAvailability		: populateAvailability,
 		populateAttempts			: populateAttempts
-
-MyWidgets.controller 'ScoreReportingController', ($scope) ->
-	console.log 'stuff'
 
 MyWidgets.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv) ->
 	$scope.search = (nameOrFragment) ->

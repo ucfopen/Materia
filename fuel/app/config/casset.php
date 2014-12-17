@@ -283,7 +283,6 @@ return [
 					'static::materia.mywidgets.tasks.js',
 					'static::materia.mywidgets.csv.js',
 					'static::materia.set.availability.js',
-					'static::materia.page.my-widgets.js',
 					'lib/jquery.jqplot.min.js',
 					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
 					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',

@@ -28,10 +28,7 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 		_widget
 
 	getSelectedId = ->
-		instId
-
-	setSelectedId = (id) ->
-		instId = id
+		_widget.id
 
 	noWidgets = ->
 		_noWidgetsFlag
@@ -251,7 +248,7 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	set : set
 	get : get
 	getSelectedId: getSelectedId
-	setSelectedId: setSelectedId
+	# setSelectedId: setSelectedId
 	noWidgets: noWidgets
 	setNoWidgets: setNoWidgets
 	getScoreSummaries: getScoreSummaries

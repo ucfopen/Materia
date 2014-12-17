@@ -255,18 +255,32 @@
 					</ul>
 					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
 						<div class="score-search">
-							<input type="text" placeholder="Search Students" />
+							<input type="text" ng-model="studentSearch" ng-change="searchStudentActivity(studentSearch)" placeholder="Search Students" />
 						</div>
 						<h3>Select a student to view their scores.</h3>
 						<div class="scoreListContainer">
 							<!-- <div class="scoreListTitle"></div> -->
 							<div class="scoreListScrollContainer">
-								<table class="scoreListTable"></table>
+								<table class="scoreListTable">
+									<tbody>
+										<tr ng-repeat="user in users track by user.uid" id="{{$index}}" ng-class="{'rowSelected' : user.uid == selectedUser.uid}">
+											<td class="listName" ng-click="setSelectedUser(user.uid)">{{user.name}}</td>
+										</tr>
+									</tbody>
+								</table>
 							</div>
 						</div>
-						<div class="scoreTableContainer">
+						<div class="scoreTableContainer" ng-hide="selectedUser == null">
 							<!-- <div class="scoreTableTitle"></div> -->
-							<table class="scoreTable"></table>
+							<table class="scoreTable">
+								<tbody>
+									<tr ng-repeat="score in selectedUser.scores" ng-click="showScorePage(score.id)">
+										<td>{{score.date.substring(0, 10)}}</td>
+										<td>{{ score.complete == "1" ? score.percent + "%" : "---" }}</td>
+										<td>{{score.elapsed}}</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
 					<div class="display graph" ng-show="selectedScoreView[$index] == 0">
