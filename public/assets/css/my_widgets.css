@@ -459,7 +459,6 @@
 			background-image: -o-linear-gradient(top, #ca0000, #e10000);
 			background-image: -ms-linear-gradient(top, #ca0000, #e10000);
 			text-decoration:none;
-			cursor: default;
 		}
 
 		.my_widgets .page .controls a.disabled,
