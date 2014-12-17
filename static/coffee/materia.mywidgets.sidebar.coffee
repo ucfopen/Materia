@@ -43,8 +43,7 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 			if found
 				$scope.setSelected(selID)
 			else
-				#TODO: Update
-				Materia.MyWidgets.SelectedWidget.noAccess()
+				selectedWidgetSrv.noAccess()
 			firstRun = false
 
 	# Populate the widget list
@@ -55,11 +54,6 @@ MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv)
 	$scope.setSelected = (id) ->
 		widgetSrv.getWidget id, (inst) ->
 			selectedWidgetSrv.set inst
-
-	showWidgetCatNumbers = ->
-		$('.widget_list').each (i) ->
-			#applicable as long as each widget list is preceded by the category tag
-			$(this).prev().addClass 'widget_list_category'
 
 	$scope.search = (searchString) ->
 		$scope.query = searchString

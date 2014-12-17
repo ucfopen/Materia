@@ -26,8 +26,6 @@ MyWidgets.service 'userSrv', ($rootScope, $q) ->
 		deferred = $q.defer()
 
 		Materia.Coms.Json.send 'session_valid', [role], (data) ->
-			console.log data
-
 			deferred.resolve data
 
 		deferred.promise
