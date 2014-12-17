@@ -528,7 +528,7 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.copyDialog = true if $scope.accessLevel != 0
+		$scope.copyToggled = true if $scope.accessLevel != 0
 
 	$scope.showDeleteDialog = ->
 		$scope.deleteToggled = !$scope.deleteToggled if $scope.accessLevel != 0
