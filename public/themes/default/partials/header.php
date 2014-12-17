@@ -1,15 +1,22 @@
-<header ng-controller="currentUserCtrl" class="{loggedIn: loggedIn==true}" >
+<header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
 
 	<? /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
 	<? if (empty($me)): ?>
 		<span id="current-user" data-logged-in="false" />
 	<? else: ?>
-		<span id="current-user" data-logged-in="true" data-name="<?= "{$me->first} {$me->last}" ?>" data-avatar="<?= \Materia\Utils::get_avatar() ?>"/>
+		<span id="current-user"
+			data-logged-in="true"
+			data-name="<?= "{$me->first} {$me->last}" ?>"
+			data-avatar="<?= \Materia\Utils::get_avatar() ?>"
+			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
+			data-beard-mode="<?= $me->profile_fields['beardMode'] ? 'true' : 'false' ?>"
+			data-notify="<?= $me->profile_fields['notify'] ? 'true' : 'false' ?>"
+		/>
 	<? endif ?>
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
-	<span ng-switch="loggedIn">
+	<span ng-switch="currentUser.loggedIn">
 		<p ng-switch-when="true" class="user avatar">
 			<img ng-src="{{currentUser.avatar}}" />
 			Welcome <a href="/profile">{{currentUser.name}}</a>
@@ -24,7 +31,7 @@
 			<li><a href="/my-widgets">My Widgets</a></li>
 			<li><a href="/help">Help</a></li>
 
-			<li ng-switch="loggedIn" class="logout">
+			<li ng-switch="currentUser.loggedIn" class="logout">
 				<a ng-switch-when="true" href="/users/logout">Logout</a>
 				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
 			</li
@@ -32,7 +39,7 @@
 		</ul>
 	</nav>
 
-	<div ng-if="loggedIn" ng-controller="notificationCtrl">
+	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl">
 		<a id="notifications_link" ng-show="notifications.length > 0" data-notifications="{{notifications.length}}" ng-click="clickNotification()"></a>
 		<div id="notices">
 			<div class="notice" ng-repeat="notification in notifications">

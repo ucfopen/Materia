@@ -1,11 +1,11 @@
 app = angular.module 'materia'
-app.controller 'profileCtrl', ['$scope', ($scope) ->
+app.controller 'profileCtrl', ['$scope', 'userServ', ($scope, userServ) ->
 	$scope.more = false
 	$scope.loading = false
 	_offset = 0
-	_user_id = null
 
-	init = (gateway) ->
+	$scope.user = userServ.getCurrentUser()
+	$scope.avatar = userServ.getCurrentUserAvatar(100)
 
 	# Executes the API function and an optional callback function
 	# @param   callback	optional callback
@@ -13,11 +13,9 @@ app.controller 'profileCtrl', ['$scope', ($scope) ->
 		$scope.loading = true
 
 		#Gets current user
-		Materia.Coms.Json.send 'user_get', null, (user) ->
-			_user_id = user.id if _user_id?
-			Materia.Coms.Json.send 'play_activity_get', [_offset], (data) ->
-				_showPlayActivity data
-				callback() if callback?
+		Materia.Coms.Json.send 'play_activity_get', [_offset], (data) ->
+			_showPlayActivity data
+			callback() if callback?
 
 	# Shows selected game information on the mainscreen.
 	# @param   data   Score data sent back from the server
@@ -51,7 +49,7 @@ app.controller 'profileCtrl', ['$scope', ($scope) ->
 		Materia.Set.DateTime.fixTime(parseInt(activity.created_at, 10)*1000, DATE)
 
 	Namespace('Materia.Profile.Activity').Load =
-		init: init
+		init: -> #noop empty function
 		getLogs: $scope.getLogs
 	$("#activity_grid_noscores").hide()
 
