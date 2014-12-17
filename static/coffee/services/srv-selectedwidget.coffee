@@ -23,7 +23,6 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 		_storageData = null
 		_widget = widget
 		$rootScope.$broadcast 'selectedWidget.update'
-		console.log _widget
 
 	get = ->
 		_widget
@@ -246,6 +245,9 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 		_widget.close_at = close_at
 		$rootScope.$broadcast 'selectedWidget.update'
 
+	noAccess = ->
+		$rootScope.$broadcast 'selectedWidget.noAccess'
+
 	set : set
 	get : get
 	getSelectedId: getSelectedId
@@ -263,3 +265,4 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getStorageData: getStorageData
 	getMaxRows : getMaxRows
 	updateAvailability: updateAvailability
+	noAccess: noAccess

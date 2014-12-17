@@ -27,6 +27,11 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 			if check? then setSelectedWidget()
 
+	# Displays a no-access message when attempting to access a widget without sharing permissions.
+	$scope.$on 'selectedWidget.noAccess', ->
+		$scope.error = true
+		$scope.$apply()
+
 	$scope.noWidgetState = false
 	$scope.$on 'selectedWidget.noWidgets', (evt) ->
 		$scope.noWidgetState = true
@@ -72,8 +77,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 		.then (data) ->
 			# don't render an old display if they user has clicked another widget
 			if $scope.selectedWidget.id != currentId
-				console.log("Ignoring old data as focus has changed")
 				return
+
 			$scope.user = data[0]
 			$scope.perms = data[1]
 			$scope.scores = data[2]
@@ -105,11 +110,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 			$scope.availabilityMode = 2
 		else
 			$scope.availabilityMode = 3
-
-	# Displays a no-access message when attempting to access a widget without sharing permissions.
-	noAccess = ->
-		$scope.error = true
-		$scope.$apply()
 
 	# Shows selected game information on the mainscreen.
 	populateDisplay = ->
@@ -168,7 +168,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 
 			# $('#export_scores_button').unbind()
 			$exportScoresButton = $('#export_scores_button')
-			# console.log $scope.scores
 
 			if $scope.scores.list.length > 0
 
@@ -537,8 +536,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 	$scope.showCollaboration = ->
 		user_ids = []
 		for user of $scope.perms.widget
-			console.log "go stage"
-			console.log user
 			user_ids.push user
 		$scope.collaborators = []
 
@@ -569,10 +566,8 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 				$(".exp-date.user" + user.id).datepicker
 					minDate: getDateForBeginningOfTomorrow()
 					onSelect: (dateText, inst) ->
-						console.log 'updating ' + user.id
 						timestamp = $(this).datepicker('getDate').getTime() / 1000
 						user.expires = timestamp
-						console.log(timestamp)
 						user.expiresText = getExpiresText(timestamp)
 						$scope.$apply()
 
@@ -592,7 +587,6 @@ MyWidgets.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selected
 			true
 
 	Namespace('Materia.MyWidgets').SelectedWidget =
-		noAccess					: noAccess,
 		populateAvailability		: populateAvailability,
 		populateAttempts			: populateAttempts
 

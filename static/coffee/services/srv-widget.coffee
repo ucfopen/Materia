@@ -19,31 +19,6 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 		else
 			return _widgets
 
-	_buildSidebar = (cachedWidgets) ->
-		myWidgets = []
-
-		### Not all this stuff is baked into Angular functionality, so leaving commented code ###
-
-		# $(widgetList).append(myWidgets)
-		# $('.courses').animate opacity: 0.1
-		# 	, 100, ->
-		# 		$('.courses').html(widgetList)
-		# 		selectedId = selectedWidgetSrv.getSelectedId()
-		# 		if selectedId
-		# 			$currentWidget = $('#widget_' + selectedId)
-		# 			$currentWidget.addClass('gameSelected')
-		# 			$courses = $currentWidget.parent().parent().parent()
-		# 			parPos = $courses.offset()
-		# 			$('.courses').scrollTop(0)
-		# 		$('.courses').animate
-		# 			opacity: 1
-		# 			,100
-		# 			, ->
-		# 				if selectedWidgetSrv.getSelectedId()
-		# 					pos = $('.gameSelected').position()
-		# 					$('.courses').animate scrollTop: pos.top-200
-
-
 	getWidget = (inst_id, callback) ->
 		Materia.WidgetInstance.get inst_id, callback
 
