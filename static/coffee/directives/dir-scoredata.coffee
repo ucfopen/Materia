@@ -21,8 +21,6 @@ MyWidgets.directive 'scoreData', (selectedWidgetSrv) ->
 			$scope.tableNames.push(tableName) for tableName, tableData of $scope.tables
 
 			$scope.selectedTable = $scope.tableNames[0]
-			console.log $scope.tableNames
-			console.log $scope.tables
 
 		$scope.handleStorageDownload = ->
 			console.log "handling it"
