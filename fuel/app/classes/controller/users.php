@@ -26,7 +26,7 @@ class Controller_Users extends Controller
 			if ($me)
 			{
 				// add beardmode
-				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
+				if ( ! empty($me->profile_fields['beardMode']))
 				{
 					Js::push_inline('var BEARD_MODE = true;');
 				}
@@ -152,39 +152,36 @@ class Controller_Users extends Controller
 	}
 
 	// TODO: move this to the api
-	public function action_update()
+	public function post_update()
 	{
-		if (Input::method() == 'POST')
+		// whitelist input
+		$whitelist = ['useGravatar', 'beardMode', 'notify'];
+		$set_meta  = [];
+		$success   = false;
+
+		if (Materia\Api::session_valid() === true)
 		{
-			// whitelist input
-			$accepted = ['avatar', 'beardmode', 'notify_on_perm_change'];
-			$set_meta = [];
-
-			foreach ($accepted as $meta_key)
+			foreach ($whitelist as $property)
 			{
-				if ($val = Input::post($meta_key, false)) $set_meta[$meta_key] = $val;
+				// prop may exist and be boolean(false), so default to null then check against null
+				$val = Input::json($property, null);
+				if ( ! is_null($val)) $set_meta[$property] = $val;
 			}
-
-
-			if (Materia\Api::session_valid() === true)
+			if(count($set_meta) > 0)
 			{
-				if(count($set_meta) > 0)
-				{
-					$success = Materia\Api::user_update_meta($set_meta);
-				}
+				$success = Materia\Api::user_update_meta($set_meta);
 			}
-
-			$me = \Model_User::find_current();
-
-			$reply = json_encode([
-				'success'        => $success,
-				'meta'           => $me->profile_fields,
-				'default_avatar' => \Uri::create('https://robohash.org/gameserv?set=set3'),
-				'md5_email'      => Input::post('avatar', '') == 'gravatar' ? md5(strtolower($me->email)) : ''
-			]);
-
-			return new Response($reply);
 		}
+
+		$me = \Model_User::find_current();
+
+		$reply = [
+			'success' => $success,
+			'avatar'  => \Materia\Utils::get_avatar(),
+			'meta'    => $me->profile_fields,
+		];
+
+		return new Response(json_encode($reply));
 	}
 }
 
