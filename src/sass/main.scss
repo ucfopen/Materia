@@ -825,9 +825,9 @@ transform:rotate(360deg)}
 	display: block;
 }
 
-.error-nowidget p {
+.error-nowidget p.errorWindowPara {
 	width: 80%;
-	margin: 75px auto;
+	margin: 75px auto !important;
 	padding: 0;
 }
 

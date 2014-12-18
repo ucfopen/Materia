@@ -1,99 +1,94 @@
 # Handles all of the calls for the sidebar
-Namespace('Materia.MyWidgets').Sidebar = do ->
+MyWidgets = angular.module 'MyWidgets'
 
-	# ============ GET WIDGETS FROM SERVER =========================
-	prepare = ->
-		Materia.Widget.getWidgets (widgets) ->
-			buildDefaultList widgets
+MyWidgets.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
+	firstRun = true
 
-			# if there's a hash, select it
-			if window.location.hash
-				found = false
-				selID = window.location.hash.substr(1)
+	$scope.selectedWidget = null
 
-				for widget in widgets
-					if widget.id == selID
-						found = true
-						break
-				if found
-					Materia.MyWidgets.SelectedWidget.setSelected selID
-				else
-					Materia.MyWidgets.SelectedWidget.noAccess()
+	$scope.$on 'selectedWidget.update', (evt) ->
+		$scope.selectedWidget = selectedWidgetSrv.get()
 
-	# Builds the sidebar with all of the widgets that come back from the api.
-	# @var array A list of widget objects
-	buildDefaultList = (widgets) ->
-		bearded = BEARD_MODE? && BEARD_MODE == true
-		$("div[data-template=widget-list] .icon").addClass 'bearded' if bearded
+	$scope.$on 'widgetList.update', (evt) ->
+		updateWidgets widgetSrv.getWidgets()
 
-		len = widgets.length
-		rightSide = $('section.directions')
+	$scope.widgets = []
 
-		if len == 0
-			Materia.MyWidgets.SelectedWidget.noWidgets()
-		else
-			rightSide.addClass 'unchosen'
-			Materia.Widget.sortWidgets()
-
-			#@TODO: This probably shouldn't happen until we're sure the widget list is filled.
-			$('.courses').on 'click', '.widget', (event) ->
-				event.preventDefault()
-				Materia.MyWidgets.SelectedWidget.setSelected $(this).attr('id').split('_')[1]
-				return false
-
-			$('.my_widgets aside .courses .course_list').css overflow:'visible' if bearded
-
+	updateWidgets = (data) ->
 		Materia.Set.Throbber.stopSpin '.courses'
 
-	showWidgetCatNumbers = ->
-		$('.widget_list').each (i) ->
-			#applicable as long as each widget list is preceded by the category tag
-			$(this).prev().addClass 'widget_list_category'
-
-	search = (searchString) ->
-		Materia.Widget.getWidgets (widgets) ->
-			searchString = $.trim searchString.toLowerCase().replace(/,/g, ' ')
-			hits = []
-			misses = []
-			terms = searchString.split ' '
-			len = widgets.length
-			len2 = terms.length
-			for widget in widgets
-				match = false
-				for term in terms
-					if widget.searchCache.indexOf(term) > -1
-						match = true
-					else
-						match = false
-						break
-				if match
-					hits.push widget.element
-				else
-					misses.push widget.element
-
-			$hits = $(hits)
-			Materia.TextFilter.renderSearch $hits, $(misses), 'slide'
-
-			Materia.TextFilter.clearHighlights $('.widget')
-			$hits.each ->
-				Materia.TextFilter.highlight searchString, $(this)
-			Materia.TextFilter.zebraStripe()
-
-	getWidgetByURL = ->
-		newHash = window.location.hash
-		widgetID = newHash.substr(1)
-
-		return false if !newHash
-
-		tar = $('#widget_'+widgetID)
-		if tar.length > 0
-			tar.trigger 'click'
+		if !data
+			selectedWidgetSrv.setNoWidgets true
+			$scope.widgets = []
+			$scope.$apply()
+		else if data.then?
+			data.then updateWidgets
 		else
-			Materia.MyWidgets.SelectedWidget.noAccess()
+			angular.forEach data, (widget, key) ->
+				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
 
-		false
+			$scope.$apply ->
+				$scope.widgets = data
+		if firstRun and window.location.hash
+			found = false
+			selID = window.location.hash.substr(1)
+			if selID.substr(0, 1) == "/"
+				selID = selID.substr(1)
 
-	prepare              : prepare
-	showWidgetCatNumbers : showWidgetCatNumbers
-	search               : search
-	getWidgetByURL       : getWidgetByURL
+			for widget in $scope.widgets
+				if widget.id == selID
+					found = true
+					break
+
+			if found
+				$scope.setSelected(selID)
+			else
+				selectedWidgetSrv.noAccess()
+			firstRun = false
+
+	# Populate the widget list
+	# This was originally part of prepare(), but is prepare really necessary now?
+	deferredWidgets = widgetSrv.getWidgets()
+	deferredWidgets.then updateWidgets
+
+	$scope.setSelected = (id) ->
+		widgetSrv.getWidget id, (inst) ->
+			selectedWidgetSrv.set inst
+
+	$scope.search = (searchString) ->
+		$scope.query = searchString
+
+		widgets = widgetSrv.getWidgets()
+		searchString = $.trim searchString.toLowerCase().replace(/,/g, ' ')
+		hits = []
+		misses = []
+		terms = searchString.split ' '
+		len = widgets.length
+		len2 = terms.length
+		for widget in widgets
+			match = false
+			for term in terms
+				if widget.searchCache.indexOf(term) > -1
+					match = true
+				else
+					match = false
+					break
+			if match
+				hits.push widget
+			else
+				misses.push widget
+		$scope.widgets = hits
+
+MyWidgets.filter 'highlight', ($sce) ->
+	return (text, search) ->
+		if search
+			searchTerms = search.split(" ")
+			for search in searchTerms
+				text = text.replace(new RegExp('(' + search + ')', 'gi'), (a, b, c, d) ->
+					t = d.substr(c).split("<")
+					if t[0].indexOf(">") != -1
+						return a
+					return '<span class="highlighted">' + a + '</span>'
+				)
+		return $sce.trustAsHtml(text)
+
