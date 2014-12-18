@@ -1,7 +1,7 @@
 'use strict'
 
-MyWidgets = angular.module 'MyWidgets'
-MyWidgets.directive 'selectedDisplay', (selectedWidgetSrv) -> # is $compile required?
+app = angular.module 'materia'
+app.directive 'selectedDisplay', (selectedWidgetSrv) -> # is $compile required?
 	# are these required?
 	# count = null
 	# widgetId = null

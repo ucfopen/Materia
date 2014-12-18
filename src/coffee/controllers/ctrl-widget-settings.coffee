@@ -1,27 +1,6 @@
-MyWidgets = angular.module 'MyWidgets'
-
-# Ensures the user can only input numeric characters, '/', and ':' for the
-# date and time inputs.
-MyWidgets.directive 'dateValidation', () ->
-	require: 'ngModel',
-	scope:
-		validate: "&"
-	link: (scope, element, attrs, modelCtrl) ->
-		modelCtrl.$parsers.push((inputValue) ->
-			# Dates can do 0-9 and '/'
-			if attrs.validate is 'date'
-				transformed = inputValue.replace(/[^\d\/]/g,'')
-			# Times can do 0-9 and ':'
-			else
-				transformed = inputValue.replace(/[^\d:]/g,'')
-
-			if transformed != inputValue
-				modelCtrl.$setViewValue(transformed)
-				modelCtrl.$render()
-			return transformed
-		)
-
-MyWidgets.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, widgetSrv) ->
+app = angular.module 'materia'
+# The widget settings/availability modal on My Widgets
+app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, widgetSrv) ->
 	$scope.times = []
 	$scope.error = ''
 	# Keeps track of which inputs have errors so the error class can be added correctly.
@@ -230,3 +209,4 @@ MyWidgets.controller 'WidgetSettingsController', ($scope, $filter, selectedWidge
 	Namespace('Materia.MyWidgets').Availability =
 		init  : $scope.init
 		popup : $scope.popup
+

@@ -1,7 +1,7 @@
 'use strict'
 
-MyWidgets = angular.module 'MyWidgets'
-MyWidgets.directive 'scoreData', (selectedWidgetSrv, $window) ->
+app = angular.module 'materia'
+app.directive 'scoreData', (selectedWidgetSrv, $window) ->
 	restrict: 'A',
 	link: ($scope, $element, $attrs) ->
 

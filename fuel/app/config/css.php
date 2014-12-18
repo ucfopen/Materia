@@ -26,7 +26,8 @@ return [
 			'jquery.jqplot.min.css',
 			'ui-lightness/jquery-ui-1.8.21.custom.css',
 			'ui-lightness/jquery-ui-timepicker-addon.css',
-			'jquery.dataTables.css'
+			'jquery.dataTables.css',
+			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
 		],
 		'widget_editor' => [
 			'theme::create.css',

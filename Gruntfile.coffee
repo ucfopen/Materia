@@ -40,9 +40,8 @@ module.exports = (grunt) ->
 			author:
 				files:
 					'public/themes/default/assets/js/author.js': [
-						coffeeSrc+'/services/srv-user.coffee',
-						coffeeSrc+'/services/srv-api.coffee',
-						coffeeSrc+'/services/srv-datetime.coffee',
+						coffeeSrc+'/filters/*',
+						coffeeSrc+'/services/*',
 						coffeeSrc+'/controllers/ctrl-page.coffee',
 						coffeeSrc+'/controllers/ctrl-current-user.coffee',
 						coffeeSrc+'/controllers/ctrl-notification.coffee',
@@ -50,10 +49,14 @@ module.exports = (grunt) ->
 						coffeeSrc+'/controllers/ctrl-lti.coffee',
 						coffeeSrc+'/controllers/ctrl-media-import.coffee',
 						coffeeSrc+'/controllers/ctrl-question-import.coffee',
-						coffeeSrc+'/controllers/ctrl-my-widgets.coffee',
 						coffeeSrc+'/controllers/ctrl-spotlight.coffee',
 						coffeeSrc+'/controllers/ctrl-widget-catalog.coffee',
 						coffeeSrc+'/controllers/ctrl-widget-details.coffee',
+						coffeeSrc+'/controllers/ctrl-selectedwidget.coffee',
+						coffeeSrc+'/controllers/ctrl-widget-settings.coffee',
+						coffeeSrc+'/controllers/ctrl-export-scores.coffee',
+						coffeeSrc+'/controllers/ctrl-collaboration.coffee',
+						coffeeSrc+'/controllers/ctrl-sidebar.coffee',
 						coffeeSrc+'/directives/*',
 					]
 

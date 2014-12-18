@@ -1,5 +1,5 @@
-MyWidgets = angular.module 'MyWidgets'
-MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
+app = angular.module 'materia'
+app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 
 	STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 
@@ -263,3 +263,4 @@ MyWidgets.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getMaxRows : getMaxRows
 	updateAvailability: updateAvailability
 	noAccess: noAccess
+

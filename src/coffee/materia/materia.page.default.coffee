@@ -1,5 +1,5 @@
 # Namespace function for defining namespaces
-app = angular.module 'materia', []
+app = angular.module 'materia', ['ngModal']
 app.config ($sceDelegateProvider) ->
 	$sceDelegateProvider.resourceUrlWhitelist [ STATIC_CROSSDOMAIN + "**", BASE_URL + "**" ]
 

@@ -1,5 +1,6 @@
+# TODO: rip out redundant methods
 app = angular.module 'materia'
-app.service 'userServ', [ ->
+app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
 
 	_me = null
 
@@ -34,9 +35,43 @@ app.service 'userServ', [ ->
 	getCurrentUserAvatar = (size = 24) ->
 		_me.avatar.replace(/s=\d+/, "s=#{size}").replace(/size=\d+x\d+/, "size=#{size}x#{size}")
 
+	_user = null
+
+	get = ->
+		deferred = $q.defer()
+
+		if !_user
+			deferred.resolve grabCurrentUser()
+		else
+			deferred.resolve _user
+
+		deferred.promise
+
+	set = (userToSet) ->
+		_user = userToSet
+		$rootScope.$broadcast 'user.update'
+
+	grabCurrentUser = ->
+		Materia.User.getCurrentUser (user) ->
+			set user
+			user
+
+	checkValidSession = (role) ->
+		deferred = $q.defer()
+
+		Materia.Coms.Json.send 'session_valid', [role], (data) ->
+			deferred.resolve data
+
+		deferred.promise
+
+
 	# return public method references
 	getCurrentUser : getCurrentUser
 	getCurrentUserAvatar: getCurrentUserAvatar
 	updateSettings:updateSettings
+	get : get
+	set : set
+	grabCurrentUser : grabCurrentUser
+	checkValidSession : checkValidSession
 
 ]

@@ -195,6 +195,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/my_widgets');
 
 		Css::push_group("my_widgets");
+		Js::push_group("my_widgets");
 	}
 
 	protected function _mywidgets_student()
