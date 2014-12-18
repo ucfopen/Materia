@@ -13,7 +13,9 @@ class Controller_Api extends Controller_Rest
 
 	public function post_call($version, $format, $method)
 	{
-		$result = $this->execute($version, $method, Input::json());
+		$input = json_decode(Input::post('data', []));
+
+		$result = $this->execute($version, $method, $input);
 
 		$this->no_cache();
 		$this->response($result, 200);

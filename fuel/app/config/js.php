@@ -12,6 +12,7 @@ return [
 		'core' => [
 			'cdnjs::angular.js/1.3.0/angular.min.js',
 			'cdnjs::jquery/1.8.1/jquery.min.js',
+			'lib::bower/ngModal/dist/ng-modal.min.js',
 			'theme::materia.js',
 		],
 		'author' => [
@@ -63,7 +64,6 @@ return [
 			'lib::jqplot_plugins/jqplot.cursor.min.js',
 			'lib::jqplot_plugins/jqplot.highlighter.min.js',
 			'lib::md5.js',
-			'lib::bower/ngModal/dist/ng-modal.min.js'
 		],
 		'widget_play' => [
 			'cdnjs::swfobject/2.2/swfobject.min.js',
