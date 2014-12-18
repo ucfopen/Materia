@@ -89,7 +89,7 @@ MyWidgets.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	# Formate and return the download link
 	$scope.getDownloadLink = ->
 		if $scope.ids
-			link = "/scores/" + $scope.exportType.value + "/" + $scope.selectedWidget.id + "/" + $scope.ids
+			link = "/scores/#{$scope.exportType.value}/#{$scope.selectedWidget.id}/#{$scope.ids}"
 		else
 			link = "#"
 		return link
