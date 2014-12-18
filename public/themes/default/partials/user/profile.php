@@ -18,7 +18,7 @@
 			<li class="user_type" ng-class="user.role == 'Staff' ? 'staff' : ''">{{user.role}}</li>
 		</ul>
 
-		<h3>Activity</h3>
+		<h3 ng-class="loading ? 'loading' : ''">Activity</h3>
 
 		<div class="activity">
 
@@ -36,7 +36,7 @@
 
 		</div>
 
-		<a class="show_more_activity" ng-show="more" ng-click="loading = true; getLogs()"><span class="message_loading" ng-show="loading">Loading...</span> Show more</a>
+		<a class="show_more_activity" ng-show="more" ng-click="getLogs()"><span class="message_loading" ng-show="loading">Loading...</span> Show more</a>
 
 		<p class="no_logs" ng-show="activities && activities.length == 0">You don't have any activity! Start doing stuff.</p>
 

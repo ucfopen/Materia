@@ -202,6 +202,7 @@ class Model_User extends Orm\Model
 
 	static public function login($username, $password)
 	{
+		Config::load('auth', true);
 		foreach (Config::get('auth.driver') as $driver)
 		{
 			if (Auth::instance($driver)->login($username, $password)) break;

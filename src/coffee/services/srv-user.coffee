@@ -27,7 +27,6 @@ app.service 'userServ', [ ->
 			switch from
 				when 'dom'
 					_me = getCurrentUserFromDom()
-					console.log _me
 				else
 					_me = buildUser()
 		_me

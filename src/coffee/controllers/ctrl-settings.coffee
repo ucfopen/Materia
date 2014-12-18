@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'settingsController', ($scope, $http, userServ) ->
+app.controller 'settingsController', ($scope, $http, userServ, apiServ, $log) ->
 	# SAVED_MESSAGE_DISPLAY_DELAY = 1000
 
 	$scope.user = userServ.getCurrentUser()
@@ -15,24 +15,22 @@ app.controller 'settingsController', ($scope, $http, userServ) ->
 			beardMode: $scope.user.beardMode == true
 			useGravatar: $scope.useGravatar
 
-		$http.post(window.location, newSettings)
-			.success (data, status, headers, config) ->
+		$http.post('/api/user/settings', newSettings)
+			.success (result, status, headers, config) ->
+				apiServ.filterError result
 				Materia.Set.Throbber.stopSpin('.page')
 				$scope.settingsForm.$setPristine()
-				if data.success
+				if result.success
 
 					# update my scope object
-					for k, v of data.meta
+					for k, v of result.meta
 						userServ.updateSettings k, v
 
-					console.log userServ.getCurrentUser()
-
 					# update the user avatar
-					if data.avatar?.length > 0
-						console.log 'update data'
-						userServ.updateSettings 'avatar', data.avatar
+					if result.avatar?.length > 0
+						userServ.updateSettings 'avatar', result.avatar
 						$scope.avatar = userServ.getCurrentUserAvatar(100)
 
-			.error (data, status, headers, config) ->
-				console.log 'error', data
+			.error (result, status, headers, config) ->
+				$log.error result
 				Materia.Set.Throbber.stopSpin('.page')
