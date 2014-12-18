@@ -1,18 +1,19 @@
 'use strict'
 
 MyWidgets = angular.module 'MyWidgets'
-MyWidgets.directive 'scoreData', (selectedWidgetSrv) ->
+MyWidgets.directive 'scoreData', (selectedWidgetSrv, $window) ->
 	restrict: 'A',
 	link: ($scope, $element, $attrs) ->
 
 		if $attrs.hasStorage == "false" then return false
 
 		id = $attrs.id.split("_")[1]
+		widgetId = selectedWidgetSrv.getSelectedId()
+		semester = $attrs.semester
 
 		storage = selectedWidgetSrv.getStorageData()
 		storage.then (data) ->
 
-			semester = $attrs.semester
 			$scope.tables = data[semester]
 			$scope.MAX_ROWS = selectedWidgetSrv.getMaxRows()
 
@@ -22,5 +23,7 @@ MyWidgets.directive 'scoreData', (selectedWidgetSrv) ->
 
 			$scope.selectedTable = $scope.tableNames[0]
 
-		$scope.handleStorageDownload = ->
-			console.log "handling it"
+		$scope.handleStorageDownload = () ->
+			semester = semester.replace(" ", "-")
+			$window.open "scores/storage/#{widgetId}/#{$scope.selectedTable}/#{semester}"
+			return true
