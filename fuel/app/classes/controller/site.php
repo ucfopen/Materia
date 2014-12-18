@@ -30,6 +30,7 @@ class Controller_Site extends Controller
 				// add beardmode
 				if ( ! empty($me->profile_fields['beardMode']))
 				{
+					// TODO: use angular userServ
 					Js::push_inline('var BEARD_MODE = true;');
 				}
 			}

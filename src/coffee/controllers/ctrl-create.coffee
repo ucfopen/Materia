@@ -111,7 +111,6 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.requestSave = (mode) ->
 		# hide dialogs
 		$scope.popup = ""
-		console.log mode
 
 		_saveMode = mode
 		switch _saveMode
