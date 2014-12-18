@@ -1,272 +1,232 @@
-# TODO: this class is very complex, refactor, maybe breakdown into more methods
-Namespace('Materia.MyWidgets').Availability = do ->
-	_inst = {}
-	_submittedAttempts = null
-	_times = {}
+MyWidgets = angular.module 'MyWidgets'
 
-	# Validates the avalability info and adds error code
-	_parseSubmittedInfo = ->
-		success = true
+# Ensures the user can only input numeric characters, '/', and ':' for the
+# date and time inputs.
+MyWidgets.directive 'dateValidation', () ->
+	require: 'ngModel',
+	scope:
+		validate: "&"
+	link: (scope, element, attrs, modelCtrl) ->
+		modelCtrl.$parsers.push((inputValue) ->
+			# Dates can do 0-9 and '/'
+			if attrs.validate is 'date'
+				transformed = inputValue.replace(/[^\d\/]/g,'')
+			# Times can do 0-9 and ':'
+			else
+				transformed = inputValue.replace(/[^\d:]/g,'')
+
+			if transformed != inputValue
+				modelCtrl.$setViewValue(transformed)
+				modelCtrl.$render()
+			return transformed
+		)
+
+MyWidgets.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, widgetSrv) ->
+	$scope.times = []
+	$scope.error = ''
+	# Keeps track of which inputs have errors so the error class can be added correctly.
+	$scope.dateError = [false, false]
+	$scope.timeError = [false, false]
+	# Default to unlimited attempts
+	$scope.attempts = 25
+	# Hold information for availability.
+	$scope.availability = []
+	# From
+	$scope.availability.push
+		header: 'Available'
+		anytimeLabel: 'Now'
+		anytime: true
+	# To
+	$scope.availability.push
+		header: 'Closes'
+		anytimeLabel: 'Never'
+		anytime: true
+
+	$scope.selectedWidget = null
+	$scope.$on 'selectedWidget.update', (evt) ->
+		$scope.selectedWidget = selectedWidgetSrv.get()
+		$scope.attempts = $scope.selectedWidget.attempts
+
+	$scope.init = (gateway) ->
+
+	$scope.popup = ->
+		$scope.error = ''
+		$scope.dateError = [false, false]
+		$scope.timeError = [false, false]
+		$scope.attempts = $scope.selectedWidget.attempts
+		$scope.dateFormatter()
+		setTimeout ->
+			$scope.setupSlider()
+			$scope.setupDatePickers()
+		, 1
+
+	# Sets up the slider for availability
+	$scope.setupSlider = ->
+		# The values are huge for smooth slidyness
+		$('.selector').slider
+			value: $scope.attempts * 1000
+			min: 1000
+			max: 25000
+			create: (event) ->
+				$scope.changeSlider($scope.attempts)
+			slide: (event, ui) ->
+				$scope.updateSlider(ui.value)
+			stop: (event, ui) ->
+				$scope.updateSlider(ui.value)
+
+	# Sets up the date pickers for the availability times
+	$scope.setupDatePickers = ->
+		$(".date.from").datepicker
+			maxDate: $scope.availability[0].date
+			onSelect: (dateText) ->
+				$('.date.to').datepicker 'option', {minDate: dateText}
+				$scope.availability[0].date = dateText
+
+		$(".date.to").datepicker
+			minDate: $scope.availability[1].date
+			onSelect: (dateText) ->
+				$('.date.from').datepicker 'option', {maxDate: dateText}
+				$scope.availability[1].date = dateText
+
+
+	# Fills in the dates from the selectedWidget
+	$scope.dateFormatter = ->
+		open = $scope.selectedWidget.open_at
+		close = $scope.selectedWidget.close_at
+		dates = [
+			if open > -1 then new Date(open * 1000) else null
+			if close > -1 then new Date(close * 1000) else null
+		]
+		i = 0
+
+		for date in dates
+			if date
+				$scope.availability[i].date = $filter('date')(date, "MM/dd/yyyy")
+				$scope.availability[i].time = $filter('date')(date, "h:mm")
+				$scope.availability[i].period = $filter('date')(date, "a").toLowerCase()
+				$scope.availability[i].anytime = false
+			else
+				$scope.availability[i].date = ''
+				$scope.availability[i].time = ''
+				$scope.availability[i].period = ''
+				$scope.availability[i].anytime = true
+			i++
+
+	# If the time is blurred without minutes set, add :00 (so 2 becomes 2:00)
+	$scope.checkTime = (index) ->
+		if $scope.availability[index].time.indexOf(":") == -1 && $scope.availability[index].time != ''
+			$scope.availability[index].time += ":00"
+
+	# Moves the slider to the specified value and updates the attempts.
+	# From ng-click on the attempt numbers below the slider.
+	$scope.changeSlider = (number) ->
+		$( ".selector" ).slider 'value', (number * 1000)
+		$scope.attempts = number
+
+	# Updates the slider based on which value the slider is close to.
+	# It will "click" into place when in between the steps.
+	$scope.updateSlider = (value) ->
+		smaller = Math.round(value/1000)
+		if smaller > 5
+			smaller = 5 * Math.round(smaller/5)
+		$scope.attempts = smaller
+		$( ".selector" ).slider 'value', (smaller * 1000)
+		$scope.$apply()
+
+	# Validates the availability info and adds error code
+	# TODO: Find a better way to do errors.
+	$scope.parseSubmittedInfo = ->
+		# Reset all of the variables
+		$scope.error = ""
+		$scope.times = []
+		ranges = [$scope.availability[0], $scope.availability[1]]
+		i = 0
+		$scope.dateError = [false, false]
+		$scope.timeError = [false, false]
 		errors =
-			type:[]
-			reason:[]
+			date: 0
+			time: 0
+			missing: 0
+			invalid: 0
 
-		$('.error').removeClass 'error'
-		# For each option checked.
-		$('.toFrom li input.availability:checked').each ->
-			# Grab the id
-			idCheck = $(this).attr 'id'
-
-			# Check the id to see if it has From in it, if so then it's the start date, if not then it's the end date
-			startOrEnd = if idCheck.match('From') then 'start' else 'end'
-			# Get all of the date info.
-			datesParent = $(this).closest '.datePicker'
-
-			dateObj = datesParent.find 'input.date'
-			timeObj = datesParent.find 'input.time'
-			date = $(dateObj).val()
-			time = $(timeObj).val()
-			ampm = datesParent.find('.ampm.selected').text()
-
-			# Variables to check that the entered time is in a valid format.
-			hourMinute = ['','']
-			if (time?)
-				hourMinute = time.split(':')
-
-			if hourMinute[0] == ''
-				hourLength = true
+		for range in ranges
+			date = range.date
+			period = if range.period then range.period else 'am'
+			time = range.time
+			anytime = range.anytime
+			# if anytime was selected, then the times value will be negative one.
+			if anytime == true
+				$scope.times[i] = -1
 			else
-				hourLength = hourMinute[0].length < 3
-
-			if hourMinute[1]?
-				if hourMinute[1] == ''
-					minuteLength = true
+				monthDayYear = date.split("/")
+				if monthDayYear? and monthDayYear.length == 3
+					if monthDayYear[0].length > 2 or monthDayYear[1].length > 2 or monthDayYear[2].length > 4
+						errors.date++
+						errors.invalid++
+						$scope.dateError[i] = true
+					else
+						fullDate = date + " " + time + period
 				else
-					minuteLength = hourMinute[1].length < 3
-			hourBounds = Number(hourMinute[0]) < 13
-			minuteBounds = Number(hourMinute[1]) < 60
-
-			if time == ''
-				time = if startOrEnd == 'start' then '6:00' else '11:59'
-				ampm = if startOrEnd == 'start' then 'am' else 'pm'
-
-			# if the id is anyime, then the times value will be negative one.
-			if idCheck.match 'anytime'
-				_times[startOrEnd] = -1
+					errors.date++
+					errors.missing++
+					$scope.dateError[i] = true
+				# Variables to check that the entered time is in a valid format.
+				hourMinute = time.split(":")
+				if hourMinute[0] != '' && hourMinute[1] != ''
+					hourValid = hourMinute[0].length < 3 and Number(hourMinute[0]) < 13
+					minuteValid = hourMinute[1].length < 3 and Number(hourMinute[1]) < 60
+					if !hourValid or !minuteValid or !time.match /[0-9]{1,2}:[0-9]{2}/
+						errors.time++
+						errors.invalid++
+						$scope.timeError[i] = true
+					else
+						$scope.times.push Date.parse(date +  " " + time + " " + period).getTime()/1000
+				else
+					errors.time++
+					errors.missing++
+					$scope.timeError[i] = true
+			i++
+		# Build the error string.
+		# Huge mess because there are a ton of cases.
+		if errors.date > 0 or errors.time > 0
+			$scope.error = 'The'
+			if errors.date > 0 then $scope.error += " date"
+			if errors.date > 1 then $scope.error += "s"
+			if errors.time > 0 and errors.date > 0 then $scope.error += " and"
+			if errors.time > 0 then $scope.error += " time"
+			if errors.time > 1 then $scope.error += "s"
+			if errors.date > 0 and errors.time > 0 or errors.date > 1 or errors.time > 1
+				$scope.error += " are "
 			else
-				if date == ''
-					dateObj.addClass 'error'
-					success = false
-					if $.inArray('Date', errors.type) < 0
-						errors.type.push 'Date'
-					if $.inArray('missing', errors.reason) < 0
-						errors.reason.push 'missing'
-
-				else if !hourLength or !minuteLength or !hourBounds or !minuteBounds or !time.match /[0-9]{1,2}:[0-9]{2}/
-					if $.inArray('Time', errors.type) < 0
-						errors.type.push 'Time'
-
-					timeObj.addClass 'error'
-					success = false
-					if time == '' and $.inArray('missing', errors.reason) < 0
-						errors.reason.push 'missing'
-					else if $.inArray('invalid', errors.reason) < 0
-						errors.reason.push 'invalid'
-
-				else
-					fullDate = date+" "+time+ampm
-					_times[startOrEnd] = Date.parse(fullDate).getTime()/1000
-
-
-		if success
-			return true
-		else
-			type = if errors.type.length > 1 then "#{errors.type[0]}s and #{errors.type[1]}s are " else "#{errors.type[0]} is "
-			reason = if errors.reason.length > 1 then "#{errors.reason[0]}/#{errors.reason[1]}" else errors.reason[0]
-			$('.availabilityError').remove()
-
-			# Options for this error are type(Date is/Time is/Dates and times are) and reason(missing/invalid)
-			$('.attemptsPopup').before '<p class="availabilityError">'+type+reason+'</p>'
-			false
-
-	# Formats the dates based on the range given
-	# @var string none/to/from/toFrom
-	# @return array start and end dates
-	_dateFormatter = (range) ->
-		date = []
-		date['start'] = ''
-		date['end']   = ''
-
-		startInfo = null
-		endInfo = null
-
-		# Finds the times based on the availability text in the selected widget
-		# It was a lot easier to do it this way than have to parse javascripts dumb date object (support a 12 hour format, jerks!)
-		timeSet   = $('#avaliability').text().match /[0-9]+\/[0-9]+\/[0-9]+ at [0-9]+:[0-9]+(am|pm)/g
-		if timeSet?
-			if timeSet[0] && range != 'to' # if 'to' is the range, then the first element is the end date
-				startInfo = timeSet[0].split ' at '
-			if timeSet[1] # if the second element exits, then that is the end date
-				endInfo = timeSet[1].split ' at '
-			else if range == 'to' # if 'to' is the range, then the first element is the end date.
-				endInfo = timeSet[0].split ' at '
-
-		# If start variable exists, then populate the start elements with information
-		if startInfo
-			date['start'] = startInfo[0]
-			$(".date.from").val startInfo[0]
-			ampm = startInfo[1].match(/(am|pm)/)[1]
-			$('#startTime').val startInfo[1].slice(0, -2)
-			$('.start.ampm.'+ampm).trigger 'click'
-
-		# If end variable exists, then populate the end elements with information
-		if endInfo
-			date['end'] = endInfo[0]
-			$(".date.to").val(endInfo[0])
-			ampm = endInfo[1].match(/(am|pm)/)[1]
-			$('#endTime').val endInfo[1].slice(0, -2)
-			$('.end.ampm.'+ampm).trigger 'click'
-
-		# If the time is blured without minutes set, add :00 (so 2 becomes 2:00)
-		$(".time").blur ->
-			val = $(this).val()
-			if !val.match(':') && val < 13 && val != ''
-				$(this).val "#{val}:00"
-		date
-
-	# Checks the attempts and adds the selected class accordingly
-	# @var number the number that attempts is current at
-	# @return void
-	_checkAttempts = (number) ->
-		num = Math.floor number/1000
-		if $('.attemptHolder #value_'+num).length > 0
-			$('.attemptHolder li.selected').removeClass 'selected'
-			$('.attemptHolder #value_'+num).addClass 'selected'
-		else if $('#value_'+(num+2)).length > 0 && (num+2) > 4
-			$('.attemptHolder li.selected').removeClass 'selected'
-			$('.attemptHolder #value_'+(num+2)).addClass 'selected'
-		else if $('#value_'+(num-2)).length > 0 && (num-2) > 4
-			$('.attemptHolder li.selected').removeClass 'selected'
-			$('.attemptHolder #value_'+(num-2)).addClass 'selected'
-
-	# Sets the sliders value to the number specified in ui.
-	# @return void
-	_setSlider = ->
-		idNum = $(".attemptHolder li.selected").attr('id').split('_')[1]
-		attemptsValue = $(".selected").html()
-		realNum = parseInt(idNum, 10)*1000
-		$( ".selector" ).slider 'value', realNum
-		$('#valueHolder').html attemptsValue
-		_submittedAttempts = parseInt(idNum)
-		_submittedAttempts = -1 if _submittedAttempts == 25
+				$scope.error += " is "
+			if errors.invalid > 0 then $scope.error += "invalid"
+			if errors.invalid > 0 and errors.missing > 0 then $scope.error += "/"
+			if errors.missing > 0 then $scope.error += "missing"
+			$scope.error += "."
+		if $scope.error == ''
+			$scope.changeAvailability()
 		return
 
 	# Handles the api calls to actually change the availability
 	# @return void
-	_changeAvailability = (callback) ->
+	$scope.changeAvailability = ->
+		# Close the modal
+		$scope.$parent.$parent.showAvailabilityModal = false
+		attempts = if $scope.attempts < 25 then $scope.attempts else -1
+
 		# Update the widget instance.
-		Materia.Widget.saveWidget
-			inst_id: _inst.id,
-			open_at: _times['start'],
-			close_at: _times['end'],
-			attempts: _submittedAttempts
+		widgetSrv.saveWidget
+			inst_id: $scope.selectedWidget.id,
+			open_at: $scope.times[0],
+			close_at: $scope.times[1],
+			attempts: attempts
 			, (widget) ->
 			# Repopuplates the availability and attempts on the main page
-			Materia.MyWidgets.SelectedWidget.populateAvailability _times['start'], _times['end']
-			Materia.MyWidgets.SelectedWidget.populateAttempts parseInt(_submittedAttempts, 10)
-			callback()
+			Materia.MyWidgets.SelectedWidget.populateAvailability $scope.times[0], $scope.times[1]
+			Materia.MyWidgets.SelectedWidget.populateAttempts parseInt(attempts, 10)
 
-	init = (gateway) ->
+		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1])
 
-	popup = ->
-		# Gets the game id for use in the api
-		gameId = $('.gameSelected').attr('id').split('_')[1]
-
-		Materia.WidgetInstance.get gameId, (inst) ->
-			_inst = inst
-			# The values are huge for smooth slidyness
-			$('.selector').slider
-				value: if _inst.attempts < 0 then 25000 else _inst.attempts * 1000
-				min: 1000
-				max: 25000
-				create: (event) ->
-					ui = {}
-					ui.value = if _inst.attempts < 0 then 25000 else _inst.attempts * 1000
-					_checkAttempts ui.value
-					_setSlider()
-				slide: (event, ui) ->
-					_checkAttempts ui.value
-				stop: (event, ui) ->
-					_setSlider()
-
-			# Checks the range of the dates (which dates are chosen)
-			switch
-				when _inst.close_at < 0 && _inst.open_at < 0 then range = 'none'
-				when _inst.open_at < 0 && _inst.close_at > 0 then range = 'to'
-				when _inst.open_at > 0 && _inst.close_at < 0 then range = 'from'
-				else
-					range = 'toFrom'
-
-			$('.start.ampm').add($('.end.ampm')).click ->
-				$this = $(this)
-				if $this.is('.pm')
-					$this.addClass('selected')
-					$this.parent().children('.am').removeClass('selected')
-				else
-					$this.addClass('selected')
-					$this.parent().children('.pm').removeClass('selected')
-
-			# Gets the start/end dates based on the range
-			date = _dateFormatter(range)
-
-			# Builds the datepickers and sets their start/end dates.
-			$(".date.from").datepicker
-				maxDate: date['end']
-				onSelect: (dateText, inst) ->
-					$('.date.to').datepicker 'option', {minDate: dateText}
-
-			$(".date.to").datepicker
-				minDate: date['start']
-				onSelect: (dateText, inst) ->
-					$('.date.from').datepicker 'option', {maxDate: dateText}
-
-			$('.date, .time').click ->
-				$(this).closest('.datePicker').find('.specify.availability').trigger 'click'
-
-			# Based on the range, simulates the appropriate clicks.
-			switch range
-				when 'none'
-					$('#anytimeFrom').trigger 'click'
-					$('#anytimeTo').trigger 'click'
-				when 'to'
-					$('#anytimeFrom').trigger 'click'
-					$('#specifyTo').trigger 'click'
-				when 'from'
-					$('#specifyFrom').trigger 'click'
-					$('#anytimeTo').trigger 'click'
-				when 'toFrom'
-					$('#specifyFrom').trigger 'click'
-					$('#specifyTo').trigger 'click'
-
-			$('.time').keypress (e) ->
-				e.preventDefault() if !Materia.Validate.Textfield.timeOnly(e)
-
-			$(window).keyup (e) ->
-				# Escape key to close the popup
-				if e.keyCode == 27
-					$(window).unbind 'keyup'
-					$.jqmodal 'close'
-			# So when you click on a number, it sets the slider to that number.
-			$('.attemptHolder li').click ->
-				clickedAmount = $(this).attr('id').split('_')[1]*1000
-				$('.selector').slider 'value', clickedAmount
-				_checkAttempts clickedAmount
-				_setSlider()
-
-			$('.save').click (e) ->
-				e.preventDefault()
-				_changeAvailability( -> $.jqmodal('close')) if _parseSubmittedInfo()
-				false
-
-	init  : init
-	popup : popup
+	Namespace('Materia.MyWidgets').Availability =
+		init  : $scope.init
+		popup : $scope.popup

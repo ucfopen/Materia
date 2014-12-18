@@ -45,9 +45,6 @@
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
-.my_widgets section.page{
-	display: none;
-}
 .my_widgets section.directions{
 	background: #fff;
 	text-align: center;
@@ -434,7 +431,6 @@
 	}
 
 	.my_widgets .page .controls div.delete_dialogue {
-			display:none;
 			background: url(../img/delete-dialogue-bg.png) no-repeat center;
 			padding: 20px 0;
 			margin-bottom: 5px;
@@ -465,7 +461,6 @@
 			background-image: -o-linear-gradient(top, #ca0000, #e10000);
 			background-image: -ms-linear-gradient(top, #ca0000, #e10000);
 			text-decoration:none;
-			cursor: default;
 		}
 
 		.my_widgets .page .controls a.disabled,
@@ -574,9 +569,9 @@
 			margin-bottom: 6px;
 		}
 
-		.my_widgets .page .share-widget-container.closed textarea {
+		/*.my_widgets .page .share-widget-container.closed textarea {
 			display: none;
-		}
+		}*/
 
 		.my_widgets .page .share-widget-container input {
 			width: 548px;
@@ -607,6 +602,8 @@
 			padding-bottom: 46px;
 			cursor: default;
 
+			opacity: 0.5;
+
 			-ms-user-select: none;
 			-webkit-user-select: none;
 			-khtml-user-select: none;
@@ -615,13 +612,18 @@
 			user-select: none;
 		}
 
+		/*.my_widgets .page .share-widget-container.draft h3 {
+			color: #C5C5C5;
+		}*/
+
 		.my_widgets .page .share-widget-container.draft p {
 			display:none;
 		}
 
 	.my_widgets .page .scores {
 		margin: 10px;
-		overflow-x: visible;
+		overflow-x: hidden;
+		/*overflow-x: visible;*/
 		overflow-y: auto;
 		padding-bottom: 1em;
 	}
@@ -656,9 +658,9 @@
 				color: #000000;
 				padding: 6px 10px 4px 10px;
 			}
-				.my_widgets .page .scores ul.choices li:nth-child(3) a {
+				/*.my_widgets .page .scores ul.choices li:nth-child(3) a {
 					display: none;
-				}
+				}*/
 
 				.my_widgets .page .scores ul.choices li a:hover {
 					text-decoration: none;
@@ -668,6 +670,8 @@
 					border-top: solid #dbdbdb 1px;
 					border-right: solid #dbdbdb 1px;
 					padding-bottom: 5px;
+
+					cursor: pointer;
 				}
 				.my_widgets .page .scores ul.choices li.scoreTypeSelected a {
 					background: #f3f3f3;
@@ -761,7 +765,6 @@
 		padding: 20px;
 		border: solid #dbdbdb 1px;
 		float:left;
-		display:none;
 	}
 
 	.my_widgets .page .scores .display.table
@@ -775,10 +778,15 @@
 	{
 		width: 638px;
 		font-family: 'Lucida Grande', sans-serif;
+		overflow-x:scroll;
 	}
 
-	.my_widgets .page .scores .data {
+		.my_widgets .page .scores .display.data table
+		{
+			margin-top:20px;
+		}
 
+	.my_widgets .page .scores .data {
 		min-height: 393px;
 	}
 
@@ -882,6 +890,7 @@
 			z-index:1;
 			float:left;
 			width:55%;
+			right: 12px;
 
 			margin-top:15px;
 			padding:10px 0 10px 0;
@@ -1037,6 +1046,7 @@
 		}
 
 		.attempts_parent dd.disabled {
+			color: #C5C5C5;
 			cursor: default;
 		}
 		.attempts_parent dd.disabled:hover {
@@ -1056,7 +1066,7 @@
 			cursor: pointer;
 		}
 
-		#edit-avaliability-button {
+		#edit-availability-button {
 			font-family: "Lucida Grande", sans-serif;
 			font-size: 10pt;
 			font-weight: bold;
@@ -1064,15 +1074,15 @@
 			margin-left: 98px;
 			color: #1778AF;
 		}
-		#edit-avaliability-button:hover {
+		#edit-availability-button:hover {
 			color: #0093E7;
 		}
-		#edit-avaliability-button.disabled {
+		#edit-availability-button.disabled {
 			background: none;
 			text-decoration: none;
 			color: #C5C5C5;
 		}
-		#edit-avaliability-button.disabled:hover {
+		#edit-availability-button.disabled:hover {
 			color: #C5C5C5;
 		}
 
@@ -1080,12 +1090,12 @@
 /*        Avalability Popup                                        */
 /* *************************************************************** */
 
-		#popup.availability
+		.ng-modal.availability .ng-modal-dialog
 		{
 			padding: 20px 20px 5px 20px;
 			min-width: 500px;
 		}
-		#popup.availability h2
+		.ng-modal.availability .ng-modal-title
 		{
 			margin: 0;
 			padding: 0;
@@ -1094,48 +1104,50 @@
 			border-bottom: #999 dotted 1px;
 			padding-bottom: 20px;
 			margin-bottom: 20px;
+			position: relative;
+			text-align: left;
 		}
-		#popup.availability ul.inline li
+		.ng-modal.availability ul.inline li
 		{
 			list-style: none;
 			display: inline-block;
 			padding: 0;
 			margin: 0;
 		}
-		#popup.availability ul.inline
+		.ng-modal.availability ul.inline
 		{
 			margin: 50px auto 20px auto;
 			padding: 0;
 			width: 255px;
 		}
-		#popup.availability ul.attemptsPopup
+		.ng-modal.availability ul.attemptsPopup
 		{
-			margin: 0 0 10px 0;
+			margin: 4px 0 10px 0;
 			padding: 0 0 0 10px;
 		}
-		#popup.availability ul.attemptsPopup li
+		.ng-modal.availability ul.attemptsPopup li
 		{
 			list-style: none;
 		}
-		#popup.availability ul.toFrom
+		.ng-modal.availability ul.toFrom
 		{
 			margin: 0;
 			padding: 0;
 		}
-		#popup.availability .availabilityError {
+		.ng-modal.availability .availabilityError {
 			position: absolute;
 			top: 8px;
 			right: 20px;
 			color: #F00;
 			font-weight: bold;
 		}
-		#popup.availability ul.toFrom>li
+		.ng-modal.availability ul.toFrom>li
 		{
 			list-style: none;
 			margin: 20px 0 0 0;
 			padding: 0;
 		}
-		#popup.availability ul.toFrom li span.text-right
+		.ng-modal.availability ul.toFrom li span.text-right
 		{
 			text-align: right;
 			display: inline-block;
@@ -1144,7 +1156,7 @@
 			font-weight: bold;
 		}
 
-		#popup.availability ul li.save a
+		.ng-modal.availability ul li.save a
 		{
 			display: inline-block;
 			background: #0093e7;
@@ -1154,7 +1166,7 @@
 			border-radius: 5px;
 			margin: 0 10px;
 		}
-		#popup.availability h3
+		.ng-modal.availability h3
 		{
 			vertical-align: top;
 			display: inline-block;
@@ -1163,41 +1175,41 @@
 			margin-right: 30px;
 			text-align: right;
 		}
-		#popup.availability .datePicker
+		.ng-modal.availability .datePicker
 		{
 			display: inline-block;
 			padding: 0;
 			margin-left: -12px;
 		}
-		#popup.availability .datePicker input[type=text]
+		.ng-modal.availability .datePicker input[type=text]
 		{
 			border: 1px solid rgba(0, 0, 0, 0.2);
 			padding: 7px;
 			font-size: .8em;
 			border-radius: 7px;
 		}
-		#popup.availability .datePicker input[type=text]:focus
+		.ng-modal.availability .datePicker input[type=text]:focus
 		{
 			outline: none;
 			box-shadow: 0px 0px 1px 1px #0094e2;
 		}
-		#popup.availability .datePicker input[type=radio]
+		.ng-modal.availability .datePicker input[type=radio]
 		{
 			height: 15px;
 		}
-		#popup.availability .attemptHolder li.selected {
+		.ng-modal.availability .attemptHolder li.selected {
 		 color: #000 !important;
 		}
-		#popup.availability .selector
+		.ng-modal.availability .selector
 		{
 			width: 400px;
 			margin: 20px 0 0 0;
 			display: inline-block;
 		}
-		#popup.availability .attemptHolder li {
+		.ng-modal.availability .attemptHolder li {
 		  display: inline-block;
 		}
-		#popup.availability .attemptHolder
+		.ng-modal.availability .attemptHolder
 		{
 			margin: 0 0 0 129px;
 			padding: 0;
@@ -1210,26 +1222,26 @@
 			-o-user-select: none;
 			user-select: none;
 		}
-		#popup.availability .data_explination
+		.ng-modal.availability .data_explination
 		{
 			margin-left: 125px;
 			width: 450px;
 			font-size: 14px;
 		}
-		#popup.availability .ui-slider-handle.ui-state-default.ui-corner-all
+		.ng-modal.availability .ui-slider-handle.ui-state-default.ui-corner-all
 		{
 			outline: none;
 			margin-top: -3px;
 			background: #519BD1;
 			border: #4380AD 1px solid;
 		}
-		#popup.availability .date.error, #popup.availability .time.error
+		.ng-modal.availability .date.error, .ng-modal.availability .time.error
 		{
 			border: 2px solid rgba(255, 0, 0, 0.2);
 			background: rgba(255, 0, 0, 0.2);
 			font-color: #000000;
 		}
-		#popup.availability .am, #popup.availability .pm {
+		.ng-modal.availability .am, .ng-modal.availability .pm {
 			border: 1px solid rgba(0,0,0,0.2);
 			color: rgba(0,0,0,0.2);
 			padding: 5px;
@@ -1246,60 +1258,60 @@
 			-o-user-select: none;
 			user-select: none;
 		}
-		#popup.availability .ui-slider-handle
+		.ng-modal.availability .ui-slider-handle
 		{
 			height: 16px;
 			width: 16px;
 			border-radius: 100%;
 		}
-		#popup.availability .ui-slider
+		.ng-modal.availability .ui-slider
 		{
 			height: 1px;
 			margin-top: -6px;
 			padding-top: 1px;
 			vertical-align: middle;
 		}
-		#popup.availability .am.selected, #popup.availability .pm.selected  {
+		.ng-modal.availability .am.selected, .ng-modal.availability .pm.selected  {
 			background: #0094e2;
 			color: #FFFFFF;
 		}
-		#popup.availability .am
+		.ng-modal.availability .am
 		{
 			border-right: none;
 			border-radius: 4px 0 0 4px;
 		}
-		#popup.availability .pm {
+		.ng-modal.availability .pm {
 			border-radius: 0 4px 4px 0;
 		}
 
-		#popup.availability .attemptHolder li
+		.ng-modal.availability .attemptHolder li
 		{
 			margin-right: 0.23em;
 			color: rgba(0,0,0,0.3);
 		}
-		#popup.availability .attemptHolder li:hover
+		.ng-modal.availability .attemptHolder li:hover
 		{
 			color: black;
 		}
-		#popup.availability .attemptHolder li.step
+		.ng-modal.availability .attemptHolder li.step
 		{
 			margin-right: 3.85em;
 		}
-		#popup.availability .step.first
+		.ng-modal.availability .step.first
 		{
 			margin-left: 3.8em;
 		}
-		#popup.availability .step.last
+		.ng-modal.availability .step.last
 		{
 			margin-left: -23px;
 		}
 ​
-		#popup.availability ul li ul.hide
+		.ng-modal.availability ul li ul.hide
 		{
 			display: none;
 		}
 		/* date picker overrides */
-		.ui-datepicker
+		.hasDatePicker
 		{
 			z-index: 1500 !important;
 			font-size: 75% !important;
@@ -1309,7 +1321,7 @@
 /* *************************************************************** */
 /*        Sharing Popup                                            */
 /* *************************************************************** */
-#popup.share .cancel_button
+.ng-modal.share .cancel_button
 {
 	position: absolute;
 	bottom: -35px;
@@ -1321,19 +1333,19 @@
 	cursor: pointer;
 }
 
-#popup.share .cancel_button.close_only
+.ng-modal.share .cancel_button.close_only
 {
 	left: 250px;
 }
 
-#popup.share .action_button.save_button
+.ng-modal.share .action_button.save_button
 {
 	position: absolute;
 	bottom: -35px;
 	left: 285px;
 }
 
-#popup.share .toggle_transfer
+.ng-modal.share .toggle_transfer
 {
 	font-size: 12px;
 	position: absolute;
@@ -1341,12 +1353,12 @@
 	left: 20px;
 	padding: 5px 10px;
 }
-#popup.share .cancel_button .share_button
+.ng-modal.share .cancel_button .share_button
 {
 	margin-top: 10px;
 }
 
-#popup .green
+.ng-modal .green
 {
 	background:#b2cd43;
 	background-image: -webkit-linear-gradient(top, #d1e776, #a6c430);
@@ -1356,7 +1368,7 @@
 	border-color:#95a74e;
 	color:#4d5822;
 }
-#popup .green:hover
+.ng-modal .green:hover
 {
 	background:#a2c129;
 	background-image: -webkit-linear-gradient(top, #a6c430, #d1e776);
@@ -1365,7 +1377,7 @@
 	background-image: -ms-linear-gradient(top, #a6c430, #d1e776);
 	text-decoration:none;
 }
-#popup .gray
+.ng-modal .gray
 {
 	background:#aeaeae;
 	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
@@ -1375,7 +1387,7 @@
 	border-color:#747474;
 	color:#545454;
 }
-#popup .gray:hover
+.ng-modal .gray:hover
 {
 	background:#a2c129;
 	background-image: -webkit-linear-gradient(top, #b8b8b8, #e4e4e4);
@@ -1385,18 +1397,12 @@
 	text-decoration:none;
 }
 
-#popup.share
+.ng-modal.share
 {
 	text-align: center;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-	border: #f0f0f0 3px solid;
-	width: 620px;
-	height: 500px;
 }
 
-#popup.share #adding
+.ng-modal.share #adding
 {
 	background-color: #f0f0f0;
 	border:none;
@@ -1405,7 +1411,7 @@
 	top: 0;
 }
 
-#popup.share .container
+.ng-modal.share .container
 {
 	left: 0;
 	top: 50px;
@@ -1414,19 +1420,13 @@
 	padding-top: 15px;
 }
 
-#popup.share h2
+.ng-modal.share .ng-modal-title
 {
-	font-family: Lato, arial, serif;
-	font-weight: bold;
-	font-size: 24px;
-	text-align: center;
-	position: absolute;
 	top: 15px;
 	left: 27px;
-	margin: 4px;
 }
 
-#popup.share a.close
+.ng-modal.share a.close
 {
 	display:block;
 	position: absolute;
@@ -1438,7 +1438,7 @@
 	width: 19px;
 	height: 19px;
 }
-#popup.share a.remove
+.ng-modal.share a.remove
 {
 	display:inline-block;
 	color:#bfbfbf;
@@ -1450,20 +1450,20 @@
 	margin-left: 10px;
 	margin-top: 14px;
 }
-#popup.share .name {
+.ng-modal.share .name {
 	float:left;
 	font-weight: bold;
 	font-size: 15px;
 	margin-top:8px;
 }
 
-#popup.share .name span {
+.ng-modal.share .name span {
 	display:block;
 	font-weight: normal;
 	text-align:left;
 }
 
-#popup.share .input_label
+.ng-modal.share .input_label
 {
 	font-size: 19px;
 	margin: 0 25px 0 0;
@@ -1471,13 +1471,13 @@
 	position: absolute;
 }
 
-#popup.share #adding .input_label
+.ng-modal.share #adding .input_label
 {
 	left: 20px;
 	top: 20px;
 }
 
-#popup.share #access input.user_add, #popup.share #access .placeholder
+.ng-modal.share #access input.user_add, .ng-modal.share #access .placeholder
 {
 	width: 445px;
 	height: 30px;
@@ -1491,7 +1491,7 @@
 }
 
 
-#popup.share #adding #input_holder {
+.ng-modal.share #adding #input_holder {
 	width: 445px;
 	height: 30px;
 	padding-left: 10px;
@@ -1506,7 +1506,7 @@
 	right: 20px;
 }
 
-#popup.share #adding #input_area
+.ng-modal.share #adding #input_area
 {
 	display: inline-block;
 	outline: none;
@@ -1516,7 +1516,7 @@
 	font-size: 16px;
 	padding-top: 5px;
 }
-#popup.share #adding #input_area input.user_add
+.ng-modal.share #adding #input_area input.user_add
 {
 	width: 460px;
 	height: 30px;
@@ -1526,47 +1526,47 @@
 	display: inline-block;
 }
 
-#popup.share #adding #input_area input.user_add::-webkit-input-placeholder {
+.ng-modal.share #adding #input_area input.user_add::-webkit-input-placeholder {
 	color:    #343434;
 }
-#popup.share #adding #input_area input.user_add:-moz-placeholder {
+.ng-modal.share #adding #input_area input.user_add:-moz-placeholder {
 	color:    #343434;
 }
-#popup.share #adding #input_area input.user_add:-ms-input-placeholder {
+.ng-modal.share #adding #input_area input.user_add:-ms-input-placeholder {
 	color:    #343434;
 }
 
-#popup.share #adding #expArea
+.ng-modal.share #adding #expArea
 {
 	display: block;
 }
-#popup.share #adding #expArea #expSet
+.ng-modal.share #adding #expArea #expSet
 {
 	display: none;
 	padding: 0;
 	margin: 0;
 }
-#popup.share .expElement
+.ng-modal.share .expElement
 {
 	padding: 0;
 	margin: 0 5px;
 }
 
-#popup.share .changeRoleExpiration {
+.ng-modal.share .changeRoleExpiration {
 	display: none;
 }
 
-#popup.share #adding #expArea .exp_disclaimer
+.ng-modal.share #adding #expArea .exp_disclaimer
 {
 	padding: 0;
 	margin: 10px 0;
 }
-#popup.share #adding #expArea #roleExpiration
+.ng-modal.share #adding #expArea #roleExpiration
 {
 	width: 100px;
 }
 
-#popup.share .share_user_to_add
+.ng-modal.share .share_user_to_add
 {
 	display: inline-block;
 	font-size: 14px;
@@ -1587,7 +1587,7 @@
 	margin: 0;
 }
 
-#popup.share .search_list
+.ng-modal.share .search_list
 {
 	width: 456px;
 	min-height: 130px;
@@ -1599,22 +1599,23 @@
 	overflow: auto;
 	z-index:3;
 	text-align: left;
-	display:none;
+	top: 50px;
+	left: 120px;
 }
-#popup.share .no_match_message, #popup.share .no_match_reason
+.ng-modal.share .no_match_message, .ng-modal.share .no_match_reason
 {
 	width: 60%;
 	text-align:center;
 	margin: 10px auto;
 }
 
-#popup.share .no_match_reason
+.ng-modal.share .no_match_reason
 {
 	color: #a0a0a0;
 	font-size: 14px;
 }
 
-#popup.share .search_match
+.ng-modal.share .search_match
 {
 	width: 200px;
 	height: 56px;
@@ -1626,16 +1627,16 @@
 	display: inline-block;
 	background-color: #ffffff;
 }
-#popup.share .search_match:hover
+.ng-modal.share .search_match:hover
 {
 	background-color: #c5e7fa;
 	cursor: pointer;
 }
-#popup.share .search_match:focus
+.ng-modal.share .search_match:focus
 {
 	background-color: #7fc9f3;
 }
-#popup.share .access_list
+.ng-modal.share .access_list
 {
 	background-color: #f2f2f2;
 	width: 520px;
@@ -1648,7 +1649,7 @@
 	overflow: auto;
 }
 
-#popup.share .access_list.no-add-access
+.ng-modal.share .access_list.no-add-access
 {
 	background-color: #f2f2f2;
 	height: 320px;
@@ -1656,17 +1657,17 @@
 
 }
 
-#popup.share .access_heading
+.ng-modal.share .access_heading
 {
 	margin: 5px 125px 0 0;
 	padding: 0;
 }
-#popup.share .user_match_avatar
+.ng-modal.share .user_match_avatar
 {
 	float: left;
 	margin: 5px;
 }
-#popup.share .user_match_name
+.ng-modal.share .user_match_name
 {
 	font-size: 14px;
 	text-align: left;
@@ -1675,26 +1676,26 @@
 	font-family: 'Lucida Grande', sans-serif;
 }
 
-#popup.share .disclaimer
+.ng-modal.share .disclaimer
 {
 	color: #575757;
 	font-size: 14px;
 	margin-top: 10px;
 }
 
-#popup.share .user_perm
+.ng-modal.share .user_perm
 {
 	border-bottom: #E1E1E1 1px solid;
 	margin: 5px 0;
 	margin:0;
 }
 
-#popup.share .user_perm:last-child
+.ng-modal.share .user_perm:last-child
 {
 	border: none;
 }
 
-#popup.share .user_perm
+.ng-modal.share .user_perm
 {
 	width: 420px;
 	min-height: 64px;
@@ -1706,7 +1707,7 @@
 	padding: 15px 0 0 0;
 }
 
-#popup.share .user_perm .options {
+.ng-modal.share .user_perm .options {
 	position: absolute;
 	right: 0;
 	width: 145px;
@@ -1715,17 +1716,17 @@
 	margin-top:6px;
 }
 
-#popup.share .user_perm .options select {
+.ng-modal.share .user_perm .options select {
 	display: block;
 }
 
-#popup.share .avatar, .user_perm_name, .user-perm .options, .user_perm_select, .user_match_avatar, .user_match_name
+.ng-modal.share .avatar, .user_perm_name, .user-perm .options, .user_perm_select, .user_match_avatar, .user_match_name
 {
 	display: inline-block;
 	vertical-align: middle;
 }
 
-#popup.share .avatar, .user_match_avatar
+.ng-modal.share .avatar, .user_match_avatar
 {
 	width: 50px;
 	height: 50px;
@@ -1736,7 +1737,7 @@
 	margin-right: 10px;
 }
 
-#popup.share .user_perm_name
+.ng-modal.share .user_perm_name
 {
 	width: 187px;
 	font-size: 15px;
@@ -1746,13 +1747,13 @@
 	font-weight:bold;
 }
 
-#popup.share .user_perm_name span
+.ng-modal.share .user_perm_name span
 {
 	display:block;
 	font-weight: normal;
 }
 
-#popup.share .user_perm_select
+.ng-modal.share .user_perm_select
 {
 	width: 150px;
 	height: 20px;
@@ -1760,100 +1761,100 @@
 	text-align: left;
 }
 
-#popup.share #adding .options
+.ng-modal.share #adding .options
 {
 	width: 450px;
 	margin: 10px 25px 0 0;
 	float: right;
 }
-#popup.share #adding .user_perm_select
+.ng-modal.share #adding .user_perm_select
 {
 	margin-left: 8px;
 }
 
-#popup.share hr
+.ng-modal.share hr
 {
 	width: 100%;
 	border: 1px dotted;
 	margin: 10px 0;
 }
 
-#popup.share .user_perm_check
+.ng-modal.share .user_perm_check
 {
 	float: left;
 	margin-bottom: 10px;
 }
 
-#popup.share .user_perm_message
+.ng-modal.share .user_perm_message
 {
 	display:block;
 	text-align: left;
 	width: 426px;
 }
-#popup.share #adding textarea {
+.ng-modal.share #adding textarea {
 	resize: none;
 }
 
-#popup.share .options
+.ng-modal.share .options
 {
 	text-align: right;
 }
 
-#popup.share .owner
+.ng-modal.share .owner
 {
 	display:none;
 	width: 145px;
 	text-align: left;
 }
 
-#popup.share .owner a
+.ng-modal.share .owner a
 {
 	display: block;
 	font-size: 13px;
 }
 
-#popup.share .transfer
+.ng-modal.share .transfer
 {
 	display: none;
 }
 
-#popup.share a.cancel-transfer
+.ng-modal.share a.cancel-transfer
 {
 	display: inline !important;
 }
 
-#popup.share .transfer .do-transfer,
-#popup.share .transfer span
+.ng-modal.share .transfer .do-transfer,
+.ng-modal.share .transfer span
 {
 	display: none;
 }
 
-#popup.share .transfer span
+.ng-modal.share .transfer span
 {
 	font-size: 14px;
 }
 
-#popup.share .owner .transfer-owner
+.ng-modal.share .owner .transfer-owner
 {
 	display: none;
 }
 
-#popup.share .undo
+.ng-modal.share .undo
 {
 	display:none;
 	width: 145px;
 	text-align: left;
 }
 
-#popup.share .deleted .avatar {
+.ng-modal.share .deleted .avatar {
 	opacity: .5;
 }
 
-#popup.share .deleted .name {
+.ng-modal.share .deleted .name {
 	color: #5f5f5f;
 }
 
-#popup.share .user_perm .exp_change_view
+.ng-modal.share .user_perm .exp_change_view
 {
 	display: none;
 	text-align: right;
@@ -1874,7 +1875,7 @@
 
 }
 
-#popup.share .user_perm .exp_change_view .access_expires
+.ng-modal.share .user_perm .exp_change_view .access_expires
 {
 	text-align: left;
 	font-family: 'Lato';
@@ -1883,39 +1884,39 @@
 	padding-top: 6px;
 }
 
-#popup.share .user_perm label
+.ng-modal.share .user_perm label
 {
 	margin-right:10px;
 }
 
 
-#popup.share .exp_change_view .exp_button{
+.ng-modal.share .exp_change_view .exp_button{
 	font-family: Lato, arial, serif;
 	position: absolute;
 	top: 10px;
 	right: 10px;
 }
 
-#popup.share .exp_change_view .gray_min
+.ng-modal.share .exp_change_view .gray_min
 {
 	background:#aeaeae;
 	color:#545454;
 }
-#popup.share .exp_change_view .gray_min:hover
+.ng-modal.share .exp_change_view .gray_min:hover
 {
 	background: #919191;
 }
-#popup.share .exp_change_view .green_min
+.ng-modal.share .exp_change_view .green_min
 {
 	background:#b2cd43;
 	color:#4d5822;
 }
-#popup.share .exp_change_view .green_min:hover
+.ng-modal.share .exp_change_view .green_min:hover
 {
 	background:#a2c129;
 }
 
-#popup.share .exp_change_view input[type="text"]
+.ng-modal.share .exp_change_view input[type="text"]
 {
 	display: none;
 	position: absolute;
@@ -1923,7 +1924,7 @@
 	left: 145px;
 }
 
-#popup.share .demote_dialogue
+.ng-modal.share .demote_dialogue
 {
 	border-radius: 4px;
 	-webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, .3);
@@ -1937,9 +1938,12 @@
 	text-align: center;
 	background: #fcdbdb;
 	height: 40px;
+	z-index: 10000;
+	position:absolute;
+	margin-left: 90px;
 }
 
-#popup.share .demote_dialogue .arrow
+.ng-modal.share .demote_dialogue .arrow
 {
 	background: url('../img/pink-arrow-left.png') no-repeat 0 center;
 	width: 13px;
@@ -1951,27 +1955,27 @@
 	height: 100%;
 }
 
-#popup.share .demote_dialogue .warning
+.ng-modal.share .demote_dialogue .warning
 {
 	display: block;
 	margin: -4px 0 6px 0;
 	text-align: center;
 }
 
-#popup.share .demote_dialogue .button
+.ng-modal.share .demote_dialogue .button
 {
 	text-align: center;
 	margin: 0 10px 0 10px;
 }
 
-#popup.share .demote_dialogue .red
+.ng-modal.share .demote_dialogue .red
 {
 	color: white;
 	font-size: 11pt;
 	padding: 5px 12px;
 }
 
-#popup.share .demote_dialogue .no_button
+.ng-modal.share .demote_dialogue .no_button
 {
 	font-family: Lato, arial, serif;
 	color: #555;
@@ -2053,18 +2057,12 @@
 /*        Copying Popup                                            */
 /* *************************************************************** */
 
-		#popup.copy
+		.ng-modal.copy
 		{
 			text-align: center;
-			-webkit-border-radius: 3px;
-			-moz-border-radius: 3px;
-			border-radius: 3px;
-			border: #f0f0f0 3px solid;
-			width: 620px;
-			height: 220px;
 		}
 
-		#popup.copy .adding_shadow
+		.ng-modal.copy .adding_shadow
 		{
 			width: 640px;
 			height: 480px;
@@ -2080,29 +2078,22 @@
 			filter:alpha(opacity=0);
 		}
 
-		#popup.copy .container
+		.ng-modal.copy .container
 		{
 			position: absolute;
 			left: 20px;
 			top: 40px;
 			width: 600px;
-			height: 390px;
 			padding-top: 15px;
 		}
 
-		#popup.copy h2
+		.ng-modal.copy .ng-modal-title
 		{
-			font-family: Lato, arial, serif;
-			font-weight: bold;
-			font-size: 24px;
-			text-align: center;
-			position: absolute;
 			top: 3px;
 			left: 12px;
-			margin: 4px;
 		}
 
-		#popup.copy a.close
+		.ng-modal.copy a.close
 		{
 			display:block;
 			position: absolute;
@@ -2115,13 +2106,13 @@
 			height: 19px;
 		}
 
-		#popup.copy .input_label
+		.ng-modal.copy .input_label
 		{
 			font-size: 16px;
 			margin: 0 25px 0 0;
 		}
 
-		#popup.copy input.newtitle
+		.ng-modal.copy input.newtitle
 		{
 			width: 450px;
 			height: 30px;
@@ -2130,25 +2121,25 @@
 			z-index:2;
 		}
 
-		#popup.copy .copy_button
+		.ng-modal.copy .copy_button
 		{
 			margin-top:20px;
 		}
 
-		#popup.copy .copy_error
+		.ng-modal.copy .copy_error
 		{
 			display:none;
 			color:#EE0000;
 			margin-top:5px;
 		}
 
-#popup.share .perm-text
+.share .perm-text
 {
 	width: 100%;
 	display: inline-block;
 }
 
-#popup.share .exp-date
+.share .exp-date
 {
 	padding: 0;
 	text-decoration:underline;
@@ -2159,30 +2150,30 @@
 	border: none;
 	width: 85px;
 }
-#popup.share .exp-date:hover
+.share .exp-date:hover
 {
 	color: #969696;
 }
-#popup.share .exp-date.disabled,
-#popup.share .exp-date.disabled:hover {
+.share .exp-date.disabled,
+.share .exp-date.disabled:hover {
 	cursor: default;
 	color: #c5c5c5;
 	text-decoration: none;
 }
 
-#popup.share .exp-date:focus
+.share .exp-date:focus
 {
 	outline:none;
 	background:#fff;
 	border:solid 1px #f7b64a;
 }
 
-#popup.share .expires
+.share .expires
 {
 	font-size: 8pt;
 }
 
-#popup.share .remove-expiration
+.share .remove-expiration
 {
 	font-size: 8pt;
 }
@@ -2191,7 +2182,7 @@
 /*        Edit Published Widget Popup                              	*/
 /* *************************************************************** */
 
-		#popup.edit-published-widget
+		.edit-published-widget
 		{
 			-webkit-border-radius: 3px;
 			-moz-border-radius: 3px;
@@ -2201,14 +2192,14 @@
 			height: 320px;
 		}
 
-		#popup.edit-published-widget .container
+		.edit-published-widget .container
 		{
 			width: 450px;
 			height: 300px;
 			padding-top: 30px;
 		}
 
-		#popup.edit-published-widget h2
+		.edit-published-widget h2
 		{
 			font-family: Lato, arial, serif;
 			font-weight: bold;
@@ -2220,7 +2211,7 @@
 			margin: 4px;
 		}
 
-		#popup.edit-published-widget a.close
+		.edit-published-widget a.close
 		{
 			display:block;
 			position: absolute;
@@ -2233,13 +2224,13 @@
 			height: 19px;
 		}
 
-		#popup.edit-published-widget span.center
+		.edit-published-widget span.center
 		{
 			text-align: center;
 			display:block;
 		}
 
-		#popup.edit-published-widget .action_button
+		.edit-published-widget .action_button
 		{
 			margin-top:20px;
 		}
@@ -2249,14 +2240,14 @@
 /*        Deletion Popup                                           */
 /* *************************************************************** */
 		/*
-		#popup.copy .close_button
+		.popup.copy .close_button
 		{
 			position: absolute;
 			bottom: 20px;
 			left: 250px;
 		}
 		*/
-		#popup.delete
+		.popup.delete
 		{
 			text-align: center;
 			-webkit-border-radius: 3px;
@@ -2267,7 +2258,7 @@
 			height: 220px;
 		}
 
-		#popup.delete .adding_shadow
+		.popup.delete .adding_shadow
 		{
 			width: 640px;
 			height: 480px;
@@ -2282,7 +2273,7 @@
 			filter:alpha(opacity=0);
 		}
 
-		#popup.delete .container
+		.popup.delete .container
 		{
 			position: absolute;
 			left: 20px;
@@ -2292,7 +2283,7 @@
 			padding-top: 15px;
 		}
 
-		#popup.delete h2
+		.popup.delete h2
 		{
 			font-family: Lato, arial, serif;
 			font-weight: bold;
@@ -2304,7 +2295,7 @@
 			margin: 4px;
 		}
 
-		#popup.delete a.close
+		.popup.delete a.close
 		{
 			display:block;
 			position: absolute;
@@ -2317,7 +2308,7 @@
 			height: 19px;
 		}
 
-		#popup.delete .delete-warning
+		.popup.delete .delete-warning
 		{
 			display:block;
 			margin:5px 0 5px 0;
@@ -2325,7 +2316,7 @@
 
 		}
 
-		#popup .red
+		.ng-modal .red
 		{
 			background:#ca0000;
 			background-image: -webkit-linear-gradient(top, #e10000, #ca0000);
@@ -2335,7 +2326,7 @@
 			border-color:#747474;
 			color:#545454;
 		}
-		#popup .red:hover
+		.ng-modal .red:hover
 		{
 			background:#ca0000;
 			background-image: -webkit-linear-gradient(top, #ca0000, #e10000);
@@ -2349,19 +2340,18 @@
  * CSV POPUP PAGE
  * * * * * * * * * * * * * * * * * */
 
- #popup.csv_popup {
-	background: #FFF;
-	padding-right: 0;
-	padding-top: 0;
-	padding-bottom: 0;
- }
- #popup.csv_popup table {
+.ng-modal.csv_popup .ng-modal-dialog {
+	border-radius: 0!important;
+	border: none;
+}
+
+ .ng-modal.csv_popup table {
 	border-collapse:collapse;
 	width: 450px;
 	position: relative;
 	z-index: 0;
  }
- #popup.csv_popup div.score_table {
+ .ng-modal.csv_popup div.score_table {
 	background: #fffdf9;
 	-moz-box-shadow: -1px 3px 6px #DDD;
 	-webkit-box-shadow: -1px 3px 6px #DDD;
@@ -2370,7 +2360,7 @@
 	position: relative;
 	display: inline-block;
  }
- #popup.csv_popup #sample-notification {
+ .ng-modal.csv_popup #sample-notification {
 	font-family: Lato;
 	left: 0;
 	top: 104px;
@@ -2388,42 +2378,40 @@
 	-o-transform:rotate(-15deg);
 	transform:rotate(-15deg);
  }
- #popup.csv_popup div.download_wrapper {
+ .ng-modal.csv_popup div.download_wrapper {
 	display: inline-block;
-	position: relative;
  }
- #popup.csv_popup div.download_options {
+ .ng-modal.csv_popup div.download_options {
 	display: inline-block;
 	background: #eeeeee;
 	vertical-align: top;
 	height: 100%;
-	margin-left: -3px;
-	display: none;
+	margin-left: 20px;
 	position: absolute;
 	top: 0;
 	width: 300px;
 	padding-left: 20px;
 	padding-right: 20px;
  }
- #popup.csv_popup div.download_options h4{
+ .ng-modal.csv_popup div.download_options h4{
 	margin: 0;
 	color: #555555;
 	text-align: left;
 	padding: 22px 0 0 0;
 	font-size: 20px;
  }
- #popup.csv_popup div.download_options ul, #popup.csv_popup div.download_options ul li {
+ .ng-modal.csv_popup div.download_options ul, .ng-modal.csv_popup div.download_options ul li {
 	margin: 0;
 	padding: 0;
 	list-style: none;
  }
- #popup.csv_popup div.download_options ul li span.grey {
+ .ng-modal.csv_popup div.download_options ul li span.grey {
 	color: #898989;
  }
- #popup.csv_popup div.download_options ul li {
+ .ng-modal.csv_popup div.download_options ul li {
 	padding-bottom: 10px;
  }
- #popup.csv_popup div.download_options ul li.checkallLi {
+ .ng-modal.csv_popup div.download_options ul li.checkallLi {
 	font-size: 12px;
 	vertical-align: top;
 	color: #898989;
@@ -2431,17 +2419,17 @@
 	padding-bottom: 5px;
 	margin-bottom: 10px;
  }
- #popup.csv_popup div.download_options p.export_which {
+ .ng-modal.csv_popup div.download_options p.export_which {
 	margin-top: 22px;
 	font-weight: bold;
 	font-size: 16px;
  }
- #popup.csv_popup div.download_options ul li input {
+ .ng-modal.csv_popup div.download_options ul li input {
 	margin-right: 15px;
 	display: inline-block;
  }
 
- #popup.csv_popup table tr td,  #popup.csv_popup table tr th {
+ .ng-modal.csv_popup table tr td,  .ng-modal.csv_popup table tr th {
 	border: #e5e4e2 solid 1px;
 	padding: 5px;
 	border-bottom: none;
@@ -2449,21 +2437,21 @@
 	text-align: left;
 	font-size: 15px;
  }
-#popup.csv_popup ul.options {
+.ng-modal.csv_popup ul.options {
 	position: absolute;
 	right: 0;
-	top: 0;
+	top: 15px;
 }
-#popup.csv_popup ul.options li {
+.ng-modal.csv_popup ul.options li {
 	list-style: none;
 }
-#popup.csv_popup div.score_table img {
+.ng-modal.csv_popup div.score_table img {
 	right: -2px;
 	position: absolute;
 	z-index: 100;
 	top: -1px;
 }
-#popup.csv_popup div.score_table div.download-controls {
+.ng-modal.csv_popup div.score_table div.download-controls {
 	position: relative;
 	z-index: 1;
 	margin: 0;
@@ -2484,14 +2472,14 @@
 	);
 	text-align: center;
 }
-#popup.csv_popup div.score_table p.download a {
+.ng-modal.csv_popup div.score_table p.download a {
 	margin-top: 8px;
 	margin-bottom: 0px;
 }
-#popup.csv_popup h4 {
+.ng-modal.csv_popup h4 {
 	text-align: center;
 }
-#popup.csv_popup h3 {
+.ng-modal.csv_popup h3 {
 	margin: 0;
 	padding: 23px 0 20px 0;
 	font-size: 1.3em;
@@ -2499,7 +2487,7 @@
 	border-bottom: #999 dotted 1px;
 	margin-bottom: 20px;
 }
-#popup.csv_popup div.score_table p.download a.disabled,
+.ng-modal.csv_popup div.score_table p.download a.disabled,
 .my_widgets .page .scores #export_scores_button.disabled {
 	background:#aeaeae;
 	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
@@ -2510,7 +2498,7 @@
 	color:#545454;
 	opacity: 0.5;
 }
-#popup.csv_popup ul.options li a {
+.ng-modal.csv_popup ul.options li a {
 	background: #EEE;
 	padding: 10px;
 	font-size: 0.9em;
@@ -2519,7 +2507,7 @@
 	text-align: center;
 	display: inline-block;
 }
-#popup.csv_popup p.download a.disabled:hover {
+.ng-modal.csv_popup p.download a.disabled:hover {
 	background:#ffba5d;
 	background-image: -webkit-linear-gradient(top, #ffce8c, #ffa42a);
 	background-image: -moz-linear-gradient(top, #ffce8c, #ffa42a);
@@ -2528,7 +2516,7 @@
 	text-decoration: none;
 	cursor: default;
 }
-#popup.csv_popup div.score_table p.download a span.arrow_down,
+.ng-modal.csv_popup div.score_table p.download a span.arrow_down,
 .my_widgets .page .scores a span.arrow_down {
 	background: url(../img/arrow_down.png) no-repeat center bottom;
 	margin: 0;
@@ -2542,20 +2530,44 @@
 .arrow_down_button {
 	padding: 7px 12px 8px 12px;
 }
-#popup.csv_popup p.cancel {
+.ng-modal.csv_popup p.cancel {
 	text-align: center;
 }
-#popup.csv_popup p.cancel a {
+.ng-modal.csv_popup p.cancel a {
 	font-size: 0.9em;
 	color: #bbb;
 	text-decoration: underline;
 }
-#popup.csv_popup select {
+.ng-modal.csv_popup select {
 	margin-top: 10px;
 	margin-bottom: -10px;
 }
-#popup.csv_popup table tr td {
+.ng-modal.csv_popup table tr td {
 	width: 30%;
+}
+
+.ng-modal .ng-modal-overlay
+{
+	opacity: 0.5;
+}
+
+.ng-modal .ng-modal-dialog
+{
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: #f0f0f0 3px solid;
+	box-shadow: none!important;
+}
+
+.ng-modal .ng-modal-title
+{
+	font-family: Lato, arial, serif;
+	font-weight: bold;
+	font-size: 24px;
+	text-align: center;
+	position: absolute;
+	margin: 4px;
+	border-bottom: none;
 }
 
 #twitchStop, #wobbleStop {
@@ -2622,6 +2634,9 @@
 	animation-iteration-count: infinite;
 }
 
+.ui-datepicker {
+	font-size: 12px !important;
+}
 .dataTable {
 	width: 100%;
 	overflow: auto;

@@ -2,18 +2,20 @@
   "name": "Materia",
   "version": "1.0.0",
   "repository": {
-    "type":"git",
-    "url":"https://github.com/ucfcdl/Materia.git"
+    "type": "git",
+    "url": "https://github.com/ucfcdl/Materia.git"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-uglify": "~0.2.0",
-    "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-sass": "~0.5.0",
     "grunt-contrib-imagemin": "~0.3.0",
     "matchdep": "~0.1.2",
     "webdriverjs": "0.7.14"
+  },
+  "dependencies": {
+    "bower": "^1.3.12"
   }
 }

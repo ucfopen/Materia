@@ -153,14 +153,6 @@ Namespace('Materia').TextFilter = do ->
 		else
 			searchDelay = _searchDelay
 
-		# add close x
-		$closeX = $('.search-close')
-		$closeX.hide()
-		$closeX.click (event) ->
-			#clear out the search field and force the search to re-run
-			$element.val('').trigger('keyup')
-			$(this).hide()
-
 		# key listener:
 		$element.keyup (event) ->
 			val = $element.val()
@@ -177,11 +169,6 @@ Namespace('Materia').TextFilter = do ->
 				#clear out the search field and force the search to re-run
 				val = ''
 				$element.val(val).trigger('keyup')
-
-			if val.length != 0
-				$closeX.show()
-			else
-				$closeX.hide()
 
 			lastSearch = val
 
