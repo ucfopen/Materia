@@ -276,7 +276,7 @@ describe 'Profile page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
                 expect(src).toContain('100')
             .call(done)
 
@@ -359,14 +359,14 @@ describe 'Settings page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).not().toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
             .execute 'return $("#notify_on_perm_change:checked").length;', null, (err, isChecked) ->
                 expect(err).toBeNull()
                 expect(isChecked.value).toBe(0)
             .getAttribute 'header span .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).not().toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
 
             .refresh()
 
@@ -378,7 +378,7 @@ describe 'Settings page', ->
             .getAttribute 'header span .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).not().toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
 
             # Turn on stuff
             # gravatar yes
@@ -394,12 +394,12 @@ describe 'Settings page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
                 expect(src).toContain('100')
             .getAttribute 'header span .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
                 expect(src).toContain('24')
 
             .refresh()
@@ -410,13 +410,13 @@ describe 'Settings page', ->
             .getAttribute '.avatar_big img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
                 expect(src).toContain('100')
             # check the header too
             .getAttribute 'header span .user.avatar img', 'src', (err, src) ->
                 expect(err).toBeNull()
                 expect(src).toContain('gravatar')
-                expect(src).toContain('robohash.org/gameserv')
+                expect(src).toContain('robohash.org/')
                 expect(src).toContain('24')
 
             .call(done)
