@@ -10,16 +10,22 @@ app.controller 'loginCtrl', ['$scope', '$sce', ($scope, $sce) ->
 		$scope.password_opacity = 0
 
 		# find the inputs and if they have an autocomplete value filled
-		if $scope.username == ""
+		if !$scope.username
 			$scope.username_opacity = 0.6
 
-		if $scope.password == ""
+		if !$scope.password
 			$scope.password_opacity = 0.6
 
-	$('.available_time').each ->
-		prevHTML = $(this).html()
-		$(this).html(Materia.Set.DateTime.fixTime(parseInt(prevHTML), $('.server_date').html()))
+	# Allow a timeout in case the user has autocomplete
+	setTimeout ->
+		$scope.checkInput()
+		$scope.$apply()
+	, 150
 
-	setTimeout($scope.checkInput, 150)
+	# Widget login partial has this on widgets with expiration
+	# NEEDS TESTING
+	$scope.fixDate = (date) ->
+		Materia.Set.DateTime.fixTime(date)
+
 ]
 
