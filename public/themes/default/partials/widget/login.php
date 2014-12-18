@@ -5,7 +5,7 @@
 		<hgroup class="detail">
 			<h2 class="logo">
 				<?= $title ?>
-				<?= isset($date) ? "<span class=\"server_date\">$date</span>" : '' ?>
+				<?= isset($date) ? "<span class=\"server_date\">{{ fixDate($date) }}</span>" : '' ?>
 			</h2>
 			<h3>Using your <?= __('login.user') ?> and <?= __('login.password') ?></h3>
 		</hgroup>
@@ -32,7 +32,7 @@
 						<input type="password" ng-change="checkInput()" ng-model="password" name="password" id="password" value="" title="<?= __('login.password') ?>" tabindex="2" />
 					</li>
 					<li class="submit_button">
-						<input type="submit" value="Login" tabindex="3" class="action_button" />
+						<button type="submit" tabindex="3" class="action_button">Login</button>
 					</li>
 				</ul>
 				<ul class="help_links">
