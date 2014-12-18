@@ -249,9 +249,9 @@
 				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="showOlderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 0)">Graph</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" href="#" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" href="#" ng-show="semester.storage" ng-click="setScoreView($index, 2)">Data</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 0)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, 2)">Data</a></li>
 					</ul>
 					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
 						<div class="score-search">

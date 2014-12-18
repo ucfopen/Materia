@@ -668,6 +668,8 @@
 					border-top: solid #dbdbdb 1px;
 					border-right: solid #dbdbdb 1px;
 					padding-bottom: 5px;
+
+					cursor: pointer;
 				}
 				.my_widgets .page .scores ul.choices li.scoreTypeSelected a {
 					background: #f3f3f3;
