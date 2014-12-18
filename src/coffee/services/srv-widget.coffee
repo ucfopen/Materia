@@ -1,5 +1,5 @@
-MyWidgets = angular.module('MyWidgets')
-MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
+app = angular.module('materia')
+app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 	deferred = $q.defer()
 	_widgets = []
@@ -76,3 +76,4 @@ MyWidgets.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 	saveWidget: saveWidget
 	addWidget: addWidget
 	removeWidget : removeWidget
+

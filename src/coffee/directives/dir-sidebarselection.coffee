@@ -1,8 +1,8 @@
 'use strict'
 
 # This is essentially replacing mywidgets.selectedwidget.coffee's 'SetSelectedWidget' method
-MyWidgets = angular.module 'MyWidgets'
-MyWidgets.directive 'sidebarSelection', (selectedWidgetSrv, $compile) ->
+app = angular.module 'materia'
+app.directive 'sidebarSelection', (selectedWidgetSrv, $compile) ->
 	restrict: 'A'
 	($scope, $element, $attrs) ->
 		console.log $scope

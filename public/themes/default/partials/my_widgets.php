@@ -347,4 +347,3 @@
 		</div>
 	 </aside>
 </div>
-<?= Theme::instance()->view('partials/notification') ?>

@@ -1,6 +1,6 @@
-MyWidgets = angular.module 'MyWidgets'
-
-MyWidgets.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
+app = angular.module 'materia'
+# The modal that exports score CSVs on My Widgets
+app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	$scope.checkedAll = false
 	$scope.semesters = []
 	# Mock data for the example table
@@ -97,3 +97,4 @@ MyWidgets.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	Namespace('Materia.MyWidgets').Csv =
 		init : init
 		buildPopup : buildPopup
+
