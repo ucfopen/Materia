@@ -2,8 +2,8 @@
 	<section class="page">
 
 		<ul class="main_navigation">
-			<li class="selected profile"><a href="/profile">Profile</a></li>
-			<li class="settings"><a href="/settings">Settings</a></li>
+			<li class="profile"><a href="/profile">Profile</a></li>
+			<li class="selected ettings"><a href="/settings">Settings</a></li>
 		</ul>
 
 		<div class="avatar_big">
