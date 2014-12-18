@@ -28,6 +28,7 @@ class Controller_Users extends Controller
 				// add beardmode
 				if ( ! empty($me->profile_fields['beardMode']))
 				{
+					// TODO: use angular userServ
 					Js::push_inline('var BEARD_MODE = true;');
 				}
 			}
@@ -52,7 +53,7 @@ class Controller_Users extends Controller
 	 * Uses Materia API's remote_login function to log the user in.
 	 *
 	 */
-	public function action_login()
+	public function get_login()
 	{
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
@@ -61,25 +62,6 @@ class Controller_Users extends Controller
 		{
 			// already logged in
 			Response::redirect($redirect);
-		}
-
-		if (Input::method() == 'POST')
-		{
-			$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
-			if ($login === true)
-			{
-				// if the location is the profile and they are an author, send them to my-widgets instead
-				if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
-				{
-					$redirect = 'my-widgets';
-				}
-				Response::redirect($redirect);
-			}
-			else
-			{
-				$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
-				Session::set_flash('login_error', $msg);
-			}
 		}
 
 		$this->theme->get_template()
@@ -91,6 +73,29 @@ class Controller_Users extends Controller
 
 		Css::push_group("login");
 	}
+
+	public function post_login()
+	{
+		// figure out where to send if logged in
+		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
+		if ($login === true)
+		{
+			// if the location is the profile and they are an author, send them to my-widgets instead
+			if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
+			{
+				$redirect = 'my-widgets';
+			}
+			Response::redirect($redirect);
+		}
+		else
+		{
+			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
+			Session::set_flash('login_error', $msg);
+			$this->get_login();
+		}
+	}
+
 	/**
 	 * Uses Materia API's remote_logout function to log the user in.
 	 *
@@ -105,7 +110,7 @@ class Controller_Users extends Controller
 	 * Displays information about the currently logged-in user
 	 *
 	 */
-	public function action_profile()
+	public function get_profile()
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
@@ -132,7 +137,7 @@ class Controller_Users extends Controller
 	 * Displays information about the currently logged-in user
 	 *
 	 */
-	public function action_settings()
+	public function get_settings()
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
@@ -151,38 +156,4 @@ class Controller_Users extends Controller
 		Js::push_group("settings");
 	}
 
-	// TODO: move this to the api
-	public function post_update()
-	{
-		// whitelist input
-		$whitelist = ['useGravatar', 'beardMode', 'notify'];
-		$set_meta  = [];
-		$success   = false;
-
-		if (Materia\Api::session_valid() === true)
-		{
-			foreach ($whitelist as $property)
-			{
-				// prop may exist and be boolean(false), so default to null then check against null
-				$val = Input::json($property, null);
-				if ( ! is_null($val)) $set_meta[$property] = $val;
-			}
-			if(count($set_meta) > 0)
-			{
-				$success = Materia\Api::user_update_meta($set_meta);
-			}
-		}
-
-		$me = \Model_User::find_current();
-
-		$reply = [
-			'success' => $success,
-			'avatar'  => \Materia\Utils::get_avatar(),
-			'meta'    => $me->profile_fields,
-		];
-
-		return new Response(json_encode($reply));
-	}
 }
-
-/* End of file users.php */

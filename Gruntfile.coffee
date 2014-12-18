@@ -23,6 +23,8 @@ module.exports = (grunt) ->
 				files:
 					'public/themes/default/assets/js/student.js': [
 						coffeeSrc+'/services/srv-user.coffee',
+						coffeeSrc+'/services/srv-api.coffee',
+						coffeeSrc+'/services/srv-datetime.coffee',
 						coffeeSrc+'/controllers/ctrl-page.coffee',
 						coffeeSrc+'/controllers/ctrl-current-user.coffee',
 						coffeeSrc+'/controllers/ctrl-notification.coffee',
@@ -39,6 +41,8 @@ module.exports = (grunt) ->
 				files:
 					'public/themes/default/assets/js/author.js': [
 						coffeeSrc+'/services/srv-user.coffee',
+						coffeeSrc+'/services/srv-api.coffee',
+						coffeeSrc+'/services/srv-datetime.coffee',
 						coffeeSrc+'/controllers/ctrl-page.coffee',
 						coffeeSrc+'/controllers/ctrl-current-user.coffee',
 						coffeeSrc+'/controllers/ctrl-notification.coffee',
