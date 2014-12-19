@@ -119,7 +119,7 @@
 					<h4>{{header || "None Selected"}}</h4>
 
 					<div class="score_table">
-						<img src="/assets/img/paper_fold.png" />
+						<img src="/themes/default/assets/img/paper_fold.png" />
 						<table>
 							<tr class="header">
 								<th scope="col">User ID</th>

@@ -35,6 +35,7 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 
 	# Builds the initial version of the popup window
 	buildPopup = ->
+		console.log 'buildddd'
 		$scope.selectedId = selectedWidgetSrv.get().id
 		getScores()
 
