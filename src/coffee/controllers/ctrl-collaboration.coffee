@@ -68,7 +68,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 				expiration: user.expires
 				perms: access
 
-		$scope.$parent.$parent.perms.widget = user_ids
+		$scope.$parent.perms.widget = user_ids
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
 			if returnData == true
 				$scope.$parent.$parent.showCollaborationModal = false
