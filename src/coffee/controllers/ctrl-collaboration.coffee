@@ -45,7 +45,10 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 	$scope.removeAccess = (user) ->
 		user.remove = true
 
-	$scope.updatePermissions = (users) ->
+	$scope.updatePermissions = ->
+		that = this.$parent
+		users = that.collaborators
+
 		permObj = []
 		user_ids = {}
 
@@ -71,7 +74,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 		$scope.$parent.perms.widget = user_ids
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
 			if returnData == true
-				$scope.$parent.$parent.$parent.showCollaborationModal = false
+				that.hideModal()
 			else
 				alert(returnData.msg)
 			$scope.$apply()

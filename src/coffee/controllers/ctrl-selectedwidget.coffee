@@ -14,6 +14,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.perms = {}
 	$scope.scores = null
 	$scope.storage = null
+	$scope.showCollaborationModal = false
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -58,6 +59,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		if $scope.editable and $scope.shareable
 			$scope.showAvailabilityModal = true
 			Materia.MyWidgets.Availability.popup()
+
+	$scope.hideModal = -> this.$parent.hideModal()
 
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
