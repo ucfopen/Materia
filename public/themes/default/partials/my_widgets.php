@@ -139,7 +139,7 @@
 						</div>
 					</div>
 
-					<p class="cancel"><a href ng-click="$parent.$parent.showExportModal = false">Cancel</a></p>
+					<p class="cancel"><a href ng-click="hideModal()">Cancel</a></p>
 				</div>
 				<div class="download_options" ng-show="options">
 					<h4>Semesters</h4>
@@ -156,7 +156,7 @@
 				<span class="input_label">New Title:</span>
 				<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
 				<span class="copy_error">Please enter a valid widget title.</span>
-				<a class="cancel_button" href="javascript:;" ng-click="$parent.copyToggled = false">Cancel</a>
+				<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
 				<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 			</div>
 		</modal-dialog>
