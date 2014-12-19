@@ -67,7 +67,7 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getScoreSummaries = ->
 		deferred = $q.defer()
 
-		if _scoreData? then deferred.resolve _scoreData
+		if _scoreData then deferred.resolve _scoreData
 		else
 			Materia.Coms.Json.send 'score_summary_get', [_widget.id, true], (data) ->
 
