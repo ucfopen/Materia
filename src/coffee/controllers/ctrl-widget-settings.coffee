@@ -159,7 +159,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 						errors.invalid++
 						$scope.timeError[i] = true
 					else
-						$scope.times.push Date.parse(date +  " " + time + " " + period).getTime()/1000
+						$scope.times.push Date.parse(date +  " " + time + " " + period)/1000
 				else
 					errors.time++
 					errors.missing++
@@ -190,7 +190,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# @return void
 	$scope.changeAvailability = ->
 		# Close the modal
-		$scope.$parent.$parent.showAvailabilityModal = false
+		this.$parent.hideModal()
 		attempts = if $scope.attempts < 25 then $scope.attempts else -1
 
 		# Update the widget instance.
