@@ -103,8 +103,8 @@
 						</ul>
 					</li>
 				<ul class="inline">
-					<li><a href class="cancel_button" ng-click="$parent.$parent.showAvailabilityModal = false">Cancel</a></li>
-					<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="$parent.showAvailabilityModal = false">Save</a></li>
+					<li><a href class="cancel_button" ng-click="hideModal()">Cancel</a></li>
+					<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="hideModal()">Save</a></li>
 				</ul>
 			</div>
 		</modal-dialog>
