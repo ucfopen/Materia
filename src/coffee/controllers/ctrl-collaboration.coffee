@@ -71,7 +71,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 		$scope.$parent.perms.widget = user_ids
 		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
 			if returnData == true
-				$scope.$parent.$parent.showCollaborationModal = false
+				$scope.$parent.$parent.$parent.showCollaborationModal = false
 			else
 				alert(returnData.msg)
 			$scope.$apply()

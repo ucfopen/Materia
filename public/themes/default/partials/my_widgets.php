@@ -65,7 +65,7 @@
 						</div>
 					</div>
 					<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-					<a tabindex="0" class="cancel_button" ng-click="$parent.$parent.showCollaborationModal = false">Cancel</a>
+					<a tabindex="0" class="cancel_button" ng-click="$parent.$parent.$parent.showCollaborationModal = false">Cancel</a>
 					<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions($parent.collaborators)">Save</a>
 				</div>
 			</div>
