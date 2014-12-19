@@ -174,6 +174,7 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 	_embedHTML = (htmlPath, dfd) ->
 		$scope.htmlPath = htmlPath
+		$scope.$apply()
 		_embedDoneDfd = dfd
 
 		_onPostMessage = (e) ->

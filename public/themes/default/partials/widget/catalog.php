@@ -55,7 +55,7 @@
 			<dd><p>This means you supply the widget with data to make it relevant to your course.</p> -->
 				<h2>Support Question Types:</h2>
 				<ul class="supported-data">
-					<li><input ng-model="filters.qa" value="Question/Answer" type="checkbox" id="filer-qa" /><label for="filer-qa">Question/Answer</label></li>
+					<li><input ng-model="filters.qa" value="Question/Answer" type="checkbox" id="filter-qa" /><label for="filter-qa">Question/Answer</label></li>
 					<li><input ng-model="filters.mc" value="Multiple Choice" type="checkbox" id="filter-mc" /><label for="filter-mc">Multiple Choice</label></li>
 				</ul>
 			</dd>
