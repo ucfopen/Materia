@@ -23,10 +23,10 @@ return [
 		],
 		'my_widgets' => [
 			'theme::my_widgets.css',
-			'jquery.jqplot.min.css',
-			'ui-lightness/jquery-ui-1.8.21.custom.css',
-			'ui-lightness/jquery-ui-timepicker-addon.css',
-			'jquery.dataTables.css',
+			'lib::jquery.jqplot.min.css',
+			'lib::ui-lightness/jquery-ui-1.8.21.custom.css',
+			'lib::ui-lightness/jquery-ui-timepicker-addon.css',
+			'lib::jquery.dataTables.css',
 			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
 		],
 		'widget_editor' => [

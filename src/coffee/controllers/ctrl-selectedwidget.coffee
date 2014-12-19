@@ -182,6 +182,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 
 	$scope.exportPopup =  ->
+		$scope.showExportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
 	$scope.copyWidget = () ->
