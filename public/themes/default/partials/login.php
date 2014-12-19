@@ -19,12 +19,10 @@
 			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= $redirect?:urlencode(URI::current()) ?>" class="form-content" >
 				<ul>
 					<li>
-						<label for="username" id="username_label" style="opacity: {{ username_opacity }}"><?= __('login.user') ?></label>
-						<input type="text" ng-change="checkInput()" ng-model="username" name="username" id="username" value="" title="<?= __('login.user') ?>" tabindex="1" />
+						<input type="text" name="username" id="username" value="" placeholder="<?= __('login.user') ?>" tabindex="1" />
 					</li>
 					<li>
-						<label for="password" id="password_label" style="opacity: {{ password_opacity }}"><?= __('login.password') ?></label>
-						<input type="password" ng-change="checkInput()" ng-model="password" name="password" id="password" value="" title="<?= __('login.password') ?>" tabindex="2" />
+						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" />
 					</li>
 					<li class="submit_button">
 						<button type="submit" tabindex="3" class="action_button">Login</button>
