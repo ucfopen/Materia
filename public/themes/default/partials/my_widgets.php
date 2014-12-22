@@ -154,7 +154,7 @@
 		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
 			<div class="container">
 				<span class="input_label">New Title:</span>
-				<input class="newtitle" type="text" ng-model="copy_title" placeholder="New Widget Title" />
+				<input class="newtitle" type="text" ng-model="$parent.$parent.copy_title" placeholder="New Widget Title" />
 				<span class="copy_error">Please enter a valid widget title.</span>
 				<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
 				<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
@@ -198,9 +198,9 @@
 						</li>
 					</ul>
 					<ul class="options">
-						<li class="share"><a href="javascript:;" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</a></li>
-						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</a></li>
-						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><a href="#" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}"  ng-click="showDeleteDialog()">Delete</a></li>
+						<li class="share"><div class="link" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</div></li>
+						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
+						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showDeleteDialog()">Delete</div></li>
 					</ul>
 					<div class="delete_dialogue" ng-show="deleteToggled">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
@@ -335,7 +335,7 @@
 		</div>
 		<div class="courses">
 			<div class="widget_list" data-container="widget-list">
-				<div ng-repeat="widget in widgets" id="{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selectedWidget.id}" ng-click="setSelected(widget.id)">
+				<div ng-repeat="widget in widgets" id="widget_{{widget.id}}" class="widget" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selectedWidget.id}" ng-click="setSelected(widget.id)">
 					<img class="icon" ng-src="{{widget.icon}}" ng-class="{bearded: beard}"/>
 					<ul>
 						<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>

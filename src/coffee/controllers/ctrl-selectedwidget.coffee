@@ -50,7 +50,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.storageNotScoreData = false
 	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
 
-	$scope.collaborators = 0
+	$scope.collaborators = []
 	$scope.showOlderScores = false
 
 	$scope.baseUrl = BASE_URL
@@ -122,20 +122,13 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.shareable = false
 		$scope.hasScores = false
 		$scope.storageNotScoreData = false
-		$scope.collaborators = 0
+		$scope.collaborators = []
 
 		# TODO
-		#if $('section .error').is(':visible') then $('section .error').remove()
 		$scope.error = false
-		#$scope.preview =  "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
 
-		# count up the number of other users collaborating
-		count = 0
-		for id of $scope.perms.widget
-			if id != $scope.user.id then count++
-
+		$scope.preview = "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
 		$scope.copy_title =  "#{$scope.selectedWidget.name} copy"
-		$scope.collaborateCount = if count > 0 then  "(#{count})"  else ""
 		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
 
 		# Tell Materia we are still logged in
@@ -147,9 +140,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		# accessLevel == 0 is effectively read-only
 		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
-
-		$scope.preview = "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
-
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
 		if $scope.editable
@@ -157,23 +147,20 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		else
 			$scope.edit = "#"
 
+		# count up the number of other users collaborating
+		count = 0
+		for id of $scope.perms.widget
+			if id != $scope.user.id then count++
+		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
+
 		# DeMorgan's, anyone?
 		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
 
-		# TODO: Fix dis
 		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 		populateAttempts($scope.selectedWidget.attempts)
 
 		if !$scope.selectedWidget.widget.is_draft
-			# #  reset scores & data ui:
-			# $scoreWrapper = $('.scoreWrapper')
-			# $scoreWrapper.slice(1).remove() if $scoreWrapper.length > 1
-
-			# $('#export_scores_button').unbind()
-			$exportScoresButton = $('#export_scores_button')
-
 			if $scope.scores.list.length > 0
-
 				# TODO determine if populateScoreWrapper functionality can be implemented differently
 				angular.forEach $scope.scores.list, (semester, index) ->
 					populateScoreWrapper(semester, index)
