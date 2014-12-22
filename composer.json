@@ -22,7 +22,7 @@
                 "source": {
                     "url": "https://github.com/fuel/auth.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -39,7 +39,7 @@
                 "source": {
                     "url": "https://github.com/fuel/email.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -56,7 +56,7 @@
                 "source": {
                     "url": "https://github.com/fuel/oil.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -73,7 +73,7 @@
                 "source": {
                     "url": "https://github.com/fuel/orm.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -90,7 +90,7 @@
                 "source": {
                     "url": "https://github.com/fuel/parser.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -107,7 +107,7 @@
                 "source": {
                     "url": "https://github.com/fuel/core.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         },
@@ -124,7 +124,7 @@
                 "source": {
                     "url": "https://github.com/fuel/docs.git",
                     "type": "git",
-                    "reference": "1.8/develop"
+                    "reference": "1.7/master"
                 }
             }
         }
@@ -132,28 +132,22 @@
     "require": {
         "php": ">=5.3.3",
         "composer/installers": "~1.0",
-        "fuel/docs": "1.7.2",
         "fuel/core": "1.7.2",
         "fuel/auth": "1.7.2",
         "fuel/email": "1.7.2",
         "fuel/oil": "1.7.2",
         "fuel/orm": "1.7.2",
         "fuel/parser": "1.7.2",
-        "fuelphp/upload": "2.0.1",
-        "monolog/monolog": "1.5.*",
-        "michelf/php-markdown": "1.4.0",
-        "iturgeon/qasset": "dev-master"
+        "iturgeon/qasset": "dev-master",
+        "monolog/monolog": "1.5.*"
     },
     "require-dev": {
+        "fuelphp/upload": "2.0.1",
         "phpunit/phpunit": "4.1.*"
     },
     "suggest": {
-        "dwoo/dwoo" : "Allow Dwoo templating with the Parser package",
-        "mustache/mustache": "Allow Mustache templating with the Parser package",
-        "smarty/smarty": "Allow Smarty templating with the Parser package",
-        "twig/twig": "Allow Twig templating with the Parser package",
-        "pyrocms/lex": "Allow Lex templating with the Parser package",
-        "mthaml/mthaml": "Allow Haml templating with Twig supports with the Parser package"
+        "fuel/docs": "FuelPHP documentation",
+        "michelf/php-markdown": "FuelPHP Parser Markdown"
     },
     "config": {
         "vendor-dir": "fuel/vendor"
