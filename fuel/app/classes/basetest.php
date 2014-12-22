@@ -146,14 +146,19 @@ class Basetest extends TestCase
 	{
 		$this->assertInstanceOf('\Model_User', $user);
 		$user_array = $user->to_array();
-		$this->assertArrayHasKey('id', $user_array);
-		$this->assertArrayHasKey('username', $user_array);
-		$this->assertArrayHasKey('first', $user_array);
-		$this->assertArrayHasKey('last', $user_array);
-		$this->assertArrayHasKey('email', $user_array);
-		$this->assertArrayHasKey('created_at', $user_array);
-		$this->assertArrayHasKey('updated_at', $user_array);
-		// $this->assertArrayHasKey('meta_data', $user_array);
+		$this->assertIsUserArray($user->to_array());
+	}
+
+	protected function assertIsUserArray($user)
+	{
+		$this->assertInternalType('array', $user);
+		$this->assertArrayHasKey('id', $user);
+		$this->assertArrayHasKey('username', $user);
+		$this->assertArrayHasKey('first', $user);
+		$this->assertArrayHasKey('last', $user);
+		$this->assertArrayHasKey('email', $user);
+		$this->assertArrayHasKey('created_at', $user);
+		$this->assertArrayHasKey('updated_at', $user);
 	}
 
 	protected function assertIsValidID($id)

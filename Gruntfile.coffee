@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
 
-	# load all grunt tasks
-	require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks)
+	# just in-time loader to replace loadNpmTasks
+	require('jit-grunt')(grunt)
 
 	coffeeSrc = 'src/coffee'
 	sassSrc   = 'src/sass'
