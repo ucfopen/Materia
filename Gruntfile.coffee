@@ -106,4 +106,4 @@ module.exports = (grunt) ->
 				files: [sassSrc+'/**/*']
 				tasks: ['sass']
 
-	grunt.registerTask('default', 'watch')
+	grunt.registerTask('default', [ 'coffee', 'watch'])
