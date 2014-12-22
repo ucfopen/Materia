@@ -1,11 +1,11 @@
 <div class="container <?= $classes ?>" ng-controller="loginCtrl">
 	<section class="page">
+		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
 		<hgroup class="detail">
 			<h2 class="logo">
 				<?= $title ?>
-				<?= isset($date) ? "<span class=\"server_date\">{{ fixDate($date) }}</span>" : '' ?>
 			</h2>
 			<h3>Using your <?= __('login.user') ?> and <?= __('login.password') ?></h3>
 		</hgroup>
