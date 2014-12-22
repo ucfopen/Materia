@@ -638,7 +638,7 @@ class Api_V1
 					$user = \Model_User::find($id);
 					$user = $user->to_array();
 					$user['isCurrentUser'] = ($id == $me);
-					$results[] = $user->to_array();
+					$results[] = $user;
 				}
 			}
 		}
