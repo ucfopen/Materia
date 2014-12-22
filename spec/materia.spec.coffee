@@ -176,24 +176,6 @@ describe 'Login Page', ->
                 expect(text).toBe('ERROR: Username and/or password incorrect.')
             .call(done)
 
-    it 'should blur input boxes when filled', (done) ->
-        client
-            .url('http://localhost:8080/login')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Login | Materia')
-            .setValue('#username', 'someusername')
-            .pause(1500)
-            .getElementCssProperty 'id', 'username_label', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0, 2)
-            .setValue('#password', 'somepassword')
-            .pause(1500)
-            .getElementCssProperty 'id', 'password_label', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0, 2)
-            .call(done)
-
     it 'should relocate to my widgets on author login', (done) ->
         client
             .url('http://localhost:8080/login')
@@ -483,7 +465,6 @@ describe 'Widget Exists', ->
             .call(done)
     , 55000
 
-###
 describe 'When I create a widget', ->
     client = {}
     randomId = Math.random()
@@ -515,7 +496,6 @@ describe 'When I create a widget', ->
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('Create Widget | Materia')
-            .call(done)
             .waitFor('#container', 7000)
             .frame('container') # switch into widget frame
             .waitFor('.intro.show', 7000)
@@ -556,7 +536,7 @@ describe 'When I create a widget', ->
             .pause(1000)
             .getElementCssProperty 'css selector', '.share-widget-container', 'opacity', (err, opacity) ->
                 expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
+                expect(parseFloat(opacity)).toBeCloseTo(0.5, 2)
             .getElementCssProperty 'id', 'embed_link', 'display', (err, display) ->
                 expect(err).toBeNull()
                 expect(display).toBe('none')
@@ -574,27 +554,27 @@ describe 'When I create a widget', ->
     it 'it should collaborate', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
-            .waitFor('#widget_'+instanceID, 7000)
+            .waitFor('#'+instanceID, 7000)
             .pause(1500)
-            .click('#share_widget_link')
-            .waitFor('#popup', 7000)
-            .isVisible('#popup')
-            .getText '#popup h2', (err, text) ->
+            .click('.share div.link')
+            .waitFor('.share .ng-modal-title', 7000)
+            .isVisible('.share')
+            .getText '.share .ng-modal-title', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toBe('Collaboration:')
             .waitFor('.access_list .user_perm', 7000)
             .execute "return $('.access_list .user_perm').length;", null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(1)
-            .getText '.access_list .user_perm:first-child .name', (err, name) ->
+            .execute "return $('.access_list .user_perm:first-child .name').html();", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(name).toContain('Prof Author')
-            .getValue '.access_list .user_perm:first-child select.perm', (err, value) ->
+                expect(result.value).toContain('Prof Author')
+            .execute "return $('.access_list .user_perm:first-child select.perm').val();", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(value).toBe('30')
-            .getValue '.access_list .exp-date', (err, value) ->
+                expect(result.value).toBe('30')
+            .execute "return $('.access_list .exp-date').val();", null, (err, result) ->
                 expect(err).toBeNull()
-                expect(value).toBe('Never')
+                expect(result.value).toBe('Never')
             .click('.cancel_button')
             .call(done)
 
@@ -603,12 +583,11 @@ describe 'When I create a widget', ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
             .pause 1900
-            .waitFor('#widget_'+instanceID, 7000)
+            .waitFor('#'+instanceID, 7000)
             .waitFor('.widget.gameSelected li.title:contains("'+title+'")', 7000)
             .click('#copy_widget_link')
-            .waitFor('#popup .newtitle', 7000)
-            .isVisible('#popup')
-            .getText '#popup h2', (err, text) ->
+            .isVisible('.ng-modal-title')
+            .getText '.copy .ng-modal-title', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toBe('Make a Copy:')
             .setValue('.newtitle', copyTitle)
@@ -624,25 +603,25 @@ describe 'When I create a widget', ->
                 expect(err).toBeNull()
                 expect(mode).toBe(copyTitle)
             .call(done)
-    , 25000
+    , 45000
 
     it 'it should delete using the delete button', (done) ->
         client
             .url('http://localhost:8080/my-widgets#'+instanceID)
             .pause(2000)
-            .waitFor('#widget_'+instanceID+'.gameSelected', 5000)
-            .click('.controls #delete_widget_link')
+            .waitFor('#'+instanceID+'.gameSelected', 5000)
+            .click('.controls #delete_')
             .waitFor('.controls .delete_dialogue', 5000)
             .isVisible('.delete_dialogue')
             .click('.delete_button')
             .pause(2000)
-            .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
+            .execute "return $('#"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(1)
             .refresh()
             .waitFor('.widget', 5000)
             .pause(2000)
-            .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
+            .execute "return $('#"+instanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
                 expect(result.value).toBe(1)
             .pause(1800)
@@ -693,4 +672,3 @@ describe 'My Widgets Page', ->
                 expect(text).toBe('Choose a widget from the list on the left.')
             .call(done)
 
-###
