@@ -1,4 +1,5 @@
 # The collaboration modal on the My Widgets page
+app = angular.module 'materia'
 app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv) ->
 	$scope.search = (nameOrFragment) ->
 		$scope.searching = true

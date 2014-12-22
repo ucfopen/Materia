@@ -13,13 +13,13 @@ return [
 			'cdnjs::angular.js/1.3.0/angular.min.js',
 			'cdnjs::jquery/1.8.1/jquery.min.js',
 			'lib::bower/ngModal/dist/ng-modal.min.js',
-			'theme::materia.js',
+			'theme::materia.min.js',
 		],
 		'author' => [
-			'theme::author.js',
+			'theme::author.min.js',
 		],
 		'student' => [
-			'theme::student.js',
+			'theme::student.min.js',
 		],
 		'dataTables' => [
 			'cdnjs::datatables/1.10.0/jquery.dataTables.min.js',
