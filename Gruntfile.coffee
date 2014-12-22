@@ -57,6 +57,7 @@ module.exports = (grunt) ->
 						coffeeSrc+'/controllers/ctrl-export-scores.coffee',
 						coffeeSrc+'/controllers/ctrl-collaboration.coffee',
 						coffeeSrc+'/controllers/ctrl-sidebar.coffee',
+						coffeeSrc+'/controllers/ctrl-login.coffee',
 						coffeeSrc+'/directives/*',
 					]
 
