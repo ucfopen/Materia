@@ -400,12 +400,12 @@ class Controller_Widgets extends Controller
 		if ($status['opens'])
 		{
 			$start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
-			$start_sec    = '<span class="available_time">'.((int) $inst->open_at * 1000).'</span>';
+			$start_sec    = '{{ time('.((int) $inst->open_at * 1000).') }}';
 		}
 		if ($status['closes'])
 		{
 			$end_string   = '<span class="available_date">'.date($format, (int) $inst->close_at).'</span>';
-			$end_sec      = '<span class="available_time">'.((int) $inst->close_at * 1000).'</span>';
+			$end_sec      = '{{ time('.((int) $inst->close_at * 1000).') }}';
 		}
 
 		// finish the actual messages to the user
