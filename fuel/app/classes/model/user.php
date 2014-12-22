@@ -68,39 +68,35 @@ class Model_User extends Orm\Model
 		return $array[1];
 	}
 
-	public static function find_by_username($username)
-	{
-		return static::query()->where('username', $username)->get_one();
-	}
-
 	static public function find_by_name_search($name)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
 
 		$matches = \DB::select()
-					->from(\Model_User::table())
-						->join("perm_role_to_user", "LEFT")
-							->on(\Model_User::table().".id", "=", "perm_role_to_user.user_id")
-						->join("user_role", "LEFT")
-							->on("perm_role_to_user.role_id", "=", "user_role.role_id")
-						->where(\Model_User::table().".id", "NOT" ,\DB::expr("IN(".
-								\DB::select(\Model_User::table().".id")
-									->from(\Model_User::table())
-									->join("perm_role_to_user", "LEFT")
-										->on(\Model_User::table().".id", "=", "perm_role_to_user.user_id")
-									->join("user_role", "LEFT")
-										->on("perm_role_to_user.role_id", "=", "user_role.role_id")
-									->where("user_role.name", "super_user")
-									->or_where("users.id", self::find_current_id())
-							.")"))
-						->and_where_open()
-							->where('username', 'LIKE', "$name"."%")
-							->or_where(\DB::expr('CONCAT(first, last)'), 'LIKE', "%$name%")
-							->or_where('email', 'LIKE', "$name%")
-						->and_where_close()
-					->group_by(\Model_User::table().'.id')
-					->as_object("Model_User")
-					->execute();
+			->from(\Model_User::table())
+				->join("perm_role_to_user", "LEFT")
+					->on(\Model_User::table().".id", "=", "perm_role_to_user.user_id")
+				->join("user_role", "LEFT")
+					->on("perm_role_to_user.role_id", "=", "user_role.role_id")
+				->where(\Model_User::table().".id", "NOT" ,\DB::expr("IN(".
+						\DB::select(\Model_User::table().".id")
+							->from(\Model_User::table())
+							->join("perm_role_to_user", "LEFT")
+								->on(\Model_User::table().".id", "=", "perm_role_to_user.user_id")
+							->join("user_role", "LEFT")
+								->on("perm_role_to_user.role_id", "=", "user_role.role_id")
+							->where("user_role.name", "super_user")
+							->or_where("users.id", self::find_current_id())
+					.")"))
+				->and_where_open()
+					->where('username', 'LIKE', "$name"."%")
+					->or_where(\DB::expr('CONCAT(first, last)'), 'LIKE', "%$name%")
+					->or_where('email', 'LIKE', "$name%")
+				->and_where_close()
+			->group_by(\Model_User::table().'.id')
+			->as_object("Model_User")
+			->execute();
+
 		return $matches;
 	}
 
@@ -223,4 +219,5 @@ class Model_User extends Orm\Model
 		}
 		return $logged_in;
 	}
+
 }

@@ -596,7 +596,19 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
 
-		return \Model_User::find_by_name_search($search);
+		$user_objects = \Model_User::find_by_name_search($search);
+		$user_arrays = [];
+
+		// scrub the user models with to_array
+		if (count($user_objects))
+		{
+			foreach ($user_objects as $key => $person)
+			{
+				$user_arrays[$key] = $person->to_array();
+			}
+		}
+
+		return $user_arrays;
 	}
 	/**
 	 * Gets information about the current user
@@ -607,6 +619,7 @@ class Api_V1
 	static public function user_get($user_ids = null)
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+
 		//no user ids provided, return current user
 		if ($user_ids === null)
 		{
@@ -625,7 +638,7 @@ class Api_V1
 					$user = \Model_User::find($id);
 					$user = $user->to_array();
 					$user['isCurrentUser'] = ($id == $me);
-					$results[] = $user;
+					$results[] = $user->to_array();
 				}
 			}
 		}
