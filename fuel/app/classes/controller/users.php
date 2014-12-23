@@ -10,10 +10,6 @@ class Controller_Users extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
-
-		Css::push_group("core");
-		Js::push_group("core");
-		Js::push_group("student");
 	}
 
 	public function after($response)
@@ -64,6 +60,11 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
+		Css::push_group(['core', 'login']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+
 		$this->theme->get_template()
 			->set('title', 'Login')
 			->set('page_type', 'login');
@@ -71,7 +72,6 @@ class Controller_Users extends Controller
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
 
-		Css::push_group("login");
 	}
 
 	public function post_login()
@@ -118,9 +118,13 @@ class Controller_Users extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
+		Css::push_group(['core', 'profile']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+
 		// to properly fix the date display, we need to provide the raw server date for JS to access
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
-
 		Js::push_inline("var DATE = '$server_date'");
 
 		$this->theme->get_template()
@@ -129,8 +133,6 @@ class Controller_Users extends Controller
 
 		$this->theme->set_partial('content', 'partials/user/profile')
 			->set('me', \Model_User::find_current());
-
-		Css::push_group("profile");
 	}
 
 	/**
@@ -145,15 +147,17 @@ class Controller_Users extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
+		Css::push_group(['core', 'profile']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+
 		$this->theme->get_template()
 			->set('title', 'Settings')
 			->set('page_type', 'user profile settings');
 
 		$this->theme->set_partial('content', 'partials/user/settings')
 			->set('me', \Model_User::find_current());
-
-		Css::push_group("profile");
-		Js::push_group("settings");
 	}
 
 }

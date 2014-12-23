@@ -13,9 +13,6 @@ class Controller_Scores extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
-
-		Js::push_group("core");
-		Js::push_group("student");
 	}
 
 	public function after($response)
@@ -42,31 +39,38 @@ class Controller_Scores extends Controller
 		return parent::after($response);
 	}
 
-	public function action_show($inst_id)
+	public function get_show($inst_id)
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
+
+		Css::push_group(['core', 'scores']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
 
 		$this->theme->get_template()
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
 
 		$this->theme->set_partial('content', 'partials/score/full');
-		Js::push_group("scores");
-		Css::push_group("scores");
-		Css::push_group("core");
 	}
 
-	public function action_show_embedded($inst_id)
+	public function get_show_embedded($inst_id)
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
+
+		Css::push_group(['core', 'embed_scores']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 
 
 		$lti_token = \Input::get('ltitoken', false);
@@ -75,14 +79,12 @@ class Controller_Scores extends Controller
 			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
 		}
 
+		$this->_header = 'partials/header_empty';
 		$this->theme->get_template()
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
 
 		$this->theme->set_partial('content', 'partials/score/full');
-		$this->_header = 'partials/header_empty';
-		Css::push_group("embed_scores");
-		Css::push_group("core");
 	}
 
 	/**
@@ -91,7 +93,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_csv($inst_id, $semesters_string)
+	public function get_csv($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)
@@ -151,7 +153,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_raw($inst_id, $semesters_string)
+	public function get_raw($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)
@@ -300,7 +302,7 @@ class Controller_Scores extends Controller
 		return $this->build_download_response($data, $inst->name.'.zip');
 	}
 
-	public function action_storage($inst_id, $table_name, $semesters)
+	public function get_storage($inst_id, $table_name, $semesters)
 	{
 		$table_name = html_entity_decode($table_name);
 		$csv        = \Materia\Storage_Manager::get_csv_logs_by_inst_id($inst_id, $table_name, explode(',', $semesters));
