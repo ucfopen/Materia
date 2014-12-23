@@ -11,10 +11,6 @@ class Controller_Site extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
-
-		Js::push_group('core');
-		Js::push_group('author');
-		Js::push_group('student');
 		Css::push_group('core');
 	}
 
@@ -57,6 +53,10 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
 		$this->theme->get_template()
 			->set('title', 'Welcome to Materia')
 			->set('page_type', 'store');
@@ -68,6 +68,8 @@ class Controller_Site extends Controller
 
 	public function action_permission_denied()
 	{
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
@@ -78,6 +80,9 @@ class Controller_Site extends Controller
 
 	public function action_help()
 	{
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+
 		$this->theme->get_template()
 			->set('title', 'Help')
 			->set('page_type', 'docs help');
@@ -93,6 +98,11 @@ class Controller_Site extends Controller
 	 */
 	public function action_404()
 	{
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
+		Css::push_group('404');
+
 		$this->theme->get_template()
 			->set('title', '404 Page not Found')
 			->set('page_type', '404');

@@ -13,8 +13,8 @@ class Controller_Widgets extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
-		Js::push_group('core');
-		Js::push_group("author");
+		// Js::push_group('core');
+		// Js::push_group("author");
 	}
 
 	public function after($response)
@@ -61,15 +61,19 @@ class Controller_Widgets extends Controller
 	 *
 	 * @login Not required
 	 */
-	public function action_index()
+	public function get_index()
 	{
+
+		Css::push_group(['core', 'widget_catalog']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
 			->set('page_type', 'catalog');
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
-		Js::push_group('widget_catalog');
-		Css::push_group('widget_catalog');
 	}
 
 	/**
@@ -78,7 +82,7 @@ class Controller_Widgets extends Controller
 	 * @param string The clean name of the widget to load
 	 * @login Not Required
 	 */
-	public function action_detail()
+	public function get_detail()
 	{
 		$widget = DB::select()
 			->from('widget')
@@ -87,14 +91,17 @@ class Controller_Widgets extends Controller
 
 		if ( ! $widget) throw new HttpNotFoundException;
 
+		Css::push_group(['core', 'widget_detail']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'fancybox']);
+
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
 		$this->theme->set_partial('content', 'partials/widget/detail');
 
-		Js::push_group('widget_detail');
-		Css::push_group('widget_detail');
 	}
 
 	/**
@@ -103,7 +110,7 @@ class Controller_Widgets extends Controller
 	 * @param string $widgetName The clean name of the widget to load
 	 * @login Required
 	 */
-	public function action_create()
+	public function get_create()
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
@@ -129,7 +136,7 @@ class Controller_Widgets extends Controller
 
 		$widget = new Materia\Widget();
 		$widget->get($this->param('id'));
-		$this->_show_editor('Create Widget', $widget);
+		$this->show_editor('Create Widget', $widget);
 	}
 
 	/**
@@ -138,7 +145,7 @@ class Controller_Widgets extends Controller
 	 * @param $inst_id
 	 * @login required
 	 */
-	public function action_edit($inst_id)
+	public function get_edit($inst_id)
 	{
 		if (empty($inst_id)) throw new HttpNotFoundException;
 
@@ -156,11 +163,16 @@ class Controller_Widgets extends Controller
 
 		$inst = new Materia\Widget_Instance();
 		$inst->db_get($inst_id);
-		$this->_show_editor('Edit Widget', $inst->widget, $inst_id);
+		$this->show_editor('Edit Widget', $inst->widget, $inst_id);
 	}
 
-	protected function _show_editor($title, $widget, $inst_id=null)
+	protected function show_editor($title, $widget, $inst_id=null)
 	{
+		Css::push_group(['core', 'widget_editor']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
@@ -168,8 +180,6 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/create')
 			->set('widget', $widget)
 			->set('inst_id', $inst_id);
-
-		Css::push_group("widget_editor");
 	}
 
 	/**
@@ -177,7 +187,7 @@ class Controller_Widgets extends Controller
 	 *
 	 * @login Required
 	 */
-	public function action_mywidgets()
+	public function get_mywidgets()
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
@@ -186,7 +196,12 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login'));
 		}
 
-		if (Materia\Api::session_valid('basic_author') != true) return $this->_mywidgets_student();
+		if (Materia\Api::session_valid('basic_author') != true) return $this->mywidgets_student();
+
+		Css::push_group(['core', 'my_widgets']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'jqmodal', 'tablock', 'spinner', 'jqplot', 'my_widgets']);
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -194,20 +209,9 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/my_widgets');
 
-		Css::push_group("my_widgets");
-		Js::push_group("my_widgets");
 	}
 
-	protected function _mywidgets_student()
-	{
-		$this->theme->get_template()
-			->set('title', '')
-			->set('page_type', 'my_widgets');
-
-		$this->theme->set_partial('content', 'partials/my_widgets_students');
-	}
-
-	public function action_play_demo()
+	public function get_play_demo()
 	{
 		$widget = DB::select()
 			->from('widget')
@@ -219,16 +223,16 @@ class Controller_Widgets extends Controller
 		$widget = new Materia\Widget();
 		$widget->get($this->param('id'));
 
-		if (isset($widget->meta_data['demo']) ) $this->action_play_widget($widget->meta_data['demo'], true);
+		if (isset($widget->meta_data['demo']) ) $this->get_play_widget($widget->meta_data['demo'], true);
 		else throw new HttpNotFoundException;
 	}
 
-	public function action_play_widget($inst_id, $demo=false, $embed=false, $play_id=false)
+	public function get_play_widget($inst_id, $demo=false, $embed=false, $play_id=false)
 	{
 		// not logged in
 		if (Materia\Api::session_valid() !== true)
 		{
-			$this->_build_widget_login('Login to play this widget', $inst_id, $embed);
+			$this->build_widget_login('Login to play this widget', $inst_id, $embed);
 		}
 		else
 		{
@@ -237,25 +241,25 @@ class Controller_Widgets extends Controller
 
 
 			$inst = $instances[0];
-			$status = $this->_get_status($inst);
+			$status = $this->get_status($inst);
 
 			if ( ! $status['open'])
 			{
 				// widget is closed
-				$this->_build_widget_login('Widget Unavailable', $inst_id);
+				$this->build_widget_login('Widget Unavailable', $inst_id);
 			}
 			elseif ( ! $demo && $inst->is_draft)
 			{
-				$this->action_draft_not_playable();
+				$this->draft_not_playable();
 			}
 			elseif ( ! $demo && ! $inst->widget->is_playable)
 			{
-				$this->action_retired();
+				$this->retired();
 			}
 			elseif ( ! $status['has_attempts'])
 			{
 				// user has exceeded attempt limit
-				$this->action_no_attempts($inst);
+				$this->no_attempts($inst);
 			}
 			else
 			{
@@ -278,35 +282,17 @@ class Controller_Widgets extends Controller
 					\Lti\Api::associate_lti_data($lti_token, $play_id);
 				}
 
-				$this->_display_widget($inst, $play_id, $embed);
+				$this->display_widget($inst, $play_id, $embed);
 			}
 		}
 
 	}
 
-	public function action_draft_not_playable()
-	{
-			$this->theme->get_template()
-				->set('title', 'Draft Not Playable')
-				->set('page_type', '');
-
-			$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
-	}
-
-	public function action_retired()
-	{
-			$this->theme->get_template()
-				->set('title', 'Retired Widget')
-				->set('page_type', '');
-
-			$this->theme->set_partial('content', 'partials/widget/retired');
-	}
-
-	public function action_preview_widget($inst_id)
+	public function get_preview_widget($inst_id)
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
-			$this->_build_widget_login('Login to preview this widget', $inst_id);
+			$this->build_widget_login('Login to preview this widget', $inst_id);
 		}
 		else
 		{
@@ -322,11 +308,11 @@ class Controller_Widgets extends Controller
 			}
 			elseif ( ! $inst->widget->is_playable)
 			{
-				$this->action_draft_not_playable();
+				$this->draft_not_playable();
 			}
 			else
 			{
-				$this->_display_widget($inst);
+				$this->display_widget($inst);
 			}
 		}
 
@@ -334,107 +320,68 @@ class Controller_Widgets extends Controller
 
 	}
 
-	public function action_play_embedded($inst_id, $play_id=false)
+	public function get_play_embedded($inst_id, $play_id=false)
 	{
-		$this->action_play_widget($inst_id, false, true, $play_id);
+		$this->get_play_widget($inst_id, false, true, $play_id);
 	}
 
-	protected function _display_widget(\Materia\Widget_Instance $inst, $play_id=false, $embed=false)
+	protected function draft_not_playable()
 	{
-		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
-		Css::push_group("widget_play");
+			$this->theme->get_template()
+				->set('title', 'Draft Not Playable')
+				->set('page_type', '');
 
+			$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
+	}
+
+	protected function retired()
+	{
+			$this->theme->get_template()
+				->set('title', 'Retired Widget')
+				->set('page_type', '');
+
+			$this->theme->set_partial('content', 'partials/widget/retired');
+	}
+
+	protected function no_attempts($inst)
+	{
 		$this->theme->get_template()
-			->set('title', $inst->name.' '.$inst->widget->name)
-			->set('page_type', $embed ? 'embedded widget' : 'widget' );
+			->set('title', 'Widget Unavailable')
+			->set('page_type', 'login');
 
-		$this->theme->set_partial('content', 'partials/widget/play')
-			->set('inst_id', $inst->id);
+		$this->theme->set_partial('content', 'partials/widget/no_attempts')
+			->set('classes', 'widget')
+			->set('attempts', $inst->attempts)
+			->set('scores_path', '/scores/'.$inst->id)
 
-		if ($embed) $this->_header = 'partials/header_empty';
+			->set('summary', $this->theme->view('partials/widget/summary')
+				->set('type',$inst->widget->name)
+				->set('name', $inst->name)
+				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 	}
 
-	/**
-	 * Determine if a widget is playable
-	 * @return Number -1: not avail yet, no end time, -2: not avail yet, has end time, 1: closed, 0.5, completely open
-	 *
-	 */
-	protected function _get_status($inst)
+	protected function no_permission()
 	{
-		$now           = time();
-		$start         = (int) $inst->open_at;
-		$end           = (int) $inst->close_at;
-		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id));
-		$has_attempts  = $inst->attempts == -1 || $attempts_used < $inst->attempts;
+		$this->theme->get_template()
+			->set('title', 'Permission Denied')
+			->set('page_type', '');
 
-		$opens       = $start > 0;
-		$closes      = $end > 0;
-		$always_open = ! $opens && ! $closes;
-		$will_open   = $start > $now;
-		$will_close  = $end > $now;
-		$open        = $always_open              // unlimited availability
-		  || ($start < $now && $will_close)      // now is between start and end
-		  || ($start < $now && ! $closes);       // now is after start, never closes
-
-		$closed = ! $always_open && ($closes && $end < $now);
-
-		return [
-			'open'         => $open,
-			'closed'       => $closed,
-			'opens'        => $opens,
-			'closes'       => $closes,
-			'will_open'    => $will_open,
-			'will_close'   => $will_close,
-			'always_open'  => $always_open,
-			'has_attempts' => $has_attempts,
-		];
+		$this->theme->set_partial('content', 'partials/nopermission');
 	}
 
-	protected function _build_widget_login_messages($inst)
+	protected function mywidgets_student()
 	{
-		$format = 'm/d/y';
-		$desc   = $summary = '';
-		$status = $this->_get_status($inst);
+		$this->theme->get_template()
+			->set('title', '')
+			->set('page_type', 'my_widgets');
 
-		// Build the open/close dates for display
-		if ($status['opens'])
-		{
-			$start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
-			$start_sec    = '{{ time('.((int) $inst->open_at * 1000).') }}';
-		}
-		if ($status['closes'])
-		{
-			$end_string   = '<span class="available_date">'.date($format, (int) $inst->close_at).'</span>';
-			$end_sec      = '{{ time('.((int) $inst->close_at * 1000).') }}';
-		}
-
-		// finish the actual messages to the user
-		if ($status['closed'])
-		{
-			$summary = "Closed on $end_string";
-			$desc    = "This widget closed on $end_string at $end_sec and cannot be accessed.";
-		}
-		if ($status['open'] && $status['will_close'])
-		{
-			$summary = "Available until $end_string at $end_sec";
-		}
-		if ($status['will_open'] && ! $status['will_close'])
-		{
-			$summary = "Available after $start_string at $start_sec ";
-			$desc    = "This widget cannot be accessed at this time. Please return on or after $start_string at $start_sec ";
-		}
-		if ($status['will_open'] && $status['will_close'])
-		{
-			$summary = "Available from $start_string at $start_sec until $end_string at $end_sec";
-			$desc    = "This widget cannot be accessed at this time. Please return between $start_string at $start_sec and $end_string at $end_sec";
-		}
-		return [$summary, $desc, $status['open']];
+		$this->theme->set_partial('content', 'partials/my_widgets_students');
 	}
 
 	/**
 	 * Load the login screen and possibly widget information if it's needed
 	 */
-	protected function _build_widget_login($login_title = null, $inst_id = null, $embed=false)
+	protected function build_widget_login($login_title = null, $inst_id = null, $embed=false)
 	{
 		if (empty($inst_id)) throw new HttpNotFoundException;
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
@@ -443,7 +390,7 @@ class Controller_Widgets extends Controller
 		Session::set('redirect_url', URI::current());
 
 		// ===================== AVAILABILITY MODES ==========================
-		list($summary, $desc, $is_open) = $this->_build_widget_login_messages($inst);
+		list($summary, $desc, $is_open) = $this->build_widget_login_messages($inst);
 
 		// to properly fix the date display, we need to provide the raw server date for JS to access
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
@@ -487,29 +434,100 @@ class Controller_Widgets extends Controller
 		Css::push_group("login");
 	}
 
-	protected function no_permission()
+	protected function build_widget_login_messages($inst)
 	{
-		$this->theme->get_template()
-			->set('title', 'Permission Denied')
-			->set('page_type', '');
+		$format = 'm/d/y';
+		$desc   = $summary = '';
+		$status = $this->get_status($inst);
 
-		$this->theme->set_partial('content', 'partials/nopermission');
+		// Build the open/close dates for display
+		if ($status['opens'])
+		{
+			$start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
+			$start_sec    = '{{ time('.((int) $inst->open_at * 1000).') }}';
+		}
+		if ($status['closes'])
+		{
+			$end_string   = '<span class="available_date">'.date($format, (int) $inst->close_at).'</span>';
+			$end_sec      = '{{ time('.((int) $inst->close_at * 1000).') }}';
+		}
+
+		// finish the actual messages to the user
+		if ($status['closed'])
+		{
+			$summary = "Closed on $end_string";
+			$desc    = "This widget closed on $end_string at $end_sec and cannot be accessed.";
+		}
+		if ($status['open'] && $status['will_close'])
+		{
+			$summary = "Available until $end_string at $end_sec";
+		}
+		if ($status['will_open'] && ! $status['will_close'])
+		{
+			$summary = "Available after $start_string at $start_sec ";
+			$desc    = "This widget cannot be accessed at this time. Please return on or after $start_string at $start_sec ";
+		}
+		if ($status['will_open'] && $status['will_close'])
+		{
+			$summary = "Available from $start_string at $start_sec until $end_string at $end_sec";
+			$desc    = "This widget cannot be accessed at this time. Please return between $start_string at $start_sec and $end_string at $end_sec";
+		}
+		return [$summary, $desc, $status['open']];
 	}
 
-public function action_no_attempts($inst)
+	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $embed=false)
 	{
+		Css::push_group(['core', 'widget_play']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
+		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
+
 		$this->theme->get_template()
-			->set('title', 'Widget Unavailable')
-			->set('page_type', 'login');
+			->set('title', $inst->name.' '.$inst->widget->name)
+			->set('page_type', $embed ? 'embedded widget' : 'widget' );
 
-		$this->theme->set_partial('content', 'partials/widget/no_attempts')
-			->set('classes', 'widget')
-			->set('attempts', $inst->attempts)
-			->set('scores_path', '/scores/'.$inst->id)
+		$this->theme->set_partial('content', 'partials/widget/play')
+			->set('inst_id', $inst->id);
 
-			->set('summary', $this->theme->view('partials/widget/summary')
-				->set('type',$inst->widget->name)
-				->set('name', $inst->name)
-				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+		if ($embed) $this->_header = 'partials/header_empty';
 	}
+
+	/**
+	 * Determine if a widget is playable
+	 * @return Number -1: not avail yet, no end time, -2: not avail yet, has end time, 1: closed, 0.5, completely open
+	 *
+	 */
+	protected function get_status($inst)
+	{
+		$now           = time();
+		$start         = (int) $inst->open_at;
+		$end           = (int) $inst->close_at;
+		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id));
+		$has_attempts  = $inst->attempts == -1 || $attempts_used < $inst->attempts;
+
+		$opens       = $start > 0;
+		$closes      = $end > 0;
+		$always_open = ! $opens && ! $closes;
+		$will_open   = $start > $now;
+		$will_close  = $end > $now;
+		$open        = $always_open              // unlimited availability
+		  || ($start < $now && $will_close)      // now is between start and end
+		  || ($start < $now && ! $closes);       // now is after start, never closes
+
+		$closed = ! $always_open && ($closes && $end < $now);
+
+		return [
+			'open'         => $open,
+			'closed'       => $closed,
+			'opens'        => $opens,
+			'closes'       => $closes,
+			'will_open'    => $will_open,
+			'will_close'   => $will_close,
+			'always_open'  => $always_open,
+			'has_attempts' => $has_attempts,
+		];
+	}
+
 }

@@ -68,7 +68,7 @@ return [
 			'theme::docs.css',
 		],
 		'404' => [
-			'404.css',
+			'theme::404.css',
 		],
 		'core' => [
 			'theme::main.css',
