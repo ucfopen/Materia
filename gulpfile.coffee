@@ -1,3 +1,4 @@
+# REQUIRE
 gulp          = require 'gulp'
 coffee        = require 'gulp-coffee'
 watch         = require 'gulp-watch'
@@ -8,15 +9,16 @@ minifyCss     = require 'gulp-minify-css'
 livereload    = require 'gulp-livereload' # reload the browser when files change
 ngAnnotate    = require 'gulp-ng-annotate' # protect angular dependency injection from minify
 
+# PATHS
 path =
 	js:     './src/coffee/'
 	jsOut:  './public/themes/default/assets/js/'
 	css:    './src/sass/'
 	cssOut: './public/themes/default/assets/css/'
 
-# all of these will be prepended with path.js
+# JAVASCRIPT
 coffeeScripts =
-	# array of files to be buildt into dashboard.js
+
 	'student' : [
 		'services/srv-user.coffee',
 		'services/srv-api.coffee',
@@ -31,7 +33,7 @@ coffeeScripts =
 		'controllers/ctrl-help.coffee',
 		'directives/*'
 	]
-	# array of files to be buildt into viewer.js
+
 	'author': [
 		'filters/*',
 		'services/*',
@@ -59,33 +61,33 @@ coffeeScripts =
 		'materia/*.coffee'
 	]
 
+
+# DYNAMIC JS TASKS
+dynamicTasks = []
+
 # prepend the files above with a full path
 for name, files of coffeeScripts
 	coffeeScripts[name] = (path.js+file for file in files) # prepend with the path.js value
+	dynamicTasks.push "js-#{name}"
+	# closure to hold onto name's value
+	do (name) ->
+		console.log "dynamic task created: js-#{name}"
+		gulp.task "js-#{name}", ->
+			gulp.src coffeeScripts[name]
+				.pipe coffee()
+				.pipe concat "#{name}.min.js"
+				.pipe ngAnnotate()
+				.pipe uglify()
+				.pipe gulp.dest(path.jsOut)
 
-
-processScripts = (outputScript) ->
-	gulp.src coffeeScripts[outputScript]
-		.pipe coffee()
-		.pipe concat "#{outputScript}.min.js"
-		.pipe ngAnnotate()
-		.pipe uglify()
-		.pipe gulp.dest(path.jsOut)
+gulp.task 'js', dynamicTasks # add a js task to run all dynamic js-* tasks
 
 gulp.task 'watch', ->
-	gulp.watch coffeeScripts.student, ['scripts-student']
-	gulp.watch coffeeScripts.author, ['scripts-author']
-	gulp.watch coffeeScripts.materia, ['scripts-materia']
 	gulp.watch "#{path.css}**/*.scss", ['css']
 
-gulp.task 'scripts', ->
-	processScripts 'author'
-	processScripts 'student'
-	processScripts 'materia'
-
-gulp.task 'scripts-student', -> processScripts 'student'
-gulp.task 'scripts-author', -> processScripts 'author'
-gulp.task 'scripts-materia', -> processScripts 'materia'
+	# watch all dynamic js-* tasks
+	for name, files of coffeeScripts
+		gulp.watch files, ["js-#{name}"]
 
 gulp.task 'css', ->
 	gulp.src "#{path.css}*.scss"
@@ -93,4 +95,4 @@ gulp.task 'css', ->
 		.pipe minifyCss()
 		.pipe gulp.dest(path.cssOut)
 
-gulp.task 'default', ['scripts', 'css', 'watch']
+gulp.task 'default', ['js', 'css', 'watch']
