@@ -143,7 +143,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
 		if $scope.editable
-			$scope.edit =  "edit/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
+			$scope.edit = "widgets/#{$scope.selectedWidget.widget.dir}create\##{$scope.selectedWidget.id}"
 		else
 			$scope.edit = "#"
 
