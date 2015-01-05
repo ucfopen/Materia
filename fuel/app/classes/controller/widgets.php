@@ -431,6 +431,8 @@ class Controller_Widgets extends Controller
 				->set_safe('avail', $summary));
 
 		if ($embed) $this->_header = 'partials/header_empty';
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 		Css::push_group("login");
 	}
 
