@@ -91,7 +91,7 @@ class Controller_Widgets extends Controller
 
 		if ( ! $widget) throw new HttpNotFoundException;
 
-		Css::push_group(['core', 'widget_detail']);
+		Css::push_group(['widget_detail', 'core']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'fancybox']);
