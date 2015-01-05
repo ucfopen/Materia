@@ -62,7 +62,7 @@ class Controller_Site extends Controller
 			->set('page_type', 'store');
 
 		$this->theme->set_partial('content', 'partials/homepage');
-		Js::push_group('homepage');
+		Js::push_group('jquery_ui');
 		Css::push_group('homepage');
 	}
 
