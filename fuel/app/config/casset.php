@@ -253,7 +253,6 @@ return [
 					'static::materia.permissions.widget.js',
 					'static::materia.page.notification.js',
 					'static::materia.image.js',
-					'static::materia.textfilter.js',
 					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'static::materia.set.throbber.js',
