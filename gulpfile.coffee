@@ -11,10 +11,11 @@ ngAnnotate    = require 'gulp-ng-annotate' # protect angular dependency injectio
 
 # PATHS
 path =
-	js:     './src/coffee/'
-	jsOut:  './public/themes/default/assets/js/'
-	css:    './src/sass/'
-	cssOut: './public/themes/default/assets/css/'
+	js:       './src/coffee/'
+	jsOut:    './public/themes/default/assets/js/'
+	jsStatic: './static/js/'
+	css:      './src/sass/'
+	cssOut:   './public/themes/default/assets/css/'
 
 # JAVASCRIPT
 coffeeScripts =
@@ -80,6 +81,11 @@ for name, files of coffeeScripts
 				.pipe uglify()
 				.pipe gulp.dest(path.jsOut)
 
+gulp.task "js-static", ->
+	gulp.src path.js + "materia/*"
+		.pipe coffee()
+		.pipe gulp.dest(path.jsStatic)
+
 gulp.task 'js', dynamicTasks # add a js task to run all dynamic js-* tasks
 
 gulp.task 'watch', ->
@@ -95,4 +101,4 @@ gulp.task 'css', ->
 		.pipe minifyCss()
 		.pipe gulp.dest(path.cssOut)
 
-gulp.task 'default', ['js', 'css', 'watch']
+gulp.task 'default', ['js', 'js-static', 'css', 'watch']
