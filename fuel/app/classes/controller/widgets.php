@@ -376,6 +376,8 @@ class Controller_Widgets extends Controller
 			->set('page_type', 'my_widgets');
 
 		$this->theme->set_partial('content', 'partials/my_widgets_students');
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
 	/**
