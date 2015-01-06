@@ -5,7 +5,7 @@
 	</header>
 	<section id="select-widget" ng-show="section == 'selectWidget'">
 		<input type="text" id="search" ng-model="query.searchCache">
-		<a id="refresh" href="#" ng-click="refreshListing()">Refresh listing</a>
+		<a id="refresh" href="javascript:;" ng-click="refreshListing()">Refresh listing</a>
 		<div id="list-container">
 			<ul>
 				<li ng-repeat="widget in widgets | filter:query" ng-class="{ draft: widget.draft, selected: widget.selected }" ng-click="highlight(widget)">
@@ -28,7 +28,7 @@
 			</div>
 		</div>
 		<a id="goto-new-widgets" ng-show="widgets.length > 0" ng-click="calloutRefreshLink()" class="external" target="_blank" href="<?= Uri::create('/widgets') ?>">Or, create a new widget at Materia</a>
-		<a role="button" class="button cancel-button" href="#">Cancel changing widget</a>
+		<a role="button" class="button cancel-button" href="javascript:;">Cancel changing widget</a>
 	</section>
 	<section id="progress" ng-show="section == 'progress'">
 		<div class="widget-info">

@@ -1,10 +1,12 @@
 Namespace('Materia.Set').Throbber = do ->
 	
 	startSpin = (element, opts) ->
-		#$(element).spin opts
+		if $? and $(element).spin?
+			$(element).spin opts
 
 	stopSpin = (element) ->
-		#$(element).spin false
+		if $? and $(element).spin?
+			$(element).spin false
 
 	startSpin : startSpin
 	stopSpin : stopSpin
