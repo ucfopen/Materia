@@ -671,7 +671,6 @@ describe 'My Widgets Page', ->
                 expect(err).toBeNull()
                 expect(text).toBe('Choose a widget from the list on the left.')
             .call(done)
-
 describe 'LTI iframe test', ->
     client = {}
 
@@ -727,14 +726,16 @@ describe 'LTI iframe test', ->
             .click('input[value="As Instructor"]')
             .frame('embed_iframe') # switch into lti frame
             .pause 3000
-            .execute '$("a.button:first").click()', null, (err, result) ->
-                true
+            .click("#list-container ul li")
+            .waitFor 'a.button.first', 10000
+            .click("a.button.first")
             .waitFor '*:contains("Success!")', 10000
             .pause 5000
             .getText 'body', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toContain("basic_lti")
             .call done
+    , 60000
 
 testEnigma = (client) ->
     title = "Test widget"
@@ -755,8 +756,13 @@ testEnigma = (client) ->
         .frame(null) # switch back to main content
         .click('#creatorSaveBtn')
         .waitFor('#saveBtnTxt:contains("Saved!")', 7000)
+        .execute "return document.location.href.split('#')[1];", null, (err, result) ->
+            console.log 'instance id', result.value
+            instanceID = result.value
+            expect(err).toBeNull()
+            expect(instanceID.length).toBe(5)
         .click('#creatorPublishBtn')
-        .waitFor('.action_button.green', 1000)
-        .click('.action_button.green')
+        .waitFor('.publish .publish_container a.action_button.green', 1000)
+        .click('.publish .publish_container a.action_button.green')
     true
 
