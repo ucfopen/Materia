@@ -672,3 +672,91 @@ describe 'My Widgets Page', ->
                 expect(text).toBe('Choose a widget from the list on the left.')
             .call(done)
 
+describe 'LTI iframe test', ->
+    client = {}
+
+    beforeEach ->
+        client = webdriverjs.remote(webdriverOptions)
+        client.init()
+        client
+            .url('http://localhost:8080/lti/test/provider')
+            .getTitle (err, title) ->
+                expect(err).toBeNull()
+                expect(title).toBe('Materia Test as Provider')
+
+    afterEach (done) ->
+        client.end(done)
+
+    it 'should allow logging in as Instructor', (done) ->
+        client
+            .click('input[value="As Instructor"]')
+            .frame('embed_iframe') # switch into lti frame
+            .waitFor 'header h1', 5000
+            .getText 'header h1', (err, text) ->
+                expect(err).toBeNull()
+                expect(text).toBe('Select a Widget for use in Materia:')
+            .call done
+
+    it 'should allow logging in as New Instructor', (done) ->
+        client
+            .click('input[value="As NEW Instructor"]')
+            .frame('embed_iframe') # switch into lti frame
+            .waitFor '#no-widgets', 5000
+            .call done
+
+    it 'should show no widget warning', (done) ->
+        client
+            .click('input[value="As NEW Instructor"]')
+            .frame('embed_iframe') # switch into lti frame
+            .waitFor '#no-widgets', 5000
+            .pause 1000
+            .getText '#no-widgets', (err, text) ->
+                expect(err).toBeNull()
+                expect(text).toBe("You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.\nCreate a widget at Materia")
+            .call done
+
+    it 'should allow refreshing after making new widget', (done) ->
+        client
+            .click('input[value="As Instructor"]')
+            .frame('embed_iframe') # switch into lti frame
+            .waitFor '#no-widgets', 5000
+            .url 'http://localhost:8080/widgets/3-enigma/create'
+        testEnigma client
+        client
+            .url('http://localhost:8080/lti/test/provider')
+            .click('input[value="As Instructor"]')
+            .frame('embed_iframe') # switch into lti frame
+            .pause 3000
+            .execute '$("a.button:first").click()', null, (err, result) ->
+                true
+            .waitFor '*:contains("Success!")', 10000
+            .pause 5000
+            .getText 'body', (err, text) ->
+                expect(err).toBeNull()
+                expect(text).toContain("basic_lti")
+            .call done
+
+testEnigma = (client) ->
+    title = "Test widget"
+
+    client
+        .pause 100
+        .getTitle (err, title) ->
+            expect(err).toBeNull()
+            expect(title).toBe('Create Widget | Materia')
+        .waitFor('#container', 7000)
+        .frame('container') # switch into widget frame
+        .waitFor('.intro.show', 7000)
+        .setValue('.intro.show input', title)
+        .click('.intro.show input[type=button]')
+        .setValue('#category_0', 'Test')
+        .click('button.add')
+        .setValue('#question_text', 'Test question')
+        .frame(null) # switch back to main content
+        .click('#creatorSaveBtn')
+        .waitFor('#saveBtnTxt:contains("Saved!")', 7000)
+        .click('#creatorPublishBtn')
+        .waitFor('.action_button.green', 1000)
+        .click('.action_button.green')
+    true
+
