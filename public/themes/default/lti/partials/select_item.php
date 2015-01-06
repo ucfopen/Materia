@@ -17,7 +17,7 @@
 					</div>
 					<a class="preview external" target="_blank" href="{{ widget.preview_url }}">Preview</a>
 					<a ng-show="widget.is_draft" class="view-at-materia external" target="_blank" href="{{ widget.edit_url }}">Edit at Materia</a>
-					<a ng-hide="widget.is_draft" role="button" class="button embed-button" href="#" ng-click="embedWidget(widget)">Use this widget</a>
+					<a ng-hide="widget.is_draft" role="button" class="button embed-button" ng-class="{ first: $index==0 }" ng-click="embedWidget(widget)">Use this widget</a>
 				</li>
 			</ul>
 			<div ng-show="widgets.length < 1" id="no-widgets-container">
