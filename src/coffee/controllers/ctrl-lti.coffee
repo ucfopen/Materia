@@ -16,7 +16,7 @@ app.controller 'ltiCtrl', ($scope, $sce) ->
 		$scope.showRefreshArrow = true
 
 	loadWidgets = (fakeDelay) ->
-		Materia.Set.Throbber.startSpin('#list-container', {withBackground:false, withDelay:false})
+		Materia.Set.Throbber.startSpin('#list-container', {withBackground:true, withDelay:false})
 
 		if not fakeDelay?
 			fakeDelay = 1
