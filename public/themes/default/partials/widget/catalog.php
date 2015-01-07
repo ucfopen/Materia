@@ -1,4 +1,4 @@
-<div ng-controller="widgetCtrl" class="container">
+<div ng-controller="widgetCatalogCtrl" class="container">
 	<section class="page">
 		<div class="top">
 			<h1>Widget Catalog</h1>
