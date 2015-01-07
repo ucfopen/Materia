@@ -103,6 +103,10 @@
 	margin-left: 8px;
 }
 
+.widget .widget_detail .aligner {
+	display: inline-block;
+	width: 190px;
+}
 
 .widget .widget_detail dl {
 	line-height:30px;
@@ -112,6 +116,7 @@
 
 .widget .widget_detail dl dt {
 	font-size: 14px;
+	margin-right: 5px;
 }
 
 .widget .widget_detail dl dd {
@@ -128,6 +133,10 @@
 	cursor: default;
 	font-size:11px;
 	padding: 2px 6px;
+}
+
+.widget .widget_detail .tooltip {
+	line-height: 15px;
 }
 
 .widget .green {
