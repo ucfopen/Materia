@@ -15,6 +15,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.scores = null
 	$scope.storage = null
 	$scope.showCollaborationModal = false
+	$scope.showCopyModal = false
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -47,7 +48,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.shareable = false
 	$scope.hasScores = false
 
-	$scope.storageNotScoreData = false
 	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
 
 	$scope.collaborators = []
@@ -104,13 +104,13 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.availabilityEnd = endDateInt
 
 		if endDateInt < 0 && startDateInt < 0
-			$scope.availabilityMode = 0
+			$scope.availabilityMode = "anytime"
 		else if startDateInt < 0 && endDateInt > 0
-			$scope.availabilityMode = 1
+			$scope.availabilityMode = "open until"
 		else if startDateInt > 0 && endDateInt < 0
-			$scope.availabilityMode = 2
+			$scope.availabilityMode = "anytime after"
 		else
-			$scope.availabilityMode = 3
+			$scope.availabilityMode = "from"
 
 	# Shows selected game information on the mainscreen.
 	populateDisplay = ->
@@ -121,7 +121,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.editable = true
 		$scope.shareable = false
 		$scope.hasScores = false
-		$scope.storageNotScoreData = false
 		$scope.collaborators = []
 
 		# TODO
@@ -177,14 +176,14 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.copyWidget = () ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
-			$scope.copyToggled = false
+			$scope.showCopyModal = false
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
 
 	$scope.deleteWidget = ->
 		Materia.MyWidgets.Tasks.deleteWidget $scope.selectedWidget.id, (results) ->
 			if results
-				$scope.deleteToggled = false
+				$scope.showDeleteDialog = false
 				widgetSrv.removeWidget($scope.selectedWidget.id)
 				$scope.$apply()
 
@@ -226,8 +225,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 		#  no scores, but we do have storage data
 		if typeof semester.distribution == 'undefined' and typeof semester.storage != 'undefined'
-			$scope.storageNotScoreData = true
-
 			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
@@ -254,10 +251,10 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.copyToggled = true if $scope.accessLevel != 0
+		$scope.showCopyModal = true if $scope.accessLevel != 0
 
-	$scope.showDeleteDialog = ->
-		$scope.deleteToggled = !$scope.deleteToggled if $scope.accessLevel != 0
+	$scope.showDelete = ->
+		$scope.showDeleteDialog = !$scope.showDeleteDialog if $scope.accessLevel != 0
 
 	$scope.showCollaboration = ->
 		user_ids = []

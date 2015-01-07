@@ -17,8 +17,6 @@ app.controller 'widgetDetailsController', ($scope) ->
 
 	SCREENSHOT_AMOUNT = 3
 
-	init = (gateway) ->
-
 	nameArr = window.location.pathname.replace("/widgets/", '').split("/")
 	widgetID = nameArr.pop().split('-').shift()
 
@@ -62,9 +60,4 @@ app.controller 'widgetDetailsController', ($scope) ->
 		text: txt
 		show: false
 		description: tooltipDescriptions[txt] or 'This feature has no additional information associated with it.'
-
-	Namespace('Materia.Widget').Detail =
-		init        : init,
-		prepare     : init
-
 

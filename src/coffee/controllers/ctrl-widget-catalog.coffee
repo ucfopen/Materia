@@ -1,7 +1,5 @@
-Namespace('Materia.Widget').Catalog = null
-
 app = angular.module 'materia'
-app.controller 'widgetCtrl', ['$scope', ($scope) ->
+app.controller 'widgetCatalogCtrl', ($scope) ->
 
 	featureKeys =
 		customizable: 'Customizable'
@@ -30,8 +28,7 @@ app.controller 'widgetCtrl', ['$scope', ($scope) ->
 
 				if filterOn and wFeatures.indexOf(metaValue) < 0 and wSupport.indexOf(metaValue) < 0
 					widget.visible = no
-					break;
-
+					break
 
 	# Load the widgets
 	Materia.Coms.Json.send 'widgets_get', null, (widgets) ->
@@ -49,5 +46,3 @@ app.controller 'widgetCtrl', ['$scope', ($scope) ->
 		$scope.widgets = widgets
 		$scope.$apply()
 
-
-]

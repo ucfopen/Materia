@@ -34,7 +34,7 @@
 			<li ng-switch="currentUser.loggedIn" class="logout">
 				<a ng-switch-when="true" href="/users/logout">Logout</a>
 				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
-			</li
+			</li>
 
 		</ul>
 	</nav>
