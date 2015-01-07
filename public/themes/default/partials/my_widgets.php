@@ -288,7 +288,7 @@
 					</div>
 					<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == 2">
 						<a class="storage" ng-click="handleStorageDownload()">Download Table</a>
-						<div class="table label" ng-if="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
+						<div class="table label" ng-show="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
 						<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
 						<div ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
 							<p ng-if="table.truncated" class="truncated-table">Showing only the first {{MAX_ROWS}} entries of this table. Download the table to see all entries.</p>
