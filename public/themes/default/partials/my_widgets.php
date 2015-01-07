@@ -216,16 +216,16 @@
 							</dd>
 							<dt>Available:</dt>
 							<dd ng-class="{'disabled':!editable || !shareable}" ng-click="popup()" ng-switch="availabilityMode">
-								<span ng-switch-when="0">
+								<span ng-switch-when="anytime">
 									Anytime
 								</span>
-								<span ng-switch-when="1">
+								<span ng-switch-when="open until">
 									Open until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time }}</span>
 								</span>
-								<span ng-switch-when="2">
+								<span ng-switch-when="anytime after">
 									Anytime after <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span>
 								</span>
-								<span ng-switch-when="3">
+								<span ng-switch-when="from">
 									From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
 								</span>
 							</dd>
@@ -249,8 +249,8 @@
 				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="showOlderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 0)">Graph</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" ng-show="!storageNotScoreData" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, 0)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" ng-show="hasScores" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, 2)">Data</a></li>
 					</ul>
 					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
