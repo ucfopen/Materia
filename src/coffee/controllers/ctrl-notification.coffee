@@ -3,20 +3,16 @@ app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.notifications = []
 	$scope.clicked = false
 
-	if $('header').hasClass('logged_in')
-		Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
-			$scope.notifications = notifications
-			$scope.$apply()
+	Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
+		$scope.notifications = notifications
+		$scope.$apply()
 
-			Materia.Permissions.User.init(API_LINK)
-			Materia.Permissions.Widget.init(API_LINK)
+		# @TODO: replace with css animations?
+		$(document).on 'click', '.notice .close', (event) ->
+			event.preventDefault()
+			$('.notice').slideToggle(150)
 
-			# @TODO: replace with css animations?
-			$(document).on 'click', '.notice .close', (event) ->
-				event.preventDefault()
-				$('.notice').slideToggle(150)
-
-			return false
+		return false
 
 	$scope.trust = (notification) ->
 		$sce.trustAsHtml(notification)
