@@ -151,7 +151,7 @@
 				</div>
 			</div>
 		</modal-dialog>
-		<modal-dialog class="copy" show="copyToggled" dialog-title="Make a Copy:" width="620px" height="220px">
+		<modal-dialog class="copy" show="showCopyModal" dialog-title="Make a Copy:" width="620px" height="220px">
 			<div class="container">
 				<span class="input_label">New Title:</span>
 				<input class="newtitle" type="text" ng-model="$parent.$parent.copy_title" placeholder="New Widget Title" />
@@ -200,14 +200,14 @@
 					<ul class="options">
 						<li class="share"><div class="link" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</div></li>
 						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
-						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showDeleteDialog()">Delete</div></li>
+						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
 					</ul>
-					<div class="delete_dialogue" ng-show="deleteToggled">
+					<div class="delete_dialogue" ng-show="showDeleteDialog">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
-						<a class="cancel_button" href="javascript:;" ng-click="deleteToggled = false">Cancel</a>
+						<a class="cancel_button" href="javascript:;" ng-click="showDeleteDialog = false">Cancel</a>
 						<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 					</div>
-					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!deleteToggled">
+					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!showDeleteDialog">
 						<h3>Settings:</h3>
 						<dl class="attempts_parent" ng-class="{'disabled': !editable || !shareable}">
 							<dt>Attempts:</dt>
