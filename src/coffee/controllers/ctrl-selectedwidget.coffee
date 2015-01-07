@@ -15,6 +15,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.scores = null
 	$scope.storage = null
 	$scope.showCollaborationModal = false
+	$scope.showCopyModal = false
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -175,14 +176,14 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.copyWidget = () ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
-			$scope.copyToggled = false
+			$scope.showCopyModal = false
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
 
 	$scope.deleteWidget = ->
 		Materia.MyWidgets.Tasks.deleteWidget $scope.selectedWidget.id, (results) ->
 			if results
-				$scope.deleteToggled = false
+				$scope.showDeleteDialog = false
 				widgetSrv.removeWidget($scope.selectedWidget.id)
 				$scope.$apply()
 
@@ -250,10 +251,10 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.copyToggled = true if $scope.accessLevel != 0
+		$scope.showCopyModal = true if $scope.accessLevel != 0
 
-	$scope.showDeleteDialog = ->
-		$scope.deleteToggled = !$scope.deleteToggled if $scope.accessLevel != 0
+	$scope.showDelete = ->
+		$scope.showDeleteDialog = !$scope.showDeleteDialog if $scope.accessLevel != 0
 
 	$scope.showCollaboration = ->
 		user_ids = []
