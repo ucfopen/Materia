@@ -13,7 +13,14 @@ app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
 		beardMode: beardMode
 
 	getCurrentUserFromDom = ->
-		userData = document.getElementById('current-user').dataset
+		user = document.getElementById('current-user')
+		userData =
+			name: user.getAttribute("data-name")
+			avatar: user.getAttribute("data-avatar")
+			loggedIn: user.getAttribute("data-logged-in")
+			role: user.getAttribute("data-role")
+			notify: user.getAttribute("data-notify")
+			beardMode: user.getAttribute("data-beardMode")
 		buildUser userData.name, userData.avatar, userData.loggedIn == 'true', userData.role, userData.notify == 'true', userData.beardMode == 'true'
 
 	getCurrentUserFromAPI = (callback) ->
