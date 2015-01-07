@@ -290,27 +290,29 @@
 						<a class="storage" ng-click="handleStorageDownload()">Download Table</a>
 						<div class="table label" ng-if="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
 						<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
-						<table ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
+						<div ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
 							<p ng-if="table.truncated" class="truncated-table">Showing only the first {{MAX_ROWS}} entries of this table. Download the table to see all entries.</p>
-							<thead>
-								<tr>
-									<th>user</th>
-									<th>firstName</th>
-									<th>lastName</th>
-									<th>time</th>
-									<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr ng-repeat="row in table.data">
-									<td>{{row.play.user}}</td>
-									<td>{{row.play.firstName}}</td>
-									<td>{{row.play.lastName}}</td>
-									<td>{{row.play.time}}</td>
-									<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
-								</tr>
-							</tbody>
-						</table>
+							<table>
+								<thead>
+									<tr>
+										<th>user</th>
+										<th>firstName</th>
+										<th>lastName</th>
+										<th>time</th>
+										<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="row in table.data">
+										<td>{{row.play.user}}</td>
+										<td>{{row.play.firstName}}</td>
+										<td>{{row.play.lastName}}</td>
+										<td>{{row.play.time}}</td>
+										<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 					<ul class="numeric" ng-show="selectedScoreView[$index] != 2">
 						<li><h4>Students</h4><p class="players" class="playerShrink">{{semester.students}}</p></li>
