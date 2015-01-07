@@ -421,13 +421,14 @@
 		margin: 0;
 	}
 
-	.my_widgets .page .controls ul.options li a.disabled,
-	.my_widgets .page .controls ul.options li a.disabled:hover {
+	.my_widgets .page .controls ul.options li .disabled,
+	.my_widgets .page .controls ul.options li .disabled:hover {
 		background: none;
 		cursor: default;
 		color: #c5c5c5;
 		text-decoration: none;
 		border: none;
+		opacity: 0.5;
 	}
 
 	.my_widgets .page .controls div.delete_dialogue {
