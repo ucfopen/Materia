@@ -147,11 +147,11 @@ While most of the functions offered by each task are fairly self-explanatory, he
 	`php oil r widget:delete <instance id>`
 * **create_instance**
 
-	`php oil r widget:install -i`
+	`php oil r widget:create_instance -i`
 
 	or
 
-	`php oil r widget:install <as user id> <engine id> <title> <owner id>`
+	`php oil r widget:create_instance <as user id> <engine id> <title> <owner id>`
 
 * **import_qset**
 
