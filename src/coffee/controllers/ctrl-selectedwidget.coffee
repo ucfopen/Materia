@@ -48,7 +48,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.shareable = false
 	$scope.hasScores = false
 
-	$scope.storageNotScoreData = false
 	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
 
 	$scope.collaborators = []
@@ -105,13 +104,13 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.availabilityEnd = endDateInt
 
 		if endDateInt < 0 && startDateInt < 0
-			$scope.availabilityMode = 0
+			$scope.availabilityMode = "anytime"
 		else if startDateInt < 0 && endDateInt > 0
-			$scope.availabilityMode = 1
+			$scope.availabilityMode = "open until"
 		else if startDateInt > 0 && endDateInt < 0
-			$scope.availabilityMode = 2
+			$scope.availabilityMode = "anytime after"
 		else
-			$scope.availabilityMode = 3
+			$scope.availabilityMode = "from"
 
 	# Shows selected game information on the mainscreen.
 	populateDisplay = ->
@@ -122,7 +121,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.editable = true
 		$scope.shareable = false
 		$scope.hasScores = false
-		$scope.storageNotScoreData = false
 		$scope.collaborators = []
 
 		# TODO
@@ -227,8 +225,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 		#  no scores, but we do have storage data
 		if typeof semester.distribution == 'undefined' and typeof semester.storage != 'undefined'
-			$scope.storageNotScoreData = true
-
 			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
