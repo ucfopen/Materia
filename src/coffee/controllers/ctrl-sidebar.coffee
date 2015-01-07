@@ -28,7 +28,7 @@ app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
 
 			$scope.$apply ->
-				$scope.widgets = data
+				$scope.widgets = data.sort (a,b) -> return b.created_at - a.created_at
 		if firstRun and window.location.hash
 			found = false
 			selID = window.location.hash.substr(1)
