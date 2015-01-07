@@ -11,7 +11,7 @@ class: admin
 Once you've made an SSH connection to your machine, cd into the root **Materia** directory.
 
 <aside>
-	If you're using the Vagrant virtual environment, the directory is <strong>/mnt/materia</strong>
+	If you're using the Vagrant virtual environment, the directory is <strong>/mnt/host</strong>
 </aside>
 
 ## Running a task ##
@@ -85,7 +85,7 @@ While most of the functions offered by each task are fairly self-explanatory, he
 	`php oil r admin:populate_roles`
 * **give_user_role**
 
-	This will give the specified role to the specified user. To view role names and permissions, see [here](/develop/platform-developer-guide.html#roles).
+	This will give the specified role to the specified user. To view role names and permissions, see [here](../develop/platform-developer-guide.html#roles).
 
 	`php oil r admin:give_user_role <username> <role name>`
 * **new_user**
