@@ -94,6 +94,8 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.checkTime = (index) ->
 		if $scope.availability[index].time.indexOf(":") == -1 && $scope.availability[index].time != ''
 			$scope.availability[index].time += ":00"
+		if !$scope.availability[index].period
+			$scope.availability[index].period = "am"
 
 	# Moves the slider to the specified value and updates the attempts.
 	# From ng-click on the attempt numbers below the slider.
