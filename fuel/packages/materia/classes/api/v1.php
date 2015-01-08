@@ -663,6 +663,49 @@ class Api_V1
 		}
 		return $user->save();
 	}
+
+	private static function _normalize_perms($perms_array)
+	{
+		// convert each permission object in the perms array to a integer indexed array of values
+		foreach ($perms_array as &$perm_obj)
+		{
+			// convert perms to an array
+			$perm_obj->perms = get_object_vars($perm_obj->perms);
+
+			// convert the keys from string numeric keys to integers
+			foreach ($perm_obj->perms as $key => $value)
+			{
+				if ( ! is_int($key))
+				{
+					// convert string numeric keys to number keys
+					unset($perm_obj->perms[$key]);
+					$perm_obj->perms[(integer) $key] = $value;
+				}
+			}
+		}
+		return $perms_array;
+	}
+
+	private static function _filter_increasing_perms($perms, $current_perms)
+	{
+		// I can only reduce my perms, filter out anything that increases or adds
+		foreach ($perms->perms as $key => $value)
+		{
+			// remove any perm I didn't already have
+			if ( ! array_key_exists($key, $current_perms))
+			{
+				unset($perms->perms[$key]);
+				continue;
+			}
+			// make sure i'm not enabling anything i didn't already have
+			if ($value != $current_perms[$key] && $value == Perm::ENABLE)
+			{
+				$perms->perms[$key] = $current_perms[$key];
+			}
+		}
+		return $perms;
+	}
+
 	/**
 	 * NEEDS DOCUMENTATION
 	 *
@@ -684,43 +727,25 @@ class Api_V1
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($item_id)) return \RocketDuck\Msg::invalid_input('Invalid item id: '.$item_id);
 		if (empty($perms_array)) return \RocketDuck\Msg::invalid_input('empty user perms');
 
+		$perms_array = static::_normalize_perms($perms_array);
+
 		$cur_user_id = \Model_user::find_current_id();
 
-		// full perms or is super user
-		$can_modify_others = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
+		// full perms or is super user required
+		$can_give_access = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
 
-		foreach ($perms_array as $new_perms)
+		// filter out any permissions I can't do
+		foreach ($perms_array as &$new_perms)
 		{
-			// skip if theres no way i can do this
-			if ( ! $can_modify_others && $new_perms->user_id != $cur_user_id) continue;
+			// i cant do anything
+			if ( ! $can_give_access && $new_perms->user_id != $cur_user_id) continue;
 
 			$old_perms = Perm_Manager::get_user_object_perms($item_id, $item_type, $new_perms->user_id);
 
-			// I can only reduce my perms, filter out anything that increases
-			if ( ! $can_modify_others && $new_perms->user_id == $cur_user_id)
+			// I can only reduce my perms, filter out anything that increases or adds
+			if ( ! $can_give_access && $new_perms->user_id == $cur_user_id)
 			{
-				// convert perms to an array
-				$new_perms->perms = get_object_vars($new_perms->perms);
-				foreach ($new_perms->perms as $key => $value)
-				{
-
-					// remove any perm I didn't already have
-					if ( ! array_key_exists($key, $old_perms))
-					{
-						unset($new_perms->perms[$key]);
-						continue;
-					}
-
-					// make sure i'm not enabling anything i didn't already have
-					if ($value != $old_perms[$key] && $value == Perm::ENABLE)
-					{
-						$new_perms->perms[$key] = $old_perms[$key];
-					}
-
-					// convert string numeric keys to number keys
-					unset($new_perms->perms[$key]);
-					$new_perms->perms[(integer) $key] = $value;
-				}
+				$new_perms = static::_filter_increasing_perms($new_perms, $old_perms);
 			}
 
 			// Determine what type of notification to send
