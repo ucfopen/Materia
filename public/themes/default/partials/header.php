@@ -39,8 +39,8 @@
 		</ul>
 	</nav>
 
-	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl">
-		<a id="notifications_link" ng-show="notifications.length > 0" data-notifications="{{notifications.length}}" ng-click="clickNotification()"></a>
+	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl" ng-show="notifications.length > 0">
+		<a id="notifications_link" data-notifications="{{notifications.length}}" ng-click="clickNotification()"></a>
 		<div id="notices">
 			<div class="notice" ng-repeat="notification in notifications">
 				<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
