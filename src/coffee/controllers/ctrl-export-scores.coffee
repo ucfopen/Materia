@@ -31,11 +31,8 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	]
 	$scope.exportType = $scope.exportSelect[0]
 
-	init = (gateway) ->
-
 	# Builds the initial version of the popup window
 	buildPopup = ->
-		console.log 'buildddd'
 		$scope.selectedId = selectedWidgetSrv.get().id
 		getScores()
 
@@ -97,6 +94,5 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		return link
 
 	Namespace('Materia.MyWidgets').Csv =
-		init : init
 		buildPopup : buildPopup
 
