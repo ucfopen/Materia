@@ -249,11 +249,11 @@
 				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-if="showOlderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, 0)">Graph</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" ng-show="hasScores" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, 2)">Data</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_GRAPH}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, SCORE_VIEW_GRAPH)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_TABLE}"><a class="table" ng-show="hasScores" ng-click="setScoreView($index, SCORE_VIEW_TABLE)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_DATA}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, SCORE_VIEW_DATA)">Data</a></li>
 					</ul>
-					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
+					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == SCORE_VIEW_TABLE">
 						<div class="score-search">
 							<input type="text" ng-model="studentSearch" ng-change="searchStudentActivity(studentSearch)" placeholder="Search Students" />
 						</div>
@@ -283,10 +283,10 @@
 							</table>
 						</div>
 					</div>
-					<div class="display graph" ng-show="selectedScoreView[$index] == 0">
+					<div class="display graph" ng-show="selectedScoreView[$index] == SCORE_VIEW_GRAPH">
 						<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 					</div>
-					<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == 2">
+					<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == SCORE_VIEW_DATA">
 						<a class="storage" ng-click="handleStorageDownload()">Download Table</a>
 						<div class="table label" ng-show="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
 						<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
@@ -314,7 +314,7 @@
 							</table>
 						</div>
 					</div>
-					<ul class="numeric" ng-show="selectedScoreView[$index] != 2">
+					<ul class="numeric" ng-show="selectedScoreView[$index] != SCORE_VIEW_DATA">
 						<li><h4>Students</h4><p class="players" class="playerShrink">{{semester.students}}</p></li>
 						<li><h4>Scores</h4><p class="score-count">{{semester.distribution.length}}</p></li>
 						<li><h4>Avg Final Score</h4><p class="final-average">{{semester.average}}</p></li>
