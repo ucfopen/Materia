@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'spotlightCtrl', ['$scope', ($scope) ->
+app.controller 'spotlightCtrl', ($scope) ->
 	spotlightArray = null
 
 	Materia.Coms.Json.send 'widget_spotlight_get', null, (data) ->
@@ -17,5 +17,4 @@ app.controller 'spotlightCtrl', ['$scope', ($scope) ->
 			$('.cycler').append('<input type="radio" name="spotlight" id="slide_'+i+'" '+checked+' class="radio_spotlight" />')
 
 		if callback then callback()
-]
 

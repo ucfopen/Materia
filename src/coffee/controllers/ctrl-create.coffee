@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
+app.controller 'createCtrl', ($scope, $sce) ->
 	_creator       = null
 	_embedDoneDfd  = null
 	_embedTarget   = null
@@ -384,5 +384,4 @@ app.controller 'createCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			.pipe(_showButtons)
 			.pipe(_startHeartBeat)
 			.fail(_onInitFail)
-]
 

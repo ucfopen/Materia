@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
+app.controller 'notificationCtrl', ($scope, $sce) ->
 	$scope.notifications = []
 	$scope.clicked = false
 
@@ -38,6 +38,4 @@ app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 	$scope.removeNotification = (index) ->
 		Materia.Coms.Json.send 'notification_delete', [$scope.notifications[index].id]
 		$scope.notifications.splice(index, 1)
-
-]
 
