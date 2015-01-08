@@ -11,15 +11,13 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	_widget = null
 	_dateRanges = null
 	_BEARD_MODE = false
-	_noWidgetsFlag = false
+	_hasNoWidgetsFlag = false
 	_scoreData = null
-	_hasStorage = false
 	_storageData = null
 
 	# get and set _widget
 	set = (widget) ->
 		_scoreData = null
-		_hasStorage = false
 		_storageData = null
 		_widget = widget
 		$rootScope.$broadcast 'selectedWidget.update'
@@ -30,39 +28,9 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getSelectedId = ->
 		_widget.id
 
-	noWidgets = ->
-		_noWidgetsFlag
-
 	setNoWidgets = (bool) ->
-		_noWidgetsFlag = bool
-		$rootScope.$broadcast 'selectedWidget.noWidgets'
-
-		if bool is true
-			# This is temporary, we should look for an alternative to qtip
-			# Or just a cleaner, more angular-y implementation in general
-			$('header nav ul li:first-child').qtip
-				content: 'Click here to start making a new widget!'
-				position:
-					corner:
-						target: 'bottomMiddle'
-						tooltip: 'topMiddle'
-					adjust:
-						y: 15
-				style:
-					background: '#b944cc'
-					color: '#ffffff'
-					padding: 10
-					border:
-						width: 2
-						radius: 5
-						color: '#b944cc'
-					tip:
-						corner: 'topMiddle'
-						size:
-							width: 15
-							height: 10
-				show:
-					ready: true
+		_hasNoWidgetsFlag = bool
+		$rootScope.$broadcast 'selectedWidget.hasNoWidgets'
 
 	getScoreSummaries = ->
 		deferred = $q.defer()
@@ -81,17 +49,6 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 					last = data[0].id
 					for d in data
 						o[d.id] = d
-
-					## START DUMMY SEMESTER CODE ##
-					# Leaving this in until old semester support is properly tested!
-					# for index in [1..5]
-					# 	dataClone = {}
-					# 	angular.copy data[0], dataClone
-
-					# 	dataClone.year = "200" + index
-
-					# 	data[index] = dataClone
-					## END DUMMY SEMESTER CODE ##
 
 					_scoreData =
 						list: data
@@ -152,14 +109,8 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
 
-	setStorageFlag = (flag) ->
-		_hasStorage = flag
-
 		if flag
 			$rootScope.$broadcast 'selectedWidget.hasStorage'
-
-	getStorageFlag = ->
-		_hasStorage
 
 	getStorageData = ->
 
@@ -242,14 +193,13 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 		_widget.close_at = close_at
 		$rootScope.$broadcast 'selectedWidget.update'
 
-	noAccess = ->
-		$rootScope.$broadcast 'selectedWidget.noAccess'
+	notifyAccessDenied = ->
+		$rootScope.$broadcast 'selectedWidget.notifyAccessDenied'
 
 	set : set
 	get : get
 	getSelectedId: getSelectedId
 	# setSelectedId: setSelectedId
-	noWidgets: noWidgets
 	setNoWidgets: setNoWidgets
 	getScoreSummaries: getScoreSummaries
 	getUserPermissions: getUserPermissions
@@ -258,9 +208,8 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	# getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
 	getStorageData : getStorageData
-	setStorageFlag : setStorageFlag
 	getStorageData: getStorageData
 	getMaxRows : getMaxRows
 	updateAvailability: updateAvailability
-	noAccess: noAccess
+	notifyAccessDenied: notifyAccessDenied
 
