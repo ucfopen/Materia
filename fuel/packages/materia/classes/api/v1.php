@@ -777,7 +777,7 @@ class Api_V1
 	 */
 	static public function notification_delete($note_id)
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if ( ! \Model_User::verify_session()) return \RocketDuck\Msg::no_login();
 
 		$user = \Model_User::find_current();
 
