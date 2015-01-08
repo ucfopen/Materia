@@ -24,7 +24,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.selectedWidget = null
 	$scope.$on 'selectedWidget.update', (evt) ->
 		$scope.selectedWidget = selectedWidgetSrv.get()
-		$scope.attempts = $scope.selectedWidget.attempts
+		$scope.attempts = parseInt $scope.selectedWidget.attempts
 
 	$scope.init = (gateway) ->
 
@@ -32,7 +32,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		$scope.error = ''
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
-		$scope.attempts = $scope.selectedWidget.attempts
+		$scope.attempts = parseInt $scope.selectedWidget.attempts
 		$scope.dateFormatter()
 		setTimeout ->
 			$scope.setupSlider()
@@ -99,7 +99,12 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# Moves the slider to the specified value and updates the attempts.
 	# From ng-click on the attempt numbers below the slider.
 	$scope.changeSlider = (number) ->
-		$( ".selector" ).slider 'value', (number * 1000)
+		# -1 == unlimited
+		if number == -1
+			val = 1000
+		else
+			val = number
+		$( ".selector" ).slider 'value', (val * 1000)
 		$scope.attempts = number
 
 	# Updates the slider based on which value the slider is close to.
