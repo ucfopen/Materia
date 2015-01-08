@@ -777,9 +777,12 @@
 
 	.my_widgets .page .scores .display.data
 	{
-		width: 638px;
 		font-family: 'Lucida Grande', sans-serif;
+		width: 638px;
+	}
+	.table_wrapper {
 		overflow-x:scroll;
+		width: 638px;
 	}
 
 		.my_widgets .page .scores .display.data table
@@ -850,13 +853,6 @@
 				padding-right: 10px;
 				outline: none;
 			}
-
-		.my_widgets .page .scores .table table td {
-			/* border-bottom:solid #dbdbdb 1px; */
-			padding:10px 5px 10px 10px;
-			margin-bottom:2px;
-			font-family: "Lucida Grande", sans-serif;
-		}
 
 		.my_widgets .page .scores .table .scoreListContainer {
 			position:relative;
@@ -2657,5 +2653,13 @@ div.link {
 	padding: 0 0 2px 0;
 	font-weight: bold;
 	cursor: pointer;
+}
+
+.storage_table td, .storage_table th {
+	padding: 6px;
+}
+
+.storage_table tr {
+	text-align: left;
 }
 
