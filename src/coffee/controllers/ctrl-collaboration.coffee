@@ -47,24 +47,22 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 		user.remove = true
 
 	$scope.updatePermissions = ->
-		that = this.$parent
-		users = that.collaborators
-
-		permObj = []
-		user_ids = {}
+		that          = this.$parent
+		users         = that.collaborators
+		remove_widget = no
+		widget_id     = $scope.$parent.selectedWidget.id
+		permObj       = []
+		user_ids      = {}
 
 		for user in users
 			# Do not allow saving if a demotion dialog is on the screen
-			if user.warning
-				return
+			return if user.warning
 
-			access = []
-			for i in [0...user.access]
-				access.push null
-
-			access.push if user.remove then false else true
 			if user.isCurrentUser and user.remove
-				widgetSrv.removeWidget($scope.$parent.selectedWidget.id)
+				remove_widget = yes
+
+			access = {}
+			access[parseInt(user.access)] = !user.remove
 
 			user_ids[user.id] = [user.access, user.expires]
 			permObj.push
@@ -73,11 +71,12 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 				perms: access
 
 		$scope.$parent.perms.widget = user_ids
-		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
+		Materia.Coms.Json.send 'permissions_set', [0,widget_id, permObj], (returnData) ->
 			if returnData == true
 				that.hideModal()
+				widgetSrv.removeWidget(widget_id) if remove_widget
 			else
-				alert(returnData.msg)
+				alert(returnData.msg) if returnData?.msg?
 			$scope.$apply()
 
 	$scope.checkForWarning = (user) ->

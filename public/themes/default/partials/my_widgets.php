@@ -22,7 +22,7 @@
 		<modal-dialog class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
 			<div ng-controller="CollaborationController">
 				<div id="access" class="container">
-					<div class="list_tab_lock">
+					<div ng-if="shareable" class="list_tab_lock">
 						<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
 						<div class="search_list" ng-show="searching">
 							<div ng-show="searchResults.length == 0">
@@ -36,30 +36,29 @@
 						</div>
 					</div>
 					<div class="access_list">
-						<div ng-repeat="user in $parent.collaborators" ng-show="!user.remove" class="user_perm">
-							<a tabindex="0" href="javascript:;" ng-click="removeAccess(user)" class="remove">&#88;</a>
-							<img class="avatar" ng-src="{{ user.gravatar }}" />
+						<div ng-repeat="colaborator in $parent.collaborators" ng-show="!colaborator.remove" class="user_perm">
+							<a ng-if="shareable || user.id == colaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(colaborator)" class="remove">&#88;</a>
+							<img class="avatar" ng-src="{{ colaborator.gravatar }}" />
 
-							<span class="name">{{ user.first }} {{ user.last }}</span>
+							<span class="name">{{ colaborator.first }} {{ colaborator.last }}</span>
 
-							<div class="demote_dialogue" ng-show="user.warning">
+							<div class="demote_dialogue" ng-show="colaborator.warning">
 								<div class="arrow"></div>
 								<div class="warning">Are you sure you want to limit <strong>your</strong> access?
 								</div>
-								<a href="javascript:;" ng-click="cancelDemote(user)" class="no_button">No</a>
-								<a href="javascript:;" ng-click="user.warning = false" class="button red action_button yes_button">Yes</a>
+								<a href="javascript:;" ng-click="cancelDemote(colaborator)" class="no_button">No</a>
+								<a href="javascript:;" ng-click="colaborator.warning = false" class="button red action_button yes_button">Yes</a>
 							</div>
-
-							<div class="options">
+							<div class="options" >
 								<span class="owner">Full</span>
 								<span class="undo">Removed <a href="#">Undo</a></span>
-								<select tabindex="0" id="perm" class="perm" ng-model="user.access" ng-change="checkForWarning(user)">
-									<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
-									<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
+								<select ng-disabled="shareable==false" tabindex="0" id="perm" class="perm" ng-model="colaborator.access" ng-change="checkForWarning(colaborator)">
+									<option value="30" {{ colaborator.access == 30 ? "selected" : ""}}>Full</option>
+									<option value="0" {{ colaborator.access == 0 ? "selected" : ""}}>View Scores</option>
 								</select>
 
-								<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
-								<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
+								<a ng-if="shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(colaborator)" ng-show="colaborator.expires">X</a>
+								<span class="expires">Expires: </span><input ng-disabled="shareable==false" type="text" class="exp-date colaborator{{ colaborator.id }}" ng-model="colaborator.expiresText" readonly="true" />
 
 							</div>
 						</div>
