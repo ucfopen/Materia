@@ -48,7 +48,10 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.shareable = false
 	$scope.hasScores = false
 
-	$scope.selectedScoreView = [] # 0 is graph, 1 is table, 2 is data
+	$scope.SCORE_VIEW_GRAPH = 0
+	$scope.SCORE_VIEW_TABLE = 1
+	$scope.SCORE_VIEW_DATA = 2
+	$scope.selectedScoreView = [] # array of above (i.e. 0 = graph)
 
 	$scope.collaborators = []
 	$scope.showOlderScores = false
@@ -137,7 +140,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
 	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
-		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
+		if $scope.perms.user[$scope.user.id]? and $scope.perms.user[$scope.user.id][0]?
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
@@ -224,7 +227,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	populateScoreWrapper = (semester, index) ->
 
 		#  no scores, but we do have storage data
-		if typeof semester.distribution == 'undefined' and typeof semester.storage != 'undefined'
+		if !semester.distribution? and semester.storage?
 			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
