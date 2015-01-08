@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'currentUserCtrl', ['$scope', '$sce', 'userServ', ($scope, $sce, userServ) ->
+app.controller 'currentUserCtrl', ($scope, $sce, userServ) ->
 
 	$scope.currentUser = userServ.getCurrentUser()
 	$scope.hasNoWidgets = false
@@ -8,5 +8,3 @@ app.controller 'currentUserCtrl', ['$scope', '$sce', 'userServ', ($scope, $sce, 
 		$scope.hasNoWidgets = true
 		$scope.$apply()
 
-
-]
