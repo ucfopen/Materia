@@ -292,28 +292,26 @@
 						<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
 						<div ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
 							<p ng-if="table.truncated" class="truncated-table">Showing only the first {{MAX_ROWS}} entries of this table. Download the table to see all entries.</p>
-							<div class="table_wrapper">
-								<table class="storage_table">
-									<thead>
-										<tr>
-											<th>user</th>
-											<th>firstName</th>
-											<th>lastName</th>
-											<th>time</th>
-											<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr ng-repeat="row in table.data">
-											<td>{{row.play.user}}</td>
-											<td>{{row.play.firstName}}</td>
-											<td>{{row.play.lastName}}</td>
-											<td>{{row.play.time}}</td>
-											<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
+							<table class="storage_table" datatable>
+								<thead>
+									<tr>
+										<th>user</th>
+										<th>firstName</th>
+										<th>lastName</th>
+										<th>time</th>
+										<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="row in table.data">
+										<td>{{row.play.user}}</td>
+										<td>{{row.play.firstName}}</td>
+										<td>{{row.play.lastName}}</td>
+										<td>{{row.play.time}}</td>
+										<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
 					<ul class="numeric" ng-show="selectedScoreView[$index] != 2">
