@@ -19,28 +19,25 @@
 			</div>
 		</modal-dialog>
 
-		<modal-dialog class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
+		<modal-dialog class="share" show="modals.showCollaboration" dialog-title="Collaboration:" width="620px" height="500px">
 			<div ng-controller="CollaborationController">
 				<div id="access" class="container">
 					<div ng-if="shareable" class="list_tab_lock">
-						<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
-						<div class="search_list" ng-show="searching">
-							<div ng-show="searchResults.length == 0">
-								<p class="no_match_message">No matches found.</p>
-								<p class="no_match_reason">The person you're searching for may need to log in to create an account.</p>
-							</div>
-							<div ng-repeat="result in searchResults" ng-click="searchMatchClick(result)" class="search_match">
-								<img class="user_match_avatar" ng-src="{{ result.gravatar }}">
-								<p class="user_match_name">{{ result.first }} {{ result.last }}</p>
+						<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" />
+						<div class="search_list" ng-show="searchResults.show">
+							<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match">
+								<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
+								<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
 							</div>
 						</div>
 					</div>
+
 					<div class="access_list">
 						<div ng-repeat="colaborator in $parent.collaborators" ng-show="!colaborator.remove" class="user_perm">
 							<a ng-if="shareable || user.id == colaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(colaborator)" class="remove">&#88;</a>
-							<img class="avatar" ng-src="{{ colaborator.gravatar }}" />
+							<img class="avatar" ng-src="{{::colaborator.gravatar}}" />
 
-							<span class="name">{{ colaborator.first }} {{ colaborator.last }}</span>
+							<span class="name">{{::colaborator.first}} {{::colaborator.last}}</span>
 
 							<div class="demote_dialogue" ng-show="colaborator.warning">
 								<div class="arrow"></div>
@@ -49,26 +46,29 @@
 								<a href="javascript:;" ng-click="cancelDemote(colaborator)" class="no_button">No</a>
 								<a href="javascript:;" ng-click="colaborator.warning = false" class="button red action_button yes_button">Yes</a>
 							</div>
+
 							<div class="options" >
 								<span class="owner">Full</span>
 								<span class="undo">Removed <a href="#">Undo</a></span>
 								<select ng-disabled="shareable==false" tabindex="0" id="perm" class="perm" ng-model="colaborator.access" ng-change="checkForWarning(colaborator)">
-									<option value="30" {{ colaborator.access == 30 ? "selected" : ""}}>Full</option>
-									<option value="0" {{ colaborator.access == 0 ? "selected" : ""}}>View Scores</option>
+									<option value="30" ng-selected="colaborator.access == 30" >Full</option>
+									<option value="0" ng-selected="colaborator.access == 0" >View Scores</option>
 								</select>
 
 								<a ng-if="shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(colaborator)" ng-show="colaborator.expires">X</a>
-								<span class="expires">Expires: </span><input ng-disabled="shareable==false" type="text" class="exp-date colaborator{{ colaborator.id }}" ng-model="colaborator.expiresText" readonly="true" />
+								<span class="expires">Expires: </span><input ng-disabled="!shareable" type="text" class="exp-date user{{::colaborator.id}}" ng-model="colaborator.expiresText" readonly="true" />
 
 							</div>
 						</div>
 					</div>
+
 					<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
 					<a tabindex="0" class="cancel_button" ng-click="hideModal()">Cancel</a>
 					<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()">Save</a>
 				</div>
 			</div>
 		</modal-dialog>
+
 		<modal-dialog class="availability" show="showAvailabilityModal" dialog-title="Settings" width="660px" height="440px">
 			<div ng-controller="WidgetSettingsController">
 				<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>

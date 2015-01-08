@@ -14,7 +14,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.perms = {}
 	$scope.scores = null
 	$scope.storage = null
-	$scope.showCollaborationModal = false
+	$scope.modals =
+		showCollaboration: no
 	$scope.showCopyModal = false
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
@@ -55,7 +56,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.baseUrl = BASE_URL
 
-	$scope.popup = () ->
+	$scope.popup = ->
 		if $scope.editable and $scope.shareable
 			$scope.showAvailabilityModal = true
 			Materia.MyWidgets.Availability.popup()
@@ -175,7 +176,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.showExportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
-	$scope.copyWidget = () ->
+	$scope.copyWidget = ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
 			$scope.showCopyModal = false
 			widgetSrv.addWidget(inst_id)
@@ -259,8 +260,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.showCollaboration = ->
 		user_ids = []
-		for user of $scope.perms.widget
-			user_ids.push user
+		user_ids.push(user) for user of $scope.perms.widget
+
 		$scope.collaborators = []
 
 		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
@@ -281,7 +282,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 			$scope.setupPickers()
 
-		$scope.showCollaborationModal = true
+		$scope.modals.showCollaboration = yes
 
 	$scope.setupPickers = ->
 		# fill in the expiration link text & setup click event
