@@ -43,7 +43,7 @@ app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 			if found
 				$scope.setSelected(selID)
 			else
-				selectedWidgetSrv.noAccess()
+				selectedWidgetSrv.notifyAccessDenied()
 			firstRun = false
 
 	# Populate the widget list

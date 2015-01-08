@@ -66,8 +66,6 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 		if newWidget
 			selectedWidgetSrv.set(newWidget)
 			sortWidgets()
-		else
-			selectedWidgetSrv.noWidgets()
 		$rootScope.$broadcast 'widgetList.update', ''
 
 	getWidgets: getWidgets

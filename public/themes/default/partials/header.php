@@ -37,6 +37,7 @@
 			</li>
 
 		</ul>
+		<div class="qtip top nowidgets" ng-show="hasNoWidgets">Click here to start making a new widget!</div>
 	</nav>
 
 	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl" ng-show="notifications.length > 0">

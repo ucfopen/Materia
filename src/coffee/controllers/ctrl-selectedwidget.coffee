@@ -28,12 +28,12 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 			if check? then setSelectedWidget()
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
-	$scope.$on 'selectedWidget.noAccess', ->
+	$scope.$on 'selectedWidget.notifyAccessDenied', ->
 		$scope.error = true
 		$scope.$apply()
 
 	$scope.noWidgetState = false
-	$scope.$on 'selectedWidget.noWidgets', (evt) ->
+	$scope.$on 'selectedWidget.hasNoWidgets', (evt) ->
 		$scope.noWidgetState = true
 		$scope.$apply()
 
