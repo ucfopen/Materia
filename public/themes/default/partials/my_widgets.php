@@ -246,7 +246,7 @@
 					<span class="arrow_down"></span>
 					Export Scores
 				</span>
-				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="showOlderScores == true || $index == 0">
+				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-if="showOlderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, 0)">Graph</a></li>
