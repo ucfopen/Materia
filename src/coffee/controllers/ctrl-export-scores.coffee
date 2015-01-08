@@ -31,11 +31,8 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	]
 	$scope.exportType = $scope.exportSelect[0]
 
-	init = (gateway) ->
-
 	# Builds the initial version of the popup window
 	buildPopup = ->
-		console.log 'buildddd'
 		$scope.selectedId = selectedWidgetSrv.get().id
 		getScores()
 
@@ -60,13 +57,6 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 			$scope.updateSemesters()
 			$scope.$apply()
 
-	# Sets the chosen semester to checked or not.
-	# Needed so that the text can be clicked.
-	$scope.changeSemester = (index) ->
-		if $scope.semesters.length > 1
-			$scope.semesters[index].checked = !$scope.semesters[index].checked
-			$scope.updateSemesters()
-
 	# Updates the header of the popup and the ids for the download button
 	$scope.updateSemesters = ->
 		# Get the objects that have checked: true
@@ -78,8 +68,16 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 
 	# Check or uncheck all semesters
 	$scope.checkAll = ->
+		# Grab all of the checked semesters
+		checked = $scope.semesters.filter (e) -> return e.checked
 		angular.forEach($scope.semesters, (semester) ->
-			semester.checked = !$scope.checkedAll
+			# If all of the semesters are checked, uncheck them all
+			if checked.length == $scope.semesters.length
+				semester.checked = false
+				$scope.checkedAll = false
+			else
+				semester.checked = true
+				$scope.checkedAll = true
 		)
 		$scope.updateSemesters()
 
@@ -96,6 +94,5 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		return link
 
 	Namespace('Materia.MyWidgets').Csv =
-		init : init
 		buildPopup : buildPopup
 

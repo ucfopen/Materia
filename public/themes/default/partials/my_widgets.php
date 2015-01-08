@@ -146,7 +146,7 @@
 					<p class="export_which">Export which semesters?</p>
 					<ul>
 						<li class="checkallLi" ng-show="semesters.length > 1"><input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/><label for="checkall"> - Check all</label></li>
-						<li ng-repeat="semester in semesters" ng-click="changeSemester($index)"><input type="checkbox" class="semester" id="{{semester.id}}"  ng-model="semester.checked" ng-disabled="semesters.length == 1"/> <label>{{semester.label}}</label></li>
+						<li ng-repeat="semester in semesters"><input type="checkbox" id="{{semester.id}}" class="semester" id="{{semester.id}}" ng-model="semester.checked" ng-disabled="semesters.length == 1" ng-click="updateSemesters()"/> <label for="{{semester.id}}">{{semester.label}}</label></li>
 					</ul>
 				</div>
 			</div>
