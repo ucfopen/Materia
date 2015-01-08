@@ -8,6 +8,21 @@ uglify        = require 'gulp-uglify' # minify and mangle js
 minifyCss     = require 'gulp-minify-css'
 livereload    = require 'gulp-livereload' # reload the browser when files change
 ngAnnotate    = require 'gulp-ng-annotate' # protect angular dependency injection from minify
+notifier      = require 'node-notifier'
+
+notify = (message) ->
+	notifier.notify
+		title: "Materia Big Gulp"
+		message: message
+		wait: true
+		sound: true
+
+errHandle = (err) ->
+	console.log err
+	notify "#{err.name}\n#{err.message}"
+
+	this.emit 'end'
+
 
 # PATHS
 path =
@@ -98,7 +113,7 @@ for group in coffeeScripts
 			console.log "dynamic task created: js-#{name} *combined"
 			gulp.task tskName, ->
 				gulp.src files
-					.pipe coffee()
+					.pipe coffee().on 'error', errHandle
 					.pipe concat "#{name}.min.js"
 					.pipe ngAnnotate()
 					.pipe uglify()
@@ -107,7 +122,7 @@ for group in coffeeScripts
 			console.log "dynamic task created: js-#{name}"
 			gulp.task tskName, ->
 				gulp.src files
-					.pipe coffee()
+					.pipe coffee().on 'error', errHandle
 					.pipe uglify()
 					.pipe gulp.dest(dest)
 
