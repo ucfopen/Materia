@@ -684,46 +684,71 @@ class Api_V1
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($item_id)) return \RocketDuck\Msg::invalid_input('Invalid item id: '.$item_id);
 		if (empty($perms_array)) return \RocketDuck\Msg::invalid_input('empty user perms');
 
-		// Determine what permissions user can set
-		$cur_user_id       = \Model_user::find_current_id();
-		$can_remove_self   = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::VISIBLE]) && count($perms_array) == 1 && $perms_array[0]->user_id == $cur_user_id;
+		$cur_user_id = \Model_user::find_current_id();
+
+		// full perms or is super user
 		$can_modify_others = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
 
-		// error if user does not have full or visible permissions
-		if ( ! ($can_remove_self || $can_modify_others))
+		foreach ($perms_array as $new_perms)
 		{
-			return \RocketDuck\Msg::no_perm();
-		}
+			// skip if theres no way i can do this
+			if ( ! $can_modify_others && $new_perms->user_id != $cur_user_id) continue;
 
-		foreach ($perms_array as $user_perms)
-		{
+			$old_perms = Perm_Manager::get_user_object_perms($item_id, $item_type, $new_perms->user_id);
+
+			// I can only reduce my perms, filter out anything that increases
+			if ( ! $can_modify_others && $new_perms->user_id == $cur_user_id)
+			{
+				// convert perms to an array
+				$new_perms->perms = get_object_vars($new_perms->perms);
+				foreach ($new_perms->perms as $key => $value)
+				{
+
+					// remove any perm I didn't already have
+					if ( ! array_key_exists($key, $old_perms))
+					{
+						unset($new_perms->perms[$key]);
+						continue;
+					}
+
+					// make sure i'm not enabling anything i didn't already have
+					if ($value != $old_perms[$key] && $value == Perm::ENABLE)
+					{
+						$new_perms->perms[$key] = $old_perms[$key];
+					}
+
+					// convert string numeric keys to number keys
+					unset($new_perms->perms[$key]);
+					$new_perms->perms[(integer) $key] = $value;
+				}
+			}
+
 			// Determine what type of notification to send
 			// Search perms for enabled value and get key (new_perm)
 			// array_search returns false if value was not found
 			// need strict type checking because 0 == false
-			$new_perm   = array_search(Perm::ENABLE, $user_perms->perms);
-			$old_perm   = Perm_Manager::get_user_object_perms($item_id, $item_type, $user_perms->user_id);
-			$is_enabled = ! ($new_perm === false);
-			$mode = '';
+			$new_perm   = array_search(Perm::ENABLE, $new_perms->perms);
+			$is_enabled = $new_perm !== false;
+			$notification_mode = '';
 
 			if ( ! $is_enabled)
 			{
-				$mode = 'disabled';
+				$notification_mode = 'disabled';
 			}
-			else if ($old_perm != [$new_perm => Perm::ENABLE])
+			else if ($old_perms != [$new_perm => Perm::ENABLE])
 			{
-				$mode = 'changed';
+				$notification_mode = 'changed';
 			}
 
-			\Model_Notification::send_item_notification($cur_user_id, $user_perms->user_id, $item_type, $item_id, $mode, $new_perm);
+			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
 
 			// set VIEW access for all of its assets
 			if ($item_type === Perm::INSTANCE)
 			{
-				Perm_Manager::set_user_game_asset_perms($item_id, $user_perms->user_id, [Perm::VISIBLE => $is_enabled], $user_perms->expiration);
+				Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
 			}
 
-			Perm_Manager::set_user_object_perms($item_id, $item_type, $user_perms->user_id, $user_perms->perms, $user_perms->expiration);
+			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 		}
 
 		return true;

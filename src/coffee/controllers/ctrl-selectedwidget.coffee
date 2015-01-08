@@ -137,8 +137,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
 	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
-		if typeof $scope.perms.user[$scope.user.id] != 'undefined' and typeof $scope.perms.user[$scope.user.id][0] != 'undefined'
+		if $scope.perms.user[$scope.user.id]?[0]?
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
+
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
 		if $scope.editable
@@ -153,7 +154,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
 
 		# DeMorgan's, anyone?
-		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
+		$scope.shareable = $scope.accessLevel != 0
 
 		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 		populateAttempts($scope.selectedWidget.attempts)
