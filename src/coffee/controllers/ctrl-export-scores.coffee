@@ -54,17 +54,30 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 
 			# First semester is checked by default
 			$scope.semesters[0].checked = true
-			$scope.updateSemesters()
+			$scope.onSelectedSemestersChange()
 			$scope.$apply()
 
-	# Updates the header of the popup and the ids for the download button
-	$scope.updateSemesters = ->
+	# Called when semesters are checked or unchecked
+	# Gets the checked semesters for the download information and checkAll
+	$scope.onSelectedSemestersChange = ->
 		# Get the objects that have checked: true
 		checked = $scope.semesters.filter (e) -> return e.checked
-		# Get the labels from the returned objects
-		labels = checked.map (e) -> return e.label
+		$scope.updateDownloadInfo(checked)
+		$scope.updateCheckAll(checked)
+
+	# Updates the header of the popup and the ids for the download button
+	$scope.updateDownloadInfo = (checkedSemesters) ->
+		# Get the labels from the checked Semesters
+		labels = checkedSemesters.map (e) -> return e.label
 		$scope.header = labels.join(", ")
 		$scope.ids = labels.join(",").replace(/\s/g, '-')
+
+	# Updates the checkAll option depending on how many semesters are checked
+	$scope.updateCheckAll = (checkedSemesters) ->
+		if checkedSemesters.length == $scope.semesters.length
+			$scope.checkedAll = true
+		else
+			$scope.checkedAll = false
 
 	# Check or uncheck all semesters
 	$scope.checkAll = ->
@@ -74,12 +87,10 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 			# If all of the semesters are checked, uncheck them all
 			if checked.length == $scope.semesters.length
 				semester.checked = false
-				$scope.checkedAll = false
 			else
 				semester.checked = true
-				$scope.checkedAll = true
 		)
-		$scope.updateSemesters()
+		$scope.onSelectedSemestersChange()
 
 	# Show or hide the semesters slideout
 	$scope.showOptions = ->
