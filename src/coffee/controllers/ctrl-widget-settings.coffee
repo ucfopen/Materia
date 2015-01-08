@@ -1,13 +1,14 @@
 app = angular.module 'materia'
 # The widget settings/availability modal on My Widgets
 app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, widgetSrv) ->
+	$scope.UNLIMITED_ATTEMPTS = 25
 	$scope.times = []
 	$scope.error = ''
 	# Keeps track of which inputs have errors so the error class can be added correctly.
 	$scope.dateError = [false, false]
 	$scope.timeError = [false, false]
 	# Default to unlimited attempts
-	$scope.attempts = 25
+	$scope.attempts = $scope.UNLIMITED_ATTEMPTS
 	# Hold information for availability.
 	$scope.availability = []
 	# From
@@ -25,8 +26,6 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.$on 'selectedWidget.update', (evt) ->
 		$scope.selectedWidget = selectedWidgetSrv.get()
 		$scope.attempts = parseInt $scope.selectedWidget.attempts
-
-	$scope.init = (gateway) ->
 
 	$scope.popup = ->
 		$scope.error = ''
@@ -198,7 +197,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.changeAvailability = ->
 		# Close the modal
 		this.$parent.hideModal()
-		attempts = if $scope.attempts < 25 then $scope.attempts else -1
+		attempts = if $scope.attempts < $scope.UNLIMITED_ATTEMPTS then $scope.attempts else -1
 
 		# Update the widget instance.
 		widgetSrv.saveWidget
@@ -207,13 +206,12 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			close_at: $scope.times[1],
 			attempts: attempts
 			, (widget) ->
-			# Repopuplates the availability and attempts on the main page
-			Materia.MyWidgets.SelectedWidget.populateAvailability $scope.times[0], $scope.times[1]
-			Materia.MyWidgets.SelectedWidget.populateAttempts parseInt(attempts, 10)
+				# Repopuplates the availability and attempts on the main page
+				Materia.MyWidgets.SelectedWidget.populateAvailability $scope.times[0], $scope.times[1]
+				Materia.MyWidgets.SelectedWidget.populateAttempts parseInt(attempts, 10)
 
 		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1])
 
 	Namespace('Materia.MyWidgets').Availability =
-		init  : $scope.init
 		popup : $scope.popup
 
