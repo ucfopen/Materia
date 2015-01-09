@@ -1,6 +1,6 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
-app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv) ->
+app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv, userServ) ->
 	lastSearch = ''
 	$scope.inputs =
 		userSearchInput: ''
@@ -13,6 +13,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 
 	$scope.search = (nameOrFragment) ->
 		return if nameOrFragment == lastSearch
+		lastSearch = nameOrFragment
 
 		$scope.searchResults.show = yes
 		inputArray = nameOrFragment.split(',')
@@ -25,9 +26,10 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 				return
 
 			for user in matches
-				user.gravatar = $scope.$parent.getGravatar(user.email)
+				user.gravatar = userServ.getAvatar user
 
 			$scope.searchResults.matches = matches
+			$scope.$apply()
 
 	$scope.searchMatchClick = (user) ->
 		$scope.inputs.userSearchInput = ''
@@ -36,10 +38,10 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 		$scope.searchResults.matches = []
 
 		# Do not add duplicates
-		for existing_user in $scope.$parent.collaborators
+		for existing_user in $scope.perms.collaborators
 			return if user.id == existing_user.id
 
-		$scope.$parent.collaborators.push
+		$scope.perms.collaborators.push
 			id: user.id
 			isCurrentUser: user.isCurrentUser
 			expires: null
@@ -57,14 +59,12 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 		user.remove = true
 
 	$scope.updatePermissions = ->
-		that          = this.$parent
-		users         = that.collaborators
 		remove_widget = no
 		widget_id     = $scope.$parent.selectedWidget.id
 		permObj       = []
 		user_ids      = {}
 
-		for user in users
+		for user in $scope.perms.collaborators
 			# Do not allow saving if a demotion dialog is on the screen
 			return if user.warning
 
@@ -82,7 +82,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 		$scope.$parent.perms.widget = user_ids
 		Materia.Coms.Json.send 'permissions_set', [0,widget_id, permObj], (returnData) ->
 			if returnData == true
-				$scope.modals.showCollaboration = no
+				$scope.show.collaborationModal = no
 				widgetSrv.removeWidget(widget_id) if remove_widget
 				$scope.$apply()
 			else
