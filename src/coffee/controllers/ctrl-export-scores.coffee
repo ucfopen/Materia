@@ -44,7 +44,7 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		Materia.Coms.Json.send 'score_summary_get', [$scope.selectedId], (summary) ->
 			# Show export modal in callback because otherwise the text changes once the
 			# callback is done
-			$scope.$parent.$parent.showExportModal = true
+			$scope.show.exportModal = true
 			# Fill in the semesters from the server
 			$scope.semesters = []
 			for s in summary

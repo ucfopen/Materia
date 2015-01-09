@@ -23,6 +23,9 @@ app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
 			beardMode: user.getAttribute("data-beardMode")
 		buildUser userData.name, userData.avatar, userData.loggedIn == 'true', userData.role, userData.notify == 'true', userData.beardMode == 'true'
 
+	getAvatar = (user, size = 24) ->
+		user.avatar.replace(/s=\d+/, "s=#{size}").replace(/size=\d+x\d+/, "size=#{size}x#{size}")
+
 	getCurrentUserFromAPI = (callback) ->
 
 		Materia.User.getCurrentUser (user) ->
@@ -40,7 +43,7 @@ app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
 		_me
 
 	getCurrentUserAvatar = (size = 24) ->
-		_me.avatar.replace(/s=\d+/, "s=#{size}").replace(/size=\d+x\d+/, "size=#{size}x#{size}")
+		getAvatar _me, size
 
 	_user = null
 
@@ -75,6 +78,7 @@ app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
 	# return public method references
 	getCurrentUser : getCurrentUser
 	getCurrentUserAvatar: getCurrentUserAvatar
+	getAvatar : getAvatar
 	updateSettings:updateSettings
 	get : get
 	set : set

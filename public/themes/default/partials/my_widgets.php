@@ -1,7 +1,7 @@
 <div class="container">
 	<div ng-controller="SelectedWidgetController">
 
-		<modal-dialog class="edit-published-widget" show="showEditPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
+		<modal-dialog class="edit-published-widget" show="show.editPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
 			<div class="container">
 				<p>Editing a published widget may affect statistical analysis when comparing data collected prior to your edits.</p>
 				<h3>Caution should be taken when:</h3>
@@ -13,17 +13,17 @@
 				</ul>
 
 				<span class="center">
-					<a class="cancel_button" href="javascript:;" ng-click="$parent.showEditPublishedWarning = false">Cancel</a>
+					<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
 					<a class="action_button green" ng-href="{{edit}}">Edit Published Widget</a>
 				</span>
 			</div>
 		</modal-dialog>
 
-		<modal-dialog class="share" show="modals.showCollaboration" dialog-title="Collaboration:" width="620px" height="500px">
-			<div ng-controller="CollaborationController">
+		<modal-dialog class="share" show="show.collaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
+			<div ng-if="show.collaborationModal" ng-controller="CollaborationController">
 				<div id="access" class="container">
 					<div ng-if="shareable" class="list_tab_lock">
-						<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" />
+						<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" />
 						<div class="search_list" ng-show="searchResults.show">
 							<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match">
 								<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
@@ -33,7 +33,7 @@
 					</div>
 
 					<div class="access_list">
-						<div ng-repeat="colaborator in $parent.collaborators" ng-show="!colaborator.remove" class="user_perm">
+						<div ng-repeat="colaborator in perms.collaborators" ng-show="!colaborator.remove" class="user_perm">
 							<a ng-if="shareable || user.id == colaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(colaborator)" class="remove">&#88;</a>
 							<img class="avatar" ng-src="{{::colaborator.gravatar}}" />
 
@@ -69,7 +69,7 @@
 			</div>
 		</modal-dialog>
 
-		<modal-dialog class="availability" show="showAvailabilityModal" dialog-title="Settings" width="660px" height="440px">
+		<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="440px">
 			<div ng-controller="WidgetSettingsController">
 				<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 				<ul class="attemptsPopup">
@@ -107,7 +107,7 @@
 				</ul>
 			</div>
 		</modal-dialog>
-		<modal-dialog class="default csv_popup" show="showExportModal" width="580px" height="580px">
+		<modal-dialog class="default csv_popup" show="show.exportModal" width="580px" height="580px">
 			<div ng-controller="ExportScoresController">
 				<div class="download_wrapper">
 					<h3>Export Scores</h3>
@@ -150,7 +150,7 @@
 				</div>
 			</div>
 		</modal-dialog>
-		<modal-dialog class="copy" show="showCopyModal" dialog-title="Make a Copy:" width="620px" height="220px">
+		<modal-dialog class="copy" show="show.copyModal" dialog-title="Make a Copy:" width="620px" height="220px">
 			<div class="container">
 				<span class="input_label">New Title:</span>
 				<input class="newtitle" type="text" ng-model="$parent.$parent.copy_title" placeholder="New Widget Title" />
@@ -201,12 +201,12 @@
 						<li class="copy" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
 						<li class="delete" ng-class="{'disabled' : accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
 					</ul>
-					<div class="delete_dialogue" ng-show="showDeleteDialog">
+					<div class="delete_dialogue" ng-show="show.deleteDialog">
 						<span class="delete-warning">Are you sure you want to delete this widget?</span>
-						<a class="cancel_button" href="javascript:;" ng-click="showDeleteDialog = false">Cancel</a>
+						<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 						<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 					</div>
-					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!showDeleteDialog">
+					<div class="additional_options" ng-class="{'disabled': !editable || !shareable}" ng-show="!show.deleteDialog">
 						<h3>Settings:</h3>
 						<dl class="attempts_parent" ng-class="{'disabled': !editable || !shareable}">
 							<dt>Attempts:</dt>
@@ -245,7 +245,7 @@
 					<span class="arrow_down"></span>
 					Export Scores
 				</span>
-				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="showOlderScores == true || $index == 0">
+				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="show.olderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, 0)">Graph</a></li>
@@ -316,7 +316,7 @@
 						<li><h4>Scores</h4><p class="score-count">{{semester.distribution.length}}</p></li>
 						<li><h4>Avg Final Score</h4><p class="final-average">{{semester.average}}</p></li>
 					</ul>
-					<a role="button" class="show-older-scores-button" href="#" ng-show="scores.list.length > 1 && showOlderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
+					<a role="button" class="show-older-scores-button" href="#" ng-show="scores.list.length > 1 && show.olderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
 				</div>
 				<p class="noScores" ng-show="scores.list.length == 0">There are no scores to display</p>
 			</div>
