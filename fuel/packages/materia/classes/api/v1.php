@@ -670,7 +670,7 @@ class Api_V1
 		foreach ($perms_array as &$perm_obj)
 		{
 			// convert perms to an array
-			$perm_obj->perms = get_object_vars($perm_obj->perms);
+			if ( ! is_array($perm_obj->perms)) $perm_obj->perms = (array) $perm_obj->perms;
 
 			// convert the keys from string numeric keys to integers
 			foreach ($perm_obj->perms as $key => $value)
@@ -738,15 +738,19 @@ class Api_V1
 		foreach ($perms_array as &$new_perms)
 		{
 			// i cant do anything
-			if ( ! $can_give_access && $new_perms->user_id != $cur_user_id) continue;
+			if ( ! $can_give_access && $new_perms->user_id != $cur_user_id) return \RocketDuck\Msg::no_perm();
 
 			$old_perms = Perm_Manager::get_user_object_perms($item_id, $item_type, $new_perms->user_id);
+			$requested_perm_count = count($new_perms->perms);
 
 			// I can only reduce my perms, filter out anything that increases or adds
 			if ( ! $can_give_access && $new_perms->user_id == $cur_user_id)
 			{
 				$new_perms = static::_filter_increasing_perms($new_perms, $old_perms);
 			}
+
+			// Toss out an error if all the perms I asked for get filtered out
+			if ($requested_perm_count > 0 && count($new_perms->perms) < 1 ) return \RocketDuck\Msg::no_perm();
 
 			// Determine what type of notification to send
 			// Search perms for enabled value and get key (new_perm)
