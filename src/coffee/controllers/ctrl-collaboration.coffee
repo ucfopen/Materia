@@ -57,6 +57,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 
 	$scope.removeAccess = (user) ->
 		user.remove = true
+		user.warning = true
 
 	$scope.updatePermissions = ->
 		remove_widget = no
@@ -94,4 +95,5 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 
 	$scope.cancelDemote = (user) ->
 		user.warning = no
+		user.remove = no
 		user.access = 30
