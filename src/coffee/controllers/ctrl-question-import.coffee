@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'questionImporterCtrl', ['$scope', '$sce', ($scope, $sce) ->
+app.controller 'questionImporterCtrl', ($scope, $sce) ->
 	$selectedAssets = []
 	$table = null
 
@@ -100,6 +100,4 @@ app.controller 'questionImporterCtrl', ['$scope', '$sce', ($scope, $sce) ->
 
 	_setupTable()
 	_loadAllQuestions()
-]
-
 

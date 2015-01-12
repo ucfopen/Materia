@@ -74,7 +74,7 @@
 				<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 				<ul class="attemptsPopup">
 					<li><h3>Attempts</h3>
-						<div class="selector"></div>
+						<div class="selector" ng-if="showAvailabilityModal"></div>
 						<ul class="attemptHolder">
 							<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
 							<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
@@ -145,7 +145,7 @@
 					<p class="export_which">Export which semesters?</p>
 					<ul>
 						<li class="checkallLi" ng-show="semesters.length > 1"><input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/><label for="checkall"> - Check all</label></li>
-						<li ng-repeat="semester in semesters" ng-click="changeSemester($index)"><input type="checkbox" class="semester" id="{{semester.id}}"  ng-model="semester.checked" ng-disabled="semesters.length == 1"/> <label>{{semester.label}}</label></li>
+						<li ng-repeat="semester in semesters"><input type="checkbox" id="{{semester.id}}" class="semester" id="{{semester.id}}" ng-model="semester.checked" ng-disabled="semesters.length == 1" ng-click="onSelectedSemestersChange()"/> <label for="{{semester.id}}">{{semester.label}}</label></li>
 					</ul>
 				</div>
 			</div>
@@ -245,14 +245,15 @@
 					<span class="arrow_down"></span>
 					Export Scores
 				</span>
+
 				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-show="show.olderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 0}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, 0)">Graph</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 1}"><a class="table" ng-show="hasScores" ng-click="setScoreView($index, 1)">Individual Scores</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == 2}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, 2)">Data</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_GRAPH}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, SCORE_VIEW_GRAPH)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_TABLE}"><a class="table" ng-show="hasScores" ng-click="setScoreView($index, SCORE_VIEW_TABLE)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_DATA}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, SCORE_VIEW_DATA)">Data</a></li>
 					</ul>
-					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == 1">
+					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == SCORE_VIEW_TABLE">
 						<div class="score-search">
 							<input type="text" ng-model="studentSearch" ng-change="searchStudentActivity(studentSearch)" placeholder="Search Students" />
 						</div>
@@ -282,36 +283,38 @@
 							</table>
 						</div>
 					</div>
-					<div class="display graph" ng-show="selectedScoreView[$index] == 0">
+					<div class="display graph" ng-show="selectedScoreView[$index] == SCORE_VIEW_GRAPH">
 						<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 					</div>
-					<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == 2">
+					<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == SCORE_VIEW_DATA">
 						<a class="storage" ng-click="handleStorageDownload()">Download Table</a>
-						<div class="table label" ng-if="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
+						<div class="table label" ng-show="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
 						<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
-						<table ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
+						<div ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
 							<p ng-if="table.truncated" class="truncated-table">Showing only the first {{MAX_ROWS}} entries of this table. Download the table to see all entries.</p>
-							<thead>
-								<tr>
-									<th>user</th>
-									<th>firstName</th>
-									<th>lastName</th>
-									<th>time</th>
-									<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr ng-repeat="row in table.data">
-									<td>{{row.play.user}}</td>
-									<td>{{row.play.firstName}}</td>
-									<td>{{row.play.lastName}}</td>
-									<td>{{row.play.time}}</td>
-									<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
-								</tr>
-							</tbody>
-						</table>
+							<table class="storage_table" datatable>
+								<thead>
+									<tr>
+										<th>user</th>
+										<th>firstName</th>
+										<th>lastName</th>
+										<th>time</th>
+										<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="row in table.data">
+										<td>{{row.play.user}}</td>
+										<td>{{row.play.firstName}}</td>
+										<td>{{row.play.lastName}}</td>
+										<td>{{row.play.time}}</td>
+										<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
-					<ul class="numeric" ng-show="selectedScoreView[$index] != 2">
+					<ul class="numeric" ng-show="selectedScoreView[$index] != SCORE_VIEW_DATA">
 						<li><h4>Students</h4><p class="players" class="playerShrink">{{semester.students}}</p></li>
 						<li><h4>Scores</h4><p class="score-count">{{semester.distribution.length}}</p></li>
 						<li><h4>Avg Final Score</h4><p class="final-average">{{semester.average}}</p></li>

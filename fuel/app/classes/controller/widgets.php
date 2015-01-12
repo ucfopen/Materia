@@ -201,7 +201,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'my_widgets']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'jqmodal', 'tablock', 'spinner', 'jqplot', 'my_widgets']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'jqmodal', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -358,6 +358,10 @@ class Controller_Widgets extends Controller
 				->set('type',$inst->widget->name)
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		// The styles for this are in login, should probably be moved?
+		Css::push_group('login');
 	}
 
 	protected function no_permission()

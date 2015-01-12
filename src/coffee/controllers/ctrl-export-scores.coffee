@@ -31,11 +31,8 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	]
 	$scope.exportType = $scope.exportSelect[0]
 
-	init = (gateway) ->
-
 	# Builds the initial version of the popup window
 	buildPopup = ->
-		console.log 'buildddd'
 		$scope.selectedId = selectedWidgetSrv.get().id
 		getScores()
 
@@ -57,31 +54,43 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 
 			# First semester is checked by default
 			$scope.semesters[0].checked = true
-			$scope.updateSemesters()
+			$scope.onSelectedSemestersChange()
 			$scope.$apply()
 
-	# Sets the chosen semester to checked or not.
-	# Needed so that the text can be clicked.
-	$scope.changeSemester = (index) ->
-		if $scope.semesters.length > 1
-			$scope.semesters[index].checked = !$scope.semesters[index].checked
-			$scope.updateSemesters()
-
-	# Updates the header of the popup and the ids for the download button
-	$scope.updateSemesters = ->
+	# Called when semesters are checked or unchecked
+	# Gets the checked semesters for the download information and checkAll
+	$scope.onSelectedSemestersChange = ->
 		# Get the objects that have checked: true
 		checked = $scope.semesters.filter (e) -> return e.checked
-		# Get the labels from the returned objects
-		labels = checked.map (e) -> return e.label
+		$scope.updateDownloadInfo(checked)
+		$scope.updateCheckAll(checked)
+
+	# Updates the header of the popup and the ids for the download button
+	$scope.updateDownloadInfo = (checkedSemesters) ->
+		# Get the labels from the checked Semesters
+		labels = checkedSemesters.map (e) -> return e.label
 		$scope.header = labels.join(", ")
 		$scope.ids = labels.join(",").replace(/\s/g, '-')
 
+	# Updates the checkAll option depending on how many semesters are checked
+	$scope.updateCheckAll = (checkedSemesters) ->
+		if checkedSemesters.length == $scope.semesters.length
+			$scope.checkedAll = true
+		else
+			$scope.checkedAll = false
+
 	# Check or uncheck all semesters
 	$scope.checkAll = ->
+		# Grab all of the checked semesters
+		checked = $scope.semesters.filter (e) -> return e.checked
 		angular.forEach($scope.semesters, (semester) ->
-			semester.checked = !$scope.checkedAll
+			# If all of the semesters are checked, uncheck them all
+			if checked.length == $scope.semesters.length
+				semester.checked = false
+			else
+				semester.checked = true
 		)
-		$scope.updateSemesters()
+		$scope.onSelectedSemestersChange()
 
 	# Show or hide the semesters slideout
 	$scope.showOptions = ->
@@ -96,6 +105,5 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		return link
 
 	Namespace('Materia.MyWidgets').Csv =
-		init : init
 		buildPopup : buildPopup
 
