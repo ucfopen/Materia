@@ -1,6 +1,6 @@
 # TODO: rip out redundant methods
 app = angular.module 'materia'
-app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
+app.service 'userServ', ($q, $rootScope) ->
 
 	_me = null
 
@@ -85,4 +85,3 @@ app.service 'userServ', ['$q', '$rootScope', ($q, $rootScope) ->
 	grabCurrentUser : grabCurrentUser
 	checkValidSession : checkValidSession
 
-]

@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'mediaImportCtrl', ['$scope', '$sce', ($scope, $sce) ->
+app.controller 'mediaImportCtrl', ($scope, $sce) ->
 	selectedAssets = []
 	data = []
 	dt = null
@@ -190,5 +190,4 @@ app.controller 'mediaImportCtrl', ['$scope', '$sce', ($scope, $sce) ->
 			alert('You must queue at least one file.')
 
 		false
-]
 

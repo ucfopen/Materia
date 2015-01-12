@@ -421,13 +421,14 @@
 		margin: 0;
 	}
 
-	.my_widgets .page .controls ul.options li a.disabled,
-	.my_widgets .page .controls ul.options li a.disabled:hover {
+	.my_widgets .page .controls ul.options li .disabled,
+	.my_widgets .page .controls ul.options li .disabled:hover {
 		background: none;
 		cursor: default;
 		color: #c5c5c5;
 		text-decoration: none;
 		border: none;
+		opacity: 0.5;
 	}
 
 	.my_widgets .page .controls div.delete_dialogue {
@@ -776,9 +777,12 @@
 
 	.my_widgets .page .scores .display.data
 	{
-		width: 638px;
 		font-family: 'Lucida Grande', sans-serif;
+		width: 638px;
+	}
+	.table_wrapper {
 		overflow-x:scroll;
+		width: 638px;
 	}
 
 		.my_widgets .page .scores .display.data table
@@ -849,13 +853,6 @@
 				padding-right: 10px;
 				outline: none;
 			}
-
-		.my_widgets .page .scores .table table td {
-			/* border-bottom:solid #dbdbdb 1px; */
-			padding:10px 5px 10px 10px;
-			margin-bottom:2px;
-			font-family: "Lucida Grande", sans-serif;
-		}
 
 		.my_widgets .page .scores .table .scoreListContainer {
 			position:relative;
@@ -992,7 +989,7 @@
 			text-align: center;
 			font-size: 2em;
 			font-weight: 900;
-			font-family: "Kameron" Georgia, "Times New Roman", Times, serif
+			font-family: "Kameron", Georgia, "Times New Roman", Times, serif
 		}
 		.my_widgets .page .scores .numeric li h4 {
 			padding: 0;
@@ -1137,7 +1134,7 @@
 		.ng-modal.availability .availabilityError {
 			position: absolute;
 			top: 8px;
-			right: 20px;
+			right: 30px;
 			color: #F00;
 			font-weight: bold;
 		}
@@ -1453,6 +1450,8 @@
 	font-weight: bold;
 	font-size: 15px;
 	margin-top:8px;
+	text-align: left;
+	width: 160px;
 }
 
 .ng-modal.share .name span {
@@ -2660,5 +2659,13 @@ div.link {
 	padding: 0 0 2px 0;
 	font-weight: bold;
 	cursor: pointer;
+}
+
+.storage_table td, .storage_table th {
+	padding: 6px;
+}
+
+.storage_table tr {
+	text-align: left;
 }
 

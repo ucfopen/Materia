@@ -1,10 +1,11 @@
 app = angular.module 'materia'
-app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
-	$scope.notifications = []
+app.controller 'notificationCtrl', ($scope, $sce) ->
+	$scope.values =
+		notifications: []
 	$scope.clicked = false
 
 	Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
-		$scope.notifications = notifications
+		$scope.values.notifications = notifications
 		$scope.$apply()
 
 		# @TODO: replace with css animations?
@@ -36,8 +37,5 @@ app.controller 'notificationCtrl', ['$scope', '$sce', ($scope, $sce) ->
 		$scope.clicked = !$scope.clicked
 
 	$scope.removeNotification = (index) ->
-		Materia.Coms.Json.send 'notification_delete', [$scope.notifications[index].id]
-		$scope.notifications.splice(index, 1)
-
-]
-
+		Materia.Coms.Json.send 'notification_delete', [$scope.values.notifications[index].id]
+		$scope.values.notifications.splice(index, 1)
