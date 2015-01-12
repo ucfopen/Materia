@@ -837,7 +837,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::notification_delete(5);
-		$this->assertInvalidLoginMessage($output);
+		$this->assertFalse($output);
 
 		$author = $this->_asAuthor();
 		$notifications = \Materia\Api_V1::notifications_get();
