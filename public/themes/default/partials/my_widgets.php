@@ -146,7 +146,7 @@
 					<p class="export_which">Export which semesters?</p>
 					<ul>
 						<li class="checkallLi" ng-show="semesters.length > 1"><input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/><label for="checkall"> - Check all</label></li>
-						<li ng-repeat="semester in semesters"><input type="checkbox" id="{{semester.id}}" class="semester" id="{{semester.id}}" ng-model="semester.checked" ng-disabled="semesters.length == 1" ng-click="updateSemesters()"/> <label for="{{semester.id}}">{{semester.label}}</label></li>
+						<li ng-repeat="semester in semesters"><input type="checkbox" id="{{semester.id}}" class="semester" id="{{semester.id}}" ng-model="semester.checked" ng-disabled="semesters.length == 1" ng-click="onSelectedSemestersChange()"/> <label for="{{semester.id}}">{{semester.label}}</label></li>
 					</ul>
 				</div>
 			</div>
@@ -249,8 +249,8 @@
 				<div class="scoreWrapper" ng-repeat="semester in scores.list" ng-if="showOlderScores == true || $index == 0">
 					<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 					<ul class="choices">
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_GRAPH}"><a class="graph" ng-show="hasScores" ng-click="setScoreView($index, SCORE_VIEW_GRAPH)">Graph</a></li>
-						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_TABLE}"><a class="table" ng-show="hasScores" ng-click="setScoreView($index, SCORE_VIEW_TABLE)">Individual Scores</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_GRAPH}"><a class="graph" ng-show="semester.distribution" ng-click="setScoreView($index, SCORE_VIEW_GRAPH)">Graph</a></li>
+						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_TABLE}"><a class="table" ng-show="semester.distribution" ng-click="setScoreView($index, SCORE_VIEW_TABLE)">Individual Scores</a></li>
 						<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_DATA}"><a class="data" ng-show="semester.storage" ng-click="setScoreView($index, SCORE_VIEW_DATA)">Data</a></li>
 					</ul>
 					<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-show="selectedScoreView[$index] == SCORE_VIEW_TABLE">
