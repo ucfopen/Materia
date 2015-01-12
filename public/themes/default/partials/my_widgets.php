@@ -33,7 +33,7 @@
 					</div>
 
 					<div class="access_list">
-						<div ng-repeat="colaborator in perms.collaborators" ng-show="!colaborator.remove" class="user_perm">
+						<div ng-repeat="colaborator in perms.collaborators" ng-show="!colaborator.remove || colaborator.warning" class="user_perm">
 							<a ng-if="shareable || user.id == colaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(colaborator)" class="remove">&#88;</a>
 							<img class="avatar" ng-src="{{::colaborator.gravatar}}" />
 
