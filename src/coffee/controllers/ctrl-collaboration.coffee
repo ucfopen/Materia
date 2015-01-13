@@ -1,35 +1,47 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
-app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv) ->
-	$scope.search = (nameOrFragment) ->
-		$scope.searching = true
+app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv, userServ) ->
+	lastSearch = ''
+	$scope.inputs =
+		userSearchInput: ''
+	$scope.searchResults =
+		show: no
+		matches: []
 
+	$scope.$watch 'inputs.userSearchInput', (input) ->
+		$scope.search(input)
+
+	$scope.search = (nameOrFragment) ->
+		return if nameOrFragment == lastSearch
+		lastSearch = nameOrFragment
+
+		$scope.searchResults.show = yes
 		inputArray = nameOrFragment.split(',')
 		nameOrFragment = inputArray[inputArray.length - 1]
 
-		if(nameOrFragment.length < 1)
-			stopSpin()
-			return
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
-			if(matches == null || typeof matches == 'undefined' || matches.length < 1)
-				$scope.searchResults = []
-				stopSpin()
+
+			if matches?.length < 1
+				$scope.searchResults.matches = []
 				return
 
 			for user in matches
-				user.gravatar = $scope.$parent.getGravatar(user.email)
-			$scope.searchResults = matches
+				user.gravatar = userServ.getAvatar user
+
+			$scope.searchResults.matches = matches
 			$scope.$apply()
 
 	$scope.searchMatchClick = (user) ->
-		$scope.searching = false
+		$scope.inputs.userSearchInput = ''
+
+		$scope.searchResults.show = no
+		$scope.searchResults.matches = []
 
 		# Do not add duplicates
-		for existing_user in $scope.$parent.collaborators
-			if user.id == existing_user.id
-				return
+		for existing_user in $scope.perms.collaborators
+			return if user.id == existing_user.id
 
-		$scope.$parent.collaborators.push
+		$scope.perms.collaborators.push
 			id: user.id
 			isCurrentUser: user.isCurrentUser
 			expires: null
@@ -45,26 +57,22 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 
 	$scope.removeAccess = (user) ->
 		user.remove = true
+		user.warning = true
 
 	$scope.updatePermissions = ->
-		that = this.$parent
-		users = that.collaborators
+		remove_widget = no
+		widget_id     = $scope.$parent.selectedWidget.id
+		permObj       = []
+		user_ids      = {}
 
-		permObj = []
-		user_ids = {}
-
-		for user in users
+		for user in $scope.perms.collaborators
 			# Do not allow saving if a demotion dialog is on the screen
-			if user.warning
-				return
+			return if user.warning
 
-			access = []
-			for i in [0...user.access]
-				access.push null
+			remove_widget = (user.isCurrentUser and user.remove)
 
-			access.push if user.remove then false else true
-			if user.isCurrentUser and user.remove
-				widgetSrv.removeWidget($scope.$parent.selectedWidget.id)
+			access = {}
+			access[user.access] = !user.remove
 
 			user_ids[user.id] = [user.access, user.expires]
 			permObj.push
@@ -73,20 +81,19 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv)
 				perms: access
 
 		$scope.$parent.perms.widget = user_ids
-		Materia.Coms.Json.send 'permissions_set', [0,$scope.$parent.selectedWidget.id,permObj], (returnData) ->
+		Materia.Coms.Json.send 'permissions_set', [0,widget_id, permObj], (returnData) ->
 			if returnData == true
-				that.hideModal()
+				$scope.show.collaborationModal = no
+				widgetSrv.removeWidget(widget_id) if remove_widget
+				$scope.$apply()
 			else
-				alert(returnData.msg)
-			$scope.$apply()
+				alert(if returnData?.msg? then returnData.msg else 'There was an unkown error saving your changes.')
 
 	$scope.checkForWarning = (user) ->
 		if user.isCurrentUser and user.access < 30
-			user.warning = true
+			user.warning = yes
 
 	$scope.cancelDemote = (user) ->
-		user.warning = false
+		user.warning = no
+		user.remove = no
 		user.access = 30
-
-
-

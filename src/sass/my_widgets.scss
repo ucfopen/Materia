@@ -1440,12 +1440,10 @@
 	display:inline-block;
 	color:#bfbfbf;
 	text-decoration:none;
-	margin-right: 10px;
-
 	font-size: 15px;
-	float: left;
-	margin-left: 10px;
-	margin-top: 14px;
+	position:absolute;
+	left:5px;
+	top:30px;
 }
 .ng-modal.share .name {
 	float:left;
@@ -1724,6 +1722,12 @@
 	display: inline-block;
 	vertical-align: middle;
 }
+
+.ng-modal.share .avatar {
+	margin-left:40px;
+}
+
+
 
 .ng-modal.share .avatar, .user_match_avatar
 {
@@ -2153,8 +2157,7 @@
 {
 	color: #969696;
 }
-.share .exp-date.disabled,
-.share .exp-date.disabled:hover {
+.share .exp-date:disabled {
 	cursor: default;
 	color: #c5c5c5;
 	text-decoration: none;
@@ -2175,6 +2178,7 @@
 .share .remove-expiration
 {
 	font-size: 8pt;
+	cursor: pointer;
 }
 
 /* *************************************************************** */
