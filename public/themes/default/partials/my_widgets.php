@@ -232,7 +232,7 @@
 						<a id="edit-availability-button" role="button" ng-class="{'disabled': !editable || !shareable}" href ng-disabled="!editable" ng-click="popup()">Edit settings...</a>
 					</div>
 				</div>
-				<div class="share-widget-container closed" ng-class="{'draft' : !shareable}" ng-disabled="editable">
+				<div class="share-widget-container closed" ng-class="{'draft' : selectedWidget.is_draft}" ng-disabled="editable">
 					<h3>{{shareable ? "Share" : "Publish to share"}} with your students</h3>
 					<input id="play_link" type="text" ng-disabled="!shareable" ng-disabled="!shareable" value="{{baseUrl}}play/{{selectedWidget.id}}/{{selectedWidget.clean_name}}"/>
 					<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
