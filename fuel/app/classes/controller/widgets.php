@@ -320,7 +320,7 @@ class Controller_Widgets extends Controller
 
 	}
 
-	public function get_play_embedded($inst_id, $play_id=false)
+	public function action_play_embedded($inst_id, $play_id=false)
 	{
 		$this->get_play_widget($inst_id, false, true, $play_id);
 	}
