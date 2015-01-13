@@ -1,6 +1,11 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
 app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv, userServ) ->
+	LEFT = 37
+	UP = 38
+	RIGHT = 39
+	DOWN = 40
+
 	lastSearch = ''
 	$scope.inputs =
 		userSearchInput: ''
@@ -29,8 +34,27 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 				user.gravatar = userServ.getAvatar user
 
 			$scope.selectedMatch = matches[0]
+			$scope.selectedIndex = 0
 			$scope.searchResults.matches = matches
 			$scope.$apply()
+
+	$scope.searchKeyDown = (event) ->
+		switch event.which
+			when RIGHT
+				$scope.selectedIndex++
+			when LEFT
+				$scope.selectedIndex--
+			when DOWN
+				$scope.selectedIndex += 2
+			when UP
+				$scope.selectedIndex -= 2
+			else
+				return
+
+		$scope.selectedIndex = 0 if $scope.selectedIndex < 0
+		$scope.selectedIndex = $scope.searchResults.matches.length - 1 if $scope.selectedIndex > $scope.searchResults.matches.length - 1
+
+		$scope.selectedMatch = $scope.searchResults.matches[$scope.selectedIndex]
 
 	$scope.searchMatchClick = (user) ->
 		$scope.inputs.userSearchInput = ''
