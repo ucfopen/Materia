@@ -18,6 +18,11 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 
 	$scope.search = (nameOrFragment) ->
 		return if nameOrFragment == lastSearch
+
+		if nameOrFragment == ""
+			$scope.searchResults.show = no
+			return
+
 		lastSearch = nameOrFragment
 
 		$scope.searchResults.show = yes
@@ -63,6 +68,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		$scope.searchResults.matches = []
 
 		# Do not add duplicates
+		$scope.perms.collaborators = [] if not $scope.perms.collaborators
 		for existing_user in $scope.perms.collaborators
 			return if user.id == existing_user.id
 
