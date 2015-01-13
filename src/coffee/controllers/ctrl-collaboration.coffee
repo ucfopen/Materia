@@ -5,6 +5,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 	UP = 38
 	RIGHT = 39
 	DOWN = 40
+	ESC = 27
 
 	lastSearch = ''
 	$scope.inputs =
@@ -32,7 +33,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
 
 			if matches?.length < 1
-				$scope.searchResults.matches = []
+				matches = []
 				return
 
 			for user in matches
@@ -53,6 +54,8 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 				$scope.selectedIndex += 2
 			when UP
 				$scope.selectedIndex -= 2
+			when ESC
+				$scope.searchResults.show = no
 			else
 				return
 
