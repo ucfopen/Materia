@@ -2,6 +2,7 @@
 app = angular.module 'materia'
 app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userServ, $anchorScroll) ->
 	# old stuff
+	$scope.baseUrl = BASE_URL
 	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
 	$scope.selectedWidgetInstId = 0
 	$scope.scoreSummaries = {}
@@ -11,11 +12,19 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.dateRanges = null
 
 	# refactoring scope variables
-	$scope.perms = {}
+	$scope.perms =
+		collaborators: []
 	$scope.scores = null
 	$scope.storage = null
-	$scope.showCollaborationModal = false
-	$scope.showCopyModal = false
+
+	$scope.show =
+		collaborationModal: no
+		availabilityModal: no
+		copyModal: no
+		olderScores: no
+		exportModal: no
+		deleteDialog: no
+		editPublishedWarning: no
 
 	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
 	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
@@ -53,14 +62,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.SCORE_VIEW_DATA = 2
 	$scope.selectedScoreView = [] # array of above (i.e. 0 = graph)
 
-	$scope.collaborators = []
-	$scope.showOlderScores = false
-
-	$scope.baseUrl = BASE_URL
-
-	$scope.popup = () ->
+	$scope.popup = ->
 		if $scope.editable and $scope.shareable
-			$scope.showAvailabilityModal = true
+			$scope.show.availabilityModal = yes
 			Materia.MyWidgets.Availability.popup()
 
 	$scope.hideModal = -> this.$parent.hideModal()
@@ -119,12 +123,12 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	populateDisplay = ->
 		# reset scope variables to defaults
 		count = null
-		$scope.showOlderScores = false
+		$scope.show.olderScores = false
 		$scope.accessLevel = 0
 		$scope.editable = true
 		$scope.shareable = false
 		$scope.hasScores = false
-		$scope.collaborators = []
+		$scope.perms.collaborators = []
 
 		# TODO
 		$scope.error = false
@@ -140,8 +144,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
 	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
-		if $scope.perms.user[$scope.user.id]? and $scope.perms.user[$scope.user.id][0]?
+		if $scope.perms.user[$scope.user.id]?[0]?
 			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
+
 		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
 
 		if $scope.editable
@@ -156,7 +161,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
 
 		# DeMorgan's, anyone?
-		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
+		$scope.shareable = $scope.accessLevel != 0
 
 		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
 		populateAttempts($scope.selectedWidget.attempts)
@@ -172,21 +177,20 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 						$scope.hasScores = true
 						break
 
-
 	$scope.exportPopup =  ->
-		$scope.showExportModal = true
+		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
-	$scope.copyWidget = () ->
+	$scope.copyWidget = ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
-			$scope.showCopyModal = false
+			$scope.show.copyModal = false
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
 
 	$scope.deleteWidget = ->
 		Materia.MyWidgets.Tasks.deleteWidget $scope.selectedWidget.id, (results) ->
 			if results
-				$scope.showDeleteDialog = false
+				$scope.show.deleteDialog = false
 				widgetSrv.removeWidget($scope.selectedWidget.id)
 				$scope.$apply()
 
@@ -195,7 +199,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
 				if success
 					if $scope.shareable
-						$scope.showEditPublishedWarning = true
+						$scope.show.editPublishedWarning = true
 					else
 						window.location = $scope.edit
 				else
@@ -238,7 +242,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.selectedScoreView[index] = view
 
 	$scope.enableOlderScores = ->
-		$scope.showOlderScores = true
+		$scope.show.olderScores = true
 
 	getSemesterFromTimestamp = (timestamp) ->
 		for range in $scope.dateRanges
@@ -254,16 +258,16 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.showCopyModal = true if $scope.accessLevel != 0
+		$scope.show.copyModal = true if $scope.accessLevel != 0
 
 	$scope.showDelete = ->
-		$scope.showDeleteDialog = !$scope.showDeleteDialog if $scope.accessLevel != 0
+		$scope.show.deleteDialog = !$scope.show.deleteDialog if $scope.accessLevel != 0
 
 	$scope.showCollaboration = ->
 		user_ids = []
-		for user of $scope.perms.widget
-			user_ids.push user
-		$scope.collaborators = []
+		user_ids.push(user) for user of $scope.perms.widget
+
+		$scope.perms.collaborators = []
 
 		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
 			users.sort (a,b) ->
@@ -276,18 +280,18 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
 				user.expiresText = getExpiresText(timestamp)
-				user.gravatar = getGravatar(user.email)
+				user.gravatar = userServ.getAvatar user
 
-			$scope.collaborators = users
+			$scope.perms.collaborators = users
 			$scope.$apply()
 
 			$scope.setupPickers()
 
-		$scope.showCollaborationModal = true
+		$scope.show.collaborationModal = yes
 
 	$scope.setupPickers = ->
 		# fill in the expiration link text & setup click event
-		for user in $scope.collaborators
+		for user in $scope.perms.collaborators
 			do (user) ->
 				$(".exp-date.user" + user.id).datepicker
 					minDate: getDateForBeginningOfTomorrow()
@@ -305,10 +309,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		timestamp = parseInt(timestamp, 10)
 		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
 
-
-	$scope.getGravatar = getGravatar = (email) ->
-		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
-
 	sendHeartbeat = ->
 		Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
 			true
@@ -316,5 +316,3 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	Namespace('Materia.MyWidgets').SelectedWidget =
 		populateAvailability		: populateAvailability,
 		populateAttempts			: populateAttempts
-
-
