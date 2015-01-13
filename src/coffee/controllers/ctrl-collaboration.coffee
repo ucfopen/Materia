@@ -28,6 +28,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 			for user in matches
 				user.gravatar = userServ.getAvatar user
 
+			$scope.selectedMatch = matches[0]
 			$scope.searchResults.matches = matches
 			$scope.$apply()
 
