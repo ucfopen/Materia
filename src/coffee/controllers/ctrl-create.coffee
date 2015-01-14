@@ -1,6 +1,8 @@
 app = angular.module 'materia'
 app.controller 'createCtrl', ($scope, $sce) ->
 	HEARTBEAT_INTERVAL = 30000
+	# How far from the top of the window that the creator frame starts
+	BOTTOM_OFFSET = 145
 
 	creator       = null
 	embedDoneDfd  = null
@@ -18,8 +20,9 @@ app.controller 'createCtrl', ($scope, $sce) ->
 
 	$scope.saveText = "Save Draft"
 	$scope.previewText = "Preview"
+	$scope.publishText = "Publish..."
 
-	# get the _instance_id from the url if needed
+	# get the instance_id from the url if needed
 	inst_id = window.location.hash.substr(1) if window.location.hash
 	widget_id = window.location.href.match(/widgets\/([\d]+)/)[1]
 
@@ -129,7 +132,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		types = widget_info.meta_data.supported_data
 		#the value passed on needs to be a list of one or two elements, i.e.
 		#?type=QA or ?type=MC or ?type=QA,MC
-		_showEmbedDialog '/questions/import/?type='+encodeURIComponent(types.join())
+		showEmbedDialog '/questions/import/?type='+encodeURIComponent(types.join())
 		null # else Safari will give the .swf data that it can't handle
 
 	# build a my-widgets url to a specific widget
@@ -193,8 +196,6 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		# setup the postmessage listener
 		if addEventListener?
 			addEventListener 'message', onPostMessage, false
-		else if attachEvent?
-			attachEvent 'onmessage', onPostMessage
 
 	embedFlash = (path, version, dfd) ->
 		# register global callbacks for ExternalInterface calls
@@ -236,7 +237,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 
 	# Resizes the swf according to the window height
 	resizeCreator = ->
-		$('.center').height $(window).height()-145
+		$('.center').height $(window).height() - BOTTOM_OFFSET
 		# This fixes a bug in chrome where the iframe (#container)
 		# doesn't correctly fill 100% of the height. Doing this with
 		# just CSS doesn't work - it needs to be done in JS
@@ -246,13 +247,12 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	showButtons = ->
 		dfd = $.Deferred().resolve()
 		# change the buttons if this isnt a draft
-		if instance && !instance.is_draft
-			$('#creatorPublishBtn').html 'Update'
-			$('#creatorPreviewBtn').hide()
-			$('#creatorSaveBtn').hide()
-			$('#action-bar .dot').hide()
+		if instance and !instance.is_draft
+			$scope.publishText = "Update"
+			$scope.updateMode = true
 		enableReturnLink()
-		$('#action-bar').css 'visibility', 'visible'
+		$scope.showActionBar = true
+		$scope.$apply()
 		dfd.promise()
 
 	# Changes the Return link's functionality depending on use
@@ -268,7 +268,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		$scope.$apply()
 
 	$scope.onPublishPressed = ->
-		if inst_id? && instance? && !instance.is_draft
+		if inst_id? and instance? and !instance.is_draft
 			# Show the Update Dialog
 			$scope.popup = "update"
 		else
@@ -278,7 +278,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	$scope.cancelPublish = (e, instant = false) ->
 		$scope.popup = ""
 
-	_onPreviewPopupBlocked = (url) ->
+	onPreviewPopupBlocked = (url) ->
 		$scope.popup = "blocked"
 		$scope.previewUrl = url
 		$scope.$apply()
@@ -297,7 +297,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		embedDoneDfd.resolve() # used to keep events synchronous
 
 	# Show an embedded dialog, as opposed to a popup
-	_showEmbedDialog = (url) ->
+	showEmbedDialog = (url) ->
 		$scope.iframeUrl = url
 
 	# move the embed dialog off to invisibility
@@ -307,7 +307,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 
 	# Note this is psuedo public as it's exposed to flash
 	showMediaImporter = ->
-		_showEmbedDialog '/media/import'
+		showEmbedDialog '/media/import'
 		$scope.$apply()
 		null # else Safari will give the .swf data that it can't handle
 
@@ -327,10 +327,10 @@ app.controller 'createCtrl', ($scope, $sce) ->
 							popup = window.open url
 							if popup?
 									setTimeout ->
-										_onPreviewPopupBlocked(url) unless popup.innerHeight > 0
-									,200
+										onPreviewPopupBlocked(url) unless popup.innerHeight > 0
+									, 200
 							else
-								_onPreviewPopupBlocked(url)
+								onPreviewPopupBlocked(url)
 						when 'publish'
 							window.location = getMyWidgetsUrl(inst.id)
 						when 'save'
