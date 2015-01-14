@@ -130,7 +130,6 @@ app.controller 'scorePageController', ($scope) ->
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
 			if __LTI_TOKEN?
 				widget.href += '?ltitoken=' + __LTI_TOKEN
-			widget.play_again = if isPreview then 'Preview Again' else 'Play Again'
 		else
 			# if there are no attempts left, hide play again
 			hidePlayAgain = true
