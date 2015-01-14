@@ -74,7 +74,7 @@
 				<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 				<ul class="attemptsPopup">
 					<li><h3>Attempts</h3>
-						<div class="selector" ng-if="showAvailabilityModal"></div>
+						<div class="selector" ng-if="show.availabilityModal"></div>
 						<ul class="attemptHolder">
 							<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
 							<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
