@@ -76,15 +76,15 @@
 					<li><h3>Attempts</h3>
 						<div class="selector" ng-if="show.availabilityModal"></div>
 						<ul class="attemptHolder">
-							<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
-							<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
-							<li id="value_3" ng-class="{selected: attempts == 3}" ng-click="changeSlider(3)">3</li>
-							<li id="value_4" ng-class="{selected: attempts == 4}" ng-click="changeSlider(4)">4</li>
-							<li id="value_5" ng-class="{selected: attempts == 5}" ng-click="changeSlider(5)">5</li>
-							<li id="value_10" class="step first" ng-class="{selected: attempts == 10}" ng-click="changeSlider(10)">10</li>
-							<li id="value_15" class="step" ng-class="{selected: attempts == 15}" ng-click="changeSlider(15)">15</li>
-							<li id="value_20" class="step" ng-class="{selected: attempts == 20}" ng-click="changeSlider(20)">20</li>
-							<li id="value_25" class="step last" ng-class="{selected: attempts == 25}" ng-click="changeSlider(25)">Unlimited</li>
+							<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
+							<li id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)">2</li>
+							<li id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)">3</li>
+							<li id="value_4" ng-class="{selected: attemptsSliderValue == 4}" ng-click="changeSlider(4)">4</li>
+							<li id="value_5" ng-class="{selected: attemptsSliderValue == 5}" ng-click="changeSlider(5)">5</li>
+							<li id="value_10" class="step first" ng-class="{selected: attemptsSliderValue == 10}" ng-click="changeSlider(10)">10</li>
+							<li id="value_15" class="step" ng-class="{selected: attemptsSliderValue == 15}" ng-click="changeSlider(15)">15</li>
+							<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
+							<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 						</ul>
 						<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
 					</li>
