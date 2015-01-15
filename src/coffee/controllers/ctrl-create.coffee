@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ($scope, $sce) ->
+app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
@@ -88,19 +88,9 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	# Gets widget info when not editing an existing instance
 	getWidgetInfo = ->
 		dfd = $.Deferred()
+		widgetSrv.getWidget
 		Materia.Coms.Json.send 'widgets_get', [[widget_id]], (widgets) ->
-			widget_info = widgets[0]
-			dfd.resolve()
-
-		dfd.promise()
-
-	# Gets instance and widget info when editing existing instance
-	getWidgetInstance = ->
-		dfd = $.Deferred()
-		Materia.Coms.Json.send 'widget_instances_get', [[inst_id]], (widgetInstances) ->
-			instance    = widgetInstances[0]
-			widget_info = instance.widget
-			dfd.resolve()
+			dfd.resolve widgets
 
 		dfd.promise()
 
@@ -134,7 +124,13 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		"#{BASE_URL}my-widgets##{instid}"
 
 	# Embeds the creator
-	embed = ->
+	embed = (widgetData) ->
+		if widgetData?[0].widget
+			instance    = widgetData[0]
+			widget_info = instance.widget
+		else
+			widget_info = widgetData[0]
+
 		dfd = $.Deferred()
 		widgetType = widget_info.creator.slice widget_info.creator.lastIndexOf('.')
 
@@ -360,7 +356,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 
 	# synchronise the asynchronous events
 	if inst_id?
-		$.when(getWidgetInstance())
+		$.when(widgetSrv.getWidget(inst_id))
 			.pipe(embed)
 			.pipe(getQset)
 			.pipe(initCreator)
