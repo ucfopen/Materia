@@ -40,6 +40,8 @@ coffeeScripts = [
 			'services/srv-user.coffee',
 			'services/srv-api.coffee',
 			'services/srv-datetime.coffee',
+			'services/srv-widget.coffee',
+			'services/srv-selectedwidget.coffee',
 			'controllers/ctrl-page.coffee',
 			'controllers/ctrl-current-user.coffee',
 			'controllers/ctrl-notification.coffee',
@@ -48,6 +50,7 @@ coffeeScripts = [
 			'controllers/ctrl-scores.coffee',
 			'controllers/ctrl-settings.coffee',
 			'controllers/ctrl-help.coffee',
+			'controllers/ctrl-player.coffee',
 			'directives/*'
 		]
 	},
