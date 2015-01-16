@@ -17,187 +17,59 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.showCollaborationModal = false
 	$scope.showCopyModal = false
 
-	$scope.selectedWidget = null # updated automagically with selectedWidgetSrv service
-	$scope.$on 'selectedWidget.update', (evt) -> # hook to update selected widget when service updates
-		$scope.selectedWidget = selectedWidgetSrv.get()
-
-		# this check was originally in populateDisplay, we're moving it here so it's called before widget data is fetched
-		sessionCheck = userServ.checkValidSession()
-		sessionCheck.then (check) ->
-
-			if check? then setSelectedWidget()
-
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	$scope.$on 'selectedWidget.notifyAccessDenied', ->
 		$scope.error = true
 		$scope.$apply()
 
-	$scope.noWidgetState = false
-	$scope.$on 'selectedWidget.hasNoWidgets', (evt) ->
-		$scope.noWidgetState = true
-		$scope.$apply()
-
-	$scope.user = {} # grab current user, link it to service
-	$scope.$on 'user.update', (evt) ->
-		$scope.user = userServ.get()
-		# $scope.$apply() # required?
-
 	# Flags to help condense conditional statement checks
 	$scope.accessLevel = 0
-	$scope.editable = true
+	$scope.selected.editable = true
 	$scope.shareable = false
 	$scope.hasScores = false
 
-	$scope.SCORE_VIEW_GRAPH = 0
-	$scope.SCORE_VIEW_TABLE = 1
-	$scope.SCORE_VIEW_DATA = 2
-	$scope.selectedScoreView = [] # array of above (i.e. 0 = graph)
-
 	$scope.collaborators = []
-	$scope.showOlderScores = false
+	$scope.selected.showOlderScores = false
 
 	$scope.baseUrl = BASE_URL
 
 	$scope.popup = () ->
-		if $scope.editable and $scope.shareable
+		if $scope.selected.editable and $scope.selected.shareable
 			$scope.showAvailabilityModal = true
 			Materia.MyWidgets.Availability.popup()
 
 	$scope.hideModal = -> this.$parent.hideModal()
 
-	# This doesn't actually "set" the widget
-	# It ensures required scope objects have been acquired before kicking off the display
-	setSelectedWidget = ->
-		populateDisplay()
-
-		currentId = $scope.selectedWidget.id
-
-		$q.all([
-			userServ.get(),
-			selectedWidgetSrv.getUserPermissions(),
-			selectedWidgetSrv.getScoreSummaries(),
-			selectedWidgetSrv.getDateRanges()
-		])
-		.then (data) ->
-			# don't render an old display if they user has clicked another widget
-			if $scope.selectedWidget.id != currentId
-				return
-
-			$scope.user = data[0]
-			$scope.perms = data[1]
-			$scope.scores = data[2]
-
-			Materia.MyWidgets.Statistics.clearGraphs()
-
-			populateAccess()
-
 	$scope.preview = ""
-	$scope.edit = ""
 
 	getCurrentSemester = ->
 		return $scope.selectedData.year+' '+$scope.selectedData.term
-
-	populateAttempts = (attemptsAllowed) ->
-		attemptsAllowed = parseInt attemptsAllowed, 10
-		$scope.attemptText = if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited'
-
-	populateAvailability = (startDateInt, endDateInt) ->
-		$scope.availability = Materia.Set.Availability.get(startDateInt, endDateInt)
-		$scope.availabilityStart = startDateInt
-		$scope.availabilityEnd = endDateInt
-
-		if endDateInt < 0 && startDateInt < 0
-			$scope.availabilityMode = "anytime"
-		else if startDateInt < 0 && endDateInt > 0
-			$scope.availabilityMode = "open until"
-		else if startDateInt > 0 && endDateInt < 0
-			$scope.availabilityMode = "anytime after"
-		else
-			$scope.availabilityMode = "from"
-
-	# Shows selected game information on the mainscreen.
-	populateDisplay = ->
-		# reset scope variables to defaults
-		count = null
-		$scope.showOlderScores = false
-		$scope.accessLevel = 0
-		$scope.editable = true
-		$scope.shareable = false
-		$scope.hasScores = false
-		$scope.collaborators = []
-
-		# TODO
-		$scope.error = false
-
-		$scope.preview = "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
-		$scope.copy_title =  "#{$scope.selectedWidget.name} copy"
-		$scope.selectedWidget.iconbig = Materia.Image.iconUrl $scope.selectedWidget.widget.dir, 275
-
-		# Tell Materia we are still logged in
-		sendHeartbeat()
-
-	# Second half of populateDisplay
-	# This allows us to update the display before the callback of scores finishes, which speeds up UI
-	populateAccess = ->
-		# accessLevel == 0 is effectively read-only
-		if $scope.perms.user[$scope.user.id]? and $scope.perms.user[$scope.user.id][0]?
-			$scope.accessLevel = Number $scope.perms.user[$scope.user.id][0]
-		$scope.editable = ($scope.accessLevel > 0 and parseInt($scope.selectedWidget.widget.is_editable) is 1)
-
-		if $scope.editable
-			$scope.edit = "widgets/#{$scope.selectedWidget.widget.dir}create\##{$scope.selectedWidget.id}"
-		else
-			$scope.edit = "#"
-
-		# count up the number of other users collaborating
-		count = 0
-		for id of $scope.perms.widget
-			if id != $scope.user.id then count++
-		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
-
-		# DeMorgan's, anyone?
-		$scope.shareable = !($scope.accessLevel == 0 || $scope.selectedWidget.is_draft == true)
-
-		populateAvailability($scope.selectedWidget.open_at, $scope.selectedWidget.close_at)
-		populateAttempts($scope.selectedWidget.attempts)
-
-		if !$scope.selectedWidget.widget.is_draft
-			if $scope.scores.list.length > 0
-				# TODO determine if populateScoreWrapper functionality can be implemented differently
-				angular.forEach $scope.scores.list, (semester, index) ->
-					populateScoreWrapper(semester, index)
-
-				for d in $scope.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
-					if d.distribution?
-						$scope.hasScores = true
-						break
-
 
 	$scope.exportPopup =  ->
 		$scope.showExportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
 	$scope.copyWidget = () ->
-		Materia.MyWidgets.Tasks.copyWidget $scope.selectedWidget.id, $scope.copy_title, (inst_id) ->
+		Materia.MyWidgets.Tasks.copyWidget $scope.selected.widget.id, $scope.copy_title, (inst_id) ->
 			$scope.showCopyModal = false
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
 
 	$scope.deleteWidget = ->
-		Materia.MyWidgets.Tasks.deleteWidget $scope.selectedWidget.id, (results) ->
+		Materia.MyWidgets.Tasks.deleteWidget $scope.selected.widget.id, (results) ->
 			if results
 				$scope.showDeleteDialog = false
-				widgetSrv.removeWidget($scope.selectedWidget.id)
+				widgetSrv.removeWidget($scope.selected.widget.id)
 				$scope.$apply()
 
 	$scope.editWidget = ->
-		if $scope.editable
+		if $scope.selected.editable
 			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
 				if success
-					if $scope.shareable
+					if $scope.selected.shareable
 						$scope.showEditPublishedWarning = true
 					else
-						window.location = $scope.edit
+						window.location = $scope.selected.edit
 				else
 					alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
 				$scope.$apply()
@@ -205,13 +77,13 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		return false
 
 	$scope.getEmbedLink = ->
-		if $scope.selectedWidget is null then return ""
+		if $scope.selected.widget is null then return ""
 
-		width = if String($scope.selectedWidget.widget.width) != '0' then  $scope.selectedWidget.widget.width else 800
-		height = if String($scope.selectedWidget.widget.height) != '0' then $scope.selectedWidget.widget.height else 600
-		draft = if $scope.selectedWidget.is_draft then "#{$scope.selectedWidget.widget.name} Widget" else $scope.selectedWidget.name
+		width = if String($scope.selected.widget.widget.width) != '0' then  $scope.selected.widget.widget.width else 800
+		height = if String($scope.selected.widget.widget.height) != '0' then $scope.selected.widget.widget.height else 600
+		draft = if $scope.selected.widget.is_draft then "#{$scope.selected.widget.widget.name} Widget" else $scope.selected.widget.name
 
-		"<iframe src='#{BASE_URL}embed/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}'>#{draft}</a></iframe>"
+		"<iframe src='#{BASE_URL}embed/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}'>#{draft}</a></iframe>"
 
 	toggleShareWidgetContainer = (state) ->
 		$shareWidgetContainer = $('.share-widget-container')
@@ -224,21 +96,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		else if state == 'close'
 			$shareWidgetContainer.switchClass('', 'closed', 200)
 
-	populateScoreWrapper = (semester, index) ->
-
-		#  no scores, but we do have storage data
-		if !semester.distribution? and semester.storage?
-			$scope.setScoreView(index, 2)
-
-		else #  has scores, might have storage data
-
-			$scope.setScoreView(index, 0)
-
-	$scope.setScoreView = (index, view) ->
-		$scope.selectedScoreView[index] = view
-
 	$scope.enableOlderScores = ->
-		$scope.showOlderScores = true
+		$scope.selected.showOlderScores = true
 
 	getSemesterFromTimestamp = (timestamp) ->
 		for range in $scope.dateRanges
@@ -254,10 +113,10 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.showCopyModal = true if $scope.accessLevel != 0
+		$scope.showCopyModal = true if $scope.selected.accessLevel != 0
 
 	$scope.showDelete = ->
-		$scope.showDeleteDialog = !$scope.showDeleteDialog if $scope.accessLevel != 0
+		$scope.showDeleteDialog = !$scope.showDeleteDialog if $scope.selected.accessLevel != 0
 
 	$scope.showCollaboration = ->
 		user_ids = []
@@ -305,16 +164,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		timestamp = parseInt(timestamp, 10)
 		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
 
-
 	$scope.getGravatar = getGravatar = (email) ->
 		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
-
-	sendHeartbeat = ->
-		Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
-			true
-
-	Namespace('Materia.MyWidgets').SelectedWidget =
-		populateAvailability		: populateAvailability,
-		populateAttempts			: populateAttempts
-
 
