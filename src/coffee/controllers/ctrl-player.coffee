@@ -46,8 +46,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	for word in checkForContext
 		if word == 'preview'
 			$scope.isPreview = true
-			$('body').addClass 'preview'
-			$('.center').prepend $('<header>').addClass 'preview-bar'
 			break
 
 	sendPendingLogs = (callback) ->
