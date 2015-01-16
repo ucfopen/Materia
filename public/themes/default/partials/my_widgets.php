@@ -3,7 +3,7 @@
 	<div class="container">
 		<div ng-controller="SelectedWidgetController">
 
-			<modal-dialog class="edit-published-widget" show="showEditPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
+			<modal-dialog class="edit-published-widget" show="show.editPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
 				<div class="container">
 					<p>Editing a published widget may affect statistical analysis when comparing data collected prior to your edits.</p>
 					<h3>Caution should be taken when:</h3>
@@ -15,54 +15,50 @@
 					</ul>
 
 					<span class="center">
-						<a class="cancel_button" href="javascript:;" ng-click="$parent.showEditPublishedWarning = false">Cancel</a>
+						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
 						<a class="action_button green" ng-href="{{edit}}">Edit Published Widget</a>
 					</span>
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="share" show="showCollaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
-				<div ng-controller="CollaborationController">
+			<modal-dialog class="share" show="show.collaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
+				<div ng-if="show.collaborationModal" ng-controller="CollaborationController">
 					<div id="access" class="container">
-						<div class="list_tab_lock">
-							<span class="input_label">Add people:</span><input tabindex="0" ng-model="user_add" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-change="search(user_add)" />
-							<div class="search_list" ng-show="searching">
-								<div ng-show="searchResults.length == 0">
-									<p class="no_match_message">No matches found.</p>
-									<p class="no_match_reason">The person you're searching for may need to log in to create an account.</p>
-								</div>
-								<div ng-repeat="result in searchResults" ng-click="searchMatchClick(result)" class="search_match">
-									<img class="user_match_avatar" ng-src="{{ result.gravatar }}">
-									<p class="user_match_name">{{ result.first }} {{ result.last }}</p>
+						<div ng-if="shareable" class="list_tab_lock">
+							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)" />
+							<div class="search_list" ng-show="searchResults.show">
+								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
+									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
+									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
 								</div>
 							</div>
 						</div>
+
 						<div class="access_list">
-							<div ng-repeat="user in $parent.collaborators" ng-show="!user.remove" class="user_perm">
-								<a tabindex="0" href="javascript:;" ng-click="removeAccess(user)" class="remove">&#88;</a>
-								<img class="avatar" ng-src="{{ user.gravatar }}" />
+							<div ng-repeat="collaborator in perms.collaborators" ng-show="!collaborator.remove || collaborator.warning" class="user_perm">
+								<a ng-if="shareable || user.id == collaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(collaborator)" class="remove">&#88;</a>
+								<img class="avatar" ng-src="{{::collaborator.gravatar}}" />
 
-								<span class="name">{{ user.first }} {{ user.last }}</span>
+								<span class="name">{{::collaborator.first}} {{::collaborator.last}}</span>
 
-								<div class="demote_dialogue" ng-show="user.warning">
+								<div class="demote_dialogue" ng-show="collaborator.warning">
 									<div class="arrow"></div>
 									<div class="warning">Are you sure you want to limit <strong>your</strong> access?
 									</div>
-									<a href="javascript:;" ng-click="cancelDemote(user)" class="no_button">No</a>
-									<a href="javascript:;" ng-click="user.warning = false" class="button red action_button yes_button">Yes</a>
+									<a href="javascript:;" ng-click="cancelDemote(collaborator)" class="no_button">No</a>
+									<a href="javascript:;" ng-click="collaborator.warning = false" class="button red action_button yes_button">Yes</a>
 								</div>
 
-								<div class="options">
+								<div class="options" >
 									<span class="owner">Full</span>
 									<span class="undo">Removed <a href="#">Undo</a></span>
-									<select tabindex="0" id="perm" class="perm" ng-model="user.access" ng-change="checkForWarning(user)">
-										<option value="30" {{ user.access == 30 ? "selected" : ""}}>Full</option>
-										<option value="0" {{ user.access == 0 ? "selected" : ""}}>View Scores</option>
+									<select ng-disabled="shareable==false" tabindex="0" id="perm" class="perm" ng-model="collaborator.access" ng-change="checkForWarning(collaborator)">
+										<option value="30" ng-selected="collaborator.access == 30" >Full</option>
+										<option value="0" ng-selected="collaborator.access == 0" >View Scores</option>
 									</select>
 
-									<a tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(user)" ng-show="user.expires">X</a>
-									<span class="expires">Expires: </span><input type="text" class="exp-date user{{ user.id }}" ng-model="user.expiresText" readonly="true" />
-
+									<a ng-if="shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
+									<span class="expires">Expires: </span><input ng-disabled="!shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" />
 								</div>
 							</div>
 						</div>
@@ -72,22 +68,23 @@
 					</div>
 				</div>
 			</modal-dialog>
-			<modal-dialog class="availability" show="showAvailabilityModal" dialog-title="Settings" width="660px" height="440px">
+
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="440px">
 				<div ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
 						<li><h3>Attempts</h3>
-							<div class="selector" ng-if="showAvailabilityModal"></div>
+							<div class="selector" ng-if="show.availabilityModal"></div>
 							<ul class="attemptHolder">
-								<li id="value_1" ng-class="{selected: attempts == 1}" ng-click="changeSlider(1)">1</li>
-								<li id="value_2" ng-class="{selected: attempts == 2}" ng-click="changeSlider(2)">2</li>
-								<li id="value_3" ng-class="{selected: attempts == 3}" ng-click="changeSlider(3)">3</li>
-								<li id="value_4" ng-class="{selected: attempts == 4}" ng-click="changeSlider(4)">4</li>
-								<li id="value_5" ng-class="{selected: attempts == 5}" ng-click="changeSlider(5)">5</li>
-								<li id="value_10" class="step first" ng-class="{selected: attempts == 10}" ng-click="changeSlider(10)">10</li>
-								<li id="value_15" class="step" ng-class="{selected: attempts == 15}" ng-click="changeSlider(15)">15</li>
-								<li id="value_20" class="step" ng-class="{selected: attempts == 20}" ng-click="changeSlider(20)">20</li>
-								<li id="value_25" class="step last" ng-class="{selected: attempts == 25}" ng-click="changeSlider(25)">Unlimited</li>
+								<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
+								<li id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)">2</li>
+								<li id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)">3</li>
+								<li id="value_4" ng-class="{selected: attemptsSliderValue == 4}" ng-click="changeSlider(4)">4</li>
+								<li id="value_5" ng-class="{selected: attemptsSliderValue == 5}" ng-click="changeSlider(5)">5</li>
+								<li id="value_10" class="step first" ng-class="{selected: attemptsSliderValue == 10}" ng-click="changeSlider(10)">10</li>
+								<li id="value_15" class="step" ng-class="{selected: attemptsSliderValue == 15}" ng-click="changeSlider(15)">15</li>
+								<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
+								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
 							<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
 						</li>
@@ -110,7 +107,8 @@
 					</ul>
 				</div>
 			</modal-dialog>
-			<modal-dialog class="default csv_popup" show="showExportModal" width="580px" height="580px">
+
+			<modal-dialog class="default csv_popup" show="show.exportModal" width="580px" height="580px">
 				<div ng-controller="ExportScoresController">
 					<div class="download_wrapper">
 						<h3>Export Scores</h3>
@@ -153,7 +151,8 @@
 					</div>
 				</div>
 			</modal-dialog>
-			<modal-dialog class="copy" show="showCopyModal" dialog-title="Make a Copy:" width="620px" height="220px">
+
+			<modal-dialog class="copy" show="show.copyModal" dialog-title="Make a Copy:" width="620px" height="220px">
 				<div class="container">
 					<span class="input_label">New Title:</span>
 					<input class="newtitle" type="text" ng-model="$parent.$parent.copy_title" placeholder="New Widget Title" />
@@ -204,12 +203,12 @@
 							<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
 							<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
 						</ul>
-						<div class="delete_dialogue" ng-show="showDeleteDialog">
+						<div class="delete_dialogue" ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
-							<a class="cancel_button" href="javascript:;" ng-click="showDeleteDialog = false">Cancel</a>
+							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 						</div>
-						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable}" ng-show="!showDeleteDialog">
+						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable}" ng-show="!show.deleteDialog">
 							<h3>Settings:</h3>
 							<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable}">
 								<dt>Attempts:</dt>
@@ -235,7 +234,7 @@
 							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
 						</div>
 					</div>
-					<div class="share-widget-container closed" ng-class="{'draft' : !selected.shareable}" ng-disabled="selected.editable">
+					<div class="share-widget-container closed" ng-class="{'draft' : !selected.widget.is_draft}" ng-disabled="selected.editable">
 						<h3>{{selected.shareable ? "Share" : "Publish to share"}} with your students</h3>
 						<input id="play_link" type="text" ng-disabled="!selected.shareable" ng-disabled="!selected.shareable" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
@@ -248,6 +247,7 @@
 						<span class="arrow_down"></span>
 						Export Scores
 					</span>
+
 					<div class="scoreWrapper" ng-repeat="semester in selected.scores.list" ng-if="selected.showOlderScores == true || $index == 0">
 						<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 						<ul class="choices">
@@ -321,7 +321,7 @@
 							<li><h4>Scores</h4><p class="score-count">{{semester.distribution.length}}</p></li>
 							<li><h4>Avg Final Score</h4><p class="final-average">{{semester.average}}</p></li>
 						</ul>
-						<a role="button" class="show-older-scores-button" href="#" ng-show="selected.scores.list.length > 1 && selected.showOlderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
+						<a role="button" class="show-older-scores-button" href="#" ng-show="selected.scores.list.length > 1 && selected.show.olderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
 					</div>
 					<p class="noScores" ng-show="selected.scores.list.length == 0">There are no scores to display</p>
 				</div>

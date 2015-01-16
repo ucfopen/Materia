@@ -1,14 +1,14 @@
 app = angular.module 'materia'
 # The widget settings/availability modal on My Widgets
 app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, widgetSrv) ->
-	$scope.UNLIMITED_ATTEMPTS = 25
+	$scope.UNLIMITED_SLIDER_VALUE = 25
 	$scope.times = []
 	$scope.error = ''
 	# Keeps track of which inputs have errors so the error class can be added correctly.
 	$scope.dateError = [false, false]
 	$scope.timeError = [false, false]
 	# Default to unlimited attempts
-	$scope.attempts = $scope.UNLIMITED_ATTEMPTS
+	$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 	# Hold information for availability.
 	$scope.availability = []
 	# From
@@ -25,13 +25,13 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.selectedWidget = null
 	$scope.$on 'selectedWidget.update', (evt) ->
 		$scope.selectedWidget = selectedWidgetSrv.get()
-		$scope.attempts = parseInt $scope.selectedWidget.attempts
+		$scope.attemptsSliderValue = parseInt $scope.selectedWidget.attempts
 
 	$scope.popup = ->
 		$scope.error = ''
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
-		$scope.attempts = parseInt $scope.selectedWidget.attempts
+		$scope.attemptsSliderValue = parseInt $scope.selectedWidget.attempts
 		$scope.dateFormatter()
 		setTimeout ->
 			$scope.setupSlider()
@@ -42,11 +42,11 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.setupSlider = ->
 		# The values are huge for smooth slidyness
 		$('.selector').slider
-			value: $scope.attempts * 1000
+			value: $scope.attemptsSliderValue * 1000
 			min: 1000
 			max: 25000
 			create: (event) ->
-				$scope.changeSlider($scope.attempts)
+				$scope.changeSlider($scope.attemptsSliderValue)
 			slide: (event, ui) ->
 				$scope.updateSlider(ui.value)
 			stop: (event, ui) ->
@@ -106,7 +106,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		else
 			val = number
 		$( ".selector" ).slider 'value', (val * 1000)
-		$scope.attempts = number
+		$scope.attemptsSliderValue = number
 
 	# Updates the slider based on which value the slider is close to.
 	# It will "click" into place when in between the steps.
@@ -114,7 +114,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		smaller = Math.round(value/1000)
 		if smaller > 5
 			smaller = 5 * Math.round(smaller/5)
-		$scope.attempts = smaller
+		$scope.attemptsSliderValue = smaller
 		$( ".selector" ).slider 'value', (smaller * 1000)
 		$scope.$apply()
 
@@ -197,7 +197,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.changeAvailability = ->
 		# Close the modal
 		this.$parent.hideModal()
-		attempts = if $scope.attempts < $scope.UNLIMITED_ATTEMPTS then $scope.attempts else -1
+		attempts = if $scope.attemptsSliderValue < $scope.UNLIMITED_ATTEMPTS then $scope.attemptsSliderValue else -1
 
 		# Update the widget instance.
 		widgetSrv.saveWidget

@@ -220,4 +220,12 @@ class Model_User extends Orm\Model
 		return $logged_in;
 	}
 
+	public function to_array($custom = false, $recurse = false, $eav = false)
+	{
+		$avatar = \Materia\Utils::get_avatar(50, $this);
+		$array = parent::to_array($custom, $recurse, $eav);
+		$array['avatar'] = $avatar;
+		return $array;
+	}
+
 }

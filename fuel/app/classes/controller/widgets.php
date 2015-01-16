@@ -320,7 +320,7 @@ class Controller_Widgets extends Controller
 
 	}
 
-	public function get_play_embedded($inst_id, $play_id=false)
+	public function action_play_embedded($inst_id, $play_id=false)
 	{
 		$this->get_play_widget($inst_id, false, true, $play_id);
 	}
@@ -490,7 +490,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_play']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
 
 		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
 

@@ -6,6 +6,16 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 		widget: null
 		perms: {}
 		scores: {}
+	$scope.perms =
+		collaborators: []
+	$scope.show =
+		collaborationModal: no
+		availabilityModal: no
+		copyModal: no
+		olderScores: no
+		exportModal: no
+		deleteDialog: no
+		editPublishedWarning: no
 	firstRun = true
 
 	$scope.SCORE_VIEW_GRAPH = 0
@@ -77,7 +87,7 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 				return
 
 			$scope.user = data[0]
-			$scope.selected.perms = data[1]
+			$scope.perms = data[1]
 			$scope.selected.scores = data[2]
 
 			Materia.MyWidgets.Statistics.clearGraphs()
@@ -88,12 +98,12 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 	populateDisplay = ->
 		# reset scope variables to defaults
 		count = null
-		$scope.selected.showOlderScores = false
+		$scope.show.olderScores = false
 		$scope.selected.accessLevel = 0
 		$scope.selected.editable = true
 		$scope.selected.shareable = false
 		$scope.hasScores = false
-		$scope.collaborators = []
+		$scope.perms.collaborators = []
 
 		# TODO
 		$scope.error = false
@@ -109,8 +119,9 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
 	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
-		if $scope.selected.perms.user[$scope.user.id]? and $scope.selected.perms.user[$scope.user.id][0]?
-			$scope.selected.accessLevel = Number $scope.selected.perms.user[$scope.user.id][0]
+		if $scope.perms.user[$scope.user.id]?
+			$scope.selected.accessLevel = Number $scope.perms.user[$scope.user.id][0]
+
 		$scope.selected.editable = ($scope.selected.accessLevel > 0 and parseInt($scope.selected.widget.widget.is_editable) is 1)
 
 		if $scope.selected.editable
@@ -120,12 +131,12 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 
 		# count up the number of other users collaborating
 		count = 0
-		for id of $scope.selected.perms.widget
+		for id of $scope.perms.widget
 			if id != $scope.user.id then count++
 		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
 
 		# DeMorgan's, anyone?
-		$scope.selected.shareable = !($scope.selected.accessLevel == 0 || $scope.selected.widget.is_draft == true)
+		$scope.selected.shareable = $scope.selected.accessLevel != 0
 
 		populateAvailability($scope.selected.widget.open_at, $scope.selected.widget.close_at)
 		populateAttempts($scope.selected.widget.attempts)

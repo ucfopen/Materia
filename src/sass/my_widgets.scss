@@ -1134,7 +1134,7 @@
 		.ng-modal.availability .availabilityError {
 			position: absolute;
 			top: 8px;
-			right: 30px;
+			right: 40px;
 			color: #F00;
 			font-weight: bold;
 		}
@@ -1440,12 +1440,10 @@
 	display:inline-block;
 	color:#bfbfbf;
 	text-decoration:none;
-	margin-right: 10px;
-
 	font-size: 15px;
-	float: left;
-	margin-left: 10px;
-	margin-top: 14px;
+	position:absolute;
+	left:5px;
+	top:30px;
 }
 .ng-modal.share .name {
 	float:left;
@@ -1631,7 +1629,7 @@
 	background-color: #c5e7fa;
 	cursor: pointer;
 }
-.ng-modal.share .search_match:focus
+.ng-modal.share .search_match.focused
 {
 	background-color: #7fc9f3;
 }
@@ -1724,6 +1722,12 @@
 	display: inline-block;
 	vertical-align: middle;
 }
+
+.ng-modal.share .avatar {
+	margin-left:40px;
+}
+
+
 
 .ng-modal.share .avatar, .user_match_avatar
 {
@@ -2153,8 +2157,7 @@
 {
 	color: #969696;
 }
-.share .exp-date.disabled,
-.share .exp-date.disabled:hover {
+.share .exp-date:disabled {
 	cursor: default;
 	color: #c5c5c5;
 	text-decoration: none;
@@ -2175,6 +2178,7 @@
 .share .remove-expiration
 {
 	font-size: 8pt;
+	cursor: pointer;
 }
 
 /* *************************************************************** */
@@ -2655,6 +2659,18 @@ div.link {
 	padding: 0 0 2px 0;
 	font-weight: bold;
 	cursor: pointer;
+}
+
+.storage_table {
+	margin-top: 5px;
+}
+
+.dataTables_length {
+	margin-bottom: 5px;
+}
+
+.dataTables_filter label input {
+	margin-left: 5px;
 }
 
 .storage_table td, .storage_table th {

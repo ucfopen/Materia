@@ -122,12 +122,14 @@ app.controller 'scorePageController', ($scope) ->
 			dates    : attempt_dates
 
 		if (widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && $scope.attempts.length < widgetInstance.attempts) || isPreview) && !single_id
-			prefix = if isEmbedded then '/embed/' else ( if isPreview then '/preview/' else '/play/')
+			prefix = switch
+				when isEmbedded then '/embed/'
+				else
+					if isPreview then '/preview/' else '/play/'
 
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
 			if __LTI_TOKEN?
 				widget.href += '?ltitoken=' + __LTI_TOKEN
-			widget.play_again = if isPreview then 'Preview Again' else 'Play Again'
 		else
 			# if there are no attempts left, hide play again
 			hidePlayAgain = true
