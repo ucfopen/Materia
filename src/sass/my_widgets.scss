@@ -1,5 +1,3 @@
-@import 'partials/beard_mode';
-
 /* *************************************************************** */
 /*        Catalog                                                  */
 /* *************************************************************** */
@@ -2679,5 +2677,9 @@ div.link {
 
 .storage_table tr {
 	text-align: left;
+}
+
+aside .widget {
+	position: relative;
 }
 
