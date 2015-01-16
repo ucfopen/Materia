@@ -26,6 +26,8 @@ app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
+				if BEARD_MODE
+					widget.beard = BEARDS[Math.floor(Math.random() * BEARDS.length)]
 
 			$scope.$apply ->
 				$scope.widgets = data.sort (a,b) -> return b.created_at - a.created_at
