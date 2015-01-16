@@ -490,7 +490,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_play']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
 
 		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
 
