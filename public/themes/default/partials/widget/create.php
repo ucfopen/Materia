@@ -37,9 +37,10 @@
 
 	<div class="center">
 		<iframe src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
-		<div id="container" ng-if="type =='noflash'">
-			<?= Theme::instance()->view('partials/noflash') ?>
-		</div>
+		<div id="container" ng-if="type == 'swf'"></div>
+	</div>
+	<div id="container" ng-if="type == 'noflash'">
+		<?= Theme::instance()->view('partials/noflash') ?>
 	</div>
 
 	<iframe src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
