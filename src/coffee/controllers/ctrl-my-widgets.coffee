@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selectedWidgetSrv) ->
+app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv) ->
 	$scope.widgets =
 		widgetList: []
 	$scope.selected =
@@ -36,12 +36,12 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userServ.get()
 
-	updateWidgets = (data) ->
-		Materia.Set.Throbber.stopSpin '.courses'
+	$($window).bind 'hashchange', selectWidgetFromHashUrl
 
-		if firstRun and window.location.hash
+	selectWidgetFromHashUrl = ->
+		if $window.location.hash
 			found = false
-			selID = window.location.hash.substr(1)
+			selID = $window.location.hash.substr(1)
 			if selID.substr(0, 1) == "/"
 				selID = selID.substr(1)
 
@@ -51,20 +51,30 @@ app.controller 'MyWidgetsController', ($scope, $q, widgetSrv, userServ, selected
 					break
 
 			if found
-				# $scope.setSelected(selID)
+				widgetSrv.getWidget selID, (inst) ->
+					selectedWidgetSrv.set inst
 			else
 				selectedWidgetSrv.notifyAccessDenied()
-			firstRun = false
 
-		if data.then?
+	updateWidgets = (data) ->
+		Materia.Set.Throbber.stopSpin '.courses'
+
+		if !data
+			$scope.widgets.widgetList = []
+			$scope.$apply()
+		else if data.then?
 			data.then updateWidgets
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
 			$scope.$apply ->
 				$scope.widgets.widgetList = data.sort (a,b) -> return b.created_at - a.created_at
-			console.log $scope.widgets
+		if firstRun
+			selectWidgetFromHashUrl()
+			firstRun = false
 
+	# Populate the widget list
+	# This was originally part of prepare(), but is prepare really necessary now?
 	deferredWidgets = widgetSrv.getWidgets()
 	deferredWidgets.then updateWidgets
 

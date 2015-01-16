@@ -32,6 +32,10 @@
 									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
 								</div>
 							</div>
+							<div ng-if="searchResults.none" class="no_match_message">
+								<b>No matches found.</b>
+								<p>The person you're searching for may need to log in to create an account.</p>
+							</div>
 						</div>
 
 						<div class="access_list">

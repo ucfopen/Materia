@@ -4,6 +4,5 @@ app = angular.module 'materia'
 app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 
 	$scope.setSelected = (id) ->
-		widgetSrv.getWidget id, (inst) ->
-			selectedWidgetSrv.set inst
+		$window.location.hash = "/#{id}"
 
