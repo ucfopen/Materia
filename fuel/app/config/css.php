@@ -16,6 +16,7 @@ return [
 	'groups' => [
 		'widget_play' => [
 			'theme::play.css',
+			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
 		],
 		'lti' => [
 			'theme::main.css',
