@@ -11,19 +11,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.dateRanges = null
 
 	# refactoring scope variables
-	$scope.perms =
-		collaborators: []
 	$scope.scores = null
 	$scope.storage = null
 
-	$scope.show =
-		collaborationModal: no
-		availabilityModal: no
-		copyModal: no
-		olderScores: no
-		exportModal: no
-		deleteDialog: no
-		editPublishedWarning: no
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	$scope.$on 'selectedWidget.notifyAccessDenied', ->

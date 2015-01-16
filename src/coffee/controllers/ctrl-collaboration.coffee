@@ -31,10 +31,10 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		nameOrFragment = inputArray[inputArray.length - 1]
 
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
-
-			if matches?.length < 1
+			if not matches or matches?.length < 1
 				matches = []
-				return
+
+			$scope.searchResults.none = matches.length < 1
 
 			for user in matches
 				user.gravatar = userServ.getAvatar user
@@ -65,6 +65,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		$scope.selectedMatch = $scope.searchResults.matches[$scope.selectedIndex]
 
 	$scope.searchMatchClick = (user) ->
+		return if not user
 		$scope.inputs.userSearchInput = ''
 
 		$scope.searchResults.show = no

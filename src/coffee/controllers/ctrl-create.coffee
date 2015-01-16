@@ -3,10 +3,11 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
+	# Where to embed flash
+	EMBED_TARGET   = "container"
 
 	creator       = null
 	embedDoneDfd  = null
-	embedTarget   = null
 	heartbeat     = null
 	importerPopup = null
 	inst_id       = null
@@ -23,6 +24,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	widget_id = window.location.href.match(/widgets\/([\d]+)/)[1]
 
 	# Model properties
+	$scope.saveStatus = 'idle'
 	$scope.saveText = "Save Draft"
 	$scope.previewText = "Preview"
 	$scope.publishText = "Publish..."
@@ -34,6 +36,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		$scope.popup = ""
 
 		saveMode = mode
+		$scope.saveStatus = 'saving'
 		switch saveMode
 			when 'publish'
 				$scope.previewText = "Saving..."
@@ -129,6 +132,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 				creator[type].apply creator, args
 			when '.html'
 				creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN)
+
 	# build a my-widgets url to a specific widget
 	getMyWidgetsUrl = (instid) ->
 		"#{BASE_URL}my-widgets##{instid}"
@@ -146,7 +150,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 			creatorPath = WIDGET_URL+widget_info.dir+widget_info.creator
 
 		type = creatorPath.split('.').pop()
-		$scope.type = type
+		$scope.$apply -> $scope.type = type
 
 		switch type
 			when 'html'
@@ -202,8 +206,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		# it will be resolved by the engine once it's loaded via onCreatorReady
 		embedDoneDfd = dfd
 		if swfobject.hasFlashPlayerVersion('1') == false
-			if $('#no_flash').length != 0
-				$('#no_flash').css({'display': 'block'})
+			$scope.$apply -> $scope.type = "noflash"
 		else
 			# setup variable to send to flash
 			flashvars =
@@ -217,7 +220,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 				allowFullScreen: 'true'
 				AllowScriptAccess: 'always'
 
-			attributes = {id: embedTarget, wmode: 'opaque' }
+			attributes = {id: EMBED_TARGET, wmode: 'opaque' }
 			expressSwf = "#{BASE_URL}assets/flash/expressInstall.swf"
 			width      = '100%'
 			height     = '100%'
@@ -227,7 +230,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 				width = '99.7%'
 				height = '99.7%'
 
-			swfobject.embedSWF path, embedTarget, width, height, version, expressSwf, flashvars, params, attributes
+			swfobject.embedSWF path, EMBED_TARGET, width, height, version, expressSwf, flashvars, params, attributes
 
 	# Resizes the swf according to the window height
 	resizeCreator = ->
@@ -318,9 +321,11 @@ app.controller 'createCtrl', ($scope, $sce) ->
 							sendToCreator 'onSaveComplete', [inst.name, inst.widget, inst.qset.data, inst.qset.version]
 							inst_id  = inst.id
 							instance = inst
+							$scope.saveStatus = 'saved'
 					$scope.$apply()
 					setTimeout ->
 						$scope.saveText = "Save Draft"
+						$scope.saveStatus = 'idle'
 						$scope.$apply()
 					, 5000
 
