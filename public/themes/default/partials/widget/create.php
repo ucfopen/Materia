@@ -32,7 +32,7 @@
 		<button id="creatorPublishBtn" class="edit_button green" type="button" ng-click="onPublishPressed()">{{ publishText }}</button>
 		<div class="dot" ng-hide="updateMode"></div>
 		<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')" ng-hide="updateMode"><span>{{ previewText }}</span></button>
-		<button id="creatorSaveBtn" class="edit_button orange" type="button" ng-click="requestSave('save')" ng-hide="updateMode"><span>{{ saveText }}</span></button>
+		<button id="creatorSaveBtn" class="edit_button orange" ng-class="saveStatus" type="button" ng-click="requestSave('save')" ng-hide="updateMode"><span>{{ saveText }}</span></button>
 	</section>
 
 	<div class="center">

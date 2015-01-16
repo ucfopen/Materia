@@ -1,18 +1,28 @@
 # Handles all of the calls for the sidebar
 app = angular.module 'materia'
 # The sidebar on My Widgets
-app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
+app.controller 'SidebarController', ($scope, $window, widgetSrv, selectedWidgetSrv) ->
 	firstRun = true
-
 	$scope.selectedWidget = null
-
-	$scope.$on 'selectedWidget.update', (evt) ->
-		$scope.selectedWidget = selectedWidgetSrv.get()
-
-	$scope.$on 'widgetList.update', (evt) ->
-		updateWidgets widgetSrv.getWidgets()
-
 	$scope.widgets = []
+
+	selectWidgetFromHashUrl = ->
+		if $window.location.hash
+			found = false
+			selID = $window.location.hash.substr(1)
+			if selID.substr(0, 1) == "/"
+				selID = selID.substr(1)
+
+			for widget in $scope.widgets
+				if widget.id == selID
+					found = true
+					break
+
+			if found
+				widgetSrv.getWidget selID, (inst) ->
+					selectedWidgetSrv.set inst
+			else
+				selectedWidgetSrv.notifyAccessDenied()
 
 	updateWidgets = (data) ->
 		Materia.Set.Throbber.stopSpin '.courses'
@@ -31,21 +41,8 @@ app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 
 			$scope.$apply ->
 				$scope.widgets = data.sort (a,b) -> return b.created_at - a.created_at
-		if firstRun and window.location.hash
-			found = false
-			selID = window.location.hash.substr(1)
-			if selID.substr(0, 1) == "/"
-				selID = selID.substr(1)
-
-			for widget in $scope.widgets
-				if widget.id == selID
-					found = true
-					break
-
-			if found
-				$scope.setSelected(selID)
-			else
-				selectedWidgetSrv.notifyAccessDenied()
+		if firstRun
+			selectWidgetFromHashUrl()
 			firstRun = false
 
 	# Populate the widget list
@@ -54,8 +51,7 @@ app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 	deferredWidgets.then updateWidgets
 
 	$scope.setSelected = (id) ->
-		widgetSrv.getWidget id, (inst) ->
-			selectedWidgetSrv.set inst
+		$window.location.hash = "/#{id}"
 
 	$scope.search = (searchString) ->
 		$scope.query = searchString
@@ -80,3 +76,11 @@ app.controller 'SidebarController', ($scope, widgetSrv, selectedWidgetSrv) ->
 			else
 				misses.push widget
 		$scope.widgets = hits
+
+	$scope.$on 'selectedWidget.update', (evt) ->
+		$scope.selectedWidget = selectedWidgetSrv.get()
+
+	$scope.$on 'widgetList.update', (evt) ->
+		updateWidgets widgetSrv.getWidgets()
+
+	$($window).bind 'hashchange', selectWidgetFromHashUrl
