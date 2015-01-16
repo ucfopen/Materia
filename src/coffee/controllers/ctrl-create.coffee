@@ -16,6 +16,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	widget_info   = null
 	widgetType    = null
 
+	$scope.saveStatus = 'idle'
 	$scope.saveText = "Save Draft"
 	$scope.previewText = "Preview"
 
@@ -115,6 +116,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		$scope.popup = ""
 
 		saveMode = mode
+		$scope.saveStatus = 'saving'
 		switch saveMode
 			when 'publish'
 				$scope.previewText = "Saving..."
@@ -338,9 +340,11 @@ app.controller 'createCtrl', ($scope, $sce) ->
 							sendToCreator 'onSaveComplete', [inst.name, inst.widget, inst.qset.data, inst.qset.version]
 							inst_id  = inst.id
 							instance = inst
+							$scope.saveStatus = 'saved'
 					$scope.$apply()
 					setTimeout ->
 						$scope.saveText = "Save Draft"
+						$scope.saveStatus = 'idle'
 						$scope.$apply()
 					, 5000
 
