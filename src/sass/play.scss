@@ -43,7 +43,7 @@ section.widget {
 	right: 0;
 	bottom: 0;
 }
-.preview section.widget {
+section.widget.preview {
 	top: 150px;
 }
 .embedded section.widget {
@@ -104,5 +104,12 @@ section.widget {
 .embedded {
 	background-image:none;
 	background:#FFFFFF;
+}
+
+.ng-modal button {
+	position: relative;
+	margin: auto;
+	margin-bottom: 5px;
+	display: block;
 }
 

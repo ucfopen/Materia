@@ -1,10 +1,13 @@
 app = angular.module 'materia'
 app.controller 'createCtrl', ($scope, $sce) ->
 	HEARTBEAT_INTERVAL = 30000
+	# How far from the top of the window that the creator frame starts
+	BOTTOM_OFFSET = 145
+	# Where to embed flash
+	EMBED_TARGET   = "container"
 
 	creator       = null
 	embedDoneDfd  = null
-	embedTarget   = null
 	heartbeat     = null
 	importerPopup = null
 	inst_id       = null
@@ -16,34 +19,54 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	widget_info   = null
 	widgetType    = null
 
-	$scope.saveStatus = 'idle'
-	$scope.saveText = "Save Draft"
-	$scope.previewText = "Preview"
-
-	# get the _instance_id from the url if needed
+	# get the instance_id from the url if needed
 	inst_id = window.location.hash.substr(1) if window.location.hash
 	widget_id = window.location.href.match(/widgets\/([\d]+)/)[1]
 
-	Namespace("Materia").Creator =
-		# Exposed to the question importer screen
-		onQuestionImportComplete: (questions) ->
-			hideEmbedDialog()
-			return if !questions
-			# assumes questions is already a JSON string
-			questions = JSON.parse questions
-			sendToCreator 'onQuestionImportComplete', [questions]
+	# Model properties
+	$scope.saveStatus = 'idle'
+	$scope.saveText = "Save Draft"
+	$scope.previewText = "Preview"
+	$scope.publishText = "Publish..."
 
-		# Exposed to the media importer screen
-		onMediaImportComplete: (media) ->
-			hideEmbedDialog()
+	# Model methods
+	# send a save request to the creator
+	$scope.requestSave = (mode) ->
+		# hide dialogs
+		$scope.popup = ""
 
-			# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
-			anArray = []
-			for element in media
-				anArray.push element
-			sendToCreator 'onMediaImportComplete', [anArray]
+		saveMode = mode
+		$scope.saveStatus = 'saving'
+		switch saveMode
+			when 'publish'
+				$scope.previewText = "Saving..."
+			when 'save'
+				$scope.saveText = "Saving..."
 
-		init: (container, widget_id, inst_id) ->
+		sendToCreator 'onRequestSave', [mode]
+
+	# Popup a question importer dialog
+	$scope.showQuestionImporter = ->
+		# must be loose comparison
+		types = widget_info.meta_data.supported_data
+		#the value passed on needs to be a list of one or two elements, i.e.
+		#?type=QA or ?type=MC or ?type=QA,MC
+		showEmbedDialog '/questions/import/?type='+encodeURIComponent(types.join())
+		null # else Safari will give the .swf data that it can't handle
+
+	$scope.onPublishPressed = ->
+		if inst_id? and instance? and !instance.is_draft
+			# Show the Update Dialog
+			$scope.popup = "update"
+		else
+			# Show the Publish Dialog
+			$scope.popup = "publish"
+
+	$scope.cancelPublish = (e, instant = false) ->
+		$scope.popup = ""
+
+	$scope.cancelPreview = (e, instant = false) ->
+		$scope.popup = ""
 
 	# If Initialization Fails
 	onInitFail = (msg) ->
@@ -110,30 +133,6 @@ app.controller 'createCtrl', ($scope, $sce) ->
 			when '.html'
 				creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN)
 
-	# send a save request to the creator
-	$scope.requestSave = (mode) ->
-		# hide dialogs
-		$scope.popup = ""
-
-		saveMode = mode
-		$scope.saveStatus = 'saving'
-		switch saveMode
-			when 'publish'
-				$scope.previewText = "Saving..."
-			when 'save'
-				$scope.saveText = "Saving..."
-
-		sendToCreator 'onRequestSave', [mode]
-
-	# Popup a question importer dialog
-	$scope.showQuestionImporter = ->
-		# must be loose comparison
-		types = widget_info.meta_data.supported_data
-		#the value passed on needs to be a list of one or two elements, i.e.
-		#?type=QA or ?type=MC or ?type=QA,MC
-		_showEmbedDialog '/questions/import/?type='+encodeURIComponent(types.join())
-		null # else Safari will give the .swf data that it can't handle
-
 	# build a my-widgets url to a specific widget
 	getMyWidgetsUrl = (instid) ->
 		"#{BASE_URL}my-widgets##{instid}"
@@ -151,7 +150,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 			creatorPath = WIDGET_URL+widget_info.dir+widget_info.creator
 
 		type = creatorPath.split('.').pop()
-		$scope.type = type
+		$scope.$apply -> $scope.type = type
 
 		switch type
 			when 'html'
@@ -195,8 +194,6 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		# setup the postmessage listener
 		if addEventListener?
 			addEventListener 'message', onPostMessage, false
-		else if attachEvent?
-			attachEvent 'onmessage', onPostMessage
 
 	embedFlash = (path, version, dfd) ->
 		# register global callbacks for ExternalInterface calls
@@ -209,8 +206,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		# it will be resolved by the engine once it's loaded via onCreatorReady
 		embedDoneDfd = dfd
 		if swfobject.hasFlashPlayerVersion('1') == false
-			if $('#no_flash').length != 0
-				$('#no_flash').css({'display': 'block'})
+			$scope.$apply -> $scope.type = "noflash"
 		else
 			# setup variable to send to flash
 			flashvars =
@@ -224,7 +220,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 				allowFullScreen: 'true'
 				AllowScriptAccess: 'always'
 
-			attributes = {id: embedTarget, wmode: 'opaque' }
+			attributes = {id: EMBED_TARGET, wmode: 'opaque' }
 			expressSwf = "#{BASE_URL}assets/flash/expressInstall.swf"
 			width      = '100%'
 			height     = '100%'
@@ -234,11 +230,11 @@ app.controller 'createCtrl', ($scope, $sce) ->
 				width = '99.7%'
 				height = '99.7%'
 
-			swfobject.embedSWF path, embedTarget, width, height, version, expressSwf, flashvars, params, attributes
+			swfobject.embedSWF path, EMBED_TARGET, width, height, version, expressSwf, flashvars, params, attributes
 
 	# Resizes the swf according to the window height
 	resizeCreator = ->
-		$('.center').height $(window).height()-145
+		$('.center').height $(window).height() - BOTTOM_OFFSET
 		# This fixes a bug in chrome where the iframe (#container)
 		# doesn't correctly fill 100% of the height. Doing this with
 		# just CSS doesn't work - it needs to be done in JS
@@ -248,13 +244,12 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	showButtons = ->
 		dfd = $.Deferred().resolve()
 		# change the buttons if this isnt a draft
-		if instance && !instance.is_draft
-			$('#creatorPublishBtn').html 'Update'
-			$('#creatorPreviewBtn').hide()
-			$('#creatorSaveBtn').hide()
-			$('#action-bar .dot').hide()
+		if instance and !instance.is_draft
+			$scope.publishText = "Update"
+			$scope.updateMode = true
 		enableReturnLink()
-		$('#action-bar').css 'visibility', 'visible'
+		$scope.showActionBar = true
+		$scope.$apply()
 		dfd.promise()
 
 	# Changes the Return link's functionality depending on use
@@ -269,24 +264,10 @@ app.controller 'createCtrl', ($scope, $sce) ->
 			$scope.returnPlace = "widget catalog"
 		$scope.$apply()
 
-	$scope.onPublishPressed = ->
-		if inst_id? && instance? && !instance.is_draft
-			# Show the Update Dialog
-			$scope.popup = "update"
-		else
-			# Show the Publish Dialog
-			$scope.popup = "publish"
-
-	$scope.cancelPublish = (e, instant = false) ->
-		$scope.popup = ""
-
-	_onPreviewPopupBlocked = (url) ->
+	onPreviewPopupBlocked = (url) ->
 		$scope.popup = "blocked"
 		$scope.previewUrl = url
 		$scope.$apply()
-
-	$scope.cancelPreview = (e, instant = false) ->
-		$scope.popup = ""
 
 	# When the creator says it's ready
 	# Note this is psuedo public as it's exposed to flash
@@ -299,7 +280,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		embedDoneDfd.resolve() # used to keep events synchronous
 
 	# Show an embedded dialog, as opposed to a popup
-	_showEmbedDialog = (url) ->
+	showEmbedDialog = (url) ->
 		$scope.iframeUrl = url
 
 	# move the embed dialog off to invisibility
@@ -309,7 +290,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 
 	# Note this is psuedo public as it's exposed to flash
 	showMediaImporter = ->
-		_showEmbedDialog '/media/import'
+		showEmbedDialog '/media/import'
 		$scope.$apply()
 		null # else Safari will give the .swf data that it can't handle
 
@@ -329,10 +310,10 @@ app.controller 'createCtrl', ($scope, $sce) ->
 							popup = window.open url
 							if popup?
 									setTimeout ->
-										_onPreviewPopupBlocked(url) unless popup.innerHeight > 0
-									,200
+										onPreviewPopupBlocked(url) unless popup.innerHeight > 0
+									, 200
 							else
-								_onPreviewPopupBlocked(url)
+								onPreviewPopupBlocked(url)
 						when 'publish'
 							window.location = getMyWidgetsUrl(inst.id)
 						when 'save'
@@ -361,6 +342,27 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		# TODO: Replace with a angular modal
 		alert(options.msg)
 
+	# Exposed to the window object so that popups and frames can use this public functions
+	Namespace("Materia").Creator =
+		# Exposed to the question importer screen
+		onQuestionImportComplete: (questions) ->
+			hideEmbedDialog()
+			return if !questions
+			# assumes questions is already a JSON string
+			questions = JSON.parse questions
+			sendToCreator 'onQuestionImportComplete', [questions]
+
+		# Exposed to the media importer screen
+		onMediaImportComplete: (media) ->
+			hideEmbedDialog()
+
+			# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
+			anArray = []
+			for element in media
+				anArray.push element
+			sendToCreator 'onMediaImportComplete', [anArray]
+
+
 	# synchronise the asynchronous events
 	if inst_id?
 		$.when(getWidgetInstance())
@@ -377,4 +379,5 @@ app.controller 'createCtrl', ($scope, $sce) ->
 			.pipe(showButtons)
 			.pipe(startHeartBeat)
 			.fail(onInitFail)
+
 
