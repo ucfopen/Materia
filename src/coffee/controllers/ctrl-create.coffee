@@ -24,6 +24,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	widget_id = window.location.href.match(/widgets\/([\d]+)/)[1]
 
 	# Model properties
+	$scope.saveStatus = 'idle'
 	$scope.saveText = "Save Draft"
 	$scope.previewText = "Preview"
 	$scope.publishText = "Publish..."
@@ -35,6 +36,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 		$scope.popup = ""
 
 		saveMode = mode
+		$scope.saveStatus = 'saving'
 		switch saveMode
 			when 'publish'
 				$scope.previewText = "Saving..."
@@ -130,6 +132,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 				creator[type].apply creator, args
 			when '.html'
 				creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN)
+
 	# build a my-widgets url to a specific widget
 	getMyWidgetsUrl = (instid) ->
 		"#{BASE_URL}my-widgets##{instid}"
@@ -318,9 +321,11 @@ app.controller 'createCtrl', ($scope, $sce) ->
 							sendToCreator 'onSaveComplete', [inst.name, inst.widget, inst.qset.data, inst.qset.version]
 							inst_id  = inst.id
 							instance = inst
+							$scope.saveStatus = 'saved'
 					$scope.$apply()
 					setTimeout ->
 						$scope.saveText = "Save Draft"
+						$scope.saveStatus = 'idle'
 						$scope.$apply()
 					, 5000
 
