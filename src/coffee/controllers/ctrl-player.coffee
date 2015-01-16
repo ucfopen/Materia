@@ -191,10 +191,10 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					when 'end'             then end(msg.data)
 					when 'sendStorage'     then sendStorage(msg.data)
 					when 'sendPendingLogs' then sendPendingLogs()
-					when 'alert'           then _alert msg.data
+					when 'alert'           then $scope.$apply -> $scope.alert = msg.data
 					when 'setHeight'       then _setHeight msg.data[0]
 					when 'initialize'      then
-					else                   throw new Error "Unknown PostMessage recieved from player core: #{msg.type}"
+					else                   throw new Error "Unknown PostMessage received from player core: #{msg.type}"
 			else
 				throw new Error "Post message Origin does not match.  Expected: #{expectedOrigin}, Actual: #{e.origin}"
 
@@ -339,29 +339,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}"
 
 		window.location = scoreScreenURL
-
-	_alert = (options) ->
-		title = options.title
-		msg = options.msg
-		type = options.type
-		alertWindow = $("<div>")
-		alertWindow.append('<h1>'+title+'</h1>')
-		alertWindow.append('<p>'+msg+'</p>')
-
-		buttons = []
-		switch type
-			when 1 then buttons = ['OK']
-			when 2 then buttons = ['OK', 'Cancel']
-			when 3 then buttons = ['Yes', 'No']
-		alertWindow.append('<button class="action_button">'+b+'</button>') for b in buttons
-
-		$.jqmodal.standalone {
-			modal            : true,
-			backgroundStyle  : 'light',
-			className        : 'alert',
-			html             : alertWindow.html(),
-			closingSelectors : ['button']
-		}
 
 	$timeout ->
 		$.when(_getWidgetInstance(), _startPlaySession())
