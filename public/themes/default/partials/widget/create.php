@@ -26,20 +26,21 @@
 		</div>
 	</div>
 
-	<section id="action-bar" style="visibility:hidden">
+	<section id="action-bar" ng-show="showActionBar">
 		<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
 		<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
-		<button id="creatorPublishBtn" class="edit_button green" type="button" ng-click="onPublishPressed()">Publish...</button>
-		<div class="dot"></div>
-		<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')"><span>{{ previewText }}</span></button>
-		<button id="creatorSaveBtn" class="edit_button orange" ng-class="saveStatus" type="button" ng-click="requestSave('save')"><span>{{ saveText }}</span></button>
+		<button id="creatorPublishBtn" class="edit_button green" type="button" ng-click="onPublishPressed()">{{ publishText }}</button>
+		<div class="dot" ng-hide="updateMode"></div>
+		<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')" ng-hide="updateMode"><span>{{ previewText }}</span></button>
+		<button id="creatorSaveBtn" class="edit_button orange" ng-class="saveStatus" type="button" ng-click="requestSave('save')" ng-hide="updateMode"><span>{{ saveText }}</span></button>
 	</section>
 
 	<div class="center">
 		<iframe src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
-		<div id="container" ng-if="type =='noflash'">
-			<?= Theme::instance()->view('partials/noflash') ?>
-		</div>
+		<div id="container" ng-if="type == 'swf'"></div>
+	</div>
+	<div id="container" ng-if="type == 'noflash'">
+		<?= Theme::instance()->view('partials/noflash') ?>
 	</div>
 
 	<iframe src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
