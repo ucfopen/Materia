@@ -53,8 +53,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	sendPendingLogs = (callback) ->
 		callback = $.noop if !callback?
 
-		$.when(_sendPendingStorageLogs())
-			.pipe(_sendPendingPlayLogs)
+		$.when(sendPendingStorageLogs())
+			.pipe(sendPendingPlayLogs)
 			.done(callback)
 			.fail( -> alert('There was a problem saving.'))
 
@@ -76,7 +76,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	end = (showScoreScreenAfter = yes) ->
 		switch endState
 			when 'sent'
-				_showScoreScreen() if showScoreScreenAfter
+				showScoreScreen() if showScoreScreenAfter
 			when 'pending'
 				if showScoreScreenAfter then scoreScreenPending = yes
 			else
@@ -90,9 +90,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					# Async callback after final logs are sent
 					endState = 'sent'
 					# shows the score screen upon callback if requested any time betwen method call and now
-					if showScoreScreenAfter or scoreScreenPending then _showScoreScreen()
+					if showScoreScreenAfter or scoreScreenPending then showScoreScreen()
 
-	_startHeartBeat = ->
+	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
 			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
@@ -102,9 +102,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		, 30000
 		dfd.promise()
 
-	_sendWidgetInit = ->
+	sendWidgetInit = ->
 		dfd = $.Deferred().resolve()
-		convertedInstance = _translateForApiVersion instance
+		convertedInstance = translateForApiVersion instance
 		startTime = (new Date()).getTime()
 		sendToWidget 'initWidget', if widgetType is '.swf' then [qset, convertedInstance] else [qset, convertedInstance, BASE_URL]
 		if !$scope.isPreview
@@ -119,7 +119,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			when '.html'
 				widget.contentWindow.postMessage JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN
 
-	_onLoadFail = (msg) ->
+	onLoadFail = (msg) ->
 			alert "Failure: #{msg}"
 
 	embed = ->
@@ -192,7 +192,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					when 'sendStorage'     then sendStorage(msg.data)
 					when 'sendPendingLogs' then sendPendingLogs()
 					when 'alert'           then $scope.$apply -> $scope.alert = msg.data
-					when 'setHeight'       then _setHeight msg.data[0]
+					when 'setHeight'       then setHeight msg.data[0]
 					when 'initialize'      then
 					else                   throw new Error "Unknown PostMessage received from player core: #{msg.type}"
 			else
@@ -203,7 +203,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			addEventListener 'message', _onPostMessage, false
 		$scope.$apply()
 
-	_getWidgetInstance = ->
+	getWidgetInstance = ->
 		dfd = $.Deferred()
 
 		dfd.reject('Flash Player required.') if $scope.type == "noflash"
@@ -228,7 +228,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		dfd.promise()
 
-	_startPlaySession = ->
+	startPlaySession = ->
 		dfd = $.Deferred()
 
 		switch
@@ -245,7 +245,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		dfd.promise()
 
-	_getQuestionSet = ->
+	getQuestionSet = ->
 		dfd = $.Deferred()
 		# TODO: if bad qSet : dfd.reject('Unable to load questions.')
 		Materia.Coms.Json.send 'question_set_get', [$scope.inst_id, play_id], (result) ->
@@ -254,7 +254,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		dfd.promise()
 
-	_sendPendingPlayLogs = ->
+	sendPendingPlayLogs = ->
 		dfd = $.Deferred()
 
 		if pendingLogs.play.length > 0
@@ -270,7 +270,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		dfd.promise()
 
-	_sendPendingStorageLogs = ->
+	sendPendingStorageLogs = ->
 		dfd = $.Deferred()
 
 		if !$scope.isPreview and pendingLogs.storage.length > 0
@@ -282,7 +282,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		dfd.promise()
 
 	# converts current widget/instance structure to the one expected by the player
-	_translateForApiVersion = (inst) ->
+	translateForApiVersion = (inst) ->
 		# switch based on version expected by the widget
 		switch parseInt inst.widget.api_version
 			when 1
@@ -323,13 +323,13 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 				output = inst
 		output
 
-	_setHeight = (h) ->
+	setHeight = (h) ->
 		# don't resize the inner iframe if the player is embedded
 		if window.top == window.self
 			min_h = instance.widget.height
 			if h > min_h then $('#container').height h else $('#container').height min_h
 
-	_showScoreScreen = ->
+	showScoreScreen = ->
 		if scoreScreenURL == null
 			if $scope.isPreview
 				scoreScreenURL = "#{BASE_URL}scores/preview/#{$scope.inst_id}"
@@ -341,10 +341,10 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		window.location = scoreScreenURL
 
 	$timeout ->
-		$.when(_getWidgetInstance(), _startPlaySession())
-			.pipe(_getQuestionSet)
+		$.when(getWidgetInstance(), startPlaySession())
+			.pipe(getQuestionSet)
 			.pipe(embed)
-			.pipe(_sendWidgetInit)
-			.pipe(_startHeartBeat)
-			.fail(_onLoadFail)
+			.pipe(sendWidgetInit)
+			.pipe(startHeartBeat)
+			.fail(onLoadFail)
 
