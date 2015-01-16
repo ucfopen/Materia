@@ -53,8 +53,6 @@ class Controller_Lti extends \Controller
 			return $this->action_error('Unknown Assignment');
 		}
 
-		\Js::push_group('core');
-		\Js::push_group('student');
 		return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
 	}
 

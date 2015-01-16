@@ -11,11 +11,19 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.dateRanges = null
 
 	# refactoring scope variables
-	$scope.perms = {}
+	$scope.perms =
+		collaborators: []
 	$scope.scores = null
 	$scope.storage = null
-	$scope.showCollaborationModal = false
-	$scope.showCopyModal = false
+
+	$scope.show =
+		collaborationModal: no
+		availabilityModal: no
+		copyModal: no
+		olderScores: no
+		exportModal: no
+		deleteDialog: no
+		editPublishedWarning: no
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	$scope.$on 'selectedWidget.notifyAccessDenied', ->
@@ -28,14 +36,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.shareable = false
 	$scope.hasScores = false
 
-	$scope.collaborators = []
-	$scope.selected.showOlderScores = false
-
-	$scope.baseUrl = BASE_URL
-
-	$scope.popup = () ->
+	$scope.popup = ->
 		if $scope.selected.editable and $scope.selected.shareable
-			$scope.showAvailabilityModal = true
+			$scope.show.availabilityModal = yes
 			Materia.MyWidgets.Availability.popup()
 
 	$scope.hideModal = -> this.$parent.hideModal()
@@ -46,19 +49,19 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		return $scope.selectedData.year+' '+$scope.selectedData.term
 
 	$scope.exportPopup =  ->
-		$scope.showExportModal = true
+		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
-	$scope.copyWidget = () ->
+	$scope.copyWidget = ->
 		Materia.MyWidgets.Tasks.copyWidget $scope.selected.widget.id, $scope.copy_title, (inst_id) ->
-			$scope.showCopyModal = false
+			$scope.show.copyModal = false
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
 
 	$scope.deleteWidget = ->
 		Materia.MyWidgets.Tasks.deleteWidget $scope.selected.widget.id, (results) ->
 			if results
-				$scope.showDeleteDialog = false
+				$scope.show.deleteDialog = false
 				widgetSrv.removeWidget($scope.selected.widget.id)
 				$scope.$apply()
 
@@ -67,7 +70,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
 				if success
 					if $scope.selected.shareable
-						$scope.showEditPublishedWarning = true
+						$scope.show.editPublishedWarning = true
 					else
 						window.location = $scope.selected.edit
 				else
@@ -97,7 +100,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 			$shareWidgetContainer.switchClass('', 'closed', 200)
 
 	$scope.enableOlderScores = ->
-		$scope.selected.showOlderScores = true
+		$scope.show.olderScores = true
 
 	getSemesterFromTimestamp = (timestamp) ->
 		for range in $scope.dateRanges
@@ -113,16 +116,16 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.showCopyModal = true if $scope.selected.accessLevel != 0
+		$scope.show.copyModal = true if $scope.accessLevel != 0
 
 	$scope.showDelete = ->
-		$scope.showDeleteDialog = !$scope.showDeleteDialog if $scope.selected.accessLevel != 0
+		$scope.show.deleteDialog = !$scope.show.deleteDialog if $scope.selected.accessLevel != 0
 
 	$scope.showCollaboration = ->
 		user_ids = []
-		for user of $scope.perms.widget
-			user_ids.push user
-		$scope.collaborators = []
+		user_ids.push(user) for user of $scope.perms.widget
+
+		$scope.perms.collaborators = []
 
 		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
 			users.sort (a,b) ->
@@ -135,18 +138,18 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
 				user.expiresText = getExpiresText(timestamp)
-				user.gravatar = getGravatar(user.email)
+				user.gravatar = userServ.getAvatar user
 
-			$scope.collaborators = users
+			$scope.perms.collaborators = users
 			$scope.$apply()
 
 			$scope.setupPickers()
 
-		$scope.showCollaborationModal = true
+		$scope.show.collaborationModal = yes
 
 	$scope.setupPickers = ->
 		# fill in the expiration link text & setup click event
-		for user in $scope.collaborators
+		for user in $scope.perms.collaborators
 			do (user) ->
 				$(".exp-date.user" + user.id).datepicker
 					minDate: getDateForBeginningOfTomorrow()
@@ -163,7 +166,4 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	getExpiresText = (timestamp) ->
 		timestamp = parseInt(timestamp, 10)
 		if isNaN(timestamp) or timestamp == 0 then 'Never' else $.datepicker.formatDate('mm/dd/yy', new Date(timestamp * 1000))
-
-	$scope.getGravatar = getGravatar = (email) ->
-		'https://secure.gravatar.com/avatar/'+hex_md5(email)+'?d=' + BASE_URL + 'assets/img/default-avatar.jpg'
 
