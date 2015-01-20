@@ -55,13 +55,13 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# Sets up the date pickers for the availability times
 	$scope.setupDatePickers = ->
 		$(".date.from").datepicker
-			maxDate: $scope.availability[0].date
+			maxDate: $scope.availability[1].date
 			onSelect: (dateText) ->
 				$('.date.to').datepicker 'option', {minDate: dateText}
 				$scope.availability[0].date = dateText
 
 		$(".date.to").datepicker
-			minDate: $scope.availability[1].date
+			minDate: $scope.availability[0].date
 			onSelect: (dateText) ->
 				$('.date.from').datepicker 'option', {maxDate: dateText}
 				$scope.availability[1].date = dateText
