@@ -177,10 +177,10 @@
 			<p>Make a new widget in the widget catalog.</p>
 		</section>
 		<section class="page"  ng-hide="noWidgetState == true || !selectedWidget && !error">
-			<hgroup>
+			<div class="header">
 				<h1>{{selectedWidget.name}}</h1>
-				<h3>{{selectedWidget.widget.name}}</h3>
-			</hgroup>
+				<span class="widgetname">{{selectedWidget.widget.name}}</span>
+			</div>
 			<div class="overview">
 				<div class="icon_container med_{{ beard }}" ng-class="{ big_bearded: beard }">
 					<img class="icon" ng-src='{{selectedWidget.iconbig}}' height="275px" width="275px"/>

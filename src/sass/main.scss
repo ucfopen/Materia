@@ -27,7 +27,7 @@ body {
 	overflow:auto;
 }
 
-section, header, nav, hgroup, article, aside, footer {
+section, header, nav, article, aside, footer {
 	display: block;
 }
 
@@ -847,7 +847,7 @@ transform:rotate(360deg)}
 	margin-bottom: 1px;
 }
 
-.error-support h4 {
+.error-support span.subtitle {
 	font-size: .9em;
 	margin-top: 0px;
 	color: #666;
@@ -1176,5 +1176,11 @@ Fancybox Overrides
 	border-left-color: #b944cc;
 	border-width: 28px;
 	margin-top: -28px;
+}
+
+span.subtitle {
+	font-size:1.1em;
+	font-weight:700;
+	font-family: 'Lato', arial, serif;
 }
 

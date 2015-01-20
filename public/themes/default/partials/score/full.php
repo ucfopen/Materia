@@ -18,10 +18,8 @@
 	</header>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<div id="overview-score">
-			<hgroup>
-				<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
-				<h2 class="overall_score">{{ overview.score }}<span class="percent">%</span></h2>
-			</hgroup>
+			<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
+			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
 			<div id="class-rank-button" class="action_button gray" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">

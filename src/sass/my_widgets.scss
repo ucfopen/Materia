@@ -246,12 +246,12 @@
 .my_widgets .page {
 	margin: 100px;
 }
-	.my_widgets .page hgroup {
+	.my_widgets .page .header {
 		padding: 15px 10px 0 10px;
 		margin: 0;
 	}
 
-	.my_widgets .page hgroup h1 {
+	.my_widgets .page .header h1 {
 		margin: 0;
 		padding: 0;
 		display: inline-block;
@@ -259,7 +259,7 @@
 		font-size: 25px;
 		padding-right:10px;
 	}
-	.my_widgets .page hgroup h2 {
+	.my_widgets .page .header h2 {
 		margin: 0;
 		padding: 0;
 		color: #999999;
@@ -269,7 +269,7 @@
 		display:inline;
 	}
 
-	.my_widgets .page hgroup h3 {
+	.my_widgets .page .header .widgetname {
 		position: absolute;
 		top:3px;
 		right:9px;
@@ -278,7 +278,7 @@
 		margin:0px;
 	}
 
-	.my_widgets .page hgroup + p {
+	.my_widgets .page .header + p {
 		padding: 0 0 0 10px;
 		margin: 0;
 		font-size: 13px;
