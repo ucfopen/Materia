@@ -15,7 +15,7 @@ app.controller 'currentUserCtrl', ($scope, $sce, userServ, $http) ->
 	addBeardMode = ->
 		$('link:last').after('<link rel="stylesheet" href="/themes/default/assets/css/beard_mode.css" type="text/css" data-src="page" />')
 
-	if BEARD_MODE
+	if window.BEARD_MODE
 		addBeardMode()
 
 	$(document).ready ->
@@ -43,7 +43,7 @@ app.controller 'currentUserCtrl', ($scope, $sce, userServ, $http) ->
 				$icon = $('.icon')
 				meta = {}
 				if($icon.hasClass('bearded'))
-					BEARD_MODE = false
+					window.BEARD_MODE = false
 
 					$('link[href="/themes/default/assets/css/beard_mode.css"]').remove()
 
@@ -58,7 +58,7 @@ app.controller 'currentUserCtrl', ($scope, $sce, userServ, $http) ->
 							if $('.icon_container').hasClass('med_'+BEARDS[j])
 								$('.icon_container').removeClass('med_'+BEARDS[j])
 				else
-					BEARD_MODE = true
+					window.BEARD_MODE = true
 					addBeardMode()
 
 					# my widgets
@@ -73,7 +73,7 @@ app.controller 'currentUserCtrl', ($scope, $sce, userServ, $http) ->
 							$('.icon_container').addClass('med_'+BEARDS[rand])
 				konami = ''
 
-				$scope.currentUser.beardMode = BEARD_MODE
+				$scope.currentUser.beardMode = window.BEARD_MODE
 
 				$http.post('/api/user/settings', $scope.currentUser)
 
