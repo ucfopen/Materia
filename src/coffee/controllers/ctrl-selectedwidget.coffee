@@ -133,8 +133,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		# TODO
 		$scope.error = false
 
-		if BEARD_MODE
-			$scope.beard = window.BEARDS[Math.floor(Math.random() * BEARDS.length)]
+		$scope.beard = window.BEARDS[Math.floor(Math.random() * window.BEARDS.length)]
 
 		$scope.preview = "preview/#{$scope.selectedWidget.id}/#{$scope.selectedWidget.clean_name}"
 		$scope.copy_title =  "#{$scope.selectedWidget.name} copy"
