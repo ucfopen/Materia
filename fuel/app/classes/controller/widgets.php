@@ -318,20 +318,24 @@ class Controller_Widgets extends Controller
 
 	protected function draft_not_playable()
 	{
-			$this->theme->get_template()
-				->set('title', 'Draft Not Playable')
-				->set('page_type', '');
+		$this->theme->get_template()
+			->set('title', 'Draft Not Playable')
+			->set('page_type', '');
 
-			$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
+		$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
 	protected function retired()
 	{
-			$this->theme->get_template()
-				->set('title', 'Retired Widget')
-				->set('page_type', '');
+		$this->theme->get_template()
+			->set('title', 'Retired Widget')
+			->set('page_type', '');
 
-			$this->theme->set_partial('content', 'partials/widget/retired');
+		$this->theme->set_partial('content', 'partials/widget/retired');
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
 	protected function no_attempts($inst)
