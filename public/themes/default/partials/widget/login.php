@@ -3,12 +3,12 @@
 		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
-		<hgroup class="detail">
+		<div class="detail">
 			<h2 class="logo">
 				<?= $title ?>
 			</h2>
-			<h3>Using your <?= __('login.user') ?> and <?= __('login.password') ?></h3>
-		</hgroup>
+			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?></span>
+		</div>
 
 		<div id="form">
 			<? if ($msg = Session::get_flash('login_error')): /* Incorrect Login Error */ ?>
