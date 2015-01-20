@@ -237,6 +237,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 			$scope.setScoreView(index, 2)
 
 		else #  has scores, might have storage data
+			# Get the score total by summing up the distribution array
+			semester.totalScores = semester.distribution.reduce (prev, cur) -> prev + cur
 
 			$scope.setScoreView(index, 0)
 
