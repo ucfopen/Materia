@@ -24,15 +24,6 @@ class Controller_Widgets extends Controller
 		{
 			// render the defined template
 			$me = Model_User::find_current();
-			if ($me)
-			{
-				// add beardmode
-				if ( ! empty($me->profile_fields['beardMode']))
-				{
-					// TODO: use angular userServ
-					Js::push_inline('var BEARD_MODE = true;');
-				}
-			}
 
 			$this->theme->set_partial('header', $this->_header)->set('me', $me);
 

@@ -67,8 +67,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
-				if BEARD_MODE
-					widget.beard = BEARDS[Math.floor(Math.random() * BEARDS.length)]
+				widget.beard = window.BEARDS[Math.floor(Math.random() * window.BEARDS.length)]
 
 			$scope.$apply ->
 				$scope.widgets.widgetList = data.sort (a,b) -> return b.created_at - a.created_at
@@ -139,8 +138,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		# TODO
 		$scope.error = false
 
-		if BEARD_MODE
-			$scope.beard = window.BEARDS[Math.floor(Math.random() * BEARDS.length)]
+		$scope.beard = window.BEARDS[Math.floor(Math.random() * window.BEARDS.length)]
 
 		$scope.selected.preview = "preview/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}"
 		$scope.copy_title =  "#{$scope.selected.widget.name} copy"

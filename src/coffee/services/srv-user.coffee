@@ -20,7 +20,7 @@ app.service 'userServ', ($q, $rootScope) ->
 			loggedIn: user.getAttribute("data-logged-in")
 			role: user.getAttribute("data-role")
 			notify: user.getAttribute("data-notify")
-			beardMode: user.getAttribute("data-beardMode")
+			beardMode: user.getAttribute("data-beard-mode")
 		buildUser userData.name, userData.avatar, userData.loggedIn == 'true', userData.role, userData.notify == 'true', userData.beardMode == 'true'
 
 	getAvatar = (user, size = 24) ->
