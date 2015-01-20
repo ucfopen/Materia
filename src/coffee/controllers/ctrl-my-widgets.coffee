@@ -36,8 +36,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userServ.get()
 
-	$($window).bind 'hashchange', selectWidgetFromHashUrl
-
 	selectWidgetFromHashUrl = ->
 		if $window.location.hash
 			found = false
@@ -55,6 +53,8 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 					selectedWidgetSrv.set inst
 			else
 				selectedWidgetSrv.notifyAccessDenied()
+
+	$($window).bind 'hashchange', selectWidgetFromHashUrl
 
 	updateWidgets = (data) ->
 		Materia.Set.Throbber.stopSpin '.courses'
