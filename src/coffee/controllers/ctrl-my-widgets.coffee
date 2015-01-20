@@ -67,6 +67,9 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
+				if BEARD_MODE
+					widget.beard = BEARDS[Math.floor(Math.random() * BEARDS.length)]
+
 			$scope.$apply ->
 				$scope.widgets.widgetList = data.sort (a,b) -> return b.created_at - a.created_at
 		if firstRun
@@ -104,6 +107,24 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 
 			populateAccess()
 
+	populateAttempts = (attemptsAllowed) ->
+		attemptsAllowed = parseInt attemptsAllowed, 10
+		$scope.attemptText = if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited'
+
+	populateAvailability = (startDateInt, endDateInt) ->
+		$scope.availability = Materia.Set.Availability.get(startDateInt, endDateInt)
+		$scope.availabilityStart = startDateInt
+		$scope.availabilityEnd = endDateInt
+
+		if endDateInt < 0 && startDateInt < 0
+			$scope.availabilityMode = "anytime"
+		else if startDateInt < 0 && endDateInt > 0
+			$scope.availabilityMode = "open until"
+		else if startDateInt > 0 && endDateInt < 0
+			$scope.availabilityMode = "anytime after"
+		else
+			$scope.availabilityMode = "from"
+
 	# Shows selected game information on the mainscreen.
 	populateDisplay = ->
 		# reset scope variables to defaults
@@ -118,6 +139,9 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		# TODO
 		$scope.error = false
 
+		if BEARD_MODE
+			$scope.beard = window.BEARDS[Math.floor(Math.random() * BEARDS.length)]
+
 		$scope.selected.preview = "preview/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}"
 		$scope.copy_title =  "#{$scope.selected.widget.name} copy"
 		$scope.selected.widget.iconbig = Materia.Image.iconUrl $scope.selected.widget.widget.dir, 275
@@ -129,7 +153,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
 	populateAccess = ->
 		# accessLevel == 0 is effectively read-only
-		if $scope.perms.user[$scope.user.id]?
+		if $scope.perms.user[$scope.user.id]?[0]?
 			$scope.selected.accessLevel = Number $scope.perms.user[$scope.user.id][0]
 
 		$scope.selected.editable = ($scope.selected.accessLevel > 0 and parseInt($scope.selected.widget.widget.is_editable) is 1)
@@ -161,24 +185,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 					if d.distribution?
 						$scope.hasScores = true
 						break
-
-	populateAvailability = (startDateInt, endDateInt) ->
-		$scope.availability = Materia.Set.Availability.get(startDateInt, endDateInt)
-		$scope.availabilityStart = startDateInt
-		$scope.availabilityEnd = endDateInt
-
-		if endDateInt < 0 && startDateInt < 0
-			$scope.availabilityMode = "anytime"
-		else if startDateInt < 0 && endDateInt > 0
-			$scope.availabilityMode = "open until"
-		else if startDateInt > 0 && endDateInt < 0
-			$scope.availabilityMode = "anytime after"
-		else
-			$scope.availabilityMode = "from"
-
-	populateAttempts = (attemptsAllowed) ->
-		attemptsAllowed = parseInt attemptsAllowed, 10
-		$scope.attemptText = if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited'
 
 	populateScoreWrapper = (semester, index) ->
 		#  no scores, but we do have storage data
