@@ -94,7 +94,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
 			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
-				if data == false
+				if data != true
 					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
 					window.location.reload()
 		, 30000
