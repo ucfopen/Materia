@@ -11,7 +11,7 @@ describe 'Login Page', ->
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('Login | Materia')
-            .getText '.detail h3', (err, text) ->
+            .getText '.detail .subtitle', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toContain('Using your')
             .click('form button.action_button')
