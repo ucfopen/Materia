@@ -1,9 +1,9 @@
 <div class="container" ng-controller="loginCtrl">
 	<section class="page">
-		<hgroup class="detail">
+		<div class="detail">
 			<h2 class="logo">Login to your account</h2>
-			<h3>Using your <?= __('login.user') ?> and <?= __('login.password') ?></h3>
-		</hgroup>
+			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?></span>
+		</div>
 
 		<div id="form">
 			<? if ($msg = Session::get_flash('login_error')): /* Incorrect Login Error */ ?>

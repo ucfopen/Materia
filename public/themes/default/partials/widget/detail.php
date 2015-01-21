@@ -6,10 +6,10 @@
 
 	<article class="widget_detail">
 		<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
-		<hgroup class="detail">
+		<div class="detail">
 			<h1>{{ widget.name }}</h1>
 			<h2>{{ widget.subheader }}</h2>
-		</hgroup>
+		</div>
 		{{ widget.about }}
 
 		<ul class="pics">

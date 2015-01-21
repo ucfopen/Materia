@@ -1,10 +1,7 @@
 <div class="container general" id="is-draft">
 	<section class="page is-draft">
 
-		<hgroup>
-			<h2 class="logo">Sorry, drafts are not playable.</h2>
-			<h3></h3>
-		</hgroup>
+		<h2 class="logo">Sorry, drafts are not playable.</h2>
 
 		<p>You probably need to:</p>
 		<ul>
