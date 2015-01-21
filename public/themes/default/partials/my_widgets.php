@@ -24,17 +24,17 @@
 			<modal-dialog class="share" show="show.collaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
 				<div ng-if="show.collaborationModal" ng-controller="CollaborationController">
 					<div id="access" class="container">
-						<div ng-if="shareable" class="list_tab_lock">
+						<div ng-if="selected.shareable" class="list_tab_lock">
 							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)" />
 							<div class="search_list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
 									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
 								</div>
-							</div>
-							<div ng-if="searchResults.none" class="no_match_message">
-								<b>No matches found.</b>
-								<p>The person you're searching for may need to log in to create an account.</p>
+								<div ng-if="searchResults.none" class="no_match_message">
+									<b>No matches found.</b>
+									<p>The person you're searching for may need to log in to create an account.</p>
+								</div>
 							</div>
 						</div>
 
@@ -56,13 +56,13 @@
 								<div class="options" >
 									<span class="owner">Full</span>
 									<span class="undo">Removed <a href="#">Undo</a></span>
-									<select ng-disabled="shareable==false" tabindex="0" id="perm" class="perm" ng-model="collaborator.access" ng-change="checkForWarning(collaborator)">
+									<select ng-disabled="selected.shareable==false" tabindex="0" id="perm" class="perm" ng-model="collaborator.access" ng-change="checkForWarning(collaborator)">
 										<option value="30" ng-selected="collaborator.access == 30" >Full</option>
 										<option value="0" ng-selected="collaborator.access == 0" >View Scores</option>
 									</select>
 
-									<a ng-if="shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
-									<span class="expires">Expires: </span><input ng-disabled="!shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" />
+									<a ng-if="selected.shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
+									<span class="expires">Expires: </span><input ng-disabled="!selected.shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" />
 								</div>
 							</div>
 						</div>
