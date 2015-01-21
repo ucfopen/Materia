@@ -39,11 +39,11 @@
 	min-height: 280px;
 }
 
-.login .container.widget hgroup.detail .attempts-text {
+.login .container.widget div.detail .attempts-text {
 	margin-top: 40px;
 }
 
-.login .container.widget hgroup.detail .attempts-subtext {
+.login .container.widget div.detail .attempts-subtext {
 	margin-bottom: 40px;
 	font-size: 1.0em;
 	font-weight: 600;
@@ -84,12 +84,12 @@
 	padding: 1em 70px;
 }
 
-.login hgroup.detail, div.detail {
+.login div.detail, div.detail {
 	text-align: center;
 	clear:both;
 }
 
-.login .container.widget hgroup.detail h3, .login .container.widget div.detail h3 {
+.login .container.widget div.detail h3, .login .container.widget div.detail h3 {
 	margin-top: 3px;
 }
 
