@@ -16,7 +16,7 @@
 
 					<span class="center">
 						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
-						<a class="action_button green" ng-href="{{edit}}">Edit Published Widget</a>
+						<a class="action_button green" ng-href="{{selected.edit}}">Edit Published Widget</a>
 					</span>
 				</div>
 			</modal-dialog>
