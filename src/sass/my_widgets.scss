@@ -799,6 +799,7 @@
 		.my_widgets .page .scores .display.data .truncated-table {
 			background: #FFF389;
 			padding: 10px;
+			margin-top: 20px;
 			font-size: 9pt;
 			text-align: center;
 			-moz-border-radius: 4px;
@@ -2642,6 +2643,10 @@
 	width: 100%;
 	overflow: auto;
 	display: block;
+}
+
+.dataTables_wrapper {
+	top: 15px;
 }
 
 .paginate_button {
