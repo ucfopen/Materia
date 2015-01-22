@@ -34,6 +34,11 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	$scope.$on 'widgetList.update', (evt) ->
 		updateWidgets widgetSrv.getWidgets()
 
+	$scope.$on 'widgetAvailability.update', (evt) ->
+		$scope.selected.widget = selectedWidgetSrv.get()
+		populateAvailability($scope.selected.widget.open_at, $scope.selected.widget.close_at)
+		populateAttempts($scope.selected.widget.attempts)
+
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userServ.get()
 

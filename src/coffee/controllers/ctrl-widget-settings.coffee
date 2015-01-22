@@ -22,16 +22,11 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		anytimeLabel: 'Never'
 		anytime: true
 
-	$scope.selectedWidget = null
-	$scope.$on 'selectedWidget.update', (evt) ->
-		$scope.selectedWidget = selectedWidgetSrv.get()
-		$scope.attemptsSliderValue = parseInt $scope.selectedWidget.attempts
-
 	$scope.popup = ->
 		$scope.error = ''
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
-		$scope.attemptsSliderValue = parseInt $scope.selectedWidget.attempts
+		$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
 		$scope.dateFormatter()
 		setTimeout ->
 			$scope.setupSlider()
@@ -67,10 +62,10 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 				$scope.availability[1].date = dateText
 
 
-	# Fills in the dates from the selectedWidget
+	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->
-		open = $scope.selectedWidget.open_at
-		close = $scope.selectedWidget.close_at
+		open = $scope.selected.widget.open_at
+		close = $scope.selected.widget.close_at
 		dates = [
 			if open > -1 then new Date(open * 1000) else null
 			if close > -1 then new Date(close * 1000) else null
@@ -197,18 +192,16 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.changeAvailability = ->
 		# Close the modal
 		this.$parent.hideModal()
-		attempts = if $scope.attemptsSliderValue < $scope.UNLIMITED_ATTEMPTS then $scope.attemptsSliderValue else -1
+		attempts = if $scope.attemptsSliderValue < $scope.UNLIMITED_SLIDER_VALUE then $scope.attemptsSliderValue else -1
 
 		# Update the widget instance.
 		widgetSrv.saveWidget
-			inst_id: $scope.selectedWidget.id,
+			inst_id: $scope.selected.widget.id,
 			open_at: $scope.times[0],
 			close_at: $scope.times[1],
 			attempts: attempts
 			, (widget) ->
-				# Repopuplates the availability and attempts on the main page
-				Materia.MyWidgets.SelectedWidget.populateAvailability $scope.times[0], $scope.times[1]
-				Materia.MyWidgets.SelectedWidget.populateAttempts parseInt(attempts, 10)
+				$scope.$broadcast 'widgetAvailability.update', ''
 
 		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1])
 
