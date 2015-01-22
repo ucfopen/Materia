@@ -39,6 +39,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		return $scope.selectedData.year+' '+$scope.selectedData.term
 
 	$scope.exportPopup =  ->
+		# Do not show modal disabled
+		return if $scope.scores.list.length == 0 || !$scope.hasScores
 		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
