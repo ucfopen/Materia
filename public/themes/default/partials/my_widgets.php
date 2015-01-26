@@ -165,20 +165,20 @@
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 				</div>
 			</modal-dialog>
-			<section class="directions" ng-show="error">
+			<section class="directions" ng-show="perms.error">
 				<div class="error error-nowidget">
 					<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
 				</div>
 			</section>
-			<section class="directions unchosen" ng-show="widgets.widgetList.length > 0 && !selected.widget && !error">
+			<section class="directions unchosen" ng-show="widgets.widgetList.length > 0 && !selected.widget && !perms.error">
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
-			<section class="directions" ng-show="widgets.widgetList.length == 0 && !error">
+			<section class="directions" ng-show="widgets.widgetList.length == 0 && !perms.error">
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
-			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget && !error">
+			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget && !perms.error">
 				<div class="header">
 					<h1>{{selected.widget.name}}</h1>
 					<span class="widgetname">{{selected.widget.widget.name}}</span>
@@ -247,7 +247,7 @@
 				</div>
 				<div class="scores" ng-show="selected.shareable && selected.widget.widget.is_scorable">
 					<h2>Student Activity</h2>
-					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
+					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
 						<span class="arrow_down"></span>
 						Export Scores
 					</span>
