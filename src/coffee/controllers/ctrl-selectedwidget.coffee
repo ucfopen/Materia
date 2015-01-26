@@ -1,30 +1,11 @@
 # Handles the widget currently selected (on the big screeny thing)
 app = angular.module 'materia'
 app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userServ, $anchorScroll) ->
-	# old stuff
-	$scope.STORAGE_TABLE_MAX_ROWS_SHOWN = 100
-	$scope.selectedWidgetInstId = 0
-	$scope.scoreSummaries = {}
-	$scope.semesterPlayLogs = {}
-	$scope.storageData = {}
-	$scope.selectedData = null
-	$scope.dateRanges = null
-
-	# refactoring scope variables
-	$scope.scores = null
-	$scope.storage = null
-
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	$scope.$on 'selectedWidget.notifyAccessDenied', ->
-		$scope.error = true
+		$scope.perms.error = true
 		$scope.$apply()
-
-	# Flags to help condense conditional statement checks
-	$scope.accessLevel = 0
-	$scope.selected.editable = true
-	$scope.shareable = false
-	$scope.hasScores = false
 
 	$scope.popup = ->
 		if $scope.selected.editable and $scope.selected.shareable
@@ -33,14 +14,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.hideModal = -> this.$parent.hideModal()
 
-	$scope.preview = ""
-
-	getCurrentSemester = ->
-		return $scope.selectedData.year+' '+$scope.selectedData.term
-
 	$scope.exportPopup =  ->
 		# Do not show modal disabled
-		return if $scope.scores.list.length == 0 || !$scope.hasScores
+		return if $scope.selected.scores.list.length == 0 || !$scope.selected.hasScores
 		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
@@ -59,7 +35,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.editWidget = ->
 		if $scope.selected.editable
-			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selectedWidgetInstId], (success) ->
+			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selected.widget.id], (success) ->
 				if success
 					if $scope.selected.shareable
 						$scope.show.editPublishedWarning = true
@@ -94,21 +70,13 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.enableOlderScores = ->
 		$scope.show.olderScores = true
 
-	getSemesterFromTimestamp = (timestamp) ->
-		for range in $scope.dateRanges
-			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
-		return undefined
-
-	createSemesterString = (o) ->
-		return (o.year + '_' + o.term).toLowerCase()
-
 	getDateForBeginningOfTomorrow = ->
 		d = new Date()
 		d.setDate(d.getDate() + 1)
 		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
-		$scope.show.copyModal = true if $scope.accessLevel != 0
+		$scope.show.copyModal = true if $scope.selected.accessLevel != 0
 
 	$scope.showDelete = ->
 		$scope.show.deleteDialog = !$scope.show.deleteDialog if $scope.selected.accessLevel != 0

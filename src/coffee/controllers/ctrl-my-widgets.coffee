@@ -7,6 +7,11 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		widget: null
 		perms: {}
 		scores: {}
+		accessLevel: 0
+		shareable: false
+		editable: true
+		hasScores: false
+		preview: ""
 	$scope.perms =
 		collaborators: []
 	$scope.show =
@@ -26,7 +31,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 
 	$scope.$on 'selectedWidget.update', (evt) ->
 		$scope.selected.widget = selectedWidgetSrv.get()
-		console.log $scope.selected.widget
 		sessionCheck = userServ.checkValidSession()
 		sessionCheck.then (check) ->
 			if check? then setSelectedWidget()
@@ -138,11 +142,11 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.selected.accessLevel = 0
 		$scope.selected.editable = true
 		$scope.selected.shareable = false
-		$scope.hasScores = false
+		$scope.selected.hasScores = false
 		$scope.perms.collaborators = []
 
 		# TODO
-		$scope.error = false
+		$scope.perms.error = false
 
 		$scope.beard = window.BEARDS[Math.floor(Math.random() * window.BEARDS.length)]
 
@@ -187,7 +191,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 
 				for d in $scope.selected.scores.list # is this check necessary? Is there ever a use case where a list object won't have a distro array?
 					if d.distribution?
-						$scope.hasScores = true
+						$scope.selected.hasScores = true
 						break
 
 	populateScoreWrapper = (semester, index) ->
