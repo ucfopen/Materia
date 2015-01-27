@@ -66,6 +66,7 @@ coffeeScripts = [
 			'controllers/ctrl-create.coffee',
 			'controllers/ctrl-lti.coffee',
 			'controllers/ctrl-media-import.coffee',
+			'controllers/ctrl-my-widgets.coffee',
 			'controllers/ctrl-question-import.coffee',
 			'controllers/ctrl-spotlight.coffee',
 			'controllers/ctrl-widget-catalog.coffee',

@@ -2,11 +2,6 @@ app = angular.module 'materia'
 app.controller 'currentUserCtrl', ($scope, $sce, userServ, $http, $rootScope) ->
 
 	$scope.currentUser = userServ.getCurrentUser()
-	$scope.hasNoWidgets = false
-
-	$scope.$on 'selectedWidget.hasNoWidgets', (evt) ->
-		$scope.hasNoWidgets = true
-		$scope.$apply()
 
 	# Beard mode
 	window.BEARDS = ['dusty_full', 'black_chops', 'grey_gandalf', 'red_soul']
