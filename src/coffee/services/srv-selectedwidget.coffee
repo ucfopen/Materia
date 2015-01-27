@@ -27,10 +27,6 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getSelectedId = ->
 		_widget.id
 
-	setNoWidgets = (bool) ->
-		_hasNoWidgetsFlag = bool
-		$rootScope.$broadcast 'selectedWidget.hasNoWidgets'
-
 	getScoreSummaries = ->
 		deferred = $q.defer()
 
@@ -199,14 +195,12 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	get : get
 	getSelectedId: getSelectedId
 	# setSelectedId: setSelectedId
-	setNoWidgets: setNoWidgets
 	getScoreSummaries: getScoreSummaries
 	getUserPermissions: getUserPermissions
 	getPlayLogsForSemester: getPlayLogsForSemester
 	getDateRanges: getDateRanges
 	# getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
-	getStorageData : getStorageData
 	getStorageData: getStorageData
 	getMaxRows : getMaxRows
 	updateAvailability: updateAvailability

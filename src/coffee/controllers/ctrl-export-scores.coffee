@@ -33,7 +33,7 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 
 	# Builds the initial version of the popup window
 	buildPopup = ->
-		$scope.selectedId = selectedWidgetSrv.get().id
+		$scope.selectedId = $scope.selected.widget.id
 		getScores()
 
 	# Finds all the scores with a given game instance id
@@ -99,7 +99,7 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	# Formate and return the download link
 	$scope.getDownloadLink = ->
 		if $scope.ids
-			link = "/scores/#{$scope.exportType.value}/#{$scope.selectedWidget.id}/#{$scope.ids}"
+			link = "/scores/#{$scope.exportType.value}/#{$scope.selected.widget.id}/#{$scope.ids}"
 		else
 			link = "#"
 		return link
