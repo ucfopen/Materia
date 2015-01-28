@@ -118,6 +118,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		$scope.perms.widget = user_ids
 		Materia.Coms.Json.send 'permissions_set', [0,widget_id, permObj], (returnData) ->
 			if returnData == true
+				$scope.$emit 'collaborators.update', ''
 				$scope.show.collaborationModal = no
 				widgetSrv.removeWidget(widget_id) if remove_widget
 				$scope.$apply()
