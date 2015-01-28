@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ($scope, $sce) ->
+app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
@@ -91,7 +91,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	# Gets widget info when not editing an existing instance
 	getWidgetInfo = ->
 		dfd = $.Deferred()
-		Materia.Coms.Json.send 'widgets_get', [[widget_id]], (widgets) ->
+		widgetSrv.getWidgetInfo widget_id, (widgets) ->
 			widget_info = widgets[0]
 			dfd.resolve()
 
@@ -100,7 +100,7 @@ app.controller 'createCtrl', ($scope, $sce) ->
 	# Gets instance and widget info when editing existing instance
 	getWidgetInstance = ->
 		dfd = $.Deferred()
-		Materia.Coms.Json.send 'widget_instances_get', [[inst_id]], (widgetInstances) ->
+		widgetSrv.getWidget inst_id, (widgetInstances) ->
 			instance    = widgetInstances[0]
 			widget_info = instance.widget
 			dfd.resolve()

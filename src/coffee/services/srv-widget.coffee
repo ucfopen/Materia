@@ -22,6 +22,9 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 	getWidget = (inst_id, callback) ->
 		Materia.WidgetInstance.get inst_id, callback
 
+	getWidgetInfo = (id, callback) ->
+		Materia.Coms.Json.send 'widgets_get', [[id]], callback
+
 	saveWidget = (_params, callback) ->
 		params =
 			widget_id: null
@@ -70,6 +73,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 	getWidgets: getWidgets
 	getWidget: getWidget
+	getWidgetInfo: getWidgetInfo
 	sortWidgets: sortWidgets
 	saveWidget: saveWidget
 	addWidget: addWidget
