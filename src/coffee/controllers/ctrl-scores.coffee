@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'scorePageController', ($scope) ->
+app.controller 'scorePageController', ($scope, widgetSrv) ->
 
 	# attempts is an array of attempts, [0] is the newest
 	attempt_dates = []
@@ -53,21 +53,13 @@ app.controller 'scorePageController', ($scope) ->
 	$scope.showCompareWithClass = !isPreview and !isEmbedded
 
 	displayScoreData = (inst_id, play_id) ->
-		$.when(getWidgetInstance(inst_id), getInstanceScores(inst_id))
-			.done ->
+		$.when(widgetSrv.getWidget(inst_id), getInstanceScores(inst_id))
+			.done (widgetInstances) ->
+				widgetInstance = widgetInstances[0]
 				displayAttempts(play_id)
 				displayWidgetInstance()
 			.fail ->
 				# Failed!?!?
-
-	getWidgetInstance = (inst_id) ->
-		dfd = $.Deferred()
-		Materia.Coms.Json.send 'widget_instances_get', [[inst_id]], (widgetInstances) ->
-			dfd.reject('Unable to retrieve widget info') if widgetInstances.length < 1
-
-			widgetInstance = widgetInstances[0]
-			dfd.resolve()
-		return dfd.promise()
 
 	getInstanceScores = (inst_id) ->
 		dfd = $.Deferred()
