@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'ltiCtrl', ($scope, $sce) ->
+app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 	REFRESH_FAKE_DELAY_MS = 500
 	CHANGE_SECTION_FADE_DELAY_MS = 250
 
@@ -22,8 +22,7 @@ app.controller 'ltiCtrl', ($scope, $sce) ->
 			fakeDelay = 1
 
 		setTimeout ->
-			Materia.WidgetInstance.clearAll()
-			Materia.WidgetInstance.getAll (widgets) ->
+			widgetSrv.getWidgets().then (widgets) ->
 				widgetsLoaded = true
 
 				Materia.Set.Throbber.stopSpin('#list-container')
