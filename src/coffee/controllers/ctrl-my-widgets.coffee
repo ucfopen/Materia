@@ -62,7 +62,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 					break
 
 			if found
-				widgetSrv.getWidget selID, (inst) ->
+				widgetSrv.getWidget(selID).then (inst) ->
 					selectedWidgetSrv.set inst
 			else
 				selectedWidgetSrv.notifyAccessDenied()
