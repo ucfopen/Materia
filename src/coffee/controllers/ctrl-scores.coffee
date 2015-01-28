@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'scorePageController', ($scope, widgetSrv) ->
+app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 	# attempts is an array of attempts, [0] is the newest
 	attempt_dates = []
@@ -67,7 +67,7 @@ app.controller 'scorePageController', ($scope, widgetSrv) ->
 			$scope.attempts = [{'id': -1, 'created_at' : 0, 'percent' : 0}]
 			dfd.resolve() # skip, preview doesn't support this
 		else
-			Materia.Coms.Json.send 'widget_instance_scores_get', [inst_id], (scores) ->
+			scoreSrv.getWidgetInstanceScores inst_id, (scores) ->
 				if scores == null or scores.length < 1
 					#load up an error screen of some sort
 					$scope.restricted = true
@@ -85,9 +85,9 @@ app.controller 'scorePageController', ($scope, widgetSrv) ->
 	getScoreDetails = ->
 		if isPreview
 			currentAttempt = 1
-			Materia.Coms.Json.send 'widget_instance_play_scores_get', [null, widgetInstance.id], displayDetails
+			scoreSrv.getWidgetInstancePlayScores [null, widgetInstance.id], displayDetails
 		else if single_id
-			Materia.Coms.Json.send 'widget_instance_play_scores_get', [single_id], displayDetails
+			scoreSrv.getWidgetInstancePlayScores [single_id], displayDetails
 		else
 			# get the current attempt from the url
 			hash = getAttemptNumberFromHash()
@@ -103,7 +103,7 @@ app.controller 'scorePageController', ($scope, widgetSrv) ->
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]?
 				displayDetails details[$scope.attempts.length - currentAttempt]
-			else Materia.Coms.Json.send 'widget_instance_play_scores_get', [play_id], displayDetails
+			else scoreSrv.getWidgetInstancePlayScores [play_id], displayDetails
 		$scope.$apply()
 
 	displayWidgetInstance = ->
