@@ -176,8 +176,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 
 		countCollaborators()
 
-		# DeMorgan's, anyone?
-		$scope.selected.shareable = !($scope.selected.accessLevel == 0 || $scope.selected.widget.is_draft == true)
+		$scope.selected.shareable = $scope.selected.accessLevel != 0
 
 		populateAvailability($scope.selected.widget.open_at, $scope.selected.widget.close_at)
 		populateAttempts($scope.selected.widget.attempts)
