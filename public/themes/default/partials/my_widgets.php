@@ -212,15 +212,15 @@
 							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 						</div>
-						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable}" ng-show="!show.deleteDialog">
+						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
 							<h3>Settings:</h3>
-							<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable}">
+							<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}">
 								<dt>Attempts:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable}" ng-click="popup()">
+								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
@@ -235,10 +235,10 @@
 									</span>
 								</dd>
 							</dl>
-							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
+							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
 						</div>
 					</div>
-					<div class="share-widget-container closed" ng-class="{'draft' : !selected.shareable}" ng-disabled="selected.editable">
+					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}" ng-disabled="selected.editable">
 						<h3>{{selected.shareable ? "Share" : "Publish to share"}} with your students</h3>
 						<input id="play_link" type="text" ng-disabled="!selected.shareable" ng-disabled="!selected.shareable" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
