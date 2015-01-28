@@ -43,6 +43,9 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		populateAvailability($scope.selected.widget.open_at, $scope.selected.widget.close_at)
 		populateAttempts($scope.selected.widget.attempts)
 
+	$scope.$on 'collaborators.update', ->
+		countCollaborators()
+
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userServ.get()
 
@@ -171,11 +174,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		else
 			$scope.selected.edit = "#"
 
-		# count up the number of other users collaborating
-		count = 0
-		for id of $scope.perms.widget
-			if id != $scope.user.id then count++
-		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
+		countCollaborators()
 
 		# DeMorgan's, anyone?
 		$scope.selected.shareable = !($scope.selected.accessLevel == 0 || $scope.selected.widget.is_draft == true)
@@ -193,6 +192,13 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 					if d.distribution?
 						$scope.selected.hasScores = true
 						break
+
+	# count up the number of other users collaborating
+	countCollaborators = ->
+		count = 0
+		for id of $scope.perms.widget
+			if id != $scope.user.id then count++
+		$scope.collaborateCount = if count > 0 then  " (#{count})"  else ""
 
 	populateScoreWrapper = (semester, index) ->
 		#  no scores, but we do have storage data
