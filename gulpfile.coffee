@@ -42,6 +42,7 @@ coffeeScripts = [
 			'services/srv-datetime.coffee',
 			'services/srv-widget.coffee',
 			'services/srv-selectedwidget.coffee',
+			'services/srv-score.coffee',
 			'controllers/ctrl-page.coffee',
 			'controllers/ctrl-current-user.coffee',
 			'controllers/ctrl-notification.coffee',
