@@ -92,18 +92,7 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	getWidgetInfo = ->
 		dfd = $.Deferred()
 		widgetSrv.getWidgetInfo widget_id, (widgets) ->
-			widget_info = widgets[0]
-			dfd.resolve()
-
-		dfd.promise()
-
-	# Gets instance and widget info when editing existing instance
-	getWidgetInstance = ->
-		dfd = $.Deferred()
-		widgetSrv.getWidget inst_id, (widgetInstances) ->
-			instance    = widgetInstances[0]
-			widget_info = instance.widget
-			dfd.resolve()
+			dfd.resolve widgets
 
 		dfd.promise()
 
@@ -138,7 +127,13 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 		"#{BASE_URL}my-widgets##{instid}"
 
 	# Embeds the creator
-	embed = ->
+	embed = (widgetData) ->
+		if widgetData?[0].widget
+			instance    = widgetData[0]
+			widget_info = instance.widget
+		else
+			widget_info = widgetData[0]
+
 		dfd = $.Deferred()
 		widgetType = widget_info.creator.slice widget_info.creator.lastIndexOf('.')
 
@@ -365,7 +360,7 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 
 	# synchronise the asynchronous events
 	if inst_id?
-		$.when(getWidgetInstance())
+		$.when(widgetSrv.getWidget(inst_id))
 			.pipe(embed)
 			.pipe(getQset)
 			.pipe(initCreator)
