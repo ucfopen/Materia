@@ -1,5 +1,5 @@
 app = angular.module('materia')
-app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
+app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 
 	deferred = $q.defer()
 	_widgets = []
@@ -59,7 +59,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 			_widgets.push widget[0]
 			sortWidgets()
 			$rootScope.$broadcast 'widgetList.update', ''
-			selectedWidgetSrv.set widget[0]
+			updateHashUrl widget[0].id
 
 	removeWidget = (inst_id) ->
 		index = -1
@@ -79,7 +79,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 		newWidget = _widgets[selectedIndex]
 		if newWidget
-			selectedWidgetSrv.set(newWidget)
+			updateHashUrl newWidget.id
 			sortWidgets()
 		$rootScope.$broadcast 'widgetList.update', ''
 
@@ -98,6 +98,29 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 
 			callback(_widgets)
 
+	updateHashUrl = (widgetId) ->
+		$window.location.hash = "/#{widgetId}"
+
+	selectWidgetFromHashUrl = ->
+		if $window.location.hash
+			found = false
+			selID = $window.location.hash.substr(1)
+			if selID.substr(0, 1) == "/"
+				selID = selID.substr(1)
+
+			for widget in _widgets
+				if widget.id == selID
+					found = true
+					break
+
+			if found
+				getWidget(selID).then (inst) ->
+					selectedWidgetSrv.set inst
+			else
+				selectedWidgetSrv.notifyAccessDenied()
+
+	$($window).bind 'hashchange', selectWidgetFromHashUrl
+
 	getWidgets: getWidgets
 	getWidget: getWidget
 	getWidgetInfo: getWidgetInfo
@@ -105,4 +128,6 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 	saveWidget: saveWidget
 	addWidget: addWidget
 	removeWidget : removeWidget
+	updateHashUrl: updateHashUrl
+	selectWidgetFromHashUrl: selectWidgetFromHashUrl
 

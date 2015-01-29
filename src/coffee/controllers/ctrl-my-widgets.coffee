@@ -49,26 +49,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	$scope.$on 'user.update', (evt) ->
 		$scope.user = userServ.get()
 
-	selectWidgetFromHashUrl = ->
-		if $window.location.hash
-			found = false
-			selID = $window.location.hash.substr(1)
-			if selID.substr(0, 1) == "/"
-				selID = selID.substr(1)
-
-			for widget in $scope.widgets.widgetList
-				if widget.id == selID
-					found = true
-					break
-
-			if found
-				widgetSrv.getWidget(selID).then (inst) ->
-					selectedWidgetSrv.set inst
-			else
-				selectedWidgetSrv.notifyAccessDenied()
-
-	$($window).bind 'hashchange', selectWidgetFromHashUrl
-
 	updateWidgets = (data) ->
 		Materia.Set.Throbber.stopSpin '.courses'
 
@@ -85,7 +65,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 			$scope.$apply ->
 				$scope.widgets.widgetList = data.sort (a,b) -> return b.created_at - a.created_at
 		if firstRun
-			selectWidgetFromHashUrl()
+			widgetSrv.selectWidgetFromHashUrl()
 			firstRun = false
 
 	# Populate the widget list
