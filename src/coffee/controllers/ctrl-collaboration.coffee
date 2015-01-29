@@ -92,7 +92,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 
 	$scope.removeAccess = (user) ->
 		user.remove = true
-		user.warning = true
+		$scope.checkForWarning(user)
 
 	$scope.updatePermissions = ->
 		remove_widget = no
@@ -126,8 +126,8 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 				alert(if returnData?.msg? then returnData.msg else 'There was an unkown error saving your changes.')
 
 	$scope.checkForWarning = (user) ->
-		if user.isCurrentUser and user.access < 30
-			user.warning = yes
+		if user.isCurrentUser and user.access <= 30
+			user.warning = true
 
 	$scope.cancelDemote = (user) ->
 		user.warning = no
