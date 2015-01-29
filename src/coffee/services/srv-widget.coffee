@@ -55,7 +55,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope) ->
 				callback(widget)
 
 	addWidget = (inst_id) ->
-		getWidget inst_id, (widget) ->
+		getWidget(inst_id).then (widget) ->
 			_widgets.push widget[0]
 			sortWidgets()
 			$rootScope.$broadcast 'widgetList.update', ''
