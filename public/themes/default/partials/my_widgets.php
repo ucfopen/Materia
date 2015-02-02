@@ -184,7 +184,7 @@
 					<span class="widgetname">{{selected.widget.widget.name}}</span>
 				</div>
 				<div class="overview">
-					<div class="icon_container med_{{ beard }}" ng-class="{ big_bearded: beard }">
+					<div class="icon_container med_{{ selected.widget.beard }}" ng-class="{ big_bearded: selected.widget.beard }">
 						<img class="icon" ng-src='{{selected.widget.iconbig}}' height="275px" width="275px"/>
 					</div>
 					<div class="controls">
@@ -238,9 +238,9 @@
 							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
 						</div>
 					</div>
-					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}" ng-disabled="selected.editable">
-						<h3>{{selected.shareable ? "Share" : "Publish to share"}} with your students</h3>
-						<input id="play_link" type="text" ng-disabled="!selected.shareable" ng-disabled="!selected.shareable" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
+					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
+						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
+						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
 						<textarea id="embed_link" ng-show="embedToggle && selected.shareable">{{ getEmbedLink() }}</textarea>
 					</div>

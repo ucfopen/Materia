@@ -134,8 +134,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		# TODO
 		$scope.perms.error = false
 
-		$scope.beard = window.BEARDS[Math.floor(Math.random() * window.BEARDS.length)]
-
 		$scope.selected.preview = "preview/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}"
 		$scope.copy_title =  "#{$scope.selected.widget.name} copy"
 		$scope.selected.widget.iconbig = Materia.Image.iconUrl $scope.selected.widget.widget.dir, 275

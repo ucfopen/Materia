@@ -50,15 +50,11 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# Sets up the date pickers for the availability times
 	$scope.setupDatePickers = ->
 		$(".date.from").datepicker
-			maxDate: $scope.availability[1].date
 			onSelect: (dateText) ->
-				$('.date.to').datepicker 'option', {minDate: dateText}
 				$scope.availability[0].date = dateText
 
 		$(".date.to").datepicker
-			minDate: $scope.availability[0].date
 			onSelect: (dateText) ->
-				$('.date.from').datepicker 'option', {maxDate: dateText}
 				$scope.availability[1].date = dateText
 
 
@@ -183,6 +179,10 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			if errors.invalid > 0 and errors.missing > 0 then $scope.error += "/"
 			if errors.missing > 0 then $scope.error += "missing"
 			$scope.error += "."
+
+		if $scope.error == '' and $scope.times[0] > $scope.times[1]
+			$scope.error = "The widget cannot be closed before it becomes available."
+
 		if $scope.error == ''
 			$scope.changeAvailability()
 		return

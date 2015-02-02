@@ -62,27 +62,31 @@
 /* Medium sized beards */
 
 .med_dusty_full:before {
+	position: absolute;
 	content:url(../img/beards/medium/new/med_dusty_full.png);
-	left:10px;
-	top:55px;
+	top:-10px;
+	left:-10px;
 }
 
 .med_black_chops:before {
+	position: absolute;
 	content:url(../img/beards/medium/new/med_black_chops.png);
-	left:10px;
-	top:55px;
+	top:-10px;
+	left:-10px;
 }
 
 .med_grey_gandalf:before {
+	position: absolute;
 	content:url(../img/beards/medium/new/med_grey_gandalf.png);
-	left:10px;
-	top:55px;
+	top:-10px;
+	left:-10px;
 }
 
 .med_red_soul:before {
+	position: absolute;
 	content:url(../img/beards/medium/new/med_red_soul.png);
-	left:0px;
-	top:55px;
+	left:-20px;
+	top:-10px;
 }
 
 /* Xlarge beards */
