@@ -21,13 +21,15 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 		else
 			return _widgets
 
-	getWidget = (id) ->
+	getWidget = (id, callback) ->
 		dfd = $.Deferred()
 		if _widgetIds[id]?
 			dfd.resolve _widgetIds[id]
 		else
 			_getFromServer id, (widgets) ->
 				dfd.resolve widgets
+				if callback
+					callback(widgets)
 		dfd.promise()
 
 	getWidgetInfo = (id, callback) ->
