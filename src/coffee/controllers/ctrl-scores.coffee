@@ -116,8 +116,8 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		if (widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && $scope.attempts.length < widgetInstance.attempts) || isPreview) && !single_id
 			prefix = switch
 				when isEmbedded then '/embed/'
-				else
-					if isPreview then '/preview/' else '/play/'
+				when isPreview then '/preview/'
+				else '/play/'
 
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
 			if __LTI_TOKEN?
