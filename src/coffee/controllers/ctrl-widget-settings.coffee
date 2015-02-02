@@ -181,7 +181,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			$scope.error += "."
 
 		if $scope.error == '' and $scope.times[0] > $scope.times[1]
-			$scope.error = "The available date/time must be before the closing date/time."
+			$scope.error = "The widget cannot be closed before it becomes available."
 
 		if $scope.error == ''
 			$scope.changeAvailability()
