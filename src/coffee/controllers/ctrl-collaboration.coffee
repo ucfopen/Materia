@@ -114,7 +114,9 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 			access = {}
 			access[user.access] = !user.remove
 
-			user_ids[user.id] = [user.access, user.expires]
+			if !user.remove
+				user_ids[user.id] = [user.access, user.expires]
+
 			permObj.push
 				user_id: user.id
 				expiration: user.expires
