@@ -292,9 +292,13 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	# save called by the widget creator
 	# Note this is psuedo public as it's exposed to flash
 	save = (instanceName, qset, version = 1) ->
-		Materia.Coms.Json.send 'widget_instance_save',
-			[widget_id, instanceName, {version:version, data:qset}, saveMode != 'publish', inst_id, null, null, null],
-			(inst) ->
+		widgetSrv.saveWidget
+			widget_id: widget_id,
+			name: instanceName,
+			qset: {version:version, data:qset},
+			is_draft: saveMode != 'publish',
+			inst_id: inst_id
+			, (inst) ->
 				if inst?
 					# update this creator's url
 					window.location.hash = '#'+inst.id if String(inst_id).length != 0
