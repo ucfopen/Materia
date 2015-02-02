@@ -33,7 +33,10 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.selected.widget = selectedWidgetSrv.get()
 		sessionCheck = userServ.checkValidSession()
 		sessionCheck.then (check) ->
-			if check? then setSelectedWidget()
+			if check
+				setSelectedWidget()
+			else
+				location.reload true
 
 	$scope.$on 'widgetList.update', (evt) ->
 		updateWidgets widgetSrv.getWidgets()
@@ -137,9 +140,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.copy_title =  "#{$scope.selected.widget.name} copy"
 		$scope.selected.widget.iconbig = Materia.Image.iconUrl $scope.selected.widget.widget.dir, 275
 
-		# Tell Materia we are still logged in
-		sendHeartbeat()
-
 	# Second half of populateDisplay
 	# This allows us to update the display before the callback of scores finishes, which speeds up UI
 	populateAccess = ->
@@ -190,9 +190,4 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 
 	$scope.setScoreView = (index, view) ->
 		$scope.selectedScoreView[index] = view
-
-
-	sendHeartbeat = ->
-		Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
-			true
 

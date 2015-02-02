@@ -31,6 +31,11 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		nameOrFragment = inputArray[inputArray.length - 1]
 
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
+			if matches?.halt
+				alert(matches.msg)
+				location.reload true
+				return
+
 			if not matches or matches?.length < 1
 				matches = []
 
@@ -123,7 +128,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 				widgetSrv.removeWidget(widget_id) if remove_widget
 				$scope.$apply()
 			else
-				alert(if returnData?.msg? then returnData.msg else 'There was an unkown error saving your changes.')
+				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
 
 	$scope.checkForWarning = (user) ->
 		if user.isCurrentUser and user.access <= 30
