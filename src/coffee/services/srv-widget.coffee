@@ -31,7 +31,9 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 		dfd.promise()
 
 	getWidgetInfo = (id, callback) ->
-		Materia.Coms.Json.send 'widgets_get', [[id]], callback
+		if id != null
+			id = [[id]]
+		Materia.Coms.Json.send 'widgets_get', id, callback
 
 	saveWidget = (_params, callback) ->
 		params =
