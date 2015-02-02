@@ -16,16 +16,15 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 		$scope.showRefreshArrow = true
 
 	loadWidgets = (fakeDelay) ->
-		Materia.Set.Throbber.startSpin('#list-container', {withBackground:true, withDelay:false})
-
 		if not fakeDelay?
 			fakeDelay = 1
 
 		setTimeout ->
 			widgetSrv.getWidgets().then (widgets) ->
-				widgetsLoaded = true
+				if widgets?.halt
+					return
 
-				Materia.Set.Throbber.stopSpin('#list-container')
+				widgetsLoaded = true
 
 				len = widgets.length
 				curWidget = null
@@ -37,10 +36,6 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 
 				$scope.widgets = widgets
 				$scope.$apply()
-
-			,
-				ignoreCache: true,
-
 		, fakeDelay
 
 	$scope.highlight = (widget) ->
@@ -77,23 +72,25 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 
 	setDisplayState = (newSection) ->
 		$scope.section = newSection
-		$('body')
-			.removeClass('selectWidget')
-			.removeClass('widgetSelected')
-			.removeClass('progress')
-			.addClass(newSection)
+		setTimeout ->
+			$('body')
+				.removeClass('selectWidget')
+				.removeClass('widgetSelected')
+				.removeClass('progress')
+				.addClass(newSection)
 
-		if newSection == 'selectWidget'
-			if selectedWidget?
-				$('.cancel-button').show()
+			if newSection == 'selectWidget'
+				if selectedWidget?
+					$('.cancel-button').show()
 
-			if !widgetsLoaded
-				loadWidgets()
+				if !widgetsLoaded
+					loadWidgets()
 
-			$('#select-widget').fadeIn(CHANGE_SECTION_FADE_DELAY_MS)
-		else if newSection == 'progress'
-			$('.progressbar').progressbar()
-			startProgressBar()
+				$('#select-widget').fadeIn(CHANGE_SECTION_FADE_DELAY_MS)
+			else if newSection == 'progress'
+				$('.progressbar').progressbar()
+				startProgressBar()
+		, 0
 
 	getRandInt = (min, max) -> Math.floor(Math.random() * (max - min + 1)) + min
 
