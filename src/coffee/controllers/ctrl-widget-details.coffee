@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'widgetDetailsController', ($scope) ->
+app.controller 'widgetDetailsController', ($scope, widgetSrv) ->
 
 	$scope.widget =
 		icon: "/assets/img/default/default-icon-275.png"
@@ -20,7 +20,7 @@ app.controller 'widgetDetailsController', ($scope) ->
 	nameArr = window.location.pathname.replace("/widgets/", '').split("/")
 	widgetID = nameArr.pop().split('-').shift()
 
-	Materia.Coms.Json.send 'widgets_get', [[widgetID]], (data) ->
+	widgetSrv.getWidgetInfo widgetID, (data) ->
 		populateDefaults(data[0])
 		if nameArr.length > 1
 			$scope.goback =
