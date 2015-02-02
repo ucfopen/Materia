@@ -37,12 +37,12 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		if $scope.selected.editable
 			Materia.Coms.Json.send 'widget_instance_lock',[$scope.selected.widget.id], (success) ->
 				if success
-					if $scope.selected.shareable
-						$scope.show.editPublishedWarning = true
-					else
+					if $scope.selected.widget.is_draft
 						window.location = $scope.selected.edit
+					else
+						$scope.show.editPublishedWarning = true
 				else
-					alert('This widget is currently locked you will be able to edit this widget when it is no longer being edited by somebody else.')
+					alert('This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.')
 				$scope.$apply()
 
 		return false
