@@ -78,6 +78,7 @@ describe 'Settings page', ->
             .click('#avatar_gravatar')
             .click('#notify')
             .click('form button.action_button')
+            .waitFor(".action_button[disabled]", 5000)
 
             # check that new options are set
             # .waitFor('.settingSaveAlert', 7000)
