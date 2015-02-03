@@ -20,7 +20,7 @@ return [
 	/**************************************************************************/
 	'always_load' => [
 		'packages' => [
-			// 'ucfauth',
+			'materiaauth',
 		],
 	],
 	'packages'  => array(
