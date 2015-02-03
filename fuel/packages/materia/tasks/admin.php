@@ -196,7 +196,7 @@ class Admin extends \Basetask
 				foreach ($tables as $table)
 				{
 					$table_name = array_values($table)[0];
-					\Cli::write("!!! Dropping Table: {$table_name}", 'Red');
+					\Cli::write("!!! Dropping Table: {$table_name}", 'red');
 					pause(2); // pause here to let the user ctrl c if they made a huge mistake
 					\DBUtil::drop_table($table_name, $db_name);
 				}
