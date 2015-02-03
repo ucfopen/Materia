@@ -184,6 +184,9 @@ class Admin extends \Basetask
 			// I believe it's because the config under active is a duplicate of another db
 			if ($db_name == 'active') continue;
 
+			// Only operate on MySQL (bypasses the "redis" problem)
+			if (empty($db['connection']['dsn']) || stripos($db['connection']['dsn'], 'mysql') === false) continue;
+
 			if ( ! $skip_prompts)
 			{
 				\Cli::write("Truncate all tables in ".\Fuel::$env." $db_name?", 'red');
