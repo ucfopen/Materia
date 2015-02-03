@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'widgetCatalogCtrl', ($scope) ->
+app.controller 'widgetCatalogCtrl', ($scope, widgetSrv) ->
 
 	featureKeys =
 		customizable: 'Customizable'
@@ -31,7 +31,7 @@ app.controller 'widgetCatalogCtrl', ($scope) ->
 					break
 
 	# Load the widgets
-	Materia.Coms.Json.send 'widgets_get', null, (widgets) ->
+	widgetSrv.getWidgetInfo null, (widgets) ->
 		Materia.Set.Throbber.startSpin '.page'
 
 		# setup some default values

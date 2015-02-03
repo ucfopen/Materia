@@ -206,7 +206,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		dfd.reject('Flash Player required.') if $scope.type == "noflash"
 
-		Materia.Coms.Json.send 'widget_instances_get', [[$scope.inst_id]], (widgetInstances) ->
+		widgetSrv.getWidget $scope.inst_id, (widgetInstances) ->
 			dfd.reject('Unable to get widget info.') if widgetInstances.length < 1
 			instance = widgetInstances[0]
 			type = instance.widget.player.split('.').pop()
