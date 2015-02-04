@@ -107,17 +107,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		user.expires = null
 		user.expiresText = getExpiresText(user.expires)
 
-	toggleShareWidgetContainer = (state) ->
-		$shareWidgetContainer = $('.share-widget-container')
-
-		unless state?
-			state = $shareWidgetContainer.hasClass('closed') ? 'open' : 'close'
-
-		if state == 'open'
-			$shareWidgetContainer.switchClass('closed', '', 200)
-		else if state == 'close'
-			$shareWidgetContainer.switchClass('', 'closed', 200)
-
 	getDateForBeginningOfTomorrow = ->
 		d = new Date()
 		d.setDate(d.getDate() + 1)
