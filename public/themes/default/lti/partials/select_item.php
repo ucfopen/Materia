@@ -10,7 +10,7 @@
 			<ul>
 				<li ng-repeat="widget in widgets | filter:query" ng-class="{ draft: widget.draft, selected: widget.selected }" ng-click="highlight(widget)">
 					<div class="widget-info">
-						<img class="widget-icon" src="{{ widget.img }}">
+						<img class="widget-icon" ng-src="{{ widget.img }}">
 						<h2 class="searchable">{{ widget.name }}</h2>
 						<h3 class="searchable">{{ widget.widget.name }}</h3>
 						<span ng-show="widget.is_draft" class="draft-label">Draft</span>
@@ -33,7 +33,7 @@
 	<section id="progress" ng-show="section == 'progress'">
 		<div class="widget-info">
 			<h1>{{ selectedWidget.name }}</h1>
-			<img class="widget-icon" src="{{ selectedWidget.img }}" />
+			<img class="widget-icon" ng-src="{{ selectedWidget.img }}" />
 		</div>
 		<div class="progress-container">
 			<span>{{ !easterMode ? "Connecting your widget..." : "Reticulating splines..." }}</span>

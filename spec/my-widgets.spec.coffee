@@ -44,7 +44,7 @@ describe 'My Widgets Page', ->
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('My Widgets | Materia')
-            .waitFor '.directions.unchosen p', 5000
+            .waitFor '.directions.unchosen p:visible', 5000
             .getText '.directions.unchosen p', (err, text) ->
                 expect(err).toBeNull()
                 expect(text).toBe('Choose a widget from the list on the left.')

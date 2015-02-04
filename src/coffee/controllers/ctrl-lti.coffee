@@ -23,6 +23,8 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 			widgetSrv.getWidgets().then (widgets) ->
 				if widgets?.halt
 					return
+				if !widgets
+					widgets = []
 
 				widgetsLoaded = true
 

@@ -184,6 +184,9 @@ class Admin extends \Basetask
 			// I believe it's because the config under active is a duplicate of another db
 			if ($db_name == 'active') continue;
 
+			// Only operate on MySQL (bypasses the "redis" problem)
+			if (empty($db['connection']['dsn']) || stripos($db['connection']['dsn'], 'mysql') === false) continue;
+
 			if ( ! $skip_prompts)
 			{
 				\Cli::write("Truncate all tables in ".\Fuel::$env." $db_name?", 'red');
@@ -196,8 +199,8 @@ class Admin extends \Basetask
 				foreach ($tables as $table)
 				{
 					$table_name = array_values($table)[0];
-					\Cli::write("!!! Dropping Table: {$table_name}", 'Red');
-					pause(2); // pause here to let the user ctrl c if they made a huge mistake
+					\Cli::write("!!! Dropping Table: {$table_name}", 'red');
+					sleep(2); // pause here to let the user ctrl c if they made a huge mistake
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}

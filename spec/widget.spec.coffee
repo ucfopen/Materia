@@ -129,6 +129,7 @@ describe 'When I create a widget', ->
             .getText '#widget_'+instanceID+'.gameSelected li.title', (err, selectedTitle) ->
                 expect(err).toBeNull()
                 expect(selectedTitle).toBe(title)
+            .waitFor('#copy_widget_link:not([disabled])', 5000)
             .click('#copy_widget_link')
             .isVisible('.ng-modal-title')
             .getText '.copy .ng-modal-title', (err, text) ->
