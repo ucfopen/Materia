@@ -10,7 +10,6 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	# Refactored variables
 	_widget = null
 	_dateRanges = null
-	_hasNoWidgetsFlag = false
 	_scoreData = null
 	_storageData = null
 
