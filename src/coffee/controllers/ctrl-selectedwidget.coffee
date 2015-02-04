@@ -56,24 +56,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 		"<iframe src='#{BASE_URL}embed/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}'>#{draft}</a></iframe>"
 
-	toggleShareWidgetContainer = (state) ->
-		$shareWidgetContainer = $('.share-widget-container')
-
-		unless state?
-			state = $shareWidgetContainer.hasClass('closed') ? 'open' : 'close'
-
-		if state == 'open'
-			$shareWidgetContainer.switchClass('closed', '', 200)
-		else if state == 'close'
-			$shareWidgetContainer.switchClass('', 'closed', 200)
-
 	$scope.enableOlderScores = ->
 		$scope.show.olderScores = true
-
-	getDateForBeginningOfTomorrow = ->
-		d = new Date()
-		d.setDate(d.getDate() + 1)
-		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	$scope.showCopyDialog = ->
 		$scope.show.copyModal = true if $scope.selected.accessLevel != 0
@@ -122,6 +106,22 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.removeExpires = (user) ->
 		user.expires = null
 		user.expiresText = getExpiresText(user.expires)
+
+	toggleShareWidgetContainer = (state) ->
+		$shareWidgetContainer = $('.share-widget-container')
+
+		unless state?
+			state = $shareWidgetContainer.hasClass('closed') ? 'open' : 'close'
+
+		if state == 'open'
+			$shareWidgetContainer.switchClass('closed', '', 200)
+		else if state == 'close'
+			$shareWidgetContainer.switchClass('', 'closed', 200)
+
+	getDateForBeginningOfTomorrow = ->
+		d = new Date()
+		d.setDate(d.getDate() + 1)
+		new Date(d.getFullYear(), d.getMonth(), d.getDate())
 
 	getExpiresText = (timestamp) ->
 		timestamp = parseInt(timestamp, 10)
