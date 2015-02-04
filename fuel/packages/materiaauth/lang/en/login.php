@@ -1,9 +1,9 @@
 <?
 return [
 	'links' => [
-		'a' => ['href' => 'https://my.ucf.edu/nid.html', 'title' => 'Lookup NID'],
-		'b' => ['href' => 'http://mynid.ucf.edu/', 'title' => 'Reset Password'],
+		'a' => ['href' => '', 'title' => 'Lookup Username'],
+		'b' => ['href' => '', 'title' => 'Reset Password'],
 	],
-	'user' => 'UCF NID',
-	'password' => 'NID Password',
+	'user' => 'Materia Username',
+	'password' => 'Materia Password',
 ];
