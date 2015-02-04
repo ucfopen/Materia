@@ -12,7 +12,7 @@ student =
 	password: 'kogneato'
 
 module.exports = (widget, callback) ->
-	client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser} })
+	client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser}, logLevel: "silent" })
 	client.init()
 
 	client
@@ -27,10 +27,10 @@ module.exports = (widget, callback) ->
 
 	client
 		.url('http://localhost:8080/widgets')
-		.waitFor('.store_main')
-		.waitFor('.' + widget)
-		.click('.' + widget + ' a')
-		.waitFor('#demoLink')
+		.waitFor('.store_main', 5000)
+		.waitFor('.' + widget, 5000)
+		.click('.' + widget + ' a', 5000)
+		.waitFor('#demoLink', 5000)
 		.execute "return location.href", null, (err, result) ->
 			client
 				.url(result.value + '/demo')
