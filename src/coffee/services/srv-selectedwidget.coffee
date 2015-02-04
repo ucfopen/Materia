@@ -103,9 +103,6 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 			return range if timestamp >= parseInt(range.start, 10) && timestamp <= parseInt(range.end, 10)
 		return undefined
 
-		if flag
-			$rootScope.$broadcast 'selectedWidget.hasStorage'
-
 	getStorageData = ->
 
 		deferred = $q.defer()
@@ -193,12 +190,10 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	set : set
 	get : get
 	getSelectedId: getSelectedId
-	# setSelectedId: setSelectedId
 	getScoreSummaries: getScoreSummaries
 	getUserPermissions: getUserPermissions
 	getPlayLogsForSemester: getPlayLogsForSemester
 	getDateRanges: getDateRanges
-	# getCurrentSemester: getCurrentSemester
 	getSemesterFromTimestamp: getSemesterFromTimestamp
 	getStorageData: getStorageData
 	getMaxRows : getMaxRows
