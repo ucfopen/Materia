@@ -307,6 +307,10 @@ return [
 		],
 
 		'css' => [
+			'upload' => [
+				'files' => ['upload.css'],
+				'enabled' => false,
+			],
 			'widget_play' => [
 				'files' => ['play.css'],
 				'enabled' => false,
