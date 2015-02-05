@@ -1,16 +1,16 @@
 # REQUIRE
+# NOTE: put non-production requires inside tasks
 gulp          = require 'gulp'
 coffee        = require 'gulp-coffee'
-watch         = require 'gulp-watch'
 sass          = require 'gulp-sass'
 concat        = require 'gulp-concat'
 uglify        = require 'gulp-uglify' # minify and mangle js
 minifyCss     = require 'gulp-minify-css'
-livereload    = require 'gulp-livereload' # reload the browser when files change
 ngAnnotate    = require 'gulp-ng-annotate' # protect angular dependency injection from minify
-notifier      = require 'node-notifier'
+# livereload    = require 'gulp-livereload' # reload the browser when files change
 
 notify = (message) ->
+	notifier = require 'node-notifier'
 	notifier.notify
 		title: "Materia Big Gulp"
 		message: message
@@ -136,6 +136,7 @@ for group in coffeeScripts
 gulp.task 'js', dynamicTasks # add a js task to run all dynamic js-* tasks
 
 gulp.task 'watch', ->
+	watch = require 'gulp-watch'
 	gulp.watch "#{path.css}**/*.scss", ['css']
 
 	# watch all dynamic js-* tasks
