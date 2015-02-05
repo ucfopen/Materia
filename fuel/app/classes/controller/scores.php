@@ -221,7 +221,7 @@ class Controller_Scores extends Controller
 
 		$inst->get_qset($inst_id);
 
-		$questions = $inst->qset->data['items'];
+		$questions = \Materia\Widget_Instance::find_questions($inst->qset->data);
 
 		if (isset($questions[0]) && isset($questions[0]['items']))
 		{
@@ -234,17 +234,17 @@ class Controller_Scores extends Controller
 
 		foreach ($questions as $question)
 		{
-			foreach ($question['questions'] as $q)
+			foreach ($question->questions as $q)
 			{
 				$csv_question = [];
-				$csv_question['question_id'] = $question['id'];
+				$csv_question['question_id'] = $question->id;
 				$csv_question['id'] = isset($q['id']) ? $q['id'] : '';
-				$csv_question['options'] = $question['options'];
+				$csv_question['options'] = $question->options;
 				$csv_question['text'] = $q['text'];
 				$csv_questions[] = $csv_question;
 			}
 
-			foreach ($question['options'] as $key => $value)
+			foreach ($question->options as $key => $value)
 			{
 				if ( ! in_array($key, $options))
 				{
@@ -252,13 +252,13 @@ class Controller_Scores extends Controller
 				}
 			}
 
-			foreach ($question['answers'] as $answer)
+			foreach ($question->answers as $answer)
 			{
 				$csv_answer = [];
 				$csv_answer['id'] = isset($answer['id']) ? $answer['id'] : '';
 				$csv_answer['text'] = isset($answer['text']) ? $answer['text'] : '';
 				$csv_answer['value'] = isset($answer['value']) ? $answer['value'] : '';
-				$csv_answer['question_id'] = $question['id'];
+				$csv_answer['question_id'] = $question->id;
 				$csv_answers[] = $csv_answer;
 			}
 		}
