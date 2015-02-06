@@ -4,13 +4,12 @@ app.service 'userServ', ($q, $rootScope) ->
 
 	_me = null
 
-	buildUser = (name = '', avatar = '', loggedIn = false, role = 'Student', notify = false, beardMode = false) ->
+	buildUser = (name = '', avatar = '', loggedIn = false, role = 'Student', notify = false) ->
 		name: name
 		avatar: avatar
 		loggedIn: loggedIn
 		role: role
 		notify: notify
-		beardMode: beardMode
 
 	getCurrentUserFromDom = ->
 		user = document.getElementById('current-user')
@@ -20,8 +19,7 @@ app.service 'userServ', ($q, $rootScope) ->
 			loggedIn: user.getAttribute("data-logged-in")
 			role: user.getAttribute("data-role")
 			notify: user.getAttribute("data-notify")
-			beardMode: user.getAttribute("data-beard-mode")
-		buildUser userData.name, userData.avatar, userData.loggedIn == 'true', userData.role, userData.notify == 'true', userData.beardMode == 'true'
+		buildUser userData.name, userData.avatar, userData.loggedIn == 'true', userData.role, userData.notify == 'true'
 
 	getAvatar = (user, size = 24) ->
 		user.avatar.replace(/s=\d+/, "s=#{size}").replace(/size=\d+x\d+/, "size=#{size}x#{size}")

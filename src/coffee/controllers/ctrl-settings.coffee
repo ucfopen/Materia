@@ -5,14 +5,12 @@ app.controller 'settingsController', ($scope, $http, userServ, apiServ, $log) ->
 	$scope.user = userServ.getCurrentUser()
 	$scope.avatar = userServ.getCurrentUserAvatar(100)
 	$scope.useGravatar = $scope.user.avatar.indexOf('gravatar') > -1
-	$scope.showBeardMode = $scope.user.beardMode == true
 
 	$scope.saveSettings = ->
 		Materia.Set.Throbber.startSpin '.page'
 
 		newSettings =
 			notify: $scope.user.notify
-			beardMode: $scope.user.beardMode == true
 			useGravatar: $scope.useGravatar
 
 		$http.post('/api/user/settings', newSettings)
