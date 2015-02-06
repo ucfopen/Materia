@@ -7,8 +7,7 @@ class Model_User extends Orm\Model
 
 	protected static $_default_profile_fields = [
 		'useGravatar' => true,
-		'notify'      => true,
-		'beardMode'   => false,
+		'notify'      => true
 	];
 
 	protected static $_properties = [

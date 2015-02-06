@@ -1,4 +1,4 @@
-<div ng-controller="MyWidgetsController">
+<div ng-controller="MyWidgetsController" beardable>
 	<div class="qtip top nowidgets" ng-show="widgets.widgetList.length == 0">Click here to start making a new widget!</div>
 	<div class="container">
 		<div ng-controller="SelectedWidgetController">
