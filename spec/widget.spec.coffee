@@ -16,7 +16,6 @@ describe 'When I create a widget', ->
     instanceID = null
     title = 'Selenium Test Enigma Widget '+Math.random()
     copyTitle = "#{title} COPY TEST"
-
     it 'it should update hash url', (done) ->
         client.url('http://localhost:8080/widgets')
             .getTitle (err, title) ->
@@ -26,7 +25,9 @@ describe 'When I create a widget', ->
             .moveToObject('.widget.enigma')
             .click('.infocard:hover .header')
             .waitFor('#createLink', 7000)
+            .pause 1000
             .click('#createLink')
+            .pause 3000
             .getTitle (err, title) ->
                 expect(err).toBeNull()
                 expect(title).toBe('Create Widget | Materia')
@@ -36,13 +37,17 @@ describe 'When I create a widget', ->
             .setValue('.intro.show input', title)
             .click('.intro.show input[type=button]')
             .setValue('#category_0', 'Test')
-            .click('button.add')
+            .pause 500
+            .click('.questionholder button.add')
+            .pause 500
             .setValue('#question_text', 'Test question')
+            .pause 500
             .frame(null) # switch back to main content
-            .click('#creatorSaveBtn')
-            .waitFor('#creatorSaveBtn.saved', 7000)
-            .execute "return document.location.href.split('#')[1];", null, (err, result) ->
+            .execute "$('#creatorSaveBtn').click();", null, (err,result) -> true
+            .pause 5000
+            .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 instanceID = result.value
+                console.log instanceID
                 expect(err).toBeNull()
                 expect(instanceID.length).toBe(5)
             .call(done)
