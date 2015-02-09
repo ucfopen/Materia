@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv) ->
+app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv, beardServ) ->
 	$scope.baseUrl = BASE_URL
 	$scope.widgets =
 		widgetList: []
@@ -63,7 +63,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		else
 			angular.forEach data, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
-				widget.beard = window.BEARDS[Math.floor(Math.random() * window.BEARDS.length)]
+				widget.beard = beardServ.getRandomBeard()
 
 			$scope.$apply ->
 				$scope.widgets.widgetList = data.sort (a,b) -> return b.created_at - a.created_at
@@ -188,4 +188,3 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 
 	$scope.setScoreView = (index, view) ->
 		$scope.selectedScoreView[index] = view
-

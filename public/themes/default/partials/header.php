@@ -9,7 +9,6 @@
 			data-name="<?= "{$me->first} {$me->last}" ?>"
 			data-avatar="<?= \Materia\Utils::get_avatar() ?>"
 			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
-			data-beard-mode="<?= $me->profile_fields['beardMode'] ? 'true' : 'false' ?>"
 			data-notify="<?= $me->profile_fields['notify'] ? 'true' : 'false' ?>"
 		/>
 	<? endif ?>

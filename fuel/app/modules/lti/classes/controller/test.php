@@ -48,7 +48,7 @@ class Controller_Test extends \Controller_Rest
 				$user                 = \Model_User::find($user_id);
 				$user->first          = '_LTI_INSTRUCTOR_';
 				$user->last           = '_LTI_INSTRUCTOR_';
-				$user->profile_fields = ['notify' => true, 'avatar' => 'gravatar', 'beardMode' => false];
+				$user->profile_fields = ['notify' => true, 'avatar' => 'gravatar'];
 				$user->save();
 
 				// add basic_author permissions

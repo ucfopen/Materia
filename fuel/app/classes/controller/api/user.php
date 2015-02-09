@@ -25,7 +25,6 @@ class Controller_Api_User extends Controller_Rest
 		$success   = false;
 		$set_meta  = [
 			'useGravatar' => Input::json('useGravatar', null),
-			'beardMode'   => Input::json('beardMode', null),
 			'notify'      => Input::json('notify', null),
 		];
 

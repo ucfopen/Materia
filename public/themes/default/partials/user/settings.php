@@ -38,12 +38,6 @@
 				</li>
 			</ul>
 
-			<span ng-if="showBeardMode == true">
-				<h3>Extras</h3>
-				<input type="checkbox" id="activate_beard_mode" name="activate_beard_mode" ng-model="user.beardMode" required/>
-				<label for="activate_beard_mode">Activate Beard Mode</label>
-			</span>
-
 			<p>
 				<button type="submit" class="action_button" ng-disabled="!settingsForm.$dirty">Save</button>
 			</p>
