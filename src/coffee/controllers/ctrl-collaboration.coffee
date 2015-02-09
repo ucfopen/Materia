@@ -109,7 +109,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 			# Do not allow saving if a demotion dialog is on the screen
 			return if user.warning
 
-			remove_widget = (user.isCurrentUser and user.remove)
+			remove_widget = (user.isCurrentUser and user.remove) if not remove_widget
 
 			access = {}
 			access[user.access] = !user.remove
