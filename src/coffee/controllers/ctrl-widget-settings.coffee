@@ -180,7 +180,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			if errors.missing > 0 then $scope.error += "missing"
 			$scope.error += "."
 
-		if $scope.error == '' and $scope.times[0] > $scope.times[1]
+		if $scope.error == '' and $scope.times[0] > $scope.times[1] and $scope.times[1] != -1
 			$scope.error = "The widget cannot be closed before it becomes available."
 
 		if $scope.error == ''
