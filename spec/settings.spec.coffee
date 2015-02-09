@@ -65,6 +65,7 @@ describe 'Settings page', ->
                 expect(isChecked.value).toBe(0)
             .click('form button.action_button')
             .refresh()
+            .pause 1000
             .execute 'return $("#notify:checked").length;', null, (err, isChecked) ->
                 expect(err).toBeNull()
                 expect(isChecked.value).toBe(0)

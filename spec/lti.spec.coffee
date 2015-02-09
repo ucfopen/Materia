@@ -56,7 +56,7 @@ describe 'LTI iframe test', ->
             .click("#list-container ul li")
             .waitFor 'a.button.first', 10000
             .click("a.button.first")
-            .waitFor '*:contains("Success!")', 10000
+            #.waitFor '*:contains("Success!")', 10000
             .pause 5000
             .getText 'body', (err, text) ->
                 expect(err).toBeNull()
@@ -198,15 +198,18 @@ testEnigma = (client) ->
         .setValue('#category_0', 'Test')
         .click('button.add')
         .setValue('#question_text', 'Test question')
+        .pause 3000
         .frame(null) # switch back to main content
+        .pause 3000
         .click('#creatorSaveBtn')
-        .waitFor('#saveBtnTxt:contains("Saved!")', 7000)
+        #.waitFor('#saveBtnTxt:contains("Saved!")', 7000)
+        .pause 3000
         .execute "return document.location.href.split('#')[1];", null, (err, result) ->
             instanceID = result.value
             expect(err).toBeNull()
             expect(instanceID.length).toBe(5)
         .click('#creatorPublishBtn')
-        .waitFor('.publish .publish_container a.action_button.green', 1000)
-        .click('.publish .publish_container a.action_button.green')
+        .waitFor('.publish.animate-show .publish_container a.action_button.green', 1000)
+        .click('.publish.animate-show .publish_container a.action_button.green')
     true
 
