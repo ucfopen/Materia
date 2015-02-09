@@ -192,7 +192,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'my_widgets']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'jqmodal', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
