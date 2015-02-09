@@ -2,7 +2,7 @@
 
 namespace Fuel\Tasks;
 
-class Widget  extends \Basetask
+class Widget extends \Basetask
 {
 	//Grants widget visibility to specified user in catalog
 	public static function set_user_catalog_visibility($user_name, $widget_id, $visibility = null)
@@ -362,64 +362,6 @@ class Widget  extends \Basetask
 		}
 	}
 
-	private static function extract_widget($widget_file)
-	{
-		$extract_location = self::tempdir();
-		if ( ! $extract_location)
-		{
-			self::end('Unable to extract widget.', true);
-			return false;
-		}
-
-		// assume it's a zip, attempt to extract
-		try
-		{
-			\Cli::write('Extracting');
-			$zip = new \ZipArchive();
-			$zip->open($widget_file);
-			$zip->extractTo($extract_location);
-			$zip->close();
-			return realpath($extract_location);
-		}
-		catch (\Exception $e)
-		{
-			// clean up after ourselves by removing the extracted directory.
-			\Cli::write("Error extracting $widget_file to $extract_location");
-			\Cli::write('Error: '.$e->getMessage());
-			$file_area = \File::forge(['basedir' => null]);
-			$file_area->delete_dir($extract_location);
-		}
-
-		return false;
-	}
-
-	private static function get_widget_by_clean_name($clean_name)
-	{
-		$engine = \DB::select()
-					->from('widget')
-					->where('clean_name', $clean_name)
-					->execute()
-					->as_array();
-
-		return $engine;
-	}
-
-	private static function tempdir()
-	{
-		$tempfile = tempnam(sys_get_temp_dir(), '');
-		if (file_exists($tempfile))
-		{
-			unlink($tempfile);
-		}
-		mkdir($tempfile);
-		if (is_dir($tempfile))
-		{
-			return $tempfile;
-		}
-
-		return false;
-	}
-
 	public static function install($glob_str = false)
 	{
 		if (\Cli::option('help') || \Cli::option('?'))
@@ -537,15 +479,37 @@ class Widget  extends \Basetask
 	private static function install_one($widget_file, $validate_only = false, $assume_upgrade = false, $force = false, $db_only = false)
 	{
 		try {
+			self::login_as_admin();
+
 			$file_area = \File::forge(['basedir' => null]);
 			$upgrade_id = 0;
-			$dir = self::extract_widget($widget_file);
-			self::validate_widget($dir);
-			$manifest_data = self::get_manifest_data($dir);
+
+			\Cli::write('Extracting');
+			$dir = \Materia\Widget_Installer::extract_widget($widget_file);
+
+			if (!$dir)
+			{
+				\Cli::write("Error extracting $widget_file");
+				\Cli::write('Failed to extract widget', 'red');
+				return;
+			}
+
+			$valid = \Materia\Widget_Installer::validate_widget($dir);
+
+			$manifest_data = \Materia\Widget_Installer::get_manifest_data($dir);
 			$records_scores = $manifest_data['score']['is_scorable'];
 
 			// score module and test score module are now mandatory, even if they're not functional.
-			self::validate_score_modules($dir);
+			$scores_valid = \Materia\Widget_Installer::validate_score_modules($dir);
+			switch ($scores_valid)
+			{
+				case -2:
+					self::abort('Missing score module file.');
+					break;
+				case -1:
+					self::abort('Missing test score module file.');
+					break;
+			}
 
 			if ($validate_only)
 			{
@@ -555,7 +519,7 @@ class Widget  extends \Basetask
 
 			$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
 
-			$matching_widgets = self::get_widget_by_clean_name($clean_name);
+			$matching_widgets = \Materia\Widget_Installer::get_existing($clean_name);
 
 			$package_hash = md5_file($widget_file);
 
@@ -602,45 +566,30 @@ class Widget  extends \Basetask
 				}
 			}
 
-			$params = [
-				'name'                => $manifest_data['general']['name'],
-				'created_at'          => time(),
-				'group'               => $manifest_data['general']['group'],
-				'flash_version'       => $manifest_data['files']['flash_version'],
-				'height'              => $manifest_data['general']['height'],
-				'width'               => $manifest_data['general']['width'],
-				'is_qset_encrypted'   => (string)(int)$manifest_data['general']['is_qset_encrypted'],
-				'is_answer_encrypted' => (string)(int)$manifest_data['general']['is_answer_encrypted'],
-				'is_storage_enabled'  => (string)(int)$manifest_data['general']['is_storage_enabled'],
-				'is_playable'         => (string)(int)$manifest_data['general']['is_playable'],
-				'is_editable'         => (string)(int)$manifest_data['general']['is_editable'],
-				'is_scorable'         => (string)(int)$records_scores,
-				'in_catalog'          => (string)(int)$manifest_data['general']['in_catalog'],
-				'clean_name'          => $clean_name,
-				'api_version'         => (string)(int)$manifest_data['general']['api_version'],
-				'package_hash'        => $package_hash,
-				'score_module'        => $manifest_data['score']['score_module']
-			];
-
-			if (isset($manifest_data['files']['creator']))
-			{
-				$params['creator'] = $manifest_data['files']['creator'];
-			}
-			if (isset($manifest_data['files']['player']))
-			{
-				$params['player'] = $manifest_data['files']['player'];
-			}
+			$params = \Materia\Widget_Installer::generate_install_params($manifest_data, $package_hash);
 
 			$demo_instance_id = null;
 
 			// UPGRADE AN EXISTING WIDGET
 			if ( ! empty($upgrade_id))
 			{
-				\Cli::write('Upgrading exising widget', 'green');
-				$existing_widget = self::upgrade_widget($upgrade_id, $params, $package_hash, $force);
-				if ( ! $existing_widget)
+				\Cli::write('Upgrading existing widget', 'green');
+				$existing_widget = \Materia\Widget_Installer::upgrade_widget($upgrade_id, $params, $package_hash, $force);
+
+				if (is_int($existing_widget))
 				{
-					return;
+					switch ($existing_widget)
+					{
+						case -1:
+							\Cli::write('Not upgrading since existing Widget not found: '.$widget_id, 'red');
+							return;
+						case -2:
+							\Cli::write('Not upgrading since installed widget appears to be the same.', 'red');
+							return;
+						case -3:
+							\Cli::write('Existing Widget not updatable: '.$widget_id, 'red');
+							return;
+					}
 				}
 
 				$id = $existing_widget->id;
@@ -654,73 +603,42 @@ class Widget  extends \Basetask
 			else
 			{
 				\Cli::write('Installing brand new widget', 'green');
-				list($id, $num) = \DB::insert('widget')
-					->set($params)
-					->execute();
+				list($id, $num) = \Materia\Widget_Installer::install_db($params);
 			}
 
+			\Cli::write("Existing demo id: $demo_instance_id", 'yellow');
+
 			// ADD the Demo
-			if ($demo_id = self::install_demo($id, $dir, $demo_instance_id))
+			$demo_id = \Materia\Widget_Installer::install_demo($id, $dir, $demo_instance_id);
+
+			if (is_int($demo_id))
+			{
+				switch ($demo_id)
+				{
+					case -1:
+						self::abort("Couldn't upload demo assets.");
+						return;
+					case -2:
+						self::abort('Unable to create demo instance.', true);
+						return;
+					default:
+						self::abort("Unknown error: $demo_id", true);
+						return;
+				}
+			}
+			else
 			{
 				\Cli::write('Demo installed', 'green');
 				$manifest_data['meta_data']['demo'] = $demo_id;
 			}
 
-			// add in the metadata
-			foreach ($manifest_data['meta_data'] as $metadata_key => $metadata_value)
-			{
-				if (is_array($metadata_value))
-				{
-					foreach ($metadata_value as $metadata_child_item)
-					{
-						self::insert_metadata($id, $metadata_key, $metadata_child_item);
-					}
-				}
-				else
-				{
-					self::insert_metadata($id, $metadata_key, $metadata_value);
-				}
-			}
+			\Materia\Widget_Installer::add_manifest($id, $manifest_data);
 
 			// move files
 			if ( ! $db_only)
 			{
 				// move score module
-				$score_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
-				$new_score_module = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
-				if (file_exists($new_score_module))
-				{
-					$file_area->delete($new_score_module);
-				}
-				$file_area->rename($dir.'/_score-modules/score_module.php', $new_score_module);
-
-				// move test
-				$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
-				if (file_exists($new_test))
-				{
-					$file_area->delete($new_test);
-				}
-				$file_area->rename($dir.'/_score-modules/test_score_module.php', $new_test);
-
-				// move spec to the main materia spec folder, if it exists
-				$widgetspec = $dir.'/spec/spec.coffee';
-				if (file_exists($widgetspec)) {
-					$new_spec = "spec/widgets/$clean_name.spec.coffee";
-					if (file_exists($new_spec))
-					{
-						$file_area->delete($new_spec);
-					}
-					$file_area->rename($widgetspec, $new_spec);
-				}
-
-				// delete the score modules folder so it won't get copied over
-				$file_area->delete_dir($dir.'/_score-modules');
-
-				// move widget files
-				// public_widget_dir
-				$new_dir = \Config::get('materia.dirs.engines')."{$id}-{$clean_name}";
-				if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
-				$file_area->copy_dir($dir, $new_dir);
+				\Materia\Widget_Installer::install_widget_files($id, $manifest_data, $dir);
 
 				// @TODO: WHITE LIST FILE TYPES ['.js', '.html', 'htm', 'png', 'jpg', 'css', 'gif', 'swf', 'flv', 'swc']
 				\Cli::write("Widget installed: {$id}-{$clean_name}", 'green');
@@ -730,16 +648,15 @@ class Widget  extends \Basetask
 				\Cli::write('Widget installed to database only.', 'green');
 			}
 
-			$file_area->delete_dir($dir);
 		}
 		catch (\Exception $e)
 		{
 			trace($e);
+			echo $e;
 			\Cli::error($widget_file.' not installed!');
-			$file_area->delete_dir($dir);
-			return;
 		}
 
+		\Materia\Widget_Installer::cleanup($dir);
 		return;
 	}
 
@@ -846,36 +763,9 @@ class Widget  extends \Basetask
 			$yaml_text = str_replace($preprocess_tags[$i], $asset_id, $yaml_text);
 		}
 
-		return $yaml_text;
+		return;
 	}
 
-	// "uploads" an asset
-	private static function sideload_asset($file)
-	{
-		try
-		{
-			$file_area = \File::forge(['basedir' => null]);
-			$ext = pathinfo($file, PATHINFO_EXTENSION);
-			// we need to move the file manually to the media/uploads directory
-			// so process_upload can move it to the correct place
-			$new_temp_filepath = \Config::get('materia.dirs.media').'uploads/'.uniqid().'.'.$ext;
-			$file_area->copy($file, $new_temp_filepath);
-			$asset = \Materia\Widget_Asset_Manager::process_upload(basename($file), $new_temp_filepath);
-
-			return $asset->id;
-		}
-		catch (\Exception $e)
-		{
-			trace($e);
-			// delete our temporary file if necessary:
-			if (file_exists($new_temp_filepath))
-			{
-				$file_area->delete($new_temp_filepath);
-			}
-
-			throw($e);
-		}
-	}
 
 	private static function login_as_admin()
 	{
@@ -897,184 +787,6 @@ class Widget  extends \Basetask
 		{
 			self::abort("Can't find an admin user");
 		}
-	}
-
-	private static function get_manifest_data($dir)
-	{
-		$manifest_data = false;
-		$manifest_file = $dir.'/install.yaml';
-		if ( ! file_exists($manifest_file))
-		{
-			self::abort('Missing manifest yaml file', true);
-		}
-
-		$file_area = \File::forge(['basedir' => null]);
-		$manifest_data = \Format::forge($file_area->read($manifest_file, true), 'yaml')->to_array();
-		return $manifest_data;
-	}
-
-	private static function get_demo_text($dir)
-	{
-		$demo_text = false;
-		$demo_file = $dir.'/demo.yaml';
-		if (file_exists($demo_file))
-		{
-			$file_area = \File::forge(['basedir' => null]);
-			$demo_text = $file_area->read($demo_file, true);
-		}
-
-		return $demo_text;
-	}
-
-	private static function validate_demo($demo_data)
-	{
-		if ( ! isset($demo_data['name']))
-		{
-			self::abort('Missing name in demo', true);
-		}
-
-		if ( ! isset($demo_data['qset']))
-		{
-			self::abort('Missing qset in demo', true);
-		}
-
-		if ( ! isset($demo_data['qset']['data']))
-		{
-			self::abort('Missing qset data in demo', true);
-		}
-
-		if ( ! isset($demo_data['qset']['version']))
-		{
-			self::abort('Missing qset version in demo', true);
-		}
-	}
-
-	// checks to make sure the widget contains the required data.
-	// throws with the reason if not.
-	private static function validate_widget($dir)
-	{
-		// 1. Do we have a manifest yaml file?
-		$manifest_data = self::get_manifest_data($dir);
-
-		// 2. our manifest should have, at least, a general, files, score and metadata sections
-		$missing_sections = array_diff(['general', 'files', 'score', 'meta_data'], array_keys($manifest_data));
-		if (count($missing_sections) > 0)
-		{
-			self::abort('Manifest missing one or more required sections: '.implode(', ', $missing_sections), true);
-		}
-
-		// 3. make sure the general section is correct
-		$general = $manifest_data['general'];
-		self::abort_if_missing_required_attributes('general', $general, ['name', 'group', 'height', 'width', 'is_storage_enabled', 'in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'api_version']);
-		self::abort_if_values_are_not_numeric($general, ['width', 'height']);
-		self::abort_if_values_are_not_boolean($general, ['in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'is_storage_enabled']);
-		// make sure the name matches. we ignore any "_12345678" type suffix, since this would have been added
-		// by extracting the zip, assuming this widget was originally from a zip.
-		basename(preg_replace('/_[0-9]+$/', '', $dir));
-
-
-		// 4. make sure the files section is correct
-		$files = $manifest_data['files'];
-		self::abort_if_missing_required_attributes('files', $files, ['player']);
-		self::abort_if_values_are_not_numeric($files, ['flash_version']);
-		$player_file = $dir.'/'.$files['player'];
-		if ( ! file_exists($player_file))
-		{
-			self::abort('The player file specified in the mainfest ('.$player_file.') could not be found', true);
-		}
-		if (isset($files['creator']))
-		{
-			$creator_file = $dir.'/'.$files['creator'];
-			if ( ! file_exists($creator_file))
-			{
-				self::abort('The creator file specified in the mainfest ('.$creator_file.') could not be found', true);
-			}
-		}
-
-		// 5. make sure score section is correct
-		$score = $manifest_data['score'];
-		self::abort_if_missing_required_attributes('score', $score, ['is_scorable', 'score_module']);
-		self::abort_if_values_are_not_boolean($score, ['is_scorable']);
-
-		// 6. make sure metadata section is correct
-		$metadata = $manifest_data['meta_data'];
-		self::abort_if_missing_required_attributes('meta_data', $metadata, ['about', 'excerpt']);
-	}
-
-	// checks to make sure score module and the score module test exist
-	// if necessary
-	private static function validate_score_modules($dir)
-	{
-		if ( ! file_exists($dir.'/_score-modules/score_module.php'))
-		{
-			self::abort('Missing score module file.');
-		}
-		if ( ! file_exists($dir.'/_score-modules/test_score_module.php'))
-		{
-			self::abort('Missing test score module file.');
-		}
-	}
-
-	private static function abort_if_missing_required_attributes($section_name, $section, $required)
-	{
-		$missing_sections = array_diff($required, array_keys($section));
-		if (count($missing_sections) > 0)
-		{
-			self::abort('Manifest '.$section_name.' section missing one or more required values: '.implode(', ', $missing_sections), true);
-		}
-	}
-
-	private static function abort_if_values_are_not_numeric($section_data, $attributes)
-	{
-		$values = [];
-		foreach ($attributes as $attribute)
-		{
-			if (isset($section_data[$attribute]))
-			{
-				$values[$attribute] = $section_data[$attribute];
-			}
-		}
-
-		$wrong_values = array_filter($values, function($value) {
-			return ! is_numeric($value);
-		});
-
-		if (count($wrong_values) > 0)
-		{
-			self::abort('The following attributes must be numeric: '.implode(', ', array_keys($wrong_values)), true);
-		}
-	}
-
-	private static function abort_if_values_are_not_boolean($section_data, $attributes)
-	{
-		$values = [];
-		foreach ($attributes as $attribute)
-		{
-			if (isset($section_data[$attribute]))
-			{
-				$values[$attribute] = $section_data[$attribute];
-			}
-		}
-
-		$wrong_values = array_filter($values, function($value) {
-			return gettype($value) !== 'boolean';
-		});
-
-		if (count($wrong_values) > 0)
-		{
-			self::abort('The following attributes must be boolean: '.implode(', ', array_keys($wrong_values)), true);
-		}
-	}
-
-	private static function insert_metadata($id, $key, $value)
-	{
-		\DB::insert('widget_metadata')
-			->set([
-				'widget_id' => $id,
-				'name' => $key,
-				'value' => $value
-			])
-			->execute();
 	}
 
 	private static function print_user($user)
@@ -1465,4 +1177,21 @@ class Widget  extends \Basetask
 	{
 		exec("mkdir ".APPPATH."../../static/develop/$name; cd ".APPPATH."../../static/develop/$name; makobuild --scaffold $name html");
 	}
+
+	private static function tempdir()
+	{
+		$tempfile = tempnam(sys_get_temp_dir(), '');
+		if (file_exists($tempfile))
+		{
+			unlink($tempfile);
+		}
+		mkdir($tempfile);
+		if (is_dir($tempfile))
+		{
+			return $tempfile;
+		}
+
+		return false;
+	}
+
 }
