@@ -232,7 +232,6 @@ return [
 			'widget_editor' => [
 				'files' => [
 					'static::materia.set.throbber.js',
-					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'lib/jquery-ui-1.8.21.custom.min.js',
 					'lib/spin.js',
@@ -253,7 +252,6 @@ return [
 					'static::materia.permissions.widget.js',
 					'static::materia.page.notification.js',
 					'static::materia.image.js',
-					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'static::materia.set.throbber.js',
 					'lib/spin.js',
@@ -294,7 +292,6 @@ return [
 			],
 			'widget_play' => [
 				'files' => [
-					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'lib/jquery-ui-1.8.21.custom.min.js',
 					'static::materia.coms.json.js',

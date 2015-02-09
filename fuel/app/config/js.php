@@ -23,7 +23,6 @@ return [
 		'fancybox'   => ['lib::jquery.fancybox-1.3.4.pack.js'],
 		'swfobject'  => ['cdnjs::swfobject/2.2/swfobject.min.js'],
 		'tablock'    => ['lib::tablock.js'],
-		'jqmodal'    => ['lib::jqmodal.js'],
 
 		'plupload'   => [
 			'lib::jquery.plupload.queue.js',
