@@ -38,6 +38,12 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# Whether or not to show the embed view
 	isEmbedded = top.location != self.location
 
+	# Queue of requests
+	pendingRequestQueue = []
+	pendingRequestPromiseQueue = []
+	# Whether or not a queue push is in progress
+	logPushInProgress = false
+
 	# Controls whether the view has a "preview" header bar
 	$scope.isPreview           = false
 
@@ -252,16 +258,47 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		dfd.promise()
 
+	pushPendingLogs = ->
+		return if logPushInProgress
+		logPushInProgress = true
+
+		# This shouldn't happen, but its a sanity check anyhow
+		if pendingRequestQueue.length == 0
+			logPushInProgress = false
+			return
+
+		(Materia.Coms.Json.send 'play_logs_save', pendingRequestQueue[0], (result) ->
+			console.log result
+			if result? && result.score_url?
+				scoreScreenURL = result.score_url
+
+			pendingRequestQueue.pop()
+
+			dfd = pendingRequestPromiseQueue.pop()
+			dfd.resolve()
+
+			logPushInProgress = false
+
+			if pendingRequestQueue.length > 0
+				pushPendingLogs()
+
+		).fail ->
+			console.warn "Play logs failed to send"
+			setTimeout ->
+				logPushInProgress = false
+				pushPendingLogs()
+			, 1000
+
 	sendPendingPlayLogs = ->
 		dfd = $.Deferred()
 
 		if pendingLogs.play.length > 0
 			args = [play_id, pendingLogs.play]
 			if $scope.isPreview then args.push $scope.inst_id
-			Materia.Coms.Json.send 'play_logs_save', args, (result) ->
-				if result? && result.score_url?
-					scoreScreenURL = result.score_url
-				dfd.resolve()
+			pendingRequestQueue.push args
+			pendingRequestPromiseQueue.push dfd
+			pushPendingLogs()
+
 			pendingLogs.play = []
 		else
 			dfd.resolve()
@@ -272,7 +309,10 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		dfd = $.Deferred()
 
 		if !$scope.isPreview and pendingLogs.storage.length > 0
-			Materia.Coms.Json.send 'play_storage_data_save', [play_id, pendingLogs.storage], -> dfd.resolve()
+			Materia.Coms.Json.send 'play_storage_data_save', [play_id, pendingLogs.storage], ->
+				console.log "saved"
+				console.log arguments
+				dfd.resolve()
 			pendingLogs.storage = []
 		else
 			dfd.resolve()
