@@ -245,7 +245,7 @@
 						<textarea id="embed_link" ng-show="embedToggle && selected.shareable">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
-				<div class="scores" ng-show="selected.shareable && selected.widget.widget.is_scorable">
+				<div class="scores" ng-show="selected.widget.widget.is_scorable">
 					<h2>Student Activity</h2>
 					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
 						<span class="arrow_down"></span>
