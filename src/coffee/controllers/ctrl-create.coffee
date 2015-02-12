@@ -145,7 +145,9 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 			creatorPath = WIDGET_URL+widget_info.dir+widget_info.creator
 
 		type = creatorPath.split('.').pop()
-		$scope.$apply -> $scope.type = type
+		$scope.loaded = true
+		$scope.type = type
+		$scope.$apply()
 
 		switch type
 			when 'html'
