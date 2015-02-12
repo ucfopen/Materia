@@ -20,6 +20,7 @@
 						<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
 						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
 						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
+					</dl>
 				</div>
 
 				<a class="infocard" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
@@ -46,7 +47,7 @@
 		<h1>Filter by Features:</h1>
 		<dl class="features">
 			<dt><input ng-model="filters.scorable" type="checkbox" id="filter-scorable" /><label for="filter-scorable">Collects Scores</label></dt>
-			<dd>These widgets are well suited for gaugeing student performance.</dd>
+			<dd>These widgets are well suited for gauging student performance.</dd>
 			<dt><input ng-model="filters.mobile" type="checkbox" id="filter-mobile" /><label for="filter-mobile">Optimized for Mobile</label></dt>
 			<dd>Widgets designed for viewing on mobile devices.</dd>
 			<dt><input ng-model="filters.media" value="Media" type="checkbox" id="filter-media" /><label for="filter-media">Uploadable Media</label></dt>
@@ -58,7 +59,7 @@
 					<li><input ng-model="filters.qa" value="Question/Answer" type="checkbox" id="filter-qa" /><label for="filter-qa">Question/Answer</label></li>
 					<li><input ng-model="filters.mc" value="Multiple Choice" type="checkbox" id="filter-mc" /><label for="filter-mc">Multiple Choice</label></li>
 				</ul>
-			</dd>
+			<!-- </dd> -->
 		</dl>
 	</aside>
 </div>
