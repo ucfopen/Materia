@@ -1,7 +1,7 @@
 <section class="widget" ng-controller="playerCtrl" ng-init="inst_id = '<?= $inst_id ?>'" ng-class="{ preview: isPreview }">
 	<div class="center" ng-show="type == 'flash' || type == 'html'">
 		<header ng-if="isPreview" class="preview-bar"></header>
-		<iframe src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
+		<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
 		<div id="container" ng-if="type =='flash'"></div>
 	</div>
 	<div id="container" ng-if="type =='noflash'">
