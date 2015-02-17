@@ -36,7 +36,7 @@
 	</section>
 
 	<div class="center">
-		<iframe src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
+		<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
 		<div id="container" ng-if="type == 'swf'"></div>
 	</div>
 	<div id="container" ng-if="type == 'noflash'">
