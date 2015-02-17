@@ -74,6 +74,9 @@ return [
 		'core' => [
 			'theme::main.css',
 		],
+		'upload' => [
+			'theme::upload.css',
+		],
 		'fonts' => [
 			'gfonts::css?family=Kameron:700&text=0123456789%25',
 			'gfonts::css?family=Lato:300,400,700,700italic,900&amp;v2',

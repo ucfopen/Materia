@@ -9,11 +9,9 @@
 			<h1>Widget Uploader</h1>
 		</div>
 		<div class="widgets" data-container="catalog-wiget"></div>
-		<form enctype="multipart/form-data" method="POST">
+		<form enctype="multipart/form-data" method="POST" action="/widgets/upload">
 			<input type="file" name="file"><br>
 			<input type="submit" value="Submit">
 		</form>
 	</section>
 </div>
-
-<?= Theme::instance()->view('partials/notification') ?>
