@@ -1,8 +1,20 @@
 app = angular.module 'materia'
 
+entityMap = {
+	"&": "&amp;",
+	"<": "&lt;",
+	">": "&gt;",
+	'"': '&quot;',
+	"'": '&#39;',
+	"/": '&#x2F;'
+}
+
+escapeHtml = (string) -> String(string).replace /[&<>"'\/]/g, (s) -> entityMap[s]
+
 # Highlights search matches, used on My Widgets sidebar
 app.filter 'highlight', ($sce) ->
 	return (text, search) ->
+		text = escapeHtml text
 		if search
 			searchTerms = search.split(" ")
 			for search in searchTerms
