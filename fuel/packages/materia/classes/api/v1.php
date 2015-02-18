@@ -127,6 +127,9 @@ class Api_V1
 		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
+			$perms = Perm_Manager::get_user_object_perms($inst_id, Perm::INSTANCE, \Model_User::find_current_id());
+			if ($perms[Perm::FULL] != 1 && $perms[Perm::VISIBLE] != 1 ) return \RocketDuck\Msg::no_perm();
+
 			// =================================== UPDATE WIDGET  =====================================
 			// load the existing qset
 			$inst = new Widget_Instance();
