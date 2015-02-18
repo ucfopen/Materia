@@ -33,9 +33,8 @@ class Controller_Widgets_Upload extends Controller
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
 
-		Package::load('casset');
-		Casset::enable_js(['upload']);
-		Casset::enable_css(['upload']);
+		Css::push_group(['core', 'upload']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 
 		$this->theme->get_template()
 			->set('title', 'Upload a widget')
@@ -54,11 +53,13 @@ class Controller_Widgets_Upload extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Casset::js_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
+				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
 			$response = Response::forge(Theme::instance()->render());
 		}
+		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 
 		return parent::after($response);
 
@@ -97,7 +98,7 @@ class Controller_Widgets_Upload extends Controller
 		}
 
 		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
-		Response::redirect(Router::get('upload'));
+		Response::redirect(Router::get('widgets/upload'));
 	}
 }
 
