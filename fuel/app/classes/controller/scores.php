@@ -52,6 +52,12 @@ class Controller_Scores extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
 
+		$lti_token = \Input::get('ltitoken', false);
+		if ($lti_token)
+		{
+			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+		}
+
 		$this->theme->get_template()
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
@@ -71,7 +77,6 @@ class Controller_Scores extends Controller
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
-
 
 		$lti_token = \Input::get('ltitoken', false);
 		if ($lti_token)
