@@ -41,11 +41,11 @@ class Utils
 
 	public static function get_avatar($size=24, $user=false)
 	{
-		$default = \Uri::create('/assets/img/default-avatar.jpg');
+		$default = \Uri::create('/themes/default/assets/img/default-avatar.jpg');
 		if ( ! $user) $user = \Model_User::find_current();
-		if ( ! isset($user->profile_fields['avatar']) || $user->profile_fields['avatar'] == 'gravatar')
+		if ( $user instanceof \Model_User && ! empty($user->profile_fields['useGravatar']))
 		{
-			return 'https://secure.gravatar.com/avatar/'.md5(strtolower($user->email)).'?d='.urlencode($default).'&s='.$size;
+			return 'https://secure.gravatar.com/avatar/'.md5(strtolower($user->email)).'?s='.$size.'&d=https://robohash.org/'.md5('materia'.$user->id).'?set=set3&size='.$size.'x'.$size;
 		}
 		else
 		{

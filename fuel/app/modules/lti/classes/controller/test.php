@@ -16,6 +16,7 @@ class Controller_Test extends \Controller_Rest
 			trace('these tests are not availible in production mode');
 			throw new \HttpNotFoundException;
 		}
+		\Js::push_group('jquery');
 		parent::before();
 	}
 
@@ -47,7 +48,7 @@ class Controller_Test extends \Controller_Rest
 				$user                 = \Model_User::find($user_id);
 				$user->first          = '_LTI_INSTRUCTOR_';
 				$user->last           = '_LTI_INSTRUCTOR_';
-				$user->profile_fields = ['notify_on_perm_change' => 'on', 'avatar' => 'gravatar', 'beardmode' => 'off'];
+				$user->profile_fields = ['notify' => true, 'avatar' => 'gravatar'];
 				$user->save();
 
 				// add basic_author permissions
@@ -120,25 +121,22 @@ class Controller_Test extends \Controller_Rest
 		$view_args = [
 			'validation_params'           => $validation_params[0],
 			'validation_endpoint'         => $validation_params[1],
-			
+
 			'instructor_params'           => $instructor_params[0],
 			'instructor_endpoint'         => $instructor_params[1],
-			
+
 			'new_instructor_params'       => $new_instructor_params[0],
 			'new_instructor_endpoint'     => $new_instructor_params[1],
-			
+
 			'unknown_role_params'         => $unknown_role_params[0],
 			'unknown_role_endpoint'       => $unknown_role_params[1],
-			
+
 			'unknown_assignment_params'   => $unknown_assignment_params[0],
 			'unknown_assignment_endpoint' => $unknown_assignment_params[1],
-			
+
 			'learner_endpoint'            => \Uri::create('lti/test/learner')
 		];
 
-		\Package::load('casset');
-		\Casset::disable_css('core');
-		\Casset::disable_js('core');
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/test_provider')
 			->set($view_args);
@@ -222,9 +220,6 @@ class Controller_Test extends \Controller_Rest
 			], $lti_url);
 		}
 
-		\Package::load('casset');
-		\Casset::disable_css('core');
-		\Casset::disable_js('core');
 		$this->theme = \Theme::instance();
 		$this->theme->set_template('layouts/test_learner')
 			->set_safe(['post' => json_encode($learner_params[0])])

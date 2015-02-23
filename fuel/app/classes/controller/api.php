@@ -7,55 +7,27 @@
 class Controller_Api extends Controller_Rest
 {
 
-	protected $_supported_formats = [
-		'json' => 'application/json',
-		'jsonp' => 'text/javascript',
-	];
+	use Lib_Apiutils;
 
-	public function after($response)
-	{
-		$response = parent::after($response);
-
-		// Set no cache
-		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
-		$response->set_header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
-		$response->set_header('Pragma', 'no-cache');
-
-		return $response;
-	}
+	protected $_supported_formats = ['json' => 'application/json'];
 
 	public function post_call($version, $format, $method)
 	{
-		$input = Input::post('data', []);
+		$input = json_decode(Input::post('data', []));
 
-		$data = $this->decode($format, $input);
+		$result = $this->execute($version, $method, $input);
 
-		$result = $this->execute($version, $method, $data);
-
+		$this->no_cache();
 		$this->response($result, 200);
 	}
 
 	public function get_call($version, $format, $method)
 	{
-		$data = array_slice($this->request->route->method_params, 3);
-
+		$data   = array_slice($this->request->route->method_params, 3);
 		$result = $this->execute($version, $method, $data);
 
+		$this->no_cache();
 		$this->response($result, 200);
-	}
-
-
-	protected function decode($format, $input)
-	{
-		switch ($format)
-		{
-			case 'json':
-			case 'jsonp':
-			default:
-				$data = json_decode($input);
-				break;
-		}
-		return $data;
 	}
 
 	protected function execute($version, $method, $args)

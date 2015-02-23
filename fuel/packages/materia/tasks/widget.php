@@ -639,6 +639,7 @@ class Widget extends \Basetask
 			{
 				// move score module
 				\Materia\Widget_Installer::install_widget_files($id, $manifest_data, $dir);
+
 				// @TODO: WHITE LIST FILE TYPES ['.js', '.html', 'htm', 'png', 'jpg', 'css', 'gif', 'swf', 'flv', 'swc']
 				\Cli::write("Widget installed: {$id}-{$clean_name}", 'green');
 			}

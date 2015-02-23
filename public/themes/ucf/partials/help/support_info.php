@@ -1,8 +1,6 @@
 <div class="error-support">
-	<hgroup>
-		<h3>Trouble Logging In?</h3>
-		<h4>Contact the UCF Service Desk.</h4>
-	</hgroup>
+	<h3>Trouble Logging In?</h3>
+	<span class="subtitle">Contact the UCF Service Desk.</span>
 	<dl class="contact">
 		<dt>Website</dt>
 			<dd><a href="http://helpdesk.ucf.edu/">http://helpdesk.ucf.edu/</a></dd>
@@ -12,10 +10,8 @@
 			<dd>(407) 823-5117</dd>
 	</dl>
 
-	<hgroup>
-		<h3>Get Help Using Materia</h3>
-		<h4>When something's gone wrong, or you just need a hand.</h4>
-	</hgroup>
+	<h3>Get Help Using Materia</h3>
+	<span class="subtitle">When something's gone wrong, or you just need a hand.</span>
 	<dl class="online-support">
 		<dt>Online@UCF Support</dt>
 			<dd><a href="http://learn.ucf.edu/support/">http://learn.ucf.edu/support/</a></dd>

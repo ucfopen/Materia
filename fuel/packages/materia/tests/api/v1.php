@@ -53,9 +53,10 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals(count($output_one), count($output_three) + 1);
 
 		// now try logged in with permissions
+		// Also test that perms can be an object
 		$perm = (object) [
 			'user_id'    => \Model_User::find_current_id(),
-			'perms'      => [\Materia\Perm::VISIBLE => true],
+			'perms'      => (object) [\Materia\Perm::VISIBLE => true],
 			'expiration' => null,
 		];
 		// make sure the perm manager blocks me from doing this through the api
@@ -836,7 +837,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::notification_delete(5);
-		$this->assertInvalidLoginMessage($output);
+		$this->assertFalse($output);
 
 		$author = $this->_asAuthor();
 		$notifications = \Materia\Api_V1::notifications_get();

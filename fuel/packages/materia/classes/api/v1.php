@@ -127,6 +127,9 @@ class Api_V1
 		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
+			$perms = Perm_Manager::get_user_object_perms($inst_id, Perm::INSTANCE, \Model_User::find_current_id());
+			if ($perms[Perm::FULL] != 1 && $perms[Perm::VISIBLE] != 1 ) return \RocketDuck\Msg::no_perm();
+
 			// =================================== UPDATE WIDGET  =====================================
 			// load the existing qset
 			$inst = new Widget_Instance();
@@ -619,8 +622,13 @@ class Api_V1
 	static public function user_get($user_ids = null)
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+
 		//no user ids provided, return current user
-		if ($user_ids === null) return \Model_User::find_current()->to_array();
+		if ($user_ids === null)
+		{
+			$results = \Model_User::find_current();
+			$results = $results->to_array();
+		}
 		else
 		{
 			if ( ! is_array($user_ids) || empty($user_ids)) return \RocketDuck\Msg::invalid_input();
@@ -631,12 +639,13 @@ class Api_V1
 				if (\RocketDuck\Util_Validator::is_pos_int($id))
 				{
 					$user = \Model_User::find($id);
+					$user = $user->to_array();
 					$user['isCurrentUser'] = ($id == $me);
-					$results[] = $user->to_array();
+					$results[] = $user;
 				}
 			}
-			return $results;
 		}
+		return $results;
 	}
 	/**
 	 * Updates the user's meta data
@@ -657,6 +666,49 @@ class Api_V1
 		}
 		return $user->save();
 	}
+
+	private static function _normalize_perms($perms_array)
+	{
+		// convert each permission object in the perms array to a integer indexed array of values
+		foreach ($perms_array as &$perm_obj)
+		{
+			// convert perms to an array
+			if ( ! is_array($perm_obj->perms)) $perm_obj->perms = (array) $perm_obj->perms;
+
+			// convert the keys from string numeric keys to integers
+			foreach ($perm_obj->perms as $key => $value)
+			{
+				if ( ! is_int($key))
+				{
+					// convert string numeric keys to number keys
+					unset($perm_obj->perms[$key]);
+					$perm_obj->perms[(integer) $key] = $value;
+				}
+			}
+		}
+		return $perms_array;
+	}
+
+	private static function _filter_increasing_perms($perms, $current_perms)
+	{
+		// I can only reduce my perms, filter out anything that increases or adds
+		foreach ($perms->perms as $key => $value)
+		{
+			// remove any perm I didn't already have
+			if ( ! array_key_exists($key, $current_perms))
+			{
+				unset($perms->perms[$key]);
+				continue;
+			}
+			// make sure i'm not enabling anything i didn't already have
+			if ($value != $current_perms[$key] && $value == Perm::ENABLE)
+			{
+				$perms->perms[$key] = $current_perms[$key];
+			}
+		}
+		return $perms;
+	}
+
 	/**
 	 * NEEDS DOCUMENTATION
 	 *
@@ -678,46 +730,57 @@ class Api_V1
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($item_id)) return \RocketDuck\Msg::invalid_input('Invalid item id: '.$item_id);
 		if (empty($perms_array)) return \RocketDuck\Msg::invalid_input('empty user perms');
 
-		// Determine what permissions user can set
-		$cur_user_id       = \Model_user::find_current_id();
-		$can_remove_self   = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::VISIBLE]) && count($perms_array) == 1 && $perms_array[0]->user_id == $cur_user_id;
-		$can_modify_others = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
+		$perms_array = static::_normalize_perms($perms_array);
 
-		// error if user does not have full or visible permissions
-		if ( ! ($can_remove_self || $can_modify_others))
-		{
-			return \RocketDuck\Msg::no_perm();
-		}
+		$cur_user_id = \Model_user::find_current_id();
 
-		foreach ($perms_array as $user_perms)
+		// full perms or is super user required
+		$can_give_access = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
+
+		// filter out any permissions I can't do
+		foreach ($perms_array as &$new_perms)
 		{
+			// i cant do anything
+			if ( ! $can_give_access && $new_perms->user_id != $cur_user_id) return \RocketDuck\Msg::no_perm();
+
+			$old_perms = Perm_Manager::get_user_object_perms($item_id, $item_type, $new_perms->user_id);
+			$requested_perm_count = count($new_perms->perms);
+
+			// I can only reduce my perms, filter out anything that increases or adds
+			if ( ! $can_give_access && $new_perms->user_id == $cur_user_id)
+			{
+				$new_perms = static::_filter_increasing_perms($new_perms, $old_perms);
+			}
+
+			// Toss out an error if all the perms I asked for get filtered out
+			if ($requested_perm_count > 0 && count($new_perms->perms) < 1 ) return \RocketDuck\Msg::no_perm();
+
 			// Determine what type of notification to send
 			// Search perms for enabled value and get key (new_perm)
 			// array_search returns false if value was not found
 			// need strict type checking because 0 == false
-			$new_perm   = array_search(Perm::ENABLE, $user_perms->perms);
-			$old_perm   = Perm_Manager::get_user_object_perms($item_id, $item_type, $user_perms->user_id);
-			$is_enabled = ! ($new_perm === false);
-			$mode = '';
+			$new_perm   = array_search(Perm::ENABLE, $new_perms->perms);
+			$is_enabled = $new_perm !== false;
+			$notification_mode = '';
 
 			if ( ! $is_enabled)
 			{
-				$mode = 'disabled';
+				$notification_mode = 'disabled';
 			}
-			else if ($old_perm != [$new_perm => Perm::ENABLE])
+			else if ($old_perms != [$new_perm => Perm::ENABLE])
 			{
-				$mode = 'changed';
+				$notification_mode = 'changed';
 			}
 
-			\Model_Notification::send_item_notification($cur_user_id, $user_perms->user_id, $item_type, $item_id, $mode, $new_perm);
+			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
 
 			// set VIEW access for all of its assets
 			if ($item_type === Perm::INSTANCE)
 			{
-				Perm_Manager::set_user_game_asset_perms($item_id, $user_perms->user_id, [Perm::VISIBLE => $is_enabled], $user_perms->expiration);
+				Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
 			}
 
-			Perm_Manager::set_user_object_perms($item_id, $item_type, $user_perms->user_id, $user_perms->perms, $user_perms->expiration);
+			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 		}
 
 		return true;
@@ -771,7 +834,7 @@ class Api_V1
 	 */
 	static public function notification_delete($note_id)
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if ( ! \Model_User::verify_session()) return \RocketDuck\Msg::no_login();
 
 		$user = \Model_User::find_current();
 

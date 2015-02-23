@@ -11,21 +11,24 @@ class Controller_Questions extends Controller
 		// Validate Logged in
 		if (Materia\Api::session_valid() !== true ) throw new HttpNotFoundException;
 
-		Package::load('casset');
-		Casset::enable_js(['question_catalog']);
-		Casset::enable_css(['question_catalog']);
 
-		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/main');
+		Css::push_group(['core', 'question_catalog']);
 
-		$this->theme->get_template()
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'dataTables']);
+
+		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+
+		$theme = Theme::instance();
+		$theme->set_template('layouts/main');
+		$theme->get_template()
 			->set('title', 'Question Catalog')
 			->set('page_type', 'import');
 
-		$this->theme->set_partial('content', 'partials/catalog/question');
+		$theme->set_partial('content', 'partials/catalog/question');
 
-		Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
-		Casset::js_inline('Materia.QuestionImporter.init(API_LINK);');
-		return Response::forge(Theme::instance()->render());
+		return Response::forge($theme->render());
 	}
 }

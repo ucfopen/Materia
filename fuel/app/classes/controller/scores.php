@@ -25,17 +25,21 @@ class Controller_Scores extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+			Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+
 			$response = Response::forge(Theme::instance()->render());
 		}
+
 
 		return parent::after($response);
 	}
 
-	public function action_show($inst_id)
+	public function get_show($inst_id)
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
@@ -43,9 +47,16 @@ class Controller_Scores extends Controller
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
 
-		Package::load('casset');
-		Casset::enable_js(['scores']);
-		Casset::enable_css(['scores']);
+		Css::push_group(['core', 'scores']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
+
+		$lti_token = \Input::get('ltitoken', false);
+		if ($lti_token)
+		{
+			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+		}
 
 		$this->theme->get_template()
 			->set('title', 'Score Results')
@@ -54,7 +65,7 @@ class Controller_Scores extends Controller
 		$this->theme->set_partial('content', 'partials/score/full');
 	}
 
-	public function action_show_embedded($inst_id)
+	public function get_show_embedded($inst_id)
 	{
 		if (Materia\Api::session_valid() !== true)
 		{
@@ -62,22 +73,23 @@ class Controller_Scores extends Controller
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
 
-		Package::load('casset');
-		Casset::enable_js(['embed_scores']);
-		Casset::enable_css(['embed_scores']);
+		Css::push_group(['core', 'embed_scores']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 
 		$lti_token = \Input::get('ltitoken', false);
 		if ($lti_token)
 		{
-			Casset::js_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
 		}
 
+		$this->_header = 'partials/header_empty';
 		$this->theme->get_template()
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
 
-		$this->theme->set_partial('content', 'partials/score/embed');
-		$this->_header = 'partials/header_empty';
+		$this->theme->set_partial('content', 'partials/score/full');
 	}
 
 	/**
@@ -86,7 +98,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_csv($inst_id, $semesters_string)
+	public function get_csv($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)
@@ -146,7 +158,7 @@ class Controller_Scores extends Controller
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function action_raw($inst_id, $semesters_string)
+	public function get_raw($inst_id, $semesters_string)
 	{
 
 		if (Materia\Api::session_valid() !== true)
@@ -295,7 +307,7 @@ class Controller_Scores extends Controller
 		return $this->build_download_response($data, $inst->name.'.zip');
 	}
 
-	public function action_storage($inst_id, $table_name, $semesters)
+	public function get_storage($inst_id, $table_name, $semesters)
 	{
 		$table_name = html_entity_decode($table_name);
 		$csv        = \Materia\Storage_Manager::get_csv_logs_by_inst_id($inst_id, $table_name, explode(',', $semesters));

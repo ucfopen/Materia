@@ -454,8 +454,9 @@ class Widget_Installer
 
 		// move spec to the main materia spec folder, if it exists
 		$widgetspec = $dir.'/spec/spec.coffee';
-		if (file_exists($widgetspec)) {
-			$new_spec = APPPATH."../../spec/$clean_name.spec.coffee";
+		if (file_exists($widgetspec))
+		{
+			$new_spec = APPPATH."../../spec/widgets/{$clean_name}.spec.coffee";
 			if (file_exists($new_spec))
 			{
 				$file_area->delete($new_spec);
