@@ -6,9 +6,8 @@ class Model_User extends Orm\Model
 	const RATE_LIMITER_WINDOW    = 60; // 60 seconds
 
 	protected static $_default_profile_fields = [
-		'avatar' => 'gravatar',
-		'notify_on_perm_change' => 'on',
-		'beardmode' => 'off',
+		'useGravatar' => true,
+		'notify'      => true
 	];
 
 	protected static $_properties = [
@@ -198,6 +197,7 @@ class Model_User extends Orm\Model
 
 	static public function login($username, $password)
 	{
+		Config::load('auth', true);
 		foreach (Config::get('auth.driver') as $driver)
 		{
 			if (Auth::instance($driver)->login($username, $password)) break;
@@ -217,6 +217,14 @@ class Model_User extends Orm\Model
 			self::incement_rate_limiter();
 		}
 		return $logged_in;
+	}
+
+	public function to_array($custom = false, $recurse = false, $eav = false)
+	{
+		$avatar = \Materia\Utils::get_avatar(50, $this);
+		$array = parent::to_array($custom, $recurse, $eav);
+		$array['avatar'] = $avatar;
+		return $array;
 	}
 
 }

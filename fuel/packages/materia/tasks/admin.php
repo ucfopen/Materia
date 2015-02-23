@@ -163,36 +163,48 @@ class Admin extends \Basetask
 		\Cli::write('Widgets uninstalled', 'green');
 	}
 
+
+	// This is a pretty dangerous method, careful you wield great power
 	public static function destroy_database()
 	{
-		// bypass interactive mode with -quiet
-		if (\Cli::option('quiet', false) === false)
+		// Never!! allow skip in PRODUCTION
+		// bypass only in TEST and when quiet is on
+		$skip_prompts = (\Fuel::$env == \Fuel::TEST && \Cli::option('quiet', false) == true);
+		\Cli::write('This task truncates data from ALL configured databases.', 'red');
+
+		if ( ! $skip_prompts)
 		{
-			\Cli::write('This task deletes everything.', 'red');
-			\Cli::write('Removes all database content, widgets, cache, and assets');
 			if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') return;
 		}
 
 		$dbs = \Config::load('db', true);
 		foreach ($dbs as $db_name => $db)
 		{
+			// I'm not sure why this is here
+			// I believe it's because the config under active is a duplicate of another db
 			if ($db_name == 'active') continue;
-			try
+
+			// Only operate on MySQL (bypasses the "redis" problem)
+			if (empty($db['connection']['dsn']) || stripos($db['connection']['dsn'], 'mysql') === false) continue;
+
+			if ( ! $skip_prompts)
 			{
-				$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute($db_name);
-				if ($tables->count() > 0)
+				\Cli::write("Truncate all tables in ".\Fuel::$env." $db_name?", 'red');
+				if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') continue;
+			}
+
+			$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute($db_name);
+			if ($tables->count() > 0)
+			{
+				foreach ($tables as $table)
 				{
-					foreach ($tables as $table)
-					{
-						\DBUtil::drop_table(array_values($table)[0], $db_name);
-					}
+					$table_name = array_values($table)[0];
+					\Cli::write("!!! Dropping Table: {$table_name}", 'red');
+					sleep(2); // pause here to let the user ctrl c if they made a huge mistake
+					\DBUtil::drop_table($table_name, $db_name);
 				}
-				\Cli::write("$db_name tables dropped", 'green');
 			}
-			catch (\FuelException $e)
-			{
-				trace($e);
-			}
+			\Cli::write("$db_name tables dropped", 'green');
 		}
 
 		// Reset the migrations and migrate up to the lates

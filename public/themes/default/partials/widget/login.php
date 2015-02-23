@@ -1,14 +1,14 @@
-<div class="container <?= $classes ?>">
+<div class="container <?= $classes ?>" ng-controller="loginCtrl">
 	<section class="page">
+		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
-		<hgroup class="detail">
+		<div class="detail">
 			<h2 class="logo">
 				<?= $title ?>
-				<?= isset($date) ? "<span class=\"server_date\">$date</span>" : '' ?>
 			</h2>
-			<h3>Using your <?= __('login.user') ?> and <?= __('login.password') ?></h3>
-		</hgroup>
+			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?></span>
+		</div>
 
 		<div id="form">
 			<? if ($msg = Session::get_flash('login_error')): /* Incorrect Login Error */ ?>
@@ -24,15 +24,13 @@
 			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= urlencode(URI::current()) ?>" class="form-content" >
 				<ul>
 					<li>
-						<label for="username" id="username_label"><?= __('login.user') ?></label>
-						<input type="text" name="username" id="username" value="" title="<?= __('login.user') ?>"  tabindex="1" />
+						<input type="text" name="username" id="username" value="" placeholder="<?= __('login.user') ?>" tabindex="1" />
 					</li>
 					<li>
-						<label for="password" id="password_label"><?= __('login.password') ?></label>
-						<input type="password" name="password" id="password" value="" title="<?= __('login.password') ?>" tabindex="2" />
+						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" />
 					</li>
 					<li class="submit_button">
-						<input type="submit" value="Login" tabindex="3" class="action_button" />
+						<button type="submit" tabindex="3" class="action_button">Login</button>
 					</li>
 				</ul>
 				<ul class="help_links">

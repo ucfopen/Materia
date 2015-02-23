@@ -5,6 +5,7 @@
 		<ul>
 			<li>Make sure you own this item.</li>
 			<li>Ask the owner to share it with you.</li>
+			<li>Make sure the item you are trying to access exists.</li>
 		</ul>
 
 		<?= Theme::instance()->view('partials/help/support_info') ?>

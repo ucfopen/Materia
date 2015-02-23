@@ -5,8 +5,8 @@
 		<meta charset="utf-8" />
 		<script type="text/javascript"></script>
 		<style type="text/css"></style>
-		<?= \Casset::render() ?>
-		<?= \Casset::render_js_inline() ?>
+		<?= Css::render() ?>
+		<?= Js::render() ?>
 		<script type="text/javascript">
 			$(function() {
 				if(typeof window.localStorage !== 'undefined' && typeof localStorage.ltiUrl !== 'undefined')
@@ -134,7 +134,7 @@
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
 				<input type="hidden" id="as_instructor" name="as_instructor" value="as_instructor" />
-				<input type="submit" value="As Instructor">
+				<input type="submit" id="play_as_instructor" value="As Instructor">
 			</form>
 
 			<hr />
@@ -157,7 +157,7 @@
 				<? foreach ($unknown_assignment_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
 				<? endforeach ?>
-				<input type="submit" value="Unknown Assignment Error">
+				<input type="submit" id="test_unkown_assignment" value="Unknown Assignment Error">
 			</form>
 		</section>
 	</body>

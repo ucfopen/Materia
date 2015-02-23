@@ -35,12 +35,33 @@ return [
 				'min' => false,
 				'attr' => ['data-src' => 'jquery'],
 			],
+			'angular' => [
+				'files' => ['cdnjs::angular.js/1.2.20/angular.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'angular'],
+			],
+			'ngModal' => [
+				'files' => ['lib/bower/ngModal/dist/ng-modal.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'ngModal'],
+			],
 			'underscore' => [
 				'files' => ['cdnjs::underscore.js/1.5.2/underscore-min.js'],
 				'enabled' => false,
 				'combine' => false,
 				'min' => false,
 				'attr' => ['TT-src' => 'underscore'],
+			],
+			'labjs' => [
+				'files' => ['cdnjs::labjs/2.0.3/LAB.min.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'jquery'],
 			],
 			'swfobject' => [
 				'files' => ['cdnjs::swfobject/2.2/swfobject.js'],
@@ -82,10 +103,16 @@ return [
 				'enabled' => false,
 				'attr' => ['data-src' => 'help'],
 			],
+			'notifications' => [
+				'files' => ['static::materia.notification.js'],
+				'enabled' => true,
+				'combine' => false,
+				'min' => false,
+				'attr' => ['data-src' => 'notifications'],
+			],
 			'homepage' => [
 				'files' => [
 					'static::materia.page.notification.js',
-					'static::materia.notification.js',
 					'static::materia.coms.json.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
@@ -129,14 +156,7 @@ return [
 					'static::materia.coms.json.js',
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
-					'lib/jquery.jqplot.min.js',
-					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.pointLabels.min.js',
-					'lib/jqplot_plugins/jqplot.canvasAxisLabelRenderer.min.js'
 				],
-				'deps' => ['underscore'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'scores'],
 			],
@@ -145,14 +165,7 @@ return [
 					'static::materia.coms.json.js',
 					'static::materia.scores.js',
 					'static::materia.scores.scoregraphics.js',
-					'lib/jquery.jqplot.min.js',
-					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.categoryAxisRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
-					'lib/jqplot_plugins/jqplot.pointLabels.min.js',
-					'lib/jqplot_plugins/jqplot.canvasAxisLabelRenderer.min.js'
 				],
-				'deps' => ['underscore'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'embed_scores'],
 			],
@@ -190,7 +203,6 @@ return [
 			'widget_catalog' => [
 				'files' => [
 					'static::materia.page.catalog.js',
-					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
 					'static::materia.page.notification.js',
@@ -220,7 +232,6 @@ return [
 			'widget_editor' => [
 				'files' => [
 					'static::materia.set.throbber.js',
-					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'lib/jquery-ui-1.8.21.custom.min.js',
 					'lib/spin.js',
@@ -234,15 +245,13 @@ return [
 			],
 			'my_widgets' => [
 				'files' => [
+					'cdnjs::angular.js/1.2.20/angular.min.js',
 					'static::materia.set.datetime.js',
 					'static::materia.validate.textfield.js',
-					'static::materia.notification.js',
 					'static::materia.permissions.user.js',
 					'static::materia.permissions.widget.js',
 					'static::materia.page.notification.js',
 					'static::materia.image.js',
-					'static::materia.textfilter.js',
-					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'static::materia.set.throbber.js',
 					'lib/spin.js',
@@ -250,8 +259,16 @@ return [
 					'static::materia.coms.json.js',
 					'cdnjs::jqueryui/1.10.4/jquery-ui.min.js',
 					'lib/jquery-ui-timepicker-addon.js',
+					'static::materia.mywidgets.app.js',
+					'static::routes/route-mywidgets.js',
+					'static::services/srv-user.js',
+					'static::services/srv-selectedWidget.js',
+					'static::services/srv-widget.js',
+					'static::directives/dir-sidebarselection.js',
+					'static::directives/dir-scoregraph.js',
+					'static::directives/dir-scoretable.js',
+					'static::directives/dir-scoredata.js',
 					'static::materia.user.js',
-					'static::materia.widget.js',
 					'static::materia.widgetinstance.js',
 					'static::materia.mywidgets.availability.js',
 					'static::materia.mywidgets.selectedwidget.js',
@@ -260,7 +277,6 @@ return [
 					'static::materia.mywidgets.tasks.js',
 					'static::materia.mywidgets.csv.js',
 					'static::materia.set.availability.js',
-					'static::materia.page.my-widgets.js',
 					'lib/jquery.jqplot.min.js',
 					'lib/jqplot_plugins/jqplot.barRenderer.min.js',
 					'lib/jqplot_plugins/jqplot.canvasTextRenderer.min.js',
@@ -270,13 +286,12 @@ return [
 					'lib/jqplot_plugins/jqplot.highlighter.min.js',
 					'lib/md5.js'
 				],
-				'deps' => ['dataTables', 'datejs'],
+				'deps' => ['dataTables', 'datejs', 'angular', 'ngModal'],
 				'enabled' => false,
 				'attr' => ['data-src' => 'my_widgets'],
 			],
 			'widget_play' => [
 				'files' => [
-					'lib/jqmodal.js',
 					'lib/tablock.js',
 					'lib/jquery-ui-1.8.21.custom.min.js',
 					'static::materia.coms.json.js',
@@ -304,6 +319,7 @@ return [
 					'jquery.jqplot.min.css',
 					'ui-lightness/jquery-ui-1.8.21.custom.css',
 					'ui-lightness/jquery-ui-timepicker-addon.css',
+					'../js/lib/bower/ngModal/dist/ng-modal.css',
 					'jquery.dataTables.css'
 				],
 				'enabled' => false,
@@ -377,11 +393,6 @@ return [
 				'files' => ['main.css'],
 				'enabled' => true,
 				'attr' => ['data-src' => 'core'],
-			],
-			'ie8' => [
-				'files' => ['ie8.css'],
-				'enabled' => false,
-				'attr' => ['data-src' => 'ie8'],
 			],
 			'fonts' => [
 				'files' => [

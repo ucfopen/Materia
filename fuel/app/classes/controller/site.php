@@ -11,6 +11,7 @@ class Controller_Site extends Controller
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
+		Css::push_group('core');
 	}
 
 	public function after($response)
@@ -20,25 +21,17 @@ class Controller_Site extends Controller
 		{
 			// render the defined template
 			$me = Model_User::find_current();
-			if ($me)
-			{
-				// add beardmode
-				if (isset($me->profile_fields['beardmode']) && $me->profile_fields['beardmode'] == 'on')
-				{
-					Casset::js_inline('var BEARD_MODE = true;');
-					Casset::js_inline('var beards = ["black_chops", "dusty_full", "grey_gandalf", "red_soul"];');
-					Casset::css('beard_mode.css', false, 'page');
-				}
-			}
 			$this->theme->set_partial('header', 'partials/header')->set('me', $me);
 
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Casset::js_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 			}
 
-			Casset::js_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+			Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+			Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 			$response = Response::forge(Theme::instance()->render());
 		}
 
@@ -51,22 +44,23 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
-		Package::load('casset');
-		Casset::enable_js(['homepage']);
-		Casset::enable_css(['homepage']);
+
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 
 		$this->theme->get_template()
 			->set('title', 'Welcome to Materia')
 			->set('page_type', 'store');
 
 		$this->theme->set_partial('content', 'partials/homepage');
+		Js::push_group('jquery_ui');
+		Css::push_group('homepage');
 	}
 
 	public function action_permission_denied()
 	{
-		Package::load('casset');
-		Casset::enable_js(['homepage']);
-		Casset::enable_css(['homepage']);
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
@@ -77,15 +71,17 @@ class Controller_Site extends Controller
 
 	public function action_help()
 	{
-		Package::load('casset');
-		Casset::enable_js(['help']);
-		Casset::enable_css(['help']);
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 
 		$this->theme->get_template()
 			->set('title', 'Help')
 			->set('page_type', 'docs help');
 
 		$this->theme->set_partial('content', 'partials/help/main');
+
+		Css::push_group("help");
+		Js::push('cdnjs::swfobject/2.2/swfobject.min.js'); // add swf object for flash testing
 	}
 
 	/**
@@ -93,8 +89,10 @@ class Controller_Site extends Controller
 	 */
 	public function action_404()
 	{
-		Package::load('casset');
-		Casset::enable_css(['404']);
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
+		Css::push_group('404');
 
 		$this->theme->get_template()
 			->set('title', '404 Page not Found')
@@ -103,11 +101,14 @@ class Controller_Site extends Controller
 		$this->theme->set_partial('content', 'partials/404');
 
 		Log::warning("404 URL: ". Uri::main());
+
+		$response = Response::forge($this->theme->render(), 404);
+
+		return $response;
 	}
 
 	public function action_crossdomain()
 	{
-		Package::load('casset');
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/crossdomain');
 		$response = Response::forge($this->theme->render());
