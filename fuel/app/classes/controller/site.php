@@ -37,7 +37,7 @@ class Controller_Site extends Controller
 		// If no response object was returned by the action,
 		if (empty($response) or ! $response instanceof Response)
 		{
-			$this->setupHeader();
+			$this->setup_header();
 			$response = Response::forge(Theme::instance()->render());
 		}
 
@@ -108,7 +108,7 @@ class Controller_Site extends Controller
 
 		Log::warning("404 URL: ". Uri::main());
 
-		$this->setupHeader();
+		$this->setup_header();
 
 		$response = \Response::forge(\Theme::instance()->render(), 404);
 
