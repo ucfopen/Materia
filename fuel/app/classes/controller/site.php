@@ -14,7 +14,8 @@ class Controller_Site extends Controller
 		Css::push_group('core');
 	}
 
-	public function setupHeader() {
+	private function setup_header()
+	{
 		// render the defined template
 		$me = Model_User::find_current();
 		$this->theme->set_partial('header', 'partials/header')->set('me', $me);
@@ -90,7 +91,7 @@ class Controller_Site extends Controller
 	}
 
 	/**
-	 * Load the login screen and possibly widget information if it's needed
+	 * Show 404 page
 	 */
 	public function action_404()
 	{
