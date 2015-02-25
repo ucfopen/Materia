@@ -1,3 +1,6 @@
+@import "mixins.scss";
+@import "font-awesome/font-awesome.scss";
+
 html {
 	background-image: url('../img/back.png');
 
@@ -256,6 +259,91 @@ h3
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
+}
+
+.action-button {
+	display: inline-block;
+	padding: 8px 20px;
+	position: relative;
+
+	font-family: Lato, arial, serif;
+	font-size: 18px;
+	font-weight: 700;
+	text-align: center;
+	white-space: nowrap;
+
+	// border: 1px solid transparent;
+	border-radius: 6px;
+	box-shadow: 0 2px 2px rgba(#000, 0.3);
+
+	cursor: pointer;
+
+	transition: background-color ease 0.3s, background-image ease 0.3s, border-color ease 0.3s;
+
+	@include button-variant(transparent, #ccc);
+
+	&:hover {
+		background-color: #ddd;
+		text-decoration: none;
+	}
+
+	&.small {
+		padding: 4px 6px;
+
+		font-size: 11px;
+		text-shadow: 0 1px 0 rgba(#fff, 0.3);
+
+		box-shadow: 0 3px 3px rgba(#fff, 0.3);
+	}
+
+	&.hollow {
+		background-color: transparent;
+		border: 3px solid;
+	}
+
+	&.red {
+		@include button-variant(rgba(#000, 0.6), #F92328);
+	}
+
+	&.orange {
+		@include button-variant(rgba(#000, 0.6), #ffce8c);
+
+		.arrow_right {
+			display: inline-block;
+			background: url(../img/arrow.png) no-repeat bottom;
+		}
+	}
+
+	&.green {
+		@include button-variant(rgba(#000, 0.6), #d1e776);
+	}
+
+	&.blue {
+		@include button-variant(#fff, #0093e7);
+	}
+
+	&.dark {
+		@include button-variant(#fff, #666);
+	}
+
+	&.transparent {
+		box-shadow: none;
+		text-shadow: none;
+
+		@include button-variant(#0093E7, transparent);
+
+		&:hover { background-color: #0093E7; }
+	}
+
+	&.active { animation: none; }
+
+	&[disabled] {
+		cursor: not-allowed;
+		pointer-events: none;
+		opacity: 0.5;
+	}
+
+	&.block { display: block; }
 }
 
 .cancel_button {
@@ -962,7 +1050,6 @@ transform:rotate(360deg)}
 }
 
 hr {
-	width: 955px;
 	opacity: .25;
 	margin-top: 50px;
 }
@@ -1184,3 +1271,18 @@ span.subtitle {
 	font-family: 'Lato', arial, serif;
 }
 
+
+/* Utility classes */
+.text-center { text-align: center !important; }
+
+/* Mixins */
+
+@mixin clearfix {
+	&:after {
+		content: "";
+		display: table;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+}
