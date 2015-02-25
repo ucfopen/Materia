@@ -1,0 +1,72 @@
+// Helpful mixins
+
+@mixin clearfix {
+  &:after {
+    content: "";
+    display: table;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+}
+
+@mixin button-variant($color, $background) {
+  color: $color;
+  background-color: $background;
+  border-color: darken($background, 30%);
+
+  @if lightness($color) < 95% {
+    text-shadow: 0 1px 0 rgba(#fff, 0.3);
+  } @else {
+    text-shadow: 0 1px 2px rgba(#000, 0.3);
+  }
+
+  @include vertical-gradient-top-bottom($background);
+
+  &:hover{
+    color: $color;
+    background-color: lighten($background, 10%);
+    border-color: lighten(darken($background, 30%), 10%);
+
+    @include vertical-gradient-top-bottom(lighten($background, 10%));
+  }
+
+  &:focus,
+  &.focus,
+  &:active,
+  &.active {
+    color: $color;
+    background-color: darken($background, 30%);
+
+    @include vertical-gradient-bottom-top(lighten($background, 10%));
+  }
+
+  &.disabled,
+  &[disabled] {
+    &,
+    &:hover,
+    &:focus,
+    &.focus,
+    &:active,
+    &.active {
+      background-color: $background;
+      border-color: darken($background, 10%);
+    }
+  }
+}
+
+@mixin vertical-gradient-top-bottom($color, $start-percent: 0%, $end-percent: 100%) {
+  background-image: -webkit-linear-gradient(top, $color $start-percent, darken($color, 20%) $end-percent);  // Safari 5.1-6, Chrome 10+
+  background-image: -o-linear-gradient(top, $color $start-percent, darken($color, 20%) $end-percent);  // Opera 12
+  background-image: linear-gradient(to bottom, $color $start-percent, darken($color, 20%) $end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
+  background-repeat: repeat-x;
+  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb($color),argb(darken($color, 20%)))); // IE9 and down
+}
+
+@mixin vertical-gradient-bottom-top($color, $start-percent: 0%, $end-percent: 100%) {
+  background-image: -webkit-linear-gradient(top, darken($color, 20%) $start-percent, $color $end-percent);  // Safari 5.1-6, Chrome 10+
+  background-image: -o-linear-gradient(top, darken($color, 20%) $start-percent, $color $end-percent);  // Opera 12
+  background-image: linear-gradient(to bottom, darken($color, 20%) $start-percent, $color $end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
+  background-repeat: repeat-x;
+  filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb($color),argb(darken($color, 20%)))); // IE9 and down
+}
