@@ -181,7 +181,7 @@
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
-			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget && !perms.error">
+			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
 				<div class="header">
 					<h1>{{selected.widget.name}}</h1>
 					<span class="widgetname">{{selected.widget.widget.name}}</span>

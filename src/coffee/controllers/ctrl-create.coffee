@@ -29,6 +29,8 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	$scope.previewText = "Preview"
 	$scope.publishText = "Publish..."
 
+	$scope.invalid = false
+
 	# Model methods
 	# send a save request to the creator
 	$scope.requestSave = (mode) ->
@@ -100,7 +102,11 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	getQset = ->
 		dfd = $.Deferred()
 		Materia.Coms.Json.send 'question_set_get', [inst_id], (data) ->
-			keepQSet = data
+			if data?.title == "Permission Denied" or data.title == "error"
+				$scope.invalid = true
+				$scope.$apply()
+			else
+				keepQSet = data
 			dfd.resolve()
 
 		dfd.promise()
@@ -366,13 +372,14 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 
 	# synchronise the asynchronous events
 	if inst_id?
-		$.when(widgetSrv.getWidget(inst_id))
-			.pipe(embed)
-			.pipe(getQset)
-			.pipe(initCreator)
-			.pipe(showButtons)
-			.pipe(startHeartBeat)
-			.fail(onInitFail)
+		getQset().then ->
+			if !$scope.invalid
+				$.when(widgetSrv.getWidget(inst_id))
+					.pipe(embed)
+					.pipe(initCreator)
+					.pipe(showButtons)
+					.pipe(startHeartBeat)
+					.fail(onInitFail)
 	else
 		$.when(getWidgetInfo())
 			.pipe(embed)

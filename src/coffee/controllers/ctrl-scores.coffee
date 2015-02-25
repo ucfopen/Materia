@@ -98,7 +98,8 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			# The Materia sendoff link requires currentAttempt to be set, so it's here instead of displayWidgetInstance
 			if isEmbedded
 				prefix = '/scores/'
-				$scope.moreInfoLink = prefix+widgetInstance.id+'#attempt-'+currentAttempt
+				token = if __LTI_TOKEN? then '?ltitoken=' + __LTI_TOKEN else ''
+				$scope.moreInfoLink = prefix + widgetInstance.id + token + '#attempt-' + currentAttempt
 
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]?
@@ -124,6 +125,14 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 				widget.href += '?ltitoken=' + __LTI_TOKEN
 		else
 			# if there are no attempts left, hide play again
+			hidePlayAgain = true
+
+		# If we have an LTI Token BUT this is not an embedded score page then we want to hide the play again button.
+		# That way the user will have to return to the embedded instance of Materia to continue playing, preventing
+		# issues with losing the LTI connection (as well as preventing duplicate page views of the same widget causing
+		# confusion). If we don't do this then more logic will need to be added to handle passing the ltitoken around
+		# and showing the proper scores page.
+		if __LTI_TOKEN? and !isEmbedded
 			hidePlayAgain = true
 
 		# Modify display of several elements after HTML is outputted
