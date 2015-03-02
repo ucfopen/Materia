@@ -228,6 +228,7 @@ class Widget_Installer
 		return $demo_text;
 	}
 
+	// @TODO: DUPLICATE EXISTS IN WIDGET TASK
 	public static function install_demo($widget_id, $package_dir, $existing_inst_id = null)
 	{
 		// ADD the Demo
@@ -249,7 +250,15 @@ class Widget_Installer
 
 			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
 
-			$saved_demo = \Materia\API::widget_instance_save($widget_id, $demo_data['name'], $qset, false, $existing_inst_id);
+			if ($existing_inst_id)
+			{
+				$saved_demo = \Materia\API::widget_instance_update($existing_inst_id, $demo_data['name'], $qset, false);
+			}
+			else
+			{
+				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
+			}
+
 			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
 			{
 				trace($saved_demo);

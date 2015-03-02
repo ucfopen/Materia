@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
+app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
@@ -315,10 +315,11 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 						when 'preview'
 							url = "#{BASE_URL}preview/#{inst.id}"
 							popup = window.open url
+							inst_id  = inst.id
 							if popup?
-									setTimeout ->
-										onPreviewPopupBlocked(url) unless popup.innerHeight > 0
-									, 200
+								$timeout ->
+									onPreviewPopupBlocked(url) unless popup.innerHeight > 0
+								, 200
 							else
 								onPreviewPopupBlocked(url)
 						when 'publish'
@@ -329,6 +330,7 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 							inst_id  = inst.id
 							instance = inst
 							$scope.saveStatus = 'saved'
+
 					$scope.$apply()
 					setTimeout ->
 						$scope.saveText = "Save Draft"
