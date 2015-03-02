@@ -271,9 +271,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
 
-			pendingRequestQueue.pop()
+			pendingRequestQueue.shift()
 
-			dfd = pendingRequestPromiseQueue.pop()
+			dfd = pendingRequestPromiseQueue.shift()
 			dfd.resolve()
 
 			logPushInProgress = false
