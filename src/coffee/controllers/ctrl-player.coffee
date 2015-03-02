@@ -268,7 +268,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			return
 
 		(Materia.Coms.Json.send 'play_logs_save', pendingRequestQueue[0], (result) ->
-			console.log result
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
 
@@ -283,7 +282,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 				pushPendingLogs()
 
 		).fail ->
-			console.warn "Play logs failed to send"
 			setTimeout ->
 				logPushInProgress = false
 				pushPendingLogs()
@@ -310,8 +308,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 		if !$scope.isPreview and pendingLogs.storage.length > 0
 			Materia.Coms.Json.send 'play_storage_data_save', [play_id, pendingLogs.storage], ->
-				console.log "saved"
-				console.log arguments
 				dfd.resolve()
 			pendingLogs.storage = []
 		else
