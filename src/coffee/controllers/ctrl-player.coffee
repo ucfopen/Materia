@@ -39,8 +39,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	isEmbedded = top.location != self.location
 
 	# Queue of requests
-	pendingRequestQueue = []
-	pendingRequestPromiseQueue = []
+	pendingQueue = []
 	# Whether or not a queue push is in progress
 	logPushInProgress = false
 
@@ -263,22 +262,20 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		logPushInProgress = true
 
 		# This shouldn't happen, but its a sanity check anyhow
-		if pendingRequestQueue.length == 0
+		if pendingQueue.length == 0
 			logPushInProgress = false
 			return
 
-		(Materia.Coms.Json.send 'play_logs_save', pendingRequestQueue[0], (result) ->
+		(Materia.Coms.Json.send 'play_logs_save', pendingQueue[0].request, (result) ->
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
 
-			pendingRequestQueue.shift()
-
-			dfd = pendingRequestPromiseQueue.shift()
-			dfd.resolve()
+			previous = pendingQueue.shift()
+			previous.promise.resolve()
 
 			logPushInProgress = false
 
-			if pendingRequestQueue.length > 0
+			if pendingQueue.length > 0
 				pushPendingLogs()
 
 		).fail ->
@@ -293,8 +290,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		if pendingLogs.play.length > 0
 			args = [play_id, pendingLogs.play]
 			if $scope.isPreview then args.push $scope.inst_id
-			pendingRequestQueue.push args
-			pendingRequestPromiseQueue.push dfd
+			pendingQueue.push { request: args, promise: dfd }
 			pushPendingLogs()
 
 			pendingLogs.play = []
