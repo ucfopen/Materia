@@ -341,7 +341,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		window.location = scoreScreenURL
 
 	window.onbeforeunload = (e) ->
-		if instance.widget.is_scorable is "1"
+		if instance.widget.is_scorable is "1" and not $scope.isPreview
 			return "Warning: Your score will not be sent until you finish and submit your assignment."
 		else return null
 
