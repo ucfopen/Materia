@@ -72,6 +72,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		pendingLogs.storage.push log if !$scope.isPreview
 
 	end = (showScoreScreenAfter = yes) ->
+		window.onbeforeunload = null
+
 		switch endState
 			when 'sent'
 				showScoreScreen() if showScoreScreenAfter
@@ -337,6 +339,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}"
 
 		window.location = scoreScreenURL
+
+	window.onbeforeunload = (e) ->
+		return "Warning: Your score will not be sent until you finish and submit your assignment."
 
 	$timeout ->
 		$.when(getWidgetInstance(), startPlaySession())
