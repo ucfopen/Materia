@@ -4,6 +4,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	LOG_INTERVAL         = 10000
 	# id of the container to put the flash in
 	EMBED_TARGET         = "container"
+	# Uncompleted assignment alert when the user attempts to leave the page
+	UNCOMPLETED_ASSIGNMENT_ALERT = "Wait! You haven't submitted your answers! If you leave now you'll forfeit this attempt. Are you sure you want to leave?"
 
 	# Keep track of a promise
 	embedDoneDfD        = null
@@ -342,7 +344,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 	window.onbeforeunload = (e) ->
 		if instance.widget.is_scorable is "1" and not $scope.isPreview
-			return "Warning: Your score will not be sent until you finish and submit your assignment."
+			return UNCOMPLETED_ASSIGNMENT_ALERT
 		else return null
 
 	$timeout ->
