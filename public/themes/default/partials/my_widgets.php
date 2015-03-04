@@ -199,7 +199,7 @@
 								</a>
 							</li>
 							<li>
-								<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-disabled="{{selected.editable}}" ng-click="editWidget()">
+								<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-click="editWidget()">
 									<span class="pencil"></span>
 									Edit Widget
 								</a>
