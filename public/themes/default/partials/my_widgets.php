@@ -1,8 +1,7 @@
-<div ng-controller="MyWidgetsController" beardable>
+<main id="my-widgets" role="main" ng-controller="MyWidgetsController" beardable>
 	<div class="qtip top nowidgets" ng-show="widgets.widgetList.length == 0">Click here to start making a new widget!</div>
-	<div class="container">
+	<div class="content-container">
 		<div ng-controller="SelectedWidgetController">
-
 			<modal-dialog class="edit-published-widget" show="show.editPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
 				<div class="container">
 					<p>Editing a published widget may affect statistical analysis when comparing data collected prior to your edits.</p>
@@ -168,90 +167,124 @@
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 				</div>
 			</modal-dialog>
-			<section class="directions" ng-show="perms.error">
+
+			<aside class="content aside-content" ng-controller="SidebarController">
+				<div class="top">
+					<h1>Your Widgets</h1>
+				</div>
+				<div class="search">
+					<input class="textbox" ng-model="query" type="text" placeholder="Search...">
+					<div class="search-close" ng-click="query = ''" ng-show="query">x</div>
+				</div>
+				<div class="courses">
+					<div class="widget-list" data-container="widget-list">
+						<div ng-repeat="widget in widgets.widgetList | filter:query" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
+							<img class="icon" ng-src="{{widget.icon}}"/>
+							<ul>
+								<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
+								<li class="type searchable" ng-bind-html="widget.widget.name | highlight:query"></li>
+								<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</aside>
+
+			<section class="content directions" ng-show="perms.error">
 				<div class="error error-nowidget">
 					<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
 				</div>
 			</section>
-			<section class="directions unchosen" ng-show="widgets.widgetList.length > 0 && !selected.widget && !perms.error">
+
+			<section class="content directions unchosen" ng-show="widgets.widgetList.length > 0 && !selected.widget && !perms.error">
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
-			<section class="directions" ng-show="widgets.widgetList.length == 0 && !perms.error">
+
+			<section class="content directions" ng-show="widgets.widgetList.length == 0 && !perms.error">
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
-			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
-				<div class="header">
-					<h1>{{selected.widget.name}}</h1>
-					<span class="widgetname">{{selected.widget.widget.name}}</span>
+
+			<section class="content" ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
+				<div class="top">
+					<h1>{{selected.widget.name}} <span class="widget-name">&mdash; {{selected.widget.widget.name}}</span></h1>
 				</div>
+
 				<div class="overview">
-					<div class="icon_container med_{{ selected.widget.beard }}" ng-class="{ big_bearded: selected.widget.beard }">
-						<img class="icon" ng-src='{{selected.widget.iconbig}}' height="275px" width="275px"/>
-					</div>
-					<div class="controls">
-						<ul>
-							<li>
-								<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{selected.preview}}" ng-class="{'disabled': !selected.widget.widget.is_playable}">
-									<span class="arrow arrow_right"></span>
-									Preview
-								</a>
-							</li>
-							<li>
-								<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-disabled="{{selected.editable}}" ng-click="editWidget()">
-									<span class="pencil"></span>
-									Edit Widget
-								</a>
-							</li>
-						</ul>
-						<ul class="options">
-							<li class="share"><div class="link" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</div></li>
-							<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
-						</ul>
-						<div class="delete_dialogue" ng-show="show.deleteDialog">
-							<span class="delete-warning">Are you sure you want to delete this widget?</span>
-							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
-							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
+					<div class="icon-controls-container">
+						<div class="icon-container med_{{ selected.widget.beard }}" ng-class="{ big_bearded: selected.widget.beard }">
+							<img class="icon" ng-src='{{selected.widget.iconbig}}'>
 						</div>
-						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
-							<h3>Settings:</h3>
-							<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}">
-								<dt>Attempts:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
-									{{ attemptText }}
-								</dd>
-								<dt>Available:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
-									<span ng-switch-when="anytime">
-										Anytime
-									</span>
-									<span ng-switch-when="open until">
-										Open until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time }}</span>
-									</span>
-									<span ng-switch-when="anytime after">
-										Anytime after <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span>
-									</span>
-									<span ng-switch-when="from">
-										From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
-									</span>
-								</dd>
-							</dl>
-							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
+						<div class="controls">
+							<ul>
+								<li class="control-buttons">
+									<a id="preview_button" class="action-button green" target="_blank" href="{{selected.preview}}" ng-class="{'disabled': !selected.widget.widget.is_playable}">
+										<span class="fa fa-arrow-right"></span>
+										Preview
+									</a>
+								</li>
+								<li>
+									<a id="edit_button" class="action-button orange" ng-class="{'disabled' : selected.editable==false}" ng-disabled="{{selected.editable}}" ng-click="editWidget()">
+										<span class="fa fa-pencil"></span>
+										Edit Widget
+									</a>
+								</li>
+							</ul>
+							<ul class="options">
+								<li class="share"><div class="link" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</div></li>
+								<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
+								<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
+							</ul>
+							<div class="delete_dialogue" ng-show="show.deleteDialog">
+								<span class="delete-warning">Are you sure you want to delete this widget?</span>
+								<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
+								<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
+							</div>
+							<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
+								<h3>Settings:</h3>
+								<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}">
+									<dt>Attempts:</dt>
+									<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
+										{{ attemptText }}
+									</dd>
+									<dt>Available:</dt>
+									<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+										<span ng-switch-when="anytime">
+											Anytime
+										</span>
+										<span ng-switch-when="open until">
+											Open until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time }}</span>
+										</span>
+										<span ng-switch-when="anytime after">
+											Anytime after <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span>
+										</span>
+										<span ng-switch-when="from">
+											From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
+										</span>
+									</dd>
+								</dl>
+								<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
+							</div>
 						</div>
 					</div>
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
-						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
-						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
+						<div class="content-push">
+							<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
+							<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
+						</div>
+
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
 						<textarea id="embed_link" ng-show="embedToggle && selected.shareable">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
-				<div class="scores" ng-show="selected.widget.widget.is_scorable">
+
+				<div class="message info base-margin-top visible-xs">Student activity not available on phones</div>
+
+				<div class="scores hidden-xs" ng-show="selected.widget.widget.is_scorable">
 					<h2>Student Activity</h2>
-					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
-						<span class="arrow_down"></span>
+					<span id="export_scores_button" class="action-button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
+						<span class="fa fa-cog"></span>
 						Export Scores
 					</span>
 
@@ -334,28 +367,5 @@
 				</div>
 			</section>
 		</div>
-		<aside ng-controller="SidebarController">
-			<div class="top">
-				<h1>Your Widgets:</h1>
-			</div>
-			<div class="search">
-				<div   class="textbox-background"></div>
-				<input class="textbox" ng-model="query" type="text">
-				<div   class="search-icon"></div>
-				<div   class="search-close" ng-click="query = ''" ng-show="query">x</div>
-			</div>
-			<div class="courses">
-				<div class="widget_list" data-container="widget-list">
-					<div ng-repeat="widget in widgets.widgetList | filter:query" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
-						<img class="icon" ng-src="{{widget.icon}}"/>
-						<ul>
-							<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
-							<li class="type searchable" ng-bind-html="widget.widget.name | highlight:query"></li>
-							<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		 </aside>
 	</div>
-</div>
+</main>

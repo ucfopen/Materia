@@ -1,4 +1,4 @@
-<header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
+<header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" role="banner">
 
 	<? /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
 	<? if (empty($me)): ?>
@@ -15,22 +15,25 @@
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
-	<span ng-switch="currentUser.loggedIn">
-		<p ng-switch-when="true" class="user avatar">
-			<img ng-src="{{currentUser.avatar}}" />
-			Welcome <a href="/profile">{{currentUser.name}}</a>
-		</p>
-		<p ng-switch-when="false" class="user">
-			Not logged in. <a href="/users/login">Login with your <?= __('login.user') ?></a>
-		</p>
-	</span>
-	<nav>
-		<ul>
-			<li><a href="/widgets" >Widget Catalog</a></li>
-			<li><a href="/my-widgets">My Widgets</a></li>
-			<li><a href="/help">Help</a></li>
+	<button class="visible-xs-block visible-sm-block right action-button" ng-click="mobileButtonClicked = !mobileButtonClicked"><span class="fa fa-bars"></span></button>
 
-			<li ng-switch="currentUser.loggedIn" class="logout">
+	<nav ng-class="{expanded: mobileButtonClicked}">
+		<span ng-switch="currentUser.loggedIn">
+			<p ng-switch-when="true" class="user avatar">
+				<img class="hidden-xs hidden-sm" ng-src="{{currentUser.avatar}}" />
+				Welcome <a href="/profile">{{currentUser.name}}</a>
+			</p>
+			<p ng-switch-when="false" class="user">
+				Not logged in. <a href="/users/login">Login with your <?= __('login.user') ?></a>
+			</p>
+		</span>
+
+		<ul>
+			<li class="nav-link"><a href="/widgets" >Widget Catalog</a></li>
+			<li class="nav-link"><a href="/my-widgets">My Widgets</a></li>
+			<li class="nav-link"><a href="/help">Help</a></li>
+
+			<li ng-switch="currentUser.loggedIn" class="hidden-xs hidden-sm logout right">
 				<a ng-switch-when="true" href="/users/logout">Logout</a>
 				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
 			</li>
