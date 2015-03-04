@@ -2,8 +2,10 @@ setup = require('./_setup')
 
 describe 'Homepage', ->
     client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
+
+    beforeEach ->
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it 'should display correctly', (done) ->
         client
@@ -15,4 +17,5 @@ describe 'Homepage', ->
             .click('.span_next:last-child')
             .waitForVisible('.main_container article:last-child', 7000)
             .call(done)
+            .end(done)
 

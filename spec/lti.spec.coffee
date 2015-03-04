@@ -6,12 +6,11 @@ describe 'LTI iframe test', ->
     widgetTitle = "Test widget"
 
     beforeEach ->
-        client = setup.webdriver.remote(setup.webdriverOptions).init()
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
         client
             .url('http://localhost:8080/lti/test/provider')
             .getTitle (err, title) -> expect(title).toBe('Materia Test as Provider')
-
-    afterEach (done) -> client.end(done)
 
     it 'should allow logging in as Instructor', (done) ->
         client
@@ -123,6 +122,7 @@ describe 'LTI iframe test', ->
             .waitFor '#error-container', 2000
             .getText 'header h1', (err, title) -> expect(title).toBe("Error - Unknown Assignment")
             .call done
+            .end(done)
     , 60000
 
 selectFirstWidget = (client) ->

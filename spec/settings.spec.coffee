@@ -2,30 +2,32 @@ setup = require('./_setup')
 
 describe 'When not logged in', ->
     client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
+    beforeEach ->
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it ' settings should redirect to login', (done) ->
         client
             .url('http://localhost:8080/settings')
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .call(done)
-            .call -> client.end(done)
+            .end(done)
 
 describe 'Settings page', ->
     client = null
+
     beforeEach ->
-        client = setup.webdriver.remote(setup.webdriverOptions).init()
-        # Reset the profile every time
-        setup.loginAt client, setup.author, 'http://localhost:8080/settings'
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            setup.loginAt client, setup.author, 'http://localhost:8080/users/login'
         client
+            .url('http://localhost:8080/settings')
             # make sure avitar is set to default
             .click('#avatar_default')
             # make sure notify is selected
             .isSelected "#notify", (err, isSelected) -> unless isSelected then client.click("#notify")
             .click('form button.action_button')
             .pause(500)
-    afterEach (done) -> client.end(done)
 
     it 'should display default options', (done) ->
         client
@@ -89,3 +91,4 @@ describe 'Settings page', ->
                 expect(src).toContain('24')
 
             .call(done)
+            .end(done)
