@@ -284,7 +284,7 @@
 				<div class="scores hidden-xs" ng-show="selected.widget.widget.is_scorable">
 					<h2>Student Activity</h2>
 					<span id="export_scores_button" class="action-button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
-						<span class="fa fa-cog"></span>
+						<span class="fa fa-cloud-download"></span>
 						Export Scores
 					</span>
 
