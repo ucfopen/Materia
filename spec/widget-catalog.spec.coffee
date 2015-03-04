@@ -2,125 +2,103 @@ setup = require('./_setup')
 
 describe 'Widget Catalog Page', ->
     client = null
-    beforeEach -> client = setup.webdriverjs.remote(setup.webdriverOptions).init()
+    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
     afterEach (done) -> client.end(done)
 
     it 'should display widgets', (done) ->
         client
             .url('http://localhost:8080/widgets')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Widget Catalog | Materia')
-
+            .waitFor '.widget', 7000
+            .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             # make sure the widgets get loaded
-            .waitFor('.widget', 7000)
-            .execute 'return $(".widget").length;', null, (err, result) ->
-                expect(err).toBeNull()
-                expect(result.value).toBeGreaterThan(0)
-            .isVisible '.flash-cards', (err, result) ->
-                expect(err).toBeNull()
-                expect(result).toBe(true)
-            .isVisible '.enigma', (err, result) ->
-                expect(err).toBeNull()
-                expect(result).toBe(true)
-            .isVisible '.timeline', (err, result) ->
-                expect(err).toBeNull()
-                expect(result).toBe(true)
-            .isVisible '.labeling', (err, result) ->
-                expect(err).toBeNull()
-                expect(result).toBe(true)
+            .execute 'return $(".widget").length;', null, (err, result) -> expect(result.value).toBeGreaterThan(0)
+            .isVisible '.flash-cards'
+            .isVisible '.enigma'
+            .isVisible '.timeline'
+            .isVisible '.labeling'
             # make sure the check boxes do stuff
-            .click('#filter-scorable')
+            .isSelected "#filter-scorable", (err, isSelected) -> unless isSelected then client.click("#filter-scorable")
             .pause(500) # wait for a transition to animate
-            .getElementCssProperty 'css selector', '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
-            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
-            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(opacity).toBe('1')
-            .click('#filter-qa')
-            .pause(500)
-            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
-            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
-            .click('#filter-media')
-            .pause(500)
-            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
-            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.3, 2)
-            .getElementCssProperty 'css selector', '.labeling.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(opacity).toBe('1')
-            .click('#filter-scorable')
-            .click('#filter-qa')
-            .click('#filter-media')
-            .pause(500)
-            .getElementCssProperty 'css selector', '.enigma.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(1, 2)
-            .getElementCssProperty 'css selector', '.timeline.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(1, 2)
-            .getElementCssProperty 'css selector', '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(1, 2)
-            .getElementCssProperty 'css selector', '.labeling.widgetMin', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(1, 2)
+            .getCssProperty '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBe(1)
+            .isSelected "#filter-qa", (err, isSelected) -> unless isSelected then client.click("#filter-qa")
+            .pause(500) # wait for a transition to animate
+            .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .isSelected "#filter-media", (err, isSelected) -> unless isSelected then client.click("#filter-media")
+            .pause(500) # wait for a transition to animate
+            .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.labeling.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBe(1)
+            .isSelected "#filter-scorable", (err, isSelected) -> unless isSelected then client.click("#filter-scorable")
+            .isSelected "#filter-qa", (err, isSelected) -> unless isSelected then client.click("#filter-qa")
+            .isSelected "#filter-media", (err, isSelected) -> unless isSelected then client.click("#filter-media")
+            .pause(500) # wait for a transition to animate
+            .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeCloseTo(0.3, 2)
+            .getCssProperty '.labeling.widgetMin', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBe(1)
 
             # Check mouse over info card functions
-            .execute 'return $(".infocard:hover").length;', null, (err, result) ->
-                expect(err).toBeNull()
-                expect(result.value).toBe(0)
-            .moveToObject('.labeling')
-            .pause(1000)
-            .execute 'return $(".infocard:hover").length;', null, (err, result) ->
-                expect(err).toBeNull()
-                expect(result.value).toBe(1)
+            .execute 'return $(".infocard:hover").length;', null, (err, result) -> expect(result.value).toBe(0)
+            .moveToObject('.labeling', 10, 10)
+            .waitForVisible ".infocard", 1000
             .call(done)
             .call -> client.end(done)
 
 
 describe 'Widget Exists', ->
     client = null
-    beforeEach -> client = setup.webdriverjs.remote(setup.webdriverOptions).init()
+    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
     afterEach (done) -> client.end(done)
 
     it 'widget should appear on catalog', (done) ->
         client
             .url('http://localhost:8080/widgets')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Widget Catalog | Materia')
+            .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             # make sure the widgets get loaded
             .waitFor('.widget', 4000)
             .execute 'return $(".widget").length;', null, (err, result) ->
-                expect(err).toBeNull()
                 expect(result.value).toBeGreaterThan(0)
                 currentTitle = ''
 
                 for i in [1...result.value]
                     client
                         .waitFor('.widget', 4000)
-                        .moveToObject('.widget:nth-child('+i+')')
-                        .getText '.widget:nth-child('+i+') .header h1', (err, title) ->
-                            expect(err).toBeNull()
+                        .moveToObject ".widget:nth-child(#{i}) .infocard", 10, 10
+                        .getText ".widget:nth-child(#{i}) .widgetMin .header", (err, title) ->
                             currentTitle = title
-                        .click('.infocard .card-content')
+                            expect(currentTitle).toBeTruthy()
                         .waitFor('.infocard:hover .header h1', 4000)
-                        .pause 50
+                        .getCssProperty '.infocard:hover', 'opacity', (err, opacity) ->
+                            expect(opacity.property).toBe('opacity')
+                            expect(opacity.value).toBeGreaterThan(0)
                         .getText '.infocard:hover .header h1', (err, widgetPageTitle) ->
-                            expect(err).toBeNull()
                             expect(widgetPageTitle).toBe(currentTitle)
-                        .back()
             .call(done)
     , 55000
