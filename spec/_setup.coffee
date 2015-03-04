@@ -20,7 +20,7 @@
 
 
 module.exports =
-	webdriverjs: require 'webdriverjs'
+	webdriver: require 'webdriverio'
 	author:
 		username: '~author'
 		password: 'kogneato'
@@ -30,6 +30,41 @@ module.exports =
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
-		logLevel: "silent"
+		logLevel: "verbose" # verbose, silent, command, data, result
+	testEnigma: (client, title, publish = false) ->
+		client
+			.pause 100
+			.waitFor('#container', 7000)
+			.getTitle (err, title) -> expect(title).toBe('Create Widget | Materia')
+			.frame('container') # switch into widget frame
+			.waitFor('.intro.show', 7000)
+			.setValue('.intro.show input[type=text]', title)
+			.click('.intro.show input[type=button]')
+			.setValue('#category_0', 'Test')
+			.click('.category:first-of-type button.add:not(.ng-hide)')
+			.setValue('#question_text', 'Test question')
+			.frame(null) # switch back to main content
+			.click('#creatorSaveBtn')
+			.waitFor('#creatorSaveBtn.saving', 1000)
+			.waitFor('#creatorSaveBtn.saved', 5000)
+			.execute "return document.location.href.split('#')[1];", null, (err, result) -> expect(result.value.length).toBe(5)
+		if (publish)
+			client
+				.waitFor('#creatorSaveBtn.idle', 5000)
+				.click('#creatorPublishBtn')
+				.waitFor('.publish.animate-show .publish_container a.action_button.green', 1000)
+				.click('.publish.animate-show .publish_container a.action_button.green')
+		return client
+	loginAt: (client, user, url) ->
+		client
+			.url(url)
+			.waitForVisible '#username', 2000
+			.getTitle (err, title) -> expect(title).toBe('Login | Materia')
+			.setValue('#username', user.username)
+			.setValue('#password', user.password)
+			.click('form button.action_button')
+			.pause(800)
+		return client
 
 jasmine.getEnv().defaultTimeoutInterval = 30000
+
