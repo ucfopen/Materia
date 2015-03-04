@@ -79,6 +79,8 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
 	setSelectedWidget = ->
+		$scope.perms.stale = true
+
 		populateDisplay()
 
 		currentId = $scope.selected.widget.id
