@@ -2,19 +2,15 @@ setup = require('./_setup')
 
 describe 'When not logged in', ->
     client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
+    beforeEach ->
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it ' my-widgets should redirect to login', (done) ->
         client
             .url('http://localhost:8080/settings')
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .call(done)
-
-describe 'My Widgets Page', ->
-    client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
 
     it 'should relocate to my widgets on author login', (done) ->
         setup.loginAt client, setup.author, 'http://localhost:8080/login'
@@ -24,7 +20,6 @@ describe 'My Widgets Page', ->
             .call(done)
 
     it 'should display instructions by default', (done) ->
-        setup.loginAt client, setup.author, 'http://localhost:8080/login'
         client
             .waitForVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
@@ -35,3 +30,4 @@ describe 'My Widgets Page', ->
                 if classes.indexOf('no-widgets') != -1
                     client.getText '.directions.no-widgets p', (err, text) -> expect(text).toBe('Make a new widget in the widget catalog.')
             .call(done)
+            .end(done)

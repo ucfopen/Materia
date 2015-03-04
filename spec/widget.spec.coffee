@@ -1,23 +1,23 @@
 setup = require('./_setup')
 
 describe 'When I create a widget', ->
-    client = null
     instanceID = null
+    copyInstanceID = null
     title = 'Selenium Test Enigma Widget '+Math.random()
     copyTitle = "#{title} COPY TEST"
+    client = null
 
     beforeEach ->
-        client = setup.webdriver.remote(setup.webdriverOptions).init()
-        # Reset the profile every time
-        setup.loginAt client, setup.author, 'http://localhost:8080/users/login'
-    afterEach (done) -> client.end(done)
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it 'it should update hash url', (done) ->
+        setup.loginAt client, setup.author, 'http://localhost:8080/users/login'
         client.url('http://localhost:8080/widgets')
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             .waitFor('.widget.enigma', 3000)
             .moveToObject('.widget.enigma .infocard', 10, 10)
-            .waitFor('.infocard:hover', 3000)
+            .waitFor('.infocard:hover .header h1', 4000)
             .click('.infocard:hover .header')
             .waitForVisible('#createLink', 7000)
             .click('#createLink')
@@ -25,7 +25,7 @@ describe 'When I create a widget', ->
         client
             .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 instanceID = result.value
-                console.log "instanceid: #{instanceID}"
+                # console.log "instanceid: #{instanceID}"
                 expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
             .call(done)
@@ -95,7 +95,7 @@ describe 'When I create a widget', ->
             .click('#access .cancel_button')
             .call(done)
 
-    it 'it should copy', (done) ->
+    it 'it should copy and auto select', (done) ->
         client
             .url('http://localhost:8080/my-widgets#/'+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
@@ -112,9 +112,24 @@ describe 'When I create a widget', ->
                 expect(text).toContain('Make a Copy')
             .setValue('.newtitle', copyTitle)
             .click('.copy_button.action_button')
-            # wait for our current widget to not be selected
-            .waitFor "#widget_#{instanceID}.gameSelected", 3000, true
-            .pause 3000
+
+            # complicated bit, inject an interval timer into the
+            # page to determine when the hash url changes and return
+            # the new hash url
+            .timeoutsAsyncScript 5000
+            .executeAsync (instanceID, done) ->
+                # this happens in the browser
+                setInterval ->
+                    if document.location.hash.indexOf(instanceID) == -1
+                        done(document.location.hash.substring(2))
+                , 500
+            , instanceID, (err, result) ->
+                # this happens here
+                copyInstanceID = result.value
+                expect(copyInstanceID.length).toBe(5)
+                # console.log "Copy Instance: #{result.value}"
+            .waitForVisible('#widget_'+copyInstanceID+'.gameSelected', 7000)
+            .waitForText('.page h1', 7000)
             # copy shows up in list and selected
             .getText '.page h1', (err, text) ->
                 expect(text).toBe(copyTitle)
@@ -140,6 +155,7 @@ describe 'When I create a widget', ->
             .pause 1800
             .isVisible '.error-nowidget'
             .call(done)
+            .end(done)
     , 25000
 
 

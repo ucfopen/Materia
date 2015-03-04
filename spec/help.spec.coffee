@@ -2,8 +2,10 @@ setup = require('./_setup')
 
 describe 'Help Page', ->
     client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
+
+    beforeEach ->
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it 'should redirect to login when not logged in', (done) ->
         client
@@ -11,3 +13,5 @@ describe 'Help Page', ->
             .getTitle (err, title) -> expect(title).toBe('Help | Materia')
             .getText '.page h1', (err, title) ->  expect(title).toBe('Help & Support')
             .call(done)
+            .end(done)
+

@@ -2,8 +2,9 @@ setup = require('./_setup')
 
 describe 'Widget Catalog Page', ->
     client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
+    beforeEach ->
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it 'should display widgets', (done) ->
         client
@@ -66,16 +67,7 @@ describe 'Widget Catalog Page', ->
 
             # Check mouse over info card functions
             .execute 'return $(".infocard:hover").length;', null, (err, result) -> expect(result.value).toBe(0)
-            .moveToObject('.labeling', 10, 10)
-            .waitForVisible ".infocard", 1000
             .call(done)
-            .call -> client.end(done)
-
-
-describe 'Widget Exists', ->
-    client = null
-    beforeEach -> client = setup.webdriver.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
 
     it 'widget should appear on catalog', (done) ->
         client
@@ -101,4 +93,5 @@ describe 'Widget Exists', ->
                         .getText '.infocard:hover .header h1', (err, widgetPageTitle) ->
                             expect(widgetPageTitle).toBe(currentTitle)
             .call(done)
+            .end(done)
     , 55000
