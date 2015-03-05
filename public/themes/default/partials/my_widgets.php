@@ -168,7 +168,7 @@
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 				</div>
 			</modal-dialog>
-			<section class="directions" ng-show="perms.error">
+			<section class="directions error" ng-show="perms.error">
 				<div class="error error-nowidget">
 					<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
 				</div>
@@ -177,7 +177,7 @@
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
-			<section class="directions" ng-show="widgets.widgetList.length == 0 && !perms.error">
+			<section class="directions no-widgets" ng-show="widgets.widgetList.length == 0 && !perms.error">
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>

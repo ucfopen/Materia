@@ -2,25 +2,20 @@ setup = require('./_setup')
 
 describe 'Homepage', ->
     client = null
-    beforeEach -> client = setup.webdriverjs.remote(setup.webdriverOptions).init()
-    afterEach (done) -> client.end(done)
+
+    beforeEach ->
+        unless client
+            client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it 'should display correctly', (done) ->
         client
-            .url('http://localhost:8080/')
-            .getTitle( (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Welcome to Materia | Materia')
-            )
-            .waitFor('.store_main', 7000)
-            .isVisible('.store_main:first-child section')
-            .execute('return $(".store_main section").length;', null, (err, result) ->
-                expect(err).toBeNull()
-                expect(result.value).toBeGreaterThan(0)
-            )
+            .url("#{setup.url}/")
+            .waitForVisible('.main_container', 7000)
+            .getTitle (err, title) -> expect(title).toBe('Welcome to Materia | Materia')
+            .waitForVisible('.main_container article:first-child', 7000)
+            .execute 'return $(".main_container article").length;', null, (err, result) -> expect(result.value).toBeGreaterThan(0)
             .click('.span_next:last-child')
-            .pause(1500)
-            .isVisible('.store_main:last-child section')
-            .pause(2000)
+            .waitForVisible('.main_container article:last-child', 7000)
             .call(done)
+            .end(done)
 

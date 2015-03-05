@@ -13,6 +13,7 @@ return [
 		'git@clu.cdl.ucf.edu:materia/sequencer.git',
 		'git@clu.cdl.ucf.edu:materia/timeline.git',
 		'git@clu.cdl.ucf.edu:materia/word-search.git',
+		'git@clu.cdl.ucf.edu:materia/this-or-that.git',
 	],
 	'custom' => [
 	]

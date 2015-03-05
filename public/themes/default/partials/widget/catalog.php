@@ -9,7 +9,7 @@
 				<div class="widgetMin {{widget.clean_name}}" ng-class="(widget.visible) ? '' : 'hidden'" data-id="{{widget.id}}">
 					<a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img ng-src='{{widget.icon}}'></a>
 					<div class="header">
-						<h1><a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}" class="searchable">{{widget.name}}</a></h1>
+						<h1><a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}" >{{widget.name}}</a></h1>
 					</div>
 					<dl class="left inline_def blurb">
 						<dt data-type="description">Description:</dt>
@@ -17,9 +17,9 @@
 					</dl>
 					<dl class="left inline_def features_list">
 						<dt data-type="features">Features:</dt>
-						<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
+						<dd ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
 						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
-						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
+						<dd ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}</dd>
 					</dl>
 				</div>
 
@@ -34,9 +34,9 @@
 					</dl>
 					<dl class="left inline_def features_list">
 						<dt data-type="features">Features:</dt>
-						<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
+						<dd ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
 						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
-						<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
+						<dd ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}</dd>
 					</dl>
 				</a>
 			</section>
