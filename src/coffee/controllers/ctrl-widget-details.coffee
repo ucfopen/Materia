@@ -2,7 +2,7 @@ app = angular.module 'materia'
 app.controller 'widgetDetailsController', ($scope, widgetSrv) ->
 
 	$scope.widget =
-		icon: "/assets/img/default/default-icon-275.png"
+		icon: "/themes/default/assets/img/default/default-icon-275.png"
 	$scope.goback =
 		text: "Go back to the widget catalog"
 		url: "/widgets"
