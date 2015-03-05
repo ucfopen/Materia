@@ -30,8 +30,8 @@ module.exports =
 		password: 'kogneato'
 	webdriverOptions:
 		desiredCapabilities:
-			browserName: process.env.BROWSER || 'phantomjs' # phantomjs, firefox, 'safari'. 'chrome'
-		logLevel: "verbose" # verbose, silent, command, data, result
+			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+		logLevel: "silent" # verbose, silent, command, data, result
 	testEnigma: (client, title, publish = false) ->
 		client
 			.pause 100
