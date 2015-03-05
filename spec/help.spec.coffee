@@ -9,7 +9,7 @@ describe 'Help Page', ->
 
     it 'should redirect to login when not logged in', (done) ->
         client
-            .url('http://localhost:8080/help')
+            .url("#{setup.url}/help")
             .getTitle (err, title) -> expect(title).toBe('Help | Materia')
             .getText '.page h1', (err, title) ->  expect(title).toBe('Help & Support')
             .call(done)

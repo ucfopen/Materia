@@ -7,7 +7,7 @@ describe 'Login Page', ->
 
     it 'should display an error on incorrect login', (done) ->
         client
-            .url('http://localhost:8080/login')
+            .url("#{setup.url}/login")
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .getText '.detail .subtitle', (err, text) -> expect(text).toContain('Using your')
             .click('form button.action_button')
@@ -16,21 +16,21 @@ describe 'Login Page', ->
             .call(done)
 
     it 'should relocate to my widgets on author login', (done) ->
-        setup.loginAt client, setup.author, 'http://localhost:8080/login'
+        setup.loginAt client, setup.author, "#{setup.url}/login"
         client
             .waitForVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
             .call(done)
 
     it 'should relocate to my profile on student login', (done) ->
-        setup.loginAt client, setup.student, 'http://localhost:8080/login'
+        setup.loginAt client, setup.student, "#{setup.url}/login"
         client
             .waitForVisible '.user_type', 5000
             .getTitle (err, title) -> expect(title).toBe('Profile | Materia')
             .call(done)
 
     it 'should display user info in header', (done) ->
-        setup.loginAt client, setup.author, 'http://localhost:8080/login'
+        setup.loginAt client, setup.author, "#{setup.url}/login"
         client
             .waitForVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')

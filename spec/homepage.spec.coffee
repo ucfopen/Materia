@@ -9,7 +9,7 @@ describe 'Homepage', ->
 
     it 'should display correctly', (done) ->
         client
-            .url('http://localhost:8080/')
+            .url("#{setup.url}/")
             .waitForVisible('.main_container', 7000)
             .getTitle (err, title) -> expect(title).toBe('Welcome to Materia | Materia')
             .waitForVisible('.main_container article:first-child', 7000)

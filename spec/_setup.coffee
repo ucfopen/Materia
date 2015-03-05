@@ -21,6 +21,7 @@
 
 module.exports =
 	webdriver: require 'webdriverio'
+	url: 'http://localhost:8080'
 	author:
 		username: '~author'
 		password: 'kogneato'
@@ -29,7 +30,7 @@ module.exports =
 		password: 'kogneato'
 	webdriverOptions:
 		desiredCapabilities:
-			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+			browserName: process.env.BROWSER || 'phantomjs' # phantomjs, firefox, 'safari'. 'chrome'
 		logLevel: "verbose" # verbose, silent, command, data, result
 	testEnigma: (client, title, publish = false) ->
 		client

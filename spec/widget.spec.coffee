@@ -12,8 +12,8 @@ describe 'When I create a widget', ->
             client = setup.webdriver.remote(setup.webdriverOptions).init()
 
     it 'it should update hash url', (done) ->
-        setup.loginAt client, setup.author, 'http://localhost:8080/users/login'
-        client.url('http://localhost:8080/widgets')
+        setup.loginAt client, setup.author, "#{setup.url}/users/login"
+        client.url("#{setup.url}/widgets")
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             .waitFor('.widget.enigma', 3000)
             .moveToObject('.widget.enigma .infocard', 10, 10)
@@ -34,7 +34,7 @@ describe 'When I create a widget', ->
     it 'it should appear as a draft', (done) ->
         client
             .call -> expect(instanceID.length).toBe(5)
-            .url('http://localhost:8080/my-widgets#'+instanceID)
+            .url("#{setup.url}/my-widgets#"+instanceID)
             .waitFor "#widget_#{instanceID}", 7000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
             .getText '#widget_'+instanceID+' .score', (err, mode) -> expect(mode).toBe('Draft')
@@ -46,7 +46,7 @@ describe 'When I create a widget', ->
             .call ->
                 expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#"'+instanceID)
             .waitForVisible '#widget_'+instanceID, 7000
             .waitForVisible '.share-widget-container', 7000
             .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
@@ -66,14 +66,14 @@ describe 'When I create a widget', ->
     it 'it should be selected on my widgets page', (done) ->
         client
             .call -> expect(instanceID.length).toBe(5)
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .call(done)
 
 
     it 'it should collaborate', (done) ->
         client
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .waitForVisible '.share div.link'
             .pause(1000)
@@ -97,7 +97,7 @@ describe 'When I create a widget', ->
 
     it 'it should copy and auto select', (done) ->
         client
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .getText '#widget_'+instanceID+'.gameSelected li.title', (err, selectedTitle) ->
                 expect(selectedTitle).toBe(title)
@@ -141,7 +141,7 @@ describe 'When I create a widget', ->
 
     it 'it should delete using the delete button', (done) ->
         client
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .pause 3000
             .waitForVisible '#delete_widget_link', 5000
             .click '#delete_widget_link'
