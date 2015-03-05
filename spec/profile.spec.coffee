@@ -8,17 +8,17 @@ describe 'When not logged in', ->
 
     it ' profile should redirect to login', (done) ->
         client
-            .url('http://localhost:8080/settings')
+            .url("#{setup.url}/settings")
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .call(done)
 
 
     it 'should display profile', (done) ->
-        setup.loginAt client, setup.author, 'http://localhost:8080/profile'
+        setup.loginAt client, setup.author, "#{setup.url}/profile"
         client
             .waitForVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
-            .url('http://localhost:8080/profile')
+            .url("#{setup.url}/profile")
             .waitForVisible '.user_type', 5000
             .getTitle (err, title) -> expect(title).toBe('Profile | Materia')
             .getText '.page h2', (err, text) -> expect(text).toContain('Prof Author')

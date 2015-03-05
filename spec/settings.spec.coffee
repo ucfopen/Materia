@@ -8,7 +8,7 @@ describe 'When not logged in', ->
 
     it ' settings should redirect to login', (done) ->
         client
-            .url('http://localhost:8080/settings')
+            .url("#{setup.url}/settings")
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .call(done)
             .end(done)
@@ -19,9 +19,9 @@ describe 'Settings page', ->
     beforeEach ->
         unless client
             client = setup.webdriver.remote(setup.webdriverOptions).init()
-            setup.loginAt client, setup.author, 'http://localhost:8080/users/login'
+            setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client
-            .url('http://localhost:8080/settings')
+            .url("#{setup.url}/settings")
             # make sure avitar is set to default
             .click('#avatar_default')
             # make sure notify is selected

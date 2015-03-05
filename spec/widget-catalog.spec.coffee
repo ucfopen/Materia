@@ -8,7 +8,7 @@ describe 'Widget Catalog Page', ->
 
     it 'should display widgets', (done) ->
         client
-            .url('http://localhost:8080/widgets')
+            .url("#{setup.url}/widgets")
             .waitFor '.widget', 7000
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             # make sure the widgets get loaded
@@ -71,7 +71,7 @@ describe 'Widget Catalog Page', ->
 
     it 'widget should appear on catalog', (done) ->
         client
-            .url('http://localhost:8080/widgets')
+            .url("#{setup.url}/widgets")
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             # make sure the widgets get loaded
             .waitFor('.widget', 4000)

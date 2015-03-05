@@ -8,12 +8,12 @@ describe 'When not logged in', ->
 
     it ' my-widgets should redirect to login', (done) ->
         client
-            .url('http://localhost:8080/settings')
+            .url("#{setup.url}/settings")
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .call(done)
 
     it 'should relocate to my widgets on author login', (done) ->
-        setup.loginAt client, setup.author, 'http://localhost:8080/login'
+        setup.loginAt client, setup.author, "#{setup.url}/login"
         client
             .waitForVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')

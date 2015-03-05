@@ -9,7 +9,7 @@ describe 'LTI iframe test', ->
         unless client
             client = setup.webdriver.remote(setup.webdriverOptions).init()
         client
-            .url('http://localhost:8080/lti/test/provider')
+            .url("#{setup.url}/lti/test/provider")
             .getTitle (err, title) -> expect(title).toBe('Materia Test as Provider')
 
     it 'should allow logging in as Instructor', (done) ->
@@ -40,10 +40,10 @@ describe 'LTI iframe test', ->
             .click('input[value="As Instructor"]')
             .frame('embed_iframe') # switch into lti frame
             .waitForText '#no-widgets', 5000
-            .url 'http://localhost:8080/widgets/3-enigma/create'
+            .url "#{setup.url}/widgets/3-enigma/create"
         setup.testEnigma client, widgetTitle, true
         client
-            .url('http://localhost:8080/lti/test/provider')
+            .url("#{setup.url}/lti/test/provider")
             .click('input[value="As Instructor"]')
         selectFirstWidget(client)
         client
