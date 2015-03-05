@@ -135,7 +135,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.perms.error = false
 
 		$scope.selected.preview = "preview/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}"
-		$scope.copy_title =  "#{$scope.selected.widget.name} copy"
+		$scope.selected.copy_title =  "#{$scope.selected.widget.name} copy"
 		$scope.selected.widget.iconbig = Materia.Image.iconUrl $scope.selected.widget.widget.dir, 275
 
 	# Second half of populateDisplay
