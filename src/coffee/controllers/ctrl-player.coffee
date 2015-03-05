@@ -5,7 +5,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# id of the container to put the flash in
 	EMBED_TARGET         = "container"
 	# Uncompleted assignment alert when the user attempts to leave the page
-	UNCOMPLETED_ASSIGNMENT_ALERT = "Wait! You haven't submitted your answers! If you leave now you'll forfeit this attempt. Are you sure you want to leave?"
+	UNCOMPLETED_ASSIGNMENT_ALERT = "Wait! You haven't submitted your answers! If you leave now you'll forfeit this attempt."
 
 	# Keep track of a promise
 	embedDoneDfD        = null
@@ -100,6 +100,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
 				if data != true
 					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+					window.onbeforeunload = null
 					window.location.reload()
 		, 30000
 		dfd.promise()
