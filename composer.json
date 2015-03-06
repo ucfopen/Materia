@@ -151,18 +151,14 @@
         "michelf/php-markdown": "FuelPHP Parser Markdown"
     },
     "config": {
-        "vendor-dir": "fuel/vendor"
+        "vendor-dir": "fuel/vendor",
+        "optimize-autoloader": true
     },
     "extra": {
         "installer-paths": {
             "fuel/{$name}": ["fuel/core"],
             "{$name}": ["fuel/docs"]
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "php oil r install"
-        ]
     },
     "minimum-stability": "dev"
 }

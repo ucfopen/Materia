@@ -107,6 +107,7 @@ class Api_V1
 		$duplicate = $inst->duplicate($new_name);
 		return $duplicate->id;
 	}
+
 	/**
 	 * NEEDS DOCUMENTATION
 	 *
@@ -114,67 +115,80 @@ class Api_V1
 	 * @param object  $qset
 	 * @param bool    $is_draft Whether the widget is being saved as a draft
 	 * @param int     $inst_id (optional) The id of the game (widget) we're saving
-	 * @param int     $open_at
-	 * @param int     $close_at
-	 * @param int     $attempts
-	 * @param array   $ownersList
-	 * @param array   $viewersList
 	 *
 	 * @return array An associative array with details about the save
 	 */
-	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null, $inst_id=null, $open_at=null, $close_at=null, $attempts=null)
+
+	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
+	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
 		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
+		if ( ! \RocketDuck\Util_Validator::is_pos_int($widget_id)) return \RocketDuck\Msg::invalid_input($widget_id);
+		if ( ! is_bool($is_draft)) $is_draft = true;
+
+		$widget = new Widget();
+		if ( $widget->get($widget_id) == false) return \RocketDuck\Msg::invalid_input('Invalid widget type');
+
+		// init the instance
+	 	$inst = new Widget_Instance([
+			'user_id'    => \Model_User::find_current_id(),
+			'name'       => $name,
+			'is_draft'   => $is_draft,
+			'created_at' => time(),
+			'widget'     => $widget
+		]);
+
+		if ($qset !== null)
 		{
-			// =================================== UPDATE WIDGET  =====================================
-			// load the existing qset
-			$inst = new Widget_Instance();
-			$loaded = $inst->db_get($inst_id);
-			if ( ! $loaded) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be found.');
-			// update the widget type (some can change based on theme)
-			if ($widget_id !== null) $inst->widget->id = $widget_id;
-			if ($qset !== null && ! empty($qset->data) && ! empty($qset->version)) $inst->qset = $qset;
-			if ( ! empty($name)) $inst->name = $name;
-			if ($is_draft !== null) $inst->is_draft = $is_draft;
-			if ($open_at !== null) $inst->open_at = $open_at;
-			if ($close_at !== null) $inst->close_at = $close_at;
-			if ($attempts !== null) $inst->attempts = $attempts;
-			// save
-			if ($inst->db_store()) return $inst;
+			if ( ! empty($qset->data)) $inst->qset->data = $qset->data;
+			if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
+		}
+
+		// save
+		if ($inst->db_store()) return $inst;
+	}
+
+	/**
+	 * Save and existing instance
+	 *
+	 * @param int     $inst_id
+	 * @param object  $qset
+	 * @param bool    $is_draft Whether the widget is being saved as a draft
+	 * @param int     $open_at
+	 * @param int     $close_at
+	 * @param int     $attempts
+	 *
+	 * @return array An associative array with details about the save
+	 */
+	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null)
+	{
+		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Instance id is invalid');
+		$perms = Perm_Manager::get_user_object_perms($inst_id, Perm::INSTANCE, \Model_User::find_current_id());
+		if ($perms[Perm::FULL] != 1 && $perms[Perm::VISIBLE] != 1 ) return \RocketDuck\Msg::no_perm();
+
+		// load the existing qset
+		$inst = new Widget_Instance();
+		$loaded = $inst->db_get($inst_id);
+		if ( ! $loaded) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be found.');
+
+		// update the widget type (some can change based on theme)
+		if ($qset !== null && ! empty($qset->data) && ! empty($qset->version)) $inst->qset = $qset;
+		if ( ! empty($name)) $inst->name = $name;
+		if ($is_draft !== null) $inst->is_draft = $is_draft;
+		if ($open_at !== null) $inst->open_at = $open_at;
+		if ($close_at !== null) $inst->close_at = $close_at;
+		if ($attempts !== null) $inst->attempts = $attempts;
+
+		// save
+		if ($inst->db_store())
+		{
+			return $inst;
 		}
 		else
 		{
-			// ================================= NEW WIDGET ====================================
-			if ( ! \RocketDuck\Util_Validator::is_pos_int($widget_id)) return \RocketDuck\Msg::invalid_input($widget_id);
-			if ( ! empty($open_at) && ! \RocketDuck\Util_Validator::is_pos_int($open_at)) return \RocketDuck\Msg::invalid_input('Invalid start date');
-			if ( ! empty($close_at) && ! \RocketDuck\Util_Validator::is_pos_int($close_at)) return \RocketDuck\Msg::invalid_input('Invalid end date');
-			if ( ! empty($attempts) && ! \RocketDuck\Util_Validator::is_pos_int($attempts)) return \RocketDuck\Msg::invalid_input('Invalid attempts');
-			if ( ! is_bool($is_draft)) $is_draft = true;
-			$widget = new Widget();
-			if ( $widget->get($widget_id) == false) return \RocketDuck\Msg::invalid_input('Invalid widget type');
-			// init the instance
-		 	$inst = new Widget_Instance([
-				'user_id'    => \Model_User::find_current_id(),
-				'name'       => $name,
-				'is_draft'   => $is_draft,
-				'created_at' => time(),
-				'widget'     => $widget
-		 	]);
-	 		if ($open_at !== null) $inst->open_at = $open_at;
-	 		if ($close_at !== null) $inst->close_at = $close_at;
-	 		if ($attempts !== null) $inst->attempts = $attempts;
-	 		if ($qset !== null)
-	 		{
-	 			if ( ! empty($qset->data)) $inst->qset->data = $qset->data;
-	 			if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
-	 		}
-
-	 		// save
-	 		if ($inst->db_store()) return $inst;
+			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget could not be created.');
 		}
-
-		return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget could not be created.');
 	}
 	/**
 	 * Try and get a lock on the given game

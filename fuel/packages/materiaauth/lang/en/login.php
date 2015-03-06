@@ -5,5 +5,5 @@ return [
 		'b' => ['href' => '', 'title' => 'Reset Password'],
 	],
 	'user' => 'Materia Username',
-	'password' => 'Materia Password',
+	'password' => 'Password',
 ];

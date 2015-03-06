@@ -92,19 +92,21 @@
 							</ul>
 							<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
 						</li>
-					<ul class="toFrom">
-						<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
-							<ul class="datePicker">
-								<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
-								<li ng-click="available.anytime = false">
-									<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
-									<label>On</label>
-									<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
-									<input type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
-									<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
-								</li>
-							</ul>
-						</li>
+						<ul class="toFrom">
+							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+								<ul class="datePicker">
+									<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+									<li ng-click="available.anytime = false">
+										<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+										<label>On</label>
+										<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
+										<input type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
+										<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</ul>
 					<ul class="inline">
 						<li><a href class="cancel_button" ng-click="hideModal()">Cancel</a></li>
 						<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="hideModal()">Save</a></li>
@@ -159,13 +161,13 @@
 			<modal-dialog class="copy" show="show.copyModal" dialog-title="Make a Copy:" width="620px" height="220px">
 				<div class="container">
 					<span class="input_label">New Title:</span>
-					<input class="newtitle" type="text" ng-model="$parent.$parent.copy_title" placeholder="New Widget Title" />
+					<input class="newtitle" type="text" ng-model="selected.copy_title" placeholder="New Widget Title" />
 					<span class="copy_error">Please enter a valid widget title.</span>
 					<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 				</div>
 			</modal-dialog>
-			<section class="directions" ng-show="perms.error">
+			<section class="directions error" ng-show="perms.error">
 				<div class="error error-nowidget">
 					<p class="errorWindowPara">You do not have access to this widget or this widget does not exist.</p>
 				</div>
@@ -174,11 +176,11 @@
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
-			<section class="directions" ng-show="widgets.widgetList.length == 0 && !perms.error">
+			<section class="directions no-widgets" ng-show="widgets.widgetList.length == 0 && !perms.error">
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
-			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget && !perms.error">
+			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
 				<div class="header">
 					<h1>{{selected.widget.name}}</h1>
 					<span class="widgetname">{{selected.widget.widget.name}}</span>
@@ -196,14 +198,14 @@
 								</a>
 							</li>
 							<li>
-								<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-disabled="{{selected.editable}}" ng-click="editWidget()">
+								<a id="edit_button" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-click="editWidget()">
 									<span class="pencil"></span>
 									Edit Widget
 								</a>
 							</li>
 						</ul>
 						<ul class="options">
-							<li class="share"><div class="link" ng-click="showCollaboration()">Collaborate{{ collaborateCount }}</div></li>
+							<li class="share"><div class="link" ng-click="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
 							<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
 							<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
 						</ul>
@@ -245,7 +247,7 @@
 						<textarea id="embed_link" ng-show="embedToggle && selected.shareable">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
-				<div class="scores" ng-show="selected.shareable && selected.widget.widget.is_scorable">
+				<div class="scores" ng-show="selected.widget.widget.is_scorable">
 					<h2>Student Activity</h2>
 					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
 						<span class="arrow_down"></span>

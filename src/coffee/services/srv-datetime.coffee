@@ -35,9 +35,11 @@ app.service 'dateTimeServ', ->
 		offset = serverUTCTimestamp - clientUTCTimestamp
 
 		newDate = new Date(timeToFix + offset)
-		fixedDateStr = (newDate.getHours()%12) + ':' + String('00' + newDate.getMinutes()).slice(-2)
+		fullHour = newDate.getHours()
+		shortHour = if fullHour%12 is 0 then 12 else fullHour%12
+		fixedDateStr = shortHour + ':' + String('00' + newDate.getMinutes()).slice(-2)
 
-		if newDate.getHours() > 11 then fixedDateStr += 'pm'
+		if fullHour > 11 then fixedDateStr += 'pm'
 		else fixedDateStr += 'am'
 
 		fixedDateStr
