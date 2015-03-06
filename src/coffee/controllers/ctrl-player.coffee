@@ -31,13 +31,13 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 	pendingQueue = []
 	# Whether or not a queue push is in progress
 	logPushInProgress = false
-
-
-	# Controls whether the view has a "preview" header bar
-	$scope.isPreview           = false
-
+	# number of times the logs an retried sending
+	retryCount = 0
 	# search for preview or embed directory in the url
 	checkForContext = String(window.location).split '/'
+	# Controls whether the view has a "preview" header bar
+	$scope.isPreview = false
+
 	for word in checkForContext
 		if word == 'preview'
 			$scope.isPreview = true
@@ -257,6 +257,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 			return
 
 		(Materia.Coms.Json.send 'play_logs_save', pendingQueue[0].request, (result) ->
+			retryCount = 0 # reset on success
+			if $scope.fatal?
+				$scope.$apply -> $scope.fatal = null
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
 
@@ -269,10 +272,20 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 				pushPendingLogs()
 
 		).fail ->
+			retryCount++
+			retrySpeed = PLAYER.RETRY_FAST
+
+			if retryCount > PLAYER.RETRY_LIMIT
+				retrySpeed = PLAYER.RETRY_SLOW
+				$scope.fatal =
+					title: 'Connection Lost'
+					msg: "Connection to Materia's server was lost. Try again or reload the page to start over."
+				$scope.$apply()
+
 			setTimeout ->
 				logPushInProgress = false
 				pushPendingLogs()
-			, 1000
+			, retrySpeed
 
 	sendPendingPlayLogs = ->
 		dfd = $.Deferred()
