@@ -1,47 +1,37 @@
 app = angular.module 'materia'
-app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
-	# How often to send logs to the server
-	LOG_INTERVAL         = 10000
-	# id of the container to put the flash in
-	EMBED_TARGET         = "container"
+app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 
 	# Keep track of a promise
-	embedDoneDfD        = null
+	embedDoneDfD = null
 	# Widget instance
-	instance            = null
+	instance = null
 	# Logs that have yet to be synced
-	pendingLogs         = {play:[], storage:[]}
+	pendingLogs = {play:[], storage:[]}
 	# ID of the current play, received from embedded inline script variables
-	play_id             = null
+	play_id = null
 	# hold onto the qset from the instance
-	qset                = null
+	qset = null
 	# the time the widget starts playing
-	startTime           = 0
+	startTime = 0
 	# widget container object, used for postMessage
-	widget              = null
+	widget = null
 	# .swf or .html
-	widgetType          = null
-
-	# Keeps the state of whether scores have been sent yet
-	# when receiving .end() calls from widgets
-	endState            = null
-
+	widgetType = null
+	# Keeps the state of whether scores have been sent yet when receiving .end() calls from widgets
+	endState = null
 	# Whether or not to show the score screen as soon as playlogs get synced
-	scoreScreenPending  = false
-
+	scoreScreenPending = false
 	# Keep track of the timer id for the heartbeat so we can clear the timeout
 	heartbeatIntervalId = -1
-
 	# Calculates which screen to show (preview, embed, or normal)
-	scoreScreenURL      = null
-
+	scoreScreenURL = null
 	# Whether or not to show the embed view
 	isEmbedded = top.location != self.location
-
 	# Queue of requests
 	pendingQueue = []
 	# Whether or not a queue push is in progress
 	logPushInProgress = false
+
 
 	# Controls whether the view has a "preview" header bar
 	$scope.isPreview           = false
@@ -53,7 +43,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			$scope.isPreview = true
 			break
 
-	sendPendingLogs = (callback) ->
+	sendAllPendingLogs = (callback) ->
 		callback = $.noop if !callback?
 
 		$.when(sendPendingStorageLogs())
@@ -62,7 +52,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			.fail( -> alert('There was a problem saving.'))
 
 	onWidgetReady = ->
-		widget = $('#container').get(0)
+		widget = $('#'+PLAYER.EMBED_TARGET).get(0)
 		switch
 			when !qset? then embedDoneDfD.reject 'Unable to load widget data.'
 			when !widget? then embedDoneDfD.reject 'Unable to load widget.'
@@ -89,7 +79,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 				# required to end a play
 				addLog({type:2, item_id:0, text:'', value:null})
 				# send anything remaining
-				sendPendingLogs ->
+				sendAllPendingLogs ->
 					# Async callback after final logs are sent
 					endState = 'sent'
 					# shows the score screen upon callback if requested any time betwen method call and now
@@ -111,7 +101,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		startTime = (new Date()).getTime()
 		sendToWidget 'initWidget', if widgetType is '.swf' then [qset, convertedInstance] else [qset, convertedInstance, BASE_URL]
 		if !$scope.isPreview
-			heartbeatIntervalId = setInterval sendPendingLogs, LOG_INTERVAL # if not in preview mode, set the interval to send logs
+			heartbeatIntervalId = setInterval sendAllPendingLogs, PLAYER.LOG_INTERVAL # if not in preview mode, set the interval to send logs
 
 		dfd.promise()
 
@@ -148,11 +138,11 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		# register global callbacks for ExternalInterface calls
 		window.__materia_sendStorage     = sendStorage
 		window.__materia_onWidgetReady   = onWidgetReady
-		window.__materia_sendPendingLogs = sendPendingLogs
+		window.__materia_sendPendingLogs = sendAllPendingLogs
 		window.__materia_end             = end
 		window.__materia_addLog          = addLog
 		params     = {menu:'false', allowFullScreen:'true', AllowScriptAccess:'always'}
-		attributes = {id: EMBED_TARGET}
+		attributes = {id: PLAYER.EMBED_TARGET}
 		express    = BASE_URL+'assets/flash/expressInstall.swf'
 		width      = '100%'
 		height     = '100%'
@@ -169,15 +159,15 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		embedDoneDfD = dfd
 		$scope.type = "flash"
 		$scope.$apply()
-		swfobject.embedSWF enginePath, EMBED_TARGET, width, height, String(version), express, flashvars, params, attributes
+		swfobject.embedSWF enginePath, PLAYER.EMBED_TARGET, width, height, String(version), express, flashvars, params, attributes
 
 	embedHTML = (enginePath, dfd) ->
 		embedDoneDfD = dfd
 
 		$scope.type = "html"
 		$scope.htmlPath = enginePath
-		$('#container').width instance.widget.width if instance.widget.width > 0
-		$('#container').height instance.widget.height if instance.widget.height > 0
+		$('#'+PLAYER.EMBED_TARGET).width instance.widget.width if instance.widget.width > 0
+		$('#'+PLAYER.EMBED_TARGET).height instance.widget.height if instance.widget.height > 0
 
 		# build a link element to deconstruct the static url
 		# this helps us match static url against the event origin
@@ -193,7 +183,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					when 'addLog'          then addLog(msg.data)
 					when 'end'             then end(msg.data)
 					when 'sendStorage'     then sendStorage(msg.data)
-					when 'sendPendingLogs' then sendPendingLogs()
+					when 'sendPendingLogs' then sendAllPendingLogs()
 					when 'alert'           then $scope.$apply -> $scope.alert = msg.data
 					when 'setHeight'       then setHeight msg.data[0]
 					when 'initialize'      then
@@ -357,7 +347,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		# don't resize the inner iframe if the player is embedded
 		if window.top == window.self
 			min_h = instance.widget.height
-			if h > min_h then $('#container').height h else $('#container').height min_h
+			if h > min_h then $('#'+PLAYER.EMBED_TARGET).height h else $('#'+PLAYER.EMBED_TARGET).height min_h
 
 	showScoreScreen = ->
 		if scoreScreenURL == null
