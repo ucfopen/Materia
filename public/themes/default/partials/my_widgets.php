@@ -93,7 +93,6 @@
 							<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
 						</li>
 						<ul class="toFrom">
-							toFrom
 							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
 								<ul class="datePicker">
 									<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
