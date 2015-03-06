@@ -69,6 +69,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		user_ids = []
 		user_ids.push(user) for user of $scope.perms.widget
 
+		return if user_ids.length < 1 or $scope.perms.stale
+
 		$scope.perms.collaborators = []
 
 		Materia.Coms.Json.send 'user_get', [user_ids], (users) ->
