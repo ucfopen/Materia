@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
+app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
@@ -28,6 +28,8 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	$scope.saveText = "Save Draft"
 	$scope.previewText = "Preview"
 	$scope.publishText = "Publish..."
+
+	$scope.invalid = false
 
 	# Model methods
 	# send a save request to the creator
@@ -100,7 +102,11 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 	getQset = ->
 		dfd = $.Deferred()
 		Materia.Coms.Json.send 'question_set_get', [inst_id], (data) ->
-			keepQSet = data
+			if data?.title == "Permission Denied" or data.title == "error"
+				$scope.invalid = true
+				$scope.$apply()
+			else
+				keepQSet = data
 			dfd.resolve()
 
 		dfd.promise()
@@ -145,7 +151,9 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 			creatorPath = WIDGET_URL+widget_info.dir+widget_info.creator
 
 		type = creatorPath.split('.').pop()
-		$scope.$apply -> $scope.type = type
+		$scope.loaded = true
+		$scope.type = type
+		$scope.$apply()
 
 		switch type
 			when 'html'
@@ -307,10 +315,11 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 						when 'preview'
 							url = "#{BASE_URL}preview/#{inst.id}"
 							popup = window.open url
+							inst_id  = inst.id
 							if popup?
-									setTimeout ->
-										onPreviewPopupBlocked(url) unless popup.innerHeight > 0
-									, 200
+								$timeout ->
+									onPreviewPopupBlocked(url) unless popup.innerHeight > 0
+								, 200
 							else
 								onPreviewPopupBlocked(url)
 						when 'publish'
@@ -321,6 +330,7 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 							inst_id  = inst.id
 							instance = inst
 							$scope.saveStatus = 'saved'
+
 					$scope.$apply()
 					setTimeout ->
 						$scope.saveText = "Save Draft"
@@ -364,13 +374,14 @@ app.controller 'createCtrl', ($scope, $sce, widgetSrv) ->
 
 	# synchronise the asynchronous events
 	if inst_id?
-		$.when(widgetSrv.getWidget(inst_id))
-			.pipe(embed)
-			.pipe(getQset)
-			.pipe(initCreator)
-			.pipe(showButtons)
-			.pipe(startHeartBeat)
-			.fail(onInitFail)
+		getQset().then ->
+			if !$scope.invalid
+				$.when(widgetSrv.getWidget(inst_id))
+					.pipe(embed)
+					.pipe(initCreator)
+					.pipe(showButtons)
+					.pipe(startHeartBeat)
+					.fail(onInitFail)
 	else
 		$.when(getWidgetInfo())
 			.pipe(embed)

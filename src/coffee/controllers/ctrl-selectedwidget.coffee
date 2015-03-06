@@ -21,7 +21,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		Materia.MyWidgets.Csv.buildPopup()
 
 	$scope.copyWidget = ->
-		Materia.MyWidgets.Tasks.copyWidget $scope.selected.widget.id, $scope.copy_title, (inst_id) ->
+		Materia.MyWidgets.Tasks.copyWidget $scope.selected.widget.id, $scope.selected.copy_title, (inst_id) ->
 			$scope.show.copyModal = false
 			widgetSrv.addWidget(inst_id)
 			$scope.$apply()
@@ -68,6 +68,8 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.showCollaboration = ->
 		user_ids = []
 		user_ids.push(user) for user of $scope.perms.widget
+
+		return if user_ids.length < 1 or $scope.perms.stale
 
 		$scope.perms.collaborators = []
 

@@ -91,6 +91,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
 				if data != true
 					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+					window.onbeforeunload = null
 					window.location.reload()
 		, 30000
 		dfd.promise()
@@ -279,7 +280,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 				retrySpeed = PLAYER.RETRY_SLOW
 				$scope.fatal =
 					title: 'Connection Lost'
-					msg: "Connection to Materia's server was lost. Try again or reload the page to start over."
+					msg: "Connection to Materia's server was lost. Check your connection or reload to start over."
 				$scope.$apply()
 
 			setTimeout ->
@@ -372,6 +373,11 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}"
 
 		window.location = scoreScreenURL
+
+	window.onbeforeunload = (e) ->
+		if instance.widget.is_scorable is "1" and !$scope.isPreview and endState != 'sent'
+			return "Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget."
+		else return null
 
 	$timeout ->
 		$.when(getWidgetInstance(), startPlaySession())

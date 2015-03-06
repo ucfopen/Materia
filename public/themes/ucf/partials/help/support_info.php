@@ -14,9 +14,9 @@
 	<span class="subtitle">When something's gone wrong, or you just need a hand.</span>
 	<dl class="online-support">
 		<dt>Online@UCF Support</dt>
-			<dd><a href="http://learn.ucf.edu/support/">http://learn.ucf.edu/support/</a></dd>
+			<dd><a href="http://online.ucf.edu/support/">http://online.ucf.edu/support/</a></dd>
 		<dt>Email</dt>
-			<dd><a href="mailto:onlinesupport@mail.ucf.edu">onlinesupport@mail.ucf.edu</a></dd>
+			<dd><a href="mailto:onlinesupport@ucf.edu">onlinesupport@ucf.edu</a></dd>
 		<dt>Phone</dt>
 			<dd>(407) 823-0407</dd>
 	</dl>
