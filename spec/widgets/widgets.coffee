@@ -1,7 +1,7 @@
 # Widget loader code
 # This is imported by all the individual widget specs
 
-webdriverjs = require('webdriverjs')
+webdriverjs = require('webdriverio')
 testBrowser = process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
 jasmine.getEnv().defaultTimeoutInterval = 10000
 author =
@@ -12,13 +12,13 @@ student =
 	password: 'kogneato'
 
 module.exports = (widget, callback) ->
+	console.log "Testing " + widget
 	client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser}, logLevel: "silent" })
 	client.init()
 
 	client
 		.url('http://localhost:8080/login')
 		.getTitle (err, title) ->
-			expect(err).toBeNull()
 			expect(title).toBe('Login | Materia')
 		.waitFor '#username'
 		.setValue('#username', author.username)
@@ -27,7 +27,7 @@ module.exports = (widget, callback) ->
 
 	client
 		.url('http://localhost:8080/widgets')
-		.waitFor('.store_main', 5000)
+		.waitFor('.widgets', 5000)
 		.waitFor('.' + widget, 5000)
 		.click('.' + widget + ' a', 5000)
 		.waitFor('#demoLink', 5000)
@@ -36,7 +36,6 @@ module.exports = (widget, callback) ->
 				.url(result.value + '/demo')
 				.pause 1000
 				.getTitle (err, res) ->
-					expect(err).toBeNull()
 					client
 						.waitFor('iframe#container')
 						.frame('container')
