@@ -61,6 +61,8 @@ describe 'LTI iframe test', ->
             .pause(3000)
             .frame('embed_iframe') # switch into lti frame
             .getAttribute '#container', 'src', (err, src) -> expect(src).toContain('player.html')
+            # Disable alert warning since it crashes Selenium
+            .execute 'window.onbeforeunload = null'
             .call done
     , 60000
 
@@ -73,6 +75,8 @@ describe 'LTI iframe test', ->
             .frame('embed_iframe') # switch into lti frame
             .waitFor '#container', 2000
             .getAttribute '#container', 'src', (err, src) -> expect(src).toContain('player.html')
+            # Disable alert warning since it crashes Selenium
+            .execute 'window.onbeforeunload = null'
             .call done
     , 60000
 
@@ -85,6 +89,8 @@ describe 'LTI iframe test', ->
             .frame('embed_iframe') # switch into lti frame
             .waitFor '#container', 5000
             .getAttribute '#container', 'src', (err, src) -> expect(src).toContain('player.html')
+            # Disable alert warning since it crashes Selenium
+            .execute 'window.onbeforeunload = null'
             .call done
     , 60000
 
