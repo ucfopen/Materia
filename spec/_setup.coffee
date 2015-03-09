@@ -38,7 +38,7 @@ module.exports =
 			.waitFor('#container', 7000)
 			.getTitle (err, title) -> expect(title).toBe('Create Widget | Materia')
 			.frame('container') # switch into widget frame
-			.waitFor('.intro.show', 7000)
+			.waitForVisible('.intro.show', 7000)
 			.setValue('.intro.show input[type=text]', title)
 			.click('.intro.show input[type=button]')
 			.setValue('#category_0', 'Test')

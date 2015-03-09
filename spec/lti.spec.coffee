@@ -60,6 +60,7 @@ describe 'LTI iframe test', ->
             .click('input[value="As Learner"]')
             .pause(3000)
             .frame('embed_iframe') # switch into lti frame
+            .pause 2000
             .getAttribute '#container', 'src', (err, src) -> expect(src).toContain('player.html')
             # Disable alert warning since it crashes Selenium
             .execute 'window.onbeforeunload = null'
@@ -134,12 +135,12 @@ describe 'LTI iframe test', ->
 selectFirstWidget = (client) ->
     client
         .frame 'embed_iframe' # switch into lti frame
-        .waitFor '#list-container .widget-info', 5000
+        .waitFor '#list-container .widget-info', 18000
         .click "#list-container ul li"
-        .waitFor 'a.button.first', 50000
+        .waitForVisible 'a.button.first', 50000
         .click "a.button.first"
-        .waitFor ".progress-container.success", 5000
+        .waitFor ".progress-container.success", 10000
         .waitForExist ".progress-container.success", 2000, true # wait for this selector to disappear
-        .pause 200
+        .pause 1000
         .getText 'body', (err, text) -> expect(text).toContain("basic_lti")
 
