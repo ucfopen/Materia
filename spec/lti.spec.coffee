@@ -40,7 +40,7 @@ describe 'LTI iframe test', ->
             .click('input[value="As Instructor"]')
             .frame('embed_iframe') # switch into lti frame
             .waitForText '#no-widgets', 5000
-            .url "#{setup.url}/widgets/3-enigma/create"
+            .url "#{setup.url}/widgets/#{setup.enigma}/create"
         setup.testEnigma client, widgetTitle, true
         client
             .url("#{setup.url}/lti/test/provider")
