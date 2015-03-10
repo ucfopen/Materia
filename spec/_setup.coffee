@@ -39,6 +39,7 @@ module.exports =
 		client = module.exports.webdriver.remote(module.exports.webdriverOptions).init()
 
 		# client.windowHandleMaximize 'current'
+		client.windowHandlePosition 'curent', { x: 0, y: 0 }
 		client.windowHandleSize 'current', { width: 1200, height: 650 }
 
 		waitForPageVisible = require './includes/waitForPageVisible.js'
