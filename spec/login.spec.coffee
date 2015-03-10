@@ -34,7 +34,7 @@ describe 'Login Page', ->
         client
             .waitForVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
-            .getText '.user', (err, text) -> expect(text).toBe('Welcome Prof Author')
+            .getText '.user', (err, text) -> expect(text).toBe('Welcome ' + setup.author.name)
             .getText '.logout', (err, text) -> expect(text).toBe('Logout')
             .isVisible('.user.avatar')
             .call(done)

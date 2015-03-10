@@ -86,7 +86,7 @@ describe 'When I create a widget', ->
             .execute "return $('.access_list .user_perm').length;", null, (err, result) ->
                 expect(result.value).toBe(1)
             .execute "return $('.access_list .user_perm:first-child .name').html();", null, (err, result) ->
-                expect(result.value).toContain('Prof Author')
+                expect(result.value).toContain(setup.author.name)
             .execute "return $('.access_list .user_perm:first-child select.perm').val();", null, (err, result) ->
                 expect(result.value).toBe('30')
             .execute "return $('.access_list .exp-date').val();", null, (err, result) ->
