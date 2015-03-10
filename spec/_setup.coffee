@@ -25,9 +25,11 @@ module.exports =
 	author:
 		username: '~author'
 		password: 'kogneato'
+		name: 'Prof Author'
 	student:
 		username: '~student'
 		password: 'kogneato'
+		name: 'John Student'
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'

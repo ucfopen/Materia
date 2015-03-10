@@ -21,7 +21,7 @@ describe 'When not logged in', ->
             .url("#{setup.url}/profile")
             .waitForVisible '.user_type', 5000
             .getTitle (err, title) -> expect(title).toBe('Profile | Materia')
-            .getText '.page h2', (err, text) -> expect(text).toContain('Prof Author')
+            .getText '.page h2', (err, text) -> expect(text).toContain(setup.author.name)
             .isVisible('.avatar_big')
             .call(done)
             .end(done)
