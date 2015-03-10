@@ -30,7 +30,7 @@ module.exports =
 		username: '~student'
 		password: 'kogneato'
 		name: 'John Student'
-	engima: "3-enigma"
+	enigma: "3-enigma"
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
