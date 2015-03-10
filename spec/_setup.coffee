@@ -35,13 +35,23 @@ module.exports =
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
 		logLevel: "silent" # verbose, silent, command, data, result
+	getClient: ->
+		client = module.exports.webdriver.remote(module.exports.webdriverOptions).init()
+
+		# client.windowHandleMaximize 'current'
+		client.windowHandleSize 'current', { width: 900, height: 600 }
+
+		waitForPageVisible = require './includes/waitForPageVisible.js'
+		client.addCommand 'waitForPageVisible', waitForPageVisible
+
+		return client
 	testEnigma: (client, title, publish = false) ->
 		client
 			.pause 100
 			.waitFor('#container', 7000)
 			.getTitle (err, title) -> expect(title).toBe('Create Widget | Materia')
 			.frame('container') # switch into widget frame
-			.waitForVisible('.intro.show', 7000)
+			.waitForPageVisible('.intro.show', 7000)
 			.setValue('.intro.show input[type=text]', title)
 			.click('.intro.show input[type=button]')
 			.setValue('#category_0', 'Test')
@@ -62,7 +72,7 @@ module.exports =
 	loginAt: (client, user, url) ->
 		client
 			.url(url)
-			.waitForVisible '#username', 2000
+			.waitForPageVisible '#username', 2000
 			.getTitle (err, title) -> expect(title).toBe('Login | Materia')
 			.setValue('#username', user.username)
 			.setValue('#password', user.password)

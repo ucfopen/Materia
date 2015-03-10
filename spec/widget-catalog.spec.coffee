@@ -4,7 +4,7 @@ describe 'Widget Catalog Page', ->
     client = null
     beforeEach ->
         unless client
-            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            client = setup.getClient()
 
     it 'should display widgets', (done) ->
         client
