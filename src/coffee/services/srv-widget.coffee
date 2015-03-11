@@ -39,24 +39,30 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 
 	saveWidget = (_params, callback) ->
 		params =
-			widget_id: null
 			qset: null
 			is_draft: null
-			inst_id: null
 			open_at: null
 			close_at: null
 			attempts: null
 
 		$.extend(params, _params)
 
-		Materia.Coms.Json.send 'widget_instance_save', [params.widget_id, params.name, params.qset, params.is_draft, params.inst_id, params.open_at, params.close_at, params.attempts], (widget) ->
-			if widget?
-				for i in [0..._widgets.length]
-					if _widgets[i] == widget.id
-						_widgets[i] = widget
-						break
-				_widgetIds[widget.id] = widget
-				callback(widget)
+		if params.inst_id?
+			Materia.Coms.Json.send 'widget_instance_update', [params.inst_id, params.name, params.qset, params.is_draft, params.open_at, params.close_at, params.attempts], (widget) ->
+				if widget?
+					for i in [0..._widgets.length]
+						if _widgets[i] == widget.id
+							_widgets[i] = widget
+							break
+					_widgetIds[widget.id] = widget
+					callback(widget)
+		else
+			Materia.Coms.Json.send 'widget_instance_new', [params.widget_id, params.name, params.qset, params.is_draft], (widget) ->
+				if widget?
+					# add to widgets
+					_widgets.push widget
+					_widgetIds[widget.id] = widget
+					callback(widget)
 
 	addWidget = (inst_id) ->
 		getWidget(inst_id).then (widget) ->

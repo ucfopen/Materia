@@ -109,6 +109,10 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 			# Do not allow saving if a demotion dialog is on the screen
 			return if user.warning
 
+			# If we only have self-demotion access, don't send more info to server
+			# or else we'll get a perm error
+			continue if !$scope.selected.shareable and not user.isCurrentUser
+
 			remove_widget = (user.isCurrentUser and user.remove) if not remove_widget
 
 			access = {}

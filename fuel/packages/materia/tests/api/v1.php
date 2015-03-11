@@ -106,15 +106,15 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
-	public function test_widget_instance_save()
+	public function test_widget_instance_new()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::widget_instance_save();
+		$output = \Materia\Api_V1::widget_instance_new();
 		$this->assertInvalidLoginMessage($output);
 
 		// // ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::widget_instance_save();
+		$output = \Materia\Api_V1::widget_instance_new();
 		$this->assertInvalidLoginMessage($output);
 
 		// ======= AUTHOR ========
@@ -127,7 +127,7 @@ class Test_Api_V1 extends \Basetest
 		$widget_id = 5;
 		$qset = $this->create_new_qset($question, $answer);
 
-		$output = \Materia\Api_V1::widget_instance_save($widget_id, $title, $qset, true);
+		$output = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
 		$this->assertIsWidgetInstance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
@@ -136,6 +136,34 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals($question, $output->qset->data['items'][0]['items'][0]['questions'][0]['text']);
 		$this->assertEquals($answer, $output->qset->data['items'][0]['items'][0]['answers'][0]['text']);
 		$this->assertEquals(100, $output->qset->data['items'][0]['items'][0]['answers'][0]['value']);
+
+		// DELETE
+		\Materia\Api_V1::widget_instance_delete($output->id);
+
+	}
+
+	public function test_widget_instance_update()
+	{
+		// ======= AS NO ONE ========
+		$output = \Materia\Api_V1::widget_instance_update();
+		$this->assertInvalidLoginMessage($output);
+
+		// // ======= STUDENT ========
+		$this->_asStudent();
+		$output = \Materia\Api_V1::widget_instance_update();
+		$this->assertInvalidLoginMessage($output);
+
+		// ======= AUTHOR ========
+		$this->_asAuthor();
+
+		// NEW DRAFT
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$widget_id = 5;
+		$qset = $this->create_new_qset($question, $answer);
+
+		$output = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
 
 		// EDIT
 		$title = 'Around The World!';
@@ -146,7 +174,7 @@ class Test_Api_V1 extends \Basetest
 		$qset->data['items'][0]['items'][0]['questions'][0]['text'] = $question;
 		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
 
-		$output = \Materia\Api_V1::widget_instance_save($widget_id, $title, $qset, true, $output->id);
+		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, true);
 		$this->assertIsWidgetInstance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
@@ -165,7 +193,7 @@ class Test_Api_V1 extends \Basetest
 		$qset->data['items'][0]['items'][0]['questions'][0]['text'] = $question;
 		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
 
-		$output = \Materia\Api_V1::widget_instance_save($widget_id, $title, $qset, false, $output->id);
+		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, false);
 		$this->assertIsWidgetInstance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
@@ -182,6 +210,7 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+
 	public function test_widget_instance_lock()
 	{
 		\Config::set('materia.lock_timeout', 2); // set the timeout to 5 seconds
@@ -197,7 +226,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= AUTHOR ========
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$output = \Materia\Api_V1::widget_instance_save(5, 'delete', $qset, true);
+		$output = \Materia\Api_V1::widget_instance_new(5, 'delete', $qset, true);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
 		$inst_id = $output->id;
 
@@ -217,6 +246,11 @@ class Test_Api_V1 extends \Basetest
 		\Materia\Api_V1::widget_instance_delete($inst_id);
 	}
 
+	public function test_widget_instance_save()
+	{
+		// nothing to do, this function is an alias of widget_instance_new
+	}
+
 	public function test_widget_instance_copy()
 	{
 		// ======= AS NO ONE ========
@@ -230,7 +264,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= AUTHOR ========
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$output = \Materia\Api_V1::widget_instance_save(5, 'delete', $qset, true);
+		$output = \Materia\Api_V1::widget_instance_new(5, 'delete', $qset, true);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
 		$inst_id = $output->id;
 
@@ -304,7 +338,7 @@ class Test_Api_V1 extends \Basetest
 		$widget_id = 5;
 		$qset = $this->create_new_qset($question, $answer);
 
-		$saveOutput = \Materia\Api_V1::widget_instance_save($widget_id, $title, $qset, true); // draft
+		$saveOutput = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true); // draft
 		$this->assertInstanceOf('\Materia\Widget_Instance', $saveOutput);
 
 		// this should fail - you cant play drafts
@@ -355,7 +389,7 @@ class Test_Api_V1 extends \Basetest
 		\Fuel::$is_cli = false;
 		\Auth::logout();
 
-		// Login as Superuser 
+		// Login as Superuser
 		\Materia\Api_V1::session_login('~testSu', 'interstellar555!');
 		$output = \RocketDuck\Perm_Manager::is_super_user();
 		$this->assertTrue($output);
@@ -689,7 +723,7 @@ class Test_Api_V1 extends \Basetest
 
 		//make a new widget to use with remaining tests
 		$this->_asAuthor();
-		$widget = \Materia\Api_V1::widget_instance_save(5, 'test', new stdClass(), false);
+		$widget = \Materia\Api_V1::widget_instance_new(5, 'test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
 		//give author2 and author3 full access from author
@@ -769,7 +803,7 @@ class Test_Api_V1 extends \Basetest
 
 		//make a new widget to then create item notifications
 		$this->_asAuthor();
-		$widget = \Materia\Api_V1::widget_instance_save(3, 'notification_test', new stdClass(), false);
+		$widget = \Materia\Api_V1::widget_instance_new(3, 'notification_test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
 		//change permissions to get notifications
@@ -781,7 +815,7 @@ class Test_Api_V1 extends \Basetest
 
 		//make another widget to then create item notifications
 		$this->_asAuthor2();
-		$widget2 = \Materia\Api_V1::widget_instance_save(3, 'notification_test2', new stdClass(), false);
+		$widget2 = \Materia\Api_V1::widget_instance_new(3, 'notification_test2', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget2);
 
 		//change permissions to get notifications
@@ -846,7 +880,7 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= Create a widget and share it with author1
 		$this->_asAuthor2();
-		$widget = \Materia\Api_V1::widget_instance_save(3, 'notification_test', new stdClass(), false);
+		$widget = \Materia\Api_V1::widget_instance_new(3, 'notification_test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
 		//change permissions to get notifications

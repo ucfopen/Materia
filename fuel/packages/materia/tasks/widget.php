@@ -233,7 +233,7 @@ class Widget extends \Basetask
 		}
 
 		// create the widget
-		$result = \Materia\API::widget_instance_save($engine_id, $widget_name, null, false);
+		$result = \Materia\API::widget_instance_new($engine_id, $widget_name, null, false);
 
 		if ( ! $result instanceof \Materia\Widget_Instance)
 		{
@@ -704,6 +704,7 @@ class Widget extends \Basetask
 		return $existing_widget;
 	}
 
+	// @TODO: duplicate EXISTS in Materia\Widget_Installer
 	private static function install_demo($widget_id, $package_dir, $existing_inst_id = null)
 	{
 		// ADD the Demo
@@ -727,7 +728,15 @@ class Widget extends \Basetask
 
 			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
 			\Cli::write("Exising demo id: $existing_inst_id", 'yellow');
-			$saved_demo = \Materia\API::widget_instance_save($widget_id, $demo_data['name'], $qset, false, $existing_inst_id);
+			if ($existing_inst_id)
+			{
+				$saved_demo = \Materia\API::widget_instance_update($existing_inst_id, $demo_data['name'], $qset, false);
+			}
+			else
+			{
+				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
+			}
+
 			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
 			{
 				trace($saved_demo);

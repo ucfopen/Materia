@@ -26,7 +26,7 @@ errHandle = (err) ->
 
 # PATHS
 path =
-	js:           './src/coffee/'
+	js:          './src/coffee/'
 	jsOut:       './public/themes/default/assets/js/'
 	jsStaticOut: './static/js/'
 	css:         './src/sass/'
@@ -37,6 +37,7 @@ coffeeScripts = [
 	{
 		name: 'student', combine: yes, destination: path.jsOut
 		files: [
+			'ng-constants.coffee',
 			'services/srv-user.coffee',
 			'services/srv-api.coffee',
 			'services/srv-datetime.coffee',

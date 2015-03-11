@@ -11,4 +11,7 @@
 		{{ alert.msg }}
 		<button ng-click="alert.msg = null" class="action_button">Okay</button>
 	</modal-dialog>
+	<modal-dialog show="fatal.msg" dialog-title="{{ fatal.title }}" width="520px">
+		<div>{{ fatal.msg }}</div>
+	</modal-dialog>
 </section>
