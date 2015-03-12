@@ -136,14 +136,14 @@ for group in coffeeScripts
 
 gulp.task 'js', dynamicTasks # add a js task to run all dynamic js-* tasks
 
-gulp.task 'hash', ['js'], ->
+gulp.task 'hash', ['js', 'css'], ->
 	hashOptions =
 		jsonOutput: true
 		dest: "fuel/app/config"
 		relative: "public/"
 		filename: "asset_hash.json"
 
-	gulp.src path.jsOut + "/*.js"
+	gulp.src [path.jsOut + "/*.js", path.cssOut + "/*.css"]
 		.pipe hashsum(hashOptions)
 
 gulp.task 'watch', ->
