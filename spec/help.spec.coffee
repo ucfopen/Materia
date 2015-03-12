@@ -5,7 +5,7 @@ describe 'Help Page', ->
 
     beforeEach ->
         unless client
-            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            client = setup.getClient()
 
     it 'should redirect to login when not logged in', (done) ->
         client

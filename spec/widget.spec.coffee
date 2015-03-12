@@ -9,7 +9,7 @@ describe 'When I create a widget', ->
 
     beforeEach ->
         unless client
-            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            client = setup.getClient()
 
     it 'it should update hash url', (done) ->
         setup.loginAt client, setup.author, "#{setup.url}/users/login"
@@ -19,7 +19,7 @@ describe 'When I create a widget', ->
             .moveToObject('.widget.enigma .infocard', 10, 10)
             .waitFor('.infocard:hover .header h1', 4000)
             .click('.infocard:hover .header')
-            .waitForVisible('#createLink', 7000)
+            .waitForPageVisible('#createLink', 7000)
             .click('#createLink')
         setup.testEnigma client, title, false
         client
@@ -47,8 +47,8 @@ describe 'When I create a widget', ->
                 expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
             .url("#{setup.url}/my-widgets#"+instanceID)
-            .waitForVisible '#widget_'+instanceID, 7000
-            .waitForVisible '.share-widget-container', 7000
+            .waitForPageVisible '#widget_'+instanceID, 7000
+            .waitForPageVisible '.share-widget-container', 7000
             .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
                 expect(opacity.property).toBe('opacity')
                 expect(opacity.value).toBeGreaterThan(0)
@@ -75,7 +75,7 @@ describe 'When I create a widget', ->
         client
             .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
-            .waitForVisible '.share div.link'
+            .waitForPageVisible '.share div.link'
             .pause(1000)
             .click('.share div.link')
             .waitFor('.share .ng-modal-title', 7000)
@@ -86,12 +86,12 @@ describe 'When I create a widget', ->
             .execute "return $('.access_list .user_perm').length;", null, (err, result) ->
                 expect(result.value).toBe(1)
             .execute "return $('.access_list .user_perm:first-child .name').html();", null, (err, result) ->
-                expect(result.value).toContain(setup.author.name)
+                expect(result.value).toContain('Prof Author')
             .execute "return $('.access_list .user_perm:first-child select.perm').val();", null, (err, result) ->
                 expect(result.value).toBe('30')
             .execute "return $('.access_list .exp-date').val();", null, (err, result) ->
                 expect(result.value).toBe('Never')
-            .waitForVisible '#access .cancel_button', 500
+            .waitForPageVisible '#access .cancel_button', 500
             .click('#access .cancel_button')
             .call(done)
 
@@ -101,7 +101,7 @@ describe 'When I create a widget', ->
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .getText '#widget_'+instanceID+'.gameSelected li.title', (err, selectedTitle) ->
                 expect(selectedTitle).toBe(title)
-            .waitForVisible '#copy_widget_link', 5000
+            .waitForPageVisible '#copy_widget_link', 5000
             .pause 1000
             .getAttribute '#copy_widget_link', 'class', (err, classes) ->
                 expect(classes).toContain('link')
@@ -127,25 +127,26 @@ describe 'When I create a widget', ->
                 # this happens here
                 copyInstanceID = result.value
                 expect(copyInstanceID.length).toBe(5)
-                # console.log "Copy Instance: #{result.value}"
-            .waitForVisible('#widget_'+copyInstanceID+'.gameSelected', 7000)
-            .waitForText('.page h1', 7000)
-            # copy shows up in list and selected
-            # .getText '.page h1', (err, text) ->
-            #     expect(text).toBe(copyTitle)
-            # # copy shows up in main window
-            # .getText '.widget.gameSelected li.title', (err, text) ->
-            #     expect(text).toBe(copyTitle)
-            .call(done)
+                selector = '#widget_'+copyInstanceID+'.gameSelected'
+                client
+                    .waitForVisible(selector, 7000)
+                    .waitForText('.page h1', 7000)
+                    .call(done)
+                # copy shows up in list and selected
+                # .getText '.page h1', (err, text) ->
+                #     expect(text).toBe(copyTitle)
+                # # copy shows up in main window
+                # .getText '.widget.gameSelected li.title', (err, text) ->
+                #     expect(text).toBe(copyTitle)
     , 45000
 
     it 'it should delete using the delete button', (done) ->
         client
             .url("#{setup.url}/my-widgets#/"+instanceID)
             .pause 3000
-            .waitForVisible '#delete_widget_link', 5000
+            .waitForPageVisible '#delete_widget_link', 5000
             .click '#delete_widget_link'
-            .waitForVisible '.controls .delete_button', 5000
+            .waitForPageVisible '.controls .delete_button', 5000
             .click '.delete_button'
             .waitForExist "#widget_#{instanceID}.gameSelected", 2000, true # reversed, wait for it not to exist
             .refresh()

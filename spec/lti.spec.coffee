@@ -1,13 +1,12 @@
 setup = require('./_setup')
 
-
 describe 'LTI iframe test', ->
     client = null
     widgetTitle = "Test widget"
 
     beforeEach ->
         unless client
-            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            client = setup.getClient()
         client
             .url("#{setup.url}/lti/test/provider")
             .getTitle (err, title) -> expect(title).toBe('Materia Test as Provider')
@@ -31,7 +30,7 @@ describe 'LTI iframe test', ->
         client
             .click('input[value="As NEW Instructor"]')
             .frame('embed_iframe') # switch into lti frame
-            .waitForVisible '#no-widgets', 5000
+            .waitForPageVisible '#no-widgets', 5000
             .getText '#no-widgets', (err, text) ->  expect(text).toContain("You don't have any widgets yet.")
             .call done
 
@@ -41,7 +40,7 @@ describe 'LTI iframe test', ->
             .frame('embed_iframe') # switch into lti frame
             .waitForText '#no-widgets', 5000
             .url "#{setup.url}/widgets/#{setup.enigma}/create"
-        setup.testEnigma client, widgetTitle, true
+        setup.testEnigma client, "widgetTitle", true
         client
             .url("#{setup.url}/lti/test/provider")
             .click('input[value="As Instructor"]')
@@ -137,7 +136,7 @@ selectFirstWidget = (client) ->
         .frame 'embed_iframe' # switch into lti frame
         .waitFor '#list-container .widget-info', 18000
         .click "#list-container ul li"
-        .waitForVisible 'a.button.first', 50000
+        .waitForPageVisible 'a.button.first', 50000
         .click "a.button.first"
         .waitFor ".progress-container.success", 10000
         .waitForExist ".progress-container.success", 2000, true # wait for this selector to disappear
