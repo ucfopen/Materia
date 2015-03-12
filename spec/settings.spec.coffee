@@ -4,7 +4,7 @@ describe 'When not logged in', ->
     client = null
     beforeEach ->
         unless client
-            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            client = setup.getClient()
 
     it ' settings should redirect to login', (done) ->
         client
@@ -18,7 +18,7 @@ describe 'Settings page', ->
 
     beforeEach ->
         unless client
-            client = setup.webdriver.remote(setup.webdriverOptions).init()
+            client = setup.getClient()
             setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client
             .url("#{setup.url}/settings")
