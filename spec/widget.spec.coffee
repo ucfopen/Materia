@@ -3,8 +3,10 @@ setup = require('./_setup')
 describe 'When I create a widget', ->
     instanceID = null
     copyInstanceID = null
+    publishedInstanceID = null #"F6pQe"
     title = 'Selenium Test Enigma Widget '+Math.random()
     copyTitle = "#{title} COPY TEST"
+    publishedTitle = "#{title} PUBLISHED"
     client = null
 
     beforeEach ->
@@ -30,6 +32,115 @@ describe 'When I create a widget', ->
                 expect(instanceID.length).toBe(5)
             .call(done)
     , 55000
+
+    it 'should show the settings dialog with default values', (done) ->
+        client.url "#{setup.url}/widgets/#{setup.enigma}/create"
+        setup.testEnigma client, publishedTitle, true
+        client
+            .execute "return document.location.hash.substring(1);", null, (err, result) ->
+                publishedInstanceID = result.value
+                client
+                    .url "about:blank"
+                    .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+                    .pause 5000
+                    .waitFor '#widget_' + publishedInstanceID + '.gameSelected', 7000
+                    .waitFor '#edit-availability-button'
+                    .click '#edit-availability-button'
+                    .waitFor '.availability .ng-modal-title', 7000
+                    .call done
+    , 55000
+
+    it 'should show student activity', (done) ->
+        # play the game to get a score
+        client
+            .url "#{setup.url}/play/#{publishedInstanceID}"
+        setup.playEnigma client
+
+            # look for student activity
+            .url 'about:blank'
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitFor '.scoreWrapper', 7000
+            .getText '.players', (err, text) -> expect(text).toBe('1')
+            .getText '.score-count', (err, text) -> expect(text).toBe('1')
+            .getText '.final-average', (err, text) -> expect(text).toBe('100')
+            .pause 100
+
+        # play the game again
+        client
+            .url "about:blank"
+            .url "#{setup.url}/play/#{publishedInstanceID}"
+        setup.playEnigma client
+
+            # look for updated student activity
+            .url 'about:blank'
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitFor '.scoreWrapper', 7000
+            .getText '.players', (err, text) -> expect(text).toBe('1')
+            .getText '.score-count', (err, text) -> expect(text).toBe('2')
+            .getText '.final-average', (err, text) -> expect(text).toBe('100')
+            .pause 100
+            .call done
+    , 55000
+
+    it 'should save widget settings', (done) ->
+        client
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitFor '#widget_' + publishedInstanceID + '.gameSelected', 7000
+            .waitFor '#edit-availability-button'
+
+            # Set this widget to 1 attempt, open 1/1/1970 at 9AM, close at 1/1/2038 at 11AM
+            .click '#edit-availability-button'
+            .waitFor '.availability .ng-modal-title', 7000
+            .click '#value_1'
+            .click '.from .date'
+            .setValue '.from .date', "01/01/1970"
+            .setValue '.from .time', "9"
+            .click '.to .date'
+            .setValue '.to .date', "01/01/2038"
+            .setValue '.to .time', "11"
+            .pause 1000
+            .click '.availability .action_button.save'
+            .pause 5000
+            .getText '.num-attempts', (err, text) -> expect(text).toBe('1')
+            .getText '.availability-time', (err, text) -> expect(text).toBe("From 1/1/70 at 9:00am until 1/1/38 at 11:00am")
+
+            # Now lets set it back to default
+            .click '#edit-availability-button'
+            .waitFor '.availability .ng-modal-title', 7000
+            .click '#value_25'
+            .click '.from .anytime.availability'
+            .click '.to .anytime.availability'
+            .pause 1000
+            .click '.availability .action_button.save'
+            .pause 5000
+            .getText '.num-attempts', (err, text) -> expect(text).toBe('Unlimited')
+            .getText '.availability-time', (err, text) -> expect(text).toBe("Anytime")
+            .call done
+    , 55000
+
+    it 'should reject saving invalid widget settings and display expected errors', (done) ->
+        client
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitFor '#widget_' + publishedInstanceID + '.gameSelected', 7000
+            .waitFor '#edit-availability-button'
+
+            # Attempt to set this widget to open at 1/1/1970 but no close time
+            .click '#edit-availability-button'
+            .waitFor '.availability .ng-modal-title', 7000
+            .click '.from .date'
+            .setValue '.from .date', "01/01/1970"
+            .click '.availability .action_button.save'
+            .waitForPageVisible '.availabilityError', 7000
+            .getText '.availabilityError', (err, text) -> expect(text).toBe('The time is missing.')
+            .waitFor '.availability .ng-modal-title', 7000
+
+            # @TODO: Check for all possible error states
+
+            .call done
 
     it 'it should appear as a draft', (done) ->
         client
@@ -121,6 +232,7 @@ describe 'When I create a widget', ->
         client
             .url("about:blank")
             .url("#{setup.url}/my-widgets#/"+instanceID)
+            .pause 5000
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .waitFor '.share div.link', 7000
             .pause 1000
