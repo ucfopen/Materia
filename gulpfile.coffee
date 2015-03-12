@@ -7,8 +7,8 @@ concat        = require 'gulp-concat'
 uglify        = require 'gulp-uglify' # minify and mangle js
 minifyCss     = require 'gulp-minify-css'
 ngAnnotate    = require 'gulp-ng-annotate' # protect angular dependency injection from minify
+hashsum       = require 'gulp-hashsum-json'
 # livereload    = require 'gulp-livereload' # reload the browser when files change
-hashsum = require 'gulp-hashsum-json'
 
 notify = (message) ->
 	notifier = require 'node-notifier'
@@ -101,12 +101,6 @@ coffeeScripts = [
 # DYNAMIC JS TASKS
 dynamicTasks = []
 
-hashOptions =
-	jsonOutput: true
-	dest: "fuel/app/config"
-	relative: "public/"
-	filename: "asset_hash.json"
-
 # prepend the files above with a full path
 for group in coffeeScripts
 	group.files = (path.js+file for file in group.files) # prepend all files with the js source dir
@@ -143,6 +137,12 @@ for group in coffeeScripts
 gulp.task 'js', dynamicTasks # add a js task to run all dynamic js-* tasks
 
 gulp.task 'hash', ['js'], ->
+	hashOptions =
+		jsonOutput: true
+		dest: "fuel/app/config"
+		relative: "public/"
+		filename: "asset_hash.json"
+
 	gulp.src path.jsOut + "/*.js"
 		.pipe hashsum(hashOptions)
 
