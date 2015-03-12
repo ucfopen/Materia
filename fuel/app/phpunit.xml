@@ -8,9 +8,6 @@
 		<server name="package_path" value="fuel/packages"/>
 	</php>
 	<testsuites>
-		<testsuite name="core">
-			<directory suffix=".php">../core/tests</directory>
-		</testsuite>
 		<testsuite name="packages">
 			<directory suffix=".php">../packages/*/tests</directory>
 		</testsuite>
