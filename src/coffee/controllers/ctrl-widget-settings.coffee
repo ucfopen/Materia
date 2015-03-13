@@ -49,11 +49,11 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 
 	# Sets up the date pickers for the availability times
 	$scope.setupDatePickers = ->
-		$(".date.from").datepicker
+		$(".from .date").datepicker
 			onSelect: (dateText) ->
 				$scope.availability[0].date = dateText
 
-		$(".date.to").datepicker
+		$(".to .date").datepicker
 			onSelect: (dateText) ->
 				$scope.availability[1].date = dateText
 

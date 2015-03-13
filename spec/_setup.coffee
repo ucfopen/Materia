@@ -34,7 +34,7 @@ module.exports =
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
-		logLevel: "verbose" # verbose, silent, command, data, result
+		logLevel: "silent" # verbose, silent, command, data, result
 	getClient: ->
 		client = module.exports.webdriver.remote(module.exports.webdriverOptions).init()
 
@@ -44,6 +44,34 @@ module.exports =
 
 		waitForPageVisible = require './includes/waitForPageVisible.js'
 		client.addCommand 'waitForPageVisible', waitForPageVisible
+
+		# cycles through every window, looking for one whose url contains partialUrl
+		client.addCommand 'waitForUrlContains', (partialUrl, ms, callback) ->
+			client = this
+			curTime = 0
+			intervalMs = 500
+			initialTabId = null
+
+			client.getCurrentTabId (err, tabId, res) ->
+				initialTabId = tabId
+
+				intervalId = setInterval ->
+					curTime += intervalMs
+					if curTime > ms
+						clearInterval intervalId
+						client.switchTab initialTabId
+						callback "URL did not match #{partialUrl}", null, client
+						return
+
+					client.getTabIds (err, val, res) ->
+						for tabId in val
+							client.switchTab tabId
+							client.url (err, res) ->
+								if res.value.indexOf(partialUrl) > -1
+									clearInterval intervalId
+									client.switchTab initialTabId
+									callback null, res.value, client
+				, intervalMs
 
 		return client
 	testEnigma: (client, title, publish = false) ->

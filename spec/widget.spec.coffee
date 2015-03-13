@@ -71,7 +71,6 @@ describe 'When I create a widget', ->
             .url "about:blank"
             .url "#{setup.url}/play/#{publishedInstanceID}"
         setup.playEnigma client
-
             # look for updated student activity
             .url 'about:blank'
             .url "#{setup.url}/my-widgets#/" + publishedInstanceID
@@ -81,6 +80,78 @@ describe 'When I create a widget', ->
             .getText '.score-count', (err, text) -> expect(text).toBe('2')
             .getText '.final-average', (err, text) -> expect(text).toBe('100')
             .pause 100
+            .call done
+    , 55000
+
+    it 'should display the individual scores tab when selected', (done) ->
+        client
+            .url "about:blank"
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitForPageVisible 'a.table', 7000
+            .click 'a.table'
+            .waitForPageVisible '.score-search > input', 7000
+            .call done
+    , 55000
+
+    it 'should filter the individual scores list when searching for users', (done) ->
+        client
+            .url "about:blank"
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitForPageVisible 'a.table', 7000
+            .click 'a.table'
+            .waitForPageVisible '.score-search > input', 7000
+
+            # search for "author", should have 1 result
+            .setValue '.score-search > input', "author"
+            .pause 1000
+            .waitForPageVisible 'td.listName', 7000
+            .getText 'td.listName', (err, text) -> expect(text).toBe('Author, Prof')
+
+            # search for "xyzzy", nothing should be found
+            .setValue '.score-search > input', "xyzzy"
+            .pause 1000
+            .waitForExist 'td.listName', 7000, true # reverse, so, waitForNotExist
+
+            .call done
+    , 55000
+
+    it 'should take me to the score screen when clicking on an individual score', (done) ->
+        client
+            .url "about:blank"
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitForPageVisible 'a.table', 7000
+            .click 'a.table'
+            .waitForPageVisible '.scoreListTable td', 7000
+            .click '.scoreListTable td'
+            .waitForPageVisible '.scoreTable tr', 7000
+            .click '.scoreTable tr'
+            .waitForUrlContains '/scores/', 7000, (err, res, client) ->
+                expect(err).toBe(null)
+                client.call done
+    , 55000
+
+    it 'should display the export scores dialog for a widget with scores', (done) ->
+        client
+            .url "about:blank"
+            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
+            .pause 5000
+            .waitForPageVisible '#export_scores_button'
+            .click '#export_scores_button'
+            .waitForPageVisible '.csv_popup .download_wrapper h3', 7000
+            .call done
+    , 55000
+
+    it 'should not display the export scores dialog for a widget without scores', (done) ->
+        client
+            .url "about:blank"
+            .url "#{setup.url}/my-widgets#/" + instanceID
+            .pause 5000
+            .waitForPageVisible '#export_scores_button'
+            .click '#export_scores_button'
+            .waitForPageVisible '.csv_popup .download_wrapper h3', 7000, true
             .call done
     , 55000
 
@@ -95,15 +166,21 @@ describe 'When I create a widget', ->
             .click '#edit-availability-button'
             .waitFor '.availability .ng-modal-title', 7000
             .click '#value_1'
+            .pause 100
             .click '.from .date'
+            .pause 100
             .setValue '.from .date', "01/01/1970"
+            .pause 100
             .setValue '.from .time', "9"
             .click '.to .date'
+            .pause 100
             .setValue '.to .date', "01/01/2038"
+            .pause 100
             .setValue '.to .time', "11"
             .pause 1000
             .click '.availability .action_button.save'
             .pause 5000
+            .waitForPageVisible '.num-attempts', 7000
             .getText '.num-attempts', (err, text) -> expect(text).toBe('1')
             .getText '.availability-time', (err, text) -> expect(text).toBe("From 1/1/70 at 9:00am until 1/1/38 at 11:00am")
 
@@ -111,11 +188,14 @@ describe 'When I create a widget', ->
             .click '#edit-availability-button'
             .waitFor '.availability .ng-modal-title', 7000
             .click '#value_25'
+            .pause 100
             .click '.from .anytime.availability'
+            .pause 100
             .click '.to .anytime.availability'
             .pause 1000
             .click '.availability .action_button.save'
             .pause 5000
+            .waitForPageVisible '.num-attempts', 7000
             .getText '.num-attempts', (err, text) -> expect(text).toBe('Unlimited')
             .getText '.availability-time', (err, text) -> expect(text).toBe("Anytime")
             .call done
@@ -158,6 +238,7 @@ describe 'When I create a widget', ->
                 expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
             .url("#{setup.url}/my-widgets#"+instanceID)
+            .pause 5000
             .waitForPageVisible '#widget_'+instanceID, 7000
             .waitForPageVisible '.share-widget-container', 7000
             .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
@@ -342,8 +423,36 @@ describe 'When I create a widget', ->
             .waitFor '.access_list .user_perm[data-user-id="2"] select', 7000
             .selectByValue '.access_list .user_perm[data-user-id="2"] select', '0'
             .waitFor '.access_list .user_perm[data-user-id="2"] .demote_dialogue', 7000
-            .click '.access_list .user_perm:first-child .demote_dialogue .no_button'
-            #@TODO - test completing this and make sure features don't work
+            .click '.access_list .user_perm:first-child .demote_dialogue .yes_button'
+            .pause 1000
+            .click '.save_button'
+            .url 'about:blank'
+            .url('http://localhost:8080/my-widgets#/'+copyInstanceID)
+            .pause 5000
+
+            # editing should fail
+            .click '#edit_button'
+            .waitForPageVisible '.edit-published-widget .ng-modal-title', 7000, true #reversed, so, waitForNotPageVisible
+
+            # copying should fail
+            .click '#copy_widget_link'
+            .waitForPageVisible '.copy .ng-modal-title', 7000, true #reversed, so, waitForNotPageVisible
+
+            # delete should fail
+            .click '#delete_widget_link'
+            .waitForPageVisible '.controls .delete_button', 7000, true #reversed, so, waitForNotPageVisible
+
+            # edit settings should fail
+            .click '#edit-availability-button'
+            .waitForPageVisible '.availability .ng-modal-title', 7000, true  #reversed, so, waitForNotPageVisible
+
+            # upgrading access should fail
+            .click '.share div.link'
+            .waitFor '.share .ng-modal-title', 7000
+            .selectByValue '.access_list .user_perm[data-user-id="2"] select', '30'
+            .pause 1000
+            .getValue '.access_list .user_perm[data-user-id="2"] select', (err, val) -> expect(val).toBe('0')
+
             .call done
 
     it 'it remove a widget from my widgets after removing your access', (done) ->
