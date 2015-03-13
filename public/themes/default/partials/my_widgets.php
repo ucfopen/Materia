@@ -213,6 +213,7 @@
 					<div class="icon-controls-container">
 						<div class="icon-container med_{{ selected.widget.beard }}" ng-class="{ big_bearded: selected.widget.beard }">
 							<img class="icon" ng-src='{{selected.widget.iconbig}}'>
+						</div>
 						<div class="controls">
 							<ul>
 								<li class="control-buttons">
