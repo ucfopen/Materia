@@ -17,7 +17,7 @@
   "devDependencies": {
     "gulp-livereload": "^3.8.0",
     "gulp-watch": "^4.1.1",
-    "webdriverjs": "1.7.5",
+    "webdriverio": "^2.4.5",
     "node-notifier": "^4.1.2"
   }
 }

@@ -34,7 +34,6 @@
 
 						<div class="widget-info">
 							<h1><a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}" class="searchable">{{widget.name}}</a></h1>
-
 							<dl class="inline-def blurb">
 								<dt data-type="description">Description:</dt>
 								<dd>{{widget.meta_data['excerpt']}}</dd>
@@ -42,7 +41,7 @@
 
 							<dl class="inline-def features-list">
 								<dt data-type="features">Features:</dt>
-								<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
+								<dd ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
 								<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
 								<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
 							</dl>

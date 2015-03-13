@@ -35,7 +35,7 @@ class Test_Api extends \Basetest
 
 		// create an instance
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(5, 'test-instance', $qset, false);
 
 		$this->assertIsWidgetInstance($widget_instance);
 		$inst_id = $widget_instance->id;
@@ -70,7 +70,7 @@ class Test_Api extends \Basetest
 		// create instance
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(5, 'test-instance', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 
 		$play_id = \Materia\Api_V1::session_play_create($widget_instance->id);
@@ -287,7 +287,7 @@ class Test_Api extends \Basetest
 	{
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(5, 'test-instance', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 
 		// Setup some testing variables
@@ -313,7 +313,7 @@ class Test_Api extends \Basetest
 
 		// create an instance
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(3, 'test-instance-3', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(3, 'test-instance-3', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 		$inst_id = $widget_instance->id;
 
@@ -331,7 +331,7 @@ class Test_Api extends \Basetest
 		// create instance
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(5, 'test-instance', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 
 		// Setup some testing variables
@@ -404,7 +404,7 @@ class Test_Api extends \Basetest
 		// create instance
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(5, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(5, 'test-instance', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 
 		// Setup some testing variables
@@ -434,7 +434,7 @@ class Test_Api extends \Basetest
 
 		// create new instance
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_save(6, 'test-instance-2', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(6, 'test-instance-2', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 		$item_id = $widget_instance->id;
 		$original_item_id = $item_id;

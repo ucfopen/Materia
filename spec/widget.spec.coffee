@@ -1,54 +1,32 @@
 setup = require('./_setup')
 
 describe 'When I create a widget', ->
-    client = null
-    beforeEach ->
-        client = setup.webdriverjs.remote(setup.webdriverOptions).init()
-        # Reset the profile every time
-        client
-            .url('http://localhost:8080/users/login')
-            .setValue('#username', setup.author.username)
-            .setValue('#password', setup.author.password)
-            .click('form button.action_button')
-            .pause(500)
-    afterEach (done) -> client.end(done)
-
     instanceID = null
+    copyInstanceID = null
     title = 'Selenium Test Enigma Widget '+Math.random()
     copyTitle = "#{title} COPY TEST"
+    client = null
+
+    beforeEach ->
+        unless client
+            client = setup.getClient()
+
     it 'it should update hash url', (done) ->
-        client.url('http://localhost:8080/widgets')
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Widget Catalog | Materia')
-            .waitFor('.widget.enigma', 7000)
-            .moveToObject('.widget.enigma')
+        setup.loginAt client, setup.author, "#{setup.url}/users/login"
+        client.url("#{setup.url}/widgets")
+            .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
+            .waitFor('.widget.enigma', 3000)
+            .moveToObject('.widget.enigma .infocard', 10, 10)
+            .waitFor('.infocard:hover .header h1', 4000)
             .click('.infocard:hover .header')
-            .waitFor('#createLink', 7000)
-            .pause 1000
+            .waitForPageVisible('#createLink', 7000)
             .click('#createLink')
-            .pause 3000
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('Create Widget | Materia')
-            .waitFor('#container', 7000)
-            .frame('container') # switch into widget frame
-            .waitFor('.intro.show', 7000)
-            .setValue('.intro.show input', title)
-            .click('.intro.show input[type=button]')
-            .setValue('#category_0', 'Test')
-            .pause 500
-            .click('.questionholder button.add')
-            .pause 500
-            .setValue('#question_text', 'Test question')
-            .pause 500
-            .frame(null) # switch back to main content
-            .execute "$('#creatorSaveBtn').click();", null, (err,result) -> true
-            .pause 5000
+        setup.testEnigma client, title, false
+        client
             .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 instanceID = result.value
-                console.log instanceID
-                expect(err).toBeNull()
+                # console.log "instanceid: #{instanceID}"
+                expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
             .call(done)
     , 55000
@@ -56,124 +34,129 @@ describe 'When I create a widget', ->
     it 'it should appear as a draft', (done) ->
         client
             .call -> expect(instanceID.length).toBe(5)
-            .url('http://localhost:8080/my-widgets#'+instanceID)
-            .pause(1000)
-            .getTitle (err, title) ->
-                expect(err).toBeNull()
-                expect(title).toBe('My Widgets | Materia')
-            .waitFor('#widget_'+instanceID, 7000)
-            .getText '#widget_'+instanceID+' .score', (err, mode) ->
-                expect(err).toBeNull()
-                expect(mode).toBe('Draft')
+            .url("#{setup.url}/my-widgets#"+instanceID)
+            .waitFor "#widget_#{instanceID}", 7000
+            .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
+            .getText '#widget_'+instanceID+' .score', (err, mode) -> expect(mode).toBe('Draft')
             .call(done)
     , 22000
 
     it 'it should appear on my widgets page', (done) ->
         client
-            .call -> expect(instanceID.length).toBe(5)
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
-            .waitFor('#widget_'+instanceID, 7000)
-            .pause(1000)
-            .getElementCssProperty 'css selector', '.share-widget-container', 'opacity', (err, opacity) ->
-                expect(err).toBeNull()
-                expect(parseFloat(opacity)).toBeCloseTo(0.5, 2)
-            .getElementCssProperty 'id', 'embed_link', 'display', (err, display) ->
-                expect(err).toBeNull()
-                expect(display).toBe('none')
-            .getAttribute '#play_link', 'disabled', 'opacity', (err, disabled) ->
-                expect(err).toBeNull()
-                expect(disabled).toBe('disabled')
+            .call ->
+                expect(instanceID).not.toBeNull()
+                expect(instanceID.length).toBe(5)
+            .url("#{setup.url}/my-widgets#"+instanceID)
+            .waitForPageVisible '#widget_'+instanceID, 7000
+            .waitForPageVisible '.share-widget-container', 7000
+            .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeGreaterThan(0)
+                expect(opacity.value).toBeCloseTo(0.5, 2)
+            .getCssProperty '#embed_link', 'display', (err, display) ->
+                expect(display.property).toBe('display')
+                expect(display.value).toBe('none')
+            .waitForEnabled '#play_link', 5000, true # wait for it to be disabled
             .getText '#widget_'+instanceID+' .score', (err, mode) ->
-                expect(err).toBeNull()
                 expect(mode).toBe('Draft')
             .getText '.container .page h1', (err, mode) ->
-                expect(err).toBeNull()
                 expect(mode).toBe(title)
             .call(done)
 
     it 'it should be selected on my widgets page', (done) ->
         client
             .call -> expect(instanceID.length).toBe(5)
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .call(done)
 
 
     it 'it should collaborate', (done) ->
         client
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
-            .pause(2000)
+            .waitForPageVisible '.share div.link'
+            .pause(1000)
             .click('.share div.link')
             .waitFor('.share .ng-modal-title', 7000)
             .isVisible('.share')
             .getText '.share .ng-modal-title', (err, text) ->
-                expect(err).toBeNull()
-                expect(text).toBe('Collaboration:')
+                expect(text).toContain('Collaboration')
             .waitFor('.access_list .user_perm', 7000)
             .execute "return $('.access_list .user_perm').length;", null, (err, result) ->
-                expect(err).toBeNull()
                 expect(result.value).toBe(1)
             .execute "return $('.access_list .user_perm:first-child .name').html();", null, (err, result) ->
-                expect(err).toBeNull()
                 expect(result.value).toContain('Prof Author')
             .execute "return $('.access_list .user_perm:first-child select.perm').val();", null, (err, result) ->
-                expect(err).toBeNull()
                 expect(result.value).toBe('30')
             .execute "return $('.access_list .exp-date').val();", null, (err, result) ->
-                expect(err).toBeNull()
                 expect(result.value).toBe('Never')
-            .click('.cancel_button')
+            .waitForPageVisible '#access .cancel_button', 500
+            .click('#access .cancel_button')
             .call(done)
 
-    it 'it should copy', (done) ->
+    it 'it should copy and auto select', (done) ->
         client
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
-            .pause 1900
+            .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .getText '#widget_'+instanceID+'.gameSelected li.title', (err, selectedTitle) ->
-                expect(err).toBeNull()
                 expect(selectedTitle).toBe(title)
-            .waitFor('#copy_widget_link:not([disabled])', 5000)
+            .waitForPageVisible '#copy_widget_link', 5000
+            .pause 1000
+            .getAttribute '#copy_widget_link', 'class', (err, classes) ->
+                expect(classes).toContain('link')
+                expect(classes).not.toContain('disabled')
             .click('#copy_widget_link')
-            .isVisible('.ng-modal-title')
+            .isVisible('.ng-modal-title', 500)
             .getText '.copy .ng-modal-title', (err, text) ->
-                expect(err).toBeNull()
-                expect(text).toBe('Make a Copy:')
+                expect(text).toContain('Make a Copy')
             .setValue('.newtitle', copyTitle)
             .click('.copy_button.action_button')
-            # copy shows up in list and selected
-            .pause(2000)
-            .getText '.page h1', (err, text) ->
-                expect(err).toBeNull()
-                expect(text).toBe(copyTitle)
-            # copy shows up in main window
-            .getText '.widget.gameSelected li.title', (err, text) ->
-                expect(err).toBeNull()
-                expect(text).toBe(copyTitle)
-            .call(done)
+
+            # complicated bit, inject an interval timer into the
+            # page to determine when the hash url changes and return
+            # the new hash url
+            .timeoutsAsyncScript 5000
+            .executeAsync (instanceID, done) ->
+                # this happens in the browser
+                setInterval ->
+                    if document.location.hash.indexOf(instanceID) == -1
+                        done(document.location.hash.substring(2))
+                , 500
+            , instanceID, (err, result) ->
+                # this happens here
+                copyInstanceID = result.value
+                expect(copyInstanceID.length).toBe(5)
+                selector = '#widget_'+copyInstanceID+'.gameSelected'
+                client
+                    .waitForVisible(selector, 7000)
+                    .waitForText('.page h1', 7000)
+                    .call(done)
+                # copy shows up in list and selected
+                # .getText '.page h1', (err, text) ->
+                #     expect(text).toBe(copyTitle)
+                # # copy shows up in main window
+                # .getText '.widget.gameSelected li.title', (err, text) ->
+                #     expect(text).toBe(copyTitle)
     , 45000
 
     it 'it should delete using the delete button', (done) ->
         client
-            .url('http://localhost:8080/my-widgets#/'+instanceID)
-            .waitFor('#widget_'+instanceID+'.gameSelected', 5000)
-            .pause(2000)
-            .click('.controls #delete_widget_link')
-            .waitFor('.controls .delete_dialogue', 5000)
-            .isVisible('.delete_dialogue')
-            .click('.delete_button')
-            .pause(2000)
-            .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
-                expect(err).toBeNull()
-                expect(result.value).toBe(0)
+            .url("#{setup.url}/my-widgets#/"+instanceID)
+            .pause 3000
+            .waitForPageVisible '#delete_widget_link', 5000
+            .click '#delete_widget_link'
+            .waitForPageVisible '.controls .delete_button', 5000
+            .click '.delete_button'
+            .waitForExist "#widget_#{instanceID}.gameSelected", 2000, true # reversed, wait for it not to exist
             .refresh()
-            .waitFor('.widget', 5000)
-            .pause(2000)
+            .pause 3000
             .execute "return $('#widget_"+instanceID+"').length;", null, (err, result) ->
-                expect(err).toBeNull()
                 expect(result.value).toBe(0)
-            .pause(1800)
-            .isVisible('.error-nowidget')
+            .pause 1800
+            .isVisible '.error-nowidget'
             .call(done)
+            .end(done)
     , 25000
+
+
