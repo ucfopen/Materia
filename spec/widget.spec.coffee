@@ -33,6 +33,37 @@ describe 'When I create a widget', ->
             .call(done)
     , 55000
 
+    it 'it should appear as a draft', (done) ->
+        client
+            .call -> expect(instanceID.length).toBe(5)
+            .url("#{setup.url}/my-widgets#"+instanceID)
+            .waitFor "#widget_#{instanceID}", 7000
+            .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
+            .getText '#widget_'+instanceID+' .score', (err, mode) -> expect(mode).toBe('Draft')
+            .call(done)
+    , 22000
+
+    it 'it should appear on my widgets page', (done) ->
+        client
+            .url "about:blank"
+            .url("#{setup.url}/my-widgets#"+instanceID)
+            .pause 5000
+            .waitForPageVisible '#widget_'+instanceID, 7000
+            .waitForPageVisible '.share-widget-container', 7000
+            .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
+                expect(opacity.property).toBe('opacity')
+                expect(opacity.value).toBeGreaterThan(0)
+                expect(opacity.value).toBeCloseTo(0.5, 2)
+            .getCssProperty '#embed_link', 'display', (err, display) ->
+                expect(display.property).toBe('display')
+                expect(display.value).toBe('none')
+            .waitForEnabled '#play_link', 5000, true # wait for it to be disabled
+            .getText '#widget_'+instanceID+' .score', (err, mode) ->
+                expect(mode).toBe('Draft')
+            .getText '.container .page h1', (err, mode) ->
+                expect(mode).toBe(title)
+            .call(done)
+
     it 'should show the settings dialog with default values', (done) ->
         client.url "#{setup.url}/widgets/#{setup.enigma}/create"
         setup.testEnigma client, publishedTitle, true
@@ -171,13 +202,13 @@ describe 'When I create a widget', ->
             .pause 100
             .setValue '.from .date', "01/01/1970"
             .pause 100
-            .setValue '.from .time', "9"
+            .setValue '.from .time', "9:00"
             .click '.to .date'
             .pause 100
             .setValue '.to .date', "01/01/2038"
             .pause 100
-            .setValue '.to .time', "11"
-            .pause 1000
+            .setValue '.to .time', "11:00"
+            .pause 100
             .click '.availability .action_button.save'
             .pause 5000
             .waitForPageVisible '.num-attempts', 7000
@@ -221,39 +252,6 @@ describe 'When I create a widget', ->
             # @TODO: Check for all possible error states
 
             .call done
-
-    it 'it should appear as a draft', (done) ->
-        client
-            .call -> expect(instanceID.length).toBe(5)
-            .url("#{setup.url}/my-widgets#"+instanceID)
-            .waitFor "#widget_#{instanceID}", 7000
-            .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
-            .getText '#widget_'+instanceID+' .score', (err, mode) -> expect(mode).toBe('Draft')
-            .call(done)
-    , 22000
-
-    it 'it should appear on my widgets page', (done) ->
-        client
-            .call ->
-                expect(instanceID).not.toBeNull()
-                expect(instanceID.length).toBe(5)
-            .url("#{setup.url}/my-widgets#"+instanceID)
-            .pause 5000
-            .waitForPageVisible '#widget_'+instanceID, 7000
-            .waitForPageVisible '.share-widget-container', 7000
-            .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
-                expect(opacity.property).toBe('opacity')
-                expect(opacity.value).toBeGreaterThan(0)
-                expect(opacity.value).toBeCloseTo(0.5, 2)
-            .getCssProperty '#embed_link', 'display', (err, display) ->
-                expect(display.property).toBe('display')
-                expect(display.value).toBe('none')
-            .waitForEnabled '#play_link', 5000, true # wait for it to be disabled
-            .getText '#widget_'+instanceID+' .score', (err, mode) ->
-                expect(mode).toBe('Draft')
-            .getText '.container .page h1', (err, mode) ->
-                expect(mode).toBe(title)
-            .call(done)
 
     it 'it should be selected on my widgets page', (done) ->
         client
