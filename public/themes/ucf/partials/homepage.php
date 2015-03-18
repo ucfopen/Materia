@@ -22,7 +22,7 @@
 
 				<h2>Engage and Inspire Your Students</h2>
 
-				<img class="visible-xs-block visible-sm-block" src="themes/default/assets/img/front1.png">
+				<img class="hidden visible-xs-block visible-sm-block" src="themes/default/assets/img/front1.png">
 
 				<p>
 					With a growing library of games, applications, study tools, &amp; learning aids, Materia is designed to help you diversify your students' online learning experience. 
@@ -37,7 +37,7 @@
 
 				<h2>Easy to Use</h2>
 
-				<img class="visible-xs-block visible-sm-block" src="themes/default/assets/img/front2.png">
+				<img class="hidden visible-xs-block visible-sm-block" src="themes/default/assets/img/front2.png">
 
 				<p>
 					Every step of creating and delivering content in Materia has been finely tuned to be as clear and useful as possible. 
@@ -51,7 +51,7 @@
 
 				<h2>Superior Statistics</h2>
 
-				<img class="visible-xs-block visible-sm-block" src="themes/default/assets/img/front3.png">
+				<img class="hidden visible-xs-block visible-sm-block" src="themes/default/assets/img/front3.png">
 
 				<p>
 					Materia keeps tabs on how each of your widgets is being utilized.

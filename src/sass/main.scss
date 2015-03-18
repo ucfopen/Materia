@@ -409,6 +409,10 @@ h3 {
 
 	@include clearfix;
 	@include max-width;
+
+	@include respond-to(phone, tablet-portrait) {
+		padding: 0;
+	}
 }
 
 .content {
@@ -418,10 +422,14 @@ h3 {
 	padding: 10px 15px 25px;
 	box-sizing: border-box;
 
-	background: url('../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
 	background-color: #fff;
 	border: 3px solid rgba(0,0,0,.11);
 	box-shadow: 1px 3px 10px rgba(#000, .3);
+
+	@include respond-to(phone, tablet-portrait) {
+		border: 0;
+		box-shadow: none;
+	}
 
 	@include clearfix;
 	&.aside-content {
@@ -1091,6 +1099,7 @@ dl.blurb dt {
 
 	@include respond-to(phone, tablet-portrait) {
 		padding: 30px 0;
+		margin-top: 0;
 	}
 	h1 {
 		float: left;
@@ -1478,6 +1487,10 @@ footer[role=contentinfo] {
 	margin: 0;
 }
 
+.hidden {
+	display: none !important;
+}
+
 // Responsive classes for phone
 .hidden-xs {
 	@include respond-to(phone) {
@@ -1486,16 +1499,12 @@ footer[role=contentinfo] {
 }
 
 .visible-xs-block {
-	display: none !important;
-
 	@include respond-to(phone) {
 		display: block !important;
 	}
 }
 
 .visible-xs-inline {
-	display: none !important;
-
 	@include respond-to(phone) {
 		display: inline !important;
 	}
@@ -1509,16 +1518,12 @@ footer[role=contentinfo] {
 }
 
 .visible-sm-block {
-	display: none !important;
-
 	@include respond-to(tablet-portrait) {
 		display: block !important;
 	}
 }
 
 .visible-sm-inline {
-	display: none !important;
-
 	@include respond-to(tablet-portrait) {
 		display: inline !important;
 	}

@@ -183,6 +183,12 @@
 /* Spotlight */
 
 .spotlight {
+	.main_container {
+		height: 350px;
+		@include respond-to(phone, tablet-portrait) {
+			height: 420px;
+		}
+	}
 	h1 {
 		margin: 0;
 		padding: 0 0 10px 0;
@@ -192,6 +198,9 @@
 		font-weight: 900;
 
 		border-bottom: dotted black 1px;
+		@include respond-to(phone, tablet-portrait) {
+			font-size: 24px;
+		}
 	}
 	aside {
 		padding: 0 15px;
@@ -211,6 +220,9 @@
 	.store_main p {
 		color: #4a4a4a;
 		font-size: 17px;
+		@include respond-to(phone, tablet-portrait, tablet-landscape) {
+			font-size: 14px;
+		}
 		line-height: 24px;
 	}
 	a.more {
@@ -223,41 +235,42 @@
 		text-decoration: underline;
 	}
 	.store_main {
+		position: absolute;
 		section {
-			padding: 30px 40px 100px;
-			width: 920px;
-			height: 230px;
-			overflow: visible;
+			padding: 20px 20px 10px;
+			width: calc(100% - 30px);
 
 			background: transparent;
-		}
-		section.enigma {
-			padding-right: 490px;
-			width: 415px;
 
-			background: url(../img/spotlight/enigma.png) right 10px no-repeat;
-		}
-		section.crossword {
-			padding-left: 425px;
-			width: 507px;
+			img {
+				float: left;
+				@include respond-to(phone, tablet-portrait) {
+					float: none;
+					max-width: 100%;
+					max-height: 200px;
+				}
+			}
 
-			background: url(../img/spotlight/crossword.png) left 10px no-repeat;
-		}
-		section.adventure {
-			padding-right: 350px;
-			width: 558px;
+			a.more {
+				@include respond-to(phone, tablet-portrait) {
+					float: none;
+					position: relative;
+					top: -10px;
+					right: 0 !important;
+				}
+			}
 
-			background: url(../img/spotlight/adventure.png) right center no-repeat;
-		}
-		section.html5 {
-			padding-left: 400px;
-			width: 530px;
-
-			background: url(../img/spotlight/materia-html5.png) -30px -8px no-repeat;
+			@include respond-to(phone, tablet-portrait) {
+				padding: 5px;
+				text-align: center;
+			}
 		}
 		section.crossword h1,
 		section.crossword p {
 			text-align: right;
+			@include respond-to(phone, tablet-portrait) {
+				text-align: center;
+			}
 		}
 		section.crossword a.more,
 		section.materia_new a.more {

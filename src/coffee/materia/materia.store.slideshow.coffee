@@ -21,6 +21,7 @@ Namespace('Materia.Store').SlideShow = do ->
 		id = showing.attr('id')
 		changeTo = $("#spolight_"+slideNo)
 		changeToId = changeTo.attr('id')
+		console.log(changeToId)
 		
 		num = id.split('_').pop()
 		changeNum = changeToId.split('_').pop()

@@ -7,7 +7,6 @@
 		margin-top: 30px;
 	}
 	section.store_bottom {
-		overflow: auto;
 		section {
 			&:first-child {
 				float: left;
@@ -61,28 +60,12 @@
 	}
 }
 
-.store_main {
-	position: absolute;
-	padding: 0;
-	overflow: visible;
-}
-
-.main_container {
-	position: relative;
-	height: 320px;
-	overflow: visible;
-}
-
 .program_main {
 	background: #fff url(../img/pop_back.png) center bottom no-repeat;
 }
 
 .main section, .store_main section {
 	padding: 20px;
-}
-
-.hidden {
-	display: none;
 }
 
 .cycler {

@@ -15,7 +15,7 @@
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
-	<button class="visible-xs-block visible-sm-block right action-button" ng-click="mobileButtonClicked = !mobileButtonClicked"><span class="fa fa-bars"></span></button>
+	<button class="hidden visible-xs-block visible-sm-block right action-button" ng-click="mobileButtonClicked = !mobileButtonClicked"><span class="fa fa-bars"></span></button>
 
 	<nav ng-class="{expanded: mobileButtonClicked}">
 		<span ng-switch="currentUser.loggedIn">
