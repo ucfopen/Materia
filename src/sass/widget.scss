@@ -184,9 +184,9 @@
 
 .spotlight {
 	.main_container {
-		height: 350px;
+		height: 370px;
 		@include respond-to(phone, tablet-portrait) {
-			height: 420px;
+			height: 460px;
 		}
 	}
 	h1 {
@@ -238,14 +238,19 @@
 		position: absolute;
 		section {
 			padding: 20px 20px 10px;
-			width: calc(100% - 30px);
+			padding-left: 350px;
+			width: calc(100% - 360px);
 
 			background: transparent;
 
 			img {
-				float: left;
+				position: absolute;
+				top: 20px;
+				left: 10px;
 				@include respond-to(phone, tablet-portrait) {
 					float: none;
+					position: static;
+					margin-top: 10px;
 					max-width: 100%;
 					max-height: 200px;
 				}
@@ -263,6 +268,18 @@
 			@include respond-to(phone, tablet-portrait) {
 				padding: 5px;
 				text-align: center;
+				width: calc(100% - 30px);
+			}
+		}
+		section.left {
+			text-align: left;
+			padding-left: 10px;
+			@include respond-to(phone, tablet-portrait) {
+				text-align: center;
+			}
+			img {
+				left: inherit;
+				right: 10px;
 			}
 		}
 		section.crossword h1,
