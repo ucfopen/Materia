@@ -54,17 +54,19 @@
 						<div class="widget-info">
 							<h1 class="infoHeader">{{widget.name}}</h1>
 
-							<dl class="left inline-def blurb">
-								<dt data-type="description">Description:</dt>
-								<dd>{{widget.meta_data['excerpt']}}</dd>
-							</dl>
+							<div class="description">
+								<dl class="left inline-def blurb">
+									<dt data-type="description">Description:</dt>
+									<dd>{{widget.meta_data['excerpt']}}</dd>
+								</dl>
 
-							<dl class="left inline-def features-list">
-								<dt data-type="features">Features:</dt>
-								<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
-								<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
-								<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
-							</dl>
+								<dl class="left inline-def features-list">
+									<dt data-type="features">Features:</dt>
+									<dd ng-repeat="feature in widget.meta_data['features']" class="searchable">{{feature}}</dd>
+									<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
+									<dd ng-repeat="supported in widget.meta_data['supported_data']" class="searchable">{{supported}}</dd>
+								</dl>
+							</div>
 						</div>
 					</a>
 				</section>
