@@ -1,44 +1,13 @@
 # Materia
 
-http://ucfcdl.github.io/Materia/
-
-Materia is built with the FuelPHP framework.
-
-* Version: 1.7.2
-* [Website](http://fuelphp.com/)
+* [Materia Docs](http://ucfcdl.github.io/Materia/) for public how-tos and widget descriptions.
+* [FuelPHP](http://fuelphp.com) 1.7.2 for the application's main backend framework.
+* [Gulp](http://gulpjs.com) for compiling static resources like CoffeeScript and SASS.
+* [Clu Materia Repositories](https://clu.cdl.ucf.edu/groups/materia) for existing widgets and supporting projects.
+* [DevMateria](https://clu.cdl.ucf.edu/materia/devmateria) for fast widget development.
 
 # Installation
 
-## OSX / Linux
+### Installing with Vagrant, VirtualBox and GoBot
 
-### Prerequisites (on the host machine)
-
-1. php >=5.4 
-2. nodejs
-3. Grunt cli
-4. Git
-5. python
-6. Vagrant
-7. required github and clu ssh keys
-9. Vagrant librarian-chef plugin ```vagrant plugin install vagrant-librarian-chef```
-10. Vagrant Omnibus ```vagrant plugin install vagrant-omnibus```
-
-### Install
-
-```
-git clone git@github.com:ucfcdl/Go-Bot.git materia
-cd materia
-git clone git@clu.cdl.ucf.edu:materia/vagrant.git
-python go init vagrant/Vagrantfile vagrant/go_config.json
-vagrant up
-python go stage
-python go deploy
-
-# For first time Materia setup
-cd current && php oil r install
-```
-
-#### Updating Materia
-
-run ```python go prepare``` then ```python go deploy``` in the top level directory.  This check out a copy of materia, run setup tasks, then point all the symlinks at it.
-
+Install instructions with needed files can be found in the [Materia-Setup repository](https://github.com/ucfcdl/Materia-Setup)
