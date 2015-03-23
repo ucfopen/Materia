@@ -410,6 +410,10 @@ h3 {
 	@include clearfix;
 	@include max-width;
 
+	@include respond-to(tablet-landscape) {
+		width: 600px;
+	}
+
 	@include respond-to(phone, tablet-portrait) {
 		padding: 0;
 	}

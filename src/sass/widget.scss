@@ -71,6 +71,7 @@
 		padding: 0 10px;
 		width: 33.33%;
 		box-sizing: border-box;
+		vertical-align: top;
 
 		line-height: 1;
 
@@ -96,8 +97,9 @@
 			padding: 6px;
 
 			background: #fff;
-			border: #c3c3c3;
-			box-shadow: 1px 2px 5px #888;
+			border: solid 1px #c3c3c3;
+			height: 135px;
+
 			img {
 				max-width: 100%;
 				height: auto;

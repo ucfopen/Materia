@@ -9,6 +9,10 @@
 		float: left;
 		width: 75%;
 
+		@include respond-to(tablet-landscape) {
+			width: 70%;
+		}
+
 		@include respond-to(phone, tablet-portrait) {
 			float: none;
 			width: initial;
@@ -16,6 +20,10 @@
 	}
 	.aside-content {
 		width: 25%;
+
+		@include respond-to(tablet-landscape) {
+			width: 30%;
+		}
 
 		@include respond-to(phone, tablet-portrait) {
 			float: none;
