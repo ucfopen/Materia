@@ -3,14 +3,13 @@
 .content {
 	padding: 40px 215px 20px 60px;
 
-	background: url('../img/question_mark_circle.png') 780px 30px no-repeat,
-	url('../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
+	background: url('../img/question_mark_circle.png') 780px 30px no-repeat;
 	background-color: #fff;
 
 	@include respond-to(phone, tablet-portrait) {
-		padding: 40px 60px 20px;
+		padding: 20px 20px 20px;
 
-		background: #fff url('../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
+		background: #fff;
 	}
 	h1 {
 		margin: 0 0 30px 0;
@@ -38,14 +37,26 @@
 		float: left;
 		clear: none;
 		width: 25%;
+		@include respond-to(phone, tablet-portrait, tablet-landscape) {
+			float: none;
+			width: inherit;
+		}
 	}
 	section.float.right {
 		float: right;
 		width: 40%;
+		@include respond-to(phone, tablet-portrait, tablet-landscape) {
+			float: none;
+			width: inherit;
+		}
 	}
 	section.float.left {
 		float: left;
 		width: 53%;
+		@include respond-to(phone, tablet-portrait, tablet-landscape) {
+			float: none;
+			width: inherit;
+		}
 	}
 	section.bordered {
 		border-bottom: dotted 1px #ccc;
