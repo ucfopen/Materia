@@ -85,6 +85,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 					# shows the score screen upon callback if requested any time betwen method call and now
 					if showScoreScreenAfter or scoreScreenPending then showScoreScreen()
 
+	###
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
@@ -95,6 +96,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 					window.location.reload()
 		, 30000
 		dfd.promise()
+	###
 
 	sendWidgetInit = ->
 		dfd = $.Deferred().resolve()

@@ -24,6 +24,7 @@ class Model_User extends Orm\Model
 		],
 		'created_at',
 		'updated_at',
+		'is_guest',
 	];
 
 	protected static $_to_array_exclude = ['password', 'login_hash'];
@@ -56,7 +57,7 @@ class Model_User extends Orm\Model
 	public static function find_current()
 	{
 		$array = Auth::instance()->get_user_id();
-		if ( empty($array)) return null; // mimics find() with no id
+		if ( empty($array)) return \Model_User::forge(array('id'=>0, 'is_guest'=>'1'));
 		return self::find($array[1]);
 	}
 

@@ -220,18 +220,18 @@ class Controller_Widgets extends Controller
 
 	public function get_play_widget($inst_id, $demo=false, $embed=false, $play_id=false)
 	{
-		// not logged in
-		if (Materia\Api::session_valid() !== true)
+		$me = Model_User::find_current();
+		$instances = Materia\Api::widget_instances_get([$inst_id], $demo);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$inst = $instances[0];
+		// not allowed to play the widget
+		if (! Materia\Perm_Manager::can_play($me, $inst))
 		{
 			$this->build_widget_login('Login to play this widget', $inst_id, $embed);
 		}
 		else
 		{
-			$instances = Materia\Api::widget_instances_get([$inst_id], $demo);
-			if ( ! count($instances)) throw new HttpNotFoundException;
-
-
-			$inst = $instances[0];
 			$status = $this->get_status($inst);
 
 			if ( ! $status['open'])
