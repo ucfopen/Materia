@@ -472,4 +472,13 @@ class Perm_Manager
 		return $master_perms;
 	}
 
+	static public function can_play($user, $widget_inst)
+	{
+		if ($widget_inst->guest_access == 1 || Materia\Api::session_valid() == true)
+		{
+			return true;
+		}
+		return false;
+	}
+
 }

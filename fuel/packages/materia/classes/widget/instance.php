@@ -25,22 +25,23 @@ namespace Materia;
 class Widget_Instance
 {
 
-	public $attempts    = -1;
-	public $clean_name  = '';
-	public $close_at    = -1;
-	public $created_at  = 0;
-	public $embed_url   = '';
-	public $height      = 0;
-	public $id          = 0;
-	public $is_draft    = false;
-	public $name        = '';
-	public $open_at     = -1;
-	public $play_url    = '';
-	public $preview_url = '';
+	public $attempts     = -1;
+	public $clean_name   = '';
+	public $close_at     = -1;
+	public $created_at   = 0;
+	public $embed_url    = '';
+	public $guest_access = false;
+	public $height       = 0;
+	public $id           = 0;
+	public $is_draft     = false;
+	public $name         = '';
+	public $open_at      = -1;
+	public $play_url     = '';
+	public $preview_url  = '';
 	public $qset; /* ->version = null, ->data = null */
-	public $user_id     = 0;
-	public $widget      = null;
-	public $width       = 0;
+	public $user_id      = 0;
+	public $widget       = null;
+	public $width        = 0;
 
 	public function __construct($properties=[])
 	{
