@@ -43,6 +43,10 @@ section.widget {
 	left: 0;
 }
 
+section.widget.preview {
+	padding-top: 30px;
+}
+
 .widget .preview-bar {
 	position: absolute;
 	display: block;
