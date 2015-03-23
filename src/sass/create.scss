@@ -238,7 +238,7 @@ a {
 	height: 500px;
 
 	background: #fff;
-	box-shadow: 0 0 1000px #000, 0 0 10px #000;
+	outline: solid 1000px rgba(0,0,0,0.5);
 
 	opacity: 0;
 	-webkit-transition: all .3s ease;
