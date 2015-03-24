@@ -346,6 +346,12 @@ h3 {
 
 			background: url(../img/arrow.png) no-repeat bottom;
 		}
+		&.disabled {
+			border-color: #999;
+			&:hover {
+				border-color: #999;
+			}
+		}
 	}
 	&.green {
 		@include button-variant(rgba(#000, .6), #b2cd43);
