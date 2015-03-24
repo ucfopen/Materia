@@ -48,7 +48,7 @@ class Session_Play
 	 */
 	public function start($user_id=0, $inst_id=0, $is_preview=false)
 	{
-		if ($user_id > 0 && \RocketDuck\Util_Validator::is_valid_hash($inst_id))
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
 			$this->created_at = time();
 			$this->user_id    = $user_id;
