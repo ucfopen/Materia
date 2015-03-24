@@ -285,7 +285,7 @@
 		}
 	}
 	&.options {
-		margin-top: 22px;
+		margin-top: -10px;
 		padding: 0;
 		padding-bottom: 5px;
 
@@ -597,7 +597,6 @@
 		}
 	}
 	.scores {
-		margin: 10px;
 		padding-bottom: 1em;
 		overflow-x: hidden;
 		overflow-y: auto;
@@ -950,7 +949,7 @@
 			float: left;
 			margin: 0;
 			padding: 0;
-			width: 105px;
+			width: 90px;
 			li {
 				margin: 0 0 10px 0;
 				padding: 5px;
@@ -2527,7 +2526,7 @@
 }
 .ng-modal.csv_popup ul.options li a {
 	display: inline-block;
-	padding: 10px;
+	padding: 4px;
 	width: 75px;
 
 	font-size: .9em;
