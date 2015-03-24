@@ -6,7 +6,7 @@
 	background: url('../img/question_mark_circle.png') 780px 30px no-repeat;
 	background-color: #fff;
 
-	@include respond-to(phone, tablet-portrait) {
+	@include respond-to(phone, tablet-portrait, tablet-landscape) {
 		padding: 20px 20px 20px;
 
 		background: #fff;
