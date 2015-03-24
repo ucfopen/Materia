@@ -321,14 +321,16 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
+		$play = new Session_Play();
 		$user = \Model_User::find_current();
-		trace("PLAY_ID");
-		trace($play_id);
+		$play->get_by_id($play_id);
+		$inst_id = $play->inst_id;
 		$instances = static::widget_instances_get([$inst_id], false);
+		$inst = $instances[0];
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
-		$inst = $instances[0];
 		$can_play = Perm_Manager::can_play($user, $inst);
+
 		if (! $can_play) return \RocketDuck\Msg::no_login();
 		if ( $preview_inst_id === null && ! \RocketDuck\Util_Validator::is_valid_long_hash($play_id)) return \RocketDuck\Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return \RocketDuck\Msg::invalid_input('missing log array');
@@ -342,7 +344,6 @@ class Api_V1
 		// ============ PLAY FOR KEEPS ===========
 		else
 		{
-			trace("SDFGDSFGDFSHFGHFGF");
 			$play = self::_validate_play_id($play_id);
 			if ( ! ($play instanceof Session_Play)) return \RocketDuck\Msg::invalid_input('Invalid play session');
 			// each log is an object?, convert to array
@@ -896,7 +897,16 @@ class Api_V1
 	static private function _validate_play_id($play_id)
 	{
 	 	$play = new Session_Play();
-	 	if (\Model_User::verify_session())
+		$user = \Model_User::find_current();
+		$play->get_by_id($play_id);
+		$inst_id = $play->inst_id;
+		$instances = static::widget_instances_get([$inst_id], false);
+		$inst = $instances[0];
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$can_play = Perm_Manager::can_play($user, $inst);
+
+		if ($can_play)
 	 	{
 	 		if ($play->get_by_id($play_id))
 	 		{
