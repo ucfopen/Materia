@@ -399,7 +399,7 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function widget_instance_scores_get($inst_id)
+	static public function widget_instance_scores_get($inst_id, $play_id=null)
 	{
 		$user = \Model_User::find_current();
 		$instances = static::widget_instances_get([$inst_id], false);
@@ -408,7 +408,7 @@ class Api_V1
 		$inst = $instances[0];
 		if (! Perm_Manager::can_play($user, $inst)) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
-		return Score_Manager::get_instance_score_history($inst_id);
+		return Score_Manager::get_instance_score_history($inst_id, $play_id);
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
