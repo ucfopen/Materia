@@ -67,7 +67,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			$scope.attempts = [{'id': -1, 'created_at' : 0, 'percent' : 0}]
 			dfd.resolve() # skip, preview doesn't support this
 		else
-			scoreSrv.getWidgetInstanceScores inst_id, (scores) ->
+			scoreSrv.getWidgetInstanceScores inst_id, play_id, (scores) ->
 				if scores == null or scores.length < 1
 					#load up an error screen of some sort
 					$scope.restricted = true

@@ -36,16 +36,32 @@ class Score_Manager
 	 * @param int inst_id Widget Instance ID
 	 * @return array Time sorted array of play scores containint play_id, timestamp, and score keys
 	 */
-	static public function get_instance_score_history($inst_id)
+	static public function get_instance_score_history($inst_id, $play_id=null)
 	{
-		return \DB::select('id','created_at','percent')
-			->from('log_play')
-			->where('is_complete', '1')
-			->where('user_id', \Model_User::find_current_id())
-			->where('inst_id', $inst_id)
-			->order_by('created_at', 'DESC')
-			->execute()
-			->as_array();
+		$user_id = \Model_User::find_current_id();
+		if ($user_id == 0)
+		{
+			$score_history = \DB::select('id','created_at','percent')
+				->from('log_play')
+				->where('is_complete', '1')
+				->where('id', $play_id)
+				->where('inst_id', $inst_id)
+				->order_by('created_at', 'DESC')
+				->execute()
+				->as_array();
+		}
+		else
+		{
+			$score_history = \DB::select('id','created_at','percent')
+				->from('log_play')
+				->where('is_complete', '1')
+				->where('user_id', $user_id)
+				->where('inst_id', $inst_id)
+				->order_by('created_at', 'DESC')
+				->execute()
+				->as_array();
+		}
+		return $score_history;
 	}
 
 	/**
