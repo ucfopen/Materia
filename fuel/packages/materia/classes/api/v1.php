@@ -401,14 +401,27 @@ class Api_V1
 
 	static public function widget_instance_scores_get($inst_id)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		$user = \Model_User::find_current();
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$inst = $instances[0];
+		if (! Perm_Manager::can_play($user, $inst)) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Score_Manager::get_instance_score_history($inst_id);
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		$play = new Session_Play();
+		$play->get_by_id($play_id);
+		$inst_id = $play->inst_id;
+		$user = \Model_User::find_current();
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$inst = $instances[0];
+		if (! Perm_Manager::can_play($user, $inst)) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			return Score_Manager::get_preview_logs($preview_mode_inst_id);

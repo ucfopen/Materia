@@ -41,7 +41,13 @@ class Controller_Scores extends Controller
 
 	public function get_show($inst_id)
 	{
-		if (Materia\Api::session_valid() !== true)
+		$me = Model_User::find_current();
+		$instances = Materia\Api::widget_instances_get([$inst_id]);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$inst = $instances[0];
+		// not allowed to play the widget
+		if (! Materia\Perm_Manager::can_play($me, $inst))
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));

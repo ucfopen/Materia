@@ -64,7 +64,7 @@ class Model_User extends Orm\Model
 	public static function find_current_id()
 	{
 		$array = Auth::instance()->get_user_id();
-		if ( empty($array)) return false;
+		if ( empty($array)) return 0;
 		return $array[1];
 	}
 
