@@ -11,9 +11,7 @@ html {
 
 	background: #fff;
 	border: rgba(0, 0, 0, .11) 1px solid;
-	-webkit-box-shadow: 1px 3px 10px #888;
-	   -moz-box-shadow: 1px 3px 10px #888;
-	        box-shadow: 1px 3px 10px #888;
+	box-shadow: 1px 3px 10px #888;
 }
 
 #import-form {
@@ -37,9 +35,7 @@ html {
 
 		background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
 		border: solid 1px #b0b0b0;
-		-webkit-border-radius: 12px;
-		   -moz-border-radius: 12px;
-		        border-radius: 12px;
+		border-radius: 12px;
 		outline: none;
 	}
 }
@@ -67,16 +63,10 @@ h1 {
 	color: #545454;
 
 	background: #aeaeae;
-	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image:    -moz-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image:      -o-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image:     -ms-linear-gradient(top, #e4e4e4, #b8b8b8);
+	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
 	border-color: #747474;
 	&:hover {
-		background-image: -webkit-linear-gradient(top, #b8b8b8, #e4e4e4);
-		background-image:    -moz-linear-gradient(top, #b8b8b8, #e4e4e4);
-		background-image:      -o-linear-gradient(top, #b8b8b8, #e4e4e4);
-		background-image:     -ms-linear-gradient(top, #b8b8b8, #e4e4e4);
+		background-image: linear-gradient(top, #b8b8b8, #e4e4e4);
 
 		text-decoration: none;
 	}

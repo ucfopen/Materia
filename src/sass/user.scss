@@ -107,9 +107,7 @@
 	section.page,
 	aside {
 		border: rgba(0, 0, 0, .22) 1px solid;
-		-webkit-box-shadow: 1px 3px 10px #888;
-		   -moz-box-shadow: 1px 3px 10px #888;
-		        box-shadow: 1px 3px 10px #888;
+		box-shadow: 1px 3px 10px #888;
 	}
 	section.page {
 		top: 0;
@@ -167,9 +165,7 @@
 		line-height: 13px;
 
 		background: #0093e7;
-		-webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
-		   -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
-		        box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
+		box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
 
 		text-align: right;
 		img {
@@ -252,9 +248,7 @@
 		font-size: 12px;
 
 		background: #f2f0d0;
-		-webkit-border-radius: 3px;
-		   -moz-border-radius: 3px;
-		        border-radius: 3px;
+		border-radius: 3px;
 
 		text-transform: uppercase;
 		&.staff {
@@ -280,9 +274,7 @@
 		font-size: 15px;
 
 		background: #f7f7f7;
-		-webkit-border-radius: 5px;
-		   -moz-border-radius: 5px;
-		        border-radius: 5px;
+		border-radius: 5px;
 
 		text-align: center;
 	}
@@ -358,9 +350,7 @@
 	font-weight: 700;
 
 	background: #0093e7;
-	-webkit-border-radius: 3px;
-	   -moz-border-radius: 3px;
-	        border-radius: 3px;
+	border-radius: 3px;
 
 	text-align: center;
 }

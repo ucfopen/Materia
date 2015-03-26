@@ -25,9 +25,7 @@ header {
 
 	padding: 20px 0 10px 0;
 
-	-webkit-box-shadow: -5px 3px 5px #888;
-	   -moz-box-shadow: -5px 3px 5px #888;
-	        box-shadow: -5px 3px 5px #888;
+	box-shadow: -5px 3px 5px #888;
 }
 
 h1 {
@@ -57,11 +55,8 @@ nav ul li {
 
 	padding-top: 40px;
 
-	background-image: -webkit-linear-gradient(left, #f5f5f5 9px, white 1px);
-	background-image: -moz-repeating-linear-gradient(left 0deg, #f5f5f5, #f5f5f5 9px, white 5px, white 10px);
-	background-image:   -o-repeating-linear-gradient(left 0deg, #f5f5f5, #f5f5f5 9px, white 5px, white 10px);
-	background-image:      repeating-linear-gradient(left 0deg, #f5f5f5, #f5f5f5 9px, white 5px, white 10px);
-	-webkit-background-size: 10px 100%;
+	background-image: repeating-linear-gradient(left 0deg, #f5f5f5, #f5f5f5 9px, white 5px, white 10px);
+	background-size: 10px 100%;
 }
 
 #main {
@@ -168,9 +163,7 @@ h3 {
 	overflow: auto;
 
 	border: rgba(0, 0, 0, .11) 1px solid;
-	-webkit-box-shadow: 1px 3px 10px #888;
-	   -moz-box-shadow: 1px 3px 10px #888;
-	        box-shadow: 1px 3px 10px #888;
+	box-shadow: 1px 3px 10px #888;
 }
 
 #main section,
@@ -228,14 +221,10 @@ h3 {
 	font-weight: bold;
 
 	background: #ffa62d;
-	background-image: -webkit-linear-gradient(top, #ffce8c, #ffa42a);
+	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	border: #fdb34f 1px solid;
-	-webkit-border-radius: 8px;
-	   -moz-border-radius: 8px;
-	        border-radius: 8px;
-	-webkit-box-shadow: 1px 2px 5px #888;
-	   -moz-box-shadow: 1px 2px 5px #888;
-	        box-shadow: 1px 2px 5px #888;
+	border-radius: 8px;
+	box-shadow: 1px 2px 5px #888;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
 }
 
@@ -290,9 +279,7 @@ form {
 	width: 60px;
 
 	background: rgba(0, 0, 0, .5);
-	-webkit-border-radius: 4px;
-	   -moz-border-radius: 4px;
-	        border-radius: 4px;
+	border-radius: 4px;
 	input {
 		display: inline;
 	}

@@ -55,9 +55,7 @@ a {
 		line-height: 45px;
 
 		background: #b944cc;
-		-webkit-border-radius: 5px 5px 0 0;
-		   -moz-border-radius: 5px 5px 0 0;
-		        border-radius: 5px 5px 0 0;
+		border-radius: 5px 5px 0 0;
 
 		text-align: center;
 		vertical-align: middle;
@@ -83,9 +81,7 @@ a {
 	height: 6px;
 
 	background: #ababab;
-	-webkit-border-radius: 3px;
-	   -moz-border-radius: 3px;
-	        border-radius: 3px;
+	border-radius: 3px;
 
 	-khtml-border-radius: 3px;
 }
@@ -108,12 +104,8 @@ a {
 	font-size: 15px;
 	font-weight: 700;
 
-	-webkit-border-radius: 6px;
-	   -moz-border-radius: 6px;
-	        border-radius: 6px;
-	-webkit-box-shadow: 1px 2px 4px #888;
-	   -moz-box-shadow: 1px 2px 4px #888;
-	        box-shadow: 1px 2px 4px #888;
+	border-radius: 6px;
+	box-shadow: 1px 2px 4px #888;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .75);
 
 	cursor: pointer;
@@ -187,17 +179,11 @@ a {
 	color: #4d5822;
 
 	background: #8dcb45;
-	background-image: -webkit-linear-gradient(top, #c0e195, #8dcb45);
-	background-image:      -o-linear-gradient(top, #c0e195, #8dcb45);
-	background-image:    -moz-linear-gradient(top, #c0e195, #8dcb45);
-	background-image:     -ms-linear-gradient(top, #c0e195, #8dcb45);
+	background-image: linear-gradient(top, #c0e195, #8dcb45);
 	border: #8dcb45 1px solid;
 	&:hover {
 		background: #c0e195;
-		background-image: -webkit-linear-gradient(top, #8dcb45, #c0e195);
-		background-image:      -o-linear-gradient(top, #8dcb45, #c0e195);
-		background-image:    -moz-linear-gradient(top, #8dcb45, #c0e195);
-		background-image:     -ms-linear-gradient(top, #8dcb45, #c0e195);
+		background-image: linear-gradient(top, #8dcb45, #c0e195);
 
 		text-decoration: none;
 	}
@@ -207,17 +193,11 @@ a {
 	color: #694d28;
 
 	background: #ff8f11;
-	background-image: -webkit-linear-gradient(top, #ffbc78, #ff8f11);
-	background-image:      -o-linear-gradient(top, #ffbc78, #ff8f11);
-	background-image:    -moz-linear-gradient(top, #ffbc78, #ff8f11);
-	background-image:     -ms-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: linear-gradient(top, #ffbc78, #ff8f11);
 	border: #ff8f11 1px solid;
 	&:hover {
 		background: #ffce8c;
-		background-image: -webkit-linear-gradient(top, #ff8f11, #ffbc78);
-		background-image:      -o-linear-gradient(top, #ff8f11, #ffbc78);
-		background-image:    -moz-linear-gradient(top, #ff8f11, #ffbc78);
-		background-image:     -ms-linear-gradient(top, #ff8f11, #ffbc78);
+		background-image: linear-gradient(top, #ff8f11, #ffbc78);
 
 		text-decoration: none;
 	}
@@ -241,10 +221,7 @@ a {
 	outline: solid 1000px rgba(0,0,0,0.5);
 
 	opacity: 0;
-	-webkit-transition: all .3s ease;
-	   -moz-transition: all .3s ease;
-	    -ms-transition: all .3s ease;
-	        transition: all .3s ease;
+	transition: all .3s ease;
 	&.show {
 		top: 50%;
 
@@ -254,8 +231,7 @@ a {
 
 .animate-show {
 	opacity: 1;
-	-webkit-transition: all ease .5s;
-	        transition: all ease .5s;
+	transition: all ease .5s;
 	&.ng-hide {
 		display: block !important;
 		margin-top: 0;

@@ -1,5 +1,5 @@
 /* *************************************************************** */
-/*        Catalog                                                              */
+/*                           Catalog                               */
 /* *************************************************************** */
 
 @import 'mixins.scss';
@@ -40,13 +40,7 @@
 			font-size: 13px;
 			font-weight: bold;
 
-			-webkit-user-select: none;
-			   -moz-user-select: none;
-			    -ms-user-select: none;
-			        user-select: none;
-
-			-khtml-user-select: none;
-			     -o-user-select: none;
+			user-select: none;
 			input[type='checkbox'] {
 				margin: 0 0 0 0;
 				width: 20px;
@@ -96,13 +90,7 @@
 
 		list-style-type: none;
 
-		-webkit-user-select: none;
-		   -moz-user-select: none;
-		    -ms-user-select: none;
-		        user-select: none;
-
-		-khtml-user-select: none;
-		     -o-user-select: none;
+		user-select: none;
 	}
 }
 
@@ -271,21 +259,13 @@
 		text-decoration: none;
 
 		opacity: 1;
-		-webkit-animation: animate-show .3s;
-		   -moz-animation: animate-show .3s;
-		        animation: animate-show .3s;
+		animation: animate-show .3s;
 	}
 	h1 {
 		margin-top: 5px;
 		margin-bottom: 5px;
 		background: #7ba7f2; /* Old browsers */
-		background: -moz-linear-gradient(top, #7ba7f2 0%, #4373c1 100%); /* FF3.6+ */
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7ba7f2), color-stop(100%,#4373c1)); /* Chrome,Safari4+ */
-		background: -webkit-linear-gradient(top, #7ba7f2 0%,#4373c1 100%); /* Chrome10+,Safari5.1+ */
-		background: -o-linear-gradient(top, #7ba7f2 0%,#4373c1 100%); /* Opera 11.10+ */
-		background: -ms-linear-gradient(top, #7ba7f2 0%,#4373c1 100%); /* IE10+ */
 		background: linear-gradient(to bottom, #7ba7f2 0%,#4373c1 100%); /* W3C */
-		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7ba7f2', endColorstr='#4373c1',GradientType=0 ); /* IE6-9 */
 
 		width: calc(100% - 1px);
 		display: block;
@@ -330,24 +310,6 @@
 		clear: both;
 		float: right;
 		vertical-align: top;
-	}
-}
-
-@-webkit-keyframes animate-show {
-	0% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
-}
-
-@-moz-keyframes animate-show {
-	0% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
 	}
 }
 

@@ -85,28 +85,16 @@ header > h1 {
 	font-weight: 700;
 
 	background: #ffba5d;
-	background-image: -webkit-linear-gradient(top, #ffce8c, #ffa42a);
-	background-image:    -moz-linear-gradient(top, #ffce8c, #ffa42a);
-	background-image:      -o-linear-gradient(top, #ffce8c, #ffa42a);
-	background-image:     -ms-linear-gradient(top, #ffce8c, #ffa42a);
-	background-image:         linear-gradient(top, #ffce8c, #ffa42a);
+	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	border: #fdb34f 1px solid;
-	-webkit-border-radius: 6px;
-	   -moz-border-radius: 6px;
-	        border-radius: 6px;
-	-webkit-box-shadow: 1px 2px 4px #888;
-	   -moz-box-shadow: 1px 2px 4px #888;
-	        box-shadow: 1px 2px 4px #888;
+	border-radius: 6px;
+	box-shadow: 1px 2px 4px #888;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
 
 	cursor: pointer;
 	text-decoration: none;
 	&:hover {
-		background-image: -webkit-linear-gradient(top, #ffa42a, #ffce8c);
-		background-image:    -moz-linear-gradient(top, #ffa42a, #ffce8c);
-		background-image:      -o-linear-gradient(top, #ffa42a, #ffce8c);
-		background-image:     -ms-linear-gradient(top, #ffa42a, #ffce8c);
-		background-image:         linear-gradient(top, #ffa42a, #ffce8c);
+		background-image: linear-gradient(top, #ffa42a, #ffce8c);
 
 		text-decoration: none;
 	}
@@ -148,9 +136,7 @@ header > h1 {
 
 	background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
 	border: solid 1px #b0b0b0;
-	-webkit-border-radius: 12px;
-	   -moz-border-radius: 12px;
-	        border-radius: 12px;
+	border-radius: 12px;
 	outline: none;
 }
 
@@ -314,9 +300,7 @@ header > h1 {
 
 	background: gray;
 	background: rgba(0, 0, 0, .6);
-	-webkit-border-radius: 2px;
-	   -moz-border-radius: 2px;
-	        border-radius: 2px;
+	border-radius: 2px;
 }
 
 #goto-new-widgets {

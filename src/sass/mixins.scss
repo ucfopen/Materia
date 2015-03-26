@@ -58,16 +58,12 @@ $padding: 24px;
 }
 
 @mixin vertical-gradient-bottom-top($color, $start-percent: 0%, $end-percent: 100%) {
-	background-image: -webkit-linear-gradient(top, darken($color, 10%) $start-percent, lighten($color, 10%) $end-percent);  // Safari 5.1-6, Chrome 10+
-	background-image: -o-linear-gradient(top, darken($color, 10%) $start-percent, lighten($color, 10%) $end-percent);  // Opera 12
 	background-image: linear-gradient(to bottom, darken($color, 10%) $start-percent, lighten($color, 10%) $end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
 	background-repeat: repeat-x;
 	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(lighten($color, 10%)),argb(darken($color, 10%)))); // IE9 and down
 }
 
 @mixin vertical-gradient-top-bottom($color, $start-percent: 0%, $end-percent: 100%) {
-	background-image: -webkit-linear-gradient(top, lighten($color, 10%) $start-percent, darken($color, 10%) $end-percent);  // Safari 5.1-6, Chrome 10+
-	background-image: -o-linear-gradient(top, lighten($color, 10%) $start-percent, darken($color, 10%) $end-percent);  // Opera 12
 	background-image: linear-gradient(to bottom, lighten($color, 10%) $start-percent, darken($color, 10%) $end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
 	background-repeat: repeat-x;
 	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(darken($color, 10%)),argb(lighten($color, 10%)))); // IE9 and down

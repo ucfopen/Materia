@@ -5,18 +5,7 @@ body.scores {
 		width: 800px;
 
 		background-color: #929aa4;
-		background-image:     -ms-linear-gradient(top, #929aa4 0%, #72808f 20%);
-		/* IE10 */
-		background-image:    -moz-linear-gradient(top, #929aa4 0%, #72808f 20%);
-		/* Mozilla Firefox */
-		background-image:      -o-linear-gradient(top, #929aa4 0%, #72808f 20%);
-		/* Opera */
-		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #929aa4), color-stop(.2, #72808f));
-		/* Webkit (Safari/Chrome 10) */
-		background-image: -webkit-linear-gradient(top, #929aa4 0%, #72808f 20%);
-		/* Webkit (Chrome 11+) */
-		background-image:         linear-gradient(top, #929aa4 0%, #72808f 20%);
-		/* Proposed W3C Markup */
+		background-image: linear-gradient(top, #929aa4 0%, #72808f 20%);
 		box-shadow: 0 0 34px 1px #999;
 
 		opacity: 0;
@@ -81,10 +70,8 @@ body.scores {
 
 			background: #cdd7df;
 			border-bottom-right-radius: 5px;
+			border-right-radius: 5px;
 
-			-khtml-border-right-radius: 5px;
-			-webkit-border-right-radius: 5px;
-			   -moz-border-right-radius: 5px;
 			table {
 				margin: 0 auto;
 				width: 80%;
@@ -154,9 +141,7 @@ body.scores {
 					font-weight: 900;
 
 					background: #b944cc;
-					-webkit-border-radius: 5px 5px 0 0;
-					   -moz-border-radius: 5px 5px 0 0;
-					        border-radius: 5px 5px 0 0;
+					border-radius: 5px 5px 0 0;
 
 					text-align: center;
 					vertical-align: middle;
@@ -183,10 +168,7 @@ body.scores {
 				margin: 0;
 
 				cursor: default;
-				-webkit-user-select: none;
-				   -moz-user-select: none;
-				    -ms-user-select: none;
-				        user-select: none;
+				user-select: none;
 				text-align: left;
 
 				-khtml-user-select: none;
@@ -200,11 +182,7 @@ body.scores {
 					font-size: 12px;
 
 					background: #222;
-					-webkit-border-radius: 15px;
-					   -moz-border-radius: 15px;
-					        border-radius: 15px;
-
-					-khtml-border-radius: 15px;
+					border-radius: 15px;
 				}
 				&.open {
 					h1 {
@@ -228,12 +206,9 @@ body.scores {
 					margin-left: 6px;
 
 					background: #fff;
-					-webkit-border-radius: 15px;
-					   -moz-border-radius: 15px;
-					        border-radius: 15px;
+					border-radius: 15px;
 					box-shadow: 5px 5px 15px 1px #666;
 
-					-khtml-border-radius: 15px;
 					.date {
 						display: block;
 
@@ -255,11 +230,7 @@ body.scores {
 						list-style: none;
 						&:hover {
 							background-color: #ddd;
-							-webkit-border-radius: 15px;
-							   -moz-border-radius: 15px;
-							        border-radius: 15px;
-
-							-khtml-border-radius: 15px;
+							border-radius: 15px;
 						}
 						a:hover {
 							text-decoration: none;
@@ -403,16 +374,11 @@ body.scores {
 						line-height: 1.25em;
 
 						background-color: #e3e5e8;
-						-webkit-border-bottom-right-radius: 3px;
-						        border-bottom-right-radius: 3px;
-						-webkit-border-bottom-left-radius: 3px;
-						        border-bottom-left-radius: 3px;
+						border-bottom-right-radius: 3px;
+						border-bottom-left-radius: 3px;
 
 						text-align: center;
 						vertical-align: middle;
-
-						   -moz-border-bottom-left-radius: 3px;
-						   -moz-border-bottom-right-radius: 3px;
 					}
 					.index {
 						position: absolute;
@@ -453,10 +419,7 @@ body.scores {
 	color: #4d5822;
 
 	background: #b2cd43;
-	background-image: -webkit-linear-gradient(top, #d1e776, #a6c430);
-	background-image:    -moz-linear-gradient(top, #d1e776, #a6c430);
-	background-image:      -o-linear-gradient(top, #d1e776, #a6c430);
-	background-image:     -ms-linear-gradient(top, #d1e776, #a6c430);
+	background-image: linear-gradient(top, #d1e776, #a6c430);
 	border-color: #95a74e;
 }
 
@@ -464,10 +427,7 @@ body.scores {
 	color: #545454;
 
 	background: #aeaeae;
-	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image:    -moz-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image:      -o-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image:     -ms-linear-gradient(top, #e4e4e4, #b8b8b8);
+	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
 	border-color: #747474;
 }
 
@@ -476,9 +436,7 @@ body.scores {
 	height: 100px;
 
 	border: #f0f0f0 3px solid;
-	-webkit-border-radius: 3px;
-	   -moz-border-radius: 3px;
-	        border-radius: 3px;
+	border-radius: 3px;
 
 	text-align: center;
 	h2,

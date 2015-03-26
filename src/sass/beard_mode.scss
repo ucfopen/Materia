@@ -12,7 +12,6 @@
 
 .bearded:before {
 	position: absolute;
-	/* content: url(../img/beard.png); */
 
 	margin: 0;
 	padding: 0;
@@ -21,23 +20,12 @@
 }
 
 .big_bearded:before {
-	/* content: url(../img/bigbeard.png); */
 	position: absolute;
 
 	padding-top: 20px;
 	width: 276px;
 	height: 319px;
 }
-
-/*
-.bigger_bearded:before {
-	position: absolute;
-	padding-top: 20px;
-
-	width: 276px;
-	height: 319px;
-}
-*/
 
 /* Specific Beard Styles */
 
@@ -99,35 +87,3 @@
 	left: -20px;
 }
 
-/* Xlarge beards */
-/*
-.xlarge_red_soul:before {
-	content:url(../img/beards/xlarge/new/xlarge_red_soul.png);
-	left:5px;
-	top:55px;
-}
-
-.xlarge_dusty_full:before {
-	content:url(../img/beards/xlarge/new/xlarge_dusty_full.png);
-	left:10px;
-	top:55px;
-}
-
-.xlarge_black_chops:before {
-	content:url(../img/beards/xlarge/new/xlarge_black_chops.png);
-	left:10px;
-	top:55px;
-}
-
-.xlarge_grey_gandalf:before {
-	content:url(../img/beards/xlarge/new/xlarge_grey_gandalf.png);
-	left:10px;
-	top:55px;
-}
-
-.xlarge_red_soul:before {
-	content:url(../img/beards/xlarge/new/xlarge_red_soul.png);
-	left:5px;
-	top:55px;
-}
-*/
