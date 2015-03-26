@@ -180,7 +180,6 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 					window.location.hash = '#attempt-'+1
 				else if matchedAttempt != false
 					# chainging the hash will call getScoreDetails()
-					window.location.hash = '#attempt-'+matchedAttempt
 					getScoreDetails()
 				else if getAttemptNumberFromHash() == undefined
 					window.location.hash = '#attempt-'+$scope.attempts.length
@@ -340,7 +339,8 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 	getAttemptNumberFromHash = ->
 		hashStr = window.location.hash.split('-')[1]
-		unless hashStr? then $scope.attempts.length else hashStr
+		return hashStr if hashStr? and ! isNaN(hashStr)
+		$scope.attempts.length
 
 	# this was originally called in document.ready, but there's no reason to not put it in init
 	displayScoreData widget_id, play_id
