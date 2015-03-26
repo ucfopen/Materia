@@ -135,7 +135,7 @@ class Shoehorn extends \Basetask
 	}
 
 
-	public static function get_ucf_id_for_user($user_id)
+	private static function get_ucf_id_for_user($user_id)
 	{
 		$cerebro_user_table = "CDLPS_PEOPLE";
 		$nid = "network_id";
@@ -159,7 +159,7 @@ class Shoehorn extends \Basetask
 		}
 	}
 
-	public static function get_all_users()
+	private static function get_all_users()
 	{
 		$materia_user_table = "users";
 
@@ -171,7 +171,7 @@ class Shoehorn extends \Basetask
 		return $all_users;
 	}
 
-	public static function update_username($user_id, $ucf_id) {
+	private static function update_username($user_id, $ucf_id) {
 
 		$status = \DB::update("users")
 			->set([
@@ -183,7 +183,7 @@ class Shoehorn extends \Basetask
 		return $status;
 	}
 
-	public static function write_to_file($str) {
+	private static function write_to_file($str) {
 		file_put_contents("conversion_output.txt", $str."\n", FILE_APPEND);
 	}
 
