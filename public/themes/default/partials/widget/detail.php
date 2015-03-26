@@ -59,7 +59,7 @@
 
 			<div class="action text-center">
 				<h4>Want to use it in your course?</h4>
-				<p><a id ="createLink" href='{{ widget.creatorurl }}' class="action-button blue">Create your widget</a></p>
+				<p><a id ="createLink" href='{{ widget.creatorurl }}' class="action-button green">Create your widget</a></p>
 			</div>
 		</section>
 	</div>

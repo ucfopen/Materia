@@ -356,9 +356,6 @@ h3 {
 	&.green {
 		@include button-variant(rgba(#000, .6), #b2cd43);
 	}
-	&.blue {
-		@include button-variant(#fff, #0093e7);
-	}
 	&.dark {
 		@include button-variant(#fff, #666);
 	}
@@ -415,10 +412,6 @@ h3 {
 
 	@include clearfix;
 	@include max-width;
-
-	@include respond-to(tablet-landscape) {
-		width: 600px;
-	}
 
 	@include respond-to(phone, tablet-portrait) {
 		padding: 0;

@@ -1,6 +1,6 @@
 <main id="my-widgets" role="main" ng-controller="MyWidgetsController" beardable>
 	<div class="qtip top nowidgets" ng-show="widgets.widgetList.length == 0">Click here to start making a new widget!</div>
-	<div class="content-container">
+	<div class="content-container fixed-width">
 		<div ng-controller="SelectedWidgetController">
 			<modal-dialog class="edit-published-widget" show="show.editPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
 				<div class="container">

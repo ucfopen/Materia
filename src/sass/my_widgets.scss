@@ -8,20 +8,10 @@
 		float: left;
 		width: 75%;
 		min-height: 800px;
-
-		@include respond-to(phone, tablet-portrait) {
-			float: none;
-			width: initial;
-		}
 	}
 	.aside-content {
 		width: 25%;
 
-		@include respond-to(phone, tablet-portrait) {
-			float: none;
-			margin-bottom: 30px;
-			width: initial;
-		}
 		.top {
 			color: #fff;
 
@@ -35,11 +25,6 @@
 		.courses {
 			margin: 0 -15px;
 			max-height: 700px;
-			.widget {
-				@include respond-to(phone, tablet-portrait) {
-					display: inline-block;
-				}
-			}
 		}
 	}
 }
@@ -224,10 +209,6 @@
 
 				text-align: center;
 
-				@include respond-to(phone, tablet-portait) {
-					float: none;
-					width: initial;
-				}
 				img {
 					max-width: 100%;
 					height: auto;
@@ -238,10 +219,6 @@
 				padding-left: 7.5px;
 				width: 65%;
 				box-sizing: border-box;
-				@include respond-to(phone, tablet-portait) {
-					float: none;
-					width: initial;
-				}
 			}
 		}
 	}
@@ -2781,4 +2758,8 @@ div.link {
 
 aside .widget {
 	position: relative;
+}
+
+.content-container.fixed-width {
+	width: 1000px;
 }
