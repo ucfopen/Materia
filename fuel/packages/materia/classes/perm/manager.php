@@ -474,7 +474,7 @@ class Perm_Manager
 
 	static public function can_play($user, $widget_inst)
 	{
-		if ($widget_inst->guest_access == 1 || Materia\Api::session_valid() == true)
+		if ($widget_inst->guest_access == 1 || Api::session_valid() == true)
 		{
 			return true;
 		}

@@ -1,7 +1,7 @@
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
 
 	<? /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
-	<? if (empty($me)): ?>
+	<? if ($me->id == 0): ?>
 		<span id="current-user" data-logged-in="false"></span>
 	<? else: ?>
 		<span id="current-user"
