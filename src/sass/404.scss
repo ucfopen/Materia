@@ -1,41 +1,38 @@
-#notfound {
-	width: 1093px;
+@import 'colors';
+
+.notfound {
+	background: $white;
 	height: 400px;
+	width: 1093px;
 
-	background: #fff;
 	.page {
-		display: block;
-		margin-top: -29px;
-		padding: 0;
-		padding-top: 497px;
-		width: 1094px;
-		height: 285px;
-		overflow: hidden;
-
 		background: url('../img/kogneato_metal_detecting.png') 495px 145px no-repeat, url('../img/404_logo_balls.png') 0 353px no-repeat, url('../img/404_beachandocean.png') 0 255px no-repeat;
 		border: 0;
 		box-shadow: none;
+		display: block;
+		height: 285px;
+		margin-top: -29px;
+		overflow: hidden;
+		padding: 0;
+		padding-top: 497px;
+		width: 1094px;
 
 		p {
-			padding-right: 625px;
-
 			font-size: 18px;
-
-			text-shadow: 0 1px 0 rgba(255, 255, 255, .75);
-
+			padding-right: 625px;
 			text-align: right;
+			text-shadow: 0 1px 0 rgba(255, 255, 255, .75);
 		}
+
 		h1 {
-			position: absolute;
-			top: 107px;
-			left: 45px;
-
-			width: 497px;
-			height: 300px;
-
 			background: url('../img/404_insand.png') top center no-repeat;
-
+			height: 300px;
+			left: 45px;
+			position: absolute;
 			text-indent: -9000px;
+			top: 107px;
+			width: 497px;
 		}
 	}
 }
+

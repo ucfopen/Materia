@@ -1,46 +1,46 @@
+@import 'colors';
+
 html {
-	width: 100%;
+	background: $white;
 	height: 100%;
 	overflow-x: hidden;
-
-	background: white;
+	width: 100%;
 }
 
 body {
-	margin: 0;
-	padding: 0;
-	min-width: 600px;
-
 	font-family: 'Lucida Grande', sans-serif;
+	margin: 0;
+	min-width: 600px;
+	padding: 0;
 }
 
 header {
-	z-index: 0;
-
-	visibility: hidden;
+	height: auto;
 	margin: 0 0 2em 0;
 	padding: 0;
-	height: auto;
+	visibility: hidden;
+	z-index: 0;
 }
 
 .preview {
 	header {
 		visibility: visible;
+
 		h1 {
 			background: #68d053;
 		}
 	}
+
 	.container {
+		background: #ebebeb;
+		box-sizing: border-box;
+		height: 300px;
 		margin: 0 auto;
 		margin-top: 5em;
 		padding: 2em;
-		width: 500px;
-		height: 300px;
-		box-sizing: border-box;
-
-		background: #ebebeb;
-
 		text-align: center;
+		width: 500px;
+
 		p {
 			margin-bottom: 2em;
 		}
@@ -59,43 +59,37 @@ header {
 }
 
 a {
-	color: #0093e7;
+	color: $blue;
 }
 
 header > h1 {
-	margin: 0;
-	padding: 20px 20px 20px 162px;
-
-	color: white;
+	background: #3690e6;
+	color: $white;
 	font-family: 'Lato', 'Arial', sans-serif;
 	font-size: 18pt;
-
-	background: #3690e6;
+	margin: 0;
+	padding: 20px 20px 20px 162px;
 }
 
 .button {
-	position: relative;
-
-	display: inline-block;
-	padding: 7px 23px 8px 23px;
-
-	color: #694d28;
-	font-family: 'Lato', arial, serif;
-	font-size: 18px;
-	font-weight: 700;
-
 	background: #ffba5d;
 	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	border: #fdb34f 1px solid;
 	border-radius: 6px;
-	box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px $medium-gray;
+	color: $brown;
+	cursor: pointer;
+	display: inline-block;
+	font-family: 'Lato', arial, serif;
+	font-size: 18px;
+	font-weight: 700;
+	padding: 7px 23px 8px 23px;
+	position: relative;
+	text-decoration: none;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
 
-	cursor: pointer;
-	text-decoration: none;
 	&:hover {
 		background-image: linear-gradient(top, #ffa42a, #ffce8c);
-
 		text-decoration: none;
 	}
 }
@@ -105,16 +99,14 @@ header > h1 {
 }
 
 #logo {
+	background: $white url(../img/materia_tmp_logo.png) 0 0 no-repeat;
+	border: 1px solid gray;
+	border-top: 0;
+	height: 82px;
+	left: 30px;
 	position: absolute;
 	top: 0;
-	left: 30px;
-
 	width: 113px;
-	height: 82px;
-
-	background: white url(../img/materia_tmp_logo.png) 0 0 no-repeat;
-	border: 1px solid gray;
-	border-top: none;
 }
 
 #select-widget {
@@ -127,60 +119,53 @@ header > h1 {
 }
 
 #search {
-	margin-right: 10px;
-	margin-left: 30px;
-	padding-right: 10px;
-	padding-left: 23px;
-	width: 190px;
-	height: 19px;
-
-	background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
-	border: solid 1px #b0b0b0;
+	background: $white url('../img/magnifyingglass.png') 5px 50% no-repeat;
+	border: solid 1px $light-gray;
 	border-radius: 12px;
+	height: 19px;
+	margin-left: 30px;
+	margin-right: 10px;
 	outline: none;
+	padding-left: 23px;
+	padding-right: 10px;
+	width: 190px;
 }
 
 #refresh {
-	position: absolute;
-	top: 125px;
-	right: 30px;
-
-	margin-left: 0;
-
 	font-size: 10pt;
+	margin-left: 0;
+	position: absolute;
+	right: 30px;
+	top: 125px;
 }
 
 #list-container {
-	position: absolute;
-	top: 160px;
-	right: 30px;
+	border-bottom: 1px solid gray;
+	border-top: 1px solid gray;
 	bottom: 70px;
 	left: 30px;
-
 	min-width: 540px;
-	overflow: scroll;
 	overflow-x: auto;
 	overflow-y: scroll;
-
-	border-top: 1px solid gray;
-	border-bottom: 1px solid gray;
+	overflow: scroll;
+	position: absolute;
+	right: 30px;
+	top: 160px;
 }
 
 #no-widgets-container {
-	position: absolute;
-	top: 40px;
-	right: 0;
 	left: 0;
-
+	position: absolute;
+	right: 0;
 	text-align: center;
+	top: 40px;
 }
 
 #no-widgets {
+	background: #fff389;
 	display: inline-block;
 	padding: 1em;
 	width: 280px;
-
-	background: #fff389;
 }
 
 #create-widget-button {
@@ -195,52 +180,49 @@ header > h1 {
 
 		list-style-type: none;
 	}
+
 	li {
+		border-top: 1px solid #ccc;
+		height: 86px;
+		padding: 0 20px 0 20px;
 		position: relative;
 
-		padding: 0 20px 0 20px;
-		height: 86px;
-
-		border-top: 1px solid #ccc;
-		/*margin: 10px 0 10px 0;*/
 		&:hover {
 			background-color: #ffe0a5;
 		}
-		&.selected {
-			/*background-color: #ffcb68;*/
-			&:hover {
-				/*background-color: #ffcb68;*/
-			}
-		}
-		h2 {
-			margin-top: 11px;
-			margin-bottom: 0;
-			margin-left: 80px;
 
+		h2 {
 			font-family: 'Lato', Arial, sans-serif;
 			font-size: 14pt;
+			margin-bottom: 0;
+			margin-left: 80px;
+			margin-top: 11px;
 		}
+
 		&.draft h2 {
 			color: gray;
 		}
-		h3 {
-			margin-top: 0;
-			margin-left: 80px;
 
+		h3 {
 			color: #555;
 			font-size: 10pt;
 			font-weight: normal;
+			margin-left: 80px;
+			margin-top: 0;
 		}
+
 		&.draft h3 {
 			margin-bottom: 5px;
 
 			color: gray;
 		}
+
 		.preview {
 			position: absolute;
 
 			display: none;
 		}
+
 		&:hover .preview,
 		&.selected .preview {
 			right: 20px;
@@ -248,6 +230,7 @@ header > h1 {
 
 			display: block;
 		}
+
 		.view-at-materia {
 			position: absolute;
 			top: 10px;
@@ -255,10 +238,12 @@ header > h1 {
 
 			display: none;
 		}
+
 		&:hover .view-at-materia,
 		&.selected .view-at-materia {
 			display: block;
 		}
+
 		.embed-button {
 			position: absolute;
 			top: 10px;
@@ -266,6 +251,7 @@ header > h1 {
 
 			display: none;
 		}
+
 		&:hover .embed-button,
 		&.selected .embed-button {
 			display: inline-block;
@@ -274,12 +260,11 @@ header > h1 {
 }
 
 #select-widget .widget-icon {
+	height: 60px;
+	left: 10px;
 	position: absolute;
 	top: 13px;
-	left: 10px;
-
 	width: 60px;
-	height: 60px;
 }
 
 #list-container li.draft .widget-icon {
@@ -287,69 +272,57 @@ header > h1 {
 }
 
 .draft-label {
-	position: absolute;
-	top: 34px;
-	left: 18px;
-
-	padding: 1px 8px 1px 8px;
-
-	color: white;
+	background: rgba(0, 0, 0, .6);
+	border-radius: 2px;
+	color: $white;
 	font-family: 'Lato', Arial, sans-serif;
 	font-size: 9pt;
 	font-weight: 900;
-
-	background: gray;
-	background: rgba(0, 0, 0, .6);
-	border-radius: 2px;
+	left: 18px;
+	padding: 1px 8px 1px 8px;
+	position: absolute;
+	top: 34px;
 }
 
 #goto-new-widgets {
-	position: absolute;
 	bottom: 0;
+	height: 35px;
 	left: 0;
-
+	line-height: 0;
 	margin-left: 30px;
 	padding-top: 35px;
-	height: 35px;
-
-	line-height: 0;
+	position: absolute;
 }
 
 .cancel-button {
+	bottom: 15px;
+	display: none;
 	position: absolute;
 	right: 30px;
-	bottom: 15px;
-
-	display: none;
 }
 
 #success-message {
+	background: #fff389;
 	margin-bottom: 2em;
 	padding: 2px;
-
-	background: #fff389;
-
 	text-align: center;
+
 	ul {
-		padding: 0;
-
 		font-size: 10pt;
-
 		list-style-type: none;
+		padding: 0;
 	}
 }
 
 .arrow_right {
+	background: url(../img/button_arrow_circle_green.png) no-repeat bottom;
+	display: inline-block;
+	height: 56px;
+	left: -36px;
 	position: absolute;
 	top: -7px;
-	left: -36px;
-	z-index: 600;
-
-	display: inline-block;
 	width: 48px;
-	height: 56px;
-
-	background: url(../img/button_arrow_circle_green.png) no-repeat bottom;
+	z-index: 600;
 }
 
 .preview-button:hover .arrow_right {
@@ -368,43 +341,43 @@ header > h1 {
 
 #progress {
 	.widget-info {
-		margin: 3em auto 0 auto;
-		width: 580px;
 		height: 60px;
+		margin: 3em auto 0;
+		width: 580px;
+
 		h1 {
 			display: inline-block;
 			float: right;
-			margin-top: 0;
-			width: 465px;
-
 			font-family: 'Lato', 'Arial', sans;
 			font-size: 24pt;
 			font-weight: bold;
-
+			margin-top: 0;
 			text-align: center;
 			text-align: left;
+			width: 465px;
 		}
+
 		img {
 			float: left;
 		}
 	}
+
 	.progress-container {
+		background: #f7f7f7;
+		border: 1px solid #c5c5c5;
+		box-sizing: border-box;
 		margin: 5em auto 0 auto;
 		padding: 4em 1em 5em 1em;
 		width: 580px;
-		box-sizing: border-box;
 
-		background: #f7f7f7;
-		border: 1px solid #c5c5c5;
 		> span {
 			display: block;
-			margin-bottom: 1em;
-
 			font-size: 14pt;
 			line-height: 0;
-
+			margin-bottom: 1em;
 			text-align: center;
 		}
+
 		&.success > span {
 			color: #37c89c;
 			font-weight: bold;
@@ -415,21 +388,17 @@ header > h1 {
 /* jQuery UI: */
 
 .ui-progressbar {
-	margin: 0 auto;
-	width: 470px;
-	/*background: #b2aeb7;*/
-	height: 20px;
-
 	background: url('/assets/img/progressbar-bg.gif');
 	border-radius: 11px;
+	height: 20px;
+	margin: 0 auto;
+	width: 470px;
 }
 
 .ui-progressbar-value {
-	height: 100%;
-
 	background: #1da4cd;
 	border-radius: 11px;
-
+	height: 100%;
 	transition: width .2s ease, background .2s ease;
 }
 
@@ -438,10 +407,9 @@ header > h1 {
 }
 
 .qtip.lti {
-	top: 111px;
-	right: 155px;
-
-	width: 195px;
-
 	font-size: 13px;
+	right: 155px;
+	top: 111px;
+	width: 195px;
 }
+

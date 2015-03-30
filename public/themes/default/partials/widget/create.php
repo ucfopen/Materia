@@ -28,8 +28,8 @@
 		</div>
 
 		<section id="action-bar" ng-show="showActionBar">
-			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
-			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
+			<a class="return-link" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
+			<a class="import-link" ng-click="showQuestionImporter()">Import Questions...</a>
 			<button id="creatorPublishBtn" class="action-button green" type="button" ng-click="onPublishPressed()">{{ publishText }}</button>
 			<div class="dot" ng-hide="updateMode"></div>
 			<button id="creatorPreviewBtn" class="action-button orange" type="button" ng-click="requestSave('preview')" ng-hide="updateMode"><span>{{ previewText }}</span></button>
@@ -44,7 +44,7 @@
 			<?= Theme::instance()->view('partials/noflash') ?>
 		</div>
 
-		<iframe src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
+		<iframe src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" class="embed-dialog" frameborder=0 width=675 height=500></iframe>
 	</section>
 	<div ng-if="invalid">
 		<?= Theme::instance()->view('partials/nopermission') ?>

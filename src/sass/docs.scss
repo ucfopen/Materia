@@ -1,123 +1,121 @@
-@import 'mixins.scss';
+@import 'mixins';
+@import 'colors';
 
 .content {
+	background: url('../img/question_mark_circle.png') 780px 30px no-repeat;
+	background-color: $white;
 	padding: 40px 215px 20px 60px;
 
-	background: url('../img/question_mark_circle.png') 780px 30px no-repeat;
-	background-color: #fff;
-
 	@include respond-to(phone, tablet-portrait, tablet-landscape) {
-		padding: 20px 20px 20px;
-
-		background: #fff;
+		background: $white;
+		padding: 20px;
 	}
-	h1 {
-		margin: 0 0 30px 0;
-		padding: 0 0 5px 0;
-		padding-bottom: 20px;
 
+	h1 {
+		border-bottom: dotted black 1px;
 		font-family: 'Lato', arial, serif;
 		font-size: 38px;
 		font-weight: 700;
-
-		border-bottom: dotted black 1px;
+		margin: 0 0 30px;
+		padding: 0 0 5px;
+		padding-bottom: 20px;
 	}
-	h2 {
-		margin: 20px 0 0 0;
 
+	h2 {
 		font-family: 'Lato', arial, serif;
 		font-size: 26px;
+		margin: 20px 0 0;
 	}
+
 	section {
 		clear: both;
 		margin-bottom: 0;
 		padding-bottom: 15px;
 	}
+
 	section.float {
-		float: left;
 		clear: none;
+		float: left;
 		width: 25%;
+
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			float: none;
 			width: inherit;
 		}
 	}
+
 	section.float.right {
 		float: right;
 		width: 40%;
+
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			float: none;
 			width: inherit;
 		}
 	}
+
 	section.float.left {
 		float: left;
 		width: 53%;
+
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			float: none;
 			width: inherit;
 		}
 	}
+
 	section.bordered {
-		border-bottom: dotted 1px #ccc;
+		border-bottom: dotted 1px $gray-c;
 	}
+
 	section.bordered-top {
-		border-top: dotted 1px #ccc;
+		border-top: dotted 1px $gray-c;
 	}
+
 	h3 {
 		margin: 30px 0 0 0;
 
 		font-size: 1.3em;
 	}
+
 	h3 + p {
 		margin-top: .5em;
 	}
+
 	a {
 		text-decoration: underline;
 	}
+
 	dl dt {
 		font-family: 'Lato', arial, serif;
 		font-weight: bold;
 	}
+
 	dl dd {
 		margin: 0 0 0 20px;
 		padding-bottom: 10px;
 	}
+
 	.no-flash,
 	.flash-installed {
-		padding: 15px 20px;
-
-		color: #4a4a4a;
-		font-size: 15px;
-
-		background: #f7f7f7;
+		background: $off-white;
 		border-radius: 5px;
-
+		color: $dark-gray;
+		font-size: 15px;
+		padding: 15px 20px;
 		text-align: center;
 	}
 }
 
-.teaching-online {
-	display: inline-block;
-	margin-left: 5px;
-	width: 252px;
-	height: 35px;
-
-	background: url('../img/teaching_online.png') center center;
-
-	text-indent: -99999px;
-}
-
 .get-flash {
-	display: block;
-	margin: 0 auto;
-	width: 160px;
-	height: 41px;
-
 	background: url('../img/get_flashplayer.gif');
 	background-repeat: no-repeat;
-
+	display: block;
+	height: 41px;
+	margin: 0 auto;
 	text-indent: -9999px;
+	width: 160px;
+
 	&:active {
 		background-position: 0 2px;
 	}

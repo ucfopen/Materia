@@ -1,10 +1,6 @@
-/* *************************************************************** */
-/*                           Catalog                               */
-/* *************************************************************** */
+@import 'mixins';
 
-@import 'mixins.scss';
-
-#widget-catalog {
+.widget-catalog {
 	.content {
 		float: left;
 		width: 75%;
@@ -18,6 +14,7 @@
 			width: initial;
 		}
 	}
+
 	.aside-content {
 		width: 25%;
 
@@ -41,36 +38,39 @@
 			font-weight: bold;
 
 			user-select: none;
+
 			input[type='checkbox'] {
-				margin: 0 0 0 0;
+				margin: 0;
 				width: 20px;
 			}
 		}
+
 		dd {
+			color: $dark-gray;
+			font-size: 9px;
 			margin: 5px 0 10px 25px;
 
-			color: #3f3f3f;
-			font-size: 9px;
 			p {
 				margin: 0;
 			}
 		}
 	}
-	p {
-		padding-right: 17px;
 
-		color: #3f3f3f;
+	p {
+		color: $dark-gray;
 		font-size: 9px;
+		padding-right: 17px;
 	}
+
 	h2,
 	h3 {
-		margin: 0;
-		padding: 10px 0 0 0;
-
-		color: #000;
+		color: $black;
 		font-family: 'Lato', arial, serif;
 		font-size: 17px;
+		margin: 0;
+		padding: 10px 0 0;
 	}
+
 	.program-department {
 		width: 215px;
 	}
@@ -79,17 +79,15 @@
 .supported-data {
 	margin-top: 0;
 	padding: 0;
-	li {
-		margin: 3px 0 0 0;
-		padding: 0;
 
-		color: #000;
+	li {
+		color: $black;
 		font-family: 'Lato', arial, serif;
 		font-size: 13px;
 		font-weight: bold;
-
 		list-style-type: none;
-
+		margin: 3px 0 0;
+		padding: 0;
 		user-select: none;
 	}
 }
@@ -97,207 +95,202 @@
 .content {
 	.top .sort-search {
 		float: right;
+		font-size: 11px;
 		height: 100%;
 
-		font-size: 11px;
 		.search {
+			border: solid $white;
+			border-width: 0 0 0 1px;
 			display: inline-block;
 			height: 100%;
 
-			border: solid #fff;
-			border-width: 0 0 0 1px;
+			input[type='text'] {
+				background: $white url('../img/magnifyingglass.png') 5px 50% no-repeat;
+				border: solid 1px $light-gray;
+				border-radius: 12px;
+				height: 19px;
+				margin: 7px 10px 0;
+				outline: none;
+				padding-left: 23px;
+				padding-right: 10px;
+				width: 124px;
+			}
 		}
-		.search input[type='text'] {
-			margin: 7px 10px 0 10px;
-			padding-right: 10px;
-			padding-left: 23px;
-			width: 124px;
-			height: 19px;
 
-			background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
-			border: solid 1px #b0b0b0;
-			border-radius: 12px;
-			outline: none;
-		}
 		ul {
 			display: inline-block;
-			margin: 0 8px 0  5px;
+			margin: 0 8px 0 5px;
 			padding: 0;
+
 			li {
 				display: inline;
-				margin: 0 5px 0 0;
-
 				font-size: 12px;
-
 				list-style-type: none;
+				margin: 0 5px 0 0;
 			}
 		}
 	}
+
 	p {
-		margin: 10px 15px 0 15px;
+		margin: 10px 15px 0;
 	}
 }
 
 .widget {
-	position: relative;
-
-	display: inline-block;
-	margin: 0 0 10px 0;
-	width: 50%;
-	height: 110px;
-	overflow: visible;
-
-	vertical-align: top;
-
 	border-radius: 0 5px 5px 0;
+	display: inline-block;
+	height: 110px;
+	margin: 0 0 10px;
+	overflow: visible;
+	position: relative;
+	vertical-align: top;
+	width: 50%;
 
 	@include respond-to(phone, tablet-portrait, tablet-landscape) {
 		display: block;
 		width: initial;
 	}
+
 	.widget-min {
+		@include clearfix;
+
 		opacity: 1;
 		transition: opacity .3s ease-in-out;
 
-		@include clearfix;
 		&.hidden {
 			display: block;
 
 			opacity: .3;
 		}
 	}
+
 	.icon {
-		vertical-align: top;
 		clear: both;
 		display: inline-block;
 		float: left;
+		left: 0;
 		margin: 0 10px;
 		position: absolute;
 		top: 0;
-		left: 0;
+		vertical-align: top;
+
 		img {
-			max-width: 92px;
 			height: auto;
+			max-width: 92px;
 		}
 	}
+
 	.blurb dd {
 		margin: 0;
 	}
-	h1 a {
-		color: #000;
-	}
-	h1 {
-		margin-top: 9px;
-		margin-bottom: 11px;
 
+	h1 {
 		font-family: 'Lato-Black', arial, serif;
 		font-size: 18px;
+		margin-bottom: 11px;
+		margin-top: 9px;
+
+		a {
+			color: $black;
+		}
 	}
+
 	ul {
 		float: left;
 		margin: 0;
 		padding: 0;
 		width: 216px;
+
 		li {
+			list-style-type: none;
 			margin: 0;
 			padding: 0;
-
-			list-style-type: none;
 		}
 	}
 }
 
-
 .widgets {
-	padding-top: 10px;
 	overflow: hidden;
+	padding-top: 10px;
 }
 
 .highlighted {
-	color: #000;
-
-	background: #fff389;
+	color: $black;
+	background: $orange-highlight;
 }
 
 .inline-def {
+	line-height: 20px;
 	margin: 0;
 	width: 235px;
-
-	line-height: 20px;
 }
 
 .infocard {
+	@include clearfix;
+	background: $white;
+	border-radius: 5px;
+	box-shadow: 0 1px 2px rgba($black, .3);
+	color: $black;
+	display: block;
+	left: 0;
+	opacity: 0;
+	overflow: visible;
+	padding-bottom: 10px;
 	position: absolute;
 	top: 0;
-	left: 0;
+	width: 345px;
 	z-index: 10;
 
-	display: block;
-	padding-bottom: 10px;
-	width: 345px;
-	overflow: visible;
-
-	color: #000;
-
-	background: #fff;
-
-	border-radius: 5px;
-	box-shadow: 0 1px 2px rgba(#000, .3);
-
-	opacity: 0;
-
-	@include clearfix;
 	img {
-		position: absolute;
-		top: 0;
 		left: 0;
 		margin: 5px 10px;
+		position: absolute;
+		top: 0;
 	}
+
 	&:hover {
-		z-index: 20;
-
-		text-decoration: none;
-
-		opacity: 1;
 		animation: animate-show .3s;
+		opacity: 1;
+		text-decoration: none;
+		z-index: 20;
 	}
+
 	h1 {
-		margin-top: 5px;
-		margin-bottom: 5px;
-		background: #7ba7f2; /* Old browsers */
-		background: linear-gradient(to bottom, #7ba7f2 0%,#4373c1 100%); /* W3C */
-
-		width: calc(100% - 1px);
+		background: linear-gradient(to bottom, $skyblue 0%, $cobalt 100%);
+		color: $white;
 		display: block;
-		right: 0;
-		left: 0;
-		padding: 2px;
-		padding-left: 110px;
-		margin-left: -110px;
-
-		color: #fff;
 		font-family: 'Lato-Black', arial, serif;
 		font-size: 18px;
-
-		text-shadow: 2px 2px 2px rgba(#000, .5);
+		left: 0;
+		margin-bottom: 5px;
+		margin-left: -110px;
+		margin-top: 5px;
+		padding: 2px;
+		padding-left: 110px;
+		right: 0;
+		text-shadow: 2px 2px 2px rgba($black, .5);
+		width: calc(100% - 1px);
 	}
+
 	.header {
 		margin-top: -4px;
 	}
+
 	dl {
-		display: inline-block;
-		vertical-align: top;
 		clear: both;
-		margin-top: 5px;
+		display: inline-block;
 		margin-bottom: 5px;
+		margin-top: 5px;
 		overflow-x: visible;
 		overflow-y: auto;
-
+		vertical-align: top;
 	}
+
 	.blurb {
 		dt {
 			display: none;
 		}
+
 		dd {
 			margin-left: 0;
 		}
@@ -306,6 +299,7 @@
 
 .widget-info {
 	padding-left: 110px;
+
 	.description {
 		clear: both;
 		float: right;
@@ -317,7 +311,9 @@
 	0% {
 		opacity: 0;
 	}
+
 	100% {
 		opacity: 1;
 	}
 }
+

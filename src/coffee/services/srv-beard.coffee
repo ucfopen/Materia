@@ -2,7 +2,7 @@
 app = angular.module 'materia'
 app.service 'beardServ', () ->
 
-	beards = ['dusty_full', 'black_chops', 'grey_gandalf', 'red_soul']
+	beards = ['dusty-full', 'black-chops', 'grey-gandalf', 'red-soul']
 
 	getRandomBeard = ->
 		beards[Math.floor(Math.random() * beards.length)]

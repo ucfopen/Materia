@@ -1,5 +1,6 @@
 @import 'store.scss';
 @import 'catalog.scss';
+@import 'colors';
 
 body {
 	margin: 0;
@@ -25,7 +26,7 @@ header {
 
 	padding: 20px 0 10px 0;
 
-	box-shadow: -5px 3px 5px #888;
+	box-shadow: -5px 3px 5px $medium-gray;
 }
 
 h1 {
@@ -94,7 +95,7 @@ nav ul li {
 nav ul li a {
 	padding: 10px;
 
-	color: #0093e7;
+	color: $blue;
 	font-family: Lato-black;
 	font-weight: bold;
 
@@ -104,7 +105,7 @@ nav ul li a {
 h3 {
 	padding: 10px;
 
-	color: #0093e7;
+	color: $blue;
 	font-weight: bold;
 
 	text-decoration: none;
@@ -115,14 +116,14 @@ h3 {
 		padding: 10px;
 		padding: 0;
 
-		color: #0093e7;
+		color: $blue;
 		font-weight: bold;
 
 		text-decoration: none;
 		text-decoration: underline !important;
 	}
 	h2 {
-		color: #000;
+		color: $black;
 		font-size: 20pt;
 		font-weight: 900;
 
@@ -133,7 +134,7 @@ h3 {
 }
 
 #store_main h2 {
-	color: #000;
+	color: $black;
 	font-size: 20pt;
 	font-weight: 900;
 
@@ -147,13 +148,13 @@ h3 {
 }
 
 #main {
-	background: #fff url(../img/pop_back.png) center bottom no-repeat;
+	background: $white url(../img/pop_back.png) center bottom no-repeat;
 }
 
 #store_main {
 	height: 477px;
 
-	background: #fff;
+	background: $white;
 }
 
 #main,
@@ -163,7 +164,7 @@ h3 {
 	overflow: auto;
 
 	border: rgba(0, 0, 0, .11) 1px solid;
-	box-shadow: 1px 3px 10px #888;
+	box-shadow: 1px 3px 10px $medium-gray;
 }
 
 #main section,
@@ -224,7 +225,7 @@ h3 {
 	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	border: #fdb34f 1px solid;
 	border-radius: 8px;
-	box-shadow: 1px 2px 5px #888;
+	box-shadow: 1px 2px 5px $medium-gray;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
 }
 
@@ -245,7 +246,7 @@ h3 {
 			margin-right: 0 !important;
 		}
 		a {
-			color: #000;
+			color: $black;
 			font-family: 'Lato', arial, serif;
 			font-weight: bold;
 
@@ -291,10 +292,10 @@ form {
 	width: 10px;
 	height: 10px;
 
-	background: #fff;
+	background: $white;
 	border-radius: 8px;
 }
 
 input[checked=checked] + span {
-	background: #0093e7;
+	background: $blue;
 }

@@ -1,7 +1,8 @@
 /* *************************************************************** */
 /*        Catalog                                                  */
 /* *************************************************************** */
-@import 'mixins.scss';
+@import 'mixins';
+@import 'colors';
 
 #my-widgets {
 	.content {
@@ -13,13 +14,13 @@
 		width: 25%;
 
 		.top {
-			color: #fff;
+			color: $white;
 
 			border-bottom-color: #0276b9;
 
 			@include vertical-gradient-top-bottom(#83caf3);
 			h1 {
-				text-shadow: 0 1px 0 rgba(#000, .3);
+				text-shadow: 0 1px 0 rgba($black, .3);
 			}
 		}
 		.courses {
@@ -43,7 +44,7 @@
 		&.unchosen {
 			min-height: 500px;
 
-			background: #fff url('../img/kogneato_mywidgets.png') 50% 100% no-repeat;
+			background: $white url('../img/kogneato_mywidgets.png') 50% 100% no-repeat;
 		}
 		h1 {
 			margin: 20px 0 5px 0;
@@ -87,7 +88,7 @@
 			width: 100%;
 			box-sizing: border-box;
 
-			border: 1px solid rgba(#000, .3);
+			border: 1px solid rgba($black, .3);
 			border-radius: 20px;
 			outline: none;
 		}
@@ -166,7 +167,7 @@
 			}
 		}
 		.odd {
-			background: #fff;
+			background: $white;
 		}
 		.widget {
 			cursor: pointer;
@@ -288,9 +289,9 @@
 	border-bottom: 1px #1778af solid;
 }
 .controls ul.options li a:hover {
-	color: #0093e7;
+	color: $blue;
 
-	border-bottom: 1px #0093e7 solid;
+	border-bottom: 1px $blue solid;
 
 	cursor: pointer;
 	text-decoration: none;
@@ -299,9 +300,9 @@
 	float: right;
 	margin: 0;
 	&:hover {
-		color: #0093e7;
+		color: $blue;
 
-		border-bottom: 1px #0093e7 solid;
+		border-bottom: 1px $blue solid;
 
 		cursor: pointer;
 		text-decoration: none;
@@ -333,7 +334,7 @@
 		padding: 20px 0;
 
 		position: relative;
-		background: #ffffff;
+		background: $white;
 		border: solid 1px #dbdbdb;
 
 		&:after, &:before {
@@ -349,7 +350,7 @@
 
 		&:after {
 			border-color: rgba(255, 255, 255, 0);
-			border-bottom-color: #ffffff;
+			border-bottom-color: $white;
 			border-width: 20px;
 			margin-left: 101px;
 		}
@@ -365,7 +366,7 @@
 			margin-top: 5px;
 		}
 		.red {
-			color: #fff;
+			color: $white;
 
 			background: #ca0000;
 			background-image: linear-gradient(top, #e10000, #ca0000);
@@ -493,7 +494,7 @@
 			cursor: pointer;
 			text-decoration: underline;
 			&:hover {
-				color: #0093e7;
+				color: $blue;
 			}
 		}
 		textarea {
@@ -550,7 +551,7 @@
 			margin-top: 1em;
 		}
 		h3 {
-			color: #000;
+			color: $black;
 			&.view {
 				display: inline-block;
 				margin: 15px .5em 0 0;
@@ -570,7 +571,7 @@
 					padding: 6px 10px 4px 10px;
 					padding-bottom: 5px;
 
-					color: #000;
+					color: $black;
 
 					border-top: solid #dbdbdb 1px;
 					border-right: solid #dbdbdb 1px;
@@ -774,8 +775,8 @@
 					width: 190px;
 					height: 19px;
 
-					background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
-					border: solid 1px #b0b0b0;
+					background: $white url('../img/magnifyingglass.png') 5px 50% no-repeat;
+					border: solid 1px $light-gray;
 					border-radius: 12px;
 					outline: none;
 				}
@@ -788,7 +789,7 @@
 				margin-left: 20px;
 				width: 40%;
 
-				background: #fff;
+				background: $white;
 				border-radius: 3px;
 				box-shadow: 0 3px 3px rgba(0, 0, 0, .3);
 			}
@@ -810,7 +811,7 @@
 				padding: 10px 0 10px 0;
 				width: 55%;
 
-				background: #fff;
+				background: $white;
 				border-radius: 3px;
 				box-shadow: 0 3px 3px rgba(0, 0, 0, .3);
 				.scoreTable {
@@ -864,7 +865,7 @@
 				padding: 3px 0 0 5px;
 				height: 1.5em;
 
-				color: #000;
+				color: $black;
 
 				background-color: #cdcdcd;
 
@@ -892,7 +893,7 @@
 					margin: 0;
 					padding: 0;
 
-					color: #0093e7;
+					color: $blue;
 					font-family: 'Kameron', Georgia, 'Times New Roman', Times, serif;
 					font-size: 2em;
 					font-weight: 900;
@@ -954,7 +955,7 @@
 
 		cursor: pointer;
 		&:hover {
-			color: #0093e7;
+			color: $blue;
 
 			text-decoration: underline;
 		}
@@ -996,7 +997,7 @@
 
 	text-decoration: underline;
 	&:hover {
-		color: #0093e7;
+		color: $blue;
 	}
 	&.disabled {
 		color: #c5c5c5;
@@ -1090,9 +1091,9 @@
 			margin: 0 10px;
 			padding: 5px;
 
-			color: #fff;
+			color: $white;
 
-			background: #0093e7;
+			background: $blue;
 			border-radius: 5px;
 
 			text-decoration: none;
@@ -1130,7 +1131,7 @@
 		}
 	}
 	.attemptHolder li.selected {
-		color: #000 !important;
+		color: $black !important;
 	}
 	.selector {
 		display: inline-block;
@@ -1168,7 +1169,7 @@
 		background: rgba(255, 0, 0, .2);
 		border: 2px solid rgba(255, 0, 0, .2);
 
-		font-color: #000;
+		font-color: $black;
 	}
 	.am,
 	.pm {
@@ -1200,7 +1201,7 @@
 	}
 	.am.selected,
 	.pm.selected {
-		color: #fff;
+		color: $white;
 
 		background: #0094e2;
 	}
@@ -1285,7 +1286,7 @@
 		}
 	}
 	.green {
-		color: #4d5822;
+		color: $green;
 
 		background: #b2cd43;
 		background-image: linear-gradient(top, #d1e776, #a6c430);
@@ -1421,7 +1422,7 @@
 
 				font-size: 16px;
 
-				background: #fff;
+				background: $white;
 				border: solid 1px #c9c9c9;
 
 				text-align: left;
@@ -1511,7 +1512,7 @@
 		min-height: 130px;
 		overflow: auto;
 
-		background-color: #fff;
+		background-color: $white;
 		border: #bfbfbf 1px solid;
 
 		text-align: left;
@@ -1538,7 +1539,7 @@
 		width: 200px;
 		height: 56px;
 
-		background-color: #fff;
+		background-color: $white;
 		border-radius: 3px;
 		&:hover {
 			background-color: #c5e7fa;
@@ -1817,7 +1818,7 @@
 			}
 		}
 		.green_min {
-			color: #4d5822;
+			color: $green;
 
 			background: #b2cd43;
 			&:hover {
@@ -1905,7 +1906,7 @@
 	margin-right: 20px;
 	padding: 5px 10px;
 
-	color: #694d28;
+	color: $brown;
 	font-family: Lato, arial, serif;
 	font-size: 12px;
 	font-weight: 700;
@@ -1914,7 +1915,7 @@
 	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	border: #fdb34f 1px solid;
 	border-radius: 6px;
-	box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px $medium-gray;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
 
 	cursor: pointer;
@@ -1925,12 +1926,12 @@
 	width: 45px;
 	height: 15px;
 
-	color: #fff !important;
+	color: $white !important;
 	font-family: Lato, arial, serif;
 	font-size: 12px;
 	font-weight: 900;
 
-	background: #b944cc;
+	background: $purple;
 	border-radius: 3px;
 
 	text-align: center;
@@ -1965,7 +1966,7 @@
 		width: 640px;
 		height: 480px;
 
-		background-color: #000;
+		background-color: $black;
 		border-radius: 3px;
 
 		opacity: 0;
@@ -2049,7 +2050,7 @@
 			text-decoration: none;
 		}
 		&:focus {
-			background: #fff;
+			background: $white;
 			border: solid 1px #f7b64a;
 			outline: none;
 		}
@@ -2145,7 +2146,7 @@
 		width: 640px;
 		height: 480px;
 
-		background-color: #000;
+		background-color: $black;
 		-moz-border-radius: 3px;
 		     border-radius: 3px;
 

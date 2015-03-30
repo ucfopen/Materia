@@ -1,4 +1,4 @@
-<main id="my-widgets" role="main" ng-controller="MyWidgetsController" beardable>
+<main class="my-widgets" role="main" ng-controller="MyWidgetsController" beardable>
 	<div class="qtip top nowidgets" ng-show="widgets.widgetList.length == 0">Click here to start making a new widget!</div>
 	<div class="content-container fixed-width">
 		<div ng-controller="SelectedWidgetController">
@@ -177,7 +177,7 @@
 				</div>
 				<div class="courses">
 					<div class="widget-list" data-container="widget-list">
-						<div ng-repeat="widget in widgets.widgetList | filter:query" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
+						<div ng-repeat="widget in widgets.widgetList | filter:query" id="widget_{{widget.id}}" class="widget small-{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
 							<img class="icon" ng-src="{{widget.icon}}"/>
 							<ul>
 								<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
@@ -211,7 +211,7 @@
 
 				<div class="overview">
 					<div class="icon-controls-container">
-						<div class="icon-container med_{{ selected.widget.beard }}" ng-class="{ big_bearded: selected.widget.beard }">
+						<div class="icon-container med-{{ selected.widget.beard }}" ng-class="{ big-bearded: selected.widget.beard }">
 							<img class="icon" ng-src='{{selected.widget.iconbig}}'>
 						</div>
 						<div class="controls">
@@ -223,7 +223,7 @@
 									</a>
 								</li>
 								<li>
-									<a id="edit_button" class="action-button orange" ng-class="{'disabled' : selected.editable==false}" ng-click="editWidget()">
+									<a id="edit-button" class="action-button orange" ng-class="{'disabled' : selected.editable==false}" ng-click="editWidget()">
 										<span class="fa fa-pencil"></span>
 										Edit Widget
 									</a>

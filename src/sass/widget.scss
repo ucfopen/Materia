@@ -1,6 +1,7 @@
-@import 'mixins.scss';
+@import 'mixins';
+@import 'colors';
 
-#widget-details {
+.widget-details {
 	.content {
 		@include respond-to(desktop, large-desktop) {
 			width: 66%;
@@ -15,43 +16,44 @@
 
 .aside-content .icon {
 	display: block;
+	height: auto;
 	margin-top: 15px;
 	max-width: 100%;
-	height: auto;
 }
 
 .content {
 	.tooltip {
-		position: absolute;
-		z-index: 99;
-
-		display: none;
-		padding: 15px;
-		width: 250px;
-
-		font-size: 12px;
-
-		background: #fff;
+		background: $white;
 		border-radius: 15px;
-		box-shadow: 1px 2px 5px #888;
+		box-shadow: 1px 2px 5px $medium-gray;
+		display: none;
+		font-size: 12px;
+		padding: 15px;
+		position: absolute;
+		width: 250px;
+		z-index: 99;
 	}
+
 	hr {
 		margin: 20px 0;
 	}
+
 	dl {
 		line-height: 24px;
-		dt {
-			float: left;
-			clear: left;
-			width: 126px;
-			overflow: hidden;
 
+		dt {
+			clear: left;
+			float: left;
+			overflow: hidden;
 			text-align: right;
-			white-space: nowrap;
 			text-overflow: ellipsis;
+			white-space: nowrap;
+			width: 126px;
 		}
+
 		dd {
 			margin-left: 142px;
+
 			span {
 				@include respond-to(phone) {
 					display: block;
@@ -62,47 +64,48 @@
 }
 
 .pics {
-	margin: 1em 0 0 0;
+	margin: 1em 0 0;
 	padding: 0;
+
 	li {
-		display: inline-block;
-		padding: 0 10px;
-		width: 33.33%;
 		box-sizing: border-box;
-		vertical-align: top;
-
+		display: inline-block;
 		line-height: 1;
-
+		padding: 0 10px;
 		text-align: center;
+		vertical-align: top;
+		width: 33.33%;
 
 		@include respond-to(phone) {
 			display: block;
 			margin-bottom: 12px;
 			padding: 0;
 			width: 100%;
+
 			&:last-of-type {
 				margin-bottom: 0;
 			}
 		}
+
 		&:first-of-type {
 			padding-left: 0;
 		}
+
 		&:last-of-type {
 			padding-right: 0;
 		}
+
 		.img-bg {
+			background: $white;
+			border: solid 1px $light-gray;
 			display: block;
+			height: 135px;
 			padding: 6px;
 
-			background: #fff;
-			border: solid 1px #c3c3c3;
-			height: 135px;
-
 			img {
-				max-width: 100%;
-				height: auto;
-
 				cursor: pointer;
+				height: auto;
+				max-width: 100%;
 			}
 		}
 	}
@@ -111,64 +114,24 @@
 .detail h3 {
 	margin-bottom: -11px;
 }
-.thumbnail_explination {
+
+.thumbnail-explanation {
+	background: url('../img/mag_glass.png') left bottom no-repeat;
+	color: $light-gray;
+	font-size: .7em;
 	margin-top: 5px;
 	padding: 0 0 0 13px;
-
-	color: #b5b5b5;
-	font-size: .7em;
-
-	background: url(../img/mag_glass.png) left bottom no-repeat;
-}
-
-.widget .widget_detail a.feature {
-	padding: 2px 6px;
-
-	font-size: 11px;
-
-	cursor: default;
-}
-
-.widget .widget_detail a.supported_data {
-	padding: 2px 6px;
-
-	font-size: 11px;
-
-	cursor: default;
-}
-
-.widget .widget_detail .tooltip {
-	line-height: 15px;
-}
-
-.widget .green {
-	color: #4d5822;
-
-	background: #b2cd43;
-	background-image: linear-gradient(top, #d1e776, #a6c430);
-	border-color: #95a74e;
-}
-
-.widget .green:hover {
-	background: #a2c129;
-	background-image: linear-gradient(top, #a6c430, #d1e776);
-
-	text-decoration: none;
-}
-
-.widget .widget_right_selection {
-	width: 230px;
 }
 
 .action {
 	h4 {
-		margin: 0;
-		padding: 0;
-
 		color: #b5b5b5;
 		font-family: Lato;
 		font-size: .9em;
+		margin: 0;
+		padding: 0;
 	}
+
 	p {
 		margin: 10px 0 0;
 	}
@@ -179,26 +142,29 @@
 .spotlight {
 	.main_container {
 		height: 370px;
+
 		@include respond-to(phone, tablet-portrait) {
 			height: 460px;
 		}
 	}
-	h1 {
-		margin: 0;
-		padding: 0 0 10px 0;
 
+	h1 {
+		border-bottom: dotted $black 1px;
 		font-family: 'Lato', arial, serif;
 		font-size: 36px;
 		font-weight: 900;
+		margin: 0;
+		padding: 0 0 10px;
 
-		border-bottom: dotted black 1px;
 		@include respond-to(phone, tablet-portrait) {
 			font-size: 24px;
 		}
 	}
+
 	aside {
 		padding: 0 15px;
 		width: 1005px;
+
 		p {
 			display: inline;
 			margin: 0;
@@ -208,45 +174,48 @@
 			font-size: 18px;
 			font-weight: bold;
 
-			background: #fff389;
+			background: $white;
 		}
 	}
+
 	.store_main p {
 		color: #4a4a4a;
 		font-size: 17px;
+		line-height: 24px;
+
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			font-size: 14px;
 		}
-		line-height: 24px;
 	}
-	a.more {
-		position: absolute;
-		top: 270px;
 
+	a.more {
 		font-size: 17px;
 		font-weight: 700;
-
+		position: absolute;
 		text-decoration: underline;
+		top: 270px;
 	}
+
 	.store_main {
 		position: absolute;
+
 		section {
+			background: transparent;
 			padding: 20px 20px 10px;
 			padding-left: 350px;
 			width: calc(100% - 360px);
 
-			background: transparent;
-
 			img {
+				left: 10px;
 				position: absolute;
 				top: 20px;
-				left: 10px;
+
 				@include respond-to(phone, tablet-portrait) {
 					float: none;
-					position: static;
 					margin-top: 10px;
-					max-width: 100%;
 					max-height: 200px;
+					max-width: 100%;
+					position: static;
 				}
 			}
 
@@ -254,8 +223,8 @@
 				@include respond-to(phone, tablet-portrait) {
 					float: none;
 					position: relative;
-					top: -10px;
 					right: 0 !important;
+					top: -10px;
 				}
 			}
 
@@ -265,24 +234,30 @@
 				width: calc(100% - 30px);
 			}
 		}
+
 		section.left {
-			text-align: left;
 			padding-left: 10px;
+			text-align: left;
+
 			@include respond-to(phone, tablet-portrait) {
 				text-align: center;
 			}
+
 			img {
 				left: inherit;
 				right: 10px;
 			}
 		}
+
 		section.crossword h1,
 		section.crossword p {
 			text-align: right;
+
 			@include respond-to(phone, tablet-portrait) {
 				text-align: center;
 			}
 		}
+
 		section.crossword a.more,
 		section.materia_new a.more {
 			right: 40px;

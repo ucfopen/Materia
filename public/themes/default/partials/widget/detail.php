@@ -1,4 +1,4 @@
-<main id="widget-details" role="main" ng-show="show" ng-controller="widgetDetailsController">
+<main class="widget-details" role="main" ng-show="show" ng-controller="widgetDetailsController">
 	<div class="content-container">
 		<aside class="content aside-content hidden-md hidden-sm hidden-xs">
 			<a href="{{ goback.url }}" class="action-button orange block">
@@ -24,7 +24,7 @@
 				</span>
 				</li>
 			</ul>
-			<p class="thumbnail_explination">Click on a thumbnail to view a screenshot</p>
+			<p class="thumbnail-explanation">Click on a thumbnail to view a screenshot</p>
 
 			<div class="action text-center">
 				<h4>Want to see it in action?</h4>

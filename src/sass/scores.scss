@@ -1,3 +1,5 @@
+@import 'colors';
+
 body.scores {
 	.container {
 		margin: 0 auto;
@@ -123,7 +125,7 @@ body.scores {
 		}
 		header {
 			&.preview {
-				border-top: 4px #b944cc solid;
+				border-top: 4px $purple solid;
 				&:before {
 					content: 'Previewing';
 
@@ -135,12 +137,12 @@ body.scores {
 					width: 160px;
 					height: 20px;
 
-					color: #fff;
+					color: $white;
 					font-family: 'Lato', 'Arial', sans-serif;
 					font-size: 20px;
 					font-weight: 900;
 
-					background: #b944cc;
+					background: $purple;
 					border-radius: 5px 5px 0 0;
 
 					text-align: center;
@@ -178,7 +180,7 @@ body.scores {
 					margin: 10px 0 0 10px;
 					padding: 7px;
 
-					color: #fff;
+					color: $white;
 					font-size: 12px;
 
 					background: #222;
@@ -189,7 +191,7 @@ body.scores {
 						/*body.scores .previous-attempts h1 {*/
 						color: #222;
 
-						background: #fff;
+						background: $white;
 					}
 					ul {
 						/*body.scores .previous-attempts ul {*/
@@ -205,7 +207,7 @@ body.scores {
 					margin: 0;
 					margin-left: 6px;
 
-					background: #fff;
+					background: $white;
 					border-radius: 15px;
 					box-shadow: 5px 5px 15px 1px #666;
 
@@ -242,7 +244,7 @@ body.scores {
 				margin: 0;
 				padding-top: 8px;
 
-				color: #fff;
+				color: $white;
 			}
 		}
 	}
@@ -275,7 +277,7 @@ body.scores {
 		h1 {
 			margin: 23px 0;
 
-			color: #fff;
+			color: $white;
 			font-size: 17px;
 			font-weight: bold;
 
@@ -416,7 +418,7 @@ body.scores {
 }
 
 .green {
-	color: #4d5822;
+	color: $green;
 
 	background: #b2cd43;
 	background-image: linear-gradient(top, #d1e776, #a6c430);
@@ -467,7 +469,7 @@ body.scores {
 body.scores {
 	.expired.container,
 	.score_restrict.container {
-		background: #fff;
+		background: $white;
 		border: none;
 		outline: none;
 		box-shadow: none;

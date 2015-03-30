@@ -1,4 +1,4 @@
-<main id="widget-catalog" role="main" ng-controller="widgetCatalogCtrl">
+<main class="widget-catalog" role="main" ng-controller="widgetCatalogCtrl">
 	<div class="content-container">
 		<aside class="content aside-content">
 			<div class="top">

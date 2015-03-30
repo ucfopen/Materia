@@ -1,4 +1,5 @@
-@import 'mixins.scss';
+@import 'colors';
+@import 'mixins';
 
 .content.spotlight { padding: 0 0 15px; }
 
@@ -21,10 +22,10 @@
 				width: 218px;
 				height: 270px;
 				font-family: Lato;
-				background: #fff url(../img/bar-top.png) top repeat-x;
+				background: $white url(../img/bar-top.png) top repeat-x;
 				border: #d6d6d6 1px solid;
 				border-top: none;
-				box-shadow: 1px 5px 10px #888;
+				box-shadow: 1px 5px 10px $medium-gray;
 				h3 {
 					padding-bottom: 20px;
 					color: #6b6b6b;
@@ -40,14 +41,14 @@
 					color: #6b6b6b;
 				}
 				h4 {
-					color: #000;
+					color: $black;
 				}
 				p {
 					&:last-child {
 						margin-top: 10px;
 					}
 					a {
-						color: #0093e7;
+						color: $blue;
 						font-size: .8em;
 						font-weight: bold;
 						text-decoration: underline;
@@ -59,7 +60,7 @@
 }
 
 .program_main {
-	background: #fff url(../img/pop_back.png) center bottom no-repeat;
+	background: $white url(../img/pop_back.png) center bottom no-repeat;
 }
 
 .main section, .store_main section {
@@ -90,7 +91,7 @@
 	span.spotlight_selected {
 		width: 8px;
 		height: 8px;
-		background: #0093e7;
+		background: $blue;
 		-moz-border-radius: 6px;
 		border-radius: 6px;
 	}

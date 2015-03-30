@@ -1,5 +1,6 @@
-@import 'mixins.scss';
-@import 'font-awesome/font-awesome.scss';
+@import 'mixins';
+@import 'colors';
+@import 'font-awesome/font-awesome';
 
 html {
 	background-image: url('../img/back.png');
@@ -37,7 +38,7 @@ footer {
 }
 
 a {
-	color: #0093e7;
+	color: $blue;
 
 	text-decoration: none;
 }
@@ -58,9 +59,9 @@ header[role=banner] {
 	margin-bottom: 30px;
 	padding: 15px;
 
-	background: url(../img/header_border.png) 0 100% repeat-x #fff;
+	background: url(../img/header_border.png) 0 100% repeat-x $white;
 	.logged_in {
-		background: #fff url(../img/header_border_alt.png) 0 100% repeat-x;
+		background: $white url(../img/header_border_alt.png) 0 100% repeat-x;
 	}
 	.avatar img {
 		display: block;
@@ -125,7 +126,7 @@ header[role=banner] {
 					display: block;
 					padding: 15px 0;
 
-					border-top: 1px solid rgba(#000, .2);
+					border-top: 1px solid rgba($black, .2);
 				}
 				&:first-of-type {
 					@include respond-to(phone, tablet-portrait) {
@@ -179,7 +180,7 @@ a.external {
 	margin: 0;
 	padding: 0;
 
-	color: #0093e7;
+	color: $blue;
 	font-weight: bold;
 }
 nav ul li a {
@@ -266,7 +267,7 @@ h3 {
 	display: inline-block;
 	padding: 7px 23px 8px 23px;
 
-	color: #694d28;
+	color: $brown;
 	font-family: 'Lato', arial, serif;
 	font-size: 18px;
 	font-weight: 700;
@@ -275,7 +276,7 @@ h3 {
 	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	border: #fdb34f 1px solid;
 	border-radius: 6px;
-	box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px $medium-gray;
 	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
 
 	cursor: pointer;
@@ -294,14 +295,14 @@ h3 {
 
 	border: 1px solid transparent;
 	border-radius: 6px;
-	box-shadow: 0 2px 2px rgba(#000, .3);
+	box-shadow: 0 2px 2px rgba($black, .3);
 
 	cursor: pointer;
 	transition: background-color ease .3s, background-image ease .3s, border-color ease .3s;
 	text-align: center;
 	white-space: nowrap;
 
-	@include button-variant(rgba(#000, .6), #ddd);
+	@include button-variant(rgba($black, .6), #ddd);
 	&:hover {
 		background-color: #ddd;
 
@@ -322,10 +323,10 @@ h3 {
 		border: 3px solid;
 	}
 	&.red {
-		@include button-variant(rgba(#000, .6), #f92328);
+		@include button-variant(rgba($black, .6), #f92328);
 	}
 	&.orange {
-		@include button-variant(rgba(#000, .6), #ffba5d);
+		@include button-variant(rgba($black, .6), #ffba5d);
 		.arrow_right {
 			display: inline-block;
 
@@ -339,18 +340,18 @@ h3 {
 		}
 	}
 	&.green {
-		@include button-variant(rgba(#000, .6), #b2cd43);
+		@include button-variant(rgba($black, .6), #b2cd43);
 	}
 	&.dark {
-		@include button-variant(#fff, #666);
+		@include button-variant($white, #666);
 	}
 	&.transparent {
 		box-shadow: none;
 		text-shadow: none;
 
-		@include button-variant(#0093e7, transparent);
+		@include button-variant($blue, transparent);
 		&:hover {
-			background-color: #0093e7;
+			background-color: $blue;
 		}
 	}
 	&.active {
@@ -383,7 +384,7 @@ h3 {
 	background-image: linear-gradient(top, #ffa42a, #ffce8c);
 
 	text-decoration: none;
-	box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px $medium-gray;
 }
 
 .content-container {
@@ -405,9 +406,9 @@ h3 {
 	padding: 10px 15px 25px;
 	box-sizing: border-box;
 
-	background-color: #fff;
+	background-color: $white;
 	border: 3px solid rgba(0,0,0,.11);
-	box-shadow: 1px 3px 10px rgba(#000, .3);
+	box-shadow: 1px 3px 10px rgba($black, .3);
 
 	@include respond-to(phone, tablet-portrait) {
 		border: 0;
@@ -438,7 +439,7 @@ h3 {
 			font-family: Lato,arial,serif;
 			font-size: 22px;
 
-			text-shadow: 0 1px rgba(#fff, .6);
+			text-shadow: 0 1px rgba($white, .6);
 		}
 	}
 }
@@ -477,7 +478,7 @@ h3 {
 	margin-right: 0 !important;
 }
 .cat_list_ul li a {
-	color: #000;
+	color: $black;
 	font-family: 'Lato', arial, serif;
 	font-weight: bold;
 
@@ -525,18 +526,18 @@ dl.blurb dt {
 	margin-right: 5px;
 	padding: 2px 6px;
 
-	color: #fff;
+	color: $white;
 	font-size: 11px;
 	font-weight: bold;
 
-	background: #0093e7;
+	background: $blue;
 	border-radius: 2px;
 
 	text-decoration: none;
 }
 
 .widget a.customizable {
-	color: #fff;
+	color: $white;
 
 	background: #e53f1f;
 }
@@ -572,7 +573,7 @@ dl.blurb dt {
 	overflow: auto;
 	overflow-x: hidden;
 
-	background: #fff;
+	background: $white;
 	border: 1px solid rgba(0,0,0,.25);
 	border-radius: 3px 0 3px 3px;
 	box-shadow: 0 2px 2px rgba(0,0,0,.35);
@@ -612,7 +613,7 @@ dl.blurb dt {
 	font-size: 10px;
 	font-weight: bold;
 
-	background: #fff;
+	background: $white;
 	border-top: 1px solid #e5e5e5;
 
 	text-align: center;
@@ -697,7 +698,7 @@ dl.blurb dt {
 	width: 41px;
 	height: 40px;
 
-	background: #fff url(../img/materia-mail-icon.png) 0 0 no-repeat;
+	background: $white url(../img/materia-mail-icon.png) 0 0 no-repeat;
 	background-position: center;
 	border: 1px solid rgba(0,0,0,.25);
 	border-bottom: none;
@@ -715,7 +716,7 @@ dl.blurb dt {
 	min-width: 1.5em;
 	min-height: 1.5em;
 
-	color: #fff;
+	color: $white;
 	font-size: .72em;
 	font-weight: bold;
 	line-height: 1.5em;
@@ -739,7 +740,7 @@ dl.blurb dt {
 
 	margin-top: -21px;
 
-	background: #000;
+	background: $black;
 
 	opacity: .5;
 }
@@ -750,16 +751,16 @@ dl.blurb dt {
 	padding: 10px;
 }
 #popup.dark {
-	color: #fff;
+	color: $white;
 
 	background: #262626;
-	border: 3px solid #888;
+	border: 3px solid $medium-gray;
 	border-radius: 5px;
 }
 #popup.light {
-	color: #000;
+	color: $black;
 
-	background: #fff;
+	background: $white;
 }
 
 .loading_popup,
@@ -771,7 +772,7 @@ dl.blurb dt {
 	padding: 0;
 	width: 350px;
 
-	background-color: #fff;
+	background-color: $white;
 	border-radius: 5px;
 
 	text-align: center;
@@ -781,12 +782,12 @@ dl.blurb dt {
 	margin: 0;
 	padding: 10px 20px;
 
-	color: #fff;
+	color: $white;
 	font-family: 'Lato', arial, serif;
 	font-size: 22px;
 
 	background: #6390dc;
-	background-image: linear-gradient(top, #7ba7f2, #4373c1);
+	background-image: linear-gradient(top, $skyblue, $cobalt);
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
 
@@ -841,8 +842,8 @@ dl.blurb dt {
 	width: 660px;
 	min-height: 400px;
 
-	background-color: #fff;
-	box-shadow: 1px 3px 10px #888;
+	background-color: $white;
+	box-shadow: 1px 3px 10px $medium-gray;
 
 	text-align: left;
 }
@@ -880,7 +881,7 @@ dl.blurb dt {
 
 	background: url('../img/kogneato_looking.png') 35px bottom no-repeat,
 	url('../img/student-landing-page.png') center bottom no-repeat;
-	background-color: #fff;
+	background-color: $white;
 }
 
 .container.general .permission_error h1 {
@@ -967,7 +968,7 @@ dl.blurb dt {
 		margin: 0;
 		max-width: 720px;
 
-		color: #fff;
+		color: $white;
 		font-family: 'Lato', arial, serif;
 		font-size: 44px;
 		font-weight: 500;
@@ -1011,7 +1012,7 @@ dl.blurb dt {
 }
 
 .front-bottom {
-	background: #fff url('../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
+	background: $white url('../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
 	border-bottom: 3px solid rgba(0,0,0,.11);
 	.info {
 		display: inline-block;
@@ -1044,8 +1045,8 @@ dl.blurb dt {
 		display: inline-block;
 		margin: 20px auto 0;
 
-		border: solid 2px #fff;
-		box-shadow: 1px 2px 4px rgba(#000, .3);
+		border: solid 2px $white;
+		box-shadow: 1px 2px 4px rgba($black, .3);
 		&.left {
 			margin-right: 30px;
 		}
@@ -1229,7 +1230,7 @@ Fancybox Overrides
 	}
 
 	header {
-		background: #fff url(../img/header_border.png) 0 100% repeat-x;
+		background: $white url(../img/header_border.png) 0 100% repeat-x;
 		background-size: 12px 6px;
 	}
 }
@@ -1241,11 +1242,11 @@ Fancybox Overrides
 	padding: 10px;
 	width: 230px;
 
-	color: #fff;
+	color: $white;
 	font-weight: bold;
 
-	background: #b944cc;
-	border: 4px solid #b944cc;
+	background: $purple;
+	border: 4px solid $purple;
 	border-radius: 5px;
 }
 .qtip.top:after,
@@ -1269,14 +1270,14 @@ Fancybox Overrides
 
 	border-width: 20px;
 	border-color: rgba(185, 68, 204, 0);
-	border-bottom-color: #b944cc;
+	border-bottom-color: $purple;
 }
 .qtip.top:before {
 	margin-left: -26px;
 
 	border-width: 26px;
 	border-color: rgba(185, 68, 204, 0);
-	border-bottom-color: #b944cc;
+	border-bottom-color: $purple;
 }
 
 .qtip.right:after {
@@ -1293,7 +1294,7 @@ Fancybox Overrides
 	border: solid transparent;
 	border-width: 28px;
 	border-color: rgba(185, 68, 204, 0);
-	border-left-color: #b944cc;
+	border-left-color: $purple;
 
 	pointer-events: none;
 }

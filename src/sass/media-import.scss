@@ -1,3 +1,5 @@
+@import 'colors';
+
 body,
 html {
 	font-family: 'Lato', arial, serif;
@@ -9,9 +11,9 @@ html {
 	clear: both;
 	margin: 0 auto;
 
-	background: #fff;
+	background: $white;
 	border: rgba(0, 0, 0, .11) 1px solid;
-	box-shadow: 1px 3px 10px #888;
+	box-shadow: 1px 3px 10px $medium-gray;
 }
 
 #import-form {
@@ -33,8 +35,8 @@ html {
 		width: 124px;
 		height: 19px;
 
-		background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
-		border: solid 1px #b0b0b0;
+		background: $white url('../img/magnifyingglass.png') 5px 50% no-repeat;
+		border: solid 1px $light-gray;
 		border-radius: 12px;
 		outline: none;
 	}
@@ -101,7 +103,7 @@ h1 {
 
 	clear: none;
 
-	color: #888;
+	color: $medium-gray;
 	font-size: 12px;
 
 	text-align: right;

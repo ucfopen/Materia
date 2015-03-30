@@ -33,7 +33,7 @@
 						<button type="submit" tabindex="3" class="action_button">Login</button>
 					</li>
 				</ul>
-				<ul class="help_links">
+				<ul class="help-links">
 					<? foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
 					<li><a href="/help">Help</a></li>
 				</ul>
