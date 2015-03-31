@@ -157,7 +157,7 @@
 		opacity: 1;
 		transition: opacity .3s ease-in-out;
 
-		&.hidden {
+		&.hide {
 			display: block;
 
 			opacity: .3;

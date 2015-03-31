@@ -29,7 +29,7 @@
 			<div class="widgets" >
 				<section ng-repeat="widget in widgets" class="widget {{widget.clean_name}}" >
 
-					<div class="widget-min {{widget.clean_name}}" ng-class="(widget.visible) ? '' : 'hidden'" data-id="{{widget.id}}">
+					<div class="widget-min {{widget.clean_name}}" ng-class="(widget.visible) ? '' : 'hide'" data-id="{{widget.id}}">
 						<a class="icon" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img ng-src='{{widget.icon}}' alt="{{widget.name}} icon"></a>
 
 						<div class="widget-info">
