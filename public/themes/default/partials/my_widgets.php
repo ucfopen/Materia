@@ -15,7 +15,7 @@
 
 					<span class="center">
 						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
-						<a class="action_button green" ng-href="{{selected.edit}}">Edit Published Widget</a>
+						<a class="action-button green" ng-href="{{selected.edit}}">Edit Published Widget</a>
 					</span>
 				</div>
 			</modal-dialog>
@@ -49,7 +49,7 @@
 									<div class="warning">Are you sure you want to limit <strong>your</strong> access?
 									</div>
 									<a href="javascript:;" ng-click="cancelDemote(collaborator)" class="no_button">No</a>
-									<a href="javascript:;" ng-click="collaborator.warning = false" class="button red action_button yes_button">Yes</a>
+									<a href="javascript:;" ng-click="collaborator.warning = false" class="button red action-button yes_button">Yes</a>
 								</div>
 
 								<div class="options" >
@@ -67,7 +67,7 @@
 						</div>
 						<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
 						<a tabindex="0" class="cancel_button" ng-click="hideModal()">Cancel</a>
-						<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()">Save</a>
+						<a tabindex="0" class="action-button green save_button" ng-click="updatePermissions()">Save</a>
 					</div>
 				</div>
 			</modal-dialog>
@@ -108,7 +108,7 @@
 					</ul>
 					<ul class="inline">
 						<li><a href class="cancel_button" ng-click="hideModal()">Cancel</a></li>
-						<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="hideModal()">Save</a></li>
+						<li><a href class="action-button green save" ng-click="parseSubmittedInfo()" ng-click="hideModal()">Save</a></li>
 					</ul>
 				</div>
 			</modal-dialog>
@@ -140,7 +140,7 @@
 							<span id="sample-notification">Sample</span>
 							<div class="download-controls">
 								<select ng-model="exportType" ng-options="select.option for select in exportSelect"></select>
-								<p class="download"><a href ng-href="{{getDownloadLink()}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
+								<p class="download"><a href ng-href="{{getDownloadLink()}}" class="action-button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
 							</div>
 						</div>
 
@@ -163,7 +163,7 @@
 					<input class="newtitle" type="text" ng-model="selected.copy_title" placeholder="New Widget Title" />
 					<span class="copy_error">Please enter a valid widget title.</span>
 					<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
-					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
+					<a class="action-button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
 				</div>
 			</modal-dialog>
 
@@ -206,7 +206,7 @@
 
 			<section class="content" ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
 				<div class="top">
-					<h1>{{selected.widget.name}} <span class="widget-name">&mdash; {{selected.widget.widget.name}}</span></h1>
+					<h1><span class="widget-title">{{selected.widget.name}}</span> <span class="widget-name">&mdash; {{selected.widget.widget.name}}</span></h1>
 				</div>
 
 				<div class="overview">
@@ -237,7 +237,7 @@
 							<div class="delete_dialogue" ng-show="show.deleteDialog">
 								<span class="delete-warning">Are you sure you want to delete this widget?</span>
 								<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
-								<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
+								<a class="action-button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 							</div>
 							<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
 								<h3>Settings:</h3>

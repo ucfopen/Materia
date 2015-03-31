@@ -17,8 +17,8 @@ describe 'When I create a widget', ->
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             .waitFor('.widget.enigma', 3000)
             .moveToObject('.widget.enigma .infocard', 10, 10)
-            .waitFor('.infocard:hover .header h1', 4000)
-            .click('.infocard:hover .header')
+            .waitFor('.infocard:hover .widget-info h1', 4000)
+            .click('.infocard:hover .widget-info')
             .waitForPageVisible('#createLink', 7000)
             .click('#createLink')
         setup.testEnigma client, title, false
@@ -59,7 +59,7 @@ describe 'When I create a widget', ->
             .waitForEnabled '#play_link', 5000, true # wait for it to be disabled
             .getText '#widget_'+instanceID+' .score', (err, mode) ->
                 expect(mode).toBe('Draft')
-            .getText '.container .page h1', (err, mode) ->
+            .getText '.top h1 .widget-title', (err, mode) ->
                 expect(mode).toBe(title)
             .call(done)
 
@@ -111,7 +111,7 @@ describe 'When I create a widget', ->
             .getText '.copy .ng-modal-title', (err, text) ->
                 expect(text).toContain('Make a Copy')
             .setValue('.newtitle', copyTitle)
-            .click('.copy_button.action_button')
+            .click('.copy_button.action-button')
 
             # complicated bit, inject an interval timer into the
             # page to determine when the hash url changes and return

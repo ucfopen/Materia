@@ -261,7 +261,7 @@ h3 {
 	display: inline-block;
 	margin-bottom: 30px;
 }
-.action_button {
+.action-button {
 	position: relative;
 
 	display: inline-block;
@@ -375,11 +375,11 @@ h3 {
 	text-decoration: underline;
 }
 
-.ie .action_button {
+.ie .action-button {
 	border-radius: 0;
 }
 
-.action_button:hover {
+.action-button:hover {
 	background: #eca444;
 	background-image: linear-gradient(top, #ffa42a, #ffce8c);
 

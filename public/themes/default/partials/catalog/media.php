@@ -14,10 +14,10 @@
 			</thead>
 		</table>
 		<div id="modal-cover"></div>
-		<a id="upload-cancel-button" href="#" onClick="toggleUploader(); return false;" class="action_button gray">Upload...</a>
+		<a id="upload-cancel-button" href="#" onClick="toggleUploader(); return false;" class="action-button gray">Upload...</a>
 		<div class="actions">
 			<a id="cancel-button" href="#" onClick="self.close();">Cancel</a>
-			<input id="submit-button" type="button" class="action_button" value="Import Selected">
+			<input id="submit-button" type="button" class="action-button" value="Import Selected">
 		</div>
 	</form>
 	<form id="uploader-form" style="display:none;">

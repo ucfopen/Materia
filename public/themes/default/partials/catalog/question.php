@@ -13,7 +13,7 @@
 		</table>
 		<div class="actions">
 			<a id="cancel-button" href="#" onClick="self.close();">Cancel</a>
-			<input id="submit-button" type="button" class="action_button" value="Import Selected">
+			<input id="submit-button" type="button" class="action-button" value="Import Selected">
 		</div>
 	</form>
 </div>

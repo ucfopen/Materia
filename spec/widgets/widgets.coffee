@@ -23,7 +23,7 @@ module.exports = (widget, callback) ->
 		.waitFor '#username'
 		.setValue('#username', author.username)
 		.setValue('#password', author.password)
-		.click('form button.action_button')
+		.click('form button.action-button')
 
 	client
 		.url('http://localhost:8080/widgets')

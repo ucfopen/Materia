@@ -9,7 +9,7 @@
 	</div>
 	<modal-dialog show="alert.msg" dialog-title="{{ alert.title }}" width="520px">
 		{{ alert.msg }}
-		<button ng-click="alert.msg = null" class="action_button">Okay</button>
+		<button ng-click="alert.msg = null" class="action-button">Okay</button>
 	</modal-dialog>
 	<modal-dialog show="fatal.msg" dialog-title="{{ fatal.title }}" width="520px">
 		<div>{{ fatal.msg }}</div>

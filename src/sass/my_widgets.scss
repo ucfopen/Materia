@@ -4,7 +4,7 @@
 @import 'mixins';
 @import 'colors';
 
-#my-widgets {
+.my-widgets {
 	.content {
 		float: left;
 		width: 75%;
@@ -38,7 +38,7 @@
 	background-color: #ffd800;
 }
 
-#my-widgets {
+.my-widgets {
 	.directions {
 		text-align: center;
 		&.unchosen {
@@ -362,7 +362,7 @@
 		}
 
 		text-align: center;
-		.action_button {
+		.action-button {
 			margin-top: 5px;
 		}
 		.red {
@@ -452,7 +452,7 @@
 	padding: 7px 12px 8px 12px;
 }
 
-#my-widgets .content {
+.my-widgets .content {
 	.controls {
 		h3 {
 			display: inline-block;
@@ -714,7 +714,7 @@
 	overflow-x: scroll;
 }
 
-#my-widgets .content {
+.my-widgets .content {
 	.scores {
 		.display.data table {
 			margin-top: 20px;
@@ -1267,7 +1267,7 @@
 				left: 250px;
 			}
 		}
-		.action_button.save_button {
+		.action-button.save_button {
 			position: absolute;
 			bottom: 35px;
 			left: 285px;
@@ -2112,7 +2112,7 @@
 
 		text-align: center;
 	}
-	.action_button {
+	.action-button {
 		margin-top: 20px;
 	}
 }
@@ -2373,7 +2373,7 @@
 	border-bottom: #999 dotted 1px;
 }
 .ng-modal.csv_popup div.score_table p.download a.disabled,
-#my-widgets .content .scores #export_scores_button.disabled {
+.my-widgets .content .scores #export_scores_button.disabled {
 	color: #545454;
 
 	background: #aeaeae;
@@ -2402,7 +2402,7 @@
 	text-decoration: none;
 }
 .ng-modal.csv_popup div.score_table p.download a span.arrow_down,
-#my-widgets .content .scores a span.arrow_down {
+.my-widgets .content .scores a span.arrow_down {
 	display: inline-block;
 	margin: 0;
 	margin-top: -5px;

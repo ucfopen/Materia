@@ -23,23 +23,23 @@ describe 'Settings page', ->
         client
             .url("#{setup.url}/settings")
             # make sure avitar is set to default
-            .click('#avatar_default')
+            .click('#avatar-default')
             # make sure notify is selected
             .isSelected "#notify", (err, isSelected) -> unless isSelected then client.click("#notify")
-            .click('form button.action_button')
+            .click('form button.action-button')
             .pause(500)
 
     it 'should display default options', (done) ->
         client
             # Check page state
             .getTitle (err, title) -> expect(title).toBe('Settings | Materia')
-            .isVisible('.avatar_big')
+            .isVisible('.avatar')
             # save should be disabled
-            .isEnabled "form button.action_button", (err, isEnabled) -> expect(isEnabled).toBe(false)
-            .isSelected('#avatar_default')
+            .isEnabled "form button.action-button", (err, isEnabled) -> expect(isEnabled).toBe(false)
+            .isSelected('#avatar-default')
             .isSelected('#notify')
             # current avatar should be in the header too
-            .getAttribute '.avatar_big img', 'src', (err, src) -> expect(src).toContain('default-avatar.jpg')
+            .getAttribute '.avatar img', 'src', (err, src) -> expect(src).toContain('default-avatar.jpg')
             .call(done)
 
     it 'should save notification changes', (done) ->
@@ -47,9 +47,9 @@ describe 'Settings page', ->
             .getTitle (err, title) -> expect(title).toBe('Settings | Materia')
             .isSelected('#notify')
             .click('#notify') # turn off
-            .waitForEnabled('form button.action_button', 1500) # true reverses test
-            .click('form button.action_button')
-            .waitForEnabled('form button.action_button', 1500, true) # true reverses test
+            .waitForEnabled('form button.action-button', 1500) # true reverses test
+            .click('form button.action-button')
+            .waitForEnabled('form button.action-button', 1500, true) # true reverses test
             .refresh()
             .getTitle (err, title) -> expect(title).toBe('Settings | Materia')
             .waitForChecked("#notify", 1500, true) # true reverses test
@@ -60,13 +60,13 @@ describe 'Settings page', ->
             # Turn on stuff
             # gravatar yes
             # notifications yes
-            .click('#avatar_gravatar')
+            .click('#avatar-gravatar')
             .click('#notify')
-            .click('form button.action_button')
-            .waitForEnabled('.action_button', 5000, true) # true reverses test
-            .isSelected('#avatar_gravatar')
+            .click('form button.action-button')
+            .waitForEnabled('.action-button', 5000, true) # true reverses test
+            .isSelected('#avatar-gravatar')
             .isSelected('#notify')
-            .getAttribute '.avatar_big img', 'src', (err, src) ->
+            .getAttribute '.profile-nav .avatar', 'src', (err, src) ->
                 expect(src).toContain('gravatar')
                 expect(src).toContain('robohash.org/')
                 expect(src).toContain('100')
@@ -78,9 +78,9 @@ describe 'Settings page', ->
             .refresh()
 
             # check again that page displays expected options
-            .isSelected('#avatar_gravatar')
+            .isSelected('#avatar-gravatar')
             .isSelected('#notify')
-            .getAttribute '.avatar_big img', 'src', (err, src) ->
+            .getAttribute '.profile-nav .avatar', 'src', (err, src) ->
                 expect(src).toContain('gravatar')
                 expect(src).toContain('robohash.org/')
                 expect(src).toContain('100')

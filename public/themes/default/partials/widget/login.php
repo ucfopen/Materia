@@ -30,7 +30,7 @@
 						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" />
 					</li>
 					<li class="submit_button">
-						<button type="submit" tabindex="3" class="action_button">Login</button>
+						<button type="submit" tabindex="3" class="action-button">Login</button>
 					</li>
 				</ul>
 				<ul class="help-links">
