@@ -4,6 +4,7 @@
 	.content {
 		float: left;
 		width: 75%;
+		padding-bottom: 0;
 
 		@include respond-to(tablet-landscape) {
 			width: 70%;
@@ -212,6 +213,7 @@
 .widgets {
 	overflow: hidden;
 	padding-top: 10px;
+	padding-bottom: 60px;
 }
 
 .highlighted {
