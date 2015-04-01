@@ -55,6 +55,8 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	updateWidgets = (data) ->
 		Materia.Set.Throbber.stopSpin '.courses'
 
+		$scope.hasLoaded = true
+
 		if !data
 			$scope.widgets.widgetList = []
 			$scope.$apply()

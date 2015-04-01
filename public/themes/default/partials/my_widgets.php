@@ -1,5 +1,5 @@
 <main class="my-widgets" role="main" ng-controller="MyWidgetsController" beardable>
-	<div class="qtip top nowidgets" ng-show="widgets.widgetList.length == 0">Click here to start making a new widget!</div>
+	<div class="qtip top nowidgets" ng-show="hasLoaded && widgets.widgetList.length == 0">Click here to start making a new widget!</div>
 	<div class="content-container fixed-width">
 		<div ng-controller="SelectedWidgetController">
 			<modal-dialog class="edit-published-widget" show="show.editPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
@@ -25,7 +25,7 @@
 					<div id="access" class="container">
 						<div ng-if="selected.shareable" class="list_tab_lock">
 							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)" />
-							<div class="search_list" ng-show="searchResults.show">
+							<div class="search-list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
 									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
@@ -200,8 +200,10 @@
 				<p>Choose a widget from the list on the left.</p>
 			</section>
 			<section class="content directions" ng-show="widgets.widgetList.length == 0 && !perms.error">
-				<h1>You have no widgets!</h1>
-				<p>Make a new widget in the widget catalog.</p>
+				<div ng-show="hasLoaded">
+					<h1>You have no widgets!</h1>
+					<p>Make a new widget in the widget catalog.</p>
+				</div>
 			</section>
 
 			<section class="content" ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
@@ -211,7 +213,7 @@
 
 				<div class="overview">
 					<div class="icon-controls-container">
-						<div class="icon-container med-{{ selected.widget.beard }}" ng-class="{ big-bearded: selected.widget.beard }">
+						<div class="icon-container med-{{ selected.widget.beard }}" ng-class="{ 'big-bearded': selected.widget.beard }">
 							<img class="icon" ng-src='{{selected.widget.iconbig}}'>
 						</div>
 						<div class="controls">

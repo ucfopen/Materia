@@ -1263,21 +1263,20 @@ Fancybox Overrides
 	border: solid transparent;
 
 	pointer-events: none;
+
+	border-color: rgba(185, 68, 204, 0);
+	border-bottom-color: $purple;
 }
 
 .qtip.top:after {
 	margin-left: -20px;
 
 	border-width: 20px;
-	border-color: rgba(185, 68, 204, 0);
-	border-bottom-color: $purple;
 }
 .qtip.top:before {
 	margin-left: -26px;
 
 	border-width: 26px;
-	border-color: rgba(185, 68, 204, 0);
-	border-bottom-color: $purple;
 }
 
 .qtip.right:after {
