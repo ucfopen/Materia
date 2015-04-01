@@ -18,7 +18,7 @@ class Shoehorn extends \Basetask
 			->from($materia_user_table)
 			->as_assoc();
 
-		if ($to_file) {
+		if ($to_file == true) {
 			static::write_to_file($all_users->compile());
 		}
 		else
@@ -42,13 +42,13 @@ class Shoehorn extends \Basetask
 					->where($nid, $user_name)
 					->as_assoc();
 
-				if ($to_file) {
-					static::write_to_file($results->compile());
-				}
-				else
-				{
-					echo($results->compile()."\n");
-				}
+				// if ($to_file == true) {
+				// 	static::write_to_file($results->compile());
+				// }
+				// else
+				// {
+				// 	echo($results->compile()."\n");
+				// }
 
 				$results = $results->execute("ucf");
 
@@ -63,7 +63,7 @@ class Shoehorn extends \Basetask
 						])
 						->where("id", $user_id);
 
-					if ($to_file) {
+					if ($to_file == true) {
 						static::write_to_file($status->compile());
 					}
 					else
