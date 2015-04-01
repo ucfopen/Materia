@@ -35,7 +35,7 @@
 					</ul>
 				</div>
 
-				<a class="show-more-activity action-button block" ng-show="more" ng-click="getLogs()"><span class="message-loading" ng-show="loading">Loading...</span> Show more</a>
+				<a class="show-more-activity action-button orange block" ng-show="more" ng-click="getLogs()"><span class="message-loading" ng-show="loading">Loading...</span> Show more</a>
 
 				<p class="no-logs" ng-show="activities && activities.length == 0">You don't have any activity! Start doing stuff.</p>
 			</div>
