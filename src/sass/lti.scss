@@ -99,7 +99,7 @@ header > h1 {
 }
 
 #logo {
-	background: $white url(../img/materia_tmp_logo.png) 0 0 no-repeat;
+	background: $white url(../img/materia_tmp_logo.png) 20px 15px no-repeat;
 	border: 1px solid gray;
 	border-top: 0;
 	height: 82px;
@@ -411,5 +411,9 @@ header > h1 {
 	right: 155px;
 	top: 111px;
 	width: 195px;
+}
+
+.lti-select footer {
+	display: none;
 }
 
