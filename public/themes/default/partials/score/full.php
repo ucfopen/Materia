@@ -12,7 +12,7 @@
 		</nav>
 
 		<nav class="play-again">
-			<h1><a id="play-again" ng-hide="hidePlayAgain" class="action-button" href="{{ widget.href }}">{{ isPreview ? 'Preview' : 'Play' }} Again</a></h1>
+			<h1><a id="play-again" ng-hide="hidePlayAgain" class="action-button orange" href="{{ widget.href }}">{{ isPreview ? 'Preview' : 'Play' }} Again</a></h1>
 		</nav>
 
 	</header>
@@ -20,7 +20,7 @@
 		<div id="overview-score">
 			<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
 			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
-			<div id="class-rank-button" class="action-button gray" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
+			<div id="class-rank-button" class="action-button orange" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">
 			<table>
@@ -76,7 +76,7 @@
 	<div class="expired container general" ng-show="expired">
 		<section class="page score_expired">
 			<h2 class="logo">The preview score for this widget has expired.</h2>
-			<a class="action-button" href="{{ widget.href }}">Preview Again</a>
+			<a class="action-button orange" href="{{ widget.href }}">Preview Again</a>
 		</section>
 	</div>
 
