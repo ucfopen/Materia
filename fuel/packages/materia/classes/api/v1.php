@@ -157,10 +157,11 @@ class Api_V1
 	 * @param int     $open_at
 	 * @param int     $close_at
 	 * @param int     $attempts
+	 * @param bool    $guest_access
 	 *
 	 * @return array An associative array with details about the save
 	 */
-	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null)
+	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
 	{
 		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Instance id is invalid');
@@ -179,6 +180,7 @@ class Api_V1
 		if ($open_at !== null) $inst->open_at = $open_at;
 		if ($close_at !== null) $inst->close_at = $close_at;
 		if ($attempts !== null) $inst->attempts = $attempts;
+		if ($guest_access !== null) $inst->guest_access = $guest_access;
 
 		// save
 		if ($inst->db_store())

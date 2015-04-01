@@ -73,7 +73,7 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="440px">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="500px">
 				<div ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
@@ -104,6 +104,11 @@
 										<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
 									</li>
 								</ul>
+							</li>
+							<li><h3>Access</h3>
+								<input type="checkbox" name="guest-access" id="guest-access" class="guest-checkbox" ng-model="guestAccess"/>
+								<label for="guest-access">Enable guest access</label>
+								<p class="data_explination">This allows anyone with the widget link to see and play this widget. Users will not log in and no scores will be recorded.</p>
 							</li>
 						</ul>
 					</ul>

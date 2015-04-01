@@ -280,17 +280,18 @@ class Widget_Instance
 
 			list($empty, $num) = \DB::insert('widget_instance')
 				->set([
-					'id'         => $hash,
-					'widget_id'  => $this->widget->id,
-					'user_id'    => $this->user_id,
-					'created_at' => time(),
-					'name'       => $this->name,
-					'is_draft'   => $this->is_draft,
-					'height'     => $this->height,
-					'width'      => $this->width,
-					'open_at'    => $this->open_at,
-					'close_at'   => $this->close_at,
-					'attempts'   => $this->attempts
+					'id'             => $hash,
+					'widget_id'      => $this->widget->id,
+					'user_id'        => $this->user_id,
+					'created_at'     => time(),
+					'name'           => $this->name,
+					'is_draft'       => $this->is_draft,
+					'height'         => $this->height,
+					'width'          => $this->width,
+					'open_at'        => $this->open_at,
+					'close_at'       => $this->close_at,
+					'attempts'       => $this->attempts,
+					'guest_access'   => $this->guest_access
 				])
 				->execute();
 
@@ -308,13 +309,14 @@ class Widget_Instance
 			// store the question set if it hasn't already been
 			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
-					'widget_id'  => $this->widget->id,
-					'created_at' => time(),
-					'name'       => $this->name,
-					'is_draft'   => $this->is_draft,
-					'open_at'    => $this->open_at,
-					'close_at'   => $this->close_at,
-					'attempts'   => $this->attempts
+					'widget_id'      => $this->widget->id,
+					'created_at'     => time(),
+					'name'           => $this->name,
+					'is_draft'       => $this->is_draft,
+					'open_at'        => $this->open_at,
+					'close_at'       => $this->close_at,
+					'attempts'       => $this->attempts,
+					'guest_access'   => $this->guest_access
 				])
 				->where('id', $this->id)
 				->execute();
