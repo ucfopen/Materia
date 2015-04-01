@@ -64,11 +64,11 @@ class Shoehorn extends \Basetask
 						->where("id", $user_id);
 
 					if ($to_file == true) {
-						static::write_to_file($status->compile());
+						static::write_to_file($status->compile().";");
 					}
 					else
 					{
-						echo($status->compile()."\n");
+						echo($status->compile().";\n");
 					}
 				}
 			}
