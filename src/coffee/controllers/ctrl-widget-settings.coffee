@@ -11,6 +11,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 	# Hold information for availability.
 	$scope.availability = []
+	$scope.guestAccess = false
 	# From
 	$scope.availability.push
 		header: 'Available'
@@ -27,6 +28,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
 		$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
+		$scope.guestAccess = $scope.selected.widget.guest_access
 		$scope.dateFormatter()
 		setTimeout ->
 			$scope.setupSlider()
@@ -199,11 +201,12 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			inst_id: $scope.selected.widget.id,
 			open_at: $scope.times[0],
 			close_at: $scope.times[1],
-			attempts: attempts
+			attempts: attempts,
+			guest_access: $scope.guestAccess
 			, (widget) ->
 				$scope.$broadcast 'widgetAvailability.update', ''
 
-		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1])
+		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess)
 
 	Namespace('Materia.MyWidgets').Availability =
 		popup : $scope.popup

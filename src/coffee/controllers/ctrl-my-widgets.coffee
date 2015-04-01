@@ -12,6 +12,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		editable: true
 		hasScores: false
 		preview: ""
+		guestAccess: false
 	$scope.perms =
 		collaborators: []
 	$scope.show =
