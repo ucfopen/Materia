@@ -1,4 +1,4 @@
-<main id="login" role="main" ng-controller="loginCtrl">
+<main id="login" class="login" role="main" ng-controller="loginCtrl">
 	<div class="content-container">
 		<section class="content">
 			<div class="detail">
