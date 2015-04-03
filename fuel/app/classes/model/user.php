@@ -125,6 +125,7 @@ class Model_User extends Orm\Model
 
 	static public function verify_session($role_name = null)
 	{
+		trace("VERIFY SESSION");
 		if (\Auth::check())
 		{
 			$in_role = true;
@@ -142,6 +143,7 @@ class Model_User extends Orm\Model
 		}
 		else
 		{
+			trace("FAILED");
 			\Auth::logout();
 		}
 		return false;
