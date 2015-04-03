@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
+app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYER) ->
 
 	# Keep track of a promise
 	embedDoneDfD = null
@@ -37,6 +37,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 	checkForContext = String(window.location).split '/'
 	# Controls whether the view has a "preview" header bar
 	$scope.isPreview = false
+	# Current user. Used to figure out if user is logged in or guest
+	user = userServ.getCurrentUser()
 
 	for word in checkForContext
 		if word == 'preview'
@@ -85,18 +87,16 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 					# shows the score screen upon callback if requested any time betwen method call and now
 					if showScoreScreenAfter or scoreScreenPending then showScoreScreen()
 
-	###
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
 			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
-				if data != true
-					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+				if data != true and ( instance.guest_access is false or user.loggedIn is true )
+					alert 'Your play session has expired due to inactivity and you\'ll need to start over.'
 					window.onbeforeunload = null
 					window.location.reload()
 		, 30000
 		dfd.promise()
-	###
 
 	sendWidgetInit = ->
 		dfd = $.Deferred().resolve()
