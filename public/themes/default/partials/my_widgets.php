@@ -241,6 +241,10 @@
 										From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
 									</span>
 								</dd>
+								<dt>Access:</dt>
+								<dd>
+									<span>Guests <b ng-if="!selected.widget.guest_access">not </b>allowed</span>
+								</dd>
 							</dl>
 							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
 						</div>
