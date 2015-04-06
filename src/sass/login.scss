@@ -103,6 +103,7 @@
 	.content {
 		@include respond-to(phone, tablet-portrait) {
 			padding: 20px;
+			border: solid 1px $light-gray;
 		}
 	}
 
