@@ -13,6 +13,7 @@
 		@include respond-to(phone, tablet-portrait) {
 			float: none;
 			width: initial;
+			border-bottom: solid 1px $light-gray;
 		}
 	}
 
@@ -27,6 +28,7 @@
 			float: none;
 			margin-bottom: 30px;
 			width: initial;
+			border-bottom: solid 1px $light-gray;
 		}
 	}
 }
@@ -152,8 +154,19 @@
 		width: initial;
 	}
 
+	@include respond-to(phone, tablet-portrait) {
+		padding-bottom: 50px;
+		height: inherit;
+	}
+
 	.widget-min {
 		@include clearfix;
+
+		@include respond-to(phone, tablet-portrait) {
+			opacity: 0;
+			padding-bottom: 50px;
+		}
+
 
 		opacity: 1;
 		transition: opacity .3s ease-in-out;
@@ -172,8 +185,16 @@
 		left: 0;
 		margin: 0 10px;
 		position: absolute;
-		top: 0;
+		top: 6px;
 		vertical-align: top;
+
+		@include respond-to(phone, tablet-portrait, tablet-landscape) {
+			top: 0;
+		}
+
+		@include respond-to(phone, tablet-portrait) {
+			display: none;
+		}
 
 		img {
 			height: auto;
@@ -211,7 +232,6 @@
 }
 
 .widgets {
-	overflow: hidden;
 	padding-top: 10px;
 	padding-bottom: 60px;
 }
@@ -243,11 +263,17 @@
 	width: 345px;
 	z-index: 10;
 
+	@include respond-to(phone, tablet-portrait) {
+		opacity: 1;
+		position: absolute;
+		border: none;
+		box-shadow: none;
+	}
+
 	img {
 		left: 0;
 		margin: 5px 10px;
 		position: absolute;
-		top: 0;
 	}
 
 	&:hover {
@@ -255,6 +281,10 @@
 		opacity: 1;
 		text-decoration: none;
 		z-index: 20;
+
+		@include respond-to(phone, tablet-portrait) {
+			animation: none;
+		}
 	}
 
 	h1 {
@@ -272,6 +302,12 @@
 		right: 0;
 		text-shadow: 2px 2px 2px rgba($black, .5);
 		width: calc(100% - 1px);
+		vertical-align: top;
+		@include respond-to(phone, tablet-portrait) {
+			color: $black;
+			background: none;
+			text-shadow: none;
+		}
 	}
 
 	.header {
