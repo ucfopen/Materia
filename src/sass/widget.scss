@@ -143,8 +143,12 @@
 	.main_container {
 		height: 370px;
 
+		@include respond-to(tablet-portrait) {
+			height: 440px;
+		}
+
 		@include respond-to(phone, tablet-portrait) {
-			height: 460px;
+			height: 540px;
 		}
 	}
 
