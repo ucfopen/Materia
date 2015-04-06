@@ -142,13 +142,17 @@
 .spotlight {
 	.main_container {
 		height: 370px;
+		padding: 20px;
 
 		@include respond-to(tablet-portrait) {
+			border-top: solid 1px $light-gray;
 			height: 440px;
 		}
 
-		@include respond-to(phone, tablet-portrait) {
+		@include respond-to(phone) {
+			border-top: solid 1px $light-gray;
 			height: 540px;
+			padding: 0;
 		}
 	}
 
@@ -207,7 +211,7 @@
 			background: transparent;
 			padding: 20px 20px 10px;
 			padding-left: 350px;
-			width: calc(100% - 360px);
+			width: calc(100% - 390px);
 
 			img {
 				left: 10px;
