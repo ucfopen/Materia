@@ -234,12 +234,11 @@ class Api_V1
 	 */
 	static public function session_play_create($inst_id, $preview_mode=false)
 	{
-		$user = \Model_User::find_current();
 		$instances = static::widget_instances_get([$inst_id], false);
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		if (! Perm_Manager::can_play($user, $inst)) return \RocketDuck\Msg::no_login();
+		if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
 		// make sure the user has ownership permissions to preview the widget
 		if ($preview_mode)
 		{
@@ -324,14 +323,13 @@ class Api_V1
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
 		$play = new Session_Play();
-		$user = \Model_User::find_current();
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
 		$instances = static::widget_instances_get([$inst_id], false);
 		$inst = $instances[0];
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
-		$can_play = Perm_Manager::can_play($user, $inst);
+		$can_play = Perm_Manager::can_play($inst);
 
 		if (! $can_play) return \RocketDuck\Msg::no_login();
 		if ( $preview_inst_id === null && ! \RocketDuck\Util_Validator::is_valid_long_hash($play_id)) return \RocketDuck\Msg::invalid_input($play_id);
@@ -403,12 +401,11 @@ class Api_V1
 
 	static public function widget_instance_scores_get($inst_id, $play_id=null)
 	{
-		$user = \Model_User::find_current();
 		$instances = static::widget_instances_get([$inst_id], false);
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		if (! Perm_Manager::can_play($user, $inst)) return \RocketDuck\Msg::no_login();
+		if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Score_Manager::get_instance_score_history($inst_id, $play_id);
 	}
@@ -418,12 +415,11 @@ class Api_V1
 		$play = new Session_Play();
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
-		$user = \Model_User::find_current();
 		$instances = static::widget_instances_get([$inst_id], false);
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		if (! Perm_Manager::can_play($user, $inst)) return \RocketDuck\Msg::no_login();
+		if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			return Score_Manager::get_preview_logs($preview_mode_inst_id);
@@ -524,12 +520,11 @@ class Api_V1
 	 */
 	static public function question_set_get($inst_id, $play_id = null)
 	{
-		$user = \Model_User::find_current();
 		$instances = static::widget_instances_get([$inst_id], false);
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		$can_play = Perm_Manager::can_play($user, $inst);
+		$can_play = Perm_Manager::can_play($inst);
 		if (! $can_play) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) === false) return \RocketDuck\Msg::invalid_input($inst_id);
 		// play id sent, send the user the qset if the play is valid
@@ -912,14 +907,13 @@ class Api_V1
 	static private function _validate_play_id($play_id)
 	{
 	 	$play = new Session_Play();
-		$user = \Model_User::find_current();
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
 		$instances = static::widget_instances_get([$inst_id], false);
 		$inst = $instances[0];
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
-		$can_play = Perm_Manager::can_play($user, $inst);
+		$can_play = Perm_Manager::can_play($inst);
 
 		if ($can_play)
 	 	{

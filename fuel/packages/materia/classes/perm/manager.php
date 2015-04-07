@@ -472,7 +472,14 @@ class Perm_Manager
 		return $master_perms;
 	}
 
-	static public function can_play($user, $widget_inst)
+	/**
+	 * Checks if user can play widget.
+	 * Checks if widget allows guests or if the session is valid.
+	 *
+	 * @param widget_inst The widget instance
+	 * @return bool whether or not the current use can play the widget
+	 */
+	static public function can_play($widget_inst)
 	{
 		if ($widget_inst->guest_access == 1 || Api::session_valid() == true)
 		{
