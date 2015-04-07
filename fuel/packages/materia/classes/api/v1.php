@@ -322,16 +322,23 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
-		$play = new Session_Play();
-		$play->get_by_id($play_id);
-		$inst_id = $play->inst_id;
-		$instances = static::widget_instances_get([$inst_id], false);
-		$inst = $instances[0];
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		// if not preview, see if current user can play widget
+		if (! $preview_inst_id)
+		{
+			$play = new Session_Play();
+			$play->get_by_id($play_id);
+			$inst_id = $play->inst_id;
+			$instances = static::widget_instances_get([$inst_id], false);
+			if ( ! count($instances)) throw new HttpNotFoundException;
 
-		$can_play = Perm_Manager::can_play($inst);
-
-		if (! $can_play) return \RocketDuck\Msg::no_login();
+			$inst = $instances[0];
+			if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+		}
+		// otherwise see if user has valid session
+		else
+		{
+			if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		}
 		if ( $preview_inst_id === null && ! \RocketDuck\Util_Validator::is_valid_long_hash($play_id)) return \RocketDuck\Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return \RocketDuck\Msg::invalid_input('missing log array');
 
@@ -412,14 +419,23 @@ class Api_V1
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
 	{
-		$play = new Session_Play();
-		$play->get_by_id($play_id);
-		$inst_id = $play->inst_id;
-		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		// if not preview, see if current user can play widget
+		if (! $preview_mode_inst_id)
+		{
+			$play = new Session_Play();
+			$play->get_by_id($play_id);
+			$inst_id = $play->inst_id;
+			$instances = static::widget_instances_get([$inst_id], false);
+			if ( ! count($instances)) throw new HttpNotFoundException;
 
-		$inst = $instances[0];
-		if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+			$inst = $instances[0];
+			if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+		}
+		// otherwise see if user has valid session
+		else
+		{
+			if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		}
 		if (\RocketDuck\Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			return Score_Manager::get_preview_logs($preview_mode_inst_id);

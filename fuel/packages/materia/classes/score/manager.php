@@ -62,7 +62,7 @@ class Score_Manager
 			$score_history = \DB::select('id','created_at','percent')
 				->from('log_play')
 				->where('is_complete', '1')
-				->where('user_id', $user_id)
+				->where('user_id', \Model_User::find_current_id())
 				->where('inst_id', $inst_id)
 				->order_by('created_at', 'DESC')
 				->execute()
