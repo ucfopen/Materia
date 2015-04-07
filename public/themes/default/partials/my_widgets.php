@@ -79,7 +79,7 @@
 					<ul class="attemptsPopup">
 						<li><h3>Attempts</h3>
 							<div class="selector" ng-if="show.availabilityModal"></div>
-							<ul class="attemptHolder">
+							<ul class="attemptHolder" ng-class="{disabled: guestAccess}">
 								<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
 								<li id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)">2</li>
 								<li id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)">3</li>
@@ -106,8 +106,8 @@
 								</ul>
 							</li>
 							<li><h3>Access</h3>
-								<input type="checkbox" name="guest-access" id="guest-access" class="guest-checkbox" ng-model="guestAccess"/>
-								<label for="guest-access">Enable guest access</label>
+								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
+								<label ng-click="toggleGuestAccess()">Enable guest access</label>
 								<p class="data_explination">This allows anyone with the widget link to see and play this widget. Users will not log in and no scores will be recorded.</p>
 							</li>
 						</ul>
@@ -242,7 +242,7 @@
 									</span>
 								</dd>
 								<dt>Access:</dt>
-								<dd>
+								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
 									<span>Guests <b ng-if="!selected.widget.guest_access">not </b>allowed</span>
 								</dd>
 							</dl>

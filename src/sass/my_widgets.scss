@@ -1297,6 +1297,10 @@
 		{
 			margin-right: 3.85em;
 		}
+		.ng-modal.availability .attemptHolder.disabled li:hover
+		{
+			color: rgba(0,0,0,0.3);
+		}
 		.ng-modal.availability .step.first
 		{
 			margin-left: 3.8em;
