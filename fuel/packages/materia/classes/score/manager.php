@@ -34,13 +34,20 @@ class Score_Manager
 	/**
 	 * Returns score overview for each play the current user has for a particular instance
 	 * @param int inst_id Widget Instance ID
+	 * @param int play_id Play ID
 	 * @return array Time sorted array of play scores containint play_id, timestamp, and score keys
 	 */
 	static public function get_instance_score_history($inst_id, $play_id=null)
 	{
-		$user_id = \Model_User::find_current_id();
-		if ($user_id == 0)
+		$score_history = [];
+		$instances = Api::widget_instances_get([$inst_id], false);
+		if (count($instances))
 		{
+			$inst = $instances[0];
+		}
+		if ($play_id && $inst && $inst->guest_access == true)
+		{
+			$user_id = \Model_User::find_current_id();
 			$score_history = \DB::select('id','created_at','percent')
 				->from('log_play')
 				->where('is_complete', '1')
@@ -50,7 +57,7 @@ class Score_Manager
 				->execute()
 				->as_array();
 		}
-		else
+		else if (!$inst || $inst->guest_access != true)
 		{
 			$score_history = \DB::select('id','created_at','percent')
 				->from('log_play')
