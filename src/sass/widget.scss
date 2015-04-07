@@ -53,6 +53,7 @@
 
 		dd {
 			margin-left: 142px;
+			cursor: default;
 
 			span {
 				@include respond-to(phone) {
@@ -102,10 +103,17 @@
 			height: 135px;
 			padding: 6px;
 
+			.helper {
+				display: inline-block;
+				height: 100%;
+				vertical-align: middle;
+			}
+
 			img {
 				cursor: pointer;
-				height: auto;
 				max-width: 100%;
+				position: relative;
+				vertical-align: middle;
 			}
 		}
 	}

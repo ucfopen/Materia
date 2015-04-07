@@ -20,7 +20,7 @@
 
 			<ul class="pics">
 				<li ng-repeat="screenshot in widget.screenshots">
-					<a class="grouped_elements img-bg" rel="group1" href="{{ screenshot.a }}" fancybox><img ng-src="{{ screenshot.img }}" alt=""></a>
+					<a class="grouped_elements img-bg" rel="group1" href="{{ screenshot.a }}" fancybox><span class="helper"></span><img ng-src="{{ screenshot.img }}" alt=""></a>
 				</span>
 				</li>
 			</ul>

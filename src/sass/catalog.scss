@@ -160,8 +160,9 @@
 	}
 
 	.widget-min {
-		@include clearfix;
+		word-wrap: break-word;
 
+		@include clearfix;
 		@include respond-to(phone, tablet-portrait) {
 			opacity: 0;
 			padding-bottom: 50px;
@@ -268,6 +269,10 @@
 		position: absolute;
 		border: none;
 		box-shadow: none;
+		width: 100%;
+		word-wrap: break-word;
+		text-align: left;
+		float: none;
 	}
 
 	img {
@@ -342,6 +347,12 @@
 		clear: both;
 		float: right;
 		vertical-align: top;
+		word-wrap: break-word;
+
+		@include respond-to(phone, tablet-portrait) {
+			float: none;
+			width: 100%;
+		}
 	}
 }
 
