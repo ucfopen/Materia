@@ -1621,7 +1621,7 @@
 		}
 		.options {
 			position: absolute;
-			right: 0;
+			right: 5px;
 
 			float: left;
 			margin-top: 6px;
@@ -2316,6 +2316,7 @@
 
 	font-size: 16px;
 	font-weight: bold;
+	font-family: 'Lato';
 }
 .ng-modal.csv_popup div.download_options ul li input {
 	display: inline-block;
@@ -2366,6 +2367,7 @@
 }
 .ng-modal.csv_popup h4 {
 	text-align: center;
+	font-family: 'Lato';
 }
 .ng-modal.csv_popup h3 {
 	margin: 0;
@@ -2390,9 +2392,10 @@
 .ng-modal.csv_popup ul.options li a {
 	display: inline-block;
 	padding: 4px;
-	width: 75px;
+	width: 85px;
 
 	font-size: .9em;
+	font-family: 'Lato';
 
 	background: #eee;
 
