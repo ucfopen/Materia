@@ -26,6 +26,11 @@
 	@include respond-to(tablet-portrait) {
 		margin-left: 110px;
 	}
+
+	@include respond-to(phone, tablet-portrait) {
+		border-top: solid 1px $light-gray;
+		border-bottom: solid 1px $light-gray;
+	}
 }
 
 .profile-nav {
@@ -146,6 +151,7 @@
 			display: block;
 			font-size: 12px;
 			text-transform: uppercase;
+			margin-top: 5px;
 		}
 	}
 
@@ -386,8 +392,10 @@
 			font-family: 'Lato', arial, serif;
 			font-size: 17px;
 			left: 65px;
-			position: absolute;
+			position: relative;
 			top: 22px;
+			width: calc(100% - 50px);
+			padding-bottom: 25px;
 		}
 
 		.status {

@@ -9,6 +9,8 @@
 	@include respond-to(phone, tablet-portrait, tablet-landscape) {
 		background: $white;
 		padding: 20px;
+		border-top: solid 1px $light-gray;
+		border-bottom: solid 1px $light-gray;
 	}
 
 	h1 {

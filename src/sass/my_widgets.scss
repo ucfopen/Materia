@@ -43,9 +43,9 @@
 	.directions {
 		text-align: center;
 		&.unchosen {
-			min-height: 500px;
+			min-height: 800px;
 
-			background: $white url('../img/kogneato_mywidgets.png') 50% 100% no-repeat;
+			background: $white url('../img/kogneato_mywidgets.png') 50% 50% no-repeat;
 		}
 		h1 {
 			margin: 20px 0 5px 0;
@@ -505,7 +505,7 @@
 		textarea {
 			margin: 0;
 			margin-bottom: 6px;
-			width: 631px;
+			width: calc(100% - 5px);
 			height: 60px;
 
 			font-family: monospace;
@@ -574,7 +574,7 @@
 				list-style: none;
 				a {
 					padding: 6px 10px 4px 10px;
-					padding-bottom: 5px;
+					padding-bottom: 6px;
 
 					color: $black;
 
@@ -1233,7 +1233,7 @@
 	}
 	.step {
 		&.first {
-			margin-left: 4em;
+		margin-left: 4em;
 		}
 		&.last {
 			margin-left: -23px;
@@ -2085,9 +2085,11 @@
 	border: #f0f0f0 3px solid;
 	border-radius: 3px;
 	.container {
-		padding-top: 30px;
+		padding-top: 40px;
+		padding-left: 70px;
 		width: 450px;
 		height: 300px;
+		font-family: 'Lato';
 	}
 	h2 {
 		position: absolute;
@@ -2540,3 +2542,9 @@ aside .widget {
 .content-container.fixed-width {
 	width: 1000px;
 }
+
+.ng-modal {
+	width: 100vw !important;
+	height: 100vh !important;
+}
+
