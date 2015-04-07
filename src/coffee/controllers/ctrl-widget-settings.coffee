@@ -42,6 +42,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			value: $scope.attemptsSliderValue * 1000
 			min: 1000
 			max: 25000
+			disabled: $scope.guestAccess
 			create: (event) ->
 				$scope.changeSlider($scope.attemptsSliderValue)
 			slide: (event, ui) ->
@@ -59,6 +60,14 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			onSelect: (dateText) ->
 				$scope.availability[1].date = dateText
 
+	$scope.toggleGuestAccess = ->
+		$scope.guestAccess = !$scope.guestAccess
+		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
+		setTimeout ->
+			$( ".selector" ).slider
+				value: ($scope.attemptsSliderValue * 1000)
+				disabled: $scope.guestAccess
+		,0
 
 	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->
@@ -94,12 +103,16 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# From ng-click on the attempt numbers below the slider.
 	$scope.changeSlider = (number) ->
 		# -1 == unlimited
-		if number == -1
-			val = 1000
+		if !$scope.guestAccess
+			if number == -1
+				val = 1000
+			else
+				val = number
+			$( ".selector" ).slider 'value', (val * 1000)
+			$scope.attemptsSliderValue = number
 		else
-			val = number
-		$( ".selector" ).slider 'value', (val * 1000)
-		$scope.attemptsSliderValue = number
+			$( ".selector" ).slider 'value', (1000 * 1000)
+			$scope.attemptsSliderValue = number
 
 	# Updates the slider based on which value the slider is close to.
 	# It will "click" into place when in between the steps.
