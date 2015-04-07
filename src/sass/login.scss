@@ -9,6 +9,8 @@
 }
 
 .login {
+	font-family: 'Lato';
+
 	label {
 		cursor: text;
 	}
@@ -63,6 +65,14 @@
 				font-size: .8em;
 				font-weight: 600;
 				margin-bottom: 40px;
+			}
+
+			&.widget-mode {
+				margin-left: 80px;
+
+				h2 {
+					margin-left: 55px;
+				}
 			}
 		}
 

@@ -1,9 +1,9 @@
-<div class="container <?= $classes ?>" ng-controller="loginCtrl">
-	<section class="page">
+<div class="container login <?= $classes ?>" ng-controller="loginCtrl">
+	<section class="content">
 		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
-		<div class="detail">
+		<div class="detail widget-mode">
 			<h2 class="logo">
 				<?= $title ?>
 			</h2>
@@ -30,7 +30,7 @@
 						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" />
 					</li>
 					<li class="submit_button">
-						<button type="submit" tabindex="3" class="action-button">Login</button>
+						<button type="submit" tabindex="3" class="action-button orange">Login</button>
 					</li>
 				</ul>
 				<ul class="help-links">

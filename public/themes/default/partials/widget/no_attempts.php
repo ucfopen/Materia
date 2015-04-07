@@ -1,8 +1,8 @@
-<div class="container <?= $classes ?>">
+<div class="container logo <?= $classes ?>">
 	<section class="attempts page">
 		<?= $summary ?>
 
-		<div class="detail">
+		<div class="detail widget-mode">
 			<h2 class="attempts-text">No remaining attempts</h2>
 			<span class="attempts-subtext">You've used all <?= $attempts ?> available attempts.</span>
 			<p>
