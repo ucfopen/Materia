@@ -53,6 +53,7 @@
 
 			font-size: 3em;
 			font-weight: bold;
+			font-family: 'Lato';
 		}
 		p {
 			margin: 0;
@@ -149,6 +150,7 @@
 				&.title {
 					font-size: .9em;
 					font-weight: bold;
+					font-family: 'Lato';
 					width: 100px;
 					overflow: visible;
 				}
@@ -228,6 +230,8 @@
 			padding-bottom: 13px;
 
 			border-bottom: #999 dotted 1px;
+
+			font-family: 'Lato';
 		}
 		#export_scores_button {
 			position: absolute;
