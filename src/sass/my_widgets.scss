@@ -1218,6 +1218,9 @@
 		border-radius: 0 4px 4px 0;
 	}
 	.attemptHolder li {
+		font-family: 'Lato';
+		font-size: 15px;
+
 		margin-right: .23em;
 
 		color: rgba(0, 0, 0, .3);
@@ -1225,12 +1228,12 @@
 			color: black;
 		}
 		&.step {
-			margin-right: 3.85em;
+			margin-right: 62px;
 		}
 	}
 	.step {
 		&.first {
-			margin-left: 3.8em;
+			margin-left: 4em;
 		}
 		&.last {
 			margin-left: -23px;
@@ -1980,7 +1983,7 @@
 	}
 	.container {
 		position: absolute;
-		top: 40px;
+		top: 60px;
 		left: 20px;
 
 		padding-top: 15px;
@@ -2016,6 +2019,7 @@
 		padding-left: 10px;
 		width: 450px;
 		height: 30px;
+		border: solid 1px $light-gray;
 	}
 	.copy_button {
 		margin-top: 20px;
