@@ -1,57 +1,62 @@
-@import 'mixins';
+@import "mixins";
 
 .widget-catalog {
 	.content {
-		float: left;
-		width: 75%;
-		padding-bottom: 0;
-
 		@include respond-to(tablet-landscape) {
 			width: 70%;
 		}
-
 		@include respond-to(phone, tablet-portrait) {
 			float: none;
+
 			width: initial;
+
 			border-bottom: solid 1px $light-gray;
 		}
+
+		float: left;
+
+		width: 75%;
+		padding-bottom: 0;
 	}
 
 	.aside-content {
-		width: 25%;
-
 		@include respond-to(tablet-landscape) {
 			width: 30%;
 		}
-
 		@include respond-to(phone, tablet-portrait) {
 			float: none;
-			margin-bottom: 30px;
+
 			width: initial;
+			margin-bottom: 30px;
+
 			border-bottom: solid 1px $light-gray;
 		}
+
+		width: 25%;
 	}
 }
 
 .aside-content {
 	.features {
 		dt {
-			font-family: 'Lato', arial, serif;
+			font-family: "Lato", arial, serif;
 			font-size: 13px;
 			font-weight: bold;
 
 			user-select: none;
 
-			input[type='checkbox'] {
-				margin: 0;
+			input[type="checkbox"] {
 				width: 20px;
+				margin: 0;
 			}
 		}
 
 		dd {
-			color: $dark-gray;
-			font-size: 9px;
 			margin: 5px 0 10px 25px;
+
+			font-size: 9px;
+
+			color: $dark-gray;
 
 			p {
 				margin: 0;
@@ -60,18 +65,21 @@
 	}
 
 	p {
-		color: $dark-gray;
-		font-size: 9px;
 		padding-right: 17px;
+
+		font-size: 9px;
+
+		color: $dark-gray;
 	}
 
-	h2,
-	h3 {
-		color: $black;
-		font-family: 'Lato', arial, serif;
-		font-size: 17px;
+	h2, h3 {
 		margin: 0;
 		padding: 10px 0 0;
+
+		font-family: "Lato", arial, serif;
+		font-size: 17px;
+
+		color: $black;
 	}
 
 	.program-department {
@@ -84,52 +92,65 @@
 	padding: 0;
 
 	li {
-		color: $black;
-		font-family: 'Lato', arial, serif;
-		font-size: 13px;
-		font-weight: bold;
-		list-style-type: none;
 		margin: 3px 0 0;
 		padding: 0;
+
+		list-style-type: none;
+
+		font-family: "Lato", arial, serif;
+		font-size: 13px;
+		font-weight: bold;
+
 		user-select: none;
+
+		color: $black;
 	}
 }
 
 .content {
 	.top .sort-search {
 		float: right;
-		font-size: 11px;
+
 		height: 100%;
 
+		font-size: 11px;
+
 		.search {
-			border: solid $white;
-			border-width: 0 0 0 1px;
 			display: inline-block;
+
 			height: 100%;
 
-			input[type='text'] {
-				background: $white url('../img/magnifyingglass.png') 5px 50% no-repeat;
-				border: solid 1px $light-gray;
-				border-radius: 12px;
+			border: solid $white;
+			border-width: 0 0 0 1px;
+
+			input[type="text"] {
+				width: 124px;
 				height: 19px;
 				margin: 7px 10px 0;
-				outline: none;
-				padding-left: 23px;
 				padding-right: 10px;
-				width: 124px;
+				padding-left: 23px;
+
+				border: solid 1px $light-gray;
+				border-radius: 12px;
+				outline: none;
+				background: $white url("../img/magnifyingglass.png") 5px 50% no-repeat;
 			}
 		}
 
 		ul {
 			display: inline-block;
+
 			margin: 0 8px 0 5px;
 			padding: 0;
 
 			li {
 				display: inline;
-				font-size: 12px;
-				list-style-type: none;
+
 				margin: 0 5px 0 0;
+
+				list-style-type: none;
+
+				font-size: 12px;
 			}
 		}
 	}
@@ -140,66 +161,72 @@
 }
 
 .widget {
-	border-radius: 0 5px 5px 0;
-	display: inline-block;
-	height: 110px;
-	margin: 0 0 10px;
-	overflow: visible;
-	position: relative;
-	vertical-align: top;
-	width: 50%;
-
 	@include respond-to(phone, tablet-portrait, tablet-landscape) {
 		display: block;
+
 		width: initial;
 	}
-
 	@include respond-to(phone, tablet-portrait) {
-		padding-bottom: 50px;
 		height: inherit;
+		padding-bottom: 50px;
 	}
 
-	.widget-min {
-		word-wrap: break-word;
+	position: relative;
 
+	display: inline-block;
+	overflow: visible;
+
+	width: 50%;
+	height: 110px;
+	margin: 0 0 10px;
+
+	vertical-align: top;
+
+	border-radius: 0 5px 5px 0;
+
+	.widget-min {
 		@include clearfix;
 		@include respond-to(phone, tablet-portrait) {
-			opacity: 0;
 			padding-bottom: 50px;
+
+			opacity: 0;
 		}
 
+		transition: opacity 0.3s ease-in-out;
+		word-wrap: break-word;
 
 		opacity: 1;
-		transition: opacity .3s ease-in-out;
 
 		&.hide {
 			display: block;
 
-			opacity: .3;
+			opacity: 0.3;
 		}
 	}
 
 	.icon {
-		clear: both;
-		display: inline-block;
-		float: left;
-		left: 0;
-		margin: 0 10px;
-		position: absolute;
-		top: 6px;
-		vertical-align: top;
-
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			top: 0;
 		}
-
 		@include respond-to(phone, tablet-portrait) {
 			display: none;
 		}
 
+		position: absolute;
+		top: 6px;
+		left: 0;
+
+		display: inline-block;
+		float: left;
+		clear: both;
+
+		margin: 0 10px;
+
+		vertical-align: top;
+
 		img {
-			height: auto;
 			max-width: 92px;
+			height: auto;
 		}
 	}
 
@@ -208,10 +235,11 @@
 	}
 
 	h1 {
-		font-family: 'Lato-Black', arial, serif;
-		font-size: 18px;
-		margin-bottom: 11px;
 		margin-top: 9px;
+		margin-bottom: 11px;
+
+		font-family: "Lato-Black", arial, serif;
+		font-size: 18px;
 
 		a {
 			color: $black;
@@ -220,14 +248,16 @@
 
 	ul {
 		float: left;
+
+		width: 216px;
 		margin: 0;
 		padding: 0;
-		width: 216px;
 
 		li {
-			list-style-type: none;
 			margin: 0;
 			padding: 0;
+
+			list-style-type: none;
 		}
 	}
 }
@@ -243,79 +273,96 @@
 }
 
 .inline-def {
-	line-height: 20px;
-	margin: 0;
 	width: 235px;
+	margin: 0;
+
+	line-height: 20px;
 }
 
 .infocard {
 	@include clearfix;
-	background: $white;
-	border-radius: 5px;
-	box-shadow: 0 1px 2px rgba($black, .3);
-	color: $black;
-	display: block;
-	left: 0;
-	opacity: 0;
-	overflow: visible;
-	padding-bottom: 10px;
-	position: absolute;
-	top: 0;
-	width: 345px;
-	z-index: 10;
-
 	@include respond-to(phone, tablet-portrait) {
-		opacity: 1;
 		position: absolute;
+		left: 50%;
+
+		float: none;
+
+		width: 100%;
+		margin-left: -170px;
+
+		text-align: left;
+		word-wrap: break-word;
+
+		opacity: 1;
 		border: none;
 		box-shadow: none;
-		width: 100%;
-		word-wrap: break-word;
-		text-align: left;
-		float: none;
-		left: 50%;
-		margin-left: -170px;
 	}
 
+	position: absolute;
+	z-index: 10;
+	top: 0;
+	left: 0;
+
+	display: block;
+	overflow: visible;
+
+	width: 345px;
+	padding-bottom: 10px;
+
+	opacity: 0;
+	color: $black;
+	border-radius: 5px;
+	background: $white;
+	box-shadow: 0 1px 2px rgba($black, 0.3);
+
 	img {
-		left: 0;
-		margin: 5px 10px;
 		position: absolute;
+		left: 0;
+
 		max-width: 92px;
+		margin: 5px 10px;
 	}
 
 	&:hover {
-		animation: animate-show .3s;
-		opacity: 1;
-		text-decoration: none;
-		z-index: 20;
-
 		@include respond-to(phone, tablet-portrait) {
 			animation: none;
 		}
+
+		z-index: 20;
+
+		animation: animate-show 0.3s;
+		text-decoration: none;
+
+		opacity: 1;
 	}
 
 	h1 {
-		background: linear-gradient(to bottom, $skyblue 0%, $cobalt 100%);
-		color: $white;
-		display: block;
-		font-family: 'Lato-Black', arial, serif;
-		font-size: 18px;
-		left: 0;
-		margin-bottom: 5px;
-		margin-left: -110px;
-		margin-top: 0;
-		padding: 2px;
-		padding-left: 110px;
-		right: 0;
-		text-shadow: 2px 2px 2px rgba($black, .5);
-		width: calc(100% - 1px);
-		vertical-align: top;
 		@include respond-to(phone, tablet-portrait) {
 			color: $black;
 			background: none;
 			text-shadow: none;
 		}
+
+		right: 0;
+		left: 0;
+
+		display: block;
+
+		width: calc(100% - 1px);
+		margin-top: 0;
+		margin-bottom: 5px;
+		margin-left: -110px;
+		padding: 2px;
+		padding-left: 110px;
+
+		font-family: "Lato-Black", arial, serif;
+		font-size: 18px;
+
+		vertical-align: top;
+
+		color: $white;
+		background: linear-gradient(to bottom, $skyblue 0%, $cobalt 100%);
+		text-shadow: 2px 2px 2px rgba($black, 0.5);
 	}
 
 	.header {
@@ -323,12 +370,14 @@
 	}
 
 	dl {
-		clear: both;
 		display: inline-block;
-		margin-bottom: 5px;
-		margin-top: 5px;
+		clear: both;
 		overflow-x: visible;
 		overflow-y: auto;
+
+		margin-top: 5px;
+		margin-bottom: 5px;
+
 		vertical-align: top;
 	}
 
@@ -347,15 +396,17 @@
 	padding-left: 110px;
 
 	.description {
-		clear: both;
-		float: right;
-		vertical-align: top;
-		word-wrap: break-word;
-
 		@include respond-to(phone, tablet-portrait) {
 			float: none;
+
 			width: 100%;
 		}
+
+		float: right;
+		clear: both;
+
+		vertical-align: top;
+		word-wrap: break-word;
 	}
 }
 
@@ -368,4 +419,3 @@
 		opacity: 1;
 	}
 }
-

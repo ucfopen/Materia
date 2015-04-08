@@ -1,45 +1,45 @@
-@import 'mixins';
-@import 'colors';
+@import "mixins";
+@import "colors";
 
 .content {
 	box-sizing: border-box;
 	max-width: 600px;
 	padding: 30px 120px;
+
 	text-align: center;
 }
 
 .login {
-	font-family: 'Lato';
+	font-family: "Lato";
 
 	label {
 		cursor: text;
 	}
 
-	section.page,
-	aside {
+	section.page, aside {
 		background: $white;
 	}
 
 	.container {
 		position: relative;
 
-		margin: 15px auto 0;
 		width: 640px;
+		margin: 15px auto 0;
 	}
 
-	section.page,
-	aside {
-		border: rgba(0, 0, 0, .11) 1px solid;
+	section.page, aside {
+		border: rgba(0, 0, 0, 0.11) 1px solid;
 		box-shadow: 1px 3px 10px $medium-gray;
 	}
 
 	section.page {
+		z-index: 100;
+		top: 0;
+		right: 0;
+
+		width: 600px;
 		margin: 0 auto;
 		padding: 30px 10px;
-		right: 0;
-		top: 0;
-		width: 600px;
-		z-index: 100;
 	}
 
 	.container.widget {
@@ -57,14 +57,15 @@
 
 		div.detail {
 			.attempts-text {
-				margin-bottom: 5px;
 				margin-top: 40px;
+				margin-bottom: 5px;
 			}
 
 			.attempts-subtext {
-				font-size: .8em;
-				font-weight: 600;
 				margin-bottom: 40px;
+
+				font-size: 0.8em;
+				font-weight: 600;
 			}
 
 			&.widget-mode {
@@ -77,25 +78,31 @@
 		}
 
 		&.preview section.page {
-			border-top: 4px $purple solid;
 			margin-top: 55px;
 
+			border-top: 4px $purple solid;
+
 			&:before {
-				background: $purple;
-				border-radius: 5px 5px 0 0;
-				color: $white;
-				content: 'Previewing';
-				font-family: 'Lato', 'Arial', sans-serif;
+				content: "Previewing";
+
+				position: absolute;
+				top: -40px;
+				left: 0;
+
+				width: 160px;
+				height: 20px;
+				padding: 8px 0 12px;
+
+				font-family: "Lato", "Arial", sans-serif;
 				font-size: 20px;
 				font-weight: 900;
-				height: 20px;
-				left: 0;
-				padding: 8px 0 12px;
-				position: absolute;
+
 				text-align: center;
-				top: -40px;
 				vertical-align: middle;
-				width: 160px;
+
+				color: $white;
+				border-radius: 5px 5px 0 0;
+				background: $purple;
 			}
 		}
 	}
@@ -113,52 +120,65 @@
 	.content {
 		@include respond-to(phone, tablet-portrait) {
 			padding: 20px;
+
 			border: solid 1px $light-gray;
 		}
 	}
 
 	.form-content ul {
-		margin: 30px auto 0;
-		max-width: 500px;
-		padding: 0;
 		position: relative;
 
+		max-width: 500px;
+		margin: 30px auto 0;
+		padding: 0;
+
 		li {
-			display: block;
-			list-style-type: none;
-			margin: 13px 0 0;
 			position: relative;
+
+			display: block;
+
+			margin: 13px 0 0;
+
+			list-style-type: none;
+
 			text-align: center;
 
 			label {
-				display: block;
-				font-size: 17px;
-				left: 0;
 				position: absolute;
 				top: 0;
+				left: 0;
+
+				display: block;
+
 				width: 300px;
+
+				font-size: 17px;
 			}
 
 			label {
-				height: 27px;
-				margin-left: 14px;
-				margin-top: 13px;
 				z-index: 1000;
+
+				height: 27px;
+				margin-top: 13px;
+				margin-left: 14px;
 			}
 
 			input {
-				&[type='text'],
-				&[type='password'] {
-					background: $white;
-					border: solid 1px #abadb3;
-					box-sizing: border-box;
-					display: inline-block;
-					font-size: 18px;
-					height: 40px;
-					padding-left: 12px;
-					padding-right: 12px;
-					width: 100%;
+				&[type="text"], &[type="password"] {
 					z-index: 500;
+
+					display: inline-block;
+
+					box-sizing: border-box;
+					width: 100%;
+					height: 40px;
+					padding-right: 12px;
+					padding-left: 12px;
+
+					font-size: 18px;
+
+					border: solid 1px #abadb3;
+					background: $white;
 				}
 			}
 		}
@@ -168,26 +188,26 @@
 		padding: 0;
 
 		li {
-			display: inline-block;
-
 			@include respond-to(phone) {
 				display: block;
 			}
+
+			display: inline-block;
 
 			a {
 				margin: 0 5px 0 5px;
 			}
 
 			&:after {
-				content: '|';
-
 				@include respond-to(phone) {
-					content: '';
+					content: "";
 				}
+
+				content: "|";
 			}
 
 			&:last-child:after {
-				content: '';
+				content: "";
 			}
 		}
 	}
@@ -196,14 +216,16 @@
 		margin: -5px 0 -10px 0;
 
 		p {
-			background: #ffcfcf;
-			color: $red;
-			font-family: 'Lato';
-			font-size: 17px;
-			font-weight: 600;
+			width: 340px;
 			margin: 25px auto 0;
 			padding: 6px 10px;
-			width: 340px;
+
+			font-family: "Lato";
+			font-size: 17px;
+			font-weight: 600;
+
+			color: $red;
+			background: #ffcfcf;
 		}
 	}
 
@@ -214,84 +236,101 @@
 	}
 
 	.widget_info {
-		list-style: none;
 		margin: 0;
 		margin-bottom: 20px;
-		padding-left: 70px;
 		padding-right: 15px;
+		padding-left: 70px;
+
+		list-style: none;
 
 		li {
 			display: block;
-			list-style-type: none;
+
 			margin-right: 10px;
+
+			list-style-type: none;
 		}
 	}
 
 	.widget_icon {
-		background: $blue;
-		box-shadow: 0 2px 2px rgba(0, 0, 0, .4);
-		color: $white;
-		font-size: 10px;
-		height: inherit;
-		left: -25px;
-		line-height: 13px;
-		padding: 15px;
 		position: absolute;
-		text-align: right;
 		top: 25px;
+		left: -25px;
+
 		width: 115px;
+		height: inherit;
+		padding: 15px;
+
+		font-size: 10px;
+		line-height: 13px;
+
+		text-align: right;
+
+		color: $white;
+		background: $blue;
+		box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
 
 		img {
-			padding-bottom: 5px;
-			padding-left: 10px;
 			width: 100px;
 			height: 100px;
+			padding-bottom: 5px;
+			padding-left: 10px;
 		}
 	}
 
 	.widget_info li {
 		&.widget_tag {
-			background: #f2f0d0;
-			border-radius: 3px;
-			color: #48483e;
 			display: inline-block;
-			font-size: 12px;
+
 			margin-right: 3px;
 			padding: 2px 6px;
-			text-transform: uppercase;
+
+			font-size: 12px;
+
 			vertical-align: top;
+			text-transform: uppercase;
+
+			color: #48483e;
+			border-radius: 3px;
+			background: #f2f0d0;
 		}
 
 		&.widget_availability {
 			display: inline-block;
-			font-size: 13px;
+
+			width: 335px;
 			padding: 0;
 			padding-bottom: 15px;
-			width: 335px;
 
-			.available_date,
-			.available_time {
+			font-size: 13px;
+
+			.available_date, .available_time {
 				font-weight: 100;
 			}
 		}
 
 		&.widget_name {
-			border-bottom: dotted black 1px;
-			font-family: 'Lato', arial, serif;
-			font-size: 38px;
-			font-weight: 700;
-			line-height: 37px;
 			margin: 0;
 			margin-bottom: 10px;
 			padding: 0 0 5px 0;
+
+			font-family: "Lato", arial, serif;
+			font-size: 38px;
+			font-weight: 700;
+			line-height: 37px;
+
+			border-bottom: dotted black 1px;
 		}
 	}
 
 	.widget_type {
-		color: #b2b2b2;
 		display: block;
+
 		font-size: 12px;
+
 		text-transform: uppercase;
+
+		color: #b2b2b2;
 	}
 
 	.server_date {

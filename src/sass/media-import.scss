@@ -1,59 +1,60 @@
-@import 'colors';
+@import "colors";
 
-body,
-html {
-	font-family: 'Lato', arial, serif;
+body, html {
+	font-family: "Lato", arial, serif;
 }
 
 .dataTables_wrapper {
 	position: relative;
 
 	clear: both;
+
 	margin: 0 auto;
 
+	border: rgba(0, 0, 0, 0.11) 1px solid;
 	background: $white;
-	border: rgba(0, 0, 0, .11) 1px solid;
 	box-shadow: 1px 3px 10px $medium-gray;
 }
 
 #import-form {
-	padding: 10px 5px;
 	min-width: 665px;
+	padding: 10px 5px;
 }
 
 #question-table_filter {
 	float: none;
+
 	padding: 6px 10px;
 
 	background: #efefef;
 	label {
 		/*display:none;*/
 	}
-	input[type='text'] {
-		padding-right: 10px;
-		padding-left: 23px;
+	input[type="text"] {
 		width: 124px;
 		height: 19px;
+		padding-right: 10px;
+		padding-left: 23px;
 
-		background: $white url('../img/magnifyingglass.png') 5px 50% no-repeat;
 		border: solid 1px $light-gray;
 		border-radius: 12px;
 		outline: none;
+		background: $white url("../img/magnifyingglass.png") 5px 50% no-repeat;
 	}
 }
 
 h1 {
 	position: absolute;
+	z-index: 1;
 	top: 17px;
 	left: 20px;
-	z-index: 1;
 
 	margin: 0;
 
-	color: #a6a6a6;
 	font-size: 18px;
 	font-weight: 550;
 
+	color: #a6a6a6;
 	text-shadow: 0 1px #fbfbfb;
 }
 
@@ -63,14 +64,13 @@ h1 {
 
 .gray {
 	color: #545454;
-
+	border-color: #747474;
 	background: #aeaeae;
 	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
-	border-color: #747474;
 	&:hover {
-		background-image: linear-gradient(top, #b8b8b8, #e4e4e4);
-
 		text-decoration: none;
+
+		background-image: linear-gradient(top, #b8b8b8, #e4e4e4);
 	}
 }
 
@@ -103,47 +103,47 @@ h1 {
 
 	clear: none;
 
-	color: $medium-gray;
 	font-size: 12px;
 
 	text-align: right;
+
+	color: $medium-gray;
 }
 
 table.dataTable thead th {
 	padding: 10px 18px;
 
 	color: #666;
-
 	border-bottom: 1px solid #ddd;
 }
 
 #uploader-form {
 	position: absolute;
+	z-index: 4;
 	right: 10px;
 	bottom: 75px;
 	left: 10px;
-	z-index: 4;
 
 	display: block;
 }
 
 #modal-cover {
 	position: absolute;
+	z-index: 2;
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
-	z-index: 2;
 
 	display: none;
 
-	background: rgba(0, 0, 0, .7);
+	background: rgba(0, 0, 0, 0.7);
 }
 
 #cancel-button {
 	margin-right: 15px;
 
-	color: #555;
-
 	text-decoration: underline;
+
+	color: #555;
 }

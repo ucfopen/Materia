@@ -1,5 +1,5 @@
-@import 'mixins';
-@import 'colors';
+@import "mixins";
+@import "colors";
 
 .widget-details {
 	.content {
@@ -16,22 +16,27 @@
 
 .aside-content .icon {
 	display: block;
+
+	max-width: 100%;
 	height: auto;
 	margin-top: 15px;
-	max-width: 100%;
 }
 
 .content {
 	.tooltip {
-		background: $white;
-		border-radius: 15px;
-		box-shadow: 1px 2px 5px $medium-gray;
-		display: none;
-		font-size: 12px;
-		padding: 15px;
 		position: absolute;
-		width: 250px;
 		z-index: 99;
+
+		display: none;
+
+		width: 250px;
+		padding: 15px;
+
+		font-size: 12px;
+
+		border-radius: 15px;
+		background: $white;
+		box-shadow: 1px 2px 5px $medium-gray;
 	}
 
 	hr {
@@ -42,17 +47,20 @@
 		line-height: 24px;
 
 		dt {
-			clear: left;
 			float: left;
+			clear: left;
 			overflow: hidden;
-			text-align: right;
-			text-overflow: ellipsis;
-			white-space: nowrap;
+
 			width: 126px;
+
+			text-align: right;
+			white-space: nowrap;
+			text-overflow: ellipsis;
 		}
 
 		dd {
 			margin-left: 142px;
+
 			cursor: default;
 
 			span {
@@ -69,24 +77,28 @@
 	padding: 0;
 
 	li {
-		box-sizing: border-box;
-		display: inline-block;
-		line-height: 1;
-		padding: 0 10px;
-		text-align: center;
-		vertical-align: top;
-		width: 33.33%;
-
 		@include respond-to(phone) {
 			display: block;
+
+			width: 100%;
 			margin-bottom: 12px;
 			padding: 0;
-			width: 100%;
 
 			&:last-of-type {
 				margin-bottom: 0;
 			}
 		}
+
+		display: inline-block;
+
+		box-sizing: border-box;
+		width: 33.33%;
+		padding: 0 10px;
+
+		line-height: 1;
+
+		text-align: center;
+		vertical-align: top;
 
 		&:first-of-type {
 			padding-left: 0;
@@ -97,22 +109,28 @@
 		}
 
 		.img-bg {
-			background: $white;
-			border: solid 1px $light-gray;
 			display: block;
+
 			height: 135px;
 			padding: 6px;
 
+			border: solid 1px $light-gray;
+			background: $white;
+
 			.helper {
 				display: inline-block;
+
 				height: 100%;
+
 				vertical-align: middle;
 			}
 
 			img {
-				cursor: pointer;
-				max-width: 100%;
 				position: relative;
+
+				max-width: 100%;
+
+				cursor: pointer;
 				vertical-align: middle;
 			}
 		}
@@ -124,20 +142,24 @@
 }
 
 .thumbnail-explanation {
-	background: url('../img/mag_glass.png') left bottom no-repeat;
-	color: $light-gray;
-	font-size: .7em;
 	margin-top: 5px;
 	padding: 0 0 0 13px;
+
+	font-size: 0.7em;
+
+	color: $light-gray;
+	background: url("../img/mag_glass.png") left bottom no-repeat;
 }
 
 .action {
 	h4 {
-		color: #b5b5b5;
-		font-family: Lato;
-		font-size: .9em;
 		margin: 0;
 		padding: 0;
+
+		font-family: Lato;
+		font-size: 0.9em;
+
+		color: #b5b5b5;
 	}
 
 	p {
@@ -149,44 +171,48 @@
 
 .spotlight {
 	.main_container {
-		height: 370px;
-		padding: 20px;
-
 		@include respond-to(tablet-portrait) {
-			border-top: solid 1px $light-gray;
 			height: 440px;
-		}
 
-		@include respond-to(phone) {
 			border-top: solid 1px $light-gray;
+		}
+		@include respond-to(phone) {
 			height: 540px;
 			padding: 0;
+
+			border-top: solid 1px $light-gray;
 		}
+
+		height: 370px;
+		padding: 20px;
 	}
 
 	h1 {
-		border-bottom: dotted $black 1px;
-		font-family: 'Lato', arial, serif;
-		font-size: 36px;
-		font-weight: 900;
-		margin: 0;
-		padding: 0 0 10px;
-
 		@include respond-to(phone, tablet-portrait) {
 			font-size: 24px;
 		}
+
+		margin: 0;
+		padding: 0 0 10px;
+
+		font-family: "Lato", arial, serif;
+		font-size: 36px;
+		font-weight: 900;
+
+		border-bottom: dotted $black 1px;
 	}
 
 	aside {
-		padding: 0 15px;
 		width: 1005px;
+		padding: 0 15px;
 
 		p {
 			display: inline;
+
 			margin: 0;
 			padding: 5px 10px;
 
-			font-family: 'Lato', arial, serif;
+			font-family: "Lato", arial, serif;
 			font-size: 18px;
 			font-weight: bold;
 
@@ -195,87 +221,94 @@
 	}
 
 	.store_main p {
-		color: #4a4a4a;
-		font-size: 17px;
-		line-height: 24px;
-
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			font-size: 14px;
 		}
+
+		font-size: 17px;
+		line-height: 24px;
+
+		color: #4a4a4a;
 	}
 
 	a.more {
+		position: absolute;
+		top: 270px;
+
 		font-size: 17px;
 		font-weight: 700;
-		position: absolute;
+
 		text-decoration: underline;
-		top: 270px;
 	}
 
 	.store_main {
 		position: absolute;
 
 		section {
-			background: transparent;
+			@include respond-to(phone, tablet-portrait) {
+				width: calc(100% - 30px);
+				padding: 5px;
+
+				text-align: center;
+			}
+
+			width: calc(100% - 390px);
 			padding: 20px 20px 10px;
 			padding-left: 350px;
-			width: calc(100% - 390px);
+
+			background: transparent;
 
 			img {
-				left: 10px;
+				@include respond-to(phone, tablet-portrait) {
+					position: static;
+
+					float: none;
+
+					max-width: 100%;
+					max-height: 200px;
+					margin-top: 10px;
+				}
+
 				position: absolute;
 				top: 20px;
-
-				@include respond-to(phone, tablet-portrait) {
-					float: none;
-					margin-top: 10px;
-					max-height: 200px;
-					max-width: 100%;
-					position: static;
-				}
+				left: 10px;
 			}
 
 			a.more {
 				@include respond-to(phone, tablet-portrait) {
-					float: none;
 					position: relative;
-					right: 0 !important;
 					top: -10px;
-				}
-			}
+					right: 0 !important;
 
-			@include respond-to(phone, tablet-portrait) {
-				padding: 5px;
-				text-align: center;
-				width: calc(100% - 30px);
+					float: none;
+				}
 			}
 		}
 
 		section.left {
+			@include respond-to(phone, tablet-portrait) {
+				text-align: center;
+			}
+
 			padding-left: 10px;
+
 			text-align: left;
 
-			@include respond-to(phone, tablet-portrait) {
-				text-align: center;
-			}
-
 			img {
-				left: inherit;
 				right: 10px;
+				left: inherit;
 			}
 		}
 
-		section.crossword h1,
-		section.crossword p {
-			text-align: right;
-
+		section.crossword h1, section.crossword p {
 			@include respond-to(phone, tablet-portrait) {
 				text-align: center;
 			}
+
+			text-align: right;
 		}
 
-		section.crossword a.more,
-		section.materia_new a.more {
+		section.crossword a.more, section.materia_new a.more {
 			right: 40px;
 		}
 	}

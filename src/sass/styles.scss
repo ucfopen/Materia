@@ -1,22 +1,18 @@
-@import 'store.scss';
-@import 'catalog.scss';
-@import 'colors';
+@import "store.scss";
+@import "catalog.scss";
+@import "colors";
 
 body {
+	overflow: auto;
+
+	width: 100%;
 	margin: 0;
 	padding: 0;
-	width: 100%;
-	overflow: auto;
 
 	font-family: Lucida Grande;
 }
 
-section,
-header,
-nav,
-article,
-aside,
-footer {
+section, header, nav, article, aside, footer {
 	display: block;
 }
 
@@ -31,10 +27,11 @@ header {
 
 h1 {
 	display: table-cell;
+
 	margin: 0;
 	padding: 0;
 
-	font-family: 'Lato', arial, serif;
+	font-family: "Lato", arial, serif;
 }
 
 nav ul li {
@@ -43,8 +40,7 @@ nav ul li {
 
 #top {
 	display: table-cell;
-	ul,
-	p {
+	ul, p {
 		margin: 0;
 		padding: 0;
 	}
@@ -61,9 +57,9 @@ nav ul li {
 }
 
 #main {
-	h2,
-	h3 {
+	h2, h3 {
 		display: inline;
+
 		margin: 0;
 		padding: 0;
 
@@ -73,9 +69,9 @@ nav ul li {
 }
 
 #store_main {
-	h2,
-	h3 {
+	h2, h3 {
 		display: inline;
+
 		margin: 0;
 		padding: 0;
 
@@ -89,26 +85,28 @@ nav ul li {
 }
 
 #main h2:after {
-	content: ': ';
+	content: ": ";
 }
 
 nav ul li a {
 	padding: 10px;
 
-	color: $blue;
 	font-family: Lato-black;
 	font-weight: bold;
 
 	text-decoration: none;
+
+	color: $blue;
 }
 
 h3 {
 	padding: 10px;
 
-	color: $blue;
 	font-weight: bold;
 
 	text-decoration: none;
+
+	color: $blue;
 }
 
 #main {
@@ -116,29 +114,32 @@ h3 {
 		padding: 10px;
 		padding: 0;
 
-		color: $blue;
 		font-weight: bold;
 
 		text-decoration: none;
 		text-decoration: underline !important;
+
+		color: $blue;
 	}
 	h2 {
-		color: $black;
 		font-size: 20pt;
 		font-weight: 900;
 
 		text-transform: uppercase;
+
+		color: $black;
 
 		-webkit-mask-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
 	}
 }
 
 #store_main h2 {
-	color: $black;
 	font-size: 20pt;
 	font-weight: 900;
 
 	text-transform: uppercase;
+
+	color: $black;
 
 	-webkit-mask-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
 }
@@ -157,18 +158,17 @@ h3 {
 	background: $white;
 }
 
-#main,
-#store_main {
-	margin: 0 auto;
-	width: 962px;
+#main, #store_main {
 	overflow: auto;
 
-	border: rgba(0, 0, 0, .11) 1px solid;
+	width: 962px;
+	margin: 0 auto;
+
+	border: rgba(0, 0, 0, 0.11) 1px solid;
 	box-shadow: 1px 3px 10px $medium-gray;
 }
 
-#main section,
-#store_main section {
+#main section, #store_main section {
 	padding: 20px;
 }
 
@@ -182,14 +182,16 @@ h3 {
 
 .text {
 	float: left;
-	margin: 0 0 0 10px;
+
 	width: 500px;
+	margin: 0 0 0 10px;
 }
 
 #layered_windows {
 	float: left;
-	margin-top: 50px;
+
 	width: 370px;
+	margin-top: 50px;
 }
 
 #logout {
@@ -199,34 +201,35 @@ h3 {
 }
 
 #cat_list {
+	width: 962px;
 	margin: 0 auto;
 	padding: 20px;
-	width: 962px;
 
-	font-family: 'Lato', arial, serif;
+	font-family: "Lato", arial, serif;
 	h2 {
 		display: inline-block;
 		&:after {
-			content: ':';
+			content: ":";
 		}
 	}
 }
 
 #widget_catalog_button {
 	float: right;
+
 	margin-top: 15px;
 	padding: 10px;
 
-	color: rgba(48, 48, 48, .7);
-	font-family: 'Lato', arial, serif;
+	font-family: "Lato", arial, serif;
 	font-weight: bold;
 
-	background: #ffa62d;
-	background-image: linear-gradient(top, #ffce8c, #ffa42a);
+	color: rgba(48, 48, 48, 0.7);
 	border: #fdb34f 1px solid;
 	border-radius: 8px;
+	background: #ffa62d;
+	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 	box-shadow: 1px 2px 5px $medium-gray;
-	text-shadow: 1px 1px 1px rgba(255, 255, 255, .5);
+	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 #cat_list_ul {
@@ -234,6 +237,7 @@ h3 {
 	padding: 0;
 	li {
 		display: inline-block;
+
 		margin-right: 47px;
 
 		list-style: none;
@@ -246,11 +250,12 @@ h3 {
 			margin-right: 0 !important;
 		}
 		a {
-			color: $black;
-			font-family: 'Lato', arial, serif;
+			font-family: "Lato", arial, serif;
 			font-weight: bold;
 
 			text-decoration: none;
+
+			color: $black;
 		}
 	}
 }
@@ -260,15 +265,16 @@ h3 {
 }
 
 #spotlight {
+	width: 962px;
 	margin: 0 auto 10px auto;
 	padding: 0 0 10px 0;
-	width: 962px;
 	p {
 		display: inline;
+
 		margin: 0;
 		padding: 10px;
 
-		font-family: 'Lato', arial, serif;
+		font-family: "Lato", arial, serif;
 		font-weight: bold;
 
 		background: #fff389;
@@ -276,11 +282,11 @@ h3 {
 }
 
 form {
-	margin: 20px auto;
 	width: 60px;
+	margin: 20px auto;
 
-	background: rgba(0, 0, 0, .5);
 	border-radius: 4px;
+	background: rgba(0, 0, 0, 0.5);
 	input {
 		display: inline;
 	}
@@ -288,12 +294,13 @@ form {
 
 .span_next {
 	display: inline-block;
-	margin: 0 0 1px 5px;
+
 	width: 10px;
 	height: 10px;
+	margin: 0 0 1px 5px;
 
-	background: $white;
 	border-radius: 8px;
+	background: $white;
 }
 
 input[checked=checked] + span {

@@ -1,69 +1,81 @@
-@import 'mixins';
-@import 'colors';
+@import "mixins";
+@import "colors";
 
 .content {
-	background: url('../img/question_mark_circle.png') 780px 30px no-repeat;
-	background-color: $white;
-	padding: 40px 215px 20px 60px;
-
 	@include respond-to(phone, tablet-portrait, tablet-landscape) {
-		background: $white;
 		padding: 20px;
+
 		border-top: solid 1px $light-gray;
 		border-bottom: solid 1px $light-gray;
+		background: $white;
 	}
 
+	padding: 40px 215px 20px 60px;
+
+	background: url("../img/question_mark_circle.png") 780px 30px no-repeat;
+	background-color: $white;
+
 	h1 {
-		border-bottom: dotted black 1px;
-		font-family: 'Lato', arial, serif;
-		font-size: 38px;
-		font-weight: 700;
 		margin: 0 0 30px;
 		padding: 0 0 5px;
 		padding-bottom: 20px;
+
+		font-family: "Lato", arial, serif;
+		font-size: 38px;
+		font-weight: 700;
+
+		border-bottom: dotted black 1px;
 	}
 
 	h2 {
-		font-family: 'Lato', arial, serif;
-		font-size: 26px;
 		margin: 20px 0 0;
+
+		font-family: "Lato", arial, serif;
+		font-size: 26px;
 	}
 
 	section {
 		clear: both;
+
 		margin-bottom: 0;
 		padding-bottom: 15px;
 	}
 
 	section.float {
-		clear: none;
-		float: left;
-		width: 25%;
-
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			float: none;
+
 			width: inherit;
 		}
+
+		float: left;
+		clear: none;
+
+		width: 25%;
 	}
 
 	section.float.right {
-		float: right;
-		width: 40%;
-
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			float: none;
+
 			width: inherit;
 		}
+
+		float: right;
+
+		width: 40%;
 	}
 
 	section.float.left {
-		float: left;
-		width: 53%;
-
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			float: none;
+
 			width: inherit;
 		}
+
+		float: left;
+
+		width: 53%;
 	}
 
 	section.bordered {
@@ -81,7 +93,7 @@
 	}
 
 	h3 + p {
-		margin-top: .5em;
+		margin-top: 0.5em;
 	}
 
 	a {
@@ -89,7 +101,7 @@
 	}
 
 	dl dt {
-		font-family: 'Lato', arial, serif;
+		font-family: "Lato", arial, serif;
 		font-weight: bold;
 	}
 
@@ -98,25 +110,30 @@
 		padding-bottom: 10px;
 	}
 
-	.no-flash,
-	.flash-installed {
-		background: $off-white;
-		border-radius: 5px;
-		color: $dark-gray;
-		font-size: 15px;
+	.no-flash, .flash-installed {
 		padding: 15px 20px;
+
+		font-size: 15px;
+
 		text-align: center;
+
+		color: $dark-gray;
+		border-radius: 5px;
+		background: $off-white;
 	}
 }
 
 .get-flash {
-	background: url('../img/get_flashplayer.gif');
-	background-repeat: no-repeat;
 	display: block;
+
+	width: 160px;
 	height: 41px;
 	margin: 0 auto;
+
 	text-indent: -9999px;
-	width: 160px;
+
+	background: url("../img/get_flashplayer.gif");
+	background-repeat: no-repeat;
 
 	&:active {
 		background-position: 0 2px;

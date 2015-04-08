@@ -1,57 +1,61 @@
-@import 'colors';
+@import "colors";
 
 body.scores {
 	.container {
+		width: 800px;
 		margin: 0 auto;
 		margin-top: 55px;
-		width: 800px;
 
+		transition: all 0.5s ease;
+		text-align: center;
+
+		opacity: 0;
 		background-color: #929aa4;
 		background-image: linear-gradient(top, #929aa4 0%, #72808f 20%);
 		box-shadow: 0 0 34px 1px #999;
-
-		opacity: 0;
-		transition: all .5s ease;
-		text-align: center;
 	}
 	.overview {
-		margin: 0 auto;
-		width: 550px;
 		overflow: auto;
 
-		background-color: #bcc6cc;
+		width: 550px;
+		margin: 0 auto;
+
 		border-radius: 0 0 6px 6px;
+		background-color: #bcc6cc;
 		box-shadow: 0 3px 5px 0 #333;
 		#overview-score {
 			display: inline-block;
 			float: left;
+
+			width: 200px;
 			padding: 0;
 			padding-top: 5px;
-			width: 200px;
 
 			text-align: center;
 			h1 {
 				margin: 0;
 				margin-bottom: 10px;
 
-				color: #252525;
 				font-size: 14px;
 
 				text-transform: uppercase;
+
+				color: #252525;
 				span.attempt-num {
 					font-size: 23px;
 				}
 			}
 			.overall_score {
 				display: inline-block;
+
 				margin: 0;
 				padding: 10px;
 
-				color: #3b5572;
 				font-size: 64px;
 
-				background: #d1d8dc;
+				color: #3b5572;
 				border-radius: 6px;
+				background: #d1d8dc;
 			}
 			span.percent {
 				position: relative;
@@ -64,23 +68,26 @@ body.scores {
 		}
 		#overview-table {
 			float: right;
+
+			width: 330px;
+			min-height: 180px;
 			margin-right: 5px;
 			margin-bottom: 5px;
 			padding-top: 5px;
-			width: 330px;
-			min-height: 180px;
 
-			background: #cdd7df;
 			border-bottom-right-radius: 5px;
+			background: #cdd7df;
+
 			border-right-radius: 5px;
 
 			table {
-				margin: 0 auto;
 				width: 80%;
 				height: 100%;
+				margin: 0 auto;
+
+				font-size: 14px;
 
 				color: #555;
-				font-size: 14px;
 				tr {
 					td {
 						padding: 5px;
@@ -88,7 +95,6 @@ body.scores {
 					&:last-child td {
 						color: black;
 						color: #222;
-
 						border-top: 1px solid #aaa;
 					}
 				}
@@ -112,12 +118,12 @@ body.scores {
 			position: relative;
 			z-index: 8;
 
+			height: 50px;
 			margin: 0;
 			padding: 0;
-			height: 50px;
 
-			background: #454545;
 			border-bottom: 4px #ccc solid;
+			background: #454545;
 			box-shadow: 0 1px 3px 0 #777;
 		}
 		&.container header > h1 {
@@ -127,37 +133,37 @@ body.scores {
 			&.preview {
 				border-top: 4px $purple solid;
 				&:before {
-					content: 'Previewing';
+					content: "Previewing";
 
 					position: absolute;
 					top: -40px;
 					left: 0;
 
-					padding: 8px 0 12px 0;
 					width: 160px;
 					height: 20px;
+					padding: 8px 0 12px 0;
 
-					color: $white;
-					font-family: 'Lato', 'Arial', sans-serif;
+					font-family: "Lato", "Arial", sans-serif;
 					font-size: 20px;
 					font-weight: 900;
-
-					background: $purple;
-					border-radius: 5px 5px 0 0;
 
 					text-align: center;
 					vertical-align: middle;
 
+					color: $white;
+					       border-radius: 5px 5px 0 0;
+					background: $purple;
+
 					-khtml-border-radius: 5px 5px 0 0;
 				}
 				&:after {
-					content: 'Scores and interactions will not be recorded while previewing.';
+					content: "Scores and interactions will not be recorded while previewing.";
 
 					position: absolute;
 					top: -30px;
 					right: 0;
 
-					font-family: 'Lato', 'Arial', sans-serif;
+					font-family: "Lato", "Arial", sans-serif;
 					font-size: 14px;
 					font-weight: 300;
 				}
@@ -170,32 +176,33 @@ body.scores {
 				margin: 0;
 
 				cursor: default;
-				user-select: none;
+				       user-select: none;
 				text-align: left;
 
 				-khtml-user-select: none;
-				     -o-user-select: none;
+				    -o-user-select: none;
 				h1 {
 					display: inline-block;
+
 					margin: 10px 0 0 10px;
 					padding: 7px;
 
-					color: $white;
 					font-size: 12px;
 
-					background: #222;
+					color: $white;
 					border-radius: 15px;
+					background: #222;
 				}
 				&.open {
 					h1 {
 						/*body.scores .previous-attempts h1 {*/
 						color: #222;
-
 						background: $white;
 					}
 					ul {
 						/*body.scores .previous-attempts ul {*/
 						display: block !important;
+
 						margin-top: 10px;
 					}
 				}
@@ -204,36 +211,40 @@ body.scores {
 					z-index: 10;
 
 					display: none;
+
 					margin: 0;
 					margin-left: 6px;
 					padding: 0;
 
-					background: $white;
 					border-radius: 15px;
+					background: $white;
 					box-shadow: 5px 5px 15px 1px #666;
 
 					.date {
 						display: block;
 
-						color: #005391;
 						font-size: 13px;
 						font-weight: normal;
+
+						color: #005391;
 					}
 					.score {
 						padding-left: 10px;
 
-						color: #333;
 						font-size: 20px;
 						font-weight: bold;
+
+						color: #333;
 					}
 					li {
 						display: block;
+
 						padding: 5px 15px;
 
 						list-style: none;
 						&:hover {
-							background-color: #ddd;
 							border-radius: 15px;
+							background-color: #ddd;
 						}
 						a:hover {
 							text-decoration: none;
@@ -278,18 +289,20 @@ body.scores {
 		h1 {
 			margin: 23px 0;
 
-			color: $white;
 			font-size: 17px;
 			font-weight: bold;
 
 			text-transform: uppercase;
+
+			color: $white;
 		}
 		ul {
 			display: table;
+
+			width: 90%;
 			margin: 0 auto;
 			/*padding:1px;*/
 			padding: 0;
-			width: 90%;
 
 			border-collapse: collapse;
 			list-style-type: none;
@@ -298,14 +311,14 @@ body.scores {
 				display: table-row;
 
 				background: #e3e5e8;
-				div,
-				h3 {
+				div, h3 {
 					display: table-cell;
+
 					padding: 18px 15px;
 
-					background: #e3e5e8;
 					border-right: solid 1px #c3c5c8;
 					border-bottom: 10px solid #72808f;
+					background: #e3e5e8;
 				}
 				&:last-child div {
 					border-bottom: 0;
@@ -316,15 +329,15 @@ body.scores {
 					vertical-align: middle;
 				}
 				h3 {
-					color: #44607e;
 					font-size: 14px;
 					font-weight: bold;
-
-					border-bottom: solid 2px #c3c5c8 !important;
 
 					text-align: center;
 					white-space: nowrap;
 					text-transform: uppercase;
+
+					color: #44607e;
+					border-bottom: solid 2px #c3c5c8 !important;
 					&:first-child {
 						font-size: 0;
 					}
@@ -335,14 +348,14 @@ body.scores {
 				}
 				div.index span {
 					display: block;
+
 					margin: 0 auto;
 
 					font-size: 12px;
 
 					text-align: center;
 				}
-				&.no-value div.response,
-				&.partial-value div.response {
+				&.no-value div.response, &.partial-value div.response {
 					font-weight: bold;
 
 					background-color: #e2dee1;
@@ -367,21 +380,21 @@ body.scores {
 					background: rgba(255, 255, 255, 0);
 					p {
 						position: absolute;
+						z-index: 5;
 						right: 5%;
 						left: 5%;
-						z-index: 5;
 
 						margin: 0;
 						padding: 18px 60px;
 
 						line-height: 1.25em;
 
-						background-color: #e3e5e8;
-						border-bottom-right-radius: 3px;
-						border-bottom-left-radius: 3px;
-
 						text-align: center;
 						vertical-align: middle;
+
+						border-bottom-right-radius: 3px;
+						border-bottom-left-radius: 3px;
+						background-color: #e3e5e8;
 					}
 					.index {
 						position: absolute;
@@ -397,10 +410,10 @@ body.scores {
 		}
 	}
 	.graph {
-		margin: 15px auto 0 auto;
-		padding: 20px 16px 0 16px;
 		width: 746px;
 		height: 320px;
+		margin: 15px auto 0 auto;
+		padding: 20px 16px 0 16px;
 
 		background: #f3f3f3;
 		box-shadow: inset 0 1px 6px #333;
@@ -420,30 +433,27 @@ body.scores {
 
 .green {
 	color: $green;
-
+	border-color: #95a74e;
 	background: #b2cd43;
 	background-image: linear-gradient(top, #d1e776, #a6c430);
-	border-color: #95a74e;
 }
 
 .gray {
 	color: #545454;
-
+	border-color: #747474;
 	background: #aeaeae;
 	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
-	border-color: #747474;
 }
 
 #popup.score_restrict {
 	width: 300px;
 	height: 100px;
 
+	text-align: center;
+
 	border: #f0f0f0 3px solid;
 	border-radius: 3px;
-
-	text-align: center;
-	h2,
-	p {
+	h2, p {
 		font-family: Lato, arial, serif;
 		font-weight: bold;
 
@@ -468,17 +478,14 @@ body.scores {
 }
 
 body.scores {
-	.expired.container,
-	.score_restrict.container {
-		background: $white;
+	.expired.container, .score_restrict.container {
+		opacity: 1;
 		border: none;
 		outline: none;
+		background: $white;
 		box-shadow: none;
-
-		opacity: 1;
 	}
-	.expired.container section,
-	.score_restrict.container section {
+	.expired.container section, .score_restrict.container section {
 		border: none;
 		outline: none;
 		box-shadow: none;

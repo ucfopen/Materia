@@ -1,15 +1,16 @@
-@import 'colors';
+@import "colors";
 
 .container {
 	position: relative;
 
 	display: block;
-	margin: auto;
-	padding: 10px 20px;
+
 	width: 500px;
 	height: 200px;
+	margin: auto;
+	padding: 10px 20px;
 
-	background: $white;
 	border: solid 1px #ccc;
+	background: $white;
 	box-shadow: 0 0 10px #aaa;
 }
