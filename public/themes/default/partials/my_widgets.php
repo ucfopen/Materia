@@ -107,8 +107,8 @@
 							</li>
 							<li><h3>Access</h3>
 								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
-								<label ng-click="toggleGuestAccess()">Enable guest access</label>
-								<p class="data_explination">This allows anyone with the widget link to see and play this widget. Users will not log in and no scores will be recorded.</p>
+								<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
+								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
 							</li>
 						</ul>
 					</ul>
