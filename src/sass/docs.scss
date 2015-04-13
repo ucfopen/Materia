@@ -2,7 +2,7 @@
 @import "colors";
 
 .content {
-	@include respond-to(phone, tablet-portrait, tablet-landscape) {
+	@include respond-to(phone, tablet-portrait) {
 		padding: 20px;
 
 		border-top: solid 1px $light-gray;

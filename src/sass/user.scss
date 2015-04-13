@@ -11,6 +11,15 @@
 	background: $off-white;
 }
 
+.profile {
+	main {
+		@include respond-to(tablet-portrait) {
+			border-top: solid 1px $light-gray;
+			border-bottom: solid 1px $light-gray;
+		}
+	}
+}
+
 .profile-content {
 	@include respond-to(phone) {
 		margin: 0;
@@ -20,7 +29,7 @@
 	@include respond-to(tablet-portrait) {
 		margin-left: 110px;
 	}
-	@include respond-to(phone, tablet-portrait) {
+	@include respond-to(phone) {
 		border-top: solid 1px $light-gray;
 		border-bottom: solid 1px $light-gray;
 	}
