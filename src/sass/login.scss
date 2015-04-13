@@ -42,7 +42,7 @@
 		padding: 30px 10px;
 	}
 
-	.container.widget {
+	.content {
 		section.page {
 			min-height: 400px;
 
@@ -69,10 +69,11 @@
 			}
 
 			&.widget-mode {
-				margin-left: 80px;
+				text-align: left;
+				margin-left: 110px;
 
-				h2 {
-					margin-left: 55px;
+				@include respond-to(phone) {
+					margin-left: 0;
 				}
 			}
 		}
@@ -128,7 +129,7 @@
 	.form-content ul {
 		position: relative;
 
-		max-width: 500px;
+		max-width: 350px;
 		margin: 30px auto 0;
 		padding: 0;
 
@@ -229,17 +230,12 @@
 		}
 	}
 
-	.additional_info {
-		padding-right: 20px;
-		padding-bottom: 20px;
-		padding-left: 20px;
-	}
-
-	.widget_info {
+	div.widget-info {
 		margin: 0;
-		margin-bottom: 20px;
-		padding-right: 15px;
-		padding-left: 70px;
+
+		@include respond-to(phone) {
+			margin-left: -110px;
+		}
 
 		list-style: none;
 
@@ -250,35 +246,16 @@
 
 			list-style-type: none;
 		}
-	}
-
-	.widget_icon {
-		position: absolute;
-		top: 25px;
-		left: -25px;
-
-		width: 115px;
-		height: inherit;
-		padding: 15px;
-
-		font-size: 10px;
-		line-height: 13px;
-
-		text-align: right;
-
-		color: $white;
-		background: $blue;
-		box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
 
 		img {
-			width: 100px;
-			height: 100px;
-			padding-bottom: 5px;
-			padding-left: 10px;
+			float: left;
+			@include respond-to(phone) {
+				display: none;
+			}
 		}
 	}
 
-	.widget_info li {
+	.widget-info li {
 		&.widget_tag {
 			display: inline-block;
 
@@ -311,13 +288,14 @@
 
 		&.widget_name {
 			margin: 0;
-			margin-bottom: 10px;
+			margin-left: 70px;
 			padding: 0 0 5px 0;
 
 			font-family: "Lato", arial, serif;
 			font-size: 38px;
 			font-weight: 700;
 			line-height: 37px;
+			text-align: left;
 
 			border-bottom: dotted black 1px;
 		}

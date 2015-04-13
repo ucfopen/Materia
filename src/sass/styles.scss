@@ -68,7 +68,7 @@ nav ul li {
 	}
 }
 
-#store_main {
+#store-main {
 	h2, h3 {
 		display: inline;
 
@@ -133,7 +133,7 @@ h3 {
 	}
 }
 
-#store_main h2 {
+#store-main h2 {
 	font-size: 20pt;
 	font-weight: 900;
 
@@ -152,13 +152,13 @@ h3 {
 	background: $white url(../img/pop_back.png) center bottom no-repeat;
 }
 
-#store_main {
+#store-main {
 	height: 477px;
 
 	background: $white;
 }
 
-#main, #store_main {
+#main, #store-main {
 	overflow: auto;
 
 	width: 962px;
@@ -168,7 +168,7 @@ h3 {
 	box-shadow: 1px 3px 10px $medium-gray;
 }
 
-#main section, #store_main section {
+#main section, #store-main section {
 	padding: 20px;
 }
 
@@ -185,13 +185,6 @@ h3 {
 
 	width: 500px;
 	margin: 0 0 0 10px;
-}
-
-#layered_windows {
-	float: left;
-
-	width: 370px;
-	margin-top: 50px;
 }
 
 #logout {
@@ -292,7 +285,7 @@ form {
 	}
 }
 
-.span_next {
+.span-next {
 	display: inline-block;
 
 	width: 10px;

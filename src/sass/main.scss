@@ -202,18 +202,7 @@ nav ul li a {
 .main a {
 	padding: 0;
 }
-.searchClose {
-	position: relative;
 
-	display: inline;
-
-	margin-top: 6px;
-	margin-left: -25px;
-
-	cursor: pointer;
-
-	color: #ddd;
-}
 .popup h2, .detail h2 {
 	margin: 0;
 	padding: 0;
@@ -245,12 +234,6 @@ h3 {
 
 	width: 500px;
 	margin: 0 0 0 10px;
-}
-.layered_windows {
-	float: left;
-
-	width: 370px;
-	margin-top: 50px;
 }
 .cat_list {
 	width: 962px;
@@ -390,7 +373,6 @@ h3 {
 
 	background: #eca444;
 	background-image: linear-gradient(top, #ffa42a, #ffce8c);
-	box-shadow: 1px 2px 4px $medium-gray;
 }
 
 .content-container {
@@ -399,15 +381,34 @@ h3 {
 	@include respond-to(phone, tablet-portrait) {
 		padding: 0;
 	}
-
+	section.info p, section.p-s p {
+		@include respond-to(phone, tablet-portrait) {
+			padding: 15px;
+		}
+	}
 	margin: 0 auto;
 	padding: 0 15px;
 }
 
+section.get-started h1 {
+	@include respond-to(phone, tablet-portrait) {
+		padding: 15px;
+	}
+}
+
+
 .content {
 	@include respond-to(phone, tablet-portrait) {
-		border: 0;
+		border: solid 1px $off-white;
 		box-shadow: none;
+	}
+
+	&.full-size {
+		@include respond-to(phone, tablet-portrait, tablet-landscape) {
+			width: 100%;
+			margin-left: -50%;
+			left: 50%;
+		}
 	}
 	@include clearfix;
 
@@ -415,7 +416,7 @@ h3 {
 
 	box-sizing: border-box;
 	margin: 0 auto;
-	padding: 10px 15px 25px;
+	padding: 30px 30px 30px;
 
 	border: 3px solid rgba(0,0,0,0.11);
 	background-color: $white;
@@ -425,6 +426,7 @@ h3 {
 
 		box-sizing: border-box;
 		margin-top: 47px;
+		padding: 15px 15px 15px;
 		padding-bottom: 15px;
 
 		border-right: 0;
@@ -432,7 +434,7 @@ h3 {
 	.top {
 		@include clearfix;
 
-		margin: -10px -15px 10px;
+		margin: -30px -30px 30px;
 		padding: 10px 15px;
 
 		color: #a6a6a6;

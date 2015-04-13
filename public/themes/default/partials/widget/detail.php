@@ -1,6 +1,6 @@
 <main class="widget-details" role="main" ng-show="show" ng-controller="widgetDetailsController">
 	<div class="content-container">
-		<aside class="content aside-content hidden-md hidden-sm hidden-xs">
+		<aside class="content aside-content hidden-md hidden-sm hidden-xs full-size">
 			<a href="{{ goback.url }}" class="action-button orange block">
 				<span class="fa fa-arrow-left"></span> {{ goback.text }}
 			</a>

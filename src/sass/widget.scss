@@ -220,7 +220,7 @@
 		}
 	}
 
-	.store_main p {
+	.store-main p {
 		@include respond-to(phone, tablet-portrait, tablet-landscape) {
 			font-size: 14px;
 		}
@@ -241,7 +241,7 @@
 		text-decoration: underline;
 	}
 
-	.store_main {
+	.store-main {
 		position: absolute;
 
 		section {

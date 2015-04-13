@@ -9,70 +9,9 @@
 	.page {
 		margin-top: 30px;
 	}
-	section.store_bottom {
-		section {
-			width: 250px;
-			padding: 7px 0 20px 33px;
-			&:first-child {
-				float: left;
-			}
-			&:nth-child(2) {
-				margin: 0 60px;
-			}
-			section {
-				width: 218px;
-				height: 270px;
-				padding: 15px;
-
-				font-family: Lato;
-
-				border: #d6d6d6 1px solid;
-				border-top: none;
-				background: $white url(../img/bar-top.png) top repeat-x;
-				box-shadow: 1px 5px 10px $medium-gray;
-				h3 {
-					padding-bottom: 20px;
-
-					font-family: Lato;
-					font-size: 17px;
-
-					color: #6b6b6b;
-				}
-				div {
-					margin-left: 100px;
-				}
-				h4, p {
-					margin: 0;
-					padding: 0;
-
-					color: #6b6b6b;
-				}
-				h4 {
-					color: $black;
-				}
-				p {
-					&:last-child {
-						margin-top: 10px;
-					}
-					a {
-						font-size: 0.8em;
-						font-weight: bold;
-
-						text-decoration: underline;
-
-						color: $blue;
-					}
-				}
-			}
-		}
-	}
 }
 
-.program_main {
-	background: $white url(../img/pop_back.png) center bottom no-repeat;
-}
-
-.main section, .store_main section {
+.main section, .store-main section {
 	padding: 20px;
 }
 
@@ -90,7 +29,7 @@
 
 		text-indent: -999999px;
 	}
-	.span_next {
+	.span-next {
 		display: inline-block;
 
 		width: 5px;
@@ -103,7 +42,7 @@
 		border-radius: 3px;
 		background: #d7d7d7;
 	}
-	span.spotlight_selected {
+	span.spotlight-selected {
 		width: 8px;
 		height: 8px;
 

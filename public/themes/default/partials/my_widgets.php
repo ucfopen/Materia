@@ -286,7 +286,7 @@
 						Export Scores
 					</span>
 
-					<div class="scoreWrapper" ng-repeat="semester in selected.scores.list" ng-if="show.olderScores == true || $index == 0">
+					<div class="score-wrapper" ng-repeat="semester in selected.scores.list" ng-if="show.olderScores == true || $index == 0">
 						<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 						<ul class="choices">
 							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_VIEW_GRAPH}"><a class="graph" ng-show="semester.distribution" ng-click="setScoreView($index, SCORE_VIEW_GRAPH)">Graph</a></li>
@@ -361,7 +361,7 @@
 						</ul>
 						<a role="button" class="show-older-scores-button" href="javascript:;" ng-show="selected.scores.list.length > 1 && show.olderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
 					</div>
-					<p class="noScores" ng-show="selected.scores.list.length == 0">There are no scores to display</p>
+					<p class="no-scores" ng-show="selected.scores.list.length == 0">There are no scores to display</p>
 				</div>
 			</section>
 		</div>

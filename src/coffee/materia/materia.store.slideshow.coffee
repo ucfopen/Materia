@@ -1,15 +1,15 @@
 Namespace('Materia.Store').SlideShow = do ->
 	formatCycler = (callback) ->
-		selected = ' spotlight_selected'
+		selected = ' spotlight-selected'
 		$('.cycler').children('input').each ->
 			$(this).hide()
-			$(this).after('<span class="span_next'+selected+'"></span>')
+			$(this).after('<span class="span-next'+selected+'"></span>')
 			selected = ''
-		cyclerWidth = $('.span_next').outerWidth(true) * $('.span_next').length
+		cyclerWidth = $('.span-next').outerWidth(true) * $('.span-next').length
 		$('.cycler').width(cyclerWidth)
 		intervalID = setInterval(spotlightChange, 12000)
-		$('.span_next').click ->
-			if($(this).hasClass('spotlight_selected')) then return false
+		$('.span-next').click ->
+			if($(this).hasClass('spotlight-selected')) then return false
 			clearInterval(intervalID)
 			spotlightSelected($(this))
 			num = $(this).prev().attr('id').split('_')
@@ -61,7 +61,7 @@ Namespace('Materia.Store').SlideShow = do ->
 
 	# Cycles thorough the buttons to remove all selected clases, then adds the selected class to the button specified and checks that buttons input.
 	spotlightSelected = (button) ->
-		$('.cycler').children('span').each -> $(this).removeClass('spotlight_selected')
-		button.addClass('spotlight_selected').prev().attr('checked', 'checked')
+		$('.cycler').children('span').each -> $(this).removeClass('spotlight-selected')
+		button.addClass('spotlight-selected').prev().attr('checked', 'checked')
 
 	formatCycler : formatCycler,

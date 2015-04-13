@@ -1,10 +1,10 @@
-<div class="container login <?= $classes ?>" ng-controller="loginCtrl">
+<div class="content-container login <?= $classes ?>" ng-controller="loginCtrl">
 	<section class="content">
 		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
 		<div class="detail widget-mode">
-			<h2 class="logo">
+			<h2>
 				<?= $title ?>
 			</h2>
 			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?></span>

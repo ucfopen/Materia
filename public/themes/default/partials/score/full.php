@@ -19,7 +19,7 @@
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<div id="overview-score">
 			<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
-			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
+			<span class="overall-score">{{ overview.score }}<span class="percent">%</span></span>
 			<div id="class-rank-button" class="action-button orange" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">
@@ -61,7 +61,7 @@
 				</div>
 				<div class="{{ row.data_style[$index] }}" ng-repeat="data in row.data track by $index">{{ data }}</div>
 			</li>
-			<li ng-if="row.feedback != null" class="feedback single_column" ng-repeat-end>
+			<li ng-if="row.feedback != null" class="feedback single-column" ng-repeat-end>
 				<p>{{ row.feedback }}</p>
 			</li>
 		</ul>

@@ -247,7 +247,7 @@
 			right: 2px;
 		}
 	}
-	.noScores {
+	.no-scores {
 		display: none;
 
 		font-family: "Lato", sans-serif;
@@ -293,7 +293,7 @@
 		}
 	}
 }
-.scores .scoreWrapper .storage {
+.scores .score-wrapper .storage {
 	margin: 0 10px;
 	padding: 0 0 2px 0;
 
@@ -309,7 +309,7 @@
 	color: $blue;
 	border-bottom: 1px $blue solid;
 }
-.scores .scoreWrapper .storage {
+.scores .score-wrapper .storage {
 	float: right;
 
 	margin: 0;
@@ -564,7 +564,7 @@
 		overflow-y: auto;
 
 		padding-bottom: 1em;
-		.scoreWrapper {
+		.score-wrapper {
 			position: relative;
 
 			display: inline-block;
