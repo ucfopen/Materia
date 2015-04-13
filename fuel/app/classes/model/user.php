@@ -57,7 +57,7 @@ class Model_User extends Orm\Model
 	public static function find_current()
 	{
 		$array = Auth::instance()->get_user_id();
-		if ( empty($array)) return \Model_User::forge(array('id'=>0));
+		if ( empty($array)) return self::forge_guest();
 		return self::find($array[1]);
 	}
 
@@ -227,6 +227,11 @@ class Model_User extends Orm\Model
 			return true;
 		}
 		return false;
+	}
+
+	static protected function forge_guest()
+	{
+		return \Model_User::forge(array('id'=>self::GUEST_ID));
 	}
 
 	public function to_array($custom = false, $recurse = false, $eav = false)
