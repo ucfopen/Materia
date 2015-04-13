@@ -10,13 +10,22 @@
 
 		width: 75%;
 		min-height: 800px;
+		@include respond-to(phone, tablet-portrait) {
+			border: solid 1px $light-gray;
+		}
 	}
 	.aside-content {
 		width: 25%;
 		padding-bottom: 0;
 
+		@include respond-to(phone) {
+			border: solid 1px $light-gray;
+		}
+
 		.top {
 			@include vertical-gradient-top-bottom(#83caf3);
+
+			margin: -15px -20px 10px -15px;
 
 			color: $white;
 			border-bottom-color: #0276b9;
@@ -43,8 +52,7 @@
 	.directions {
 		text-align: center;
 		&.unchosen {
-			min-height: 800px;
-
+			min-height: 900px;
 			background: $white url("../img/kogneato_mywidgets.png") 50% 50% no-repeat;
 		}
 		h1 {
@@ -912,8 +920,9 @@
 		}
 		.numeric {
 			float: left;
+			font-family: 'Lato';
 
-			width: 90px;
+			width: 100px;
 			margin: 0;
 			padding: 0;
 			li {
@@ -2506,8 +2515,8 @@
 	color: #bbb;
 }
 .ng-modal.csv_popup select {
-	margin-top: 10px;
-	margin-bottom: -10px;
+	margin-top: 20px;
+	margin-bottom: -20px;
 }
 .ng-modal.csv_popup table tr td {
 	width: 30%;
