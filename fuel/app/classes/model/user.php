@@ -220,7 +220,7 @@ class Model_User extends Orm\Model
 		return $logged_in;
 	}
 
-	static public function is_guest()
+	public function is_guest()
 	{
 		if ($this->id == self::GUEST_ID)
 		{
