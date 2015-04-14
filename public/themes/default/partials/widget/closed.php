@@ -1,5 +1,5 @@
-<div class="container login <?= $classes ?>" ng-controller="loginCtrl">
-	<section class="page">
+<div class="content-container login <?= $classes ?>" ng-controller="loginCtrl">
+	<section class="content">
 		<?= $summary ?>
 		<div class="detail widget-mode">
 			<h2 class="logo">Widget Unavailable</h2>

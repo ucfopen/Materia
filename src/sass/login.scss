@@ -109,7 +109,7 @@
 	}
 
 	.availability-message {
-		padding: 1em 70px;
+		padding-top: 10px;
 	}
 }
 
@@ -272,12 +272,14 @@
 			background: #f2f0d0;
 		}
 
-		&.widget_availability {
+		&.widget-availability {
 			display: inline-block;
 
-			width: 335px;
+			width: 100%;
 			padding: 0;
 			padding-bottom: 15px;
+			margin-left: -5px;
+			margin-top: 10px;
 
 			font-size: 13px;
 
@@ -286,7 +288,7 @@
 			}
 		}
 
-		&.widget_name {
+		&.widget-name {
 			margin: 0;
 			margin-left: 70px;
 			padding: 0 0 5px 0;

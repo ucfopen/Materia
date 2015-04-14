@@ -3,7 +3,7 @@
 		<img src="<?= $icon ?>" alt="">
 	</div>
 	<ul class="widget-info">
-		<?= isset($name)  ? "<li class=\"widget_name\">$name</li>" : '' ?>
-		<?= isset($avail) ? "<li class=\"widget_availability\">$avail</li>" : '' ?>
+		<?= isset($name)  ? "<li class=\"widget-name\">$name</li>" : '' ?>
+		<?= isset($avail) ? "<li class=\"widget-availability\">$avail</li>" : '' ?>
 	</ul>
 </div>
