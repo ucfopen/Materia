@@ -238,7 +238,7 @@ class Api_V1
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		// make sure the user has ownership permissions to preview the widget
 		if ($preview_mode)
 		{
@@ -332,7 +332,7 @@ class Api_V1
 			if ( ! count($instances)) throw new HttpNotFoundException;
 
 			$inst = $instances[0];
-			if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
 		else
@@ -412,7 +412,7 @@ class Api_V1
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Score_Manager::get_instance_score_history($inst_id, $play_id);
 	}
@@ -429,7 +429,7 @@ class Api_V1
 			if ( ! count($instances)) throw new HttpNotFoundException;
 
 			$inst = $instances[0];
-			if (! Perm_Manager::can_play($inst)) return \RocketDuck\Msg::no_login();
+			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
 		else
@@ -540,7 +540,7 @@ class Api_V1
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
-		$can_play = Perm_Manager::can_play($inst);
+		$can_play = $inst->playable_by_current_user();
 		if (! $can_play) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) === false) return \RocketDuck\Msg::invalid_input($inst_id);
 		// play id sent, send the user the qset if the play is valid
@@ -929,7 +929,7 @@ class Api_V1
 		$inst = $instances[0];
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
-		$can_play = Perm_Manager::can_play($inst);
+		$can_play = $inst->playable_by_current_user();
 
 		if ($can_play)
 	 	{

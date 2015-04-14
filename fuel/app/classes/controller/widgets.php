@@ -225,7 +225,7 @@ class Controller_Widgets extends Controller
 
 		$inst = $instances[0];
 		// not allowed to play the widget
-		if (! Materia\Perm_Manager::can_play($inst))
+		if (! $inst->playable_by_current_user())
 		{
 			$this->build_widget_login('Login to play this widget', $inst_id, $embed);
 		}

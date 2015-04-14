@@ -46,7 +46,7 @@ class Controller_Scores extends Controller
 
 		$inst = $instances[0];
 		// not allowed to play the widget
-		if (! Materia\Perm_Manager::can_play($inst))
+		if (! $inst->playable_by_current_user())
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
