@@ -325,13 +325,7 @@ class Api_V1
 		// if not preview, see if current user can play widget
 		if (! $preview_inst_id)
 		{
-			$play = new Session_Play();
-			$play->get_by_id($play_id);
-			$inst_id = $play->inst_id;
-			$instances = static::widget_instances_get([$inst_id], false);
-			if ( ! count($instances)) throw new HttpNotFoundException;
-
-			$inst = $instances[0];
+			$inst = self::_get_widget_inst();
 			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
@@ -422,13 +416,7 @@ class Api_V1
 		// if not preview, see if current user can play widget
 		if (! $preview_mode_inst_id)
 		{
-			$play = new Session_Play();
-			$play->get_by_id($play_id);
-			$inst_id = $play->inst_id;
-			$instances = static::widget_instances_get([$inst_id], false);
-			if ( ! count($instances)) throw new HttpNotFoundException;
-
-			$inst = $instances[0];
+			$inst = self::_get_widget_inst();
 			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
@@ -923,15 +911,8 @@ class Api_V1
 	static private function _validate_play_id($play_id)
 	{
 	 	$play = new Session_Play();
-		$play->get_by_id($play_id);
-		$inst_id = $play->inst_id;
-		$instances = static::widget_instances_get([$inst_id], false);
-		$inst = $instances[0];
-		if ( ! count($instances)) throw new HttpNotFoundException;
-
-		$can_play = $inst->playable_by_current_user();
-
-		if ($can_play)
+		$inst = self::_get_widget_inst($play_id);
+		if ($inst->playable_by_current_user())
 	 	{
 	 		if ($play->get_by_id($play_id))
 	 		{
@@ -967,5 +948,23 @@ class Api_V1
 			}
 		}
 		return $logs;
+	}
+
+	/**
+	 * Gets a widget instance from a play id.
+	 *
+	 * @param int $play_id
+	 *
+	 * @return Widget_Instance The current widget instance.
+	 */
+	static private function _get_widget_inst($play_id)
+	{
+	 	$play = new Session_Play();
+		$play->get_by_id($play_id);
+		$inst_id = $play->inst_id;
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+		$inst = $instances[0];
+		return $inst;
 	}
 }
