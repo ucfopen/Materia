@@ -53,12 +53,14 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	$scope.showCompareWithClass = !isPreview and !isEmbedded
 
 	displayScoreData = (inst_id, play_id) ->
-		$.when(widgetSrv.getWidget(inst_id), getInstanceScores(inst_id))
-			.done (widgetInstances) ->
+		widgetSrv.getWidget(inst_id)
+			.then( (widgetInstances) ->
 				widgetInstance = widgetInstances[0]
+				getInstanceScores(inst_id)
+			).then( ->
 				displayAttempts(play_id)
 				displayWidgetInstance()
-			.fail ->
+			).fail ->
 				# Failed!?!?
 
 	getInstanceScores = (inst_id) ->
@@ -66,21 +68,31 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		if isPreview or single_id
 			$scope.attempts = [{'id': -1, 'created_at' : 0, 'percent' : 0}]
 			dfd.resolve() # skip, preview doesn't support this
+		else if not widgetInstance.guest_access
+			# Want to get all of the scores for a user if the widget doesn't
+			# support guests.
+			scoreSrv.getWidgetInstanceScores inst_id, (scores) ->
+				populateScores(scores)
+				dfd.resolve()
 		else
-			scoreSrv.getWidgetInstanceScores inst_id, play_id, (scores) ->
-				if scores == null or scores.length < 1
-					#load up an error screen of some sort
-					$scope.restricted = true
-					$scope.$apply()
-					dfd.reject 'No scores for this widget'
-				# Round scores
-				for attemptScore in scores
-					attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
-				$scope.attempts = scores
-				$scope.attempt = scores[0]
-				$scope.$apply()
+			# Only want score corresponding to play_id if guest widget
+			scoreSrv.getGuestWidgetInstanceScores inst_id, play_id, (scores) ->
+				populateScores(scores)
 				dfd.resolve()
 		return dfd.promise()
+
+	populateScores = (scores) ->
+		if scores == null or scores.length < 1
+			#load up an error screen of some sort
+			$scope.restricted = true
+			$scope.$apply()
+			dfd.reject 'No scores for this widget'
+		# Round scores
+		for attemptScore in scores
+			attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
+		$scope.attempts = scores
+		$scope.attempt = scores[0]
+		$scope.$apply()
 
 	getScoreDetails = ->
 		if isPreview
