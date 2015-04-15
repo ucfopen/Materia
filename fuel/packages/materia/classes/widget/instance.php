@@ -419,7 +419,7 @@ class Widget_Instance
 	/**
 	 * Checks if user can play widget.
 	 *
-	 * @return bool Whether or not the current use can play the widget
+	 * @return bool Whether or not the current user can play the widget
 	 */
 	public function playable_by_current_user()
 	{
