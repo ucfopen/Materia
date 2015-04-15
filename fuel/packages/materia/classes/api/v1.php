@@ -325,7 +325,7 @@ class Api_V1
 		// if not preview, see if current user can play widget
 		if (! $preview_inst_id)
 		{
-			$inst = self::_get_widget_inst();
+			$inst = self::_get_widget_inst($play_id);
 			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
@@ -416,7 +416,7 @@ class Api_V1
 		// if not preview, see if current user can play widget
 		if (! $preview_mode_inst_id)
 		{
-			$inst = self::_get_widget_inst();
+			$inst = self::_get_widget_inst($play_id);
 			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
@@ -963,7 +963,7 @@ class Api_V1
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
 		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		if (! count($instances)) throw new HttpNotFoundException;
 		$inst = $instances[0];
 		return $inst;
 	}
