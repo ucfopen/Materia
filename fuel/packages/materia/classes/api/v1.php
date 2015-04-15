@@ -400,7 +400,7 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function widget_instance_scores_get($inst_id, $play_id=null)
+	static public function widget_instance_scores_get($inst_id)
 	{
 		$instances = static::widget_instances_get([$inst_id], false);
 		if ( ! count($instances)) throw new HttpNotFoundException;
@@ -408,7 +408,7 @@ class Api_V1
 		$inst = $instances[0];
 		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
-		return Score_Manager::get_instance_score_history($inst_id, $play_id);
+		return Score_Manager::get_instance_score_history($inst_id);
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
@@ -434,6 +434,26 @@ class Api_V1
 			return Score_Manager::get_play_details([$play_id]);
 		}
 	}
+
+	/**
+	 * Gets a single score corresponding to a play_id for guest widgets.
+	 *
+	 * @param int $inst_id The widget instance ID
+	 * @param int $play_id The play ID
+	 *
+	 * @return array Single item array which holds the score or is empty
+	 */
+	static public function guest_widget_instance_scores_get($inst_id, $play_id)
+	{
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$inst = $instances[0];
+		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
+		return Score_Manager::get_guest_instance_score_history($inst_id, $play_id);
+	}
+
 	/**
 	 *	Gets scores/players for a particular game
 	 *	Returns an array with the following:

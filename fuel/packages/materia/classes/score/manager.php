@@ -34,41 +34,36 @@ class Score_Manager
 	/**
 	 * Returns score overview for each play the current user has for a particular instance
 	 * @param int inst_id Widget Instance ID
-	 * @param int play_id Play ID
-	 * @return array Time sorted array of play scores containint play_id, timestamp, and score keys
+	 * @return array Time sorted array of play scores containing play_id, timestamp, and score keys
 	 */
-	static public function get_instance_score_history($inst_id, $play_id=null)
+	static public function get_instance_score_history($inst_id)
 	{
-		$score_history = [];
-		$instances = Api::widget_instances_get([$inst_id], false);
-		if (count($instances))
-		{
-			$inst = $instances[0];
-		}
-		if ($play_id && $inst && $inst->guest_access == true)
-		{
-			$user_id = \Model_User::find_current_id();
-			$score_history = \DB::select('id','created_at','percent')
-				->from('log_play')
-				->where('is_complete', '1')
-				->where('id', $play_id)
-				->where('inst_id', $inst_id)
-				->order_by('created_at', 'DESC')
-				->execute()
-				->as_array();
-		}
-		else if (!$inst || $inst->guest_access != true)
-		{
-			$score_history = \DB::select('id','created_at','percent')
-				->from('log_play')
-				->where('is_complete', '1')
-				->where('user_id', \Model_User::find_current_id())
-				->where('inst_id', $inst_id)
-				->order_by('created_at', 'DESC')
-				->execute()
-				->as_array();
-		}
-		return $score_history;
+		return \DB::select('id','created_at','percent')
+			->from('log_play')
+			->where('is_complete', '1')
+			->where('user_id', \Model_User::find_current_id())
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC')
+			->execute()
+			->as_array();
+	}
+
+	/**
+	 * Returns score overview for a particular play for guests
+	 * @param int inst_id Widget Instance ID
+	 * @param int play_id Play ID
+	 * @return array Single item array of play scores containing play_id, timestamp, and score keys
+	 */
+	static public function get_guest_instance_score_history($inst_id, $play_id)
+	{
+		return \DB::select('id','created_at','percent')
+			->from('log_play')
+			->where('is_complete', '1')
+			->where('id', $play_id)
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC')
+			->execute()
+			->as_array();
 	}
 
 	/**
