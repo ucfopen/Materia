@@ -557,7 +557,7 @@ class Api_V1
 		// no play id, check user's permissions to the game instance - this is probably for previewing
 		else
 		{
-			if ( ! Perm_Manager::check_user_perm_to_object(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]) && ! $can_play) return \RocketDuck\Msg::no_perm();
+			if ( ! Perm_Manager::check_user_perm_to_object(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
 			$inst = new Widget_Instance();
 			$inst->get_qset($inst_id); // get the instance and dig into it
 			return $inst->qset;
