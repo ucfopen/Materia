@@ -352,7 +352,7 @@ header > h1 {
 	}
 }
 
-.arrow_right {
+.arrow-right {
 	position: absolute;
 	z-index: 600;
 	top: -7px;
@@ -366,15 +366,15 @@ header > h1 {
 	background: url(../img/button_arrow_circle_green.png) no-repeat bottom;
 }
 
-.preview-button:hover .arrow_right {
+.preview-button:hover .arrow-right {
 	background: url(../img/button_arrow_circle_green_hover.png) no-repeat bottom;
 }
 
 .ie8, .ie9 {
-	.arrow_right {
+	.arrow-right {
 		background: url(../img/ie9_button_arrow_circle_green.png) no-repeat bottom;
 	}
-	.preview-button:hover .arrow_right {
+	.preview-button:hover .arrow-right {
 		background: url(../img/ie9_button_arrow_circle_green_hover.png) no-repeat bottom;
 	}
 }

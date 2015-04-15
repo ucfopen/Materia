@@ -41,12 +41,12 @@
 	</nav>
 
 	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl" ng-show="values.notifications.length > 0">
-		<a id="notifications_link" data-notifications="{{values.notifications.length}}" ng-click="clickNotification()"></a>
+		<a id="notifications-link" data-notifications="{{values.notifications.length}}" ng-click="clickNotification()"></a>
 		<div id="notices" ng-if="values.notifications.length > 0">
 			<div class="notice" ng-repeat="notification in values.notifications">
 				<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
 				<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></p>
-				<div class="notice_right_side">
+				<div class="notice-right-side">
 					<p class="subject" ng-bind-html="trust(notification.subject)"></p>
 				</div>
 			</div>

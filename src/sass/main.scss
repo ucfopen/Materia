@@ -55,9 +55,6 @@ header[role=banner] {
 	padding: 15px;
 
 	background: url(../img/header_border.png) 0 100% repeat-x $white;
-	.logged_in {
-		background: $white url(../img/header_border_alt.png) 0 100% repeat-x;
-	}
 	.avatar img {
 		display: block;
 		float: left;
@@ -235,14 +232,14 @@ h3 {
 	width: 500px;
 	margin: 0 0 0 10px;
 }
-.cat_list {
+.cat-list {
 	width: 962px;
 	margin: 0 auto;
 	padding: 20px;
 
 	font-family: "Lato", arial, serif;
 }
-.cat_list h2 {
+.cat-list h2 {
 	display: inline-block;
 
 	margin-bottom: 30px;
@@ -315,7 +312,7 @@ h3 {
 	}
 	&.orange {
 		@include button-variant(rgba($black, 0.6), #ffba5d);
-		.arrow_right {
+		.arrow-right {
 			display: inline-block;
 
 			background: url(../img/arrow.png) no-repeat bottom;
@@ -356,7 +353,7 @@ h3 {
 	}
 }
 
-.cancel_button {
+.cancel-button {
 	margin: 10px 15px;
 
 	text-decoration: underline;
@@ -458,41 +455,6 @@ section.get-started h1 {
 	background-color: #e0e0e0;
 }
 
-.index_catalog_button {
-	float: right;
-
-	margin-top: 15px;
-}
-
-.cat_list_ul {
-	margin: 0 auto;
-	padding: 0;
-}
-.cat_list_ul li {
-	display: inline-block;
-
-	margin-right: 47px;
-
-	list-style: none;
-
-	text-align: center;
-}
-.cat_list_ul li:first-child {
-	margin-left: 4px;
-}
-
-.cat_list_ul li:last-child {
-	margin-right: 0 !important;
-}
-.cat_list_ul li a {
-	font-family: "Lato", arial, serif;
-	font-weight: bold;
-
-	text-decoration: none;
-
-	color: $black;
-}
-
 dl.inline-def {
 	overflow-x: visible;
 	overflow-y: auto;
@@ -530,7 +492,7 @@ dl.blurb dt {
 	display: none;
 }
 
-.widget a.feature, .widget a.supported_data {
+.widget a.feature, .widget a.supported-data {
 	margin-right: 5px;
 	padding: 2px 6px;
 
@@ -629,7 +591,7 @@ dl.blurb dt {
 .notice:hover {
 	background: #f4f4f4;
 }
-.notice .notice_right_side {
+.notice .notice-right-side {
 	display: inline-block;
 }
 .notice a.noticeClose {
@@ -685,7 +647,7 @@ dl.blurb dt {
 .notice p.subject b {
 	font-weight: bold;
 }
-#notifications_link {
+#notifications-link {
 	position: absolute;
 	right: 86px;
 	bottom: 16px;
@@ -700,7 +662,7 @@ dl.blurb dt {
 	background: url(../img/materia-mail-icon.png) 0 0 no-repeat;
 	box-shadow: 0 2px 2px rgba(0,0,0,0.35);
 }
-#notifications_link.selected {
+#notifications-link.selected {
 	position: absolute;
 	z-index: 110;
 	right: 80px;
@@ -716,7 +678,7 @@ dl.blurb dt {
 	background-position: center;
 	box-shadow: 0 -1px 2px 0 rgba(0,0,0,0.35);
 }
-#notifications_link:after {
+#notifications-link:after {
 	content: attr(data-notifications);
 
 	position: absolute;
@@ -771,10 +733,6 @@ dl.blurb dt {
 	background: $white;
 }
 
-.loading_popup, .register_popup {
-	font-weight: bold;
-}
-
 #popup.alert {
 	width: 350px;
 	padding: 0;
@@ -818,11 +776,6 @@ dl.blurb dt {
 	font-size: 16px;
 }
 
-#loading_image {
-	display: inline-block;
-
-	margin-top: -4px;
-}
 #loading {
 	display: inline-block;
 
@@ -875,17 +828,17 @@ dl.blurb dt {
 	font-size: 26px;
 }
 
-.get_flash {
+.get-flash {
 	margin-top: 25px;
 }
 
-.get_flash span {
+.get-flash span {
 	display: block;
 
 	font-size: 11px;
 }
 
-.container.general .permission_error {
+.container.general .permission-error {
 	padding-bottom: 55px;
 
 	background: url("../img/kogneato_looking.png") 35px bottom no-repeat,
@@ -893,7 +846,7 @@ dl.blurb dt {
 	background-color: $white;
 }
 
-.container.general .permission_error h1 {
+.container.general .permission-error h1 {
 	padding: 0 0 10px 0;
 
 	font-family: "Lato", arial, serif;
@@ -917,7 +870,7 @@ dl.blurb dt {
 	background: #ededed;
 }
 
-.error-nowidget p.errorWindowPara {
+.error-nowidget p.error-window-text {
 	width: 80%;
 	margin: 75px auto !important;
 	padding: 0;
@@ -1005,27 +958,6 @@ dl.blurb dt {
 
 		float: right;
 	}
-}
-
-.bottom_header {
-	font-family: "Lato", arial, serif;
-	font-size: 30px;
-	font-weight: 500;
-	line-height: 30px;
-
-	text-align: center;
-
-	color: #474747;
-}
-.bottom_header hr {
-	display: inline-block;
-
-	width: 350px;
-	margin: 0 10px;
-
-	vertical-align: middle;
-
-	opacity: 0.25;
 }
 
 .front-bottom {
@@ -1118,7 +1050,7 @@ hr {
 	font-weight: 900;
 }
 
-#no_permission h1 {
+#no-permission h1 {
 	margin: 0 0 30px 0;
 	padding: 0 0 5px 0;
 	padding-bottom: 20px;
@@ -1129,10 +1061,10 @@ hr {
 
 	border-bottom: dotted black 1px;
 }
-#no_permission .error-support .contact dt {
+#no-permission .error-support .contact dt {
 	width: 65px;
 }
-#no_permission .error-support .online-support dt {
+#no-permission .error-support .online-support dt {
 	width: 170px;
 }
 #swfplaceholder {

@@ -10,8 +10,6 @@
 }
 
 .login {
-	font-family: "Lato";
-
 	label {
 		cursor: text;
 	}
@@ -43,6 +41,8 @@
 	}
 
 	.content {
+		font-family: 'Lato';
+
 		section.page {
 			min-height: 400px;
 
@@ -256,22 +256,6 @@
 	}
 
 	.widget-info li {
-		&.widget_tag {
-			display: inline-block;
-
-			margin-right: 3px;
-			padding: 2px 6px;
-
-			font-size: 12px;
-
-			vertical-align: top;
-			text-transform: uppercase;
-
-			color: #48483e;
-			border-radius: 3px;
-			background: #f2f0d0;
-		}
-
 		&.widget-availability {
 			display: inline-block;
 
@@ -283,7 +267,7 @@
 
 			font-size: 13px;
 
-			.available_date, .available_time {
+			.available-date, .available-time {
 				font-weight: 100;
 			}
 		}
@@ -303,17 +287,7 @@
 		}
 	}
 
-	.widget_type {
-		display: block;
-
-		font-size: 12px;
-
-		text-transform: uppercase;
-
-		color: #b2b2b2;
-	}
-
-	.server_date {
+	.server-date {
 		display: none;
 	}
 }

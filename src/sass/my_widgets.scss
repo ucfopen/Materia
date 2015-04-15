@@ -249,7 +249,7 @@
 
 			border-bottom: #999 dotted 1px;
 		}
-		#export_scores_button {
+		#export-scores-button {
 			position: absolute;
 			top: 13px;
 			right: 2px;
@@ -348,7 +348,7 @@
 			background: none;
 		}
 	}
-	div.delete_dialogue {
+	div.delete-dialogue {
 		position: relative;
 
 		margin-bottom: 5px;
@@ -443,13 +443,13 @@
 }
 .controls {
 	div {
-		&.delete_dialogue .gray:hover {
+		&.delete-dialogue .gray:hover {
 			text-decoration: none;
 
 			background: #a2c129;
 			background-image: linear-gradient(top, #b8b8b8, #e4e4e4);
 		}
-		&.additional_options {
+		&.additional-options {
 			margin-top: 20px;
 
 			border-top: #8e8e8e dotted 1px;
@@ -468,10 +468,6 @@
 
 		background: url(../img/pencil.png) no-repeat center bottom;
 	}
-}
-
-.aux_button {
-	padding: 7px 12px 8px 12px;
 }
 
 .my-widgets .content {
@@ -746,12 +742,6 @@
 					display: none;
 				}*/
 
-.table_wrapper {
-	overflow-x: scroll;
-
-	width: 638px;
-}
-
 .my-widgets .content {
 	.scores {
 		.display.data table {
@@ -953,7 +943,7 @@
 			}
 		}
 	}
-	.controls dl.attempts_parent {
+	.controls dl.attempts-parent {
 		width: 90%;
 		padding-top: 5px;
 
@@ -971,7 +961,7 @@
 	}
 }
 
-.attempts_parent {
+.attempts-parent {
 	&.disabled {
 		dt {
 			float: left;
@@ -1019,20 +1009,6 @@
 			}
 		}
 	}
-}
-
-.available_date, .available_time {
-	font-weight: bold;
-}
-
-.clickToEdit {
-	margin: 0;
-	padding: 0;
-
-	cursor: pointer;
-	text-align: left;
-
-	color: #1399e7;
 }
 
 #edit-availability-button {
@@ -1205,7 +1181,7 @@
 			display: inline-block;
 		}
 	}
-	.data_explination {
+	.data-explanation {
 		width: 450px;
 		margin-left: 125px;
 
@@ -1305,7 +1281,7 @@
 /* *************************************************************** */
 .ng-modal {
 	&.share {
-		.cancel_button {
+		.cancel-button {
 			position: absolute;
 			bottom: 35px;
 			left: 200px;
@@ -1316,26 +1292,11 @@
 			text-decoration: underline;
 
 			color: #555;
-			&.close_only {
-				left: 250px;
-			}
 		}
-		.action-button.save_button {
+		.action-button.save-button {
 			position: absolute;
 			bottom: 35px;
 			left: 285px;
-		}
-		.toggle_transfer {
-			position: absolute;
-			bottom: 20px;
-			left: 20px;
-
-			padding: 5px 10px;
-
-			font-size: 12px;
-		}
-		.cancel_button .share_button {
-			margin-top: 10px;
 		}
 	}
 	.green {
@@ -1432,7 +1393,7 @@
 				text-align: left;
 			}
 		}
-		.input_label {
+		.input-label {
 			position: absolute;
 			top: 80px;
 			left: 30px;
@@ -1441,12 +1402,8 @@
 
 			font-size: 16px;
 		}
-		#adding .input_label {
-			top: 20px;
-			left: 20px;
-		}
 		#access {
-			input.user_add, .placeholder {
+			input.user-add, .placeholder {
 				position: absolute;
 				z-index: 2;
 				top: 70px;
@@ -1461,97 +1418,7 @@
 				border: solid 1px #c9c9c9;
 			}
 		}
-		#adding {
-			#input_holder {
-				position: absolute;
-				z-index: 2;
-				top: 20px;
-				right: 0;
-				right: 20px;
-
-				width: 445px;
-				height: 30px;
-				padding-left: 10px;
-
-				font-size: 16px;
-
-				text-align: left;
-
-				border: solid 1px #c9c9c9;
-				background: $white;
-			}
-			#input_area {
-				display: inline-block;
-
-				min-width: 15px;
-				min-height: 30px;
-				padding-top: 5px;
-
-				font-family: "Lucida Grande", sans-serif;
-				font-size: 16px;
-
-				outline: none;
-				input.user_add {
-					display: inline-block;
-
-					width: 460px;
-					height: 30px;
-					margin: 0;
-					padding: 0;
-
-					border: none;
-					&::-webkit-input-placeholder, &:-moz-placeholder, &:-ms-input-placeholder {
-						color: #343434;
-					}
-				}
-			}
-			#expArea {
-				display: block;
-				#expSet {
-					display: none;
-
-					margin: 0;
-					padding: 0;
-				}
-			}
-		}
-		.expElement {
-			margin: 0 5px;
-			padding: 0;
-		}
-		.changeRoleExpiration {
-			display: none;
-		}
-		#adding #expArea {
-			.exp_disclaimer {
-				margin: 10px 0;
-				padding: 0;
-			}
-			#roleExpiration {
-				width: 100px;
-			}
-		}
-		.share_user_to_add {
-			display: inline-block;
-
-			height: 30px;
-			margin: 3px;
-			padding: 3px;
-
-			font-size: 14px;
-
-			border: 1px solid #aeaeae;
-			border-radius: 3px;
-			background-color: #fbfbfb;
-		}
 	}
-}
-
-.share_user_to_add_name {
-	margin: 0;
-	padding: 0;
-
-	vertical-align: middle;
 }
 
 .ng-modal.share {
@@ -1573,23 +1440,13 @@
 		border: #bfbfbf 1px solid;
 		background-color: $white;
 	}
-	.no_match_message {
+	.no-match-message {
 		width: 60%;
 		margin: 10px auto;
 
 		text-align: center;
 	}
-	.no_match_reason {
-		width: 60%;
-		margin: 10px auto;
-
-		font-size: 14px;
-
-		text-align: center;
-
-		color: #a0a0a0;
-	}
-	.search_match {
+	.search-match {
 		display: inline-block;
 
 		width: 200px;
@@ -1608,7 +1465,7 @@
 			background-color: #7fc9f3;
 		}
 	}
-	.access_list {
+	.access-list {
 		position: absolute;
 		top: 130px;
 		left: 30px;
@@ -1631,16 +1488,12 @@
 			background-color: #f2f2f2;
 		}
 	}
-	.access_heading {
-		margin: 5px 125px 0 0;
-		padding: 0;
-	}
-	.user_match_avatar {
+	.user-match-avatar {
 		float: left;
 
 		margin: 5px;
 	}
-	.user_match_name {
+	.user-match-name {
 		width: 140px;
 		height: 40px;
 
@@ -1659,7 +1512,7 @@
 
 		color: #575757;
 	}
-	.user_perm {
+	.user-perm {
 		position: relative;
 
 		display: block;
@@ -1700,7 +1553,7 @@
 	}
 }
 
-.user_perm_name, .user-perm .options, .user_perm_select, .user_match_avatar, .user_match_name {
+.user-perm .options, .user-match-avatar, .user-match-name {
 	display: inline-block;
 
 	vertical-align: middle;
@@ -1719,7 +1572,7 @@
 	     border-radius: 3px;
 }
 
-.user_match_avatar {
+.user-match-avatar {
 	display: inline-block;
 	float: left;
 
@@ -1732,56 +1585,11 @@
 }
 
 .ng-modal.share {
-	.user_perm_name {
-		width: 187px;
-		margin: 0;
-		padding: 0 0 0 18px;
-
-		font-size: 15px;
-		font-weight: bold;
-
-		text-align: left;
-		span {
-			display: block;
-
-			font-weight: normal;
-		}
-	}
-	.user_perm_select {
-		width: 150px;
-		height: 20px;
-		margin-right: 33px;
-
-		text-align: left;
-	}
-	#adding {
-		.options {
-			float: right;
-
-			width: 450px;
-			margin: 10px 25px 0 0;
-		}
-		.user_perm_select {
-			margin-left: 8px;
-		}
-	}
 	hr {
 		width: 100%;
 		margin: 10px 0;
 
 		border: 1px dotted;
-	}
-	.user_perm_check {
-		float: left;
-
-		margin-bottom: 10px;
-	}
-	.user_perm_message {
-		display: block;
-
-		width: 426px;
-
-		text-align: left;
 	}
 	#adding textarea {
 		resize: none;
@@ -1835,73 +1643,12 @@
 			color: #5f5f5f;
 		}
 	}
-	.user_perm {
-		.exp_change_view {
-			position: absolute;
-			top: 0;
-			top: -15px;
-			right: 0;
-
-			display: none;
-
-			width: 225px;
-			height: 64px;
-			padding-left: 16px;
-
-			font-size: 12px;
-
-			text-align: right;
-
-			border-radius: 1px;
-			background: #f2f2f2;
-			background: white;
-			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-			.access_expires {
-				padding-top: 6px;
-
-				font-family: "Lato";
-				font-size: 13px;
-				line-height: 0;
-
-				text-align: left;
-			}
-		}
+	.user-perm {
 		label {
 			margin-right: 10px;
 		}
 	}
-	.exp_change_view {
-		.exp_button {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-
-			font-family: Lato, arial, serif;
-		}
-		.gray_min {
-			color: #545454;
-			background: #aeaeae;
-			&:hover {
-				background: #919191;
-			}
-		}
-		.green_min {
-			color: $green;
-			background: #b2cd43;
-			&:hover {
-				background: #a2c129;
-			}
-		}
-		input[type="text"] {
-			position: absolute;
-			left: 145px;
-
-			display: none;
-
-			width: 75px;
-		}
-	}
-	.demote_dialogue {
+	.demote-dialogue {
 		position: absolute;
 		z-index: 10000;
 
@@ -1951,7 +1698,7 @@
 
 			color: white;
 		}
-		.no_button {
+		.no-button {
 			font-family: Lato, arial, serif;
 			font-size: 12pt;
 
@@ -1967,36 +1714,7 @@
 	}
 }
 
-.toggle_transfer {
-	cursor: pointer;
-	text-decoration: underline;
-
-	color: #969696;
-}
-
-.transfer_button {
-	display: inline-block;
-
-	margin-right: 20px;
-	padding: 5px 10px;
-
-	font-family: Lato, arial, serif;
-	font-size: 12px;
-	font-weight: 700;
-
-	cursor: pointer;
-	vertical-align: middle;
-
-	color: $brown;
-	border: #fdb34f 1px solid;
-	border-radius: 6px;
-	background: #ffba5d;
-	background-image: linear-gradient(top, #ffce8c, #ffa42a);
-	box-shadow: 1px 2px 4px $medium-gray;
-	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-}
-
-.is_draft ul li.score {
+.is-draft ul li.score {
 	width: 45px;
 	height: 15px;
 
@@ -2031,21 +1749,6 @@
 
 .ng-modal.copy {
 	text-align: center;
-	.adding_shadow {
-		position: absolute;
-		z-index: 1;
-		top: -65px;
-		left: -20px;
-
-		width: 640px;
-		height: 480px;
-
-		opacity: 0;
-		border-radius: 3px;
-		background-color: $black;
-
-		filter: alpha(opacity = 0);
-	}
 	.container {
 		position: absolute;
 		top: 60px;
@@ -2073,7 +1776,7 @@
 
 		background: url("../img/close.png") no-repeat;
 	}
-	.input_label {
+	.input-label {
 		margin: 0 25px 0 0;
 
 		font-size: 16px;
@@ -2088,10 +1791,10 @@
 
 		border: solid 1px $light-gray;
 	}
-	.copy_button {
+	.copy-button {
 		margin-top: 20px;
 	}
-	.copy_error {
+	.copy-error {
 		display: none;
 
 		margin-top: 5px;
@@ -2219,22 +1922,7 @@
 
 	border: #f0f0f0 3px solid;
 	border-radius: 3px;
-	.adding_shadow {
-		position: absolute;
-		z-index: 1;
-		top: -65px;
-		left: -20px;
 
-		width: 640px;
-		height: 480px;
-
-		opacity: 0;
-		-moz-border-radius: 3px;
-		     border-radius: 3px;
-		background-color: $black;
-
-		filter: alpha(opacity = 0);
-	}
 	.container {
 		position: absolute;
 		top: 40px;
@@ -2298,12 +1986,12 @@
  * CSV POPUP PAGE
  * * * * * * * * * * * * * * * * * */
 
-.ng-modal.csv_popup .ng-modal-dialog {
+.ng-modal.csv-popup .ng-modal-dialog {
 	border: none;
 	border-radius: 0!important;
 }
 
-.ng-modal.csv_popup table {
+.ng-modal.csv-popup table {
 	position: relative;
 	z-index: 0;
 
@@ -2311,7 +1999,7 @@
 
 	border-collapse: collapse;
 }
-.ng-modal.csv_popup div.score_table {
+.ng-modal.csv-popup div.score-table {
 	position: relative;
 
 	display: inline-block;
@@ -2321,7 +2009,7 @@
 	background: #fffdf9;
 	box-shadow: -1px 3px 6px #ddd;
 }
-.ng-modal.csv_popup #sample-notification {
+.ng-modal.csv-popup #sample-notification {
 	position: absolute;
 	z-index: 2;
 	top: 104px;
@@ -2339,10 +2027,10 @@
 
 	color: #999;
 }
-.ng-modal.csv_popup div.download_wrapper {
+.ng-modal.csv-popup div.download-wrapper {
 	display: inline-block;
 }
-.ng-modal.csv_popup div.download_options {
+.ng-modal.csv-popup div.download-options {
 	position: absolute;
 	top: 0;
 
@@ -2358,7 +2046,7 @@
 
 	background: #eee;
 }
-.ng-modal.csv_popup div.download_options h4 {
+.ng-modal.csv-popup div.download-options h4 {
 	margin: 0;
 	padding: 22px 0 0 0;
 
@@ -2368,19 +2056,19 @@
 
 	color: #555;
 }
-.ng-modal.csv_popup div.download_options ul, .ng-modal.csv_popup div.download_options ul li {
+.ng-modal.csv-popup div.download-options ul, .ng-modal.csv-popup div.download-options ul li {
 	margin: 0;
 	padding: 0;
 
 	list-style: none;
 }
-.ng-modal.csv_popup div.download_options ul li span.grey {
+.ng-modal.csv-popup div.download-options ul li span.grey {
 	color: #898989;
 }
-.ng-modal.csv_popup div.download_options ul li {
+.ng-modal.csv-popup div.download-options ul li {
 	padding-bottom: 10px;
 }
-.ng-modal.csv_popup div.download_options ul li.checkallLi {
+.ng-modal.csv-popup div.download-options ul li.checkallLi {
 	margin-bottom: 10px;
 	padding-bottom: 5px;
 
@@ -2391,20 +2079,20 @@
 	color: #898989;
 	border-bottom: 1px #d6d6d6 solid;
 }
-.ng-modal.csv_popup div.download_options p.export_which {
+.ng-modal.csv-popup div.download-options p.export-which {
 	margin-top: 22px;
 
 	font-family: "Lato";
 	font-size: 16px;
 	font-weight: bold;
 }
-.ng-modal.csv_popup div.download_options ul li input {
+.ng-modal.csv-popup div.download-options ul li input {
 	display: inline-block;
 
 	margin-right: 15px;
 }
 
-.ng-modal.csv_popup table tr td, .ng-modal.csv_popup table tr th {
+.ng-modal.csv-popup table tr td, .ng-modal.csv-popup table tr th {
 	padding: 5px;
 
 	font-family: "Courier New", monospace;
@@ -2415,21 +2103,21 @@
 	border: #e5e4e2 solid 1px;
 	border-bottom: none;
 }
-.ng-modal.csv_popup ul.options {
+.ng-modal.csv-popup ul.options {
 	position: absolute;
 	top: 15px;
 	right: 0;
 }
-.ng-modal.csv_popup ul.options li {
+.ng-modal.csv-popup ul.options li {
 	list-style: none;
 }
-.ng-modal.csv_popup div.score_table img {
+.ng-modal.csv-popup div.score-table img {
 	position: absolute;
 	z-index: 100;
 	top: -1px;
 	right: -2px;
 }
-.ng-modal.csv_popup div.score_table div.download-controls {
+.ng-modal.csv-popup div.score-table div.download-controls {
 	position: relative;
 	z-index: 1;
 
@@ -2441,16 +2129,16 @@
 
 	background-image: linear-gradient(bottom, rgb(255,251,242) 90%, rgba(255,251,242,0.5) 100%);
 }
-.ng-modal.csv_popup div.score_table p.download a {
+.ng-modal.csv-popup div.score-table p.download a {
 	margin-top: 8px;
 	margin-bottom: 0;
 }
-.ng-modal.csv_popup h4 {
+.ng-modal.csv-popup h4 {
 	font-family: "Lato";
 
 	text-align: center;
 }
-.ng-modal.csv_popup h3 {
+.ng-modal.csv-popup h3 {
 	margin: 0;
 	margin-bottom: 20px;
 	padding: 23px 0 20px 0;
@@ -2460,14 +2148,14 @@
 	color: #555;
 	border-bottom: #999 dotted 1px;
 }
-.ng-modal.csv_popup div.score_table p.download a.disabled, .my-widgets .content .scores #export_scores_button.disabled {
+.ng-modal.csv-popup div.score-table p.download a.disabled, .my-widgets .content .scores #export-scores-button.disabled {
 	opacity: 0.5;
 	color: #545454;
 	border-color: #747474;
 	background: #aeaeae;
 	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
 }
-.ng-modal.csv_popup ul.options li a {
+.ng-modal.csv-popup ul.options li a {
 	display: inline-block;
 
 	width: 85px;
@@ -2481,14 +2169,14 @@
 
 	background: #eee;
 }
-.ng-modal.csv_popup p.download a.disabled:hover {
+.ng-modal.csv-popup p.download a.disabled:hover {
 	cursor: default;
 	text-decoration: none;
 
 	background: #ffba5d;
 	background-image: linear-gradient(top, #ffce8c, #ffa42a);
 }
-.ng-modal.csv_popup div.score_table p.download a span.arrow_down, .my-widgets .content .scores a span.arrow_down {
+.ng-modal.csv-popup div.score-table p.download a span.arrow-down, .my-widgets .content .scores a span.arrow-down {
 	display: inline-block;
 
 	width: 21px;
@@ -2501,24 +2189,24 @@
 
 	background: url(../img/arrow_down.png) no-repeat center bottom;
 }
-.arrow_down_button {
+.arrow-down-button {
 	padding: 7px 12px 8px 12px;
 }
-.ng-modal.csv_popup p.cancel {
+.ng-modal.csv-popup p.cancel {
 	text-align: center;
 }
-.ng-modal.csv_popup p.cancel a {
+.ng-modal.csv-popup p.cancel a {
 	font-size: 0.9em;
 
 	text-decoration: underline;
 
 	color: #bbb;
 }
-.ng-modal.csv_popup select {
+.ng-modal.csv-popup select {
 	margin-top: 20px;
 	margin-bottom: -20px;
 }
-.ng-modal.csv_popup table tr td {
+.ng-modal.csv-popup table tr td {
 	width: 30%;
 }
 
@@ -2544,15 +2232,6 @@
 	text-align: center;
 
 	border-bottom: none;
-}
-
-#twitchStop, #wobbleStop {
-	position: absolute;
-	top: 5px;
-	left: 300px;
-
-	font-size: 1.5em;
-	font-weight: bold;
 }
 
 .ui-datepicker {
@@ -2589,7 +2268,7 @@ div.link {
 	border-bottom: 1px #1778af solid;
 }
 
-.storage_table {
+.storage-table {
 	margin-top: 5px;
 }
 
@@ -2601,11 +2280,11 @@ div.link {
 	margin-left: 5px;
 }
 
-.storage_table td, .storage_table th {
+.storage-table td, .storage-table th {
 	padding: 6px;
 }
 
-.storage_table tr {
+.storage-table tr {
 	text-align: left;
 }
 

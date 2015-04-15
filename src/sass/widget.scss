@@ -170,7 +170,7 @@
 /* Spotlight */
 
 .spotlight {
-	.main_container {
+	.main-container {
 		@include respond-to(tablet-portrait) {
 			height: 440px;
 
@@ -308,7 +308,7 @@
 			text-align: right;
 		}
 
-		section.crossword a.more, section.materia_new a.more {
+		section.crossword a.more {
 			right: 40px;
 		}
 	}

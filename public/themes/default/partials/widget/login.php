@@ -1,6 +1,6 @@
 <div class="content-container login <?= $classes ?>" ng-controller="loginCtrl">
 	<section class="content">
-		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
+		<?= isset($date) ? "<span class=\"server-date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
 		<div class="detail widget-mode">

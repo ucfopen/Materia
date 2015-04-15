@@ -80,8 +80,8 @@
 		</section>
 	</div>
 
-	<div class="score_restrict container general" ng-show="restricted">
-		<section class="page score_restrict">
+	<div class="score-restrict container general" ng-show="restricted">
+		<section class="page score-restrict">
 			<h2 class="logo">You don't have any scores for this widget.</h2>
 
 			<p>You may need to:</p>

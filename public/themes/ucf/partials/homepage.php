@@ -1,7 +1,7 @@
 <main id="home-page" role="main">
 	<div class="content-container">
 		<section class="content spotlight" ng-controller="spotlightCtrl">
-			<section class="main_container">
+			<section class="main-container">
 			</section>
 			<div class="cycler">
 			</div>

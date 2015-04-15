@@ -30,7 +30,7 @@
 				<h4>Want to see it in action?</h4>
 				<p>
 				<a id="demoLink" class="action-button green" href='{{ widget.demourl }}' target="_blank">
-					<span class="arrow arrow_right"></span>
+					<span class="arrow arrow-right"></span>
 					Play a demo now!
 				</a>
 				</p>
@@ -49,7 +49,7 @@
 				<dt ng-show='widget.supported_data.length'>Supported Data:</dt>
 				<dd>
 					<span ng-repeat='data in widget.supported_data'>
-					<a class="supported_data" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</a>
+					<a class="supported-data" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</a>
 					<div class="tooltip" style="display: {{ data.show ? 'inline-block' : 'none' }}">{{ data.description }}</div>
 					</span>
 				</dd>

@@ -265,11 +265,6 @@ body.scores {
 
 		padding-bottom: 2em;
 	}
-	.special_details {
-		position: relative;
-
-		padding-bottom: 40px;
-	}
 	article header nav.play-again {
 		position: absolute;
 		top: 0;
@@ -445,7 +440,7 @@ body.scores {
 	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
 }
 
-#popup.score_restrict {
+#popup.score-restrict {
 	width: 300px;
 	height: 100px;
 
@@ -478,14 +473,14 @@ body.scores {
 }
 
 body.scores {
-	.expired.container, .score_restrict.container {
+	.expired.container, .score-restrict.container {
 		opacity: 1;
 		border: none;
 		outline: none;
 		background: $white;
 		box-shadow: none;
 	}
-	.expired.container section, .score_restrict.container section {
+	.expired.container section, .score-restrict.container section {
 		border: none;
 		outline: none;
 		box-shadow: none;
