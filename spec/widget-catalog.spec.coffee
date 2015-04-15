@@ -82,9 +82,10 @@ describe 'Widget Catalog Page', ->
                 for i in [1...result.value]
                     client
                         .waitFor('.widget', 4000)
-                        .moveToObject ".widget:nth-child(#{i}) .infocard", 10, 10
+                        .moveToObject ".widget:nth-child(#{i}) .infocard", 100, 100
                         .getText ".widget:nth-child(#{i}) .widget-min .widget-info h1", (err, title) ->
                             currentTitle = title
+                            console.log currentTitle
                             expect(currentTitle).toBeTruthy()
                         .waitFor('.infocard:hover .widget-info h1', 4000)
                         .getCssProperty '.infocard:hover', 'opacity', (err, opacity) ->
