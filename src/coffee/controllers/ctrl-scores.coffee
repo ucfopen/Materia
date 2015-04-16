@@ -191,7 +191,8 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 				if isPreview
 					window.location.hash = '#attempt-'+1
 				else if matchedAttempt != false
-					# chainging the hash will call getScoreDetails()
+					# changing the hash will call getScoreDetails()
+					window.location.hash = '#attempt-'+matchedAttempt
 					getScoreDetails()
 				else if getAttemptNumberFromHash() == undefined
 					window.location.hash = '#attempt-'+$scope.attempts.length
