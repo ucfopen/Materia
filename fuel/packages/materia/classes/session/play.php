@@ -51,12 +51,9 @@ class Session_Play
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
 			$this->created_at = time();
-			if ($inst_id)
-			{
-				$instances = Api::widget_instances_get([$inst_id], false);
-				$inst = $instances[0];
-				$guest_access = $inst->guest_access;
-			}
+			$instances = Api::widget_instances_get([$inst_id], false);
+			$inst = $instances[0];
+			$guest_access = $inst->guest_access;
 			$this->user_id    = $guest_access ? 0 : $user_id;
 			$this->inst_id    = $inst_id;
 			$this->is_preview = $is_preview;
