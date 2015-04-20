@@ -243,7 +243,8 @@
 								</dd>
 								<dt>Access:</dt>
 								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
-									<span>Guests <b ng-if="!selected.widget.guest_access">not </b>allowed</span>
+									<span ng-if="!selected.widget.guest_access">Login Required</span>
+									<span ng-if="selected.widget.guest_access">Guests only</span>
 								</dd>
 							</dl>
 							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
