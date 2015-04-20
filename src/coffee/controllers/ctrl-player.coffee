@@ -90,8 +90,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
-			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
-				if data != true and ( instance.guest_access is false or user.loggedIn is true )
+			Materia.Coms.Json.send 'session_valid', [null, false], (result) ->
+				if result != true and instance.guest_access is false
 					alert 'Your play session has expired due to inactivity and you\'ll need to start over.'
 					window.onbeforeunload = null
 					window.location.reload()
