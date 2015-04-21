@@ -426,6 +426,16 @@ class Widget_Instance
 		return $this->guest_access || Api::session_valid();
 	}
 
+	/**
+	 * Checks if widget instance allows guest players.
+	 *
+	 * @return bool Whether or not the widget instance allows guest players.
+	 */
+	public function allows_guest_players()
+	{
+		return $this->guest_access;
+	}
+
 	public function export()
 	{}
 

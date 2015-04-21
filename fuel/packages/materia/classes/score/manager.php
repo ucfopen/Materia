@@ -81,8 +81,12 @@ class Score_Manager
 		{
 			$play = new Session_Play();
 			$play->get_by_id($play_id);
+			$inst_id = $play->inst_id;
+			$instances = Api::widget_instances_get([$inst_id], false);
+			if (! count($instances)) throw new HttpNotFoundException;
+			$inst = $instances[0];
 
-			if ($play->user_id != $curr_user_id)
+			if ($play->user_id != $curr_user_id && ! $inst->allows_guest_players())
 			{
 				if ( ! Perm_Manager::check_user_perm_to_object($curr_user_id, $play->inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]))
 					return new \RocketDuck\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');
