@@ -228,7 +228,7 @@ class Session_Play
 				'username'
 			)
 			->from(['log_play', 's'])
-			->join(['users', 'u'])
+			->join(['users', 'u'], 'LEFT OUTER')
 				->on('u.id', '=', 's.user_id')
 			->where('s.inst_id', $inst_id);
 
