@@ -134,12 +134,16 @@ class Controller_Scores extends Controller
 			{
 				$uname = $play['username'];
 
-				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
+				// Only report actual user scores, no guests
+				if ($uname)
+				{
+					if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
 
-				$results[$uname]['semester']   = $semester;
-				$results[$uname]['last_name']  = $play['last'];
-				$results[$uname]['first_name'] = $play['first'];
-				$results[$uname]['score']      = max($results[$uname]['score'], $play['perc']);
+					$results[$uname]['semester']   = $semester;
+					$results[$uname]['last_name']  = $play['last'];
+					$results[$uname]['first_name'] = $play['first'];
+					$results[$uname]['score']      = max($results[$uname]['score'], $play['perc']);
+				}
 			}
 		}
 
@@ -192,7 +196,8 @@ class Controller_Scores extends Controller
 
 			foreach ($logs as $play)
 			{
-				$uname = $play['username'];
+				// If there is no username, it is a guest user
+				$uname = $play['username'] ? $play['username'] : "(Guest)";
 
 				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
 
