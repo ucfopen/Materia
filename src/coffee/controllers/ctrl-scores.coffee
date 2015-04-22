@@ -8,6 +8,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	# current attempt is the index of the attempt (the 1st attempt is attempts.length)
 	currentAttempt = null
 	widgetInstance = null
+	$scope.guestAccess = false
 
 	single_id = null
 	isEmbedded = false
@@ -56,6 +57,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		widgetSrv.getWidget(inst_id)
 			.then( (widgetInstances) ->
 				widgetInstance = widgetInstances[0]
+				$scope.guestAccess = widgetInstance.guest_access
 				getInstanceScores(inst_id)
 			).then( ->
 				displayAttempts(play_id)
