@@ -113,7 +113,10 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			if isEmbedded
 				prefix = '/scores/'
 				token = if __LTI_TOKEN? then '?ltitoken=' + __LTI_TOKEN else ''
-				$scope.moreInfoLink = prefix + widgetInstance.id + token + '#attempt-' + currentAttempt
+				if ! $scope.guestAccess
+					$scope.moreInfoLink = prefix + widgetInstance.id + token + '#attempt-' + currentAttempt
+				else
+					$scope.moreInfoLink = prefix + widgetInstance.id + token + '#play-' + play_id
 
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]?
