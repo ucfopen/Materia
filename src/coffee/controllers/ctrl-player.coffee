@@ -37,8 +37,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	checkForContext = String(window.location).split '/'
 	# Controls whether the view has a "preview" header bar
 	$scope.isPreview = false
-	# Current user. Used to figure out if user is logged in or guest
-	user = userServ.getCurrentUser()
 
 	for word in checkForContext
 		if word == 'preview'
