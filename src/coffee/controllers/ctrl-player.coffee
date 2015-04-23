@@ -368,7 +368,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			if $scope.isPreview
 				scoreScreenURL = "#{BASE_URL}scores/preview/#{$scope.inst_id}"
 			else if isEmbedded
-				scoreScreenURL = "#{BASE_URL}scores/embed/#{$scope.inst_id}"
+				scoreScreenURL = "#{BASE_URL}scores/embed/#{$scope.inst_id}#play-#{play_id}"
 			else
 				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}#play-#{play_id}"
 
