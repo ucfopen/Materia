@@ -235,7 +235,7 @@ class Api_V1
 	static public function session_play_create($inst_id, $preview_mode=false)
 	{
 		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		if ( ! count($instances)) throw new \HttpNotFoundException;
 
 		$inst = $instances[0];
 		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
@@ -403,7 +403,7 @@ class Api_V1
 	static public function widget_instance_scores_get($inst_id)
 	{
 		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		if ( ! count($instances)) throw new \HttpNotFoundException;
 
 		$inst = $instances[0];
 		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
@@ -446,7 +446,7 @@ class Api_V1
 	static public function guest_widget_instance_scores_get($inst_id, $play_id)
 	{
 		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		if ( ! count($instances)) throw new \HttpNotFoundException;
 
 		$inst = $instances[0];
 		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
@@ -545,7 +545,7 @@ class Api_V1
 	static public function question_set_get($inst_id, $play_id = null)
 	{
 		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		if ( ! count($instances)) throw new \HttpNotFoundException;
 
 		$inst = $instances[0];
 		$can_play = $inst->playable_by_current_user();
@@ -983,7 +983,7 @@ class Api_V1
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
 		$instances = static::widget_instances_get([$inst_id], false);
-		if (! count($instances)) throw new HttpNotFoundException;
+		if (! count($instances)) throw new \HttpNotFoundException;
 		$inst = $instances[0];
 		return $inst;
 	}
