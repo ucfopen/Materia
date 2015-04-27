@@ -193,6 +193,7 @@ class Admin extends \Basetask
 				if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') continue;
 			}
 
+			\DB::query("SET foreign_key_checks = 0")->execute();
 			$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute($db_name);
 			if ($tables->count() > 0)
 			{
@@ -204,6 +205,7 @@ class Admin extends \Basetask
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}
+			\DB::query("SET foreign_key_checks = 1")->execute();
 			\Cli::write("$db_name tables dropped", 'green');
 		}
 
