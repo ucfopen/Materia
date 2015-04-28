@@ -105,12 +105,12 @@
 									</li>
 								</ul>
 							</li>
+							<li id="guest-access"><h3>Access</h3>
+								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
+								<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
+								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
+							</li>
 						</ul>
-						<li id="guest-access"><h3>Access</h3>
-							<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
-							<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
-							<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
-						</li>
 					</ul>
 					<ul class="inline">
 						<li><a href class="cancel_button" ng-click="hideModal()">Cancel</a></li>
