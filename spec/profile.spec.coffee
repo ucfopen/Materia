@@ -24,4 +24,12 @@ describe 'When not logged in', ->
             .getText '.page h2', (err, text) -> expect(text).toContain(setup.author.name)
             .isVisible('.avatar_big')
             .call(done)
+
+    it 'should allow me to view the score screen of a previous attempt', (done) ->
+        client
+            .waitForPageVisible 'a.score-link', 5000
+            .click 'a.score-link'
+            .pause 2500
+            .waitForPageVisible '.overview #overview-score', 8000
+            .call(done)
             .end(done)
