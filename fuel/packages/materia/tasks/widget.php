@@ -50,7 +50,7 @@ class Widget extends \Basetask
 		// Login as someone:
 		\Cli::write('You need to login to do this.  Who do you want to login as?');
 		$user = self::search_for_user();
-		\Auth::instance('SimpleAuth')->force_login($user->id);
+		\Auth::instance('MateriaAuth')->force_login($user->id);
 
 		$inst_id = \Cli::prompt('Widget ID');
 		$inst = self::get_widget_instance($inst_id);
@@ -221,7 +221,7 @@ class Widget extends \Basetask
 			$as_user = $user->id;
 		}
 
-		\Auth::instance('SimpleAuth')->force_login($as_user);
+		\Auth::instance('MateriaAuth')->force_login($as_user);
 
 		// Get the widget details:
 		if ($interactive)
@@ -790,7 +790,7 @@ class Widget extends \Basetask
 
 		if ($admin_ids->count() > 0)
 		{
-			\Auth::instance('SimpleAuth')->force_login($admin_ids[0]['id']);
+			\Auth::instance('MateriaAuth')->force_login($admin_ids[0]['id']);
 		}
 		else
 		{
