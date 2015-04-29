@@ -71,6 +71,15 @@ describe 'Guest Access Feature', ->
             .waitFor('#overview-score h1', 7000)
             .getText '#overview-score h1', (err, text) ->
                 expect(text).toContain('THIS ATTEMPT SCORE:')
+            .call(done)
+    , 55000
+
+    it 'should not let a guest preview a guest widget', (done) ->
+        client.url("#{setup.url}/preview/#{instanceID}")
+            .waitFor('section.page')
+            .waitFor('.detail .logo')
+            .getText '.detail .logo', (err, text) ->
+                expect(text).toContain('Login to preview this widget')
             .end(done)
     , 55000
 
@@ -96,12 +105,37 @@ describe 'Guest Access Feature', ->
             .waitFor('#overview-score h1', 7000)
             .getText '#overview-score h1', (err, text) ->
                 expect(text).toContain('THIS ATTEMPT SCORE:')
+            .call(done)
+    , 55000
+
+    it 'should not let a student preview a guest widget', (done) ->
+        client.url("#{setup.url}/preview/#{instanceID}")
+            .waitFor('section.no_permission')
+            .waitFor('.no_permission h1')
+            .getText '.no_permission h1', (err, text) ->
+                expect(text).toContain('You don\'t have permission to view this page.')
             .end(done)
     , 55000
 
-    it 'should not let a guest play a non-guest widget', (done) ->
+    it 'should show guests in the student activity individual scores table', (done) ->
         client = setup.getClient()
         setup.loginAt client, setup.author, "#{setup.url}/users/login"
+        client
+            .waitFor('aside .courses .widget', 7000)
+            .click('aside .courses .widget')
+            .waitFor('.scores .choices .table', 7000)
+            .click('.scores .choices .table')
+            .waitFor('.scores table .listName', 7000)
+            .getText '.scores table .listName', (err, text) ->
+                expect(text).toContain('Guests')
+            .getText '.scores .numeric .players', (err, text) ->
+                expect(text).toContain('1')
+            .getText '.scores .numeric .score-count', (err, text) ->
+                expect(text).toContain('2')
+            .call(done)
+    , 55000
+
+    it 'should not let a guest play a non-guest widget', (done) ->
         client
             .url("#{setup.url}/my-widgets#/"+instanceID)
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
@@ -151,6 +185,24 @@ describe 'Guest Access Feature', ->
             .waitFor('#overview-score h1', 7000)
             .getText '#overview-score h1', (err, text) ->
                 expect(text).toContain('ATTEMPT 1 SCORE:')
+            .end(done)
+    , 55000
+
+    it 'should show students in the scores when not on guest mode', (done) ->
+        client = setup.getClient()
+        setup.loginAt client, setup.author, "#{setup.url}/users/login"
+        client
+            .waitFor('aside .courses .widget', 7000)
+            .click('aside .courses .widget')
+            .waitFor('.scores .choices .table', 7000)
+            .click('.scores .choices .table')
+            .waitFor('.scores table .listName', 7000)
+            .getText '.scores table .listName', (err, text) ->
+                expect(text).toContain('Guests')
+            .getText '.scores .numeric .players', (err, text) ->
+                expect(text).toContain('2')
+            .getText '.scores .numeric .score-count', (err, text) ->
+                expect(text).toContain('3')
             .end(done)
     , 55000
 
