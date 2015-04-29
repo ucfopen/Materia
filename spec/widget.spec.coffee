@@ -156,7 +156,40 @@ describe 'When I create a widget', ->
             .pause 1800
             .isVisible '.error-nowidget'
             .call(done)
-            .end(done)
     , 25000
 
+    it 'it should show the export scores dialog title', (done) ->
+        client.url("#{setup.url}/widgets")
+            .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
+            .waitFor('.widget.enigma', 3000)
+            .moveToObject('.widget.enigma .infocard', 10, 10)
+            .waitFor('.infocard:hover .header h1', 4000)
+            .click('.infocard:hover .header')
+            .waitForPageVisible('#createLink', 7000)
+            .click('#createLink')
+        setup.testEnigma client, title, true
+        client
+            .execute "return document.location.hash.substring(1);", null, (err, result) ->
+                instanceID = result.value
+                # console.log "instanceid: #{instanceID}"
+                expect(instanceID).not.toBeNull()
+                expect(instanceID.length).toBe(5)
+                client
+                    .url("#{setup.url}/play/"+instanceID)
+                    .pause 3000
+                    .frame('container')
+                    .execute "Materia.Engine.end()", null, (err, result) ->
+                        expect(result).not.toBeNull()
+                    .frame null
+                    .pause 1000
+                    .url("#{setup.url}/my-widgets#/"+instanceID)
+                    .pause 3000
+                    .waitForPageVisible '#export_scores_button', 5000
+                    .click '#export_scores_button'
+                    .waitForPageVisible 'a.show_options', 5000
+                    .click 'a.show_options'
+                    .waitForPageVisible '.export_which', 5000
+                    .call(done)
+                    .end(done)
+    , 25000
 
