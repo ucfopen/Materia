@@ -1,10 +1,10 @@
 <div class="container general" id="no_flash">
-	<section class="page no_flash">
+	<section class="page no-flash">
 		<h1>Flash Player Required</h1>
 
 		<p id="notice">Materia requires that you have the latest Flash Player plug-in installed.</p>
 
-		<div class="get_flash" id="get_flash">
+		<div class="get-flash" id="get_flash">
 			<a href="http://www.adobe.com/go/getflashplayer">
 				<img src="/themes/default/assets/img/get_flashplayer.gif" alt="Download Flash Player" />
 				<span class="caption">Get Adobe Flash<sup>&reg;</sup> Player</span>

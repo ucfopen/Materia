@@ -6,6 +6,7 @@ sass          = require 'gulp-sass'
 concat        = require 'gulp-concat'
 uglify        = require 'gulp-uglify' # minify and mangle js
 minifyCss     = require 'gulp-minify-css'
+autoprefixer  = require 'gulp-autoprefixer'
 ngAnnotate    = require 'gulp-ng-annotate' # protect angular dependency injection from minify
 hashsum       = require 'gulp-hashsum-json'
 # livereload    = require 'gulp-livereload' # reload the browser when files change
@@ -156,7 +157,8 @@ gulp.task 'watch', ->
 
 gulp.task 'css', ->
 	gulp.src "#{path.css}*.scss"
-		.pipe sass()
+		.pipe sass().on 'error', errHandle
+		.pipe autoprefixer()
 		.pipe minifyCss()
 		.pipe gulp.dest(path.cssOut)
 

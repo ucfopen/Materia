@@ -11,7 +11,7 @@ describe 'Help Page', ->
         client
             .url("#{setup.url}/help")
             .getTitle (err, title) -> expect(title).toBe('Help | Materia')
-            .getText '.page h1', (err, title) ->  expect(title).toBe('Help & Support')
+            .getText '.content h1', (err, title) ->  expect(title).toBe('Help & Support')
             .call(done)
             .end(done)
 

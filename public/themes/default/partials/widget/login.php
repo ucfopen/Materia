@@ -1,10 +1,10 @@
-<div class="container <?= $classes ?>" ng-controller="loginCtrl">
-	<section class="page">
-		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
+<div class="content-container login <?= $classes ?>" ng-controller="loginCtrl">
+	<section class="content">
+		<?= isset($date) ? "<span class=\"server-date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>
 
-		<div class="detail">
-			<h2 class="logo">
+		<div class="detail widget-mode">
+			<h2>
 				<?= $title ?>
 			</h2>
 			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?></span>
@@ -30,10 +30,10 @@
 						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" />
 					</li>
 					<li class="submit_button">
-						<button type="submit" tabindex="3" class="action_button">Login</button>
+						<button type="submit" tabindex="3" class="action-button orange">Login</button>
 					</li>
 				</ul>
-				<ul class="help_links">
+				<ul class="help-links">
 					<? foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
 					<li><a href="/help">Help</a></li>
 				</ul>

@@ -67,8 +67,8 @@ module.exports =
 			client
 				.waitFor('#creatorSaveBtn.idle', 5000)
 				.click('#creatorPublishBtn')
-				.waitFor('.publish.animate-show .publish_container a.action_button.green', 1000)
-				.click('.publish.animate-show .publish_container a.action_button.green')
+				.waitFor('.publish.animate-show .publish_container a.action-button.green', 3000)
+				.click('.publish.animate-show .publish_container a.action-button.green')
 		return client
 	loginAt: (client, user, url) ->
 		client
@@ -77,7 +77,7 @@ module.exports =
 			.getTitle (err, title) -> expect(title).toBe('Login | Materia')
 			.setValue('#username', user.username)
 			.setValue('#password', user.password)
-			.click('form button.action_button')
+			.click('form button.action-button')
 			.pause(800)
 		return client
 

@@ -12,15 +12,15 @@
 		</nav>
 
 		<nav class="play-again">
-			<h1><a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ widget.href }}">{{ isPreview ? 'Preview' : 'Play' }} Again</a></h1>
+			<h1><a id="play-again" ng-hide="hidePlayAgain" class="action-button orange" href="{{ widget.href }}">{{ isPreview ? 'Preview' : 'Play' }} Again</a></h1>
 		</nav>
 
 	</header>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<div id="overview-score">
 			<h1>Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
-			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
-			<div id="class-rank-button" class="action_button gray" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
+			<span class="overall-score">{{ overview.score }}<span class="percent">%</span></span>
+			<div id="class-rank-button" class="action-button orange" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">
 			<table>
@@ -61,7 +61,7 @@
 				</div>
 				<div class="{{ row.data_style[$index] }}" ng-repeat="data in row.data track by $index">{{ data }}</div>
 			</li>
-			<li ng-if="row.feedback != null" class="feedback single_column" ng-repeat-end>
+			<li ng-if="row.feedback != null" class="feedback single-column" ng-repeat-end>
 				<p>{{ row.feedback }}</p>
 			</li>
 		</ul>
@@ -76,12 +76,12 @@
 	<div class="expired container general" ng-show="expired">
 		<section class="page score_expired">
 			<h2 class="logo">The preview score for this widget has expired.</h2>
-			<a class="action_button" href="{{ widget.href }}">Preview Again</a>
+			<a class="action-button orange" href="{{ widget.href }}">Preview Again</a>
 		</section>
 	</div>
 
-	<div class="score_restrict container general" ng-show="restricted">
-		<section class="page score_restrict">
+	<div class="score-restrict container general" ng-show="restricted">
+		<section class="page score-restrict">
 			<h2 class="logo">You don't have any scores for this widget.</h2>
 
 			<p>You may need to:</p>

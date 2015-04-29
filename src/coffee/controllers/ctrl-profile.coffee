@@ -39,7 +39,7 @@ app.controller 'profileCtrl', ($scope, userServ, $http, apiServ, dateTimeServ, $
 
 	$scope.getStatus = (activity) ->
 		return '' if activity.is_complete == '1'
-		return 'No Score Recorded'
+		return 'No Score'
 
 	$scope.getDate = (activity) ->
 		dateTimeServ.parseObjectToDateString(activity.created_at) +

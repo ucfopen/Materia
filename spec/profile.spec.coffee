@@ -16,12 +16,12 @@ describe 'When not logged in', ->
     it 'should display profile', (done) ->
         setup.loginAt client, setup.author, "#{setup.url}/profile"
         client
-            .waitForPageVisible '.container', 5000
+            .waitForPageVisible '.my-widgets', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
             .url("#{setup.url}/profile")
-            .waitForPageVisible '.user_type', 5000
+            .waitForPageVisible '.content', 5000
             .getTitle (err, title) -> expect(title).toBe('Profile | Materia')
-            .getText '.page h2', (err, text) -> expect(text).toContain(setup.author.name)
-            .isVisible('.avatar_big')
+            .getText '.profile-content h2', (err, text) -> expect(text).toContain(setup.author.name)
+            .isVisible('.avatar')
             .call(done)
             .end(done)

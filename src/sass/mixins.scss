@@ -1,0 +1,177 @@
+@import 'colors';
+
+// Vars
+$padding: 24px;
+
+// Helpful mixins
+@mixin clearfix {
+	&:after {
+		content: "";
+		display: table;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+}
+
+@mixin button-variant($color, $background) {
+	color: $color;
+	background-color: $background;
+	border-color: darken($background, 10%);
+
+	@if lightness($color) < 95% {
+		text-shadow: 0 1px 0 rgba($white, 0.3);
+	} @else {
+		text-shadow: 0 1px 2px rgba($black, 0.3);
+	}
+
+	@include vertical-gradient-top-bottom($background);
+
+	&:hover{
+		color: $color;
+		background-color: lighten($background, 10%);
+		border-color: lighten(darken($background, 30%), 10%);
+
+		@include vertical-gradient-top-bottom(lighten($background, 5%));
+	}
+
+	&:focus,
+	&.focus,
+	&:active,
+	&.active {
+		color: $color;
+		background-color: darken($background, 30%);
+
+		@include vertical-gradient-bottom-top(lighten($background, 5%));
+	}
+
+	&.disabled,
+	&[disabled] {
+		&,
+		&:hover,
+		&:focus,
+		&.focus,
+		&:active,
+		&.active {
+			background-color: $background;
+			border-color: darken($background, 10%);
+		}
+	}
+}
+
+@mixin vertical-gradient-bottom-top($color, $start-percent: 0%, $end-percent: 100%) {
+	background-image: linear-gradient(to bottom, darken($color, 10%) $start-percent, lighten($color, 10%) $end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
+	background-repeat: repeat-x;
+}
+
+@mixin vertical-gradient-top-bottom($color, $start-percent: 0%, $end-percent: 100%) {
+	background-image: linear-gradient(to bottom, lighten($color, 10%) $start-percent, darken($color, 10%) $end-percent); // Standard, IE10, Firefox 16+, Opera 12.10+, Safari 7+, Chrome 26+
+	background-repeat: repeat-x;
+}
+
+// Responsive stuff
+// Set responsive to true if not set:
+$responsive: true !default;
+
+$desktop-width: 980px;
+$large-desktop-width: 980px;
+$tablet-landscape-width: 768px;
+
+@mixin respond-to($medias...) {
+	@if $responsive {
+		$min-widths: ();
+		$max-widths: ();
+
+		@each $media in $medias {
+			@if $media == large-desktop {
+				$min-widths: append($min-widths, 1200px);
+				$max-widths: append($max-widths, 999999px);
+			} @else if $media == desktop {
+				$min-widths: append($min-widths, 980px);
+				$max-widths: append($max-widths, 1199px);
+			} @else if $media == tablet-landscape {
+				$min-widths: append($min-widths, 768px);
+				$max-widths: append($max-widths, 979px);
+			} @else if $media == tablet-portrait {
+				$min-widths: append($min-widths, 481px);
+				$max-widths: append($max-widths, 767px);
+			} @else if $media == phone {
+				$min-widths: append($min-widths, 0);
+				$max-widths: append($max-widths, 480px);
+			}
+		}
+
+		$len: length($min-widths);
+
+		@if $len == 1 {
+			@media only screen and (min-width: #{nth($min-widths, 1)}) and (max-width: #{nth($max-widths, 1)}) { @content }
+		} @else if $len == 2 {
+			$min1: nth($min-widths, 1);
+			$min2: nth($min-widths, 2);
+			$max1: nth($max-widths, 1);
+			$max2: nth($max-widths, 2);
+
+			@media only screen and (min-width: #{$min1}) and (max-width: #{$max1}), only screen and (min-width: #{$min2}) and (max-width: #{$max2}) { @content }
+		} @else if $len == 3 {
+			$min1: nth($min-widths, 1);
+			$min2: nth($min-widths, 2);
+			$min3: nth($min-widths, 3);
+			$max1: nth($max-widths, 1);
+			$max2: nth($max-widths, 2);
+			$max3: nth($max-widths, 3);
+
+			@media only screen and (min-width: #{$min1}) and (max-width: #{$max1}), only screen and (min-width: #{$min2}) and (max-width: #{$max2}), only screen and (min-width: #{$min3}) and (max-width: #{$max3}) { @content }
+		} @else if $len == 4 {
+			$min1: nth($min-widths, 1);
+			$min2: nth($min-widths, 2);
+			$min3: nth($min-widths, 3);
+			$min4: nth($min-widths, 4);
+			$max1: nth($max-widths, 1);
+			$max2: nth($max-widths, 2);
+			$max3: nth($max-widths, 3);
+			$max4: nth($max-widths, 4);
+
+			@media only screen and (min-width: #{$min1}) and (max-width: #{$max1}), only screen and (min-width: #{$min2}) and (max-width: #{$max2}), only screen and (min-width: #{$min3}) and (max-width: #{$max3}), only screen and (min-width: #{$min4}) and (max-width: #{$max4}) { @content }
+		} @else if $len == 5 {
+			$min1: nth($min-widths, 1);
+			$min2: nth($min-widths, 2);
+			$min3: nth($min-widths, 3);
+			$min4: nth($min-widths, 4);
+			$min5: nth($min-widths, 5);
+			$max1: nth($max-widths, 1);
+			$max2: nth($max-widths, 2);
+			$max3: nth($max-widths, 3);
+			$max4: nth($max-widths, 4);
+			$max5: nth($max-widths, 5);
+
+			@media only screen and (min-width: #{$min1}) and (max-width: #{$max1}), only screen and (min-width: #{$min2}) and (max-width: #{$max2}), only screen and (min-width: #{$min3}) and (max-width: #{$max3}), only screen and (min-width: #{$min4}) and (max-width: #{$max4}), only screen and (min-width: #{$min5}) and (max-width: #{$max5}) { @content }
+		}
+	}
+}
+
+// This mixin is for elements that should span the whole width of the primary
+// visual column. If $responsive is false then it simply sets the width of
+// the element to the standard desktop width.
+@mixin max-width() {
+	@if $responsive {
+		max-width: $desktop-width;
+
+		@include respond-to(large-desktop) {
+			max-width: $large-desktop-width;
+		}
+		@include respond-to(tablet-landscape) {
+			max-width: $tablet-landscape-width;
+		}
+		@include respond-to(tablet-portrait, phone) {
+			max-width: inherit;
+		}
+	} @else {
+		width: $desktop-width;
+	}
+}
+
+@mixin set-body-width() {
+	@if $responsive == false {
+		min-width: $desktop-width + $padding + $padding;
+	}
+}

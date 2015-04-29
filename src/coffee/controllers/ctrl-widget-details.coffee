@@ -5,6 +5,7 @@ app.controller 'widgetDetailsController', ($scope, widgetSrv) ->
 		icon: "/themes/default/assets/img/default/default-icon-275.png"
 	$scope.goback =
 		text: "Go back to the widget catalog"
+		textMobile: "Go back"
 		url: "/widgets"
 
 	tooltipDescriptions =
@@ -26,6 +27,7 @@ app.controller 'widgetDetailsController', ($scope, widgetSrv) ->
 			$scope.goback =
 				url: "/"
 				text: "Go back to the front page"
+				textMobile: "Go back"
 
 	# Populates the details page with content
 	# @object The current widget.

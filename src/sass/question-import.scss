@@ -1,133 +1,144 @@
+@import "colors";
+
 body, html {
-	font-family: 'Lato', arial, serif;
+	font-family: "Lato", arial, serif;
 }
 
-.dataTables_wrapper
-{
+.dataTables_wrapper {
 	position: relative;
+
 	clear: both;
-	margin: 0px auto;
-	background: #fff;
-	border: rgba(0,0,0,0.11) 1px solid;
-	-moz-box-shadow: 1px 3px 10px #888;
-	-webkit-box-shadow: 1px 3px 10px #888;
-	box-shadow: 1px 3px 10px #888;
+
+	margin: 0 auto;
+
+	border: rgba(0, 0, 0, 0.11) 1px solid;
+	background: $white;
+	box-shadow: 1px 3px 10px $medium-gray;
 }
 
 #import-form {
-	padding:10px 5px;
-	min-width:500px;
+	min-width: 500px;
+	padding: 10px 5px;
 }
 
-#question-table_filter{
-	background:#efefef;
-	padding:6px 10px;
-	float:none;
+#question-table_filter {
+	float: none;
 
+	padding: 6px 10px;
+
+	background: #efefef;
+	input[type="text"] {
+		width: 124px;
+		height: 19px;
+		padding-right: 10px;
+		padding-left: 23px;
+
+		border: solid 1px $light-gray;
+		border-radius: 12px;
+		outline: none;
+		background: $white url("../img/magnifyingglass.png") 5px 50% no-repeat;
+	}
 }
 
-#question-table_filter input[type="text"]
-{
-	width: 124px;
-	border: solid 1px #b0b0b0;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	height: 19px;
-	background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
-	padding-left: 23px;
-	padding-right: 10px;
-	outline: none;
-}
-h1{
-	position:absolute;
-	font-size: 18px;
-	font-weight: 550;
-	text-shadow: 0 1px #fbfbfb;
-	color: #a6a6a6;
+h1 {
+	position: absolute;
 	z-index: 1;
 	top: 17px;
 	left: 20px;
-	margin: 0px;
+
+	margin: 0;
+
+	font-size: 18px;
+	font-weight: 550;
+
+	color: #a6a6a6;
+	text-shadow: 0 1px #fbfbfb;
 }
 
-.dataTables_scroll
-{
-	margin: 0px 5px;
+.dataTables_scroll {
+	margin: 0 5px;
 }
 
 .gray {
-	background: #aeaeae;
-	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image: -moz-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image: -o-linear-gradient(top, #e4e4e4, #b8b8b8);
-	background-image: -ms-linear-gradient(top, #e4e4e4, #b8b8b8);
-	border-color: #747474;
 	color: #545454;
+	border-color: #747474;
+	background: #aeaeae;
+	background-image: linear-gradient(top, #e4e4e4, #b8b8b8);
+	&:hover {
+		text-decoration: none;
+
+		background-image: linear-gradient(top, #b8b8b8, #e4e4e4);
+	}
 }
 
-.gray:hover{
-	background-image: -webkit-linear-gradient(top, #b8b8b8, #e4e4e4);
-	background-image: -moz-linear-gradient(top, #b8b8b8, #e4e4e4);
-	background-image: -o-linear-gradient(top, #b8b8b8, #e4e4e4);
-	background-image: -ms-linear-gradient(top, #b8b8b8, #e4e4e4);
-	text-decoration: none;
-}
-
-#upload-cancel-button{
+#upload-cancel-button {
 	position: absolute;
-	z-index:3;
+	z-index: 3;
+
+	padding: 10px 15px;
+
 	font-size: 14px;
-	padding: 10px 15px;	
 }
 
-#import-form .actions{
-	margin: 0 auto;
-	text-align: center;
+#import-form {
+	.actions {
+		margin: 0 auto;
 
+		text-align: center;
+	}
+	input.action-button {
+		margin-top: 16px;
+	}
 }
 
-#import-form input.action_button {
-	margin-top: 16px;
-}
-
-.dataTables_info{
-	clear: none;
+.dataTables_info {
 	position: absolute;
 	top: 13px;
 	right: 175px;
+
+	clear: none;
+
 	font-size: 12px;
-	color: #888;
+
 	text-align: right;
+
+	color: $medium-gray;
 }
 
-table.dataTable thead th{
-	border-bottom:1px solid #DDD;
-	padding:10px 18px;
+table.dataTable thead th {
+	padding: 10px 18px;
+
 	color: #666;
+	border-bottom: 1px solid #ddd;
 }
 
-#uploader-form{
-	display: block;
+#uploader-form {
 	position: absolute;
+	z-index: 4;
+	right: 10px;
 	bottom: 75px;
 	left: 10px;
-	right: 10px;
-	z-index:4;
+
+	display: block;
 }
 
-#modal-cover{
+#modal-cover {
 	position: absolute;
-	top:0px;
-	left:0px;
-	bottom:0px;
-	right:0px;
-	background:rgba(0,0,0,.7);
 	z-index: 2;
-	display:none;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	display: none;
+
+	background: rgba(0, 0, 0, 0.7);
 }
-#cancel-button{
-	color: #555;
-	text-decoration: underline;
+
+#cancel-button {
 	margin-right: 15px;
+
+	text-decoration: underline;
+
+	color: #555;
 }

@@ -17,16 +17,16 @@ Namespace('Materia.Set').Availability = do ->
 			$(element).html("Anytime")
 		else if startDateInt < 0 && endDateInt > 0
 			$(element).attr('data-type', 'endDateOnly')
-			$(element).html('Open until <span class="available_date">'+endDate+'</span> at <span class="available_time">'+endTime+'</span>')
+			$(element).html('Open until <span class="available-date">'+endDate+'</span> at <span class="available-time">'+endTime+'</span>')
 		else if startDateInt > 0 && endDateInt < 0
 			start = new Date(startDateInt)
 			$(element).attr('data-type', 'startDateOnly')
-			$(element).html('Anytime after <span class="available_date">'+open_at+'</span> at <span class="available_time">'+startTime+'</span>')
+			$(element).html('Anytime after <span class="available-date">'+open_at+'</span> at <span class="available-time">'+startTime+'</span>')
 		else
 			start = new Date(startDateInt)
 			end = new Date(endDateInt)
 			$(element).removeAttr('data-type')
-			$(element).html('From <span class="available_date">'+open_at+'</span> at <span class="available_time">'+startTime+'</span> until <span class="available_date">'+endDate+'</span> at <span class="available_time">'+endTime+'</span>')
+			$(element).html('From <span class="available-date">'+open_at+'</span> at <span class="available-time">'+startTime+'</span> until <span class="available-date">'+endDate+'</span> at <span class="available-time">'+endTime+'</span>')
 
 	get = (startDateInt, endDateInt) ->
 		startDateInt = parseInt(startDateInt, 10)

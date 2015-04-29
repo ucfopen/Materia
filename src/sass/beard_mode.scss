@@ -1,125 +1,92 @@
-.my_widgets section.directions.unchosen {
-	background: #fff url('../img/kogneato_mywidgets_bearded.png') 50% 30% no-repeat;
-	min-height:850px;
-}
+@import "colors";
 
-.my_widgets aside .courses .widget_list {
-		overflow: auto;
-		padding-bottom:30px;
+.my-widgets {
+	.directions.unchosen {
+		min-height: 850px;
+
+		background: $white url("../img/kogneato_mywidgets_bearded.png") 50% 30% no-repeat;
 	}
 
+	.courses .widget-list {
+		overflow: auto;
+
+		padding-bottom: 30px;
+	}
+}
+
 .bearded:before {
-	/* content: url(../img/beard.png); */
-	margin: 0;
-	padding: 0;
+	position: absolute;
 
 	width: 60px;
 	height: 80px;
-	position: absolute;
+	margin: 0;
+	padding: 0;
 }
-.big_bearded:before {
-	/* content: url(../img/bigbeard.png); */
 
+.big-bearded:before {
 	position: absolute;
-	padding-top: 20px;
 
 	width: 276px;
 	height: 319px;
-}
-/*
-.bigger_bearded:before {
-	position: absolute;
 	padding-top: 20px;
-
-	width: 276px;
-	height: 319px;
-}
-*/
-
-/* Specific Beard Styles */
-.small_black_chops:before {
-	content:url(../img/beards/small/new/small_black_chops.png);
-	margin-left:-4px;
 }
 
-.small_dusty_full:before {
-	content:url(../img/beards/small/new/small_dusty_full.png);
-	margin-left:-4px;
+// Specific Beard Styles
+
+.small-black-chops:before {
+	content: url("../img/beards/small/new/small_black_chops.png");
+
+	margin-left: -4px;
 }
 
-.small_grey_gandalf:before {
-	content:url(../img/beards/small/new/small_grey_gandalf.png);
-	margin-left:-4px;
+.small-dusty-full:before {
+	content: url("../img/beards/small/new/small_dusty_full.png");
+
+	margin-left: -4px;
 }
 
-.small_red_soul:before {
-	content:url(../img/beards/small/new/small_red_soul.png);
-	margin-left:-8px;
+.small-grey-gandalf:before {
+	content: url("../img/beards/small/new/small_grey_gandalf.png");
+
+	margin-left: -4px;
 }
 
+.small-red-soul:before {
+	content: url("../img/beards/small/new/small_red_soul.png");
 
+	margin-left: -8px;
+}
 
-/* Medium sized beards */
+// Medium sized beards
 
-.med_dusty_full:before {
+.med-dusty-full:before {
+	content: url("../img/beards/medium/new/med_dusty_full.png");
+
 	position: absolute;
-	content:url(../img/beards/medium/new/med_dusty_full.png);
-	top:-10px;
-	left:-10px;
+	top: 40px;
+	left: -10px;
 }
 
-.med_black_chops:before {
+.med-black-chops:before {
+	content: url("../img/beards/medium/new/med_black_chops.png");
+
 	position: absolute;
-	content:url(../img/beards/medium/new/med_black_chops.png);
-	top:-10px;
-	left:-10px;
+	top: 40px;
+	left: -10px;
 }
 
-.med_grey_gandalf:before {
+.med-grey-gandalf:before {
+	content: url("../img/beards/medium/new/med_grey_gandalf.png");
+
 	position: absolute;
-	content:url(../img/beards/medium/new/med_grey_gandalf.png);
-	top:-10px;
-	left:-10px;
+	top: 40px;
+	left: -10px;
 }
 
-.med_red_soul:before {
+.med-red-soul:before {
+	content: url("../img/beards/medium/new/med_red_soul.png");
+
 	position: absolute;
-	content:url(../img/beards/medium/new/med_red_soul.png);
-	left:-20px;
-	top:-10px;
+	top: 40px;
+	left: -20px;
 }
-
-/* Xlarge beards */
-/*
-.xlarge_red_soul:before {
-	content:url(../img/beards/xlarge/new/xlarge_red_soul.png);
-	left:5px;
-	top:55px;
-}
-
-.xlarge_dusty_full:before {
-	content:url(../img/beards/xlarge/new/xlarge_dusty_full.png);
-	left:10px;
-	top:55px;
-}
-
-.xlarge_black_chops:before {
-	content:url(../img/beards/xlarge/new/xlarge_black_chops.png);
-	left:10px;
-	top:55px;
-}
-
-.xlarge_grey_gandalf:before {
-	content:url(../img/beards/xlarge/new/xlarge_grey_gandalf.png);
-	left:10px;
-	top:55px;
-}
-
-.xlarge_red_soul:before {
-	content:url(../img/beards/xlarge/new/xlarge_red_soul.png);
-	left:5px;
-	top:55px;
-}
-*/
-
-

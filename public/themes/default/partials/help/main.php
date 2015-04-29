@@ -1,5 +1,5 @@
-<div class="container">
-	<section class="page">
+<main id="help-index" role="main">
+	<section class="content">
 		<h1>Help &amp; Support</h1>
 		<section class="bordered">
 			<h2 id="flash-required">Requirements</h2>
@@ -38,4 +38,4 @@
 			</dl>
 		</section>
 	</section>
-</div>
+</main>

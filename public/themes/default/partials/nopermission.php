@@ -1,5 +1,5 @@
-<div class="container general" id="no_permission">
-	<section class="page no_permission">
+<div class="container general" id="no-permission">
+	<section class="page no-permission">
 		<h1>You don't have permission to view this page.</h1>
 		<p>You may need to:</p>
 		<ul>

@@ -15,13 +15,13 @@ describe 'When not logged in', ->
     it 'should relocate to my widgets on author login', (done) ->
         setup.loginAt client, setup.author, "#{setup.url}/login"
         client
-            .waitForPageVisible '.container', 5000
+            .waitForPageVisible '.my-widgets', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
             .call(done)
 
     it 'should display instructions by default', (done) ->
         client
-            .waitForPageVisible '.container', 5000
+            .waitForPageVisible '.my-widgets', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
             .waitForPageVisible '.directions', 5000
             .getAttribute '.directions', 'class', (err, classes) ->
