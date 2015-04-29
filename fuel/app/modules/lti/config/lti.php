@@ -41,7 +41,7 @@ return [
 			'use_launch_roles'  => true,
 
 			// which auth driver will do the final work authenticating this user
-			'auth_driver'       => 'Materiaauth',
+			'auth_driver'       => 'MateriaAuth',
 
 			// Should we bother saving the assocation of the chosen widget to the resource
 			// most LTI consumers do not actually know which widget they are requesting
