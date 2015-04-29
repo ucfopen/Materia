@@ -291,12 +291,9 @@ class Admin extends \Basetask
 	{
 		try
 		{
-			$user_id = \Auth::instance()->create_user($user_name, $password, $email, 1, []);
-			//manually add first/last name to make up for simpleauth
-			$user = \Model_User::find($user_id);
-			$user->first = $first_name;
-			$user->last = $last_name;
-			$user->save();
+			// Auth instance must be MateriaAuth or similar auth module
+			// SimpleAuth does not work!!
+			$user_id = \Auth::instance()->create_user($user_name, $password, $email, 1, [], $first_name, $last_name);
 
 			if ($user_id === false)
 			{
@@ -312,7 +309,7 @@ class Admin extends \Basetask
 		catch (\FuelException $e)
 		{
 			\Cli::beep(1);
-			\Cli::write(\Cli::color('Failed to create user', 'red'));
+			\Cli::write(\Cli::color('Error creating user', 'red'));
 			\Cli::write(\Cli::color($e->getMessage(), 'red'));
 		}
 
