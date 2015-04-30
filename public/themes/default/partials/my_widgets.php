@@ -73,13 +73,13 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="440px">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="500px">
 				<div ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
 						<li><h3>Attempts</h3>
 							<div class="selector" ng-if="show.availabilityModal"></div>
-							<ul class="attemptHolder">
+							<ul class="attemptHolder" ng-class="{disabled: guestAccess}">
 								<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
 								<li id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)">2</li>
 								<li id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)">3</li>
@@ -104,6 +104,11 @@
 										<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
 									</li>
 								</ul>
+							</li>
+							<li id="guest-access"><h3>Access</h3>
+								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
+								<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
+								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
 							</li>
 						</ul>
 					</ul>
@@ -235,6 +240,11 @@
 									<span ng-switch-when="from">
 										From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
 									</span>
+								</dd>
+								<dt>Access:</dt>
+								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" class="access-level">
+									<span ng-if="!selected.widget.guest_access">Staff and Students only</span>
+									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
 								</dd>
 							</dl>
 							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>

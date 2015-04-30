@@ -1152,6 +1152,9 @@
 			margin-right: 10px;
 			font-weight: bold;
 		}
+		.ng-modal.availability .guest-checkbox {
+			margin-left: -12px;
+		}
 
 		.ng-modal.availability ul li.save a
 		{
@@ -1293,6 +1296,10 @@
 		.ng-modal.availability .attemptHolder li.step
 		{
 			margin-right: 3.85em;
+		}
+		.ng-modal.availability .attemptHolder.disabled li:hover
+		{
+			color: rgba(0,0,0,0.3);
 		}
 		.ng-modal.availability .step.first
 		{

@@ -318,8 +318,11 @@ class Test_Api_V1 extends \Basetest
 	public function test_session_play_create()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::session_play_create(2);
-		$this->assertInvalidLoginMessage($output);
+		try {
+			$output = \Materia\Api_V1::session_play_create(2);
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
 
 		// ======= STUDENT ========
 		$this->_asStudent();
@@ -475,8 +478,11 @@ class Test_Api_V1 extends \Basetest
 	public function test_play_logs_save()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::play_logs_save(5, array());
-		$this->assertInvalidLoginMessage($output);
+		try {
+			$output = \Materia\Api_V1::play_logs_save(5, array());
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
 
 		// // ======= STUDENT ========
 		// $this->_asStudent();
@@ -504,8 +510,28 @@ class Test_Api_V1 extends \Basetest
 	public function test_widget_instance_scores_get()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::widget_instance_scores_get(5);
-		$this->assertInvalidLoginMessage($output);
+		try {
+			$output = \Materia\Api_V1::widget_instance_scores_get(5);
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
+
+		// // ======= STUDENT ========
+		// $this->_asStudent();
+		// // ======= AUTHOR ========
+		// $this->_asAuthor();
+		// // ======= SU ========
+		// $this->_asSu();
+	}
+
+	public function test_guest_widget_instance_scores_get()
+	{
+		// ======= AS NO ONE ========
+		try {
+			$output = \Materia\Api_V1::guest_widget_instance_scores_get(5, 2);
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
 
 		// // ======= STUDENT ========
 		// $this->_asStudent();
@@ -518,8 +544,11 @@ class Test_Api_V1 extends \Basetest
 	public function test_widget_instance_play_scores_get()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::widget_instance_play_scores_get(5);
-		$this->assertInvalidLoginMessage($output);
+		try {
+			$output = \Materia\Api_V1::widget_instance_play_scores_get(5);
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
 
 		//role doesn't matter, but user ID does
 		//id 1, student
@@ -582,8 +611,11 @@ class Test_Api_V1 extends \Basetest
 	public function test_question_set_get()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::question_set_get(555);
-		$this->assertInvalidLoginMessage($output);
+		try {
+			$output = \Materia\Api_V1::question_set_get(555);
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
 
 		// ======= STUDENT ========
 		$this->_asStudent();

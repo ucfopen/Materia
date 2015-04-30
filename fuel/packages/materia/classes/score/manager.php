@@ -34,7 +34,7 @@ class Score_Manager
 	/**
 	 * Returns score overview for each play the current user has for a particular instance
 	 * @param int inst_id Widget Instance ID
-	 * @return array Time sorted array of play scores containint play_id, timestamp, and score keys
+	 * @return array Time sorted array of play scores containing play_id, timestamp, and score keys
 	 */
 	static public function get_instance_score_history($inst_id)
 	{
@@ -42,6 +42,24 @@ class Score_Manager
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('user_id', \Model_User::find_current_id())
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC')
+			->execute()
+			->as_array();
+	}
+
+	/**
+	 * Returns score overview for a particular play for guests
+	 * @param int inst_id Widget Instance ID
+	 * @param int play_id Play ID
+	 * @return array Single item array of play scores containing play_id, timestamp, and score keys
+	 */
+	static public function get_guest_instance_score_history($inst_id, $play_id)
+	{
+		return \DB::select('id','created_at','percent')
+			->from('log_play')
+			->where('is_complete', '1')
+			->where('id', $play_id)
 			->where('inst_id', $inst_id)
 			->order_by('created_at', 'DESC')
 			->execute()
@@ -63,8 +81,12 @@ class Score_Manager
 		{
 			$play = new Session_Play();
 			$play->get_by_id($play_id);
+			$inst_id = $play->inst_id;
+			$instances = Api::widget_instances_get([$inst_id], false);
+			if (! count($instances)) throw new HttpNotFoundException;
+			$inst = $instances[0];
 
-			if ($play->user_id != $curr_user_id)
+			if ($play->user_id != $curr_user_id && ! $inst->allows_guest_players())
 			{
 				if ( ! Perm_Manager::check_user_perm_to_object($curr_user_id, $play->inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]))
 					return new \RocketDuck\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');

@@ -178,10 +178,11 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 	getMaxRows = ->
 		STORAGE_TABLE_MAX_ROWS_SHOWN
 
-	updateAvailability = (attempts, open_at, close_at) ->
+	updateAvailability = (attempts, open_at, close_at, guest_access) ->
 		_widget.attempts = attempts
 		_widget.open_at = open_at
 		_widget.close_at = close_at
+		_widget.guest_access = guest_access
 		$rootScope.$broadcast 'selectedWidget.update'
 
 	notifyAccessDenied = ->

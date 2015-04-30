@@ -45,7 +45,7 @@ class Controller_Users extends Controller
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
 
-		if (Model_User::find_current())
+		if (! Model_User::find_current()->is_guest())
 		{
 			// already logged in
 			Response::redirect($redirect);
