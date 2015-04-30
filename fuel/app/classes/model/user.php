@@ -20,6 +20,7 @@ class Model_User extends Orm\Model
 		'group',
 		'last_login',
 		'login_hash',
+		'password',
 		'profile_fields' => [
 			'data_type' => 'serialize'
 		],
