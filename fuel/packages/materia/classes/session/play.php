@@ -48,10 +48,13 @@ class Session_Play
 	 */
 	public function start($user_id=0, $inst_id=0, $is_preview=false)
 	{
-		if ($user_id > 0 && \RocketDuck\Util_Validator::is_valid_hash($inst_id))
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
 			$this->created_at = time();
-			$this->user_id    = $user_id;
+			$instances = Api::widget_instances_get([$inst_id], false);
+			$inst = $instances[0];
+			$guest_access = $inst->guest_access;
+			$this->user_id    = $guest_access ? 0 : $user_id;
 			$this->inst_id    = $inst_id;
 			$this->is_preview = $is_preview;
 
@@ -225,7 +228,7 @@ class Session_Play
 				'username'
 			)
 			->from(['log_play', 's'])
-			->join(['users', 'u'])
+			->join(['users', 'u'], 'LEFT OUTER')
 				->on('u.id', '=', 's.user_id')
 			->where('s.inst_id', $inst_id);
 

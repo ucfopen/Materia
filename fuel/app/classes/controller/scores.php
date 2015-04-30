@@ -41,7 +41,12 @@ class Controller_Scores extends Controller
 
 	public function get_show($inst_id)
 	{
-		if (Materia\Api::session_valid() !== true)
+		$instances = Materia\Api::widget_instances_get([$inst_id]);
+		if ( ! count($instances)) throw new HttpNotFoundException;
+
+		$inst = $instances[0];
+		// not allowed to play the widget
+		if (! $inst->playable_by_current_user())
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
@@ -129,12 +134,16 @@ class Controller_Scores extends Controller
 			{
 				$uname = $play['username'];
 
-				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
+				// Only report actual user scores, no guests
+				if ($uname)
+				{
+					if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
 
-				$results[$uname]['semester']   = $semester;
-				$results[$uname]['last_name']  = $play['last'];
-				$results[$uname]['first_name'] = $play['first'];
-				$results[$uname]['score']      = max($results[$uname]['score'], $play['perc']);
+					$results[$uname]['semester']   = $semester;
+					$results[$uname]['last_name']  = $play['last'];
+					$results[$uname]['first_name'] = $play['first'];
+					$results[$uname]['score']      = max($results[$uname]['score'], $play['perc']);
+				}
 			}
 		}
 
@@ -187,7 +196,8 @@ class Controller_Scores extends Controller
 
 			foreach ($logs as $play)
 			{
-				$uname = $play['username'];
+				// If there is no username, it is a guest user
+				$uname = $play['username'] ? $play['username'] : "(Guest)";
 
 				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
 

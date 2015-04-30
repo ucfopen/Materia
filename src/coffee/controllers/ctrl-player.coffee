@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
+app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYER) ->
 
 	# Keep track of a promise
 	embedDoneDfD = null
@@ -88,9 +88,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
-			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
-				if data != true
-					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+			Materia.Coms.Json.send 'session_valid', [null, false], (result) ->
+				if result != true and instance.guest_access is false
+					alert 'Your play session has expired due to inactivity and you\'ll need to start over.'
 					window.onbeforeunload = null
 					window.location.reload()
 		, 30000
@@ -368,9 +368,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, PLAYER) ->
 			if $scope.isPreview
 				scoreScreenURL = "#{BASE_URL}scores/preview/#{$scope.inst_id}"
 			else if isEmbedded
-				scoreScreenURL = "#{BASE_URL}scores/embed/#{$scope.inst_id}"
+				scoreScreenURL = "#{BASE_URL}scores/embed/#{$scope.inst_id}#play-#{play_id}"
 			else
-				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}"
+				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}#play-#{play_id}"
 
 		window.location = scoreScreenURL
 

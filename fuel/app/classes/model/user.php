@@ -4,6 +4,7 @@ class Model_User extends Orm\Model
 	const RATE_LIMITER_DOWN_TIME = 60; // 60 seconds
 	const RATE_LIMITER_MAX_COUNT = 50; // 50 login attempts
 	const RATE_LIMITER_WINDOW    = 60; // 60 seconds
+	const GUEST_ID               = 0; // Guest id is 0
 
 	protected static $_default_profile_fields = [
 		'useGravatar' => true,
@@ -57,14 +58,14 @@ class Model_User extends Orm\Model
 	public static function find_current()
 	{
 		$array = Auth::instance()->get_user_id();
-		if ( empty($array)) return null; // mimics find() with no id
+		if ( empty($array)) return self::forge_guest();
 		return self::find($array[1]);
 	}
 
 	public static function find_current_id()
 	{
 		$array = Auth::instance()->get_user_id();
-		if ( empty($array)) return false;
+		if ( empty($array)) return self::GUEST_ID;
 		return $array[1];
 	}
 
@@ -218,6 +219,20 @@ class Model_User extends Orm\Model
 			self::incement_rate_limiter();
 		}
 		return $logged_in;
+	}
+
+	public function is_guest()
+	{
+		if ($this->id == self::GUEST_ID)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	static protected function forge_guest()
+	{
+		return \Model_User::forge(array('id'=>self::GUEST_ID));
 	}
 
 	public function to_array($custom = false, $recurse = false, $eav = false)

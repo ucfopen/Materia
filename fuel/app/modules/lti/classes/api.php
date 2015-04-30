@@ -56,7 +56,7 @@ class Api
 			$inst_id = $play->inst_id;
 			$lti_token = $lti_data['token'];
 
-			return ['score_url' => "/scores/embed/$inst_id?ltitoken=$lti_token"];
+			return ['score_url' => "/scores/embed/$inst_id?ltitoken=$lti_token#play-$play->id"];
 		}
 
 		return [];

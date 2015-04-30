@@ -44,11 +44,12 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 			open_at: null
 			close_at: null
 			attempts: null
+			guest_access: null
 
 		$.extend(params, _params)
 
 		if params.inst_id?
-			Materia.Coms.Json.send 'widget_instance_update', [params.inst_id, params.name, params.qset, params.is_draft, params.open_at, params.close_at, params.attempts], (widget) ->
+			Materia.Coms.Json.send 'widget_instance_update', [params.inst_id, params.name, params.qset, params.is_draft, params.open_at, params.close_at, params.attempts, params.guest_access], (widget) ->
 				if widget?
 					for i in [0..._widgets.length]
 						if _widgets[i] == widget.id

@@ -157,10 +157,11 @@ class Api_V1
 	 * @param int     $open_at
 	 * @param int     $close_at
 	 * @param int     $attempts
+	 * @param bool    $guest_access
 	 *
 	 * @return array An associative array with details about the save
 	 */
-	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null)
+	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
 	{
 		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Instance id is invalid');
@@ -179,6 +180,7 @@ class Api_V1
 		if ($open_at !== null) $inst->open_at = $open_at;
 		if ($close_at !== null) $inst->close_at = $close_at;
 		if ($attempts !== null) $inst->attempts = $attempts;
+		if ($guest_access !== null) $inst->guest_access = $guest_access;
 
 		// save
 		if ($inst->db_store())
@@ -232,7 +234,11 @@ class Api_V1
 	 */
 	static public function session_play_create($inst_id, $preview_mode=false)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new \HttpNotFoundException;
+
+		$inst = $instances[0];
+		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		// make sure the user has ownership permissions to preview the widget
 		if ($preview_mode)
 		{
@@ -316,7 +322,17 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		// if not preview, see if current user can play widget
+		if (! $preview_inst_id)
+		{
+			$inst = self::_get_widget_inst($play_id);
+			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		}
+		// otherwise see if user has valid session
+		else
+		{
+			if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		}
 		if ( $preview_inst_id === null && ! \RocketDuck\Util_Validator::is_valid_long_hash($play_id)) return \RocketDuck\Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return \RocketDuck\Msg::invalid_input('missing log array');
 
@@ -386,14 +402,28 @@ class Api_V1
 
 	static public function widget_instance_scores_get($inst_id)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new \HttpNotFoundException;
+
+		$inst = $instances[0];
+		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Score_Manager::get_instance_score_history($inst_id);
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		// if not preview, see if current user can play widget
+		if (! $preview_mode_inst_id)
+		{
+			$inst = self::_get_widget_inst($play_id);
+			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		}
+		// otherwise see if user has valid session
+		else
+		{
+			if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		}
 		if (\RocketDuck\Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			return Score_Manager::get_preview_logs($preview_mode_inst_id);
@@ -404,6 +434,26 @@ class Api_V1
 			return Score_Manager::get_play_details([$play_id]);
 		}
 	}
+
+	/**
+	 * Gets a single score corresponding to a play_id for guest widgets.
+	 *
+	 * @param int $inst_id The widget instance ID
+	 * @param int $play_id The play ID
+	 *
+	 * @return array Single item array which holds the score or is empty
+	 */
+	static public function guest_widget_instance_scores_get($inst_id, $play_id)
+	{
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new \HttpNotFoundException;
+
+		$inst = $instances[0];
+		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
+		return Score_Manager::get_guest_instance_score_history($inst_id, $play_id);
+	}
+
 	/**
 	 *	Gets scores/players for a particular game
 	 *	Returns an array with the following:
@@ -494,7 +544,12 @@ class Api_V1
 	 */
 	static public function question_set_get($inst_id, $play_id = null)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		$instances = static::widget_instances_get([$inst_id], false);
+		if ( ! count($instances)) throw new \HttpNotFoundException;
+
+		$inst = $instances[0];
+		$can_play = $inst->playable_by_current_user();
+		if (! $can_play) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) === false) return \RocketDuck\Msg::invalid_input($inst_id);
 		// play id sent, send the user the qset if the play is valid
 		if ($play_id)
@@ -876,7 +931,8 @@ class Api_V1
 	static private function _validate_play_id($play_id)
 	{
 	 	$play = new Session_Play();
-	 	if (\Model_User::verify_session())
+		$inst = self::_get_widget_inst($play_id);
+		if ($inst->playable_by_current_user())
 	 	{
 	 		if ($play->get_by_id($play_id))
 	 		{
@@ -912,5 +968,23 @@ class Api_V1
 			}
 		}
 		return $logs;
+	}
+
+	/**
+	 * Gets a widget instance from a play id.
+	 *
+	 * @param int $play_id
+	 *
+	 * @return Widget_Instance The current widget instance.
+	 */
+	static private function _get_widget_inst($play_id)
+	{
+	 	$play = new Session_Play();
+		$play->get_by_id($play_id);
+		$inst_id = $play->inst_id;
+		$instances = static::widget_instances_get([$inst_id], false);
+		if (! count($instances)) throw new \HttpNotFoundException;
+		$inst = $instances[0];
+		return $inst;
 	}
 }
