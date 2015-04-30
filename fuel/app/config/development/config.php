@@ -18,12 +18,11 @@ return [
 
 	/* Always Load                                                            */
 	/**************************************************************************/
-	'always_load' => [
-		'packages' => [
-			'materiaauth',
-		],
-	],
-	'packages'  => array(
-	),
+	// 'always_load' => [
+	// 	'packages' => [
+	// 	],
+	// ],
+	// 'packages'  => array(
+	// ),
 	'enable_uploader' => true
 ];
