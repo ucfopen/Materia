@@ -44,6 +44,34 @@ module.exports =
 
 		waitForPageVisible = require './includes/waitForPageVisible.js'
 		client.addCommand 'waitForPageVisible', waitForPageVisible
+		# cycles through every window, looking for one whose url contains partialUrl
+		client.addCommand 'waitForUrlContains', (partialUrl, ms, callback) ->
+			client = this
+			curTime = 0
+			intervalMs = 500
+			initialTabId = null
+
+			client.getCurrentTabId (err, tabId, res) ->
+				initialTabId = tabId
+
+				intervalId = setInterval ->
+					curTime += intervalMs
+					if curTime > ms
+						clearInterval intervalId
+						client.switchTab initialTabId
+						callback "URL did not match #{partialUrl}", null, client
+						return
+
+					client.getTabIds (err, val, res) ->
+						for tabId in val
+							client.switchTab tabId
+							client.url (err, res) ->
+								if res.value.indexOf(partialUrl) > -1
+									clearInterval intervalId
+									client.switchTab initialTabId
+									callback null, res.value, client
+				, intervalMs
+
 
 		return client
 	testEnigma: (client, title, publish = false) ->
@@ -79,6 +107,24 @@ module.exports =
 			.setValue('#password', user.password)
 			.click('form button.action_button')
 			.pause(800)
+		return client
+
+	playEnigma: (client) ->
+		client
+			.pause 100
+			.waitFor '#container', 7000
+			.frame('container') # switch into widget frame
+			.waitForPageVisible '.question.unanswered', 7000
+			.click '.question.unanswered'
+			.waitForPageVisible '.answers label', 7000
+			.click '.answers label'
+			.waitForPageVisible '.answers label'
+			.click '.button.submit'
+			.waitForPageVisible '.button.return.highlight', 7000
+			.click '.button.return.highlight'
+			.waitForPageVisible '.notice button', 7000
+			.click '.notice button'
+			.pause 3000 # wait for score submit
 		return client
 
 jasmine.getEnv().defaultTimeoutInterval = 30000
