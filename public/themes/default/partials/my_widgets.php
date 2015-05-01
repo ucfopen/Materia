@@ -39,7 +39,7 @@
 						</div>
 
 						<div class="access_list">
-							<div ng-repeat="collaborator in perms.collaborators" ng-show="!collaborator.remove || collaborator.warning" class="user_perm">
+							<div ng-repeat="collaborator in perms.collaborators" ng-show="!collaborator.remove || collaborator.warning" class="user_perm" data-user-id="{{collaborator.id}}">
 								<a ng-if="selected.shareable || user.id == collaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(collaborator)" class="remove">&#88;</a>
 								<img class="avatar" ng-src="{{::collaborator.gravatar}}" />
 
@@ -219,15 +219,15 @@
 							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 						</div>
-						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
+						<div class="additional_options" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
 							<h3>Settings:</h3>
-							<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}">
+							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}">
 								<dt>Attempts:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
+								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
@@ -247,7 +247,7 @@
 									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
 								</dd>
 							</dl>
-							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
+							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.shareable || selected.widget.is_draft" ng-click="popup()">Edit settings...</a>
 						</div>
 					</div>
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
