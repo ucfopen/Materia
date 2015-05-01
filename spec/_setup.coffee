@@ -45,6 +45,34 @@ module.exports =
 		waitForPageVisible = require './includes/waitForPageVisible.js'
 		client.addCommand 'waitForPageVisible', waitForPageVisible
 
+		# cycles through every window, looking for one whose url contains partialUrl
+		client.addCommand 'waitForUrlContains', (partialUrl, ms, callback) ->
+			client = this
+			curTime = 0
+			intervalMs = 500
+			initialTabId = null
+
+			client.getCurrentTabId (err, tabId, res) ->
+				initialTabId = tabId
+
+				intervalId = setInterval ->
+					curTime += intervalMs
+					if curTime > ms
+						clearInterval intervalId
+						client.switchTab initialTabId
+						callback "URL did not match #{partialUrl}", null, client
+						return
+
+					client.getTabIds (err, val, res) ->
+						for tabId in val
+							client.switchTab tabId
+							client.url (err, res) ->
+								if res.value.indexOf(partialUrl) > -1
+									clearInterval intervalId
+									client.switchTab initialTabId
+									callback null, res.value, client
+				, intervalMs
+
 		return client
 	testEnigma: (client, title, publish = false) ->
 		client
@@ -58,6 +86,10 @@ module.exports =
 			.setValue('#category_0', 'Test')
 			.click('.category:first-of-type button.add:not(.ng-hide)')
 			.setValue('#question_text', 'Test question')
+			.click '.right .checktoggle'
+			.click '.checktoggle.correctness'
+			.click '.controls input[type=button]'
+			.pause 100
 			.frame(null) # switch back to main content
 			.click('#creatorSaveBtn')
 			.waitFor('#creatorSaveBtn.saving', 1000)
@@ -70,6 +102,31 @@ module.exports =
 				.waitFor('.publish.animate-show .publish_container a.action_button.green', 1000)
 				.click('.publish.animate-show .publish_container a.action_button.green')
 		return client
+	playEnigma: (client) ->
+		client
+			.pause 100
+			.waitFor '#container', 7000
+			.frame('container') # switch into widget frame
+			.waitForPageVisible '.question.unanswered', 7000
+			.click '.question.unanswered'
+			.waitForPageVisible '.answers label', 7000
+			.click '.answers label'
+			.waitForPageVisible '.answers label'
+			.click '.button.submit'
+			.waitForPageVisible '.button.return.highlight', 7000
+			.click '.button.return.highlight'
+			.waitForPageVisible '.notice button', 7000
+			.click '.notice button'
+			.pause 3000 # wait for score submit
+		return client
+			# .execute ->
+			# 	# this happens in the browser
+			# 	setInterval ->
+			# 		if document.location.hash.indexOf('score') == 1
+			# 			return true
+			# 	, 500
+			# , ->
+			# 	callback client
 	loginAt: (client, user, url) ->
 		client
 			.url(url)
