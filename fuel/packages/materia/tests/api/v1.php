@@ -658,8 +658,8 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		try {
-            $output = \Materia\Api_V1::play_storage_data_save(555, array());
-            $output = \Materia\Api_V1::play_storage_get(555);
+			$output = \Materia\Api_V1::play_storage_data_save(555, array());
+			$output = \Materia\Api_V1::play_storage_get(555);
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
