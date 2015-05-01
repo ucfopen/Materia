@@ -84,6 +84,7 @@ class Session_Play
 
 			if ($this->save_new_play())
 			{
+				\Session::set('active', true);
 				// log play created
 				$logger = new Session_Logger();
 				$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
