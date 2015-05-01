@@ -533,7 +533,7 @@ class Api_V1
 		if ( ! count($instances)) throw new \HttpNotFoundException;
 
 		$inst = $instances[0];
-        if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id) ) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Storage_Manager::get_logs_by_inst_id($inst_id);
 	}
@@ -553,7 +553,7 @@ class Api_V1
 
 		$inst = $instances[0];
 		$can_play = $inst->playable_by_current_user();
-		if (! $can_play) return \RocketDuck\Msg::no_login();
+		if ( ! $can_play) return \RocketDuck\Msg::no_login();
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) === false) return \RocketDuck\Msg::invalid_input($inst_id);
 		// play id sent, send the user the qset if the play is valid
 		if ($play_id)
@@ -628,8 +628,8 @@ class Api_V1
 	 */
 	static public function play_storage_data_save($play_id, $data)
 	{
-        $inst = self::_get_widget_inst($play_id);
-        if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		$inst = self::_get_widget_inst($play_id);
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
 			Storage_Manager::parse_and_store_storage_array($play->inst_id, $play_id, $play->user_id, $data);
