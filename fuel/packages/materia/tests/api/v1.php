@@ -291,28 +291,13 @@ class Test_Api_V1 extends \Basetest
 
 		// not logged in, should get error message
 		$this->assertInvalidLoginMessage($output);
-
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
-
 
 	public function test_widget_spotlight_get()
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::widget_spotlight_get();
 		$this->assertGreaterThan(0, count($output));
-
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_session_play_create()
@@ -320,17 +305,10 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		try {
 			$output = \Materia\Api_V1::session_play_create(2);
-		} catch ( HttpNotFoundException $e) {
+			$this->fail("Expected exception HttpNotFoundException not thrown");
+		} catch (\Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-
-		// ======= STUDENT ========
-		$this->_asStudent();
-		// ======= AUTHOR ========
-		$this->_asAuthor();
-		// ======= SU ========
-		$this->_asSu();
-
 
 		// ============ PLAY A DRAFT ============
 		$this->_asAuthor();
@@ -355,8 +333,7 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_session_logout()
 	{
-		// $output = \Materia\Api_V1::session_logout();
-		// $this->assertTrue($output);
+		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
 	public function test_session_login()
@@ -414,12 +391,6 @@ class Test_Api_V1 extends \Basetest
 		$output = \Materia\Api_V1::assets_get();
 		$this->assertInvalidLoginMessage($output);
 
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_session_valid()
@@ -480,31 +451,15 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		try {
 			$output = \Materia\Api_V1::play_logs_save(5, array());
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// $output = \Materia\Api_V1::play_logs_save();
-		// $this->assertInvalidLoginMessage($output);
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_playData_get()
 	{
-		// ======= AS NO ONE ========
-
-		// ======= STUDENT ========
-		$this->_asStudent();
-
-		// ======= AUTHOR ========
-		$this->_asAuthor();
-		// ======= SU ========
-		$this->_asSu();
+		$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 
 	public function test_widget_instance_scores_get()
@@ -512,16 +467,11 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		try {
 			$output = \Materia\Api_V1::widget_instance_scores_get(5);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_guest_widget_instance_scores_get()
@@ -529,16 +479,11 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		try {
 			$output = \Materia\Api_V1::guest_widget_instance_scores_get(5, 2);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_widget_instance_play_scores_get()
@@ -546,24 +491,11 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		try {
 			$output = \Materia\Api_V1::widget_instance_play_scores_get(5);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
-		//role doesn't matter, but user ID does
-		//id 1, student
-		// ======= STUDENT ========
-		$this->_asStudent();
-		// Brandon fix this unit test, you cant use a static instid
-		// $output = \Materia\Api_V1::widget_instance_play_scores_get('zYNl2');
-		// $this->assertInternalType('array', $output);
-		// $this->assertCount(1, $output);
-
-		//id 2, author
-		// ======= AUTHOR ========
-		$this->_asAuthor();
-		// $output = \Materia\Api_V1::widget_instance_play_scores_get('zYNl2');
-		// $this->assertPermissionDeniedMessage($output);
 	}
 
 	public function test_play_logs_get()
@@ -572,12 +504,6 @@ class Test_Api_V1 extends \Basetest
 		$output = \Materia\Api_V1::play_logs_get(555);
 		$this->assertInvalidLoginMessage($output);
 
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_score_summary_get()
@@ -586,29 +512,17 @@ class Test_Api_V1 extends \Basetest
 		$output = \Materia\Api_V1::score_summary_get(555);
 		$this->assertInvalidLoginMessage($output);
 
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_play_storage_get()
 	{
 		// ======= AS NO ONE ========
 		try {
-            $output = \Materia\Api_V1::play_storage_get(555);
+			$output = \Materia\Api_V1::play_storage_get(555);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_question_set_get()
@@ -616,16 +530,11 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		try {
 			$output = \Materia\Api_V1::question_set_get(555);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
-		// ======= STUDENT ========
-		$this->_asStudent();
-		// ======= AUTHOR ========
-		$this->_asAuthor();
-		// ======= SU ========
-		$this->_asSu();
 	}
 
 	public function test_questions_get()
@@ -660,16 +569,10 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::play_storage_data_save(555, array());
 			$output = \Materia\Api_V1::play_storage_get(555);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
 		} catch ( HttpNotFoundException $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_play_storage_data_get()
@@ -678,12 +581,6 @@ class Test_Api_V1 extends \Basetest
 		$output = \Materia\Api_V1::play_storage_data_get(555);
 		$this->assertInvalidLoginMessage($output);
 
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_semester_date_ranges_get()
@@ -737,8 +634,6 @@ class Test_Api_V1 extends \Basetest
 		$this->assertArrayHasKey('test', $output['profile_fields']);
 		$this->assertEquals('value', $output['profile_fields']['test']);
 
-		// ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_permissions_set()
@@ -822,13 +717,6 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::permissions_get(5,5);
 		$this->assertInvalidLoginMessage($output);
-
-		// // ======= STUDENT ========
-		// $this->_asStudent();
-		// // ======= AUTHOR ========
-		// $this->_asAuthor();
-		// // ======= SU ========
-		// $this->_asSu();
 	}
 
 	public function test_notifications_get()
@@ -947,8 +835,6 @@ class Test_Api_V1 extends \Basetest
 		$notifications = \Materia\Api_V1::notifications_get();
 		$this->assertEquals($start_count, count($notifications));
 
-		// ======= SU ========
-		$this->_asSu();
 	}
 
 	public function test_semester_get()
@@ -1001,7 +887,5 @@ class Test_Api_V1 extends \Basetest
 		$this->assertIsUserArray($output[0]);
 		$this->assertFalse(array_key_exists('password', $output[0]));
 		$this->assertFalse(array_key_exists('login_hash', $output[0]));
-
 	}
-
 }
