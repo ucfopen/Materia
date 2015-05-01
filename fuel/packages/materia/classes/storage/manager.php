@@ -156,9 +156,9 @@ class Storage_Manager
 			{
 				$students[$r->user_id] = \Model_User::find($r->user_id);
 			}
-			$play['user']      = $students[$r->user_id]->username;
-			$play['firstName'] = $students[$r->user_id]->first;
-			$play['lastName']  = $students[$r->user_id]->last;
+			$play['user']      = $students[$r->user_id] ? $students[$r->user_id]->username : "Guest";
+			$play['firstName'] = $students[$r->user_id] ? $students[$r->user_id]->first : "";
+			$play['lastName']  = $students[$r->user_id] ? $students[$r->user_id]->last : "";
 			$play['time']      = $r->created_at;
 			$play['play_id']   = $r->play_id;
 
