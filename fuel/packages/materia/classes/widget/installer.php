@@ -246,17 +246,20 @@ class Widget_Installer
 				trace($e);
 				return -1;
 			}
+
 			$demo_data = \Format::forge($demo_text, 'yaml')->to_array();
 
 			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
 
 			if ($existing_inst_id)
 			{
-				$saved_demo = \Materia\API::widget_instance_update($existing_inst_id, $demo_data['name'], $qset, false);
+				$saved_demo = \Materia\API::widget_instance_update($existing_inst_id, $demo_data['name'], $qset, false, null, null, null, true);
 			}
 			else
 			{
 				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
+				// update it to make sure it allows guest access
+				\Materia\API::widget_instance_update($saved_demo->id, null, null, null, null, null, null, true);
 			}
 
 			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
