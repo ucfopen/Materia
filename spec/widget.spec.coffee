@@ -558,5 +558,6 @@ describe 'When I create a widget', ->
             .pause 1800
             .isVisible '.error-nowidget'
             .call(done)
+            .end(done)
     , 25000
 
