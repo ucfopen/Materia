@@ -301,6 +301,9 @@ class Session_Play
 
 	public function set_complete($score, $possible, $percent)
 	{
+		// set max score to the current score
+		$max_score = $score;
+
 		if ($this->is_preview != true)
 		{
 			$this->invalidate();
@@ -313,9 +316,7 @@ class Session_Play
 				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
 				\Cache::delete('play-logs.'.$this->inst_id.'.all');
 			}
-			catch (\CacheNotFoundException $e)
-			{
-			}
+			catch (\CacheNotFoundException $e) {}
 
 			\DB::update('log_play')
 				->set([
@@ -327,9 +328,9 @@ class Session_Play
 				->where('id', $this->id)
 				->execute();
 
-			// Determine the highest score
+			// Determine the highest score of all my history (guest plays do not know youre history)
 			$score_history = \Materia\Score_Manager::get_instance_score_history($this->inst_id);
-			$max_score = 0;
+
 			foreach ($score_history as $score_history_item)
 			{
 				$max_score = max($max_score, $score_history_item['percent']);
