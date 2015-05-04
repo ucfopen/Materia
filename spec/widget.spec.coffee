@@ -72,7 +72,7 @@ describe 'When I create a widget', ->
             .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
             .call(done)
 
-    it 'it should show the export scores dialog title', (done) ->
+    it 'should be able to make and play a published widget', (done) ->
         client.url("#{setup.url}/widgets")
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             .waitFor('.widget.enigma', 3000)
@@ -85,37 +85,31 @@ describe 'When I create a widget', ->
         client
             .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 publishedInstanceID = result.value
-                # console.log "instanceid: #{instanceID}"
+                if publishedInstanceID.substring(0,1) == "/"
+                    publishedInstanceID = publishedInstanceID.substring(1)
+
                 expect(publishedInstanceID).not.toBeNull()
                 expect(publishedInstanceID.length).toBe(5)
 
-                storageTest = "return Materia.Engine.end();"
+                playcode = "return Materia.Engine.end();"
 
                 client
                     .pause 2000
                     .url("#{setup.url}/play/"+publishedInstanceID)
-                    .pause 4000
-                    .waitForPageVisible '#container', 7000
+                    .pause 1000
+                    .waitForPageVisible '#container', 10000
                     .frame('container')
-                    .execute storageTest, null, (err, result) ->
+                    .pause 1000
+                    .execute playcode, null, (err, result) ->
                         expect(result).not.toBeNull()
                         client
-                            .frame null
-                            .pause 3000
-                            .url("#{setup.url}/my-widgets#/"+publishedInstanceID)
-                            .pause 7000
-                            .waitForPageVisible '#export_scores_button', 5000
-                            .click '#export_scores_button'
-                            .pause 100
-                            .waitForPageVisible 'a.show_options', 5000
-                            .pause 100
-                            .click 'a.show_options'
-                            .pause 100
-                            .waitForPageVisible '.export_which', 5000
-                            .call(done)
-    , 55000
+                            .pause 2000
+                            .call done
+                            .end done
 
     it 'should show the settings dialog with default values', (done) ->
+        client = setup.getClient()
+        setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client
             .url "about:blank"
             .url "#{setup.url}/my-widgets#/" + publishedInstanceID
@@ -208,16 +202,22 @@ describe 'When I create a widget', ->
             .call done
     , 55000
 
-    it 'should display the export scores dialog for a widget with scores', (done) ->
+    it 'it should show the export scores dialog title', (done) ->
         client
-            .url "about:blank"
-            .url "#{setup.url}/my-widgets#/" + publishedInstanceID
-            .pause 5000
-            .waitForPageVisible '#export_scores_button'
+            .frame null
+            .pause 3000
+            .url("#{setup.url}/my-widgets#/"+publishedInstanceID)
+            .pause 7000
+            .waitForPageVisible '#export_scores_button', 5000
             .click '#export_scores_button'
-            .waitForPageVisible '.csv_popup .download_wrapper h3', 7000
-            .call done
-            .end()
+            .pause 100
+            .waitForPageVisible 'a.show_options', 5000
+            .pause 100
+            .click 'a.show_options'
+            .pause 100
+            .waitForPageVisible '.export_which', 5000
+            .call(done)
+            .end done
     , 55000
 
     it 'it should collaborate', (done) ->
