@@ -45,6 +45,8 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			disabled: $scope.guestAccess
 			create: (event) ->
 				$scope.changeSlider($scope.attemptsSliderValue)
+				# remove the href, since clicking on it (when disabled) refreshes the page
+				$(".selector .ui-slider-handle").removeAttr('href')
 			slide: (event, ui) ->
 				$scope.updateSlider(ui.value)
 			stop: (event, ui) ->
