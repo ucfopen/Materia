@@ -29,11 +29,10 @@ body.scores .overview {
 
 body.scores .overview #overview-score {
 	display: inline-block;
-	padding: 0px;
+	padding: 10px 10px 0 10px;
+	box-sizing: border-box;
 	text-align: center;
-	float: left;
 	width:200px;
-	padding-top: 5px;
 }
 
 body.scores .overview #overview-score h1 {
@@ -435,6 +434,7 @@ body.scores section.score-graph{
 body.scores #class-rank-button{
 	font-size: 12px;
 	margin: 10px 0px 10px;
+	display: block;
 }
 .green{
    	background:#b2cd43;
