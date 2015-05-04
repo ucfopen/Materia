@@ -102,17 +102,16 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# Moves the slider to the specified value and updates the attempts.
 	# From ng-click on the attempt numbers below the slider.
 	$scope.changeSlider = (number) ->
-		# -1 == unlimited
-		if !$scope.guestAccess
-			if number == -1
-				val = 1000
-			else
-				val = number
-			$( ".selector" ).slider 'value', (val * 1000)
-			$scope.attemptsSliderValue = number
+		if $scope.guestAccess
+			# always should be set to unlimited (-1)
+			number = -1
+
+		if number == -1
+			val = 1000
 		else
-			$( ".selector" ).slider 'value', (1000 * 1000)
-			$scope.attemptsSliderValue = number
+			val = number
+		$( ".selector" ).slider 'value', (val * 1000)
+		$scope.attemptsSliderValue = number
 
 	# Updates the slider based on which value the slider is close to.
 	# It will "click" into place when in between the steps.
