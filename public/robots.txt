@@ -9,7 +9,7 @@ Disallow: /themes/ucf/lti
 Disallow: /themes/ucf/partials
 Disallow: /themes/ucf/test
 
-Disallow /embed
-Disallow /lti
-Disallow /play
+Disallow: /embed
+Disallow: /lti
+Disallow: /play
 
