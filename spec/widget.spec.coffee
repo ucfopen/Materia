@@ -92,19 +92,18 @@ describe 'When I create a widget', ->
                 storageTest = "return Materia.Engine.end();"
 
                 client
-                    .pause 3000
+                    .pause 2000
                     .url("#{setup.url}/play/"+publishedInstanceID)
-                    .pause 8000
+                    .pause 4000
                     .waitForPageVisible '#container', 7000
                     .frame('container')
-                    .pause 9000
                     .execute storageTest, null, (err, result) ->
                         expect(result).not.toBeNull()
                         client
                             .frame null
                             .pause 3000
                             .url("#{setup.url}/my-widgets#/"+publishedInstanceID)
-                            .pause 5000
+                            .pause 7000
                             .waitForPageVisible '#export_scores_button', 5000
                             .click '#export_scores_button'
                             .pause 100
@@ -207,11 +206,6 @@ describe 'When I create a widget', ->
             .waitForPageVisible '.scoreTable tr', 7000
             .click '.scoreTable tr'
             .call done
-            ###
-            .waitForUrlContains '/scores/', 7000, (err, res, client) ->
-                expect(err).toBe(null)
-                client.call done
-            ###
     , 55000
 
     it 'should display the export scores dialog for a widget with scores', (done) ->
