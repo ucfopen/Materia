@@ -32,7 +32,7 @@ class Admin extends \Basetask
 		{
 			// make a random password if needed
 			if ( ! isset($user['password'])) $user['password'] = \Str::random('alnum', 16);
-			
+
 			// exists?
 			$e_user = \Model_User::query()
 				->where('username', '=', $user['name'])
@@ -152,6 +152,13 @@ class Admin extends \Basetask
 	public static function destroy_widgets()
 	{
 		$file_area = \File::forge(['basedir' => '/']);
+		if ( ! file_exists(\Config::get('materia.dirs.engines')))
+		{
+			\Cli::write('Widgets directory not present', 'red');
+			\Cli::write(\Config::get('materia.dirs.engines'), 'red');
+			return;
+		}
+
 		$dirs = $file_area->read_dir(\Config::get('materia.dirs.engines'), 1, ['!^\.', '!^\D']);
 		if (count($dirs) > 0)
 		{
@@ -201,7 +208,8 @@ class Admin extends \Basetask
 				{
 					$table_name = array_values($table)[0];
 					\Cli::write("!!! Dropping Table: {$table_name}", 'red');
-					sleep(2); // pause here to let the user ctrl c if they made a huge mistake
+					// pause here to let the user ctrl c if they made a huge mistake
+					if (\Fuel::$env != \Fuel::TEST) sleep(2);
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}
