@@ -27,8 +27,8 @@ class Test_Scores extends \Basetest
 
 		$event_fired = false;
 
-		// Register an event listener to make sure it's called and gets the right values
-		\Event::register('score_updated', function($event_args) use (&$play, &$event_fired) {
+		$callback = function($event_args) use (&$play, &$event_fired)
+		{
 			list($play_id, $inst_id, $student_user_id, $latest_score, $max_score) = $event_args;
 			$event_fired = true;
 
@@ -36,9 +36,12 @@ class Test_Scores extends \Basetest
 			$this->assertEquals($student_user_id, $play->user_id);
 			$this->assertEquals($latest_score, 77);
 			$this->assertEquals($max_score, 77);
-		});
+		};
 
+		// Register an event listener to make sure it's called and gets the right values
+		\Event::register('score_updated', $callback);
 		$play->set_complete(77, 100, 77);
+		\Event::unregister('score_updated');
 		$this->assertTrue($event_fired);
 	}
 
