@@ -50,10 +50,9 @@ class Session_Play
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
+			$instance         = Widget_Instance_Manager::get($inst_id);
 			$this->created_at = time();
-			$instances = Api::widget_instances_get([$inst_id], false);
-			$inst = $instances[0];
-			$guest_access = $inst->guest_access;
+			$guest_access     = $instance->guest_access;
 			$this->user_id    = $guest_access ? 0 : $user_id;
 			$this->inst_id    = $inst_id;
 			$this->is_preview = $is_preview;
@@ -302,7 +301,7 @@ class Session_Play
 	public function set_complete($score, $possible, $percent)
 	{
 		// set max score to the current score
-		$max_score = $score;
+		$max_percent = $percent;
 
 		if ($this->is_preview != true)
 		{
@@ -333,11 +332,11 @@ class Session_Play
 
 			foreach ($score_history as $score_history_item)
 			{
-				$max_score = max($max_score, $score_history_item['percent']);
+				$max_percent = max($max_percent, $score_history_item['percent']);
 			}
 		}
 		// Notify any plugins that the score has been saved
-		\Event::trigger('score_updated', [$this->id, $this->inst_id, $this->user_id, $percent, $max_score], 'string');
+		\Event::trigger('score_updated', [$this->id, $this->inst_id, $this->user_id, $percent, $max_percent], 'string');
 	}
 
 	public function update_elapsed()

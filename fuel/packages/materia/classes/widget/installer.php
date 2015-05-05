@@ -561,4 +561,10 @@ class Widget_Installer
 		return false;
 	}
 
+	private static function abort($message = false, $error = false)
+	{
+		self::end($message, $error);
+		throw new \Exception('Error: '.$message);
+	}
+
 }
