@@ -23,11 +23,12 @@ app.directive 'scoreTable', (selectedWidgetSrv, $window) ->
 			angular.forEach data, (log, index) ->
 
 				uid = log.user_id
+				name = if log.last then "#{log.last}, #{log.first}" else "Guests"
 
 				unless users[uid]?
 					users[uid] =
 						uid : uid
-						name:  "#{log.last}, #{log.first}"
+						name: name
 						scores : {}
 
 				# make the score percentage readable

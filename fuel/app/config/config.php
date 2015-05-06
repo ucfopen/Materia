@@ -243,6 +243,7 @@ return array(
 			'materia',
 			'rocketDuck',
 			'auth',
+			'materiaauth',
 		),
 
 		'modules' => array(

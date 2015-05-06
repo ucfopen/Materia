@@ -25,22 +25,23 @@ namespace Materia;
 class Widget_Instance
 {
 
-	public $attempts    = -1;
-	public $clean_name  = '';
-	public $close_at    = -1;
-	public $created_at  = 0;
-	public $embed_url   = '';
-	public $height      = 0;
-	public $id          = 0;
-	public $is_draft    = false;
-	public $name        = '';
-	public $open_at     = -1;
-	public $play_url    = '';
-	public $preview_url = '';
+	public $attempts     = -1;
+	public $clean_name   = '';
+	public $close_at     = -1;
+	public $created_at   = 0;
+	public $embed_url    = '';
+	public $guest_access = false;
+	public $height       = 0;
+	public $id           = 0;
+	public $is_draft     = false;
+	public $name         = '';
+	public $open_at      = -1;
+	public $play_url     = '';
+	public $preview_url  = '';
 	public $qset; /* ->version = null, ->data = null */
-	public $user_id     = 0;
-	public $widget      = null;
-	public $width       = 0;
+	public $user_id      = 0;
+	public $widget       = null;
+	public $width        = 0;
 
 	public function __construct($properties=[])
 	{
@@ -279,17 +280,18 @@ class Widget_Instance
 
 			list($empty, $num) = \DB::insert('widget_instance')
 				->set([
-					'id'         => $hash,
-					'widget_id'  => $this->widget->id,
-					'user_id'    => $this->user_id,
-					'created_at' => time(),
-					'name'       => $this->name,
-					'is_draft'   => $this->is_draft,
-					'height'     => $this->height,
-					'width'      => $this->width,
-					'open_at'    => $this->open_at,
-					'close_at'   => $this->close_at,
-					'attempts'   => $this->attempts
+					'id'             => $hash,
+					'widget_id'      => $this->widget->id,
+					'user_id'        => $this->user_id,
+					'created_at'     => time(),
+					'name'           => $this->name,
+					'is_draft'       => $this->is_draft,
+					'height'         => $this->height,
+					'width'          => $this->width,
+					'open_at'        => $this->open_at,
+					'close_at'       => $this->close_at,
+					'attempts'       => $this->attempts,
+					'guest_access'   => $this->guest_access
 				])
 				->execute();
 
@@ -307,13 +309,14 @@ class Widget_Instance
 			// store the question set if it hasn't already been
 			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
-					'widget_id'  => $this->widget->id,
-					'created_at' => time(),
-					'name'       => $this->name,
-					'is_draft'   => $this->is_draft,
-					'open_at'    => $this->open_at,
-					'close_at'   => $this->close_at,
-					'attempts'   => $this->attempts
+					'widget_id'      => $this->widget->id,
+					'created_at'     => time(),
+					'name'           => $this->name,
+					'is_draft'       => $this->is_draft,
+					'open_at'        => $this->open_at,
+					'close_at'       => $this->close_at,
+					'attempts'       => $this->attempts,
+					'guest_access'   => $this->guest_access
 				])
 				->where('id', $this->id)
 				->execute();
@@ -411,6 +414,26 @@ class Widget_Instance
 		{
 			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $viewers_list[$i], [Perm::VISIBLE => Perm::ENABLE]);
 		}
+	}
+
+	/**
+	 * Checks if user can play widget.
+	 *
+	 * @return bool Whether or not the current user can play the widget
+	 */
+	public function playable_by_current_user()
+	{
+		return $this->guest_access || Api::session_valid();
+	}
+
+	/**
+	 * Checks if widget instance allows guest players.
+	 *
+	 * @return bool Whether or not the widget instance allows guest players.
+	 */
+	public function allows_guest_players()
+	{
+		return $this->guest_access;
 	}
 
 	public function export()

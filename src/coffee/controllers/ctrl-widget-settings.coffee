@@ -11,6 +11,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 	# Hold information for availability.
 	$scope.availability = []
+	$scope.guestAccess = false
 	# From
 	$scope.availability.push
 		header: 'Available'
@@ -27,6 +28,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
 		$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
+		$scope.guestAccess = $scope.selected.widget.guest_access
 		$scope.dateFormatter()
 		setTimeout ->
 			$scope.setupSlider()
@@ -40,6 +42,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			value: $scope.attemptsSliderValue * 1000
 			min: 1000
 			max: 25000
+			disabled: $scope.guestAccess
 			create: (event) ->
 				$scope.changeSlider($scope.attemptsSliderValue)
 			slide: (event, ui) ->
@@ -57,6 +60,14 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			onSelect: (dateText) ->
 				$scope.availability[1].date = dateText
 
+	$scope.toggleGuestAccess = ->
+		$scope.guestAccess = !$scope.guestAccess
+		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
+		setTimeout ->
+			$( ".selector" ).slider
+				value: ($scope.attemptsSliderValue * 1000)
+				disabled: $scope.guestAccess
+		,0
 
 	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->
@@ -91,7 +102,10 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 	# Moves the slider to the specified value and updates the attempts.
 	# From ng-click on the attempt numbers below the slider.
 	$scope.changeSlider = (number) ->
-		# -1 == unlimited
+		if $scope.guestAccess
+			# always should be set to unlimited (-1)
+			number = -1
+
 		if number == -1
 			val = 1000
 		else
@@ -199,11 +213,12 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 			inst_id: $scope.selected.widget.id,
 			open_at: $scope.times[0],
 			close_at: $scope.times[1],
-			attempts: attempts
+			attempts: attempts,
+			guest_access: $scope.guestAccess
 			, (widget) ->
 				$scope.$broadcast 'widgetAvailability.update', ''
 
-		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1])
+		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess)
 
 	Namespace('Materia.MyWidgets').Availability =
 		popup : $scope.popup

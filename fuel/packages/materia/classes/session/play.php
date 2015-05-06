@@ -48,10 +48,12 @@ class Session_Play
 	 */
 	public function start($user_id=0, $inst_id=0, $is_preview=false)
 	{
-		if ($user_id > 0 && \RocketDuck\Util_Validator::is_valid_hash($inst_id))
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
+			$instance         = Widget_Instance_Manager::get($inst_id);
 			$this->created_at = time();
-			$this->user_id    = $user_id;
+			$guest_access     = $instance->guest_access;
+			$this->user_id    = $guest_access ? 0 : $user_id;
 			$this->inst_id    = $inst_id;
 			$this->is_preview = $is_preview;
 
@@ -81,6 +83,7 @@ class Session_Play
 
 			if ($this->save_new_play())
 			{
+				\Session::set('active', true);
 				// log play created
 				$logger = new Session_Logger();
 				$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
@@ -225,7 +228,7 @@ class Session_Play
 				'username'
 			)
 			->from(['log_play', 's'])
-			->join(['users', 'u'])
+			->join(['users', 'u'], 'LEFT OUTER')
 				->on('u.id', '=', 's.user_id')
 			->where('s.inst_id', $inst_id);
 
@@ -297,6 +300,9 @@ class Session_Play
 
 	public function set_complete($score, $possible, $percent)
 	{
+		// set max score to the current score
+		$max_percent = $percent;
+
 		if ($this->is_preview != true)
 		{
 			$this->invalidate();
@@ -309,9 +315,7 @@ class Session_Play
 				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
 				\Cache::delete('play-logs.'.$this->inst_id.'.all');
 			}
-			catch (\CacheNotFoundException $e)
-			{
-			}
+			catch (\CacheNotFoundException $e) {}
 
 			\DB::update('log_play')
 				->set([
@@ -323,16 +327,16 @@ class Session_Play
 				->where('id', $this->id)
 				->execute();
 
-			// Determine the highest score
+			// Determine the highest score of all my history (guest plays do not know youre history)
 			$score_history = \Materia\Score_Manager::get_instance_score_history($this->inst_id);
-			$max_score = 0;
+
 			foreach ($score_history as $score_history_item)
 			{
-				$max_score = max($max_score, $score_history_item['percent']);
+				$max_percent = max($max_percent, $score_history_item['percent']);
 			}
 		}
 		// Notify any plugins that the score has been saved
-		\Event::trigger('score_updated', [$this->id, $this->inst_id, $this->user_id, $percent, $max_score], 'string');
+		\Event::trigger('score_updated', [$this->id, $this->inst_id, $this->user_id, $percent, $max_percent], 'string');
 	}
 
 	public function update_elapsed()

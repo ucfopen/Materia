@@ -58,7 +58,7 @@ class Install
 		if (\Cli::option('install_widgets', $install_widgets) === true)
 		{
 			require_once(PKGPATH.'materia/tasks/widget.php');
-			\Fuel\Tasks\Widget::install();
+			\Fuel\Tasks\Widget::install(\Cli::option('widget_path'));
 		}
 	}
 }

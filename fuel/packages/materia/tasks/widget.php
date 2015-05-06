@@ -50,7 +50,7 @@ class Widget extends \Basetask
 		// Login as someone:
 		\Cli::write('You need to login to do this.  Who do you want to login as?');
 		$user = self::search_for_user();
-		\Auth::instance('SimpleAuth')->force_login($user->id);
+		\Auth::instance('Materiaauth')->force_login($user->id);
 
 		$inst_id = \Cli::prompt('Widget ID');
 		$inst = self::get_widget_instance($inst_id);
@@ -221,7 +221,7 @@ class Widget extends \Basetask
 			$as_user = $user->id;
 		}
 
-		\Auth::instance('SimpleAuth')->force_login($as_user);
+		\Auth::instance('Materiaauth')->force_login($as_user);
 
 		// Get the widget details:
 		if ($interactive)
@@ -393,6 +393,7 @@ class Widget extends \Basetask
 		$matches        = [];
 		$regex_is_git   = '/\S+\.git/';
 		$regex_is_url   = '/https?:\/\/\S+\/(\S+\.wigt)/';
+		$clear_output   = true;
 
 		// Install from config
 		if ( ! $glob_str)
@@ -412,17 +413,28 @@ class Widget extends \Basetask
 		// Install from a git repository
 		if ($force_git || preg_match($regex_is_git, $glob_str, $matches))
 		{
-			$git_url    = $matches[0];
-			$output_dir = self::tempdir();
+			$git_url      = $matches[0];
+			$git_dir      = \Inflector::friendly_title($git_url, '_', true);
+			$output_dir   = PKGPATH.'materia/vendor/widget/source/'. $git_dir . '/';
+			$clear_output = false;
+
 			\Cli::write('Cloning git repository...');
 			trace('installing widget from git repository', $git_url);
-			passthru("git archive --remote=$git_url HEAD _output/ | tar -x -C $output_dir/");
 
-			// make sure outputdir has a trailing slash
-			if (substr($output_dir, -1) != '/') $output_dir .= '/';
+			if ( ! file_exists($output_dir))
+			{
+				// create the clone
+				mkdir($output_dir, 0777, true);
+				passthru("git clone {$git_url} $output_dir");
+			}
+			elseif (empty($_SERVER['SKIP_WIDGET_PULL']))
+			{
+				// update the clone
+				passthru("cd $output_dir && git fetch");
+			}
 
 			// just change the glob string to point at the cloned directory
-			$glob_str = $output_dir.'**/*.wigt';
+			$glob_str = $output_dir.'_output/*.wigt';
 		}
 
 		// install from a url
@@ -469,7 +481,7 @@ class Widget extends \Basetask
 			trace($e);
 		}
 
-		if (isset($output_dir))
+		if (isset($output_dir) && $clear_output)
 		{
 			$area = \File::forge(['basedir' => null]);
 			$area->delete_dir($output_dir);
@@ -478,7 +490,8 @@ class Widget extends \Basetask
 
 	private static function install_one($widget_file, $validate_only = false, $assume_upgrade = false, $force = false, $db_only = false)
 	{
-		try {
+		try
+		{
 			self::login_as_admin();
 
 			$file_area = \File::forge(['basedir' => null]);
@@ -487,7 +500,7 @@ class Widget extends \Basetask
 			\Cli::write('Extracting');
 			$dir = \Materia\Widget_Installer::extract_widget($widget_file);
 
-			if (!$dir)
+			if ( ! $dir)
 			{
 				\Cli::write("Error extracting $widget_file");
 				\Cli::write('Failed to extract widget', 'red');
@@ -790,7 +803,7 @@ class Widget extends \Basetask
 
 		if ($admin_ids->count() > 0)
 		{
-			\Auth::instance('SimpleAuth')->force_login($admin_ids[0]['id']);
+			\Auth::instance('Materiaauth')->force_login($admin_ids[0]['id']);
 		}
 		else
 		{
