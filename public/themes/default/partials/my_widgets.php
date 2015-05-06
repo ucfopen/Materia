@@ -242,7 +242,7 @@
 									</span>
 								</dd>
 								<dt>Access:</dt>
-								<dd ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" class="access-level">
+								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" class="access-level">
 									<span ng-if="!selected.widget.guest_access">Staff and Students only</span>
 									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
 								</dd>
