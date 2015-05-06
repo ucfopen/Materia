@@ -1,24 +1,4 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
 
 namespace Materia;
 
@@ -167,12 +147,6 @@ class Widget_Instance
 		return false;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	public function get_qset($inst_id, $timestamp=false)
 	{
 		$this->qset = (object) ['version' => null, 'data' => null];
@@ -424,6 +398,11 @@ class Widget_Instance
 	public function playable_by_current_user()
 	{
 		return $this->guest_access || Api::session_valid();
+	}
+
+	public function viewable_by($user_id)
+	{
+		return Perm_Manager::user_has_any_perm_to($user_id, $this->id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]);
 	}
 
 	/**

@@ -146,7 +146,7 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
-		if ( ! Materia\Perm_Manager::check_user_perm_to_object(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL]))
+		if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL]))
 		{
 			$this->no_permission();
 			return;
@@ -291,7 +291,7 @@ class Controller_Widgets extends Controller
 			$inst = $instances[0];
 
 			// check ownership of widget
-			if ( ! Materia\Perm_Manager::check_user_perm_to_object(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
+			if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
 			{
 				$this->no_permission();
 				return;
