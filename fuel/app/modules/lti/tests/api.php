@@ -99,7 +99,7 @@ class Test_Api extends \Basetest
 		$inst_id = $widget_instance->id;
 
 		$this->assertTrue(is_array($result) && isset($result['score_url']));
-		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken");
+		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken#play-$play_id");
 	}
 
 	public function test_can_create()

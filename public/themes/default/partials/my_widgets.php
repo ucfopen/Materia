@@ -73,13 +73,13 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="440px">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="500px">
 				<div ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
 						<li><h3>Attempts</h3>
 							<div class="selector" ng-if="show.availabilityModal"></div>
-							<ul class="attemptHolder">
+							<ul class="attemptHolder" ng-class="{disabled: guestAccess}">
 								<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
 								<li id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)">2</li>
 								<li id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)">3</li>
@@ -104,6 +104,11 @@
 										<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
 									</li>
 								</ul>
+							</li>
+							<li id="guest-access"><h3>Access</h3>
+								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
+								<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
+								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
 							</li>
 						</ul>
 					</ul>
@@ -214,15 +219,15 @@
 							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 						</div>
-						<div class="additional_options" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
+						<div class="additional_options" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
 							<h3>Settings:</h3>
-							<dl class="attempts_parent" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}">
+							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}">
 								<dt>Attempts:</dt>
 								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd class="availability-time" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd class="avaiability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
@@ -236,8 +241,13 @@
 										From <span class="available_date">{{ availability.start.date }}</span> at <span class="available_time">{{ availability.start.time }}</span> until <span class="available_date">{{ availability.end.date }}</span> at <span class="available_time">{{ availability.end.time}}</span>
 									</span>
 								</dd>
+								<dt>Access:</dt>
+								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" class="access-level">
+									<span ng-if="!selected.widget.guest_access">Staff and Students only</span>
+									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
+								</dd>
 							</dl>
-							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.editable || !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.editable" ng-click="popup()">Edit settings...</a>
+							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.shareable || selected.widget.is_draft" ng-click="popup()">Edit settings...</a>
 						</div>
 					</div>
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
@@ -345,7 +355,7 @@
 			</div>
 			<div class="courses">
 				<div class="widget_list" data-container="widget-list">
-					<div ng-repeat="widget in widgets.widgetList | filter:query" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
+					<div ng-repeat="widget in widgets.widgetList | multiword:query:'AND'" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
 						<img class="icon" ng-src="{{widget.icon}}"/>
 						<ul>
 							<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>

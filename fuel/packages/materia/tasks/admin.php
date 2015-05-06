@@ -32,7 +32,7 @@ class Admin extends \Basetask
 		{
 			// make a random password if needed
 			if ( ! isset($user['password'])) $user['password'] = \Str::random('alnum', 16);
-			
+
 			// exists?
 			$e_user = \Model_User::query()
 				->where('username', '=', $user['name'])
@@ -152,6 +152,13 @@ class Admin extends \Basetask
 	public static function destroy_widgets()
 	{
 		$file_area = \File::forge(['basedir' => '/']);
+		if ( ! file_exists(\Config::get('materia.dirs.engines')))
+		{
+			\Cli::write('Widgets directory not present', 'red');
+			\Cli::write(\Config::get('materia.dirs.engines'), 'red');
+			return;
+		}
+
 		$dirs = $file_area->read_dir(\Config::get('materia.dirs.engines'), 1, ['!^\.', '!^\D']);
 		if (count($dirs) > 0)
 		{
@@ -193,6 +200,7 @@ class Admin extends \Basetask
 				if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') continue;
 			}
 
+			\DB::query("SET foreign_key_checks = 0")->execute();
 			$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute($db_name);
 			if ($tables->count() > 0)
 			{
@@ -200,10 +208,12 @@ class Admin extends \Basetask
 				{
 					$table_name = array_values($table)[0];
 					\Cli::write("!!! Dropping Table: {$table_name}", 'red');
-					sleep(2); // pause here to let the user ctrl c if they made a huge mistake
+					// pause here to let the user ctrl c if they made a huge mistake
+					if (\Fuel::$env != \Fuel::TEST) sleep(2);
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}
+			\DB::query("SET foreign_key_checks = 1")->execute();
 			\Cli::write("$db_name tables dropped", 'green');
 		}
 
@@ -291,12 +301,9 @@ class Admin extends \Basetask
 	{
 		try
 		{
-			$user_id = \Auth::instance()->create_user($user_name, $password, $email, 1, []);
-			//manually add first/last name to make up for simpleauth
-			$user = \Model_User::find($user_id);
-			$user->first = $first_name;
-			$user->last = $last_name;
-			$user->save();
+			// Auth instance must be MateriaAuth or similar auth module
+			// SimpleAuth does not work!!
+			$user_id = \Auth::instance()->create_user($user_name, $password, $email, 1, [], $first_name, $last_name);
 
 			if ($user_id === false)
 			{
@@ -312,7 +319,7 @@ class Admin extends \Basetask
 		catch (\FuelException $e)
 		{
 			\Cli::beep(1);
-			\Cli::write(\Cli::color('Failed to create user', 'red'));
+			\Cli::write(\Cli::color('Error creating user', 'red'));
 			\Cli::write(\Cli::color($e->getMessage(), 'red'));
 		}
 

@@ -26,4 +26,19 @@ app.filter 'highlight', ($sce) ->
 				)
 		return $sce.trustAsHtml(text)
 
+app.filter 'multiword', ->
+	return (input, searchText, AND_OR) ->
+		searchText = searchText or ''
+		returnArray = []
+
+		splitted = searchText.toLowerCase().split /\s+/
+		regexp_and = "(?=.*" + splitted.join(")(?=.*") + ")"
+		regexp_or = searchText.toLowerCase().replace(/\s+/g, "|")
+		re = new RegExp (if AND_OR == "AND" then regexp_and else regexp_or), "i"
+
+		for x in [0...input.length]
+			if re.test(input[x].searchCache) or searchText == ''
+				returnArray.push(input[x])
+
+		returnArray
 
