@@ -227,7 +227,7 @@
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd class="avaiability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
