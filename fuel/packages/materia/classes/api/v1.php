@@ -21,6 +21,9 @@ Availible Verbs:
 */
 
 namespace Materia;
+use \RocketDuck\Msg;
+use \RocketDuck\Util_Validator;
+
 class Api_V1
 {
 	/**
@@ -36,7 +39,7 @@ class Api_V1
 		if ( ! isset($inst_ids))
 		{
 			// ==================== GET ALL INSTANCES ==============================
-			if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+			if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
 		}
 		else
@@ -53,8 +56,8 @@ class Api_V1
 	 */
 	static public function widget_instance_delete($inst_id)
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
 
 		return $inst->db_remove();
@@ -65,7 +68,7 @@ class Api_V1
 	 */
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 		// get the qset
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		$duplicate = $inst->duplicate($new_name);
@@ -84,15 +87,15 @@ class Api_V1
 	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
-		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
-		if ( ! \RocketDuck\Util_Validator::is_pos_int($widget_id)) return \RocketDuck\Msg::invalid_input($widget_id);
+		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
 		if ( ! is_bool($is_draft)) $is_draft = true;
 
 		$widget = new Widget();
-		if ( $widget->get($widget_id) == false) return \RocketDuck\Msg::invalid_input('Invalid widget type');
+		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 
 		// init the instance
-	 	$inst = new Widget_Instance([
+		$inst = new Widget_Instance([
 			'user_id'    => \Model_User::find_current_id(),
 			'name'       => $name,
 			'is_draft'   => $is_draft,
@@ -124,13 +127,13 @@ class Api_V1
 	 */
 	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
 	{
-		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Instance id is invalid');
-		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
+		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
+		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
 		// load the existing qset
 		$inst = Widget_Instance_Manager::get($inst_id, true);
-		if ( ! $inst) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be found.');
+		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
 
 		// update the widget type (some can change based on theme)
 		if ($qset !== null && ! empty($qset->data) && ! empty($qset->version)) $inst->qset = $qset;
@@ -148,13 +151,13 @@ class Api_V1
 		}
 		else
 		{
-			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget could not be created.');
+			return new Msg(Msg::ERROR, 'Widget could not be created.');
 		}
 	}
 
 	static public function widget_instance_lock($inst_id) // formerly $inst_id
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 		// getDraftLock will return true if we have or are able to get a lock on this game
 		return Widget_Instance_Manager::lock($inst_id);
 	}
@@ -181,9 +184,9 @@ class Api_V1
 	static public function session_play_create($inst_id, $preview_mode=false)
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
-		if ($preview_mode && ! $inst->viewable_by(\Model_User::find_current_id())) return \RocketDuck\Msg::no_perm();
-		if ($preview_mode == false && $inst->is_draft == true) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+		if ($preview_mode && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
+		if ($preview_mode == false && $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
 		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $preview_mode);
@@ -220,18 +223,18 @@ class Api_V1
 	 */
 	static public function play_activity_get($start = 0, $range = 6)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		// get play data, ask for one more than was requested so we can see if there are more
-	 	// we grabbed an extra entry, just to see if there are more than requested
-	 	// but we don't want to include that in the results
+		// we grabbed an extra entry, just to see if there are more than requested
+		// but we don't want to include that in the results
 		$play  = new Session_Play();
-	 	$plays = $play->get_plays_by_user_id(\Model_User::find_current_id(), $start, $range + 1);
-	 	$count = count($plays);
-	 	if ($count > $range) $plays = array_slice($plays, 0, $range);
-	 	return [
-	 		'activity' => $plays,
-	 		'more'     => $count > $range
-	 	];
+		$plays = $play->get_plays_by_user_id(\Model_User::find_current_id(), $start, $range + 1);
+		$count = count($plays);
+		if ($count > $range) $plays = array_slice($plays, 0, $range);
+		return [
+			'activity' => $plays,
+			'more'     => $count > $range
+		];
 	}
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
@@ -240,18 +243,18 @@ class Api_V1
 		if ( ! $preview_inst_id)
 		{
 			$inst = self::_get_instance_for_play_id($play_id);
-			if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 		}
 		// otherwise see if user has valid session
 		else
 		{
-			if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+			if (\Model_User::verify_session() !== true) return Msg::no_login();
 		}
-		if ( $preview_inst_id === null && ! \RocketDuck\Util_Validator::is_valid_long_hash($play_id)) return \RocketDuck\Msg::invalid_input($play_id);
-		if ( ! is_array($logs) || count($logs) < 1 ) return \RocketDuck\Msg::invalid_input('missing log array');
+		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
+		if ( ! is_array($logs) || count($logs) < 1 ) return Msg::invalid_input('missing log array');
 
 		// ============ PREVIEW MODE =============
-		if (\RocketDuck\Util_Validator::is_valid_hash($preview_inst_id))
+		if (Util_Validator::is_valid_hash($preview_inst_id))
 		{
 			Score_Manager::save_preview_logs($preview_inst_id, $logs);
 			return true;
@@ -260,7 +263,7 @@ class Api_V1
 		else
 		{
 			$play = self::_validate_play_id($play_id);
-			if ( ! ($play instanceof Session_Play)) return \RocketDuck\Msg::invalid_input('Invalid play session');
+			if ( ! ($play instanceof Session_Play)) return Msg::invalid_input('Invalid play session');
 			// each log is an object?, convert to array
 			if ( ! is_array($logs[0]))
 			{
@@ -278,14 +281,14 @@ class Api_V1
 			if ($score_mod->validate_times() == false)
 			{
 				$play->invalidate();
-				return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Timing validation error.', true);
+				return new Msg(Msg::ERROR, 'Timing validation error.', true);
 			}
 
 			// validate the scores the game generated on the server
 			if ($score_mod->validate_scores() == false)
 			{
 				$play->invalidate();
-				return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'There was an error validating your score.', true);
+				return new Msg(Msg::ERROR, 'There was an error validating your score.', true);
 			}
 
 			$return = [];
@@ -310,15 +313,15 @@ class Api_V1
 
 	static public function assets_get()
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
 	static public function widget_instance_scores_get($inst_id)
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		return Score_Manager::get_instance_score_history($inst_id);
 	}
@@ -329,20 +332,20 @@ class Api_V1
 		if ( ! $preview_mode_inst_id)
 		{
 			$inst = self::_get_instance_for_play_id($play_id);
-			if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 		}
 		// otherwise see if user has valid session
 		else
 		{
-			if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+			if (\Model_User::verify_session() !== true) return Msg::no_login();
 		}
-		if (\RocketDuck\Util_Validator::is_valid_hash($preview_mode_inst_id))
+		if (Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			return Score_Manager::get_preview_logs($preview_mode_inst_id);
 		}
 		else
 		{
-			if (\RocketDuck\Util_Validator::is_valid_long_hash($play_id) != true) return \RocketDuck\Msg::invalid_input($play_id);
+			if (Util_Validator::is_valid_long_hash($play_id) != true) return Msg::invalid_input($play_id);
 			return Score_Manager::get_play_details([$play_id]);
 		}
 	}
@@ -357,9 +360,9 @@ class Api_V1
 	 */
 	static public function guest_widget_instance_scores_get($inst_id, $play_id)
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		return Score_Manager::get_guest_instance_score_history($inst_id, $play_id);
 	}
@@ -374,9 +377,9 @@ class Api_V1
 	 */
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all')
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
-		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
 	}
 
@@ -386,9 +389,9 @@ class Api_V1
 	 */
 	static public function score_summary_get($inst_id, $include_storage_data = false)
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		$distribution = Score_Manager::get_widget_score_distribution($inst_id);
 		$summary = Score_Manager::get_widget_score_summary($inst_id);
@@ -435,9 +438,9 @@ class Api_V1
 	 */
 	static public function play_storage_get($inst_id)
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		return Storage_Manager::get_logs_by_inst_id($inst_id);
 	}
@@ -448,15 +451,15 @@ class Api_V1
 	 */
 	static public function question_set_get($inst_id, $play_id = null)
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id) ) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		// valid play id sent?
-		if ( ! empty($play_id) && ! static::_validate_play_id($play_id)) return \RocketDuck\Msg::no_login();
+		if ( ! empty($play_id) && ! static::_validate_play_id($play_id)) return Msg::no_login();
 
 		// if preview mode, can I preview?
-		if (empty($play_id) && ! $inst->viewable_by(\Model_User::find_current_id())) return \RocketDuck\Msg::no_perm();
+		if (empty($play_id) && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
 
 
 		$inst->get_qset($inst_id);
@@ -479,11 +482,11 @@ class Api_V1
 	 */
 	static public function questions_get($ids=null, $type=null) // remote_getQuestions
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 		// get specific questions
 		if ($ids)
 		{
-			if ( ! is_array($ids)) return \RocketDuck\Msg::invalid_input($ids);
+			if ( ! is_array($ids)) return Msg::invalid_input($ids);
 			$questions = [];
 			foreach ($ids as $id)
 			{
@@ -504,7 +507,7 @@ class Api_V1
 	static public function play_storage_data_save($play_id, $data)
 	{
 		$inst = self::_get_instance_for_play_id($play_id);
-		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
 			Storage_Manager::parse_and_store_storage_array($play->inst_id, $play_id, $play->user_id, $data);
@@ -512,14 +515,14 @@ class Api_V1
 		}
 		else
 		{
-		 	return \RocketDuck\Msg::no_login();
+			return Msg::no_login();
 		}
 	}
 
 	static public function play_storage_data_get($inst_id, $format=null) // formerly $inst_id
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		switch ($format)
 		{
 			case 'csv':
@@ -537,7 +540,7 @@ class Api_V1
 
 	static public function users_search($search)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
 		$user_objects = \Model_User::find_by_name_search($search);
 		$user_arrays = [];
@@ -561,7 +564,7 @@ class Api_V1
 	 */
 	static public function user_get($user_ids = null)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
 		//no user ids provided, return current user
 		if ($user_ids === null)
@@ -571,12 +574,12 @@ class Api_V1
 		}
 		else
 		{
-			if ( ! is_array($user_ids) || empty($user_ids)) return \RocketDuck\Msg::invalid_input();
+			if ( ! is_array($user_ids) || empty($user_ids)) return Msg::invalid_input();
 			//user ids provided, get all of the users with the given ids
 			$me = \Model_User::find_current_id();
 			foreach ($user_ids as $id)
 			{
-				if (\RocketDuck\Util_Validator::is_pos_int($id))
+				if (Util_Validator::is_pos_int($id))
 				{
 					$user = \Model_User::find($id);
 					$user = $user->to_array();
@@ -595,8 +598,8 @@ class Api_V1
 	 */
 	static public function user_update_meta($new_meta)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
-		if ( ! is_array($new_meta)) return \RocketDuck\Msg::invalid_input('meta');
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if ( ! is_array($new_meta)) return Msg::invalid_input('meta');
 		if ( empty($new_meta)) return true;
 
 		$user = \Model_User::find_current();
@@ -659,9 +662,9 @@ class Api_V1
 	 */
 	static public function permissions_set($item_type, $item_id, $perms_array)
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($item_id)) return \RocketDuck\Msg::invalid_input('Invalid item id: '.$item_id);
-		if (empty($perms_array)) return \RocketDuck\Msg::invalid_input('empty user perms');
+		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_valid_hash($item_id)) return Msg::invalid_input('Invalid item id: '.$item_id);
+		if (empty($perms_array)) return Msg::invalid_input('empty user perms');
 
 		$perms_array = static::_normalize_perms($perms_array);
 
@@ -674,7 +677,7 @@ class Api_V1
 		foreach ($perms_array as &$new_perms)
 		{
 			// i cant do anything
-			if ( ! $can_give_access && $new_perms->user_id != $cur_user_id) return \RocketDuck\Msg::no_perm();
+			if ( ! $can_give_access && $new_perms->user_id != $cur_user_id) return Msg::no_perm();
 
 			$old_perms = Perm_Manager::get_user_object_perms($item_id, $item_type, $new_perms->user_id);
 			$requested_perm_count = count($new_perms->perms);
@@ -686,7 +689,7 @@ class Api_V1
 			}
 
 			// Toss out an error if all the perms I asked for get filtered out
-			if ($requested_perm_count > 0 && count($new_perms->perms) < 1 ) return \RocketDuck\Msg::no_perm();
+			if ($requested_perm_count > 0 && count($new_perms->perms) < 1 ) return Msg::no_perm();
 
 			// Determine what type of notification to send
 			// Search perms for enabled value and get key (new_perm)
@@ -730,13 +733,13 @@ class Api_V1
 	 */
 	static public function permissions_get($item_type, $item_id)
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		return Perm_Manager::get_all_users_explicit_perms($item_id, $item_type);
 	}
 
 	static public function notifications_get()
 	{
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
 		$notifications = \Model_Notification::query()
 			->where('to_id', \Model_User::find_current_id())
@@ -755,7 +758,7 @@ class Api_V1
 
 	static public function notification_delete($note_id)
 	{
-		if ( ! \Model_User::verify_session()) return \RocketDuck\Msg::no_login();
+		if ( ! \Model_User::verify_session()) return Msg::no_login();
 
 		$user = \Model_User::find_current();
 
@@ -782,25 +785,25 @@ class Api_V1
 
 	static private function _validate_play_id($play_id)
 	{
-	 	$play = new Session_Play();
+		$play = new Session_Play();
 		$inst = self::_get_instance_for_play_id($play_id);
 		if ($inst->playable_by_current_user())
-	 	{
-	 		if ($play->get_by_id($play_id))
-	 		{
-	 			if ($play->is_valid == 1)
-	 			{
-	 				$play->update_elapsed(); // update the elapsed time
-	 				return $play;
-	 			}
-	 		}
-	 	}
-	 	else
-	 	{
-	 		// invalidate the play
-	 		if ($play->get_by_id($play_id)) $play->invalidate();
-	 	}
-	 	return false;
+		{
+			if ($play->get_by_id($play_id))
+			{
+				if ($play->is_valid == 1)
+				{
+					$play->update_elapsed(); // update the elapsed time
+					return $play;
+				}
+			}
+		}
+		else
+		{
+			// invalidate the play
+			if ($play->get_by_id($play_id)) $play->invalidate();
+		}
+		return false;
 	}
 
 	static protected function _decrypt_logs($logs)
@@ -827,7 +830,7 @@ class Api_V1
 	 */
 	static private function _get_instance_for_play_id($play_id)
 	{
-	 	$play = new Session_Play();
+		$play = new Session_Play();
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
