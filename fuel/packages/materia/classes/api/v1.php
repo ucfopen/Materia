@@ -1,14 +1,4 @@
 <?
-/**
- * Materia
- * It's a thing
- *
- * @package    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
 /*
 ======================= API NAMING CONVETION =======================
 The goals of the naming convention are to have a short, descriptive, and predictable name
@@ -29,33 +19,18 @@ Availible Verbs:
 - do    	(action when the above verbs dont fit)
 - Other verbs can be used, but only when the above do not fit
 */
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
+
 namespace Materia;
 class Api_V1
 {
 	/**
 	 * Finds widgets that are specified in the database as spotlight widgets.
-	 * @param array $widgets
-	 * @return mixed
-	 *
 	 */
 	static public function widgets_get($widgets = null)
 	{
 		return Widget_Manager::get_widgets($widgets);
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
-	// TODO: this should hit widget_instance_manager::getInstances() with optional arguments
+
 	static public function widget_instances_get($inst_ids = null)
 	{
 		if ( ! isset($inst_ids))
@@ -72,45 +47,32 @@ class Api_V1
 			return Widget_Instance_Manager::get_all($inst_ids);
 		}
 	}
+
 	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
-	 * @TODO push the majority of this code into GameManager
 	 */
 	static public function widget_instance_delete($inst_id)
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
 		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
-		if ($inst = Widget_Instance_Manager::get($inst_id)) return $inst->db_remove();
-		return false;
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
+
+		return $inst->db_remove();
 	}
+
 	/**
 	 * Make a copy of the given game
-	 *
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 *
-	 * @review Needs code review
 	 */
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
 		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
 		// get the qset
-		$inst = new Widget_Instance();
-		$inst->db_get($inst_id, true);
+		$inst = Widget_Instance_Manager::get($inst_id, true);
 		$duplicate = $inst->duplicate($new_name);
 		return $duplicate->id;
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
-	 *
 	 * @param int     $widget_id The Game resource ID
 	 * @param object  $qset
 	 * @param bool    $is_draft Whether the widget is being saved as a draft
@@ -144,7 +106,6 @@ class Api_V1
 			if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
 		}
 
-		// save
 		if ($inst->db_store()) return $inst;
 	}
 
@@ -165,13 +126,11 @@ class Api_V1
 	{
 		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return \RocketDuck\Msg::no_login();
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Instance id is invalid');
-		$perms = Perm_Manager::get_user_object_perms($inst_id, Perm::INSTANCE, \Model_User::find_current_id());
-		if ($perms[Perm::FULL] != 1 && $perms[Perm::VISIBLE] != 1 ) return \RocketDuck\Msg::no_perm();
+		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
 
 		// load the existing qset
-		$inst = new Widget_Instance();
-		$loaded = $inst->db_get($inst_id);
-		if ( ! $loaded) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be found.');
+		$inst = Widget_Instance_Manager::get($inst_id, true);
+		if ( ! $inst) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be found.');
 
 		// update the widget type (some can change based on theme)
 		if ($qset !== null && ! empty($qset->data) && ! empty($qset->version)) $inst->qset = $qset;
@@ -192,14 +151,7 @@ class Api_V1
 			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget could not be created.');
 		}
 	}
-	/**
-	 * Try and get a lock on the given game
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 *
-	 * NEEDS DOCUMENTATION
-	 */
+
 	static public function widget_instance_lock($inst_id) // formerly $inst_id
 	{
 		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
@@ -225,47 +177,19 @@ class Api_V1
 
 		return $spotlight_list;
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param bool NEEDS DOCUMENTATION
-	 * @return array
-	 */
+
 	static public function session_play_create($inst_id, $preview_mode=false)
 	{
-		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new \HttpNotFoundException;
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+		if ($preview_mode && ! $inst->viewable_by(\Model_User::find_current_id())) return \RocketDuck\Msg::no_perm();
+		if ($preview_mode == false && $inst->is_draft == true) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
-		$inst = $instances[0];
-		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
-		// make sure the user has ownership permissions to preview the widget
-		if ($preview_mode)
-		{
-			// check to see if they have the SSO punch through for this inst_id
-			if ( ! (in_array($inst_id, \Session::get('allowSSOPreviewMode', []))))
-			{
-				$perms = Perm_Manager::get_user_object_perms($inst_id, Perm::INSTANCE, \Model_User::find_current_id());
-				if ($perms[Perm::FULL] != 1 && $perms[Perm::VISIBLE] != 1 ) return \RocketDuck\Msg::no_perm();
-			}
-		}
-
-		$inst = new Widget_Instance();
-		if ($inst->db_get($inst_id))
-		{
-			if ($preview_mode == false && $inst->is_draft == true) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
-			$play = new Session_Play();
-			$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $preview_mode);
-			return $play_id;
-		}
-
-		// the game instance didn't exist, return an error
-		return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR,'Invalid Login', 'The game your attempting to reach no longer exists.');
+		$play = new Session_Play();
+		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $preview_mode);
+		return $play_id;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 */
 	static public function session_logout()
 	{
 		$activity = new Session_Activity([
@@ -275,22 +199,14 @@ class Api_V1
 		$activity->db_store();
 		return \Auth::logout();
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
+
 	static public function session_login($user, $pass)
 	{
-		// input is sanitized in the authentication modules
 		return \Model_User::login($user, $pass);
 	}
 
 	/**
 	 * Verifies that the user has a current session and generates a new SESSID for them
-	 *
-	 * @param string NEEDS DOCUMENTATION
 	 *
 	 * @return bool true if user is logged in, false if not
 	 */
@@ -300,9 +216,7 @@ class Api_V1
 	}
 
 	/**
-	 *
 	 * Get play activity history based on user's user_id
-	 *
 	 */
 	static public function play_activity_get($start = 0, $range = 6)
 	{
@@ -323,10 +237,10 @@ class Api_V1
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
 		// if not preview, see if current user can play widget
-		if (! $preview_inst_id)
+		if ( ! $preview_inst_id)
 		{
-			$inst = self::_get_widget_inst($play_id);
-			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+			$inst = self::_get_instance_for_play_id($play_id);
+			if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
 		else
@@ -402,22 +316,20 @@ class Api_V1
 
 	static public function widget_instance_scores_get($inst_id)
 	{
-		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new \HttpNotFoundException;
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 
-		$inst = $instances[0];
-		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Score_Manager::get_instance_score_history($inst_id);
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
 	{
 		// if not preview, see if current user can play widget
-		if (! $preview_mode_inst_id)
+		if ( ! $preview_mode_inst_id)
 		{
-			$inst = self::_get_widget_inst($play_id);
-			if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+			$inst = self::_get_instance_for_play_id($play_id);
+			if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		}
 		// otherwise see if user has valid session
 		else
@@ -445,12 +357,10 @@ class Api_V1
 	 */
 	static public function guest_widget_instance_scores_get($inst_id, $play_id)
 	{
-		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new \HttpNotFoundException;
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 
-		$inst = $instances[0];
-		if (! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
 		return Score_Manager::get_guest_instance_score_history($inst_id, $play_id);
 	}
 
@@ -458,31 +368,28 @@ class Api_V1
 	 *	Gets scores/players for a particular game
 	 *	Returns an array with the following:
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 *
-	 * @review Needs code review
-	 *
 	 *	@return array [players]     a list of players that played this game <br />
 	 *				  [quickStats]	contains attempts, scores, currentPlayers, avScore, replays <br />
 	 *				  [playLogs]    a log of all scores recoreded
 	 */
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all')
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
-		if ( ! Perm_Manager::check_user_perm_to_object(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
+		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
 		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
 	}
+
 	/**
 	 * Gets score distributions (total and by semester) for a widget instance.
 	 * See documentation in Score_Manager for more information.
 	 */
 	static public function score_summary_get($inst_id, $include_storage_data = false)
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
-		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
+
 		$distribution = Score_Manager::get_widget_score_distribution($inst_id);
 		$summary = Score_Manager::get_widget_score_summary($inst_id);
 		foreach ($distribution as $id => $data)
@@ -525,68 +432,43 @@ class Api_V1
 	 * Current user must have author/collab access to the widget or
 	 * a valid play ID for this to work.
 	 * @notes users that are logged in and already have a valid play ID have already passed access test, so no need to try again
-	 * NEEDS DOCUMENTATION
 	 */
 	static public function play_storage_get($inst_id)
 	{
-		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new \HttpNotFoundException;
-
-		$inst = $instances[0];
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id) ) return \RocketDuck\Msg::invalid_input($inst_id);
+
 		return Storage_Manager::get_logs_by_inst_id($inst_id);
 	}
 	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
 	 * @param int $inst_id The id of the widget instance to get the qset for (formerly inst_id)
 	 * @param int $play_id The play id associated with a play session
-	 * @return object
+	 * @return object QSET
 	 */
 	static public function question_set_get($inst_id, $play_id = null)
 	{
-		$instances = static::widget_instances_get([$inst_id], false);
-		if ( ! count($instances)) throw new \HttpNotFoundException;
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id) ) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 
-		$inst = $instances[0];
-		$can_play = $inst->playable_by_current_user();
-		if ( ! $can_play) return \RocketDuck\Msg::no_login();
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) === false) return \RocketDuck\Msg::invalid_input($inst_id);
-		// play id sent, send the user the qset if the play is valid
-		if ($play_id)
+		// valid play id sent?
+		if ( ! empty($play_id) && ! static::_validate_play_id($play_id)) return \RocketDuck\Msg::no_login();
+
+		// if preview mode, can I preview?
+		if (empty($play_id) && ! $inst->viewable_by(\Model_User::find_current_id())) return \RocketDuck\Msg::no_perm();
+
+
+		$inst->get_qset($inst_id);
+
+		if ($play_id && \Config::get('materia.security.encrypt_qsets') === true && $inst->widget->is_qset_encrypted)
 		{
-			//valid play id
-			if (Api_V1::_validate_play_id($play_id))
-			{
-				$inst = new Widget_Instance();
-				$inst->db_get($inst_id, true);
-				if ($inst->widget->is_qset_encrypted && \Config::get('materia.security.encrypt_qsets') === true)
-				{
-					return ['encryptedText' => \Event::trigger('Materia.encrypt', $inst->qset)];
-				}
-				else
-				{
-					return $inst->qset;
-				}
-			}
-			// invalid play
-			else
-			{
-				return \RocketDuck\Msg::no_login();
-			}
+			return ['encryptedText' => \Event::trigger('Materia.encrypt', $inst->qset)];
 		}
-		// no play id, check user's permissions to the game instance - this is probably for previewing
-		else
-		{
-			if ( ! Perm_Manager::check_user_perm_to_object(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return \RocketDuck\Msg::no_perm();
-			$inst = new Widget_Instance();
-			$inst->get_qset($inst_id); // get the instance and dig into it
-			return $inst->qset;
-		}
+
+		return $inst->qset;
 	}
+
 	/**
 	 * Gets the question with the given QID or an array of questions
 	 * with the given ids (passed as an array)
@@ -618,17 +500,10 @@ class Api_V1
 			return Widget_Question_Manager::get_users_questions(\Model_User::find_current_id(), $type);
 		}
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 *
-	 * @review Needs code review.
-	 */
+
 	static public function play_storage_data_save($play_id, $data)
 	{
-		$inst = self::_get_widget_inst($play_id);
+		$inst = self::_get_instance_for_play_id($play_id);
 		if ( ! $inst->playable_by_current_user()) return \RocketDuck\Msg::no_login();
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
@@ -640,13 +515,11 @@ class Api_V1
 		 	return \RocketDuck\Msg::no_login();
 		}
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 */
+
 	static public function play_storage_data_get($inst_id, $format=null) // formerly $inst_id
 	{
 		if (\Model_User::verify_session('basic_author') !== true) return \RocketDuck\Msg::no_login();
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id) != true) return \RocketDuck\Msg::invalid_input($inst_id);
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id)) return \RocketDuck\Msg::invalid_input($inst_id);
 		switch ($format)
 		{
 			case 'csv':
@@ -656,11 +529,7 @@ class Api_V1
 				return Storage_Manager::get_logs_by_inst_id($inst_id);
 		}
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
+
 	static public function semester_date_ranges_get()
 	{
 		return Utils::get_date_ranges();
@@ -781,19 +650,12 @@ class Api_V1
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
 	 * @param array   An array with user_id's and the perms to assign them
 	 *				  Example:
 	 *				  [0]
 	 *             ['user_id'] => 5443
 	 *             ['expiration'] => null                 // null expiration == no expiration //
 	 *             ['perms'] => [ [0] => 1, [30] => 1]
-	 *
-	 * @review Needs code review
 	 */
 	static public function permissions_set($item_type, $item_id, $perms_array)
 	{
@@ -806,7 +668,7 @@ class Api_V1
 		$cur_user_id = \Model_user::find_current_id();
 
 		// full perms or is super user required
-		$can_give_access = Perm_Manager::check_user_perm_to_object($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
+		$can_give_access = Perm_Manager::user_has_any_perm_to($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
 
 		// filter out any permissions I can't do
 		foreach ($perms_array as &$new_perms)
@@ -871,13 +733,7 @@ class Api_V1
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
 		return Perm_Manager::get_all_users_explicit_perms($item_id, $item_type);
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 *
-	 * @notes getNotifications, getNumNotifications,
-	 */
+
 	static public function notifications_get()
 	{
 		if (\Model_User::verify_session() !== true) return \RocketDuck\Msg::no_login();
@@ -897,12 +753,6 @@ class Api_V1
 		return $return_array;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	static public function notification_delete($note_id)
 	{
 		if ( ! \Model_User::verify_session()) return \RocketDuck\Msg::no_login();
@@ -929,14 +779,11 @@ class Api_V1
 	{
 		return Semester::get_all();
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 */
+
 	static private function _validate_play_id($play_id)
 	{
 	 	$play = new Session_Play();
-		$inst = self::_get_widget_inst($play_id);
+		$inst = self::_get_instance_for_play_id($play_id);
 		if ($inst->playable_by_current_user())
 	 	{
 	 		if ($play->get_by_id($play_id))
@@ -955,11 +802,7 @@ class Api_V1
 	 	}
 	 	return false;
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
+
 	static protected function _decrypt_logs($logs)
 	{
 		// NOTE: this will need to have a session to have the secret key
@@ -982,14 +825,12 @@ class Api_V1
 	 *
 	 * @return Widget_Instance The current widget instance.
 	 */
-	static private function _get_widget_inst($play_id)
+	static private function _get_instance_for_play_id($play_id)
 	{
 	 	$play = new Session_Play();
 		$play->get_by_id($play_id);
 		$inst_id = $play->inst_id;
-		$instances = static::widget_instances_get([$inst_id], false);
-		if (! count($instances)) throw new \HttpNotFoundException;
-		$inst = $instances[0];
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		return $inst;
 	}
 }
