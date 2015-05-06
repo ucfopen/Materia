@@ -1,24 +1,4 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
 
 namespace Materia;
 
@@ -38,10 +18,10 @@ class Widget_Instance
 	public $open_at      = -1;
 	public $play_url     = '';
 	public $preview_url  = '';
-	public $qset; /* ->version = null, ->data = null */
 	public $user_id      = 0;
 	public $widget       = null;
 	public $width        = 0;
+	public $qset;
 
 	public function __construct($properties=[])
 	{
@@ -61,7 +41,7 @@ class Widget_Instance
 		}
 
 		// ============ URLS =============
-		$base_url = "{$this->id}/{$this->clean_name}";
+		$base_url          = "{$this->id}/{$this->clean_name}";
 		$this->preview_url = \Config::get('materia.urls.preview').$base_url;
 		$this->play_url    = $this->is_draft === false ? \Config::get('materia.urls.play').$base_url : '';
 		$this->embed_url   = $this->is_draft === false ? \Config::get('materia.urls.embed').$base_url : '';
@@ -167,41 +147,27 @@ class Widget_Instance
 		return false;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	public function get_qset($inst_id, $timestamp=false)
 	{
-		$this->qset = (object) ['version' => null, 'data' => null];
+		$query = \DB::select()
+			->from('widget_qset')
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC')
+			->limit(1);
 
-		if ( ! $timestamp)
-		{
-			$results = \DB::select()
-				->from('widget_qset')
-				->where('inst_id', $inst_id)
-				->order_by('created_at', 'DESC')
-				->limit(1)
-				->execute();
-		}
-		else
-		{
-			$results = \DB::select()
-				->from('widget_qset')
-				->where('inst_id', $inst_id)
-				->where('created_at', '<=', $timestamp)
-				->order_by('created_at', 'DESC')
-				->limit(1)
-				->execute();
-		}
+		if ($timestamp) $query->where('created_at', '<=', $timestamp);
+
+		$results = $query->execute();
 
 		if (count($results) > 0)
 		{
 			$this->qset->data    = json_decode(base64_decode($results[0]['data']), true);
 			$this->qset->version = $results[0]['version'];
 			self::find_questions($this->qset->data);
+		}
+		else
+		{
+			$this->qset = (object) ['version' => null, 'data' => null];
 		}
 	}
 
@@ -280,18 +246,18 @@ class Widget_Instance
 
 			list($empty, $num) = \DB::insert('widget_instance')
 				->set([
-					'id'             => $hash,
-					'widget_id'      => $this->widget->id,
-					'user_id'        => $this->user_id,
-					'created_at'     => time(),
-					'name'           => $this->name,
-					'is_draft'       => $this->is_draft,
-					'height'         => $this->height,
-					'width'          => $this->width,
-					'open_at'        => $this->open_at,
-					'close_at'       => $this->close_at,
-					'attempts'       => $this->attempts,
-					'guest_access'   => $this->guest_access
+					'id'           => $hash,
+					'widget_id'    => $this->widget->id,
+					'user_id'      => $this->user_id,
+					'created_at'   => time(),
+					'name'         => $this->name,
+					'is_draft'     => $this->is_draft,
+					'height'       => $this->height,
+					'width'        => $this->width,
+					'open_at'      => $this->open_at,
+					'close_at'     => $this->close_at,
+					'attempts'     => $this->attempts,
+					'guest_access' => $this->guest_access
 				])
 				->execute();
 
@@ -309,14 +275,14 @@ class Widget_Instance
 			// store the question set if it hasn't already been
 			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
-					'widget_id'      => $this->widget->id,
-					'created_at'     => time(),
-					'name'           => $this->name,
-					'is_draft'       => $this->is_draft,
-					'open_at'        => $this->open_at,
-					'close_at'       => $this->close_at,
-					'attempts'       => $this->attempts,
-					'guest_access'   => $this->guest_access
+					'widget_id'    => $this->widget->id,
+					'created_at'   => time(),
+					'name'         => $this->name,
+					'is_draft'     => $this->is_draft,
+					'open_at'      => $this->open_at,
+					'close_at'     => $this->close_at,
+					'attempts'     => $this->attempts,
+					'guest_access' => $this->guest_access
 				])
 				->where('id', $this->id)
 				->execute();
@@ -424,6 +390,11 @@ class Widget_Instance
 	public function playable_by_current_user()
 	{
 		return $this->guest_access || Api::session_valid();
+	}
+
+	public function viewable_by($user_id)
+	{
+		return Perm_Manager::user_has_any_perm_to($user_id, $this->id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]);
 	}
 
 	/**
