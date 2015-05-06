@@ -95,8 +95,8 @@
 						<ul class="toFrom">
 							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
 								<ul class="datePicker">
-									<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
-									<li ng-click="available.anytime = false">
+									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+									<li ng-click="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
 										<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
 										<label>On</label>
 										<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
@@ -223,11 +223,11 @@
 							<h3>Settings:</h3>
 							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}">
 								<dt>Attempts:</dt>
-								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()">
+								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
