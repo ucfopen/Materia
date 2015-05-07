@@ -105,7 +105,14 @@ class Api_V1
 		$inst = new Widget_Instance();
 		$inst->db_get($inst_id, true);
 		$duplicate = $inst->duplicate($new_name);
-		return $duplicate->id;
+		if ($duplicate instanceof \RocketDuck\Msg)
+		{
+			return $duplicate;
+		}
+		else
+		{
+			return $duplicate->id;
+		}
 	}
 
 	/**

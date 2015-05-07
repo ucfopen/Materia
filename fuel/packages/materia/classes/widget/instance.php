@@ -276,47 +276,52 @@ class Widget_Instance
 		if ( ! (\RocketDuck\Util_Validator::is_valid_hash($this->id)))
 		{
 			$is_new = true;
-			$hash = false;
+			$tries = 0;
+			$success = false;
 
-			while ( ! $hash)
+			while ((! $success) && $tries < 5)
 			{
-				$hash = Widget_Instance_Hash::generate_key_hash();
+				$tries++;
 
-				$results = \DB::select()
-					->from('widget_instance')
-					->where('id', $hash)
-					->limit(1)
-					->execute();
-
-				if (count($results) > 0)
+				try
 				{
-					trace("Info: Hash collision", true);
-					$hash = false;
+					$hash = Widget_Instance_Hash::generate_key_hash();
+					list($empty, $num) = \DB::insert('widget_instance')
+						->set([
+							'id'             => $hash,
+							'widget_id'      => $this->widget->id,
+							'user_id'        => $this->user_id,
+							'created_at'     => time(),
+							'name'           => $this->name,
+							'is_draft'       => $this->is_draft,
+							'height'         => $this->height,
+							'width'          => $this->width,
+							'open_at'        => $this->open_at,
+							'close_at'       => $this->close_at,
+							'attempts'       => $this->attempts,
+							'guest_access'   => $this->guest_access
+						])
+						->execute();
+
+					if ($num == 1)
+					{
+						$success = true;
+						$this->id = $hash;
+						// set ownership permissions for this user
+						Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
+					}
+				}
+				catch (\Fuel\Core\Database_Exception $e)
+				{
+					trace("Failed attempt $tries to make instance", true);
+					$success = false;
 				}
 			}
-
-			list($empty, $num) = \DB::insert('widget_instance')
-				->set([
-					'id'             => $hash,
-					'widget_id'      => $this->widget->id,
-					'user_id'        => $this->user_id,
-					'created_at'     => time(),
-					'name'           => $this->name,
-					'is_draft'       => $this->is_draft,
-					'height'         => $this->height,
-					'width'          => $this->width,
-					'open_at'        => $this->open_at,
-					'close_at'       => $this->close_at,
-					'attempts'       => $this->attempts,
-					'guest_access'   => $this->guest_access
-				])
-				->execute();
-
-			if ($num == 1)
+			if (! $success)
 			{
-				$this->id = $hash;
-				// set ownership permissions for this user
-				Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
+				$msg = new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Could not create instance!');
+				trace($msg, true);
+				return $msg;
 			}
 		}
 		// ===================== UPDATE EXISTING INSTANCE =======================
@@ -397,7 +402,11 @@ class Widget_Instance
 
 		$duplicate->id = 0; // mark as a new game
 		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
-		$duplicate->db_store();
+		$result = $duplicate->db_store();
+		if ($result instanceof \RocketDuck\Msg)
+		{
+			return $result;
+		}
 
 		// make current user owner
 		if ($set_current_user_as_new_owner)
