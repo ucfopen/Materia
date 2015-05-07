@@ -276,7 +276,24 @@ class Widget_Instance
 		if ( ! (\RocketDuck\Util_Validator::is_valid_hash($this->id)))
 		{
 			$is_new = true;
-			$hash = Widget_Instance_Hash::generate_key_hash();
+			$hash = false;
+
+			while ( ! $hash)
+			{
+				$hash = Widget_Instance_Hash::generate_key_hash();
+
+				$results = \DB::select()
+					->from('widget_instance')
+					->where('id', $hash)
+					->limit(1)
+					->execute();
+
+				if (count($results) > 0)
+				{
+					trace("Info: Hash collision", true);
+					$hash = false;
+				}
+			}
 
 			list($empty, $num) = \DB::insert('widget_instance')
 				->set([
