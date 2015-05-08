@@ -348,7 +348,7 @@ class Perm_Manager
 	{
 		$current_user_id = \Model_User::find_current_id();
 		// make sure the current user has rights to this item
-		if ( ! self::check_user_perm_to_object($current_user_id, $object_id, $object_type, [Perm::FULL, Perm::VISIBLE]))
+		if ( ! self::user_has_any_perm_to($current_user_id, $object_id, $object_type, [Perm::FULL, Perm::VISIBLE]))
 		{
 			return [];
 		}
@@ -426,14 +426,9 @@ class Perm_Manager
 	}
 
 	/**
-	 * Checks for a specific permission based on that user's combined access permissions
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * Check if user has ANY of the perms
 	 */
-	static public function check_user_perm_to_object($user_id, $object_id, $object_type, $search_perms)
+	static public function user_has_any_perm_to($user_id, $object_id, $object_type, $search_perms)
 	{
 		if (empty($search_perms)) return false;
 
@@ -443,13 +438,31 @@ class Perm_Manager
 		if ( ! is_array($search_perms)) $search_perms = [$search_perms];
 		foreach ($search_perms as $perm)
 		{
-			if (isset($perms[$perm]) && $perms[$perm] === 1)
-			{
-				return true;
-			}
+			if (isset($perms[$perm]) && $perms[$perm] === 1) return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if user has ANY of the perms
+	 */
+	static public function user_has_all_perms_to($user_id, $object_id, $object_type, $search_perms)
+	{
+		if (empty($search_perms)) return false;
+
+		$perms = self::get_user_object_perms($object_id, $object_type, $user_id);
+		$group_perms = self::get_user_group_access($user_id);
+		$perms = self::combine_perms($perms, $group_perms);
+		$found = 0;
+
+		if ( ! is_array($search_perms)) $search_perms = [$search_perms];
+		foreach ($search_perms as $perm)
+		{
+			if (isset($perms[$perm]) && $perms[$perm] === 1) $found ++;
+		}
+
+		return $found == count($search_perms);
 	}
 
 	/**

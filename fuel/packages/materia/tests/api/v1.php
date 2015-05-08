@@ -509,8 +509,12 @@ class Test_Api_V1 extends \Basetest
 	public function test_score_summary_get()
 	{
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::score_summary_get(555);
-		$this->assertInvalidLoginMessage($output);
+		try {
+			$output = \Materia\Api_V1::score_summary_get(555);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
+		} catch ( HttpNotFoundException $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
 
 	}
 
