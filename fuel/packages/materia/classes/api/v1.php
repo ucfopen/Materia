@@ -104,14 +104,14 @@ class Api_V1
 		// get the qset
 		$inst = new Widget_Instance();
 		$inst->db_get($inst_id, true);
-		$duplicate = $inst->duplicate($new_name);
-		if ($duplicate instanceof \RocketDuck\Msg)
+		try
 		{
-			return $duplicate;
-		}
-		else
-		{
+			$duplicate = $inst->duplicate($new_name);
 			return $duplicate->id;
+		}
+		catch (\Exception $e)
+		{
+			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be copied.');
 		}
 	}
 
@@ -151,8 +151,15 @@ class Api_V1
 			if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
 		}
 
-		// save
-		if ($inst->db_store()) return $inst;
+		try
+		{
+			$inst->db_store();
+			return $inst;
+		}
+		catch (\Exception $e)
+		{
+			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be saved.');
+		}
 	}
 
 	/**
@@ -189,12 +196,12 @@ class Api_V1
 		if ($attempts !== null) $inst->attempts = $attempts;
 		if ($guest_access !== null) $inst->guest_access = $guest_access;
 
-		// save
-		if ($inst->db_store())
+		try
 		{
+			$inst->db_store();
 			return $inst;
 		}
-		else
+		catch (\Exception $e)
 		{
 			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget could not be created.');
 		}
