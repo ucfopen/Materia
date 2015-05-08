@@ -95,8 +95,8 @@
 						<ul class="toFrom">
 							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
 								<ul class="datePicker">
-									<li ng-click="available.anytime = true"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
-									<li ng-click="available.anytime = false">
+									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+									<li ng-click="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
 										<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
 										<label>On</label>
 										<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
@@ -223,11 +223,11 @@
 							<h3>Settings:</h3>
 							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}">
 								<dt>Attempts:</dt>
-								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()">
+								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
@@ -254,7 +254,7 @@
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
-						<textarea id="embed_link" ng-show="embedToggle && selected.shareable">{{ getEmbedLink() }}</textarea>
+						<textarea id="embed_link" ng-show="embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
 				<div class="scores" ng-show="selected.widget.widget.is_scorable">

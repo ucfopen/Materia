@@ -115,7 +115,7 @@ class Controller_Scores extends Controller
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 
-		if ( ! Materia\Perm_Manager::check_user_perm_to_object(\Auth::instance()->get_user_id()[1], $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::VISIBLE, Materia\Perm::FULL]) && ! \Model_User::verify_session(\RocketDuck\Perm_Role::SU))
+		if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Auth::instance()->get_user_id()[1], $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::VISIBLE, Materia\Perm::FULL]) && ! \Model_User::verify_session(\RocketDuck\Perm_Role::SU))
 		{
 			return new Response('', 403);
 		}
@@ -179,7 +179,7 @@ class Controller_Scores extends Controller
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 
-		if ( ! Materia\Perm_Manager::check_user_perm_to_object(\Auth::instance()->get_user_id()[1], $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::VISIBLE, Materia\Perm::FULL]) && ! \Model_User::verify_session(\RocketDuck\Perm_Role::SU))
+		if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Auth::instance()->get_user_id()[1], $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::VISIBLE, Materia\Perm::FULL]) && ! \Model_User::verify_session(\RocketDuck\Perm_Role::SU))
 		{
 			return new Response('', 403);
 		}

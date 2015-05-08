@@ -18,10 +18,10 @@ class Widget_Instance
 	public $open_at      = -1;
 	public $play_url     = '';
 	public $preview_url  = '';
-	public $qset; /* ->version = null, ->data = null */
 	public $user_id      = 0;
 	public $widget       = null;
 	public $width        = 0;
+	public $qset;
 
 	public function __construct($properties=[])
 	{
@@ -149,8 +149,6 @@ class Widget_Instance
 
 	public function get_qset($inst_id, $timestamp=false)
 	{
-		$this->qset = (object) ['version' => null, 'data' => null];
-
 		$query = \DB::select()
 			->from('widget_qset')
 			->where('inst_id', $inst_id)
@@ -166,6 +164,10 @@ class Widget_Instance
 			$this->qset->data    = json_decode(base64_decode($results[0]['data']), true);
 			$this->qset->version = $results[0]['version'];
 			self::find_questions($this->qset->data);
+		}
+		else
+		{
+			$this->qset = (object) ['version' => null, 'data' => null];
 		}
 	}
 
@@ -403,6 +405,11 @@ class Widget_Instance
 		return $this->guest_access || Api::session_valid();
 	}
 
+	public function viewable_by($user_id)
+	{
+		return Perm_Manager::user_has_any_perm_to($user_id, $this->id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]);
+	}
+
 	/**
 	 * Checks if widget instance allows guest players.
 	 *
@@ -413,7 +420,6 @@ class Widget_Instance
 		return $this->guest_access;
 	}
 
-	public function export()
-	{}
+	public function export() {}
 
 }
