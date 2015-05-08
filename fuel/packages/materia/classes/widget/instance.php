@@ -1,24 +1,4 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
 
 namespace Materia;
 
@@ -61,7 +41,7 @@ class Widget_Instance
 		}
 
 		// ============ URLS =============
-		$base_url = "{$this->id}/{$this->clean_name}";
+		$base_url          = "{$this->id}/{$this->clean_name}";
 		$this->preview_url = \Config::get('materia.urls.preview').$base_url;
 		$this->play_url    = $this->is_draft === false ? \Config::get('materia.urls.play').$base_url : '';
 		$this->embed_url   = $this->is_draft === false ? \Config::get('materia.urls.embed').$base_url : '';
@@ -127,7 +107,7 @@ class Widget_Instance
 		// if item is not an object, don't touch it
 		if (is_object($object_qgroup))
 		{
-			$object_qgroup = (array)$object_qgroup;
+			$object_qgroup = (array) $object_qgroup;
 		}
 
 		if ( ! is_array($object_qgroup))
@@ -167,35 +147,19 @@ class Widget_Instance
 		return false;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	public function get_qset($inst_id, $timestamp=false)
 	{
 		$this->qset = (object) ['version' => null, 'data' => null];
 
-		if ( ! $timestamp)
-		{
-			$results = \DB::select()
-				->from('widget_qset')
-				->where('inst_id', $inst_id)
-				->order_by('created_at', 'DESC')
-				->limit(1)
-				->execute();
-		}
-		else
-		{
-			$results = \DB::select()
-				->from('widget_qset')
-				->where('inst_id', $inst_id)
-				->where('created_at', '<=', $timestamp)
-				->order_by('created_at', 'DESC')
-				->limit(1)
-				->execute();
-		}
+		$query = \DB::select()
+			->from('widget_qset')
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC')
+			->limit(1);
+
+		if ($timestamp) $query->where('created_at', '<=', $timestamp);
+
+		$results = $query->execute();
 
 		if (count($results) > 0)
 		{
@@ -261,90 +225,77 @@ class Widget_Instance
 		return false;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param object  Database Manager
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	public function db_store()
 	{
 		// check for requirements
 		if ( ! $this->user_id > 0) return false;
 
-		// ================ ADDING A NEW INSTANCE ===================
-		if ( ! (\RocketDuck\Util_Validator::is_valid_hash($this->id)))
+		$is_new = ! \RocketDuck\Util_Validator::is_valid_hash($this->id);
+
+		if ($is_new) // ================ ADDING A NEW INSTANCE ===================
 		{
-			$is_new = true;
-			$tries = 0;
+			$tries = 3; // quick hack to deal with possible key collistion
 			$success = false;
 
-			while ((! $success) && $tries < 5)
+			while ( ! $success)
 			{
-				$tries++;
+				if ($tries-- < 0) throw new \Exception("Unable to save new widget instance");
+
+				$hash = Widget_Instance_Hash::generate_key_hash();
 
 				try
 				{
-					$hash = Widget_Instance_Hash::generate_key_hash();
+
 					list($empty, $num) = \DB::insert('widget_instance')
 						->set([
-							'id'             => $hash,
-							'widget_id'      => $this->widget->id,
-							'user_id'        => $this->user_id,
-							'created_at'     => time(),
-							'name'           => $this->name,
-							'is_draft'       => $this->is_draft,
-							'height'         => $this->height,
-							'width'          => $this->width,
-							'open_at'        => $this->open_at,
-							'close_at'       => $this->close_at,
-							'attempts'       => $this->attempts,
-							'guest_access'   => $this->guest_access
+							'id'           => $hash,
+							'widget_id'    => $this->widget->id,
+							'user_id'      => $this->user_id,
+							'created_at'   => time(),
+							'name'         => $this->name,
+							'is_draft'     => $this->is_draft,
+							'height'       => $this->height,
+							'width'        => $this->width,
+							'open_at'      => $this->open_at,
+							'close_at'     => $this->close_at,
+							'attempts'     => $this->attempts,
+							'guest_access' => $this->guest_access
 						])
 						->execute();
 
-					if ($num == 1)
-					{
-						$success = true;
-						$this->id = $hash;
-						// set ownership permissions for this user
-						Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
-					}
+					$success = $num == 1;
 				}
 				catch (\Fuel\Core\Database_Exception $e)
 				{
-					trace("Failed attempt $tries to make instance", true);
-					$success = false;
+					// try again till retries run out!
 				}
 			}
-			if (! $success)
-			{
-				$msg = new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Could not create instance!');
-				trace($msg, true);
-				return $msg;
-			}
+
+			// $success must be true to get here
+			$this->id = $hash;
+			Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
+
 		}
-		// ===================== UPDATE EXISTING INSTANCE =======================
-		else
+		else // ===================== UPDATE EXISTING INSTANCE =======================
 		{
-			$is_new = false;
 			// store the question set if it hasn't already been
 			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
-					'widget_id'      => $this->widget->id,
-					'created_at'     => time(),
-					'name'           => $this->name,
-					'is_draft'       => $this->is_draft,
-					'open_at'        => $this->open_at,
-					'close_at'       => $this->close_at,
-					'attempts'       => $this->attempts,
-					'guest_access'   => $this->guest_access
+					'widget_id'    => $this->widget->id,
+					'name'         => $this->name,
+					'is_draft'     => $this->is_draft,
+					'open_at'      => $this->open_at,
+					'close_at'     => $this->close_at,
+					'attempts'     => $this->attempts,
+					'guest_access' => $this->guest_access
 				])
 				->where('id', $this->id)
 				->execute();
 		}
+
+
 		// =========================== NOW STORE THE QSET ====================
-		if ($this->qset != null && ! empty($this->qset->data)) $qset_stored = $this->store_qset();
+		if ( ! empty($this->qset->data)) $success = $this->store_qset();
 
 		// =========================== SAVE ACTIVITY ====================
 		$activity = new Session_Activity([
@@ -356,7 +307,7 @@ class Widget_Instance
 		]);
 		$activity->db_store();
 
-		return isset($qset_stored) ? $qset_stored : true;
+		return $success;
 	}
 
 	/**
