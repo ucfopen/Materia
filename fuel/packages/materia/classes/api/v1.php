@@ -69,10 +69,17 @@ class Api_V1
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
 		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
-		// get the qset
 		$inst = Widget_Instance_Manager::get($inst_id, true);
-		$duplicate = $inst->duplicate($new_name);
-		return $duplicate->id;
+
+		try
+		{
+			$duplicate = $inst->duplicate($new_name);
+			return $duplicate->id;
+		}
+		catch (\Exception $e)
+		{
+			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be copied.');
+		}
 	}
 
 	/**
@@ -109,7 +116,15 @@ class Api_V1
 			if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
 		}
 
-		if ($inst->db_store()) return $inst;
+		try
+		{
+			$inst->db_store();
+			return $inst;
+		}
+		catch (\Exception $e)
+		{
+			return new Msg(Msg::ERROR, 'Widget instance could not be saved.');
+		}
 	}
 
 	/**
@@ -144,12 +159,12 @@ class Api_V1
 		if ($attempts !== null) $inst->attempts = $attempts;
 		if ($guest_access !== null) $inst->guest_access = $guest_access;
 
-		// save
-		if ($inst->db_store())
+		try
 		{
+			$inst->db_store();
 			return $inst;
 		}
-		else
+		catch (\Exception $e)
 		{
 			return new Msg(Msg::ERROR, 'Widget could not be created.');
 		}
