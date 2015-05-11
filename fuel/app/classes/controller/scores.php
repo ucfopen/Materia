@@ -209,6 +209,7 @@ class Controller_Scores extends Controller
 					$r['semester']   = $semester;
 					$r['last_name']  = $play['last'];
 					$r['first_name'] = $play['first'];
+					$r['playid']     = $play['id'];
 					$r['type']       = $play_event->type;
 					$r['item_id']	 = $play_event->item_id;
 					$r['text']       = $play_event->text;
@@ -224,13 +225,13 @@ class Controller_Scores extends Controller
 		if (count($play_logs) == 0) throw new HttpNotFoundException;
 
 		// Table headers
-		$csv_playlog_text = "User ID,Last Name,First Name,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
+		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
 
 		foreach ($results as $userid => $userlog)
 		{
 			foreach ($userlog as $r)
 			{
-				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
+				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
 			}
 		}
 
