@@ -430,7 +430,7 @@ class Widget extends \Basetask
 			elseif (empty($_SERVER['SKIP_WIDGET_PULL']))
 			{
 				// update the clone
-				passthru("cd $output_dir && git fetch");
+				passthru("cd $output_dir && git pull");
 			}
 
 			// just change the glob string to point at the cloned directory

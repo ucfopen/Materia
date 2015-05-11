@@ -107,7 +107,7 @@ class Widget_Instance
 		// if item is not an object, don't touch it
 		if (is_object($object_qgroup))
 		{
-			$object_qgroup = (array)$object_qgroup;
+			$object_qgroup = (array) $object_qgroup;
 		}
 
 		if ( ! is_array($object_qgroup))
@@ -227,56 +227,63 @@ class Widget_Instance
 		return false;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param object  Database Manager
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	public function db_store()
 	{
 		// check for requirements
 		if ( ! $this->user_id > 0) return false;
 
-		// ================ ADDING A NEW INSTANCE ===================
-		if ( ! (\RocketDuck\Util_Validator::is_valid_hash($this->id)))
+		$is_new = ! \RocketDuck\Util_Validator::is_valid_hash($this->id);
+
+		if ($is_new) // ================ ADDING A NEW INSTANCE ===================
 		{
-			$is_new = true;
-			$hash = Widget_Instance_Hash::generate_key_hash();
+			$tries = 3; // quick hack to deal with possible key collistion
+			$success = false;
 
-			list($empty, $num) = \DB::insert('widget_instance')
-				->set([
-					'id'           => $hash,
-					'widget_id'    => $this->widget->id,
-					'user_id'      => $this->user_id,
-					'created_at'   => time(),
-					'name'         => $this->name,
-					'is_draft'     => $this->is_draft,
-					'height'       => $this->height,
-					'width'        => $this->width,
-					'open_at'      => $this->open_at,
-					'close_at'     => $this->close_at,
-					'attempts'     => $this->attempts,
-					'guest_access' => $this->guest_access
-				])
-				->execute();
-
-			if ($num == 1)
+			while ( ! $success)
 			{
-				$this->id = $hash;
-				// set ownership permissions for this user
-				Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
+				if ($tries-- < 0) throw new \Exception("Unable to save new widget instance");
+
+				$hash = Widget_Instance_Hash::generate_key_hash();
+
+				try
+				{
+
+					list($empty, $num) = \DB::insert('widget_instance')
+						->set([
+							'id'           => $hash,
+							'widget_id'    => $this->widget->id,
+							'user_id'      => $this->user_id,
+							'created_at'   => time(),
+							'name'         => $this->name,
+							'is_draft'     => $this->is_draft,
+							'height'       => $this->height,
+							'width'        => $this->width,
+							'open_at'      => $this->open_at,
+							'close_at'     => $this->close_at,
+							'attempts'     => $this->attempts,
+							'guest_access' => $this->guest_access
+						])
+						->execute();
+
+					$success = $num == 1;
+				}
+				catch (\Fuel\Core\Database_Exception $e)
+				{
+					// try again till retries run out!
+				}
 			}
+
+			// $success must be true to get here
+			$this->id = $hash;
+			Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
+
 		}
-		// ===================== UPDATE EXISTING INSTANCE =======================
-		else
+		else // ===================== UPDATE EXISTING INSTANCE =======================
 		{
-			$is_new = false;
 			// store the question set if it hasn't already been
 			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
 					'widget_id'    => $this->widget->id,
-					'created_at'   => time(),
 					'name'         => $this->name,
 					'is_draft'     => $this->is_draft,
 					'open_at'      => $this->open_at,
@@ -287,8 +294,10 @@ class Widget_Instance
 				->where('id', $this->id)
 				->execute();
 		}
+
+
 		// =========================== NOW STORE THE QSET ====================
-		if ($this->qset != null && ! empty($this->qset->data)) $qset_stored = $this->store_qset();
+		if ( ! empty($this->qset->data)) $success = $this->store_qset();
 
 		// =========================== SAVE ACTIVITY ====================
 		$activity = new Session_Activity([
@@ -300,7 +309,7 @@ class Widget_Instance
 		]);
 		$activity->db_store();
 
-		return isset($qset_stored) ? $qset_stored : true;
+		return $success;
 	}
 
 	/**
@@ -346,7 +355,11 @@ class Widget_Instance
 
 		$duplicate->id = 0; // mark as a new game
 		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
-		$duplicate->db_store();
+		$result = $duplicate->db_store();
+		if ($result instanceof \RocketDuck\Msg)
+		{
+			return $result;
+		}
 
 		// make current user owner
 		if ($set_current_user_as_new_owner)
@@ -407,7 +420,6 @@ class Widget_Instance
 		return $this->guest_access;
 	}
 
-	public function export()
-	{}
+	public function export() {}
 
 }
