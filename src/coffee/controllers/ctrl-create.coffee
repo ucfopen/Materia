@@ -168,7 +168,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		dfd.promise()
 
 	embedHTML = (htmlPath, dfd) ->
-		$scope.htmlPath = htmlPath
+		$scope.htmlPath = htmlPath + "?" + widget_info.created_at
 		$scope.$apply()
 		embedDoneDfd = dfd
 
