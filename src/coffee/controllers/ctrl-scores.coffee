@@ -84,11 +84,18 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		return dfd.promise()
 
 	populateScores = (scores) ->
+		dfd = $.Deferred()
 		if scores == null or scores.length < 1
-			#load up an error screen of some sort
-			$scope.restricted = true
-			$scope.$apply()
-			dfd.reject 'No scores for this widget'
+			if single_id
+				single_id = null
+				displayScoreData widget_id, play_id
+			else
+				#load up an error screen of some sort
+				$scope.restricted = true
+				$scope.show = true
+				$scope.$apply()
+				dfd.reject 'No scores for this widget'
+			return
 		# Round scores
 		for attemptScore in scores
 			attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
@@ -195,7 +202,10 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 				if isPreview
 					window.location.hash = '#attempt-'+1
-				else if matchedAttempt != false
+				# we only want to do this if there's more than one attempt. Otherwise it's a guest widget
+				# or the score is being viewed by an instructor, so we don't want to get rid of the playid
+				# in the hash
+				else if matchedAttempt != false and $scope.attempts.length > 1
 					# changing the hash will call getScoreDetails()
 					window.location.hash = '#attempt-'+matchedAttempt
 					getScoreDetails()

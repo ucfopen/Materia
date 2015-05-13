@@ -2,7 +2,7 @@
 	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
 
-		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
+		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
 			<h1 ng-click="prevClick()">Prev. Attempts</h1>
 			<ul ng-mouseover="prevMouseOver()">
 				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
