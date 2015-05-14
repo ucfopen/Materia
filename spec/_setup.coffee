@@ -86,6 +86,11 @@ module.exports =
 			.setValue('#category_0', 'Test')
 			.click('.category:first-of-type button.add:not(.ng-hide)')
 			.setValue('#question_text', 'Test question')
+			.waitFor '#qtoggle0', 7000
+			.click('label[for=qtoggle0]')
+			.setValue('.questions textarea', 'Some answer')
+			.scroll 0, 200
+			.click '.controls input[value=Close]'
 			.frame(null) # switch back to main content
 			.click('#creatorSaveBtn')
 			.waitFor('#creatorSaveBtn.saving', 1000)

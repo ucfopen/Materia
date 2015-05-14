@@ -21,6 +21,9 @@ describe 'Guest Access Feature', ->
         client
             .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 instanceID = result.value
+                if instanceID.substring(0,1) == "/"
+                    instanceID = instanceID.substring(1)
+
                 expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
                 client
