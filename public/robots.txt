@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /themes/default/layouts
+Disallow: /themes/default/lti
+Disallow: /themes/default/partials
+Disallow: /themes/default/test
+
+Disallow: /themes/ucf/layouts
+Disallow: /themes/ucf/lti
+Disallow: /themes/ucf/partials
+Disallow: /themes/ucf/test
+
+Disallow: /embed
+Disallow: /lti
+Disallow: /play
+
