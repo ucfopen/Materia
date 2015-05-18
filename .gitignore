@@ -43,9 +43,7 @@ node_modules
 
 # Installed Widgets
 public/assets/widget/*
-static/widget/*
-!static/widget/test
-static/widget/test/*
+static/widget
 spec/widgets/*
 fuel/packages/materia/vendor/widget/*
 
