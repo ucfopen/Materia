@@ -166,7 +166,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		embedDoneDfD = dfd
 
 		$scope.type = "html"
-		$scope.htmlPath = enginePath
+		$scope.htmlPath = enginePath + "?" + instance.widget.created_at
 		$('#'+PLAYER.EMBED_TARGET).width instance.widget.width if instance.widget.width > 0
 		$('#'+PLAYER.EMBED_TARGET).height instance.widget.height if instance.widget.height > 0
 
