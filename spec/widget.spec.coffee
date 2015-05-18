@@ -27,6 +27,8 @@ describe 'When I create a widget', ->
         client
             .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 instanceID = result.value
+                if instanceID.substring(0,1) == "/"
+                    instanceID = instanceID.substring(1)
                 # console.log "instanceid: #{instanceID}"
                 expect(instanceID).not.toBeNull()
                 expect(instanceID.length).toBe(5)
@@ -134,7 +136,7 @@ describe 'When I create a widget', ->
             .waitFor '.scoreWrapper', 7000
             .getText '.players', (err, text) -> expect(text).toBe('1')
             .getText '.score-count', (err, text) -> expect(text).toBe('2')
-            .getText '.final-average', (err, text) -> expect(text).toBe('0')
+            .getText '.final-average', (err, text) -> expect(text).toBe('50')
             .pause 100
 
         # play the game again
@@ -149,7 +151,7 @@ describe 'When I create a widget', ->
             .waitFor '.scoreWrapper', 7000
             .getText '.players', (err, text) -> expect(text).toBe('1')
             .getText '.score-count', (err, text) -> expect(text).toBe('3')
-            .getText '.final-average', (err, text) -> expect(text).toBe('0')
+            .getText '.final-average', (err, text) -> expect(text).toBe('67')
             .pause 100
             .call done
     , 55000
