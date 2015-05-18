@@ -2,7 +2,7 @@
 	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
 
-		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
+		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
 			<h1 ng-click="prevClick()">Prev. Attempts</h1>
 			<ul ng-mouseover="prevMouseOver()">
 				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
@@ -83,11 +83,11 @@
 
 	<div class="score_restrict container general" ng-show="restricted">
 		<section class="page score_restrict">
-			<h2 class="logo">You don't have any scores for this widget.</h2>
+			<h2 class="logo">You don't have permission to view this page.</h2>
 
 			<p>You may need to:</p>
 			<ul>
-				<li>Make sure the score you're trying to access belongs to you.</li>
+				<li>Make sure the score you're trying to access belongs to you or your student.</li>
 				<li>Try to access this score through your profile page.</li>
 				<li>Check out our documentation.</li>
 			</ul>
