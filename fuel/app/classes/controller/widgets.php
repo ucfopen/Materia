@@ -110,11 +110,11 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
-		if (Materia\Api::session_valid('basic_author') != true)
-		{
-			$this->no_permission();
-			return;
-		}
+		// if (Materia\Api::session_valid('basic_author') != true)
+		// {
+		// 	$this->no_permission();
+		// 	return;
+		// }
 
 		$widget = DB::select()
 			->from('widget')
@@ -187,7 +187,7 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login'));
 		}
 
-		if (Materia\Api::session_valid('basic_author') != true) return $this->mywidgets_student();
+		// if (Materia\Api::session_valid('basic_author') != true) return $this->mywidgets_student();
 
 		Css::push_group(['core', 'my_widgets']);
 
@@ -369,16 +369,16 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
-	protected function mywidgets_student()
-	{
-		$this->theme->get_template()
-			->set('title', '')
-			->set('page_type', 'my_widgets');
+	// protected function mywidgets_student()
+	// {
+	// 	$this->theme->get_template()
+	// 		->set('title', '')
+	// 		->set('page_type', 'my_widgets');
 
-		$this->theme->set_partial('content', 'partials/my_widgets_students');
+	// 	$this->theme->set_partial('content', 'partials/my_widgets_students');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-	}
+	// 	Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+	// }
 
 	/**
 	 * Load the login screen and possibly widget information if it's needed
