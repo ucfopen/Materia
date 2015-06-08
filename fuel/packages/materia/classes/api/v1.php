@@ -328,7 +328,7 @@ class Api_V1
 
 	static public function assets_get()
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		// if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
