@@ -1,14 +1,26 @@
 app = angular.module 'materia'
-app.controller 'mediaImportCtrl', ($scope, $sce) ->
+app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
 	dt = null
 	uploading = false
 	creator = null
 	_coms = null
+	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
+	
+	# this column data is passed to view to automate table header creation, 
+	# without which datatables will fail to function
+	$scope.dt_cols = [#columns expected from result, index 0-5
+		{ "data": "id"},
+		{ "data": "wholeObj" }, # stores copy of whole whole object as column for ui purposes
+		{ "data": "title" },
+		{ "data": "type" },
+		{ "data": "file_size" },
+		{ "data": "created_at" }
+	]
 
-	# load up the media objects
-	loadAllMedia = ->
+	# load up the media objects, optionally pass file id to skip labeling that file
+	loadAllMedia = (file_id) ->
 		# clear the table
 		selectedAssets = []
 		data = []
@@ -19,175 +31,175 @@ app.controller 'mediaImportCtrl', ($scope, $sce) ->
 		if mediaTypes
 			mediaTypes = mediaTypes.split(',')
 
-		# load
+		# load and/or select file for labelling
 		_coms.send 'assets_get', [], (result) ->
 			if result and result.msg is undefined and result.length > 0
 				data = result
 				$('#question-table').dataTable().fnClearTable()
+				# augment result for custom datatables ui
+				for res in result
+
+					# file uploaded - if this result's id matches, stop processing and select this asset now
+					if file_id? and res.id == file_id
+							$window.parent.Materia.Creator.onMediaImportComplete([res])
+
+					# make entire object (barring id) an attr to use as column in datatables
+					temp = {}
+					for own attr of res
+						if attr!="id"
+							temp[attr]=res[attr]
+					res['wholeObj'] = temp
+
 				$('#question-table').dataTable().fnAddData(result)
 
-
-
 	getHash = ->
-		window.location.hash.substring(1)
+		$window.location.hash.substring(1)
 
 	# init
-	$(document).ready ->
+	init = ->
+		upl = $("#uploader")
+		upl.pluploadQueue
+			# General settings
+			runtimes : 'html5,flash,html4'
+			url : '/media/upload/'
+			max_file_size : '60mb'
+			chunk_size : '2mb'
+			unique_names : false
+			rename : true
+			multiple_queues: false
+			
+			# Specify what files to browse for
+			filters : [
+				title : "Media files"
+				extensions : "jpeg,jpg,gif,png,flv,mp3"
+			]
+
+			init:
+				StateChanged: (up) ->
+					uploading = (up.state == plupload.STARTED)
+
+					if (uploading)
+						document.title = 'Uploading...'
+					else
+						document.title = 'Media Catalog | Materia'
+						loadAllMedia()
+				# automatic upload on drop into queue
+				FilesAdded: (up) ->
+						up.start()
+						# render import form unclickable during upload
+						$('#import-form').css {
+							"pointer-events": "none"
+							opacity: "0.2"
+						}
+				# fired when the above is successful
+				FileUploaded: (up, file, response) ->
+					res = $.parseJSON response.response #parse response string
+					# reload media to select newly uploaded file
+					loadAllMedia res.id
+				Error: (up, args) ->
+					# Called when a error has occured
+
+		$("#uploader_browse", upl)
+			.text('Browse...')
+			.next().remove() # removes the adjacent "Start upload" button
+		$(".plupload_droptext", upl).text("Drag a file here to upload")
+
 		# click listener for each row
-		$(document).on 'click', '#question-table tbody tr', (e) ->
+		$($document).on 'click', '#question-table tbody tr', (e) ->
+			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
-
-			radio = $(this).find(':radio')
-			radio.attr('checked', true)
-
-			selected = $(this).toggleClass('row_selected').hasClass('row_selected')
-
-			# stop the bubbling to prevent the row's click event
-			if e.target.type == "radio"
-				e.stopPropagation()
-
 			index = $('#question-table').dataTable().fnGetPosition(this)
-
 			selectedAssets = [data[index]]
+			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
 
-		$('#submit-button').click (e) ->
+		# todo: add cancel button
+		$('#close-button').click (e) ->
 			e.stopPropagation()
-			window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
-			false
+			$window.parent.Materia.Creator.onMediaImportComplete(null)
 
-		$('#cancel-button').click (e) ->
-			e.stopPropagation()
-			window.parent.Materia.Creator.onMediaImportComplete(null)
+		# sorting buttons found in sort bar
+		$('.dt-sorting').click (e) ->
+			el = $(this).next() #get neighbor
+			if el.hasClass('sort-asc') || el.hasClass('sort-desc')
+				el.toggleClass "sort-asc sort-desc"
+			else 
+				el.addClass "sort-asc"
+				el.show()
 
 		# on resize, re-fit the table size
-		$(window).resize ->
-			$('div.dataTables_scrollBody').height($(window).height() - 150)
+		$($window).resize ->
 			dt.fnAdjustColumnSizing()
 
 		# setup the table
 		dt = $('#question-table').dataTable {
-			"paginate": false, # don't paginate
-			"lengthChange": true, # resize the fields
-			"autoWidth": false, #
-			"processing": true, # show processing dialog
-			"scrollY": "300px",  # setup to be a scrollable table
-			"language": {
-				"search" : '',
-				"infoFiltered": ' / _MAX_',
-				"info": "showing: _TOTAL_"
-			}, # hide search label
-			# columsn to display
-			"columns": [
-				{ "data": null  }, # radio button
-				{ "data": "id" },
-				{ "data": "title" },
-				{ "data": "type" },
-				{ "data": "file_size" },
-				{ "data": "created_at" }
-			],
+			paginate: false # don't paginate
+			lengthChange: true # resize the fields
+			autoWidth: false #
+			processing: true # show processing dialog
+			scrollY: "inherit"  # setup to be a scrollable table
+			language:
+				search: '' # hide search label
+				infoFiltered: ''
+				info: ''
+				infoEmpty: ''
+			# columns to display
+			columns: $scope.dt_cols #see global vars up top
 			# special sorting options
-			"sorting": [[5, "desc"]],
+			sorting: [[5, "desc"]] #sort by date by default
 			# item renderers
-			"columnDefs": [
-				{
-					# date column
-					"render": (data, type, full, meta) ->
-						d = new Date(data * 1000)
-						return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
-					"targets": 5
-				},
-				{
-					# file size column
-					"render": (data, type, full, meta) ->
-						return '<span class="numeric">'+Math.round(data/1024)+' kb</span>'
-					"targets": 4
-				},
-				{
-					# thumbnail column
-					"render": (data, type, full, meta) ->
+			columnDefs: [
+				{# thumbnail column
+					render: (data, type, full, meta) ->
 						return '<img src="/media/'+data+'/thumbnail">'
-					"searchable": false,
-					"sortable": false,
-					"targets": 1
+					searchable: false,
+					sortable: true,
+					targets: 0
 				},
-				{
-					# radio column
-					"render": (data, type, full, meta) ->
-						return '<input type="radio" name="id" />'
-					"searchable": false,
-					"sortable": false,
-					"targets": 0
+				{# custom ui column containing a nested table of asset details
+					render: (data, type, full, meta) ->
+						sub_table=document.createElement "table"
+						sub_table.width="100%"
+						sub_table.className="sub-table"
+
+						row = sub_table.insertRow()
+						cell = row.insertCell()
+
+						temp = document.createElement "div"
+						temp.className = "subtable-title"
+						temp.innerHTML = data.title.split('.')[0]
+						cell.appendChild temp
+
+						temp=document.createElement "div"
+						temp.className = "subtable-type subtable-gray"
+						temp.innerHTML = data.type
+						cell.appendChild temp
+
+						cell = row.insertCell()
+						cell.className = "subtable-date subtable-gray"
+						d = new Date(data.created_at * 1000)
+						cell.innerHTML = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+
+						return sub_table.outerHTML
+					searchable: false,
+					sortable: false,
+					targets: 1
+				},
+				{# remaining columns are searchable but hidden
+					visible: false,
+					sortable: true,
+					targets: [2,3,4,5]
 				}
 			]
 		}
-		
-		# # re-fit the table now
-		$('div.dataTables_scrollBody').height($(window).height() - 150)
+
+		# add sort listeners to custom sort elements in sort-bar on view
+		dt.fnSortListener $("#sort-#{col}"), (i+2) for col,i in $scope.cols
+
+		# add id for custom styling
+		$('#question-table_filter input').attr('id', 'search-box')
 
 		_coms = Materia.Coms.Json
 		_coms.setGateway(API_LINK)
-		# load the questions
 		loadAllMedia()
-
-	# Show/Hide the Plupload dialog
-	window.toggleUploader = ->
-		state = $('#upload-cancel-button').text()
-
-		if state == 'Close'
-			$('#upload-cancel-button').text('Upload...')
-			$('#modal-cover').fadeOut()
-		else
-			$('#upload-cancel-button').text('Close')
-			$("#uploader").pluploadQueue
-				# General settings
-				runtimes : 'html5,flash,html4'
-				url : '/media/upload/'
-				max_file_size : '60mb'
-				chunk_size : '2mb'
-				unique_names : false
-				rename : true
-				multiple_queues: true
-				
-				# Specify what files to browse for
-				filters : [
-					title : "Media files"
-					extensions : "jpeg,jpg,gif,png,flv,mp3"
-				],
-
-				# Flash settings
-				flash_swf_url : '/assets/swf/plupload.flash.swf',
-
-				init:
-					StateChanged: (up) ->
-						uploading = (up.state == plupload.STARTED)
-
-						if (uploading)
-							document.title = 'Uploading...'
-						else
-							document.title = 'Media Catalog | Materia'
-							toggleUploader()
-							loadAllMedia()
-					Error: (up, args) ->
-						# Called when a error has occured
-
-			$('#modal-cover').fadeIn()
-		$('#uploader-form').slideToggle()
-
-	# Client side form validation
-	$('#uploader-form').submit (e) ->
-		e.preventDefault()
-		uploader = $('#uploader').pluploadQueue()
-
-		# Files in queue upload them first
-		if uploader.files.length > 0
-			# When all files are uploaded submit form
-			uploader.bind 'StateChanged', ->
-				if uploader.files.length == (uploader.total.uploaded + uploader.total.failed)
-					$('form')[0].submit()
-
-			uploader.start()
-		else
-			alert('You must queue at least one file.')
-
-		false
-
+	
+	$timeout init

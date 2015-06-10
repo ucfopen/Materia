@@ -75,7 +75,7 @@ class Widget_Asset_Manager
 			// failed, remove the asset
 			$asset->db_remove();
 		}
-		return false;
+		return $asset;
 	}
 	/**
 	 * Removes onership of an asset for the given user.

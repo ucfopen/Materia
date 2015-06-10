@@ -79,7 +79,8 @@ class Controller_Media extends Controller
 	// Event handler called when an upload via plupload is complete
 	public static function on_upload_complete($uploaded_file)
 	{
-		Materia\Widget_Asset_Manager::process_upload(Input::post('name', 'New Asset'), $uploaded_file);
+		$asset = Materia\Widget_Asset_Manager::process_upload(Input::post('name', 'New Asset'), $uploaded_file);
+		return $asset->id;
 	}
 
 
