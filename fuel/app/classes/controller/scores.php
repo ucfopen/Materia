@@ -123,7 +123,8 @@ class Controller_Scores extends Controller
 				return $this->build_download_response($csv, $inst->name.'.csv');
 				break;
 			case "raw":
-				return $export_module->build_raw($inst_id, $inst->name, $semesters_string);
+				$data = $export_module->build_raw($inst, $inst_id, $inst->name, $semesters_string);
+				return $this->build_download_response($data, $inst->name.'.zip');
 				break;
 			// default:
 		}
