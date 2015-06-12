@@ -94,7 +94,7 @@ abstract class Export_Module
 	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function build_raw($inst_id, $inst_name, $semesters_string)
+	public function build_raw($inst, $inst_id, $inst_name, $semesters_string)
 	{
 		$semesters = explode(',', $semesters_string);
 		$play_logs = [];
@@ -104,7 +104,7 @@ abstract class Export_Module
 		{
 			list($year, $term) = explode('-', $semester);
 		 	// Get all scores for each semester
-		 	$logs = $play_logs[$year.' '.$term] = Materia\Session_Play::get_by_inst_id($inst_id, $term, $year);
+		 	$logs = $play_logs[$year.' '.$term] = \Materia\Session_Play::get_by_inst_id($inst_id, $term, $year);
 
 			foreach ($logs as $play)
 			{
@@ -113,7 +113,7 @@ abstract class Export_Module
 
 				if ( ! isset($results[$uname])) $results[$uname] = ['score' => 0];
 
-				$play_events = Materia\Session_Logger::get_logs($play['id']);
+				$play_events = \Materia\Session_Logger::get_logs($play['id']);
 
 				foreach ($play_events as $play_event)
 				{
@@ -217,7 +217,7 @@ abstract class Export_Module
 
 		$tempname = tempnam('/tmp', 'materia_csv');
 
-		$zip = new ZipArchive();
+		$zip = new \ZipArchive();
 		$zip->open($tempname);
 		$zip->addFromString('questions.csv', $csv_question_text);
 		$zip->addFromString('answers.csv', $csv_answer_text);
@@ -227,6 +227,6 @@ abstract class Export_Module
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return $this->build_download_response($data, $inst_name.'.zip');
+		return $data;
 	}
 }
