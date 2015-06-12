@@ -194,6 +194,8 @@ class Controller_Widgets extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
+		Js::push_inline('var STUDENT_LOGGED = '.(Materia\Api::session_valid('basic_author') ? 'false' : 'true'));
+
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
 			->set('page_type', 'my_widgets');
