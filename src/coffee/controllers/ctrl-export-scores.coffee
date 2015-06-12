@@ -28,6 +28,8 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 			value: "csv", option: "Scores"
 		,
 			value: "raw", option: "All raw data"
+		,
+			value: "custom", option: "Custom"
 	]
 	$scope.exportType = $scope.exportSelect[0]
 
@@ -99,7 +101,7 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	# Formate and return the download link
 	$scope.getDownloadLink = ->
 		if $scope.ids
-			link = "/scores/#{$scope.exportType.value}/#{$scope.selected.widget.id}/#{$scope.ids}"
+			link = "/scores/export/#{$scope.exportType.value}/#{$scope.selected.widget.id}/#{$scope.ids}"
 		else
 			link = "#"
 		return link
