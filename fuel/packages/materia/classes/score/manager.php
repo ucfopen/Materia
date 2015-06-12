@@ -129,6 +129,25 @@ class Score_Manager
 	}
 
 	/**
+	 * Finds the appropriate export module instance for a given game and play log
+	 *
+	 * @param  int Identifier for this game instance
+	 * @param  int Identifier for this play log
+	 *
+	 * @return Export_Modules_Base  A export module fitting the given widget
+	 */
+	static public function get_export_module_for_widget($inst_id)
+	{
+		$inst = new Widget_Instance();
+		$inst->db_get($inst_id, false);
+
+		import(strtolower($inst->widget->score_module), '../packages/materia/vendor/widget/export_module');
+		$export_module = 'Materia\Export_Modules_'.$inst->widget->score_module;
+
+		return new $export_module($inst);
+	}
+
+	/**
 	 * Returns an object that contains the score distribution total and by semester of scores
 	 * Distributions are split into groups of 10, so [0] is for  scores 0-9, [1] is 10-19, etc.
 	 * The last category, 9, represents scores of 90-100.  Also includes a total of all semesters.
