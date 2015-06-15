@@ -23,19 +23,11 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		,
 			userID: "cb3311rt", name: "Cantus Blundig", score: "59"
 	]
-	# Info for export type, default to csv
-	$scope.exportSelect = [
-			value: "csv", option: "Scores"
-		,
-			value: "raw", option: "All raw data"
-		,
-			value: "custom", option: "Custom"
-	]
-	$scope.exportType = $scope.exportSelect[0]
 
 	# Builds the initial version of the popup window
 	buildPopup = ->
 		$scope.selectedId = $scope.selected.widget.id
+		$scope.exportType = $scope.selected.widget.widget.logs_export_methods[0]
 		getScores()
 
 	# Finds all the scores with a given game instance id

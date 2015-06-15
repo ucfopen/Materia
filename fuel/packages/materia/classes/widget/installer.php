@@ -456,6 +456,18 @@ class Widget_Installer
 		}
 		$file_area->rename($dir.'/_score-modules/score_module.php', $new_score_module);
 
+		// installs custom export module, use score module name for export module
+		// needs proper packaging of export module by devmateria grunt
+		// add  {expand: true, cwd: "#{widget}/_export", src: ['**'], dest: ".compiled/#{widget}/_export-modules"} # testing export module, superlaza
+		// to gruntfile after line 104
+		$export_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
+		$new_export_module = PKGPATH.'materia/vendor/widget/export_module/'.$export_module_clean_name;
+		if (file_exists($new_export_module))
+		{
+			$file_area->delete($new_export_module);
+		}
+		$file_area->rename($dir.'/_export-modules/export_module.php', $new_export_module);
+
 		// move test
 		$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
 		if (file_exists($new_test))
