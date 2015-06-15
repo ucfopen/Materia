@@ -95,7 +95,7 @@ class Api
 	 * Can the user create stuff based on the LTI role sent via post
 	 * @return String Role depending on input
 	 */
-	public static function lti_user_is_content_cretor()
+	public static function lti_user_is_content_creator()
 	{
 		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
 		$student_roles = ['Student', 'Learner'];
@@ -194,7 +194,7 @@ class Api
 	{
 		if(\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
 		{
-			$auth->update_role($user->id, static::lti_user_is_content_cretor());
+			$auth->update_role($user->id, static::lti_user_is_content_creator());
 		}
 	}
 
