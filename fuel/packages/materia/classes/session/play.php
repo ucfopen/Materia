@@ -52,50 +52,47 @@ class Session_Play
 		{
 			$instance         = Widget_Instance_Manager::get($inst_id);
 			$this->created_at = time();
-			$guest_access     = $instance->guest_access;
-			$this->user_id    = $guest_access ? 0 : $user_id;
+			$this->user_id    = $instance->guest_access ? 0 : $user_id;
 			$this->inst_id    = $inst_id;
 			$this->is_preview = $is_preview;
 
 			// Preview Plays dont log anything
-			if ($is_preview)
-			{
-				$previews = \Session::get('widgetPreviews', [0 => '']);
-				$previews[] = $inst_id;
-				\Session::set('widgetPreviews', $previews);
-				Score_Manager::init_preview($inst_id);
-				return -(count($previews) - 1);
-			}
+			if ($is_preview) return static::start_preview($inst_id);
 
-			// not a preview, create the play
 
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
 
 			try
 			{
-				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
-				\Cache::delete('play-logs.'.$this->inst_id.'.all');
+				// clear play log summary cache
+				\Cache::delete("play-logs.{$this->inst_id}.{$semester}");
+				\Cache::delete("play-logs.{$this->inst_id}.all");
 			}
-			catch (\CacheNotFoundException $e)
-			{
-			}
+			catch (\CacheNotFoundException $e) {}
 
-			if ($this->save_new_play())
+			if ( ! $this->save_new_play())
 			{
-				\Session::set('active', true);
-				// log play created
-				$logger = new Session_Logger();
-				$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
-				return $this->id;
-			}
-			else
-			{
-				\Log::warning("Unable to generate play_id! inst:$this->inst_id, user:$this->user_id");
+				\Log::warning("Unable to generate play_id! inst:{$this->inst_id}, user:{$this->user_id}");
 				throw new \HttpServerErrorException;
 			}
+
+			\Session::set('active', true);
+			$logger = new Session_Logger();
+			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
+			\Event::trigger('play_start', $this->id);
+			return $this->id;
 		}
 		return false;
+	}
+
+	protected static function start_preview($inst_id)
+	{
+		$previews = \Session::get('widgetPreviews', [0 => '']);
+		$previews[] = $inst_id;
+		\Session::set('widgetPreviews', $previews);
+		Score_Manager::init_preview($inst_id);
+		return -(count($previews) - 1);
 	}
 
 	protected function save_new_play()

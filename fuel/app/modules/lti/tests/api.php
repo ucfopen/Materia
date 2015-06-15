@@ -9,7 +9,7 @@ class Test_Api extends \Basetest
 
 	public function test_allPublicAPIMethodsHaveTests()
 	{
-		$api_methods =  get_class_methods(new \Lti\Api);
+		$api_methods =  get_class_methods(new \Lti\Lti);
 		$test_methods = get_class_methods($this);
 		foreach ($api_methods as $method)
 		{
@@ -17,16 +17,9 @@ class Test_Api extends \Basetest
 		}
 	}
 
-	public function test_is_lti_launch()
-	{
-		$_POST['resource_link_id'] = 'test-resource';
-		$_POST['tool_consumer_instance_guid'] = 'test-guid';
-		$this->assertTrue(\Lti\Api::is_lti_launch());
-	}
-
 	public function test_on_send_score_event()
 	{
-		$this->assertFalse(\Lti\Api::on_send_score_event(['test-play-id', 5,'noone', 50, 100]));
+		$this->assertFalse(\Lti\Lti::on_send_score_event(['test-play-id', 5,'noone', 50, 100]));
 	}
 
 	public function test_on_widget_instance_delete_event()
@@ -48,11 +41,11 @@ class Test_Api extends \Basetest
 		$launch = $this->create_testing_launch_vars(1, '~admin', 'test-resource', ['Learner']);
 
 		// associate the lti to the widget
-		$assoc_result = \Lti\Api::save_widget_association($inst_id, $launch);
+		$assoc_result = \Lti\Lti::save_widget_association($inst_id, $launch);
 		$this->assertTrue($assoc_result);
 
 		// now try to fetch the associated instance id
-		$assoc = \Lti\Api::find_widget_from_lti_launch($launch);
+		$assoc = \Lti\Lti::find_widget_from_lti_launch($launch);
 		$this->assertEquals($inst_id, $assoc->item_id);
 
 		// now delete the instance
@@ -79,7 +72,7 @@ class Test_Api extends \Basetest
 		$play->get_by_id($play_id);
 
 		// First, test when no LTI data is stored:
-		$result = \Lti\Api::on_play_completed_event($play);
+		$result = \Lti\Lti::on_play_completed_event($play);
 
 		$this->assertTrue(is_array($result) && count($result) === 0);
 
@@ -91,10 +84,10 @@ class Test_Api extends \Basetest
 			'resource_id' => 'test-resource-id',
 			'source_id'   => 'test-source-id',
 		];
-		\Lti\Api::session_save_lti_data($launch, $play_id);
-		$lti_data = \Lti\Api::session_get_lti_data($play_id);
+		\Lti\Lti::session_save_lti_data($launch, $play_id);
+		$lti_data = \Lti\Lti::session_get_lti_data($play_id);
 
-		$result = \Lti\Api::on_play_completed_event($play);
+		$result = \Lti\Lti::on_play_completed_event($play);
 		$ltitoken = $lti_data['token'];
 		$inst_id = $widget_instance->id;
 
@@ -102,42 +95,42 @@ class Test_Api extends \Basetest
 		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken#play-$play_id");
 	}
 
-	public function test_lti_user_is_content_creator()
+	public function test_is_lti_user_a_content_creator()
 	{
 		$_POST = ['roles' => 'Administrator'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
+		$this->assertTrue(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Instructor'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
+		$this->assertTrue(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Learner'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
+		$this->assertFalse(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Student'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
+		$this->assertFalse(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Instructor,Instructor'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
+		$this->assertTrue(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Student,Student'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
+		$this->assertFalse(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => ''];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
+		$this->assertFalse(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Student,Learner,Administrator'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
+		$this->assertTrue(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'Instructor,Student,Dogs'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
+		$this->assertTrue(\Lti\Lti::is_lti_user_a_content_creator());
 
 		$_POST = ['roles' => 'DaftPunk,student,Shaq'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
+		$this->assertFalse(\Lti\Lti::is_lti_user_a_content_creator());
 	}
 
 	public function test_authenticate()
 	{
-		$this->assertFalse(\Lti\Api::authenticate());
+		$this->assertFalse(\Lti\Lti::authenticate());
 	}
 
 	protected function create_materia_user($username, $email, $first, $last, $make_instructor = false)
@@ -193,7 +186,7 @@ class Test_Api extends \Basetest
 		try
 		{
 			$launch = $this->create_testing_launch_vars(1, '~admin', 'resource-link', ['Learner']);
-			\Lti\Api::get_or_create_user($launch, $search_field, 'PotatoAuthDriver');
+			\Lti\Lti::get_or_create_user($launch, $search_field, 'PotatoAuthDriver');
 		}
 		catch(\Exception $e)
 		{
@@ -203,82 +196,82 @@ class Test_Api extends \Basetest
 		// Find existing user
 		$user = $this->create_materia_user('gocu1', 'gocu1@test.test', 'First', 'Last');
 		$this->assertFalse($user === false);
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$_POST = [];
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
 		$_POST['roles'] = 'Learner';
 		$launch->email = 'gocu1@test.test';
-		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user2 = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertEquals($user->id, $user2->id);
 
 		// Fail at updating roles with config option disabled
 		\Config::set("lti::lti.consumers.Materia.use_launch_roles", false);
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$_POST = [];
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Instructor']);
 		$_POST['roles'] = 'Instructor';
 		$launch->email = 'gocu1@test.test';
-		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user2 = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertFalse($this->is_instructor($user2->id));
 
 		// Update role (Student -> Instructor) with config option enabled
 		\Config::set("lti::lti.consumers.Materia.use_launch_roles", true);
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Instructor']);
 		$_POST['roles'] = 'Instructor';
 		$launch->email = 'gocu1@test.test';
-		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user2 = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertTrue($this->is_instructor($user2->id));
 
 		// Find existing instructor
 		$user = $this->create_materia_user('gocu2', 'gocu2@test.test', 'First', 'Last', true);
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Instructor']);
-		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user2 = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertSame($user, $user2);
 
 		// Fail at updating roles with config option disabled
 		\Config::set("lti::lti.consumers.Materia.use_launch_roles", false);
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
-		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user2 = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertTrue($this->is_instructor($user2->id));
 
 		// // Update role (Instructor -> Student) with config option enabled
 		\Config::set("lti::lti.consumers.Materia.use_launch_roles", true);
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
-		$user2 = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user2 = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertTrue($this->is_instructor($user2->id));
 
 		// Fail at finding a non-existant user
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars('potato', 'potato', 'resource-link-gocu1', ['Learner']);
-		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertFalse($user);
 
 		// Create a new user from LTI (with creates_users = true)
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars('potato', 'potato', 'resource-link-gocu1', ['Learner']);
-		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver, true);
+		$user = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver, true);
 		$this->assertEquals('potato', $user->username);
 
 		// Don't update an existing user (with creates_users = false)
 		$user = $this->create_materia_user('gocu3', 'gocu3@test.test', '', 'Last');
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
 		$launch->email = 'gocu3@test.test';
 		$launch->first = 'First2';
-		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver);
+		$user = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver);
 		$this->assertSame('', $user->first);
 
 		// Update an existing user (with creates_users = true)
 		$user = $this->create_materia_user('gocu4', 'gocu4@test.test', '', 'Last');
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$launch = $this->create_testing_launch_vars($user->username, $user->username, 'resource-link-gocu1', ['Learner']);
 		$launch->email = 'gocu4@test.test';
 		$launch->first = 'First2';
-		$user = \Lti\Api::get_or_create_user($launch, $search_field, $auth_driver, true);
+		$user = \Lti\Lti::get_or_create_user($launch, $search_field, $auth_driver, true);
 		$user = \Model_User::query()->where('username', 'gocu4')->get_one();
 		$this->assertSame('First2', $user->first);
 	}
@@ -295,9 +288,9 @@ class Test_Api extends \Basetest
 		$resource_link = 'test-resource-Z';
 
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
-		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
+		\Lti\Lti::create_lti_association_if_needed($item_id, $launch);
 
-		$assoc = \Lti\Api::find_widget_from_lti_launch($launch);
+		$assoc = \Lti\Lti::find_widget_from_lti_launch($launch);
 
 		$this->assertEquals($assoc->item_id, $item_id);
 		$this->assertEquals($assoc->resource_link, $resource_link);
@@ -318,14 +311,14 @@ class Test_Api extends \Basetest
 		$inst_id = $widget_instance->id;
 
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
-		$this->assertTrue(\Lti\Api::save_widget_association($inst_id, $launch));
+		$this->assertTrue(\Lti\Lti::save_widget_association($inst_id, $launch));
 		$this->validate_new_assocation_saved($assocs_before);
 	}
 
 	public function test_init_assessment_session()
 	{
 		// Call with nothing passed - should fail since no launch
-		$this->assertFalse(\Lti\Api::init_assessment_session(false));
+		$this->assertFalse(\Lti\Lti::init_assessment_session(false));
 
 		// Create a valid association
 		// create instance
@@ -340,11 +333,11 @@ class Test_Api extends \Basetest
 
 		// Create the association
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
-		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
+		\Lti\Lti::create_lti_association_if_needed($item_id, $launch);
 
 		// init_assessment_session gets launch vars from POST, so we need to
 		// add the testing launch_vars into POST
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$_POST = [];
 		$_POST['resource_link_id'] = $launch->resource_id;
 		$_POST['context_id'] = $launch->context_id;
@@ -353,17 +346,17 @@ class Test_Api extends \Basetest
 		$_POST['tool_consumer_instance_guid'] = 'materia';
 
 		// Case 1: Call with a valid association
-		$result = \Lti\Api::init_assessment_session($item_id);
+		$result = \Lti\Lti::init_assessment_session($item_id);
 		$this->assertEquals($result->inst_id, $item_id);
 
 		// Case 2: Call with a valid POST parameter
 		$_POST['custom_inst_id'] = $item_id;
-		$result = \Lti\Api::init_assessment_session(false);
+		$result = \Lti\Lti::init_assessment_session(false);
 		$this->assertEquals($result->inst_id, $item_id);
 
 		// Case 3: Call without anything, look up via resource link
 		unset($_POST['custom_inst_id']);
-		$result = \Lti\Api::init_assessment_session(false);
+		$result = \Lti\Lti::init_assessment_session(false);
 		$this->assertEquals($result->inst_id, $item_id);
 	}
 
@@ -460,9 +453,9 @@ class Test_Api extends \Basetest
 			'resource_id' => 'test-resource-id',
 			'source_id'   => 'test-source-id',
 		];
-		\Lti\Api::session_save_lti_data($launch, 'test-play-id');
+		\Lti\Lti::session_save_lti_data($launch, 'test-play-id');
 
-		$lti_data = \Lti\Api::session_get_lti_data('test-play-id');
+		$lti_data = \Lti\Lti::session_get_lti_data('test-play-id');
 
 		$this->assertEquals($launch->consumer, $lti_data['consumer']);
 		$this->assertEquals($launch->service_url, $lti_data['service_url']);
@@ -483,7 +476,7 @@ class Test_Api extends \Basetest
 		$token   = \Materia\Widget_Instance_Hash::generate_long_hash();
 		$play_id = \Materia\Widget_Instance_Hash::generate_long_hash();
 
-		\Lti\Api::session_link_lti_token_to_play($token, $play_id);
+		\Lti\Lti::session_link_lti_token_to_play($token, $play_id);
 
 		$this->assertEquals(\Session::get("lti-$play_id", false), $token);
 	}
@@ -494,37 +487,37 @@ class Test_Api extends \Basetest
 		$token   = \Materia\Widget_Instance_Hash::generate_long_hash();
 		$play_id = \Materia\Widget_Instance_Hash::generate_long_hash();
 
-		\Lti\Api::session_link_lti_token_to_play($token, $play_id);
-		\Lti\Api::session_unlink_lti_token_to_play($play_id);
+		\Lti\Lti::session_link_lti_token_to_play($token, $play_id);
+		\Lti\Lti::session_unlink_lti_token_to_play($play_id);
 
 		$this->assertEquals(\Session::get("lti-$play_id", 'deleted'), 'deleted');
 	}
 
 	public function test_get_launch_vars()
 	{
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$_POST = ['context_id' => 'context1234'];
-		$vars = \Lti\Api::get_launch_vars();
+		$vars = \Lti\Lti::get_launch_vars();
 		$this->assertEquals($vars->context_id, 'context1234');
-		$vars2 = \Lti\Api::get_launch_vars();
+		$vars2 = \Lti\Lti::get_launch_vars();
 		$this->assertSame($vars, $vars2);
 	}
 
 	public function test_clear_launch_vars()
 	{
-		\Lti\Api::clear_launch_vars();
+		\Lti\Lti::clear_launch_vars();
 		$_POST = ['context_id' => 'context1234'];
-		$vars = \Lti\Api::get_launch_vars();
+		$vars = \Lti\Lti::get_launch_vars();
 		$this->assertEquals($vars->context_id, 'context1234');
-		\Lti\Api::clear_launch_vars();
-		$vars2 = \Lti\Api::get_launch_vars();
+		\Lti\Lti::clear_launch_vars();
+		$vars2 = \Lti\Lti::get_launch_vars();
 		$this->assertNotSame($vars, $vars2);
 	}
 
 	protected function create_testing_vars_and_create_lti_association_if_needed($item_id, $resource_link)
 	{
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
-		return \Lti\Api::create_lti_association_if_needed($item_id, $launch);
+		return \Lti\Lti::create_lti_association_if_needed($item_id, $launch);
 	}
 
 	protected function validate_number_of_lti_associations($number)
