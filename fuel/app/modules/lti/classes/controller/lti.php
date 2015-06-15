@@ -35,25 +35,15 @@ class Controller_Lti extends \Controller
 	{
 		if ( ! Api::authenticate()) return $this->action_error('Unknown User');
 
-		$inst_id = \Input::get('widget');
+		if ( ! $inst_id = Api::resolve_inst_id()) return $this->action_error('Unknown Assignment');
 
-		if (Api::can_create())
-		{
-			if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
-			{
-				return $this->action_error('Unknown Assignment');
-			}
-			return $this->_authenticated_preview($inst_id);
-		}
+		if (Api::can_create()) return $this->_authenticated_preview($inst_id);
 
 		$play = Api::init_assessment_session($inst_id);
 
-		if ( ! $play || ! isset($play->inst_id))
-		{
-			return $this->action_error('Unknown Assignment');
-		}
+		if ( ! $play || ! isset($play->inst_id)) return $this->action_error('Session Starting Error');
 
-		return \Request::forge('embed/'.$play->inst_id, true)->execute([$play->play_id]);
+		return \Request::forge("embed/{$play->inst_id}", true)->execute([$play->play_id]);
 	}
 
 	// expects that the user is all ready authenticated
