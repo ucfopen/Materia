@@ -216,7 +216,7 @@ class Api
 		if ($launch->first === 'Test' && $launch->last === 'Student' && in_array('Learner', $launch->roles))
 		{
 			$launch->username = $launch->remote_id = 'teststudent';
-			$launch->email    = "testuser@$launch->consumer.com";
+			$launch->email    = "testuser@{$launch->consumer}.com";
 			$creates_users = true;
 		}
 
@@ -265,8 +265,6 @@ class Api
 			$consumer          = trim(\Input::post('tool_consumer_info_product_family_code', false));
 			$remote_id_field   = trim(\Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username'));
 			$remote_user_field = trim(\Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id'));
-			$email             = trim(\Input::post('lis_person_contact_email_primary'));
-			$username          = trim(\Input::post($remote_user_field));
 
 			// trim all the roles
 			$roles = explode(',', \Input::post('roles'));
@@ -281,13 +279,13 @@ class Api
 				'consumer_id'    => trim(\Input::post('tool_consumer_instance_guid', false)), // unique install id of this tool
 				'consumer'       => $consumer,
 				'custom_inst_id' => trim(\Input::post('custom_widget_instance_id', false)), // Some tools will pass which inst_id they want
-				'email'          => $email,
+				'email'          => trim(\Input::post('lis_person_contact_email_primary')),
 				'last'           => trim(\Input::post('lis_person_name_family')),
 				'first'          => trim(\Input::post('lis_person_name_given')),
 				'fullname'       => trim(\Input::post('lis_person_name_full')),
 				'roles'          => $roles,
 				'remote_id'      => trim(\Input::post($remote_id_field)),
-				'username'       => $username,
+				'username'       => trim(\Input::post($remote_user_field)),
 			];
 		}
 
@@ -385,6 +383,25 @@ class Api
 		\Session::delete("lti-$for_play_id");
 	}
 
+	// grabs the widget instance id from the lti launch params
+	// Returns FALSE or a valid instance id
+	public static function resolve_inst_id()
+	{
+		$inst_id = \Input::get('widget');
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id)) return $inst_id;
+
+		// fall back on custom_inst_id if empty
+		$launch = static::get_launch_vars();
+		$inst_id = $launch->custom_inst_id;
+		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id)) return $inst_id;
+
+		// If inst_id is still invalid then we need to see if we can look it up using the launch vars
+		// (Perhaps it's an older ifrit URL?)
+		if ($assoc = static::get_widget_association($launch)) $inst_id = $assoc->item_id;
+
+		return \RocketDuck\Util_Validator::is_valid_hash($inst_id) ? $inst_id : false;
+	}
+
 	/**
 	 * Start up a student's interaction with a widget using passed LTI Params
 	 *
@@ -397,43 +414,23 @@ class Api
 	 */
 	public static function init_assessment_session($inst_id)
 	{
-		$launch = static::get_launch_vars();
+		$inst_id = static::resolve_inst_id();
 
-		if (empty($launch->resource_id) || empty($launch->consumer_id))
+		if ( ! $inst_id)
 		{
-			\RocketDuck\Log::profile(['session-post-missing', $inst_id, \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
-			return false;
+			\RocketDuck\Log::profile(['instance-id-not-found', $inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
 		}
 
-		// $inst_id may be invalid, however, we'll still accept an inst_id via post
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id) && \RocketDuck\Util_Validator::is_valid_hash($launch->custom_inst_id))
-		{
-			$inst_id = $launch->custom_inst_id;
-		}
-
-		// If inst_id is still invalid then we need to see if we can look it up
-		// (Perhaps it's an older ifrit URL?)
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
-		{
-			$association = static::get_widget_association($launch);
-			$inst_id = $association ? $association->item_id : false;
-		}
-
-		// ============ FAIL IF WE HAVNT FOUND A WIDGET ========================
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($inst_id))
-		{
-			\RocketDuck\Log::profile(['session-init-failure', $inst_id, $launch->custom_inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
-			return false;
-		}
-
+		$launch  = static::get_launch_vars();
 		if ( ! static::create_lti_association_if_needed($inst_id, $launch))
 		{
-			return false;
+			\RocketDuck\Log::profile(['error-saving-lti-association', $inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
 		}
 
 		// Create the play session
 		$play_id = \Materia\Api::session_play_create($inst_id);
 
+		// session_play_create returned an error msg
 		if ( $play_id instanceof \RocketDuck\Msg)
 		{
 			return $play_id;
