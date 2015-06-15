@@ -47,6 +47,10 @@ class Widget
 	public $player              = '';
 	public $question_types      = '';
 	public $score_module        = 'base';
+	public $logs_export_methods = array(
+									['value' => "csv", 'option' => "Scores"],
+									['value' => "raw", 'option' => "All raw data"]
+								);
 	public $width               = 0;
 
 	public function __construct($properties=[])
