@@ -33,13 +33,13 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_assignment()
 	{
-		if ( ! Api::authenticate()) return $this->action_error('Unknown User');
+		if ( ! Lti::authenticate()) return $this->action_error('Unknown User');
 
-		if ( ! $inst_id = Api::get_widget_from_request()) return $this->action_error('Unknown Assignment');
+		if ( ! $inst_id = Lti::get_widget_from_request()) return $this->action_error('Unknown Assignment');
 
-		if (Api::lti_user_is_content_creator()) return $this->_authenticated_preview($inst_id);
+		if (Lti::is_lti_user_a_content_creator()) return $this->_authenticated_preview($inst_id);
 
-		$play = Api::init_assessment_session($inst_id);
+		$play = Lti::init_assessment_session($inst_id);
 
 		if ( ! $play || ! isset($play->inst_id)) return $this->action_error('Session Starting Error');
 
@@ -75,7 +75,7 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_picker($authenticate = true)
 	{
-		if ($authenticate && ! Api::authenticate()) return $this->action_error('Unknown User');
+		if ($authenticate && ! Lti::authenticate()) return $this->action_error('Unknown User');
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
@@ -120,7 +120,7 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_error($msg)
 	{
-		$launch = Api::get_launch_vars();
+		$launch = Lti::get_launch_vars();
 
 		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, print_r($launch, true)], 'lti');
 		\RocketDuck\Log::profile([print_r($_POST, true)], 'lti-error-dump');
