@@ -102,37 +102,37 @@ class Test_Api extends \Basetest
 		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken#play-$play_id");
 	}
 
-	public function test_lti_user_is_content_cretor()
+	public function test_lti_user_is_content_creator()
 	{
 		$_POST = ['roles' => 'Administrator'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Instructor'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Learner'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Student'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Instructor,Instructor'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Student,Student'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => ''];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Student,Learner,Administrator'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'Instructor,Student,Dogs'];
-		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_creator());
 
 		$_POST = ['roles' => 'DaftPunk,student,Shaq'];
-		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_creator());
 	}
 
 	public function test_authenticate()

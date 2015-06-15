@@ -37,7 +37,7 @@ class Controller_Lti extends \Controller
 
 		if ( ! $inst_id = Api::get_widget_from_request()) return $this->action_error('Unknown Assignment');
 
-		if (Api::lti_user_is_content_cretor()) return $this->_authenticated_preview($inst_id);
+		if (Api::lti_user_is_content_creator()) return $this->_authenticated_preview($inst_id);
 
 		$play = Api::init_assessment_session($inst_id);
 
