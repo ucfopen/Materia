@@ -29,7 +29,7 @@ class Test_Api extends \Basetest
 		$this->assertFalse(\Lti\Api::on_send_score_event(['test-play-id', 5,'noone', 50, 100]));
 	}
 
-	public function test_on_widget_instance_delete()
+	public function test_on_widget_instance_delete_event()
 	{
 		$this->_asAuthor();
 
@@ -52,7 +52,7 @@ class Test_Api extends \Basetest
 		$this->assertTrue($assoc_result);
 
 		// now try to fetch the associated instance id
-		$assoc = \Lti\Api::get_widget_association($launch);
+		$assoc = \Lti\Api::find_widget_from_lti_launch($launch);
 		$this->assertEquals($inst_id, $assoc->item_id);
 
 		// now delete the instance
@@ -65,7 +65,7 @@ class Test_Api extends \Basetest
 		$this->assertEquals(count($lti_data), 0);
 	}
 
-	public function test_on_play_completed()
+	public function test_on_play_completed_event()
 	{
 		// create instance
 		$this->_asAuthor();
@@ -79,7 +79,7 @@ class Test_Api extends \Basetest
 		$play->get_by_id($play_id);
 
 		// First, test when no LTI data is stored:
-		$result = \Lti\Api::on_play_completed($play);
+		$result = \Lti\Api::on_play_completed_event($play);
 
 		$this->assertTrue(is_array($result) && count($result) === 0);
 
@@ -91,10 +91,10 @@ class Test_Api extends \Basetest
 			'resource_id' => 'test-resource-id',
 			'source_id'   => 'test-source-id',
 		];
-		\Lti\Api::store_lti_data($launch, $play_id);
-		$lti_data = \Lti\Api::retrieve_lti_data($play_id);
+		\Lti\Api::session_save_lti_data($launch, $play_id);
+		$lti_data = \Lti\Api::session_get_lti_data($play_id);
 
-		$result = \Lti\Api::on_play_completed($play);
+		$result = \Lti\Api::on_play_completed_event($play);
 		$ltitoken = $lti_data['token'];
 		$inst_id = $widget_instance->id;
 
@@ -102,37 +102,37 @@ class Test_Api extends \Basetest
 		$this->assertEquals($result['score_url'], "/scores/embed/$inst_id?ltitoken=$ltitoken#play-$play_id");
 	}
 
-	public function test_can_create()
+	public function test_lti_user_is_content_cretor()
 	{
 		$_POST = ['roles' => 'Administrator'];
-		$this->assertTrue(\Lti\Api::can_create());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Instructor'];
-		$this->assertTrue(\Lti\Api::can_create());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Learner'];
-		$this->assertFalse(\Lti\Api::can_create());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Student'];
-		$this->assertFalse(\Lti\Api::can_create());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Instructor,Instructor'];
-		$this->assertTrue(\Lti\Api::can_create());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Student,Student'];
-		$this->assertFalse(\Lti\Api::can_create());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => ''];
-		$this->assertFalse(\Lti\Api::can_create());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Student,Learner,Administrator'];
-		$this->assertTrue(\Lti\Api::can_create());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'Instructor,Student,Dogs'];
-		$this->assertTrue(\Lti\Api::can_create());
+		$this->assertTrue(\Lti\Api::lti_user_is_content_cretor());
 
 		$_POST = ['roles' => 'DaftPunk,student,Shaq'];
-		$this->assertFalse(\Lti\Api::can_create());
+		$this->assertFalse(\Lti\Api::lti_user_is_content_cretor());
 	}
 
 	public function test_authenticate()
@@ -283,7 +283,7 @@ class Test_Api extends \Basetest
 		$this->assertSame('First2', $user->first);
 	}
 
-	public function test_get_widget_association()
+	public function test_find_widget_from_lti_launch()
 	{
 		$this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
@@ -297,7 +297,7 @@ class Test_Api extends \Basetest
 		$launch = $this->create_testing_launch_vars(1, '~admin', $resource_link, ['Learner']);
 		\Lti\Api::create_lti_association_if_needed($item_id, $launch);
 
-		$assoc = \Lti\Api::get_widget_association($launch);
+		$assoc = \Lti\Api::find_widget_from_lti_launch($launch);
 
 		$this->assertEquals($assoc->item_id, $item_id);
 		$this->assertEquals($assoc->resource_link, $resource_link);
@@ -451,7 +451,7 @@ class Test_Api extends \Basetest
 		$this->validate_number_of_lti_associations($number_of_assocs_before + 2);
 	}
 
-	public function test_store_lti_data()
+	public function test_save_store_lti_data()
 	{
 		// Create some fake testing launch vars
 		$launch = (object) [
@@ -460,9 +460,9 @@ class Test_Api extends \Basetest
 			'resource_id' => 'test-resource-id',
 			'source_id'   => 'test-source-id',
 		];
-		\Lti\Api::store_lti_data($launch, 'test-play-id');
+		\Lti\Api::session_save_lti_data($launch, 'test-play-id');
 
-		$lti_data = \Lti\Api::retrieve_lti_data('test-play-id');
+		$lti_data = \Lti\Api::session_get_lti_data('test-play-id');
 
 		$this->assertEquals($launch->consumer, $lti_data['consumer']);
 		$this->assertEquals($launch->service_url, $lti_data['service_url']);
@@ -470,32 +470,32 @@ class Test_Api extends \Basetest
 		$this->assertEquals($launch->source_id, $lti_data['source_id']);
 	}
 
-	public function test_retrieve_lti_data()
+	public function test_session_get_lti_data()
 	{
 		// The test for store_lti_data also tests retrieve_lti_data,
 		// so we don't need to test it here.
 		$this->assertTrue(true);
 	}
 
-	public function test_associate_lti_data()
+	public function test_session_link_lti_token_to_play()
 	{
 		// Create a fake token and play_id
 		$token   = \Materia\Widget_Instance_Hash::generate_long_hash();
 		$play_id = \Materia\Widget_Instance_Hash::generate_long_hash();
 
-		\Lti\Api::associate_lti_data($token, $play_id);
+		\Lti\Api::session_link_lti_token_to_play($token, $play_id);
 
 		$this->assertEquals(\Session::get("lti-$play_id", false), $token);
 	}
 
-	public function test_disassociate_lti_data()
+	public function test_session_unlink_lti_token_to_play()
 	{
 		// Create a fake token and play_id
 		$token   = \Materia\Widget_Instance_Hash::generate_long_hash();
 		$play_id = \Materia\Widget_Instance_Hash::generate_long_hash();
 
-		\Lti\Api::associate_lti_data($token, $play_id);
-		\Lti\Api::disassociate_lti_data($play_id);
+		\Lti\Api::session_link_lti_token_to_play($token, $play_id);
+		\Lti\Api::session_unlink_lti_token_to_play($play_id);
 
 		$this->assertEquals(\Session::get("lti-$play_id", 'deleted'), 'deleted');
 	}

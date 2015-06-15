@@ -269,7 +269,7 @@ class Controller_Widgets extends Controller
 				// of a lti widget
 				if ($lti_token = \Input::get('ltitoken', false))
 				{
-					\Lti\Api::associate_lti_data($lti_token, $play_id);
+					\Lti\Api::session_link_lti_token_to_play($lti_token, $play_id);
 				}
 
 				$this->display_widget($inst, $play_id, $embed);
