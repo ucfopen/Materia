@@ -1,6 +1,8 @@
 <?php
 
 namespace Lti;
+use \RocketDuck\Log;
+use \RocketDuck\Util_Validator;
 
 class Api
 {
@@ -15,26 +17,26 @@ class Api
 	{
 		list($play_id, $inst_id, $student_user_id, $latest_score, $max_score) = $event_args;
 
-		$lti_data = static::retrieve_lti_data($play_id);
+		$lti_data = static::session_get_lti_data($play_id);
 		$consumer = $lti_data['consumer'];
 		$secret   = \Config::get("lti::lti.consumers.$consumer.secret", false);
 
-		return self::send_score($max_score, $inst_id, $lti_data['source_id'], $lti_data['service_url'], $secret);
+		return self::send_score_to_lti_consumer($max_score, $inst_id, $lti_data['source_id'], $lti_data['service_url'], $secret);
 	}
 
 	/**
 	 * FUEL EVENT fired by a widget instance when db_remove is called.
 	 * @param $inst_id The ID of the deleted instance
 	 */
-	public static function on_widget_instance_delete($inst_id)
+	public static function on_widget_instance_delete_event($inst_id)
 	{
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();
 
 		if (count($lti_data) > 0)
 		{
 			$lti_assoc = $lti_data[0];
-			\RocketDuck\Log::profile(['Deleting association for '.$inst_id], 'lti-assoc');
-			\RocketDuck\Log::profile([print_r($lti_assoc, true)], 'lti-assoc');
+			Log::profile(['Deleting association for '.$inst_id], 'lti-assoc');
+			Log::profile([print_r($lti_assoc, true)], 'lti-assoc');
 
 			\DB::delete('lti')->where('item_id', $inst_id)->execute();
 		}
@@ -44,12 +46,12 @@ class Api
 	 * FUEL EVENT fired by API when play_logs_save recieves an 'end' event.
 	 * @param  $play The completed play that is now expired.
 	 */
-	public static function on_play_completed($play)
+	public static function on_play_completed_event($play)
 	{
 		// retrieve lti token if this is part of an lti play, allowing the user
 		// to replay this widget
-		$lti_data = static::retrieve_lti_data($play->id);
-		static::disassociate_lti_data($play->id);
+		$lti_data = static::session_get_lti_data($play->id);
+		static::session_unlink_lti_token_to_play($play->id);
 
 		if ($lti_data['token'])
 		{
@@ -67,11 +69,11 @@ class Api
 	 * @param $score Score String or number of the score, 0-100
 	 * @param $sourceID SourceID The source id of the item to set the score for - passed to us via LTI oauth message
 	 */
-	protected static function send_score($score, $inst_id, $source_id, $service_url, $secret)
+	protected static function send_score_to_lti_consumer($score, $inst_id, $source_id, $service_url, $secret)
 	{
 		if ( ! ($score >= 0) || empty($inst_id) || empty($source_id) || empty($service_url) || empty($secret))
 		{
-			\RocketDuck\Log::profile(['outcome-no-passback', $inst_id, \Model_User::find_current_id(), $service_url, $score, $source_id], 'lti');
+			Log::profile(['outcome-no-passback', $inst_id, \Model_User::find_current_id(), $service_url, $score, $source_id], 'lti');
 			return false;
 		}
 
@@ -85,7 +87,7 @@ class Api
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
 		$success = Oauth::send_body_hashed_post($service_url, $body, $secret);
 
-		\RocketDuck\Log::profile(['outcome-'.($success ? 'success':'failure'), $inst_id, \Model_User::find_current_id(), $service_url, $score, $source_id], 'lti');
+		Log::profile(['outcome-'.($success ? 'success':'failure'), $inst_id, \Model_User::find_current_id(), $service_url, $score, $source_id], 'lti');
 		return $success;
 	}
 
@@ -93,7 +95,7 @@ class Api
 	 * Can the user create stuff based on the LTI role sent via post
 	 * @return String Role depending on input
 	 */
-	public static function can_create()
+	public static function lti_user_is_content_cretor()
 	{
 		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
 		$student_roles = ['Student', 'Learner'];
@@ -104,7 +106,7 @@ class Api
 		if (count(array_intersect($launch_roles, $student_roles))) return false;
 
 		// log a user that has no identified roles
-		\RocketDuck\Log::profile(['no-known-role', \Input::post('roles')], 'lti-error');
+		Log::profile(['no-known-role', \Input::post('roles')], 'lti-error');
 		return false;
 	}
 
@@ -135,7 +137,7 @@ class Api
 		if ($user = \Model_User::query()->where($search_field, $launch->remote_id)->get_one())
 		{
 			// User already exists, so update?
-			if ($creates_users) static::update_user_if_empty($user, $launch, $auth);
+			if ($creates_users) static::update_user_from_launch_user($user, $launch, $auth);
 
 			static::update_user_roles($user, $launch, $auth);
 
@@ -151,25 +153,25 @@ class Api
 				{
 					$user = \Model_User::find($user_id);
 
-					static::update_user_if_empty($user, $launch, $auth);
+					static::update_user_from_launch_user($user, $launch, $auth);
 
 					static::update_user_roles($user, $launch, $auth);
 
 					return $user;
 				}
-				\RocketDuck\Log::profile(['unable-to-create-user', $launch->username, $launch->email], 'lti-error');
+				Log::profile(['unable-to-create-user', $launch->username, $launch->email], 'lti-error');
 			}
 			catch (\SimpleUserUpdateException $e)
 			{
-				\RocketDuck\Log::profile(['create-user-failed', $launch->username, $launch->email, $e->getMessage()], 'lti-error');
+				Log::profile(['create-user-failed', $launch->username, $launch->email, $e->getMessage()], 'lti-error');
 			}
 		}
 
-		\RocketDuck\Log::profile(['unable-to-locate-user', $launch->username, $launch->email], 'lti-error');
+		Log::profile(['unable-to-locate-user', $launch->username, $launch->email], 'lti-error');
 		return false;
 	}
 
-	protected static function update_user_if_empty(\Model_User $user, $launch, $auth)
+	protected static function update_user_from_launch_user(\Model_User $user, $launch, $auth)
 	{
 		// items to update in the user if we need to
 		$items_to_update = [];
@@ -190,13 +192,9 @@ class Api
 	 */
 	protected static function update_user_roles(\Model_User $user, $launch, $auth)
 	{
-		if(\Config::get("lti::lti.consumers.$launch->consumer.use_launch_roles", false))
+		if(\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
 		{
-			if (method_exists($auth, 'update_role'))
-			{
-				$auth->update_role($user->id, static::can_create());
-			}
-
+			$auth->update_role($user->id, static::lti_user_is_content_cretor());
 		}
 	}
 
@@ -222,13 +220,13 @@ class Api
 
 		if (empty($launch->remote_id) || empty($launch->username) || empty($launch->consumer))
 		{
-			\RocketDuck\Log::profile(['auth-data-missing', $launch->remote_id, $launch->username, $launch->consumer, \Input::post('resource_link_id')], 'lti');
+			Log::profile(['auth-data-missing', $launch->remote_id, $launch->username, $launch->consumer, \Input::post('resource_link_id')], 'lti');
 			return false;
 		}
 
 		$valid = Oauth::validate_post();
 
-		\RocketDuck\Log::profile([$launch->remote_id, 'lti', $valid?'yes':'no'], 'login');
+		Log::profile([$launch->remote_id, 'lti', $valid?'yes':'no'], 'login');
 		if ( ! $valid) return false;
 
 		$user = static::get_or_create_user($launch, $local_id_field, $auth_driver, $creates_users);
@@ -245,11 +243,11 @@ class Api
 	/**
 	 * Gets the widget associated with the parameters sent via LTI Post
 	 * @param object Lti launch variables
-	 * @return string widget instance id OR false if not found
+	 * @return string widget instance id OR NULL if not found
 	 */
-	public static function get_widget_association($launch)
+	protected static function find_widget_from_resource_id($resource_id)
 	{
-		return Model_Lti::query()->where('resource_link', $launch->resource_id)->get_one();
+		return Model_Lti::query()->where('resource_link', $resource_id)->get_one();
 	}
 
 	public static function is_lti_launch()
@@ -259,35 +257,33 @@ class Api
 
 	public static function get_launch_vars()
 	{
-		if ( ! isset(static::$lti_vars))
-		{
-			// these are configurable to let username and user_id come from custom launch variables
-			$consumer          = trim(\Input::post('tool_consumer_info_product_family_code', false));
-			$remote_id_field   = trim(\Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username'));
-			$remote_user_field = trim(\Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id'));
+		if (isset(static::$lti_vars)) return static::$lti_vars;
 
-			// trim all the roles
-			$roles = explode(',', \Input::post('roles'));
-			$roles = array_map( function($role) { return trim($role); }, $roles);
+		// these are configurable to let username and user_id come from custom launch variables
+		$consumer          = trim(\Input::post('tool_consumer_info_product_family_code', false));
+		$remote_id_field   = trim(\Config::get("lti::lti.consumers.$consumer.remote_identifier", 'username'));
+		$remote_user_field = trim(\Config::get("lti::lti.consumers.$consumer.remote_username", 'user_id'));
 
-			static::$lti_vars = (object) [
-				'source_id'      => trim(\Input::post('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores
-				'service_url'    => trim(\Input::post('lis_outcome_service_url', false)), // where to send score data back to, can be blank if not supported
-				'resource_id'    => trim(\Input::post('resource_link_id', false)), // unique placement of this tool in the consumer
-				'context_id'     => trim(\Input::post('context_id', false)),
-				'context_title'  => trim(\Input::post('context_title', false)),
-				'consumer_id'    => trim(\Input::post('tool_consumer_instance_guid', false)), // unique install id of this tool
-				'consumer'       => $consumer,
-				'custom_inst_id' => trim(\Input::post('custom_widget_instance_id', false)), // Some tools will pass which inst_id they want
-				'email'          => trim(\Input::post('lis_person_contact_email_primary')),
-				'last'           => trim(\Input::post('lis_person_name_family')),
-				'first'          => trim(\Input::post('lis_person_name_given')),
-				'fullname'       => trim(\Input::post('lis_person_name_full')),
-				'roles'          => $roles,
-				'remote_id'      => trim(\Input::post($remote_id_field)),
-				'username'       => trim(\Input::post($remote_user_field)),
-			];
-		}
+		// trim all the roles
+		$roles = explode(',', \Input::post('roles'));
+		$roles = array_map( function($role) { return trim($role); }, $roles);
+
+		static::$lti_vars = (object) [
+			'source_id'      => trim(\Input::post('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores
+			'service_url'    => trim(\Input::post('lis_outcome_service_url', false)), // where to send score data back to, can be blank if not supported
+			'resource_id'    => trim(\Input::post('resource_link_id', false)), // unique placement of this tool in the consumer
+			'context_id'     => trim(\Input::post('context_id', false)),
+			'context_title'  => trim(\Input::post('context_title', false)),
+			'consumer_id'    => trim(\Input::post('tool_consumer_instance_guid', false)), // unique install id of this tool
+			'consumer'       => $consumer,
+			'custom_inst_id' => trim(\Input::post('custom_widget_instance_id', false)), // Some tools will pass which inst_id they want
+			'email'          => trim(\Input::post('lis_person_contact_email_primary')),
+			'last'           => trim(\Input::post('lis_person_name_family', '')),
+			'first'          => trim(\Input::post('lis_person_name_given', '')),
+			'fullname'       => trim(\Input::post('lis_person_name_full', '')),
+			'roles'          => $roles,
+			'remote_id'      => trim(\Input::post($remote_id_field)),
+			'username'       => trim(\Input::post($remote_user_field)),
 
 		return static::$lti_vars;
 	}
@@ -312,43 +308,35 @@ class Api
 		]);
 
 		// If a matching lti association is found, nothing needs to be done
-		if (count($association_for_item_id_and_resource_link) > 0)
-		{
-			return true;
-		}
+		if (count($association_for_item_id_and_resource_link)) return true;
+
+		// if the configuration says we don't save associations, just return now
+		if ( ! \Config::get("lti::lti.consumers.{$launch->consumer}.save_assoc", true)) return true;
 
 		// Insert a new association
-		return static::save_widget_association($item_id, $launch);
+		return static::save_resource_to_widget_association($item_id, $launch);
 	}
 
-	public static function save_widget_association( $inst_id, $launch)
+	protected static function save_resource_to_widget_association($inst_id, $launch)
 	{
-		// if the configuration says we don't save associations, just return now
-		if ( ! \Config::get("lti::lti.consumers.".$launch->consumer.".save_assoc", true)) return true;
-
-		// ================== CHECK FOR ASSOCIATION ======================
-		$association = static::get_widget_association($launch);
+		$assoc = static::find_widget_from_resource_id($launch->resource_id);
 
 		// if nothing exists, create a new one
-		if ( ! $association)
-		{
-			$association = new Model_Lti();
-			$association->resource_link = $launch->resource_id;
-			$association->consumer_guid = $launch->consumer_id;
-		}
+		if ( ! $assoc) $assoc = new Model_Lti();
 
-		// update
-		$association->item_id          = $inst_id;
-		$association->user_id          = \Model_User::find_current_id();
-		$association->consumer         = $launch->consumer;
-		$association->name             = isset($launch->fullname) ? $launch->fullname : '';
-		$association->context_id       = isset($launch->context_id) ? $launch->context_id : '';
-		$association->context_title    = isset($launch->context_title) ? $launch->context_title : '';
+		$assoc->resource_link = $launch->resource_id;
+		$assoc->consumer_guid = $launch->consumer_id;
+		$assoc->item_id       = $inst_id;
+		$assoc->user_id       = \Model_User::find_current_id();
+		$assoc->consumer      = $launch->consumer;
+		$assoc->name          = $launch->fullname;
+		$assoc->context_id    = $launch->context_id
+		$assoc->context_title = $launch->context_title;
 
-		return $association->save();
+		return $assoc->save();
 	}
 
-	public static function store_lti_data($launch, $play_id)
+	public static function session_save_lti_data($launch, $play_id)
 	{
 		$token = \Materia\Widget_Instance_Hash::generate_long_hash();
 
@@ -357,12 +345,12 @@ class Api
 		\Session::set("lti.$token.resource_link_id", $launch->resource_id);
 		\Session::set("lti.$token.lis_result_sourcedid", $launch->source_id);
 
-		static::associate_lti_data($token, $play_id);
+		static::session_link_lti_token_to_play($token, $play_id);
 	}
 
-	public static function retrieve_lti_data($for_play_id)
+	public static function session_get_lti_data($play_id)
 	{
-		$token = \Session::get("lti-$for_play_id", false);
+		$token = \Session::get("lti-{$play_id}", false);
 
 		return [
 			'consumer'         => \Session::get("lti.$token.consumer", false),
@@ -373,33 +361,35 @@ class Api
 		];
 	}
 
-	public static function associate_lti_data($token, $for_play_id)
+	public static function session_link_lti_token_to_play($token, $play_id)
 	{
-		\Session::set("lti-$for_play_id", $token);
+		\Session::set("lti-{$play_id}", $token);
 	}
 
-	public static function disassociate_lti_data($for_play_id)
+	public static function session_unlink_lti_token_to_play($play_id)
 	{
-		\Session::delete("lti-$for_play_id");
+		\Session::delete("lti-{$play_id}");
 	}
 
-	// grabs the widget instance id from the lti launch params
+	// grabs the widget instance id from the post/get variables
 	// Returns FALSE or a valid instance id
-	public static function resolve_inst_id()
+	public static function get_widget_from_request()
 	{
+		// return if widget is in post/get
 		$inst_id = \Input::get('widget');
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id)) return $inst_id;
+		if (Util_Validator::is_valid_hash($inst_id)) return $inst_id;
 
-		// fall back on custom_inst_id if empty
+		// return if custom_inst_id is valid
 		$launch = static::get_launch_vars();
-		$inst_id = $launch->custom_inst_id;
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id)) return $inst_id;
+		if (Util_Validator::is_valid_hash($launch->custom_inst_id)) return $launch->custom_inst_id;
 
-		// If inst_id is still invalid then we need to see if we can look it up using the launch vars
-		// (Perhaps it's an older ifrit URL?)
-		if ($assoc = static::get_widget_association($launch)) $inst_id = $assoc->item_id;
+		// return if we can find it's association in the database
+		if ($assoc = static::find_widget_from_resource_id($launch->resource_id))
+		{
+			if (Util_Validator::is_valid_hash($assoc->item_id)) return $assoc->item_id;
+		}
 
-		return \RocketDuck\Util_Validator::is_valid_hash($inst_id) ? $inst_id : false;
+		return false;
 	}
 
 	/**
@@ -414,17 +404,17 @@ class Api
 	 */
 	public static function init_assessment_session($inst_id)
 	{
-		$inst_id = static::resolve_inst_id();
+		$inst_id = static::get_widget_from_request();
 
 		if ( ! $inst_id)
 		{
-			\RocketDuck\Log::profile(['instance-id-not-found', $inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
+			Log::profile(['instance-id-not-found', $inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
 		}
 
 		$launch  = static::get_launch_vars();
 		if ( ! static::create_lti_association_if_needed($inst_id, $launch))
 		{
-			\RocketDuck\Log::profile(['error-saving-lti-association', $inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
+			Log::profile(['error-saving-lti-association', $inst_id, $_SERVER['REQUEST_URI'], \Model_User::find_current_id(), $launch->service_url, $launch->source_id], 'lti');
 		}
 
 		// Create the play session
@@ -436,9 +426,9 @@ class Api
 			return $play_id;
 		}
 
-		static::store_lti_data($launch, $play_id);
+		static::session_save_lti_data($launch, $play_id);
 
-		\RocketDuck\Log::profile(['session-init', $inst_id, $play_id, \Model_User::find_current_id(), $launch->service_url, '', $launch->source_id], 'lti');
+		Log::profile(['session-init', $inst_id, $play_id, \Model_User::find_current_id(), $launch->service_url, '', $launch->source_id], 'lti');
 
 		return (object) ['play_id' => $play_id, 'inst_id' => $inst_id];
 	}
