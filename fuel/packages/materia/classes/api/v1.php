@@ -156,8 +156,35 @@ class Api_V1
 		if ($is_draft !== null) $inst->is_draft = $is_draft;
 		if ($open_at !== null) $inst->open_at = $open_at;
 		if ($close_at !== null) $inst->close_at = $close_at;
-		if ($attempts !== null) $inst->attempts = $attempts;
-		if ($guest_access !== null) $inst->guest_access = $guest_access;
+		/* If student, then $attempts are hardcoded to unlimited. Guest access is hard coded to true.
+		/* This prevents front end manipulation of these choices in the "Edit Settings" GUI.
+		/* (added 06/16/2015 by WRF) */
+		if ($attempts !== null)
+			{
+				// User is a student - doesn't have basic_author or super_user role.
+				if( !Materia\Api::session_valid('basic_author') && !Materia\Api::session_valid('super_user') )
+				{
+					$inst->attempts = 0;
+				}
+				// User is not a student. Either admin or professor (they can choose guest mode or not).
+				else
+				{
+					$inst->attempts = $attempts;
+				}
+			}
+		if ($guest_access !== null)
+			{
+				// User is a student - doesn't have basic_author or super_user role.
+				if( !Materia\Api::session_valid('basic_author') && !Materia\Api::session_valid('super_user') )
+				{
+					$inst->guest_access = true;
+				}
+				// User is not a student. Either admin or professor (they can choose guest mode or not).
+				else
+				{
+					$inst->guest_access = $guest_access;
+				}
+			}
 
 		try
 		{
