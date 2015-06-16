@@ -946,6 +946,7 @@ class Widget extends \Basetask
 			'score' => [
 				'is_scorable'  => $yesno($widget->is_scorable),
 				'score_module' => $widget->score_module,
+				'logs_export_methods' => $widget->logs_export_methods
 			],
 			'meta_data' => $widget->meta_data,
 		];

@@ -408,7 +408,11 @@ class Widget_Installer
 			'clean_name'          => $clean_name,
 			'api_version'         => (string)(int)$manifest_data['general']['api_version'],
 			'package_hash'        => $package_hash,
-			'score_module'        => $manifest_data['score']['score_module']
+			'score_module'        => $manifest_data['score']['score_module'],
+			'logs_export_methods' => array(
+										['value' => "csv", 'option' => "Scores"],
+										['value' => "raw", 'option' => "All raw data"]
+									);
 		];
 
 		if (isset($manifest_data['files']['creator']))
