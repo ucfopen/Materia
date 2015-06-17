@@ -77,13 +77,24 @@ class Session_Play
 				throw new \HttpServerErrorException;
 			}
 
-			\Session::set('active', true);
+			static::set_user_is_playing();
 			$logger = new Session_Logger();
 			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
 			\Event::trigger('play_start', $this->id);
 			return $this->id;
 		}
 		return false;
+	}
+
+	// used to indicate a user is playing a widget even if they are a guest
+	public static function is_user_playing()
+	{
+		return \Session::get('user_is_playing', false)
+	}
+
+	protected static function set_user_is_playing()
+	{
+		\Session::set('user_is_playing', true);
 	}
 
 	protected static function start_preview($inst_id)
