@@ -89,7 +89,7 @@ class Session_Play
 	// used to indicate a user is playing a widget even if they are a guest
 	public static function is_user_playing()
 	{
-		return \Session::get('user_is_playing', false)
+		return \Session::get('user_is_playing', false);
 	}
 
 	protected static function set_user_is_playing()
