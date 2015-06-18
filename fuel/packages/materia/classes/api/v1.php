@@ -39,7 +39,7 @@ class Api_V1
 		if ( ! isset($inst_ids))
 		{
 			// ==================== GET ALL INSTANCES ==============================
-			if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+			if (\Model_User::verify_session() !== true) return Msg::no_login();
 			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
 		}
 		else
@@ -57,7 +57,7 @@ class Api_V1
 	static public function widget_instance_delete($inst_id)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
 
 		return $inst->db_remove();
@@ -68,7 +68,7 @@ class Api_V1
 	 */
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 
 		try
@@ -94,7 +94,7 @@ class Api_V1
 	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
-		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
 		if ( ! is_bool($is_draft)) $is_draft = true;
 
@@ -142,7 +142,10 @@ class Api_V1
 	 */
 	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
 	{
-		if (\Model_User::verify_session(['basic_author','super_user']) !== true) return Msg::no_login();
+		// User is a student - doesn't have basic_author or super_user role.
+		bool $is_student = ! Materia\Api::session_valid(['basic_author', 'super_user']);
+
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
 		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
@@ -156,8 +159,19 @@ class Api_V1
 		if ($is_draft !== null) $inst->is_draft = $is_draft;
 		if ($open_at !== null) $inst->open_at = $open_at;
 		if ($close_at !== null) $inst->close_at = $close_at;
-		if ($attempts !== null) $inst->attempts = $attempts;
-		if ($guest_access !== null) $inst->guest_access = $guest_access;
+		/* If student, then $attempts are hardcoded to unlimited. Guest access is hard coded to true.
+		/* This prevents front end manipulation of these choices in the "Edit Settings" GUI.
+		/* (added 06/16/2015 by WRF) */
+		if ($attempts !== null)
+			{
+				// Force unlimited for students, allow others to set access
+				$inst->attempts = $is_student ? 0 : $attempts;
+			}
+		if ($guest_access !== null || $is_student)
+			{
+				// Force true for students, allow others to set access
+				$inst->guest_access = $is_student ? true : $guest_access;
+			}
 
 		try
 		{
@@ -172,7 +186,7 @@ class Api_V1
 
 	static public function widget_instance_lock($inst_id) // formerly $inst_id
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		// getDraftLock will return true if we have or are able to get a lock on this game
 		return Widget_Instance_Manager::lock($inst_id);
 	}
@@ -328,7 +342,7 @@ class Api_V1
 
 	static public function assets_get()
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
@@ -497,7 +511,7 @@ class Api_V1
 	 */
 	static public function questions_get($ids=null, $type=null) // remote_getQuestions
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		// get specific questions
 		if ($ids)
 		{
@@ -536,7 +550,7 @@ class Api_V1
 
 	static public function play_storage_data_get($inst_id, $format=null) // formerly $inst_id
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		switch ($format)
 		{
@@ -677,7 +691,7 @@ class Api_V1
 	 */
 	static public function permissions_set($item_type, $item_id, $perms_array)
 	{
-		if (\Model_User::verify_session('basic_author') !== true) return Msg::no_login();
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($item_id)) return Msg::invalid_input('Invalid item id: '.$item_id);
 		if (empty($perms_array)) return Msg::invalid_input('empty user perms');
 
