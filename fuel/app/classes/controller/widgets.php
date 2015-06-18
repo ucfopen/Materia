@@ -110,12 +110,6 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
-		// if (Materia\Api::session_valid('basic_author') != true)
-		// {
-		// 	$this->no_permission();
-		// 	return;
-		// }
-
 		$widget = DB::select()
 			->from('widget')
 			->where('id', $this->param('id'))
@@ -194,7 +188,7 @@ class Controller_Widgets extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
-		Js::push_inline('var STUDENT_LOGGED = '.(Materia\Api::session_valid('basic_author') ? 'false' : 'true'));
+		Js::push_inline('var IS_STUDENT = '.(Materia\Api::session_valid('basic_author') ? 'false' : 'true'));
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -370,17 +364,6 @@ class Controller_Widgets extends Controller
 
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
-
-	// protected function mywidgets_student()
-	// {
-	// 	$this->theme->get_template()
-	// 		->set('title', '')
-	// 		->set('page_type', 'my_widgets');
-
-	// 	$this->theme->set_partial('content', 'partials/my_widgets_students');
-
-	// 	Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-	// }
 
 	/**
 	 * Load the login screen and possibly widget information if it's needed
