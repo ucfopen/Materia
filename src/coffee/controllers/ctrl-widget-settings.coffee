@@ -1,6 +1,6 @@
 app = angular.module 'materia'
 # The widget settings/availability modal on My Widgets
-app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, widgetSrv) ->
+app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWidgetSrv, widgetSrv) ->
 	$scope.UNLIMITED_SLIDER_VALUE = 25
 	$scope.times = []
 	$scope.error = ''
@@ -28,7 +28,14 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
 		$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
-		$scope.guestAccess = $scope.selected.widget.guest_access
+		if $window.STUDENT_LOGGED
+			$scope.guestAccess = true
+			$('#guest-access').css {
+				opacity: '0.4'
+				'pointer-events': 'none'
+			}
+		else
+			$scope.guestAccess = $scope.selected.widget.guest_access
 		$scope.dateFormatter()
 		setTimeout ->
 			$scope.setupSlider()
@@ -63,13 +70,13 @@ app.controller 'WidgetSettingsController', ($scope, $filter, selectedWidgetSrv, 
 				$scope.availability[1].date = dateText
 
 	$scope.toggleGuestAccess = ->
-		$scope.guestAccess = !$scope.guestAccess
-		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
-		setTimeout ->
-			$( ".selector" ).slider
-				value: ($scope.attemptsSliderValue * 1000)
-				disabled: $scope.guestAccess
-		,0
+		if not $window.STUDENT_LOGGED
+			$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
+			setTimeout ->
+				$( ".selector" ).slider
+					value: ($scope.attemptsSliderValue * 1000)
+					disabled: $scope.guestAccess
+			,0
 
 	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->

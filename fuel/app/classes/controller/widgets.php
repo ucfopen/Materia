@@ -106,6 +106,7 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
+<<<<<<< HEAD
 		if (Materia\Api::session_valid('basic_author') != true)
 		{
 			$this->no_permission();
@@ -114,6 +115,12 @@ class Controller_Widgets extends Controller
 
 		$widget = new Materia\Widget();
 		$loaded = $widget->get($this->param('id'));
+=======
+		$widget = DB::select()
+			->from('widget')
+			->where('id', $this->param('id'))
+			->execute();
+>>>>>>> issue/500-client-guest-mode-FunkVersion
 
 		if ( ! $loaded) throw new HttpNotFoundException;
 
@@ -162,12 +169,14 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login'));
 		}
 
-		if (Materia\Api::session_valid('basic_author') != true) return $this->mywidgets_student();
+		// if (Materia\Api::session_valid('basic_author') != true) return $this->mywidgets_student();
 
 		Css::push_group(['core', 'my_widgets']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+
+		Js::push_inline('var IS_STUDENT = '.(Materia\Api::session_valid('basic_author') ? 'false' : 'true'));
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -300,6 +309,7 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
+<<<<<<< HEAD
 	protected function mywidgets_student()
 	{
 		$this->theme->get_template()
@@ -360,6 +370,8 @@ class Controller_Widgets extends Controller
 		}
 	}
 
+=======
+>>>>>>> issue/500-client-guest-mode-FunkVersion
 	/**
 	 * Load the login screen and possibly widget information if it's needed
 	 */
