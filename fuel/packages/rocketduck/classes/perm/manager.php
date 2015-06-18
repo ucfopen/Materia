@@ -377,7 +377,7 @@ class Perm_Manager
 	 */
 	static public function add_users_to_roles_system_only($users = '', $roles ='')
 	{
-		if ($users == '' || $roles == '' || ! is_array($users) || ! is_array($roles)) return false;
+		if (! is_array($users) || ! is_array($roles)) return false;
 		$success = true;
 
 		foreach ($users as $user_id)
