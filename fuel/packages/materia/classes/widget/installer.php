@@ -409,10 +409,11 @@ class Widget_Installer
 			'api_version'         => (string)(int)$manifest_data['general']['api_version'],
 			'package_hash'        => $package_hash,
 			'score_module'        => $manifest_data['score']['score_module'],
-			'logs_export_methods' => array(
-										['value' => "csv", 'option' => "Scores"],
-										['value' => "raw", 'option' => "All raw data"]
-									);
+			'logs_export_methods' => ''
+			// 'logs_export_methods' => array(
+			// 							['value' => "csv", 'option' => "Scores"],
+			// 							['value' => "raw", 'option' => "All raw data"]
+			// 						)
 		];
 
 		if (isset($manifest_data['files']['creator']))
@@ -464,13 +465,18 @@ class Widget_Installer
 		// needs proper packaging of export module by devmateria grunt
 		// add  {expand: true, cwd: "#{widget}/_export", src: ['**'], dest: ".compiled/#{widget}/_export-modules"} # testing export module, superlaza
 		// to gruntfile after line 104
-		$export_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
-		$new_export_module = PKGPATH.'materia/vendor/widget/export_module/'.$export_module_clean_name;
-		if (file_exists($new_export_module))
+		if (file_exists($dir.'/_export-modules/'))
 		{
-			$file_area->delete($new_export_module);
+			$export_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
+			$new_export_module = PKGPATH.'materia/vendor/widget/export_module/'.$export_module_clean_name;
+			if (file_exists($new_export_module))
+			{
+				$file_area->delete($new_export_module);
+			}
+			$file_area->rename($dir.'/_export-modules/export_module.php', $new_export_module);
+			// delete the export modules folder so it won't get copied over
+		$file_area->delete_dir($dir.'/_export-modules');
 		}
-		$file_area->rename($dir.'/_export-modules/export_module.php', $new_export_module);
 
 		// move test
 		$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
