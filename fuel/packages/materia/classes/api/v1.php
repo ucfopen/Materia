@@ -162,7 +162,7 @@ class Api_V1
 		if ($attempts !== null)
 			{
 				// User is a student - doesn't have basic_author or super_user role.
-				if( !Materia\Api::session_valid('basic_author') && !Materia\Api::session_valid('super_user') )
+				if( !Materia\Api::session_valid(['basic_author', 'super_user']) )
 				{
 					$inst->attempts = 0;
 				}
@@ -175,7 +175,7 @@ class Api_V1
 		if ($guest_access !== null)
 			{
 				// User is a student - doesn't have basic_author or super_user role.
-				if( !Materia\Api::session_valid('basic_author') && !Materia\Api::session_valid('super_user') )
+				if( !Materia\Api::session_valid(['basic_author', 'super_user']) )
 				{
 					$inst->guest_access = true;
 				}
