@@ -7,9 +7,10 @@ class Alwaysload
 	public static function _init()
 	{
 		// initialize the lti event listener
-		Event::register('score_updated', '\Lti\Api::on_send_score_event');
-		Event::register('widget_instance_delete', '\Lti\Api::on_widget_instance_delete');
-		Event::register('play_completed', '\Lti\Api::on_play_completed');
+		Event::register('score_updated', '\Lti\Lti::on_send_score_event');
+		Event::register('widget_instance_delete', '\Lti\Lti::on_widget_instance_delete_event');
+		Event::register('play_completed', '\Lti\Lti::on_play_completed_event');
+		Event::register('play_start', '\Lti\Lti::on_play_start_event');
 
 		// load in the language file we need
 		// this setup allows packages to override settings
