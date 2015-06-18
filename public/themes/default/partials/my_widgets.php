@@ -145,7 +145,7 @@
 							</table>
 							<span id="sample-notification">Sample</span>
 							<div class="download-controls">
-								<select ng-model="exportType" ng-options="select.option for select in selected.widget.widget.logs_export_methods"></select>
+								<select ng-model="exportType" ng-options="select.option for select in exportOpts"></select>
 								<p class="download"><a href ng-href="{{getDownloadLink()}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
 							</div>
 						</div>
