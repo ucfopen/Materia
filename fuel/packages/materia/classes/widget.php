@@ -47,10 +47,7 @@ class Widget
 	public $player              = '';
 	public $question_types      = '';
 	public $score_module        = 'base';
-	public $logs_export_methods = array(
-									['value' => "csv", 'option' => "Scores"],
-									['value' => "raw", 'option' => "All raw data"]
-								);
+	public $logs_export_methods = 'base';
 	public $width               = 0;
 
 	public function __construct($properties=[])
@@ -140,6 +137,7 @@ class Widget
 			'is_scorable'         => $w['is_scorable'],
 			'is_scalable'         => $w['is_scalable'],
 			'score_module'        => $w['score_module'],
+			'logs_export_methods' => $w['logs_export_methods'],
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],

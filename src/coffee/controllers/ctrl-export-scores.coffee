@@ -27,7 +27,8 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	# Builds the initial version of the popup window
 	buildPopup = ->
 		$scope.selectedId = $scope.selected.widget.id
-		$scope.exportType = $scope.selected.widget.widget.logs_export_methods[0]
+		$scope.exportOpts = JSON.parse $scope.selected.widget.widget.logs_export_methods
+		$scope.exportType = $scope.exportOpts[0]
 		getScores()
 
 	# Finds all the scores with a given game instance id
