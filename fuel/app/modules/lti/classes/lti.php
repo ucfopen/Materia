@@ -283,7 +283,7 @@ class Lti
 	protected static function get_or_create_user($launch, $search_field, $auth_driver, $creates_users = false)
 	{
 		// allow any auth module that needs to look up external users to create them as needed
-		\Event::trigger('lti_get_or_create_user', $launch->username. 'json');
+		\Event::trigger('lti_get_or_create_user', $launch->username, 'json');
 		$auth = \Auth::instance($auth_driver);
 
 		if ( ! $auth)
