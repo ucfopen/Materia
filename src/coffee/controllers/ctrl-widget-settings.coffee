@@ -28,12 +28,9 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 		$scope.dateError = [false, false]
 		$scope.timeError = [false, false]
 		$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
-		if $window.STUDENT_LOGGED
+		if $window.IS_STUDENT
 			$scope.guestAccess = true
-			$('#guest-access').css {
-				opacity: '0.4'
-				'pointer-events': 'none'
-			}
+			$('#guest-access').addClass('student-mode')
 		else
 			$scope.guestAccess = $scope.selected.widget.guest_access
 		$scope.dateFormatter()
@@ -70,7 +67,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				$scope.availability[1].date = dateText
 
 	$scope.toggleGuestAccess = ->
-		if not $window.STUDENT_LOGGED
+		if not $window.IS_STUDENT
 			$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 			setTimeout ->
 				$( ".selector" ).slider

@@ -1155,7 +1155,10 @@
 		.ng-modal.availability .guest-checkbox {
 			margin-left: -12px;
 		}
-
+		.ng-modal.availability .student-mode {
+			pointer-events: none;
+			opacity: 0.4;
+		}
 		.ng-modal.availability ul li.save a
 		{
 			display: inline-block;
