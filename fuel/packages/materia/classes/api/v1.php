@@ -509,6 +509,7 @@ class Api_V1
 	 *
 	 * @return array|object An array of questions requested or a question requested
 	 */
+	/*
 	static public function questions_get($ids=null, $type=null) // remote_getQuestions
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -532,7 +533,7 @@ class Api_V1
 			return Widget_Question_Manager::get_users_questions(\Model_User::find_current_id(), $type);
 		}
 	}
-
+	*/
 	static public function play_storage_data_save($play_id, $data)
 	{
 		$inst = self::_get_instance_for_play_id($play_id);
