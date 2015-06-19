@@ -161,29 +161,13 @@ class Api_V1
 		/* (added 06/16/2015 by WRF) */
 		if ($attempts !== null)
 			{
-				// User is a student - doesn't have basic_author or super_user role.
-				if( !Materia\Api::session_valid(['basic_author', 'super_user']) )
-				{
-					$inst->attempts = 0;
-				}
-				// User is not a student. Either admin or professor (they can choose guest mode or not).
-				else
-				{
-					$inst->attempts = $attempts;
-				}
+				// Force unlimited for students, allow others to set access
+				$inst->attempts = $is_student ? 0 : $attempts;
 			}
-		if ($guest_access !== null)
+		if ($guest_access !== null || $is_student)
 			{
-				// User is a student - doesn't have basic_author or super_user role.
-				if( !Materia\Api::session_valid(['basic_author', 'super_user']) )
-				{
-					$inst->guest_access = true;
-				}
-				// User is not a student. Either admin or professor (they can choose guest mode or not).
-				else
-				{
-					$inst->guest_access = $guest_access;
-				}
+				// Force true for students, allow others to set access
+                $inst->guest_access = $is_student ? true : $guest_access;
 			}
 
 		try
