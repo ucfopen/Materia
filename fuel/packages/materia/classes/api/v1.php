@@ -142,6 +142,9 @@ class Api_V1
 	 */
 	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
 	{
+		// User is a student - doesn't have basic_author or super_user role.
+        $is_student = ! Api::session_valid(['basic_author', 'super_user']);
+
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
 		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
