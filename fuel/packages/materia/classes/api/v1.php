@@ -94,6 +94,9 @@ class Api_V1
 	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
+		// User is a student - doesn't have basic_author or super_user role.
+        $is_student = ! Api::session_valid(['basic_author', 'super_user']);
+
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
 		if ( ! is_bool($is_draft)) $is_draft = true;
@@ -103,11 +106,13 @@ class Api_V1
 
 		// init the instance
 		$inst = new Widget_Instance([
-			'user_id'    => \Model_User::find_current_id(),
-			'name'       => $name,
-			'is_draft'   => $is_draft,
-			'created_at' => time(),
-			'widget'     => $widget
+			'user_id'    	=> \Model_User::find_current_id(),
+			'name'       	=> $name,
+			'is_draft'   	=> $is_draft,
+			'created_at' 	=> time(),
+			'widget'     	=> $widget,
+			'guest_access' 	=> $is_student ? true : $guest_access,
+			'attempts'		=> $is_student ? 0 : $attempts
 		]);
 
 		if ($qset !== null)
@@ -509,7 +514,6 @@ class Api_V1
 	 *
 	 * @return array|object An array of questions requested or a question requested
 	 */
-	/*
 	static public function questions_get($ids=null, $type=null) // remote_getQuestions
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -533,7 +537,6 @@ class Api_V1
 			return Widget_Question_Manager::get_users_questions(\Model_User::find_current_id(), $type);
 		}
 	}
-	*/
 	static public function play_storage_data_save($play_id, $data)
 	{
 		$inst = self::_get_instance_for_play_id($play_id);
