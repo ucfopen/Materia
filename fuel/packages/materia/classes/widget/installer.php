@@ -490,7 +490,7 @@ class Widget_Installer
 
 		// installs custom export module, use score module name for export module
 		// needs proper packaging of export module by devmateria grunt
-		// add  {expand: true, cwd: "#{widget}/_export", src: ['**'], dest: ".compiled/#{widget}/_export-modules"} # testing export module, superlaza
+		// add  {expand: true, cwd: "#{widget}/_export", src: ['**'], dest: ".compiled/#{widget}/_export-modules"}
 		// to gruntfile after line 104
 		if (file_exists($dir.'/_export-modules/'))
 		{

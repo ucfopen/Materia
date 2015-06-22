@@ -119,14 +119,20 @@ class Controller_Scores extends Controller
 		$export_methods = get_class_methods($export_module);
 
 		if (in_array($format, $export_methods))
-		{
-			list($data, $filetype) = $export_module->$format($semesters_string);
-			return $this->build_download_response($data, $inst->name.$filetype);
+		{	
+			try
+			{
+				list($data, $filetype) = $export_module->$format($semesters_string);
+				return $this->build_download_response($data, $inst->name.$filetype);
+			}
+			catch (\Exception $e)
+			{
+				trace("Error building export file: ".$e);
+			}
 		}
 		else
 		{
-			trace("superlaza");
-			trace("error doing shit");
+			trace("Could not find request export method among methods available in export module");
 		}
 	}
 
