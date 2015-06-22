@@ -114,19 +114,19 @@ class Controller_Scores extends Controller
 			return new Response('', 403);
 		}
 
+		//attaches $inst to instantiated objects own property
 		$export_module = \Materia\Score_Manager::get_export_module_for_widget($inst_id);
+		$export_methods = get_class_methods($export_module);
 
-		switch ($format)
+		if (in_array($format, $export_methods))
 		{
-			case "csv":
-				$csv = $export_module->build_csv($inst_id, $inst->name, $semesters_string);
-				return $this->build_download_response($csv, $inst->name.'.csv');
-				break;
-			case "raw":
-				$data = $export_module->build_raw($inst, $inst_id, $inst->name, $semesters_string);
-				return $this->build_download_response($data, $inst->name.'.zip');
-				break;
-			// default:
+			list($data, $filetype) = $export_module->$format($semesters_string);
+			return $this->build_download_response($data, $inst->name.$filetype);
+		}
+		else
+		{
+			trace("superlaza");
+			trace("error doing shit");
 		}
 	}
 

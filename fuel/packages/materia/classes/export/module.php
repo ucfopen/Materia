@@ -29,7 +29,15 @@ abstract class Export_Module
 	public $inst;
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * This is the base export module extended by each widget to include custom log exporting options.
+	 * Each method in this class:
+	 *		- must accept semesters_string as the sole parameter
+	 *		- must return an array as follows:
+	 *			[<the payload>, (string) <the file type being output, including dot .>]
+	 *
+	 *			example: 
+	 *			[$var_holding_data, ".csv"]
+	 *
 	 *
 	 * @param int     The play ID of the game being scored
 	 * @param int     Scoring type for the game to score
@@ -42,20 +50,20 @@ abstract class Export_Module
 	/**
 	 * Prepares and then pushes a csv file
 	 *
-	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function build_csv($inst_id, $inst_name, $semesters_string)
+	public function csv($semesters_string)
 	{
 		$semesters = explode(',', $semesters_string);
 		$play_logs = [];
 		$results   = [];
 
+
 		foreach ($semesters as $semester)
 		{
 			list($year, $term) = explode('-', $semester);
-		 	// Get all scores for each semester
-		 	$logs = $play_logs[$year.' '.$term] = \Materia\Session_Play::get_by_inst_id($inst_id, $term, $year);
+			// Get all scores for each semester
+			$logs = $play_logs[$year.' '.$term] = \Materia\Session_Play::get_by_inst_id($this->inst->id, $term, $year);
 
 			foreach ($logs as $play)
 			{
@@ -85,16 +93,15 @@ abstract class Export_Module
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return $csv;
+		return array($csv, ".csv");
 	}
 
 	/**
 	 * Prepares and then pushes a csv file
 	 *
-	 * @param int the game instance id
 	 * @param string Comma seperated semester list like "2012-Summer,2012-Spring"
 	 */
-	public function build_raw($inst, $inst_id, $inst_name, $semesters_string)
+	public function raw($semesters_string)
 	{
 		$semesters = explode(',', $semesters_string);
 		$play_logs = [];
@@ -103,8 +110,8 @@ abstract class Export_Module
 		foreach ($semesters as $semester)
 		{
 			list($year, $term) = explode('-', $semester);
-		 	// Get all scores for each semester
-		 	$logs = $play_logs[$year.' '.$term] = \Materia\Session_Play::get_by_inst_id($inst_id, $term, $year);
+			// Get all scores for each semester
+			$logs = $play_logs[$year.' '.$term] = \Materia\Session_Play::get_by_inst_id($this->inst->id, $term, $year);
 
 			foreach ($logs as $play)
 			{
@@ -147,9 +154,9 @@ abstract class Export_Module
 			}
 		}
 
-		$inst->get_qset($inst_id);
+		$this->inst->get_qset($this->inst->id);
 
-		$questions = \Materia\Widget_Instance::find_questions($inst->qset->data);
+		$questions = \Materia\Widget_Instance::find_questions($this->inst->qset->data);
 
 		if (isset($questions[0]) && isset($questions[0]['items']))
 		{
@@ -227,6 +234,6 @@ abstract class Export_Module
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return $data;
+		return array($data, ".zip");
 	}
 }
