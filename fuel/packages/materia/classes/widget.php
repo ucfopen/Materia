@@ -116,7 +116,7 @@ class Widget
 					break;
 			}
 		}
-
+		
 		// -------------- INIT OBJECT ---------------
 		$this->__construct([
 			'clean_name'          => $w['clean_name'],
@@ -137,7 +137,7 @@ class Widget
 			'is_scorable'         => $w['is_scorable'],
 			'is_scalable'         => $w['is_scalable'],
 			'score_module'        => $w['score_module'],
-			'logs_export_methods' => $w['logs_export_methods'],
+			'logs_export_methods' => unserialize($w['logs_export_methods']),
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
