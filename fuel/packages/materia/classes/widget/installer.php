@@ -383,6 +383,37 @@ class Widget_Installer
 		if (self::missing_required_attributes($score, ['is_scorable', 'score_module'])) return;
 		if (self::values_are_not_boolean($score, ['is_scorable'])) return;
 
+		// 6. make sure export section is correct by ensuring export methods listed in yaml match those in export module
+
+		// if the export module exists, include it and get its defined methods
+		// otherwise, don't fail validation, since export modules are not mandatory
+		if (file_exists($dir.'/_export-modules/export_module.php'))
+		{	
+			$yaml_export_methods = array();
+			// compile yaml defined export methods into the array above
+			foreach ($manifest_data["score"]["logs_export_methods"] as $method)
+			{
+				array_push($yaml_export_methods, $method["value"]);
+			}
+
+			$classes = get_declared_classes(); //get list of all classes prior to include
+			include $dir.'/_export-modules/export_module.php';
+			$diff = array_diff(get_declared_classes(), $classes); // get last included class
+			unset($diff[array_search("Materia\\Export_Module", $diff)]); // remove parent class from the list of recently included classes
+			$class = reset($diff);
+			$export_methods = get_class_methods($class);
+			unset($export_methods[array_search("__construct", $export_methods)]); // remove constructor from list of methods
+		
+			//abort if the yaml defined export methods don't match those found in the export module
+			if(!empty(array_diff($yaml_export_methods, $export_methods)))
+			{
+				self::abort('Export methods in install.yaml don\'t match export methods'.
+				' declared in export module for '.$manifest_data["general"]["name"].' widget:'."\n\t".
+				"yaml export methods - ".implode(', ', $yaml_export_methods)."\n\t".
+				"module export methods - ".implode(', ', $export_methods)."\n", true);
+			}
+		}
+
 		// 6. make sure metadata section is correct
 		$metadata = $manifest_data['meta_data'];
 		if (self::missing_required_attributes($metadata, ['about', 'excerpt'])) return;
