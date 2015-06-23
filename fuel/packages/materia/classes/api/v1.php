@@ -111,7 +111,7 @@ class Api_V1
 			'is_draft'   	=> $is_draft,
 			'created_at' 	=> time(),
 			'widget'     	=> $widget,
-			'guest_access' 	=> $is_student ? true : $guest_access,
+			'guest_access' 	=> ($is_student ? true : false),
 			'attempts'		=> $is_student ? 0 : $attempts
 		]);
 
