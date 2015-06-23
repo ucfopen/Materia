@@ -112,7 +112,7 @@ class Api_V1
 			'created_at' 	=> time(),
 			'widget'     	=> $widget,
 			'guest_access' 	=> ($is_student ? true : false),
-			'attempts'		=> 0
+			'attempts'		=> -1
 		]);
 
 		if ($qset !== null)
@@ -170,7 +170,7 @@ class Api_V1
 		if ($attempts !== null)
 			{
 				// Force unlimited for students, allow others to set access
-				$inst->attempts = $is_student ? 0 : $attempts;
+				$inst->attempts = $is_student ? -1 : $attempts;
 			}
 		if ($guest_access !== null || $is_student)
 			{
