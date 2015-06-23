@@ -112,7 +112,7 @@ class Api_V1
 			'created_at' 	=> time(),
 			'widget'     	=> $widget,
 			'guest_access' 	=> ($is_student ? true : false),
-			'attempts'		=> $is_student ? 0 : $attempts
+			'attempts'		=> 0
 		]);
 
 		if ($qset !== null)
