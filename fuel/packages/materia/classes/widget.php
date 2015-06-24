@@ -116,7 +116,7 @@ class Widget
 					break;
 			}
 		}
-		
+
 		// -------------- INIT OBJECT ---------------
 		$this->__construct([
 			'clean_name'          => $w['clean_name'],

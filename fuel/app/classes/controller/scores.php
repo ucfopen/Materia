@@ -116,10 +116,9 @@ class Controller_Scores extends Controller
 
 		//attaches $inst to instantiated objects own property
 		$export_module = \Materia\Score_Manager::get_export_module_for_widget($inst_id);
-		$export_methods = get_class_methods($export_module);
 
-		if (in_array($format, $export_methods))
-		{	
+		if (method_exists($export_module, $format))
+		{
 			try
 			{
 				list($data, $filetype) = $export_module->$format($semesters_string);
@@ -128,12 +127,12 @@ class Controller_Scores extends Controller
 			catch (\Exception $e)
 			{
 				trace("Error building export file: ".$e);
+				throw new HttpServerErrorException;
 			}
 		}
-		else
-		{
-			trace("Could not find request export method among methods available in export module");
-		}
+
+		trace("Could not find request export method among methods available in export module");
+		throw new HttpNotFoundException;
 	}
 
 	public function get_storage($inst_id, $table_name, $semesters)

@@ -123,7 +123,7 @@ class Score_Manager
 		// Papa-T suggests using Namespaces instead, so consider that a
 		// TODO: Add namespaces so this isn't so fucking disgusting
 		import(strtolower($inst->widget->score_module), '../packages/materia/vendor/widget/score_module');
-		$score_module = 'Materia\Score_Modules_'.$inst->widget->score_module;
+		$score_module = "Materia\Score_Modules_{$inst->widget->score_module}";
 
 		return new $score_module($play_id, $inst);
 	}
@@ -142,7 +142,7 @@ class Score_Manager
 		$inst->db_get($inst_id, false);
 
 		import(strtolower($inst->widget->score_module), '../packages/materia/vendor/widget/export_module');
-		$export_module = 'Materia\Export_Modules_'.$inst->widget->score_module;
+		$export_module = "Materia\Export_Modules_{$inst->widget->score_module}";
 
 		return new $export_module($inst);
 	}
