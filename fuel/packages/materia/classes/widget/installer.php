@@ -407,14 +407,14 @@ class Widget_Installer
 			//abort if the yaml defined export methods don't match those found in the export module
 			if(!empty(array_diff($yaml_export_methods, $export_methods)))
 			{
-				self::abort('Export methods in install.yaml don\'t match export methods'.
+				trace('Export methods in install.yaml don\'t match export methods'.
 				' declared in export module for '.$manifest_data["general"]["name"].' widget:'."\n\t".
 				"yaml export methods - ".implode(', ', $yaml_export_methods)."\n\t".
-				"module export methods - ".implode(', ', $export_methods)."\n", true);
+				"module export methods - ".implode(', ', $export_methods)."\n");
 			}
 		}
 
-		// 6. make sure metadata section is correct
+		// 7. make sure metadata section is correct
 		$metadata = $manifest_data['meta_data'];
 		if (self::missing_required_attributes($metadata, ['about', 'excerpt'])) return;
 	}
@@ -439,9 +439,14 @@ class Widget_Installer
 			'clean_name'          => $clean_name,
 			'api_version'         => (string)(int)$manifest_data['general']['api_version'],
 			'package_hash'        => $package_hash,
-			'score_module'        => $manifest_data['score']['score_module'],
-			'logs_export_methods' => serialize($manifest_data['score']['logs_export_methods'])
+			'score_module'        => $manifest_data['score']['score_module']
 		];
+
+		//optional field
+		if ( array_key_exists("logs_export_methods", $manifest_data['score']) )
+		{
+			$params['logs_export_methods'] = serialize($manifest_data['score']['logs_export_methods']);
+		}
 
 		if (isset($manifest_data['files']['creator']))
 		{
@@ -502,7 +507,7 @@ class Widget_Installer
 			}
 			$file_area->rename($dir.'/_export-modules/export_module.php', $new_export_module);
 			// delete the export modules folder so it won't get copied over
-		$file_area->delete_dir($dir.'/_export-modules');
+			$file_area->delete_dir($dir.'/_export-modules');
 		}
 
 		// move test
