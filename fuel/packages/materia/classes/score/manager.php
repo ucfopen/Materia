@@ -93,7 +93,7 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$score_module = Score_Manager::get_score_module_for_widget($play->inst_id, $play->id);
+			$score_module = Score_Manager::get_widget_module("score", $play->inst_id,  $play->id);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -107,44 +107,27 @@ class Score_Manager
 
 
 	/**
-	 * Finds the appropriate score module instance for a given game and play log
+	 * Finds the appropriate score or export module instance for a given game and play log
 	 *
 	 * @param  int Identifier for this game instance
-	 * @param  int Identifier for this play log
+	 * @param  int Identifier for this play log, optional param
 	 *
 	 * @return Score_Modules_Base  A score module fitting the given widget
 	 */
-	static public function get_score_module_for_widget($inst_id, $play_id)
-	{
+	static public function get_widget_module($type, $inst_id, $play_id = null){
 		$inst = new Widget_Instance();
 		$inst->db_get($inst_id, false);
 
 		// note: this is REALLY REALLY DIRTY HACKISH BULLSHIT.
 		// Papa-T suggests using Namespaces instead, so consider that a
 		// TODO: Add namespaces so this isn't so fucking disgusting
-		import(strtolower($inst->widget->score_module), '../packages/materia/vendor/widget/score_module');
-		$score_module = "Materia\Score_Modules_{$inst->widget->score_module}";
 
-		return new $score_module($play_id, $inst);
-	}
+		//I don't know why, but only this method of string concat prevents tests from failing.
+		import(strtolower($inst->widget->score_module), "../packages/materia/vendor/widget/".$type."_module");
+		//maybe inline is better than creating new variable?
+		$module = "Materia\\".ucfirst($type)."_Modules_{$inst->widget->score_module}";
 
-	/**
-	 * Finds the appropriate export module instance for a given game and play log
-	 *
-	 * @param  int Identifier for this game instance
-	 * @param  int Identifier for this play log
-	 *
-	 * @return Export_Modules_Base  A export module fitting the given widget
-	 */
-	static public function get_export_module_for_widget($inst_id)
-	{
-		$inst = new Widget_Instance();
-		$inst->db_get($inst_id, false);
-
-		import(strtolower($inst->widget->score_module), '../packages/materia/vendor/widget/export_module');
-		$export_module = "Materia\Export_Modules_{$inst->widget->score_module}";
-
-		return new $export_module($inst);
+		return $type == "score" ? new $module($play_id, $inst) : new $module($inst);
 	}
 
 	/**
@@ -285,7 +268,7 @@ class Score_Manager
 		if ($play_logs == null) return $play_logs;
 
 		// run the data through the score module
-		$score_module = Score_Manager::get_score_module_for_widget($inst_id, -1);
+		$score_module = Score_Manager::get_widget_module("score", $inst_id,  -1);
 		$score_module->logs = $play_logs;
 		$score_module->validate_scores();
 

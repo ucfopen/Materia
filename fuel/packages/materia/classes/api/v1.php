@@ -290,7 +290,7 @@ class Api_V1
 			}
 
 			Session_Logger::parse_and_store_log_array($play_id, $logs);
-			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id, $play_id);
+			$score_mod = Score_Manager::get_widget_module("score", $play->inst_id,  $play_id);
 			$score_mod->log_problems = true;
 			// make sure that the logs arent timestamped wrong or recieved incorrectly
 			if ($score_mod->validate_times() == false)

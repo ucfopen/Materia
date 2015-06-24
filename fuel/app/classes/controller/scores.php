@@ -115,7 +115,7 @@ class Controller_Scores extends Controller
 		}
 
 		//attaches $inst to instantiated objects own property
-		$export_module = \Materia\Score_Manager::get_export_module_for_widget($inst_id);
+		$export_module = \Materia\Score_Manager::get_widget_module("export", $inst_id);
 
 		if (method_exists($export_module, $format))
 		{
