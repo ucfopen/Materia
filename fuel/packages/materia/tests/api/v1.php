@@ -736,6 +736,7 @@ class Test_Api_V1 extends \Basetest
 	public function test_permissions_set()
 	{
 		// make sure that the users exist
+		$this->_asStudent();
 		$this->_asAuthor2();
 		$this->_asAuthor3();
 		\Auth::logout();
@@ -749,9 +750,64 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::permissions_set(0, 0, '', array(), false, 0, false);
-		$this->assertInvalidLoginMessage($output);
+		$widget = \Materia\Api_V1::widget_instance_new(5, 'test', new stdClass(), false);
+		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
+		//give author2 and author3 full access from author
+
+		$studentAuthor      = \Model_User::query()->where('~student', 'kogneato')->get_one();
+		$author2            = \Model_User::query()->where('username', '~testAuthor2')->get_one();
+		$author3            = \Model_User::query()->where('username', '~testAuthor3')->get_one();
+		$accessObj          = new stdClass();
+		$accessObj->user_id = $author2->id;
+		$accessObj->perms   = [\Materia\Perm::FULL => true];
+
+		// studentAuthor gives Author2 full access
+		$accessObj->expiration = null;
+		$accessObj->user_id = $author2->id;
+		$output = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertTrue($output);
+
+		// studentAuthor gives Author3 full access
+		$accessObj->user_id = $author3->id;
+		$output = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertTrue($output);
+
+		// author2 removes author3 FULL and adds VIEW
+		$this->_asAuthor2();
+		$accessObj->user_id = $author3->id;
+		$accessObj->perms = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
+		$output           = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertTrue($output);
+
+		// author3 removes author2 FULL and adds VIEW
+		$this->_asAuthor3();
+		$accessObj->user_id = $author2->id;
+		$accessObj->perms   = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
+		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertPermissionDeniedMessage($output);
+
+		// author3 removes own visible rights
+		$accessObj->user_id = $author3->id;
+		$accessObj->perms   = [\Materia\Perm::VISIBLE => false];
+		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertTrue($output);
+
+		// author3 removes own VIEW right
+		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertPermissionDeniedMessage($output);
+
+		// author2 removes studentAuthor FULL adds VIEW
+		$this->_asAuthor2();
+		$accessObj->user_id = $studentAuthor->id;
+		$accessObj->perms   = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
+		$output = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
+		$this->assertTrue($output);
+
+		// DELETE
+		\Materia\Api_V1::widget_instance_delete($inst_id);
+
+		// ======= AUTHOR ========
 		//make a new widget to use with remaining tests
 		$this->_asAuthor();
 		$widget = \Materia\Api_V1::widget_instance_new(5, 'test', new stdClass(), false);
