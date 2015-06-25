@@ -165,8 +165,56 @@ class Test_Api_V1 extends \Basetest
 
 		// // ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::widget_instance_update();
-		$this->assertInvalidLoginMessage($output);
+
+		// NEW DRAFT
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$widget_id = 5;
+		$qset = $this->create_new_qset($question, $answer);
+
+		$output = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
+
+		// EDIT
+		$title = 'Around The World!';
+		$question = 'Famous Broisms';
+		$answer = 'Brometheius';
+		$qset = $output->qset;
+		$qset->data['items'][0]['items'][0]['id'] = 0;
+		$qset->data['items'][0]['items'][0]['questions'][0]['text'] = $question;
+		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
+
+		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, true);
+		$this->assertIsWidgetInstance($output);
+		$this->assertEquals($title, $output->name);
+		$this->assertCount(1, $output->qset->data['items']);
+		$this->assertCount(1, $output->qset->data['items'][0]['items']);
+		$this->assertEquals('QA', $output->qset->data['items'][0]['items'][0]['type']);
+		$this->assertEquals($question, $output->qset->data['items'][0]['items'][0]['questions'][0]['text']);
+		$this->assertEquals($answer, $output->qset->data['items'][0]['items'][0]['answers'][0]['text']);
+		$this->assertEquals(100, $output->qset->data['items'][0]['items'][0]['answers'][0]['value']);
+
+		// PUBLISH
+		$title = 'Final Title!';
+		$question = 'Famous Broisms 2';
+		$answer = 'Abroham Lincoln';
+		$qset = $output->qset;
+		$qset->data['items'][0]['items'][0]['id'] = 0;
+		$qset->data['items'][0]['items'][0]['questions'][0]['text'] = $question;
+		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
+
+		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, false);
+		$this->assertIsWidgetInstance($output);
+		$this->assertEquals($title, $output->name);
+		$this->assertCount(1, $output->qset->data['items']);
+		$this->assertCount(1, $output->qset->data['items'][0]['items']);
+		$this->assertEquals('QA', $output->qset->data['items'][0]['items'][0]['type']);
+		$this->assertEquals($question, $output->qset->data['items'][0]['items'][0]['questions'][0]['text']);
+		$this->assertEquals($answer, $output->qset->data['items'][0]['items'][0]['answers'][0]['text']);
+		$this->assertEquals(100, $output->qset->data['items'][0]['items'][0]['answers'][0]['value']);
+
+		// DELETE
+		\Materia\Api_V1::widget_instance_delete($output->id);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
@@ -274,7 +322,23 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= STUDENT ========
 		$this->_asStudent();
-		$this->assertInvalidLoginMessage($output);
+		$qset = $this->create_new_qset('question', 'answer');
+		$output = \Materia\Api_V1::widget_instance_new(5, 'delete', $qset, true);
+		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
+		$inst_id = $output->id;
+
+
+		$output = \Materia\Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
+		$this->assertIsValidID($output);
+
+		$insts = \Materia\Api_V1::widget_instances_get($output);
+		$this->assertIsWidgetInstance($insts[0], true);
+		$this->assertEquals('Copied Widget', $insts[0]->name);
+		$this->assertEquals(true, $insts[0]->is_draft);
+
+		// DELETE
+		\Materia\Api_V1::widget_instance_delete($insts[0]->id);
+		\Materia\Api_V1::widget_instance_delete($inst_id);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
