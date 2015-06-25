@@ -114,8 +114,23 @@ class Test_Api_V1 extends \Basetest
 
 		// // ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::widget_instance_new();
-		$this->assertInvalidLoginMessage( ! $output);
+		
+		// NEW DRAFT
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$widget_id = 5;
+		$qset = $this->create_new_qset($question, $answer);
+
+		$output = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
+		$this->assertIsWidgetInstance($output);
+		$this->assertEquals($title, $output->name);
+		$this->assertCount(1, $output->qset->data['items']);
+		$this->assertCount(1, $output->qset->data['items'][0]['items']);
+		$this->assertEquals('QA', $output->qset->data['items'][0]['items'][0]['type']);
+		$this->assertEquals($question, $output->qset->data['items'][0]['items'][0]['questions'][0]['text']);
+		$this->assertEquals($answer, $output->qset->data['items'][0]['items'][0]['answers'][0]['text']);
+		$this->assertEquals(100, $output->qset->data['items'][0]['items'][0]['answers'][0]['value']);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
