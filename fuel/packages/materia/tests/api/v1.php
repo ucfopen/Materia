@@ -805,7 +805,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output);
 
 		// DELETE
-		\Materia\Api_V1::widget_instance_delete($inst_id);
+		\Materia\Api_V1::widget_instance_delete($widget);
 
 		// ======= AUTHOR ========
 		//make a new widget to use with remaining tests
