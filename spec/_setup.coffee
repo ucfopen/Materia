@@ -1,17 +1,18 @@
 # To Run
-# 1. download selenium server
-# 2. optionally download chromedriver
+# 1. download selenium standalone server 2.45.0
+# 2. optionally download chromedriver to test using google chrome (uses firefox be default)
 # 3. install jasmine node globally
 #   - npm install jasmine-node -g
-# 4. get node libraries
-#   - cd to/materia/dir/
+# 4. install materia node libraries
+#   - cd to/materia/current/
 #   - npm install
-# 5. run the selenium server:
-#   - java -jar selenium-server-standalone-2.37.0.jar
-#   - or with chrome: -Dwebdriver.chrome.driver=/path/to/chromedriver
+# 5. run the selenium server wherever you put it:
+#   - java -jar selenium-server-standalone-2.45.0.jar
+#   - optional use chrome: java -jar -Dwebdriver.chrome.driver=/path/to/chromedriver selenium-server-standalone-2.45.0.jar
 # 6. run the tests
 #   - jasmine-node spec/ --coffee
-#   - or optional set browser: env BROWSER=chrome jasmine-node spec/ --coffee
+#   - optional just test widgets: jasmine-node spec/widgets/ --coffee
+#   - optional set browser: env BROWSER=chrome jasmine-node spec/ --coffee
 #
 # Useful links
 # https://github.com/camme/webdriverjs
