@@ -80,7 +80,12 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::widget_instances_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assertInternalType('array', $output);
+		$this->assertFalse(array_key_exists('msg', $output));
+		foreach ($output as $key => $value)
+		{
+			$this->assertIsWidgetInstance($value, true);
+		}
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
@@ -283,8 +288,17 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::widget_instance_lock(10);
-		$this->assertInvalidLoginMessage($output);
+		$qset = $this->create_new_qset('question', 'answer');
+		$output = \Materia\Api_V1::widget_instance_new(5, 'delete', $qset, true);
+		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
+		$inst_id = $output->id;
+
+		$output = \Materia\Api_V1::widget_instance_lock($inst_id);
+		$this->assertTrue($output); // i own the lock, good to go
+		$this->assertTrue($output); // i own the lock, good to go
+
+		// DELETE
+		\Materia\Api_V1::widget_instance_delete($inst_id);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
