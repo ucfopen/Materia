@@ -115,7 +115,7 @@ class Test_Api_V1 extends \Basetest
 		// // ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::widget_instance_new();
-		$this->assertInvalidLoginMessage($output);
+		$this->assertInvalidLoginMessage( ! $output);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
