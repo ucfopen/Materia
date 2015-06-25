@@ -755,7 +755,7 @@ class Test_Api_V1 extends \Basetest
 
 		//give author2 and author3 full access from author
 
-		$studentAuthor      = \Model_User::query()->where('~student', 'kogneato')->get_one();
+		$studentAuthor      = \Model_User::query()->where('username', '~student')->get_one();
 		$author2            = \Model_User::query()->where('username', '~testAuthor2')->get_one();
 		$author3            = \Model_User::query()->where('username', '~testAuthor3')->get_one();
 		$accessObj          = new stdClass();
