@@ -10,7 +10,7 @@
 #   - java -jar selenium-server-standalone-2.45.0.jar
 #   - optional use chrome: java -jar -Dwebdriver.chrome.driver=/path/to/chromedriver selenium-server-standalone-2.45.0.jar
 # 6. run the tests
-#   - jasmine-node spec/ --coffee
+#   - jasmine-node spec/ --coffee --verbose --captureExceptions
 #   - optional just test widgets: jasmine-node spec/widgets/ --coffee
 #   - optional set browser: env BROWSER=chrome jasmine-node spec/ --coffee
 #
