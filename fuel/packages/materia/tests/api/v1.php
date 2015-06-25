@@ -643,7 +643,8 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_asStudent();
 		$output = \Materia\Api_V1::questions_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assertNotMessage($output);
+		$this->assertInternalType('array', $output);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
