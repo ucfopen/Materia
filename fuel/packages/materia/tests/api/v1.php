@@ -805,9 +805,6 @@ class Test_Api_V1 extends \Basetest
 		$output = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
 		$this->assertTrue($output);
 
-		// DELETE
-		\Materia\Api_V1::widget_instance_delete($widget);
-
 		// ======= AUTHOR ========
 		//make a new widget to use with remaining tests
 		$this->_asAuthor();
