@@ -165,8 +165,8 @@ class Api_V1
 		/* If student created this widget, then $attempts are hardcoded to unlimited. Guest access is hardcoded to true.
 		/* This prevents front end manipulation of these choices in the "Edit Settings" GUI.
 		/* (added 06/16/2015 by WRF) */
-		if ($attempts !== null) $inst->attempts = $inst->is_student_made ? -1 : $attempts;
-		if ($guest_access !== null || $inst->is_student_made) $inst->guest_access = $inst->is_student_made ? true : $guest_access;
+		if ($attempts !== null) $inst->attempts = ($inst->is_student_made ? -1 : $attempts);
+		if ($guest_access !== null || $inst->is_student_made) $inst->guest_access = ($inst->is_student_made ? true : $guest_access);
 
 		try
 		{
