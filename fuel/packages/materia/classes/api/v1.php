@@ -146,7 +146,7 @@ class Api_V1
 	 *
 	 * @return array An associative array with details about the save
 	 */
-	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
+	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $is_student_made)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
@@ -162,7 +162,7 @@ class Api_V1
 		if ($is_draft !== null) $inst->is_draft = $is_draft;
 		if ($open_at !== null) $inst->open_at = $open_at;
 		if ($close_at !== null) $inst->close_at = $close_at;
-		/* If student, then $attempts are hardcoded to unlimited. Guest access is hard coded to true.
+		/* If student created this widget, then $attempts are hardcoded to unlimited. Guest access is hardcoded to true.
 		/* This prevents front end manipulation of these choices in the "Edit Settings" GUI.
 		/* (added 06/16/2015 by WRF) */
 		if ($attempts !== null) $inst->attempts = $inst->is_student_made ? -1 : $attempts;
