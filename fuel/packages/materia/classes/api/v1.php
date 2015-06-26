@@ -148,9 +148,6 @@ class Api_V1
 	 */
 	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null)
 	{
-		// User is a student - doesn't have basic_author or super_user role.
-        $is_student = ! Api::session_valid(['basic_author', 'super_user']);
-
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
 		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
@@ -169,7 +166,7 @@ class Api_V1
 		/* This prevents front end manipulation of these choices in the "Edit Settings" GUI.
 		/* (added 06/16/2015 by WRF) */
 		if ($attempts !== null) $inst->attempts = $inst->is_student_made ? -1 : $attempts;
-		if ($guest_access !== null || $is_student) $inst->guest_access = $inst->is_student_made ? true : $guest_access;
+		if ($guest_access !== null || $inst->is_student_made) $inst->guest_access = $inst->is_student_made ? true : $guest_access;
 
 		try
 		{
