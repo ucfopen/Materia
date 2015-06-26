@@ -168,16 +168,8 @@ class Api_V1
 		/* If student, then $attempts are hardcoded to unlimited. Guest access is hard coded to true.
 		/* This prevents front end manipulation of these choices in the "Edit Settings" GUI.
 		/* (added 06/16/2015 by WRF) */
-		if ($attempts !== null)
-			{
-				// Force unlimited for students, allow others to set access
-				$inst->attempts = $is_student ? -1 : $attempts;
-			}
-		if ($guest_access !== null || $is_student)
-			{
-				// Force true for students, allow others to set access
-                $inst->guest_access = $is_student ? true : $guest_access;
-			}
+		if ($attempts !== null) $inst->attempts = $inst->is_student_made ? -1 : $attempts;
+		if ($guest_access !== null || $is_student) $inst->guest_access = $inst->is_student_made ? true : $guest_access;
 
 		try
 		{
