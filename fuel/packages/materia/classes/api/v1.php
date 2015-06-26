@@ -106,13 +106,14 @@ class Api_V1
 
 		// init the instance
 		$inst = new Widget_Instance([
-			'user_id'    	=> \Model_User::find_current_id(),
-			'name'       	=> $name,
-			'is_draft'   	=> $is_draft,
-			'created_at' 	=> time(),
-			'widget'     	=> $widget,
-			'guest_access' 	=> ($is_student ? true : false),
-			'attempts'		=> -1
+			'user_id'    		=> \Model_User::find_current_id(),
+			'name'       		=> $name,
+			'is_draft'   		=> $is_draft,
+			'created_at' 		=> time(),
+			'widget'     		=> $widget,
+			'is_student_made'	=> ($is_student ? 1 : 0),
+			'guest_access' 		=> ($is_student ? true : false),
+			'attempts'			=> -1
 		]);
 
 		if ($qset !== null)
