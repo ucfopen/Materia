@@ -143,6 +143,7 @@ class Api_V1
 	 * @param int     $close_at
 	 * @param int     $attempts
 	 * @param bool    $guest_access
+	 * @param bool 	  $is_student_made
 	 *
 	 * @return array An associative array with details about the save
 	 */
