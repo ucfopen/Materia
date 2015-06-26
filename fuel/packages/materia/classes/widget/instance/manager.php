@@ -28,16 +28,17 @@ class Widget_Instance_Manager
 			$widget = new Widget();
 			$widget->get($r['widget_id']);
 			$inst = new Widget_Instance([
-				'id'           => $r['id'],
-				'user_id'      => $r['user_id'],
-				'name'         => $r['name'],
-				'guest_access' => (bool) $r['guest_access'],
-				'is_draft'     => (bool) $r['is_draft'],
-				'created_at'   => $r['created_at'],
-				'open_at'      => $r['open_at'],
-				'close_at'     => $r['close_at'],
-				'attempts'     => $r['attempts'],
-				'widget'       => $widget,
+				'id'           		=> $r['id'],
+				'user_id'      		=> $r['user_id'],
+				'name'         		=> $r['name'],
+				'is_student_made'	=> (bool) $r['is_student_made'],
+				'guest_access' 		=> (bool) $r['guest_access'],
+				'is_draft'     		=> (bool) $r['is_draft'],
+				'created_at'   		=> $r['created_at'],
+				'open_at'      		=> $r['open_at'],
+				'close_at'     		=> $r['close_at'],
+				'attempts'     		=> $r['attempts'],
+				'widget'       		=> $widget,
 			]);
 
 			if ($load_qset) $inst->get_qset($inst->id, $timestamp);
