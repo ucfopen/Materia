@@ -7,7 +7,7 @@ describe 'Guest Access Feature', ->
     beforeEach ->
         unless client
             client = setup.getClient()
-	
+
     it 'should let an instructor create a guest access widget', (done) ->
         setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client.url("#{setup.url}/widgets")

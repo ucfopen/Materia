@@ -7,6 +7,7 @@ class Basetest extends TestCase
 		Config::set('errors.throttle', 5000);
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 		\Fuel::$is_cli = true;
+		static::clear_fuel_input();
 	}
 
 	protected function tearDown()
