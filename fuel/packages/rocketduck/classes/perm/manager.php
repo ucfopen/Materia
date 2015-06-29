@@ -249,7 +249,7 @@ class Perm_Manager
 		$role_ids = [];
 		foreach  ($roles as $role)
 		{
-			$role_ids[] = Perm_Manager::get_role_id($role);
+			$role_ids[] = (string) Perm_Manager::get_role_id($role);
 		}
 
 		$results = \DB::select(\DB::expr('COUNT(*) as count'))
