@@ -8,8 +8,9 @@ module.exports = function(elements, reverse) {
 		db = document.body,
 		dde = document.documentElement;
 
+
 	if(elements.length === 0) {
-		throw new Error('NoSuchElement');
+		return cb(false);
 	}
 
 	var interval = setInterval(function() {
