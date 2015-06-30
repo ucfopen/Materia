@@ -78,7 +78,7 @@ module.exports =
 	testEnigma: (client, title, publish = false) ->
 		client
 			.pause 100
-			.waitFor('#container', 7000)
+			.waitFor('#container', 7001)
 			.getTitle (err, title) -> expect(title).toBe('Create Widget | Materia')
 			.frame('container') # switch into widget frame
 			.waitForPageVisible('.intro.show', 7000)

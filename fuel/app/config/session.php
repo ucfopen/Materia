@@ -8,6 +8,5 @@ return array(
 		'path'				=>	APPPATH.'/tmp',					// path where the session files should be stored
 		'gc_probability'	=>	5						// probability % (between 0 and 100) for garbage collection
 	),
-
 	'expiration_time'	=> 21600,
 );

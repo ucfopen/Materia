@@ -45,7 +45,8 @@ describe 'Guest Access Feature', ->
                     .waitFor('.availability #guest-access label', 7000)
                     .getText '.availability #guest-access label', (err, text) ->
                         expect(text).toContain('Enable Guest Mode')
-                    .click('.guest-checkbox')
+                    .waitFor('.guest-checkbox', 7000)
+                    .isSelected '.guest-checkbox', (err, isSelected) -> unless isSelected then client.click('.guest-checkbox')
                     .click('.availability .action_button.save')
                     .waitFor('.controls .access-level span', 7000)
                     .getText '.controls .access-level span', (err, text) ->
@@ -56,7 +57,7 @@ describe 'Guest Access Feature', ->
     it 'should let a guest play a guest widget', (done) ->
         client = setup.getClient()
         client.url("#{setup.url}/play/#{instanceID}")
-            .waitFor('.center', 3000)
+            .waitFor('.center', 3003)
             .waitFor('.center iframe', 7000)
             .frame('container')
             .waitFor('.question.unanswered', 7000)
@@ -90,7 +91,7 @@ describe 'Guest Access Feature', ->
         client = setup.getClient()
         setup.loginAt client, setup.student, "#{setup.url}/users/login"
         client.url("#{setup.url}/play/#{instanceID}")
-            .waitFor('.center', 3000)
+            .waitFor('.center', 3001)
             .waitFor('.center iframe', 7000)
             .frame('container')
             .waitFor('.question.unanswered', 7000)
@@ -151,7 +152,7 @@ describe 'Guest Access Feature', ->
             .waitFor('.availability .ng-modal-title', 7000)
             .isVisible('.availability')
             .waitFor('.guest-checkbox', 7000)
-            .click('.guest-checkbox')
+            .isSelected '.guest-checkbox', (err, isSelected) -> if isSelected then client.click('.guest-checkbox')
             .click('.availability .action_button.save')
             .waitFor('.controls .access-level span', 7000)
             .getText '.controls .access-level span', (err, text) ->
@@ -170,7 +171,7 @@ describe 'Guest Access Feature', ->
         client = setup.getClient()
         setup.loginAt client, setup.student, "#{setup.url}/users/login"
         client.url("#{setup.url}/play/#{instanceID}")
-            .waitFor('.center', 3000)
+            .waitFor('.center', 3002)
             .waitFor('.center iframe', 7000)
             .frame('container')
             .waitFor('.question.unanswered', 7000)
