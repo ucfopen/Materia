@@ -192,7 +192,7 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id)
 	{
-		$this->get_play_widget($inst_id, false, true);
+		$this->_play_widget($inst_id, false, true);
 	}
 
 	public function get_preview_widget($inst_id)
