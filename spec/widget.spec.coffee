@@ -133,7 +133,7 @@ describe 'When I create a widget', ->
             .url 'about:blank'
             .url "#{setup.url}/my-widgets#/" + publishedInstanceID
             .pause 5000
-            .waitFor '.scoreWrapper', 7000
+            .waitFor '.scoreWrapper', 7001
             .getText '.players', (err, text) -> expect(text).toBe('1')
             .getText '.score-count', (err, text) -> expect(text).toBe('2')
             .getText '.final-average', (err, text) -> expect(text).toBe('50')
@@ -148,7 +148,7 @@ describe 'When I create a widget', ->
             .url 'about:blank'
             .url "#{setup.url}/my-widgets#/" + publishedInstanceID
             .pause 5000
-            .waitFor '.scoreWrapper', 7000
+            .waitFor '.scoreWrapper', 7002
             .getText '.players', (err, text) -> expect(text).toBe('1')
             .getText '.score-count', (err, text) -> expect(text).toBe('3')
             .getText '.final-average', (err, text) -> expect(text).toBe('67')

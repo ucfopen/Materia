@@ -249,7 +249,7 @@ class Perm_Manager
 		$role_ids = [];
 		foreach  ($roles as $role)
 		{
-			$role_ids[] = Perm_Manager::get_role_id($role);
+			$role_ids[] = (string) Perm_Manager::get_role_id($role);
 		}
 
 		$results = \DB::select(\DB::expr('COUNT(*) as count'))
@@ -377,7 +377,7 @@ class Perm_Manager
 	 */
 	static public function add_users_to_roles_system_only($users = '', $roles ='')
 	{
-		if ($users == '' || $roles == '' || ! is_array($users) || ! is_array($roles)) return false;
+		if (! is_array($users) || ! is_array($roles)) return false;
 		$success = true;
 
 		foreach ($users as $user_id)

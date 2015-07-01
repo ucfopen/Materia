@@ -10,7 +10,7 @@ class Controller_Media extends Controller
 	public function get_show_asset($asset_id)
 	{
 		// Validate Logged in
-		if ( ! (Materia\Api::session_valid() === true || \Session::get('active', false))) throw new HttpNotFoundException;
+		if ( ! (Materia\Api::session_valid() === true || \Materia\Session_Play::is_user_playing() )) throw new HttpNotFoundException;
 
 		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
 
@@ -79,7 +79,8 @@ class Controller_Media extends Controller
 	// Event handler called when an upload via plupload is complete
 	public static function on_upload_complete($uploaded_file)
 	{
-		Materia\Widget_Asset_Manager::process_upload(Input::post('name', 'New Asset'), $uploaded_file);
+		$asset = Materia\Widget_Asset_Manager::process_upload(Input::post('name', 'New Asset'), $uploaded_file);
+		return $asset->id;
 	}
 
 
