@@ -156,7 +156,7 @@ gulp.task 'watch', ->
 
 gulp.task 'css', ->
 	gulp.src "#{path.css}*.scss"
-		.pipe sass()
+		.pipe sass().on 'error', errHandle
 		.pipe minifyCss()
 		.pipe gulp.dest(path.cssOut)
 

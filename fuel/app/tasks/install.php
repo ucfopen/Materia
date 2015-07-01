@@ -19,7 +19,8 @@ class Install
 			PKGPATH.'materia/media/uploads',
 			PKGPATH.'materia/vendor/widget/score_module',
 			PKGPATH.'materia/vendor/widget/test',
-			DOCROOT.'static/widget'
+			DOCROOT.'static/widget',
+			DOCROOT.'static/widget/test'
 		];
 
 		foreach ($writable_paths as $path)

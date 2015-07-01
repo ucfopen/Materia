@@ -103,16 +103,20 @@ class Plupload
 		@fclose($out);
 		@fclose($in);
 
+		// file is uploaded in parts with multiple posts, initialize var for intermediate responses
+		$id = "";
 		// Check if file has been uploaded
 		if (!$chunks || $chunk == $chunks - 1)
 		{
 			// Strip the temp .part suffix off 
 			rename("{$file_path}.part", $file_path);
-			\Event::trigger('media-upload-complete', $file_path, 'none');
+			$id = \Event::trigger('media-upload-complete', $file_path, 'array');
+			// the return of each listener to this event gets added to this trigger's array
+			$id = end($id); 
 		}
 
 		// Return Success JSON-RPC response
-		$res->body('{"jsonrpc" : "2.0", "result" : null, "id" : "id"}');
+		$res->body('{"jsonrpc" : "2.0", "result" : null, "id" : "'.$id.'"}');
 
 		return $res;
 	}

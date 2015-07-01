@@ -46,7 +46,7 @@ class Api_V1
 		{
 			// ==================== CHECK FOR SPECIFIC INSTANCES ==================
 			// convert string into array of items
-			if ( ! empty($inst_ids)) $inst_ids = [$inst_ids];
+			if ( ! empty($inst_ids) && ! is_array($inst_ids)) $inst_ids = [$inst_ids];
 			return Widget_Instance_Manager::get_all($inst_ids);
 		}
 	}

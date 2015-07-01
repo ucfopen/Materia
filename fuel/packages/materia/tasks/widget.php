@@ -150,7 +150,7 @@ class Widget extends \Basetask
 		}
 	}
 
-	public static function delete($inst_id)
+	public static function delete_instance($inst_id)
 	{
 		if (\Cli::prompt(\Cli::color('Are you sure? [yes/NO]', 'red')) !== 'yes')
 		{

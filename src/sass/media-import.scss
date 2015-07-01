@@ -2,35 +2,39 @@ body, html {
 	font-family: 'Lato', arial, serif;
 }
 
-.dataTables_wrapper
-{
+.dataTables_wrapper{
 	position: relative;
 	clear: both;
 	margin: 0px auto;
 	background: #fff;
-	border: rgba(0,0,0,0.11) 1px solid;
-	-moz-box-shadow: 1px 3px 10px #888;
-	-webkit-box-shadow: 1px 3px 10px #888;
-	box-shadow: 1px 3px 10px #888;
 }
 
-#import-form {
-	padding:10px 5px;
-	min-width:665px;
+//targets the sub-table holding the image data
+#question-table .sub-table{
+	.subtable-title{
+		font-weight: bold;
+		width: 140px;
+		word-wrap: break-word;
+	}
+	.subtable-date{
+		width: 43px;
+		vertical-align: top;
+	}
+	.subtable-gray{
+		color: #6b6b6b;
+	}
+}
+
+#question-table_wrapper{
+	height: 90%;
 }
 
 #question-table_filter{
-	background:#efefef;
+	background:#fff;
 	padding:6px 10px;
-	float:none;
-
 }
 
-#question-table_filter label{
-	/*display:none;*/
-}
-#question-table_filter input[type="text"]
-{
+#question-table_filter input[type="text"]{
 	width: 124px;
 	border: solid 1px #b0b0b0;
 	-webkit-border-radius: 12px;
@@ -49,14 +53,20 @@ h1{
 	text-shadow: 0 1px #fbfbfb;
 	color: #a6a6a6;
 	z-index: 1;
-	top: 17px;
+	top: 50px;
 	left: 20px;
 	margin: 0px;
 }
 
-.dataTables_scroll
-{
-	margin: 0px 5px;
+.dataTables_scroll{
+	height: 99.45%;
+
+	.dataTables_scrollHead{
+		display: none;
+	}
+	.dataTables_scrollBody{
+		height: inherit;
+	}
 }
 
 .gray {
@@ -115,10 +125,7 @@ table.dataTable thead th{
 #uploader-form{
 	display: block;
 	position: absolute;
-	bottom: 75px;
-	left: 10px;
-	right: 10px;
-	z-index:4;
+	height: 100%;
 }
 
 #modal-cover{
@@ -131,8 +138,236 @@ table.dataTable thead th{
 	z-index: 2;
 	display:none;
 }
-#cancel-button{
-	color: #555;
-	text-decoration: underline;
-	margin-right: 15px;
+
+//parent window (800px x 500px) from create.scss
+$win_height: 500px;
+$win_width: 800px;
+
+//pane vars
+$pane_height: 450px; //height curtailed to prevent overflow (and thus scrolling) for now
+$pane_width: 362px; //width of each pane
+$pane_margin: 15px; //margin from parent iframe
+$divwidth: $win_width - 2*($pane_width + $pane_margin); //width of middle divider pane
+$pane_header_margin: 17px;
+
+$sortbar_height: 45px;
+$sortbar_width: 170px;
+$sortbar_marginleft: 6px;
+$sortbar_marginright: 10px;
+$arr_size: 4px;
+
+//plupload vars
+$footer_height: 38px;
+$dropzone_height: 379px;
+$dropzone_margin: 18px;
+
+//panes
+//classes were used for consistency because left-pane already had an id
+#left-pane{ //contains plupload
+	left: $pane_margin;
+	width: $pane_width;
+	height: $pane_height;
+	position: absolute;
+
+	&:after{
+		color: #dadada;
+		content: "or";
+		position: absolute;
+		text-align: center;
+		width: $divwidth;
+		left: $pane_width;
+		top: $pane_header_margin;
+	}
+
+	&:before{
+		content: "";
+		border-left: thin solid #dadada;
+		height: $dropzone_height + $footer_height + $dropzone_margin;
+		top: 10%;
+		position: absolute;
+		left: $pane_width + ($divwidth / 2);
+	}
 }
+
+#close-button{
+  background: transparent;
+  float: right;
+  position: relative;
+  
+  &:after{
+  	  content: 'X';
+  	  font-size: 15px;
+  	  color: black;
+  }
+
+}
+
+.right-pane{//contains datatable
+	right: $pane_margin;
+	width: $pane_width;
+	height: $pane_height;
+	position: absolute;
+	margin: 0 auto;
+	box-shadow: none;
+
+	#search-box{
+		width: $pane_width -$sortbar_width - ($sortbar_marginleft + $sortbar_marginright) - $arr_size;
+		height: 20px;
+		background: #fff;
+		border: 1px solid #b0b0b0;
+		-webkit-border-radius: 12px;
+		-moz-border-radius: 12px;
+		border-radius: 12px;
+
+		padding-left: 18px;
+		background-image: url(../img/magnifyingglass.png);
+		background-repeat: no-repeat;
+		background-position: 5px 2px;
+	}
+}
+
+.pane-header{
+	position: relative;
+	text-align: center;
+	font-size: 16px;
+	width: 100%;
+	margin: $pane_header_margin auto ($pane_header_margin - 7) auto;
+	color: #484848;
+	font-family: Lato,arial,serif;
+	font-weight: bold;
+}
+
+//bar at the top of catalog (right) pane that houses datatables sort listeners
+#sort-bar{
+	height: $sortbar_height;
+	width: $sortbar_width;
+	margin-left: $sortbar_marginleft;
+	margin-right: $sortbar_marginright;
+	background-color: transparent;
+	display: flex;
+	z-index: 1;
+	top: 50px;
+	position: absolute;
+
+	#sort-cols{
+		width: 100%;
+		display: flex;
+
+		.col-cont{
+			flex-grow: 1;
+			padding: 1%;
+			text-decoration: underline;
+			width: 45px;
+
+			.dt-sorting{
+				cursor: pointer;
+				font-size: 15px;
+
+				&:hover{
+					font-weight: bold;
+				}
+			}
+		}
+	}
+
+	//sort-arrows depicting orderings
+	.arrows{
+		display: inline-block;
+		width: 10px;
+		margin: 0 0 3% 7%;
+	}
+
+	.sort-asc{
+		width: 0; 
+		height: 0; 
+		border-left: $arr_size solid transparent;
+		border-right: $arr_size solid transparent;
+		
+		border-bottom: $arr_size solid black;
+	}
+	.sort-desc{
+		width: 0; 
+		height: 0; 
+		border-left: $arr_size solid transparent;
+		border-right: $arr_size solid transparent;
+		
+		border-top: $arr_size solid #f00;
+	}
+}
+
+//pupload customs
+#uploader_container{
+	padding: 0;
+
+	.plupload_header{
+		display: none;
+	}
+}
+
+#uploader-form{
+	.plupload_content{
+		.plupload_droptext{//dropping area
+			border-style: dashed;
+			border-width: thick;
+			border-color: #dadada;
+			color: #dadada;
+			padding: 0px;
+			margin: $dropzone_margin;
+			height: ($dropzone_height - $footer_height - $dropzone_margin);
+			line-height: ($dropzone_height - $footer_height - $dropzone_margin);
+			font-family: Lato,arial,serif;
+			font-size: large;
+		}
+	}
+
+	#uploader_filelist{
+		height: $dropzone_height;
+	}
+
+	.plupload_filelist_footer{
+		height: $footer_height;
+
+		.plupload_file_name{
+			overflow: visible;
+		}
+
+		.plupload_file_status{
+			top: 13px;
+			position: relative;
+		}
+	}
+}
+
+//hide total file size on bottom, and hide header on top
+.plupload_total_file_size, .plupload_filelist_header{
+	display: none;
+}
+
+.plupload_button.plupload_add{
+	padding: 7px 23px 8px;
+	background: #ffba5d;
+	background-image: -webkit-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: -o-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: -moz-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: -ms-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: linear-gradient(top,#ffce8c,#ffa42a);
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	border: 1px solid #fdb34f;
+	color: #694d28;
+	text-shadow: 1px 1px 1px rgba(255,255,255,.5);
+	-moz-box-shadow: 1px 2px 4px #888;
+	-webkit-box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px #888;
+	font-size: 18px;
+	display: inline-block;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}  
+
+

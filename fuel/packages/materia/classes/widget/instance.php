@@ -136,7 +136,7 @@ class Widget_Instance
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
-			$inst = Widget_Instance_Manager::get($inst_id, $load_qset, $timestamp);
+			$inst = Widget_Instance_Manager::get((string) $inst_id, $load_qset, $timestamp);
 
 			if ($inst instanceof Widget_Instance)
 			{
