@@ -22,8 +22,3 @@ app.directive 'scoreData', (selectedWidgetSrv, $window) ->
 			$scope.tableNames.push(tableName) for tableName, tableData of $scope.tables
 
 			$scope.selectedTable = $scope.tableNames[0]
-
-		$scope.handleStorageDownload = () ->
-			semester = semester.replace(" ", "-")
-			$window.open "scores/storage/#{widgetId}/#{$scope.selectedTable}/#{semester}"
-			return true

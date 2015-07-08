@@ -74,7 +74,7 @@ class Admin extends \Basetask
 		$play_session = new \Materia\Session_Play();
 		$play_session->get_by_id($play_id);
 
-		$score_mod = Score_Manager::get_widget_module("score", $play->inst_id,  $play_id);
+		$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id);
 
 		if ($score_mod->validate_times() == false)
 		{
