@@ -290,7 +290,12 @@ class Api_V1
 			}
 
 			Session_Logger::parse_and_store_log_array($play_id, $logs);
-			$score_mod = Score_Manager::get_widget_module("score", $play->inst_id,  $play_id);
+			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id);
+
+			// @TODO: conver the score modules to work more like the playdata exporters
+			// $inst      = Widget_Instance_Manager::get($play->inst_id)
+			// $score_mod = new Score_Module($play_id, $inst);
+
 			$score_mod->log_problems = true;
 			// make sure that the logs arent timestamped wrong or recieved incorrectly
 			if ($score_mod->validate_times() == false)
@@ -457,7 +462,7 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		return Storage_Manager::get_logs_by_inst_id($inst_id);
+		return Storage_Manager::get_storage_data($inst_id);
 	}
 	/**
 	 * @param int $inst_id The id of the widget instance to get the qset for (formerly inst_id)
@@ -525,7 +530,8 @@ class Api_V1
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
-			Storage_Manager::parse_and_store_storage_array($play->inst_id, $play_id, $play->user_id, $data);
+			$user_id = $inst->guest_access ? 0 : $play->user_id; // store as guest or user?
+			Storage_Manager::parse_and_store_storage_array($play->inst_id, $play_id, $user_id, $data);
 			return true;
 		}
 		else
@@ -544,7 +550,7 @@ class Api_V1
 				return Storage_Manager::get_csv_logs_by_inst_id($inst_id);
 
 			default:
-				return Storage_Manager::get_logs_by_inst_id($inst_id);
+				return Storage_Manager::get_storage_data($inst_id);
 		}
 	}
 

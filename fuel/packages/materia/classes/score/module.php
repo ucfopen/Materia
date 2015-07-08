@@ -1,50 +1,25 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * Manages score and log information for any given module (inst).
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @subpackage  scoring
- * @category    Modules
-  * @author      ADD NAME HERE
- */
-
 namespace Materia;
 
-abstract class Score_Module
+class Score_Module
 {
 
 	public $logs;
 	public $inst;
 	public $play_id;
-	public $verified_score     = 0;
-	public $calculated_percent = 0; // Full precision percent!!  Not Rounded!
-	public $total_questions    = 0;
-	public $finished           = false;
-	public $log_problems       = false;
-	public $global_modifiers   = [];
-	// public $modifiers          = [];
-	protected $questions       = [];
-	protected $score_display   = [];
-
+	public $verified_score       = 0;
+	public $calculated_percent   = 0; // Full precision percent!!  Not Rounded!
+	public $total_questions      = 0;
+	public $finished             = false;
+	public $log_problems         = false;
+	public $global_modifiers     = [];
+	protected $custom_methods    = null;
+	protected $questions         = [];
+	protected $score_display     = [];
 	protected $_ss_table_title   = 'Responses:';
 	protected $_ss_table_headers = ['Question Score', 'The Question', 'Your Response', 'Correct Answer'];
 
 	/**
-	 * NEEDS DOCUMENTATION
 	 *
 	 * @param int     The play ID of the game being scored
 	 * @param int     Scoring type for the game to score
@@ -294,15 +269,7 @@ abstract class Score_Module
 		return $style;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
-	private function log_problem($id, $value, $error_code, $description)
+	protected function log_problem($id, $value, $error_code, $description)
 	{
 		if ($this->log_problems)
 		{

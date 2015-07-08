@@ -24,6 +24,7 @@ class Widget_Instance_Manager
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids)
 			->and_where('is_deleted', '=', '0')
+			->order_by('created_at', 'desc')
 			->execute()
 			->as_array();
 

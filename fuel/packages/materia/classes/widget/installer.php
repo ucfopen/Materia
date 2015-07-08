@@ -387,30 +387,13 @@ class Widget_Installer
 
 		// if the export module exists, include it and get its defined methods
 		// otherwise, don't fail validation, since export modules are not mandatory
-		if (file_exists($dir.'/_export-modules/export_module.php'))
-		{	
-			$yaml_export_methods = array();
-			// compile yaml defined export methods into the array above
-			foreach ($manifest_data["score"]["logs_export_methods"] as $method)
+		$playdata_exporters_file = "{$dir}/_custom_methods/playdata_exporters.php";
+		if (file_exists($playdata_exporters_file))
+		{
+			$methods = \Materia\Utils::load_methods_from_file($playdata_exporters_file);
+			if ( ! empty($methods))
 			{
-				array_push($yaml_export_methods, $method["value"]);
-			}
-
-			$classes = get_declared_classes(); //get list of all classes prior to include
-			include $dir.'/_export-modules/export_module.php';
-			$diff = array_diff(get_declared_classes(), $classes); // get last included class
-			unset($diff[array_search("Materia\\Export_Module", $diff)]); // remove parent class from the list of recently included classes
-			$class = reset($diff);
-			$export_methods = get_class_methods($class);
-			unset($export_methods[array_search("__construct", $export_methods)]); // remove constructor from list of methods
-		
-			//abort if the yaml defined export methods don't match those found in the export module
-			if(!empty(array_diff($yaml_export_methods, $export_methods)))
-			{
-				trace('Export methods in install.yaml don\'t match export methods'.
-				' declared in export module for '.$manifest_data["general"]["name"].' widget:'."\n\t".
-				"yaml export methods - ".implode(', ', $yaml_export_methods)."\n\t".
-				"module export methods - ".implode(', ', $export_methods)."\n");
+				$manifest_data['meta_data']['playdata_exporters'] = array_keys($methods);
 			}
 		}
 
@@ -443,10 +426,6 @@ class Widget_Installer
 		];
 
 		//optional field
-		if ( array_key_exists("logs_export_methods", $manifest_data['score']) )
-		{
-			$params['logs_export_methods'] = serialize($manifest_data['score']['logs_export_methods']);
-		}
 
 		if (isset($manifest_data['files']['creator']))
 		{
