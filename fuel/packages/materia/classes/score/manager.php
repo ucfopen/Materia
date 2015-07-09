@@ -1,36 +1,8 @@
 <?php
-/**
-* Materia
-* It's a thing
-*
-* @package	    Materia
-* @version    1.0
-* @author     UCF New Media
-* @copyright  2011 New Media
-* @link       http://kogneato.com
-*/
-
-
-/**
-* NEEDS DOCUMENTATION
-*
-* The widget managers for the Materia package.
-*
-* @package	    Main
-* @subpackage  scoring
-* @author      ADD NAME HERE
-*/
-
 namespace Materia;
 
 class Score_Manager
 {
-	/**
-	 * @const int How many play logs to return details for in the
-	 *             ScoreManager.getDetails() function
-	 */
-	const DETAILS_SIZE = 25;
-
 	/**
 	 * Returns score overview for each play the current user has for a particular instance
 	 * @param int inst_id Widget Instance ID
@@ -93,7 +65,7 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$score_module = Score_Manager::get_score_module_for_widget($play->inst_id, $play->id);
+			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -105,25 +77,28 @@ class Score_Manager
 		return $return_arr;
 	}
 
-
-	/**
-	 * Finds the appropriate score module instance for a given game and play log
-	 *
-	 * @param  int Identifier for this game instance
-	 * @param  int Identifier for this play log
-	 *
-	 * @return Score_Modules_Base  A score module fitting the given widget
-	 */
-	static public function get_score_module_for_widget($inst_id, $play_id)
+	public static function get_score_module_for_widget($inst_id,  $play_id)
 	{
+
+		// build a sheltered scope to try and "safely" load the contents of the file
+		$load_score_module = function($widget)
+		{
+			include_once(PKGPATH."/materia/vendor/widget/score_module/".strtolower($widget->score_module).".php");
+			// @TODO: should be this instead to prevent file name issues
+			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
+
+			// @TODO: requiring the score module class name to match increases complexity
+			// Would like to not have score modules extend a base class but rather
+			// define closures that get bound to the score module class
+			// like the playDataExporter class does using $widget->load_widget_methods('score')
+			$score_module = "\Materia\Score_Modules_{$widget->score_module}";
+			if ( ! class_exists($score_module)) throw new \Exception("Score module missing: {$widget->score_module}");
+			return $score_module;
+		};
+
 		$inst = new Widget_Instance();
 		$inst->db_get($inst_id, false);
-
-		// note: this is REALLY REALLY DIRTY HACKISH BULLSHIT.
-		// Papa-T suggests using Namespaces instead, so consider that a
-		// TODO: Add namespaces so this isn't so fucking disgusting
-		import(strtolower($inst->widget->score_module), '../packages/materia/vendor/widget/score_module');
-		$score_module = 'Materia\Score_Modules_'.$inst->widget->score_module;
+		$score_module = $load_score_module($inst->widget);
 
 		return new $score_module($play_id, $inst);
 	}
@@ -266,7 +241,7 @@ class Score_Manager
 		if ($play_logs == null) return $play_logs;
 
 		// run the data through the score module
-		$score_module = Score_Manager::get_score_module_for_widget($inst_id, -1);
+		$score_module = static::get_score_module_for_widget($inst_id,  -1);
 		$score_module->logs = $play_logs;
 		$score_module->validate_scores();
 

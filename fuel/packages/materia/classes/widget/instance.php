@@ -3,25 +3,25 @@
 namespace Materia;
 
 class Widget_Instance
-{
+	{
 
-	public $attempts     	= -1;
-	public $clean_name   	= '';
-	public $close_at     	= -1;
-	public $created_at   	= 0;
-	public $embed_url    	= '';
-	public $is_student_made	= false;
-	public $guest_access 	= false;
-	public $height       	= 0;
-	public $id           	= 0;
-	public $is_draft     	= false;
-	public $name         	= '';
-	public $open_at      	= -1;
-	public $play_url     	= '';
-	public $preview_url  	= '';
-	public $user_id      	= 0;
-	public $widget       	= null;
-	public $width        	= 0;
+	public $attempts        = -1;
+	public $clean_name      = '';
+	public $close_at        = -1;
+	public $created_at      = 0;
+	public $embed_url       = '';
+	public $is_student_made = false;
+	public $guest_access    = false;
+	public $height          = 0;
+	public $id              = 0;
+	public $is_draft        = false;
+	public $name            = '';
+	public $open_at         = -1;
+	public $play_url        = '';
+	public $preview_url     = '';
+	public $user_id         = 0;
+	public $widget          = null;
+	public $width           = 0;
 	public $qset;
 
 	public function __construct($properties=[])
@@ -137,7 +137,7 @@ class Widget_Instance
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
-			$inst = Widget_Instance_Manager::get($inst_id, $load_qset, $timestamp);
+			$inst = Widget_Instance_Manager::get((string) $inst_id, $load_qset, $timestamp);
 
 			if ($inst instanceof Widget_Instance)
 			{

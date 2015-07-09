@@ -5,7 +5,7 @@ namespace Lti;
 class Model_Lti extends \Orm\Model
 {
 
-	public static $_table_name = 'lti'; 
+	public static $_table_name = 'lti';
 
 	protected static $_properties = [
 		'id',

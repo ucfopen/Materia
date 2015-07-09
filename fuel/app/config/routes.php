@@ -23,18 +23,17 @@ return [
 	'widgets'                               => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
 	'my-widgets'                            => 'widgets/mywidgets/',
 
-	'edit/(:alnum)(/.*)?'    => 'widgets/edit/$1',
-	'play/(:alnum)(/.*)?'    => 'widgets/play_widget/$1',
-	'preview/(:alnum)(/.*)?' => 'widgets/preview_widget/$1',
-	'embed/(:alnum)(/.*)?'   => 'widgets/play_embedded/$1',
+	'edit/(:alnum)(/.*)?'                   => 'widgets/edit/$1',
+	'play/(:alnum)(/.*)?'                   => 'widgets/play_widget/$1',
+	'preview/(:alnum)(/.*)?'                => 'widgets/preview_widget/$1',
+	'embed/(:alnum)(/.*)?'                  => 'widgets/play_embedded/$1',
 
-	'scores/preview/(:alnum)(/.*)?'                       => 'scores/show/$1',
-	'scores/embed/(:alnum)(/.*)?'                         => 'scores/show_embedded/$1',
-	'scores/csv/(:alnum)/(:segment)(.*)?'                 => 'scores/csv/$1/$2',
-	'scores/raw/(:alnum)/(:segment)(.*)?'                 => 'scores/raw/$1/$2',
-	'scores/storage/(:alnum)/(:segment)/(:segment)(./*)?' => 'scores/storage/$1/$2/$3',
-	'scores/semesters?'                                   => 'scores/semesters',
-	'scores/(:alnum)(/.*)?'                               => 'scores/show/$1',
+	'data/export/(:alnum)'                  => 'data/export/$1',
+
+	'scores/preview/(:alnum)(/.*)?'         => 'scores/show/$1',
+	'scores/embed/(:alnum)(/.*)?'           => 'scores/show_embedded/$1',
+	'scores/semesters?'                     => 'scores/semesters',
+	'scores/(:alnum)(/.*)?'                 => 'scores/show/$1',
 
 	// ================================= DOCS ======================================
 

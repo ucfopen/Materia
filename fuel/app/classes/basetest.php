@@ -7,12 +7,26 @@ class Basetest extends TestCase
 		Config::set('errors.throttle', 5000);
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 		\Fuel::$is_cli = true;
+		static::clear_fuel_input();
 	}
 
 	protected function tearDown()
 	{
 		\Fuel::$is_cli = false;
 		\Auth::logout();
+	}
+
+
+	protected static function clear_fuel_input()
+	{
+		// reset fuelphp's input class
+		$class = new ReflectionClass("\Fuel\Core\Input");
+		foreach (['detected_uri', 'detected_ext', 'input', 'put_patch_delete', 'php_input', 'json', 'xml'] as $value)
+		{
+			$property = $class->getProperty($value);
+			$property->setAccessible(true);
+			$property->setValue(null);
+		}
 	}
 
 	protected function create_new_qset($question_text, $asnwerText, $version=0)

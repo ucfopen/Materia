@@ -67,13 +67,15 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				$scope.availability[1].date = dateText
 
 	$scope.toggleGuestAccess = ->
-		if not $window.IS_STUDENT
-			$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
-			setTimeout ->
-				$( ".selector" ).slider
-					value: ($scope.attemptsSliderValue * 1000)
-					disabled: $scope.guestAccess
-			,0
+		return if $window.IS_STUDENT
+
+		$scope.guestAccess = !$scope.guestAccess
+		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
+		setTimeout ->
+			$( ".selector" ).slider
+				value: ($scope.attemptsSliderValue * 1000)
+				disabled: $scope.guestAccess
+		,0
 
 	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->

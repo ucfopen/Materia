@@ -150,7 +150,7 @@ class Widget extends \Basetask
 		}
 	}
 
-	public static function delete($inst_id)
+	public static function delete_instance($inst_id)
 	{
 		if (\Cli::prompt(\Cli::color('Are you sure? [yes/NO]', 'red')) !== 'yes')
 		{
@@ -645,7 +645,7 @@ class Widget extends \Basetask
 				$manifest_data['meta_data']['demo'] = $demo_id;
 			}
 
-			\Materia\Widget_Installer::add_manifest($id, $manifest_data);
+			\Materia\Widget_Installer::save_metadata($id, $manifest_data['meta_data']);
 
 			// move files
 			if ( ! $db_only)
@@ -946,6 +946,7 @@ class Widget extends \Basetask
 			'score' => [
 				'is_scorable'  => $yesno($widget->is_scorable),
 				'score_module' => $widget->score_module,
+				'logs_export_methods' => $widget->logs_export_methods
 			],
 			'meta_data' => $widget->meta_data,
 		];

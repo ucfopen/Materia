@@ -545,7 +545,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::play_logs_save(5, array());
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 	}
@@ -561,7 +561,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::widget_instance_scores_get(5);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
@@ -573,7 +573,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::guest_widget_instance_scores_get(5, 2);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
@@ -585,7 +585,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::widget_instance_play_scores_get(5);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
@@ -605,7 +605,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::score_summary_get(555);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
@@ -617,7 +617,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::play_storage_get(555);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 	}
@@ -628,7 +628,7 @@ class Test_Api_V1 extends \Basetest
 		try {
 			$output = \Materia\Api_V1::question_set_get(555);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 
@@ -668,7 +668,7 @@ class Test_Api_V1 extends \Basetest
 			$output = \Materia\Api_V1::play_storage_data_save(555, array());
 			$output = \Materia\Api_V1::play_storage_get(555);
 			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( HttpNotFoundException $e) {
+		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
 	}

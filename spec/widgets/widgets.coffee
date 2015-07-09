@@ -7,23 +7,20 @@ jasmine.getEnv().defaultTimeoutInterval = 10000
 author =
 	username: '~author'
 	password: 'kogneato'
-student =
-	username: '~student'
-	password: 'kogneato'
 
 module.exports = (widget, callback) ->
 	console.log "Testing " + widget
 	client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser}, logLevel: "silent" })
 	client.init()
 
-	client
-		.url('http://localhost:8080/login')
-		.getTitle (err, title) ->
-			expect(title).toBe('Login | Materia')
-		.waitFor '#username'
-		.setValue('#username', author.username)
-		.setValue('#password', author.password)
-		.click('form button.action_button')
+	# client
+	# 	.url('http://localhost:8080/login')
+	# 	.getTitle (err, title) ->
+	# 		expect(title).toBe('Login | Materia')
+	# 	.waitFor '#username'
+	# 	.setValue('#username', author.username)
+	# 	.setValue('#password', author.password)
+	# 	.click('form button.action_button')
 
 	client
 		.url('http://localhost:8080/widgets')

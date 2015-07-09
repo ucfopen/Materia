@@ -137,16 +137,56 @@
 									<th scope="col">User</th>
 									<th scope="col">Score</th>
 								</tr>
-								<tr ng-repeat="data in mockData">
-									<td>{{data.userID}}</td>
-									<td class="name">{{data.name}}</td>
-									<td>{{data.score}}</td>
+								<tr>
+									<td>fw33255p</td>
+									<td class="name">Felix Wembly</td>
+									<td>94</td>
+								</tr>
+								<tr>
+									<td>gm42334a</td>
+									<td class="name">Gillis Mokey</td>
+									<td>35</td>
+								</tr>
+								<tr>
+									<td>ha432343s</td>
+									<td class="name">Herkimer Archbanger</td>
+									<td>100</td>
+								</tr>
+								<tr>
+									<td>fg3421tr</td>
+									<td class="name">Fiona Gobo</td>
+									<td>100</td>
+								</tr>
+								<tr>
+									<td>mr2342123d</td>
+									<td class="name">Marvin Red</td>
+									<td>43</td>
+								</tr>
+								<tr>
+									<td>mt343223o</td>
+									<td class="name">Morris Tosh</td>
+									<td>93</td>
+								</tr>
+								<tr>
+									<td>pf32343t3</td>
+									<td class="name">Phil Feenie</td>
+									<td>67</td>
+								</tr>
+								<tr>
+									<td>lf33422i</td>
+									<td class="name">Lou Firechief</td>
+									<td>0</td>
+								</tr>
+								<tr>
+									<td>cb3311rt</td>
+									<td class="name">Cantus Blundig</td>
+									<td>5</td>
 								</tr>
 							</table>
 							<span id="sample-notification">Sample</span>
 							<div class="download-controls">
-								<select ng-model="exportType" ng-options="select.option for select in exportSelect"></select>
-								<p class="download"><a href ng-href="{{getDownloadLink()}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
+								<select ng-model="exportType" ng-options="o as o for o in exportOpts"></select>
+								<p class="download"><a href ng-href="/data/export/{{selected.widget.id}}?type={{exportType | escape}}&amp;semesters={{selectedSemesters}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
 							</div>
 						</div>
 
@@ -156,8 +196,14 @@
 						<h4>Semesters</h4>
 						<p class="export_which">Export which semesters?</p>
 						<ul>
-							<li class="checkallLi" ng-show="semesters.length > 1"><input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/><label for="checkall"> - Check all</label></li>
-							<li ng-repeat="semester in semesters"><input type="checkbox" id="{{semester.id}}" class="semester" id="{{semester.id}}" ng-model="semester.checked" ng-disabled="semesters.length == 1" ng-click="onSelectedSemestersChange()"/> <label for="{{semester.id}}">{{semester.label}}</label></li>
+							<li class="checkallLi" ng-show="semesters.length > 1">
+								<input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/>
+								<label for="checkall"> - Check all</label>
+							</li>
+							<li ng-repeat="semester in semesters">
+								<input type="checkbox" id="{{semester.id}}" class="semester" id="{{semester.id}}" ng-model="semester.checked" ng-disabled="semesters.length == 1" ng-click="onSelectedSemestersChange()"/>
+								<label for="{{semester.id}}">{{semester.label}}</label>
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -305,7 +351,7 @@
 							<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 						</div>
 						<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == SCORE_VIEW_DATA">
-							<a class="storage" ng-click="handleStorageDownload()">Download Table</a>
+							<a class="storage" ng-href="/data/export/{{selected.widget.id}}?type=storage&amp;table={{selectedTable | escape}}&amp;semesters={{semester.year}}-{{semester.term}}" >Download Table</a>
 							<div class="table label" ng-show="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
 							<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
 							<div ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">

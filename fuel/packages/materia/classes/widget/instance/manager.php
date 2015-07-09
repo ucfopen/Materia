@@ -12,33 +12,39 @@ class Widget_Instance_Manager
 		return count($instances) > 0 ? $instances[0] : false;
 	}
 
-	static public function get_all($inst_ids, $load_qset=false, $timestamp=false)
+	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false)
 	{
-		$instances = [];
+		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
+
+		// convert all instance id's to strings... because mysql behaves unexpectedly with numbers here
+		// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
+		foreach($inst_ids as &$value) $value = (string) $value;
 
 		$results = \DB::select()
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids)
 			->and_where('is_deleted', '=', '0')
+			->order_by('created_at', 'desc')
 			->execute()
 			->as_array();
 
+		$instances = [];
 		foreach ($results as $r)
 		{
 			$widget = new Widget();
 			$widget->get($r['widget_id']);
 			$inst = new Widget_Instance([
-				'id'           		=> $r['id'],
-				'user_id'      		=> $r['user_id'],
-				'name'         		=> $r['name'],
-				'is_student_made'	=> (bool) $r['is_student_made'],
-				'guest_access' 		=> (bool) $r['guest_access'],
-				'is_draft'     		=> (bool) $r['is_draft'],
-				'created_at'   		=> $r['created_at'],
-				'open_at'      		=> $r['open_at'],
-				'close_at'     		=> $r['close_at'],
-				'attempts'     		=> $r['attempts'],
-				'widget'       		=> $widget,
+				'id'              => $r['id'],
+				'user_id'         => $r['user_id'],
+				'name'            => $r['name'],
+				'is_student_made' => (bool) $r['is_student_made'],
+				'guest_access'    => (bool) $r['guest_access'],
+				'is_draft'        => (bool) $r['is_draft'],
+				'created_at'      => $r['created_at'],
+				'open_at'         => $r['open_at'],
+				'close_at'        => $r['close_at'],
+				'attempts'        => $r['attempts'],
+				'widget'          => $widget,
 			]);
 
 			if ($load_qset) $inst->get_qset($inst->id, $timestamp);
