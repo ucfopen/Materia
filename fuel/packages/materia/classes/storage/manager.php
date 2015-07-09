@@ -1,33 +1,13 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
-
 namespace Materia;
+use \RocketDuck\Util_Validator;
 
 class Storage_Manager
 {
 
 	static public function parse_and_store_storage_array($inst_id, $play_id, $user_id, $storagePacket)
 	{
-		if(\RocketDuck\Util_Validator::is_valid_hash($inst_id) && \RocketDuck\Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
+		if (Util_Validator::is_valid_hash($inst_id) && Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
 		{
 			if(count($storagePacket) > 0)
 			{
@@ -48,14 +28,9 @@ class Storage_Manager
 		}
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
 	static public function get_table_summaries_by_inst_id($inst_id)
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id)) // valid pid & not a preview
+		if (Util_Validator::is_valid_hash($inst_id)) // valid pid & not a preview
 		{
 			$result = \DB::query(
 				'SELECT
@@ -96,14 +71,9 @@ class Storage_Manager
 		return 0;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
-	static public function get_logs_by_inst_id($inst_id, $year = '', $term = '', $tablename = '')
+	static public function get_storage_data($inst_id, $year = '', $term = '', $tablename = '')
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id)) // valid pid & not a preview
+		if (Util_Validator::is_valid_hash($inst_id)) // valid pid & not a preview
 		{
 			$term = ucfirst($term);
 			$semester_only = $term !== '' && $year !== '';
@@ -134,118 +104,34 @@ class Storage_Manager
 
 	static protected function process_log_data($results)
 	{
-		$tables = [];
+		$tables   = [];
 		$students = [];
 
 		foreach ($results as $r)
 		{
 			// Table
-			if ( ! isset($tables[$r->name]))
-			{
-				$tables[$r->name] = [];
-			}
+			if ( ! isset($tables[$r->name])) $tables[$r->name] = [];
 
 			// data
 			$data = (array) unserialize(base64_decode($r->data));
 			ksort($data);
 
 			// play info
-			$play = [];
+			if ( ! isset($students[$r->user_id])) $students[$r->user_id] = \Model_User::find($r->user_id);
 
-			if ( ! isset($students[$r->user_id]))
-			{
-				$students[$r->user_id] = \Model_User::find($r->user_id);
-			}
-			$play['user']      = $students[$r->user_id] ? $students[$r->user_id]->username : "Guest";
-			$play['firstName'] = $students[$r->user_id] ? $students[$r->user_id]->first : "";
-			$play['lastName']  = $students[$r->user_id] ? $students[$r->user_id]->last : "";
-			$play['time']      = $r->created_at;
-			$play['play_id']   = $r->play_id;
+			$student = $students[$r->user_id];
+			$play = [
+				'user'      => ($student ? $student->username : "Guest"),
+				'firstName' => ($student ? $student->first : ""),
+				'lastName'  => ($student ? $student->last : ""),
+				'time'      => $r->created_at,
+				'play_id'   => $r->play_id,
+			];
 
 			$tables[$r->name][] = ['play' => $play, 'data' => $data];
 		}
 
 		return $tables;
-	}
-
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
-	static public function get_csv_logs_by_inst_id($inst_id, $tablename, $semesters = false)
-	{
-		$num_records = 0;
-		$data = [];
-		if ($semesters)
-		{
-			foreach ($semesters as $semester)
-			{
-				$year_and_term = explode('-', $semester);
-				$result = Storage_Manager::get_logs_by_inst_id($inst_id, $year_and_term[0], $year_and_term[1], $tablename);
-				if (isset($result[$tablename]))
-				{
-					$data[$semester] = $result[$tablename];
-					$num_records += count($data[$semester]);
-				}
-			}
-		}
-		else
-		{
-			$result = Storage_Manager::get_logs_by_inst_id($inst_id, '', '', $tablename);
-			if (isset($result[$tablename]))
-			{
-				$data['all'] = $result[$tablename];
-				$num_records = count($data['all']);
-			}
-		}
-
-		$logs_string = '';
-		if ($num_records > 0)
-		{
-			$fields = [];
-
-			//Determine all the fields used
-			foreach ($data as $table)
-			{
-				foreach ($table as $row)
-				{
-					$row_data = $row['data'];
-					$play = $row['play'];
-					$keys = array_keys($row_data);
-					foreach ($keys as $key)
-					{
-						if ( ! isset($fields[$key]))
-						{
-							$fields[$key] = '';
-						}
-					}
-				}
-			}
-
-			// print out header row
-			ksort($fields);
-			$logs_string = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters? '","semester"' : '"')."\n";
-
-			//Fill in the holes
-			foreach ($data as $semester_str => $table)
-			{
-				$year_and_term = explode('-', $semester_str);
-				$year_and_term[1] = ucfirst(strtolower($year_and_term[1]));
-				$len = count($data[$semester_str]);
-				for ($i = 0; $i < $len; $i++)
-				{
-					$data[$semester_str][$i]['data'] = $data[$semester_str][$i]['data'] + $fields;
-					ksort($data[$semester_str][$i]['data']);
-
-					$logs_string .= '"'.implode('","', $data[$semester_str][$i]['data']);
-					$logs_string .= '","'.implode('","', $data[$semester_str][$i]['play']);
-					$logs_string .= ($semesters ? '","'.$year_and_term[0].' '.$year_and_term[1] : '').'"'."\n";
-				}
-			}
-		}
-
-		return $logs_string;
 	}
 
 }

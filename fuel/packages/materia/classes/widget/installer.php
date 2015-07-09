@@ -145,26 +145,26 @@ class Widget_Installer
 			->execute();
 	}
 
-	public static function add_manifest($id, $manifest_data)
+	public static function save_metadata($id, $metadata)
 	{
 		// add in the metadata
-		foreach ($manifest_data['meta_data'] as $metadata_key => $metadata_value)
+		foreach ($metadata as $metadata_key => $metadata_value)
 		{
 			if (is_array($metadata_value))
 			{
 				foreach ($metadata_value as $metadata_child_item)
 				{
-					self::insert_metadata($id, $metadata_key, $metadata_child_item);
+					self::db_insert_metadata($id, $metadata_key, $metadata_child_item);
 				}
 			}
 			else
 			{
-				self::insert_metadata($id, $metadata_key, $metadata_value);
+				self::db_insert_metadata($id, $metadata_key, $metadata_value);
 			}
 		}
 	}
 
-	private static function insert_metadata($id, $key, $value)
+	private static function db_insert_metadata($id, $key, $value)
 	{
 		\DB::insert('widget_metadata')
 			->set([
@@ -383,7 +383,7 @@ class Widget_Installer
 		if (self::missing_required_attributes($score, ['is_scorable', 'score_module'])) return;
 		if (self::values_are_not_boolean($score, ['is_scorable'])) return;
 
-		// 6. make sure metadata section is correct
+		// 7. make sure metadata section is correct
 		$metadata = $manifest_data['meta_data'];
 		if (self::missing_required_attributes($metadata, ['about', 'excerpt'])) return;
 	}
@@ -410,6 +410,8 @@ class Widget_Installer
 			'package_hash'        => $package_hash,
 			'score_module'        => $manifest_data['score']['score_module']
 		];
+
+		//optional field
 
 		if (isset($manifest_data['files']['creator']))
 		{
@@ -448,32 +450,55 @@ class Widget_Installer
 	{
 		$file_area = \File::forge(['basedir' => null]);
 		$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+		$widget_dir = "{$id}-{$clean_name}";
 		$score_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
-		$new_score_module = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
-		if (file_exists($new_score_module))
-		{
-			$file_area->delete($new_score_module);
-		}
-		$file_area->rename($dir.'/_score-modules/score_module.php', $new_score_module);
 
-		// move test
-		$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
-		if (file_exists($new_test))
+		// create the widget specific directory
+		self::clear_path(PKGPATH.'materia/vendor/widget/'. $widget_dir);
+		$file_area->create_dir(PKGPATH.'materia/vendor/widget/', $widget_dir);
+
+		// score modules
+		$destination_score_module_file = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
+		if (file_exists($destination_score_module_file)) $file_area->delete($destination_score_module_file);
+		$file_area->rename("{$dir}/_score-modules/score_module.php", $destination_score_module_file);
+
+		// playdata exporters
+		// needs proper packaging of export module by devmateria
+		// add  {expand: true, cwd: "#{widget}/_exports", src: ['**'], dest: ".compiled/#{widget}/_exports"}
+		// to gruntfile after line 104
+		$pkg_playdata_file = "{$dir}/_exports/playdata_exporters.php";
+		if (file_exists($pkg_playdata_file))
 		{
-			$file_area->delete($new_test);
+			$destination_playdata_file = PKGPATH.'materia/vendor/widget/'.$widget_dir.'/playdata_exporters.php';
+			static::clear_path($destination_playdata_file);
+			$file_area->rename($pkg_playdata_file, $destination_playdata_file);
+			// delete the export modules folder so it won't get copied over
+			$file_area->delete_dir($dir.'/_exports');
+
+			// add export methods to metadata
+			if (file_exists($destination_playdata_file))
+			{
+				$methods = \Materia\Utils::load_methods_from_file($destination_playdata_file);
+				if ( ! empty($methods))
+				{
+					$metadata = ['playdata_exporters' => array_keys($methods)];
+					self::save_metadata($id, $metadata);
+				}
+			}
 		}
+
+		// move tests
+		$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
+		static::clear_path($new_test);
 		$file_area->rename($dir.'/_score-modules/test_score_module.php', $new_test);
 
 		// move spec to the main materia spec folder, if it exists
-		$widgetspec = $dir.'/spec/spec.coffee';
-		if (file_exists($widgetspec))
+		$pkg_spec = $dir.'/spec/spec.coffee';
+		if (file_exists($pkg_spec))
 		{
 			$new_spec = APPPATH."../../spec/widgets/{$clean_name}.spec.coffee";
-			if (file_exists($new_spec))
-			{
-				$file_area->delete($new_spec);
-			}
-			$file_area->rename($widgetspec, $new_spec);
+			static::clear_path($new_spec);
+			$file_area->rename($pkg_spec, $new_spec);
 		}
 
 		// delete the score modules folder so it won't get copied over
@@ -481,9 +506,16 @@ class Widget_Installer
 
 		// move widget files
 		// public_widget_dir
-		$new_dir = \Config::get('materia.dirs.engines')."{$id}-{$clean_name}";
+		$new_dir = \Config::get('materia.dirs.engines').$widget_dir;
 		if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
 		$file_area->copy_dir($dir, $new_dir);
+	}
+
+	private static function clear_path($file)
+	{
+		$file_area = \File::forge(['basedir' => null]);
+		if (is_dir($file)) $file_area->delete_dir($file);
+		if (file_exists($file)) $file_area->delete($file);
 	}
 
 	public static function force_install($widget_file)
@@ -546,7 +578,7 @@ class Widget_Installer
 				return false;
 			}
 
-			self::add_manifest($id, $manifest_data);
+			self::save_metadata($id, $manifest_data['meta_data']);
 			self::install_widget_files($id, $manifest_data, $dir);
 			self::cleanup($dir);
 

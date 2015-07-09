@@ -1,26 +1,4 @@
 <?php
-/**
- * Materia
- *
- * It's a thing
- *
- * @package    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * This class handles all logic dealing with Roles
- *
- * This class handles all logic dealing with Roles
- *
- * @package	    Core
- * @subpackage  perms
- */
-
 namespace RocketDuck;
 
 class Perm_Manager
