@@ -15,7 +15,7 @@ return [
 		'jquery'     => ['cdnjs::jquery/1.8.1/jquery.min.js'],
 		'author'     => ['theme::author.min.js'],
 		'student'    => ['theme::student.min.js'],
-		'dataTables' => ['cdnjs::datatables/1.10.0/jquery.dataTables.min.js'],
+		'dataTables' => ['cdnjs::datatables/1.10.7/js/jquery.dataTables.min.js'],
 		'jquery_ui'  => ['cdnjs::jqueryui/1.10.4/jquery-ui.min.js'],
 		'labjs'      => ['cdnjs::labjs/2.0.3/LAB.min.js'],
 		'spinner'    => ['lib::spin.js', 'lib::spin.jquery.js'],

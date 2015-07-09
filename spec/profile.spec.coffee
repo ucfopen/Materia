@@ -16,6 +16,7 @@ describe 'When not logged in', ->
     it 'should display profile', (done) ->
         setup.loginAt client, setup.author, "#{setup.url}/profile"
         client
+            .pause 100
             .waitForPageVisible '.container', 5000
             .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
             .url("#{setup.url}/profile")

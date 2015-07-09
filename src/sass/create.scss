@@ -184,9 +184,8 @@ a {
 #embed_dialog
 {
 	position: absolute;
-	left: 50%;
 	top: -50%;
-	margin: -250px -337px;
+	margin: -250px -387px;
 	width: 675px;
 	height: 500px;
 	z-index: 1;
@@ -200,8 +199,11 @@ a {
 	background: #fff;
 }
 #embed_dialog.show {
-	top: 50%;
 	opacity: 1;
+ 	box-shadow: none;
+ 	text-algin: left;
+  	top: 50%;
+ 	width: 800px;
 }
 
 .animate-show {
