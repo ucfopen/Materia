@@ -387,7 +387,7 @@ class Widget_Installer
 
 		// if the export module exists, include it and get its defined methods
 		// otherwise, don't fail validation, since export modules are not mandatory
-		$playdata_exporters_file = "{$dir}/_custom_methods/playdata_exporters.php";
+		$playdata_exporters_file = "{$dir}/_exports/playdata_exporters.php";
 		if (file_exists($playdata_exporters_file))
 		{
 			$methods = \Materia\Utils::load_methods_from_file($playdata_exporters_file);
@@ -474,16 +474,16 @@ class Widget_Installer
 
 		// playdata exporters
 		// needs proper packaging of export module by devmateria
-		// add  {expand: true, cwd: "#{widget}/_playdata_exporters", src: ['**'], dest: ".compiled/#{widget}/_playdata_exporters"}
+		// add  {expand: true, cwd: "#{widget}/_exports", src: ['**'], dest: ".compiled/#{widget}/_exports"}
 		// to gruntfile after line 104
-		$pkg_playdata_file = "{$dir}/_playdata_exporters/playdata_exporters.php";
+		$pkg_playdata_file = "{$dir}/_exports/playdata_exporters.php";
 		if (file_exists($pkg_playdata_file))
 		{
 			$destination_playdata_file = PKGPATH.'materia/vendor/widget/'.$widget_dir.'/playdata_exporters.php';
 			if (file_exists($destination_playdata_file)) $file_area->delete($destination_playdata_file);
 			$file_area->rename($pkg_playdata_file, $destination_playdata_file);
 			// delete the export modules folder so it won't get copied over
-			$file_area->delete_dir($dir.'/_playdata_exporters');
+			$file_area->delete_dir($dir.'/_exports');
 		}
 
 		// move tests
