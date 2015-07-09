@@ -464,49 +464,40 @@ class Widget_Installer
 	{
 		$file_area = \File::forge(['basedir' => null]);
 		$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+		$widget_dir = "{$id}-{$clean_name}";
 		$score_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
-		$new_score_module = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
-		if (file_exists($new_score_module))
-		{
-			$file_area->delete($new_score_module);
-		}
-		$file_area->rename($dir.'/_score-modules/score_module.php', $new_score_module);
 
-		// installs custom export module, use score module name for export module
-		// needs proper packaging of export module by devmateria grunt
-		// add  {expand: true, cwd: "#{widget}/_export", src: ['**'], dest: ".compiled/#{widget}/_export-modules"}
+		// score modules
+		$destination_score_module_file = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
+		if (file_exists($destination_score_module_file)) $file_area->delete($destination_score_module_file);
+		$file_area->rename("{$dir}/_score-modules/score_module.php", $destination_score_module_file);
+
+		// playdata exporters
+		// needs proper packaging of export module by devmateria
+		// add  {expand: true, cwd: "#{widget}/_playdata_exporters", src: ['**'], dest: ".compiled/#{widget}/_playdata_exporters"}
 		// to gruntfile after line 104
-		if (file_exists($dir.'/_export-modules/'))
+		$pkg_playdata_file = "{$dir}/_playdata_exporters/playdata_exporters.php";
+		if (file_exists($pkg_playdata_file))
 		{
-			$export_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
-			$new_export_module = PKGPATH.'materia/vendor/widget/export_module/'.$export_module_clean_name;
-			if (file_exists($new_export_module))
-			{
-				$file_area->delete($new_export_module);
-			}
-			$file_area->rename($dir.'/_export-modules/export_module.php', $new_export_module);
+			$destination_playdata_file = PKGPATH.'materia/vendor/widget/'.$widget_dir.'/playdata_exporters.php';
+			if (file_exists($destination_playdata_file)) $file_area->delete($destination_playdata_file);
+			$file_area->rename($pkg_playdata_file, $destination_playdata_file);
 			// delete the export modules folder so it won't get copied over
-			$file_area->delete_dir($dir.'/_export-modules');
+			$file_area->delete_dir($dir.'/_playdata_exporters');
 		}
 
-		// move test
+		// move tests
 		$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
-		if (file_exists($new_test))
-		{
-			$file_area->delete($new_test);
-		}
+		if (file_exists($new_test)) $file_area->delete($new_test);
 		$file_area->rename($dir.'/_score-modules/test_score_module.php', $new_test);
 
 		// move spec to the main materia spec folder, if it exists
-		$widgetspec = $dir.'/spec/spec.coffee';
-		if (file_exists($widgetspec))
+		$pkg_spec = $dir.'/spec/spec.coffee';
+		if (file_exists($pkg_spec))
 		{
 			$new_spec = APPPATH."../../spec/widgets/{$clean_name}.spec.coffee";
-			if (file_exists($new_spec))
-			{
-				$file_area->delete($new_spec);
-			}
-			$file_area->rename($widgetspec, $new_spec);
+			if (file_exists($new_spec)) $file_area->delete($new_spec);
+			$file_area->rename($pkg_spec, $new_spec);
 		}
 
 		// delete the score modules folder so it won't get copied over
@@ -514,7 +505,7 @@ class Widget_Installer
 
 		// move widget files
 		// public_widget_dir
-		$new_dir = \Config::get('materia.dirs.engines')."{$id}-{$clean_name}";
+		$new_dir = \Config::get('materia.dirs.engines').$widget_dir;
 		if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
 		$file_area->copy_dir($dir, $new_dir);
 	}

@@ -1,7 +1,7 @@
 <?php
 namespace Materia;
 
-class Score_Module
+abstract class Score_Module
 {
 
 	public $logs;
