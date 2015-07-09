@@ -645,7 +645,7 @@ class Widget extends \Basetask
 				$manifest_data['meta_data']['demo'] = $demo_id;
 			}
 
-			\Materia\Widget_Installer::add_manifest($id, $manifest_data);
+			\Materia\Widget_Installer::save_metadata($id, $manifest_data['meta_data']);
 
 			// move files
 			if ( ! $db_only)
