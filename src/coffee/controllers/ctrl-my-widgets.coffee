@@ -110,7 +110,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.attemptText = if attemptsAllowed > 0 then attemptsAllowed else 'Unlimited'
 
 	populateAvailability = (startDateInt, endDateInt) ->
-		$scope.availability = Materia.Set.Availability.get(startDateInt, endDateInt)
+		$scope.availability = widgetSrv.convertAvailibilityDates(startDateInt, endDateInt)
 		$scope.availabilityStart = startDateInt
 		$scope.availabilityEnd = endDateInt
 

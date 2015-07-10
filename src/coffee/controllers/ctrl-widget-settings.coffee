@@ -1,43 +1,6 @@
 app = angular.module 'materia'
 # The widget settings/availability modal on My Widgets
 app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWidgetSrv, widgetSrv) ->
-	$scope.UNLIMITED_SLIDER_VALUE = 25
-	$scope.times = []
-	$scope.error = ''
-	# Keeps track of which inputs have errors so the error class can be added correctly.
-	$scope.dateError = [false, false]
-	$scope.timeError = [false, false]
-	# Default to unlimited attempts
-	$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
-	# Hold information for availability.
-	$scope.availability = []
-	$scope.guestAccess = false
-	# From
-	$scope.availability.push
-		header: 'Available'
-		anytimeLabel: 'Now'
-		anytime: true
-	# To
-	$scope.availability.push
-		header: 'Closes'
-		anytimeLabel: 'Never'
-		anytime: true
-
-	$scope.popup = ->
-		$scope.error = ''
-		$scope.dateError = [false, false]
-		$scope.timeError = [false, false]
-		$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
-		if $window.IS_STUDENT
-			$scope.guestAccess = true
-			$('#guest-access').addClass('student-mode')
-		else
-			$scope.guestAccess = $scope.selected.widget.guest_access
-		$scope.dateFormatter()
-		setTimeout ->
-			$scope.setupSlider()
-			$scope.setupDatePickers()
-		, 1
 
 	# Sets up the slider for availability
 	$scope.setupSlider = ->
@@ -67,7 +30,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				$scope.availability[1].date = dateText
 
 	$scope.toggleGuestAccess = ->
-		return if $window.IS_STUDENT
+		return if $scope.studentMade
 
 		$scope.guestAccess = !$scope.guestAccess
 		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
@@ -228,6 +191,46 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 
 		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess)
 
-	Namespace('Materia.MyWidgets').Availability =
-		popup : $scope.popup
+	$scope.UNLIMITED_SLIDER_VALUE = 25
+	$scope.times = []
+	$scope.error = ''
+	# Keeps track of which inputs have errors so the error class can be added correctly.
+	$scope.dateError = [false, false]
+	$scope.timeError = [false, false]
+	# Default to unlimited attempts
+	$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
+	# Hold information for availability.
+	$scope.availability = []
+	$scope.guestAccess = false
+	$scope.studentMade = $window.IS_STUDENT or $scope.selected.widget.is_student_made
+	# From
+	$scope.availability.push
+		header: 'Available'
+		anytimeLabel: 'Now'
+		anytime: true
+	# To
+	$scope.availability.push
+		header: 'Closes'
+		anytimeLabel: 'Never'
+		anytime: true
 
+	$scope.error = ''
+	$scope.dateError = [false, false]
+	$scope.timeError = [false, false]
+
+	$scope.attemptsSliderValue = parseInt $scope.selected.widget.attempts
+
+	if $scope.studentMade
+		# force guestAccess on for students or student made widgets
+		$scope.guestAccess = true
+	else
+		# use the widget's settings if not student made
+		$scope.guestAccess = $scope.selected.widget.guest_access
+
+	$scope.dateFormatter()
+	setTimeout ->
+		$scope.setupSlider()
+		$scope.setupDatePickers()
+	, 1
+
+	null
