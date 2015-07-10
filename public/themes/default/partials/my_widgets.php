@@ -73,8 +73,8 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="500px">
-				<div ng-controller="WidgetSettingsController">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="550px">
+				<div ng-if="show.availabilityModal" ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
 						<li><h3>Attempts</h3>
@@ -90,6 +90,7 @@
 								<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
 								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
+							<p ng-if="guestAccess" class="data_explination "><b>Attemps are unlimted when Guest Mode is enabled.</b></p>
 							<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
 						</li>
 						<ul class="toFrom">
@@ -105,9 +106,11 @@
 									</li>
 								</ul>
 							</li>
-							<li id="guest-access"><h3>Access</h3>
-								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
-								<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
+							<li id="guest-access">
+								<h3>Access</h3>
+								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-disabled="studentMade"/>
+								<label ng-click="toggleGuestAccess()" ng-class="{disabled: studentMade}">Enable Guest Mode</label>
+								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is forced on for widgets created by students.</b></p>
 								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
 							</li>
 						</ul>
