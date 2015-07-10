@@ -1,5 +1,5 @@
 app = angular.module('materia')
-app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
+app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $window) ->
 
 	deferred = $q.defer()
 	_widgets = []
@@ -117,14 +117,14 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 		endDateInt = ~~endDateInt
 
 		if endDateInt > 0
-			endDate = Materia.Set.DateTime.parseObjectToDateString(endDateInt)
-			endTime = Materia.Set.DateTime.parseTime(endDateInt)
+			endDate = dateTimeServ.parseObjectToDateString(endDateInt)
+			endTime = dateTimeServ.parseTime(endDateInt)
 		else
 			endDate = endTime = 0
 
 		if startDateInt > 0
-			open_at = Materia.Set.DateTime.parseObjectToDateString(startDateInt)
-			startTime = Materia.Set.DateTime.parseTime(startDateInt)
+			open_at = dateTimeServ.parseObjectToDateString(startDateInt)
+			startTime = dateTimeServ.parseTime(startDateInt)
 		else
 			open_at = startTime = 0
 
