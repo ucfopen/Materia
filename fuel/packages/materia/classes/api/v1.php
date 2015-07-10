@@ -37,8 +37,6 @@ class Api_V1
 	// @TODONOW - check to see if we can require valid session?
 	static public function widget_instances_get($inst_ids = null)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
-
 		if (empty($inst_ids))
 		{
 			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
@@ -57,16 +55,21 @@ class Api_V1
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if ( ! static::has_perms($inst_id, [Perm::FULL])) return Msg::no_perm(); // @TODONOW: must check permissions here
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
-		// @TODONOW: must check permissions here
 		return $inst->db_remove();
+	}
+
+	static private function has_perms($inst_id, $perms)
+	{
+		return Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, $perms);
 	}
 
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if ( ! static::has_perms($inst_id, [Perm::FULL])) return Msg::no_perm(); // @TODONOW: must check permissions
 		$inst = Widget_Instance_Manager::get($inst_id, true);
-		// @TODONOW: must check permissions
 
 		try
 		{
