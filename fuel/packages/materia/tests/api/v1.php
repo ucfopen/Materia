@@ -73,9 +73,8 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::widget_instances_get();
-
-		// not logged in, should get error message
-		$this->assertInvalidLoginMessage($output);
+		$this->assertInternalType('array', $output);
+		$this->assertCount(0, $output);
 
 		// ======= STUDENT ========
 		$this->_asStudent();
@@ -119,7 +118,7 @@ class Test_Api_V1 extends \Basetest
 
 		// // ======= STUDENT ========
 		$this->_asStudent();
-		
+
 		// NEW DRAFT
 		$title = "My Test Widget";
 		$question = 'This is another word for test';
