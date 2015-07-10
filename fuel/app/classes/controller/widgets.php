@@ -195,9 +195,8 @@ class Controller_Widgets extends Controller
 		}
 		else
 		{
-			$instances = Materia\Api::widget_instances_get([$inst_id]);
-			if ( ! count($instances)) throw new HttpNotFoundException;
-			$inst = $instances[0];
+			$inst = Materia\Widget_Instance_Manager::get($inst_id);
+			if ( ! $inst) throw new HttpNotFoundException;
 
 			// check ownership of widget
 			if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
@@ -294,10 +293,8 @@ class Controller_Widgets extends Controller
 
 	protected function _play_widget($inst_id, $demo=false, $embed=false)
 	{
-		$instances = Materia\Api::widget_instances_get([$inst_id], $demo);
-		if ( ! count($instances)) throw new HttpNotFoundException;
-
-		$inst = $instances[0];
+		$inst = Materia\Widget_Instance_Manager::get($inst_id);
+		if ( ! $inst) throw new HttpNotFoundException;
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())
