@@ -91,7 +91,7 @@
 								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
 							<p ng-if="guestAccess" class="data_explination "><b>Attemps are unlimted when Guest Mode is enabled.</b></p>
-							<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
+							<p class="data_explination">Attempts are the number of times a student can complete a widget.  Only their highest score counts.</p>
 						</li>
 						<ul class="toFrom">
 							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
