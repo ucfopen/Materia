@@ -55,12 +55,12 @@ class Api_V1
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms($inst_id, [Perm::FULL])) return Msg::no_perm(); // @TODONOW: must check permissions here
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
 		return $inst->db_remove();
 	}
 
-	static private function has_perms($inst_id, $perms)
+	static private function has_perms_to_inst($inst_id, $perms)
 	{
 		return Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, $perms);
 	}
@@ -68,7 +68,7 @@ class Api_V1
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms($inst_id, [Perm::FULL])) return Msg::no_perm(); // @TODONOW: must check permissions
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 
 		try
@@ -146,7 +146,7 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
-		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
@@ -409,7 +409,7 @@ class Api_V1
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
 	}
 
