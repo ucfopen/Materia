@@ -1,5 +1,5 @@
 app = angular.module('materia')
-app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
+app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $window) ->
 
 	deferred = $q.defer()
 	_widgets = []
@@ -112,6 +112,30 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 	updateHashUrl = (widgetId) ->
 		$window.location.hash = "/#{widgetId}"
 
+	convertAvailibilityDates = (startDateInt, endDateInt) ->
+		startDateInt = ~~startDateInt
+		endDateInt = ~~endDateInt
+
+		if endDateInt > 0
+			endDate = dateTimeServ.parseObjectToDateString(endDateInt)
+			endTime = dateTimeServ.parseTime(endDateInt)
+		else
+			endDate = endTime = 0
+
+		if startDateInt > 0
+			open_at = dateTimeServ.parseObjectToDateString(startDateInt)
+			startTime = dateTimeServ.parseTime(startDateInt)
+		else
+			open_at = startTime = 0
+
+		# return start, end datetime
+		start:
+			date:open_at
+			time:startTime
+		end:
+			date:endDate
+			time: endTime
+
 	selectWidgetFromHashUrl = ->
 		if $window.location.hash
 			found = false
@@ -141,4 +165,5 @@ app.service 'widgetSrv', (selectedWidgetSrv, $q, $rootScope, $window) ->
 	removeWidget : removeWidget
 	updateHashUrl: updateHashUrl
 	selectWidgetFromHashUrl: selectWidgetFromHashUrl
+	convertAvailibilityDates: convertAvailibilityDates
 

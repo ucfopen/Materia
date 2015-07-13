@@ -1,0 +1,88 @@
+.popup.delete
+{
+	text-align: center;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	border: #f0f0f0 3px solid;
+	width: 620px;
+	height: 220px;
+}
+
+.popup.delete .adding_shadow
+{
+	width: 640px;
+	height: 480px;
+	background-color: #000000;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	position:absolute;
+	top:-65px;
+	left:-20px;
+	z-index:1;
+	opacity:0;
+	filter:alpha(opacity=0);
+}
+
+.popup.delete .container
+{
+	position: absolute;
+	left: 20px;
+	top: 40px;
+	width: 600px;
+	height: 390px;
+	padding-top: 15px;
+}
+
+.popup.delete h2
+{
+	font-family: Lato, arial, serif;
+	font-weight: bold;
+	font-size: 24px;
+	text-align: center;
+	position: absolute;
+	top: 3px;
+	left: 12px;
+	margin: 4px;
+}
+
+.popup.delete a.close
+{
+	display:block;
+	position: absolute;
+	right: 5px;
+	top: 4px;
+	margin: 4px;
+	background: url('../img/close.png') no-repeat;
+	text-indent: -10000px;
+	width: 19px;
+	height: 19px;
+}
+
+.popup.delete .delete-warning
+{
+	display:block;
+	margin:5px 0 5px 0;
+	font-weight:bold;
+
+}
+
+.ng-modal .red
+{
+	background:#ca0000;
+	background-image: -webkit-linear-gradient(top, #e10000, #ca0000);
+	background-image: -moz-linear-gradient(top, #ca0000, #e10000);
+	background-image: -o-linear-gradient(top, #ca0000, #e10000);
+	background-image: -ms-linear-gradient(top, #ca0000, #e10000);
+	border-color:#747474;
+	color:#545454;
+}
+.ng-modal .red:hover
+{
+	background:#ca0000;
+	background-image: -webkit-linear-gradient(top, #ca0000, #e10000);
+	background-image: -moz-linear-gradient(top, #ca0000, #e10000);
+	background-image: -o-linear-gradient(top, #ca0000, #e10000);
+	background-image: -ms-linear-gradient(top, #ca0000, #e10000);
+	text-decoration:none;
+}

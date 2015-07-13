@@ -106,12 +106,6 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
-		if (Materia\Api::session_valid('basic_author') != true)
-		{
-			$this->no_permission();
-			return;
-		}
-
 		$widget = new Materia\Widget();
 		$loaded = $widget->get($this->param('id'));
 
@@ -149,9 +143,7 @@ class Controller_Widgets extends Controller
 	}
 
 	/**
-	 * Listing of all the available widgets
-	 *
-	 * @login Required
+	 * Listing of all widgets i have rights to
 	 */
 	public function get_mywidgets()
 	{
@@ -162,12 +154,12 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login'));
 		}
 
-		if (Materia\Api::session_valid('basic_author') != true) return $this->mywidgets_student();
-
 		Css::push_group(['core', 'my_widgets']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+
+		Js::push_inline('var IS_STUDENT = '.(Materia\Api::session_valid('basic_author', 'super_user') ? 'false;' : 'true;'));
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -203,9 +195,8 @@ class Controller_Widgets extends Controller
 		}
 		else
 		{
-			$instances = Materia\Api::widget_instances_get([$inst_id]);
-			if ( ! count($instances)) throw new HttpNotFoundException;
-			$inst = $instances[0];
+			$inst = Materia\Widget_Instance_Manager::get($inst_id);
+			if ( ! $inst) throw new HttpNotFoundException;
 
 			// check ownership of widget
 			if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE]))
@@ -300,23 +291,10 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
-	protected function mywidgets_student()
-	{
-		$this->theme->get_template()
-			->set('title', '')
-			->set('page_type', 'my_widgets');
-
-		$this->theme->set_partial('content', 'partials/my_widgets_students');
-
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-	}
-
 	protected function _play_widget($inst_id, $demo=false, $embed=false)
 	{
-		$instances = Materia\Api::widget_instances_get([$inst_id], $demo);
-		if ( ! count($instances)) throw new HttpNotFoundException;
-
-		$inst = $instances[0];
+		$inst = Materia\Widget_Instance_Manager::get($inst_id);
+		if ( ! $inst) throw new HttpNotFoundException;
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())
