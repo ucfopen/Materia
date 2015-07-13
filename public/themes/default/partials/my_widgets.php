@@ -90,11 +90,12 @@
 								<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
 								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
-							<p ng-if="guestAccess" class="data_explination "><b>Attemps are unlimted when Guest Mode is enabled.</b></p>
 							<p class="data_explination">Attempts are the number of times a student can complete a widget.  Only their highest score counts.</p>
+							<p ng-if="guestAccess" class="data_explination "><b>Attempts are unlimited when Guest Mode is enabled.</b></p>
 						</li>
 						<ul class="toFrom">
-							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+							<li ng-repeat="available in availability">
+								<h3>{{available.header}}</h3>
 								<ul class="datePicker">
 									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
 									<li ng-click="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
@@ -110,12 +111,12 @@
 								<h3>Access</h3>
 								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-disabled="studentMade"/>
 								<label ng-click="toggleGuestAccess()" ng-class="{disabled: studentMade}">Enable Guest Mode</label>
-								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is forced on for widgets created by students.</b></p>
 								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
+								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is always on for widgets created by students.</b></p>
 							</li>
 						</ul>
 					</ul>
-					<ul class="inline">
+					<ul class="inline bottom-buttons">
 						<li><a href class="cancel_button" ng-click="hideModal()">Cancel</a></li>
 						<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="hideModal()">Save</a></li>
 					</ul>
