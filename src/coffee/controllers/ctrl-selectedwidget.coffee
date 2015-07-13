@@ -10,7 +10,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 	$scope.popup = ->
 		if $scope.selected.shareable and not $scope.selected.widget.is_draft
 			$scope.show.availabilityModal = yes
-			Materia.MyWidgets.Availability.popup()
 
 	$scope.hideModal = -> this.$parent.hideModal()
 

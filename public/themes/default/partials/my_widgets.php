@@ -73,8 +73,8 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="500px">
-				<div ng-controller="WidgetSettingsController">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="550px">
+				<div ng-if="show.availabilityModal" ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
 						<li><h3>Attempts</h3>
@@ -90,10 +90,12 @@
 								<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
 								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
-							<p class="data_explination">This is the number of times a student can submit their interaction for a score.  Only the highest attempt score counts.</p>
+							<p class="data_explination">Attempts are the number of times a student can complete a widget.  Only their highest score counts.</p>
+							<p ng-if="guestAccess" class="data_explination "><b>Attempts are unlimited when Guest Mode is enabled.</b></p>
 						</li>
 						<ul class="toFrom">
-							<li ng-repeat="available in availability"><h3>{{available.header}}</h3>
+							<li ng-repeat="available in availability">
+								<h3>{{available.header}}</h3>
 								<ul class="datePicker">
 									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
 									<li ng-click="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
@@ -105,14 +107,16 @@
 									</li>
 								</ul>
 							</li>
-							<li id="guest-access"><h3>Access</h3>
-								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" />
-								<label ng-click="toggleGuestAccess()">Enable Guest Mode</label>
+							<li id="guest-access">
+								<h3>Access</h3>
+								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-disabled="studentMade"/>
+								<label ng-click="toggleGuestAccess()" ng-class="{disabled: studentMade}">Enable Guest Mode</label>
 								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous.</p>
+								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is always on for widgets created by students.</b></p>
 							</li>
 						</ul>
 					</ul>
-					<ul class="inline">
+					<ul class="inline bottom-buttons">
 						<li><a href class="cancel_button" ng-click="hideModal()">Cancel</a></li>
 						<li><a href class="action_button green save" ng-click="parseSubmittedInfo()" ng-click="hideModal()">Save</a></li>
 					</ul>
