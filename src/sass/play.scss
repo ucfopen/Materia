@@ -10,6 +10,7 @@ html, body {
 	border:0;
 	height:100%;
 	width:100%;
+	display: block;
 }
 
 .page {
@@ -95,7 +96,7 @@ section.widget.preview {
 	position:absolute;
 	display:block;
 
-	right: 0px;	
+	right: 0px;
 	top: 16px;
 
 	font-family: "Lato", "Arial", sans-serif;
