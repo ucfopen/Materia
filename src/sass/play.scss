@@ -18,14 +18,18 @@ html, body {
 	padding:0;
 	text-align:center;
 }
-.center {
+.center,
+.widgetMainContent
+{
 	position:relative;
-	overflow: visible;
+	height:100%;
 	margin:0 auto;
-	height: 100%;
-	box-shadow:0px 0px 34px 1px #999;
-	overflow: scroll;
-	-webkit-overflow-scrolling: touch;
+}
+.widgetMainContent
+{
+	box-shadow:0 0 34px 1px #999;
+	overflow:scroll;
+	-webkit-overflow-scrolling:touch
 }
 .no-flash .center {
 	box-shadow: none;
@@ -47,7 +51,7 @@ section.widget {
 	bottom: 0;
 }
 section.widget.preview {
-	top: 150px;
+	top: 250px;
 }
 .embedded section.widget {
 	top: 0;
@@ -56,35 +60,34 @@ section.widget.preview {
 	bottom: 0;
 }
 
-.widget .preview-bar {
+.widget .preview-bar
+{
 	position: absolute;
+	clear: both;
 	display:block;
-	border-bottom: 4px #b944cc solid;
+	border-bottom:4px #b944cc solid;
+	top: -44px;
 	width:100%;
 	height:40px;
 	padding:0;
-	background:none;
-	margin-top: -40px;
+	background:0 0;
 }
 
 .widget .preview-bar:before {
 	content: "Previewing";
 	background: #b944cc;
 	display:block;
-
 	left: 0px;
-	top: -40px;
+	top: 0px;
 	width: 160px;
 	height: 20px;
 	padding: 8px 0 12px 0;
-
 	font-family: "Lato", "Arial", sans-serif;
 	font-size: 20px;
 	font-weight: 900;
 	color: #FFFFFF;
 	text-align: center;
 	vertical-align: middle;
-
 	border-radius: 5px 5px 0 0;
 	-moz-border-radius: 5px 5px 0 0;
 	-webkit-border-radius: 5px 5px 0 0;
@@ -95,10 +98,8 @@ section.widget.preview {
 	content: "Scores and interactions will not be recorded while previewing.";
 	position:absolute;
 	display:block;
-
 	right: 0px;
 	top: 16px;
-
 	font-family: "Lato", "Arial", sans-serif;
 	font-size: 14px;
 	font-weight: 300;
