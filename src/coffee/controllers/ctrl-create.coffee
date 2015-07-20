@@ -126,6 +126,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			when '.swf'
 				creator[type].apply creator, args
 			when '.html'
+				console.log {type:type, data:args}
 				creator.contentWindow.postMessage(JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN)
 
 	# build a my-widgets url to a specific widget
