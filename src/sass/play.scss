@@ -4,6 +4,7 @@ html, body {
 }
 #container {
 	margin:0 auto;
+	display: block;
 }
 
 #container.html{
@@ -96,7 +97,7 @@ section.widget.preview {
 	position:absolute;
 	display:block;
 
-	right: 0px;	
+	right: 0px;
 	top: 16px;
 
 	font-family: "Lato", "Arial", sans-serif;
