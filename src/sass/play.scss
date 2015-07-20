@@ -4,13 +4,13 @@ html, body {
 }
 #container {
 	margin:0 auto;
+	display: block;
 }
 
 #container.html{
 	border:0;
 	height:100%;
 	width:100%;
-	display: block;
 }
 
 .page {
