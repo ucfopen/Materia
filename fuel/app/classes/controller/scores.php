@@ -57,10 +57,10 @@ class Controller_Scores extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
 
-		$lti_token = \Input::get('ltitoken', false);
-		if ($lti_token)
+		$token = \Input::get('token', false);
+		if ($token)
 		{
-			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			Js::push_inline('var __token = "'.$token.'";');
 		}
 
 		$this->theme->get_template()
@@ -72,6 +72,9 @@ class Controller_Scores extends Controller
 
 	public function get_show_embedded($inst_id)
 	{
+		//\RocketDuck\Log::profile(['GET SHOW EMBEDDED'], 'lti');
+		//\RocketDuck\Log::profile([print_r($_GET, true)], 'lti');
+
 		if (Materia\Api::session_valid() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
@@ -83,10 +86,10 @@ class Controller_Scores extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 
-		$lti_token = \Input::get('ltitoken', false);
-		if ($lti_token)
+		$token = \Input::get('token', false);
+		if ($token)
 		{
-			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			Js::push_inline('var __token = "'.$token.'";');
 		}
 
 		$this->_header = 'partials/header_empty';

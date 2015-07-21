@@ -29,7 +29,7 @@ class Controller_Test extends \Controller_Rest
 			'resource_link_id'     => 'test-resource',
 			'context_id'           => 'test-context',
 			'lis_result_sourcedid' => 'test-source-id',
-			'roles'                => 'Learner',
+			'roles'                => 'Learner'
 		];
 
 		$params = array_merge($base_params, $custom_params);

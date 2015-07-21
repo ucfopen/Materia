@@ -182,17 +182,17 @@ class Controller_Widgets extends Controller
 		$loaded = $widget->get($this->param('id'));
 
 		if ( ! $loaded || ! isset($widget->meta_data['demo'])) throw new HttpNotFoundException;
-		$this->_play_widget($widget->meta_data['demo'], true);
+		return $this->_play_widget($widget->meta_data['demo'], true);
 	}
 
-	public function get_play_widget($inst_id)
+	public function action_play_widget($inst_id = false)
 	{
-		$this->_play_widget($inst_id);
+		return $this->_play_widget($inst_id);
 	}
 
-	public function action_play_embedded($inst_id)
+	public function action_play_embedded($inst_id = false)
 	{
-		$this->get_play_widget($inst_id, false, true);
+		return $this->_play_widget($inst_id, false, true);
 	}
 
 	public function get_preview_widget($inst_id)
@@ -311,17 +311,60 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
-	protected function _play_widget($inst_id, $demo=false, $embed=false)
+	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
+		// To support LTI we attempt to grab the instance ID out of the request if it's missing
+		if( ! $inst_id) $inst_id = \Lti\Lti::get_widget_from_request();
+
 		$instances = Materia\Api::widget_instances_get([$inst_id], $demo);
 		if ( ! count($instances)) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
 
+		// trace('UM');
+		// trace('UM');
+		// trace('UM');
+		// trace($this->request->uri->string());
+		// trace($this->request->parent()->uri->string());
+		// trace($this->request->children());
+
+		//if ( ! \Lti\Oauth::validate_post()) throw new \Lti\InvalidOAuthRequestException(); //$this->action_error('Invalid OAuth Request');
+		// if ( \Lti\Request::is_request_lti())
+		// {
+		// 	if ( ! \Lti\Oauth::validate_post()) return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Invalid OAuth Request']) );
+		// }
+
+		// if(lti && no token)
+		// {
+		// 	redirect(this_url + '?token=' + a_token)
+		// }
+
+		try
+		{
+			$response = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded]);
+		}
+		catch(\Lti\InvalidOAuthRequestException $e)
+		{
+			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Invalid OAuth Request']) );
+		}
+		catch(\Lti\UnknownUserException $e)
+		{
+			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Unknown User']) );
+		}
+		catch(\Lti\UnknownAssignmentException $e)
+		{
+			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Unknown Assignment']) );
+		}
+		catch(Exception $e)
+		{
+			trace($e);
+			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Unexpected Error']) );
+		}
+
 		// display a login
 		if ( ! $inst->playable_by_current_user())
 		{
-			$this->build_widget_login('Login to play this widget', $inst_id, $embed);
+			$this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
 		}
 		else
 		{
@@ -355,7 +398,7 @@ class Controller_Widgets extends Controller
 					throw new HttpServerErrorException;
 				}
 
-				$this->display_widget($inst, $play_id, $embed);
+				$this->display_widget($inst, $play_id, $is_embedded);
 			}
 		}
 	}
