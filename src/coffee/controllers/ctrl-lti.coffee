@@ -68,8 +68,7 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 			announceChoice()
 
 			if RETURN_URL? and RETURN_URL isnt null
-				widgetURL = BASE_URL + 'lti/assignment?widget=' + selectedWidget.id
-				window.location = RETURN_URL + '?embed_type=basic_lti&url=' + encodeURI(widgetURL)
+				window.location = RETURN_URL + '?embed_type=basic_lti&url=' + encodeURI(selectedWidget.embed_url)
 		, 1000
 
 	setDisplayState = (newSection) ->

@@ -28,24 +28,6 @@ class Controller_Lti extends \Controller
 		return \Response::forge(\Theme::instance()->render())->set_header('Content-Type', 'application/xml');
 	}
 
-	/**
-	 * LTI Outcomes Gateway - LTI Post prams sent when Materia is used as an LTI assignment
-	 */
-	public function action_assignment()
-	{
-		if ( ! Lti::authenticate()) return $this->action_error('Unknown User');
-
-		if ( ! $inst_id = Lti::get_widget_from_request()) return $this->action_error('Unknown Assignment');
-
-		if (Lti::is_lti_user_a_content_creator()) return $this->_authenticated_preview($inst_id);
-
-		$play = Lti::init_assessment_session($inst_id);
-
-		if ( ! $play || ! isset($play->inst_id)) return $this->action_error('Session Starting Error');
-
-		return \Request::forge("embed/{$play->inst_id}", true)->execute([$play->play_id]);
-	}
-
 	// expects that the user is all ready authenticated
 	protected function _authenticated_preview($inst_id)
 	{
@@ -75,7 +57,10 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_picker($authenticate = true)
 	{
-		if ($authenticate && ! Lti::authenticate()) return $this->action_error('Unknown User');
+		if ( ! Oauth::validate_post()) return $this->action_error('Invalid OAuth Request');
+
+		$lti_vars = Lti::get_launch_from_request();
+		if ($authenticate && ! LtiUserManager::authenticate($lti_vars)) return $this->action_error('Unknown User');
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
@@ -120,7 +105,7 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_error($msg)
 	{
-		$launch = Lti::get_launch_vars();
+		$launch = Lti::get_launch_from_request();
 
 		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, print_r($launch, true)], 'lti');
 		\RocketDuck\Log::profile([print_r($_POST, true)], 'lti-error-dump');
@@ -164,5 +149,4 @@ class Controller_Lti extends \Controller
 
 		return \Response::forge(\Theme::instance()->render());
 	}
-
 }
