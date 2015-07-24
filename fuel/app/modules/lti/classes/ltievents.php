@@ -62,18 +62,15 @@ class LtiEvents
 				break;
 		}
 
-		//if (LtiUserManager::is_lti_user_a_content_creator($launch)
-		//{
-			$inst = \Materia\Widget_Instance_Manager::get($inst_id, true);
-			if (\Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL])) return ['redirect' => ];
-		//}
+		if (LtiUserManager::is_lti_user_a_content_creator($launch))
+		{
+			return ['redirect' => "/lti/success/{$inst_id}"];
+		}
 
-		//@TODO - maybe not
-		/////////////////if (LtiUserManager::is_lti_user_a_content_creator($launch)) return $this->_authenticated_preview($launch->inst_id);
 		$launch->inst_id = $inst_id;
 		static::save_lti_association_if_needed($launch);
 
-		return true;
+		return [];
 	}
 
 	public static function on_play_start_event($payload)
@@ -214,10 +211,6 @@ class LtiEvents
 
 	protected static function save_lti_association($launch, $assoc = false)
 	{
-		trace('SLA');
-		trace($launch);
-		trace($assoc);
-
 		// if nothing exists, create a new one
 		if ( ! $assoc) $assoc = Model_Lti::forge();
 
