@@ -28,6 +28,15 @@ class Controller_Lti extends \Controller
 		return \Response::forge(\Theme::instance()->render())->set_header('Content-Type', 'application/xml');
 	}
 
+	public function action_success($inst_id)
+	{
+		$launch = Lti::get_launch_from_request();
+		if ( ! LtiUserManager::authenticate($launch)) return $this->action_error('Unknown User');
+		if ( ! LtiUserManager::is_lti_user_a_content_creator($launch)) return $this->action_error('Unauthorized');
+
+		return $this->_authenticated_preview($inst_id);
+	}
+
 	// expects that the user is all ready authenticated
 	protected function _authenticated_preview($inst_id)
 	{
@@ -59,8 +68,8 @@ class Controller_Lti extends \Controller
 	{
 		if ( ! Oauth::validate_post()) return $this->action_error('Invalid OAuth Request');
 
-		$lti_vars = Lti::get_launch_from_request();
-		if ($authenticate && ! LtiUserManager::authenticate($lti_vars)) return $this->action_error('Unknown User');
+		$launch = Lti::get_launch_from_request();
+		if ($authenticate && ! LtiUserManager::authenticate($launch)) return $this->action_error('Unknown User');
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';

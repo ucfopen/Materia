@@ -321,27 +321,9 @@ class Controller_Widgets extends Controller
 
 		$inst = $instances[0];
 
-		// trace('UM');
-		// trace('UM');
-		// trace('UM');
-		// trace($this->request->uri->string());
-		// trace($this->request->parent()->uri->string());
-		// trace($this->request->children());
-
-		//if ( ! \Lti\Oauth::validate_post()) throw new \Lti\InvalidOAuthRequestException(); //$this->action_error('Invalid OAuth Request');
-		// if ( \Lti\Request::is_request_lti())
-		// {
-		// 	if ( ! \Lti\Oauth::validate_post()) return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Invalid OAuth Request']) );
-		// }
-
-		// if(lti && no token)
-		// {
-		// 	redirect(this_url + '?token=' + a_token)
-		// }
-
 		try
 		{
-			$response = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded]);
+			$before_play_start_response = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array')[0];
 		}
 		catch(\Lti\InvalidOAuthRequestException $e)
 		{
@@ -368,6 +350,11 @@ class Controller_Widgets extends Controller
 		}
 		else
 		{
+			if ( array_key_exists('redirect', $before_play_start_response))
+			{
+				return Response::forge( \Request::forge($before_play_start_response['redirect'])->execute() );
+			}
+
 			$status = $this->get_status($inst);
 
 			if ( ! $status['open'])
