@@ -34,7 +34,7 @@ class Widget
 	public $height              = 0;
 	public $id                  = 0;
 	public $is_answer_encrypted = true;
-	public $in_catalog	        = true;
+	public $in_catalog          = true;
 	public $is_editable         = true;
 	public $is_playable         = true;
 	public $is_qset_encrypted   = true;
@@ -81,40 +81,11 @@ class Widget
 		{
 			$q->where('clean_name', $id_or_clean_name); // search by clean name
 		}
-		$w_results = $q->execute();
+		$results = $q->execute();
 
-		if ($w_results->count() != 1) return false;
+		if ($results->count() != 1) return false;
 
-		$w = $w_results[0];
-
-		// -------------- BUILD _metadata ---------------
-		$meta_results = \DB::select()
-			->from('widget_metadata')
-			->where('widget_id', $w['id'])
-			->execute();
-
-		$meta_data = [
-			'features' => [],
-			'supported_data' => [],
-		];
-
-		foreach ($meta_results as $meta)
-		{
-			$name = $meta['name'];
-			$value = $meta['value'];
-
-			switch ($name)
-			{
-				case 'features':
-				case 'supported_data':
-					$meta_data[$name][] = $value;
-					break;
-
-				default:
-					$meta_data[$name] = $value;
-					break;
-			}
-		}
+		$w = $results[0];
 
 		// -------------- INIT OBJECT ---------------
 		$this->__construct([
@@ -139,8 +110,48 @@ class Widget
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
-			'meta_data'           => $meta_data,
+			'meta_data'           => static::db_get_metadata($w['id']),
 		]);
+
 		return true;
+	}
+
+	private static function db_get_metadata($id)
+	{
+		$meta_data = ['features' => [], 'supported_data' => []];
+
+		$meta_results = \DB::select('name', 'value')
+			->from('widget_metadata')
+			->where('widget_id', (string) $id)
+			->execute();
+
+		foreach ($meta_results as $meta)
+		{
+			$name  = $meta['name'];
+			$value = $meta['value'];
+
+			switch ($name)
+			{
+				# multiple items with these keys will be placed in an array
+				case 'features':
+				case 'supported_data':
+				case 'playdata_exporters':
+					if ( ! isset($meta_data[$name])) $meta_data[$name] = []; // initialize if needed
+					$meta_data[$name][] = $value;
+					break;
+
+				default:
+					$meta_data[$name] = $value;
+					break;
+			}
+		}
+
+		return $meta_data;
+	}
+
+	public function load_widget_methods($method_type)
+	{
+		$file = PKGPATH."/materia/vendor/widget/{$this->dir}/{$method_type}.php";
+		return \Materia\Utils::load_methods_from_file($file);
 	}
 }
