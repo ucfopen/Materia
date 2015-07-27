@@ -386,7 +386,13 @@ class Widget extends \Basetask
 		}
 
 		$validate_only  = \Cli::option('validate-only') || \Cli::option('v');
-		$assume_upgrade = \Cli::option('upgrade') || \Cli::option('u');
+
+		$upgrade_option = \Cli::option('upgrade');
+		if ( empty($upgrade_option) )
+		{
+			$upgrade_option = \Cli::option('u');
+		}
+
 		$force          = \Cli::option('force') || \Cli::option('f');
 		$db_only        = \Cli::option('db-only') || \Cli::option('d');
 		$force_git      = \Cli::option('use-git') || \Cli::option('g');
@@ -465,14 +471,14 @@ class Widget extends \Basetask
 			}
 			elseif ($num_files === 1)
 			{
-				self::install_one($matching_files[0], $validate_only, $assume_upgrade, $force, $db_only);
+				self::install_one($matching_files[0], $validate_only, $upgrade_option, $force, $db_only);
 			}
 			else
 			{
 				//install all
 				foreach ($matching_files as $widget_file)
 				{
-					self::install_one($widget_file, $validate_only, $assume_upgrade, $force, $db_only);
+					self::install_one($widget_file, $validate_only, $upgrade_option, $force, $db_only);
 				}
 			}
 		}
@@ -488,7 +494,7 @@ class Widget extends \Basetask
 		}
 	}
 
-	private static function install_one($widget_file, $validate_only = false, $assume_upgrade = false, $force = false, $db_only = false)
+	private static function install_one($widget_file, $validate_only = false, $upgrade_option = false, $force = false, $db_only = false)
 	{
 		try
 		{
@@ -540,39 +546,62 @@ class Widget extends \Basetask
 
 			if ($num_matching_widgets >= 1)
 			{
-				if ($assume_upgrade && $num_matching_widgets == 1)
+				if ($upgrade_option && $num_matching_widgets == 1)
 				{
 					$upgrade_id = $matching_widgets[0]['id'];
 				}
 				else
 				{
-					\Cli::write('Existing widget(s) found with name '.$clean_name.'...');
 					$matching_widget_ids = [];
 					foreach ($matching_widgets as $matching_widget)
 					{
 						$matching_widget_ids[] = $matching_widget['id'];
-						\Cli::write($matching_widget['id'].' ('.$matching_widget['name'].')');
 					}
-					\Cli::write('What do you want to do with '.$widget_file.'?');
-					$response = \Cli::prompt('(U)pgrade an existing widget, (i)nstall as a new widget, or (s)kip installing?', ['u', 'i', 's']);
-					if ($response == 's')
+
+					// in the case when upgrade option is given id value, we can bypass cli prompts
+					if ( gettype($upgrade_option) == 'string' )
 					{
-						\Cli::error($widget_file.' not installed!');
-						return;
-					}
-					elseif ($response == 'u')
-					{
-						if ($num_matching_widgets == 1)
+						if ( in_array($upgrade_option, $matching_widget_ids) )
 						{
-							$upgrade_id = \Cli::prompt('What is the Widget ID that this new widget is upgrading?', $matching_widget_ids[0]);
+							$upgrade_id = $upgrade_option;
+							\Cli::write('Existing widget found with name '.$clean_name.' and id '.$upgrade_option);
 						}
 						else
 						{
-							$matching_widget_ids[] = 'other';
-							$upgrade_id = \Cli::prompt('What is the Widget ID that this new widget is upgrading?', $matching_widget_ids);
-							if ($upgrade_id == 'other')
+							\Cli::error('There is no widget named '.$clean_name.' with id '.$upgrade_option.'!');
+							return;
+						}
+					}
+					else
+					{
+						\Cli::write('Existing widget(s) found with name '.$clean_name.'...');
+						foreach ($matching_widget_ids as $matching_widget_id)
+						{
+							\Cli::write($matching_widget['id'].' ('.$matching_widget['name'].')');
+
+						}
+
+						\Cli::write('What do you want to do with '.$widget_file.'?');
+						$response = \Cli::prompt('(U)pgrade an existing widget, (i)nstall as a new widget, or (s)kip installing?', ['u', 'i', 's']);
+						if ($response == 's')
+						{
+							\Cli::error($widget_file.' not installed!');
+							return;
+						}
+						elseif ($response == 'u')
+						{
+							if ($num_matching_widgets == 1)
 							{
-								$upgrade_id = \Cli::prompt('What is the Widget ID that this new widget is upgrading?');
+								$upgrade_id = \Cli::prompt('What is the Widget ID that this new widget is upgrading?', $matching_widget_ids[0]);
+							}
+							else
+							{
+								$matching_widget_ids[] = 'other';
+								$upgrade_id = \Cli::prompt('What is the Widget ID that this new widget is upgrading?', $matching_widget_ids);
+								if ($upgrade_id == 'other')
+								{
+									$upgrade_id = \Cli::prompt('What is the Widget ID that this new widget is upgrading?');
+								}
 							}
 						}
 					}
