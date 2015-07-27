@@ -386,13 +386,6 @@ class Widget extends \Basetask
 		}
 
 		$validate_only  = \Cli::option('validate-only') || \Cli::option('v');
-
-		$upgrade_option = \Cli::option('upgrade');
-		if ( empty($upgrade_option) )
-		{
-			$upgrade_option = \Cli::option('u');
-		}
-
 		$force          = \Cli::option('force') || \Cli::option('f');
 		$db_only        = \Cli::option('db-only') || \Cli::option('d');
 		$force_git      = \Cli::option('use-git') || \Cli::option('g');
@@ -400,6 +393,11 @@ class Widget extends \Basetask
 		$regex_is_git   = '/\S+\.git/';
 		$regex_is_url   = '/https?:\/\/\S+\/(\S+\.wigt)/';
 		$clear_output   = true;
+		$upgrade_option = \Cli::option('upgrade');
+		if ( empty($upgrade_option) )
+		{
+			$upgrade_option = \Cli::option('u') ?: false;
+		}
 
 		// Install from config
 		if ( ! $glob_str)
