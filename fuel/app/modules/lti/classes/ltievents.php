@@ -44,7 +44,7 @@ class LtiEvents
 		switch(static::get_lti_play_state())
 		{
 			case self::PLAY_STATE_NOT_LTI:
-				return;
+				return [];
 
 			case self::PLAY_STATE_FIRST_LAUNCH:
 				// We need to validate this launch

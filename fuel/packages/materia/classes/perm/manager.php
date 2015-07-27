@@ -276,6 +276,10 @@ class Perm_Manager
 		{
 			$objects = [];
 
+			// convert all instance id's to strings... because mysql behaves unexpectedly with numbers here
+			// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
+			foreach($perms as &$value) $value = (string) $value;
+
 			// ====================== GET THE USERS ROLE PERMISSIONS ============================
 			// build a subquery that gets any roles the user has
 			$subquery_role_ids = \DB::select('role_id')
@@ -295,7 +299,7 @@ class Perm_Manager
 				$objects = \DB::select('id')
 					->from($object_type == Perm::ASSET ? 'asset' : 'widget_instance')
 					->execute()
-					->as_array();
+					->as_array('id', 'id');
 			}
 			else
 			{

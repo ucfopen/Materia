@@ -28,10 +28,11 @@ desktop.ini
 /fuel/packages/parser/
 
 # dynamically generated files
-/fuel/app/logs/*/*/*
-/fuel/app/cache/*/*
+/fuel/app/logs/**/*
+/fuel/app/cache/**/*
 /fuel/app/config/crypt.php
 /fuel/app/config/asset_hash.json
+/fuel/app/config/**/migrations.php
 
 
 ## Materia Specific Stuff
@@ -49,6 +50,7 @@ fuel/packages/materia/vendor/widget/*
 
 # Any widget zip packages
 *.zip
+*.wigt
 
 # media files
 fuel/packages/materia/media/*

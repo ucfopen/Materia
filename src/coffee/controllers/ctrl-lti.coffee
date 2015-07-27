@@ -120,7 +120,7 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 				$scope.$apply()
 
 	getAvailabilityStr = (startDate, endDate) ->
-		availability = Materia.Set.Availability.get(startDate, endDate)
+		availability = widgetSrv.convertAvailibilityDates(startDate, endDate)
 
 		if endDate < 0 and startDate < 0
 			return 'Anytime'
