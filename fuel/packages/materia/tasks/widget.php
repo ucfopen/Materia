@@ -534,51 +534,35 @@ class Widget extends \Basetask
 				return;
 			}
 
+			$package_hash = md5_file($widget_file);
 			$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
 
-			$matching_widgets = \Materia\Widget_Installer::get_existing($clean_name);
-
-			$package_hash = md5_file($widget_file);
-
-			$num_matching_widgets = count($matching_widgets);
-
-			if ($num_matching_widgets >= 1)
+			// upgrade option is a string when a value is passed through cli, a boolean otherwise
+			if (gettype($upgrade_option) == 'string' )
 			{
-				if ($upgrade_option && $num_matching_widgets == 1)
-				{
-					$upgrade_id = $matching_widgets[0]['id'];
-				}
-				else
-				{
-					$matching_widget_ids = [];
-					foreach ($matching_widgets as $matching_widget)
-					{
-						$matching_widget_ids[] = $matching_widget['id'];
-					}
+				$upgrade_id = $upgrade_option;
+			}
+			else
+			{
+				$matching_widgets = \Materia\Widget_Installer::get_existing($clean_name);
 
-					// in the case when upgrade option is given id value, we can bypass cli prompts
-					if ( gettype($upgrade_option) == 'string' )
+				$num_matching_widgets = count($matching_widgets);
+
+				if ($num_matching_widgets >= 1)
+				{
+					if ($upgrade_option && $num_matching_widgets == 1)
 					{
-						if ( in_array($upgrade_option, $matching_widget_ids) )
-						{
-							$upgrade_id = $upgrade_option;
-							\Cli::write('Existing widget found with name '.$clean_name.' and id '.$upgrade_option);
-						}
-						else
-						{
-							\Cli::error('There is no widget named '.$clean_name.' with id '.$upgrade_option.'!');
-							return;
-						}
+						$upgrade_id = $matching_widgets[0]['id'];
 					}
 					else
 					{
 						\Cli::write('Existing widget(s) found with name '.$clean_name.'...');
-						foreach ($matching_widget_ids as $matching_widget_id)
+						$matching_widget_ids = [];
+						foreach ($matching_widgets as $matching_widget)
 						{
+							$matching_widget_ids[] = $matching_widget['id'];
 							\Cli::write($matching_widget['id'].' ('.$matching_widget['name'].')');
-
 						}
-
 						\Cli::write('What do you want to do with '.$widget_file.'?');
 						$response = \Cli::prompt('(U)pgrade an existing widget, (i)nstall as a new widget, or (s)kip installing?', ['u', 'i', 's']);
 						if ($response == 's')
@@ -621,13 +605,13 @@ class Widget extends \Basetask
 					switch ($existing_widget)
 					{
 						case -1:
-							\Cli::write('Not upgrading since existing Widget not found: '.$widget_id, 'red');
+							\Cli::write('Not upgrading since existing Widget not found: '.$upgrade_id, 'red');
 							return;
 						case -2:
 							\Cli::write('Not upgrading since installed widget appears to be the same.', 'red');
 							return;
 						case -3:
-							\Cli::write('Existing Widget not updatable: '.$widget_id, 'red');
+							\Cli::write('Existing Widget not updatable: '.$upgrade_id, 'red');
 							return;
 					}
 				}
