@@ -248,6 +248,7 @@ return array(
 
 		'modules' => array(
 			'Lti',
+			'Hooker'
 		),
 
 		/**

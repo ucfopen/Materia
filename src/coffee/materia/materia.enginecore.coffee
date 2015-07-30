@@ -76,6 +76,10 @@ Namespace('Materia').Engine = do ->
 	escapeScriptTags = (text) ->
 		text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
+	webhook = (data) ->
+		console.log "webhook sent"
+		_sendPostMessage 'webhook', data
+
 	start:start
 	addLog:addLog
 	alert:alert
@@ -86,3 +90,4 @@ Namespace('Materia').Engine = do ->
 	disableResizeInterval:disableResizeInterval
 	setHeight:setHeight # allows the widget to resize its iframe container to fit the height of its contents
 	escapeScriptTags:escapeScriptTags
+	webhook:webhook

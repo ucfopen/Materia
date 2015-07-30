@@ -866,4 +866,17 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		return $inst;
 	}
+
+	static public function deliver_webhook($data)
+	{
+		if ( ! \Hooker\Hook::hook_exists("test-webhook"))
+		{
+			\Log::debug("hook does NOT exist!");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 }

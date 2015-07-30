@@ -187,6 +187,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 					when 'sendPendingLogs' then sendAllPendingLogs()
 					when 'alert'           then $scope.$apply -> $scope.alert = msg.data
 					when 'setHeight'       then setHeight msg.data[0]
+					when 'webhook'        then webhook(msg.data)
 					when 'initialize'      then
 					else                   throw new Error "Unknown PostMessage received from player core: #{msg.type}"
 			else
@@ -362,6 +363,12 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		if window.top == window.self
 			min_h = instance.widget.height
 			if h > min_h then $('#'+PLAYER.EMBED_TARGET).height h else $('#'+PLAYER.EMBED_TARGET).height min_h
+
+	webhook = (data) ->
+		console.log "webhook recieved by player controller!"
+		Materia.Coms.Json.send 'deliver_webhook', [data], (result) ->
+			console.log result
+			console.log "deliver webhook succeeded!"
 
 	showScoreScreen = ->
 		if scoreScreenURL == null
