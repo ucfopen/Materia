@@ -120,17 +120,17 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 			# The Materia sendoff link requires currentAttempt to be set, so it's here instead of displayWidgetInstance
 			if isEmbedded
-				prefix = '/scores/'
-				detailsSegment = if __token? then '?details=1' else ''
-				if ! $scope.guestAccess
-					$scope.moreInfoLink = prefix + widgetInstance.id + detailsSegment + '#attempt-' + currentAttempt
-				else
-					$scope.moreInfoLink = prefix + widgetInstance.id + detailsSegment + '#play-' + play_id
+				detailsOption = if LAUNCH_TOKEN? then '?details=1' else ''
+				playHash = if $scope.guestAccess then "#play-#{play_id}" else "#attempt-#{currentAttempt}"
+
+				$scope.moreInfoLink = "/scores/#{widgetInstance.id}#{detailsOption}#{playHash}"
 
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]?
 				displayDetails details[$scope.attempts.length - currentAttempt]
-			else scoreSrv.getWidgetInstancePlayScores [play_id], displayDetails
+			else
+				scoreSrv.getWidgetInstancePlayScores [play_id], displayDetails
+
 		$scope.$apply()
 
 	displayWidgetInstance = ->
@@ -147,8 +147,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 				else '/play/'
 
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
-			if __token?
-				widget.href += '?token=' + __token
+			widget.href += "?token=#{LAUNCH_TOKEN}" if LAUNCH_TOKEN?
 		else
 			# if there are no attempts left, hide play again
 			hidePlayAgain = true

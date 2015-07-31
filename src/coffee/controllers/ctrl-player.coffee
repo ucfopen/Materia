@@ -230,7 +230,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			when $scope.isPreview then dfd.resolve()
 			else
 				# get the play id from the embedded variable on the page:
-				play_id = __PLAY_ID
+				play_id = PLAY_ID
 
 				if play_id?
 					dfd.resolve()
