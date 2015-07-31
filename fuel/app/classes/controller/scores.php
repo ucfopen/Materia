@@ -60,7 +60,7 @@ class Controller_Scores extends Controller
 		$token = \Input::get('token', false);
 		if ($token)
 		{
-			Js::push_inline('var __token = "'.$token.'";');
+			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
 
 		$this->theme->get_template()
@@ -89,7 +89,7 @@ class Controller_Scores extends Controller
 		$token = \Input::get('token', false);
 		if ($token)
 		{
-			Js::push_inline('var __token = "'.$token.'";');
+			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
 
 		$this->_header = 'partials/header_empty';

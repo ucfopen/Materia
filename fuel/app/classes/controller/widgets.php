@@ -34,7 +34,7 @@ class Controller_Widgets extends Controller
 			$response = Response::forge(Theme::instance()->render());
 		}
 
-		// prevent caching the widget page, since the __play_id is hard coded into the page
+		// prevent caching the widget page, since the PLAY_ID is hard coded into the page
 		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
@@ -485,7 +485,7 @@ class Controller_Widgets extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
 
-		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
+		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
