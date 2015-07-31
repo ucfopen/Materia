@@ -13,33 +13,6 @@ class LtiEvents
 	const PLAY_STATE_REPLAY = 'replay';
 	const PLAY_STATE_NOT_LTI = 'not_lti';
 
-	protected static function get_lti_play_state($play_id = false)
-	{
-		//Is there a resource_link_id? Then this is an LTI launch
-		if (\Input::param('resource_link_id', false)) return self::PLAY_STATE_FIRST_LAUNCH;
-
-		//Do we have a token? Then this is a replay
-		if (\Input::param('token', false))    return self::PLAY_STATE_REPLAY;
-
-		//Ok, nothing in Input, so we have to dig deeper.
-		//Do we have a play_id? If no, then assume not in an LTI
-		if ( ! $play_id) return self::PLAY_STATE_NOT_LTI;
-
-		//Do we have variables stored by the given play_id?
-		//We only store variables by the first play ID, so this is the first attempt
-		$launch = \Session::get("lti-{$play_id}", false);
-		if($launch) return self::PLAY_STATE_FIRST_LAUNCH;
-
-		//Do we have variables that are *linked* to the given play_id?
-		//We only do this for replays, so this is a replay
-		$token = \Session::get("lti-link-{$play_id}", false);
-		$launch = \Session::get("lti-{$token}", false);
-		if($launch) return self::PLAY_STATE_REPLAY;
-
-		//Nothing in the request, nothing in the session, assume not an LTI launch
-		return self::PLAY_STATE_NOT_LTI;
-	}
-
 	public static function on_before_play_start_event($payload)
 	{
 		extract($payload); // exposes $inst_id and $is_embedded
@@ -164,6 +137,33 @@ class LtiEvents
 
 			\DB::delete('lti')->where('item_id', $inst_id)->execute();
 		}
+	}
+
+	protected static function get_lti_play_state($play_id = false)
+	{
+		//Is there a resource_link_id? Then this is an LTI launch
+		if (\Input::param('resource_link_id', false)) return self::PLAY_STATE_FIRST_LAUNCH;
+
+		//Do we have a token? Then this is a replay
+		if (\Input::param('token', false)) return self::PLAY_STATE_REPLAY;
+
+		//Ok, nothing in Input, so we have to dig deeper.
+		//Do we have a play_id? If no, then assume not in an LTI
+		if ( ! $play_id) return self::PLAY_STATE_NOT_LTI;
+
+		//Do we have variables stored by the given play_id?
+		//We only store variables by the first play ID, so this is the first attempt
+		$launch = \Session::get("lti-{$play_id}", false);
+		if($launch) return self::PLAY_STATE_FIRST_LAUNCH;
+
+		//Do we have variables that are *linked* to the given play_id?
+		//We only do this for replays, so this is a replay
+		$token = \Session::get("lti-link-{$play_id}", false);
+		$launch = \Session::get("lti-{$token}", false);
+		if($launch) return self::PLAY_STATE_REPLAY;
+
+		//Nothing in the request, nothing in the session, assume not an LTI launch
+		return self::PLAY_STATE_NOT_LTI;
 	}
 
 	protected static function session_get_launch($play_id)

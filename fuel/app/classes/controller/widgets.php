@@ -303,75 +303,62 @@ class Controller_Widgets extends Controller
 		{
 			$before_play_start_response = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array')[0];
 		}
-		catch(\Lti\InvalidOAuthRequestException $e)
-		{
-			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Invalid OAuth Request']) );
-		}
-		catch(\Lti\UnknownUserException $e)
-		{
-			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Unknown User']) );
-		}
-		catch(\Lti\UnknownAssignmentException $e)
-		{
-			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Unknown Assignment']) );
-		}
 		catch(Exception $e)
 		{
+			switch (true)
+			{
+				case $e instanceof \Lti\InvalidOAuthRequestException:
+					$msg = 'Invalid OAuth Request';
+					break;
+				case $e instanceof \Lti\UnknownUserException:
+					$msg = 'Unknown User';
+					break;
+				case $e instanceof \Lti\UnknownAssignmentException:
+					$msg = 'Unknown Assignment';
+					break;
+				default:
+					$msg = 'Unexpected Error';
+					break;
+			}
+
 			trace($e);
-			return Response::forge( \Request::forge('lti/error')->execute(['msg' => 'Unexpected Error']) );
+			return Response::forge( \Request::forge('lti/error')->execute(['msg' => $msg]) );
 		}
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())
 		{
-			$this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
+			return $this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
 		}
-		else
+
+		if ( array_key_exists('redirect', $before_play_start_response))
 		{
-			if ( array_key_exists('redirect', $before_play_start_response))
-			{
-				return Response::forge( \Request::forge($before_play_start_response['redirect'])->execute() );
-			}
-
-			$status = $this->get_status($inst);
-
-			if ( ! $status['open'])
-			{
-				// widget is closed
-				$this->build_widget_login('Widget Unavailable', $inst_id);
-			}
-			elseif ( ! $demo && $inst->is_draft)
-			{
-				$this->draft_not_playable();
-			}
-			elseif ( ! $demo && ! $inst->widget->is_playable)
-			{
-				$this->retired();
-			}
-			elseif ( ! $status['has_attempts'])
-			{
-				$this->no_attempts($inst);
-			}
-			else
-			{
-				// create the play
-				$play_id = \Materia\Api::session_play_create($inst_id);
-
-				if ($play_id instanceof \RocketDuck\Msg)
-				{
-					\Log::warning('session_play_create failed!');
-					throw new HttpServerErrorException;
-				}
-
-				$this->display_widget($inst, $play_id, $is_embedded);
-			}
+			return Response::forge( \Request::forge($before_play_start_response['redirect'])->execute() );
 		}
+
+		$status = $this->get_status($inst);
+
+		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
+		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
+		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
+		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
+
+		// create the play
+		$play_id = \Materia\Api::session_play_create($inst_id);
+
+		if ($play_id instanceof \RocketDuck\Msg)
+		{
+			\Log::warning('session_play_create failed!');
+			throw new HttpServerErrorException;
+		}
+
+		$this->display_widget($inst, $play_id, $is_embedded);
 	}
 
 	/**
 	 * Load the login screen and possibly widget information if it's needed
 	 */
-	protected function build_widget_login($login_title = null, $inst_id = null, $embed=false)
+	protected function build_widget_login($login_title = null, $inst_id = null, $is_embedded=false)
 	{
 		if (empty($inst_id)) throw new HttpNotFoundException;
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
@@ -420,7 +407,7 @@ class Controller_Widgets extends Controller
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
 				->set_safe('avail', $summary));
 
-		if ($embed) $this->_header = 'partials/header_empty';
+		if ($is_embedded) $this->_header = 'partials/header_empty';
 
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 		Css::push_group("login");
@@ -467,7 +454,7 @@ class Controller_Widgets extends Controller
 		return [$summary, $desc, $status['open']];
 	}
 
-	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $embed=false)
+	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
 		Css::push_group(['core', 'widget_play']);
 
@@ -478,12 +465,12 @@ class Controller_Widgets extends Controller
 
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
-			->set('page_type', $embed ? 'embedded widget' : 'widget' );
+			->set('page_type', $is_embedded ? 'embedded widget' : 'widget' );
 
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
 
-		if ($embed) $this->_header = 'partials/header_empty';
+		if ($is_embedded) $this->_header = 'partials/header_empty';
 	}
 
 	/**
