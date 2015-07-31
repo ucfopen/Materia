@@ -67,7 +67,7 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 		setTimeout ->
 			announceChoice()
 
-			if RETURN_URL? and RETURN_URL isnt null
+			if RETURN_URL?
 				window.location = RETURN_URL + '?embed_type=basic_lti&url=' + encodeURI(selectedWidget.embed_url)
 		, 1000
 

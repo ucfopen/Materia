@@ -13,7 +13,6 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	single_id = null
 	isEmbedded = false
 	isPreview = false
-	isLtiDetails = false
 
 	_graphData = []
 

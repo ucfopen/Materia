@@ -72,9 +72,6 @@ class Controller_Scores extends Controller
 
 	public function get_show_embedded($inst_id)
 	{
-		//\RocketDuck\Log::profile(['GET SHOW EMBEDDED'], 'lti');
-		//\RocketDuck\Log::profile([print_r($_GET, true)], 'lti');
-
 		if (Materia\Api::session_valid() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');

@@ -2,7 +2,6 @@
 
 namespace Lti;
 use \RocketDuck\Log;
-use \RocketDuck\Util_Validator;
 
 class LtiUserManager
 {

@@ -2,7 +2,10 @@
 
 namespace Lti;
 use \RocketDuck\Log;
-use \RocketDuck\Util_Validator;
+
+class UnknownUserException extends \Fuel\Core\FuelException {}
+class UnknownAssignmentException extends \Fuel\Core\FuelException {}
+class InvalidOAuthRequestException extends \Fuel\Core\FuelException {}
 
 class LtiEvents
 {
@@ -58,7 +61,6 @@ class LtiEvents
 			case self::PLAY_STATE_REPLAY:
 				$token = \Input::param('token', false);
 				$launch = static::session_get_launch($token);
-				//Log::profile(['REPLAY', \Input::param('token', false)], 'lti');
 				break;
 		}
 

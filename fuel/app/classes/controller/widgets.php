@@ -291,17 +291,6 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
-	protected function mywidgets_student()
-	{
-		$this->theme->get_template()
-			->set('title', '')
-			->set('page_type', 'my_widgets');
-
-		$this->theme->set_partial('content', 'partials/my_widgets_students');
-
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-	}
-
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
 		// To support LTI we attempt to grab the instance ID out of the request if it's missing
