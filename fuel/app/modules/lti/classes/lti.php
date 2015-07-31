@@ -1,7 +1,6 @@
 <?php
 
 namespace Lti;
-use \RocketDuck\Log;
 use \RocketDuck\Util_Validator;
 
 class Lti
@@ -33,8 +32,8 @@ class Lti
 	{
 		// these are configurable to let username and user_id come from custom launch variables
 		$consumer          = trim(\Input::param('tool_consumer_info_product_family_code', false));
-		$remote_id_field   = trim(\Config::get("lti::lti.consumers.{$consumer}.remote_identifier", 'username'));
-		$remote_user_field = trim(\Config::get("lti::lti.consumers.{$consumer}.remote_username", 'user_id'));
+		$remote_id_field   = \Config::get("lti::lti.consumers.{$consumer}.remote_identifier", 'username');
+		$remote_user_field = \Config::get("lti::lti.consumers.{$consumer}.remote_username", 'user_id');
 
 		// trim all the roles
 		$roles = explode(',', \Input::param('roles'));
