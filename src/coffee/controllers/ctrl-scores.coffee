@@ -29,7 +29,10 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	# scores embed URL this will need to be modified!
 	isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
 
-	isLtiDetails = document.URL.indexOf('details=1') > -1
+	# We don't want users who click the 'View more details' link via an LTI to play again, since at that point
+	# the play will no longer be connected to the LTI details.
+	# This is a cheap way to hide the button:
+	hidePlayAgain = document.URL.indexOf('details=1') > -1
 	single_id  = window.location.hash.split('single-')[1]
 	widget_id  = document.URL.match( /^[\.\w\/:]+\/([a-z0-9]+)/i )[1]
 
@@ -134,12 +137,12 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 	displayWidgetInstance = ->
 		# Build the data for the overview section, prep for display through Underscore
-		hidePlayAgain = false
 		widget =
 			title : widgetInstance.name
 			dates    : attempt_dates
 
-		if (widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && $scope.attempts.length < widgetInstance.attempts) || isPreview) && !single_id
+		# show play again button?
+		if !single_id && (widgetInstance.attempts <= 0 || ($scope.attempts.length < widgetInstance.attempts) || isPreview)
 			prefix = switch
 				when isEmbedded then '/embed/'
 				when isPreview then '/preview/'
@@ -151,19 +154,13 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			# if there are no attempts left, hide play again
 			hidePlayAgain = true
 
-		# We don't want users who click the 'View more details' link via an LTI to play again, since at that point
-		# the play will no longer be connected to the LTI details.
-		# This is a cheap way to hide the button:
-		if isLtiDetails
-			hidePlayAgain = true
-
 		# Modify display of several elements after HTML is outputted
 		lengthRange = Math.floor widgetInstance.name.length / 10
 		textSize    = parseInt($('article.container header > h1').css('font-size'))
 		paddingSize = parseInt($('article.container header > h1').css('padding-top'))
 
 		switch(lengthRange)
-			when 0,1,2
+			when 0, 1, 2
 				textSize    -= 4
 				paddingSize += 4
 			when 3
