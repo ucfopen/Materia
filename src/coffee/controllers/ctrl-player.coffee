@@ -128,6 +128,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			# link to the static widget
 			enginePath = WIDGET_URL+instance.widget.dir + instance.widget.player
 
+		if instance.widget.width > 0 then $('.preview-bar').width instance.widget.width
+
 		switch widgetType
 			when '.swf'
 				embedFlash enginePath, '10', dfd
