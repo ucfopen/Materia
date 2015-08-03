@@ -358,10 +358,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		output
 
 	setHeight = (h) ->
-		# don't resize the inner iframe if the player is embedded
-		if window.top == window.self
-			min_h = instance.widget.height
-			if h > min_h then $('#'+PLAYER.EMBED_TARGET).height h else $('#'+PLAYER.EMBED_TARGET).height min_h
+		min_h = instance.widget.height
+		if h > min_h then $('.center').height h else $('.center').height min_h
 
 	showScoreScreen = ->
 		if scoreScreenURL == null

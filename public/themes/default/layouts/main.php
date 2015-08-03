@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 
+<html class="<? if (isset($html_class)) { echo $html_class; } else { echo(''); } ?>">
 <!--[if lt IE 9]>
-<html class="ie8">
+<html class="<? if (isset($html_class)) { echo $html_class; } else { echo(''); } ?> ie8">
 <![endif]-->
 <!--[if IE 9]>
-<html class="ie9">
+<html class="<? if (isset($html_class)) { echo $html_class; } else { echo(''); } ?> ie9">
 <![endif]-->
 
 <head>
