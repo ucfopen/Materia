@@ -61,6 +61,9 @@ section.widget.preview {
 
 .widget .preview-bar {
 	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
 	display:block;
 	border-bottom: 4px #b944cc solid;
 	width:100%;
