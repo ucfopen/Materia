@@ -4,6 +4,8 @@ html, body {
 }
 #container {
 	margin:0 auto;
+	outline: 1px solid #999;
+	display: block;
 }
 
 #container.html{
@@ -19,10 +21,14 @@ html, body {
 }
 .center {
 	position:relative;
-	overflow: visible;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	margin:0 auto;
 	height: 100%;
 	box-shadow:0px 0px 34px 1px #999;
+}
+.embedded .center {
+	box-shadow: none;
 }
 .no-flash .center {
 	box-shadow: none;
@@ -61,8 +67,8 @@ section.widget.preview {
 	height:40px;
 	padding:0;
 	background:none;
-	margin-top: -40px;
-	z-index: 0;
+	margin-top: -44px;
+	z-index: 1;
 }
 
 .widget .preview-bar:before {
@@ -94,7 +100,7 @@ section.widget.preview {
 	position:absolute;
 	display:block;
 
-	right: 0px;	
+	right: 0px;
 	top: 16px;
 
 	font-family: "Lato", "Arial", sans-serif;
