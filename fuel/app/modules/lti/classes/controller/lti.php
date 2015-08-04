@@ -38,10 +38,10 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_picker($authenticate = true)
 	{
-		if ( ! Oauth::validate_post()) return $this->action_error('Invalid OAuth Request');
+		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
-		$launch = Lti::get_launch_from_request();
-		if ($authenticate && ! LtiUserManager::authenticate($launch)) return $this->action_error('Unknown User');
+		$launch = LtiLaunch::from_request();
+		if ($authenticate && ! LtiUserManager::authenticate($launch)) return \Response::redirect('/lti/error/unknown_user');
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
@@ -75,61 +75,8 @@ class Controller_Lti extends \Controller
 		return \Response::forge($this->theme->render());
 	}
 
+	// Successfully linked LTI page
 	public function action_success($inst_id)
-	{
-		$launch = Lti::get_launch_from_request();
-		if ( ! LtiUserManager::authenticate($launch)) return $this->action_error('Unknown User');
-		if ( ! LtiUserManager::is_lti_user_a_content_creator($launch)) return $this->action_error('Unauthorized');
-
-		return $this->_authenticated_preview($inst_id);
-	}
-
-	/**
-	 * 	Errors for embedded pages
-	 */
-	public function action_error($msg)
-	{
-		$launch = Lti::get_launch_from_request();
-
-		\RocketDuck\Log::profile(['action-error', \Model_User::find_current_id(), $msg, print_r($launch, true)], 'lti');
-		\RocketDuck\Log::profile([print_r($_POST, true)], 'lti-error-dump');
-
-		$this->theme->set_template('layouts/main');
-
-		$this->theme->get_template()
-			->set('title', 'Error - '.$msg)
-			->set('page_type', 'lti-error');
-
-		switch ($msg)
-		{
-			case 'Unknown User':
-				$this->theme->set_partial('content', 'partials/no_user')
-					->set('system', $launch->consumer)
-					->set('title', 'Error - '.$msg);
-				break;
-
-			case 'Unknown Assignment':
-				$this->theme->set_partial('content', 'partials/no_assignment')
-					->set('system', $launch->consumer)
-					->set('title', 'Error - '.$msg);
-				break;
-
-			default:
-				$this->theme->set_partial('content', 'partials/unknown_error')
-					->set('title', 'Error - '.$msg);
-				break;
-		}
-
-		$this->theme->set_partial('header', 'partials/header_empty');
-		$this->insert_analytics();
-		\Js::push_group('core');
-		\Css::push_group('lti');
-
-		return \Response::forge($this->theme->render());
-	}
-
-	// expects that the user is all ready authenticated
-	protected function _authenticated_preview($inst_id)
 	{
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')

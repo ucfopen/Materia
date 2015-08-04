@@ -42,6 +42,23 @@ class LtiUserManager
 	}
 
 	/**
+	 * Can the user create stuff based on the LTI role sent via post
+	 * @return String Role depending on input
+	 */
+	public static function is_lti_user_a_content_creator($launch)
+	{
+		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
+		$student_roles = ['Student', 'Learner'];
+
+		if (count(array_intersect($launch->roles, $staff_roles))) return true;
+		if (count(array_intersect($launch->roles, $student_roles))) return false;
+
+		// log a user that has no identified roles
+		Log::profile(['no-known-role', \Input::param('roles')], 'lti-error');
+		return false;
+	}
+
+	/**
 	 * Creates a user based on data passed to Materia from an LTI consumer.
 	 * If the consumer config looks up user by username, misses, but a matching email address is found:
 	 * The username is optionally updated with the update_existing flag
@@ -129,22 +146,5 @@ class LtiUserManager
 		if ( empty($user->email)) $items_to_update['email'] = $launch->email;
 
 		if ( ! empty($items_to_update)) $auth->update_user($items_to_update, $user->username);
-	}
-
-	/**
-	 * Can the user create stuff based on the LTI role sent via post
-	 * @return String Role depending on input
-	 */
-	public static function is_lti_user_a_content_creator($launch)
-	{
-		$staff_roles   = ['Administrator', 'Instructor', 'ContentDeveloper', 'urn:lti:role:ims/lis/TeachingAssistant'];
-		$student_roles = ['Student', 'Learner'];
-
-		if (count(array_intersect($launch->roles, $staff_roles))) return true;
-		if (count(array_intersect($launch->roles, $student_roles))) return false;
-
-		// log a user that has no identified roles
-		Log::profile(['no-known-role', \Input::param('roles')], 'lti-error');
-		return false;
 	}
 }

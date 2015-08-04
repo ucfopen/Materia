@@ -1,35 +1,14 @@
 <?php
 
 namespace Lti;
-use \RocketDuck\Util_Validator;
 
-class Lti
+class LtiLaunch
 {
-	protected static $inst_id;
+	protected static $launch;
 
-	// grabs the widget instance id from the post/get variables
-	// @return FALSE or a valid instance id
-	public static function get_widget_from_request()
+	public static function from_request()
 	{
-		if ( isset(static::$inst_id)) return static::$inst_id;
-
-		$request_widget         = \Input::param('widget', false);
-		$request_custom_inst_id = \Input::param('custom_widget_instance_id', false);
-		$request_resource_id    = \Input::param('resource_link_id', false);
-
-		// return one of the values from POST/GET, if valid
-		if (Util_Validator::is_valid_hash($request_widget)) return $request_widget;
-		if (Util_Validator::is_valid_hash($request_custom_inst_id)) return $request_custom_inst_id;
-
-		// return if we can find its association in the database
-		$assoc = static::find_assoc_from_resource_id($request_resource_id);
-		if ( $assoc && Util_Validator::is_valid_hash($assoc->item_id)) return $assoc->item_id;
-
-		return false;
-	}
-
-	public static function get_launch_from_request()
-	{
+		if (isset(static::$launch)) return static::$launch;
 		// these are configurable to let username and user_id come from custom launch variables
 		$consumer          = trim(\Input::param('tool_consumer_info_product_family_code', false));
 		$remote_id_field   = \Config::get("lti::lti.consumers.{$consumer}.remote_identifier", 'username');
@@ -56,16 +35,9 @@ class Lti
 			'username'       => trim(\Input::param($remote_user_field))
 		];
 
-		return $vars;
+		static::$launch = $vars;
+
+		return static::$launch;
 	}
 
-	/**
-	 * Gets the Model_Lti associated with a resource id
-	 * @param string An LTI resource id
-	 * @return Model_Lti or NULL if none found
-	 */
-	public static function find_assoc_from_resource_id($resource_id)
-	{
-		return Model_Lti::query()->where('resource_link', $resource_id)->get_one();
-	}
 }
