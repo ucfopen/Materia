@@ -2,51 +2,42 @@
 
 namespace Lti;
 use \RocketDuck\Log;
-
-class UnknownUserException extends \Fuel\Core\FuelException {}
-class UnknownAssignmentException extends \Fuel\Core\FuelException {}
-class InvalidOAuthRequestException extends \Fuel\Core\FuelException {}
+use \RocketDuck\Util_Validator;
 
 class LtiEvents
 {
 	const PLAY_STATE_FIRST_LAUNCH = 'first_launch';
 	const PLAY_STATE_REPLAY = 'replay';
 	const PLAY_STATE_NOT_LTI = 'not_lti';
+	protected static $inst_id;
 
 	public static function on_before_play_start_event($payload)
 	{
-		extract($payload); // exposes $inst_id and $is_embedded
-
-		switch(static::get_lti_play_state())
+		if (static::get_lti_play_state() == self::PLAY_STATE_FIRST_LAUNCH)
 		{
-			case self::PLAY_STATE_NOT_LTI:
-				return [];
+			extract($payload); // exposes event args $inst_id and $is_embedded
+			if ( ! $inst_id) $inst_id = static::get_widget_from_request();
 
-			case self::PLAY_STATE_FIRST_LAUNCH:
-				// We need to validate this launch
-				$launch = Lti::get_launch_from_request();
+			$redirect = false;
+			$launch = LtiLaunch::from_request(); // not in session yet
 
-				if ( ! \Lti\Oauth::validate_post()) throw new InvalidOAuthRequestException();
-				if ( ! LtiUserManager::authenticate($launch)) throw new UnknownUserException();
-				if ( ! $inst_id) throw new UnknownAssignmentException();
-				break;
+			if (LtiUserManager::is_lti_user_a_content_creator($launch)) $redirect = "/lti/success/{$inst_id}";
 
-			case self::PLAY_STATE_REPLAY:
-				$token = \Input::param('token', false);
-				$launch = static::session_get_launch($token);
-				break;
+			if ( ! \Lti\Oauth::validate_post()) $redirect = "/lti/error?message=invalid_oauth_request";
+			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
+			elseif ( ! $inst_id) $redirect = '/lti/error/unknown_assignment';
+
+			if ($redirect) return ['redirect' => $redirect];
+
+			$launch->inst_id = $inst_id;
+			static::save_lti_association_if_needed($launch);
+
+			return ['inst_id' => $inst_id];
 		}
-
-		if (LtiUserManager::is_lti_user_a_content_creator($launch))
-		{
-			return ['redirect' => "/lti/success/{$inst_id}"];
-		}
-
-		$launch->inst_id = $inst_id;
-		static::save_lti_association_if_needed($launch);
 
 		return [];
 	}
+
 
 	public static function on_play_start_event($payload)
 	{
@@ -77,7 +68,7 @@ class LtiEvents
 	 * @param array [0] is an instance id, [1] is the student user_id, [2] is the score
 	 * @return boolean True if successfully sent to the requester
 	 */
-	public static function on_send_score_event($event_args)
+	public static function on_score_updated_event($event_args)
 	{
 		list($play_id, $inst_id, $student_user_id, $latest_score, $max_score) = $event_args;
 
@@ -139,13 +130,44 @@ class LtiEvents
 		}
 	}
 
+	// grabs the widget instance id from the post/get variables
+	// @return FALSE or a valid instance id
+	protected static function get_widget_from_request()
+	{
+		if ( isset(static::$inst_id)) return static::$inst_id;
+
+		$request_widget         = \Input::param('widget', false);
+		$request_custom_inst_id = \Input::param('custom_widget_instance_id', false);
+		$request_resource_id    = \Input::param('resource_link_id', false);
+
+		// return one of the values from POST/GET, if valid
+		if (Util_Validator::is_valid_hash($request_widget)) return $request_widget;
+		if (Util_Validator::is_valid_hash($request_custom_inst_id)) return $request_custom_inst_id;
+
+		// return if we can find its association in the database
+		$assoc = static::find_assoc_from_resource_id($request_resource_id);
+		if ( $assoc && Util_Validator::is_valid_hash($assoc->item_id)) return $assoc->item_id;
+
+		return false;
+	}
+
+	/**
+	 * Gets the Model_Lti associated with a resource id
+	 * @param string An LTI resource id
+	 * @return Model_Lti or NULL if none found
+	 */
+	protected static function find_assoc_from_resource_id($resource_id)
+	{
+		return Model_Lti::query()->where('resource_link', $resource_id)->get_one();
+	}
+
 	protected static function get_lti_play_state($play_id = false)
 	{
 		//Is there a resource_link_id? Then this is an LTI launch
-		if (\Input::param('resource_link_id', false)) return self::PLAY_STATE_FIRST_LAUNCH;
+		if (\Input::param('resource_link_id')) return self::PLAY_STATE_FIRST_LAUNCH;
 
 		//Do we have a token? Then this is a replay
-		if (\Input::param('token', false)) return self::PLAY_STATE_REPLAY;
+		if (\Input::param('token')) return self::PLAY_STATE_REPLAY;
 
 		//Ok, nothing in Input, so we have to dig deeper.
 		//Do we have a play_id? If no, then assume not in an LTI
@@ -166,6 +188,8 @@ class LtiEvents
 		return self::PLAY_STATE_NOT_LTI;
 	}
 
+
+
 	protected static function session_get_launch($play_id)
 	{
 		$launch = \Session::get("lti-{$play_id}", false);
@@ -175,14 +199,9 @@ class LtiEvents
 		return \Session::get("lti-{$token}", false);
 	}
 
-	protected function set_vars_from_session($token)
-	{
-		$this->vars = \Session::get("lti-{$this->token}", false);
-	}
-
 	protected static function store_lti_request_into_session($token, $inst_id, $is_embedded)
 	{
-		$launch = Lti::get_launch_from_request();
+		$launch = LtiLaunch::from_request();
 		$launch->token = $token;
 		$launch->inst_id = $inst_id;
 		$launch->is_embedded = $is_embedded;
@@ -195,7 +214,7 @@ class LtiEvents
 		if ( ! \Config::get("lti::lti.consumers.{$launch->consumer}.save_assoc", true)) return true;
 
 		// Search for any associations with this item id and resource link
-		$assoc = Lti::find_assoc_from_resource_id($launch->resource_id);
+		$assoc = static::find_assoc_from_resource_id($launch->resource_id);
 
 		// If a matching lti association is found, nothing needs to be done
 		if ($assoc && $assoc->item_id == $launch->inst_id) return true;
@@ -203,10 +222,7 @@ class LtiEvents
 		// Insert a new association
 		$saved = static::save_lti_association($launch, $assoc);
 
-		if ( ! $saved)
-		{
-			$this->log('error-saving-association', $_SERVER['REQUEST_URI']);
-		}
+		if ( ! $saved) static::log('error-saving-association', $_SERVER['REQUEST_URI']);
 
 		return $saved;
 	}

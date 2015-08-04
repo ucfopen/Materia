@@ -293,47 +293,24 @@ class Controller_Widgets extends Controller
 
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
-		// To support LTI we attempt to grab the instance ID out of the request if it's missing
-		if( ! $inst_id) $inst_id = \Lti\Lti::get_widget_from_request();
+		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
+
+		foreach ($results as $result)
+		{
+			// allow events to redirect
+			if ( ! empty($result['redirect'])) Response::redirect($result['redirect']);
+
+			// allow events to set inst_id
+			if ( ! empty($result['inst_id'])) $inst_id = $result['inst_id'];
+		}
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
-
-		try
-		{
-			$before_play_start_response = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array')[0];
-		}
-		catch(Exception $e)
-		{
-			switch (true)
-			{
-				case $e instanceof \Lti\InvalidOAuthRequestException:
-					$msg = 'Invalid OAuth Request';
-					break;
-				case $e instanceof \Lti\UnknownUserException:
-					$msg = 'Unknown User';
-					break;
-				case $e instanceof \Lti\UnknownAssignmentException:
-					$msg = 'Unknown Assignment';
-					break;
-				default:
-					$msg = 'Unexpected Error';
-					break;
-			}
-
-			trace($e);
-			return Response::forge( \Request::forge('lti/error')->execute(['msg' => $msg]) );
-		}
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())
 		{
 			return $this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
-		}
-
-		if ( array_key_exists('redirect', $before_play_start_response))
-		{
-			return Response::forge( \Request::forge($before_play_start_response['redirect'])->execute() );
 		}
 
 		$status = $this->get_status($inst);

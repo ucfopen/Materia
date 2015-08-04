@@ -27,6 +27,22 @@ class Test_Basetest extends \Basetest
 		static::clear_fuel_input();
 		$_POST = [];
 		$_GET = [];
+		$class = new ReflectionClass("\Lti\LtiLaunch");
+		foreach (['launch'] as $value)
+		{
+			$property = $class->getProperty($value);
+			$property->setAccessible(true);
+			$property->setValue(null);
+		}
+
+
+		$class = new ReflectionClass("\Lti\LtiEvents");
+		foreach (['inst_id'] as $value)
+		{
+			$property = $class->getProperty($value);
+			$property->setAccessible(true);
+			$property->setValue(null);
+		}
 	}
 
 	protected static function get_protected_method($class_name, $method_name)

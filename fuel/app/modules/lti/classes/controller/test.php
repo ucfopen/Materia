@@ -59,9 +59,6 @@ class Controller_Test extends \Controller_Rest
 			'new_instructor_params'       => $new_instructor_params[0],
 			'new_instructor_endpoint'     => $new_instructor_params[1],
 
-			'unknown_role_params'         => $unknown_role_params[0],
-			'unknown_role_endpoint'       => $unknown_role_params[1],
-
 			'unknown_assignment_params'   => $unknown_assignment_params[0],
 			'unknown_assignment_endpoint' => $unknown_assignment_params[1],
 
@@ -195,7 +192,7 @@ class Controller_Test extends \Controller_Rest
 			'username' => 'test_lti_user'.$rand,
 			'email'    => 'test.lti.user'.$rand.'@materia.com',
 			'first'    => 'Unofficial Test',
-			'last'     => 'User'
+			'last'     => "User $rand"
 		]);
 
 		return $user;

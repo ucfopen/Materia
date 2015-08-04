@@ -183,13 +183,6 @@
 				<input type="submit" value="Test Validation">
 			</form>
 
-			<form method="POST" target="embed_iframe" action="<?= $unknown_role_endpoint ?>" >
-				<? foreach ($unknown_role_params as $name => $value) : ?>
-				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
-				<input type="submit" value="Unknown Role Error">
-			</form>
-
 			<form method="POST" target="embed_iframe" action="<?= $unknown_assignment_endpoint ?>" >
 				<? foreach ($unknown_assignment_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
