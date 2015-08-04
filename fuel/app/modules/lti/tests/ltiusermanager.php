@@ -49,9 +49,9 @@ class Test_LtiUserManager extends \Test_Basetest
 		};
 
 		$test_authenticate_finds_existing_user(false, false);
-		$test_authenticate_finds_existing_user(true, false);
+		$test_authenticate_finds_existing_user(true,  false);
 		$test_authenticate_finds_existing_user(false, true);
-		$test_authenticate_finds_existing_user(true, true);
+		$test_authenticate_finds_existing_user(true,  true);
 	}
 
 	public function test_authenticate_does_not_promote_student()
@@ -71,10 +71,10 @@ class Test_LtiUserManager extends \Test_Basetest
 		};
 
 		$test_authenticate_not_promoting_student_to_instructor(false, false);
-		$test_authenticate_not_promoting_student_to_instructor(true, false);
+		$test_authenticate_not_promoting_student_to_instructor(true,  false);
 	}
 
-	public function test_authenticate_does_promote_student_for_createsUsers_false_useLaunchRoles_true()
+	public function test_authenticate_does_promote_student()
 	{
 		$test_authenticate_promoting_student_to_instructor  = function($creates_users, $use_launch_roles)
 		{
@@ -90,119 +90,177 @@ class Test_LtiUserManager extends \Test_Basetest
 		};
 
 		$test_authenticate_promoting_student_to_instructor(false, false);
-		$test_authenticate_promoting_student_to_instructor(true, true);
+		$test_authenticate_promoting_student_to_instructor(true,  true);
 	}
 
-	public function test_authenticate_does_not_demote_instructor_for_createsUsers_false_useLaunchRoles_false()
+	public function test_authenticate_does_not_demote_instructor()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_not_demoting_instructor_to_student();
+		$authenticate_not_demoting_instructor_to_student = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+
+			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last', true);
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
+			$launch->email = 'gocu1@test.test';
+
+			\Lti\LtiUserManager::authenticate($launch);
+			$this->assertIsInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
+		};
+
+		$authenticate_not_demoting_instructor_to_student(false, false);
+		$authenticate_not_demoting_instructor_to_student(true,  false);
 	}
 
-	public function test_authenticate_does_not_demote_instructor_for_createsUsers_true_useLaunchRoles_false()
+	public function test_authenticate_does_demote_instructor()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_not_demoting_instructor_to_student();
+		$authenticate_demoting_instructor_to_student = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last', true);
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
+			$launch->email = 'gocu1@test.test';
+
+			\Lti\LtiUserManager::authenticate($launch);
+			$this->assertNotInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
+		};
+
+		$authenticate_demoting_instructor_to_student(false, true);
+		$authenticate_demoting_instructor_to_student(true,  true);
 	}
 
-	public function test_authenticate_does_demote_instructor_for_createsUsers_false_useLaunchRoles_true()
+	public function test_authenticate_not_creating_students()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_demoting_instructor_to_student();
+		$authenticate_not_creating_students = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+
+			$expected_username = $this->get_uniq_string();
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Learner']);
+			$launch->email = 'gocu1@test.test';
+
+			$result = \Lti\LtiUserManager::authenticate($launch);
+			$this->assertFalse($result);
+
+			$user = \Model_User::query()->where('username', $expected_username)->get_one();
+			$this->assertNull($user);
+		};
+
+		$authenticate_not_creating_students(false, false);
+		$authenticate_not_creating_students(false, true);
 	}
 
-	public function test_authenticate_does_demote_instructor_for_createsUsers_true_useLaunchRoles_true()
+	public function test_authenticate_creating_students()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_demoting_instructor_to_student();
+		$authenticate_creating_students = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+
+			$expected_username = $this->get_uniq_string();
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Learner']);
+			$launch->email = 'gocu1@test.test';
+
+			$result = \Lti\LtiUserManager::authenticate($launch);
+			$this->assertTrue($result);
+
+			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
+			$this->assertEquals($expected_username, $user->username);
+			$this->assertNotInstructor($user);
+		};
+
+		$authenticate_creating_students(true, false);
+		$authenticate_creating_students(true, true);
 	}
 
-	public function test_authenticate_not_creating_students_for_createUsers_false_useLaunchRoles_false()
+	public function test_authenticate_not_creating_instructors()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_not_creating_students();
+		$authenticate_not_creating_instructors = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+
+			$expected_username = $this->get_uniq_string();
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
+			$launch->email = 'gocu1@test.test';
+
+			$result = \Lti\LtiUserManager::authenticate($launch);
+			$this->assertFalse($result);
+
+			$user = \Model_User::query()->where('username', $expected_username)->get_one();
+			$this->assertNull($user);
+		};
+
+		$authenticate_not_creating_instructors(false, false);
+		$authenticate_not_creating_instructors(false, true);
 	}
 
-	public function test_authenticate_creating_students_for_createUsers_true_useLaunchRoles_false()
+	public function test_authenticate_creating_instructors()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_creating_students();
+		$authenticate_creating_instructors = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+
+			$expected_username = $this->get_uniq_string();
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
+			$launch->email = 'gocu1@test.test';
+
+			$result = \Lti\LtiUserManager::authenticate($launch);
+			$this->assertTrue($result);
+
+			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
+			$this->assertEquals($expected_username, $user->username);
+			$this->assertIsInstructor($user);
+		};
+
+		$authenticate_creating_instructors(true, false);
+		$authenticate_creating_instructors(true, true);
 	}
 
-	public function test_authenticate_not_creating_students_for_createUsers_false_useLaunchRoles_true()
+	public function test_authenticate_not_updating_user_info()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_not_creating_students();
+		$authenticate_not_updating_user_info = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+
+			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu3@test.test', '', 'Last');
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
+			$launch->email = 'gocu3@test.test';
+			$launch->first = 'First2';
+
+			\Lti\LtiUserManager::authenticate($launch);
+			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
+			$this->assertSame('', $user->first);
+		};
+
+		$authenticate_not_updating_user_info(false, false);
+		$authenticate_not_updating_user_info(false, true);
 	}
 
-	public function test_authenticate_creating_students_for_createUsers_true_useLaunchRoles_true()
+	public function test_authenticate_updating_user_info()
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_creating_students();
-	}
 
-	public function test_authenticate_not_creating_instructors_for_createUsers_false_useLaunchRoles_false()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_not_creating_instructors();
-	}
+		$authenticate_updating_user_info = function($creates_users, $use_launch_roles)
+		{
+			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
+			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-	public function test_authenticate_creating_instructors_for_createUsers_true_useLaunchRoles_false()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_creating_instructors();
-	}
+			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu3@test.test', '', 'Last');
+			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
+			$launch->email = 'gocu3@test.test';
+			$launch->first = 'First2';
 
-	public function test_authenticate_not_creating_instructors_for_createUsers_false_useLaunchRoles_true()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_not_creating_instructors();
-	}
+			\Lti\LtiUserManager::authenticate($launch);
+			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
+			$this->assertSame('First2', $user->first);
+		};
 
-	public function test_authenticate_creating_instructors_for_createUsers_true_useLaunchRoles_true()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_creating_instructors();
-	}
-
-	public function test_authenticate_not_updating_user_info_for_createsUsers_false_useLaunchRoles_false()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_not_updating_user_info();
-	}
-
-	public function test_authenticate_updating_user_info_for_createsUsers_true_useLaunchRoles_false()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", false);
-		$this->authenticate_updating_user_info();
-	}
-
-	public function test_authenticate_not_updating_user_info_for_createsUsers_false_useLaunchRoles_true()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", false);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_not_updating_user_info();
-	}
-
-	public function test_authenticate_updating_user_info_for_createsUsers_true_useLaunchRoles_true()
-	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", true);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", true);
-		$this->authenticate_updating_user_info();
+		$authenticate_updating_user_info(true, false);
+		$authenticate_updating_user_info(true, true);
 	}
 
 	public function test_is_lti_admin_is_content_creator()
@@ -283,106 +341,6 @@ class Test_LtiUserManager extends \Test_Basetest
 		$_POST['roles'] = 'DaftPunk,student,Shaq';
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
-	}
-
-
-
-	protected function authenticate_not_demoting_instructor_to_student()
-	{
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last', true);
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
-		$launch->email = 'gocu1@test.test';
-
-		\Lti\LtiUserManager::authenticate($launch);
-		$this->assertIsInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
-	}
-
-	protected function authenticate_demoting_instructor_to_student()
-	{
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last', true);
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
-		$launch->email = 'gocu1@test.test';
-
-		\Lti\LtiUserManager::authenticate($launch);
-		$this->assertNotInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
-	}
-
-	protected function authenticate_not_creating_students()
-	{
-		$expected_username = $this->get_uniq_string();
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Learner']);
-		$launch->email = 'gocu1@test.test';
-
-		$result = \Lti\LtiUserManager::authenticate($launch);
-		$this->assertFalse($result);
-
-		$user = \Model_User::query()->where('username', $expected_username)->get_one();
-		$this->assertNull($user);
-	}
-
-	protected function authenticate_creating_students()
-	{
-		$expected_username = $this->get_uniq_string();
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Learner']);
-		$launch->email = 'gocu1@test.test';
-
-		$result = \Lti\LtiUserManager::authenticate($launch);
-		$this->assertTrue($result);
-
-		$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
-		$this->assertEquals($expected_username, $user->username);
-		$this->assertNotInstructor($user);
-	}
-
-	protected function authenticate_not_creating_instructors()
-	{
-		$expected_username = $this->get_uniq_string();
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
-		$launch->email = 'gocu1@test.test';
-
-		$result = \Lti\LtiUserManager::authenticate($launch);
-		$this->assertFalse($result);
-
-		$user = \Model_User::query()->where('username', $expected_username)->get_one();
-		$this->assertNull($user);
-	}
-
-	protected function authenticate_creating_instructors()
-	{
-		$expected_username = $this->get_uniq_string();
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
-		$launch->email = 'gocu1@test.test';
-
-		$result = \Lti\LtiUserManager::authenticate($launch);
-		$this->assertTrue($result);
-
-		$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
-		$this->assertEquals($expected_username, $user->username);
-		$this->assertIsInstructor($user);
-	}
-
-	protected function authenticate_not_updating_user_info()
-	{
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu3@test.test', '', 'Last');
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
-		$launch->email = 'gocu3@test.test';
-		$launch->first = 'First2';
-
-		\Lti\LtiUserManager::authenticate($launch);
-		$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
-		$this->assertSame('', $user->first);
-	}
-
-	protected function authenticate_updating_user_info()
-	{
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu3@test.test', '', 'Last');
-		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
-		$launch->email = 'gocu3@test.test';
-		$launch->first = 'First2';
-
-		\Lti\LtiUserManager::authenticate($launch);
-		$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
-		$this->assertSame('First2', $user->first);
 	}
 
 	protected function assertIsInstructor($user)
