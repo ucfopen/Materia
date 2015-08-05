@@ -88,7 +88,7 @@ class Oauth
 		}
 		catch (\Exception $e)
 		{
-			\RocketDuck\Log::profile(['send-oath-post-failure', $e->getMessage(), $endpoint, $params], 'lti-error-dump');
+			\RocketDuck\Log::profile(['send-oath-post-failure', $e->getMessage(), $endpoint, print_r($params, true)], 'lti-error-dump');
 		}
 
 		return false;

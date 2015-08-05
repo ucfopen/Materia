@@ -34,7 +34,7 @@ class Controller_Widgets extends Controller
 			$response = Response::forge(Theme::instance()->render());
 		}
 
-		// prevent caching the widget page, since the __play_id is hard coded into the page
+		// prevent caching the widget page, since the PLAY_ID is hard coded into the page
 		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
@@ -174,17 +174,17 @@ class Controller_Widgets extends Controller
 		$loaded = $widget->get($this->param('id'));
 
 		if ( ! $loaded || ! isset($widget->meta_data['demo'])) throw new HttpNotFoundException;
-		$this->_play_widget($widget->meta_data['demo'], true);
+		return $this->_play_widget($widget->meta_data['demo'], true);
 	}
 
-	public function get_play_widget($inst_id)
+	public function action_play_widget($inst_id = false)
 	{
-		$this->_play_widget($inst_id);
+		return $this->_play_widget($inst_id);
 	}
 
-	public function action_play_embedded($inst_id)
+	public function action_play_embedded($inst_id = false)
 	{
-		$this->_play_widget($inst_id, false, true);
+		return $this->_play_widget($inst_id, false, true);
 	}
 
 	public function get_preview_widget($inst_id)
@@ -291,57 +291,51 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
-	protected function _play_widget($inst_id, $demo=false, $embed=false)
+	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
+		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
+
+		foreach ($results as $result)
+		{
+			// allow events to redirect
+			if ( ! empty($result['redirect'])) Response::redirect($result['redirect']);
+
+			// allow events to set inst_id
+			if ( ! empty($result['inst_id'])) $inst_id = $result['inst_id'];
+		}
+
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())
 		{
-			$this->build_widget_login('Login to play this widget', $inst_id, $embed);
+			return $this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
 		}
-		else
+
+		$status = $this->get_status($inst);
+
+		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
+		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
+		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
+		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
+
+		// create the play
+		$play_id = \Materia\Api::session_play_create($inst_id);
+
+		if ($play_id instanceof \RocketDuck\Msg)
 		{
-			$status = $this->get_status($inst);
-
-			if ( ! $status['open'])
-			{
-				// widget is closed
-				$this->build_widget_login('Widget Unavailable', $inst_id);
-			}
-			elseif ( ! $demo && $inst->is_draft)
-			{
-				$this->draft_not_playable();
-			}
-			elseif ( ! $demo && ! $inst->widget->is_playable)
-			{
-				$this->retired();
-			}
-			elseif ( ! $status['has_attempts'])
-			{
-				$this->no_attempts($inst);
-			}
-			else
-			{
-				// create the play
-				$play_id = \Materia\Api::session_play_create($inst_id);
-
-				if ($play_id instanceof \RocketDuck\Msg)
-				{
-					\Log::warning('session_play_create failed!');
-					throw new HttpServerErrorException;
-				}
-
-				$this->display_widget($inst, $play_id, $embed);
-			}
+			\Log::warning('session_play_create failed!');
+			throw new HttpServerErrorException;
 		}
+
+		$this->display_widget($inst, $play_id, $is_embedded);
 	}
 
 	/**
 	 * Load the login screen and possibly widget information if it's needed
 	 */
-	protected function build_widget_login($login_title = null, $inst_id = null, $embed=false)
+	protected function build_widget_login($login_title = null, $inst_id = null, $is_embedded=false)
 	{
 		if (empty($inst_id)) throw new HttpNotFoundException;
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
@@ -390,7 +384,7 @@ class Controller_Widgets extends Controller
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
 				->set_safe('avail', $summary));
 
-		if ($embed) $this->_header = 'partials/header_empty';
+		if ($is_embedded) $this->_header = 'partials/header_empty';
 
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 		Css::push_group("login");
@@ -437,23 +431,23 @@ class Controller_Widgets extends Controller
 		return [$summary, $desc, $status['open']];
 	}
 
-	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $embed=false)
+	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
 		Css::push_group(['core', 'widget_play']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
 
-		Js::push_inline('var __PLAY_ID = "'.$play_id.'";');
+		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
-			->set('page_type', $embed ? 'embedded widget' : 'widget' );
+			->set('page_type', $is_embedded ? 'embedded widget' : 'widget' );
 
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
 
-		if ($embed) $this->_header = 'partials/header_empty';
+		if ($is_embedded) $this->_header = 'partials/header_empty';
 	}
 
 	/**
