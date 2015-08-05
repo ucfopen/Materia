@@ -29,6 +29,10 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	# scores embed URL this will need to be modified!
 	isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
 
+	# We don't want users who click the 'View more details' link via an LTI to play again, since at that point
+	# the play will no longer be connected to the LTI details.
+	# This is a cheap way to hide the button:
+	hidePlayAgain = document.URL.indexOf('details=1') > -1
 	single_id  = window.location.hash.split('single-')[1]
 	widget_id  = document.URL.match( /^[\.\w\/:]+\/([a-z0-9]+)/i )[1]
 
@@ -118,45 +122,36 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 			# The Materia sendoff link requires currentAttempt to be set, so it's here instead of displayWidgetInstance
 			if isEmbedded
-				prefix = '/scores/'
-				token = if __LTI_TOKEN? then '?ltitoken=' + __LTI_TOKEN else ''
-				if ! $scope.guestAccess
-					$scope.moreInfoLink = prefix + widgetInstance.id + token + '#attempt-' + currentAttempt
-				else
-					$scope.moreInfoLink = prefix + widgetInstance.id + token + '#play-' + play_id
+				detailsOption = if LAUNCH_TOKEN? then '?details=1' else ''
+				playHash = if $scope.guestAccess then "#play-#{play_id}" else "#attempt-#{currentAttempt}"
+
+				$scope.moreInfoLink = "/scores/#{widgetInstance.id}#{detailsOption}#{playHash}"
 
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]?
 				displayDetails details[$scope.attempts.length - currentAttempt]
-			else scoreSrv.getWidgetInstancePlayScores [play_id], displayDetails
+			else
+				scoreSrv.getWidgetInstancePlayScores [play_id], displayDetails
+
 		$scope.$apply()
 
 	displayWidgetInstance = ->
 		# Build the data for the overview section, prep for display through Underscore
-		hidePlayAgain = false
 		widget =
 			title : widgetInstance.name
 			dates    : attempt_dates
 
-		if (widgetInstance.attempts <= 0 || ( widgetInstance.attempts > 0 && $scope.attempts.length < widgetInstance.attempts) || isPreview) && !single_id
+		# show play again button?
+		if !single_id && (widgetInstance.attempts <= 0 || ($scope.attempts.length < widgetInstance.attempts) || isPreview)
 			prefix = switch
 				when isEmbedded then '/embed/'
 				when isPreview then '/preview/'
 				else '/play/'
 
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
-			if __LTI_TOKEN?
-				widget.href += '?ltitoken=' + __LTI_TOKEN
+			widget.href += "?token=#{LAUNCH_TOKEN}" if LAUNCH_TOKEN?
 		else
 			# if there are no attempts left, hide play again
-			hidePlayAgain = true
-
-		# If we have an LTI Token BUT this is not an embedded score page then we want to hide the play again button.
-		# That way the user will have to return to the embedded instance of Materia to continue playing, preventing
-		# issues with losing the LTI connection (as well as preventing duplicate page views of the same widget causing
-		# confusion). If we don't do this then more logic will need to be added to handle passing the ltitoken around
-		# and showing the proper scores page.
-		if __LTI_TOKEN? and !isEmbedded
 			hidePlayAgain = true
 
 		# Modify display of several elements after HTML is outputted
@@ -165,7 +160,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		paddingSize = parseInt($('article.container header > h1').css('padding-top'))
 
 		switch(lengthRange)
-			when 0,1,2
+			when 0, 1, 2
 				textSize    -= 4
 				paddingSize += 4
 			when 3
