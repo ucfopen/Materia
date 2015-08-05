@@ -442,7 +442,8 @@ class Controller_Widgets extends Controller
 
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
-			->set('page_type', $is_embedded ? 'embedded widget' : 'widget' );
+			->set('page_type', 'widget')
+			->set('html_class', $is_embedded ? 'embedded' : '' );
 
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
