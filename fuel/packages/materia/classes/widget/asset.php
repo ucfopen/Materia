@@ -53,14 +53,65 @@ class Widget_Asset
 			$this->type = strtolower($this->type);
 			switch ($this->type)
 			{
-				case 'image':
-					$this->type = 'image';
+				# Joint Photographic Experts Group (Image)
+				case 'jpg':
+					$this->type = 'jpg';
 					break;
-				case 'audio':
-					$this->type = 'audio';
+				# Portable Network Graphics (Image)
+				case 'png':
+					$this->type = 'png';
 					break;
-				case 'video':
-					$this->type = 'video';
+				# Graphics Interchange Format (Image)
+				case 'gif':
+					$this->type = 'gif';
+					break;
+				# BMP file format (Image)
+				case 'bmp':
+					$this->type = 'bmp';
+					break;
+				# Compressed audio and music file, mp3 songs or ringtones (Audio)
+				case 'mp3':
+					$this->type = 'mp3';
+					break;
+				# Audio files encoded by Flac - free lossless audio codec (Audio)
+				case 'fla':
+					$this->type = 'fla';
+					break;
+				# CD Audio track (Audio)
+				case 'cda':
+					$this->type = 'cda';
+					break;
+				# MPEG-4 compressed audio file (Audio)
+				case 'm4a':
+					$this->type = 'm4a';
+					break;
+				# WAVe PCM Sound, standard Windows sound format (Audio)
+				case 'wav':
+					$this->type = 'wav';
+					break;
+				# Windows Media Audio (Audio)
+				case 'wma':
+					$this->type = 'wma';
+					break;
+				# Apple iTunes Music Store audio file (Audio)
+				case 'm4p':
+					$this->type = 'm4p';
+					break;
+				# MIDI-sequention sound file (Audio)
+				case 'midi':
+					$this->type = 'midi';
+					break;
+				# Nero and Quicktime use this format (Audio & Video)
+				case 'mp4':
+					$this->type = 'mp4';
+					break;
+				# Matroska container format (Audio & Video)
+				case 'mkv':
+					$this->type = 'mkv';
+					break;
+				# Microsoft’s container format (Video)
+				case 'avi':
+					$this->type = 'avi';
 					break;
 			}
 		}
