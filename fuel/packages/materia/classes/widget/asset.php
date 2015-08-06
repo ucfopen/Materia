@@ -53,8 +53,14 @@ class Widget_Asset
 			$this->type = strtolower($this->type);
 			switch ($this->type)
 			{
-				case 'jpeg':
-					$this->type = 'jpg';
+				case 'image':
+					$this->type = 'image';
+					break;
+				case 'audio':
+					$this->type = 'audio';
+					break;
+				case 'video':
+					$this->type = 'video';
 					break;
 			}
 		}
