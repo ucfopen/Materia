@@ -13,7 +13,6 @@ describe 'When not logged in', ->
             .getTitle (err, title) -> expect(title).toBe('Login | Materia')
             .call(done)
 
-
     it 'should display profile', (done) ->
         setup.loginAt client, setup.author, "#{setup.url}/profile"
         client
@@ -28,10 +27,8 @@ describe 'When not logged in', ->
             .call(done)
 
     it 'should allow me to view the score screen of a previous attempt', (done) ->
-        setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client.url "#{setup.url}/widgets/#{setup.enigma}/create"
         setup.testEnigma client, title, true
-
         client
             .execute "return document.location.hash.substring(1);", null, (err, result) ->
                 publishedInstanceID = result.value
