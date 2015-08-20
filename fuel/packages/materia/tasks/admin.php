@@ -303,7 +303,7 @@ class Admin extends \Basetask
 		{
 			// Auth instance must be MateriaAuth or similar auth module
 			// SimpleAuth does not work!!
-			$user_id = \Auth::instance()->create_user($user_name, $password, $email, 1, [], $first_name, $last_name);
+			$user_id = \Auth::instance('Materiaauth')->create_user($user_name, $password, $email, 1, [], $first_name, $last_name);
 
 			if ($user_id === false)
 			{
