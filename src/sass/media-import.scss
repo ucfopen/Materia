@@ -187,13 +187,17 @@ $dropzone_margin: 18px;
 		position: absolute;
 		left: $pane_width + ($divwidth / 2);
 	}
+
+	form {
+		width: 100%;
+	}
 }
 
 #close-button{
   background: transparent;
   float: right;
   position: relative;
-  
+
   &:after{
   	  content: 'X';
   	  font-size: 15px;
