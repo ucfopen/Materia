@@ -353,6 +353,11 @@ body.scores .details ul {
 				text-align:center;
 			}
 
+			body.scores .details ul li div.response
+			{
+				white-space: pre-wrap;
+			}
+
 			body.scores .details ul li.no-value div.response,
 			body.scores .details ul li.partial-value div.response
 			{
