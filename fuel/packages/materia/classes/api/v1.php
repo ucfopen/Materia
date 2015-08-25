@@ -184,6 +184,7 @@ class Api_V1
 	static public function widget_instance_lock($inst_id)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Widget_Instance_Manager::lock($inst_id);
 	}
 	/**
