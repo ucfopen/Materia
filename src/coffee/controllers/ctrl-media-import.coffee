@@ -71,7 +71,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# Specify what files to browse for
 			filters : [
 				title : "Media files"
-				extensions : "jpeg,jpg,gif,png,flv,mp3"
+				extensions : "jpeg,jpg,gif,png,flv,mp3,mp4"
 			]
 
 			init:
