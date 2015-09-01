@@ -35,6 +35,7 @@ class Session_Play
 	public $is_preview;
 	public $is_valid;
 	public $percent;
+	public $qset_id;
 	public $score;
 	public $user_id;
 
@@ -50,11 +51,14 @@ class Session_Play
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
-			$instance         = Widget_Instance_Manager::get($inst_id);
+			$instance = Widget_Instance_Manager::get($inst_id);
+			$instance->get_qset($inst_id);
+
 			$this->created_at = time();
 			$this->user_id    = $instance->guest_access ? 0 : $user_id;
 			$this->inst_id    = $inst_id;
 			$this->is_preview = $is_preview;
+			$this->qset_id    = $instance->qset->id;
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
@@ -139,7 +143,8 @@ class Session_Play
 				'created_at' => $this->created_at,
 				'user_id'    => $this->user_id,
 				'is_valid'   => '1',
-				'ip'         => $_SERVER['REMOTE_ADDR']
+				'ip'         => $_SERVER['REMOTE_ADDR'],
+				'qset_id'    => $this->qset_id
 			])
 			->execute();
 

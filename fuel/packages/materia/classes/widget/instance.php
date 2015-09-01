@@ -164,11 +164,12 @@ class Widget_Instance
 		{
 			$this->qset->data    = json_decode(base64_decode($results[0]['data']), true);
 			$this->qset->version = $results[0]['version'];
+			$this->qset->id      = $results[0]['id'];
 			self::find_questions($this->qset->data);
 		}
 		else
 		{
-			$this->qset = (object) ['version' => null, 'data' => null];
+			$this->qset = (object) ['version' => null, 'data' => null, 'id' => null];
 		}
 	}
 
