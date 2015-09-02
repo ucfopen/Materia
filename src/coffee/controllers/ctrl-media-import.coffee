@@ -71,7 +71,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# Specify what files to browse for
 			filters : [
 				title : "Media files"
-				extensions : "jpeg,jpg,gif,png,flv,mp3,mp4"
+				extensions : "jpeg,jpg,gif,png,mp3,mp4"
 			]
 
 			init:
@@ -105,7 +105,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
 		# click listener for each row
-		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
+		$($document).on 'click', '#question-table tbody tr', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
@@ -150,7 +150,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			columnDefs: [
 				{# thumbnail column
 					render: (data, type, full, meta) ->
-						return '<img src="/media/'+data+'/thumbnail">'
+						if(full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif')
+							return '<img src="/media/'+data+'/thumbnail">'
+						else
+							return '<div></div>'
 					searchable: false,
 					sortable: true,
 					targets: 0
