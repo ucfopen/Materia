@@ -150,7 +150,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			columnDefs: [
 				{# thumbnail column
 					render: (data, type, full, meta) ->
-						if(full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif')
+						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							return '<img src="/media/'+data+'/thumbnail">'
 						else
 							return '<div></div>'
