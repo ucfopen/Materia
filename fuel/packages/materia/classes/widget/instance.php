@@ -174,6 +174,17 @@ class Widget_Instance
 	}
 
 	/**
+	 * Grabs the qset with the id passed in from the database.
+	 */
+	public function get_specific_qset($qset_id)
+	{
+		return \DB::select()
+			->from('widget_qset')
+			->where('id', $qset_id)
+			->execute();
+	}
+
+	/**
 	 * Writes this object's question set to the qset table and stores all the answers and assets in their appropriate tables
 	 */
 	private function store_qset()

@@ -235,6 +235,7 @@ class Session_Play
 				['s.is_complete', 'done'],
 				['s.percent', 'perc'],
 				['s.elapsed', 'elapsed'],
+				['s.qset_id', 'qset_id'],
 				'user_id',
 				['u.first', 'first'],
 				['u.last', 'last'],
