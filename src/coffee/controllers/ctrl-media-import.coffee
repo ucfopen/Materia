@@ -7,8 +7,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	creator = null
 	_coms = null
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
-	
-	# this column data is passed to view to automate table header creation, 
+
+	# this column data is passed to view to automate table header creation,
 	# without which datatables will fail to function
 	$scope.dt_cols = [#columns expected from result, index 0-5
 		{ "data": "id"},
@@ -67,7 +67,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			unique_names : false
 			rename : true
 			multiple_queues: false
-			
+
 			# Specify what files to browse for
 			filters : [
 				title : "Media files"
@@ -105,7 +105,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
 		# click listener for each row
-		$($document).on 'click', '#question-table tbody tr', (e) ->
+		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
@@ -122,7 +122,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			el = $(this).next() #get neighbor
 			if el.hasClass('sort-asc') || el.hasClass('sort-desc')
 				el.toggleClass "sort-asc sort-desc"
-			else 
+			else
 				el.addClass "sort-asc"
 				el.show()
 
@@ -201,5 +201,5 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		_coms = Materia.Coms.Json
 		_coms.setGateway(API_LINK)
 		loadAllMedia()
-	
+
 	$timeout init
