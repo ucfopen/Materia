@@ -164,12 +164,24 @@ class Widget_Instance
 		{
 			$this->qset->data    = json_decode(base64_decode($results[0]['data']), true);
 			$this->qset->version = $results[0]['version'];
+			$this->qset->id      = $results[0]['id'];
 			self::find_questions($this->qset->data);
 		}
 		else
 		{
-			$this->qset = (object) ['version' => null, 'data' => null];
+			$this->qset = (object) ['version' => null, 'data' => null, 'id' => null];
 		}
+	}
+
+	/**
+	 * Grabs the qset with the id passed in from the database.
+	 */
+	public function get_specific_qset($qset_id)
+	{
+		return \DB::select()
+			->from('widget_qset')
+			->where('id', $qset_id)
+			->execute();
 	}
 
 	/**
