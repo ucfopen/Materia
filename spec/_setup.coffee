@@ -22,7 +22,7 @@
 
 module.exports =
 	webdriver: require 'webdriverio'
-	url: 'http://localhost:8080'
+	url: 'http://materia.dev:8080'
 	author:
 		username: '~author'
 		password: 'kogneato'
@@ -35,6 +35,13 @@ module.exports =
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+			'browserstack.user' : process.env.BROWSERSTACK_USER
+			'browserstack.key' : process.env.BROWSERSTACK_KEY
+			'browserstack.local': true
+		host: 'hub.browserstack.com'
+		port: 80
+		user: process.env.BROWSERSTACK_USER
+		key: process.env.BROWSERSTACK_KEY
 		logLevel: "silent" # verbose, silent, command, data, result
 	getClient: ->
 		client = module.exports.webdriver.remote(module.exports.webdriverOptions).init()
@@ -119,6 +126,7 @@ module.exports =
 		client
 			.pause 100
 			.waitFor '#container', 7000
+			.pause 3000
 			.frame('container') # switch into widget frame
 			.waitForPageVisible '.question.unanswered', 7000
 			.click '.question.unanswered'
