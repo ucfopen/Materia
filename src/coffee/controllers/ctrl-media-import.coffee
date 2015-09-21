@@ -6,7 +6,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	uploading = false
 	creator = null
 	_coms = null
-	$scope.fileType = ["jpeg","jpg","gif","png", "mp3", "wav"]
+	$scope.fileType = location.hash.substring(1).split(',')
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
 	
 	# this column data is passed to view to automate table header creation, 

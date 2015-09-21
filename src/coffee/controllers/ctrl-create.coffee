@@ -184,7 +184,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					when 'cancelSave' # the creator canceled a save request
 						onSaveCanceled msg.data[0] # msg
 					when 'showMediaImporter' # the creator wants to import media
-						showMediaImporter()
+						showMediaImporter(msg.data)
 					when 'setHeight' # the height of the creator has changed
 						setHeight msg.data[0]
 					when 'alert'
@@ -292,8 +292,8 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		$scope.$apply()
 
 	# Note this is psuedo public as it's exposed to flash
-	showMediaImporter = ->
-		showEmbedDialog '/media/import'
+	showMediaImporter = (types) ->
+		showEmbedDialog '/media/import#' + types.join(',')
 		$scope.$apply()
 		null # else Safari will give the .swf data that it can't handle
 
