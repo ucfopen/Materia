@@ -22,7 +22,7 @@
 
 module.exports =
 	webdriver: require 'webdriverio'
-	url: 'http://materia.dev:8080'
+	url: 'http://localhost:8080'
 	author:
 		username: '~author'
 		password: 'kogneato'
@@ -38,8 +38,8 @@ module.exports =
 			'browserstack.user' : process.env.BROWSERSTACK_USER
 			'browserstack.key' : process.env.BROWSERSTACK_KEY
 			'browserstack.local': true
-		host: 'hub.browserstack.com'
-		port: 80
+		host: if process.env.BROWSERSTACK_USER then 'hub.browserstack.com' else '127.0.0.1'
+		port: if process.env.BROWSERSTACK_USER then 80 else 4444
 		user: process.env.BROWSERSTACK_USER
 		key: process.env.BROWSERSTACK_KEY
 		logLevel: "silent" # verbose, silent, command, data, result
