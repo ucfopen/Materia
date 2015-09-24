@@ -35,6 +35,8 @@ module.exports =
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+			os: 'OS X'
+			os_version: 'Yosemite'
 			'browserstack.user' : process.env.BROWSERSTACK_USER
 			'browserstack.key' : process.env.BROWSERSTACK_KEY
 			'browserstack.local': true

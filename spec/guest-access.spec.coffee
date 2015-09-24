@@ -84,11 +84,10 @@ describe 'Guest Access Feature', ->
             .waitFor('.detail .logo')
             .getText '.detail .logo', (err, text) ->
                 expect(text).toContain('Login to preview this widget')
-            .end(done)
+            .call(done)
     , 55000
 
     it 'should let a student play a guest widget', (done) ->
-        client = setup.getClient()
         setup.loginAt client, setup.student, "#{setup.url}/users/login"
         client.url("#{setup.url}/play/#{instanceID}")
             .waitFor('.center', 3001)
