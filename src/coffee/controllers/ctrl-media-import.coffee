@@ -156,6 +156,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					render: (data, type, full, meta) ->
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							return '<img src="/media/'+data+'/thumbnail">'
+						else if full.type is 'mp3'
+							return '<img src="/media/nBboO/thumbnail">'
 						else
 							return ''
 					searchable: false,
@@ -164,7 +166,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				},
 				{# custom ui column containing a nested table of asset details
 					render: (data, type, full, meta) ->
-						console.log(full)
 						if full.type in $scope.fileType
 							sub_table=document.createElement "table"
 							sub_table.width="100%"
