@@ -7,7 +7,7 @@ return array(
 		'cookie_name' => 'fuelmid', // name of the session cookie for memcached based sessions
 		'servers' => array( // contains a list of available memcached servers
 			'default' => array(
-				'host'   => '127.0.0.1',
+				'host'   => '192.168.33.33',
 				'port'   => 11211,
 				'weight' => 100
 			)
