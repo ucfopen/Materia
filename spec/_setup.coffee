@@ -35,6 +35,15 @@ module.exports =
 	webdriverOptions:
 		desiredCapabilities:
 			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+			os: 'OS X'
+			os_version: 'Yosemite'
+			'browserstack.user' : process.env.BROWSERSTACK_USER
+			'browserstack.key' : process.env.BROWSERSTACK_KEY
+			'browserstack.local': true
+		host: if process.env.BROWSERSTACK_USER then 'hub.browserstack.com' else '127.0.0.1'
+		port: if process.env.BROWSERSTACK_USER then 80 else 4444
+		user: process.env.BROWSERSTACK_USER
+		key: process.env.BROWSERSTACK_KEY
 		logLevel: "silent" # verbose, silent, command, data, result
 	getClient: ->
 		client = module.exports.webdriver.remote(module.exports.webdriverOptions).init()
@@ -119,6 +128,7 @@ module.exports =
 		client
 			.pause 100
 			.waitFor '#container', 7000
+			.pause 3000
 			.frame('container') # switch into widget frame
 			.waitForPageVisible '.question.unanswered', 7000
 			.click '.question.unanswered'

@@ -12,9 +12,21 @@ describe 'When I create a widget', ->
     beforeEach ->
         unless client
             client = setup.getClient()
+            setup.loginAt client, setup.author, "#{setup.url}/users/login"
+
+    it 'should display instructions by default', (done) ->
+        client
+            .waitForPageVisible '.container', 5000
+            .getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
+            .waitForPageVisible '.directions', 5000
+            .getAttribute '.directions', 'class', (err, classes) ->
+                if classes.indexOf('unchosen') != -1
+                    client.getText '.directions.unchosen p', (err, text) -> expect(text).toBe('Choose a widget from the list on the left.')
+                if classes.indexOf('no-widgets') != -1
+                    client.getText '.directions.no-widgets p', (err, text) -> expect(text).toBe('Make a new widget in the widget catalog.')
+            .call(done)
 
     it 'it should update hash url', (done) ->
-        setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client.url("#{setup.url}/widgets")
             .getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
             .waitFor('.widget.enigma', 3000)
@@ -107,11 +119,8 @@ describe 'When I create a widget', ->
                         client
                             .pause 2000
                             .call done
-                            .end done
 
     it 'should show the settings dialog with default values', (done) ->
-        client = setup.getClient()
-        setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client
             .url "about:blank"
             .url "#{setup.url}/my-widgets#/" + publishedInstanceID
@@ -219,12 +228,9 @@ describe 'When I create a widget', ->
             .pause 100
             .waitForPageVisible '.export_which', 5000
             .call(done)
-            .end done
     , 55000
 
     it 'it should collaborate', (done) ->
-        client = setup.getClient()
-        setup.loginAt client, setup.author, "#{setup.url}/users/login"
         client
             .url("#{setup.url}/my-widgets#/"+instanceID)
             .pause(2000)
@@ -560,6 +566,5 @@ describe 'When I create a widget', ->
             .pause 1800
             .isVisible '.error-nowidget'
             .call(done)
-            .end(done)
     , 25000
 
