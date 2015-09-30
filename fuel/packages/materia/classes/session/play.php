@@ -38,6 +38,7 @@ class Session_Play
 	public $qset_id;
 	public $score;
 	public $user_id;
+	public $environment_data;
 
 	/**
 	 * NEEDS DOCUMENTAION
@@ -54,11 +55,16 @@ class Session_Play
 			$instance = Widget_Instance_Manager::get($inst_id);
 			$instance->get_qset($inst_id);
 
-			$this->created_at = time();
-			$this->user_id    = $instance->guest_access ? 0 : $user_id;
-			$this->inst_id    = $inst_id;
-			$this->is_preview = $is_preview;
-			$this->qset_id    = $instance->qset->id;
+			$this->created_at       = time();
+			$this->user_id          = $instance->guest_access ? 0 : $user_id;
+			$this->inst_id          = $inst_id;
+			$this->is_preview       = $is_preview;
+			$this->qset_id          = $instance->qset->id;
+			$this->environment_data = [
+				'input'      => \Input::all(),
+				'ip_address' => \Input::ip(),
+				'referrer'   => \Input::referrer(),
+			];
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
@@ -138,13 +144,14 @@ class Session_Play
 	{
 		list($insert_id, $num_affected) = \DB::insert('log_play')
 			->set([
-				'id'         => $hash,
-				'inst_id'    => $this->inst_id,
-				'created_at' => $this->created_at,
-				'user_id'    => $this->user_id,
-				'is_valid'   => '1',
-				'ip'         => $_SERVER['REMOTE_ADDR'],
-				'qset_id'    => $this->qset_id
+				'id'               => $hash,
+				'inst_id'          => $this->inst_id,
+				'created_at'       => $this->created_at,
+				'user_id'          => $this->user_id,
+				'is_valid'         => '1',
+				'ip'               => $_SERVER['REMOTE_ADDR'],
+				'qset_id'          => $this->qset_id,
+				'environment_data' => base64_encode(json_encode($this->environment_data))
 			])
 			->execute();
 
