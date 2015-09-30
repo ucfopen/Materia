@@ -164,7 +164,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				},
 				{# custom ui column containing a nested table of asset details
 					render: (data, type, full, meta) ->
-						console.log(full)
 						if full.type in $scope.fileType
 							sub_table=document.createElement "table"
 							sub_table.width="100%"
