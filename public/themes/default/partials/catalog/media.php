@@ -1,9 +1,23 @@
 <div ng-controller="mediaImportCtrl">
 	<div id="left-pane">
-		<div class="pane-header">
+		<div id="file-type-filter">
+			{{fileType.fileTypeText}}</br>
+			<label data-ng-repeat="choice in fileType.choices">
+				{{choice.text}}:
+				<input type="radio" name="response" ng-model="choice.isUserAnswer" data-ng-value="true" ng-click="setChosenType(choice.text)">
+			</label>
+			</br>Chosen Type: {{fileType.chosenType}}
+		</div>
+		<div class="pane-header" ng-hide="video">
+			Enter a YouTube embedded link
+		</div>
+		<form id="embed-link-form" ng-hide="video">
+			<div id="uploader"></div>
+		</form>
+		<div class="pane-header" ng-hide="imageAndAudioImport">
 			Upload a new file
-		</div>		
-		<form id="uploader-form">
+		</div>
+		<form id="uploader-form" ng-hide="imageAndAudioImport">
 			<div id="uploader"></div>
 		</form>
 	</div>

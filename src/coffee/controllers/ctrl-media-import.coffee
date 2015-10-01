@@ -6,7 +6,30 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	uploading = false
 	creator = null
 	_coms = null
-	$scope.fileType = location.hash.substring(1).split(',')
+	$scope.imageAndAudioImport = false
+	$scope.video = true
+	$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
+	$scope.permittedMediaTypes = "image"
+	$scope.fileType =
+		fileTypeText: 'What type of file would you like to upload?'
+		chosenType: 'Image'
+		choices: [
+			{
+				id: 1
+				text: 'Video'
+				isUserAnswer: 'false'
+			}
+			{
+				id: 2
+				text: 'Audio'
+				isUserAnswer: 'false'
+			}
+			{
+				id: 3
+				text: 'Image'
+				isUserAnswer: 'true'
+			}
+		]
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
 	
 	# this column data is passed to view to automate table header creation, 
@@ -20,6 +43,41 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		{ "data": "created_at" }
 	]
 
+	$scope.setChosenType = (text) ->
+		$scope.fileType.chosenType = text
+		console.log $scope.fileType.chosenType
+		$scope.changeImportMethod();
+
+	$scope.changeImportMethod = ->
+		switch $scope.fileType.chosenType
+			when 'Audio'
+				if $scope.imageAndAudioImport is true
+					$scope.video = true
+					$scope.imageAndAudioImport = false
+					$scope.extensions = ['mp3']
+					init();
+					console.log $scope.video, $scope.imageAndAudioImport
+			when 'Video'
+				if $scope.video is true
+					$scope.video = false
+					$scope.imageAndAudioImport = true
+					$scope.extensions = ['mp4']
+					init()
+					console.log $scope.video, $scope.imageAndAudioImport
+			else
+				if $scope.imageAndAudioImport is true
+					$scope.video = true
+					$scope.imageAndAudioImport = false
+					$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
+					init()
+					console.log $scope.video, $scope.imageAndAudioImport
+
+	# determine the types from the url hash string
+	loadMediaTypes = ->
+		mediaTypes = getHash()
+		if mediaTypes
+			$scope.permittedMediaTypes = mediaTypes.split(',')
+
 	# load up the media objects, optionally pass file id to skip labeling that file
 	loadAllMedia = (file_id) ->
 		# clear the table
@@ -28,10 +86,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		modResult = []
 
 		$('#question-table').dataTable().fnClearTable()
-		# determine the types from the url hash string
-		mediaTypes = getHash()
-		if mediaTypes
-			mediaTypes = mediaTypes.split(',')
+		loadMediaTypes()
 
 		# load and/or select file for labelling
 		_coms.send 'assets_get', [], (result) ->
@@ -40,9 +95,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
 				for res in result
-					if res.type in $scope.fileType
+					if res.type in $scope.extensions
 						# file uploaded - if this result's id matches, stop processing and select this asset now
-						if file_id? and res.id == file_id and res.type in $scope.fileType
+						if file_id? and res.id == file_id and res.type in $scope.extensions
 								$window.parent.Materia.Creator.onMediaImportComplete([res])
 
 						# make entire object (barring id) an attr to use as column in datatables
@@ -58,6 +113,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 	getHash = ->
 		$window.location.hash.substring(1)
+
 
 	# init
 	init = ->
@@ -75,7 +131,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# Specify what files to browse for
 			filters : [
 				title : "Media files"
-				extensions : $scope.fileType.join()
+				extensions : $scope.extensions.join()
 			]
 
 			init:
@@ -166,7 +222,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				},
 				{# custom ui column containing a nested table of asset details
 					render: (data, type, full, meta) ->
-						if full.type in $scope.fileType
+						if full.type in $scope.extensions
 							sub_table=document.createElement "table"
 							sub_table.width="100%"
 							sub_table.className="sub-table"
