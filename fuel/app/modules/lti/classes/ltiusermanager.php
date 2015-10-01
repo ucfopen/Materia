@@ -11,6 +11,10 @@ class LtiUserManager
 	 */
 	public static function authenticate($launch)
 	{
+		// Force clear the session. Otherwise we may encounter problems with
+		// stale LTI data being used if two students use the same computer
+		\Session::destroy();
+
 		// =================== LOAD COFIGURATION ============================
 		$local_id_field     = \Config::get("lti::lti.consumers.{$launch->consumer}.local_identifier", 'username');
 		$auth_driver        = \Config::get("lti::lti.consumers.{$launch->consumer}.auth_driver", '');
