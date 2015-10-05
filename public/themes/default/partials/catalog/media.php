@@ -3,21 +3,20 @@
 		<div id="file-type-filter">
 			{{fileType.fileTypeText}}</br>
 			<label data-ng-repeat="choice in fileType.choices">
-				{{choice.text}}:
-				<input type="radio" name="response" ng-model="choice.isUserAnswer" data-ng-value="true" ng-click="setChosenType(choice.text)">
+				<label ng-show="choice.show">{{choice.text}}:</label>
+				<input type="radio" name="response" ng-show="choice.show" ng-model="choice.isUserAnswer" data-ng-value="choice.isUserAnswer" ng-click="setChosenType(choice.text)">
 			</label>
-			</br>Chosen Type: {{fileType.chosenType}}
 		</div>
-		<div class="pane-header" ng-hide="video">
+		<div class="pane-header" ng-show="video">
 			Enter a YouTube embedded link
 		</div>
-		<form id="embed-link-form" ng-hide="video">
-			<div id="uploader"></div>
+		<form id="embed-link-form" ng-show="video">
+			<div id="video-uploader"></div>
 		</form>
-		<div class="pane-header" ng-hide="imageAndAudioImport">
+		<div class="pane-header" ng-show="imageAndAudioImport">
 			Upload a new file
 		</div>
-		<form id="uploader-form" ng-hide="imageAndAudioImport">
+		<form id="uploader-form" ng-show="imageAndAudioImport">
 			<div id="uploader"></div>
 		</form>
 	</div>

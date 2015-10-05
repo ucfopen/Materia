@@ -69,7 +69,7 @@ Namespace('Materia').CreatorCore = do ->
 	getMediaUrl = (mediaId) ->
 		_baseurl+'media/'+mediaId
 
-	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
+	showMediaImporter = (types = ['Image']) ->
 		_sendPostMessage 'showMediaImporter', types
 
 	save = (title, qset, version = '1') ->

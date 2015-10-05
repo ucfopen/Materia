@@ -6,8 +6,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	uploading = false
 	creator = null
 	_coms = null
-	$scope.imageAndAudioImport = false
-	$scope.video = true
+	$scope.imageAndAudioImport = true
+	$scope.video = false
 	$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
 	$scope.permittedMediaTypes = "image"
 	$scope.fileType =
@@ -16,17 +16,20 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		choices: [
 			{
 				id: 1
-				text: 'Video'
+				text: 'Audio'
+				show: true
 				isUserAnswer: 'false'
 			}
 			{
 				id: 2
-				text: 'Audio'
+				text: 'Video'
+				show: true
 				isUserAnswer: 'false'
 			}
 			{
 				id: 3
 				text: 'Image'
+				show: true
 				isUserAnswer: 'true'
 			}
 		]
@@ -45,38 +48,36 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 	$scope.setChosenType = (text) ->
 		$scope.fileType.chosenType = text
-		console.log $scope.fileType.chosenType
 		$scope.changeImportMethod();
 
 	$scope.changeImportMethod = ->
+		$scope.video = false
+		$scope.imageAndAudioImport = false
 		switch $scope.fileType.chosenType
 			when 'Audio'
-				if $scope.imageAndAudioImport is true
-					$scope.video = true
-					$scope.imageAndAudioImport = false
-					$scope.extensions = ['mp3']
-					init();
-					console.log $scope.video, $scope.imageAndAudioImport
+				$scope.imageAndAudioImport = true
+				$scope.extensions = ['mp3']
+				loadAllMedia()
 			when 'Video'
-				if $scope.video is true
-					$scope.video = false
-					$scope.imageAndAudioImport = true
-					$scope.extensions = ['mp4']
-					init()
-					console.log $scope.video, $scope.imageAndAudioImport
+				$scope.video = true
+				$scope.extensions = ['mp4']
+				loadAllMedia()
 			else
-				if $scope.imageAndAudioImport is true
-					$scope.video = true
-					$scope.imageAndAudioImport = false
-					$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
-					init()
-					console.log $scope.video, $scope.imageAndAudioImport
+				$scope.imageAndAudioImport = true
+				$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
+				loadAllMedia()
 
 	# determine the types from the url hash string
 	loadMediaTypes = ->
 		mediaTypes = getHash()
 		if mediaTypes
 			$scope.permittedMediaTypes = mediaTypes.split(',')
+		if $scope.permittedMediaTypes.indexOf("Audio") == -1
+			$scope.fileType.choices[0].show = false
+		if $scope.permittedMediaTypes.indexOf("Video") == -1
+			$scope.fileType.choices[1].show = false
+		if $scope.permittedMediaTypes.indexOf("Image") == -1
+			$scope.fileType.choices[2].show = false
 
 	# load up the media objects, optionally pass file id to skip labeling that file
 	loadAllMedia = (file_id) ->
