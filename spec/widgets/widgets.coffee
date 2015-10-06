@@ -12,6 +12,8 @@ module.exports = (widget, callback) ->
 	console.log "Testing " + widget
 	client = webdriverjs.remote({ desiredCapabilities: {browserName: testBrowser}, logLevel: "silent" })
 	client.init()
+	client.windowHandlePosition 'current', { x: 0, y: 0 }
+	client.windowHandleSize 'current', { width: 1200, height: 650 }
 
 	# client
 	# 	.url('http://localhost:8080/login')
