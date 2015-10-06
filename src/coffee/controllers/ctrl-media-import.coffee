@@ -57,17 +57,14 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			when 'Audio'
 				$scope.imageAndAudioImport = true
 				$scope.extensions = ['mp3']
-				loadAllMedia()
 				init(false)
 			when 'Video'
 				$scope.video = true
 				$scope.extensions = ['mp4']
-				loadAllMedia()
 				init(false)
 			else
 				$scope.imageAndAudioImport = true
 				$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
-				loadAllMedia()
 				init(false)
 
 	# determine the types from the url hash string
