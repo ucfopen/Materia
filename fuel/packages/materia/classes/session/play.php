@@ -39,6 +39,7 @@ class Session_Play
 	public $score;
 	public $user_id;
 	public $environment_data;
+	public $auth;
 
 	/**
 	 * NEEDS DOCUMENTAION
@@ -65,6 +66,7 @@ class Session_Play
 				'ip_address' => \Input::ip(),
 				'referrer'   => \Input::referrer(),
 			];
+			$this-> auth            = array_key_exists('lti_message_type', $this->environment_data['input']) ? 'lti' : '';
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
@@ -151,7 +153,8 @@ class Session_Play
 				'is_valid'         => '1',
 				'ip'               => $_SERVER['REMOTE_ADDR'],
 				'qset_id'          => $this->qset_id,
-				'environment_data' => base64_encode(json_encode($this->environment_data))
+				'environment_data' => base64_encode(json_encode($this->environment_data)),
+				'auth'             => $this->auth
 			])
 			->execute();
 
