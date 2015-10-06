@@ -6,6 +6,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	uploading = false
 	creator = null
 	_coms = null
+	$scope.fileType = location.hash.substring(1).split(',')
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
 
 	# this column data is passed to view to automate table header creation,
@@ -24,6 +25,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# clear the table
 		selectedAssets = []
 		data = []
+		modResult = []
 
 		$('#question-table').dataTable().fnClearTable()
 		# determine the types from the url hash string
@@ -38,19 +40,21 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
 				for res in result
+					if res.type in $scope.fileType
+						# file uploaded - if this result's id matches, stop processing and select this asset now
+						if file_id? and res.id == file_id and res.type in $scope.fileType
+								$window.parent.Materia.Creator.onMediaImportComplete([res])
 
-					# file uploaded - if this result's id matches, stop processing and select this asset now
-					if file_id? and res.id == file_id
-							$window.parent.Materia.Creator.onMediaImportComplete([res])
+						# make entire object (barring id) an attr to use as column in datatables
+						temp = {}
+						for own attr of res
+							if attr!="id"
+								temp[attr]=res[attr]
+						res['wholeObj'] = temp
 
-					# make entire object (barring id) an attr to use as column in datatables
-					temp = {}
-					for own attr of res
-						if attr!="id"
-							temp[attr]=res[attr]
-					res['wholeObj'] = temp
+						modResult.push(res)
 
-				$('#question-table').dataTable().fnAddData(result)
+				$('#question-table').dataTable().fnAddData(modResult)
 
 	getHash = ->
 		$window.location.hash.substring(1)
@@ -71,7 +75,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# Specify what files to browse for
 			filters : [
 				title : "Media files"
-				extensions : "jpeg,jpg,gif,png,flv,mp3"
+				extensions : $scope.fileType.join()
 			]
 
 			init:
@@ -150,36 +154,42 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			columnDefs: [
 				{# thumbnail column
 					render: (data, type, full, meta) ->
-						return '<img src="/media/'+data+'/thumbnail">'
+						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
+							return '<img src="/media/'+data+'/thumbnail">'
+						else
+							return ''
 					searchable: false,
 					sortable: true,
 					targets: 0
 				},
 				{# custom ui column containing a nested table of asset details
 					render: (data, type, full, meta) ->
-						sub_table=document.createElement "table"
-						sub_table.width="100%"
-						sub_table.className="sub-table"
+						if full.type in $scope.fileType
+							sub_table = document.createElement "table"
+							sub_table.width = "100%"
+							sub_table.className = "sub-table"
 
-						row = sub_table.insertRow()
-						cell = row.insertCell()
+							row = sub_table.insertRow()
+							cell = row.insertCell()
 
-						temp = document.createElement "div"
-						temp.className = "subtable-title"
-						temp.innerHTML = data.title.split('.')[0]
-						cell.appendChild temp
+							temp = document.createElement "div"
+							temp.className = "subtable-title"
+							temp.innerHTML = data.title.split('.')[0]
+							cell.appendChild temp
 
-						temp=document.createElement "div"
-						temp.className = "subtable-type subtable-gray"
-						temp.innerHTML = data.type
-						cell.appendChild temp
+							temp=document.createElement "div"
+							temp.className = "subtable-type subtable-gray"
+							temp.innerHTML = data.type
+							cell.appendChild temp
 
-						cell = row.insertCell()
-						cell.className = "subtable-date subtable-gray"
-						d = new Date(data.created_at * 1000)
-						cell.innerHTML = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+							cell = row.insertCell()
+							cell.className = "subtable-date subtable-gray"
+							d = new Date(data.created_at * 1000)
+							cell.innerHTML = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
 
-						return sub_table.outerHTML
+							return sub_table.outerHTML
+						else
+							return ''
 					searchable: false,
 					sortable: false,
 					targets: 1

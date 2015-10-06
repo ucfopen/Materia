@@ -243,25 +243,25 @@ $dropzone_margin: 18px;
 
 //bar at the top of catalog (right) pane that houses datatables sort listeners
 #sort-bar{
+	background-color: transparent;
 	height: $sortbar_height;
-	width: $sortbar_width;
 	margin-left: $sortbar_marginleft;
 	margin-right: $sortbar_marginright;
-	background-color: transparent;
-	display: flex;
-	z-index: 1;
-	top: 50px;
 	position: absolute;
+	top: 50px;
+	width: $sortbar_width;
+	z-index: 1;
 
 	#sort-cols{
-		width: 100%;
-		display: flex;
+		padding: 1%;
+		width: 99%;
 
 		.col-cont{
-			flex-grow: 1;
-			padding: 1%;
+			display: block;
+			float: left;
+			margin-right: 5%;
 			text-decoration: underline;
-			width: 45px;
+			width: 25%;
 
 			.dt-sorting{
 				cursor: pointer;
@@ -276,9 +276,9 @@ $dropzone_margin: 18px;
 
 	//sort-arrows depicting orderings
 	.arrows{
-		display: inline-block;
-		width: 10px;
-		margin: 0 0 3% 7%;
+		display: block;
+		float: right;
+		width: 5%;
 	}
 
 	.sort-asc{
