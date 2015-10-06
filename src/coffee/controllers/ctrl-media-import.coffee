@@ -58,25 +58,28 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				$scope.imageAndAudioImport = true
 				$scope.extensions = ['mp3']
 				loadAllMedia()
+				init(false)
 			when 'Video'
 				$scope.video = true
 				$scope.extensions = ['mp4']
 				loadAllMedia()
+				init(false)
 			else
 				$scope.imageAndAudioImport = true
 				$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
 				loadAllMedia()
+				init(false)
 
 	# determine the types from the url hash string
 	loadMediaTypes = ->
 		mediaTypes = getHash()
 		if mediaTypes
 			$scope.permittedMediaTypes = mediaTypes.split(',')
-		if $scope.permittedMediaTypes.indexOf("Audio") == -1
+		if $scope.permittedMediaTypes.indexOf("Audio") is -1
 			$scope.fileType.choices[0].show = false
-		if $scope.permittedMediaTypes.indexOf("Video") == -1
+		if $scope.permittedMediaTypes.indexOf("Video") is -1
 			$scope.fileType.choices[1].show = false
-		if $scope.permittedMediaTypes.indexOf("Image") == -1
+		if $scope.permittedMediaTypes.indexOf("Image") is -1
 			$scope.fileType.choices[2].show = false
 
 	# load up the media objects, optionally pass file id to skip labeling that file
@@ -117,7 +120,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 
 	# init
-	init = ->
+	init = (firstTime = true) ->
 		upl = $("#uploader")
 		upl.pluploadQueue
 			# General settings
@@ -191,84 +194,87 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		$($window).resize ->
 			dt.fnAdjustColumnSizing()
 
-		# setup the table
-		dt = $('#question-table').dataTable {
-			paginate: false # don't paginate
-			lengthChange: true # resize the fields
-			autoWidth: false #
-			processing: true # show processing dialog
-			scrollY: "inherit"  # setup to be a scrollable table
-			language:
-				search: '' # hide search label
-				infoFiltered: ''
-				info: ''
-				infoEmpty: ''
-			# columns to display
-			columns: $scope.dt_cols #see global vars up top
-			# special sorting options
-			sorting: [[5, "desc"]] #sort by date by default
-			# item renderers
-			columnDefs: [
-				{# thumbnail column
-					render: (data, type, full, meta) ->
-						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
-							return '<img src="/media/'+data+'/thumbnail">'
-						else if full.type is 'mp3'
-							return '<img src="/media/nBboO/thumbnail">'
-						else
-							return ''
-					searchable: false,
-					sortable: true,
-					targets: 0
-				},
-				{# custom ui column containing a nested table of asset details
-					render: (data, type, full, meta) ->
-						if full.type in $scope.extensions
-							sub_table=document.createElement "table"
-							sub_table.width="100%"
-							sub_table.className="sub-table"
+		if firstTime is true
+			# setup the table
+			dt = $('#question-table').dataTable {
+				paginate: false # don't paginate
+				lengthChange: true # resize the fields
+				autoWidth: false #
+				processing: true # show processing dialog
+				scrollY: "inherit"  # setup to be a scrollable table
+				language:
+					search: '' # hide search label
+					infoFiltered: ''
+					info: ''
+					infoEmpty: ''
+				# columns to display
+				columns: $scope.dt_cols #see global vars up top
+				# special sorting options
+				sorting: [[5, "desc"]] #sort by date by default
+				# item renderers
+				columnDefs: [
+					{# thumbnail column
+						render: (data, type, full, meta) ->
+							if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
+								return '<img src="/media/'+data+'/thumbnail">'
+							else if full.type is 'mp3'
+								return '<img src="/media/nBboO/thumbnail">'
+							else
+								return '<img src="/media/XsUfw/thumbnail">'
+						searchable: false,
+						sortable: true,
+						targets: 0
+					},
+					{# custom ui column containing a nested table of asset details
+						render: (data, type, full, meta) ->
+							if full.type in $scope.extensions
+								sub_table=document.createElement "table"
+								sub_table.width="100%"
+								sub_table.className="sub-table"
 
-							row = sub_table.insertRow()
-							cell = row.insertCell()
+								row = sub_table.insertRow()
+								cell = row.insertCell()
 
-							temp = document.createElement "div"
-							temp.className = "subtable-title"
-							temp.innerHTML = data.title.split('.')[0]
-							cell.appendChild temp
+								temp = document.createElement "div"
+								temp.className = "subtable-title"
+								temp.innerHTML = data.title.split('.')[0]
+								cell.appendChild temp
 
-							temp=document.createElement "div"
-							temp.className = "subtable-type subtable-gray"
-							temp.innerHTML = data.type
-							cell.appendChild temp
+								temp=document.createElement "div"
+								temp.className = "subtable-type subtable-gray"
+								temp.innerHTML = data.type
+								cell.appendChild temp
 
-							cell = row.insertCell()
-							cell.className = "subtable-date subtable-gray"
-							d = new Date(data.created_at * 1000)
-							cell.innerHTML = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
+								cell = row.insertCell()
+								cell.className = "subtable-date subtable-gray"
+								d = new Date(data.created_at * 1000)
+								cell.innerHTML = (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()
 
-							return sub_table.outerHTML
-						else
-							return ''
-					searchable: false,
-					sortable: false,
-					targets: 1
-				},
-				{# remaining columns are searchable but hidden
-					visible: false,
-					sortable: true,
-					targets: [2,3,4,5]
-				}
-			]
-		}
+								return sub_table.outerHTML
+							else
+								return ''
+						searchable: false,
+						sortable: false,
+						targets: 1
+					},
+					{# remaining columns are searchable but hidden
+						visible: false,
+						sortable: true,
+						targets: [2,3,4,5]
+					}
+				]
+			}
 
-		# add sort listeners to custom sort elements in sort-bar on view
-		dt.fnSortListener $("#sort-#{col}"), (i+2) for col,i in $scope.cols
+			# add sort listeners to custom sort elements in sort-bar on view
+			dt.fnSortListener $("#sort-#{col}"), (i+2) for col,i in $scope.cols
 
-		# add id for custom styling
-		$('#question-table_filter input').attr('id', 'search-box')
+			# add id for custom styling
+			$('#question-table_filter input').attr('id', 'search-box')
 
-		_coms = Materia.Coms.Json
-		_coms.setGateway(API_LINK)
-		loadAllMedia()
+			_coms = Materia.Coms.Json
+			_coms.setGateway(API_LINK)
+			loadAllMedia()
+
 	
 	$timeout init
+	
