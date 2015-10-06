@@ -53,7 +53,7 @@ class Controller_Error extends \Controller
 	public function action_guest_mode()
 	{
 		$this->_content_partial = 'partials/error_lti_guest_mode';
-		$this->_message = 'Unknown Assignment';
+		$this->_message = 'Assignment has guest mode enabled';
 	}
 
 	public function action_index(){}
