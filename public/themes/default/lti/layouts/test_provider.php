@@ -55,6 +55,41 @@
 				event.returnValue = false;
 				return false;
 			}
+
+			function toggleLegacy()
+			{
+				var url = $('#assignment-url').val();
+				var isLegacy = url.indexOf('assignment') > -1;
+
+				if(isLegacy) // http://localhost:8080/lti/assignment?widget=nQXe5
+				{
+					var index = url.indexOf('/lti/');
+					var instId = url.substr(index + 23, 7);
+					$('#assignment-url').val(url.substring(0, index) + '/embed/' + instId);
+				}
+				else // http://localhost:8080/embed/nQXe5/alt1
+				{
+					var index = url.indexOf('/embed/');
+					var instId = url.substr(index + 7, 5);
+
+					$('#assignment-url').val(url.substring(0, index) + '/lti/assignment?widget=' + instId);
+				}
+			}
+
+			function toggleEmbed()
+			{
+				var url = $('#assignment-url').val();
+				var isEmbedded = url.indexOf('/embed/') > -1;
+
+				if(isEmbedded) // http://localhost:8080/lti/assignment?widget=nQXe5
+				{
+					$('#assignment-url').val(url.replace('/embed/', '/play/'));
+				}
+				else // http://localhost:8080/embed/nQXe5/alt1
+				{
+					$('#assignment-url').val(url.replace('/play/', '/embed/'));
+				}
+			}
 		</script>
 	</head>
 	<body>
@@ -90,6 +125,8 @@
 					LTI Assignment URL:
 				</span>
 				<input id="assignment-url" style="width:400px;" type="text"></input>
+				<button onclick="toggleLegacy()">Toggle Legacy URL</button>
+				<button onclick="toggleEmbed()">Toggle Embed URL</button>
 			</div>
 
 			<div>
@@ -144,13 +181,6 @@
 				<?= \Form::hidden($name, $value) ?>
 				<? endforeach ?>
 				<input type="submit" value="Test Validation">
-			</form>
-
-			<form method="POST" target="embed_iframe" action="<?= $unknown_role_endpoint ?>" >
-				<? foreach ($unknown_role_params as $name => $value) : ?>
-				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
-				<input type="submit" value="Unknown Role Error">
 			</form>
 
 			<form method="POST" target="embed_iframe" action="<?= $unknown_assignment_endpoint ?>" >
