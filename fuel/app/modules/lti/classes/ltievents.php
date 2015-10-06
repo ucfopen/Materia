@@ -26,6 +26,7 @@ class LtiEvents
 			if ( ! \Lti\Oauth::validate_post()) $redirect = "/lti/error?message=invalid_oauth_request";
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id) $redirect = '/lti/error/unknown_assignment';
+			elseif (\Materia\Widget_Instance_Manager::get($inst_id)->guest_access) $redirect = '/lti/error/guest_mode';
 
 			if ($redirect) return ['redirect' => $redirect];
 
