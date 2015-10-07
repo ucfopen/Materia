@@ -111,7 +111,7 @@
 								<h3>Access</h3>
 								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-disabled="studentMade"/>
 								<label ng-click="toggleGuestAccess()" ng-class="{disabled: studentMade}">Enable Guest Mode</label>
-								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. As such, guest widgets cannot be used as an embedded assignment in a course.</p>
+								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
 								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is always on for widgets created by students.</b></p>
 							</li>
 						</ul>
