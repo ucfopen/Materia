@@ -8,12 +8,12 @@
 		<a id="refresh" href="javascript:;" ng-click="refreshListing()">Refresh listing</a>
 		<div id="list-container">
 			<ul>
-				<li ng-repeat="widget in widgets | filter:query" ng-class="{ draft: widget.draft, selected: widget.selected }" ng-click="highlight(widget)">
+				<li ng-repeat="widget in widgets | filter:query" ng-class="{ draft: widget.draft, selected: widget.selected, guest: widget.guest_access }" ng-click="highlight(widget)">
 					<div class="widget-info">
 						<img class="widget-icon" ng-src="{{ widget.img }}">
 						<h2 class="searchable">{{ widget.name }}</h2>
 						<h3 class="searchable">{{ widget.widget.name }}</h3>
-						<h3 class="searchable" ng-show="widget.guest_access">Guest widgets cannot be embedded in courses.</h3>
+						<h3 class="guest-notice" ng-show="widget.guest_access">Guest widgets cannot be embedded in courses.</h3>
 						<span ng-show="widget.is_draft" class="draft-label">Draft</span>
 						<span ng-show="widget.guest_access && !widget.is_draft" class="draft-label">Guest</span>
 					</div>
