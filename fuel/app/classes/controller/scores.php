@@ -57,10 +57,10 @@ class Controller_Scores extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
 
-		$lti_token = \Input::get('ltitoken', false);
-		if ($lti_token)
+		$token = \Input::get('token', false);
+		if ($token)
 		{
-			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
 
 		$this->theme->get_template()
@@ -83,10 +83,10 @@ class Controller_Scores extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
 
-		$lti_token = \Input::get('ltitoken', false);
-		if ($lti_token)
+		$token = \Input::get('token', false);
+		if ($token)
 		{
-			Js::push_inline('var __LTI_TOKEN = "'.$lti_token.'";');
+			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
 
 		$this->_header = 'partials/header_empty';
