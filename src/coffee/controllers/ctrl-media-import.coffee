@@ -8,8 +8,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_coms = null
 	$scope.fileType = location.hash.substring(1).split(',')
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
-	
-	# this column data is passed to view to automate table header creation, 
+
+	# this column data is passed to view to automate table header creation,
 	# without which datatables will fail to function
 	$scope.dt_cols = [#columns expected from result, index 0-5
 		{ "data": "id"},
@@ -71,7 +71,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			unique_names : false
 			rename : true
 			multiple_queues: false
-			
+
 			# Specify what files to browse for
 			filters : [
 				title : "Media files"
@@ -126,7 +126,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			el = $(this).next() #get neighbor
 			if el.hasClass('sort-asc') || el.hasClass('sort-desc')
 				el.toggleClass "sort-asc sort-desc"
-			else 
+			else
 				el.addClass "sort-asc"
 				el.show()
 
@@ -167,9 +167,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				{# custom ui column containing a nested table of asset details
 					render: (data, type, full, meta) ->
 						if full.type in $scope.fileType
-							sub_table=document.createElement "table"
-							sub_table.width="100%"
-							sub_table.className="sub-table"
+							sub_table = document.createElement "table"
+							sub_table.width = "100%"
+							sub_table.className = "sub-table"
 
 							row = sub_table.insertRow()
 							cell = row.insertCell()
@@ -213,5 +213,5 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		_coms = Materia.Coms.Json
 		_coms.setGateway(API_LINK)
 		loadAllMedia()
-	
+
 	$timeout init

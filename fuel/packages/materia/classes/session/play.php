@@ -35,8 +35,11 @@ class Session_Play
 	public $is_preview;
 	public $is_valid;
 	public $percent;
+	public $qset_id;
 	public $score;
 	public $user_id;
+	public $environment_data;
+	public $auth;
 
 	/**
 	 * NEEDS DOCUMENTAION
@@ -50,11 +53,20 @@ class Session_Play
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
-			$instance         = Widget_Instance_Manager::get($inst_id);
-			$this->created_at = time();
-			$this->user_id    = $instance->guest_access ? 0 : $user_id;
-			$this->inst_id    = $inst_id;
-			$this->is_preview = $is_preview;
+			$instance = Widget_Instance_Manager::get($inst_id);
+			$instance->get_qset($inst_id);
+
+			$this->created_at       = time();
+			$this->user_id          = $instance->guest_access ? 0 : $user_id;
+			$this->inst_id          = $inst_id;
+			$this->is_preview       = $is_preview;
+			$this->qset_id          = $instance->qset->id;
+			$this->environment_data = [
+				'input'      => \Input::all(),
+				'ip_address' => \Input::ip(),
+				'referrer'   => \Input::referrer(),
+			];
+			$this-> auth            = array_key_exists('lti_message_type', $this->environment_data['input']) ? 'lti' : '';
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
@@ -80,7 +92,7 @@ class Session_Play
 			static::set_user_is_playing();
 			$logger = new Session_Logger();
 			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
-			\Event::trigger('play_start', $this->id);
+			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id]);
 			return $this->id;
 		}
 		return false;
@@ -134,12 +146,15 @@ class Session_Play
 	{
 		list($insert_id, $num_affected) = \DB::insert('log_play')
 			->set([
-				'id'         => $hash,
-				'inst_id'    => $this->inst_id,
-				'created_at' => $this->created_at,
-				'user_id'    => $this->user_id,
-				'is_valid'   => '1',
-				'ip'         => $_SERVER['REMOTE_ADDR']
+				'id'               => $hash,
+				'inst_id'          => $this->inst_id,
+				'created_at'       => $this->created_at,
+				'user_id'          => $this->user_id,
+				'is_valid'         => '1',
+				'ip'               => $_SERVER['REMOTE_ADDR'],
+				'qset_id'          => $this->qset_id,
+				'environment_data' => base64_encode(json_encode($this->environment_data)),
+				'auth'             => $this->auth
 			])
 			->execute();
 
@@ -230,6 +245,7 @@ class Session_Play
 				['s.is_complete', 'done'],
 				['s.percent', 'perc'],
 				['s.elapsed', 'elapsed'],
+				['s.qset_id', 'qset_id'],
 				'user_id',
 				['u.first', 'first'],
 				['u.last', 'last'],
