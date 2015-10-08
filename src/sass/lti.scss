@@ -326,6 +326,16 @@ header > h1
 	opacity: .5;
 }
 
+#list-container .guest .widget-info {
+	opacity: 0.5;
+}
+
+#list-container li h3.guest-notice {
+	color: black;
+	font-weight: bold;
+	font-size: 10pt;
+}
+
 .draft-label
 {
 	-webkit-border-radius: 2px;

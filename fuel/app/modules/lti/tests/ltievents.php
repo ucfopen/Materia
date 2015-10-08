@@ -60,6 +60,22 @@ class Test_LtiEvents extends \Test_Basetest
 		$this->assertEquals('/lti/error/unknown_assignment', $result['redirect']);
 	}
 
+	public function test_on_before_play_start_event_throws_guest_mode_exception()
+	{
+		\Config::set("lti::lti.consumers.materia.creates_users", true);
+		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		list($author, $widget_instance, $inst_id) = $this->create_instance();
+		$widget_instance->guest_access = true;
+		$widget_instance->db_store();
+		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
+		$this->create_test_oauth_launch([], \Uri::current(), $user);
+
+		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
+		$this->assertCount(1, $result);
+		$this->assertArrayHasKey('redirect', $result);
+		$this->assertEquals('/lti/error/guest_mode', $result['redirect']);
+	}
+
 	public function test_on_before_play_start_event_saves_lti_association_for_first_launch()
 	{
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
