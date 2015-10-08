@@ -9,7 +9,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	$scope.imageAndAudioImport = true
 	$scope.video = false
 	$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
-	$scope.permittedMediaTypes = "image"
+	$scope.permittedMediaTypes = "Image"
 	$scope.fileType =
 		fileTypeText: 'What type of file would you like to upload?'
 		chosenType: 'Image'
@@ -57,14 +57,17 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			when 'Audio'
 				$scope.imageAndAudioImport = true
 				$scope.extensions = ['mp3']
+				loadAllMedia()
 				init(false)
 			when 'Video'
 				$scope.video = true
 				$scope.extensions = ['mp4']
+				loadAllMedia()
 				init(false)
 			else
 				$scope.imageAndAudioImport = true
 				$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
+				loadAllMedia()
 				init(false)
 
 	# determine the types from the url hash string
@@ -146,17 +149,23 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						loadAllMedia()
 				# automatic upload on drop into queue
 				FilesAdded: (up) ->
-						up.start()
-						# render import form unclickable during upload
-						$('#import-form').css {
-							"pointer-events": "none"
-							opacity: "0.2"
-						}
+					up.start()
+					# render import form unclickable during upload
+					$('#import-form').css {
+						"pointer-events": "none"
+						opacity: "0.2"
+					}
 				# fired when the above is successful
 				FileUploaded: (up, file, response) ->
 					res = $.parseJSON response.response #parse response string
 					# reload media to select newly uploaded file
 					loadAllMedia res.id
+					# returns clickability to import form after pload complete
+					$('#import-form').css {
+						"pointer-events": "auto"
+						opacity: "1"
+					}
+					$scope.changeImportMethod()
 				Error: (up, args) ->
 					# Called when a error has occured
 
@@ -165,33 +174,34 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			.next().remove() # removes the adjacent "Start upload" button
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
-		# click listener for each row
-		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
-			#get index of row in datatable and call onMediaImportComplete to exit
-			$(".row_selected").toggleClass('row_selected')
-			index = $('#question-table').dataTable().fnGetPosition(this)
-			selectedAssets = [data[index]]
-			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
-
-		# todo: add cancel button
-		$('#close-button').click (e) ->
-			e.stopPropagation()
-			$window.parent.Materia.Creator.onMediaImportComplete(null)
-
-		# sorting buttons found in sort bar
-		$('.dt-sorting').click (e) ->
-			el = $(this).next() #get neighbor
-			if el.hasClass('sort-asc') || el.hasClass('sort-desc')
-				el.toggleClass "sort-asc sort-desc"
-			else 
-				el.addClass "sort-asc"
-				el.show()
-
-		# on resize, re-fit the table size
-		$($window).resize ->
-			dt.fnAdjustColumnSizing()
-
 		if firstTime is true
+			# click listener for each row
+			$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
+				#get index of row in datatable and call onMediaImportComplete to exit
+				$(".row_selected").toggleClass('row_selected')
+				index = $('#question-table').dataTable().fnGetPosition(this)
+				selectedAssets = [data[index]]
+				$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
+
+			# todo: add cancel button
+			$('#close-button').click (e) ->
+				e.stopPropagation()
+				$window.parent.Materia.Creator.onMediaImportComplete(null)
+
+		
+			# sorting buttons found in sort bar
+			$('.dt-sorting').click (e) ->
+				el = $(this).next() #get neighbor
+				if el.hasClass('sort-asc') || el.hasClass('sort-desc')
+					el.toggleClass "sort-asc sort-desc"
+				else 
+					el.addClass "sort-asc"
+					el.show()
+
+			# on resize, re-fit the table size
+			$($window).resize ->
+				dt.fnAdjustColumnSizing()
+
 			# setup the table
 			dt = $('#question-table').dataTable {
 				paginate: false # don't paginate
@@ -215,9 +225,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 								return '<img src="/media/'+data+'/thumbnail">'
 							else if full.type is 'mp3'
-								return '<img src="/media/nBboO/thumbnail">'
+								return '<img src="/assets/img/audio.png">'
 							else
-								return '<img src="/media/XsUfw/thumbnail">'
+								return '<img src="/assets/img/video.jpg">'
 						searchable: false,
 						sortable: true,
 						targets: 0
