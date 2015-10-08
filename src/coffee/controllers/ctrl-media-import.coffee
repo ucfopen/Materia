@@ -157,7 +157,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							return '<img src="/media/'+data+'/thumbnail">'
 						else if full.type is 'mp3'
-							return '<img src="/media/nBboO/thumbnail">'
+							return '<img src="/assets/img/audio.png">'
 						else
 							return ''
 					searchable: false,
