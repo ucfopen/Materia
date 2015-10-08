@@ -27,6 +27,7 @@ return [
 	'play/(:alnum)(/.*)?'                   => 'widgets/play_widget/$1',
 	'preview/(:alnum)(/.*)?'                => 'widgets/preview_widget/$1',
 	'embed/(:alnum)(/.*)?'                  => 'widgets/play_embedded/$1',
+	'lti/assignment?'                       => 'widgets/play_embedded/$1', // legacy LTI url
 
 	'data/export/(:alnum)'                  => 'data/export/$1',
 
