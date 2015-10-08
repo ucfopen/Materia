@@ -13,7 +13,14 @@ class LtiUserManager
 	{
 		// Force clear the session. Otherwise we may encounter problems with
 		// stale LTI data being used if two students use the same computer
-		\Session::destroy();
+		try
+		{
+			\Session::destroy();
+		}
+		catch (\Fuel\Core\FuelException $e)
+		{
+			// If there was no session, Fuel throws a memcached exception. This is fine.
+		}
 
 		// =================== LOAD COFIGURATION ============================
 		$local_id_field     = \Config::get("lti::lti.consumers.{$launch->consumer}.local_identifier", 'username');
