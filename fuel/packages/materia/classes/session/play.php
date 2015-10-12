@@ -66,7 +66,11 @@ class Session_Play
 				'ip_address' => \Input::ip(),
 				'referrer'   => \Input::referrer(),
 			];
-			$this-> auth            = array_key_exists('lti_message_type', $this->environment_data['input']) ? 'lti' : '';
+
+			// @TODO: This is a hack - assuming 'lti_message_type' in POST or 'token' in GET implies an LTI.
+			// Essentially true but fragile.
+			$is_lti = array_key_exists('lti_message_type', $this->environment_data['input']) || array_key_exists('token', $this->environment_data['input']);
+			$this->auth = $is_lti ? 'lti' : '';
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
