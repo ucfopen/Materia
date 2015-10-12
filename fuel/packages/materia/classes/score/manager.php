@@ -10,7 +10,7 @@ class Score_Manager
 	 */
 	static public function get_instance_score_history($inst_id)
 	{
-		return \DB::select('id','created_at','percent', 'auth')
+		return \DB::select('id','created_at','percent', 'auth', 'referrer_url')
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('user_id', \Model_User::find_current_id())
