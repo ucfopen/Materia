@@ -26,8 +26,10 @@ class Session_Play
 {
 	const MAX_HASH_GENERATION_ATTEMPTS = 10;
 
+	public $auth;
 	public $created_at;
 	public $elapsed;
+	public $environment_data;
 	public $id;
 	public $inst_id;
 	public $ip;
@@ -36,10 +38,9 @@ class Session_Play
 	public $is_valid;
 	public $percent;
 	public $qset_id;
+	public $referrer_url;
 	public $score;
 	public $user_id;
-	public $environment_data;
-	public $auth;
 
 	/**
 	 * NEEDS DOCUMENTAION
@@ -67,6 +68,7 @@ class Session_Play
 				'referrer'   => \Input::referrer(),
 			];
 			$this-> auth            = array_key_exists('lti_message_type', $this->environment_data['input']) ? 'lti' : '';
+			$this->referrer_url     = \Input::referrer();
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
@@ -154,7 +156,8 @@ class Session_Play
 				'ip'               => $_SERVER['REMOTE_ADDR'],
 				'qset_id'          => $this->qset_id,
 				'environment_data' => base64_encode(json_encode($this->environment_data)),
-				'auth'             => $this->auth
+				'auth'             => $this->auth,
+				'referrer_url'     => $this->referrer_url
 			])
 			->execute();
 
