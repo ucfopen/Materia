@@ -377,7 +377,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	window.onbeforeunload = (e) ->
 		if instance.widget.is_scorable is "1" and !$scope.isPreview and endState != 'sent'
 			return "Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget."
-		else return null
+		else return undefined
 
 	$timeout ->
 		$.when(getWidgetInstance(), startPlaySession())
