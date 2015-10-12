@@ -365,11 +365,12 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		onMediaImportComplete: (media) ->
 			hideEmbedDialog()
 
-			# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
-			anArray = []
-			for element in media
-				anArray.push element
-			sendToCreator 'onMediaImportComplete', [anArray]
+			if media != null
+				# convert the sparce array that was converted into an object back to an array (ie9, you SUCK)
+				anArray = []
+				for element in media
+					anArray.push element
+				sendToCreator 'onMediaImportComplete', [anArray]
 
 
 	# synchronise the asynchronous events
