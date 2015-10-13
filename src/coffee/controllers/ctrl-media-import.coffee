@@ -281,7 +281,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			_coms = Materia.Coms.Json
 			_coms.setGateway(API_LINK)
 			loadAllMedia()
-
 	
 	$timeout init
 	

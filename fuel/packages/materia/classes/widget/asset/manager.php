@@ -292,9 +292,16 @@ class Widget_Asset_Manager
 	 */
 	static protected function register_asset_to_item($item_type, $item_id, $id)
 	{
-		if ($id != -1)
+		if(is_array($id))
 		{
-
+			\DB::query('INSERT IGNORE INTO '.\DB::quote_table('map_asset_to_object').' SET object_type = :object_type, object_id = :object_id, asset_id = :asset_id', \DB::INSERT)
+				->param('object_type', $item_type)
+				->param('object_id', $item_id)
+				->param('asset_id', $id["id"])
+				->execute();
+		}
+		elseif ($id != -1)
+		{
 			\DB::query('INSERT IGNORE INTO '.\DB::quote_table('map_asset_to_object').' SET object_type = :object_type, object_id = :object_id, asset_id = :asset_id', \DB::INSERT)
 				->param('object_type', $item_type)
 				->param('object_id', $item_id)
