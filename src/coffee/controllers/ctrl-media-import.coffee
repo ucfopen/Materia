@@ -30,7 +30,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				id: 3
 				text: 'Image'
 				show: true
-				isUserAnswer: 'true'
+				isUserAnswer: 'false'
 			}
 		]
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
@@ -227,7 +227,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							else if full.type is 'mp3'
 								return '<img src="/assets/img/audio.png">'
 							else
-								return '<img src="/assets/img/video.jpg">'
+								return '<img src="/assets/img/video.png">'
 						searchable: false,
 						sortable: true,
 						targets: 0
