@@ -38,8 +38,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	# this column data is passed to view to automate table header creation, 
 	# without which datatables will fail to function
 	$scope.dt_cols = [#columns expected from result, index 0-5
-		{ "data": "id"},
-		{ "data": "wholeObj" }, # stores copy of whole whole object as column for ui purposes
+		{ "data": "id" },
+		{ "data": "wholeObj" }, # stores copy of whole object as column for ui purposes
 		{ "data": "title" },
 		{ "data": "type" },
 		{ "data": "file_size" },
@@ -95,25 +95,27 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# load and/or select file for labelling
 		_coms.send 'assets_get', [], (result) ->
 			if result and result.msg is undefined and result.length > 0
+
 				data = result
+
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
 				for res in result
+					temp = {}
 					if res.type in $scope.extensions
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.extensions
 								$window.parent.Materia.Creator.onMediaImportComplete([res])
 
 						# make entire object (barring id) an attr to use as column in datatables
-						temp = {}
 						for own attr of res
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
 
 						modResult.push(res)
-
-				$('#question-table').dataTable().fnAddData(modResult)
+				
+						$('#question-table').dataTable().fnAddData(modResult)
 
 	getHash = ->
 		$window.location.hash.substring(1)
@@ -174,34 +176,34 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			.next().remove() # removes the adjacent "Start upload" button
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
+		# click listener for each row
+		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
+			#get index of row in datatable and call onMediaImportComplete to exit
+			$(".row_selected").toggleClass('row_selected')
+			index = $('#question-table').dataTable().fnGetPosition(this)
+			selectedAssets = [data[index]]
+			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
+
+		# todo: add cancel button
+		$('#close-button').click (e) ->
+			e.stopPropagation()
+			$window.parent.Materia.Creator.onMediaImportComplete(null)
+
+	
+		# sorting buttons found in sort bar
+		$('.dt-sorting').click (e) ->
+			el = $(this).next() #get neighbor
+			if el.hasClass('sort-asc') || el.hasClass('sort-desc')
+				el.toggleClass "sort-asc sort-desc"
+			else 
+				el.addClass "sort-asc"
+				el.show()
+
+		# on resize, re-fit the table size
+		$($window).resize ->
+			dt.fnAdjustColumnSizing()
+
 		if firstTime is true
-			# click listener for each row
-			$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
-				#get index of row in datatable and call onMediaImportComplete to exit
-				$(".row_selected").toggleClass('row_selected')
-				index = $('#question-table').dataTable().fnGetPosition(this)
-				selectedAssets = [data[index]]
-				$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
-
-			# todo: add cancel button
-			$('#close-button').click (e) ->
-				e.stopPropagation()
-				$window.parent.Materia.Creator.onMediaImportComplete(null)
-
-		
-			# sorting buttons found in sort bar
-			$('.dt-sorting').click (e) ->
-				el = $(this).next() #get neighbor
-				if el.hasClass('sort-asc') || el.hasClass('sort-desc')
-					el.toggleClass "sort-asc sort-desc"
-				else 
-					el.addClass "sort-asc"
-					el.show()
-
-			# on resize, re-fit the table size
-			$($window).resize ->
-				dt.fnAdjustColumnSizing()
-
 			# setup the table
 			dt = $('#question-table').dataTable {
 				paginate: false # don't paginate
@@ -226,15 +228,18 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								return '<img src="/media/'+data+'/thumbnail">'
 							else if full.type is 'mp3'
 								return '<img src="/assets/img/audio.png">'
-							else
+							else if full.type is 'mp4'
 								return '<img src="/assets/img/video.png">'
+							else
+								return ''
 						searchable: false,
 						sortable: true,
 						targets: 0
 					},
 					{# custom ui column containing a nested table of asset details
 						render: (data, type, full, meta) ->
-							if full.type in $scope.extensions
+
+							if data != undefined && full.type in $scope.extensions
 								sub_table=document.createElement "table"
 								sub_table.width="100%"
 								sub_table.className="sub-table"
