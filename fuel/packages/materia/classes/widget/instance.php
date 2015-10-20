@@ -164,12 +164,24 @@ class Widget_Instance
 		{
 			$this->qset->data    = json_decode(base64_decode($results[0]['data']), true);
 			$this->qset->version = $results[0]['version'];
+			$this->qset->id      = $results[0]['id'];
 			self::find_questions($this->qset->data);
 		}
 		else
 		{
-			$this->qset = (object) ['version' => null, 'data' => null];
+			$this->qset = (object) ['version' => null, 'data' => null, 'id' => null];
 		}
+	}
+
+	/**
+	 * Grabs the qset with the id passed in from the database.
+	 */
+	public function get_specific_qset($qset_id)
+	{
+		return \DB::select()
+			->from('widget_qset')
+			->where('id', $qset_id)
+			->execute();
 	}
 
 	/**
@@ -291,7 +303,8 @@ class Widget_Instance
 					'open_at'      => $this->open_at,
 					'close_at'     => $this->close_at,
 					'attempts'     => $this->attempts,
-					'guest_access' => $this->guest_access
+					'guest_access' => $this->guest_access,
+					'updated_at'   => time()
 				])
 				->where('id', $this->id)
 				->execute();
@@ -324,7 +337,7 @@ class Widget_Instance
 		if (\RocketDuck\Util_Validator::is_valid_hash($this->id) && Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE))
 		{
 			\DB::update('widget_instance')
-				->set(['is_deleted' => '1'])
+				->set(['is_deleted' => '1', 'updated_at' => time()])
 				->where('id', $this->id)
 				->execute();
 

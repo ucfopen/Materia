@@ -83,12 +83,17 @@ class Oauth
 				$response = stream_get_contents($file);
 				$xml      = simplexml_load_string($response);
 				$success  = $xml->imsx_POXHeader->imsx_POXResponseHeaderInfo->imsx_statusInfo->imsx_codeMajor;
-				return $success[0] == 'success';
+				$result   = $success[0] == 'success';
+				if ($result == false)
+				{
+					\RocketDuck\Log::profile(['passback-failure', $body, $response], 'lti-error-dump');
+				}
+				return $result;
 			}
 		}
 		catch (\Exception $e)
 		{
-			\RocketDuck\Log::profile(['send-oath-post-failure', $e->getMessage(), $endpoint, $params], 'lti-error-dump');
+			\RocketDuck\Log::profile(['send-oath-post-failure', $e->getMessage(), $endpoint, print_r($params, true)], 'lti-error-dump');
 		}
 
 		return false;
