@@ -4,9 +4,8 @@
 </header>
 <section>
 	<div class="container">
-		<p>
-			Your widget has been connected successfully. Students will see your widget embedded here instead of this message.
-		</p>
+		<h2>Widget successfully embedded.</h2>
+		<p>Students will see the widget instead of this message.</p>
 		<a target="_blank" class="button" href="<?= $preview_url ?>">Preview widget in new tab</a>
 	</div>
 </section>

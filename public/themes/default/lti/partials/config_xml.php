@@ -10,6 +10,7 @@
 	<blti:description><?= $description ?></blti:description>
 	<blti:launch_url><?= $launch_url ?></blti:launch_url>
 	<blti:extensions platform="<?= $platform ?>">
+		<lticm:property name="domain"><?= parse_url(Uri::base(false))['host']; ?></lticm:property>
 		<lticm:property name="tool_id">grade_passback</lticm:property>
 		<lticm:property name="privacy_level"><?= $privacy_level ?></lticm:property>
 			<lticm:options name="resource_selection">

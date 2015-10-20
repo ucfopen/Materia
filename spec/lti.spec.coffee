@@ -16,6 +16,7 @@ describe 'LTI iframe test', ->
             .click('input[value="As Instructor"]')
             .frame('embed_iframe') # switch into lti frame
             .waitFor 'header h1', 5000
+            .pause 1000
             .getText 'header h1', (err, text) -> expect(text).toBe('Select a Widget for use in Materia:')
             .call done
 
@@ -102,6 +103,7 @@ describe 'LTI iframe test', ->
             .click '#play_as_instructor'
             .frame 'embed_iframe' # switch into lti frame
             .waitFor '.container', 2000
+            .pause 1000
             .getText 'header h1', (err, text) -> expect(text).toBe("Success")
             .call done
     , 60000
@@ -126,6 +128,7 @@ describe 'LTI iframe test', ->
             .click('#test_unkown_assignment')
             .frame('embed_iframe') # switch into lti frame
             .waitFor '#error-container', 2000
+            .pause 1000
             .getText 'header h1', (err, title) -> expect(title).toBe("Error - Unknown Assignment")
             .call done
             .end(done)
