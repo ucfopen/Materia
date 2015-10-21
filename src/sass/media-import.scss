@@ -9,6 +9,10 @@ body, html {
 	background: #fff;
 }
 
+#question-table tbody tr img{
+	max-height: 75px;
+}
+
 //targets the sub-table holding the image data
 #question-table .sub-table{
 	.subtable-title{
