@@ -100,7 +100,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
-				for res in result
+				for res, index in result
 					temp = {}
 					if res.type in $scope.extensions
 						# file uploaded - if this result's id matches, stop processing and select this asset now
@@ -112,6 +112,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
+						res['table_location'] = index
 
 						modResult.push(res)
 				
@@ -181,6 +182,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
+			console.log this['table_location']
 			selectedAssets = [data[index]]
 			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
 
@@ -189,7 +191,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			e.stopPropagation()
 			$window.parent.Materia.Creator.onMediaImportComplete(null)
 
-	
 		# sorting buttons found in sort bar
 		$('.dt-sorting').click (e) ->
 			el = $(this).next() #get neighbor
