@@ -64,7 +64,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				init(false)
 			when 'Video'
 				$scope.video = true
-				$scope.extensions = ['mp4']
+				$scope.extensions = ['link']
 				loadAllMedia()
 				init(false)
 			else
@@ -90,7 +90,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# clear the table
 		selectedAssets = []
 		data = []
-		modResult = []
 		imageAssetIndices = []
 		audioAssetIndices = []
 		videoAssetIndices = []
@@ -119,16 +118,14 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
 						#Store data table index in asset-specific array for use when user clicks asset in GUI
-						if(res.type == 'mp4')
+						if(res.type == 'link')
 							videoAssetIndices.push(index)
 						else if(res.type == 'mp3')
 							audioAssetIndices.push(index)
 						else
 							imageAssetIndices.push(index)
 
-						modResult.push(res)
-				
-						$('#question-table').dataTable().fnAddData(modResult)
+						$('#question-table').dataTable().fnAddData(res)
 
 	getHash = ->
 		$window.location.hash.substring(1)
@@ -246,7 +243,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								return '<img src="/media/'+data+'/thumbnail">'
 							else if full.type is 'mp3'
 								return '<img src="/assets/img/audio.png">'
-							else if full.type is 'mp4'
+							else if full.type is 'link'
 								return '<img src="/assets/img/video.png">'
 							else
 								return ''

@@ -311,9 +311,36 @@ $dropzone_margin: 18px;
 	}
 }
 
+#embed-link-form{
+	background-color: #F5F5F5;
+	border-color: #dadada;
+	border-style: solid;
+	border-width: thick;
+	color: #dadada;
+	font-family: Lato,arial,serif;
+	font-size: large;
+	height: ($dropzone_height - $dropzone_margin);
+	line-height: ($dropzone_height - $footer_height - $dropzone_margin);
+}
+
+#embed-link{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 37%;
+	min-height: 25px;
+	font-size: 14px;
+	width: 70%;
+}
+
+#btn-upload-video{
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0px;
+}
+
 //pupload customs
-#uploader_container,
-#video-uploader_container{
+#uploader_container{
 	padding: 0;
 
 	.plupload_header{
@@ -321,8 +348,7 @@ $dropzone_margin: 18px;
 	}
 }
 
-#uploader-form,
-#embed-link-form{
+#uploader-form{
 	.plupload_content{
 		.plupload_droptext{//dropping area
 			border-style: dashed;
@@ -338,8 +364,7 @@ $dropzone_margin: 18px;
 		}
 	}
 
-	#uploader_filelist,
-	#video-uploader_filelist{
+	#uploader_filelist{
 		height: $dropzone_height;
 	}
 
@@ -362,7 +387,8 @@ $dropzone_margin: 18px;
 	display: none;
 }
 
-.plupload_button.plupload_add{
+.plupload_button.plupload_add,
+#btn-upload-video{
 	padding: 7px 23px 8px;
 	background: #ffba5d;
 	background-image: -webkit-linear-gradient(top,#ffce8c,#ffa42a);
