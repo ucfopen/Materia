@@ -95,6 +95,7 @@ class Model_User extends Orm\Model
 					->or_where('email', 'LIKE', "$name%")
 				->and_where_close()
 			->group_by(\Model_User::table().'.id')
+			->limit(50)
 			->as_object("Model_User")
 			->execute();
 
