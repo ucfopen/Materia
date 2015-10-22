@@ -2,6 +2,9 @@ app = angular.module 'materia'
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
+	imageAssetIndices = []
+	audioAssetIndices = []
+	videoAssetIndices = []
 	dt = null
 	uploading = false
 	creator = null
@@ -88,6 +91,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		selectedAssets = []
 		data = []
 		modResult = []
+		imageAssetIndices = []
+		audioAssetIndices = []
+		videoAssetIndices = []
 
 		$('#question-table').dataTable().fnClearTable()
 		loadMediaTypes()
@@ -112,7 +118,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
-						res['table_location'] = index
+						#Store data table index in asset-specific array for use when user clicks asset in GUI
+						if(res.type == 'mp4')
+							videoAssetIndices.push(index)
+						else if(res.type == 'mp3')
+							audioAssetIndices.push(index)
+						else
+							imageAssetIndices.push(index)
 
 						modResult.push(res)
 				
@@ -182,8 +194,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
-			console.log this['table_location']
-			selectedAssets = [data[index]]
+			#translates GUI's index of asset chosen to that of data table index
+			if($scope.fileType.chosenType == 'Video')
+				selectedAssets = [data[videoAssetIndices[index]]]
+			else if($scope.fileType.chosenType == 'Audio')
+				selectedAssets = [data[audioAssetIndices[index]]]
+			else
+				selectedAssets = [data[imageAssetIndices[index]]]
 			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
 
 		# todo: add cancel button
