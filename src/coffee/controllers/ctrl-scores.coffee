@@ -330,10 +330,9 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		$scope.dates = attempt_dates
 		$scope.details = deets.details
 		$scope.attempt_num = currentAttempt
-		curScore = $scope.attempts[$scope.attempts.length - currentAttempt]
-		referrerUrl = curScore.referrer_url
-		playTime = curScore.created_at
-		if curScore.auth == "lti" and referrerUrl and referrerUrl.indexOf("/scores/" + widgetInstance.id) == -1
+		referrerUrl = $scope.overview.referrer_url
+		playTime = $scope.overview.created_at
+		if $scope.overview.auth == "lti" and referrerUrl and referrerUrl.indexOf("/scores/" + widgetInstance.id) == -1
 			$scope.playAgainUrl = referrerUrl
 		else
 			$scope.playAgainUrl = $scope.widget.href

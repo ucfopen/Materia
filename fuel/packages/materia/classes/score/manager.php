@@ -10,7 +10,7 @@ class Score_Manager
 	 */
 	static public function get_instance_score_history($inst_id)
 	{
-		return \DB::select('id','created_at','percent', 'auth', 'referrer_url')
+		return \DB::select('id','created_at','percent')
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('user_id', \Model_User::find_current_id())
@@ -65,7 +65,7 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id);
+			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id, $play);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -77,7 +77,7 @@ class Score_Manager
 		return $return_arr;
 	}
 
-	public static function get_score_module_for_widget($inst_id,  $play_id)
+	public static function get_score_module_for_widget($inst_id,  $play_id, $play = null)
 	{
 
 		// build a sheltered scope to try and "safely" load the contents of the file
@@ -100,7 +100,7 @@ class Score_Manager
 		$inst->db_get($inst_id, false);
 		$score_module = $load_score_module($inst->widget);
 
-		return new $score_module($play_id, $inst);
+		return new $score_module($play_id, $inst, $play);
 	}
 
 	/**
