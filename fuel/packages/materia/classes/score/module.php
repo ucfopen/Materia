@@ -7,6 +7,7 @@ abstract class Score_Module
 	public $logs;
 	public $inst;
 	public $play_id;
+	public $play;
 	public $verified_score       = 0;
 	public $calculated_percent   = 0; // Full precision percent!!  Not Rounded!
 	public $total_questions      = 0;
@@ -24,10 +25,11 @@ abstract class Score_Module
 	 * @param int     The play ID of the game being scored
 	 * @param int     Scoring type for the game to score
 	 */
-	public function __construct($play_id, $inst)
+	public function __construct($play_id, $inst, $play = null)
 	{
 		$this->play_id = $play_id;
 		$this->inst    = $inst;
+		$this->play    = $play;
 	}
 
 	/**
@@ -169,8 +171,11 @@ abstract class Score_Module
 	protected function get_score_overview()
 	{
 		return [
-			'score' => $this->calculated_percent,
-			'table' => $this->get_overview_items()
+			'score'        => $this->calculated_percent,
+			'table'        => $this->get_overview_items(),
+			'referrer_url' => empty($this->play->referrer_url) ? '' : $this->play->referrer_url,
+			'created_at'   => empty($this->play->created_at) ? '' : $this->play->created_at,
+			'auth'         => empty($this->play->auth) ? '' : $this->play->auth
 		];
 	}
 
