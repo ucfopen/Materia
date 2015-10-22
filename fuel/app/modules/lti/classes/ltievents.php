@@ -17,15 +17,27 @@ class LtiEvents
 		{
 			extract($payload); // exposes event args $inst_id and $is_embedded
 			if ( ! $inst_id) $inst_id = static::get_widget_from_request();
+			$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
 			$redirect = false;
 			$launch = LtiLaunch::from_request(); // not in session yet
 
-			if (LtiUserManager::is_lti_user_a_content_creator($launch)) $redirect = "/lti/success/{$inst_id}";
+			if (LtiUserManager::is_lti_user_a_content_creator($launch))
+			{
+				if ($inst->guest_access)
+				{
+					$redirect = '/lti/error/guest_mode';
+				}
+				else
+				{
+					$redirect = "/lti/success/{$inst_id}";
+				}
+			}
 
 			if ( ! \Lti\Oauth::validate_post()) $redirect = "/lti/error?message=invalid_oauth_request";
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
-			elseif ( ! $inst_id) $redirect = '/lti/error/unknown_assignment';
+			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
+			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';
 
 			if ($redirect) return ['redirect' => $redirect];
 

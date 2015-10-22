@@ -9,12 +9,16 @@ class Test_Scores extends \Basetest
 
 	public function test_set_complete_triggers_event()
 	{
+		$this->_asAuthor();
+		$qset = $this->create_new_qset('question', 'answer');
+		$output = \Materia\Api_V1::widget_instance_new(5, 'score test', $qset, false);
+		$output->db_store();
+
 		$student = $this->_asStudent();
 
 		$results = \DB::select()
 			->from('widget_instance')
-			->where('is_draft', '0')
-			->where('is_deleted', '0')
+			->where('id', $output->id)
 			->limit(1)
 			->execute()
 			->as_array();
