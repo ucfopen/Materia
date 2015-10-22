@@ -75,6 +75,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				loadAllMedia()
 				init(false)
 
+	$scope.submitVideoLink = ->
+
 	# determine the types from the url hash string
 	loadMediaTypes = ->
 		mediaTypes = getHash()

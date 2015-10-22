@@ -15,7 +15,7 @@
 			<input id="embed-link-title" type="text" placeholder="Electro Swing Collection">
 			<label>Embed URL:</label>
 			<input id="embed-link" type="text" placeholder="https://youtu.be/BDOiHSZ9g0E">
-			<button id="btn-upload-video" type="submit" value="Upload" data-ng-click="">Upload</button>
+			<button id="btn-upload-video" type="submit" value="Upload" data-ng-click="submitVideoLink()">Upload</button>
 		</form>
 		<div class="pane-header" ng-show="imageAndAudioImport">
 			Upload a new file
