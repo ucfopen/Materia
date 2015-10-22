@@ -10,7 +10,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	creator = null
 	_coms = null
 	$scope.imageAndAudioImport = true
-	$scope.video = false
+	$scope.videoImport = false
 	$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
 	$scope.permittedMediaTypes = "Image"
 	$scope.fileType =
@@ -36,6 +36,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				isUserAnswer: 'false'
 			}
 		]
+	$scope.videoTitle = ''
+	$scope.videoURL = ''
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
 	
 	# this column data is passed to view to automate table header creation, 
@@ -54,7 +56,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		$scope.changeImportMethod();
 
 	$scope.changeImportMethod = ->
-		$scope.video = false
+		$scope.videoImport = false
 		$scope.imageAndAudioImport = false
 		switch $scope.fileType.chosenType
 			when 'Audio'
@@ -63,7 +65,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				loadAllMedia()
 				init(false)
 			when 'Video'
-				$scope.video = true
+				$scope.videoImport = true
 				$scope.extensions = ['link']
 				loadAllMedia()
 				init(false)

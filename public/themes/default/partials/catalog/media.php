@@ -7,12 +7,15 @@
 				<input type="radio" name="response" ng-show="choice.show" ng-model="choice.isUserAnswer" data-ng-value="choice.isUserAnswer" ng-click="setChosenType(choice.text)">
 			</label>
 		</div>
-		<div class="pane-header" ng-show="video">
+		<div class="pane-header" ng-show="videoImport">
 			Enter a YouTube embedded link
 		</div>
-		<form id="embed-link-form" ng-show="video">
+		<form id="embed-link-form" ng-show="videoImport">
+			<label>Title:</label>
+			<input id="embed-link-title" type="text" placeholder="Electro Swing Collection">
+			<label>Embed URL:</label>
 			<input id="embed-link" type="text" placeholder="https://youtu.be/BDOiHSZ9g0E">
-			<button id="btn-upload-video" type="submit" value="Upload" ng-click="">Upload</button>
+			<button id="btn-upload-video" type="submit" value="Upload" data-ng-click="">Upload</button>
 		</form>
 		<div class="pane-header" ng-show="imageAndAudioImport">
 			Upload a new file

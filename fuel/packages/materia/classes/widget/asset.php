@@ -77,11 +77,11 @@ class Widget_Asset
 			{
 				$tr = \DB::insert('asset')
 					->set([
-						'id'         => $hash,
-						'type'       => $this->type,
+						'id'          => $hash,
+						'type'        => $this->type,
 						'title'       => $this->title,
-						'file_size'  => $this->file_size,
-						'created_at' => time()
+						'file_size'   => $this->file_size,
+						'created_at'  => time()
 					])
 					->execute();
 

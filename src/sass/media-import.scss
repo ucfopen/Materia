@@ -320,22 +320,28 @@ $dropzone_margin: 18px;
 	font-family: Lato,arial,serif;
 	font-size: large;
 	height: ($dropzone_height - $dropzone_margin);
-	line-height: ($dropzone_height - $footer_height - $dropzone_margin);
+	line-height: 30px;
+	padding-top: 15%;
 }
 
-#embed-link{
+#embed-link-form label{
+	font-color: #000000;
+	margin-left: 14%;
+}
+
+#embed-link,
+#embed-link-title{
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 37%;
 	min-height: 25px;
 	font-size: 14px;
 	width: 70%;
 }
 
 #btn-upload-video{
-	margin-left: auto;
-	margin-right: auto;
+	margin-left: 14%;
+	margin-top: 20px;
 	padding: 0px;
 }
 
