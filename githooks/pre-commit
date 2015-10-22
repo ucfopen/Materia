@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Runs PHP linter and PHP Code Sniffer on all staged files
-# setting up phpcs:
+#### Runs PHP linter and PHP Code Sniffer on all staged files
+#### Install the hook:  cp githooks/pre-commit .git/hooks/ && chmod +x .git/hooks/pre-commit
+#### setting up phpcs:
 # $ install composer to your system
 #### make sure .composer/vendor/bin is in your path in your .bash_profile: export PATH="$HOME/.composer/vendor/bin:$PATH"
 # $ composer global require "squizlabs/php_codesniffer=*"
