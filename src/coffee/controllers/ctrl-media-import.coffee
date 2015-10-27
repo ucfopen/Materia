@@ -11,6 +11,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_coms = null
 	$scope.imageAndAudioImport = true
 	$scope.videoImport = false
+	$scope.invalidTitle = false
+	$scope.invalidLink = false
 	$scope.extensions = ['jpg', 'jpeg', 'gif', 'png']
 	$scope.permittedMediaTypes = "Image"
 	$scope.fileType =
@@ -75,7 +77,28 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				loadAllMedia()
 				init(false)
 
-	$scope.submitVideoLink = ->
+	$scope.submitVideoLink = (title, link) ->
+		$scope.videoTitle = title
+		$scope.videoURL = link
+		console.log $scope.videoTitle
+		console.log $scope.videoURL
+		#$scope.videoTitle = $sanitize(title)
+		#$scope.videoURL = $sanitize(link)
+		if $scope.videoURL and $scope.videoURL.indexOf("https://youtu.be/") is 0
+			$scope.invalidLink = false
+			console.log "import the URL"
+		else
+			$scope.invalidLink = true
+			$scope.videoTitle = ''
+			$scope.videoURL = ''
+
+		if $scope.videoTitle.length > 0
+			$scope.invalidTitle = false
+			console.log "Title accepted"
+		else
+			$scope.invalidTitle = true
+			$scope.videoTitle = ''
+			$scope.videoURL = ''
 
 	# determine the types from the url hash string
 	loadMediaTypes = ->

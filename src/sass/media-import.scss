@@ -316,7 +316,7 @@ $dropzone_margin: 18px;
 	border-color: #dadada;
 	border-style: solid;
 	border-width: thick;
-	color: #dadada;
+	color: #aaaaaa;
 	font-family: Lato,arial,serif;
 	font-size: large;
 	height: ($dropzone_height - $dropzone_margin);
@@ -324,19 +324,28 @@ $dropzone_margin: 18px;
 	padding-top: 15%;
 }
 
-#embed-link-form label{
-	font-color: #000000;
+.mainVideolabels{
 	margin-left: 14%;
 }
 
 #embed-link,
 #embed-link-title{
 	display: block;
+	font-size: 14px;
 	margin-left: auto;
 	margin-right: auto;
 	min-height: 25px;
-	font-size: 14px;
 	width: 70%;
+}
+
+#title-error,
+#link-error{
+	color: #FF0000;
+	font-size: 10px;
+	line-height: 10px;
+	margin-left: 10px;
+	height: 10px;
+	padding-bottom: 4px;
 }
 
 #btn-upload-video{
