@@ -1,7 +1,6 @@
 <?php
 
 return array(
-	/*
 	'driver' => 'memcached',
 	// specific configuration settings for memcached based sessions
 	'memcached' => array(
@@ -15,5 +14,4 @@ return array(
 		)
 	),
 	'expiration_time'	=> 21600,
-	*/
 );
