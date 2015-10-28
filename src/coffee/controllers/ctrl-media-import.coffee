@@ -55,8 +55,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						res['wholeObj'] = temp
 						#Store data table index in asset-specific array for use when user clicks asset in GUI
 						assetIndices.push(index)
+						modResult.push(res)
 
-						$('#question-table').dataTable().fnAddData(res)
+				$('#question-table').dataTable().fnAddData(modResult)
 
 	getHash = ->
 		$window.location.hash.substring(1)
