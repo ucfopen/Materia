@@ -2,6 +2,7 @@ app = angular.module 'materia'
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
+	assetIndices = []
 	dt = null
 	uploading = false
 	creator = null
@@ -24,6 +25,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	loadAllMedia = (file_id) ->
 		# clear the table
 		selectedAssets = []
+		assetIndices = []
 		data = []
 		modResult = []
 
@@ -39,7 +41,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				data = result
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
-				for res in result
+				for res, index in result
 					if res.type in $scope.fileType
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.fileType
@@ -51,7 +53,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
-
+						#Store data table index in asset-specific array for use when user clicks asset in GUI
+						assetIndices.push(index)
 						modResult.push(res)
 
 				$('#question-table').dataTable().fnAddData(modResult)
@@ -108,12 +111,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			.next().remove() # removes the adjacent "Start upload" button
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
-		# click listener for each row
 		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
-			selectedAssets = [data[index]]
+			#translates GUI's index of asset chosen to that of data table index
+			selectedAssets = [data[assetIndices[index]]]
 			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
 
 		# todo: add cancel button
