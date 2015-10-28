@@ -116,6 +116,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	loadAllMedia = (file_id) ->
 		# clear the table
 		selectedAssets = []
+		assetIndices = []
 		data = []
 		imageAssetIndices = []
 		audioAssetIndices = []
@@ -213,7 +214,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			.next().remove() # removes the adjacent "Start upload" button
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
-		# click listener for each row
 		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
