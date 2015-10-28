@@ -2,6 +2,7 @@ app = angular.module 'materia'
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
+	assetIndices = []
 	dt = null
 	uploading = false
 	creator = null
@@ -24,6 +25,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	loadAllMedia = (file_id) ->
 		# clear the table
 		selectedAssets = []
+		assetIndices = []
 		data = []
 		modResult = []
 
@@ -52,9 +54,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
 
-						modResult.push(res)
+						#Store data table index in asset-specific array for use when user clicks asset in GUI
+						assetIndices.push(index)
 
-				$('#question-table').dataTable().fnAddData(modResult)
+						$('#question-table').dataTable().fnAddData(res)
 
 	getHash = ->
 		$window.location.hash.substring(1)
@@ -108,12 +111,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			.next().remove() # removes the adjacent "Start upload" button
 		$(".plupload_droptext", upl).text("Drag a file here to upload")
 
-		# click listener for each row
 		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
-			selectedAssets = [data[index]]
+			#translates GUI's index of asset chosen to that of data table index
+			selectedAssets = [data[assetIndices[index]]]
 			$window.parent.Materia.Creator.onMediaImportComplete(selectedAssets)
 
 		# todo: add cancel button
