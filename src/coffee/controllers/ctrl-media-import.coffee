@@ -41,7 +41,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				data = result
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
-				for res in result
+				for res, index in result
 					if res.type in $scope.fileType
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.fileType
@@ -53,7 +53,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
-
 						#Store data table index in asset-specific array for use when user clicks asset in GUI
 						assetIndices.push(index)
 
