@@ -35,7 +35,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				id: 3
 				text: 'Image'
 				show: true
-				isUserAnswer: 'false'
+				isUserAnswer: 'true'
 			}
 		]
 	$scope.videoTitle = ''
