@@ -3,8 +3,8 @@
 		<div id="file-type-filter">
 			{{fileType.fileTypeText}}</br>
 			<label data-ng-repeat="choice in fileType.choices">
-				<label ng-show="choice.show">{{choice.text}}:</label>
-				<input type="radio" name="response" ng-show="choice.show" ng-model="choice.isUserAnswer" data-ng-value="choice.isUserAnswer" ng-click="setChosenType(choice.text)">
+				<label data-ng-show="true">{{choice.text}}:</label>
+				<input type="radio" data-ng-show="true" data-ng-model="choice.isUserAnswer" data-ng-value="choice.isUserAnswer" data-ng-click="setChosenType(choice.text)">
 			</label>
 		</div>
 		<div class="pane-header" ng-show="videoImport">
