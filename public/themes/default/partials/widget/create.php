@@ -1,5 +1,6 @@
 <div ng-controller="createCtrl">
 	<section class="page" ng-show="loaded">
+
 		<div class="preview animate-show" ng-show="popup == 'blocked'">
 			<p>Your browser blocked the preview popup, click below to preview the widget.</p>
 			<div class="publish_container">
@@ -44,7 +45,10 @@
 			<?= Theme::instance()->view('partials/noflash') ?>
 		</div>
 
+		<div id="modal-cover" class="page" ng-show="modal"></div>
+
 		<iframe ng-attr-src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
+
 	</section>
 	<div ng-if="invalid">
 		<?= Theme::instance()->view('partials/nopermission') ?>

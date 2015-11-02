@@ -32,7 +32,6 @@ a {
 	border-bottom: 4px #b944cc solid;
 	white-space: nowrap;
 }
-
 #action-bar:before{
 	content: "Editing";
 	background: #b944cc;
@@ -189,7 +188,7 @@ a {
 	margin: -250px -387px;
 	width: 675px;
 	height: 500px;
-	z-index: 1;
+	z-index: 2;
 	box-shadow: 0px 0px 1000px #000,
 		0px 0px 10px #000;
 	opacity: 0;
@@ -202,11 +201,20 @@ a {
 #embed_dialog.show {
 	opacity: 1;
  	box-shadow: none;
- 	text-algin: left;
+ 	text-align: left;
   	top: 50%;
  	width: 800px;
 }
-
+#modal-cover {
+	top: -50%;
+	left:-50%;
+	opacity: 0.4;
+	width: 10000px;
+	height: 10000px;
+	background-color: #000000;
+	position: absolute;
+	z-index: 1;
+}
 .animate-show {
   opacity:1;
   -webkit-transition: all ease 0.5s;
