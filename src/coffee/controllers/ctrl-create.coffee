@@ -291,13 +291,19 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	hideEmbedDialog = ->
 		$scope.iframeUrl = ""
 		$scope.modal = false
-		$scope.$apply()
+		setTimeout (->
+			$scope.$apply()
+			return
+		), 0
 
 	# Note this is psuedo public as it's exposed to flash
 	showMediaImporter = (types) ->
 		showEmbedDialog '/media/import#' + types.join(',')
 		$scope.modal = true
-		$scope.$apply()
+		setTimeout (->
+			$scope.$apply()
+			return
+		), 0
 		null # else Safari will give the .swf data that it can't handle
 
 	# save called by the widget creator
