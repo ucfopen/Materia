@@ -200,10 +200,10 @@ a {
 }
 #embed_dialog.show {
 	opacity: 1;
- 	box-shadow: none;
- 	text-align: left;
-  	top: 50%;
- 	width: 800px;
+	box-shadow: none;
+	text-align: left;
+	top: 50%;
+	width: 800px;
 }
 #modal-cover {
 	top: -50%;
@@ -216,17 +216,17 @@ a {
 	z-index: 1;
 }
 .animate-show {
-  opacity:1;
-  -webkit-transition: all ease 0.5s;
-  transition: all ease 0.5s;
+	opacity:1;
+	-webkit-transition: all ease 0.5s;
+	transition: all ease 0.5s;
 }
 
 .animate-show.ng-hide {
-  height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  opacity: 0;
-  display: block !important;
+	height: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+	opacity: 0;
+	display: block !important;
 }
