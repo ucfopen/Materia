@@ -86,19 +86,18 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		#$scope.videoURL = $sanitize(link)
 		if $scope.videoURL and $scope.videoURL.indexOf("https://youtu.be/") is 0
 			$scope.invalidLink = false
-			console.log "import the URL"
 		else
 			$scope.invalidLink = true
-			$scope.videoTitle = ''
 			$scope.videoURL = ''
 
 		if $scope.videoTitle.length > 0
 			$scope.invalidTitle = false
-			console.log "Title accepted"
 		else
 			$scope.invalidTitle = true
 			$scope.videoTitle = ''
-			$scope.videoURL = ''
+
+		#if $scope.invalidLink == false && $scope.invalidTitle == false
+			#upload the video link.
 
 	# determine the types from the url hash string
 	loadMediaTypes = ->
@@ -189,6 +188,14 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						loadAllMedia()
 				# automatic upload on drop into queue
 				FilesAdded: (up) ->
+					##########################################################
+					# Break away for video links to avoid actual file upload,#
+					# storing only title, type, and URL in the database.     #
+					# if url:                                                #
+					#	something else                                       #
+					# else:                                                  #
+					#	up.start()                                           #
+					##########################################################
 					up.start()
 					# render import form unclickable during upload
 					$('#import-form').css {
@@ -205,7 +212,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						"pointer-events": "auto"
 						opacity: "1"
 					}
-					$scope.changeImportMethod()
+					loadAllMedia()
 				Error: (up, args) ->
 					# Called when a error has occured
 

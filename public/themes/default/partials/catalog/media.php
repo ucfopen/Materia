@@ -11,7 +11,7 @@
 			Enter a YouTube embedded link
 		</div>
 		<form id="embed-link-form" ng-show="videoImport">
-			<label class="mainVideo-labels">Title: </label><label id="title-error" data-ng-show="invalidTitle"> *You must enter a title for this upload.</label>
+			<label class="main-video-labels">Title: </label><label id="title-error" data-ng-show="invalidTitle"> *You must enter a title for this upload.</label>
 			<input id="embed-link-title" type="text" data-ng-model="title" placeholder="Electro Swing Collection">
 			<label class="main-video-labels">Embed URL: </label><label id="link-error" data-ng-show="invalidLink"> *Not a valid YouTube embed link.</label>
 			<input id="embed-link" type="text" data-ng-model="link" placeholder="https://youtu.be/BDOiHSZ9g0E">
