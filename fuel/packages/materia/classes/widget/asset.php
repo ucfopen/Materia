@@ -34,7 +34,7 @@ class Widget_Asset
 	public $id         = 0;
 	public $is_shared;
 	public $title      = '';
-	public $remote_url = null;
+	public $remote_URL = null;
 	public $file_size  = '';
 	public $questions  = [];
 	public $type       = '';
@@ -81,7 +81,7 @@ class Widget_Asset
 						'id'          => $hash,
 						'type'        => $this->type,
 						'title'       => $this->title,
-						'remote_url'  => $this->remote_url,
+						'remote_URL'  => $this->remote_URL,
 						'file_size'   => $this->file_size,
 						'created_at'  => time()
 					])

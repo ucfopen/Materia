@@ -351,13 +351,11 @@ class Api_V1
 	 * For video-embed link assets only (YouTube). Images and audio assets travel through a different pipeline.
 	 * Media.php then to Manager.php.
 	 */
-	static public function asset_new($title, $url)
+	static public function asset_new($title = 'New Asset', $url)
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		$asset = Widget_Asset_Manager::process_upload_for_videos(\Input::post($title, 'New Asset'), $url);
-		trace("FUNK");
-		trace($asset->id);
+		$asset = Widget_Asset_Manager::process_upload_for_videos($title, $url);
 		return $asset->id;
 	}
 

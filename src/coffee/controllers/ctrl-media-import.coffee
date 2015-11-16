@@ -84,7 +84,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		console.log $scope.videoURL
 		#$scope.videoTitle = $sanitize(title)
 		#$scope.videoURL = $sanitize(link)
-		if $scope.videoURL and $scope.videoURL.indexOf("https://youtu.be/") is 0
+		if $scope.videoURL and $scope.videoURL.indexOf("https://www.youtube.com/embed/") is 0
 			$scope.invalidLink = false
 		else
 			$scope.invalidLink = true
@@ -95,9 +95,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		else
 			$scope.invalidTitle = true
 			$scope.videoTitle = ''
-
+		#upload the video link.
 		if $scope.invalidLink == false && $scope.invalidTitle == false
-			#upload the video link.
 			# render import form unclickable during upload
 			$('#import-form').css {
 				"pointer-events": "none"
