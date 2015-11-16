@@ -38,6 +38,42 @@ class Widget_Asset_Manager
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
 	}
 
+	static public function process_upload_for_videos($title, $url)
+	{
+		// create and store the asset
+		$asset = new Widget_Asset([
+			'type'       => 'link',
+			'title'      => $title,
+			'file_size'  => 0,
+			'remote_url' => $url,
+		]);
+
+		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		{
+			try
+			{
+				// set perms
+				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
+				return $asset;
+			}
+			catch (\OutsideAreaException $e)
+			{
+				trace($e);
+			}
+			catch (\InvalidPathException $e)
+			{
+				trace($e);
+			}
+			catch (\FileAccessException $e)
+			{
+				trace($e);
+			}
+			// failed, remove the asset
+			$asset->db_remove();
+		}
+		return $asset;
+	}
+
 	static public function process_upload($name, $file)
 	{
 		$f_info = \File::file_info($file);

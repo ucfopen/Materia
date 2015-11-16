@@ -347,6 +347,19 @@ class Api_V1
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
+	/**
+	 * For video-embed link assets only (YouTube). Images and audio assets travel through a different pipeline.
+	 * Media.php then to Manager.php.
+	 */
+	static public function asset_new($title, $url)
+	{
+		// Validate Logged in
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		$asset = Widget_Asset_Manager::process_upload_for_videos(\Input::post($title, 'New Asset'), $url);
+		trace("FUNK");
+		trace($asset->id);
+		return $asset->id;
+	}
 
 	static public function widget_instance_scores_get($inst_id)
 	{

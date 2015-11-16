@@ -96,8 +96,22 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			$scope.invalidTitle = true
 			$scope.videoTitle = ''
 
-		#if $scope.invalidLink == false && $scope.invalidTitle == false
+		if $scope.invalidLink == false && $scope.invalidTitle == false
 			#upload the video link.
+			# render import form unclickable during upload
+			$('#import-form').css {
+				"pointer-events": "none"
+				opacity: "0.2"
+			}
+			_coms.send 'asset_new', [$scope.videoTitle, $scope.videoURL], (id_new) ->
+				# reload media to select newly uploaded file
+				loadAllMedia id_new
+				# returns clickability to import form after pload complete
+				$('#import-form').css {
+					"pointer-events": "auto"
+					opacity: "1"
+				}
+				loadAllMedia()
 
 	# determine the types from the url hash string
 	loadMediaTypes = ->
@@ -188,14 +202,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						loadAllMedia()
 				# automatic upload on drop into queue
 				FilesAdded: (up) ->
-					##########################################################
-					# Break away for video links to avoid actual file upload,#
-					# storing only title, type, and URL in the database.     #
-					# if url:                                                #
-					#	something else                                       #
-					# else:                                                  #
-					#	up.start()                                           #
-					##########################################################
 					up.start()
 					# render import form unclickable during upload
 					$('#import-form').css {

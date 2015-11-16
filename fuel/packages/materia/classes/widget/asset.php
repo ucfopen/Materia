@@ -34,7 +34,7 @@ class Widget_Asset
 	public $id         = 0;
 	public $is_shared;
 	public $title      = '';
-	public $remote_url = '';
+	public $remote_url = null;
 	public $file_size  = '';
 	public $questions  = [];
 	public $type       = '';
@@ -73,7 +73,7 @@ class Widget_Asset
 			\DB::start_transaction();
 
 			$hash = Widget_Instance_Hash::generate_key_hash();
-
+			
 			try
 			{
 				$tr = \DB::insert('asset')
@@ -81,7 +81,7 @@ class Widget_Asset
 						'id'          => $hash,
 						'type'        => $this->type,
 						'title'       => $this->title,
-						'remote_url'  => $this->remote_url
+						'remote_url'  => $this->remote_url,
 						'file_size'   => $this->file_size,
 						'created_at'  => time()
 					])

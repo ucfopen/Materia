@@ -83,7 +83,6 @@ class Controller_Media extends Controller
 		return $asset->id;
 	}
 
-
 	protected function _show_resized($asset_id, $size_name, $width, $crop=false)
 	{
 		// Validate Logged in
