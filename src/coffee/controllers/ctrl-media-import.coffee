@@ -1,5 +1,5 @@
-app = angular.module 'materia', ['ngSanitize']
-app.controller 'mediaImportCtrl', ($scope, $sanitize, $sce, $timeout, $window, $document) ->
+app = angular.module 'materia'
+app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
 	imageAssetIndices = []
@@ -78,12 +78,9 @@ app.controller 'mediaImportCtrl', ($scope, $sanitize, $sce, $timeout, $window, $
 				init(false)
 
 	$scope.submitVideoLink = (title, link) ->
-		console.log title
-		console.log link
-		$scope.videoTitle = $sanitize title 
-		$scope.videoURL = $sanitize link
-		console.log $scope.videoTitle
-		console.log $scope.videoURL
+		$scope.videoTitle =  sanitizeText(title)
+		$scope.videoURL = sanitizeText(link)
+
 		if $scope.videoURL and $scope.videoURL.indexOf("https://www.youtube.com/embed/") is 0
 			$scope.invalidLink = false
 		else
@@ -111,7 +108,17 @@ app.controller 'mediaImportCtrl', ($scope, $sanitize, $sce, $timeout, $window, $
 					opacity: "1"
 				}
 				loadAllMedia()
-
+		
+	sanitizeText = (html) ->
+		tagBody = '(?:[^"\'>]|"[^"]*"|\'[^\']*\')*'
+		regX = new RegExp('<(?:'+'!--(?:(?:-*[^->])*--+|-?)'+'|script\\b'+tagBody+'>[\\s\\S]*?</script\\s*'+'|style\\b'+tagBody+'>[\\s\\S]*?</style\\s*'+'|/?[a-z]'+tagBody+')>','gi')
+		oldHtml
+		loop
+			oldHtml = html
+			html = html.replace(regX, '')
+			unless html != oldHtml
+				break
+		return html
 	# determine the types from the url hash string
 	loadMediaTypes = ->
 		mediaTypes = getHash()
