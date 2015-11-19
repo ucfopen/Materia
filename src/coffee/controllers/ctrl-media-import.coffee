@@ -1,5 +1,5 @@
-app = angular.module 'materia'
-app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
+app = angular.module 'materia', ['ngSanitize']
+app.controller 'mediaImportCtrl', ($scope, $sanitize, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
 	imageAssetIndices = []
@@ -78,12 +78,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				init(false)
 
 	$scope.submitVideoLink = (title, link) ->
-		$scope.videoTitle = title
-		$scope.videoURL = link
+		console.log title
+		console.log link
+		$scope.videoTitle = $sanitize title 
+		$scope.videoURL = $sanitize link
 		console.log $scope.videoTitle
 		console.log $scope.videoURL
-		#$scope.videoTitle = $sanitize(title)
-		#$scope.videoURL = $sanitize(link)
 		if $scope.videoURL and $scope.videoURL.indexOf("https://www.youtube.com/embed/") is 0
 			$scope.invalidLink = false
 		else
