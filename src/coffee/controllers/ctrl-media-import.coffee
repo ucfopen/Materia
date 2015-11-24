@@ -108,7 +108,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					opacity: "1"
 				}
 				loadAllMedia()
-		
+
+	# cleans potentially harmful content from user entered text.
 	sanitizeText = (html) ->
 		tagBody = '(?:[^"\'>]|"[^"]*"|\'[^\']*\')*'
 		regX = new RegExp('<(?:'+'!--(?:(?:-*[^->])*--+|-?)'+'|script\\b'+tagBody+'>[\\s\\S]*?</script\\s*'+'|style\\b'+tagBody+'>[\\s\\S]*?</style\\s*'+'|/?[a-z]'+tagBody+')>','gi')
@@ -118,7 +119,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			html = html.replace(regX, '')
 			unless html != oldHtml
 				break
+		html.replace('?', '')
 		return html
+
 	# determine the types from the url hash string
 	loadMediaTypes = ->
 		mediaTypes = getHash()
