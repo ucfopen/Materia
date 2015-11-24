@@ -117,9 +117,21 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		loop
 			oldHtml = html
 			html = html.replace(regX, '')
+			html.replace('?', '')
+			html.replace('&', '')
+			html.replace('<', '')
+			html.replace('>', '')
+			html.replace('\\', '')
+			html.replace('\'', '')
+			html.replace('\"', '')
+			html.replace('&amp', '')
+			html.replace('&gt', '')
+			html.replace('&lt', '')
+			html.replace('&quot', '')
+			html.replace('&#x27', '')
+			html.replace('&#x2F', '')
 			unless html != oldHtml
 				break
-		html.replace('?', '')
 		return html
 
 	# determine the types from the url hash string
