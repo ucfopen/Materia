@@ -41,7 +41,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	$scope.videoTitle = ''
 	$scope.videoURL = ''
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
-	
+
 	# this column data is passed to view to automate table header creation, 
 	# without which datatables will fail to function
 	$scope.dt_cols = [#columns expected from result, index 0-5
@@ -78,20 +78,21 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				init(false)
 
 	$scope.submitVideoLink = (title, link) ->
-		$scope.videoTitle =  sanitizeText(title)
-		$scope.videoURL = sanitizeText(link)
+		$scope.videoTitle = title
+		$scope.videoURL = link
 
-		if $scope.videoURL and $scope.videoURL.indexOf("https://www.youtube.com/embed/") is 0
+		if $scope.videoURL and $scope.videoURL.indexOf("https://www.youtube.com/embed/") >= 0
 			$scope.invalidLink = false
 		else
 			$scope.invalidLink = true
 			$scope.videoURL = ''
 
-		if $scope.videoTitle.length > 0
+		if $scope.videoTitle and $scope.videoTitle.length > 0
 			$scope.invalidTitle = false
 		else
 			$scope.invalidTitle = true
 			$scope.videoTitle = ''
+		
 		#upload the video link.
 		if $scope.invalidLink == false && $scope.invalidTitle == false
 			# render import form unclickable during upload
@@ -101,38 +102,16 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			}
 			_coms.send 'asset_new', [$scope.videoTitle, $scope.videoURL], (id_new) ->
 				# reload media to select newly uploaded file
-				loadAllMedia id_new
+				if(id_new != null)
+					loadAllMedia id_new
+				else
+					$scope.invalidLink == true;
 				# returns clickability to import form after pload complete
 				$('#import-form').css {
 					"pointer-events": "auto"
 					opacity: "1"
 				}
 				loadAllMedia()
-
-	# cleans potentially harmful content from user entered text.
-	sanitizeText = (html) ->
-		tagBody = '(?:[^"\'>]|"[^"]*"|\'[^\']*\')*'
-		regX = new RegExp('<(?:'+'!--(?:(?:-*[^->])*--+|-?)'+'|script\\b'+tagBody+'>[\\s\\S]*?</script\\s*'+'|style\\b'+tagBody+'>[\\s\\S]*?</style\\s*'+'|/?[a-z]'+tagBody+')>','gi')
-		oldHtml
-		loop
-			oldHtml = html
-			html = html.replace(regX, '')
-			html.replace('?', '')
-			html.replace('&', '')
-			html.replace('<', '')
-			html.replace('>', '')
-			html.replace('\\', '')
-			html.replace('\'', '')
-			html.replace('\"', '')
-			html.replace('&amp', '')
-			html.replace('&gt', '')
-			html.replace('&lt', '')
-			html.replace('&quot', '')
-			html.replace('&#x27', '')
-			html.replace('&#x2F', '')
-			unless html != oldHtml
-				break
-		return html
 
 	# determine the types from the url hash string
 	loadMediaTypes = ->
@@ -191,7 +170,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 	getHash = ->
 		$window.location.hash.substring(1)
-
 
 	# init
 	init = (firstTime = true) ->
@@ -362,6 +340,5 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			_coms = Materia.Coms.Json
 			_coms.setGateway(API_LINK)
 			loadAllMedia()
-	
+
 	$timeout init
-	
