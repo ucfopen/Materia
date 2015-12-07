@@ -244,6 +244,22 @@ class Api_V1
 		return \Model_User::verify_session($role_name, $update_timeout);
 	}
 
+	static public function heartbeat_verify($play_id)
+	{
+		// Standard session validation first
+		if (\Model_User::verify_session(null, false) !== true) return false;
+
+		# Grab user id from play data
+		$play_data = new Session_Play();
+		$play_data->get_by_id($play_id);
+
+		# Grab id of currently authenticated user
+		$current_user_id = \Model_User::find_current_id();
+
+		# Compare and return boolean
+		return $play_data->user_id == $current_user_id;
+	}
+
 	/**
 	 * Get play activity history based on user's user_id
 	 */
@@ -271,11 +287,10 @@ class Api_V1
 			$inst = self::_get_instance_for_play_id($play_id);
 			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 		}
-		// otherwise see if user has valid session
-		else
-		{
-			if (\Model_User::verify_session() !== true) return Msg::no_login();
-		}
+
+		// Make sure widget is being played by the correct user (preview or play, no matter)
+		if (self::heartbeat_verify($play_id) !== true) return Msg::no_login();
+
 		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return Msg::invalid_input('missing log array');
 
@@ -538,6 +553,10 @@ class Api_V1
 	{
 		$inst = self::_get_instance_for_play_id($play_id);
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		// Make sure widget is being played by the correct user
+		if (self::heartbeat_verify($play_id) !== true) return Msg::no_login();
+
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
 			$user_id = $inst->guest_access ? 0 : $play->user_id; // store as guest or user?
