@@ -1,6 +1,6 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
-app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv, userServ) ->
+app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, widgetSrv, userServ) ->
 	LEFT = 37
 	UP = 38
 	RIGHT = 39
@@ -18,15 +18,20 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		$scope.search(input)
 
 	$scope.search = (nameOrFragment) ->
+
 		return if nameOrFragment == lastSearch
 
 		if nameOrFragment == ""
 			$scope.searchResults.show = no
+			$scope.searchResults.matches = []
+			lastSearch = ""
 			return
 
 		lastSearch = nameOrFragment
 
 		$scope.searchResults.show = yes
+
+		# Why is nameOrFragment being split this way?
 		inputArray = nameOrFragment.split(',')
 		nameOrFragment = inputArray[inputArray.length - 1]
 
@@ -69,8 +74,21 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 
 		$scope.selectedMatch = $scope.searchResults.matches[$scope.selectedIndex]
 
+		# Scroll the search list so the selected match is always within view when navigating with arrow keys
+		# Placed within a $timeout so logic is done only after the changes are made to the DOM
+		$timeout ->
+			selectedMatchHtml = document.getElementsByClassName("focused")[0]
+			searchListHtml = document.getElementsByClassName("search_list")[0]
+
+			if selectedMatchHtml.getBoundingClientRect().bottom > searchListHtml.getBoundingClientRect().bottom
+				searchListHtml.scrollTop += selectedMatchHtml.offsetHeight + 5
+
+			else if selectedMatchHtml.getBoundingClientRect().top < searchListHtml.getBoundingClientRect().top
+				searchListHtml.scrollTop -= selectedMatchHtml.offsetHeight + 5
+
 	$scope.searchMatchClick = (user) ->
 		return if not user
+		return if $scope.searchResults.matches.indexOf(user) is -1
 		$scope.inputs.userSearchInput = ''
 
 		$scope.searchResults.show = no
