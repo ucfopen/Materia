@@ -12,6 +12,7 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		userSearchInput: ''
 	$scope.searchResults =
 		show: no
+		searching: no
 		matches: []
 
 	$scope.$watch 'inputs.userSearchInput', (input) ->
@@ -30,6 +31,7 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		lastSearch = nameOrFragment
 
 		$scope.searchResults.show = yes
+		$scope.searchResults.searching = yes
 
 		# Why is nameOrFragment being split this way?
 		inputArray = nameOrFragment.split(',')
@@ -40,6 +42,8 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				alert(matches.msg)
 				location.reload true
 				return
+
+			$scope.searchResults.searching = no
 
 			if not matches or matches?.length < 1
 				matches = []
@@ -66,6 +70,7 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				$scope.selectedIndex -= 2
 			when ESC
 				$scope.searchResults.show = no
+				return
 			else
 				return
 
