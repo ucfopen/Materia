@@ -33,7 +33,6 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		$scope.searchResults.show = yes
 		$scope.searchResults.searching = yes
 
-		# Why is nameOrFragment being split this way?
 		inputArray = nameOrFragment.split(',')
 		nameOrFragment = inputArray[inputArray.length - 1]
 
@@ -53,10 +52,17 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 			for user in matches
 				user.gravatar = userServ.getAvatar user
 
+			matches = matches.sort(sortNames);
+
 			$scope.selectedMatch = matches[0]
 			$scope.selectedIndex = 0
 			$scope.searchResults.matches = matches
 			$scope.$apply()
+
+	sortNames = (userA, userB) ->
+		nameA = userA.first + " " + userA.last
+		nameB = userB.first + " " + userB.last
+		return nameA.localeCompare(nameB)
 
 	$scope.searchKeyDown = (event) ->
 		switch event.which
