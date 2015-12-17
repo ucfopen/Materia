@@ -45,7 +45,7 @@ class Utils
 		if ( ! $user) $user = \Model_User::find_current();
 		if ( $user instanceof \Model_User && ! empty($user->profile_fields['useGravatar']))
 		{
-			return 'https://secure.gravatar.com/avatar/'.md5(strtolower($user->email)).'?s='.$size.'?d=retro'.md5('materia'.$user->id).'?set=set3&size='.$size.'x'.$size;
+			return 'https://secure.gravatar.com/avatar/'.md5(strtolower($user->email)).'?s='.$size.'&d=retro';
 		}
 		else
 		{
