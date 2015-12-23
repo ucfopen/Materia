@@ -115,6 +115,31 @@ class Controller_Site extends Controller
 		return $response;
 	}
 
+	/**
+	 * Show 500 page
+	 */
+	public function action_500()
+	{
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
+		Css::push_group('500');
+
+		$this->theme->get_template()
+			->set('title', '500 Server Error')
+			->set('page_type', '500');
+
+		$this->theme->set_partial('content', 'partials/500');
+
+		Log::warning("500 URL: ". Uri::main());
+
+		$this->setup_header();
+
+		$response = \Response::forge(\Theme::instance()->render(), 500);
+
+		return $response;
+	}
+
 	public function action_crossdomain()
 	{
 		$this->theme = Theme::instance();
