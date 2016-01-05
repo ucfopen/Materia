@@ -40,16 +40,18 @@ class Controller_Users extends Controller
 	 * Uses Materia API's remote_login function to log the user in.
 	 *
 	 */
-	public function get_login()
+	public function get_login_page()
 	{
 		// figure out where to send if logged in
-		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$redirect = Input::get('redirect') ?: Session::get('redirect') ?: Router::get('profile');
 
 		if (! Model_User::find_current()->is_guest())
 		{
 			// already logged in
 			Response::redirect($redirect);
 		}
+
+		Session::set('redirect', $redirect);
 
 		Css::push_group(['core', 'login']);
 
@@ -65,10 +67,10 @@ class Controller_Users extends Controller
 
 	}
 
-	public function post_login()
+	public function action_login()
 	{
 		// figure out where to send if logged in
-		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$redirect = Input::get('redirect') ?: Session::get('redirect') ?: Router::get('profile');
 		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
 		if ($login === true)
 		{
@@ -79,12 +81,18 @@ class Controller_Users extends Controller
 			}
 			Response::redirect($redirect);
 		}
-		else
+		// only show flash if they actually input a username manually
+		elseif (Input::post('username'))
 		{
 			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
 			Session::set_flash('login_error', $msg);
-			$this->get_login();
+			$this->get_login_page();
 		}
+		$this->theme->get_template()
+			->set('title', 'Login')
+			->set('page_type', 'login');
+		$this->theme->set_partial('content', 'partials/login')
+			->set('redirect', urlencode($redirect));
 	}
 
 	/**
@@ -94,7 +102,7 @@ class Controller_Users extends Controller
 	public function action_logout()
 	{
 		Materia\Api::session_logout();
-		Response::redirect(Router::get('login'));
+		Response::redirect('/');
 	}
 
 	/**

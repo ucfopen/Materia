@@ -57,5 +57,6 @@ return [
 
 	'settings' => [['GET', new Route('users/settings')], ['POST', new Route('users/update')]],
 	'login'    => ['users/login', 'name' => 'login'],
+	'internal-login'    => ['users/login_page', 'name' => 'login_page'],
 	'profile'  => ['users/profile/', 'name' => 'profile'],
 ];
