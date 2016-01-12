@@ -42,7 +42,6 @@ class Controller_Users extends Controller
 	 */
 	public function get_login()
 	{
-
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
 
@@ -65,7 +64,6 @@ class Controller_Users extends Controller
 
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
-
 	}
 
 	public function post_login()
