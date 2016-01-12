@@ -10,10 +10,6 @@
                 "name": "materia/ucfauth",
                 "type": "fuel-package",
                 "version": "0.0.1",
-                "dist": {
-                    "url": "https://github.com/ucfcdl/Materia-UCFAuth/archive/master.zip",
-                    "type": "zip"
-                },
                 "source": {
                     "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
                     "type": "git",
