@@ -42,6 +42,7 @@ class Controller_Users extends Controller
 	 */
 	public function get_login()
 	{
+
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
 
@@ -50,6 +51,8 @@ class Controller_Users extends Controller
 			// already logged in
 			Response::redirect($redirect);
 		}
+
+		Event::trigger('request_login');
 
 		Css::push_group(['core', 'login']);
 

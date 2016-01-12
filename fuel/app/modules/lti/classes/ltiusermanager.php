@@ -11,6 +11,8 @@ class LtiUserManager
 	 */
 	public static function authenticate($launch)
 	{
+		\Session::destroy();
+
 		// =================== LOAD COFIGURATION ============================
 		$local_id_field     = \Config::get("lti::lti.consumers.{$launch->consumer}.local_identifier", 'username');
 		$auth_driver        = \Config::get("lti::lti.consumers.{$launch->consumer}.auth_driver", '');
