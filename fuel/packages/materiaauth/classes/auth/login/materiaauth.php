@@ -1,4 +1,4 @@
-<?
+<?php
 
 class MateriaAuthUserUpdateException extends \FuelException {}
 
@@ -125,7 +125,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 				// currently and empty email, use a default
 				if (empty($current_values['email']))
 				{
-					throw new \UcfAuthUserUpdateException('No email was defined.', 3);
+					$email = "$username@ucf.edu";
 				}
 				else
 				{
