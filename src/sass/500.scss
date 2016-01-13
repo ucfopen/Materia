@@ -1,0 +1,103 @@
+
+.container.general
+{
+	margin-top: 100px;
+	height: 100%;
+	padding-bottom: 40px;
+	background-color: white;
+
+
+ h1 
+{
+	font-size: 100px;
+	padding-bottom: 30px;
+	margin: 50px 50px 20px 50px;
+	text-align: left;
+	color: #5CA2CC;
+	width:50%
+}
+
+h3
+{
+	text-align: center;
+	border-top: 1px dashed grey;
+	padding-top: 30px;
+	padding-bottom: 50px;
+	font-size: 30px;
+	width: 50%;
+	color: #F1824C;
+	margin: 0 auto;
+}
+
+#broken  
+{
+	height: 400px;
+	width: 1093px;	
+}
+
+
+}
+.page 
+
+{
+	border: 0;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+
+	padding: 0;
+	display: block;
+	overflow: hidden;
+	width: 1094px;
+	height: 285px;
+	padding-bottom: 100px;
+
+	p 
+{
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+	font-size: 18px;
+	line-height: 40px;
+	margin: 0 auto;
+	width: 30em;
+
+}
+
+}
+
+
+.error-support
+{
+	margin-top: 0px;
+
+span
+{
+	text-align: center !important;
+	display: block;
+	margin-bottom: 30px;
+	font-size: 18px !important;
+}
+
+dl
+{
+	font-size: 16px !important;
+	width: 50% !important;
+	margin: 0 auto;
+}
+
+ dt
+{
+	font-weight: bold;
+	margin-bottom: 15px;
+}
+
+dd
+{
+	margin-bottom: 20px;
+}
+
+
+}
+
+
+
+
