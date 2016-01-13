@@ -76,7 +76,30 @@ catch (HttpNotFoundException $e)
 		throw $e;
 	}
 }
+catch (HttpServerErrorException $e)
+{
+	\Request::reset_request(true);
 
+	$route = array_key_exists('_500_', Router::$routes) ? Router::$routes['_500_']->translation : Config::get('routes._500_');
+
+	if($route instanceof Closure)
+	{
+		$response = $route();
+
+		if( ! $response instanceof Response)
+		{
+			$response = Response::forge($response);
+		}
+	}
+	elseif ($route)
+	{
+		$response = Request::forge($route, false)->execute()->response();
+	}
+	else
+	{
+		throw $e;
+	}
+}
 $response->body((string) $response);
 
 $response->send(true);
