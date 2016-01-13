@@ -9,11 +9,7 @@
             "package": {
                 "name": "materia/ucfauth",
                 "type": "fuel-package",
-                "version": "0.0.1",
-                "dist": {
-                    "url": "https://github.com/ucfcdl/Materia-UCFAuth/archive/master.zip",
-                    "type": "zip"
-                },
+                "version": "0.1.0",
                 "source": {
                     "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
                     "type": "git",
@@ -161,7 +157,7 @@
         "iturgeon/qasset": "dev-master",
         "fuelphp/upload": "2.0.1",
         "monolog/monolog": "1.5.*",
-        "materia/ucfauth": "0.0.1"
+        "materia/ucfauth": "0.1.0"
     },
     "require-dev": {
         "fuelphp/upload": "2.0.1",
