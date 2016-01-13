@@ -26,6 +26,7 @@ desktop.ini
 /fuel/packages/oil/
 /fuel/packages/orm/
 /fuel/packages/parser/
+/fuel/packages/ucfauth/
 
 # dynamically generated files
 /fuel/app/logs/**/*
