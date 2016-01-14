@@ -45,6 +45,8 @@ node_modules
 
 # Installed Widgets
 public/assets/widget/*
+public/static-widgets
+public/wordguess
 static/widget
 spec/widgets/*
 fuel/packages/materia/vendor/widget/*
