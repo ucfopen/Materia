@@ -248,7 +248,7 @@ class Admin extends \Basetask
 
 		if ($admin_role_id = \RocketDuck\Perm_Manager::get_role_id('super_user'))
 		{
-			$q = \DB::query('INSERT IGNORE INTO `perm_role_to_perm` SET `role_id` = :role_id, `perm` = :perm');
+			$q = \DB::query('INSERT INTO `perm_role_to_perm` SET `role_id` = :role_id, `perm` = :perm ON DUPLICATE KEY UPDATE `perm` = :perm');
 			$q->param('role_id', $admin_role_id);
 			$q->param('perm', \Materia\Perm::FULL);
 			$q->execute();
