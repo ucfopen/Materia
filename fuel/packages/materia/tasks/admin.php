@@ -248,20 +248,15 @@ class Admin extends \Basetask
 
 		if ($admin_role_id = \RocketDuck\Perm_Manager::get_role_id('super_user'))
 		{
-			\DB::insert('perm_role_to_perm')
-				->set([
-					'role_id' => $admin_role_id,
-					'perm'    => \Materia\Perm::FULL
-				])
-				->execute();
-			\DB::insert('perm_role_to_perm')
-				->set([
-					'role_id' => $admin_role_id,
-					'perm'    => \Materia\Perm::AUTHORACCESS
-				])
-				->execute();
-		}
+			$q = \DB::query('INSERT IGNORE INTO `perm_role_to_perm` SET `role_id` = :role_id, `perm` = :perm');
+			$q->param('role_id', $admin_role_id);
+			$q->param('perm', \Materia\Perm::FULL);
+			$q->execute();
 
+			$q->param('role_id', $admin_role_id);
+			$q->param('perm', \Materia\Perm::AUTHORACCESS);
+			$q->execute();
+		}
 
 		\Cli::write(\Cli::color("Roles Added: $roles", 'green'));
 	}
