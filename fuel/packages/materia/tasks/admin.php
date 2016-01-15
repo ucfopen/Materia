@@ -41,10 +41,10 @@ class Admin extends \Basetask
 			if ($e_user)
 			{
 				// update?
-				$e_user->first_name =  $user['first_name'];
-				$e_user->last_name  =  $user['last_name'];
-				$e_user->email      =  $user['email'];
-				$e_user->password   =  \Auth::instance()->hash_password($user['password']);
+				$e_user->first_name = $user['first_name'];
+				$e_user->last_name  = $user['last_name'];
+				$e_user->email      = $user['email'];
+				$e_user->password   = \Auth::instance()->hash_password($user['password']);
 				$e_user->save();
 				\Cli::write("updating user {$user['name']}");
 			}
@@ -65,7 +65,6 @@ class Admin extends \Basetask
 					}
 				}
 			}
-
 		}
 	}
 
@@ -196,11 +195,11 @@ class Admin extends \Basetask
 
 			if ( ! $skip_prompts)
 			{
-				\Cli::write("Truncate all tables in ".\Fuel::$env." $db_name?", 'red');
+				\Cli::write('Truncate all tables in '.\Fuel::$env." $db_name?", 'red');
 				if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') continue;
 			}
 
-			\DB::query("SET foreign_key_checks = 0")->execute();
+			\DB::query('SET foreign_key_checks = 0')->execute();
 			$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute($db_name);
 			if ($tables->count() > 0)
 			{
@@ -213,7 +212,7 @@ class Admin extends \Basetask
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}
-			\DB::query("SET foreign_key_checks = 1")->execute();
+			\DB::query('SET foreign_key_checks = 1')->execute();
 			\Cli::write("$db_name tables dropped", 'green');
 		}
 
