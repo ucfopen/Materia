@@ -462,6 +462,11 @@ class Controller_Widgets extends Controller
 		$start         = (int) $inst->open_at;
 		$end           = (int) $inst->close_at;
 		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id));
+
+		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
+		$bonus = \Materia\Score_Manager::get_instance_extra_attempts($inst->id);
+		if (count($bonus)) $attempts_used -= $bonus[0]['extra_attempts'];
+
 		$has_attempts  = $inst->attempts == -1 || $attempts_used < $inst->attempts;
 
 		$opens       = $start > 0;
