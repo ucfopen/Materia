@@ -464,8 +464,8 @@ class Controller_Widgets extends Controller
 		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id));
 
 		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
-		$bonus = \Materia\Score_Manager::get_instance_extra_attempts($inst->id);
-		if (count($bonus)) $attempts_used -= $bonus[0]['extra_attempts'];
+		$extra_attempts = \Materia\Score_Manager::get_instance_extra_attempts($inst->id, \Model_User::find_current_id());
+		$attempts_used -= $extra_attempts;
 
 		$has_attempts  = $inst->attempts == -1 || $attempts_used < $inst->attempts;
 
