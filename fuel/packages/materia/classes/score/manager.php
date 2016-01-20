@@ -55,7 +55,7 @@ class Score_Manager
 			$play->get_by_id($play_id);
 			$inst_id = $play->inst_id;
 			$instances = Api::widget_instances_get([$inst_id], false);
-			if (! count($instances)) throw new HttpNotFoundException;
+			if ( ! count($instances)) throw new HttpNotFoundException;
 			$inst = $instances[0];
 
 			if ($play->user_id != $curr_user_id && ! $inst->allows_guest_players())
@@ -83,7 +83,7 @@ class Score_Manager
 		// build a sheltered scope to try and "safely" load the contents of the file
 		$load_score_module = function($widget)
 		{
-			include_once(PKGPATH."/materia/vendor/widget/score_module/".strtolower($widget->score_module).".php");
+			include_once(PKGPATH.'/materia/vendor/widget/score_module/'.strtolower($widget->score_module).'.php');
 			// @TODO: should be this instead to prevent file name issues
 			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
 
@@ -170,7 +170,7 @@ class Score_Manager
 	{
 
 		// select completed scores by semester, returning the total players and the accurate average score
-		$result = \DB::query("
+		$result = \DB::query('
 			SELECT
 				D.id,
 				D.year,
@@ -178,9 +178,9 @@ class Score_Manager
 				COUNT(DISTINCT(L.user_id)) as students,
 				ROUND(AVG(L.percent)) as average
 			FROM
-				".\DB::quote_table('log_play')." AS L
+				'.\DB::quote_table('log_play').' AS L
 				FORCE INDEX(inst_id)
-			JOIN ".\DB::quote_table('date_range')." D
+			JOIN '.\DB::quote_table('date_range')." D
 				ON L.created_at BETWEEN D.start_at AND D.end_at
 			WHERE L.inst_id = :inst_id
 			AND L.`is_complete` = '1'

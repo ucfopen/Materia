@@ -91,7 +91,11 @@ class Api_V1
 	 * @return array An associative array with details about the save
 	 */
 
-	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
+	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null)
+	{
+		return static::widget_instance_new($widget_id, $name, $qset, $is_draft);
+	}
+
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -101,7 +105,7 @@ class Api_V1
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 
-        $is_student = ! Api::session_valid(['basic_author', 'super_user']);
+		$is_student = ! Api::session_valid(['basic_author', 'super_user']);
 
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
@@ -289,6 +293,7 @@ class Api_V1
 		else
 		{
 			$play = self::_validate_play_id($play_id);
+			trace($play);
 			if ( ! ($play instanceof Session_Play)) return Msg::invalid_input('Invalid play session');
 			// each log is an object?, convert to array
 			if ( ! is_array($logs[0]))
@@ -316,10 +321,14 @@ class Api_V1
 			}
 
 			// validate the scores the game generated on the server
-			if ($score_mod->validate_scores() == false)
+			try
+			{
+				$score_mod->validate_scores();
+			}
+			catch (Score_Exception $e)
 			{
 				$play->invalidate();
-				return new Msg(Msg::ERROR, 'There was an error validating your score.', true);
+				return new Msg($e->message, $e->title, Msg::ERROR, true);
 			}
 
 			$return = [];
@@ -734,7 +743,7 @@ class Api_V1
 			{
 				$notification_mode = 'disabled';
 			}
-			else if ($old_perms != [$new_perm => Perm::ENABLE])
+			elseif ($old_perms != [$new_perm => Perm::ENABLE])
 			{
 				$notification_mode = 'changed';
 			}
