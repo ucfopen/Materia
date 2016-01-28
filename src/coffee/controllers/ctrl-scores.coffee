@@ -152,6 +152,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
 			widget.href += "?token=#{LAUNCH_TOKEN}" if LAUNCH_TOKEN?
+			$scope.attemptsLeft = parseInt(widgetInstance.attempts) + parseInt(extraAttempts) - $scope.attempts.length
 		else
 			# if there are no attempts left, hide play again
 			hidePlayAgain = true
