@@ -87,7 +87,9 @@ class Session_Play
 				\Cache::delete("play-logs.{$this->inst_id}.{$semester}");
 				\Cache::delete("play-logs.{$this->inst_id}.all");
 			}
-			catch (\CacheNotFoundException $e) {}
+			catch (\CacheNotFoundException $e)
+			{
+			}
 
 			if ( ! $this->save_new_play())
 			{
@@ -346,7 +348,9 @@ class Session_Play
 				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
 				\Cache::delete('play-logs.'.$this->inst_id.'.all');
 			}
-			catch (\CacheNotFoundException $e) {}
+			catch (\CacheNotFoundException $e)
+			{
+			}
 
 			\DB::update('log_play')
 				->set([
