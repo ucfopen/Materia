@@ -9,6 +9,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	currentAttempt = null
 	widgetInstance = null
 	$scope.guestAccess = false
+	extraAttempts = 0
 
 	single_id = null
 	isEmbedded = false
@@ -77,8 +78,9 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		else if not widgetInstance.guest_access
 			# Want to get all of the scores for a user if the widget doesn't
 			# support guests.
-			scoreSrv.getWidgetInstanceScores inst_id, (scores) ->
-				populateScores(scores)
+			scoreSrv.getWidgetInstanceScores inst_id, (result) ->
+				populateScores result.scores
+				extraAttempts = result.extra_attempts
 				dfd.resolve()
 		else
 			# Only want score corresponding to play_id if guest widget
@@ -142,7 +144,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			dates    : attempt_dates
 
 		# show play again button?
-		if !single_id && (widgetInstance.attempts <= 0 || ($scope.attempts.length < widgetInstance.attempts) || isPreview)
+		if !single_id && (widgetInstance.attempts <= 0 || ($scope.attempts.length < parseInt(widgetInstance.attempts) + parseInt(extraAttempts)) || isPreview)
 			prefix = switch
 				when isEmbedded then '/embed/'
 				when isPreview then '/preview/'

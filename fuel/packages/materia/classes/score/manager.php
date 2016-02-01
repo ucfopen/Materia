@@ -39,6 +39,24 @@ class Score_Manager
 	}
 
 	/**
+	* Returns any additional "bonus" attempts granted to the user for a particular instance
+	* @param string inst_id Widget Instance ID
+	* @param string user_id User ID
+	* @return int number of extra attempts granted to the user for that instance, or 0
+	*/
+	static public function get_instance_extra_attempts($inst_id, $user_id)
+	{
+		$result = \DB::select('extra_attempts')
+			->from('user_extra_attempts')
+			->where('user_id', $user_id)
+			->where('inst_id', $inst_id)
+			->execute()
+			->as_array();
+
+		return count($result) ? $result[0]['extra_attempts'] : 0;
+	}
+
+	/**
 	 * Get Score and Play Details by play_ids
 	 * @param array play_ids Array of play_id's to get
 	 * @return array Returns a crazy array of details for each requested play_id

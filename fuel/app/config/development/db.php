@@ -10,9 +10,9 @@ return array(
 	'default' => array(
 		'type'        => 'pdo',
 		'connection'  => array(
-			'dsn'        => 'mysql:host=192.168.33.33;dbname=fuel_dev',
-			'username'   => 'root',
-			'password'   => 'root'
+			'dsn'        => 'mysql:host=mysql;dbname=materia', // update "mysql" to docker machine's IP address to allow database connections from host
+			'username'   => 'materia',
+			'password'   => 'odin'
 		),
 		'table_prefix' => '',
 	)
