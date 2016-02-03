@@ -71,6 +71,9 @@ return [
 		'404' => [
 			'theme::404.css',
 		],
+		'500' => [
+			'theme::500.css',
+		],
 		'core' => [
 			'theme::main.css',
 		],

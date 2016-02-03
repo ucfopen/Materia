@@ -91,7 +91,10 @@ class Api_V1
 	 * @return array An associative array with details about the save
 	 */
 
-	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
+	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null)
+	{
+		return static::widget_instance_new($widget_id, $name, $qset, $is_draft);
+	}
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -101,7 +104,7 @@ class Api_V1
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 
-        $is_student = ! Api::session_valid(['basic_author', 'super_user']);
+	$is_student = ! Api::session_valid(['basic_author', 'super_user']);
 
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
@@ -441,7 +444,13 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		return Score_Manager::get_instance_score_history($inst_id);
+		$scores = Score_Manager::get_instance_score_history($inst_id);
+		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id());
+
+		return [
+			'scores' => $scores,
+			'extra_attempts' => $extra
+		];
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
@@ -821,7 +830,7 @@ class Api_V1
 			{
 				$notification_mode = 'disabled';
 			}
-			else if ($old_perms != [$new_perm => Perm::ENABLE])
+			elseif ($old_perms != [$new_perm => Perm::ENABLE])
 			{
 				$notification_mode = 'changed';
 			}
