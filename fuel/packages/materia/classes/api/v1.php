@@ -351,17 +351,27 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function widget_instance_scores_get($inst_id)
+	static public function widget_instance_scores_get($inst_id, $context_id = null)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
+		if ( ! $context_id) $context_id = Semester::get_current_semester();
+
 		$scores = Score_Manager::get_instance_score_history($inst_id);
-		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id());
+		$attempts_used = Score_Manager::get_instance_attempts_in_context($inst_id, $context_id);
+		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id);
+
+		// $attempts_left = $inst->attempts - count($scores) + $extra;
+		$attempts_left = $inst->attempts - $attempts_used + $extra;
+
+		trace('context id: '.$context_id);
+		trace($inst->attempts.'-'.$attempts_used.'+'.$extra.'='.$attempts_left);
 
 		return [
 			'scores' => $scores,
+			'attempts_left' => $attempts_left,
 			'extra_attempts' => $extra
 		];
 	}

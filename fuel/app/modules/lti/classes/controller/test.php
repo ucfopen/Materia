@@ -88,6 +88,7 @@ class Controller_Test extends \Controller_Rest
 	public function post_learner()
 	{
 		$lti_url          = static::get_and_unset_post('lti_url');
+		$context_id       = static::get_and_unset_post('context_id');
 		$resource_link_id = static::get_and_unset_post('resource_link');
 		$custom_inst_id   = static::get_and_unset_post('custom_widget_instance_id');
 
@@ -99,6 +100,7 @@ class Controller_Test extends \Controller_Rest
 		{
 			case $as_new_learner:
 				$learner_params = $this->create_test_case([
+					'context_id'                => $context_id,
 					'resource_link_id'          => $resource_link_id,
 					'custom_widget_instance_id' => $custom_inst_id
 				], $lti_url, $this->create_new_random_user());
@@ -108,6 +110,7 @@ class Controller_Test extends \Controller_Rest
 			case $as_instructor:
 				$learner_params = $this->create_test_case([
 					'roles'                     => 'Instructor',
+					'context_id'                => $context_id,
 					'resource_link_id'          => $resource_link_id,
 					'custom_widget_instance_id' => $custom_inst_id
 				], $lti_url);
@@ -121,6 +124,7 @@ class Controller_Test extends \Controller_Rest
 					'last'     => 'Student'
 				]);
 				$learner_params = $this->create_test_case([
+					'context_id'                => $context_id,
 					'resource_link_id'          => $resource_link_id,
 					'custom_widget_instance_id' => $custom_inst_id
 				], $lti_url, $test_student);
@@ -129,6 +133,7 @@ class Controller_Test extends \Controller_Rest
 
 			default:
 				$learner_params = $this->create_test_case([
+					'context_id'                => $context_id,
 					'resource_link_id'          => $resource_link_id,
 					'custom_widget_instance_id' => $custom_inst_id
 				], $lti_url);

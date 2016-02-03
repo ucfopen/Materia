@@ -214,7 +214,7 @@ class Controller_Widgets extends Controller
 			}
 		}
 
-		Css::push_group("widget_play");
+		Css::push_group('widget_play');
 
 	}
 
@@ -313,7 +313,9 @@ class Controller_Widgets extends Controller
 			return $this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
 		}
 
-		$status = $this->get_status($inst);
+		$context_id = isset(\Input::all()['context_id']) ? \Input::all()['context_id'] : false;
+		$status = $this->get_status($inst, $context_id);
+
 
 		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
@@ -387,7 +389,7 @@ class Controller_Widgets extends Controller
 		if ($is_embedded) $this->_header = 'partials/header_empty';
 
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
-		Css::push_group("login");
+		Css::push_group('login');
 	}
 
 	protected function build_widget_login_messages($inst)
@@ -456,15 +458,16 @@ class Controller_Widgets extends Controller
 	 * @return Number -1: not avail yet, no end time, -2: not avail yet, has end time, 1: closed, 0.5, completely open
 	 *
 	 */
-	protected function get_status($inst)
+	protected function get_status($inst, $context_id=false)
 	{
+		if ( ! $context_id) $context_id = \Materia\Semester::get_current_semester();
 		$now           = time();
 		$start         = (int) $inst->open_at;
 		$end           = (int) $inst->close_at;
-		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id));
+		$attempts_used = count(\Materia\Score_Manager::get_instance_attempts_in_context($inst->id, $context_id));
 
 		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
-		$extra_attempts = \Materia\Score_Manager::get_instance_extra_attempts($inst->id, \Model_User::find_current_id());
+		$extra_attempts = \Materia\Score_Manager::get_instance_extra_attempts($inst->id, \Model_User::find_current_id(), $context_id);
 		$attempts_used -= $extra_attempts;
 
 		$has_attempts  = $inst->attempts == -1 || $attempts_used < $inst->attempts;
