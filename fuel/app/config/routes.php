@@ -6,6 +6,7 @@ return [
 	// ================================= MISC ======================================
 
 	'_404_'             => 'site/404',    // The main 404 route
+	'_500_'             => 'site/500',    // The main 500 route
 	'_root_'            => 'site/index',  // The default route
 	'permission-denied' => ['site/permission_denied', 'name' => 'nopermission'],
 	'crossdomain'       => 'site/crossdomain',
