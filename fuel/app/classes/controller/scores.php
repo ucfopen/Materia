@@ -46,7 +46,7 @@ class Controller_Scores extends Controller
 
 		$inst = $instances[0];
 		// not allowed to play the widget
-		if (! $inst->playable_by_current_user())
+		if ( ! $inst->playable_by_current_user())
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
@@ -61,6 +61,12 @@ class Controller_Scores extends Controller
 		if ($token)
 		{
 			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
+		}
+
+		$context_id = \Input::get('context_id', false);
+		if ($context_id)
+		{
+			Js::push_inline('var CONTEXT_ID = "'.$context_id.'";');
 		}
 
 		$this->theme->get_template()
@@ -87,6 +93,12 @@ class Controller_Scores extends Controller
 		if ($token)
 		{
 			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
+		}
+
+		$context_id = \Input::get('context_id', false);
+		if ($context_id)
+		{
+			Js::push_inline('var CONTEXT_ID = "'.$context_id.'";');
 		}
 
 		$this->_header = 'partials/header_empty';

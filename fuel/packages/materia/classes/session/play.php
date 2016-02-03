@@ -31,6 +31,7 @@ class Session_Play
 	public $elapsed;
 	public $environment_data;
 	public $id;
+	public $context_id;
 	public $inst_id;
 	public $ip;
 	public $is_complete;
@@ -80,6 +81,7 @@ class Session_Play
 
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
+			$this->context_id = $is_lti ? $this->environment_data['input']['context_id'] : $semester;
 
 			try
 			{
@@ -100,7 +102,7 @@ class Session_Play
 			static::set_user_is_playing();
 			$logger = new Session_Logger();
 			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
-			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id]);
+			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id, 'context_id' => $this->context_id]);
 			return $this->id;
 		}
 		return false;
@@ -163,7 +165,8 @@ class Session_Play
 				'qset_id'          => $this->qset_id,
 				'environment_data' => base64_encode(json_encode($this->environment_data)),
 				'auth'             => $this->auth,
-				'referrer_url'     => $this->referrer_url
+				'referrer_url'     => $this->referrer_url,
+				'context_id'       => $this->context_id
 			])
 			->execute();
 
@@ -363,7 +366,7 @@ class Session_Play
 				->execute();
 
 			// Determine the highest score of all my history (guest plays do not know youre history)
-			$score_history = \Materia\Score_Manager::get_instance_score_history($this->inst_id);
+			$score_history = \Materia\Score_Manager::get_instance_score_history($this->inst_id, $this->context_id);
 
 			foreach ($score_history as $score_history_item)
 			{

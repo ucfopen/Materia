@@ -34,7 +34,7 @@ class LtiEvents
 				}
 			}
 
-			if ( ! \Lti\Oauth::validate_post()) $redirect = "/lti/error?message=invalid_oauth_request";
+			if ( ! \Lti\Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
 			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';
@@ -50,19 +50,18 @@ class LtiEvents
 		return [];
 	}
 
-
 	public static function on_play_start_event($payload)
 	{
 		extract($payload); // exposes $inst_id and $play_id
 
-		switch(static::get_lti_play_state($play_id))
+		switch (static::get_lti_play_state($play_id))
 		{
 			case self::PLAY_STATE_NOT_LTI:
 				return;
 
 			case self::PLAY_STATE_FIRST_LAUNCH:
-				$is_embedded = is_array(\Uri::segments()) && !in_array('play', \Uri::segments());
-				static::store_lti_request_into_session($play_id, $inst_id, $is_embedded);
+				$is_embedded = is_array(\Uri::segments()) && ! in_array('play', \Uri::segments());
+				static::store_lti_request_into_session($play_id, $inst_id, $is_embedded, $context_id);
 				break;
 
 			case self::PLAY_STATE_REPLAY:
@@ -84,7 +83,7 @@ class LtiEvents
 	{
 		list($play_id, $inst_id, $student_user_id, $latest_score, $max_score) = $event_args;
 
-		if(static::get_lti_play_state($play_id) == self::PLAY_STATE_NOT_LTI) return false; //@TODO - is this supposed to return false????
+		if (static::get_lti_play_state($play_id) == self::PLAY_STATE_NOT_LTI) return false; //@TODO - is this supposed to return false????
 
 		$launch = static::session_get_launch($play_id);
 		$secret   = \Config::get("lti::lti.consumers.{$launch->consumer}.secret", false);
@@ -105,7 +104,7 @@ class LtiEvents
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
 		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret);
 
-		static::log($play_id, 'outcome-'.($success ? 'success':'failure'), $max_score);
+		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 
 		return $success;
 	}
@@ -116,12 +115,12 @@ class LtiEvents
 	 */
 	public static function on_play_completed_event($play)
 	{
-		if(static::get_lti_play_state($play->id) == self::PLAY_STATE_NOT_LTI) return [];
+		if (static::get_lti_play_state($play->id) == self::PLAY_STATE_NOT_LTI) return [];
 
 		$launch = static::session_get_launch($play->id);
 
 		$embed_url_segment = $launch->is_embedded ? 'embed/' : '/';
-		return ['score_url' => "/scores/{$embed_url_segment}{$play->inst_id}?token={$launch->token}#play-{$play->id}"];
+		return ['score_url' => "/scores/{$embed_url_segment}{$play->inst_id}?token={$launch->token}&context_id={$launch->context_id}#play-{$play->id}"];
 	}
 
 	/**
@@ -188,35 +187,34 @@ class LtiEvents
 		//Do we have variables stored by the given play_id?
 		//We only store variables by the first play ID, so this is the first attempt
 		$launch = \Session::get("lti-{$play_id}", false);
-		if($launch) return self::PLAY_STATE_FIRST_LAUNCH;
+		if ($launch) return self::PLAY_STATE_FIRST_LAUNCH;
 
 		//Do we have variables that are *linked* to the given play_id?
 		//We only do this for replays, so this is a replay
 		$token = \Session::get("lti-link-{$play_id}", false);
 		$launch = \Session::get("lti-{$token}", false);
-		if($launch) return self::PLAY_STATE_REPLAY;
+		if ($launch) return self::PLAY_STATE_REPLAY;
 
 		//Nothing in the request, nothing in the session, assume not an LTI launch
 		return self::PLAY_STATE_NOT_LTI;
 	}
 
-
-
 	protected static function session_get_launch($play_id)
 	{
 		$launch = \Session::get("lti-{$play_id}", false);
-		if($launch) return $launch;
+		if ($launch) return $launch;
 
 		$token = \Session::get("lti-link-{$play_id}", false);
 		return \Session::get("lti-{$token}", false);
 	}
 
-	protected static function store_lti_request_into_session($token, $inst_id, $is_embedded)
+	protected static function store_lti_request_into_session($token, $inst_id, $is_embedded, $context_id)
 	{
 		$launch = LtiLaunch::from_request();
 		$launch->token = $token;
 		$launch->inst_id = $inst_id;
 		$launch->is_embedded = $is_embedded;
+		$launch->context_id = $context_id;
 		\Session::set("lti-{$token}", $launch);
 	}
 
