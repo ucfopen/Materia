@@ -366,9 +366,6 @@ class Api_V1
 		// $attempts_left = $inst->attempts - count($scores) + $extra;
 		$attempts_left = $inst->attempts - $attempts_used + $extra;
 
-		trace('context id: '.$context_id);
-		trace($inst->attempts.'-'.$attempts_used.'+'.$extra.'='.$attempts_left);
-
 		return [
 			'scores' => $scores,
 			'attempts_left' => $attempts_left,
