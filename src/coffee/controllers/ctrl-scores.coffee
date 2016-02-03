@@ -80,7 +80,6 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			# Want to get all of the scores for a user if the widget doesn't
 			# support guests.
 			if CONTEXT_ID?
-				console.log 'work mufug'
 				score_params = [inst_id, CONTEXT_ID]
 			else
 				score_params = [inst_id, null]
