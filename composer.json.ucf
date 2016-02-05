@@ -9,7 +9,7 @@
             "package": {
                 "name": "materia/ucfauth",
                 "type": "fuel-package",
-                "version": "0.1.0",
+                "version": "0.1.2",
                 "source": {
                     "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
                     "type": "git",
@@ -158,7 +158,7 @@
         "fuelphp/upload": "2.0.1",
         "monolog/monolog": "1.5.*",
         "ucfcdl/php-saml": "master-dev",
-        "materia/ucfauth": "0.1.0"
+        "materia/ucfauth": "0.1.2"
     },
     "require-dev": {
         "fuelphp/upload": "2.0.1",

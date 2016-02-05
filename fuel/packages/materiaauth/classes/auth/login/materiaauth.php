@@ -35,28 +35,29 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 	 * @param   Array
 	 * @return  bool
 	 */
-	public function create_user($username, $password, $email, $group = 1, Array $profile_fields = [], $first_name = '', $last_name = '')
+	public function create_user($username, $password, $email, $group = 1, Array $profile_fields = [], $first_name = '', $last_name = '', $requires_password = true)
 	{
 		$first_name = trim($first_name);
 		$last_name  = trim($last_name);
 		$username   = trim($username);
 		$email      = filter_var(trim($email), FILTER_VALIDATE_EMAIL);
 
-		if (empty($username) or empty($password))
+		if (empty($username) or ($requires_password && empty($password)))
 		{
 			throw new \SimpleUserUpdateException('Username or password is not given', 1);
 		}
 
-		$same_users = \Model_User::query()
+		// just get the first user that has the same username or email
+		$same_user = \Model_User::query()
 			->where('username', '=', $username)
 			->or_where('email', '=', $email)
-			->get();
+			->get_one();
 
-		if (count($same_users))
+		if ($same_user)
 		{
-			if (in_array(strtolower($email), array_map('strtolower', $same_users->current())))
+			if (strcasecmp($email, $same_user->email) == 0)
 			{
-				throw new \SimpleUserUpdateException('Email address already exists', 2);
+				throw new \SimpleUserUpdateException("Email address already exists {$same_user->email}", 2);
 			}
 			else
 			{
@@ -68,7 +69,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 			'username'        => (string) $username,
 			'first'           => (string) $first_name,
 			'last'            => (string) $last_name,
-			'password'        => $this->hash_password((string) $password),
+			'password'        => ( ! $requires_password && empty($password) ? '' : $this->hash_password((string) $password)),
 			'email'           => $email,
 			'group'           => (int) $group,
 			'profile_fields'  => $profile_fields,
