@@ -25,6 +25,14 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		}
 	}
 
+	public function logout()
+	{
+		$this->user = \Config::get('simpleauth.guest_login', true) ? static::$guest_login : false;
+		\Session::delete('username');
+		\Session::delete('login_hash');
+		Response::redirect('');
+	}
+
 	/**
 	 * Create new user
 	 *
