@@ -44,9 +44,6 @@ defined('FUEL_START_MEM') or define('FUEL_START_MEM', memory_get_usage());
 require COREPATH.'classes'.DIRECTORY_SEPARATOR.'autoloader.php';
 class_alias('Fuel\\Core\\Autoloader', 'Autoloader');
 
-// Boot the app
-require APPPATH.'bootstrap.php';
-
 // Exception route processing closure
 $routerequest = function($route = null, $e = false)
 {
