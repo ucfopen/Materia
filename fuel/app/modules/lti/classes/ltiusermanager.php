@@ -11,17 +11,6 @@ class LtiUserManager
 	 */
 	public static function authenticate($launch)
 	{
-		// Force clear the session. Otherwise we may encounter problems with
-		// stale LTI data being used if two students use the same computer
-		try
-		{
-			\Session::destroy();
-		}
-		catch (\Fuel\Core\FuelException $e)
-		{
-			// If there was no session, Fuel throws a memcached exception. This is fine.
-		}
-
 		// =================== LOAD COFIGURATION ============================
 		$local_id_field     = \Config::get("lti::lti.consumers.{$launch->consumer}.local_identifier", 'username');
 		$auth_driver        = \Config::get("lti::lti.consumers.{$launch->consumer}.auth_driver", '');
@@ -45,6 +34,20 @@ class LtiUserManager
 
 		if ($user instanceof \Model_User)
 		{
+			// Force clear the session if the session username doesn't match the currently authenticated user. Otherwise we may encounter problems with
+			// stale LTI data being used if two students use the same computer
+			if ($user->username != \Session::get('username'))
+			{
+				try
+				{
+					\Session::destroy();
+				}
+				catch (\Fuel\Core\FuelException $e)
+				{
+					// If there was no session, Fuel throws a memcached exception. This is fine.
+				}
+			}
+
 			return (bool) \Auth::instance($auth_driver)->force_login($user->id);
 		}
 
