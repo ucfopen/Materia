@@ -464,7 +464,7 @@ class Controller_Widgets extends Controller
 		$now           = time();
 		$start         = (int) $inst->open_at;
 		$end           = (int) $inst->close_at;
-		$attempts_used = count(\Materia\Score_Manager::get_instance_attempts_in_context($inst->id, $context_id));
+		$attempts_used = \Materia\Score_Manager::get_instance_attempts_in_context($inst->id, $context_id);
 
 		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
 		$extra_attempts = \Materia\Score_Manager::get_instance_extra_attempts($inst->id, \Model_User::find_current_id(), $context_id);
