@@ -91,7 +91,11 @@ class Api_V1
 	 * @return array An associative array with details about the save
 	 */
 
-	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null){ return static::widget_instance_new($widget_id, $name, $qset, $is_draft); }
+	static public function widget_instance_save($widget_id=null, $name=null, $qset=null, $is_draft=null)
+	{
+		return static::widget_instance_new($widget_id, $name, $qset, $is_draft);
+	}
+
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -242,7 +246,7 @@ class Api_V1
 	static public function session_play_verify($play_id)
 	{
 		// Standard session validation first
-		if (\Model_User::verify_session(null, false) !== true) return false;
+		if (\Model_User::verify_session() !== true) return false;
 
 		# Grab user id from play data
 		$play_data = new Session_Play();
