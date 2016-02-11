@@ -22,7 +22,7 @@
 			</modal-dialog>
 
 			<modal-dialog class="share" show="show.collaborationModal" dialog-title="Collaboration:" width="620px" height="500px">
-				<div ng-if="show.collaborationModal" ng-controller="CollaborationController">
+				<div ng-if="show.collaborationModal" ng-controller="CollaborationController" ng-click="searchResults.show = false">
 					<div id="access" class="container">
 						<div ng-if="selected.shareable" class="list_tab_lock">
 							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)" />
@@ -31,9 +31,12 @@
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
 									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
 								</div>
-								<div ng-if="searchResults.none" class="no_match_message">
+								<div ng-if="searchResults.none && !searchResults.searching" class="no_match_message">
 									<b>No matches found.</b>
 									<p>The person you're searching for may need to log in to create an account.</p>
+								</div>
+								<div ng-if="searchResults.searching" class="no_match_message">
+									<b>Searching Users...</b>
 								</div>
 							</div>
 						</div>

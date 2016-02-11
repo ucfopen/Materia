@@ -368,7 +368,13 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		return Score_Manager::get_instance_score_history($inst_id);
+		$scores = Score_Manager::get_instance_score_history($inst_id);
+		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id());
+
+		return [
+			'scores' => $scores,
+			'extra_attempts' => $extra
+		];
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
@@ -752,7 +758,7 @@ class Api_V1
 			{
 				$notification_mode = 'disabled';
 			}
-			else if ($old_perms != [$new_perm => Perm::ENABLE])
+			elseif ($old_perms != [$new_perm => Perm::ENABLE])
 			{
 				$notification_mode = 'changed';
 			}
