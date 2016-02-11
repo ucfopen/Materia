@@ -101,7 +101,7 @@ class Api_V1
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 
-        $is_student = ! Api::session_valid(['basic_author', 'super_user']);
+		$is_student = ! \Model_User::verify_session(['basic_author', 'super_user']);
 
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
@@ -234,17 +234,12 @@ class Api_V1
 		return \Model_User::login($user, $pass);
 	}
 
-	/**
-	 * Verifies that the user has a current session and generates a new SESSID for them
-	 *
-	 * @return bool true if user is logged in, false if not
-	 */
-	static public function session_valid($role_name = null, $update_timeout = true)
+	static public function session_create_verify($role_name = null)
 	{
-		return \Model_User::verify_session($role_name, $update_timeout);
+		return \Model_User::verify_session($role_name);
 	}
 
-	static public function heartbeat_verify($play_id)
+	static public function session_play_verify($play_id)
 	{
 		// Standard session validation first
 		if (\Model_User::verify_session(null, false) !== true) return false;
@@ -289,7 +284,7 @@ class Api_V1
 		}
 
 		// Make sure widget is being played by the correct user (preview or play, no matter)
-		if (self::heartbeat_verify($play_id) !== true) return Msg::no_login();
+		if (self::session_play_verify($play_id) !== true) return Msg::no_login();
 
 		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return Msg::invalid_input('missing log array');
@@ -555,7 +550,7 @@ class Api_V1
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		// Make sure widget is being played by the correct user
-		if (self::heartbeat_verify($play_id) !== true) return Msg::no_login();
+		if (self::session_play_verify($play_id) !== true) return Msg::no_login();
 
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
