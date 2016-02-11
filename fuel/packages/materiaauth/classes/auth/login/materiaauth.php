@@ -30,7 +30,11 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		$this->user = \Config::get('simpleauth.guest_login', true) ? static::$guest_login : false;
 		\Session::delete('username');
 		\Session::delete('login_hash');
-		Response::redirect('');
+
+		if ( ! \Fuel::$is_cli)
+		{
+			Response::redirect('');
+		}
 	}
 
 	/**
