@@ -267,7 +267,7 @@ class Admin extends \Basetask
 		{
 			if (\RocketDuck\Perm_Manager::add_users_to_roles_system_only(array($user->id), array($group_name)))
 			{
-				\Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
+				if (\Fuel::$env != \Fuel::TEST) \Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
 				return true;
 			}
 			else
@@ -306,7 +306,7 @@ class Admin extends \Basetask
 			}
 			else
 			{
-				\Cli::write('User Created', 'green');
+				if (\Fuel::$env != \Fuel::TEST) \Cli::write('User Created', 'green');
 				return $user_id;
 			}
 		}
