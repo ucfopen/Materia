@@ -360,16 +360,14 @@ class Api_V1
 		if ( ! $context_id) $context_id = Semester::get_current_semester();
 
 		$scores = Score_Manager::get_instance_score_history($inst_id);
-		$attempts_used = Score_Manager::get_instance_attempts_in_context($inst_id, $context_id);
+		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, $context_id));
 		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id);
 
-		// $attempts_left = $inst->attempts - count($scores) + $extra;
 		$attempts_left = $inst->attempts - $attempts_used + $extra;
 
 		return [
 			'scores' => $scores,
-			'attempts_left' => $attempts_left,
-			'extra_attempts' => $extra
+			'attempts_left' => $attempts_left
 		];
 	}
 

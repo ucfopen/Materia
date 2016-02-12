@@ -8,34 +8,17 @@ class Score_Manager
 	 * @param int inst_id Widget Instance ID
 	 * @return array Time sorted array of play scores containing play_id, timestamp, and score keys
 	 */
-	static public function get_instance_score_history($inst_id)
+	static public function get_instance_score_history($inst_id, $context_id = false)
 	{
-		return \DB::select('id','created_at','percent')
+		$query = \DB::select('id','created_at','percent')
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('user_id', \Model_User::find_current_id())
 			->where('inst_id', $inst_id)
-			->order_by('created_at', 'DESC')
-			->execute()
+			->order_by('created_at', 'DESC');
+		if ($context_id) $query->where('context_id', $context_id);
+		return $query->execute()
 			->as_array();
-	}
-
-	/**
-	 * Returns number of attempts for the given Widget Instance in the given context
-	 * @param int inst_id Widget Instance ID
-	 * @param string context_id Context in which the instance was played
-	 * @return int Amount of completed attempts for the given Widget Instance in the given context
-	 */
-	static public function get_instance_attempts_in_context($inst_id, $context_id)
-	{
-		$query = \DB::select('id')
-			->from('log_play')
-			->where('is_complete', '1')
-			->where('user_id', \Model_User::find_current_id())
-			->where('inst_id', $inst_id)
-			->where('context_id', $context_id)
-			->execute();
-		return count($query);
 	}
 
 	/**

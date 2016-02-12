@@ -44,10 +44,10 @@ class LtiEvents
 			$launch->inst_id = $inst_id;
 			static::save_lti_association_if_needed($launch);
 
-			return ['inst_id' => $inst_id];
+			return ['inst_id' => $inst_id, 'context_id' => $launch->context_id];
 		}
-
-		return [];
+		$launch = LtiLaunch::from_request();
+		return ['context_id' => $launch->context_id];
 	}
 
 	public static function on_play_start_event($payload)
