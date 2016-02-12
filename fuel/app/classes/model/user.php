@@ -133,12 +133,8 @@ class Model_User extends Orm\Model
 			if ($role_name !== null)
 			{
 				if ( ! is_array($role_name)) $role_name = (array) $role_name;
-				$in_role = false;
-				foreach ($role_name as $role)
-				{
-					$in_role = \RocketDuck\Perm_Manager::does_user_have_role([$role]);
-					if ($in_role) break;
-				}
+
+				$in_role = \RocketDuck\Perm_Manager::does_user_have_role($role_name);
 			}
 			return (bool) $in_role;
 		}
