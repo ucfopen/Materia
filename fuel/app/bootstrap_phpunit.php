@@ -9,8 +9,7 @@ ini_set('display_errors', 1);
 $app_path     = rtrim($_SERVER['app_path'], '/').'/';
 $package_path = rtrim($_SERVER['package_path'], '/').'/';
 $core_path    = rtrim($_SERVER['core_path'], '/').'/';
-$vendor_path = $core_path.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR;
-
+$vendor_path  = $core_path.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR;
 
 /**
  * Website docroot
@@ -46,15 +45,15 @@ if (class_exists('AspectMock\Kernel'))
 	// Configure AspectMock
 	$kernel = \AspectMock\Kernel::getInstance();
 	$kernel->init(array(
-		'debug' => true,
-		'appDir' => __DIR__.'/../',
+		'debug'        => true,
+		'appDir'       => __DIR__.'/../',
 		'includePaths' => array(
 			APPPATH, COREPATH, PKGPATH,
 		),
 		'excludePaths' => array(
 			APPPATH.'tests', COREPATH.'tests',
 		),
-		'cacheDir' => APPPATH.'tmp/AspectMock',
+		'cacheDir'     => APPPATH.'tmp/AspectMock',
 	));
 
 	// Load in the Fuel autoloader

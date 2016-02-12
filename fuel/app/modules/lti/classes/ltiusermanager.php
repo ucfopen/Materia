@@ -142,7 +142,7 @@ class LtiUserManager
 	 */
 	protected static function update_user_roles(\Model_User $user, $launch, $auth)
 	{
-		if(\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
+		if (\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
 		{
 			$auth->update_role($user->id, static::is_lti_user_a_content_creator($launch));
 		}
