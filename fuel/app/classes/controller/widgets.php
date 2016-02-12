@@ -302,6 +302,9 @@ class Controller_Widgets extends Controller
 
 			// allow events to set inst_id
 			if ( ! empty($result['inst_id'])) $inst_id = $result['inst_id'];
+
+			// allow events to set context_id
+			$context_id = empty($result['context_id']) ? false : $result['context_id'];
 		}
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
@@ -313,7 +316,6 @@ class Controller_Widgets extends Controller
 			return $this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
 		}
 
-		$context_id = isset(\Input::all()['context_id']) ? \Input::all()['context_id'] : false;
 		$status = $this->get_status($inst, $context_id);
 
 
@@ -464,7 +466,7 @@ class Controller_Widgets extends Controller
 		$now           = time();
 		$start         = (int) $inst->open_at;
 		$end           = (int) $inst->close_at;
-		$attempts_used = \Materia\Score_Manager::get_instance_attempts_in_context($inst->id, $context_id);
+		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id, $context_id));
 
 		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
 		$extra_attempts = \Materia\Score_Manager::get_instance_extra_attempts($inst->id, \Model_User::find_current_id(), $context_id);
