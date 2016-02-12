@@ -90,9 +90,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		setInterval ->
 			Materia.Coms.Json.send 'session_play_verify', [play_id], (result) ->
 				if result != true and instance.guest_access is false
-					alert 'Your play session has expired due to inactivity or is no longer valid and you\'ll need to start over.'
-					window.onbeforeunload = null
-					window.location.reload()
+					$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
 		, 30000
 		dfd.promise()
 
@@ -265,9 +263,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
 			else if result? && result.type is "error"
-				alert $scope.fatal = 'Your play session is no longer valid! You\'ll need to start over.'
-				window.onbeforeunload = null
-				window.location.reload()
+				$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
+				# window.onbeforeunload = null
+				# window.location.reload()
 
 			previous = pendingQueue.shift()
 			previous.promise.resolve()
@@ -283,7 +281,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 
 			if retryCount > PLAYER.RETRY_LIMIT
 				retrySpeed = PLAYER.RETRY_SLOW
-				alert $scope.fatal = 'Connection to Materia\'s server was lost. Check your connection or reload to start over.'
+				$scope.$apply -> $scope.fatal = 'Connection to Materia\'s server was lost. Check your connection or reload to start over.'
 
 			setTimeout ->
 				logPushInProgress = false
