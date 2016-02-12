@@ -67,7 +67,7 @@ app.service 'userServ', ($q, $rootScope) ->
 	checkValidSession = (role) ->
 		deferred = $q.defer()
 
-		Materia.Coms.Json.send 'session_create_verify', [role], (data) ->
+		Materia.Coms.Json.send 'session_author_verify', [role], (data) ->
 			deferred.resolve data
 
 		deferred.promise

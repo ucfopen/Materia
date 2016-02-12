@@ -238,11 +238,17 @@ class Api_V1
 		return \Model_User::login($user, $pass);
 	}
 
-	static public function session_create_verify($role_name = null)
+	/**
+	 * Dedicated session validation call for the creator. Because a play isn't created, no need to verify session user w/ model user.
+	  */
+	static public function session_author_verify($role_name = null)
 	{
 		return \Model_User::verify_session($role_name);
 	}
 
+	/**
+	 * Session validation call for the player. Performs the standard session verification and additionally verifies that the user currently authenticated matches the user stored in play data.
+	 */
 	static public function session_play_verify($play_id)
 	{
 		// Standard session validation first
