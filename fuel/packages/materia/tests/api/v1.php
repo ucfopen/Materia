@@ -485,6 +485,11 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_session_play_verify()
+	{
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
 	public function test_session_author_verify()
 	{
 		// TODO: MOVE TO MODEL TESTS
