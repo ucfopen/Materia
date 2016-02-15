@@ -151,11 +151,8 @@ class Model_User extends Orm\Model
 
 	static protected function get_rate_limiter()
 	{
-		try
-		{
-			$limit = Cache::get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
-		}
-		catch (CacheNotFoundException $e)
+		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		if (is_null($limit))
 		{
 			$limit = ['start_time' => time(), 'count' => 0];
 			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);
