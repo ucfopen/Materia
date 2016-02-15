@@ -45,7 +45,7 @@ class Widget_Asset_Manager
 			'type'       => 'link',
 			'title'      => $title,
 			'file_size'  => 0,
-			'remote_URL' => $url,
+			'remote_url' => $url,
 		]);
 
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))

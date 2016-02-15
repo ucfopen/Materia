@@ -100,7 +100,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				"pointer-events": "none"
 				opacity: "0.2"
 			}
-			_coms.send 'asset_new', [$scope.videoTitle, $scope.videoURL], (id_new) ->
+			_coms.send 'external_asset_new', [$scope.videoTitle, $scope.videoURL], (id_new) ->
 				# reload media to select newly uploaded file
 				if(id_new != null)
 					loadAllMedia id_new
