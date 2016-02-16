@@ -286,15 +286,20 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
-		// if not preview, see if current user can play widget
+
 		if ( ! $preview_inst_id)
 		{
 			$inst = self::_get_instance_for_play_id($play_id);
 			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		}
 
-		// Make sure widget is being played by the correct user (preview or play, no matter)
-		if (self::session_play_verify($play_id) !== true) return Msg::no_login();
+			// Ensure user comparison between session & model checks out
+			if ( ! $inst->guest_access && self::session_play_verify($play_id) !== true) return Msg::no_login();
+		}
+		else
+		{
+			// No user in session, just perform auth check
+			if (\Model_User::verify_session() !== true) return false;
+		}
 
 		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return Msg::invalid_input('missing log array');
@@ -565,8 +570,8 @@ class Api_V1
 		$inst = self::_get_instance_for_play_id($play_id);
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		// Make sure widget is being played by the correct user
-		if (self::session_play_verify($play_id) !== true) return Msg::no_login();
+		// Make sure widget is being played by the correct user (when guest access not enabled)
+		if ( ! $inst->guest_access && self::session_play_verify($play_id) !== true) return Msg::no_login();
 
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
