@@ -457,8 +457,6 @@ class Test_Api_V1 extends \Basetest
 		$this->_asAuthor();
 		$this->_asSu();
 
-		// Temporarily disable cli == super_user
-		\Fuel::$is_cli = false;
 		\Auth::logout();
 
 		// Login as Superuser
@@ -472,9 +470,6 @@ class Test_Api_V1 extends \Basetest
 		$output = \RocketDuck\Perm_Manager::is_super_user();
 		$this->assertFalse($output);
 		\Materia\Api_V1::session_logout();
-
-		// Re-enable cli
-		\Fuel::$is_cli = true;
 	}
 
 	public function test_assets_get()

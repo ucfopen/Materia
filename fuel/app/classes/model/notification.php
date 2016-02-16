@@ -124,7 +124,7 @@ public static function on_widget_delete_event($assoc_param_array)
 			'item_type'     => $item_type,
 			'item_id'       => $inst_id,
 			'is_email_sent' => ($send_email ? '0' : '1'),
-			'is_read'       => 0,
+			'is_read'       => '0',
 			'subject'       => $subject,
 			'avatar'        => \Materia\Utils::get_avatar(50),
 		]);
