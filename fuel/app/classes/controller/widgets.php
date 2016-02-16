@@ -325,7 +325,7 @@ class Controller_Widgets extends Controller
 		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
 
 		// create the play
-		$play_id = \Materia\Api::session_play_create($inst_id);
+		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
 
 		if ($play_id instanceof \RocketDuck\Msg)
 		{

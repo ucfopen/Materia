@@ -63,12 +63,6 @@ class Controller_Scores extends Controller
 			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
 
-		$context_id = \Input::get('context_id', false);
-		if ($context_id)
-		{
-			Js::push_inline('var CONTEXT_ID = "'.$context_id.'";');
-		}
-
 		$this->theme->get_template()
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
@@ -93,12 +87,6 @@ class Controller_Scores extends Controller
 		if ($token)
 		{
 			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
-		}
-
-		$context_id = \Input::get('context_id', false);
-		if ($context_id)
-		{
-			Js::push_inline('var CONTEXT_ID = "'.$context_id.'";');
 		}
 
 		$this->_header = 'partials/header_empty';
