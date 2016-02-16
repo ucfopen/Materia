@@ -78,11 +78,8 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		else if not widgetInstance.guest_access
 			# Want to get all of the scores for a user if the widget doesn't
 			# support guests.
-			if CONTEXT_ID?
-				context_id = CONTEXT_ID
-			else
-				context_id = null
-			scoreSrv.getWidgetInstanceScores inst_id, context_id, (result) ->
+			send_token = if LAUNCH_TOKEN? then LAUNCH_TOKEN else play_id
+			scoreSrv.getWidgetInstanceScores inst_id, send_token, (result) ->
 				populateScores result.scores
 				attemptsLeft = result.attempts_left
 				dfd.resolve()

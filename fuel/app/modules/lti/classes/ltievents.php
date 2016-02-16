@@ -13,6 +13,7 @@ class LtiEvents
 
 	public static function on_before_play_start_event($payload)
 	{
+		$launch = LtiLaunch::from_request();
 		if (static::get_lti_play_state() == self::PLAY_STATE_FIRST_LAUNCH)
 		{
 			extract($payload); // exposes event args $inst_id and $is_embedded
@@ -20,7 +21,6 @@ class LtiEvents
 			$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
 			$redirect = false;
-			$launch = LtiLaunch::from_request(); // not in session yet
 
 			if (LtiUserManager::is_lti_user_a_content_creator($launch))
 			{
@@ -46,7 +46,11 @@ class LtiEvents
 
 			return ['inst_id' => $inst_id, 'context_id' => $launch->context_id];
 		}
-		$launch = LtiLaunch::from_request();
+		elseif (static::get_lti_play_state() == self::PLAY_STATE_REPLAY)
+		{
+			$token = \Input::param('token');
+			$launch = static::session_get_launch($token);
+		}
 		return ['context_id' => $launch->context_id];
 	}
 
@@ -61,7 +65,7 @@ class LtiEvents
 
 			case self::PLAY_STATE_FIRST_LAUNCH:
 				$is_embedded = is_array(\Uri::segments()) && ! in_array('play', \Uri::segments());
-				static::store_lti_request_into_session($play_id, $inst_id, $is_embedded, $context_id);
+				static::store_lti_request_into_session($play_id, $inst_id, $is_embedded);
 				break;
 
 			case self::PLAY_STATE_REPLAY:
@@ -72,6 +76,11 @@ class LtiEvents
 		}
 
 		static::log($play_id, 'session-init');
+	}
+
+	public static function on_before_score_display_event($token)
+	{
+		return static::session_get_launch($token)->context_id;
 	}
 
 	/**
@@ -120,7 +129,7 @@ class LtiEvents
 		$launch = static::session_get_launch($play->id);
 
 		$embed_url_segment = $launch->is_embedded ? 'embed/' : '/';
-		return ['score_url' => "/scores/{$embed_url_segment}{$play->inst_id}?token={$launch->token}&context_id={$launch->context_id}#play-{$play->id}"];
+		return ['score_url' => "/scores/{$embed_url_segment}{$play->inst_id}?token={$launch->token}#play-{$play->id}"];
 	}
 
 	/**
@@ -208,13 +217,12 @@ class LtiEvents
 		return \Session::get("lti-{$token}", false);
 	}
 
-	protected static function store_lti_request_into_session($token, $inst_id, $is_embedded, $context_id)
+	protected static function store_lti_request_into_session($token, $inst_id, $is_embedded)
 	{
 		$launch = LtiLaunch::from_request();
 		$launch->token = $token;
 		$launch->inst_id = $inst_id;
 		$launch->is_embedded = $is_embedded;
-		$launch->context_id = $context_id;
 		\Session::set("lti-{$token}", $launch);
 	}
 

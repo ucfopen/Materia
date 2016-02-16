@@ -210,7 +210,7 @@ class Api_V1
 		return $spotlight_list;
 	}
 
-	static public function session_play_create($inst_id, $preview_mode=false)
+	static public function session_play_create($inst_id, $context_id=false, $preview_mode=false)
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
@@ -218,7 +218,7 @@ class Api_V1
 		if ($preview_mode == false && $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
-		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $preview_mode);
+		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id, $preview_mode);
 		return $play_id;
 	}
 
@@ -351,13 +351,23 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function widget_instance_scores_get($inst_id, $context_id = null)
+	/**
+	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the given context.
+	 * If not context is supplied, the current semester will be used instead.
+	 *
+	 * @param string $inst_id The widget instance ID
+	 * @param string $context_id The context ID corresponding to a given play or set of plays
+	 *
+	 * @return array An array containing a list of scores as an array and the number of attempts left in the given context
+	 */
+	static public function widget_instance_scores_get($inst_id, $token)
 	{
+		$result = \Event::trigger('before_score_display', $token);
+		$context_id = empty($result['context_id']) ? Semester::get_current_semester() : $result['context_id'];
+
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-
-		if ( ! $context_id) $context_id = Semester::get_current_semester();
 
 		$scores = Score_Manager::get_instance_score_history($inst_id);
 		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, $context_id));

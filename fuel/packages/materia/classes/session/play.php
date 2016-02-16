@@ -51,7 +51,7 @@ class Session_Play
 	 * @param int NEEDS DOCUMENTATION
 	 * @param bool NEEDS DOCUMENTATION
 	 */
-	public function start($user_id=0, $inst_id=0, $is_preview=false)
+	public function start($user_id=0, $inst_id=0, $context_id=false, $is_preview=false)
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
@@ -73,7 +73,7 @@ class Session_Play
 			// Essentially true but fragile.
 			$is_lti = array_key_exists('lti_message_type', $this->environment_data['input']) || array_key_exists('token', $this->environment_data['input']);
 			$this->auth = $is_lti ? 'lti' : '';
-			$this->referrer_url     = \Input::referrer();
+			$this->referrer_url = \Input::referrer();
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
@@ -81,7 +81,7 @@ class Session_Play
 
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
-			$this->context_id = $is_lti ? $this->environment_data['input']['context_id'] : $semester;
+			$this->context_id = $context_id ? $context_id : $semester;
 
 			try
 			{
