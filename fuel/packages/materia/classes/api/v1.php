@@ -254,14 +254,17 @@ class Api_V1
 		// Standard session validation first
 		if (\Model_User::verify_session() !== true) return false;
 
-		# Grab user id from play data
+		// if $play_id is null, assume it's a preview, no need for user check
+		if ( ! $play_id) return true;
+
+		// Grab user id from play data
 		$play_data = new Session_Play();
 		$play_data->get_by_id($play_id);
 
-		# Grab id of currently authenticated user
+		// Grab id of currently authenticated user
 		$current_user_id = \Model_User::find_current_id();
 
-		# Compare and return boolean
+		// Compare and return boolean
 		return $play_data->user_id == $current_user_id;
 	}
 

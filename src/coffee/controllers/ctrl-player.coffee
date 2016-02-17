@@ -264,8 +264,6 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 				scoreScreenURL = result.score_url
 			else if result? && result.type is "error"
 				$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
-				# window.onbeforeunload = null
-				# window.location.reload()
 
 			previous = pendingQueue.shift()
 			previous.promise.resolve()
