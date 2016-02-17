@@ -9,7 +9,7 @@ class Modify_log_activity_type_field
 		\DBUtil::modify_fields(
 			'log_activity',
 			[
-				'type' => ['constraint' => 255, 'type' => 'varchar']
+				'type' => ['constraint' => 255, 'type' => 'varchar', 'default' => '']
 			]
 		);
 	}
