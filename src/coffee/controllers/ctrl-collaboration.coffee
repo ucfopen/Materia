@@ -1,6 +1,6 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
-app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv, userServ) ->
+app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, widgetSrv, userServ) ->
 	LEFT = 37
 	UP = 38
 	RIGHT = 39
@@ -12,21 +12,27 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 		userSearchInput: ''
 	$scope.searchResults =
 		show: no
+		searching: no
 		matches: []
 
 	$scope.$watch 'inputs.userSearchInput', (input) ->
 		$scope.search(input)
 
 	$scope.search = (nameOrFragment) ->
+
 		return if nameOrFragment == lastSearch
 
 		if nameOrFragment == ""
 			$scope.searchResults.show = no
+			$scope.searchResults.matches = []
+			lastSearch = ""
 			return
 
 		lastSearch = nameOrFragment
 
 		$scope.searchResults.show = yes
+		$scope.searchResults.searching = yes
+
 		inputArray = nameOrFragment.split(',')
 		nameOrFragment = inputArray[inputArray.length - 1]
 
@@ -36,18 +42,27 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 				location.reload true
 				return
 
+			$scope.searchResults.searching = no
+
 			if not matches or matches?.length < 1
 				matches = []
 
 			$scope.searchResults.none = matches.length < 1
 
 			for user in matches
-				user.gravatar = userServ.getAvatar user
+				user.gravatar = userServ.getAvatar user, 50
+
+			matches = matches.sort(sortNames);
 
 			$scope.selectedMatch = matches[0]
 			$scope.selectedIndex = 0
 			$scope.searchResults.matches = matches
 			$scope.$apply()
+
+	sortNames = (userA, userB) ->
+		nameA = userA.first + " " + userA.last
+		nameB = userB.first + " " + userB.last
+		return nameA.localeCompare(nameB)
 
 	$scope.searchKeyDown = (event) ->
 		switch event.which
@@ -61,6 +76,7 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 				$scope.selectedIndex -= 2
 			when ESC
 				$scope.searchResults.show = no
+				return
 			else
 				return
 
@@ -69,8 +85,21 @@ app.controller 'CollaborationController', ($scope, selectedWidgetSrv, widgetSrv,
 
 		$scope.selectedMatch = $scope.searchResults.matches[$scope.selectedIndex]
 
+		# Scroll the search list so the selected match is always within view when navigating with arrow keys
+		# Placed within a $timeout so logic is done only after the changes are made to the DOM
+		$timeout ->
+			selectedMatchHtml = document.getElementsByClassName("focused")[0]
+			searchListHtml = document.getElementsByClassName("search_list")[0]
+
+			if selectedMatchHtml.getBoundingClientRect().bottom > searchListHtml.getBoundingClientRect().bottom
+				searchListHtml.scrollTop += selectedMatchHtml.offsetHeight + 5
+
+			else if selectedMatchHtml.getBoundingClientRect().top < searchListHtml.getBoundingClientRect().top
+				searchListHtml.scrollTop -= selectedMatchHtml.offsetHeight + 5
+
 	$scope.searchMatchClick = (user) ->
 		return if not user
+		return if $scope.searchResults.matches.indexOf(user) is -1
 		$scope.inputs.userSearchInput = ''
 
 		$scope.searchResults.show = no
