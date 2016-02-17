@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 ======================= API NAMING CONVETION =======================
 The goals of the naming convention are to have a short, descriptive, and predictable name
