@@ -51,6 +51,8 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
+		Event::trigger('request_login');
+
 		Css::push_group(['core', 'login']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
@@ -62,7 +64,6 @@ class Controller_Users extends Controller
 
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
-
 	}
 
 	public function post_login()
