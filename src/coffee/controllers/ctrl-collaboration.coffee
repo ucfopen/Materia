@@ -50,7 +50,7 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 			$scope.searchResults.none = matches.length < 1
 
 			for user in matches
-				user.gravatar = userServ.getAvatar user
+				user.gravatar = userServ.getAvatar user, 50
 
 			matches = matches.sort(sortNames);
 
