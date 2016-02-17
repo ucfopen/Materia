@@ -90,6 +90,28 @@ class Controller_Site extends Controller
 		Js::push('cdnjs::swfobject/2.2/swfobject.min.js'); // add swf object for flash testing
 	}
 
+	public function action_403()
+	{
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
+		Css::push_group('404');
+
+		$this->theme->get_template()
+			->set('title', '403 Not Authorized')
+			->set('page_type', '404');
+
+		$this->theme->set_partial('content', 'partials/404');
+
+		Log::warning("403 URL: ". Uri::main());
+
+		$this->setup_header();
+
+		$response = \Response::forge(\Theme::instance()->render(), 404);
+
+		return $response;
+	}
+
 	/**
 	 * Show 404 page
 	 */
@@ -111,6 +133,31 @@ class Controller_Site extends Controller
 		$this->setup_header();
 
 		$response = \Response::forge(\Theme::instance()->render(), 404);
+
+		return $response;
+	}
+
+	/**
+	 * Show 500 page
+	 */
+	public function action_500()
+	{
+		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+
+		Css::push_group('500');
+
+		$this->theme->get_template()
+			->set('title', '500 Server Error')
+			->set('page_type', '500');
+
+		$this->theme->set_partial('content', 'partials/500');
+
+		Log::warning("500 URL: ". Uri::main());
+
+		$this->setup_header();
+
+		$response = \Response::forge(\Theme::instance()->render(), 500);
 
 		return $response;
 	}
