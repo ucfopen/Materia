@@ -1,4 +1,5 @@
-<?
+<?php
+
 return [
 	'links' => [
 		'a' => ['href' => '/lookup-username', 'title' => 'Lookup Username'],

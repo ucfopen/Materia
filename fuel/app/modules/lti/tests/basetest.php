@@ -15,9 +15,9 @@ class Test_Basetest extends \Basetest
 		parent::setUp();
 	}
 
+
 	protected function tearDown()
 	{
-		\Fuel::$is_cli = false;
 		\Auth::logout();
 		parent::tearDown();
 	}

@@ -41,10 +41,10 @@ class Admin extends \Basetask
 			if ($e_user)
 			{
 				// update?
-				$e_user->first_name =  $user['first_name'];
-				$e_user->last_name  =  $user['last_name'];
-				$e_user->email      =  $user['email'];
-				$e_user->password   =  \Auth::instance()->hash_password($user['password']);
+				$e_user->first_name = $user['first_name'];
+				$e_user->last_name  = $user['last_name'];
+				$e_user->email      = $user['email'];
+				$e_user->password   = \Auth::instance()->hash_password($user['password']);
 				$e_user->save();
 				\Cli::write("updating user {$user['name']}");
 			}
@@ -65,7 +65,6 @@ class Admin extends \Basetask
 					}
 				}
 			}
-
 		}
 	}
 
@@ -196,11 +195,11 @@ class Admin extends \Basetask
 
 			if ( ! $skip_prompts)
 			{
-				\Cli::write("Truncate all tables in ".\Fuel::$env." $db_name?", 'red');
+				\Cli::write('Truncate all tables in '.\Fuel::$env." $db_name?", 'red');
 				if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') continue;
 			}
 
-			\DB::query("SET foreign_key_checks = 0")->execute();
+			\DB::query('SET foreign_key_checks = 0')->execute();
 			$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute($db_name);
 			if ($tables->count() > 0)
 			{
@@ -213,7 +212,7 @@ class Admin extends \Basetask
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}
-			\DB::query("SET foreign_key_checks = 1")->execute();
+			\DB::query('SET foreign_key_checks = 1')->execute();
 			\Cli::write("$db_name tables dropped", 'green');
 		}
 
@@ -249,20 +248,15 @@ class Admin extends \Basetask
 
 		if ($admin_role_id = \RocketDuck\Perm_Manager::get_role_id('super_user'))
 		{
-			\DB::insert('perm_role_to_perm')
-				->set([
-					'role_id' => $admin_role_id,
-					'perm'    => \Materia\Perm::FULL
-				])
-				->execute();
-			\DB::insert('perm_role_to_perm')
-				->set([
-					'role_id' => $admin_role_id,
-					'perm'    => \Materia\Perm::AUTHORACCESS
-				])
-				->execute();
-		}
+			$q = \DB::query('INSERT INTO `perm_role_to_perm` SET `role_id` = :role_id, `perm` = :perm ON DUPLICATE KEY UPDATE `perm` = :perm');
+			$q->param('role_id', $admin_role_id);
+			$q->param('perm', \Materia\Perm::FULL);
+			$q->execute();
 
+			$q->param('role_id', $admin_role_id);
+			$q->param('perm', \Materia\Perm::AUTHORACCESS);
+			$q->execute();
+		}
 
 		\Cli::write(\Cli::color("Roles Added: $roles", 'green'));
 	}
@@ -273,7 +267,7 @@ class Admin extends \Basetask
 		{
 			if (\RocketDuck\Perm_Manager::add_users_to_roles_system_only(array($user->id), array($group_name)))
 			{
-				\Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
+				if (\Fuel::$env != \Fuel::TEST) \Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
 				return true;
 			}
 			else
@@ -312,7 +306,7 @@ class Admin extends \Basetask
 			}
 			else
 			{
-				\Cli::write('User Created', 'green');
+				if (\Fuel::$env != \Fuel::TEST) \Cli::write('User Created', 'green');
 				return $user_id;
 			}
 		}
