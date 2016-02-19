@@ -80,6 +80,7 @@ class LtiEvents
 
 	public static function on_before_score_display_event($token)
 	{
+		if (static::get_lti_play_state($token) == self::PLAY_STATE_NOT_LTI) return false;
 		return static::session_get_launch($token)->context_id;
 	}
 

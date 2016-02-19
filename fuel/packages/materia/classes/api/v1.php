@@ -450,7 +450,7 @@ class Api_V1
 	static public function widget_instance_scores_get($inst_id, $token)
 	{
 		$result = \Event::trigger('before_score_display', $token);
-		$context_id = empty($result['context_id']) ? Semester::get_current_semester() : $result['context_id'];
+		$context_id = empty($result) ? Semester::get_current_semester() : $result;
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
