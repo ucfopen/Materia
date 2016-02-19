@@ -44,62 +44,60 @@ defined('FUEL_START_MEM') or define('FUEL_START_MEM', memory_get_usage());
 require COREPATH.'classes'.DIRECTORY_SEPARATOR.'autoloader.php';
 class_alias('Fuel\\Core\\Autoloader', 'Autoloader');
 
-// Boot the app
-require APPPATH.'bootstrap.php';
+// Exception route processing closure
+$routerequest = function($route = null, $e = false)
+{
+	Request::reset_request(true);
+
+	$route = array_key_exists($route, Router::$routes) ? Router::$routes[$route]->translation : Config::get('routes.'.$route);
+
+	if ($route instanceof Closure)
+	{
+		$response = $route();
+
+		if ( ! $response instanceof Response)
+		{
+			$response = Response::forge($response);
+		}
+	}
+	elseif ($e === false)
+	{
+		$response = Request::forge()->execute()->response();
+	}
+	elseif ($route)
+	{
+		$response = Request::forge($route, false)->execute(array($e))->response();
+	}
+	else
+	{
+		throw $e;
+	}
+
+	return $response;
+};
 
 // Generate the request, execute it and send the output.
 try
 {
-	$response = Request::forge()->execute()->response();
+	// Boot the app...
+	require APPPATH.'bootstrap.php';
+
+	// ... and execute the main request
+	$response = $routerequest();
+}
+catch (HttpNoAccessException $e)
+{
+	$response = $routerequest('_403_', $e);
 }
 catch (HttpNotFoundException $e)
 {
-	\Request::reset_request(true);
-
-	$route = array_key_exists('_404_', Router::$routes) ? Router::$routes['_404_']->translation : Config::get('routes._404_');
-
-	if($route instanceof Closure)
-	{
-		$response = $route();
-
-		if( ! $response instanceof Response)
-		{
-			$response = Response::forge($response);
-		}
-	}
-	elseif ($route)
-	{
-		$response = Request::forge($route, false)->execute()->response();
-	}
-	else
-	{
-		throw $e;
-	}
+	$response = $routerequest('_404_', $e);
 }
 catch (HttpServerErrorException $e)
 {
-	\Request::reset_request(true);
-
-	$route = array_key_exists('_500_', Router::$routes) ? Router::$routes['_500_']->translation : Config::get('routes._500_');
-
-	if($route instanceof Closure)
-	{
-		$response = $route();
-
-		if( ! $response instanceof Response)
-		{
-			$response = Response::forge($response);
-		}
-	}
-	elseif ($route)
-	{
-		$response = Request::forge($route, false)->execute()->response();
-	}
-	else
-	{
-		throw $e;
-	}
+	$response = $routerequest('_500_', $e);
 }
+
 $response->body((string) $response);
 
 $response->send(true);
