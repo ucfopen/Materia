@@ -25,11 +25,12 @@ namespace Materia;
 class Session_Activity
 {
 		// Activity Types
-		const TYPE_CREATE_WIDGET = 'createdWidget';
-		const TYPE_DELETE_WIDGET = 'deletedWidget';
-		const TYPE_EDIT_WIDGET   = 'editedWidget';
-		const TYPE_LOGGED_IN     = 'loggedIn';
-		const TYPE_LOGGED_OUT    = 'loggedOut';
+		const TYPE_CREATE_WIDGET            = 'createdWidget';
+		const TYPE_DELETE_WIDGET            = 'deletedWidget';
+		const TYPE_EDIT_WIDGET              = 'editedWidget';
+		const TYPE_EDIT_WIDGET_SETTINGS     = 'editedWidgetSettings';
+		const TYPE_LOGGED_IN                = 'loggedIn';
+		const TYPE_LOGGED_OUT               = 'loggedOut';
 
 		public $created_at = 0;
 		public $id         = 0;

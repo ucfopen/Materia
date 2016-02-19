@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 ======================= API NAMING CONVETION =======================
 The goals of the naming convention are to have a short, descriptive, and predictable name
@@ -161,13 +161,100 @@ class Api_V1
 			$guest_access = true;
 		}
 
-		if ( ! empty($qset->data) && ! empty($qset->version)) $inst->qset = $qset;
-		if ( ! empty($name)) $inst->name = $name;
-		if ($is_draft !== null) $inst->is_draft = $is_draft;
-		if ($open_at !== null) $inst->open_at = $open_at;
-		if ($close_at !== null) $inst->close_at = $close_at;
-		if ($attempts !== null) $inst->attempts = $attempts;
-		if ($guest_access !== null) $inst->guest_access = $guest_access;
+		if ( ! empty($qset->data) && ! empty($qset->version))
+		{
+			$inst->qset = $qset;
+		}
+		if ( ! empty($name))
+		{
+			if ($inst->name != $name)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Name',
+					'value_2' => $name
+				]);
+			}
+			$inst->name = $name;
+			$activity->db_store();
+		}
+		if ($is_draft !== null)
+		{
+			if ($inst->is_draft != $is_draft)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Is Draft',
+					'value_2' => $is_draft
+				]);
+				$activity->db_store();
+			}
+			$inst->is_draft = $is_draft;
+		}
+		if ($open_at !== null)
+		{
+			if ($inst->open_at != $open_at)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Open At',
+					'value_2' => $open_at
+				]);
+				$activity->db_store();
+			}
+			$inst->open_at = $open_at;
+		}
+		if ($close_at !== null)
+		{
+			if ($inst->close_at != $close_at)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Close At',
+					'value_2' => $close_at
+				]);
+				$activity->db_store();
+			}
+			$inst->close_at = $close_at;
+		}
+		if ($attempts !== null)
+		{
+			if ($inst->attempts != $attempts)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Attempts',
+					'value_2' => $attempts
+				]);
+				$activity->db_store();
+			}
+			$inst->attempts = $attempts;
+		}
+		if ($guest_access !== null)
+		{
+			if ($inst->guest_access != $guest_access)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Guest Access',
+					'value_2' => $guest_access
+				]);
+				$activity->db_store();
+			}
+			$inst->guest_access = $guest_access;
+		}
 
 		try
 		{
