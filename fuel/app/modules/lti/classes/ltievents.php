@@ -13,7 +13,6 @@ class LtiEvents
 
 	public static function on_before_play_start_event($payload)
 	{
-		$launch = LtiLaunch::from_request();
 		if (static::get_lti_play_state() == self::PLAY_STATE_FIRST_LAUNCH)
 		{
 			extract($payload); // exposes event args $inst_id and $is_embedded
@@ -21,6 +20,8 @@ class LtiEvents
 			$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
 			$redirect = false;
+
+			$launch = LtiLaunch::from_request();
 
 			if (LtiUserManager::is_lti_user_a_content_creator($launch))
 			{
@@ -50,8 +51,9 @@ class LtiEvents
 		{
 			$token = \Input::param('token');
 			$launch = static::session_get_launch($token);
+			return ['context_id' => $launch->context_id];
 		}
-		return ['context_id' => $launch->context_id];
+		return [];
 	}
 
 	public static function on_play_start_event($payload)
