@@ -304,6 +304,7 @@ class Session_Play
 				$this->percent     = 0;
 				$this->elapsed     = 0;
 				$this->is_preview  = true;
+				$this->context_id  = Semester::get_current_semester();
 				return true;
 			}
 		}
@@ -328,6 +329,7 @@ class Session_Play
 				$this->score       = $r['score'];
 				$this->percent     = $r['percent'];
 				$this->elapsed     = $r['elapsed'];
+				$this->context_id  = $r['context_id'];
 				return true;
 			}
 		}
@@ -372,6 +374,7 @@ class Session_Play
 			{
 				$max_percent = max($max_percent, $score_history_item['percent']);
 			}
+			trace('HIGHEST PERCENT FOR CONTEXT '.$this->context_id.': '.$max_percent);
 		}
 		// Notify any plugins that the score has been saved
 		\Event::trigger('score_updated', [$this->id, $this->inst_id, $this->user_id, $percent, $max_percent], 'string');
