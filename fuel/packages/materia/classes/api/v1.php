@@ -176,9 +176,9 @@ class Api_V1
 					'value_1' => 'Name',
 					'value_2' => $name
 				]);
+				$activity->db_store();
 			}
 			$inst->name = $name;
-			$activity->db_store();
 		}
 		if ($is_draft !== null)
 		{
