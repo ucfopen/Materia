@@ -374,7 +374,6 @@ class Session_Play
 			{
 				$max_percent = max($max_percent, $score_history_item['percent']);
 			}
-			trace('HIGHEST PERCENT FOR CONTEXT '.$this->context_id.': '.$max_percent);
 		}
 		// Notify any plugins that the score has been saved
 		\Event::trigger('score_updated', [$this->id, $this->inst_id, $this->user_id, $percent, $max_percent], 'string');
