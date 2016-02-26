@@ -81,13 +81,9 @@ class Session_Play
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
 
-			try
-			{
-				// clear play log summary cache
-				\Cache::delete("play-logs.{$this->inst_id}.{$semester}");
-				\Cache::delete("play-logs.{$this->inst_id}.all");
-			}
-			catch (\CacheNotFoundException $e) {}
+			// clear play log summary cache
+			\Cache::delete("play-logs.{$this->inst_id}.{$semester}");
+			\Cache::delete("play-logs.{$this->inst_id}.all");
 
 			if ( ! $this->save_new_play())
 			{
@@ -188,14 +184,8 @@ class Session_Play
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
 
-			try
-			{
-				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
-				\Cache::delete('play-logs.'.$this->inst_id.'.all');
-			}
-			catch (\CacheNotFoundException $e)
-			{
-			}
+			\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
+			\Cache::delete('play-logs.'.$this->inst_id.'.all');
 
 		try
 		{
@@ -238,39 +228,38 @@ class Session_Play
 		{
 			$cache_id = 'all';
 		}
-		try
+
+		$plays = \Cache::easy_get('play-logs.'.$inst_id.'.'.$cache_id);
+
+		if (is_null($plays))
 		{
-			return \Cache::get('play-logs.'.$inst_id.'.'.$cache_id);
-		}
-		catch (\CacheNotFoundException $e)
-		{
+			$query = \DB::select(
+					's.id',
+					['s.created_at', 'time'],
+					['s.is_complete', 'done'],
+					['s.percent', 'perc'],
+					['s.elapsed', 'elapsed'],
+					['s.qset_id', 'qset_id'],
+					'user_id',
+					['u.first', 'first'],
+					['u.last', 'last'],
+					'username'
+				)
+				->from(['log_play', 's'])
+				->join(['users', 'u'], 'LEFT OUTER')
+					->on('u.id', '=', 's.user_id')
+				->where('s.inst_id', $inst_id);
+
+			if (isset($date))
+			{
+				$query->where('s.created_at', '>', $date->start_at)
+					->where('s.created_at', '<', $date->end_at);
+			}
+			$plays = $query->execute()->as_array();
+
+			\Cache::set('play-logs.'.$inst_id.'.'.$cache_id, $plays);
 		}
 
-		$query = \DB::select(
-				's.id',
-				['s.created_at', 'time'],
-				['s.is_complete', 'done'],
-				['s.percent', 'perc'],
-				['s.elapsed', 'elapsed'],
-				['s.qset_id', 'qset_id'],
-				'user_id',
-				['u.first', 'first'],
-				['u.last', 'last'],
-				'username'
-			)
-			->from(['log_play', 's'])
-			->join(['users', 'u'], 'LEFT OUTER')
-				->on('u.id', '=', 's.user_id')
-			->where('s.inst_id', $inst_id);
-
-		if (isset($date))
-		{
-			$query->where('s.created_at', '>', $date->start_at)
-				->where('s.created_at', '<', $date->end_at);
-		}
-		$plays = $query->execute()->as_array();
-
-		\Cache::set('play-logs.'.$inst_id.'.'.$cache_id, $plays);
 		return $plays;
 	}
 
@@ -341,12 +330,8 @@ class Session_Play
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
 
-			try
-			{
-				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
-				\Cache::delete('play-logs.'.$this->inst_id.'.all');
-			}
-			catch (\CacheNotFoundException $e) {}
+			\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
+			\Cache::delete('play-logs.'.$this->inst_id.'.all');
 
 			\DB::update('log_play')
 				->set([
@@ -377,14 +362,8 @@ class Session_Play
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
 
-			try
-			{
-				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
-				\Cache::delete('play-logs.'.$this->inst_id.'.all');
-			}
-			catch (\CacheNotFoundException $e)
-			{
-			}
+			\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
+			\Cache::delete('play-logs.'.$this->inst_id.'.all');
 
 			\DB::update('log_play')
 				->set([
@@ -417,14 +396,8 @@ class Session_Play
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
 
-			try
-			{
-				\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
-				\Cache::delete('play-logs.'.$this->inst_id.'.all');
-			}
-			catch (\CacheNotFoundException $e)
-			{
-			}
+			\Cache::delete('play-logs.'.$this->inst_id.'.'.$semester);
+			\Cache::delete('play-logs.'.$this->inst_id.'.all');
 
 			\DB::update('log_play')
 				->set(['is_valid' => '0'])
