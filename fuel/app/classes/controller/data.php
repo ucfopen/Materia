@@ -11,7 +11,7 @@ class Controller_Data extends Controller
 	 */
 	public function get_export($inst_id)
 	{
-		if (Materia\Api::session_valid() !== true) return new Response('', 401);
+		if (\Model_User::verify_session() !== true) return new Response('', 401);
 		$export_type  = Input::get('type');
 		$semester_ids = Input::get('semesters', '');
 
