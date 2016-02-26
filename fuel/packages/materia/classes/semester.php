@@ -78,17 +78,13 @@ class Semester
 	public static function get_current_semester()
 	{
 		// TODO: move this caching into find_date_by_time
-		try
-		{
-			return \Cache::get('current-semester');
-		}
-		catch (\CacheNotFoundException $e)
-		{
-		}
+		$id = \Cache::easy_get('current-semester');
 
-		$id = self::find_date_by_time(time());
-
-		\Cache::set('current-semester', $id, 86400); // expiration is for 24 hours
+		if (is_null($id))
+		{
+			$id = self::find_date_by_time(time());
+			\Cache::set('current-semester', $id, 86400); // expiration is for 24 hours
+		}
 
 		return $id;
 	}
