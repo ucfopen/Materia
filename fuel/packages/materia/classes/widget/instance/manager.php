@@ -72,15 +72,15 @@ class Widget_Instance_Manager
 	{
 		$me = \Model_User::find_current_id();
 
-		try
+		$locked_by = \Cache::easy_get('instance-lock.'.$inst_id);
+		if (is_null($locked_by))
 		{
-			$locked_by = \Cache::get('instance-lock.'.$inst_id);
-			if ($locked_by != $me) return false;
+			// not currently locked by anyone else
+			$locked_by = $me;
+			\Cache::set('instance-lock.'.$inst_id, $locked_by, \Config::get('materia.lock_timeout'));
 		}
-		catch (\CacheNotFoundException $e) {}
 
-		// not currently locked by anyone else
-		\Cache::set('instance-lock.'.$inst_id, $me, \Config::get('materia.lock_timeout'));
-		return true;
+		// true if the lock is mine
+		return $locked_by == $me;
 	}
 }
