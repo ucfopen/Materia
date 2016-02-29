@@ -15,15 +15,11 @@ describe 'Widget Catalog Page', ->
             .execute 'return $(".widget").length;', null, (err, result) -> expect(result.value).toBeGreaterThan(0)
             .isVisible '.flash-cards'
             .isVisible '.enigma'
-            .isVisible '.timeline'
             .isVisible '.labeling'
             # make sure the check boxes do stuff
             .isSelected "#filter-scorable", (err, isSelected) -> unless isSelected then client.click("#filter-scorable")
             .pause(500) # wait for a transition to animate
             .getCssProperty '.flash-cards.widgetMin', 'opacity', (err, opacity) ->
-                expect(opacity.property).toBe('opacity')
-                expect(opacity.value).toBeCloseTo(0.3, 2)
-            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(opacity.property).toBe('opacity')
                 expect(opacity.value).toBeCloseTo(0.3, 2)
             .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
@@ -34,15 +30,9 @@ describe 'Widget Catalog Page', ->
             .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
                 expect(opacity.property).toBe('opacity')
                 expect(opacity.value).toBeCloseTo(0.3, 2)
-            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
-                expect(opacity.property).toBe('opacity')
-                expect(opacity.value).toBeCloseTo(0.3, 2)
             .isSelected "#filter-media", (err, isSelected) -> unless isSelected then client.click("#filter-media")
             .pause(500) # wait for a transition to animate
             .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
-                expect(opacity.property).toBe('opacity')
-                expect(opacity.value).toBeCloseTo(0.3, 2)
-            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(opacity.property).toBe('opacity')
                 expect(opacity.value).toBeCloseTo(0.3, 2)
             .getCssProperty '.labeling.widgetMin', 'opacity', (err, opacity) ->
@@ -53,9 +43,6 @@ describe 'Widget Catalog Page', ->
             .isSelected "#filter-media", (err, isSelected) -> unless isSelected then client.click("#filter-media")
             .pause(500) # wait for a transition to animate
             .getCssProperty '.enigma.widgetMin', 'opacity', (err, opacity) ->
-                expect(opacity.property).toBe('opacity')
-                expect(opacity.value).toBeCloseTo(0.3, 2)
-            .getCssProperty '.timeline.widgetMin', 'opacity', (err, opacity) ->
                 expect(opacity.property).toBe('opacity')
                 expect(opacity.value).toBeCloseTo(0.3, 2)
             .getCssProperty '.flash-cards.widgetMin', 'opacity', (err, opacity) ->

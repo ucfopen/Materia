@@ -22,7 +22,7 @@
 
 module.exports =
 	webdriver: require 'webdriverio'
-	url: 'http://localhost:8080'
+	url: 'http://192.168.99.100'
 	author:
 		username: '~author'
 		password: 'kogneato'
@@ -85,6 +85,7 @@ module.exports =
 			.setValue('.intro.show input[type=text]', title)
 			.click('.intro.show button')
 			.setValue('#category_0', 'Test')
+			.pause 500
 			.click('.category:first-of-type button.add:not(.ng-hide)')
 			.setValue('#question_text', 'Test question')
 			.waitFor '#qtoggle0', 7000
@@ -101,8 +102,8 @@ module.exports =
 			client
 				.waitFor('#creatorSaveBtn.idle', 5000)
 				.click('#creatorPublishBtn')
-				.waitFor('.publish.animate-show .publish_container a.action_button.green', 1000)
-				.click('.publish.animate-show .publish_container a.action_button.green')
+				.waitFor('.publish.animate-show:nth-of-type(2) .publish_container a.action_button.green', 1000)
+				.click('.publish.animate-show:nth-of-type(2) .publish_container a.action_button.green')
 		return client
 	loginAt: (client, user, url) ->
 		client
