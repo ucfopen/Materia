@@ -13,7 +13,7 @@ describe 'LTI iframe test', ->
 
     it 'should allow logging in as Instructor', (done) ->
         client
-            .click('input[value="As Instructor"]')
+            .click('input[value="As Instructor"]:not(#play_as_instructor)')
             .frame('embed_iframe') # switch into lti frame
             .waitFor 'header h1', 5000
             .pause 1000
@@ -37,14 +37,15 @@ describe 'LTI iframe test', ->
 
     it 'should allow refreshing after making new widget', (done) ->
         client
-            .click('input[value="As Instructor"]')
+            .click('input[value="As Instructor"]:not(#play_as_instructor)')
             .frame('embed_iframe') # switch into lti frame
             .waitForText '#no-widgets', 5000
             .url "#{setup.url}/widgets/#{setup.enigma}/create"
         setup.testEnigma client, "widgetTitle", true
         client
             .url("#{setup.url}/lti/test/provider")
-            .click('input[value="As Instructor"]')
+            .frame(null)
+            .click('input[value="As Instructor"]:not(#play_as_instructor)')
         selectFirstWidget(client)
         client
             .pause(1000)
@@ -53,7 +54,7 @@ describe 'LTI iframe test', ->
     , 60000
 
     it 'should be playable by students', (done) ->
-        client.click('input[value="As Instructor"]')
+        client.click('input[value="As Instructor"]:not(#play_as_instructor)')
         selectFirstWidget(client)
         client
             .frame(null)
@@ -68,7 +69,7 @@ describe 'LTI iframe test', ->
     , 60000
 
     it 'should be playable by new students', (done) ->
-        client.click('input[value="As Instructor"]')
+        client.click('input[value="As Instructor"]:not(#play_as_instructor)')
         selectFirstWidget(client)
         client
             .frame(null)
@@ -82,7 +83,7 @@ describe 'LTI iframe test', ->
     , 60000
 
     it 'should be playable by test student', (done) ->
-        client.click('input[value="As Instructor"]')
+        client.click('input[value="As Instructor"]:not(#play_as_instructor)')
         selectFirstWidget(client)
         client
             .frame(null)
@@ -96,7 +97,7 @@ describe 'LTI iframe test', ->
     , 60000
 
     it 'should be show success to instructors', (done) ->
-        client.click('input[value="As Instructor"]')
+        client.click('input[value="As Instructor"]:not(#play_as_instructor)')
         selectFirstWidget(client)
         client
             .frame(null)
@@ -109,19 +110,16 @@ describe 'LTI iframe test', ->
     , 60000
 
     it 'should pass oauth validation', (done) ->
-        client.click('input[value="As Instructor"]')
-        selectFirstWidget(client)
+        client.click('input[value="Test Validation"]')
         client
-            .frame(null)
-            .click('input[value="Test Validation"]')
             .frame('embed_iframe') # switch into lti frame
             .pause(200)
             .getText 'body', (err, body) -> expect(body).toContain("PASSED!")
             .call done
     , 60000
 
-    it 'should warn unkown assignments', (done) ->
-        client.click('input[value="As Instructor"]')
+    it 'should warn unknown assignments', (done) ->
+        client.click('input[value="As Instructor"]:not(#play_as_instructor)')
         selectFirstWidget(client)
         client
             .frame(null)

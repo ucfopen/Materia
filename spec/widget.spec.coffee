@@ -320,13 +320,17 @@ describe 'When I create a widget', ->
             .pause 100
             .setValue '.from .date', "01/01/1970"
             .pause 100
+            .click '.from .time'
             .setValue '.from .time', "9:00"
-            .click '.to .date'
-            .pause 100
-            .setValue '.to .date', "01/01/2038"
-            .pause 100
+            .pause 2000
+            .click '.to .time'
             .setValue '.to .time', "11:00"
             .pause 100
+            .click '.to .date'
+            .setValue '.to .date', "01/01/2038"
+            .pause 100
+            .click '.to .time'
+            .pause 2000
             .click '.availability .action_button.save'
             .pause 5000
             .waitForPageVisible '.num-attempts', 7000
@@ -401,7 +405,7 @@ describe 'When I create a widget', ->
     it 'it should allow you to add a collaborator', (done) ->
         client
             .url("about:blank")
-            .url('http://localhost:8080/my-widgets#/'+copyInstanceID)
+            .url("#{setup.url}/my-widgets#/"+copyInstanceID)
             .pause 5000
             .waitFor '#widget_'+copyInstanceID+'.gameSelected', 7000
             .waitForPageVisible '.share div.link', 7000
@@ -446,7 +450,7 @@ describe 'When I create a widget', ->
     it 'it should allow you to remove a collaborator', (done) ->
         client
             .url('about:blank')
-            .url('http://localhost:8080/my-widgets#/'+copyInstanceID)
+            .url("#{setup.url}/my-widgets#/"+copyInstanceID)
             .pause 5000
             .waitFor('#widget_'+copyInstanceID+'.gameSelected', 7000)
             .pause 1000
@@ -474,7 +478,7 @@ describe 'When I create a widget', ->
     it 'it should limit your abilities after downgrading your access', (done) ->
         client
             .url 'about:blank'
-            .url('http://localhost:8080/my-widgets#/'+copyInstanceID)
+            .url("#{setup.url}/my-widgets#/"+copyInstanceID)
             .pause 5000
             .waitFor('#widget_'+copyInstanceID+'.gameSelected', 7000)
             .pause 1000
@@ -489,7 +493,7 @@ describe 'When I create a widget', ->
             .pause 1000
             .click '.save_button'
             .url 'about:blank'
-            .url('http://localhost:8080/my-widgets#/'+copyInstanceID)
+            .url("#{setup.url}/my-widgets#/"+copyInstanceID)
             .pause 5000
 
             # editing should fail
@@ -520,7 +524,7 @@ describe 'When I create a widget', ->
     it 'it remove a widget from my widgets after removing your access', (done) ->
         client
             .url 'about:blank'
-            .url('http://localhost:8080/my-widgets#/'+copyInstanceID)
+            .url("#{setup.url}/my-widgets#/"+copyInstanceID)
             .pause 5000
             .waitFor('#widget_'+copyInstanceID+'.gameSelected', 7000)
             .pause 1000
@@ -529,13 +533,14 @@ describe 'When I create a widget', ->
 
             # now let's try to remove our access
             .waitForPageVisible '.access_list .user_perm[data-user-id="2"] .remove', 7000
+            .pause 2000
             .click '.access_list .user_perm[data-user-id="2"] .remove'
             .waitForPageVisible '.access_list .user_perm[data-user-id="2"] .demote_dialogue', 7000
             .click '.access_list .user_perm[data-user-id="2"] .demote_dialogue .yes_button'
             .pause 1000
             .click '.save_button'
             .url 'about:blank'
-            .url 'http://localhost:8080/my-widgets#/' + copyInstanceID
+            .url "#{setup.url}/my-widgets#/" + copyInstanceID
             .pause 5000
             .execute "return $('#widget_"+copyInstanceID+"').length;", null, (err, result) ->
                 expect(err).toBeNull()
