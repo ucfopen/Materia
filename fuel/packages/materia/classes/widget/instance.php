@@ -417,7 +417,7 @@ class Widget_Instance
 	 */
 	public function playable_by_current_user()
 	{
-		return $this->guest_access || Api::session_valid();
+		return $this->guest_access || \Model_User::verify_session();
 	}
 
 	public function viewable_by($user_id)
