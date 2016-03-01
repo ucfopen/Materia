@@ -439,17 +439,17 @@ class Api_V1
 	}
 
 	/**
-	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the given context.
-	 * If not context is supplied, the current semester will be used instead.
+	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
+	 * If no launch token is supplied, the current semester will be used as the current context.
 	 *
 	 * @param string $inst_id The widget instance ID
-	 * @param string $context_id The context ID corresponding to a given play or set of plays
+	 * @param string $token The launch token corresponding to the first play in a series of replays, if it exists
 	 *
-	 * @return array An array containing a list of scores as an array and the number of attempts left in the given context
+	 * @return array An array containing a list of scores as an array and the number of attempts left in the current context, if applicable
 	 */
-	static public function widget_instance_scores_get($inst_id, $token)
+	static public function widget_instance_scores_get($inst_id, $token=false)
 	{
-		$result = \Event::trigger('before_score_display', $token);
+		$result = $token ? \Event::trigger('before_score_display', $token) : null;
 		$context_id = empty($result) ? Semester::get_current_semester() : $result;
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
