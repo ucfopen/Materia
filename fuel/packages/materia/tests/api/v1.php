@@ -420,8 +420,67 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals('Drafts Not Playable', $output->title);
 
 		\Materia\Api_V1::widget_instance_delete($saveOutput->id);
-	}
 
+		// ============ MAKE A PUBLISHED WIDGET ============
+		$title = "My Test Widget";
+		$question = 'Question';
+		$answer = 'Answer';
+		$widget_id = 5;
+		$qset = $this->create_new_qset($question, $answer);
+
+		$saveOutput = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
+		$this->assertIsWidgetInstance($saveOutput);
+		$qset = $saveOutput->qset;
+
+		//add attempt limit
+		$saveOutput = \Materia\Api_V1::widget_instance_update($saveOutput->id, null, null, false, null, null, 1);
+		$this->assertIsWidgetInstance($saveOutput);
+
+		$logs = [
+			[
+				'type' => 1004,
+				'item_id' => $qset->data['items'][0]['items'][0]['id'],
+				'text' => 'Answer',
+				'game_time' => 1
+			],
+			[
+				'type' => 2,
+				'item_id' => 0,
+				'text' => '',
+				'value' => '',
+				'game_time' => 1
+			]
+		];
+		$context = 'context_1';
+
+		// ============ PLAY IN FIRST CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$score = \Materia\Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN FIRST CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+
+		$context = 'context_2';
+
+		// ============ PLAY IN SECOND CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$score = \Materia\Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN SECOND CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+
+		// ============ PLAY WITHOUT CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput);
+		$score = \Materia\Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+		// ============ TRY PLAYING PAST ATTEMPT LIMIT WITHOUT CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput);
+		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+
+		\Materia\Api_V1::widget_instance_delete($saveOutput->id);
+	}
 
 	public function test_session_logout()
 	{
