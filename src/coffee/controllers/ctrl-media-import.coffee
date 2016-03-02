@@ -67,7 +67,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		upl = $("#uploader")
 		upl.pluploadQueue
 			# General settings
-			runtimes : 'html5,flash,html4'
+			runtimes : 'html5,html4'
 			url : '/media/upload/'
 			max_file_size : '60mb'
 			chunk_size : '2mb'
@@ -92,12 +92,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						loadAllMedia()
 				# automatic upload on drop into queue
 				FilesAdded: (up) ->
-						up.start()
-						# render import form unclickable during upload
-						$('#import-form').css {
-							"pointer-events": "none"
-							opacity: "0.2"
-						}
+					up.start()
+					# render import form unclickable during upload
+					$('#import-form').css {
+						"pointer-events": "none"
+						opacity: "0.2"
+					}
 				# fired when the above is successful
 				FileUploaded: (up, file, response) ->
 					res = $.parseJSON response.response #parse response string
@@ -105,6 +105,11 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					loadAllMedia res.id
 				Error: (up, args) ->
 					# Called when a error has occured
+					if args.code = -600 # http error
+						up.removeFile args.file
+						alert 'There was an unexpected error (500) - Try again later.'
+						$window.parent.Materia.Creator.onMediaImportComplete null
+						false
 
 		$("#uploader_browse", upl)
 			.text('Browse...')
@@ -182,7 +187,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							temp.innerHTML = data.title.split('.')[0]
 							cell.appendChild temp
 
-							temp=document.createElement "div"
+							temp = document.createElement "div"
 							temp.className = "subtable-type subtable-gray"
 							temp.innerHTML = data.type
 							cell.appendChild temp
