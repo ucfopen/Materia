@@ -539,38 +539,44 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
-	public function test_session_valid()
+	public function test_session_play_verify()
 	{
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+
+	public function test_session_author_verify()
+	{
+		// TODO: MOVE TO MODEL TESTS
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::session_valid();
+		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertFalse($output);
 
-		$output = \Materia\Api_V1::session_valid('basic_author');
+		$output = \Materia\Api_V1::session_author_verify('basic_author');
 		$this->assertFalse($output);
 
 		// ======= STUDENT ========
 		$this->_asStudent();
-		$output = \Materia\Api_V1::session_valid();
+		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertTrue($output);
-		$output = \Materia\Api_V1::session_valid('basic_author');
+		$output = \Materia\Api_V1::session_author_verify('basic_author');
 		$this->assertFalse($output);
 
 		// ======= AUTHOR ========
 		$this->_asAuthor();
-		$output = \Materia\Api_V1::session_valid();
+		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertTrue($output);
-		$output = \Materia\Api_V1::session_valid('basic_author');
+		$output = \Materia\Api_V1::session_author_verify('basic_author');
 		$this->assertTrue($output);
-		$output = \Materia\Api_V1::session_valid('super_user');
+		$output = \Materia\Api_V1::session_author_verify('super_user');
 		$this->assertFalse($output);
 
 		// ======= SU ========
 		$this->_asSu();
-		$output = \Materia\Api_V1::session_valid();
+		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertTrue($output);
-		$output = \Materia\Api_V1::session_valid('basic_author');
+		$output = \Materia\Api_V1::session_author_verify('basic_author');
 		$this->assertTrue($output);
-		$output = \Materia\Api_V1::session_valid('super_user');
+		$output = \Materia\Api_V1::session_author_verify('super_user');
 		$this->assertTrue($output);
 	}
 

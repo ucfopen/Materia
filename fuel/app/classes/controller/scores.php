@@ -72,7 +72,7 @@ class Controller_Scores extends Controller
 
 	public function get_show_embedded($inst_id)
 	{
-		if (Materia\Api::session_valid() !== true)
+		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
