@@ -460,6 +460,7 @@ class Test_Api_V1 extends \Basetest
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN FIRST CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput, $context);
 		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertEquals('No attempts remaining', $output->title);
 
 		$context = 'context_2';
 
@@ -470,6 +471,7 @@ class Test_Api_V1 extends \Basetest
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN SECOND CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput, $context);
 		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertEquals('No attempts remaining', $output->title);
 
 		// ============ PLAY WITHOUT CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput);
@@ -478,6 +480,7 @@ class Test_Api_V1 extends \Basetest
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT WITHOUT CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput);
 		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertEquals('No attempts remaining', $output->title);
 
 		\Materia\Api_V1::widget_instance_delete($saveOutput->id);
 	}
