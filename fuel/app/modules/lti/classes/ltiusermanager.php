@@ -48,7 +48,7 @@ class LtiUserManager
 				}
 			}
 
-			return (bool) \Auth::instance($auth_driver)->force_login($user->id);
+			return (bool) \Auth::instance()->force_login($user->id);
 		}
 
 		\Auth::logout();
