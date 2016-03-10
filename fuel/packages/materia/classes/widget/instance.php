@@ -431,14 +431,16 @@ class Widget_Instance
 	 */
 	public function status($context_id=false)
 	{
-		if ( ! $context_id) $context_id = Semester::get_current_semester();
+		if ( ! $context_id) $context_id = '';
+		$semester = Semester::get_current_semester();
+
 		$now           = time();
 		$start         = (int) $this->open_at;
 		$end           = (int) $this->close_at;
-		$attempts_used = count(Score_Manager::get_instance_score_history($this->id, $context_id));
+		$attempts_used = count(Score_Manager::get_instance_score_history($this->id, $context_id, $semester));
 
 		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
-		$extra_attempts = Score_Manager::get_instance_extra_attempts($this->id, \Model_User::find_current_id(), $context_id);
+		$extra_attempts = Score_Manager::get_instance_extra_attempts($this->id, \Model_User::find_current_id(), $context_id, $semester);
 		$attempts_used -= $extra_attempts;
 
 		$has_attempts  = $this->attempts == -1 || $attempts_used < $this->attempts;

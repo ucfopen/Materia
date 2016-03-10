@@ -32,6 +32,7 @@ class Session_Play
 	public $environment_data;
 	public $id;
 	public $context_id;
+	public $semester;
 	public $inst_id;
 	public $ip;
 	public $is_complete;
@@ -58,9 +59,12 @@ class Session_Play
 			$instance = Widget_Instance_Manager::get($inst_id);
 			$instance->get_qset($inst_id);
 
+			if ( ! $context_id) $context_id = '';
+
 			$this->created_at       = time();
 			$this->user_id          = $instance->guest_access ? 0 : $user_id;
 			$this->inst_id          = $inst_id;
+			$this->context_id       = $context_id;
 			$this->is_preview       = $is_preview;
 			$this->qset_id          = $instance->qset->id;
 			$this->environment_data = [
@@ -78,10 +82,9 @@ class Session_Play
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
 
-
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
-			$this->context_id = $context_id ? $context_id : $semester;
+			$this->semester = $semester;
 
 			// clear play log summary cache
 			\Cache::delete("play-logs.{$this->inst_id}.{$semester}");
@@ -160,7 +163,8 @@ class Session_Play
 				'environment_data' => base64_encode(json_encode($this->environment_data)),
 				'auth'             => $this->auth,
 				'referrer_url'     => $this->referrer_url,
-				'context_id'       => $this->context_id
+				'context_id'       => $this->context_id,
+				'semester'         => $this->semester
 			])
 			->execute();
 
@@ -291,7 +295,8 @@ class Session_Play
 				$this->percent     = 0;
 				$this->elapsed     = 0;
 				$this->is_preview  = true;
-				$this->context_id  = Semester::get_current_semester();
+				$this->context_id  = '';
+				$this->semester    = Semester::get_current_semester();
 				return true;
 			}
 		}
@@ -317,6 +322,7 @@ class Session_Play
 				$this->percent     = $r['percent'];
 				$this->elapsed     = $r['elapsed'];
 				$this->context_id  = $r['context_id'];
+				$this->semester    = $r['semester'];
 				return true;
 			}
 		}
@@ -474,5 +480,4 @@ class Session_Play
 			->as_object()
 			->execute();
 	}
-
 }
