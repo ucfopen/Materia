@@ -8,7 +8,7 @@ class Score_Manager
 	 * @param int inst_id Widget Instance ID
 	 * @return array Time sorted array of play scores containing play_id, timestamp, and score keys
 	 */
-	static public function get_instance_score_history($inst_id, $context_id = false)
+	static public function get_instance_score_history($inst_id, $context_id = null, $semester = null)
 	{
 		$query = \DB::select('id','created_at','percent')
 			->from('log_play')
@@ -16,7 +16,8 @@ class Score_Manager
 			->where('user_id', \Model_User::find_current_id())
 			->where('inst_id', $inst_id)
 			->order_by('created_at', 'DESC');
-		if ($context_id) $query->where('context_id', $context_id);
+		if (isset($context_id)) $query->where('context_id', $context_id);
+		if (isset($semester)) $query->where('semester', $semester);
 		return $query->execute()
 			->as_array();
 	}
@@ -45,13 +46,14 @@ class Score_Manager
 	* @param string user_id User ID
 	* @return int number of extra attempts granted to the user for that instance, or 0
 	*/
-	static public function get_instance_extra_attempts($inst_id, $user_id, $context_id)
+	static public function get_instance_extra_attempts($inst_id, $user_id, $context_id, $semester)
 	{
 		$result = \DB::select('extra_attempts')
 			->from('user_extra_attempts')
 			->where('user_id', $user_id)
 			->where('inst_id', $inst_id)
 			->where('context_id', $context_id)
+			->where('semester', $semester)
 			->execute()
 			->as_array();
 

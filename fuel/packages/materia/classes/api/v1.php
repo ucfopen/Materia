@@ -475,15 +475,16 @@ class Api_V1
 	static public function widget_instance_scores_get($inst_id, $token=false)
 	{
 		$result = $token ? \Event::trigger('before_score_display', $token) : null;
-		$context_id = empty($result) ? Semester::get_current_semester() : $result;
+		$context_id = empty($result) ? '' : $result;
+		$semester = Semester::get_current_semester();
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		$scores = Score_Manager::get_instance_score_history($inst_id);
-		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, $context_id));
-		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id);
+		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, $context_id, $semester));
+		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id, $semester);
 
 		$attempts_left = $inst->attempts - $attempts_used + $extra;
 

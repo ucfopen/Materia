@@ -361,9 +361,7 @@ class Controller_Widgets extends Controller
 
 		if ($is_open)
 		{
-			$alt = \Event::Trigger('before_widget_login');
-			$theme = $alt ?: 'partials/widget/login';
-			$content = $this->theme->set_partial('content', $theme);
+			$content = $this->theme->set_partial('content', 'partials/widget/login');
 			$content
 				->set('user', __('user'))
 				->set('pass', __('password'))
