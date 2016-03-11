@@ -51,7 +51,7 @@ sup {
 
 .download-button {
 	display: inline-block;
-	width: 163px;
+	width: 183px;;
 	height: 45px;
 	background: url('../img/right-arrow.png') no-repeat 17px 20px, linear-gradient(top, #ff9f7e, #ff561c);
 	background: url('../img/right-arrow.png') no-repeat 17px 20px, -o-linear-gradient(top, #ff9f7e, #ff561c);
