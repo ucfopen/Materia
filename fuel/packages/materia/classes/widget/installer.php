@@ -22,7 +22,7 @@ class Widget_Installer
 		$extract_location = self::get_temp_dir();
 		if ( ! $extract_location)
 		{
-			self::end('Unable to extract widget.', true);
+			self::abort('Unable to extract widget.');
 			return false;
 		}
 
@@ -51,22 +51,22 @@ class Widget_Installer
 	{
 		if ( ! isset($demo_data['name']))
 		{
-			self::abort('Missing name in demo', true);
+			self::abort('Missing name in demo');
 		}
 
 		if ( ! isset($demo_data['qset']))
 		{
-			self::abort('Missing qset in demo', true);
+			self::abort('Missing qset in demo');
 		}
 
 		if ( ! isset($demo_data['qset']['data']))
 		{
-			self::abort('Missing qset data in demo', true);
+			self::abort('Missing qset data in demo');
 		}
 
 		if ( ! isset($demo_data['qset']['version']))
 		{
-			self::abort('Missing qset version in demo', true);
+			self::abort('Missing qset version in demo');
 		}
 	}
 
@@ -76,7 +76,7 @@ class Widget_Installer
 		$manifest_file = $dir.'/install.yaml';
 		if ( ! file_exists($manifest_file))
 		{
-			self::abort('Missing manifest yaml file', true);
+			self::abort('Missing manifest yaml file');
 		}
 
 		$file_area = \File::forge(['basedir' => null]);
@@ -289,7 +289,6 @@ class Widget_Installer
 	{
 		$missing_sections = array_diff($required, array_keys($section));
 		return (count($missing_sections) > 0);
-		//	self::abort('Manifest '.$section_name.' section missing one or more required values: '.implode(', ', $missing_sections), true);
 	}
 
 	private static function values_are_not_numeric($section_data, $attributes)
@@ -308,7 +307,6 @@ class Widget_Installer
 		});
 
 		return (count($wrong_values) > 0);
-		//	self::abort('The following attributes must be numeric: '.implode(', ', array_keys($wrong_values)), true);
 	}
 
 	private static function values_are_not_boolean($section_data, $attributes)
@@ -327,7 +325,6 @@ class Widget_Installer
 		});
 
 		return (count($wrong_values) > 0);
-		//	self::abort('The following attributes must be boolean: '.implode(', ', array_keys($wrong_values)), true);
 	}
 
 
@@ -342,7 +339,7 @@ class Widget_Installer
 		$missing_sections = array_diff(['general', 'files', 'score', 'meta_data'], array_keys($manifest_data));
 		if (count($missing_sections) > 0)
 		{
-			self::abort('Manifest missing one or more required sections: '.implode(', ', $missing_sections), true);
+			self::abort('Manifest missing one or more required sections: '.implode(', ', $missing_sections));
 		}
 
 		// 3. make sure the general section is correct
@@ -364,7 +361,6 @@ class Widget_Installer
 		$player_file = $dir.'/'.$files['player'];
 		if ( ! file_exists($player_file))
 		{
-			//self::abort('The player file specified in the mainfest ('.$player_file.') could not be found', true);
 			return;
 		}
 
@@ -373,7 +369,6 @@ class Widget_Installer
 			$creator_file = $dir.'/'.$files['creator'];
 			if ( ! file_exists($creator_file))
 			{
-				//self::abort('The creator file specified in the mainfest ('.$creator_file.') could not be found', true);
 				return;
 			}
 		}
@@ -454,7 +449,7 @@ class Widget_Installer
 		$score_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
 
 		// create the widget specific directory
-		self::clear_path(PKGPATH.'materia/vendor/widget/'. $widget_dir);
+		self::clear_path(PKGPATH.'materia/vendor/widget/'.$widget_dir);
 		$file_area->create_dir(PKGPATH.'materia/vendor/widget/', $widget_dir);
 
 		// score modules
@@ -524,7 +519,7 @@ class Widget_Installer
 		{
 			$file_area = \File::forge(['basedir' => null]);
 			$dir = self::extract_widget($widget_file);
-			if (!$dir)
+			if ( ! $dir)
 			{
 				return false;
 			}
@@ -573,7 +568,7 @@ class Widget_Installer
 			{
 				$manifest_data['meta_data']['demo'] = $demo_id;
 			}
-			else if ($demo_id < 0)
+			elseif ($demo_id < 0)
 			{
 				return false;
 			}
@@ -593,10 +588,8 @@ class Widget_Installer
 		return false;
 	}
 
-	private static function abort($message = false, $error = false)
+	private static function abort($message = false)
 	{
-		self::end($message, $error);
 		throw new \Exception('Error: '.$message);
 	}
-
 }
