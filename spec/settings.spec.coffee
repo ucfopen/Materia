@@ -67,8 +67,8 @@ describe 'Settings page', ->
             .isSelected('#avatar_gravatar')
             .isSelected('#notify')
             .getAttribute '.avatar_big img', 'src', (err, src) ->
-                expect(src).toContain('gravatar')
-                expect(src).toContain('robohash.org/')
+                expect(src).toContain('&d=retro')
+                expect(src).toContain('secure.gravatar.com/avatar')
                 expect(src).toContain('100')
             .getAttribute 'header span .user.avatar img', 'src', (err, src) ->
                 expect(src).toContain('gravatar')

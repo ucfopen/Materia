@@ -34,7 +34,7 @@ module.exports =
 	enigma: "3-enigma"
 	webdriverOptions:
 		desiredCapabilities:
-			browserName: process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+			browserName: process.env.BROWSER || 'phantomjs' # phantomjs, firefox, 'safari'. 'chrome'
 		logLevel: "silent" # verbose, silent, command, data, result
 	getClient: ->
 		client = module.exports.webdriver.remote(module.exports.webdriverOptions).init()
@@ -76,62 +76,57 @@ module.exports =
 
 		return client
 	testEnigma: (client, title, publish = false) ->
+		console.log "testEnigma"
 		client
 			.pause 100
-			.waitFor('#container', 7001)
 			.getTitle (err, title) -> expect(title).toBe('Create Widget | Materia')
 			.frame('container') # switch into widget frame
-			.waitForPageVisible('.intro.show', 7000)
 			.setValue('.intro.show input[type=text]', title)
 			.click('.intro.show button')
 			.setValue('#category_0', 'Test')
 			.pause 500
 			.click('.category:first-of-type button.add:not(.ng-hide)')
 			.setValue('#question_text', 'Test question')
-			.waitFor '#qtoggle0', 7000
 			.click('label[for=qtoggle0]')
 			.setValue('.questions textarea', 'Some answer')
 			.scroll 0, 200
 			.click '.submit.action'
 			.frame(null) # switch back to main content
+			.scroll('#creatorSaveBtn', 0, 0)
 			.click('#creatorSaveBtn')
-			.waitFor('#creatorSaveBtn.saving', 1000)
-			.waitFor('#creatorSaveBtn.saved', 5000)
-			.execute "return document.location.href.split('#')[1];", null, (err, result) -> expect(result.value.length).toBe(5)
+			.pause(5000)
+			.execute "return document.location.href.split('#')[1];", null, (err, result) ->
+				expect(result.value.length).toBe(5)
 		if (publish)
 			client
-				.waitFor('#creatorSaveBtn.idle', 5000)
 				.click('#creatorPublishBtn')
-				.waitFor('.publish.animate-show:nth-of-type(2) .publish_container a.action_button.green', 1000)
 				.click('.publish.animate-show:nth-of-type(2) .publish_container a.action_button.green')
+		console.log "testEnigma success"
 		return client
 	loginAt: (client, user, url) ->
+		console.log "loginAt"
 		client
 			.url(url)
-			.waitForPageVisible '#username', 2000
 			.getTitle (err, title) -> expect(title).toBe('Login | Materia')
 			.setValue('#username', user.username)
 			.setValue('#password', user.password)
 			.click('form button.action_button')
 			.pause(800)
+		console.log "loginAt success"
 		return client
 
 	playEnigma: (client) ->
+		console.log "playEnigma"
 		client
 			.pause 100
-			.waitFor '#container', 7000
 			.frame('container') # switch into widget frame
-			.waitForPageVisible '.question.unanswered', 7000
 			.click '.question.unanswered'
-			.waitForPageVisible '.answers label', 7000
 			.click '.answers label'
-			.waitForPageVisible '.answers label'
 			.click '.button.submit'
-			.waitForPageVisible '.button.return.highlight', 7000
 			.click '.button.return.highlight'
-			.waitForPageVisible '.notice button', 7000
 			.click '.notice button'
 			.pause 3000 # wait for score submit
+		console.log "playEnigma success"
 		return client
 
 jasmine.getEnv().defaultTimeoutInterval = 50000
