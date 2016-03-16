@@ -3,10 +3,12 @@
 
 webdriverjs = require('webdriverio')
 testBrowser = process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
-jasmine.getEnv().defaultTimeoutInterval = 10000
+jasmine.getEnv().defaultTimeoutInterval = 50000
 author =
 	username: '~author'
 	password: 'kogneato'
+environment =
+	url: 'http://192.168.99.100'
 
 module.exports = (widget, callback) ->
 	console.log "Testing " + widget
@@ -14,6 +16,9 @@ module.exports = (widget, callback) ->
 	client.init()
 	client.windowHandlePosition 'current', { x: 0, y: 0 }
 	client.windowHandleSize 'current', { width: 1200, height: 650 }
+
+	waitForPageVisible = require '../includes/waitForPageVisible.js'
+	client.addCommand 'waitForPageVisible', waitForPageVisible
 
 	# client
 	# 	.url('http://localhost:8080/login')
@@ -25,11 +30,12 @@ module.exports = (widget, callback) ->
 	# 	.click('form button.action_button')
 
 	client
-		.url('http://localhost:8080/widgets')
-		.waitFor('.widgets', 5000)
-		.waitFor('.' + widget, 5000)
-		.click('.' + widget + ' a', 5000)
-		.waitFor('#demoLink', 5000)
+		.url("#{environment.url}/widgets")
+		.waitFor(".widget.#{widget}", 3000)
+		.moveToObject(".widget.#{widget} .infocard", 10, 10)
+		.waitFor('.infocard:hover .header h1', 4000)
+		.click('.infocard:hover .header')
+		.waitForPageVisible('#demoLink', 7000)
 		.execute "return location.href", null, (err, result) ->
 			client
 				.url(result.value + '/demo')
