@@ -35,10 +35,10 @@ class Session_Logger
 				foreach ($logs as $log)
 				{
 					// define the defaults
-					$type      = isset($log['type'])      ? $log['type']      : 0;
-					$item_id   = isset($log['item_id'])   ? $log['item_id']   : 0;
-					$text      = isset($log['text'])      ? $log['text']      : '';
-					$value     = isset($log['value'])     ? $log['value']     : '';
+					$type      = isset($log['type']) ? $log['type'] : 0;
+					$item_id   = isset($log['item_id']) ? $log['item_id'] : 0;
+					$text      = isset($log['text']) ? $log['text'] : '';
+					$value     = isset($log['value']) ? $log['value'] : '';
 					$game_time = isset($log['game_time']) ? $log['game_time'] : '';
 
 					static::add_log($play_id, static::get_type($type), $item_id, $text, $value, $game_time, $time);
@@ -180,4 +180,25 @@ class Session_Logger
 		return [];
 	}
 
+	static public function query_logs($where_conditions, $order_conditions = null, $group_conditions = null)
+	{
+		//omit fields which could be traced to identify students
+		$query = \DB::select('id', 'type', 'item_id', 'text', 'value', 'created_at', 'game_time', 'visible')
+			->from('log');
+		foreach ($where_conditions as $where_condition)
+		{
+			list($where_key, $where_comparison, $where_value) = $where_condition;
+			$query->where($where_key, $where_comparison, $where_value);
+		}
+
+		if ($group_conditions) $query->group_by(implode($group_conditions));
+		if ($order_conditions)
+		{
+			foreach ($order_conditions as $condition)
+			{
+				$query->order_by($condition);
+			}
+		}
+		return $query->execute();
+	}
 }
