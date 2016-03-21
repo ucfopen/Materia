@@ -216,7 +216,7 @@ abstract class Score_Module
 	{
 		$q     = $this->questions[$log->item_id];
 		$score = $this->check_answer($log);
-		
+
 		return [
 			'data' => [
 				$this->get_ss_question($log, $q),
@@ -337,5 +337,10 @@ abstract class Score_Module
 	public function get_ss_question($log, $question)
 	{
 		return $question->questions[0]['text'];
+	}
+
+	protected static function query_logs($arg1, $arg2=null, $arg3=null)
+	{
+		return Session_Logger::query_logs($arg1, $arg2, $arg3);
 	}
 }
