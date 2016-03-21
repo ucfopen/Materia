@@ -339,8 +339,8 @@ abstract class Score_Module
 		return $question->questions[0]['text'];
 	}
 
-	protected static function query_logs($arg1, $arg2=null, $arg3=null)
+	protected static function query_logs($where_conditions, $order_conditions=null, $group_conditions=null)
 	{
-		return Session_Logger::query_logs($arg1, $arg2, $arg3);
+		return Session_Logger::query_logs($where_conditions, $order_conditions, $group_conditions);
 	}
 }
