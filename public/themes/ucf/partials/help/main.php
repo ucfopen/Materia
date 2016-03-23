@@ -32,15 +32,15 @@
 
 		<section class="float right bordered">
 			<h2 id="faq-link">FAQs</h2>
-			<p>The Online@UCF Support website provides a fequently asked questions section for help with Materia.</p>
+			<p>The Webcourses@UCF Support website provides a fequently asked questions section for help with Materia.</p>
 			<p><a href="http://online.ucf.edu/support/materia/" class="external">View the FAQs</a></p>
 		</section>
 
 		<section class="float right">
 			<h2 id="support">Support</h2>
-			<p>If you need help beyond what has been provided here, please contact Online@UCF Support using one of the following:</p>
+			<p>If you need help beyond what has been provided here, please contact Webcourses@UCF Support using one of the following:</p>
 			<dl>
-				<dt>Online@UCF Support</dt>
+				<dt>Webcourses@UCF Support</dt>
 					<dd><a href="http://online.ucf.edu/support/">http://online.ucf.edu/support/</a></dd>
 				<dt>Email</dt>
 					<dd><a href="mailto:onlinesupport@ucf.edu">onlinesupport@ucf.edu</a></dd>
