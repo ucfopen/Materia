@@ -2,7 +2,7 @@
 # This is imported by all the individual widget specs
 
 webdriverjs = require('webdriverio')
-testBrowser = process.env.BROWSER || 'firefox' # phantomjs, firefox, 'safari'. 'chrome'
+testBrowser = process.env.BROWSER || 'phantomjs' # phantomjs, firefox, 'safari'. 'chrome'
 jasmine.getEnv().defaultTimeoutInterval = 50000
 author =
 	username: '~author'

@@ -62,6 +62,7 @@ describe 'Settings page', ->
 			.click('form button.action_button')
 			.isSelected('#avatar_gravatar')
 			.isSelected('#notify')
+			.pause(1000) # wait for gravatar URL to update
 			.getAttribute '.avatar_big img', 'src', (err, src) ->
 				expect(src).toContain('&d=retro')
 				expect(src).toContain('secure.gravatar.com/avatar')
