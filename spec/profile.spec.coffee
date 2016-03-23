@@ -17,10 +17,8 @@ describe 'When not logged in', ->
 		setup.loginAt client, setup.author, "#{setup.url}/profile"
 		client
 			.pause 100
-			#.waitForPageVisible '.container', 5000
 			.getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
 			.url("#{setup.url}/profile")
-			#.waitForPageVisible '.user_type', 5000
 			.getTitle (err, title) -> expect(title).toBe('Profile | Materia')
 			.getText '.page h2', (err, text) -> expect(text).toContain(setup.author.name)
 			.isVisible('.avatar_big')
@@ -46,9 +44,6 @@ describe 'When not logged in', ->
 					client
 						.url "#{setup.url}/profile"
 						.pause 1000
-						#.waitForPageVisible '.score-link', 5000
 						.click '.score-link'
-						.pause 2500
-						#.waitForPageVisible '.overview #overview-score', 8000
 						.call(done)
 						.end(done)

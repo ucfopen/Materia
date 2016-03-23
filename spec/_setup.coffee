@@ -76,7 +76,6 @@ module.exports =
 
 		return client
 	testEnigma: (client, title, publish = false) ->
-		console.log "testEnigma"
 		client
 			.pause 100
 			.getTitle (err, title) -> expect(title).toBe('Create Widget | Materia')
@@ -101,10 +100,8 @@ module.exports =
 			client
 				.click('#creatorPublishBtn')
 				.click('.publish.animate-show:nth-of-type(2) .publish_container a.action_button.green')
-		console.log "testEnigma success"
 		return client
 	loginAt: (client, user, url) ->
-		console.log "loginAt"
 		client
 			.url(url)
 			.getTitle (err, title) -> expect(title).toBe('Login | Materia')
@@ -112,11 +109,9 @@ module.exports =
 			.setValue('#password', user.password)
 			.click('form button.action_button')
 			.pause(800)
-		console.log "loginAt success"
 		return client
 
 	playEnigma: (client) ->
-		console.log "playEnigma"
 		client
 			.pause 100
 			.frame('container') # switch into widget frame
@@ -126,7 +121,6 @@ module.exports =
 			.click '.button.return.highlight'
 			.click '.notice button'
 			.pause 3000 # wait for score submit
-		console.log "playEnigma success"
 		return client
 
 jasmine.getEnv().defaultTimeoutInterval = 50000
