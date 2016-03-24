@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0c7c25896b21f14d26a3ad842c7ea415",
-    "content-hash": "d21400db08691acd1165ba1c857713d3",
+    "hash": "fd54d7197e2ba4f989216a8ece468e44",
+    "content-hash": "6251d953ff20e0b398b2368cee42e225",
     "packages": [
         {
             "name": "composer/installers",
@@ -17,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/b3d1f3125a77af66d2bfd934c775150e4c9aecc3",
+                "url": "https://api.github.com/repos/composer/installers/zipball/6aac6a0a931ad06780fa7c574f27178d48109ec7",
                 "reference": "b3d1f3125a77af66d2bfd934c775150e4c9aecc3",
                 "shasum": ""
             },
@@ -287,7 +287,7 @@
         },
         {
             "name": "materia/ucfauth",
-            "version": "0.1.3",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
