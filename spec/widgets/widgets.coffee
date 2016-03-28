@@ -17,25 +17,13 @@ module.exports = (widget, callback) ->
 	client.windowHandlePosition 'current', { x: 0, y: 0 }
 	client.windowHandleSize 'current', { width: 1200, height: 650 }
 
-	waitForPageVisible = require '../includes/waitForPageVisible.js'
-	client.addCommand 'waitForPageVisible', waitForPageVisible
-
-	# client
-	# 	.url('http://localhost:8080/login')
-	# 	.getTitle (err, title) ->
-	# 		expect(title).toBe('Login | Materia')
-	# 	.waitFor '#username'
-	# 	.setValue('#username', author.username)
-	# 	.setValue('#password', author.password)
-	# 	.click('form button.action_button')
-
 	client
 		.url("#{environment.url}/widgets")
 		.waitFor(".widget.#{widget}", 3000)
 		.moveToObject(".widget.#{widget} .infocard", 10, 10)
 		.waitFor('.infocard:hover .header h1', 4000)
 		.click('.infocard:hover .header')
-		.waitForPageVisible('#demoLink', 7000)
+		.pause 5000
 		.execute "return location.href", null, (err, result) ->
 			client
 				.url(result.value + '/demo')

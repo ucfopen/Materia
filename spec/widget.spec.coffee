@@ -17,11 +17,8 @@ describe 'When I create a widget', ->
 		setup.loginAt client, setup.author, "#{setup.url}/users/login"
 		client.url("#{setup.url}/widgets")
 			.getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
-			# .waitFor('.widget.enigma', 3000)
 			.moveToObject('.widget.enigma .infocard', 10, 10)
-			# .waitFor('.infocard:hover .header h1', 4000)
 			.click('.infocard:hover .header')
-			# #.waitForPageVisible('#createLink', 7000)
 			.pause(5000)
 			.click('#createLink')
 		setup.testEnigma client, title, false
@@ -39,7 +36,6 @@ describe 'When I create a widget', ->
 		client
 			.call -> expect(instanceID.length).toBe(5)
 			.url("#{setup.url}/my-widgets#"+instanceID)
-			# .waitFor "#widget_#{instanceID}", 7000
 			.getTitle (err, title) -> expect(title).toBe('My Widgets | Materia')
 			.pause 5000
 			.getText '#widget_'+instanceID+' .score', (err, mode) -> expect(mode).toBe('Draft')
@@ -52,12 +48,6 @@ describe 'When I create a widget', ->
 				expect(instanceID).not.toBeNull()
 				expect(instanceID.length).toBe(5)
 			.url("#{setup.url}/my-widgets#"+instanceID)
-			# #.waitForPageVisible '#widget_'+instanceID, 7000
-			# #.waitForPageVisible '.share-widget-container', 7000
-			# .getCssProperty '.share-widget-container', 'opacity', (err, opacity) ->
-			# 	expect(opacity.property).toBe('opacity')
-			# 	expect(opacity.value).toBeGreaterThan(0)
-			# 	expect(opacity.value).toBeCloseTo(0.5, 2)
 			.getCssProperty '#embed_link', 'display', (err, display) ->
 				expect(display.property).toBe('display')
 				expect(display.value).toBe('none')
@@ -72,17 +62,13 @@ describe 'When I create a widget', ->
 		client
 			.call -> expect(instanceID.length).toBe(5)
 			.url("#{setup.url}/my-widgets#/"+instanceID)
-			# .waitFor('#widget_'+instanceID+'.gameSelected', 7000)
 			.call(done)
 
 	it 'should be able to make and play a published widget', (done) ->
 		client.url("#{setup.url}/widgets")
 			.getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
-			# .waitFor('.widget.enigma', 3000)
 			.moveToObject('.widget.enigma .infocard', 10, 10)
-			# .waitFor('.infocard:hover .header h1', 4000)
 			.click('.infocard:hover .header')
-			# #.waitForPageVisible('#createLink', 7000)
 			.pause(5000)
 			.click('#createLink')
 		setup.testEnigma client, title, true
@@ -101,7 +87,6 @@ describe 'When I create a widget', ->
 					.pause 2000
 					.url("#{setup.url}/play/"+publishedInstanceID)
 					.pause 10000
-					# #.waitForPageVisible '#container', 10000
 					.frame('container')
 					.pause 1000
 					.execute playcode, null, (err, result) ->
@@ -165,9 +150,7 @@ describe 'When I create a widget', ->
 			.url "about:blank"
 			.url "#{setup.url}/my-widgets#/" + publishedInstanceID
 			.pause 5000
-			#.waitForPageVisible 'a.table', 7000
 			.click 'a.table'
-			#.waitForPageVisible '.score-search > input', 7000
 			.call done
 	, 55000
 
@@ -176,14 +159,11 @@ describe 'When I create a widget', ->
 			.url "about:blank"
 			.url "#{setup.url}/my-widgets#/" + publishedInstanceID
 			.pause 5000
-			#.waitForPageVisible 'a.table', 7000
 			.click 'a.table'
-			#.waitForPageVisible '.score-search > input', 7000
 
 			# search for "author", should have 1 result
 			.setValue '.score-search > input', "author"
 			.pause 1000
-			#.waitForPageVisible 'td.listName', 7000
 			.getText 'td.listName', (err, text) -> expect(text).toBe('Author, Prof')
 
 			# search for "xyzzy", nothing should be found
@@ -199,11 +179,8 @@ describe 'When I create a widget', ->
 			.url "about:blank"
 			.url "#{setup.url}/my-widgets#/" + publishedInstanceID
 			.pause 5000
-			#.waitForPageVisible 'a.table', 7000
 			.click 'a.table'
-			#.waitForPageVisible '.scoreListTable td', 7000
 			.click '.scoreListTable td'
-			#.waitForPageVisible '.scoreTable tr', 7000
 			.click '.scoreTable tr'
 			.call done
 	, 55000
@@ -214,14 +191,11 @@ describe 'When I create a widget', ->
 			.pause 3000
 			.url("#{setup.url}/my-widgets#/"+publishedInstanceID)
 			.pause 7000
-			#.waitForPageVisible '#export_scores_button', 5000
 			.click '#export_scores_button'
 			.pause 100
-			#.waitForPageVisible 'a.show_options', 5000
 			.pause 100
 			.click 'a.show_options'
 			.pause 100
-			#.waitForPageVisible '.export_which', 5000
 			.call(done)
 			.end done
 	, 55000
@@ -233,7 +207,6 @@ describe 'When I create a widget', ->
 			.url("#{setup.url}/my-widgets#/"+instanceID)
 			.pause(2000)
 			.waitFor('#widget_'+instanceID+'.gameSelected', 7000)
-			#.waitForPageVisible '.share div.link'
 			.pause(2000)
 			.click('.share div.link')
 			.waitFor('.share .ng-modal-title', 7000)
@@ -249,7 +222,6 @@ describe 'When I create a widget', ->
 				expect(result.value).toBe('30')
 			.execute "return $('.access_list .exp-date').val();", null, (err, result) ->
 				expect(result.value).toBe('Never')
-			#.waitForPageVisible '#access .cancel_button', 500
 			.click('#access .cancel_button')
 			.call(done)
 
@@ -259,7 +231,6 @@ describe 'When I create a widget', ->
 			.waitFor('#widget_'+instanceID+'.gameSelected', 7000)
 			.getText '#widget_'+instanceID+'.gameSelected li.title', (err, selectedTitle) ->
 				expect(selectedTitle).toBe(title)
-			#.waitForPageVisible '#copy_widget_link', 5000
 			.pause 1000
 			.getAttribute '#copy_widget_link', 'class', (err, classes) ->
 				expect(classes).toContain('link')
@@ -274,7 +245,7 @@ describe 'When I create a widget', ->
 			# complicated bit, inject an interval timer into the
 			# page to determine when the hash url changes and return
 			# the new hash url
-			.timeoutsAsyncScript 5000
+			.timeoutsAsyncScript 10000
 			.executeAsync (instanceID, done) ->
 				# this happens in the browser
 				setInterval ->
@@ -287,7 +258,6 @@ describe 'When I create a widget', ->
 				expect(copyInstanceID.length).toBe(5)
 				selector = '#widget_'+copyInstanceID+'.gameSelected'
 				client
-					.waitForVisible(selector, 7000)
 					.waitForText('.page h1', 7000)
 					.call(done)
 				# copy shows up in list and selected
@@ -302,9 +272,7 @@ describe 'When I create a widget', ->
 			.url "about:blank"
 			.url "#{setup.url}/my-widgets#/" + instanceID
 			.pause 5000
-			#.waitForPageVisible '#export_scores_button'
 			.click '#export_scores_button'
-			#.waitForPageVisible '.csv_popup .download_wrapper h3', 7000, true
 			.call done
 	, 55000
 
@@ -335,7 +303,6 @@ describe 'When I create a widget', ->
 			.pause 1000
 			.click '.availability .action_button.save'
 			.pause 5000
-			#.waitForPageVisible '.num-attempts', 7000
 			.getText '.num-attempts', (err, text) -> expect(text).toBe('1')
 			.getText '.availability-time', (err, text) -> expect(text).toBe("From 1/1/70 at 9:00am until 1/1/99 at 11:00am")
 
@@ -350,7 +317,6 @@ describe 'When I create a widget', ->
 			.pause 1000
 			.click '.availability .action_button.save'
 			.pause 5000
-			#.waitForPageVisible '.num-attempts', 7000
 			.getText '.num-attempts', (err, text) -> expect(text).toBe('Unlimited')
 			.getText '.availability-time', (err, text) -> expect(text).toBe("Anytime")
 			.call done
@@ -369,7 +335,6 @@ describe 'When I create a widget', ->
 			.click '.from .date'
 			.setValue '.from .date', "01/01/1970"
 			.click '.availability .action_button.save'
-			#.waitForPageVisible '.availabilityError', 7000
 			.getText '.availabilityError', (err, text) -> expect(text).toBe('The time is missing.')
 			.waitFor '.availability .ng-modal-title', 7000
 
@@ -383,10 +348,8 @@ describe 'When I create a widget', ->
 			.url("#{setup.url}/my-widgets#/"+instanceID)
 			.pause 5000
 			.waitFor('#widget_'+instanceID+'.gameSelected', 7000)
-			#.waitForPageVisible '.share div.link', 7000
 			.pause 1000
 			.click '.share div.link'
-			#.waitForPageVisible '.share .ng-modal-title', 7000
 			.isVisible '.share'
 			.getText '.share .ng-modal-title', (err, text) ->
 				expect(text).toContain('Collaboration')
@@ -399,7 +362,6 @@ describe 'When I create a widget', ->
 				expect(result.value).toBe('30')
 			.execute "return $('.access_list .exp-date').val();", null, (err, result) ->
 				expect(result.value).toBe('Never')
-			#.waitForPageVisible '#access .cancel_button', 7000
 			.click '#access .cancel_button'
 			.call done
 
@@ -410,7 +372,6 @@ describe 'When I create a widget', ->
 			.url("#{setup.url}/my-widgets#/"+copyInstanceID)
 			.pause 5000
 			.waitFor '#widget_'+copyInstanceID+'.gameSelected', 7000
-			#.waitForPageVisible '.share div.link', 7000
 			.pause 1000
 			.click '.share div.link'
 			.waitFor '.share .ng-modal-title', 7000
@@ -500,19 +461,15 @@ describe 'When I create a widget', ->
 
 			# editing should fail
 			.click '#edit_button'
-			#.waitForPageVisible '.edit-published-widget .ng-modal-title', 7000, true #reversed, so, waitForNotPageVisible
 
 			# copying should fail
 			.click '#copy_widget_link'
-			#.waitForPageVisible '.copy .ng-modal-title', 7000, true #reversed, so, waitForNotPageVisible
 
 			# delete should fail
 			.click '#delete_widget_link'
-			#.waitForPageVisible '.controls .delete_button', 7000, true #reversed, so, waitForNotPageVisible
 
 			# edit settings should fail
 			.click '#edit-availability-button'
-			#.waitForPageVisible '.availability .ng-modal-title', 7000, true  #reversed, so, waitForNotPageVisible
 
 			# upgrading access should fail
 			.click '.share div.link'
@@ -534,10 +491,8 @@ describe 'When I create a widget', ->
 			.waitFor '.share .ng-modal-title', 7000
 
 			# now let's try to remove our access
-			#.waitForPageVisible '.access_list .user_perm[data-user-id="2"] .remove', 7000
 			.pause 2000
 			.click '.access_list .user_perm[data-user-id="2"] .remove'
-			#.waitForPageVisible '.access_list .user_perm[data-user-id="2"] .demote_dialogue', 7000
 			.click '.access_list .user_perm[data-user-id="2"] .demote_dialogue .yes_button'
 			.pause 1000
 			.click '.save_button'
@@ -555,9 +510,7 @@ describe 'When I create a widget', ->
 		client
 			.url("#{setup.url}/my-widgets#/"+instanceID)
 			.pause 3000
-			#.waitForPageVisible '#delete_widget_link', 5000
 			.click '#delete_widget_link'
-			#.waitForPageVisible '.controls .delete_button', 5000
 			.click '.delete_button'
 			.waitForExist "#widget_#{instanceID}.gameSelected", 2000, true # reversed, wait for it not to exist
 			.refresh()
