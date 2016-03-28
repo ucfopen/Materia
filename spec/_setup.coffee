@@ -43,8 +43,6 @@ module.exports =
 		client.windowHandlePosition 'current', { x: 0, y: 0 }
 		client.windowHandleSize 'current', { width: 1200, height: 650 }
 
-		waitForPageVisible = require './includes/waitForPageVisible.js'
-		client.addCommand 'waitForPageVisible', waitForPageVisible
 		# cycles through every window, looking for one whose url contains partialUrl
 		client.addCommand 'waitForUrlContains', (partialUrl, ms, callback) ->
 			client = this

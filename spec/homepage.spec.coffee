@@ -10,6 +10,7 @@ describe 'Homepage', ->
 	it 'should display correctly', (done) ->
 		client
 			.url("#{setup.url}/")
+			.pause 5000
 			.getTitle (err, title) -> expect(title).toBe('Welcome to Materia | Materia')
 			.execute 'return $(".main_container article").length;', null, (err, result) -> expect(result.value).toBeGreaterThan(0)
 			.click('.span_next:last-child')
