@@ -16,7 +16,7 @@
 		<dt>Webcourses@UCF Support</dt>
 			<dd><a href="http://online.ucf.edu/support/">http://online.ucf.edu/support/</a></dd>
 		<dt>Email</dt>
-			<dd><a href="mailto:onlinesupport@ucf.edu">onlinesupport@ucf.edu</a></dd>
+			<dd><a href="mailto:webcourses@ucf.edu">webcourses@ucf.edu</a></dd>
 		<dt>Phone</dt>
 			<dd>(407) 823-0407</dd>
 	</dl>
