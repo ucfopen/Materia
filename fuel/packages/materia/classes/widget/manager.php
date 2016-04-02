@@ -44,28 +44,16 @@ class Widget_Manager
 				->order_by('name')
 				->execute();
 
-
-			$ids = \Arr::flatten($results);
-
-			if (count($ids) > 0)
-			{
-				foreach ($ids as $id)
-				{
-					$widgets[] = $widget = new Widget();
-					$widget->get($id);
-				}
-			}
+			$widget_ids = \Arr::flatten($results);
 		}
-		// =============== Get requested widgets ===============
-		else
+
+		foreach ($widget_ids as $widget_id)
 		{
-			foreach ($widget_ids as $widget_id)
-			{
-				$widget = new Widget();
-				$widget->get($widget_id);
-				array_push($widgets, $widget);
-			}
+			$widget = new Widget();
+			$widget->get($widget_id);
+			$widgets[] = $widget;
 		}
+
 		return $widgets;
 	}
 
