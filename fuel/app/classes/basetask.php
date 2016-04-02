@@ -23,7 +23,6 @@ class Basetask
 
 		foreach ($args as $arg)
 		{
-			trace($arg);
 			// if the arg is a filepath, just use it
 			if (file_exists($arg))
 			{
