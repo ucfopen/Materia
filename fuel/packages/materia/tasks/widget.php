@@ -185,7 +185,7 @@ class Widget extends \Basetask
 	}
 
 	// must be passed .wigt file references, can use glob syntax to match multiple widgets
-	public static function install($glob_str)
+	public static function install()
 	{
 		if (\Cli::option('help') || \Cli::option('?'))
 		{
@@ -203,9 +203,11 @@ class Widget extends \Basetask
 			exit();
 		}
 
-		$matching_files = glob($glob_str);
+		# parse all the file paths passed to the task
+		$widget_files = static::get_files_from_args(func_get_args());
+
 		$replace_id = (int) \Cli::option('replace-id');
-		$count = count($matching_files);
+		$count = count($widget_files);
 
 		if ( ! $count)
 		{
@@ -221,9 +223,9 @@ class Widget extends \Basetask
 
 		self::login_as_admin();
 
-		foreach ($matching_files as $widget_file)
+		foreach ($widget_files as $file)
 		{
-			\Materia\Widget_Installer::install_from_package($widget_file, \Cli::option('skip-upgrade'), $replace_id);
+			\Materia\Widget_Installer::install_from_package($file, \Cli::option('skip-upgrade'), $replace_id);
 		}
 	}
 
