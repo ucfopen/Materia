@@ -595,7 +595,6 @@ class Widget_Installer
 			$success = false;
 		}
 
-		unlink($widget_file);
 		static::cleanup($dir);
 		return $success;
 	}
