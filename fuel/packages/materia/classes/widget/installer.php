@@ -452,9 +452,9 @@ class Widget_Installer
 		$file_area->create_dir(PKGPATH.'materia/vendor/widget/', $widget_dir);
 
 		// score modules
-		$destination_score_module_file = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
-		if (file_exists($destination_score_module_file)) $file_area->delete($destination_score_module_file);
-		$file_area->rename("{$dir}/_score-modules/score_module.php", $destination_score_module_file);
+		// $destination_score_module_file = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
+		// if (file_exists($destination_score_module_file)) $file_area->delete($destination_score_module_file);
+		// $file_area->rename("{$dir}/_score-modules/score_module.php", $destination_score_module_file);
 
 		// playdata exporters
 		// needs proper packaging of export module by devmateria
@@ -496,7 +496,7 @@ class Widget_Installer
 		}
 
 		// delete the score modules folder so it won't get copied over
-		$file_area->delete_dir($dir.'/_score-modules');
+		// $file_area->delete_dir($dir.'/_score-modules');
 
 		// move widget files
 		// public_widget_dir
