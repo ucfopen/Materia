@@ -398,7 +398,7 @@ class Widget_Installer
 
 	protected static function generate_install_params($manifest_data, $package_file)
 	{
-		$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+		$clean_name = static::clean_name_from_manifest($manifest_data);
 		$package_hash = md5_file($package_file);
 		$params = [
 			'name'                => $manifest_data['general']['name'],
@@ -443,7 +443,7 @@ class Widget_Installer
 	protected static function install_widget_files($id, $manifest_data, $dir)
 	{
 		$file_area = \File::forge(['basedir' => null]);
-		$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+		$clean_name = static::clean_name_from_manifest($manifest_data);
 		$widget_dir = "{$id}-{$clean_name}";
 		$score_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
 
@@ -512,17 +512,48 @@ class Widget_Installer
 		if (file_exists($file)) $file_area->delete($file);
 	}
 
-	public static function install_from_package($widget_file, $skip_upgrade = false, $replace_id = 0)
+	protected static function clean_name_from_manifest($manifest_data)
+	{
+		return \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+	}
+
+	// This function will verify and extract the widget files without installing
+	// This is primarily used to deposit expanded widgets into a production Docker Container
+	public static function extract_from_package($widget_file, $widget_id)
 	{
 		try
 		{
-			$file_area = \File::forge(['basedir' => null]);
 			$dir = static::extract_widget($widget_file);
 
-			$valid = static::validate_widget($dir);
+			static::validate_widget($dir);
 			$manifest_data = static::get_manifest_data($dir);
 
-			$clean_name = \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+			$clean_name = static::clean_name_from_manifest($manifest_data);
+
+			static::install_widget_files($widget_id, $manifest_data, $dir);
+			static::out("Widget files deployed: {$widget_id}-{$clean_name}", 'green');
+			$success = true;
+		}
+		catch (\Exception $e)
+		{
+			trace($e);
+			$success = false;
+		}
+
+		static::cleanup($dir);
+		return $success;
+	}
+
+	public static function extract_and_install_from_package($widget_file, $skip_upgrade = false, $replace_id = 0)
+	{
+		try
+		{
+			$dir = static::extract_widget($widget_file);
+
+			static::validate_widget($dir);
+			$manifest_data = static::get_manifest_data($dir);
+
+			$clean_name = static::clean_name_from_manifest($manifest_data);
 			$matching_widgets = static::find_by_clean_name($clean_name);
 
 			$num_existing = count($matching_widgets);

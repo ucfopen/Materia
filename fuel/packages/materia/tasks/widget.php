@@ -211,7 +211,7 @@ class Widget extends \Basetask
 
 		if ( ! $count)
 		{
-			self::write("No widgets found in '$glob_str'", true);
+			self::write("No widgets found in '".implode(',', func_get_args()), true);
 			return;
 		}
 
@@ -225,8 +225,18 @@ class Widget extends \Basetask
 
 		foreach ($widget_files as $file)
 		{
-			\Materia\Widget_Installer::install_from_package($file, \Cli::option('skip-upgrade'), $replace_id);
+			\Materia\Widget_Installer::extract_and_install_from_package($file, \Cli::option('skip-upgrade'), $replace_id);
 		}
+	}
+
+	// This function will verify and extract the widget files without installing
+	// This is primarily used to deposit expanded widgets into a production Docker Container
+	public static function extract()
+	{
+		$widget_files = static::get_files_from_args(func_get_args());
+		$id = \Cli::option('id');
+		$success = \Materia\Widget_Installer::extract_from_package($widget_files[0], $id);
+		\Cli::write('Widget '.($success ? 'installed' : 'not installed'));
 	}
 
 	private static function login_as_admin()
