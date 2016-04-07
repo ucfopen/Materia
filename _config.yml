@@ -5,7 +5,7 @@ permalink: /:categories/:year/:month/:day/:title
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 save: true
 lsi: false
-highlighter: pygments
+highlighter: rouge
 markdown: kramdown
 
 # Themes are encouraged to use these universal variables 
