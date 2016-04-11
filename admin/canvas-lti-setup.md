@@ -10,12 +10,12 @@ class: admin
 
 ## Setting up Canvas ##
 
-First, take a look at [Instructure's tutorial](http://help.instructure.com/entries/21113807-tutorial-adding-an-extension-to-canvas) which covers adding an extension to Canvas. You'll enter the following settings into the **Edit External Tool** form:
+First, take a look at [Instructure's tutorial](https://community.canvaslms.com/docs/DOC-3020) which covers adding an extension to Canvas. You'll enter the following settings into the **Edit External Tool** form:
 
 * **Consumer Key**: key as defined in configuration file
 * **Shared Secret**: secret as defined in configuration file
 * **Configuration Type**: By URL
-* **Configuration URL** `http://your/materia/location/lti`
+* **Configuration URL** `https://<YOUR MATERIA LOCATION>/lti`
 
 <aside>
 	It is very important you keep the shared secret... well, secret.  These are defined in the configuration files described below.
@@ -23,7 +23,7 @@ First, take a look at [Instructure's tutorial](http://help.instructure.com/entri
 
 ## Materia LTI Configuration Files ##
 
-The default configuration is in `/fuel/app/packages/modules/lti/config/lti.php`, and your environment's config would be `/fuel/app/packages/modules/lti/config/&lt;ENVIRONMENT&gt;/lti.php`.
+The default configuration is in `/fuel/app/packages/modules/lti/config/lti.php`, and your environment's config would be `/fuel/app/packages/modules/lti/config/<ENVIRONMENT>/lti.php` (Where `<ENVIRONMENT>` is a valid environment name)
 
 <aside>
 	Fuelphp uses environments to enable different configuration options in production or development.  For more information view the <a href="http://fuelphp.com/docs/general/environments.html#/env_config">Fuelphp Documentation covering Environments</a>
@@ -36,7 +36,7 @@ Generate a unique identifier for your install in the `lti.tool_consumer_instance
 
 	// Settings for this particular install
 	// Change the tool_consumer_instance_guid to something unique to your install!
-	'tool_consumer_instance_guid'            => '&lt;SOME_UNIQUE_IDENTIFIER&gt;',
+	'tool_consumer_instance_guid'            => '<SOME_UNIQUE_IDENTIFIER>',
 	'tool_consumer_info_version'             => '1',
 	...
 
@@ -59,11 +59,11 @@ The configuration file defines which consumers can connect to Materia. For Canva
 		'local_identifier'  => 'username',
 
 		// if the incoming user is not in our database, should we create it?
-		'create_if_missing' => false,
+		'creates_users' => false,
 
-		// If any identifier already exists locally, should I update or fail
-		// Note: the user table uses both the username and email address as unique keys
-		'update_if_exists' => true,
+		// If true Materia will use the incoming user's roles for access,
+		// otherwise Materia will only consider the roles it has internally
+		'use_launch_roles' => true,
 
 		// which auth driver will do the final work authenticating this user
 		'auth_driver'       => 'SimpleAuth',
