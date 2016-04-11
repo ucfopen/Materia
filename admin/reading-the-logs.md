@@ -12,7 +12,7 @@ class: admin
 Materia uses the standard logging functionality built into FuelPHP.  Logs are written to the `/fuel/app/logs/YYYY/MM/` directory.  We do however have several files to keep some logging easier to process.
 
 <aside>
-	FuelPHP offers several options to control logging, view them [in the FuelPHP log documentation](http://fuelphp.com/docs/classes/log.html).
+	FuelPHP offers several options to control logging, view them <a href="http://fuelphp.com/docs/classes/log.html">in the FuelPHP log documentation</a>.
 </aside>
 
 ## General Logs ##
@@ -45,6 +45,6 @@ These logs are structured in a specific format format.  They are comma seperated
 Possible Log types:
 
 * __session-init__: The consumer has sent a launch message to Materia, and they should be logged in at this point.
-* __outcome-no-passback__: Materia was lauched by the consumer, and the user completed a widget, but for some reason, no score was passed back to the   This can happen when the consumer doesn't send a passback url, or when some required data was not found or is not valid.</li>
+* __outcome-no-passback__: Materia was lauched by the consumer, and the user completed a widget, but for some reason, no score was passed back to the   This can happen when the consumer doesn't send a passback url, or when some required data was not found or is not valid.
 * __outcome-success__: A score was sent back to the consumer successfully.
 * __outcome-failure__: A score was sent back to the consumer.  However, there was a failure when sending or verifying the consumer's response.
