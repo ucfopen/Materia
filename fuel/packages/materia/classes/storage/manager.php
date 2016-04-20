@@ -125,6 +125,7 @@ class Storage_Manager
 				'firstName' => ($student ? $student->first : ""),
 				'lastName'  => ($student ? $student->last : ""),
 				'time'      => $r->created_at,
+				'cleanTime' => date('m/d/Y H:i:s', $r->created_at),
 				'play_id'   => $r->play_id,
 			];
 
