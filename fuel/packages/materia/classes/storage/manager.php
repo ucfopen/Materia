@@ -5,13 +5,13 @@ use \RocketDuck\Util_Validator;
 class Storage_Manager
 {
 
-	static public function parse_and_store_storage_array($inst_id, $play_id, $user_id, $storagePacket)
+	static public function parse_and_store_storage_array($inst_id, $play_id, $user_id, $storage_packet)
 	{
 		if (Util_Validator::is_valid_hash($inst_id) && Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
 		{
-			if(count($storagePacket) > 0)
+			if (count($storage_packet) > 0)
 			{
-				foreach($storagePacket AS $storage)
+				foreach ($storage_packet as $storage)
 				{
 					list($id,$num) = \DB::insert('log_storage')
 						->set([
@@ -121,11 +121,11 @@ class Storage_Manager
 
 			$student = $students[$r->user_id];
 			$play = [
-				'user'      => ($student ? $student->username : "Guest"),
-				'firstName' => ($student ? $student->first : ""),
-				'lastName'  => ($student ? $student->last : ""),
+				'user'      => ($student ? $student->username : 'Guest'),
+				'firstName' => ($student ? $student->first : ''),
+				'lastName'  => ($student ? $student->last : ''),
 				'time'      => $r->created_at,
-				'cleanTime' => date('m/d/Y H:i:s', $r->created_at),
+				'cleanTime' => date('m/d/Y H:i:s T', $r->created_at),
 				'play_id'   => $r->play_id,
 			];
 
