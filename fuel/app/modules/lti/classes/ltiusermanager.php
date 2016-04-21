@@ -53,7 +53,6 @@ class LtiUserManager
 			// But for testing, we need to be able to specify the auth driver
 			if (\Fuel::$env !== \Fuel::TEST) $auth_driver = null;
 			return (bool) \Auth::instance($auth_driver)->force_login($user->id);
-
 		}
 
 		\Auth::logout();
