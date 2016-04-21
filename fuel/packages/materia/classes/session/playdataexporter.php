@@ -55,29 +55,29 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
+		$anonymize    = (boolean) \Input::get('anonymized', false);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
 
-		if (empty($table_name)) throw new \Exception("Missing required storage table name");
+		if (empty($table_name)) throw new \Exception('Missing required storage table name');
 
 		// load the logs for all selected semesters
 		if (empty($semesters))
 		{
-			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name);
+			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name, $anonymize);
 			if ( ! empty($loaded_data[$table_name]))
 			{
 				$storage_data['all'] = $loaded_data[$table_name];
 				$num_records = count($storage_data['all']);
 			}
-
 		}
 		else
 		{
 			foreach ($semesters as $semester)
 			{
 				list($year, $term) = explode('-', $semester);
-				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name);
+				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name, $anonymize);
 				if ( ! empty($loaded_data[$table_name]))
 				{
 					$storage_data[$semester] = $loaded_data[$table_name];
@@ -106,7 +106,7 @@ class Session_PlayDataExporter
 
 			// create out header row
 			ksort($fields);
-			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters? '","semester"' : '"')."\n";
+			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters ? '","semester"' : '"')."\n";
 
 			// fill in the data for each row
 			foreach ($storage_data as $semester_str => $table)
@@ -120,8 +120,8 @@ class Session_PlayDataExporter
 					$d['data'] = $d['data'] + $fields;
 					ksort($d['data']);
 
-					$csv .= '"' . implode('","', $d['data']) . '",';
-					$csv .= '"' . implode('","', $d['play']) . '"';
+					$csv .= '"'.implode('","', $d['data']).'",';
+					$csv .= '"'.implode('","', $d['play']).'"';
 					if ( ! empty($semesters)) $csv .= ",\"{$year} {$term}\"";
 					$csv .= "\n";
 				}
@@ -171,7 +171,7 @@ class Session_PlayDataExporter
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return [$csv, ".csv"];
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Session_PlayDataExporter
 			foreach ($logs as $play)
 			{
 				// If there is no username, it is a guest user
-				$u = $play['username'] ? $play['username'] : "(Guest)";
+				$u = $play['username'] ? $play['username'] : '(Guest)';
 
 				if ( ! isset($results[$u])) $results[$u] = [];
 
@@ -306,7 +306,6 @@ class Session_PlayDataExporter
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return [$data, ".zip"];
+		return [$data, '.zip'];
 	}
-
 }
