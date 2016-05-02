@@ -2,6 +2,7 @@
 // setup more specific regex matches with names
 $id = '(?<id>\d+)';
 $clean_name = '(?<clean_name>[a-zA-Z0-9_\-]+)';
+$type = '(?<type>(all){1})';
 return [
 	// ================================= MISC ======================================
 
@@ -22,6 +23,7 @@ return [
 	"widgets/$id-$clean_name/create(/.*)?"  => 'widgets/create',
 	"widgets/$id-$clean_name/demo"          => 'widgets/play_demo', // each widget engine has a demo game made in it - this is a shortcut to it
 	"widgets/$id-$clean_name"               => 'widgets/detail', // details of the widget engine
+	"widgets/$type"                             => 'widgets/index', // catalog page, with optional display option(s)
 	'widgets'                               => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
 	'my-widgets'                            => 'widgets/mywidgets/',
 

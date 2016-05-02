@@ -17,6 +17,8 @@ app.controller 'widgetCatalogCtrl', ($scope, widgetSrv) ->
 		mc:no
 		media:no
 
+	$scope.displayAll = no
+
 	hideFiltered = ->
 		for widget, i in $scope.widgets
 			wFeatures = widget.meta_data.features
@@ -30,19 +32,54 @@ app.controller 'widgetCatalogCtrl', ($scope, widgetSrv) ->
 					widget.visible = no
 					break
 
-	# Load the widgets
-	widgetSrv.getWidgetInfo null, (widgets) ->
-		Materia.Set.Throbber.startSpin '.page'
+	# Display default "featured" widgets
+	displayWidgets = ->
+		widgetSrv.getWidgetsByType 'featured', (widgets) ->
+			Materia.Set.Throbber.startSpin '.page'
 
-		# setup some default values
-		for widget, i in widgets
-			widget.icon = Materia.Image.iconUrl widget.dir, 92
-			widget.visible = yes
+			# setup some default values
+			for widget, i in widgets
+				widget.icon = Materia.Image.iconUrl widget.dir, 92
+				widget.visible = yes
 
-		Materia.Set.Throbber.stopSpin '.page'
+			Materia.Set.Throbber.stopSpin '.page'
 
-		$scope.$watchCollection 'filters', hideFiltered
+			$scope.$watchCollection 'filters', hideFiltered
 
-		$scope.widgets = widgets
-		$scope.$apply()
+			$scope.widgets = widgets
+			$scope.$apply()
+
+	# Display ALL the widgets
+	displayAllWidgets = ->
+
+		widgetSrv.getWidgetsByType 'all', (widgets) ->
+			Materia.Set.Throbber.startSpin '.page'
+
+			for widget, i in widgets
+				widget.icon = Materia.Image.iconUrl widget.dir, 92
+				widget.visible = yes
+
+			Materia.Set.Throbber.stopSpin '.page'
+
+			$scope.$watchCollection 'filters', hideFiltered
+
+			$scope.widgets = widgets
+			$scope.$apply()
+
+	# DISPLAY_TYPE added from controller if it was passed as part of the URL
+	if typeof DISPLAY_TYPE isnt 'undefined'
+
+		switch DISPLAY_TYPE
+			when 'all'
+				$scope.displayAll = yes
+			else
+				displayWidgets()
+
+	else
+		# Load the widgets
+		displayWidgets()
+
+	$scope.$watch 'displayAll', ->
+		if $scope.displayAll then displayAllWidgets()
+		else displayWidgets()
 
