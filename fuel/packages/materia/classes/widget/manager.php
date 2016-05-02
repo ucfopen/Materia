@@ -57,6 +57,44 @@ class Widget_Manager
 		return $widgets;
 	}
 
+	static public function get_widgets_by_type($type)
+	{
+		$widgets = [];
+		$widget_ids = null;
+
+		switch ($type)
+		{
+			case 'featured':
+			case null:
+				$results = \DB::select('id')
+				->from('widget')
+				->where('in_catalog', '1')
+				->order_by('name')
+				->execute();
+
+				$widget_ids = \Arr::flatten($results);
+				break;
+
+			case 'all':
+				$results = \DB::select('id')
+					->from('widget')
+					->order_by('name')
+					->execute();
+
+				$widget_ids = \Arr::flatten($results);
+				break;
+		}
+
+		foreach ($widget_ids as $widget_id)
+		{
+			$widget = new Widget();
+			$widget->get($widget_id);
+			$widgets[] = $widget;
+		}
+
+		return $widgets;
+	}
+
 	static public function search($name)
 	{
 		$widget_ids = \DB::select('id')

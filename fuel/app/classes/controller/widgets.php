@@ -62,6 +62,11 @@ class Controller_Widgets extends Controller
 			->set('page_type', 'catalog');
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
+
+		if ($this->param('type'))
+		{
+			Js::push_inline('var DISPLAY_TYPE = "'.$this->param('type').'";');
+		}
 	}
 
 	/**
