@@ -105,7 +105,11 @@ class Score_Manager
 		// build a sheltered scope to try and "safely" load the contents of the file
 		$load_score_module = function($widget)
 		{
-			include_once(PKGPATH.'/materia/vendor/widget/score_module/'.strtolower($widget->score_module).'.php');
+			$public_dir = \Config::get('materia.dirs.engines').$widget->id.'-'.$widget->clean_name;
+
+			include_once("$public_dir/_score-modules/score_module.php");
+			// include_once(PKGPATH."/materia/vendor/widget/score_module/".strtolower($widget->score_module).".php");
+
 			// @TODO: should be this instead to prevent file name issues
 			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
 

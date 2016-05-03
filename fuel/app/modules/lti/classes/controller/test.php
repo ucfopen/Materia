@@ -88,6 +88,8 @@ class Controller_Test extends \Controller_Rest
 	public function post_learner()
 	{
 		$lti_url          = static::get_and_unset_post('lti_url');
+		if (empty($lti_url)) return \Response::forge('LTI Assignment URL can not be blank!', 500);
+
 		$context_id       = static::get_and_unset_post('context_id');
 		$resource_link_id = static::get_and_unset_post('resource_link');
 		$custom_inst_id   = static::get_and_unset_post('custom_widget_instance_id');

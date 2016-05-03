@@ -43,30 +43,13 @@ class Test_Api_V1 extends \Basetest
 			->where('id', $output_one[0]->id)
 			->execute();
 
-
 		$output_three = \Materia\Api_V1::widgets_get();
 		$this->assertEquals(count($output_one), count($output_three) + 1);
 
-		// now try logged in
-		$this->_asAuthor();
-		$output_three = \Materia\Api_V1::widgets_get();
-		$this->assertEquals(count($output_one), count($output_three) + 1);
-
-		// now try logged in with permissions
-		// Also test that perms can be an object
-		$perm = (object) [
-			'user_id'    => \Model_User::find_current_id(),
-			'perms'      => (object) [\Materia\Perm::VISIBLE => true],
-			'expiration' => null,
-		];
-		// make sure the perm manager blocks me from doing this through the api
-		$setperm = \Materia\Api_V1::permissions_set(\Materia\Perm::WIDGET, $output_one[0]->id, [$perm]);
-		$this->assertPermissionDeniedMessage($setperm);
-
-		\Materia\Perm_Manager::set_user_object_perms($output_one[0]->id, \Materia\Perm::WIDGET, \Model_User::find_current_id(), [\Materia\Perm::VISIBLE => true]);
-
-		$output_four = \Materia\Api_V1::widgets_get();
-		$this->assertEquals(count($output_one), count($output_four) );
+		\DB::update('widget')
+			->set(['in_catalog' => '1'])
+			->where('id', $output_one[0]->id)
+			->execute();
 	}
 
 	public function test_widget_instances_get()
