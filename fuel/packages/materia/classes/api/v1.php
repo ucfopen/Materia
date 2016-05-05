@@ -39,7 +39,7 @@ class Api_V1
 	 */
 	static public function widgets_get_by_type($type)
 	{
-		return Widget_Manager::get_widgets_by_type($type);
+		return Widget_Manager::get_widgets([], $type);
 	}
 
 	static public function widget_instances_get($inst_ids = null)
