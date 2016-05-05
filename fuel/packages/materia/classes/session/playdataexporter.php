@@ -59,7 +59,7 @@ class Session_PlayDataExporter
 		$storage_data = [];
 		$csv          = '';
 
-		if (empty($table_name)) throw new \Exception("Missing required storage table name");
+		if (empty($table_name)) throw new \Exception('Missing required storage table name');
 
 		// load the logs for all selected semesters
 		if (empty($semesters))
@@ -70,7 +70,6 @@ class Session_PlayDataExporter
 				$storage_data['all'] = $loaded_data[$table_name];
 				$num_records = count($storage_data['all']);
 			}
-
 		}
 		else
 		{
@@ -106,7 +105,7 @@ class Session_PlayDataExporter
 
 			// create out header row
 			ksort($fields);
-			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters? '","semester"' : '"')."\n";
+			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters ? '","semester"' : '"')."\n";
 
 			// fill in the data for each row
 			foreach ($storage_data as $semester_str => $table)
@@ -120,8 +119,8 @@ class Session_PlayDataExporter
 					$d['data'] = $d['data'] + $fields;
 					ksort($d['data']);
 
-					$csv .= '"' . implode('","', $d['data']) . '",';
-					$csv .= '"' . implode('","', $d['play']) . '"';
+					$csv .= '"'.implode('","', $d['data']).'",';
+					$csv .= '"'.implode('","', $d['play']).'"';
 					if ( ! empty($semesters)) $csv .= ",\"{$year} {$term}\"";
 					$csv .= "\n";
 				}
@@ -171,7 +170,7 @@ class Session_PlayDataExporter
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return [$csv, ".csv"];
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -181,7 +180,9 @@ class Session_PlayDataExporter
 	 */
 	protected static function full_event_log($inst, $semesters)
 	{
-		$results   = [];
+		// Table headers
+		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
+		$log_count = 0;
 
 		foreach ($semesters as $semester)
 		{
@@ -192,42 +193,33 @@ class Session_PlayDataExporter
 			foreach ($logs as $play)
 			{
 				// If there is no username, it is a guest user
-				$u = $play['username'] ? $play['username'] : "(Guest)";
-
-				if ( ! isset($results[$u])) $results[$u] = [];
+				$u = $play['username'] ? $play['username'] : '(Guest)';
 
 				$play_events = \Materia\Session_Logger::get_logs($play['id']);
 
 				foreach ($play_events as $play_event)
 				{
-					$r               = [];
-					$r['last_name']  = $play['last'];
-					$r['first_name'] = $play['first'];
-					$r['playid']     = $play['id'];
-					$r['semester']   = $semester;
-					$r['type']       = $play_event->type;
-					$r['item_id']    = $play_event->item_id;
-					$r['text']       = $play_event->text;
-					$r['value']      = $play_event->value;
-					$r['game_time']  = $play_event->game_time;
-					$r['created_at'] = $play_event->created_at;
-					$results[$u][]   = $r;
+					$log_count++;
+					$condensed = [
+						$u,
+						$play['last'],
+						$play['first'],
+						$play['id'],
+						$semester,
+						$play_event->type,
+						$play_event->item_id,
+						$play_event->text,
+						$play_event->value,
+						$play_event->game_time,
+						$play_event->created_at
+					];
+
+					$csv_playlog_text .= implode(',', $condensed)."\r\n";
 				}
 			}
 		}
 
-		if ( ! count($results)) return false;
-
-		// Table headers
-		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
-
-		foreach ($results as $userid => $userlog)
-		{
-			foreach ($userlog as $r)
-			{
-				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
-			}
-		}
+		if ( $log_count == 0 ) return false;
 
 		$inst->get_qset($inst->id);
 
@@ -306,7 +298,7 @@ class Session_PlayDataExporter
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return [$data, ".zip"];
+		return [$data, '.zip'];
 	}
 
 }
