@@ -49,8 +49,18 @@ class Controller_Widgets extends Controller
 	 *
 	 * @login Not required
 	 */
-	public function get_index()
+	public function get_index($type = null)
 	{
+		// $type is an optional flag that provides optional display parameters for the catalog
+		// "all" displays all widgets in the database, not just the default "featured" ones
+		if (isset($type))
+		{
+			if ($type == 'all') // could be extended to include other options
+			{
+				Js::push_inline('var DISPLAY_TYPE = "'.$type.'";');
+			}
+			else throw new HttpNotFoundException;
+		}
 
 		Css::push_group(['core', 'widget_catalog']);
 
@@ -62,11 +72,6 @@ class Controller_Widgets extends Controller
 			->set('page_type', 'catalog');
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
-
-		if ($this->param('type'))
-		{
-			Js::push_inline('var DISPLAY_TYPE = "'.$this->param('type').'";');
-		}
 	}
 
 	/**

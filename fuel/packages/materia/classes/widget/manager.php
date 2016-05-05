@@ -26,63 +26,43 @@ class Widget_Manager
 {
 
 	/**
-	 * Finds the widget(s) based on the widget_idS
+	 * Finds the widget(s) based on the widget_ids
 	 *
-	 * @param $widget_idS array The widget_idS that are needed to be looked up.
+	 * @param $widget_ids array The widget_ids that are needed to be looked up.
+	 * @param $type a default filter for the type of widgets to lookup. Default is only widgets where in_catalog = 1.
 	 *
 	 * @return array The information and metadata about the widget or widgets called for.
 	 */
-	static public function get_widgets($widget_ids=null)
+	static public function get_widgets($widget_ids, $type=null)
 	{
 		$widgets = [];
 		// =============== Get the requested widgets =================
+
+		# blank list of ids basically says "grab all the widgets from the DB instead"
 		if (empty($widget_ids))
 		{
-			$results = \DB::select('id')
-				->from('widget')
-				->where('in_catalog', '1')
-				->order_by('name')
-				->execute();
+			$query = 'SELECT `id` FROM `widget`';
 
-			$widget_ids = \Arr::flatten($results);
-		}
+			# $type provides optional selection filter for widgets:
+			# - default is only 'featured' widgets
+			# - 'all' is all widgets installed in Materia
+			# $type could potentially be extended to other options later on
+			switch ($type)
+			{
+				case 'all':
+					// No additional parameters to add to query
+					break;
 
-		foreach ($widget_ids as $widget_id)
-		{
-			$widget = new Widget();
-			$widget->get($widget_id);
-			$widgets[] = $widget;
-		}
+				default:
+					$query .= ' WHERE `in_catalog` = "1"';
+					break;
+			}
 
-		return $widgets;
-	}
+			$query .= ' ORDER BY `name`';
 
-	static public function get_widgets_by_type($type)
-	{
-		$widgets = [];
-		$widget_ids = null;
+			$result = \DB::query($query)->execute();
 
-		switch ($type)
-		{
-			case 'featured':
-			case null:
-				$results = \DB::select('id')
-				->from('widget')
-				->where('in_catalog', '1')
-				->order_by('name')
-				->execute();
-
-				$widget_ids = \Arr::flatten($results);
-				break;
-
-			case 'all':
-				$results = \DB::select('id')
-					->from('widget')
-					->order_by('name')
-					->execute();
-
-				$widget_ids = \Arr::flatten($results);
-				break;
+			$widget_ids = \Arr::flatten($result);
 		}
 
 		foreach ($widget_ids as $widget_id)

@@ -34,8 +34,8 @@ app.controller 'widgetCatalogCtrl', ($scope, widgetSrv) ->
 
 	# Display default "featured" widgets
 	displayWidgets = ->
+		Materia.Set.Throbber.startSpin '.page'
 		widgetSrv.getWidgetsByType 'featured', (widgets) ->
-			Materia.Set.Throbber.startSpin '.page'
 
 			# setup some default values
 			for widget, i in widgets
@@ -51,9 +51,8 @@ app.controller 'widgetCatalogCtrl', ($scope, widgetSrv) ->
 
 	# Display ALL the widgets
 	displayAllWidgets = ->
-
+		Materia.Set.Throbber.startSpin '.page'
 		widgetSrv.getWidgetsByType 'all', (widgets) ->
-			Materia.Set.Throbber.startSpin '.page'
 
 			for widget, i in widgets
 				widget.icon = Materia.Image.iconUrl widget.dir, 92
