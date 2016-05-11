@@ -52,6 +52,43 @@ class Test_Api_V1 extends \Basetest
 			->execute();
 	}
 
+	public function test_widgets_get_by_type()
+	{
+		// test get all without being logged in
+		$output_one = \Materia\Api_V1::widgets_get_by_type("all");
+
+		$this->assertGreaterThan(0, count($output_one));
+
+		foreach ($output_one as $value)
+		{
+			$this->assertIsWidget($value);
+		}
+
+		// hide all, and test get all logged in and not logged in
+		foreach ($output_one as $widget)
+		{
+			\DB::update('widget')
+				->set(['in_catalog' => '0'])
+				->where('id', $widget->id)
+				->execute();
+		}
+
+		// request all widgets again
+		$output_three = \Materia\Api_V1::widgets_get_by_type("all");
+
+		// ensure count is identical, in_catalog flag should make no difference
+		$this->assertEquals(count($output_one), count($output_three));
+
+		// revert flag for all widgets
+		foreach ($output_one as $widget)
+		{
+			\DB::update('widget')
+				->set(['in_catalog' => '1'])
+				->where('id', $widget->id)
+				->execute();
+		}
+	}
+
 	public function test_widget_instances_get()
 	{
 		// ======= AS NO ONE ========
