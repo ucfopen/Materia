@@ -178,6 +178,19 @@
 	display: inline-block;
 	margin:0 0 10px 0;
 	overflow:visible;
+	position: relative;
+	background: white;
+
+	&:after {
+		content: " ";
+		position: absolute;
+		height: 15px;
+		background: white;
+		bottom: -10px;
+		left: 0;
+		right: 0;
+		box-shadow: 0 -3px 5px white;
+	}
 
 	-webkit-border-radius:0 5px 5px 0;
 	-moz-border-radius:0 5px 5px 0;
