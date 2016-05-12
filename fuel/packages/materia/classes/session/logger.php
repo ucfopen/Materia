@@ -35,10 +35,10 @@ class Session_Logger
 				foreach ($logs as $log)
 				{
 					// define the defaults
-					$type      = isset($log['type'])      ? $log['type']      : 0;
-					$item_id   = isset($log['item_id'])   ? $log['item_id']   : 0;
-					$text      = isset($log['text'])      ? $log['text']      : '';
-					$value     = isset($log['value'])     ? $log['value']     : '';
+					$type      = isset($log['type']) ? $log['type'] : 0;
+					$item_id   = isset($log['item_id']) ? $log['item_id'] : 0;
+					$text      = isset($log['text']) ? $log['text'] : '';
+					$value     = isset($log['value']) ? $log['value'] : '';
 					$game_time = isset($log['game_time']) ? $log['game_time'] : '';
 
 					static::add_log($play_id, static::get_type($type), $item_id, $text, $value, $game_time, $time);
@@ -180,4 +180,34 @@ class Session_Logger
 		return [];
 	}
 
+	static public function query_logs($instance_id, $where_conditions, $order_conditions = null, $group_conditions = null)
+	{
+		//omit fields which could be traced to identify students
+		$query = \DB::select('log.id', 'log.type', 'log.item_id', 'log.text', 'log.value', 'log.created_at', 'log.game_time', 'log.visible')
+			->from('log')
+			->join('log_play')
+				->on('log.play_id', '=', 'log_play.id')
+			->where('log_play.inst_id', $instance_id); //make sure we only get logs relevant to the current instance
+		foreach ($where_conditions as $where_condition)
+		{
+			list($where_key, $where_comparison, $where_value) = $where_condition;
+			$query->where('log.'.$where_key, $where_comparison, $where_value);
+		}
+
+		if ($group_conditions)
+		{
+			foreach ($group_conditions as $group_condition)
+			{
+				$query->group_by('log.'.$group_condition);
+			}
+		}
+		if ($order_conditions)
+		{
+			foreach ($order_conditions as $order_condition)
+			{
+				$query->order_by('log.'.$order_condition);
+			}
+		}
+		return $query->execute();
+	}
 }
