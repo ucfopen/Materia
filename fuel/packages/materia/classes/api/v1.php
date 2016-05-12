@@ -34,6 +34,14 @@ class Api_V1
 		return Widget_Manager::get_widgets($widgets);
 	}
 
+	/**
+	 * Finds widgets based on a given preset criteria ("all", etc)
+	 */
+	static public function widgets_get_by_type($type)
+	{
+		return Widget_Manager::get_widgets([], $type);
+	}
+
 	static public function widget_instances_get($inst_ids = null)
 	{
 		// get all my instances - must be logged in
