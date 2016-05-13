@@ -215,7 +215,7 @@ class Widget extends \Basetask
 			return;
 		}
 
-		if ($count > 1 && $replace_id > 0)
+		if ($count > 1 && ! ($replace_id > 0) )
 		{
 			\Cli::error('multiple widgets paths can not be combined with --replace-id option');
 			exit();
