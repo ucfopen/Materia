@@ -41,7 +41,7 @@ class Widget_Manager
 		# blank list of ids basically says "grab all the widgets from the DB instead"
 		if (empty($widget_ids))
 		{
-			$query = 'SELECT `id` FROM `widget`';
+			$query = 'SELECT `id` FROM `widget` WHERE `is_playable` = "1" ';
 
 			# $type provides optional selection filter for widgets:
 			# - default is only 'featured' widgets
@@ -54,11 +54,11 @@ class Widget_Manager
 					break;
 
 				default:
-					$query .= ' WHERE `in_catalog` = "1"';
+					$query .= 'AND `in_catalog` = "1" ';
 					break;
 			}
 
-			$query .= ' ORDER BY `name`';
+			$query .= 'ORDER BY `name`';
 
 			$result = \DB::query($query)->execute();
 
