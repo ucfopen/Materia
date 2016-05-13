@@ -179,6 +179,17 @@
 	margin:0 0 10px 0;
 	overflow:visible;
 
+	&:after {
+		position: relative;
+		content: " ";
+		height: 15px;
+		width: 356px;
+		display: block;
+		margin-top: 106px;
+		background: white;
+		box-shadow: 0 -3px 5px white;
+	}
+
 	-webkit-border-radius:0 5px 5px 0;
 	-moz-border-radius:0 5px 5px 0;
 	border-radius:0 5px 5px 0;
@@ -250,6 +261,8 @@
 
 	dl.inline_def {
 		width:235px;
+		max-height: 80px;
+		overflow-y: hidden;
 		margin:0;
 		line-height: 20px;
 	}
@@ -284,6 +297,11 @@
 		animation: animateShow .3s;
 		opacity:1;
 		z-index:20;
+
+		dl
+		{
+			max-height: inherit;
+		}
 	}
 	h1{
 		font-size:18px;
