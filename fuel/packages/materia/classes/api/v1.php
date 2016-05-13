@@ -491,7 +491,7 @@ class Api_V1
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		$scores = Score_Manager::get_instance_score_history($inst_id);
-		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, $context_id, $semester));
+		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, null, $semester));
 		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id, $semester);
 
 		$attempts_left = $inst->attempts - $attempts_used + $extra;
