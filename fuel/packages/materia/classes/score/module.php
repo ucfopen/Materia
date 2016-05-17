@@ -347,4 +347,12 @@ abstract class Score_Module
 	{
 		return $question->questions[0]['text'];
 	}
+
+	/**
+	* Proxy function to query session logs based on some parameters given by a widget score module
+	*/
+	protected final function query_logs($where_conditions, $order_conditions=null, $group_conditions=null)
+	{
+		return Session_Logger::query_logs($this->inst->id, $where_conditions, $order_conditions, $group_conditions);
+	}
 }

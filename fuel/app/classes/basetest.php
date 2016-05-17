@@ -1,4 +1,7 @@
 <?
+
+// TODO: CLEAN UP THIS CODE
+// @codingStandardsIgnoreStart
 class Basetest extends TestCase
 {
 	// Runs before every single test
@@ -6,13 +9,11 @@ class Basetest extends TestCase
 	{
 		Config::set('errors.throttle', 5000);
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-		\Fuel::$is_cli = true;
 		static::clear_fuel_input();
 	}
 
 	protected function tearDown()
 	{
-		\Fuel::$is_cli = false;
 		\Auth::logout();
 	}
 
@@ -286,7 +287,22 @@ class Basetest extends TestCase
 		$this->assertEquals('No Notifications', $msg->title);
 	}
 
+	protected function spoof_widget_play($inst, $context_id=false)
+	{
+		if ( $inst->is_draft) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Drafts are not playable');
+		if ( ! $inst->widget->is_playable) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget is retired');
+
+		$status = $inst->status($context_id);
+		if ( ! $status['open']) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget not available');
+		if ( ! $status['has_attempts']) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'No attempts remaining');
+
+		// create the play
+		$play_id = \Materia\Api::session_play_create($inst->id, $context_id);
+		return $play_id;
+	}
+
 	public function test_just_because_its_required()
 	{
 	}
 }
+// @codingStandardsIgnoreEnd

@@ -8,15 +8,17 @@ class Score_Manager
 	 * @param int inst_id Widget Instance ID
 	 * @return array Time sorted array of play scores containing play_id, timestamp, and score keys
 	 */
-	static public function get_instance_score_history($inst_id)
+	static public function get_instance_score_history($inst_id, $context_id = null, $semester = null)
 	{
-		return \DB::select('id','created_at','percent')
+		$query = \DB::select('id','created_at','percent')
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('user_id', \Model_User::find_current_id())
 			->where('inst_id', $inst_id)
-			->order_by('created_at', 'DESC')
-			->execute()
+			->order_by('created_at', 'DESC');
+		if (isset($context_id)) $query->where('context_id', $context_id);
+		if (isset($semester)) $query->where('semester', $semester);
+		return $query->execute()
 			->as_array();
 	}
 
@@ -36,6 +38,26 @@ class Score_Manager
 			->order_by('created_at', 'DESC')
 			->execute()
 			->as_array();
+	}
+
+	/**
+	* Returns any additional "bonus" attempts granted to the user for a particular instance
+	* @param string inst_id Widget Instance ID
+	* @param string user_id User ID
+	* @return int number of extra attempts granted to the user for that instance, or 0
+	*/
+	static public function get_instance_extra_attempts($inst_id, $user_id, $context_id, $semester)
+	{
+		$result = \DB::select('extra_attempts')
+			->from('user_extra_attempts')
+			->where('user_id', $user_id)
+			->where('inst_id', $inst_id)
+			->where('context_id', $context_id)
+			->where('semester', $semester)
+			->execute()
+			->as_array();
+
+		return count($result) ? $result[0]['extra_attempts'] : 0;
 	}
 
 	/**
@@ -83,7 +105,11 @@ class Score_Manager
 		// build a sheltered scope to try and "safely" load the contents of the file
 		$load_score_module = function($widget)
 		{
-			include_once(PKGPATH.'/materia/vendor/widget/score_module/'.strtolower($widget->score_module).'.php');
+			$public_dir = \Config::get('materia.dirs.engines').$widget->id.'-'.$widget->clean_name;
+
+			include_once("$public_dir/_score-modules/score_module.php");
+			// include_once(PKGPATH."/materia/vendor/widget/score_module/".strtolower($widget->score_module).".php");
+
 			// @TODO: should be this instead to prevent file name issues
 			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
 

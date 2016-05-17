@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 ======================= API NAMING CONVETION =======================
 The goals of the naming convention are to have a short, descriptive, and predictable name
@@ -32,6 +32,14 @@ class Api_V1
 	static public function widgets_get($widgets = null)
 	{
 		return Widget_Manager::get_widgets($widgets);
+	}
+
+	/**
+	 * Finds widgets based on a given preset criteria ("all", etc)
+	 */
+	static public function widgets_get_by_type($type)
+	{
+		return Widget_Manager::get_widgets([], $type);
 	}
 
 	static public function widget_instances_get($inst_ids = null)
@@ -105,7 +113,7 @@ class Api_V1
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 
-		$is_student = ! Api::session_valid(['basic_author', 'super_user']);
+		$is_student = ! \Model_User::verify_session(['basic_author', 'super_user']);
 
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
@@ -162,13 +170,100 @@ class Api_V1
 			$guest_access = true;
 		}
 
-		if ( ! empty($qset->data) && ! empty($qset->version)) $inst->qset = $qset;
-		if ( ! empty($name)) $inst->name = $name;
-		if ($is_draft !== null) $inst->is_draft = $is_draft;
-		if ($open_at !== null) $inst->open_at = $open_at;
-		if ($close_at !== null) $inst->close_at = $close_at;
-		if ($attempts !== null) $inst->attempts = $attempts;
-		if ($guest_access !== null) $inst->guest_access = $guest_access;
+		if ( ! empty($qset->data) && ! empty($qset->version))
+		{
+			$inst->qset = $qset;
+		}
+		if ( ! empty($name))
+		{
+			if ($inst->name != $name)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Name',
+					'value_2' => $name
+				]);
+				$activity->db_store();
+			}
+			$inst->name = $name;
+		}
+		if ($is_draft !== null)
+		{
+			if ($inst->is_draft != $is_draft)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Is Draft',
+					'value_2' => $is_draft
+				]);
+				$activity->db_store();
+			}
+			$inst->is_draft = $is_draft;
+		}
+		if ($open_at !== null)
+		{
+			if ($inst->open_at != $open_at)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Open At',
+					'value_2' => $open_at
+				]);
+				$activity->db_store();
+			}
+			$inst->open_at = $open_at;
+		}
+		if ($close_at !== null)
+		{
+			if ($inst->close_at != $close_at)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Close At',
+					'value_2' => $close_at
+				]);
+				$activity->db_store();
+			}
+			$inst->close_at = $close_at;
+		}
+		if ($attempts !== null)
+		{
+			if ($inst->attempts != $attempts)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Attempts',
+					'value_2' => $attempts
+				]);
+				$activity->db_store();
+			}
+			$inst->attempts = $attempts;
+		}
+		if ($guest_access !== null)
+		{
+			if ($inst->guest_access != $guest_access)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Guest Access',
+					'value_2' => $guest_access
+				]);
+				$activity->db_store();
+			}
+			$inst->guest_access = $guest_access;
+		}
 
 		try
 		{
@@ -211,7 +306,7 @@ class Api_V1
 		return $spotlight_list;
 	}
 
-	static public function session_play_create($inst_id, $preview_mode=false)
+	static public function session_play_create($inst_id, $context_id=false, $preview_mode=false)
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
@@ -219,7 +314,7 @@ class Api_V1
 		if ($preview_mode == false && $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
-		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $preview_mode);
+		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id, $preview_mode);
 		return $play_id;
 	}
 
@@ -239,13 +334,33 @@ class Api_V1
 	}
 
 	/**
-	 * Verifies that the user has a current session and generates a new SESSID for them
-	 *
-	 * @return bool true if user is logged in, false if not
-	 */
-	static public function session_valid($role_name = null, $update_timeout = true)
+	 * Dedicated session validation call for the creator. Because a play isn't created, no need to verify session user w/ model user.
+	  */
+	static public function session_author_verify($role_name = null)
 	{
-		return \Model_User::verify_session($role_name, $update_timeout);
+		return \Model_User::verify_session($role_name);
+	}
+
+	/**
+	 * Session validation call for the player. Performs the standard session verification and additionally verifies that the user currently authenticated matches the user stored in play data.
+	 */
+	static public function session_play_verify($play_id)
+	{
+		// Standard session validation first
+		if (\Model_User::verify_session() !== true) return false;
+
+		// if $play_id is null, assume it's a preview, no need for user check
+		if ( ! $play_id) return true;
+
+		// Grab user id from play data
+		$play_data = new Session_Play();
+		$play_data->get_by_id($play_id);
+
+		// Grab id of currently authenticated user
+		$current_user_id = \Model_User::find_current_id();
+
+		// Compare and return boolean
+		return $play_data->user_id == $current_user_id;
 	}
 
 	/**
@@ -269,17 +384,21 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
-		// if not preview, see if current user can play widget
+
 		if ( ! $preview_inst_id)
 		{
 			$inst = self::_get_instance_for_play_id($play_id);
 			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+			// Ensure user comparison between session & model checks out
+			if ( ! $inst->guest_access && self::session_play_verify($play_id) !== true) return Msg::no_login();
 		}
-		// otherwise see if user has valid session
 		else
 		{
-			if (\Model_User::verify_session() !== true) return Msg::no_login();
+			// No user in session, just perform auth check
+			if (\Model_User::verify_session() !== true) return false;
 		}
+
 		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
 		if ( ! is_array($logs) || count($logs) < 1 ) return Msg::invalid_input('missing log array');
 
@@ -357,13 +476,35 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function widget_instance_scores_get($inst_id)
+	/**
+	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
+	 * If no launch token is supplied, the current semester will be used as the current context.
+	 *
+	 * @param string $inst_id The widget instance ID
+	 * @param string $token The launch token corresponding to the first play in a series of replays, if it exists
+	 *
+	 * @return array An array containing a list of scores as an array and the number of attempts left in the current context, if applicable
+	 */
+	static public function widget_instance_scores_get($inst_id, $token=false)
 	{
+		$result = $token ? \Event::trigger('before_score_display', $token) : null;
+		$context_id = empty($result) ? '' : $result;
+		$semester = Semester::get_current_semester();
+
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		return Score_Manager::get_instance_score_history($inst_id);
+		$scores = Score_Manager::get_instance_score_history($inst_id);
+		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, null, $semester));
+		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id, $semester);
+
+		$attempts_left = $inst->attempts - $attempts_used + $extra;
+
+		return [
+			'scores' => $scores,
+			'attempts_left' => $attempts_left
+		];
 	}
 
 	static public function widget_instance_play_scores_get($play_id, $preview_mode_inst_id = null)
@@ -547,6 +688,10 @@ class Api_V1
 	{
 		$inst = self::_get_instance_for_play_id($play_id);
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		// Make sure widget is being played by the correct user (when guest access not enabled)
+		if ( ! $inst->guest_access && self::session_play_verify($play_id) !== true) return Msg::no_login();
+
 		if ($play = Api_V1::_validate_play_id($play_id)) //valid play id or logged in
 		{
 			$user_id = $inst->guest_access ? 0 : $play->user_id; // store as guest or user?
