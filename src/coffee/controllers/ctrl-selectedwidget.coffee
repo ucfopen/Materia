@@ -83,7 +83,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
 				user.expiresText = getExpiresText(timestamp)
-				user.gravatar = userServ.getAvatar user
+				user.gravatar = userServ.getAvatar user, 50
 
 			$scope.perms.collaborators = users
 			$scope.$apply()

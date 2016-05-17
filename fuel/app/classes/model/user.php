@@ -73,30 +73,29 @@ class Model_User extends Orm\Model
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
 
+		$user_table = \Model_User::table();
 		$matches = \DB::select()
-			->from(\Model_User::table())
-				->join("perm_role_to_user", "LEFT")
-					->on(\Model_User::table().".id", "=", "perm_role_to_user.user_id")
-				->join("user_role", "LEFT")
-					->on("perm_role_to_user.role_id", "=", "user_role.role_id")
-				->where(\Model_User::table().".id", "NOT" ,\DB::expr("IN(".
-						\DB::select(\Model_User::table().".id")
-							->from(\Model_User::table())
-							->join("perm_role_to_user", "LEFT")
-								->on(\Model_User::table().".id", "=", "perm_role_to_user.user_id")
-							->join("user_role", "LEFT")
-								->on("perm_role_to_user.role_id", "=", "user_role.role_id")
-							->where("user_role.name", "super_user")
-							->or_where("users.id", self::find_current_id())
-					.")"))
+			->from($user_table)
+				->join('perm_role_to_user', 'LEFT')
+					->on($user_table.'.id', '=', 'perm_role_to_user.user_id')
+				->join('user_role', 'LEFT')
+					->on('perm_role_to_user.role_id', '=', 'user_role.role_id')
+				->where($user_table.'.id', 'NOT' ,\DB::expr('IN('.\DB::select($user_table.'.id')
+							->from($user_table)
+							->join('perm_role_to_user', 'LEFT')
+								->on($user_table.'.id', '=', 'perm_role_to_user.user_id')
+							->join('user_role', 'LEFT')
+								->on('perm_role_to_user.role_id', '=', 'user_role.role_id')
+							->where('user_role.name', 'super_user')
+							->or_where('users.id', self::find_current_id()).')'))
 				->and_where_open()
-					->where('username', 'LIKE', "$name"."%")
-					->or_where(\DB::expr('CONCAT(first, last)'), 'LIKE', "%$name%")
+					->where('username', 'LIKE', $name.'%')
+					->or_where(\DB::expr('REPLACE(CONCAT(first, last), " ", "")'), 'LIKE', "%$name%")
 					->or_where('email', 'LIKE', "$name%")
 				->and_where_close()
-			->group_by(\Model_User::table().'.id')
+			->group_by($user_table.'.id')
 			->limit(50)
-			->as_object("Model_User")
+			->as_object('Model_User')
 			->execute();
 
 		return $matches;
@@ -126,37 +125,24 @@ class Model_User extends Orm\Model
 		return $val;
 	}
 
-	static public function verify_session($role_name = null)
+	static public function verify_session($role_or_roles = null)
 	{
-		if (\Auth::check())
-		{
-			$in_role = true;
-			if ($role_name !== null)
-			{
-				if ( ! is_array($role_name)) $role_name = (array) $role_name;
-				$in_role = false;
-				foreach ($role_name as $role)
-				{
-					$in_role = \RocketDuck\Perm_Manager::does_user_have_role([$role]);
-					if ($in_role) break;
-				}
-			}
-			return (bool) $in_role;
-		}
-		else
+		if ( ! \Auth::check())
 		{
 			\Auth::logout();
+			return false;
 		}
-		return false;
+
+		if ( $role_or_roles === null) return true;
+
+		if ( ! is_array($role_or_roles)) $role_or_roles = (array) $role_or_roles;
+		return \RocketDuck\Perm_Manager::does_user_have_role($role_or_roles);
 	}
 
 	static protected function get_rate_limiter()
 	{
-		try
-		{
-			$limit = Cache::get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
-		}
-		catch (CacheNotFoundException $e)
+		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		if (is_null($limit))
 		{
 			$limit = ['start_time' => time(), 'count' => 0];
 			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);
@@ -233,7 +219,7 @@ class Model_User extends Orm\Model
 
 	static protected function forge_guest()
 	{
-		return \Model_User::forge(array('id'=>self::GUEST_ID));
+		return \Model_User::forge(array('id' => self::GUEST_ID));
 	}
 
 	public function to_array($custom = false, $recurse = false, $eav = false)

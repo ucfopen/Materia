@@ -5,14 +5,14 @@
  * This environment is primarily used by unit tests, to run on a controlled environment.
  */
 
-return array(
-	'default' => array(
+return [
+	'default' => [
 		'type'        => 'pdo',
-		'connection'  => array(
-			'dsn'        => 'mysql:host=192.168.33.33;dbname=fuel_test',
-			'username'   => 'root',
-			'password'   => 'root'
-		),
+		'connection'  => [
+			'dsn'        => 'mysql:host=mysql;dbname=test', // update "mysql" to docker machine's IP address to allow database connections from host
+			'username'   => 'materia',
+			'password'   => 'odin'
+		],
 		'table_prefix' => '',
-	),
-);
+	],
+];

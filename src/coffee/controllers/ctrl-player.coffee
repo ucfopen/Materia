@@ -88,11 +88,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		setInterval ->
-			Materia.Coms.Json.send 'session_valid', [null, false], (result) ->
+			Materia.Coms.Json.send 'session_play_verify', [play_id], (result) ->
 				if result != true and instance.guest_access is false
-					alert 'Your play session has expired due to inactivity and you\'ll need to start over.'
-					window.onbeforeunload = null
-					window.location.reload()
+					$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
 		, 30000
 		dfd.promise()
 
@@ -261,10 +259,11 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 
 		(Materia.Coms.Json.send 'play_logs_save', pendingQueue[0].request, (result) ->
 			retryCount = 0 # reset on success
-			if $scope.fatal?
-				$scope.$apply -> $scope.fatal = null
+			if $scope.fatal? then $scope.fatal = null
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
+			else if result? && result.type is "error"
+				$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
 
 			previous = pendingQueue.shift()
 			previous.promise.resolve()
@@ -280,10 +279,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 
 			if retryCount > PLAYER.RETRY_LIMIT
 				retrySpeed = PLAYER.RETRY_SLOW
-				$scope.fatal =
-					title: 'Connection Lost'
-					msg: "Connection to Materia's server was lost. Check your connection or reload to start over."
-				$scope.$apply()
+				$scope.$apply -> $scope.fatal = 'Connection to Materia\'s server was lost. Check your connection or reload to start over.'
 
 			setTimeout ->
 				logPushInProgress = false
@@ -372,7 +368,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			else
 				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}#play-#{play_id}"
 
-		window.location = scoreScreenURL
+		window.location = scoreScreenURL unless $scope.fatal
 
 	window.onbeforeunload = (e) ->
 		if instance.widget.is_scorable is "1" and !$scope.isPreview and endState != 'sent'
