@@ -306,15 +306,14 @@ class Api_V1
 		return $spotlight_list;
 	}
 
-	static public function session_play_create($inst_id, $context_id=false, $preview_mode=false)
+	static public function session_play_create($inst_id, $context_id=false)
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		if ($preview_mode && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
-		if ($preview_mode == false && $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
+		if ( $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
-		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id, $preview_mode);
+		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id);
 		return $play_id;
 	}
 
@@ -439,10 +438,14 @@ class Api_V1
 			}
 
 			// validate the scores the game generated on the server
-			if ($score_mod->validate_scores() == false)
+			try
+			{
+				$score_mod->validate_scores();
+			}
+			catch (Score_Exception $e)
 			{
 				$play->invalidate();
-				return new Msg(Msg::ERROR, 'There was an error validating your score.', true);
+				return new Msg($e->message, $e->title, Msg::ERROR, true);
 			}
 
 			$return = [];
