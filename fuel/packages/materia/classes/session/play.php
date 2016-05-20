@@ -31,6 +31,8 @@ class Session_Play
 	public $elapsed;
 	public $environment_data;
 	public $id;
+	public $context_id;
+	public $semester;
 	public $inst_id;
 	public $ip;
 	public $is_complete;
@@ -50,16 +52,19 @@ class Session_Play
 	 * @param int NEEDS DOCUMENTATION
 	 * @param bool NEEDS DOCUMENTATION
 	 */
-	public function start($user_id=0, $inst_id=0, $is_preview=false)
+	public function start($user_id=0, $inst_id=0, $context_id=false, $is_preview=false)
 	{
 		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
 		{
 			$instance = Widget_Instance_Manager::get($inst_id);
 			$instance->get_qset($inst_id);
 
+			if ( ! $context_id) $context_id = '';
+
 			$this->created_at       = time();
 			$this->user_id          = $instance->guest_access ? 0 : $user_id;
 			$this->inst_id          = $inst_id;
+			$this->context_id       = $context_id;
 			$this->is_preview       = $is_preview;
 			$this->qset_id          = $instance->qset->id;
 			$this->environment_data = [
@@ -72,14 +77,14 @@ class Session_Play
 			// Essentially true but fragile.
 			$is_lti = array_key_exists('lti_message_type', $this->environment_data['input']) || array_key_exists('token', $this->environment_data['input']);
 			$this->auth = $is_lti ? 'lti' : '';
-			$this->referrer_url     = \Input::referrer();
+			$this->referrer_url = \Input::referrer();
 
 			// Preview Plays dont log anything
 			if ($is_preview) return static::start_preview($inst_id);
 
-
 			// Grab the current semester's date range so the right cache can be targeted and removed
 			$semester = Semester::get_current_semester();
+			$this->semester = $semester;
 
 			// clear play log summary cache
 			\Cache::delete("play-logs.{$this->inst_id}.{$semester}");
@@ -94,7 +99,7 @@ class Session_Play
 			static::set_user_is_playing();
 			$logger = new Session_Logger();
 			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
-			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id]);
+			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id, 'context_id' => $this->context_id]);
 			return $this->id;
 		}
 		return false;
@@ -157,7 +162,9 @@ class Session_Play
 				'qset_id'          => $this->qset_id,
 				'environment_data' => base64_encode(json_encode($this->environment_data)),
 				'auth'             => $this->auth,
-				'referrer_url'     => $this->referrer_url
+				'referrer_url'     => $this->referrer_url,
+				'context_id'       => $this->context_id,
+				'semester'         => $this->semester
 			])
 			->execute();
 
@@ -288,6 +295,8 @@ class Session_Play
 				$this->percent     = 0;
 				$this->elapsed     = 0;
 				$this->is_preview  = true;
+				$this->context_id  = '';
+				$this->semester    = Semester::get_current_semester();
 				return true;
 			}
 		}
@@ -312,6 +321,8 @@ class Session_Play
 				$this->score       = $r['score'];
 				$this->percent     = $r['percent'];
 				$this->elapsed     = $r['elapsed'];
+				$this->context_id  = $r['context_id'];
+				$this->semester    = $r['semester'];
 				return true;
 			}
 		}
@@ -344,7 +355,7 @@ class Session_Play
 				->execute();
 
 			// Determine the highest score of all my history (guest plays do not know youre history)
-			$score_history = \Materia\Score_Manager::get_instance_score_history($this->inst_id);
+			$score_history = \Materia\Score_Manager::get_instance_score_history($this->inst_id, $this->context_id);
 
 			foreach ($score_history as $score_history_item)
 			{
@@ -469,5 +480,4 @@ class Session_Play
 			->as_object()
 			->execute();
 	}
-
 }
