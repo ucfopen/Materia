@@ -56,6 +56,21 @@ describe 'Widget Catalog Page', ->
 			.execute 'return $(".infocard:hover").length;', null, (err, result) -> expect(result.value).toBe(0)
 			.call(done)
 
+	it 'should display all widgets from database', (done) ->
+		client
+			.url("#{setup.url}/widgets/all")
+			.waitFor '.widget', 7000
+			.getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
+			.execute 'return $(".widget").length;', null, (err, result) -> expect(result.value).toBeGreaterThan(0)
+			.isVisible '.flash-cards'
+			.isVisible '.enigma'
+			.isVisible '.labeling'
+
+			.isSelected "#display-all-widgets", (err, isSelected) ->
+				expect(isSelected).toBe(true)
+			.call(done)
+
+
 	it 'widget should appear on catalog', (done) ->
 		client
 			.url("#{setup.url}/widgets")
