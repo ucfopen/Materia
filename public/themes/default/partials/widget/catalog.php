@@ -60,6 +60,9 @@
 					<li><input ng-model="filters.mc" value="Multiple Choice" type="checkbox" id="filter-mc" /><label for="filter-mc">Multiple Choice</label></li>
 				</ul>
 			<!-- </dd> -->
+			<h2>Additional Options:</h2>
+			<dt><input type="checkbox" ng-model="displayAll" id="display-all-widgets" /><label for="display-all-widgets">Display All Widgets</label></dt>
+			<dd>Displays the entire catalog, including specialized and non-customizable widgets.</dd>
 		</dl>
 	</aside>
 </div>
