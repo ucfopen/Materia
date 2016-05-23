@@ -59,7 +59,7 @@ class Session_PlayDataExporter
 		$storage_data = [];
 		$csv          = '';
 
-		if (empty($table_name)) throw new \Exception("Missing required storage table name");
+		if (empty($table_name)) throw new \Exception('Missing required storage table name');
 
 		// load the logs for all selected semesters
 		if (empty($semesters))
@@ -70,7 +70,6 @@ class Session_PlayDataExporter
 				$storage_data['all'] = $loaded_data[$table_name];
 				$num_records = count($storage_data['all']);
 			}
-
 		}
 		else
 		{
@@ -106,7 +105,7 @@ class Session_PlayDataExporter
 
 			// create out header row
 			ksort($fields);
-			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters? '","semester"' : '"')."\n";
+			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters ? '","semester"' : '"')."\n";
 
 			// fill in the data for each row
 			foreach ($storage_data as $semester_str => $table)
@@ -120,8 +119,8 @@ class Session_PlayDataExporter
 					$d['data'] = $d['data'] + $fields;
 					ksort($d['data']);
 
-					$csv .= '"' . implode('","', $d['data']) . '",';
-					$csv .= '"' . implode('","', $d['play']) . '"';
+					$csv .= '"'.implode('","', $d['data']).'",';
+					$csv .= '"'.implode('","', $d['play']).'"';
 					if ( ! empty($semesters)) $csv .= ",\"{$year} {$term}\"";
 					$csv .= "\n";
 				}
@@ -171,7 +170,7 @@ class Session_PlayDataExporter
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return [$csv, ".csv"];
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -192,7 +191,7 @@ class Session_PlayDataExporter
 			foreach ($logs as $play)
 			{
 				// If there is no username, it is a guest user
-				$u = $play['username'] ? $play['username'] : "(Guest)";
+				$u = $play['username'] ? $play['username'] : '(Guest)';
 
 				if ( ! isset($results[$u])) $results[$u] = [];
 
@@ -306,7 +305,39 @@ class Session_PlayDataExporter
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return [$data, ".zip"];
+		return [$data, '.zip'];
+	}
+
+	// Outputs a CSV width a widget's question and answer set
+	// Does NOT care about score data of any kind
+	protected static function questions_and_answers($inst, $semesters)
+	{
+		if ($inst == null) return false;
+
+		$inst->get_qset($inst->id);
+
+		$questions = \Materia\Widget_Instance::find_questions($inst->qset->data);
+
+		$csv = [];
+		$headers = "Question, Answers\r\n";
+
+		$string = $headers;
+
+		foreach ($questions as $question)
+		{
+			$sanitized_question = str_replace(["\r","\n", ','], '', $question->questions[0]['text']);
+			$sanitized_answers = [];
+
+			foreach ($question->answers as $answer)
+			{
+				$sanitized_answer = str_replace(["\r","\n", ','], '', $answer['text']);
+				array_push($sanitized_answers, $sanitized_answer);
+			}
+
+			$string .= $sanitized_question.', '.implode(', ', $sanitized_answers)."\r\n";
+		}
+
+		return [$string, '_questions_answers.csv'];
 	}
 
 }
