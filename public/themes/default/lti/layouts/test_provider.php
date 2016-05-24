@@ -106,6 +106,13 @@
 			<iframe name="embed_iframe" id="embed_iframe" width="700px" height="600px" onLoad="onIFrameLoad()"></iframe>
 
 			<? // @codingStandardsIgnoreStart ?>
+			<form method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
+				<? foreach ($instructor_params as $name => $value) : ?>
+				<?= \Form::hidden($name, $value) ?>
+				<? endforeach ?>
+				<input type="submit" value="Login">
+			</form>
+
 			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
 				<? foreach ($instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
