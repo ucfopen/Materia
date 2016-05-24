@@ -46,6 +46,7 @@
 			function setLtiUrl(form)
 			{
 				$(form).find('.lti_url').val($('#assignment-url').val());
+				$(form).find('.context_id').val($('#context-id').val());
 				$(form).find('.resource_link').val($('#resource-link-id').val());
 				$(form).find('.custom_widget_instance_id').val($('#custom-inst-id').val());
 			}
@@ -104,6 +105,7 @@
 
 			<iframe name="embed_iframe" id="embed_iframe" width="700px" height="600px" onLoad="onIFrameLoad()"></iframe>
 
+			<? // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
 				<? foreach ($instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
@@ -117,6 +119,7 @@
 				<? endforeach ?>
 				<input type="submit" value="As NEW Instructor">
 			</form>
+			<? //@codingStandardsIgnoreEnd ?>
 
 			<hr />
 
@@ -127,6 +130,13 @@
 				<input id="assignment-url" style="width:400px;" type="text"></input>
 				<button onclick="toggleLegacy()">Toggle Legacy URL</button>
 				<button onclick="toggleEmbed()">Toggle Embed URL</button>
+			</div>
+
+			<div>
+				<span>
+					Context ID:
+				</span>
+				<input id="context-id" style="width:400px;" type="text" value="test-context"></input>
 			</div>
 
 			<div>
@@ -145,6 +155,7 @@
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
 				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
 				<input type="submit" value="As Learner">
@@ -152,6 +163,7 @@
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
 				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
 				<input type="hidden" id="new_learner" name="new_learner" value="new_learner" />
@@ -160,6 +172,7 @@
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
 				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
 				<input type="hidden" id="test_student" name="test_student" value="test_student" />
@@ -168,6 +181,7 @@
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
 				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
 				<input type="hidden" id="as_instructor" name="as_instructor" value="as_instructor" />
@@ -176,6 +190,7 @@
 
 			<hr />
 
+			<? // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
 				<? foreach ($validation_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
@@ -189,6 +204,7 @@
 				<? endforeach ?>
 				<input type="submit" id="test_unkown_assignment" value="Unknown Assignment Error">
 			</form>
+			<? //@codingStandardsIgnoreEnd ?>
 		</section>
 	</body>
 </html>
