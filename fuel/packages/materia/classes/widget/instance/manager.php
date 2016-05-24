@@ -18,7 +18,7 @@ class Widget_Instance_Manager
 
 		// convert all instance id's to strings... because mysql behaves unexpectedly with numbers here
 		// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
-		foreach($inst_ids as &$value) $value = (string) $value;
+		foreach ($inst_ids as &$value) $value = (string) $value;
 
 		$results = \DB::select()
 			->from('widget_instance')

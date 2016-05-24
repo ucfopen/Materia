@@ -186,7 +186,7 @@ class Widget_Installer
 		$existing_widget = new \Materia\Widget();
 		$existing_widget->get($widget_id);
 
-		if ($existing_widget->id !== $widget_id)
+		if ((int) $existing_widget->id !== (int) $widget_id)
 		{
 			throw new \Exception("No widget found to upgrade: $widget_id");
 		}
@@ -576,7 +576,7 @@ class Widget_Installer
 				}
 			}
 
-			if ($num_existing > 1)
+			if ($num_existing > 1 && $replace_id == 0)
 			{
 				throw new \Exception("Multiple existing widgets share this clean name: $clean_name");
 			}

@@ -37,6 +37,10 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 			id = [[id]]
 		Materia.Coms.Json.send 'widgets_get', id, callback
 
+	getWidgetsByType = (type, callback) ->
+		if type is null then type = 'featured'
+		Materia.Coms.Json.send 'widgets_get_by_type', [type], callback
+
 	saveWidget = (_params, callback) ->
 		params =
 			qset: null
@@ -157,6 +161,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 	$($window).bind 'hashchange', selectWidgetFromHashUrl
 
 	getWidgets: getWidgets
+	getWidgetsByType: getWidgetsByType
 	getWidget: getWidget
 	getWidgetInfo: getWidgetInfo
 	sortWidgets: sortWidgets
