@@ -8,6 +8,7 @@ class Controller_Widgets extends Controller
 {
 
 	protected $_header = 'partials/header';
+	protected $_embedded = false;
 
 	public function before()
 	{
@@ -194,6 +195,8 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		$this->_header = 'partials/header_empty';
+		$this->_embedded = true;
 		return $this->_play_widget($inst_id, false, true);
 	}
 
@@ -278,7 +281,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/no_attempts')
 			->set('classes', 'widget')
 			->set('attempts', $inst->attempts)
-			->set('scores_path', '/scores/'.$inst->id)
+			->set('scores_path', '/scores'.($this->_embedded ? '/embed' : '').'/'.$inst->id)
 
 			->set('summary', $this->theme->view('partials/widget/summary')
 				->set('type',$inst->widget->name)

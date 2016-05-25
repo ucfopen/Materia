@@ -28,6 +28,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	# problematic with weird plugins that put the page in an iframe).
 	# This should work pretty well but if we ever decide to change the
 	# scores embed URL this will need to be modified!
+
 	isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
 
 	# We don't want users who click the 'View more details' link via an LTI to play again, since at that point
