@@ -78,10 +78,12 @@ class Controller_Scores extends Controller
 			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
 		}
 
-		Css::push_group(['core', 'embed_scores']);
+		// Css::push_group(['core', 'embed_scores']);
+		Css::push_group(['core', 'scores']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		// Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
 
 		$token = \Input::get('token', false);
 		if ($token)
