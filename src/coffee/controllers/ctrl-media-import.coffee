@@ -101,8 +101,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				# fired when the above is successful
 				FileUploaded: (up, file, response) ->
 					res = $.parseJSON response.response #parse response string
-					# reload media to select newly uploaded file
-					loadAllMedia res.id
+					if res.error
+						up.removeFile file
+						alert 'Error code '+res.error.code+': '+res.error.message
+						$window.parent.Materia.Creator.onMediaImportComplete null
+					else
+						# reload media to select newly uploaded file
+						loadAllMedia res.id
 				Error: (up, args) ->
 					# Called when a error has occured
 					if args.code = -600 # http error
