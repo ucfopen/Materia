@@ -35,7 +35,6 @@ class Controller_Scores extends Controller
 			$response = Response::forge(Theme::instance()->render());
 		}
 
-
 		return parent::after($response);
 	}
 
@@ -72,30 +71,7 @@ class Controller_Scores extends Controller
 
 	public function get_show_embedded($inst_id)
 	{
-		if (\Model_User::verify_session() !== true)
-		{
-			Session::set_flash('notice', 'Please log in to view your scores.');
-			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
-		}
-
-		// Css::push_group(['core', 'embed_scores']);
-		Css::push_group(['core', 'scores']);
-
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		// Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
-
-		$token = \Input::get('token', false);
-		if ($token)
-		{
-			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
-		}
-
 		$this->_header = 'partials/header_empty';
-		$this->theme->get_template()
-			->set('title', 'Score Results')
-			->set('page_type', 'scores');
-
-		$this->theme->set_partial('content', 'partials/score/full');
+		$this->get_show($inst_id);
 	}
 }
