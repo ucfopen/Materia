@@ -40,6 +40,11 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				disabled: $scope.guestAccess
 		,0
 
+	$scope.toggleEmbeddedOnly = ->
+		return if $scope.studentMade
+
+		$scope.embeddedOnly = !$scope.embeddedOnly
+
 	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->
 		open = $scope.selected.widget.open_at
@@ -185,11 +190,12 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 			open_at: $scope.times[0],
 			close_at: $scope.times[1],
 			attempts: attempts,
-			guest_access: $scope.guestAccess
+			guest_access: $scope.guestAccess,
+			embedded_only: $scope.embeddedOnly
 			, (widget) ->
 				$scope.$broadcast 'widgetAvailability.update', ''
 
-		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess)
+		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess, $scope.embeddedOnly)
 
 	$scope.UNLIMITED_SLIDER_VALUE = 25
 	$scope.times = []
@@ -202,6 +208,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 	# Hold information for availability.
 	$scope.availability = []
 	$scope.guestAccess = false
+	$scope.embeddedOnly = $scope.selected.widget.embedded_only
 	$scope.studentMade = $window.IS_STUDENT or $scope.selected.widget.is_student_made
 	# From
 	$scope.availability.push

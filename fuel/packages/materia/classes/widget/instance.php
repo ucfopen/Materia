@@ -11,6 +11,7 @@ class Widget_Instance
 	public $created_at      = 0;
 	public $embed_url       = '';
 	public $is_student_made = false;
+	public $embedded_only   = 0;
 	public $guest_access    = false;
 	public $height          = 0;
 	public $id              = 0;
@@ -276,6 +277,7 @@ class Widget_Instance
 							'attempts'        => $this->attempts,
 							'guest_access'    => $this->guest_access,
 							'is_student_made' => $this->is_student_made,
+							'embedded_only'   => $this->embedded_only,
 						])
 						->execute();
 
@@ -296,19 +298,19 @@ class Widget_Instance
 			// store the question set if it hasn't already been
 			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
-					'widget_id'    => $this->widget->id,
-					'name'         => $this->name,
-					'is_draft'     => $this->is_draft,
-					'open_at'      => $this->open_at,
-					'close_at'     => $this->close_at,
-					'attempts'     => $this->attempts,
-					'guest_access' => $this->guest_access,
-					'updated_at'   => time()
+					'widget_id'     => $this->widget->id,
+					'name'          => $this->name,
+					'is_draft'      => $this->is_draft,
+					'open_at'       => $this->open_at,
+					'close_at'      => $this->close_at,
+					'attempts'      => $this->attempts,
+					'guest_access'  => $this->guest_access,
+					'embedded_only' => $this->embedded_only,
+					'updated_at'    => time()
 				])
 				->where('id', $this->id)
 				->execute();
 		}
-
 
 		// =========================== NOW STORE THE QSET ====================
 		if ( ! empty($this->qset->data)) $success = $this->store_qset();
@@ -457,14 +459,14 @@ class Widget_Instance
 		$closed = ! $always_open && ($closes && $end < $now);
 
 		return [
-			'open'         => $open,
-			'closed'       => $closed,
-			'opens'        => $opens,
-			'closes'       => $closes,
-			'will_open'    => $will_open,
-			'will_close'   => $will_close,
-			'always_open'  => $always_open,
-			'has_attempts' => $has_attempts,
+			'open'          => $open,
+			'closed'        => $closed,
+			'opens'         => $opens,
+			'closes'        => $closes,
+			'will_open'     => $will_open,
+			'will_close'    => $will_close,
+			'always_open'   => $always_open,
+			'has_attempts'  => $has_attempts
 		];
 	}
 
