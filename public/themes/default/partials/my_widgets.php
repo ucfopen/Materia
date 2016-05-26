@@ -76,7 +76,7 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="550px">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="650px">
 				<div ng-if="show.availabilityModal" ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
@@ -116,6 +116,12 @@
 								<label ng-click="toggleGuestAccess()" ng-class="{disabled: studentMade}">Enable Guest Mode</label>
 								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
 								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is always on for widgets created by students.</b></p>
+							</li>
+							<li id="embedded-only">
+								<h3>Embedded</h3>
+								<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()" ng-disabled="studentMade"/>
+								<label ng-click="toggleEmbeddedOnly()" ng-class="{disabled: studentMade}">Embedded Only</label>
+								<p class="data_explination">This widget will not be playable outside of the classes it is embedded within.</p>
 							</li>
 						</ul>
 					</ul>

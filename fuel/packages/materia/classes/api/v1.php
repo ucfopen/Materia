@@ -154,7 +154,7 @@ class Api_V1
 	 *
 	 * @return array An associative array with details about the save
 	 */
-	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $is_student_made=null)
+	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $embedded_only=null, $is_student_made=null)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
@@ -263,6 +263,22 @@ class Api_V1
 				$activity->db_store();
 			}
 			$inst->guest_access = $guest_access;
+		}
+
+		if ($embedded_only !== null)
+		{
+			if ($inst->embedded_only != $embedded_only)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Embedded Only',
+					'value_2' => $embedded_only
+				]);
+				$activity->db_store();
+			}
+			$inst->embedded_only = $embedded_only;
 		}
 
 		try

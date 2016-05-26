@@ -44,6 +44,7 @@ class Widget_Instance_Manager
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
+				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);
 
