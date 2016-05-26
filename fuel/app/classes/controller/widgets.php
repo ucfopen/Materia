@@ -195,6 +195,7 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		Session::set('context_id', \Input::post('context_id'));
 		$this->_header = 'partials/header_empty';
 		$this->_embedded = true;
 		return $this->_play_widget($inst_id, false, true);
