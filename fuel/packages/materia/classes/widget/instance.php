@@ -11,6 +11,7 @@ class Widget_Instance
 	public $created_at      = 0;
 	public $embed_url       = '';
 	public $is_student_made = false;
+	public $is_embedded     = false;
 	public $embedded_only   = 0;
 	public $guest_access    = false;
 	public $height          = 0;
@@ -35,6 +36,7 @@ class Widget_Instance
 		{
 			if (property_exists($this, $key)) $this->{$key} = $val;
 		}
+		$this->is_embedded = (bool) $this->lti_associations();
 
 		// ============ CLEAN NAME ============
 		if ( ! empty($this->name))
@@ -478,6 +480,18 @@ class Widget_Instance
 	public function allows_guest_players()
 	{
 		return $this->guest_access;
+	}
+
+	/**
+	 * Checks if widget instance has any LTI associations.
+	 *
+	 * @return Array list of all LTI association records for this widget instance.
+	 */
+	public function lti_associations()
+	{
+		return \Lti\Model_Lti::query()
+			->where('item_id', $this->id)
+			->get();
 	}
 
 	public function export()
