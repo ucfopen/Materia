@@ -208,6 +208,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 	# Hold information for availability.
 	$scope.availability = []
 	$scope.guestAccess = false
+	$scope.isEmbedded = $scope.selected.widget.is_embedded
 	$scope.embeddedOnly = $scope.selected.widget.embedded_only
 	$scope.studentMade = $window.IS_STUDENT or $scope.selected.widget.is_student_made
 	# From
