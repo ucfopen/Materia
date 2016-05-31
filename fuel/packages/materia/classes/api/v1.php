@@ -412,7 +412,6 @@ class Api_V1
 		else
 		{
 			$play = self::_validate_play_id($play_id);
-			trace($play);
 			if ( ! ($play instanceof Session_Play)) return Msg::invalid_input('Invalid play session');
 			// each log is an object?, convert to array
 			if ( ! is_array($logs[0]))
