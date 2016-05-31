@@ -8,15 +8,17 @@ class Score_Manager
 	 * @param int inst_id Widget Instance ID
 	 * @return array Time sorted array of play scores containing play_id, timestamp, and score keys
 	 */
-	static public function get_instance_score_history($inst_id)
+	static public function get_instance_score_history($inst_id, $context_id = null, $semester = null)
 	{
-		return \DB::select('id','created_at','percent')
+		$query = \DB::select('id','created_at','percent')
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('user_id', \Model_User::find_current_id())
 			->where('inst_id', $inst_id)
-			->order_by('created_at', 'DESC')
-			->execute()
+			->order_by('created_at', 'DESC');
+		if (isset($context_id)) $query->where('context_id', $context_id);
+		if (isset($semester)) $query->where('semester', $semester);
+		return $query->execute()
 			->as_array();
 	}
 
@@ -39,6 +41,26 @@ class Score_Manager
 	}
 
 	/**
+	* Returns any additional "bonus" attempts granted to the user for a particular instance
+	* @param string inst_id Widget Instance ID
+	* @param string user_id User ID
+	* @return int number of extra attempts granted to the user for that instance, or 0
+	*/
+	static public function get_instance_extra_attempts($inst_id, $user_id, $context_id, $semester)
+	{
+		$result = \DB::select('extra_attempts')
+			->from('user_extra_attempts')
+			->where('user_id', $user_id)
+			->where('inst_id', $inst_id)
+			->where('context_id', $context_id)
+			->where('semester', $semester)
+			->execute()
+			->as_array();
+
+		return count($result) ? $result[0]['extra_attempts'] : 0;
+	}
+
+	/**
 	 * Get Score and Play Details by play_ids
 	 * @param array play_ids Array of play_id's to get
 	 * @return array Returns a crazy array of details for each requested play_id
@@ -55,7 +77,7 @@ class Score_Manager
 			$play->get_by_id($play_id);
 			$inst_id = $play->inst_id;
 			$instances = Api::widget_instances_get([$inst_id], false);
-			if (! count($instances)) throw new HttpNotFoundException;
+			if ( ! count($instances)) throw new HttpNotFoundException;
 			$inst = $instances[0];
 
 			if ($play->user_id != $curr_user_id && ! $inst->allows_guest_players())
@@ -83,7 +105,11 @@ class Score_Manager
 		// build a sheltered scope to try and "safely" load the contents of the file
 		$load_score_module = function($widget)
 		{
-			include_once(PKGPATH."/materia/vendor/widget/score_module/".strtolower($widget->score_module).".php");
+			$public_dir = \Config::get('materia.dirs.engines').$widget->id.'-'.$widget->clean_name;
+
+			include_once("$public_dir/_score-modules/score_module.php");
+			// include_once(PKGPATH."/materia/vendor/widget/score_module/".strtolower($widget->score_module).".php");
+
 			// @TODO: should be this instead to prevent file name issues
 			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
 
@@ -170,7 +196,7 @@ class Score_Manager
 	{
 
 		// select completed scores by semester, returning the total players and the accurate average score
-		$result = \DB::query("
+		$result = \DB::query('
 			SELECT
 				D.id,
 				D.year,
@@ -178,9 +204,9 @@ class Score_Manager
 				COUNT(DISTINCT(L.user_id)) as students,
 				ROUND(AVG(L.percent)) as average
 			FROM
-				".\DB::quote_table('log_play')." AS L
+				'.\DB::quote_table('log_play').' AS L
 				FORCE INDEX(inst_id)
-			JOIN ".\DB::quote_table('date_range')." D
+			JOIN '.\DB::quote_table('date_range')." D
 				ON L.created_at BETWEEN D.start_at AND D.end_at
 			WHERE L.inst_id = :inst_id
 			AND L.`is_complete` = '1'

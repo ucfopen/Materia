@@ -11,17 +11,6 @@ class LtiUserManager
 	 */
 	public static function authenticate($launch)
 	{
-		// Force clear the session. Otherwise we may encounter problems with
-		// stale LTI data being used if two students use the same computer
-		try
-		{
-			\Session::destroy();
-		}
-		catch (\Fuel\Core\FuelException $e)
-		{
-			// If there was no session, Fuel throws a memcached exception. This is fine.
-		}
-
 		// =================== LOAD COFIGURATION ============================
 		$local_id_field     = \Config::get("lti::lti.consumers.{$launch->consumer}.local_identifier", 'username');
 		$auth_driver        = \Config::get("lti::lti.consumers.{$launch->consumer}.auth_driver", '');
@@ -45,6 +34,24 @@ class LtiUserManager
 
 		if ($user instanceof \Model_User)
 		{
+			// Force clear the session if the session username doesn't match the currently authenticated user. Otherwise we may encounter problems with
+			// stale LTI data being used if two students use the same computer
+			if ($user->username != \Session::get('username'))
+			{
+				try
+				{
+					\Session::destroy();
+				}
+				catch (\Fuel\Core\FuelException $e)
+				{
+					// If there was no session, Fuel throws a memcached exception. This is fine.
+				}
+			}
+
+			// For some reason unkown to us - passing the authdriver here causes a strange error on production
+			// The user can start playing a widget, but the playid is registered to userid 0
+			// But for testing, we need to be able to specify the auth driver
+			if (\Fuel::$env !== \Fuel::TEST) $auth_driver = null;
 			return (bool) \Auth::instance($auth_driver)->force_login($user->id);
 		}
 
@@ -139,7 +146,7 @@ class LtiUserManager
 	 */
 	protected static function update_user_roles(\Model_User $user, $launch, $auth)
 	{
-		if(\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
+		if (\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
 		{
 			$auth->update_role($user->id, static::is_lti_user_a_content_creator($launch));
 		}
