@@ -216,7 +216,7 @@ abstract class Score_Module
 	{
 		$q     = $this->questions[$log->item_id];
 		$score = $this->check_answer($log);
-		
+
 		return [
 			'data' => [
 				$this->get_ss_question($log, $q),
@@ -337,5 +337,13 @@ abstract class Score_Module
 	public function get_ss_question($log, $question)
 	{
 		return $question->questions[0]['text'];
+	}
+
+	/**
+	* Proxy function to query session logs based on some parameters given by a widget score module
+	*/
+	protected final function query_logs($where_conditions, $order_conditions=null, $group_conditions=null)
+	{
+		return Session_Logger::query_logs($this->inst->id, $where_conditions, $order_conditions, $group_conditions);
 	}
 }

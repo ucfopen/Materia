@@ -79,7 +79,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		heartbeat = setInterval ->
-			Materia.Coms.Json.send 'session_valid', [null, false], (data) ->
+			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
 				if data == false
 					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
 					window.location.reload()

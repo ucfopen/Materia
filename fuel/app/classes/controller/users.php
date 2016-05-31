@@ -45,11 +45,13 @@ class Controller_Users extends Controller
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
 
-		if (! Model_User::find_current()->is_guest())
+		if ( ! Model_User::find_current()->is_guest())
 		{
 			// already logged in
 			Response::redirect($redirect);
 		}
+
+		Event::trigger('request_login');
 
 		Css::push_group(['core', 'login']);
 
@@ -62,7 +64,6 @@ class Controller_Users extends Controller
 
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
-
 	}
 
 	public function post_login()
@@ -73,7 +74,7 @@ class Controller_Users extends Controller
 		if ($login === true)
 		{
 			// if the location is the profile and they are an author, send them to my-widgets instead
-			if (Materia\Api::session_valid('basic_author') == true && $redirect == Router::get('profile'))
+			if (\Model_User::verify_session('basic_author') == true && $redirect == Router::get('profile'))
 			{
 				$redirect = 'my-widgets';
 			}
@@ -103,7 +104,7 @@ class Controller_Users extends Controller
 	 */
 	public function get_profile()
 	{
-		if (Materia\Api::session_valid() !== true)
+		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view this page.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
@@ -132,7 +133,7 @@ class Controller_Users extends Controller
 	 */
 	public function get_settings()
 	{
-		if (Materia\Api::session_valid() !== true)
+		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view this page.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
