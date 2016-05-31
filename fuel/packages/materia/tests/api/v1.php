@@ -475,8 +475,16 @@ class Test_Api_V1 extends \Basetest
 
 		// ============ PLAY IN FIRST CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput, $context);
+
+		$output2 = $this->spoof_widget_play($saveOutput, $context); // we'll use this second play to try submitting scores past the attempt limit
+
 		$score = \Materia\Api_V1::play_logs_save($output, $logs);
 		$this->assertEquals(100, $score['score']);
+		// ============ TRY SUBMITTING SCORES AFTER ATTEMPT LIMIT IN FIRST CONTEXT ============
+		$exception = \Materia\Api_V1::play_logs_save($output2, $logs);
+		$this->assertInstanceOf('\RocketDuck\Msg', $exception);
+		$this->assertEquals('Attempt Limit Met', $exception->title);
+
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN FIRST CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput, $context);
 		$this->assertInstanceOf('\RocketDuck\Msg', $output);
