@@ -292,7 +292,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		$scope.iframeUrl = ""
 		$scope.modal = false
 		setTimeout (->
-			scope.$apply()
+			$scope.$apply()
 			return
 		), 0
 
@@ -301,7 +301,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		showEmbedDialog '/media/import#' + types.join(',')
 		$scope.modal = true
 		setTimeout (->
-			scope.$apply()
+			$scope.$apply()
 			return
 		), 0
 		null # else Safari will give the .swf data that it can't handle
@@ -399,5 +399,3 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			.pipe(showButtons)
 			.pipe(startHeartBeat)
 			.fail(onInitFail)
-
-
