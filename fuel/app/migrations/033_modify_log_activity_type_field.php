@@ -2,7 +2,7 @@
 
 namespace Fuel\Migrations;
 
-class Modify_log_activity_type_field
+class Modify_Log_Activity_Type_Field
 {
 	public function up()
 	{
