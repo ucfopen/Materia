@@ -20,7 +20,7 @@ module.exports = (widget, callback) ->
 	client
 		.url("#{environment.url}/widgets")
 		.waitFor(".widget.#{widget}", 3000)
-		.moveToObject(".widget.#{widget} .infocard", 10, 10)
+		.moveToObject(".widget.#{widget} .infocard", 10, 85)
 		.waitFor('.infocard:hover .header h1', 4000)
 		.click('.infocard:hover .header')
 		.pause 5000

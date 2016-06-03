@@ -17,7 +17,7 @@ describe 'When I create a widget', ->
 		setup.loginAt client, setup.author, "#{setup.url}/users/login"
 		client.url("#{setup.url}/widgets")
 			.getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
-			.moveToObject('.widget.enigma .infocard', 10, 10)
+			.moveToObject('.widget.enigma .infocard', 10, 85)
 			.click('.infocard:hover .header')
 			.pause(5000)
 			.click('#createLink')
@@ -67,7 +67,7 @@ describe 'When I create a widget', ->
 	it 'should be able to make and play a published widget', (done) ->
 		client.url("#{setup.url}/widgets")
 			.getTitle (err, title) -> expect(title).toBe('Widget Catalog | Materia')
-			.moveToObject('.widget.enigma .infocard', 10, 10)
+			.moveToObject('.widget.enigma .infocard', 10, 85)
 			.click('.infocard:hover .header')
 			.pause(5000)
 			.click('#createLink')
