@@ -34,6 +34,14 @@ class Api_V1
 		return Widget_Manager::get_widgets($widgets);
 	}
 
+	/**
+	 * Finds widgets based on a given preset criteria ("all", etc)
+	 */
+	static public function widgets_get_by_type($type)
+	{
+		return Widget_Manager::get_widgets([], $type);
+	}
+
 	static public function widget_instances_get($inst_ids = null)
 	{
 		// get all my instances - must be logged in
@@ -298,7 +306,7 @@ class Api_V1
 		return $spotlight_list;
 	}
 
-	static public function session_play_create($inst_id, $preview_mode=false)
+	static public function session_play_create($inst_id, $context_id=false, $preview_mode=false)
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
@@ -306,7 +314,7 @@ class Api_V1
 		if ($preview_mode == false && $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
-		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $preview_mode);
+		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id, $preview_mode);
 		return $play_id;
 	}
 
@@ -431,10 +439,14 @@ class Api_V1
 			}
 
 			// validate the scores the game generated on the server
-			if ($score_mod->validate_scores() == false)
+			try
+			{
+				$score_mod->validate_scores();
+			}
+			catch (Score_Exception $e)
 			{
 				$play->invalidate();
-				return new Msg(Msg::ERROR, 'There was an error validating your score.', true);
+				return new Msg($e->message, $e->title, Msg::ERROR, true);
 			}
 
 			$return = [];
@@ -463,18 +475,34 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function widget_instance_scores_get($inst_id)
+	/**
+	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
+	 * If no launch token is supplied, the current semester will be used as the current context.
+	 *
+	 * @param string $inst_id The widget instance ID
+	 * @param string $token The launch token corresponding to the first play in a series of replays, if it exists
+	 *
+	 * @return array An array containing a list of scores as an array and the number of attempts left in the current context, if applicable
+	 */
+	static public function widget_instance_scores_get($inst_id, $token=false)
 	{
+		$result = $token ? \Event::trigger('before_score_display', $token) : null;
+		$context_id = empty($result) ? '' : $result;
+		$semester = Semester::get_current_semester();
+
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		$scores = Score_Manager::get_instance_score_history($inst_id);
-		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id());
+		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, null, $semester));
+		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id, $semester);
+
+		$attempts_left = $inst->attempts - $attempts_used + $extra;
 
 		return [
 			'scores' => $scores,
-			'extra_attempts' => $extra
+			'attempts_left' => $attempts_left
 		];
 	}
 
