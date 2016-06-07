@@ -424,7 +424,7 @@ class Api_V1
 			}
 
 			Session_Logger::parse_and_store_log_array($play_id, $logs);
-			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id);
+			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id, $play);
 
 			// @TODO: conver the score modules to work more like the playdata exporters
 			// $inst      = Widget_Instance_Manager::get($play->inst_id)
