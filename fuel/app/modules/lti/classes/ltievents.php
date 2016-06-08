@@ -23,7 +23,7 @@ class LtiEvents
 
 			$launch = LtiLaunch::from_request();
 
-			if (LtiUserManager::is_lti_user_a_content_creator($launch))
+			if ($inst_id && $inst && LtiUserManager::is_lti_user_a_content_creator($launch))
 			{
 				if ($inst->guest_access)
 				{
