@@ -9,7 +9,7 @@
 			<h1>Widget Uploader</h1>
 		</div>
 		<div class="widgets" data-container="catalog-wiget"></div>
-		<form enctype="multipart/form-data" method="POST" action="/widgets/upload">
+		<form enctype="multipart/form-data" method="POST" action="/upload/widgets">
 			<input type="file" name="file"><br>
 			<input type="submit" value="Submit">
 		</form>
