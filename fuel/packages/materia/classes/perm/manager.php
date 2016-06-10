@@ -278,7 +278,7 @@ class Perm_Manager
 
 			// convert all instance id's to strings... because mysql behaves unexpectedly with numbers here
 			// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
-			foreach($perms as &$value) $value = (string) $value;
+			foreach ($perms as &$value) $value = (string) $value;
 
 			// ====================== GET THE USERS ROLE PERMISSIONS ============================
 			// build a subquery that gets any roles the user has
@@ -487,6 +487,14 @@ class Perm_Manager
 			}
 		}
 		return $master_perms;
+	}
+
+	/**
+	 * Determine if the user associated with the given user ID lacks all non-student roles
+	 */
+	static public function is_student($user_id)
+	{
+		return ! \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR, \RocketDuck\Perm_Role::SU], $user_id);
 	}
 
 }

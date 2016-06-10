@@ -898,6 +898,12 @@ class Api_V1
 			if ($item_type === Perm::INSTANCE)
 			{
 				Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
+				// are we sharing this widget with a student?
+				if (\Materia\Perm_Manager::is_student($new_perms->user_id))
+				{
+					// force the widget to have unlimited attempts and enable guest mode
+					static::widget_instance_update($item_id, null, null, null, null, null, -1, true, null);
+				}
 			}
 
 			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);

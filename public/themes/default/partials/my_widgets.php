@@ -29,7 +29,10 @@
 							<div class="search_list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
-									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
+									<p class="user_match_name">
+										{{::match.first}} {{::match.last}}
+										<span class="user_match_student" ng-show="{{match.is_student}}">Student</span>
+									</p>
 								</div>
 								<div ng-if="searchResults.none && !searchResults.searching" class="no_match_message">
 									<b>No matches found.</b>
@@ -46,7 +49,10 @@
 								<a ng-if="selected.shareable || user.id == collaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(collaborator)" class="remove">&#88;</a>
 								<img class="avatar" ng-src="{{::collaborator.gravatar}}" />
 
-								<span class="name">{{::collaborator.first}} {{::collaborator.last}}</span>
+								<span class="name">
+									{{::collaborator.first}} {{::collaborator.last}}
+									<span class="user_match_student" ng-show="{{collaborator.isStudent}}">Student</span>
+								</span>
 
 								<div class="demote_dialogue" ng-show="collaborator.warning">
 									<div class="arrow"></div>
@@ -70,6 +76,7 @@
 							</div>
 						</div>
 						<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
+						<p class="disclaimer">Warning: Sharing this widget with a student will automatically enable guest mode.</p>
 						<a tabindex="0" class="cancel_button" ng-click="hideModal()">Cancel</a>
 						<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()">Save</a>
 					</div>
