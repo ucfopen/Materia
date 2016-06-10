@@ -112,6 +112,7 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 
 		$scope.perms.collaborators.push
 			id: user.id
+			isStudent: user.is_student
 			isCurrentUser: user.isCurrentUser
 			expires: null
 			expiresText: "Never"
@@ -160,7 +161,11 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 			if returnData == true
 				$scope.$emit 'collaborators.update', ''
 				$scope.show.collaborationModal = no
-				widgetSrv.removeWidget(widget_id) if remove_widget
+				if remove_widget
+					widgetSrv.removeWidget(widget_id)
+				else
+					widgetSettings = selectedWidgetSrv.get()
+					selectedWidgetSrv.updateAvailability(-1, widgetSettings.open_at, widgetSettings.close_at, true)
 				$scope.$apply()
 			else
 				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
