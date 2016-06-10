@@ -98,7 +98,7 @@ class Controller_Widgets_Upload extends Controller
 		}
 
 		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
-		Response::redirect(Router::get('widgets/upload'));
+		Response::redirect(Router::get('upload/widgets'));
 	}
 }
 
