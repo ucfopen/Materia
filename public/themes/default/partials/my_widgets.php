@@ -29,9 +29,8 @@
 							<div class="search_list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
-									<p class="user_match_name">
+									<p class="user_match_name" ng-class="{user_match_student: match.is_student}">
 										{{::match.first}} {{::match.last}}
-										<span class="user_match_student" ng-show="{{match.is_student}}">Student</span>
 									</p>
 								</div>
 								<div ng-if="searchResults.none && !searchResults.searching" class="no_match_message">
@@ -49,9 +48,8 @@
 								<a ng-if="selected.shareable || user.id == collaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(collaborator)" class="remove">&#88;</a>
 								<img class="avatar" ng-src="{{::collaborator.gravatar}}" />
 
-								<span class="name">
+								<span class="name" ng-class="{user_match_student: collaborator.isStudent}">
 									{{::collaborator.first}} {{::collaborator.last}}
-									<span class="user_match_student" ng-show="{{collaborator.isStudent}}">Student</span>
 								</span>
 
 								<div class="demote_dialogue" ng-show="collaborator.warning">
