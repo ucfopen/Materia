@@ -255,6 +255,8 @@ class Widget_Installer
 				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
 				// update it to make sure it allows guest access
 				\Materia\API::widget_instance_update($saved_demo->id, null, null, null, null, null, null, true);
+				// make sure nobody owns the demo widget
+				\Materia\Perm_Manager::clear_user_object_perms($saved_demo->id, \Materia\Perm::INSTANCE, \Model_user::find_current_id());
 			}
 
 			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
