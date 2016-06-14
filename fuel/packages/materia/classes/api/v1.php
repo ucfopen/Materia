@@ -263,6 +263,15 @@ class Api_V1
 				$activity->db_store();
 			}
 			$inst->guest_access = $guest_access;
+			// when disabling guest mode on a widget, make sure no students have access to that widget
+			if ( ! $guest_access)
+			{
+				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
+				foreach ($access as $user_id)
+				{
+					if (Perm_Manager::is_student($user_id)) Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+				}
+			}
 		}
 
 		try
@@ -857,6 +866,10 @@ class Api_V1
 		// full perms or is super user required
 		$can_give_access = Perm_Manager::user_has_any_perm_to($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
 
+		// if we're changing permissions on a widget instance, have that instance on hand for checking
+		$inst = false;
+		$refused = [];
+
 		// filter out any permissions I can't do
 		foreach ($perms_array as &$new_perms)
 		{
@@ -881,6 +894,27 @@ class Api_V1
 			// need strict type checking because 0 == false
 			$new_perm   = array_search(Perm::ENABLE, $new_perms->perms);
 			$is_enabled = $new_perm !== false;
+
+			// set VIEW access for all of its assets
+			if ($item_type === Perm::INSTANCE)
+			{
+				// get the widget instance if we don't have it yet
+				if ( ! $inst) $inst = Widget_Instance_Manager::get($item_id);
+
+				// if we're sharing the instance with a student, make sure it's okay to share with students first
+				if (Perm_Manager::is_student($new_perms->user_id))
+				{
+					// guest mode isn't enabled - put this user in a list and don't give them any permissions
+					if ( ! $inst->allows_guest_players())
+					{
+						$refused[] = $new_perms->user_id;
+						continue;
+					}
+					Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
+				}
+			}
+
+			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 			$notification_mode = '';
 
 			if ( ! $is_enabled)
@@ -893,22 +927,14 @@ class Api_V1
 			}
 
 			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
-
-			// set VIEW access for all of its assets
-			if ($item_type === Perm::INSTANCE)
-			{
-				Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
-				// are we sharing this widget with a student?
-				if (\Materia\Perm_Manager::is_student($new_perms->user_id))
-				{
-					// force the widget to have unlimited attempts and enable guest mode
-					static::widget_instance_update($item_id, null, null, null, null, null, -1, true, null);
-				}
-			}
-
-			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 		}
 
+		if ( ! empty($refused))
+		{
+			$return = new Msg('This widget does not have Guest Mode enabled; access has not been granted to the students selected.', 'student_guest_mode_error');
+			$return->refused = $refused;
+			return $return;
+		}
 		return true;
 	}
 	/**
