@@ -108,11 +108,13 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		# Do not add duplicates
 		$scope.perms.collaborators = [] if not $scope.perms.collaborators
 		for existing_user in $scope.perms.collaborators
-			return if user.id == existing_user.id
+			if user.id == existing_user.id
+				if existing_user.remove then existing_user.remove = false
+				return
 
 		$scope.perms.collaborators.push
 			id: user.id
-			isStudent: user.is_student
+			is_student: user.is_student
 			isCurrentUser: user.isCurrentUser
 			expires: null
 			expiresText: "Never"
@@ -161,14 +163,17 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 			if returnData == true
 				$scope.$emit 'collaborators.update', ''
 				$scope.show.collaborationModal = no
-				if remove_widget
-					widgetSrv.removeWidget(widget_id)
-				else
-					widgetSettings = selectedWidgetSrv.get()
-					selectedWidgetSrv.updateAvailability(-1, widgetSettings.open_at, widgetSettings.close_at, true)
+				if remove_widget then widgetSrv.removeWidget(widget_id)
 				$scope.$apply()
 			else
 				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
+				if returnData?.refused?
+					for user_id in returnData.refused
+						delete $scope.perms.widget[user_id]
+					$scope.$emit 'collaborators.update', ''
+					$scope.show.collaborationModal = no
+					if remove_widget then widgetSrv.removeWidget(widget_id)
+					$scope.$apply()
 
 	$scope.checkForWarning = (user) ->
 		if user.isCurrentUser and user.access <= 30
