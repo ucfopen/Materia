@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Materia
  * License outlined in licenses folder
