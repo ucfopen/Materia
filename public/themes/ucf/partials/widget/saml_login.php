@@ -17,7 +17,7 @@
 					</li>
 				</ul>
 				<ul class="help_links">
-					<? foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
+					<?php foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
 					<li><a href="/help">Help</a></li>
 				</ul>
 			</form>
