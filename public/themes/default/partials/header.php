@@ -1,9 +1,9 @@
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
 
-	<? /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
-	<? if ($me->is_guest()): ?>
+	<?php /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
+	<?php if ($me->is_guest()): ?>
 		<span id="current-user" data-logged-in="false"></span>
-	<? else: ?>
+	<?php else: ?>
 		<span id="current-user"
 			data-logged-in="true"
 			data-name="<?= "{$me->first} {$me->last}" ?>"
@@ -11,7 +11,7 @@
 			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
 			data-notify="<?= $me->profile_fields['notify'] ? 'true' : 'false' ?>"
 		></span>
-	<? endif ?>
+	<?php endif ?>
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
