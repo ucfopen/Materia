@@ -136,8 +136,10 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		widget_id     = $scope.selected.widget.id
 		permObj       = []
 		user_ids      = {}
+		students  = []
 
 		for user in $scope.perms.collaborators
+			students.push user if user.is_student
 			# Do not allow saving if a demotion dialog is on the screen
 			return if user.warning
 
@@ -164,6 +166,7 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				$scope.$emit 'collaborators.update', ''
 				$scope.show.collaborationModal = no
 				if remove_widget then widgetSrv.removeWidget(widget_id)
+				if students.length > 0 then $scope.selected.widget.student_access = true
 				$scope.$apply()
 			else
 				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
