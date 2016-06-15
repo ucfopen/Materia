@@ -267,9 +267,13 @@ class Api_V1
 			if ( ! $guest_access)
 			{
 				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
-				foreach ($access as $user_id)
+				foreach ($access as $user_id => $user_perms)
 				{
-					if (Perm_Manager::is_student($user_id)) Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+					if (Perm_Manager::is_student($user_id))
+					{
+						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+					}
 				}
 			}
 		}
@@ -902,7 +906,7 @@ class Api_V1
 				if ( ! $inst) $inst = Widget_Instance_Manager::get($item_id);
 
 				// if we're sharing the instance with a student, make sure it's okay to share with students first
-				if (Perm_Manager::is_student($new_perms->user_id))
+				if ($is_enabled && Perm_Manager::is_student($new_perms->user_id))
 				{
 					// guest mode isn't enabled - put this user in a list and don't give them any permissions
 					if ( ! $inst->allows_guest_players())
@@ -931,7 +935,7 @@ class Api_V1
 
 		if ( ! empty($refused))
 		{
-			$return = new Msg('This widget does not have Guest Mode enabled; access has not been granted to the students selected.', 'student_guest_mode_error');
+			$return = new Msg('This widget does not have Guest Mode enabled; access has not been granted to the students selected.', 'student_guest_mode_warning', Msg::WARN);
 			$return->refused = $refused;
 			return $return;
 		}
