@@ -384,7 +384,7 @@
 											<td>{{row.play.user}}</td>
 											<td>{{row.play.firstName}}</td>
 											<td>{{row.play.lastName}}</td>
-											<td>{{row.play.time}}</td>
+											<td>{{row.play.cleanTime}}</td>
 											<td ng-repeat="rowData in row.data" ng-class="{'null':rowData == null}">{{rowData}}</td>
 										</tr>
 									</tbody>
