@@ -2,7 +2,7 @@
 
 namespace Fuel\Migrations;
 
-class Create_user_extra_attempts
+class Create_User_Extra_Attempts
 {
 	public function up()
 	{
