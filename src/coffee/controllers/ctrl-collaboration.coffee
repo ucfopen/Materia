@@ -102,6 +102,8 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		return if $scope.searchResults.matches.indexOf(user) is -1
 		$scope.inputs.userSearchInput = ''
 
+		if $scope.selected.widget.guest_access is false and user.is_student then return alert 'Students can not be given access to this widget unless Guest Mode is enabled!'
+
 		$scope.searchResults.show = no
 		$scope.searchResults.matches = []
 
@@ -170,13 +172,6 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				$scope.$apply()
 			else
 				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
-				if returnData?.refused?
-					for user_id in returnData.refused
-						delete $scope.perms.widget[user_id]
-					$scope.$emit 'collaborators.update', ''
-					$scope.show.collaborationModal = no
-					if remove_widget then widgetSrv.removeWidget(widget_id)
-					$scope.$apply()
 
 	$scope.checkForWarning = (user) ->
 		if user.isCurrentUser and user.access <= 30
