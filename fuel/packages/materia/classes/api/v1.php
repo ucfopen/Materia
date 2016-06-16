@@ -455,10 +455,14 @@ class Api_V1
 			}
 
 			// validate the scores the game generated on the server
-			if ($score_mod->validate_scores() == false)
+			try
+			{
+				$score_mod->validate_scores();
+			}
+			catch (Score_Exception $e)
 			{
 				$play->invalidate();
-				return new Msg(Msg::ERROR, 'There was an error validating your score.', true);
+				return new Msg($e->message, $e->title, Msg::ERROR, true);
 			}
 
 			$return = [];
