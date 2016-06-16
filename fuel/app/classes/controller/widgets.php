@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Materia
  * License outlined in licenses folder
@@ -49,8 +49,18 @@ class Controller_Widgets extends Controller
 	 *
 	 * @login Not required
 	 */
-	public function get_index()
+	public function get_index($type = null)
 	{
+		// $type is an optional flag that provides optional display parameters for the catalog
+		// "all" displays all widgets in the database, not just the default "featured" ones
+		if (isset($type))
+		{
+			if ($type == 'all') // could be extended to include other options
+			{
+				Js::push_inline('var DISPLAY_TYPE = "'.$type.'";');
+			}
+			else throw new HttpNotFoundException;
+		}
 
 		Css::push_group(['core', 'widget_catalog']);
 
@@ -302,6 +312,9 @@ class Controller_Widgets extends Controller
 
 			// allow events to set inst_id
 			if ( ! empty($result['inst_id'])) $inst_id = $result['inst_id'];
+
+			// allow events to set context_id
+			$context_id = empty($result['context_id']) ? false : $result['context_id'];
 		}
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
@@ -313,7 +326,7 @@ class Controller_Widgets extends Controller
 			return $this->build_widget_login('Login to play this widget', $inst_id, $is_embedded);
 		}
 
-		$status = $this->get_status($inst);
+		$status = $inst->status($context_id);
 
 		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
@@ -321,7 +334,7 @@ class Controller_Widgets extends Controller
 		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
 
 		// create the play
-		$play_id = \Materia\Api::session_play_create($inst_id);
+		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
 
 		if ($play_id instanceof \RocketDuck\Msg)
 		{
@@ -358,9 +371,7 @@ class Controller_Widgets extends Controller
 
 		if ($is_open)
 		{
-			$alt = \Event::Trigger('before_widget_login');
-			$theme = $alt ?: 'partials/widget/login';
-			$content = $this->theme->set_partial('content', $theme);
+			$content = $this->theme->set_partial('content', 'partials/widget/login');
 			$content
 				->set('user', __('user'))
 				->set('pass', __('password'))
@@ -396,7 +407,7 @@ class Controller_Widgets extends Controller
 	{
 		$format = 'm/d/y';
 		$desc   = $summary = '';
-		$status = $this->get_status($inst);
+		$status = $inst->status();
 
 		// Build the open/close dates for display
 		if ($status['opens'])
@@ -452,46 +463,4 @@ class Controller_Widgets extends Controller
 
 		if ($is_embedded) $this->_header = 'partials/header_empty';
 	}
-
-	/**
-	 * Determine if a widget is playable
-	 * @return Number -1: not avail yet, no end time, -2: not avail yet, has end time, 1: closed, 0.5, completely open
-	 *
-	 */
-	protected function get_status($inst)
-	{
-		$now           = time();
-		$start         = (int) $inst->open_at;
-		$end           = (int) $inst->close_at;
-		$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($inst->id));
-
-		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
-		$extra_attempts = \Materia\Score_Manager::get_instance_extra_attempts($inst->id, \Model_User::find_current_id());
-		$attempts_used -= $extra_attempts;
-
-		$has_attempts  = $inst->attempts == -1 || $attempts_used < $inst->attempts;
-
-		$opens       = $start > 0;
-		$closes      = $end > 0;
-		$always_open = ! $opens && ! $closes;
-		$will_open   = $start > $now;
-		$will_close  = $end > $now;
-		$open        = $always_open              // unlimited availability
-		  || ($start < $now && $will_close)      // now is between start and end
-		  || ($start < $now && ! $closes);       // now is after start, never closes
-
-		$closed = ! $always_open && ($closes && $end < $now);
-
-		return [
-			'open'         => $open,
-			'closed'       => $closed,
-			'opens'        => $opens,
-			'closes'       => $closes,
-			'will_open'    => $will_open,
-			'will_close'   => $will_close,
-			'always_open'  => $always_open,
-			'has_attempts' => $has_attempts,
-		];
-	}
-
 }

@@ -52,6 +52,43 @@ class Test_Api_V1 extends \Basetest
 			->execute();
 	}
 
+	public function test_widgets_get_by_type()
+	{
+		// test get all without being logged in
+		$output_one = \Materia\Api_V1::widgets_get_by_type("all");
+
+		$this->assertGreaterThan(0, count($output_one));
+
+		foreach ($output_one as $value)
+		{
+			$this->assertIsWidget($value);
+		}
+
+		// hide all, and test get all logged in and not logged in
+		foreach ($output_one as $widget)
+		{
+			\DB::update('widget')
+				->set(['in_catalog' => '0'])
+				->where('id', $widget->id)
+				->execute();
+		}
+
+		// request all widgets again
+		$output_three = \Materia\Api_V1::widgets_get_by_type("all");
+
+		// ensure count is identical, in_catalog flag should make no difference
+		$this->assertEquals(count($output_one), count($output_three));
+
+		// revert flag for all widgets
+		foreach ($output_one as $widget)
+		{
+			\DB::update('widget')
+				->set(['in_catalog' => '1'])
+				->where('id', $widget->id)
+				->execute();
+		}
+	}
+
 	public function test_widget_instances_get()
 	{
 		// ======= AS NO ONE ========
@@ -403,8 +440,80 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals('Drafts Not Playable', $output->title);
 
 		\Materia\Api_V1::widget_instance_delete($saveOutput->id);
-	}
 
+		// ============ MAKE A PUBLISHED WIDGET ============
+		$title = "My Test Widget";
+		$question = 'Question';
+		$answer = 'Answer';
+		$widget_id = 5;
+		$qset = $this->create_new_qset($question, $answer);
+
+		$saveOutput = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
+		$this->assertIsWidgetInstance($saveOutput);
+		$qset = $saveOutput->qset;
+
+		//add attempt limit
+		$saveOutput = \Materia\Api_V1::widget_instance_update($saveOutput->id, null, null, false, null, null, 1);
+		$this->assertIsWidgetInstance($saveOutput);
+
+		$logs = [
+			[
+				'type' => 1004,
+				'item_id' => $qset->data['items'][0]['items'][0]['id'],
+				'text' => 'Answer',
+				'game_time' => 1
+			],
+			[
+				'type' => 2,
+				'item_id' => 0,
+				'text' => '',
+				'value' => '',
+				'game_time' => 1
+			]
+		];
+		$context = 'context_1';
+
+		// ============ PLAY IN FIRST CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+
+		$output2 = $this->spoof_widget_play($saveOutput, $context); // we'll use this second play to try submitting scores past the attempt limit
+
+		$score = \Materia\Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+		// ============ TRY SUBMITTING SCORES AFTER ATTEMPT LIMIT IN FIRST CONTEXT ============
+		$exception = \Materia\Api_V1::play_logs_save($output2, $logs);
+		$this->assertInstanceOf('\RocketDuck\Msg', $exception);
+		$this->assertEquals('Attempt Limit Met', $exception->title);
+
+		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN FIRST CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertEquals('No attempts remaining', $output->title);
+
+		$context = 'context_2';
+		/*
+		Current implementation for checking attempts used does not factor in context ID; put these tests back in when that's fixed.
+		// ============ PLAY IN SECOND CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$score = \Materia\Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN SECOND CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput, $context);
+		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertEquals('No attempts remaining', $output->title);
+
+		// ============ PLAY WITHOUT CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput);
+		$score = \Materia\Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+		// ============ TRY PLAYING PAST ATTEMPT LIMIT WITHOUT CONTEXT ============
+		$output = $this->spoof_widget_play($saveOutput);
+		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertEquals('No attempts remaining', $output->title);
+		*/
+
+		\Materia\Api_V1::widget_instance_delete($saveOutput->id);
+	}
 
 	public function test_session_logout()
 	{
