@@ -86,7 +86,7 @@ class Controller_Site extends Controller
 
 		$this->theme->set_partial('content', 'partials/help/main');
 
-		Css::push_group("help");
+		Css::push_group('help');
 		Js::push('cdnjs::swfobject/2.2/swfobject.min.js'); // add swf object for flash testing
 	}
 
@@ -103,7 +103,7 @@ class Controller_Site extends Controller
 
 		$this->theme->set_partial('content', 'partials/404');
 
-		Log::warning("403 URL: ". Uri::main());
+		Log::warning('403 URL: '.Uri::main());
 
 		$this->setup_header();
 
@@ -128,7 +128,7 @@ class Controller_Site extends Controller
 
 		$this->theme->set_partial('content', 'partials/404');
 
-		Log::warning("404 URL: ". Uri::main());
+		Log::warning('404 URL: '.Uri::main());
 
 		$this->setup_header();
 
@@ -153,7 +153,7 @@ class Controller_Site extends Controller
 
 		$this->theme->set_partial('content', 'partials/500');
 
-		Log::warning("500 URL: ". Uri::main());
+		Log::warning('500 URL: '.Uri::main());
 
 		$this->setup_header();
 
