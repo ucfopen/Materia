@@ -6,16 +6,16 @@
 		</div>
 
 		<div id="form">
-			<? if ($msg = Session::get_flash('login_error')): /* Incorrect Login Error */ ?>
+			<?php if ($msg = Session::get_flash('login_error')): /* Incorrect Login Error */ ?>
 				<div class="error">
 					<p><?= $msg ?></p>
 				</div>
-			<? endif ?>
-			<? if($notice = (array) Session::get_flash('notice')): /* Not logged in error */ ?>
+			<?php endif ?>
+			<?php if($notice = (array) Session::get_flash('notice')): /* Not logged in error */ ?>
 				<div class="error">
 					<p><?= implode('</p><p>', $notice) ?> </p>
 				</div>
-			<? endif ?>
+			<?php endif ?>
 			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= $redirect?:urlencode(URI::current()) ?>" class="form-content" >
 				<ul>
 					<li>
@@ -29,7 +29,7 @@
 					</li>
 				</ul>
 				<ul class="help_links">
-					<? foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
+					<?php foreach (__('login.links') as $a) echo '<li>'.Html::anchor($a['href'], $a['title']).'</li>'; ?>
 					<li><a href="/help">Help</a></li>
 				</ul>
 			</form>
