@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 
-<html class="<? if (isset($html_class)) { echo $html_class; } else { echo(''); } ?>">
+<html class="<?= (isset($html_class) ? $html_class : '') ?>">
 <!--[if lt IE 9]>
-<html class="<? if (isset($html_class)) { echo $html_class; } else { echo(''); } ?> ie8">
+<html class="<?= (isset($html_class) ? $html_class : '') ?> ie8">
 <![endif]-->
 <!--[if IE 9]>
-<html class="<? if (isset($html_class)) { echo $html_class; } else { echo(''); } ?> ie9">
+<html class="<?= (isset($html_class) ? $html_class : '') ?> ie9">
 <![endif]-->
 
 <head>
@@ -15,8 +15,8 @@
 <?= Css::render() ?>
 <?= Js::render() ?>
 </head>
-	<body class="<? if (isset($page_type)) { echo $page_type; } else { echo(''); } ?>" ng-app="materia">
-	<? if ( isset($partials['header']) ) { echo $partials['header']; } ?>
+	<body class="<?= (isset($page_type) ? $page_type : '') ?>" ng-app="materia">
+	<?= (isset($partials['header']) ? $partials['header'] : '' ) ?>
 	<?= $partials['content'] ?>
 	</body>
 </html>
