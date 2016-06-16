@@ -1,4 +1,4 @@
-<?
+<?php
 
 // TODO: CLEAN UP THIS CODE
 // @codingStandardsIgnoreStart
