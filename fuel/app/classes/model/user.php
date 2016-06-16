@@ -1,4 +1,4 @@
-<?
+<?php
 class Model_User extends Orm\Model
 {
 	const RATE_LIMITER_DOWN_TIME = 60; // 60 seconds
