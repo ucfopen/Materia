@@ -2,7 +2,7 @@
 
 namespace Fuel\Migrations;
 
-class Update_for_mysql_six
+class Update_For_Mysql_Six
 {
 	public function up()
 	{
