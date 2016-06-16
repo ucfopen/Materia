@@ -908,12 +908,8 @@ class Api_V1
 				// if we're sharing the instance with a student, make sure it's okay to share with students first
 				if ($is_enabled && Perm_Manager::is_student($new_perms->user_id))
 				{
-					// guest mode isn't enabled - put this user in a list and don't give them any permissions
-					if ( ! $inst->allows_guest_players())
-					{
-						$refused[] = $new_perms->user_id;
-						continue;
-					}
+					// guest mode isn't enabled - don't give this student access
+					if ( ! $inst->allows_guest_players()) continue;
 					Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
 				}
 			}
@@ -933,12 +929,6 @@ class Api_V1
 			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
 		}
 
-		if ( ! empty($refused))
-		{
-			$return = new Msg('This widget does not have Guest Mode enabled; access has not been granted to the students selected.', 'student_guest_mode_warning', Msg::WARN);
-			$return->refused = $refused;
-			return $return;
-		}
 		return true;
 	}
 	/**
