@@ -1,17 +1,17 @@
 <?php
 
-return array(
+return [
 	'driver' => 'memcached',
 	// specific configuration settings for memcached based sessions
-	'memcached' => array(
+	'memcached' => [
 		'cookie_name' => 'ftestid', // name of the session cookie for memcached based sessions
-		'servers' => array( // contains a list of available memcached servers
-			'default' => array(
+		'servers' => [ // contains a list of available memcached servers
+			'default' => [
 				'host'   => 'memcached',
 				'port'   => 11211,
 				'weight' => 100
-			)
-		)
-	),
+			]
+		]
+	],
 	'expiration_time'	=> 21600,
-);
+];
