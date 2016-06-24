@@ -105,21 +105,21 @@
 
 			<iframe name="embed_iframe" id="embed_iframe" width="700px" height="600px" onLoad="onIFrameLoad()"></iframe>
 
-			<? // @codingStandardsIgnoreStart ?>
+			<?php // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
-				<? foreach ($instructor_params as $name => $value) : ?>
+				<?php foreach ($instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
+				<?php endforeach ?>
 				<input type="submit" value="As Instructor">
 			</form>
 
 			<form method="POST" target="embed_iframe" action="<?= $new_instructor_endpoint ?>" >
-				<? foreach ($new_instructor_params as $name => $value) : ?>
+				<?php foreach ($new_instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
+				<?php endforeach ?>
 				<input type="submit" value="As NEW Instructor">
 			</form>
-			<? //@codingStandardsIgnoreEnd ?>
+			<?php //@codingStandardsIgnoreEnd ?>
 
 			<hr />
 
@@ -190,21 +190,21 @@
 
 			<hr />
 
-			<? // @codingStandardsIgnoreStart ?>
+			<?php // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
-				<? foreach ($validation_params as $name => $value) : ?>
+				<?php foreach ($validation_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
+				<?php endforeach ?>
 				<input type="submit" value="Test Validation">
 			</form>
 
 			<form method="POST" target="embed_iframe" action="<?= $unknown_assignment_endpoint ?>" >
-				<? foreach ($unknown_assignment_params as $name => $value) : ?>
+				<?php foreach ($unknown_assignment_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
+				<?php endforeach ?>
 				<input type="submit" id="test_unkown_assignment" value="Unknown Assignment Error">
 			</form>
-			<? //@codingStandardsIgnoreEnd ?>
+			<?php //@codingStandardsIgnoreEnd ?>
 		</section>
 	</body>
 </html>
