@@ -73,7 +73,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 			}
 			else
 			{
-				throw new \SimpleUserUpdateException('Username already exists', 3);
+				throw new \SimpleUserUpdateException("Username already exists {$same_user->username}", 3);
 			}
 		}
 

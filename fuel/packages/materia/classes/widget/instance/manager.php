@@ -18,7 +18,7 @@ class Widget_Instance_Manager
 
 		// convert all instance id's to strings... because mysql behaves unexpectedly with numbers here
 		// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
-		foreach($inst_ids as &$value) $value = (string) $value;
+		foreach ($inst_ids as &$value) $value = (string) $value;
 
 		$results = \DB::select()
 			->from('widget_instance')
@@ -72,15 +72,15 @@ class Widget_Instance_Manager
 	{
 		$me = \Model_User::find_current_id();
 
-		try
+		$locked_by = \Cache::easy_get('instance-lock.'.$inst_id);
+		if (is_null($locked_by))
 		{
-			$locked_by = \Cache::get('instance-lock.'.$inst_id);
-			if ($locked_by != $me) return false;
+			// not currently locked by anyone else
+			$locked_by = $me;
+			\Cache::set('instance-lock.'.$inst_id, $locked_by, \Config::get('materia.lock_timeout'));
 		}
-		catch (\CacheNotFoundException $e) {}
 
-		// not currently locked by anyone else
-		\Cache::set('instance-lock.'.$inst_id, $me, \Config::get('materia.lock_timeout'));
-		return true;
+		// true if the lock is mine
+		return $locked_by == $me;
 	}
 }

@@ -12,6 +12,7 @@ class Alwaysload
 		Event::register('play_completed', '\Lti\LtiEvents::on_play_completed_event');
 		Event::register('before_play_start', '\Lti\LtiEvents::on_before_play_start_event');
 		Event::register('play_start', '\Lti\LtiEvents::on_play_start_event');
+		Event::register('before_score_display', '\Lti\LtiEvents::on_before_score_display_event');
 
 		Lang::load('login', 'login');
 

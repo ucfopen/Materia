@@ -13,10 +13,10 @@
 	<h3>Get Help Using Materia</h3>
 	<span class="subtitle">When something's gone wrong, or you just need a hand.</span>
 	<dl class="online-support">
-		<dt>Online@UCF Support</dt>
+		<dt>Webcourses@UCF Support</dt>
 			<dd><a href="http://online.ucf.edu/support/">http://online.ucf.edu/support/</a></dd>
 		<dt>Email</dt>
-			<dd><a href="mailto:onlinesupport@ucf.edu">onlinesupport@ucf.edu</a></dd>
+			<dd><a href="mailto:webcourses@ucf.edu">webcourses@ucf.edu</a></dd>
 		<dt>Phone</dt>
 			<dd>(407) 823-0407</dd>
 	</dl>
