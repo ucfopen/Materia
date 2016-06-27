@@ -3,7 +3,7 @@
 namespace Materia;
 
 class Widget_Instance
-	{
+{
 
 	public $attempts        = -1;
 	public $clean_name      = '';
@@ -254,7 +254,7 @@ class Widget_Instance
 
 			while ( ! $success)
 			{
-				if ($tries-- < 0) throw new \Exception("Unable to save new widget instance");
+				if ($tries-- < 0) throw new \Exception('Unable to save new widget instance');
 
 				$hash = Widget_Instance_Hash::generate_key_hash();
 
@@ -290,7 +290,6 @@ class Widget_Instance
 			// $success must be true to get here
 			$this->id = $hash;
 			Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
-
 		}
 		else // ===================== UPDATE EXISTING INSTANCE =======================
 		{
@@ -417,12 +416,56 @@ class Widget_Instance
 	 */
 	public function playable_by_current_user()
 	{
-		return $this->guest_access || Api::session_valid();
+		return $this->guest_access || \Model_User::verify_session();
 	}
 
 	public function viewable_by($user_id)
 	{
 		return Perm_Manager::user_has_any_perm_to($user_id, $this->id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]);
+	}
+
+	/**
+	 * Determine if a widget is playable
+	 * @return Array List of boolean values corresponding to: open, closed, opens, closes, will_open, will_close, always_open, and has_attempts
+	 *
+	 */
+	public function status($context_id=false)
+	{
+		if ( ! $context_id) $context_id = '';
+		$semester = Semester::get_current_semester();
+
+		$now           = time();
+		$start         = (int) $this->open_at;
+		$end           = (int) $this->close_at;
+		$attempts_used = count(Score_Manager::get_instance_score_history($this->id, $context_id, $semester));
+
+		// Check to see if any extra attempts have been provided to the user, decrement attempts_used as appropriate
+		$extra_attempts = Score_Manager::get_instance_extra_attempts($this->id, \Model_User::find_current_id(), $context_id, $semester);
+		$attempts_used -= $extra_attempts;
+
+		$has_attempts  = $this->attempts == -1 || $attempts_used < $this->attempts;
+
+		$opens       = $start > 0;
+		$closes      = $end > 0;
+		$always_open = ! $opens && ! $closes;
+		$will_open   = $start > $now;
+		$will_close  = $end > $now;
+		$open        = $always_open              // unlimited availability
+		  || ($start < $now && $will_close)      // now is between start and end
+		  || ($start < $now && ! $closes);       // now is after start, never closes
+
+		$closed = ! $always_open && ($closes && $end < $now);
+
+		return [
+			'open'         => $open,
+			'closed'       => $closed,
+			'opens'        => $opens,
+			'closes'       => $closes,
+			'will_open'    => $will_open,
+			'will_close'   => $will_close,
+			'always_open'  => $always_open,
+			'has_attempts' => $has_attempts,
+		];
 	}
 
 	/**
@@ -435,6 +478,7 @@ class Widget_Instance
 		return $this->guest_access;
 	}
 
-	public function export() {}
-
+	public function export()
+	{
+	}
 }

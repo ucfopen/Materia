@@ -85,6 +85,20 @@ abstract class Score_Module
 	 */
 	public function validate_scores($timestamp=false)
 	{
+		if ( ! $timestamp)
+		{
+			if ( ! $this->play)
+			{
+				$this->play = new \Materia\Session_Play();
+				$this->play->get_by_id($this->play_id);
+			}
+			$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($this->inst->id, $this->play->context_id));
+			if ($this->inst->attempts != -1 && $attempts_used >= $this->inst->attempts)
+			{
+				throw new Score_Exception('Attempt Limit Met', 'You have already met the attempt limit for this widget and cannot submit additional scores.');
+			}
+		}
+
 		$this->load_questions($timestamp);
 
 		if (empty($this->logs)) $this->logs = Session_Logger::get_logs($this->play_id);
@@ -216,7 +230,7 @@ abstract class Score_Module
 	{
 		$q     = $this->questions[$log->item_id];
 		$score = $this->check_answer($log);
-		
+
 		return [
 			'data' => [
 				$this->get_ss_question($log, $q),
@@ -337,5 +351,13 @@ abstract class Score_Module
 	public function get_ss_question($log, $question)
 	{
 		return $question->questions[0]['text'];
+	}
+
+	/**
+	* Proxy function to query session logs based on some parameters given by a widget score module
+	*/
+	protected final function query_logs($where_conditions, $order_conditions=null, $group_conditions=null)
+	{
+		return Session_Logger::query_logs($this->inst->id, $where_conditions, $order_conditions, $group_conditions);
 	}
 }
