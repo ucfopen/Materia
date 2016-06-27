@@ -1,4 +1,4 @@
-<?
+<?php
 class Model_User extends Orm\Model
 {
 	const RATE_LIMITER_DOWN_TIME = 60; // 60 seconds
@@ -125,37 +125,24 @@ class Model_User extends Orm\Model
 		return $val;
 	}
 
-	static public function verify_session($role_name = null)
+	static public function verify_session($role_or_roles = null)
 	{
-		if (\Auth::check())
-		{
-			$in_role = true;
-			if ($role_name !== null)
-			{
-				if ( ! is_array($role_name)) $role_name = (array) $role_name;
-				$in_role = false;
-				foreach ($role_name as $role)
-				{
-					$in_role = \RocketDuck\Perm_Manager::does_user_have_role([$role]);
-					if ($in_role) break;
-				}
-			}
-			return (bool) $in_role;
-		}
-		else
+		if ( ! \Auth::check())
 		{
 			\Auth::logout();
+			return false;
 		}
-		return false;
+
+		if ( $role_or_roles === null) return true;
+
+		if ( ! is_array($role_or_roles)) $role_or_roles = (array) $role_or_roles;
+		return \RocketDuck\Perm_Manager::does_user_have_role($role_or_roles);
 	}
 
 	static protected function get_rate_limiter()
 	{
-		try
-		{
-			$limit = Cache::get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
-		}
-		catch (CacheNotFoundException $e)
+		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		if (is_null($limit))
 		{
 			$limit = ['start_time' => time(), 'count' => 0];
 			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);

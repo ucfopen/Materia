@@ -80,6 +80,6 @@ import('testcase');
 if (getenv('SKIP_BOOTSTRAP_TASKS') != 'true')
 {
 	// Materia Setup Reset the database and install all widget packages
-	exec('FUEL_ENV=test php oil r admin:destroy_everything -quiet=true');
-	exec('FUEL_ENV=test php oil r install -skip_prompts=true');
+	exec('FUEL_ENV=test php oil r admin:destroy_everything --quiet=true');
+	exec('FUEL_ENV=test php oil r install --skip_prompts=true');
 }

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "03d2e23e98ebfcfe7c1df58524435181",
-    "content-hash": "184c2e48ff901e79b31ce680e40b4ec5",
+    "hash": "fd54d7197e2ba4f989216a8ece468e44",
+    "content-hash": "6251d953ff20e0b398b2368cee42e225",
     "packages": [
         {
             "name": "composer/installers",
@@ -13,16 +13,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "b1a938a75dbbd5bed80e62bb67c6f63969d67996"
+                "reference": "2db1f3ce7bcf0d294811f5f0214e24d2878a57da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/6213d900e92647831f7a406d5c530ea1f3d4360e",
-                "reference": "b1a938a75dbbd5bed80e62bb67c6f63969d67996",
+                "url": "https://api.github.com/repos/composer/installers/zipball/2db1f3ce7bcf0d294811f5f0214e24d2878a57da",
+                "reference": "2db1f3ce7bcf0d294811f5f0214e24d2878a57da",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "1.0.0"
+                "composer-plugin-api": "^1.0"
             },
             "replace": {
                 "roundcube/plugin-installer": "*",
@@ -40,8 +40,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Composer\\Installers\\": "src/"
+                "psr-4": {
+                    "Composer\\Installers\\": "src/Composer/Installers"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -56,13 +56,16 @@
                 }
             ],
             "description": "A multi-framework Composer library installer",
-            "homepage": "http://composer.github.com/installers/",
+            "homepage": "https://composer.github.io/installers/",
             "keywords": [
                 "Craft",
                 "Dolibarr",
                 "Hurad",
+                "ImageCMS",
                 "MODX Evo",
+                "Mautic",
                 "OXID",
+                "RadPHP",
                 "SMF",
                 "Thelia",
                 "WolfCMS",
@@ -103,7 +106,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2016-01-07 09:11:10"
+            "time": "2016-05-19 16:58:29"
         },
         {
             "name": "fuel/auth",
@@ -116,7 +119,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/auth/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -132,7 +135,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/core/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -148,7 +151,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/email/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -164,7 +167,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/oil/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -180,7 +183,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/orm/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -196,7 +199,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/parser/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -251,7 +254,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
-                "reference": "b37e9f0dccf502f819080468e9f8d5bcd8ec2c65"
+                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -283,11 +286,11 @@
                 "js",
                 "qasset"
             ],
-            "time": "2015-03-13 17:13:46"
+            "time": "2016-06-03 16:29:57"
         },
         {
             "name": "materia/ucfauth",
-            "version": "0.1.2",
+            "version": "0.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
@@ -945,12 +948,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "6e7133793a8e5a5714a551a8324337374be209df"
+                "reference": "dc7a29032cf72b54f36dac15a1ca5b3a1b6029bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/6e7133793a8e5a5714a551a8324337374be209df",
-                "reference": "6e7133793a8e5a5714a551a8324337374be209df",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/dc7a29032cf72b54f36dac15a1ca5b3a1b6029bf",
+                "reference": "dc7a29032cf72b54f36dac15a1ca5b3a1b6029bf",
                 "shasum": ""
             },
             "require": {
@@ -987,7 +990,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2015-12-02 08:37:27"
+            "time": "2016-02-26 18:40:46"
         },
         {
             "name": "sebastian/exporter",
@@ -1062,12 +1065,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/recursion-context.git",
-                "reference": "913401df809e99e4f47b27cdd781f4a258d58791"
+                "reference": "7ff5b1b3dcc55b8ab8ae61ef99d4730940856ee7"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/7ff5b1b3dcc55b8ab8ae61ef99d4730940856ee7",
-                "reference": "913401df809e99e4f47b27cdd781f4a258d58791",
+                "reference": "7ff5b1b3dcc55b8ab8ae61ef99d4730940856ee7",
                 "shasum": ""
             },
             "require": {
@@ -1107,7 +1110,7 @@
             ],
             "description": "Provides functionality to recursively process PHP variables",
             "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
-            "time": "2015-11-11 19:50:13"
+            "time": "2016-01-28 05:39:29"
         },
         {
             "name": "sebastian/version",
@@ -1150,12 +1153,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "34c8a4b51e751e7ea869b8262f883d008a2b81b8"
+                "reference": "584e52cb8f788a887553ba82db6caacb1d6260bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/33fd1b2cfdde601704665fad343014bba04b0753",
-                "reference": "34c8a4b51e751e7ea869b8262f883d008a2b81b8",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/584e52cb8f788a887553ba82db6caacb1d6260bb",
+                "reference": "584e52cb8f788a887553ba82db6caacb1d6260bb",
                 "shasum": ""
             },
             "require": {
@@ -1191,7 +1194,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-01-13 10:28:07"
+            "time": "2016-03-04 07:54:35"
         }
     ],
     "aliases": [],
