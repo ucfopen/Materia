@@ -11,7 +11,7 @@ describe 'Guest Access Feature', ->
 	it 'should let an instructor create a guest access widget', (done) ->
 		setup.loginAt client, setup.author, "#{setup.url}/users/login"
 		client.url("#{setup.url}/widgets")
-			.moveToObject('.widget.enigma .infocard', 10, 10)
+			.moveToObject('.widget.enigma .infocard', 10, 100)
 			.click('.infocard:hover .header')
 			.pause(5000)
 			.click('#createLink')

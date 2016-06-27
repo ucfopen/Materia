@@ -83,7 +83,7 @@ describe 'Widget Catalog Page', ->
 
 				for i in [1...result.value]
 					client
-						.moveToObject ".widget:nth-child(#{i}) .infocard", 10, 10
+						.moveToObject ".widget:nth-child(#{i}) .infocard", 10, 85
 						.getText ".widget:nth-child(#{i}) .widgetMin .header", (err, title) ->
 							currentTitle = title
 							expect(currentTitle).toBeTruthy()
