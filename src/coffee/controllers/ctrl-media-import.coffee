@@ -1,4 +1,13 @@
 app = angular.module 'materia'
+
+app.directive 'fileOnChange', ->
+	return {
+		restrict: 'A',
+		link: (scope, element, attrs) ->
+			onChangeHandler = scope.$eval(attrs.fileOnChange)
+			element.bind 'change', onChangeHandler
+	}
+
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
 	selectedAssets = []
 	data = []
@@ -7,6 +16,113 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	uploading = false
 	creator = null
 	_coms = null
+
+	class Uploader
+		# get the data of the image
+		getImageData: (file, callback) ->
+			dataReader = new FileReader
+
+			dataReader.onload = (event) =>
+				callback
+					src: event.target.result
+					imgName: file.name
+
+			dataReader.readAsDataURL file
+
+		upload: (dataUrl, fileName, shouldVerifyImageUpload = true) ->
+			mime = dataUrl.split(";")[0].split(":")[1]
+			if @allowedTypes.indexOf(mime) == -1
+				alert "Files of type #{mime} are not supported. Allowed Types: #{@allowedTypes.join(', ')}."
+				return
+
+			fileName = @filterFileName(mime, fileName)
+			@set { statusMsg:'Pre-upload'}
+			@loadUploadKeys (keyData) =>
+				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
+
+		# converts image data uri to a blob for uploading
+		dataURItoBlob: (dataURI, mime)  ->
+			# convert base64/URLEncoded data component to raw binary data held in a string
+			dataParts = dataURI.split(',')
+			if dataParts[0].indexOf('base64') >= 0
+				byteString = atob(dataParts[1])
+			else
+				byteString = unescape(dataParts[1])
+
+			intArray = new Uint8Array(byteString.length)
+			for i of byteString
+				intArray[i] = byteString.charCodeAt(i)
+			return new Blob([intArray], {type: mime})
+
+		# get the s3 upload keys
+		loadUploadKeys: (callBack) ->
+			Backbone.ajax
+				url: '/api/upload_keys'
+				type: 'GET'
+				error: -> alert 'Unable to get upload keys'
+				success: callBack
+			@set {statusMsg: 'Getting Keys', name: null}
+
+		# ok, go ahead and send the file to s3
+		sendToS3: (keyData, fileName, mime, dataUrl, shouldVerifyImageUpload) ->
+			@set 'statusMsg', 'Uploading'
+
+			fd = new FormData()
+			fd.append("key", @makeKeyFromFileName(fileName))
+			fd.append("Content-Type", mime)
+			fd.append("acl", 'public-read')
+			fd.append("success_action_status", '201')
+			fd.append("AWSAccessKeyId", keyData.AWSAccessKeyId) # TODO: needed?
+			fd.append("policy", keyData.policy)
+			fd.append("signature", keyData.signature)
+			fd.append("file", @dataURItoBlob(dataUrl, mime))
+
+			request = new XMLHttpRequest()
+			request.onload = (oEvent) =>
+				if request.status = 200
+					# response is xml! get the image url to save to our server
+					p = new DOMParser()
+					d = p.parseFromString(request.response, 'application/xml')
+					url = d.getElementsByTagName('Location')[0].innerHTML
+					@saveUploadedImageUrl url, shouldVerifyImageUpload
+
+			request.open("POST", "<%= Rails.configuration.s3['upload_url'] %>")
+			request.send(fd)
+
+		verifyImageUpload: ->
+			@set {statusMsg: 'Generating Thumbnails'}
+			clearTimeout @pollTimeout
+			@pollTimeout = setTimeout(@pollUploadedImage, 2000)
+
+		# keep polling using a cheap HEAD request and an incrementing url (s3 caches the result otherwise)
+		pollUploadedImage: =>
+			Backbone.ajax
+				url: @get('unverified_name')+"?attempt="+@pollCount
+				type: 'HEAD'
+				error: =>
+					if @pollCount > 20
+						alert 'Error Resizing Upload'
+					else
+						@pollCount++
+						pollSpeed = (if @pollCount < 4 then 1500 else 5000) #increase poll time
+						@pollTimeout = setTimeout(@pollUploadedImage, pollSpeed)
+				success: =>
+					@pollCount = 0
+					@set {name: @get('unverified_name'), statusMsg: null}
+
+
+		# when file is selected in browser
+		onFileChange: (event) ->
+			fileList = event.target.files
+			# just picks the first selected image
+			if fileList?[0]?
+				imgData = getImageData(fileList[0])
+				upload imgData.src, imgData.imgName
+
+	uploader = new Uploader()
+
+	# SCOPE VARS
+	# ==========
 	$scope.fileType = location.hash.substring(1).split(',')
 	$scope.cols = ['Title','Type','Date'] # the column names used for sorting datatable
 
@@ -20,6 +136,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		{ "data": "file_size" },
 		{ "data": "created_at" }
 	]
+
+	$scope.uploadFile = (e) ->
+		console.log e.target.files
 
 	# load up the media objects, optionally pass file id to skip labeling that file
 	loadAllMedia = (file_id) ->
@@ -64,62 +183,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 	# init
 	init = ->
-		upl = $("#uploader")
-		upl.pluploadQueue
-			# General settings
-			runtimes : 'html5,html4'
-			url : '/media/upload/'
-			max_file_size : '60mb'
-			chunk_size : '2mb'
-			unique_names : false
-			rename : true
-			multiple_queues: false
-
-			# Specify what files to browse for
-			filters : [
-				title : "Media files"
-				extensions : $scope.fileType.join()
-			]
-
-			init:
-				StateChanged: (up) ->
-					uploading = (up.state == plupload.STARTED)
-
-					if (uploading)
-						document.title = 'Uploading...'
-					else
-						document.title = 'Media Catalog | Materia'
-						loadAllMedia()
-				# automatic upload on drop into queue
-				FilesAdded: (up) ->
-					up.start()
-					# render import form unclickable during upload
-					$('#import-form').css {
-						"pointer-events": "none"
-						opacity: "0.2"
-					}
-				# fired when the above is successful
-				FileUploaded: (up, file, response) ->
-					res = $.parseJSON response.response #parse response string
-					if res.error
-						up.removeFile file
-						alert 'Error code '+res.error.code+': '+res.error.message
-						$window.parent.Materia.Creator.onMediaImportComplete null
-					else
-						# reload media to select newly uploaded file
-						loadAllMedia res.id
-				Error: (up, args) ->
-					# Called when a error has occured
-					if args.code = -600 # http error
-						up.removeFile args.file
-						alert 'There was an unexpected error (500) - Try again later.'
-						$window.parent.Materia.Creator.onMediaImportComplete null
-						false
-
-		$("#uploader_browse", upl)
-			.text('Browse...')
-			.next().remove() # removes the adjacent "Start upload" button
-		$(".plupload_droptext", upl).text("Drag a file here to upload")
+		# $('.upload-input').
 
 		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit

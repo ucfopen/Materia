@@ -72,8 +72,8 @@ class Controller_Media extends Controller
 
 		Event::register('media-upload-complete', '\Controller_Media::on_upload_complete');
 
-		Package::load('plupload');
-		return \Plupload\Plupload::upload();
+		// Package::load('plupload');
+		// return \Plupload\Plupload::upload();
 	}
 
 	// Event handler called when an upload via plupload is complete
