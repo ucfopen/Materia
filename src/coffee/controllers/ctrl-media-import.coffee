@@ -58,17 +58,21 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		# get the s3 upload keys
 		loadUploadKeys: (callBack) ->
-			$.ajax(
-				url: '/api/upload_keys'
-				method: 'GET'
-			).done( ->
-				console.log 'success'
-				callback()
-			)
-			.fail( ->
-				alert 'Unable to get upload keys'
-			)
-				
+			# $.ajax(
+			# 	url: '/api/upload_keys'
+			# 	method: 'GET'
+			# ).done( (data) ->
+			# 	console.log 'success', data
+			# 	callback()
+			# )
+			# .fail( ->
+			# 	alert 'Unable to get upload keys'
+			# )
+
+			_coms.send 'upload_keys', [], (data) ->
+				console.log 'look!', data
+
+
 			# @set {statusMsg: 'Getting Keys', name: null}
 
 		# ok, go ahead and send the file to s3
