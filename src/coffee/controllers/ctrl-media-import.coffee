@@ -39,7 +39,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# fileName = @filterFileName(mime, fileName)
 			fileName = fileName.split('.')[0]
 			# @set { statusMsg:'Pre-upload'}
-			@loadUploadKeys (keyData) =>
+			_coms.send 'upload_keys', [], (keyData) =>
 				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
 
 		# converts image data uri to a blob for uploading
@@ -56,38 +56,24 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				intArray[i] = byteString.charCodeAt(i)
 			return new Blob([intArray], {type: mime})
 
-		# get the s3 upload keys
-		loadUploadKeys: (callBack) ->
-			# $.ajax(
-			# 	url: '/api/upload_keys'
-			# 	method: 'GET'
-			# ).done( (data) ->
-			# 	console.log 'success', data
-			# 	callback()
-			# )
-			# .fail( ->
-			# 	alert 'Unable to get upload keys'
-			# )
-
-			_coms.send 'upload_keys', [], (data) ->
-				console.log 'look!', data
-
-
 			# @set {statusMsg: 'Getting Keys', name: null}
 
 		# ok, go ahead and send the file to s3
 		sendToS3: (keyData, fileName, mime, dataUrl, shouldVerifyImageUpload) ->
-			@set 'statusMsg', 'Uploading'
+			# @set 'statusMsg', 'Uploading'
 
 			fd = new FormData()
-			fd.append("key", @makeKeyFromFileName(fileName))
+			fd.append("key", fileName)
 			fd.append("Content-Type", mime)
 			fd.append("acl", 'public-read')
 			fd.append("success_action_status", '201')
-			fd.append("AWSAccessKeyId", keyData.AWSAccessKeyId) # TODO: needed?
+			fd.append("AWSAccessKeyID", keyData.AWSAccessKeyId) # TODO: needed?
 			fd.append("policy", keyData.policy)
 			fd.append("signature", keyData.signature)
 			fd.append("file", @dataURItoBlob(dataUrl, mime))
+
+
+			console.log 'fd', fd
 
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
@@ -98,7 +84,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					url = d.getElementsByTagName('Location')[0].innerHTML
 					@saveUploadedImageUrl url, shouldVerifyImageUpload
 
-			request.open("POST", "<%= Rails.configuration.s3['upload_url'] %>")
+			request.open("POST", "http://192.168.99.100:4569")
 			request.send(fd)
 
 		verifyImageUpload: ->
