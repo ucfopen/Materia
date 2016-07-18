@@ -474,6 +474,15 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
+	static public function upload_keys()
+	{
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		trace($_FILES);
+		return [
+			'some' 			=> 'very',
+			'interesting'	=> 'data'
+		];
+	}
 	/**
 	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
 	 * If no launch token is supplied, the current semester will be used as the current context.
