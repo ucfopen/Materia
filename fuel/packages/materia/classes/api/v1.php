@@ -477,11 +477,35 @@ class Api_V1
 	static public function upload_keys()
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		trace($_FILES);
-		return [
-			'some' 			=> 'very',
-			'interesting'	=> 'data'
+		
+		// $expire_in = Rails.application.config.s3['upload_token_timeout'];
+		$expire_in = 60;
+		$expiration = date("%Y-%m-%d\T%H:%M:%S.000\Z", time()+$expire_in);
+		$param_hash = [
+			'expiration' => $expiration,
+			'conditions' => [
+			  // {'bucket' => Rails.application.config.s3['bucket']},
+			  ['bucket' => 'test_bucket'],
+			  ['acl' => 'public-read'], # makes the uploaded file public readable
+			  ['starts-with', '$key', 'uploads/'], #restricts uploads to filenames that start with uploads/
+			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
+			  ['success_action_status' => '201'] # CREATED
+			]
 		];
+		$policy = base64_encode(json_encode($param_hash));
+
+		$key = 'shhhh_SECRET!';
+		$sha1_hash = hash_hmac('sha1', $policy, $key, true); // raw_output = true
+		$signature = base64_encode($sha1_hash);
+
+
+		$res = [
+			"AWSAccessKeyID" 	=> "test", 
+			"policy" 			=> $policy,
+			"signature" 		=> $signature
+		];
+
+		return $res;
 	}
 	/**
 	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
