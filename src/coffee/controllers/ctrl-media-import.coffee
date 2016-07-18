@@ -18,25 +18,27 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_coms = null
 
 	class Uploader
+		allowedTypes: ['image/jpeg', 'image/png']
+
 		# get the data of the image
 		getImageData: (file, callback) ->
 			dataReader = new FileReader
 
 			dataReader.onload = (event) =>
-				callback
-					src: event.target.result
-					imgName: file.name
+				callback event.target.result, file.name
 
 			dataReader.readAsDataURL file
 
 		upload: (dataUrl, fileName, shouldVerifyImageUpload = true) ->
 			mime = dataUrl.split(";")[0].split(":")[1]
+			console.log('mime', mime)
 			if @allowedTypes.indexOf(mime) == -1
 				alert "Files of type #{mime} are not supported. Allowed Types: #{@allowedTypes.join(', ')}."
 				return
 
-			fileName = @filterFileName(mime, fileName)
-			@set { statusMsg:'Pre-upload'}
+			# fileName = @filterFileName(mime, fileName)
+			fileName = fileName.split('.')[0]
+			# @set { statusMsg:'Pre-upload'}
 			@loadUploadKeys (keyData) =>
 				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
 
@@ -56,12 +58,18 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		# get the s3 upload keys
 		loadUploadKeys: (callBack) ->
-			Backbone.ajax
+			$.ajax(
 				url: '/api/upload_keys'
-				type: 'GET'
-				error: -> alert 'Unable to get upload keys'
-				success: callBack
-			@set {statusMsg: 'Getting Keys', name: null}
+				method: 'GET'
+			).done( ->
+				console.log 'success'
+				callback()
+			)
+			.fail( ->
+				alert 'Unable to get upload keys'
+			)
+				
+			# @set {statusMsg: 'Getting Keys', name: null}
 
 		# ok, go ahead and send the file to s3
 		sendToS3: (keyData, fileName, mime, dataUrl, shouldVerifyImageUpload) ->
@@ -112,12 +120,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 
 		# when file is selected in browser
-		onFileChange: (event) ->
+		onFileChange: (event) =>
 			fileList = event.target.files
 			# just picks the first selected image
 			if fileList?[0]?
-				imgData = getImageData(fileList[0])
-				upload imgData.src, imgData.imgName
+				imgData = @getImageData fileList[0], (src, imgName) =>
+					@upload src, imgName
 
 	uploader = new Uploader()
 
@@ -137,8 +145,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		{ "data": "created_at" }
 	]
 
-	$scope.uploadFile = (e) ->
-		console.log e.target.files
+	$scope.uploadFile = uploader.onFileChange
 
 	# load up the media objects, optionally pass file id to skip labeling that file
 	loadAllMedia = (file_id) ->
