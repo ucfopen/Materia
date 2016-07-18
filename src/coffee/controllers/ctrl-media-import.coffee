@@ -84,7 +84,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					url = d.getElementsByTagName('Location')[0].innerHTML
 					@saveUploadedImageUrl url, shouldVerifyImageUpload
 
-			request.open("POST", "http://192.168.99.100:4569")
+			request.open("POST", "http://localhost:4567")
 			request.send(fd)
 
 		verifyImageUpload: ->
