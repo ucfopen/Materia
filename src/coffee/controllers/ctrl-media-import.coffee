@@ -77,18 +77,16 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					p = new DOMParser()
 					d = p.parseFromString(request.response, 'application/xml')
 					url = d.getElementsByTagName('Location')[0].innerHTML
+
 					@saveUploadedImageUrl fileName, url, shouldVerifyImageUpload
 
 			request.open("POST", "http://localhost:4567")
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, url, shouldVerifyImageUpload) ->
-			_coms.send 'remote_asset_post', [fileName, url], (id) ->
-				# todo: s3
-				# todo: this is gross
-				console.log 'whaaaaat', url.split('/').slice(-2).join('/')
+			_coms.send 'remote_asset_post', [fileName, url], (file_key) ->
 				res =
-					id: url.split('/').slice(-2).join('/')
+					id: file_key
 					type: fileName.split('.').slice(-1)[0]
 				$window.parent.Materia.Creator.onMediaImportComplete([res])
 
@@ -159,13 +157,11 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		# load and/or select file for labelling
 		_coms.send 'assets_get', [], (result) ->
-			console.log result
 			if result and result.msg is undefined and result.length > 0
 				data = result
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
 				for res, index in result
-					console.log 'filetype', $scope.fileType, location
 					if res.type in $scope.fileType
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.fileType
@@ -177,11 +173,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
-						console.log 'res', res
 						#Store data table index in asset-specific array for use when user clicks asset in GUI
 						assetIndices.push(index)
 						modResult.push(res)
-				console.log 'modres', modResult
 
 				$('#question-table').dataTable().fnAddData(modResult)
 
