@@ -127,8 +127,7 @@ class Widget_Installer
 			// so process_upload can move it to the correct place
 			$new_temp_filepath = \Config::get('materia.dirs.media').'uploads/'.uniqid().'.'.$ext;
 			$file_area->copy($file, $new_temp_filepath);
-			trace('superlaza');
-			$asset = \Materia\Widget_Asset_Manager::process_upload(basename($file), $new_temp_filepath, False);
+			$asset = \Materia\Widget_Asset_Manager::process_upload(basename($file), $new_temp_filepath, false);
 
 			return $asset->id;
 		}
