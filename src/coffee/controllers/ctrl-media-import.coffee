@@ -39,7 +39,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# fileName = @filterFileName(mime, fileName)
 			fileName = fileName.split('.')[0]
 			# @set { statusMsg:'Pre-upload'}
-			_coms.send 'upload_keys', [], (keyData) =>
+			_coms.send 'upload_keys_get', [], (keyData) =>
 				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
 
 		# converts image data uri to a blob for uploading
@@ -73,8 +73,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			fd.append("file", @dataURItoBlob(dataUrl, mime))
 
 
-			console.log 'fd', fd
-
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
 				if request.status = 200
@@ -82,10 +80,16 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					p = new DOMParser()
 					d = p.parseFromString(request.response, 'application/xml')
 					url = d.getElementsByTagName('Location')[0].innerHTML
-					@saveUploadedImageUrl url, shouldVerifyImageUpload
+					console.log request.response
+					console.log 'url', url
+					@saveUploadedImageUrl fileName, url, shouldVerifyImageUpload
 
 			request.open("POST", "http://localhost:4567")
 			request.send(fd)
+
+		saveUploadedImageUrl: (fileName, url, shouldVerifyImageUpload) ->
+			_coms.send 'remote_asset_post', [fileName, url], (result) ->
+				console.log 'id?', result
 
 		verifyImageUpload: ->
 			@set {statusMsg: 'Generating Thumbnails'}

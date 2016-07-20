@@ -474,7 +474,9 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	static public function upload_keys()
+	// UPLOADS
+	// =======
+	static public function upload_keys_get()
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		
@@ -507,6 +509,19 @@ class Api_V1
 
 		return $res;
 	}
+
+	static public function remote_asset_post($title = 'New Asset', $uri)
+	{
+		// Validate Logged in
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+
+		// Sanitizing YouTube url - embed copy/paste may contain whole iframe
+
+		$asset = Widget_Asset_Manager::process_upload($title, $uri, True);
+		return $asset->id;
+	}
+	// =======
+
 	/**
 	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
 	 * If no launch token is supplied, the current semester will be used as the current context.
