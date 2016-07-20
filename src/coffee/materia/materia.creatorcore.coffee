@@ -67,7 +67,11 @@ Namespace('Materia').CreatorCore = do ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
 	getMediaUrl = (mediaId) ->
-		_baseurl+'media/'+mediaId
+		# todo: s3
+		# _baseurl+'media/'+mediaId
+		console.log 'test', mediaId
+		"http://localhost:4567/uploads/#{mediaId}"
+
 
 	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
 		_sendPostMessage 'showMediaImporter', types

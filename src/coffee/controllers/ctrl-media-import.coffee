@@ -83,8 +83,14 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, url, shouldVerifyImageUpload) ->
-			_coms.send 'remote_asset_post', [fileName, url], (result) ->
-				console.log 'id?', result
+			_coms.send 'remote_asset_post', [fileName, url], (id) ->
+				# todo: s3
+				# todo: this is gross
+				console.log 'whaaaaat', url.split('/').slice(-2).join('/')
+				res =
+					id: url.split('/').slice(-2).join('/')
+					type: fileName.split('.').slice(-1)[0]
+				$window.parent.Materia.Creator.onMediaImportComplete([res])
 
 		verifyImageUpload: ->
 			@set {statusMsg: 'Generating Thumbnails'}
