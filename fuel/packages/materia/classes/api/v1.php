@@ -520,7 +520,10 @@ class Api_V1
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
 		$asset = Widget_Asset_Manager::process_upload($title, $uri, true);
-		return $asset->id;
+
+		$user_id = \Model_User::find_current_id();
+		$fileURI = 'uploads/' . $user_id . '/' . $asset->id;
+		return $fileURI;
 	}
 	// =======
 
