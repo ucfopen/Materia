@@ -10,7 +10,8 @@ class Add_remote_url_to_assets
 			'asset',
 			[
 				'remote_url' => [
-					'type' => 'text'
+					'type' => 'text',
+					'null' => true
 				],
 			]
 		);

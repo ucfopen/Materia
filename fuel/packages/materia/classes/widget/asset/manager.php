@@ -38,33 +38,39 @@ class Widget_Asset_Manager
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
 	}
 
-	static public function process_upload($name, $uri, $is_remote)
+	static public function process_upload($title, $uri, $is_remote)
 	{
-		trace($is_remote);
-		trace($name);
-		trace($uri);
-		return;
+		$new_widget_properties = [];
+
 		if( ! $is_remote )
 		{
 			$f_info = \File::file_info($uri);
 			if ( ! Widget_Asset_Manager::user_has_space_for($f_info['size']) ) return false; // Do I have space left?
 
-			$type 		= $f_info['extension'];
-			$file_size 	= $f_info['size'];
-			$uri 		= NULL;
+			$new_widget_properties = [
+				'type'      => $f_info['extension'],
+				'title'     => $title,
+				'file_size' => $f_info['size'],
+				'remote_url' => NULL,
+			];
 		}
 		else
 		{
-			$type 		= 'link';
-			$file_size 	= 0;
+			$uri_split = explode('/', $uri);
+			$asset_id = $uri_split[sizeof($uri_split)-1];
+
+			$path_info = pathinfo($title);
+			
+			$new_widget_properties = [
+				'id'        => $asset_id,
+				'type'      => $path_info['extension'],
+				'title'     => $path_info['filename'],
+				'file_size' => 0,
+				'remote_url' => $uri,
+			];
 		}
 		// create and store the asset
-		$asset = new Widget_Asset([
-			'type'      => $type,
-			'title'     => $name,
-			'file_size' => $file_size,
-			'remote_url' => $uri,
-		]);
+		$asset = new Widget_Asset($new_widget_properties);
 
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
 		{
@@ -94,6 +100,7 @@ class Widget_Asset_Manager
 			// failed, remove the asset
 			$asset->db_remove();
 		}
+
 		return $asset;
 	}
 	/**
