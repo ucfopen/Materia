@@ -31,13 +31,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		upload: (dataUrl, fileName, shouldVerifyImageUpload = true) ->
 			mime = dataUrl.split(";")[0].split(":")[1]
-			console.log('mime', mime)
 			if @allowedTypes.indexOf(mime) == -1
 				alert "Files of type #{mime} are not supported. Allowed Types: #{@allowedTypes.join(', ')}."
 				return
 
-			# fileName = @filterFileName(mime, fileName)
-			fileName = fileName.split('.')[0]
 			# @set { statusMsg:'Pre-upload'}
 			_coms.send 'upload_keys_get', [], (keyData) =>
 				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
@@ -63,7 +60,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			# @set 'statusMsg', 'Uploading'
 
 			fd = new FormData()
-			fd.append("key", fileName)
+			fd.append("key", keyData.fileURI)
 			fd.append("Content-Type", mime)
 			fd.append("acl", 'public-read')
 			fd.append("success_action_status", '201')
@@ -80,8 +77,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					p = new DOMParser()
 					d = p.parseFromString(request.response, 'application/xml')
 					url = d.getElementsByTagName('Location')[0].innerHTML
-					console.log request.response
-					console.log 'url', url
 					@saveUploadedImageUrl fileName, url, shouldVerifyImageUpload
 
 			request.open("POST", "http://localhost:4567")
@@ -133,6 +128,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	$scope.dt_cols = [#columns expected from result, index 0-5
 		{ "data": "id"},
 		{ "data": "wholeObj" }, # stores copy of whole whole object as column for ui purposes
+		{ "data": "remote_url" },
 		{ "data": "title" },
 		{ "data": "type" },
 		{ "data": "file_size" },
@@ -157,11 +153,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		# load and/or select file for labelling
 		_coms.send 'assets_get', [], (result) ->
+			console.log result
 			if result and result.msg is undefined and result.length > 0
 				data = result
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
 				for res, index in result
+					console.log 'filetype', $scope.fileType, location
 					if res.type in $scope.fileType
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.fileType
@@ -173,9 +171,11 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if attr!="id"
 								temp[attr]=res[attr]
 						res['wholeObj'] = temp
+						console.log 'res', res
 						#Store data table index in asset-specific array for use when user clicks asset in GUI
 						assetIndices.push(index)
 						modResult.push(res)
+				console.log 'modres', modResult
 
 				$('#question-table').dataTable().fnAddData(modResult)
 

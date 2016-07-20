@@ -481,15 +481,19 @@ class Api_V1
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		
 		// $expire_in = Rails.application.config.s3['upload_token_timeout'];
+		$user_id = \Model_User::find_current_id();
+		$hash = Widget_Instance_Hash::generate_key_hash();
+		$fileURI = 'uploads/' . $user_id . '/' . $hash;
+
 		$expire_in = 60;
 		$expiration = date("%Y-%m-%d\T%H:%M:%S.000\Z", time()+$expire_in);
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [
 			  // {'bucket' => Rails.application.config.s3['bucket']},
-			  ['bucket' => 'test_bucket'],
+			  ['bucket' => 'default_bucket'],
 			  ['acl' => 'public-read'], # makes the uploaded file public readable
-			  ['starts-with', '$key', 'uploads/'], #restricts uploads to filenames that start with uploads/
+			  ['eq', '$key', $fileURI], #restricts uploads to filenames that start with uploads/
 			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
 			  ['success_action_status' => '201'] # CREATED
 			]
@@ -500,11 +504,11 @@ class Api_V1
 		$sha1_hash = hash_hmac('sha1', $policy, $key, true); // raw_output = true
 		$signature = base64_encode($sha1_hash);
 
-
 		$res = [
 			"AWSAccessKeyID" 	=> "test", 
 			"policy" 			=> $policy,
-			"signature" 		=> $signature
+			"signature" 		=> $signature,
+			"fileURI"			=> $fileURI
 		];
 
 		return $res;
@@ -515,9 +519,7 @@ class Api_V1
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
-		// Sanitizing YouTube url - embed copy/paste may contain whole iframe
-
-		$asset = Widget_Asset_Manager::process_upload($title, $uri, True);
+		$asset = Widget_Asset_Manager::process_upload($title, $uri, true);
 		return $asset->id;
 	}
 	// =======

@@ -68,17 +68,22 @@ class Widget_Asset
 	 */	
 	public function db_store()
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
+		if ( ! empty($this->type))
 		{
+			$id = $this->id ? $this->id : Widget_Instance_Hash::generate_key_hash();
+
+			if (! \RocketDuck\Util_Validator::is_valid_hash($id) ){
+				return false;
+			}
+
 			\DB::start_transaction();
 
-			$hash = Widget_Instance_Hash::generate_key_hash();
-			
+
 			try
 			{
 				$tr = \DB::insert('asset')
 					->set([
-						'id'          => $hash,
+						'id'          => $id,
 						'type'        => $this->type,
 						'title'       => $this->title,
 						'remote_url'  => $this->remote_url,
@@ -89,7 +94,7 @@ class Widget_Asset
 
 				$q = \DB::insert('perm_object_to_user')
 					->set([
-						'object_id'   => $hash,
+						'object_id'   => $id,
 						'user_id'     => \Model_User::find_current_id(),
 						'perm'        => Perm::FULL,
 						'object_type' => Perm::ASSET
@@ -98,7 +103,7 @@ class Widget_Asset
 
 				if ($tr[1] > 0)
 				{
-					$this->id = $hash;
+					$this->id = $id;
 					\DB::commit_transaction();
 					return true;
 				}
