@@ -68,9 +68,8 @@ Namespace('Materia').CreatorCore = do ->
 
 	getMediaUrl = (mediaId) ->
 		# todo: s3
-		# _baseurl+'media/'+mediaId
-		console.log 'test', mediaId
-		"http://localhost:4567/uploads/#{mediaId}"
+		bucket = 'default_bucket'
+		"http://#{bucket}.localhost:4567/#{mediaId}"
 
 
 	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
