@@ -479,19 +479,17 @@ class Api_V1
 	static public function upload_keys_get()
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		
-		// $expire_in = Rails.application.config.s3['upload_token_timeout'];
 		$user_id = \Model_User::find_current_id();
 		$hash = Widget_Instance_Hash::generate_key_hash();
 		$fileURI = 'uploads/' . $user_id . '/' . $hash;
 
-		$expire_in = 60;
-		$expiration = date("%Y-%m-%d\T%H:%M:%S.000\Z", time()+$expire_in);
+		$s3_config = \Config::get('materia.s3_config');
+
+		$expiration = date("%Y-%m-%d\T%H:%M:%S.000\Z", time() + $s3_config['expire_in']);
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [
-			  // {'bucket' => Rails.application.config.s3['bucket']},
-			  ['bucket' => 'default_bucket'],
+			  ['bucket' => $s3_config['bucket']],
 			  ['acl' => 'public-read'], # makes the uploaded file public readable
 			  ['eq', '$key', $fileURI], #restricts uploads to filenames that start with uploads/
 			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
@@ -500,7 +498,7 @@ class Api_V1
 		];
 		$policy = base64_encode(json_encode($param_hash));
 
-		$key = 'shhhh_SECRET!';
+		$key = $s3_config['key'];
 		$sha1_hash = hash_hmac('sha1', $policy, $key, true); // raw_output = true
 		$signature = base64_encode($sha1_hash);
 
