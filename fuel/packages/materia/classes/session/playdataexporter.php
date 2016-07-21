@@ -225,7 +225,9 @@ class Session_PlayDataExporter
 		{
 			foreach ($userlog as $r)
 			{
-				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
+				// Scrub text content for commas & newlines (so as to not break CSV formatting)
+				$sanitized_log_text = str_replace(["\r","\n", ','], '', $r['text']);
+				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$sanitized_log_text},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
 			}
 		}
 
@@ -279,11 +281,19 @@ class Session_PlayDataExporter
 
 		foreach ($csv_questions as $question)
 		{
-			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$question['text']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_question_text = str_replace(["\r","\n", ','], '', $question['text']);
+			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$sanitized_question_text}";
 
 			foreach ($options as $key)
 			{
 				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : '';
+
+				if (is_array($val) || is_object($val))
+				{
+					$val = '[object]';
+				}
+
 				$csv_question_text .= ",$val";
 			}
 		}
@@ -291,7 +301,9 @@ class Session_PlayDataExporter
 		$csv_answer_text = 'question_id,id,text,value';
 		foreach ($csv_answers as $answer)
 		{
-			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_answer_text = str_replace(["\r","\n", ','], '', $answer['text']);
+			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$sanitized_answer_text},{$answer['value']}";
 		}
 
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
