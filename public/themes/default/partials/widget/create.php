@@ -44,6 +44,8 @@
 			<?= Theme::instance()->view('partials/noflash') ?>
 		</div>
 
+		<div id="modal-cover" class="page" ng-show="modal"></div>
+
 		<iframe ng-attr-src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
 	</section>
 	<div ng-if="invalid">
