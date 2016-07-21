@@ -60,6 +60,47 @@ class Widget_Asset
 			}
 		}
 	}
+	/**
+	 * NEEDS DOCUMENTATION
+	 *
+	 * @param The database manager
+	 */	
+	public function db_update()
+	{
+		if ( ! empty($this->type) )
+		{
+			\DB::start_transaction();
+
+			try
+			{
+				$tr = \DB::update('asset')
+					->set([
+						'type'        => $this->type,
+						'title'       => $this->title,
+						'remote_url'  => $this->remote_url,
+						'file_size'   => $this->file_size,
+						'created_at'  => time()
+					])
+					->where('id','=',$this->id)
+					->execute();
+
+				trace('update results');
+				trace($tr);
+				if ($tr == 1)
+				{
+					\DB::commit_transaction();
+					return true;
+				}
+
+			}
+			catch (Exception $e)
+			{
+				\DB::rollback_transaction();
+				return false;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * NEEDS DOCUMENTATION
@@ -77,7 +118,6 @@ class Widget_Asset
 			}
 
 			\DB::start_transaction();
-
 
 			try
 			{
