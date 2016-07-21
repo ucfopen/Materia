@@ -80,7 +80,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 					@saveUploadedImageUrl fileName, url, shouldVerifyImageUpload
 
-			request.open("POST", "http://localhost:4567")
+			bucket = 'default_bucket'
+			request.open("POST", "http://#{bucket}.localhost:4567")
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, url, shouldVerifyImageUpload) ->
