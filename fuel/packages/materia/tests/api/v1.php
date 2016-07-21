@@ -572,6 +572,47 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_upload_keys_get()
+	{
+		// ======= AS NO ONE ========
+		$output = \Materia\Api_V1::upload_keys_get();
+		$this->assertEquals('error', $output->type);
+
+		$test_output = function () {
+			$output = \Materia\Api_V1::upload_keys_get();
+			$this->assertEquals(true, is_array($output));
+
+			$keys = ["AWSAccessKeyID","policy","signature","fileURI"];
+
+			foreach($keys as $key){
+				$key_exists = array_key_exists($key, $output);
+				$this->assertEquals(true, $key_exists);
+			}
+
+			$this->assertEquals(28, strlen($output["signature"]));
+		};
+
+		$this->_asStudent();
+		$test_output();
+		$this->_asAuthor();
+		$test_output();
+		$this->_asSu();
+		$test_output();
+	}
+
+	public function test_remote_asset_post($title = 'New Asset', $uri)
+	{
+		// ======= AS NO ONE ========
+		$output = \Materia\Api_V1::upload_keys_get();
+		$this->assertEquals('error', $output->type);
+
+		// $asset = Widget_Asset_Manager::process_upload($title, $uri, true);
+
+		// $user_id = \Model_User::find_current_id();
+		// $fileURI = 'uploads/' . $user_id . '/' . $asset->id;
+		// return $fileURI;
+	}
+
 	public function test_session_play_verify()
 	{
 		$this->markTestIncomplete('This test has not been implemented yet.');

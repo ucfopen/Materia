@@ -479,12 +479,28 @@ class Api_V1
 	static public function upload_keys_get()
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		
-		// $expire_in = Rails.application.config.s3['upload_token_timeout'];
-		$user_id = \Model_User::find_current_id();
-		$hash = Widget_Instance_Hash::generate_key_hash();
-		$fileURI = 'uploads/' . $user_id . '/' . $hash;
 
+		$msg = Msg::no_login();
+		$user_id = \Model_User::find_current_id();
+
+		// check if this asset id has already been used
+		$max_tries = 10;
+		for ($i = 0; $i <= $max_tries; $i++) {
+			$asset_id = Widget_Instance_Hash::generate_key_hash();
+			$asset_exists = Widget_Asset_Manager::get_asset($asset_id);
+			if (! $asset_exists){
+				break;
+			}
+		}
+
+		$fileURI = 'uploads/' . $user_id . '/' . $asset_id;
+
+		// reserve a row for it on the db, to be completed when s3 upload
+		// handshake is complete
+		$asset = Widget_Asset_Manager::process_upload('placeholder.ext',$fileURI, true);
+
+
+		// generate policy and signature object for response
 		$expire_in = 60;
 		$expiration = date("%Y-%m-%d\T%H:%M:%S.000\Z", time()+$expire_in);
 		$param_hash = [
@@ -514,16 +530,40 @@ class Api_V1
 		return $res;
 	}
 
-	static public function remote_asset_post($title = 'New Asset', $uri)
+	static public function remote_asset_post($fileName = 'new_asset.ext', $asset_id, $s3_upload_success)
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
-		$asset = Widget_Asset_Manager::process_upload($title, $uri, true);
+		$update_asset = function($asset, $fileName) {
+			$path_info = pathinfo($fileName);
+			$type = $path_info['extension'];
+			$title = $path_info['filename'];
 
-		$user_id = \Model_User::find_current_id();
-		$fileURI = 'uploads/' . $user_id . '/' . $asset->id;
-		return $fileURI;
+			$asset->type = $type;
+			$asset->title = $title;
+			$asset->file_size = 0;
+
+			return $asset->db_update();
+		};
+
+		// find asset that was created on upload_keys_get
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
+
+		// if not found, returned asset is default empty asset object
+		if ($asset->id == 0){
+			return false;
+		}
+
+		$res = $update_asset($asset, $fileName);
+		if ($s3_upload_success) {
+			return $res;
+			// return $update_asset($fileName, $asset);
+		}
+		else {
+			$asset->db_remove();
+			return false;
+		}
 	}
 	// =======
 

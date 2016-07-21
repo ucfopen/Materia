@@ -69,7 +69,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			fd.append("signature", keyData.signature)
 			fd.append("file", @dataURItoBlob(dataUrl, mime))
 
-
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
 				if request.status = 200
@@ -78,39 +77,45 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					d = p.parseFromString(request.response, 'application/xml')
 					url = d.getElementsByTagName('Location')[0].innerHTML
 
-					@saveUploadedImageUrl fileName, url, shouldVerifyImageUpload
+					@saveUploadedImageUrl fileName, keyData.fileURI, true, shouldVerifyImageUpload
+				else
+					@saveUploadedImageUrl fileName, keyData.fileURI, false, shouldVerifyImageUpload
+
 
 			bucket = 'default_bucket'
 			request.open("POST", "http://#{bucket}.localhost:4567")
 			request.send(fd)
 
-		saveUploadedImageUrl: (fileName, url, shouldVerifyImageUpload) ->
-			_coms.send 'remote_asset_post', [fileName, url], (file_key) ->
-				res =
-					id: file_key
-					type: fileName.split('.').slice(-1)[0]
-				$window.parent.Materia.Creator.onMediaImportComplete([res])
+		saveUploadedImageUrl: (fileName, file_path, s3_upload_success, shouldVerifyImageUpload) ->
+			file_id = file_path.split('/').slice(-1)[0]
+			_coms.send 'remote_asset_post', [fileName, file_id, s3_upload_success], (save_success) ->
+				console.log 'hey', typeof(save_success), save_success
+				if save_success
+					res =
+						id: file_path
+						type: fileName.split('.').slice(-1)[0]
+					$window.parent.Materia.Creator.onMediaImportComplete([res])
 
-		verifyImageUpload: ->
-			@set {statusMsg: 'Generating Thumbnails'}
-			clearTimeout @pollTimeout
-			@pollTimeout = setTimeout(@pollUploadedImage, 2000)
+		# verifyImageUpload: ->
+		# 	@set {statusMsg: 'Generating Thumbnails'}
+		# 	clearTimeout @pollTimeout
+		# 	@pollTimeout = setTimeout(@pollUploadedImage, 2000)
 
-		# keep polling using a cheap HEAD request and an incrementing url (s3 caches the result otherwise)
-		pollUploadedImage: =>
-			Backbone.ajax
-				url: @get('unverified_name')+"?attempt="+@pollCount
-				type: 'HEAD'
-				error: =>
-					if @pollCount > 20
-						alert 'Error Resizing Upload'
-					else
-						@pollCount++
-						pollSpeed = (if @pollCount < 4 then 1500 else 5000) #increase poll time
-						@pollTimeout = setTimeout(@pollUploadedImage, pollSpeed)
-				success: =>
-					@pollCount = 0
-					@set {name: @get('unverified_name'), statusMsg: null}
+		# # keep polling using a cheap HEAD request and an incrementing url (s3 caches the result otherwise)
+		# pollUploadedImage: =>
+		# 	Backbone.ajax
+		# 		url: @get('unverified_name')+"?attempt="+@pollCount
+		# 		type: 'HEAD'
+		# 		error: =>
+		# 			if @pollCount > 20
+		# 				alert 'Error Resizing Upload'
+		# 			else
+		# 				@pollCount++
+		# 				pollSpeed = (if @pollCount < 4 then 1500 else 5000) #increase poll time
+		# 				@pollTimeout = setTimeout(@pollUploadedImage, pollSpeed)
+		# 		success: =>
+		# 			@pollCount = 0
+		# 			@set {name: @get('unverified_name'), statusMsg: null}
 
 
 		# when file is selected in browser
