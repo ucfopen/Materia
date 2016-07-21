@@ -59,7 +59,7 @@ class Session_PlayDataExporter
 		$storage_data = [];
 		$csv          = '';
 
-		if (empty($table_name)) throw new \Exception("Missing required storage table name");
+		if (empty($table_name)) throw new \Exception('Missing required storage table name');
 
 		// load the logs for all selected semesters
 		if (empty($semesters))
@@ -70,7 +70,6 @@ class Session_PlayDataExporter
 				$storage_data['all'] = $loaded_data[$table_name];
 				$num_records = count($storage_data['all']);
 			}
-
 		}
 		else
 		{
@@ -106,7 +105,7 @@ class Session_PlayDataExporter
 
 			// create out header row
 			ksort($fields);
-			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters? '","semester"' : '"')."\n";
+			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters ? '","semester"' : '"')."\n";
 
 			// fill in the data for each row
 			foreach ($storage_data as $semester_str => $table)
@@ -120,8 +119,8 @@ class Session_PlayDataExporter
 					$d['data'] = $d['data'] + $fields;
 					ksort($d['data']);
 
-					$csv .= '"' . implode('","', $d['data']) . '",';
-					$csv .= '"' . implode('","', $d['play']) . '"';
+					$csv .= '"'.implode('","', $d['data']).'",';
+					$csv .= '"'.implode('","', $d['play']).'"';
 					if ( ! empty($semesters)) $csv .= ",\"{$year} {$term}\"";
 					$csv .= "\n";
 				}
@@ -171,7 +170,7 @@ class Session_PlayDataExporter
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return [$csv, ".csv"];
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -192,7 +191,7 @@ class Session_PlayDataExporter
 			foreach ($logs as $play)
 			{
 				// If there is no username, it is a guest user
-				$u = $play['username'] ? $play['username'] : "(Guest)";
+				$u = $play['username'] ? $play['username'] : '(Guest)';
 
 				if ( ! isset($results[$u])) $results[$u] = [];
 
@@ -225,7 +224,9 @@ class Session_PlayDataExporter
 		{
 			foreach ($userlog as $r)
 			{
-				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
+				// Scrub text content for commas & newlines (so as to not break CSV formatting)
+				$sanitized_log_text = str_replace(["\r","\n", ','], '', $r['text']);
+				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$sanitized_log_text},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
 			}
 		}
 
@@ -279,11 +280,19 @@ class Session_PlayDataExporter
 
 		foreach ($csv_questions as $question)
 		{
-			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$question['text']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_question_text = str_replace(["\r","\n", ','], '', $question['text']);
+			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$sanitized_question_text}";
 
 			foreach ($options as $key)
 			{
 				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : '';
+
+				if (is_array($val) || is_object($val))
+				{
+					$val = '[object]';
+				}
+
 				$csv_question_text .= ",$val";
 			}
 		}
@@ -291,7 +300,9 @@ class Session_PlayDataExporter
 		$csv_answer_text = 'question_id,id,text,value';
 		foreach ($csv_answers as $answer)
 		{
-			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_answer_text = str_replace(["\r","\n", ','], '', $answer['text']);
+			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$sanitized_answer_text},{$answer['value']}";
 		}
 
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
@@ -306,7 +317,7 @@ class Session_PlayDataExporter
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return [$data, ".zip"];
+		return [$data, '.zip'];
 	}
 
 }
