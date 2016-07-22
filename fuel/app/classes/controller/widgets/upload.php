@@ -89,7 +89,7 @@ class Controller_Widgets_Upload extends Controller
 			foreach (Upload::get_files() as $file)
 			{
 				$path = $file['saved_to'].$file['saved_as'];
-				if ( ! Materia\Widget_Installer::extract_and_install_from_package($path))
+				if ( ! Materia\Widget_Installer::extract_package_and_install($path))
 				{
 					$failed = true;
 					break;
