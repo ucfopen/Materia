@@ -180,7 +180,9 @@ class Session_PlayDataExporter
 	 */
 	protected static function full_event_log($inst, $semesters)
 	{
-		$results   = [];
+		// Table headers
+		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
+		$log_count = 0;
 
 		foreach ($semesters as $semester)
 		{
@@ -193,42 +195,31 @@ class Session_PlayDataExporter
 				// If there is no username, it is a guest user
 				$u = $play['username'] ? $play['username'] : '(Guest)';
 
-				if ( ! isset($results[$u])) $results[$u] = [];
-
 				$play_events = \Materia\Session_Logger::get_logs($play['id']);
 
 				foreach ($play_events as $play_event)
 				{
-					$r               = [];
-					$r['last_name']  = $play['last'];
-					$r['first_name'] = $play['first'];
-					$r['playid']     = $play['id'];
-					$r['semester']   = $semester;
-					$r['type']       = $play_event->type;
-					$r['item_id']    = $play_event->item_id;
-					$r['text']       = $play_event->text;
-					$r['value']      = $play_event->value;
-					$r['game_time']  = $play_event->game_time;
-					$r['created_at'] = $play_event->created_at;
-					$results[$u][]   = $r;
+					$log_count++;
+					$condensed = [
+						$u,
+						$play['last'],
+						$play['first'],
+						$play['id'],
+						$semester,
+						$play_event->type,
+						$play_event->item_id,
+						$play_event->text,
+						$play_event->value,
+						$play_event->game_time,
+						$play_event->created_at
+					];
+
+					$csv_playlog_text .= implode(',', $condensed)."\r\n";
 				}
 			}
 		}
 
-		if ( ! count($results)) return false;
-
-		// Table headers
-		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
-
-		foreach ($results as $userid => $userlog)
-		{
-			foreach ($userlog as $r)
-			{
-				// Scrub text content for commas & newlines (so as to not break CSV formatting)
-				$sanitized_log_text = str_replace(["\r","\n", ','], '', $r['text']);
-				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$sanitized_log_text},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
-			}
-		}
+		if ( $log_count == 0 ) return false;
 
 		$inst->get_qset($inst->id);
 
