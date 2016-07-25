@@ -1169,16 +1169,12 @@ span.subtitle {
 	font-family: 'Lato', arial, serif;
 }
 
-/*LTI Login page styles*/
-body,html
-{
-	background: #fff;
-.p_s
+/*Styles for LTI Login page*/
+#lti-login-section
 {
 	margin: 0px auto;
 	width: 100%;
 	background: #fff;
-}
 
 section
 {
@@ -1291,4 +1287,3 @@ header
     }
 }
 }
-
