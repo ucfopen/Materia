@@ -590,27 +590,52 @@ class Test_Api_V1 extends \Basetest
 			}
 
 			$this->assertEquals(28, strlen($output["signature"]));
+
+			return $output;
 		};
 
 		$this->_asStudent();
 		$test_output();
-		$this->_asAuthor();
-		$test_output();
 		$this->_asSu();
 		$test_output();
+		$this->_asAuthor();
+		return $test_output();
 	}
 
-	public function test_remote_asset_post($title = 'New Asset', $uri)
+	/**
+	 * @depends test_upload_keys_get
+	 */
+	public function test_remote_asset_post($upload_keys)
 	{
+		$key = $upload_keys['fileURI'];
+		trace("THIS IS THE KEY: ".$key);
 		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::upload_keys_get();
+		$output = \Materia\Api_V1::remote_asset_post('test.jpg', $key, true);
 		$this->assertEquals('error', $output->type);
 
-		// $asset = Widget_Asset_Manager::process_upload($title, $uri, true);
+		$test_output = function ($key)
+		{
+			$output = \Materia\Api_V1::remote_asset_post('test.jpg', null, true);
+			$this->assertFalse($output);
 
-		// $user_id = \Model_User::find_current_id();
-		// $fileURI = 'uploads/' . $user_id . '/' . $asset->id;
-		// return $fileURI;
+			// $output = \Materia\Api_V1::remote_asset_post('test.jpg', $key, false);
+			// $this->assertFalse($output);
+
+			$output = \Materia\Api_V1::remote_asset_post('test.jpg', $key, true);
+			$this->assertTrue($output);
+		};
+
+		// ====== AS AUTHOR =======
+		$this->_asAuthor();
+		$test_output($key);
+
+		// ====== AS STUDENT =======
+		$this->_asStudent();
+		$test_output($key);
+
+		// ====== AS SU =======
+		$this->_asSu();
+		$test_output($key);
 	}
 
 	public function test_session_play_verify()
