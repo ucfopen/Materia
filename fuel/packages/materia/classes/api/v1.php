@@ -551,7 +551,7 @@ class Api_V1
 		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// if not found, returned asset is default empty asset object
-		if ($asset->id == 0){
+		if (! empty($asset->file_size)){
 			return false;
 		}
 
