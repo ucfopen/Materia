@@ -483,22 +483,13 @@ class Api_V1
 		$msg = Msg::no_login();
 		$user_id = \Model_User::find_current_id();
 
-		// check if this asset id has already been used
-		$max_tries = 10;
-		for ($i = 0; $i <= $max_tries; $i++) {
-			$asset_id = Widget_Instance_Hash::generate_key_hash();
-			$asset_exists = Widget_Asset_Manager::get_asset($asset_id);
-			if (! $asset_exists){
-				break;
-			}
+		$asset = Widget_Asset_Manager::upload_temp();
+		// if we could not successfully create a new temporary asset row
+		if (! \RocketDuck\Util_Validator::is_valid_hash($asset->id)){
+			return false;
 		}
 
-		$fileURI = 'uploads/' . $user_id . '/' . $asset_id;
-
-		// reserve a row for it on the db, to be completed when s3 upload
-		// handshake is complete
-		$asset = Widget_Asset_Manager::process_upload('placeholder.ext',$fileURI, true);
-
+		$fileURI = 'uploads/' . $user_id . '/' . $asset->id;
 
 		// generate policy and signature object for response
 		$expire_in = 60;
@@ -530,35 +521,31 @@ class Api_V1
 		return $res;
 	}
 
-	static public function remote_asset_post($fileName = 'new_asset.ext', $asset_id, $s3_upload_success)
+	static public function remote_asset_post($fileName = 'new_asset.ext', $fileURI, $s3_upload_success)
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
-		$update_asset = function($asset, $fileName) {
-			$path_info = pathinfo($fileName);
-			$type = $path_info['extension'];
-			$title = $path_info['filename'];
+		$file_info = pathinfo($fileName);
+		$type = $file_info['extension'];
+		$title = $file_info['filename'];
 
-			$asset->type = $type;
-			$asset->title = $title;
-			$asset->file_size = 0;
+		$uri_info = pathinfo($fileURI);
+		$asset_id = $uri_info['filename'];
 
-			return $asset->db_update();
-		};
+		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
+				'type'      => $type,
+				'title'     => $title,
+				'file_size' => 0,
+				'remote_url' => $fileURI,
+		]);
 
-		// find asset that was created on upload_keys_get
-		$asset = Widget_Asset_Manager::get_asset($asset_id);
-
-		// if not found, returned asset is default empty asset object
-		if (! empty($asset->file_size)){
+		if (! $asset_updated){
 			return false;
 		}
 
-		$res = $update_asset($asset, $fileName);
 		if ($s3_upload_success) {
-			return $res;
-			// return $update_asset($fileName, $asset);
+			return true;
 		}
 		else {
 			$asset->db_remove();
