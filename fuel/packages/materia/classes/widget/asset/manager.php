@@ -32,10 +32,57 @@ class Widget_Asset_Manager
 		return $asset;
 	}
 
+	static public function update_asset($asset_id, $properties=[])
+	{
+		// find asset that was created on upload_keys_get
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
+		// if not found, returned asset is default empty asset object
+		if (empty($asset->id)){
+			return false; // update failed
+		}
+
+		$asset->set_properties($properties);
+		
+		return $asset->db_update(); // return whether update succeeded
+	}
+
 	static public function user_has_space_for($bytes)
 	{
 		$stats = Widget_Asset_Manager::get_user_asset_stats(\Model_User::find_current_id());
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
+	}
+
+	static public function upload_temp()
+	{
+		$asset = new Widget_Asset([
+				'type'      => 'tmp',
+			]);
+
+		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		{
+			try
+			{
+				// set perms
+				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
+				return $asset;
+			}
+			catch (\OutsideAreaException $e)
+			{
+				trace($e);
+			}
+			catch (\InvalidPathException $e)
+			{
+				trace($e);
+			}
+			catch (\FileAccessException $e)
+			{
+				trace($e);
+			}
+			// failed, remove the asset
+			$asset->db_remove();
+		}
+
+		return $asset;
 	}
 
 	static public function process_upload($title, $uri, $is_remote)
@@ -60,7 +107,7 @@ class Widget_Asset_Manager
 			$asset_id = $uri_split[sizeof($uri_split)-1];
 
 			$path_info = pathinfo($title);
-			
+
 			$new_widget_properties = [
 				'id'        => $asset_id,
 				'type'      => $path_info['extension'],

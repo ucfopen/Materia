@@ -40,10 +40,7 @@ class Widget_Asset
 	public $type       = '';
 	public $widgets    = [];
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 */
-	public function __construct($properties=[])
+	public function set_properties($properties=[])
 	{
 		if ( ! empty($properties))
 		{
@@ -59,6 +56,14 @@ class Widget_Asset
 					break;
 			}
 		}
+	}
+
+	/**
+	 * NEEDS DOCUMENTATION
+	 */
+	public function __construct($properties=[])
+	{
+		$this->set_properties($properties);
 	}
 	/**
 	 * NEEDS DOCUMENTATION
@@ -84,8 +89,6 @@ class Widget_Asset
 					->where('id','=',$this->id)
 					->execute();
 
-				trace('update results');
-				trace($tr);
 				if ($tr == 1)
 				{
 					\DB::commit_transaction();
@@ -109,11 +112,18 @@ class Widget_Asset
 	 */	
 	public function db_store()
 	{
-		if ( ! empty($this->type))
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
 		{
-			$id = $this->id ? $this->id : Widget_Instance_Hash::generate_key_hash();
-
-			if (! \RocketDuck\Util_Validator::is_valid_hash($id) ){
+			// get an unused asset_id
+			$max_tries = 10;
+			for ($i = 0; $i <= $max_tries; $i++) {
+				$asset_id = Widget_Instance_Hash::generate_key_hash();
+				$asset_exists = $this->db_get($asset_id);
+				if (! $asset_exists){
+					break;
+				}
+			}
+			if ($asset_exists){ // all attempted ids already exist
 				return false;
 			}
 
@@ -123,7 +133,7 @@ class Widget_Asset
 			{
 				$tr = \DB::insert('asset')
 					->set([
-						'id'          => $id,
+						'id'          => $asset_id,
 						'type'        => $this->type,
 						'title'       => $this->title,
 						'remote_url'  => $this->remote_url,
@@ -134,7 +144,7 @@ class Widget_Asset
 
 				$q = \DB::insert('perm_object_to_user')
 					->set([
-						'object_id'   => $id,
+						'object_id'   => $asset_id,
 						'user_id'     => \Model_User::find_current_id(),
 						'perm'        => Perm::FULL,
 						'object_type' => Perm::ASSET
@@ -143,7 +153,7 @@ class Widget_Asset
 
 				if ($tr[1] > 0)
 				{
-					$this->id = $id;
+					$this->id = $asset_id;
 					\DB::commit_transaction();
 					return true;
 				}
