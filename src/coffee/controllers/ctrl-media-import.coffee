@@ -86,13 +86,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request.open("POST", "http://#{bucket}.localhost:4567")
 			request.send(fd)
 
-		saveUploadedImageUrl: (fileName, file_path, s3_upload_success, shouldVerifyImageUpload) ->
-			file_id = file_path.split('/').slice(-1)[0]
-			_coms.send 'remote_asset_post', [fileName, file_id, s3_upload_success], (save_success) ->
+		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success, shouldVerifyImageUpload) ->
+			_coms.send 'remote_asset_post', [fileName, fileURI, s3_upload_success], (save_success) ->
 				console.log 'hey', typeof(save_success), save_success
 				if save_success
 					res =
-						id: file_path
+						id: fileURI
 						type: fileName.split('.').slice(-1)[0]
 					$window.parent.Materia.Creator.onMediaImportComplete([res])
 
