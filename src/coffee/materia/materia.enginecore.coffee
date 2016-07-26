@@ -56,7 +56,10 @@ Namespace('Materia').Engine = do ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
 	getImageAssetUrl = (id) ->
-		"#{_baseUrl}media/#{id}"
+		# todo: s3
+		bucket = 'default_bucket'
+		baseUrl = 'http://#{bucket}.localhost:4567'
+		"#{baseUrl}/#{id}"
 
 	end = (showScoreScreenAfter = yes) ->
 		_sendPostMessage 'end', showScoreScreenAfter
