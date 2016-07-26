@@ -52,7 +52,7 @@ return [
 	's3_config' => [
 
 		'bucket' => 'default_bucket',
-		'key' => 'secret_key',
+		'secret_key' => 'secret_key',
 		'expire_in' => 60
 	]
 
