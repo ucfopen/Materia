@@ -38,12 +38,11 @@ class Widget_Asset_Manager
 		$asset = Widget_Asset_Manager::get_asset($asset_id);
 		// if not found, returned asset is default empty asset object
 		if (empty($asset->id)){
-			return false; // update failed
+			return 1; // didn't find asset with that id
 		}
 
 		$asset->set_properties($properties);
-		
-		return $asset->db_update(); // return whether update succeeded
+		return $asset->db_update() ? $asset->file_size : 1;
 	}
 
 	static public function user_has_space_for($bytes)
@@ -52,10 +51,16 @@ class Widget_Asset_Manager
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
 	}
 
-	static public function upload_temp()
+	// new route for s3 uploads
+	static public function upload_temp($remote_url_stub, $type, $title)
 	{
+		// remote_url will be completed once we successfully get
+		// an available asset_id
 		$asset = new Widget_Asset([
-				'type'      => 'tmp',
+				'type'			=> $type,
+				'title'			=> $title,
+				'file_size' 	=> -2, // signify temp asset
+				'remote_url'	=> $remote_url_stub
 			]);
 
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
@@ -85,49 +90,24 @@ class Widget_Asset_Manager
 		return $asset;
 	}
 
-	static public function process_upload($title, $uri, $is_remote)
+	// old method for server upload storage
+	static public function process_upload($name, $file)
 	{
-		$new_widget_properties = [];
-
-		if( ! $is_remote )
-		{
-			$f_info = \File::file_info($uri);
-			if ( ! Widget_Asset_Manager::user_has_space_for($f_info['size']) ) return false; // Do I have space left?
-
-			$new_widget_properties = [
-				'type'      => $f_info['extension'],
-				'title'     => $title,
-				'file_size' => $f_info['size'],
-				'remote_url' => NULL,
-			];
-		}
-		else
-		{
-			$uri_split = explode('/', $uri);
-			$asset_id = $uri_split[sizeof($uri_split)-1];
-
-			$path_info = pathinfo($title);
-
-			$new_widget_properties = [
-				'id'        => $asset_id,
-				'type'      => $path_info['extension'],
-				'title'     => $path_info['filename'],
-				'file_size' => 0,
-				'remote_url' => $uri,
-			];
-		}
+		$f_info = \File::file_info($file);
+		if ( ! Widget_Asset_Manager::user_has_space_for($f_info['size']) ) return false; // Do I have space left?
 		// create and store the asset
-		$asset = new Widget_Asset($new_widget_properties);
-
+		$asset = new Widget_Asset([
+			'type'      => $f_info['extension'],
+			'title'     => $name,
+			'file_size' => $f_info['size']
+		]);
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
 		{
 			try
 			{
-				if( ! $is_remote ){
-					// move the file to the appropriate dir
-					$to_file = $asset->id.'.'.$asset->type;
-					$copied = \File::rename($f_info['realpath'], $to_file, 'media');
-				}
+				// move the file to the appropriate dir
+				$to_file = $asset->id.'.'.$asset->type;
+				$copied = \File::rename($f_info['realpath'], $to_file, 'media');
 				// set perms
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
 				return $asset;
@@ -147,9 +127,9 @@ class Widget_Asset_Manager
 			// failed, remove the asset
 			$asset->db_remove();
 		}
-
 		return $asset;
 	}
+
 	/**
 	 * Removes onership of an asset for the given user.
 	 * If the asset is not being used in a widget, it is deleted.

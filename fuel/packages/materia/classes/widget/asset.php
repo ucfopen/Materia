@@ -78,22 +78,44 @@ class Widget_Asset
 
 			try
 			{
-				$tr = \DB::update('asset')
-					->set([
-						'type'        => $this->type,
-						'title'       => $this->title,
-						'remote_url'  => $this->remote_url,
-						'file_size'   => $this->file_size,
-						'created_at'  => time()
-					])
-					->where('id','=',$this->id)
+				// ensure user has permission to update this asset
+				$q =  \DB::select()
+					->from('perm_object_to_user')
+					->where('object_id', $this->id)
+					->and_where('user_id', \Model_User::find_current_id())
 					->execute();
 
-				if ($tr == 1)
+				// user should only own one object with this id
+				if (count($q) == 1)
 				{
-					\DB::commit_transaction();
-					return true;
+					$tr = \DB::update('asset')
+						->set([
+							'type'        => $this->type,
+							'title'       => $this->title,
+							'remote_url'  => $this->remote_url,
+							'file_size'   => $this->file_size,
+							'created_at'  => time()
+						])
+						->where('id','=',$this->id)
+						->execute();
+
+					if ($tr == 1) // ensure only one asset is updated
+					{
+						\DB::commit_transaction();
+						return true;
+					}
+					else
+					{
+						//todo: log case
+						return false;
+					}
 				}
+				else
+				{
+					//todo: log case
+					return false;
+				}
+
 
 			}
 			catch (Exception $e)
@@ -126,6 +148,9 @@ class Widget_Asset
 			if ($asset_exists){ // all attempted ids already exist
 				return false;
 			}
+
+			// use this id to make remote_url
+			$this->remote_url .= $asset_id;
 
 			\DB::start_transaction();
 

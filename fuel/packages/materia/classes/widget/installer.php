@@ -127,7 +127,7 @@ class Widget_Installer
 			// so process_upload can move it to the correct place
 			$new_temp_filepath = \Config::get('materia.dirs.media').'uploads/'.uniqid().'.'.$ext;
 			$file_area->copy($file, $new_temp_filepath);
-			$asset = \Materia\Widget_Asset_Manager::process_upload(basename($file), $new_temp_filepath, false);
+			$asset = \Materia\Widget_Asset_Manager::process_upload(basename($file), $new_temp_filepath);
 
 			return $asset->id;
 		}

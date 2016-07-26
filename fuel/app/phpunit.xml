@@ -25,5 +25,8 @@
 		<testsuite name="score">
 			<directory suffix=".php">../packages/materia/vendor/widget/test</directory>
 		</testsuite>
+		<testsuite name="dev">
+			<directory suffix=".php">../packages/*/tests/dev</directory>
+		</testsuite>
 	</testsuites>
 </phpunit>
