@@ -36,7 +36,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				return
 
 			# @set { statusMsg:'Pre-upload'}
-			_coms.send 'upload_keys_get', [], (keyData) =>
+			_coms.send 'upload_keys_get', [fileName], (keyData) =>
 				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
 
 		# converts image data uri to a blob for uploading
@@ -58,9 +58,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# ok, go ahead and send the file to s3
 		sendToS3: (keyData, fileName, mime, dataUrl, shouldVerifyImageUpload) ->
 			# @set 'statusMsg', 'Uploading'
-
 			fd = new FormData()
-			fd.append("key", keyData.fileURI)
+			fd.append("key", keyData.file_uri)
 			fd.append("Content-Type", mime)
 			fd.append("acl", 'public-read')
 			fd.append("success_action_status", '201')
@@ -77,22 +76,22 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					d = p.parseFromString(request.response, 'application/xml')
 					url = d.getElementsByTagName('Location')[0].innerHTML
 
-					@saveUploadedImageUrl fileName, keyData.fileURI, true, shouldVerifyImageUpload
+					@saveUploadedImageUrl fileName, keyData.file_uri, true, shouldVerifyImageUpload
 				else
-					@saveUploadedImageUrl fileName, keyData.fileURI, false, shouldVerifyImageUpload
-
+					@saveUploadedImageUrl fileName, keyData.file_uri, false, shouldVerifyImageUpload
 
 			bucket = 'default_bucket'
 			request.open("POST", "http://#{bucket}.localhost:4567")
 			request.send(fd)
 
-		saveUploadedImageUrl: (fileName, file_path, s3_upload_success, shouldVerifyImageUpload) ->
-			file_id = file_path.split('/').slice(-1)[0]
-			_coms.send 'remote_asset_post', [fileName, file_id, s3_upload_success], (save_success) ->
-				console.log 'hey', typeof(save_success), save_success
-				if save_success
+		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success, shouldVerifyImageUpload) ->
+			console.log 'fileuri', fileURI
+			fileID = fileURI.split('/').slice(-1)[0]
+			_coms.send 'remote_asset_post', [fileID, s3_upload_success], (save_success) ->
+				save_success = parseInt(save_success) # NaN if success is null
+				if save_success == 0
 					res =
-						id: file_path
+						id: fileURI
 						type: fileName.split('.').slice(-1)[0]
 					$window.parent.Materia.Creator.onMediaImportComplete([res])
 
