@@ -168,6 +168,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				# augment result for custom datatables ui
 				for res, index in result
 					if res.type in $scope.fileType
+						# the id used for asset url is actually remote_url
+						res.id = res.remote_url
+
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.fileType
 								$window.parent.Materia.Creator.onMediaImportComplete([res])
