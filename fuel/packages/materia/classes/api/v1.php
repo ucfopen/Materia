@@ -486,10 +486,12 @@ class Api_V1
 
 		// check if this asset id has already been used
 		$max_tries = 10;
-		for ($i = 0; $i <= $max_tries; $i++) {
+		for ($i = 0; $i <= $max_tries; $i++)
+		{
 			$asset_id = Widget_Instance_Hash::generate_key_hash();
 			$asset_exists = Widget_Asset_Manager::get_asset($asset_id);
-			if (! $asset_exists){
+			if ( ! $asset_exists)
+			{
 				break;
 			}
 		}
@@ -498,10 +500,10 @@ class Api_V1
 
 		// reserve a row for it on the db, to be completed when s3 upload
 		// handshake is complete
-		$asset = Widget_Asset_Manager::process_upload('placeholder.ext',$fileURI, true);
+		$asset = Widget_Asset_Manager::process_upload('placeholder.ext',$file_uri, true);
 
 		// generate policy and signature object for response
-		$expiration = date("%Y-%m-%d\T%H:%M:%S.000\Z", time() + $s3_config['expire_in']);
+		$expiration = date('%Y-%m-%d\T%H:%M:%S.000\Z', time() + $s3_config['expire_in']);
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [
@@ -519,22 +521,22 @@ class Api_V1
 		$signature = base64_encode($sha1_hash);
 
 		$res = [
-			"AWSAccessKeyID" 	=> "test", 
-			"policy" 			=> $policy,
-			"signature" 		=> $signature,
-			"fileURI"			=> $file_uri
+			'AWSAccessKeyID' 	=> 'test',
+			'policy' 			=> $policy,
+			'signature' 		=> $signature,
+			'fileURI'			=> $file_uri
 		];
 
 		return $res;
 	}
 
-	static public function remote_asset_post($fileName = 'new_asset.ext', $asset_id, $s3_upload_success)
+	static public function remote_asset_post($file_name = 'new_asset.ext', $asset_id, $s3_upload_success)
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
-		$update_asset = function($asset, $fileName) {
-			$path_info = pathinfo($fileName);
+		$update_asset = function($asset, $file_name) {
+			$path_info = pathinfo($file_name);
 			$type = $path_info['extension'];
 			$title = $path_info['filename'];
 
@@ -549,16 +551,19 @@ class Api_V1
 		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// if not found, returned asset is default empty asset object
-		if ($asset->id == 0){
+		if ($asset->id == 0)
+		{
 			return false;
 		}
 
-		$res = $update_asset($asset, $fileName);
-		if ($s3_upload_success) {
+		$res = $update_asset($asset, $file_name);
+		if ($s3_upload_success)
+		{
 			return $res;
 			// return $update_asset($fileName, $asset);
 		}
-		else {
+		else
+		{
 			$asset->db_remove();
 			return false;
 		}

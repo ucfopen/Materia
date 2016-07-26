@@ -67,7 +67,7 @@ class Widget_Asset
 	 */	
 	public function db_update()
 	{
-		if ( ! empty($this->type) )
+		if ( ! empty($this->type))
 		{
 			\DB::start_transaction();
 
@@ -113,7 +113,8 @@ class Widget_Asset
 		{
 			$id = $this->id ? $this->id : Widget_Instance_Hash::generate_key_hash();
 
-			if (! \RocketDuck\Util_Validator::is_valid_hash($id) ){
+			if ( ! \RocketDuck\Util_Validator::is_valid_hash($id))
+			{
 				return false;
 			}
 
