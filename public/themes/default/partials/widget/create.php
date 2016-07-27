@@ -1,4 +1,5 @@
 <div ng-controller="createCtrl">
+	<button ng-click="alert.msg = 'TEST!'">TEST ALERT</button>
 	<section class="page" ng-show="loaded">
 		<div class="preview animate-show" ng-show="popup == 'blocked'">
 			<p>Your browser blocked the preview popup, click below to preview the widget.</p>

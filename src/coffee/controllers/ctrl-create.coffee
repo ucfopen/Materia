@@ -1,5 +1,8 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
+app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
+
+	$scope.alert = Alert
+
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
@@ -74,7 +77,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# If Initialization Fails
 	onInitFail = (msg) ->
 		stopHeartBeat()
-		alert "Failure: #{msg}" if msg.toLowerCase() != 'flash player required.'
+		_alert "Failure: #{msg}" if msg.toLowerCase() != 'flash player required.'
 
 	# Every 30 seconds, renew/check the session
 	startHeartBeat = ->
@@ -82,7 +85,8 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		heartbeat = setInterval ->
 			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
 				if data == false
-					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+					_alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+					$scope.alert.fatal = true
 					window.location.reload()
 		, HEARTBEAT_INTERVAL
 
@@ -191,9 +195,9 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					when 'alert'
 						_alert msg.data
 					else
-						alert "Unknown message from creator: #{msg.type}"
+						_alert "Unknown message from creator: #{msg.type}"
 			else
-				alert "Error, cross domain restricted for #{origin}"
+				_alert "Error, cross domain restricted for #{origin}"
 
 		# setup the postmessage listener
 		if addEventListener?
@@ -351,14 +355,15 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# Note this is psuedo public as it's exposed to flash
 	onSaveCanceled = (msg) ->
 		$scope.saveText = "Can Not Save!"
-		alert "Can not currently save. #{msg}" if msg
+		_alert "Can not currently save. #{msg}" if msg
 
 	setHeight = (h) ->
 		$('#container').height h
 
-	_alert = (options) ->
+	_alert = (msg) ->
 		# TODO: Replace with a angular modal
-		alert(options.msg)
+		# alert(options.msg)
+		$scope.alert.msg = msg
 
 	# Exposed to the window object so that popups and frames can use this public functions
 	Namespace("Materia").Creator =
