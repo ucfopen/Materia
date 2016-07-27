@@ -8,7 +8,7 @@ Namespace('Materia').Image = do ->
 
 	screenshotUrl = (widgetDir, size) ->
 			WIDGET_URL+widgetDir+'img/screen-shots/'+size+'.png'
-	
+
 	screenshotThumbUrl = (widgetDir, size) ->
 		WIDGET_URL+widgetDir+'img/screen-shots/'+size+'-thumb.png'
 
