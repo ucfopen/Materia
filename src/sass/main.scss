@@ -256,6 +256,11 @@ h3
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
+
+	.ng-modal & {
+		display: block;
+		margin: 5px;
+	}
 }
 
 .cancel_button {
