@@ -1114,8 +1114,6 @@ Fancybox Overrides
 		background:#fff url(../img/header_border.png) 0% 100% repeat-x;
 		background-size: 12px 6px;
 	}
- 
-
 }
 
 .qtip {
@@ -1173,4 +1171,12 @@ span.subtitle {
 	font-weight:700;
 	font-family: 'Lato', arial, serif;
 }
-
+/* hack fix to ngModal plugin to disable closing halting alerts */
+.ng-modal.fatal {
+	.ng-modal-close {
+		display: none;
+	}
+	.ng-modal-overlay {
+		pointer-events: none;
+	}
+}

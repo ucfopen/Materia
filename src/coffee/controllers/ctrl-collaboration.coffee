@@ -1,6 +1,9 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
-app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, widgetSrv, userServ) ->
+app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, widgetSrv, userServ, Alert) ->
+
+	$scope.alert = Alert
+
 	LEFT = 37
 	UP = 38
 	RIGHT = 39
@@ -38,8 +41,9 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
 			if matches?.halt
-				alert(matches.msg)
-				location.reload true
+				$scope.alert.msg = matches.msg
+				$scope.alert.fatal = true
+				$scope.$apply()
 				return
 
 			$scope.searchResults.searching = no
@@ -161,9 +165,10 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				$scope.$emit 'collaborators.update', ''
 				$scope.show.collaborationModal = no
 				widgetSrv.removeWidget(widget_id) if remove_widget
-				$scope.$apply()
 			else
-				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
+				$scope.alert.msg = (if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
+				if returnData?.halt? then $scope.alert.fatal = true
+			$scope.$apply()
 
 	$scope.checkForWarning = (user) ->
 		if user.isCurrentUser and user.access <= 30
