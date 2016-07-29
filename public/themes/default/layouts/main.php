@@ -17,12 +17,16 @@
 </head>
 	<body class="<?= (isset($page_type) ? $page_type : '') ?>" ng-app="materia">
 		<?= (isset($partials['header']) ? $partials['header'] : '' ) ?>
+		<?= $partials['content'] ?>
 		<div ng-controller="alertCtrl" class='alert_container'>
-			<modal-dialog show="alert.msg" dialog-title="{{ alert.title || 'Warning' }}" width="520px">
+			<modal-dialog show="alert.msg"
+				ng-class="{ fatal: alert.fatal }"
+				dialog-title="{{ alert.title }}"
+				width="520px"
+				z-index="1000000">
 				<p>{{ alert.msg }}</p>
 				<button ng-hide="alert.fatal" ng-click="alert.msg = null" class="action_button">Okay</button>
 			</modal-dialog>
 		</div>
-		<?= $partials['content'] ?>
 	</body>
 </html>
