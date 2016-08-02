@@ -2,24 +2,32 @@ body, html {
 	font-family: 'Lato', arial, serif;
 }
 
-.upload-input{
+.drag-header{
+	text-align: center;
+	margin-top:10px;
+}
+
+.drag-text{
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	left: 50%;
+}
+
+.drag-wrapper{
+	position:relative;
+	height: 333px;
+	margin: 40px;
+	border: 5px dashed #dadada;
+	outline: #f5f5f5 solid 30px;
+	background: #f5f5f5
+}
+
+.drag-bottom{
 	float:bottom;
-	background:green;
 }
 
-.box-drag-area{
-	float:bottom;
-	background:blue;
-	height:379px;
-}
-
-.box-drag-uploading,
-.box-drag-success,
-.box-drag-error {
-	display: none;
-}
-
-.box-drag-is-dragover {
+.drag-is-dragover {
   background-color: grey;
 }
 
@@ -372,7 +380,7 @@ $dropzone_margin: 18px;
 	display: none;
 }
 
-.plupload_button.plupload_add{
+.select_file_button{
 	padding: 7px 23px 8px;
 	background: #ffba5d;
 	background-image: -webkit-linear-gradient(top,#ffce8c,#ffa42a);
@@ -397,6 +405,7 @@ $dropzone_margin: 18px;
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
+	cursor:pointer;
 }  
 
 
