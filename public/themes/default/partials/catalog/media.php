@@ -8,10 +8,12 @@
 				Drag a file here to upload
 			</div>
 		</div>
-		<label>
-			<input type="file" file-on-change="uploadFile" style="display:none" />
-			<span class="select_file_button">Browse...</span>
-		</label>
+		<div class="drag-footer">
+			<label>
+				<input type="file" file-on-change="uploadFile" style="display:none" />
+				<span class="select_file_button">Browse...</span>
+			</label>
+		</div>
 	</div>
 
 	<form id="import-form" class="right-pane">
