@@ -1,6 +1,16 @@
 <div ng-controller="mediaImportCtrl">
 	<div id="left-pane">
-		<input className="upload-input" type="file" title=" " file-on-change="uploadFile" accept={this.props.allowedTypes.join(',')} />
+		<div class="box-drag-area">
+			<form>
+			<div className="upload-input." type="file" title=" " file-on-change="uploadFile" accept={this.props
+			   .allowedTypes.join(',')}  />
+			<label file-on-change="uploadFile" for="file"><strong>Choose a file</strong><span class="box-drag-mainarea"> or
+				drag it here</span>.</label>
+			</form>
+		</div>
+		<input className="upload-input" type="file" title=" " file-on-change="uploadFile" accept={this.props.allowedTypes.join(',')}  />
+		<label file-on-change="uploadFile" for="file"><strong>Choose a file</strong><span class="box-drag-mainarea"> or
+				drag it here</span>.</label>
 	</div>
 	<form id="import-form" class="right-pane">
 		<div class="pane-header">

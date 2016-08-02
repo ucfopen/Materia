@@ -2,6 +2,27 @@ body, html {
 	font-family: 'Lato', arial, serif;
 }
 
+.upload-input{
+	float:bottom;
+	background:green;
+}
+
+.box-drag-area{
+	float:bottom;
+	background:blue;
+	height:379px;
+}
+
+.box-drag-uploading,
+.box-drag-success,
+.box-drag-error {
+	display: none;
+}
+
+.box-drag-is-dragover {
+  background-color: grey;
+}
+
 .dataTables_wrapper{
 	position: relative;
 	clear: both;
