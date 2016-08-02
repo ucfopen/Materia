@@ -81,7 +81,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					@saveUploadedImageUrl fileName, keyData.file_uri, false, shouldVerifyImageUpload
 
 			bucket = 'default_bucket'
-			request.open("POST", "http://#{bucket}.localhost:4567")
+			request.open("POST", "http://192.168.99.100:10001/default_bucket")
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success, shouldVerifyImageUpload) ->

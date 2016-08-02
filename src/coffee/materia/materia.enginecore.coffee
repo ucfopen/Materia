@@ -58,7 +58,7 @@ Namespace('Materia').Engine = do ->
 	getImageAssetUrl = (id) ->
 		# todo: s3
 		bucket = 'default_bucket'
-		baseUrl = "http://#{bucket}.localhost:4567"
+		baseUrl = "http://192.168.99.100:10001/#{bucket}"
 		"#{baseUrl}/#{id}"
 
 	end = (showScoreScreenAfter = yes) ->
