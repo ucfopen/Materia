@@ -22,14 +22,14 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		allowedTypes: ['image/jpeg', 'image/png']
 
-		$dropArea = $('.box-drag-mainarea')
+		$dropArea = $('.drag-wrapper')
 
 		$dropArea.on 'drag dragstart dragend dragover dragenter dragleave drop', (e)->
 			e.preventDefault()
 		.on 'dragover dragenter', ()->
-			$dropArea.addClass 'box-drag-is-dragover'
+			$dropArea.addClass 'drag-is-dragover'
 		.on 'dragleave dragend drop', ()->
-			$dropArea.removeClass 'box-drag-is-dragover'
+			$dropArea.removeClass 'drag-is-dragover'
 
 		# get the data of the image
 		getImageData: (file, callback) ->
