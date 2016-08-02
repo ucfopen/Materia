@@ -136,6 +136,7 @@ class Widget_Asset
 	{
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
 		{
+			// try finding an id not used in the database
 			$max_tries = 10;
 			for ($i = 0; $i <= $max_tries; $i++)
 			{
@@ -146,14 +147,18 @@ class Widget_Asset
 					break;
 				}
 			}
-			// all attempted ids already exist
+			// all ids that were search already exist
 			if ($asset_exists)
 			{
 				return false;
 			}
 
-			// use this id to make remote_url
-			$this->remote_url .= $asset_id;
+			// if this asset has a remote_url stub, append the 
+			// id. otherwise, leave it null
+			if (isset($this->remote_url))
+			{
+				$this->remote_url .= $asset_id;
+			}
 
 			\DB::start_transaction();
 
