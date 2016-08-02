@@ -6,6 +6,7 @@ app.directive 'fileOnChange', ->
 		link: (scope, element, attrs) ->
 			onChangeHandler = scope.$eval(attrs.fileOnChange)
 			element.bind 'change', onChangeHandler
+			element.bind 'drop', onChangeHandler
 	}
 
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
@@ -18,7 +19,17 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_coms = null
 
 	class Uploader
+
 		allowedTypes: ['image/jpeg', 'image/png']
+
+		$dropArea = $('.box-drag-mainarea')
+
+		$dropArea.on 'drag dragstart dragend dragover dragenter dragleave drop', (e)->
+			e.preventDefault()
+		.on 'dragover dragenter', ()->
+			$dropArea.addClass 'box-drag-is-dragover'
+		.on 'dragleave dragend drop', ()->
+			$dropArea.removeClass 'box-drag-is-dragover'
 
 		# get the data of the image
 		getImageData: (file, callback) ->
@@ -119,8 +130,16 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 		# when file is selected in browser
 		onFileChange: (event) =>
+			#accounts for file chooser
 			fileList = event.target.files
+			#accounts for drag'n'drop
+			if !fileList?[0]?
+				fileList = event.dataTransfer.files
 			# just picks the first selected image
+			console.log 'event'
+			console.log event
+			console.log 'fileList vvv'
+			console.log fileList
 			if fileList?[0]?
 				imgData = @getImageData fileList[0], (src, imgName) =>
 					@upload src, imgName
