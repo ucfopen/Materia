@@ -84,10 +84,11 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 		dfd = $.Deferred().resolve()
 		heartbeat = setInterval ->
 			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
-				if data == false
+				if data != true
 					_alert 'You have been logged out due to inactivity.\n\nPlease login again.'
 					$scope.alert.fatal = true
-					window.location.reload()
+					$scope.$apply()
+					stopHeartBeat()
 		, HEARTBEAT_INTERVAL
 
 		dfd.promise()
@@ -320,7 +321,12 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 			is_draft: saveMode != 'publish',
 			inst_id: inst_id
 			, (inst) ->
-				if inst?
+				# did we get back an error message?
+				if inst?.msg?
+					onSaveCanceled inst.msg
+					$scope.alert.fatal = inst.halt
+					$scope.$apply()
+				else if inst? and inst.id?
 					# update this creator's url
 					window.location.hash = '#'+inst.id if String(inst_id).length != 0
 
