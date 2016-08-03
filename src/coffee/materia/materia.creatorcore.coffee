@@ -69,7 +69,7 @@ Namespace('Materia').CreatorCore = do ->
 	getMediaUrl = (mediaId) ->
 		# todo: s3
 		bucket = 'default_bucket'
-		baseUrl = "http://#{bucket}.localhost:4567"
+		baseUrl = "http://192.168.99.100:10001/#{bucket}"
 		"#{baseUrl}/#{mediaId}"
 
 

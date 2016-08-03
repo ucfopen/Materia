@@ -92,11 +92,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					@saveUploadedImageUrl fileName, keyData.file_uri, false, shouldVerifyImageUpload
 
 			bucket = 'default_bucket'
-			request.open("POST", "http://#{bucket}.localhost:4567")
+			request.open("POST", "http://192.168.99.100:10001/default_bucket")
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success, shouldVerifyImageUpload) ->
-			console.log 'fileuri', fileURI
 			fileID = fileURI.split('/').slice(-1)[0]
 			_coms.send 'remote_asset_post', [fileID, s3_upload_success], (save_success) ->
 				save_success = parseInt(save_success) # NaN if success is null
@@ -188,7 +187,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				for res, index in result
 					if res.type in $scope.fileType
 						# the id used for asset url is actually remote_url
-						res.id = res.remote_url
+						# if it exists, use it instead
+						res.id = res.remote_url ? res.id
 
 						# file uploaded - if this result's id matches, stop processing and select this asset now
 						if file_id? and res.id == file_id and res.type in $scope.fileType
