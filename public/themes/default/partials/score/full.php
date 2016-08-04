@@ -19,9 +19,16 @@
 				</a>
 			</h1>
 		</nav>
-
 	</header>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
+		<div id='overview-incomplete' ng-hide="overview.complete">
+			<h2>Incomplete Attempt</h2>
+			<hr/>
+			<p>
+				This student didn't complete this attempt.
+				This score was not counted in any linked gradebooks and is only available for informational purposes.
+			</p>
+		</div>
 		<div id="overview-score">
 			<h1 ng-if="!guestAccess">Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
 			<h1 ng-if="guestAccess">This Attempt Score:</h1>
