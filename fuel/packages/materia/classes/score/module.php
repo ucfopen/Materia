@@ -185,7 +185,7 @@ abstract class Score_Module
 	protected function get_score_overview()
 	{
 		return [
-			'complete'     => (boolean) $this->play->is_complete,
+			'complete'     => (boolean) empty($this->play->is_complete) ? '' : $this->play->is_complete,
 			'score'        => $this->calculated_percent,
 			'table'        => $this->get_overview_items(),
 			'referrer_url' => empty($this->play->referrer_url) ? '' : $this->play->referrer_url,
