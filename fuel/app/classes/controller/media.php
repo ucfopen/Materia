@@ -53,6 +53,14 @@ class Controller_Media extends Controller
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 
+		// if s3 is not enabled, default to local media upload url
+		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
+		$s3_url = Config::get('materia.s3_config.upload_url');
+		$local_url = Config::get('materia.urls.media');
+		$upload_url = $s3_enabled ? $s3_url : $local_url;
+		Js::push_inline('var S3_ENABLED = '.($s3_enabled ? 'true':'false').';');
+		Js::push_inline('var MEDIA_UPLOAD_URL = "'.$upload_url.'";');
+
 		$theme = Theme::instance();
 		$theme->set_template('layouts/main');
 		$theme->get_template()
@@ -72,8 +80,8 @@ class Controller_Media extends Controller
 
 		Event::register('media-upload-complete', '\Controller_Media::on_upload_complete');
 
-		// Package::load('plupload');
-		// return \Plupload\Plupload::upload();
+		Package::load('plupload');
+		return \Plupload\Plupload::upload();
 	}
 
 	// Event handler called when an upload via plupload is complete

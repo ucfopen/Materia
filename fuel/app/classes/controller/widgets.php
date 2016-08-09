@@ -235,8 +235,16 @@ class Controller_Widgets extends Controller
 	{
 		Css::push_group(['core', 'widget_editor']);
 
+		// if s3 is not enabled, default to local media upload url
+		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
+		$s3_url = Config::get('materia.s3_config.upload_url');
+		$local_url = Config::get('materia.urls.media');
+		$upload_url = $s3_enabled ? $s3_url : $local_url;
+
+		Js::push_inline('var MEDIA_UPLOAD_URL = "'.$upload_url.'";');
+		
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);		
 
 		$this->theme->get_template()
 			->set('title', $title)
