@@ -19,7 +19,7 @@ return [
 	*/
 	'urls' => [
 		// 'root'    => \Uri::create(''), // root directory http:://siteurl.com/
-		// 'media'   => \Uri::create('assets/uploads/'), // where the media is stored http:://siteurl.com/assets/upload/
+		'media'   => '/media/upload', // where the media is stored http:://siteurl.com/assets/upload/
 		// 'play'    => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		// 'embed'   => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		// 'preview' => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
@@ -49,11 +49,14 @@ return [
 		]
 	],
 
-	's3_config' => [
 
-		'bucket' => 'default_bucket',
+	's3_config' => [
+		's3_enabled' => false,
+		'upload_url' => 'http://192.168.99.100:10002/fakes3',
+		'bucket' => 'fakes3',
 		'secret_key' => 'secret_key',
 		'expire_in' => 60
-	]
+	],
+
 
 ];

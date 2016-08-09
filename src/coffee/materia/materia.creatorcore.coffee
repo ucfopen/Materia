@@ -17,9 +17,9 @@ Namespace('Materia').CreatorCore = do ->
 		msg = JSON.parse e.data
 		switch msg.type
 			when 'initNewWidget'
-				_initNewWidget msg.data[0], msg.data[1]
+				_initNewWidget msg.data[0], msg.data[1], msg.data[2]
 			when 'initExistingWidget'
-				_initExistingWidget msg.data[0], msg.data[1], msg.data[2], msg.data[3], msg.data[4]
+				_initExistingWidget msg.data[0], msg.data[1], msg.data[2], msg.data[3], msg.data[4], msg.data[5]
 			when 'onRequestSave'
 				_tellCreator 'onSaveClicked', [msg.data[0]]
 			when 'onSaveComplete'
@@ -40,12 +40,14 @@ Namespace('Materia').CreatorCore = do ->
 	_sendPostMessage = (type, data) ->
 		parent.postMessage JSON.stringify({type:type, data:data}), '*'
 
-	_initNewWidget = (widget, baseUrl) ->
+	_initNewWidget = (widget, baseUrl, mediaUploadUrl) ->
+		_mediaUploadUrl = mediaUploadUrl
 		_baseurl = baseUrl
 		_tellCreator 'initNewWidget', [widget]
 
-	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl) ->
+	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, mediaUploadUrl) ->
 		_baseurl = baseUrl
+		_mediaUploadUrl = mediaUploadUrl
 		_tellCreator 'initExistingWidget', [widget, title, qset, qsetVersion]
 
 	start = (creatorClass) ->
@@ -66,12 +68,8 @@ Namespace('Materia').CreatorCore = do ->
 	alert = (title, msg, type = 1) ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
-	getMediaUrl = (mediaId) ->
-		# todo: s3
-		bucket = 'fakes3'
-		baseUrl = "http://192.168.99.100:10001/#{bucket}"
-		"#{baseUrl}/#{mediaId}"
-
+	getMediaUrl = (mediaId) -> 
+		"#{_mediaUploadUrl}/#{mediaId}"
 
 	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
 		_sendPostMessage 'showMediaImporter', types

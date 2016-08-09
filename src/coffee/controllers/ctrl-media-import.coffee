@@ -18,7 +18,30 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_coms = null
 
 	class Uploader
-		allowedTypes: ['image/jpeg', 'image/png']
+		constructor: (@s3_enabled, @upload_url) ->
+
+		# when file is selected in browser
+		onFileChange: (event) =>
+			fileList = event.target.files
+			# just picks the first selected image
+			if fileList?[0]?
+				imgData = @getImageData fileList[0], (src, fileName) =>
+					mime = @getMimeType(src)
+					return if !mime?
+
+					console.log @s3_enabled, 's3_enabled'
+					fileData =
+						name:	fileName
+						mime:	mime
+						src:	src
+
+					if @s3_enabled
+						_coms.send 'upload_keys_get', [fileName], (keyData) =>
+							@upload fileData, keyData
+
+					else
+						console.log 'some test'
+						@upload fileData
 
 		# get the data of the image
 		getImageData: (file, callback) ->
@@ -29,15 +52,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 			dataReader.readAsDataURL file
 
-		upload: (dataUrl, fileName, shouldVerifyImageUpload = true) ->
+		getMimeType: (dataUrl)->
+			allowedTypes = ['image/jpeg', 'image/png']
 			mime = dataUrl.split(";")[0].split(":")[1]
-			if @allowedTypes.indexOf(mime) == -1
+			if allowedTypes.indexOf(mime) == -1
 				alert "Files of type #{mime} are not supported. Allowed Types: #{@allowedTypes.join(', ')}."
-				return
-
-			# @set { statusMsg:'Pre-upload'}
-			_coms.send 'upload_keys_get', [fileName], (keyData) =>
-				@sendToS3 keyData, fileName, mime, dataUrl, shouldVerifyImageUpload
+				return null
+			return mime
 
 		# converts image data uri to a blob for uploading
 		dataURItoBlob: (dataURI, mime)  ->
@@ -53,38 +74,43 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				intArray[i] = byteString.charCodeAt(i)
 			return new Blob([intArray], {type: mime})
 
-			# @set {statusMsg: 'Getting Keys', name: null}
-
 		# ok, go ahead and send the file to s3
-		sendToS3: (keyData, fileName, mime, dataUrl, shouldVerifyImageUpload) ->
-			# @set 'statusMsg', 'Uploading'
+		upload: (fileData, keyData) ->
+			s3_upload = keyData?
+
 			fd = new FormData()
-			fd.append("key", keyData.file_uri)
-			fd.append("Content-Type", mime)
-			fd.append("acl", 'public-read')
+			
+			# for s3 uploading
+			if s3_upload
+				fd.append("key", keyData.file_uri)
+				fd.append("acl", 'public-read')
+				fd.append("policy", keyData.policy)
+				fd.append("signature", keyData.signature)
+				fd.append("AWSAccessKeyID", keyData.AWSAccessKeyId) # TODO: needed?
+
+			fd.append("Content-Type", fileData.mime)
 			fd.append("success_action_status", '201')
-			fd.append("AWSAccessKeyID", keyData.AWSAccessKeyId) # TODO: needed?
-			fd.append("policy", keyData.policy)
-			fd.append("signature", keyData.signature)
-			fd.append("file", @dataURItoBlob(dataUrl, mime), fileName)
+			fd.append("file", @dataURItoBlob(fileData.src, fileData.mime), fileData.name)
 
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
-				if request.status = 200
-					# response is xml! get the image url to save to our server
-					p = new DOMParser()
-					d = p.parseFromString(request.response, 'application/xml')
-					url = d.getElementsByTagName('Location')[0].innerHTML
-					@saveUploadedImageUrl fileName, keyData.file_uri, true, shouldVerifyImageUpload
+				success = request.status == 200
+				if s3_upload
+					@saveUploadedImageUrl fileData.name, keyData.file_uri, success
 				else
-					@saveUploadedImageUrl fileName, keyData.file_uri, false, shouldVerifyImageUpload
-
-			bucket = 'fakes3'
-			request.open("POST", "http://192.168.99.100:10002/#{bucket}")
-			# request.open("POST", "http://localhost:10002/default_bucket")
+					res = JSON.parse request.response #parse response string
+					if res.error
+						alert 'Error code '+res.error.code+': '+res.error.message
+						$window.parent.Materia.Creator.onMediaImportComplete null
+					else
+						# reload media to select newly uploaded file
+						loadAllMedia res.id # todo: wait, but why? for file info?
+			
+			console.log 'uploading to ', @upload_url
+			request.open("POST", @upload_url)
 			request.send(fd)
 
-		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success, shouldVerifyImageUpload) ->
+		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success) ->
 			fileID = fileURI.split('/').slice(-1)[0]
 			_coms.send 'remote_asset_post', [fileID, s3_upload_success], (save_success) ->
 				save_success = parseInt(save_success) # NaN if success is null
@@ -115,16 +141,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# 			@pollCount = 0
 		# 			@set {name: @get('unverified_name'), statusMsg: null}
 
-
-		# when file is selected in browser
-		onFileChange: (event) =>
-			fileList = event.target.files
-			# just picks the first selected image
-			if fileList?[0]?
-				imgData = @getImageData fileList[0], (src, imgName) =>
-					@upload src, imgName
-
-	uploader = new Uploader()
+	uploader = new Uploader(S3_ENABLED, MEDIA_UPLOAD_URL)
 
 	# SCOPE VARS
 	# ==========
@@ -192,7 +209,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 	# init
 	init = ->
-		# $('.upload-input').
 
 		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
