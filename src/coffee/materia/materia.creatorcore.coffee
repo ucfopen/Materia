@@ -8,6 +8,7 @@ window.Namespace = (ns) ->
 	o
 
 Namespace('Materia').CreatorCore = do ->
+	_mediaUploadUrl = null
 	_baseurl       = null
 	_creatorClass  = null
 	_resizeInterval = null
