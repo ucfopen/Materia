@@ -77,7 +77,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			fd.append("AWSAccessKeyID", keyData.AWSAccessKeyId) # TODO: needed?
 			fd.append("policy", keyData.policy)
 			fd.append("signature", keyData.signature)
-			fd.append("file", @dataURItoBlob(dataUrl, mime))
+			fd.append("file", @dataURItoBlob(dataUrl, mime), fileName)
 
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
@@ -86,13 +86,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					p = new DOMParser()
 					d = p.parseFromString(request.response, 'application/xml')
 					url = d.getElementsByTagName('Location')[0].innerHTML
-
 					@saveUploadedImageUrl fileName, keyData.file_uri, true, shouldVerifyImageUpload
 				else
 					@saveUploadedImageUrl fileName, keyData.file_uri, false, shouldVerifyImageUpload
 
-			bucket = 'default_bucket'
-			request.open("POST", "http://192.168.99.100:10001/default_bucket")
+			bucket = 'fakes3'
+			request.open("POST", "http://192.168.99.100:10002/#{bucket}")
+			# request.open("POST", "http://localhost:10002/default_bucket")
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success, shouldVerifyImageUpload) ->
@@ -260,7 +260,14 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				{# thumbnail column
 					render: (data, type, full, meta) ->
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
-							return '<img src="/media/'+data+'/thumbnail">'
+							# todo: poll, since we don't know when lambda resizing is finished
+							bucket = 'fakes3'
+							baseUrl = "http://192.168.99.100:10001/#{bucket}"
+
+							split = data.split('/')
+							split.splice(-1, 0, 'thumb')
+							thumbId = split.join('/')
+							return "<img src='#{baseUrl}/#{thumbId}'>"
 						else if full.type is 'mp3'
 							return '<img src="/assets/img/audio.png">'
 						else
