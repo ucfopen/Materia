@@ -8,7 +8,7 @@ window.Namespace = (ns) ->
 	o
 
 Namespace('Materia').CreatorCore = do ->
-	_mediaUploadUrl = null
+	_mediaUrl = null
 	_baseurl       = null
 	_creatorClass  = null
 	_resizeInterval = null
@@ -42,13 +42,13 @@ Namespace('Materia').CreatorCore = do ->
 		parent.postMessage JSON.stringify({type:type, data:data}), '*'
 
 	_initNewWidget = (widget, baseUrl, mediaUploadUrl) ->
-		_mediaUploadUrl = mediaUploadUrl
+		_mediaUrl = mediaUploadUrl
 		_baseurl = baseUrl
 		_tellCreator 'initNewWidget', [widget]
 
 	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, mediaUploadUrl) ->
 		_baseurl = baseUrl
-		_mediaUploadUrl = mediaUploadUrl
+		_mediaUrl = mediaUploadUrl
 		_tellCreator 'initExistingWidget', [widget, title, qset, qsetVersion]
 
 	start = (creatorClass) ->
@@ -70,7 +70,7 @@ Namespace('Materia').CreatorCore = do ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
 	getMediaUrl = (mediaId) -> 
-		"#{_mediaUploadUrl}/#{mediaId}"
+		"#{_mediaUrl}/#{mediaId}"
 
 	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
 		_sendPostMessage 'showMediaImporter', types
