@@ -39,6 +39,19 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		// if s3 is not enabled, default to local media url
+		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
+		if ($s3_enabled)
+		{
+			// upload url base is the same for retrieval in s3 case
+			$media_url = Config::get('materia.s3_config.upload_url');
+		}
+		else
+		{
+			$media_url = Uri::base().Config::get('materia.urls.media');
+		}
+		Js::push_inline('var MEDIA_URL = "'.$media_url.'";');
+
 		Css::push_group('core');
 
 		return parent::after($response);
@@ -234,16 +247,6 @@ class Controller_Widgets extends Controller
 	protected function show_editor($title, $widget, $inst_id=null)
 	{
 		Css::push_group(['core', 'widget_editor']);
-
-		// if s3 is not enabled, default to local media upload url
-		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
-		$s3_url = Config::get('materia.s3_config.upload_url');
-		$local_url = Config::get('materia.urls.media');
-		$local_url = Uri::base().$local_url;
-		$upload_url = $s3_enabled ? $s3_url : $local_url;
-
-		Js::push_inline('var S3_ENABLED = "'.$s3_enabled.'";');
-		Js::push_inline('var MEDIA_UPLOAD_URL = "'.$upload_url.'";');
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);		

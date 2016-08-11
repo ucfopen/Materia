@@ -9,46 +9,50 @@ app.directive 'fileOnChange', ->
 	}
 
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
-	selectedAssets = []
-	data = []
-	assetIndices = []
-	dt = null
-	uploading = false
-	creator = null
-	_coms = null
+	selectedAssets		= []
+	data				= []
+	assetIndices		= []
+	dt					= null
+	uploading			= false
+	creator				= null
+	_coms				= null
+	_mediaUploadUrl		= MEDIA_UPLOAD_URL # explicityly localize globals
+	_baseUrl			= BASE_URL
+	_s3enabled			= S3_ENABLED
 
 	class Uploader
-		constructor: (@s3_enabled, @upload_url) ->
+		constructor: (@s3enabled, @uploadUrl, @baseUrl) ->
 
 		# when file is selected in browser
 		onFileChange: (event) =>
 			fileList = event.target.files
 			# just picks the first selected image
 			if fileList?[0]?
-				imgData = @getImageData fileList[0], (src, fileName) =>
-					mime = @getMimeType(src)
-					return if !mime?
+				@getImageData fileList[0], (imageData) =>
+					if imageData?
 
-					console.log @s3_enabled, 's3_enabled'
-					fileData =
-						name:	fileName
-						mime:	mime
-						src:	src
-
-					if @s3_enabled
-						_coms.send 'upload_keys_get', [fileName], (keyData) =>
-							@upload fileData, keyData
-
-					else
-						console.log 'some test'
-						@upload fileData
+						# if s3 is enabled, get keys and then upload, o/w just upload
+						if @s3enabled
+							_coms.send 'upload_keys_get', [imageData.name], (keyData) =>
+								@upload imageData, keyData
+						else
+							@upload imageData
 
 		# get the data of the image
 		getImageData: (file, callback) ->
 			dataReader = new FileReader
 
 			dataReader.onload = (event) =>
-				callback event.target.result, file.name
+				src = event.target.result
+				mime = @getMimeType(src)
+				return null if !mime?
+
+				fileData =
+					name:	file.name
+					mime:	mime
+					src:	src
+
+				callback fileData
 
 			dataReader.readAsDataURL file
 
@@ -74,19 +78,19 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				intArray[i] = byteString.charCodeAt(i)
 			return new Blob([intArray], {type: mime})
 
-		# ok, go ahead and send the file to s3
+		# upload to either local server or s3
 		upload: (fileData, keyData) ->
-			s3_upload = keyData?
-
 			fd = new FormData()
 			
 			# for s3 uploading
-			if s3_upload
+			if keyData?
 				fd.append("key", keyData.file_uri)
 				fd.append("acl", 'public-read')
 				fd.append("policy", keyData.policy)
 				fd.append("signature", keyData.signature)
 				fd.append("AWSAccessKeyID", keyData.AWSAccessKeyId) # TODO: needed?
+			else
+				fd.append("name", fileData.name)
 
 			fd.append("Content-Type", fileData.mime)
 			fd.append("success_action_status", '201')
@@ -95,7 +99,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
 				success = request.status == 200
-				if s3_upload
+				if keyData?
 					@saveUploadedImageUrl fileData.name, keyData.file_uri, success
 				else
 					res = JSON.parse request.response #parse response string
@@ -105,9 +109,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					else
 						# reload media to select newly uploaded file
 						loadAllMedia res.id # todo: wait, but why? for file info?
-			
-			console.log 'uploading to ', @upload_url
-			request.open("POST", @upload_url)
+
+			request.open("POST", @uploadUrl)
 			request.send(fd)
 
 		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success) ->
@@ -141,7 +144,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# 			@pollCount = 0
 		# 			@set {name: @get('unverified_name'), statusMsg: null}
 
-	uploader = new Uploader(S3_ENABLED, MEDIA_UPLOAD_URL)
+	uploader = new Uploader(_s3enabled, _mediaUploadUrl, _baseUrl)
 
 	# SCOPE VARS
 	# ==========
@@ -258,13 +261,18 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					render: (data, type, full, meta) ->
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							# todo: poll, since we don't know when lambda resizing is finished
-							bucket = 'fakes3'
-							baseUrl = "http://192.168.99.100:10001/#{bucket}"
 
-							split = data.split('/')
-							split.splice(-1, 0, 'thumb')
-							thumbId = split.join('/')
-							return "<img src='#{baseUrl}/#{thumbId}'>"
+							if s3enabled?
+								split = data.split('/')
+								split.splice(-1, 0, 'thumb')
+								thumbId = split.join('/')
+
+								thumbUrl = _mediaUploadUrl+thumbId
+							else
+								mediaUrl = _mediaUploadUrl.replace '/upload', ''
+								thumbUrl = "#{mediaUrl}/#{data}/thumbnail"
+
+							return "<img src='#{thumbUrl}'>"
 						else if full.type is 'mp3'
 							return '<img src="/assets/img/audio.png">'
 						else

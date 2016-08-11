@@ -55,11 +55,16 @@ class Controller_Media extends Controller
 
 		// if s3 is not enabled, default to local media upload url
 		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
-		$s3_url = Config::get('materia.s3_config.upload_url');
-		$local_url = Config::get('materia.urls.media').'/upload';
-		$upload_url = $s3_enabled ? $s3_url : $local_url;
+		if ($s3_enabled)
+		{
+			$media_url = Config::get('materia.s3_config.upload_url');
+		}
+		else
+		{
+			$media_url = Uri::base().Config::get('materia.urls.media_upload');
+		}
 		Js::push_inline('var S3_ENABLED = '.($s3_enabled ? 'true':'false').';');
-		Js::push_inline('var MEDIA_UPLOAD_URL = "'.$upload_url.'";');
+		Js::push_inline('var MEDIA_UPLOAD_URL = "'.$media_url.'";');
 
 		$theme = Theme::instance();
 		$theme->set_template('layouts/main');
