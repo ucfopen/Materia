@@ -39,11 +39,11 @@ class Widget_Asset_Manager
 		// if not found, returned asset is default empty asset object
 		if (empty($asset->id))
 		{
-			return 1; // didn't find asset with that id
+			return false; // didn't find asset with that id
 		}
 
 		$asset->set_properties($properties);
-		return $asset->db_update() ? $asset->file_size : 1;
+		return $asset->db_update();
 	}
 
 	static public function user_has_space_for($bytes)
@@ -60,7 +60,8 @@ class Widget_Asset_Manager
 		$asset = new Widget_Asset([
 				'type'			=> $type,
 				'title'			=> $title,
-				'file_size' 	=> -2, // signify temp asset
+				'file_size'		=> 0,
+				'status'		=> 'temp_asset', // signify temp asset
 				'remote_url'	=> $remote_url_stub
 			]);
 

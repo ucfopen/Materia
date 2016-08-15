@@ -2,15 +2,16 @@
 
 namespace Fuel\Migrations;
 
-class Add_remote_url_to_assets
+class Add_status_to_asset
 {
 	public function up()
 	{
 		\DBUtil::add_fields(
 			'asset',
 			[
-				'remote_url' => [
-					'type' => 'text',
+				'status' => [
+					'type' => 'varchar',
+					'constraint' => 32,
 					'null' => true
 				],
 			]
@@ -19,6 +20,6 @@ class Add_remote_url_to_assets
 
 	public function down()
 	{
-		\DBUtil::drop_fields('asset', 'remote_url');
+		\DBUtil::drop_fields('asset', 'status');
 	}
 }

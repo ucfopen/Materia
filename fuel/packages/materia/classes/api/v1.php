@@ -478,7 +478,7 @@ class Api_V1
 	// =======
 
 	/**
-	 * Gets a key and file_uri for uploading asset to s3. Creates a
+	 * Gets a key and file_key for uploading asset to s3. Creates a
 	 * temporary row in the assets db, to be updated when the client
 	 * responds with status of s3 upload
 	 */
@@ -493,16 +493,15 @@ class Api_V1
 		$type = $file_info['extension'];
 		$title = $file_info['filename'];
 
+		// store temporary row in db, obtain asset_id for building s3 file_key
 		$remote_url_stub = 'uploads/'.$user_id.'/';
-
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
 		// if we could not successfully create a new temporary asset row
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
 		{
-			return false;
+			return null;
 		}
-
-		$file_uri = $asset->remote_url;
+		$file_key = $asset->remote_url;
 
 		// generate policy and signature object for response
 		$expiration = date('%Y-%m-%d\T%H:%M:%S.000\Z', time() + $s3_config['expire_in']);
@@ -511,7 +510,7 @@ class Api_V1
 			'conditions' => [
 			  ['bucket' => $s3_config['bucket']],
 			  ['acl' => 'public-read'], # makes the uploaded file public readable
-			  ['eq', '$key', $file_uri], #restricts uploads to filenames that start with uploads/
+			  ['eq', '$key', $file_key], #restricts uploads to filenames that start with uploads/
 			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
 			  ['success_action_status' => '201'] # CREATED
 			]
@@ -526,7 +525,7 @@ class Api_V1
 			'AWSAccessKeyID' 	=> 'test',
 			'policy' 			=> $policy,
 			'signature' 		=> $signature,
-			'file_uri'			=> $file_uri
+			'file_key'			=> $file_key
 		];
 
 		return $res;
@@ -534,18 +533,11 @@ class Api_V1
 
 	/**
 	 * Should the upload to s3 fail, the temp asset row created 
-	 * using upload_keys_get does not get deleted (file_size will
-	 * stay at -2). file_size represent status code, which is updated
-	 * in the db for this asset, and returned to caller
-	 *
-	 * file_size
-	 * 		-2: asset is only temporary, was never updated
-	 *   	-1: s3 upload failed
-	 *    ** 0: s3 upload and asset db update success **
-	 *    	 1: asset updated failed
-	 *    	 2: invalid/missing file_id
+	 * using upload_keys_get does not get deleted. In general,
+	 * file upload status is updated in the db for this asset, 
+	 * and update succes reported to caller
 	 */
-	static public function remote_asset_post($asset_id, $s3_upload_success)
+	static public function upload_success_post($asset_id, $s3_upload_success)
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -554,18 +546,16 @@ class Api_V1
 		// bypass update if user sends back invalid hash
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset_id))
 		{
-			return 2; // invalid/missing file_id
+			return false; // invalid/missing file_id
 		}
 
-		// file size of -1 indicates s3 upload failed
-		$file_size = $s3_upload_success ? 0 : -1;
+		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
 
 		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
-				'file_size' => $file_size,
-				'created_at'  => time() // update to time of s3 upload
+				'status' => $status
 		]);
 
-		return strval($asset_updated);
+		return $asset_updated;
 	}
 	// =======
 

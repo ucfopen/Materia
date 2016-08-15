@@ -52,7 +52,7 @@ return [
 
 
 	's3_config' => [
-		's3_enabled' => false,
+		's3_enabled' => true,
 		'upload_url' => 'http://192.168.99.100:10002/fakes3',
 		'bucket' => 'fakes3',
 		'secret_key' => 'secret_key',

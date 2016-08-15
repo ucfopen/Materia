@@ -39,18 +39,11 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		// if s3 is not enabled, default to local media url
-		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
-		if ($s3_enabled)
-		{
-			// upload url base is the same for retrieval in s3 case
-			$media_url = Config::get('materia.s3_config.upload_url');
-		}
-		else
-		{
-			$media_url = Uri::base().Config::get('materia.urls.media');
-		}
-		Js::push_inline('var MEDIA_URL = "'.$media_url.'";');
+		// retrieval url = upload url in s3 case
+		$s3_media_url = Config::get('materia.s3_config.upload_url');
+		$local_media_url = Uri::base().Config::get('materia.urls.media');
+		Js::push_inline('var S3_MEDIA_URL = "'.$s3_media_url.'";');
+		Js::push_inline('var LOCAL_MEDIA_URL = "'.$local_media_url.'";');
 
 		Css::push_group('core');
 
