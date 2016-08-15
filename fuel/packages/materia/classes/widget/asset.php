@@ -34,8 +34,9 @@ class Widget_Asset
 	public $id         = 0;
 	public $is_shared;
 	public $title      = '';
-	public $remote_url = null;
 	public $file_size  = '';
+	public $remote_url = null;
+	public $status     = null;
 	public $questions  = [];
 	public $type       = '';
 	public $widgets    = [];
@@ -92,8 +93,9 @@ class Widget_Asset
 						->set([
 							'type'        => $this->type,
 							'title'       => $this->title,
-							'remote_url'  => $this->remote_url,
 							'file_size'   => $this->file_size,
+							'remote_url'  => $this->remote_url,
+							'status'      => $this->status,
 							'created_at'  => time()
 						])
 						->where('id','=',$this->id)
@@ -128,6 +130,32 @@ class Widget_Asset
 	}
 
 	/**
+	 * Finds an available asset id 
+	 * to avoid conflicts in the db
+	 */
+	public function get_unused_id()
+	{
+		// try finding an id not used in the database
+		$max_tries = 10;
+		for ($i = 0; $i <= $max_tries; $i++)
+		{
+			$asset_id = Widget_Instance_Hash::generate_key_hash();
+			$asset_exists = $this->db_get($asset_id);
+			if ( ! $asset_exists)
+			{
+				break;
+			}
+		}
+		// all ids that were searched already exist
+		if ($asset_exists)
+		{
+			return null;
+		}
+
+		return $asset_id;
+	}
+
+	/**
 	 * NEEDS DOCUMENTATION
 	 *
 	 * @param The database manager
@@ -136,19 +164,9 @@ class Widget_Asset
 	{
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
 		{
-			// try finding an id not used in the database
-			$max_tries = 10;
-			for ($i = 0; $i <= $max_tries; $i++)
-			{
-				$asset_id = Widget_Instance_Hash::generate_key_hash();
-				$asset_exists = $this->db_get($asset_id);
-				if ( ! $asset_exists)
-				{
-					break;
-				}
-			}
-			// all ids that were search already exist
-			if ($asset_exists)
+
+			$asset_id = $this->get_unused_id();
+			if (empty($asset_id))
 			{
 				return false;
 			}
@@ -169,8 +187,9 @@ class Widget_Asset
 						'id'          => $asset_id,
 						'type'        => $this->type,
 						'title'       => $this->title,
-						'remote_url'  => $this->remote_url,
 						'file_size'   => $this->file_size,
+						'remote_url'  => $this->remote_url,
+						'status'      => $this->status,
 						'created_at'  => time()
 					])
 					->execute();

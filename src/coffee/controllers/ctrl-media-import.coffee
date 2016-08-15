@@ -16,30 +16,32 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	uploading			= false
 	creator				= null
 	_coms				= null
-	_mediaUploadUrl		= MEDIA_UPLOAD_URL # explicityly localize globals
+	_s3enabled			= S3_ENABLED # explicitly localize globals
+	_s3MediaUrl			= S3_MEDIA_URL 
+	_localMediaUrl		= LOCAL_MEDIA_URL
+	_mediaUploadUrl		= MEDIA_UPLOAD_URL
 	_baseUrl			= BASE_URL
-	_s3enabled			= S3_ENABLED
 
 	class Uploader
-		constructor: (@s3enabled, @uploadUrl, @baseUrl) ->
+		constructor: (@config) ->
 
 		# when file is selected in browser
 		onFileChange: (event) =>
 			fileList = event.target.files
 			# just picks the first selected image
 			if fileList?[0]?
-				@getImageData fileList[0], (imageData) =>
-					if imageData?
+				@getFileData fileList[0], (fileData) =>
+					if fileData?
 
 						# if s3 is enabled, get keys and then upload, o/w just upload
-						if @s3enabled
-							_coms.send 'upload_keys_get', [imageData.name], (keyData) =>
-								@upload imageData, keyData
+						if @config.s3enabled
+							_coms.send 'upload_keys_get', [fileData.name], (keyData) =>
+								@upload fileData, keyData if keyData
 						else
-							@upload imageData
+							@upload fileData
 
 		# get the data of the image
-		getImageData: (file, callback) ->
+		getFileData: (file, callback) ->
 			dataReader = new FileReader
 
 			dataReader.onload = (event) =>
@@ -50,6 +52,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				fileData =
 					name:	file.name
 					mime:	mime
+					ext:	file.name.split('.').pop()
 					src:	src
 
 				callback fileData
@@ -84,7 +87,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			
 			# for s3 uploading
 			if keyData?
-				fd.append("key", keyData.file_uri)
+				fd.append("key", keyData.file_key)
 				fd.append("acl", 'public-read')
 				fd.append("policy", keyData.policy)
 				fd.append("signature", keyData.signature)
@@ -98,10 +101,17 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
-				success = request.status == 200
-				if keyData?
-					@saveUploadedImageUrl fileData.name, keyData.file_uri, success
-				else
+				if keyData? # s3 upload
+					success = request.status == 200
+
+					# todo: do we need to parse response to decide on success?
+
+					# response is xml! get the image url to save to our server
+					# p = new DOMParser()
+					# d = p.parseFromString(request.response, 'application/xml')
+					# url = d.getElementsByTagName('Location')[0].innerHTML
+					@saveUploadStatus fileData.ext, keyData.file_key, success
+				else # local upload
 					res = JSON.parse request.response #parse response string
 					if res.error
 						alert 'Error code '+res.error.code+': '+res.error.message
@@ -110,17 +120,16 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						# reload media to select newly uploaded file
 						loadAllMedia res.id # todo: wait, but why? for file info?
 
-			request.open("POST", @uploadUrl)
+			request.open("POST", @config.uploadUrl)
 			request.send(fd)
 
-		saveUploadedImageUrl: (fileName, fileURI, s3_upload_success) ->
+		saveUploadStatus: (fileType, fileURI, s3_upload_success) ->
 			fileID = fileURI.split('/').slice(-1)[0]
-			_coms.send 'remote_asset_post', [fileID, s3_upload_success], (save_success) ->
-				save_success = parseInt(save_success) # NaN if success is null
-				if save_success == 0
+			_coms.send 'upload_success_post', [fileID, s3_upload_success], (update_success) ->
+				if update_success
 					res =
 						id: fileURI
-						type: fileName.split('.').slice(-1)[0]
+						type: fileType
 					$window.parent.Materia.Creator.onMediaImportComplete([res])
 
 		# verifyImageUpload: ->
@@ -144,7 +153,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# 			@pollCount = 0
 		# 			@set {name: @get('unverified_name'), statusMsg: null}
 
-	uploader = new Uploader(_s3enabled, _mediaUploadUrl, _baseUrl)
+	config =
+		s3enabled: _s3enabled
+		uploadUrl: _mediaUploadUrl
+	uploader = new Uploader(config)
 
 	# SCOPE VARS
 	# ==========
@@ -262,15 +274,15 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							# todo: poll, since we don't know when lambda resizing is finished
 
-							if s3enabled?
+							if data.indexOf('uploads') != -1
 								split = data.split('/')
 								split.splice(-1, 0, 'thumb')
 								thumbId = split.join('/')
 
-								thumbUrl = _mediaUploadUrl+thumbId
+								thumbUrl = "#{_s3MediaUrl}/#{thumbId}"
 							else
 								mediaUrl = _mediaUploadUrl.replace '/upload', ''
-								thumbUrl = "#{mediaUrl}/#{data}/thumbnail"
+								thumbUrl = "#{_localMediaUrl}/#{data}/thumbnail"
 
 							return "<img src='#{thumbUrl}'>"
 						else if full.type is 'mp3'
