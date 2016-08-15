@@ -8,19 +8,20 @@ window.Namespace = (ns) ->
 	o
 
 Namespace('Materia').CreatorCore = do ->
-	_mediaUrl = null
+	_s3MediaUrl    = null
+	_localMediaUrl    = null
 	_baseurl       = null
 	_creatorClass  = null
 	_resizeInterval = null
-	_lastHeight = -1
+	_lastHeight    = -1
 
 	_onPostMessage = (e) ->
 		msg = JSON.parse e.data
 		switch msg.type
 			when 'initNewWidget'
-				_initNewWidget msg.data[0], msg.data[1], msg.data[2]
+				_initNewWidget msg.data[0], msg.data[1], msg.data[2], msg.data[3]
 			when 'initExistingWidget'
-				_initExistingWidget msg.data[0], msg.data[1], msg.data[2], msg.data[3], msg.data[4], msg.data[5]
+				_initExistingWidget msg.data[0], msg.data[1], msg.data[2], msg.data[3], msg.data[4], msg.data[5], msg.data[6]
 			when 'onRequestSave'
 				_tellCreator 'onSaveClicked', [msg.data[0]]
 			when 'onSaveComplete'
@@ -41,14 +42,16 @@ Namespace('Materia').CreatorCore = do ->
 	_sendPostMessage = (type, data) ->
 		parent.postMessage JSON.stringify({type:type, data:data}), '*'
 
-	_initNewWidget = (widget, baseUrl, mediaUploadUrl) ->
-		_mediaUrl = mediaUploadUrl
+	_initNewWidget = (widget, baseUrl, s3MediaUrl, localMediaUrl) ->
+		_s3MediaUrl = s3MediaUrl
+		_localMediaUrl = localMediaUrl
 		_baseurl = baseUrl
 		_tellCreator 'initNewWidget', [widget]
 
-	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, mediaUploadUrl) ->
+	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, s3MediaUrl, localMediaUrl) ->
+		_s3MediaUrl = s3MediaUrl
+		_localMediaUrl = localMediaUrl
 		_baseurl = baseUrl
-		_mediaUrl = mediaUploadUrl
 		_tellCreator 'initExistingWidget', [widget, title, qset, qsetVersion]
 
 	start = (creatorClass) ->
@@ -70,7 +73,10 @@ Namespace('Materia').CreatorCore = do ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
 	getMediaUrl = (mediaId) -> 
-		"#{_mediaUrl}/#{mediaId}"
+		if mediaId.indexOf('uploads') != -1 # s3 upload
+			return "#{_s3MediaUrl}/#{mediaId}"
+		else
+			return "#{_localMediaUrl}/#{mediaId}"
 
 	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
 		_sendPostMessage 'showMediaImporter', types
