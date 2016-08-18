@@ -35,14 +35,13 @@ class Widget_Asset
 	public $is_shared;
 	public $title      = '';
 	public $file_size  = '';
+	public $remote_url = null;
+	public $status     = null;
 	public $questions  = [];
 	public $type       = '';
 	public $widgets    = [];
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 */
-	public function __construct($properties=[])
+	public function set_properties($properties=[])
 	{
 		if ( ! empty($properties))
 		{
@@ -62,6 +61,102 @@ class Widget_Asset
 
 	/**
 	 * NEEDS DOCUMENTATION
+	 */
+	public function __construct($properties=[])
+	{
+		$this->set_properties($properties);
+	}
+	/**
+	 * NEEDS DOCUMENTATION
+	 *
+	 * @param The database manager
+	 */	
+	public function db_update()
+	{
+		if ( ! empty($this->type))
+		{
+			\DB::start_transaction();
+
+			try
+			{
+				// ensure user has permission to update this asset
+				$q = \DB::select()
+					->from('perm_object_to_user')
+					->where('object_id', $this->id)
+					->and_where('user_id', \Model_User::find_current_id())
+					->execute();
+
+				// user should only own one object with this id
+				if (count($q) == 1)
+				{
+					$tr = \DB::update('asset')
+						->set([
+							'type'        => $this->type,
+							'title'       => $this->title,
+							'file_size'   => $this->file_size,
+							'remote_url'  => $this->remote_url,
+							'status'      => $this->status,
+							'created_at'  => time()
+						])
+						->where('id','=',$this->id)
+						->execute();
+
+					if ($tr == 1) // ensure only one asset is updated
+					{
+						\DB::commit_transaction();
+						return true;
+					}
+					else
+					{
+						//todo: log case
+						return false;
+					}
+				}
+				else
+				{
+					//todo: log case
+					return false;
+				}
+
+
+			}
+			catch (Exception $e)
+			{
+				\DB::rollback_transaction();
+				return false;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Finds an available asset id 
+	 * to avoid conflicts in the db
+	 */
+	public function get_unused_id()
+	{
+		// try finding an id not used in the database
+		$max_tries = 10;
+		for ($i = 0; $i <= $max_tries; $i++)
+		{
+			$asset_id = Widget_Instance_Hash::generate_key_hash();
+			$asset_exists = $this->db_get($asset_id);
+			if ( ! $asset_exists)
+			{
+				break;
+			}
+		}
+		// all ids that were searched already exist
+		if ($asset_exists)
+		{
+			return null;
+		}
+
+		return $asset_id;
+	}
+
+	/**
+	 * NEEDS DOCUMENTATION
 	 *
 	 * @param The database manager
 	 */	
@@ -69,25 +164,39 @@ class Widget_Asset
 	{
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
 		{
-			\DB::start_transaction();
 
-			$hash = Widget_Instance_Hash::generate_key_hash();
+			$asset_id = $this->get_unused_id();
+			if (empty($asset_id))
+			{
+				return false;
+			}
+
+			// if this asset has a remote_url stub, append the 
+			// id. otherwise, leave it null
+			if (isset($this->remote_url))
+			{
+				$this->remote_url .= $asset_id;
+			}
+
+			\DB::start_transaction();
 
 			try
 			{
 				$tr = \DB::insert('asset')
 					->set([
-						'id'         => $hash,
-						'type'       => $this->type,
+						'id'          => $asset_id,
+						'type'        => $this->type,
 						'title'       => $this->title,
-						'file_size'  => $this->file_size,
-						'created_at' => time()
+						'file_size'   => $this->file_size,
+						'remote_url'  => $this->remote_url,
+						'status'      => $this->status,
+						'created_at'  => time()
 					])
 					->execute();
 
 				$q = \DB::insert('perm_object_to_user')
 					->set([
-						'object_id'   => $hash,
+						'object_id'   => $asset_id,
 						'user_id'     => \Model_User::find_current_id(),
 						'perm'        => Perm::FULL,
 						'object_type' => Perm::ASSET
@@ -96,7 +205,7 @@ class Widget_Asset
 
 				if ($tr[1] > 0)
 				{
-					$this->id = $hash;
+					$this->id = $asset_id;
 					\DB::commit_transaction();
 					return true;
 				}
