@@ -131,7 +131,7 @@ class Widget_Asset_Manager
 		}
 		return $asset;
 	}
-
+	
 	/**
 	 * Find how many times an asset is being used.
 	 *
