@@ -133,26 +133,6 @@ class Widget_Asset_Manager
 	}
 
 	/**
-	 * Removes onership of an asset for the given user.
-	 * If the asset is not being used in a widget, it is deleted.
-	 *
-	 * @param int $asset_id id of the asset to remove onership for
-	 * @param int $user_id id of the user to lose ownership
-	 *
-	 * @return array an associative array containing 'success'=true (this should never fail)
-	 */
-	static public function remove_asset_for_user($id, $user_id)
-	{
-		// first remove access to it
-		Perm_Manager::set_user_object_perms($id, Perm::ASSET, $user_id, [Perm::FULL => Perm::DISABLE, Perm::VISIBLE => Perm::DISABLE]);
-		// delete this asset if it can be deleted (has no uses, no owners)
-		if (Widget_Asset_Manager::can_asset_be_deleted($id))
-		{
-			Widget_Asset_Manager::delete_asset($id);
-		}
-		return ['success' => true];
-	}
-	/**
 	 * Find how many times an asset is being used.
 	 *
 	 * Does not count games that have been deleted (works for both drafts and non-drafts)
@@ -238,7 +218,7 @@ class Widget_Asset_Manager
 		}
 		return $inst_ids;
 	}
-	
+
 	/**
 	 * Get all assets for this user that this user has $perm_type permission to
 	 *
@@ -349,7 +329,7 @@ class Widget_Asset_Manager
 	{
 		$asset_id = is_array($id) ? $id['id'] : $id;
 		if ($asset_id === -1) return;
-		
+
 		\DB::query('INSERT IGNORE INTO '.\DB::quote_table('map_asset_to_object').' SET object_type = :object_type, object_id = :object_id, asset_id = :asset_id', \DB::INSERT)
 				->param('object_type', $item_type)
 				->param('object_id', $item_id)
