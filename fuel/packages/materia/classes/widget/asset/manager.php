@@ -32,12 +32,67 @@ class Widget_Asset_Manager
 		return $asset;
 	}
 
+	static public function update_asset($asset_id, $properties=[])
+	{
+		// find asset that was created on upload_keys_get
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
+		// if not found, returned asset is default empty asset object
+		if (empty($asset->id))
+		{
+			return false; // didn't find asset with that id
+		}
+
+		$asset->set_properties($properties);
+		return $asset->db_update();
+	}
+
 	static public function user_has_space_for($bytes)
 	{
 		$stats = Widget_Asset_Manager::get_user_asset_stats(\Model_User::find_current_id());
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
 	}
 
+	// new route for s3 uploads
+	static public function upload_temp($remote_url_stub, $type, $title)
+	{
+		// remote_url will be completed once we successfully get
+		// an available asset_id
+		$asset = new Widget_Asset([
+				'type'			=> $type,
+				'title'			=> $title,
+				'file_size'		=> 0,
+				'status'		=> 'temp_asset', // signify temp asset
+				'remote_url'	=> $remote_url_stub
+			]);
+
+		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		{
+			try
+			{
+				// set perms
+				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
+				return $asset;
+			}
+			catch (\OutsideAreaException $e)
+			{
+				trace($e);
+			}
+			catch (\InvalidPathException $e)
+			{
+				trace($e);
+			}
+			catch (\FileAccessException $e)
+			{
+				trace($e);
+			}
+			// failed, remove the asset
+			$asset->db_remove();
+		}
+
+		return $asset;
+	}
+
+	// old method for server upload storage
 	static public function process_upload($name, $file)
 	{
 		$f_info = \File::file_info($file);
@@ -48,7 +103,6 @@ class Widget_Asset_Manager
 			'title'     => $name,
 			'file_size' => $f_info['size']
 		]);
-
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
 		{
 			try
@@ -164,7 +218,7 @@ class Widget_Asset_Manager
 		}
 		return $inst_ids;
 	}
-	
+
 	/**
 	 * Get all assets for this user that this user has $perm_type permission to
 	 *
@@ -273,9 +327,9 @@ class Widget_Asset_Manager
 	 */
 	static protected function register_asset_to_item($item_type, $item_id, $id)
 	{
-		$asset_id = is_array($id) ? $id["id"] : $id;
-		if($asset_id === -1) return;
-		
+		$asset_id = is_array($id) ? $id['id'] : $id;
+		if ($asset_id === -1) return;
+
 		\DB::query('INSERT IGNORE INTO '.\DB::quote_table('map_asset_to_object').' SET object_type = :object_type, object_id = :object_id, asset_id = :asset_id', \DB::INSERT)
 				->param('object_type', $item_type)
 				->param('object_id', $item_id)
