@@ -131,11 +131,7 @@ class Widget_Asset_Manager
 		}
 		return $asset;
 	}
-<<<<<<< HEAD
 
-=======
-	
->>>>>>> issue/884-s3-upload-frontend
 	/**
 	 * Find how many times an asset is being used.
 	 *

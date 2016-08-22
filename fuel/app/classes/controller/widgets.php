@@ -39,11 +39,13 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		// retrieval url = upload url in s3 case
+
+		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
 		$s3_media_url = Config::get('materia.s3_config.upload_url');
 		$local_media_url = Uri::base().Config::get('materia.urls.media');
-		Js::push_inline('var S3_MEDIA_URL = "'.$s3_media_url.'";');
-		Js::push_inline('var LOCAL_MEDIA_URL = "'.$local_media_url.'";');
+		Js::push_inline('var MEDIA_URL = "'
+			.($s3_enabled ? $s3_media_url : $local_media_url)
+			.'";');
 
 		Css::push_group('core');
 
@@ -242,7 +244,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_editor']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);		
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);
 
 		$this->theme->get_template()
 			->set('title', $title)
