@@ -9,8 +9,7 @@ window.Namespace = (ns) ->
 
 Namespace('Materia').Engine = do ->
 	_baseUrl = null
-	_s3MediaUrl = null
-	_localMediaUrl = null
+	_mediaUrl = null
 	_widgetClass = null
 	_instance = null
 	_resizeInterval = null
@@ -22,8 +21,7 @@ Namespace('Materia').Engine = do ->
 			when 'initWidget'
 				_initWidget msg.data[0], msg.data[1]
 				_baseUrl = msg.data[2]
-				_s3MediaUrl = msg.data[3]
-				_localMediaUrl = msg.data[4]
+				_mediaUrl = msg.data[3]
 			else
 				throw new Error "Error: Engine Core received unknown post message: #{msg.type}"
 
@@ -59,11 +57,7 @@ Namespace('Materia').Engine = do ->
 	alert = (title, msg, type = 1) ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
-	getImageAssetUrl = (id) ->
-		if id.indexOf('uploads') != -1 # s3 upload
-			return "#{_s3MediaUrl}/#{mediaId}"
-		else
-			return "#{_localMediaUrl}/#{mediaId}"
+	getImageAssetUrl = (id) -> "#{_mediaUrl}/#{mediaId}"
 
 	end = (showScoreScreenAfter = yes) ->
 		_sendPostMessage 'end', showScoreScreenAfter

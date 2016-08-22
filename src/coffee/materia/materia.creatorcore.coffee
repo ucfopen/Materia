@@ -8,8 +8,7 @@ window.Namespace = (ns) ->
 	o
 
 Namespace('Materia').CreatorCore = do ->
-	_s3MediaUrl    = null
-	_localMediaUrl    = null
+	_mediaUrl    = null
 	_baseurl       = null
 	_creatorClass  = null
 	_resizeInterval = null
@@ -42,15 +41,13 @@ Namespace('Materia').CreatorCore = do ->
 	_sendPostMessage = (type, data) ->
 		parent.postMessage JSON.stringify({type:type, data:data}), '*'
 
-	_initNewWidget = (widget, baseUrl, s3MediaUrl, localMediaUrl) ->
-		_s3MediaUrl = s3MediaUrl
-		_localMediaUrl = localMediaUrl
+	_initNewWidget = (widget, baseUrl, mediaUrl) ->
+		_mediaUrl = mediaUrl
 		_baseurl = baseUrl
 		_tellCreator 'initNewWidget', [widget]
 
-	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, s3MediaUrl, localMediaUrl) ->
-		_s3MediaUrl = s3MediaUrl
-		_localMediaUrl = localMediaUrl
+	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, mediaUrl) ->
+		mediaUrl = mediaUrl
 		_baseurl = baseUrl
 		_tellCreator 'initExistingWidget', [widget, title, qset, qsetVersion]
 
@@ -72,11 +69,7 @@ Namespace('Materia').CreatorCore = do ->
 	alert = (title, msg, type = 1) ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
-	getMediaUrl = (mediaId) -> 
-		if mediaId.indexOf('uploads') != -1 # s3 upload
-			return "#{_s3MediaUrl}/#{mediaId}"
-		else
-			return "#{_localMediaUrl}/#{mediaId}"
+	getMediaUrl = (mediaId) -> "#{_mediaUrl}/#{mediaId}"
 
 	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
 		_sendPostMessage 'showMediaImporter', types
