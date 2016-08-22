@@ -6,6 +6,7 @@ app.directive 'fileOnChange', ->
 		link: (scope, element, attrs) ->
 			onChangeHandler = scope.$eval(attrs.fileOnChange)
 			element.bind 'change', onChangeHandler
+			element.bind 'drop', onChangeHandler
 	}
 
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
@@ -23,6 +24,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_baseUrl			= BASE_URL
 
 	class Uploader
+<<<<<<< HEAD
 		constructor: (@config) ->
 
 		# when file is selected in browser
@@ -39,6 +41,19 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								@upload fileData, keyData if keyData
 						else
 							@upload fileData
+=======
+
+		allowedTypes: ['image/jpeg', 'image/png']
+>>>>>>> issue/884-s3-upload-frontend
+
+		$dropArea = $('.drag-wrapper')
+
+		$dropArea.on 'drag dragstart dragend dragover dragenter dragleave drop', (e)->
+			e.preventDefault()
+		.on 'dragover dragenter', ()->
+			$dropArea.addClass 'drag-is-dragover'
+		.on 'dragleave dragend drop', ()->
+			$dropArea.removeClass 'drag-is-dragover'
 
 		# get the data of the image
 		getFileData: (file, callback) ->
@@ -153,10 +168,31 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# 			@pollCount = 0
 		# 			@set {name: @get('unverified_name'), statusMsg: null}
 
+<<<<<<< HEAD
 	config =
 		s3enabled: _s3enabled
 		uploadUrl: _mediaUploadUrl
 	uploader = new Uploader(config)
+=======
+
+		# when file is selected in browser
+		onFileChange: (event) =>
+			#accounts for file chooser
+			fileList = event.target.files
+			#accounts for drag'n'drop
+			if !fileList?[0]?
+				fileList = event.dataTransfer.files
+			# just picks the first selected image
+			console.log 'event'
+			console.log event
+			console.log 'fileList vvv'
+			console.log fileList
+			if fileList?[0]?
+				imgData = @getImageData fileList[0], (src, imgName) =>
+					@upload src, imgName
+
+	uploader = new Uploader()
+>>>>>>> issue/884-s3-upload-frontend
 
 	# SCOPE VARS
 	# ==========

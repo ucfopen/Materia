@@ -2,6 +2,31 @@ body, html {
 	font-family: 'Lato', arial, serif;
 }
 
+.drag-header{
+	text-align: center;
+	margin-top:10px;
+}
+
+.drag-text{
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	left: 50%;
+}
+
+.drag-wrapper{
+	position:relative;
+	height: 333px;
+	margin: 40px;
+	border: 5px dashed #dadada;
+	outline: #f5f5f5 solid 30px;
+	background: #f5f5f5
+}
+
+.drag-is-dragover {
+  background-color: grey;
+}
+
 .dataTables_wrapper{
 	position: relative;
 	clear: both;
@@ -160,14 +185,13 @@ $sortbar_marginleft: 6px;
 $sortbar_marginright: 10px;
 $arr_size: 4px;
 
-//plupload vars
 $footer_height: 38px;
 $dropzone_height: 379px;
 $dropzone_margin: 18px;
 
 //panes
 //classes were used for consistency because left-pane already had an id
-#left-pane{ //contains plupload
+#left-pane{ //where the uploads happen
 	left: $pane_margin;
 	width: $pane_width;
 	height: $pane_height;
@@ -303,55 +327,7 @@ $dropzone_margin: 18px;
 	}
 }
 
-//pupload customs
-#uploader_container{
-	padding: 0;
-
-	.plupload_header{
-		display: none;
-	}
-}
-
-#uploader-form{
-	.plupload_content{
-		.plupload_droptext{//dropping area
-			border-style: dashed;
-			border-width: thick;
-			border-color: #dadada;
-			color: #dadada;
-			padding: 0px;
-			margin: $dropzone_margin;
-			height: ($dropzone_height - $footer_height - $dropzone_margin);
-			line-height: ($dropzone_height - $footer_height - $dropzone_margin);
-			font-family: Lato,arial,serif;
-			font-size: large;
-		}
-	}
-
-	#uploader_filelist{
-		height: $dropzone_height;
-	}
-
-	.plupload_filelist_footer{
-		height: $footer_height;
-
-		.plupload_file_name{
-			overflow: visible;
-		}
-
-		.plupload_file_status{
-			top: 13px;
-			position: relative;
-		}
-	}
-}
-
-//hide total file size on bottom, and hide header on top
-.plupload_total_file_size, .plupload_filelist_header{
-	display: none;
-}
-
-.plupload_button.plupload_add{
+.select_file_button{
 	padding: 7px 23px 8px;
 	background: #ffba5d;
 	background-image: -webkit-linear-gradient(top,#ffce8c,#ffa42a);
@@ -376,6 +352,7 @@ $dropzone_margin: 18px;
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
+	cursor:pointer;
 }  
 
 
