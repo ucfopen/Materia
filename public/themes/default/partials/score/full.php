@@ -1,7 +1,6 @@
 <article class="container" ng-class="{ show: show }" ng-controller="scorePageController">
 	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
-		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
-
+		<h1 ng-style="headerStyle">{{ widget.title }}</h1>
 		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
 			<h1 ng-click="prevClick()">Prev. Attempts</h1>
 			<ul ng-mouseover="prevMouseOver()">
@@ -21,6 +20,7 @@
 		</nav>
 
 	</header>
+	<h1 class="scoreFontColor">Scores:</h1>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<div id="overview-score">
 			<h1 ng-if="!guestAccess">Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
