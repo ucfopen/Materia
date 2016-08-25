@@ -9,7 +9,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	currentAttempt = null
 	widgetInstance = null
 	$scope.guestAccess = false
-	extraAttempts = 0
+	attemptsLeft = 0
 
 	single_id = null
 	isEmbedded = false
@@ -78,9 +78,10 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		else if not widgetInstance.guest_access
 			# Want to get all of the scores for a user if the widget doesn't
 			# support guests.
-			scoreSrv.getWidgetInstanceScores inst_id, (result) ->
+			send_token = if LAUNCH_TOKEN? then LAUNCH_TOKEN else play_id
+			scoreSrv.getWidgetInstanceScores inst_id, send_token, (result) ->
 				populateScores result.scores
-				extraAttempts = result.extra_attempts
+				attemptsLeft = result.attempts_left
 				dfd.resolve()
 		else
 			# Only want score corresponding to play_id if guest widget
@@ -112,9 +113,9 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	getScoreDetails = ->
 		if isPreview
 			currentAttempt = 1
-			scoreSrv.getWidgetInstancePlayScores [null, widgetInstance.id], displayDetails
+			scoreSrv.getWidgetInstancePlayScores null, widgetInstance.id, displayDetails
 		else if single_id
-			scoreSrv.getWidgetInstancePlayScores [single_id], displayDetails
+			scoreSrv.getWidgetInstancePlayScores single_id, null, displayDetails
 		else
 			# get the current attempt from the url
 			hash = getAttemptNumberFromHash()
@@ -133,7 +134,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			if details[$scope.attempts.length - currentAttempt]?
 				displayDetails details[$scope.attempts.length - currentAttempt]
 			else
-				scoreSrv.getWidgetInstancePlayScores [play_id], displayDetails
+				scoreSrv.getWidgetInstancePlayScores play_id, null, displayDetails
 
 		$scope.$apply()
 
@@ -141,10 +142,10 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 		# Build the data for the overview section, prep for display through Underscore
 		widget =
 			title : widgetInstance.name
-			dates    : attempt_dates
+			dates : attempt_dates
 
 		# show play again button?
-		if !single_id && (widgetInstance.attempts <= 0 || ($scope.attempts.length < parseInt(widgetInstance.attempts) + parseInt(extraAttempts)) || isPreview)
+		if !single_id && (widgetInstance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)
 			prefix = switch
 				when isEmbedded then '/embed/'
 				when isPreview then '/preview/'
@@ -152,6 +153,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 			widget.href = prefix+widgetInstance.id + '/' + widgetInstance.clean_name
 			widget.href += "?token=#{LAUNCH_TOKEN}" if LAUNCH_TOKEN?
+			$scope.attemptsLeft = attemptsLeft
 		else
 			# if there are no attempts left, hide play again
 			hidePlayAgain = true

@@ -31,11 +31,12 @@ class Install
 			}
 			if (@chmod($path, 0777))
 			{
-				\Cli::write("\t".'Made writable: '.$path, 'green');
+				\Cli::write("Made writable: $path", 'green');
 			}
 			else
 			{
-				\Cli::write("\t".'Failed to make writable: '.$path, 'red');
+				\Cli::write("Failed to make writable: $path", 'red');
+				exit(1);
 			}
 		}
 
@@ -59,7 +60,7 @@ class Install
 		if (\Cli::option('install_widgets', $install_widgets) === true)
 		{
 			require_once(PKGPATH.'materia/tasks/widget.php');
-			\Fuel\Tasks\Widget::install(\Cli::option('widget_path'));
+			\Fuel\Tasks\Widget::install_from_config();
 		}
 	}
 }

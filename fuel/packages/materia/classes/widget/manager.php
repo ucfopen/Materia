@@ -26,53 +26,53 @@ class Widget_Manager
 {
 
 	/**
-	 * Finds the widget(s) based on the widget_idS
+	 * Finds the widget(s) based on the widget_ids
 	 *
-	 * @param $widget_idS array The widget_idS that are needed to be looked up.
+	 * @param $widget_ids array The widget_ids that are needed to be looked up.
+	 * @param $type a default filter for the type of widgets to lookup. Default is only widgets where in_catalog = 1.
 	 *
 	 * @return array The information and metadata about the widget or widgets called for.
 	 */
-	static public function get_widgets($widget_ids=null)
+	static public function get_widgets($widget_ids, $type=null)
 	{
 		$widgets = [];
 		// =============== Get the requested widgets =================
+
+		# blank list of ids basically says "grab all the widgets from the DB instead"
 		if (empty($widget_ids))
 		{
-			$results = \DB::select('id')
+			$query = \DB::select('id')
 				->from('widget')
-				->where('in_catalog', '1')
-				->order_by('name')
-				->execute();
+				->where('is_playable', '1')
+				->order_by('name');
 
-
-			$ids = \Arr::flatten($results);
-
-			// if logged in, add in any hidden widgets I can see
-			if ($user_id = \Model_User::find_current_id())
+			# $type provides optional selection filter for widgets:
+			# - default is only 'featured' widgets
+			# - 'all' is all widgets installed in Materia
+			# $type could potentially be extended to other options later on
+			switch ($type)
 			{
-				$hidden = Perm_Manager::get_all_objects_for_user($user_id, Perm::WIDGET, [Perm::VISIBLE]);
-				$ids = array_unique(array_merge($ids, $hidden));
+				case 'all':
+					// No additional parameters to add to query
+					break;
+
+				default:
+					$query->where('in_catalog', '1');
+					break;
 			}
 
-			if (count($ids) > 0)
-			{
-				foreach ($ids as $id)
-				{
-					$widgets[] = $widget = new Widget();
-					$widget->get($id);
-				}
-			}
+			$result = \DB::query($query)->execute();
+
+			$widget_ids = \Arr::flatten($result);
 		}
-		// =============== Get requested widgets ===============
-		else
+
+		foreach ($widget_ids as $widget_id)
 		{
-			foreach ($widget_ids as $widget_id)
-			{
-				$widget = new Widget();
-				$widget->get($widget_id);
-				array_push($widgets, $widget);
-			}
+			$widget = new Widget();
+			$widget->get($widget_id);
+			$widgets[] = $widget;
 		}
+
 		return $widgets;
 	}
 

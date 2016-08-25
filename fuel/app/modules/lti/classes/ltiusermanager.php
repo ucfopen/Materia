@@ -48,6 +48,10 @@ class LtiUserManager
 				}
 			}
 
+			// For some reason unkown to us - passing the authdriver here causes a strange error on production
+			// The user can start playing a widget, but the playid is registered to userid 0
+			// But for testing, we need to be able to specify the auth driver
+			if (\Fuel::$env !== \Fuel::TEST) $auth_driver = null;
 			return (bool) \Auth::instance($auth_driver)->force_login($user->id);
 		}
 

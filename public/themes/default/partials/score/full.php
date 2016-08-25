@@ -12,7 +12,12 @@
 		</nav>
 
 		<nav class="play-again">
-			<h1><a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ playAgainUrl }}">{{ isPreview ? 'Preview' : 'Play' }} Again</a></h1>
+			<h1>
+				<a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ playAgainUrl }}">
+					{{ isPreview ? 'Preview' : 'Play' }} Again
+					<span ng-show="attemptsLeft > 0">({{ attemptsLeft }} Left)</span>
+				</a>
+			</h1>
 		</nav>
 
 	</header>

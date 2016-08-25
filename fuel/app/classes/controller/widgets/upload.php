@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Materia
  * License outlined in licenses folder
@@ -12,7 +12,7 @@ class Controller_Widgets_Upload extends Controller
 		// require the enable_uploader option to be on
 		if (Config::get('enable_uploader', false) == false || Fuel::$env == Fuel::PRODUCTION) throw new HttpNotFoundException;
 
-		if (Materia\Api::session_valid() !== true)
+		if (\Model_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in');
@@ -88,8 +88,8 @@ class Controller_Widgets_Upload extends Controller
 
 			foreach (Upload::get_files() as $file)
 			{
-				$path = $file["saved_to"].$file["saved_as"];
-				if (!Materia\Widget_Installer::force_install($path))
+				$path = $file['saved_to'].$file['saved_as'];
+				if ( ! Materia\Widget_Installer::extract_package_and_install($path))
 				{
 					$failed = true;
 					break;
@@ -98,7 +98,7 @@ class Controller_Widgets_Upload extends Controller
 		}
 
 		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
-		Response::redirect(Router::get('widgets/upload'));
+		Response::redirect(Router::get('upload/widgets'));
 	}
 }
 
