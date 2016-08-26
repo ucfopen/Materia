@@ -1,154 +1,37 @@
 {
     "name": "fuel/fuel",
     "type": "project",
-    "description" : "FuelPHP is a simple, flexible, community driven PHP 5.3+ framework, based on the best ideas of other frameworks, with a fresh start!",
-    "keywords": ["application", "website", "development", "framework", "PHP"],
+    "description" : "FuelPHP is a simple, flexible, community driven PHP 5.3.3+ framework, based on the best ideas of other frameworks, with a fresh start!",
+    "keywords": ["application", "website", "development", "framework", "PHP", "PHP7"],
     "license": "MIT",
-    "repositories": [
-        {
-            "url":"https://github.com/iturgeon/qAsset.git",
-            "type":"git"
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/auth",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/auth/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/auth.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/email",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/email/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/email.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/oil",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/oil/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/oil.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/orm",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/orm/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/orm.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/parser",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/parser/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/parser.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/core",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/core/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/core.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "fuel/docs",
-                "type": "fuel-package",
-                "version": "1.7.2",
-                "dist": {
-                    "url": "https://github.com/fuel/docs/archive/1.7/master.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/fuel/docs.git",
-                    "type": "git",
-                    "reference": "1.7/master"
-                }
-            }
-        }
-    ],
     "require": {
         "php": ">=5.3.3",
         "composer/installers": "~1.0",
-        "fuel/core": "1.7.2",
-        "fuel/auth": "1.7.2",
-        "fuel/email": "1.7.2",
-        "fuel/oil": "1.7.2",
-        "fuel/orm": "1.7.2",
-        "fuel/parser": "1.7.2",
+        "fuel/core": "1.8.*",
+        "fuel/auth": "1.8.*",
+        "fuel/email": "1.8.*",
+        "fuel/oil": "1.8.*",
+        "fuel/orm": "1.8.*",
+        "fuel/parser": "1.8.*",
         "iturgeon/qasset": "dev-master",
-        "fuelphp/upload": "2.0.1",
-        "monolog/monolog": "1.5.*"
+        "fuelphp/upload": "2.0.6",
+        "monolog/monolog": "1.18.*",
+        "phpseclib/phpseclib": "2.0.0",
+        "michelf/php-markdown": "1.4.0"
     },
     "require-dev": {
-        "fuelphp/upload": "2.0.1",
+        "fuelphp/upload": "2.0.6",
         "phpunit/phpunit": "4.1.*"
     },
     "suggest": {
         "fuel/docs": "FuelPHP documentation",
-        "michelf/php-markdown": "FuelPHP Parser Markdown"
+        "michelf/php-markdown": "FuelPHP Parser Markdown",
+        "dwoo/dwoo" : "Allow Dwoo templating with the Parser package",
+        "mustache/mustache": "Allow Mustache templating with the Parser package",
+        "smarty/smarty": "Allow Smarty templating with the Parser package",
+        "twig/twig": "Allow Twig templating with the Parser package",
+        "pyrocms/lex": "Allow Lex templating with the Parser package",
+        "mthaml/mthaml": "Allow Haml templating with Twig supports with the Parser package"
     },
     "config": {
         "vendor-dir": "fuel/vendor",
@@ -159,6 +42,11 @@
             "fuel/{$name}": ["fuel/core"],
             "{$name}": ["fuel/docs"]
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php oil r install"
+        ]
     },
     "minimum-stability": "dev"
 }
