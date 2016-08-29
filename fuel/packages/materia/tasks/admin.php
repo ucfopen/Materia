@@ -79,7 +79,7 @@ class Admin extends \Basetask
 		{
 			\Cli::write('Timing validation error.');
 			if ($update_score) $play->invalidate();
-			continue;
+			return;
 		}
 
 		// validate the scores the game generated on the server
@@ -87,7 +87,7 @@ class Admin extends \Basetask
 		{
 			\Cli::write('There was an error validating your score.');
 			if ($update_score) $play->invalidate();
-			continue;
+			return;
 		}
 
 		// Update the score values
