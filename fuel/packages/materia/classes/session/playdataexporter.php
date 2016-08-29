@@ -55,7 +55,7 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
-		$anonymize    = (boolean) \Input::get('anonymized', false);
+		$anonymize    = filter_var(\Input::get('anonymized', false), FILTER_VALIDATE_BOOLEAN);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
