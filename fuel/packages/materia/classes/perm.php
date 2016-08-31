@@ -30,28 +30,25 @@ abstract class Perm
 	const DISABLE = false;
 
 	// Objects
-	/** @const NEEDS DOCUMENTATION */
-	const INSTANCE     = 0;
-	/** @const NEEDS DOCUMENTATION */
+	const INSTANCE = 0;
 	const QUESTION = 1;
-	/** @const NEEDS DOCUMENTATION */
 	const ASSET    = 2;
+	const WIDGET   = 3;
+	const DOCUMENT = 4;
 
-	const WIDGET = 3;
-
-	/** @const Can see asset */
+	/** @const Can see Object */
 	const VISIBLE = 0;
-	/** @const Can play this asset (reserved for game access) */
+	/** @const Can play this Object (reserved for game access) */
 	const PLAY    = 5;
 	/** @const Can recieve a score for their play */
 	const SCORE   = 10;
 	/** @const Can see the game's logs */
 	const DATA    = 15;
-	/** @const Can edit the asset */
+	/** @const Can edit the Object */
 	const EDIT    = 20;
-	/** @const Can copy the asset for own use */
+	/** @const Can copy the Object for own use */
 	const COPY    = 25;
-	/** @const Marked as an owner of the asset OWNERSHIP SIGNIFIES FULL ACCESS */
+	/** @const Marked as an owner of the Object OWNERSHIP SIGNIFIES FULL ACCESS */
 	const FULL    = 30;
 	/** @const Has rights to share their rights with another user */
 	const SHARE   = 35;

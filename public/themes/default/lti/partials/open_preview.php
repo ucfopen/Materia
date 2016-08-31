@@ -6,6 +6,6 @@
 	<div class="container">
 		<h2>Widget successfully embedded.</h2>
 		<p>Students will see the widget instead of this message.</p>
-		<a target="_blank" class="button" href="<?= $preview_url ?>">Preview widget in new tab</a>
+		<a target="_blank" rel="noopener noreferrer" class="button" href="<?= $preview_url ?>">Preview widget in new tab</a>
 	</div>
 </section>

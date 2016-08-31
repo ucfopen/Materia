@@ -30,7 +30,7 @@
 				<li>
 					<input type="radio" name="avatar" id="avatar_gravatar" ng-value="true" ng-model="useGravatar" required/>
 					<label for="avatar_gravatar">Use Gravatar</label>
-					<a class="external tiny" href="https://en.gravatar.com/" target="_blank">(Upload or change your icon at gravatar.com)</a>
+					<a class="external tiny" href="https://en.gravatar.com/" target="_blank" rel="noopener noreferrer">(Upload or change your icon at gravatar.com)</a>
 				</li>
 				<li>
 					<input type="radio" name="avatar" id="avatar_default" ng-value="false" ng-model="useGravatar" required/>

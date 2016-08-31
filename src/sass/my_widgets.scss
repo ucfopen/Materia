@@ -1292,13 +1292,15 @@
 	display: inline-block;
 }
 
-.ng-modal.csv_popup table tr td,  .ng-modal.csv_popup table tr th {
+.ng-modal.csv_popup table tr td,
+.ng-modal.csv_popup table tr th {
 	border: #e5e4e2 solid 1px;
 	padding: 5px;
 	border-bottom: none;
 	font-family: 'Courier New', monospace;
 	text-align: left;
 	font-size: 15px;
+	color: #999;
 }
 .ng-modal.csv_popup ul.options {
 	position: absolute;

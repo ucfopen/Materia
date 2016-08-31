@@ -111,9 +111,9 @@ class Controller_Widgets extends Controller
 	{
 		if (\Model_User::verify_session() !== true)
 		{
-			Session::set('redirect_url', URI::current());
+			Session::set('redirect_url', Uri::current());
 			Session::set_flash('notice', 'Please log in to create this widget.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Response::redirect(Router::get('login').'?redirect='.Uri::current());
 		}
 
 		$widget = new Materia\Widget();
@@ -138,7 +138,7 @@ class Controller_Widgets extends Controller
 		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to edit this widget.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Response::redirect(Router::get('login').'?redirect='.Uri::current());
 		}
 
 		if ( ! Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL]))
@@ -159,7 +159,7 @@ class Controller_Widgets extends Controller
 	{
 		if (\Model_User::verify_session() !== true)
 		{
-			Session::set('redirect_url', URI::current());
+			Session::set('redirect_url', Uri::current());
 			Session::set_flash('notice', 'Please log in to view your widgets.');
 			Response::redirect(Router::get('login'));
 		}
@@ -354,7 +354,7 @@ class Controller_Widgets extends Controller
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! ($inst instanceof Materia\Widget_Instance) ) throw new HttpNotFoundException;
 
-		Session::set('redirect_url', URI::current());
+		Session::set('redirect_url', Uri::current());
 
 		// ===================== AVAILABILITY MODES ==========================
 		list($summary, $desc, $is_open) = $this->build_widget_login_messages($inst);
@@ -367,7 +367,7 @@ class Controller_Widgets extends Controller
 			->set('title', $login_title ?: 'Login')
 			->set('page_type', 'login');
 
-		$is_preview = preg_match('/preview/', URI::current());
+		$is_preview = preg_match('/preview/', Uri::current());
 
 		if ($is_open)
 		{

@@ -49,7 +49,7 @@ class Controller_Scores extends Controller
 		if ( ! $inst->playable_by_current_user())
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
-			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
+			Response::redirect(Router::get('login').'?redirect='.urlencode(Uri::current()));
 		}
 
 		Css::push_group(['core', 'scores']);
@@ -75,7 +75,7 @@ class Controller_Scores extends Controller
 		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view your scores.');
-			Response::redirect(Router::get('login').'?redirect='.urlencode(URI::current()));
+			Response::redirect(Router::get('login').'?redirect='.urlencode(Uri::current()));
 		}
 
 		Css::push_group(['core', 'embed_scores']);

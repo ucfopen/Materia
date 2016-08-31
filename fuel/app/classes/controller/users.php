@@ -107,7 +107,7 @@ class Controller_Users extends Controller
 		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view this page.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Response::redirect(Router::get('login').'?redirect='.Uri::current());
 		}
 
 		Css::push_group(['core', 'profile']);
@@ -136,7 +136,7 @@ class Controller_Users extends Controller
 		if (\Model_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view this page.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Response::redirect(Router::get('login').'?redirect='.Uri::current());
 		}
 
 		Css::push_group(['core', 'profile']);

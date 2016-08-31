@@ -17,6 +17,7 @@ class Install
 			PKGPATH.'materia/media/large',
 			PKGPATH.'materia/media/thumbnail',
 			PKGPATH.'materia/media/uploads',
+			PKGPATH.'materia/documents',
 			PKGPATH.'materia/vendor/widget/score_module',
 			PKGPATH.'materia/vendor/widget/test',
 			DOCROOT.'static/widget',

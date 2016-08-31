@@ -32,8 +32,6 @@ return [
 	'embed/(:alnum)(/.*)?'                  => 'widgets/play_embedded/$1',
 	'lti/assignment?'                       => 'widgets/play_embedded/$1', // legacy LTI url
 
-	'data/export/(:alnum)'                  => 'data/export/$1',
-
 	'scores/preview/(:alnum)(/.*)?'         => 'scores/show/$1',
 	'scores/embed/(:alnum)(/.*)?'           => 'scores/show_embedded/$1',
 	'scores/semesters?'                     => 'scores/semesters',
@@ -55,6 +53,8 @@ return [
 	'media/(:alnum)'           => 'media/show_asset/$1',
 	'media/(:alnum)/thumbnail' => 'media/show_thumnail/$1',
 	'media/(:alnum)/large'     => 'media/show_large/$1',
+
+	'document/(:any)'          => ['media/document/$1', 'name' => 'download_document'],
 
 	// ================================= USER ======================================
 

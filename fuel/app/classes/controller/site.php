@@ -50,7 +50,6 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
-
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 

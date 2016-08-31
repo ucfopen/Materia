@@ -193,7 +193,15 @@
 							<span id="sample-notification">Sample</span>
 							<div class="download-controls">
 								<select ng-model="exportType" ng-options="o as o for o in exportOpts"></select>
-								<p class="download"><a href ng-href="/data/export/{{selected.widget.id}}?type={{exportType | escape}}&amp;semesters={{selectedSemesters}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
+								<p class="download">
+									<a
+										href
+										ng-click="beginExport()"
+										class="action_button arrow_down_button"
+										ng-class="{disabled: !header && !pressed}">
+										Begin Export
+									</a>
+								</p>
 							</div>
 						</div>
 
@@ -250,7 +258,7 @@
 					<div class="controls">
 						<ul>
 							<li>
-								<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{selected.preview}}" ng-class="{'disabled': !selected.widget.widget.is_playable}">
+								<a id="preview_button" class="action_button green circle_button" target="_blank" rel="noopener noreferrer" href="{{selected.preview}}" ng-class="{'disabled': !selected.widget.widget.is_playable}">
 									<span class="arrow arrow_right"></span>
 									Preview
 								</a>

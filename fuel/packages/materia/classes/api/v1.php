@@ -317,6 +317,40 @@ class Api_V1
 		return $play_id;
 	}
 
+	static public function data_export_request($inst_id, $export_type, $semesters = '')
+	{
+		// logged in?
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+
+		// required input?
+		if (empty($export_type)) return Msg::invalid_input('Missing export type');
+
+		// have permissions?
+		$user_id = \Model_User::find_current_id();
+		if ( ! Perm_Manager::user_has_any_perm_to($user_id, $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]) && ! \Model_User::verify_session(Perm_Role::SU))
+		{
+			return Msg::no_perm();
+		}
+
+		// build job request
+		$workload = [
+			'inst_id'      => $inst_id,
+			'export_type'  => $export_type,
+			'semester_ids' => $semesters,
+			'user_id'      => $user_id,
+		];
+
+		$filename = "{$user_id}_export_{$workload['inst_id']}_{$workload['export_type']}_{$workload['semester_ids']}";
+		$filename = \Inflector::friendly_title($filename); // clean up that name
+		$workload['filename'] = $filename;
+
+		// Send the job to Queue
+		$gman = \Lib_Gearman::create_cient();
+		$result = $gman->doBackground("build_export_data", json_encode($workload), $filename);
+
+		return true; // All done
+	}
+
 	static public function session_logout()
 	{
 		$activity = new Session_Activity([

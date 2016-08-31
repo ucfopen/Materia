@@ -16,7 +16,7 @@
 					<p><?= implode('</p><p>', $notice) ?> </p>
 				</div>
 			<?php endif ?>
-			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= $redirect?:urlencode(URI::current()) ?>" class="form-content" >
+			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= $redirect?:urlencode(Uri::current()) ?>" class="form-content" >
 				<ul>
 					<li>
 						<input type="text" name="username" id="username" value="" placeholder="<?= __('login.user') ?>" tabindex="1" />

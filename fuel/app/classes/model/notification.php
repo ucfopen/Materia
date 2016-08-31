@@ -30,22 +30,22 @@ class Model_Notification extends \Orm\Model
 		],
 	];
 
-public static function on_widget_delete_event($assoc_param_array)
-{
-	$from_user_id = $assoc_param_array['user_id'];
-	$object_id    = $assoc_param_array['object_id'];
-	$object_type  = $assoc_param_array['object_type'];
-
-	// user_ids for all users that have permissions to this widget
-	$user_ids = array_keys(\Materia\Perm_Manager::get_all_users_explicit_perms($object_id, $object_type)['widget_user_perms']);
-
-	foreach ($user_ids as $user_id)
+	public static function on_widget_delete_event($assoc_param_array)
 	{
-		\Model_Notification::send_item_notification($from_user_id, $user_id, $object_type, $object_id, 'deleted');
-	}
-}
+		$from_user_id = $assoc_param_array['user_id'];
+		$object_id    = $assoc_param_array['object_id'];
+		$object_type  = $assoc_param_array['object_type'];
 
-/**
+		// user_ids for all users that have permissions to this widget
+		$user_ids = array_keys(\Materia\Perm_Manager::get_all_users_explicit_perms($object_id, $object_type)['widget_user_perms']);
+
+		foreach ($user_ids as $user_id)
+		{
+			\Model_Notification::send_item_notification($from_user_id, $user_id, $object_type, $object_id, 'deleted');
+		}
+	}
+
+	/**
 	 * Generates a notification and places it in the database.
 	 *
 	 * @param int User ID of sender.
@@ -59,8 +59,6 @@ public static function on_widget_delete_event($assoc_param_array)
 	 */
 	public static function send_item_notification($from_user_id, $to_user_id, $item_type, $inst_id, $mode='', $new_perm='')
 	{
-		if ($from_user_id == $to_user_id) return false; //no need to self-notify
-
 		// if the user has the email notifications setting turned on
 		$user_meta = \Model_User::find($to_user_id)->profile_fields;
 		$send_email = ( ! empty($user_meta['notify']));
@@ -68,12 +66,14 @@ public static function on_widget_delete_event($assoc_param_array)
 		switch ($item_type)
 		{
 			case \Materia\Perm::INSTANCE:
+				if ($from_user_id == $to_user_id) return false; //no need to self-notify
+
 				$user = \Model_User::find($from_user_id);
 
 				$inst = new \Materia\Widget_Instance();
 				$inst->db_get($inst_id, false);
 
-				$user_link = $user->first.' '.$user->last.' ('.$user->username.')';
+				$user_link   = $user->first.' '.$user->last.' ('.$user->username.')';
 				$widget_link = Html::anchor(\Config::get('materia.urls.root').'my-widgets/#'.$inst_id, $inst->name);
 				$widget_name = $inst->name;
 				$widget_type = $inst->widget->name;
@@ -110,6 +110,17 @@ public static function on_widget_delete_event($assoc_param_array)
 					default:
 						return false;
 				}
+				break;
+
+			case \Materia\Perm::DOCUMENT:
+				$inst = new \Materia\Widget_Instance();
+				$inst->db_get($inst_id, false);
+				$inst->widget->name;
+
+				$filename = basename($mode);
+				$link = \File::get_url($filename, [], 'documents');
+				$subject = "Your data export for \"<b>{$inst->name}</b>\" ({$inst->widget->name}) is ready.</br><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"{$link}\">Download {$filename}</a>";
+
 				break;
 
 			case \Materia\Perm::ASSET:

@@ -37,7 +37,7 @@
 		<section class="right widget_right_selection">
 			<h4>Want to see it in action?</h4>
 			<p>
-				<a id="demoLink" class="action_button green circle_button" href='{{ widget.demourl }}' target="_blank">
+				<a id="demoLink" class="action_button green circle_button" href='{{ widget.demourl }}' target="_blank" rel="noopener noreferrer">
 					<span class="arrow arrow_right"></span>
 					Play a demo now!
 				</a>

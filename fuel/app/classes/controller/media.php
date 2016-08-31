@@ -4,8 +4,37 @@
  * License outlined in licenses folder
  */
 
+use \Materia\Perm;
+use \Materia\Perm_Manager;
+use \RocketDuck\Perm_Role;
+
 class Controller_Media extends Controller
 {
+
+	public function get_document($basename)
+	{
+		// logged in?
+		if (\Model_User::verify_session() !== true) return new Response('', 401);
+
+		// filename sent?
+		if (empty($basename)) return new Response('', 400);
+
+		// filename has expected format?
+		$basename = \Inflector::friendly_title($basename); // clean up that name
+		$name_parts = explode('_', $basename);
+		if ( ! count($name_parts)) return new Response('', 400);
+
+		// user id baked into the file name is the same as my user id?
+		if ((int) $name_parts[0] !== \Model_User::find_current_id()) return new Response('', 401);
+
+		$filename = $basename.'.'.Input::extension();
+		if ( ! File::exists($filename, 'documents')) throw new HttpNotFoundException;
+		$file_info = File::file_info($filename, 'documents');
+		$path = $file_info['realpath'];
+
+		// give em the file!
+		return File::render($path, null, null, 'documents');
+	}
 
 	public function get_show_asset($asset_id)
 	{
@@ -22,7 +51,7 @@ class Controller_Media extends Controller
 		// Validate file exists
 		if ( ! file_exists($file)) throw new HttpNotFoundException;
 
-		File::render($file);
+		File::render($file, null, null, 'media');
 
 		return '';
 	}

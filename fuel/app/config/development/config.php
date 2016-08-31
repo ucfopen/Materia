@@ -1,8 +1,8 @@
 <?php
 
-
 return [
 	'profiling'  => false,
+	'base_url'  => 'http://localhost/',
 
 	/**
 	 * Logging Threshold.  Can be set to any of the following:

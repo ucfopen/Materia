@@ -1,19 +1,17 @@
 app = angular.module 'materia'
-app.controller 'notificationCtrl', ($scope, $sce) ->
-	$scope.values =
-		notifications: []
+app.controller 'notificationCtrl', ($scope, $sce, notificationServ) ->
+	$scope.values = {notifications: []}
 	$scope.clicked = false
 
-	Materia.Coms.Json.send 'notifications_get', null, (notifications) ->
-		$scope.values.notifications = notifications
+	onNotificationChange = (notifications) ->
+		$scope.values.notifications = notificationServ.getNotifications()
 		$scope.$apply()
-
 		# @TODO: replace with css animations?
 		$(document).on 'click', '.notice .close', (event) ->
 			event.preventDefault()
 			$('.notice').slideToggle(150)
 
-		return false
+		return null
 
 	$scope.trust = (notification) ->
 		$sce.trustAsHtml(notification)
@@ -39,3 +37,8 @@ app.controller 'notificationCtrl', ($scope, $sce) ->
 	$scope.removeNotification = (index) ->
 		Materia.Coms.Json.send 'notification_delete', [$scope.values.notifications[index].id]
 		$scope.values.notifications.splice(index, 1)
+
+	notificationServ.subscribe($scope, onNotificationChange)
+	notificationServ.updateNotifcationsEvery(30, true)
+
+	return null

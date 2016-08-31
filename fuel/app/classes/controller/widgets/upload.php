@@ -14,9 +14,9 @@ class Controller_Widgets_Upload extends Controller
 
 		if (\Model_User::verify_session() !== true)
 		{
-			Session::set('redirect_url', URI::current());
+			Session::set('redirect_url', Uri::current());
 			Session::set_flash('notice', 'Please log in');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Response::redirect(Router::get('login').'?redirect='.Uri::current());
 			return;
 		}
 	}

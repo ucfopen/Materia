@@ -17,19 +17,19 @@
 						<span ng-show="widget.is_draft" class="draft-label">Draft</span>
 						<span ng-show="widget.guest_access && !widget.is_draft" class="draft-label">Guest</span>
 					</div>
-					<a class="preview external" target="_blank" href="{{ widget.preview_url }}">Preview</a>
-					<a ng-show="widget.is_draft || widget.guest_access" class="view-at-materia external" target="_blank" href="{{ widget.edit_url }}">Edit at Materia</a>
+					<a class="preview external" target="_blank" rel="noopener noreferrer" href="{{ widget.preview_url }}">Preview</a>
+					<a ng-show="widget.is_draft || widget.guest_access" class="view-at-materia external" target="_blank" rel="noopener noreferrer" href="{{ widget.edit_url }}">Edit at Materia</a>
 					<a ng-hide="widget.is_draft || widget.guest_access" role="button" class="button embed-button" ng-class="{ first: $index==0 }" ng-click="embedWidget(widget)">Use this widget</a>
 				</li>
 			</ul>
 			<div ng-show="widgets.length < 1" id="no-widgets-container">
 				<div id="no-widgets">
 					You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.
-					<a role="button" id="create-widget-button" ng-click="calloutRefreshLink()" class="button" target="_blank" href="<?= Uri::create('/widgets') ?>">Create a widget at Materia</a>
+					<a role="button" id="create-widget-button" ng-click="calloutRefreshLink()" class="button" target="_blank" rel="noopener noreferrer" href="<?= Uri::create('/widgets') ?>">Create a widget at Materia</a>
 				</div>
 			</div>
 		</div>
-		<a id="goto-new-widgets" ng-show="widgets.length > 0" ng-click="calloutRefreshLink()" class="external" target="_blank" href="<?= Uri::create('/widgets') ?>">Or, create a new widget at Materia</a>
+		<a id="goto-new-widgets" ng-show="widgets.length > 0" ng-click="calloutRefreshLink()" class="external" target="_blank" rel="noopener noreferrer" href="<?= Uri::create('/widgets') ?>">Or, create a new widget at Materia</a>
 		<a role="button" class="button cancel-button" href="javascript:;">Cancel changing widget</a>
 	</section>
 	<section id="progress" ng-show="section == 'progress'">

@@ -4,7 +4,7 @@
 			<p>Your browser blocked the preview popup, click below to preview the widget.</p>
 			<div class="publish_container">
 				<a class="cancel_button" ng-click="cancelPreview()">Close</a>
-				<a href="{{ previewUrl }}" target="_blank" ng-click="cancelPreview()" class="action_button green">Open Preview</a>
+				<a href="{{ previewUrl }}" target="_blank" rel="noopener noreferrer" ng-click="cancelPreview()" class="action_button green">Open Preview</a>
 			</div>
 		</div>
 

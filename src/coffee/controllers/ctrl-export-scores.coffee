@@ -1,8 +1,9 @@
 app = angular.module 'materia'
 # The modal that exports score CSVs on My Widgets
-app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
+app.controller 'ExportScoresController', ($scope, selectedWidgetSrv, notificationServ) ->
 	$scope.checkedAll = false
 	$scope.semesters = []
+	$scope.pressed = false
 
 	# Builds the initial version of the popup window
 	buildPopup = ->
@@ -52,6 +53,15 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		checked = $scope.semesters.filter (e) -> return e.checked
 		updateDownloadInfo(checked)
 		updateCheckAll(checked)
+
+	$scope.beginExport = ->
+		Materia.Coms.Json.send 'data_export_request', [$scope.selectedId, $scope.exportType, $scope.selectedSemesters], (result) ->
+			# wait 2.5 seconds and force a notification update
+			# otherwise they'll be updated every 10 seconds
+			setTimeout ->
+				notificationServ.updateNotifcations()
+			, 2500
+		return false
 
 	# Check or uncheck all semesters
 	$scope.checkAll = ->

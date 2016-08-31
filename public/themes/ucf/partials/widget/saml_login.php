@@ -10,7 +10,7 @@
 		</div>
 
 		<div id="form">
-			<form method="get" action="<?= Router::get('login') ?>?redirect=<?= urlencode(URI::current()) ?>" class="form-content" >
+			<form method="get" action="<?= Router::get('login') ?>?redirect=<?= urlencode(Uri::current()) ?>" class="form-content" >
 				<ul>
 					<li class="submit_button">
 						<button type="submit" tabindex="3" class="action_button">Login</button>

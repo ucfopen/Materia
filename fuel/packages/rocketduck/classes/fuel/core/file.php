@@ -18,8 +18,10 @@ class File extends Fuel\Core\File
 		if (\Config::get('file.enable_x_accel', false))
 		{
 			$sendfile = true;
-			$media_path_partial = str_replace(realpath(\Config::get('materia.dirs.media')), '', realpath($path));
-			$sendfile_header = "X-Accel-Redirect: /protected_media{$media_path_partial}";
+			$area_basepath = \Config::get("file.areas.{$area}.basedir");
+			$area_xaccel = \Config::get("file.areas.{$area}.xaccell_basepath");
+			$sub_path = str_replace(realpath($area_basepath), '', realpath($path)); // get the path under the base path down
+			$sendfile_header = "X-Accel-Redirect: {$area_xaccel}{$sub_path}";
 		}
 
 		// Hand off file retrevial to the webserver
