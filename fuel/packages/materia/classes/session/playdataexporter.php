@@ -55,6 +55,7 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
+		$anonymize    = filter_var(\Input::get('anonymized', false), FILTER_VALIDATE_BOOLEAN);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
@@ -64,7 +65,7 @@ class Session_PlayDataExporter
 		// load the logs for all selected semesters
 		if (empty($semesters))
 		{
-			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name);
+			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name, $anonymize);
 			if ( ! empty($loaded_data[$table_name]))
 			{
 				$storage_data['all'] = $loaded_data[$table_name];
@@ -76,7 +77,7 @@ class Session_PlayDataExporter
 			foreach ($semesters as $semester)
 			{
 				list($year, $term) = explode('-', $semester);
-				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name);
+				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name, $anonymize);
 				if ( ! empty($loaded_data[$table_name]))
 				{
 					$storage_data[$semester] = $loaded_data[$table_name];
@@ -310,5 +311,4 @@ class Session_PlayDataExporter
 
 		return [$data, '.zip'];
 	}
-
 }
