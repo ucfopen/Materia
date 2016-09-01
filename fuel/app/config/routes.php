@@ -1,4 +1,4 @@
-<?
+<?php
 // setup more specific regex matches with names
 $id = '(?<id>\d+)';
 $clean_name = '(?<clean_name>[a-zA-Z0-9_\-]+)';
