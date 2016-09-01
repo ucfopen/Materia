@@ -1,4 +1,4 @@
-<?
+<?php
 
 Autoloader::add_core_namespace('Plupload');
 

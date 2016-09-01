@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "b3d1f3125a77af66d2bfd934c775150e4c9aecc3"
+                "reference": "2db1f3ce7bcf0d294811f5f0214e24d2878a57da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/6aac6a0a931ad06780fa7c574f27178d48109ec7",
-                "reference": "b3d1f3125a77af66d2bfd934c775150e4c9aecc3",
+                "url": "https://api.github.com/repos/composer/installers/zipball/2db1f3ce7bcf0d294811f5f0214e24d2878a57da",
+                "reference": "2db1f3ce7bcf0d294811f5f0214e24d2878a57da",
                 "shasum": ""
             },
             "require": {
@@ -40,8 +40,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Composer\\Installers\\": "src/"
+                "psr-4": {
+                    "Composer\\Installers\\": "src/Composer/Installers"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -56,13 +56,16 @@
                 }
             ],
             "description": "A multi-framework Composer library installer",
-            "homepage": "http://composer.github.com/installers/",
+            "homepage": "https://composer.github.io/installers/",
             "keywords": [
                 "Craft",
                 "Dolibarr",
                 "Hurad",
+                "ImageCMS",
                 "MODX Evo",
+                "Mautic",
                 "OXID",
+                "RadPHP",
                 "SMF",
                 "Thelia",
                 "WolfCMS",
@@ -103,7 +106,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2016-02-27 14:38:36"
+            "time": "2016-05-19 16:58:29"
         },
         {
             "name": "fuel/auth",
@@ -116,7 +119,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/auth/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -132,7 +135,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/core/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -148,7 +151,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/email/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -164,7 +167,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/oil/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -180,7 +183,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/orm/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -196,7 +199,7 @@
             "dist": {
                 "type": "zip",
                 "url": "https://github.com/fuel/parser/archive/1.7/master.zip",
-                "reference": null,
+                "reference": "1.7/master",
                 "shasum": null
             },
             "type": "fuel-package"
@@ -251,7 +254,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
-                "reference": "b37e9f0dccf502f819080468e9f8d5bcd8ec2c65"
+                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -283,7 +286,7 @@
                 "js",
                 "qasset"
             ],
-            "time": "2015-03-13 17:13:46"
+            "time": "2016-06-03 16:29:57"
         },
         {
             "name": "materia/ucfauth",

@@ -71,7 +71,7 @@ class Storage_Manager
 		return 0;
 	}
 
-	static public function get_storage_data($inst_id, $year = '', $term = '', $tablename = '')
+	static public function get_storage_data($inst_id, $year = '', $term = '', $tablename = '', $anonymize = false)
 	{
 		if (Util_Validator::is_valid_hash($inst_id)) // valid pid & not a preview
 		{
@@ -97,15 +97,18 @@ class Storage_Manager
 
 			$result = $query->as_object()->execute();
 
-			return self::process_log_data($result);
+			return self::process_log_data($result, $anonymize);
 		}
 		return [];
 	}
 
-	static protected function process_log_data($results)
+	static protected function process_log_data($results, $anonymize = false)
 	{
 		$tables   = [];
 		$students = [];
+
+		//in case we're anonymizing students, keep an increment
+		$i = 0;
 
 		foreach ($results as $r)
 		{
@@ -117,6 +120,15 @@ class Storage_Manager
 			ksort($data);
 
 			// play info
+			if ($anonymize)
+			{
+				$mock_student = new \stdClass();
+				$mock_student->username = 'user'.$i;
+				$mock_student->first = 'User';
+				$mock_student->last = $i;
+				$students[$r->user_id] = $mock_student;
+				$i++;
+			}
 			if ( ! isset($students[$r->user_id])) $students[$r->user_id] = \Model_User::find($r->user_id);
 
 			$student = $students[$r->user_id];

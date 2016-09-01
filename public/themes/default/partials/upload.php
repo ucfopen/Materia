@@ -1,10 +1,10 @@
 <div class="container">
 	<section class="page">
-		<? if ($msg = Session::get_flash('notice')): /* Incorrect Login Error */ ?>
+		<?php if ($msg = Session::get_flash('notice')): /* Incorrect Login Error */ ?>
 			<div class="error">
 				<p><?= $msg ?></p>
 			</div>
-		<? endif ?>
+		<?php endif ?>
 		<div class="top">
 			<h1>Widget Uploader</h1>
 		</div>
