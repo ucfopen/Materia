@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/fuel/packages/auth</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../../css/nv.d3.min.css" rel="stylesheet">
+  <link href="../../../css/style.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+  <script src="../../../js/html5shiv.min.js"></script>
+  <script src="../../../js/respond.min.js"></script>
+  <![endif]-->
+ </head>
+ <body>
+  <header>
+   <div class="container">
+    <div class="row">
+     <div class="col-md-12">
+      <ol class="breadcrumb">
+        <li><a href="../../../index.html">/var/www/html</a></li>
+        <li><a href="../../index.html">fuel</a></li>
+        <li><a href="../index.html">packages</a></li>
+        <li><a href="index.html">auth</a></li>
+        <li class="active">(Dashboard)</li>
+
+      </ol>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="classes/auth/acl/simpleacl.php.html#17">Auth_Acl_Simpleacl</a></td><td class="text-right">6%</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#17">Auth_Group_Simplegroup</a></td><td class="text-right">6%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#23">Auth_Login_Simpleauth</a></td><td class="text-right">25%</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#17">Auth_Driver</a></td><td class="text-right">27%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#17">Auth_Login_Driver</a></td><td class="text-right">28%</td></tr>
+       <tr><td><a href="classes/auth/acl/driver.php.html#17">Auth_Acl_Driver</a></td><td class="text-right">30%</td></tr>
+       <tr><td><a href="classes/auth.php.html#25">Auth</a></td><td class="text-right">36%</td></tr>
+       <tr><td><a href="classes/auth/group/driver.php.html#17">Auth_Group_Driver</a></td><td class="text-right">40%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#23">Auth_Login_Simpleauth</a></td><td class="text-right">2918</td></tr>
+       <tr><td><a href="classes/auth.php.html#25">Auth</a></td><td class="text-right">1669</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#17">Auth_Login_Driver</a></td><td class="text-right">863</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#17">Auth_Group_Simplegroup</a></td><td class="text-right">255</td></tr>
+       <tr><td><a href="classes/auth/acl/simpleacl.php.html#17">Auth_Acl_Simpleacl</a></td><td class="text-right">176</td></tr>
+       <tr><td><a href="classes/auth/group/driver.php.html#17">Auth_Group_Driver</a></td><td class="text-right">77</td></tr>
+       <tr><td><a href="classes/auth/acl/driver.php.html#17">Auth_Acl_Driver</a></td><td class="text-right">69</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#17">Auth_Driver</a></td><td class="text-right">56</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="classes/auth/login/driver.php.html#225"><abbr title="Auth_Login_Driver::roles">roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#252"><abbr title="Auth_Login_Driver::remember_me">remember_me</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#274"><abbr title="Auth_Login_Driver::dont_remember_me">dont_remember_me</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#28"><abbr title="Auth_Login_Simpleauth::_init">_init</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#201"><abbr title="Auth_Login_Driver::groups">groups</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#153"><abbr title="Auth_Login_Driver::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#594"><abbr title="Auth_Login_Simpleauth::guest_login">guest_login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#97"><abbr title="Auth_Login_Driver::get_user_array">get_user_array</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#125"><abbr title="Auth_Login_Driver::member">member</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#581"><abbr title="Auth_Login_Simpleauth::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#214"><abbr title="Auth_Login_Simpleauth::logout">logout</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#559"><abbr title="Auth_Login_Simpleauth::get_profile_fields">get_profile_fields</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#497"><abbr title="Auth_Login_Simpleauth::get_groups">get_groups</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#515"><abbr title="Auth_Login_Simpleauth::get">get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#534"><abbr title="Auth_Login_Simpleauth::get_email">get_email</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#438"><abbr title="Auth_Login_Simpleauth::delete_user">delete_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#414"><abbr title="Auth_Login_Simpleauth::reset_password">reset_password</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#232"><abbr title="Auth_Login_Simpleauth::create_user">create_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#285"><abbr title="Auth_Login_Simpleauth::update_user">update_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#394"><abbr title="Auth_Login_Simpleauth::change_password">change_password</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#68"><abbr title="Auth_Group_Simplegroup::get_roles">get_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#54"><abbr title="Auth_Group_Simplegroup::get_name">get_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#412"><abbr title="Auth::_driver_check">_driver_check</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#137"><abbr title="Auth::unload">unload</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/acl/driver.php.html#61"><abbr title="Auth_Acl_Driver::_parse_conditions">_parse_conditions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#396"><abbr title="Auth::_driver_instance">_driver_instance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#369"><abbr title="Auth::__callStatic">__callStatic</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#256"><abbr title="Auth::login">login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#318"><abbr title="Auth::register_driver_type">register_driver_type</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#349"><abbr title="Auth::unregister_driver_type">unregister_driver_type</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#544"><abbr title="Auth_Login_Simpleauth::get_screen_name">get_screen_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/acl/simpleacl.php.html#26"><abbr title="Auth_Acl_Simpleacl::roles">roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/group/driver.php.html#64"><abbr title="Auth_Group_Driver::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#30"><abbr title="Auth_Group_Simplegroup::groups">groups</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#35"><abbr title="Auth_Group_Simplegroup::member">member</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#117"><abbr title="Auth_Driver::guest_login">guest_login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#95"><abbr title="Auth_Driver::set_config">set_config</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/acl/simpleacl.php.html#31"><abbr title="Auth_Acl_Simpleacl::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#31"><abbr title="Auth_Driver::forge">forge</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#42"><abbr title="Auth_Driver::instance">instance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth.php.html#234"><abbr title="Auth::verified">verified</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#76"><abbr title="Auth_Login_Simpleauth::perform_check">perform_check</abbr></a></td><td class="text-right">42%</td></tr>
+       <tr><td><a href="classes/auth/acl/driver.php.html#29"><abbr title="Auth_Acl_Driver::forge">forge</abbr></a></td><td class="text-right">53%</td></tr>
+       <tr><td><a href="classes/auth.php.html#186"><abbr title="Auth::check">check</abbr></a></td><td class="text-right">65%</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#77"><abbr title="Auth_Login_Driver::check">check</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#482"><abbr title="Auth_Login_Simpleauth::get_user_id">get_user_id</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#174"><abbr title="Auth_Login_Simpleauth::force_login">force_login</abbr></a></td><td class="text-right">76%</td></tr>
+       <tr><td><a href="classes/auth.php.html#81"><abbr title="Auth::forge">forge</abbr></a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#285"><abbr title="Auth_Login_Simpleauth::update_user">update_user</abbr></a></td><td class="text-right">380</td></tr>
+       <tr><td><a href="classes/auth.php.html#412"><abbr title="Auth::_driver_check">_driver_check</abbr></a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="classes/auth/acl/simpleacl.php.html#31"><abbr title="Auth_Acl_Simpleacl::has_access">has_access</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="classes/auth.php.html#318"><abbr title="Auth::register_driver_type">register_driver_type</abbr></a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="classes/auth/group/driver.php.html#64"><abbr title="Auth_Group_Driver::has_access">has_access</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#232"><abbr title="Auth_Login_Simpleauth::create_user">create_user</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#559"><abbr title="Auth_Login_Simpleauth::get_profile_fields">get_profile_fields</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="classes/auth/acl/driver.php.html#61"><abbr title="Auth_Acl_Driver::_parse_conditions">_parse_conditions</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#68"><abbr title="Auth_Group_Simplegroup::get_roles">get_roles</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#76"><abbr title="Auth_Login_Simpleauth::perform_check">perform_check</abbr></a></td><td class="text-right">39</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#54"><abbr title="Auth_Group_Simplegroup::get_name">get_name</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#252"><abbr title="Auth_Login_Driver::remember_me">remember_me</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#153"><abbr title="Auth_Login_Driver::has_access">has_access</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#125"><abbr title="Auth_Login_Driver::member">member</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/auth.php.html#369"><abbr title="Auth::__callStatic">__callStatic</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/auth.php.html#256"><abbr title="Auth::login">login</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/auth.php.html#186"><abbr title="Auth::check">check</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#225"><abbr title="Auth_Login_Driver::roles">roles</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/auth.php.html#137"><abbr title="Auth::unload">unload</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#201"><abbr title="Auth_Login_Driver::groups">groups</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/auth/group/simplegroup.php.html#35"><abbr title="Auth_Group_Simplegroup::member">member</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/auth/driver.php.html#42"><abbr title="Auth_Driver::instance">instance</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/auth.php.html#234"><abbr title="Auth::verified">verified</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#97"><abbr title="Auth_Login_Driver::get_user_array">get_user_array</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#515"><abbr title="Auth_Login_Simpleauth::get">get</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="classes/auth/acl/driver.php.html#29"><abbr title="Auth_Acl_Driver::forge">forge</abbr></a></td><td class="text-right">9</td></tr>
+       <tr><td><a href="classes/auth.php.html#81"><abbr title="Auth::forge">forge</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#581"><abbr title="Auth_Login_Simpleauth::has_access">has_access</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#497"><abbr title="Auth_Login_Simpleauth::get_groups">get_groups</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#414"><abbr title="Auth_Login_Simpleauth::reset_password">reset_password</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#438"><abbr title="Auth_Login_Simpleauth::delete_user">delete_user</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#214"><abbr title="Auth_Login_Simpleauth::logout">logout</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth.php.html#349"><abbr title="Auth::unregister_driver_type">unregister_driver_type</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#274"><abbr title="Auth_Login_Driver::dont_remember_me">dont_remember_me</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#28"><abbr title="Auth_Login_Simpleauth::_init">_init</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#544"><abbr title="Auth_Login_Simpleauth::get_screen_name">get_screen_name</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#394"><abbr title="Auth_Login_Simpleauth::change_password">change_password</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#174"><abbr title="Auth_Login_Simpleauth::force_login">force_login</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="classes/auth/login/driver.php.html#77"><abbr title="Auth_Login_Driver::check">check</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="classes/auth/login/simpleauth.php.html#482"><abbr title="Auth_Login_Simpleauth::get_user_id">get_user_id</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 2.2.4</a> using <a href="https://secure.php.net/" target="_top">PHP 5.6.19</a> and <a href="http://phpunit.de/">PHPUnit 4.1.6-6-g43914fa</a> at Tue Aug 30 14:12:07 EDT 2016.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../../js/jquery.min.js" type="text/javascript"></script>
+  <script src="../../../js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../../../js/holder.min.js" type="text/javascript"></script>
+  <script src="../../../js/d3.min.js" type="text/javascript"></script>
+  <script src="../../../js/nv.d3.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,2,0,3,2,1,0,0,0,0,0,1], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([41,0,0,0,0,1,1,2,2,1,3,26], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[100,0,"<a href=\"classes\/auth.php.html#17\">AuthException<\/a>"],[36.046511627907,78,"<a href=\"classes\/auth.php.html#25\">Auth<\/a>"],[30.769230769231,13,"<a href=\"classes\/auth\/acl\/driver.php.html#17\">Auth_Acl_Driver<\/a>"],[6.0606060606061,14,"<a href=\"classes\/auth\/acl\/simpleacl.php.html#17\">Auth_Acl_Simpleacl<\/a>"],[27.777777777778,11,"<a href=\"classes\/auth\/driver.php.html#17\">Auth_Driver<\/a>"],[40.540540540541,17,"<a href=\"classes\/auth\/group\/driver.php.html#17\">Auth_Group_Driver<\/a>"],[6.25,17,"<a href=\"classes\/auth\/group\/simplegroup.php.html#17\">Auth_Group_Simplegroup<\/a>"],[28.235294117647,47,"<a href=\"classes\/auth\/login\/driver.php.html#17\">Auth_Login_Driver<\/a>"],[25,82,"<a href=\"classes\/auth\/login\/simpleauth.php.html#23\">Auth_Login_Simpleauth<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,4,"<a href=\"classes\/auth.php.html#55\">Auth::_init<\/a>"],[89.473684210526,7,"<a href=\"classes\/auth.php.html#81\">Auth::forge<\/a>"],[100,1,"<a href=\"classes\/auth.php.html#129\">Auth::__construct<\/a>"],[0,4,"<a href=\"classes\/auth.php.html#137\">Auth::unload<\/a>"],[90,4,"<a href=\"classes\/auth.php.html#160\">Auth::instance<\/a>"],[65.217391304348,13,"<a href=\"classes\/auth.php.html#186\">Auth::check<\/a>"],[0,3,"<a href=\"classes\/auth.php.html#234\">Auth::verified<\/a>"],[0,5,"<a href=\"classes\/auth.php.html#256\">Auth::login<\/a>"],[100,2,"<a href=\"classes\/auth.php.html#281\">Auth::logout<\/a>"],[100,1,"<a href=\"classes\/auth.php.html#296\">Auth::_register_verified<\/a>"],[100,1,"<a href=\"classes\/auth.php.html#306\">Auth::_unregister_verified<\/a>"],[0,10,"<a href=\"classes\/auth.php.html#318\">Auth::register_driver_type<\/a>"],[0,2,"<a href=\"classes\/auth.php.html#349\">Auth::unregister_driver_type<\/a>"],[0,5,"<a href=\"classes\/auth.php.html#369\">Auth::__callStatic<\/a>"],[0,1,"<a href=\"classes\/auth.php.html#396\">Auth::_driver_instance<\/a>"],[0,15,"<a href=\"classes\/auth.php.html#412\">Auth::_driver_check<\/a>"],[53.333333333333,6,"<a href=\"classes\/auth\/acl\/driver.php.html#29\">Auth_Acl_Driver::forge<\/a>"],[0,6,"<a href=\"classes\/auth\/acl\/driver.php.html#61\">Auth_Acl_Driver::_parse_conditions<\/a>"],[100,1,"<a href=\"classes\/auth\/acl\/driver.php.html#92\">Auth_Acl_Driver::has_access<\/a>"],[100,1,"<a href=\"classes\/auth\/acl\/simpleacl.php.html#21\">Auth_Acl_Simpleacl::_init<\/a>"],[0,1,"<a href=\"classes\/auth\/acl\/simpleacl.php.html#26\">Auth_Acl_Simpleacl::roles<\/a>"],[0,12,"<a href=\"classes\/auth\/acl\/simpleacl.php.html#31\">Auth_Acl_Simpleacl::has_access<\/a>"],[0,1,"<a href=\"classes\/auth\/driver.php.html#31\">Auth_Driver::forge<\/a>"],[0,4,"<a href=\"classes\/auth\/driver.php.html#42\">Auth_Driver::instance<\/a>"],[100,1,"<a href=\"classes\/auth\/driver.php.html#73\">Auth_Driver::__construct<\/a>"],[100,1,"<a href=\"classes\/auth\/driver.php.html#84\">Auth_Driver::get_id<\/a>"],[0,1,"<a href=\"classes\/auth\/driver.php.html#95\">Auth_Driver::set_config<\/a>"],[100,2,"<a href=\"classes\/auth\/driver.php.html#107\">Auth_Driver::get_config<\/a>"],[0,1,"<a href=\"classes\/auth\/driver.php.html#117\">Auth_Driver::guest_login<\/a>"],[100,6,"<a href=\"classes\/auth\/group\/driver.php.html#29\">Auth_Group_Driver::forge<\/a>"],[0,9,"<a href=\"classes\/auth\/group\/driver.php.html#64\">Auth_Group_Driver::has_access<\/a>"],[100,1,"<a href=\"classes\/auth\/group\/driver.php.html#116\">Auth_Group_Driver::member<\/a>"],[100,1,"<a href=\"classes\/auth\/group\/driver.php.html#124\">Auth_Group_Driver::get_name<\/a>"],[100,1,"<a href=\"classes\/auth\/group\/simplegroup.php.html#21\">Auth_Group_Simplegroup::_init<\/a>"],[0,1,"<a href=\"classes\/auth\/group\/simplegroup.php.html#30\">Auth_Group_Simplegroup::groups<\/a>"],[0,4,"<a href=\"classes\/auth\/group\/simplegroup.php.html#35\">Auth_Group_Simplegroup::member<\/a>"],[0,5,"<a href=\"classes\/auth\/group\/simplegroup.php.html#54\">Auth_Group_Simplegroup::get_name<\/a>"],[0,6,"<a href=\"classes\/auth\/group\/simplegroup.php.html#68\">Auth_Group_Simplegroup::get_roles<\/a>"],[100,6,"<a href=\"classes\/auth\/login\/driver.php.html#34\">Auth_Login_Driver::forge<\/a>"],[66.666666666667,2,"<a href=\"classes\/auth\/login\/driver.php.html#77\">Auth_Login_Driver::check<\/a>"],[0,3,"<a href=\"classes\/auth\/login\/driver.php.html#97\">Auth_Login_Driver::get_user_array<\/a>"],[0,5,"<a href=\"classes\/auth\/login\/driver.php.html#125\">Auth_Login_Driver::member<\/a>"],[0,5,"<a href=\"classes\/auth\/login\/driver.php.html#153\">Auth_Login_Driver::has_access<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#179\">Auth_Login_Driver::hash_password<\/a>"],[100,2,"<a href=\"classes\/auth\/login\/driver.php.html#189\">Auth_Login_Driver::hasher<\/a>"],[0,4,"<a href=\"classes\/auth\/login\/driver.php.html#201\">Auth_Login_Driver::groups<\/a>"],[0,4,"<a href=\"classes\/auth\/login\/driver.php.html#225\">Auth_Login_Driver::roles<\/a>"],[0,5,"<a href=\"classes\/auth\/login\/driver.php.html#252\">Auth_Login_Driver::remember_me<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/driver.php.html#274\">Auth_Login_Driver::dont_remember_me<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#286\">Auth_Login_Driver::perform_check<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#293\">Auth_Login_Driver::validate_user<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#300\">Auth_Login_Driver::login<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#305\">Auth_Login_Driver::logout<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#313\">Auth_Login_Driver::get_user_id<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#321\">Auth_Login_Driver::get_groups<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#328\">Auth_Login_Driver::get_email<\/a>"],[100,1,"<a href=\"classes\/auth\/login\/driver.php.html#335\">Auth_Login_Driver::get_screen_name<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#28\">Auth_Login_Simpleauth::_init<\/a>"],[42.105263157895,12,"<a href=\"classes\/auth\/login\/simpleauth.php.html#76\">Auth_Login_Simpleauth::perform_check<\/a>"],[93.333333333333,6,"<a href=\"classes\/auth\/login\/simpleauth.php.html#119\">Auth_Login_Simpleauth::validate_user<\/a>"],[100,3,"<a href=\"classes\/auth\/login\/simpleauth.php.html#149\">Auth_Login_Simpleauth::login<\/a>"],[76.190476190476,4,"<a href=\"classes\/auth\/login\/simpleauth.php.html#174\">Auth_Login_Simpleauth::force_login<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#214\">Auth_Login_Simpleauth::logout<\/a>"],[0,7,"<a href=\"classes\/auth\/login\/simpleauth.php.html#232\">Auth_Login_Simpleauth::create_user<\/a>"],[0,19,"<a href=\"classes\/auth\/login\/simpleauth.php.html#285\">Auth_Login_Simpleauth::update_user<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#394\">Auth_Login_Simpleauth::change_password<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#414\">Auth_Login_Simpleauth::reset_password<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#438\">Auth_Login_Simpleauth::delete_user<\/a>"],[90.909090909091,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#457\">Auth_Login_Simpleauth::create_login_hash<\/a>"],[75,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#482\">Auth_Login_Simpleauth::get_user_id<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#497\">Auth_Login_Simpleauth::get_groups<\/a>"],[0,3,"<a href=\"classes\/auth\/login\/simpleauth.php.html#515\">Auth_Login_Simpleauth::get<\/a>"],[0,1,"<a href=\"classes\/auth\/login\/simpleauth.php.html#534\">Auth_Login_Simpleauth::get_email<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#544\">Auth_Login_Simpleauth::get_screen_name<\/a>"],[0,6,"<a href=\"classes\/auth\/login\/simpleauth.php.html#559\">Auth_Login_Simpleauth::get_profile_fields<\/a>"],[0,2,"<a href=\"classes\/auth\/login\/simpleauth.php.html#581\">Auth_Login_Simpleauth::has_access<\/a>"],[0,1,"<a href=\"classes\/auth\/login\/simpleauth.php.html#594\">Auth_Login_Simpleauth::guest_login<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

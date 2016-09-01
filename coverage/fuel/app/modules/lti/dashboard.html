@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/fuel/app/modules/lti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../../../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../../../css/nv.d3.min.css" rel="stylesheet">
+  <link href="../../../../css/style.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+  <script src="../../../../js/html5shiv.min.js"></script>
+  <script src="../../../../js/respond.min.js"></script>
+  <![endif]-->
+ </head>
+ <body>
+  <header>
+   <div class="container">
+    <div class="row">
+     <div class="col-md-12">
+      <ol class="breadcrumb">
+        <li><a href="../../../../index.html">/var/www/html</a></li>
+        <li><a href="../../../index.html">fuel</a></li>
+        <li><a href="../../index.html">app</a></li>
+        <li><a href="../index.html">modules</a></li>
+        <li><a href="index.html">lti</a></li>
+        <li class="active">(Dashboard)</li>
+
+      </ol>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="vendor/oauth.php.html#177">OAuthSignatureMethod_RSA_SHA1</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#496">OAuthServer</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#718">OAuthDataStore</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#141">OAuthSignatureMethod_PLAINTEXT</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#59">OAuthSignatureMethod</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#25">OAuthToken</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#744">OAuthUtil</a></td><td class="text-right">26%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#236">OAuthRequest</a></td><td class="text-right">45%</td></tr>
+       <tr><td><a href="classes/oauth.php.html#5">Oauth</a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#10">OAuthConsumer</a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="classes/ltiusermanager.php.html#6">LtiUserManager</a></td><td class="text-right">86%</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#7">LtiEvents</a></td><td class="text-right">87%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="vendor/oauth.php.html#496">OAuthServer</a></td><td class="text-right">870</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#236">OAuthRequest</a></td><td class="text-right">490</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#744">OAuthUtil</a></td><td class="text-right">365</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#7">LtiEvents</a></td><td class="text-right">61</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#59">OAuthSignatureMethod</a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="classes/ltiusermanager.php.html#6">LtiUserManager</a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/oauth.php.html#5">Oauth</a></td><td class="text-right">23</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#141">OAuthSignatureMethod_PLAINTEXT</a></td><td class="text-right">12</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="vendor/oauth.php.html#571"><abbr title="OAuthServer::get_version">get_version</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#587"><abbr title="OAuthServer::get_signature_method">get_signature_method</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#612"><abbr title="OAuthServer::get_consumer">get_consumer</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#632"><abbr title="OAuthServer::get_token">get_token</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#559"><abbr title="OAuthServer::verify_request">verify_request</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#539"><abbr title="OAuthServer::fetch_access_token">fetch_access_token</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#458"><abbr title="OAuthRequest::__toString">__toString</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#503"><abbr title="OAuthServer::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#507"><abbr title="OAuthServer::add_signature_method">add_signature_method</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#518"><abbr title="OAuthServer::fetch_request_token">fetch_request_token</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#650"><abbr title="OAuthServer::check_signature">check_signature</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#680"><abbr title="OAuthServer::check_timestamp">check_timestamp</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#735"><abbr title="OAuthDataStore::new_access_token">new_access_token</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#763"><abbr title="OAuthUtil::urldecode_rfc3986">urldecode_rfc3986</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#772"><abbr title="OAuthUtil::split_header">split_header</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#786"><abbr title="OAuthUtil::get_headers">get_headers</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#731"><abbr title="OAuthDataStore::new_request_token">new_request_token</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#727"><abbr title="OAuthDataStore::lookup_nonce">lookup_nonce</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#698"><abbr title="OAuthServer::check_nonce">check_nonce</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#719"><abbr title="OAuthDataStore::lookup_consumer">lookup_consumer</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#723"><abbr title="OAuthDataStore::lookup_token">lookup_token</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#427"><abbr title="OAuthRequest::to_postdata">to_postdata</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#434"><abbr title="OAuthRequest::to_header">to_header</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#50"><abbr title="OAuthToken::__toString">__toString</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#142"><abbr title="OAuthSignatureMethod_PLAINTEXT::get_name">get_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#155"><abbr title="OAuthSignatureMethod_PLAINTEXT::build_signature">build_signature</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#43"><abbr title="OAuthToken::to_string">to_string</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#34"><abbr title="OAuthToken::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#83"><abbr title="LtiEvents::on_before_score_display_event">on_before_score_display_event</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="classes/oauth.php.html#61"><abbr title="Oauth::send_body_hashed_post">send_body_hashed_post</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#20"><abbr title="OAuthConsumer::__toString">__toString</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#178"><abbr title="OAuthSignatureMethod_RSA_SHA1::get_name">get_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#86"><abbr title="OAuthSignatureMethod::check_signature">check_signature</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#196"><abbr title="OAuthSignatureMethod_RSA_SHA1::build_signature">build_signature</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#415"><abbr title="OAuthRequest::to_url">to_url</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#338"><abbr title="OAuthRequest::get_parameter">get_parameter</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#346"><abbr title="OAuthRequest::unset_parameter">unset_parameter</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#257"><abbr title="OAuthRequest::from_request">from_request</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#215"><abbr title="OAuthSignatureMethod_RSA_SHA1::check_signature">check_signature</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#834"><abbr title="OAuthUtil::parse_parameters">parse_parameters</abbr></a></td><td class="text-right">6%</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#94"><abbr title="LtiEvents::on_score_updated_event">on_score_updated_event</abbr></a></td><td class="text-right">41%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#323"><abbr title="OAuthRequest::set_parameter">set_parameter</abbr></a></td><td class="text-right">42%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#863"><abbr title="OAuthUtil::build_http_query">build_http_query</abbr></a></td><td class="text-right">68%</td></tr>
+       <tr><td><a href="classes/ltiusermanager.php.html#12"><abbr title="LtiUserManager::authenticate">authenticate</abbr></a></td><td class="text-right">78%</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#14"><abbr title="LtiEvents::on_before_play_start_event">on_before_play_start_event</abbr></a></td><td class="text-right">82%</td></tr>
+       <tr><td><a href="classes/ltiusermanager.php.html#92"><abbr title="LtiUserManager::get_or_create_user">get_or_create_user</abbr></a></td><td class="text-right">86%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#397"><abbr title="OAuthRequest::get_normalized_http_url">get_normalized_http_url</abbr></a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#745"><abbr title="OAuthUtil::urlencode_rfc3986">urlencode_rfc3986</abbr></a></td><td class="text-right">88%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="vendor/oauth.php.html#257"><abbr title="OAuthRequest::from_request">from_request</abbr></a></td><td class="text-right">132</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#786"><abbr title="OAuthUtil::get_headers">get_headers</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#834"><abbr title="OAuthUtil::parse_parameters">parse_parameters</abbr></a></td><td class="text-right">46</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#434"><abbr title="OAuthRequest::to_header">to_header</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#772"><abbr title="OAuthUtil::split_header">split_header</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#86"><abbr title="OAuthSignatureMethod::check_signature">check_signature</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#94"><abbr title="LtiEvents::on_score_updated_event">on_score_updated_event</abbr></a></td><td class="text-right">21</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#612"><abbr title="OAuthServer::get_consumer">get_consumer</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#587"><abbr title="OAuthServer::get_signature_method">get_signature_method</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/oauth.php.html#61"><abbr title="Oauth::send_body_hashed_post">send_body_hashed_post</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#650"><abbr title="OAuthServer::check_signature">check_signature</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#14"><abbr title="LtiEvents::on_before_play_start_event">on_before_play_start_event</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="classes/ltiusermanager.php.html#12"><abbr title="LtiUserManager::authenticate">authenticate</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#632"><abbr title="OAuthServer::get_token">get_token</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#698"><abbr title="OAuthServer::check_nonce">check_nonce</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#571"><abbr title="OAuthServer::get_version">get_version</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#680"><abbr title="OAuthServer::check_timestamp">check_timestamp</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#397"><abbr title="OAuthRequest::get_normalized_http_url">get_normalized_http_url</abbr></a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="classes/ltiusermanager.php.html#92"><abbr title="LtiUserManager::get_or_create_user">get_or_create_user</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#323"><abbr title="OAuthRequest::set_parameter">set_parameter</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#415"><abbr title="OAuthRequest::to_url">to_url</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="classes/ltievents.php.html#83"><abbr title="LtiEvents::on_before_score_display_event">on_before_score_display_event</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#155"><abbr title="OAuthSignatureMethod_PLAINTEXT::build_signature">build_signature</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#338"><abbr title="OAuthRequest::get_parameter">get_parameter</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#863"><abbr title="OAuthUtil::build_http_query">build_http_query</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="vendor/oauth.php.html#745"><abbr title="OAuthUtil::urlencode_rfc3986">urlencode_rfc3986</abbr></a></td><td class="text-right">3</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 2.2.4</a> using <a href="https://secure.php.net/" target="_top">PHP 5.6.19</a> and <a href="http://phpunit.de/">PHPUnit 4.1.6-6-g43914fa</a> at Tue Aug 30 14:12:07 EDT 2016.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../../../js/jquery.min.js" type="text/javascript"></script>
+  <script src="../../../../js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../../../../js/holder.min.js" type="text/javascript"></script>
+  <script src="../../../../js/d3.min.js" type="text/javascript"></script>
+  <script src="../../../../js/nv.d3.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([6,0,0,1,0,1,0,1,0,3,0,4], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([39,1,0,0,0,2,0,1,1,4,0,35], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[87.591240875912,56,"<a href=\"classes\/ltievents.php.html#7\">LtiEvents<\/a>"],[100,3,"<a href=\"classes\/ltilaunch.php.html#5\">LtiLaunch<\/a>"],[86.885245901639,29,"<a href=\"classes\/ltiusermanager.php.html#6\">LtiUserManager<\/a>"],[100,0,"<a href=\"classes\/model\/lti.php.html#5\">Model_Lti<\/a>"],[60.714285714286,13,"<a href=\"classes\/oauth.php.html#5\">Oauth<\/a>"],[100,0,"<a href=\"vendor\/oauth.php.html#6\">OAuthException2<\/a>"],[80,2,"<a href=\"vendor\/oauth.php.html#10\">OAuthConsumer<\/a>"],[0,3,"<a href=\"vendor\/oauth.php.html#25\">OAuthToken<\/a>"],[0,7,"<a href=\"vendor\/oauth.php.html#59\">OAuthSignatureMethod<\/a>"],[100,3,"<a href=\"vendor\/oauth.php.html#115\">OAuthSignatureMethod_HMAC_SHA1<\/a>"],[0,3,"<a href=\"vendor\/oauth.php.html#141\">OAuthSignatureMethod_PLAINTEXT<\/a>"],[0,5,"<a href=\"vendor\/oauth.php.html#177\">OAuthSignatureMethod_RSA_SHA1<\/a>"],[45.454545454545,52,"<a href=\"vendor\/oauth.php.html#236\">OAuthRequest<\/a>"],[0,29,"<a href=\"vendor\/oauth.php.html#496\">OAuthServer<\/a>"],[0,5,"<a href=\"vendor\/oauth.php.html#718\">OAuthDataStore<\/a>"],[26.315789473684,29,"<a href=\"vendor\/oauth.php.html#744\">OAuthUtil<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[82.142857142857,12,"<a href=\"classes\/ltievents.php.html#14\">LtiEvents::on_before_play_start_event<\/a>"],[100,5,"<a href=\"classes\/ltievents.php.html#59\">LtiEvents::on_play_start_event<\/a>"],[0,2,"<a href=\"classes\/ltievents.php.html#83\">LtiEvents::on_before_score_display_event<\/a>"],[41.176470588235,8,"<a href=\"classes\/ltievents.php.html#94\">LtiEvents::on_score_updated_event<\/a>"],[100,3,"<a href=\"classes\/ltievents.php.html#128\">LtiEvents::on_play_completed_event<\/a>"],[100,2,"<a href=\"classes\/ltievents.php.html#142\">LtiEvents::on_widget_instance_delete_event<\/a>"],[100,6,"<a href=\"classes\/ltievents.php.html#158\">LtiEvents::get_widget_from_request<\/a>"],[100,1,"<a href=\"classes\/ltievents.php.html#182\">LtiEvents::find_assoc_from_resource_id<\/a>"],[100,6,"<a href=\"classes\/ltievents.php.html#187\">LtiEvents::get_lti_play_state<\/a>"],[100,2,"<a href=\"classes\/ltievents.php.html#214\">LtiEvents::session_get_launch<\/a>"],[100,1,"<a href=\"classes\/ltievents.php.html#223\">LtiEvents::store_lti_request_into_session<\/a>"],[100,5,"<a href=\"classes\/ltievents.php.html#232\">LtiEvents::save_lti_association_if_needed<\/a>"],[100,2,"<a href=\"classes\/ltievents.php.html#251\">LtiEvents::save_lti_association<\/a>"],[100,1,"<a href=\"classes\/ltievents.php.html#268\">LtiEvents::log<\/a>"],[100,2,"<a href=\"classes\/ltilaunch.php.html#9\">LtiLaunch::from_request<\/a>"],[100,1,"<a href=\"classes\/ltilaunch.php.html#19\">LtiLaunch::anonymous function<\/a>"],[78.260869565217,11,"<a href=\"classes\/ltiusermanager.php.html#12\">LtiUserManager::authenticate<\/a>"],[100,3,"<a href=\"classes\/ltiusermanager.php.html#66\">LtiUserManager::is_lti_user_a_content_creator<\/a>"],[86.363636363636,7,"<a href=\"classes\/ltiusermanager.php.html#92\">LtiUserManager::get_or_create_user<\/a>"],[100,3,"<a href=\"classes\/ltiusermanager.php.html#147\">LtiUserManager::update_user_roles<\/a>"],[100,5,"<a href=\"classes\/ltiusermanager.php.html#155\">LtiUserManager::update_user_from_lti_request<\/a>"],[100,7,"<a href=\"classes\/oauth.php.html#7\">Oauth::validate_post<\/a>"],[100,2,"<a href=\"classes\/oauth.php.html#35\">Oauth::build_post_args<\/a>"],[0,4,"<a href=\"classes\/oauth.php.html#61\">Oauth::send_body_hashed_post<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#14\">OAuthConsumer::__construct<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#20\">OAuthConsumer::__toString<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#34\">OAuthToken::__construct<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#43\">OAuthToken::to_string<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#50\">OAuthToken::__toString<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#64\">OAuthSignatureMethod::get_name<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#76\">OAuthSignatureMethod::build_signature<\/a>"],[0,5,"<a href=\"vendor\/oauth.php.html#86\">OAuthSignatureMethod::check_signature<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#116\">OAuthSignatureMethod_HMAC_SHA1::get_name<\/a>"],[100,2,"<a href=\"vendor\/oauth.php.html#120\">OAuthSignatureMethod_HMAC_SHA1::build_signature<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#142\">OAuthSignatureMethod_PLAINTEXT::get_name<\/a>"],[0,2,"<a href=\"vendor\/oauth.php.html#155\">OAuthSignatureMethod_PLAINTEXT::build_signature<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#178\">OAuthSignatureMethod_RSA_SHA1::get_name<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#188\">OAuthSignatureMethod_RSA_SHA1::fetch_public_cert<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#194\">OAuthSignatureMethod_RSA_SHA1::fetch_private_cert<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#196\">OAuthSignatureMethod_RSA_SHA1::build_signature<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#215\">OAuthSignatureMethod_RSA_SHA1::check_signature<\/a>"],[100,2,"<a href=\"vendor\/oauth.php.html#245\">OAuthRequest::__construct<\/a>"],[0,11,"<a href=\"vendor\/oauth.php.html#257\">OAuthRequest::from_request<\/a>"],[100,3,"<a href=\"vendor\/oauth.php.html#309\">OAuthRequest::from_consumer_and_token<\/a>"],[42.857142857143,4,"<a href=\"vendor\/oauth.php.html#323\">OAuthRequest::set_parameter<\/a>"],[0,2,"<a href=\"vendor\/oauth.php.html#338\">OAuthRequest::get_parameter<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#342\">OAuthRequest::get_parameters<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#346\">OAuthRequest::unset_parameter<\/a>"],[100,2,"<a href=\"vendor\/oauth.php.html#354\">OAuthRequest::get_signable_parameters<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#374\">OAuthRequest::get_signature_base_string<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#389\">OAuthRequest::get_normalized_http_method<\/a>"],[88.888888888889,10,"<a href=\"vendor\/oauth.php.html#397\">OAuthRequest::get_normalized_http_url<\/a>"],[0,2,"<a href=\"vendor\/oauth.php.html#415\">OAuthRequest::to_url<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#427\">OAuthRequest::to_postdata<\/a>"],[0,6,"<a href=\"vendor\/oauth.php.html#434\">OAuthRequest::to_header<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#458\">OAuthRequest::__toString<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#463\">OAuthRequest::sign_request<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#473\">OAuthRequest::build_signature<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#481\">OAuthRequest::generate_timestamp<\/a>"],[100,1,"<a href=\"vendor\/oauth.php.html#488\">OAuthRequest::generate_nonce<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#503\">OAuthServer::__construct<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#507\">OAuthServer::add_signature_method<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#518\">OAuthServer::fetch_request_token<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#539\">OAuthServer::fetch_access_token<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#559\">OAuthServer::verify_request<\/a>"],[0,3,"<a href=\"vendor\/oauth.php.html#571\">OAuthServer::get_version<\/a>"],[0,4,"<a href=\"vendor\/oauth.php.html#587\">OAuthServer::get_signature_method<\/a>"],[0,4,"<a href=\"vendor\/oauth.php.html#612\">OAuthServer::get_consumer<\/a>"],[0,3,"<a href=\"vendor\/oauth.php.html#632\">OAuthServer::get_token<\/a>"],[0,4,"<a href=\"vendor\/oauth.php.html#650\">OAuthServer::check_signature<\/a>"],[0,3,"<a href=\"vendor\/oauth.php.html#680\">OAuthServer::check_timestamp<\/a>"],[0,3,"<a href=\"vendor\/oauth.php.html#698\">OAuthServer::check_nonce<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#719\">OAuthDataStore::lookup_consumer<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#723\">OAuthDataStore::lookup_token<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#727\">OAuthDataStore::lookup_nonce<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#731\">OAuthDataStore::new_request_token<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#735\">OAuthDataStore::new_access_token<\/a>"],[88.888888888889,3,"<a href=\"vendor\/oauth.php.html#745\">OAuthUtil::urlencode_rfc3986<\/a>"],[0,1,"<a href=\"vendor\/oauth.php.html#763\">OAuthUtil::urldecode_rfc3986<\/a>"],[0,6,"<a href=\"vendor\/oauth.php.html#772\">OAuthUtil::split_header<\/a>"],[0,7,"<a href=\"vendor\/oauth.php.html#786\">OAuthUtil::get_headers<\/a>"],[6.6666666666667,7,"<a href=\"vendor\/oauth.php.html#834\">OAuthUtil::parse_parameters<\/a>"],[68.75,5,"<a href=\"vendor\/oauth.php.html#863\">OAuthUtil::build_http_query<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

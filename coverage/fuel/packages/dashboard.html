@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/fuel/packages</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../css/nv.d3.min.css" rel="stylesheet">
+  <link href="../../css/style.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+  <script src="../../js/html5shiv.min.js"></script>
+  <script src="../../js/respond.min.js"></script>
+  <![endif]-->
+ </head>
+ <body>
+  <header>
+   <div class="container">
+    <div class="row">
+     <div class="col-md-12">
+      <ol class="breadcrumb">
+        <li><a href="../../index.html">/var/www/html</a></li>
+        <li><a href="../index.html">fuel</a></li>
+        <li><a href="index.html">packages</a></li>
+        <li class="active">(Dashboard)</li>
+
+      </ol>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="rocketduck/classes/fuel/core/file.php.html#3">File</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#25">Widget_Asset</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/api.php.html#14">Api</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/role.php.html#27">Perm_Role</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#5">Admin</a></td><td class="text-right">5%</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/simpleacl.php.html#17">Auth_Acl_Simpleacl</a></td><td class="text-right">6%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#17">Auth_Group_Simplegroup</a></td><td class="text-right">6%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#21">Widget_Asset_Manager</a></td><td class="text-right">9%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#27">Observer_Typing</a></td><td class="text-right">23%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#23">Auth_Login_Simpleauth</a></td><td class="text-right">25%</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#17">Auth_Driver</a></td><td class="text-right">27%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#17">Auth_Login_Driver</a></td><td class="text-right">28%</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/driver.php.html#17">Auth_Acl_Driver</a></td><td class="text-right">30%</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#5">Auth_Login_Materiaauth</a></td><td class="text-right">33%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#25">Auth</a></td><td class="text-right">36%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#27">Model</a></td><td class="text-right">39%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#4">Score_Manager</a></td><td class="text-right">39%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/driver.php.html#17">Auth_Group_Driver</a></td><td class="text-right">40%</td></tr>
+       <tr><td><a href="orm/classes/observer/updatedat.php.html#21">Observer_UpdatedAt</a></td><td class="text-right">41%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#20">Query</a></td><td class="text-right">43%</td></tr>
+       <tr><td><a href="materia/classes/utils.php.html#26">Utils</a></td><td class="text-right">47%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#4">Perm_Manager</a></td><td class="text-right">48%</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#25">Session_Logger</a></td><td class="text-right">56%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#25">Session_Play</a></td><td class="text-right">57%</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#25">Widget_Question</a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="materia/classes/widget/question/manager.php.html#24">Widget_Question_Manager</a></td><td class="text-right">62%</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#26">Util_Validator</a></td><td class="text-right">72%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#27">Api_V1</a></td><td class="text-right">73%</td></tr>
+       <tr><td><a href="materia/classes/semester.php.html#25">Semester</a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance/hash.php.html#5">Widget_Instance_Hash</a></td><td class="text-right">77%</td></tr>
+       <tr><td><a href="rocketduck/classes/msg.php.html#25">Msg</a></td><td class="text-right">81%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#5">Widget_Instance</a></td><td class="text-right">86%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#4">Score_Module</a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="orm/classes/observer/createdat.php.html#21">Observer_CreatedAt</a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="materia/classes/session/activity.php.html#25">Session_Activity</a></td><td class="text-right">88%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="orm/classes/model.php.html#27">Model</a></td><td class="text-right">36036</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#20">Query</a></td><td class="text-right">12129</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#5">Admin</a></td><td class="text-right">3986</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#23">Auth_Login_Simpleauth</a></td><td class="text-right">2918</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#27">Observer_Typing</a></td><td class="text-right">2590</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#25">Auth</a></td><td class="text-right">1669</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#21">Widget_Asset_Manager</a></td><td class="text-right">1556</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#27">Api_V1</a></td><td class="text-right">1007</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#4">Perm_Manager</a></td><td class="text-right">904</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#17">Auth_Login_Driver</a></td><td class="text-right">863</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#5">Auth_Login_Materiaauth</a></td><td class="text-right">514</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#25">Widget_Asset</a></td><td class="text-right">506</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#25">Widget_Question</a></td><td class="text-right">264</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#17">Auth_Group_Simplegroup</a></td><td class="text-right">255</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#4">Score_Manager</a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#25">Session_Logger</a></td><td class="text-right">199</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/simpleacl.php.html#17">Auth_Acl_Simpleacl</a></td><td class="text-right">176</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#25">Session_Play</a></td><td class="text-right">154</td></tr>
+       <tr><td><a href="rocketduck/classes/fuel/core/file.php.html#3">File</a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#5">Widget_Instance</a></td><td class="text-right">88</td></tr>
+       <tr><td><a href="auth/classes/auth/group/driver.php.html#17">Auth_Group_Driver</a></td><td class="text-right">77</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#4">Score_Module</a></td><td class="text-right">75</td></tr>
+       <tr><td><a href="orm/classes/observer/updatedat.php.html#21">Observer_UpdatedAt</a></td><td class="text-right">74</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/driver.php.html#17">Auth_Acl_Driver</a></td><td class="text-right">69</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#17">Auth_Driver</a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="materia/classes/utils.php.html#26">Utils</a></td><td class="text-right">37</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#26">Util_Validator</a></td><td class="text-right">28</td></tr>
+       <tr><td><a href="materia/classes/semester.php.html#25">Semester</a></td><td class="text-right">11</td></tr>
+       <tr><td><a href="materia/classes/session/activity.php.html#25">Session_Activity</a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="orm/classes/observer/createdat.php.html#21">Observer_CreatedAt</a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="materia/classes/widget/question/manager.php.html#24">Widget_Question_Manager</a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="materia/classes/api.php.html#14">Api</a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/widget/instance/hash.php.html#5">Widget_Instance_Hash</a></td><td class="text-right">5</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="materia/tasks/admin.php.html#323"><abbr title="Admin::instant_user">instant_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#288"><abbr title="Admin::reset_password">reset_password</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#331"><abbr title="Admin::clear_cache">clear_cache</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#337"><abbr title="Admin::anonymize_users">anonymize_users</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#167"><abbr title="Model::set_connection">set_connection</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#114"><abbr title="Auth_Login_Materiaauth::update_user">update_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#243"><abbr title="Admin::populate_roles">populate_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#237"><abbr title="Admin::populate_semesters">populate_semesters</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#146"><abbr title="Admin::get_env">get_env</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#139"><abbr title="Admin::destroy_everything">destroy_everything</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#151"><abbr title="Admin::destroy_widgets">destroy_widgets</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#174"><abbr title="Admin::destroy_database">destroy_database</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#228"><abbr title="Admin::populate">populate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#176"><abbr title="Model::set_write_connection">set_write_connection</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#371"><abbr title="Model::views">views</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1029"><abbr title="Model::__unset">__unset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#148"><abbr title="Util_Validator::is_md5">is_md5</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1058"><abbr title="Model::__call">__call</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1608"><abbr title="Model::should_cascade_delete">should_cascade_delete</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1630"><abbr title="Model::disable_event">disable_event</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1616"><abbr title="Model::reset">reset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#658"><abbr title="Model::__callStatic">__callStatic</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#653"><abbr title="Model::min">min</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#525"><abbr title="Model::register_observer">register_observer</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#450"><abbr title="Model::related_class">related_class</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#537"><abbr title="Model::unregister_observer">unregister_observer</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#629"><abbr title="Model::count">count</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#641"><abbr title="Model::max">max</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#103"><abbr title="Admin::setup_migrations">setup_migrations</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#71"><abbr title="Admin::score_play">score_play</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#261"><abbr title="Widget_Asset_Manager::get_user_asset_stats">get_user_asset_stats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#252"><abbr title="Widget_Asset_Manager::get_user_disk_quota">get_user_disk_quota</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#274"><abbr title="Widget_Asset_Manager::register_asset_to_item">register_asset_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#292"><abbr title="Widget_Asset_Manager::register_assets_to_item">register_assets_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#328"><abbr title="Widget_Asset_Manager::un_register_assets_to_item">un_register_assets_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#313"><abbr title="Widget_Asset_Manager::un_register_asset_to_item">un_register_asset_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#229"><abbr title="Widget_Asset_Manager::get_user_disk_usage">get_user_disk_usage</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#176"><abbr title="Widget_Asset_Manager::get_assets_by_user">get_assets_by_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#88"><abbr title="Widget_Asset_Manager::can_asset_be_deleted">can_asset_be_deleted</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#41"><abbr title="Widget_Asset_Manager::process_upload">process_upload</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#106"><abbr title="Widget_Asset_Manager::get_asset_use_count">get_asset_use_count</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#126"><abbr title="Widget_Asset_Manager::delete_asset">delete_asset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#142"><abbr title="Widget_Asset_Manager::get_widgets_by_asset">get_widgets_by_asset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#346"><abbr title="Widget_Asset_Manager::get_assets_by_item">get_assets_by_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#106"><abbr title="Widget_Instance::convert_to_array_qset">convert_to_array_qset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#250"><abbr title="Widget_Question::remove_asset_links">remove_asset_links</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#229"><abbr title="Widget_Question::db_get">db_get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#284"><abbr title="Widget_Question::export">export</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#8"><abbr title="Admin::recalculate_scores">recalculate_scores</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#27"><abbr title="Admin::create_default_users">create_default_users</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#189"><abbr title="Widget_Question::db_remove">db_remove</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#160"><abbr title="Util_Validator::is_sha1">is_sha1</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#422"><abbr title="Widget_Instance::viewable_by">viewable_by</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#179"><abbr title="Widget_Instance::get_specific_qset">get_specific_qset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#476"><abbr title="Widget_Instance::allows_guest_players">allows_guest_players</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#481"><abbr title="Widget_Instance::export">export</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#136"><abbr title="Util_Validator::is_string">is_string</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1642"><abbr title="Model::enable_event">enable_event</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1784"><abbr title="Model::get_diff">get_diff</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#443"><abbr title="Query::rows_limit">rows_limit</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#429"><abbr title="Query::offset">offset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#457"><abbr title="Query::rows_offset">rows_offset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#547"><abbr title="Query::and_where_open">and_where_open</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#571"><abbr title="Query::where_open">where_open</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#559"><abbr title="Query::and_where_close">and_where_close</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#399"><abbr title="Query::group_by">group_by</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#380"><abbr title="Query::use_view">use_view</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#508"><abbr title="Observer_Typing::type_time_encode">type_time_encode</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#488"><abbr title="Observer_Typing::type_json_decode">type_json_decode</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#531"><abbr title="Observer_Typing::type_time_decode">type_time_decode</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/updatedat.php.html#108"><abbr title="Observer_UpdatedAt::relation_changed">relation_changed</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#207"><abbr title="Query::from_cache">from_cache</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#583"><abbr title="Query::where_close">where_close</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#595"><abbr title="Query::or_where_open">or_where_open</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/fuel/core/file.php.html#6"><abbr title="File::render">render</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1560"><abbr title="Query::connection">connection</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/msg.php.html#50"><abbr title="Msg::invalid_input">invalid_input</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/msg.php.html#67"><abbr title="Msg::student">student</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#59"><abbr title="Util_Validator::is_user_arr">is_user_arr</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/role.php.html#41"><abbr title="Perm_Role::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1452"><abbr title="Query::min">min</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1417"><abbr title="Query::max">max</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#693"><abbr title="Query::related">related</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#607"><abbr title="Query::or_where_close">or_where_close</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#750"><abbr title="Query::_join">_join</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1101"><abbr title="Query::modify_join_result">modify_join_result</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1313"><abbr title="Query::get_query">get_query</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#465"><abbr title="Observer_Typing::type_json_encode">type_json_encode</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#412"><abbr title="Observer_Typing::type_bool_from_int">type_bool_from_int</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2175"><abbr title="Model::_get_eav">_get_eav</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2159"><abbr title="Model::to_object">to_object</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2312"><abbr title="Model::offsetSet">offsetSet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2324"><abbr title="Model::offsetExists">offsetExists</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2334"><abbr title="Model::offsetGet">offsetGet</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2329"><abbr title="Model::offsetUnset">offsetUnset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1957"><abbr title="Model::from_array">from_array</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1944"><abbr title="Model::set_form_fields">set_form_fields</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1896"><abbr title="Model::sanitize">sanitize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1845"><abbr title="Model::is_fetched">is_fetched</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1908"><abbr title="Model::unsanitize">unsanitize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1920"><abbr title="Model::sanitized">sanitized</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1933"><abbr title="Model::_sanitize">_sanitize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2352"><abbr title="Model::rewind">rewind</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2358"><abbr title="Model::current">current</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#333"><abbr title="Observer_Typing::type_decimal_after">type_decimal_after</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#314"><abbr title="Observer_Typing::type_decimal_before">type_decimal_before</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#359"><abbr title="Observer_Typing::type_set_before">type_set_before</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#388"><abbr title="Observer_Typing::type_set_after">type_set_after</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#400"><abbr title="Observer_Typing::type_bool_to_int">type_bool_to_int</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#290"><abbr title="Observer_Typing::type_float">type_float</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#265"><abbr title="Observer_Typing::type_integer">type_integer</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2368"><abbr title="Model::next">next</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2363"><abbr title="Model::key">key</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2373"><abbr title="Model::valid">valid</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2393"><abbr title="Model::get_filtered_properties">get_filtered_properties</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#234"><abbr title="Observer_Typing::type_string">type_string</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#35"><abbr title="Widget_Asset_Manager::user_has_space_for">user_has_space_for</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance/hash.php.html#33"><abbr title="Widget_Instance_Hash::udihash">udihash</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#153"><abbr title="Auth_Login_Driver::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#125"><abbr title="Auth_Login_Driver::member">member</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#154"><abbr title="Perm_Manager::get_user_roles">get_user_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#296"><abbr title="Perm_Manager::remove_users_from_roles">remove_users_from_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#201"><abbr title="Auth_Login_Driver::groups">groups</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#225"><abbr title="Auth_Login_Driver::roles">roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#117"><abbr title="Perm_Manager::add_user_to_role">add_user_to_role</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#252"><abbr title="Auth_Login_Driver::remember_me">remember_me</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#132"><abbr title="Perm_Manager::get_all_roles">get_all_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#97"><abbr title="Auth_Login_Driver::get_user_array">get_user_array</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#340"><abbr title="Perm_Manager::add_users_to_roles">add_users_to_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#30"><abbr title="Auth_Group_Simplegroup::groups">groups</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/driver.php.html#64"><abbr title="Auth_Group_Driver::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#150"><abbr title="Score_Manager::get_widget_score_distribution">get_widget_score_distribution</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#31"><abbr title="Score_Manager::get_guest_instance_score_history">get_guest_instance_score_history</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#384"><abbr title="Perm_Manager::is_administrator">is_administrator</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#68"><abbr title="Auth_Group_Simplegroup::get_roles">get_roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#54"><abbr title="Auth_Group_Simplegroup::get_name">get_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#35"><abbr title="Auth_Group_Simplegroup::member">member</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#274"><abbr title="Auth_Login_Driver::dont_remember_me">dont_remember_me</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#28"><abbr title="Auth_Login_Simpleauth::_init">_init</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#544"><abbr title="Auth_Login_Simpleauth::get_screen_name">get_screen_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#534"><abbr title="Auth_Login_Simpleauth::get_email">get_email</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#515"><abbr title="Auth_Login_Simpleauth::get">get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#497"><abbr title="Auth_Login_Simpleauth::get_groups">get_groups</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#559"><abbr title="Auth_Login_Simpleauth::get_profile_fields">get_profile_fields</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#581"><abbr title="Auth_Login_Simpleauth::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#28"><abbr title="Widget_Asset_Manager::get_asset">get_asset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/api.php.html#16"><abbr title="Api::get_version">get_version</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#594"><abbr title="Auth_Login_Simpleauth::guest_login">guest_login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#438"><abbr title="Auth_Login_Simpleauth::delete_user">delete_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#414"><abbr title="Auth_Login_Simpleauth::reset_password">reset_password</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#30"><abbr title="Perm_Manager::delete_role">delete_role</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#214"><abbr title="Auth_Login_Simpleauth::logout">logout</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#73"><abbr title="Perm_Manager::add_users_to_role">add_users_to_role</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#11"><abbr title="Perm_Manager::create_role">create_role</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#992"><abbr title="Api_V1::_decrypt_logs">_decrypt_logs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#394"><abbr title="Auth_Login_Simpleauth::change_password">change_password</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#285"><abbr title="Auth_Login_Simpleauth::update_user">update_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#232"><abbr title="Auth_Login_Simpleauth::create_user">create_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#607"><abbr title="Api_V1::anonymous function">anonymous function</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#117"><abbr title="Auth_Driver::guest_login">guest_login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#226"><abbr title="Session_Play::get_by_inst_id">get_by_inst_id</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#256"><abbr title="Auth::login">login</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#234"><abbr title="Auth::verified">verified</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#456"><abbr title="Session_Play::get_play_inst_ids_by_user_id">get_play_inst_ids_by_user_id</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#182"><abbr title="Session_Play::resume">resume</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#318"><abbr title="Auth::register_driver_type">register_driver_type</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#396"><abbr title="Auth::_driver_instance">_driver_instance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#369"><abbr title="Auth::__callStatic">__callStatic</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#349"><abbr title="Auth::unregister_driver_type">unregister_driver_type</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#137"><abbr title="Auth::unload">unload</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/utils.php.html#59"><abbr title="Utils::anonymous function">anonymous function</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#158"><abbr title="Widget_Asset::db_remove">db_remove</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#204"><abbr title="Widget_Asset::remove_files">remove_files</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#232"><abbr title="Widget_Asset::db_get">db_get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#140"><abbr title="Widget_Asset::get_preview_file_name">get_preview_file_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#123"><abbr title="Widget_Asset::get_file_name">get_file_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget.php.html#152"><abbr title="Widget::load_widget_methods">load_widget_methods</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#45"><abbr title="Widget_Asset::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#68"><abbr title="Widget_Asset::db_store">db_store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#195"><abbr title="Score_Manager::get_widget_score_summary">get_widget_score_summary</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#119"><abbr title="Session_Play::start_preview">start_preview</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#137"><abbr title="Score_Module::handle_log_client_final_score">handle_log_client_final_score</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#150"><abbr title="Score_Module::handle_log_widget_interaction">handle_log_widget_interaction</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#42"><abbr title="Auth_Driver::instance">instance</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#95"><abbr title="Auth_Driver::set_config">set_config</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#40"><abbr title="Score_Module::validate">validate</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#236"><abbr title="Score_Manager::save_preview_logs">save_preview_logs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#256"><abbr title="Score_Manager::init_preview">init_preview</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#261"><abbr title="Score_Manager::get_preview_logs">get_preview_logs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#291"><abbr title="Score_Module::log_problem">log_problem</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#31"><abbr title="Auth_Driver::forge">forge</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/driver.php.html#61"><abbr title="Auth_Acl_Driver::_parse_conditions">_parse_conditions</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#412"><abbr title="Auth::_driver_check">_driver_check</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#183"><abbr title="Session_Logger::query_logs">query_logs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/log.php.html#114"><abbr title="Session_Log::db_remove">db_remove</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/simpleacl.php.html#26"><abbr title="Auth_Acl_Simpleacl::roles">roles</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/simpleacl.php.html#31"><abbr title="Auth_Acl_Simpleacl::has_access">has_access</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#109"><abbr title="Session_Play::is_user_playing">is_user_playing</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#359"><abbr title="Score_Module::query_logs">query_logs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/semester.php.html#49"><abbr title="Semester::get">get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#569"><abbr title="Api_V1::score_summary_get">score_summary_get</abbr></a></td><td class="text-right">8%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#685"><abbr title="Api_V1::play_storage_data_save">play_storage_data_save</abbr></a></td><td class="text-right">11%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2249"><abbr title="Model::_set_eav">_set_eav</abbr></a></td><td class="text-right">12%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#705"><abbr title="Api_V1::play_storage_data_get">play_storage_data_get</abbr></a></td><td class="text-right">16%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2028"><abbr title="Model::to_array">to_array</abbr></a></td><td class="text-right">25%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#662"><abbr title="Api_V1::questions_get">questions_get</abbr></a></td><td class="text-right">27%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1002"><abbr title="Model::__isset">__isset</abbr></a></td><td class="text-right">30%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1118"><abbr title="Model::get">get</abbr></a></td><td class="text-right">31%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#134"><abbr title="Query::__construct">__construct</abbr></a></td><td class="text-right">32%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#793"><abbr title="Query::build_query">build_query</abbr></a></td><td class="text-right">33%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1277"><abbr title="Model::save">save</abbr></a></td><td class="text-right">33%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#654"><abbr title="Query::order_by">order_by</abbr></a></td><td class="text-right">33%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1698"><abbr title="Model::is_changed">is_changed</abbr></a></td><td class="text-right">34%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#297"><abbr title="Query::_normalize">_normalize</abbr></a></td><td class="text-right">35%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#294"><abbr title="Admin::new_user">new_user</abbr></a></td><td class="text-right">35%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#897"><abbr title="Model::_update_original_relations">_update_original_relations</abbr></a></td><td class="text-right">38%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#748"><abbr title="Api_V1::user_get">user_get</abbr></a></td><td class="text-right">41%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#76"><abbr title="Auth_Login_Simpleauth::perform_check">perform_check</abbr></a></td><td class="text-right">42%</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#90"><abbr title="Session_Logger::get_type">get_type</abbr></a></td><td class="text-right">44%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#152"><abbr title="Observer_Typing::typecast">typecast</abbr></a></td><td class="text-right">48%</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#264"><abbr title="Admin::give_user_role">give_user_role</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#765"><abbr title="Query::set">set</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#213"><abbr title="Model::condition">condition</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#917"><abbr title="Api_V1::permissions_get">permissions_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#427"><abbr title="Observer_Typing::type_serialize">type_serialize</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#268"><abbr title="Model::implode_pk">implode_pk</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#540"><abbr title="Api_V1::guest_widget_instance_scores_get">guest_widget_instance_scores_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#471"><abbr title="Api_V1::assets_get">assets_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#557"><abbr title="Api_V1::play_logs_get">play_logs_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#618"><abbr title="Api_V1::play_storage_get">play_storage_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/driver.php.html#29"><abbr title="Auth_Acl_Driver::forge">forge</abbr></a></td><td class="text-right">53%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1652"><abbr title="Model::observe">observe</abbr></a></td><td class="text-right">55%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1249"><abbr title="Query::get">get</abbr></a></td><td class="text-right">58%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#621"><abbr title="Query::_parse_where_array">_parse_where_array</abbr></a></td><td class="text-right">58%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#279"><abbr title="Session_Play::get_by_id">get_by_id</abbr></a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="orm/classes/observer/updatedat.php.html#77"><abbr title="Observer_UpdatedAt::before_update">before_update</abbr></a></td><td class="text-right">61%</td></tr>
+       <tr><td><a href="materia/classes/widget/question/manager.php.html#35"><abbr title="Widget_Question_Manager::get_users_questions">get_users_questions</abbr></a></td><td class="text-right">62%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1493"><abbr title="Model::delete">delete</abbr></a></td><td class="text-right">63%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1217"><abbr title="Model::set">set</abbr></a></td><td class="text-right">63%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#186"><abbr title="Auth::check">check</abbr></a></td><td class="text-right">65%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#77"><abbr title="Auth_Login_Driver::check">check</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#253"><abbr title="Score_Module::get_feedback">get_feedback</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#128"><abbr title="Session_Play::save_new_play">save_new_play</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#157"><abbr title="Api_V1::widget_instance_update">widget_instance_update</abbr></a></td><td class="text-right">68%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#508"><abbr title="Query::_where">_where</abbr></a></td><td class="text-right">68%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1128"><abbr title="Query::hydrate">hydrate</abbr></a></td><td class="text-right">70%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#406"><abbr title="Model::relations">relations</abbr></a></td><td class="text-right">71%</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#8"><abbr title="Auth_Login_Materiaauth::update_role">update_role</abbr></a></td><td class="text-right">71%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#52"><abbr title="Score_Module::validate_times">validate_times</abbr></a></td><td class="text-right">71%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#559"><abbr title="Model::find">find</abbr></a></td><td class="text-right">73%</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#393"><abbr title="Session_Play::invalidate">invalidate</abbr></a></td><td class="text-right">73%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#475"><abbr title="Model::observers">observers</abbr></a></td><td class="text-right">73%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#393"><abbr title="Widget_Instance::set_owners">set_owners</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#482"><abbr title="Auth_Login_Simpleauth::get_user_id">get_user_id</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="rocketduck/classes/log.php.html#49"><abbr title="Log::prepare_file">prepare_file</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="orm/classes/observer/createdat.php.html#67"><abbr title="Observer_CreatedAt::before_insert">before_insert</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#174"><abbr title="Auth_Login_Simpleauth::force_login">force_login</abbr></a></td><td class="text-right">76%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1080"><abbr title="Model::__clone">__clone</abbr></a></td><td class="text-right">76%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1347"><abbr title="Query::get_one">get_one</abbr></a></td><td class="text-right">76%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#190"><abbr title="Widget_Instance::store_qset">store_qset</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#151"><abbr title="Model::connection">connection</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#76"><abbr title="Api_V1::widget_instance_copy">widget_instance_copy</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#796"><abbr title="Api_V1::_normalize_perms">_normalize_perms</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#508"><abbr title="Api_V1::widget_instance_play_scores_get">widget_instance_play_scores_get</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#351"><abbr title="Model::property">property</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#631"><abbr title="Api_V1::question_set_get">question_set_get</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#116"><abbr title="Util_Validator::is_valid_long_hash">is_valid_long_hash</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#50"><abbr title="Auth_Login_Materiaauth::create_user">create_user</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#300"><abbr title="Model::properties">properties</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#952"><abbr title="Model::_relate">_relate</abbr></a></td><td class="text-right">81%</td></tr>
+       <tr><td><a href="materia/classes/session/activity.php.html#56"><abbr title="Session_Activity::db_store">db_store</abbr></a></td><td class="text-right">81%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#969"><abbr title="Api_V1::_validate_play_id">_validate_play_id</abbr></a></td><td class="text-right">83%</td></tr>
+       <tr><td><a href="materia/classes/utils.php.html#42"><abbr title="Utils::get_avatar">get_avatar</abbr></a></td><td class="text-right">83%</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#28"><abbr title="Session_Logger::parse_and_store_log_array">parse_and_store_log_array</abbr></a></td><td class="text-right">83%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1415"><abbr title="Model::update">update</abbr></a></td><td class="text-right">84%</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#68"><abbr title="Score_Manager::get_play_details">get_play_details</abbr></a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#225"><abbr title="Query::select">select</abbr></a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#28"><abbr title="Auth_Login_Materiaauth::logout">logout</abbr></a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#87"><abbr title="Perm_Manager::add_users_to_role_system_only">add_users_to_role_system_only</abbr></a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1485"><abbr title="Query::insert">insert</abbr></a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#384"><abbr title="Api_V1::play_logs_save">play_logs_save</abbr></a></td><td class="text-right">87%</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#136"><abbr title="Widget_Instance::db_get">db_get</abbr></a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#309"><abbr title="Score_Module::get_ss_expected_answers">get_ss_expected_answers</abbr></a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#81"><abbr title="Auth::forge">forge</abbr></a></td><td class="text-right">89%</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#815"><abbr title="Model::__construct">__construct</abbr></a></td><td class="text-right">89%</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#96"><abbr title="Widget_Question::db_store">db_store</abbr></a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="orm/classes/query.php.html#793"><abbr title="Query::build_query">build_query</abbr></a></td><td class="text-right">2225</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#114"><abbr title="Auth_Login_Materiaauth::update_user">update_user</abbr></a></td><td class="text-right">600</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1784"><abbr title="Model::get_diff">get_diff</abbr></a></td><td class="text-right">420</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#285"><abbr title="Auth_Login_Simpleauth::update_user">update_user</abbr></a></td><td class="text-right">380</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#658"><abbr title="Model::__callStatic">__callStatic</abbr></a></td><td class="text-right">306</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1957"><abbr title="Model::from_array">from_array</abbr></a></td><td class="text-right">272</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2028"><abbr title="Model::to_array">to_array</abbr></a></td><td class="text-right">246</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#412"><abbr title="Auth::_driver_check">_driver_check</abbr></a></td><td class="text-right">240</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2175"><abbr title="Model::_get_eav">_get_eav</abbr></a></td><td class="text-right">210</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#174"><abbr title="Admin::destroy_database">destroy_database</abbr></a></td><td class="text-right">210</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1277"><abbr title="Model::save">save</abbr></a></td><td class="text-right">179</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1698"><abbr title="Model::is_changed">is_changed</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#284"><abbr title="Widget_Question::export">export</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/simpleacl.php.html#31"><abbr title="Auth_Acl_Simpleacl::has_access">has_access</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#693"><abbr title="Query::related">related</abbr></a></td><td class="text-right">132</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#318"><abbr title="Auth::register_driver_type">register_driver_type</abbr></a></td><td class="text-right">110</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2249"><abbr title="Model::_set_eav">_set_eav</abbr></a></td><td class="text-right">107</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#90"><abbr title="Session_Logger::get_type">get_type</abbr></a></td><td class="text-right">104</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#134"><abbr title="Query::__construct">__construct</abbr></a></td><td class="text-right">96</td></tr>
+       <tr><td><a href="rocketduck/classes/fuel/core/file.php.html#6"><abbr title="File::render">render</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="auth/classes/auth/group/driver.php.html#64"><abbr title="Auth_Group_Driver::has_access">has_access</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#154"><abbr title="Perm_Manager::get_user_roles">get_user_roles</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#103"><abbr title="Admin::setup_migrations">setup_migrations</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#569"><abbr title="Api_V1::score_summary_get">score_summary_get</abbr></a></td><td class="text-right">71</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1118"><abbr title="Model::get">get</abbr></a></td><td class="text-right">67</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#297"><abbr title="Query::_normalize">_normalize</abbr></a></td><td class="text-right">58</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#71"><abbr title="Admin::score_play">score_play</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#232"><abbr title="Auth_Login_Simpleauth::create_user">create_user</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#234"><abbr title="Observer_Typing::type_string">type_string</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#236"><abbr title="Score_Manager::save_preview_logs">save_preview_logs</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#41"><abbr title="Widget_Asset_Manager::process_upload">process_upload</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#265"><abbr title="Observer_Typing::type_integer">type_integer</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#152"><abbr title="Observer_Typing::typecast">typecast</abbr></a></td><td class="text-right">45</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1128"><abbr title="Query::hydrate">hydrate</abbr></a></td><td class="text-right">43</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1493"><abbr title="Model::delete">delete</abbr></a></td><td class="text-right">43</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#371"><abbr title="Model::views">views</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1029"><abbr title="Model::__unset">__unset</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#359"><abbr title="Observer_Typing::type_set_before">type_set_before</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#30"><abbr title="Perm_Manager::delete_role">delete_role</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#11"><abbr title="Perm_Manager::create_role">create_role</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#183"><abbr title="Session_Logger::query_logs">query_logs</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#27"><abbr title="Admin::create_default_users">create_default_users</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="orm/classes/observer/updatedat.php.html#108"><abbr title="Observer_UpdatedAt::relation_changed">relation_changed</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#68"><abbr title="Auth_Group_Simplegroup::get_roles">get_roles</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#559"><abbr title="Auth_Login_Simpleauth::get_profile_fields">get_profile_fields</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/driver.php.html#61"><abbr title="Auth_Acl_Driver::_parse_conditions">_parse_conditions</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#76"><abbr title="Auth_Login_Simpleauth::perform_check">perform_check</abbr></a></td><td class="text-right">39</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#157"><abbr title="Api_V1::widget_instance_update">widget_instance_update</abbr></a></td><td class="text-right">35</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#621"><abbr title="Query::_parse_where_array">_parse_where_array</abbr></a></td><td class="text-right">33</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#897"><abbr title="Model::_update_original_relations">_update_original_relations</abbr></a></td><td class="text-right">33</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#685"><abbr title="Api_V1::play_storage_data_save">play_storage_data_save</abbr></a></td><td class="text-right">31</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#68"><abbr title="Widget_Asset::db_store">db_store</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#153"><abbr title="Auth_Login_Driver::has_access">has_access</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#117"><abbr title="Perm_Manager::add_user_to_role">add_user_to_role</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#54"><abbr title="Auth_Group_Simplegroup::get_name">get_name</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#256"><abbr title="Auth::login">login</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#537"><abbr title="Model::unregister_observer">unregister_observer</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#226"><abbr title="Session_Play::get_by_inst_id">get_by_inst_id</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#252"><abbr title="Auth_Login_Driver::remember_me">remember_me</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#369"><abbr title="Auth::__callStatic">__callStatic</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#45"><abbr title="Widget_Asset::__construct">__construct</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#125"><abbr title="Auth_Login_Driver::member">member</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#333"><abbr title="Observer_Typing::type_decimal_after">type_decimal_after</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#229"><abbr title="Widget_Asset_Manager::get_user_disk_usage">get_user_disk_usage</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#531"><abbr title="Observer_Typing::type_time_decode">type_time_decode</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#176"><abbr title="Widget_Asset_Manager::get_assets_by_user">get_assets_by_user</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1217"><abbr title="Model::set">set</abbr></a></td><td class="text-right">26</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#654"><abbr title="Query::order_by">order_by</abbr></a></td><td class="text-right">21</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#186"><abbr title="Auth::check">check</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#106"><abbr title="Widget_Instance::convert_to_array_qset">convert_to_array_qset</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#59"><abbr title="Util_Validator::is_user_arr">is_user_arr</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/classes/utils.php.html#59"><abbr title="Utils::anonymous function">anonymous function</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#337"><abbr title="Admin::anonymize_users">anonymize_users</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#465"><abbr title="Observer_Typing::type_json_encode">type_json_encode</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#225"><abbr title="Auth_Login_Driver::roles">roles</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#450"><abbr title="Model::related_class">related_class</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#243"><abbr title="Admin::populate_roles">populate_roles</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#201"><abbr title="Auth_Login_Driver::groups">groups</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#137"><abbr title="Auth::unload">unload</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#292"><abbr title="Widget_Asset_Manager::register_assets_to_item">register_assets_to_item</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#151"><abbr title="Admin::destroy_widgets">destroy_widgets</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="auth/classes/auth/group/simplegroup.php.html#35"><abbr title="Auth_Group_Simplegroup::member">member</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1058"><abbr title="Model::__call">__call</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#158"><abbr title="Widget_Asset::db_remove">db_remove</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="auth/classes/auth/driver.php.html#42"><abbr title="Auth_Driver::instance">instance</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#8"><abbr title="Admin::recalculate_scores">recalculate_scores</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#662"><abbr title="Api_V1::questions_get">questions_get</abbr></a></td><td class="text-right">19</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#268"><abbr title="Model::implode_pk">implode_pk</abbr></a></td><td class="text-right">19</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#384"><abbr title="Api_V1::play_logs_save">play_logs_save</abbr></a></td><td class="text-right">18</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#559"><abbr title="Model::find">find</abbr></a></td><td class="text-right">17</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#748"><abbr title="Api_V1::user_get">user_get</abbr></a></td><td class="text-right">16</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1652"><abbr title="Model::observe">observe</abbr></a></td><td class="text-right">16</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1249"><abbr title="Query::get">get</abbr></a></td><td class="text-right">14</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#225"><abbr title="Query::select">select</abbr></a></td><td class="text-right">14</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#96"><abbr title="Widget_Question::db_store">db_store</abbr></a></td><td class="text-right">14</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1002"><abbr title="Model::__isset">__isset</abbr></a></td><td class="text-right">13</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#705"><abbr title="Api_V1::play_storage_data_get">play_storage_data_get</abbr></a></td><td class="text-right">13</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#508"><abbr title="Query::_where">_where</abbr></a></td><td class="text-right">13</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1313"><abbr title="Query::get_query">get_query</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1417"><abbr title="Query::max">max</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#189"><abbr title="Widget_Question::db_remove">db_remove</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1452"><abbr title="Query::min">min</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#508"><abbr title="Observer_Typing::type_time_encode">type_time_encode</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2393"><abbr title="Model::get_filtered_properties">get_filtered_properties</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#290"><abbr title="Observer_Typing::type_float">type_float</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#314"><abbr title="Observer_Typing::type_decimal_before">type_decimal_before</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1944"><abbr title="Model::set_form_fields">set_form_fields</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#328"><abbr title="Widget_Asset_Manager::un_register_assets_to_item">un_register_assets_to_item</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#132"><abbr title="Perm_Manager::get_all_roles">get_all_roles</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#150"><abbr title="Score_Manager::get_widget_score_distribution">get_widget_score_distribution</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#182"><abbr title="Session_Play::resume">resume</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#992"><abbr title="Api_V1::_decrypt_logs">_decrypt_logs</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#515"><abbr title="Auth_Login_Simpleauth::get">get</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#234"><abbr title="Auth::verified">verified</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#97"><abbr title="Auth_Login_Driver::get_user_array">get_user_array</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#204"><abbr title="Widget_Asset::remove_files">remove_files</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#384"><abbr title="Perm_Manager::is_administrator">is_administrator</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#142"><abbr title="Widget_Asset_Manager::get_widgets_by_asset">get_widgets_by_asset</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#346"><abbr title="Widget_Asset_Manager::get_assets_by_item">get_assets_by_item</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#274"><abbr title="Widget_Asset_Manager::register_asset_to_item">register_asset_to_item</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#631"><abbr title="Api_V1::question_set_get">question_set_get</abbr></a></td><td class="text-right">11</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#815"><abbr title="Model::__construct">__construct</abbr></a></td><td class="text-right">11</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#406"><abbr title="Model::relations">relations</abbr></a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#50"><abbr title="Auth_Login_Materiaauth::create_user">create_user</abbr></a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="materia/classes/session/logger.php.html#28"><abbr title="Session_Logger::parse_and_store_log_array">parse_and_store_log_array</abbr></a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#475"><abbr title="Model::observers">observers</abbr></a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1415"><abbr title="Model::update">update</abbr></a></td><td class="text-right">10</td></tr>
+       <tr><td><a href="auth/classes/auth/acl/driver.php.html#29"><abbr title="Auth_Acl_Driver::forge">forge</abbr></a></td><td class="text-right">9</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#52"><abbr title="Score_Module::validate_times">validate_times</abbr></a></td><td class="text-right">9</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#294"><abbr title="Admin::new_user">new_user</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#87"><abbr title="Perm_Manager::add_users_to_role_system_only">add_users_to_role_system_only</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="orm/classes/observer/updatedat.php.html#77"><abbr title="Observer_UpdatedAt::before_update">before_update</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="materia/classes/widget/question/manager.php.html#35"><abbr title="Widget_Question_Manager::get_users_questions">get_users_questions</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#300"><abbr title="Model::properties">properties</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#81"><abbr title="Auth::forge">forge</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#279"><abbr title="Session_Play::get_by_id">get_by_id</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#508"><abbr title="Api_V1::widget_instance_play_scores_get">widget_instance_play_scores_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#68"><abbr title="Score_Manager::get_play_details">get_play_details</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#309"><abbr title="Score_Module::get_ss_expected_answers">get_ss_expected_answers</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2312"><abbr title="Model::offsetSet">offsetSet</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#497"><abbr title="Auth_Login_Simpleauth::get_groups">get_groups</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#232"><abbr title="Widget_Asset::db_get">db_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#2334"><abbr title="Model::offsetGet">offsetGet</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/widget/question.php.html#229"><abbr title="Widget_Question::db_get">db_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#126"><abbr title="Widget_Asset_Manager::delete_asset">delete_asset</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#323"><abbr title="Admin::instant_user">instant_user</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#73"><abbr title="Perm_Manager::add_users_to_role">add_users_to_role</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#544"><abbr title="Auth_Login_Simpleauth::get_screen_name">get_screen_name</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#380"><abbr title="Query::use_view">use_view</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#618"><abbr title="Api_V1::play_storage_get">play_storage_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#412"><abbr title="Observer_Typing::type_bool_from_int">type_bool_from_int</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#427"><abbr title="Observer_Typing::type_serialize">type_serialize</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#581"><abbr title="Auth_Login_Simpleauth::has_access">has_access</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#488"><abbr title="Observer_Typing::type_json_decode">type_json_decode</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/observer/typing.php.html#400"><abbr title="Observer_Typing::type_bool_to_int">type_bool_to_int</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/widget/asset.php.html#123"><abbr title="Widget_Asset::get_file_name">get_file_name</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1845"><abbr title="Model::is_fetched">is_fetched</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#557"><abbr title="Api_V1::play_logs_get">play_logs_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#540"><abbr title="Api_V1::guest_widget_instance_scores_get">guest_widget_instance_scores_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#264"><abbr title="Admin::give_user_role">give_user_role</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#438"><abbr title="Auth_Login_Simpleauth::delete_user">delete_user</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#641"><abbr title="Model::max">max</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#653"><abbr title="Model::min">min</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#28"><abbr title="Auth_Login_Simpleauth::_init">_init</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#291"><abbr title="Score_Module::log_problem">log_problem</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#274"><abbr title="Auth_Login_Driver::dont_remember_me">dont_remember_me</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/widget/asset/manager.php.html#88"><abbr title="Widget_Asset_Manager::can_asset_be_deleted">can_asset_be_deleted</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#213"><abbr title="Model::condition">condition</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#136"><abbr title="Util_Validator::is_string">is_string</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth.php.html#349"><abbr title="Auth::unregister_driver_type">unregister_driver_type</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#214"><abbr title="Auth_Login_Simpleauth::logout">logout</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#394"><abbr title="Auth_Login_Simpleauth::change_password">change_password</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/tasks/admin.php.html#331"><abbr title="Admin::clear_cache">clear_cache</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1616"><abbr title="Model::reset">reset</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/api.php.html#16"><abbr title="Api::get_version">get_version</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#340"><abbr title="Perm_Manager::add_users_to_roles">add_users_to_roles</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#414"><abbr title="Auth_Login_Simpleauth::reset_password">reset_password</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#195"><abbr title="Score_Manager::get_widget_score_summary">get_widget_score_summary</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#40"><abbr title="Score_Module::validate">validate</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/manager.php.html#261"><abbr title="Score_Manager::get_preview_logs">get_preview_logs</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="rocketduck/classes/perm/manager.php.html#296"><abbr title="Perm_Manager::remove_users_from_roles">remove_users_from_roles</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="materia/classes/score/module.php.html#253"><abbr title="Score_Module::get_feedback">get_feedback</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#1080"><abbr title="Model::__clone">__clone</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#796"><abbr title="Api_V1::_normalize_perms">_normalize_perms</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#190"><abbr title="Widget_Instance::store_qset">store_qset</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#151"><abbr title="Model::connection">connection</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="materia/classes/session/activity.php.html#56"><abbr title="Session_Activity::db_store">db_store</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#969"><abbr title="Api_V1::_validate_play_id">_validate_play_id</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#128"><abbr title="Session_Play::save_new_play">save_new_play</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="orm/classes/observer/createdat.php.html#67"><abbr title="Observer_CreatedAt::before_insert">before_insert</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#174"><abbr title="Auth_Login_Simpleauth::force_login">force_login</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#76"><abbr title="Api_V1::widget_instance_copy">widget_instance_copy</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#765"><abbr title="Query::set">set</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#952"><abbr title="Model::_relate">_relate</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="materia/classes/utils.php.html#42"><abbr title="Utils::get_avatar">get_avatar</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#8"><abbr title="Auth_Login_Materiaauth::update_role">update_role</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="materia/classes/session/play.php.html#393"><abbr title="Session_Play::invalidate">invalidate</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="rocketduck/classes/log.php.html#49"><abbr title="Log::prepare_file">prepare_file</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#393"><abbr title="Widget_Instance::set_owners">set_owners</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1347"><abbr title="Query::get_one">get_one</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="materiaauth/classes/auth/login/materiaauth.php.html#28"><abbr title="Auth_Login_Materiaauth::logout">logout</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="materia/classes/widget/instance.php.html#136"><abbr title="Widget_Instance::db_get">db_get</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#917"><abbr title="Api_V1::permissions_get">permissions_get</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="materia/classes/api/v1.php.html#471"><abbr title="Api_V1::assets_get">assets_get</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="auth/classes/auth/login/driver.php.html#77"><abbr title="Auth_Login_Driver::check">check</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="auth/classes/auth/login/simpleauth.php.html#482"><abbr title="Auth_Login_Simpleauth::get_user_id">get_user_id</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="orm/classes/model.php.html#351"><abbr title="Model::property">property</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="rocketduck/classes/util/validator.php.html#116"><abbr title="Util_Validator::is_valid_long_hash">is_valid_long_hash</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="orm/classes/query.php.html#1485"><abbr title="Query::insert">insert</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 2.2.4</a> using <a href="https://secure.php.net/" target="_top">PHP 5.6.19</a> and <a href="http://phpunit.de/">PHPUnit 4.1.6-6-g43914fa</a> at Tue Aug 30 14:12:07 EDT 2016.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../js/jquery.min.js" type="text/javascript"></script>
+  <script src="../../js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../../js/holder.min.js" type="text/javascript"></script>
+  <script src="../../js/d3.min.js" type="text/javascript"></script>
+  <script src="../../js/nv.d3.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([4,4,0,4,5,5,2,2,4,5,3,12], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([200,1,3,2,10,4,14,11,14,27,18,146], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[100,0,"<a href=\"auth\/classes\/auth.php.html#17\">AuthException<\/a>"],[36.046511627907,78,"<a href=\"auth\/classes\/auth.php.html#25\">Auth<\/a>"],[30.769230769231,13,"<a href=\"auth\/classes\/auth\/acl\/driver.php.html#17\">Auth_Acl_Driver<\/a>"],[6.0606060606061,14,"<a href=\"auth\/classes\/auth\/acl\/simpleacl.php.html#17\">Auth_Acl_Simpleacl<\/a>"],[27.777777777778,11,"<a href=\"auth\/classes\/auth\/driver.php.html#17\">Auth_Driver<\/a>"],[40.540540540541,17,"<a href=\"auth\/classes\/auth\/group\/driver.php.html#17\">Auth_Group_Driver<\/a>"],[6.25,17,"<a href=\"auth\/classes\/auth\/group\/simplegroup.php.html#17\">Auth_Group_Simplegroup<\/a>"],[28.235294117647,47,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#17\">Auth_Login_Driver<\/a>"],[25,82,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#23\">Auth_Login_Simpleauth<\/a>"],[0,2,"<a href=\"materia\/classes\/api.php.html#14\">Api<\/a>"],[73.363431151242,206,"<a href=\"materia\/classes\/api\/v1.php.html#27\">Api_V1<\/a>"],[100,0,"<a href=\"materia\/classes\/perm.php.html#25\">Perm<\/a>"],[48.125,77,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#4\">Perm_Manager<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/exception.php.html#4\">Score_Exception<\/a>"],[39.830508474576,31,"<a href=\"materia\/classes\/score\/manager.php.html#4\">Score_Manager<\/a>"],[88.343558282209,68,"<a href=\"materia\/classes\/score\/module.php.html#4\">Score_Module<\/a>"],[75,10,"<a href=\"materia\/classes\/semester.php.html#25\">Semester<\/a>"],[88.888888888889,10,"<a href=\"materia\/classes\/session\/activity.php.html#25\">Session_Activity<\/a>"],[92.307692307692,12,"<a href=\"materia\/classes\/session\/log.php.html#25\">Session_Log<\/a>"],[56.07476635514,43,"<a href=\"materia\/classes\/session\/logger.php.html#25\">Session_Logger<\/a>"],[57.707509881423,39,"<a href=\"materia\/classes\/session\/play.php.html#25\">Session_Play<\/a>"],[47.619047619048,13,"<a href=\"materia\/classes\/utils.php.html#26\">Utils<\/a>"],[95.3125,17,"<a href=\"materia\/classes\/widget.php.html#25\">Widget<\/a>"],[0,22,"<a href=\"materia\/classes\/widget\/asset.php.html#25\">Widget_Asset<\/a>"],[9.2857142857143,45,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#21\">Widget_Asset_Manager<\/a>"],[86.725663716814,75,"<a href=\"materia\/classes\/widget\/instance.php.html#5\">Widget_Instance<\/a>"],[77.272727272727,5,"<a href=\"materia\/classes\/widget\/instance\/hash.php.html#5\">Widget_Instance_Hash<\/a>"],[100,12,"<a href=\"materia\/classes\/widget\/instance\/manager.php.html#5\">Widget_Instance_Manager<\/a>"],[100,5,"<a href=\"materia\/classes\/widget\/manager.php.html#25\">Widget_Manager<\/a>"],[60,57,"<a href=\"materia\/classes\/widget\/question.php.html#25\">Widget_Question<\/a>"],[62.5,6,"<a href=\"materia\/classes\/widget\/question\/manager.php.html#24\">Widget_Question_Manager<\/a>"],[5.3658536585366,68,"<a href=\"materia\/tasks\/admin.php.html#5\">Admin<\/a>"],[100,0,"<a href=\"materiaauth\/classes\/auth\/login\/materiaauth.php.html#3\">MateriaAuthUserUpdateException<\/a>"],[33.333333333333,40,"<a href=\"materiaauth\/classes\/auth\/login\/materiaauth.php.html#5\">Auth_Login_Materiaauth<\/a>"],[100,0,"<a href=\"orm\/classes\/model.php.html#20\">RecordNotFound<\/a>"],[100,0,"<a href=\"orm\/classes\/model.php.html#25\">FrozenObject<\/a>"],[39.686098654709,403,"<a href=\"orm\/classes\/model.php.html#27\">Model<\/a>"],[100,4,"<a href=\"orm\/classes\/observer.php.html#20\">Observer<\/a>"],[88.888888888889,8,"<a href=\"orm\/classes\/observer\/createdat.php.html#21\">Observer_CreatedAt<\/a>"],[100,2,"<a href=\"orm\/classes\/observer\/self.php.html#21\">Observer_Self<\/a>"],[100,0,"<a href=\"orm\/classes\/observer\/typing.php.html#20\">InvalidContentType<\/a>"],[23.529411764706,75,"<a href=\"orm\/classes\/observer\/typing.php.html#27\">Observer_Typing<\/a>"],[41.666666666667,17,"<a href=\"orm\/classes\/observer\/updatedat.php.html#21\">Observer_UpdatedAt<\/a>"],[43.710691823899,258,"<a href=\"orm\/classes\/query.php.html#20\">Query<\/a>"],[100,3,"<a href=\"rocketduck\/classes\/fuel\/core\/cache.php.html#3\">Cache<\/a>"],[0,9,"<a href=\"rocketduck\/classes\/fuel\/core\/file.php.html#3\">File<\/a>"],[90.322580645161,9,"<a href=\"rocketduck\/classes\/log.php.html#5\">Log<\/a>"],[81.818181818182,5,"<a href=\"rocketduck\/classes\/msg.php.html#25\">Msg<\/a>"],[0,1,"<a href=\"rocketduck\/classes\/perm\/role.php.html#27\">Perm_Role<\/a>"],[72.222222222222,20,"<a href=\"rocketduck\/classes\/util\/validator.php.html#26\">Util_Validator<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,4,"<a href=\"auth\/classes\/auth.php.html#55\">Auth::_init<\/a>"],[89.473684210526,7,"<a href=\"auth\/classes\/auth.php.html#81\">Auth::forge<\/a>"],[100,1,"<a href=\"auth\/classes\/auth.php.html#129\">Auth::__construct<\/a>"],[0,4,"<a href=\"auth\/classes\/auth.php.html#137\">Auth::unload<\/a>"],[90,4,"<a href=\"auth\/classes\/auth.php.html#160\">Auth::instance<\/a>"],[65.217391304348,13,"<a href=\"auth\/classes\/auth.php.html#186\">Auth::check<\/a>"],[0,3,"<a href=\"auth\/classes\/auth.php.html#234\">Auth::verified<\/a>"],[0,5,"<a href=\"auth\/classes\/auth.php.html#256\">Auth::login<\/a>"],[100,2,"<a href=\"auth\/classes\/auth.php.html#281\">Auth::logout<\/a>"],[100,1,"<a href=\"auth\/classes\/auth.php.html#296\">Auth::_register_verified<\/a>"],[100,1,"<a href=\"auth\/classes\/auth.php.html#306\">Auth::_unregister_verified<\/a>"],[0,10,"<a href=\"auth\/classes\/auth.php.html#318\">Auth::register_driver_type<\/a>"],[0,2,"<a href=\"auth\/classes\/auth.php.html#349\">Auth::unregister_driver_type<\/a>"],[0,5,"<a href=\"auth\/classes\/auth.php.html#369\">Auth::__callStatic<\/a>"],[0,1,"<a href=\"auth\/classes\/auth.php.html#396\">Auth::_driver_instance<\/a>"],[0,15,"<a href=\"auth\/classes\/auth.php.html#412\">Auth::_driver_check<\/a>"],[53.333333333333,6,"<a href=\"auth\/classes\/auth\/acl\/driver.php.html#29\">Auth_Acl_Driver::forge<\/a>"],[0,6,"<a href=\"auth\/classes\/auth\/acl\/driver.php.html#61\">Auth_Acl_Driver::_parse_conditions<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/acl\/driver.php.html#92\">Auth_Acl_Driver::has_access<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/acl\/simpleacl.php.html#21\">Auth_Acl_Simpleacl::_init<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/acl\/simpleacl.php.html#26\">Auth_Acl_Simpleacl::roles<\/a>"],[0,12,"<a href=\"auth\/classes\/auth\/acl\/simpleacl.php.html#31\">Auth_Acl_Simpleacl::has_access<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/driver.php.html#31\">Auth_Driver::forge<\/a>"],[0,4,"<a href=\"auth\/classes\/auth\/driver.php.html#42\">Auth_Driver::instance<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/driver.php.html#73\">Auth_Driver::__construct<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/driver.php.html#84\">Auth_Driver::get_id<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/driver.php.html#95\">Auth_Driver::set_config<\/a>"],[100,2,"<a href=\"auth\/classes\/auth\/driver.php.html#107\">Auth_Driver::get_config<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/driver.php.html#117\">Auth_Driver::guest_login<\/a>"],[100,6,"<a href=\"auth\/classes\/auth\/group\/driver.php.html#29\">Auth_Group_Driver::forge<\/a>"],[0,9,"<a href=\"auth\/classes\/auth\/group\/driver.php.html#64\">Auth_Group_Driver::has_access<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/group\/driver.php.html#116\">Auth_Group_Driver::member<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/group\/driver.php.html#124\">Auth_Group_Driver::get_name<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/group\/simplegroup.php.html#21\">Auth_Group_Simplegroup::_init<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/group\/simplegroup.php.html#30\">Auth_Group_Simplegroup::groups<\/a>"],[0,4,"<a href=\"auth\/classes\/auth\/group\/simplegroup.php.html#35\">Auth_Group_Simplegroup::member<\/a>"],[0,5,"<a href=\"auth\/classes\/auth\/group\/simplegroup.php.html#54\">Auth_Group_Simplegroup::get_name<\/a>"],[0,6,"<a href=\"auth\/classes\/auth\/group\/simplegroup.php.html#68\">Auth_Group_Simplegroup::get_roles<\/a>"],[100,6,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#34\">Auth_Login_Driver::forge<\/a>"],[66.666666666667,2,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#77\">Auth_Login_Driver::check<\/a>"],[0,3,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#97\">Auth_Login_Driver::get_user_array<\/a>"],[0,5,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#125\">Auth_Login_Driver::member<\/a>"],[0,5,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#153\">Auth_Login_Driver::has_access<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#179\">Auth_Login_Driver::hash_password<\/a>"],[100,2,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#189\">Auth_Login_Driver::hasher<\/a>"],[0,4,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#201\">Auth_Login_Driver::groups<\/a>"],[0,4,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#225\">Auth_Login_Driver::roles<\/a>"],[0,5,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#252\">Auth_Login_Driver::remember_me<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#274\">Auth_Login_Driver::dont_remember_me<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#286\">Auth_Login_Driver::perform_check<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#293\">Auth_Login_Driver::validate_user<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#300\">Auth_Login_Driver::login<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#305\">Auth_Login_Driver::logout<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#313\">Auth_Login_Driver::get_user_id<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#321\">Auth_Login_Driver::get_groups<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#328\">Auth_Login_Driver::get_email<\/a>"],[100,1,"<a href=\"auth\/classes\/auth\/login\/driver.php.html#335\">Auth_Login_Driver::get_screen_name<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#28\">Auth_Login_Simpleauth::_init<\/a>"],[42.105263157895,12,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#76\">Auth_Login_Simpleauth::perform_check<\/a>"],[93.333333333333,6,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#119\">Auth_Login_Simpleauth::validate_user<\/a>"],[100,3,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#149\">Auth_Login_Simpleauth::login<\/a>"],[76.190476190476,4,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#174\">Auth_Login_Simpleauth::force_login<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#214\">Auth_Login_Simpleauth::logout<\/a>"],[0,7,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#232\">Auth_Login_Simpleauth::create_user<\/a>"],[0,19,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#285\">Auth_Login_Simpleauth::update_user<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#394\">Auth_Login_Simpleauth::change_password<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#414\">Auth_Login_Simpleauth::reset_password<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#438\">Auth_Login_Simpleauth::delete_user<\/a>"],[90.909090909091,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#457\">Auth_Login_Simpleauth::create_login_hash<\/a>"],[75,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#482\">Auth_Login_Simpleauth::get_user_id<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#497\">Auth_Login_Simpleauth::get_groups<\/a>"],[0,3,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#515\">Auth_Login_Simpleauth::get<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#534\">Auth_Login_Simpleauth::get_email<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#544\">Auth_Login_Simpleauth::get_screen_name<\/a>"],[0,6,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#559\">Auth_Login_Simpleauth::get_profile_fields<\/a>"],[0,2,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#581\">Auth_Login_Simpleauth::has_access<\/a>"],[0,1,"<a href=\"auth\/classes\/auth\/login\/simpleauth.php.html#594\">Auth_Login_Simpleauth::guest_login<\/a>"],[0,2,"<a href=\"materia\/classes\/api.php.html#16\">Api::get_version<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#32\">Api_V1::widgets_get<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#40\">Api_V1::widgets_get_by_type<\/a>"],[100,4,"<a href=\"materia\/classes\/api\/v1.php.html#45\">Api_V1::widget_instances_get<\/a>"],[100,5,"<a href=\"materia\/classes\/api\/v1.php.html#62\">Api_V1::widget_instance_delete<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#71\">Api_V1::has_perms_to_inst<\/a>"],[80,4,"<a href=\"materia\/classes\/api\/v1.php.html#76\">Api_V1::widget_instance_copy<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#102\">Api_V1::widget_instance_save<\/a>"],[90.47619047619,8,"<a href=\"materia\/classes\/api\/v1.php.html#107\">Api_V1::widget_instance_new<\/a>"],[68.181818181818,21,"<a href=\"materia\/classes\/api\/v1.php.html#157\">Api_V1::widget_instance_update<\/a>"],[100,3,"<a href=\"materia\/classes\/api\/v1.php.html#283\">Api_V1::widget_instance_lock<\/a>"],[100,2,"<a href=\"materia\/classes\/api\/v1.php.html#296\">Api_V1::widget_spotlight_get<\/a>"],[100,4,"<a href=\"materia\/classes\/api\/v1.php.html#309\">Api_V1::session_play_create<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#320\">Api_V1::session_logout<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#330\">Api_V1::session_login<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#338\">Api_V1::session_author_verify<\/a>"],[100,3,"<a href=\"materia\/classes\/api\/v1.php.html#346\">Api_V1::session_play_verify<\/a>"],[100,3,"<a href=\"materia\/classes\/api\/v1.php.html#368\">Api_V1::play_activity_get<\/a>"],[87.80487804878,18,"<a href=\"materia\/classes\/api\/v1.php.html#384\">Api_V1::play_logs_save<\/a>"],[50,2,"<a href=\"materia\/classes\/api\/v1.php.html#471\">Api_V1::assets_get<\/a>"],[100,6,"<a href=\"materia\/classes\/api\/v1.php.html#486\">Api_V1::widget_instance_scores_get<\/a>"],[80,6,"<a href=\"materia\/classes\/api\/v1.php.html#508\">Api_V1::widget_instance_play_scores_get<\/a>"],[50,4,"<a href=\"materia\/classes\/api\/v1.php.html#540\">Api_V1::guest_widget_instance_scores_get<\/a>"],[50,4,"<a href=\"materia\/classes\/api\/v1.php.html#557\">Api_V1::play_logs_get<\/a>"],[8.3333333333333,9,"<a href=\"materia\/classes\/api\/v1.php.html#569\">Api_V1::score_summary_get<\/a>"],[0,1,"<a href=\"materia\/classes\/api\/v1.php.html#607\">Api_V1::anonymous function<\/a>"],[50,4,"<a href=\"materia\/classes\/api\/v1.php.html#618\">Api_V1::play_storage_get<\/a>"],[80,11,"<a href=\"materia\/classes\/api\/v1.php.html#631\">Api_V1::question_set_get<\/a>"],[27.272727272727,6,"<a href=\"materia\/classes\/api\/v1.php.html#662\">Api_V1::questions_get<\/a>"],[11.111111111111,6,"<a href=\"materia\/classes\/api\/v1.php.html#685\">Api_V1::play_storage_data_save<\/a>"],[16.666666666667,4,"<a href=\"materia\/classes\/api\/v1.php.html#705\">Api_V1::play_storage_data_get<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#719\">Api_V1::semester_date_ranges_get<\/a>"],[100,4,"<a href=\"materia\/classes\/api\/v1.php.html#724\">Api_V1::users_search<\/a>"],[41.176470588235,7,"<a href=\"materia\/classes\/api\/v1.php.html#748\">Api_V1::user_get<\/a>"],[100,5,"<a href=\"materia\/classes\/api\/v1.php.html#782\">Api_V1::user_update_meta<\/a>"],[80,5,"<a href=\"materia\/classes\/api\/v1.php.html#796\">Api_V1::_normalize_perms<\/a>"],[90,5,"<a href=\"materia\/classes\/api\/v1.php.html#818\">Api_V1::_filter_increasing_perms<\/a>"],[100,15,"<a href=\"materia\/classes\/api\/v1.php.html#846\">Api_V1::permissions_set<\/a>"],[50,2,"<a href=\"materia\/classes\/api\/v1.php.html#917\">Api_V1::permissions_get<\/a>"],[100,3,"<a href=\"materia\/classes\/api\/v1.php.html#923\">Api_V1::notifications_get<\/a>"],[100,3,"<a href=\"materia\/classes\/api\/v1.php.html#942\">Api_V1::notification_delete<\/a>"],[100,1,"<a href=\"materia\/classes\/api\/v1.php.html#964\">Api_V1::semester_get<\/a>"],[83.333333333333,5,"<a href=\"materia\/classes\/api\/v1.php.html#969\">Api_V1::_validate_play_id<\/a>"],[0,3,"<a href=\"materia\/classes\/api\/v1.php.html#992\">Api_V1::_decrypt_logs<\/a>"],[100,2,"<a href=\"materia\/classes\/api\/v1.php.html#1014\">Api_V1::_get_instance_for_play_id<\/a>"],[0,6,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#11\">Perm_Manager::create_role<\/a>"],[0,6,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#30\">Perm_Manager::delete_role<\/a>"],[0,2,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#73\">Perm_Manager::add_users_to_role<\/a>"],[85.714285714286,8,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#87\">Perm_Manager::add_users_to_role_system_only<\/a>"],[0,5,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#117\">Perm_Manager::add_user_to_role<\/a>"],[0,3,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#132\">Perm_Manager::get_all_roles<\/a>"],[0,8,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#154\">Perm_Manager::get_user_roles<\/a>"],[100,6,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#216\">Perm_Manager::does_user_have_role<\/a>"],[90,5,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#249\">Perm_Manager::get_role_id<\/a>"],[100,4,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#276\">Perm_Manager::role_exists<\/a>"],[0,2,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#296\">Perm_Manager::remove_users_from_roles<\/a>"],[100,7,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#311\">Perm_Manager::remove_users_from_roles_system_only<\/a>"],[0,2,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#340\">Perm_Manager::add_users_to_roles<\/a>"],[94.117647058824,6,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#356\">Perm_Manager::add_users_to_roles_system_only<\/a>"],[0,3,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#384\">Perm_Manager::is_administrator<\/a>"],[100,4,"<a href=\"rocketduck\/classes\/perm\/manager.php.html#400\">Perm_Manager::is_super_user<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/exception.php.html#9\">Score_Exception::__construct<\/a>"],[100,3,"<a href=\"materia\/classes\/score\/manager.php.html#11\">Score_Manager::get_instance_score_history<\/a>"],[0,1,"<a href=\"materia\/classes\/score\/manager.php.html#31\">Score_Manager::get_guest_instance_score_history<\/a>"],[100,2,"<a href=\"materia\/classes\/score\/manager.php.html#49\">Score_Manager::get_instance_extra_attempts<\/a>"],[85,6,"<a href=\"materia\/classes\/score\/manager.php.html#68\">Score_Manager::get_play_details<\/a>"],[100,2,"<a href=\"materia\/classes\/score\/manager.php.html#102\">Score_Manager::get_score_module_for_widget<\/a>"],[100,2,"<a href=\"materia\/classes\/score\/manager.php.html#106\">Score_Manager::anonymous function<\/a>"],[0,3,"<a href=\"materia\/classes\/score\/manager.php.html#150\">Score_Manager::get_widget_score_distribution<\/a>"],[0,2,"<a href=\"materia\/classes\/score\/manager.php.html#195\">Score_Manager::get_widget_score_summary<\/a>"],[0,7,"<a href=\"materia\/classes\/score\/manager.php.html#236\">Score_Manager::save_preview_logs<\/a>"],[0,1,"<a href=\"materia\/classes\/score\/manager.php.html#256\">Score_Manager::init_preview<\/a>"],[0,2,"<a href=\"materia\/classes\/score\/manager.php.html#261\">Score_Manager::get_preview_logs<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#28\">Score_Module::__construct<\/a>"],[0,2,"<a href=\"materia\/classes\/score\/module.php.html#40\">Score_Module::validate<\/a>"],[71.428571428571,8,"<a href=\"materia\/classes\/score\/module.php.html#52\">Score_Module::validate_times<\/a>"],[100,6,"<a href=\"materia\/classes\/score\/module.php.html#86\">Score_Module::validate_scores<\/a>"],[100,6,"<a href=\"materia\/classes\/score\/module.php.html#111\">Score_Module::process_score_logs<\/a>"],[0,1,"<a href=\"materia\/classes\/score\/module.php.html#137\">Score_Module::handle_log_client_final_score<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#144\">Score_Module::handle_log_question_answered<\/a>"],[0,1,"<a href=\"materia\/classes\/score\/module.php.html#150\">Score_Module::handle_log_widget_interaction<\/a>"],[100,4,"<a href=\"materia\/classes\/score\/module.php.html#155\">Score_Module::calculate_score<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#172\">Score_Module::get_score_report<\/a>"],[100,3,"<a href=\"materia\/classes\/score\/module.php.html#179\">Score_Module::load_questions<\/a>"],[100,4,"<a href=\"materia\/classes\/score\/module.php.html#185\">Score_Module::get_score_overview<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#196\">Score_Module::get_overview_items<\/a>"],[100,4,"<a href=\"materia\/classes\/score\/module.php.html#204\">Score_Module::get_score_details<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#229\">Score_Module::details_for_question_answered<\/a>"],[66.666666666667,5,"<a href=\"materia\/classes\/score\/module.php.html#253\">Score_Module::get_feedback<\/a>"],[100,7,"<a href=\"materia\/classes\/score\/module.php.html#264\">Score_Module::get_detail_style<\/a>"],[0,2,"<a href=\"materia\/classes\/score\/module.php.html#291\">Score_Module::log_problem<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#306\">Score_Module::check_answer<\/a>"],[88.888888888889,6,"<a href=\"materia\/classes\/score\/module.php.html#309\">Score_Module::get_ss_expected_answers<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#346\">Score_Module::get_ss_answer<\/a>"],[100,1,"<a href=\"materia\/classes\/score\/module.php.html#351\">Score_Module::get_ss_question<\/a>"],[0,1,"<a href=\"materia\/classes\/score\/module.php.html#359\">Score_Module::query_logs<\/a>"],[100,4,"<a href=\"materia\/classes\/semester.php.html#33\">Semester::__construct<\/a>"],[0,1,"<a href=\"materia\/classes\/semester.php.html#49\">Semester::get<\/a>"],[100,2,"<a href=\"materia\/classes\/semester.php.html#64\">Semester::get_all<\/a>"],[100,2,"<a href=\"materia\/classes\/semester.php.html#78\">Semester::get_current_semester<\/a>"],[100,1,"<a href=\"materia\/classes\/semester.php.html#92\">Semester::find_date_by_time<\/a>"],[100,5,"<a href=\"materia\/classes\/session\/activity.php.html#44\">Session_Activity::__construct<\/a>"],[81.818181818182,5,"<a href=\"materia\/classes\/session\/activity.php.html#56\">Session_Activity::db_store<\/a>"],[100,6,"<a href=\"materia\/classes\/session\/log.php.html#69\">Session_Log::__construct<\/a>"],[94.117647058824,5,"<a href=\"materia\/classes\/session\/log.php.html#87\">Session_Log::db_store<\/a>"],[0,1,"<a href=\"materia\/classes\/session\/log.php.html#114\">Session_Log::db_remove<\/a>"],[83.333333333333,10,"<a href=\"materia\/classes\/session\/logger.php.html#28\">Session_Logger::parse_and_store_log_array<\/a>"],[100,2,"<a href=\"materia\/classes\/session\/logger.php.html#69\">Session_Logger::add_log<\/a>"],[44.444444444444,22,"<a href=\"materia\/classes\/session\/logger.php.html#90\">Session_Logger::get_type<\/a>"],[92.307692307692,3,"<a href=\"materia\/classes\/session\/logger.php.html#162\">Session_Logger::get_logs<\/a>"],[0,6,"<a href=\"materia\/classes\/session\/logger.php.html#183\">Session_Logger::query_logs<\/a>"],[90.909090909091,8,"<a href=\"materia\/classes\/session\/play.php.html#55\">Session_Play::start<\/a>"],[0,1,"<a href=\"materia\/classes\/session\/play.php.html#109\">Session_Play::is_user_playing<\/a>"],[100,1,"<a href=\"materia\/classes\/session\/play.php.html#114\">Session_Play::set_user_is_playing<\/a>"],[0,1,"<a href=\"materia\/classes\/session\/play.php.html#119\">Session_Play::start_preview<\/a>"],[66.666666666667,4,"<a href=\"materia\/classes\/session\/play.php.html#128\">Session_Play::save_new_play<\/a>"],[100,1,"<a href=\"materia\/classes\/session\/play.php.html#152\">Session_Play::insert_play<\/a>"],[0,3,"<a href=\"materia\/classes\/session\/play.php.html#182\">Session_Play::resume<\/a>"],[0,5,"<a href=\"materia\/classes\/session\/play.php.html#226\">Session_Play::get_by_inst_id<\/a>"],[60.46511627907,5,"<a href=\"materia\/classes\/session\/play.php.html#279\">Session_Play::get_by_id<\/a>"],[100,3,"<a href=\"materia\/classes\/session\/play.php.html#332\">Session_Play::set_complete<\/a>"],[100,2,"<a href=\"materia\/classes\/session\/play.php.html#369\">Session_Play::update_elapsed<\/a>"],[73.333333333333,3,"<a href=\"materia\/classes\/session\/play.php.html#393\">Session_Play::invalidate<\/a>"],[100,1,"<a href=\"materia\/classes\/session\/play.php.html#427\">Session_Play::get_plays_by_user_id<\/a>"],[0,1,"<a href=\"materia\/classes\/session\/play.php.html#456\">Session_Play::get_play_inst_ids_by_user_id<\/a>"],[100,1,"<a href=\"materia\/classes\/utils.php.html#33\">Utils::get_date_ranges<\/a>"],[83.333333333333,4,"<a href=\"materia\/classes\/utils.php.html#42\">Utils::get_avatar<\/a>"],[100,4,"<a href=\"materia\/classes\/utils.php.html#56\">Utils::load_methods_from_file<\/a>"],[0,4,"<a href=\"materia\/classes\/utils.php.html#59\">Utils::anonymous function<\/a>"],[100,7,"<a href=\"materia\/classes\/widget.php.html#52\">Widget::__construct<\/a>"],[97.058823529412,3,"<a href=\"materia\/classes\/widget.php.html#71\">Widget::get<\/a>"],[100,6,"<a href=\"materia\/classes\/widget.php.html#119\">Widget::db_get_metadata<\/a>"],[0,1,"<a href=\"materia\/classes\/widget.php.html#152\">Widget::load_widget_methods<\/a>"],[0,5,"<a href=\"materia\/classes\/widget\/asset.php.html#45\">Widget_Asset::__construct<\/a>"],[0,5,"<a href=\"materia\/classes\/widget\/asset.php.html#68\">Widget_Asset::db_store<\/a>"],[0,2,"<a href=\"materia\/classes\/widget\/asset.php.html#123\">Widget_Asset::get_file_name<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset.php.html#140\">Widget_Asset::get_preview_file_name<\/a>"],[0,4,"<a href=\"materia\/classes\/widget\/asset.php.html#158\">Widget_Asset::db_remove<\/a>"],[0,3,"<a href=\"materia\/classes\/widget\/asset.php.html#204\">Widget_Asset::remove_files<\/a>"],[0,2,"<a href=\"materia\/classes\/widget\/asset.php.html#232\">Widget_Asset::db_get<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#28\">Widget_Asset_Manager::get_asset<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#35\">Widget_Asset_Manager::user_has_space_for<\/a>"],[0,7,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#41\">Widget_Asset_Manager::process_upload<\/a>"],[0,2,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#88\">Widget_Asset_Manager::can_asset_be_deleted<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#106\">Widget_Asset_Manager::get_asset_use_count<\/a>"],[0,2,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#126\">Widget_Asset_Manager::delete_asset<\/a>"],[0,3,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#142\">Widget_Asset_Manager::get_widgets_by_asset<\/a>"],[0,5,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#176\">Widget_Asset_Manager::get_assets_by_user<\/a>"],[92.857142857143,2,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#204\">Widget_Asset_Manager::get_assets_ids_by_game<\/a>"],[0,5,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#229\">Widget_Asset_Manager::get_user_disk_usage<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#252\">Widget_Asset_Manager::get_user_disk_quota<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#261\">Widget_Asset_Manager::get_user_asset_stats<\/a>"],[0,3,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#274\">Widget_Asset_Manager::register_asset_to_item<\/a>"],[0,4,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#292\">Widget_Asset_Manager::register_assets_to_item<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#313\">Widget_Asset_Manager::un_register_asset_to_item<\/a>"],[0,3,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#328\">Widget_Asset_Manager::un_register_assets_to_item<\/a>"],[0,3,"<a href=\"materia\/classes\/widget\/asset\/manager.php.html#346\">Widget_Asset_Manager::get_assets_by_item<\/a>"],[100,6,"<a href=\"materia\/classes\/widget\/instance.php.html#27\">Widget_Instance::__construct<\/a>"],[90.47619047619,10,"<a href=\"materia\/classes\/widget\/instance.php.html#53\">Widget_Instance::find_questions<\/a>"],[100,10,"<a href=\"materia\/classes\/widget\/instance.php.html#88\">Widget_Instance::is_question<\/a>"],[0,4,"<a href=\"materia\/classes\/widget\/instance.php.html#106\">Widget_Instance::convert_to_array_qset<\/a>"],[88.888888888889,3,"<a href=\"materia\/classes\/widget\/instance.php.html#136\">Widget_Instance::db_get<\/a>"],[93.75,3,"<a href=\"materia\/classes\/widget\/instance.php.html#151\">Widget_Instance::get_qset<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/instance.php.html#179\">Widget_Instance::get_specific_qset<\/a>"],[80,5,"<a href=\"materia\/classes\/widget\/instance.php.html#190\">Widget_Instance::store_qset<\/a>"],[98.148148148148,8,"<a href=\"materia\/classes\/widget\/instance.php.html#243\">Widget_Instance::db_store<\/a>"],[100,3,"<a href=\"materia\/classes\/widget\/instance.php.html#333\">Widget_Instance::db_remove<\/a>"],[90.909090909091,4,"<a href=\"materia\/classes\/widget\/instance.php.html#365\">Widget_Instance::duplicate<\/a>"],[75,3,"<a href=\"materia\/classes\/widget\/instance.php.html#393\">Widget_Instance::set_owners<\/a>"],[100,2,"<a href=\"materia\/classes\/widget\/instance.php.html#417\">Widget_Instance::playable_by_current_user<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/instance.php.html#422\">Widget_Instance::viewable_by<\/a>"],[100,10,"<a href=\"materia\/classes\/widget\/instance.php.html#432\">Widget_Instance::status<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/instance.php.html#476\">Widget_Instance::allows_guest_players<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/instance.php.html#481\">Widget_Instance::export<\/a>"],[100,2,"<a href=\"materia\/classes\/widget\/instance\/hash.php.html#21\">Widget_Instance_Hash::base62<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/instance\/hash.php.html#33\">Widget_Instance_Hash::udihash<\/a>"],[100,1,"<a href=\"materia\/classes\/widget\/instance\/hash.php.html#42\">Widget_Instance_Hash::generate_key_hash<\/a>"],[100,1,"<a href=\"materia\/classes\/widget\/instance\/hash.php.html#52\">Widget_Instance_Hash::generate_long_hash<\/a>"],[100,2,"<a href=\"materia\/classes\/widget\/instance\/manager.php.html#9\">Widget_Instance_Manager::get<\/a>"],[100,6,"<a href=\"materia\/classes\/widget\/instance\/manager.php.html#15\">Widget_Instance_Manager::get_all<\/a>"],[100,2,"<a href=\"materia\/classes\/widget\/instance\/manager.php.html#57\">Widget_Instance_Manager::get_all_for_user<\/a>"],[100,2,"<a href=\"materia\/classes\/widget\/instance\/manager.php.html#71\">Widget_Instance_Manager::lock<\/a>"],[100,4,"<a href=\"materia\/classes\/widget\/manager.php.html#36\">Widget_Manager::get_widgets<\/a>"],[100,1,"<a href=\"materia\/classes\/widget\/manager.php.html#79\">Widget_Manager::search<\/a>"],[100,16,"<a href=\"materia\/classes\/widget\/question.php.html#39\">Widget_Question::__construct<\/a>"],[100,1,"<a href=\"materia\/classes\/widget\/question.php.html#76\">Widget_Question::forge<\/a>"],[100,1,"<a href=\"materia\/classes\/widget\/question.php.html#81\">Widget_Question::from_json<\/a>"],[89.795918367347,14,"<a href=\"materia\/classes\/widget\/question.php.html#96\">Widget_Question::db_store<\/a>"],[0,3,"<a href=\"materia\/classes\/widget\/question.php.html#189\">Widget_Question::db_remove<\/a>"],[0,2,"<a href=\"materia\/classes\/widget\/question.php.html#229\">Widget_Question::db_get<\/a>"],[0,1,"<a href=\"materia\/classes\/widget\/question.php.html#250\">Widget_Question::remove_asset_links<\/a>"],[100,7,"<a href=\"materia\/classes\/widget\/question.php.html#260\">Widget_Question::create_question_hash<\/a>"],[0,12,"<a href=\"materia\/classes\/widget\/question.php.html#284\">Widget_Question::export<\/a>"],[62.5,6,"<a href=\"materia\/classes\/widget\/question\/manager.php.html#35\">Widget_Question_Manager::get_users_questions<\/a>"],[0,4,"<a href=\"materia\/tasks\/admin.php.html#8\">Admin::recalculate_scores<\/a>"],[0,6,"<a href=\"materia\/tasks\/admin.php.html#27\">Admin::create_default_users<\/a>"],[0,7,"<a href=\"materia\/tasks\/admin.php.html#71\">Admin::score_play<\/a>"],[0,8,"<a href=\"materia\/tasks\/admin.php.html#103\">Admin::setup_migrations<\/a>"],[0,1,"<a href=\"materia\/tasks\/admin.php.html#139\">Admin::destroy_everything<\/a>"],[0,1,"<a href=\"materia\/tasks\/admin.php.html#146\">Admin::get_env<\/a>"],[0,4,"<a href=\"materia\/tasks\/admin.php.html#151\">Admin::destroy_widgets<\/a>"],[0,14,"<a href=\"materia\/tasks\/admin.php.html#174\">Admin::destroy_database<\/a>"],[0,1,"<a href=\"materia\/tasks\/admin.php.html#228\">Admin::populate<\/a>"],[0,1,"<a href=\"materia\/tasks\/admin.php.html#237\">Admin::populate_semesters<\/a>"],[0,4,"<a href=\"materia\/tasks\/admin.php.html#243\">Admin::populate_roles<\/a>"],[50,4,"<a href=\"materia\/tasks\/admin.php.html#264\">Admin::give_user_role<\/a>"],[0,1,"<a href=\"materia\/tasks\/admin.php.html#288\">Admin::reset_password<\/a>"],[35.714285714286,4,"<a href=\"materia\/tasks\/admin.php.html#294\">Admin::new_user<\/a>"],[0,2,"<a href=\"materia\/tasks\/admin.php.html#323\">Admin::instant_user<\/a>"],[0,2,"<a href=\"materia\/tasks\/admin.php.html#331\">Admin::clear_cache<\/a>"],[0,4,"<a href=\"materia\/tasks\/admin.php.html#337\">Admin::anonymize_users<\/a>"],[71.428571428571,3,"<a href=\"materiaauth\/classes\/auth\/login\/materiaauth.php.html#8\">Auth_Login_Materiaauth::update_role<\/a>"],[85.714285714286,3,"<a href=\"materiaauth\/classes\/auth\/login\/materiaauth.php.html#28\">Auth_Login_Materiaauth::logout<\/a>"],[80.645161290323,10,"<a href=\"materiaauth\/classes\/auth\/login\/materiaauth.php.html#50\">Auth_Login_Materiaauth::create_user<\/a>"],[0,24,"<a href=\"materiaauth\/classes\/auth\/login\/materiaauth.php.html#114\">Auth_Login_Materiaauth::update_user<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#140\">Model::forge<\/a>"],[80,5,"<a href=\"orm\/classes\/model.php.html#151\">Model::connection<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#167\">Model::set_connection<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#176\">Model::set_write_connection<\/a>"],[100,3,"<a href=\"orm\/classes\/model.php.html#186\">Model::table<\/a>"],[50,4,"<a href=\"orm\/classes\/model.php.html#213\">Model::condition<\/a>"],[100,5,"<a href=\"orm\/classes\/model.php.html#242\">Model::cached_object<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#257\">Model::primary_key<\/a>"],[50,9,"<a href=\"orm\/classes\/model.php.html#268\">Model::implode_pk<\/a>"],[80.952380952381,7,"<a href=\"orm\/classes\/model.php.html#300\">Model::properties<\/a>"],[80,2,"<a href=\"orm\/classes\/model.php.html#351\">Model::property<\/a>"],[0,6,"<a href=\"orm\/classes\/model.php.html#371\">Model::views<\/a>"],[71.428571428571,9,"<a href=\"orm\/classes\/model.php.html#406\">Model::relations<\/a>"],[0,4,"<a href=\"orm\/classes\/model.php.html#450\">Model::related_class<\/a>"],[73.913043478261,9,"<a href=\"orm\/classes\/model.php.html#475\">Model::observers<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#525\">Model::register_observer<\/a>"],[0,5,"<a href=\"orm\/classes\/model.php.html#537\">Model::unregister_observer<\/a>"],[73.076923076923,14,"<a href=\"orm\/classes\/model.php.html#559\">Model::find<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#618\">Model::query<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#629\">Model::count<\/a>"],[0,2,"<a href=\"orm\/classes\/model.php.html#641\">Model::max<\/a>"],[0,2,"<a href=\"orm\/classes\/model.php.html#653\">Model::min<\/a>"],[0,17,"<a href=\"orm\/classes\/model.php.html#658\">Model::__callStatic<\/a>"],[89.655172413793,11,"<a href=\"orm\/classes\/model.php.html#815\">Model::__construct<\/a>"],[100,2,"<a href=\"orm\/classes\/model.php.html#886\">Model::_update_original<\/a>"],[38.461538461538,10,"<a href=\"orm\/classes\/model.php.html#897\">Model::_update_original_relations<\/a>"],[81.818181818182,4,"<a href=\"orm\/classes\/model.php.html#952\">Model::_relate<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#978\">Model::__get<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#991\">Model::__set<\/a>"],[30,5,"<a href=\"orm\/classes\/model.php.html#1002\">Model::__isset<\/a>"],[0,6,"<a href=\"orm\/classes\/model.php.html#1029\">Model::__unset<\/a>"],[0,4,"<a href=\"orm\/classes\/model.php.html#1058\">Model::__call<\/a>"],[76.923076923077,5,"<a href=\"orm\/classes\/model.php.html#1080\">Model::__clone<\/a>"],[31.578947368421,13,"<a href=\"orm\/classes\/model.php.html#1118\">Model::get<\/a>"],[63.333333333333,15,"<a href=\"orm\/classes\/model.php.html#1217\">Model::set<\/a>"],[33.333333333333,23,"<a href=\"orm\/classes\/model.php.html#1277\">Model::save<\/a>"],[95.454545454545,8,"<a href=\"orm\/classes\/model.php.html#1369\">Model::create<\/a>"],[84,10,"<a href=\"orm\/classes\/model.php.html#1415\">Model::update<\/a>"],[100,2,"<a href=\"orm\/classes\/model.php.html#1471\">Model::add_primary_keys_to_where<\/a>"],[63.04347826087,21,"<a href=\"orm\/classes\/model.php.html#1493\">Model::delete<\/a>"],[100,2,"<a href=\"orm\/classes\/model.php.html#1587\">Model::delete_self<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1608\">Model::should_cascade_delete<\/a>"],[0,2,"<a href=\"orm\/classes\/model.php.html#1616\">Model::reset<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1630\">Model::disable_event<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1642\">Model::enable_event<\/a>"],[55,9,"<a href=\"orm\/classes\/model.php.html#1652\">Model::observe<\/a>"],[34.782608695652,22,"<a href=\"orm\/classes\/model.php.html#1698\">Model::is_changed<\/a>"],[0,20,"<a href=\"orm\/classes\/model.php.html#1784\">Model::get_diff<\/a>"],[0,2,"<a href=\"orm\/classes\/model.php.html#1845\">Model::is_fetched<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#1860\">Model::is_new<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#1870\">Model::frozen<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#1878\">Model::freeze<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#1886\">Model::unfreeze<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1896\">Model::sanitize<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1908\">Model::unsanitize<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1920\">Model::sanitized<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#1933\">Model::_sanitize<\/a>"],[0,3,"<a href=\"orm\/classes\/model.php.html#1944\">Model::set_form_fields<\/a>"],[0,16,"<a href=\"orm\/classes\/model.php.html#1957\">Model::from_array<\/a>"],[25,23,"<a href=\"orm\/classes\/model.php.html#2028\">Model::to_array<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2159\">Model::to_object<\/a>"],[0,14,"<a href=\"orm\/classes\/model.php.html#2175\">Model::_get_eav<\/a>"],[12.903225806452,12,"<a href=\"orm\/classes\/model.php.html#2249\">Model::_set_eav<\/a>"],[0,2,"<a href=\"orm\/classes\/model.php.html#2312\">Model::offsetSet<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2324\">Model::offsetExists<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2329\">Model::offsetUnset<\/a>"],[0,2,"<a href=\"orm\/classes\/model.php.html#2334\">Model::offsetGet<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2352\">Model::rewind<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2358\">Model::current<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2363\">Model::key<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2368\">Model::next<\/a>"],[0,1,"<a href=\"orm\/classes\/model.php.html#2373\">Model::valid<\/a>"],[100,1,"<a href=\"orm\/classes\/model.php.html#2382\">Model::get_to_array_exclude<\/a>"],[0,3,"<a href=\"orm\/classes\/model.php.html#2393\">Model::get_filtered_properties<\/a>"],[100,2,"<a href=\"orm\/classes\/observer.php.html#33\">Observer::orm_notify<\/a>"],[100,2,"<a href=\"orm\/classes\/observer.php.html#47\">Observer::instance<\/a>"],[100,4,"<a href=\"orm\/classes\/observer\/createdat.php.html#54\">Observer_CreatedAt::__construct<\/a>"],[75,4,"<a href=\"orm\/classes\/observer\/createdat.php.html#67\">Observer_CreatedAt::before_insert<\/a>"],[100,2,"<a href=\"orm\/classes\/observer\/self.php.html#29\">Observer_Self::orm_notify<\/a>"],[100,4,"<a href=\"orm\/classes\/observer\/typing.php.html#116\">Observer_Typing::orm_notify<\/a>"],[48.484848484848,15,"<a href=\"orm\/classes\/observer\/typing.php.html#152\">Observer_Typing::typecast<\/a>"],[0,7,"<a href=\"orm\/classes\/observer\/typing.php.html#234\">Observer_Typing::type_string<\/a>"],[0,7,"<a href=\"orm\/classes\/observer\/typing.php.html#265\">Observer_Typing::type_integer<\/a>"],[0,3,"<a href=\"orm\/classes\/observer\/typing.php.html#290\">Observer_Typing::type_float<\/a>"],[0,3,"<a href=\"orm\/classes\/observer\/typing.php.html#314\">Observer_Typing::type_decimal_before<\/a>"],[0,5,"<a href=\"orm\/classes\/observer\/typing.php.html#333\">Observer_Typing::type_decimal_after<\/a>"],[0,6,"<a href=\"orm\/classes\/observer\/typing.php.html#359\">Observer_Typing::type_set_before<\/a>"],[0,1,"<a href=\"orm\/classes\/observer\/typing.php.html#388\">Observer_Typing::type_set_after<\/a>"],[0,2,"<a href=\"orm\/classes\/observer\/typing.php.html#400\">Observer_Typing::type_bool_to_int<\/a>"],[0,2,"<a href=\"orm\/classes\/observer\/typing.php.html#412\">Observer_Typing::type_bool_from_int<\/a>"],[50,4,"<a href=\"orm\/classes\/observer\/typing.php.html#427\">Observer_Typing::type_serialize<\/a>"],[100,2,"<a href=\"orm\/classes\/observer\/typing.php.html#450\">Observer_Typing::type_unserialize<\/a>"],[0,4,"<a href=\"orm\/classes\/observer\/typing.php.html#465\">Observer_Typing::type_json_encode<\/a>"],[0,2,"<a href=\"orm\/classes\/observer\/typing.php.html#488\">Observer_Typing::type_json_decode<\/a>"],[0,3,"<a href=\"orm\/classes\/observer\/typing.php.html#508\">Observer_Typing::type_time_encode<\/a>"],[0,5,"<a href=\"orm\/classes\/observer\/typing.php.html#531\">Observer_Typing::type_time_decode<\/a>"],[100,4,"<a href=\"orm\/classes\/observer\/updatedat.php.html#54\">Observer_UpdatedAt::__construct<\/a>"],[100,1,"<a href=\"orm\/classes\/observer\/updatedat.php.html#67\">Observer_UpdatedAt::before_save<\/a>"],[61.538461538462,6,"<a href=\"orm\/classes\/observer\/updatedat.php.html#77\">Observer_UpdatedAt::before_update<\/a>"],[0,6,"<a href=\"orm\/classes\/observer\/updatedat.php.html#108\">Observer_UpdatedAt::relation_changed<\/a>"],[100,1,"<a href=\"orm\/classes\/query.php.html#31\">Query::forge<\/a>"],[32.075471698113,16,"<a href=\"orm\/classes\/query.php.html#134\">Query::__construct<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#207\">Query::from_cache<\/a>"],[85.294117647059,14,"<a href=\"orm\/classes\/query.php.html#225\">Query::select<\/a>"],[35.483870967742,13,"<a href=\"orm\/classes\/query.php.html#297\">Query::_normalize<\/a>"],[0,2,"<a href=\"orm\/classes\/query.php.html#380\">Query::use_view<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#399\">Query::group_by<\/a>"],[100,1,"<a href=\"orm\/classes\/query.php.html#415\">Query::limit<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#429\">Query::offset<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#443\">Query::rows_limit<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#457\">Query::rows_offset<\/a>"],[100,2,"<a href=\"orm\/classes\/query.php.html#473\">Query::where<\/a>"],[100,2,"<a href=\"orm\/classes\/query.php.html#490\">Query::or_where<\/a>"],[68.421052631579,10,"<a href=\"orm\/classes\/query.php.html#508\">Query::_where<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#547\">Query::and_where_open<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#559\">Query::and_where_close<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#571\">Query::where_open<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#583\">Query::where_close<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#595\">Query::or_where_open<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#607\">Query::or_where_close<\/a>"],[58.823529411765,16,"<a href=\"orm\/classes\/query.php.html#621\">Query::_parse_where_array<\/a>"],[33.333333333333,7,"<a href=\"orm\/classes\/query.php.html#654\">Query::order_by<\/a>"],[0,11,"<a href=\"orm\/classes\/query.php.html#693\">Query::related<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#750\">Query::_join<\/a>"],[50,3,"<a href=\"orm\/classes\/query.php.html#765\">Query::set<\/a>"],[33.333333333333,85,"<a href=\"orm\/classes\/query.php.html#793\">Query::build_query<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#1101\">Query::modify_join_result<\/a>"],[100,3,"<a href=\"orm\/classes\/query.php.html#1111\">Query::use_subquery<\/a>"],[70.422535211268,26,"<a href=\"orm\/classes\/query.php.html#1128\">Query::hydrate<\/a>"],[58.333333333333,9,"<a href=\"orm\/classes\/query.php.html#1249\">Query::get<\/a>"],[0,3,"<a href=\"orm\/classes\/query.php.html#1313\">Query::get_query<\/a>"],[76.923076923077,3,"<a href=\"orm\/classes\/query.php.html#1347\">Query::get_one<\/a>"],[92.857142857143,5,"<a href=\"orm\/classes\/query.php.html#1382\">Query::count<\/a>"],[0,3,"<a href=\"orm\/classes\/query.php.html#1417\">Query::max<\/a>"],[0,3,"<a href=\"orm\/classes\/query.php.html#1452\">Query::min<\/a>"],[85.714285714286,2,"<a href=\"orm\/classes\/query.php.html#1485\">Query::insert<\/a>"],[100,1,"<a href=\"orm\/classes\/query.php.html#1505\">Query::update<\/a>"],[100,1,"<a href=\"orm\/classes\/query.php.html#1529\">Query::delete<\/a>"],[100,2,"<a href=\"orm\/classes\/query.php.html#1550\">Query::_table<\/a>"],[0,1,"<a href=\"orm\/classes\/query.php.html#1560\">Query::connection<\/a>"],[100,3,"<a href=\"rocketduck\/classes\/fuel\/core\/cache.php.html#6\">Cache::easy_get<\/a>"],[0,9,"<a href=\"rocketduck\/classes\/fuel\/core\/file.php.html#6\">File::render<\/a>"],[100,6,"<a href=\"rocketduck\/classes\/log.php.html#15\">Log::profile<\/a>"],[75,3,"<a href=\"rocketduck\/classes\/log.php.html#49\">Log::prepare_file<\/a>"],[100,1,"<a href=\"rocketduck\/classes\/msg.php.html#38\">Msg::__construct<\/a>"],[0,1,"<a href=\"rocketduck\/classes\/msg.php.html#50\">Msg::invalid_input<\/a>"],[100,1,"<a href=\"rocketduck\/classes\/msg.php.html#55\">Msg::no_login<\/a>"],[100,1,"<a href=\"rocketduck\/classes\/msg.php.html#62\">Msg::no_perm<\/a>"],[0,1,"<a href=\"rocketduck\/classes\/msg.php.html#67\">Msg::student<\/a>"],[0,1,"<a href=\"rocketduck\/classes\/perm\/role.php.html#41\">Perm_Role::__construct<\/a>"],[100,2,"<a href=\"rocketduck\/classes\/util\/validator.php.html#45\">Util_Validator::is_int<\/a>"],[0,4,"<a href=\"rocketduck\/classes\/util\/validator.php.html#59\">Util_Validator::is_user_arr<\/a>"],[100,3,"<a href=\"rocketduck\/classes\/util\/validator.php.html#82\">Util_Validator::is_pos_int<\/a>"],[100,5,"<a href=\"rocketduck\/classes\/util\/validator.php.html#95\">Util_Validator::is_valid_hash<\/a>"],[80,2,"<a href=\"rocketduck\/classes\/util\/validator.php.html#116\">Util_Validator::is_valid_long_hash<\/a>"],[0,2,"<a href=\"rocketduck\/classes\/util\/validator.php.html#136\">Util_Validator::is_string<\/a>"],[0,1,"<a href=\"rocketduck\/classes\/util\/validator.php.html#148\">Util_Validator::is_md5<\/a>"],[0,1,"<a href=\"rocketduck\/classes\/util\/validator.php.html#160\">Util_Validator::is_sha1<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

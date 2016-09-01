@@ -81,7 +81,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		$scope.videoTitle = title
 		$scope.videoURL = link
 
-		if $scope.videoURL and $scope.videoURL.indexOf("https://www.youtube.com/embed/") >= 0
+		if $scope.videoURL and ($scope.videoURL.indexOf("https://player.vimeo.com/video/") >= 0 or $scope.videoURL.indexOf("https://www.youtube.com/embed/") >= 0) 
 			$scope.invalidLink = false
 		else
 			$scope.invalidLink = true

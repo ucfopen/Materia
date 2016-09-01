@@ -15,6 +15,12 @@ Namespace('Materia').CreatorCore = do ->
 
 	_onPostMessage = (e) ->
 		msg = JSON.parse e.data
+		if e.origin isnt null
+			if _baseurl isnt null
+				if e.origin isnt _baseurl and e.origin isnt _baseurl.substring(0, (_baseurl.length - 1))
+					return null 
+
+		
 		switch msg.type
 			when 'initNewWidget'
 				_initNewWidget msg.data[0], msg.data[1]

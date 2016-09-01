@@ -481,8 +481,9 @@ class Api_V1
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
-		// Sanitizing YouTube url - embed copy/paste may contain whole iframe
-		$startPos = strpos($url, 'https://www.youtube.com/embed/');
+		// Sanitizing YouTube/Vimeo url - embed copy/paste may contain whole iframe
+		$startPos = (strpos($url, 'https://player.vimeo.com/video/'));
+		if($startPos === FALSE) $startPos = strpos($url, 'https://www.youtube.com/embed/');
 		if($startPos === FALSE) return null;
 		$endPos = strpos($url, '"', $startPos);
 		$endPos = ($endPos !== FALSE) ? $endPos : strlen($url);

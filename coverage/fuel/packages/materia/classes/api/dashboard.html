@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/fuel/packages/materia/classes/api</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../../../../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../../../../css/nv.d3.min.css" rel="stylesheet">
+  <link href="../../../../../css/style.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+  <script src="../../../../../js/html5shiv.min.js"></script>
+  <script src="../../../../../js/respond.min.js"></script>
+  <![endif]-->
+ </head>
+ <body>
+  <header>
+   <div class="container">
+    <div class="row">
+     <div class="col-md-12">
+      <ol class="breadcrumb">
+        <li><a href="../../../../../index.html">/var/www/html</a></li>
+        <li><a href="../../../../index.html">fuel</a></li>
+        <li><a href="../../../index.html">packages</a></li>
+        <li><a href="../../index.html">materia</a></li>
+        <li><a href="../index.html">classes</a></li>
+        <li><a href="index.html">api</a></li>
+        <li class="active">(Dashboard)</li>
+
+      </ol>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="v1.php.html#27">Api_V1</a></td><td class="text-right">73%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="v1.php.html#27">Api_V1</a></td><td class="text-right">1007</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="v1.php.html#992"><abbr title="Api_V1::_decrypt_logs">_decrypt_logs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="v1.php.html#607"><abbr title="Api_V1::anonymous function">anonymous function</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="v1.php.html#569"><abbr title="Api_V1::score_summary_get">score_summary_get</abbr></a></td><td class="text-right">8%</td></tr>
+       <tr><td><a href="v1.php.html#685"><abbr title="Api_V1::play_storage_data_save">play_storage_data_save</abbr></a></td><td class="text-right">11%</td></tr>
+       <tr><td><a href="v1.php.html#705"><abbr title="Api_V1::play_storage_data_get">play_storage_data_get</abbr></a></td><td class="text-right">16%</td></tr>
+       <tr><td><a href="v1.php.html#662"><abbr title="Api_V1::questions_get">questions_get</abbr></a></td><td class="text-right">27%</td></tr>
+       <tr><td><a href="v1.php.html#748"><abbr title="Api_V1::user_get">user_get</abbr></a></td><td class="text-right">41%</td></tr>
+       <tr><td><a href="v1.php.html#917"><abbr title="Api_V1::permissions_get">permissions_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="v1.php.html#618"><abbr title="Api_V1::play_storage_get">play_storage_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="v1.php.html#540"><abbr title="Api_V1::guest_widget_instance_scores_get">guest_widget_instance_scores_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="v1.php.html#471"><abbr title="Api_V1::assets_get">assets_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="v1.php.html#557"><abbr title="Api_V1::play_logs_get">play_logs_get</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="v1.php.html#157"><abbr title="Api_V1::widget_instance_update">widget_instance_update</abbr></a></td><td class="text-right">68%</td></tr>
+       <tr><td><a href="v1.php.html#796"><abbr title="Api_V1::_normalize_perms">_normalize_perms</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="v1.php.html#508"><abbr title="Api_V1::widget_instance_play_scores_get">widget_instance_play_scores_get</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="v1.php.html#631"><abbr title="Api_V1::question_set_get">question_set_get</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="v1.php.html#76"><abbr title="Api_V1::widget_instance_copy">widget_instance_copy</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="v1.php.html#969"><abbr title="Api_V1::_validate_play_id">_validate_play_id</abbr></a></td><td class="text-right">83%</td></tr>
+       <tr><td><a href="v1.php.html#384"><abbr title="Api_V1::play_logs_save">play_logs_save</abbr></a></td><td class="text-right">87%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="v1.php.html#569"><abbr title="Api_V1::score_summary_get">score_summary_get</abbr></a></td><td class="text-right">71</td></tr>
+       <tr><td><a href="v1.php.html#157"><abbr title="Api_V1::widget_instance_update">widget_instance_update</abbr></a></td><td class="text-right">35</td></tr>
+       <tr><td><a href="v1.php.html#685"><abbr title="Api_V1::play_storage_data_save">play_storage_data_save</abbr></a></td><td class="text-right">31</td></tr>
+       <tr><td><a href="v1.php.html#662"><abbr title="Api_V1::questions_get">questions_get</abbr></a></td><td class="text-right">19</td></tr>
+       <tr><td><a href="v1.php.html#384"><abbr title="Api_V1::play_logs_save">play_logs_save</abbr></a></td><td class="text-right">18</td></tr>
+       <tr><td><a href="v1.php.html#748"><abbr title="Api_V1::user_get">user_get</abbr></a></td><td class="text-right">16</td></tr>
+       <tr><td><a href="v1.php.html#705"><abbr title="Api_V1::play_storage_data_get">play_storage_data_get</abbr></a></td><td class="text-right">13</td></tr>
+       <tr><td><a href="v1.php.html#992"><abbr title="Api_V1::_decrypt_logs">_decrypt_logs</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="v1.php.html#631"><abbr title="Api_V1::question_set_get">question_set_get</abbr></a></td><td class="text-right">11</td></tr>
+       <tr><td><a href="v1.php.html#508"><abbr title="Api_V1::widget_instance_play_scores_get">widget_instance_play_scores_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="v1.php.html#618"><abbr title="Api_V1::play_storage_get">play_storage_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="v1.php.html#557"><abbr title="Api_V1::play_logs_get">play_logs_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="v1.php.html#540"><abbr title="Api_V1::guest_widget_instance_scores_get">guest_widget_instance_scores_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="v1.php.html#796"><abbr title="Api_V1::_normalize_perms">_normalize_perms</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="v1.php.html#969"><abbr title="Api_V1::_validate_play_id">_validate_play_id</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="v1.php.html#76"><abbr title="Api_V1::widget_instance_copy">widget_instance_copy</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="v1.php.html#471"><abbr title="Api_V1::assets_get">assets_get</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="v1.php.html#917"><abbr title="Api_V1::permissions_get">permissions_get</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 2.2.4</a> using <a href="https://secure.php.net/" target="_top">PHP 5.6.19</a> and <a href="http://phpunit.de/">PHPUnit 4.1.6-6-g43914fa</a> at Tue Aug 30 14:12:07 EDT 2016.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../../../../js/jquery.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/holder.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/d3.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/nv.d3.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,0,0,0,0,0,0,0,1,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([2,1,2,1,0,1,5,1,0,6,2,23], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[73.363431151242,206,"<a href=\"v1.php.html#27\">Api_V1<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"v1.php.html#32\">Api_V1::widgets_get<\/a>"],[100,1,"<a href=\"v1.php.html#40\">Api_V1::widgets_get_by_type<\/a>"],[100,4,"<a href=\"v1.php.html#45\">Api_V1::widget_instances_get<\/a>"],[100,5,"<a href=\"v1.php.html#62\">Api_V1::widget_instance_delete<\/a>"],[100,1,"<a href=\"v1.php.html#71\">Api_V1::has_perms_to_inst<\/a>"],[80,4,"<a href=\"v1.php.html#76\">Api_V1::widget_instance_copy<\/a>"],[100,1,"<a href=\"v1.php.html#102\">Api_V1::widget_instance_save<\/a>"],[90.47619047619,8,"<a href=\"v1.php.html#107\">Api_V1::widget_instance_new<\/a>"],[68.181818181818,21,"<a href=\"v1.php.html#157\">Api_V1::widget_instance_update<\/a>"],[100,3,"<a href=\"v1.php.html#283\">Api_V1::widget_instance_lock<\/a>"],[100,2,"<a href=\"v1.php.html#296\">Api_V1::widget_spotlight_get<\/a>"],[100,4,"<a href=\"v1.php.html#309\">Api_V1::session_play_create<\/a>"],[100,1,"<a href=\"v1.php.html#320\">Api_V1::session_logout<\/a>"],[100,1,"<a href=\"v1.php.html#330\">Api_V1::session_login<\/a>"],[100,1,"<a href=\"v1.php.html#338\">Api_V1::session_author_verify<\/a>"],[100,3,"<a href=\"v1.php.html#346\">Api_V1::session_play_verify<\/a>"],[100,3,"<a href=\"v1.php.html#368\">Api_V1::play_activity_get<\/a>"],[87.80487804878,18,"<a href=\"v1.php.html#384\">Api_V1::play_logs_save<\/a>"],[50,2,"<a href=\"v1.php.html#471\">Api_V1::assets_get<\/a>"],[100,6,"<a href=\"v1.php.html#486\">Api_V1::widget_instance_scores_get<\/a>"],[80,6,"<a href=\"v1.php.html#508\">Api_V1::widget_instance_play_scores_get<\/a>"],[50,4,"<a href=\"v1.php.html#540\">Api_V1::guest_widget_instance_scores_get<\/a>"],[50,4,"<a href=\"v1.php.html#557\">Api_V1::play_logs_get<\/a>"],[8.3333333333333,9,"<a href=\"v1.php.html#569\">Api_V1::score_summary_get<\/a>"],[0,1,"<a href=\"v1.php.html#607\">Api_V1::anonymous function<\/a>"],[50,4,"<a href=\"v1.php.html#618\">Api_V1::play_storage_get<\/a>"],[80,11,"<a href=\"v1.php.html#631\">Api_V1::question_set_get<\/a>"],[27.272727272727,6,"<a href=\"v1.php.html#662\">Api_V1::questions_get<\/a>"],[11.111111111111,6,"<a href=\"v1.php.html#685\">Api_V1::play_storage_data_save<\/a>"],[16.666666666667,4,"<a href=\"v1.php.html#705\">Api_V1::play_storage_data_get<\/a>"],[100,1,"<a href=\"v1.php.html#719\">Api_V1::semester_date_ranges_get<\/a>"],[100,4,"<a href=\"v1.php.html#724\">Api_V1::users_search<\/a>"],[41.176470588235,7,"<a href=\"v1.php.html#748\">Api_V1::user_get<\/a>"],[100,5,"<a href=\"v1.php.html#782\">Api_V1::user_update_meta<\/a>"],[80,5,"<a href=\"v1.php.html#796\">Api_V1::_normalize_perms<\/a>"],[90,5,"<a href=\"v1.php.html#818\">Api_V1::_filter_increasing_perms<\/a>"],[100,15,"<a href=\"v1.php.html#846\">Api_V1::permissions_set<\/a>"],[50,2,"<a href=\"v1.php.html#917\">Api_V1::permissions_get<\/a>"],[100,3,"<a href=\"v1.php.html#923\">Api_V1::notifications_get<\/a>"],[100,3,"<a href=\"v1.php.html#942\">Api_V1::notification_delete<\/a>"],[100,1,"<a href=\"v1.php.html#964\">Api_V1::semester_get<\/a>"],[83.333333333333,5,"<a href=\"v1.php.html#969\">Api_V1::_validate_play_id<\/a>"],[0,3,"<a href=\"v1.php.html#992\">Api_V1::_decrypt_logs<\/a>"],[100,2,"<a href=\"v1.php.html#1014\">Api_V1::_get_instance_for_play_id<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

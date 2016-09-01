@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/fuel/packages/materia/classes/widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../../../../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../../../../css/nv.d3.min.css" rel="stylesheet">
+  <link href="../../../../../css/style.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+  <script src="../../../../../js/html5shiv.min.js"></script>
+  <script src="../../../../../js/respond.min.js"></script>
+  <![endif]-->
+ </head>
+ <body>
+  <header>
+   <div class="container">
+    <div class="row">
+     <div class="col-md-12">
+      <ol class="breadcrumb">
+        <li><a href="../../../../../index.html">/var/www/html</a></li>
+        <li><a href="../../../../index.html">fuel</a></li>
+        <li><a href="../../../index.html">packages</a></li>
+        <li><a href="../../index.html">materia</a></li>
+        <li><a href="../index.html">classes</a></li>
+        <li><a href="index.html">widget</a></li>
+        <li class="active">(Dashboard)</li>
+
+      </ol>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="asset.php.html#25">Widget_Asset</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#21">Widget_Asset_Manager</a></td><td class="text-right">9%</td></tr>
+       <tr><td><a href="question.php.html#25">Widget_Question</a></td><td class="text-right">60%</td></tr>
+       <tr><td><a href="question/manager.php.html#24">Widget_Question_Manager</a></td><td class="text-right">62%</td></tr>
+       <tr><td><a href="instance/hash.php.html#5">Widget_Instance_Hash</a></td><td class="text-right">77%</td></tr>
+       <tr><td><a href="instance.php.html#5">Widget_Instance</a></td><td class="text-right">86%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="asset/manager.php.html#21">Widget_Asset_Manager</a></td><td class="text-right">1556</td></tr>
+       <tr><td><a href="asset.php.html#25">Widget_Asset</a></td><td class="text-right">506</td></tr>
+       <tr><td><a href="question.php.html#25">Widget_Question</a></td><td class="text-right">264</td></tr>
+       <tr><td><a href="instance.php.html#5">Widget_Instance</a></td><td class="text-right">88</td></tr>
+       <tr><td><a href="question/manager.php.html#24">Widget_Question_Manager</a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="instance/hash.php.html#5">Widget_Instance_Hash</a></td><td class="text-right">5</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="asset/manager.php.html#346"><abbr title="Widget_Asset_Manager::get_assets_by_item">get_assets_by_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="instance.php.html#106"><abbr title="Widget_Instance::convert_to_array_qset">convert_to_array_qset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="instance.php.html#179"><abbr title="Widget_Instance::get_specific_qset">get_specific_qset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#328"><abbr title="Widget_Asset_Manager::un_register_assets_to_item">un_register_assets_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#313"><abbr title="Widget_Asset_Manager::un_register_asset_to_item">un_register_asset_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#45"><abbr title="Widget_Asset::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#292"><abbr title="Widget_Asset_Manager::register_assets_to_item">register_assets_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="instance.php.html#422"><abbr title="Widget_Instance::viewable_by">viewable_by</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="instance.php.html#476"><abbr title="Widget_Instance::allows_guest_players">allows_guest_players</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="question.php.html#250"><abbr title="Widget_Question::remove_asset_links">remove_asset_links</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="question.php.html#284"><abbr title="Widget_Question::export">export</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="question.php.html#229"><abbr title="Widget_Question::db_get">db_get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="question.php.html#189"><abbr title="Widget_Question::db_remove">db_remove</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="instance.php.html#481"><abbr title="Widget_Instance::export">export</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="instance/hash.php.html#33"><abbr title="Widget_Instance_Hash::udihash">udihash</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#261"><abbr title="Widget_Asset_Manager::get_user_asset_stats">get_user_asset_stats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#274"><abbr title="Widget_Asset_Manager::register_asset_to_item">register_asset_to_item</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#28"><abbr title="Widget_Asset_Manager::get_asset">get_asset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#35"><abbr title="Widget_Asset_Manager::user_has_space_for">user_has_space_for</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#252"><abbr title="Widget_Asset_Manager::get_user_disk_quota">get_user_disk_quota</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#232"><abbr title="Widget_Asset::db_get">db_get</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#204"><abbr title="Widget_Asset::remove_files">remove_files</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#158"><abbr title="Widget_Asset::db_remove">db_remove</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#123"><abbr title="Widget_Asset::get_file_name">get_file_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#68"><abbr title="Widget_Asset::db_store">db_store</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#41"><abbr title="Widget_Asset_Manager::process_upload">process_upload</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#142"><abbr title="Widget_Asset_Manager::get_widgets_by_asset">get_widgets_by_asset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#176"><abbr title="Widget_Asset_Manager::get_assets_by_user">get_assets_by_user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#229"><abbr title="Widget_Asset_Manager::get_user_disk_usage">get_user_disk_usage</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#126"><abbr title="Widget_Asset_Manager::delete_asset">delete_asset</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#106"><abbr title="Widget_Asset_Manager::get_asset_use_count">get_asset_use_count</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset.php.html#140"><abbr title="Widget_Asset::get_preview_file_name">get_preview_file_name</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="asset/manager.php.html#88"><abbr title="Widget_Asset_Manager::can_asset_be_deleted">can_asset_be_deleted</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="question/manager.php.html#35"><abbr title="Widget_Question_Manager::get_users_questions">get_users_questions</abbr></a></td><td class="text-right">62%</td></tr>
+       <tr><td><a href="instance.php.html#393"><abbr title="Widget_Instance::set_owners">set_owners</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="instance.php.html#190"><abbr title="Widget_Instance::store_qset">store_qset</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="instance.php.html#136"><abbr title="Widget_Instance::db_get">db_get</abbr></a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="question.php.html#96"><abbr title="Widget_Question::db_store">db_store</abbr></a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="question.php.html#284"><abbr title="Widget_Question::export">export</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="asset/manager.php.html#41"><abbr title="Widget_Asset_Manager::process_upload">process_upload</abbr></a></td><td class="text-right">56</td></tr>
+       <tr><td><a href="asset/manager.php.html#176"><abbr title="Widget_Asset_Manager::get_assets_by_user">get_assets_by_user</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="asset/manager.php.html#229"><abbr title="Widget_Asset_Manager::get_user_disk_usage">get_user_disk_usage</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="asset.php.html#45"><abbr title="Widget_Asset::__construct">__construct</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="asset.php.html#68"><abbr title="Widget_Asset::db_store">db_store</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="instance.php.html#106"><abbr title="Widget_Instance::convert_to_array_qset">convert_to_array_qset</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="asset/manager.php.html#292"><abbr title="Widget_Asset_Manager::register_assets_to_item">register_assets_to_item</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="asset.php.html#158"><abbr title="Widget_Asset::db_remove">db_remove</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="question.php.html#96"><abbr title="Widget_Question::db_store">db_store</abbr></a></td><td class="text-right">14</td></tr>
+       <tr><td><a href="question.php.html#189"><abbr title="Widget_Question::db_remove">db_remove</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="asset/manager.php.html#328"><abbr title="Widget_Asset_Manager::un_register_assets_to_item">un_register_assets_to_item</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="asset/manager.php.html#346"><abbr title="Widget_Asset_Manager::get_assets_by_item">get_assets_by_item</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="asset/manager.php.html#274"><abbr title="Widget_Asset_Manager::register_asset_to_item">register_asset_to_item</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="asset.php.html#204"><abbr title="Widget_Asset::remove_files">remove_files</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="asset/manager.php.html#142"><abbr title="Widget_Asset_Manager::get_widgets_by_asset">get_widgets_by_asset</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="question/manager.php.html#35"><abbr title="Widget_Question_Manager::get_users_questions">get_users_questions</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="asset/manager.php.html#126"><abbr title="Widget_Asset_Manager::delete_asset">delete_asset</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="asset.php.html#232"><abbr title="Widget_Asset::db_get">db_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="asset/manager.php.html#88"><abbr title="Widget_Asset_Manager::can_asset_be_deleted">can_asset_be_deleted</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="asset.php.html#123"><abbr title="Widget_Asset::get_file_name">get_file_name</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="question.php.html#229"><abbr title="Widget_Question::db_get">db_get</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="instance.php.html#190"><abbr title="Widget_Instance::store_qset">store_qset</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="instance.php.html#393"><abbr title="Widget_Instance::set_owners">set_owners</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="instance.php.html#136"><abbr title="Widget_Instance::db_get">db_get</abbr></a></td><td class="text-right">3</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="http://github.com/sebastianbergmann/php-code-coverage" target="_top">PHP_CodeCoverage 2.2.4</a> using <a href="https://secure.php.net/" target="_top">PHP 5.6.19</a> and <a href="http://phpunit.de/">PHPUnit 4.1.6-6-g43914fa</a> at Tue Aug 30 14:12:07 EDT 2016.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../../../../js/jquery.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/holder.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/d3.min.js" type="text/javascript"></script>
+  <script src="../../../../../js/nv.d3.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([1,1,0,0,0,0,0,2,1,1,0,2], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([33,0,0,0,0,0,0,1,1,3,5,18], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0,22,"<a href=\"asset.php.html#25\">Widget_Asset<\/a>"],[9.2857142857143,45,"<a href=\"asset\/manager.php.html#21\">Widget_Asset_Manager<\/a>"],[86.725663716814,75,"<a href=\"instance.php.html#5\">Widget_Instance<\/a>"],[77.272727272727,5,"<a href=\"instance\/hash.php.html#5\">Widget_Instance_Hash<\/a>"],[100,12,"<a href=\"instance\/manager.php.html#5\">Widget_Instance_Manager<\/a>"],[100,5,"<a href=\"manager.php.html#25\">Widget_Manager<\/a>"],[60,57,"<a href=\"question.php.html#25\">Widget_Question<\/a>"],[62.5,6,"<a href=\"question\/manager.php.html#24\">Widget_Question_Manager<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(key, y, e, graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,5,"<a href=\"asset.php.html#45\">Widget_Asset::__construct<\/a>"],[0,5,"<a href=\"asset.php.html#68\">Widget_Asset::db_store<\/a>"],[0,2,"<a href=\"asset.php.html#123\">Widget_Asset::get_file_name<\/a>"],[0,1,"<a href=\"asset.php.html#140\">Widget_Asset::get_preview_file_name<\/a>"],[0,4,"<a href=\"asset.php.html#158\">Widget_Asset::db_remove<\/a>"],[0,3,"<a href=\"asset.php.html#204\">Widget_Asset::remove_files<\/a>"],[0,2,"<a href=\"asset.php.html#232\">Widget_Asset::db_get<\/a>"],[0,1,"<a href=\"asset\/manager.php.html#28\">Widget_Asset_Manager::get_asset<\/a>"],[0,1,"<a href=\"asset\/manager.php.html#35\">Widget_Asset_Manager::user_has_space_for<\/a>"],[0,7,"<a href=\"asset\/manager.php.html#41\">Widget_Asset_Manager::process_upload<\/a>"],[0,2,"<a href=\"asset\/manager.php.html#88\">Widget_Asset_Manager::can_asset_be_deleted<\/a>"],[0,1,"<a href=\"asset\/manager.php.html#106\">Widget_Asset_Manager::get_asset_use_count<\/a>"],[0,2,"<a href=\"asset\/manager.php.html#126\">Widget_Asset_Manager::delete_asset<\/a>"],[0,3,"<a href=\"asset\/manager.php.html#142\">Widget_Asset_Manager::get_widgets_by_asset<\/a>"],[0,5,"<a href=\"asset\/manager.php.html#176\">Widget_Asset_Manager::get_assets_by_user<\/a>"],[92.857142857143,2,"<a href=\"asset\/manager.php.html#204\">Widget_Asset_Manager::get_assets_ids_by_game<\/a>"],[0,5,"<a href=\"asset\/manager.php.html#229\">Widget_Asset_Manager::get_user_disk_usage<\/a>"],[0,1,"<a href=\"asset\/manager.php.html#252\">Widget_Asset_Manager::get_user_disk_quota<\/a>"],[0,1,"<a href=\"asset\/manager.php.html#261\">Widget_Asset_Manager::get_user_asset_stats<\/a>"],[0,3,"<a href=\"asset\/manager.php.html#274\">Widget_Asset_Manager::register_asset_to_item<\/a>"],[0,4,"<a href=\"asset\/manager.php.html#292\">Widget_Asset_Manager::register_assets_to_item<\/a>"],[0,1,"<a href=\"asset\/manager.php.html#313\">Widget_Asset_Manager::un_register_asset_to_item<\/a>"],[0,3,"<a href=\"asset\/manager.php.html#328\">Widget_Asset_Manager::un_register_assets_to_item<\/a>"],[0,3,"<a href=\"asset\/manager.php.html#346\">Widget_Asset_Manager::get_assets_by_item<\/a>"],[100,6,"<a href=\"instance.php.html#27\">Widget_Instance::__construct<\/a>"],[90.47619047619,10,"<a href=\"instance.php.html#53\">Widget_Instance::find_questions<\/a>"],[100,10,"<a href=\"instance.php.html#88\">Widget_Instance::is_question<\/a>"],[0,4,"<a href=\"instance.php.html#106\">Widget_Instance::convert_to_array_qset<\/a>"],[88.888888888889,3,"<a href=\"instance.php.html#136\">Widget_Instance::db_get<\/a>"],[93.75,3,"<a href=\"instance.php.html#151\">Widget_Instance::get_qset<\/a>"],[0,1,"<a href=\"instance.php.html#179\">Widget_Instance::get_specific_qset<\/a>"],[80,5,"<a href=\"instance.php.html#190\">Widget_Instance::store_qset<\/a>"],[98.148148148148,8,"<a href=\"instance.php.html#243\">Widget_Instance::db_store<\/a>"],[100,3,"<a href=\"instance.php.html#333\">Widget_Instance::db_remove<\/a>"],[90.909090909091,4,"<a href=\"instance.php.html#365\">Widget_Instance::duplicate<\/a>"],[75,3,"<a href=\"instance.php.html#393\">Widget_Instance::set_owners<\/a>"],[100,2,"<a href=\"instance.php.html#417\">Widget_Instance::playable_by_current_user<\/a>"],[0,1,"<a href=\"instance.php.html#422\">Widget_Instance::viewable_by<\/a>"],[100,10,"<a href=\"instance.php.html#432\">Widget_Instance::status<\/a>"],[0,1,"<a href=\"instance.php.html#476\">Widget_Instance::allows_guest_players<\/a>"],[0,1,"<a href=\"instance.php.html#481\">Widget_Instance::export<\/a>"],[100,2,"<a href=\"instance\/hash.php.html#21\">Widget_Instance_Hash::base62<\/a>"],[0,1,"<a href=\"instance\/hash.php.html#33\">Widget_Instance_Hash::udihash<\/a>"],[100,1,"<a href=\"instance\/hash.php.html#42\">Widget_Instance_Hash::generate_key_hash<\/a>"],[100,1,"<a href=\"instance\/hash.php.html#52\">Widget_Instance_Hash::generate_long_hash<\/a>"],[100,2,"<a href=\"instance\/manager.php.html#9\">Widget_Instance_Manager::get<\/a>"],[100,6,"<a href=\"instance\/manager.php.html#15\">Widget_Instance_Manager::get_all<\/a>"],[100,2,"<a href=\"instance\/manager.php.html#57\">Widget_Instance_Manager::get_all_for_user<\/a>"],[100,2,"<a href=\"instance\/manager.php.html#71\">Widget_Instance_Manager::lock<\/a>"],[100,4,"<a href=\"manager.php.html#36\">Widget_Manager::get_widgets<\/a>"],[100,1,"<a href=\"manager.php.html#79\">Widget_Manager::search<\/a>"],[100,16,"<a href=\"question.php.html#39\">Widget_Question::__construct<\/a>"],[100,1,"<a href=\"question.php.html#76\">Widget_Question::forge<\/a>"],[100,1,"<a href=\"question.php.html#81\">Widget_Question::from_json<\/a>"],[89.795918367347,14,"<a href=\"question.php.html#96\">Widget_Question::db_store<\/a>"],[0,3,"<a href=\"question.php.html#189\">Widget_Question::db_remove<\/a>"],[0,2,"<a href=\"question.php.html#229\">Widget_Question::db_get<\/a>"],[0,1,"<a href=\"question.php.html#250\">Widget_Question::remove_asset_links<\/a>"],[100,7,"<a href=\"question.php.html#260\">Widget_Question::create_question_hash<\/a>"],[0,12,"<a href=\"question.php.html#284\">Widget_Question::export<\/a>"],[62.5,6,"<a href=\"question\/manager.php.html#35\">Widget_Question_Manager::get_users_questions<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

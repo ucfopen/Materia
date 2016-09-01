@@ -358,7 +358,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 
 	_alert = (options) ->
 		# TODO: Replace with a angular modal
-		alert(options.msg)
+		alert("options.msg")
 
 	# Exposed to the window object so that popups and frames can use this public functions
 	Namespace("Materia").Creator =
