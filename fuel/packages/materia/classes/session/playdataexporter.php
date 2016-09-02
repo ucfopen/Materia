@@ -55,6 +55,7 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
+		$anonymize    = filter_var(\Input::get('anonymized', false), FILTER_VALIDATE_BOOLEAN);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
@@ -64,7 +65,7 @@ class Session_PlayDataExporter
 		// load the logs for all selected semesters
 		if (empty($semesters))
 		{
-			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name);
+			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name, $anonymize);
 			if ( ! empty($loaded_data[$table_name]))
 			{
 				$storage_data['all'] = $loaded_data[$table_name];
@@ -76,7 +77,7 @@ class Session_PlayDataExporter
 			foreach ($semesters as $semester)
 			{
 				list($year, $term) = explode('-', $semester);
-				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name);
+				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name, $anonymize);
 				if ( ! empty($loaded_data[$table_name]))
 				{
 					$storage_data[$semester] = $loaded_data[$table_name];
@@ -305,11 +306,19 @@ class Session_PlayDataExporter
 
 		foreach ($csv_questions as $question)
 		{
-			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$question['text']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_question_text = str_replace(["\r","\n", ','], '', $question['text']);
+			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$sanitized_question_text}";
 
 			foreach ($options as $key)
 			{
 				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : '';
+
+				if (is_array($val) || is_object($val))
+				{
+					$val = '[object]';
+				}
+
 				$csv_question_text .= ",$val";
 			}
 		}
@@ -317,7 +326,9 @@ class Session_PlayDataExporter
 		$csv_answer_text = 'question_id,id,text,value';
 		foreach ($csv_answers as $answer)
 		{
-			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_answer_text = str_replace(["\r","\n", ','], '', $answer['text']);
+			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$sanitized_answer_text},{$answer['value']}";
 		}
 
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
@@ -334,5 +345,4 @@ class Session_PlayDataExporter
 
 		return [$data, '.zip'];
 	}
-
 }
