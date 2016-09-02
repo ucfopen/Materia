@@ -363,7 +363,10 @@
 							<div score-graph class="chart" id="chart_{{semester.id}}"></div>
 						</div>
 						<div score-data id="data_{{semester.id}}" class="display data" data-semester="{{semester.year}} {{semester.term.toLowerCase()}}" data-has-storage="{{ semester.storage ? true : false }}" ng-show="selectedScoreView[$index] == SCORE_VIEW_DATA">
-							<a class="storage" ng-href="/data/export/{{selected.widget.id}}?type=storage&amp;table={{selectedTable | escape}}&amp;semesters={{semester.year}}-{{semester.term}}" >Download Table</a>
+							<div>
+								<input type='checkbox' ng-model='semester.anonymize' ng-init='semester.anonymize=false' />Anonymize Download
+								<a class="storage" ng-href="/data/export/{{selected.widget.id}}?type=storage&amp;table={{selectedTable | escape}}&amp;semesters={{semester.year}}-{{semester.term}}&amp;anonymized={{semester.anonymize}}" >Download Table</a>
+							</div>
 							<div class="table label" ng-show="tableNames.length == 1"><h4>Table: <span>{{tableNames[0]}}</span></h4></div>
 							<select ng-model="selectedTable" ng-options="tableName as tableName for tableName in tableNames" ng-show="tableNames.length > 1"></select>
 							<div ng-repeat="table in tables" ng-show="tableNames[$index] == selectedTable">
