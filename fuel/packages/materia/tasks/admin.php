@@ -274,14 +274,14 @@ class Admin extends \Basetask
 			{
 				\Cli::beep(1);
 				\Cli::write(\Cli::color("couldn't add user to role", 'red'));
-				return false;
+				exit(1);  // linux exit code 1 = error
 			}
 		}
 		else
 		{
 			\Cli::beep(1);
 			\Cli::write(\Cli::color("$user_name doesnt exist", 'red'));
-			return false;
+			exit(1);  // linux exit code 1 = error
 		}
 	}
 
@@ -315,6 +315,7 @@ class Admin extends \Basetask
 			\Cli::beep(1);
 			\Cli::write(\Cli::color('Error creating user', 'red'));
 			\Cli::write(\Cli::color($e->getMessage(), 'red'));
+			exit(1); // linux exit code 1 = error
 		}
 
 	}
@@ -364,39 +365,6 @@ class Admin extends \Basetask
 					])
 					->where('id', $user['id'])
 					->execute();
-			}
-		}
-	}
-
-	public function change_db_prefix($prefix='', $remove=false)
-	{
-		$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute()->as_array('Tables_in_materia', 'Tables_in_materia');
-		if ($remove)
-		{
-			foreach ($tables as $key => $t)
-			{
-				$rename[$key]['from'] = $t;
-				$rename[$key]['to'] = preg_replace('/^'.$prefix.'/i','',$t);
-			}
-		}
-		else
-		{
-			foreach ($tables as $key => $t)
-			{
-				$rename[$key]['from'] = $t;
-				$rename[$key]['to'] = $prefix.$t;
-			}
-		}
-		foreach ($rename as $r)
-		{
-			try
-			{
-				\DBUtil::rename_table($r['from'], $r['to']);
-				\Cli::write(\Cli::color("{$r['from']} >> {$r['to']}", 'green'));
-			}
-			catch (\Exception $e)
-			{
-				//do nothing
 			}
 		}
 	}
