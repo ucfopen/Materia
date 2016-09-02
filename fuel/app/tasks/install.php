@@ -36,6 +36,7 @@ class Install
 			else
 			{
 				\Cli::write("Failed to make writable: $path", 'red');
+				exit(1);
 			}
 		}
 
