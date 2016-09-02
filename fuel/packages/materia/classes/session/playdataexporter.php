@@ -147,6 +147,8 @@ class Session_PlayDataExporter
 
 			foreach ($logs as $play)
 			{
+				// ignore non-guest plays when exporting all scores
+				if ($play['user_id']) continue;
 				$condensed = [
 					'Guest '.++$count,
 					'last_name' => $play['last'],
