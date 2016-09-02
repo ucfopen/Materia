@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6c720b23f81e7c3db500552d881f2019",
-    "content-hash": "72d4af744e9a45401e44bbff799dadb8",
+    "hash": "4ed952e04f470bd8ffbf85219f0de52b",
+    "content-hash": "fccc29be759e4f71b9e303fdca178d6b",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "a3595c5272a6f247228abb20076ed27321e4aae9"
+                "reference": "d78064c68299743e0161004f2de3a0204e33b804"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/a3595c5272a6f247228abb20076ed27321e4aae9",
-                "reference": "a3595c5272a6f247228abb20076ed27321e4aae9",
+                "url": "https://api.github.com/repos/composer/installers/zipball/d78064c68299743e0161004f2de3a0204e33b804",
+                "reference": "d78064c68299743e0161004f2de3a0204e33b804",
                 "shasum": ""
             },
             "require": {
@@ -65,6 +65,7 @@
                 "MODX Evo",
                 "Mautic",
                 "OXID",
+                "Plentymarkets",
                 "RadPHP",
                 "SMF",
                 "Thelia",
@@ -72,9 +73,11 @@
                 "agl",
                 "aimeos",
                 "annotatecms",
+                "attogram",
                 "bitrix",
                 "cakephp",
                 "chef",
+                "cockpit",
                 "codeigniter",
                 "concrete5",
                 "croogo",
@@ -98,16 +101,18 @@
                 "piwik",
                 "ppi",
                 "puppet",
+                "reindex",
                 "roundcube",
                 "shopware",
                 "silverstripe",
                 "symfony",
                 "typo3",
                 "wordpress",
+                "yawik",
                 "zend",
                 "zikula"
             ],
-            "time": "2016-07-05 06:18:20"
+            "time": "2016-08-13 20:53:52"
         },
         {
             "name": "fuel/auth",
@@ -303,28 +308,34 @@
         },
         {
             "name": "fuelphp/upload",
-            "version": "2.0.1",
+            "version": "2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuelphp/upload.git",
-                "reference": "6310108de98ffdbf1083612db5b15411fc140c90"
+                "reference": "73b3abfa317c22d6b4d63588e9601c13623ea6f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuelphp/upload/zipball/6310108de98ffdbf1083612db5b15411fc140c90",
-                "reference": "6310108de98ffdbf1083612db5b15411fc140c90",
+                "url": "https://api.github.com/repos/fuelphp/upload/zipball/73b3abfa317c22d6b4d63588e9601c13623ea6f6",
+                "reference": "73b3abfa317c22d6b4d63588e9601c13623ea6f6",
                 "shasum": ""
             },
             "require": {
+                "ext-fileinfo": "*",
                 "php": ">=5.3"
             },
             "require-dev": {
-                "mockery/mockery": "0.7.*"
+                "codeception/codeception": "~2.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
             "autoload": {
-                "psr-0": {
-                    "Fuel\\Upload": "src/"
+                "psr-4": {
+                    "Fuel\\Upload\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -337,13 +348,13 @@
                     "email": "team@fuelphp.com"
                 }
             ],
-            "description": "Uploaded file processing.",
+            "description": "Process uploaded files",
             "homepage": "https://github.com/fuelphp/upload",
             "keywords": [
                 "file uploads",
                 "upload"
             ],
-            "time": "2013-10-11 21:42:58"
+            "time": "2015-11-04 17:19:56"
         },
         {
             "name": "iturgeon/qasset",
@@ -396,95 +407,61 @@
             "type": "fuel-package"
         },
         {
-            "name": "michelf/php-markdown",
-            "version": "1.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/michelf/php-markdown.git",
-                "reference": "96d8150406f67e683ef4acc09fef91785fef1266"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/96d8150406f67e683ef4acc09fef91785fef1266",
-                "reference": "96d8150406f67e683ef4acc09fef91785fef1266",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-lib": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Michelf": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Michel Fortin",
-                    "email": "michel.fortin@michelf.ca",
-                    "homepage": "http://michelf.ca/",
-                    "role": "Developer"
-                },
-                {
-                    "name": "John Gruber",
-                    "homepage": "http://daringfireball.net/"
-                }
-            ],
-            "description": "PHP Markdown",
-            "homepage": "http://michelf.ca/projects/php-markdown/",
-            "keywords": [
-                "markdown"
-            ],
-            "time": "2013-11-29 17:09:24"
-        },
-        {
             "name": "monolog/monolog",
-            "version": "1.5.0",
+            "version": "1.18.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "583618d5cd2115a52101694aca87afb182b3e567"
+                "reference": "064b38c16790249488e7a8b987acf1c9d7383c09"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/583618d5cd2115a52101694aca87afb182b3e567",
-                "reference": "583618d5cd2115a52101694aca87afb182b3e567",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/064b38c16790249488e7a8b987acf1c9d7383c09",
+                "reference": "064b38c16790249488e7a8b987acf1c9d7383c09",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
                 "psr/log": "~1.0"
             },
+            "provide": {
+                "psr/log-implementation": "1.0.0"
+            },
             "require-dev": {
-                "doctrine/couchdb": "dev-master",
-                "mlehner/gelf-php": "1.0.*",
-                "raven/raven": "0.3.*"
+                "aws/aws-sdk-php": "^2.4.9",
+                "doctrine/couchdb": "~1.0@dev",
+                "graylog2/gelf-php": "~1.0",
+                "jakub-onderka/php-parallel-lint": "0.9",
+                "php-amqplib/php-amqplib": "~2.4",
+                "php-console/php-console": "^3.1.3",
+                "phpunit/phpunit": "~4.5",
+                "phpunit/phpunit-mock-objects": "2.3.0",
+                "raven/raven": "^0.13",
+                "ruflin/elastica": ">=0.90 <3.0",
+                "swiftmailer/swiftmailer": "~5.3"
             },
             "suggest": {
+                "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
                 "doctrine/couchdb": "Allow sending log messages to a CouchDB server",
                 "ext-amqp": "Allow sending log messages to an AMQP server (1.0+ required)",
                 "ext-mongo": "Allow sending log messages to a MongoDB server",
-                "mlehner/gelf-php": "Allow sending log messages to a GrayLog2 server",
-                "raven/raven": "Allow sending log messages to a Sentry server"
+                "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
+                "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
+                "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
+                "php-console/php-console": "Allow sending log messages to Google Chrome",
+                "raven/raven": "Allow sending log messages to a Sentry server",
+                "rollbar/rollbar": "Allow sending log messages to Rollbar",
+                "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Monolog": "src/"
+                "psr-4": {
+                    "Monolog\\": "src/Monolog"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -495,8 +472,7 @@
                 {
                     "name": "Jordi Boggiano",
                     "email": "j.boggiano@seld.be",
-                    "homepage": "http://seld.be",
-                    "role": "Developer"
+                    "homepage": "http://seld.be"
                 }
             ],
             "description": "Sends your logs to files, sockets, inboxes, databases and various web services",
@@ -506,7 +482,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2013-04-23 10:09:48"
+            "time": "2016-04-02 13:12:58"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -693,38 +669,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "fuel/docs",
-            "version": "1.8.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/fuel/docs.git",
-                "reference": "e03906d02cbd09bddb653e28f92f92056e673a32"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/fuel/docs/zipball/e03906d02cbd09bddb653e28f92f92056e673a32",
-                "reference": "e03906d02cbd09bddb653e28f92f92056e673a32",
-                "shasum": ""
-            },
-            "require": {
-                "composer/installers": "~1.0"
-            },
-            "type": "fuel-package",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "FuelPHP Development Team",
-                    "email": "team@fuelphp.com"
-                }
-            ],
-            "description": "FuelPHP 1.x Documenataion",
-            "homepage": "https://github.com/fuel/docs",
-            "time": "2016-04-10 12:59:50"
-        },
         {
             "name": "phpunit/php-code-coverage",
             "version": "2.2.x-dev",
@@ -1424,12 +1368,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "0ceab136f43ed9d3e97b3eea32a7855dc50c121d"
+                "reference": "e7540734bad981fe59f8ef14b6fc194ae9df8d9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/0ceab136f43ed9d3e97b3eea32a7855dc50c121d",
-                "reference": "0ceab136f43ed9d3e97b3eea32a7855dc50c121d",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/e7540734bad981fe59f8ef14b6fc194ae9df8d9c",
+                "reference": "e7540734bad981fe59f8ef14b6fc194ae9df8d9c",
                 "shasum": ""
             },
             "require": {
@@ -1465,7 +1409,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-17 09:06:15"
+            "time": "2016-09-02 01:57:56"
         }
     ],
     "aliases": [],
@@ -1477,7 +1421,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.3.3"
+        "php": ">=5.6.0"
     },
     "platform-dev": []
 }
