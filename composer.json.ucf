@@ -1,8 +1,8 @@
 {
     "name": "ucfcdl/materia",
     "type": "project",
-    "description" : "",
-    "keywords": ["application", "website", "development", "framework", "PHP"],
+    "description" : "Materia is UCF's educational game and app network",
+    "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida", "application", "website", "development", "framework", "PHP"],
     "repositories": [
         {
             "type": "package",
@@ -27,7 +27,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.6.0",
         "composer/installers": "~1.0",
         "fuel/core": "1.8.*",
         "fuel/auth": "1.8.*",
@@ -36,17 +36,24 @@
         "fuel/orm": "1.8.*",
         "fuel/parser": "1.8.*",
         "iturgeon/qasset": "dev-master",
-        "fuelphp/upload": "2.0.1",
-        "monolog/monolog": "1.5.*",
+        "fuelphp/upload": "2.0.6",
+        "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.0",
-        "michelf/php-markdown": "1.4.0",
         "ucfcdl/php-saml": "master-dev",
         "materia/ucfauth": "0.1.4"
     },
     "require-dev": {
-        "fuel/docs": "1.8.*",
-        "fuelphp/upload": "2.0.1",
         "phpunit/phpunit": "4.1.*"
+    },
+    "suggest": {
+        "fuel/docs": "FuelPHP documentation",
+        "michelf/php-markdown": "FuelPHP Parser Markdown",
+        "dwoo/dwoo" : "Allow Dwoo templating with the Parser package",
+        "mustache/mustache": "Allow Mustache templating with the Parser package",
+        "smarty/smarty": "Allow Smarty templating with the Parser package",
+        "twig/twig": "Allow Twig templating with the Parser package",
+        "pyrocms/lex": "Allow Lex templating with the Parser package",
+        "mthaml/mthaml": "Allow Haml templating with Twig supports with the Parser package"
     },
     "config": {
         "vendor-dir": "fuel/vendor",
@@ -55,8 +62,7 @@
     "extra": {
         "installer-paths": {
             "fuel/{$name}": ["fuel/core"],
-            "{$name}": ["fuel/docs"],
-            "fuel/packages/{$name}/": ["materia/ucfauth"]
+            "{$name}": ["fuel/docs"]
         }
     },
     "minimum-stability": "dev"
