@@ -29,7 +29,9 @@
 							<div class="search_list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
-									<p class="user_match_name">{{::match.first}} {{::match.last}}</p>
+									<p class="user_match_name" ng-class="{user_match_student: match.is_student}">
+										{{::match.first}} {{::match.last}}
+									</p>
 								</div>
 								<div ng-if="searchResults.none && !searchResults.searching" class="no_match_message">
 									<b>No matches found.</b>
@@ -46,7 +48,9 @@
 								<a ng-if="selected.shareable || user.id == collaborator.id" tabindex="0" href="javascript:;" ng-click="removeAccess(collaborator)" class="remove">&#88;</a>
 								<img class="avatar" ng-src="{{::collaborator.gravatar}}" />
 
-								<span class="name">{{::collaborator.first}} {{::collaborator.last}}</span>
+								<span class="name" ng-class="{user_match_student: collaborator.is_student}">
+									{{::collaborator.first}} {{::collaborator.last}}
+								</span>
 
 								<div class="demote_dialogue" ng-show="collaborator.warning">
 									<div class="arrow"></div>
@@ -76,11 +80,12 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px" height="550px">
+			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px">
 				<div ng-if="show.availabilityModal" ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
 					<ul class="attemptsPopup">
-						<li><h3>Attempts</h3>
+						<li ng-hide="{{user.is_student}}">
+							<h3>Attempts</h3>
 							<div class="selector" ng-if="show.availabilityModal"></div>
 							<ul class="attemptHolder" ng-class="{disabled: guestAccess}">
 								<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
@@ -93,8 +98,8 @@
 								<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
 								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
-							<p class="data_explination">Attempts are the number of times a student can complete a widget.  Only their highest score counts.</p>
-							<p ng-if="guestAccess" class="data_explination "><b>Attempts are unlimited when Guest Mode is enabled.</b></p>
+							<p class="data_explanation">Attempts are the number of times a student can complete a widget.  Only their highest score counts.</p>
+							<p ng-if="guestAccess" class="data_explanation "><b>Attempts are unlimited when Guest Mode is enabled.</b></p>
 						</li>
 						<ul class="toFrom">
 							<li ng-repeat="available in availability">
@@ -110,12 +115,12 @@
 									</li>
 								</ul>
 							</li>
-							<li id="guest-access">
+							<li id="guest-access" ng-hide="{{user.is_student}}">
 								<h3>Access</h3>
 								<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-disabled="studentMade"/>
 								<label ng-click="toggleGuestAccess()" ng-class="{disabled: studentMade}">Enable Guest Mode</label>
-								<p class="data_explination">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
-								<p ng-if="studentMade" class="data_explination "><b>Guest Mode is always on for widgets created by students.</b></p>
+								<p class="data_explanation">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
+								<p ng-if="studentMade" class="data_explanation "><b>Guest Mode is always on for widgets created by students.</b></p>
 							</li>
 						</ul>
 					</ul>
