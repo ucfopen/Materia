@@ -8,6 +8,6 @@
 
 # Installation
 
-### Installing with Vagrant, VirtualBox and GoBot
+### Dev Installing with Docker
 
-Install instructions with needed files can be found in the [Materia-Setup repository](https://github.com/ucfcdl/Materia-Setup)
+Install instructions with needed files can be found in the [Materia-Docker repository](https://clu.cdl.ucf.edu/materia/materia-docker)
