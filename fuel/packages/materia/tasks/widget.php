@@ -63,14 +63,15 @@ class Widget extends \Basetask
 		$inst = self::get_widget_instance($inst_id);
 		\Materia\Perm_Manager::clear_all_perms_for_object($inst->id, \Materia\Perm::INSTANCE);
 		$result = $inst->db_remove();
+
 		if ($result)
 		{
 			\Cli::write('Widget deleted.', 'green');
+			exit(0);
 		}
-		else
-		{
-			\Cli::write('Deleting widget failed.', 'red');
-		}
+
+		\Cli::write('Deleting widget failed.', 'red');
+		exit(1); // linux exit code 1 = error
 	}
 
 	public static function show_engines()
@@ -130,6 +131,7 @@ class Widget extends \Basetask
 					if ( ! is_numeric($input2) || ! isset($user_map[(int)$input2]))
 					{
 						\Cli::write('Invalid input, try again.');
+						exit(1); // linux exit code 1 = error
 					}
 					else
 					{
@@ -163,7 +165,10 @@ class Widget extends \Basetask
 
 		$matches = glob("{$clone_dir}_output/*.wigt");
 
-		if ( ! count($matches)) return false;
+		if ( ! count($matches))
+		{
+			exit(1);
+		}
 
 		$tmp_dir = \Materia\Widget_Installer::get_temp_dir();
 		$destination = $tmp_dir.basename($matches[0]);
@@ -200,7 +205,7 @@ class Widget extends \Basetask
 			\Cli::write('');
 			\Cli::write('Directory or .wigt file(s)', 'white');
 			\Cli::write('');
-			exit();
+			exit(0);
 		}
 
 		# parse all the file paths passed to the task
@@ -218,14 +223,15 @@ class Widget extends \Basetask
 		if ($count > 1 && $replace_id > 0)
 		{
 			\Cli::error('multiple widgets paths can not be combined with --replace-id option');
-			exit();
+			exit(1); // linux exit code 1 = error
 		}
 
 		self::login_as_admin();
 
 		foreach ($widget_files as $file)
 		{
-			\Materia\Widget_Installer::extract_and_install_from_package($file, \Cli::option('skip-upgrade'), $replace_id);
+			$success = \Materia\Widget_Installer::extract_package_and_install($file, \Cli::option('skip-upgrade'), $replace_id);
+			if ($success !== true) exit(1); // linux exit code 1 = error
 		}
 	}
 
@@ -235,8 +241,9 @@ class Widget extends \Basetask
 	{
 		$widget_files = static::get_files_from_args(func_get_args());
 		$id = \Cli::option('id');
-		$success = \Materia\Widget_Installer::extract_from_package($widget_files[0], $id);
+		$success = \Materia\Widget_Installer::extract_package_files($widget_files[0], $id);
 		\Cli::write('Widget '.($success ? 'installed' : 'not installed'));
+		if ($success !== true) exit(1); // linux exit code 1 = error
 	}
 
 	private static function login_as_admin()
@@ -257,7 +264,8 @@ class Widget extends \Basetask
 		}
 		else
 		{
-			self::write("Can't find an admin user", true, true);
+			self::write("Can't find an admin user", true);
+			exit(1); // linux exit code 1 = error
 		}
 	}
 
@@ -307,7 +315,7 @@ class Widget extends \Basetask
 		$qset_yaml = \Format::forge($inst->qset->data)->to_yaml();
 
 		\Cli::write($qset_yaml);
-		exit();
+		exit(1);
 	}
 
 	/**
