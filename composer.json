@@ -2,7 +2,7 @@
     "name": "fuel/fuel",
     "type": "project",
     "description" : "Materia is UCF's educational game and app network",
-    "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida", "application", "website", "development", "framework", "PHP"],"PHP7"],
+    "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida", "application", "website", "development", "framework", "PHP", "PHP7"],
     "license": "MIT",
     "repositories": [
         {
