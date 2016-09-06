@@ -2,7 +2,7 @@
     "name": "ucfcdl/materia",
     "type": "project",
     "description" : "Materia is UCF's educational game and app network",
-    "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida", "application", "website", "development", "framework", "PHP"],
+    "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida", "application", "website", "development", "framework", "PHP", "PHP7"],
     "repositories": [
         {
             "type": "package",
