@@ -319,6 +319,9 @@ class Controller_Widgets extends Controller
 
 			// allow events to set context_id
 			$context_id = empty($result['context_id']) ? false : $result['context_id'];
+
+			// this widget is being played within an LTI, but wasn't embedded with the right URL
+			if ( ! $is_embedded && ! empty($result['force_embedded'])) $is_embedded = $result['force_embedded'];
 		}
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
