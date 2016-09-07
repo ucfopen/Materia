@@ -184,6 +184,9 @@ app.service 'selectedWidgetSrv', ($rootScope, $q) ->
 		_widget.close_at = close_at
 		_widget.guest_access = guest_access
 		_widget.embedded_only = embedded_only
+
+		if _widget.student_access and not guest_access then _widget.student_access = false
+
 		$rootScope.$broadcast 'selectedWidget.update'
 
 	notifyAccessDenied = ->
