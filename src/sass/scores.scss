@@ -112,10 +112,10 @@ body.scores .overview #overview-table table .number{
 	text-align:right;
 }
 
-
-body.scores article header{
-	background:#454545;
-	height:50px;
+body.scores article header.score-header{
+	height: auto;
+	min-height: 50px;
+	background: #454545;
 	border-bottom: 4px #CCC solid;
 	box-shadow: 0px 1px 3px 0px #777;
 	z-index:8;
@@ -268,6 +268,15 @@ body.scores .details {
 body.scores .special_details {
 	padding-bottom: 40px;
 	position: relative;
+}
+
+body.scores article header .header-element {
+	display: inline-block;
+}
+
+body.scores article header .header-element.widget-title {
+	width: 50%;
+	padding-bottom: 5px;
 }
 
 body.scores article header nav.play-again{
@@ -518,6 +527,5 @@ body.scores .container.show {
 }
 
 h1.scoreFontColor {
-	color:white;
+	color: white;
 }
-
