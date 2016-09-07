@@ -8,6 +8,7 @@ class Controller_Widgets extends Controller
 {
 
 	protected $_header = 'partials/header';
+	protected $_embedded = false;
 
 	public function before()
 	{
@@ -194,6 +195,9 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		Session::set('context_id', \Input::post('context_id'));
+		$this->_header = 'partials/header_empty';
+		$this->_embedded = true;
 		return $this->_play_widget($inst_id, false, true);
 	}
 
@@ -278,7 +282,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/no_attempts')
 			->set('classes', 'widget')
 			->set('attempts', $inst->attempts)
-			->set('scores_path', '/scores/'.$inst->id)
+			->set('scores_path', '/scores'.($this->_embedded ? '/embed' : '').'/'.$inst->id)
 
 			->set('summary', $this->theme->view('partials/widget/summary')
 				->set('type',$inst->widget->name)
@@ -392,7 +396,11 @@ class Controller_Widgets extends Controller
 
 		if ($is_open)
 		{
-			$content = $this->theme->set_partial('content', 'partials/widget/login');
+			// fire an event prior to deciding which theme to render
+			$alt = \Event::Trigger('before_widget_login');
+			// if something came back as a result of the event being triggered, use that instead of the default
+			$theme = $alt ?: 'partials/widget/login';
+			$content = $this->theme->set_partial('content', $theme);
 			$content
 				->set('user', __('user'))
 				->set('pass', __('password'))

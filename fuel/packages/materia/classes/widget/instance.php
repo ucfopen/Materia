@@ -13,6 +13,7 @@ class Widget_Instance
 	public $is_student_made = false;
 	public $is_embedded     = false;
 	public $embedded_only   = 0;
+	public $student_access  = false;
 	public $guest_access    = false;
 	public $height          = 0;
 	public $id              = 0;

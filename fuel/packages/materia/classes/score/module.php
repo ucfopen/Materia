@@ -87,7 +87,12 @@ abstract class Score_Module
 	{
 		if ( ! $timestamp)
 		{
-			$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($this->inst->id));
+			if ( ! $this->play)
+			{
+				$this->play = new \Materia\Session_Play();
+				$this->play->get_by_id($this->play_id);
+			}
+			$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($this->inst->id, $this->play->context_id));
 			if ($this->inst->attempts != -1 && $attempts_used >= $this->inst->attempts)
 			{
 				throw new Score_Exception('Attempt Limit Met', 'You have already met the attempt limit for this widget and cannot submit additional scores.');
