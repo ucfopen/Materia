@@ -30,6 +30,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	$scope.publishText = "Publish..."
 
 	$scope.invalid = false
+	$scope.modal = false
 
 	# Model methods
 	# send a save request to the creator
@@ -289,12 +290,20 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# move the embed dialog off to invisibility
 	hideEmbedDialog = ->
 		$scope.iframeUrl = ""
-		$scope.$apply()
+		$scope.modal = false
+		setTimeout (->
+			$scope.$apply()
+			return
+		), 0
 
 	# Note this is psuedo public as it's exposed to flash
 	showMediaImporter = (types) ->
 		showEmbedDialog '/media/import#' + types.join(',')
-		$scope.$apply()
+		$scope.modal = true
+		setTimeout (->
+			$scope.$apply()
+			return
+		), 0
 		null # else Safari will give the .swf data that it can't handle
 
 	# save called by the widget creator
@@ -390,5 +399,3 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			.pipe(showButtons)
 			.pipe(startHeartBeat)
 			.fail(onInitFail)
-
-
