@@ -63,3 +63,9 @@ fuel/app/tmp
 # Compiled assets
 public/themes/*/assets/css/*.css
 public/themes/*/assets/js/*.js
+
+# dont include coverage files
+coverage.txt
+coverage.xml
+coverage/*
+
