@@ -287,15 +287,16 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							# todo: poll, since we don't know when lambda resizing is finished
 
-							if data.indexOf('uploads') != -1
+							thumbUrl = "#{_mediaUrl}/"
+
+							if _s3enabled
 								split = data.split('/')
 								split.splice(-1, 0, 'thumb')
 								thumbId = split.join('/')
 
-								thumbUrl = "#{_mediaUrl}/#{thumbId}"
+								thumbUrl += "#{thumbId}"
 							else
-								mediaUrl = _mediaUploadUrl.replace '/upload', ''
-								thumbUrl = "#{_localMediaUrl}/#{data}/thumbnail"
+								thumbUrl += "#{data}/thumbnail"
 
 							return "<img src='#{thumbUrl}'>"
 						else if full.type is 'mp3'
