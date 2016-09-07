@@ -33,6 +33,8 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 		return if $scope.studentMade
 
 		$scope.guestAccess = !$scope.guestAccess
+		if $scope.selected.widget.student_access is true and $scope.guestAccess is false
+			alert 'Warning: Disabling Guest Mode will automatically revoke access to this widget for any students it has been shared with!'
 		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 		setTimeout ->
 			$( ".selector" ).slider

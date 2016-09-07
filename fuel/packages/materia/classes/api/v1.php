@@ -263,6 +263,19 @@ class Api_V1
 				$activity->db_store();
 			}
 			$inst->guest_access = $guest_access;
+			// when disabling guest mode on a widget, make sure no students have access to that widget
+			if ( ! $guest_access)
+			{
+				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
+				foreach ($access as $user_id => $user_perms)
+				{
+					if (Perm_Manager::is_student($user_id))
+					{
+						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+					}
+				}
+			}
 		}
 
 		try
@@ -306,15 +319,14 @@ class Api_V1
 		return $spotlight_list;
 	}
 
-	static public function session_play_create($inst_id, $context_id=false, $preview_mode=false)
+	static public function session_play_create($inst_id, $context_id=false)
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		if ($preview_mode && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
-		if ($preview_mode == false && $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
+		if ( $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
-		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id, $preview_mode);
+		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id);
 		return $play_id;
 	}
 
@@ -424,7 +436,7 @@ class Api_V1
 			}
 
 			Session_Logger::parse_and_store_log_array($play_id, $logs);
-			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id);
+			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id, $play);
 
 			// @TODO: conver the score modules to work more like the playdata exporters
 			// $inst      = Widget_Instance_Manager::get($play->inst_id)
@@ -859,6 +871,10 @@ class Api_V1
 		// full perms or is super user required
 		$can_give_access = Perm_Manager::user_has_any_perm_to($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
 
+		// if we're changing permissions on a widget instance, have that instance on hand for checking
+		$inst = false;
+		$refused = [];
+
 		// filter out any permissions I can't do
 		foreach ($perms_array as &$new_perms)
 		{
@@ -883,6 +899,23 @@ class Api_V1
 			// need strict type checking because 0 == false
 			$new_perm   = array_search(Perm::ENABLE, $new_perms->perms);
 			$is_enabled = $new_perm !== false;
+
+			// set VIEW access for all of its assets
+			if ($item_type === Perm::INSTANCE)
+			{
+				// get the widget instance if we don't have it yet
+				if ( ! $inst) $inst = Widget_Instance_Manager::get($item_id);
+
+				// if we're sharing the instance with a student, make sure it's okay to share with students first
+				if ($is_enabled && Perm_Manager::is_student($new_perms->user_id))
+				{
+					// guest mode isn't enabled - don't give this student access
+					if ( ! $inst->allows_guest_players()) continue;
+					Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
+				}
+			}
+
+			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 			$notification_mode = '';
 
 			if ( ! $is_enabled)
@@ -895,14 +928,6 @@ class Api_V1
 			}
 
 			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
-
-			// set VIEW access for all of its assets
-			if ($item_type === Perm::INSTANCE)
-			{
-				Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
-			}
-
-			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 		}
 
 		return true;

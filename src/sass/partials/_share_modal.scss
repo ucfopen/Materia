@@ -352,6 +352,18 @@
 	height: 40px;
 	font-family: 'Lucida Grande', sans-serif;
 }
+.ng-modal.share .user_match_student
+{
+	position: relative;
+}
+.ng-modal.share .user_match_student:after
+{
+	content: "Student";
+	position: absolute;
+	top: -10px;
+	left: 0;
+	font-size: 10px;
+}
 
 .ng-modal.share .disclaimer
 {
