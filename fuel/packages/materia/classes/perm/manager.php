@@ -278,7 +278,7 @@ class Perm_Manager
 
 			// convert all instance id's to strings... because mysql behaves unexpectedly with numbers here
 			// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
-			foreach($perms as &$value) $value = (string) $value;
+			foreach ($perms as &$value) $value = (string) $value;
 
 			// ====================== GET THE USERS ROLE PERMISSIONS ============================
 			// build a subquery that gets any roles the user has
@@ -489,4 +489,27 @@ class Perm_Manager
 		return $master_perms;
 	}
 
+	/**
+	 * Determine if the user associated with the given user ID lacks all non-student roles
+	 */
+	static public function is_student($user_id)
+	{
+		return ! \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR, \RocketDuck\Perm_Role::SU], $user_id);
+	}
+
+	static public function accessible_by_students($object_id, $object_type)
+	{
+		// make sure the current user has rights to this item
+		if ( ! self::user_has_any_perm_to(\Model_User::find_current_id(), $object_id, $object_type, [Perm::FULL, Perm::VISIBLE])) return false;
+
+		$result = \DB::select('p.user_id')
+			->from(['perm_object_to_user', 'p'])
+			->join(['perm_role_to_user', 'r'], 'left')
+				->on('r.user_id', '=', 'p.user_id')
+			->where('p.object_id', $object_id)
+			->where('p.object_type', $object_type)
+			->where('r.user_id', null)
+			->execute();
+		return count($result) > 0;
+	}
 }
