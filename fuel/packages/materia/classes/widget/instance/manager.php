@@ -38,6 +38,7 @@ class Widget_Instance_Manager
 				'user_id'         => $r['user_id'],
 				'name'            => $r['name'],
 				'is_student_made' => (bool) $r['is_student_made'],
+				'student_access'  => Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE),
 				'guest_access'    => (bool) $r['guest_access'],
 				'is_draft'        => (bool) $r['is_draft'],
 				'created_at'      => $r['created_at'],
