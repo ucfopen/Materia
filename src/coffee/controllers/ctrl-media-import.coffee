@@ -114,7 +114,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request = new XMLHttpRequest()
 			request.onload = (oEvent) =>
 				if keyData? # s3 upload
-					success = request.status == 200
+					success = request.status == 200 or request.status == 201
 
 					# todo: do we need to parse response to decide on success?
 
@@ -136,7 +136,8 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request.send(fd)
 
 		saveUploadStatus: (fileType, fileURI, s3_upload_success) ->
-			fileID = fileURI.split('/').slice(-1)[0]
+			re = /\/(\w{5})\./
+			fileID = fileURI.match(re)[1] # id is in first capture group
 			_coms.send 'upload_success_post', [fileID, s3_upload_success], (update_success) ->
 				if update_success
 					res =
