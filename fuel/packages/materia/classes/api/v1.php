@@ -522,7 +522,7 @@ class Api_V1
 		$signature = base64_encode($sha1_hash);
 
 		$res = [
-			'AWSAccessKeyID' 	=> 'test',
+			'AWSAccessKeyID' 	=> 'test', # todo: is this necessary?
 			'policy' 			=> $policy,
 			'signature' 		=> $signature,
 			'file_key'			=> $file_key

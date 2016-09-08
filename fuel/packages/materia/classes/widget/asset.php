@@ -176,6 +176,8 @@ class Widget_Asset
 			if (isset($this->remote_url))
 			{
 				$this->remote_url .= $asset_id;
+				// add the file type as an extension
+				$this->remote_url .= '.'.$this->type;
 			}
 
 			\DB::start_transaction();
