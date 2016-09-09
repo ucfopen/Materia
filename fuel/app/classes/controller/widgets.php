@@ -305,6 +305,25 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
+	protected function embedded_only($inst)
+	{
+		$this->theme->get_template()
+			->set('title', 'Widget Unavailable')
+			->set('page_type', 'login');
+
+		$this->theme->set_partial('content', 'partials/widget/embedded_only')
+			->set('classes', 'widget')
+
+			->set('summary', $this->theme->view('partials/widget/summary')
+				->set('type',$inst->widget->name)
+				->set('name', $inst->name)
+				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		// The styles for this are in login, should probably be moved?
+		Css::push_group('login');
+	}
+
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
 		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
@@ -326,6 +345,8 @@ class Controller_Widgets extends Controller
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
+
+		if ( ! $is_embedded && $inst->embedded_only) return $this->embedded_only($inst);
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())

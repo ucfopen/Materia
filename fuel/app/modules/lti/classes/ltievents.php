@@ -31,6 +31,11 @@ class LtiEvents
 				}
 				else
 				{
+					if ($inst_id && $inst)
+					{
+						$launch->inst_id = $inst_id;
+						static::save_lti_association_if_needed($launch);
+					}
 					$redirect = "/lti/success/{$inst_id}";
 				}
 			}
