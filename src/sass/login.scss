@@ -16,7 +16,7 @@
 	border:rgba(0,0,0,0.11) 1px solid;
 	-moz-box-shadow: 1px 3px 10px #888;
 	-webkit-box-shadow: 1px 3px 10px #888;
-	box-shadow: 1px 3px 10px #888;	
+	box-shadow: 1px 3px 10px #888;
 }
 
 .login section.page {
@@ -39,12 +39,12 @@
 	min-height: 280px;
 }
 
-.login .container.widget div.detail .attempts-text {
+.login .container.widget div.detail .unavailable-text {
 	margin-top: 40px;
 	margin-bottom: 5px;
 }
 
-.login .container.widget div.detail .attempts-subtext {
+.login .container.widget div.detail .unavailable-subtext {
 	margin-bottom: 40px;
 	font-size: 0.8em;
 	font-weight: 600;
@@ -66,7 +66,7 @@
 	width: 160px;
 	height: 20px;
 	padding: 8px 0 12px 0;
-	
+
 	font-family: "Lato", "Arial", sans-serif;
 	font-size: 20px;
 	font-weight: 900;
@@ -78,7 +78,6 @@
 	-moz-border-radius: 5px 5px 0 0;
 	-webkit-border-radius: 5px 5px 0 0;
 	-khtml-border-radius: 5px 5px 0 0;
-
 }
 
 .login .availability_message {
@@ -88,6 +87,10 @@
 .login div.detail, div.detail {
 	text-align: center;
 	clear:both;
+}
+
+div.detail.icon-offset {
+	margin-left: 110px;
 }
 
 .login .container.widget div.detail h3, .login .container.widget div.detail h3 {
@@ -139,7 +142,7 @@
 	z-index: 500;
 	height: 40px;
 	padding-left: 12px;
-	padding-right: 12px;	
+	padding-right: 12px;
 	width:326px;
 	border: solid 1px #abadb3;
 	background: #fff;
@@ -174,7 +177,7 @@ box-shadow: 1px 2px 4px #888;*/
 }*/
 
 .login .error {
-	margin: -5px 0 -10px 0;	
+	margin: -5px 0 -10px 0;
 }
 
 .login .error p {
@@ -268,7 +271,7 @@ box-shadow: 1px 2px 4px #888;*/
 	font-family: 'Lato', arial, serif;
 	font-weight: 700;
 	font-size: 38px;
-	border-bottom: dotted 
+	border-bottom: dotted
 	black 1px;
 	margin: 0;
 	padding: 0 0 5px 0;
