@@ -122,6 +122,12 @@
 								<p class="data_explanation">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
 								<p ng-if="studentMade" class="data_explanation "><b>Guest Mode is always on for widgets created by students.</b></p>
 							</li>
+							<li id="embedded-only" ng-show="isEmbedded">
+								<h3>Embedded</h3>
+								<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()" ng-disabled="studentMade"/>
+								<label ng-click="toggleEmbeddedOnly()" ng-class="{disabled: studentMade}">Embedded Only</label>
+								<p class="data_explanation">This widget will not be playable outside of the classes it is embedded within.</p>
+							</li>
 						</ul>
 					</ul>
 					<ul class="inline bottom-buttons">
