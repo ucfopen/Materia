@@ -126,7 +126,7 @@
 								<h3>Embedded</h3>
 								<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()" ng-disabled="studentMade"/>
 								<label ng-click="toggleEmbeddedOnly()" ng-class="{disabled: studentMade}">Embedded Only</label>
-								<p class="data_explination">This widget will not be playable outside of the classes it is embedded within.</p>
+								<p class="data_explanation">This widget will not be playable outside of the classes it is embedded within.</p>
 							</li>
 						</ul>
 					</ul>
