@@ -50,14 +50,11 @@ return [
 		]
 	],
 
-
 	's3_config' => [
 		's3_enabled' => true,
-		'upload_url' => 'http://192.168.99.100:10002/fakes3',
+		'upload_url' => 'http://192.168.99.100:10001/',
 		'bucket' => 'fakes3',
 		'secret_key' => 'secret_key',
 		'expire_in' => 60
 	],
-
-
 ];
