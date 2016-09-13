@@ -33,7 +33,7 @@
 			<h1 ng-if="!guestAccess">Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
 			<h1 ng-if="guestAccess">This Attempt Score:</h1>
 			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
-			<div id="class-rank-button" class="action_button gray" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
+			<div id="class-rank-button" class="action_button gray" ng-hide="isPreview" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">
 			<table>
@@ -55,7 +55,6 @@
 			</div>
 		</div>
 	</section>
-
 
 	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired">
 		<h1>{{ detail.title }}</h1>
@@ -80,12 +79,6 @@
 		</ul>
 	</section>
 
-	<section class="materia-sendoff" ng-show="isEmbedded && !restricted && !expired">
-		<div>
-			<h1>More information about your score can be found by <a id="visit-materia" href="{{ moreInfoLink }}" target="blank">visiting Materia</a>.</h1>
-		</div>
-	</section>
-
 	<div class="expired container general" ng-show="expired">
 		<section class="page score_expired">
 			<h2 class="logo">The preview score for this widget has expired.</h2>
@@ -105,8 +98,6 @@
 			</ul>
 
 			<?= Theme::instance()->view('partials/help/support_info') ?>
-
 		</section>
 	</div>
 </article>
-
