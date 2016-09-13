@@ -112,6 +112,7 @@ class Api_V1
 
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Model_User::verify_session(['basic_author', 'super_user']);
 
@@ -162,6 +163,7 @@ class Api_V1
 
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
+		if ( $is_draft && ! $inst->widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		// student made widgets are locked forever
 		if ($inst->is_student_made)
