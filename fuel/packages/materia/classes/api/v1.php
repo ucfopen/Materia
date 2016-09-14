@@ -112,6 +112,7 @@ class Api_V1
 
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Model_User::verify_session(['basic_author', 'super_user']);
 
@@ -154,7 +155,7 @@ class Api_V1
 	 *
 	 * @return array An associative array with details about the save
 	 */
-	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $is_student_made=null)
+	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $embedded_only=null, $is_student_made=null)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
@@ -162,6 +163,7 @@ class Api_V1
 
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
+		if ( $is_draft && ! $inst->widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		// student made widgets are locked forever
 		if ($inst->is_student_made)
@@ -263,6 +265,35 @@ class Api_V1
 				$activity->db_store();
 			}
 			$inst->guest_access = $guest_access;
+			// when disabling guest mode on a widget, make sure no students have access to that widget
+			if ( ! $guest_access)
+			{
+				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
+				foreach ($access as $user_id => $user_perms)
+				{
+					if (Perm_Manager::is_student($user_id))
+					{
+						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+					}
+				}
+			}
+		}
+
+		if ($embedded_only !== null)
+		{
+			if ($inst->embedded_only != $embedded_only)
+			{
+				$activity = new Session_Activity([
+					'user_id' => \Model_User::find_current_id(),
+					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+					'item_id' => $inst_id,
+					'value_1' => 'Embedded Only',
+					'value_2' => $embedded_only
+				]);
+				$activity->db_store();
+			}
+			$inst->embedded_only = $embedded_only;
 		}
 
 		try
@@ -487,14 +518,16 @@ class Api_V1
 	{
 		$result = $token ? \Event::trigger('before_score_display', $token) : null;
 		$context_id = empty($result) ? '' : $result;
+		if ( ! $token && \Session::get('context_id', false)) $context_id = \Session::get('context_id');
+
 		$semester = Semester::get_current_semester();
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		$scores = Score_Manager::get_instance_score_history($inst_id);
-		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, null, $semester));
+		$scores = Score_Manager::get_instance_score_history($inst_id, $context_id);
+		$attempts_used = count(Score_Manager::get_instance_score_history($inst_id, $context_id, $semester));
 		$extra = Score_Manager::get_instance_extra_attempts($inst_id, \Model_User::find_current_id(), $context_id, $semester);
 
 		$attempts_left = $inst->attempts - $attempts_used + $extra;
@@ -856,6 +889,10 @@ class Api_V1
 		// full perms or is super user required
 		$can_give_access = Perm_Manager::user_has_any_perm_to($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
 
+		// if we're changing permissions on a widget instance, have that instance on hand for checking
+		$inst = false;
+		$refused = [];
+
 		// filter out any permissions I can't do
 		foreach ($perms_array as &$new_perms)
 		{
@@ -880,6 +917,23 @@ class Api_V1
 			// need strict type checking because 0 == false
 			$new_perm   = array_search(Perm::ENABLE, $new_perms->perms);
 			$is_enabled = $new_perm !== false;
+
+			// set VIEW access for all of its assets
+			if ($item_type === Perm::INSTANCE)
+			{
+				// get the widget instance if we don't have it yet
+				if ( ! $inst) $inst = Widget_Instance_Manager::get($item_id);
+
+				// if we're sharing the instance with a student, make sure it's okay to share with students first
+				if ($is_enabled && Perm_Manager::is_student($new_perms->user_id))
+				{
+					// guest mode isn't enabled - don't give this student access
+					if ( ! $inst->allows_guest_players()) continue;
+					Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
+				}
+			}
+
+			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 			$notification_mode = '';
 
 			if ( ! $is_enabled)
@@ -892,14 +946,6 @@ class Api_V1
 			}
 
 			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
-
-			// set VIEW access for all of its assets
-			if ($item_type === Perm::INSTANCE)
-			{
-				Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
-			}
-
-			Perm_Manager::set_user_object_perms($item_id, $item_type, $new_perms->user_id, $new_perms->perms, $new_perms->expiration);
 		}
 
 		return true;

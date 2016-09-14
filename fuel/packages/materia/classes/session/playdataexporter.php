@@ -131,6 +131,42 @@ class Session_PlayDataExporter
 		return [$csv, "-storage-{$table_name}.csv"];
 	}
 
+	protected static function all_scores($inst, $semesters)
+	{
+		$play_logs = [];
+		$count = 0;
+
+		// Table headers
+		$csv = "User ID,Last Name,First Name,Score,Semester\r\n";
+
+		foreach ($semesters as $semester)
+		{
+			list($year, $term) = explode('-', $semester);
+			// Get all scores for each semester
+			$logs = $play_logs["{$year} {$term}"] = \Materia\Session_Play::get_by_inst_id($inst->id, $term, $year);
+
+			foreach ($logs as $play)
+			{
+				// ignore non-guest plays when exporting all scores
+				if ($play['user_id']) continue;
+				$condensed = [
+					'Guest '.++$count,
+					'last_name' => $play['last'],
+					'first_name' => $play['first'],
+					'score' => $play['perc'],
+					'semester' => $semester
+				];
+
+				$csv .= implode(',', $condensed)."\r\n";
+			}
+		}
+
+		// If there aren't any logs throw a 404 error
+		if ($count == 0) throw new HttpNotFoundException;
+
+		return [$csv, '.csv'];
+	}
+
 	/**
 	 * Prepares high score csv file
 	 *

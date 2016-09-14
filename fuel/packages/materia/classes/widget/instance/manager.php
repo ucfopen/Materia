@@ -38,12 +38,14 @@ class Widget_Instance_Manager
 				'user_id'         => $r['user_id'],
 				'name'            => $r['name'],
 				'is_student_made' => (bool) $r['is_student_made'],
+				'student_access'  => Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE),
 				'guest_access'    => (bool) $r['guest_access'],
 				'is_draft'        => (bool) $r['is_draft'],
 				'created_at'      => $r['created_at'],
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
+				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);
 
