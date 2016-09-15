@@ -7,24 +7,10 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	# Builds the initial version of the popup window
 	buildPopup = ->
 		wgt = $scope.selected.widget
-		console.log(wgt)
 		$scope.selectedId = wgt.id
 		$scope.exportOpts = ['High Scores', 'Full Event Log']
 		$scope.exportOpts = $scope.exportOpts.concat(wgt.widget.meta_data.playdata_exporters) if wgt.widget.meta_data.playdata_exporters?.length > 0
 		$scope.exportType = $scope.exportOpts[0]
-		$scope.exportDesc = []
-		$scope.index = -1
-
-		#Descriptions for score options
-		for i in $scope.exportOpts
-			scoreType = i
-			$scope.exportDesc.push
-				scoreType: i
-				description: wgt.widget.meta_data.excerpt
-			$scope.index++
-			if i == 'High Scores' then $scope.exportDesc[$scope.index].description = 'High Scores text'
-			if i == 'Full Event Log' then $scope.exportDesc[$scope.index].description = 'Full Log text'
-		console.log($scope.exportDesc)
 		getScores()
 
 	# Finds all the scores with a given game instance id
