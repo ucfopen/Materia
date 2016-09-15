@@ -1345,14 +1345,18 @@
 	text-align: center;
 }
 
-.ng-modal.csv_popup div.score_table div.download-controls p.option-description {
-	text-align: left;
-}
-
 .ng-modal.csv_popup div.score_table p.download a {
 	margin-top: 8px;
 	margin-bottom: 10px;
 }
+
+.ng-modal.csv_popup div.score_table p#export-scores-description {
+	text-align:left;
+	padding-left:10px;
+	line-height: 1.5em;
+	margin-top: 40px
+}
+
 .ng-modal.csv_popup h4 {
 	text-align: center;
 	color:#0093E7;
@@ -1416,7 +1420,8 @@
 	text-decoration: underline;
 }
 .ng-modal.csv_popup select {
-	margin-top: 10px;
+/*	margin-top: 10px;
+*/	margin-top: 30px;
 	margin-bottom: -10px;
 }
 .ng-modal.csv_popup table tr td {
