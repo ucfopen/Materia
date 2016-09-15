@@ -323,13 +323,22 @@ class Admin extends \Basetask
 	public static function instant_user($name = false, $role = 'basic_author')
 	{
 		if (\Fuel::$env != \Fuel::DEVELOPMENT) return;
-		if ($name) $user_id = static::new_user($name, $name, 'f', $name, $name.'@test.com', '123456');
+
+		if ( ! empty($name))
+		{
+			$first = $last = $name;
+			$pass = '123456';
+		}
 		else
 		{
 			$name = 'test'.\Model_User::count();
-			$alnum = substr(str_shuffle(md5(time())),0,10); //generates a random 10-digit alphanumeric string
-			$user_id = static::new_user($name, 'Unofficial Test User', '', $alnum, $name.'@test.com', 'test');
+			$first = 'Unofficial Test User';
+			$last = substr(str_shuffle(md5(time())),0,10); //generates a random 10-digit alphanumeric string
+			$pass = 'test';
 		}
+
+		$user_id = static::new_user($name, $first, '', $last, $name.'@test.com', $pass);
+
 		static::reset_password($name);
 		static::give_user_role($name, $role);
 	}
