@@ -29,6 +29,9 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 			onSelect: (dateText) ->
 				$scope.availability[1].date = dateText
 
+	$scope.toggleNormalAccess = ->
+		if $scope.guestAccess = true or $scope.embeddedOnly= true then $scope.guestAccess = false and $scope.embeddedOnly = false
+
 	$scope.toggleGuestAccess = ->
 		return if $scope.studentMade
 
@@ -42,7 +45,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				value: ($scope.attemptsSliderValue * 1000)
 				disabled: $scope.guestAccess
 		,0
-
+		
 	$scope.toggleEmbeddedOnly = ->
 		return if $scope.studentMade
 
