@@ -92,10 +92,15 @@ abstract class Score_Module
 				$this->play = new \Materia\Session_Play();
 				$this->play->get_by_id($this->play_id);
 			}
-			$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($this->inst->id, $this->play->context_id));
-			if ($this->inst->attempts != -1 && $attempts_used >= $this->inst->attempts)
+
+			// Check for attempt limit prior to submission, but only for actual plays (not previews)
+			if ($this->play_id != -1)
 			{
-				throw new Score_Exception('Attempt Limit Met', 'You have already met the attempt limit for this widget and cannot submit additional scores.');
+				$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($this->inst->id, $this->play->context_id));
+				if ($this->inst->attempts != -1 && $attempts_used >= $this->inst->attempts)
+				{
+					throw new Score_Exception('Attempt Limit Met', 'You have already met the attempt limit for this widget and cannot submit additional scores.');
+				}
 			}
 		}
 
@@ -184,8 +189,11 @@ abstract class Score_Module
 
 	protected function get_score_overview()
 	{
+		if ($this->play_id == -1) $complete = true; // mark complete for previews
+		else $complete = (boolean) empty($this->play->is_complete) ? '' : $this->play->is_complete;
+
 		return [
-			'complete'     => (boolean) empty($this->play->is_complete) ? '' : $this->play->is_complete,
+			'complete'     => $complete,
 			'score'        => $this->calculated_percent,
 			'table'        => $this->get_overview_items(),
 			'referrer_url' => empty($this->play->referrer_url) ? '' : $this->play->referrer_url,
