@@ -320,7 +320,7 @@ class Admin extends \Basetask
 
 	}
 
-	public static function instant_user($name = false, $role = 'basic_author')
+	public static function instant_user($name = null, $role = 'basic_author')
 	{
 		if (\Fuel::$env != \Fuel::DEVELOPMENT) return;
 
