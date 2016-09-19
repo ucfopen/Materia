@@ -9,6 +9,110 @@ namespace Materia;
 class Widget_Installer
 {
 
+	// This function will verify and extract the widget files without installing
+	// This is primarily used to deposit expanded widgets into a production Docker Container
+	public static function extract_package_files($widget_file, $widget_id)
+	{
+		try
+		{
+			list($dir, $manifest_data, $clean_name) = static::unzip_and_read_manifest($widget_file);
+			static::install_widget_files($widget_id, $manifest_data, $dir);
+			$success = true;
+		}
+		catch (\Exception $e)
+		{
+			trace($e);
+			$success = false;
+		}
+
+		if (isset($dir)) static::cleanup($dir);
+		return $success;
+	}
+
+	public static function extract_package_and_install($widget_file, $skip_upgrade = false, $replace_id = 0)
+	{
+		try
+		{
+			list($dir, $manifest_data, $clean_name) = static::unzip_and_read_manifest($widget_file);
+
+			// Check for existing widgets
+			$matching_widgets = static::find_by_clean_name($clean_name);
+			$num_existing = count($matching_widgets);
+
+			if ($skip_upgrade && $num_existing)
+			{
+				if (\Fuel::$is_cli)
+				{
+					\Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
+					foreach ($matching_widgets as $i => $matching_widget)
+					{
+						\Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
+					}
+					\Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
+					return;
+				}
+				else
+				{
+					throw new \Exception("Existing widgets found for $clean_name, not upgrading due to --skip-upgrade option");
+				}
+			}
+
+			if ($num_existing > 1 && $replace_id == 0)
+			{
+				throw new \Exception("Multiple existing widgets share this clean name: $clean_name");
+			}
+
+			if ($num_existing == 1 && empty($skip_upgrade) && $replace_id == 0)
+			{
+				$replace_id = $matching_widgets[0]['id'];
+			}
+
+			$params = static::generate_install_params($manifest_data, $widget_file);
+
+			$demo_instance_id = null;
+
+			// UPGRADE
+			if ( ! empty($replace_id))
+			{
+				static::out('Upgrading existing widget');
+				$widget = static::update_params($replace_id, $params, true);
+				$id = $widget->id;
+
+				// keep track of the previously used instance id used for the demo
+				if ($widget && ! empty($widget->meta_data['demo']))
+				{
+					$demo_instance_id = $widget->meta_data['demo'];
+					static::out("Existing demo found: $demo_instance_id", 'yellow');
+				}
+			}
+			// NEW
+			else
+			{
+				static::out('Installing brand new widget');
+				list($id, $num) = \DB::insert('widget')
+					->set($params)
+					->execute();
+			}
+
+			// ADD the Demo
+			$demo_id = static::install_demo($id, $dir, $demo_instance_id);
+			$manifest_data['meta_data']['demo'] = $demo_id;
+
+			static::save_metadata($id, $manifest_data['meta_data']);
+			static::install_widget_files($id, $manifest_data, $dir);
+			static::out("Widget installed: {$id}-{$clean_name}", 'green');
+			$success = true;
+		}
+		catch (\Exception $e)
+		{
+			trace($e);
+			$success = false;
+		}
+
+		if (isset($dir)) static::cleanup($dir);
+		return $success;
+	}
+
 	public static function get_temp_dir()
 	{
 		$tempfile = tempnam(sys_get_temp_dir(), '');
@@ -23,7 +127,7 @@ class Widget_Installer
 		return false;
 	}
 
-	protected static function extract_widget($widget_file)
+	protected static function unzip_to_tmp($file)
 	{
 		$extract_location = static::get_temp_dir();
 		if ( ! $extract_location)
@@ -35,9 +139,9 @@ class Widget_Installer
 		// assume it's a zip, attempt to extract
 		try
 		{
-			static::out('Extracting');
+			static::out("Extracting $file to $extract_location");
 			$zip = new \ZipArchive();
-			$zip->open($widget_file);
+			$zip->open($file);
 			$zip->extractTo($extract_location);
 			$zip->close();
 			return realpath($extract_location);
@@ -144,13 +248,6 @@ class Widget_Installer
 		}
 	}
 
-	protected static function save_params($params)
-	{
-		return \DB::insert('widget')
-			->set($params)
-			->execute();
-	}
-
 	protected static function save_metadata($id, $metadata)
 	{
 		// add in the metadata
@@ -255,6 +352,8 @@ class Widget_Installer
 				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
 				// update it to make sure it allows guest access
 				\Materia\API::widget_instance_update($saved_demo->id, null, null, null, null, null, null, true);
+				// make sure nobody owns the demo widget
+				\Materia\Perm_Manager::clear_user_object_perms($saved_demo->id, \Materia\Perm::INSTANCE, \Model_user::find_current_id());
 			}
 
 			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
@@ -263,7 +362,7 @@ class Widget_Installer
 				throw new \Exception('Error saving demo instance');
 			}
 
-			static::out('Demo Installed', 'green');
+			static::out("Demo Installed: $saved_demo->id", 'green');
 			return $saved_demo->id;
 		}
 	}
@@ -451,11 +550,6 @@ class Widget_Installer
 		static::clear_path(PKGPATH.'materia/vendor/widget/'.$widget_dir);
 		$file_area->create_dir(PKGPATH.'materia/vendor/widget/', $widget_dir);
 
-		// score modules
-		// $destination_score_module_file = PKGPATH.'materia/vendor/widget/score_module/'.$score_module_clean_name;
-		// if (file_exists($destination_score_module_file)) $file_area->delete($destination_score_module_file);
-		// $file_area->rename("{$dir}/_score-modules/score_module.php", $destination_score_module_file);
-
 		// playdata exporters
 		// needs proper packaging of export module by devmateria
 		// add  {expand: true, cwd: "#{widget}/_exports", src: ['**'], dest: ".compiled/#{widget}/_exports"}
@@ -495,14 +589,13 @@ class Widget_Installer
 			$file_area->rename($pkg_spec, $new_spec);
 		}
 
-		// delete the score modules folder so it won't get copied over
-		// $file_area->delete_dir($dir.'/_score-modules');
-
 		// move widget files
 		// public_widget_dir
 		$new_dir = \Config::get('materia.dirs.engines').$widget_dir;
 		if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
 		$file_area->copy_dir($dir, $new_dir);
+
+		static::out("Widget files deployed: {$id}-{$clean_name}", 'green');
 	}
 
 	protected static function clear_path($file)
@@ -517,117 +610,14 @@ class Widget_Installer
 		return \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
 	}
 
-	// This function will verify and extract the widget files without installing
-	// This is primarily used to deposit expanded widgets into a production Docker Container
-	public static function extract_from_package($widget_file, $widget_id)
+	protected static function unzip_and_read_manifest($widget_file)
 	{
-		try
-		{
-			$dir = static::extract_widget($widget_file);
-
+			$dir = static::unzip_to_tmp($widget_file);
 			static::validate_widget($dir);
 			$manifest_data = static::get_manifest_data($dir);
-
 			$clean_name = static::clean_name_from_manifest($manifest_data);
 
-			static::install_widget_files($widget_id, $manifest_data, $dir);
-			static::out("Widget files deployed: {$widget_id}-{$clean_name}", 'green');
-			$success = true;
-		}
-		catch (\Exception $e)
-		{
-			trace($e);
-			$success = false;
-		}
-
-		static::cleanup($dir);
-		return $success;
-	}
-
-	public static function extract_and_install_from_package($widget_file, $skip_upgrade = false, $replace_id = 0)
-	{
-		try
-		{
-			$dir = static::extract_widget($widget_file);
-
-			static::validate_widget($dir);
-			$manifest_data = static::get_manifest_data($dir);
-
-			$clean_name = static::clean_name_from_manifest($manifest_data);
-			$matching_widgets = static::find_by_clean_name($clean_name);
-
-			$num_existing = count($matching_widgets);
-
-			if ($skip_upgrade && $num_existing)
-			{
-				if (\Fuel::$is_cli)
-				{
-					\Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
-					foreach ($matching_widgets as $i => $matching_widget)
-					{
-						\Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
-					}
-					\Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
-					return;
-				}
-				else
-				{
-					throw new \Exception("Existing widgets found for $clean_name, not upgrading due to --skip-upgrade option");
-				}
-			}
-
-			if ($num_existing > 1 && $replace_id == 0)
-			{
-				throw new \Exception("Multiple existing widgets share this clean name: $clean_name");
-			}
-
-			if ($num_existing == 1 && empty($skip_upgrade) && $replace_id == 0)
-			{
-				$replace_id = $matching_widgets[0]['id'];
-			}
-
-			$params = static::generate_install_params($manifest_data, $widget_file);
-
-			$demo_instance_id = null;
-
-			// UPGRADE
-			if ( ! empty($replace_id))
-			{
-				static::out('Upgrading existing widget');
-				$widget = static::update_params($replace_id, $params, true);
-				$id = $widget->id;
-
-				// keep track of the previously used instance id used for the demo
-				if ($widget && ! empty($widget->meta_data['demo']))
-				{
-					$demo_instance_id = $widget->meta_data['demo'];
-					static::out("Existing demo found: $demo_instance_id", 'yellow');
-				}
-			}
-			// NEW
-			else
-			{
-				static::out('Installing brand new widget');
-				list($id, $num) = static::save_params($params);
-			}
-
-			// ADD the Demo
-			$demo_id = static::install_demo($id, $dir, $demo_instance_id);
-			$manifest_data['meta_data']['demo'] = $demo_id;
-
-			static::save_metadata($id, $manifest_data['meta_data']);
-			static::install_widget_files($id, $manifest_data, $dir);
-			static::out("Widget installed: {$id}-{$clean_name}", 'green');
-			$success = true;
-		}
-		catch (\Exception $e)
-		{
-			trace($e);
-			$success = false;
-		}
-
-		static::cleanup($dir);
-		return $success;
+			return [$dir, $manifest_data, $clean_name];
 	}
 
 	private static function out($msg, $color = null)

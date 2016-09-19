@@ -274,14 +274,14 @@ class Admin extends \Basetask
 			{
 				\Cli::beep(1);
 				\Cli::write(\Cli::color("couldn't add user to role", 'red'));
-				return false;
+				exit(1);  // linux exit code 1 = error
 			}
 		}
 		else
 		{
 			\Cli::beep(1);
 			\Cli::write(\Cli::color("$user_name doesnt exist", 'red'));
-			return false;
+			exit(1);  // linux exit code 1 = error
 		}
 	}
 
@@ -315,16 +315,40 @@ class Admin extends \Basetask
 			\Cli::beep(1);
 			\Cli::write(\Cli::color('Error creating user', 'red'));
 			\Cli::write(\Cli::color($e->getMessage(), 'red'));
+			exit(1); // linux exit code 1 = error
 		}
 
 	}
 
-	public static function instant_user($name, $role = 'basic_author')
+	public static function instant_user($name = null, $role = 'basic_author')
 	{
 		if (\Fuel::$env != \Fuel::DEVELOPMENT) return;
-		$user_id = static::new_user($name, $name, 'f', $name, $name.'@test.com', '123456');
+
+		if ( ! empty($name))
+		{
+			$first = $last = $name;
+			$pass = '123456';
+		}
+		else
+		{
+			$name = 'test'.\Model_User::count();
+			$first = 'Unofficial Test User';
+			$last = substr(str_shuffle(md5(time())),0,10); //generates a random 10-digit alphanumeric string
+			$pass = 'test';
+		}
+
+		$user_id = static::new_user($name, $first, '', $last, $name.'@test.com', $pass);
+
 		static::reset_password($name);
 		static::give_user_role($name, $role);
+	}
+
+	public static function quick_test_users($n = 10)
+	{
+		for ($i = 0; $i < $n; $i++)
+		{
+			static::instant_user();
+		}
 	}
 
 	public static function clear_cache($quiet=false)
@@ -364,39 +388,6 @@ class Admin extends \Basetask
 					])
 					->where('id', $user['id'])
 					->execute();
-			}
-		}
-	}
-
-	public function change_db_prefix($prefix='', $remove=false)
-	{
-		$tables = \DB::query('SHOW TABLES', \DB::SELECT)->execute()->as_array('Tables_in_materia', 'Tables_in_materia');
-		if ($remove)
-		{
-			foreach ($tables as $key => $t)
-			{
-				$rename[$key]['from'] = $t;
-				$rename[$key]['to'] = preg_replace('/^'.$prefix.'/i','',$t);
-			}
-		}
-		else
-		{
-			foreach ($tables as $key => $t)
-			{
-				$rename[$key]['from'] = $t;
-				$rename[$key]['to'] = $prefix.$t;
-			}
-		}
-		foreach ($rename as $r)
-		{
-			try
-			{
-				\DBUtil::rename_table($r['from'], $r['to']);
-				\Cli::write(\Cli::color("{$r['from']} >> {$r['to']}", 'green'));
-			}
-			catch (\Exception $e)
-			{
-				//do nothing
 			}
 		}
 	}
