@@ -19,9 +19,9 @@ Namespace('Materia').Engine = do ->
 		msg = JSON.parse(e.data)
 		switch msg.type
 			when 'initWidget'
-				_initWidget msg.data[0], msg.data[1]
 				_baseUrl = msg.data[2]
 				_mediaUrl = msg.data[3]
+				_initWidget msg.data[0], msg.data[1]
 			else
 				throw new Error "Error: Engine Core received unknown post message: #{msg.type}"
 
@@ -57,7 +57,8 @@ Namespace('Materia').Engine = do ->
 	alert = (title, msg, type = 1) ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
-	getImageAssetUrl = (id) -> "#{_mediaUrl}/#{mediaId}"
+	getImageAssetUrl = (mediaId) ->
+		"#{_mediaUrl}/#{mediaId}"
 
 	end = (showScoreScreenAfter = yes) ->
 		_sendPostMessage 'end', showScoreScreenAfter
