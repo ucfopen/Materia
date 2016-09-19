@@ -8,26 +8,26 @@ class Semester extends \Basetask
 	{
 		if ( ! $start_year || ! $end_year)
 		{
-			\Cli::write(\Cli::color("Missing parameters", 'yellow'));
-			\Cli::write(\Cli::color("EX: php oil refine semester:populate startyear endyear", 'yellow'));
+			\Cli::write(\Cli::color('Missing parameters', 'yellow'));
+			\Cli::write(\Cli::color('EX: php oil refine semester:populate startyear endyear', 'yellow'));
 			return;
 		}
 
 		$semester = [
 			//Spring semester (December 7 - May 3)
-			"Spring" => [
-				"Start" => "Jan 1, ",
-				"End" => "May 3, ",
+			'Spring' => [
+				'Start' => 'Jan 1, ',
+				'End' => 'May 3, ',
 			],
 			//Summer semester (May 3 - August 7)
-			"Summer" => [
-				"Start" => "May 3, ",
-				"End" => "August 7, ",
+			'Summer' => [
+				'Start' => 'May 3, ',
+				'End' => 'August 7, ',
 			],
 			//Fall semester (August 7 - December 7)
-			"Fall" => [
-				"Start" => "August 7, ",
-				"End" => "Dec 31, ",
+			'Fall' => [
+				'Start' => 'August 7, ',
+				'End' => 'Dec 31, ',
 			],
 		];
 
@@ -53,21 +53,23 @@ class Semester extends \Basetask
 		if ($start_year >= 2038 || $end_year >= 2038)
 		{
 			\Cli::write(\Cli::color("Date range outside of 32 bit unix range (google: 'year 2038 problem')", 'red'));
+			exit(1);  // linux exit code 1 = error
 		}
 		elseif ($start_year < 1902 || $end_year < 1902)
 		{
-			\Cli::write(\Cli::color("Are you expecting users to time travel?", 'red'));
+			\Cli::write(\Cli::color('Are you expecting users to time travel?', 'red'));
+			exit(1);  // linux exit code 1 = error
 		}
 		else
 		{
-			list($id, $num) = \DB::query("INSERT IGNORE
-								INTO ".\DB::quote_table('date_range')."
+			list($id, $num) = \DB::query('INSERT IGNORE
+								INTO '.\DB::quote_table('date_range').'
 								(semester,
 								 year,
 								 start_at,
 								 end_at)
 								VALUES
-								".$imploded_values,
+								'.$imploded_values,
 								\DB::INSERT
 							)
 							->execute();
@@ -78,7 +80,7 @@ class Semester extends \Basetask
 			}
 			elseif ($num == 0)
 			{
-				\Cli::write(\Cli::color("Specified Semesters already in the database.", 'yellow'));
+				\Cli::write(\Cli::color('Specified Semesters already in the database.', 'yellow'));
 			}
 			else
 			{
