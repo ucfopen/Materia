@@ -30,7 +30,8 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				$scope.availability[1].date = dateText
 
 	$scope.toggleNormalAccess = ->
-		if $scope.guestAccess = true or $scope.embeddedOnly= true then $scope.guestAccess = false and $scope.embeddedOnly = false
+		if $scope.guestAccess = true then $scope.guestAccess = false
+		if $scope.embeddedOnly = true then $scope.embeddedOnly = false
 
 	$scope.toggleGuestAccess = ->
 		return if $scope.studentMade
