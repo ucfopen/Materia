@@ -50,6 +50,8 @@ class Widget_Asset
 				if (property_exists($this, $key)) $this->{$key} = $val;
 			}
 			$this->type = strtolower($this->type);
+
+			// TODO: Is this necessary
 			switch ($this->type)
 			{
 				case 'jpeg':
@@ -70,7 +72,7 @@ class Widget_Asset
 	 * NEEDS DOCUMENTATION
 	 *
 	 * @param The database manager
-	 */	
+	 */
 	public function db_update()
 	{
 		if ( ! empty($this->type))
@@ -130,7 +132,7 @@ class Widget_Asset
 	}
 
 	/**
-	 * Finds an available asset id 
+	 * Finds an available asset id
 	 * to avoid conflicts in the db
 	 */
 	public function get_unused_id()
@@ -159,7 +161,7 @@ class Widget_Asset
 	 * NEEDS DOCUMENTATION
 	 *
 	 * @param The database manager
-	 */	
+	 */
 	public function db_store()
 	{
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
@@ -171,7 +173,7 @@ class Widget_Asset
 				return false;
 			}
 
-			// if this asset has a remote_url stub, append the 
+			// if this asset has a remote_url stub, append the
 			// id. otherwise, leave it null
 			if (isset($this->remote_url))
 			{

@@ -5,7 +5,6 @@ return [
 	*  Encryption uses an event drivin architecture and can use custom encryption methods
 	*/
 	'security' => [
-
 		'encrypt_qsets' => false,
 		'encrypt_answers' => false,
 	],

@@ -63,7 +63,7 @@ class Widget_Asset_Manager
 				'file_size'		=> 0,
 				'status'		=> 'temp_asset', // signify temp asset
 				'remote_url'	=> $remote_url_stub
-			]);
+		]);
 
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
 		{
