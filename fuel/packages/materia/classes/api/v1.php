@@ -501,6 +501,7 @@ class Api_V1
 		{
 			return null;
 		}
+
 		$file_key = $asset->remote_url;
 
 		// generate policy and signature object for response
@@ -532,9 +533,9 @@ class Api_V1
 	}
 
 	/**
-	 * Should the upload to s3 fail, the temp asset row created 
+	 * Should the upload to s3 fail, the temp asset row created
 	 * using upload_keys_get does not get deleted. In general,
-	 * file upload status is updated in the db for this asset, 
+	 * file upload status is updated in the db for this asset,
 	 * and update succes reported to caller
 	 */
 	static public function upload_success_post($asset_id, $s3_upload_success)
