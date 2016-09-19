@@ -121,7 +121,7 @@
 									<li>
 										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly" ng-click="toggleNormalAccess()" ng-disabled="!guestAccess && !embeddedOnly"/>
 										<label ng-click="toggleNormalAccess()">Normal</label>
-										<p class="access_explanation">The default widget access mode. The widget is available to play for students only on materia.</p>
+										<p class="access_explanation">Only students and users who can log into Materia can access this widget. If the widget collects scores, those scores will be associated with the user. The widget can be distributed via URL, embed code, or as an assignment in your LMS.</p>
 									</li>
 									<li>
 										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()"/>
