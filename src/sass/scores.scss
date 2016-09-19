@@ -112,7 +112,7 @@ body.scores .overview #overview-table table .number{
 	text-align:right;
 }
 
-body.scores article header.score-header{
+body.scores article header{
 	height: auto;
 	min-height: 50px;
 	background: #454545;
@@ -277,6 +277,7 @@ body.scores article header .header-element {
 body.scores article header .header-element.widget-title {
 	width: 50%;
 	padding-bottom: 5px;
+	overflow-wrap: break-word;
 }
 
 body.scores article header nav.play-again{
