@@ -1171,6 +1171,17 @@ span.subtitle {
 	font-weight:700;
 	font-family: 'Lato', arial, serif;
 }
+
+.ng-modal-dialog {
+
+	padding: 15px 10px 15px 10px;
+
+	.ng-modal-title {
+		font-size: 150%;
+		border-bottom: solid 1px #bebebe;
+	}
+}
+
 /* hack fix to ngModal plugin to disable closing halting alerts */
 .ng-modal.fatal {
 	.ng-modal-close {
