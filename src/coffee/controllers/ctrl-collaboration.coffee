@@ -106,16 +106,21 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		return if $scope.searchResults.matches.indexOf(user) is -1
 		$scope.inputs.userSearchInput = ''
 
+		if $scope.selected.widget.guest_access is false and user.is_student then return alert 'Students can not be given access to this widget unless Guest Mode is enabled!'
+
 		$scope.searchResults.show = no
 		$scope.searchResults.matches = []
 
 		# Do not add duplicates
 		$scope.perms.collaborators = [] if not $scope.perms.collaborators
 		for existing_user in $scope.perms.collaborators
-			return if user.id == existing_user.id
+			if user.id == existing_user.id
+				if existing_user.remove then existing_user.remove = false
+				return
 
 		$scope.perms.collaborators.push
 			id: user.id
+			is_student: user.is_student
 			isCurrentUser: user.isCurrentUser
 			expires: null
 			expiresText: "Never"
@@ -137,8 +142,10 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		widget_id     = $scope.selected.widget.id
 		permObj       = []
 		user_ids      = {}
+		students  = []
 
 		for user in $scope.perms.collaborators
+			students.push user if user.is_student
 			# Do not allow saving if a demotion dialog is on the screen
 			return if user.warning
 
@@ -164,7 +171,9 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 			if returnData == true
 				$scope.$emit 'collaborators.update', ''
 				$scope.show.collaborationModal = no
-				widgetSrv.removeWidget(widget_id) if remove_widget
+				if remove_widget then widgetSrv.removeWidget(widget_id)
+				if students.length > 0 then $scope.selected.widget.student_access = true
+				$scope.$apply()
 			else
 				$scope.alert.msg = (if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
 				if returnData?.halt? then $scope.alert.fatal = true
