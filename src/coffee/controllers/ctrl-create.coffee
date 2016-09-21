@@ -85,8 +85,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 		heartbeat = setInterval ->
 			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
 				if data == false
-					_alert 'You have been logged out due to inactivity.\n\nPlease login again.'
-					$scope.alert.fatal = true
+					_alert 'You have been logged out due to inactivity.\n\nPlease login again.', 'Invalid login', true
 					window.location.reload()
 		, HEARTBEAT_INTERVAL
 
@@ -357,15 +356,16 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 	# Note this is psuedo public as it's exposed to flash
 	onSaveCanceled = (msg) ->
 		$scope.saveText = "Can Not Save!"
-		_alert "Can not currently save. #{msg}" if msg
+		if msg then _alert "Can not currently save. #{msg}", 'Hold on a sec', false
 
 	setHeight = (h) ->
 		$('#container').height h
 
-	_alert = (msg) ->
-		# TODO: Replace with a angular modal
-		# alert(options.msg)
-		$scope.alert.msg = msg
+	_alert = (msg, title= null, fatal = false) ->
+		$scope.$apply ->
+			$scope.alert.msg = msg
+			$scope.alert.title = title if title isnt null
+			$scope.alert.fatal = fatal
 
 	# Exposed to the window object so that popups and frames can use this public functions
 	Namespace("Materia").Creator =
