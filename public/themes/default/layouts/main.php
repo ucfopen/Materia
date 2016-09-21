@@ -24,7 +24,7 @@
 				dialog-title="{{ alert.title }}"
 				width="520px"
 				z-index="1000000">
-				<p>{{ alert.msg }}</p>
+				<p ng-bind-html="alert.msg"></p>
 				<button ng-hide="alert.fatal" ng-click="alert.msg = null" class="action_button">Okay</button>
 			</modal-dialog>
 		</div>

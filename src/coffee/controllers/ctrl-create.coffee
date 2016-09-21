@@ -85,7 +85,8 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 		heartbeat = setInterval ->
 			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
 				if data != true
-					_alert 'You have been logged out due to inactivity.\n\nPlease login again.'
+					_alert 'You have been logged out due to inactivity.\n\nPlease login again.<br />
+					<a href="javascript:history.go(0)">Click here to login again.</a>'
 					$scope.alert.fatal = true
 					$scope.$apply()
 					stopHeartBeat()
@@ -323,7 +324,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 			, (inst) ->
 				# did we get back an error message?
 				if inst?.msg?
-					onSaveCanceled inst.msg
+					onSaveCanceled inst
 					$scope.alert.fatal = inst.halt
 					$scope.$apply()
 				else if inst? and inst.id?
@@ -361,7 +362,17 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 	# Note this is psuedo public as it's exposed to flash
 	onSaveCanceled = (msg) ->
 		$scope.saveText = "Can Not Save!"
-		_alert "Can not currently save. #{msg}" if msg
+
+		if msg?.msg?
+			if msg.halt?
+				_alert "Unfortunately, your progress was not saved because
+				#{msg.msg.toLowerCase()}.<br /><br />
+				<a href='javascript:history.go(0)'>Click Here to Log In</a>"
+				stopHeartBeat()
+		else
+			_alert "Unfortunately your progress was not saved because
+			#{msg.toLowerCase()}" if msg
+
 
 	setHeight = (h) ->
 		$('#container').height h
@@ -369,7 +380,8 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 	_alert = (msg) ->
 		# TODO: Replace with a angular modal
 		# alert(options.msg)
-		$scope.alert.msg = msg
+		# body...
+		$scope.alert.msg = $sce.trustAsHtml(msg)
 
 	# Exposed to the window object so that popups and frames can use this public functions
 	Namespace("Materia").Creator =
