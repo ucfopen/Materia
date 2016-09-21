@@ -367,7 +367,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 			if msg.halt?
 				_alert "Unfortunately, your progress was not saved because
 				#{msg.msg.toLowerCase()}.<br /><br />
-				<a href='javascript:history.go(0)'>Click Here to Log In</a>"
+				<a href='$route.reload'>Click Here to Log In</a>"
 				stopHeartBeat()
 		else
 			_alert "Unfortunately your progress was not saved because
