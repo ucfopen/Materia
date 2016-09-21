@@ -1,6 +1,17 @@
 <?php
+/**
+ * Part of the Fuel framework.
+ *
+ * @package    Fuel
+ * @version    1.8
+ * @author     Fuel Development Team
+ * @license    MIT License
+ * @copyright  2010 - 2016 Fuel Development Team
+ * @link       http://fuelphp.com
+ */
 
 return array(
+
 	/**
 	 * base_url - The base URL of the application.
 	 * MUST contain a trailing slash (/)
@@ -102,9 +113,25 @@ return array(
 	 * Security settings
 	 */
 	'security' => array(
-		// 'csrf_autoload'    => false,
-		// 'csrf_token_key'   => 'fuel_csrf_token',
-		// 'csrf_expiration'  => 0,
+		// 'csrf_autoload'            => false,
+		// 'csrf_autoload_methods'    => array('post', 'put', 'delete'),
+		// 'csrf_bad_request_on_fail' => false,
+		// 'csrf_auto_token'          => false,
+		// 'csrf_token_key'           => 'fuel_csrf_token',
+		// 'csrf_expiration'          => 0,
+
+		/**
+		 * A salt to make sure the generated security tokens are not predictable
+		 */
+		// 'token_salt'            => 'put your salt value here to make the token more secure',
+
+		/**
+		 * Allow the Input class to use X headers when present
+		 *
+		 * Examples of these are HTTP_X_FORWARDED_FOR and HTTP_X_FORWARDED_PROTO, which
+		 * can be faked which could have security implications
+		 */
+		// 'allow_x_headers'       => false,
 
 		/**
 		 * This input filter can be any normal PHP function as well as 'xss_clean'
@@ -136,14 +163,14 @@ return array(
 		// 'htmlentities_flags' => ENT_QUOTES,
 
 		/**
-		 * Wether to encode HTML entities as well
+		 * Whether to encode HTML entities as well
 		 */
 		// 'htmlentities_double_encode' => false,
 
 		/**
 		 * Whether to automatically filter view data
 		 */
-		'auto_filter_output' => true,
+		'auto_filter_output'  => true,
 
 		/**
 		 * With output encoding switched on all objects passed will be converted to strings or
@@ -153,12 +180,13 @@ return array(
 			'Fuel\\Core\\Presenter',
 			'Fuel\\Core\\Response',
 			'Fuel\\Core\\View',
+			// 'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
 			'RocketDuck\\Msg',
 			'Materia\\Score_Record',
 			'Materia\\Widget',
-		)
+		),
 	),
 
 	/**
@@ -182,7 +210,7 @@ return array(
 	 */
 	// 'validation' => array(
 		/**
-		 * Wether to fallback to global when a value is not found in the input array.
+		 * Whether to fallback to global when a value is not found in the input array.
 		 */
 		// 'global_input_fallback' => true,
 	// ),
@@ -202,7 +230,7 @@ return array(
 		// 'case_sensitive' => true,
 
 		/**
-		 *  Wether to strip the extension
+		 *  Whether to strip the extension
 		 */
 		// 'strip_extension' => true,
 	// ),
@@ -229,15 +257,25 @@ return array(
 	 * Paths MUST end with a directory separator (the DS constant)!
 	 */
 	'package_paths' => array(
-		PKGPATH
+		PKGPATH,
 	),
-
 
 	/**************************************************************************/
 	/* Always Load                                                            */
 	/**************************************************************************/
 	'always_load'  => array(
 
+		/**
+		 * These packages are loaded on Fuel's startup.
+		 * You can specify them in the following manner:
+		 *
+		 * array('auth'); // This will assume the packages are in PKGPATH
+		 *
+		 * // Use this format to specify the path to the package explicitly
+		 * array(
+		 *     array('auth'	=> PKGPATH.'auth/')
+		 * );
+		 */
 		'packages'  => array(
 			'orm',
 			'materia',
@@ -246,6 +284,14 @@ return array(
 			'materiaauth',
 		),
 
+		/**
+		 * These modules are always loaded on Fuel's startup. You can specify them
+		 * in the following manner:
+		 *
+		 * array('module_name');
+		 *
+		 * A path must be set in module_paths for this to work.
+		 */
 		'modules' => array(
 			'Lti',
 		),
