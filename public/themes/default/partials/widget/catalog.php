@@ -24,20 +24,25 @@
 				</div>
 
 				<a class="infocard" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
-					<img ng-src='{{widget.icon}}'>
-					<div class="header">
+					<div class="img-holder">
+						<img ng-src='{{widget.icon}}'>
+					</div>
+
+					<div class="header widget-banner">
 						<h1 class="infoHeader">{{widget.name}}</h1>
 					</div>
-					<dl class="left inline_def blurb">
-						<dt data-type="description">Description:</dt>
-						<dd>{{widget.meta_data['excerpt']}}</dd>
-					</dl>
-					<dl class="left inline_def features_list">
-						<dt data-type="features">Features:</dt>
-						<dd ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
-						<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
-						<dd ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}</dd>
-					</dl>
+					<div class="blurb-holder">
+						<dl class="left inline_def blurb">
+							<dt data-type="description">Description:</dt>
+							<dd>{{widget.meta_data['excerpt']}}</dd>
+						</dl>
+						<dl class="left inline_def features_list">
+							<dt data-type="features">Features:</dt>
+							<dd ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
+							<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
+							<dd ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}</dd>
+						</dl>
+					</div>
 				</a>
 			</section>
 		</div>
