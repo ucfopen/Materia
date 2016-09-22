@@ -28,6 +28,7 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 	# problematic with weird plugins that put the page in an iframe).
 	# This should work pretty well but if we ever decide to change the
 	# scores embed URL this will need to be modified!
+
 	isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') != -1
 
 	# We don't want users who click the 'View more details' link via an LTI to play again, since at that point
@@ -56,7 +57,6 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 	$scope.isPreview = isPreview
 	$scope.isEmbedded = isEmbedded
-	$scope.showCompareWithClass = !isPreview and !isEmbedded
 
 	displayScoreData = (inst_id, play_id) ->
 		widgetSrv.getWidget(inst_id)
@@ -122,13 +122,6 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			return if currentAttempt == hash
 			currentAttempt = hash
 			play_id = $scope.attempts[$scope.attempts.length - currentAttempt]['id']
-
-			# The Materia sendoff link requires currentAttempt to be set, so it's here instead of displayWidgetInstance
-			if isEmbedded
-				detailsOption = if LAUNCH_TOKEN? then '?details=1' else ''
-				playHash = if $scope.guestAccess then "#play-#{play_id}" else "#attempt-#{currentAttempt}"
-
-				$scope.moreInfoLink = "/scores/#{widgetInstance.id}#{detailsOption}#{playHash}"
 
 			# display existing data or get more from the server
 			if details[$scope.attempts.length - currentAttempt]?
@@ -324,10 +317,9 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			if score != 0 and score != 100
 				tableItem.score = score.toFixed(2)
 
-		if !isEmbedded
-			setTimeout ->
-				addCircleToDetailTable(deets.details)
-			, 10
+		setTimeout ->
+			addCircleToDetailTable(deets.details)
+		, 10
 
 		sendPostMessage deets.overview.score
 		$scope.overview = deets.overview
@@ -340,7 +332,6 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 			$scope.playAgainUrl = referrerUrl
 		else
 			$scope.playAgainUrl = $scope.widget.href
-		$scope.showCompareWithClass = !isPreview
 		$scope.$apply()
 
 	addCircleToDetailTable = (detail) ->
@@ -377,5 +368,3 @@ app.controller 'scorePageController', ($scope, widgetSrv, scoreSrv) ->
 
 	# this was originally called in document.ready, but there's no reason to not put it in init
 	displayScoreData widget_id, play_id
-
-
