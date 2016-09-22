@@ -85,9 +85,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 		heartbeat = setInterval ->
 			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
 				if data != true
-					_alert 'You have been logged out due to inactivity.\n\nPlease login again.<br />
-					<a href="javascript:history.go(0)">Click here to login again.</a>'
-					$scope.alert.fatal = true
+					_alert 'You have been logged out due to inactivity', 'Invalid Login', true, true
 					$scope.$apply()
 					stopHeartBeat()
 		, HEARTBEAT_INTERVAL
@@ -368,22 +366,21 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
 		if msg?.msg?
 			if msg.halt?
 				_alert "Unfortunately, your progress was not saved because
-				#{msg.msg.toLowerCase()}.<br /><br />
-				<a href='$route.reload'>Click Here to Log In</a>"
+				#{msg.msg.toLowerCase()}. Any unsaved progress will be lost.", "Invalid Login", true, true
 				stopHeartBeat()
 		else
-			_alert "Unfortunately your progress was not saved because
-			#{msg.toLowerCase()}" if msg
-
+			if msg then _alert "Unfortunately your progress was not saved because
+			#{msg.toLowerCase()}", 'Hold on a sec', false, false
 
 	setHeight = (h) ->
 		$('#container').height h
 
-	_alert = (msg) ->
-		# TODO: Replace with a angular modal
-		# alert(options.msg)
-		# body...
-		$scope.alert.msg = $sce.trustAsHtml(msg)
+	_alert = (msg, title= null, fatal = false, enableLoginButton = false) ->
+		$scope.$apply ->
+			$scope.alert.msg = msg
+			$scope.alert.title = title if title isnt null
+			$scope.alert.fatal = fatal
+			$scope.alert.enableLoginButton = enableLoginButton
 
 	# Exposed to the window object so that popups and frames can use this public functions
 	Namespace("Materia").Creator =
