@@ -141,6 +141,8 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		else
 			widget_info = widgetData[0]
 
+		$scope.nonEditable = widget_info.is_editable == "0"
+
 		dfd = $.Deferred()
 		widgetType = widget_info.creator.slice widget_info.creator.lastIndexOf('.')
 

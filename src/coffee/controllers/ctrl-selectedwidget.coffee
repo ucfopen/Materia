@@ -78,7 +78,10 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 					return -1
 				return 1
 
+			$scope.studentAccessible = false
+
 			for user in users
+				if user.is_student then $scope.studentAccessible = true
 				user.access = $scope.perms.widget[user.id][0]
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
