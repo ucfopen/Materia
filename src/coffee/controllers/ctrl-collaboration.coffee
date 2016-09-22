@@ -173,10 +173,10 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				$scope.show.collaborationModal = no
 				if remove_widget then widgetSrv.removeWidget(widget_id)
 				if students.length > 0 then $scope.selected.widget.student_access = true
-				$scope.$apply()
 			else
 				$scope.alert.msg = (if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
 				if returnData?.halt? then $scope.alert.fatal = true
+
 			$scope.$apply()
 
 	$scope.checkForWarning = (user) ->
