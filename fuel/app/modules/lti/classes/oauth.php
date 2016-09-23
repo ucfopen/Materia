@@ -17,7 +17,7 @@ class Oauth
 			if (empty($signature)) throw new Exception("Authorization signature is missing.");
 			if (empty($nonce)) throw new Exception("Authorization fingerprint is missing.");
 			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new Exception("Authorization signature failure.");
-			if ($timestamp >= (time() - $lti_config['timeout'])) throw new Exception("Authorization signature is too old.");
+			if ($timestamp < (time() - $lti_config['timeout'])) throw new Exception("Authorization signature is too old.");
 
 			$hasher   = new \Eher\OAuth\HmacSha1(); // THIS CODE ASSUMES HMACSHA1, could be more versetile, but hey
 			$consumer = new \Eher\OAuth\Consumer(null, $lti_config['secret']);
@@ -67,9 +67,9 @@ class Oauth
 	{
 		// ================ BUILD OAUTH REQUEST =========================
 		$body_hash = base64_encode(sha1($body, true)); // hash the contents of the body
-		$hmcsha1  = new \Eher\OAuth\HmacSha1();
-		$consumer = new \Eher\OAuth\Consumer(null, $secret);
-		$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, ['oauth_body_hash' => $body_hash]);
+		$hmcsha1   = new \Eher\OAuth\HmacSha1();
+		$consumer  = new \Eher\OAuth\Consumer(null, $secret);
+		$request   = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, ['oauth_body_hash' => $body_hash]);
 		$request->sign_request($hmcsha1, $consumer, null);
 
 		$params = [
