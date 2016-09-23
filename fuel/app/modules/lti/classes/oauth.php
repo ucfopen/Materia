@@ -17,14 +17,14 @@ class Oauth
 			if (empty($signature)) throw new Exception("Authorization signature is missing.");
 			if (empty($nonce)) throw new Exception("Authorization fingerprint is missing.");
 			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new Exception("Authorization signature failure.");
-			if ($timestamp >= (time() - $lti_config['timeout']) throw new Exception("Authorization signature is too old.");
+			if ($timestamp >= (time() - $lti_config['timeout'])) throw new Exception("Authorization signature is too old.");
 
 			$hasher   = new \Eher\OAuth\HmacSha1(); // THIS CODE ASSUMES HMACSHA1, could be more versetile, but hey
 			$consumer = new \Eher\OAuth\Consumer(null, $lti_config['secret']);
 			$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', \Uri::current(), \Input::post());
 			$new_sig  = $request->build_signature($hasher, $consumer, false);
 
-			if ($new_sig !== $signature) throw new Exception("Authorization signatures don't match.");
+			return $new_sig === $signature;
 		}
 		catch(Exception $e)
 		{
@@ -53,7 +53,7 @@ class Oauth
 			'lis_person_name_family'                 => $user->last,
 		];
 
-		$params   = array_merge($params, $oauthParams);
+		$params   = array_merge($params, $oauth_params);
 		$hmcsha1  = new \Eher\OAuth\HmacSha1();
 		$consumer = new \Eher\OAuth\Consumer('', $secret);
 		$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, $params);
