@@ -72,6 +72,12 @@ return [
 		'login' => APPPATH.DS
 	],
 
+	'widget_owner_permissions' => [
+		'group' => 'nginx',
+		'owner' => 'nginx',
+		'chmod' => 0774,
+	],
+
 	'default_users' => [
 		[
 			'name'       => '~admin',
