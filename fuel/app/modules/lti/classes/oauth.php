@@ -1,8 +1,6 @@
 <?php
 namespace Lti;
 
-class Exception extends \Exception {}
-
 class Oauth
 {
 	public static function validate_post()
@@ -14,25 +12,25 @@ class Oauth
 			$nonce      = \Input::post('oauth_nonce', false);
 			$lti_config = \Config::get("lti::lti.consumers.".\Input::post('tool_consumer_info_product_family_code', 'default'));
 
-			if (empty($signature)) throw new Exception("Authorization signature is missing.");
-			if (empty($nonce)) throw new Exception("Authorization fingerprint is missing.");
-			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new Exception("Authorization signature failure.");
-			if ($timestamp < (time() - $lti_config['timeout'])) throw new Exception("Authorization signature is too old.");
+			if (empty($signature)) throw new \Exception("Authorization signature is missing.");
+			if (empty($nonce)) throw new \Exception("Authorization fingerprint is missing.");
+			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new \Exception("Authorization signature failure.");
+			if ($timestamp < (time() - $lti_config['timeout'])) throw new \Exception("Authorization signature is too old.");
 
 			$hasher   = new \Eher\OAuth\HmacSha1(); // THIS CODE ASSUMES HMACSHA1, could be more versetile, but hey
 			$consumer = new \Eher\OAuth\Consumer(null, $lti_config['secret']);
 			$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', \Uri::current(), \Input::post());
 			$new_sig  = $request->build_signature($hasher, $consumer, false);
 
-			return $new_sig === $signature;
+			if ($new_sig !== $signature) throw new \Exception("Authorization signature failure.");
+			return true;
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			\RocketDuck\Log::profile(['invalid-oauth-received', $e->getMessage(), \Uri::current(), print_r(\Input::post(), 1)], 'lti-error-dump');
-			return false;
 		}
 
-		return true;
+		return false;
 	}
 
 	public static function build_post_args(\Model_User $user, $endpoint, $params, $key, $secret, $enable_passback)
