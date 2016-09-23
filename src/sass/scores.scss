@@ -166,8 +166,6 @@ body.scores article header.preview:after{
 }
 
 body.scores article header nav.previous-attempts {
-	//this property limits the size of the dropdown
-	max-width: 146px;
 	cursor: default;
 	position: absolute;
 	top:0px;
