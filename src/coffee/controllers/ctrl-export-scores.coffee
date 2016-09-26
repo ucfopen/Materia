@@ -8,7 +8,7 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	buildPopup = ->
 		wgt = $scope.selected.widget
 		$scope.selectedId = wgt.id
-		$scope.exportOpts = ['High Scores', 'Full Event Log']
+		$scope.exportOpts = ['High Scores', 'Full Event Log', 'Questions and Answers']
 		$scope.exportOpts = $scope.exportOpts.concat(wgt.widget.meta_data.playdata_exporters) if wgt.widget.meta_data.playdata_exporters?.length > 0
 		$scope.exportType = $scope.exportOpts[0]
 		getScores()
