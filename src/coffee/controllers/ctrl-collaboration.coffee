@@ -106,7 +106,11 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		return if $scope.searchResults.matches.indexOf(user) is -1
 		$scope.inputs.userSearchInput = ''
 
-		if $scope.selected.widget.guest_access is false and user.is_student then return alert 'Students can not be given access to this widget unless Guest Mode is enabled!'
+		if $scope.selected.widget.guest_access is false and user.is_student
+			$scope.alert.msg = 'Students can not be given access to this widget unless Guest Mode is enabled!'
+			$scope.alert.title = 'Unable to share with student'
+			$scope.alert.fatal = false
+			return
 
 		$scope.searchResults.show = no
 		$scope.searchResults.matches = []
