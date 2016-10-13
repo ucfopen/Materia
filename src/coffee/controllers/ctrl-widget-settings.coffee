@@ -200,8 +200,6 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				$scope.$broadcast 'widgetAvailability.update', ''
 				selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess, $scope.embeddedOnly)
 
-		# selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess, $scope.embeddedOnly)
-
 	$scope.UNLIMITED_SLIDER_VALUE = 25
 	$scope.times = []
 	$scope.error = ''
