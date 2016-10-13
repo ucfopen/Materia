@@ -47,7 +47,6 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.selected.widget = selectedWidgetSrv.get()
 		populateAvailability($scope.selected.widget.open_at, $scope.selected.widget.close_at)
 		populateAttempts($scope.selected.widget.attempts)
-		countCollaborators()
 
 	$scope.$on 'collaborators.update', ->
 		countCollaborators()
