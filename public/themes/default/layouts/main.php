@@ -18,8 +18,9 @@
 	<body class="<?= (isset($page_type) ? $page_type : '') ?>" ng-app="materia">
 		<?= (isset($partials['header']) ? $partials['header'] : '' ) ?>
 		<?= $partials['content'] ?>
-		<div ng-controller="alertCtrl" class='alert_container'>
+		<div ng-controller="alertCtrl">
 			<modal-dialog show="alert.msg"
+				class="alert"
 				ng-class="{ fatal: alert.fatal }"
 				dialog-title="{{ alert.title }}"
 				width="520px"
