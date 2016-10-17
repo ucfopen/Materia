@@ -450,7 +450,7 @@ dl.blurb dt {
 .notice .notice_right_side {
 	display: inline-block;
 }
-.notice a.noticeClose {
+.notice .noticeClose {
 	position: absolute;
 	right: 5px;
 	top:4px;
@@ -458,6 +458,8 @@ dl.blurb dt {
 
 	width: 19px;
 	height: 19px;
+
+	cursor: pointer;
 }
 .notice p {
 	font-family: 'Lucida Grande', arial, sans-serif;
