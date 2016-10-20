@@ -20,6 +20,10 @@
 				<lticm:property name="selection_height">600</lticm:property>
 				<lticm:property name="enabled">true</lticm:property>
 			</lticm:options>
+			<lticm:options name="course_navigation">
+				<lticm:property name="url"><?= $button_url ?></lticm:property>
+				<lticm:property name="text">Create Materia Widget</lticm:property>
+			</lticm:options>
 	</blti:extensions>
 	<cartridge_bundle identifierref="BLTI001_Bundle"/>
 	<cartridge_icon identifierref="BLTI001_Icon"/>

@@ -1,0 +1,1 @@
+window.top.location.href = "<?= $assignment_url ?>";
