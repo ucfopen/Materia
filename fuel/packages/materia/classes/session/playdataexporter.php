@@ -55,6 +55,7 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
+		$anonymize    = filter_var(\Input::get('anonymized', false), FILTER_VALIDATE_BOOLEAN);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
@@ -64,7 +65,7 @@ class Session_PlayDataExporter
 		// load the logs for all selected semesters
 		if (empty($semesters))
 		{
-			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name);
+			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name, $anonymize);
 			if ( ! empty($loaded_data[$table_name]))
 			{
 				$storage_data['all'] = $loaded_data[$table_name];
@@ -76,7 +77,7 @@ class Session_PlayDataExporter
 			foreach ($semesters as $semester)
 			{
 				list($year, $term) = explode('-', $semester);
-				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name);
+				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name, $anonymize);
 				if ( ! empty($loaded_data[$table_name]))
 				{
 					$storage_data[$semester] = $loaded_data[$table_name];
@@ -128,6 +129,42 @@ class Session_PlayDataExporter
 		}
 
 		return [$csv, "-storage-{$table_name}.csv"];
+	}
+
+	protected static function all_scores($inst, $semesters)
+	{
+		$play_logs = [];
+		$count = 0;
+
+		// Table headers
+		$csv = "User ID,Last Name,First Name,Score,Semester\r\n";
+
+		foreach ($semesters as $semester)
+		{
+			list($year, $term) = explode('-', $semester);
+			// Get all scores for each semester
+			$logs = $play_logs["{$year} {$term}"] = \Materia\Session_Play::get_by_inst_id($inst->id, $term, $year);
+
+			foreach ($logs as $play)
+			{
+				// ignore non-guest plays when exporting all scores
+				if ($play['user_id']) continue;
+				$condensed = [
+					'Guest '.++$count,
+					'last_name' => $play['last'],
+					'first_name' => $play['first'],
+					'score' => $play['perc'],
+					'semester' => $semester
+				];
+
+				$csv .= implode(',', $condensed)."\r\n";
+			}
+		}
+
+		// If there aren't any logs throw a 404 error
+		if ($count == 0) throw new HttpNotFoundException;
+
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -208,7 +245,7 @@ class Session_PlayDataExporter
 						$semester,
 						$play_event->type,
 						$play_event->item_id,
-						$play_event->text,
+						str_replace(["\r","\n", ','], '', $play_event->text), // sanitize commas and newlines to keep CSV formatting intact
 						$play_event->value,
 						$play_event->game_time,
 						$play_event->created_at
@@ -310,5 +347,4 @@ class Session_PlayDataExporter
 
 		return [$data, '.zip'];
 	}
-
 }
