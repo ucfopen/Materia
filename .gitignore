@@ -54,12 +54,14 @@ fuel/packages/materia/vendor/widget/*
 # Any widget zip packages
 *.zip
 *.wigt
-!/fuel/app/tmp/widget_packages/test_widgets/*.wigt
 
 # media files
 fuel/packages/materia/media/*
 
 fuel/app/tmp
+!fuel/app/tmp/widget_packages/test_widgets
+!fuel/app/tmp/widget_packages/test_widgets/TestWidget.wigt
+!fuel/app/tmp/widget_packages/test_widgets/TestWidget2.wigt
 
 # Compiled assets
 public/themes/*/assets/css/*.css
