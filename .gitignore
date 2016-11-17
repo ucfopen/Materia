@@ -59,9 +59,9 @@ fuel/packages/materia/vendor/widget/*
 fuel/packages/materia/media/*
 
 fuel/app/tmp
-!fuel/app/tmp/widget_packages/test_widgets
-!fuel/app/tmp/widget_packages/test_widgets/TestWidget.wigt
-!fuel/app/tmp/widget_packages/test_widgets/TestWidget2.wigt
+!fuel/app/packages/materia/tests/widget_packages
+!fuel/app/packages/materia/tests/widget_packages/TestWidget.wigt
+!fuel/app/packages/materia/tests/widget_packages/TestWidget2.wigt
 
 # Compiled assets
 public/themes/*/assets/css/*.css
