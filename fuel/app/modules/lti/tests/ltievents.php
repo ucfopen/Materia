@@ -253,7 +253,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 		// create an instance
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_new(3, 'test-instance-3', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(1, 'test-instance-3', $qset, false);
 		$this->assertIsWidgetInstance($widget_instance);
 
 
@@ -412,7 +412,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// create an instance
 		$author = $this->_asAuthor();
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_new(5, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new(1, 'test-instance', $qset, false);
 
 		return [$author, $widget_instance, $widget_instance->id];
 	}
