@@ -1,0 +1,9 @@
+{
+  "name": "Test Widget",
+  "qset": {
+    "version": 1,
+    "data": {
+      "name": "Test Widget"
+    }
+  }
+}
