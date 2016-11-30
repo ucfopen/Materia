@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4ed952e04f470bd8ffbf85219f0de52b",
-    "content-hash": "fccc29be759e4f71b9e303fdca178d6b",
+    "hash": "92fe2de2078f90ae93b5724c3cb0c1c6",
+    "content-hash": "2604ac343f6f64a0d7a3399a785c1723",
     "packages": [
         {
             "name": "composer/installers",
@@ -358,11 +358,17 @@
         },
         {
             "name": "iturgeon/qasset",
-            "version": "dev-master",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
                 "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
@@ -373,6 +379,7 @@
                     "": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -386,12 +393,12 @@
             "description": "FuelPHP CSS and Javascript asset management",
             "homepage": "https://github.com/iturgeon/qAsset",
             "keywords": [
-                "Javascript",
+                "JS",
                 "assets",
                 "casset",
                 "css",
                 "fuelphp",
-                "js",
+                "javascript",
                 "qasset"
             ],
             "time": "2016-06-03 16:29:57"
@@ -483,6 +490,60 @@
                 "psr-3"
             ],
             "time": "2016-04-02 13:12:58"
+        },
+        {
+            "name": "onelogin/php-saml",
+            "version": "2.10.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/onelogin/php-saml.git",
+                "reference": "f9543a05494633671ec587ae1611238dae6edfd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/onelogin/php-saml/zipball/f9543a05494633671ec587ae1611238dae6edfd4",
+                "reference": "f9543a05494633671ec587ae1611238dae6edfd4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mcrypt": "*",
+                "ext-openssl": "*",
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "pdepend/pdepend": "1.1.0",
+                "phploc/phploc": "*",
+                "phpunit/phpunit": "4.8",
+                "satooshi/php-coveralls": "1.0.1",
+                "sebastian/phpcpd": "*",
+                "squizlabs/php_codesniffer": "*"
+            },
+            "suggest": {
+                "ext-gettext": "Install gettext and php5-gettext libs to handle translations",
+                "ext-mcrypt": "Install mcrypt and php5-mcrypt libs in order to support encryption",
+                "lib-openssl": "Install openssl lib in order to handle with x509 certs (require to support sign and encryption)"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "extlib/xmlseclibs",
+                    "lib/Saml",
+                    "lib/Saml2"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "OneLogin PHP SAML Toolkit",
+            "homepage": "https://onelogin.zendesk.com/hc/en-us/sections/200245634-SAML-Toolkits",
+            "keywords": [
+                "SAML2",
+                "onelogin",
+                "saml"
+            ],
+            "time": "2016-11-15 15:34:53"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -618,54 +679,6 @@
                 "psr-3"
             ],
             "time": "2016-01-06 21:40:42"
-        },
-        {
-            "name": "ucfcdl/php-saml",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ucfcdl/php-saml.git",
-                "reference": "3ea2095e1c9526adb80ee0da7f09a0648a6836d5"
-            },
-            "require": {
-                "php": ">=5.3.2"
-            },
-            "require-dev": {
-                "pdepend/pdepend": "1.1.0",
-                "phploc/phploc": "*",
-                "satooshi/php-coveralls": "dev-master",
-                "sebastian/phpcpd": "*",
-                "squizlabs/php_codesniffer": "*"
-            },
-            "suggest": {
-                "ext-gettext": "Install gettext and php5-gettext libs to handle translations",
-                "ext-mcrypt": "Install mcrypt and php5-mcrypt libs in order to support encryption",
-                "lib-openssl": "Install openssl lib in order to handle with x509 certs (require to support sign and encryption)"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "extlib/xmlseclibs",
-                    "lib/Saml",
-                    "lib/Saml2"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "OneLogin PHP SAML Toolkit",
-            "homepage": "https://onelogin.zendesk.com/hc/en-us/sections/200245634-SAML-Toolkits",
-            "keywords": [
-                "onelogin",
-                "saml",
-                "saml2"
-            ],
-            "support": {
-                "email": "sixto.garcia@onelogin.com",
-                "issues": "https://github.com/onelogin/php-saml/issues",
-                "source": "https://github.com/onelogin/php-saml/"
-            },
-            "time": "2015-10-02 19:20:12"
         }
     ],
     "packages-dev": [
@@ -1414,10 +1427,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "iturgeon/qasset": 20,
-        "ucfcdl/php-saml": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
