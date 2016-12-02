@@ -8,6 +8,11 @@
 
 # Installation
 
-### Installing with Vagrant, VirtualBox and GoBot
+### Developing with Docker
 
-Install instructions with needed files can be found in the [Materia-Setup repository](https://github.com/ucfcdl/Materia-Setup)
+Start your Development server with instructions found in the [Materia Docker repository](https://clu.cdl.ucf.edu/materia/materia-docker)
+
+### Ansible Deployment
+
+Check out the ansible scripts used to deploy Materia on qa and production [Materia-Ansible](https://clu.cdl.ucf.edu/devops/materia-ansible
+)
