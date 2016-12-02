@@ -195,9 +195,9 @@ class Widget_Installer
 	}
 
 
-	protected static function preprocess_yaml_and_upload_assets($base_dir, $yaml_text)
+	protected static function preprocess_json_and_upload_assets($base_dir, $json_text)
 	{
-		preg_match_all('/<%\s*MEDIA\s*=\s*(\'|")(.*)(\'|")\s*%>/', $yaml_text, $matches);
+		preg_match_all('/<%\s*MEDIA\s*=\s*(\'|")(.*)(\'|")\s*%>/', $json_text, $matches);
 
 		$preprocess_tags = $matches[0];
 		$files_to_upload = $matches[2];
@@ -214,10 +214,10 @@ class Widget_Installer
 			}
 
 			$asset_id = $asset_ids[$file];
-			$yaml_text = str_replace($preprocess_tags[$i], $asset_id, $yaml_text);
+			$json_text = str_replace($preprocess_tags[$i], $asset_id, $json_text);
 		}
 
-		return $yaml_text;
+		return $json_text;
 	}
 
 	// "uploads" an asset from a widget package
@@ -321,25 +321,25 @@ class Widget_Installer
 	protected static function install_demo($widget_id, $package_dir, $existing_inst_id = null)
 	{
 		// ADD the Demo
-		$yaml_file = $package_dir.'/demo.yaml';
-		if (file_exists($yaml_file))
+		$json_file = $package_dir.'/demo.json';
+		if (file_exists($json_file))
 		{
 			$file_area = \File::forge(['basedir' => null]);
-			$demo_text = $file_area->read($yaml_file, true);
-			$demo_data = \Format::forge($demo_text, 'yaml')->to_array();
+			$demo_text = $file_area->read($json_file, true);
+			$demo_data = \Format::forge($demo_text, 'json')->to_array();
 
 			static::validate_demo($demo_data);
 			try
 			{
-				$demo_text = static::preprocess_yaml_and_upload_assets($package_dir, $demo_text);
+				$demo_text = static::preprocess_json_and_upload_assets($package_dir, $demo_text);
 			}
 			catch (\Exception $e)
 			{
 				trace($e);
-				throw new \Exception('Error processing yaml and embedded assets');
+				throw new \Exception('Error processing json and embedded assets');
 			}
 
-			$demo_data = \Format::forge($demo_text, 'yaml')->to_array();
+			$demo_data = \Format::forge($demo_text, 'json')->to_array();
 
 			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
 
@@ -352,6 +352,8 @@ class Widget_Installer
 				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
 				// update it to make sure it allows guest access
 				\Materia\API::widget_instance_update($saved_demo->id, null, null, null, null, null, null, true);
+				// make sure nobody owns the demo widget
+				\Materia\Perm_Manager::clear_user_object_perms($saved_demo->id, \Materia\Perm::INSTANCE, \Model_user::find_current_id());
 			}
 
 			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
