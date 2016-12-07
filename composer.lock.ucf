@@ -398,7 +398,7 @@
         },
         {
             "name": "materia/ucfauth",
-            "version": "0.1.4",
+            "version": "0.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
