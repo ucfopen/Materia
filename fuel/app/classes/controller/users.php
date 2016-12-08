@@ -40,7 +40,7 @@ class Controller_Users extends Controller
 	 * Uses Materia API's remote_login function to log the user in.
 	 *
 	 */
-	public function get_login()
+	public function get_login($admin = false)
 	{
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
@@ -51,7 +51,7 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
-		Event::trigger('request_login');
+		Event::trigger('request_login', $admin);
 
 		Css::push_group(['core', 'login']);
 
