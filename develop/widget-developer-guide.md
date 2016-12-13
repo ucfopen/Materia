@@ -571,9 +571,3 @@ To install directly into your local Materia, either:
 
 This is useful for testing scoring modules and creators.
 
-### Validating packages
-
-You can validate your package structure and install.yaml and demo.yaml files by navigating to your Materia's root directory and running
-
-<pre><code class="bash">php oil r widget:install --validate-only packages/your-widget.wigt</code></pre>
-
