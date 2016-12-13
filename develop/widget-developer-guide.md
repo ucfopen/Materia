@@ -103,9 +103,9 @@ Here is an example install.yaml file from the Crossword widget:
 * **height:** The height of the widget in pixels. Use 0 if the widget should expand to the full height available.
 * **width:** The width of the widget in pixels. Use 0 if the widget should expand to the full width available.
 * **in_catalog:** 'Yes' if the widget should be publicly displayed on the widget catalog for creation and use. Generally, widgets not displayed in the catalog are specialized and lack a creator and are only available for creation through command line.
-* **is_editable:** Reserved for future
+* **is_editable:** Instances can't be saved as drafts if not editable.
 * **is_playable:** 'Yes' if widget instances can be played. 'No' to disable playing of instances. This is typically only used when developing a widget to prevent users from seeing an unfinished widget.
-* **is_qset_encrypted:** Reserved for future use.
+* **is_qset_encrypted:** Tells Materia whether to return an encrypted qset, or unchanged.
 * **is_answer_encrypted:** Reserved for future use.
 * **is_storage_enabled:** 'Yes' if this widget uses the storage API features. 'No' otherwise.
 * **api_version:** Corresponds to which version of the widget instance object this widget expects. You should specify version 1 here.
