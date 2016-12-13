@@ -301,9 +301,9 @@ This template has the bare minimum a widget requires to function, and often will
 <aside>
 	Be careful when editing files:
 
-	"materia-docker/app/fuel/app/tmp/widget_packages/"" is where compiled widgets are installed from in the sandbox environment
+	"devmateria/sandbox/" is where compiled widgets are installed from in the sandbox environment
 
-	Installed widget files are not typically accessible without alterations to the "docker-compose.yml" file.
+	Installed widget files are located at this directory level and can be edited at will.
 </aside>
 
 Edit `install.yaml` to your desired widget name, and rename the `template-widget` folder to match a dash separated, all lowercase version of the widget's name.
@@ -316,16 +316,10 @@ Read through each and use them as a barebones example of how to develop your own
 
 The following methods are available for submitting score logs related to events that occur in your widget:
 
-* **setOverallScore**
-* **addQuestionScoreToComposite**
-* **adjustOverallScore**
-* **setQuestionScore**
-* **addQuestionScoreAsOverallModifier**
-* **adjustQuestionScore**
-* **submitQuestionForScoring**
-* **submitAdjustmentForScoring**
-* **submitOverallForScoring**
 * **addGlobalScoreFeedback**
+* **submitFinalScoreFromClient**
+* **submitInteractionForScoring**
+* **submitQuestionForScoring**
 
 ## Materia.Storage
 
@@ -457,7 +451,7 @@ A Question/Answer question.  This question has one correct answer.
 
 ### Assets in a Question
 
-Assets within the scope of the entire question.  Like an song that plays during the question.
+Assets within the scope of the entire question (ie. a song that plays during the question).
 
 <pre><code class="language-javascript">{
 	materiaType: 'question',
@@ -474,7 +468,7 @@ Assets within the scope of the entire question.  Like an song that plays during 
 	}
 }</code></pre>
 
-Assets within the scope of the question's answers. Like a multiple choice where you choose the matching image.
+Assets within the scope of the question's answers (ie. multiple choice where you choose a matching image).
 
 <pre><code class="language-javascript">{
 	materiaType: 'question',
@@ -498,7 +492,7 @@ Assets within the scope of the question's answers. Like a multiple choice where 
 	]
 }</code></pre>
 
-Keep an array of assets that aren't associated with the questions at all (like theme backgrounds).
+Keep an array of assets that aren't associated with the questions at all (ie. theme backgrounds).
 
 <pre><code class="language-javascript">{
 	version: 1,
@@ -524,43 +518,58 @@ Keep an array of assets that aren't associated with the questions at all (like t
 Assets can be placed just about anywhere arbitrarily, but we advise you keep them linked with the data that makes the most sense.  If the image is part of the answer, place it in the options of each individual answer.  If the asset is not tied to a question at all, save it outside the scope of that question. 
 </aside>
 
-# Compiling with Grunt
+# Compiling with Gulp
 
-Grunt automates the process of building and compiling the `.wigt` files.
+Gulp automates the process of building and compiling the `.wigt` files. Most widgets use a custom configuration of Gulp as their compiler, but this is not required. As long as the command line `npm run build` (currently located under the `scripts` attribute in the `package.json` file) runs the chosen compiler on the widget to produce a `.wigt` file in the same format as the current Gulp system, it will be accepted.
 
 ## Development sandbox
 
-To test your widget's player and creator live, open a terminal to `static/sandbox` and run:
+To test your widget's player and creator live, make sure you've cloned Materia's development environment (aka DevMateria) at: git@clu.cdl.ucf.edu:materia/devmateria.git
 
-`grunt --widget=hello-world-widget --minify-assets=false watch`
+Open a terminal to `devmateria/` and run:
 
-where `hello-world-widget` is your widget's name.
+`./start/`
 
-Grunt will automatically rebuild the widget for the sandbox environment whenever a file is changed.
+This will run the development environment, and can be accessed through the browser at `http://localhost:8080/`
 
-To access the widget, navigate to:
+If you have the basics of the widget done properly (template-widget unchanged for example), you will see its image here along with a `Player` and `Creator` button.
 
-`http://localhost:8080/sandbox/hello-world-widget/`
+Press the `Player` button. On the newly loaded page, a left side panel will give you a series of options.
+
+-The checkboxes, and subsequent rebuild button, allow you to choose whether or not to implement some of the more obfuscating tasks on your widget.
+
+-The `Download to Materia` button will compile, package, and download the `.wigt` file to your designated download folder.
+
+-The `Install to Materia` will install directly to your local Materia environment (if you have it running).
+
+Aside from these features, the environment to the right of this sidebar is the live version of your player-facing widget. If you back up and press the `Creator` button, or choose the `Creator` option in the left side panel, you would arrive at your creator-facing widget.
+
+The advantage to running in this environment is that all changes made will automatically refresh in the browser.
 
 ### Caveats
 
 <aside>
-	Because the widget is being run in a sandbox, only the demo qset can be used, scoring will not run, and widgets cannot be saved. To test that functionality, see the compiling section below.
+	<p>Because the widget is being run in a sandbox, only the demo qset can be used, scoring will not run, and widgets cannot be saved. To test that functionality, see the compiling section below.</p>
+	<p>In the left side panel, a demo qset can be altered and loaded when inside the player-facing side of the widget to test unique questions, answers, et cetera.</p>
 </aside>
 
 ## Compiling for production
 
-To compile a .wigt package, run:
+To compile a .wigt package, either:
 
-`grunt --widget=hello-world-widget package`
+1. Click `Download to Materia` from inside the development sandbox's player-facing side of the widget, or,
 
-This creates a .wigt file in the `_output` directory. You can then easily install the widget using via the [widget:install]({BASE_PATH}/develop/installing-widgets.html).
+2. Navigate to the root folder of your widget in the command line and run: `npm run build`
 
-**Or** run:
+This creates a .wigt file in the `.build/_output/` directory.
 
-`grunt --widget=hello-world-widget install`
+To install directly into your local Materia, either:
 
-which will package and install into the current Materia instance in a single step. This is useful for testing scoring modules and creators.
+1. Click `Install to Materia` from inside the development sandbox's player-facing side of the widget, or,
+
+2. Drop the package made in the above steps into the directory `materia-docker/app/fuel/app/temp/widget_packages/`, navigate down to `materia-docker/`, and run `./install_widget.sh your-widgets-name.wigt`
+
+This is useful for testing scoring modules and creators.
 
 ### Validating packages
 
