@@ -16,7 +16,7 @@ Materia is built to be customizable and infinitely expandable.  Since it is mere
 
 
 <aside>
-	Materia widgets are written in HTML5 to be complaint and supported on all platforms, making the lives of students, faculty, and developers a bliss.
+	Materia widgets are written in HTML5 to be compliant and supported on all platforms, making the lives of students, faculty, and developers a bliss.
 </aside>
 
 # The Anatomy of a Widget
@@ -36,15 +36,26 @@ Widgets are made up of several files that get compressed into a single `.wigt` p
 A widget package (`.wigt`) is comprised of the following directories:
 
 	widget-name/
-			assets/ #optional directory to store assest for the demo
-			_icons/ # icons for display in Materia
-			_output/ # .wigt file is compiled into this directory
-			_score/ # score module located here
-			_screen-shots/ # screen shots for the widget preview
-			player.html # the player, or game, content that is presented to the student
-			creator.html # the creator for the widget that is presented to faculty and staff
-			demo.yaml # builds a qset for the demo widget
-			install.yaml # describes how to install the widget
+			.build / _output/ # .wigt file is compiled into this directory
+			src / assets/ # optional directory to store assest for the demo
+			src / _icons/ # icons for display in Materia
+			src / _score/ # score module located here
+			src / _screen-shots/ # screen shots for the widget preview
+			src / player.html # the player, or game, content that is presented to the student
+			src / player.css # optional stylesheet for player-side application
+			src / player.js # optional business logic for player-side application
+			src / creator.html # the creator for the widget that is presented to faculty and staff
+			src / creator.css # optional stylesheet for creator-side application
+			src / creator.js # optional business logic for creator-side application
+			src / demo.json # builds a qset for the demo widget
+			src / install.yaml # describes how to install the widget
+			tests / test.js # unit test file for application
+			.eslintrc.json # linter configuration file for full unit testing
+			.gitignore # ensures files and directories are skipped during git pushes
+			gulpfile.js # build task runner instruction file
+			karma-full-conf.js # full test configuration file -- naming depends on test framework used
+			karma-conf.js # short test configuration file -- naming depends on test framework used
+			package.json # metadata file for npm packages
 			README
 
 ## Installation Config: install.yaml
