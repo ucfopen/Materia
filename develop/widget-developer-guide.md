@@ -127,7 +127,7 @@ Here is an example install.yaml file from the Crossword widget:
 
 * **is_scorable:** 'Yes' if the widget collects scores. 'No' otherwise.
 * **score_module:** Name of the score module class (in score_module.php).
-* **score_type:** Specifies how a widget is graded. Accepted values are:
+* **score_type:** (Deprecated) Specifies how a widget is graded. Accepted values are:
 	* SERVER - means grading will be handled by a Score Module on the server. **Preferred**
 	* CLIENT - means your widget will tell Materia what the widget score should be.
 	* SERVER-CLIENT - utilizes both methods.
@@ -140,10 +140,9 @@ Here is an example install.yaml file from the Crossword widget:
 * **excerpt:** The text displayed on the widget catalog page.
 
 
-## Demo Question Set: demo.yaml
+## Demo Question Set: demo.json
 
-This file provides a title and qSet which will be used when installed to create a widget demo.  Again, some great examples can be seen in the [Materia Core Widgets](https://github.com/ucfcdl/Materia-Core-Widgets).
-
+This file provides a title and qSet which will be used when installed to create a widget demo.
 ## Example
 
 	---
@@ -155,7 +154,7 @@ This file provides a title and qSet which will be used when installed to create 
 
 ## Optional Demo Media Assets:
 
-If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.yaml file with `<%MEDIA="assets/1.jpg"%>`, `<%MEDIA="assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
+If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.json file with `<%MEDIA="assets/1.jpg"%>`, `<%MEDIA="assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
 
 ## Optional Score Module: ```_score-modules```
 
@@ -279,7 +278,7 @@ The `test_score_module.php` file is a unit test which should extend FuelPHP's `T
 
 ## Display Icons: _icons_
 
-This folder should contain the icons for your widget. A total of four icons at various pixel sizes should be provided: icon-60.png, icon-92.png, icon-275.png and icon-394.png.
+This folder should contain the icons for your widget. A total of four icons at various pixel sizes should be provided: icon-60.png, icon-92.png, icon-275.png and icon-394.png, as well as their times two multiples icon-60x2.png, icon-92x2.png, icon-275x2.png and icon-394x2.
 
 ## Overview Screen Shots: _screen-shots_
 
@@ -293,21 +292,23 @@ This folder should contain screen shots and corresponding thumbnails for your wi
 
 ## Getting Started
 
-[Download](https://clu.cdl.ucf.edu/materia/hello-world-widget/repository/archive.zip?ref=master) the Hello World Widget from Clu
+[Download](https://clu.cdl.ucf.edu/materia/template-widget/repository/archive.zip?ref=master) the Template Widget from Clu
 
-Extract this folder to `materia/current/static/sandbox/source`
+Extract this folder to `materia-docker/app/fuel/app/tmp/widget_packages/`
+
+This template has the bare minimum a widget requires to function, and often will require more to be considered useful. Use this as a place to start building your widget, while using the [Hello World Widget](https://clu.cdl.ucf.edu/materia/hello-world-widget/repository/archive.zip?ref=master) as an example of a simple, complete widget.
 
 <aside>
 	Be careful when editing files:
 
-	`static/sandbox/` is where compiled widgets are loaded from in the sandbox environment
+	"materia-docker/app/fuel/app/tmp/widget_packages/"" is where compiled widgets are installed from in the sandbox environment
 
-	`static/sandbox/source` is where your working directories go
+	Installed widget files are not typically accessible without alterations to the "docker-compose.yml" file.
 </aside>
 
-Edit `install.yaml` to your desired widget name, and rename the `hello-world-widget` folder to match a dash separated, all lowercase version of the widget's name.
+Edit `install.yaml` to your desired widget name, and rename the `template-widget` folder to match a dash separated, all lowercase version of the widget's name.
 
-The `player.html` is the code that is loaded into Materia for the student-facing game, whereas `creator.html` is loaded to the instructor to build the question data for each widget instance.
+The `player.html` is the code that is loaded into Materia for the student-facing game, whereas `creator.html` is loaded for the instructor to build the question data in each widget instance.
 
 Read through each and use them as a barebones example of how to develop your own widget
 
