@@ -18,6 +18,7 @@ class Widget_Instance
 	public $height          = 0;
 	public $id              = 0;
 	public $is_draft        = false;
+	public $is_deleted      = false;
 	public $name            = '';
 	public $open_at         = -1;
 	public $play_url        = '';

@@ -22,12 +22,17 @@ class Widget_Instance_Manager
 
 		$results = \DB::select()
 			->from('widget_instance')
-			->where('id', 'IN', $inst_ids)
-			->and_where('is_deleted', '=', '0')
-			->order_by('created_at', 'desc')
+			->where('id', 'IN', $inst_ids);
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) $results->and_where('is_deleted', '=', '0');
+		$results = $results->order_by('created_at', 'desc')
 			->execute()
 			->as_array();
 
+		return self::render_widgets($results, $load_qset);
+	}
+
+	private static function render_widgets($results, $load_qset)
+	{
 		$instances = [];
 		foreach ($results as $r)
 		{
@@ -41,6 +46,7 @@ class Widget_Instance_Manager
 				'student_access'  => Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE),
 				'guest_access'    => (bool) $r['guest_access'],
 				'is_draft'        => (bool) $r['is_draft'],
+				'is_deleted'      => (bool) $r['is_deleted'],
 				'created_at'      => $r['created_at'],
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
@@ -56,12 +62,36 @@ class Widget_Instance_Manager
 		return $instances;
 	}
 
-	public static function get_all_for_user($user_id)
+	private static function get_set(Array $inst_ids, $offset)
+	{
+		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
+
+		$results = \DB::select()
+			->from('widget_instance')
+			->where('id', 'IN', $inst_ids);
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) $results->and_where('is_deleted', '=', '0');
+		$results = $results->order_by('created_at', 'desc')
+			->offset($offset)
+			->limit(10)
+			->execute()
+			->as_array();
+
+		return self::render_widgets($results, false);
+	}
+
+	public static function get_all_for_user($user_id, $offset)
 	{
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
-
-		if ( ! empty($inst_ids)) return Widget_Instance_Manager::get_all($inst_ids);
-		else return [];
+		$inst_count = count($inst_ids);
+		// if ( ! empty($inst_ids)) return Widget_Instance_Manager::get_all($inst_ids);
+		if ( ! empty($inst_ids) && $inst_count >= $offset)
+		{
+			$r = new \stdClass();
+			$r->widgets = Widget_Instance_Manager::get_set($inst_ids, $offset);
+			$r->total = $inst_count;
+			return $r;
+		}
+		return [];
 	}
 
 	/**

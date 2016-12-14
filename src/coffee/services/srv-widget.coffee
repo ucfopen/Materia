@@ -11,10 +11,10 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 	sortWidgets = ->
 		_widgets.sort (a,b) -> return b.created_at - a.created_at
 
-	getWidgets = ->
+	getWidgets = (offset = 0) ->
 		if _widgets.length == 0 or not gotAll
 			_gotAll = yes
-			_getFromServer null, (widgets) ->
+			_getFromServer null, offset, (widgets) ->
 				_widgets = widgets.slice(0)
 				sortWidgets()
 				return deferred.resolve _widgets
@@ -26,7 +26,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 		if _widgetIds[id]?
 			dfd.resolve _widgetIds[id]
 		else
-			_getFromServer id, (widgets) ->
+			_getFromServer id, 0, (widgets) ->
 				dfd.resolve widgets
 				if callback
 					callback(widgets)
@@ -99,15 +99,15 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 			sortWidgets()
 		$rootScope.$broadcast 'widgetList.update', ''
 
-	_getFromServer = (optionalId, callback) ->
+	_getFromServer = (optionalId, optionalOffset, callback) ->
 		if optionalId? then optionalId = [[optionalId]]
 
-		Materia.Coms.Json.send 'widget_instances_get', optionalId, (widgets) ->
+		Materia.Coms.Json.send 'widget_instances_get', [optionalId, optionalOffset], (data) ->
 			_widgets = []
 
-			if widgets? and widgets.length?
-				for i in [0...widgets.length]
-					w = widgets[i]
+			if data.widgets? and data.widgets.length?
+				for i in [0...data.widgets.length]
+					w = data.widgets[i]
 					_widgetIds[w.id] = w
 					_widgets.push(w)
 					w.searchCache = "#{w.id} #{w.widget.name} #{w.name}".toLowerCase()

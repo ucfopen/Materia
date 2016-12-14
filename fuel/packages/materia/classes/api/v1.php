@@ -42,13 +42,13 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null)
+	static public function widget_instances_get($inst_ids = null, $offset = 0)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
 		{
 			if (\Model_User::verify_session() !== true) return []; // shortcut to returning noting
-			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
+			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id(), $offset);
 		}
 
 		// get specific instances - no log in required

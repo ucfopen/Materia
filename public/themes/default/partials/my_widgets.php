@@ -420,14 +420,19 @@
 				<div   class="search-icon"></div>
 				<div   class="search-close" ng-click="query = ''" ng-show="query">x</div>
 			</div>
-			<div class="courses">
+			<div class="courses" ng-scroll='loadMore()'>
 				<div class="widget_list" data-container="widget-list">
-					<div ng-repeat="widget in widgets.widgetList | multiword:query:'AND'" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)">
+					<div ng-repeat="widget in widgets.widgetList | multiword:query:'AND'"
+						id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}"
+						ng-class-odd="'odd'" ng-class-even="'even'"
+						ng-class="{is_draft: widget.is_draft || widget.is_deleted, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}"
+						ng-click="setSelected(widget.id)">
 						<img class="icon" ng-src="{{widget.icon}}"/>
 						<ul>
 							<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
 							<li class="type searchable" ng-bind-html="widget.widget.name | highlight:query"></li>
-							<li class="score">{{widget.is_draft ? "Draft" : ""}}</li>
+							<li class="score" ng-show='widget.is_draft'>{{widget.is_draft ? "Draft" : ""}}</li>
+							<li class="score red" ng-show='widget.is_deleted'>{{widget.is_deleted ? "Deleted" : ""}}</li>
 						</ul>
 					</div>
 				</div>

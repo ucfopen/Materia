@@ -6,6 +6,9 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 	selectedWidget = null
 	widgetsLoaded = false
 
+	$scope.widgets = []
+	widgetTotal = 0
+
 	$scope.strHeader = 'Select a Widget:'
 	$scope.query = {}
 
@@ -20,25 +23,30 @@ app.controller 'ltiCtrl', ($scope, $sce, widgetSrv) ->
 			fakeDelay = 1
 
 		setTimeout ->
-			widgetSrv.getWidgets().then (widgets) ->
-				if widgets?.halt
-					return
-				if !widgets
-					widgets = []
-
-				widgetsLoaded = true
-
-				len = widgets.length
-				curWidget = null
-
-				for widget in widgets
-					widget.img = Materia.Image.iconUrl(widget.widget.dir, 60)
-					widget.preview_url = BASE_URL + 'preview/' + widget.id
-					widget.edit_url = BASE_URL + 'my-widgets/#' + widget.id
-
-				$scope.widgets = widgets
-				$scope.$apply()
+			widgetSrv.getWidgets().then updateWidgets
 		, fakeDelay
+
+	updateWidgets = (data) ->
+		if !data
+			$scope.widgets = []
+			$scope.$apply()
+		else if data.then?
+			data.then updateWidgets
+		else
+			widgetsLoaded = true
+			widgetTotal = data.total
+
+			angular.forEach data.widgets, (widget, key) ->
+				widget.img = Materia.Image.iconUrl(widget.widget.dir, 60)
+				widget.preview_url = BASE_URL + 'preview/' + widget.id
+				widget.edit_url = BASE_URL + 'my-widgets/#' + widget.id
+
+			$scope.$apply ->
+				$scope.widgets = $scope.widgets.concat data.widgets
+
+	$scope.loadMore = ->
+		unless $scope.widgets.length >= widgetTotal
+			updateWidgets widgetSrv.getWidgets($scope.widgets.length)
 
 	$scope.highlight = (widget) ->
 		for w in $scope.widgets

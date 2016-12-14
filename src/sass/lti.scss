@@ -351,6 +351,12 @@ header > h1
 	position: absolute;
 	top: 34px;
 	left: 18px;
+
+	&.red {
+		background:#cc4545;
+		top: 54px;
+		left: 10px;
+	}
 }
 
 #goto-new-widgets

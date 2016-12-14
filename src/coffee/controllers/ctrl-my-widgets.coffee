@@ -3,6 +3,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	$scope.baseUrl = BASE_URL
 	$scope.widgets =
 		widgetList: []
+		widgetsTotal: 0
 	$scope.selected =
 		widget: null
 		perms: {}
@@ -41,7 +42,8 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 				location.reload true
 
 	$scope.$on 'widgetList.update', (evt) ->
-		updateWidgets widgetSrv.getWidgets()
+		unless $scope.widgets.widgetList.length >= $scope.widgets.widgetsTotal
+			updateWidgets widgetSrv.getWidgets($scope.widgets.widgetList.length)
 
 	$scope.$on 'widgetAvailability.update', (evt) ->
 		$scope.selected.widget = selectedWidgetSrv.get()
@@ -55,20 +57,19 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.user = userServ.get()
 
 	updateWidgets = (data) ->
-		Materia.Set.Throbber.stopSpin '.courses'
-
 		if !data
 			$scope.widgets.widgetList = []
 			$scope.$apply()
 		else if data.then?
 			data.then updateWidgets
 		else
-			angular.forEach data, (widget, key) ->
+			$scope.widgets.widgetsTotal = data.total
+			angular.forEach data.widgets, (widget, key) ->
 				widget.icon = Materia.Image.iconUrl(widget.widget.dir, 60)
 				widget.beard = beardServ.getRandomBeard()
 
 			$scope.$apply ->
-				$scope.widgets.widgetList = data.sort (a,b) -> return b.created_at - a.created_at
+				$scope.widgets.widgetList = $scope.widgets.widgetList.concat data.widgets
 		if firstRun
 			widgetSrv.selectWidgetFromHashUrl()
 			firstRun = false
@@ -77,6 +78,9 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	# This was originally part of prepare(), but is prepare really necessary now?
 	deferredWidgets = widgetSrv.getWidgets()
 	deferredWidgets.then updateWidgets
+
+	$scope.setSelected = (id) ->
+		widgetSrv.updateHashUrl(id)
 
 	# This doesn't actually "set" the widget
 	# It ensures required scope objects have been acquired before kicking off the display
