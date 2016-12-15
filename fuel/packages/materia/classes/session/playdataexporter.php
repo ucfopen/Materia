@@ -245,7 +245,7 @@ class Session_PlayDataExporter
 						$semester,
 						$play_event->type,
 						$play_event->item_id,
-						$play_event->text,
+						str_replace(["\r","\n", ','], '', $play_event->text), // sanitize commas and newlines to keep CSV formatting intact
 						$play_event->value,
 						$play_event->game_time,
 						$play_event->created_at
