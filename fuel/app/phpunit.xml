@@ -15,15 +15,13 @@
 		</testsuite> -->
 		<testsuite name="packages">
 			<directory suffix=".php">../packages/*/tests</directory>
+			<exclude>../packages/materia/tests/widget_source</exclude>
 		</testsuite>
 		<testsuite name="app">
 			<directory suffix=".php">../app/tests</directory>
 		</testsuite>
 		<testsuite name="modules">
 			<directory suffix=".php">../app/modules/*/tests</directory>
-		</testsuite>
-		<testsuite name="score">
-			<directory suffix=".php">../packages/materia/vendor/widget/test</directory>
 		</testsuite>
 		<testsuite name="dev">
 			<directory suffix=".php">../packages/*/tests/dev</directory>
