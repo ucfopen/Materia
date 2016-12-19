@@ -137,6 +137,7 @@ class Api_V1
 		}
 		catch (\Exception $e)
 		{
+			trace($e);
 			return new Msg(Msg::ERROR, 'Widget instance could not be saved.');
 		}
 	}
