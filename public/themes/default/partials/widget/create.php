@@ -31,9 +31,11 @@
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
 			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
 			<button id="creatorPublishBtn" class="edit_button green" type="button" ng-click="onPublishPressed()">{{ publishText }}</button>
-			<div class="dot" ng-hide="updateMode"></div>
-			<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')" ng-hide="updateMode"><span>{{ previewText }}</span></button>
-			<button id="creatorSaveBtn" class="edit_button orange" ng-class="saveStatus" type="button" ng-click="requestSave('save')" ng-hide="updateMode"><span>{{ saveText }}</span></button>
+			<span ng-hide="updateMode || nonEditable">
+				<div class="dot"></div>
+				<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')"><span>{{ previewText }}</span></button>
+				<button id="creatorSaveBtn" class="edit_button orange" ng-class="saveStatus" type="button" ng-click="requestSave('save')"><span>{{ saveText }}</span></button>
+			</span>
 		</section>
 
 		<div class="center">
