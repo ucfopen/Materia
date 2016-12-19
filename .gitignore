@@ -64,6 +64,7 @@ fuel/app/tmp
 public/themes/*/assets/css/*.css
 public/themes/*/assets/js/*.js
 
-#coverage
-coverage
+# dont include coverage files
 coverage.txt
+coverage.xml
+coverage/*
