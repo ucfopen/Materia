@@ -13,9 +13,9 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 
 	getWidgets = (offset = 0) ->
 		if _widgets.length == 0 or not gotAll
-			_gotAll = yes
+			# _gotAll = yes
 			_getFromServer null, offset, (widgets) ->
-				_widgets = widgets.slice(0)
+				# _widgets = widgets.slice(0)
 				sortWidgets()
 				return deferred.resolve _widgets
 		else
@@ -103,7 +103,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 		if optionalId? then optionalId = [[optionalId]]
 
 		Materia.Coms.Json.send 'widget_instances_get', [optionalId, optionalOffset], (data) ->
-			_widgets = []
+			# _widgets = []
 
 			if data.widgets? and data.widgets.length?
 				for i in [0...data.widgets.length]
