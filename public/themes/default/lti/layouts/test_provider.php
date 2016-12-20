@@ -66,7 +66,6 @@
 				{
 					var index = url.indexOf('/lti/');
 					var instId = url.substr(index + 23, 7);
-					console.log(instId);
 					$('#assignment-url').val(url.substring(0, index) + '/embed/' + instId);
 				}
 				else // http://localhost/embed/nQXe5/alt1 or http://localhost/play/nQXe5/alt1
