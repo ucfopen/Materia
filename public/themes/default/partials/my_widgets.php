@@ -150,8 +150,7 @@
 								<select ng-model="exportType" ng-options="o as o for o in exportOpts"></select>
 								<p class="download">
 									<a href ng-href="/data/export/{{selected.widget.id}}?type={{exportType | escape}}&amp;semesters={{selectedSemesters}}"
-											class="action_button arrow_down_button"
-											ng-class="{disabled: !header}">
+											class="action_button arrow_down_button">
 											<span class="arrow_down"></span>Download {{exportType}}
 									</a>
 								</p>
@@ -271,9 +270,9 @@
 						<textarea id="embed_link" ng-show="embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
-				<div class="scores" ng-show="selected.widget.widget.is_scorable">
+				<div class="scores">
 					<h2>Student Activity</h2>
-					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0 || !selected.hasScores}" ng-click="exportPopup()">
+					<span id="export_scores_button" class="action_button aux_button" ng-click="exportPopup()">
 						<span class="arrow_down"></span>
 						Export Options
 					</span>
