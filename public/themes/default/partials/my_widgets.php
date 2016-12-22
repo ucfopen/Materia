@@ -133,7 +133,7 @@
 						<ul class="options">
 							<li><a href class="show_options" ng-click="showOptions()">{{options ? "Hide" : "Semesters"}}</a></li>
 						</ul>
-						<h3>{{header || "None Selected"}}</h3>
+						<h3>{{header || "No Semester Selected"}}</h3>
 						<div class="score_table">
 							<p id="export-scores-description">
 									<span style="color: #0093E7">Export Scores</span>
@@ -162,6 +162,7 @@
 					<div class="download_options" ng-show="options">
 						<h4>Semesters</h4>
 						<p class="export_which">Export which semesters?</p>
+						<p class="export_which" ng-show="semesters.length <= 0">No semesters available</p>
 						<ul>
 							<li class="checkallLi" ng-show="semesters.length > 1">
 								<input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/>
