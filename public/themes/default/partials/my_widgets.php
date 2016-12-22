@@ -275,7 +275,7 @@
 					<h2>Student Activity</h2>
 					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0 || !selected.hasScores}" ng-click="exportPopup()">
 						<span class="arrow_down"></span>
-						Export Scores
+						Export Options
 					</span>
 
 					<div class="scoreWrapper" ng-repeat="semester in selected.scores.list" ng-if="show.olderScores == true || $index == 0">
