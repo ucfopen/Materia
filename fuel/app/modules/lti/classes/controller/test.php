@@ -27,9 +27,12 @@ class Controller_Test extends \Controller_Rest
 
 	public function get_embed()
 	{
-		if ( \Input::get('embed_type', false) != 'basic_lti' ) return;
+		$embed_type = \Input::get('embed_type', false);
+		$url = \Input::get('url');
 
-		$widget = str_replace(\Uri::base(false).'embed/', '', \Input::get('url'));
+		if ( $embed_type != 'basic_lti' ) return;
+
+		$widget = str_replace(\Uri::base(false).'embed/', '', $url);
 		$parts = explode('/', $widget);
 
 		//check to see if we have an LTI association for this widget already
@@ -56,7 +59,7 @@ class Controller_Test extends \Controller_Rest
 			$assoc->save();
 		}
 
-		return \Response::redirect("/lti/success/{$parts[0]}");
+		return \Response::redirect("/lti/success/{$parts[0]}?embed_type={$embed_type}&url={$url}");
 	}
 
 	public function get_provider()
