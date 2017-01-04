@@ -62,7 +62,7 @@ class Widget_Instance_Manager
 		return $instances;
 	}
 
-	private static function get_set(Array $inst_ids, $offset)
+	private static function get_set(Array $inst_ids, $offset, $query=false)
 	{
 		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
 
@@ -70,6 +70,7 @@ class Widget_Instance_Manager
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids);
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) $results->and_where('is_deleted', '=', '0');
+		if ($query) $results->and_where('name', 'LIKE', '%'.$query.'%');
 		$results = $results->order_by('created_at', 'desc')
 			->offset($offset)
 			->limit(10)
@@ -114,5 +115,18 @@ class Widget_Instance_Manager
 
 		// true if the lock is mine
 		return $locked_by == $me;
+	}
+
+	public static function search_for_user($user_id, $query)
+	{
+		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
+		if ( ! empty($inst_ids) )
+		{
+			$r = new \stdClass();
+			$r->widgets = Widget_Instance_Manager::get_set($inst_ids, 0, $query);
+			$r->total = count($r->widgets);
+			return $r;
+		}
+		return [];
 	}
 }

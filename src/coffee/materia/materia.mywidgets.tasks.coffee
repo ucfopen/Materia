@@ -8,6 +8,10 @@ Namespace('Materia.MyWidgets').Tasks = do ->
 	deleteWidget = (inst_id, callback) ->
 		Materia.Coms.Json.send 'widget_instance_delete', [inst_id], callback
 
+	restoreWidget = (inst_id, callback) ->
+		Materia.Coms.Json.send 'widget_instance_restore', [inst_id], callback
+
 	init : init
 	copyWidget : copyWidget
 	deleteWidget : deleteWidget
+	restoreWidget : restoreWidget

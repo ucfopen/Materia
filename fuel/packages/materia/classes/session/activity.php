@@ -27,6 +27,7 @@ class Session_Activity
 		// Activity Types
 		const TYPE_CREATE_WIDGET            = 'createdWidget';
 		const TYPE_DELETE_WIDGET            = 'deletedWidget';
+		const TYPE_RESTORE_WIDGET           = 'restoredWidget';
 		const TYPE_EDIT_WIDGET              = 'editedWidget';
 		const TYPE_EDIT_WIDGET_SETTINGS     = 'editedWidgetSettings';
 		const TYPE_LOGGED_IN                = 'loggedIn';

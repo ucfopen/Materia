@@ -363,6 +363,34 @@ class Widget_Instance
 	}
 
 	/**
+	 * Un-deletes this widget instance
+	 * @return bool true if removed, false if unable to remove
+	 */
+	public function db_restore()
+	{
+		// remove widget instance if instance id is a valid hash and successfully removed all permissions for widget instance
+		if (\RocketDuck\Util_Validator::is_valid_hash($this->id))
+		{
+			\DB::update('widget_instance')
+				->set(['is_deleted' => '0', 'updated_at' => time()])
+				->where('id', $this->id)
+				->execute();
+
+			$activity = new Session_Activity([
+				'user_id' => \Model_User::find_current_id(),
+				'type'    => Session_Activity::TYPE_RESTORE_WIDGET,
+				'item_id' => $this->id,
+				'value_1' => $this->name,
+				'value_2' => $this->widget->id
+			]);
+			$activity->db_store();
+
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Creates a duplicate widget instance and optionally makes the current user the owner.
 	 *
 	 * @param string The new name of the new widget

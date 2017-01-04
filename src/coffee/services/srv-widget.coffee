@@ -11,6 +11,9 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 	sortWidgets = ->
 		_widgets.sort (a,b) -> return b.created_at - a.created_at
 
+	searchWidgets = (query, callback) ->
+		Materia.Coms.Json.send 'widget_instances_search', [query], callback
+
 	getWidgets = (offset = 0) ->
 		if _widgets.length == 0 or not gotAll
 			# _gotAll = yes
@@ -161,6 +164,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 
 	$($window).bind 'hashchange', selectWidgetFromHashUrl
 
+	searchWidgets: searchWidgets
 	getWidgets: getWidgets
 	getWidgetsByType: getWidgetsByType
 	getWidget: getWidget

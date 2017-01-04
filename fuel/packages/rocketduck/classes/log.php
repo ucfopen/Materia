@@ -21,7 +21,7 @@ class Log
 		if ( ! isset(static::$monolog))
 		{
 			static::$monolog = new \Monolog\Logger('profiles');
-			static::$formatter = new \Monolog\Formatter\LineFormatter('%message%'.PHP_EOL, 'Y-m-d H:i:s');
+			static::$formatter = new \Monolog\Formatter\LineFormatter('%message%'.PHP_EOL, 'Y-m-d H:i:s', true);
 		}
 
 		// if the profile type has changed (prev null or different)

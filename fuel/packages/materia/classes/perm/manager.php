@@ -420,7 +420,7 @@ class Perm_Manager
 		// there was a bug upon copying a game when the permissions to the copy wer being re-set
 		$current_user_id = (int)\Model_User::find_current_id();
 
-		if ( ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
+		if ( ! self::get_user_object_perms($object_id, $object_type, $current_user_id) && !\RocketDuck\Perm_Manager::is_super_user()) return false;
 
 		\Event::trigger('delete_widget_event', ['user_id' => $current_user_id, 'object_id' => $object_id, 'object_type' => $object_type]);
 

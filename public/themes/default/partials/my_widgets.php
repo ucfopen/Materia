@@ -273,25 +273,35 @@
 								</a>
 							</li>
 						</ul>
-						<ul class="options">
+						<ul class="options" ng-hide="selected.widget.is_deleted">
 							<li class="share"><div class="link" ng-click="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
 							<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
 							<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
+						</ul>
+						<ul class="options" ng-show="selected.widget.is_deleted">
+							<li class="restore"><div class="link" id="restore_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showRestore()">Restore</div></li>
 						</ul>
 						<div class="delete_dialogue" ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
 							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
 						</div>
-						<div class="additional_options" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}" ng-show="!show.deleteDialog">
+						<div class="delete_dialogue restore_dialogue" ng-show="show.restoreDialog">
+							<span class="delete-warning">
+								Are you sure you want to restore this widget?
+							</span>
+							<a class="cancel_button" href="javascript:;" ng-click="show.restoreDialog = false">Cancel</a>
+							<a class="action_button green detached" href="javascript:;" ng-click="restoreWidget()">Restore</a>
+						</div>
+						<div class="additional_options" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft || selected.widget.is_deleted}" ng-show="!show.deleteDialog && !show.restoreDialog">
 							<h3>Settings:</h3>
-							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}">
+							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft || selected.widget.is_deleted}">
 								<dt>Attempts:</dt>
-								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" ng-click="popup()">
+								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft || selected.widget.is_deleted}" ng-click="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" ng-switch="availabilityMode">
+								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft || selected.widget.is_deleted}" ng-click="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
@@ -306,15 +316,15 @@
 									</span>
 								</dd>
 								<dt>Access:</dt>
-								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" ng-click="popup()" class="access-level">
+								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft || selected.widget.is_deleted}" ng-click="popup()" class="access-level">
 									<span ng-if="!selected.widget.guest_access">Staff and Students only</span>
 									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
 								</dd>
 							</dl>
-							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}" href ng-disabled="!selected.shareable || selected.widget.is_draft" ng-click="popup()">Edit settings...</a>
+							<a id="edit-availability-button" role="button" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft || selected.widget.is_deleted}" href ng-disabled="!selected.shareable || selected.widget.is_draft" ng-click="popup()">Edit settings...</a>
 						</div>
 					</div>
-					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
+					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft || selected.widget.is_deleted}">
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
@@ -413,6 +423,10 @@
 		<aside ng-controller="SidebarController">
 			<div class="top">
 				<h1>Your Widgets:</h1>
+				<span class="number-shown"
+					ng-hide="query">
+					Showing {{ widgets.widgetList.length }} of {{ widgets.widgetsTotal }}
+				</span>
 			</div>
 			<div class="search">
 				<div   class="textbox-background"></div>
@@ -446,7 +460,7 @@
 						<img class="icon" ng-src="{{widget.icon}}"/>
 						<ul>
 							<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
-							<li class="type searchable" ng-bind-html="widget.widget.name | highlight:query"></li>
+							<li class="type searchable"></li>
 							<li class="score" ng-show='widget.is_draft'>{{widget.is_draft ? "Draft" : ""}}</li>
 							<li class="score red" ng-show='widget.is_deleted'>{{widget.is_deleted ? "Deleted" : ""}}</li>
 						</ul>

@@ -8,7 +8,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		$scope.$apply()
 
 	$scope.popup = ->
-		if $scope.selected.shareable and not $scope.selected.widget.is_draft
+		if $scope.selected.shareable and not $scope.selected.widget.is_draft and not $scope.selected.widget.is_deleted
 			$scope.show.availabilityModal = yes
 
 	$scope.hideModal = -> this.$parent.hideModal()
@@ -30,6 +30,13 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 			if results
 				$scope.show.deleteDialog = false
 				widgetSrv.removeWidget($scope.selected.widget.id)
+				$scope.$apply()
+
+	$scope.restoreWidget = ->
+		Materia.MyWidgets.Tasks.restoreWidget $scope.selected.widget.id, (results) ->
+			if results
+				$scope.show.restoreDialog = false
+				$scope.selected.widget.is_deleted = false
 				$scope.$apply()
 
 	$scope.editWidget = ->
@@ -63,6 +70,9 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.showDelete = ->
 		$scope.show.deleteDialog = !$scope.show.deleteDialog if $scope.selected.accessLevel != 0
+
+	$scope.showRestore = ->
+		$scope.show.restoreDialog = !$scope.show.deleteDialog if $scope.selected.accessLevel != 0
 
 	$scope.showCollaboration = ->
 		user_ids = []

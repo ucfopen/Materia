@@ -130,6 +130,7 @@
 	}
 
 	aside h1, .container .description h1 {
+		display: inline-block;
 		padding: 7px 0 0 11px;
 		margin: 0;
 		font-size: 15px;
@@ -137,6 +138,11 @@
 		text-shadow: #184863 1px 1px 1px;
 		font-weight:900;
 		font-family: 'Lato', arial, serif;
+	}
+	aside .number-shown {
+		display: inline-block;
+		font-size: 10px;
+		color: #FFFFFF;
 	}
 	aside .search {
 		position:relative;
@@ -444,6 +450,10 @@
 		text-align: center;
 	}
 
+	.page .controls div.delete_dialogue.restore_dialogue {
+		background: url(../img/restore-dialogue-bg.png) no-repeat center;
+	}
+
 	.page .controls div.delete_dialogue .action_button
 	{
 		margin-top: 5px;
@@ -512,7 +522,7 @@
 		margin-right: 5px;
 	}
 
-	.page .controls .green {
+	.page .controls .green:not(.detached) {
 		padding: 7px 12px 8px 12px;
 		margin-right: 20px;
 		border-top-left-radius: 0;

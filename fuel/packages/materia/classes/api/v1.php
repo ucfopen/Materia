@@ -57,6 +57,14 @@ class Api_V1
 	}
 
 	/**
+	 * Searches for widget instances with a title including the given string
+	 */
+	static public function widget_instances_search($query = null)
+	{
+		return Widget_Instance_Manager::search_for_user(\Model_User::find_current_id(), $query);
+	}
+
+	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */
 	static public function widget_instance_delete($inst_id)
@@ -66,6 +74,18 @@ class Api_V1
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
 		return $inst->db_remove();
+	}
+
+	/**
+	 * @return bool, true if successfully restored widget instance, false otherwise.
+	 */
+	static public function widget_instance_restore($inst_id)
+	{
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
+		return $inst->db_restore();
 	}
 
 	static private function has_perms_to_inst($inst_id, $perms)
