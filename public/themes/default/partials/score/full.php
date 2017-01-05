@@ -19,15 +19,22 @@
 				</a>
 			</h1>
 		</nav>
-
 	</header>
 	<h1 class="scoreFontColor">Scores:</h1>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
+		<div id='overview-incomplete' ng-hide="overview.complete">
+			<h2>Incomplete Attempt</h2>
+			<hr/>
+			<p>
+				This student didn't complete this attempt.
+				This score was not counted in any linked gradebooks and is only available for informational purposes.
+			</p>
+		</div>
 		<div id="overview-score">
 			<h1 ng-if="!guestAccess">Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
 			<h1 ng-if="guestAccess">This Attempt Score:</h1>
 			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
-			<div id="class-rank-button" class="action_button gray" ng-show="showCompareWithClass" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
+			<div id="class-rank-button" class="action_button gray" ng-hide="isPreview" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
 		</div>
 		<div id="overview-table">
 			<table>
@@ -49,7 +56,6 @@
 			</div>
 		</div>
 	</section>
-
 
 	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired">
 		<h1>{{ detail.title }}</h1>
@@ -74,12 +80,6 @@
 		</ul>
 	</section>
 
-	<section class="materia-sendoff" ng-show="isEmbedded && !restricted && !expired">
-		<div>
-			<h1>More information about your score can be found by <a id="visit-materia" href="{{ moreInfoLink }}" target="blank">visiting Materia</a>.</h1>
-		</div>
-	</section>
-
 	<div class="expired container general" ng-show="expired">
 		<section class="page score_expired">
 			<h2 class="logo">The preview score for this widget has expired.</h2>
@@ -99,8 +99,6 @@
 			</ul>
 
 			<?= Theme::instance()->view('partials/help/support_info') ?>
-
 		</section>
 	</div>
 </article>
-

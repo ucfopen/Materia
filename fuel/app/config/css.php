@@ -51,7 +51,7 @@ return [
 			'theme::scores.css',
 		],
 		'embed_scores' => [
-			'theme::scores_embedded.css',
+			'theme::scores.css',
 		],
 		'question_catalog' => [
 			'lib::jquery.dataTables.css','theme::question-import.css',
