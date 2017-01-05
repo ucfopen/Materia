@@ -279,6 +279,7 @@ body.scores article header .header-element.widget-title {
 	padding-bottom: 5px;
 	padding-top: 16px;
 	overflow-wrap: break-word;
+	word-wrap: break-word; // have to include word-wrap since Edge/IE11 will not support overflow-wrap
 	margin-left: -10px;
 }
 
