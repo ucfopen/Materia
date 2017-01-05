@@ -40,10 +40,11 @@ class Controller_Users extends Controller
 	 * Uses Materia API's remote_login function to log the user in.
 	 *
 	 */
-	public function get_login($admin = false)
+	public function get_login()
 	{
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$bypass = isset($_GET['directlogin']) ? true : false;
 
 		if ( ! Model_User::find_current()->is_guest())
 		{
@@ -51,12 +52,14 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
-		Event::trigger('request_login', $admin);
+		Event::trigger('request_login', $bypass);
 
 		Css::push_group(['core', 'login']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+
+		Session::set_flash('bypass', $bypass);
 
 		$this->theme->get_template()
 			->set('title', 'Login')
@@ -73,6 +76,7 @@ class Controller_Users extends Controller
 		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
 		if ($login === true)
 		{
+			Session::delete_flash('bypass');
 			// if the location is the profile and they are an author, send them to my-widgets instead
 			if (\Model_User::verify_session('basic_author') == true && $redirect == Router::get('profile'))
 			{
