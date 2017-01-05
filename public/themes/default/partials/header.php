@@ -28,6 +28,9 @@
 		<ul>
 			<li><a href="/widgets" >Widget Catalog</a></li>
 			<li><a href="/my-widgets">My Widgets</a></li>
+			<?php if (\RocketDuck\Perm_Manager::is_super_user()): ?>
+				<li><a href="/admin">Admin</a></li>
+			<?php endif; ?>
 			<li><a href="/help">Help</a></li>
 
 			<li ng-switch="currentUser.loggedIn" class="logout">
