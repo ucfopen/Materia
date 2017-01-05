@@ -15,6 +15,7 @@
 		</testsuite> -->
 		<testsuite name="packages">
 			<directory suffix=".php">../packages/*/tests</directory>
+			<exclude>../packages/materia/tests/widget_source</exclude>
 		</testsuite>
 		<testsuite name="app">
 			<directory suffix=".php">../app/tests</directory>
@@ -22,8 +23,16 @@
 		<testsuite name="modules">
 			<directory suffix=".php">../app/modules/*/tests</directory>
 		</testsuite>
-		<testsuite name="score">
-			<directory suffix=".php">../packages/materia/vendor/widget/test</directory>
-		</testsuite>
 	</testsuites>
+	<filter>
+		<blacklist>
+			<directory suffix=".php">../vendor</directory>
+			<directory suffix=".php">../core</directory>
+			<directory suffix=".php">../packages/orm</directory>
+			<directory suffix=".php">../packages/auth</directory>
+		</blacklist>
+	</filter>
+<!-- 	<logging>
+		<log type="coverage-html" target="../../coverage"/>
+	</logging> -->
 </phpunit>

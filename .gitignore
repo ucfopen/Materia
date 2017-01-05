@@ -59,7 +59,14 @@ fuel/packages/materia/vendor/widget/*
 fuel/packages/materia/media/*
 
 fuel/app/tmp
+fuel/packages/materia/tests/widget_source/**/yarn.lock
 
 # Compiled assets
 public/themes/*/assets/css/*.css
 public/themes/*/assets/js/*.js
+
+# dont include coverage files
+coverage.txt
+coverage.xml
+coverage/*
+
