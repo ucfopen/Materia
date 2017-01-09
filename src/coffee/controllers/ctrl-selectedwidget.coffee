@@ -55,7 +55,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		height = if String($scope.selected.widget.widget.height) != '0' then $scope.selected.widget.widget.height else 600
 		draft = if $scope.selected.widget.is_draft then "#{$scope.selected.widget.widget.name} Widget" else $scope.selected.widget.name
 
-		"<iframe src='#{BASE_URL}embed/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}'>#{draft}</a></iframe>"
+		"<iframe src='#{BASE_URL}embed/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'></iframe>"
 
 	$scope.enableOlderScores = ->
 		$scope.show.olderScores = true
