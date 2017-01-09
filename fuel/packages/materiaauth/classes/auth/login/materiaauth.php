@@ -60,7 +60,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		}
 		if ( ! $email )
 		{
-			throw new \SimpleUserUpdateException('No email was defined.', 2);
+			throw new \SimpleUserUpdateException('Email not given', 2);
 		}
 
 		// just get the first user that has the same username or email
