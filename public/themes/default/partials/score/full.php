@@ -1,8 +1,6 @@
 <article class="container" ng-class="{ show: show }" ng-controller="scorePageController">
-	<header class="header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
-		<h1 ng-style="headerStyle">{{ widget.title }} Scores:</h1>
-
-		<nav class="previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
+	<header class="header score-header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
+		<nav class="header-element previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
 			<h1 ng-click="prevClick()">Prev. Attempts</h1>
 			<ul ng-mouseover="prevMouseOver()">
 				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
@@ -10,8 +8,10 @@
 				</a></li>
 			</ul>
 		</nav>
-
-		<nav class="play-again">
+		
+		<h1 class="header-element widget-title" ng-style="headerStyle">{{ widget.title }}</h1>
+		
+		<nav class="play-again header-element">
 			<h1>
 				<a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ playAgainUrl }}">
 					{{ isPreview ? 'Preview' : 'Play' }} Again
@@ -20,6 +20,7 @@
 			</h1>
 		</nav>
 	</header>
+	<h1 class="scoreFontColor">Scores:</h1>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<div id='overview-incomplete' ng-hide="overview.complete">
 			<h2>Incomplete Attempt</h2>
