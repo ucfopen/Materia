@@ -7,11 +7,14 @@ class Assetmigration
 	public static function run_asset_migration()
 	{
 		$bash_file = "assets_to_s3.sh";
-		$sql_file = "write_asset_remote_urls.sql";
+		$sql_file = "update_asset_remote_urls.sql";
 
-		\Cli::write("Warning: THIS WILL MAKE PERMANENT CHANGES TO THE MATERIA DB");
-		if (\Cli::prompt("Continue? Y/n", array("Y", "n")) != "Y") return;
+		$s3_bucket_name = "fakes3";
 
+		// checks to see that user understands instructions
+		if (!static::accept_instructions($bash_file, $sql_file)) return;
+
+		// Create the files to be written to
 		if(!static::initialize_output_files($bash_file, $sql_file))
 		{
 			\Cli::write("Error opening file!");
@@ -19,9 +22,6 @@ class Assetmigration
 		}
 
 		\Cli::write("Fetching assets...");
-
-		// make sure to leave a trailing slash
-		$s3_bucket_url = "s3://fakes3/";
 
 		$all_assets = static::get_all_assets();
 		$asset_count = count($all_assets);
@@ -44,9 +44,10 @@ class Assetmigration
 
 			// Asset Paths
 			$local_path = $asset_title;
-			$bucket_path = $s3_bucket_url.$user_id."/".$asset_id.".".$asset_type;
+			$bucket_path = $s3_bucket_name."/".$user_id."/".$asset_id.".".$asset_type;
 
-			fwrite($temp_bash_stream, "aws --endpoint-url='http://s3.amazonaws.com:10001' s3 cp ".$local_path." ".$bucket_path."\n");
+			fwrite($temp_bash_stream, "aws --endpoint-url='http://s3.amazonaws.com:10001' s3 cp "
+				.$local_path." s3://".$bucket_path."\n");
 			fwrite($temp_sql_stream, static::generate_update_query($asset_id, $bucket_path));
 
 			$updated_count++;
@@ -55,18 +56,35 @@ class Assetmigration
 		fclose($temp_sql_stream);
 		fclose($temp_bash_stream);
 
-		\Cli::write($updated_count."/".$asset_count." assets were successfully given a
-			remote url!");
+		\Cli::write($updated_count."/".$asset_count." assets were successfully given a remote url!");
 
 		return;
+	}
+
+	private static function accept_instructions($bash_filename, $sql_filename)
+	{
+		\Cli::write("Welcome to the Materia User Asset Migration Process!\n");
+
+		\Cli::write("IMPORTANT: This script does not perform the migration itself.
+			The script generates a bash and sql file that can be used to perform the
+			migration.\n");
+
+		\Cli::write("Before you begin, here is an outline of the process:");
+		\Cli::write("1. Two files will be generated: ".$bash_filename." and ".$sql_filename.".");
+		\Cli::write("2. All items will be selected from the Materia Database asset table.");
+		\Cli::write("3. Using properties of the asset, a remote url will be generated with the following form: s3_bucket_url/user_id/asset_id.asset_type");
+		\Cli::write("4. An update query will also be generated using the previously constructed remote URL along with a status of migrated_asset");
+		\Cli::write("\n");
+
+		return (\Cli::prompt("Continue with the migration? Y/n", array("Y", "n")) == "Y");
 	}
 
 	private static function generate_update_query($id, $remote_url)
 	{
 		$asset_table_name = "asset";
 
-		return "UPDATE ".$asset_table_name." SET remote_url='".$remote_url."'
-			WHERE id='".$id."';\n";
+		return "UPDATE ".$asset_table_name." SET remote_url='".$remote_url."',
+			status = 'migrated_asset' WHERE id='".$id."';\n";
 	}
 
 	private static function get_all_assets()
