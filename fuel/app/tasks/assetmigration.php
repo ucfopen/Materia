@@ -6,9 +6,9 @@ class Assetmigration
 {
 	public static function run_asset_migration()
 	{
+		// Config Variables
 		$bash_file = "assets_to_s3.sh";
 		$sql_file = "update_asset_remote_urls.sql";
-
 		$s3_bucket_name = "fakes3";
 
 		// checks to see that user understands instructions
@@ -79,26 +79,6 @@ class Assetmigration
 		return (\Cli::prompt("Continue with the migration? Y/n", array("Y", "n")) == "Y");
 	}
 
-	private static function generate_update_query($id, $remote_url)
-	{
-		$asset_table_name = "asset";
-
-		return "UPDATE ".$asset_table_name." SET remote_url='".$remote_url."',
-			status = 'migrated_asset' WHERE id='".$id."';\n";
-	}
-
-	private static function get_all_assets()
-	{
-		$materia_assets_table = "asset";
-
-		$all_assets = \DB::select()
-						->from($materia_assets_table)
-						->as_assoc()
-						->execute();
-
-		return $all_assets;
-	}
-
 	public static function initialize_output_files($bash_filename, $sql_filename)
 	{
 		\Cli::write("Initializing bash script...");
@@ -122,6 +102,18 @@ class Assetmigration
 		return true;
 	}
 
+	private static function get_all_assets()
+	{
+		$materia_assets_table = "asset";
+
+		$all_assets = \DB::select()
+						->from($materia_assets_table)
+						->as_assoc()
+						->execute();
+
+		return $all_assets;
+	}
+
 	// Get object the asset is associated with
 	private static function get_user_id_of_asset($asset_id)
 	{
@@ -136,6 +128,14 @@ class Assetmigration
 		// there should only be one id per asset_id, so we can assume index 0 is
 		// is the only element
 		return $results[0]["user_id"];
+	}
+
+	private static function generate_update_query($id, $remote_url)
+	{
+		$asset_table_name = "asset";
+
+		return "UPDATE ".$asset_table_name." SET remote_url='".$remote_url."',
+			status = 'migrated_asset' WHERE id='".$id."';\n";
 	}
 }
 /* End of file tasks/assetmigration.php */
