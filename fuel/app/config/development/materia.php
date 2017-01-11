@@ -53,7 +53,7 @@ return [
 		's3_enabled' => true,
 		'upload_url' => 'localhost:10001', //just the domain
 		'bucket' => 'fakes3',
-		'subdir' => 'user_assets', //leave blank to store assets in the root of the bucket
+		'subdir' => 'uploads', //leave blank to store assets in the root of the bucket
 		'secret_key' => 'secret_key',
 		'expire_in' => 60
 	],
