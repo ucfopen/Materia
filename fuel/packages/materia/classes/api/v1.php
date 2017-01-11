@@ -526,7 +526,7 @@ class Api_V1
 		$title = $file_info['filename'];
 
 		// store temporary row in db, obtain asset_id for building s3 file_key
-		$remote_url_stub = 'uploads/'.$user_id.'/';
+		$remote_url_stub = $s3_config['subdir'].'/'.$user_id.'/';
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
 		// if we could not successfully create a new temporary asset row
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
