@@ -51,7 +51,7 @@ return [
 
 	's3_config' => [
 		's3_enabled' => true,
-		'upload_url' => 'localhost:10001', //just the domain
+		'upload_url' => 'localhost', //just the domain
 		'bucket' => 'fakes3',
 		'subdir' => 'uploads', //leave blank to store assets in the root of the bucket
 		'secret_key' => 'secret_key',
