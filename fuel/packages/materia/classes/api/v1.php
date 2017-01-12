@@ -537,7 +537,7 @@ class Api_V1
 		$file_key = $asset->remote_url;
 
 		// generate policy and signature object for response
-		$expiration = date('%Y-%m-%d\T%H:%M:%S.000\Z', time() + $s3_config['expire_in']);
+		$expiration = date('Y-m-d\TH:i:s.000\Z', time() + $s3_config['expire_in']);
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [

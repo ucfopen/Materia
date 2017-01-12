@@ -99,11 +99,12 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 			# for s3 uploading
 			if keyData?
-				fd.append("Authorization", "AWS"." ".keyData["AWSAccessKeyId"].":".keyData["signature"])
 				fd.append("key", keyData.file_key)
 				fd.append("acl", 'public-read')
-				fd.append("policy", keyData.policy)
-				fd.append("signature", keyData.signature)
+				fd.append("Policy", keyData.policy)
+				fd.append("Signature", keyData.signature)
+				fd.append("AWSAccessKeyId", keyData.AWSAccessKeyID)
+				console.log fd
 			else
 				fd.append("name", fileData.name)
 
