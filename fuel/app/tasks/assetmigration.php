@@ -43,7 +43,7 @@ class Assetmigration
 			$user_id = static::get_user_id_of_asset($asset_id);
 
 			// Asset Paths
-			$local_path = $asset_title;
+			$local_path = $asset_id.".".$asset_type;
 			$bucket_path = $s3_bucket_name."/".$user_id."/".$asset_id.".".$asset_type;
 
 			fwrite($temp_bash_stream, "aws --endpoint-url='http://s3.amazonaws.com:10001' s3 cp "
