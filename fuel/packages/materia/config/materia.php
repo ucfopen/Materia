@@ -81,4 +81,12 @@ return [
 			'roles'      => ['super_user','basic_author']
 		],
 	],
+
+	's3_config' => [
+
+		'bucket' => 'default_bucket',
+		'secret_key' => 'secret_key',
+		'expire_in' => 60
+	]
+
 ];

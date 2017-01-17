@@ -98,7 +98,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		dfd = $.Deferred().resolve()
 		convertedInstance = translateForApiVersion instance
 		startTime = (new Date()).getTime()
-		sendToWidget 'initWidget', if widgetType is '.swf' then [qset, convertedInstance] else [qset, convertedInstance, BASE_URL]
+		sendToWidget 'initWidget', if widgetType is '.swf' then [qset, convertedInstance] else [qset, convertedInstance, BASE_URL, MEDIA_URL]
 		if !$scope.isPreview
 			heartbeatIntervalId = setInterval sendAllPendingLogs, PLAYER.LOG_INTERVAL # if not in preview mode, set the interval to send logs
 
@@ -383,4 +383,3 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			.pipe(sendWidgetInit)
 			.pipe(startHeartBeat)
 			.fail(onLoadFail)
-

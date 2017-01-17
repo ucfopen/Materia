@@ -40,6 +40,14 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+
+		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
+		$s3_media_url = "//".Config::get('materia.s3_config.bucket').".".Config::get('materia.s3_config.upload_url');
+		$local_media_url = Uri::base().Config::get('materia.urls.media');
+		Js::push_inline('var MEDIA_URL = "'
+			.($s3_enabled ? $s3_media_url : $local_media_url)
+			.'";');
+
 		Css::push_group('core');
 
 		return parent::after($response);

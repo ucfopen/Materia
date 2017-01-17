@@ -506,6 +506,93 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
+	// UPLOADS
+	// =======
+
+	/**
+	 * Gets a key and file_key for uploading asset to s3. Creates a
+	 * temporary row in the assets db, to be updated when the client
+	 * responds with status of s3 upload
+	 */
+	static public function upload_keys_get($file_name)
+	{
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+
+		$user_id = \Model_User::find_current_id();
+		$s3_config = \Config::get('materia.s3_config');
+
+		$file_info = pathinfo($file_name);
+		$type = $file_info['extension'];
+		$title = $file_info['filename'];
+
+		// store temporary row in db, obtain asset_id for building s3 file_key
+		$remote_url_stub = $s3_config['subdir'].'/'.$user_id.'/';
+		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
+		// if we could not successfully create a new temporary asset row
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		{
+			return null;
+		}
+
+		$file_key = $asset->remote_url;
+
+		// generate policy and signature object for response
+		$expiration = gmdate('Y-m-d\TH:i:s.000\Z', time() + $s3_config['expire_in']);
+
+		$param_hash = [
+			'expiration' => $expiration,
+			'conditions' => [
+			  ['bucket' => $s3_config['bucket']],
+			  ['acl' => 'public-read'], # makes the uploaded file public readable
+			  ['eq', '$key', $file_key], #restricts uploads to filenames that start with uploads/
+			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
+			  ['success_action_status' => '201'] # CREATED
+			]
+		];
+		$policy = base64_encode(json_encode($param_hash));
+
+		$secret_key = $s3_config['secret_key'];
+		$sha1_hash = hash_hmac('sha1', $policy, $secret_key, true); // raw_output = true
+		$signature = base64_encode($sha1_hash);
+
+		$res = [
+			'AWSAccessKeyId' 	=> $s3_config["AWSAccessKeyId"],
+			'policy' 			=> $policy,
+			'signature' 		=> $signature,
+			'file_key'			=> $file_key
+		];
+
+		return $res;
+	}
+
+	/**
+	 * Should the upload to s3 fail, the temp asset row created
+	 * using upload_keys_get does not get deleted. In general,
+	 * file upload status is updated in the db for this asset,
+	 * and update succes reported to caller
+	 */
+	static public function upload_success_post($asset_id, $s3_upload_success)
+	{
+		// Validate Logged in
+		if (\Model_User::verify_session() !== true) return Msg::no_login();
+
+
+		// bypass update if user sends back invalid hash
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset_id))
+		{
+			return false; // invalid/missing file_id
+		}
+
+		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
+
+		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
+				'status' => $status
+		]);
+
+		return $asset_updated;
+	}
+	// =======
+
 	/**
 	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
 	 * If no launch token is supplied, the current semester will be used as the current context.

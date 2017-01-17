@@ -5,7 +5,6 @@ return [
 	*  Encryption uses an event drivin architecture and can use custom encryption methods
 	*/
 	'security' => [
-
 		'encrypt_qsets' => false,
 		'encrypt_answers' => false,
 	],
@@ -19,7 +18,8 @@ return [
 	*/
 	'urls' => [
 		// 'root'    => \Uri::create(''), // root directory http:://siteurl.com/
-		// 'media'   => \Uri::create('assets/uploads/'), // where the media is stored http:://siteurl.com/assets/upload/
+		'media'   => 'media', // where the media is stored http:://siteurl.com/assets/upload/
+		'media_upload'   => 'media/upload', // where to post media uploads
 		// 'play'    => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		// 'embed'   => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		// 'preview' => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
@@ -49,4 +49,13 @@ return [
 		]
 	],
 
+	's3_config' => [
+		's3_enabled' => true,
+		'upload_url' => 's3.amazonaws.com', //just the domain
+		'bucket' => 'ucfcdl-materia-assets-dev',
+		'subdir' => 'uploads', //leave blank to store assets in the root of the bucket
+		'secret_key' => 'secret_key',
+		'AWSAccessKeyId' => 'AWSAccessKeyId',
+		'expire_in' => 10
+	],
 ];
