@@ -39,12 +39,14 @@ class Controller_Admin extends Controller
 
 	public function get_index()
 	{
-		Css::push_group(['core']);
+		Css::push_group(['core', 'admin']);
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'admin', 'author', 'student']);
 
 		$this->theme->get_template()
 			->set('title', 'Admin Panel');
+
+
 
 		$this->theme->set_partial('content', 'partials/admin/main');
 	}

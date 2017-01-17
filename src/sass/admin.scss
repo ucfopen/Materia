@@ -1,0 +1,82 @@
+.container
+{
+	background-color: #fff;
+	position: relative;
+	margin: 10px;
+	padding: 0 10px 10px;
+	display: block;
+	border: 1px solid #ccc;
+	box-shadow: 0 0 10px #aaa;
+
+	ul
+	{
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	li
+	{
+		background-color: #eee;
+		display: block;
+		clear: both;
+		margin: 0 0 5px 0;
+		border: 1px solid #ccc;
+		border-radius:10px;
+	}
+}
+
+.widget-title
+{
+	background-color: #ddd;
+	cursor: pointer;
+	margin: 0;
+	padding: 0 10px;
+	border-radius: 10px;
+	border-bottom: 1px solid #ccc;
+
+	h1
+	{
+		margin: 0;
+		padding: 0;
+	}
+}
+
+.widget-info
+{
+	margin-top: 10px;
+
+	.img-holder
+	{
+		margin: 0 10px 5px;
+		display: inline-block;
+	}
+
+	div
+	{
+		display: block;
+		vertical-align: top;
+	}
+
+	.info-holder, .info-holder span
+	{
+		display: inline-block;
+		vertical-align: top;
+		margin: 0 5px;
+
+		&.long
+		{
+			display: flex;
+
+			input
+			{
+				flex-grow: 100;
+			}
+		}
+
+		li
+		{
+			padding: 0 5px;
+		}
+	}
+}

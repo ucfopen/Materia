@@ -76,6 +76,50 @@ class Widget_Manager
 		return $widgets;
 	}
 
+	static public function update_widget($props)
+	{
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+
+		$widget = new Widget();
+		$widget->get($props->id);
+
+		if(empty($widget)) return false;
+
+		\DB::update('widget_metadata')
+			->set(['value' => $props->about])
+			->where('widget_id', $widget->id)
+			->where('name', 'about')
+			->execute();
+		\DB::update('widget_metadata')
+			->set(['value' => $props->excerpt])
+			->where('widget_id', $widget->id)
+			->where('name', 'excerpt')
+			->execute();
+
+		$demo = Widget_Instance_Manager::get($props->demo);
+		if($demo)
+		{
+			\DB::update('widget_metadata')
+				->set(['value' => $demo->id])
+				->where('widget_id', $widget->id)
+				->where('name', 'demo')
+				->execute();
+		}
+
+		\DB::update('widget')
+			->set([
+				'in_catalog' => $props->in_catalog,
+				'is_editable' => $props->is_editable,
+				'is_playable' => $props->is_playable,
+				'is_scorable' => $props->is_scorable
+				])
+			->where('id', $widget->id)
+			->limit(1)
+			->execute();
+
+		return true;
+	}
+
 	static public function search($name)
 	{
 		$widget_ids = \DB::select('id')
