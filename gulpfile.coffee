@@ -36,6 +36,12 @@ path =
 # JAVASCRIPT
 coffeeScripts = [
 	{
+		name: 'admin', combine: 'yes', destination: path.jsOut
+		files: [
+			'controllers/ctrl-admin.coffee'
+		]
+	},
+	{
 		name: 'student', combine: yes, destination: path.jsOut
 		files: [
 			'ng-constants.coffee',
