@@ -51,10 +51,11 @@ return [
 
 	's3_config' => [
 		's3_enabled' => true,
-		'upload_url' => 'localhost', //just the domain
-		'bucket' => 'fakes3',
+		'upload_url' => 's3.amazonaws.com', //just the domain
+		'bucket' => 'ucfcdl-materia-assets-dev',
 		'subdir' => 'uploads', //leave blank to store assets in the root of the bucket
 		'secret_key' => 'secret_key',
-		'expire_in' => 60
+		'AWSAccessKeyId' => 'AWSAccessKeyId',
+		'expire_in' => 10
 	],
 ];
