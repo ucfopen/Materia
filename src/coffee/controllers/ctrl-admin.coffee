@@ -1,17 +1,27 @@
 app = angular.module 'materia'
 app.controller 'adminController', ($scope, widgetSrv) ->
-	# Display ALL the widgets
-	displayAllWidgets = ->
-		Materia.Set.Throbber.startSpin '.page'
-		widgetSrv.getWidgetsByType 'all', (widgets) ->
 
+	$scope.widgets = []
+
+	$scope.save = (widget) ->
+		update =
+			id: widget.id
+			clean_name: widget.clean_name
+			in_catalog: widget.in_catalog
+			is_editable: widget.is_editable
+			is_scorable: widget.is_scorable
+			is_playable: widget.is_playable
+			about: widget.meta_data.about
+			excerpt: widget.meta_data.excerpt
+			demo: widget.meta_data.demo
+		widgetSrv.saveWidgetTemplate update, (response) ->
+
+	displayWidgets = ->
+		widgetSrv.getWidgetsByType 'all', (widgets) ->
 			for widget, i in widgets
 				widget.icon = Materia.Image.iconUrl widget.dir, 92
-				widget.visible = yes
-
-			Materia.Set.Throbber.stopSpin '.page'
-
-			$scope.$watchCollection 'filters', hideFiltered
 
 			$scope.widgets = widgets
 			$scope.$apply()
+
+	displayWidgets()

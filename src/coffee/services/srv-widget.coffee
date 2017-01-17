@@ -41,6 +41,9 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 		if type is null then type = 'featured'
 		Materia.Coms.Json.send 'widgets_get_by_type', [type], callback
 
+	saveWidgetTemplate = (obj, callback) ->
+		Materia.Coms.Json.send 'widget_update', [obj], callback
+
 	saveWidget = (_params, callback) ->
 		params =
 			qset: null
@@ -166,6 +169,7 @@ app.service 'widgetSrv', (selectedWidgetSrv, dateTimeServ, $q, $rootScope, $wind
 	getWidget: getWidget
 	getWidgetInfo: getWidgetInfo
 	sortWidgets: sortWidgets
+	saveWidgetTemplate: saveWidgetTemplate
 	saveWidget: saveWidget
 	addWidget: addWidget
 	removeWidget : removeWidget

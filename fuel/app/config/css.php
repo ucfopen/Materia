@@ -14,6 +14,9 @@ return [
 	],
 
 	'groups' => [
+		'admin' => [
+			'theme::admin.css'
+		],
 		'widget_play' => [
 			'theme::play.css',
 			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'

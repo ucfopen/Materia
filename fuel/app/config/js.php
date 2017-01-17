@@ -13,6 +13,7 @@ return [
 		'angular'    => ['cdnjs::angular.js/1.3.0/angular.min.js'],
 		'ng_modal'   => ['lib::bower/ngModal/dist/ng-modal.min.js'],
 		'jquery'     => ['cdnjs::jquery/1.8.1/jquery.min.js'],
+		'admin'      => ['theme::admin.min.js'],
 		'author'     => ['theme::author.min.js'],
 		'student'    => ['theme::student.min.js'],
 		'dataTables' => ['cdnjs::datatables/1.10.7/js/jquery.dataTables.min.js'],
