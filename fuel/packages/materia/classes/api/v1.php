@@ -537,7 +537,8 @@ class Api_V1
 		$file_key = $asset->remote_url;
 
 		// generate policy and signature object for response
-		$expiration = date('Y-m-d\TH:i:s.000\Z', time() + $s3_config['expire_in']);
+		$expiration = gmdate('Y-m-d\TH:i:s.000\Z', time() + $s3_config['expire_in']);
+
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [
@@ -555,7 +556,7 @@ class Api_V1
 		$signature = base64_encode($sha1_hash);
 
 		$res = [
-			'AWSAccessKeyID' 	=> 'test', # todo: is this necessary?
+			'AWSAccessKeyId' 	=> $s3_config["AWSAccessKeyId"],
 			'policy' 			=> $policy,
 			'signature' 		=> $signature,
 			'file_key'			=> $file_key

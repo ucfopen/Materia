@@ -103,8 +103,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				fd.append("acl", 'public-read')
 				fd.append("Policy", keyData.policy)
 				fd.append("Signature", keyData.signature)
-				fd.append("AWSAccessKeyId", keyData.AWSAccessKeyID)
-				console.log fd
+				fd.append("AWSAccessKeyId", keyData.AWSAccessKeyId)
 			else
 				fd.append("name", fileData.name)
 
@@ -116,13 +115,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request.onload = (oEvent) =>
 				if keyData? # s3 upload
 					success = request.status == 200 or request.status == 201
-
+					
 					# todo: do we need to parse response to decide on success?
 
 					# response is xml! get the image url to save to our server
 					# p = new DOMParser()
 					# d = p.parseFromString(request.response, 'application/xml')
-					# url = d.getElementsByTagName('Location')[0].innerHTML
+					# url = d.getElementsByTagName('Location')[0].innerHTML	
 					@saveUploadStatus fileData.ext, keyData.file_key, success
 				else # local upload
 					res = JSON.parse request.response #parse response string
@@ -293,9 +292,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 							if _s3enabled
 								split = data.split('/')
-								split.splice(-1, 0, 'thumb')
+								# replace the uploads in the filepath with thumbnails
+								split.splice(0, 1, 'thumbnails')
 								thumbId = split.join('/')
-
 								thumbUrl += "#{thumbId}"
 							else
 								thumbUrl += "#{data}/thumbnail"
