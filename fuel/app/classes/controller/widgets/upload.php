@@ -46,7 +46,7 @@ class Controller_Widgets_Upload extends Controller
 			}
 		}
 
-		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
+		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
 		Response::redirect(URI::create('admin/'));
 	}
 }
