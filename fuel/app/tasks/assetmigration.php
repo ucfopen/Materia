@@ -9,7 +9,15 @@ class Assetmigration
 		// Config Variables
 		$bash_file = "assets_to_s3.sh";
 		$sql_file = "update_asset_remote_urls.sql";
-		$s3_bucket_name = "fakes3";
+		$s3_config = \Config::get('materia.s3_config');
+		// endpoint url is only used in development
+		$endpoint_url = (\Fuel::$env == \Fuel::DEVELOPMENT)
+			? "aws --endpoint-url='http://s3.amazonaws.com:10001' "
+			: "";
+		// append a slash to subdirectory path if the config is using a subdirectory
+		$sub_directory = ($s3_config["subdir"])
+			? $s3_config["subdir"]."/"
+			: "";
 
 		// checks to see that user understands instructions
 		if (!static::accept_instructions($bash_file, $sql_file)) return;
@@ -44,10 +52,11 @@ class Assetmigration
 
 			// Asset Paths
 			$local_path = $asset_id.".".$asset_type;
-			$bucket_path = $s3_bucket_name."/".$user_id."/".$asset_id.".".$asset_type;
+			$bucket_path = $sub_directory.$user_id."/".$asset_id.".".$asset_type;
 
-			fwrite($temp_bash_stream, "aws --endpoint-url='http://s3.amazonaws.com:10001' s3 cp "
+			fwrite($temp_bash_stream, $endpoint_url."s3 cp "
 				.$local_path." s3://".$bucket_path."\n");
+
 			fwrite($temp_sql_stream, static::generate_update_query($asset_id, $bucket_path));
 
 			$updated_count++;
@@ -65,9 +74,7 @@ class Assetmigration
 	{
 		\Cli::write("Welcome to the Materia User Asset Migration Process!\n");
 
-		\Cli::write("IMPORTANT: This script does not perform the migration itself.
-			The script generates a bash and sql file that can be used to perform the
-			migration.\n");
+		\Cli::write("IMPORTANT: This script does not perform the migration itself. The script generates a bash and sql file that can be used to perform the migration.\n");
 
 		\Cli::write("Before you begin, here is an outline of the process:");
 		\Cli::write("1. Two files will be generated: ".$bash_filename." and ".$sql_filename.".");
