@@ -26,10 +26,14 @@
 	}
 }
 
+.clickable
+{
+	cursor: pointer;
+}
+
 .widget-title
 {
 	background-color: #ddd;
-	cursor: pointer;
 	margin: 0;
 	padding: 0 10px;
 	border-radius: 10px;
