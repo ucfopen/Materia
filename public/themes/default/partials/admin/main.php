@@ -6,7 +6,7 @@
 			</div>
 			<ul>
 				<li ng-repeat='widget in widgets'>
-					<div class='widget-title' ng-click='widget.expanded = !widget.expanded'>
+					<div class='widget-title clickable' ng-click='widget.expanded = !widget.expanded'>
 						<h1 class='infoHeader'>{{widget.name}}</h1>
 					</div>
 					<div class='widget-info' ng-show='widget.expanded'>
@@ -15,7 +15,7 @@
 						</div>
 						<div class='info-holder'>
 							<div>ID: {{ widget.id }}</div>
-							<div>Packaged: {{ widget.created_at * 1000 | date:yyyy-MM-dd }}</div>
+							<div>Installed: {{ widget.created_at * 1000 | date:yyyy-MM-dd }}</div>
 							<div>Dimensions: {{ widget.width }}w x {{ widget.height }}h</div>
 							<div>
 								<span>
@@ -86,7 +86,6 @@
 			<div class="top">
 				<h1>Widget Uploader</h1>
 			</div>
-			<div class="widgets" data-container="catalog-wiget"></div>
 			<form enctype="multipart/form-data" method="POST" action="/upload/widgets">
 				<input type="file" name="file"><br>
 				<input type="submit" value="Submit">
