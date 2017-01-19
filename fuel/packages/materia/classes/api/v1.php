@@ -42,11 +42,6 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_update($widget)
-	{
-		return Widget_Manager::update_widget($widget);
-	}
-
 	static public function widget_instances_get($inst_ids = null)
 	{
 		// get all my instances - must be logged in

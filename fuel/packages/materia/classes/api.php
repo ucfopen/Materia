@@ -16,7 +16,7 @@ class Api extends Api_V1
 	static public function get_version($version)
 	{
 		$class = '\Materia\Api';
-		if (is_numeric($version)) $class .= "_V$version";
+		$class .= is_numeric($version) ? "_V$version" : "_$version";
 		return new $class;
 	}
 }
