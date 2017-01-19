@@ -38,7 +38,8 @@ coffeeScripts = [
 	{
 		name: 'admin', combine: 'yes', destination: path.jsOut
 		files: [
-			'controllers/ctrl-admin.coffee'
+			'controllers/ctrl-admin.coffee',
+			'services/srv-admin.coffee'
 		]
 	},
 	{

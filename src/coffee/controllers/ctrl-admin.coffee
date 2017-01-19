@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'adminController', ($scope, widgetSrv) ->
+app.controller 'adminController', ($scope, adminSrv) ->
 
 	$scope.widgets = []
 
@@ -14,10 +14,10 @@ app.controller 'adminController', ($scope, widgetSrv) ->
 			about: widget.meta_data.about
 			excerpt: widget.meta_data.excerpt
 			demo: widget.meta_data.demo
-		widgetSrv.saveWidgetTemplate update, (response) ->
+		adminSrv.saveWidget update, (response) ->
 
 	displayWidgets = ->
-		widgetSrv.getWidgetsByType 'all', (widgets) ->
+		adminSrv.getWidgets (widgets) ->
 			for widget, i in widgets
 				widget.icon = Materia.Image.iconUrl widget.dir, 92
 
