@@ -15,7 +15,7 @@ return [
 	// ================================= ADMIN ======================================
 	'admin/login'       => 'users/login/1',
 	'upload/widgets'    => 'widgets/upload',
-	'api/admin/:method' => 'api/call/admin/json/$1',
+	'api/admin/:method' => 'api/admin/call/admin/$1',
 
 	// ================================= API ======================================
 
