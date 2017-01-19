@@ -76,6 +76,27 @@ class Widget_Manager
 		return $widgets;
 	}
 
+	static public function get_all_widgets()
+	{
+		$widgets = [];
+
+		$query = \DB::select('id')
+			->from('widget')
+			->order_by('name')
+			->execute();
+
+		$widget_ids = \Arr::flatten($query);
+
+		foreach ($widget_ids as $widget_id)
+		{
+			$widget = new Widget();
+			$widget->get($widget_id);
+			$widgets[] = $widget;
+		}
+
+		return $widgets;
+	}
+
 	static public function update_widget($props)
 	{
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;

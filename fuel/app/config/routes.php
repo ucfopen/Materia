@@ -13,8 +13,9 @@ return [
 	'crossdomain'       => 'site/crossdomain',
 
 	// ================================= ADMIN ======================================
-	'admin/login'    => 'users/login/1',
-	'upload/widgets' => 'widgets/upload',
+	'admin/login'       => 'users/login/1',
+	'upload/widgets'    => 'widgets/upload',
+	'api/admin/:method' => 'api/call/admin/json/$1',
 
 	// ================================= API ======================================
 

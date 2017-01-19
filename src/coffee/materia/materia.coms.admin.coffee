@@ -1,4 +1,4 @@
-Namespace('Materia.Coms').Json = do ->
+Namespace('Materia.Coms').Admin = do ->
 	_gatewayURL = null
 
 	setGateway = (newGateway) ->
