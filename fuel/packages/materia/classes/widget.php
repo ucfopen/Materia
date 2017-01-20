@@ -149,6 +149,33 @@ class Widget
 		return $meta_data;
 	}
 
+	public function set_property($prop, $val)
+	{
+		try
+		{
+			if (property_exists($this, $prop))
+			{
+				\DB::update('widget')
+					->set([$prop  => $val])
+					->where('id', $this->id)
+					->execute();
+			}
+			else
+			{
+				\DB::update('widget_metadata')
+					->set(['value' => $val])
+					->where('widget_id', $this->id)
+					->where('name', $prop)
+					->execute();
+			}
+		}
+		catch(Exception $e)
+		{
+			return false;
+		}
+		return true;
+	}
+
 	public function load_widget_methods($method_type)
 	{
 		$file = PKGPATH."/materia/vendor/widget/{$this->dir}/{$method_type}.php";
