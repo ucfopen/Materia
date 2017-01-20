@@ -13,7 +13,6 @@ return [
 	'crossdomain'       => 'site/crossdomain',
 
 	// ================================= ADMIN ======================================
-	'admin/login'       => 'users/login/1',
 	'upload/widgets'    => 'widgets/upload',
 	'api/admin/:method' => 'api/admin/call/admin/$1',
 
@@ -24,25 +23,25 @@ return [
 	// ================================= WIDGETS ======================================
 	// NOTE: develop routes are in the development config
 
-	"widgets/$id-$clean_name/create(/.*)?"  => 'widgets/create',
-	"widgets/$id-$clean_name/demo"          => 'widgets/play_demo', // each widget engine has a demo game made in it - this is a shortcut to it
-	"widgets/$id-$clean_name"               => 'widgets/detail', // details of the widget engine
-	'widgets/(:type)'                       => 'widgets/index/$1', // catalog page, with optional display option(s)
-	'widgets'                               => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
-	'my-widgets'                            => 'widgets/mywidgets/',
+	"widgets/$id-$clean_name/create(/.*)?" => 'widgets/create',
+	"widgets/$id-$clean_name/demo"         => 'widgets/play_demo', // each widget engine has a demo game made in it - this is a shortcut to it
+	"widgets/$id-$clean_name"              => 'widgets/detail', // details of the widget engine
+	'widgets/(:type)'                      => 'widgets/index/$1', // catalog page, with optional display option(s)
+	'widgets'                              => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
+	'my-widgets'                           => 'widgets/mywidgets/',
 
-	'edit/(:alnum)(/.*)?'                   => 'widgets/edit/$1',
-	'play/(:alnum)(/.*)?'                   => 'widgets/play_widget/$1',
-	'preview/(:alnum)(/.*)?'                => 'widgets/preview_widget/$1',
-	'embed/(:alnum)(/.*)?'                  => 'widgets/play_embedded/$1',
-	'lti/assignment?'                       => 'widgets/play_embedded/$1', // legacy LTI url
+	'edit/(:alnum)(/.*)?'                  => 'widgets/edit/$1',
+	'play/(:alnum)(/.*)?'                  => 'widgets/play_widget/$1',
+	'preview/(:alnum)(/.*)?'               => 'widgets/preview_widget/$1',
+	'embed/(:alnum)(/.*)?'                 => 'widgets/play_embedded/$1',
+	'lti/assignment?'                      => 'widgets/play_embedded/$1', // legacy LTI url
 
-	'data/export/(:alnum)'                  => 'data/export/$1',
+	'data/export/(:alnum)'                 => 'data/export/$1',
 
-	'scores/preview/(:alnum)(/.*)?'         => 'scores/show/$1',
-	'scores/embed/(:alnum)(/.*)?'           => 'scores/show_embedded/$1',
-	'scores/semesters?'                     => 'scores/semesters',
-	'scores/(:alnum)(/.*)?'                 => 'scores/show/$1',
+	'scores/preview/(:alnum)(/.*)?'        => 'scores/show/$1',
+	'scores/embed/(:alnum)(/.*)?'          => 'scores/show_embedded/$1',
+	'scores/semesters?'                    => 'scores/semesters',
+	'scores/(:alnum)(/.*)?'                => 'scores/show/$1',
 
 	// ================================= DOCS ======================================
 
