@@ -103,42 +103,55 @@ class Widget_Manager
 
 		$widget = new Widget();
 		$widget->get($props->id);
+		unset($props->id);
 
-		if(empty($widget)) return false;
+		//confirm that widget id and name are correct from the incoming request
+		if(empty($widget)) return ['widget' => 'Widget not found!'];
+		if($props->clean_name != $widget->clean_name) return ['widget' => 'Widget mismatch!'];
 
-		\DB::update('widget_metadata')
-			->set(['value' => $props->about])
-			->where('widget_id', $widget->id)
-			->where('name', 'about')
-			->execute();
-		\DB::update('widget_metadata')
-			->set(['value' => $props->excerpt])
-			->where('widget_id', $widget->id)
-			->where('name', 'excerpt')
-			->execute();
+		unset($props->clean_name);
+
+		//keep track of each thing we're potentially changing
+		$report = [];
 
 		$demo = Widget_Instance_Manager::get($props->demo);
 		if($demo)
 		{
-			\DB::update('widget_metadata')
-				->set(['value' => $demo->id])
-				->where('widget_id', $widget->id)
-				->where('name', 'demo')
-				->execute();
+			if($demo->widget == $widget)
+			{
+				try
+				{
+					\DB::update('widget_metadata')
+						->set(['value' => $demo->id])
+						->where('widget_id', $widget->id)
+						->where('name', 'demo')
+						->execute();
+					$report['demo'] = true;
+				}
+				catch(Exception $e)
+				{
+					$report['demo'] = '"Demo" update failed!';
+				}
+			}
+			else
+			{
+				$report['demo'] = 'Demo instance is for another widget!';
+			}
+		}
+		else
+		{
+			$report['demo'] = 'Demo instance not found!';
+		}
+		unset($props->demo);
+
+		foreach($props as $prop => $val)
+		{
+			$clean_prop = ucwords(str_replace('_', ' ', $prop));
+			$result = $widget->set_property($prop, $val);
+			$report[$prop] = $result ? true : '"'.$clean_prop.'" update failed!';
 		}
 
-		\DB::update('widget')
-			->set([
-				'in_catalog' => $props->in_catalog,
-				'is_editable' => $props->is_editable,
-				'is_playable' => $props->is_playable,
-				'is_scorable' => $props->is_scorable
-				])
-			->where('id', $widget->id)
-			->limit(1)
-			->execute();
-
-		return true;
+		return $report;
 	}
 
 	static public function search($name)

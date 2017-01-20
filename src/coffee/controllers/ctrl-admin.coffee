@@ -15,6 +15,11 @@ app.controller 'adminController', ($scope, adminSrv) ->
 			excerpt: widget.meta_data.excerpt
 			demo: widget.meta_data.demo
 		adminSrv.saveWidget update, (response) ->
+			widget.error_message = []
+			for prop, stat of response
+				widget.error_message.push stat unless stat == true
+			delete widget.error_message if widget.error_message.len is 0
+			$scope.$apply()
 
 	displayWidgets = ->
 		adminSrv.getWidgets (widgets) ->

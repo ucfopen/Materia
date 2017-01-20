@@ -8,21 +8,20 @@
 	border: 1px solid #ccc;
 	box-shadow: 0 0 10px #aaa;
 
-	ul
+	.page > ul
 	{
 		list-style: none;
 		margin: 0;
 		padding: 0;
-	}
 
-	li
-	{
-		background-color: #eee;
-		display: block;
-		clear: both;
-		margin: 0 0 5px 0;
-		border: 1px solid #ccc;
-		border-radius:10px;
+		> li
+		{
+			background-color: #eee;
+			display: block;
+			margin: 0 0 5px 0;
+			border: 1px solid #ccc;
+			border-radius:10px;
+		}
 	}
 }
 
@@ -48,7 +47,14 @@
 
 .widget-info
 {
-	margin-top: 10px;
+	margin: 10px 0;
+
+	.error-holder
+	{
+		display: block;
+		text-align: center;
+		color: #f00;
+	}
 
 	.img-holder
 	{
