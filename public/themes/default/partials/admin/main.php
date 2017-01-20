@@ -1,7 +1,7 @@
 <div ng-controller='adminController'>
-	<div class="container" id="widgets_area">
-		<section class="page">
-			<div class="top">
+	<div class='container' id='widgets_area'>
+		<section class='page'>
+			<div class='top'>
 				<h1>Widget List</h1>
 			</div>
 			<ul>
@@ -10,13 +10,30 @@
 						<h1 class='infoHeader'>{{widget.name}}</h1>
 					</div>
 					<div class='widget-info' ng-show='widget.expanded'>
+						<div class='error-holder' ng-show='widget.error_message'>
+							<div ng-repeat='error in widget.error_message'>
+								{{ error }}
+							</div>
+						</div>
 						<div class='img-holder'>
 							<img ng-src='{{widget.icon}}'>
 						</div>
 						<div class='info-holder'>
-							<div>ID: {{ widget.id }}</div>
-							<div>Installed: {{ widget.created_at * 1000 | date:yyyy-MM-dd }}</div>
-							<div>Dimensions: {{ widget.width }}w x {{ widget.height }}h</div>
+							<div>
+								<span>
+									ID: {{ widget.id }}
+								</span>
+							</div>
+							<div>
+								<span>
+									Installed: {{ widget.created_at * 1000 | date:yyyy-MM-dd }}
+								</span>
+							</div>
+							<div>
+								<span>
+									Dimensions: {{ widget.width }}w x {{ widget.height }}h
+								</span>
+							</div>
 							<div>
 								<span>
 									In Catalog:<input type='checkbox' ng-model='widget.in_catalog' ng-true-value='"1"' ng-false-value='"0"'/>
@@ -76,21 +93,20 @@
 		</section>
 	</div>
 
-	<div class="container" id="upload_area">
-		<section class="page">
+	<div class='container' id='upload_area'>
+		<section class='page'>
 			<?php if ($msg = Session::get_flash('upload_notice')): ?>
-				<div class="error">
+				<div class='error'>
 					<p><?= $msg ?></p>
 				</div>
 			<?php endif ?>
-			<div class="top">
+			<div class='top'>
 				<h1>Widget Uploader</h1>
 			</div>
-			<form enctype="multipart/form-data" method="POST" action="/upload/widgets">
-				<input type="file" name="file"><br>
-				<input type="submit" value="Submit">
+			<form enctype='multipart/form-data' method='POST' action='/upload/widgets'>
+				<input type='file' name='file'><br>
+				<input type='submit' value='Submit'>
 			</form>
 		</section>
 	</div>
-
 </div>

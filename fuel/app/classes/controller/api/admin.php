@@ -19,21 +19,16 @@ class Controller_Api_Admin extends Controller_Rest
 	public function post_call($format, $method)
 	{
 		$input = json_decode(Input::post('data', []));
-
-		// $result = $this->execute($version, $method, $input);
-		// $this->no_cache();
-		// $this->response($result, 200);
-
-		$this->_execute($method, $input);
+		$this->execute($method, $input);
 	}
 
 	public function get_call($format, $method)
 	{
 		$input = array_slice($this->request->route->method_params, 3);
-		$this->_execute($method, $input);
+		$this->execute($method, $input);
 	}
 
-	private function _execute($method, $args)
+	protected function execute($method, $args)
 	{
 		if ( ! method_exists($this, $method)) throw new HttpNotFoundException;
 
