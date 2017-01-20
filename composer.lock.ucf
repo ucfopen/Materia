@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f11a4c28e8e3ff8cb7abe18ea384294b",
-    "content-hash": "a0ae6e8259d912e94b0c5aff95dba8a7",
+    "hash": "904b93fe220f316d3880b8fbebe5752c",
+    "content-hash": "bcb16585a79a64d18dabdeccdaed4edf",
     "packages": [
         {
             "name": "composer/installers",
@@ -116,16 +116,16 @@
         },
         {
             "name": "fuel/auth",
-            "version": "1.8.0",
+            "version": "1.8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/auth.git",
-                "reference": "a645dbe2f80b6b4cecb069b57ea70150b6e53929"
+                "reference": "83969c3c932edc94d973ca40f1567459b84c4523"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/auth/zipball/a645dbe2f80b6b4cecb069b57ea70150b6e53929",
-                "reference": "a645dbe2f80b6b4cecb069b57ea70150b6e53929",
+                "url": "https://api.github.com/repos/fuel/auth/zipball/83969c3c932edc94d973ca40f1567459b84c4523",
+                "reference": "83969c3c932edc94d973ca40f1567459b84c4523",
                 "shasum": ""
             },
             "require": {
@@ -144,24 +144,27 @@
             ],
             "description": "FuelPHP 1.x Auth Package",
             "homepage": "https://github.com/fuel/auth",
-            "time": "2016-01-23 12:30:25"
+            "time": "2016-10-20 18:12:06"
         },
         {
             "name": "fuel/core",
-            "version": "1.8.0.3",
+            "version": "1.8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/core.git",
-                "reference": "c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7"
+                "reference": "cb83a0cc682307866000ef6b8b970f0893d01b66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/core/zipball/c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7",
-                "reference": "c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7",
+                "url": "https://api.github.com/repos/fuel/core/zipball/cb83a0cc682307866000ef6b8b970f0893d01b66",
+                "reference": "cb83a0cc682307866000ef6b8b970f0893d01b66",
                 "shasum": ""
             },
             "require": {
-                "composer/installers": "~1.0"
+                "composer/installers": "~1.0",
+                "michelf/php-markdown": "1.*",
+                "monolog/monolog": "1.18.*",
+                "phpseclib/phpseclib": "2.0.0"
             },
             "type": "fuel-package",
             "notification-url": "https://packagist.org/downloads/",
@@ -176,20 +179,20 @@
             ],
             "description": "FuelPHP 1.x Core",
             "homepage": "https://github.com/fuel/core",
-            "time": "2016-07-21 08:45:05"
+            "time": "2017-01-15 17:41:18"
         },
         {
             "name": "fuel/email",
-            "version": "1.8.0",
+            "version": "1.8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/email.git",
-                "reference": "79133b3951068bbcff9a9c7b77f9f27a777ebdbd"
+                "reference": "2eab3974e4c38b9fea0a7ebbad3d4e1f20076448"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/email/zipball/79133b3951068bbcff9a9c7b77f9f27a777ebdbd",
-                "reference": "79133b3951068bbcff9a9c7b77f9f27a777ebdbd",
+                "url": "https://api.github.com/repos/fuel/email/zipball/2eab3974e4c38b9fea0a7ebbad3d4e1f20076448",
+                "reference": "2eab3974e4c38b9fea0a7ebbad3d4e1f20076448",
                 "shasum": ""
             },
             "require": {
@@ -208,20 +211,20 @@
             ],
             "description": "FuelPHP 1.x Email Package",
             "homepage": "https://github.com/fuel/email",
-            "time": "2016-01-23 12:31:34"
+            "time": "2016-10-04 15:21:48"
         },
         {
             "name": "fuel/oil",
-            "version": "1.8.0",
+            "version": "1.8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/oil.git",
-                "reference": "b29b80f29f090b9ad12b931da6e979587de6ced1"
+                "reference": "84ea18b9e39c3c0d31681dd2cf92fbf81b6ed90f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/oil/zipball/b29b80f29f090b9ad12b931da6e979587de6ced1",
-                "reference": "b29b80f29f090b9ad12b931da6e979587de6ced1",
+                "url": "https://api.github.com/repos/fuel/oil/zipball/84ea18b9e39c3c0d31681dd2cf92fbf81b6ed90f",
+                "reference": "84ea18b9e39c3c0d31681dd2cf92fbf81b6ed90f",
                 "shasum": ""
             },
             "require": {
@@ -240,7 +243,7 @@
             ],
             "description": "FuelPHP 1.x Oil Package",
             "homepage": "https://github.com/fuel/oil",
-            "time": "2016-01-23 12:32:54"
+            "time": "2016-10-05 13:32:41"
         },
         {
             "name": "fuel/orm",
@@ -276,16 +279,16 @@
         },
         {
             "name": "fuel/parser",
-            "version": "1.8.0",
+            "version": "1.8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/parser.git",
-                "reference": "bec50ec304e696d72dba7f13494828532c6e18df"
+                "reference": "e647c56566ddc439801ae966821f37dc35a3c5bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/parser/zipball/bec50ec304e696d72dba7f13494828532c6e18df",
-                "reference": "bec50ec304e696d72dba7f13494828532c6e18df",
+                "url": "https://api.github.com/repos/fuel/parser/zipball/e647c56566ddc439801ae966821f37dc35a3c5bb",
+                "reference": "e647c56566ddc439801ae966821f37dc35a3c5bb",
                 "shasum": ""
             },
             "require": {
@@ -304,7 +307,7 @@
             ],
             "description": "FuelPHP 1.x Parser Package",
             "homepage": "https://github.com/fuel/parser",
-            "time": "2016-03-12 12:08:41"
+            "time": "2017-01-12 17:26:53"
         },
         {
             "name": "fuelphp/upload",
@@ -358,11 +361,17 @@
         },
         {
             "name": "iturgeon/qasset",
-            "version": "dev-master",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
                 "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
@@ -373,6 +382,7 @@
                     "": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -386,25 +396,76 @@
             "description": "FuelPHP CSS and Javascript asset management",
             "homepage": "https://github.com/iturgeon/qAsset",
             "keywords": [
-                "Javascript",
+                "JS",
                 "assets",
                 "casset",
                 "css",
                 "fuelphp",
-                "js",
+                "javascript",
                 "qasset"
             ],
             "time": "2016-06-03 16:29:57"
         },
         {
             "name": "materia/ucfauth",
-            "version": "0.1.6",
+            "version": "0.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfcdl/Materia-UCFAuth.git",
                 "reference": "master"
             },
             "type": "fuel-package"
+        },
+        {
+            "name": "michelf/php-markdown",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/michelf/php-markdown.git",
+                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/1f51cc520948f66cd2af8cbc45a5ee175e774220",
+                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-lib": "1.4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Michelf": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Michel Fortin",
+                    "email": "michel.fortin@michelf.ca",
+                    "homepage": "https://michelf.ca/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "John Gruber",
+                    "homepage": "https://daringfireball.net/"
+                }
+            ],
+            "description": "PHP Markdown",
+            "homepage": "https://michelf.ca/projects/php-markdown/",
+            "keywords": [
+                "markdown"
+            ],
+            "time": "2016-10-29 18:58:20"
         },
         {
             "name": "monolog/monolog",
@@ -483,6 +544,60 @@
                 "psr-3"
             ],
             "time": "2016-04-02 13:12:58"
+        },
+        {
+            "name": "onelogin/php-saml",
+            "version": "2.10.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/onelogin/php-saml.git",
+                "reference": "f9543a05494633671ec587ae1611238dae6edfd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/onelogin/php-saml/zipball/f9543a05494633671ec587ae1611238dae6edfd4",
+                "reference": "f9543a05494633671ec587ae1611238dae6edfd4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mcrypt": "*",
+                "ext-openssl": "*",
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "pdepend/pdepend": "1.1.0",
+                "phploc/phploc": "*",
+                "phpunit/phpunit": "4.8",
+                "satooshi/php-coveralls": "1.0.1",
+                "sebastian/phpcpd": "*",
+                "squizlabs/php_codesniffer": "*"
+            },
+            "suggest": {
+                "ext-gettext": "Install gettext and php5-gettext libs to handle translations",
+                "ext-mcrypt": "Install mcrypt and php5-mcrypt libs in order to support encryption",
+                "lib-openssl": "Install openssl lib in order to handle with x509 certs (require to support sign and encryption)"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "extlib/xmlseclibs",
+                    "lib/Saml",
+                    "lib/Saml2"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "OneLogin PHP SAML Toolkit",
+            "homepage": "https://onelogin.zendesk.com/hc/en-us/sections/200245634-SAML-Toolkits",
+            "keywords": [
+                "SAML2",
+                "onelogin",
+                "saml"
+            ],
+            "time": "2016-11-15 15:34:53"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -618,54 +733,6 @@
                 "psr-3"
             ],
             "time": "2016-10-10 12:19:37"
-        },
-        {
-            "name": "ucfcdl/php-saml",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ucfcdl/php-saml.git",
-                "reference": "3ea2095e1c9526adb80ee0da7f09a0648a6836d5"
-            },
-            "require": {
-                "php": ">=5.3.2"
-            },
-            "require-dev": {
-                "pdepend/pdepend": "1.1.0",
-                "phploc/phploc": "*",
-                "satooshi/php-coveralls": "dev-master",
-                "sebastian/phpcpd": "*",
-                "squizlabs/php_codesniffer": "*"
-            },
-            "suggest": {
-                "ext-gettext": "Install gettext and php5-gettext libs to handle translations",
-                "ext-mcrypt": "Install mcrypt and php5-mcrypt libs in order to support encryption",
-                "lib-openssl": "Install openssl lib in order to handle with x509 certs (require to support sign and encryption)"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "extlib/xmlseclibs",
-                    "lib/Saml",
-                    "lib/Saml2"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "OneLogin PHP SAML Toolkit",
-            "homepage": "https://onelogin.zendesk.com/hc/en-us/sections/200245634-SAML-Toolkits",
-            "keywords": [
-                "onelogin",
-                "saml",
-                "saml2"
-            ],
-            "support": {
-                "email": "sixto.garcia@onelogin.com",
-                "issues": "https://github.com/onelogin/php-saml/issues",
-                "source": "https://github.com/onelogin/php-saml/"
-            },
-            "time": "2015-10-02 19:20:12"
         }
     ],
     "packages-dev": [
@@ -1276,16 +1343,16 @@
         },
         {
             "name": "sebastian/recursion-context",
-            "version": "1.0.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/recursion-context.git",
-                "reference": "b19cc3298482a335a95f3016d2f8a6950f0fbcd7"
+                "reference": "2c3ba150cbec723aa057506e73a8d33bdb286c9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/b19cc3298482a335a95f3016d2f8a6950f0fbcd7",
-                "reference": "b19cc3298482a335a95f3016d2f8a6950f0fbcd7",
+                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/2c3ba150cbec723aa057506e73a8d33bdb286c9a",
+                "reference": "2c3ba150cbec723aa057506e73a8d33bdb286c9a",
                 "shasum": ""
             },
             "require": {
@@ -1297,7 +1364,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -1325,7 +1392,7 @@
             ],
             "description": "Provides functionality to recursively process PHP variables",
             "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
-            "time": "2016-10-03 07:41:43"
+            "time": "2016-11-19 07:33:16"
         },
         {
             "name": "sebastian/version",
@@ -1414,10 +1481,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "iturgeon/qasset": 20,
-        "ucfcdl/php-saml": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
