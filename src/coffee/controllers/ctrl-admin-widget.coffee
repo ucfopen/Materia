@@ -1,5 +1,5 @@
 app = angular.module 'materia'
-app.controller 'adminController', ($scope, adminSrv) ->
+app.controller 'adminWidgetController', ($scope, adminSrv) ->
 
 	$scope.widgets = []
 
