@@ -29,7 +29,17 @@
 			<li><a href="/widgets" >Widget Catalog</a></li>
 			<li><a href="/my-widgets">My Widgets</a></li>
 			<?php if (\RocketDuck\Perm_Manager::is_super_user()): ?>
-				<li><a href="/admin">Admin</a></li>
+				<li class="nav_expandable">
+					Admin
+					<ul>
+						<li>
+							<a href="/admin/widget">Widgets</a>
+						</li>
+						<li>
+							<a href="/admin/user">Users</a>
+						</li>
+					</ul>
+				</li>
 			<?php endif; ?>
 			<li><a href="/help">Help</a></li>
 

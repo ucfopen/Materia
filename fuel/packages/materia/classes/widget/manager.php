@@ -114,33 +114,51 @@ class Widget_Manager
 		//keep track of each thing we're potentially changing
 		$report = [];
 
-		$demo = Widget_Instance_Manager::get($props->demo);
-		if($demo)
+		$original_demo = $widget->meta_data['demo'];
+		if ($original_demo == $props->demo)
 		{
-			if($demo->widget == $widget)
+			$report['demo'] = true;
+		}
+		else
+		{
+			$demo = Widget_Instance_Manager::get($props->demo);
+			if($demo)
 			{
-				try
+				if($demo->widget == $widget)
 				{
-					\DB::update('widget_metadata')
-						->set(['value' => $demo->id])
-						->where('widget_id', $widget->id)
-						->where('name', 'demo')
-						->execute();
-					$report['demo'] = true;
+					try
+					{
+						\DB::update('widget_metadata')
+							->set(['value' => $demo->id])
+							->where('widget_id', $widget->id)
+							->where('name', 'demo')
+							->execute();
+						$report['demo'] = true;
+
+						$activity = new Session_Activity([
+							'user_id' => \Model_User::find_current_id(),
+							'type'    => Session_Activity::TYPE_ADMIN_EDIT_WIDGET,
+							'item_id' => $widget->id,
+							'value_1' => 'demo',
+							'value_2' => $original_demo,
+							'value_3' => $demo->id,
+						]);
+						$activity->db_store();
+					}
+					catch(Exception $e)
+					{
+						$report['demo'] = '"Demo" update failed!';
+					}
 				}
-				catch(Exception $e)
+				else
 				{
-					$report['demo'] = '"Demo" update failed!';
+					$report['demo'] = 'Demo instance is for another widget!';
 				}
 			}
 			else
 			{
-				$report['demo'] = 'Demo instance is for another widget!';
+				$report['demo'] = 'Demo instance not found!';
 			}
-		}
-		else
-		{
-			$report['demo'] = 'Demo instance not found!';
 		}
 		unset($props->demo);
 
