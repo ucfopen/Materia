@@ -31,6 +31,8 @@ class Session_Activity
 		const TYPE_EDIT_WIDGET_SETTINGS     = 'editedWidgetSettings';
 		const TYPE_LOGGED_IN                = 'loggedIn';
 		const TYPE_LOGGED_OUT               = 'loggedOut';
+		const TYPE_ADMIN_EDIT_WIDGET        = 'adminEditWidget';
+		const TYPE_ADMIN_EDIT_USER          = 'adminEditUser';
 
 		public $created_at = 0;
 		public $id         = 0;

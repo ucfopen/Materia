@@ -41,25 +41,24 @@ a img {
 }
 
 a:hover {
-	   text-decoration:underline;
+	text-decoration:underline;
 }
 
 header {
-	   position:relative;
-	   z-index: 1000;
+	position:relative;
+	z-index: 1000;
 
-	   padding: 35px 0 0 136px;
-	   margin: 0 0 25px 0;
-	   display:block;
-	   height: 43px;
+	padding: 35px 0 0 136px;
+	margin: 0 0 25px 0;
+	display:block;
+	height: 43px;
 
-       background:#fff url(../img/header_border.png) 0% 100% repeat-x;
-       height: 49px;
+	background:#fff url(../img/header_border.png) 0% 100% repeat-x;
+	height: 49px;
 }
 
 header.logged_in {
-	   background:#fff url(../img/header_border_alt.png) 0% 100% repeat-x;
-
+	background:#fff url(../img/header_border_alt.png) 0% 100% repeat-x;
 }
 
 header .avatar img {
@@ -69,20 +68,20 @@ header .avatar img {
 }
 
 h1.logo {
-	   position:absolute;
-	   left:0;
-	   top:0;
-	   margin:0;
-	   overflow:hidden;
+	position:absolute;
+	left:0;
+	top:0;
+	margin:0;
+	overflow:hidden;
 }
 h1.logo a {
-	   display:block;
-	   width:100px;
-	   height: 0;
-	   padding:60px 0 0 10px;
-	   margin: 10px 0 0 10px;
-	   background: url(../img/materia_tmp_logo.png) 0% 0% no-repeat;
-	   /*margin:-80px 0 0 0;*/
+	display:block;
+	width:100px;
+	height: 0;
+	padding:60px 0 0 10px;
+	margin: 10px 0 0 10px;
+	background: url(../img/materia_tmp_logo.png) 0% 0% no-repeat;
+	/*margin:-80px 0 0 0;*/
 }
 
 .tiny {
@@ -95,80 +94,114 @@ a.external {
 }
 
 nav ul li {
-	   display:inline;
-	   padding:0 10px 0 0;
+	display:inline;
+	padding:0 10px 0 0;
 }
 header ul, header p {
-	   margin:0;
-	   padding: 0;
+	margin:0;
+	padding: 0;
 }
 header .user {
-	   color: #979696;
-	   font-size:12px;
-	   position:absolute;
-	   top:36px;
+	color: #979696;
+	font-size:12px;
+	position:absolute;
+	top:36px;
 }
 header .avatar {
 	font-family: 'Lucida Grande', arial, serif;
 }
 header .user.avatar {
-	  top:12px;
+	top:12px;
 }
 .hidden {
 	display: none;
 }
 .page {
-	   position:relative;
-	   z-index: 1;
+	position:relative;
+	z-index: 1;
 }
 .main h2, .main h3 {
-	   font-family: 'Lato', arial, serif;
-	   margin:0;
-	   padding:0;
-	   display:inline;
-	   font-weight:700;
+	font-family: 'Lato', arial, serif;
+	margin:0;
+	padding:0;
+	display:inline;
+	font-weight:700;
 }
 .detail {
-	   padding-bottom: 10px;
+	padding-bottom: 10px;
 }
 /*.detail h2:after {
-	   content: ": ";
+	content: ": ";
 }*/
 
 nav {
-	   display:block;
-	   margin-top:16px;
+	display:block;
+	margin-top:16px;
+}
+
+nav ul {
+	display: inline-table;
+}
+
+nav ul ul {
+	display: none;
+	background-color: #ffffff;
+	padding: 0;
+	margin-top: -10px;
+	position: absolute;
+	top: 100%;
+}
+
+nav ul li:hover > ul {
+	display: block;
+
+	li {
+		padding: 5px 10px 10px;
+		height: auto;
+	}
+}
+
+nav ul li {
+	float: left;
+	height: 35px;
+}
+
+.nav_expandable {
+	color: #0093e7;
+	font-family: 'Lato', arial, serif;
+	font-size:17px;
+	font-weight:bold;
 }
 
 nav ul li a {
-	   font-family: 'Lato', arial, serif;
-	   font-weight:bold;
+	font-family: 'Lato', arial, serif;
+	font-weight:bold;
 }
 nav ul li a, #main a {
-	   color: #0093e7;
-	   font-weight:bold;
-	   margin:0;
-	   padding:0;
+	color: #0093e7;
+	font-weight:bold;
+	margin:0;
+	padding:0;
 }
 nav ul li a {
-	   font-size:17px;
+	font-size:17px;
 }
 
 .logout a {
-	   position:absolute;
-	   right:20px;
-	   bottom: 13px;
-	   font-size: 14px;
+	position:absolute;
+	right:20px;
+	bottom: 13px;
+	font-size: 14px;
 }
 .messages a {
-	   position:absolute;
-	   right:20px;
-	   bottom: 13px;
-	   font-size: 14px;
+	position:absolute;
+	right:20px;
+	bottom: 13px;
+	font-size: 14px;
 }
 
 .main a {
-	   padding: 0;
+	padding: 0;
 }
 .searchClose
 {
@@ -180,30 +213,30 @@ nav ul li a {
 	display: inline;
 }
 .popup h2, .detail h2 {
-	   color: #0a0a0a;
-	   /*-webkit-mask-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));*/
-	   font-weight:900;
-	   font-size: 20pt;
-	   font-family: 'Lato', arial, serif;
-	   margin:0;
-	   padding:0;
-	   text-shadow: 0px 1px 0px #ccc;
+	color: #0a0a0a;
+	/*-webkit-mask-image: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)));*/
+	font-weight:900;
+	font-size: 20pt;
+	font-family: 'Lato', arial, serif;
+	margin:0;
+	padding:0;
+	text-shadow: 0px 1px 0px #ccc;
 }
 .ie9 .popup h2, .detail h2 {
-	   font-weight:600;
+	font-weight:600;
 }
 h3
 {
-	   font-size:1.1em;
-	   font-weight:700;
-	   font-family: 'Lato', arial, serif;
+	font-size:1.1em;
+	font-weight:700;
+	font-family: 'Lato', arial, serif;
 }
 
 .left {
-	   float:left;
+	float:left;
 }
 .right {
-	   float:right;
+	float:right;
 }
 .text {
 	margin:0 0 0 10px;
@@ -281,32 +314,32 @@ h3
 	-webkit-box-shadow: 1px 2px 4px #888;*/
 }
  .index_catalog_button {
-	  float:right;
-	  margin-top:15px;
+	float:right;
+	margin-top:15px;
 }
 
 .cat_list_ul {
-	   padding:0;
-	   margin: 0 auto;
+	padding:0;
+	margin: 0 auto;
 }
 .cat_list_ul li {
-	   list-style:none;
-	   display: inline-block;
-	   margin-right: 47px;
-	   text-align:center;
+	list-style:none;
+	display: inline-block;
+	margin-right: 47px;
+	text-align:center;
 }
 .cat_list_ul li:first-child {
-	   margin-left: 4px;
+	margin-left: 4px;
 }
 
 .cat_list_ul li:last-child {
-	   margin-right: 0 !important;
+	margin-right: 0 !important;
 }
 .cat_list_ul li a{
-	   color: #000;
-	   text-decoration:none;
-	   font-family: 'Lato', arial, serif;
-	   font-weight:bold;
+	color: #000;
+	text-decoration:none;
+	font-family: 'Lato', arial, serif;
+	font-weight:bold;
 }
 
 dl.inline_def {
@@ -1103,16 +1136,14 @@ Fancybox Overrides
 
 @media only screen and (min-device-pixel-ratio: 2), only screen and (-webkit-min-device-pixel-ratio: 2){ 
 	h1.logo a {
-	   background: url(../img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
-	   background-size: 160px 68px;
+		background: url(../img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
+		background-size: 160px 68px;
 	}
 
 	header{
 		background:#fff url(../img/header_border.png) 0% 100% repeat-x;
 		background-size: 12px 6px;
 	}
- 
-
 }
 
 .qtip {
@@ -1170,4 +1201,3 @@ span.subtitle {
 	font-weight:700;
 	font-family: 'Lato', arial, serif;
 }
-

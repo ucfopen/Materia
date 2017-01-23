@@ -11,6 +11,8 @@ class Controller_Admin extends Controller
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/main');
+		Css::push_group(['core', 'admin']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'admin', 'author', 'student']);
 	}
 
 	public function after($response)
@@ -37,17 +39,15 @@ class Controller_Admin extends Controller
 		return parent::after($response);
 	}
 
-	public function get_index()
+	public function get_widget()
 	{
-		Css::push_group(['core', 'admin']);
+		$this->theme->get_template()->set('title', 'Widget Admin Panel');
+		$this->theme->set_partial('content', 'partials/admin/widget');
+	}
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'admin', 'author', 'student']);
-
-		$this->theme->get_template()
-			->set('title', 'Admin Panel');
-
-
-
-		$this->theme->set_partial('content', 'partials/admin/main');
+	public function get_user()
+	{
+		$this->theme->get_template()->set('title', 'User Admin Panel');
+		$this->theme->set_partial('content', 'partials/admin/user');
 	}
 }

@@ -1,4 +1,4 @@
-<div ng-controller='adminController'>
+<div ng-controller='adminWidgetController'>
 	<div class='container' id='widgets_area'>
 		<section class='page'>
 			<div class='top'>
