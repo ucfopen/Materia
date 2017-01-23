@@ -74,8 +74,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		getMimeType: (dataUrl)->
 			allowedTypes = ['image/jpeg', 'image/png']
 			mime = dataUrl.split(";")[0].split(":")[1]
-			if allowedTypes.indexOf(mime) == -1
-				alert "Files of type #{mime} are not supported. Allowed Types: #{@allowedTypes.join(', ')}."
+			if !mime? or allowedTypes.indexOf(mime) == -1
+				alert "Unfortunately, the file type being uploaded is not supported.
+				Please retry with one of the following types: #{allowedTypes.join(', ')}."
 				return null
 			return mime
 
@@ -112,16 +113,20 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			fd.append("file", @dataURItoBlob(fileData.src, fileData.mime), fileData.name)
 
 			request = new XMLHttpRequest()
+
 			request.onload = (oEvent) =>
 				if keyData? # s3 upload
 					success = request.status == 200 or request.status == 201
-					
+
+					if(!success)
+						alert "Upload Failed";
+
 					# todo: do we need to parse response to decide on success?
 
 					# response is xml! get the image url to save to our server
 					# p = new DOMParser()
 					# d = p.parseFromString(request.response, 'application/xml')
-					# url = d.getElementsByTagName('Location')[0].innerHTML	
+					# url = d.getElementsByTagName('Location')[0].innerHTML
 					@saveUploadStatus fileData.ext, keyData.file_key, success
 				else # local upload
 					res = JSON.parse request.response #parse response string
@@ -212,6 +217,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				$('#question-table').dataTable().fnClearTable()
 				# augment result for custom datatables ui
 				for res, index in result
+					if res.remote_url? and res.status != "upload_success"
+						continue;
+
 					if res.type in $scope.fileType
 						# the id used for asset url is actually remote_url
 						# if it exists, use it instead
@@ -231,7 +239,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						assetIndices.push(index)
 						modResult.push(res)
 
-				$('#question-table').dataTable().fnAddData(modResult)
+				# Only add to table if there are items to add
+				if modResult.length > 0
+					$('#question-table').dataTable().fnAddData(modResult)
 
 	getHash = ->
 		$window.location.hash.substring(1)
