@@ -525,8 +525,16 @@ class Api_V1
 		$type = $file_info['extension'];
 		$title = $file_info['filename'];
 
+		// Force all uploads in development to have the same bucket sub-directory
+		if(\Fuel::$env == \Fuel::DEVELOPMENT)
+			$remote_url_stub = "dev_uploads/".$user_id.'/';
+		else
+			// Append a slash when using a sub-directory in the bucket
+			$remote_url_stub = ($s3_config['subdir'])
+				? $s3_config['subdir'].'/'.$user_id.'/'
+				: $user_id.'/';
+
 		// store temporary row in db, obtain asset_id for building s3 file_key
-		$remote_url_stub = $s3_config['subdir'].'/'.$user_id.'/';
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
 		// if we could not successfully create a new temporary asset row
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
