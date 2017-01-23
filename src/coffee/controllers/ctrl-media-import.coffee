@@ -119,14 +119,19 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					success = request.status == 200 or request.status == 201
 
 					if(!success)
-						alert "Upload Failed";
+						# Parse the Error message received from amazonaws
+						parser = new DOMParser()
+						doc = parser.parseFromString(request.response, 'application/xml')
+						alert doc.getElementsByTagName("Error")[0].childNodes[1].innerHTML
+
+						@saveUploadStatus fileData.ext, keyData.file_key, success
+						return null
 
 					# todo: do we need to parse response to decide on success?
 
 					# response is xml! get the image url to save to our server
-					# p = new DOMParser()
-					# d = p.parseFromString(request.response, 'application/xml')
-					# url = d.getElementsByTagName('Location')[0].innerHTML
+
+					# url =
 					@saveUploadStatus fileData.ext, keyData.file_key, success
 				else # local upload
 					res = JSON.parse request.response #parse response string
@@ -144,7 +149,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			re = /\/(\w{5})\./
 			fileID = fileURI.match(re)[1] # id is in first capture group
 			_coms.send 'upload_success_post', [fileID, s3_upload_success], (update_success) ->
-				if update_success
+				if s3_upload_success
 					res =
 						id: fileURI
 						type: fileType
