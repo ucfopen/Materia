@@ -6,11 +6,19 @@
 * [Clu Materia Repositories](https://clu.cdl.ucf.edu/groups/materia) for existing widgets and supporting projects.
 * [DevMateria](https://clu.cdl.ucf.edu/materia/devmateria) for fast widget development.
 
+
 # Installation
 
-### Developing with Docker
+## Developing with Docker
 
 Start your Development server with instructions found in the [Materia Docker repository](https://clu.cdl.ucf.edu/materia/materia-docker)
+
+
+# Development
+
+## Git Hooks
+
+There is a pre-commit hook available to ensure your code follows our linting standards. Check out the comments contained inside the hook files (in the githooks directory) to install it, you'll need a few dependencies installed to get linting working.
 
 ### Ansible Deployment
 
