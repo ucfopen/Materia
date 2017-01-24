@@ -58,6 +58,10 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		{
 			throw new \SimpleUserUpdateException('Username or password is not given', 1);
 		}
+		if ( ! $email )
+		{
+			throw new \SimpleUserUpdateException('Email not given', 2);
+		}
 
 		// just get the first user that has the same username or email
 		$same_user = \Model_User::query()
@@ -122,7 +126,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		$update = array();
 		if (array_key_exists('username', $values))
 		{
-			throw new \UcfAuthUserUpdateException('Username cannot be changed.', 5);
+			throw new \SimpleUserUpdateException('Username cannot be changed.', 5);
 		}
 
 		if (array_key_exists('password', $values))
@@ -138,7 +142,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 				// currently and empty email, use a default
 				if (empty($current_values['email']))
 				{
-					throw new \UcfAuthUserUpdateException('No email was defined.', 3);
+					throw new \SimpleUserUpdateException('No email was defined.', 3);
 				}
 				else
 				{
