@@ -29,6 +29,10 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 			onSelect: (dateText) ->
 				$scope.availability[1].date = dateText
 
+	$scope.toggleNormalAccess = ->
+		if $scope.guestAccess = true then $scope.guestAccess = false
+		if $scope.embeddedOnly = true then $scope.embeddedOnly = false
+
 	$scope.toggleGuestAccess = ->
 		return if $scope.studentMade
 
@@ -42,7 +46,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 				value: ($scope.attemptsSliderValue * 1000)
 				disabled: $scope.guestAccess
 		,0
-
+		
 	$scope.toggleEmbeddedOnly = ->
 		return if $scope.studentMade
 
@@ -198,8 +202,7 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 			embedded_only: $scope.embeddedOnly
 			, (widget) ->
 				$scope.$broadcast 'widgetAvailability.update', ''
-
-		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess, $scope.embeddedOnly)
+				selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess, $scope.embeddedOnly)
 
 	$scope.UNLIMITED_SLIDER_VALUE = 25
 	$scope.times = []

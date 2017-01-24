@@ -62,16 +62,24 @@
 				var url = $('#assignment-url').val();
 				var isLegacy = url.indexOf('assignment') > -1;
 
-				if(isLegacy) // http://localhost:8080/lti/assignment?widget=nQXe5
+				if(isLegacy) // http://localhost/lti/assignment?widget=nQXe5
 				{
 					var index = url.indexOf('/lti/');
 					var instId = url.substr(index + 23, 7);
 					$('#assignment-url').val(url.substring(0, index) + '/embed/' + instId);
 				}
-				else // http://localhost:8080/embed/nQXe5/alt1
+				else // http://localhost/embed/nQXe5/alt1 or http://localhost/play/nQXe5/alt1
 				{
-					var index = url.indexOf('/embed/');
-					var instId = url.substr(index + 7, 5);
+					if (url.indexOf('/embed/') > -1)
+					{
+						var index = url.indexOf('/embed/');
+						var instId = url.substr(index + 7, 5);
+					}
+					else // http://localhost/play/nQXe5/alt1
+					{
+						var index = url.indexOf('/play/');
+						var instId = url.substr(index + 6, 5);
+					}
 
 					$('#assignment-url').val(url.substring(0, index) + '/lti/assignment?widget=' + instId);
 				}
@@ -82,13 +90,17 @@
 				var url = $('#assignment-url').val();
 				var isEmbedded = url.indexOf('/embed/') > -1;
 
-				if(isEmbedded) // http://localhost:8080/lti/assignment?widget=nQXe5
+				if(isEmbedded) // http://localhost/embed/nQXe5/alt1
 				{
 					$('#assignment-url').val(url.replace('/embed/', '/play/'));
 				}
-				else // http://localhost:8080/embed/nQXe5/alt1
+				else if (url.indexOf('/play/' > -1)) // http://localhost/play/nQXe5/alt1
 				{
 					$('#assignment-url').val(url.replace('/play/', '/embed/'));
+				}
+				else // http://localhost/lti/assignment?widget=nQXe5
+				{
+					return; // do nothing if legacy url
 				}
 			}
 		</script>
