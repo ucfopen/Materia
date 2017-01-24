@@ -579,7 +579,7 @@ class Api_V1
 	 * file upload status is updated in the db for this asset,
 	 * and update succes reported to caller
 	 */
-	static public function upload_success_post($asset_id, $s3_upload_success)
+	static public function upload_success_post($asset_id, $s3_upload_success, $error = null)
 	{
 		// Validate Logged in
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -592,6 +592,9 @@ class Api_V1
 		}
 
 		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
+
+		if($error)
+			\Log::error("External asset upload failed with the following message - ".$error);
 
 		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
 				'status' => $status
