@@ -122,16 +122,15 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						# Parse the Error message received from amazonaws
 						parser = new DOMParser()
 						doc = parser.parseFromString(request.response, 'application/xml')
-						alert doc.getElementsByTagName("Error")[0].childNodes[1].innerHTML
+						upload_error = doc.getElementsByTagName("Error")[0].childNodes[1].innerHTML
 
-						@saveUploadStatus fileData.ext, keyData.file_key, success
+						@saveUploadStatus fileData.ext, keyData.file_key, success, upload_error
+
+						alert "There was an issue uploading this asset to Materia - Please
+						try again later."
+						
 						return null
 
-					# todo: do we need to parse response to decide on success?
-
-					# response is xml! get the image url to save to our server
-
-					# url =
 					@saveUploadStatus fileData.ext, keyData.file_key, success
 				else # local upload
 					res = JSON.parse request.response #parse response string
@@ -145,10 +144,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request.open("POST", @config.uploadUrl)
 			request.send(fd)
 
-		saveUploadStatus: (fileType, fileURI, s3_upload_success) ->
+		saveUploadStatus: (fileType, fileURI, s3_upload_success, error = null) ->
 			re = /\/(\w{5})\./
 			fileID = fileURI.match(re)[1] # id is in first capture group
-			_coms.send 'upload_success_post', [fileID, s3_upload_success], (update_success) ->
+			_coms.send 'upload_success_post', [fileID, s3_upload_success, error], (update_success) ->
 				if s3_upload_success
 					res =
 						id: fileURI
