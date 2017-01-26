@@ -94,7 +94,7 @@ a.external {
 }
 
 nav ul li {
-	display:inline;
+	display:inline-block;
 	padding:0 10px 0 0;
 }
 header ul, header p {
@@ -143,34 +143,34 @@ nav ul {
 	display: inline-table;
 }
 
-nav ul ul {
-	display: none;
-	background-color: #ffffff;
-	padding: 0;
-	margin-top: -10px;
-	position: absolute;
-	top: 100%;
-}
-
-nav ul li:hover > ul {
-	display: block;
-
-	li {
-		padding: 5px 10px;
-		height: auto;
-	}
-}
-
-nav ul li {
-	float: left;
-	height: 25px;
-}
-
 .nav_expandable {
 	color: #0093e7;
 	font-family: 'Lato', arial, serif;
 	font-size:17px;
 	font-weight:bold;
+	height: 27px;
+	position: relative;
+
+	ul {
+		display: none;
+		background-color: #ffffff;
+		padding: 0;
+		position: absolute;
+		bottom: -100%;
+		left: -50%;
+		border-left: 1px solid #d3d3d3;
+		border-right: 1px solid #d3d3d3;
+		border-bottom: 1px solid #d3d3d3;
+	}
+
+	&:hover > ul {
+		display: flex;
+
+		li {
+			padding: 0 10px 5px;
+			height: auto;
+		}
+	}
 }
 
 nav ul li a {

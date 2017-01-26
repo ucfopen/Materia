@@ -45,7 +45,7 @@
 	}
 }
 
-.widget-info
+.widget-info,
 {
 	margin: 10px 0;
 
@@ -88,5 +88,20 @@
 		{
 			padding: 0 5px;
 		}
+	}
+}
+
+.search_match
+{
+	box-sizing: border-box;
+	display: inline-block;
+	width: 49%;
+	margin: 5px;
+	padding: 5px;
+	border: 1px solid #d3d3d3;
+
+	> div
+	{
+		display: inline-block;
 	}
 }
