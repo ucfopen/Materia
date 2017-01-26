@@ -139,15 +139,15 @@ body.scores .overview #overview-table table .number{
 	text-align:right;
 }
 
-
 body.scores article header{
-	background:#454545;
-	height:50px;
+	height: auto;
+	min-height: 50px;
+	background: #454545;
 	border-bottom: 4px #CCC solid;
 	box-shadow: 0px 1px 3px 0px #777;
 	z-index:8;
 	position: relative;
-	padding: 0;
+	padding: 0px 0px 15px;
 	margin: 0;
 }
 
@@ -216,8 +216,8 @@ body.scores article header nav.previous-attempts h1 {
 	-webkit-border-radius: 15px;
 	-khtml-border-radius: 15px;
 	background: #222;
-	padding: 7px;
-	margin: 10px 0px 0px 10px;
+	padding: 10px 18px;
+	margin: 14px 0 0 10px;
 }
 
 body.scores article header nav.previous-attempts.open h1 {
@@ -297,8 +297,21 @@ body.scores .special_details {
 	position: relative;
 }
 
+body.scores article header .header-element {
+	display: inline-block;
+}
+
+body.scores article header .header-element.widget-title {
+	max-width: 500px;
+	padding-bottom: 5px;
+	padding-top: 16px;
+	overflow-wrap: break-word;
+	word-wrap: break-word; // have to include word-wrap since Edge/IE11 will not support overflow-wrap
+	margin-left: -10px;
+}
+
 body.scores article header nav.play-again{
-	margin: 0;
+	margin: 12px;
 	padding: 0;
 	position: absolute;
 	top: 0px;
@@ -311,7 +324,6 @@ body.scores article header nav.play-again h1{
 }
 
 body.scores article header nav.play-again h1 #play-again{
-	margin: 5px 10px;
 }
 
 body.scores article header nav.play-again h1 #play-again span{
@@ -544,3 +556,6 @@ body.scores .container.show {
 	opacity: 1;
 }
 
+h1.scoreFontColor {
+	color: #fff;
+}

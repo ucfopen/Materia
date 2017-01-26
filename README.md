@@ -6,6 +6,7 @@
 * [Clu Materia Repositories](https://clu.cdl.ucf.edu/groups/materia) for existing widgets and supporting projects.
 * [DevMateria](https://clu.cdl.ucf.edu/materia/devmateria) for fast widget development.
 
+
 # Installation
 
 ## Developing with Docker
@@ -17,6 +18,7 @@ Start your Development server with instructions found in the [Materia Docker rep
 Check out the ansible scripts used to deploy Materia on qa and production [Materia-Ansible](https://clu.cdl.ucf.edu/devops/materia-ansible
 )
 
+# Development
 
 ## Running Tests
 
@@ -36,8 +38,10 @@ The following command will run just the **Oauth** tests rather quickly:
 
 `docker-compose -f docker-compose.yml -f docker-compose.admin.yml run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env SKIP_BOOTSTRAP_TASKS=true php oil test --group=Oauth`
 
-
 ### Tests for Jenkins
 
 Jenkins has a few special requirements, so it extends run_tests.sh with it's own setup code.
 
+## Git Hooks
+
+There is a pre-commit hook available to ensure your code follows our linting standards. Check out the comments contained inside the hook files (in the githooks directory) to install it, you'll need a few dependencies installed to get linting working.
