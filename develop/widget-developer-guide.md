@@ -16,7 +16,7 @@ Materia is built to be customizable and infinitely expandable.  Since it is mere
 
 
 <aside>
-	Materia widgets are written in HTML5 to be complaint and supported on all platforms, making the lives of students, faculty, and developers a bliss.
+	Materia widgets are written in HTML5 to be compliant and supported on all platforms, making the lives of students, faculty, and developers a bliss.
 </aside>
 
 # The Anatomy of a Widget
@@ -36,15 +36,26 @@ Widgets are made up of several files that get compressed into a single `.wigt` p
 A widget package (`.wigt`) is comprised of the following directories:
 
 	widget-name/
-			assets/ #optional directory to store assest for the demo
-			_icons/ # icons for display in Materia
-			_output/ # .wigt file is compiled into this directory
-			_score/ # score module located here
-			_screen-shots/ # screen shots for the widget preview
-			player.html # the player, or game, content that is presented to the student
-			creator.html # the creator for the widget that is presented to faculty and staff
-			demo.yaml # builds a qset for the demo widget
-			install.yaml # describes how to install the widget
+			.build / _output/ # .wigt file is compiled into this directory
+			src / assets/ # optional directory to store assest for the demo
+			src / _icons/ # icons for display in Materia
+			src / _score/ # score module located here
+			src / _screen-shots/ # screen shots for the widget preview
+			src / player.html # the player, or game, content that is presented to the student
+			src / player.css # optional stylesheet for player-side application
+			src / player.js # optional business logic for player-side application
+			src / creator.html # the creator for the widget that is presented to faculty and staff
+			src / creator.css # optional stylesheet for creator-side application
+			src / creator.js # optional business logic for creator-side application
+			src / demo.json # builds a qset for the demo widget
+			src / install.yaml # describes how to install the widget
+			tests / test.js # unit test file for application
+			.eslintrc.json # linter configuration file for full unit testing
+			.gitignore # ensures files and directories are skipped during git pushes
+			gulpfile.js # build task runner instruction file
+			karma-full-conf.js # full test configuration file -- naming depends on test framework used
+			karma-conf.js # short test configuration file -- naming depends on test framework used
+			package.json # metadata file for npm packages
 			README
 
 ## Installation Config: install.yaml
@@ -92,9 +103,9 @@ Here is an example install.yaml file from the Crossword widget:
 * **height:** The height of the widget in pixels. Use 0 if the widget should expand to the full height available.
 * **width:** The width of the widget in pixels. Use 0 if the widget should expand to the full width available.
 * **in_catalog:** 'Yes' if the widget should be publicly displayed on the widget catalog for creation and use. Generally, widgets not displayed in the catalog are specialized and lack a creator and are only available for creation through command line.
-* **is_editable:** Reserved for future
+* **is_editable:** Instances can't be saved as drafts if not editable.
 * **is_playable:** 'Yes' if widget instances can be played. 'No' to disable playing of instances. This is typically only used when developing a widget to prevent users from seeing an unfinished widget.
-* **is_qset_encrypted:** Reserved for future use.
+* **is_qset_encrypted:** Tells Materia whether to return an encrypted qset, or unchanged.
 * **is_answer_encrypted:** Reserved for future use.
 * **is_storage_enabled:** 'Yes' if this widget uses the storage API features. 'No' otherwise.
 * **api_version:** Corresponds to which version of the widget instance object this widget expects. You should specify version 1 here.
@@ -116,7 +127,7 @@ Here is an example install.yaml file from the Crossword widget:
 
 * **is_scorable:** 'Yes' if the widget collects scores. 'No' otherwise.
 * **score_module:** Name of the score module class (in score_module.php).
-* **score_type:** Specifies how a widget is graded. Accepted values are:
+* **score_type:** (Deprecated) Specifies how a widget is graded. Accepted values are:
 	* SERVER - means grading will be handled by a Score Module on the server. **Preferred**
 	* CLIENT - means your widget will tell Materia what the widget score should be.
 	* SERVER-CLIENT - utilizes both methods.
@@ -129,10 +140,9 @@ Here is an example install.yaml file from the Crossword widget:
 * **excerpt:** The text displayed on the widget catalog page.
 
 
-## Demo Question Set: demo.yaml
+## Demo Question Set: demo.json
 
-This file provides a title and qSet which will be used when installed to create a widget demo.  Again, some great examples can be seen in the [Materia Core Widgets](https://github.com/ucfcdl/Materia-Core-Widgets).
-
+This file provides a title and qSet which will be used when installed to create a widget demo.
 ## Example
 
 	---
@@ -144,7 +154,7 @@ This file provides a title and qSet which will be used when installed to create 
 
 ## Optional Demo Media Assets:
 
-If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.yaml file with `<%MEDIA="assets/1.jpg"%>`, `<%MEDIA="assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
+If your demo has media assets, include them in the optional **assets** folder, and reference them in your demo.json file with `<%MEDIA="assets/1.jpg"%>`, `<%MEDIA="assets/2.jpg"%>`, and so on (replacing `1.jpg`, `2.jpg`, etc. with the name of your asset files). The install script will find any `MEDIA` tags, upload the assets, and replace the tags with the resulting asset IDs before creating and installing the demo.
 
 ## Optional Score Module: ```_score-modules```
 
@@ -268,7 +278,7 @@ The `test_score_module.php` file is a unit test which should extend FuelPHP's `T
 
 ## Display Icons: _icons_
 
-This folder should contain the icons for your widget. A total of four icons at various pixel sizes should be provided: icon-60.png, icon-92.png, icon-275.png and icon-394.png.
+This folder should contain the icons for your widget. A total of four icons at various pixel sizes should be provided: icon-60.png, icon-92.png, icon-275.png and icon-394.png, as well as their times two multiples icon-60x2.png, icon-92x2.png, icon-275x2.png and icon-394x2.
 
 ## Overview Screen Shots: _screen-shots_
 
@@ -282,21 +292,23 @@ This folder should contain screen shots and corresponding thumbnails for your wi
 
 ## Getting Started
 
-[Download](https://clu.cdl.ucf.edu/materia/hello-world-widget/repository/archive.zip?ref=master) the Hello World Widget from Clu
+[Download](https://clu.cdl.ucf.edu/materia/template-widget/repository/archive.zip?ref=master) the Template Widget from Clu
 
-Extract this folder to `materia/current/static/sandbox/source`
+Extract this folder to `materia-docker/app/fuel/app/tmp/widget_packages/`
+
+This template has the bare minimum a widget requires to function, and often will require more to be considered useful. Use this as a place to start building your widget, while using the [Hello World Widget](https://clu.cdl.ucf.edu/materia/hello-world-widget/repository/archive.zip?ref=master) as an example of a simple, complete widget.
 
 <aside>
 	Be careful when editing files:
 
-	`static/sandbox/` is where compiled widgets are loaded from in the sandbox environment
+	"devmateria/sandbox/" is where compiled widgets are installed from in the sandbox environment
 
-	`static/sandbox/source` is where your working directories go
+	Installed widget files are located at this directory level and can be edited at will.
 </aside>
 
-Edit `install.yaml` to your desired widget name, and rename the `hello-world-widget` folder to match a dash separated, all lowercase version of the widget's name.
+Edit `install.yaml` to your desired widget name, and rename the `template-widget` folder to match a dash separated, all lowercase version of the widget's name.
 
-The `player.html` is the code that is loaded into Materia for the student-facing game, whereas `creator.html` is loaded to the instructor to build the question data for each widget instance.
+The `player.html` is the code that is loaded into Materia for the student-facing game, whereas `creator.html` is loaded for the instructor to build the question data in each widget instance.
 
 Read through each and use them as a barebones example of how to develop your own widget
 
@@ -304,16 +316,10 @@ Read through each and use them as a barebones example of how to develop your own
 
 The following methods are available for submitting score logs related to events that occur in your widget:
 
-* **setOverallScore**
-* **addQuestionScoreToComposite**
-* **adjustOverallScore**
-* **setQuestionScore**
-* **addQuestionScoreAsOverallModifier**
-* **adjustQuestionScore**
-* **submitQuestionForScoring**
-* **submitAdjustmentForScoring**
-* **submitOverallForScoring**
 * **addGlobalScoreFeedback**
+* **submitFinalScoreFromClient**
+* **submitInteractionForScoring**
+* **submitQuestionForScoring**
 
 ## Materia.Storage
 
@@ -445,7 +451,7 @@ A Question/Answer question.  This question has one correct answer.
 
 ### Assets in a Question
 
-Assets within the scope of the entire question.  Like an song that plays during the question.
+Assets within the scope of the entire question (ie. a song that plays during the question).
 
 <pre><code class="language-javascript">{
 	materiaType: 'question',
@@ -462,7 +468,7 @@ Assets within the scope of the entire question.  Like an song that plays during 
 	}
 }</code></pre>
 
-Assets within the scope of the question's answers. Like a multiple choice where you choose the matching image.
+Assets within the scope of the question's answers (ie. multiple choice where you choose a matching image).
 
 <pre><code class="language-javascript">{
 	materiaType: 'question',
@@ -486,7 +492,7 @@ Assets within the scope of the question's answers. Like a multiple choice where 
 	]
 }</code></pre>
 
-Keep an array of assets that aren't associated with the questions at all (like theme backgrounds).
+Keep an array of assets that aren't associated with the questions at all (ie. theme backgrounds).
 
 <pre><code class="language-javascript">{
 	version: 1,
@@ -512,47 +518,56 @@ Keep an array of assets that aren't associated with the questions at all (like t
 Assets can be placed just about anywhere arbitrarily, but we advise you keep them linked with the data that makes the most sense.  If the image is part of the answer, place it in the options of each individual answer.  If the asset is not tied to a question at all, save it outside the scope of that question. 
 </aside>
 
-# Compiling with Grunt
+# Compiling with Gulp
 
-Grunt automates the process of building and compiling the `.wigt` files.
+Gulp automates the process of building and compiling the `.wigt` files. Most widgets use a custom configuration of Gulp as their compiler, but this is not required. As long as the command line `npm run build` (currently located under the `scripts` attribute in the `package.json` file) runs the chosen compiler on the widget to produce a `.wigt` file in the same format as the current Gulp system, it will be accepted.
 
 ## Development sandbox
 
-To test your widget's player and creator live, open a terminal to `static/sandbox` and run:
+To test your widget's player and creator live, make sure you've cloned Materia's development environment (aka DevMateria) at: git@clu.cdl.ucf.edu:materia/devmateria.git
 
-`grunt --widget=hello-world-widget --minify-assets=false watch`
+Open a terminal to `devmateria/` and run:
 
-where `hello-world-widget` is your widget's name.
+`./start/`
 
-Grunt will automatically rebuild the widget for the sandbox environment whenever a file is changed.
+This will run the development environment, and can be accessed through the browser at `http://localhost:8080/`
 
-To access the widget, navigate to:
+If you have the basics of the widget done properly (template-widget unchanged for example), you will see its image here along with a `Player` and `Creator` button.
 
-`http://localhost:8080/sandbox/hello-world-widget/`
+Press the `Player` button. On the newly loaded page, a left side panel will give you a series of options.
+
+-The checkboxes, and subsequent rebuild button, allow you to choose whether or not to implement some of the more obfuscating tasks on your widget.
+
+-The `Download to Materia` button will compile, package, and download the `.wigt` file to your designated download folder.
+
+-The `Install to Materia` will install directly to your local Materia environment (if you have it running).
+
+Aside from these features, the environment to the right of this sidebar is the live version of your player-facing widget. If you back up and press the `Creator` button, or choose the `Creator` option in the left side panel, you would arrive at your creator-facing widget.
+
+The advantage to running in this environment is that all changes made will automatically refresh in the browser.
 
 ### Caveats
 
 <aside>
-	Because the widget is being run in a sandbox, only the demo qset can be used, scoring will not run, and widgets cannot be saved. To test that functionality, see the compiling section below.
+	<p>Because the widget is being run in a sandbox, only the demo qset can be used, scoring will not run, and widgets cannot be saved. To test that functionality, see the compiling section below.</p>
+	<p>In the left side panel, a demo qset can be altered and loaded when inside the player-facing side of the widget to test unique questions, answers, et cetera.</p>
 </aside>
 
 ## Compiling for production
 
-To compile a .wigt package, run:
+To compile a .wigt package, either:
 
-`grunt --widget=hello-world-widget package`
+1. Click `Download to Materia` from inside the development sandbox's player-facing side of the widget, or,
 
-This creates a .wigt file in the `_output` directory. You can then easily install the widget using via the [widget:install]({BASE_PATH}/develop/installing-widgets.html).
+2. Navigate to the root folder of your widget in the command line and run: `npm run build`
 
-**Or** run:
+This creates a .wigt file in the `.build/_output/` directory.
 
-`grunt --widget=hello-world-widget install`
+To install directly into your local Materia, either:
 
-which will package and install into the current Materia instance in a single step. This is useful for testing scoring modules and creators.
+1. Click `Install to Materia` from inside the development sandbox's player-facing side of the widget, or,
 
-### Validating packages
+2. Drop the package made in the above steps into the directory `materia-docker/app/fuel/app/temp/widget_packages/`, navigate down to `materia-docker/`, and run `./install_widget.sh your-widgets-name.wigt`
 
-You can validate your package structure and install.yaml and demo.yaml files by navigating to your Materia's root directory and running
-
-<pre><code class="bash">php oil r widget:install --validate-only packages/your-widget.wigt</code></pre>
+This is useful for testing scoring modules and creators.
 
