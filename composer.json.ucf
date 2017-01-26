@@ -32,6 +32,8 @@
         "fuelphp/upload": "2.0.6",
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.0",
+        "materia/ucfauth": "0.1.7",
+        "onelogin/php-saml": "2.10.2",
         "eher/oauth": "1.0.7"
     },
     "require-dev": {
