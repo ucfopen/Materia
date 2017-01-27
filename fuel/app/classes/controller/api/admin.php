@@ -47,4 +47,41 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		return \Materia\Widget_Manager::update_widget($widget);
 	}
+
+	private function users_search($search)
+	{
+		$user_objects = \Model_User::find_by_name_search($search);
+		$user_arrays = [];
+
+		// scrub the user models with to_array
+		if (count($user_objects))
+		{
+			foreach ($user_objects as $key => $person)
+			{
+				$user_arrays[$key] = $person->to_array();
+			}
+		}
+
+		return $user_arrays;
+	}
+
+	private function user_lookup($user_id)
+	{
+		//the front end already has basic user info, so get some more
+		//all of the instances this user has access to
+		$instances_access = \Materia\Widget_Instance_Manager::get_all_for_user($user_id);
+		$instances_played = \Model_User::get_played_inst_scores($user_id);
+
+		return [
+			'instances_access' => $instances_access,
+			'instances_played' => $instances_played,
+		];
+	}
+
+	private function user_save($data)
+	{
+		$id = $data->id;
+		unset($data->id);
+		return \Model_User::admin_update($id, $data);
+	}
 }
