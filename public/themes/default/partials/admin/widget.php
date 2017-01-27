@@ -21,17 +21,17 @@
 						<div class='info-holder'>
 							<div>
 								<span>
-									ID: {{ widget.id }}
+									<label>ID:</label>{{ widget.id }}
 								</span>
 							</div>
 							<div>
 								<span>
-									Installed: {{ widget.created_at * 1000 | date:yyyy-MM-dd }}
+									<label>Installed:</label>{{ widget.created_at * 1000 | date:yyyy-MM-dd }}
 								</span>
 							</div>
 							<div>
 								<span>
-									Dimensions: {{ widget.width }}w x {{ widget.height }}h
+									<label>Dimensions:</label>{{ widget.width }}w x {{ widget.height }}h
 								</span>
 							</div>
 							<div>
@@ -50,17 +50,17 @@
 							</div>
 							<div>
 								<span>
-									Demo Instance:<input type='text' ng-model='widget.meta_data.demo' />
+									<label>Demo:</label><input type='text' ng-model='widget.meta_data.demo' />
 								</span>
 							</div>
 							<div>
 								<span class='long'>
-									About:<input type='text' ng-model='widget.meta_data.about' />
+									<label>About:</label><input type='text' ng-model='widget.meta_data.about' />
 								</span>
 							</div>
 							<div>
 								<span class='long'>
-									Excerpt:<input type='text' ng-model='widget.meta_data.excerpt' />
+									<label>Excerpt:</label><input type='text' ng-model='widget.meta_data.excerpt' />
 								</span>
 							</div>
 							<div>
