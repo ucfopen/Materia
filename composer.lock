@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0be43c61e071f32027be9caeb1d54ae7",
-    "content-hash": "f5a06a0b883f42b8c9b87f564d4971a9",
+    "hash": "2c646f93222e015daf9f7f28d25db3cd",
+    "content-hash": "9f8e14d7c03a6dab116e6e770224711d",
     "packages": [
         {
             "name": "composer/installers",
@@ -358,11 +358,17 @@
         },
         {
             "name": "iturgeon/qasset",
-            "version": "dev-master",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
                 "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
@@ -373,6 +379,7 @@
                     "": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -386,12 +393,12 @@
             "description": "FuelPHP CSS and Javascript asset management",
             "homepage": "https://github.com/iturgeon/qAsset",
             "keywords": [
-                "Javascript",
+                "JS",
                 "assets",
                 "casset",
                 "css",
                 "fuelphp",
-                "js",
+                "javascript",
                 "qasset"
             ],
             "time": "2016-06-03 16:29:57"
@@ -1356,9 +1363,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "iturgeon/qasset": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
