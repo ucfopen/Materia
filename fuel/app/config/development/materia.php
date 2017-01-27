@@ -49,6 +49,13 @@ return [
 		]
 	],
 
+	/*
+	* To use fakes3, use the following config:
+	* ========================================
+	* > 's3_enabled' => true
+	* > 'upload_url' => 'dockerIP:10001'
+	* > 'bucket' => 'fakes3'
+	*/
 	's3_config' => [
 		's3_enabled' => true,
 		'upload_url' => 'localhost:10001', //just the domain
