@@ -1,0 +1,22 @@
+---
+general:
+  name: TestWidgetTwo
+  group: Test
+  height: 100
+  width: 100
+  in_catalog: Yes
+  is_editable: Yes
+  is_playable: Yes
+  is_storage_enabled: No
+  is_qset_encrypted: No
+  is_answer_encrypted: No
+  api_version: 2
+files:
+  player: player.html
+  flash_version: 0
+score:
+  is_scorable: Yes
+  score_module: TestWidgetTwo
+meta_data:
+  about: About
+  excerpt: Excerpt

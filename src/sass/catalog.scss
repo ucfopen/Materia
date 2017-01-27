@@ -182,12 +182,14 @@
 	&:after {
 		position: relative;
 		content: " ";
-		height: 15px;
+		height: 12px;
 		width: 356px;
 		display: block;
-		margin-top: 106px;
+		margin-top: 116px;
 		background: white;
-		box-shadow: 0 -3px 5px white;
+		-webkit-box-shadow: 0px -10px 5px 3px white;
+		-moz-box-shadow: 0px -10px 5px 3px white;
+		box-shadow: 0px -10px 5px 3px white;
 	}
 
 	-webkit-border-radius:0 5px 5px 0;
@@ -276,7 +278,6 @@
 	margin-top: 5px;
 	padding-bottom:10px;
 
-	background:url('../img/infocard_topbar_bg.png') repeat-x top;
 	background-color:#FFFFFF;
 
 	-moz-box-shadow: 1px 2px 4px #888;
@@ -319,6 +320,22 @@
 	}
 }
 
+.header.widget-banner{
+	position: relative;
+	z-index: -10;
+	width: 100%;
+	padding-left: 116px;
+	background: linear-gradient(#7BA7F2, #4474C3);
+	border-radius: 5px 5px 0px 0px;
+}
+
+.img-holder{
+	position:absolute;
+}
+
+.blurb-holder{
+	margin-left:112px;
+}
 
 .catalog .infocard dl {
 	overflow-y:auto;
