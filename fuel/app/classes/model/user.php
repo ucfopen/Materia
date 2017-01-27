@@ -231,4 +231,117 @@ class Model_User extends Orm\Model
 		return $array;
 	}
 
+	/**
+	 * Retreives widget instances played by a given user
+	 *
+	 * @param int The ID of the desired user
+	 *
+	 * @return array A list of played instances and other relevant data for the given user.
+	 */
+	public static function get_played_inst_scores($user_id)
+	{
+		return \DB::select(
+				'w.name',
+				'i.id',
+				'p.created_at',
+				'w.is_scorable',
+				'p.percent'
+			)
+			->from(['log_play', 'p'])
+			->join(['widget_instance', 'i'])
+				->on('i.id', '=', 'p.inst_id')
+			->join(['widget', 'w'])
+				->on('w.id', '=', 'i.widget_id')
+			->where('p.user_id', $user_id)
+			->order_by('p.created_at', 'DESC')
+			->order_by('i.created_at', 'DESC')
+			->as_object()
+			->execute();
+	}
+
+	public static function admin_update($user_id, $props)
+	{
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+
+		$user = Model_User::find($user_id);
+		if (empty($user)) return ['user' => 'User not found!'];
+
+		$report = [];
+		$is_student = \Materia\Perm_Manager::is_student($user->id);
+
+		if ($props->is_student == $is_student)
+		{
+			$report['is_student'] = true;
+		}
+		else
+		{
+			\Auth_Login_Materiaauth::update_role($user->id, !$props->is_student);
+			$activity = new \Materia\Session_Activity([
+				'user_id' => \Model_User::find_current_id(),
+				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
+				'item_id' => $user->id,
+				'value_1' => 'is_student',
+				'value_2' => $is_student,
+				'value_3' => $props->is_student
+			]);
+			$activity->db_store();
+		}
+		unset($props->is_student);
+
+		foreach($props as $prop => $val)
+		{
+			$clean_prop = ucwords(str_replace('_', ' ', $prop));
+			$result = $user->set_property($prop, $val);
+			$report[$prop] = $result ? true : '"'.$clean_prop.'" update failed!';
+		}
+
+		return $report;
+	}
+
+	public function current_value($prop)
+	{
+		$val = '';
+		if (isset($this->$prop))
+		{
+			$val = $this->$prop;
+		}
+		else
+		{
+			$val = $this->profile_fields[$prop];
+		}
+		return $val;
+	}
+
+	public function set_property($prop, $val)
+	{
+		$original = $this->current_value($prop, $val);
+		if ($original == $val) return true;
+		try
+		{
+			if (isset($this->$prop))
+			{
+				$this->$prop = $val;
+			}
+			else
+			{
+				$this->profile_fields[$prop] = $val;
+			}
+			$this->save();
+
+			$activity = new \Materia\Session_Activity([
+				'user_id' => \Model_User::find_current_id(),
+				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
+				'item_id' => $this->id,
+				'value_1' => $prop,
+				'value_2' => $original,
+				'value_3' => $val,
+			]);
+			$activity->db_store();
+		}
+		catch(Exception $e)
+		{
+			return false;
+		}
+		return true;
+	}
 }

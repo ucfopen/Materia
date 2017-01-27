@@ -45,7 +45,7 @@
 	}
 }
 
-.widget-info,
+.widget-info, .user-info
 {
 	margin: 10px 0;
 
@@ -68,11 +68,26 @@
 		vertical-align: top;
 	}
 
-	.info-holder, .info-holder span
+	.info-holder
 	{
 		display: inline-block;
 		vertical-align: top;
-		margin: 0 5px;
+
+		span, label
+		{
+			display: inline-block;
+			vertical-align: top;
+		}
+
+		span
+		{
+			margin: 0 5px;
+		}
+
+		label
+		{
+			width: 110px;
+		}
 
 		&.long
 		{
@@ -87,6 +102,11 @@
 		li
 		{
 			padding: 0 5px;
+		}
+
+		hr
+		{
+			margin: 5px 0;
 		}
 	}
 }
