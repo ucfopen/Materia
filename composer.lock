@@ -1350,6 +1350,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
+
                 "reference": "e7540734bad981fe59f8ef14b6fc194ae9df8d9c"
             },
             "dist": {
