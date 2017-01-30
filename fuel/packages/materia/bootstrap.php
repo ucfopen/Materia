@@ -2,6 +2,7 @@
 Autoloader::add_namespace('Materia', PKGPATH.'materia/classes/');
 
 Autoloader::add_classes([
+	'Fuel\\Core\\Errorhandler'          => __DIR__.'/classes/errorhandler.php',
 	'Fuel\\Session\\File'               => __DIR__.'/classes/session/file.php',
 	'Materia\\Api_v1'                   => __DIR__.'/classes/api/v1.php',
 	'Materia\\Community_manager'        => __DIR__.'/classes/community/manager.php',
