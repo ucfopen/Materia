@@ -29,16 +29,29 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 			onSelect: (dateText) ->
 				$scope.availability[1].date = dateText
 
+	$scope.toggleNormalAccess = ->
+		if $scope.guestAccess = true then $scope.guestAccess = false
+		if $scope.embeddedOnly = true then $scope.embeddedOnly = false
+
 	$scope.toggleGuestAccess = ->
 		return if $scope.studentMade
 
 		$scope.guestAccess = !$scope.guestAccess
+		if $scope.guestAccess then $scope.embeddedOnly = false
+		if $scope.selected.widget.student_access is true and $scope.guestAccess is false
+			alert 'Warning: Disabling Guest Mode will automatically revoke access to this widget for any students it has been shared with!'
 		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 		setTimeout ->
 			$( ".selector" ).slider
 				value: ($scope.attemptsSliderValue * 1000)
 				disabled: $scope.guestAccess
 		,0
+		
+	$scope.toggleEmbeddedOnly = ->
+		return if $scope.studentMade
+
+		$scope.embeddedOnly = !$scope.embeddedOnly
+		if $scope.embeddedOnly then $scope.guestAccess = false
 
 	# Fills in the dates from the selected widget
 	$scope.dateFormatter = ->
@@ -185,11 +198,11 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 			open_at: $scope.times[0],
 			close_at: $scope.times[1],
 			attempts: attempts,
-			guest_access: $scope.guestAccess
+			guest_access: $scope.guestAccess,
+			embedded_only: $scope.embeddedOnly
 			, (widget) ->
 				$scope.$broadcast 'widgetAvailability.update', ''
-
-		selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess)
+				selectedWidgetSrv.updateAvailability(attempts, $scope.times[0], $scope.times[1], $scope.guestAccess, $scope.embeddedOnly)
 
 	$scope.UNLIMITED_SLIDER_VALUE = 25
 	$scope.times = []
@@ -202,6 +215,8 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 	# Hold information for availability.
 	$scope.availability = []
 	$scope.guestAccess = false
+	$scope.isEmbedded = $scope.selected.widget.is_embedded
+	$scope.embeddedOnly = $scope.selected.widget.embedded_only
 	$scope.studentMade = $window.IS_STUDENT or $scope.selected.widget.is_student_made
 	# From
 	$scope.availability.push
