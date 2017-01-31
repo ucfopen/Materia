@@ -17,7 +17,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.exportPopup =  ->
 		# Do not show modal disabled
-		return if $scope.selected.scores.list.length == 0 || !$scope.selected.hasScores
 		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
