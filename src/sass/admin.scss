@@ -73,7 +73,7 @@
 		display: inline-block;
 		vertical-align: top;
 
-		span, label
+		span:not(.long), label
 		{
 			display: inline-block;
 			vertical-align: top;
@@ -86,17 +86,7 @@
 
 		label
 		{
-			width: 110px;
-		}
-
-		&.long
-		{
-			display: flex;
-
-			input
-			{
-				flex-grow: 100;
-			}
+			width: 145px;
 		}
 
 		li
@@ -109,6 +99,21 @@
 			margin: 5px 0;
 		}
 	}
+}
+
+.long
+{
+	display: flex;
+
+	input
+	{
+		flex-grow: 100;
+	}
+}
+
+.user_add
+{
+	width: 200px;
 }
 
 .search_match
@@ -124,4 +129,12 @@
 	{
 		display: inline-block;
 	}
+}
+
+.created_by:after
+{
+	content: ' - Creator';
+	font-size: 13px;
+	font-weight: bold;
+	vertical-align: middle;
 }

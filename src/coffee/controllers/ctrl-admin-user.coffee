@@ -49,14 +49,14 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 			for user in matches
 				user.gravatar = userServ.getAvatar user, 50
 
-			matches = matches.sort(sortNames);
+			matches = matches.sort(_sortNames);
 
 			$scope.selectedMatch = matches[0]
 			$scope.selectedIndex = 0
 			$scope.searchResults.matches = matches
 			$scope.$apply()
 
-	sortNames = (userA, userB) ->
+	_sortNames = (userA, userB) ->
 		nameA = userA.first + " " + userA.last
 		nameB = userB.first + " " + userB.last
 		return nameA.localeCompare(nameB)
@@ -67,7 +67,26 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 			$scope.selectedUser = user
 			$scope.additionalData = data
 
+			_processPlayed()
+
+			console.log $scope.additionalData.instances_played
+
 			$scope.$apply()
+
+	_processPlayed = ->
+		_pre = []
+
+		for play in $scope.additionalData.instances_played
+			unless _pre[play.id]
+				_pre[play.id] =
+					id: play.id
+					name: play.name
+					plays: []
+			_pre[play.id].plays.push play
+
+		$scope.additionalData.instances_played = []
+		for id, item of _pre
+			$scope.additionalData.instances_played.push item
 
 	$scope.save = ->
 		update =
