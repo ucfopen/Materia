@@ -89,8 +89,8 @@
 		font-weight: bold;
 	}
 
-	.guest-checkbox {
-		margin-left: -12px;
+	.access-options{
+		margin-left: 80px;
 	}
 
 	.disabled {
@@ -163,13 +163,21 @@
 		}
 	}
 
-
-	.data_explination
+	.data_explanation
 	{
 		margin-left: 125px;
 		width: 450px;
 		font-size: 14px;
 	}
+
+	.access_explanation
+	{
+		margin-left: 15px;
+		width: 450px;
+		font-size: 14px;
+		margin: 5px 20px;
+	}
+
 	.ui-slider-handle.ui-state-default.ui-corner-all
 	{
 		outline: none;
