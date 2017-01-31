@@ -12,10 +12,12 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		if($scope.selected.scores.list.length == 0 || !$scope.selected.hasScores)
 			$scope.exportOpts = ['Questions and Answers']
 		else
-			$scope.exportOpts = ['High Scores', 'Full Event Log', 'Questions and Answers']
+      if wgt.guest_access then scores_only = 'All Scores' else scores_only = 'High Scores'
+			$scope.exportOpts = [scores_only, 'Full Event Log', 'Questions and Answers']
 			$scope.exportOpts = $scope.exportOpts.concat(wgt.widget.meta_data.playdata_exporters) if wgt.widget.meta_data.playdata_exporters?.length > 0
-			getScores()
+        
 		$scope.exportType = $scope.exportOpts[0]
+    getScores()
 
 	# Finds all the scores with a given game instance id
 	getScores = ->
