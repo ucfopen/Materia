@@ -238,13 +238,16 @@ class Model_User extends Orm\Model
 	 *
 	 * @return array A list of played instances and other relevant data for the given user.
 	 */
-	public static function get_played_inst_scores($user_id)
+	public static function get_played_inst_info($user_id)
 	{
 		return \DB::select(
-				'w.name',
+				\DB::expr('p.id AS play_id'),
+				\DB::expr('w.name AS widget'),
+				'i.name',
 				'i.id',
 				'p.created_at',
-				'w.is_scorable',
+				'p.elapsed',
+				'p.is_complete',
 				'p.percent'
 			)
 			->from(['log_play', 'p'])

@@ -156,7 +156,7 @@
 						<li ng-repeat='instance in additionalData.instances_played'>
 							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
 								<h1>
-									{{ instance.name }} ({{ instance.id }})
+									{{ instance.id }} - {{ instance.name }} ({{ instance.widget }})
 								</h1>
 							</div>
 							<div class='info-holder' ng-show='instance.expanded'>
@@ -164,10 +164,23 @@
 									<li ng-repeat='play in instance.plays'>
 										<div>
 											<span>
-												Date: {{ play.created_at*1000 | date: 'short' }}
+												<label>Date:</label>{{ play.created_at*1000 | date: 'short' }}
 											</span>
+										</div>
+										<div>
 											<span>
-												Score: <strong>{{ play.percent }}%</strong>
+												<label><a target='_blank' href="{{ '/scores/'+play.id+'/#single-'+play.play_id }}" >Score:</a></label>
+												<strong>{{ play.percent }}%</strong>
+											</span>
+										</div>
+										<div>
+											<span>
+												<label>Time Elapsed:</label>{{ play.elapsed }}s
+											</span>
+										</div>
+										<div>
+											<span>
+												<label>Completed:</label>{{ play.is_complete ? 'Yes' : 'No' }}
 											</span>
 										</div>
 									</li>
