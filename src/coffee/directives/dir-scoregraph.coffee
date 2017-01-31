@@ -10,8 +10,11 @@ app.directive 'scoreGraph', (selectedWidgetSrv) ->
 		scores = selectedWidgetSrv.getScoreSummaries()
 		scores.then (data) ->
 			brackets = data.map[id].distribution
-			# If we don't defer, Angular might overwrite our element
-			setTimeout ->
-				Materia.MyWidgets.Statistics.createGraph($attrs.id, brackets)
-			, 0
-			null
+
+			# Don't try creating a graph if there's nothing to put in it
+			if brackets
+				# If we don't defer, Angular might overwrite our element
+				setTimeout ->
+					Materia.MyWidgets.Statistics.createGraph($attrs.id, brackets)
+				, 0
+				null
