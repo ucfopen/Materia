@@ -232,6 +232,8 @@ class Session_PlayDataExporter
 				// If there is no username, it is a guest user
 				$u = $play['username'] ? $play['username'] : '(Guest)';
 
+				if ( ! isset($results[$u])) $results[$u] = [];
+
 				$play_events = \Materia\Session_Logger::get_logs($play['id']);
 
 				foreach ($play_events as $play_event)
@@ -346,5 +348,36 @@ class Session_PlayDataExporter
 		unlink($tempname);
 
 		return [$data, '.zip'];
+	}
+	// Outputs a CSV width a widget's question and answer set
+	// Does NOT care about score data of any kind
+	protected static function questions_and_answers($inst, $semesters)
+	{
+		if ($inst == null) return false;
+
+		$inst->get_qset($inst->id);
+
+		$questions = \Materia\Widget_Instance::find_questions($inst->qset->data);
+
+		$csv = [];
+		$headers = "Question, Answers\r\n";
+
+		$string = $headers;
+
+		foreach ($questions as $question)
+		{
+			$sanitized_question = str_replace(["\r","\n", ','], '', $question->questions[0]['text']);
+			$sanitized_answers = [];
+
+			foreach ($question->answers as $answer)
+			{
+				$sanitized_answer = str_replace(["\r","\n", ','], '', $answer['text']);
+				array_push($sanitized_answers, $sanitized_answer);
+			}
+
+			$string .= $sanitized_question.', '.implode(', ', $sanitized_answers)."\r\n";
+		}
+
+		return [$string, '_questions_answers.csv'];
 	}
 }
