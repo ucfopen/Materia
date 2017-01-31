@@ -23,7 +23,7 @@ class LtiEvents
 
 			$launch = LtiLaunch::from_request();
 
-			if (LtiUserManager::is_lti_user_a_content_creator($launch))
+			if ($inst_id && $inst && LtiUserManager::is_lti_user_a_content_creator($launch))
 			{
 				if ($inst->guest_access)
 				{
@@ -31,6 +31,11 @@ class LtiEvents
 				}
 				else
 				{
+					if ($inst_id && $inst)
+					{
+						$launch->inst_id = $inst_id;
+						static::save_lti_association_if_needed($launch);
+					}
 					$redirect = "/lti/success/{$inst_id}";
 				}
 			}
@@ -45,7 +50,7 @@ class LtiEvents
 			$launch->inst_id = $inst_id;
 			static::save_lti_association_if_needed($launch);
 
-			return ['inst_id' => $inst_id, 'context_id' => $launch->context_id];
+			return ['inst_id' => $inst_id, 'context_id' => $launch->context_id, 'force_embedded' => ! $payload['is_embedded']];
 		}
 		elseif (static::get_lti_play_state() == self::PLAY_STATE_REPLAY)
 		{
@@ -66,7 +71,7 @@ class LtiEvents
 				return;
 
 			case self::PLAY_STATE_FIRST_LAUNCH:
-				$is_embedded = is_array(\Uri::segments()) && ! in_array('play', \Uri::segments());
+				$is_embedded = isset($payload['context_id']) && ! empty($payload['context_id']);
 				static::store_lti_request_into_session($play_id, $inst_id, $is_embedded);
 				break;
 

@@ -8,6 +8,7 @@ class Controller_Widgets extends Controller
 {
 
 	protected $_header = 'partials/header';
+	protected $_embedded = false;
 
 	public function before()
 	{
@@ -194,6 +195,9 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		Session::set('context_id', \Input::post('context_id'));
+		$this->_header = 'partials/header_empty';
+		$this->_embedded = true;
 		return $this->_play_widget($inst_id, false, true);
 	}
 
@@ -278,7 +282,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/no_attempts')
 			->set('classes', 'widget')
 			->set('attempts', $inst->attempts)
-			->set('scores_path', '/scores/'.$inst->id)
+			->set('scores_path', '/scores'.($this->_embedded ? '/embed' : '').'/'.$inst->id)
 
 			->set('summary', $this->theme->view('partials/widget/summary')
 				->set('type',$inst->widget->name)
@@ -301,6 +305,25 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
 	}
 
+	protected function embedded_only($inst)
+	{
+		$this->theme->get_template()
+			->set('title', 'Widget Unavailable')
+			->set('page_type', 'login');
+
+		$this->theme->set_partial('content', 'partials/widget/embedded_only')
+			->set('classes', 'widget')
+
+			->set('summary', $this->theme->view('partials/widget/summary')
+				->set('type',$inst->widget->name)
+				->set('name', $inst->name)
+				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		// The styles for this are in login, should probably be moved?
+		Css::push_group('login');
+	}
+
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
 		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
@@ -315,10 +338,15 @@ class Controller_Widgets extends Controller
 
 			// allow events to set context_id
 			$context_id = empty($result['context_id']) ? false : $result['context_id'];
+
+			// this widget is being played within an LTI, but wasn't embedded with the right URL
+			if ( ! $is_embedded && ! empty($result['force_embedded'])) $is_embedded = $result['force_embedded'];
 		}
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
+
+		if ( ! $is_embedded && $inst->embedded_only) return $this->embedded_only($inst);
 
 		// display a login
 		if ( ! $inst->playable_by_current_user())
