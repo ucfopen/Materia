@@ -6,7 +6,7 @@
 			</div>
 			<ul>
 				<li ng-repeat='widget in widgets'>
-					<div class='widget-title clickable' ng-click='widget.expanded = !widget.expanded'>
+					<div class='clickable widget-title' ng-click='widget.expanded = !widget.expanded'>
 						<h1 class='infoHeader'>{{widget.name}}</h1>
 					</div>
 					<div class='widget-info' ng-show='widget.expanded'>

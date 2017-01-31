@@ -69,12 +69,12 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		//the front end already has basic user info, so get some more
 		//all of the instances this user has access to
-		$instances_access = \Materia\Widget_Instance_Manager::get_all_for_user($user_id);
-		$instances_played = \Model_User::get_played_inst_scores($user_id);
+		$instances_available = \Materia\Widget_Instance_Manager::get_all_for_user($user_id);
+		$instances_played    = \Model_User::get_played_inst_scores($user_id);
 
 		return [
-			'instances_access' => $instances_access,
-			'instances_played' => $instances_played,
+			'instances_available' => $instances_available,
+			'instances_played'    => $instances_played,
 		];
 	}
 
