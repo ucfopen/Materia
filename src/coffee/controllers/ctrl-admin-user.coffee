@@ -69,8 +69,6 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 
 			_processPlayed()
 
-			console.log $scope.additionalData.instances_played
-
 			$scope.$apply()
 
 	_processPlayed = ->
