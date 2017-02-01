@@ -7,11 +7,4 @@
 	<div id="container" ng-if="type =='noflash'">
 		<?= Theme::instance()->view('partials/noflash') ?>
 	</div>
-	<modal-dialog show="alert.msg" dialog-title="{{ alert.title }}" width="520px">
-		{{ alert.msg }}
-		<button ng-click="alert.msg = null" class="action_button">Okay</button>
-	</modal-dialog>
-	<modal-dialog class="validation-error" show="fatal" dialog-title="Something went wrong.">
-		<div>{{ fatal }}</div>
-	</modal-dialog>
 </section>
