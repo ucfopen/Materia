@@ -8,9 +8,14 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 	buildPopup = ->
 		wgt = $scope.selected.widget
 		$scope.selectedId = wgt.id
-		if wgt.guest_access then scores_only = 'All Scores' else scores_only = 'High Scores'
-		$scope.exportOpts = [scores_only, 'Full Event Log']
-		$scope.exportOpts = $scope.exportOpts.concat(wgt.widget.meta_data.playdata_exporters) if wgt.widget.meta_data.playdata_exporters?.length > 0
+
+		if $scope.selected.scores.list.length == 0 or !$scope.selected.hasScores
+			$scope.exportOpts = ['Questions and Answers']
+		else
+			if wgt.guest_access then scores_only = 'All Scores' else scores_only = 'High Scores'
+			$scope.exportOpts = [scores_only, 'Full Event Log', 'Questions and Answers']
+			$scope.exportOpts = $scope.exportOpts.concat(wgt.widget.meta_data.playdata_exporters) if wgt.widget.meta_data.playdata_exporters?.length > 0
+
 		$scope.exportType = $scope.exportOpts[0]
 		getScores()
 
@@ -41,6 +46,8 @@ app.controller 'ExportScoresController', ($scope, selectedWidgetSrv) ->
 		labels = checkedSemesters.map (e) -> return e.label
 		$scope.header = labels.join(", ")
 		$scope.selectedSemesters = labels.join(",").replace(/\s/g, '-')
+		if checkedSemesters.length >=3
+			$scope.header = checkedSemesters[0].label + " and " + (checkedSemesters.length-1) + " more"
 
 	# Updates the checkAll option depending on how many semesters are checked
 	updateCheckAll = (checkedSemesters) ->
