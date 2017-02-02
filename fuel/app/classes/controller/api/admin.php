@@ -16,44 +16,33 @@ class Controller_Api_Admin extends Controller_Rest
 		parent::before();
 	}
 
-	public function post_call($format, $method)
+	protected function input_get()
 	{
-		$input = json_decode(Input::post('data', []));
-		$this->execute($method, $input);
+		return json_decode(Input::get('data', ''));
+	}
+	protected function input_post()
+	{
+		return json_decode(Input::post('data', ''));
 	}
 
-	public function get_call($format, $method)
-	{
-		$input = array_slice($this->request->route->method_params, 3);
-		$this->execute($method, $input);
-	}
-
-	protected function execute($method, $args)
-	{
-		if ( ! method_exists($this, $method)) throw new HttpNotFoundException;
-
-		$result = call_user_func_array([$this, $method], $args);
-
-		$this->no_cache();
-		$this->response($result, 200);
-	}
-
-	private function widgets_get()
+	public function get_widgets()
 	{
 		return \Materia\Widget_Manager::get_all_widgets();
 	}
 
-	private function widget_update($widget)
+	public function post_widget()
 	{
+		$widget = $this->input_post();
 		return \Materia\Widget_Manager::update_widget($widget);
 	}
 
-	private function users_search($search)
+	public function get_users()
 	{
+		$search = $this->input_get()->search;
 		$user_objects = \Model_User::find_by_name_search($search);
 		$user_arrays = [];
 
-		// scrub the user models with to_array
+		// scrub the user models
 		if (count($user_objects))
 		{
 			foreach ($user_objects as $key => $person)
@@ -65,10 +54,10 @@ class Controller_Api_Admin extends Controller_Rest
 		return $user_arrays;
 	}
 
-	private function user_lookup($user_id)
+	//the front end already has basic user info, this will grab some more
+	public function get_user()
 	{
-		//the front end already has basic user info, so get some more
-		//all of the instances this user has access to
+		$user_id = $this->input_get()->id;
 		$instances_available = \Materia\Widget_Instance_Manager::get_all_for_user($user_id);
 		$instances_played    = \Model_User::get_played_inst_info($user_id);
 
@@ -78,8 +67,9 @@ class Controller_Api_Admin extends Controller_Rest
 		];
 	}
 
-	private function user_save($data)
+	public function post_user()
 	{
+		$data = $this->input_post();
 		$id = $data->id;
 		unset($data->id);
 		return \Model_User::admin_update($id, $data);

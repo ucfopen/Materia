@@ -79,6 +79,7 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 				_pre[play.id] =
 					id: play.id
 					name: play.name
+					widget: play.widget
 					plays: []
 			_pre[play.id].plays.push play
 
