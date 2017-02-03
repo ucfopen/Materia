@@ -145,10 +145,14 @@ class Test_Controller_Api_Admin extends \Basetest
 	public function test_get_users()
 	{
 		//create some users which we can target with a search term
-		\Fuel\Tasks\Admin::quick_test_users();
+		// \Fuel\Tasks\Admin::quick_test_users();
+		for($i = 1; $i <= 10; $i++)
+		{
+			\Fuel\Tasks\Admin::new_user('admintest'.$i, 'admi', 'N', 'Test', $i.'admin@tar.get', $i);
+		}
 		\Fuel\Tasks\Admin::new_user('target', 'Target', 'T', 'Target', 'target@tar.get', 'target');
 
-		$search = 'test';
+		$search = 'admi';
 		$user_objects = \Model_User::find_by_name_search($search);
 		$user_arrays = $this->parseUsers($user_objects);
 
@@ -166,7 +170,7 @@ class Test_Controller_Api_Admin extends \Basetest
 		}
 
 		//now try a more specific search
-		$search = 'targ';
+		$search = 'target';
 		$user_objects = \Model_User::find_by_name_search($search);
 		$user_arrays = $this->parseUsers($user_objects);
 
@@ -184,7 +188,7 @@ class Test_Controller_Api_Admin extends \Basetest
 	{
 		// a widget instance needs to be made and/or played by a user in order to test this at all
 		// start with an author
-		$author = $this->_asAuthor();
+		$author = $this->_asAuthor3();
 
 		// create a new published widget instance
 		$qset = $this->create_new_qset('Question', 'Answer');
