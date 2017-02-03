@@ -102,12 +102,12 @@ class Widget_Manager
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
 
 		$widget = new Widget();
-		$widget->get($props->id);
+		$found = $widget->get($props->id);
 		unset($props->id);
 
 		//confirm that widget id and name are correct from the incoming request
-		if(empty($widget)) return ['widget' => 'Widget not found!'];
-		if($props->clean_name != $widget->clean_name) return ['widget' => 'Widget mismatch!'];
+		if ( ! $found) return ['widget' => 'Widget not found!'];
+		if ($props->clean_name != $widget->clean_name) return ['widget' => 'Widget mismatch!'];
 
 		unset($props->clean_name);
 
