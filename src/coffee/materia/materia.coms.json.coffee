@@ -25,7 +25,7 @@ Namespace('Materia.Coms').Json = do ->
 			# redirect to login page
 			window.location = BASE_URL+"login"
 
-	# return true if jsonResult is an error object∏Å
+	# return true if jsonResult is an error object
 	isError = (jsonResult) ->
 		jsonResult? && typeof jsonResult.errorID != 'undefined'
 

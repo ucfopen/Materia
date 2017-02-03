@@ -1435,6 +1435,18 @@
 	opacity: 0.5;
 }
 
+
+.ng-modal.alert .ng-modal-dialog
+{
+	padding: 15px 10px 15px 10px;
+
+	.ng-modal-title {
+		border-bottom: solid 1px #bebebe;
+		text-align: left;
+		position: static;
+	}
+}
+
 .ng-modal .ng-modal-dialog
 {
 	-webkit-border-radius: 3px;
