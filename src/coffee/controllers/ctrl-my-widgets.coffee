@@ -1,5 +1,6 @@
 app = angular.module 'materia'
-app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv, beardServ) ->
+app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv, beardServ, Alert) ->
+	$scope.alert = Alert
 	$scope.baseUrl = BASE_URL
 	$scope.widgets =
 		widgetList: []
