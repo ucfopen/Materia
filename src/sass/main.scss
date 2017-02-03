@@ -289,6 +289,10 @@ h3
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
+
+	.ng-modal & {
+		margin: 5px auto;
+	}
 }
 
 .cancel_button {
@@ -1200,4 +1204,28 @@ span.subtitle {
 	font-size:1.1em;
 	font-weight:700;
 	font-family: 'Lato', arial, serif;
+}
+
+.ng-modal-dialog {
+
+	padding: 15px 10px 15px 10px;
+
+	.ng-modal-title {
+		font-size: 150%;
+		border-bottom: solid 1px #bebebe;
+	}
+}
+
+.alert .action_button {
+	display: block;
+}
+
+/* hack fix to ngModal plugin to disable closing halting alerts */
+.ng-modal.fatal {
+	.ng-modal-close {
+		display: none;
+	}
+	.ng-modal-overlay {
+		pointer-events: none;
+	}
 }

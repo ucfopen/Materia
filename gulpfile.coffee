@@ -96,7 +96,8 @@ coffeeScripts = [
 		name: 'materia', combine: yes, destination: path.jsOut
 		files: [
 			'materia/materia.namespace.coffee',
-			'materia/*.coffee'
+			'materia/*.coffee',
+			'controllers/ctrl-alert.coffee'
 		]
 	},
 

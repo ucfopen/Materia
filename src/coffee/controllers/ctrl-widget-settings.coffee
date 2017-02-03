@@ -1,6 +1,8 @@
 app = angular.module 'materia'
 # The widget settings/availability modal on My Widgets
-app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWidgetSrv, widgetSrv) ->
+app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWidgetSrv, widgetSrv, Alert) ->
+
+	$scope.alert = Alert
 
 	# Sets up the slider for availability
 	$scope.setupSlider = ->
@@ -39,7 +41,10 @@ app.controller 'WidgetSettingsController', ($scope, $filter, $window, selectedWi
 		$scope.guestAccess = !$scope.guestAccess
 		if $scope.guestAccess then $scope.embeddedOnly = false
 		if $scope.selected.widget.student_access is true and $scope.guestAccess is false
-			alert 'Warning: Disabling Guest Mode will automatically revoke access to this widget for any students it has been shared with!'
+			$scope.alert.msg = 'Warning: Disabling Guest Mode will automatically revoke access to this widget for any students it has been shared with!'
+			$scope.alert.title = 'Students with access will be removed'
+			$scope.alert.fatal = false
+
 		$scope.attemptsSliderValue = $scope.UNLIMITED_SLIDER_VALUE
 		setTimeout ->
 			$( ".selector" ).slider
