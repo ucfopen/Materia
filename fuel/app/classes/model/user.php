@@ -240,9 +240,9 @@ class Model_User extends Orm\Model
 	 */
 	public static function get_played_inst_info($user_id)
 	{
-		return \DB::select(
+		$results = \DB::select(
 				\DB::expr('p.id AS play_id'),
-				\DB::expr('w.name AS widget'),
+				\DB::expr('w.id AS widget'),
 				'i.name',
 				'i.id',
 				'p.created_at',
@@ -260,6 +260,17 @@ class Model_User extends Orm\Model
 			->order_by('i.created_at', 'DESC')
 			->as_object()
 			->execute();
+
+		$return = [];
+		foreach($results as $r)
+		{
+			$widget = new \Materia\Widget;
+			$widget->get($r->widget);
+			$r->widget = $widget;
+			$return[] = $r;
+		}
+
+		return $return;
 	}
 
 	public static function admin_update($user_id, $props)
@@ -272,12 +283,16 @@ class Model_User extends Orm\Model
 		$report = [];
 		$is_student = \Materia\Perm_Manager::is_student($user->id);
 
+		trace($props->is_student);
+		trace($is_student);
+
 		if ($props->is_student == $is_student)
 		{
 			$report['is_student'] = true;
 		}
 		else
 		{
+			trace('UPDATE THAT ISH');
 			\Auth_Login_Materiaauth::update_role($user->id, !$props->is_student);
 			$activity = new \Materia\Session_Activity([
 				'user_id' => \Model_User::find_current_id(),

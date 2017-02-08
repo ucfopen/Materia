@@ -51,8 +51,6 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 
 			matches = matches.sort(_sortNames);
 
-			$scope.selectedMatch = matches[0]
-			$scope.selectedIndex = 0
 			$scope.searchResults.matches = matches
 			$scope.$apply()
 
@@ -67,9 +65,14 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 			$scope.selectedUser = user
 			$scope.additionalData = data
 
+			_processAvailable()
 			_processPlayed()
 
 			$scope.$apply()
+
+	_processAvailable = ->
+		for instance in $scope.additionalData.instances_available
+			instance.icon = Materia.Image.iconUrl instance.widget.dir, 60
 
 	_processPlayed = ->
 		_pre = []
@@ -80,6 +83,7 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 					id: play.id
 					name: play.name
 					widget: play.widget
+					icon: Materia.Image.iconUrl play.widget.dir, 60
 					plays: []
 			_pre[play.id].plays.push play
 
@@ -91,9 +95,9 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 		update =
 			id: $scope.selectedUser.id
 			email: $scope.selectedUser.email
-			is_student: $scope.selectedUser.is_student
+			is_student: ($scope.selectedUser.is_student == 'true' || $scope.selectedUser.is_student == true)
 			notify: $scope.selectedUser.profile_fields.notify
-			useGravatar: $scope.selectedUser.profile_fields.useGravatar
+			useGravatar: ($scope.selectedUser.profile_fields.useGravatar == 'true' || $scope.selectedUser.profile_fields.useGravatar == true)
 		adminSrv.saveUser update, (response) ->
 			$scope.error_message = []
 			for prop, stat of response
