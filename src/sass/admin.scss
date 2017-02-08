@@ -201,16 +201,15 @@ h1
 	}
 }
 
-.side-note
-{
-	font-size: 12px;
-	vertical-align: middle;
-}
-
 .created_by:after
 {
 	content: ' - Creator';
 	font-size: 13px;
 	font-weight: bold;
 	vertical-align: middle;
+}
+
+.no_match_message
+{
+	margin-top: 10px;
 }

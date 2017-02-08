@@ -29,8 +29,11 @@ Namespace('Materia.Coms').Admin = do ->
 			payload = 'data='+JSON.stringify(args)
 
 		req.onreadystatechange = ->
-			if req.readyState == XMLHttpRequest.DONE and req.status == 200
-				callbackInterrupt JSON.parse(req.responseText)
+			if req.readyState == XMLHttpRequest.DONE
+				if req.status == 200
+					callbackInterrupt JSON.parse(req.responseText)
+				if req.status == 204
+					callbackInterrupt null
 		req.open type, url
 		req.setRequestHeader 'Accept', 'application/json, text/javascript, */*;'
 		req.setRequestHeader 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8'
