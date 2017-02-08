@@ -1,12 +1,18 @@
+h1
+{
+	font-family: Lato,arial,serif;
+}
+
 .container
 {
 	background-color: #fff;
 	position: relative;
-	margin: 10px;
+	margin: 10px auto;
 	padding: 0 10px 10px;
 	display: block;
 	border: 1px solid #ccc;
 	box-shadow: 0 0 10px #aaa;
+	width: 700px;
 
 	.page > ul
 	{
@@ -30,18 +36,62 @@
 	cursor: pointer;
 }
 
+.back
+{
+	position: absolute;
+	top: 3px;
+	right: 5px;
+	cursor: pointer;
+	font-size: 120%;
+	padding: 5px;
+	display: inline-block;
+
+	.arrow
+	{
+		display: inline-block;
+		padding-top: 19px;
+		margin-bottom: -4px;
+		width: 17px;
+		height: 0;
+		margin-right: 5px;
+		margin-left: -2px;
+
+		background: url(../img/arrow.png) bottom no-repeat;
+	}
+}
+
 .widget-title
 {
 	background-color: #ddd;
 	margin: 0;
-	padding: 0 10px;
+	padding: 3px 3px 0;
 	border-radius: 10px;
 	border-bottom: 1px solid #ccc;
 
-	h1
+	.title
 	{
 		margin: 0;
 		padding: 0;
+		vertical-align: middle;
+		font-weight: bold;
+		font-size: 20px;
+	}
+}
+
+.img-holder
+{
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.widget-info
+{
+	display: flex;
+
+	.info-holder
+	{
+		flex-grow: 100;
+		margin: 0 10px;
 	}
 }
 
@@ -56,9 +106,8 @@
 		color: #f00;
 	}
 
-	.img-holder
+	.inline
 	{
-		margin: 0 10px 5px;
 		display: inline-block;
 	}
 
@@ -66,11 +115,22 @@
 	{
 		display: block;
 		vertical-align: top;
+		margin: 5px 0 0;
+	}
+
+	input, textarea
+	{
+		font-size: 15px;
+	}
+
+	textarea
+	{
+		height: 55px;
+		resize: none;
 	}
 
 	.info-holder
 	{
-		display: inline-block;
 		vertical-align: top;
 
 		span:not(.long), label
@@ -79,14 +139,16 @@
 			vertical-align: top;
 		}
 
-		span
-		{
-			margin: 0 5px;
-		}
-
 		label
 		{
 			width: 145px;
+		}
+
+		ul
+		{
+			list-style: none;
+			padding: 0;
+			margin: 0;
 		}
 
 		li
@@ -96,7 +158,15 @@
 
 		hr
 		{
-			margin: 5px 0;
+			margin: 5px auto;
+			clear: right;
+			width: auto;
+		}
+
+		.action_button
+		{
+			float: right;
+			margin-bottom:10px;
 		}
 	}
 }
@@ -105,7 +175,7 @@
 {
 	display: flex;
 
-	input
+	input, textarea
 	{
 		flex-grow: 100;
 	}
@@ -120,7 +190,7 @@
 {
 	box-sizing: border-box;
 	display: inline-block;
-	width: 49%;
+	width: 48%;
 	margin: 5px;
 	padding: 5px;
 	border: 1px solid #d3d3d3;
@@ -129,6 +199,12 @@
 	{
 		display: inline-block;
 	}
+}
+
+.side-note
+{
+	font-size: 12px;
+	vertical-align: middle;
 }
 
 .created_by:after

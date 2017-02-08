@@ -7,8 +7,9 @@
 				</div>
 			</div>
 			<div>
-				<span class='clickable back' ng-click='deselectUser()'>
-					Return
+				<span class='action_button back' ng-click='deselectUser()'>
+					<span class='arrow'></span>
+					<span class='goBackText'>Return</span>
 				</span>
 			</div>
 			<div class='top info-holder'>
@@ -44,13 +45,13 @@
 					<span>
 						<label>Student:</label><input type='checkbox' ng-model='selectedUser.is_student'/>
 					</span>
-					<span>
+					<span class='side-note'>
 						Note: Saving changes with this box unchecked indicates that this user is a teacher.
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Notifications:</label><input type='checkbox' ng-model='selectedUser.profile_fields.notify'/>
+						<label>Notifications:</label><input type='checkbox' ng-model='selectedUser.profile_fields.notify'/>Enabled
 					</span>
 				</div>
 				<div>
@@ -59,7 +60,7 @@
 					</span>
 				</div>
 				<div>
-					<button ng-click='save()'>Save Changes</button>
+					<button class='action_button' ng-click='save()'>Save Changes</button>
 				</div>
 				<hr/>
 				<div class='instances'>
@@ -67,11 +68,11 @@
 						<h1>Instances Available:</h1>
 					</div>
 					<ul>
-						<li class='widget-info' ng-repeat='instance in additionalData.instances_available'>
+						<li ng-repeat='instance in additionalData.instances_available'>
 							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
-								<h1 ng-class='{created_by: instance.user_id == selectedUser.id}'>
+								<span class='title' ng-class='{created_by: instance.user_id == selectedUser.id}'>
 									{{ instance.name }}
-								</h1>
+								</span>
 							</div>
 							<div class='info-holder' ng-show='instance.expanded'>
 								<div>
@@ -155,9 +156,9 @@
 					<ul>
 						<li ng-repeat='instance in additionalData.instances_played'>
 							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
-								<h1>
+								<span class='title'>
 									{{ instance.id }} - {{ instance.name }} ({{ instance.widget }})
-								</h1>
+								</span>
 							</div>
 							<div class='info-holder' ng-show='instance.expanded'>
 								<ul>
@@ -183,6 +184,7 @@
 												<label>Completed:</label>{{ play.is_complete ? 'Yes' : 'No' }}
 											</span>
 										</div>
+										<hr ng-if='$index < instance.plays.length-1' />
 									</li>
 								</ul>
 							</div>
@@ -193,9 +195,9 @@
 		</section>
 		<section class='page' ng-hide='selectedUser'>
 			<div class='top'>
-				<h1>Look Up and Modify Users</h1>
+				<h1>User Admin</h1>
 			</div>
-			<span class="input_label">Search users:</span>
+			<span class="input_label">Search:</span>
 			<input
 				tabindex="0"
 				ng-model="inputs.userSearchInput"

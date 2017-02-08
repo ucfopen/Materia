@@ -24,7 +24,7 @@ app.controller 'adminWidgetController', ($scope, adminSrv) ->
 	displayWidgets = ->
 		adminSrv.getWidgets (widgets) ->
 			for widget, i in widgets
-				widget.icon = Materia.Image.iconUrl widget.dir, 92
+				widget.icon = Materia.Image.iconUrl widget.dir, 60
 
 			$scope.widgets = widgets
 			$scope.$apply()

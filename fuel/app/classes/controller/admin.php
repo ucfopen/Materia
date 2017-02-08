@@ -41,13 +41,13 @@ class Controller_Admin extends Controller
 
 	public function get_widget()
 	{
-		$this->theme->get_template()->set('title', 'Widget Admin Panel');
+		$this->theme->get_template()->set('title', 'Widget Admin');
 		$this->theme->set_partial('content', 'partials/admin/widget');
 	}
 
 	public function get_user()
 	{
-		$this->theme->get_template()->set('title', 'User Admin Panel');
+		$this->theme->get_template()->set('title', 'User Admin');
 		$this->theme->set_partial('content', 'partials/admin/user');
 	}
 }
