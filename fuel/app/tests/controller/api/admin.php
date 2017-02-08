@@ -226,7 +226,7 @@ class Test_Controller_Api_Admin extends \Basetest
 		$this->assertEquals($play_output, $play->play_id);
 		$this->assertEquals($instance_output->id, $play->id);
 		$this->assertEquals($instance_output->name, $play->name);
-		$this->assertEquals($instance_output->widget->name, $play->widget);
+		$this->assertEquals($instance_output->widget, $play->widget);
 		$this->assertEquals(true, $play->is_complete);
 		$this->assertEquals(100, $play->percent);
 	}
