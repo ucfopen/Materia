@@ -43,10 +43,11 @@
 				</div>
 				<div>
 					<span>
-						<label>Student:</label><input type='checkbox' ng-model='selectedUser.is_student'/>
-					</span>
-					<span class='side-note'>
-						Note: Saving changes with this box unchecked indicates that this user is a teacher.
+						<label>Role:</label>
+						<select ng-model='selectedUser.is_student'/>
+							<option value='true'>Student</option>
+							<option value='false'>Teacher</option>
+						</select>
 					</span>
 				</div>
 				<div>
@@ -56,7 +57,11 @@
 				</div>
 				<div>
 					<span>
-						<label>Gravatar:</label><input type='checkbox' ng-model='selectedUser.profile_fields.useGravatar'/>
+						<label>User Icon:</label>
+						<select ng-model='selectedUser.profile_fields.useGravatar'>
+							<option value='true'>Gravatar</option>
+							<option value='false'>None</option>
+						</select>
 					</span>
 				</div>
 				<div>
@@ -70,8 +75,16 @@
 					<ul>
 						<li ng-repeat='instance in additionalData.instances_available'>
 							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
-								<span class='title' ng-class='{created_by: instance.user_id == selectedUser.id}'>
-									{{ instance.name }}
+								<span class='img-holder'>
+									<img ng-src='{{instance.icon}}'>
+								</span>
+								<span>
+									<div class='title' ng-class='{created_by: instance.user_id == selectedUser.id}'>
+										{{ instance.name }}
+									</div>
+									<div>
+										{{ instance.widget.name }}
+									</div>
 								</span>
 							</div>
 							<div class='info-holder' ng-show='instance.expanded'>
@@ -132,17 +145,17 @@
 								</div>
 								<div>
 									<span>
-										<label><a target='_blank' href="{{ instance.play_url }}">Play URL:</a></label>{{ instance.play_url }}
+										<label>Play URL:</label><a target='_blank' href="{{ instance.play_url }}">{{ instance.play_url }}</a>
 									</span>
 								</div>
 								<div>
 									<span>
-										<label><a target='_blank' href="{{ instance.preview_url }}">Preview URL:</a></label>{{ instance.preview_url }}
+										<label>Preview URL:</label><a target='_blank' href="{{ instance.preview_url }}">{{ instance.preview_url }}</a>
 									</span>
 								</div>
 								<div>
 									<span>
-										<label><a target='_blank' href="{{ instance.embed_url }}">Embed URL:</a></label>{{ instance.embed_url }}
+										<label>Embed URL:</label><a target='_blank' href="{{ instance.embed_url }}">{{ instance.embed_url }}</a>
 									</span>
 								</div>
 							</div>
@@ -156,10 +169,19 @@
 					<ul>
 						<li ng-repeat='instance in additionalData.instances_played'>
 							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
-								<span class='title'>
-									{{ instance.id }} - {{ instance.name }} ({{ instance.widget }})
+								<span class='img-holder'>
+									<img ng-src='{{ instance.icon }}'>
+								</span>
+								<span>
+									<div class='title'>
+										{{ instance.name }} ({{ instance.id }})
+									</div>
+									<div>
+										{{ instance.widget.name }}
+									</div>
 								</span>
 							</div>
+
 							<div class='info-holder' ng-show='instance.expanded'>
 								<ul>
 									<li ng-repeat='play in instance.plays'>
@@ -198,6 +220,7 @@
 				<h1>User Admin</h1>
 			</div>
 			<span class="input_label">Search:</span>
+			<div id='throbber'></div>
 			<input
 				tabindex="0"
 				ng-model="inputs.userSearchInput"
@@ -225,6 +248,7 @@
 				</div>
 				<div ng-if="searchResults.searching" class="no_match_message">
 					<b>Searching Users...</b>
+
 				</div>
 			</div>
 		</section>
