@@ -150,6 +150,7 @@ nav ul {
 	font-weight:bold;
 	height: 27px;
 	position: relative;
+	margin-left: 20px;
 
 	ul {
 		display: none;
@@ -157,7 +158,7 @@ nav ul {
 		padding: 0;
 		position: absolute;
 		bottom: -100%;
-		left: -50%;
+		left: -10px;
 		border-left: 1px solid #d3d3d3;
 		border-right: 1px solid #d3d3d3;
 		border-bottom: 1px solid #d3d3d3;
