@@ -1,5 +1,41 @@
 <div ng-controller='adminUserController'>
 	<div class='container'>
+		<section class='page' ng-hide='selectedUser'>
+			<div class='top'>
+				<h1>User Admin</h1>
+			</div>
+			<span class="input_label">Search:</span>
+			<input
+				tabindex="0"
+				ng-model="inputs.userSearchInput"
+				ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }"
+				class="user_add"
+				type="text"
+				placeholder="Enter a Materia user's name or e-mail"/>
+			<div class="search_list" ng-show="searchResults.show">
+				<div
+					ng-repeat="match in searchResults.matches"
+					ng-mouseup="searchMatchClick(match)"
+					class="search_match clickable"
+					ng-class="{ focused: selectedMatch == match }">
+					<div class="img-holder">
+						<img ng-src="{{match.gravatar}}">
+					</div>
+					<div class="info-holder">
+						{{match.first}} {{match.last}}
+					</div>
+				</div>
+
+				<div ng-if="searchResults.none && !searchResults.searching" class="no_match_message">
+					<b>No matches found.</b>
+					<p>The person you're searching for may need to log in to create an account.</p>
+				</div>
+				<div ng-if="searchResults.searching" class="no_match_message">
+					<b>Searching Users...</b>
+
+				</div>
+			</div>
+		</section>
 		<section class='page user-info' ng-show='selectedUser'>
 			<div class='error-holder' ng-show='error_message.length > 0'>
 				<div ng-repeat='error in error_message'>
@@ -7,10 +43,10 @@
 				</div>
 			</div>
 			<div>
-				<span class='action_button back' ng-click='deselectUser()'>
+				<button class='action_button back' ng-click='deselectUser()'>
 					<span class='arrow'></span>
 					<span class='goBackText'>Return</span>
-				</span>
+				</button>
 			</div>
 			<div class='top info-holder'>
 				<span>
@@ -52,7 +88,11 @@
 				</div>
 				<div>
 					<span>
-						<label>Notifications:</label><input type='checkbox' ng-model='selectedUser.profile_fields.notify'/>Enabled
+						<label>Notifications:</label>
+						<label class='normal'>
+							<input type='checkbox' ng-model='selectedUser.profile_fields.notify'/>
+							Enabled
+						</label>
 					</span>
 				</div>
 				<div>
@@ -186,25 +226,17 @@
 								<ul>
 									<li ng-repeat='play in instance.plays'>
 										<div>
-											<span>
-												<label>Date:</label>{{ play.created_at*1000 | date: 'short' }}
-											</span>
+											<label>Date:</label>{{ play.created_at*1000 | date: 'short' }}
 										</div>
 										<div>
-											<span>
-												<label><a target='_blank' href="{{ '/scores/'+play.id+'/#single-'+play.play_id }}" >Score:</a></label>
-												<strong>{{ play.percent }}%</strong>
-											</span>
+											<label>Score:</label><!--gross hack to remove space between inline elements
+											--><a target='_blank' href="{{ '/scores/'+play.id+'/#single-'+play.play_id }}">{{ play.percent }}%</a>
 										</div>
 										<div>
-											<span>
-												<label>Time Elapsed:</label>{{ play.elapsed }}s
-											</span>
+											<label>Time Elapsed:</label>{{ play.elapsed }}s
 										</div>
 										<div>
-											<span>
-												<label>Completed:</label>{{ play.is_complete ? 'Yes' : 'No' }}
-											</span>
+											<label>Completed:</label>{{ play.is_complete ? 'Yes' : 'No' }}
 										</div>
 										<hr ng-if='$index < instance.plays.length-1' />
 									</li>
@@ -212,43 +244,6 @@
 							</div>
 						</li>
 					</ul>
-				</div>
-			</div>
-		</section>
-		<section class='page' ng-hide='selectedUser'>
-			<div class='top'>
-				<h1>User Admin</h1>
-			</div>
-			<span class="input_label">Search:</span>
-			<div id='throbber'></div>
-			<input
-				tabindex="0"
-				ng-model="inputs.userSearchInput"
-				ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }"
-				class="user_add"
-				type="text"
-				placeholder="Enter a Materia user's name or e-mail"/>
-			<div class="search_list" ng-show="searchResults.show">
-				<div
-					ng-repeat="match in searchResults.matches"
-					ng-mouseup="searchMatchClick(match)"
-					class="search_match clickable"
-					ng-class="{ focused: selectedMatch == match }">
-					<div class="img-holder">
-						<img ng-src="{{match.gravatar}}">
-					</div>
-					<div class="info-holder">
-						{{match.first}} {{match.last}}
-					</div>
-				</div>
-
-				<div ng-if="searchResults.none && !searchResults.searching" class="no_match_message">
-					<b>No matches found.</b>
-					<p>The person you're searching for may need to log in to create an account.</p>
-				</div>
-				<div ng-if="searchResults.searching" class="no_match_message">
-					<b>Searching Users...</b>
-
 				</div>
 			</div>
 		</section>

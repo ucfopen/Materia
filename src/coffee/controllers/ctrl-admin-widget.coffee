@@ -1,6 +1,7 @@
 app = angular.module 'materia'
 app.controller 'adminWidgetController', ($scope, adminSrv) ->
 
+	$scope.selectedFileName = 'No File Selected'
 	$scope.widgets = []
 
 	$scope.save = (widget) ->
@@ -28,5 +29,12 @@ app.controller 'adminWidgetController', ($scope, adminSrv) ->
 
 			$scope.widgets = widgets
 			$scope.$apply()
+
+	# since the file input is hidden, watch events on it so we can put selected filenames elsewhere
+	document.getElementById('widget_uploader').addEventListener 'change', (e) ->
+		$scope.selectedFileName = 'No File Selected'
+		if this.files?.length > 0
+			$scope.selectedFileName = this.files[0].name
+		$scope.$apply()
 
 	displayWidgets()

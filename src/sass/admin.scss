@@ -1,3 +1,56 @@
+.uploader
+{
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+.uploader + label
+{
+	font-family: 'Lato', arial, serif;
+	padding: 7px 23px 8px 23px;
+	background:#ffba5d;
+	background-image: -webkit-linear-gradient(top, #ffce8c, #ffa42a);
+	background-image: -o-linear-gradient(top, #ffce8c, #ffa42a);
+	background-image: -moz-linear-gradient(top, #ffce8c, #ffa42a);
+	background-image: -ms-linear-gradient(top, #ffce8c, #ffa42a);
+	background-image: linear-gradient(top, #ffce8c, #ffa42a);
+
+
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	border:#fdb34f 1px solid;
+	font-weight:700;
+	color:#694d28;
+	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+	-moz-box-shadow: 1px 2px 4px #888;
+	-webkit-box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px #888;
+	font-size: 18px;
+	position:relative;
+	cursor:pointer;
+	display:inline-block;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+
+	&:hover
+	{
+		background: #eca444;
+		background-image: -webkit-linear-gradient(top, #ffa42a, #ffce8c);
+		background-image: -o-linear-gradient(top, #ffa42a, #ffce8c);
+		background-image: -moz-linear-gradient(top, #ffa42a, #ffce8c);
+		background-image: -ms-linear-gradient(top, #ffa42a, #ffce8c);
+		text-decoration:none;
+	}
+}
+
 h1
 {
 	font-family: Lato,arial,serif;
@@ -43,8 +96,6 @@ h1
 	right: 5px;
 	cursor: pointer;
 	font-size: 120%;
-	padding: 5px;
-	display: inline-block;
 
 	.arrow
 	{
@@ -64,7 +115,7 @@ h1
 {
 	background-color: #ddd;
 	margin: 0;
-	padding: 3px 3px 0;
+	padding: 10px 10px 7px;
 	border-radius: 10px;
 	border-bottom: 1px solid #ccc;
 
@@ -139,9 +190,15 @@ h1
 			vertical-align: top;
 		}
 
-		label
+		label:not(.normal)
 		{
 			width: 145px;
+		}
+
+		.normal input
+		{
+			margin: 0;
+			padding: 0;
 		}
 
 		ul
@@ -192,7 +249,7 @@ h1
 	display: inline-block;
 	width: 48%;
 	margin: 5px;
-	padding: 5px;
+	padding: 10px;
 	border: 1px solid #d3d3d3;
 
 	> div
