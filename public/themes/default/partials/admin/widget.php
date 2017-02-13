@@ -40,7 +40,7 @@
 								{{ error }}
 							</div>
 						</div>
-						<div class='inline info-holder'>
+						<div class='info-holder'>
 							<div>
 								<span>
 									<label>ID:</label>{{ widget.id }}
