@@ -13,8 +13,11 @@
 				Upload a <strong>.wigt</strong> widget package file to install into Materia.
 			</p>
 			<form enctype='multipart/form-data' method='POST' action='/upload/widgets'>
-				<input type='file' name='file'><br/>
-				<input type='submit' value='Submit'>
+				<input class='uploader' id='widget_uploader' type='file' name='file'>
+
+				<label for='widget_uploader'>Choose File</label>
+				<input class='action_button' type='submit' value='Submit'>
+				<span>{{ selectedFileName }}</span>
 			</form>
 		</section>
 	</div>
@@ -56,19 +59,31 @@
 							<div>
 								<span>
 									<label>Settings:</label>
-								</span>
-								<span>
+								</span><!--
+								--><span>
 									<div>
-										<input type='checkbox' ng-model='widget.in_catalog' ng-true-value='"1"' ng-false-value='"0"'/>In Catalog
+										<label class='normal'>
+											<input type='checkbox' ng-model='widget.in_catalog' ng-true-value='"1"' ng-false-value='"0"'/>
+											In Catalog
+										</label>
 									</div>
 									<div>
-										<input type='checkbox' ng-model='widget.is_editable' ng-true-value='"1"' ng-false-value='"0"'/>Is Editable
+										<label class='normal'>
+											<input type='checkbox' ng-model='widget.is_editable' ng-true-value='"1"' ng-false-value='"0"'/>
+											Is Editable
+										</label>
 									</div>
 									<div>
-										<input type='checkbox' ng-model='widget.is_playable' ng-true-value='"1"' ng-false-value='"0"'/>Is Playable
+										<label class='normal'>
+											<input type='checkbox' ng-model='widget.is_playable' ng-true-value='"1"' ng-false-value='"0"'/>
+											Is Playable
+										</label>
 									</div>
 									<div>
-										<input type='checkbox' ng-model='widget.is_scorable' ng-true-value='"1"' ng-false-value='"0"'/>Is Scorable
+										<label class='normal'>
+											<input type='checkbox' ng-model='widget.is_scorable' ng-true-value='"1"' ng-false-value='"0"'/>
+											Is Scorable
+										</label>
 									</div>
 								</span>
 							</div>
