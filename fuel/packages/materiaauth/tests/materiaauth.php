@@ -110,7 +110,7 @@ class Test_Materiaauth extends \Basetest
 	 * @expectedException        \Auth\SimpleUserUpdateException
 	 * @expectedExceptionMessage Email not given
 	 */
-	public function test_creating_a_user_without_email()
+	public function test_creating_a_user_without_email_strict()
 	{
 		$values = $this->user_values('Test3', 'McTest3');
 
@@ -122,10 +122,41 @@ class Test_Materiaauth extends \Basetest
 			$values['profile_fields'],
 			$values['first'],
 			$values['last'],
-			false
+			false,
+			true
 		);
 
 		return false;
+	}
+
+	public function test_creating_a_user_without_email_relaxed()
+	{
+		$values = $this->user_values('Test3', 'McTest3');
+		$users_count = \Model_User::count();
+
+		$new_user_id = \Auth::instance()->create_user(
+			$values['username'],
+			$values['password'],
+			null,
+			1,
+			$values['profile_fields'],
+			$values['first'],
+			$values['last'],
+			false,
+			false
+		);
+
+		$this->assertEquals($new_user_id, $users_count + 1);
+
+		// null emails are converted to 'false' during the email sanitizing process
+		$values['email'] = false;
+
+		$new_user_lookup = \Model_User::find($new_user_id);
+		$confirm_properties = ['username','email','first','last'];
+		foreach($confirm_properties as $prop)
+		{
+			$this->assertEquals($new_user_lookup[$prop], $values[$prop]);
+		}
 	}
 
 	public function test_promoting_user()
@@ -135,7 +166,8 @@ class Test_Materiaauth extends \Basetest
 		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), false);
 
 		//promote the last user we created to an author
-		$r = \Auth::instance()::update_role($last_user_id, true);
+		$auth = \Auth::instance();
+		$r = $auth::update_role($last_user_id, true);
 		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), true);
 	}
 
@@ -146,7 +178,8 @@ class Test_Materiaauth extends \Basetest
 		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), true);
 
 		//demote the last user we created back to a student
-		$r = \Auth::instance()::update_role($last_user_id, false);
+		$auth = \Auth::instance();
+		$r = $auth::update_role($last_user_id, false);
 		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), false);
 	}
 
@@ -169,7 +202,7 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_update_no_user_without_username()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
+		$values = $this->user_values('Test4', 'McTest4');
 		\Auth::update_user($values);
 
 		return false;
@@ -182,8 +215,8 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_update_no_user_with_username()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
-		\Auth::update_user($values, 'user_Test3_McTest3');
+		$values = $this->user_values('Test4', 'McTest4');
+		\Auth::update_user($values, 'user_Test4_McTest4');
 
 		return false;
 	}
