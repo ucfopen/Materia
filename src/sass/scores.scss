@@ -343,7 +343,7 @@ body.scores .details ul {
 	display:table;
 	/*padding:1px;*/
 	padding:0px;
-	width:90%;
+	width:95%;
 	margin: 0 auto;
 	border-collapse: collapse;
 	/*background:#c3c5c8;*/
@@ -352,6 +352,7 @@ body.scores .details ul {
 	body.scores .details ul li {
 		display:table-row;
 		background: #e3e5e8;
+		word-break: break-word;
 	}
 
 		body.scores .details ul li div, body.scores .details ul li h3 {
@@ -422,6 +423,7 @@ body.scores .details ul {
 				body.scores .details ul li div.question
 				{
 					text-align:left;
+					max-width: 300px;
 				}
 
 			body.scores .details ul li.single_column
