@@ -131,21 +131,13 @@ class Controller_Test extends \Controller_Rest
 		$resource_link_id = static::get_and_unset_post('resource_link');
 		$custom_inst_id   = static::get_and_unset_post('custom_widget_instance_id');
 
-		$as_new_learner   = static::get_and_unset_post('new_learner') ?: false;
-		$as_instructor    = static::get_and_unset_post('as_instructor') ?: false;
-		$as_test_student  = static::get_and_unset_post('test_student') ?: false;
+		$as_instructor           = static::get_and_unset_post('as_instructor') ?: false;
+		$as_test_student         = static::get_and_unset_post('test_student') ?: false;
+		$as_new_learner_email    = static::get_and_unset_post('new_learner_email') ?: false;
+		$as_new_learner_no_email = static::get_and_unset_post('new_learner_no_email') ?: false;
 
 		switch (true)
 		{
-			case $as_new_learner:
-				$learner_params = $this->create_test_case([
-					'context_id'                => $context_id,
-					'resource_link_id'          => $resource_link_id,
-					'custom_widget_instance_id' => $custom_inst_id
-				], $lti_url, $this->create_new_random_user());
-				$learner_params[0]['user_id'] = '';
-				break;
-
 			case $as_instructor:
 				$learner_params = $this->create_test_case([
 					'roles'                     => 'Instructor',
@@ -167,6 +159,24 @@ class Controller_Test extends \Controller_Rest
 					'resource_link_id'          => $resource_link_id,
 					'custom_widget_instance_id' => $custom_inst_id
 				], $lti_url, $test_student);
+				$learner_params[0]['user_id'] = '';
+				break;
+
+			case $as_new_learner_email:
+				$learner_params = $this->create_test_case([
+					'context_id'                => $context_id,
+					'resource_link_id'          => $resource_link_id,
+					'custom_widget_instance_id' => $custom_inst_id
+				], $lti_url, $this->create_new_random_user());
+				$learner_params[0]['user_id'] = '';
+				break;
+
+			case $as_new_learner_no_email:
+				$learner_params = $this->create_test_case([
+					'context_id'                => $context_id,
+					'resource_link_id'          => $resource_link_id,
+					'custom_widget_instance_id' => $custom_inst_id
+				], $lti_url, $this->create_new_random_user(false));
 				$learner_params[0]['user_id'] = '';
 				break;
 
@@ -228,13 +238,13 @@ class Controller_Test extends \Controller_Rest
 		return [$params, $endpoint];
 	}
 
-	protected function create_new_random_user()
+	protected function create_new_random_user($with_email = true)
 	{
 		$rand = substr(md5(microtime()), 0, 10);
 
 		$user = new \Model_User([
 			'username' => 'test_lti_user'.$rand,
-			'email'    => 'test.lti.user'.$rand.'@materia.com',
+			'email'    => $with_email ? 'test.lti.user'.$rand.'@materia.com' : '',
 			'first'    => 'Unofficial Test',
 			'last'     => "User $rand"
 		]);
