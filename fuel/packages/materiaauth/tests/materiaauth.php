@@ -157,6 +157,7 @@ class Test_Materiaauth extends \Basetest
 		{
 			$this->assertEquals($new_user_lookup[$prop], $values[$prop]);
 		}
+		$this->assertEquals($new_user_lookup['profile_fields']['notify'], false);
 	}
 
 	public function test_promoting_user()
