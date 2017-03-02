@@ -25,6 +25,43 @@ class Controller_Test extends \Controller_Rest
 		var_dump(\Input::get());
 	}
 
+	public function get_embed()
+	{
+		$embed_type = \Input::get('embed_type', false);
+		$url = \Input::get('url');
+
+		if ( $embed_type != 'basic_lti' ) return;
+
+		$widget = str_replace(\Uri::base(false).'embed/', '', $url);
+		$parts = explode('/', $widget);
+
+		//check to see if we have an LTI association for this widget already
+		// normally we would only check for 'resource_link', since an assignment can't have more than one widget associated with it
+		// but for the purpose of the LTI test provider, we'll relax that requirement
+		$check = Model_Lti::query()
+			->where('resource_link', 'test-resource')
+			->where('item_id', $parts[0])
+			->get_one();
+
+		if (empty($check))
+		{
+			$user = \Model_User::find_current();
+
+			$assoc = Model_Lti::forge();
+			$assoc->resource_link = 'test-resource';
+			$assoc->consumer_guid = 'test';
+			$assoc->item_id       = $parts[0];
+			$assoc->user_id       = $user->id;
+			$assoc->consumer      = 'materia';
+			$assoc->name          = $user->first.' '.$user->last;
+			$assoc->context_id    = 'test_context';
+			$assoc->context_title = 'test_context';
+			$assoc->save();
+		}
+
+		return \Response::redirect("/lti/success/{$parts[0]}?embed_type={$embed_type}&url={$url}");
+	}
+
 	public function get_provider()
 	{
 		$assignment_url = \Uri::create('lti/assignment');
@@ -35,7 +72,7 @@ class Controller_Test extends \Controller_Rest
 		$validation_params = $this->create_test_case([], $validate_url);
 
 		$instructor_params = $this->create_test_case([
-			'launch_presentation_return_url' => \Uri::create('lti/test/redirect'),
+			'launch_presentation_return_url' => \Uri::create('lti/test/embed'),
 			'selection_directive'            => 'select_link',
 			'roles'                          => 'Instructor'
 		], $picker_url);
@@ -47,7 +84,7 @@ class Controller_Test extends \Controller_Rest
 		], $login_url);
 
 		$new_instructor_params = $this->create_test_case([
-			'launch_presentation_return_url' => \Uri::create('lti/test/redirect'),
+			'launch_presentation_return_url' => \Uri::create('lti/test/embed'),
 			'selection_directive'            => 'select_link',
 			'roles'                          => 'Instructor'
 		], $picker_url, $this->create_new_random_user());

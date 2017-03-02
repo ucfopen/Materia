@@ -55,29 +55,29 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
+		$anonymize    = filter_var(\Input::get('anonymized', false), FILTER_VALIDATE_BOOLEAN);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
 
-		if (empty($table_name)) throw new \Exception("Missing required storage table name");
+		if (empty($table_name)) throw new \Exception('Missing required storage table name');
 
 		// load the logs for all selected semesters
 		if (empty($semesters))
 		{
-			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name);
+			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name, $anonymize);
 			if ( ! empty($loaded_data[$table_name]))
 			{
 				$storage_data['all'] = $loaded_data[$table_name];
 				$num_records = count($storage_data['all']);
 			}
-
 		}
 		else
 		{
 			foreach ($semesters as $semester)
 			{
 				list($year, $term) = explode('-', $semester);
-				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name);
+				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name, $anonymize);
 				if ( ! empty($loaded_data[$table_name]))
 				{
 					$storage_data[$semester] = $loaded_data[$table_name];
@@ -106,7 +106,7 @@ class Session_PlayDataExporter
 
 			// create out header row
 			ksort($fields);
-			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters? '","semester"' : '"')."\n";
+			$csv = '"'.implode('","', array_keys($fields)).'","'.implode('","', array_keys($play)).($semesters ? '","semester"' : '"')."\n";
 
 			// fill in the data for each row
 			foreach ($storage_data as $semester_str => $table)
@@ -120,8 +120,8 @@ class Session_PlayDataExporter
 					$d['data'] = $d['data'] + $fields;
 					ksort($d['data']);
 
-					$csv .= '"' . implode('","', $d['data']) . '",';
-					$csv .= '"' . implode('","', $d['play']) . '"';
+					$csv .= '"'.implode('","', $d['data']).'",';
+					$csv .= '"'.implode('","', $d['play']).'"';
 					if ( ! empty($semesters)) $csv .= ",\"{$year} {$term}\"";
 					$csv .= "\n";
 				}
@@ -129,6 +129,42 @@ class Session_PlayDataExporter
 		}
 
 		return [$csv, "-storage-{$table_name}.csv"];
+	}
+
+	protected static function all_scores($inst, $semesters)
+	{
+		$play_logs = [];
+		$count = 0;
+
+		// Table headers
+		$csv = "User ID,Last Name,First Name,Score,Semester\r\n";
+
+		foreach ($semesters as $semester)
+		{
+			list($year, $term) = explode('-', $semester);
+			// Get all scores for each semester
+			$logs = $play_logs["{$year} {$term}"] = \Materia\Session_Play::get_by_inst_id($inst->id, $term, $year);
+
+			foreach ($logs as $play)
+			{
+				// ignore non-guest plays when exporting all scores
+				if ($play['user_id']) continue;
+				$condensed = [
+					'Guest '.++$count,
+					'last_name' => $play['last'],
+					'first_name' => $play['first'],
+					'score' => $play['perc'],
+					'semester' => $semester
+				];
+
+				$csv .= implode(',', $condensed)."\r\n";
+			}
+		}
+
+		// If there aren't any logs throw a 404 error
+		if ($count == 0) throw new HttpNotFoundException;
+
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -171,7 +207,7 @@ class Session_PlayDataExporter
 			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
 		}
 
-		return [$csv, ".csv"];
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -181,7 +217,9 @@ class Session_PlayDataExporter
 	 */
 	protected static function full_event_log($inst, $semesters)
 	{
-		$results   = [];
+		// Table headers
+		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
+		$log_count = 0;
 
 		foreach ($semesters as $semester)
 		{
@@ -192,7 +230,7 @@ class Session_PlayDataExporter
 			foreach ($logs as $play)
 			{
 				// If there is no username, it is a guest user
-				$u = $play['username'] ? $play['username'] : "(Guest)";
+				$u = $play['username'] ? $play['username'] : '(Guest)';
 
 				if ( ! isset($results[$u])) $results[$u] = [];
 
@@ -200,34 +238,27 @@ class Session_PlayDataExporter
 
 				foreach ($play_events as $play_event)
 				{
-					$r               = [];
-					$r['last_name']  = $play['last'];
-					$r['first_name'] = $play['first'];
-					$r['playid']     = $play['id'];
-					$r['semester']   = $semester;
-					$r['type']       = $play_event->type;
-					$r['item_id']    = $play_event->item_id;
-					$r['text']       = $play_event->text;
-					$r['value']      = $play_event->value;
-					$r['game_time']  = $play_event->game_time;
-					$r['created_at'] = $play_event->created_at;
-					$results[$u][]   = $r;
+					$log_count++;
+					$condensed = [
+						$u,
+						$play['last'],
+						$play['first'],
+						$play['id'],
+						$semester,
+						$play_event->type,
+						$play_event->item_id,
+						str_replace(["\r","\n", ','], '', $play_event->text), // sanitize commas and newlines to keep CSV formatting intact
+						$play_event->value,
+						$play_event->game_time,
+						$play_event->created_at
+					];
+
+					$csv_playlog_text .= implode(',', $condensed)."\r\n";
 				}
 			}
 		}
 
-		if ( ! count($results)) return false;
-
-		// Table headers
-		$csv_playlog_text = "User ID,Last Name,First Name,Play Id,Semester,Type,Item Id,Text,Value,Game Time,Created At\r\n";
-
-		foreach ($results as $userid => $userlog)
-		{
-			foreach ($userlog as $r)
-			{
-				$csv_playlog_text .= "$userid,{$r['last_name']},{$r['first_name']},{$r['playid']},{$r['semester']},{$r['type']},{$r['item_id']},{$r['text']},{$r['value']},{$r['game_time']},{$r['created_at']}\r\n";
-			}
-		}
+		if ( $log_count == 0 ) return false;
 
 		$inst->get_qset($inst->id);
 
@@ -279,11 +310,19 @@ class Session_PlayDataExporter
 
 		foreach ($csv_questions as $question)
 		{
-			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$question['text']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_question_text = str_replace(["\r","\n", ','], '', $question['text']);
+			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$sanitized_question_text}";
 
 			foreach ($options as $key)
 			{
 				$val = isset($question['options']) && isset($question['options'][$key]) ? $question['options'][$key] : '';
+
+				if (is_array($val) || is_object($val))
+				{
+					$val = '[object]';
+				}
+
 				$csv_question_text .= ",$val";
 			}
 		}
@@ -291,7 +330,9 @@ class Session_PlayDataExporter
 		$csv_answer_text = 'question_id,id,text,value';
 		foreach ($csv_answers as $answer)
 		{
-			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$answer['text']},{$answer['value']}";
+			// Sanitize newlines and commas, as they break CSV formatting
+			$sanitized_answer_text = str_replace(["\r","\n", ','], '', $answer['text']);
+			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$sanitized_answer_text},{$answer['value']}";
 		}
 
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
@@ -306,7 +347,37 @@ class Session_PlayDataExporter
 		$data = file_get_contents($tempname);
 		unlink($tempname);
 
-		return [$data, ".zip"];
+		return [$data, '.zip'];
 	}
+	// Outputs a CSV width a widget's question and answer set
+	// Does NOT care about score data of any kind
+	protected static function questions_and_answers($inst, $semesters)
+	{
+		if ($inst == null) return false;
 
+		$inst->get_qset($inst->id);
+
+		$questions = \Materia\Widget_Instance::find_questions($inst->qset->data);
+
+		$csv = [];
+		$headers = "Question, Answers\r\n";
+
+		$string = $headers;
+
+		foreach ($questions as $question)
+		{
+			$sanitized_question = str_replace(["\r","\n", ','], '', $question->questions[0]['text']);
+			$sanitized_answers = [];
+
+			foreach ($question->answers as $answer)
+			{
+				$sanitized_answer = str_replace(["\r","\n", ','], '', $answer['text']);
+				array_push($sanitized_answers, $sanitized_answer);
+			}
+
+			$string .= $sanitized_question.', '.implode(', ', $sanitized_answers)."\r\n";
+		}
+
+		return [$string, '_questions_answers.csv'];
+	}
 }

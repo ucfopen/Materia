@@ -85,6 +85,25 @@ abstract class Score_Module
 	 */
 	public function validate_scores($timestamp=false)
 	{
+		if ( ! $timestamp)
+		{
+			if ( ! $this->play)
+			{
+				$this->play = new \Materia\Session_Play();
+				$this->play->get_by_id($this->play_id);
+			}
+
+			// Check for attempt limit prior to submission, but only for actual plays (not previews)
+			if ($this->play_id != -1)
+			{
+				$attempts_used = count(\Materia\Score_Manager::get_instance_score_history($this->inst->id, $this->play->context_id));
+				if ($this->inst->attempts != -1 && $attempts_used >= $this->inst->attempts)
+				{
+					throw new Score_Exception('Attempt Limit Met', 'You have already met the attempt limit for this widget and cannot submit additional scores.');
+				}
+			}
+		}
+
 		$this->load_questions($timestamp);
 
 		if (empty($this->logs)) $this->logs = Session_Logger::get_logs($this->play_id);
@@ -170,7 +189,11 @@ abstract class Score_Module
 
 	protected function get_score_overview()
 	{
+		if ($this->play_id == -1) $complete = true; // mark complete for previews
+		else $complete = (boolean) empty($this->play->is_complete) ? '' : $this->play->is_complete;
+
 		return [
+			'complete'     => $complete,
 			'score'        => $this->calculated_percent,
 			'table'        => $this->get_overview_items(),
 			'referrer_url' => empty($this->play->referrer_url) ? '' : $this->play->referrer_url,

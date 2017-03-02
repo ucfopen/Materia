@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Materia
  * License outlined in licenses folder
@@ -89,7 +89,7 @@ class Controller_Widgets_Upload extends Controller
 			foreach (Upload::get_files() as $file)
 			{
 				$path = $file['saved_to'].$file['saved_as'];
-				if ( ! Materia\Widget_Installer::extract_and_install_from_package($path))
+				if ( ! Materia\Widget_Installer::extract_package_and_install($path))
 				{
 					$failed = true;
 					break;
@@ -98,7 +98,7 @@ class Controller_Widgets_Upload extends Controller
 		}
 
 		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
-		Response::redirect(Router::get('widgets/upload'));
+		Response::redirect(Router::get('upload/widgets'));
 	}
 }
 

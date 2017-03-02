@@ -1,5 +1,7 @@
 app = angular.module 'materia'
-app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYER) ->
+app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYER, Alert) ->
+
+	$scope.alert = Alert
 
 	# Keep track of a promise
 	embedDoneDfD = null
@@ -49,7 +51,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		$.when(sendPendingStorageLogs())
 			.pipe(sendPendingPlayLogs)
 			.done(callback)
-			.fail( -> alert('There was a problem saving.'))
+			.fail( -> _alert('There was a problem saving.', 'Something went wrong...', false))
 
 	onWidgetReady = ->
 		widget = $('#'+PLAYER.EMBED_TARGET).get(0)
@@ -90,7 +92,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		setInterval ->
 			Materia.Coms.Json.send 'session_play_verify', [play_id], (result) ->
 				if result != true and instance.guest_access is false
-					$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
+					_alert 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.', 'Invalid session', true
 		, 30000
 		dfd.promise()
 
@@ -112,7 +114,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 				widget.contentWindow.postMessage JSON.stringify({type:type, data:args}), STATIC_CROSSDOMAIN
 
 	onLoadFail = (msg) ->
-			alert "Failure: #{msg}"
+			_alert "Failure: #{msg}", null, true
 
 	embed = ->
 		dfd = $.Deferred()
@@ -185,7 +187,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 					when 'end'             then end(msg.data)
 					when 'sendStorage'     then sendStorage(msg.data)
 					when 'sendPendingLogs' then sendAllPendingLogs()
-					when 'alert'           then $scope.$apply -> $scope.alert = msg.data
+					when 'alert'           then _alert msg.data, 'Warning!', false
 					when 'setHeight'       then setHeight msg.data[0]
 					when 'initialize'      then
 					else                   throw new Error "Unknown PostMessage received from player core: #{msg.type}"
@@ -259,11 +261,14 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 
 		(Materia.Coms.Json.send 'play_logs_save', pendingQueue[0].request, (result) ->
 			retryCount = 0 # reset on success
-			if $scope.fatal? then $scope.fatal = null
+			if $scope.alert.fatal then $scope.alert.fatal = false
 			if result? && result.score_url?
 				scoreScreenURL = result.score_url
 			else if result? && result.type is "error"
-				$scope.$apply -> $scope.fatal = 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.'
+				if result.msg
+					_alert result.msg, 'Something went wrong...', true
+				else
+					_alert 'Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You\'ll need to reload the page to start over.', 'Something went wrong...', true
 
 			previous = pendingQueue.shift()
 			previous.promise.resolve()
@@ -279,7 +284,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 
 			if retryCount > PLAYER.RETRY_LIMIT
 				retrySpeed = PLAYER.RETRY_SLOW
-				$scope.$apply -> $scope.fatal = 'Connection to Materia\'s server was lost. Check your connection or reload to start over.'
+				_alert 'Connection to Materia\'s server was lost. Check your connection or reload to start over.', 'Something went wrong...', true
 
 			setTimeout ->
 				logPushInProgress = false
@@ -368,12 +373,18 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			else
 				scoreScreenURL = "#{BASE_URL}scores/#{$scope.inst_id}#play-#{play_id}"
 
-		window.location = scoreScreenURL unless $scope.fatal
+		window.location = scoreScreenURL unless $scope.alert.fatal
 
 	window.onbeforeunload = (e) ->
 		if instance.widget.is_scorable is "1" and !$scope.isPreview and endState != 'sent'
 			return "Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget."
 		else return undefined
+
+	_alert = (msg, title = null, fatal = false) ->
+		$scope.$apply ->
+			$scope.alert.msg = msg
+			$scope.alert.title = title if title isnt null
+			$scope.alert.fatal = fatal
 
 	$timeout ->
 		$.when(getWidgetInstance(), startPlaySession())

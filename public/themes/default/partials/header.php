@@ -1,9 +1,9 @@
+<?php // @codingStandardsIgnoreStart ?>
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
-
-	<? /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
-	<? if ($me->is_guest()): ?>
+	<?php /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
+	<?php if ($me->is_guest()): ?>
 		<span id="current-user" data-logged-in="false"></span>
-	<? else: ?>
+	<?php else: ?>
 		<span id="current-user"
 			data-logged-in="true"
 			data-name="<?= "{$me->first} {$me->last}" ?>"
@@ -11,7 +11,7 @@
 			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
 			data-notify="<?= $me->profile_fields['notify'] ? 'true' : 'false' ?>"
 		></span>
-	<? endif ?>
+	<?php endif ?>
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
@@ -41,13 +41,13 @@
 		<a id="notifications_link" data-notifications="{{values.notifications.length}}" ng-click="clickNotification()"></a>
 		<div id="notices" ng-if="values.notifications.length > 0">
 			<div class="notice" ng-repeat="notification in values.notifications">
-				<a href="#" class="noticeClose" ng-click="removeNotification($index)"></a>
 				<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></p>
 				<div class="notice_right_side">
 					<p class="subject" ng-bind-html="trust(notification.subject)"></p>
 				</div>
+				<span class="noticeClose" ng-click="removeNotification($index)"></span>
 			</div>
 		</div>
 	</div>
-
 </header>
+<?php // @codingStandardsIgnoreEnd ?>

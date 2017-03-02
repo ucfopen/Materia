@@ -1,6 +1,8 @@
 # Handles the widget currently selected (on the big screeny thing)
 app = angular.module 'materia'
-app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userServ, $anchorScroll) ->
+app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userServ, $anchorScroll, Alert) ->
+
+	$scope.alert = Alert
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	$scope.$on 'selectedWidget.notifyAccessDenied', ->
@@ -15,7 +17,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.exportPopup =  ->
 		# Do not show modal disabled
-		return if $scope.selected.scores.list.length == 0 || !$scope.selected.hasScores
 		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
@@ -41,7 +42,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 					else
 						$scope.show.editPublishedWarning = true
 				else
-					alert('This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.')
+					$scope.alert.msg = 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
 				$scope.$apply()
 
 		return false
@@ -53,7 +54,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 		height = if String($scope.selected.widget.widget.height) != '0' then $scope.selected.widget.widget.height else 600
 		draft = if $scope.selected.widget.is_draft then "#{$scope.selected.widget.widget.name} Widget" else $scope.selected.widget.name
 
-		"<iframe src='#{BASE_URL}embed/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'><a href='#{BASE_URL}play/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}'>#{draft}</a></iframe>"
+		"<iframe src='#{BASE_URL}embed/#{$scope.selected.widget.id}/#{$scope.selected.widget.clean_name}' width='#{width}' height='#{height}' style='margin:0;padding:0;border:0;'></iframe>"
 
 	$scope.enableOlderScores = ->
 		$scope.show.olderScores = true
@@ -78,7 +79,10 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 					return -1
 				return 1
 
+			$scope.studentAccessible = false
+
 			for user in users
+				if user.is_student then $scope.studentAccessible = true
 				user.access = $scope.perms.widget[user.id][0]
 				timestamp = parseInt($scope.perms.widget[user.id][1], 10)
 				user.expires = timestamp
