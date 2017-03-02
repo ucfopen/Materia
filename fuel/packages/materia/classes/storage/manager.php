@@ -5,13 +5,13 @@ use \RocketDuck\Util_Validator;
 class Storage_Manager
 {
 
-	static public function parse_and_store_storage_array($inst_id, $play_id, $user_id, $storagePacket)
+	static public function parse_and_store_storage_array($inst_id, $play_id, $user_id, $storage_packet)
 	{
 		if (Util_Validator::is_valid_hash($inst_id) && Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
 		{
-			if(count($storagePacket) > 0)
+			if (count($storage_packet) > 0)
 			{
-				foreach($storagePacket AS $storage)
+				foreach ($storage_packet as $storage)
 				{
 					list($id,$num) = \DB::insert('log_storage')
 						->set([
@@ -71,7 +71,7 @@ class Storage_Manager
 		return 0;
 	}
 
-	static public function get_storage_data($inst_id, $year = '', $term = '', $tablename = '')
+	static public function get_storage_data($inst_id, $year = '', $term = '', $tablename = '', $anonymize = false)
 	{
 		if (Util_Validator::is_valid_hash($inst_id)) // valid pid & not a preview
 		{
@@ -97,15 +97,18 @@ class Storage_Manager
 
 			$result = $query->as_object()->execute();
 
-			return self::process_log_data($result);
+			return self::process_log_data($result, $anonymize);
 		}
 		return [];
 	}
 
-	static protected function process_log_data($results)
+	static protected function process_log_data($results, $anonymize = false)
 	{
 		$tables   = [];
 		$students = [];
+
+		//in case we're anonymizing students, keep an increment
+		$i = 0;
 
 		foreach ($results as $r)
 		{
@@ -117,14 +120,24 @@ class Storage_Manager
 			ksort($data);
 
 			// play info
+			if ($anonymize)
+			{
+				$mock_student = new \stdClass();
+				$mock_student->username = 'user'.$i;
+				$mock_student->first = 'User';
+				$mock_student->last = $i;
+				$students[$r->user_id] = $mock_student;
+				$i++;
+			}
 			if ( ! isset($students[$r->user_id])) $students[$r->user_id] = \Model_User::find($r->user_id);
 
 			$student = $students[$r->user_id];
 			$play = [
-				'user'      => ($student ? $student->username : "Guest"),
-				'firstName' => ($student ? $student->first : ""),
-				'lastName'  => ($student ? $student->last : ""),
+				'user'      => ($student ? $student->username : 'Guest'),
+				'firstName' => ($student ? $student->first : ''),
+				'lastName'  => ($student ? $student->last : ''),
 				'time'      => $r->created_at,
+				'cleanTime' => date('m/d/Y H:i:s T', $r->created_at),
 				'play_id'   => $r->play_id,
 			];
 

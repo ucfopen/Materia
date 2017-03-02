@@ -1,4 +1,4 @@
-<?
+<?php
 class Model_User extends Orm\Model
 {
 	const RATE_LIMITER_DOWN_TIME = 60; // 60 seconds
@@ -227,6 +227,7 @@ class Model_User extends Orm\Model
 		$avatar = \Materia\Utils::get_avatar(50, $this);
 		$array = parent::to_array($custom, $recurse, $eav);
 		$array['avatar'] = $avatar;
+		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
 		return $array;
 	}
 

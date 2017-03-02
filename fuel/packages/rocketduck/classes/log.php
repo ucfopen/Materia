@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace RocketDuck;
 
@@ -31,8 +31,17 @@ class Log
 			{
 				static::$monolog->popHandler(); // remove any previous handlers
 			}
-			$file = static::prepare_file($type);
-			$handler = new \Monolog\Handler\StreamHandler($file, \Monolog\Logger::DEBUG);
+			$filename = static::prepare_file($type);
+
+			if ($handler_factory = \Config::get('log_handler_factory'))
+			{
+				$handler = $handler_factory(get_defined_vars(), \Monolog\Logger::DEBUG);
+			}
+			else
+			{
+				$handler = new \Monolog\Handler\StreamHandler($filename, \Monolog\Logger::DEBUG);
+			}
+
 			$handler->setFormatter(static::$formatter);
 			static::$monolog->pushHandler($handler);
 			static::$prev_type = $type;
@@ -43,7 +52,7 @@ class Log
 		$msg[] = time(); // add timestamp to values
 		if ($start_time) $msg[] = round((microtime(true) - $start_time), 5); // if start time sent, calculate the elapsed and append
 
-		static::$monolog->error('"'.implode('","', (array) $msg).'"');
+		static::$monolog->error("$type: \"".implode('","', (array) $msg).'"');
 	}
 
 	protected static function prepare_file($type)

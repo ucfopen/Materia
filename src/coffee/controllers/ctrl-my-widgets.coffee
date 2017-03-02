@@ -1,5 +1,6 @@
 app = angular.module 'materia'
-app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv, beardServ) ->
+app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ, selectedWidgetSrv, beardServ, Alert) ->
+	$scope.alert = Alert
 	$scope.baseUrl = BASE_URL
 	$scope.widgets =
 		widgetList: []
@@ -13,6 +14,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		hasScores: false
 		preview: ""
 		guestAccess: false
+		embeddedOnly: false
 	$scope.perms =
 		collaborators: []
 	$scope.show =
@@ -127,7 +129,16 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 	populateDisplay = ->
 		# reset scope variables to defaults
 		count = null
+
 		$scope.show.olderScores = false
+		$scope.show.availabilityModal = false
+		$scope.show.collaborationModal = false
+		$scope.show.copyModal = false
+		$scope.show.deleteDialog = false
+		$scope.show.editPublishedWarning = false
+		$scope.show.exportModal = false
+		$scope.show.olderScores = false
+
 		$scope.selected.accessLevel = 0
 		$scope.selected.editable = true
 		$scope.selected.shareable = false

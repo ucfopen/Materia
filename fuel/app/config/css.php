@@ -32,6 +32,7 @@ return [
 		],
 		'widget_editor' => [
 			'theme::create.css',
+			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
 		],
 		'widget_detail' => [
 			'lib::jquery.fancybox-1.3.4.css',
@@ -51,7 +52,7 @@ return [
 			'theme::scores.css',
 		],
 		'embed_scores' => [
-			'theme::scores_embedded.css',
+			'theme::scores.css',
 		],
 		'question_catalog' => [
 			'lib::jquery.dataTables.css','theme::question-import.css',
