@@ -53,8 +53,8 @@ header {
 	   display:block;
 	   height: 43px;
 
-       background:#fff url(../img/header_border.png) 0% 100% repeat-x;
-       height: 49px;
+	   background:#fff url(../img/header_border.png) 0% 100% repeat-x;
+	   height: 49px;
 }
 
 header.logged_in {
@@ -1044,9 +1044,9 @@ Fancybox Overrides
 	display: block !important;
 	-webkit-transition: 200ms all;
 	   -moz-transition: 200ms all;
-	    -ms-transition: 200ms all;
-	     -o-transition: 200ms all;
-	        transition: 200ms all;
+		-ms-transition: 200ms all;
+		 -o-transition: 200ms all;
+			transition: 200ms all;
 }
 
 #fancybox-close {
@@ -1179,117 +1179,120 @@ span.subtitle {
 	margin: 0px auto;
 	width: 100%;
 	background: #fff;
+
+	section
+	{
+		background: #fff;
+		overflow: auto;
+		width: 100%;
+	}
+
+	h1
+	{
+		text-align:center;
+		padding: 15px;
+		font-size: 26px;
+		margin-top: 0px;
+		color: #fff;
+		font-family: Lato,arial,serif;
+	}
+
+	p
+	{
+		line-height: 2em;
+		margin: 10px auto;
+		padding: 20px;
+		width: 30em;
+	}
+
+	img
+	{
+		-webkit-box-shadow: 1px 2px 4px #888;
+		box-shadow: 1px 2px 4px #888;
+		-moz-box-shadow: 1px 2px 4px #888;
+		width: 250px;
+		height: 150px;
+	}
+
+	header
+	{
+		background: #0093E7;
+	}
+
+	#h1-div
+	{
+		background: #0093E7;
+	}
+
+	.widget-info
+	{
+		display: inline-block;
+		padding: 10px;
+		margin: 20px auto;
+	}
+
+	#widgets-heading
+	{
+		font-size: 20px;
+		color: #74BF5B;
+		text-align: center;
+	}
+
+	#embed-heading
+	{
+		font-size: 20px;
+		color: #F1824C;
+		text-align: center;
+	}
+
+	.action_button
+	{
+		margin-bottom: 40px;
+	}
+
+	@media only screen and (min-width: 200px) and (max-width: 600px){
+		.widget-info {
+			width: 100%;
+			margin: 5px auto;
+		}
+
+		.widget-info p {
+			width: 18em;
+		}
+	}
+
+	@media only screen and (min-width: 601px) and (max-width: 1000px){
+		.widget-info {
+			width: 45%;
+			margin: 5px auto;
+		}
+
+		 #make-widgets p {
+			width: 17em;
+		}
+
+		#embed-widgets p {
+			width: 18em;
+		}
+	}
+
+	@media only screen and (min-width: 1001px) and (max-width: 1400px){
+		.widget-info {
+			width: 30%;
+			margin: 5px auto;
+		}
+
+		#make-widgets p {
+			width: 20em;
+		}
+
+		#embed-widgets p {
+			width: 22em;
+		}
+	}
+
 }
-section
-{
-	background: #fff;
-	overflow: auto;
-	width: 100%;
-}
 
-h1
-{
-	text-align:center;
-	padding: 15px;
-	font-size: 26px;
-	margin-top: 0px;
-	color: #fff;
-	font-family: Lato,arial,serif;
-}
-
-p
-{
-	line-height: 2em;
-	margin: 10px auto;
-	padding: 20px;
-	width: 30em;
-}
-
-img
-{
-	-webkit-box-shadow: 1px 2px 4px #888;
-	box-shadow: 1px 2px 4px #888;
-	-moz-box-shadow: 1px 2px 4px #888;
-	width: 250px;
-	height: 150px;
-}
-
-header
-{
-	background: #0093E7;
-}
-
-#h1-div
-{
-	background: #0093E7;
-}
-
-.widget-info
-{
-	display: inline-block;
-	padding: 10px;
-	margin: 20px auto;
-}
-
-#widgets-heading
-{
-	font-size: 20px;
-	color: #74BF5B;
-	text-align: center;
-}
-
-#embed-heading
-{
-	font-size: 20px;
-	color: #F1824C;
-	text-align: center;
-}
-
-.action_button
-{
-	margin-bottom: 40px;
-}
-
-@media only screen and (min-width: 200px) and (max-width: 600px){
-    .widget-info {
-        width: 100%;
-        margin: 5px auto;
-    }
-
-    .widget-info p {
-    	width: 18em;
-    }
-}
-
-@media only screen and (min-width: 601px) and (max-width: 1000px){
-    .widget-info {
-        width: 45%;
-        margin: 5px auto;
-    }
-
-     #make-widgets p {
-    	width: 17em;
-    }
-
-    #embed-widgets p {
-    	width: 18em;
-    }
-}
-
-@media only screen and (min-width: 1001px) and (max-width: 1400px){
-    .widget-info {
-        width: 30%;
-        margin: 5px auto;
-    }
-
-    #make-widgets p {
-    	width: 20em;
-    }
-
-    #embed-widgets p {
-    	width: 22em;
-    }
-}
 .ng-modal-dialog {
 
 	padding: 15px 10px 15px 10px;
