@@ -1,5 +1,8 @@
 app = angular.module 'materia'
-app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
+app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv, Alert) ->
+
+	$scope.alert = Alert
+
 	HEARTBEAT_INTERVAL = 30000
 	# How far from the top of the window that the creator frame starts
 	BOTTOM_OFFSET = 145
@@ -30,6 +33,7 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	$scope.publishText = "Publish..."
 
 	$scope.invalid = false
+	$scope.modal = false
 
 	# Model methods
 	# send a save request to the creator
@@ -73,16 +77,17 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# If Initialization Fails
 	onInitFail = (msg) ->
 		stopHeartBeat()
-		alert "Failure: #{msg}" if msg.toLowerCase() != 'flash player required.'
+		_alert "Failure: #{msg}" if msg.toLowerCase() != 'flash player required.'
 
 	# Every 30 seconds, renew/check the session
 	startHeartBeat = ->
 		dfd = $.Deferred().resolve()
 		heartbeat = setInterval ->
 			Materia.Coms.Json.send 'session_author_verify', [null, false], (data) ->
-				if data == false
-					alert 'You have been logged out due to inactivity.\n\nPlease login again.'
-					window.location.reload()
+				if data != true
+					_alert 'You have been logged out due to inactivity', 'Invalid Login', true, true
+					$scope.$apply()
+					stopHeartBeat()
 		, HEARTBEAT_INTERVAL
 
 		dfd.promise()
@@ -140,6 +145,8 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 		else
 			widget_info = widgetData[0]
 
+		$scope.nonEditable = widget_info.is_editable == "0"
+
 		dfd = $.Deferred()
 		widgetType = widget_info.creator.slice widget_info.creator.lastIndexOf('.')
 
@@ -190,9 +197,9 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 					when 'alert'
 						_alert msg.data
 					else
-						alert "Unknown message from creator: #{msg.type}"
+						_alert "Unknown message from creator: #{msg.type}"
 			else
-				alert "Error, cross domain restricted for #{origin}"
+				_alert "Error, cross domain restricted for #{origin}"
 
 		# setup the postmessage listener
 		if addEventListener?
@@ -289,12 +296,20 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# move the embed dialog off to invisibility
 	hideEmbedDialog = ->
 		$scope.iframeUrl = ""
-		$scope.$apply()
+		$scope.modal = false
+		setTimeout (->
+			$scope.$apply()
+			return
+		), 0
 
 	# Note this is psuedo public as it's exposed to flash
 	showMediaImporter = (types) ->
 		showEmbedDialog '/media/import#' + types.join(',')
-		$scope.$apply()
+		$scope.modal = true
+		setTimeout (->
+			$scope.$apply()
+			return
+		), 0
 		null # else Safari will give the .swf data that it can't handle
 
 	# save called by the widget creator
@@ -307,7 +322,12 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			is_draft: saveMode != 'publish',
 			inst_id: inst_id
 			, (inst) ->
-				if inst?
+				# did we get back an error message?
+				if inst?.msg?
+					onSaveCanceled inst
+					$scope.alert.fatal = inst.halt
+					$scope.$apply()
+				else if inst? and inst.id?
 					# update this creator's url
 					window.location.hash = '#'+inst.id if String(inst_id).length != 0
 
@@ -342,14 +362,25 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 	# Note this is psuedo public as it's exposed to flash
 	onSaveCanceled = (msg) ->
 		$scope.saveText = "Can Not Save!"
-		alert "Can not currently save. #{msg}" if msg
+
+		if msg?.msg?
+			if msg.halt?
+				_alert "Unfortunately, your progress was not saved because
+				#{msg.msg.toLowerCase()}. Any unsaved progress will be lost.", "Invalid Login", true, true
+				stopHeartBeat()
+		else
+			if msg then _alert "Unfortunately your progress was not saved because
+			#{msg.toLowerCase()}", 'Hold on a sec', false, false
 
 	setHeight = (h) ->
 		$('#container').height h
 
-	_alert = (options) ->
-		# TODO: Replace with a angular modal
-		alert(options.msg)
+	_alert = (msg, title= null, fatal = false, enableLoginButton = false) ->
+		$scope.$apply ->
+			$scope.alert.msg = msg
+			$scope.alert.title = title if title isnt null
+			$scope.alert.fatal = fatal
+			$scope.alert.enableLoginButton = enableLoginButton
 
 	# Exposed to the window object so that popups and frames can use this public functions
 	Namespace("Materia").Creator =
@@ -390,5 +421,3 @@ app.controller 'createCtrl', ($scope, $sce, $timeout, widgetSrv) ->
 			.pipe(showButtons)
 			.pipe(startHeartBeat)
 			.fail(onInitFail)
-
-

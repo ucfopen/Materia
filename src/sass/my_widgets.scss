@@ -1215,13 +1215,28 @@
 	z-index: 0;
 }
 .ng-modal.csv_popup div.score_table {
-	background: #fffdf9;
-	-moz-box-shadow: -1px 3px 6px #DDD;
-	-webkit-box-shadow: -1px 3px 6px #DDD;
-	box-shadow: -1px 3px 6px #DDD;
-	margin: 0 60px;
+	background: #f5f5f5;
+	width: 570px;
+	margin: 0 5px;
+    border: 1px solid #c1c1c1;
+    border-radius: 3px;
+	height: 370px;
+	overflow-y: auto;
 	position: relative;
 	display: inline-block;
+}
+
+.ng-modal.csv_popup div.score_table::-webkit-scrollbar {
+    width: .8em;
+}
+
+.ng-modal.csv_popup div.score_table::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+
+.ng-modal.csv_popup div.score_table::-webkit-scrollbar-thumb {
+  background-color: #0093e7;
+  outline: 1px solid #a7a7a7;
 }
 .ng-modal.csv_popup #sample-notification {
 	font-family: Lato;
@@ -1244,21 +1259,28 @@
 .ng-modal.csv_popup div.download_wrapper {
 	display: inline-block;
 }
+
+.ng-modal.csv_popup div.download_wrapper h2{
+	border-bottom: 2px dotted #adadad;
+    padding-bottom: 20px;
+    color: #484848;
+}
 .ng-modal.csv_popup div.download_options {
 	display: inline-block;
-	background: #eeeeee;
+	background: #f1824c;
 	vertical-align: top;
 	height: 100%;
-	margin-left: 20px;
+	margin-left: 40px;
 	position: absolute;
 	top: 0;
+	right: -340px;
 	width: 300px;
 	padding-left: 20px;
 	padding-right: 20px;
 }
 .ng-modal.csv_popup div.download_options h4{
 	margin: 0;
-	color: #555555;
+	color: #ffffff;
 	text-align: left;
 	padding: 22px 0 0 0;
 	font-size: 20px;
@@ -1273,11 +1295,11 @@
 }
 .ng-modal.csv_popup div.download_options ul li {
 	padding-bottom: 10px;
+	color: #ffffff;
 }
 .ng-modal.csv_popup div.download_options ul li.checkallLi {
-	font-size: 12px;
 	vertical-align: top;
-	color: #898989;
+	color: #ffffff;
 	border-bottom: 1px #D6D6D6 solid;
 	padding-bottom: 5px;
 	margin-bottom: 10px;
@@ -1286,6 +1308,7 @@
 	margin-top: 22px;
 	font-weight: bold;
 	font-size: 16px;
+	color: #ffffff;
 }
 .ng-modal.csv_popup div.download_options ul li input {
 	margin-right: 15px;
@@ -1317,38 +1340,33 @@
 .ng-modal.csv_popup div.score_table div.download-controls {
 	position: relative;
 	z-index: 1;
-	margin: 0;
-	margin-top: -20px;
-	padding: 10px;
-	background-image: linear-gradient(bottom, rgb(255,251,242) 90%, rgba(255,251,242,0.5) 100%);
-	background-image: -o-linear-gradient(bottom, rgb(255,251,242) 90%, rgba(255,251,242,0.5) 100%);
-	background-image: -moz-linear-gradient(bottom, rgb(255,251,242) 90%, rgba(255,251,242,0.5) 100%);
-	background-image: -webkit-linear-gradient(bottom, rgb(255,251,242) 90%, rgba(255,251,242,0.5) 100%);
-	background-image: -ms-linear-gradient(bottom, rgb(255,251,242) 90%, rgba(255,251,242,0.5) 100%);
-
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.9, rgb(255,251,242)),
-		color-stop(1, rgba(255,251,242,0.5))
-		);
+	margin: 9px 0px 0px 0px;
+	padding: 0px 10px;
 	text-align: center;
 }
+
 .ng-modal.csv_popup div.score_table p.download a {
 	margin-top: 8px;
-	margin-bottom: 0px;
+	margin-bottom: 10px;
 }
+
+.ng-modal.csv_popup div.score_table p#export-scores-description {
+	text-align:left;
+	padding: 0px 15px 0px 15px;
+	line-height: 1.5em;
+	margin-top: 40px
+}
+
 .ng-modal.csv_popup h4 {
 	text-align: center;
+	color:#0093E7;
 }
 .ng-modal.csv_popup h3 {
 	margin: 0;
 	padding: 23px 0 20px 0;
-	font-size: 1.3em;
-	color: #555;
-	border-bottom: #999 dotted 1px;
-	margin-bottom: 20px;
+	font-size: 1.2em;
+	color: #0b97e8;
+	text-align: center;
 }
 .ng-modal.csv_popup div.score_table p.download a.disabled
 {
@@ -1362,10 +1380,10 @@
 	opacity: 0.5;
 }
 .ng-modal.csv_popup ul.options li a {
-	background: #EEE;
+	background: #f1824c;
+	color: #ffffff;
 	padding: 10px;
 	font-size: 0.9em;
-	text-decoration: underline;
 	width: 75px;
 	text-align: center;
 	display: inline-block;
@@ -1398,11 +1416,12 @@
 }
 .ng-modal.csv_popup p.cancel a {
 	font-size: 0.9em;
-	color: #bbb;
+	color:  #0093E7;
 	text-decoration: underline;
 }
 .ng-modal.csv_popup select {
-	margin-top: 10px;
+/*	margin-top: 10px;
+*/	margin-top: 30px;
 	margin-bottom: -10px;
 }
 .ng-modal.csv_popup table tr td {
@@ -1414,6 +1433,18 @@
 .ng-modal .ng-modal-overlay
 {
 	opacity: 0.5;
+}
+
+
+.ng-modal.alert .ng-modal-dialog
+{
+	padding: 15px 10px 15px 10px;
+
+	.ng-modal-title {
+		border-bottom: solid 1px #bebebe;
+		text-align: left;
+		position: static;
+	}
 }
 
 .ng-modal .ng-modal-dialog
