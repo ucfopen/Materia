@@ -128,7 +128,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 						alert "There was an issue uploading this asset to Materia - Please
 						try again later."
-						
+
 						return null
 
 					@saveUploadStatus fileData.ext, keyData.file_key, success
@@ -145,7 +145,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			request.send(fd)
 
 		saveUploadStatus: (fileType, fileURI, s3_upload_success, error = null) ->
-			re = /\/(\w{5})\./
+			re = /\-(\w{5})\./
 			fileID = fileURI.match(re)[1] # id is in first capture group
 			_coms.send 'upload_success_post', [fileID, s3_upload_success, error], (update_success) ->
 				if s3_upload_success
@@ -312,7 +312,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								thumbUrl += "#{thumbId}"
 							else
 								thumbUrl += "#{data}/thumbnail"
-
 							return "<img src='#{thumbUrl}'>"
 						else if full.type is 'mp3'
 							return '<img src="/assets/img/audio.png">'
