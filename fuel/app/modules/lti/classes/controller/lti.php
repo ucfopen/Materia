@@ -87,6 +87,10 @@ class Controller_Lti extends \Controller
 
 		$this->insert_analytics();
 
+		\Js::push_group(['angular', 'ng_modal', 'materia']);
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+
 		\Css::push_group('lti');
 
 		return \Response::forge($this->theme->render());

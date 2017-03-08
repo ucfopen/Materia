@@ -1,6 +1,8 @@
 # Handles the widget currently selected (on the big screeny thing)
 app = angular.module 'materia'
-app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userServ, $anchorScroll) ->
+app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidgetSrv, userServ, $anchorScroll, Alert) ->
+
+	$scope.alert = Alert
 
 	# Displays a no-access message when attempting to access a widget without sharing permissions.
 	$scope.$on 'selectedWidget.notifyAccessDenied', ->
@@ -15,7 +17,6 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 
 	$scope.exportPopup =  ->
 		# Do not show modal disabled
-		return if $scope.selected.scores.list.length == 0 || !$scope.selected.hasScores
 		$scope.show.exportModal = true
 		Materia.MyWidgets.Csv.buildPopup()
 
@@ -41,7 +42,7 @@ app.controller 'SelectedWidgetController', ($scope, $q, widgetSrv,selectedWidget
 					else
 						$scope.show.editPublishedWarning = true
 				else
-					alert('This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.')
+					$scope.alert.msg = 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
 				$scope.$apply()
 
 		return false

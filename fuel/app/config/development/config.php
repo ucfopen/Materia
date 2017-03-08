@@ -14,7 +14,8 @@ return [
 	 * Fuel::L_INFO
 	 * Fuel::L_ALL
 	 */
-	'log_threshold'    => Fuel::L_ALL,
+	'log_threshold' => Fuel::L_ALL,
+	'log_handler_factory'   => function($locals, $level){ return new \Monolog\Handler\ErrorLogHandler(); },
 
 	/* Always Load                                                            */
 	/**************************************************************************/
