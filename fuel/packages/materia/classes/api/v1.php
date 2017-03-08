@@ -526,13 +526,9 @@ class Api_V1
 		$title = $file_info['filename'];
 
 		// Force all uploads in development to have the same bucket sub-directory
-		if(\Fuel::$env == \Fuel::DEVELOPMENT)
-			$remote_url_stub = "dev_uploads/".$user_id.'/';
-		else
-			// Append a slash when using a sub-directory in the bucket
-			$remote_url_stub = ($s3_config['subdir'])
-				? $s3_config['subdir'].'/'.$user_id.'/'
-				: $user_id.'/';
+		$remote_url_stub = ($s3_config['subdir'])
+			? $s3_config['subdir'].'/'
+			: '/';
 
 		// store temporary row in db, obtain asset_id for building s3 file_key
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
@@ -550,7 +546,7 @@ class Api_V1
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [
-			  ['bucket' => $s3_config['bucket']],
+			  ['bucket' => $s3_config['uploads-bucket']],
 			  ['acl' => 'public-read'], # makes the uploaded file public readable
 			  ['eq', '$key', $file_key], #restricts uploads to filenames that start with uploads/
 			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
