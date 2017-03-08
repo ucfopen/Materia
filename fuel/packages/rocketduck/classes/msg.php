@@ -54,7 +54,7 @@ class Msg
 
 	static public function no_login()
 	{
-		$msg = new Msg('You have been logged out, please log in again', 'Invalid Login', Msg::ERROR, true);
+		$msg = new Msg('You have been logged out, and must login again to continue', 'Invalid Login', Msg::ERROR, true);
 		\Session::set_flash('login_error', $msg->msg);
 		return $msg;
 	}
