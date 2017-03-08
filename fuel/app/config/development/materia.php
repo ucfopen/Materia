@@ -55,14 +55,17 @@ return [
 	* > 's3_enabled' => true
 	* > 'upload_url' => 'dockerIP:10001'
 	* > 'bucket' => 'fakes3'
+	* > 'bucket2' => ''
+	* > 'subdir' => 'uploads'
 	*/
 	's3_config' => [
 		's3_enabled' => true,
-		'upload_url' => 'localhost:10001', //just the domain
-		'bucket' => 'fakes3',
-		'subdir' => 'uploads', //only works in production
-		'secret_key' => 'secret_key',
-		'AWSAccessKeyId' => 'access_key',
-		'expire_in' => 10
+		'upload_url' => 'localhost:10001', // only include domain and, if necessary, the port
+		'uploads-bucket' => 'fakes3', // bucket to store original user uploads
+		'verified-bucket' => '', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
+		'subdir' => 'uploads', // OPTIONAL - directory to store original user uploads in the uploads-bucket
+		'secret_key' => 'secret',
+		'AWSAccessKeyId' => 'id',
+		'expire_in' => 100 // temporary key expiration time
 	],
 ];
