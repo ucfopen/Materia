@@ -1,6 +1,9 @@
 # The collaboration modal on the My Widgets page
 app = angular.module 'materia'
-app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, widgetSrv, userServ) ->
+app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, widgetSrv, userServ, Alert) ->
+
+	$scope.alert = Alert
+
 	LEFT = 37
 	UP = 38
 	RIGHT = 39
@@ -38,8 +41,9 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 
 		Materia.Coms.Json.send 'users_search', [nameOrFragment], (matches) ->
 			if matches?.halt
-				alert(matches.msg)
-				location.reload true
+				$scope.alert.msg = matches.msg
+				$scope.alert.fatal = true
+				$scope.$apply()
 				return
 
 			$scope.searchResults.searching = no
@@ -102,7 +106,11 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 		return if $scope.searchResults.matches.indexOf(user) is -1
 		$scope.inputs.userSearchInput = ''
 
-		if $scope.selected.widget.guest_access is false and user.is_student then return alert 'Students can not be given access to this widget unless Guest Mode is enabled!'
+		if $scope.selected.widget.guest_access is false and user.is_student
+			$scope.alert.msg = 'Students can not be given access to this widget unless Guest Mode is enabled!'
+			$scope.alert.title = 'Unable to share with student'
+			$scope.alert.fatal = false
+			return
 
 		$scope.searchResults.show = no
 		$scope.searchResults.matches = []
@@ -169,9 +177,11 @@ app.controller 'CollaborationController', ($scope, $timeout, selectedWidgetSrv, 
 				$scope.show.collaborationModal = no
 				if remove_widget then widgetSrv.removeWidget(widget_id)
 				if students.length > 0 then $scope.selected.widget.student_access = true
-				$scope.$apply()
 			else
-				alert(if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
+				$scope.alert.msg = (if returnData?.msg? then returnData.msg else 'There was an unknown error saving your changes.')
+				if returnData?.halt? then $scope.alert.fatal = true
+
+			$scope.$apply()
 
 	$scope.checkForWarning = (user) ->
 		if user.isCurrentUser and user.access <= 30
