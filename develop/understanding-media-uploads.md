@@ -46,8 +46,8 @@ keys, to store the asset.
 4. Upon successful upload, Amazon S3 returns a success message and the image is
 stored.
 
-5. A thumbnail for the asset is rendered and stored in the same Amazon S3
-bucket as the asset.
+5. A thumbnail for the asset is rendered using Amazon's Lambda service and
+stored.
 
 <!-- **Disclaimer: Given the preceding workflow, anybody with the unique image url
 generated from the upload process can access that image. This includes people
@@ -56,44 +56,53 @@ properties, which makes it harder to randomly come across these image urls.** --
 
 ### User Asset File Structure Inside a Bucket
 
-The file structure of a bucket holding Materia's user assets can vary between
-three different scenarios.
+Materia will support the three following situations in regards to the file
+structure within an S3 bucket. Remember that Materia is expecting thumbnail
+resizing to be done by a lambda function using Amazon's Lambda service, so
+the lambda function should adhere to one of the following file structures.
 
-#### Scenario 1 - Development
+#### Scenario 1 - Storing in the Root (Not Encouraged)
 
-When the Materia App's `FUEL_ENV` is not set to `PRODUCTION`, all uploads to any
-S3 bucket will be stored in a `dev_uploads` sub-directory. Thumbnails will
-will go to the thumbnails directory.
+If Materia App's `subdir` s3 configuration variable is not set, uploads will be
+stored in the root of the bucket. This is strongly discouraged because the
+bucket may become very unorganized in this situation.
 
 ```
+# Using a single bucket:
 s3_bucket
-  |-- dev_uploads # holds original copies of development uploads
   |-- thumbnails
+  # original user uploads are held in the root of bucket
+
+# Using two buckets:
+s3_bucket_1
+  # original user uploads are held in the root of bucket
+s3_bucket_2
+  |-- thumbnails # holds assets resized by lambda service
 ```
 
-#### Scenario 2 - Using a Sub-directory
+#### Scenario 2 - Using a Sub-directory and a Single Bucket
 
-When the Materia App's `FUEL_ENV` is set to `PRODUCTION`, all uploads to any
-S3 bucket will be stored in directory specified by the `subdir` s3 configuration
+When using a single bucket for original assets and thumbnails, all original
+assets will be stored in directory specified by the `subdir` s3 configuration
 variable. Thumbnails will go to the thumbnails directory.
 
 ```
 s3_bucket
   |-- subdir # holds original copies of user uploads
-  |-- thumbnails
+  |-- thumbnails # holds assets resized by lambda service
 ```
 
-#### Scenario 3 - Storing in the Root (Not Encouraged)
+#### Scenario 2 - Using a Sub-directory and Two Buckets (Strongly Encouraged)
 
-If Materia App's `FUEL_ENV` is set to `PRODUCTION` and the `subdir` s3
-configuration variable is not set, uploads will be stored in the root of the
-bucket. This is not encouraged because the bucket may become very unorganized in
-this situation.
+When using a single bucket for original assets and thumbnails, all original
+assets will be stored in directory specified by the `subdir` s3 configuration
+variable. Thumbnails will go to the thumbnails directory.
 
 ```
-s3_bucket
-  |-- thumbnails
-  # original user uploads are held in the root of bucket
+s3_bucket_1
+  |-- subdir # holds original copies of user uploads
+s3_bucket_2
+  |-- thumbnails # holds assets resized by lambda service
 ```
 
 ### Configuration Variables
@@ -161,7 +170,16 @@ the learn more link mentioned in the above section.
 
 ### Setting Up Amazon Lambda for Production
 
-TODO: How to set up Amazon Lambda with Materia
+Setting up a lambda function for Amazon Lambda function can be broken down into
+one question: **Should user assets and resized images be stored in the same bucket, or two
+separate buckets?**
+
+This is important, because Materia will act differently depending on the S3
+bucket file structure defined in the S3 configuration of Materia.
+
+Materia's local lambda setup uses two separate buckets. The local lambda script
+is the exact script that is used in production, and the script can be directly
+copied over to the directory being deployed to Amazon's Lambda service.
 
 ### Setting Up Lambda Local for Development
 
