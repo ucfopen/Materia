@@ -12,7 +12,21 @@ By default Materia stores all uploaded media in the local file system
 associated with the web server. The thumbnails for these images are also
 generated locally. Storing dynamic assets and generating their thumbnails
 locally is okay for a small user base. However, for a larger user base check
-out the the advanced options for dynamic asset storage that Materia supports.
+out the the advanced options for dynamic asset storage that Materia supports:
+
+## Uploading Media to Amazon S3
+
+  - [An Overview of the Upload Process](#an-overview-of-the-upload-process)
+  - [Configuration Variables](#configuration-variables)
+  - [User Asset File Structure Inside a Bucket](#user-asset-file-structure-inside-a-bucket)
+  - [Using Fakes3 for Development](#using-fakes3-for-development)
+  - [Using Amazon S3](#using-amazon-s3)
+
+## Generating Media Thumbnails with Amazon Lambda
+
+  - [An Overview of Generating Thumbnails](#an-overview-of-generating-thumbnails)
+  - [Setting Up Amazon Lambda for Production](#setting-up-amazon-lambda-for-production)
+  - [Setting Up Lambda Local for Development](#setting-up-lambda-local-for-development)
 
 # Adding Scaleability #
 
@@ -54,6 +68,21 @@ generated from the upload process can access that image. This includes people
 outside of Materia. The image IDs are generated using a hash of image
 properties, which makes it harder to randomly come across these image urls.** -->
 
+### Configuration Variables
+
+`*` **required configuration variables**
+
+|Variable|Type|Description|
+|--|
+|`s3_enabled*`|boolean|Turns S3 upload feature on and off|
+|`upload_url*`|string|Defines the S3 endpoint to be uploaded to
+|`uploads-bucket*`|string|Defines the specific S3 bucket an original user asset should be stored in
+|`verified-bucket`|string|Defines the specific S3 bucket an asset that has been verified and/or manipulated by Materia.
+|`subdir`|string|Defines a directory to store the user uploaded assets to in the specified S3 uploads-bucket
+|`secret_key*`|string|API key to access Amazon S3
+|`AWSAccessKeyId*`|string|Access Key Id assigned by Amazon S3
+|`expire_in*`|int|Sets the expiration time of temporary upload keys. Must be a positive integer.|
+
 ### User Asset File Structure Inside a Bucket
 
 Materia will support the three following situations in regards to the file
@@ -69,14 +98,14 @@ bucket may become very unorganized in this situation.
 
 ```
 # Using a single bucket:
-s3_bucket
+uploads-bucket
   |-- thumbnails
   # original user uploads are held in the root of bucket
 
 # Using two buckets:
-s3_bucket_1
+uploads-bucket
   # original user uploads are held in the root of bucket
-s3_bucket_2
+verified-bucket
   |-- thumbnails # holds assets resized by lambda service
 ```
 
@@ -87,51 +116,27 @@ assets will be stored in directory specified by the `subdir` s3 configuration
 variable. Thumbnails will go to the thumbnails directory.
 
 ```
-s3_bucket
+uploads-bucket
   |-- subdir # holds original copies of user uploads
   |-- thumbnails # holds assets resized by lambda service
 ```
 
-#### Scenario 2 - Using a Sub-directory and Two Buckets (Strongly Encouraged)
+#### Scenario 3 - Using a Sub-directory and Two Buckets (Strongly Encouraged)
 
-When using a single bucket for original assets and thumbnails, all original
-assets will be stored in directory specified by the `subdir` s3 configuration
-variable. Thumbnails will go to the thumbnails directory.
+Materia supports up to two Amazon S3 buckets at one time. Two buckets may be used to separate original user assets from assets passed through lambda functions to be verified and/or manipulated for Materia. Unlike the uploads-bucket, the sub-directory feature is not available in the verified-bucket. The lambda functions will determine the structure of the verified-bucket.
+
+To set up second bucket support, simply set the `verified-bucket` S3 configuration variable to the name of the Amazon S3 bucket that will be used.
+
+**Note: If the `verified-bucket` variable is set, Materia will begin to pull assets from the verified-bucket, and no longer look to the uploads-bucket.**
 
 ```
-s3_bucket_1
+uploads-bucket
   |-- subdir # holds original copies of user uploads
-s3_bucket_2
+verified-bucket
   |-- thumbnails # holds assets resized by lambda service
 ```
 
-### Configuration Variables
-
-|Variable|Type|Description|
-|--|
-|`s3_enabled`|boolean|Turns S3 upload feature on and off|
-|`upload_url`|string|Defines the S3 endpoint to be uploaded to
-|`bucket`|string|Defines the specific S3 bucket an asset should be stored in
-|`subdir`|string|Defines a directory to store the user uploaded assets to in the specified S3 bucket
-|`secret_key`|string|API key to access Amazon S3
-|`AWSAccessKeyId`|string|Access Key Id assigned by Amazon S3
-|`expire_in`|int|Sets the expiration time of temporary upload keys|
-
-### Using Amazon S3
-
-To enable the use of an Amazon S3 bucket, go to
-`fuel/app/config/development/materia.php`, and edit the *s3 config* as follows:
-
-1. Set `s3_enabled` to `true`
-2. Set the `upload_url` to `aws.amazon.com`
-3. Set the `bucket` to the name of the desired Amazon S3 bucket to be uplaoded to
-4. See the [file structure section](#user-asset-file-structure-inside-a-bucket) to learn more about the  `subdir` configuration variable
-5. Set the `secret_key` and `AWSAccessKeyId` to their respective values assigned
-   by Amazon
-6. Set `expire_in` to the desired expiration time (in seconds) of the temporary
-   upload token. Once a token is expired AWS will no longer accept it.
-
-### Using up Fakes3
+### Using Fakes3 for Development
 
 Amazon S3 is emulated using a ruby gem called Fakes3 within a
 separate ruby docker container. This container is setup during the
@@ -141,15 +146,28 @@ To enable the use of this Fakes3 container, go to
 `fuel/app/config/development/materia.php`, and edit the *s3_config* as follows:
 
  1. Set `s3_enabled` to `true`
- 2. Set `upload_url` to the IP adress of the docker machine at port `10001`
- 3. Set `bucket` to `fakes3`
- 4. `subdir` will be set to `dev_uploads` automatically when `FUEL_ENV` is not set to `PRODUCTION`
+ 2. Set `upload_url` to the IP address of the docker machine at port `10001` (`IP:10001`)
+ 3. Set `uploads-bucket` to `fakes3_uploads`
+ 3. Set `verified-bucket` to `fakes3_assets`
+ 4. Set `subdir` to `uploads`
  5. Since Fakes3 does not implement an authentication layer, the following variables can be left as is:
   * `secret_key`
   * `AWSAccessKeyId`
   * `expire_in`
 
-The thumbnails for these images will be stored in the `thumbnails` directory within the fakes3 bucket.
+The thumbnails for these images will be stored in the `thumbnails` directory within the `verified-bucket`.
+
+### Using Amazon S3
+
+To enable the use of an Amazon S3 bucket, go to
+`fuel/app/config/development/materia.php`, and edit the *s3 config* as follows:
+
+1. Set `s3_enabled` to `true`.
+2. Set the `upload_url` to `aws.amazon.com`.
+3. Set the `uploads-bucket` to the name of the desired Amazon S3 bucket to be uploaded to.
+4. See the [file structure section](#user-asset-file-structure-inside-a-bucket) to learn more about the  `subdir` and `verified-bucket` configuration variables.
+5. Set the `secret_key` and `AWSAccessKeyId` to their respective values assigned by Amazon.
+6. Set `expire_in` to the desired expiration time (in seconds) of the temporary upload token. Once a token is expired AWS will no longer accept it.
 
 ## Generating Media Thumbnails with Amazon Lambda
 
@@ -177,9 +195,6 @@ separate buckets?**
 This is important, because Materia will act differently depending on the S3
 bucket file structure defined in the S3 configuration of Materia.
 
-Materia's local lambda setup uses two separate buckets. The local lambda script
-is the exact script that is used in production, and the script can be directly
-copied over to the directory being deployed to Amazon's Lambda service.
 
 ### Setting Up Lambda Local for Development
 
