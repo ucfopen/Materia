@@ -54,8 +54,8 @@ return [
 	* ========================================
 	* > 's3_enabled' => true
 	* > 'upload_url' => 'dockerIP:10001'
-	* > 'bucket' => 'fakes3_uploads'
-	* > 'bucket2' => 'fakes3_assets'
+	* > 'uploads-bucket' => 'fakes3_uploads'
+	* > 'verified-bucket' => 'fakes3_assets'
 	* > 'subdir' => 'uploads'
 	* > 'secret_key' => 'secret'
 	* > 'AWSAccessKeyId' => 'id'
