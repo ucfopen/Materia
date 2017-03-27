@@ -53,16 +53,16 @@ class Controller_Media extends Controller
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
 
+		$protocol = (\FUEL::$env == \FUEL::DEVELOPMENT) ? "http://" : "https://";
+
 		// if s3 is not enabled, default to local media upload url
 		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
-		$s3_upload_url = "//".Config::get('materia.s3_config.uploads-bucket').".".Config::get('materia.s3_config.upload_url');
-		$s3_thumbnail_url = (Config::get('materia.s3_config.verified-bucket'))
-			? "//".Config::get('materia.s3_config.verified-bucket').".".Config::get('materia.s3_config.upload_url')
+		$s3_upload_url = $protocol.Config::get('materia.s3_config.uploads_bucket').".".Config::get('materia.s3_config.upload_url');
+		$s3_thumbnail_url = (Config::get('materia.s3_config.verified_bucket'))
+			? $protocol.Config::get('materia.s3_config.verified_bucket').".".Config::get('materia.s3_config.upload_url')
 			: $s3_upload_url ;
 		$local_upload_url = Uri::base().Config::get('materia.urls.media_upload');
 		$local_media_url = Uri::base().Config::get('materia.urls.media');
-
-
 
 		Js::push_inline('var S3_ENABLED = '.($s3_enabled ? 'true':'false').';');
 		Js::push_inline('var MEDIA_UPLOAD_URL = "'
