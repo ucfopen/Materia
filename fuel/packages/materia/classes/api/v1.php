@@ -546,7 +546,7 @@ class Api_V1
 		$param_hash = [
 			'expiration' => $expiration,
 			'conditions' => [
-			  ['bucket' => $s3_config['uploads-bucket']],
+			  ['bucket' => $s3_config['uploads_bucket']],
 			  ['acl' => 'public-read'], # makes the uploaded file public readable
 			  ['eq', '$key', $file_key], #restricts uploads to filenames that start with uploads/
 			  ['starts-with', '$Content-Type', 'image/'], # makes sure the uploaded content type starts with image
