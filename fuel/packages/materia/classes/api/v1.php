@@ -560,10 +560,10 @@ class Api_V1
 		$signature = base64_encode($sha1_hash);
 
 		$res = [
-			'AWSAccessKeyId' 	=> $s3_config["AWSAccessKeyId"],
-			'policy' 			=> $policy,
-			'signature' 		=> $signature,
-			'file_key'			=> $file_key
+			'AWSAccessKeyId' => $s3_config["AWSAccessKeyId"],
+			'policy'         => $policy,
+			'signature'      => $signature,
+			'file_key'       => $file_key
 		];
 
 		return $res;

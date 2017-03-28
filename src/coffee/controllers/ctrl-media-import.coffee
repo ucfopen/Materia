@@ -10,17 +10,17 @@ app.directive 'fileOnChange', ->
 	}
 
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
-	selectedAssets		= []
-	data				= []
-	assetIndices		= []
-	dt					= null
-	uploading			= false
-	creator				= null
-	_coms				= null
-	_s3enabled			= S3_ENABLED # explicitly localize globals
-	_mediaUploadUrl		= MEDIA_UPLOAD_URL
-	_mediaUrl			= MEDIA_URL
-	_baseUrl			= BASE_URL
+	selectedAssets  = []
+	data            = []
+	assetIndices    = []
+	dt              = null
+	uploading       = false
+	creator         = null
+	_coms           = null
+	_s3enabled      = S3_ENABLED # explicitly localize globals
+	_mediaUploadUrl = MEDIA_UPLOAD_URL
+	_mediaUrl       = MEDIA_URL
+	_baseUrl        = BASE_URL
 
 	class Uploader
 		constructor: (@config) ->
@@ -62,10 +62,10 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				return null if !mime?
 
 				fileData =
-					name:	file.name
-					mime:	mime
-					ext:	file.name.split('.').pop()
-					src:	src
+					name: file.name
+					mime: mime
+					ext:  file.name.split('.').pop()
+					src:  src
 
 				callback fileData
 
@@ -126,8 +126,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 						@saveUploadStatus fileData.ext, keyData.file_key, success, upload_error
 
-						alert "There was an issue uploading this asset to Materia - Please
-						try again later."
+						alert "There was an issue uploading this asset to Materia - Please try again later."
 
 						return null
 
