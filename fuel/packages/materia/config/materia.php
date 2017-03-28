@@ -40,7 +40,7 @@ return [
 		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
 		'static'             => str_replace('//', '//static.', \Uri::create()), // http://static.siteurl.com/
 		'engines'            => str_replace('//', '//static.', \Uri::create('widget/')), // engine swf locations
-		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks 
+		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks
 	],
 
 	/*
@@ -82,11 +82,26 @@ return [
 		],
 	],
 
+	/*
+	* To use fakes3, use the following config:
+	* ========================================
+	* > 's3_enabled'      => true
+	* > 'upload_url'      => 'dockerIP:10001'
+	* > 'uploads_bucket'  => 'fakes3_uploads'
+	* > 'verified_bucket' => 'fakes3_assets'
+	* > 'subdir'          => 'uploads'
+	* > 'secret_key'      => 'secret'
+	* > 'AWSAccessKeyId'  => 'id'
+	* > 'expire_in'       => 100
+	*/
 	's3_config' => [
-
-		'bucket' => 'default_bucket',
-		'secret_key' => 'secret_key',
-		'expire_in' => 60
-	]
-
+		's3_enabled'      => true,
+		'upload_url'      => 'localhost:10001', // only include domain and, if necessary, the port
+		'uploads_bucket'  => 'fakes3_uploads', // bucket to store original user uploads
+		'verified_bucket' => 'fakes3_assets', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
+		'subdir'          => 'uploads', // OPTIONAL - directory to store original user uploads in the uploads-bucket
+		'secret_key'      => 'secret',
+		'AWSAccessKeyId'  => 'id',
+		'expire_in'       => 100 // temporary key expiration time
+	],
 ];
