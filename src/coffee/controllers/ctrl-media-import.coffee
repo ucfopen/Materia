@@ -304,10 +304,25 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							thumbUrl = "#{_mediaUrl}/"
 
 							if _s3enabled
-								split = data.split('/')
-								# replace the uploads in the filepath with thumbnails
-								split.splice(0, 1, 'thumbnails')
-								thumbId = split.join('/')
+								original_path_data = data.split('/')
+
+								# removes original assets path
+								thumbnail_path_data = original_path_data.slice(1)
+
+								# separates filename and extension
+								thumbnail_path_data = thumbnail_path_data[0].split(".")
+
+								extension = thumbnail_path_data.pop()
+
+								# Maintains a standard extension
+								if(extension == 'jpg')
+									extension = 'jpeg'
+
+								# thumbnails in Materia never exceed 75x75 dimensions
+								thumbnail_path_data.push('75x75.'+extension)
+
+								# creates final thumbnail path
+								thumbId = thumbnail_path_data.join('-')
 								thumbUrl += "#{thumbId}"
 							else
 								thumbUrl += "#{data}/thumbnail"
