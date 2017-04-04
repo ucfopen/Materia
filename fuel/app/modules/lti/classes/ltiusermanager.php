@@ -116,7 +116,18 @@ class LtiUserManager
 		{
 			try
 			{
-				$user_id = $auth->create_user($launch->username, uniqid(), $launch->email, 1, ['created_by' => $launch->consumer_id]);
+				//username, password, email, group, profile fields, first name, last name, requires password, requires email
+				$user_id = $auth->create_user(
+					$launch->username,
+					uniqid(),
+					$launch->email,
+					1,
+					['created_by' => $launch->consumer_id],
+					$launch->first,
+					$launch->last,
+					false,
+					false
+				);
 				if ($user_id)
 				{
 					$user = \Model_User::find($user_id);
@@ -161,8 +172,7 @@ class LtiUserManager
 		if ( empty($user->last))  $items_to_update['last'] = $launch->last;
 		// NOTE: Since emails are generated if none exist then this value will
 		// not be empty when we expect it to.
-		if ( empty($user->email)) $items_to_update['email'] = $launch->email;
-
+		if ( empty($user->email) && !empty($launch->email)) $items_to_update['email'] = $launch->email;
 		if ( ! empty($items_to_update)) $auth->update_user($items_to_update, $user->username);
 	}
 }
