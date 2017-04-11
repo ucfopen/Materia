@@ -256,6 +256,10 @@ h3
 	-moz-user-select: none;
 	-o-user-select: none;
 	user-select: none;
+
+	.ng-modal & {
+		margin: 5px auto;
+	}
 }
 
 .cancel_button {
@@ -446,7 +450,7 @@ dl.blurb dt {
 .notice .notice_right_side {
 	display: inline-block;
 }
-.notice a.noticeClose {
+.notice .noticeClose {
 	position: absolute;
 	right: 5px;
 	top:4px;
@@ -454,6 +458,8 @@ dl.blurb dt {
 
 	width: 19px;
 	height: 19px;
+
+	cursor: pointer;
 }
 .notice p {
 	font-family: 'Lucida Grande', arial, sans-serif;
@@ -1109,8 +1115,6 @@ Fancybox Overrides
 		background:#fff url(../img/header_border.png) 0% 100% repeat-x;
 		background-size: 12px 6px;
 	}
- 
-
 }
 
 .qtip {
@@ -1169,3 +1173,26 @@ span.subtitle {
 	font-family: 'Lato', arial, serif;
 }
 
+.ng-modal-dialog {
+
+	padding: 15px 10px 15px 10px;
+
+	.ng-modal-title {
+		font-size: 150%;
+		border-bottom: solid 1px #bebebe;
+	}
+}
+
+.alert .action_button {
+	display: block;
+}
+
+/* hack fix to ngModal plugin to disable closing halting alerts */
+.ng-modal.fatal {
+	.ng-modal-close {
+		display: none;
+	}
+	.ng-modal-overlay {
+		pointer-events: none;
+	}
+}

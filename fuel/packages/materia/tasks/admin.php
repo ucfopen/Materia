@@ -79,7 +79,7 @@ class Admin extends \Basetask
 		{
 			\Cli::write('Timing validation error.');
 			if ($update_score) $play->invalidate();
-			continue;
+			return;
 		}
 
 		// validate the scores the game generated on the server
@@ -87,7 +87,7 @@ class Admin extends \Basetask
 		{
 			\Cli::write('There was an error validating your score.');
 			if ($update_score) $play->invalidate();
-			continue;
+			return;
 		}
 
 		// Update the score values
@@ -288,7 +288,10 @@ class Admin extends \Basetask
 	public static function reset_password($username)
 	{
 		$newpassword = \Auth::instance()->reset_password($username);
-		\Cli::write("New password is $username ".\Cli::color($newpassword, 'yellow'));
+		if (\Fuel::$env != \Fuel::TEST )
+		{
+			\Cli::write("New password is $username ".\Cli::color($newpassword, 'yellow'));
+		}
 	}
 
 	public static function new_user($user_name, $first_name, $mi,  $last_name, $email, $password)
@@ -301,8 +304,11 @@ class Admin extends \Basetask
 
 			if ($user_id === false)
 			{
-				\Cli::beep(1);
-				\Cli::write(\Cli::color('Failed to create user', 'red'));
+				if (\Fuel::$env != \Fuel::TEST )
+				{
+					\Cli::beep(1);
+					\Cli::write(\Cli::color('Failed to create user', 'red'));
+				}
 			}
 			else
 			{
@@ -312,20 +318,46 @@ class Admin extends \Basetask
 		}
 		catch (\FuelException $e)
 		{
-			\Cli::beep(1);
-			\Cli::write(\Cli::color('Error creating user', 'red'));
-			\Cli::write(\Cli::color($e->getMessage(), 'red'));
+			if (\Fuel::$env != \Fuel::TEST )
+			{
+				\Cli::beep(1);
+				\Cli::write(\Cli::color('Error creating user', 'red'));
+				\Cli::write(\Cli::color($e->getMessage(), 'red'));
+			}
 			exit(1); // linux exit code 1 = error
 		}
 
 	}
 
-	public static function instant_user($name, $role = 'basic_author')
+	public static function instant_user($name = null, $role = 'basic_author')
 	{
-		if (\Fuel::$env != \Fuel::DEVELOPMENT) return;
-		$user_id = static::new_user($name, $name, 'f', $name, $name.'@test.com', '123456');
+		if ( ! empty($name))
+		{
+			$first = $last = $name;
+			$pass = '123456';
+		}
+		else
+		{
+			$name = 'test'.\Model_User::count();
+			$first = 'Unofficial Test User';
+			$last = substr(str_shuffle(md5(time())),0,10); //generates a random 10-digit alphanumeric string
+			$pass = 'test';
+		}
+
+		$user_id = static::new_user($name, $first, '', $last, $name.'@test.com', $pass);
+
 		static::reset_password($name);
 		static::give_user_role($name, $role);
+
+		return $user_id;
+	}
+
+	public static function quick_test_users($n = 10)
+	{
+		for ($i = 0; $i < $n; $i++)
+		{
+			static::instant_user();
+		}
 	}
 
 	public static function clear_cache($quiet=false)

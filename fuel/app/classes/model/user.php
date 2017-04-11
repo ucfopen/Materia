@@ -53,6 +53,8 @@ class Model_User extends Orm\Model
 		$profile_fields = $this->get('profile_fields');
 
 		$this->set('profile_fields', array_merge(static::$_default_profile_fields, $profile_fields));
+		//don't allow notifications to be sent if there's no e-mail address to send them to
+		if(empty($this->email)) $this->profile_fields['notify'] = false;
 	}
 
 	public static function find_current()
@@ -227,6 +229,7 @@ class Model_User extends Orm\Model
 		$avatar = \Materia\Utils::get_avatar(50, $this);
 		$array = parent::to_array($custom, $recurse, $eav);
 		$array['avatar'] = $avatar;
+		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
 		return $array;
 	}
 

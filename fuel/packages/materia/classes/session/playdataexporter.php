@@ -55,6 +55,7 @@ class Session_PlayDataExporter
 	protected static function storage($inst, $semesters)
 	{
 		$table_name   = \Input::get('table');
+		$anonymize    = filter_var(\Input::get('anonymized', false), FILTER_VALIDATE_BOOLEAN);
 		$num_records  = 0;
 		$storage_data = [];
 		$csv          = '';
@@ -64,7 +65,7 @@ class Session_PlayDataExporter
 		// load the logs for all selected semesters
 		if (empty($semesters))
 		{
-			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name);
+			$loaded_data = Storage_Manager::get_storage_data($inst->id, '', '', $table_name, $anonymize);
 			if ( ! empty($loaded_data[$table_name]))
 			{
 				$storage_data['all'] = $loaded_data[$table_name];
@@ -76,7 +77,7 @@ class Session_PlayDataExporter
 			foreach ($semesters as $semester)
 			{
 				list($year, $term) = explode('-', $semester);
-				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name);
+				$loaded_data = Storage_Manager::get_storage_data($inst->id, $year, $term, $table_name, $anonymize);
 				if ( ! empty($loaded_data[$table_name]))
 				{
 					$storage_data[$semester] = $loaded_data[$table_name];
@@ -128,6 +129,42 @@ class Session_PlayDataExporter
 		}
 
 		return [$csv, "-storage-{$table_name}.csv"];
+	}
+
+	protected static function all_scores($inst, $semesters)
+	{
+		$play_logs = [];
+		$count = 0;
+
+		// Table headers
+		$csv = "User ID,Last Name,First Name,Score,Semester\r\n";
+
+		foreach ($semesters as $semester)
+		{
+			list($year, $term) = explode('-', $semester);
+			// Get all scores for each semester
+			$logs = $play_logs["{$year} {$term}"] = \Materia\Session_Play::get_by_inst_id($inst->id, $term, $year);
+
+			foreach ($logs as $play)
+			{
+				// ignore non-guest plays when exporting all scores
+				if ($play['user_id']) continue;
+				$condensed = [
+					'Guest '.++$count,
+					'last_name' => $play['last'],
+					'first_name' => $play['first'],
+					'score' => $play['perc'],
+					'semester' => $semester
+				];
+
+				$csv .= implode(',', $condensed)."\r\n";
+			}
+		}
+
+		// If there aren't any logs throw a 404 error
+		if ($count == 0) throw new HttpNotFoundException;
+
+		return [$csv, '.csv'];
 	}
 
 	/**
@@ -195,6 +232,8 @@ class Session_PlayDataExporter
 				// If there is no username, it is a guest user
 				$u = $play['username'] ? $play['username'] : '(Guest)';
 
+				if ( ! isset($results[$u])) $results[$u] = [];
+
 				$play_events = \Materia\Session_Logger::get_logs($play['id']);
 
 				foreach ($play_events as $play_event)
@@ -208,7 +247,7 @@ class Session_PlayDataExporter
 						$semester,
 						$play_event->type,
 						$play_event->item_id,
-						$play_event->text,
+						str_replace(["\r","\n", ','], '', $play_event->text), // sanitize commas and newlines to keep CSV formatting intact
 						$play_event->value,
 						$play_event->game_time,
 						$play_event->created_at
@@ -310,5 +349,35 @@ class Session_PlayDataExporter
 
 		return [$data, '.zip'];
 	}
+	// Outputs a CSV width a widget's question and answer set
+	// Does NOT care about score data of any kind
+	protected static function questions_and_answers($inst, $semesters)
+	{
+		if ($inst == null) return false;
 
+		$inst->get_qset($inst->id);
+
+		$questions = \Materia\Widget_Instance::find_questions($inst->qset->data);
+
+		$csv = [];
+		$headers = "Question, Answers\r\n";
+
+		$string = $headers;
+
+		foreach ($questions as $question)
+		{
+			$sanitized_question = str_replace(["\r","\n", ','], '', $question->questions[0]['text']);
+			$sanitized_answers = [];
+
+			foreach ($question->answers as $answer)
+			{
+				$sanitized_answer = str_replace(["\r","\n", ','], '', $answer['text']);
+				array_push($sanitized_answers, $sanitized_answer);
+			}
+
+			$string .= $sanitized_question.', '.implode(', ', $sanitized_answers)."\r\n";
+		}
+
+		return [$string, '_questions_answers.csv'];
+	}
 }

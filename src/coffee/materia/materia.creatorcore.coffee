@@ -13,6 +13,10 @@ Namespace('Materia').CreatorCore = do ->
 	_resizeInterval = null
 	_lastHeight = -1
 
+	PRESANITIZE_CHARACTERS =
+		'>': '',
+		'<': ''
+
 	_onPostMessage = (e) ->
 		msg = JSON.parse e.data
 		if e.origin isnt null
@@ -75,11 +79,18 @@ Namespace('Materia').CreatorCore = do ->
 	getMediaUrl = (mediaId) ->
 		_baseurl+'media/'+mediaId
 
-	showMediaImporter = (types = ['Image']) ->
+	# replace a specified list of characters with their safe equivalents
+	_preSanitize = (text) ->
+		for k, v of PRESANITIZE_CHARACTERS
+			text = text.replace new RegExp(k, 'g'), v
+		return text
+
+	showMediaImporter = (types = ['jpg','jpeg','gif','png']) ->
 		_sendPostMessage 'showMediaImporter', types
 
 	save = (title, qset, version = '1') ->
-		_sendPostMessage 'save', [title, qset, version]
+		sanitizedTitle = _preSanitize title
+		_sendPostMessage 'save', [sanitizedTitle, qset, version]
 
 	cancelSave = (msg) ->
 		_sendPostMessage 'cancelSave', [msg]
