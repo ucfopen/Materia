@@ -58,7 +58,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		switch
 			when !qset? then embedDoneDfD.reject 'Unable to load widget data.'
 			when !widget? then embedDoneDfD.reject 'Unable to load widget.'
-			else embedDoneDfD.resolve()
+			else
+				_postMessage 'materiaWidgetStart', instance
+				embedDoneDfD.resolve()
 
 	addLog = (log) ->
 		# add to pending logs
@@ -69,6 +71,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		pendingLogs.storage.push log if !$scope.isPreview
 
 	end = (showScoreScreenAfter = yes) ->
+		_postMessage 'materiaWidgetEnd', { showScoreScreenAfter:showScoreScreenAfter }
+		
 		switch endState
 			when 'sent'
 				showScoreScreen() if showScoreScreenAfter
@@ -135,6 +139,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 				embedFlash enginePath, '10', dfd
 			when '.html'
 				embedHTML enginePath, dfd
+		
+		_postMessage 'materiaWidgetEmbed', { widgetType:widgetType }
+
 		dfd.promise()
 
 	embedFlash = (enginePath, version, dfd) ->
@@ -179,6 +186,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		expectedOrigin = a.href.substr(0, a.href.length - 1)
 
 		_onPostMessage = (e) ->
+			# console.log('OPM', e, parent)
+			# console.log('my body', document.body, window.location.href, parent.body, parent.document);
+			
 			if e.origin == expectedOrigin
 				msg = JSON.parse e.data
 				switch msg.type
@@ -190,6 +200,7 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 					when 'alert'           then _alert msg.data, 'Warning!', false
 					when 'setHeight'       then setHeight msg.data[0]
 					when 'initialize'      then
+					when 'postMessage'     then _postMessage 'materiaWidgetMessage', msg.data
 					else                   throw new Error "Unknown PostMessage received from player core: #{msg.type}"
 			else
 				throw new Error "Post message Origin does not match.  Expected: #{expectedOrigin}, Actual: #{e.origin}"
@@ -198,6 +209,18 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		if addEventListener?
 			addEventListener 'message', _onPostMessage, false
 		$scope.$apply()
+	
+	_postMessage = (type, data) ->
+		parent.postMessage JSON.stringify({
+			type: type,
+			play: {
+				id: play_id,
+				instanceId: $scope.inst_id,
+				isPreview: $scope.isPreview
+			},
+			data: data
+		}), '*'
+
 
 	getWidgetInstance = ->
 		dfd = $.Deferred()
@@ -233,6 +256,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			else
 				# get the play id from the embedded variable on the page:
 				play_id = PLAY_ID
+				console.log $scope.inst_id, $scope
+
+				_postMessage 'materiaStartPlaySession', null
 
 				if play_id?
 					dfd.resolve()
@@ -246,6 +272,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 		# TODO: if bad qSet : dfd.reject('Unable to load questions.')
 		Materia.Coms.Json.send 'question_set_get', [$scope.inst_id, play_id], (result) ->
 			qset = result
+
+			_postMessage 'materiaWidgetLoadQSet', { qSet:qset }
+
 			dfd.resolve()
 
 		dfd.promise()
@@ -363,6 +392,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	setHeight = (h) ->
 		min_h = instance.widget.height
 		if h > min_h then $('.center').height h else $('.center').height min_h
+
+		_postMessage 'materiaEmbedSetHeight', { height:$('.center').height() }
 
 	showScoreScreen = ->
 		if scoreScreenURL == null

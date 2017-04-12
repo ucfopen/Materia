@@ -75,6 +75,9 @@ Namespace('Materia').Engine = do ->
 
 	escapeScriptTags = (text) ->
 		text.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+	
+	postMessage = (message) ->
+		_sendPostMessage 'postMessage', message
 
 	start:start
 	addLog:addLog
@@ -86,3 +89,4 @@ Namespace('Materia').Engine = do ->
 	disableResizeInterval:disableResizeInterval
 	setHeight:setHeight # allows the widget to resize its iframe container to fit the height of its contents
 	escapeScriptTags:escapeScriptTags
+	postMessage: postMessage
