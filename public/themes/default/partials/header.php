@@ -32,13 +32,13 @@
 
 			<?php if (\RocketDuck\Perm_Manager::is_super_user()): ?>
 				<li class="nav_expandable">
-					<span class='orange'>Admin</span>
+					<span class='elevated'>Admin</span>
 					<ul>
 						<li>
-							<a class='orange' href="/admin/widget">Widgets</a>
+							<a class='elevated' href="/admin/widget">Widgets</a>
 						</li>
 						<li>
-							<a class='orange' href="/admin/user">Users</a>
+							<a class='elevated' href="/admin/user">Users</a>
 						</li>
 					</ul>
 				</li>
