@@ -24,9 +24,14 @@ class Basetest extends TestCase
 		$class = new ReflectionClass("\Fuel\Core\Input");
 		foreach (['detected_uri', 'detected_ext', 'input', 'put_patch_delete', 'php_input', 'json', 'xml'] as $value)
 		{
-			$property = $class->getProperty($value);
-			$property->setAccessible(true);
-			$property->setValue(null);
+			try
+			{
+				$property = $class->getProperty($value);
+				$property->setAccessible(true);
+				$property->setValue(null);
+
+			}
+			catch (ReflectionException $e) {}
 		}
 	}
 
