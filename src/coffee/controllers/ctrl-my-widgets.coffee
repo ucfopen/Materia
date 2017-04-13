@@ -24,6 +24,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		olderScores: no
 		exportModal: no
 		deleteDialog: no
+		embedToggle : no
 		editPublishedWarning: no
 	firstRun = true
 
@@ -136,6 +137,7 @@ app.controller 'MyWidgetsController', ($scope, $q, $window, widgetSrv, userServ,
 		$scope.show.copyModal = false
 		$scope.show.deleteDialog = false
 		$scope.show.editPublishedWarning = false
+		$scope.show.embedToggle = false
 		$scope.show.exportModal = false
 		$scope.show.olderScores = false
 

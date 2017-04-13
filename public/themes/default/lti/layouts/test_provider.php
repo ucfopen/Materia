@@ -185,8 +185,17 @@
 				<input type="hidden" class="context_id" name="context_id" />
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
-				<input type="hidden" id="new_learner" name="new_learner" value="new_learner" />
-				<input type="submit" value="As NEW Learner">
+				<input type="hidden" id="new_learner_email" name="new_learner_email" value="new_learner_email" />
+				<input type="submit" value="As NEW Learner WITH EMAIL">
+			</form>
+
+			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
+				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
+				<input type="hidden" class="resource_link" name="resource_link" />
+				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
+				<input type="hidden" id="new_learner_no_email" name="new_learner_no_email" value="new_learner_no_email" />
+				<input type="submit" value="As NEW Learner WITHOUT EMAIL">
 			</form>
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
