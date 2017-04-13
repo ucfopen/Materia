@@ -32,7 +32,10 @@ class Controller_Error extends \Controller
 			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
 		}
 
-		\Js::push_group('core');
+		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+
 		\Css::push_group('lti');
 
 		return \Response::forge(\Theme::instance()->render());
