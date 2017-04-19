@@ -50,6 +50,9 @@ return [
 	],
 
 	/*
+	* To view detailed documentation on asset uploads using Amazon S3, visit: 
+	* http://ucfcdl.github.io/Materia/
+	*
 	* To use fakes3, use the following config:
 	* ========================================
 	* > 's3_enabled'      => true
