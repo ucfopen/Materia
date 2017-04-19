@@ -44,7 +44,7 @@ class Controller_Widgets extends Controller
 		$protocol = (\FUEL::$env == \FUEL::DEVELOPMENT) ? "http://" : "https://";
 
 		$s3_enabled = Config::get('materia.s3_config.s3_enabled');
-		$s3_media_url = $protocol.Config::get('materia.s3_config.verified_bucket').".".Config::get('materia.s3_config.upload_url');
+		$s3_media_url = $protocol.Config::get('materia.s3_config.uploads_bucket').".".Config::get('materia.s3_config.upload_url');
 		$local_media_url = Uri::base().Config::get('materia.urls.media');
 		Js::push_inline('var MEDIA_URL = "'
 			.($s3_enabled ? $s3_media_url : $local_media_url)

@@ -121,7 +121,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					if(!success)
 						# Parse the Error message received from amazonaws
 						parser = new DOMParser()
-						doc = parser.parseFromString(request.response, 'application/xml')
+						doc = parser.parseFromStrring(request.response, 'application/xml')
 						upload_error = doc.getElementsByTagName("Error")[0].childNodes[1].innerHTML
 
 						@saveUploadStatus fileData.ext, keyData.file_key, success, upload_error
@@ -129,7 +129,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						alert "There was an issue uploading this asset to Materia - Please try again later."
 
 						return null
-
+						
 					@saveUploadStatus fileData.ext, keyData.file_key, success
 				else # local upload
 					res = JSON.parse request.response #parse response string
@@ -157,7 +157,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		# 	@set {statusMsg: 'Generating Thumbnails'}
 		# 	clearTimeout @pollTimeout
 		# 	@pollTimeout = setTimeout(@pollUploadedImage, 2000)
-
+		#
 		# # keep polling using a cheap HEAD request and an incrementing url (s3 caches the result otherwise)
 		# pollUploadedImage: =>
 		# 	Backbone.ajax
@@ -306,23 +306,21 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							if _s3enabled
 								original_path_data = data.split('/')
 
-								# removes original assets path
-								thumbnail_path_data = original_path_data.slice(1)
-
 								# separates filename and extension
-								thumbnail_path_data = thumbnail_path_data[0].split(".")
+								image_key = original_path_data.pop().split(".")
 
-								extension = thumbnail_path_data.pop()
+								extension = image_key.pop()
 
 								# Maintains a standard extension
 								if(extension == 'jpg')
 									extension = 'jpeg'
 
 								# thumbnails in Materia never exceed 75x75 dimensions
-								thumbnail_path_data.push('75x75.'+extension)
+								image_key.push('75x75'+'.'+extension)
+								original_path_data.push(image_key.join('-'))
 
 								# creates final thumbnail path
-								thumbId = thumbnail_path_data.join('-')
+								thumbId = original_path_data.join("/")
 								thumbUrl += "#{thumbId}"
 							else
 								thumbUrl += "#{data}/thumbnail"
