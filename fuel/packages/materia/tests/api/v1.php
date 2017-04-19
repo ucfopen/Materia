@@ -584,7 +584,7 @@ class Test_Api_V1 extends \Basetest
 			$output = \Materia\Api_V1::upload_keys_get('test.jpg');
 			$this->assertEquals(true, is_array($output), $msg);
 
-			$keys = ["AWSAccessKeyID","policy","signature","file_key"];
+			$keys = ["AWSAccessKeyId","policy","signature","file_key"];
 
 			foreach($keys as $key){
 				$msg = "Missing ".$key." in output";
