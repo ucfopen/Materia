@@ -56,7 +56,7 @@ return [
 	* > 'upload_url'      => 'dockerIP:10001'
 	* > 'uploads_bucket'  => 'fakes3_uploads'
 	* > 'verified_bucket' => 'fakes3_assets'
-	* > 'subdir'          => 'uploads'
+	* > 'subdir'          => 'media'
 	* > 'secret_key'      => 'secret'
 	* > 'AWSAccessKeyId'  => 'id'
 	* > 'expire_in'       => 100
@@ -66,7 +66,7 @@ return [
 		'upload_url'      => 'localhost:10001', // only include domain and, if necessary, the port
 		'uploads_bucket'  => 'fakes3_uploads', // bucket to store original user uploads
 		'verified_bucket' => 'fakes3_assets', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
-		'subdir'          => 'uploads', // OPTIONAL - directory to store original user uploads in the uploads-bucket
+		'subdir'          => 'media', // OPTIONAL - directory to store original and resized assets
 		'secret_key'      => 'secret',
 		'AWSAccessKeyId'  => 'id',
 		'expire_in'       => 100 // temporary key expiration time

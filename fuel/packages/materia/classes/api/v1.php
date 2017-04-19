@@ -55,7 +55,7 @@ class Api_V1
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
 		return Widget_Instance_Manager::get_all($inst_ids);
 	}
-
+	
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */
