@@ -51,7 +51,7 @@ return [
 
 	/*
 	* To view detailed documentation on asset uploads using Amazon S3, visit: 
-	* http://ucfcdl.github.io/Materia/
+	* http://ucfcdl.github.io/Materia/develop/understanding-media-uploads
 	*
 	* To use fakes3, use the following config:
 	* ========================================
