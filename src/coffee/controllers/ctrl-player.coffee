@@ -39,6 +39,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	checkForContext = String(window.location).split '/'
 	# Controls whether the view has a "preview" header bar
 	$scope.isPreview = false
+	# Controls whether or not the widget iframe will allow fullscreen behavior (disabled by default)
+	$scope.allowFullScreen = false
 
 	for word in checkForContext
 		if word == 'preview'
@@ -209,6 +211,9 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			instance = widgetInstances[0]
 			type = instance.widget.player.split('.').pop()
 			version = parseInt instance.widget.flash_version, 10
+
+			# Fullscreen flag set as an optional parameter in widget install.yaml; have to dig into instance widget's meta_data object to find it
+			if instance.widget.meta_data.features.includes "Fullscreen" then $scope.allowFullScreen = true
 
 			if type == 'swf' && swfobject.hasFlashPlayerVersion(String(version)) == false
 				$scope.type = "noflash"
