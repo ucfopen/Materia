@@ -592,6 +592,12 @@ class Test_Api_V1 extends \Basetest
 				$this->assertTrue($key_exists, $msg);
 			}
 
+			$msg = "AWSAccessKeyId has been modified";
+			$original_aws_key = $s3_config["AWSAccessKeyId"];
+			
+			$this->assertEquals(true, strlen($output["AWSAccessKeyId"]) == strlen(original_aws_key), $msg);
+			$this->assertEquals(true, strcmp($output["AWSAccessKeyId"], original_aws_key), $msg);
+
 			$msg = "Signature must be of a certain length";
 			$this->assertEquals(28, strlen($output["signature"]), $msg);
 
@@ -602,12 +608,12 @@ class Test_Api_V1 extends \Basetest
 		$output_by_user = array();
 
 		$this->_asStudent();
-		$output_by_user['student'] 		= $run_tests();
+		$output_by_user['student']   = $run_tests();
 		$this->_asAuthor();
-		$output_by_user['author'] 		= $run_tests();
+		$output_by_user['author']    = $run_tests();
 		$this->_asSu();
-		$output_by_user['superuser'] 	= $run_tests();
-
+		$output_by_user['superuser'] = $run_tests();
+ 
 
 		return $output_by_user;
 	}
