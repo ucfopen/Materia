@@ -121,7 +121,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 					if(!success)
 						# Parse the Error message received from amazonaws
 						parser = new DOMParser()
-						doc = parser.parseFromStrring(request.response, 'application/xml')
+						doc = parser.parseFromString(request.response, 'application/xml')
 						upload_error = doc.getElementsByTagName("Error")[0].childNodes[1].innerHTML
 
 						@saveUploadStatus fileData.ext, keyData.file_key, success, upload_error
