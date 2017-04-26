@@ -180,6 +180,7 @@ h1
 
 	.info-holder
 	{
+		position: relative;
 		vertical-align: top;
 
 		span:not(.long), label
@@ -220,8 +221,9 @@ h1
 
 		.action_button
 		{
-			float: right;
-			margin-bottom:10px;
+			position: absolute;
+			right: 0;
+			bottom: 0;
 		}
 	}
 }
