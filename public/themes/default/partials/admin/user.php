@@ -107,6 +107,8 @@
 				<div>
 					<button class='action_button' ng-click='save()'>Save Changes</button>
 				</div>
+			</div>
+			<div class='info-holder'>
 				<hr/>
 				<div class='instances'>
 					<div class='top'>
