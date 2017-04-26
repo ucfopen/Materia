@@ -95,13 +95,11 @@
 							<div>
 								<span class='long'>
 									<label>About:</label><textarea ng-model='widget.meta_data.about'></textarea>
-									<!-- <label>About:</label><input type='text' ng-model='widget.meta_data.about' /> -->
 								</span>
 							</div>
 							<div>
 								<span class='long'>
 									<label>Excerpt:</label><textarea ng-model='widget.meta_data.excerpt'></textarea>
-									<!-- <label>Excerpt:</label><input type='text' ng-model='widget.meta_data.excerpt' /> -->
 								</span>
 							</div>
 							<div>
@@ -138,9 +136,7 @@
 									</ul>
 								</span>
 							</div>
-							<div>
-								<button class='action_button' ng-click='save(widget)'>Save Changes</button>
-							</div>
+							<button class='action_button' ng-click='save(widget)'>Save Changes</button>
 						</div>
 					</div>
 				</li>
