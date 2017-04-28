@@ -56,11 +56,17 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		getFileData: (file, callback) ->
 			dataReader = new FileReader
 
+			# File size is measured in bytes
+			if file.size > 60000000
+				alert "The file being uploaded has a size greater than 60MB. Please choose a file that
+				is no greater than 60MB."
+				return null
+
 			dataReader.onload = (event) =>
 				src = event.target.result
 				mime = @getMimeType(src)
 				return null if !mime?
-
+	
 				fileData =
 					name: file.name
 					mime: mime
