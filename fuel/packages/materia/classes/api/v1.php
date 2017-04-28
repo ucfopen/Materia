@@ -506,14 +506,13 @@ class Api_V1
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
-	// UPLOADS
-	// =======
-
 	/**
-	 * Gets a key and file_key for uploading asset to s3. Creates a
-	 * temporary row in the assets db, to be updated when the client
-	 * responds with status of s3 upload
-	 */
+	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3. 
+	*
+	* @param string $file_name The name of the file being uploaded
+	*
+	* @return array $res An array containing the required header data for an Amazon AWS S3 upload 
+	*/
 	static public function upload_keys_get($file_name)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
@@ -570,11 +569,15 @@ class Api_V1
 	}
 
 	/**
-	 * Should the upload to s3 fail, the temp asset row created
-	 * using upload_keys_get does not get deleted. In general,
-	 * file upload status is updated in the db for this asset,
-	 * and update succes reported to caller
-	 */
+	* Updates the status of an asset upload using the status code returned by Amazon S3.
+	* Any errors reported by Amazon S3 are stored in Materia logs.
+	*
+ 	* @param string $asset_id The uploaded asset's ID
+	* @param boolean $s3_upload_success Tells whether or not the asset successfully uploaded
+	* @param strign $error Holds any error messages returned by a POST request to Amazon S3
+	*
+	* @return boolean $asset_updated Tells whether or not the asset record was successfully updates
+	*/
 	static public function upload_success_post($asset_id, $s3_upload_success, $error = null)
 	{
 		// Validate Logged in
@@ -598,7 +601,6 @@ class Api_V1
 
 		return $asset_updated;
 	}
-	// =======
 
 	/**
 	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
