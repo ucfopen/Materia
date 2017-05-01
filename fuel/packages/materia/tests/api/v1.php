@@ -580,12 +580,16 @@ class Test_Api_V1 extends \Basetest
 
 		// lambda to call api, apply assertions
 		$run_tests = function () {
-			$msg = "Expect assoc array as output";
+			$s3_config = \Config::get('materia.s3_config');
 			$output = \Materia\Api_V1::upload_keys_get('test.jpg');
+
+			$msg = "Expect assoc array as output";
 			$this->assertEquals(true, is_array($output), $msg);
 
-			$keys = ["AWSAccessKeyId","policy","signature","file_key"];
+			$msg = "Expect assoc array to contain 4 elements.";
+			$this->assertEquals(4, sizeof($output), $msg);
 
+			$keys = ["AWSAccessKeyId","policy","signature","file_key"];
 			foreach($keys as $key){
 				$msg = "Missing ".$key." in output";
 				$key_exists = array_key_exists($key, $output);
@@ -594,11 +598,10 @@ class Test_Api_V1 extends \Basetest
 
 			$msg = "AWSAccessKeyId has been modified";
 			$original_aws_key = $s3_config["AWSAccessKeyId"];
-			
-			$this->assertEquals(true, strlen($output["AWSAccessKeyId"]) == strlen(original_aws_key), $msg);
-			$this->assertEquals(true, strcmp($output["AWSAccessKeyId"], original_aws_key), $msg);
+			$this->assertEquals(strlen($original_aws_key), strlen($output["AWSAccessKeyId"]), $msg);
+			$this->assertEquals(0, strcmp($output["AWSAccessKeyId"], $original_aws_key), $msg);
 
-			$msg = "Signature must be of a certain length";
+			$msg = "Signature must be of length 28";
 			$this->assertEquals(28, strlen($output["signature"]), $msg);
 
 			return $output; // for use in sequence with upload_success_post
@@ -614,7 +617,6 @@ class Test_Api_V1 extends \Basetest
 		$this->_asSu();
 		$output_by_user['superuser'] = $run_tests();
  
-
 		return $output_by_user;
 	}
 
@@ -646,6 +648,10 @@ class Test_Api_V1 extends \Basetest
 			$msg = "Should pass with correct key and successful s3 upload";
 			$output = \Materia\Api_V1::upload_success_post($file_id, true);
 			$this->assertTrue($output, $msg);
+
+			$msg = "Should pass with correct key, failed s3 upload, and error message";
+			$output = \Materia\Api_V1::upload_success_post($file_id, false, "Test error");
+			$this->assertTrue($output, $msg);
 		};
 
 		$get_id = function($file_key)
@@ -654,15 +660,16 @@ class Test_Api_V1 extends \Basetest
 		};
 
 		$this->_asStudent();
-		$file_id = $get_id($upload_keys_by_user['student']['file_key']);
+		//Explode extracts the asset_id from the file key: user_id-asset_id.ext
+		$file_id = $get_id(explode("-", $upload_keys_by_user['student']['file_key'])[1]);
 		$run_tests($file_id);
 
 		$this->_asAuthor();
-		$file_id = $get_id($upload_keys_by_user['author']['file_key']);
+		$file_id = $get_id(explode("-", $upload_keys_by_user['author']['file_key'])[1]);
 		$run_tests($file_id);
 
 		$this->_asSu();
-		$file_id = $get_id($upload_keys_by_user['superuser']['file_key']);
+		$file_id = $get_id(explode("-", $upload_keys_by_user['superuser']['file_key'])[1]);
 		$run_tests($file_id);
 
 	}
