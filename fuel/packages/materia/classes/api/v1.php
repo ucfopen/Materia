@@ -520,6 +520,10 @@ class Api_V1
 		$user_id = \Model_User::find_current_id();
 		$s3_config = \Config::get('materia.s3_config');
 
+		$validFilename = '/([a-z_\-\s0-9\.]+)+\.\w+\/*$/';
+		if(!preg_match($validFilename, $file_name))
+			return null;
+
 		$file_info = pathinfo($file_name);
 		$type = $file_info['extension'];
 		$title = $file_info['filename'];
@@ -533,9 +537,7 @@ class Api_V1
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
 		// if we could not successfully create a new temporary asset row
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
-		{
 			return null;
-		}
 
 		$file_key = $asset->remote_url;
 

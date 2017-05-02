@@ -579,9 +579,19 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals('error', $output->type);
 
 		// lambda to call api, apply assertions
-		$run_tests = function () {
+		$run_tests = function ($file_name) {
+			$validFilename = '/([a-z_\-\s0-9\.]+)+\.\w+\/*$/';
+			
+			if(!preg_match($validFilename, $file_name))
+			{	
+				$output = \Materia\Api_V1::upload_keys_get($file_name);
+				$msg = "Invalid filenames should return null";
+				$this->assertEquals(null, $output, $msg);
+				return $output;
+			}
+
 			$s3_config = \Config::get('materia.s3_config');
-			$output = \Materia\Api_V1::upload_keys_get('test.jpg');
+			$output = \Materia\Api_V1::upload_keys_get($file_name);
 
 			$msg = "Expect assoc array as output";
 			$this->assertEquals(true, is_array($output), $msg);
@@ -590,7 +600,8 @@ class Test_Api_V1 extends \Basetest
 			$this->assertEquals(4, sizeof($output), $msg);
 
 			$keys = ["AWSAccessKeyId","policy","signature","file_key"];
-			foreach($keys as $key){
+			foreach($keys as $key)
+			{
 				$msg = "Missing ".$key." in output";
 				$key_exists = array_key_exists($key, $output);
 				$this->assertTrue($key_exists, $msg);
@@ -609,13 +620,22 @@ class Test_Api_V1 extends \Basetest
 
 		// to test for different users in upload_success_post
 		$output_by_user = array();
-
+		$invalid_filenames = [null, '', false, "test", "jpg", ".jpg", "test."];
+		
 		$this->_asStudent();
-		$output_by_user['student']   = $run_tests();
+		foreach ($invalid_filenames as $filename)
+			$run_tests($filename);
+		$output_by_user['student']   = $run_tests("test.jpg");
+
 		$this->_asAuthor();
-		$output_by_user['author']    = $run_tests();
+		foreach ($invalid_filenames as $filename)
+			$run_tests($filename);
+		$output_by_user['author']   = $run_tests("test.jpg");
+
 		$this->_asSu();
-		$output_by_user['superuser'] = $run_tests();
+		foreach ($invalid_filenames as $filename)
+			$run_tests($filename);
+		$output_by_user['superuser']   = $run_tests("test.jpg");
  
 		return $output_by_user;
 	}
