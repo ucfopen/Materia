@@ -66,7 +66,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				src = event.target.result
 				mime = @getMimeType(src)
 				return null if !mime?
-	
+
 				fileData =
 					name: file.name
 					mime: mime
@@ -131,9 +131,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						upload_error = doc.getElementsByTagName("Error")[0].childNodes[1].innerHTML
 
 						@saveUploadStatus fileData.ext, keyData.file_key, success, upload_error
-
 						alert "There was an issue uploading this asset to Materia - Please try again later."
-
 						return null
 						
 					@saveUploadStatus fileData.ext, keyData.file_key, success
@@ -158,28 +156,6 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						id: fileURI
 						type: fileType
 					$window.parent.Materia.Creator.onMediaImportComplete([res])
-
-		# verifyImageUpload: ->
-		# 	@set {statusMsg: 'Generating Thumbnails'}
-		# 	clearTimeout @pollTimeout
-		# 	@pollTimeout = setTimeout(@pollUploadedImage, 2000)
-		#
-		# # keep polling using a cheap HEAD request and an incrementing url (s3 caches the result otherwise)
-		# pollUploadedImage: =>
-		# 	Backbone.ajax
-		# 		url: @get('unverified_name')+"?attempt="+@pollCount
-		# 		type: 'HEAD'
-		# 		error: =>
-		# 			if @pollCount > 20
-		# 				alert 'Error Resizing Upload'
-		# 			else
-		# 				@pollCount++
-		# 				pollSpeed = (if @pollCount < 4 then 1500 else 5000) #increase poll time
-		# 				@pollTimeout = setTimeout(@pollUploadedImage, pollSpeed)
-		# 		success: =>
-		# 			@pollCount = 0
-		# 			@set {name: @get('unverified_name'), statusMsg: null}
-
 
 	config =
 		s3enabled: _s3enabled
@@ -258,7 +234,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	# init
 	init = ->
 
-		$($document).on 'click', '#question-table tbody tr[role=row]', (e) ->
+		$(document).on 'click', '#question-table tbody tr[role=row]', (e) ->
 			#get index of row in datatable and call onMediaImportComplete to exit
 			$(".row_selected").toggleClass('row_selected')
 			index = $('#question-table').dataTable().fnGetPosition(this)
@@ -281,7 +257,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				el.show()
 
 		# on resize, re-fit the table size
-		$($window).resize ->
+		$(window).resize ->
 			dt.fnAdjustColumnSizing()
 
 		# setup the table

@@ -8,11 +8,11 @@ window.Namespace = (ns) ->
 	o
 
 Namespace('Materia').CreatorCore = do ->
-	_mediaUrl    = null
-	_baseurl       = null
-	_creatorClass  = null
+	_mediaUrl       = null
+	_baseurl        = null
+	_creatorClass   = null
 	_resizeInterval = null
-	_lastHeight    = -1
+	_lastHeight     = -1
 
 	PRESANITIZE_CHARACTERS =
 		'>': '',
