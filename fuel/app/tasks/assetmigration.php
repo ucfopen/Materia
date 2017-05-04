@@ -16,7 +16,7 @@ class Assetmigration
 			: "";
 		// append a slash to subdirectory path if the config is using a subdirectory
 		$sub_directory = ($s3_config["subdir"])
-			? $s3_config["subdir"]."/"
+			? $s3_config["subdir"]
 			: "";
 
 		// checks to see that user understands instructions
@@ -52,7 +52,7 @@ class Assetmigration
 
 			// Asset Paths
 			$local_path = $asset_id.".".$asset_type;
-			$bucket_path = $sub_directory.$user_id."/".$asset_id.".".$asset_type;
+			$bucket_path = $sub_directory."/".$user_id."-".$asset_id.".".$asset_type;
 
 			fwrite($temp_bash_stream, $endpoint_url."s3 cp "
 				.$local_path." s3://".$bucket_path."\n");
@@ -79,7 +79,7 @@ class Assetmigration
 		\Cli::write("Before you begin, here is an outline of the process:");
 		\Cli::write("1. Two files will be generated: ".$bash_filename." and ".$sql_filename.".");
 		\Cli::write("2. All items will be selected from the Materia Database asset table.");
-		\Cli::write("3. Using properties of the asset, a remote url will be generated with the following form: s3_bucket_url/user_id/asset_id.asset_type");
+		\Cli::write("3. Using properties of the asset, a remote url will be generated with the following form: s3_bucket_url/user_id-asset_id.asset_type");
 		\Cli::write("4. An update query will also be generated using the previously constructed remote URL along with a status of migrated_asset");
 		\Cli::write("\n");
 
