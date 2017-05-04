@@ -579,20 +579,20 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals('error', $output->type);
 
 		// lambda to call api, apply assertions
-		$run_tests = function ($file_name) {
+		$run_tests = function ($file_name, $file_size) {
 			$validFilename = '/([a-zA-z_\-\s0-9\.]+)+\.\w+\/*$/';
 			
-			if(!preg_match($validFilename, $file_name))
+			if(!preg_match($validFilename, $file_name) || !is_int($file_size))
 			{	
-				$output = \Materia\Api_V1::upload_keys_get($file_name);
-				$msg = "Invalid filenames should return null";
+				$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
+				$msg = "Invalid filenames and non-integer file sizes should return null";
 				$this->assertEquals(null, $output, $msg);
 				return $output;
 			}
 
 			$s3_config = \Config::get('materia.s3_config');
-			$output = \Materia\Api_V1::upload_keys_get($file_name);
-
+			$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
+			
 			$msg = "Expect assoc array as output";
 			$this->assertEquals(true, is_array($output), $msg);
 
@@ -620,28 +620,26 @@ class Test_Api_V1 extends \Basetest
 
 		// to test for different users in upload_success_post
 		$output_by_user = array();
+
+		$valid_file_size = 14029;
+		$valid_file_name = "test.jpg";
 		$invalid_filenames = [null, '', false, "test", "jpg", ".jpg", "test."];
-		
+		$invalid_filesizes = ["dog", "", false, null, 1.27];
+
 		$this->_asStudent();
-		foreach ($invalid_filenames as $filename)
-		{
-			$run_tests($filename);
-		}
-		$output_by_user['student'] = $run_tests("test.jpg");
+		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
+		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
+		$output_by_user['student'] = $run_tests($valid_file_name, $valid_file_size);
 
 		$this->_asAuthor();
-		foreach ($invalid_filenames as $filename)
-		{
-			$run_tests($filename);
-		}
-		$output_by_user['author'] = $run_tests("test.jpg");
+		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
+		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
+		$output_by_user['author'] = $run_tests($valid_file_name, $valid_file_size);
 
 		$this->_asSu();
-		foreach ($invalid_filenames as $filename)
-		{
-			$run_tests($filename);
-		}
-		$output_by_user['superuser'] = $run_tests("test.jpg");
+		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
+		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
+		$output_by_user['superuser'] = $run_tests($valid_file_name, $valid_file_size);
 
 		return $output_by_user;
 	}

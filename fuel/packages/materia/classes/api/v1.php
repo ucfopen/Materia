@@ -513,9 +513,11 @@ class Api_V1
 	*
 	* @return array $res An array containing the required header data for an Amazon AWS S3 upload 
 	*/
-	static public function upload_keys_get($file_name)
+	static public function upload_keys_get($file_name, $file_size = null)
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
+
+		if($file_size == null || $file_size == false || $file_size == "" || !is_int($file_size)) return null;
 
 		$user_id = \Model_User::find_current_id();
 		$s3_config = \Config::get('materia.s3_config');
@@ -537,7 +539,7 @@ class Api_V1
 			: '/';
 
 		// store temporary row in db, obtain asset_id for building s3 file_key
-		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
+		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title, $file_size);
 		// if we could not successfully create a new temporary asset row
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id)) return null;
 
