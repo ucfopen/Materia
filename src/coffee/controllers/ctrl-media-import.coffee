@@ -38,7 +38,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 						# if s3 is enabled, get keys and then upload, o/w just upload
 						if @config.s3enabled
-							_coms.send 'upload_keys_get', [fileData.name], (keyData) =>
+							_coms.send 'upload_keys_get', [fileData.name, fileData.size], (keyData) =>
 								@upload fileData, keyData if keyData
 						else
 							@upload fileData
@@ -66,11 +66,11 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 				src = event.target.result
 				mime = @getMimeType(src)
 				return null if !mime?
-
 				fileData =
 					name: file.name
 					mime: mime
 					ext:  file.name.split('.').pop()
+					size: file.size
 					src:  src
 
 				callback fileData
