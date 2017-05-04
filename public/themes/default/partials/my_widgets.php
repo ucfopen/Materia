@@ -148,71 +148,31 @@
 			<modal-dialog class="default csv_popup" show="show.exportModal" width="580px" height="580px">
 				<div ng-controller="ExportScoresController">
 					<div class="download_wrapper">
-						<h3>Export Scores</h3>
+						<h2>Export</h2>
 						<ul class="options">
-							<li><a href class="show_options" ng-click="showOptions()">{{options ? "Hide" : "Semesters..."}}</a></li>
+							<li><a href class="show_options" ng-click="showOptions()">{{options ? "Hide" : "Semesters"}}</a></li>
 						</ul>
-
-						<h4>{{header || "None Selected"}}</h4>
-
+						<h3>{{header || "No Semester Selected"}}</h3>
 						<div class="score_table">
-							<img src="/themes/default/assets/img/paper_fold.png" />
-							<table>
-								<tr class="header">
-									<th scope="col">User ID</th>
-									<th scope="col">User</th>
-									<th scope="col">Score</th>
-								</tr>
-								<tr>
-									<td>fw33255p</td>
-									<td class="name">Felix Wembly</td>
-									<td>94</td>
-								</tr>
-								<tr>
-									<td>gm42334a</td>
-									<td class="name">Gillis Mokey</td>
-									<td>35</td>
-								</tr>
-								<tr>
-									<td>ha432343s</td>
-									<td class="name">Herkimer Archbanger</td>
-									<td>100</td>
-								</tr>
-								<tr>
-									<td>fg3421tr</td>
-									<td class="name">Fiona Gobo</td>
-									<td>100</td>
-								</tr>
-								<tr>
-									<td>mr2342123d</td>
-									<td class="name">Marvin Red</td>
-									<td>43</td>
-								</tr>
-								<tr>
-									<td>mt343223o</td>
-									<td class="name">Morris Tosh</td>
-									<td>93</td>
-								</tr>
-								<tr>
-									<td>pf32343t3</td>
-									<td class="name">Phil Feenie</td>
-									<td>67</td>
-								</tr>
-								<tr>
-									<td>lf33422i</td>
-									<td class="name">Lou Firechief</td>
-									<td>0</td>
-								</tr>
-								<tr>
-									<td>cb3311rt</td>
-									<td class="name">Cantus Blundig</td>
-									<td>5</td>
-								</tr>
-							</table>
-							<span id="sample-notification">Sample</span>
+							<p id="export-scores-description">
+									<span style="color: #0093E7">Export Scores</span>
+									provides a means of exporting student score information in .CSV
+									format, much like an excel spreadsheet. Teachers can use the scores
+									to analyze, compare, and gauge class performance. In addition, teachers
+									can also download a CSV containing a widget's question and answer set by
+									selecting the Questions and Answers option from the drop-down menu. Download
+									options may vary by widget, as some widgets provide specialized export options.
+								</p>
+
 							<div class="download-controls">
+
 								<select ng-model="exportType" ng-options="o as o for o in exportOpts"></select>
-								<p class="download"><a href ng-href="/data/export/{{selected.widget.id}}?type={{exportType | escape}}&amp;semesters={{selectedSemesters}}" class="action_button arrow_down_button" ng-class="{disabled: !header}"><span class="arrow_down"></span>Download File</a></p>
+								<p class="download">
+									<a href ng-href="/data/export/{{selected.widget.id}}?type={{exportType | escape}}&amp;semesters={{selectedSemesters}}"
+											class="action_button arrow_down_button">
+											<span class="arrow_down"></span>Download {{exportType}}
+									</a>
+								</p>
 							</div>
 						</div>
 
@@ -221,6 +181,7 @@
 					<div class="download_options" ng-show="options">
 						<h4>Semesters</h4>
 						<p class="export_which">Export which semesters?</p>
+						<p class="export_which" ng-show="semesters.length <= 0">No semesters available</p>
 						<ul>
 							<li class="checkallLi" ng-show="semesters.length > 1">
 								<input type="checkbox" id="checkall" value="null" ng-model="checkedAll" ng-click="checkAll()"/>
@@ -325,15 +286,15 @@
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
-						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="embedToggle = !embedToggle">use the embed code</span>).</p>
-						<textarea id="embed_link" ng-show="embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
+						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<textarea id="embed_link" ng-show="show.embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
-				<div class="scores" ng-show="selected.widget.widget.is_scorable">
+				<div class="scores">
 					<h2>Student Activity</h2>
-					<span id="export_scores_button" class="action_button aux_button" ng-disabled="selected.scores.list.length == 0 || !selected.hasScores" ng-class="{'disabled': selected.scores.list.length == 0}" ng-click="exportPopup()">
+					<span id="export_scores_button" class="action_button aux_button" ng-click="exportPopup()">
 						<span class="arrow_down"></span>
-						Export Scores
+						Export Options
 					</span>
 
 					<div class="scoreWrapper" ng-repeat="semester in selected.scores.list" ng-if="show.olderScores == true || $index == 0">

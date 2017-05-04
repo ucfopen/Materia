@@ -49,13 +49,29 @@ return [
 		]
 	],
 
+	/*
+	* To view detailed documentation on asset uploads using Amazon S3, visit: 
+	* http://ucfcdl.github.io/Materia/develop/understanding-media-uploads
+	*
+	* To use fakes3, use the following config:
+	* ========================================
+	* > 's3_enabled'      => true
+	* > 'upload_url'      => 'dockerIP:10001'
+	* > 'uploads_bucket'  => 'fakes3_uploads'
+	* > 'verified_bucket' => 'fakes3_assets'
+	* > 'subdir'          => 'media'
+	* > 'secret_key'      => 'secret'
+	* > 'AWSAccessKeyId'  => 'id'
+	* > 'expire_in'       => 100
+	*/
 	's3_config' => [
-		's3_enabled' => true,
-		'upload_url' => 's3.amazonaws.com', //just the domain
-		'bucket' => 'ucfcdl-materia-assets-dev',
-		'subdir' => 'uploads', //leave blank to store assets in the root of the bucket
-		'secret_key' => 'secret_key',
-		'AWSAccessKeyId' => 'AWSAccessKeyId',
-		'expire_in' => 10
+		's3_enabled'      => true,
+		'upload_url'      => 'localhost:10001', // only include domain and, if necessary, the port
+		'uploads_bucket'  => 'fakes3_uploads', // bucket to store original user uploads
+		'verified_bucket' => 'fakes3_assets', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
+		'subdir'          => 'media', // OPTIONAL - directory to store original and resized assets
+		'secret_key'      => 'secret',
+		'AWSAccessKeyId'  => 'id',
+		'expire_in'       => 100 // temporary key expiration time
 	],
 ];

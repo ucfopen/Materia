@@ -32,6 +32,7 @@ return [
 		],
 		'widget_editor' => [
 			'theme::create.css',
+			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
 		],
 		'widget_detail' => [
 			'lib::jquery.fancybox-1.3.4.css',

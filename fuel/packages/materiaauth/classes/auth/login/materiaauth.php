@@ -40,14 +40,18 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 	/**
 	 * Create new user
 	 *
-	 * @param   string
-	 * @param   string
-	 * @param   string  must contain valid email address
-	 * @param   int     group id
-	 * @param   Array
+	 * @param   string username
+	 * @param   string password
+	 * @param   string email
+	 * @param   int    group id
+	 * @param   Array  profile fields
+	 * @param   string first name
+	 * @param   string last name
+	 * @param   bool   requires password
+	 * @param   bool   requires email
 	 * @return  bool
 	 */
-	public function create_user($username, $password, $email, $group = 1, Array $profile_fields = [], $first_name = '', $last_name = '', $requires_password = true)
+	public function create_user($username, $password, $email = '', $group = 1, Array $profile_fields = [], $first_name = '', $last_name = '', $requires_password = true, $requires_email = true)
 	{
 		$first_name = trim($first_name);
 		$last_name  = trim($last_name);
@@ -58,12 +62,15 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		{
 			throw new \SimpleUserUpdateException('Username or password is not given', 1);
 		}
+		if ( $requires_email && ! $email )
+		{
+			throw new \SimpleUserUpdateException('Email not given', 2);
+		}
 
 		// just get the first user that has the same username or email
-		$same_user = \Model_User::query()
-			->where('username', '=', $username)
-			->or_where('email', '=', $email)
-			->get_one();
+		$same_user = \Model_User::query()->where('username', '=', $username);
+		if($email) $same_user->or_where('email', '=', $email);
+		$same_user = $same_user->get_one();
 
 		if ($same_user)
 		{
@@ -122,7 +129,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		$update = array();
 		if (array_key_exists('username', $values))
 		{
-			throw new \UcfAuthUserUpdateException('Username cannot be changed.', 5);
+			throw new \SimpleUserUpdateException('Username cannot be changed.', 5);
 		}
 
 		if (array_key_exists('password', $values))
@@ -138,7 +145,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 				// currently and empty email, use a default
 				if (empty($current_values['email']))
 				{
-					throw new \UcfAuthUserUpdateException('No email was defined.', 3);
+					throw new \SimpleUserUpdateException('No email was defined.', 3);
 				}
 				else
 				{
