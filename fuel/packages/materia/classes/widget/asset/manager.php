@@ -53,14 +53,14 @@ class Widget_Asset_Manager
 	}
 
 	// new route for s3 uploads
-	static public function upload_temp($remote_url_stub, $type, $title)
+	static public function upload_temp($remote_url_stub, $type, $title, $size)
 	{
 		// remote_url will be completed once we successfully get
 		// an available asset_id
 		$asset = new Widget_Asset([
 			'type'       => $type,
 			'title'      => $title,
-			'file_size'  => 0,
+			'file_size'  => $size,
 			'status'     => 'temp_asset', // signify temp asset
 			'remote_url' => $remote_url_stub
 		]);
