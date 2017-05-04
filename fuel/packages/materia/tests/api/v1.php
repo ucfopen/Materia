@@ -580,7 +580,7 @@ class Test_Api_V1 extends \Basetest
 
 		// lambda to call api, apply assertions
 		$run_tests = function ($file_name) {
-			$validFilename = '/([a-z_\-\s0-9\.]+)+\.\w+\/*$/';
+			$validFilename = '/([a-zA-z_\-\s0-9\.]+)+\.\w+\/*$/';
 			
 			if(!preg_match($validFilename, $file_name))
 			{	
@@ -624,19 +624,25 @@ class Test_Api_V1 extends \Basetest
 		
 		$this->_asStudent();
 		foreach ($invalid_filenames as $filename)
+		{
 			$run_tests($filename);
-		$output_by_user['student']   = $run_tests("test.jpg");
+		}
+		$output_by_user['student'] = $run_tests("test.jpg");
 
 		$this->_asAuthor();
 		foreach ($invalid_filenames as $filename)
+		{
 			$run_tests($filename);
-		$output_by_user['author']   = $run_tests("test.jpg");
+		}
+		$output_by_user['author'] = $run_tests("test.jpg");
 
 		$this->_asSu();
 		foreach ($invalid_filenames as $filename)
+		{
 			$run_tests($filename);
-		$output_by_user['superuser']   = $run_tests("test.jpg");
- 
+		}
+		$output_by_user['superuser'] = $run_tests("test.jpg");
+
 		return $output_by_user;
 	}
 
@@ -691,7 +697,6 @@ class Test_Api_V1 extends \Basetest
 		$this->_asSu();
 		$file_id = $get_id(explode("-", $upload_keys_by_user['superuser']['file_key'])[1]);
 		$run_tests($file_id);
-
 	}
 
 	public function test_session_play_verify()
