@@ -55,7 +55,7 @@ class Api_V1
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
 		return Widget_Instance_Manager::get_all($inst_ids);
 	}
-	
+
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */
@@ -520,9 +520,12 @@ class Api_V1
 		$user_id = \Model_User::find_current_id();
 		$s3_config = \Config::get('materia.s3_config');
 
-		$validFilename = '/([a-z_\-\s0-9\.]+)+\.\w+\/*$/';
+		$validFilename = '/([a-zA-Z_\-\s0-9\.]+)+\.\w+\/*$/';
 		if(!preg_match($validFilename, $file_name))
+		{	
+			\LOG::error("Invalid Filename: ". $file_name ." This file was uploaded by user ".$user_id); 
 			return null;
+		}
 
 		$file_info = pathinfo($file_name);
 		$type = $file_info['extension'];
@@ -536,8 +539,7 @@ class Api_V1
 		// store temporary row in db, obtain asset_id for building s3 file_key
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title);
 		// if we could not successfully create a new temporary asset row
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
-			return null;
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id)) return null;
 
 		$file_key = $asset->remote_url;
 
@@ -594,11 +596,10 @@ class Api_V1
 
 		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
 
-		if($error)
-			\Log::error("External asset upload failed with the following message - ".$error);
+		if($error) \Log::error("External asset upload failed with the following message - ".$error);
 
 		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
-				'status' => $status
+			'status' => $status
 		]);
 
 		return $asset_updated;

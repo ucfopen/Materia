@@ -58,11 +58,11 @@ class Widget_Asset_Manager
 		// remote_url will be completed once we successfully get
 		// an available asset_id
 		$asset = new Widget_Asset([
-				'type'			=> $type,
-				'title'			=> $title,
-				'file_size'		=> 0,
-				'status'		=> 'temp_asset', // signify temp asset
-				'remote_url'	=> $remote_url_stub
+			'type'       => $type,
+			'title'      => $title,
+			'file_size'  => 0,
+			'status'     => 'temp_asset', // signify temp asset
+			'remote_url' => $remote_url_stub
 		]);
 
 		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
@@ -73,18 +73,11 @@ class Widget_Asset_Manager
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
 				return $asset;
 			}
-			catch (\OutsideAreaException $e)
+			catch (\Exception $e)
 			{
 				trace($e);
 			}
-			catch (\InvalidPathException $e)
-			{
-				trace($e);
-			}
-			catch (\FileAccessException $e)
-			{
-				trace($e);
-			}
+			
 			// failed, remove the asset
 			$asset->db_remove();
 		}
