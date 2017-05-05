@@ -12,7 +12,7 @@ class Widget_Instance
 	public $embed_url       = '';
 	public $is_student_made = false;
 	public $is_embedded     = false;
-	public $embedded_only   = 0;
+	public $embedded_only   = false;
 	public $student_access  = false;
 	public $guest_access    = false;
 	public $height          = 0;
@@ -272,15 +272,15 @@ class Widget_Instance
 							'user_id'         => $this->user_id,
 							'created_at'      => time(),
 							'name'            => $this->name,
-							'is_draft'        => $this->is_draft,
+							'is_draft'        => (string) $this->is_draft,
 							'height'          => $this->height,
 							'width'           => $this->width,
 							'open_at'         => $this->open_at,
 							'close_at'        => $this->close_at,
 							'attempts'        => $this->attempts,
-							'guest_access'    => $this->guest_access,
-							'is_student_made' => $this->is_student_made,
-							'embedded_only'   => $this->embedded_only,
+							'guest_access'    => (string) $this->guest_access,
+							'is_student_made' => (string) $this->is_student_made,
+							'embedded_only'   => (string) $this->embedded_only,
 						])
 						->execute();
 
@@ -303,12 +303,12 @@ class Widget_Instance
 				->set([
 					'widget_id'     => $this->widget->id,
 					'name'          => $this->name,
-					'is_draft'      => $this->is_draft,
+					'is_draft'      => (string) $this->is_draft,
 					'open_at'       => $this->open_at,
 					'close_at'      => $this->close_at,
 					'attempts'      => $this->attempts,
-					'guest_access'  => $this->guest_access,
-					'embedded_only' => $this->embedded_only,
+					'guest_access'  => (string) $this->guest_access,
+					'embedded_only' => (string) $this->embedded_only,
 					'updated_at'    => time()
 				])
 				->where('id', $this->id)
