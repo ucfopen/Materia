@@ -1,6 +1,8 @@
 <?php // @codingStandardsIgnoreStart ?>
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
-	<?php /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */ ?>
+	<?php /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */
+		$allow_logins = \Config::get('auth.allow_logins', true);
+	?>
 	<?php if ($me->is_guest()): ?>
 		<span id="current-user" data-logged-in="false"></span>
 	<?php else: ?>
@@ -21,7 +23,10 @@
 			Welcome <a href="/profile">{{currentUser.name}}</a>
 		</p>
 		<p ng-switch-when="false" class="user">
-			Not logged in. <a href="/users/login">Login with your <?= __('login.user') ?></a>
+			Not logged in.
+			<?php if ($allow_logins): ?>
+			<a href="/users/login">Login with your <?= __('login.user') ?></a>
+			<?php endif; ?>
 		</p>
 	</span>
 	<nav>
@@ -32,7 +37,9 @@
 
 			<li ng-switch="currentUser.loggedIn" class="logout">
 				<a ng-switch-when="true" href="/users/logout">Logout</a>
+				<?php if ($allow_logins): ?>
 				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
+				<?php endif; ?>
 			</li>
 		</ul>
 	</nav>
