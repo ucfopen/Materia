@@ -33,6 +33,24 @@ class Controller_Lti extends \Controller
 		return \Response::forge($this->theme->render())->set_header('Content-Type', 'application/xml');
 	}
 
+	public function action_restrict_logins()
+	{
+		$this->theme->set_template('layouts/main')
+			->set('title', 'Materia')
+			->set('page_type', 'reject-login');
+
+		$this->theme->set_partial('content', 'partials/restrict_logins');
+		$this->insert_analytics();
+
+		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+
+		\Css::push_group('core');
+
+		return \Response::forge($this->theme->render());
+	}
+
 	/**
 	 * LTI for logging into Materia through Canvas
 	 *
