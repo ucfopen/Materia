@@ -51,7 +51,7 @@ Namespace('Materia').CreatorCore = do ->
 		_tellCreator 'initNewWidget', [widget]
 
 	_initExistingWidget = (widget, title, qset, qsetVersion, baseUrl, mediaUrl) ->
-		mediaUrl = mediaUrl
+		_mediaUrl = mediaUrl
 		_baseurl = baseUrl
 		_tellCreator 'initExistingWidget', [widget, title, qset, qsetVersion]
 
@@ -73,7 +73,8 @@ Namespace('Materia').CreatorCore = do ->
 	alert = (title, msg, type = 1) ->
 		_sendPostMessage 'alert', {title: title, msg: msg, type: type}
 
-	getMediaUrl = (mediaId) -> "#{_mediaUrl}/#{mediaId}"
+	getMediaUrl = (mediaId) ->
+		"#{_mediaUrl}/#{mediaId}"
 
 	# replace a specified list of characters with their safe equivalents
 	_preSanitize = (text) ->
