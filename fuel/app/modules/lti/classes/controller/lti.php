@@ -25,11 +25,37 @@ class Controller_Lti extends \Controller
 			->set('title', \Config::get('lti::lti.consumers.canvas.title'))
 			->set('description', \Config::get('lti::lti.consumers.canvas.description'))
 			->set('launch_url', \Uri::create('lti/assignment'))
+			->set('login_url', \Uri::create('lti/login'))
 			->set('picker_url', \Uri::create('lti/picker'))
 			->set('platform', \Config::get('lti::lti.consumers.canvas.platform'))
 			->set('privacy_level', \Config::get('lti::lti.consumers.canvas.privacy'));
 
 		return \Response::forge($this->theme->render())->set_header('Content-Type', 'application/xml');
+	}
+
+	/**
+	 * LTI for logging into Materia through Canvas
+	 *
+	 */
+	public function action_login()
+	{
+		$launch = LtiLaunch::from_request();
+		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error?message=invalid_oauth_request');
+
+		$this->theme->set_template('layouts/main')
+			->set('title', 'Materia')
+			->set('page_type', 'lti-login');
+
+		$this->theme->set_partial('content', 'partials/post_login');
+		$this->insert_analytics();
+
+		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+
+		\Css::push_group('core');
+
+		return \Response::forge($this->theme->render());
 	}
 
 	/**
@@ -47,7 +73,7 @@ class Controller_Lti extends \Controller
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
 		$return_url       = \Input::post('launch_presentation_return_url');
 
-		\RocketDuck\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes':'no', $return_url], 'lti');
+		\RocketDuck\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
 		$this->theme->set_template('layouts/main');
 

@@ -67,6 +67,7 @@ class Controller_Test extends \Controller_Rest
 		$assignment_url = \Uri::create('lti/assignment');
 		$picker_url = \Uri::create('lti/picker');
 		$validate_url = \Uri::create('lti/test/validate');
+		$login_url = \Uri::create('lti/login');
 
 		$validation_params = $this->create_test_case([], $validate_url);
 
@@ -75,6 +76,12 @@ class Controller_Test extends \Controller_Rest
 			'selection_directive'            => 'select_link',
 			'roles'                          => 'Instructor'
 		], $picker_url);
+
+		$login_params = $this->create_test_case([
+			'launch_presentation_return_url' => \Uri::create('lti/test/redirect'),
+			'selection_directive'            => 'select_link',
+			'roles'                          => 'Instructor'
+		], $login_url);
 
 		$new_instructor_params = $this->create_test_case([
 			'launch_presentation_return_url' => \Uri::create('lti/test/embed'),
@@ -92,6 +99,9 @@ class Controller_Test extends \Controller_Rest
 
 			'instructor_params'           => $instructor_params[0],
 			'instructor_endpoint'         => $instructor_params[1],
+
+			`login_params`                => $login_params[0],
+			'login_endpoint'              => $login_params[1],
 
 			'new_instructor_params'       => $new_instructor_params[0],
 			'new_instructor_endpoint'     => $new_instructor_params[1],
