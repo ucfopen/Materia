@@ -119,9 +119,9 @@
 
 			<?php // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
-				<? foreach ($instructor_params as $name => $value) : ?>
+				<?php foreach ($instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
-				<? endforeach ?>
+				<?php endforeach ?>
 				<input type="submit" value="Login">
 			</form>
 
