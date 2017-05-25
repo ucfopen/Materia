@@ -37,8 +37,8 @@
 			</div>
 		</section>
 		<section class='page user-info' ng-show='selectedUser'>
-			<div class='error-holder' ng-show='error_message.length > 0'>
-				<div ng-repeat='error in error_message'>
+			<div class='error-holder' ng-show='errorMessage.length > 0'>
+				<div ng-repeat='error in errorMessage'>
 					{{ error }}
 				</div>
 			</div>

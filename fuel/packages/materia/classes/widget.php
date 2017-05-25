@@ -149,7 +149,7 @@ class Widget
 		return $meta_data;
 	}
 
-	public function current_value($prop)
+	public function get_property($prop)
 	{
 		$val = '';
 		if (property_exists($this, $prop))
@@ -172,7 +172,9 @@ class Widget
 
 	public function set_property($prop, $val)
 	{
-		$original = $this->current_value($prop, $val);
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+
+		$original = $this->get_property($prop, $val);
 		if ($original == $val) return true;
 		try
 		{
