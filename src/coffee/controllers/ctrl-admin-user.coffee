@@ -14,7 +14,7 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 
 	$scope.selectedUser = null
 	$scope.additionalData = null
-	$scope.error_message = []
+	$scope.errorMessage = []
 
 	$scope.search = (nameOrFragment) ->
 		return if nameOrFragment == lastSearch
@@ -99,13 +99,13 @@ app.controller 'adminUserController', ($scope, adminSrv, userServ) ->
 			notify: $scope.selectedUser.profile_fields.notify
 			useGravatar: ($scope.selectedUser.profile_fields.useGravatar == 'true' || $scope.selectedUser.profile_fields.useGravatar == true)
 		adminSrv.saveUser update, (response) ->
-			$scope.error_message = []
+			$scope.errorMessage = []
 			for prop, stat of response
-				$scope.error_message.push stat unless stat == true
-			delete $scope.error_message if $scope.error_message.len is 0
+				$scope.errorMessage.push stat unless stat == true
+			delete $scope.errorMessage if $scope.errorMessage.len is 0
 			$scope.$apply()
 
 	$scope.deselectUser = ->
-		$scope.error_message = []
+		$scope.errorMessage = []
 		$scope.selectedUser = null
 		$scope.additionalData = null

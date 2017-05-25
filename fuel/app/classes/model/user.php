@@ -242,6 +242,8 @@ class Model_User extends Orm\Model
 	 */
 	public static function get_played_inst_info($user_id)
 	{
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+
 		$results = \DB::select(
 				\DB::expr('p.id AS play_id'),
 				\DB::expr('w.id AS widget'),
@@ -275,7 +277,7 @@ class Model_User extends Orm\Model
 		return $return;
 	}
 
-	public static function admin_update($user_id, $props)
+	public static function admin_update($user_id, $new_props)
 	{
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
 
@@ -285,30 +287,28 @@ class Model_User extends Orm\Model
 		$report = [];
 		$is_student = \Materia\Perm_Manager::is_student($user->id);
 
-		trace($props->is_student);
-		trace($is_student);
-
-		if ($props->is_student == $is_student)
+		if ($new_props->is_student == $is_student)
 		{
 			$report['is_student'] = true;
 		}
 		else
 		{
-			trace('UPDATE THAT ISH');
-			\Auth_Login_Materiaauth::update_role($user->id, !$props->is_student);
+			//update_role's second argument is true for employee, false for student
+			//returning the opposite of the user's 'is a student' status covers this case
+			\Auth_Login_Materiaauth::update_role($user->id, !$new_props->is_student);
 			$activity = new \Materia\Session_Activity([
 				'user_id' => \Model_User::find_current_id(),
 				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
 				'item_id' => $user->id,
 				'value_1' => 'is_student',
 				'value_2' => $is_student,
-				'value_3' => $props->is_student
+				'value_3' => $new_props->is_student
 			]);
 			$activity->db_store();
 		}
-		unset($props->is_student);
+		unset($new_props->is_student);
 
-		foreach($props as $prop => $val)
+		foreach($new_props as $prop => $val)
 		{
 			$clean_prop = ucwords(str_replace('_', ' ', $prop));
 			$result = $user->set_property($prop, $val);
@@ -318,33 +318,28 @@ class Model_User extends Orm\Model
 		return $report;
 	}
 
-	public function current_value($prop)
+	public function get_property($prop)
 	{
-		$val = '';
-		if (isset($this->$prop))
-		{
-			$val = $this->$prop;
-		}
-		else
-		{
-			$val = $this->profile_fields[$prop];
-		}
-		return $val;
+		// check to see if the given property is attached directly to the parent
+		// if not, it's probably in profile fields
+		return isset($this->$prop) ? $this->$prop : $this->profile_fields[$prop];
 	}
 
-	public function set_property($prop, $val)
+	public function set_property($prop, $new_val)
 	{
-		$original = $this->current_value($prop, $val);
-		if ($original == $val) return true;
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+
+		$original_val = $this->get_property($prop, $new_val);
+		if ($original_val == $new_val) return true;
 		try
 		{
 			if (isset($this->$prop))
 			{
-				$this->$prop = $val;
+				$this->$prop = $new_val;
 			}
 			else
 			{
-				$this->profile_fields[$prop] = $val;
+				$this->profile_fields[$prop] = $new_val;
 			}
 			$this->save();
 
@@ -353,8 +348,8 @@ class Model_User extends Orm\Model
 				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
 				'item_id' => $this->id,
 				'value_1' => $prop,
-				'value_2' => $original,
-				'value_3' => $val,
+				'value_2' => $original_val,
+				'value_3' => $new_val,
 			]);
 			$activity->db_store();
 		}
