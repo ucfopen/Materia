@@ -69,7 +69,7 @@ class Log extends Fuel\Core\Log
 			$stream = new \Monolog\Handler\StreamHandler($filename, \Monolog\Logger::DEBUG);
 		}
 
-		$formatter = new \Monolog\Formatter\LineFormatter("%level_name% - %datetime% --> %message%".PHP_EOL, "Y-m-d H:i:s");
+		$formatter = new \Monolog\Formatter\LineFormatter("%level_name% - %datetime% --> %message%".PHP_EOL, "Y-m-d H:i:s", true);
 		$stream->setFormatter($formatter);
 		static::$monolog->pushHandler($stream);
 	}
