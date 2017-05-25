@@ -100,7 +100,7 @@ class Controller_Test extends \Controller_Rest
 			'instructor_params'           => $instructor_params[0],
 			'instructor_endpoint'         => $instructor_params[1],
 
-			`login_params`                => $login_params[0],
+			'login_params'                => $login_params[0],
 			'login_endpoint'              => $login_params[1],
 
 			'new_instructor_params'       => $new_instructor_params[0],

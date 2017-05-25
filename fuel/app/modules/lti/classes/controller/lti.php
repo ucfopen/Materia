@@ -28,27 +28,14 @@ class Controller_Lti extends \Controller
 			->set('login_url', \Uri::create('lti/login'))
 			->set('picker_url', \Uri::create('lti/picker'))
 			->set('platform', \Config::get('lti::lti.consumers.canvas.platform'))
-			->set('privacy_level', \Config::get('lti::lti.consumers.canvas.privacy'));
+			->set('privacy_level', \Config::get('lti::lti.consumers.canvas.privacy'))
+			->set('course_nav_enabled', \Config::get('lti::lti.consumers.canvas.course_nav_enabled', true))
+			->set('course_nav_default', \Config::get('lti::lti.consumers.canvas.course_nav_default', true))
+			->set('course_nav_text', \Config::get('lti::lti.consumers.canvas.course_nav_text', true))
+			->set('course_nav_visibility', \Config::get('lti::lti.consumers.canvas.course_nav_visibility', true))
+			->set('tool_id', \Config::get('lti::lti.consumers.canvas.tool_id', true));
 
 		return \Response::forge($this->theme->render())->set_header('Content-Type', 'application/xml');
-	}
-
-	public function action_restrict_logins()
-	{
-		$this->theme->set_template('layouts/main')
-			->set('title', 'Materia')
-			->set('page_type', 'reject-login');
-
-		$this->theme->set_partial('content', 'partials/restrict_logins');
-		$this->insert_analytics();
-
-		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
-		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
-
-		\Css::push_group('core');
-
-		return \Response::forge($this->theme->render());
 	}
 
 	/**
