@@ -14,6 +14,7 @@ app.controller 'widgetDetailsController', ($scope, widgetSrv) ->
 		'Question/Answer': 'Users provide a typed response or associate a predefined answer wih each question.'
 		'Multiple Choice': 'Users select a response from a collection of possible answers to questions provided by the widget.'
 		'Mobile Friendly': 'Designed with HTML5 to work on mobile devices like the iPad and iPhone'
+		'Fullscreen': 'This widget may be allowed to temporarily take up your entire screen.'
 
 	SCREENSHOT_AMOUNT = 3
 
