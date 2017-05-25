@@ -188,6 +188,10 @@ class Model_User extends Orm\Model
 
 	static public function login($username, $password)
 	{
+		$bypass_used = \Session::get_flash('bypass', false);
+		//don't process this if the current auth package restricts normal logins
+		if ( \Config::get('auth.restrict_normal_logins', false) && !$bypass_used) throw new \HttpServerErrorException;
+
 		Config::load('auth', true);
 		foreach (Config::get('auth.driver') as $driver)
 		{

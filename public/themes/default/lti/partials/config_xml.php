@@ -11,19 +11,21 @@
 	<blti:launch_url><?= $launch_url ?></blti:launch_url>
 	<blti:extensions platform="<?= $platform ?>">
 		<lticm:options name="course_navigation">
-			<lticm:property name="enabled">true</lticm:property>
+			<lticm:property name="default"><?= $course_nav_default ?></lticm:property>
+			<lticm:property name="enabled"><?= $course_nav_enabled ?></lticm:property>
+			<lticm:property name="text"><?= $course_nav_text ?></lticm:property>
 			<lticm:property name="url"><?= $login_url ?></lticm:property>
-			<lticm:property name="visibility">public</lticm:property>
-		</lticm:options>
-		<lticm:options name="resource_selection">
-			<lticm:property name="url"><?= $picker_url ?></lticm:property>
-			<lticm:property name="text"><?= $title ?></lticm:property>
-			<lticm:property name="selection_width">700</lticm:property>
-			<lticm:property name="selection_height">600</lticm:property>
-			<lticm:property name="enabled">true</lticm:property>
+			<lticm:property name="visibility"><?= $course_nav_visibility ?></lticm:property>
 		</lticm:options>
 		<lticm:property name="domain"><?= parse_url(Uri::base(false))['host']; ?></lticm:property>
 		<lticm:property name="privacy_level"><?= $privacy_level ?></lticm:property>
-		<lticm:property name="tool_id">materia_login</lticm:property>
+		<lticm:options name="resource_selection">
+			<lticm:property name="enabled">true</lticm:property>
+			<lticm:property name="selection_height">600</lticm:property>
+			<lticm:property name="selection_width">700</lticm:property>
+			<lticm:property name="text"><?= $title ?></lticm:property>
+			<lticm:property name="url"><?= $picker_url ?></lticm:property>
+		</lticm:options>
+		<lticm:property name="tool_id"><?= $tool_id ?></lticm:property>
 	</blti:extensions>
 </cartridge_basiclti_link>

@@ -53,6 +53,8 @@ class Controller_Users extends Controller
 
 		Event::trigger('request_login', $admin);
 
+		if($admin) Session::set_flash('bypass', true);
+
 		Css::push_group(['core', 'login']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
@@ -73,6 +75,7 @@ class Controller_Users extends Controller
 		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
 		if ($login === true)
 		{
+			Session::delete_flash('bypass');
 			// if the location is the profile and they are an author, send them to my-widgets instead
 			if (\Model_User::verify_session('basic_author') == true && $redirect == Router::get('profile'))
 			{
