@@ -35,8 +35,8 @@
 						<span class='title'>{{widget.name}}</span>
 					</div>
 					<div class='widget-info' ng-show='widget.expanded'>
-						<div class='error-holder' ng-show='widget.error_message'>
-							<div ng-repeat='error in widget.error_message'>
+						<div class='error-holder' ng-show='widget.errorMessage'>
+							<div ng-repeat='error in widget.errorMessage'>
 								{{ error }}
 							</div>
 						</div>
