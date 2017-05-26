@@ -136,6 +136,11 @@ h1
 {
 	margin: 10px 0;
 
+	.top
+	{
+		pointer-events: none;
+	}
+
 	.error-holder
 	{
 		display: block;
