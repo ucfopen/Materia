@@ -215,6 +215,9 @@ class Test_Controller_Api_Admin extends \Basetest
 		$play_output = $this->spoof_widget_play($instance_output, 'test_context');
 		$score = \Materia\Api_V1::play_logs_save($play_output, $logs);
 
+		// log in as a super user to pass the safeguards
+		$this->_asSu();
+
 		$instances_available = \Materia\Widget_Instance_Manager::get_all_for_user($author->id);
 		$instances_played    = \Model_User::get_played_inst_info($author->id);
 
