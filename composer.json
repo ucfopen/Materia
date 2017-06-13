@@ -13,6 +13,8 @@
     },
     "require": {
         "php": ">=5.6.0",
+        "ext-pdo": "*",
+        "ext-gd": "*",
         "composer/installers": "~1.0",
         "fuel/core": "1.8.*",
         "fuel/auth": "1.8.*",
