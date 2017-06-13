@@ -4,6 +4,13 @@
     "description" : "Materia is UCF's educational game and application platform",
     "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida"],
     "license": "No License",
+    "scripts":{
+        "sniff": "./fuel/vendor/bin/phpcs --extensions=php .",
+        "sniff-errors-only": "./fuel/vendor/bin/phpcs -n --extensions=php .",
+        "sniff-summary": "./fuel/vendor/bin/phpcs --report=summary --extensions=php .",
+        "post-install-cmd": "cp ./githooks/pre-commit ./.git/hooks/pre-commit",
+        "git-pre-commit":"@sniff-summary"
+    },
     "require": {
         "php": ">=5.6.0",
         "composer/installers": "~1.0",
@@ -20,10 +27,9 @@
         "eher/oauth": "1.0.7"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.1.*"
-    },
-    "suggest": {
-        "fuel/docs": "FuelPHP documentation"
+        "phpunit/phpunit": "4.1.*",
+        "squizlabs/php_codesniffer": "2.9",
+        "ucfcdl/fuelphp-phpcs": "master"
     },
     "config": {
         "vendor-dir": "fuel/vendor",
@@ -35,5 +41,23 @@
             "{$name}": ["fuel/docs"]
         }
     },
+    "repositories": [
+        {
+            "type"    : "package",
+            "package" : {
+                "name"    : "ucfcdl/fuelphp-phpcs",
+                "version" : "master",
+                "dist"    : {
+                    "url"  : "https://github.com/ucfcdl/fuelphp-phpcs/archive/master.zip",
+                    "type": "zip"
+                },
+                "source"  : {
+                    "url"       : "https://github.com/ucfcdl/fuelphp-phpcs.git",
+                    "type"      : "git",
+                    "reference" : "master"
+                }
+            }
+        }
+    ],
     "minimum-stability": "dev"
 }
