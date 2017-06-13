@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bb63c65c7585c79ffbfdeb7215d3b8f0",
+    "content-hash": "8a19d21b263b4cc70b7217aca64dfd59",
     "packages": [
         {
             "name": "composer/installers",
@@ -155,16 +155,16 @@
         },
         {
             "name": "fuel/auth",
-            "version": "1.8.0.4",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/auth.git",
-                "reference": "83969c3c932edc94d973ca40f1567459b84c4523"
+                "reference": "a645dbe2f80b6b4cecb069b57ea70150b6e53929"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/auth/zipball/83969c3c932edc94d973ca40f1567459b84c4523",
-                "reference": "83969c3c932edc94d973ca40f1567459b84c4523",
+                "url": "https://api.github.com/repos/fuel/auth/zipball/a645dbe2f80b6b4cecb069b57ea70150b6e53929",
+                "reference": "a645dbe2f80b6b4cecb069b57ea70150b6e53929",
                 "shasum": ""
             },
             "require": {
@@ -183,27 +183,24 @@
             ],
             "description": "FuelPHP 1.x Auth Package",
             "homepage": "https://github.com/fuel/auth",
-            "time": "2016-10-20T18:12:06+00:00"
+            "time": "2016-01-23T12:30:25+00:00"
         },
         {
             "name": "fuel/core",
-            "version": "1.8.0.4",
+            "version": "1.8.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/core.git",
-                "reference": "cb83a0cc682307866000ef6b8b970f0893d01b66"
+                "reference": "c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/core/zipball/cb83a0cc682307866000ef6b8b970f0893d01b66",
-                "reference": "cb83a0cc682307866000ef6b8b970f0893d01b66",
+                "url": "https://api.github.com/repos/fuel/core/zipball/c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7",
+                "reference": "c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7",
                 "shasum": ""
             },
             "require": {
-                "composer/installers": "~1.0",
-                "michelf/php-markdown": "1.*",
-                "monolog/monolog": "1.18.*",
-                "phpseclib/phpseclib": "2.0.0"
+                "composer/installers": "~1.0"
             },
             "type": "fuel-package",
             "notification-url": "https://packagist.org/downloads/",
@@ -218,20 +215,20 @@
             ],
             "description": "FuelPHP 1.x Core",
             "homepage": "https://github.com/fuel/core",
-            "time": "2017-01-15T17:41:18+00:00"
+            "time": "2016-07-21T08:45:05+00:00"
         },
         {
             "name": "fuel/email",
-            "version": "1.8.0.4",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/email.git",
-                "reference": "2eab3974e4c38b9fea0a7ebbad3d4e1f20076448"
+                "reference": "79133b3951068bbcff9a9c7b77f9f27a777ebdbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/email/zipball/2eab3974e4c38b9fea0a7ebbad3d4e1f20076448",
-                "reference": "2eab3974e4c38b9fea0a7ebbad3d4e1f20076448",
+                "url": "https://api.github.com/repos/fuel/email/zipball/79133b3951068bbcff9a9c7b77f9f27a777ebdbd",
+                "reference": "79133b3951068bbcff9a9c7b77f9f27a777ebdbd",
                 "shasum": ""
             },
             "require": {
@@ -250,20 +247,20 @@
             ],
             "description": "FuelPHP 1.x Email Package",
             "homepage": "https://github.com/fuel/email",
-            "time": "2016-10-04T15:21:48+00:00"
+            "time": "2016-01-23T12:31:34+00:00"
         },
         {
             "name": "fuel/oil",
-            "version": "1.8.0.4",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/oil.git",
-                "reference": "84ea18b9e39c3c0d31681dd2cf92fbf81b6ed90f"
+                "reference": "b29b80f29f090b9ad12b931da6e979587de6ced1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/oil/zipball/84ea18b9e39c3c0d31681dd2cf92fbf81b6ed90f",
-                "reference": "84ea18b9e39c3c0d31681dd2cf92fbf81b6ed90f",
+                "url": "https://api.github.com/repos/fuel/oil/zipball/b29b80f29f090b9ad12b931da6e979587de6ced1",
+                "reference": "b29b80f29f090b9ad12b931da6e979587de6ced1",
                 "shasum": ""
             },
             "require": {
@@ -282,20 +279,20 @@
             ],
             "description": "FuelPHP 1.x Oil Package",
             "homepage": "https://github.com/fuel/oil",
-            "time": "2016-10-05T13:32:41+00:00"
+            "time": "2016-01-23T12:32:54+00:00"
         },
         {
             "name": "fuel/orm",
-            "version": "1.8.0.1",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/orm.git",
-                "reference": "69cd98cfed4d8e34b176d87b73a35b98703235be"
+                "reference": "2c1da635127c9fbedc9c76132fc904188892c365"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/orm/zipball/69cd98cfed4d8e34b176d87b73a35b98703235be",
-                "reference": "69cd98cfed4d8e34b176d87b73a35b98703235be",
+                "url": "https://api.github.com/repos/fuel/orm/zipball/2c1da635127c9fbedc9c76132fc904188892c365",
+                "reference": "2c1da635127c9fbedc9c76132fc904188892c365",
                 "shasum": ""
             },
             "require": {
@@ -314,20 +311,20 @@
             ],
             "description": "FuelPHP 1.x ORM Package",
             "homepage": "https://github.com/fuel/orm",
-            "time": "2016-05-22T14:52:35+00:00"
+            "time": "2016-02-07T12:09:12+00:00"
         },
         {
             "name": "fuel/parser",
-            "version": "1.8.0.4",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/parser.git",
-                "reference": "e647c56566ddc439801ae966821f37dc35a3c5bb"
+                "reference": "bec50ec304e696d72dba7f13494828532c6e18df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/parser/zipball/e647c56566ddc439801ae966821f37dc35a3c5bb",
-                "reference": "e647c56566ddc439801ae966821f37dc35a3c5bb",
+                "url": "https://api.github.com/repos/fuel/parser/zipball/bec50ec304e696d72dba7f13494828532c6e18df",
+                "reference": "bec50ec304e696d72dba7f13494828532c6e18df",
                 "shasum": ""
             },
             "require": {
@@ -346,7 +343,7 @@
             ],
             "description": "FuelPHP 1.x Parser Package",
             "homepage": "https://github.com/fuel/parser",
-            "time": "2017-01-12T17:26:53+00:00"
+            "time": "2016-03-12T12:08:41+00:00"
         },
         {
             "name": "fuelphp/upload",
@@ -454,57 +451,6 @@
                 "reference": "master"
             },
             "type": "fuel-package"
-        },
-        {
-            "name": "michelf/php-markdown",
-            "version": "1.7.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/michelf/php-markdown.git",
-                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/1f51cc520948f66cd2af8cbc45a5ee175e774220",
-                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-lib": "1.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Michelf": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Michel Fortin",
-                    "email": "michel.fortin@michelf.ca",
-                    "homepage": "https://michelf.ca/",
-                    "role": "Developer"
-                },
-                {
-                    "name": "John Gruber",
-                    "homepage": "https://daringfireball.net/"
-                }
-            ],
-            "description": "PHP Markdown",
-            "homepage": "https://michelf.ca/projects/php-markdown/",
-            "keywords": [
-                "markdown"
-            ],
-            "time": "2016-10-29T18:58:20+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -1615,7 +1561,7 @@
                 "shasum": null
             },
             "type": "library",
-            "time": "2016-01-26 18:03:42"
+            "time": "2017-06-13 17:40:49"
         }
     ],
     "aliases": [],
