@@ -39,6 +39,8 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 	checkForContext = String(window.location).split '/'
 	# Controls whether the view has a "preview" header bar
 	$scope.isPreview = false
+	# Controls whether or not the widget iframe will allow fullscreen behavior (disabled by default)
+	$scope.allowFullScreen = false
 
 	for word in checkForContext
 		if word == 'preview'
@@ -209,6 +211,11 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			instance = widgetInstances[0]
 			type = instance.widget.player.split('.').pop()
 			version = parseInt instance.widget.flash_version, 10
+
+			# Fullscreen flag set as an optional parameter in widget install.yaml; have to dig into instance widget's meta_data object to find it
+			# can't use array.includes() since it's necessary to ensure comparison is case insensitive
+			for feature in instance.widget.meta_data.features
+				if feature.toLowerCase() is "fullscreen" then $scope.allowFullScreen = true
 
 			if type == 'swf' && swfobject.hasFlashPlayerVersion(String(version)) == false
 				$scope.type = "noflash"
@@ -393,3 +400,11 @@ app.controller 'playerCtrl', ($scope, $sce, $timeout, widgetSrv, userServ, PLAYE
 			.pipe(sendWidgetInit)
 			.pipe(startHeartBeat)
 			.fail(onLoadFail)
+
+# Tiny directive that handles applying the "allowfullscreen" attribute to the player iframe
+# since the attribute does not take a parameter, it isn't as easy as allowfullscreen = {{allowFullScreen}} on the actual DOM element
+app.directive "fullscreenDir", () ->
+	restrict: "A",
+	link: ($scope, $element, $attrs) ->
+		$scope.$watch "allowFullScreen", (newVal, oldVal) ->
+			if newVal is true then $attrs.$set "allowfullscreen", ""
