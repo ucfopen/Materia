@@ -356,6 +356,9 @@ class Controller_Widgets extends Controller
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
 
+		// Disable header if embedded, prior to setting the widget view or any login/error screens
+		if ($is_embedded) $this->_header = 'partials/header_empty';
+
 		if ( ! $is_embedded && $inst->embedded_only) return $this->embedded_only($inst);
 
 		// display a login
@@ -502,7 +505,5 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
-
-		if ($is_embedded) $this->_header = 'partials/header_empty';
 	}
 }
