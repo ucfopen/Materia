@@ -4,10 +4,12 @@ return [
 	'active' => 'default',
 
 	'default' => [
-		'type'        => 'pdo',
 		'connection'  => [
-			'persistent' => false,
+			'dsn'       => 'mysql:host=localhost;dbname=materia',
+			'username'  => 'materia',
+			'password'  => 'SECRET MATERIA DB USER PASSWORD',
 		],
+		'type'         => 'pdo',
 		'identifier'   => '`',
 		'table_prefix' => '',
 		'charset'      => 'utf8',
