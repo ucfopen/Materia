@@ -13,5 +13,4 @@ return [
 			]
 		]
 	],
-	'expiration_time'	=> 21600,
 ];

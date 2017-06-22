@@ -105,7 +105,7 @@ return array(
 	 * Fuel::L_INFO
 	 * Fuel::L_ALL
 	 */
-	// 'log_threshold'    => Fuel::L_WARNING,
+	'log_threshold'    => Fuel::L_WARNING,
 	// 'log_path'         => APPPATH.'logs/',
 	'log_date_format'  => 'H:i:s',
 
@@ -325,5 +325,10 @@ return array(
 		 */
 		// 'language'  => array(),
 	),
+
+	/**
+	* Allow browser based widget uploads by administrators
+	*/
+	'enable_uploader' => false
 
 );
