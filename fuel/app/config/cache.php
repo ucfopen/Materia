@@ -28,7 +28,7 @@ return array(
 	 */
 
 	// default storage driver
-	'driver'      => 'memcached',
+	'driver'      => 'file',
 
 	// default expiration (null = no expiration)
 	'expiration'  => 18000,
@@ -49,7 +49,7 @@ return array(
 
 	// specific configuration settings for the file driver
 	'file'  => array(
-		'path'  =>	'',  // if empty the default will be application/cache/
+		'path'  => '',  // if empty the default will be application/cache/
 	),
 
 	// specific configuration settings for the memcached driver
@@ -60,18 +60,4 @@ return array(
 		),
 	),
 
-	// specific configuration settings for the apc driver
-	'apc'  => array(
-		'cache_id'  => 'fuel',  // unique id to distinquish fuel cache items from others stored on the same server(s)
-	),
-
-	// specific configuration settings for the redis driver
-	'redis'  => array(
-		'database'  => 'default',  // name of the redis database to use (as configured in config/db.php)
-	),
-
-	// specific configuration settings for the xcache driver
-	'xcache'  => array(
-		'cache_id'  => 'fuel',  // unique id to distinquish fuel cache items from others stored on the same server(s)
-	),
 );

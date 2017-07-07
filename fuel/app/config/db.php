@@ -5,7 +5,7 @@ return [
 
 	'default' => [
 		'connection'  => [
-			'dsn'       => 'mysql:host=localhost;dbname=materia',
+			'dsn'       => 'mysql:host=localhost;port=3306;dbname=materia',
 			'username'  => 'materia',
 			'password'  => 'SECRET MATERIA DB USER PASSWORD',
 		],
