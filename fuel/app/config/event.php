@@ -1,8 +1,23 @@
 <?php
 // Read https://fuelphp.com/docs/classes/event.html for more info about event configuration
+
+// Normally we'd just leave this in config.always_load.modules
+// BUT! this config is loaded by Event, which happens before
+// always_load.modules gets loaded, so it's going to have to be here.
+Module::load('lti');
+
 return [
 
-/*	'fuelphp' => array(
+	'fuelphp' => [
+		// LTI Events
+		'score_updated'          => '\Lti\LtiEvents::on_score_updated_event',
+		'widget_instance_delete' => '\Lti\LtiEvents::on_widget_instance_delete_event',
+		'play_completed'         => '\Lti\LtiEvents::on_play_completed_event',
+		'before_play_start'      => '\Lti\LtiEvents::on_before_play_start_event',
+		'play_start'             => '\Lti\LtiEvents::on_play_start_event',
+		'before_score_display'   => '\Lti\LtiEvents::on_before_score_display_event',
+
+		/*
 		'app_created' => function()
 		{
 			// After FuelPHP initialised
@@ -35,5 +50,6 @@ return [
 		{
 			// Output has been send out
 		},
-	),*/
+		*/
+	],
 ];
