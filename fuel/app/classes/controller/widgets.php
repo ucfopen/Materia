@@ -297,6 +297,7 @@ class Controller_Widgets extends Controller
 	{
 		$this->_disable_browser_cache = true;
 		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
+		$context_id = false;
 
 		foreach ($results as $result)
 		{
