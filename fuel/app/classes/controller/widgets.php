@@ -6,44 +6,9 @@
 
 class Controller_Widgets extends Controller
 {
+	use Lib_CommonControllerTemplateTrait;
 
-	protected $_header = 'partials/header';
 	protected $_embedded = false;
-
-	public function before()
-	{
-		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/main');
-	}
-
-	public function after($response)
-	{
-		// If no response object was returned by the action,
-		if (empty($response) or ! $response instanceof Response)
-		{
-			// render the defined template
-			$me = Model_User::find_current();
-
-			$this->theme->set_partial('header', $this->_header)->set('me', $me);
-
-			// add google analytics
-			if ($gid = Config::get('materia.google_tracking_id', false))
-			{
-				Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
-			}
-
-			$response = Response::forge(Theme::instance()->render());
-		}
-
-		// prevent caching the widget page, since the PLAY_ID is hard coded into the page
-		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Css::push_group('core');
-
-		return parent::after($response);
-	}
 
 	/**
 	 * Catalog page to show all the available widgets
@@ -237,6 +202,7 @@ class Controller_Widgets extends Controller
 
 	protected function show_editor($title, $widget, $inst_id=null)
 	{
+		$this->_disable_browser_cache = true;
 		Css::push_group(['core', 'widget_editor']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
@@ -253,6 +219,7 @@ class Controller_Widgets extends Controller
 
 	protected function draft_not_playable()
 	{
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
 			->set('title', 'Draft Not Playable')
 			->set('page_type', '');
@@ -275,6 +242,7 @@ class Controller_Widgets extends Controller
 
 	protected function no_attempts($inst)
 	{
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
@@ -296,6 +264,7 @@ class Controller_Widgets extends Controller
 
 	protected function no_permission()
 	{
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
@@ -326,6 +295,7 @@ class Controller_Widgets extends Controller
 
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
+		$this->_disable_browser_cache = true;
 		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
 
 		foreach ($results as $result)

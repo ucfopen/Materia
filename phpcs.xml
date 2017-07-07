@@ -7,14 +7,15 @@
 
     <rule ref="./fuel/vendor/ucfcdl/fuelphp-phpcs/Standards/FuelPHP/ruleset.xml"/>
 
+    <exclude-pattern>*/fuel/app/bootstrap.php</exclude-pattern>
+    <exclude-pattern>*/fuel/app/config/*</exclude-pattern>
+    <exclude-pattern>*/fuel/app/logs/*</exclude-pattern>
     <exclude-pattern>*/fuel/core/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/auth/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/email/*</exclude-pattern>
-    <exclude-pattern>*/fuel/packages/materia/classes/session/file.php</exclude-pattern>
     <exclude-pattern>*/fuel/packages/materia/classes/errorhandler.php</exclude-pattern>
-    <exclude-pattern>*/fuel/app/logs*</exclude-pattern>
-    <exclude-pattern>*/fuel/app/config/*</exclude-pattern>
-    <exclude-pattern>*/fuel/packages/materia/vendor/*</exclude-pattern>
+    <exclude-pattern>*/fuel/packages/materia/classes/session/file.php</exclude-pattern>
+    <exclude-pattern>*/fuel/packages/materia/vendor/widget/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/oil/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/orm/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/parser/*</exclude-pattern>
@@ -26,5 +27,6 @@
     <exclude-pattern>*/migrations/*</exclude-pattern>
     <exclude-pattern>*/public/themes*</exclude-pattern>
     <exclude-pattern>*/spec/*</exclude-pattern>
+    <exclude-pattern>migrations.php</exclude-pattern>
 
 </ruleset>

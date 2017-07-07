@@ -2,7 +2,7 @@
 
 return [
 	// what permission to set on the writable_paths
-	'writable_file_perm' => 0770,
+	'writable_file_perm' => 0777,
 
 	// which paths should have the above perm applied to them
 	'writable_paths' => [

@@ -10,7 +10,7 @@ return [
 	'default' => [
 		'connection'  => [
 			// in our docker environment, host=mysql is an alias for the ip for the mysql container
-			'dsn'        => 'mysql:host=mysql;dbname=materia',
+			'dsn'        => 'mysql:host=mysql;port=3306;dbname=materia',
 			'username'   => 'materia',
 			'password'   => 'odin'
 		],
