@@ -54,7 +54,7 @@ class Model_User extends Orm\Model
 
 		$this->set('profile_fields', array_merge(static::$_default_profile_fields, $profile_fields));
 		//don't allow notifications to be sent if there's no e-mail address to send them to
-		if(empty($this->email)) $this->profile_fields['notify'] = false;
+		if (empty($this->email)) $this->profile_fields['notify'] = false;
 	}
 
 	public static function find_current()
@@ -221,7 +221,7 @@ class Model_User extends Orm\Model
 
 	static protected function forge_guest()
 	{
-		return \Model_User::forge(array('id' => self::GUEST_ID));
+		return \Model_User::forge(['id' => self::GUEST_ID]);
 	}
 
 	public function to_array($custom = false, $recurse = false, $eav = false)
