@@ -2,8 +2,168 @@
 
 namespace Fuel\Tasks;
 
+require_once(PKGPATH.'materia/tasks/widget.php');
+use \Fuel\Tasks\Widget;
+
 class Admin extends \Basetask
 {
+
+	public static function configuration_wizard($skip_prompts=false)
+	{
+		\Config::load('install', true);
+		$should_prompt = \Cli::option('skip_prompts', $skip_prompts) != true;
+		$env = \Fuel::$env;
+
+		// create config directory
+		if ( ! file_exists(APPPATH."config/{$env}"))
+		{
+			$writable_file_perm = \Config::get('install.writable_file_perm', 0755);
+			mkdir(APPPATH."config/{$env}", $writable_file_perm, true);
+			\Cli::write("app/config/'{$env}' created", 'green');
+		}
+
+		// copy and files in essential_configs over
+		$essential_configs = \Config::get('install.essential_configs', []);
+		foreach ($essential_configs as $config)
+		{
+			if ( ! file_exists(APPPATH."config/{$env}/{$config}.php"))
+			{
+				copy(APPPATH."config/{$config}.php", APPPATH."config/{$env}/{$config}.php");
+				\Cli::write("config/{$env}/{$config}.php created", 'green');
+			}
+		}
+
+		$options = \Config::get('install.setup_wizard_config_options', []);
+		foreach ($options as $key => $key_settings )
+		{
+			list($config_name, $value_name, $new_config) = self::getConfigFromString($env, $key);
+
+			// does this config option depends on another option's value?
+			if (isset($key_settings['depends_on_value_match']))
+			{
+				// get the key and value out of the config
+				$required_value = reset($key_settings['depends_on_value_match']);
+				$required_key = key($key_settings['depends_on_value_match']);
+
+				// load the conifg
+				list( , $depends_key, $depends_config) = self::getConfigFromString($env, $required_key);
+
+				// compare values and skip if they aren't the same
+				$actual_value = \Arr::get($depends_config, $depends_key);
+
+				// ajdskfl jdsfl
+				if ($actual_value != $required_value)
+				{
+					continue;
+				}
+			}
+
+			// get current value
+			$new_value = $default_value = $current_value = \Arr::get($new_config, $value_name);
+
+			// if default configured, add it as an option
+			if (isset($key_settings['default']) && empty($current_value))
+			{
+				$default_value = $key_settings['default'];
+			}
+
+			// if no value is set and the config says generate a random key, do it here
+			if(empty($default_value) && isset($key_settings['generate_random_key']) && $key_settings['generate_random_key'])
+			{
+				$default_value = self::make_crypto_key();
+			}
+
+			// do some work to make boolean values display better
+			$current_value_string = (string) $current_value;
+			if (is_bool($current_value)) $current_value_string = $current_value ? 'true' : 'false';
+
+			$prompt_value_default = (string) $default_value;
+			if (is_bool($default_value)) $prompt_value_default = $default_value ? 'true' : 'false';
+
+			// prompt for new value
+			if ($should_prompt)
+			{
+				// if options are set, restrict input to those options
+				// we'll just copy the array into the input for the prompt
+				if(isset($key_settings['options']))
+				{
+					$prompt_value_default = $key_settings['options'];
+				}
+
+				if ( ! empty($key_settings['description']))
+				{
+					\Cli::write("\r\n{$key_settings['description']}", 'yellow');
+				}
+				else
+				{
+					\Cli::write("\r\nSetting Config Variable: ${key}", 'yellow');
+				}
+
+				// show the current value if multiple options are avail
+				if (is_array($prompt_value_default))
+				{
+					\Cli::write("Current value: \"{$current_value_string}\"");
+				}
+
+				$new_value = trim(\Cli::prompt("Enter value", $prompt_value_default));
+			}
+			else
+			{
+				// set new value to default if not prompting and a the current value is empty
+				if (empty($current_value))
+				{
+					$new_value = $default_value;
+				}
+			}
+
+			// type cast if provided
+			if (isset($key_settings['type'])){
+				$new_value = filter_var($new_value, $key_settings['type']);
+			}
+
+			if($new_value !== $current_value)
+			{
+				$new_value_string = $new_value;
+				if (is_bool($new_value)) $new_value_string = $new_value ? 'true' : 'false';
+
+				\Arr::set($new_config, $value_name, $new_value);
+				\Config::save("{$env}/{$config_name}", $new_config);
+				\Cli::write("${key} changed from '{$current_value_string}' to '{$new_value_string}'", 'green');
+			}
+			else
+			{
+				\Cli::write("${key} remains set to '{$current_value_string}'");
+			}
+		}
+
+		\Cli::write("\r\nConfiguration complete.", 'green');
+		\Cli::write("\r\nPlease review the generated config files in fuel/app/config/{$env}.");
+	}
+
+	public static function make_paths_writable()
+	{
+		\Config::load('install', true);
+		$writable_paths = \Config::get('install.writable_paths');
+		$writable_file_perm = \Config::get('install.writable_file_perm');
+
+		foreach ($writable_paths as $path)
+		{
+			if ( ! file_exists($path))
+			{
+				mkdir($path, $writable_file_perm , true);
+			}
+
+			if (chmod($path, $writable_file_perm ))
+			{
+				\Cli::write("Made writable: $path", 'green');
+			}
+			else
+			{
+				\Cli::write("Failed to make writable: $path", 'red');
+				exit(1);
+			}
+		}
+	}
 
 	public static function recalculate_scores($inst_id, $user_id = null)
 	{
@@ -399,5 +559,34 @@ class Admin extends \Basetask
 					->execute();
 			}
 		}
+	}
+
+	protected static function make_crypto_key()
+	{
+		$crypto = '';
+		for ($i = 0; $i < 8; $i++)
+		{
+			$crypto .= static::safe_b64encode(pack('n', mt_rand(0, 0xFFFF)));
+		}
+		return $crypto;
+	}
+
+	protected static function safe_b64encode($value)
+	{
+		$data = base64_encode($value);
+		$data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+		return $data;
+	}
+
+	protected static function getConfigFromString($env, $config_string)
+	{
+		$config_name = substr($config_string, 0, strpos($config_string, '.'));
+		$value_name = substr($config_string, strpos($config_string, '.') + 1);
+
+		return [
+			$config_name,
+			$value_name,
+			\Config::load("{$env}/{$config_name}", false, true),
+		];
 	}
 }
