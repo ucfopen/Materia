@@ -1,66 +1,42 @@
 <?php
-
 namespace Fuel\Tasks;
+
+require_once(PKGPATH.'materia/tasks/admin.php');
+
+use \Fuel;
+use \Cli;
 
 class Install
 {
-
-	public static function run($skip_prompts=false, $install_widgets=true)
+	public static function run()
 	{
-		$writable_paths = [
-			APPPATH.'cache',
-			APPPATH.'logs',
-			APPPATH.'tmp',
-			APPPATH.'config',
-			// custom materia stuff
-			PKGPATH.'materia/media',
-			PKGPATH.'materia/media/large',
-			PKGPATH.'materia/media/thumbnail',
-			PKGPATH.'materia/media/uploads',
-			PKGPATH.'materia/vendor/widget/score_module',
-			PKGPATH.'materia/vendor/widget/test',
-			DOCROOT.'static/widget',
-			DOCROOT.'static/widget/test'
-		];
-
-		foreach ($writable_paths as $path)
+		// let the user set the environment
+		if (Cli::option('skip_prompts', false) != true)
 		{
-			if ( ! file_exists($path))
-			{
-				mkdir($path);
-			}
-			if (@chmod($path, 0777))
-			{
-				\Cli::write("Made writable: $path", 'green');
-			}
-			else
-			{
-				\Cli::write("Failed to make writable: $path", 'red');
-				exit(1);
-			}
+			Fuel::$env = Cli::prompt('Choose your environment', ['development', 'production', 'staging']);
 		}
 
-		// get the materia admin tasks
-		require_once(PKGPATH.'materia/tasks/admin.php');
+		Cli::write("FuelPHP environment set to: '".Fuel::$env."'");
 
-		// bypass interactive mode with -quiet
-		if (\Cli::option('skip_prompts', $skip_prompts) === false)
-		{
-			\Cli::write('This task builds a working Materia server.', 'green');
-			\Cli::write('Runs all database migrations, populates needed data, creates an admin user, and will install the core widgets.');
-			if (\Cli::prompt('Continue?', array('y', 'n')) != 'y') return;
-		}
+		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard');
+		self::prompt_and_run('Set writable paths?', 'make_paths_writable');
+		self::prompt_and_run('Clear Server Cache?', 'clear_cache');
+		self::prompt_and_run('Run Migrations?', 'setup_migrations');
+		self::prompt_and_run('Populate User Roles?', 'populate_roles');
+		self::prompt_and_run('Populate Defaults Semesters?', 'populate_semesters');
+		self::prompt_and_run('Create Default Users?', 'create_default_users');
+		// self::prompt_and_run('Install widgets from configuration?', 'install_widgets');
+	}
 
-		\Fuel\Tasks\Admin::clear_cache();
-		\Fuel\Tasks\Admin::setup_migrations();
-		\Fuel\Tasks\Admin::populate_roles();
-		\Fuel\Tasks\Admin::populate_semesters();
-		\Fuel\Tasks\Admin::create_default_users();
+	private static function prompt_and_run($text, $method)
+	{
+		// was the cli option set to skip this method?
+		if (Cli::option("skip_{$method}", false)) return;
 
-		if (\Cli::option('install_widgets', $install_widgets) === true)
-		{
-			require_once(PKGPATH.'materia/tasks/widget.php');
-			\Fuel\Tasks\Widget::install_from_config();
-		}
+		// was prompt requested and they said no?
+		$should_prompt = Cli::option('skip_prompts', false) != true;
+		if ($should_prompt && Cli::prompt("\r\n{$text}", ['y', 'n']) == 'n') return;
+		// execute the method
+		call_user_func("\Fuel\Tasks\Admin::${method}");
 	}
 }

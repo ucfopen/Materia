@@ -52,9 +52,9 @@ return [
 			// public
 			'privacy'           => 'public',
 
-			// Security Settings CHANGE THESE!!!
-			'secret'            => 'secret',
-			'key'               => 'key',
+			// Security Settings CHANGE THE SECRET (or both) !!!
+			'secret'            => 'CHANGE_ME_NOW',
+			'key'               => 'materia-production-lti-key',
 		],
 
 		// Example Obojobo assignment integration
