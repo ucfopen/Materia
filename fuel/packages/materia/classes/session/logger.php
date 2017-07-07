@@ -170,7 +170,7 @@ class Session_Logger
 				->order_by('id')
 				->execute();
 
-			$logs = array();
+			$logs = [];
 			foreach ($results as $r)
 			{
 				$logs[] = new Session_Log($r);

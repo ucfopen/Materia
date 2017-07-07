@@ -24,7 +24,7 @@ class Controller_Users extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
 			}
 
 			Js::push_inline('var BASE_URL = "'.Uri::base().'";');

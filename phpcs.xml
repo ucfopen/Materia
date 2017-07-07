@@ -7,19 +7,24 @@
 
     <rule ref="./fuel/vendor/ucfcdl/fuelphp-phpcs/Standards/FuelPHP/ruleset.xml"/>
 
-    <exclude-pattern>*/fuel/vendor/*</exclude-pattern>
     <exclude-pattern>*/fuel/core/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/auth/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/email/*</exclude-pattern>
+    <exclude-pattern>*/fuel/packages/materia/classes/session/file.php</exclude-pattern>
+    <exclude-pattern>*/fuel/packages/materia/classes/errorhandler.php</exclude-pattern>
+    <exclude-pattern>*/fuel/app/logs*</exclude-pattern>
+    <exclude-pattern>*/fuel/app/config/*</exclude-pattern>
+    <exclude-pattern>*/fuel/packages/materia/vendor/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/oil/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/orm/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/parser/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/parser/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/plupload/*</exclude-pattern>
-    <exclude-pattern>*/public/themes*</exclude-pattern>
-    <exclude-pattern>*/migrations/*</exclude-pattern>
-    <exclude-pattern>*/spec/*</exclude-pattern>
-    <exclude-pattern>*/licenses/*</exclude-pattern>
+    <exclude-pattern>*/fuel/vendor/*</exclude-pattern>
     <exclude-pattern>*/githooks/*</exclude-pattern>
+    <exclude-pattern>*/licenses/*</exclude-pattern>
+    <exclude-pattern>*/migrations/*</exclude-pattern>
+    <exclude-pattern>*/public/themes*</exclude-pattern>
+    <exclude-pattern>*/spec/*</exclude-pattern>
 
 </ruleset>
