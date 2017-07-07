@@ -34,9 +34,9 @@ class Admin extends \Basetask
 		}
 
 		$options = \Config::get('install.setup_wizard_config_options', []);
-		foreach ($options as $key => $key_settings )
+		foreach ($options as $key => $key_settings)
 		{
-			list($config_name, $value_name, $new_config) = self::getConfigFromString($env, $key);
+			list($config_name, $value_name, $new_config) = self::get_config_from_string($env, $key);
 
 			// does this config option depends on another option's value?
 			if (isset($key_settings['depends_on_value_match']))
@@ -46,7 +46,7 @@ class Admin extends \Basetask
 				$required_key = key($key_settings['depends_on_value_match']);
 
 				// load the conifg
-				list( , $depends_key, $depends_config) = self::getConfigFromString($env, $required_key);
+				list( , $depends_key, $depends_config) = self::get_config_from_string($env, $required_key);
 
 				// compare values and skip if they aren't the same
 				$actual_value = \Arr::get($depends_config, $depends_key);
@@ -68,7 +68,7 @@ class Admin extends \Basetask
 			}
 
 			// if no value is set and the config says generate a random key, do it here
-			if(empty($default_value) && isset($key_settings['generate_random_key']) && $key_settings['generate_random_key'])
+			if (empty($default_value) && isset($key_settings['generate_random_key']) && $key_settings['generate_random_key'])
 			{
 				$default_value = self::make_crypto_key();
 			}
@@ -85,7 +85,7 @@ class Admin extends \Basetask
 			{
 				// if options are set, restrict input to those options
 				// we'll just copy the array into the input for the prompt
-				if(isset($key_settings['options']))
+				if (isset($key_settings['options']))
 				{
 					$prompt_value_default = $key_settings['options'];
 				}
@@ -105,7 +105,7 @@ class Admin extends \Basetask
 					\Cli::write("Current value: \"{$current_value_string}\"");
 				}
 
-				$new_value = trim(\Cli::prompt("Enter value", $prompt_value_default));
+				$new_value = trim(\Cli::prompt('Enter value', $prompt_value_default));
 			}
 			else
 			{
@@ -117,11 +117,12 @@ class Admin extends \Basetask
 			}
 
 			// type cast if provided
-			if (isset($key_settings['type'])){
+			if (isset($key_settings['type']))
+			{
 				$new_value = filter_var($new_value, $key_settings['type']);
 			}
 
-			if($new_value !== $current_value)
+			if ($new_value !== $current_value)
 			{
 				$new_value_string = $new_value;
 				if (is_bool($new_value)) $new_value_string = $new_value ? 'true' : 'false';
@@ -278,7 +279,7 @@ class Admin extends \Basetask
 		}
 
 		// run the package migrations
-		foreach (\Config::get('package_paths', array(PKGPATH)) as $path)
+		foreach (\Config::get('package_paths', [PKGPATH]) as $path)
 		{
 			// get all packages that have files in the migration folder
 			foreach (glob($path.'*/') as $m)
@@ -340,7 +341,7 @@ class Admin extends \Basetask
 
 		if ( ! $skip_prompts)
 		{
-			if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') return;
+			if (\Cli::prompt('Destroy it all?', ['y', 'n']) != 'y') return;
 		}
 
 		$dbs = \Config::load('db', true);
@@ -356,7 +357,7 @@ class Admin extends \Basetask
 			if ( ! $skip_prompts)
 			{
 				\Cli::write('Truncate all tables in '.\Fuel::$env." $db_name?", 'red');
-				if (\Cli::prompt('Destroy it all?', array('y', 'n')) != 'y') continue;
+				if (\Cli::prompt('Destroy it all?', ['y', 'n']) != 'y') continue;
 			}
 
 			\DB::query('SET foreign_key_checks = 0')->execute();
@@ -425,7 +426,7 @@ class Admin extends \Basetask
 	{
 		if ($user = \Model_User::query()->where('username', (string)$user_name)->get_one())
 		{
-			if (\RocketDuck\Perm_Manager::add_users_to_roles_system_only(array($user->id), array($group_name)))
+			if (\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], [$group_name]))
 			{
 				if (\Fuel::$env != \Fuel::TEST) \Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
 				return true;
@@ -448,7 +449,7 @@ class Admin extends \Basetask
 	public static function reset_password($username)
 	{
 		$newpassword = \Auth::instance()->reset_password($username);
-		if (\Fuel::$env != \Fuel::TEST )
+		if (\Fuel::$env != \Fuel::TEST)
 		{
 			\Cli::write("New password is $username ".\Cli::color($newpassword, 'yellow'));
 		}
@@ -464,7 +465,7 @@ class Admin extends \Basetask
 
 			if ($user_id === false)
 			{
-				if (\Fuel::$env != \Fuel::TEST )
+				if (\Fuel::$env != \Fuel::TEST)
 				{
 					\Cli::beep(1);
 					\Cli::write(\Cli::color('Failed to create user', 'red'));
@@ -478,7 +479,7 @@ class Admin extends \Basetask
 		}
 		catch (\FuelException $e)
 		{
-			if (\Fuel::$env != \Fuel::TEST )
+			if (\Fuel::$env != \Fuel::TEST)
 			{
 				\Cli::beep(1);
 				\Cli::write(\Cli::color('Error creating user', 'red'));
@@ -574,11 +575,11 @@ class Admin extends \Basetask
 	protected static function safe_b64encode($value)
 	{
 		$data = base64_encode($value);
-		$data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+		$data = str_replace(['+', '/', '='], ['-', '_', ''], $data);
 		return $data;
 	}
 
-	protected static function getConfigFromString($env, $config_string)
+	protected static function get_config_from_string($env, $config_string)
 	{
 		$config_name = substr($config_string, 0, strpos($config_string, '.'));
 		$value_name = substr($config_string, strpos($config_string, '.') + 1);

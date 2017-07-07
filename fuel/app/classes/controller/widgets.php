@@ -29,7 +29,7 @@ class Controller_Widgets extends Controller
 			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+				Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
 			}
 
 			$response = Response::forge(Theme::instance()->render());
