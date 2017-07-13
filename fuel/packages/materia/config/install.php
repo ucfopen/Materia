@@ -88,23 +88,23 @@ return [
 			'generate_random_key' => true,
 			'description' => 'Database user password?',
 		],
-		'lti.tool_consumer_instance_guid' => [
+		'lti::lti.tool_consumer_instance_guid' => [
 			'default' => 'materia.YOUR_INSTITUTION.edu',
 			'description' => 'Unique LTI identifier for your Materia install.',
 		],
-		'lti.consumers.canvas.remote_username' => [
+		'lti::lti.consumers.canvas.remote_username' => [
 			'default' => 'lis_person_sourcedid',
 			'description' => 'Which LTI variable do you want to use as a username in Matria?',
 		],
-		'lti.consumers.canvas.remote_identifier' => [
+		'lti::lti.consumers.canvas.remote_identifier' => [
 		'default' => 'lis_person_sourcedid',
 			'description' => 'Which LTI variable do you want to use as a username in Matria?',
 		],
-		'lti.consumers.canvas.secret' => [
+		'lti::lti.consumers.canvas.secret' => [
 			'generate_random_key' => true,
 			'description' => 'LTI Secret key for Canvas.',
 		],
-		'lti.consumers.canvas.key' => [
+		'lti::lti.consumers.canvas.key' => [
 			'default' => 'materia-production-lti-key',
 			'description' => 'LTI Consumer Key for Canvas.',
 		],

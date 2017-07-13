@@ -1,7 +1,9 @@
 {
   "name": "Materia",
-  "version": "1.0.0",
-  "description": "Learning App Store",
+  "scripts":{
+    "assets": "gulp js css hash",
+    "assets-watch": "gulp",
+  },
   "dependencies": {
     "coffee-script": "^1.9.1",
     "gulp": "^3.8.11",
@@ -14,7 +16,7 @@
     "gulp-uglify": "^1.1.0"
   },
   "author": "University of Central Florida, Center for Distributed Learning",
-  "homepage": "https://github.com/ucfcdl/Obojobo",
+  "homepage": "https://github.com/ucfcdl/Materia",
   "devDependencies": {
     "gulp-livereload": "^3.8.0",
     "gulp-watch": "^4.1.1",
