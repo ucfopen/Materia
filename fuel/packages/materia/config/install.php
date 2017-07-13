@@ -60,7 +60,7 @@ return [
 		],
 		'cache.memcached.servers.default.port' => [
 			'type' => FILTER_VALIDATE_INT,
-			'default' => '112111',
+			'default' => '11211',
 			'depends_on_value_match' => ['cache.driver' => 'memcached'],
 		],
 		'session.driver' => [
@@ -73,7 +73,7 @@ return [
 		],
 		'session.memcached.servers.default.port' => [
 			'type' => FILTER_VALIDATE_INT,
-			'default' => '112111',
+			'default' => '11211',
 			'depends_on_value_match' => ['session.driver' => 'memcached'],
 		],
 		'db.default.connection.dsn' => [
@@ -94,11 +94,11 @@ return [
 		],
 		'lti::lti.consumers.canvas.remote_username' => [
 			'default' => 'lis_person_sourcedid',
-			'description' => 'Which LTI variable do you want to use as a username in Matria?',
+			'description' => 'Which LTI variable do you want to use as a username in Materia?',
 		],
 		'lti::lti.consumers.canvas.remote_identifier' => [
 		'default' => 'lis_person_sourcedid',
-			'description' => 'Which LTI variable do you want to use as a username in Matria?',
+			'description' => 'Which LTI variable do you want to use as a username in Materia?',
 		],
 		'lti::lti.consumers.canvas.secret' => [
 			'generate_random_key' => true,
