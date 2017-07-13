@@ -8,35 +8,76 @@ use \Fuel\Tasks\Widget;
 class Admin extends \Basetask
 {
 
+	protected static function convert_string_to_config_path($env, $name)
+	{
+		// create the env portion of the path
+		// collapses if there is no env (to use the file in the top level directory)
+		$env_path = empty($env) ? '' : $env.DS;
+
+		// deal with config strings like "lti::lti.somevar"
+		if (stripos($name, '::') !== false)
+		{
+			$name = explode('.', $name); // becomes ["lti::lti", "somevar"]
+			$name = explode('::', $name[0]); // becmoes ["lti", "lti"]
+			if (count($name) == 2)
+			{
+				// "modules/lti/conifg/production/lti.php"
+				$path = APPPATH.'modules'.DS.$name[0].DS.'config'.DS.$env_path.$name[1].'.php';
+			}
+		}
+		else
+		{
+			$name = explode('.', $name); // becomes ["lti", "somevar"]
+			// "config/production/lti.php"
+			$path = APPPATH.'config'.DS.$env_path.$name[0].'.php';
+		}
+
+		return $path;
+	}
+
+	protected static function create_directory($path)
+	{
+		// create config directory
+		if ( ! file_exists($path))
+		{
+			$writable_file_perm = \Config::get('install.writable_file_perm', 0755);
+			mkdir($path, $writable_file_perm, true);
+			\Cli::write("'{$path}' created", 'green');
+		}
+	}
+
+	protected static function copy_config_to($source, $target)
+	{
+		$target = APPPATH.'config'.DS.$env.DS.$config.'.php';
+		self::create_directory(dirname($target));
+
+		if ( ! file_exists($target))
+		{
+			copy(APPPATH.'config'.DS.$config.'.php', $target);
+			\Cli::write("$target created", 'green');
+		}
+	}
+
 	public static function configuration_wizard($skip_prompts=false)
 	{
 		\Config::load('install', true);
 		$should_prompt = \Cli::option('skip_prompts', $skip_prompts) != true;
 		$env = \Fuel::$env;
 
-		// create config directory
-		if ( ! file_exists(APPPATH."config/{$env}"))
-		{
-			$writable_file_perm = \Config::get('install.writable_file_perm', 0755);
-			mkdir(APPPATH."config/{$env}", $writable_file_perm, true);
-			\Cli::write("app/config/'{$env}' created", 'green');
-		}
-
 		// copy and files in essential_configs over
 		$essential_configs = \Config::get('install.essential_configs', []);
 		foreach ($essential_configs as $config)
 		{
-			if ( ! file_exists(APPPATH."config/{$env}/{$config}.php"))
-			{
-				copy(APPPATH."config/{$config}.php", APPPATH."config/{$env}/{$config}.php");
-				\Cli::write("config/{$env}/{$config}.php created", 'green');
-			}
+			$essential_path = self::convert_string_to_config_path($env, $config);
+			self::copy_config_to(APPPATH.'config'.DS.$config.'.php', $essential_path);
 		}
 
 		$options = \Config::get('install.setup_wizard_config_options', []);
 		foreach ($options as $key => $key_settings)
 		{
-			list($config_name, $value_name, $new_config) = self::get_config_from_string($env, $key);
+			$config_path = self::convert_string_to_config_path($env, $key);
+			self::create_directory(dirname($config_path));
+			list($value_name, $new_config) = self::get_config_from_string($env, $key);
 
 			// does this config option depends on another option's value?
 			if (isset($key_settings['depends_on_value_match']))
@@ -46,7 +87,7 @@ class Admin extends \Basetask
 				$required_key = key($key_settings['depends_on_value_match']);
 
 				// load the conifg
-				list( , $depends_key, $depends_config) = self::get_config_from_string($env, $required_key);
+				list($depends_key, $depends_config) = self::get_config_from_string($env, $required_key);
 
 				// compare values and skip if they aren't the same
 				$actual_value = \Arr::get($depends_config, $depends_key);
@@ -128,7 +169,7 @@ class Admin extends \Basetask
 				if (is_bool($new_value)) $new_value_string = $new_value ? 'true' : 'false';
 
 				\Arr::set($new_config, $value_name, $new_value);
-				\Config::save("{$env}/{$config_name}", $new_config);
+				\Config::save($config_path, $new_config);
 				\Cli::write("${key} changed from '{$current_value_string}' to '{$new_value_string}'", 'green');
 			}
 			else
@@ -581,13 +622,13 @@ class Admin extends \Basetask
 
 	protected static function get_config_from_string($env, $config_string)
 	{
-		$config_name = substr($config_string, 0, strpos($config_string, '.'));
+		// converts "lti::lti.something.something_else" to "something.something_else"
 		$value_name = substr($config_string, strpos($config_string, '.') + 1);
+		$path = self::convert_string_to_config_path($env, $config_string);
 
 		return [
-			$config_name,
 			$value_name,
-			\Config::load("{$env}/{$config_name}", false, true),
+			\Config::load($path, false, true),
 		];
 	}
 }
