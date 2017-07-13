@@ -32,6 +32,7 @@ desktop.ini
 /fuel/app/logs/**/*
 /fuel/app/cache/**/*
 /fuel/app/config/crypt.php
+/fuel/app/config/development/crypt.php
 /fuel/app/config/asset_hash.json
 /fuel/app/config/**/migrations.php
 
@@ -70,3 +71,4 @@ coverage.txt
 coverage.xml
 coverage/*
 
+fuel/app/backend/*
