@@ -2,7 +2,7 @@
   "name": "Materia",
   "scripts":{
     "assets": "gulp js css hash",
-    "assets-watch": "gulp",
+    "assets-watch": "gulp"
   },
   "dependencies": {
     "coffee-script": "^1.9.1",
