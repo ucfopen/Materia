@@ -1,3 +1,0 @@
-<?php
-// IN FUELPHP 1.4 this file isnt loaded
-// SO THE FOLLOWING NEEDS TO BE EXECUTED SOMEWHERE ELSE

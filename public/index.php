@@ -66,7 +66,7 @@ $routerequest = function($route = null, $e = false)
 	}
 	elseif ($route)
 	{
-		$response = Request::forge($route, false)->execute(array($e))->response();
+		$response = Request::forge($route, false)->execute([$e])->response();
 	}
 	else
 	{
