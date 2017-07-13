@@ -25,7 +25,6 @@ class Install
 		self::prompt_and_run('Populate User Roles?', 'populate_roles');
 		self::prompt_and_run('Populate Defaults Semesters?', 'populate_semesters');
 		self::prompt_and_run('Create Default Users?', 'create_default_users');
-		// self::prompt_and_run('Install widgets from configuration?', 'install_widgets');
 	}
 
 	private static function prompt_and_run($text, $method)
