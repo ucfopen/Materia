@@ -14,15 +14,15 @@ class Session_File extends \Session_Driver
 	/**
 	 * array of driver config defaults
 	 */
-	protected static $_defaults = array(
+	protected static $_defaults = [
 		'cookie_name'    => 'fuelfid',				// name of the session cookie for file based sessions
 		'path'           =>	'/tmp',					// path where the session files should be stored
 		'gc_probability' =>	5,						// probability % (between 0 and 100) for garbage collection
-	);
+	];
 
 	// --------------------------------------------------------------------
 
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		// merge the driver config with the global config
 		$this->config = array_merge($config, is_array($config['file']) ? $config['file'] : static::$_defaults);
