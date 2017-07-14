@@ -162,4 +162,9 @@ class Util_Validator
 		return (bool) preg_match('/^[[:alnum:]]{40}$/i', $var);
 	}
 
+	public static function cast_to_bool_enum($var)
+	{
+		return $var == '1' ? '1' : '0';
+	}
+
 }

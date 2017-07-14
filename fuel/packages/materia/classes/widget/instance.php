@@ -2,6 +2,8 @@
 
 namespace Materia;
 
+use \RocketDuck\Util_Validator;
+
 class Widget_Instance
 {
 
@@ -139,7 +141,7 @@ class Widget_Instance
 	 */
 	public function db_get($inst_id, $load_qset=false, $timestamp=false)
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
+		if (Util_Validator::is_valid_hash($inst_id))
 		{
 			$inst = Widget_Instance_Manager::get((string) $inst_id, $load_qset, $timestamp);
 
@@ -249,7 +251,7 @@ class Widget_Instance
 		// check for requirements
 		if ( ! $this->user_id > 0) return false;
 
-		$is_new = ! \RocketDuck\Util_Validator::is_valid_hash($this->id);
+		$is_new = ! Util_Validator::is_valid_hash($this->id);
 
 		if ($is_new) // ================ ADDING A NEW INSTANCE ===================
 		{
@@ -272,15 +274,15 @@ class Widget_Instance
 							'user_id'         => $this->user_id,
 							'created_at'      => time(),
 							'name'            => $this->name,
-							'is_draft'        => (string) $this->is_draft,
+							'is_draft'        => Util_Validator::cast_to_bool_enum($this->is_draft);
 							'height'          => $this->height,
 							'width'           => $this->width,
 							'open_at'         => $this->open_at,
 							'close_at'        => $this->close_at,
 							'attempts'        => $this->attempts,
-							'guest_access'    => (string) $this->guest_access,
-							'is_student_made' => (string) $this->is_student_made,
-							'embedded_only'   => (string) $this->embedded_only,
+							'guest_access'    => Util_Validator::cast_to_bool_enum($this->guest_access),
+							'is_student_made' => Util_Validator::cast_to_bool_enum($this->is_student_made),
+							'embedded_only'   => Util_Validator::cast_to_bool_enum($this->embedded_only),
 						])
 						->execute();
 
@@ -288,6 +290,8 @@ class Widget_Instance
 				}
 				catch (\Fuel\Core\Database_Exception $e)
 				{
+
+					trace($e->getMessage());
 					// try again till retries run out!
 				}
 			}
@@ -303,12 +307,12 @@ class Widget_Instance
 				->set([
 					'widget_id'     => $this->widget->id,
 					'name'          => $this->name,
-					'is_draft'      => (string) $this->is_draft,
+					'is_draft'      => Util_Validator::cast_to_bool_enum($this->is_draft),
 					'open_at'       => $this->open_at,
 					'close_at'      => $this->close_at,
 					'attempts'      => $this->attempts,
-					'guest_access'  => (string) $this->guest_access,
-					'embedded_only' => (string) $this->embedded_only,
+					'guest_access'  => Util_Validator::cast_to_bool_enum($this->guest_access),
+					'embedded_only' => Util_Validator::cast_to_bool_enum($this->embedded_only),
 					'updated_at'    => time()
 				])
 				->where('id', $this->id)
@@ -338,7 +342,7 @@ class Widget_Instance
 	public function db_remove()
 	{
 		// remove widget instance if instance id is a valid hash and successfully removed all permissions for widget instance
-		if (\RocketDuck\Util_Validator::is_valid_hash($this->id) && Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE))
+		if (Util_Validator::is_valid_hash($this->id) && Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE))
 		{
 			\DB::update('widget_instance')
 				->set(['is_deleted' => '1', 'updated_at' => time()])
@@ -498,4 +502,5 @@ class Widget_Instance
 	public function export()
 	{
 	}
+
 }
