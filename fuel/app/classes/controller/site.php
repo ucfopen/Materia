@@ -6,43 +6,7 @@
 
 class Controller_Site extends Controller
 {
-
-	public function before()
-	{
-		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/main');
-		Css::push_group('core');
-	}
-
-	private function setup_header()
-	{
-		// render the defined template
-		$me = Model_User::find_current();
-		$this->theme->set_partial('header', 'partials/header')->set('me', $me);
-
-		// add google analytics
-		if ($gid = Config::get('materia.google_tracking_id', false))
-		{
-			Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
-		}
-
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-
-	}
-
-	public function after($response)
-	{
-		// If no response object was returned by the action,
-		if (empty($response) or ! $response instanceof Response)
-		{
-			$this->setup_header();
-			$response = Response::forge(Theme::instance()->render());
-		}
-
-		return parent::after($response);
-	}
+	use Lib_CommonControllerTemplateTrait;
 
 	/**
 	 * Handles the homepage
@@ -105,8 +69,6 @@ class Controller_Site extends Controller
 
 		Log::warning('403 URL: '.Uri::main());
 
-		$this->setup_header();
-
 		$response = \Response::forge(\Theme::instance()->render(), 404);
 
 		return $response;
@@ -130,8 +92,6 @@ class Controller_Site extends Controller
 
 		Log::warning('404 URL: '.Uri::main());
 
-		$this->setup_header();
-
 		$response = \Response::forge(\Theme::instance()->render(), 404);
 
 		return $response;
@@ -154,8 +114,6 @@ class Controller_Site extends Controller
 		$this->theme->set_partial('content', 'partials/500');
 
 		Log::warning('500 URL: '.Uri::main());
-
-		$this->setup_header();
 
 		$response = \Response::forge(\Theme::instance()->render(), 500);
 
