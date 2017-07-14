@@ -677,11 +677,6 @@ class Api_V1
 
 		$inst->get_qset($inst_id);
 
-		if ($play_id && \Config::get('materia.security.encrypt_qsets') === true && $inst->widget->is_qset_encrypted)
-		{
-			return ['encryptedText' => \Event::trigger('Materia.encrypt', $inst->qset)];
-		}
-
 		return $inst->qset;
 	}
 
