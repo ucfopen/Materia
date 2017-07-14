@@ -3,6 +3,7 @@
  * @group App
  * @group Module
  * @group Lti
+  * @group LtiEvents
  */
 class Test_LtiEvents extends \Test_Basetest
 {
