@@ -274,7 +274,7 @@ class Widget_Instance
 							'user_id'         => $this->user_id,
 							'created_at'      => time(),
 							'name'            => $this->name,
-							'is_draft'        => Util_Validator::cast_to_bool_enum($this->is_draft);
+							'is_draft'        => Util_Validator::cast_to_bool_enum($this->is_draft),
 							'height'          => $this->height,
 							'width'           => $this->width,
 							'open_at'         => $this->open_at,
