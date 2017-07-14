@@ -266,7 +266,6 @@ class Widget_Instance
 
 				try
 				{
-
 					list($empty, $num) = \DB::insert('widget_instance')
 						->set([
 							'id'              => $hash,
@@ -290,7 +289,6 @@ class Widget_Instance
 				}
 				catch (\Fuel\Core\Database_Exception $e)
 				{
-
 					trace($e->getMessage());
 					// try again till retries run out!
 				}
