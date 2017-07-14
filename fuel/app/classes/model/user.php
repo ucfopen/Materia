@@ -54,7 +54,7 @@ class Model_User extends Orm\Model
 
 		$this->set('profile_fields', array_merge(static::$_default_profile_fields, $profile_fields));
 		//don't allow notifications to be sent if there's no e-mail address to send them to
-		if(empty($this->email)) $this->profile_fields['notify'] = false;
+		if (empty($this->email)) $this->profile_fields['notify'] = false;
 	}
 
 	public static function find_current()
@@ -221,7 +221,7 @@ class Model_User extends Orm\Model
 
 	static protected function forge_guest()
 	{
-		return \Model_User::forge(array('id' => self::GUEST_ID));
+		return \Model_User::forge(['id' => self::GUEST_ID]);
 	}
 
 	public function to_array($custom = false, $recurse = false, $eav = false)
@@ -266,7 +266,7 @@ class Model_User extends Orm\Model
 			->execute();
 
 		$return = [];
-		foreach($results as $r)
+		foreach ($results as $r)
 		{
 			$widget = new \Materia\Widget;
 			$widget->get($r->widget);
@@ -295,7 +295,7 @@ class Model_User extends Orm\Model
 		{
 			//update_role's second argument is true for employee, false for student
 			//returning the opposite of the user's 'is a student' status covers this case
-			\Auth_Login_Materiaauth::update_role($user->id, !$new_props->is_student);
+			\Auth_Login_Materiaauth::update_role($user->id, ! $new_props->is_student);
 			$activity = new \Materia\Session_Activity([
 				'user_id' => \Model_User::find_current_id(),
 				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
@@ -308,7 +308,7 @@ class Model_User extends Orm\Model
 		}
 		unset($new_props->is_student);
 
-		foreach($new_props as $prop => $val)
+		foreach ($new_props as $prop => $val)
 		{
 			$clean_prop = ucwords(str_replace('_', ' ', $prop));
 			$result = $user->set_property($prop, $val);
@@ -353,7 +353,7 @@ class Model_User extends Orm\Model
 			]);
 			$activity->db_store();
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
 			return false;
 		}

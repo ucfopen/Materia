@@ -6,37 +6,7 @@
 
 class Controller_Scores extends Controller
 {
-
-	protected $_header = 'partials/header';
-
-	public function before()
-	{
-		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/main');
-	}
-
-	public function after($response)
-	{
-		// If no response object was returned by the action,
-		if (empty($response) or ! $response instanceof Response)
-		{
-			// render the defined template
-			$this->theme->set_partial('header', $this->_header)->set('me', Model_User::find_current());
-			// add google analytics
-			if ($gid = Config::get('materia.google_tracking_id', false))
-			{
-				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
-			}
-
-			Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-			Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-			Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-
-			$response = Response::forge(Theme::instance()->render());
-		}
-
-		return parent::after($response);
-	}
+	use Lib_CommonControllerTemplateTrait;
 
 	public function get_show($inst_id)
 	{

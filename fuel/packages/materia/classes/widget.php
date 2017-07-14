@@ -204,7 +204,7 @@ class Widget
 			]);
 			$activity->db_store();
 		}
-		catch(Exception $e)
+		catch (Exception $e)
 		{
 			return false;
 		}
