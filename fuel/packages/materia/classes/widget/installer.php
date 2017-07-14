@@ -6,6 +6,8 @@
 
 namespace Materia;
 
+use \RocketDuck\Util_Validator;
+
 class Widget_Installer
 {
 
