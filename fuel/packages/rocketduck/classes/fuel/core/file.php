@@ -11,7 +11,7 @@ class File extends Fuel\Core\File
 		{
 			// send file using apache's mod_xsendfile?
 			$sendfile = true;
-			$sendfile_header = 'X-SendFile: '.$info['realpath'];
+			$sendfile_header = 'X-SendFile: '.$path;
 		}
 		else if (\Config::get('file.enable_x_accel', false) && stripos($_SERVER['SERVER_SOFTWARE'], 'nginx'))
 		{
