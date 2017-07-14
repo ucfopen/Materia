@@ -122,9 +122,9 @@ class Widget_Manager
 		else
 		{
 			$demo = Widget_Instance_Manager::get($props->demo);
-			if($demo)
+			if ($demo)
 			{
-				if($demo->widget == $widget)
+				if ($demo->widget == $widget)
 				{
 					try
 					{
@@ -145,7 +145,7 @@ class Widget_Manager
 						]);
 						$activity->db_store();
 					}
-					catch(Exception $e)
+					catch (Exception $e)
 					{
 						$report['demo'] = '"Demo" update failed!';
 					}
@@ -162,7 +162,7 @@ class Widget_Manager
 		}
 		unset($props->demo);
 
-		foreach($props as $prop => $val)
+		foreach ($props as $prop => $val)
 		{
 			$clean_prop = ucwords(str_replace('_', ' ', $prop));
 			$result = $widget->set_property($prop, $val);

@@ -81,7 +81,7 @@ class Util_Validator
 	*/
 	public static function is_pos_int(&$var, $zero = false)
 	{
-		return self::is_int($var) && ($zero ? $var >= 0: $var > 0);
+		return self::is_int($var) && ($zero ? $var >= 0 : $var > 0);
 	}
 
 	/**

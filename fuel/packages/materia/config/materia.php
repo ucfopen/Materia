@@ -19,16 +19,6 @@ return [
 	'name' => 'Materia',
 
 	/*
-	*  Enable/Disable encryption of question and answer data
-	*  Encryption uses an event drivin architecture and can use custom encryption methods
-	*/
-	'security' => [
-
-		'encrypt_qsets' => true,
-		'encrypt_answers' => true,
-	],
-
-	/*
 	*  URLS throughout the system
 	*
 	*/
@@ -40,7 +30,7 @@ return [
 		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
 		'static'             => str_replace('//', '//static.', \Uri::create()), // http://static.siteurl.com/
 		'engines'            => str_replace('//', '//static.', \Uri::create('widget/')), // engine swf locations
-		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks 
+		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks
 	],
 
 	/*
