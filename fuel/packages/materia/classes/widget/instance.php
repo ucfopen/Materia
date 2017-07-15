@@ -253,10 +253,11 @@ class Widget_Instance
 
 		$is_new = ! Util_Validator::is_valid_hash($this->id);
 
+		$success = false;
+
 		if ($is_new) // ================ ADDING A NEW INSTANCE ===================
 		{
 			$tries = 3; // quick hack to deal with possible key collistion
-			$success = false;
 
 			while ( ! $success)
 			{
@@ -301,7 +302,7 @@ class Widget_Instance
 		else // ===================== UPDATE EXISTING INSTANCE =======================
 		{
 			// store the question set if it hasn't already been
-			\DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
+			$affected_rows = \DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
 					'widget_id'     => $this->widget->id,
 					'name'          => $this->name,
@@ -315,6 +316,8 @@ class Widget_Instance
 				])
 				->where('id', $this->id)
 				->execute();
+
+			$success = $affected_rows > 0;
 		}
 
 		// =========================== NOW STORE THE QSET ====================

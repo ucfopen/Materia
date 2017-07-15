@@ -504,7 +504,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function generate_install_params($manifest_data, $package_file)
+	public static function generate_install_params($manifest_data, $package_file)
 	{
 		$clean_name = static::clean_name_from_manifest($manifest_data);
 		$package_hash = md5_file($package_file);
