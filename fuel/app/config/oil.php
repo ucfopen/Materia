@@ -2,7 +2,9 @@
 return array(
 	'phpunit' => array(
 		'autoload_path' => 'PHPUnit/Autoload.php' ,
-		'binary_path' => VENDORPATH.'phpunit/phpunit/phpunit',
+		# Load phpunit from the vendor path
+		# and turn on the zend_extension for xdebug so we can get code coverage
+		'binary_path' => 'php -dzend_extension=xdebug.so '.VENDORPATH.'phpunit/phpunit/phpunit',
 	),
 );
 
