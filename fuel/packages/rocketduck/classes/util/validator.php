@@ -50,18 +50,6 @@ class Util_Validator
 	}
 
 	/**
-	 * NEEDS DOCUMENATION
-	 *
-	 * @var unknown NEEDS DOCUMENTATION
-	 *
-	 * @return unknown NEEDS DOCUMENTATION
-	 */
-	public static function is_user_arr($user)
-	{
-		return self::is_int($user['id']) && self::is_string($user['login']) && self::is_string($user['first']) && self::is_string($user['last']);
-	}
-
-	/**
 	* Checks to see if $var is a positive whole integer.
 	* 23 		-> true
 	* 23.5 	-> false
@@ -118,48 +106,28 @@ class Util_Validator
 		// matches any alphanumeric string of 1 or more characters except 0.
 		$pattern = '/^([A-Za-z0-9]{2,}|[A-Za-z1-9]{1})\z/';
 
-		if (preg_match($pattern, $long_hash, $match) == 1)
-		{
-			return true;
-		}
-		return false;
+		if ( ! self::is_string($long_hash)) return false;
+		return (preg_match($pattern, $long_hash, $match) === 1);
 	}
 
-
-	/**
-	 * NEEDS DOCUMENATION
-	 *
-	 * @var unknown NEEDS DOCUMENTATION
-	 *
-	 * @return unknown NEEDS DOCUMENTATION
-	 */
 	public static function is_string($var)
 	{
 		return is_string($var) && strlen($var) > 0;
 	}
 
-	/**
-	 * NEEDS DOCUMENATION
-	 *
-	 * @var unknown NEEDS DOCUMENTATION
-	 *
-	 * @return unknown NEEDS DOCUMENTATION
-	 */
 	public static function is_md5($var)
 	{
 		return (bool) preg_match('/^[[:alnum:]]{32}$/i', $var);
 	}
 
-	/**
-	 * NEEDS DOCUMENATION
-	 *
-	 * @var unknown NEEDS DOCUMENTATION
-	 *
-	 * @return unknown NEEDS DOCUMENTATION
-	 */
 	public static function is_sha1($var)
 	{
 		return (bool) preg_match('/^[[:alnum:]]{40}$/i', $var);
+	}
+
+	public static function cast_to_bool_enum($var)
+	{
+		return $var == '1' ? '1' : '0';
 	}
 
 }
