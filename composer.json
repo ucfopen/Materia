@@ -5,17 +5,28 @@
     "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida"],
     "license": "No License",
     "scripts":{
-        "sniff": "./fuel/vendor/bin/phpcs --extensions=php .",
-        "sniff-errors-only": "./fuel/vendor/bin/phpcs -n --extensions=php .",
-        "sniff-summary": "./fuel/vendor/bin/phpcs --report=summary --extensions=php .",
+        "sniff": "phpcs --extensions=php .",
+        "sniff-errors-only": "phpcs -n --extensions=php .",
+        "sniff-summary": "phpcs --report=summary --extensions=php .",
         "post-install-cmd": "cp ./githooks/pre-commit ./.git/hooks/pre-commit",
         "git-pre-commit":"@sniff-summary",
+        "destroy-everything": "php oil r admin:destroy_everything --quiet",
+        "oil-install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
+        "widgets-install-test": "php oil r widget:install fuel/packages/materia/tests/widget_packages/*.wigt",
         "test": "php oil test",
         "coverage": "php oil test --coverage-html=coverage --coverage-clover=coverage.xml --coverage-text=coverage.txt",
-        "destroy-everything": "php oil r admin:destroy_everything --quiet",
-        "install": "php oil r install",
-        "install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
-        "widgets-install-test": "php oil r widget:install fuel/packages/materia/tests/widget_packages/*.wigt"
+        "testci":[
+            "@destroy-everything",
+            "@oil-install-quiet",
+            "@widgets-install-test",
+            "@test"
+        ],
+        "coverageci":[
+            "@destroy-everything",
+            "@oil-install-quiet",
+            "@widgets-install-test",
+            "@coverage"
+        ]
     },
     "require": {
         "php": ">=5.6.0",
