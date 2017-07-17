@@ -33,7 +33,7 @@ desktop.ini
 /fuel/app/cache/**/*
 /fuel/app/config/crypt.php
 /fuel/app/config/development/crypt.php
-/fuel/app/config/asset_hash.json
+/fuel/app/config/asset_hash*
 /fuel/app/config/**/migrations.php
 
 
@@ -43,6 +43,7 @@ static/js/*
 
 # NPM modules
 node_modules
+public/assets/js/lib/*
 
 # Installed Widgets
 public/assets/widget/*
