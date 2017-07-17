@@ -131,6 +131,9 @@ glob.sync('./src/css/*.scss').forEach(function(file){
 
 // process all the sass files
 let styles = {
+  stats: {
+    children: false
+  },
   entry: cssFiles,
   module: {
     rules: [
