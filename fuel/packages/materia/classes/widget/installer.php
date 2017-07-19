@@ -6,6 +6,8 @@
 
 namespace Materia;
 
+use \RocketDuck\Util_Validator;
+
 class Widget_Installer
 {
 
@@ -343,23 +345,30 @@ class Widget_Installer
 
 			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
 
+
 			if ($existing_inst_id)
 			{
 				$saved_demo = \Materia\API::widget_instance_update($existing_inst_id, $demo_data['name'], $qset, false, null, null, null, true);
+
+				if ( ! isset($saved_demo->id))
+				{
+					trace($saved_demo);
+					throw new \Exception('Error saving demo instance');
+				}
 			}
 			else
 			{
 				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
+
+				if ( ! isset($saved_demo->id))
+				{
+					trace($saved_demo);
+					throw new \Exception('Error saving demo instance');
+				}
 				// update it to make sure it allows guest access
 				\Materia\API::widget_instance_update($saved_demo->id, null, null, null, null, null, null, true);
 				// make sure nobody owns the demo widget
 				\Materia\Perm_Manager::clear_user_object_perms($saved_demo->id, \Materia\Perm::INSTANCE, \Model_user::find_current_id());
-			}
-
-			if ( ! $saved_demo || $saved_demo instanceof \RocketDuck\Msg)
-			{
-				trace($saved_demo);
-				throw new \Exception('Error saving demo instance');
 			}
 
 			static::out("Demo Installed: $saved_demo->id", 'green');
@@ -495,7 +504,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function generate_install_params($manifest_data, $package_file)
+	public static function generate_install_params($manifest_data, $package_file)
 	{
 		$clean_name = static::clean_name_from_manifest($manifest_data);
 		$package_hash = md5_file($package_file);
@@ -506,29 +515,20 @@ class Widget_Installer
 			'flash_version'       => $manifest_data['files']['flash_version'],
 			'height'              => $manifest_data['general']['height'],
 			'width'               => $manifest_data['general']['width'],
-			'is_qset_encrypted'   => (string)(int)$manifest_data['general']['is_qset_encrypted'],
-			'is_answer_encrypted' => (string)(int)$manifest_data['general']['is_answer_encrypted'],
-			'is_storage_enabled'  => (string)(int)$manifest_data['general']['is_storage_enabled'],
-			'is_playable'         => (string)(int)$manifest_data['general']['is_playable'],
-			'is_editable'         => (string)(int)$manifest_data['general']['is_editable'],
-			'is_scorable'         => (string)(int)$manifest_data['score']['is_scorable'],
-			'in_catalog'          => (string)(int)$manifest_data['general']['in_catalog'],
+			'is_qset_encrypted'   => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_qset_encrypted']),
+			'is_answer_encrypted' => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_answer_encrypted']),
+			'is_storage_enabled'  => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_storage_enabled']),
+			'is_playable'         => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_playable']),
+			'is_editable'         => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_editable']),
+			'is_scorable'         => Util_Validator::cast_to_bool_enum($manifest_data['score']['is_scorable']),
+			'in_catalog'          => Util_Validator::cast_to_bool_enum($manifest_data['general']['in_catalog']),
 			'clean_name'          => $clean_name,
 			'api_version'         => (string)(int)$manifest_data['general']['api_version'],
 			'package_hash'        => $package_hash,
-			'score_module'        => $manifest_data['score']['score_module']
+			'score_module'        => $manifest_data['score']['score_module'],
+			'creator'             => isset($manifest_data['files']['creator']) ? $manifest_data['files']['creator'] : '',
+			'player'              => isset($manifest_data['files']['player']) ? $manifest_data['files']['player'] : '' ,
 		];
-
-		//optional field
-
-		if (isset($manifest_data['files']['creator']))
-		{
-			$params['creator'] = $manifest_data['files']['creator'];
-		}
-		if (isset($manifest_data['files']['player']))
-		{
-			$params['player'] = $manifest_data['files']['player'];
-		}
 
 		return $params;
 	}

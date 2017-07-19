@@ -517,15 +517,15 @@ class Api_V1
 	{
 		if (\Model_User::verify_session() !== true) return Msg::no_login();
 
-		if($file_size == null || $file_size == false || $file_size == "" || !is_int($file_size)) return null;
+		if (empty($file_size) || ! is_int($file_size)) return null;
 
 		$user_id = \Model_User::find_current_id();
 		$s3_config = \Config::get('materia.s3_config');
 
-		$validFilename = '/([a-zA-Z_\-\s0-9\.]+)+\.\w+\/*$/';
-		if(!preg_match($validFilename, $file_name))
-		{	
-			\LOG::error("Invalid Filename: ". $file_name ." This file was uploaded by user ".$user_id); 
+		$valid_filename = '/([a-zA-Z_\-\s0-9\.]+)+\.\w+\/*$/';
+		if ( ! preg_match($valid_filename, $file_name))
+		{
+			\LOG::error("Invalid Filename: {$file_name}. This file was uploaded by user {$user_id}"); 
 			return null;
 		}
 
@@ -534,9 +534,7 @@ class Api_V1
 		$title = $file_info['filename'];
 
 		// Force all uploads in development to have the same bucket sub-directory
-		$remote_url_stub = ($s3_config['subdir'])
-			? $s3_config['subdir'].'/'
-			: '/';
+		$remote_url_stub = ($s3_config['subdir']) ? $s3_config['subdir'].'/' : '';
 
 		// store temporary row in db, obtain asset_id for building s3 file_key
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title, $file_size);
@@ -565,7 +563,7 @@ class Api_V1
 		$signature = base64_encode($sha1_hash);
 
 		$res = [
-			'AWSAccessKeyId' => $s3_config["AWSAccessKeyId"],
+			'AWSAccessKeyId' => $s3_config['AWSAccessKeyId'],
 			'policy'         => $policy,
 			'signature'      => $signature,
 			'file_key'       => $file_key
@@ -598,7 +596,7 @@ class Api_V1
 
 		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
 
-		if($error) \Log::error("External asset upload failed with the following message - ".$error);
+		if ($error) \Log::error("External asset upload failed with the following message - {$error}");
 
 		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
 			'status' => $status
@@ -709,6 +707,7 @@ class Api_V1
 
 		$distribution = Score_Manager::get_widget_score_distribution($inst_id);
 		$summary = Score_Manager::get_widget_score_summary($inst_id);
+
 		foreach ($distribution as $id => $data)
 		{
 			if ( ! array_key_exists($id, $summary))
@@ -720,6 +719,7 @@ class Api_V1
 				$summary[$id]['distribution'] = $data['distribution'];
 			}
 		}
+
 		if ($include_storage_data)
 		{
 			$storage = Storage_Manager::get_table_summaries_by_inst_id($inst_id);
@@ -737,6 +737,7 @@ class Api_V1
 				}
 			}
 		}
+
 		$summary = array_values($summary);
 		// we want to be sure that the client can rely on the array order
 		usort($summary, function($a, $b) {
@@ -777,11 +778,6 @@ class Api_V1
 
 
 		$inst->get_qset($inst_id);
-
-		if ($play_id && \Config::get('materia.security.encrypt_qsets') === true && $inst->widget->is_qset_encrypted)
-		{
-			return ['encryptedText' => \Event::trigger('Materia.encrypt', $inst->qset)];
-		}
 
 		return $inst->qset;
 	}

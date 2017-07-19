@@ -27,6 +27,7 @@ class Widget_Question
 	protected $_question_properties = ['text', 'assets'];
 	protected $_answer_properties   = ['id', 'text', 'value', 'options', 'assets'];
 
+	// @codingStandardsIgnoreLine
 	public $materiaType = 'question';
 	public $id          = 0;
 	public $type        = '';

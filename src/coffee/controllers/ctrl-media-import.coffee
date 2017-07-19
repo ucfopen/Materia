@@ -10,17 +10,17 @@ app.directive 'fileOnChange', ->
 	}
 
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
-	selectedAssets  = []
-	data            = []
-	assetIndices    = []
-	dt              = null
-	uploading       = false
-	creator         = null
-	_coms           = null
-	_s3enabled      = S3_ENABLED # explicitly localize globals
-	_mediaUploadUrl = MEDIA_UPLOAD_URL
-	_mediaUrl       = MEDIA_URL
-	_baseUrl        = BASE_URL
+	selectedAssets     = []
+	data               = []
+	assetIndices       = []
+	dt                 = null
+	uploading          = false
+	creator            = null
+	_coms              = null
+	_s3enabled         = S3_ENABLED # explicitly localize globals
+	_mediaUploadUrl    = MEDIA_UPLOAD_URL
+	_mediaThumbnailUrl = MEDIA_THUMBNAIL_URL
+	_baseUrl           = BASE_URL
 
 	class Uploader
 		constructor: (@config) ->
@@ -283,7 +283,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							# todo: poll, since we don't know when lambda resizing is finished
 
-							thumbUrl = "#{_mediaUrl}/"
+							thumbUrl = "#{_mediaThumbnailUrl}/"
 
 							if _s3enabled
 								original_path_data = data.split('/')
@@ -297,7 +297,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 								if(extension == 'jpg')
 									extension = 'jpeg'
 
-								# thumbnails in Materia never exceed 75x75 dimensions
+								# thumbnails in Materia are 75x75 dimensions
 								image_key.push('75x75'+'.'+extension)
 								original_path_data.push(image_key.join('-'))
 

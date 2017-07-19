@@ -19,16 +19,6 @@ return [
 	'name' => 'Materia',
 
 	/*
-	*  Enable/Disable encryption of question and answer data
-	*  Encryption uses an event drivin architecture and can use custom encryption methods
-	*/
-	'security' => [
-
-		'encrypt_qsets' => true,
-		'encrypt_answers' => true,
-	],
-
-	/*
 	*  URLS throughout the system
 	*
 	*/

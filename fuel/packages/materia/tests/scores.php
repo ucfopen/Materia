@@ -1,7 +1,7 @@
 <?php
 /**
  * @group App
- * @group LTI
+ * @group Scores
  * @group Materia
  */
 class Test_Scores extends \Basetest
