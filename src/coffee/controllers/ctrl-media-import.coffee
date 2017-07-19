@@ -78,7 +78,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 			dataReader.readAsDataURL file
 
 		getMimeType: (dataUrl)->
-			allowedTypes = ['image/jpeg', 'image/png']
+			allowedTypes = ['image/jpeg', 'image/png', 'audio/mp3', 'audio/wav']
 			mime = dataUrl.split(";")[0].split(":")[1]
 			if !mime? or allowedTypes.indexOf(mime) == -1
 				alert "Unfortunately, the file type being uploaded is not supported.
@@ -307,7 +307,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 							else
 								thumbUrl += "#{data}/thumbnail"
 							return "<img src='#{thumbUrl}'>"
-						else if full.type is 'mp3'
+						else if full.type is 'mp3' or full.type is 'wav'
 							return '<img src="/assets/img/audio.png">'
 						else
 							return ''
