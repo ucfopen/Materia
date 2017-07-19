@@ -47,7 +47,7 @@ class Controller_Lti extends \Controller
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
 		$return_url       = \Input::post('launch_presentation_return_url');
 
-		\RocketDuck\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes':'no', $return_url], 'lti');
+		\RocketDuck\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
 		$this->theme->set_template('layouts/main');
 
@@ -100,7 +100,7 @@ class Controller_Lti extends \Controller
 	{
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
 		}
 	}
 }

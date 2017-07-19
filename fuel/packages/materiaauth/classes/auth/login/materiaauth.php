@@ -62,14 +62,15 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		{
 			throw new \SimpleUserUpdateException('Username or password is not given', 1);
 		}
-		if ( $requires_email && ! $email )
+
+		if ($requires_email && ! $email)
 		{
 			throw new \SimpleUserUpdateException('Email not given', 2);
 		}
 
 		// just get the first user that has the same username or email
 		$same_user = \Model_User::query()->where('username', '=', $username);
-		if($email) $same_user->or_where('email', '=', $email);
+		if ($email) $same_user->or_where('email', '=', $email);
 		$same_user = $same_user->get_one();
 
 		if ($same_user)
@@ -126,7 +127,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 		if ( ! $user) throw new \SimpleUserUpdateException('Username not found', 4);
 
 		$current_values = $user->to_array();
-		$update = array();
+		$update = [];
 		if (array_key_exists('username', $values))
 		{
 			throw new \SimpleUserUpdateException('Username cannot be changed.', 5);
@@ -191,7 +192,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 
 		if ( ! empty($values))
 		{
-			$profile_fields = @unserialize($current_values['profile_fields']) ?: array();
+			$profile_fields = @unserialize($current_values['profile_fields']) ?: [];
 			foreach ($values as $key => $val)
 			{
 				if ($val === null)
