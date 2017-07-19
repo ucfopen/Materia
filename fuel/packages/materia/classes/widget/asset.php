@@ -176,9 +176,8 @@ class Widget_Asset
 			// used to identify who uploaded asset
 			$user_id = \Model_User::find_current_id();
 
-			$this->remote_url .= $user_id."-".$asset_id;
-			// add the file type as an extension
-			$this->remote_url .= '.'.$this->type;
+			// Builds remote_url
+			$this->remote_url .= "{$user_id}-{$asset_id}.{$this->type}";
 		}
 
 		\DB::start_transaction();

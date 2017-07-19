@@ -1,9 +1,5 @@
 <?php
-/**
- * @group App
- * @group Module
- * @group Lti
- */
+
 class Test_Basetest extends \Basetest
 {
 	protected $uniq_counter = 0;
@@ -118,9 +114,10 @@ class Test_Basetest extends \Basetest
 	protected function create_test_oauth_launch($custom_params, $endpoint, $user = false, $passback_url = false)
 	{
 		$this->reset_input();
+		\Config::load('lti::lti', true, true);
 
-		$key    = \Config::get('lti::lti.consumers.materia.key');
-		$secret = \Config::get('lti::lti.consumers.materia.secret');
+		$key    = \Config::get('lti::lti.consumers.materia-test.key');
+		$secret = \Config::get('lti::lti.consumers.materia-test.secret');
 
 		$base_params    = [
 			'resource_link_id'     => 'test-resource',
@@ -138,7 +135,6 @@ class Test_Basetest extends \Basetest
 
 			if ( ! $user)
 			{
-				trace('CREATING A USER');
 				// none - make one
 				$user_id = \Auth::instance()->create_user('_LTI_INSTRUCTOR_', uniqid(), '_LTI_INSTRUCTOR_@materia.com', 1, []);
 

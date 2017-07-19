@@ -15,15 +15,13 @@ return [
 	 * Fuel::L_ALL
 	 */
 	'log_threshold' => Fuel::L_ALL,
+
+	// allows you to create a custom error handler for Monolog
+	// THIS WILL SEND ERRORS TO STDOUT, VISIBLE VIA `docker-compose log phpfpm`
 	'log_handler_factory'   => function($locals, $level){ return new \Monolog\Handler\ErrorLogHandler(); },
 
-	/* Always Load                                                            */
-	/**************************************************************************/
-	// 'always_load' => [
-	// 	'packages' => [
-	// 	],
-	// ],
-	// 'packages'  => array(
-	// ),
+	/**
+	* Allow browser based widget uploads by administrators
+	*/
 	'enable_uploader' => true
 ];
