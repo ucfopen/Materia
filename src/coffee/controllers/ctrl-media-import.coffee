@@ -19,7 +19,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	_coms              = null
 	_s3enabled         = S3_ENABLED # explicitly localize globals
 	_mediaUploadUrl    = MEDIA_UPLOAD_URL
-	_mediaThumbnailUrl = MEDIA_THUMBNAIL_URL
+	_mediaUrl = MEDIA_URL
 	_baseUrl           = BASE_URL
 
 	class Uploader
@@ -283,7 +283,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						if full.type is 'jpg' or full.type is 'jpeg' or full.type is 'png' or full.type is 'gif'
 							# todo: poll, since we don't know when lambda resizing is finished
 
-							thumbUrl = "#{_mediaThumbnailUrl}/"
+							thumbUrl = "#{_mediaUrl}/"
 
 							if _s3enabled
 								original_path_data = data.split('/')
