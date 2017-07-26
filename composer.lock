@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "b87d884bc027d4fb90c11fa7ca3f64f1",
+    "content-hash": "de5ab19d352fbc91ed3f9cdbc31f4366",
     "packages": [
         {
             "name": "composer/installers",
@@ -397,16 +397,16 @@
         },
         {
             "name": "iturgeon/qasset",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
-                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
+                "reference": "ba6e0b4dfd8a7b943c3f383cc4b88ab8018421da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
-                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/ba6e0b4dfd8a7b943c3f383cc4b88ab8018421da",
+                "reference": "ba6e0b4dfd8a7b943c3f383cc4b88ab8018421da",
                 "shasum": ""
             },
             "require": {
@@ -426,7 +426,7 @@
                 {
                     "name": "Ian Turgeon",
                     "email": "iturgeon@gmail.com",
-                    "homepage": "http://ianturgeon.com"
+                    "homepage": "https://ianturgeon.com"
                 }
             ],
             "description": "FuelPHP CSS and Javascript asset management",
@@ -440,7 +440,7 @@
                 "javascript",
                 "qasset"
             ],
-            "time": "2016-06-03T16:29:57+00:00"
+            "time": "2017-07-17T01:31:29+00:00"
         },
         {
             "name": "monolog/monolog",
