@@ -10,6 +10,8 @@
     <exclude-pattern>*/fuel/app/bootstrap.php</exclude-pattern>
     <exclude-pattern>*/fuel/app/config/*</exclude-pattern>
     <exclude-pattern>*/fuel/app/logs/*</exclude-pattern>
+    <exclude-pattern>*/fuel/app/modules/lti/config/*</exclude-pattern>
+    <exclude-pattern>*/fuel/app/tmp/widgetsrc/*</exclude-pattern>
     <exclude-pattern>*/fuel/core/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/auth/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/email/*</exclude-pattern>
