@@ -1,9 +1,12 @@
 <?php
 return [
+	'hash_file' => 'asset_hash.css.json',
 	'paths' => [
 		'gfonts' => '//fonts.googleapis.com/',
 		'theme'  => '/themes/default/assets/css/',
 		'lib'  => '/assets/css/',
+		'jslib' => '/assets/js/lib/',
+		'cdnjs' => '//cdnjs.cloudflare.com/ajax/libs/',
 	],
 
 	'always_load_groups' => [
@@ -19,7 +22,7 @@ return [
 		],
 		'widget_play' => [
 			'theme::play.css',
-			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
+			'jslib::ngmodal/ng-modal.css'
 		],
 		'lti' => [
 			'theme::main.css',
@@ -27,18 +30,18 @@ return [
 		],
 		'my_widgets' => [
 			'theme::my_widgets.css',
-			'lib::jquery.jqplot.min.css',
+			'cdnjs::jqPlot/1.0.0/jquery.jqplot.min.css',
 			'lib::ui-lightness/jquery-ui-1.8.21.custom.css',
 			'lib::ui-lightness/jquery-ui-timepicker-addon.css',
 			'lib::jquery.dataTables.css',
-			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
+			'jslib::ngmodal/ng-modal.css'
 		],
 		'widget_editor' => [
 			'theme::create.css',
-			'lib::../js/lib/bower/ngModal/dist/ng-modal.css'
+			'jslib::ngmodal/ng-modal.css'
 		],
 		'widget_detail' => [
-			'lib::jquery.fancybox-1.3.4.css',
+			'jslib::fancybox/jquery.fancybox.css',
 			'theme::widget.css',
 		],
 		'widget_catalog' => [
@@ -51,7 +54,7 @@ return [
 			'theme::login.css',
 		],
 		'scores' => [
-			'lib::jquery.jqplot.min.css',
+			'cdnjs::jqPlot/1.0.0/jquery.jqplot.min.css',
 			'theme::scores.css',
 		],
 		'embed_scores' => [
@@ -62,7 +65,7 @@ return [
 		],
 		'media_catalog' => [
 			'lib::jquery.dataTables.css',
-			'lib::jquery.plupload.queue.css',
+			'cdnjs::plupload/1.5.4/jquery.plupload.queue/jquery.plupload.queue.css',
 			'theme::media-import.css'
 		],
 		'homepage' => [
