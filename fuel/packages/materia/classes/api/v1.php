@@ -608,6 +608,7 @@ class Api_V1
 
 		$distribution = Score_Manager::get_widget_score_distribution($inst_id);
 		$summary = Score_Manager::get_widget_score_summary($inst_id);
+
 		foreach ($distribution as $id => $data)
 		{
 			if ( ! array_key_exists($id, $summary))
@@ -619,6 +620,7 @@ class Api_V1
 				$summary[$id]['distribution'] = $data['distribution'];
 			}
 		}
+
 		if ($include_storage_data)
 		{
 			$storage = Storage_Manager::get_table_summaries_by_inst_id($inst_id);
@@ -636,6 +638,7 @@ class Api_V1
 				}
 			}
 		}
+
 		$summary = array_values($summary);
 		// we want to be sure that the client can rely on the array order
 		usort($summary, function($a, $b) {
