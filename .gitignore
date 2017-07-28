@@ -64,8 +64,7 @@ fuel/app/tmp
 fuel/packages/materia/tests/widget_source/**/yarn.lock
 
 # Compiled assets
-public/themes/*/assets/css/*.css
-public/themes/*/assets/js/*.js
+static/assets
 
 # dont include coverage files
 coverage.txt
