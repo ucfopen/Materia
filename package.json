@@ -8,13 +8,13 @@
   "dependencies": {
     "fancybox": "fancyapps/fancybox#v2.1.6",
     "frontend-dependencies": "^0.2.1",
-    "materia": "ucfcdl/materia-client-assets#v0.1.3",
+    "materia": "ucfcdl/materia-client-assets#v0.1.9",
     "ngmodal": "adamalbrecht/ngModal#v1.2.0",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
     "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
   },
   "frontendDependencies": {
-    "target": "static/assets",
+    "target": "public/assets/vendor",
     "packages": [
       "materia/dist/css",
       "materia/dist/js",

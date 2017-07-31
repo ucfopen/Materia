@@ -4,6 +4,7 @@ require COREPATH.'bootstrap.php';
 
 // DOCROOT doesn't always point at the public dir, this does
 define('PUBPATH', realpath(__DIR__.DS.'..'.DS.'..'.DS.'public').DS );
+define('STATICPATH', realpath(PUBPATH.DS.'..'.DS.'static').DS );
 
 \Autoloader::add_classes([
 	// Add classes you want to override here

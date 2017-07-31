@@ -4,9 +4,9 @@ return [
 	'paths' => [
 		'gfonts' => '//fonts.googleapis.com/',
 		'theme'  => '/themes/default/assets/css/',
-		'lib'  => '/assets/css/',
-		'jslib' => '/assets/js/lib/',
 		'cdnjs' => '//cdnjs.cloudflare.com/ajax/libs/',
+		'materia' => '//localhost:8008/assets/vendor/materia/css/',
+		'static' => '//localhost:8008/assets/',
 	],
 
 	'always_load_groups' => [
@@ -18,71 +18,71 @@ return [
 
 	'groups' => [
 		'widget_play' => [
-			'theme::play.css',
-			'jslib::ngmodal/ng-modal.css'
+			'materia::play.css',
+			'static::vendor/ngmodal/ng-modal.css'
 		],
 		'lti' => [
-			'theme::main.css',
-			'theme::lti.css',
+			'materia::main.css',
+			'materia::lti.css',
 		],
 		'my_widgets' => [
-			'theme::my_widgets.css',
+			'materia::my_widgets.css',
 			'cdnjs::jqPlot/1.0.0/jquery.jqplot.min.css',
-			'lib::ui-lightness/jquery-ui-1.8.21.custom.css',
-			'lib::ui-lightness/jquery-ui-timepicker-addon.css',
-			'lib::jquery.dataTables.css',
-			'jslib::ngmodal/ng-modal.css'
+			'static::css/ui-lightness/jquery-ui-1.8.21.custom.css',
+			'static::css/ui-lightness/jquery-ui-timepicker-addon.css',
+			'static::css/jquery.dataTables.css',
+			'static::vendor/ngmodal/ng-modal.css'
 		],
 		'widget_editor' => [
-			'theme::create.css',
-			'jslib::ngmodal/ng-modal.css'
+			'materia::create.css',
+			'static::vendor/ngmodal/ng-modal.css'
 		],
 		'widget_detail' => [
-			'jslib::fancybox/jquery.fancybox.css',
-			'theme::widget.css',
+			'static::vendor/fancybox/jquery.fancybox.css',
+			'materia::widget.css',
 		],
 		'widget_catalog' => [
-			'theme::catalog.css',
+			'materia::catalog.css',
 		],
 		'profile' => [
-			'theme::user.css',
+			'materia::user.css',
 		],
 		'login' => [
-			'theme::login.css',
+			'materia::login.css',
 		],
 		'scores' => [
 			'cdnjs::jqPlot/1.0.0/jquery.jqplot.min.css',
-			'theme::scores.css',
+			'materia::scores.css',
 		],
 		'embed_scores' => [
-			'theme::scores.css',
+			'materia::scores.css',
 		],
 		'question_catalog' => [
-			'lib::jquery.dataTables.css','theme::question-import.css',
+			'static::css/jquery.dataTables.css','materia::question-import.css',
 		],
 		'media_catalog' => [
-			'lib::jquery.dataTables.css',
+			'static::css/jquery.dataTables.css',
 			'cdnjs::plupload/1.5.4/jquery.plupload.queue/jquery.plupload.queue.css',
-			'theme::media-import.css'
+			'materia::media-import.css'
 		],
 		'homepage' => [
-			'theme::store.css',
-			'theme::widget.css',
+			'materia::store.css',
+			'materia::widget.css',
 		],
 		'help' => [
-			'theme::docs.css',
+			'materia::docs.css',
 		],
 		'404' => [
-			'theme::404.css',
+			'materia::404.css',
 		],
 		'500' => [
-			'theme::500.css',
+			'materia::500.css',
 		],
 		'core' => [
-			'theme::main.css',
+			'materia::main.css',
 		],
 		'upload' => [
-			'theme::upload.css',
+			'materia::upload.css',
 		],
 		'fonts' => [
 			'gfonts::css?family=Kameron:700&text=0123456789%25',

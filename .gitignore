@@ -37,17 +37,12 @@ desktop.ini
 /fuel/app/config/**/migrations.php
 
 
-## Materia Specific Stuff
-# Static compile js
-static/js/*
-
 # NPM modules
 node_modules
 public/assets/js/lib/*
 
 # Installed Widgets
 public/assets/widget/*
-public/static-widgets
 public/wordguess
 static/widget
 spec/widgets/*
@@ -64,7 +59,7 @@ fuel/app/tmp
 fuel/packages/materia/tests/widget_source/**/yarn.lock
 
 # Compiled assets
-static/assets
+public/assets/vendor/*
 
 # dont include coverage files
 coverage.txt
