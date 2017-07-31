@@ -28,9 +28,9 @@ return [
 		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'             => str_replace('//', '//static.', \Uri::create()), // http://static.siteurl.com/
-		'engines'            => str_replace('//', '//static.', \Uri::create('widget/')), // engine swf locations
-		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks
+		'static'             => \Uri::create(), // http://static.siteurl.com/
+		'engines'            => \Uri::create('widget/'), // engine swf locations
+		'static_crossdomain' => \Uri::create(''), // crossdomain checks
 	],
 
 	/*
@@ -39,8 +39,8 @@ return [
 	'dirs' => [
 		'media'   => PKGPATH.'materia/media/', // where the uploaded assets are kept
 		'logs'    => PKGPATH.'materia/logs', // profile data is written here
-		'static'  => APPPATH.'../../static/', // profile data is written here
-		'engines' => APPPATH.'../../static/widget/',
+		'static'  => APPPATH.'../../public/', // profile data is written here
+		'engines' => APPPATH.'../../public/widget/',
 	],
 
 	// Default media quota in bytes
