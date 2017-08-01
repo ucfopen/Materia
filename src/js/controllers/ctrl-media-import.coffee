@@ -158,8 +158,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		verifyUpload: (keyData, fileData, attempt = 0) ->
 			console.log 'Attempt', attempt, 'will be sent in', attempt*1000,'seconds.'
 			if attempt > 4
+				error = 'Error in the thumbnail generation lambda handler.'
 				alert "There was an issue uploading this asset to Materia - Please try again."
-				@saveUploadStatus fileData.ext, keyData.file_key, false
+				@saveUploadStatus fileData.ext, keyData.file_key, false, error
 				return
 
 			request_to_S3 = new XMLHttpRequest()
