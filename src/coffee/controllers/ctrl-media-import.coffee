@@ -10,17 +10,17 @@ app.directive 'fileOnChange', ->
 	}
 
 app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) ->
-	selectedAssets     = []
-	data               = []
-	assetIndices       = []
-	dt                 = null
-	uploading          = false
-	creator            = null
-	_coms              = null
-	_s3enabled         = S3_ENABLED # explicitly localize globals
-	_mediaUploadUrl    = MEDIA_UPLOAD_URL
-	_mediaUrl = MEDIA_URL
-	_baseUrl           = BASE_URL
+	selectedAssets  = []
+	data            = []
+	assetIndices    = []
+	dt              = null
+	uploading       = false
+	creator         = null
+	_coms           = null
+	_s3enabled      = S3_ENABLED # explicitly localize globals
+	_mediaUploadUrl = MEDIA_UPLOAD_URL
+	_mediaUrl       = MEDIA_URL
+	_baseUrl        = BASE_URL
 
 	class Uploader
 		constructor: (@config) ->
@@ -104,6 +104,13 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 		upload: (fileData, keyData) ->
 			fd = new FormData()
 
+			# Normalize jpeg extension
+			splitFileKey = keyData.file_key.split('.')
+			if(splitFileKey[1].toUpperCase() == 'JPG')
+				splitFileKey[1] = 'jpeg'
+
+			keyData.file_key = splitFileKey.join('.')
+
 			# for s3 uploading
 			if keyData?
 				fd.append("key", keyData.file_key)
@@ -133,8 +140,9 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 						@saveUploadStatus fileData.ext, keyData.file_key, success, upload_error
 						alert "There was an issue uploading this asset to Materia - Please try again later."
 						return null
-						
-					@saveUploadStatus fileData.ext, keyData.file_key, success
+
+					# Checks to see if the images made it to the S3 bucket serving media
+					@verifyUpload keyData, fileData
 				else # local upload
 					res = JSON.parse request.response #parse response string
 					if res.error
@@ -146,6 +154,33 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 
 			request.open("POST", @config.uploadUrl)
 			request.send(fd)
+
+		verifyUpload: (keyData, fileData, attempt = 0) ->
+			console.log 'Attempt', attempt, 'will be sent in', attempt*1000,'seconds.'
+			if attempt > 4
+				alert "There was an issue uploading this asset to Materia - Please try again."
+				@saveUploadStatus fileData.ext, keyData.file_key, false
+				return
+
+			request_to_S3 = new XMLHttpRequest()
+
+			request_to_S3.onreadystatechange = () =>
+				if request_to_S3.readyState == XMLHttpRequest.DONE
+					if request_to_S3.status == 200 or request_to_S3.status == 201
+						@saveUploadStatus fileData.ext, keyData.file_key, true
+						console.log request_to_S3.responseText
+					else if request_to_S3.status == 404
+						@verifyUpload keyData, fileData, attempt + 1
+					else
+						alert request_to_S3.status
+
+			request_to_S3.open 'HEAD', @config.mediaUrl+"/"+keyData.file_key
+
+			# Wait longer for each attempt to avoid too many HEAD requests
+			setTimeout (->
+				request_to_S3.send()
+				return
+			), attempt * 1000
 
 		saveUploadStatus: (fileType, fileURI, s3_upload_success, error = null) ->
 			re = /\-(\w{5})\./
@@ -160,6 +195,7 @@ app.controller 'mediaImportCtrl', ($scope, $sce, $timeout, $window, $document) -
 	config =
 		s3enabled: _s3enabled
 		uploadUrl: _mediaUploadUrl
+		mediaUrl: _mediaUrl
 	uploader = new Uploader(config)
 
 	# SCOPE VARS
