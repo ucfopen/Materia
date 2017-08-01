@@ -39,7 +39,7 @@
         "fuel/oil": "1.8.0",
         "fuel/orm": "1.8.0",
         "fuel/parser": "1.8.0",
-        "iturgeon/qasset": "1.0.4",
+        "iturgeon/qasset": "1.0.5",
         "fuelphp/upload": "2.0.6",
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.0",

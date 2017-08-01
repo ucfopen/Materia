@@ -670,21 +670,6 @@
 	.page .scores ul.choices li.scoreTypeSelected a {
 		background: #f3f3f3;
 	}
-	.page .scores .refresh-button {
-		width: 27px;
-		height: 27px;
-		text-indent: -9999px;
-		background: url(../img/refresh_button.png);
-		display: inline-block;
-		position: absolute;
-		top:108px;
-		right: 120px;
-	}
-
-	.page .scores .refresh-button:hover
-	{
-		opacity: .8;
-	}
 
 	.page .scores .show-older-scores-button
 	{
@@ -724,26 +709,6 @@
 	.page .scores .display.graph .type li {
 		list-style: none;
 		margin: 0 0 10px 0;
-	}
-	.page .scores .display.graph .type li a#barGraph {
-		display: inline-block;
-		background: url(../img/bar_icon.png);
-		text-indent: -99999px;
-		width: 52px;
-		height: 52px;
-	}
-	.page .scores .display.graph .type li a#barGraph.graphSelected {
-		background: url(../img/bar_icon_selected.png);
-	}
-	.page .scores .display.graph .type li a#pieChart {
-		display: inline-block;
-		background: url(../img/pie_chart.png);
-		text-indent: -99999px;
-		width: 52px;
-		height: 52px;
-	}
-	.page .scores .display.graph .type li a#pieChart.graphSelected {
-		background: url(../img/pie_chart_selected.png);
 	}
 	.page .scores .display.graph .chart {
 		width: 475px;
