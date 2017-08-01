@@ -27,7 +27,7 @@
     <exclude-pattern>*/githooks/*</exclude-pattern>
     <exclude-pattern>*/licenses/*</exclude-pattern>
     <exclude-pattern>*/migrations/*</exclude-pattern>
-    <exclude-pattern>*/public/themes*</exclude-pattern>
+    <exclude-pattern>*/fuel/app/themes*</exclude-pattern>
     <exclude-pattern>*/spec/*</exclude-pattern>
     <exclude-pattern>migrations.php</exclude-pattern>
 
