@@ -28,9 +28,8 @@ return [
 		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'             => \Uri::create(), // http://static.siteurl.com/
+		'static'             => \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
 		'engines'            => \Uri::create('widget/'), // engine swf locations
-		'static_crossdomain' => \Uri::create(''), // crossdomain checks
 	],
 
 	/*
