@@ -19,7 +19,7 @@ return [
 		'jquery_ui'  => ['cdnjs::jqueryui/1.10.4/jquery-ui.min.js'],
 		'labjs'      => ['cdnjs::labjs/2.0.3/LAB.min.js'],
 		'spinner'    => ['static::vendor/spin.min.js', 'static::spin.jquery.js'],
-		'fancybox'   => ['static::vendor/fancybox/jquery.fancybox.pack.js'],
+		'fancybox'   => ['cdnjs::fancybox/1.3.4/jquery.fancybox-1.3.4.pack.min.js'],
 		'swfobject'  => ['cdnjs::swfobject/2.2/swfobject.min.js'],
 
 		'plupload'   => [
