@@ -25,7 +25,7 @@
 				Use game play mechanics to revitalize stale and boring questions, allow students to indulge in your content by delivering it in a fun and innovative way, and build interest by adding integrating concepts such as story-telling, competition, instant feedback, and instant reward systems.
 			</p>
 		</div>
-		<img src="<?= \Config::get('materia.urls.static') ?>assets/img/front1.png"/>
+		<img src="<?= \Config::get('materia.urls.static') ?>img/front1.png"/>
 		<div>
 			<h2>Easy to Use</h2>
 			<p>
@@ -34,7 +34,7 @@
 				Tooltips are also included to help you navigate and tab enabled forms facilitate power users to enter data quickly.
 			<p>
 		</div>
-		<img src="<?= \Config::get('materia.urls.static') ?>assets/img/front2.png"/>
+		<img src="<?= \Config::get('materia.urls.static') ?>img/front2.png"/>
 		<div>
 			<h2>Superior Statistics</h2>
 			<p>
@@ -43,7 +43,7 @@
 				In keeping with Materia's core value that the learner is a first rate citizen, we make sure learners are able see their own progress and measure how they stack up against their peers.
 			</p>
 		</div>
-		<img src="<?= \Config::get('materia.urls.static') ?>assets/img/front3.png"/>
+		<img src="<?= \Config::get('materia.urls.static') ?>img/front3.png"/>
 	</section>
 
 	<section class="p_s">
@@ -60,4 +60,3 @@
 		</p>
 	</section>
 </section>
-

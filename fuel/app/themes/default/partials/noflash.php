@@ -6,7 +6,7 @@
 
 		<div class="get_flash" id="get_flash">
 			<a href="http://www.adobe.com/go/getflashplayer">
-				<img src="<?= \Config::get('materia.urls.static') ?>/assets/img/get_flashplayer.gif" alt="Download Flash Player" />
+				<img src="<?= \Config::get('materia.urls.static') ?>/img/get_flashplayer.gif" alt="Download Flash Player" />
 				<span class="caption">Get Adobe Flash<sup>&reg;</sup> Player</span>
 			</a>
 		</div>
