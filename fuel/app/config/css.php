@@ -36,7 +36,7 @@ return [
 			'static::../js/vendor/ngmodal/ng-modal.css'
 		],
 		'widget_detail' => [
-			'static::vendor/fancybox/jquery.fancybox.css',
+			'cdnjs::fancybox/1.3.4/jquery.fancybox-1.3.4.css',
 			'static::widget.css',
 		],
 		'widget_catalog' => [

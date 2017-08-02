@@ -39,14 +39,14 @@ return [
 	'dirs' => [
 		'media'   => PKGPATH.'materia/media/', // where the uploaded assets are kept
 		'logs'    => PKGPATH.'materia/logs', // profile data is written here
-		'static'  => APPPATH.'../../public/', // profile data is written here
-		'engines' => APPPATH.'../../public/widget/',
+		'static'  => PUBPATH, // profile data is written here
+		'engines' => PUBPATH.'widget/',
 	],
 
 	// Default media quota in bytes
 	'media_quota' => 5000,
 
-	'no_media_preview' => PUBPATH.'assets/img/no-preview.jpg',
+	'no_media_preview' => PUBPATH.'img/no-preview.jpg',
 
 	// amount of time before a draft auto-unlocks
 	'lock_timeout' => 60 * 2,
