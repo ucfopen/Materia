@@ -34,7 +34,7 @@ class Controller_Error extends \Controller
 
 		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 
 		\Css::push_group('lti');
 
