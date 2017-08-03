@@ -401,12 +401,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
-                "reference": "ba6e0b4dfd8a7b943c3f383cc4b88ab8018421da"
+                "reference": "a4ad836098e48c9c82b43e3809c90fa79c4c476c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/ba6e0b4dfd8a7b943c3f383cc4b88ab8018421da",
-                "reference": "ba6e0b4dfd8a7b943c3f383cc4b88ab8018421da",
+                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a4ad836098e48c9c82b43e3809c90fa79c4c476c",
+                "reference": "a4ad836098e48c9c82b43e3809c90fa79c4c476c",
                 "shasum": ""
             },
             "require": {
@@ -440,7 +440,7 @@
                 "javascript",
                 "qasset"
             ],
-            "time": "2017-07-17T01:31:29+00:00"
+            "time": "2017-07-17T03:18:14+00:00"
         },
         {
             "name": "monolog/monolog",
