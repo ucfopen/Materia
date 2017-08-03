@@ -44,11 +44,11 @@ class Alwaysload
 		$keys = array_keys($hashes);
 		foreach ($assets['groups'] as $key => $value)
 		{
-			foreach ($value as  $asset)
+			foreach ($value as $asset)
 			{
 				foreach ($keys as $hash_key)
 				{
-					if (self::endsWith($asset, $hash_key))
+					if (self::ends_with($asset, $hash_key))
 					{
 						$hashes[$asset] = $hashes[$hash_key];
 					}
@@ -60,7 +60,7 @@ class Alwaysload
 	}
 
 	// does a string end with another string?
-	protected static function endsWith($haystack, $needle)
+	protected static function ends_with($haystack, $needle)
 	{
 		$length = strlen($needle);
 		if ($length == 0)
