@@ -401,12 +401,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/iturgeon/qAsset.git",
-                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52"
+                "reference": "a4ad836098e48c9c82b43e3809c90fa79c4c476c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
-                "reference": "a3e36e7e7e9921bbc68ab763c2a99cc861b6fa52",
+                "url": "https://api.github.com/repos/iturgeon/qAsset/zipball/a4ad836098e48c9c82b43e3809c90fa79c4c476c",
+                "reference": "a4ad836098e48c9c82b43e3809c90fa79c4c476c",
                 "shasum": ""
             },
             "require": {
