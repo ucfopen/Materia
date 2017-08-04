@@ -22,12 +22,9 @@ class Basetest extends TestCase
 	{
 		// reset fuelphp's input class
 		$class = new ReflectionClass("\Fuel\Core\Input");
-		foreach (['detected_uri', 'detected_ext', 'input', 'put_patch_delete', 'php_input', 'json', 'xml'] as $value)
-		{
-			$property = $class->getProperty($value);
-			$property->setAccessible(true);
-			$property->setValue(null);
-		}
+		$property = $class->getProperty('instance');
+		$property->setAccessible(true);
+		$property->setValue($class, null);
 	}
 
 	protected function create_new_qset($question_text, $asnwerText, $version=0)
@@ -41,7 +38,7 @@ class Basetest extends TestCase
 				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwerText.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
 				break;
 			case 1:
-				$qset->data =  json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwerText.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
+				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwerText.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
 				break;
 		}
 		return $qset;

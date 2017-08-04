@@ -142,42 +142,6 @@ class Widget extends \Basetask
 		}
 	}
 
-	public static function install_from_config()
-	{
-		\Cli::write('Installing from widget.php config');
-		\Config::load('widgets', true);
-		$matching_files = \Arr::merge(\Config::get('widgets.default'), \Config::get('widgets.custom'));
-
-		foreach ($matching_files as $repo)
-		{
-			$widget_package = self::clone_from_git($repo);
-			self::install($widget_package);
-		}
-	}
-
-	public static function clone_from_git($git_url)
-	{
-		$clone_dir = \Materia\Widget_Installer::get_temp_dir();
-
-		\Cli::write("Cloning $git_url");
-
-		passthru("git clone {$git_url} --depth=1 $clone_dir");
-
-		$matches = glob("{$clone_dir}_output/*.wigt");
-
-		if ( ! count($matches))
-		{
-			exit(1);
-		}
-
-		$tmp_dir = \Materia\Widget_Installer::get_temp_dir();
-		$destination = $tmp_dir.basename($matches[0]);
-		rename($matches[0], $destination);
-		\File::delete_dir($clone_dir);
-		\Cli::write("package downloaded: $destination");
-		return $destination;
-	}
-
 	public static function download_package($file_url)
 	{
 		$file_name  = basename($file_url);
@@ -187,6 +151,8 @@ class Widget extends \Basetask
 
 		file_put_contents($output_dir.$file_name, fopen($file_url, 'r'));
 		\Cli::write("package downloaded: {$output_dir}{$file_name}");
+
+		return $output_dir.$file_name;
 	}
 
 	// must be passed .wigt file references, can use glob syntax to match multiple widgets

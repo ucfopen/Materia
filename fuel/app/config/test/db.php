@@ -7,12 +7,10 @@
 
 return [
 	'default' => [
-		'type'        => 'pdo',
 		'connection'  => [
 			'dsn'        => 'mysql:host=mysql;dbname=test', // update "mysql" to docker machine's IP address to allow database connections from host
 			'username'   => 'materia',
 			'password'   => 'odin'
 		],
-		'table_prefix' => '',
 	],
 ];
