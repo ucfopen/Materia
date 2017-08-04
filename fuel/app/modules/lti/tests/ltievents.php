@@ -24,7 +24,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
 
 		// Test a first launch, OAuth should fail
-		$_POST['resource_link_id'] = 'test-resource';
+		\Input::_set('post', ['resource_link_id' => 'test-resource']);
 		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
 
 		$this->assertArrayHasKey('redirect', $result);
@@ -111,6 +111,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 		// Nothing should be in the session
 		$session_data = \Session::get("lti-{$play_id}", false);
+		trace($session_data);
 		$this->assertEquals(false, $session_data);
 		$session_data = \Session::get("lti-link-{$play_id}", false);
 		$this->assertEquals(false, $session_data);
