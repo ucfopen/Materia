@@ -318,25 +318,6 @@ class Api_V1
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Widget_Instance_Manager::lock($inst_id);
 	}
-	/**
-	 * Finds widgets that are specified in the database as spotlight widgets.
-	 *
-	 * @param object The Database Manager
-	 *
-	 * @return array The widgets that are marked as spotlight.
-	 */
-	static public function widget_spotlight_get()
-	{
-		$dir = PUBPATH.'assets/spotlight/';
-		$files = \File::read_dir($dir);
-		$spotlight_list = [];
-		foreach ($files as $file)
-		{
-			$spotlight_list[] = \File::read($dir.$file, true);
-		}
-
-		return $spotlight_list;
-	}
 
 	static public function session_play_create($inst_id, $context_id=false)
 	{
