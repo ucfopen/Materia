@@ -42,6 +42,8 @@ return [
 	'scores/semesters?'                     => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                 => 'scores/show/$1',
 
+	'upload/widgets'                        => 'widgets/upload', // widget uploader
+
 	// ================================= DOCS ======================================
 
 	'help' => ['site/help', 'name' => 'help'],    // The main docs page
