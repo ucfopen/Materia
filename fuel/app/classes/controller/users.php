@@ -25,7 +25,7 @@ class Controller_Users extends Controller
 
 		Event::trigger('request_login', $admin);
 
-		if($admin) Session::set_flash('bypass', true);
+		if ($admin) Session::set_flash('bypass', true);
 
 		Css::push_group(['core', 'login']);
 
