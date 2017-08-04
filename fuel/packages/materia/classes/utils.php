@@ -41,7 +41,7 @@ class Utils
 
 	public static function get_avatar($size=24, $user=false)
 	{
-		$default = \Uri::create('/themes/default/assets/img/default-avatar.jpg');
+		$default = \Config::get('materia.urls.static').'/img/default-avatar.jpg';
 		if ( ! $user) $user = \Model_User::find_current();
 		if ($user instanceof \Model_User && ! empty($user->profile_fields['useGravatar']))
 		{
