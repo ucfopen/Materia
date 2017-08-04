@@ -29,10 +29,13 @@ class Controller_Error extends \Controller
 
 		if ($gid = \Config::get('materia.google_tracking_id', false))
 		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
+			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
 		}
 
-		\Js::push_group('core');
+		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
+
 		\Css::push_group('lti');
 
 		return \Response::forge(\Theme::instance()->render());
@@ -56,5 +59,8 @@ class Controller_Error extends \Controller
 		$this->_message = 'Assignment has guest mode enabled';
 	}
 
-	public function action_index(){}
+	public function action_index()
+	{
+
+	}
 }

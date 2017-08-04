@@ -23,7 +23,7 @@ class LtiEvents
 
 			$launch = LtiLaunch::from_request();
 
-			if (LtiUserManager::is_lti_user_a_content_creator($launch))
+			if ($inst_id && $inst && LtiUserManager::is_lti_user_a_content_creator($launch))
 			{
 				if ($inst->guest_access)
 				{
@@ -64,7 +64,6 @@ class LtiEvents
 	public static function on_play_start_event($payload)
 	{
 		extract($payload); // exposes $inst_id and $play_id
-
 		switch (static::get_lti_play_state($play_id))
 		{
 			case self::PLAY_STATE_NOT_LTI:
