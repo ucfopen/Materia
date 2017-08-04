@@ -1,52 +1,29 @@
 #!/bin/sh
 
-#### Runs PHP linter and PHP Code Sniffer on all staged files
-#### Install the hook:  cp githooks/pre-commit .git/hooks/ && chmod +x .git/hooks/pre-commit
-#### setting up phpcs:
-# $ install composer to your system
-#### make sure .composer/vendor/bin is in your path in your .bash_profile: export PATH="$HOME/.composer/vendor/bin:$PATH"
-# $ composer global require "squizlabs/php_codesniffer=*"
-# $ cd wherever-you-keep-projects
-# $ git clone git@github.com:ucfcdl/fuelphp-phpcs.git
-# $ ln -s wherever-you-keep-projects/fuelphp-phpcs/Standards/FuelPHP $HOME/.composer/vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/FuelPHP
-#### phpcs should show you the fuelphp standard:
-# $ phpcs -i
+echo "Running git-pre-commit script from composer.json"
 
-PROJECT=`php -r "echo dirname(dirname(dirname(realpath('$0'))));"`
-STAGED_FILES_CMD=`git diff --cached --name-only --diff-filter=ACMR HEAD | grep \\\\.php`
-
-# Determine if a file list is passed
-if [ "$#" -eq 1 ]
-then
-	oIFS=$IFS
-	IFS='
-	'
-	SFILES="$1"
-	IFS=$oIFS
-fi
-SFILES=${SFILES:-$STAGED_FILES_CMD}
-
-echo "Checking PHP Lint..."
-for FILE in $SFILES
-do
-	php -l -d display_errors=0 $PROJECT/$FILE
-	if [ $? != 0 ]
-	then
-		echo "Fix the error before commit."
+# Use composer.phar or global composer
+if [ ! -f ./composer.phar ]; then
+	COMPOSER=$(which composer)
+	if [ $? != 0 ]; then
+		echo "Commit Blocked."
+		echo "Pre-commit hook can't locate global composer or local composer.phar"
+		echo "In an emergency, use 'git commit --no-verify' to skip."
 		exit 1
+	else
+		composer git-pre-commit
+		composer_exit_status=$?
 	fi
-	FILES="$FILES $PROJECT/$FILE"
-done
-
-if [ "$FILES" != "" ]
-then
-	echo "Running Code Sniffer..."
-	phpcs --standard=FuelPHP --encoding=utf-8 -n -p $FILES
-	if [ $? != 0 ]
-	then
-		echo "Fix the error before commit."
-		exit 1
-	fi
+else
+	php composer.phar git-pre-commit
+	composer_exit_status=$?
 fi
 
-exit $?
+if (($composer_exit_status > 0)); then
+	echo "Commit Blocked."
+	echo "Fix the errors and try to commit again."
+	echo "In an emergency, use 'git commit --no-verify' to skip."
+	exit 1
+fi
+
+exit 0
