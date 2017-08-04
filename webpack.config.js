@@ -95,6 +95,12 @@ let js = {
       './src/js/materia/materia.validate.textfield.coffee',
       './src/js/controllers/ctrl-alert.coffee',
     ],
+    'admin':[
+      './src/js/controllers/ctrl-admin-user.coffee',
+      './src/js/controllers/ctrl-admin-widget.coffee',
+      './src/js/materia/materia.coms.admin.coffee',
+      './src/js/services/srv-admin.coffee',
+    ]
   },
   module: {
     rules: [
