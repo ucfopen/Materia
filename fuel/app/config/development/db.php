@@ -5,16 +5,14 @@
  * See the individual environment DB configs for specific config information.
  */
 
-return array(
+return [
 
-	'default' => array(
-		'type'        => 'pdo',
-		'connection'  => array(
-			'dsn'        => 'mysql:host=mysql;dbname=materia', // update "mysql" to docker machine's IP address to allow database connections from host
+	'default' => [
+		'connection'  => [
+			// in our docker environment, host=mysql is an alias for the ip for the mysql container
+			'dsn'        => 'mysql:host=mysql;port=3306;dbname=materia',
 			'username'   => 'materia',
 			'password'   => 'odin'
-		),
-		'table_prefix' => '',
-	)
-
-);
+		],
+	]
+];

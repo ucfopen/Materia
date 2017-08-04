@@ -1,6 +1,5 @@
 <?php
 namespace Lti;
-require_once(APPPATH.'/modules/lti/vendor/oauth.php');
 
 class Oauth
 {
@@ -11,24 +10,26 @@ class Oauth
 			$signature  = \Input::post('oauth_signature', '');
 			$timestamp  = (int) \Input::post('oauth_timestamp', 0);
 			$nonce      = \Input::post('oauth_nonce', false);
-			$lti_config = \Config::get("lti::lti.consumers.".\Input::post('tool_consumer_info_product_family_code', 'default'));
+			$lti_config = \Config::get('lti::lti.consumers.'.\Input::post('tool_consumer_info_product_family_code', 'default'));
 
-			if (empty($signature) || empty($timestamp) || empty($nonce)) throw new \Exception('Oauth, required stuff is empty');
-			if ($lti_config['key'] !== \Input::post('oauth_consumer_key')) throw new \Exception('Oauth Consumer Key');
-			if ($timestamp < time() - $lti_config['timeout']) throw new \Exception('Oauth timestamp too old');
+			if (empty($signature)) throw new \Exception('Authorization signature is missing.');
+			if (empty($nonce)) throw new \Exception('Authorization fingerprint is missing.');
+			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new \Exception('Authorization signature failure.');
+			if ($timestamp < (time() - $lti_config['timeout'])) throw new \Exception('Authorization signature is too old.');
 
-			// TODO: check to see if the nonce is already used
-			$consumer    = new \OAuthConsumer(null, $lti_config['secret']);
-			$request     = \OAuthRequest::from_consumer_and_token($consumer, null, 'POST', \Uri::current(), \Input::post());
-			$hash_method = '\OAuthSignatureMethod_'.str_replace('-', '_', \Input::post('oauth_signature_method', 'HMAC_SHA1'));
-			$new_sig     = $request->build_signature(new $hash_method(), $consumer, null);
+			$hasher   = new \Eher\OAuth\HmacSha1(); // THIS CODE ASSUMES HMACSHA1, could be more versetile, but hey
+			$consumer = new \Eher\OAuth\Consumer(null, $lti_config['secret']);
+			$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', \Uri::current(), \Input::post());
+			$new_sig  = $request->build_signature($hasher, $consumer, false);
 
-			return $new_sig === $signature;
+			if ($new_sig !== $signature) throw new \Exception('Authorization signature failure.');
+			return true;
 		}
 		catch (\Exception $e)
 		{
 			\RocketDuck\Log::profile(['invalid-oauth-received', $e->getMessage(), \Uri::current(), print_r(\Input::post(), 1)], 'lti-error-dump');
 		}
+
 		return false;
 	}
 
@@ -51,9 +52,11 @@ class Oauth
 		];
 
 		$params   = array_merge($params, $oauth_params);
-		$consumer = new \OAuthConsumer($key, $secret);
-		$request  = \OAuthRequest::from_consumer_and_token($consumer, null, 'POST', $endpoint, $params);
-		$request->sign_request(new \OAuthSignatureMethod_HMAC_SHA1(), $consumer, null);
+		$hmcsha1  = new \Eher\OAuth\HmacSha1();
+		$consumer = new \Eher\OAuth\Consumer('', $secret);
+		$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, $params);
+
+		$request->sign_request($hmcsha1, $consumer, '');
 
 		return $request->get_parameters();
 	}
@@ -62,9 +65,11 @@ class Oauth
 	{
 		// ================ BUILD OAUTH REQUEST =========================
 		$body_hash = base64_encode(sha1($body, true)); // hash the contents of the body
-		$consumer  = new \OAuthConsumer(null, $secret); // create the consumer (key not sent because it's not used for the signature)
-		$request   = \OAuthRequest::from_consumer_and_token($consumer, null, 'POST', $endpoint, ['oauth_body_hash' => $body_hash] );
-		$request->sign_request(new \OAuthSignatureMethod_HMAC_SHA1(), $consumer, null);
+		$hmcsha1   = new \Eher\OAuth\HmacSha1();
+		$consumer  = new \Eher\OAuth\Consumer(null, $secret);
+		$request   = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, ['oauth_body_hash' => $body_hash]);
+		$request->sign_request($hmcsha1, $consumer, null);
+
 		$params = [
 			'http' => [
 				'method'  => 'POST',

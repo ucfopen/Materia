@@ -16,7 +16,7 @@ class LtiLaunch
 
 		// trim all the roles
 		$roles = explode(',', \Input::param('roles'));
-		$roles = array_map( function($role) { return trim($role); }, $roles);
+		$roles = array_map( function($role) { return trim($role); }, $roles); // @codingStandardsIgnoreLine
 
 		$vars = (object) [
 			'source_id'      => trim(\Input::param('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores

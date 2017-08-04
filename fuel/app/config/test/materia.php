@@ -4,16 +4,12 @@ return [
 	'dirs' => [
 		'media'   => PKGPATH.'materia/media/', // where the uploaded assets are kept
 		'logs'    => PKGPATH.'materia/logs', // profile data is written here
-		'engines' => APPPATH.'../../static/widget/test/',
+		'engines' => PUBPATH.'widget/test/',
 	],
-	'security' => [
 
-		'encrypt_qsets' => false,
-		'encrypt_answers' => false,
-	],
+	// build routes for static urls to use http://mymateria.com:8008
 	'urls' => [
 		'static'             => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
 		'engines'            => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')), // engine swf locations
-		'static_crossdomain' => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
 	],
 ];

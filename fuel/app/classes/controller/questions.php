@@ -6,6 +6,7 @@
 
 class Controller_Questions extends Controller
 {
+
 	public function action_import()
 	{
 		// Validate Logged in
@@ -19,7 +20,7 @@ class Controller_Questions extends Controller
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
 
 		$theme = Theme::instance();
 		$theme->set_template('layouts/main');
