@@ -3,6 +3,7 @@
  * @group App
  * @group Materia
  * @group Auth
+  * @group MateriaAuth
  */
 class Test_Materiaauth extends \Basetest
 {
@@ -23,7 +24,7 @@ class Test_Materiaauth extends \Basetest
 		);
 
 		//confirm we have more users than we did to start
-		$this->assertEquals($new_user_id, $users_count + 1);
+		$this->assertEquals(\Model_User::count(), $users_count + 1);
 
 		//confirm the new user's information matches what we said it should be
 		$new_user_lookup = \Model_User::find($new_user_id);
@@ -74,7 +75,7 @@ class Test_Materiaauth extends \Basetest
 			false
 		);
 
-		$this->assertEquals($new_user_id, $users_count + 1);
+		$this->assertEquals(\Model_User::count(), $users_count + 1);
 
 		$new_user_lookup = \Model_User::find($new_user_id);
 		$confirm_properties = ['username','email','first','last'];
@@ -146,7 +147,7 @@ class Test_Materiaauth extends \Basetest
 			false
 		);
 
-		$this->assertEquals($new_user_id, $users_count + 1);
+		$this->assertEquals(\Model_User::count(), $users_count + 1);
 
 		// null emails are converted to 'false' during the email sanitizing process
 		$values['email'] = false;
@@ -163,7 +164,8 @@ class Test_Materiaauth extends \Basetest
 	public function test_promoting_user()
 	{
 		//confirm that the last user we created is not an author
-		$last_user_id = \Model_User::count();
+		// $last_user_id = \Model_User::count();
+		$last_user_id = $this->get_last_user_id();
 		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), false);
 
 		//promote the last user we created to an author
@@ -175,7 +177,8 @@ class Test_Materiaauth extends \Basetest
 	public function test_demoting_user()
 	{
 		//confirm that the last user we created is not an author
-		$last_user_id = \Model_User::count();
+		// $last_user_id = \Model_User::count();
+		$last_user_id = $this->get_last_user_id();
 		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), true);
 
 		//demote the last user we created back to a student
@@ -260,19 +263,40 @@ class Test_Materiaauth extends \Basetest
 
 	public function test_update_specific_user()
 	{
+		$values = $this->user_values('Test5', 'McTest5');
+		$new_user_id = \Auth::instance()->create_user(
+			$values['username'],
+			$values['password'],
+			$values['email'],
+			1,
+			$values['profile_fields'],
+			$values['first'],
+			$values['last'],
+			false
+		);
+
 		$values = $this->user_values('Test4', 'McTest4');
 		//username can't be changed
 		unset($values['username']);
 
-		$second_user = \Model_User::find(2);
-		\Auth::update_user($values, $second_user->username);
+		$specific_user = \Model_User::find($new_user_id);
+		\Auth::update_user($values, $specific_user->username);
 
-		$confirm_user = \Model_User::find(2);
+		$confirm_user = \Model_User::find($new_user_id);
 		$confirm_properties = ['email','first','last'];
 		foreach($confirm_properties as $prop)
 		{
 			$this->assertEquals($confirm_user[$prop], $values[$prop]);
 		}
+	}
+
+	protected function get_last_user_id()
+	{
+		return \DB::select('id')
+			->from(\Model_User::table())
+			->limit(1)
+			->order_by('id', 'desc')
+			->execute()[0]['id'];
 	}
 
 	protected function user_values($f, $l)
