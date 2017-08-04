@@ -49,7 +49,7 @@ class Storage_Manager
 						WHERE S.inst_id = :inst_id
 						ORDER BY S.created_at DESC
 					) T1
-					GROUP BY T1.id, T1.name
+					GROUP BY T1.id, T1.name, T1.created_at, T1.year, T1.semester
 					ORDER BY T1.id DESC'
 				, \DB::SELECT)
 				->param('inst_id', $inst_id)

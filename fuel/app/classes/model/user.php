@@ -53,6 +53,8 @@ class Model_User extends Orm\Model
 		$profile_fields = $this->get('profile_fields');
 
 		$this->set('profile_fields', array_merge(static::$_default_profile_fields, $profile_fields));
+		//don't allow notifications to be sent if there's no e-mail address to send them to
+		if (empty($this->email)) $this->profile_fields['notify'] = false;
 	}
 
 	public static function find_current()
@@ -76,24 +78,19 @@ class Model_User extends Orm\Model
 		$user_table = \Model_User::table();
 		$matches = \DB::select()
 			->from($user_table)
+			->where($user_table.'.id', 'NOT', \DB::expr('IN('.\DB::select($user_table.'.id')
+				->from($user_table)
 				->join('perm_role_to_user', 'LEFT')
-					->on($user_table.'.id', '=', 'perm_role_to_user.user_id')
+				->on($user_table.'.id', '=', 'perm_role_to_user.user_id')
 				->join('user_role', 'LEFT')
-					->on('perm_role_to_user.role_id', '=', 'user_role.role_id')
-				->where($user_table.'.id', 'NOT' ,\DB::expr('IN('.\DB::select($user_table.'.id')
-							->from($user_table)
-							->join('perm_role_to_user', 'LEFT')
-								->on($user_table.'.id', '=', 'perm_role_to_user.user_id')
-							->join('user_role', 'LEFT')
-								->on('perm_role_to_user.role_id', '=', 'user_role.role_id')
-							->where('user_role.name', 'super_user')
-							->or_where('users.id', self::find_current_id()).')'))
-				->and_where_open()
-					->where('username', 'LIKE', $name.'%')
-					->or_where(\DB::expr('REPLACE(CONCAT(first, last), " ", "")'), 'LIKE', "%$name%")
-					->or_where('email', 'LIKE', "$name%")
-				->and_where_close()
-			->group_by($user_table.'.id')
+				->on('perm_role_to_user.role_id', '=', 'user_role.role_id')
+				->where('user_role.name', 'super_user')
+				->or_where('users.id', self::find_current_id()).')'))
+			->and_where_open()
+				->where('username', 'LIKE', $name.'%')
+				->or_where(\DB::expr('REPLACE(CONCAT(first, last), " ", "")'), 'LIKE', "%$name%")
+				->or_where('email', 'LIKE', "$name%")
+			->and_where_close()
 			->limit(50)
 			->as_object('Model_User')
 			->execute();
@@ -141,11 +138,11 @@ class Model_User extends Orm\Model
 
 	static protected function get_rate_limiter()
 	{
-		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
 		if (is_null($limit))
 		{
 			$limit = ['start_time' => time(), 'count' => 0];
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);
+			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
 		}
 		return $limit;
 	}
@@ -175,13 +172,13 @@ class Model_User extends Orm\Model
 			{
 				$limit['count'] += 1 ;
 			}
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);
+			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
 		}
 	}
 
 	static protected function reset_rate_limiter()
 	{
-		if ( ! Fuel::$is_cli) Cache::delete('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		if ( ! Fuel::$is_cli) Cache::delete('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
 	}
 
 	static public function login($username, $password)
@@ -219,7 +216,7 @@ class Model_User extends Orm\Model
 
 	static protected function forge_guest()
 	{
-		return \Model_User::forge(array('id' => self::GUEST_ID));
+		return \Model_User::forge(['id' => self::GUEST_ID]);
 	}
 
 	public function to_array($custom = false, $recurse = false, $eav = false)
