@@ -7,6 +7,8 @@
  */
 class Test_Ltiauth extends \Basetest
 {
+	protected $lastTestUser = null;
+
 	protected function setUp()
 	{
 		\Config::set('auth.restrict_normal_logins', true);
@@ -16,6 +18,10 @@ class Test_Ltiauth extends \Basetest
 	protected function tearDown()
 	{
 		\Config::set('auth.restrict_normal_logins', false);
+		if ($this->lastTestUser)
+		{
+			\Auth::instance()->delete_user($this->lastTestUser);
+		}
 		parent::tearDown();
 	}
 
@@ -73,6 +79,7 @@ class Test_Ltiauth extends \Basetest
 			'TestUser'.$num,
 			false
 		);
-		return [$id, 'LtiAuthTestUser'.$num, 'LtiAuthTestPassword'.$num];
+		$this->lastTestUser = 'LtiAuthTestUser'.$num;
+		return [$id, $this->lastTestUser, 'LtiAuthTestPassword'.$num];
 	}
 }
