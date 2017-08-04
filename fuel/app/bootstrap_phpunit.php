@@ -44,17 +44,17 @@ if (class_exists('AspectMock\Kernel'))
 {
 	// Configure AspectMock
 	$kernel = \AspectMock\Kernel::getInstance();
-	$kernel->init(array(
+	$kernel->init([
 		'debug'        => true,
 		'appDir'       => __DIR__.'/../',
-		'includePaths' => array(
+		'includePaths' => [
 			APPPATH, COREPATH, PKGPATH,
-		),
-		'excludePaths' => array(
+		],
+		'excludePaths' => [
 			APPPATH.'tests', COREPATH.'tests',
-		),
+		],
 		'cacheDir'     => APPPATH.'tmp/AspectMock',
-	));
+	]);
 
 	// Load in the Fuel autoloader
 	$kernel->loadFile(COREPATH.'classes'.DIRECTORY_SEPARATOR.'autoloader.php');
@@ -76,10 +76,3 @@ Fuel::$env = Fuel::TEST;
 
 // Import the TestCase class
 import('testcase');
-
-if (getenv('SKIP_BOOTSTRAP_TASKS') != 'true')
-{
-	// Materia Setup Reset the database and install all widget packages
-	exec('FUEL_ENV=test php oil r admin:destroy_everything --quiet=true');
-	exec('FUEL_ENV=test php oil r install --skip_prompts=true');
-}

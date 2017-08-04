@@ -33,8 +33,7 @@ class Semester extends \Basetask
 
 		$year_counter = $start_year;
 
-		$values = array();
-
+		$values = [];
 
 		while ($end_year >= $year_counter)
 		{

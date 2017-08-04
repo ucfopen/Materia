@@ -318,25 +318,6 @@ class Api_V1
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Widget_Instance_Manager::lock($inst_id);
 	}
-	/**
-	 * Finds widgets that are specified in the database as spotlight widgets.
-	 *
-	 * @param object The Database Manager
-	 *
-	 * @return array The widgets that are marked as spotlight.
-	 */
-	static public function widget_spotlight_get()
-	{
-		$dir = PUBPATH.'assets/spotlight/';
-		$files = \File::read_dir($dir);
-		$spotlight_list = [];
-		foreach ($files as $file)
-		{
-			$spotlight_list[] = \File::read($dir.$file, true);
-		}
-
-		return $spotlight_list;
-	}
 
 	static public function session_play_create($inst_id, $context_id=false)
 	{
@@ -608,6 +589,7 @@ class Api_V1
 
 		$distribution = Score_Manager::get_widget_score_distribution($inst_id);
 		$summary = Score_Manager::get_widget_score_summary($inst_id);
+
 		foreach ($distribution as $id => $data)
 		{
 			if ( ! array_key_exists($id, $summary))
@@ -619,6 +601,7 @@ class Api_V1
 				$summary[$id]['distribution'] = $data['distribution'];
 			}
 		}
+
 		if ($include_storage_data)
 		{
 			$storage = Storage_Manager::get_table_summaries_by_inst_id($inst_id);
@@ -636,6 +619,7 @@ class Api_V1
 				}
 			}
 		}
+
 		$summary = array_values($summary);
 		// we want to be sure that the client can rely on the array order
 		usort($summary, function($a, $b) {
@@ -676,11 +660,6 @@ class Api_V1
 
 
 		$inst->get_qset($inst_id);
-
-		if ($play_id && \Config::get('materia.security.encrypt_qsets') === true && $inst->widget->is_qset_encrypted)
-		{
-			return ['encryptedText' => \Event::trigger('Materia.encrypt', $inst->qset)];
-		}
 
 		return $inst->qset;
 	}
