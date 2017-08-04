@@ -17,9 +17,9 @@ return [
 		PKGPATH.'materia/media/uploads',
 		PKGPATH.'materia/vendor/widget/score_module',
 		PKGPATH.'materia/vendor/widget/test',
-		// files in docroot
-		DOCROOT.'static/widget',
-		DOCROOT.'static/widget/test'
+		// widget directories
+		\Config::get('materia.dirs.engines'),
+		\Config::get('materia.dirs.engines').'test',
 	],
 
 	// list of default configs to copy into the requested environment
