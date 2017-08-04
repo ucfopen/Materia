@@ -21,11 +21,11 @@ class Model_Notification extends \Orm\Model
 
 	protected static $_observers = [
 		'Orm\Observer_CreatedAt' => [
-			'events' => array('before_insert'),
+			'events' => ['before_insert'],
 			'mysql_timestamp' => false,
 		],
 		'Orm\Observer_UpdatedAt' => [
-			'events' => array('before_save'),
+			'events' => ['before_save'],
 			'mysql_timestamp' => false,
 		],
 	];

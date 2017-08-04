@@ -7,6 +7,8 @@
 class Controller_Widgets_Upload extends Controller
 {
 
+	use Lib_CommonControllerTemplateTrait;
+
 	public function before()
 	{
 		// require the enable_uploader option to be on
@@ -41,28 +43,6 @@ class Controller_Widgets_Upload extends Controller
 			->set('page_type', 'upload');
 
 		$this->theme->set_partial('content', 'partials/upload');
-
-		// If no response object was returned by the action,
-		if (empty($response) or ! $response instanceof Response)
-		{
-			// render the defined template
-			$me = Model_User::find_current();
-
-			$this->theme->set_partial('header', 'partials/header')->set('me', $me);
-
-			// add google analytics
-			if ($gid = Config::get('materia.google_tracking_id', false))
-			{
-				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
-			}
-
-			$response = Response::forge(Theme::instance()->render());
-		}
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-
-		return parent::after($response);
-
 	}
 
 	public function post_index()
