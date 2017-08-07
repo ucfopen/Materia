@@ -8,7 +8,7 @@
   "dependencies": {
     "fancybox": "fancyapps/fancybox#v2.1.6",
     "frontend-dependencies": "iturgeon/frontend-dependencies#292bff34f85c7153b29127004966756a0bc14986",
-    "materia-client-assets": "ucfcdl/materia-client-assets#v0.1.11",
+    "materia-client-assets": "ucfcdl/materia-client-assets#v0.1.14",
     "ngmodal": "adamalbrecht/ngModal#v1.2.0",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
     "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
