@@ -145,12 +145,14 @@ class Test_Controller_Api_Admin extends \Basetest
 	public function test_get_users()
 	{
 		//create some users which we can target with a search term
-		// \Fuel\Tasks\Admin::quick_test_users();
+		$test_user_ids = [];
 		for($i = 1; $i <= 10; $i++)
 		{
+			$test_user_ids[] = 'admintest'.$i;
 			\Fuel\Tasks\Admin::new_user('admintest'.$i, 'admi', 'N', 'Test', $i.'admin@tar.get', $i);
 		}
 		\Fuel\Tasks\Admin::new_user('target', 'Target', 'T', 'Target', 'target@tar.get', 'target');
+		$test_user_ids[] = 'target';
 
 		$search = 'admi';
 		$user_objects = \Model_User::find_by_name_search($search);
@@ -182,6 +184,13 @@ class Test_Controller_Api_Admin extends \Basetest
 			|| strpos(strtolower($u['last']), $search) !== false
 			|| strpos(strtolower($u['email']), $search) !== false
 		);
+
+		//delete all the users created for this test so they don't interfere with future tests
+		foreach($test_user_ids as $id)
+		{
+			trace($id);
+			\Auth::delete_user($id);
+		}
 	}
 
 	public function test_get_user()
