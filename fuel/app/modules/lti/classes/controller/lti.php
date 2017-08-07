@@ -54,7 +54,7 @@ class Controller_Lti extends \Controller
 		\Js::push_group(['angular', 'ng_modal', 'jquery', 'jquery_ui', 'materia', 'author', 'lti_picker', 'spinner']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 		\Js::push_inline($this->theme->view('partials/select_item_js')
 			->set('system', $system));
 		\Css::push_group('lti');
@@ -89,7 +89,7 @@ class Controller_Lti extends \Controller
 
 		\Js::push_group(['angular', 'ng_modal', 'materia']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 
 		\Css::push_group('lti');
 
