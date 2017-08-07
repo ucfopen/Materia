@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "de5ab19d352fbc91ed3f9cdbc31f4366",
+    "content-hash": "532f96db6d1454b805c4da1b1aafde30",
     "packages": [
         {
             "name": "composer/installers",
@@ -187,20 +187,23 @@
         },
         {
             "name": "fuel/core",
-            "version": "1.8.0.3",
+            "version": "1.8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/core.git",
-                "reference": "c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7"
+                "reference": "cb83a0cc682307866000ef6b8b970f0893d01b66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/core/zipball/c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7",
-                "reference": "c8e190b22cb9fc1a9acfdde4ed7487e04051bbe7",
+                "url": "https://api.github.com/repos/fuel/core/zipball/cb83a0cc682307866000ef6b8b970f0893d01b66",
+                "reference": "cb83a0cc682307866000ef6b8b970f0893d01b66",
                 "shasum": ""
             },
             "require": {
-                "composer/installers": "~1.0"
+                "composer/installers": "~1.0",
+                "michelf/php-markdown": "1.*",
+                "monolog/monolog": "1.18.*",
+                "phpseclib/phpseclib": "2.0.0"
             },
             "type": "fuel-package",
             "notification-url": "https://packagist.org/downloads/",
@@ -215,7 +218,7 @@
             ],
             "description": "FuelPHP 1.x Core",
             "homepage": "https://github.com/fuel/core",
-            "time": "2016-07-21T08:45:05+00:00"
+            "time": "2017-01-15T17:41:18+00:00"
         },
         {
             "name": "fuel/email",
@@ -441,6 +444,57 @@
                 "qasset"
             ],
             "time": "2017-07-17T03:18:14+00:00"
+        },
+        {
+            "name": "michelf/php-markdown",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/michelf/php-markdown.git",
+                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/michelf/php-markdown/zipball/1f51cc520948f66cd2af8cbc45a5ee175e774220",
+                "reference": "1f51cc520948f66cd2af8cbc45a5ee175e774220",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-lib": "1.4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Michelf": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Michel Fortin",
+                    "email": "michel.fortin@michelf.ca",
+                    "homepage": "https://michelf.ca/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "John Gruber",
+                    "homepage": "https://daringfireball.net/"
+                }
+            ],
+            "description": "PHP Markdown",
+            "homepage": "https://michelf.ca/projects/php-markdown/",
+            "keywords": [
+                "markdown"
+            ],
+            "time": "2016-10-29T18:58:20+00:00"
         },
         {
             "name": "monolog/monolog",
