@@ -111,7 +111,6 @@ class Test_LtiEvents extends \Test_Basetest
 
 		// Nothing should be in the session
 		$session_data = \Session::get("lti-{$play_id}", false);
-		trace($session_data);
 		$this->assertEquals(false, $session_data);
 		$session_data = \Session::get("lti-link-{$play_id}", false);
 		$this->assertEquals(false, $session_data);
