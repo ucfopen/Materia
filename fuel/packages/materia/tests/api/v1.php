@@ -405,13 +405,6 @@ class Test_Api_V1 extends \Basetest
 		$this->assertInvalidLoginMessage($output);
 	}
 
-	public function test_widget_spotlight_get()
-	{
-		// ======= AS NO ONE ========
-		$output = \Materia\Api_V1::widget_spotlight_get();
-		$this->assertGreaterThan(0, count($output));
-	}
-
 	public function test_session_play_create()
 	{
 		// ======= AS NO ONE ========

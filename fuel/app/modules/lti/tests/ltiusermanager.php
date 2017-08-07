@@ -266,7 +266,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_admin_is_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Administrator';
+		\Input::_set('post', ['roles' => 'Administrator']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -274,7 +274,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_instructor_is_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Instructor';
+		\Input::_set('post', ['roles' => 'Instructor']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -282,7 +282,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_learner_is_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Learner';
+		\Input::_set('post', ['roles' => 'Learner']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -290,7 +290,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_student_not_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Student';
+		\Input::_set('post', ['roles' => 'Student']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -298,7 +298,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_mixed_instructor_is_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Instructor,Instructor';
+		\Input::_set('post', ['roles' => 'Instructor,Instructor']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -306,7 +306,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_mixed_student_not_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Student,Student';
+		\Input::_set('post', ['roles' => 'Student,Student']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -314,7 +314,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_unkown_not_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = '';
+		\Input::_set('post', ['roles' => '']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -322,7 +322,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_student_admin_is_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Student,Learner,Administrator';
+		\Input::_set('post', ['roles' => 'Student,Learner,Administrator']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -330,7 +330,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_instructor_student_is_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'Instructor,Student,Dogs';
+		\Input::_set('post', ['roles' => 'Instructor,Student,Dogs']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
@@ -338,7 +338,7 @@ class Test_LtiUserManager extends \Test_Basetest
 	public function test_is_lti_student_daft_punk_not_content_creator()
 	{
 		$this->create_testing_post();
-		$_POST['roles'] = 'DaftPunk,student,Shaq';
+		\Input::_set('post', ['roles' => 'DaftPunk,student,Shaq']);
 		$launch = \Lti\LtiLaunch::from_request();
 		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}

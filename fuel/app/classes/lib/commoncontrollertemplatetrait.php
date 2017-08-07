@@ -37,7 +37,7 @@ trait Lib_CommonControllerTemplateTrait
 		}
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Css::push_group('core');
 
