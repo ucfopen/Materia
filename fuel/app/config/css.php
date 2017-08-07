@@ -15,7 +15,7 @@ return [
 
 	'groups' => [
 		'admin' => [
-			'theme::admin.css'
+			$static_css.'admin.css'
 		],
 		'widget_play' => [
 			$static_css.'play.css',
