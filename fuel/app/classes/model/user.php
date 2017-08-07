@@ -138,11 +138,11 @@ class Model_User extends Orm\Model
 
 	static protected function get_rate_limiter()
 	{
-		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
 		if (is_null($limit))
 		{
 			$limit = ['start_time' => time(), 'count' => 0];
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);
+			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
 		}
 		return $limit;
 	}
@@ -172,17 +172,21 @@ class Model_User extends Orm\Model
 			{
 				$limit['count'] += 1 ;
 			}
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip()), $limit, self::RATE_LIMITER_DOWN_TIME);
+			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
 		}
 	}
 
 	static protected function reset_rate_limiter()
 	{
-		if ( ! Fuel::$is_cli) Cache::delete('rate-limit.'.str_replace('.', '-', Input::real_ip()));
+		if ( ! Fuel::$is_cli) Cache::delete('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
 	}
 
 	static public function login($username, $password)
 	{
+		$bypass_used = \Session::get_flash('bypass', false);
+		//don't process this if the current auth package restricts normal logins
+		if (\Config::get('auth.restrict_normal_logins', false) && ! $bypass_used) throw new \HttpServerErrorException;
+
 		Config::load('auth', true);
 		foreach (Config::get('auth.driver') as $driver)
 		{

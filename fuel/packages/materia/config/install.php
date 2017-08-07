@@ -54,6 +54,10 @@ return [
 			'options' => ['memcached', 'file'],
 			'description' => 'Choose a cache driver for FuelPhp (https://fuelphp.com/docs/classes/cache/config.html).',
 		],
+		'cache.file.path' => [
+			'default' => APPPATH.'tmp',
+			'depends_on_value_match' => ['cache.driver' => 'file'],
+		],
 		'cache.memcached.servers.default.host' => [
 			'default' => 'localhost',
 			'depends_on_value_match' => ['cache.driver' => 'memcached'],
@@ -66,6 +70,10 @@ return [
 		'session.driver' => [
 			'options' => ['memcached', 'file'],
 			'description' => 'Choose a session driver for FuelPHP (https://fuelphp.com/docs/classes/session/config.html).',
+		],
+		'session.file.path' => [
+			'default' => APPPATH.'tmp',
+			'depends_on_value_match' => ['session.driver' => 'file'],
 		],
 		'session.memcached.servers.default.host' => [
 			'default' => 'localhost',
