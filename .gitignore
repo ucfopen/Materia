@@ -42,6 +42,7 @@ node_modules
 
 public/css/404.css
 public/css/500.css
+public/css/admin.css
 public/css/beard_mode.css
 public/css/catalog.css
 public/css/create.css
@@ -59,6 +60,7 @@ public/css/user.css
 public/css/widget.css
 public/css/upload.css
 
+public/js/admin.js
 public/js/author.js
 public/js/materia.coms.json.js
 public/js/materia.creatorcore.js
