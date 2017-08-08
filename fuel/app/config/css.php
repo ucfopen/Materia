@@ -14,6 +14,9 @@ return [
 	],
 
 	'groups' => [
+		'admin' => [
+			$static_css.'admin.css'
+		],
 		'widget_play' => [
 			$static_css.'play.css',
 			$static.'js/vendor/ngmodal/ng-modal.css'

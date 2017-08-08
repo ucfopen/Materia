@@ -149,6 +149,68 @@ class Widget
 		return $meta_data;
 	}
 
+	public function get_property($prop)
+	{
+		$val = '';
+		if (property_exists($this, $prop))
+		{
+			$val = \DB::select($prop)
+				->from('widget')
+				->where('id', $this->id)
+				->execute()[0][$prop];
+		}
+		else
+		{
+			$val = \DB::select('value')
+				->from('widget_metadata')
+				->where('widget_id', $this->id)
+				->where('name', $prop)
+				->execute()[0]['value'];
+		}
+		return $val;
+	}
+
+	public function set_property($prop, $val)
+	{
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+
+		$original = $this->get_property($prop, $val);
+		if ($original == $val) return true;
+		try
+		{
+			if (property_exists($this, $prop))
+			{
+				\DB::update('widget')
+					->set([$prop  => $val])
+					->where('id', $this->id)
+					->execute();
+			}
+			else
+			{
+				\DB::update('widget_metadata')
+					->set(['value' => $val])
+					->where('widget_id', $this->id)
+					->where('name', $prop)
+					->execute();
+			}
+
+			$activity = new Session_Activity([
+				'user_id' => \Model_User::find_current_id(),
+				'type'    => Session_Activity::TYPE_ADMIN_EDIT_WIDGET,
+				'item_id' => $this->id,
+				'value_1' => $prop,
+				'value_2' => $original,
+				'value_3' => $val,
+			]);
+			$activity->db_store();
+		}
+		catch (Exception $e)
+		{
+			return false;
+		}
+		return true;
+	}
+
 	public function load_widget_methods($method_type)
 	{
 		$file = PKGPATH."/materia/vendor/widget/{$this->dir}/{$method_type}.php";
