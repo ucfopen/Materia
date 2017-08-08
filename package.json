@@ -3,54 +3,22 @@
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://github.com/ucfcdl/Materia",
   "scripts": {
-    "postinstall": "frontend-dependencies"
+    "build": "webpack -p",
+    "build-dev": "webpack",
+    "watch": "webpack --watch",
+    "postinstall": "napa && npm run build"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^4.0.1",
+    "hash-assets-webpack-plugin": "^0.3.2",
+    "materia-client-assets": "ucfcdl/materia-client-assets#v0.1.15",
+    "napa": "^3.0.0"
+  },
+  "napa": {
     "fancybox": "fancyapps/fancybox#v2.1.6",
-    "frontend-dependencies": "iturgeon/frontend-dependencies#292bff34f85c7153b29127004966756a0bc14986",
-    "materia-client-assets": "ucfcdl/materia-client-assets#v0.1.14",
     "ngmodal": "adamalbrecht/ngModal#v1.2.0",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
     "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
-  },
-  "frontendDependencies": {
-    "packages": [
-      {
-        "src": "materia-client-assets/dist/css/*",
-        "target": "public/css",
-        "exact": true
-      },
-      {
-        "src": "materia-client-assets/dist/js/*",
-        "target": "public/js",
-        "exact": true
-      },
-      {
-        "src": "materia-client-assets/dist/*.json",
-        "target": "fuel/app/config/",
-        "exact": true
-      },
-      {
-        "src": "ngmodal/dist/*",
-        "target": "public/js/vendor/ngmodal/",
-        "exact": true
-      },
-      {
-        "src": "fancybox/source/*",
-        "target": "public/js/vendor/fancybox/",
-        "exact": true
-      },
-      {
-        "src": "spinjs/dist/spin.min.js",
-        "target": "public/js/vendor/spin.min.js",
-        "exact": true
-      },
-      {
-        "src": "timepicker/*",
-        "target": "public/js/vendor/timepicker/",
-        "exact": true
-      }
-    ]
   },
   "version": "1.0.0",
   "main": "index.js",

@@ -6,7 +6,7 @@
 	</div>
 	<div class="widget-info" id="make-widgets">
 		<h2 id= "widgets-heading">Make Your Own Widgets:</h2>
-		<img src="../themes/default/assets/img/create-widgets.png">
+		<img src="<?= \Config::get('materia.urls.static') ?>img/create-widgets.png">
 		<p>
 			Materia features a growing library of customizable widgets.
 			Learn more about the available widgets and how to make your own
@@ -17,7 +17,7 @@
 
 	<div class="widget-info" id="embed-widgets">
 		<h2 id="embed-heading">Embed Your Widgets:</h2>
-		<img src="../themes/default/assets/img/embed.png">
+		<img src="<?= \Config::get('materia.urls.static') ?>img/embed.png">
 		<p>
 			Embedding the widgets you create into your Canvas courses as assignments - graded or not - is a quick and easy process.
 			Learn more about embedding your widgets.
