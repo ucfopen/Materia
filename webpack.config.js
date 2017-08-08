@@ -30,7 +30,7 @@ let copy = new CopyWebpackPlugin(
 			to:  path.join(vendorPath, 'spin.min.js')
 		},
 		{
-			from: path.join(modulesPath, 'timepicker', '**', '*'),
+			from: path.join(modulesPath, 'timepicker'),
 			to:  path.join(vendorPath, 'timepicker')
 		},
 	], { copyUnmodified: true }
