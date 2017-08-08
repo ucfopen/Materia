@@ -12,10 +12,11 @@ class Controller_Users extends Controller
 	 * Uses Materia API's remote_login function to log the user in.
 	 *
 	 */
-	public function get_login($admin = false)
+	public function get_login()
 	{
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
+		$bypass = isset($_GET['directlogin']) ? true : false;
 
 		if ( ! Model_User::find_current()->is_guest())
 		{
@@ -23,14 +24,16 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
-		Event::trigger('request_login', $admin);
+		Event::trigger('request_login', $bypass);
 
-		if ($admin) Session::set_flash('bypass', true);
+		if ($bypass) Session::set_flash('bypass', true);
 
 		Css::push_group(['core', 'login']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+
+		Session::set_flash('bypass', $bypass);
 
 		$this->theme->get_template()
 			->set('title', 'Login')

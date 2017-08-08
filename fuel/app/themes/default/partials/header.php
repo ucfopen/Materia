@@ -35,6 +35,20 @@
 			<li><a href="/my-widgets">My Widgets</a></li>
 			<li><a href="/help">Help</a></li>
 
+			<?php if (\RocketDuck\Perm_Manager::is_super_user()): ?>
+				<li class="nav_expandable">
+					<span class='elevated'>Admin</span>
+					<ul>
+						<li>
+							<a class='elevated' href="/admin/widget">Widgets</a>
+						</li>
+						<li>
+							<a class='elevated' href="/admin/user">Users</a>
+						</li>
+					</ul>
+				</li>
+			<?php endif; ?>
+
 			<li ng-switch="currentUser.loggedIn" class="logout">
 				<a ng-switch-when="true" href="/users/logout">Logout</a>
 				<?php if ($allow_logins): ?>
