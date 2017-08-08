@@ -35,7 +35,7 @@
 			<li><a href="/my-widgets">My Widgets</a></li>
 			<li><a href="/help">Help</a></li>
 
-			<?php if (\RocketDuck\Perm_Manager::is_super_user()): ?>
+			<?php if ( !$me->is_guest() && \RocketDuck\Perm_Manager::is_super_user()): ?>
 				<li class="nav_expandable">
 					<span class='elevated'>Admin</span>
 					<ul>
