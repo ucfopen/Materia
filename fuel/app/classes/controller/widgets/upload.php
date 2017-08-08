@@ -6,7 +6,6 @@
 
 class Controller_Widgets_Upload extends Controller
 {
-
 	use Lib_CommonControllerTemplateTrait;
 
 	public function before()
@@ -77,8 +76,9 @@ class Controller_Widgets_Upload extends Controller
 			}
 		}
 
-		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
-		Response::redirect(Router::get('upload/widgets'));
+		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
+
+		Response::redirect(URI::create('admin/widget'));
 	}
 }
 
