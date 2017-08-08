@@ -18,16 +18,6 @@ const isProd = process.argv.indexOf('-p') != -1
 let copy = new CopyWebpackPlugin(
 	[
 		{
-			context: path.join(srcPath, 'css'),
-			from: '**/*',
-			to: path.join(pubPath, 'css')
-		},
-		{
-			context: path.join(srcPath, 'js'),
-			from: '**/*',
-			to: path.join(pubPath, 'js')
-		},
-		{
 			from: path.join(modulesPath, 'ngmodal', 'dist'),
 			to:  path.join(vendorPath, 'ngmodal')
 		},
@@ -54,7 +44,8 @@ let hash = new HashAssetsPlugin({
 	path: fuelConfigPath,
 })
 
-
+// build css & js directly into our public path
+materiaClientAssets.output.path = pubPath
 materiaClientAssets.plugins.push(copy)
 
 if(isProd){
