@@ -6,7 +6,7 @@
     "build": "webpack -p",
     "build-dev": "webpack",
     "watch": "webpack --watch",
-    "postinstall": "napa && npm run-script build"
+    "postinstall": "napa"
   },
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
