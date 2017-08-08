@@ -6,12 +6,12 @@
     "build": "webpack -p",
     "build-dev": "webpack",
     "watch": "webpack --watch",
-    "postinstall": "napa"
+    "postinstall": "napa && build"
   },
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
     "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-client-assets": "ucfcdl/materia-client-assets#d515f8c63171c75e542f23ab1d928bad4917381e",
+    "materia-client-assets": "ucfcdl/materia-client-assets#v0.1.15",
     "napa": "^3.0.0"
   },
   "napa": {

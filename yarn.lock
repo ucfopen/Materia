@@ -1948,9 +1948,9 @@ map-obj@^1.0.0, map-obj@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-1.0.1.tgz#d933ceb9205d82bdcf4886f6742bdc2b4dea146d"
 
-materia-client-assets@ucfcdl/materia-client-assets#d515f8c63171c75e542f23ab1d928bad4917381e:
-  version "0.1.15-alpha1"
-  resolved "git+ssh://git@github.com/ucfcdl/materia-client-assets.git#d515f8c63171c75e542f23ab1d928bad4917381e"
+materia-client-assets@ucfcdl/materia-client-assets#v0.1.15:
+  version "0.1.15"
+  resolved "git+ssh://git@github.com/ucfcdl/materia-client-assets.git#a0932d17d4b69ea62cd05526f1f78387f25a8b47"
   dependencies:
     coffee-loader "^0.7.3"
     coffee-script "^1.9.1"
