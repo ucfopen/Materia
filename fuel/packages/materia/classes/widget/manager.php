@@ -1,25 +1,4 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * The go between for the user and the Materia Package.
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
-
 namespace Materia;
 
 class Widget_Manager
@@ -99,7 +78,7 @@ class Widget_Manager
 
 	static public function update_widget($props)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$widget = new Widget();
 		$found = $widget->get($props->id);
