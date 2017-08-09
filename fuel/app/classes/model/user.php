@@ -241,7 +241,7 @@ class Model_User extends Orm\Model
 	 */
 	public static function get_played_inst_info($user_id)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$results = \DB::select(
 				\DB::expr('p.id AS play_id'),
@@ -280,7 +280,7 @@ class Model_User extends Orm\Model
 	//
 	public static function admin_update($user_id, $new_props)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$user = Model_User::find($user_id);
 		if (empty($user)) return ['user' => 'User not found!'];
@@ -331,7 +331,7 @@ class Model_User extends Orm\Model
 
 	public function set_property($prop, $new_val)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$original_val = $this->get_property($prop, $new_val);
 		if ($original_val == $new_val) return true;
