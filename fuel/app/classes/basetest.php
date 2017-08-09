@@ -38,7 +38,7 @@ class Basetest extends TestCase
 		$property->setValue($class, null);
 	}
 
-	protected function create_new_qset($question_text, $asnwer_text, $version=0)
+	protected function create_new_qset($question_text, $answer_text, $version=0)
 	{
 		$qset = (object) ['version' => '1', 'data' => null];
 
@@ -46,11 +46,11 @@ class Basetest extends TestCase
 		{
 			case 0:
 			default:
-				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwer_text.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
+				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$answer_text.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
 				break;
 
 			case 1:
-				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwer_text.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
+				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$answer_text.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
 				break;
 		}
 
