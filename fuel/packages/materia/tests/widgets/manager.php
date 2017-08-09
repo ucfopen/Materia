@@ -143,9 +143,25 @@ class Test_Widget_Manager extends \Basetest
 		$this->assertEquals($msg['demo'], 'Demo instance not found!');
 	}
 
-	public function test_get_all_widgets()
+	public function test_get_all_widgets_all()
 	{
-		$all_widgets = \Materia\Widget_Manager::get_all_widgets();
+		$this->markTestIncomplete();
+	}
+
+	public function test_get_all_widgets_featured()
+	{
+		$this->markTestIncomplete();
+	}
+
+
+	public function test_get_all_widgets_by_id()
+	{
+		$this->markTestIncomplete();
+	}
+
+	public function test_get_all_widgets_admin()
+	{
+		$all_widgets = \Materia\Widget_Manager::get_widgets(null, 'admin');
 		$widget_count = (int) \DB::count_records('widget');
 
 		$this->assertCount($widget_count, $all_widgets);
@@ -154,6 +170,8 @@ class Test_Widget_Manager extends \Basetest
 			$this->assertInstanceOf('\Materia\Widget', $value);
 		}
 
+		// Need a simple way to setup and teardown widgets so we can test widgets with in_catalog and is_playable
+		$this->markTestIncomplete();
 	}
 
 	protected function sample_widget_update_args()

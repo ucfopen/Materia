@@ -12,7 +12,7 @@ class Widget_Manager
 	 *
 	 * @return array The information and metadata about the widget or widgets called for.
 	 */
-	static public function get_widgets($widget_ids, $type=null)
+	static public function get_widgets($widget_ids=null, $type='featured')
 	{
 		$widgets = [];
 		// =============== Get the requested widgets =================
@@ -22,7 +22,6 @@ class Widget_Manager
 		{
 			$query = \DB::select('id')
 				->from('widget')
-				->where('is_playable', '1')
 				->order_by('name');
 
 			# $type provides optional selection filter for widgets:
@@ -31,12 +30,20 @@ class Widget_Manager
 			# $type could potentially be extended to other options later on
 			switch ($type)
 			{
-				case 'all':
-					// No additional parameters to add to query
+				case 'admin':
+					// return everything
 					break;
 
+				case 'all':
+				case 'playable':
+					$query->where('is_playable', '1');
+					break;
+
+				case 'featured':
+				case 'catalog':
 				default:
 					$query->where('in_catalog', '1');
+					$query->where('is_playable', '1');
 					break;
 			}
 
@@ -44,27 +51,6 @@ class Widget_Manager
 
 			$widget_ids = \Arr::flatten($result);
 		}
-
-		foreach ($widget_ids as $widget_id)
-		{
-			$widget = new Widget();
-			$widget->get($widget_id);
-			$widgets[] = $widget;
-		}
-
-		return $widgets;
-	}
-
-	static public function get_all_widgets()
-	{
-		$widgets = [];
-
-		$query = \DB::select('id')
-			->from('widget')
-			->order_by('name')
-			->execute();
-
-		$widget_ids = \Arr::flatten($query);
 
 		foreach ($widget_ids as $widget_id)
 		{
