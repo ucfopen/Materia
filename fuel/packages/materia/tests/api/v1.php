@@ -27,7 +27,7 @@ class Test_Api_V1 extends \Basetest
 
 		foreach ($output_one as $value)
 		{
-			$this->assertIsWidget($value);
+			$this->assert_is_widget($value);
 		}
 
 		// test get by id without being logged in
@@ -61,7 +61,7 @@ class Test_Api_V1 extends \Basetest
 
 		foreach ($output_one as $value)
 		{
-			$this->assertIsWidget($value);
+			$this->assert_is_widget($value);
 		}
 
 		// hide all, and test get all logged in and not logged in
@@ -97,33 +97,33 @@ class Test_Api_V1 extends \Basetest
 		$this->assertCount(0, $output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::widget_instances_get();
 		$this->assertInternalType('array', $output);
 		$this->assertFalse(array_key_exists('msg', $output));
 		foreach ($output as $key => $value)
 		{
-			$this->assertIsWidgetInstance($value, true);
+			$this->assert_is_widget_instance($value, true);
 		}
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::widget_instances_get();
 		$this->assertInternalType('array', $output);
 		$this->assertFalse(array_key_exists('msg', $output));
 		foreach ($output as $key => $value)
 		{
-			$this->assertIsWidgetInstance($value, true);
+			$this->assert_is_widget_instance($value, true);
 		}
 
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::widget_instances_get();
 		$this->assertInternalType('array', $output);
 		$this->assertFalse(array_key_exists('msg', $output));
 		foreach ($output as $key => $value)
 		{
-			$this->assertIsWidgetInstance($value, true);
+			$this->assert_is_widget_instance($value, true);
 		}
 
 		// TODO: widgetInstances should return an object instead of an stdObject
@@ -134,10 +134,10 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::widget_instance_new();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// // ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 
 		// NEW DRAFT
 		$title = "My Test Widget";
@@ -147,7 +147,7 @@ class Test_Api_V1 extends \Basetest
 		$qset = $this->create_new_qset($question, $answer);
 
 		$output = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
-		$this->assertIsWidgetInstance($output);
+		$this->assert_is_widget_instance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
 		$this->assertCount(1, $output->qset->data['items'][0]['items']);
@@ -157,7 +157,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals(100, $output->qset->data['items'][0]['items'][0]['answers'][0]['value']);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 
 		// NEW DRAFT
 		$title = "My Test Widget";
@@ -167,7 +167,7 @@ class Test_Api_V1 extends \Basetest
 		$qset = $this->create_new_qset($question, $answer);
 
 		$output = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
-		$this->assertIsWidgetInstance($output);
+		$this->assert_is_widget_instance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
 		$this->assertCount(1, $output->qset->data['items'][0]['items']);
@@ -185,10 +185,10 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::widget_instance_update();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// // ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 
 		// NEW DRAFT
 		$title = "My Test Widget";
@@ -209,7 +209,7 @@ class Test_Api_V1 extends \Basetest
 		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
 
 		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, true);
-		$this->assertIsWidgetInstance($output);
+		$this->assert_is_widget_instance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
 		$this->assertCount(1, $output->qset->data['items'][0]['items']);
@@ -228,7 +228,7 @@ class Test_Api_V1 extends \Basetest
 		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
 
 		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, false);
-		$this->assertIsWidgetInstance($output);
+		$this->assert_is_widget_instance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
 		$this->assertCount(1, $output->qset->data['items'][0]['items']);
@@ -241,7 +241,7 @@ class Test_Api_V1 extends \Basetest
 		\Materia\Api_V1::widget_instance_delete($output->id);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 
 		// NEW DRAFT
 		$title = "My Test Widget";
@@ -262,7 +262,7 @@ class Test_Api_V1 extends \Basetest
 		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
 
 		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, true);
-		$this->assertIsWidgetInstance($output);
+		$this->assert_is_widget_instance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
 		$this->assertCount(1, $output->qset->data['items'][0]['items']);
@@ -281,7 +281,7 @@ class Test_Api_V1 extends \Basetest
 		$qset->data['items'][0]['items'][0]['answers'][0]['text'] = $answer;
 
 		$output = \Materia\Api_V1::widget_instance_update($output->id, $title, $qset, false);
-		$this->assertIsWidgetInstance($output);
+		$this->assert_is_widget_instance($output);
 		$this->assertEquals($title, $output->name);
 		$this->assertCount(1, $output->qset->data['items']);
 		$this->assertCount(1, $output->qset->data['items'][0]['items']);
@@ -303,10 +303,10 @@ class Test_Api_V1 extends \Basetest
 		\Config::set('materia.lock_timeout', 2); // set the timeout to 5 seconds
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::widget_instance_lock(10);
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$qset = $this->create_new_qset('question', 'answer');
 		$output = \Materia\Api_V1::widget_instance_new(1, 'delete', $qset, true);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
@@ -320,7 +320,7 @@ class Test_Api_V1 extends \Basetest
 		\Materia\Api_V1::widget_instance_delete($inst_id);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$qset = $this->create_new_qset('question', 'answer');
 		$output = \Materia\Api_V1::widget_instance_new(1, 'delete', $qset, true);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
@@ -331,7 +331,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output); // i own the lock, good to go
 
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::widget_instance_lock($inst_id);
 		$this->assertFalse($output); // i dont own the lock, denied
 		sleep(3);
@@ -351,10 +351,10 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::widget_instance_copy(10, 'new Instance');
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$qset = $this->create_new_qset('question', 'answer');
 		$output = \Materia\Api_V1::widget_instance_new(1, 'delete', $qset, true);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
@@ -362,10 +362,10 @@ class Test_Api_V1 extends \Basetest
 
 
 		$output = \Materia\Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
-		$this->assertIsValidID($output);
+		$this->assert_is_valid_id($output);
 
 		$insts = \Materia\Api_V1::widget_instances_get($output);
-		$this->assertIsWidgetInstance($insts[0], true);
+		$this->assert_is_widget_instance($insts[0], true);
 		$this->assertEquals('Copied Widget', $insts[0]->name);
 		$this->assertEquals(true, $insts[0]->is_draft);
 
@@ -374,7 +374,7 @@ class Test_Api_V1 extends \Basetest
 		\Materia\Api_V1::widget_instance_delete($inst_id);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$qset = $this->create_new_qset('question', 'answer');
 		$output = \Materia\Api_V1::widget_instance_new(1, 'delete', $qset, true);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $output);
@@ -382,15 +382,15 @@ class Test_Api_V1 extends \Basetest
 
 
 		$output = \Materia\Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
-		$this->assertIsValidID($output);
+		$this->assert_is_valid_id($output);
 
 		$insts = \Materia\Api_V1::widget_instances_get($output);
-		$this->assertIsWidgetInstance($insts[0], true);
+		$this->assert_is_widget_instance($insts[0], true);
 		$this->assertEquals('Copied Widget', $insts[0]->name);
 		$this->assertEquals(true, $insts[0]->is_draft);
 
 		// // ======= SU ========
-		// $this->_asSu();
+		// $this->_as_super_user();
 
 		\Materia\Api_V1::widget_instance_delete($insts[0]->id);
 		\Materia\Api_V1::widget_instance_delete($inst_id);
@@ -402,7 +402,7 @@ class Test_Api_V1 extends \Basetest
 		$output = \Materia\Api_V1::widget_instance_delete(10);
 
 		// not logged in, should get error message
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 	}
 
 	public function test_session_play_create()
@@ -416,7 +416,7 @@ class Test_Api_V1 extends \Basetest
 		}
 
 		// ============ PLAY A DRAFT ============
-		$this->_asAuthor();
+		$this->_as_author();
 
 		$title = "My Test Widget";
 		$question = 'This is another word for test';
@@ -442,12 +442,12 @@ class Test_Api_V1 extends \Basetest
 		$qset = $this->create_new_qset($question, $answer);
 
 		$saveOutput = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
-		$this->assertIsWidgetInstance($saveOutput);
+		$this->assert_is_widget_instance($saveOutput);
 		$qset = $saveOutput->qset;
 
 		//add attempt limit
 		$saveOutput = \Materia\Api_V1::widget_instance_update($saveOutput->id, null, null, false, null, null, 1);
-		$this->assertIsWidgetInstance($saveOutput);
+		$this->assert_is_widget_instance($saveOutput);
 
 		$logs = [
 			[
@@ -515,9 +515,9 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_session_login()
 	{
-		$this->_asStudent();
-		$this->_asAuthor();
-		$this->_asSu();
+		$this->_as_student();
+		$this->_as_author();
+		$this->_as_super_user();
 
 		\Auth::logout();
 		$this->assertFalse(\Auth::check());
@@ -539,8 +539,8 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_session_login_logout_login()
 	{
-		$this->_asAuthor();
-		$this->_asSu();
+		$this->_as_author();
+		$this->_as_super_user();
 
 		\Auth::logout();
 
@@ -561,7 +561,7 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::assets_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 	}
 
@@ -581,14 +581,14 @@ class Test_Api_V1 extends \Basetest
 		$this->assertFalse($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertTrue($output);
 		$output = \Materia\Api_V1::session_author_verify('basic_author');
 		$this->assertFalse($output);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertTrue($output);
 		$output = \Materia\Api_V1::session_author_verify('basic_author');
@@ -597,7 +597,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertFalse($output);
 
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::session_author_verify();
 		$this->assertTrue($output);
 		$output = \Materia\Api_V1::session_author_verify('basic_author');
@@ -610,18 +610,18 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::play_activity_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::play_activity_get();
 		$this->assertInternalType('array', $output);
 		$this->assertArrayHasKey('activity', $output);
 		$this->assertArrayHasKey('more', $output);
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 	}
 
 	public function test_play_logs_save()
@@ -680,7 +680,7 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::play_logs_get(555);
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 	}
 
@@ -723,25 +723,25 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::questions_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::questions_get();
-		$this->assertNotMessage($output);
+		$this->assert_not_message($output);
 		$this->assertInternalType('array', $output);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::questions_get();
-		$this->assertNotMessage($output);
+		$this->assert_not_message($output);
 		$this->assertInternalType('array', $output);
 
 
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::questions_get();
-		$this->assertNotMessage($output);
+		$this->assert_not_message($output);
 		$this->assertInternalType('array', $output);
 		$this->assertCount(0, $output);
 	}
@@ -762,7 +762,7 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::play_storage_data_get(555);
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 	}
 
@@ -773,7 +773,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertGreaterThan(0, count($output));
 		foreach ($output as $semester)
 		{
-			$this->assertIsSemesterRage($semester);
+			$this->assert_is_semester_rage($semester);
 		}
 	}
 
@@ -781,22 +781,22 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::user_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUserArray($output);
+		$this->assert_is_user_array($output);
 		$this->assertEquals('~student', $output['username']);
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUserArray($output);
+		$this->assert_is_user_array($output);
 		$this->assertEquals('~author', $output['username']);
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUserArray($output);
+		$this->assert_is_user_array($output);
 		$this->assertEquals('~testSu', $output['username']);
 	}
 
@@ -804,16 +804,16 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::user_update_meta(array('test' => 'value'));
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$student = $this->_asStudent();
+		$student = $this->_as_student();
 		$output = \Materia\Api_V1::user_update_meta(array('test' => 'value'));
 		$this->assertTrue($output);
 
 		// test that the metadata exists
 		$output = \Materia\Api_V1::user_get();
-		$this->assertIsUserArray($output);
+		$this->assert_is_user_array($output);
 		$this->assertArrayHasKey('test', $output['profile_fields']);
 		$this->assertEquals('value', $output['profile_fields']['test']);
 
@@ -822,20 +822,20 @@ class Test_Api_V1 extends \Basetest
 	public function test_permissions_set()
 	{
 		// make sure that the users exist
-		$this->_asStudent();
-		$this->_asAuthor2();
-		$this->_asAuthor3();
+		$this->_as_student();
+		$this->_as_author_2();
+		$this->_as_author_3();
 		\Auth::logout();
 
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::permissions_set(0, 0, '', array(), false, 0, false);
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
-		$this->_asAuthor2();
-		$this->_asAuthor3();
+		$this->_as_author_2();
+		$this->_as_author_3();
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$widget = \Materia\Api_V1::widget_instance_new(1, 'test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
@@ -860,18 +860,18 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output);
 
 		// author2 removes author3 FULL and adds VIEW
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$accessObj->user_id = $author3->id;
 		$accessObj->perms = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
 		$output           = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
 		$this->assertTrue($output);
 
 		// author3 removes author2 FULL and adds VIEW
-		$this->_asAuthor3();
+		$this->_as_author_3();
 		$accessObj->user_id = $author2->id;
 		$accessObj->perms   = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
 		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
-		$this->assertPermissionDeniedMessage($output);
+		$this->assert_permission_denied_message($output);
 
 		// author3 removes own visible rights
 		$accessObj->user_id = $author3->id;
@@ -881,10 +881,10 @@ class Test_Api_V1 extends \Basetest
 
 		// author3 removes own VIEW right
 		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
-		$this->assertPermissionDeniedMessage($output);
+		$this->assert_permission_denied_message($output);
 
 		// author2 removes studentAuthor FULL adds VIEW
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$accessObj->user_id = $studentAuthor->id;
 		$accessObj->perms   = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
 		$output = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
@@ -892,7 +892,7 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= AUTHOR ========
 		//make a new widget to use with remaining tests
-		$this->_asAuthor();
+		$this->_as_author();
 		$widget = \Materia\Api_V1::widget_instance_new(1, 'test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
@@ -917,18 +917,18 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output);
 
 		// author2 removes author3 FULL and adds VIEW
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$accessObj->user_id = $author3->id;
 		$accessObj->perms = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
 		$output           = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
 		$this->assertTrue($output);
 
 		// author3 removes author2 FULL and adds VIEW
-		$this->_asAuthor3();
+		$this->_as_author_3();
 		$accessObj->user_id = $author2->id;
 		$accessObj->perms   = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
 		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
-		$this->assertPermissionDeniedMessage($output);
+		$this->assert_permission_denied_message($output);
 
 		// author3 removes own visible rights
 		$accessObj->user_id = $author3->id;
@@ -938,10 +938,10 @@ class Test_Api_V1 extends \Basetest
 
 		// author3 removes own VIEW right
 		$output             = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
-		$this->assertPermissionDeniedMessage($output);
+		$this->assert_permission_denied_message($output);
 
 		// author2 removes author1 FULL adds VIEW
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$accessObj->user_id = $author->id;
 		$accessObj->perms   = [\Materia\Perm::FULL => false, \Materia\Perm::VISIBLE => true];
 		$output = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, [$accessObj]);
@@ -952,20 +952,20 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::permissions_get(5,5);
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 	}
 
 	public function test_notifications_get()
 	{
 		// send a notification from author2 to author
 
-		$author  = $this->_asAuthor();
-		$author2 = $this->_asAuthor2();
+		$author  = $this->_as_author();
+		$author2 = $this->_as_author_2();
 
 		$accessObj = new stdClass();
 
 		//make a new widget to then create item notifications
-		$this->_asAuthor();
+		$this->_as_author();
 		$widget = \Materia\Api_V1::widget_instance_new(1, 'notification_test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
@@ -977,7 +977,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output);
 
 		//make another widget to then create item notifications
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$widget2 = \Materia\Api_V1::widget_instance_new(1, 'notification_test2', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget2);
 
@@ -998,29 +998,29 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::notifications_get();
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::notifications_get();
 		$this->assertInternalType('array', $output);
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::notifications_get();
 		$this->assertInternalType('array', $output);
 		// Assert author received a notification from author2 about widget2
-		$this->assertNotificationExists($output, $author2->id, $author->id, $widget2->id);
+		$this->assert_notification_exists($output, $author2->id, $author->id, $widget2->id);
 
 		// ======= AUTHOR2 ========
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$output = \Materia\Api_V1::notifications_get();
 		$this->assertInternalType('array', $output);
 		// Assert author2 received a notification from author about widget
-		$this->assertNotificationExists($output, $author->id, $author2->id, $widget->id);
+		$this->assert_notification_exists($output, $author->id, $author2->id, $widget->id);
 
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::notifications_get();
 		$this->assertInternalType('array', $output);
 	}
@@ -1029,20 +1029,20 @@ class Test_Api_V1 extends \Basetest
 
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::notification_delete(5);
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::notification_delete(5);
 		$this->assertFalse($output);
 
-		$author = $this->_asAuthor();
+		$author = $this->_as_author();
 		$notifications = \Materia\Api_V1::notifications_get();
 		$this->assertInternalType('array', $notifications);
 		$start_count = count($notifications);
 
 		// ======= Create a widget and share it with author1
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$widget = \Materia\Api_V1::widget_instance_new(1, 'notification_test', new stdClass(), false);
 		$this->assertInstanceOf('\Materia\Widget_Instance', $widget);
 
@@ -1054,20 +1054,20 @@ class Test_Api_V1 extends \Basetest
 		$output                = \Materia\Api_V1::permissions_set(\Materia\Perm::INSTANCE, $widget->id, array($accessObj));
 		$this->assertTrue($output);
 
-		$this->_asAuthor();
+		$this->_as_author();
 		$notifications = \Materia\Api_V1::notifications_get();
 		$this->assertEquals($start_count + 1, count($notifications));
 
 		// try as someone author2
-		$this->_asAuthor2();
+		$this->_as_author_2();
 		$output = \Materia\Api_V1::notification_delete($notifications[0]['id']);
 		$this->assertFalse($output);
 
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::notification_delete($notifications[0]['id']);
 		$this->assertTrue($output);
 
-		$this->_asAuthor();
+		$this->_as_author();
 		$notifications = \Materia\Api_V1::notifications_get();
 		$this->assertEquals($start_count, count($notifications));
 
@@ -1081,31 +1081,31 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_users_search()
 	{
-		$this->_asAuthor();
-		$this->_asAuthor2();
-		$this->_asAuthor3();
-		$this->_asStudent();
+		$this->_as_author();
+		$this->_as_author_2();
+		$this->_as_author_3();
+		$this->_as_student();
 		\Auth::logout();
 
 		// ======= AS NO ONE ========
 		$output = \Materia\Api_V1::users_search('test');
-		$this->assertInvalidLoginMessage($output);
+		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
-		$this->_asStudent();
+		$this->_as_student();
 		$output = \Materia\Api_V1::users_search('~test');
 		$this->assertInternalType('array', $output);
 		$this->assertCount(2, $output);
-		$this->assertIsUserArray($output[0]);
+		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output));
 		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		// ======= AUTHOR ========
-		$this->_asAuthor();
+		$this->_as_author();
 		$output = \Materia\Api_V1::users_search('~testAuthor2');
 		$this->assertInternalType('array', $output);
 		$this->assertCount(1, $output);
-		$this->assertIsUserArray($output[0]);
+		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output));
 		$this->assertFalse(array_key_exists('login_hash', $output));
 
@@ -1116,12 +1116,54 @@ class Test_Api_V1 extends \Basetest
 		$this->assertFalse(array_key_exists('login_hash', $output));
 
 		// ======= SU ========
-		$this->_asSu();
+		$this->_as_super_user();
 		$output = \Materia\Api_V1::users_search('~');
 		$this->assertInternalType('array', $output);
 		$this->assertCount(4, $output);
-		$this->assertIsUserArray($output[0]);
+		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output[0]));
 		$this->assertFalse(array_key_exists('login_hash', $output[0]));
+	}
+
+	protected function assert_is_semester_rage($semester)
+	{
+		$this->assertArrayHasKey('year', $semester);
+		$this->assertGreaterThan(0, $semester['year']);
+		$this->assertArrayHasKey('semester', $semester);
+		$this->assertContains($semester['semester'], array('Spring', 'Summer', 'Fall') );
+		$this->assertArrayHasKey('start', $semester);
+		$this->assertGreaterThan(0, $semester['start']);
+		$this->assertArrayHasKey('end', $semester);
+		$this->assertGreaterThan(0, $semester['end']);
+	}
+
+	protected function assert_notification_exists($notification_array, $from_id, $to_id, $widget_id)
+	{
+		foreach ($notification_array as $notification)
+		{
+			if ($notification['from_id'] == $from_id && $notification['to_id'] == $to_id && $notification['item_id'] == $widget_id)
+			{
+				return true;
+			}
+		}
+
+		$this->fail('Notification was not found.');
+	}
+
+	protected function assert_not_message($result)
+	{
+		$this->assertFalse($result instanceof \RocketDuck\Msg);
+	}
+
+	protected function assert_invalid_login_message($msg)
+	{
+		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
+		$this->assertEquals('Invalid Login', $msg->title);
+	}
+
+	protected function assert_permission_denied_message($msg)
+	{
+		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
+		$this->assertEquals('Permission Denied', $msg->title);
 	}
 }
