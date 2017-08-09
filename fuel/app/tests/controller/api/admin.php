@@ -7,10 +7,11 @@
  */
 class Test_Controller_Api_Admin extends \Basetest
 {
+
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_asSu();
+		$this->_as_super_user();
 	}
 
 	public function test_get_widgets()
@@ -197,7 +198,7 @@ class Test_Controller_Api_Admin extends \Basetest
 	{
 		// a widget instance needs to be made and/or played by a user in order to test this at all
 		// start with an author
-		$author = $this->_asAuthor3();
+		$author = $this->_as_author_3();
 
 		// create a new published widget instance
 		$qset = $this->create_new_qset('Question', 'Answer');
@@ -225,7 +226,7 @@ class Test_Controller_Api_Admin extends \Basetest
 		$score = \Materia\Api_V1::play_logs_save($play_output, $logs);
 
 		// log in as a super user to pass the safeguards
-		$this->_asSu();
+		$this->_as_super_user();
 
 		$instances_available = \Materia\Widget_Instance_Manager::get_all_for_user($author->id);
 		$instances_played    = \Model_User::get_played_inst_info($author->id);
@@ -245,24 +246,33 @@ class Test_Controller_Api_Admin extends \Basetest
 
 	public function test_post_user()
 	{
-		// test the most recent user
-		$id = \Model_User::count() - 1;
-		$original = \Model_User::find($id);
-		$original = $original->to_array();
+		$user = $this->make_random_student();
 
+		// build some options to update him
 		$data = new stdClass();
 		$data->email = 'updated@tar.get';
 		$data->is_student = true;
 		$data->notify = false;
 		$data->useGravatar = false;
 
-		\Model_User::admin_update($id, $data);
+		// update him
+		\Model_User::admin_update($user->id, $data);
 
-		$changed = \Model_User::find($id);
-		$changed = $changed->to_array();
-		$this->assertNotEquals($original['email'], $changed['email']);
-		$this->assertNotEquals($original['profile_fields']['notify'], $changed['profile_fields']['notify']);
-		$this->assertNotEquals($original['profile_fields']['useGravatar'], $changed['profile_fields']['useGravatar']);
-		$this->assertTrue($changed['is_student']);
+		// make sure the variables were set
+		$this->assertEquals($data->email, $user->email);
+		$this->assertFalse($user->profile_fields['useGravatar']);
+		$this->assertFalse($user->profile_fields['notify']);
+		$this->assertFalse($user->profile_fields['notify']);
+		$this->assertFalse($user->profile_fields['useGravatar']);
+		$this->assertTrue(\Materia\Perm_Manager::is_student($user->id));
+
+
+		// make sure the model was saved
+		// we have to run the observers manually because I think
+		// fuelphp doesn't handle changed state properly
+		// with a serialize observer
+		$user->observe('before_save');
+		$this->assertFalse($user->is_changed());
+		$user->observe('after_save');
 	}
 }

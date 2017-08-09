@@ -276,6 +276,8 @@ class Model_User extends Orm\Model
 		return $return;
 	}
 
+	// Updates a user's properties
+	//
 	public static function admin_update($user_id, $new_props)
 	{
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
@@ -319,9 +321,12 @@ class Model_User extends Orm\Model
 
 	public function get_property($prop)
 	{
-		// check to see if the given property is attached directly to the parent
+		// check to see if the given property is attached directly to the object
+		if (isset($this->$prop)) return $this->$prop;
 		// if not, it's probably in profile fields
-		return isset($this->$prop) ? $this->$prop : $this->profile_fields[$prop];
+		if (isset($this->profile_fields[$prop])) return $this->profile_fields[$prop];
+
+		return null;
 	}
 
 	public function set_property($prop, $new_val)
@@ -330,32 +335,27 @@ class Model_User extends Orm\Model
 
 		$original_val = $this->get_property($prop, $new_val);
 		if ($original_val == $new_val) return true;
-		try
+		if (isset($this->$prop))
 		{
-			if (isset($this->$prop))
-			{
-				$this->$prop = $new_val;
-			}
-			else
-			{
-				$this->profile_fields[$prop] = $new_val;
-			}
-			$this->save();
+			$this->$prop = $new_val;
+		}
+		else
+		{
+			$this->profile_fields[$prop] = $new_val;
+		}
 
-			$activity = new \Materia\Session_Activity([
-				'user_id' => \Model_User::find_current_id(),
-				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
-				'item_id' => $this->id,
-				'value_1' => $prop,
-				'value_2' => $original_val,
-				'value_3' => $new_val,
-			]);
-			$activity->db_store();
-		}
-		catch (Exception $e)
-		{
-			return false;
-		}
+		$this->save();
+
+		$activity = new \Materia\Session_Activity([
+			'user_id' => \Model_User::find_current_id(),
+			'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
+			'item_id' => $this->id,
+			'value_1' => $prop,
+			'value_2' => $original_val,
+			'value_3' => $new_val,
+		]);
+		$activity->db_store();
+
 		return true;
 	}
 }
