@@ -9,7 +9,8 @@ class Test_Materiaauth extends \Basetest
 {
 	public function test_creating_a_user_with_everything()
 	{
-		$values = $this->user_values('Test', 'McTest');
+
+		$values = $this->make_user_values('Test', 'McTest');
 		$users_count = \Model_User::count();
 
 		$new_user_id = \Auth::instance()->create_user(
@@ -28,6 +29,9 @@ class Test_Materiaauth extends \Basetest
 
 		//confirm the new user's information matches what we said it should be
 		$new_user_lookup = \Model_User::find($new_user_id);
+		// clean this guy up
+		$this->users_to_clean[] = $new_user_lookup;
+
 		$confirm_properties = ['username','email','first','last'];
 		foreach($confirm_properties as $prop)
 		{
@@ -42,7 +46,7 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_creating_a_user_without_password_strict()
 	{
-		$values = $this->user_values('Test2', 'McTest2');
+		$values = $this->make_user_values('Test2', 'McTest2');
 		$new_user_id = \Auth::instance()->create_user(
 			$values['username'],
 			null,
@@ -61,7 +65,7 @@ class Test_Materiaauth extends \Basetest
 	//don't require password - should succeed
 	public function test_creating_a_user_without_password_relaxed()
 	{
-		$values = $this->user_values('Test2', 'McTest2');
+		$values = $this->make_user_values('Test2', 'McTest2');
 		$users_count = \Model_User::count();
 
 		$new_user_id = \Auth::instance()->create_user(
@@ -78,6 +82,8 @@ class Test_Materiaauth extends \Basetest
 		$this->assertEquals(\Model_User::count(), $users_count + 1);
 
 		$new_user_lookup = \Model_User::find($new_user_id);
+		// clean this guy up
+		$this->users_to_clean[] = $new_user_lookup;
 		$confirm_properties = ['username','email','first','last'];
 		foreach($confirm_properties as $prop)
 		{
@@ -91,7 +97,7 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_creating_a_user_without_username()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
+		$values = $this->make_user_values('Test3', 'McTest3');
 
 		$new_user_id = \Auth::instance()->create_user(
 			null,
@@ -113,7 +119,7 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_creating_a_user_without_email_strict()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
+		$values = $this->make_user_values('Test3', 'McTest3');
 
 		$new_user_id = \Auth::instance()->create_user(
 			$values['username'],
@@ -132,7 +138,7 @@ class Test_Materiaauth extends \Basetest
 
 	public function test_creating_a_user_without_email_relaxed()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
+		$values = $this->make_user_values('Test3', 'McTest3');
 		$users_count = \Model_User::count();
 
 		$new_user_id = \Auth::instance()->create_user(
@@ -153,6 +159,8 @@ class Test_Materiaauth extends \Basetest
 		$values['email'] = false;
 
 		$new_user_lookup = \Model_User::find($new_user_id);
+		// clean this guy up
+		$this->users_to_clean[] = $new_user_lookup;
 		$confirm_properties = ['username','email','first','last'];
 		foreach($confirm_properties as $prop)
 		{
@@ -164,36 +172,34 @@ class Test_Materiaauth extends \Basetest
 	public function test_promoting_user()
 	{
 		//confirm that the last user we created is not an author
-		// $last_user_id = \Model_User::count();
-		$last_user_id = $this->get_last_user_id();
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), false);
+		$user = $this->make_random_student();
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id), false);
 
 		//promote the last user we created to an author
 		$auth = \Auth::instance();
-		$r = $auth::update_role($last_user_id, true);
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), true);
+		$r = $auth::update_role($user->id, true);
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id), true);
 	}
 
 	public function test_demoting_user()
 	{
 		//confirm that the last user we created is not an author
-		// $last_user_id = \Model_User::count();
-		$last_user_id = $this->get_last_user_id();
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), true);
+		$user = $this->make_random_author();
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id), true);
 
 		//demote the last user we created back to a student
 		$auth = \Auth::instance();
-		$r = $auth::update_role($last_user_id, false);
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $last_user_id), false);
+		$r = $auth::update_role($user->id, false);
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id), false);
 	}
 
 	//make sure session variables are unset when logging out
 	public function test_logout()
 	{
+		$user = $this->make_random_student();
 		//log in first
-		$last_user = \Model_User::find(\Model_User::count());
-		\Auth::force_login($last_user->id);
-		$this->assertEquals(\Session::get('username'), $last_user->username);
+		\Auth::force_login($user->id);
+		$this->assertEquals(\Session::get('username'), $user->username);
 
 		\Auth::logout();
 		$this->assertEquals(\Session::get('username'), null);
@@ -206,7 +212,7 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_update_no_user_without_username()
 	{
-		$values = $this->user_values('Test4', 'McTest4');
+		$values = $this->make_user_values('Test4', 'McTest4');
 		\Auth::update_user($values);
 
 		return false;
@@ -219,7 +225,7 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_update_no_user_with_username()
 	{
-		$values = $this->user_values('Test4', 'McTest4');
+		$values = $this->make_user_values('Test4', 'McTest4');
 		\Auth::update_user($values, 'user_Test4_McTest4');
 
 		return false;
@@ -232,10 +238,11 @@ class Test_Materiaauth extends \Basetest
 	 */
 	public function test_can_not_update_username()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
-		$last_user = \Model_User::find(\Model_User::count());
-		\Auth::force_login($last_user->id);
-		\Auth::update_user($values);
+		$user = $this->make_random_student();
+		$new_values = $this->make_user_values('Test3', 'McTest3');
+
+		\Auth::force_login($user->id);
+		\Auth::update_user($new_values);
 
 		return false;
 	}
@@ -243,63 +250,38 @@ class Test_Materiaauth extends \Basetest
 	//if the update_user method is called without a second argument, the current user should be modified
 	public function test_update_current_user()
 	{
-		$values = $this->user_values('Test3', 'McTest3');
+		$user = $this->make_random_student();
+		$new_values = $this->make_user_values('Test3', 'McTest3');
 		//username can't be changed
-		unset($values['username']);
+		unset($new_values['username']);
 
-		$last_user = \Model_User::find(\Model_User::count());
-		\Auth::force_login($last_user->id);
-		\Auth::update_user($values);
+		\Auth::force_login($user->id);
+		\Auth::update_user($new_values);
 
-		$confirm_user = \Model_User::find(\Model_User::count());
 		$confirm_properties = ['email','first','last'];
 		foreach($confirm_properties as $prop)
 		{
-			$this->assertEquals($confirm_user[$prop], $values[$prop]);
+			$this->assertEquals($user->$prop, $new_values[$prop]);
 		}
-
-		\Auth::logout();
 	}
 
 	public function test_update_specific_user()
 	{
-		$values = $this->user_values('Test5', 'McTest5');
-		$new_user_id = \Auth::instance()->create_user(
-			$values['username'],
-			$values['password'],
-			$values['email'],
-			1,
-			$values['profile_fields'],
-			$values['first'],
-			$values['last'],
-			false
-		);
-
-		$values = $this->user_values('Test4', 'McTest4');
+		$user = $this->make_random_student();
+		$values = $this->make_user_values('Test5', 'McTest5');
 		//username can't be changed
 		unset($values['username']);
 
-		$specific_user = \Model_User::find($new_user_id);
-		\Auth::update_user($values, $specific_user->username);
+		\Auth::update_user($values, $user->username);
 
-		$confirm_user = \Model_User::find($new_user_id);
 		$confirm_properties = ['email','first','last'];
 		foreach($confirm_properties as $prop)
 		{
-			$this->assertEquals($confirm_user[$prop], $values[$prop]);
+			$this->assertEquals($user->$prop, $values[$prop]);
 		}
 	}
 
-	protected function get_last_user_id()
-	{
-		return \DB::select('id')
-			->from(\Model_User::table())
-			->limit(1)
-			->order_by('id', 'desc')
-			->execute()[0]['id'];
-	}
-
-	protected function user_values($f, $l)
+	protected function make_user_values($f, $l)
 	{
 		return [
 			'username'       => 'user_'.$f.'_'.$l,
