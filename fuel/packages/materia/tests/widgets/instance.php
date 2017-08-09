@@ -45,4 +45,22 @@ class Test_Widget_Instance extends \Basetest
 
 		self::assertTrue($x);
 	}
+
+	public function test_duplicate_creates_new_id()
+	{
+		// keep track of the original widget settings to confirm changes
+		$widget = new \Materia\Widget();
+		$widget->get(1);
+		$inst_id = $widget->meta_data['demo'];
+
+		// get the original demo widget and duplicate it to test setting a new demo
+		$inst = new \Materia\Widget_Instance();
+		$inst->db_get($widget->meta_data['demo'], false);
+		$duplicate = $inst->duplicate();
+
+		// make sure the new instance is different from the current demo
+		$this->assertNotEquals($inst_id, $duplicate->id);
+	}
+
+
 }
