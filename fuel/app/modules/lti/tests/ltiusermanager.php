@@ -39,7 +39,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+			$user = $this->make_random_student();
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$_POST['roles'] = 'Learner';
 			$launch->email = 'gocu1@test.test';
@@ -62,7 +62,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+			$user = $this->make_random_student();
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Instructor']);
 			$launch->email = 'gocu1@test.test';
 
@@ -81,7 +81,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+			$user = $this->make_random_student();
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Instructor']);
 			$launch->email = 'gocu1@test.test';
 
@@ -100,7 +100,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last', true);
+			$user = $this->make_random_author();
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$launch->email = 'gocu1@test.test';
 
@@ -118,7 +118,7 @@ class Test_LtiUserManager extends \Test_Basetest
 		{
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last', true);
+			$user = $this->make_random_author();
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$launch->email = 'gocu1@test.test';
 
@@ -227,14 +227,15 @@ class Test_LtiUserManager extends \Test_Basetest
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu3@test.test', '', 'Last');
+			$user = $this->make_random_student();
+			$expected_first = $user->first;
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$launch->email = 'gocu3@test.test';
 			$launch->first = 'First2';
 
 			\Lti\LtiUserManager::authenticate($launch);
 			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
-			$this->assertSame('', $user->first);
+			$this->assertSame($expected_first, $user->first);
 		};
 
 		$authenticate_not_updating_user_info(false, false);
@@ -249,7 +250,10 @@ class Test_LtiUserManager extends \Test_Basetest
 			\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
 			\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
 
-			$user = $this->create_materia_user($this->get_uniq_string(), 'gocu3@test.test', '', 'Last');
+			$user = $this->make_random_student();
+			$user->set('first', ''); // first must be empty to get updated
+			$user->save();
+
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$launch->email = 'gocu3@test.test';
 			$launch->first = 'First2';
