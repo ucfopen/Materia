@@ -16,7 +16,7 @@
   },
   "napa": {
     "fancybox": "fancyapps/fancybox#v2.1.6",
-    "ngmodal": "adamalbrecht/ngModal#v1.2.0",
+    "ngmodal": "adamalbrecht/ngModal#1.2.2",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
     "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
   },
