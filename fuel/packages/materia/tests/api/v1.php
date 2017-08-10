@@ -189,6 +189,7 @@ class Test_Api_V1 extends \Basetest
 	public function test_widget_instance_update()
 	{
 		// only here to appease the api coverage
+		self::assertTrue(true);
 	}
 
 	public function test_widget_instance_update_requires_login()
@@ -440,6 +441,7 @@ class Test_Api_V1 extends \Basetest
 	public function test_widget_instance_save()
 	{
 		// nothing to do, this function is an alias of widget_instance_new
+		self::assertTrue(true);
 	}
 
 	public function test_widget_instance_copy()
@@ -1193,6 +1195,7 @@ class Test_Api_V1 extends \Basetest
 	public function test_users_search()
 	{
 		// placeholder
+		self::assertTrue(true);
 	}
 
 	public function test_users_search_as_guest()
