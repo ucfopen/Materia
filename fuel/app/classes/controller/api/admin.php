@@ -12,7 +12,8 @@ class Controller_Api_Admin extends Controller_Rest
 
 	public function before()
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		$this->no_cache();
 		parent::before();
 	}
 
@@ -27,7 +28,7 @@ class Controller_Api_Admin extends Controller_Rest
 
 	public function get_widgets()
 	{
-		return \Materia\Widget_Manager::get_all_widgets();
+		return \Materia\Widget_Manager::get_widgets(null, 'admin');
 	}
 
 	public function post_widget()

@@ -244,7 +244,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_save_widget_association()
 	{
-		$this->_asAuthor();
+		$this->_as_author();
 
 		$resource_link = 'test-resource-C-'.$this->get_uniq_string();
 
@@ -255,7 +255,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// create an instance
 		$qset = $this->create_new_qset('question', 'answer');
 		$widget_instance = \Materia\Api_V1::widget_instance_new(1, 'test-instance-3', $qset, false);
-		$this->assertIsWidgetInstance($widget_instance);
+		$this->assert_is_widget_instance($widget_instance);
 
 
 		$launch = $this->create_testing_launch_vars($resource_link, 1, '~admin', ['Learner']);
@@ -411,7 +411,7 @@ class Test_LtiEvents extends \Test_Basetest
 	protected function create_instance()
 	{
 		// create an instance
-		$author = $this->_asAuthor();
+		$author = $this->_as_author();
 		$qset = $this->create_new_qset('question', 'answer');
 		$widget_instance = \Materia\Api_V1::widget_instance_new(1, 'test-instance', $qset, false);
 
