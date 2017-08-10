@@ -26,7 +26,6 @@ class Basetest extends TestCase
 		'widget_qset'
 	];
 
-
 	// Runs before every single test
 	// @codingStandardsIgnoreLine
 	protected function setUp()
@@ -383,5 +382,6 @@ class Basetest extends TestCase
 
 	public function test_just_because_its_required()
 	{
+		self::assertTrue(true);
 	}
 }
