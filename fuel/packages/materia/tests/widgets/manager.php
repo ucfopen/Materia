@@ -24,22 +24,19 @@ class Test_Widget_Manager extends \Basetest
 
 	public function test_update_widget_works_and_returns_expected_results()
 	{
+		$mock_widget = $this->make_disposable_widget();
 		$this->_as_super_user();
 
-		// keep track of the original widget settings to confirm changes
-		$widget = new \Materia\Widget();
-		$widget->get(1);
-
 		// get the original demo widget and duplicate it to test setting a new demo
-		$inst_id = $widget->meta_data['demo'];
+		$inst_id = $mock_widget->meta_data['demo'];
 		$inst = new \Materia\Widget_Instance();
 		$inst->db_get($inst_id, false);
 		$duplicate = $inst->duplicate();
 
 		// create an object to hold necessary properties
 		$args = new stdClass();
-		$args->id = $widget->id;
-		$args->clean_name = $widget->clean_name;
+		$args->id = $mock_widget->id;
+		$args->clean_name = $mock_widget->clean_name;
 		$args->in_catalog = false;
 		$args->is_editable = false;
 		$args->is_scorable = false;
@@ -50,36 +47,25 @@ class Test_Widget_Manager extends \Basetest
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
 
-		// load after changes
-		$widget = new \Materia\Widget();
-		$widget->get(1);
-
-		// assert that the widget has changed to the expected values;
-		$this->assertEquals(0, $widget->in_catalog);
-		$this->assertEquals(0, $widget->is_editable);
-		$this->assertEquals(0, $widget->is_scorable);
-		$this->assertEquals(0, $widget->is_playable);
-		$this->assertEquals('Test About', $widget->meta_data['about']);
-		$this->assertEquals('Test Excerpt', $widget->meta_data['excerpt']);
-		$this->assertNotEquals($inst_id, $widget->meta_data['demo']);
-
 		// assert that update_widget returns the expected results
 		foreach(['demo','in_catalog','is_editable','is_scorable','is_playable','about','excerpt'] as $key)
 		{
-			$this->assertTrue($msg[$key]);
+			self::assertTrue($msg[$key]);
 		}
 
-		// restore the original settings so future tests react properly
-		$args->id = $widget->id;
-		$args->clean_name = $widget->clean_name;
-		$args->in_catalog = true;
-		$args->is_editable = true;
-		$args->is_scorable = true;
-		$args->is_playable = true;
-		$args->about = 'Test About';
-		$args->excerpt = 'Test Excerpt';
-		$args->demo = $inst->id;
-		$msg = \Materia\Widget_Manager::update_widget($args);
+		// load after changes
+		$widget = new \Materia\Widget();
+		$widgetFound = $widget->get($mock_widget->id);
+
+		// assert that the widget has changed to the expected values;
+		self::assertTrue($widgetFound);
+		self::assertEquals(0, $widget->in_catalog);
+		self::assertEquals(0, $widget->is_editable);
+		self::assertEquals(0, $widget->is_scorable);
+		self::assertEquals(0, $widget->is_playable);
+		self::assertEquals('Test About', $widget->meta_data['about']);
+		self::assertEquals('Test Excerpt', $widget->meta_data['excerpt']);
+		self::assertNotEquals($inst_id, $widget->meta_data['demo']);
 	}
 
 	public function test_update_widget_returns_not_found()
@@ -92,32 +78,29 @@ class Test_Widget_Manager extends \Basetest
 		$args->id = 99999;
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
-		$this->assertEquals($msg['widget'], 'Widget not found!');
+		self::assertEquals($msg['widget'], 'Widget not found!');
 	}
 
 	public function test_update_widget_checks_clean_name_matching()
 	{
 		$this->_as_super_user();
 
-		$widget = new \Materia\Widget();
-		$widget->get(1);
+		$widget = $this->make_disposable_widget();
 
 		$args = $this->sample_widget_update_args();
 		$args->id = $widget->id;
 		$args->clean_name = 'something-that-doesnt-exist';
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
-		$this->assertEquals($msg['widget'], 'Widget mismatch!');
+		self::assertEquals($msg['widget'], 'Widget mismatch!');
 	}
 
 	public function test_update_widget_checks_demo_mismatch()
 	{
 		$this->_as_super_user();
 
-		$widget = new \Materia\Widget();
-		$widget->get(1);
-		$widget2 = new \Materia\Widget();
-		$widget2->get(2);
+		$widget = $this->make_disposable_widget();
+		$widget2 = $this->make_disposable_widget();
 
 		$args = $this->sample_widget_update_args();
 		$args->id = $widget->id;
@@ -125,14 +108,13 @@ class Test_Widget_Manager extends \Basetest
 		$args->demo = $widget2->meta_data['demo'];
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
-		$this->assertEquals($msg['demo'], 'Demo instance is for another widget!');
+		self::assertEquals($msg['demo'], 'Demo instance is for another widget!');
 	}
 
 	public function test_update_widget_cannot_find_demo()
 	{
 		$this->_as_super_user();
-		$widget = new \Materia\Widget();
-		$widget->get(1);
+		$widget = $this->make_disposable_widget();
 
 		$args = $this->sample_widget_update_args();
 		$args->id = $widget->id;
@@ -140,7 +122,7 @@ class Test_Widget_Manager extends \Basetest
 		$args->demo = -1;
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
-		$this->assertEquals($msg['demo'], 'Demo instance not found!');
+		self::assertEquals($msg['demo'], 'Demo instance not found!');
 	}
 
 	public function test_get_all_widgets_all()
@@ -164,10 +146,10 @@ class Test_Widget_Manager extends \Basetest
 		$all_widgets = \Materia\Widget_Manager::get_widgets(null, 'admin');
 		$widget_count = (int) \DB::count_records('widget');
 
-		$this->assertCount($widget_count, $all_widgets);
+		self::assertCount($widget_count, $all_widgets);
 		foreach ($all_widgets as $value)
 		{
-			$this->assertInstanceOf('\Materia\Widget', $value);
+			self::assertInstanceOf('\Materia\Widget', $value);
 		}
 
 		// Need a simple way to setup and teardown widgets so we can test widgets with in_catalog and is_playable

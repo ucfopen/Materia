@@ -134,13 +134,17 @@ class Test_Model_User extends \Basetest
 
 	public function test_get_played_inst_info()
 	{
+		$this->markTestIncomplete(); // gotta make sure it ws made
+		return;
 		// a widget instance needs to be made and/or played by a user in order to test this at all
 		// start with an author
 		$author = $this->_as_author_3();
 
+		$widget = $this->make_disposable_widget();
+
 		// create a new published widget instance
 		$qset = $this->create_new_qset('Question', 'Answer');
-		$instance_output = \Materia\Api_V1::widget_instance_new(1, 'Title', $qset, false);
+		$instance_output = \Materia\Api_V1::widget_instance_new($widget->id, 'Title', $qset, false);
 		$qset = $instance_output->qset;
 
 		// create a play for the new instance

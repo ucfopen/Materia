@@ -18,13 +18,11 @@
         "testci":[
             "@destroy-everything",
             "@oil-install-quiet",
-            "@widgets-install-test",
             "@test"
         ],
         "coverageci":[
             "@destroy-everything",
             "@oil-install-quiet",
-            "@widgets-install-test",
             "@coverage"
         ]
     },
@@ -46,9 +44,10 @@
         "eher/oauth": "1.0.7"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.1.*",
+        "phpunit/phpunit": "^6.0",
         "squizlabs/php_codesniffer": "2.9",
-        "ucfcdl/fuelphp-phpcs": "master"
+        "ucfcdl/fuelphp-phpcs": "master",
+        "johnkary/phpunit-speedtrap": "^2.0@dev"
     },
     "config": {
         "vendor-dir": "fuel/vendor",
