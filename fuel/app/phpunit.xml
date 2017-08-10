@@ -25,12 +25,18 @@
 		</testsuite>
 	</testsuites>
 	<filter>
-		<blacklist>
-			<directory suffix=".php">../vendor</directory>
-			<directory suffix=".php">../core</directory>
-			<directory suffix=".php">../packages/orm</directory>
-			<directory suffix=".php">../packages/auth</directory>
-		</blacklist>
+		<whitelist>
+			<directory suffix=".php">../packages/materia/classes</directory>
+			<directory suffix=".php">../packages/ltiauth/classes</directory>
+			<directory suffix=".php">../packages/materiaauth/classes</directory>
+			<directory suffix=".php">../packages/materiaauth/tasks</directory>
+			<directory suffix=".php">../packages/rocketduck/classes</directory>
+			<directory suffix=".php">../app/classes</directory>
+			<directory suffix=".php">../app/themes</directory>
+			<directory suffix=".php">../app/lang</directory>
+			<directory suffix=".php">../app/modules/lti/classes</directory>
+			<directory suffix=".php">../app/tasks</directory>
+		</whitelist>
 	</filter>
 <!-- 	<logging>
 		<log type="coverage-html" target="../../coverage"/>
