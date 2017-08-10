@@ -259,7 +259,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function save_metadata($id, $metadata)
+	public static function save_metadata($id, $metadata)
 	{
 		// add in the metadata
 		foreach ($metadata as $metadata_key => $metadata_value)
@@ -278,7 +278,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function db_insert_metadata($id, $key, $value)
+	public static function db_insert_metadata($id, $key, $value)
 	{
 		\DB::insert('widget_metadata')
 			->set([

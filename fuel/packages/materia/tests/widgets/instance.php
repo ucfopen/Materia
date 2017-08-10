@@ -13,6 +13,7 @@ class Test_Widget_Instance extends \Basetest
 
 	public function test_db_store()
 	{
+		$widget = $this->make_disposable_widget();
 
 		$props = [
 			'name'            => 'THIS IS A Name!',
@@ -29,7 +30,7 @@ class Test_Widget_Instance extends \Basetest
 			'embedded_only'   => 1,
 			'guest_access'    => 0,
 			'is_student_made' => 1,
-			'widget'          => Widget_Manager::get_widgets([1])[0],
+			'widget'          => $widget,
 		];
 
 
@@ -49,8 +50,8 @@ class Test_Widget_Instance extends \Basetest
 	public function test_duplicate_creates_new_id()
 	{
 		// keep track of the original widget settings to confirm changes
-		$widget = new \Materia\Widget();
-		$widget->get(1);
+
+		$widget = $this->make_disposable_widget();
 		$inst_id = $widget->meta_data['demo'];
 
 		// get the original demo widget and duplicate it to test setting a new demo

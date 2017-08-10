@@ -10,7 +10,10 @@ define('STATICPATH', realpath(PUBPATH.DS.'..'.DS.'static').DS );
 	// Add classes you want to override here
 	// Example: 'View' => APPPATH.'classes/view.php',
 ]);
-
+// PHPUnit 6 introduced a breaking change that
+// removed PHPUnit_Framework_TestCase as a base class,
+// and replaced it with \PHPUnit\Framework\TestCase
+class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 // Register the autoloader
 \Autoloader::register();
 
