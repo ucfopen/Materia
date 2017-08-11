@@ -106,10 +106,10 @@ class Score_Manager
 		$load_score_module = function($widget)
 		{
 
-			if (\FUEL::$env == \FUEL::TEST)
+			if (\FUEL::$env === \FUEL::TEST)
 			{
 				// always load a module from our test widget
-				include_once(PKGPATH."materia/tests/widget_source/test_widget/src/_score-modules/score_module.php");
+				include_once(PKGPATH.'materia/tests/widget_source/test_widget/src/_score-modules/score_module.php');
 			}
 			else
 			{
