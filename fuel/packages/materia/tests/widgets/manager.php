@@ -74,8 +74,7 @@ class Test_Widget_Manager extends \Basetest
 		// create an object to hold necessary properties
 		$widget = new \Materia\Widget();
 
-		$args = $this->sample_widget_update_args();
-		$args->id = 99999;
+		$args = $this->sample_widget_update_args(99999);
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
 		self::assertEquals($msg['widget'], 'Widget not found!');
@@ -87,9 +86,7 @@ class Test_Widget_Manager extends \Basetest
 
 		$widget = $this->make_disposable_widget();
 
-		$args = $this->sample_widget_update_args();
-		$args->id = $widget->id;
-		$args->clean_name = 'something-that-doesnt-exist';
+		$args = $this->sample_widget_update_args($widget->id, 'clean_name_that_doesnt_exist');
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
 		self::assertEquals($msg['widget'], 'Widget mismatch!');
@@ -102,9 +99,7 @@ class Test_Widget_Manager extends \Basetest
 		$widget = $this->make_disposable_widget();
 		$widget2 = $this->make_disposable_widget();
 
-		$args = $this->sample_widget_update_args();
-		$args->id = $widget->id;
-		$args->clean_name = $widget->clean_name;
+		$args = $this->sample_widget_update_args($widget->id, $widget->clean_name);
 		$args->demo = $widget2->meta_data['demo'];
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
@@ -116,9 +111,7 @@ class Test_Widget_Manager extends \Basetest
 		$this->_as_super_user();
 		$widget = $this->make_disposable_widget();
 
-		$args = $this->sample_widget_update_args();
-		$args->id = $widget->id;
-		$args->clean_name = $widget->clean_name;
+		$args = $this->sample_widget_update_args($widget->id, $widget->clean_name);
 		$args->demo = -1;
 
 		$msg = \Materia\Widget_Manager::update_widget($args);
@@ -127,41 +120,114 @@ class Test_Widget_Manager extends \Basetest
 
 	public function test_get_all_widgets_all()
 	{
-		$this->markTestIncomplete();
+		$not_in_catalog = $this->make_disposable_widget();
+		$not_playable = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+
+		// this shouldn't show up
+		$this->_as_super_user();
+		$args = $this->sample_widget_update_args($not_in_catalog->id, $not_in_catalog->clean_name);
+		$args->in_catalog = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		// this shouldn't show up
+		$args = $this->sample_widget_update_args($not_playable->id, $not_playable->clean_name);
+		$args->is_playable = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		$res = \Materia\Widget_Manager::get_widgets(null, 'all');
+		self::assertCount(3, $res);
+
+		self::assertEquals($not_in_catalog->id, $res[0]->id);
+		self::assertEquals($visible[0]->id, $res[1]->id);
+		self::assertEquals($visible[1]->id, $res[2]->id);
 	}
 
 	public function test_get_all_widgets_featured()
 	{
-		$this->markTestIncomplete();
+		$not_in_catalog = $this->make_disposable_widget();
+		$not_playable = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+
+		// this shouldn't show up
+		$this->_as_super_user();
+		$args = $this->sample_widget_update_args($not_in_catalog->id, $not_in_catalog->clean_name);
+		$args->in_catalog = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		// this shouldn't show up
+		$args = $this->sample_widget_update_args($not_playable->id, $not_playable->clean_name);
+		$args->is_playable = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		$res = \Materia\Widget_Manager::get_widgets(null, 'featured');
+		self::assertCount(2, $res);
+
+		self::assertEquals($visible[0]->id, $res[0]->id);
+		self::assertContains($visible[1]->id, $res[1]->id);
 	}
 
 
 	public function test_get_all_widgets_by_id()
 	{
-		$this->markTestIncomplete();
+		$not_in_catalog = $this->make_disposable_widget();
+		$not_playable = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+
+		// this shouldn't show up
+		$this->_as_super_user();
+		$args = $this->sample_widget_update_args($not_in_catalog->id, $not_in_catalog->clean_name);
+		$args->in_catalog = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		// this shouldn't show up
+		$args = $this->sample_widget_update_args($not_playable->id, $not_playable->clean_name);
+		$args->is_playable = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		$res = \Materia\Widget_Manager::get_widgets(null, 'featured');
+		self::assertCount(2, $res);
+
+		self::assertEquals($visible[0]->id, $res[0]->id);
+		self::assertEquals($visible[1]->id, $res[1]->id);
 	}
 
 	public function test_get_all_widgets_admin()
 	{
-		$all_widgets = \Materia\Widget_Manager::get_widgets(null, 'admin');
-		$widget_count = (int) \DB::count_records('widget');
+		$not_in_catalog = $this->make_disposable_widget();
+		$not_playable = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
+		$visible[] = $this->make_disposable_widget();
 
-		self::assertCount($widget_count, $all_widgets);
-		foreach ($all_widgets as $value)
-		{
-			self::assertInstanceOf('\Materia\Widget', $value);
-		}
+		// this shouldn't show up
+		$this->_as_super_user();
+		$args = $this->sample_widget_update_args($not_in_catalog->id, $not_in_catalog->clean_name);
+		$args->in_catalog = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
 
-		// Need a simple way to setup and teardown widgets so we can test widgets with in_catalog and is_playable
-		$this->markTestIncomplete();
+		// this shouldn't show up
+		$args = $this->sample_widget_update_args($not_playable->id, $not_playable->clean_name);
+		$args->is_playable = false;
+		$msg = \Materia\Widget_Manager::update_widget($args);
+
+		$res = \Materia\Widget_Manager::get_widgets(null, 'admin');
+		self::assertCount(4, $res);
+
+		self::assertEquals($not_in_catalog->id, $res[0]->id);
+		self::assertEquals($not_playable->id, $res[1]->id);
+		self::assertEquals($visible[0]->id, $res[2]->id);
+		self::assertEquals($visible[1]->id, $res[3]->id);
 	}
 
-	protected function sample_widget_update_args()
+	protected function sample_widget_update_args($id=0, $clean_name='clean_name')
 	{
 		// create an object to hold necessary properties
 		$args = new stdClass();
-		$args->id = 0;
-		$args->clean_name = 'clean_name';
+		$args->id = $id;
+		$args->clean_name = $clean_name;
 		$args->in_catalog = 1;
 		$args->is_editable = 1;
 		$args->is_scorable = 1;
