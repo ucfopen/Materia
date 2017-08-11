@@ -134,8 +134,7 @@ class Test_Model_User extends \Basetest
 
 	public function test_get_played_inst_info()
 	{
-		$this->markTestIncomplete(); // gotta make sure it ws made
-		return;
+
 		// a widget instance needs to be made and/or played by a user in order to test this at all
 		// start with an author
 		$author = $this->_as_author_3();
