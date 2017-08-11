@@ -9,12 +9,11 @@ class Test_Scores extends \Basetest
 
 	public function test_set_complete_triggers_event()
 	{
-		self::markTestIncomplete();
-		return false;
+		$widget = $this->make_disposable_widget();
 
 		$this->_as_author();
 		$qset = $this->create_new_qset('question', 'answer');
-		$output = \Materia\Api_V1::widget_instance_new(1, 'score test', $qset, false);
+		$output = \Materia\Api_V1::widget_instance_new($widget->id, 'score test', $qset, false);
 		$output->db_store();
 
 		$student = $this->_as_student();
@@ -54,9 +53,9 @@ class Test_Scores extends \Basetest
 
 	public function test_max_scores_per_context()
 	{
-		$this->_as_author();
-
 		$widget = $this->make_disposable_widget();
+
+		$this->_as_author();
 
 		// ============ MAKE A PUBLISHED WIDGET ============
 		$title = "My Test Widget";

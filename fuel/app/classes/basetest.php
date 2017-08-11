@@ -106,7 +106,7 @@ class Basetest extends TestCase
 				'api_version' => 2,
 			],
 			'score' => [
-				'score_module' => 'test',
+				'score_module' => 'TestWidget', // NOTE: this matches the class name in our test widget
 				'is_scorable' => false,
 			],
 			'files' => [
