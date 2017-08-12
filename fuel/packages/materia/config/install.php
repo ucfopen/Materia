@@ -108,6 +108,11 @@ return [
 		'default' => 'lis_person_sourcedid',
 			'description' => 'Which LTI variable do you want to use as a username in Materia?',
 		],
+		'lti::lti.consumers.canvas.course_nav_default' => [
+			'options' => ['true', 'false'],
+			'default' => false,
+			'description' => 'Display Materia in Canvas navigation bar?',
+		],
 		'lti::lti.consumers.canvas.secret' => [
 			'generate_random_key' => true,
 			'description' => 'LTI Secret key for Canvas.',
