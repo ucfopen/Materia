@@ -194,7 +194,7 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
@@ -216,7 +216,7 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 
 		$this->users_to_clean[] = $user;
@@ -239,7 +239,7 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
@@ -261,7 +261,7 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
@@ -286,7 +286,7 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
