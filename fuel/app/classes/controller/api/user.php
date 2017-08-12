@@ -20,7 +20,7 @@ class Controller_Api_User extends Controller_Rest
 
 	public function post_settings()
 	{
-		if (\Model_User::verify_session() !== true) return $this->response('Not logged in', 401);
+		if (\Service_User::verify_session() !== true) return $this->response('Not logged in', 401);
 
 		$success   = false;
 		$set_meta  = [

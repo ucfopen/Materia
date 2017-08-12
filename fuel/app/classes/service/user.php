@@ -7,6 +7,51 @@
 class Service_User
 {
 
+	use \Trait_RateLimit;
+
+
+	static public function verify_session($role_or_roles = null)
+	{
+		if ( ! \Auth::check())
+		{
+			\Auth::logout();
+			return false;
+		}
+
+		if ( $role_or_roles === null) return true;
+
+		if ( ! is_array($role_or_roles)) $role_or_roles = (array) $role_or_roles;
+		return \RocketDuck\Perm_Manager::does_user_have_role($role_or_roles);
+	}
+
+	static public function login($username, $password)
+	{
+		$bypass_used = \Session::get_flash('bypass', false);
+		//don't process this if the current auth package restricts normal logins
+		if (\Config::get('auth.restrict_logins_to_lti_single_sign_on', false) && ! $bypass_used) throw new \HttpServerErrorException;
+
+		Config::load('auth', true);
+		foreach (Config::get('auth.driver') as $driver)
+		{
+			if (Auth::instance($driver)->login($username, $password)) break;
+		}
+
+		if ($logged_in = Auth::check())
+		{
+			self::reset_rate_limiter();
+			$activity = new Materia\Session_Activity([
+				'user_id' => Model_User::find_current_id(),
+				'type'    => Materia\Session_Activity::TYPE_LOGGED_IN
+			]);
+			$activity->db_store();
+		}
+		else
+		{
+			self::incement_rate_limiter();
+		}
+		return $logged_in;
+	}
+
 	// Updates a user's properties
 	public static function update_user($user_id, $new_props)
 	{

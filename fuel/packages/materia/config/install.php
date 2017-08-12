@@ -125,7 +125,7 @@ return [
 			'options' => ['true', 'false'],
 			'default' => true,
 			'description' => 'Only allow users to log in via LTI single sign on from the LMS?',
-		]
+		],
 		'auth.salt' => [
 			'generate_random_key' => true,
 			'description' => 'Random string for salting internal passwords.',

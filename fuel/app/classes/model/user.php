@@ -1,10 +1,7 @@
 <?php
 class Model_User extends Orm\Model
 {
-	const RATE_LIMITER_DOWN_TIME = 60; // 60 seconds
-	const RATE_LIMITER_MAX_COUNT = 50; // 50 login attempts
-	const RATE_LIMITER_WINDOW    = 60; // 60 seconds
-	const GUEST_ID               = 0; // Guest id is 0
+	const GUEST_ID = 0; // Guest id is 0
 
 	protected static $_default_profile_fields = [
 		'useGravatar' => true,
@@ -120,93 +117,6 @@ class Model_User extends Orm\Model
 		$val->add_field('group', 'Group', 'trim|numeric');
 
 		return $val;
-	}
-
-	static public function verify_session($role_or_roles = null)
-	{
-		if ( ! \Auth::check())
-		{
-			\Auth::logout();
-			return false;
-		}
-
-		if ( $role_or_roles === null) return true;
-
-		if ( ! is_array($role_or_roles)) $role_or_roles = (array) $role_or_roles;
-		return \RocketDuck\Perm_Manager::does_user_have_role($role_or_roles);
-	}
-
-	static protected function get_rate_limiter()
-	{
-		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
-		if (is_null($limit))
-		{
-			$limit = ['start_time' => time(), 'count' => 0];
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
-		}
-		return $limit;
-	}
-
-	static public function check_rate_limiter()
-	{
-		if ( ! Fuel::$is_cli)
-		{
-			$limit = self::get_rate_limiter();
-			// relies on the native cache timeout to reset the limiter
-			if ($limit['count'] >= self::RATE_LIMITER_MAX_COUNT) return false;
-		}
-		return true;
-	}
-
-	static protected function incement_rate_limiter()
-	{
-		if ( ! Fuel::$is_cli)
-		{
-			$limit = self::get_rate_limiter();
-			if ($limit['start_time'] + self::RATE_LIMITER_WINDOW < time())
-			{
-				// reset
-				$limit = ['start_time' => time(), 'count' => 0];
-			}
-			else
-			{
-				$limit['count'] += 1 ;
-			}
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
-		}
-	}
-
-	static protected function reset_rate_limiter()
-	{
-		if ( ! Fuel::$is_cli) Cache::delete('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
-	}
-
-	static public function login($username, $password)
-	{
-		$bypass_used = \Session::get_flash('bypass', false);
-		//don't process this if the current auth package restricts normal logins
-		if (\Config::get('auth.restrict_logins_to_lti_single_sign_on', false) && ! $bypass_used) throw new \HttpServerErrorException;
-
-		Config::load('auth', true);
-		foreach (Config::get('auth.driver') as $driver)
-		{
-			if (Auth::instance($driver)->login($username, $password)) break;
-		}
-
-		if ($logged_in = Auth::check())
-		{
-			self::reset_rate_limiter();
-			$activity = new Materia\Session_Activity([
-				'user_id' => self::find_current_id(),
-				'type'    => Materia\Session_Activity::TYPE_LOGGED_IN
-			]);
-			$activity->db_store();
-		}
-		else
-		{
-			self::incement_rate_limiter();
-		}
-		return $logged_in;
 	}
 
 	public function is_guest()
