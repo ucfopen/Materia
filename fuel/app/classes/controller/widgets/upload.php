@@ -6,7 +6,7 @@
 
 class Controller_Widgets_Upload extends Controller
 {
-	use Trait_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	public function before()
 	{

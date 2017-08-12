@@ -6,7 +6,7 @@
 
 class Controller_Widgets extends Controller
 {
-	use Trait_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	protected $_embedded = false;
 
