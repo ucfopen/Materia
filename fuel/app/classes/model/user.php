@@ -185,7 +185,7 @@ class Model_User extends Orm\Model
 	{
 		$bypass_used = \Session::get_flash('bypass', false);
 		//don't process this if the current auth package restricts normal logins
-		if (\Config::get('auth.restrict_normal_logins', false) && ! $bypass_used) throw new \HttpServerErrorException;
+		if (\Config::get('auth.restrict_logins_to_lti_single_sign_on', false) && ! $bypass_used) throw new \HttpServerErrorException;
 
 		Config::load('auth', true);
 		foreach (Config::get('auth.driver') as $driver)

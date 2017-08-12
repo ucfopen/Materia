@@ -121,6 +121,11 @@ return [
 			'default' => 'materia-production-lti-key',
 			'description' => 'LTI Consumer Key for Canvas.',
 		],
+		'auth.restrict_logins_to_lti_single_sign_on' => [
+			'options' => ['true', 'false'],
+			'default' => true,
+			'description' => 'Only allow users to log in via LTI single sign on from the LMS?',
+		]
 		'auth.salt' => [
 			'generate_random_key' => true,
 			'description' => 'Random string for salting internal passwords.',

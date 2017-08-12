@@ -8,7 +8,6 @@ class Service_User
 {
 
 	// Updates a user's properties
-	//
 	public static function update_user($user_id, $new_props)
 	{
 		$user = Model_User::find($user_id);
