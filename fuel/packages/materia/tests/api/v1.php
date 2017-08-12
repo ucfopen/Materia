@@ -459,7 +459,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_super_user();
 		$this->assertFalse(Api_V1::widget_instance_lock($inst->id)); // i dont own the lock, denied
 
-		usleep(1000000);
+		usleep(1300000);
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
 
