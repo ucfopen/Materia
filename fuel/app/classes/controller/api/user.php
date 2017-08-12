@@ -7,7 +7,7 @@
 class Controller_Api_User extends Controller_Rest
 {
 
-	use Lib_Apiutils;
+	use Trait_Apiutils;
 
 	protected $_supported_formats = ['json' => 'application/json'];
 

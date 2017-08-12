@@ -6,7 +6,7 @@
 
 class Controller_Site extends Controller
 {
-	use Lib_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplateTrait;
 
 	/**
 	 * Handles the homepage
