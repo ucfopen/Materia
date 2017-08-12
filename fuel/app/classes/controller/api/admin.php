@@ -49,7 +49,7 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		// VALIDATE INPUT
 		$instances_available = \Materia\Widget_Instance_Manager::get_all_for_user($user_id);
-		$instances_played    = \Model_User::get_played_inst_info($user_id);
+		$instances_played    = \Service_User::get_played_inst_info($user_id);
 
 		return [
 			'instances_available' => $instances_available,
@@ -62,6 +62,6 @@ class Controller_Api_Admin extends Controller_Rest
 		// VALIDATE INPUT
 		$user = (object) Input::json();
 		unset($user->id);
-		return \Model_User::admin_update($user_id, $user);
+		return \Service_User::update_user($user_id, $user);
 	}
 }
