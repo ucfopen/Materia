@@ -13,7 +13,7 @@ class Controller_Widgets_Upload extends Controller
 		// require the enable_uploader option to be on
 		if (Config::get('enable_uploader', false) == false || Fuel::$env == Fuel::PRODUCTION) throw new HttpNotFoundException;
 
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in');
