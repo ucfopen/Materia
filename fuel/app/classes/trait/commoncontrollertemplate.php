@@ -4,7 +4,7 @@
  * License outlined in licenses folder
  */
 
-trait Trait_CommonControllerTemplateTrait
+trait Trait_CommonControllerTemplate
 {
 	protected $_header = 'partials/header';
 	protected $_disable_browser_cache = false;

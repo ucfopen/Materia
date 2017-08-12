@@ -7,7 +7,7 @@
 class Controller_Admin extends Controller
 {
 
-	use Trait_CommonControllerTemplateTrait {
+	use Trait_CommonControllerTemplate {
 		before as public common_before;
 	}
 

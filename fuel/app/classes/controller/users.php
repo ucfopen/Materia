@@ -6,7 +6,7 @@
 
 class Controller_Users extends Controller
 {
-	use Trait_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	/**
 	 * Uses Materia API's remote_login function to log the user in.
