@@ -1,6 +1,10 @@
 <?php
+/**
+ * Materia
+ * License outlined in licenses folder
+ */
 
-trait Lib_CommonControllerTemplateTrait
+trait Trait_CommonControllerTemplateTrait
 {
 	protected $_header = 'partials/header';
 	protected $_disable_browser_cache = false;

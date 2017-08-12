@@ -6,7 +6,7 @@
 
 class Controller_Scores extends Controller
 {
-	use Lib_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplateTrait;
 
 	public function get_show($inst_id)
 	{
