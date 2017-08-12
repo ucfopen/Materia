@@ -11,13 +11,13 @@ class Test_Ltiauth extends \Basetest
 
 	protected function setUp()
 	{
-		\Config::set('auth.restrict_normal_logins', true);
+		\Config::set('auth.restrict_logins_to_lti_single_sign_on', true);
 		parent::setUp();
 	}
 
 	protected function tearDown()
 	{
-		\Config::set('auth.restrict_normal_logins', false);
+		\Config::set('auth.restrict_logins_to_lti_single_sign_on', false);
 		if ($this->lastTestUser)
 		{
 			\Auth::instance()->delete_user($this->lastTestUser);
