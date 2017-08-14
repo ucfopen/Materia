@@ -11,13 +11,13 @@ class Test_Ltiauth extends \Basetest
 
 	protected function setUp()
 	{
-		\Config::set('auth.restrict_normal_logins', true);
+		\Config::set('auth.restrict_logins_to_lti_single_sign_on', true);
 		parent::setUp();
 	}
 
 	protected function tearDown()
 	{
-		\Config::set('auth.restrict_normal_logins', false);
+		\Config::set('auth.restrict_logins_to_lti_single_sign_on', false);
 		if ($this->lastTestUser)
 		{
 			\Auth::instance()->delete_user($this->lastTestUser);
@@ -33,7 +33,7 @@ class Test_Ltiauth extends \Basetest
 	{
 		$new_user = $this->make_new_user();
 
-		\Model_User::login($new_user[1], $new_user[2]);
+		\Service_User::login($new_user[1], $new_user[2]);
 	}
 
 	//make sure even admin logins are still restricted without using the bypass
@@ -45,7 +45,7 @@ class Test_Ltiauth extends \Basetest
 		$new_user = $this->make_new_user();
 		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$new_user[0]], ['super_user']);
 
-		$this->assertEquals(\Model_User::login($new_user[1], $new_user[2]), true);
+		$this->assertEquals(\Service_User::login($new_user[1], $new_user[2]), true);
 	}
 
 	//make sure admin logins are still possible when regular logins are restricted and the bypass is used
@@ -55,7 +55,7 @@ class Test_Ltiauth extends \Basetest
 		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$new_user[0]], ['super_user']);
 
 		Session::set_flash('bypass', true);
-		$this->assertEquals(\Model_User::login($new_user[1], $new_user[2]), true);
+		$this->assertEquals(\Service_User::login($new_user[1], $new_user[2]), true);
 	}
 
 	//make sure lti logins work when regular logins are restricted

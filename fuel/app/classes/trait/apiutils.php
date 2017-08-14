@@ -4,7 +4,7 @@
  * License outlined in licenses folder
  */
 
-trait Lib_Apiutils
+trait Trait_Apiutils
 {
 	protected function no_cache()
 	{

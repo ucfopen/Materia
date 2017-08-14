@@ -6,7 +6,7 @@
 
 class Controller_Users extends Controller
 {
-	use Lib_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	/**
 	 * Uses Materia API's remote_login function to log the user in.
@@ -52,7 +52,7 @@ class Controller_Users extends Controller
 		{
 			Session::delete_flash('bypass');
 			// if the location is the profile and they are an author, send them to my-widgets instead
-			if (\Model_User::verify_session('basic_author') == true && $redirect == Router::get('profile'))
+			if (\Service_User::verify_session('basic_author') == true && $redirect == Router::get('profile'))
 			{
 				$redirect = 'my-widgets';
 			}
@@ -82,7 +82,7 @@ class Controller_Users extends Controller
 	 */
 	public function get_profile()
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view this page.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
@@ -111,7 +111,7 @@ class Controller_Users extends Controller
 	 */
 	public function get_settings()
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to view this page.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());

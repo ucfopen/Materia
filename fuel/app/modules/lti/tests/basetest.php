@@ -163,43 +163,6 @@ class Test_Basetest extends \Basetest
 		return $post_args;
 	}
 
-	protected function create_materia_user($username, $email, $first, $last, $make_instructor = false)
-	{
-		$user = \Model_User::forge([
-			'username'        => (string) $username,
-			'first'           => (string) $first,
-			'last'            => (string) $last,
-			'password'        => uniqid(),
-			'email'           => $email,
-			'group'           => 1,
-			'profile_fields'  => [],
-			'last_login'      => 0,
-			'login_hash'      => '',
-		]);
-
-		// save the new user record
-		try
-		{
-			$result = $user->save();
-		}
-		catch (\Exception $e)
-		{
-			$result = false;
-		}
-
-		if($make_instructor)
-		{
-			$result = \RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], ['basic_author']);
-
-			if(!$result)
-			{
-				return false;
-			}
-		}
-
-		return $user;
-	}
-
 	protected function get_uniq_string()
 	{
 		$this->uniq_counter++;
