@@ -6,7 +6,7 @@
 
 class Controller_Widgets extends Controller
 {
-	use Lib_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	protected $_embedded = false;
 
@@ -75,7 +75,7 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_create()
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in to create this widget.');
@@ -101,7 +101,7 @@ class Controller_Widgets extends Controller
 	{
 		if (empty($inst_id)) throw new HttpNotFoundException;
 
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to edit this widget.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
@@ -123,7 +123,7 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_mywidgets()
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in to view your widgets.');
@@ -135,7 +135,7 @@ class Controller_Widgets extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
-		Js::push_inline('var IS_STUDENT = '.(\Model_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
+		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -168,7 +168,7 @@ class Controller_Widgets extends Controller
 
 	public function get_preview_widget($inst_id)
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			$this->build_widget_login('Login to preview this widget', $inst_id);
 		}

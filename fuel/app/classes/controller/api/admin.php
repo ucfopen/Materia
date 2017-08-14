@@ -6,24 +6,12 @@
 
 class Controller_Api_Admin extends Controller_Rest
 {
-	use Lib_Apiutils;
-
 	protected $_supported_formats = ['json' => 'application/json'];
 
 	public function before()
 	{
 		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
-		$this->no_cache();
 		parent::before();
-	}
-
-	protected function input_get()
-	{
-		return json_decode(Input::get('data', ''));
-	}
-	protected function input_post()
-	{
-		return json_decode(Input::post('data', ''));
 	}
 
 	public function get_widgets()
@@ -31,15 +19,16 @@ class Controller_Api_Admin extends Controller_Rest
 		return \Materia\Widget_Manager::get_widgets(null, 'admin');
 	}
 
-	public function post_widget()
+	public function post_widget($widget_id)
 	{
-		$widget = $this->input_post();
+		// VALIDATE INPUT
+		$widget = (object) Input::json();
 		return \Materia\Widget_Manager::update_widget($widget);
 	}
 
-	public function get_users()
+	public function get_user_search($search)
 	{
-		$search = $this->input_get()->search;
+		// VALIDATE INPUT
 		$user_objects = \Model_User::find_by_name_search($search);
 		$user_arrays = [];
 
@@ -56,11 +45,11 @@ class Controller_Api_Admin extends Controller_Rest
 	}
 
 	//the front end already has basic user info, this will grab some more
-	public function get_user()
+	public function get_user($user_id)
 	{
-		$user_id = $this->input_get()->id;
+		// VALIDATE INPUT
 		$instances_available = \Materia\Widget_Instance_Manager::get_all_for_user($user_id);
-		$instances_played    = \Model_User::get_played_inst_info($user_id);
+		$instances_played    = \Service_User::get_played_inst_info($user_id);
 
 		return [
 			'instances_available' => $instances_available,
@@ -68,11 +57,11 @@ class Controller_Api_Admin extends Controller_Rest
 		];
 	}
 
-	public function post_user()
+	public function post_user($user_id)
 	{
-		$data = $this->input_post();
-		$id = $data->id;
-		unset($data->id);
-		return \Model_User::admin_update($id, $data);
+		// VALIDATE INPUT
+		$user = (object) Input::json();
+		unset($user->id);
+		return \Service_User::update_user($user_id, $user);
 	}
 }

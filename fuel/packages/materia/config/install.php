@@ -108,6 +108,11 @@ return [
 		'default' => 'lis_person_sourcedid',
 			'description' => 'Which LTI variable do you want to use as a username in Materia?',
 		],
+		'lti::lti.consumers.canvas.course_nav_default' => [
+			'options' => ['true', 'false'],
+			'default' => false,
+			'description' => 'Display Materia in Canvas navigation bar?',
+		],
 		'lti::lti.consumers.canvas.secret' => [
 			'generate_random_key' => true,
 			'description' => 'LTI Secret key for Canvas.',
@@ -115,6 +120,11 @@ return [
 		'lti::lti.consumers.canvas.key' => [
 			'default' => 'materia-production-lti-key',
 			'description' => 'LTI Consumer Key for Canvas.',
+		],
+		'auth.restrict_logins_to_lti_single_sign_on' => [
+			'options' => ['true', 'false'],
+			'default' => true,
+			'description' => 'Only allow users to log in via LTI single sign on from the LMS?',
 		],
 		'auth.salt' => [
 			'generate_random_key' => true,
