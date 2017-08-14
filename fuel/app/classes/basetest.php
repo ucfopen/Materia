@@ -1,11 +1,30 @@
 <?php
 
-// TODO: CLEAN UP THIS CODE
+use \Materia\Widget_Installer;
+
 class Basetest extends TestCase
 {
 
 	// array of users created by test helpers that will be cleaned up by tearDown()
 	protected $users_to_clean = [];
+	protected $tables_to_truncate = [
+		'asset',
+		'log',
+		'log_activity',
+		'log_storage',
+		'lti',
+		'map_asset_to_object',
+		'map_question_to_qset',
+		'notification',
+		'perm_object_to_user',
+		'perm_role_to_user',
+		'question',
+		'user_extra_attempts',
+		'widget',
+		'widget_instance',
+		'widget_metadata',
+		'widget_qset'
+	];
 
 	// Runs before every single test
 	// @codingStandardsIgnoreLine
@@ -26,6 +45,12 @@ class Basetest extends TestCase
 			{
 				$user->delete();
 			}
+		}
+		$this->users_to_clean = [];
+
+		foreach ($this->tables_to_truncate as $value)
+		{
+			\DB::query("Truncate {$value}")->execute();
 		}
 	}
 
@@ -62,24 +87,70 @@ class Basetest extends TestCase
 		return \Materia\Widget_Manager::search($search)[0]->id;
 	}
 
-	protected function _as_student()
+	protected function make_disposable_widget()
 	{
-		\Auth::logout();
-		$uname = '~student';
-		$pword = 'kogneato';
+		$user = $this->make_random_author();
 
-		$user = \Model_User::query()->where('username', $uname)->get_one();
-		if ( ! $user instanceof \Model_User)
-		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
-			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
-			$user = \Model_User::query()->where('username', $uname)->get_one();
-		}
+		$mock_manifest_data = [
+			'general' => [
+				'name' => uniqid('test_'),
+				'group' => 'disposable',
+				'height' => 500,
+				'width' => 6000,
+				'is_qset_encrypted' => false,
+				'is_answer_encrypted' => false,
+				'is_storage_enabled' => false,
+				'is_playable' => true,
+				'is_editable' => true,
+				'in_catalog' => true,
+				'api_version' => 2,
+			],
+			'score' => [
+				'score_module' => 'TestWidget', // NOTE: this matches the class name in our test widget
+				'is_scorable' => false,
+			],
+			'files' => [
+				'flash_version' => 7,
+				'creator' => 'creator.html',
+				'player' => 'player.html',
+			]
+		];
 
-		$login = \Model_User::login($uname, $pword);
-		$this->assertTrue($login);
-		$this->users_to_clean[] = $user;
-		return $user;
+		$params = Widget_Installer::generate_install_params($mock_manifest_data, __FILE__);
+
+		list($id, $num) = \DB::insert('widget')
+			->set($params)
+			->execute();
+
+		$widget = new \Materia\Widget();
+		$widget->get($id);
+
+		// add the demo
+		$qset = (object) ['version' => 2, 'data' => []];
+		$demo_inst = new \Materia\Widget_Instance([
+			'user_id'         => $user->id,
+			'name'            => uniqid('test_'),
+			'is_draft'        => false,
+			'created_at'      => time(),
+			'widget'          => $widget,
+			'is_student_made' => true,
+			'guest_access'    => true,
+			'attempts'        => -1
+		]);
+		$demo_inst->db_store();
+
+		// add/update the required mdetadata
+		Widget_Installer::db_insert_metadata($id, 'about', 'mock about');
+		Widget_Installer::db_insert_metadata($id, 'excerpt', 'mock excerpt');
+		Widget_Installer::db_insert_metadata($id, 'demo', $demo_inst->id);
+
+		// make sure nobody owns the demo widget
+		\Materia\Perm_Manager::clear_user_object_perms($demo_inst->id, \Materia\Perm::INSTANCE, $user->id);
+
+		// load a Model
+		$widget = new \Materia\Widget();
+		$widget->get($id);
+		return $widget;
 	}
 
 	protected function make_random_super_user($password = null)
@@ -108,6 +179,28 @@ class Basetest extends TestCase
 		return $user;
 	}
 
+	// TODO: make this use make_random_student
+	protected function _as_student()
+	{
+		\Auth::logout();
+		$uname = '~student';
+		$pword = 'kogneato';
+
+		$user = \Model_User::query()->where('username', $uname)->get_one();
+		if ( ! $user instanceof \Model_User)
+		{
+			require_once(PKGPATH.'materia/tasks/admin.php');
+			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
+			$user = \Model_User::query()->where('username', $uname)->get_one();
+		}
+
+		$login = \Service_User::login($uname, $pword);
+		$this->assertTrue($login);
+		$this->users_to_clean[] = $user;
+		return $user;
+	}
+
+	// TODO: make this use make_random_author
 	protected function _as_author()
 	{
 		\Auth::logout();
@@ -123,12 +216,14 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 
 		$this->users_to_clean[] = $user;
 		return $user;
 	}
+
+	// TODO: delete
 	protected function _as_author_2()
 	{
 		\Auth::logout();
@@ -144,11 +239,13 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
 	}
+
+	// TODO: delete
 	protected function _as_author_3()
 	{
 		\Auth::logout();
@@ -164,12 +261,13 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
 	}
 
+	// TODO: use make_random_super_user
 	protected function _as_super_user()
 	{
 		\Auth::logout();
@@ -188,7 +286,7 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
 		return $user;
@@ -284,5 +382,6 @@ class Basetest extends TestCase
 
 	public function test_just_because_its_required()
 	{
+		self::assertTrue(true);
 	}
 }

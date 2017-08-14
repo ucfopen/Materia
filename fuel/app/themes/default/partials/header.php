@@ -1,7 +1,7 @@
 <?php // @codingStandardsIgnoreStart ?>
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
 	<?php /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */
-		$allow_logins = ! \Config::get('auth.restrict_normal_logins', false);
+		$allow_logins = ! \Config::get('auth.restrict_logins_to_lti_single_sign_on', false);
 	?>
 	<?php if ($me->is_guest()): ?>
 		<span id="current-user" data-logged-in="false"></span>

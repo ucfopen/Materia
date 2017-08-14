@@ -1,10 +1,7 @@
 <?php
 class Model_User extends Orm\Model
 {
-	const RATE_LIMITER_DOWN_TIME = 60; // 60 seconds
-	const RATE_LIMITER_MAX_COUNT = 50; // 50 login attempts
-	const RATE_LIMITER_WINDOW    = 60; // 60 seconds
-	const GUEST_ID               = 0; // Guest id is 0
+	const GUEST_ID = 0; // Guest id is 0
 
 	protected static $_default_profile_fields = [
 		'useGravatar' => true,
@@ -122,93 +119,6 @@ class Model_User extends Orm\Model
 		return $val;
 	}
 
-	static public function verify_session($role_or_roles = null)
-	{
-		if ( ! \Auth::check())
-		{
-			\Auth::logout();
-			return false;
-		}
-
-		if ( $role_or_roles === null) return true;
-
-		if ( ! is_array($role_or_roles)) $role_or_roles = (array) $role_or_roles;
-		return \RocketDuck\Perm_Manager::does_user_have_role($role_or_roles);
-	}
-
-	static protected function get_rate_limiter()
-	{
-		$limit = Cache::easy_get('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
-		if (is_null($limit))
-		{
-			$limit = ['start_time' => time(), 'count' => 0];
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
-		}
-		return $limit;
-	}
-
-	static public function check_rate_limiter()
-	{
-		if ( ! Fuel::$is_cli)
-		{
-			$limit = self::get_rate_limiter();
-			// relies on the native cache timeout to reset the limiter
-			if ($limit['count'] >= self::RATE_LIMITER_MAX_COUNT) return false;
-		}
-		return true;
-	}
-
-	static protected function incement_rate_limiter()
-	{
-		if ( ! Fuel::$is_cli)
-		{
-			$limit = self::get_rate_limiter();
-			if ($limit['start_time'] + self::RATE_LIMITER_WINDOW < time())
-			{
-				// reset
-				$limit = ['start_time' => time(), 'count' => 0];
-			}
-			else
-			{
-				$limit['count'] += 1 ;
-			}
-			Cache::set('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)), $limit, self::RATE_LIMITER_DOWN_TIME);
-		}
-	}
-
-	static protected function reset_rate_limiter()
-	{
-		if ( ! Fuel::$is_cli) Cache::delete('rate-limit.'.str_replace('.', '-', Input::real_ip('0.0.0.0', true)));
-	}
-
-	static public function login($username, $password)
-	{
-		$bypass_used = \Session::get_flash('bypass', false);
-		//don't process this if the current auth package restricts normal logins
-		if (\Config::get('auth.restrict_normal_logins', false) && ! $bypass_used) throw new \HttpServerErrorException;
-
-		Config::load('auth', true);
-		foreach (Config::get('auth.driver') as $driver)
-		{
-			if (Auth::instance($driver)->login($username, $password)) break;
-		}
-
-		if ($logged_in = Auth::check())
-		{
-			self::reset_rate_limiter();
-			$activity = new Materia\Session_Activity([
-				'user_id' => self::find_current_id(),
-				'type'    => Materia\Session_Activity::TYPE_LOGGED_IN
-			]);
-			$activity->db_store();
-		}
-		else
-		{
-			self::incement_rate_limiter();
-		}
-		return $logged_in;
-	}
-
 	public function is_guest()
 	{
 		if ($this->id == self::GUEST_ID)
@@ -230,93 +140,6 @@ class Model_User extends Orm\Model
 		$array['avatar'] = $avatar;
 		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
 		return $array;
-	}
-
-	/**
-	 * Retreives widget instances played by a given user
-	 *
-	 * @param int The ID of the desired user
-	 *
-	 * @return array A list of played instances and other relevant data for the given user.
-	 */
-	public static function get_played_inst_info($user_id)
-	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
-
-		$results = \DB::select(
-				\DB::expr('p.id AS play_id'),
-				\DB::expr('w.id AS widget'),
-				'i.name',
-				'i.id',
-				'p.created_at',
-				'p.elapsed',
-				'p.is_complete',
-				'p.percent'
-			)
-			->from(['log_play', 'p'])
-			->join(['widget_instance', 'i'])
-				->on('i.id', '=', 'p.inst_id')
-			->join(['widget', 'w'])
-				->on('w.id', '=', 'i.widget_id')
-			->where('p.user_id', $user_id)
-			->order_by('p.created_at', 'DESC')
-			->order_by('i.created_at', 'DESC')
-			->as_object()
-			->execute();
-
-		$return = [];
-		foreach ($results as $r)
-		{
-			$widget = new \Materia\Widget;
-			$widget->get($r->widget);
-			$r->widget = $widget;
-			$return[] = $r;
-		}
-
-		return $return;
-	}
-
-	// Updates a user's properties
-	//
-	public static function admin_update($user_id, $new_props)
-	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
-
-		$user = Model_User::find($user_id);
-		if (empty($user)) return ['user' => 'User not found!'];
-
-		$report = [];
-		$is_student = \Materia\Perm_Manager::is_student($user->id);
-
-		if ($new_props->is_student == $is_student)
-		{
-			$report['is_student'] = true;
-		}
-		else
-		{
-			//update_role's second argument is true for employee, false for student
-			//returning the opposite of the user's 'is a student' status covers this case
-			\Auth_Login_Materiaauth::update_role($user->id, ! $new_props->is_student);
-			$activity = new \Materia\Session_Activity([
-				'user_id' => \Model_User::find_current_id(),
-				'type'    => \Materia\Session_Activity::TYPE_ADMIN_EDIT_USER,
-				'item_id' => $user->id,
-				'value_1' => 'is_student',
-				'value_2' => $is_student,
-				'value_3' => $new_props->is_student
-			]);
-			$activity->db_store();
-		}
-		unset($new_props->is_student);
-
-		foreach ($new_props as $prop => $val)
-		{
-			$clean_prop = ucwords(str_replace('_', ' ', $prop));
-			$result = $user->set_property($prop, $val);
-			$report[$prop] = $result ? true : '"'.$clean_prop.'" update failed!';
-		}
-
-		return $report;
 	}
 
 	public function get_property($prop)
