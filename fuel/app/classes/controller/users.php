@@ -16,7 +16,8 @@ class Controller_Users extends Controller
 	{
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
-		$bypass = isset($_GET['directlogin']) ? true : false;
+		$direct_login = isset($_GET['directlogin']) || Session::get_flash('direct_login', false);
+		if ($direct_login) Session::set_flash('direct_login', true);
 
 		if ( ! Model_User::find_current()->is_guest())
 		{
@@ -24,16 +25,12 @@ class Controller_Users extends Controller
 			Response::redirect($redirect);
 		}
 
-		Event::trigger('request_login', $bypass);
-
-		if ($bypass) Session::set_flash('bypass', true);
+		Event::trigger('request_login', $direct_login);
 
 		Css::push_group(['core', 'login']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
-
-		Session::set_flash('bypass', $bypass);
 
 		$this->theme->get_template()
 			->set('title', 'Login')
@@ -45,12 +42,17 @@ class Controller_Users extends Controller
 
 	public function post_login()
 	{
+		// figure out if we got here from direct login
+		$direct_login = Session::get_flash('direct_login', false);
+		if ($direct_login) Session::set_flash('direct_login', true); // extend the flash
+
 		// figure out where to send if logged in
 		$redirect = Input::get('redirect') ?: Router::get('profile');
 		$login = Materia\Api::session_login(Input::post('username'), Input::post('password'));
+
 		if ($login === true)
 		{
-			Session::delete_flash('bypass');
+			Session::delete_flash('direct_login');
 			// if the location is the profile and they are an author, send them to my-widgets instead
 			if (\Service_User::verify_session('basic_author') == true && $redirect == Router::get('profile'))
 			{
