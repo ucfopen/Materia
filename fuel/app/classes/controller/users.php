@@ -60,7 +60,7 @@ class Controller_Users extends Controller
 		}
 		else
 		{
-			$msg = \Model_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
+			$msg = \Service_User::check_rate_limiter() ? 'ERROR: Username and/or password incorrect.' : 'Login locked due to too many attempts.';
 			Session::set_flash('login_error', $msg);
 			$this->get_login();
 		}
