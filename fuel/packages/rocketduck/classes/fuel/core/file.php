@@ -37,6 +37,7 @@ class File extends Fuel\Core\File
 			header('Expires: '.date('D, d M Y H:i:s \G\M\T' , (time() + 43200)));
 			header('Pragma: public');
 			header('Cache-Control: max-age=172800, public, must-revalidate');
+			header('X-MateriaSendfile: on');
 			header($sendfile_header);
 			exit;
 		}
