@@ -35,7 +35,7 @@ class Test_LtiEvents extends \Test_Basetest
 	public function test_on_before_play_start_event_throws_unknown_user_exception_for_bad_user()
 	{
 		\Config::set("lti::lti.consumers.materia.creates_users", false);
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'FirstN', 'Last');
+		$user = $this->make_random_student();
 		$user->username = 'non-existant-user';
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
@@ -50,7 +50,7 @@ class Test_LtiEvents extends \Test_Basetest
 	public function test_on_before_play_start_event_throws_unknown_assignment_exception_for_bad_assignment()
 	{
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$event_args = ['inst_id' => false, 'is_embedded' => true];
 		$this->create_test_oauth_launch([], \Uri::current(), $user);
@@ -64,7 +64,7 @@ class Test_LtiEvents extends \Test_Basetest
 	public function test_on_before_play_start_event_throws_guest_mode_exception()
 	{
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$widget_instance->guest_access = true;
 		$widget_instance->db_store();
@@ -81,7 +81,7 @@ class Test_LtiEvents extends \Test_Basetest
 	{
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
 		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
@@ -101,7 +101,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// First play
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 
 		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
@@ -111,7 +111,6 @@ class Test_LtiEvents extends \Test_Basetest
 
 		// Nothing should be in the session
 		$session_data = \Session::get("lti-{$play_id}", false);
-		trace($session_data);
 		$this->assertEquals(false, $session_data);
 		$session_data = \Session::get("lti-link-{$play_id}", false);
 		$this->assertEquals(false, $session_data);
@@ -122,7 +121,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// First play
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
 
@@ -141,7 +140,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// First play
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
 
@@ -168,7 +167,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// First play
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 
 		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
@@ -185,7 +184,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// First play
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 
 		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
@@ -206,7 +205,7 @@ class Test_LtiEvents extends \Test_Basetest
 		// First play
 		\Config::set("lti::lti.consumers.materia.creates_users", true);
 		$resource_id = $this->get_uniq_string();
-		$user = $this->create_materia_user($this->get_uniq_string(), 'gocu1@test.test', 'First', 'Last');
+		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
 
@@ -245,7 +244,8 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_save_widget_association()
 	{
-		$this->_asAuthor();
+		$this->_as_author();
+		$widget = $this->make_disposable_widget();
 
 		$resource_link = 'test-resource-C-'.$this->get_uniq_string();
 
@@ -255,11 +255,11 @@ class Test_LtiEvents extends \Test_Basetest
 
 		// create an instance
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_new(1, 'test-instance-3', $qset, false);
-		$this->assertIsWidgetInstance($widget_instance);
+		$widget_instance = \Materia\Api_V1::widget_instance_new($widget->id, 'test-instance-3', $qset, false);
+		$this->assert_is_widget_instance($widget_instance);
 
 
-		$launch = $this->create_testing_launch_vars($resource_link, 1, '~admin', ['Learner']);
+		$launch = $this->create_testing_launch_vars($resource_link, $widget->id, '~admin', ['Learner']);
 		$launch->inst_id = $widget_instance->id;
 
 		$save_lti_resource_id_to_widget_association = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');
@@ -412,9 +412,11 @@ class Test_LtiEvents extends \Test_Basetest
 	protected function create_instance()
 	{
 		// create an instance
-		$author = $this->_asAuthor();
+		$widget = $this->make_disposable_widget();
+
+		$author = $this->_as_author();
 		$qset = $this->create_new_qset('question', 'answer');
-		$widget_instance = \Materia\Api_V1::widget_instance_new(1, 'test-instance', $qset, false);
+		$widget_instance = \Materia\Api_V1::widget_instance_new($widget->id, 'test-instance', $qset, false);
 
 		return [$author, $widget_instance, $widget_instance->id];
 	}

@@ -1,10 +1,33 @@
 <?php
 
-// TODO: CLEAN UP THIS CODE
-// @codingStandardsIgnoreStart
+use \Materia\Widget_Installer;
+
 class Basetest extends TestCase
 {
+
+	// array of users created by test helpers that will be cleaned up by tearDown()
+	protected $users_to_clean = [];
+	protected $tables_to_truncate = [
+		'asset',
+		'log',
+		'log_activity',
+		'log_storage',
+		'lti',
+		'map_asset_to_object',
+		'map_question_to_qset',
+		'notification',
+		'perm_object_to_user',
+		'perm_role_to_user',
+		'question',
+		'user_extra_attempts',
+		'widget',
+		'widget_instance',
+		'widget_metadata',
+		'widget_qset'
+	];
+
 	// Runs before every single test
+	// @codingStandardsIgnoreLine
 	protected function setUp()
 	{
 		Config::set('errors.throttle', 5000);
@@ -12,35 +35,50 @@ class Basetest extends TestCase
 		static::clear_fuel_input();
 	}
 
+	// @codingStandardsIgnoreLine
 	protected function tearDown()
 	{
 		\Auth::logout();
-	}
+		if (is_array($this->users_to_clean))
+		{
+			foreach ($this->users_to_clean as $user)
+			{
+				$user->delete();
+			}
+		}
+		$this->users_to_clean = [];
 
+		foreach ($this->tables_to_truncate as $value)
+		{
+			\DB::query("Truncate {$value}")->execute();
+		}
+	}
 
 	protected static function clear_fuel_input()
 	{
 		// reset fuelphp's input class
-		$class = new ReflectionClass("\Fuel\Core\Input");
+		$class = new ReflectionClass('\Fuel\Core\Input');
 		$property = $class->getProperty('instance');
 		$property->setAccessible(true);
 		$property->setValue($class, null);
 	}
 
-	protected function create_new_qset($question_text, $asnwerText, $version=0)
+	protected function create_new_qset($question_text, $answer_text, $version=0)
 	{
 		$qset = (object) ['version' => '1', 'data' => null];
 
-		switch($version)
+		switch ($version)
 		{
 			case 0:
 			default:
-				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwerText.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
+				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$answer_text.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
 				break;
+
 			case 1:
-				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$asnwerText.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
+				$qset->data = json_decode('{"items":[{"items":[{"name":null,"type":"QA","assets":null,"answers":[{"text":"'.$answer_text.'","options":{},"value":"100"}],"questions":[{"text":"'.$question_text.'","options":{},"value":""}],"options":{},"id":0}],"name":"","options":{},"assets":[],"rand":false}],"name":"","options":{"partial":false,"attempts":5},"assets":[],"rand":false}');
 				break;
 		}
+
 		return $qset;
 	}
 
@@ -49,7 +87,100 @@ class Basetest extends TestCase
 		return \Materia\Widget_Manager::search($search)[0]->id;
 	}
 
-	protected function _asStudent()
+	protected function make_disposable_widget()
+	{
+		$user = $this->make_random_author();
+
+		$mock_manifest_data = [
+			'general' => [
+				'name' => uniqid('test_'),
+				'group' => 'disposable',
+				'height' => 500,
+				'width' => 6000,
+				'is_qset_encrypted' => false,
+				'is_answer_encrypted' => false,
+				'is_storage_enabled' => false,
+				'is_playable' => true,
+				'is_editable' => true,
+				'in_catalog' => true,
+				'api_version' => 2,
+			],
+			'score' => [
+				'score_module' => 'TestWidget', // NOTE: this matches the class name in our test widget
+				'is_scorable' => false,
+			],
+			'files' => [
+				'flash_version' => 7,
+				'creator' => 'creator.html',
+				'player' => 'player.html',
+			]
+		];
+
+		$params = Widget_Installer::generate_install_params($mock_manifest_data, __FILE__);
+
+		list($id, $num) = \DB::insert('widget')
+			->set($params)
+			->execute();
+
+		$widget = new \Materia\Widget();
+		$widget->get($id);
+
+		// add the demo
+		$qset = (object) ['version' => 2, 'data' => []];
+		$demo_inst = new \Materia\Widget_Instance([
+			'user_id'         => $user->id,
+			'name'            => uniqid('test_'),
+			'is_draft'        => false,
+			'created_at'      => time(),
+			'widget'          => $widget,
+			'is_student_made' => true,
+			'guest_access'    => true,
+			'attempts'        => -1
+		]);
+		$demo_inst->db_store();
+
+		// add/update the required mdetadata
+		Widget_Installer::db_insert_metadata($id, 'about', 'mock about');
+		Widget_Installer::db_insert_metadata($id, 'excerpt', 'mock excerpt');
+		Widget_Installer::db_insert_metadata($id, 'demo', $demo_inst->id);
+
+		// make sure nobody owns the demo widget
+		\Materia\Perm_Manager::clear_user_object_perms($demo_inst->id, \Materia\Perm::INSTANCE, $user->id);
+
+		// load a Model
+		$widget = new \Materia\Widget();
+		$widget->get($id);
+		return $widget;
+	}
+
+	protected function make_random_super_user($password = null)
+	{
+		return $this->make_random_student($password, ['super_user']);
+	}
+
+	protected function make_random_author($password = null)
+	{
+		return $this->make_random_student($password, ['basic_author']);
+	}
+
+	protected function make_random_student($password = null, $add_roles =[])
+	{
+		$name = uniqid('rand_');
+		$first = 'Bobby';
+		$middle = 'R';
+		$last = 'Droptables';
+		$password = $password ?: uniqid();
+
+		require_once(PKGPATH.'materia/tasks/admin.php');
+		$id = \Fuel\Tasks\Admin::new_user($name, $first, $middle, $last, $name.'@materia.com', $password);
+		$user = \Model_User::find($id);
+		$this->users_to_clean[] = $user;
+		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], $add_roles);
+		return $user;
+	}
+
+	// TODO: make this use make_random_student
+	protected function _as_student()
 	{
 		\Auth::logout();
 		$uname = '~student';
@@ -58,18 +189,19 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH . 'materia/tasks/admin.php');
+			require_once(PKGPATH.'materia/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
-
+		$this->users_to_clean[] = $user;
 		return $user;
 	}
 
-	protected function _asAuthor()
+	// TODO: make this use make_random_author
+	protected function _as_author()
 	{
 		\Auth::logout();
 		$uname = '~author';
@@ -78,18 +210,21 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH . 'materia/tasks/admin.php');
+			require_once(PKGPATH.'materia/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'Prof', 'd', 'Author', 'testAuthor@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 
+		$this->users_to_clean[] = $user;
 		return $user;
 	}
-	protected function _asAuthor2()
+
+	// TODO: delete
+	protected function _as_author_2()
 	{
 		\Auth::logout();
 		$uname = '~testAuthor2';
@@ -98,18 +233,20 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH . 'materia/tasks/admin.php');
+			require_once(PKGPATH.'materia/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor2@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
-
+		$this->users_to_clean[] = $user;
 		return $user;
 	}
-	protected function _asAuthor3()
+
+	// TODO: delete
+	protected function _as_author_3()
 	{
 		\Auth::logout();
 		$uname = '~testAuthor3';
@@ -118,28 +255,29 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH . 'materia/tasks/admin.php');
+			require_once(PKGPATH.'materia/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor3@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
-
+		$this->users_to_clean[] = $user;
 		return $user;
 	}
 
-	protected function _asSu()
+	// TODO: use make_random_super_user
+	protected function _as_super_user()
 	{
 		\Auth::logout();
 		$uname = '~testSu';
 		$pword = 'interstellar555!';
 
 		$user = \Model_User::query()->where('username', $uname)->get_one();
-		if( ! $user instanceof \Model_User)
+		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH . 'materia/tasks/admin.php');
+			require_once(PKGPATH.'materia/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'su', 'testSu@ucf.edu', $pword);
 			// TODO: super_user should get all these rights inherently right??????!!!!
 			\Fuel\Tasks\Admin::give_user_role($uname, 'super_user');
@@ -148,20 +286,13 @@ class Basetest extends TestCase
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
 
-		$login = \Model_User::login($uname, $pword);
+		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
-
+		$this->users_to_clean[] = $user;
 		return $user;
 	}
 
-	protected function assertIsUser($user)
-	{
-		$this->assertInstanceOf('\Model_User', $user);
-		$user_array = $user->to_array();
-		$this->assertIsUserArray($user->to_array());
-	}
-
-	protected function assertIsUserArray($user)
+	protected function assert_is_user_array($user)
 	{
 		$this->assertInternalType('array', $user);
 		$this->assertArrayHasKey('id', $user);
@@ -173,14 +304,15 @@ class Basetest extends TestCase
 		$this->assertArrayHasKey('updated_at', $user);
 	}
 
-	protected function assertIsValidID($id)
+	protected function assert_is_valid_id($id)
 	{
 		$this->assertRegExp('/[a-zA-Z0-9]/', $id);
 	}
-	protected function assertIsWidget($widget)
+
+	protected function assert_is_widget($widget)
 	{
 		$this->assertInstanceOf('\Materia\Widget', $widget);
-		$this->assertIsValidID($widget->id);
+		$this->assert_is_valid_id($widget->id);
 		$this->assertObjectHasAttribute('name', $widget);
 		$this->assertObjectHasAttribute('created_at', $widget);
 		$this->assertObjectHasAttribute('dir', $widget);
@@ -191,10 +323,10 @@ class Basetest extends TestCase
 		$this->assertObjectHasAttribute('group', $widget);
 	}
 
-	protected function assertIsWidgetInstance($inst, $skipQset=false)
+	protected function assert_is_widget_instance($inst, $skip_qset=false)
 	{
 		$this->assertInstanceOf('\Materia\Widget_Instance', $inst);
-		$this->assertIsValidID($inst->id);
+		$this->assert_is_valid_id($inst->id);
 		$this->assertObjectHasAttribute('name', $inst);
 		$this->assertObjectHasAttribute('widget', $inst);
 		$this->assertObjectHasAttribute('user_id', $inst);
@@ -206,10 +338,10 @@ class Basetest extends TestCase
 		$this->assertObjectHasAttribute('open_at', $inst);
 		$this->assertObjectHasAttribute('close_at', $inst);
 		$this->assertObjectHasAttribute('attempts', $inst);
-		if(!$skipQset) $this->assertIsQset($inst->qset);
+		if ( ! $skip_qset) $this->assert_is_qset($inst->qset);
 	}
 
-	protected function assertIsQset($qset)
+	protected function assert_is_qset($qset)
 	{
 		$this->assertInternalType('object', $qset);
 		$this->assertObjectHasAttribute('data', $qset);
@@ -219,69 +351,19 @@ class Basetest extends TestCase
 		foreach ($questions as $question)
 		{
 			$this->assertInstanceOf('\Materia\Widget_Question', $question);
-			if($question instanceof \Materia\Widget_Question_Type_QA) $this->assertIsQA($question);
-			if($question instanceof \Materia\Widget_Question_Type_MC) $this->assertIsMC($question);
+			if ($question instanceof \Materia\Widget_Question_Type_QA) $this->assert_question_is_qa($question);
+			if ($question instanceof \Materia\Widget_Question_Type_MC) $this->assert_question_is_mc($question);
 		}
 	}
 
-	protected function assertIsQA($qa)
+	protected function assert_question_is_qa($qa)
 	{
 		$this->assertInstanceOf('\Materia\Widget_Question_Type_QA', $qa);
-		// echo 'more testing needed for QA';
 	}
 
-	protected function assertIsMC($mc)
+	protected function assert_question_is_mc($mc)
 	{
 		$this->assertInstanceOf('\Materia\Widget_Question_Type_MC', $mc);
-		// echo 'more testing needed for MC';
-	}
-
-	protected function assertIsSemesterRage($semester)
-	{
-		$this->assertArrayHasKey('year', $semester);
-		$this->assertGreaterThan(0, $semester['year']);
-		$this->assertArrayHasKey('semester', $semester);
-		$this->assertContains($semester['semester'], array('Spring', 'Summer', 'Fall') );
-		$this->assertArrayHasKey('start', $semester);
-		$this->assertGreaterThan(0, $semester['start']);
-		$this->assertArrayHasKey('end', $semester);
-		$this->assertGreaterThan(0, $semester['end']);
-	}
-
-	protected function assertNotificationExists($notification_array, $from_id, $to_id, $widget_id)
-	{
-		foreach ($notification_array as $notification)
-		{
-			if ($notification['from_id'] == $from_id && $notification['to_id'] == $to_id && $notification['item_id'] == $widget_id)
-			{
-				return true;
-			}
-		}
-
-		$this->fail('Notification was not found.');
-	}
-
-	protected function assertNotMessage($result)
-	{
-		$this->assertFalse($result instanceof \RocketDuck\Msg);
-	}
-
-	protected function assertInvalidLoginMessage($msg)
-	{
-		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
-		$this->assertEquals('Invalid Login', $msg->title);
-	}
-
-	protected function assertPermissionDeniedMessage($msg)
-	{
-		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
-		$this->assertEquals('Permission Denied', $msg->title);
-	}
-
-	protected function assertStudentAccessMessage($msg)
-	{
-		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
-		$this->assertEquals('No Notifications', $msg->title);
 	}
 
 	protected function spoof_widget_play($inst, $context_id=false)
@@ -300,6 +382,6 @@ class Basetest extends TestCase
 
 	public function test_just_because_its_required()
 	{
+		self::assertTrue(true);
 	}
 }
-// @codingStandardsIgnoreEnd

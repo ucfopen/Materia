@@ -6,15 +6,14 @@
 
 class Controller_Widgets_Upload extends Controller
 {
-
-	use Lib_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	public function before()
 	{
 		// require the enable_uploader option to be on
 		if (Config::get('enable_uploader', false) == false || Fuel::$env == Fuel::PRODUCTION) throw new HttpNotFoundException;
 
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in');
@@ -77,8 +76,9 @@ class Controller_Widgets_Upload extends Controller
 			}
 		}
 
-		Session::set_flash('notice',  ($failed ? 'Failed' : 'Success') );
-		Response::redirect(Router::get('upload/widgets'));
+		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
+
+		Response::redirect(URI::create('admin/widget'));
 	}
 }
 
