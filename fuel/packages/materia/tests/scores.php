@@ -9,12 +9,14 @@ class Test_Scores extends \Basetest
 
 	public function test_set_complete_triggers_event()
 	{
-		$this->_asAuthor();
+		$widget = $this->make_disposable_widget();
+
+		$this->_as_author();
 		$qset = $this->create_new_qset('question', 'answer');
-		$output = \Materia\Api_V1::widget_instance_new(1, 'score test', $qset, false);
+		$output = \Materia\Api_V1::widget_instance_new($widget->id, 'score test', $qset, false);
 		$output->db_store();
 
-		$student = $this->_asStudent();
+		$student = $this->_as_student();
 
 		$results = \DB::select()
 			->from('widget_instance')
@@ -51,20 +53,21 @@ class Test_Scores extends \Basetest
 
 	public function test_max_scores_per_context()
 	{
-		$this->_asAuthor();
+		$widget = $this->make_disposable_widget();
+
+		$this->_as_author();
 
 		// ============ MAKE A PUBLISHED WIDGET ============
 		$title = "My Test Widget";
 		$question = 'Question';
 		$answer = 'Answer';
-		$widget_id = 1;
 		$qset = $this->create_new_qset($question, $answer);
 
-		$saveOutput = \Materia\Api_V1::widget_instance_new($widget_id, $title, $qset, true);
-		$this->assertIsWidgetInstance($saveOutput);
+		$saveOutput = \Materia\Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+		$this->assert_is_widget_instance($saveOutput);
 		$qset = $saveOutput->qset;
 
-		$student = $this->_asStudent();
+		$student = $this->_as_student();
 
 		$play = null;
 		$target_score = 0;
