@@ -10,7 +10,7 @@ class Controller_Questions extends Controller
 	public function action_import()
 	{
 		// Validate Logged in
-		if (\Model_User::verify_session() !== true ) throw new HttpNotFoundException;
+		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
 
 		Css::push_group(['core', 'question_catalog']);

@@ -24,5 +24,13 @@ define('STATICPATH', realpath(PUBPATH.DS.'..'.DS.'static').DS );
  */
 \Fuel::$env = \Arr::get($_SERVER, 'FUEL_ENV', \Arr::get($_ENV, 'FUEL_ENV', \Fuel::DEVELOPMENT)); // @codingStandardsIgnoreLine
 
+if(\FUEL::$env === \FUEL::TEST){
+	// PHPUnit 6 introduced a breaking change that
+	// removed PHPUnit_Framework_TestCase as a base class,
+	// and replaced it with \PHPUnit\Framework\TestCase
+	// doing this here because fuelphp core hasn't updated to phpunit 6 yet
+	class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+}
+
 // Initialize the framework with the config file.
 \Fuel::init('config.php');
