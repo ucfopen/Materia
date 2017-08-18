@@ -36,10 +36,8 @@ return [
 	*  Directories of varous assets
 	*/
 	'dirs' => [
-		'media'   => PKGPATH.'materia/media/', // where the uploaded assets are kept
-		'logs'    => PKGPATH.'materia/logs', // profile data is written here
-		'static'  => PUBPATH, // profile data is written here
-		'engines' => PUBPATH.'widget/',
+		'media'   => realpath(PKGPATH.'materia/media').DS, // where the uploaded assets are kept
+		'engines' => realpath(PUBPATH.'widget').DS,
 	],
 
 	// Default media quota in bytes
