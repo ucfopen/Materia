@@ -12,7 +12,7 @@
 			<p>
 				Upload a <strong>.wigt</strong> widget package file to install into Materia.
 			</p>
-			<form enctype='multipart/form-data' method='POST' action='/upload/widgets'>
+			<form enctype='multipart/form-data' method='POST' action='/admin/upload'>
 				<input class='uploader' id='widget_uploader' type='file' name='file'>
 
 				<label for='widget_uploader'>Choose File</label>
