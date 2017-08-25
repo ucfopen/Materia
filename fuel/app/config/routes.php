@@ -6,21 +6,18 @@ return [
 	// ================================= MISC ======================================
 
 	'_403_'             => 'site/403',
-	'_404_'             => 'site/404',    // The main 404 route
-	'_500_'             => 'site/500',    // The main 500 route
-	'_root_'            => 'site/index',  // The default route
+	'_404_'             => 'site/404',
+	'_500_'             => 'site/500',
+	'_root_'            => 'site/index',  // Homepage
 	'permission-denied' => ['site/permission_denied', 'name' => 'nopermission'],
 	'crossdomain'       => 'site/crossdomain',
-
-	// ================================= ADMIN ======================================
-	'upload/widgets'    => 'widgets/upload',
+	'help'              => ['site/help', 'name' => 'help'],    // The main docs page
 
 	// ================================= API ======================================
 
 	'api/json/:method' => 'api/call/1/json/$1', // JSON API GATEWAY
 
 	// ================================= WIDGETS ======================================
-	// NOTE: develop routes are in the development config
 
 	"widgets/$id-$clean_name/create(/.*)?" => 'widgets/create',
 	"widgets/$id-$clean_name/demo"         => 'widgets/play_demo', // each widget engine has a demo game made in it - this is a shortcut to it
@@ -41,17 +38,6 @@ return [
 	'scores/embed/(:alnum)(/.*)?'          => 'scores/show_embedded/$1',
 	'scores/semesters?'                    => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                => 'scores/show/$1',
-
-	'upload/widgets'                        => 'widgets/upload', // widget uploader
-
-	// ================================= DOCS ======================================
-
-	'help' => ['site/help', 'name' => 'help'],    // The main docs page
-
-	// ================================= QUESTIONS ======================================
-
-	'questions'        => 'questions/index', // list all my questions
-	'questions/import' => 'questions/import', // page for importing questions
 
 	// ================================= MEDIA ======================================
 
