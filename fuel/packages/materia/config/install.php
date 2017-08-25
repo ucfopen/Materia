@@ -51,6 +51,11 @@ return [
 			'description' => 'Using NGINX? Enable X-Accell fast file downloads?',
 			'depends_on_value_match' => ['file.enable_mod_xsendfile' => false],
 		],
+		'config.enable_uploader' => [
+			'options' => ['true', 'false'],
+			'default' => true,
+			'description' => 'Allow the admin user to upload widget packages.',
+		],
 		'cache.driver' => [
 			'options' => ['memcached', 'file'],
 			'description' => 'Choose a cache driver for FuelPhp (https://fuelphp.com/docs/classes/cache/config.html).',
