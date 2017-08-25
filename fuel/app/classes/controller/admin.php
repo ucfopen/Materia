@@ -23,7 +23,8 @@ class Controller_Admin extends Controller
 	public function get_widget()
 	{
 		$this->theme->get_template()->set('title', 'Widget Admin');
-		$this->theme->set_partial('content', 'partials/admin/widget');
+		$this->theme->set_partial('content', 'partials/admin/widget')
+			->set('upload_enabled', Config::get('enable_uploader', false));
 	}
 
 	public function get_user()
