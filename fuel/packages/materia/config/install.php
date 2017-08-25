@@ -15,6 +15,7 @@ return [
 		PKGPATH.'materia/media/large',
 		PKGPATH.'materia/media/thumbnail',
 		PKGPATH.'materia/media/uploads',
+		PKGPATH.'materia/vendor/widget',
 		PKGPATH.'materia/vendor/widget/score_module',
 		PKGPATH.'materia/vendor/widget/test',
 		// widget directories
@@ -49,6 +50,11 @@ return [
 			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Using NGINX? Enable X-Accell fast file downloads?',
 			'depends_on_value_match' => ['file.enable_mod_xsendfile' => false],
+		],
+		'config.enable_uploader' => [
+			'options' => ['true', 'false'],
+			'default' => true,
+			'description' => 'Allow the admin user to upload widget packages.',
 		],
 		'cache.driver' => [
 			'options' => ['memcached', 'file'],
