@@ -22,7 +22,7 @@ class Test_LtiUserManager extends \Test_Basetest
 		// Exception thrown for auth driver that can't be found
 		try
 		{
-			$launch = $this->create_testing_launch_vars('resource-link', 1, '~admin', ['Learner']);
+			$launch = $this->create_testing_launch_vars('resource-link', 1, '~materia_system_only', ['Learner']);
 			\Lti\LtiUserManager::authenticate($launch);
 			$this->fail('Exception expected');
 		}

@@ -9,16 +9,20 @@
 			<div class='top'>
 				<h1>Install Widget</h1>
 			</div>
-			<p>
-				Upload a <strong>.wigt</strong> widget package file to install into Materia.
-			</p>
-			<form enctype='multipart/form-data' method='POST' action='/upload/widgets'>
-				<input class='uploader' id='widget_uploader' type='file' name='file'>
-
-				<label for='widget_uploader'>Choose File</label>
-				<input class='action_button' type='submit' value='Submit'>
-				<span>{{ selectedFileName }}</span>
-			</form>
+			<?php if ($upload_enabled): ?>
+				<p>
+					Upload a <strong>.wigt</strong> widget package file to install into Materia.
+				</p>
+				<form enctype='multipart/form-data' method='POST' action='/admin/upload'>
+					<input class='uploader' id='widget_uploader' type='file' name='file' <?= $upload_enabled ? '' : 'disabled' ?>/>
+					<label for='widget_uploader'>Choose File</label>
+					<input class='action_button' type='submit' value='Submit' <?= $upload_enabled ? '' : 'disabled' ?>/>
+					<span>{{ selectedFileName }}</span>
+				</form>
+			<?php else: ?>
+				<p>Widget uploader is disabled</p>
+				<p>Change the "enable_uploader" setting in config.php.</p>
+			<?php endif ?>
 		</section>
 	</div>
 	<div class='container' id='widgets_area'>
