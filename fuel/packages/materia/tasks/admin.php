@@ -228,6 +228,7 @@ class Admin extends \Basetask
 
 	public static function create_default_users()
 	{
+		\Config::load('materia', true, true);
 		$default_users = \Config::get('materia.default_users', []);
 
 		foreach ($default_users as $user)
@@ -249,6 +250,7 @@ class Admin extends \Basetask
 				$e_user->password   = \Auth::instance()->hash_password($user['password']);
 				$e_user->save();
 				\Cli::write("updating user {$user['name']}");
+				\Cli::write(\Cli::color("password set to '{$user['password']}'", 'red'));
 			}
 			else
 			{
@@ -257,6 +259,7 @@ class Admin extends \Basetask
 				// create user
 				static::new_user($user['name'], $user['first_name'], '',  $user['last_name'], $user['email'], $user['password']);
 				\Cli::write("adding user {$user['name']}");
+				\Cli::write(\Cli::color("password set to '{$user['password']}'", 'red'));
 
 				if ( ! empty($user['roles']))
 				{

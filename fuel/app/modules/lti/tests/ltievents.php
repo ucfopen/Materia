@@ -259,7 +259,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$this->assert_is_widget_instance($widget_instance);
 
 
-		$launch = $this->create_testing_launch_vars($resource_link, $widget->id, '~admin', ['Learner']);
+		$launch = $this->create_testing_launch_vars($resource_link, $widget->id, '~materia_system_only', ['Learner']);
 		$launch->inst_id = $widget_instance->id;
 
 		$save_lti_resource_id_to_widget_association = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');

@@ -60,12 +60,26 @@ return [
 	],
 
 	'default_users' => [
+		// This user is used by the server to do management tasks, do not alter
 		[
-			'name'       => '~admin',
+			'name'       => '~materia_system_only',
 			'first_name' => 'Materia',
-			'last_name'  => 'Admin',
-			'email'      => 'fake@fake.com',
+			'last_name'  => 'System',
+			'email'      => 'materia_system@materia.ucf.edu',
 			'roles'      => ['super_user','basic_author']
 		],
+		[
+			'name'       => '~author',
+			'first_name' => 'Prof',
+			'last_name'  => 'Author',
+			'email'      => 'author@materia.ucf.edu',
+			'roles'      => ['basic_author']
+		],
+		[
+			'name'       => '~student',
+			'first_name' => 'John',
+			'last_name'  => 'Student',
+			'email'      => 'student@materia.ucf.edu',
+		]
 	],
 ];
