@@ -54,6 +54,7 @@ return [
 		'config.enable_uploader' => [
 			'options' => ['true', 'false'],
 			'default' => true,
+			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Allow the admin user to upload widget packages.',
 		],
 		'cache.driver' => [
@@ -117,6 +118,7 @@ return [
 		'lti::lti.consumers.canvas.course_nav_default' => [
 			'options' => ['true', 'false'],
 			'default' => false,
+			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Display Materia in Canvas navigation bar?',
 		],
 		'lti::lti.consumers.canvas.secret' => [
@@ -130,6 +132,7 @@ return [
 		'auth.restrict_logins_to_lti_single_sign_on' => [
 			'options' => ['true', 'false'],
 			'default' => true,
+			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Only allow users to log in via LTI single sign on from the LMS?',
 		],
 		'auth.salt' => [
