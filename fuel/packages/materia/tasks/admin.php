@@ -249,6 +249,7 @@ class Admin extends \Basetask
 				$e_user->password   = \Auth::instance()->hash_password($user['password']);
 				$e_user->save();
 				\Cli::write("updating user {$user['name']}");
+				\Cli::write("password set to '{$user['password']}'");
 			}
 			else
 			{
@@ -257,6 +258,7 @@ class Admin extends \Basetask
 				// create user
 				static::new_user($user['name'], $user['first_name'], '',  $user['last_name'], $user['email'], $user['password']);
 				\Cli::write("adding user {$user['name']}");
+				\Cli::write("password set to '{$user['password']}'");
 
 				if ( ! empty($user['roles']))
 				{
