@@ -228,6 +228,7 @@ class Admin extends \Basetask
 
 	public static function create_default_users()
 	{
+		\Config::load('materia', true, true);
 		$default_users = \Config::get('materia.default_users', []);
 
 		foreach ($default_users as $user)
