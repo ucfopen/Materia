@@ -68,6 +68,8 @@ public/js/materia.enginecore.js
 public/js/materia.js
 public/js/materia.namespace.js
 public/js/materia.score.js
+public/js/materia.storage.manager.js
+public/js/materia.storage.table.js
 public/js/student.js
 public/js/vendor/*
 
