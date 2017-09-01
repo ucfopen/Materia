@@ -362,13 +362,20 @@ class Perm_Manager
 		{
 			foreach ($roles as $role_name)
 			{
+				$role_number = Perm_Manager::get_role_id($role_name);
+				if ( ! $role_number)
+				{
+					$success = false;
+					continue;
+				}
+
 				list($id, $num) = \DB::query('INSERT IGNORE
 					INTO '.\DB::quote_table('perm_role_to_user').'
 					SET user_id = :user_id,
 					role_id = :role_id',
 					\DB::INSERT)
 					->param('user_id', $user_id)
-					->param('role_id', Perm_Manager::get_role_id($role_name))
+					->param('role_id', $role_number)
 					->execute();
 
 				if ($num < 1)
