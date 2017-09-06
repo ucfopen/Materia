@@ -6,7 +6,7 @@
 
 class Controller_Site extends Controller
 {
-	use Lib_CommonControllerTemplateTrait;
+	use Trait_CommonControllerTemplate;
 
 	/**
 	 * Handles the homepage
@@ -22,7 +22,9 @@ class Controller_Site extends Controller
 			->set('title', 'Welcome to Materia')
 			->set('page_type', 'store');
 
-		$this->theme->set_partial('content', 'partials/homepage');
+		$spotlight = $this->theme->view('partials/spotlight');
+		$this->theme->set_partial('content', 'partials/homepage')
+			->set_safe('spotlight', $spotlight);
 		Js::push_group('jquery_ui');
 		Css::push_group('homepage');
 	}
@@ -51,7 +53,7 @@ class Controller_Site extends Controller
 		$this->theme->set_partial('content', 'partials/help/main');
 
 		Css::push_group('help');
-		Js::push('cdnjs::swfobject/2.2/swfobject.min.js'); // add swf object for flash testing
+		Js::push_group('swfobject'); // add swf object for flash testing
 	}
 
 	public function action_403()

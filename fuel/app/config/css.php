@@ -1,13 +1,10 @@
 <?php
+$cdnjs = '//cdnjs.cloudflare.com/ajax/libs/';
+$static = \Config::get('materia.urls.static');
+$static_css = $static.'css/';
+$g_fonts = '//fonts.googleapis.com/';
+
 return [
-	'hash_file' => 'asset_hash.css.json',
-	'paths' => [
-		'gfonts' => '//fonts.googleapis.com/',
-		'theme'  => '/themes/default/assets/css/',
-		'lib'  => '/assets/css/',
-		'jslib' => '/assets/js/lib/',
-		'cdnjs' => '//cdnjs.cloudflare.com/ajax/libs/',
-	],
 
 	'always_load_groups' => [
 		'default' => [
@@ -17,76 +14,80 @@ return [
 	],
 
 	'groups' => [
+		'admin' => [
+			$static_css.'admin.css'
+		],
 		'widget_play' => [
-			'theme::play.css',
-			'jslib::ngmodal/ng-modal.css'
+			$static_css.'play.css',
+			$static.'js/vendor/ngmodal/ng-modal.css'
 		],
 		'lti' => [
-			'theme::main.css',
-			'theme::lti.css',
+			$static_css.'main.css',
+			$static_css.'lti.css',
 		],
 		'my_widgets' => [
-			'theme::my_widgets.css',
-			'cdnjs::jqPlot/1.0.0/jquery.jqplot.min.css',
-			'lib::ui-lightness/jquery-ui-1.8.21.custom.css',
-			'lib::ui-lightness/jquery-ui-timepicker-addon.css',
-			'lib::jquery.dataTables.css',
-			'jslib::ngmodal/ng-modal.css'
+			$static_css.'my_widgets.css',
+			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.css',
+			$static_css.'ui-lightness/jquery-ui-1.8.21.custom.css',
+			$static_css.'ui-lightness/jquery-ui-timepicker-addon.css',
+			$static_css.'jquery.dataTables.css',
+			$static.'js/vendor/ngmodal/ng-modal.css'
 		],
 		'widget_editor' => [
-			'theme::create.css',
-			'jslib::ngmodal/ng-modal.css'
+			$static_css.'create.css',
+			$static.'js/vendor/ngmodal/ng-modal.css'
 		],
 		'widget_detail' => [
-			'jslib::fancybox/jquery.fancybox.css',
-			'theme::widget.css',
+			$cdnjs.'fancybox/1.3.4/jquery.fancybox-1.3.4.css',
+			$static_css.'widget.css',
 		],
 		'widget_catalog' => [
-			'theme::catalog.css',
+			$static_css.'catalog.css',
 		],
 		'profile' => [
-			'theme::user.css',
+			$static_css.'user.css',
 		],
 		'login' => [
-			'theme::login.css',
+			$static_css.'login.css',
 		],
 		'scores' => [
-			'cdnjs::jqPlot/1.0.0/jquery.jqplot.min.css',
-			'theme::scores.css',
+			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.css',
+			$static_css.'scores.css',
 		],
 		'embed_scores' => [
-			'theme::scores.css',
+			$static_css.'scores.css',
 		],
 		'question_catalog' => [
-			'lib::jquery.dataTables.css','theme::question-import.css',
+			$static_css.'jquery.dataTables.css',
+			$static_css.'question-import.css',
 		],
 		'media_catalog' => [
-			'lib::jquery.dataTables.css',
-			'cdnjs::plupload/1.5.4/jquery.plupload.queue/jquery.plupload.queue.css',
-			'theme::media-import.css'
+			$static_css.'jquery.dataTables.css',
+			$cdnjs.'plupload/1.5.4/jquery.plupload.queue/css/jquery.plupload.queue.css',
+			$static_css.'media-import.css'
 		],
 		'homepage' => [
-			'theme::store.css',
-			'theme::widget.css',
+			$static_css.'store.css',
+			$static_css.'widget.css',
 		],
 		'help' => [
-			'theme::docs.css',
+			$static_css.'docs.css',
 		],
 		'404' => [
-			'theme::404.css',
+			$static_css.'404.css',
 		],
 		'500' => [
-			'theme::500.css',
+			$static_css.'500.css',
 		],
 		'core' => [
-			'theme::main.css',
+			$static_css.'main.css',
 		],
 		'upload' => [
-			'theme::upload.css',
+			$static_css.'upload.css',
 		],
 		'fonts' => [
-			'gfonts::css?family=Kameron:700&text=0123456789%25',
-			'gfonts::css?family=Lato:300,400,700,700italic,900&amp;v2',
+			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
+			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',
 		],
 	],
 ];

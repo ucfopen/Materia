@@ -6,12 +6,12 @@
 
 class Controller_Media extends Controller
 {
-	use Lib_S3ResponseTrait;
+	use Trait_S3ResponseTrait;
 
 	public function get_show_asset($asset_id)
 	{
 		// Validate Logged in
-		if ( ! (\Model_User::verify_session() === true || \Materia\Session_Play::is_user_playing() )) throw new HttpNotFoundException;
+		if ( ! (\Service_User::verify_session() === true || \Materia\Session_Play::is_user_playing() )) throw new HttpNotFoundException;
 
 		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
 
@@ -43,7 +43,7 @@ class Controller_Media extends Controller
 	public function get_import()
 	{
 		// Validate Logged in
-		if (\Model_User::verify_session() !== true) throw new HttpNotFoundException;
+		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
 		Css::push_group(['core', 'media_catalog']);
 
@@ -52,7 +52,7 @@ class Controller_Media extends Controller
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
 
 		$this->add_s3_config_to_response();
 
@@ -71,7 +71,7 @@ class Controller_Media extends Controller
 	public function action_upload()
 	{
 		// Validate Logged in
-		if (\Model_User::verify_session() !== true ) throw new HttpNotFoundException;
+		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
 		Event::register('media-upload-complete', '\Controller_Media::on_upload_complete');
 
@@ -90,7 +90,7 @@ class Controller_Media extends Controller
 	protected function _show_resized($asset_id, $size_name, $width, $crop=false)
 	{
 		// Validate Logged in
-		if (\Model_User::verify_session() !== true ) throw new HttpNotFoundException;
+		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
 		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
 

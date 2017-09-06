@@ -1,40 +1,27 @@
 {
-  "name": "Materia",
+  "name": "@ucfcdl/materia",
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://github.com/ucfcdl/Materia",
   "scripts": {
-    "assets": "env NODE_ENV=production webpack -p",
-    "assets-watch": "webpack --watch",
-    "assets-dev": "webpack",
-    "postinstall": "frontend-dependencies"
+    "build": "webpack -p",
+    "build-dev": "webpack",
+    "watch": "webpack --watch",
+    "postinstall": "napa && npm run build"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^4.0.1",
+    "hash-assets-webpack-plugin": "^0.3.2",
+    "materia-client-assets": "ucfcdl/materia-client-assets#v0.1.21",
+    "napa": "^3.0.0"
+  },
+  "napa": {
     "fancybox": "fancyapps/fancybox#v2.1.6",
-    "frontend-dependencies": "^0.2.1",
-    "ngmodal": "adamalbrecht/ngModal#v1.2.0",
+    "ngmodal": "adamalbrecht/ngModal#1.2.2",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
     "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
   },
-  "devDependencies": {
-    "coffee-loader": "^0.7.3",
-    "coffee-script": "^1.9.1",
-    "css-loader": "^0.28.4",
-    "extract-text-webpack-plugin": "^3.0.0",
-    "hash-assets-webpack-plugin": "^0.3.2",
-    "ng-annotate-loader": "^0.6.1",
-    "node-sass": "^4.5.3",
-    "resolve-url-loader": "^2.1.0",
-    "sass-loader": "^6.0.6",
-    "style-loader": "^0.18.2",
-    "webpack": "^3.3.0"
-  },
-  "frontendDependencies": {
-    "target": "public/assets/js/lib",
-    "packages": [
-      "ngmodal/dist/*",
-      "fancybox/source/*",
-      "spinjs/dist/spin.min.js",
-      "timepicker/*"
-    ]
-  }
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:ucfcdl/Materia.git",
+  "license": "UNLICENSED"
 }
