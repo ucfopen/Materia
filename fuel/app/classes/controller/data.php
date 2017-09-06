@@ -36,6 +36,7 @@ class Controller_Data extends Controller
 			throw new HttpServerErrorException;
 		}
 
+		$title = \Inflector::friendly_title($inst->name, '_', true);
 		return Response::forge()
 			->body($data)
 			->set_header('Pragma', 'public')
@@ -44,6 +45,6 @@ class Controller_Data extends Controller
 			->set_header('Content-Type', 'application/force-download')
 			->set_header('Content-Type', 'application/octet-stream')
 			->set_header('Content-Type', 'application/download')
-			->set_header('Content-Disposition', "attachment; filename=\"export_{$inst->name}{$file_type}\"");
+			->set_header('Content-Disposition', "attachment; filename=\"export_{$title}{$file_type}\"");
 	}
 }
