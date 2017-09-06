@@ -1,6 +1,5 @@
 <?php
 return [
-	'test/external/(:alnum)(/.*)?'          => 'widgets/test/external/$1',
-	'upload/widgets'   => 'widgets/upload',
+	'test/external/(:alnum)(/.*)?' => 'widgets/test/external/$1',
 	'upload/upload'   => 'upload/upload',
 ];
