@@ -17,9 +17,9 @@ return [
 		PKGPATH.'materia/media/uploads',
 		PKGPATH.'materia/vendor/widget/score_module',
 		PKGPATH.'materia/vendor/widget/test',
-		// files in docroot
-		DOCROOT.'static/widget',
-		DOCROOT.'static/widget/test'
+		// widget directories
+		\Config::get('materia.dirs.engines'),
+		\Config::get('materia.dirs.engines').'test',
 	],
 
 	// list of default configs to copy into the requested environment
@@ -54,6 +54,10 @@ return [
 			'options' => ['memcached', 'file'],
 			'description' => 'Choose a cache driver for FuelPhp (https://fuelphp.com/docs/classes/cache/config.html).',
 		],
+		'cache.file.path' => [
+			'default' => APPPATH.'tmp',
+			'depends_on_value_match' => ['cache.driver' => 'file'],
+		],
 		'cache.memcached.servers.default.host' => [
 			'default' => 'localhost',
 			'depends_on_value_match' => ['cache.driver' => 'memcached'],
@@ -66,6 +70,10 @@ return [
 		'session.driver' => [
 			'options' => ['memcached', 'file'],
 			'description' => 'Choose a session driver for FuelPHP (https://fuelphp.com/docs/classes/session/config.html).',
+		],
+		'session.file.path' => [
+			'default' => APPPATH.'tmp',
+			'depends_on_value_match' => ['session.driver' => 'file'],
 		],
 		'session.memcached.servers.default.host' => [
 			'default' => 'localhost',
@@ -100,6 +108,11 @@ return [
 		'default' => 'lis_person_sourcedid',
 			'description' => 'Which LTI variable do you want to use as a username in Materia?',
 		],
+		'lti::lti.consumers.canvas.course_nav_default' => [
+			'options' => ['true', 'false'],
+			'default' => false,
+			'description' => 'Display Materia in Canvas navigation bar?',
+		],
 		'lti::lti.consumers.canvas.secret' => [
 			'generate_random_key' => true,
 			'description' => 'LTI Secret key for Canvas.',
@@ -107,6 +120,11 @@ return [
 		'lti::lti.consumers.canvas.key' => [
 			'default' => 'materia-production-lti-key',
 			'description' => 'LTI Consumer Key for Canvas.',
+		],
+		'auth.restrict_logins_to_lti_single_sign_on' => [
+			'options' => ['true', 'false'],
+			'default' => true,
+			'description' => 'Only allow users to log in via LTI single sign on from the LMS?',
 		],
 		'auth.salt' => [
 			'generate_random_key' => true,

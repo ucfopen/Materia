@@ -35,6 +35,10 @@ class Widget_Installer
 	{
 		try
 		{
+			$activity = new Session_Activity([
+				'user_id' => \Model_User::find_current_id()
+			]);
+
 			list($dir, $manifest_data, $clean_name) = static::unzip_and_read_manifest($widget_file);
 
 			// Check for existing widgets
@@ -86,6 +90,7 @@ class Widget_Installer
 					$demo_instance_id = $widget->meta_data['demo'];
 					static::out("Existing demo found: $demo_instance_id", 'yellow');
 				}
+				$activity->type = Session_Activity::TYPE_UPDATE_WIDGET;
 			}
 			// NEW
 			else
@@ -94,6 +99,7 @@ class Widget_Installer
 				list($id, $num) = \DB::insert('widget')
 					->set($params)
 					->execute();
+				$activity->type = Session_Activity::TYPE_INSTALL_WIDGET;
 			}
 
 			// ADD the Demo
@@ -104,6 +110,9 @@ class Widget_Installer
 			static::install_widget_files($id, $manifest_data, $dir);
 			static::out("Widget installed: {$id}-{$clean_name}", 'green');
 			$success = true;
+			$activity->item_id = $id;
+			$activity->value_1 = $clean_name;
+			$activity->db_store();
 		}
 		catch (\Exception $e)
 		{
@@ -250,7 +259,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function save_metadata($id, $metadata)
+	public static function save_metadata($id, $metadata)
 	{
 		// add in the metadata
 		foreach ($metadata as $metadata_key => $metadata_value)
@@ -269,7 +278,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function db_insert_metadata($id, $key, $value)
+	public static function db_insert_metadata($id, $key, $value)
 	{
 		\DB::insert('widget_metadata')
 			->set([

@@ -301,7 +301,7 @@ return array(
 		 * Classes to autoload & initialize even when not used
 		 */
 		'classes' => array(
-			// 'Alwaysload',
+			'Alwaysload',
 		),
 
 		/**

@@ -31,16 +31,16 @@ abstract class Perm
 
 	// Objects
 	/** @const NEEDS DOCUMENTATION */
-	const INSTANCE     = 0;
-	/** @const NEEDS DOCUMENTATION */
 	const QUESTION = 1;
 	/** @const NEEDS DOCUMENTATION */
 	const ASSET    = 2;
-
-	const WIDGET = 3;
+	/** @const NEEDS DOCUMENTATION */
+	const WIDGET   = 3;
+	/** @const NEEDS DOCUMENTATION */
+	const INSTANCE = 4;
 
 	/** @const Can see asset */
-	const VISIBLE = 0;
+	const VISIBLE = 1;
 	/** @const Can play this asset (reserved for game access) */
 	const PLAY    = 5;
 	/** @const Can recieve a score for their play */
