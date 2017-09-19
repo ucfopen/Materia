@@ -7,6 +7,8 @@ return [
 	* build routes for static urls to use http://mymateria.com:8008/
 	*/
 	'urls' => [
+		'media'              => 'media', // where the media is stored http:://siteurl.com/assets/upload/
+		'media_upload'       => 'media/upload', // where to post media uploads
 		'static'             => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
 		'engines'            => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')), // engine swf locations
 	],

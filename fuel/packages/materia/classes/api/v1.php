@@ -496,7 +496,7 @@ class Api_V1
 	*/
 	static public function upload_keys_get($file_name, $file_size = null)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		if (empty($file_size) || ! is_int($file_size)) return null;
 
@@ -566,7 +566,7 @@ class Api_V1
 	static public function upload_success_post($asset_id, $s3_upload_success, $error = null)
 	{
 		// Validate Logged in
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 
 		// bypass update if user sends back invalid hash
