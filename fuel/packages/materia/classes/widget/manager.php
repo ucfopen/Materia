@@ -1,25 +1,4 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
- * The go between for the user and the Materia Package.
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
-
 namespace Materia;
 
 class Widget_Manager
@@ -33,7 +12,7 @@ class Widget_Manager
 	 *
 	 * @return array The information and metadata about the widget or widgets called for.
 	 */
-	static public function get_widgets($widget_ids, $type=null)
+	static public function get_widgets($widget_ids=null, $type='featured')
 	{
 		$widgets = [];
 		// =============== Get the requested widgets =================
@@ -43,7 +22,6 @@ class Widget_Manager
 		{
 			$query = \DB::select('id')
 				->from('widget')
-				->where('is_playable', '1')
 				->order_by('name');
 
 			# $type provides optional selection filter for widgets:
@@ -52,12 +30,20 @@ class Widget_Manager
 			# $type could potentially be extended to other options later on
 			switch ($type)
 			{
-				case 'all':
-					// No additional parameters to add to query
+				case 'admin':
+					// return everything
 					break;
 
+				case 'all':
+				case 'playable':
+					$query->where('is_playable', '1');
+					break;
+
+				case 'featured':
+				case 'catalog':
 				default:
 					$query->where('in_catalog', '1');
+					$query->where('is_playable', '1');
 					break;
 			}
 
@@ -74,6 +60,81 @@ class Widget_Manager
 		}
 
 		return $widgets;
+	}
+
+	static public function update_widget($props)
+	{
+		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+
+		$widget = new Widget();
+		$found = $widget->get($props->id);
+		unset($props->id);
+
+		//confirm that widget id and name are correct from the incoming request
+		if ( ! $found) return ['widget' => 'Widget not found!'];
+		if ($props->clean_name != $widget->clean_name) return ['widget' => 'Widget mismatch!'];
+
+		unset($props->clean_name);
+
+		//keep track of each thing we're potentially changing
+		$report = [];
+
+		$original_demo = $widget->meta_data['demo'];
+		if ($original_demo == $props->demo)
+		{
+			$report['demo'] = true;
+		}
+		else
+		{
+			$demo = Widget_Instance_Manager::get($props->demo);
+			if ($demo)
+			{
+				if ($demo->widget == $widget)
+				{
+					try
+					{
+						\DB::update('widget_metadata')
+							->set(['value' => $demo->id])
+							->where('widget_id', $widget->id)
+							->where('name', 'demo')
+							->execute();
+						$report['demo'] = true;
+
+						$activity = new Session_Activity([
+							'user_id' => \Model_User::find_current_id(),
+							'type'    => Session_Activity::TYPE_ADMIN_EDIT_WIDGET,
+							'item_id' => $widget->id,
+							'value_1' => 'demo',
+							'value_2' => $original_demo,
+							'value_3' => $demo->id,
+						]);
+						$activity->db_store();
+					}
+					catch (Exception $e)
+					{
+						$report['demo'] = '"Demo" update failed!';
+					}
+				}
+				else
+				{
+					$report['demo'] = 'Demo instance is for another widget!';
+				}
+			}
+			else
+			{
+				$report['demo'] = 'Demo instance not found!';
+			}
+		}
+		unset($props->demo);
+
+		foreach ($props as $prop => $val)
+		{
+			$clean_prop = ucwords(str_replace('_', ' ', $prop));
+			$result = $widget->set_property($prop, $val);
+			$report[$prop] = $result ? true : '"'.$clean_prop.'" update failed!';
+		}
+
+		return $report;
 	}
 
 	static public function search($name)

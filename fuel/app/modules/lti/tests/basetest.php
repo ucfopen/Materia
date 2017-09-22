@@ -1,9 +1,5 @@
 <?php
-/**
- * @group App
- * @group Module
- * @group Lti
- */
+
 class Test_Basetest extends \Basetest
 {
 	protected $uniq_counter = 0;
@@ -26,7 +22,7 @@ class Test_Basetest extends \Basetest
 	{
 		static::clear_fuel_input();
 		$_POST = [];
-		$_GET = [];
+		$_GET  = [];
 		$class = new ReflectionClass("\Lti\LtiLaunch");
 		foreach (['launch'] as $value)
 		{
@@ -80,21 +76,28 @@ class Test_Basetest extends \Basetest
 	{
 		if ( ! $roles_array) $roles_array = ['Student'];
 
-		$_POST['lis_person_sourcedid'] = $user_id;
-		$_POST['resource_link_id'] = $resource_link_id;
-		$_POST['roles'] = implode(',', $roles_array);
-		$_POST['lis_result_sourcedid'] = 'lis_result_sourcedid';
-		$_POST['lis_outcome_service_url'] = 'lis_outcome_service_url';
-		$_POST['context_id'] = 'context_id';
-		$_POST['context_title'] = 'context_title';
-		$_POST['tool_consumer_instance_guid'] = 'materia-test';
-		$_POST['lis_person_contact_email_primary'] = 'lis_person_contact_email_primary';
-		$_POST['lis_person_name_family'] = 'lis_person_name_family';
-		$_POST['lis_person_name_given'] = 'lis_person_name_given';
-		$_POST['lis_person_name_full'] = 'lis_person_name_full';
-		$_POST['tool_consumer_info_product_family_code'] = 'materia-test';
+		\Input::_set('post', [
+			'lis_person_sourcedid'                   => $user_id,
+			'resource_link_id'                       => $resource_link_id,
+			'roles'                                  => implode(',', $roles_array),
+			'lis_result_sourcedid'                   => 'lis_result_sourcedid',
+			'lis_outcome_service_url'                => 'lis_outcome_service_url',
+			'context_id'                             => 'context_id',
+			'context_title'                          => 'context_title',
+			'tool_consumer_instance_guid'            => 'materia-test',
+			'lis_person_contact_email_primary'       => 'lis_person_contact_email_primary',
+			'lis_person_name_family'                 => 'lis_person_name_family',
+			'lis_person_name_given'                  => 'lis_person_name_given',
+			'lis_person_name_full'                   => 'lis_person_name_full',
+			'tool_consumer_info_product_family_code' => 'materia-test'
+		]);
+	}
 
+	protected function unset_post_prop($prop)
+	{
+		unset($_POST[$prop]);
 		static::clear_fuel_input();
+		\Input::forge();
 	}
 
 	protected function create_test_lti_association($launch = false, $user_id = 1)
@@ -118,9 +121,10 @@ class Test_Basetest extends \Basetest
 	protected function create_test_oauth_launch($custom_params, $endpoint, $user = false, $passback_url = false)
 	{
 		$this->reset_input();
+		\Config::load('lti::lti', true, true);
 
-		$key    = \Config::get('lti::lti.consumers.materia.key');
-		$secret = \Config::get('lti::lti.consumers.materia.secret');
+		$key    = \Config::get('lti::lti.consumers.materia-test.key');
+		$secret = \Config::get('lti::lti.consumers.materia-test.secret');
 
 		$base_params    = [
 			'resource_link_id'     => 'test-resource',
@@ -138,7 +142,6 @@ class Test_Basetest extends \Basetest
 
 			if ( ! $user)
 			{
-				trace('CREATING A USER');
 				// none - make one
 				$user_id = \Auth::instance()->create_user('_LTI_INSTRUCTOR_', uniqid(), '_LTI_INSTRUCTOR_@materia.com', 1, []);
 
@@ -155,50 +158,9 @@ class Test_Basetest extends \Basetest
 		}
 
 		$post_args = \Lti\Oauth::build_post_args($user, $endpoint, $params, $key, $secret, $passback_url);
-
-		foreach($post_args as $k => $v)
-		{
-			$_POST[$k] = $v;
-		}
+		\Input::_set('post', $post_args);
 
 		return $post_args;
-	}
-
-	protected function create_materia_user($username, $email, $first, $last, $make_instructor = false)
-	{
-		$user = \Model_User::forge([
-			'username'        => (string) $username,
-			'first'           => (string) $first,
-			'last'            => (string) $last,
-			'password'        => uniqid(),
-			'email'           => $email,
-			'group'           => 1,
-			'profile_fields'  => [],
-			'last_login'      => 0,
-			'login_hash'      => '',
-		]);
-
-		// save the new user record
-		try
-		{
-			$result = $user->save();
-		}
-		catch (\Exception $e)
-		{
-			$result = false;
-		}
-
-		if($make_instructor)
-		{
-			$result = \RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], ['basic_author']);
-
-			if(!$result)
-			{
-				return false;
-			}
-		}
-
-		return $user;
 	}
 
 	protected function get_uniq_string()

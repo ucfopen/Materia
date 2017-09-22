@@ -21,11 +21,11 @@ class Model_Notification extends \Orm\Model
 
 	protected static $_observers = [
 		'Orm\Observer_CreatedAt' => [
-			'events' => array('before_insert'),
+			'events' => ['before_insert'],
 			'mysql_timestamp' => false,
 		],
 		'Orm\Observer_UpdatedAt' => [
-			'events' => array('before_save'),
+			'events' => ['before_save'],
 			'mysql_timestamp' => false,
 		],
 	];
@@ -74,7 +74,7 @@ public static function on_widget_delete_event($assoc_param_array)
 				$inst->db_get($inst_id, false);
 
 				$user_link = $user->first.' '.$user->last.' ('.$user->username.')';
-				$widget_link = Html::anchor(\Config::get('materia.urls.root').'my-widgets/#'.$inst_id, $inst->name);
+				$widget_link = Html::anchor(\Config::get('materia.urls.root').'my-widgets#/'.$inst_id, $inst->name);
 				$widget_name = $inst->name;
 				$widget_type = $inst->widget->name;
 

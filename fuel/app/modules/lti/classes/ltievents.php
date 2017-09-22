@@ -64,7 +64,6 @@ class LtiEvents
 	public static function on_play_start_event($payload)
 	{
 		extract($payload); // exposes $inst_id and $play_id
-
 		switch (static::get_lti_play_state($play_id))
 		{
 			case self::PLAY_STATE_NOT_LTI:

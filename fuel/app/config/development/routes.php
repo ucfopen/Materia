@@ -1,6 +1,5 @@
 <?php
 return [
-	'test/external/(:alnum)(/.*)?'          => 'widgets/test/external/$1',
-	'upload/widgets'   => 'widgets/upload',
-	'upload/upload'   => 'upload/upload',
+	// Route for testing what Materia looks like using the embed code
+	'test/external/(:alnum)(/.*)?' => 'widgets/test/external/$1',
 ];
