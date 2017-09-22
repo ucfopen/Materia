@@ -4,26 +4,50 @@
     "description" : "Materia is UCF's educational game and application platform",
     "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida"],
     "license": "No License",
+    "scripts":{
+        "sniff": "phpcs --extensions=php .",
+        "sniff-errors-only": "phpcs -n --extensions=php .",
+        "sniff-summary": "phpcs --report=summary --extensions=php .",
+        "post-install-cmd": "cp ./githooks/pre-commit ./.git/hooks/pre-commit",
+        "git-pre-commit":"@sniff-summary",
+        "destroy-everything": "php oil r admin:destroy_everything --quiet",
+        "oil-install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
+        "widgets-install-test": "php oil r widget:install fuel/packages/materia/tests/widget_packages/*.wigt",
+        "test": "php -dzend_extension=xdebug.so fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
+        "coverage": "php oil test --coverage-html=coverage --coverage-clover=coverage.xml --coverage-text=coverage.txt",
+        "testci":[
+            "@destroy-everything",
+            "@oil-install-quiet",
+            "@test"
+        ],
+        "coverageci":[
+            "@destroy-everything",
+            "@oil-install-quiet",
+            "@coverage"
+        ]
+    },
     "require": {
         "php": ">=5.6.0",
+        "ext-pdo": "*",
+        "ext-gd": "*",
         "composer/installers": "~1.0",
-        "fuel/core": "1.8.*",
-        "fuel/auth": "1.8.*",
-        "fuel/email": "1.8.*",
-        "fuel/oil": "1.8.*",
-        "fuel/orm": "1.8.*",
-        "fuel/parser": "1.8.*",
-        "iturgeon/qasset": "1.0.4",
+        "fuel/core": "1.8.0.4",
+        "fuel/auth": "1.8.0",
+        "fuel/email": "1.8.0",
+        "fuel/oil": "1.8.0",
+        "fuel/orm": "1.8.0",
+        "fuel/parser": "1.8.0",
+        "iturgeon/qasset": "1.0.5",
         "fuelphp/upload": "2.0.6",
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.0",
         "eher/oauth": "1.0.7"
     },
     "require-dev": {
-        "phpunit/phpunit": "4.1.*"
-    },
-    "suggest": {
-        "fuel/docs": "FuelPHP documentation"
+        "phpunit/phpunit": "6.4.*",
+        "squizlabs/php_codesniffer": "2.9",
+        "ucfcdl/fuelphp-phpcs": "master",
+        "johnkary/phpunit-speedtrap": "^2.0@dev"
     },
     "config": {
         "vendor-dir": "fuel/vendor",
@@ -35,5 +59,23 @@
             "{$name}": ["fuel/docs"]
         }
     },
+    "repositories": [
+        {
+            "type"    : "package",
+            "package" : {
+                "name"    : "ucfcdl/fuelphp-phpcs",
+                "version" : "master",
+                "dist"    : {
+                    "url"  : "https://github.com/ucfcdl/fuelphp-phpcs/archive/master.zip",
+                    "type": "zip"
+                },
+                "source"  : {
+                    "url"       : "https://github.com/ucfcdl/fuelphp-phpcs.git",
+                    "type"      : "git",
+                    "reference" : "master"
+                }
+            }
+        }
+    ],
     "minimum-stability": "dev"
 }

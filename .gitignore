@@ -32,22 +32,48 @@ desktop.ini
 /fuel/app/logs/**/*
 /fuel/app/cache/**/*
 /fuel/app/config/crypt.php
-/fuel/app/config/asset_hash.json
+/fuel/app/config/development/crypt.php
+/fuel/app/config/asset_hash*
 /fuel/app/config/**/migrations.php
 
-
-## Materia Specific Stuff
-# Static compile js
-static/js/*
 
 # NPM modules
 node_modules
 
+public/css/404.css
+public/css/500.css
+public/css/admin.css
+public/css/beard_mode.css
+public/css/catalog.css
+public/css/create.css
+public/css/docs.css
+public/css/login.css
+public/css/lti.css
+public/css/main.css
+public/css/media-import.css
+public/css/my_widgets.css
+public/css/play.css
+public/css/question-import.css
+public/css/scores.css
+public/css/store.css
+public/css/user.css
+public/css/widget.css
+public/css/upload.css
+
+public/js/admin.js
+public/js/author.js
+public/js/materia.coms.json.js
+public/js/materia.creatorcore.js
+public/js/materia.enginecore.js
+public/js/materia.js
+public/js/materia.namespace.js
+public/js/materia.score.js
+public/js/student.js
+public/js/vendor/*
+
+
 # Installed Widgets
-public/assets/widget/*
-public/static-widgets
-public/wordguess
-static/widget
+public/widget
 spec/widgets/*
 fuel/packages/materia/vendor/widget/*
 
@@ -62,11 +88,10 @@ fuel/app/tmp
 fuel/packages/materia/tests/widget_source/**/yarn.lock
 
 # Compiled assets
-public/themes/*/assets/css/*.css
-public/themes/*/assets/js/*.js
 
 # dont include coverage files
 coverage.txt
 coverage.xml
 coverage/*
 
+fuel/app/backend/*

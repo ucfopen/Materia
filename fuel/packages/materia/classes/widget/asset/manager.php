@@ -164,7 +164,7 @@ class Widget_Asset_Manager
 		}
 		return $inst_ids;
 	}
-	
+
 	/**
 	 * Get all assets for this user that this user has $perm_type permission to
 	 *
@@ -273,9 +273,9 @@ class Widget_Asset_Manager
 	 */
 	static protected function register_asset_to_item($item_type, $item_id, $id)
 	{
-		$asset_id = is_array($id) ? $id["id"] : $id;
-		if($asset_id === -1) return;
-		
+		$asset_id = is_array($id) ? $id['id'] : $id;
+		if ($asset_id === -1) return;
+
 		\DB::query('INSERT IGNORE INTO '.\DB::quote_table('map_asset_to_object').' SET object_type = :object_type, object_id = :object_id, asset_id = :asset_id', \DB::INSERT)
 				->param('object_type', $item_type)
 				->param('object_id', $item_id)

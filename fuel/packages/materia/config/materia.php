@@ -19,16 +19,6 @@ return [
 	'name' => 'Materia',
 
 	/*
-	*  Enable/Disable encryption of question and answer data
-	*  Encryption uses an event drivin architecture and can use custom encryption methods
-	*/
-	'security' => [
-
-		'encrypt_qsets' => true,
-		'encrypt_answers' => true,
-	],
-
-	/*
 	*  URLS throughout the system
 	*
 	*/
@@ -38,25 +28,22 @@ return [
 		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'             => str_replace('//', '//static.', \Uri::create()), // http://static.siteurl.com/
-		'engines'            => str_replace('//', '//static.', \Uri::create('widget/')), // engine swf locations
-		'static_crossdomain' => str_replace('//', '//static.', \Uri::create('')), // crossdomain checks 
+		'static'             => \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
+		'engines'            => \Uri::create('widget/'), // engine swf locations
 	],
 
 	/*
 	*  Directories of varous assets
 	*/
 	'dirs' => [
-		'media'   => PKGPATH.'materia/media/', // where the uploaded assets are kept
-		'logs'    => PKGPATH.'materia/logs', // profile data is written here
-		'static'  => APPPATH.'../../static/', // profile data is written here
-		'engines' => APPPATH.'../../static/widget/',
+		'media'   => realpath(PKGPATH.'materia/media').DS, // where the uploaded assets are kept
+		'engines' => realpath(PUBPATH.'widget').DS,
 	],
 
 	// Default media quota in bytes
 	'media_quota' => 5000,
 
-	'no_media_preview' => PUBPATH.'assets/img/no-preview.jpg',
+	'no_media_preview' => PUBPATH.'img/no-preview.jpg',
 
 	// amount of time before a draft auto-unlocks
 	'lock_timeout' => 60 * 2,
@@ -73,12 +60,26 @@ return [
 	],
 
 	'default_users' => [
+		// This user is used by the server to do management tasks, do not alter
 		[
-			'name'       => '~admin',
+			'name'       => '~materia_system_only',
 			'first_name' => 'Materia',
-			'last_name'  => 'Admin',
-			'email'      => 'fake@fake.com',
+			'last_name'  => 'System',
+			'email'      => 'materia_system@materia.ucf.edu',
 			'roles'      => ['super_user','basic_author']
 		],
+		[
+			'name'       => '~author',
+			'first_name' => 'Prof',
+			'last_name'  => 'Author',
+			'email'      => 'author@materia.ucf.edu',
+			'roles'      => ['basic_author']
+		],
+		[
+			'name'       => '~student',
+			'first_name' => 'John',
+			'last_name'  => 'Student',
+			'email'      => 'student@materia.ucf.edu',
+		]
 	],
 ];
