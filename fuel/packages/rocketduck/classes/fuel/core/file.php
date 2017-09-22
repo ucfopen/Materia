@@ -7,16 +7,15 @@ class File extends Fuel\Core\File
 	{
 		$sendfile = false;
 
-		// send file using apache's mod_xsendfile?
 		if (\Config::get('file.enable_mod_xsendfile', false) && function_exists('apache_get_modules') && in_array('mod_xsendfile', apache_get_modules()))
 		{
+			// send file using apache's mod_xsendfile?
 			$sendfile = true;
-			$sendfile_header = 'X-SendFile: '.$info['realpath'];
+			$sendfile_header = 'X-SendFile: '.realpath($path);
 		}
-
-		// send file using nginx's x_accel?
-		if (\Config::get('file.enable_x_accel', false))
+		else if (\Config::get('file.enable_x_accel', false) && stripos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false)
 		{
+			// send file using nginx's x_accel?
 			$sendfile = true;
 			$media_path_partial = str_replace(realpath(\Config::get('materia.dirs.media')), '', realpath($path));
 			$sendfile_header = "X-Accel-Redirect: /protected_media{$media_path_partial}";
@@ -38,6 +37,7 @@ class File extends Fuel\Core\File
 			header('Expires: '.date('D, d M Y H:i:s \G\M\T' , (time() + 43200)));
 			header('Pragma: public');
 			header('Cache-Control: max-age=172800, public, must-revalidate');
+			header('X-MateriaSendfile: on');
 			header($sendfile_header);
 			exit;
 		}

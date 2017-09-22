@@ -6,44 +6,9 @@
 
 class Controller_Widgets extends Controller
 {
+	use Trait_CommonControllerTemplate;
 
-	protected $_header = 'partials/header';
 	protected $_embedded = false;
-
-	public function before()
-	{
-		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/main');
-	}
-
-	public function after($response)
-	{
-		// If no response object was returned by the action,
-		if (empty($response) or ! $response instanceof Response)
-		{
-			// render the defined template
-			$me = Model_User::find_current();
-
-			$this->theme->set_partial('header', $this->_header)->set('me', $me);
-
-			// add google analytics
-			if ($gid = Config::get('materia.google_tracking_id', false))
-			{
-				Js::push_inline($this->theme->view('partials/google_analytics', array('id' => $gid)));
-			}
-
-			$response = Response::forge(Theme::instance()->render());
-		}
-
-		// prevent caching the widget page, since the PLAY_ID is hard coded into the page
-		$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static_crossdomain').'";');
-		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Css::push_group('core');
-
-		return parent::after($response);
-	}
 
 	/**
 	 * Catalog page to show all the available widgets
@@ -110,7 +75,7 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_create()
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in to create this widget.');
@@ -136,7 +101,7 @@ class Controller_Widgets extends Controller
 	{
 		if (empty($inst_id)) throw new HttpNotFoundException;
 
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set_flash('notice', 'Please log in to edit this widget.');
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
@@ -158,7 +123,7 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_mywidgets()
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in to view your widgets.');
@@ -170,7 +135,7 @@ class Controller_Widgets extends Controller
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
-		Js::push_inline('var IS_STUDENT = '.(\Model_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
+		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
 
 		$this->theme->get_template()
 			->set('title', 'My Widgets')
@@ -203,7 +168,7 @@ class Controller_Widgets extends Controller
 
 	public function get_preview_widget($inst_id)
 	{
-		if (\Model_User::verify_session() !== true)
+		if (\Service_User::verify_session() !== true)
 		{
 			$this->build_widget_login('Login to preview this widget', $inst_id);
 		}
@@ -237,6 +202,7 @@ class Controller_Widgets extends Controller
 
 	protected function show_editor($title, $widget, $inst_id=null)
 	{
+		$this->_disable_browser_cache = true;
 		Css::push_group(['core', 'widget_editor']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
@@ -253,6 +219,7 @@ class Controller_Widgets extends Controller
 
 	protected function draft_not_playable()
 	{
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
 			->set('title', 'Draft Not Playable')
 			->set('page_type', '');
@@ -275,6 +242,7 @@ class Controller_Widgets extends Controller
 
 	protected function no_attempts($inst)
 	{
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
@@ -296,6 +264,7 @@ class Controller_Widgets extends Controller
 
 	protected function no_permission()
 	{
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
@@ -326,7 +295,9 @@ class Controller_Widgets extends Controller
 
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
 	{
+		$this->_disable_browser_cache = true;
 		$results = \Event::trigger('before_play_start', ['inst_id' => $inst_id, 'is_embedded' => $is_embedded], 'array');
+		$context_id = false;
 
 		foreach ($results as $result)
 		{
@@ -345,6 +316,9 @@ class Controller_Widgets extends Controller
 
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
+
+		// Disable header if embedded, prior to setting the widget view or any login/error screens
+		if ($is_embedded) $this->_header = 'partials/header_empty';
 
 		if ( ! $is_embedded && $inst->embedded_only) return $this->embedded_only($inst);
 
@@ -492,7 +466,5 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
-
-		if ($is_embedded) $this->_header = 'partials/header_empty';
 	}
 }

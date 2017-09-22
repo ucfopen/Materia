@@ -47,7 +47,7 @@ class Api_V1
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
 		{
-			if (\Model_User::verify_session() !== true) return []; // shortcut to returning noting
+			if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
 			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
 		}
 
@@ -62,7 +62,7 @@ class Api_V1
 	static public function widget_instance_delete($inst_id)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
 		return $inst->db_remove();
@@ -75,7 +75,7 @@ class Api_V1
 
 	static public function widget_instance_copy($inst_id, $new_name)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 
@@ -106,7 +106,7 @@ class Api_V1
 
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
 		if ( ! is_bool($is_draft)) $is_draft = true;
 
@@ -114,7 +114,7 @@ class Api_V1
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
-		$is_student = ! \Model_User::verify_session(['basic_author', 'super_user']);
+		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
 
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
@@ -158,7 +158,7 @@ class Api_V1
 	 */
 	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $embedded_only=null, $is_student_made=null)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
@@ -314,28 +314,9 @@ class Api_V1
 	 */
 	static public function widget_instance_lock($inst_id)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Widget_Instance_Manager::lock($inst_id);
-	}
-	/**
-	 * Finds widgets that are specified in the database as spotlight widgets.
-	 *
-	 * @param object The Database Manager
-	 *
-	 * @return array The widgets that are marked as spotlight.
-	 */
-	static public function widget_spotlight_get()
-	{
-		$dir = PUBPATH.'assets/spotlight/';
-		$files = \File::read_dir($dir);
-		$spotlight_list = [];
-		foreach ($files as $file)
-		{
-			$spotlight_list[] = \File::read($dir.$file, true);
-		}
-
-		return $spotlight_list;
 	}
 
 	static public function session_play_create($inst_id, $context_id=false)
@@ -361,7 +342,7 @@ class Api_V1
 
 	static public function session_login($user, $pass)
 	{
-		return \Model_User::login($user, $pass);
+		return \Service_User::login($user, $pass);
 	}
 
 	/**
@@ -369,7 +350,7 @@ class Api_V1
 	  */
 	static public function session_author_verify($role_name = null)
 	{
-		return \Model_User::verify_session($role_name);
+		return \Service_User::verify_session($role_name);
 	}
 
 	/**
@@ -378,7 +359,7 @@ class Api_V1
 	static public function session_play_verify($play_id)
 	{
 		// Standard session validation first
-		if (\Model_User::verify_session() !== true) return false;
+		if (\Service_User::verify_session() !== true) return false;
 
 		// if $play_id is null, assume it's a preview, no need for user check
 		if ( ! $play_id) return true;
@@ -399,7 +380,7 @@ class Api_V1
 	 */
 	static public function play_activity_get($start = 0, $range = 6)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		// get play data, ask for one more than was requested so we can see if there are more
 		// we grabbed an extra entry, just to see if there are more than requested
 		// but we don't want to include that in the results
@@ -427,7 +408,7 @@ class Api_V1
 		else
 		{
 			// No user in session, just perform auth check
-			if (\Model_User::verify_session() !== true) return false;
+			if (\Service_User::verify_session() !== true) return false;
 		}
 
 		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
@@ -502,7 +483,7 @@ class Api_V1
 
 	static public function assets_get()
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
 	}
 
@@ -550,7 +531,7 @@ class Api_V1
 		// otherwise see if user has valid session
 		else
 		{
-			if (\Model_User::verify_session() !== true) return Msg::no_login();
+			if (\Service_User::verify_session() !== true) return Msg::no_login();
 		}
 		if (Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
@@ -591,7 +572,7 @@ class Api_V1
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all')
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
 	}
@@ -608,6 +589,7 @@ class Api_V1
 
 		$distribution = Score_Manager::get_widget_score_distribution($inst_id);
 		$summary = Score_Manager::get_widget_score_summary($inst_id);
+
 		foreach ($distribution as $id => $data)
 		{
 			if ( ! array_key_exists($id, $summary))
@@ -619,6 +601,7 @@ class Api_V1
 				$summary[$id]['distribution'] = $data['distribution'];
 			}
 		}
+
 		if ($include_storage_data)
 		{
 			$storage = Storage_Manager::get_table_summaries_by_inst_id($inst_id);
@@ -636,6 +619,7 @@ class Api_V1
 				}
 			}
 		}
+
 		$summary = array_values($summary);
 		// we want to be sure that the client can rely on the array order
 		usort($summary, function($a, $b) {
@@ -677,11 +661,6 @@ class Api_V1
 
 		$inst->get_qset($inst_id);
 
-		if ($play_id && \Config::get('materia.security.encrypt_qsets') === true && $inst->widget->is_qset_encrypted)
-		{
-			return ['encryptedText' => \Event::trigger('Materia.encrypt', $inst->qset)];
-		}
-
 		return $inst->qset;
 	}
 
@@ -695,7 +674,7 @@ class Api_V1
 	 */
 	static public function questions_get($ids=null, $type=null) // remote_getQuestions
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		// get specific questions
 		if ($ids)
 		{
@@ -738,7 +717,7 @@ class Api_V1
 
 	static public function play_storage_data_get($inst_id, $format=null) // formerly $inst_id
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		switch ($format)
 		{
@@ -757,7 +736,7 @@ class Api_V1
 
 	static public function users_search($search)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		$user_objects = \Model_User::find_by_name_search($search);
 		$user_arrays = [];
@@ -781,7 +760,7 @@ class Api_V1
 	 */
 	static public function user_get($user_ids = null)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		//no user ids provided, return current user
 		if ($user_ids === null)
@@ -815,7 +794,7 @@ class Api_V1
 	 */
 	static public function user_update_meta($new_meta)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! is_array($new_meta)) return Msg::invalid_input('meta');
 		if (empty($new_meta)) return true;
 
@@ -879,7 +858,7 @@ class Api_V1
 	 */
 	static public function permissions_set($item_type, $item_id, $perms_array)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($item_id)) return Msg::invalid_input('Invalid item id: '.$item_id);
 		if (empty($perms_array)) return Msg::invalid_input('empty user perms');
 
@@ -888,7 +867,7 @@ class Api_V1
 		$cur_user_id = \Model_user::find_current_id();
 
 		// full perms or is super user required
-		$can_give_access = Perm_Manager::user_has_any_perm_to($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Model_User::verify_session('super_user');
+		$can_give_access = Perm_Manager::user_has_any_perm_to($cur_user_id, $item_id, $item_type, [Perm::FULL]) || \Service_User::verify_session('super_user');
 
 		// if we're changing permissions on a widget instance, have that instance on hand for checking
 		$inst = false;
@@ -963,13 +942,13 @@ class Api_V1
 	 */
 	static public function permissions_get($item_type, $item_id)
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		return Perm_Manager::get_all_users_explicit_perms($item_id, $item_type);
 	}
 
 	static public function notifications_get()
 	{
-		if (\Model_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		$notifications = \Model_Notification::query()
 			->where('to_id', \Model_User::find_current_id())
@@ -988,7 +967,7 @@ class Api_V1
 
 	static public function notification_delete($note_id)
 	{
-		if ( ! \Model_User::verify_session()) return Msg::no_login();
+		if ( ! \Service_User::verify_session()) return Msg::no_login();
 
 		$user = \Model_User::find_current();
 
