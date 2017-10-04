@@ -62,8 +62,8 @@ class Widget_Asset
 			// TODO: Is this necessary
 			switch ($this->type)
 			{
-				case 'jpeg':
-					$this->type = 'jpg';
+				case 'jpg':
+					$this->type = 'jpeg';
 					break;
 			}
 		}
