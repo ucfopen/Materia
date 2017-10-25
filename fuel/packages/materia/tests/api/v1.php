@@ -738,7 +738,9 @@ class Test_Api_V1 extends \Basetest
 			$msg = "Signature must be of length 28";
 			$this->assertEquals(28, strlen($output["signature"]), $msg);
 
-			return $output; // for use in sequence with upload_success_post
+			$asset = \DB::select()->from('asset')->where('remote_url', $output['file_key'])->execute(); // for use in sequence with upload_success_post
+
+			return $asset->as_array()[0];
 		};
 
 		// to test for different users in upload_success_post
@@ -749,37 +751,50 @@ class Test_Api_V1 extends \Basetest
 		$invalid_filenames = [null, '', false, "test", "jpg", ".jpg", "test."];
 		$invalid_filesizes = ["dog", "", false, null, 1.27];
 
-		$this->_asStudent();
+		$this->_as_student();
 		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
 		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
 		$output_by_user['student'] = $run_tests($valid_file_name, $valid_file_size);
 
-		$this->_asAuthor();
+		$this->_as_author();
 		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
 		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
 		$output_by_user['author'] = $run_tests($valid_file_name, $valid_file_size);
 
-		$this->_asSu();
+
+		$this->_as_super_user();
 		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
 		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
 		$output_by_user['superuser'] = $run_tests($valid_file_name, $valid_file_size);
+
 
 		return $output_by_user;
 	}
 
 	/**
-	 * @depends test_upload_keys_get
-	 */
+	* @depends test_upload_keys_get
+	*/
 	public function test_upload_success_post($upload_keys_by_user)
 	{
+		// insert assets to DB because they are deleted from the DB in between tests
+		foreach($upload_keys_by_user as $user_role) {
+			\DB::insert('asset')->set($user_role)->execute();
+		}
+
 		// ======= AS NO ONE ========
-		$usable_key = $upload_keys_by_user['student']['file_key'];
+		$usable_key = $upload_keys_by_user['student']['remote_url'];
 		$output = \Materia\Api_V1::upload_success_post($usable_key, true);
 		$this->assertEquals('error', $output->type);
 
 		// lambda to call api, apply assertions
 		$run_tests = function ($file_id)
 		{
+			// give this user permissions to the file we're testing
+			\DB::insert('perm_object_to_user')
+				->columns(['object_id','user_id','perm','object_type'])
+				->values([$file_id, \Model_User::find_current_id(), \Materia\Perm::FULL, \Materia\Perm::ASSET])
+				->execute();
+
 			$msg = "Should return update success";
 			$output = \Materia\Api_V1::upload_success_post($file_id, false);
 			$this->assertTrue($output, $msg);
@@ -806,17 +821,17 @@ class Test_Api_V1 extends \Basetest
 			return pathinfo($file_key)['filename'];
 		};
 
-		$this->_asStudent();
+		$this->_as_student();
 		//Explode extracts the asset_id from the file key: user_id-asset_id.ext
-		$file_id = $get_id(explode("-", $upload_keys_by_user['student']['file_key'])[1]);
+		$file_id = $get_id(explode("-", $upload_keys_by_user['student']['remote_url'])[1]);
 		$run_tests($file_id);
 
-		$this->_asAuthor();
-		$file_id = $get_id(explode("-", $upload_keys_by_user['author']['file_key'])[1]);
+		$this->_as_author();
+		$file_id = $get_id(explode("-", $upload_keys_by_user['author']['remote_url'])[1]);
 		$run_tests($file_id);
 
-		$this->_asSu();
-		$file_id = $get_id(explode("-", $upload_keys_by_user['superuser']['file_key'])[1]);
+		$this->_as_super_user();
+		$file_id = $get_id(explode("-", $upload_keys_by_user['superuser']['remote_url'])[1]);
 		$run_tests($file_id);
 	}
 
