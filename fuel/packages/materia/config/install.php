@@ -15,6 +15,7 @@ return [
 		PKGPATH.'materia/media/large',
 		PKGPATH.'materia/media/thumbnail',
 		PKGPATH.'materia/media/uploads',
+		PKGPATH.'materia/vendor/widget',
 		PKGPATH.'materia/vendor/widget/score_module',
 		PKGPATH.'materia/vendor/widget/test',
 		// widget directories
@@ -49,6 +50,12 @@ return [
 			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Using NGINX? Enable X-Accell fast file downloads?',
 			'depends_on_value_match' => ['file.enable_mod_xsendfile' => false],
+		],
+		'config.enable_uploader' => [
+			'options' => ['true', 'false'],
+			'default' => true,
+			'type' => FILTER_VALIDATE_BOOLEAN,
+			'description' => 'Allow the admin user to upload widget packages.',
 		],
 		'cache.driver' => [
 			'options' => ['memcached', 'file'],
@@ -111,6 +118,7 @@ return [
 		'lti::lti.consumers.canvas.course_nav_default' => [
 			'options' => ['true', 'false'],
 			'default' => false,
+			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Display Materia in Canvas navigation bar?',
 		],
 		'lti::lti.consumers.canvas.secret' => [
@@ -124,6 +132,7 @@ return [
 		'auth.restrict_logins_to_lti_single_sign_on' => [
 			'options' => ['true', 'false'],
 			'default' => true,
+			'type' => FILTER_VALIDATE_BOOLEAN,
 			'description' => 'Only allow users to log in via LTI single sign on from the LMS?',
 		],
 		'auth.salt' => [
