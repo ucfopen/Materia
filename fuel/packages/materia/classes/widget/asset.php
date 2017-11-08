@@ -57,14 +57,12 @@ class Widget_Asset
 			{
 				if (property_exists($this, $key)) $this->{$key} = $val;
 			}
+
 			$this->type = strtolower($this->type);
 
-			// TODO: Is this necessary
-			switch ($this->type)
-			{
-				case 'jpg':
-					$this->type = 'jpeg';
-					break;
+			// give all jpg images a consistent extension
+			if ($this->type == 'jpg' ){
+				$this->type = 'jpeg';
 			}
 		}
 	}
@@ -111,19 +109,20 @@ class Widget_Asset
 				}
 				else
 				{
-					//todo: log case
+					\LOG::error("Multiple assets exist with the same id: ".$this->id.". None of these assets could be updated.");
 					return false;
 				}
 			}
 			else
 			{
-				//todo: log case
+				\LOG::error("User id ".\Model_User::find_current_id()."owns zero or more than one object with the id: ".$this->id.". Asset could not be updated.");
 				return false;
 			}
 		}
 		catch (Exception $e)
 		{
 			\DB::rollback_transaction();
+			\LOG::error("The following exception occured while attempting to update asset id, ".$this->id.", for user id,".\Model_User::find_current_id().": ".$e);
 			return false;
 		}
 	}
@@ -215,6 +214,7 @@ class Widget_Asset
 		}
 		catch (Exception $e)
 		{
+			\LOG::error("The following exception occured while attempting to store and asset for user id,".\Model_User::find_current_id().": ".$e);
 			\DB::rollback_transaction();
 			return false;
 		}
@@ -296,6 +296,7 @@ class Widget_Asset
 		}
 		catch (Exception $e)
 		{
+			\LOG::error("The following exception occured while attempting to remove asset id, ".$this->id.", for user id,".\Model_User::find_current_id().": ".$e);
 			\DB::rollback_transaction();
 			return false;
 		}
