@@ -498,7 +498,7 @@ class Api_V1
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-		if (empty($file_size) || ! is_int($file_size)) return null;
+		if (empty($file_size) || ! is_int($file_size)) return Msg::invalid_input("The file, {$file_name}, has an invalid file size.");
 
 		$user_id = \Model_User::find_current_id();
 		$s3_config = \Config::get('materia.s3_config');
@@ -506,8 +506,8 @@ class Api_V1
 		$valid_filename = '/([a-zA-Z_\-\s0-9\.]+)+\.\w+\/*$/';
 		if ( ! preg_match($valid_filename, $file_name))
 		{
-			\LOG::error("Invalid Filename: {$file_name}. This file was uploaded by user {$user_id}"); 
-			return null;
+			\LOG::error("Invalid Filename: {$file_name}. This file was uploaded by user {$user_id}");
+			return Msg::invalid_input("{$file_name} is an unspported file name. Please upload a file with the following format: <filename>.<extension>");
 		}
 
 		$file_info = pathinfo($file_name);
@@ -520,7 +520,11 @@ class Api_V1
 		// store temporary row in db, obtain asset_id for building s3 file_key
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title, $file_size);
 		// if we could not successfully create a new temporary asset row
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id)) return null;
+		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		{
+			\LOG::error("An invalid id was generated for file, {$file_name}, uploaded by user {$user_id}");
+			return Msg::invalid_input('There was an issue uploading your asset. Please try again.');
+		}
 
 		$file_key = $asset->remote_url;
 
@@ -572,11 +576,13 @@ class Api_V1
 		// bypass update if user sends back invalid hash
 		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset_id))
 		{
-			return false; // invalid/missing file_id
+			\LOG::error("Asset could not be updated due to the following invalid ID sent from client: {$asset_id}");
+			return Msg::invalid_input('There was an issue uploading your asset. Please try again.');
 		}
 
 		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
 
+		// This is an error reported by the client, and is not a fatal error in the api. The code following will still run.
 		if ($error) \Log::error("External asset upload failed with the following message - {$error}");
 
 		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
