@@ -708,8 +708,8 @@ class Test_Api_V1 extends \Basetest
 			if(!preg_match($validFilename, $file_name) || !is_int($file_size))
 			{	
 				$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
-				$msg = "Invalid filenames and non-integer file sizes should return null";
-				$this->assertEquals(null, $output, $msg);
+				$msg = "Invalid filenames and non-integer file sizes should return error message";
+				$this->assertEquals('error', $output->type, $msg);
 				return $output;
 			}
 
@@ -805,7 +805,7 @@ class Test_Api_V1 extends \Basetest
 
 			$msg = "Should fail if missing file_id";
 			$output = \Materia\Api_V1::upload_success_post(null, true);
-			$this->assertFalse($output, $msg);
+			$this->assertEquals('error', $output->type, $msg);
 
 			$msg = "Should pass with correct key and successful s3 upload";
 			$output = \Materia\Api_V1::upload_success_post($file_id, true);
