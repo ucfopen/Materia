@@ -30,5 +30,16 @@
 				<button ng-show="alert.enableLoginButton" ng-click="reloadPage()" class="action_button">Click Here to Login</button>
 			</modal-dialog>
 		</div>
+		<div ng-controller="resumeCtrl">
+			<modal-dialog show="resume.msg"
+				class="resume"
+				dialog-title="{{resume.title}}"
+				width="520px"
+				z-index="1000000">
+				<p>{{resume.msg}}</p>
+				<button ng-click="resume.msg = null" class"action_button">Close</button>
+				<button ng-click="resume.callback()" class="action_button">Resume Last Play</button>
+			</modal-dialog>
+		</div>
 	</body>
 </html>
