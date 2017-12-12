@@ -37,7 +37,7 @@
 				width="520px"
 				z-index="1000000">
 				<p>{{resume.msg}}</p>
-				<button ng-click="resume.msg = null" class"action_button">Close</button>
+				<button ng-click="resume.msg = null" class="cancel_button">Close</button>
 				<button ng-click="resume.callback()" class="action_button">Resume Last Play</button>
 			</modal-dialog>
 		</div>
