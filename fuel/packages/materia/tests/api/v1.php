@@ -695,6 +695,146 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_upload_keys_get()
+	{
+		// ======= AS NO ONE ========
+		$output = \Materia\Api_V1::upload_keys_get('test.jpg');
+		$this->assertEquals('error', $output->type);
+
+		// lambda to call api, apply assertions
+		$run_tests = function ($file_name, $file_size) {
+			$validFilename = '/([a-zA-z_\-\s0-9\.]+)+\.\w+\/*$/';
+			
+			if(!preg_match($validFilename, $file_name) || !is_int($file_size))
+			{	
+				$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
+				$msg = "Invalid filenames and non-integer file sizes should return error message";
+				$this->assertEquals('error', $output->type, $msg);
+				return $output;
+			}
+
+			$s3_config = \Config::get('materia.s3_config');
+			$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
+			
+			$msg = "Expect assoc array as output";
+			$this->assertEquals(true, is_array($output), $msg);
+
+			$msg = "Expect assoc array to contain 4 elements.";
+			$this->assertEquals(4, sizeof($output), $msg);
+
+			$keys = ["AWSAccessKeyId","policy","signature","file_key"];
+			foreach($keys as $key)
+			{
+				$msg = "Missing ".$key." in output";
+				$key_exists = array_key_exists($key, $output);
+				$this->assertTrue($key_exists, $msg);
+			}
+
+			$msg = "AWSAccessKeyId has been modified";
+			$original_aws_key = $s3_config["AWSAccessKeyId"];
+			$this->assertEquals(strlen($original_aws_key), strlen($output["AWSAccessKeyId"]), $msg);
+			$this->assertEquals(0, strcmp($output["AWSAccessKeyId"], $original_aws_key), $msg);
+
+			$msg = "Signature must be of length 28";
+			$this->assertEquals(28, strlen($output["signature"]), $msg);
+
+			$asset = \DB::select()->from('asset')->where('remote_url', $output['file_key'])->execute(); // for use in sequence with upload_success_post
+
+			return $asset->as_array()[0];
+		};
+
+		// to test for different users in upload_success_post
+		$output_by_user = array();
+
+		$valid_file_size = 14029;
+		$valid_file_name = "test.jpg";
+		$invalid_filenames = [null, '', false, "test", "jpg", ".jpg", "test."];
+		$invalid_filesizes = ["dog", "", false, null, 1.27];
+
+		$this->_as_student();
+		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
+		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
+		$output_by_user['student'] = $run_tests($valid_file_name, $valid_file_size);
+
+		$this->_as_author();
+		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
+		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
+		$output_by_user['author'] = $run_tests($valid_file_name, $valid_file_size);
+
+
+		$this->_as_super_user();
+		foreach ($invalid_filenames as $filename) $run_tests($filename, $valid_file_size);
+		foreach ($invalid_filesizes as $filesize) $run_tests($valid_file_name, $filesize);
+		$output_by_user['superuser'] = $run_tests($valid_file_name, $valid_file_size);
+
+
+		return $output_by_user;
+	}
+
+	/**
+	* @depends test_upload_keys_get
+	*/
+	public function test_upload_success_post($upload_keys_by_user)
+	{
+		// insert assets to DB because they are deleted from the DB in between tests
+		foreach($upload_keys_by_user as $user_role) {
+			\DB::insert('asset')->set($user_role)->execute();
+		}
+
+		// ======= AS NO ONE ========
+		$usable_key = $upload_keys_by_user['student']['remote_url'];
+		$output = \Materia\Api_V1::upload_success_post($usable_key, true);
+		$this->assertEquals('error', $output->type);
+
+		// lambda to call api, apply assertions
+		$run_tests = function ($file_id)
+		{
+			// give this user permissions to the file we're testing
+			\DB::insert('perm_object_to_user')
+				->columns(['object_id','user_id','perm','object_type'])
+				->values([$file_id, \Model_User::find_current_id(), \Materia\Perm::FULL, \Materia\Perm::ASSET])
+				->execute();
+
+			$msg = "Should return update success";
+			$output = \Materia\Api_V1::upload_success_post($file_id, false);
+			$this->assertTrue($output, $msg);
+
+			$msg = "Update should fail with non-existent asset";
+			$output = \Materia\Api_V1::upload_success_post('MmBop', false);
+			$this->assertFalse($output, $msg);
+
+			$msg = "Should fail if missing file_id";
+			$output = \Materia\Api_V1::upload_success_post(null, true);
+			$this->assertEquals('error', $output->type, $msg);
+
+			$msg = "Should pass with correct key and successful s3 upload";
+			$output = \Materia\Api_V1::upload_success_post($file_id, true);
+			$this->assertTrue($output, $msg);
+
+			$msg = "Should pass with correct key, failed s3 upload, and error message";
+			$output = \Materia\Api_V1::upload_success_post($file_id, false, "Test error");
+			$this->assertTrue($output, $msg);
+		};
+
+		$get_id = function($file_key)
+		{
+			return pathinfo($file_key)['filename'];
+		};
+
+		$this->_as_student();
+		//Explode extracts the asset_id from the file key: user_id-asset_id.ext
+		$file_id = $get_id(explode("-", $upload_keys_by_user['student']['remote_url'])[1]);
+		$run_tests($file_id);
+
+		$this->_as_author();
+		$file_id = $get_id(explode("-", $upload_keys_by_user['author']['remote_url'])[1]);
+		$run_tests($file_id);
+
+		$this->_as_super_user();
+		$file_id = $get_id(explode("-", $upload_keys_by_user['superuser']['remote_url'])[1]);
+		$run_tests($file_id);
+	}
+
 	public function test_session_play_verify()
 	{
 		$this->markTestIncomplete('This test has not been implemented yet.');
