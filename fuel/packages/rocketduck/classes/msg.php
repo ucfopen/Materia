@@ -49,7 +49,7 @@ class Msg
 
 	static public function invalid_input($msg='')
 	{
-		return new Msg('Validation Error', Msg::ERROR, $msg, true);
+		return new Msg($msg, 'Validation Error', Msg::ERROR, true);
 	}
 
 	static public function no_login()
