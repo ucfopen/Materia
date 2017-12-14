@@ -536,7 +536,8 @@ class Api_V1
 			'conditions' => [
 			  ['bucket' => $s3_config['uploads_bucket']],
 			  ['acl' => 'public-read'], # makes the uploaded file public readable
-			  ['eq', '$key', $file_key], #restricts uploads to filenames that start with media/
+			  ['starts-with', '$key', $file_key], #restricts uploads to filenames that start with media/
+			  ['starts-with', '$Content-Type', ''], # allows all content types
 			  ['success_action_status' => '201'] # CREATED
 			]
 		];
