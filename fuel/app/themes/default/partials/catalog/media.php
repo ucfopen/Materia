@@ -1,12 +1,21 @@
 <div ng-controller="mediaImportCtrl">
 	<div id="left-pane">
-		<div class="pane-header">
+		<div class="drag-header">
 			Upload a new file
-		</div>		
-		<form id="uploader-form">
-			<div id="uploader"></div>
-		</form>
+		</div>
+		<div class="drag-wrapper" file-on-change="uploadFile">
+			<div class="drag-text">
+				Drag a file here to upload
+			</div>
+		</div>
+		<div class="drag-footer">
+			<label>
+				<input type="file" file-on-change="uploadFile" style="display:none" />
+				<span class="select_file_button">Browse...</span>
+			</label>
+		</div>
 	</div>
+
 	<form id="import-form" class="right-pane">
 		<div class="pane-header">
 			Pick from your library
