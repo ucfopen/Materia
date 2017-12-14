@@ -200,11 +200,15 @@ class Session_PlayDataExporter
 		if (count($play_logs) == 0) throw new HttpNotFoundException;
 
 		// Table headers
-		$csv = "User ID,Last Name,First Name,Score,Semester\r\n";
+		$csv = "Student,ID,SIS User ID,SIS Login ID,Section,Score\r\n";
 
 		foreach ($results as $userid => $r)
 		{
-			$csv .= "$userid,{$r['last_name']},{$r['first_name']},{$r['score']},{$r['semester']}\r\n";
+			// sanitize names just in case
+			$r['last_name'] = addslashes($r['last_name']);
+			$r['first_name'] = addslashes($r['first_name']);
+			// build row
+			$csv .= "\"{$r['last_name']}, {$r['first_name']}\",\"\",$userid,\"\",\"\",\"{$r['score']}%\"\r\n";
 		}
 
 		return [$csv, '.csv'];
