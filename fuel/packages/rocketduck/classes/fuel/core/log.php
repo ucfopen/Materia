@@ -14,6 +14,7 @@ class Log extends Fuel\Core\Log
 		// determine the name and location of the logfile
 		$path     = \Config::get('log_path', APPPATH.'logs'.DS);
 		$filename = \Config::get('log_file', 'materia');
+		$perms    = \Config::get('log_file_perms', null);
 		if (empty($filename))
 		{
 			$filename = 'materia';
@@ -34,7 +35,7 @@ class Log extends Fuel\Core\Log
 		}
 		else
 		{
-			$handler = new \Monolog\Handler\RotatingFileHandler($filepath, 0, \Monolog\Logger::DEBUG);
+			$handler = new \Monolog\Handler\RotatingFileHandler($filepath, 0, \Monolog\Logger::DEBUG, true, $perms);
 		}
 
 		$formatter = new \Monolog\Formatter\LineFormatter("%level_name% - %datetime% --> %message%".PHP_EOL, "Y-m-d H:i:s", true);
