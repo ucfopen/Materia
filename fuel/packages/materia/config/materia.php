@@ -99,13 +99,13 @@ return [
 	* > 'expire_in'       => 100
 	*/
 	's3_config' => [
-		's3_enabled'      => true,
+		's3_enabled'      => false,
 		'upload_url'      => 's3.amazonaws.com', // only include domain and, if necessary, the port
-		'uploads_bucket'  => 'ucfcdl-materia-uploads-dev', // bucket to store original user uploads
-		'verified_bucket' => 'ucfcdl-materia-assets-dev', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
+		'uploads_bucket'  => '', // bucket to store original user uploads
+		'verified_bucket' => '', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
 		'subdir'          => 'media', // OPTIONAL - directory to store original and resized assets
-		'secret_key'      => 'secret',
-		'AWSAccessKeyId'  => 'access-key',
+		'secret_key'      => '',
+		'AWSAccessKeyId'  => '',
 		'expire_in'       => 100 // temporary key expiration time
 	],
 ];
