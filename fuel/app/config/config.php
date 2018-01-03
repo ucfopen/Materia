@@ -109,7 +109,7 @@ return array(
 	// 'log_path'         => APPPATH.'logs/',
 	'log_date_format'  => 'H:i:s',
 
-	'log_file_perms'   => 0654,
+	'log_file_perms'   => 0664,
 	/**
 	 * Security settings
 	 */
