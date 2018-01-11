@@ -7,8 +7,8 @@ return [
 	* build routes for static urls to use http://mymateria.com:8008/
 	*/
 	'urls' => [
-		'media'              => 'media', // where the media is stored http:://siteurl.com/assets/upload/
-		'media_upload'       => 'media/upload', // where to post media uploads
+		'media'              => \Uri::create('media'), // where the media is stored http:://siteurl.com/assets/upload/
+		'media_upload'       => \Uri::create('media/upload'), // where to post media uploads
 		'static'             => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()), // http://static.siteurl.com/
 		'engines'            => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')), // engine swf locations
 	],
@@ -48,7 +48,7 @@ return [
 	* > 'expire_in'       => 100
 	*/
 	's3_config' => [
-		's3_enabled'      => true,
+		's3_enabled'      => false,
 		'upload_url'      => 'localhost:10001', // only include domain and, if necessary, the port
 		'uploads_bucket'  => 'fakes3_uploads', // bucket to store original user uploads
 		'verified_bucket' => 'fakes3_assets', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
