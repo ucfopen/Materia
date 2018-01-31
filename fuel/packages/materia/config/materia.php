@@ -91,7 +91,7 @@ return [
 	* To use fakes3, use the following config:
 	* ========================================
 	* > 's3_enabled'      => true
-	* > 'upload_url'      => 'dockerIP:10001'
+	* > 'upload_url'      => 'dockerIP:10001' // probably replace dockerIP with localhost or 127.0.0.1
 	* > 'uploads_bucket'  => 'fakes3_uploads'
 	* > 'verified_bucket' => 'fakes3_assets'
 	* > 'subdir'          => 'media'
