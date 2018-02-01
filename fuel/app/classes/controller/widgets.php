@@ -7,6 +7,7 @@
 class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_S3ResponseTrait;
 
 	protected $_embedded = false;
 
@@ -40,7 +41,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/catalog');
 	}
 
-	/**
+	/**3
 	 * Catalog page for an individual widget
 	 *
 	 * @param string The clean name of the widget to load
@@ -207,7 +208,7 @@ class Controller_Widgets extends Controller
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);
-
+		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
@@ -458,7 +459,7 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
-
+		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
 			->set('page_type', 'widget')
