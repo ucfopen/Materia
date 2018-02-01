@@ -61,9 +61,9 @@ class Widget_Asset
 			$this->type = strtolower($this->type);
 
 			// give all jpg images a consistent extension
-			if ($this->type == 'jpg')
+			if ($this->type == 'jpeg')
 			{
-				$this->type = 'jpeg';
+				$this->type = 'jpg';
 			}
 		}
 	}
