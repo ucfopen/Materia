@@ -38,7 +38,7 @@ class Log extends Fuel\Core\Log
 			$handler = new \Monolog\Handler\RotatingFileHandler($filepath, 0, \Monolog\Logger::DEBUG, true, $perms);
 		}
 
-		$formatter = new \Monolog\Formatter\LineFormatter("%level_name% - %datetime% --> %message%".PHP_EOL, "Y-m-d H:i:s", true);
+		$formatter = new \Monolog\Formatter\LineFormatter('%level_name% - %datetime% --> %message%'.PHP_EOL, 'Y-m-d\TH:i:sO', true);
 		$handler->setFormatter($formatter);
 		static::$monolog->pushHandler($handler);
 	}
