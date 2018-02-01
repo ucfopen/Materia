@@ -35,6 +35,8 @@ class Widget_Asset
 	public $is_shared;
 	public $title      = '';
 	public $file_size  = '';
+	public $remote_url = null;
+	public $status     = null;
 	public $questions  = [];
 	public $type       = '';
 	public $widgets    = [];
@@ -44,18 +46,24 @@ class Widget_Asset
 	 */
 	public function __construct($properties=[])
 	{
+		$this->set_properties($properties);
+	}
+
+	public function set_properties($properties=[])
+	{
 		if ( ! empty($properties))
 		{
 			foreach ($properties as $key => $val)
 			{
 				if (property_exists($this, $key)) $this->{$key} = $val;
 			}
+
 			$this->type = strtolower($this->type);
-			switch ($this->type)
+
+			// give all jpg images a consistent extension
+			if ($this->type == 'jpg')
 			{
-				case 'jpeg':
-					$this->type = 'jpg';
-					break;
+				$this->type = 'jpeg';
 			}
 		}
 	}
@@ -64,51 +72,153 @@ class Widget_Asset
 	 * NEEDS DOCUMENTATION
 	 *
 	 * @param The database manager
-	 */	
-	public function db_store()
+	 */
+	public function db_update()
 	{
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($this->id) && ! empty($this->type))
+		if (empty($this->type)) return false;
+
+		\DB::start_transaction();
+
+		try
 		{
-			\DB::start_transaction();
+			// ensure user has permission to update this asset
+			$q = \DB::select()
+				->from('perm_object_to_user')
+				->where('object_id', $this->id)
+				->and_where('user_id', \Model_User::find_current_id())
+				->execute();
 
-			$hash = Widget_Instance_Hash::generate_key_hash();
-
-			try
+			// user should only own one object with this id
+			if (count($q) == 1)
 			{
-				$tr = \DB::insert('asset')
+				$tr = \DB::update('asset')
 					->set([
-						'id'         => $hash,
-						'type'       => $this->type,
+						'type'        => $this->type,
 						'title'       => $this->title,
-						'file_size'  => $this->file_size,
-						'created_at' => time()
+						'file_size'   => $this->file_size,
+						'remote_url'  => $this->remote_url,
+						'status'      => $this->status,
+						'created_at'  => time()
 					])
+					->where('id','=',$this->id)
 					->execute();
 
-				$q = \DB::insert('perm_object_to_user')
-					->set([
-						'object_id'   => $hash,
-						'user_id'     => \Model_User::find_current_id(),
-						'perm'        => Perm::FULL,
-						'object_type' => Perm::ASSET
-					])
-					->execute();
-
-				if ($tr[1] > 0)
+				if ($tr == 1) // ensure only one asset is updated
 				{
-					$this->id = $hash;
 					\DB::commit_transaction();
 					return true;
 				}
-
+				else
+				{
+					\LOG::error('Multiple assets exist with the same id: '.$this->id.'. None of these assets could be updated.');
+					return false;
+				}
 			}
-			catch (Exception $e)
+			else
 			{
-				\DB::rollback_transaction();
+				\LOG::error('User id '.\Model_User::find_current_id().'owns zero or more than one object with the id: '.$this->id.'. Asset could not be updated.');
 				return false;
 			}
 		}
-		return false;
+		catch (Exception $e)
+		{
+			\DB::rollback_transaction();
+			\LOG::error('The following exception occured while attempting to update asset id, '.$this->id.', for user id,'.\Model_User::find_current_id().': '.$e);
+			return false;
+		}
+	}
+
+	/**
+	 * Finds an available asset id
+	 * to avoid conflicts in the db
+	 */
+	public function get_unused_id()
+	{
+		// try finding an id not used in the database
+		$max_tries = 10;
+		for ($i = 0; $i <= $max_tries; $i++)
+		{
+			$asset_id = Widget_Instance_Hash::generate_key_hash();
+			$asset_exists = $this->db_get($asset_id);
+			if ( ! $asset_exists)
+			{
+				break;
+			}
+		}
+		// all ids that were searched already exist
+		if ($asset_exists)
+		{
+			return null;
+		}
+
+		return $asset_id;
+	}
+
+	/**
+	 * NEEDS DOCUMENTATION
+	 *
+	 * @param The database manager
+	 */
+	public function db_store()
+	{
+		if (\RocketDuck\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
+
+		$asset_id = $this->get_unused_id();
+		if (empty($asset_id))
+		{
+			return false;
+		}
+
+		// if this asset has a remote_url stub, append the
+		// id. otherwise, leave it null
+		if (isset($this->remote_url))
+		{
+			// used to identify who uploaded asset
+			$user_id = \Model_User::find_current_id();
+
+			// Builds remote_url
+			$this->remote_url .= "{$user_id}-{$asset_id}.{$this->type}";
+		}
+
+		\DB::start_transaction();
+
+		try
+		{
+			$tr = \DB::insert('asset')
+				->set([
+					'id'          => $asset_id,
+					'type'        => $this->type,
+					'title'       => $this->title,
+					'file_size'   => $this->file_size,
+					'remote_url'  => $this->remote_url,
+					'status'      => $this->status,
+					'created_at'  => time()
+				])
+				->execute();
+
+			$q = \DB::insert('perm_object_to_user')
+				->set([
+					'object_id'   => $asset_id,
+					'user_id'     => \Model_User::find_current_id(),
+					'perm'        => Perm::FULL,
+					'object_type' => Perm::ASSET
+				])
+				->execute();
+
+			if ($tr[1] > 0)
+			{
+				$this->id = $asset_id;
+				\DB::commit_transaction();
+				return true;
+			}
+
+		}
+		catch (Exception $e)
+		{
+			\LOG::error('The following exception occured while attempting to store and asset for user id,'.\Model_User::find_current_id().': '.$e);
+			\DB::rollback_transaction();
+			return false;
+		}
 	}
 
 	/**
@@ -157,41 +267,40 @@ class Widget_Asset
 	 */
 	public function db_remove($keep_perms = false)
 	{
-		if (strlen($this->id) > 0)
+		if (strlen($this->id) <= 0) return false;
+
+		\DB::start_transaction();
+
+		try
 		{
-			\DB::start_transaction();
+			// delete asset
+			\DB::delete('asset')
+				->where('id', $this->id)
+				->limit(1)
+				->execute();
 
-			try
+			// delete perms
+			if ( ! $keep_perms)
 			{
-				// delete asset
-				\DB::delete('asset')
-					->where('id', $this->id)
-					->limit(1)
-					->execute();
-
-				// delete perms
-				if ( ! $keep_perms)
-				{
-					// TODO: change to support hashes
-					Perm_Manager::clear_all_perms_for_object($this->id, Perm::ASSET);
-				}
-
-				\DB::commit_transaction();
-
-				// delete any files used in this class
-				$this->remove_files(); // needs to be fixed...
-
-				// clear this object
-				$this->__construct();
-				return true;
+				// TODO: change to support hashes
+				Perm_Manager::clear_all_perms_for_object($this->id, Perm::ASSET);
 			}
-			catch (Exception $e)
-			{
-				\DB::rollback_transaction();
-				return false;
-			}
+
+			\DB::commit_transaction();
+
+			// delete any files used in this class
+			$this->remove_files(); // needs to be fixed...
+
+			// clear this object
+			$this->__construct();
+			return true;
 		}
-		return false;
+		catch (Exception $e)
+		{
+			\LOG::error('The following exception occured while attempting to remove asset id, '.$this->id.', for user id,'.\Model_User::find_current_id().': '.$e);
+			\DB::rollback_transaction();
+			return false;
+		}
 	}
 
 	/**

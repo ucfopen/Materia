@@ -6,6 +6,7 @@
 
 class Controller_Media extends Controller
 {
+	use Trait_S3ResponseTrait;
 
 	public function get_show_asset($asset_id)
 	{
@@ -52,6 +53,8 @@ class Controller_Media extends Controller
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
+
+		$this->add_s3_config_to_response();
 
 		$theme = Theme::instance();
 		$theme->set_template('layouts/main');
@@ -132,6 +135,4 @@ class Controller_Media extends Controller
 
 		return File::render($resized_file, null, null, 'media');
 	}
-
-
 }

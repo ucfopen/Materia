@@ -1,0 +1,358 @@
+body, html {
+	font-family: 'Lato', arial, serif;
+}
+
+.drag-header{
+	text-align: center;
+	margin-top:10px;
+}
+
+.drag-text{
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	left: 50%;
+}
+
+.drag-wrapper{
+	position:relative;
+	height: 333px;
+	margin: 40px;
+	border: 5px dashed #dadada;
+	outline: #f5f5f5 solid 30px;
+	background: #f5f5f5
+}
+
+.drag-is-dragover {
+  background-color: grey;
+}
+
+.dataTables_wrapper{
+	position: relative;
+	clear: both;
+	margin: 0px auto;
+	background: #fff;
+}
+
+#question-table tbody tr img{
+	max-height: 75px;
+}
+
+//targets the sub-table holding the image data
+#question-table .sub-table{
+	.subtable-title{
+		font-weight: bold;
+		width: 140px;
+		word-wrap: break-word;
+	}
+	.subtable-date{
+		width: 43px;
+		vertical-align: top;
+	}
+	.subtable-gray{
+		color: #6b6b6b;
+	}
+}
+
+#question-table_wrapper{
+	height: 90%;
+}
+
+#question-table_filter{
+	background:#fff;
+	padding:6px 10px;
+}
+
+#question-table_filter input[type="text"]{
+	width: 124px;
+	border: solid 1px #b0b0b0;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+	height: 19px;
+	background: #fff url('../img/magnifyingglass.png') 5px 50% no-repeat;
+	padding-left: 23px;
+	padding-right: 10px;
+	outline: none;
+}
+h1{
+	position:absolute;
+	font-size: 18px;
+	font-weight: 550;
+	text-shadow: 0 1px #fbfbfb;
+	color: #a6a6a6;
+	z-index: 1;
+	top: 50px;
+	left: 20px;
+	margin: 0px;
+}
+
+.dataTables_scroll{
+	height: 99.45%;
+
+	.dataTables_scrollHead{
+		display: none;
+	}
+	.dataTables_scrollBody{
+		height: inherit;
+	}
+}
+
+.gray {
+	background: #aeaeae;
+	background-image: -webkit-linear-gradient(top, #e4e4e4, #b8b8b8);
+	background-image: -moz-linear-gradient(top, #e4e4e4, #b8b8b8);
+	background-image: -o-linear-gradient(top, #e4e4e4, #b8b8b8);
+	background-image: -ms-linear-gradient(top, #e4e4e4, #b8b8b8);
+	border-color: #747474;
+	color: #545454;
+}
+
+.gray:hover{
+	background-image: -webkit-linear-gradient(top, #b8b8b8, #e4e4e4);
+	background-image: -moz-linear-gradient(top, #b8b8b8, #e4e4e4);
+	background-image: -o-linear-gradient(top, #b8b8b8, #e4e4e4);
+	background-image: -ms-linear-gradient(top, #b8b8b8, #e4e4e4);
+	text-decoration: none;
+}
+
+#upload-cancel-button{
+	position: absolute;
+	z-index:3;
+	font-size: 14px;
+	padding: 10px 15px;	
+	margin-left: 15px;
+	margin-top: 15px;
+}
+
+#import-form .actions{
+	margin: 0 auto;
+	text-align: center;
+
+}
+
+#import-form input.action_button {
+	margin-top: 16px;
+}
+
+.dataTables_info{
+	clear: none;
+	position: absolute;
+	top: 13px;
+	right: 175px;
+	font-size: 12px;
+	color: #888;
+	text-align: right;
+}
+
+table.dataTable thead th{
+	border-bottom:1px solid #DDD;
+	padding:10px 18px;
+	color: #666;
+}
+
+#uploader-form{
+	display: block;
+	position: absolute;
+	height: 100%;
+}
+
+#modal-cover{
+	position: absolute;
+	top:0px;
+	left:0px;
+	bottom:0px;
+	right:0px;
+	background:rgba(0,0,0,.7);
+	z-index: 2;
+	display:none;
+}
+
+//parent window (800px x 500px) from create.scss
+$win_height: 500px;
+$win_width: 800px;
+
+//pane vars
+$pane_height: 450px; //height curtailed to prevent overflow (and thus scrolling) for now
+$pane_width: 362px; //width of each pane
+$pane_margin: 15px; //margin from parent iframe
+$divwidth: $win_width - 2*($pane_width + $pane_margin); //width of middle divider pane
+$pane_header_margin: 17px;
+
+$sortbar_height: 45px;
+$sortbar_width: 170px;
+$sortbar_marginleft: 6px;
+$sortbar_marginright: 10px;
+$arr_size: 4px;
+
+$footer_height: 38px;
+$dropzone_height: 379px;
+$dropzone_margin: 18px;
+
+//panes
+//classes were used for consistency because left-pane already had an id
+#left-pane{ //where the uploads happen
+	left: $pane_margin;
+	width: $pane_width;
+	height: $pane_height;
+	position: absolute;
+
+	&:after{
+		color: #dadada;
+		content: "or";
+		position: absolute;
+		text-align: center;
+		width: $divwidth;
+		left: $pane_width;
+		top: $pane_header_margin;
+	}
+
+	&:before{
+		content: "";
+		border-left: thin solid #dadada;
+		height: $dropzone_height + $footer_height + $dropzone_margin;
+		top: 10%;
+		position: absolute;
+		left: $pane_width + ($divwidth / 2);
+	}
+
+	form {
+		width: 100%;
+	}
+}
+
+#close-button{
+  background: transparent;
+  float: right;
+  position: relative;
+
+  &:after{
+  	  content: 'X';
+  	  font-size: 15px;
+  	  color: black;
+  }
+
+}
+
+.right-pane{//contains datatable
+	right: $pane_margin;
+	width: $pane_width;
+	height: $pane_height;
+	position: absolute;
+	margin: 0 auto;
+	box-shadow: none;
+
+	#search-box{
+		width: $pane_width -$sortbar_width - ($sortbar_marginleft + $sortbar_marginright) - $arr_size;
+		height: 20px;
+		background: #fff;
+		border: 1px solid #b0b0b0;
+		-webkit-border-radius: 12px;
+		-moz-border-radius: 12px;
+		border-radius: 12px;
+
+		padding-left: 18px;
+		background-image: url(../img/magnifyingglass.png);
+		background-repeat: no-repeat;
+		background-position: 5px 2px;
+	}
+}
+
+.pane-header{
+	position: relative;
+	text-align: center;
+	font-size: 16px;
+	width: 100%;
+	margin: $pane_header_margin auto ($pane_header_margin - 7) auto;
+	color: #484848;
+	font-family: Lato,arial,serif;
+	font-weight: bold;
+}
+
+//bar at the top of catalog (right) pane that houses datatables sort listeners
+#sort-bar{
+	background-color: transparent;
+	height: $sortbar_height;
+	margin-left: $sortbar_marginleft;
+	margin-right: $sortbar_marginright;
+	position: absolute;
+	top: 50px;
+	width: $sortbar_width;
+	z-index: 1;
+
+	#sort-cols{
+		padding: 1%;
+		width: 99%;
+
+		.col-cont{
+			display: block;
+			float: left;
+			margin-right: 5%;
+			text-decoration: underline;
+			width: 25%;
+
+			.dt-sorting{
+				cursor: pointer;
+				font-size: 15px;
+
+				&:hover{
+					font-weight: bold;
+				}
+			}
+		}
+	}
+
+	//sort-arrows depicting orderings
+	.arrows{
+		display: block;
+		float: right;
+		width: 5%;
+	}
+
+	.sort-asc{
+		width: 0; 
+		height: 0; 
+		border-left: $arr_size solid transparent;
+		border-right: $arr_size solid transparent;
+		
+		border-bottom: $arr_size solid black;
+	}
+	.sort-desc{
+		width: 0; 
+		height: 0; 
+		border-left: $arr_size solid transparent;
+		border-right: $arr_size solid transparent;
+		
+		border-top: $arr_size solid #f00;
+	}
+}
+
+.select_file_button{
+	padding: 7px 23px 8px;
+	background: #ffba5d;
+	background-image: -webkit-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: -o-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: -moz-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: -ms-linear-gradient(top,#ffce8c,#ffa42a);
+	background-image: linear-gradient(top,#ffce8c,#ffa42a);
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	border: 1px solid #fdb34f;
+	color: #694d28;
+	text-shadow: 1px 1px 1px rgba(255,255,255,.5);
+	-moz-box-shadow: 1px 2px 4px #888;
+	-webkit-box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px #888;
+	font-size: 18px;
+	display: inline-block;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	cursor:pointer;
+}  
+
+

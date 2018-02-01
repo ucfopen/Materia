@@ -369,4 +369,10 @@ abstract class Score_Module
 	{
 		return Session_Logger::query_logs($this->inst->id, $where_conditions, $order_conditions, $group_conditions);
 	}
+
+	protected final function hide_correct()
+	{
+		if ( isset($this->inst->qset->data['options']['hide_correct']) ) return $this->inst->qset->data['options']['hide_correct'];
+		return false;
+	}
 }
