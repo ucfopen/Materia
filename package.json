@@ -6,12 +6,14 @@
     "build": "webpack -p",
     "build-dev": "webpack",
     "watch": "webpack --watch",
-    "postinstall": "napa && npm run build"
+    "postinstall": "napa && npm run build",
+    "devassets:git": "cd .. && git clone https://github.com/ucfcdl/materia-client-assets.git",
+    "devassets:link": "cd ../materia-client-assets && yarn link && cd ../app && yarn link materia-client-assets"
   },
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
     "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#v0.2.2",
+    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#083663c2fed5f74873fdb2b2eb05274cf45cfc96",
     "napa": "^3.0.0"
   },
   "napa": {
