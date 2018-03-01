@@ -16,19 +16,8 @@ class Controller_Widgets extends Controller
 	 *
 	 * @login Not required
 	 */
-	public function get_index($type = null)
+	public function get_index()
 	{
-		// $type is an optional flag that provides optional display parameters for the catalog
-		// "all" displays all widgets in the database, not just the default "featured" ones
-		if (isset($type))
-		{
-			if ($type == 'all') // could be extended to include other options
-			{
-				Js::push_inline('var DISPLAY_TYPE = "'.$type.'";');
-			}
-			else throw new HttpNotFoundException;
-		}
-
 		Css::push_group(['core', 'widget_catalog']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
@@ -40,6 +29,13 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
 	}
+
+	public function get_all()
+	{
+		Js::push_inline('var DISPLAY_TYPE = "all";');
+		$this->get_index();
+	}
+
 
 	/**3
 	 * Catalog page for an individual widget
