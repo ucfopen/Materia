@@ -54,7 +54,7 @@ class Controller_Lti extends \Controller
 		$this->theme->set_partial('content', 'partials/post_login');
 		$this->insert_analytics();
 
-		\Js::push_group(['core', 'angular', 'ng_modal', 'materia']);
+		\Js::push_group(['angular', 'ng_modal', 'materia']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
 
@@ -82,7 +82,7 @@ class Controller_Lti extends \Controller
 
 		$this->theme->set_template('layouts/main');
 
-		\Js::push_group(['angular', 'ng_modal', 'jquery', 'jquery_ui', 'materia', 'author', 'lti_picker', 'spinner']);
+		\Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'lti_picker']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
@@ -118,7 +118,6 @@ class Controller_Lti extends \Controller
 
 		$this->insert_analytics();
 
-		\Js::push_group(['angular', 'ng_modal', 'materia']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 

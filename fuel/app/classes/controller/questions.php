@@ -28,6 +28,7 @@ class Controller_Questions extends Controller
 			->set('title', 'Question Catalog')
 			->set('page_type', 'import');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$theme->set_partial('content', 'partials/catalog/question');
 
 		return Response::forge($theme->render());
