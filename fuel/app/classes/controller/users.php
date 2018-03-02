@@ -30,7 +30,7 @@ class Controller_Users extends Controller
 		Css::push_group(['core', 'login']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Login')
@@ -93,7 +93,7 @@ class Controller_Users extends Controller
 		Css::push_group(['core', 'profile']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student']);
 
 		// to properly fix the date display, we need to provide the raw server date for JS to access
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
@@ -103,6 +103,7 @@ class Controller_Users extends Controller
 			->set('title', 'Profile')
 			->set('page_type', 'user profile');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/user/profile')
 			->set('me', \Model_User::find_current());
 	}
@@ -122,12 +123,13 @@ class Controller_Users extends Controller
 		Css::push_group(['core', 'profile']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'spinner']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'spinner']);
 
 		$this->theme->get_template()
 			->set('title', 'Settings')
 			->set('page_type', 'user profile settings');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/user/settings')
 			->set('me', \Model_User::find_current());
 	}

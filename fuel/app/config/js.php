@@ -21,14 +21,6 @@ return [
 		'fancybox'   => [$cdnjs.'fancybox/1.3.4/jquery.fancybox-1.3.4.pack.min.js'],
 		'swfobject'  => [$cdnjs.'swfobject/2.2/swfobject.min.js'],
 
-		'plupload'   => [
-			$cdnjs.'plupload/1.5.4/jquery.plupload.queue/jquery.plupload.queue.js',
-			$cdnjs.'plupload/1.5.4/plupload.js',
-			$cdnjs.'plupload/1.5.4/plupload.flash.js',
-			$cdnjs.'plupload/1.5.4/plupload.html5.js',
-			$cdnjs.'plupload/1.5.4/plupload.html4.js',
-		],
-
 		'jqplot'     => [
 			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.js',
 			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.barRenderer.min.js',
