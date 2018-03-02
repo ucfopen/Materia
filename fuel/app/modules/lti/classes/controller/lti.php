@@ -54,7 +54,6 @@ class Controller_Lti extends \Controller
 		$this->theme->set_partial('content', 'partials/post_login');
 		$this->insert_analytics();
 
-		\Js::push_group(['angular', 'ng_modal', 'materia']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
 
