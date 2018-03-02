@@ -21,7 +21,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_catalog']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
@@ -138,6 +138,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'My Widgets')
 			->set('page_type', 'my_widgets');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/my_widgets');
 	}
 
@@ -209,6 +210,7 @@ class Controller_Widgets extends Controller
 			->set('title', $title)
 			->set('page_type', 'create');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/create')
 			->set('widget', $widget)
 			->set('inst_id', $inst_id);
@@ -222,8 +224,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
 	}
 
 	protected function retired()
@@ -233,8 +236,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		$this->theme->set_partial('content', 'partials/widget/retired');
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
 	}
 
 	protected function no_attempts($inst)
@@ -244,6 +248,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/no_attempts')
 			->set('classes', 'widget')
 			->set('attempts', $inst->attempts)
@@ -254,7 +259,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
 	}
@@ -266,9 +271,10 @@ class Controller_Widgets extends Controller
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/nopermission');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
 	}
 
 	protected function embedded_only($inst)
@@ -277,6 +283,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/embedded_only')
 			->set('classes', 'widget')
 
@@ -461,6 +468,7 @@ class Controller_Widgets extends Controller
 			->set('page_type', 'widget')
 			->set('html_class', $is_embedded ? 'embedded' : '' );
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
 	}
