@@ -55,7 +55,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['widget_detail', 'core']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'fancybox']);
+		Js::push_group(['angular', 'jquery', 'materia', 'fancybox']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
@@ -292,7 +292,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
-		Js::push_group(['angular', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
 	}
@@ -409,7 +409,7 @@ class Controller_Widgets extends Controller
 
 		if ($is_embedded) $this->_header = 'partials/header_empty';
 
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'jquery', 'materia', 'student']);
 		Css::push_group('login');
 	}
 
