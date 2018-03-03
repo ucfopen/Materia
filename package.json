@@ -11,14 +11,13 @@
     "devassets:link": "cd ../materia-client-assets && yarn link && cd ../app && yarn link materia-client-assets"
   },
   "dependencies": {
-    "copy-webpack-plugin": "^4.0.1",
+    "copy-webpack-plugin": "^4.5.0",
     "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#v0.3.0-alpha2",
+    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#v0.3.0-alpha5",
     "napa": "^3.0.0"
   },
   "napa": {
     "fancybox": "fancyapps/fancybox#v2.1.6",
-    "ngmodal": "adamalbrecht/ngModal#1.2.2",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
     "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
   },

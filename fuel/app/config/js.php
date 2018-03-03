@@ -9,7 +9,6 @@ return [
 	'groups' => [
 		'materia'    => [$static.'materia.js'],
 		'angular'    => [$cdnjs.'angular.js/1.3.0/angular.min.js'],
-		'ng_modal'   => [$static.'vendor/ngmodal/ng-modal.min.js'],
 		'jquery'     => [$cdnjs.'jquery/1.8.1/jquery.min.js'],
 		'admin'      => [$static.'admin.js'],
 		'author'     => [$static.'author.js'],

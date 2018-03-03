@@ -18,10 +18,6 @@ const isProd = process.argv.indexOf('-p') != -1
 let copy = new CopyWebpackPlugin(
 	[
 		{
-			from: path.join(modulesPath, 'ngmodal', 'dist'),
-			to:  path.join(vendorPath, 'ngmodal')
-		},
-		{
 			from: path.join(modulesPath, 'fancybox', 'source'),
 			to:  path.join(vendorPath, 'fancybox')
 		},
