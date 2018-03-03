@@ -14,7 +14,7 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Welcome to Materia')
@@ -29,7 +29,7 @@ class Controller_Site extends Controller
 
 	public function action_permission_denied()
 	{
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
@@ -40,7 +40,7 @@ class Controller_Site extends Controller
 
 	public function action_help()
 	{
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Help')
