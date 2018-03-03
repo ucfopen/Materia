@@ -24,7 +24,7 @@ class Controller_Scores extends Controller
 		Css::push_group(['core', 'scores']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'labjs']);
+		Js::push_group(['angular', 'jquery', 'materia', 'student', 'labjs']);
 
 		$token = \Input::get('token', false);
 		if ($token)

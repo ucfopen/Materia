@@ -19,7 +19,7 @@ return [
 		],
 		'widget_play' => [
 			$static_css.'play.css',
-			$static.'js/vendor/ngmodal/ng-modal.css'
+			$static_css.'ng-modal.css'
 		],
 		'lti' => [
 			$static_css.'main.css',
@@ -31,11 +31,11 @@ return [
 			$static_css.'ui-lightness/jquery-ui-1.8.21.custom.css',
 			$static_css.'ui-lightness/jquery-ui-timepicker-addon.css',
 			$static_css.'jquery.dataTables.css',
-			$static.'js/vendor/ngmodal/ng-modal.css'
+			$static_css.'ng-modal.css'
 		],
 		'widget_editor' => [
 			$static_css.'create.css',
-			$static.'js/vendor/ngmodal/ng-modal.css'
+			$static_css.'ng-modal.css'
 		],
 		'widget_detail' => [
 			$cdnjs.'fancybox/1.3.4/jquery.fancybox-1.3.4.css',

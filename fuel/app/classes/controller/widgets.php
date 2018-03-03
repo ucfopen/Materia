@@ -21,7 +21,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_catalog']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
@@ -55,7 +55,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['widget_detail', 'core']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'fancybox']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'fancybox']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
@@ -130,7 +130,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'my_widgets']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
 		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
 
@@ -204,7 +204,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_editor']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'swfobject']);
 		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $title)
@@ -226,7 +226,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 	}
 
 	protected function retired()
@@ -238,7 +238,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/retired');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 	}
 
 	protected function no_attempts($inst)
@@ -259,7 +259,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
 	}
@@ -274,7 +274,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/nopermission');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia']);
+		Js::push_group(['angular', 'jquery', 'materia']);
 	}
 
 	protected function embedded_only($inst)
@@ -292,7 +292,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
 	}
@@ -409,7 +409,7 @@ class Controller_Widgets extends Controller
 
 		if ($is_embedded) $this->_header = 'partials/header_empty';
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'student']);
 		Css::push_group('login');
 	}
 
@@ -459,7 +459,7 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_play']);
 
 		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
+		Js::push_group(['angular', 'jquery', 'materia', 'student', 'swfobject']);
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 		$this->add_s3_config_to_response();

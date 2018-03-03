@@ -60,6 +60,7 @@ public/css/store.css
 public/css/user.css
 public/css/widget.css
 public/css/upload.css
+public/css/ng-modal.css
 
 public/js/admin.js
 public/js/author.js
