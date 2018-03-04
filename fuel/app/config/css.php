@@ -38,7 +38,7 @@ return [
 			$static_css.'ng-modal.css'
 		],
 		'widget_detail' => [
-			$cdnjs.'fancybox/1.3.4/jquery.fancybox-1.3.4.css',
+			$static.'js/vendor/fancybox/jquery.fancybox.min.css',
 			$static_css.'widget.css',
 		],
 		'widget_catalog' => [
