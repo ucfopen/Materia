@@ -198,7 +198,13 @@ class Controller_Widgets extends Controller
 	{
 		$this->_disable_browser_cache = true;
 		Css::push_group(['core', 'widget_editor']);
-		Js::push_group(['angular', 'materia', 'author', 'swfobject']);
+		Js::push_group(['angular', 'materia', 'author']);
+		if ( ! empty($widget->creator) && preg_match('/\.swf$/', $widget->creator))
+		{
+			// add swfobject if it's needed
+			Js::push_group('swfobject');
+		}
+
 		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $title)
@@ -451,7 +457,12 @@ class Controller_Widgets extends Controller
 	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
 		Css::push_group(['core', 'widget_play']);
-		Js::push_group(['angular', 'materia', 'student', 'swfobject']);
+		Js::push_group(['angular', 'materia', 'student']);
+		if ( ! empty($inst->widget->creator) && preg_match('/\.$/', $inst->widget->creator))
+		{
+			// add swfobject if it's needed
+			Js::push_group('swfobject');
+		}
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 		$this->add_s3_config_to_response();
