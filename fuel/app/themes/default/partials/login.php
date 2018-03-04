@@ -19,10 +19,10 @@
 			<form method="post" action="<?= Router::get('login') ?>?redirect=<?= $redirect?:urlencode(URI::current()) ?>" class="form-content" >
 				<ul>
 					<li>
-						<input type="text" name="username" id="username" value="" placeholder="<?= __('login.user') ?>" tabindex="1" />
+						<input type="text" name="username" id="username" value="" placeholder="<?= __('login.user') ?>" tabindex="1" autocomplete="username"/>
 					</li>
 					<li>
-						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" />
+						<input type="password" name="password" id="password" value="" placeholder="<?= __('login.password') ?>" tabindex="2" autocomplete="current-password" />
 					</li>
 					<li class="submit_button">
 						<button type="submit" tabindex="3" class="action_button">Login</button>

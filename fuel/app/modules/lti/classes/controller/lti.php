@@ -81,7 +81,7 @@ class Controller_Lti extends \Controller
 
 		$this->theme->set_template('layouts/main');
 
-		\Js::push_group(['angular', 'jquery', 'materia', 'author', 'lti_picker']);
+		\Js::push_group(['angular', 'materia', 'author']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');

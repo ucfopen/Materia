@@ -39,7 +39,9 @@
 		</div>
 		<div class="progress-container">
 			<span>{{ !easterMode ? "Connecting your widget..." : "Reticulating splines..." }}</span>
-			<div class="progressbar"></div>
+			<div class="progressbar">
+				<div class="fill"></div>
+			</div>
 		</div>
 	</section>
 	<div ng-show="showRefreshArrow" class="qtip right lti">Click to see your new widget</div>

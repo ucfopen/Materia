@@ -66,10 +66,6 @@ return [
 			$cdnjs.'plupload/1.5.4/jquery.plupload.queue/css/jquery.plupload.queue.css',
 			$static_css.'media-import.css'
 		],
-		'homepage' => [
-			$static_css.'store.css',
-			$static_css.'widget.css',
-		],
 		'help' => [
 			$static_css.'docs.css',
 		],
