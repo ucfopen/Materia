@@ -31,8 +31,7 @@ return [
 		],
 
 		'my_widgets' => [
-			$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js',
-			$static.'vendor/timepicker/jquery-ui-timepicker-addon.js',
+			$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js'
 		]
 	],
 ];
