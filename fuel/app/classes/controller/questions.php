@@ -14,8 +14,6 @@ class Controller_Questions extends Controller
 
 
 		Css::push_group(['core', 'question_catalog']);
-
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
 		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
@@ -28,7 +26,7 @@ class Controller_Questions extends Controller
 			->set('title', 'Question Catalog')
 			->set('page_type', 'import');
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
+		$theme->set_partial('footer', 'partials/angular_alert');
 		$theme->set_partial('content', 'partials/catalog/question');
 
 		return Response::forge($theme->render());
