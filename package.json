@@ -21,8 +21,7 @@
     "labjs": "getify/LABjs#2.0.3",
     "swfobject": "swfobject/swfobject#2.2",
     "fancybox": "fancyapps/fancybox#v3.2.5",
-    "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8",
-    "timepicker": "https://github.com/trentrichardson/jQuery-Timepicker-Addon.git#v0.9.9"
+    "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
   },
   "version": "1.0.0",
   "main": "index.js",

@@ -29,7 +29,6 @@ return [
 			$static_css.'my_widgets.css',
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'ui-lightness/jquery-ui-1.8.21.custom.css',
-			$static_css.'ui-lightness/jquery-ui-timepicker-addon.css',
 			$static_css.'jquery.dataTables.css',
 			$static_css.'ng-modal.css'
 		],
