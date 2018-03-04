@@ -58,15 +58,15 @@
 		</ul>
 	</nav>
 
-	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl" ng-show="values.notifications.length > 0">
-		<a id="notifications_link" data-notifications="{{values.notifications.length}}" ng-click="clickNotification()"></a>
-		<div id="notices" ng-if="values.notifications.length > 0">
-			<div class="notice" ng-repeat="notification in values.notifications">
+	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl" ng-show="notifications.length > 0">
+		<a id="notifications_link" data-notifications="{{notifications.length}}" ng-click="toggleOpen()"></a>
+		<div id="notices" ng-class="{open: isOpen}">
+			<div ng-repeat="notification in notifications" ng-class="{notice: true, deleted: notification.deleted}">
 				<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></p>
 				<div class="notice_right_side">
 					<p class="subject" ng-bind-html="trust(notification.subject)"></p>
 				</div>
-				<span class="noticeClose" ng-click="removeNotification($index)"></span>
+				<span class="noticeClose" ng-click="removeNotification($index, notification.id)"></span>
 			</div>
 		</div>
 	</div>

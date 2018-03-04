@@ -35,8 +35,6 @@ return [
 			$static.'vendor/timepicker/jquery-ui-timepicker-addon.js',
 		],
 
-		'widget_play' => [$static.'jquery-ui-1.8.21.custom.min.js'],
-
-		'lti_picker' => [$static.'jquery-ui-1.10.3.custom.min.js'],
+		'widget_play' => [$static.'jquery-ui-1.8.21.custom.min.js']
 	],
 ];
