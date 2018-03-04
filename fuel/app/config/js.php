@@ -8,12 +8,12 @@ return [
 
 	'groups' => [
 		'materia'    => [$static.'materia.js'],
-		'angular'    => [$cdnjs.'angular.js/1.3.0/angular.min.js'],
-		'jquery'     => [$cdnjs.'jquery/1.8.1/jquery.min.js'],
+		'angular'    => [$cdnjs.'angular.js/1.6.9/angular.min.js'],
+		'jquery'     => [$cdnjs.'jquery/3.3.1/jquery.min.js'],
 		'admin'      => [$static.'admin.js'],
 		'author'     => [$static.'author.js'],
 		'student'    => [$static.'student.js'],
-		'dataTables' => [$cdnjs.'datatables/1.10.7/js/jquery.dataTables.min.js'],
+		'dataTables' => [$cdnjs.'datatables/1.10.16/js/jquery.dataTables.min.js'],
 		'jquery_ui'  => [$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js'],
 		'labjs'      => [$cdnjs.'labjs/2.0.3/LAB.min.js'],
 		'spinner'    => [$static.'vendor/spin.min.js', $static.'spin.jquery.js'],
@@ -21,13 +21,13 @@ return [
 		'swfobject'  => [$cdnjs.'swfobject/2.2/swfobject.min.js'],
 
 		'jqplot'     => [
-			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.barRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.canvasTextRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.canvasAxisTickRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.categoryAxisRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.cursor.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.highlighter.min.js',
+			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.barRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.canvasTextRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.canvasAxisTickRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.categoryAxisRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.cursor.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.highlighter.min.js',
 		],
 
 		'my_widgets' => [
