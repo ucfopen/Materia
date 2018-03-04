@@ -124,13 +124,13 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
 
-angular-mocks@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.3.0.tgz#c57c886d7d6d686b5f81a9fc9f3b30d9253b4781"
+angular-mocks@1.6.9:
+  version "1.6.9"
+  resolved "https://registry.yarnpkg.com/angular-mocks/-/angular-mocks-1.6.9.tgz#4fed8c8293a5080e0919a7ff0dcf0f704864b7ba"
 
-angular@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.3.0.tgz#eaf419f7d116a7045a0b289a5df3bee8a0587d5f"
+angular@1.6.9:
+  version "1.6.9"
+  resolved "https://registry.yarnpkg.com/angular/-/angular-1.6.9.tgz#bc812932e18909038412d594a5990f4bb66c0619"
 
 ansi-align@^2.0.0:
   version "2.0.0"
@@ -4370,12 +4370,12 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-"materia-client-assets@https://github.com/ucfcdl/materia-client-assets.git#v0.3.0-alpha8":
-  version "0.3.0-alpha8"
-  resolved "https://github.com/ucfcdl/materia-client-assets.git#6e488e6c73a3021a02743635e4dfa1a8a80cea3e"
+"materia-client-assets@https://github.com/ucfcdl/materia-client-assets.git#v0.3.0-alpha9":
+  version "0.3.0-alpha9"
+  resolved "https://github.com/ucfcdl/materia-client-assets.git#4e065edc34dd1217dead0e3b478a5942f9a68fac"
   dependencies:
-    angular "1.3.0"
-    angular-mocks "1.3.0"
+    angular "1.6.9"
+    angular-mocks "1.6.9"
     babel-core "^6.26.0"
     babel-loader "^7.1.2"
     babel-plugin-angularjs-annotate "^0.8.2"
@@ -4390,7 +4390,7 @@ map-visit@^1.0.0:
     ngmodal ucfcdl/ngModal#v1.2.2
     node-sass "^4.5.3"
     npm "^5.7.1"
-    prettier "^1.10.2"
+    prettier "^1.11.1"
     sass-loader "^6.0.6"
     style-loader "^0.20.2"
     webpack "^3.11.0"
@@ -5698,9 +5698,9 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
-prettier@^1.10.2:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.11.0.tgz#c024f70cab158c993f50fc0c25ffe738cb8b0f85"
+prettier@^1.11.1:
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.11.1.tgz#61e43fc4cd44e68f2b0dfc2c38cd4bb0fccdcc75"
 
 pretty-format@^22.4.0:
   version "22.4.0"
