@@ -27,7 +27,7 @@ return [
 		],
 		'my_widgets' => [
 			$static_css.'my_widgets.css',
-			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.css',
+			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'ui-lightness/jquery-ui-1.8.21.custom.css',
 			$static_css.'ui-lightness/jquery-ui-timepicker-addon.css',
 			$static_css.'jquery.dataTables.css',
@@ -51,7 +51,7 @@ return [
 			$static_css.'login.css',
 		],
 		'scores' => [
-			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.css',
+			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'scores.css',
 		],
 		'embed_scores' => [
@@ -63,7 +63,6 @@ return [
 		],
 		'media_catalog' => [
 			$static_css.'jquery.dataTables.css',
-			$cdnjs.'plupload/1.5.4/jquery.plupload.queue/css/jquery.plupload.queue.css',
 			$static_css.'media-import.css'
 		],
 		'help' => [
