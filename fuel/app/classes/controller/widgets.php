@@ -458,7 +458,7 @@ class Controller_Widgets extends Controller
 	{
 		Css::push_group(['core', 'widget_play']);
 		Js::push_group(['angular', 'materia', 'student']);
-		if ( ! empty($inst->widget->creator) && preg_match('/\.$/', $inst->widget->creator))
+		if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
 		{
 			// add swfobject if it's needed
 			Js::push_group('swfobject');
