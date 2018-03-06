@@ -13,7 +13,7 @@
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
     "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#v0.3.0-alpha11",
+    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#v0.3.0",
     "napa": "^3.0.0"
   },
   "napa": {
