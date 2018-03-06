@@ -38,12 +38,13 @@
 			</span>
 		</section>
 
-		<div class="center">
-			<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html"></iframe>
-			<div id="container" ng-if="type == 'swf'"></div>
-		</div>
-		<div id="container" ng-if="type == 'noflash'">
-			<?= Theme::instance()->view('partials/noflash') ?>
+		<div ng-switch="type" class="center">
+			<iframe ng-switch-when="html" ng-attr-src="{{ htmlPath }}" id="container" class="html"></iframe>
+			<div ng-switch-when="swf" id="container"></div>
+			<div ng-switch-when="noflash" id="container">
+				<?= Theme::instance()->view('partials/noflash') ?>
+			</div>
+			<div ng-switch-default></div>
 		</div>
 
 		<div id="modal-cover" class="page" ng-show="modal"></div>
