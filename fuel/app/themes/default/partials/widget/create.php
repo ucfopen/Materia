@@ -27,7 +27,7 @@
 			</div>
 		</div>
 
-		<section id="action-bar" ng-show="showActionBar">
+		<section id="action-bar" ng-show="showActionBar" ng-class="{'fullscreenMode' : inFullScreen}">
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
 			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
 			<button id="creatorPublishBtn" class="edit_button green" type="button" ng-click="onPublishPressed()">{{ publishText }}</button>
@@ -36,6 +36,7 @@
 				<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')"><span>{{ previewText }}</span></button>
 				<button id="creatorSaveBtn" class="edit_button orange" ng-class="saveStatus" type="button" ng-click="requestSave('save')"><span>{{ saveText }}</span></button>
 			</span>
+			<button id="creatorFullscreen" class="edit_button orange" type="button" ng-show="allowFullScreen" ng-click="goFullScreen()">Fullscreen</button>
 		</section>
 
 		<div ng-switch="type" class="center">
