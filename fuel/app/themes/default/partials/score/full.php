@@ -1,6 +1,6 @@
 <article class="container" ng-class="{ show: show }" ng-controller="scorePageController">
 	<header class="header score-header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
-		<nav class="header-element previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
+		<nav class="header-element previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess || distributionOnly" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
 			<h1 ng-click="prevClick()">Prev. Attempts</h1>
 			<ul ng-mouseover="prevMouseOver()">
 				<li ng-repeat="attempt in attempts" ng-init="num = attempts.length - $index">
@@ -8,20 +8,20 @@
 				</a></li>
 			</ul>
 		</nav>
-		
+
 		<h1 class="header-element widget-title" ng-style="headerStyle">{{ widget.title }}</h1>
-		
+
 		<nav class="play-again header-element">
 			<h1>
-				<a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ playAgainUrl }}">
+				<a id="play-again" ng-hide="hidePlayAgain || distributionOnly" class="action_button" href="{{ playAgainUrl }}">
 					{{ isPreview ? 'Preview' : 'Play' }} Again
 					<span ng-show="attemptsLeft > 0">({{ attemptsLeft }} Left)</span>
 				</a>
 			</h1>
 		</nav>
 	</header>
-	<h1 class="scoreFontColor">Scores:</h1>
-	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
+	<h1 class="scoreFontColor" ng-if="!distributionOnly">Scores:</h1>
+	<section class="overview" ng-class="{ preview: isPreview, compact: distributionOnly }" ng-show="!restricted && !expired">
 		<div id='overview-incomplete' ng-hide="overview.complete">
 			<h2>Incomplete Attempt</h2>
 			<hr/>
@@ -31,12 +31,14 @@
 			</p>
 		</div>
 		<div id="overview-score">
-			<h1 ng-if="!guestAccess">Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
-			<h1 ng-if="guestAccess">This Attempt Score:</h1>
+			<h1 ng-if="!guestAccess && !distributionOnly">Attempt <span class="attempt-num">{{ attempt_num }}</span> Score:</h1>
+			<h1 ng-if="guestAccess && !distributionOnly">This Attempt Score:</h1>
+			<h1 ng-if="distributionOnly" class="bestScore">Your Best Score:</h1>
 			<span class="overall_score">{{ overview.score }}<span class="percent">%</span></span>
-			<div id="class-rank-button" class="action_button gray" ng-hide="isPreview" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
+			<div id="class-rank-button" class="action_button gray" ng-hide="isPreview || distributionOnly" ng-click="toggleClassRankGraph()">{{ classRankText }}</div>
+			<h1 ng-if="distributionOnly" class="percentile">{{ percentile }}<sup>{{ getSuffix() }}</sup> Percentile</h1>
 		</div>
-		<div id="overview-table">
+		<div id="overview-table" ng-if="!distributionOnly">
 			<table>
 				<tbody>
 					<tr ng-repeat="row in overview.table track by $index">
@@ -57,7 +59,7 @@
 		</div>
 	</section>
 
-	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired">
+	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired && !distributionOnly">
 		<h1>{{ detail.title }}</h1>
 		<ul>
 			<li class="details_header">

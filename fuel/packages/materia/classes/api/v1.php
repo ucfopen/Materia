@@ -488,11 +488,11 @@ class Api_V1
 	}
 
 	/**
-	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3. 
+	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3.
 	*
 	* @param string $file_name The name of the file being uploaded
 	*
-	* @return array $res An array containing the required header data for an Amazon AWS S3 upload 
+	* @return array $res An array containing the required header data for an Amazon AWS S3 upload
 	*/
 	static public function upload_keys_get($file_name, $file_size = null)
 	{
@@ -732,6 +732,27 @@ class Api_V1
 		});
 		return $summary;
 	}
+
+	static public function score_distribution_get($inst_id)
+	{
+		/*
+			???
+
+			Need to support $include_storage_data
+
+			???
+		*/
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		$score_mod = Score_Manager::get_score_module_for_widget($inst_id, -1);
+		if ( ! $score_mod || ! $score_mod->allow_distribution) return false;
+
+		$distribution = Score_Manager::get_widget_score_distribution($inst_id, true);
+		return $distribution;
+	}
+
 	/**
 	 * Gets the Question Set for the widget with the given instance ID.
 	 * Current user must have author/collab access to the widget or
