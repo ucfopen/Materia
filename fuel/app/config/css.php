@@ -19,7 +19,7 @@ return [
 		],
 		'widget_play' => [
 			$static_css.'play.css',
-			$static.'js/vendor/ngmodal/ng-modal.css'
+			$static_css.'ng-modal.css'
 		],
 		'lti' => [
 			$static_css.'main.css',
@@ -27,18 +27,17 @@ return [
 		],
 		'my_widgets' => [
 			$static_css.'my_widgets.css',
-			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.css',
+			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'ui-lightness/jquery-ui-1.8.21.custom.css',
-			$static_css.'ui-lightness/jquery-ui-timepicker-addon.css',
 			$static_css.'jquery.dataTables.css',
-			$static.'js/vendor/ngmodal/ng-modal.css'
+			$static_css.'ng-modal.css'
 		],
 		'widget_editor' => [
 			$static_css.'create.css',
-			$static.'js/vendor/ngmodal/ng-modal.css'
+			$static_css.'ng-modal.css'
 		],
 		'widget_detail' => [
-			$cdnjs.'fancybox/1.3.4/jquery.fancybox-1.3.4.css',
+			$static.'js/vendor/fancybox/jquery.fancybox.min.css',
 			$static_css.'widget.css',
 		],
 		'widget_catalog' => [
@@ -51,7 +50,7 @@ return [
 			$static_css.'login.css',
 		],
 		'scores' => [
-			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.css',
+			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'scores.css',
 		],
 		'embed_scores' => [
@@ -63,12 +62,7 @@ return [
 		],
 		'media_catalog' => [
 			$static_css.'jquery.dataTables.css',
-			$cdnjs.'plupload/1.5.4/jquery.plupload.queue/css/jquery.plupload.queue.css',
 			$static_css.'media-import.css'
-		],
-		'homepage' => [
-			$static_css.'store.css',
-			$static_css.'widget.css',
 		],
 		'help' => [
 			$static_css.'docs.css',

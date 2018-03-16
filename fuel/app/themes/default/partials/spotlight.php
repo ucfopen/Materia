@@ -1,4 +1,4 @@
-<article class="store_main" style="display: block;">
+<article class="store_main selected">
 	<section class="html5">
 		<h1>Supercharged HTML 5 Widgets</h1>
 
@@ -10,7 +10,7 @@
 	</section>
 </article>
 
-<article class="store_main" style="display: none;">
+<article class="store_main">
 	<section class="adventure">
 		<h1>Choose Your Own Adventure</h1>
 
@@ -21,7 +21,7 @@
 	</section>
 </article>
 
-<article class="store_main" style="display: none;">
+<article class="store_main">
 	<section class="enigma">
 		<h1>Enigma</h1>
 
@@ -33,7 +33,7 @@
 	</section>
 </article>
 
-<article class="store_main" style="display: none;">
+<article class="store_main">
 	<section class="crossword">
 		<h1>Crossword</h1>
 

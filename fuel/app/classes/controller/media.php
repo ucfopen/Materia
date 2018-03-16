@@ -46,9 +46,7 @@ class Controller_Media extends Controller
 		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
 		Css::push_group(['core', 'media_catalog']);
-
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'dataTables', 'plupload']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
@@ -62,6 +60,7 @@ class Controller_Media extends Controller
 			->set('title', 'Media Catalog')
 			->set('page_type', 'import');
 
+		$theme->set_partial('footer', 'partials/angular_alert');
 		$theme->set_partial('content', 'partials/catalog/media');
 
 		return Response::forge($theme->render());
