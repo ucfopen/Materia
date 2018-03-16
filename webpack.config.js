@@ -18,21 +18,25 @@ const isProd = process.argv.indexOf('-p') != -1
 let copy = new CopyWebpackPlugin(
 	[
 		{
-			from: path.join(modulesPath, 'ngmodal', 'dist'),
-			to:  path.join(vendorPath, 'ngmodal')
+			from: path.join(modulesPath, 'datatables', 'media', 'js', 'jquery.dataTables.min.js'),
+			to:  path.join(vendorPath, 'datatables')
 		},
 		{
-			from: path.join(modulesPath, 'fancybox', 'source'),
+			from: path.join(modulesPath, 'labjs', 'LAB.min.js'),
+			to:  path.join(vendorPath, 'labjs')
+		},
+		{
+			from: path.join(modulesPath, 'swfobject', 'swfobject'),
+			to:  path.join(vendorPath, 'swfobject')
+		},
+		{
+			from: path.join(modulesPath, 'fancybox', 'dist'),
 			to:  path.join(vendorPath, 'fancybox')
 		},
 		{
 			from: path.join(modulesPath, 'spinjs', 'dist', 'spin.min.js'),
 			to:  path.join(vendorPath, 'spin.min.js')
-		},
-		{
-			from: path.join(modulesPath, 'timepicker'),
-			to:  path.join(vendorPath, 'timepicker')
-		},
+		}
 	], { copyUnmodified: true }
 )
 

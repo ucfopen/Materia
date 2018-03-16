@@ -25,6 +25,7 @@
     <exclude-pattern>*/fuel/packages/parser/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/plupload/*</exclude-pattern>
     <exclude-pattern>*/fuel/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/githooks/*</exclude-pattern>
     <exclude-pattern>*/licenses/*</exclude-pattern>
     <exclude-pattern>*/migrations/*</exclude-pattern>
