@@ -8,44 +8,30 @@ return [
 
 	'groups' => [
 		'materia'    => [$static.'materia.js'],
-		'angular'    => [$cdnjs.'angular.js/1.3.0/angular.min.js'],
-		'ng_modal'   => [$static.'vendor/ngmodal/ng-modal.min.js'],
-		'jquery'     => [$cdnjs.'jquery/1.8.1/jquery.min.js'],
+		'angular'    => [$cdnjs.'angular.js/1.6.9/angular.min.js'],
+		'jquery'     => [$cdnjs.'jquery/3.3.1/jquery.min.js'],
 		'admin'      => [$static.'admin.js'],
 		'author'     => [$static.'author.js'],
 		'student'    => [$static.'student.js'],
-		'dataTables' => [$cdnjs.'datatables/1.10.7/js/jquery.dataTables.min.js'],
+		'dataTables' => [$static.'vendor/datatables/jquery.dataTables.min.js'],
 		'jquery_ui'  => [$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js'],
-		'labjs'      => [$cdnjs.'labjs/2.0.3/LAB.min.js'],
+		'labjs'      => [$static.'vendor/labjs/LAB.min.js'],
 		'spinner'    => [$static.'vendor/spin.min.js', $static.'spin.jquery.js'],
-		'fancybox'   => [$cdnjs.'fancybox/1.3.4/jquery.fancybox-1.3.4.pack.min.js'],
-		'swfobject'  => [$cdnjs.'swfobject/2.2/swfobject.min.js'],
-
-		'plupload'   => [
-			$cdnjs.'plupload/1.5.4/jquery.plupload.queue/jquery.plupload.queue.js',
-			$cdnjs.'plupload/1.5.4/plupload.js',
-			$cdnjs.'plupload/1.5.4/plupload.flash.js',
-			$cdnjs.'plupload/1.5.4/plupload.html5.js',
-			$cdnjs.'plupload/1.5.4/plupload.html4.js',
-		],
+		'fancybox'   => [$static.'vendor/fancybox/jquery.fancybox.min.js'],
+		'swfobject'  => [$static.'vendor/swfobject/swfobject.js'],
 
 		'jqplot'     => [
-			$cdnjs.'jqPlot/1.0.0/jquery.jqplot.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.barRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.canvasTextRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.canvasAxisTickRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.categoryAxisRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.cursor.min.js',
-			$cdnjs.'jqPlot/1.0.0/plugins/jqplot.highlighter.min.js',
+			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.barRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.canvasTextRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.canvasAxisTickRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.categoryAxisRenderer.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.cursor.min.js',
+			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.highlighter.min.js',
 		],
 
 		'my_widgets' => [
-			$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js',
-			$static.'vendor/timepicker/jquery-ui-timepicker-addon.js',
-		],
-
-		'widget_play' => [$static.'jquery-ui-1.8.21.custom.min.js'],
-
-		'lti_picker' => [$static.'jquery-ui-1.10.3.custom.min.js'],
+			$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js'
+		]
 	],
 ];

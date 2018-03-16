@@ -23,8 +23,7 @@ class Controller_Scores extends Controller
 
 		Css::push_group(['core', 'scores']);
 
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student', 'labjs']);
+		Js::push_group(['angular', 'materia', 'student', 'labjs']);
 
 		$token = \Input::get('token', false);
 		if ($token)
@@ -36,6 +35,7 @@ class Controller_Scores extends Controller
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/score/full');
 	}
 

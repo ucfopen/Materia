@@ -14,9 +14,7 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
-
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Welcome to Materia')
@@ -25,14 +23,12 @@ class Controller_Site extends Controller
 		$spotlight = $this->theme->view('partials/spotlight');
 		$this->theme->set_partial('content', 'partials/homepage')
 			->set_safe('spotlight', $spotlight);
-		Js::push_group('jquery_ui');
-		Css::push_group('homepage');
+
 	}
 
 	public function action_permission_denied()
 	{
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
@@ -43,8 +39,7 @@ class Controller_Site extends Controller
 
 	public function action_help()
 	{
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Help')
@@ -58,9 +53,6 @@ class Controller_Site extends Controller
 
 	public function action_403()
 	{
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-
 		Css::push_group('404');
 
 		$this->theme->get_template()
@@ -81,9 +73,6 @@ class Controller_Site extends Controller
 	 */
 	public function action_404()
 	{
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-
 		Css::push_group('404');
 
 		$this->theme->get_template()
@@ -104,9 +93,6 @@ class Controller_Site extends Controller
 	 */
 	public function action_500()
 	{
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
-
 		Css::push_group('500');
 
 		$this->theme->get_template()

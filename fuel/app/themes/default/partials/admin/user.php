@@ -1,7 +1,7 @@
-<div ng-controller='adminUserController'>
-	<div class='container'>
-		<section class='page' ng-hide='selectedUser'>
-			<div class='top'>
+<div ng-controller="adminUserController">
+	<div class="container">
+		<section class="page" ng-show="selectedUser == null">
+			<div class="top">
 				<h1>User Admin</h1>
 			</div>
 			<span class="input_label">Search:</span>
@@ -36,19 +36,19 @@
 				</div>
 			</div>
 		</section>
-		<section class='page user-info' ng-show='selectedUser'>
-			<div class='error-holder' ng-show='errorMessage.length > 0'>
-				<div ng-repeat='error in errorMessage'>
+		<section class="page user-info" ng-show="selectedUser !== null">
+			<div class="error-holder" ng-show="errorMessage.length > 0">
+				<div ng-repeat="error in errorMessage">
 					{{ error }}
 				</div>
 			</div>
 			<div>
-				<button class='action_button back' ng-click='deselectUser()'>
-					<span class='arrow'></span>
-					<span class='goBackText'>Return</span>
+				<button class="action_button back" ng-click="deselectUser()">
+					<span class="arrow"></span>
+					<span class="goBackText">Return</span>
 				</button>
 			</div>
-			<div class='top info-holder'>
+			<div class="top info-holder">
 				<span>
 					<img ng-src="{{selectedUser.gravatar}}">
 				</span>
@@ -56,7 +56,7 @@
 					<h1>{{ selectedUser.first }} {{ selectedUser.last }}</h1>
 				</span>
 			</div>
-			<div class='info-holder'>
+			<div class="info-holder">
 				<div>
 					<span>
 						<label>Created:</label>{{ selectedUser.created_at*1000 | date:'short' }}
@@ -74,23 +74,23 @@
 				</div>
 				<div>
 					<span>
-						<label>E-mail:</label><input type='text' ng-model='selectedUser.email' />
+						<label>E-mail:</label><input type="text" ng-model="selectedUser.email" />
 					</span>
 				</div>
 				<div>
 					<span>
 						<label>Role:</label>
-						<select ng-model='selectedUser.is_student'/>
-							<option value='true'>Student</option>
-							<option value='false'>Teacher</option>
+						<select ng-model="selectedUser.is_student"/>
+							<option ng-value={{true}}>Student</option>
+							<option ng-value={{false}}>Teacher</option>
 						</select>
 					</span>
 				</div>
 				<div>
 					<span>
 						<label>Notifications:</label>
-						<label class='normal'>
-							<input type='checkbox' ng-model='selectedUser.profile_fields.notify'/>
+						<label class="normal">
+							<input type="checkbox" ng-model="selectedUser.profile_fields.notify"/>
 							Enabled
 						</label>
 					</span>
@@ -98,30 +98,30 @@
 				<div>
 					<span>
 						<label>User Icon:</label>
-						<select ng-model='selectedUser.profile_fields.useGravatar'>
-							<option value='true'>Gravatar</option>
-							<option value='false'>None</option>
+						<select ng-model="selectedUser.profile_fields.useGravatar">
+							<option ng-value={{true}}>Gravatar</option>
+							<option ng-value={{false}}>None</option>
 						</select>
 					</span>
 				</div>
 				<div>
-					<button class='action_button' ng-click='save()'>Save Changes</button>
+					<button class="action_button" ng-click="save()">Save Changes</button>
 				</div>
 			</div>
-			<div class='info-holder'>
+			<div class="info-holder">
 				<hr/>
-				<div class='instances'>
-					<div class='top'>
+				<div class="instances">
+					<div class="top">
 						<h1>Instances Available:</h1>
 					</div>
 					<ul>
-						<li ng-repeat='instance in additionalData.instances_available'>
-							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
-								<span class='img-holder'>
-									<img ng-src='{{instance.icon}}'>
+						<li ng-repeat="instance in additionalData.instances_available">
+							<div class="clickable widget-title" ng-click="instance.expanded = !instance.expanded">
+								<span class="img-holder">
+									<img ng-src="{{instance.icon}}">
 								</span>
 								<span>
-									<div class='title' ng-class='{created_by: instance.user_id == selectedUser.id}'>
+									<div class="title" ng-class="{created_by: instance.user_id == selectedUser.id}">
 										{{ instance.name }}
 									</div>
 									<div>
@@ -129,7 +129,7 @@
 									</div>
 								</span>
 							</div>
-							<div class='info-holder' ng-show='instance.expanded'>
+							<div class="info-holder" ng-show="instance.expanded">
 								<div>
 									<span>
 										<label>ID:</label>{{ instance.id }}
@@ -187,17 +187,17 @@
 								</div>
 								<div>
 									<span>
-										<label>Play URL:</label><a target='_blank' href="{{ instance.play_url }}">{{ instance.play_url }}</a>
+										<label>Play URL:</label><a target="_blank" href="{{ instance.play_url }}">{{ instance.play_url }}</a>
 									</span>
 								</div>
 								<div>
 									<span>
-										<label>Preview URL:</label><a target='_blank' href="{{ instance.preview_url }}">{{ instance.preview_url }}</a>
+										<label>Preview URL:</label><a target="_blank" href="{{ instance.preview_url }}">{{ instance.preview_url }}</a>
 									</span>
 								</div>
 								<div>
 									<span>
-										<label>Embed URL:</label><a target='_blank' href="{{ instance.embed_url }}">{{ instance.embed_url }}</a>
+										<label>Embed URL:</label><a target="_blank" href="{{ instance.embed_url }}">{{ instance.embed_url }}</a>
 									</span>
 								</div>
 							</div>
@@ -205,17 +205,17 @@
 					</ul>
 				</div>
 				<div>
-					<div class='top'>
+					<div class="top">
 						<h1>Instances Played:</h1>
 					</div>
 					<ul>
-						<li ng-repeat='instance in additionalData.instances_played'>
-							<div class='clickable widget-title' ng-click='instance.expanded = !instance.expanded'>
-								<span class='img-holder'>
-									<img ng-src='{{ instance.icon }}'>
+						<li ng-repeat="instance in additionalData.instances_played">
+							<div class="clickable widget-title" ng-click="instance.expanded = !instance.expanded">
+								<span class="img-holder">
+									<img ng-src="{{ instance.icon }}">
 								</span>
 								<span>
-									<div class='title'>
+									<div class="title">
 										{{ instance.name }} ({{ instance.id }})
 									</div>
 									<div>
@@ -224,15 +224,15 @@
 								</span>
 							</div>
 
-							<div class='info-holder' ng-show='instance.expanded'>
+							<div class="info-holder" ng-show="instance.expanded">
 								<ul>
-									<li ng-repeat='play in instance.plays'>
+									<li ng-repeat="play in instance.plays">
 										<div>
 											<label>Date:</label>{{ play.created_at*1000 | date: 'short' }}
 										</div>
 										<div>
 											<label>Score:</label><!--gross hack to remove space between inline elements
-											--><a target='_blank' href="{{ '/scores/'+play.id+'/#single-'+play.play_id }}">{{ play.percent }}%</a>
+											--><a target="_blank" href="{{ '/scores/'+play.id+'/#single-'+play.play_id }}">{{ play.percent }}%</a>
 										</div>
 										<div>
 											<label>Time Elapsed:</label>{{ play.elapsed }}s
@@ -240,7 +240,7 @@
 										<div>
 											<label>Completed:</label>{{ play.is_complete ? 'Yes' : 'No' }}
 										</div>
-										<hr ng-if='$index < instance.plays.length-1' />
+										<hr ng-if="$index < instance.plays.length-1" />
 									</li>
 								</ul>
 							</div>

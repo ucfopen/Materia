@@ -1,6 +1,8 @@
 <section class="page spotlight" ng-controller="spotlightCtrl">
 	<section class="main_container">
-		<?= $spotlight ?>
+		<span class="spotlight-wrapper">
+			<?= $spotlight ?>
+		</span>
 	</section>
 	<div class="cycler">
 	</div>

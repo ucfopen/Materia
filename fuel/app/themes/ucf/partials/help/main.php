@@ -9,10 +9,10 @@
 		<section class="bordered">
 			<h2 id="flash-required">Requirements</h2>
 			<p class="flash-version">Materia requires that you have the latest Flash Player plug-in installed.</p>
-			<div ng-show='hasFlash'>
+			<div ng-if='hasFlash'>
 				<p class="flash_installed">Sweet! We've detected you have Flash installed. You should be good to go.</p>
 			</div>
-			<div class="no_flash" ng-show='noFlash'>
+			<div ng-if='!hasFlash' class="no_flash" >
 				<p><strong>Oh no!</strong> Looks like you don't have the latest version of Flash installed.</p>
 				<a class="get_flash" href="http://www.adobe.com/go/getflashplayer">Get the latest Adobe Flash &reg; Player</a>
 			</div>

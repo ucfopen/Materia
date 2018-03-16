@@ -16,23 +16,11 @@ class Controller_Widgets extends Controller
 	 *
 	 * @login Not required
 	 */
-	public function get_index($type = null)
+	public function get_index()
 	{
-		// $type is an optional flag that provides optional display parameters for the catalog
-		// "all" displays all widgets in the database, not just the default "featured" ones
-		if (isset($type))
-		{
-			if ($type == 'all') // could be extended to include other options
-			{
-				Js::push_inline('var DISPLAY_TYPE = "'.$type.'";');
-			}
-			else throw new HttpNotFoundException;
-		}
-
 		Css::push_group(['core', 'widget_catalog']);
 
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
@@ -40,6 +28,13 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
 	}
+
+	public function get_all()
+	{
+		Js::push_inline('var DISPLAY_TYPE = "all";');
+		$this->get_index();
+	}
+
 
 	/**3
 	 * Catalog page for an individual widget
@@ -58,8 +53,7 @@ class Controller_Widgets extends Controller
 
 		Css::push_group(['widget_detail', 'core']);
 
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'fancybox']);
+		Js::push_group(['angular', 'jquery', 'materia', 'fancybox']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
@@ -132,9 +126,7 @@ class Controller_Widgets extends Controller
 		}
 
 		Css::push_group(['core', 'my_widgets']);
-
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
 
 		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
 
@@ -142,6 +134,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'My Widgets')
 			->set('page_type', 'my_widgets');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/my_widgets');
 	}
 
@@ -205,14 +198,19 @@ class Controller_Widgets extends Controller
 	{
 		$this->_disable_browser_cache = true;
 		Css::push_group(['core', 'widget_editor']);
+		Js::push_group(['angular', 'materia', 'author']);
+		if ( ! empty($widget->creator) && preg_match('/\.swf$/', $widget->creator))
+		{
+			// add swfobject if it's needed
+			Js::push_group('swfobject');
+		}
 
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'swfobject']);
 		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/create')
 			->set('widget', $widget)
 			->set('inst_id', $inst_id);
@@ -226,8 +224,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 	}
 
 	protected function retired()
@@ -237,8 +236,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		$this->theme->set_partial('content', 'partials/widget/retired');
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 	}
 
 	protected function no_attempts($inst)
@@ -248,6 +248,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/no_attempts')
 			->set('classes', 'widget')
 			->set('attempts', $inst->attempts)
@@ -258,7 +259,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
 	}
@@ -270,9 +271,10 @@ class Controller_Widgets extends Controller
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/nopermission');
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 	}
 
 	protected function embedded_only($inst)
@@ -281,6 +283,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/embedded_only')
 			->set('classes', 'widget')
 
@@ -289,7 +292,7 @@ class Controller_Widgets extends Controller
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author']);
+		Js::push_group(['angular', 'materia']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
 	}
@@ -406,7 +409,7 @@ class Controller_Widgets extends Controller
 
 		if ($is_embedded) $this->_header = 'partials/header_empty';
 
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'author', 'student']);
+		Js::push_group(['angular', 'materia', 'student']);
 		Css::push_group('login');
 	}
 
@@ -454,9 +457,12 @@ class Controller_Widgets extends Controller
 	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
 		Css::push_group(['core', 'widget_play']);
-
-		// TODO: remove ngmodal, jquery, convert author to something else, materia is a mess
-		Js::push_group(['angular', 'ng_modal', 'jquery', 'materia', 'student', 'swfobject']);
+		Js::push_group(['angular', 'materia', 'student']);
+		if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
+		{
+			// add swfobject if it's needed
+			Js::push_group('swfobject');
+		}
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 		$this->add_s3_config_to_response();
@@ -465,6 +471,7 @@ class Controller_Widgets extends Controller
 			->set('page_type', 'widget')
 			->set('html_class', $is_embedded ? 'embedded' : '' );
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
 	}
