@@ -8,9 +8,9 @@
 				</a></li>
 			</ul>
 		</nav>
-		
+
 		<h1 class="header-element widget-title" ng-style="headerStyle">{{ widget.title }}</h1>
-		
+
 		<nav class="play-again header-element">
 			<h1>
 				<a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ playAgainUrl }}">
@@ -56,6 +56,8 @@
 			</div>
 		</div>
 	</section>
+
+	<iframe ng-attr-src="{{ htmlPath }}" ng-show="validScoreScreen && !expired && !restricted" id="container" class="html" scrolling="yes" fullscreen-dir></iframe>
 
 	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired">
 		<h1>{{ detail.title }}</h1>
