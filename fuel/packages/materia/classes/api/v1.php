@@ -115,7 +115,6 @@ class Api_V1
 		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
-
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
 			'name'            => $name,
@@ -488,11 +487,11 @@ class Api_V1
 	}
 
 	/**
-	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3. 
+	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3.
 	*
 	* @param string $file_name The name of the file being uploaded
 	*
-	* @return array $res An array containing the required header data for an Amazon AWS S3 upload 
+	* @return array $res An array containing the required header data for an Amazon AWS S3 upload
 	*/
 	static public function upload_keys_get($file_name, $file_size = null)
 	{
@@ -732,6 +731,7 @@ class Api_V1
 		});
 		return $summary;
 	}
+
 	/**
 	 * Gets the Question Set for the widget with the given instance ID.
 	 * Current user must have author/collab access to the widget or
@@ -751,18 +751,20 @@ class Api_V1
 	 * @param int $play_id The play id associated with a play session
 	 * @return object QSET
 	 */
-	static public function question_set_get($inst_id, $play_id = null)
+	static public function question_set_get($inst_id, $play_id = null, $score_screen = false)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		// valid play id sent?
-		if ( ! empty($play_id) && ! static::_validate_play_id($play_id)) return Msg::no_login();
+		if ( ! empty($play_id) && ! $score_screen && ! static::_validate_play_id($play_id))
+		{
+			return Msg::no_login();
+		}
 
 		// if preview mode, can I preview?
 		if (empty($play_id) && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
-
 
 		$inst->get_qset($inst_id);
 
