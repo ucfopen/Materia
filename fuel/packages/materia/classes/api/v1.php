@@ -751,14 +751,14 @@ class Api_V1
 	 * @param int $play_id The play id associated with a play session
 	 * @return object QSET
 	 */
-	static public function question_set_get($inst_id, $play_id = null, $score_screen = false)
+	static public function question_set_get($inst_id, $play_id = null, $timestamp = false)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		// valid play id sent?
-		if ( ! empty($play_id) && ! $score_screen && ! static::_validate_play_id($play_id))
+		if ( ! empty($play_id) && ! $timestamp && ! static::_validate_play_id($play_id))
 		{
 			return Msg::no_login();
 		}
@@ -766,7 +766,7 @@ class Api_V1
 		// if preview mode, can I preview?
 		if (empty($play_id) && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
 
-		$inst->get_qset($inst_id);
+		$inst->get_qset($inst_id, $timestamp);
 
 		return $inst->qset;
 	}
