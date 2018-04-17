@@ -150,7 +150,9 @@ class Session_Play
 	}
 
 	protected function insert_play($hash)
-	{
+	{	
+		trace("butts");
+		trace($this->qset_id);
 		list($insert_id, $num_affected) = \DB::insert('log_play')
 			->set([
 				'id'               => $hash,
