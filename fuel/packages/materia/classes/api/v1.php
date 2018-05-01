@@ -395,7 +395,6 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
-
 		if ( ! $preview_inst_id)
 		{
 			$inst = self::_get_instance_for_play_id($play_id);
@@ -730,6 +729,29 @@ class Api_V1
 			return($a['id'] < $b['id']);
 		});
 		return $summary;
+	}
+
+	static public function sample_scores_get($inst_id)
+	{
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		$score_mod = Score_Manager::get_score_module_for_widget($inst_id, -1);
+		if ( ! $score_mod || ! $score_mod->allow_distribution) return false;
+
+		$result = Score_Manager::get_all_widget_scores($inst_id);
+
+		$sample_size = 30;
+		if (count($result) < $sample_size) return false;
+
+		$scores = [];
+		for ($i = 0; $i < $sample_size; $i++)
+		{
+			$scores[] = (int) $result[$i]['score'];
+		}
+		rsort($scores);
+		return $scores;
 	}
 
 	/**
