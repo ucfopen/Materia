@@ -108,8 +108,14 @@ class Score_Manager
 
 			if (\FUEL::$env === \FUEL::TEST)
 			{
-				// always load a module from our test widget
-				include_once(PKGPATH.'materia/tests/widget_source/test_widget/src/_score-modules/score_module.php');
+				$v = 'test_widget';
+				if (\Session::get_flash('alternate_test_widget', false))
+				{
+					$v = 'test_widget_two';
+					$widget->score_module = 'TestWidgetTwo';
+				}
+				// always load a module from our test widget;
+				include_once(PKGPATH.'materia/tests/widget_source/'.$v.'/src/_score-modules/score_module.php');
 			}
 			else
 			{
@@ -203,13 +209,11 @@ class Score_Manager
 	static public function get_all_widget_scores($inst_id)
 	{
 		// returns randomly-sorted list of all scores for widget
-		$query = \DB::select('id','created_at','score')
+		return \DB::select('id','created_at','score')
 			->from('log_play')
 			->where('is_complete', '1')
 			->where('inst_id', $inst_id)
-			->order_by(\DB::expr('RAND()'));
-
-		return $query->execute()
+			->execute()
 			->as_array();
 	}
 

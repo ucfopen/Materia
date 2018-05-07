@@ -738,19 +738,15 @@ class Api_V1
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		$score_mod = Score_Manager::get_score_module_for_widget($inst_id, -1);
-		if ( ! $score_mod || ! $score_mod->allow_distribution) return false;
+		if ( ! $score_mod || empty($score_mod->allow_distribution) ) return false;
 
 		$result = Score_Manager::get_all_widget_scores($inst_id);
 
-		$sample_size = 30;
-		if (count($result) < $sample_size) return false;
-
 		$scores = [];
-		for ($i = 0; $i < $sample_size; $i++)
+		foreach ($result as $score)
 		{
-			$scores[] = (int) $result[$i]['score'];
+			$scores[] = (int) $score['score'];
 		}
-		rsort($scores);
 		return $scores;
 	}
 
