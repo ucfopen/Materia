@@ -29,6 +29,7 @@ return [
 	'edit/(:alnum)(/.*)?'                  => 'widgets/edit/$1',
 	'play/(:alnum)(/.*)?'                  => 'widgets/play_widget/$1',
 	'preview/(:alnum)(/.*)?'               => 'widgets/preview_widget/$1',
+	'pre_embed/(:alnum)(/.*)?'             => 'widgets/pre_play_embedded/$1',
 	'embed/(:alnum)(/.*)?'                 => 'widgets/play_embedded/$1',
 	'lti/assignment?'                      => 'widgets/play_embedded/$1', // legacy LTI url
 
