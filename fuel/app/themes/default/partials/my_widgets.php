@@ -287,6 +287,10 @@
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<div ng-show="show.embedToggle && !selected.is_draft">
+							<strong>Autoplay:</strong>
+							<input type="checkbox" class="unstyled" ng-checked="show.autoplayToggle" ng-click="show.autoplayToggle = !show.autoplayToggle"/>
+						</div>
 						<textarea id="embed_link" ng-show="show.embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
 					</div>
 				</div>
