@@ -157,6 +157,9 @@ class Controller_Widgets extends Controller
 		Session::set('context_id', \Input::post('context_id'));
 		$this->_header = 'partials/header_empty';
 		$this->_embedded = true;
+
+		//check for a 'autoplay' flag, if set and set to false go to pre-embed
+		if (isset($_GET['autoplay']) && ! $_GET['autoplay']) return $this->pre_embed($inst_id);
 		return $this->_play_widget($inst_id, false, true);
 	}
 
@@ -474,5 +477,19 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
+	}
+
+	protected function pre_embed($inst_id = false)
+	{
+		$this->_header = 'partials/header_empty';
+		Css::push_group(['pre_embed']);
+
+		$this->theme->get_template()
+			->set('title', 'Embedded Widget')
+			->set('page_type', 'widget')
+			->set('html_class', 'embedded');
+
+		$this->theme->set_partial('content', 'partials/widget/pre_embed')
+			->set('inst_id', $inst_id);
 	}
 }
