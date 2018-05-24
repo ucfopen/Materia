@@ -44,6 +44,8 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_login()
 	{
+		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
+
 		$launch = LtiLaunch::from_request();
 		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
