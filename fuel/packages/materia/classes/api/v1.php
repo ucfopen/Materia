@@ -604,7 +604,7 @@ class Api_V1
 	static public function widget_instance_scores_get($inst_id, $token=false)
 	{
 		$result = $token ? \Event::trigger('before_score_display', $token) : null;
-		$context_id = empty($result) ? '' : $result;
+		$context_id = empty($result) ? null : $result;
 		if ( ! $token && \Session::get('context_id', false)) $context_id = \Session::get('context_id');
 
 		$semester = Semester::get_current_semester();
