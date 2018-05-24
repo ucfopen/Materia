@@ -283,6 +283,7 @@ return array(
 			'rocketDuck',
 			'auth',
 			'materiaauth',
+			'ltiauth'
 		),
 
 		/**
