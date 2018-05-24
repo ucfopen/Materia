@@ -478,7 +478,7 @@ class Admin extends \Basetask
 			else
 			{
 				\Cli::beep(1);
-				\Cli::write(\Cli::color("couldn't add user to role", 'red'));
+				\Cli::write(\Cli::color("couldn't add user $user_name to role $group_name", 'red'));
 				exit(1);  // linux exit code 1 = error
 			}
 		}
