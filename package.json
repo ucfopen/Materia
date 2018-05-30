@@ -2,9 +2,9 @@
   "name": "@ucfcdl/materia",
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://github.com/ucfcdl/Materia",
-	"engines": {
-		"node": "^6.9.1"
-	},
+  "engines": {
+    "node": "^6.9.1"
+  },
   "scripts": {
     "build": "webpack -p",
     "build-dev": "webpack",
