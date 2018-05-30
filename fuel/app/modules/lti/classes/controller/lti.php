@@ -129,9 +129,10 @@ class Controller_Lti extends \Controller
 
 	protected function insert_analytics()
 	{
-		if ($gid = \Config::get('materia.google_tracking_id', false))
+		if ($gid = Config::get('materia.google_tracking_id', false))
 		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
+			$this->theme->set_partial('google_analytics', 'partials/google_analytics')
+				->set('id', $gid);
 		}
 	}
 }
