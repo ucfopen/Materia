@@ -158,8 +158,6 @@ class Controller_Widgets extends Controller
 		$this->_header = 'partials/header_empty';
 		$this->_embedded = true;
 
-		//check for a 'autoplay' flag, if set and set to false go to pre-embed
-		if (isset($_GET['autoplay']) && ! $_GET['autoplay']) return $this->pre_embed($inst_id);
 		return $this->_play_widget($inst_id, false, true);
 	}
 
@@ -341,6 +339,7 @@ class Controller_Widgets extends Controller
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
 		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
 		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
+		if (isset($_GET['autoplay']) && $_GET['autoplay'] === 'false') return $this->pre_embed($inst);
 
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
@@ -479,17 +478,24 @@ class Controller_Widgets extends Controller
 			->set('inst_id', $inst->id);
 	}
 
-	protected function pre_embed($inst_id = false)
+	protected function pre_embed($inst)
 	{
-		$this->_header = 'partials/header_empty';
-		Css::push_group(['pre_embed']);
-
+		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
-			->set('title', 'Embedded Widget')
-			->set('page_type', 'widget')
-			->set('html_class', 'embedded');
+			->set('title', 'Widget Unavailable')
+			->set('page_type', 'login');
 
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/pre_embed')
-			->set('inst_id', $inst_id);
+			->set('classes', 'widget')
+			->set('inst_id', $inst->id)
+			->set('summary', $this->theme->view('partials/widget/summary')
+				->set('type',$inst->widget->name)
+				->set('name', $inst->name)
+				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+
+		Js::push_group(['angular', 'materia']);
+		// The styles for this are in login, should probably be moved?
+		Css::push_group('login');
 	}
 }
