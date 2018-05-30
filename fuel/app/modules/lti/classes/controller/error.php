@@ -27,9 +27,10 @@ class Controller_Error extends \Controller
 			->set('title', "Error - {$msg}")
 			->set('system', $system);
 
-		if ($gid = \Config::get('materia.google_tracking_id', false))
+		if ($gid = Config::get('materia.google_tracking_id', false))
 		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
+			$this->theme->set_partial('google_analytics', 'partials/google_analytics')
+				->set('id', $gid);
 		}
 
 		\Js::push_group(['angular', 'materia']);

@@ -25,10 +25,10 @@ trait Trait_CommonControllerTemplate
 
 			$this->theme->set_partial('header', $this->_header)->set('me', $me);
 
-			// add google analytics
 			if ($gid = Config::get('materia.google_tracking_id', false))
 			{
-				Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
+				$this->theme->set_partial('google_analytics', 'partials/google_analytics')
+					->set('id', $gid);
 			}
 
 			$response = Response::forge(Theme::instance()->render());
