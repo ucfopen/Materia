@@ -3,7 +3,7 @@
 		<?= $summary ?>
 
 		<div class="detail icon-offset">
-			<a href="/embed/<?= $inst_id ?>">Play</a>
+			<a class="action_button" href="/embed/<?= $inst_id ?>">Play</a>
 		</div>
 	</section>
 </div>
