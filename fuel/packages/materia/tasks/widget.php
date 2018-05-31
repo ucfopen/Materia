@@ -226,7 +226,7 @@ class Widget extends \Basetask
 
 		if ($admin_ids->count() > 0)
 		{
-			\Auth::instance('Materiaauth')->force_login($admin_ids[0]['id']);
+			\Auth::instance()->force_login($admin_ids[0]['id']);
 		}
 		else
 		{
