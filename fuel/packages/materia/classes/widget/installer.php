@@ -604,6 +604,16 @@ class Widget_Installer
 		if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
 		$file_area->copy_dir($dir, $new_dir);
 
+		// set permisssions to expected values
+		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($new_dir));
+		$perm_cfg = \Config::load('materia.widget_owner_permissions');
+		foreach ($iterator as $file)
+		{
+			chmod($file, $perm_cfg['chmod']);
+			chown($file, $perm_cfg['user']);
+			chgrp($file, $perm_cfg['group']);
+		}
+
 		static::out("Widget files deployed: {$id}-{$clean_name}", 'green');
 	}
 
