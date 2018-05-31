@@ -44,6 +44,7 @@ class LtiEvents
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
 			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';
+			elseif (isset($_GET['autoplay']) && $_GET['autoplay'] === 'false') $redirect = '/lti/error/autoplay_misconfigured';
 
 			if ($redirect) return ['redirect' => $redirect];
 
