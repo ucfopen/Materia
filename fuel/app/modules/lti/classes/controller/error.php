@@ -8,6 +8,7 @@ namespace Lti;
 
 class Controller_Error extends \Controller
 {
+	use Trait_Analytics;
 	protected $_content_partial = 'partials/error_general';
 	protected $_message = 'There was a problem';
 
@@ -27,10 +28,7 @@ class Controller_Error extends \Controller
 			->set('title', "Error - {$msg}")
 			->set('system', $system);
 
-		if ($gid = \Config::get('materia.google_tracking_id', false))
-		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
-		}
+		$this->insert_analytics();
 
 		\Js::push_group(['angular', 'materia']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
