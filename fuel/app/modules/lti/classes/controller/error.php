@@ -53,6 +53,12 @@ class Controller_Error extends \Controller
 		$this->_message = 'Unknown Assignment';
 	}
 
+	public function action_autoplay_misconfigured()
+	{
+		$this->_content_partial = 'partials/error_autoplay_misconfigured';
+		$this->_message = 'Widget Misconfigured';
+	}
+
 	public function action_guest_mode()
 	{
 		$this->_content_partial = 'partials/error_lti_guest_mode';
