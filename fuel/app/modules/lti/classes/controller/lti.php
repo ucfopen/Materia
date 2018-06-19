@@ -8,6 +8,7 @@ namespace Lti;
 
 class Controller_Lti extends \Controller
 {
+	use Trait_Analytics;
 
 	public function before()
 	{
@@ -127,11 +128,4 @@ class Controller_Lti extends \Controller
 		return \Response::forge($this->theme->render());
 	}
 
-	protected function insert_analytics()
-	{
-		if ($gid = \Config::get('materia.google_tracking_id', false))
-		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
-		}
-	}
 }
