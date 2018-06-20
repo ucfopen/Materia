@@ -281,7 +281,6 @@ class Basetest extends TestCase
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'su', 'testSu@ucf.edu', $pword);
 			// TODO: super_user should get all these rights inherently right??????!!!!
 			\Fuel\Tasks\Admin::give_user_role($uname, 'super_user');
-			\Fuel\Tasks\Admin::give_user_role($uname, 'admin');
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}

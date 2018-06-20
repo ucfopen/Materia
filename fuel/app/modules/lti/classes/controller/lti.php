@@ -8,6 +8,7 @@ namespace Lti;
 
 class Controller_Lti extends \Controller
 {
+	use Trait_Analytics;
 
 	public function before()
 	{
@@ -44,6 +45,8 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_login()
 	{
+		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
+
 		$launch = LtiLaunch::from_request();
 		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
@@ -125,11 +128,4 @@ class Controller_Lti extends \Controller
 		return \Response::forge($this->theme->render());
 	}
 
-	protected function insert_analytics()
-	{
-		if ($gid = \Config::get('materia.google_tracking_id', false))
-		{
-			\Js::push_inline($this->theme->view('partials/google_analytics', ['id' => $gid]));
-		}
-	}
 }

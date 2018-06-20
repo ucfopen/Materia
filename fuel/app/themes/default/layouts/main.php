@@ -6,6 +6,7 @@
 <title><?= $title ?> | Materia</title>
 <?= Css::render() ?>
 <?= Js::render() ?>
+<?= (isset($partials['google_analytics']) ? $partials['google_analytics']: '' ) ?>
 </head>
 	<body class="<?= (isset($page_type) ? $page_type : '') ?>" ng-app="materia">
 		<?= (isset($partials['header']) ? $partials['header'] : '' ) ?>
