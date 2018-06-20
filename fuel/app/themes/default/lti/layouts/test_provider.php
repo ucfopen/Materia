@@ -117,32 +117,63 @@
 
 			<iframe name="embed_iframe" id="embed_iframe" width="700px" height="600px" onLoad="onIFrameLoad()"></iframe>
 
+			<hr />
+
+			<h2>LTI Navigation Launch</h2>
+
+			<form method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
+				<?php foreach ($login_params as $name => $value) : ?>
+					<? if($name == 'oauth_signature') : ?>
+						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
+					<? else: ?>
+					 	<?= \Form::hidden($name, $value) ?>
+					<? endif ?>
+				<?php endforeach ?>
+				<input type="submit" value="Launch as instructor (bad signature)">
+			</form>
+
 			<?php // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
-				<?php foreach ($instructor_params as $name => $value) : ?>
+				<?php foreach ($login_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
 				<?php endforeach ?>
-				<input type="submit" value="Login">
+				<input type="submit" value="Launch as instructor">
+			</form>
+
+			<hr />
+			<h2>LTI Picker Launch</h2>
+
+			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
+				<?php foreach ($instructor_params as $name => $value) : ?>
+					<? if($name == 'oauth_signature') : ?>
+						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
+					<? else: ?>
+					 	<?= \Form::hidden($name, $value) ?>
+					<? endif ?>
+				<?php endforeach ?>
+				<input type="submit" value="Launch as Instructor (bad signature)">
 			</form>
 
 			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
 				<?php foreach ($instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
 				<?php endforeach ?>
-				<input type="submit" value="As Instructor">
+				<input type="submit" value="Launch as Instructor">
 			</form>
+
 
 			<form method="POST" target="embed_iframe" action="<?= $new_instructor_endpoint ?>" >
 				<?php foreach ($new_instructor_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
 				<?php endforeach ?>
-				<input type="submit" value="As NEW Instructor">
+				<input type="submit" value="Launch as New Instructor">
 			</form>
 			<?php //@codingStandardsIgnoreEnd ?>
 
 			<hr />
 
 			<div>
+				<h2>LTI Assignment Launch</h2>
 				<span>
 					LTI Assignment URL:
 				</span>
@@ -171,6 +202,26 @@
 				</span>
 				<input id="custom-inst-id" style="width:400px;" type="text"></input>
 			</div>
+			<!--
+				these tests work differently then the rest of the buttons - not sure why right now
+				these just post a couple of options to /lti/test/learner
+				then that route has some logic to create the all the oauth vars
+				it renders those into a page and uses js to post them to the assignment
+				I'd like all of these buttons to work the same - seems pretty odd they'd
+				work differently.
+
+				One of the advantages of this method is the signature is generated and timestamped
+				when you click the button.  The other buttons on this page build the signature and timestamp
+				when the page is loaded - so they can easily expire
+			 -->
+
+			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
+				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
+				<input type="hidden" class="resource_link" name="resource_link" />
+				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
+				<input type="submit" value="As Learner (bad signatue)">
+			</form>
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
 				<input type="hidden" class="lti_url" name="lti_url" />
@@ -217,6 +268,7 @@
 			</form>
 
 			<hr />
+			<h2>Other</h2>
 
 			<?php // @codingStandardsIgnoreStart ?>
 			<form method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
@@ -224,6 +276,17 @@
 				<?= \Form::hidden($name, $value) ?>
 				<?php endforeach ?>
 				<input type="submit" value="Test Validation">
+			</form>
+
+			<form method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
+				<?php foreach ($validation_params as $name => $value) : ?>
+					<? if($name == 'oauth_signature') : ?>
+						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
+					<? else: ?>
+					 	<?= \Form::hidden($name, $value) ?>
+					<? endif ?>
+				<?php endforeach ?>
+				<input type="submit" value="Test Validation (bad signature)">
 			</form>
 
 			<form method="POST" target="embed_iframe" action="<?= $unknown_assignment_endpoint ?>" >
