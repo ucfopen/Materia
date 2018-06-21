@@ -51,9 +51,6 @@ class Widget_Instance_Hash
 
 	public static function generate_long_hash()
 	{
-		$val = Widget_Instance_Hash::generate_key_hash();
-		$hash = \Crypt::encode($val);
-		$final_hash = str_replace(['_', '-'], '', $hash);
-		return $final_hash;
+		return \Str::random('uuid');
 	}
 }
