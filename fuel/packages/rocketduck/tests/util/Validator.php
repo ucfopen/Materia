@@ -31,7 +31,11 @@ class Test_RocketDuck_Util_Validator extends TestCase
 		self::assertTrue(Util_Validator::is_valid_long_hash('c3tva'));
 		self::assertTrue(Util_Validator::is_valid_long_hash('c3tva3'));
 		self::assertTrue(Util_Validator::is_valid_long_hash('c3tva3adfadsf23raqW'));
+		self::assertTrue(Util_Validator::is_valid_long_hash('12465040-9d48-4b07-a416-11dc48d64dca'));
+		self::assertTrue(Util_Validator::is_valid_long_hash('02465040-9d48-4b07-a416-11dc48d64dca'));
 
+		self::assertFalse(Util_Validator::is_valid_long_hash('-2465040-9d48-4b07-a416-11dc48d64dca'));
+		self::assertFalse(Util_Validator::is_valid_long_hash('-'));
 		self::assertFalse(Util_Validator::is_valid_long_hash(9000000));
 		self::assertFalse(Util_Validator::is_valid_long_hash(1));
 		self::assertFalse(Util_Validator::is_valid_long_hash(300));
