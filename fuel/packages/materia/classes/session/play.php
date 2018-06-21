@@ -92,7 +92,7 @@ class Session_Play
 
 			if ( ! $this->save_new_play())
 			{
-				\Log::warning("Unable to generate play_id! inst:{$this->inst_id}, user:{$this->user_id}");
+				\Log::error("Unable to generate play_id! inst:{$this->inst_id}, user:{$this->user_id}");
 				throw new \HttpServerErrorException;
 			}
 
@@ -143,6 +143,8 @@ class Session_Play
 			{
 				// DB collision - absorb the error since
 				// we'll try again.
+				\Log::warning('Failed creating play - this can happend on hash collision but could be something worse');
+				\Log::warning($e->getMessage());
 			}
 		}
 

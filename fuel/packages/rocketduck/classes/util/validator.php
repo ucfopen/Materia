@@ -103,8 +103,12 @@ class Util_Validator
 	*/
 	public static function is_valid_long_hash($long_hash)
 	{
+
 		// matches any alphanumeric string of 1 or more characters except 0.
 		$pattern = '/^([A-Za-z0-9]{2,}|[A-Za-z1-9]{1})\z/';
+
+		// d71e95bd-15c8-4ee0-8f5a-17390426db30
+		$pattern = '/^([A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12})\z/';
 
 		if ( ! self::is_string($long_hash)) return false;
 		return (preg_match($pattern, $long_hash, $match) === 1);
