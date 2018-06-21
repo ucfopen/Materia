@@ -94,7 +94,11 @@ class Util_Validator
 	}
 
 	/**
-	* Ensures $long_hash is a valid base64 hash of at least 1 character length, excluding 0.
+	* Ensures $long_hash is a valid base64 hash and supports old play ids.
+	* cant just be '0' or '-'
+	* cant start with '-'
+	* only contains alphanum and - characters
+	* Can also be a uuid v4
 	*
 	* @param string 	the hash to be validated
 	* @return bool 	true if the hash is a valid string
@@ -103,14 +107,9 @@ class Util_Validator
 	*/
 	public static function is_valid_long_hash($long_hash)
 	{
-
-		// matches any alphanumeric string of 1 or more characters except 0.
-		$pattern = '/^([A-Za-z0-9]{2,}|[A-Za-z1-9]{1})\z/';
-
-		// d71e95bd-15c8-4ee0-8f5a-17390426db30
-		$pattern = '/^([A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12})\z/';
-
 		if ( ! self::is_string($long_hash)) return false;
+		if ($long_hash === '0') return false;
+		$pattern = '/^[A-Za-z0-9][A-Za-z0-9-]*\z/';
 		return (preg_match($pattern, $long_hash, $match) === 1);
 	}
 
