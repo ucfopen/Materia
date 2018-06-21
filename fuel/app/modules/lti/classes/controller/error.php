@@ -8,7 +8,7 @@ namespace Lti;
 
 class Controller_Error extends \Controller
 {
-	use Trait_Analytics;
+	use \Trait_Analytics;
 	protected $_content_partial = 'partials/error_general';
 	protected $_message = 'There was a problem';
 
