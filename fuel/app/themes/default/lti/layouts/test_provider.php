@@ -220,7 +220,8 @@
 				<input type="hidden" class="context_id" name="context_id" />
 				<input type="hidden" class="resource_link" name="resource_link" />
 				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
-				<input type="submit" value="As Learner (bad signatue)">
+				<input type="hidden" class="resource_link" name="use_bad_signature" value="true" />
+				<input type="submit" value="As Learner (bad signature)">
 			</form>
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
