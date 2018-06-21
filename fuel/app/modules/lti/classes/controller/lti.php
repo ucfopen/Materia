@@ -8,7 +8,7 @@ namespace Lti;
 
 class Controller_Lti extends \Controller
 {
-	use Trait_Analytics;
+	use \Trait_Analytics;
 
 	public function before()
 	{
