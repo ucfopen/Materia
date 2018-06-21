@@ -12,7 +12,7 @@ class Add_score_screen_to_widget
 				'score_screen' => [
 					'type' => 'varchar',
 					'constraint' => 255,
-					'null' => true
+					'null' => false
 				],
 			]
 		);
