@@ -12,7 +12,7 @@
         "git-pre-commit":"@sniff-summary",
         "destroy-everything": "php oil r admin:destroy_everything --quiet",
         "oil-install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
-        "widgets-install-test": "php oil r widget:install fuel/packages/materia/tests/widget_packages/*.wigt",
+        "widgets-install-test": "php oil r widget:install fuel/app/tests/widget_packages/*.wigt",
         "test": "php -dzend_extension=xdebug.so fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
         "coverage": "php oil test --coverage-html=coverage --coverage-clover=coverage.xml --coverage-text=coverage.txt",
         "testci":[
