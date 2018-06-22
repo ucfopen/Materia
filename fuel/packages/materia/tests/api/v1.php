@@ -446,7 +446,7 @@ class Test_Api_V1 extends \Basetest
 	 */
 	public function test_widget_instance_lock_for_another_user()
 	{
-		\Config::set('materia.lock_timeout', .5);
+		\Config::set('materia.lock_timeout', .2);
 		$widget = $this->make_disposable_widget();
 		$id = $widget->id;
 
@@ -459,7 +459,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_super_user();
 		$this->assertFalse(Api_V1::widget_instance_lock($inst->id)); // i dont own the lock, denied
 
-		usleep(1500000);
+		usleep(1000000);
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
 
@@ -704,9 +704,9 @@ class Test_Api_V1 extends \Basetest
 		// lambda to call api, apply assertions
 		$run_tests = function ($file_name, $file_size) {
 			$validFilename = '/([a-zA-z_\-\s0-9\.]+)+\.\w+\/*$/';
-			
+
 			if(!preg_match($validFilename, $file_name) || !is_int($file_size))
-			{	
+			{
 				$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
 				$msg = "Invalid filenames and non-integer file sizes should return error message";
 				$this->assertEquals('error', $output->type, $msg);
@@ -715,7 +715,7 @@ class Test_Api_V1 extends \Basetest
 
 			$s3_config = \Config::get('materia.s3_config');
 			$output = \Materia\Api_V1::upload_keys_get($file_name, $file_size);
-			
+
 			$msg = "Expect assoc array as output";
 			$this->assertEquals(true, is_array($output), $msg);
 
