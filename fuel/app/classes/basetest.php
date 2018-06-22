@@ -367,12 +367,12 @@ class Basetest extends TestCase
 
 	protected function spoof_widget_play($inst, $context_id=false)
 	{
-		if ( $inst->is_draft) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Drafts are not playable');
-		if ( ! $inst->widget->is_playable) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget is retired');
+		if ( $inst->is_draft) return new \Materia\Msg(\Materia\Msg::ERROR, 'Drafts are not playable');
+		if ( ! $inst->widget->is_playable) return new \Materia\Msg(\Materia\Msg::ERROR, 'Widget is retired');
 
 		$status = $inst->status($context_id);
-		if ( ! $status['open']) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget not available');
-		if ( ! $status['has_attempts']) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'No attempts remaining');
+		if ( ! $status['open']) return new \Materia\Msg(\Materia\Msg::ERROR, 'Widget not available');
+		if ( ! $status['has_attempts']) return new \Materia\Msg(\Materia\Msg::ERROR, 'No attempts remaining');
 
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst->id, $context_id);

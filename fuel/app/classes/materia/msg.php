@@ -20,7 +20,7 @@
  * @subpackage  com * @author      ADD NAME HERE
  */
 
-namespace RocketDuck;
+namespace Materia;
 
 class Msg
 {

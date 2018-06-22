@@ -1,7 +1,7 @@
 <?php
 
 namespace Lti;
-use \RocketDuck\Log;
+use \Mateira\Log;
 
 class LtiUserManager
 {

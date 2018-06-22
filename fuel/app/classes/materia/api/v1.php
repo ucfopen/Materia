@@ -21,8 +21,8 @@ Availible Verbs:
 */
 
 namespace Materia;
-use \RocketDuck\Msg;
-use \RocketDuck\Util_Validator;
+use \Materia\Msg;
+use \Materia\Util_Validator;
 
 class Api_V1
 {
@@ -86,7 +86,7 @@ class Api_V1
 		}
 		catch (\Exception $e)
 		{
-			return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget instance could not be copied.');
+			return new Msg(Msg::ERROR, 'Widget instance could not be copied.');
 		}
 	}
 
@@ -518,7 +518,7 @@ class Api_V1
 		// store temporary row in db, obtain asset_id for building s3 file_key
 		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title, $file_size);
 		// if we could not successfully create a new temporary asset row
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		if ( ! Util_Validator::is_valid_hash($asset->id))
 		{
 			\LOG::error("An invalid id was generated for file, {$file_name}, uploaded by user {$user_id}");
 			return Msg::invalid_input('There was an issue uploading your asset. Please try again.');
@@ -572,7 +572,7 @@ class Api_V1
 
 
 		// bypass update if user sends back invalid hash
-		if ( ! \RocketDuck\Util_Validator::is_valid_hash($asset_id))
+		if ( ! Util_Validator::is_valid_hash($asset_id))
 		{
 			\LOG::error("Asset could not be updated due to the following invalid ID sent from client: {$asset_id}");
 			return Msg::invalid_input('There was an issue uploading your asset. Please try again.');

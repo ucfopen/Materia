@@ -54,7 +54,7 @@ class Session_Play
 	 */
 	public function start($user_id=0, $inst_id=0, $context_id=false, $is_preview=false)
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($inst_id))
+		if (\Materia\Util_Validator::is_valid_hash($inst_id))
 		{
 			$instance = Widget_Instance_Manager::get($inst_id);
 			$instance->get_qset($inst_id);
@@ -281,7 +281,7 @@ class Session_Play
 	public function get_by_id($play_id=0)
 	{
 		// if resuming a preview, look for it in the session and return true
-		if ( ! \RocketDuck\Util_Validator::is_valid_long_hash($play_id))
+		if ( ! \Materia\Util_Validator::is_valid_long_hash($play_id))
 		{
 			$previews = \Session::get('widgetPreviews', []);
 			if (isset($previews[-$play_id]))
@@ -302,7 +302,7 @@ class Session_Play
 				return true;
 			}
 		}
-		if (\RocketDuck\Util_Validator::is_valid_long_hash($play_id))
+		if (\Materia\Util_Validator::is_valid_long_hash($play_id))
 		{
 			$results = \DB::select()
 				->from('log_play')
