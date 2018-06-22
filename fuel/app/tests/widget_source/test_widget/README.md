@@ -10,6 +10,6 @@ Install all dependencies using `yarn`. (you may need to install gulp globally if
 
 Build the widget using `yarn run build`
 
-The widget is automatically copied to `fuel/packages/materia/tests/widget_packages/`
+The widget is automatically copied to `fuel/app/tests/widget_packages/`
 
 Make sure to also build test_widget_two as Materia tests require a minimum of two test widgets to run all unit tests.

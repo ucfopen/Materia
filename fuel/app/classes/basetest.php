@@ -171,7 +171,7 @@ class Basetest extends TestCase
 		$last = 'Droptables';
 		$password = $password ?: uniqid();
 
-		require_once(PKGPATH.'materia/tasks/admin.php');
+		require_once(APPPATH.'/tasks/admin.php');
 		$id = \Fuel\Tasks\Admin::new_user($name, $first, $middle, $last, $name.'@materia.com', $password);
 		$user = \Model_User::find($id);
 		$this->users_to_clean[] = $user;
@@ -189,7 +189,7 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
 			$user = \Model_User::query()->where('username', $uname)->get_one();
 		}
@@ -210,7 +210,7 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'Prof', 'd', 'Author', 'testAuthor@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
@@ -233,7 +233,7 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor2@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
@@ -255,7 +255,7 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor3@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::query()->where('username', $uname)->get_one();
@@ -277,7 +277,7 @@ class Basetest extends TestCase
 		$user = \Model_User::query()->where('username', $uname)->get_one();
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'su', 'testSu@ucf.edu', $pword);
 			// TODO: super_user should get all these rights inherently right??????!!!!
 			\Fuel\Tasks\Admin::give_user_role($uname, 'super_user');
