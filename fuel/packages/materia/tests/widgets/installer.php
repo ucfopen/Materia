@@ -56,7 +56,7 @@ class Test_Widget_Installer extends \Basetest
 			'score_module' => 'scoreModule',
 			'creator' => 'creator.html',
 			'player' => 'player.html',
-			'score_screen' => null
+			'score_screen' => ''
 		];
 
 		$result = Widget_Installer::generate_install_params($manifest_data, __FILE__);
