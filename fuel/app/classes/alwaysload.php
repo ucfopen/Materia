@@ -25,16 +25,26 @@ class Alwaysload
 	**/
 	protected static function build_asset_cache_buster_hashes()
 	{
-		$hashes = \Config::load('asset_hash.json', true);
+		$hashes = \Config::load('asset_hash.json', 'not-found');
+
+		// nothing loaded?
+		if ( ! is_array($hashes)) return;
 
 		// already calculated?
 		if ( ! empty($hashes['static']) && $hashes['static'] == \Config::get('materia.urls.static')) return;
 
-		$css    = \Config::load('css', true);
-		$hashes = self::add_resovled_hash_paths($hashes, $css);
-		$js     = \Config::load('js', true);
-		$hashes = self::add_resovled_hash_paths($hashes, $js);
+		// add in css
+		$css = \Config::load('css', true);
+		if (is_array($css)) $hashes = self::add_resovled_hash_paths($hashes, $css);
+
+		// add in js
+		$js = \Config::load('js', true);
+		if (is_array($js)) $hashes = self::add_resovled_hash_paths($hashes, $js);
+
+		// load in static
 		$hashes['static'] = \Config::get('materia.urls.static');
+
+		// save
 		\Config::save('asset_hash.json', $hashes);
 	}
 
