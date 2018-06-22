@@ -6,10 +6,27 @@ require COREPATH.'bootstrap.php';
 define('PUBPATH', realpath(__DIR__.DS.'..'.DS.'..'.DS.'public').DS );
 define('STATICPATH', realpath(PUBPATH.DS.'..'.DS.'static').DS );
 define('MATERIAPATH', realpath(__DIR__.DS.'classes'.DS.'materia'));
+define('RDPATH', realpath(__DIR__.DS.'classes'.DS.'rocketduck'));
 \Autoloader::add_namespace('Materia', MATERIAPATH);
+\Autoloader::add_namespace('RocketDuck', RDPATH);
 \Autoloader::add_classes([
+	// FUELPHP classes
 	'Fuel\\Core\\Errorhandler'          => MATERIAPATH.DS.'errorhandler.php',
 	'Fuel\\Session\\File'               => MATERIAPATH.DS.'session'.DS.'file.php',
+	'Cache'                             => RDPATH.'/fuel/core/cache.php',
+	'File'                              => RDPATH.'/fuel/core/file.php',
+	'Log'                               => RDPATH.'/fuel/core/log.php',
+	'TestCase'                          => RDPATH.'/fuel/core/testcase.php',
+
+	// ROCKETDUCK classes
+	// 'RocketDuck\\Db_Role'               => RDPATH.'/db/role.php',
+	// 'RocketDuck\\Log'                   => RDPATH.'/log.php',
+	// 'RocketDuck\\Msg'                   => RDPATH.'/msg.php',
+	// 'RocketDuck\\Perm_Acl'              => RDPATH.'/perm/acl.php',
+	// 'RocketDuck\\Perm_Manager'          => RDPATH.'/perm/manager.php',
+	// 'RocketDuck\\Perm_Role'             => RDPATH.'/perm/role.php',
+	// 'RocketDuck\\Util_Validator'        => RDPATH.'/util/validator.php',
+
 	// 'Materia\\api'                      => MATERIAPATH.DS.'api.php',
 	// 'Materia\\Api_v1'                   => MATERIAPATH.DS.'api/v1.php',
 	// 'Materia\\Community_manager'        => MATERIAPATH.DS.'community/manager.php',
@@ -41,6 +58,7 @@ define('MATERIAPATH', realpath(__DIR__.DS.'classes'.DS.'materia'));
 	// 'Materia\\Widget_Question_Type_qa'  => MATERIAPATH.DS.'widget/question/type/qa.php',
 ]);
 
+
 // Register the autoloader
 \Autoloader::register();
 
@@ -59,7 +77,7 @@ if(\FUEL::$env === \FUEL::TEST){
 	// removed PHPUnit_Framework_TestCase as a base class,
 	// and replaced it with \PHPUnit\Framework\TestCase
 	// doing this here because fuelphp core hasn't updated to phpunit 6 yet
-	class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+	// class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 }
 
 // Initialize the framework with the config file.
