@@ -114,8 +114,9 @@ class Score_Manager
 					$v = 'test_widget_two';
 					$widget->score_module = 'TestWidgetTwo';
 				}
-				// always load a module from our test widget;
-				include_once(PKGPATH.'materia/tests/widget_source/'.$v.'/src/_score-modules/score_module.php');
+
+				// always load a module from our test widget
+				include_once(APPPATH.'materia/tests/widget_source/'.$v.'/src/_score-modules/score_module.php');
 			}
 			else
 			{
