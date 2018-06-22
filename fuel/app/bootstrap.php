@@ -77,7 +77,7 @@ if(\FUEL::$env === \FUEL::TEST){
 	// removed PHPUnit_Framework_TestCase as a base class,
 	// and replaced it with \PHPUnit\Framework\TestCase
 	// doing this here because fuelphp core hasn't updated to phpunit 6 yet
-	// class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
+	class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 }
 
 // Initialize the framework with the config file.
