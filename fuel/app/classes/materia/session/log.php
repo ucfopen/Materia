@@ -86,7 +86,7 @@ class Session_Log
 	 */
 	public function db_store()
 	{
-		if (\RocketDuck\Util_Validator::is_valid_long_hash($this->play_id) && isset($this->type) && isset($this->created_at))
+		if (\Materia\Util_Validator::is_valid_long_hash($this->play_id) && isset($this->type) && isset($this->created_at))
 		{
 			list($id, $num) = \DB::insert('log')
 				->set([

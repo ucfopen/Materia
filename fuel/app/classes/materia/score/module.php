@@ -60,7 +60,7 @@ abstract class Score_Module
 				// this log isnt before the previous log
 				if ($log->game_time < $last_time && $log->game_time != -1)
 				{
-					if ($this->log_problems && \RocketDuck\Util_Validator::is_valid_long_hash($this->play_id))
+					if ($this->log_problems && \Mateira\Util_Validator::is_valid_long_hash($this->play_id))
 					{
 						Session_Logger::add_log($this->play_id, Session_Log::TYPE_TIME_VALIDATION_FAILURE, $log->item_id, $log->id, $last_time, $log->game_time);
 					}

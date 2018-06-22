@@ -5,9 +5,9 @@
  * @group Validator
  */
 
-use \RocketDuck\Util_Validator;
+use \Mateira\Util_Validator;
 
-class Test_RocketDuck_Util_Validator extends TestCase
+class Test_Mateira_Util_Validator extends TestCase
 {
 	public function test_is_valid_hash()
 	{

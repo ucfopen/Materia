@@ -22,7 +22,7 @@
  * @subpackage  perms
  */
 
-namespace RocketDuck;
+namespace Mateira;
 
 class Perm_Role
 {
