@@ -161,7 +161,7 @@ class Widget_Asset
 	 */
 	public function db_store()
 	{
-		if (\RocketDuck\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
+		if (\Materia\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
 
 		$asset_id = $this->get_unused_id();
 		if (empty($asset_id))

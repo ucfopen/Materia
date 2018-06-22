@@ -560,7 +560,7 @@ class Test_Api_V1 extends \Basetest
 
 		// this should fail - you cant play drafts
 		$output = Api_V1::session_play_create($saveOutput->id);
-		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertInstanceOf('\Mateira\Msg', $output);
 		$this->assertEquals('Drafts Not Playable', $output->title);
 
 		Api_V1::widget_instance_delete($saveOutput->id);
@@ -605,12 +605,12 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals(100, $score['score']);
 		// ============ TRY SUBMITTING SCORES AFTER ATTEMPT LIMIT IN FIRST CONTEXT ============
 		$exception = Api_V1::play_logs_save($output2, $logs);
-		$this->assertInstanceOf('\RocketDuck\Msg', $exception);
+		$this->assertInstanceOf('\Mateira\Msg', $exception);
 		$this->assertEquals('Attempt Limit Met', $exception->title);
 
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN FIRST CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput, $context);
-		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertInstanceOf('\Mateira\Msg', $output);
 		$this->assertEquals('No attempts remaining', $output->title);
 
 		$context = 'context_2';
@@ -622,7 +622,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals(100, $score['score']);
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN SECOND CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput, $context);
-		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertInstanceOf('\Mateira\Msg', $output);
 		$this->assertEquals('No attempts remaining', $output->title);
 
 		// ============ PLAY WITHOUT CONTEXT ============
@@ -631,7 +631,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals(100, $score['score']);
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT WITHOUT CONTEXT ============
 		$output = $this->spoof_widget_play($saveOutput);
-		$this->assertInstanceOf('\RocketDuck\Msg', $output);
+		$this->assertInstanceOf('\Mateira\Msg', $output);
 		$this->assertEquals('No attempts remaining', $output->title);
 		*/
 
@@ -1452,18 +1452,18 @@ class Test_Api_V1 extends \Basetest
 
 	protected function assert_not_message($result)
 	{
-		$this->assertFalse($result instanceof \RocketDuck\Msg);
+		$this->assertFalse($result instanceof \Mateira\Msg);
 	}
 
 	protected function assert_invalid_login_message($msg)
 	{
-		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
+		$this->assertInstanceOf('\Mateira\Msg', $msg);
 		$this->assertEquals('Invalid Login', $msg->title);
 	}
 
 	protected function assert_permission_denied_message($msg)
 	{
-		$this->assertInstanceOf('\RocketDuck\Msg', $msg);
+		$this->assertInstanceOf('\Mateira\Msg', $msg);
 		$this->assertEquals('Permission Denied', $msg->title);
 	}
 }

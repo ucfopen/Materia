@@ -184,7 +184,7 @@ return array(
 			// 'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
-			'RocketDuck\\Msg',
+			'Mateira\\Msg',
 			'Materia\\Score_Record',
 			'Materia\\Widget',
 		),

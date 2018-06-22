@@ -494,7 +494,7 @@ class Perm_Manager
 	 */
 	static public function is_student($user_id)
 	{
-		return ! \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR, \RocketDuck\Perm_Role::SU], $user_id);
+		return ! \RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR, \Materia\Perm_Role::SU], $user_id);
 	}
 
 	static public function accessible_by_students($object_id, $object_type)

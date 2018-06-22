@@ -73,7 +73,7 @@ class Widget
 		// ------------------------- GET THE WIDGET -------------------
 		$q = \DB::select()->from('widget');
 
-		if (\RocketDuck\Util_Validator::is_pos_int($id_or_clean_name))
+		if (\Materia\Util_Validator::is_pos_int($id_or_clean_name))
 		{
 			$q->where('id', $id_or_clean_name); // search by id
 		}

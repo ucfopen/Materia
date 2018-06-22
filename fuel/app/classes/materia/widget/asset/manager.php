@@ -65,7 +65,7 @@ class Widget_Asset_Manager
 			'remote_url' => $remote_url_stub
 		]);
 
-		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		if ($asset->db_store() && \Mateira\Util_Validator::is_valid_hash($asset->id))
 		{
 			try
 			{
@@ -77,7 +77,7 @@ class Widget_Asset_Manager
 			{
 				trace($e);
 			}
-			
+
 			// failed, remove the asset
 			$asset->db_remove();
 		}
@@ -96,7 +96,7 @@ class Widget_Asset_Manager
 			'title'     => $name,
 			'file_size' => $f_info['size']
 		]);
-		if ($asset->db_store() && \RocketDuck\Util_Validator::is_valid_hash($asset->id))
+		if ($asset->db_store() && \Mateira\Util_Validator::is_valid_hash($asset->id))
 		{
 			try
 			{

@@ -6,15 +6,14 @@ require COREPATH.'bootstrap.php';
 define('PUBPATH', realpath(__DIR__.DS.'..'.DS.'..'.DS.'public').DS );
 define('STATICPATH', realpath(PUBPATH.DS.'..'.DS.'static').DS );
 define('MATERIAPATH', realpath(__DIR__.DS.'classes'.DS.'materia'));
-define('RDPATH', realpath(__DIR__.DS.'classes'.DS.'rocketduck'));
 \Autoloader::add_classes([
 	// FUELPHP classes
-	'Fuel\\Core\\Errorhandler'          => MATERIAPATH.DS.'errorhandler.php',
-	'Fuel\\Session\\File'               => MATERIAPATH.DS.'session'.DS.'file.php',
-	'Cache'                             => RDPATH.'/fuel/core/cache.php',
-	'File'                              => RDPATH.'/fuel/core/file.php',
-	'Log'                               => RDPATH.'/fuel/core/log.php',
-	'TestCase'                          => RDPATH.'/fuel/core/testcase.php',
+	'Fuel\\Session\\File'               => MATERIAPATH.'/fuel/session/cache.php',
+	'Cache'                             => MATERIAPATH.'/fuel/core/cache.php',
+	'Fuel\\Core\\Errorhandler'          => MATERIAPATH.'/fuel/core/errorhandler.php',
+	'File'                              => MATERIAPATH.'/fuel/core/file.php',
+	'Log'                               => MATERIAPATH.'/fuel/core/log.php',
+	'TestCase'                          => MATERIAPATH.'/fuel/core/testcase.php',
 
 	// TODO: build task that will resolve/populate all the classes in materia here
 ]);

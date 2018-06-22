@@ -21,7 +21,7 @@
  * @subpackage  util
  */
 
-namespace RocketDuck;
+namespace Materia;
 
 class Util_Validator
 {
@@ -63,7 +63,7 @@ class Util_Validator
 	*
 	* @param mixed   NEEDS DOCUMENTATION
 	* @param unknown NEEDS DOCUMENTATION
-	* 
+	*
 	* @return bool true if $var is an positve whole integer
 	* @return bool false if $var is not an whole integer or it is negative
 	*/
