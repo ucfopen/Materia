@@ -8,6 +8,7 @@ class Alwaysload
 	// a good place to do initialization
 	public static function _init()
 	{
+		\Config::load('materia', true); // Always load is loaded before configs listed in config.always_load.configs
 		self::build_asset_cache_buster_hashes();
 	}
 
@@ -25,7 +26,7 @@ class Alwaysload
 	**/
 	protected static function build_asset_cache_buster_hashes()
 	{
-		$hashes = \Config::load('asset_hash.json', 'not-found');
+		$hashes = \Config::load('asset_hash.json', true);
 
 		// nothing loaded?
 		if ( ! is_array($hashes)) return;

@@ -279,7 +279,6 @@ return array(
 		 */
 		'packages'  => array(
 			'orm',
-			'materia',
 			'rocketDuck',
 			'auth',
 			'materiaauth',
