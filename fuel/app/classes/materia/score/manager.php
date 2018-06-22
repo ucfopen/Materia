@@ -83,7 +83,7 @@ class Score_Manager
 			if ($play->user_id != $curr_user_id && ! $inst->allows_guest_players())
 			{
 				if ( ! Perm_Manager::user_has_any_perm_to($curr_user_id, $play->inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]))
-					return new \RocketDuck\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');
+					return new \Mateira\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');
 			}
 
 			// run the data through the score module

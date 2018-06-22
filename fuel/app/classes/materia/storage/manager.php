@@ -1,6 +1,6 @@
 <?php
 namespace Materia;
-use \RocketDuck\Util_Validator;
+use \Materia\Util_Validator;
 
 class Storage_Manager
 {

@@ -27,7 +27,7 @@ class Session_Logger
 
 	static public function parse_and_store_log_array($play_id, $logs)
 	{
-		if (\RocketDuck\Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
+		if (\Materia\Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
 		{
 			if (is_array($logs) && count($logs) > 0)
 			{
@@ -80,7 +80,7 @@ class Session_Logger
 			'created_at' => $created_at
 		]);
 
-		if (\RocketDuck\Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
+		if (\Materia\Util_Validator::is_valid_long_hash($play_id)) // valid pid & not a preview
 		{
 			$log->db_store();
 		}
@@ -162,7 +162,7 @@ class Session_Logger
 	static public function get_logs($play_id)
 	{
 		// valid pid & not a preview
-		if (\RocketDuck\Util_Validator::is_valid_long_hash($play_id))
+		if (\Materia\Util_Validator::is_valid_long_hash($play_id))
 		{
 			$results = \DB::select()
 				->from('log')

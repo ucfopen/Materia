@@ -1,6 +1,6 @@
 <?php
 
-namespace RocketDuck;
+namespace Materia;
 
 class Log
 {

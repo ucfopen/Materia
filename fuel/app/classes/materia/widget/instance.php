@@ -2,7 +2,7 @@
 
 namespace Materia;
 
-use \RocketDuck\Util_Validator;
+use \Mateira\Util_Validator;
 
 class Widget_Instance
 {
@@ -380,7 +380,7 @@ class Widget_Instance
 		$duplicate->id = 0; // mark as a new game
 		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
 		$result = $duplicate->db_store();
-		if ($result instanceof \RocketDuck\Msg)
+		if ($result instanceof \Mateira\Msg)
 		{
 			return $result;
 		}
