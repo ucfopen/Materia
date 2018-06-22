@@ -2,37 +2,16 @@
 
 namespace Fuel\Tasks;
 
-require_once(PKGPATH.'materia/tasks/widget.php');
 use \Fuel\Tasks\Widget;
 
 class Admin extends \Basetask
 {
 
+	// convert 'lti.setting_name' to 'lti.php'
 	protected static function convert_string_to_config_path($env, $name)
 	{
-		// create the env portion of the path
-		// collapses if there is no env (to use the file in the top level directory)
-		$env_path = empty($env) ? '' : $env.DS;
-
-		// deal with config strings like "lti::lti.somevar"
-		if (stripos($name, '::') !== false)
-		{
-			$name = explode('.', $name); // becomes ["lti::lti", "somevar"]
-			$name = explode('::', $name[0]); // becmoes ["lti", "lti"]
-			if (count($name) == 2)
-			{
-				// "modules/lti/conifg/production/lti.php"
-				$path = APPPATH.'modules'.DS.$name[0].DS.'config'.DS.$env_path.$name[1].'.php';
-			}
-		}
-		else
-		{
-			$name = explode('.', $name); // becomes ["lti", "somevar"]
-			// "config/production/lti.php"
-			$path = APPPATH.'config'.DS.$env_path.$name[0].'.php';
-		}
-
-		return $path;
+		$name = explode('.', $name);
+		return $name[0].'.php';
 	}
 
 	protected static function create_directory($path)
@@ -629,9 +608,14 @@ class Admin extends \Basetask
 		$value_name = substr($config_string, strpos($config_string, '.') + 1);
 		$path = self::convert_string_to_config_path($env, $config_string);
 
+		$current_env = \Fuel::$env;
+		\Fuel::$env = $env;
+		$value = \Config::load($path, false, true);
+		\Fuel::$env = $current_env;
+
 		return [
 			$value_name,
-			\Config::load($path, false, true),
+			$value,
 		];
 	}
 }
