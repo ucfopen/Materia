@@ -16,8 +16,8 @@
     <exclude-pattern>*/fuel/core/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/auth/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/email/*</exclude-pattern>
-    <exclude-pattern>*/fuel/packages/materia/classes/errorhandler.php</exclude-pattern>
-    <exclude-pattern>*/fuel/packages/materia/classes/session/file.php</exclude-pattern>
+    <exclude-pattern>*/fuel/app/classes/materia/errorhandler.php</exclude-pattern>
+    <exclude-pattern>*/fuel/app/classes/materia/session/file.php</exclude-pattern>
     <exclude-pattern>*/fuel/packages/materia/vendor/widget/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/oil/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/orm/*</exclude-pattern>
