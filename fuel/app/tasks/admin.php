@@ -216,9 +216,7 @@ class Admin extends \Basetask
 			if ( ! isset($user['password'])) $user['password'] = \Str::random('alnum', 16);
 
 			// exists?
-			$e_user = \Model_User::query()
-				->where('username', '=', $user['name'])
-				->get_one();
+			$e_user = \Model_User::find_by_name($user['name']);
 
 			if ($e_user)
 			{
@@ -357,9 +355,8 @@ class Admin extends \Basetask
 	// This is a pretty dangerous method, careful you wield great power
 	public static function destroy_database()
 	{
-		// Never!! allow skip in PRODUCTION
-		// bypass only in TEST and when quiet is on
-		$skip_prompts = (\Fuel::$env == \Fuel::TEST && \Cli::option('quiet', false) == true);
+		// Never!! allow quiet/skip in PRODUCTION
+		$skip_prompts = (\Fuel::$env !== \Fuel::PRODUCTION && \Cli::option('quiet', false) == true);
 		\Cli::write('This task truncates data from ALL configured databases.', 'red');
 
 		if ( ! $skip_prompts)
@@ -392,7 +389,7 @@ class Admin extends \Basetask
 					$table_name = array_values($table)[0];
 					\Cli::write("!!! Dropping Table: {$table_name}", 'red');
 					// pause here to let the user ctrl c if they made a huge mistake
-					if (\Fuel::$env != \Fuel::TEST) sleep(2);
+					if (\Fuel::$env === \Fuel::PRODUCTION) sleep(2);
 					\DBUtil::drop_table($table_name, $db_name);
 				}
 			}
@@ -445,19 +442,19 @@ class Admin extends \Basetask
 		\Cli::write(\Cli::color("Roles Added: $roles", 'green'));
 	}
 
-	public static function give_user_role($user_name, $group_name)
+	public static function give_user_role($user_name, $role_name)
 	{
-		if ($user = \Model_User::query()->where('username', (string)$user_name)->get_one())
+		if ($user = \Model_User::find_by_name($user_name))
 		{
-			if (\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [$group_name]))
+			if (\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [$role_name]))
 			{
-				if (\Fuel::$env != \Fuel::TEST) \Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
+				if ( ! \Fuel::$is_test) \Cli::write(\Cli::color("$user_name now in role: $role_name", 'green'));
 				return true;
 			}
 			else
 			{
 				\Cli::beep(1);
-				\Cli::write(\Cli::color("couldn't add user $user_name to role $group_name", 'red'));
+				\Cli::write(\Cli::color("couldn't add user $user_name to role $role_name", 'red'));
 				exit(1);  // linux exit code 1 = error
 			}
 		}
@@ -472,7 +469,7 @@ class Admin extends \Basetask
 	public static function reset_password($username)
 	{
 		$newpassword = \Auth::instance()->reset_password($username);
-		if (\Fuel::$env != \Fuel::TEST)
+		if ( ! \Fuel::$is_test)
 		{
 			\Cli::write("New password is $username ".\Cli::color($newpassword, 'yellow'));
 		}
@@ -488,7 +485,7 @@ class Admin extends \Basetask
 
 			if ($user_id === false)
 			{
-				if (\Fuel::$env != \Fuel::TEST)
+				if ( ! \Fuel::$is_test)
 				{
 					\Cli::beep(1);
 					\Cli::write(\Cli::color('Failed to create user', 'red'));
@@ -496,13 +493,13 @@ class Admin extends \Basetask
 			}
 			else
 			{
-				if (\Fuel::$env != \Fuel::TEST) \Cli::write('User Created', 'green');
+				if ( ! \Fuel::$is_test) \Cli::write('User Created', 'green');
 				return $user_id;
 			}
 		}
 		catch (\FuelException $e)
 		{
-			if (\Fuel::$env != \Fuel::TEST)
+			if ( ! \Fuel::$is_test)
 			{
 				\Cli::beep(1);
 				\Cli::write(\Cli::color('Error creating user', 'red'));

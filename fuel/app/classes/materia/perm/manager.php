@@ -34,7 +34,7 @@ class Perm_Manager
 	static public function create_role($role_name = '')
 	{
 		if ( ! self::is_super_user()) return false;
-		if ($role_name == '' || ! is_string($role_name)) return false;
+		if (empty($role_name) || ! is_string($role_name)) return false;
 		if (self::role_exists($role_name)) return false;
 		if (strlen($role_name) > 255 ) return false;
 
@@ -45,7 +45,6 @@ class Perm_Manager
 		return $num > 0;
 	}
 
-
 	/**
 	 * NEEDS DOCUMENTATION
 	 *
@@ -55,9 +54,9 @@ class Perm_Manager
 	{
 		$login_hash = \Session::get('login_hash');
 		$key = 'is_super_user_'.$login_hash;
-		$has_role = \Session::get($key, null) || (\Fuel::$is_cli && \Fuel::$env != \Fuel::TEST);
+		$has_role = (\Fuel::$is_cli === true && ! \Fuel::$is_test) || \Session::get($key, false);
 
-		if ($has_role == null)
+		if ( ! $has_role)
 		{
 			$has_role = self::does_user_have_role([\Materia\Perm_Role::SU]);
 			\Session::set($key, $has_role);
@@ -113,7 +112,7 @@ class Perm_Manager
 	 */
 	static private function role_exists($role_name = '')
 	{
-		if ($role_name == '' || ! is_string($role_name)) return false;
+		if (empty($role_name) || ! is_string($role_name)) return false;
 
 		$results = \DB::select(\DB::expr('COUNT(*) as count'))
 			->from('user_role')
@@ -133,7 +132,7 @@ class Perm_Manager
 	 */
 	static public function get_role_id($role_name = '')
 	{
-		if ($role_name == '' || ! is_string($role_name)) return 0;
+		if (empty($role_name) || ! is_string($role_name)) return 0;
 		if ( ! self::role_exists($role_name)) return 0;
 
 		$results = \DB::select('role_id')
@@ -177,18 +176,17 @@ class Perm_Manager
 	 *
 	 * @author Zachary Berry
 	 */
-	static public function add_users_to_roles_system_only(Array $users_ids = [], Array $roles_names = [])
+	static public function add_users_to_roles_system_only(Array $user_ids = [], Array $role_names = [])
 	{
 		if (empty($user_ids) || empty($role_names)) return false;
-
 		$success = true;
 
-		foreach ($users_ids as $user_id)
+		foreach ($user_ids as $user_id)
 		{
-			foreach ($roles_names as $role_name)
+			foreach ($role_names as $role_name)
 			{
-				$role_number = self::get_role_id($role_name);
-				if ( ! $role_number)
+				$role_id = self::get_role_id($role_name);
+				if ( ! $role_id)
 				{
 					$success = false;
 					continue;
@@ -201,11 +199,12 @@ class Perm_Manager
 						role_id = :role_id',
 					\DB::INSERT)
 					->param('user_id', $user_id)
-					->param('role_id', $role_number)
+					->param('role_id', $role_id)
 					->execute();
 
 				if ($num < 1)
 				{
+					\Cli::write("Unable to add user id: ${user_id} to role: ${role_names} (${role_id})");
 					$success = false;
 				}
 			}
