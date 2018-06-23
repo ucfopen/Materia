@@ -14,7 +14,7 @@ class Controller_Admin extends Controller
 	public function before()
 	{
 		$this->common_before();
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		Css::push_group('admin');
 		Js::push_group(['angular', 'materia', 'admin']);
 		parent::before();

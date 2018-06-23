@@ -676,13 +676,13 @@ class Test_Api_V1 extends \Basetest
 
 		// Login as Superuser
 		Api_V1::session_login('~testSu', 'interstellar555!');
-		$output = \RocketDuck\Perm_Manager::is_super_user();
+		$output = \Materia\Perm_Manager::is_super_user();
 		$this->assertTrue($output);
 		Api_V1::session_logout();
 
 		// Login as non-Superuser
 		Api_V1::session_login('~author', 'kogneato');
-		$output = \RocketDuck\Perm_Manager::is_super_user();
+		$output = \Materia\Perm_Manager::is_super_user();
 		$this->assertFalse($output);
 		Api_V1::session_logout();
 	}

@@ -175,7 +175,7 @@ class Basetest extends TestCase
 		$id = \Fuel\Tasks\Admin::new_user($name, $first, $middle, $last, $name.'@materia.com', $password);
 		$user = \Model_User::find($id);
 		$this->users_to_clean[] = $user;
-		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], $add_roles);
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], $add_roles);
 		return $user;
 	}
 

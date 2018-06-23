@@ -172,7 +172,7 @@ class Widget
 
 	public function set_property($prop, $val)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new HttpNotFoundException;
 
 		$original = $this->get_property($prop, $val);
 		if ($original == $val) return true;
