@@ -1,6 +1,6 @@
 <?php // @codingStandardsIgnoreStart ?>
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
-	<?php /* @TODO: this should maybe be retrieved via the api instead of mucking with the html here */
+	<?php
 		$allow_logins = ! \Config::get('auth.restrict_logins_to_lti_single_sign_on', false);
 	?>
 	<?php if ($me->is_guest()): ?>
@@ -10,7 +10,7 @@
 			data-logged-in="true"
 			data-name="<?= "{$me->first} {$me->last}" ?>"
 			data-avatar="<?= \Materia\Utils::get_avatar() ?>"
-			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
+			data-role="<?= \Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
 			data-notify="<?= $me->profile_fields['notify'] ? 'true' : 'false' ?>"
 		></span>
 	<?php endif ?>
@@ -35,7 +35,7 @@
 			<li><a href="/my-widgets">My Widgets</a></li>
 			<li><a href="/help">Help</a></li>
 
-			<?php if ( !$me->is_guest() && \RocketDuck\Perm_Manager::is_super_user()): ?>
+			<?php if ( !$me->is_guest() && \Materia\Perm_Manager::is_super_user()): ?>
 				<li class="nav_expandable">
 					<span class='elevated'>Admin</span>
 					<ul>
