@@ -1,8 +1,8 @@
 <?php
 
 namespace Lti;
-use \Mateira\Log;
-use \Mateira\Util_Validator;
+use \Materia\Log;
+use \Materia\Util_Validator;
 
 class LtiEvents
 {

@@ -10,7 +10,7 @@
 			data-logged-in="true"
 			data-name="<?= "{$me->first} {$me->last}" ?>"
 			data-avatar="<?= \Materia\Utils::get_avatar() ?>"
-			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
+			data-role="<?= \RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR]) ? 'Staff' : 'Student' ?>"
 			data-notify="<?= $me->profile_fields['notify'] ? 'true' : 'false' ?>"
 		></span>
 	<?php endif ?>

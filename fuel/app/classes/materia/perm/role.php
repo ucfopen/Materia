@@ -22,7 +22,7 @@
  * @subpackage  perms
  */
 
-namespace Mateira;
+namespace Materia;
 
 class Perm_Role
 {
