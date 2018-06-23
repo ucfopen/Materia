@@ -154,7 +154,7 @@ class Model_User extends Orm\Model
 
 	public function set_property($prop, $new_val)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$original_val = $this->get_property($prop, $new_val);
 		if ($original_val == $new_val) return true;
