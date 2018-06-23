@@ -96,7 +96,7 @@ class Widget_Question
 	 */
 	public function db_store($qset_id)
 	{
-		if ( \Mateira\Util_Validator::is_pos_int($this->id) ) return false;
+		if ( \Materia\Util_Validator::is_pos_int($this->id) ) return false;
 
 		// valid questions have atleast one question and one answer
 		if (count($this->questions) < 1 || count($this->answers) < 1 ) return false;
