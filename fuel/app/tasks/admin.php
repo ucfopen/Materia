@@ -427,10 +427,10 @@ class Admin extends \Basetask
 	public static function populate_roles()
 	{
 		$roles = 0;
-		if (\RocketDuck\Perm_Manager::create_role('basic_author')) $roles++;
-		if (\RocketDuck\Perm_Manager::create_role('super_user')) $roles++;
+		if (\Materia\Perm_Manager::create_role('basic_author')) $roles++;
+		if (\Materia\Perm_Manager::create_role('super_user')) $roles++;
 
-		if ($admin_role_id = \RocketDuck\Perm_Manager::get_role_id('super_user'))
+		if ($admin_role_id = \Materia\Perm_Manager::get_role_id('super_user'))
 		{
 			$q = \DB::query('INSERT INTO `perm_role_to_perm` SET `role_id` = :role_id, `perm` = :perm ON DUPLICATE KEY UPDATE `perm` = :perm');
 			$q->param('role_id', $admin_role_id);
@@ -449,7 +449,7 @@ class Admin extends \Basetask
 	{
 		if ($user = \Model_User::query()->where('username', (string)$user_name)->get_one())
 		{
-			if (\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], [$group_name]))
+			if (\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [$group_name]))
 			{
 				if (\Fuel::$env != \Fuel::TEST) \Cli::write(\Cli::color("$user_name now in role: $group_name", 'green'));
 				return true;

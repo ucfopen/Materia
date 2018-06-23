@@ -21,7 +21,7 @@ class Service_User
 		if ( $role_or_roles === null) return true;
 
 		if ( ! is_array($role_or_roles)) $role_or_roles = (array) $role_or_roles;
-		return \RocketDuck\Perm_Manager::does_user_have_role($role_or_roles);
+		return \Materia\Perm_Manager::does_user_have_role($role_or_roles);
 	}
 
 	static public function login($username, $password)
