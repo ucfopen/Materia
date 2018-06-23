@@ -173,24 +173,24 @@ class Test_Materiaauth extends \Basetest
 	{
 		//confirm that the last user we created is not an author
 		$user = $this->make_random_student();
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Mateira\Perm_Role::AUTHOR], $user->id), false);
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR], $user->id), false);
 
 		//promote the last user we created to an author
 		$auth = \Auth::instance();
 		$r = $auth::update_role($user->id, true);
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Mateira\Perm_Role::AUTHOR], $user->id), true);
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR], $user->id), true);
 	}
 
 	public function test_demoting_user()
 	{
 		//confirm that the last user we created is not an author
 		$user = $this->make_random_author();
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Mateira\Perm_Role::AUTHOR], $user->id), true);
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR], $user->id), true);
 
 		//demote the last user we created back to a student
 		$auth = \Auth::instance();
 		$r = $auth::update_role($user->id, false);
-		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Mateira\Perm_Role::AUTHOR], $user->id), false);
+		$this->assertEquals(\RocketDuck\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR], $user->id), false);
 	}
 
 	//make sure session variables are unset when logging out

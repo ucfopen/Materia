@@ -6,7 +6,7 @@
 
 namespace Materia;
 
-use \Mateira\Util_Validator;
+use \Materia\Util_Validator;
 
 class Widget_Installer
 {

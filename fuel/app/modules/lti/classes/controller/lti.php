@@ -80,7 +80,7 @@ class Controller_Lti extends \Controller
 		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
 		$return_url       = \Input::post('launch_presentation_return_url');
 
-		\Mateira\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
+		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
 		$this->theme->set_template('layouts/main');
 
