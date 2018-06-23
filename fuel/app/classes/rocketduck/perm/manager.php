@@ -218,7 +218,7 @@ class Perm_Manager
 		$length = count($roles);
 		if ($length == 0) return false;
 		// if using current user
-		if ($user_id === null || ! Util_Validator::is_pos_int($user_id))
+		if ($user_id === null || ! \Materia\Util_Validator::is_pos_int($user_id))
 		{
 			$user_id = \Model_User::find_current_id();
 		}
@@ -393,7 +393,7 @@ class Perm_Manager
 		$has_role = \Session::get('is_administrator', false) || \Fuel::$is_cli;
 		if ($has_role === false)
 		{
-			$has_role = Perm_Manager::does_user_have_role([Perm_Role::SU]);
+			$has_role = Perm_Manager::does_user_have_role([\Materia\Perm_Role::SU]);
 			\Session::set('is_administrator', $has_role);
 		}
 		return $has_role;
@@ -412,7 +412,7 @@ class Perm_Manager
 
 		if ($has_role == null)
 		{
-			$has_role = Perm_Manager::does_user_have_role([Perm_Role::SU]);
+			$has_role = Perm_Manager::does_user_have_role([\Materia\Perm_Role::SU]);
 			\Session::set($key, $has_role);
 		}
 		return $has_role;

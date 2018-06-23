@@ -220,7 +220,7 @@ class Widget extends \Basetask
 				->on('users.id', '=', 'perm_role_to_user.user_id')
 			->join('user_role', 'left')
 				->on('user_role.role_id', '=', 'perm_role_to_user.role_id')
-			->where('user_role.name', '=', \Mateira\Perm_Role::SU)
+			->where('user_role.name', '=', \Materia\Perm_Role::SU)
 			->limit(1)
 			->execute();
 

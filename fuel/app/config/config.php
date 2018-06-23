@@ -184,7 +184,7 @@ return array(
 			// 'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
-			'Mateira\\Msg',
+			'Materia\\Msg',
 			'Materia\\Score_Record',
 			'Materia\\Widget',
 		),

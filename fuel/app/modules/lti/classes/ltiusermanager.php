@@ -1,7 +1,7 @@
 <?php
 
 namespace Lti;
-use \Mateira\Log;
+use \Materia\Log;
 
 class LtiUserManager
 {
