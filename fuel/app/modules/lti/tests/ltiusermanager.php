@@ -121,7 +121,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$result = \Lti\LtiUserManager::authenticate($launch);
 			$this->assertFalse($result);
 
-			$user = \Model_User::query()->where('username', $expected_username)->get_one();
+			$user = \Model_User::find_by_name($expected_username);
 			$this->assertNull($user);
 		};
 
@@ -164,7 +164,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$result = \Lti\LtiUserManager::authenticate($launch);
 			$this->assertFalse($result);
 
-			$user = \Model_User::query()->where('username', $expected_username)->get_one();
+			$user = \Model_User::find_by_name($expected_username);
 			$this->assertNull($user);
 		};
 
@@ -374,7 +374,7 @@ class Auth_Login_LtiTestAuthDriver extends \Auth_Login_Driver
 	public function update_user($values, $username = null)
 	{
 		$username = $username ?: $this->user['username'];
-		$user     = \Model_User::query()->where('username', $username)->get_one();
+		$user     = \Model_User::find_by_name($username);
 
 		if ( ! $user) throw new \Exception('Username not found', 4);
 

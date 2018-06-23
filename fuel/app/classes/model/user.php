@@ -68,6 +68,13 @@ class Model_User extends Orm\Model
 		return $array[1];
 	}
 
+	public static function find_by_name($name)
+	{
+		return \Model_User::query()
+			->where('username', (string) $name)
+			->get_one();
+	}
+
 	static public function find_by_name_search($name)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
