@@ -19,8 +19,8 @@ return [
 		PKGPATH.'materia/vendor/widget/score_module',
 		PKGPATH.'materia/vendor/widget/test',
 		// widget directories
-		\Config::get('materia.dirs.engines'),
-		\Config::get('materia.dirs.engines').'test',
+		\Config::get('materia.dirs.widgets'),
+		\Config::get('materia.dirs.widgets').'test',
 	],
 
 	// list of default configs to copy into the requested environment
