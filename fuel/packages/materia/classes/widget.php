@@ -47,7 +47,7 @@ class Widget
 	public $player              = '';
 	public $question_types      = '';
 	public $score_module        = 'base';
-	public $score_screen        = null;
+	public $score_screen        = '';
 	public $width               = 0;
 
 	public function __construct($properties=[])
