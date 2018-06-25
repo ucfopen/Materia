@@ -15,8 +15,6 @@ class Widget_Asset
 
 	const MAP_TYPE_QSET     = '1';
 	const MAP_TYPE_QUESTION = '2';
-	const LARGE_PATH        = 'materia/media/large/';
-	const THUMB_PATH        = 'materia/media/thumbnail/';
 
 	public $created_at = 0;
 	public $id         = 0;
