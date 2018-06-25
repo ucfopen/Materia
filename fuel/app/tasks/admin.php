@@ -333,19 +333,19 @@ class Admin extends \Basetask
 	public static function destroy_widgets()
 	{
 		$file_area = \File::forge(['basedir' => '/']);
-		if ( ! file_exists(\Config::get('materia.dirs.engines')))
+		if ( ! file_exists(\Config::get('materia.dirs.widgets')))
 		{
 			\Cli::write('Widgets directory not present', 'red');
-			\Cli::write(\Config::get('materia.dirs.engines'), 'red');
+			\Cli::write(\Config::get('materia.dirs.widgets'), 'red');
 			return;
 		}
 
-		$dirs = $file_area->read_dir(\Config::get('materia.dirs.engines'), 1, ['!^\.', '!^\D']);
+		$dirs = $file_area->read_dir(\Config::get('materia.dirs.widgets'), 1, ['!^\.', '!^\D']);
 		if (count($dirs) > 0)
 		{
 			foreach ($dirs as $dir => $nothing)
 			{
-				$file_area->delete_dir(\Config::get('materia.dirs.engines').$dir);
+				$file_area->delete_dir(\Config::get('materia.dirs.widgets').$dir);
 			}
 		}
 		\Cli::write('Widgets uninstalled', 'green');

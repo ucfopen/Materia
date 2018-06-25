@@ -38,7 +38,7 @@ return [
 	*/
 	'dirs' => [
 		'media'   => realpath(PKGPATH.'materia/media').DS, // where the uploaded assets are kept
-		'engines' => realpath(PUBPATH.'widget').DS,
+		'widgets' => realpath(PUBPATH.'widget').DS,
 	],
 
 	// Default media quota in bytes
