@@ -731,7 +731,7 @@ class Api_V1
 		return $summary;
 	}
 
-	static public function sample_scores_get($inst_id)
+	static public function play_score_distribution_get($inst_id)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
