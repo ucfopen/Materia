@@ -1,17 +1,5 @@
 <?php
 /**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
-
-
-/**
  * NEEDS DOCUMENTATION
  *
  * High-level user activity logging.

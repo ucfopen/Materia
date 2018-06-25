@@ -1,14 +1,4 @@
 <?php
-/**
- * Materia
- * It's a thing
- *
- * @package	    Materia
- * @version    1.0
- * @author     UCF New Media
- * @copyright  2011 New Media
- * @link       http://kogneato.com
- */
 namespace Materia;
 
 class Api extends Api_V1
