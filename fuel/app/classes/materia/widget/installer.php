@@ -601,7 +601,7 @@ class Widget_Installer
 
 		// move widget files
 		// public_widget_dir
-		$new_dir = \Config::get('materia.dirs.engines').$widget_dir;
+		$new_dir = \Config::get('materia.dirs.widgets').$widget_dir;
 		if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
 		$file_area->copy_dir($dir, $new_dir);
 

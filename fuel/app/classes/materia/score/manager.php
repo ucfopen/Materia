@@ -121,7 +121,7 @@ class Score_Manager
 			else
 			{
 				// load the score module from the engines directory
-				$public_dir = \Config::get('materia.dirs.engines').$widget->id.'-'.$widget->clean_name;
+				$public_dir = \Config::get('materia.dirs.widgets').$widget->id.'-'.$widget->clean_name;
 				include_once("{$public_dir}/_score-modules/score_module.php");
 			}
 
