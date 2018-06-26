@@ -41,25 +41,5 @@ class Utils
 		}
 	}
 
-	public static function load_methods_from_file($file)
-	{
-		// build a sheltered scope to try and "safely" load the contents of the file
-		$safe_load = function($file)
-		{
-			$result = [];
-			$methods = include($file);
 
-			if (is_array($methods))
-			{
-				foreach ($methods as $name => &$method)
-				{
-					if (is_callable($method)) $result[$name] = $method;
-				}
-			}
-
-			return $result;
-		};
-
-		return $safe_load($file);
-	}
 }

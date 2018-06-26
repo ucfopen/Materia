@@ -9,8 +9,8 @@ return array(
 	'areas' => [
 
 		 'media' => [
-			'basedir'    => \Config::get('materia.dirs.media').'uploads',
-			'extensions' => array('jpg', 'jpeg', 'png', 'gif', 'wav', 'mp3'),
+			'basedir'    => realpath(APPPATH.'media').DS,
+			'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'wav', 'mp3'],
 			'url'        => DOCROOT . 'media',
 		]
 	],
