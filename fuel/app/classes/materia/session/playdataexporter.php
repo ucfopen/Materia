@@ -13,43 +13,35 @@ class Session_PlayDataExporter
 		$this->inst = $inst;
 	}
 
-	// EX: $play_data = new \Materia\Session_PlayDataExporter($crossword_instance);
-	// list($data, $file_extension) = $play_data->export('My Special Method', $semester);
-	// this calls the method defined in packages/materia/vendor/widget/12-crossword/playdata_exporters.php
-	// playdata_exports.php: <? return ['My Special Method' => function($inst, $semesters){ return ['no data', '.csv'];}];
 	public function export($unclean_name, $semesters_string)
 	{
-		$name = static::scrub_method_name($unclean_name);
+		$name = \Materia\Widget::make_clean_name($unclean_name);
 		$semesters = explode(',', $semesters_string);
 
 		// try a class methods
 		if (method_exists($this, $name)) return static::$name($this->inst, $semesters);
 
-		// try custom methods
-		$this->load_custom_methods();
-
-		if ( ! array_key_exists($name, $this->custom_methods)) throw new \RuntimeException("Method {$unclean_name} does not exist");
-
-		return $this->custom_methods[$name]($this->inst, $semesters);
+		// try playdata exporter methods
+		return $this->execute_playdata_exporter_method($name, [$this->inst, $semesters]);
 	}
 
-	protected function load_custom_methods($force = false)
+	// this calls the method defined in the widget's playdata_exporters.php file
+	// @param String method name to call from playdata exporter methods defined in widget
+	// $arguments[]:
+	//  0 - @param \Materia\Widget_Instance
+	//  1 - @param Array semesters
+	// ex setup:
+	// playdata_exports.php: <? return ['My Special Method' => function($inst, $semesters){ return ['no data', '.csv'];}];
+	protected function execute_playdata_exporter_method($clean_method_name, Array $arguments)
 	{
-		// binds custom methods only if they are needed
-		if ( ! $this->custom_methods_bound || $force)
+		$methods = $this->inst->widget->get_playdata_exporter_methods();
+
+		if ( ! array_key_exists($clean_method_name, $methods))
 		{
-			$wgt_methods = $this->inst->widget->load_widget_methods('playdata_exporters');
-			foreach ($wgt_methods as $name => $method)
-			{
-				$this->custom_methods[static::scrub_method_name($name)] = $method;
-			}
-			$this->custom_methods_bound = true;
+			throw new \RuntimeException("Playdata exporter Method {$clean_method_name} does not exist");
 		}
-	}
 
-	protected static function scrub_method_name($name)
-	{
-		return \Inflector::friendly_title($name, '_', true);
+		return call_user_func_array($methods[$clean_method_name], $arguments);
 	}
 
 	protected static function storage($inst, $semesters)

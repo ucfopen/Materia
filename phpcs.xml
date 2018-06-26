@@ -17,7 +17,6 @@
     <exclude-pattern>*/fuel/packages/auth/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/email/*</exclude-pattern>
     <exclude-pattern>*/fuel/app/classes/materia/fuel/*</exclude-pattern>
-    <exclude-pattern>*/fuel/packages/materia/vendor/widget/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/oil/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/orm/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/parser/*</exclude-pattern>
