@@ -57,7 +57,6 @@ class Test_Widget_Manager extends \Basetest
 		$widget = \Materia\Widget::forge($mock_widget->id);
 
 		// assert that the widget has changed to the expected values;
-		self::assertTrue($widgetFound);
 		self::assertEquals(0, $widget->in_catalog);
 		self::assertEquals(0, $widget->is_editable);
 		self::assertEquals(0, $widget->is_scorable);
