@@ -18,12 +18,20 @@ class Controller_Media extends Controller
 		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// Validate Asset exists
-		if ( ! ($asset instanceof Widget_Asset)) throw new HttpNotFoundException;
+		if ( ! ($asset instanceof Widget_Asset))
+		{
+			trace("Asset: {$asset_id} not found");
+			throw new HttpNotFoundException;
+		}
 
-		$file = Config::get('materia.dirs.media').$asset->id.'.'.$asset->type;
+		$file = Config::get('materia.dirs.media')."{$asset->id}.{$asset->type}";
 
 		// Validate file exists
-		if ( ! file_exists($file)) throw new HttpNotFoundException;
+		if ( ! file_exists($file))
+		{
+			trace("Asset file not found {$file}");
+			throw new HttpNotFoundException;
+		}
 
 		File::render($file);
 
@@ -69,47 +77,66 @@ class Controller_Media extends Controller
 	}
 
 	// Handles the upload using plupload's classes
+	// This currently assumes a single uploaded file at a time
 	public function action_upload()
 	{
 		// Validate Logged in
 		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
-		// Upload::process is called automatically
-		if (\Upload::is_valid()) \Upload::save();
-
-		foreach (\Upload::get_errors() as $file)
-		{
-			foreach ($file['errors'] as $error)
-			{
-				trace($error);
-			}
-		}
-
-		$file = \Upload::get_files(0);
-
-		if ( ! $file)
-		{
-			throw new HttpNotFoundException;
-		}
-
-		trace($file);
-
-		$name = Input::post('name', 'New Asset');
-		$asset = Widget_Asset_Manager::new_asset_from_upload($name, $file['saved_to']);
-
-		if ( ! isset($asset->id))
-		{
-			// error
-			trace('Unable to create asset');
-		}
-
-		$res = new \Response();
+		$res = new Response();
 		// Make sure file is not cached (as it happens for example on iOS devices)
 		$res->set_header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
 		$res->set_header('Last-Modified', gmdate('D, d M Y H:i:s').' GMT');
 		$res->set_header('Cache-Control', 'no-store, no-cache, must-revalidate');
 		$res->set_header('Pragma', 'no-cache');
-		$res->body('{"jsonrpc" : "2.0", "result" : null, "id" : "'.$asset->id.'"}');
+
+		// Upload::process is called automatically
+		if (\Upload::is_valid()) \Upload::save();
+
+		$errors = [];
+		$error_codes = [];
+		if ($file_info = \Upload::get_errors(0))
+		{
+			foreach ($file_info['errors'] as $value)
+			{
+				$errors[] = $value['message'];
+				$error_codes[] = $value['error'];
+			}
+		}
+
+		$uploaded_file = \Upload::get_files(0);
+
+		if ( ! $uploaded_file)
+		{
+			trace('Unable to process upload');
+			trace($error_codes);
+			trace($errors);
+			$res->body('{"error":{"code":"'.implode(',', $error_codes).'","message":"'.implode('. ', $errors).'"}}');
+			$res->status(400);
+			return $res;
+		}
+
+		$file_info = [
+			'size' => $uploaded_file['size'],
+			'extension' => $uploaded_file['extension'],
+			'realpath' => $uploaded_file['saved_to'].DS.$uploaded_file['saved_as']
+		];
+
+		$name = Input::post('name', 'New Asset');
+		$asset = Widget_Asset_Manager::new_asset_from_file($name, $file_info);
+
+		if ( ! isset($asset->id))
+		{
+			// error
+			trace('Unable to create asset');
+			$res->body('{"error":{"code":"16","message":"Unable to save new asset"}}');
+			$res->status(400);
+			return $res;
+		}
+
+		$res->body('{"success":"true","id":"'.$asset->id.'"}');
+		$res->status(200);
+		return $res;
 	}
 
 

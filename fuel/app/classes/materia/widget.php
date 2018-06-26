@@ -37,6 +37,8 @@ class Widget
 	public $score_module        = 'base';
 	public $width               = 0;
 
+	protected $exporter_methods = [];
+
 	public function __construct($properties=[])
 	{
 		if ( ! empty($properties))
@@ -46,10 +48,17 @@ class Widget
 				if (property_exists($this, $key)) $this->{$key} = $val;
 			}
 			// if a clean name wasn't created already, make one based on the name
-			if ( ! empty($properties['name']) && empty($this->clean_name)) $this->clean_name = \Inflector::friendly_title($this->name, '-', true);
+			if ( ! empty($properties['name']) && empty($this->clean_name)) $this->clean_name = self::make_clean_name($this->name);
 			$this->dir = "{$this->id}-{$this->clean_name}/";
 			if ($this->api_version == 0) $this->api_version = \Config::get('materia.default_api_version');
 		}
+	}
+
+	public static function forge($id_or_clean_name)
+	{
+		$widget = new Widget();
+		$widget->get($id_or_clean_name);
+		return $widget;
 	}
 
 	/**
@@ -199,9 +208,87 @@ class Widget
 		return true;
 	}
 
-	public function load_widget_methods($method_type)
+	public function get_score_module_class()
 	{
-		$file = PKGPATH."/materia/vendor/widget/{$this->dir}/{$method_type}.php";
-		return \Materia\Utils::load_methods_from_file($file);
+		$score_module_class_name = "\Materia\Score_Modules_{$this->score_module}";
+
+		// attempt to load the class if we don't have it
+		if ( ! class_exists($score_module_class_name))
+		{
+			self::load_widget_script('_score-modules'.DS.'score_module.php');
+			if ( ! class_exists($score_module_class_name))
+			{
+				throw new \Exception("Score module missing: {$score_module_class_name}");
+			}
+		}
+
+		return $score_module_class_name;
 	}
+
+
+	// To execute a method, use execute_custom_method()
+	public function get_playdata_exporter_methods($force = false)
+	{
+		// short circuit with cached methods
+		if ( ! $force && ! empty($this->exporter_methods)) return $this->exporter_methods;
+
+		$methods = [];
+
+		// load the widget script
+		$methods = self::load_widget_script('_exports'.DS.'playdata_exporters.php');
+
+		// playdata must be an array of methods
+		if ( ! is_array($methods)) return $methods;
+
+		// copy only callable methods to output and clean up their method names
+		foreach ($methods as $name => &$method)
+		{
+			if (is_callable($method))
+			{
+				$name = self::make_clean_name($name);
+				$methods[$name] = $method;
+			}
+		}
+
+		// cache them for later
+		$this->exporter_methods = $methods;
+		return $methods;
+	}
+
+	public static function make_clean_name($unclean_name)
+	{
+		return \Inflector::friendly_title($unclean_name, '_', true);
+	}
+
+	protected function load_widget_script($widget_script)
+	{
+		// closure helps to prevent the script poluting this class
+		$load_widget_script_safer = function($widget_script)
+		{
+			if (\FUEL::$env === \FUEL::TEST)
+			{
+				// always load a module from our test widget
+				$file = APPPATH."tests{DS}widget_source{DS}test_widget{DS}src{DS}{$widget_script}";
+			}
+			else
+			{
+				// load the score module from the engines directory
+				$file = \Config::get('materia.dirs.widgets')."{$this->dir}{$widget_script}";
+			}
+
+			if (file_exists($file))
+			{
+				return include($file);
+			}
+			else
+			{
+				trace("Widget script not found: {$file}");
+				return [];
+			}
+
+		};
+
+		return $load_widget_script_safer($widget_script);
+	}
+
 }

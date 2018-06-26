@@ -236,13 +236,15 @@ class Widget_Installer
 	{
 		try
 		{
-			$file_area = \File::forge(['basedir' => null]);
+			// we need to move the file manually to the media/uploads directory so new_asset_from_file will work
 			$ext = pathinfo($file, PATHINFO_EXTENSION);
-			// we need to move the file manually to the media/uploads directory
-			// so process_upload can move it to the correct place
-			$new_temp_filepath = \Config::get('materia.dirs.media').'uploads/'.uniqid().'.'.$ext;
-			$file_area->copy($file, $new_temp_filepath);
-			$asset = \Materia\Widget_Asset_Manager::process_upload(basename($file), $new_temp_filepath);
+			$target_file_name = uniqid().'.'.$ext;
+			$upload_destination = \Config::get('materia.dirs.media').'uploads'.DS.$target_file_name;
+			$file_area = \File::forge(['basedir' => null]); // allow copying from/to anywhere
+			$file_area->copy($file, $upload_destination);
+			$uploaded_file = \File::file_info('uploads'.DS.$target_file_name, 'media');
+
+			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file($uploaded_file['basename'], $uploaded_file);
 
 			return $asset->id;
 		}
@@ -291,8 +293,7 @@ class Widget_Installer
 
 	protected static function update_params($widget_id, $params, $force = false)
 	{
-		$existing_widget = new \Materia\Widget();
-		$existing_widget->get($widget_id);
+		$existing_widget = \Materia\Widget::forge($widget_id);
 
 		if ((int) $existing_widget->id !== (int) $widget_id)
 		{
@@ -550,61 +551,21 @@ class Widget_Installer
 
 	protected static function install_widget_files($id, $manifest_data, $dir)
 	{
-		$file_area = \File::forge(['basedir' => null]);
-		$clean_name = static::clean_name_from_manifest($manifest_data);
-		$widget_dir = "{$id}-{$clean_name}";
-		$score_module_clean_name = strtolower(\Inflector::friendly_title($manifest_data['score']['score_module'])).'.php';
-
-		// create the widget specific directory
-		static::clear_path(PKGPATH.'materia/vendor/widget/'.$widget_dir);
-		$file_area->create_dir(PKGPATH.'materia/vendor/widget/', $widget_dir);
-
-		// playdata exporters
-		// needs proper packaging of export module by devmateria
-		// add  {expand: true, cwd: "#{widget}/_exports", src: ['**'], dest: ".compiled/#{widget}/_exports"}
-		// to gruntfile after line 104
-		$pkg_playdata_file = "{$dir}/_exports/playdata_exporters.php";
-		if (file_exists($pkg_playdata_file))
-		{
-			$destination_playdata_file = PKGPATH.'materia/vendor/widget/'.$widget_dir.'/playdata_exporters.php';
-			static::clear_path($destination_playdata_file);
-			$file_area->rename($pkg_playdata_file, $destination_playdata_file);
-			// delete the export modules folder so it won't get copied over
-			$file_area->delete_dir($dir.'/_exports');
-
-			// add export methods to metadata
-			if (file_exists($destination_playdata_file))
-			{
-				$methods = \Materia\Utils::load_methods_from_file($destination_playdata_file);
-				if ( ! empty($methods))
-				{
-					$metadata = ['playdata_exporters' => array_keys($methods)];
-					static::save_metadata($id, $metadata);
-				}
-			}
-		}
-
-		// move tests
-		$new_test = PKGPATH.'materia/vendor/widget/test/'.$score_module_clean_name;
-		static::clear_path($new_test);
-		$file_area->rename($dir.'/_score-modules/test_score_module.php', $new_test);
-
-		// move spec to the main materia spec folder, if it exists
-		$pkg_spec = $dir.'/spec/spec.coffee';
-		if (file_exists($pkg_spec))
-		{
-			$new_spec = APPPATH."../../spec/widgets/{$clean_name}.spec.coffee";
-			static::clear_path($new_spec);
-			$file_area->rename($pkg_spec, $new_spec);
-		}
+		// the widget needs to have already been placed into the database
+		$widget = \Materia\Widget::forge($id);
 
 		// move widget files
-		// public_widget_dir
-		$new_dir = \Config::get('materia.dirs.widgets').$widget_dir;
-		if (is_dir($new_dir)) $file_area->delete_dir($new_dir);
-		$file_area->copy_dir($dir, $new_dir);
+		$target_dir = \Config::get('materia.dirs.widgets').$widget->dir;
+		$file_area = \File::forge(['basedir' => null]);
+		if (is_dir($target_dir)) $file_area->delete_dir($target_dir);
+		$file_area->copy_dir($dir, $target_dir);
 
-		static::out("Widget files deployed: {$id}-{$clean_name}", 'green');
+		// save play data exporter methods to metadata
+		$methods = $widget->get_playdata_exporter_methods();
+		$metadata = ['playdata_exporters' => array_keys($methods)];
+		static::save_metadata($id, $metadata);
+
+		static::out("Widget files deployed: {$widget->dir}", 'green');
 	}
 
 	protected static function clear_path($file)

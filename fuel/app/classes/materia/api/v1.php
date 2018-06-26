@@ -436,13 +436,17 @@ class Api_V1
 			}
 
 			Session_Logger::parse_and_store_log_array($play_id, $logs);
-			$score_mod = Score_Manager::get_score_module_for_widget($play->inst_id,  $play_id, $play);
 
-			// @TODO: conver the score modules to work more like the playdata exporters
-			// $inst      = Widget_Instance_Manager::get($play->inst_id)
-			// $score_mod = new Score_Module($play_id, $inst);
+			// we may not have loaded the widget yet
+			if ( ! isset($inst->widget))
+			{
+				$inst = Widget_Instance_Manager::get($play->$inst_id);
+			}
 
+			$class = $inst->widget->get_score_module_class();
+			$score_mod = new $class($play->id, $inst, $play);
 			$score_mod->log_problems = true;
+
 			// make sure that the logs arent timestamped wrong or recieved incorrectly
 			if ($score_mod->validate_times() == false)
 			{
@@ -638,9 +642,11 @@ class Api_V1
 		{
 			if (\Service_User::verify_session() !== true) return Msg::no_login();
 		}
+
 		if (Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
-			return Score_Manager::get_preview_logs($preview_mode_inst_id);
+			$inst = Widget_Instance_Manager::get($preview_mode_inst_id);
+			return Score_Manager::get_preview_logs($inst);
 		}
 		else
 		{
@@ -662,7 +668,6 @@ class Api_V1
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-
 		return Score_Manager::get_guest_instance_score_history($inst_id, $play_id);
 	}
 

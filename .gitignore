@@ -79,7 +79,6 @@ public/js/vendor/*
 # Installed Widgets
 public/widget
 spec/widgets/*
-fuel/packages/materia/vendor/widget/*
 
 # Any widget zip packages
 *.zip

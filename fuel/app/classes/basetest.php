@@ -122,8 +122,7 @@ class Basetest extends TestCase
 			->set($params)
 			->execute();
 
-		$widget = new \Materia\Widget();
-		$widget->get($id);
+		$widget = \Materia\Widget::forge($id);
 
 		// add the demo
 		$qset = (object) ['version' => 2, 'data' => []];
@@ -148,9 +147,7 @@ class Basetest extends TestCase
 		\Materia\Perm_Manager::clear_user_object_perms($demo_inst->id, \Materia\Perm::INSTANCE, $user->id);
 
 		// load a Model
-		$widget = new \Materia\Widget();
-		$widget->get($id);
-		return $widget;
+		return \Materia\Widget::forge($id);
 	}
 
 	protected function make_random_super_user($password = null)

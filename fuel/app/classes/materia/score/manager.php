@@ -87,7 +87,8 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id, $play);
+			$class = $inst->widget->get_score_module_class();
+			$score_module = new $class($play->id, $inst, $play);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -97,44 +98,6 @@ class Score_Manager
 			$return_arr[] = $details;
 		}
 		return $return_arr;
-	}
-
-	public static function get_score_module_for_widget($inst_id,  $play_id, $play = null)
-	{
-
-		// build a sheltered scope to try and "safely" load the contents of the file
-		$load_score_module = function($widget)
-		{
-
-			if (\FUEL::$env === \FUEL::TEST)
-			{
-				// always load a module from our test widget
-				include_once(APPPATH.'/tests/widget_source/test_widget/src/_score-modules/score_module.php');
-			}
-			else
-			{
-				// load the score module from the engines directory
-				$public_dir = \Config::get('materia.dirs.widgets').$widget->id.'-'.$widget->clean_name;
-				include_once("{$public_dir}/_score-modules/score_module.php");
-			}
-
-			// @TODO: should be this instead to prevent file name issues
-			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
-
-			// @TODO: requiring the score module class name to match increases complexity
-			// Would like to not have score modules extend a base class but rather
-			// define closures that get bound to the score module class
-			// like the playDataExporter class does using $widget->load_widget_methods('score')
-			$score_module = "\Materia\Score_Modules_{$widget->score_module}";
-			if ( ! class_exists($score_module)) throw new \Exception("Score module missing: {$widget->score_module}");
-			return $score_module;
-		};
-
-		$inst = new Widget_Instance();
-		$inst->db_get($inst_id, false);
-		$score_module = $load_score_module($inst->widget);
-
-		return new $score_module($play_id, $inst, $play);
 	}
 
 	/**
@@ -266,16 +229,18 @@ class Score_Manager
 		\Session::set('previewPlayLogs.'.$inst_id, []);
 	}
 
-	static public function get_preview_logs($inst_id)
+	static public function get_preview_logs($inst)
 	{
 		// get and clear the preview log session
-		$play_logs = \Session::get('previewPlayLogs.'.$inst_id);
-		\Session::delete('previewPlayLogs.'.$inst_id);
+		$play_logs = \Session::get('previewPlayLogs.'.$inst->id);
+		\Session::delete('previewPlayLogs.'.$inst->id);
 
 		if ($play_logs == null) return $play_logs;
 
 		// run the data through the score module
-		$score_module = static::get_score_module_for_widget($inst_id,  -1);
+
+		$class = $inst->widget->get_score_module_class();
+		$score_module = new $class(-1, $inst);
 		$score_module->logs = $play_logs;
 		$score_module->validate_scores();
 

@@ -181,7 +181,6 @@ return array(
 			'Fuel\\Core\\Presenter',
 			'Fuel\\Core\\Response',
 			'Fuel\\Core\\View',
-			// 'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
 			'Materia\\Msg',
