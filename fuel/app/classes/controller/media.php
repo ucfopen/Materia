@@ -3,6 +3,8 @@
  * Materia
  * License outlined in licenses folder
  */
+use \Materia\Widget_Asset_Manager;
+use \Materia\Widget_Asset;
 
 class Controller_Media extends Controller
 {
@@ -13,10 +15,10 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if ( ! (\Service_User::verify_session() === true || \Materia\Session_Play::is_user_playing() )) throw new HttpNotFoundException;
 
-		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// Validate Asset exists
-		if ( ! ($asset instanceof Materia\Widget_Asset)) throw new HttpNotFoundException;
+		if ( ! ($asset instanceof Widget_Asset)) throw new HttpNotFoundException;
 
 		$file = Config::get('materia.dirs.media').$asset->id.'.'.$asset->type;
 
@@ -70,19 +72,44 @@ class Controller_Media extends Controller
 	public function action_upload()
 	{
 		// Validate Logged in
-		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
+		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
-		Event::register('media-upload-complete', '\Controller_Media::on_upload_complete');
+		// Upload::process is called automatically
+		if (\Upload::is_valid()) \Upload::save();
 
-		Package::load('plupload');
-		return \Plupload\Plupload::upload();
-	}
+		foreach (\Upload::get_errors() as $file)
+		{
+			foreach ($file['errors'] as $error)
+			{
+				trace($error);
+			}
+		}
 
-	// Event handler called when an upload via plupload is complete
-	public static function on_upload_complete($uploaded_file)
-	{
-		$asset = Materia\Widget_Asset_Manager::process_upload(Input::post('name', 'New Asset'), $uploaded_file);
-		return $asset->id;
+		$file = \Upload::get_files(0);
+
+		if ( ! $file)
+		{
+			throw new HttpNotFoundException;
+		}
+
+		trace($file);
+
+		$name = Input::post('name', 'New Asset');
+		$asset = Widget_Asset_Manager::new_asset_from_upload($name, $file['saved_to']);
+
+		if ( ! isset($asset->id))
+		{
+			// error
+			trace('Unable to create asset');
+		}
+
+		$res = new \Response();
+		// Make sure file is not cached (as it happens for example on iOS devices)
+		$res->set_header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
+		$res->set_header('Last-Modified', gmdate('D, d M Y H:i:s').' GMT');
+		$res->set_header('Cache-Control', 'no-store, no-cache, must-revalidate');
+		$res->set_header('Pragma', 'no-cache');
+		$res->body('{"jsonrpc" : "2.0", "result" : null, "id" : "'.$asset->id.'"}');
 	}
 
 
@@ -91,10 +118,10 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
-		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// Validate Asset exists
-		if ( ! ($asset instanceof Materia\Widget_Asset)) throw new HttpNotFoundException;
+		if ( ! ($asset instanceof Widget_Asset)) throw new HttpNotFoundException;
 
 		$resized_file = Config::get('materia.dirs.media').$size_name.'/'.$asset->id.'.'.$asset->type;
 		// Validate file exists
