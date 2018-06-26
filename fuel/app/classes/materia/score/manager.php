@@ -87,7 +87,8 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id, $play);
+			$class = $inst->widget->get_score_module_class();
+			$score_module = new $class($play->id, $inst, $play);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -295,16 +296,18 @@ class Score_Manager
 		\Session::set('previewPlayLogs.'.$inst_id, []);
 	}
 
-	static public function get_preview_logs($inst_id)
+	static public function get_preview_logs($inst)
 	{
 		// get and clear the preview log session
-		$play_logs = \Session::get('previewPlayLogs.'.$inst_id);
-		\Session::delete('previewPlayLogs.'.$inst_id);
+		$play_logs = \Session::get('previewPlayLogs.'.$inst->id);
+		\Session::delete('previewPlayLogs.'.$inst->id);
 
 		if ($play_logs == null) return $play_logs;
 
 		// run the data through the score module
-		$score_module = static::get_score_module_for_widget($inst_id,  -1);
+
+		$class = $inst->widget->get_score_module_class();
+		$score_module = new $class(-1, $inst);
 		$score_module->logs = $play_logs;
 		$score_module->validate_scores();
 

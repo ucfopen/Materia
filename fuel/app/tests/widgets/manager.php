@@ -54,8 +54,7 @@ class Test_Widget_Manager extends \Basetest
 		}
 
 		// load after changes
-		$widget = new \Materia\Widget();
-		$widgetFound = $widget->get($mock_widget->id);
+		$widget = \Materia\Widget::forge($mock_widget->id);
 
 		// assert that the widget has changed to the expected values;
 		self::assertTrue($widgetFound);

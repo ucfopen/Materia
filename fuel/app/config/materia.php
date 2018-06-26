@@ -37,7 +37,8 @@ return [
 	*  Directories of varous assets
 	*/
 	'dirs' => [
-		'media'   => realpath(PKGPATH.'materia/media').DS, // where the uploaded assets are kept
+		// NOTE: manually copy the value here for media to file.areas.media.basedir
+		'media'   => realpath(APPPATH.'media').DS, // where the uploaded assets are kept
 		'widgets' => realpath(PUBPATH.'widget').DS,
 	],
 
