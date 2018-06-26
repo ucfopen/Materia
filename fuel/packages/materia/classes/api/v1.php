@@ -731,7 +731,15 @@ class Api_V1
 		return $summary;
 	}
 
-	static public function play_score_distribution_get($inst_id)
+	/**
+	 * Gets an unsorted array containing all completed scores for a widget for the current semester, unless requested otherwise
+	 *
+	 * @param int $inst_id The widget instance ID
+	 * @param bool $get_all Flag to request all scores for a widget, not just those of the current semester
+	 *
+	 * @return array Flat array that holds numerical scores for the widget for the requested time frame
+	 */
+	static public function score_raw_distribution_get($inst_id, $get_all = false)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
@@ -740,8 +748,18 @@ class Api_V1
 		$score_mod = Score_Manager::get_score_module_for_widget($inst_id, -1);
 		if ( ! $score_mod || empty($score_mod->allow_distribution) ) return false;
 
-		$result = Score_Manager::get_all_widget_scores($inst_id);
+		$result = null;
 
+		if ($get_all == true)
+		{
+			$result = Score_Manager::get_all_widget_scores($inst_id);
+		}
+		else
+		{
+			$semester = Semester::get_current_semester();
+			$result = Score_Manager::get_widget_scores_for_semester($inst_id, $semester);
+		}
+		
 		$scores = [];
 		foreach ($result as $score)
 		{
