@@ -76,23 +76,27 @@ class Widget_Asset_Manager
 	}
 
 	// old method for server upload storage
-	static public function process_upload($name, $file)
+	static public function new_asset_from_upload($name, $file)
 	{
-		$f_info = \File::file_info($file);
-		if ( ! Widget_Asset_Manager::user_has_space_for($f_info['size']) ) return false; // Do I have space left?
+		// Do I have space left?
+		if ( ! Widget_Asset_Manager::user_has_space_for($file['size']) ) return false;
+
 		// create and store the asset
 		$asset = new Widget_Asset([
-			'type'      => $f_info['extension'],
+			'type'      => $file['extension'],
 			'title'     => $name,
-			'file_size' => $f_info['size']
+			'file_size' => $file['size']
 		]);
+
+		// try to save the asset and move it
 		if ($asset->db_store() && \Materia\Util_Validator::is_valid_hash($asset->id))
 		{
 			try
 			{
 				// move the file to the appropriate dir
-				$to_file = $asset->id.'.'.$asset->type;
-				$copied = \File::rename($f_info['realpath'], $to_file, 'media');
+				$to_file = "{$asset->id}.{$asset->type}";
+				$copied = \File::rename($file['file'], $to_file, 'media');
+
 				// set perms
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
 				return $asset;
