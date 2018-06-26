@@ -206,6 +206,17 @@ class Score_Manager
 		return $semesters;
 	}
 
+	static public function get_widget_scores_for_semester($inst_id, $semester)
+	{
+		return \DB::select('id', 'created_at', 'score')
+			->from('log_play')
+			->where('is_complete', '1')
+			->where('inst_id', $inst_id)
+			->where('semester', $semester)
+			->execute()
+			->as_array();
+	}
+
 	static public function get_all_widget_scores($inst_id)
 	{
 		// returns randomly-sorted list of all scores for widget
