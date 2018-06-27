@@ -138,7 +138,7 @@ class Test_Basetest extends \Basetest
 		if ($user === false)
 		{
 			// grab our test instructor
-			$user = \Model_User::find_by_name('_LTI_INSTRUCTOR_');
+			$user = \Model_User::find_by_username('_LTI_INSTRUCTOR_');
 
 			if ( ! $user)
 			{

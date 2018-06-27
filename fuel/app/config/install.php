@@ -10,14 +10,10 @@ return [
 		APPPATH.'logs',
 		APPPATH.'tmp',
 		APPPATH.'config',
-		// custom materia stuff
-		PKGPATH.'materia/media',
-		PKGPATH.'materia/media/large',
-		PKGPATH.'materia/media/thumbnail',
-		PKGPATH.'materia/media/uploads',
-		PKGPATH.'materia/vendor/widget',
-		PKGPATH.'materia/vendor/widget/score_module',
-		PKGPATH.'materia/vendor/widget/test',
+		// media directories
+		\Config::get('materia.dirs.media'),
+		\Config::get('materia.dirs.media').'thumbnail',
+		\Config::get('materia.dirs.media').'uploads',
 		// widget directories
 		\Config::get('materia.dirs.widgets'),
 		\Config::get('materia.dirs.widgets').'test',

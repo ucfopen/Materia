@@ -216,7 +216,7 @@ class Admin extends \Basetask
 			if ( ! isset($user['password'])) $user['password'] = \Str::random('alnum', 16);
 
 			// exists?
-			$e_user = \Model_User::find_by_name($user['name']);
+			$e_user = \Model_User::find_by_username($user['name']);
 
 			if ($e_user)
 			{
@@ -448,7 +448,7 @@ class Admin extends \Basetask
 
 	public static function give_user_role($user_name, $role_name)
 	{
-		if ($user = \Model_User::find_by_name($user_name))
+		if ($user = \Model_User::find_by_username($user_name))
 		{
 			if (\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [$role_name]))
 			{
