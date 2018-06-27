@@ -122,7 +122,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 	public function update_user($values, $username = null)
 	{
 		$username = $username ?: $this->user['username'];
-		$user     = \Model_User::find_by_name($username);
+		$user     = \Model_User::find_by_username($username);
 
 		if ( ! $user) throw new \SimpleUserUpdateException('Username not found', 4);
 
