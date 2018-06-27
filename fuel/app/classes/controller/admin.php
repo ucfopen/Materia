@@ -25,7 +25,7 @@ class Controller_Admin extends Controller
 		$this->theme->get_template()->set('title', 'Widget Admin');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/admin/widget')
-			->set('upload_enabled', Config::get('enable_uploader', false));
+			->set('upload_enabled', Config::get('materia.enable_admin_uploader', false));
 	}
 
 	public function get_user()
@@ -37,8 +37,7 @@ class Controller_Admin extends Controller
 
 	public function post_upload()
 	{
-		// require the enable_uploader option to be on
-		if (Config::get('enable_uploader', false) !== true) throw new HttpNotFoundException;
+		if (Config::get('materia.enable_admin_uploader', false) !== true) throw new HttpNotFoundException;
 
 		// Custom configuration for this upload
 		$config = [

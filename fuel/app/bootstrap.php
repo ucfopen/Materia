@@ -32,7 +32,7 @@ $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
  */
 \Fuel::$env = \Arr::get($_SERVER, 'FUEL_ENV', \Arr::get($_ENV, 'FUEL_ENV', \Fuel::DEVELOPMENT)); // @codingStandardsIgnoreLine
 
-Fuel::$is_test = false;
+\Fuel::$is_test = false;
 if(\FUEL::$env === \FUEL::TEST){
 	// PHPUnit 6 introduced a breaking change that
 	// removed PHPUnit_Framework_TestCase as a base class,

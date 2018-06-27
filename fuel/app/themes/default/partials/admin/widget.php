@@ -21,7 +21,7 @@
 				</form>
 			<?php else: ?>
 				<p>Widget uploader is disabled</p>
-				<p>Change the "enable_uploader" setting in config.php.</p>
+				<p>Change the "enable_admin_uploader" setting in config.php.</p>
 			<?php endif ?>
 		</section>
 	</div>

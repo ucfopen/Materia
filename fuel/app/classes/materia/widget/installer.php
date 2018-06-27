@@ -239,7 +239,7 @@ class Widget_Installer
 			// we need to move the file manually to the media/uploads directory so new_asset_from_file will work
 			$ext = pathinfo($file, PATHINFO_EXTENSION);
 			$target_file_name = uniqid().'.'.$ext;
-			$upload_destination = \Config::get('materia.dirs.media').'uploads'.DS.$target_file_name;
+			$upload_destination = \Config::get('file.dirs.media').'uploads'.DS.$target_file_name;
 			$file_area = \File::forge(['basedir' => null]); // allow copying from/to anywhere
 			$file_area->copy($file, $upload_destination);
 			$uploaded_file = \File::file_info('uploads'.DS.$target_file_name, 'media');
@@ -555,7 +555,7 @@ class Widget_Installer
 		$widget = \Materia\Widget::forge($id);
 
 		// move widget files
-		$target_dir = \Config::get('materia.dirs.widgets').$widget->dir;
+		$target_dir = \Config::get('file.dirs.widgets').$widget->dir;
 		$file_area = \File::forge(['basedir' => null]);
 		if (is_dir($target_dir)) $file_area->delete_dir($target_dir);
 		$file_area->copy_dir($dir, $target_dir);
