@@ -966,6 +966,57 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_score_raw_distribution_get()
+	{
+		// ======= AS NO ONE ========
+		try {
+			$output = Api_V1::score_raw_distribution_get(555);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
+		} catch ( Exception $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
+		// ======= AS STUDENT =======
+		// = INVALID WIDGET INSTANCE =
+		$this->_as_student();
+		try {
+			$output = Api_V1::score_raw_distribution_get(555);
+			$this->fail("Expected exception HttpNotFoundException not thrown");
+		} catch ( Exception $e) {
+			$this->assertInstanceOf('HttpNotFoundException', $e);
+		}
+		// == VALID WIDGET INSTANCE =
+		$widget = $this->make_disposable_widget();
+
+		// NEW INSTANCE - NO DISTRIBUTION
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$qset = $this->create_new_qset($question, $answer);
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
+
+		$output = Api_V1::score_raw_distribution_get($instance->id);
+		$this->assertFalse($output);
+
+		\Session::set_flash('alternate_test_widget', true);
+
+		// SAME INSTANCE - DISTRIBUTION, NO PLAYS
+		$output = Api_V1::score_raw_distribution_get($instance->id);
+		$this->assertInternalType('array', $output);
+		$this->assertEquals(count($output), 0);
+
+		// SAME INSTANCE - DISTRIBUTION, FIVE PLAYS
+		for($i = 0; $i < 5; $i++)
+		{
+			$play = $this->spoof_widget_play($instance);
+			$this->spoof_play_complete($play);
+		}
+		$output = Api_V1::score_raw_distribution_get($instance->id);
+		$this->assertInternalType('array', $output);
+		$this->assertEquals(count($output), 5);
+
+		\Session::delete_flash('alternate_test_widget');
+	}
+
 	public function test_play_storage_get()
 	{
 		// ======= AS NO ONE ========
