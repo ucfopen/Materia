@@ -183,12 +183,12 @@ class Basetest extends TestCase
 		$uname = '~student';
 		$pword = 'kogneato';
 
-		$user = \Model_User::find_by_name($uname);
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
-			$user = \Model_User::find_by_name($uname);
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -204,13 +204,13 @@ class Basetest extends TestCase
 		$uname = '~author';
 		$pword = 'kogneato';
 
-		$user = \Model_User::find_by_name($uname);
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'Prof', 'd', 'Author', 'testAuthor@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::find_by_name($uname);
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -227,13 +227,13 @@ class Basetest extends TestCase
 		$uname = '~testAuthor2';
 		$pword = 'interstellar555!';
 
-		$user = \Model_User::find_by_name($uname);
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor2@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::find_by_name($uname);
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -249,13 +249,13 @@ class Basetest extends TestCase
 		$uname = '~testAuthor3';
 		$pword = 'interstellar555!';
 
-		$user = \Model_User::find_by_name($uname);
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor3@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::find_by_name($uname);
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -271,7 +271,7 @@ class Basetest extends TestCase
 		$uname = '~testSu';
 		$pword = 'interstellar555!';
 
-		$user = \Model_User::find_by_name($uname);
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
 			require_once(APPPATH.'/tasks/admin.php');
@@ -279,7 +279,7 @@ class Basetest extends TestCase
 			// TODO: super_user should get all these rights inherently right??????!!!!
 			\Fuel\Tasks\Admin::give_user_role($uname, 'super_user');
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::find_by_name($uname);
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
