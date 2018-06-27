@@ -275,7 +275,7 @@ class Widget
 			else
 			{
 				// load the score module from the engines directory
-				$file = \Config::get('materia.dirs.widgets')."{$this->dir}{$widget_script}";
+				$file = \Config::get('file.dirs.widgets')."{$this->dir}{$widget_script}";
 			}
 
 			if (file_exists($file))
