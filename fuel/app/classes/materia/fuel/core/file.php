@@ -17,7 +17,7 @@ class File extends Fuel\Core\File
 		{
 			// send file using nginx's x_accel?
 			$sendfile = true;
-			$media_path_partial = str_replace(realpath(\Config::get('materia.dirs.media')), '', realpath($path));
+			$media_path_partial = str_replace(realpath(\Config::get('file.dirs.media')), '', realpath($path));
 			$sendfile_header = "X-Accel-Redirect: /protected_media{$media_path_partial}";
 		}
 

@@ -221,11 +221,11 @@ class Widget_Asset
 
 		if ($new_type == '')
 		{
-			return \Config::get('materia.dirs.media').$this->id.'.'.$this->type;
+			return \Config::get('file.dirs.media').$this->id.'.'.$this->type;
 		}
 		else
 		{
-			return  \Config::get('materia.dirs.media').$this->id.'.'.$new_type;
+			return  \Config::get('file.dirs.media').$this->id.'.'.$new_type;
 		}
 	}
 	/**
@@ -238,7 +238,7 @@ class Widget_Asset
 		// NOTE: previews will go in the same directory as the assets
 		// HACK CODE: hardcoding the _p.jpg for the preview files
 		//     it should be a constant somewhere
-		return \Config::get('materia.dirs.media').$this->id.'_p.jpg'; // NOTE: preview's will always be jpg
+		return \Config::get('file.dirs.media').$this->id.'_p.jpg'; // NOTE: preview's will always be jpg
 		// also NOTE: it may not have a preview image, we return what the file name would be anyways
 	}
 

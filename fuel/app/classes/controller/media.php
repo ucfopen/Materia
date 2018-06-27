@@ -24,7 +24,7 @@ class Controller_Media extends Controller
 			throw new HttpNotFoundException;
 		}
 
-		$file = Config::get('materia.dirs.media')."{$asset->id}.{$asset->type}";
+		$file = Config::get('file.dirs.media')."{$asset->id}.{$asset->type}";
 
 		// Validate file exists
 		if ( ! file_exists($file))
@@ -150,12 +150,12 @@ class Controller_Media extends Controller
 		// Validate Asset exists
 		if ( ! ($asset instanceof Widget_Asset)) throw new HttpNotFoundException;
 
-		$resized_file = Config::get('materia.dirs.media').$size_name.'/'.$asset->id.'.'.$asset->type;
+		$resized_file = Config::get('file.dirs.media').$size_name.'/'.$asset->id.'.'.$asset->type;
 		// Validate file exists
 		if ( ! file_exists($resized_file))
 		{
 			// thumb doesn't exist, build one if the original file exists
-			$orig_file = Config::get('materia.dirs.media').$asset->id.'.'.$asset->type;
+			$orig_file = Config::get('file.dirs.media').$asset->id.'.'.$asset->type;
 			if ( ! file_exists($orig_file)) throw new HttpNotFoundException;
 
 			try
@@ -176,7 +176,7 @@ class Controller_Media extends Controller
 			catch (\RuntimeException $e)
 			{
 				// use a default image instead
-				$resized_file = Config::get('materia.dirs.media').$size_name.'/'.$asset->id.'.jpg';
+				$resized_file = Config::get('file.dirs.media').$size_name.'/'.$asset->id.'.jpg';
 				if ( ! file_exists($resized_file))
 				{
 					Image::load(Config::get('materia.no_media_preview'))

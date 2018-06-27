@@ -1,5 +1,4 @@
 <?php
-
 return [
 	// what permission to set on the writable_paths
 	'writable_file_perm' => 0777,
@@ -11,23 +10,12 @@ return [
 		APPPATH.'tmp',
 		APPPATH.'config',
 		// media directories
-		\Config::get('materia.dirs.media'),
-		\Config::get('materia.dirs.media').'thumbnail',
-		\Config::get('materia.dirs.media').'uploads',
+		\Config::get('file.dirs.media'),
+		\Config::get('file.dirs.media').'thumbnail',
+		\Config::get('file.dirs.media_uploads').'uploads',
 		// widget directories
-		\Config::get('materia.dirs.widgets'),
-		\Config::get('materia.dirs.widgets').'test',
-	],
-
-	// list of default configs to copy into the requested environment
-	'essential_configs' => [
-		// 'auth',
-		// 'cache',
-		// 'file',
-		// 'config',
-		// 'db',
-		// 'lti',
-		// 'session',
+		\Config::get('file.dirs.widgets'),
+		\Config::get('file.dirs.widgets').'test',
 	],
 
 	// collection of configuration variables that need to be set in a typical install
@@ -47,7 +35,7 @@ return [
 			'description' => 'Using NGINX? Enable X-Accell fast file downloads?',
 			'depends_on_value_match' => ['file.enable_mod_xsendfile' => false],
 		],
-		'config.enable_uploader' => [
+		'materia.enable_admin_uploader' => [
 			'options' => ['true', 'false'],
 			'default' => true,
 			'type' => FILTER_VALIDATE_BOOLEAN,
