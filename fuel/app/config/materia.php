@@ -10,7 +10,7 @@ return [
 
 	'crossdomain' => [
 		// Adds in the static subdomain to the allowed domains in crossdomain.xml
-		substr(str_replace(['http://','https://'], 'static.', \Uri::base()), 0, -1)
+		substr(str_replace(['http://','https://'], 'static.', \Uri::base()), 0, -1),
 	],
 	/*
 	*  Name of the sestem
@@ -33,14 +33,6 @@ return [
 		'engines'            => \Uri::create('widget/'), // engine swf locations
 	],
 
-	/*
-	*  Directories of varous assets
-	*/
-	'dirs' => [
-		// NOTE: manually copy the value here for media to file.areas.media.basedir
-		'media'   => realpath(APPPATH.'media').DS, // where the uploaded assets are kept
-		'widgets' => realpath(PUBPATH.'widget').DS,
-	],
 
 	// Default media quota in bytes
 	'media_quota' => 5000,
@@ -84,6 +76,11 @@ return [
 			'email'      => 'student@materia.ucf.edu',
 		]
 	],
+
+	/**
+	* Allow browser based widget uploads by administrators
+	*/
+	'enable_admin_uploader' => false,
 
 	/*
 	* To view detailed documentation on asset uploads using Amazon S3, visit:

@@ -2,7 +2,7 @@
 
 namespace Fuel\Tasks;
 
-use \Fuel\Tasks\Widget;
+// use \Fuel\Tasks\Widget;
 
 class Admin extends \Basetask
 {
@@ -42,14 +42,6 @@ class Admin extends \Basetask
 		\Config::load('install', true);
 		$should_prompt = \Cli::option('skip_prompts', $skip_prompts) != true;
 		$env = \Fuel::$env;
-
-		// copy and files in essential_configs over
-		$essential_configs = \Config::get('install.essential_configs', []);
-		foreach ($essential_configs as $config)
-		{
-			$essential_path = self::convert_string_to_config_path($env, $config);
-			self::copy_config_to(APPPATH.'config'.DS.$config.'.php', $essential_path);
-		}
 
 		$options = \Config::get('install.setup_wizard_config_options', []);
 		foreach ($options as $key => $key_settings)
@@ -337,19 +329,19 @@ class Admin extends \Basetask
 	public static function destroy_widgets()
 	{
 		$file_area = \File::forge(['basedir' => '/']);
-		if ( ! file_exists(\Config::get('materia.dirs.widgets')))
+		if ( ! file_exists(\Config::get('file.dirs.widgets')))
 		{
 			\Cli::write('Widgets directory not present', 'red');
-			\Cli::write(\Config::get('materia.dirs.widgets'), 'red');
+			\Cli::write(\Config::get('file.dirs.widgets'), 'red');
 			return;
 		}
 
-		$dirs = $file_area->read_dir(\Config::get('materia.dirs.widgets'), 1, ['!^\.', '!^\D']);
+		$dirs = $file_area->read_dir(\Config::get('file.dirs.widgets'), 1, ['!^\.', '!^\D']);
 		if (count($dirs) > 0)
 		{
 			foreach ($dirs as $dir => $nothing)
 			{
-				$file_area->delete_dir(\Config::get('materia.dirs.widgets').$dir);
+				$file_area->delete_dir(\Config::get('file.dirs.widgets').$dir);
 			}
 		}
 		\Cli::write('Widgets uninstalled', 'green');

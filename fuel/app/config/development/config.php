@@ -19,9 +19,4 @@ return [
 	// allows you to create a custom error handler for Monolog
 	// THIS WILL SEND ERRORS TO STDOUT, VISIBLE VIA `docker-compose log phpfpm`
 	'log_handler_factory'   => function($locals, $level){ return new \Monolog\Handler\ErrorLogHandler(); },
-
-	/**
-	* Allow browser based widget uploads by administrators
-	*/
-	'enable_uploader' => true
 ];
