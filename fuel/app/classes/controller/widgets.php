@@ -485,17 +485,20 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
+		$uri = URI::current();
+		$context = strpos($uri, 'play/') != false ? 'play' : 'embed';
+
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/pre_embed')
 			->set('classes', 'widget')
 			->set('inst_id', $inst->id)
+			->set('context', $context)
 			->set('summary', $this->theme->view('partials/widget/summary')
 				->set('type',$inst->widget->name)
 				->set('name', $inst->name)
 				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
 
 		Js::push_group(['angular', 'materia']);
-		// The styles for this are in login, should probably be moved?
-		Css::push_group('login');
+		Css::push_group(['login','pre_embed']);
 	}
 }
