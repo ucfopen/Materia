@@ -53,6 +53,9 @@ return [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'scores.css',
 		],
+		'pre_embed' => [
+			$static_css.'embed.css'
+		],
 		'embed_scores' => [
 			$static_css.'scores.css',
 		],
