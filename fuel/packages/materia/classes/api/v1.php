@@ -768,11 +768,11 @@ class Api_V1
 		return $scores;
 	}
 
-	/**
-	 * Gets the Question Set for the widget with the given instance ID.
-	 * Current user must have author/collab access to the widget or
-	 * a valid play ID for this to work.
-	 * @notes users that are logged in and already have a valid play ID have already passed access test, so no need to try again
+	/**	
+	 * Gets Storage Data (if any) for the widget with the given instance ID.
+	 * Current user must have access permission to the widget.
+	 * @param int $inst_id the The id of the widget instance to request
+	 * @return array Array containing storage data for this widget instance 
 	 */
 	static public function play_storage_get($inst_id)
 	{
@@ -783,6 +783,10 @@ class Api_V1
 		return Storage_Manager::get_storage_data($inst_id);
 	}
 	/**
+	 * Gets the Question Set for the widget with the given instance ID.
+	 * Current user must have author/collab access to the widget or
+	 * a valid play ID for this to work.
+	 * @notes users that are logged in and already have a valid play ID have already passed access test, so no need to try again
 	 * @param int $inst_id The id of the widget instance to get the qset for (formerly inst_id)
 	 * @param int $play_id The play id associated with a play session
 	 * @return object QSET
