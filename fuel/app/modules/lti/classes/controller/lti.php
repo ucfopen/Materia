@@ -71,7 +71,6 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_picker($authenticate = true)
 	{
-		trace('okay then');
 		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
 		$launch = LtiLaunch::from_request();
