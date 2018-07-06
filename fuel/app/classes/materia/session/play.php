@@ -131,7 +131,7 @@ class Session_Play
 			{
 				// DB collision - absorb the error since
 				// we'll try again.
-				\Log::warning('Failed creating play - this can happend on hash collision but could be something worse');
+				\Log::warning('Failed creating play - this can happen on hash collision but could be something worse');
 				\Log::warning($e->getMessage());
 			}
 		}
