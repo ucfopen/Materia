@@ -112,7 +112,7 @@ class Controller_Media extends Controller
 			trace($error_codes);
 			trace($errors);
 			$res->body('{"error":{"code":"'.implode(',', $error_codes).'","message":"'.implode('. ', $errors).'"}}');
-			$res->status(400);
+			$res->set_status(400);
 			return $res;
 		}
 
@@ -130,12 +130,12 @@ class Controller_Media extends Controller
 			// error
 			trace('Unable to create asset');
 			$res->body('{"error":{"code":"16","message":"Unable to save new asset"}}');
-			$res->status(400);
+			$res->set_status(400);
 			return $res;
 		}
 
 		$res->body('{"success":"true","id":"'.$asset->id.'"}');
-		$res->status(200);
+		$res->set_status(200);
 		return $res;
 	}
 
