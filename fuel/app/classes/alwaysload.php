@@ -35,11 +35,11 @@ class Alwaysload
 
 		// add in css
 		$css = \Config::load('css', true);
-		if (is_array($css)) $hashes = self::add_resovled_hash_paths($hashes, $css);
+		if (is_array($css)) $hashes = self::add_resolved_hash_paths($hashes, $css);
 
 		// add in js
 		$js = \Config::load('js', true);
-		if (is_array($js)) $hashes = self::add_resovled_hash_paths($hashes, $js);
+		if (is_array($js)) $hashes = self::add_resolved_hash_paths($hashes, $js);
 
 		// load in static
 		$hashes['static'] = \Config::get('materia.urls.static');
@@ -49,7 +49,7 @@ class Alwaysload
 	}
 
 	// digs through the hash file and a qasset config to add hashes it resolves
-	protected static function add_resovled_hash_paths(Array $hashes, Array $assets)
+	protected static function add_resolved_hash_paths(Array $hashes, Array $assets)
 	{
 		$keys = array_keys($hashes);
 		foreach ($assets['groups'] as $key => $value)
