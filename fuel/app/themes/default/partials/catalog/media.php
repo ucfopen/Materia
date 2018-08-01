@@ -48,7 +48,9 @@
 				ng-if='displayFiles.length < 1'>
 				No files available!
 			</div>
-			<div class='file-info' ng-repeat='file in displayFiles'>
+			<div class='file-info'
+				ng-click='select(file)'
+				ng-repeat='file in displayFiles'>
 				<span class='file-thumbnail'>
 					<img ng-src="{{file.thumb}}">
 				</span>
