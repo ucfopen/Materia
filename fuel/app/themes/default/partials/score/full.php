@@ -57,7 +57,15 @@
 		</div>
 	</section>
 
-	<iframe ng-attr-src="{{ htmlPath }}" ng-class="{ 'margin-above': showScoresOverview, 'margin-below': showResultsTable }" ng-show="customScoreScreen && !expired && !restricted" id="container" class="html" scrolling="yes" fullscreen-dir></iframe>
+	<iframe id="container"
+		class="html"
+		scrolling="yes"
+		ng-attr-src="{{ htmlPath }}"
+		ng-class="{ 'margin-above': showScoresOverview,
+			'margin-below': showResultsTable }"
+		ng-if="customScoreScreen && !expired && !restricted"
+		fullscreen-dir>
+	</iframe>
 
 	<section class="details" ng-repeat="detail in details" ng-show="showResultsTable && !restricted && !expired">
 		<h1>{{ detail.title }}</h1>
