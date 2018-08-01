@@ -789,6 +789,7 @@ class Api_V1
 	 * @notes users that are logged in and already have a valid play ID have already passed access test, so no need to try again
 	 * @param int $inst_id The id of the widget instance to get the qset for (formerly inst_id)
 	 * @param int $play_id The play id associated with a play session
+	 * @param int $timestamp The timestamp after which no qsets should be returned
 	 * @return object QSET
 	 */
 	static public function question_set_get($inst_id, $play_id = null, $timestamp = false)
