@@ -61,9 +61,8 @@
 		class="html"
 		scrolling="yes"
 		ng-attr-src="{{ htmlPath }}"
-		ng-class="{ 'margin-above': showScoresOverview,
-			'margin-below': showResultsTable }"
-		ng-if="customScoreScreen && !expired && !restricted"
+		ng-class="{ 'margin-above': showScoresOverview,'margin-below': showResultsTable }"
+		ng-show="customScoreScreen && !expired && !restricted"
 		fullscreen-dir>
 	</iframe>
 
