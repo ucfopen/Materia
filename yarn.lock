@@ -4412,9 +4412,9 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-"materia-client-assets@https://github.com/ucfcdl/materia-client-assets.git#v0.3.5-alpha5":
+"materia-client-assets@https://github.com/ucfcdl/materia-client-assets.git#v0.3.5-alpha6":
   version "0.3.3"
-  resolved "https://github.com/ucfcdl/materia-client-assets.git#5ad05d6ec9492e7adf334cb31c3339312d17020b"
+  resolved "https://github.com/ucfcdl/materia-client-assets.git#1b12191336f2a6c14dc1452961cf879c73f36975"
   dependencies:
     angular "1.6.9"
     angular-mocks "1.6.9"
