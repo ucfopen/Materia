@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html class=""> 
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Generic Creator</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- STYLESHEETS -->
+    <link rel="stylesheet" href="creator.css">
+
+    <!-- MATERIA JS -->
+    <script src="../../../js/materia.creatorcore.js"></script>
+
+    <!-- PREREQUISITES -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
+
+    <!-- MAIN SCRIPT -->
+    <script src="creator.js"></script>
+  </head>
+  <body ng-app="genericCreator" ng-controller="genericCreatorCtrl">
+	  <div id="default-creator">
+		<h1 id="title" ng-bind="engineName"></h1>
+		<div class="icon"><img class="icon-image" ng-src="{{icon}}" alt="default-icon" ></div>
+		<hr>
+		<p>Create a new widget:</p>
+		<h3>1. Give your widget a name:</h3>
+		<input type="text" placeholder="My Widget" id="widget-title-input" ng-model="title" required>
+		<h3>2. Press Publish on the top right</h3>
+	  </div>
+  </body>
+</html>
