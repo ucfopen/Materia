@@ -115,7 +115,7 @@ class Widget
 		if (empty($this->creator))
 		{
 			# if the widget does not have a creator, load default creator
-			$default_creator_url = \Config::get('materia.urls.static').'widget/0-default-creator/creator.html';
+			$default_creator_url = \Config::get('materia.urls.static').'default-creator/creator.html';
 			$this->creator = $default_creator_url;
 		}
 		return true;
