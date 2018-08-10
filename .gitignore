@@ -36,7 +36,7 @@ desktop.ini
 /fuel/app/config/development/crypt.php
 /fuel/app/config/asset_hash*
 /fuel/app/config/**/migrations.php
-
+/fuel/app/modules/lti/config/development/*
 
 # NPM modules
 node_modules
@@ -70,6 +70,7 @@ public/js/materia.enginecore.js
 public/js/materia.js
 public/js/materia.namespace.js
 public/js/materia.score.js
+public/js/materia.scorecore.js
 public/js/materia.storage.manager.js
 public/js/materia.storage.table.js
 public/js/student.js

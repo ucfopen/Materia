@@ -115,7 +115,6 @@ class Api_V1
 		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
-
 		$inst = new Widget_Instance([
 			'user_id'         => \Model_User::find_current_id(),
 			'name'            => $name,
@@ -396,7 +395,6 @@ class Api_V1
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)
 	{
-
 		if ( ! $preview_inst_id)
 		{
 			$inst = self::_get_instance_for_play_id($play_id);
@@ -488,11 +486,11 @@ class Api_V1
 	}
 
 	/**
-	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3. 
+	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3.
 	*
 	* @param string $file_name The name of the file being uploaded
 	*
-	* @return array $res An array containing the required header data for an Amazon AWS S3 upload 
+	* @return array $res An array containing the required header data for an Amazon AWS S3 upload
 	*/
 	static public function upload_keys_get($file_name, $file_size = null)
 	{
@@ -732,11 +730,49 @@ class Api_V1
 		});
 		return $summary;
 	}
+
 	/**
-	 * Gets the Question Set for the widget with the given instance ID.
-	 * Current user must have author/collab access to the widget or
-	 * a valid play ID for this to work.
-	 * @notes users that are logged in and already have a valid play ID have already passed access test, so no need to try again
+	 * Gets an unsorted array containing all completed scores for a widget for the current semester, unless requested otherwise
+	 *
+	 * @param int $inst_id The widget instance ID
+	 * @param bool $get_all Flag to request all scores for a widget, not just those of the current semester
+	 *
+	 * @return array Flat array that holds numerical scores for the widget for the requested time frame
+	 */
+	static public function score_raw_distribution_get($inst_id, $get_all = false)
+	{
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		$score_mod = Score_Manager::get_score_module_for_widget($inst_id, -1);
+		if ( ! $score_mod || empty($score_mod->allow_distribution) ) return false;
+
+		$result = null;
+
+		if ($get_all == true)
+		{
+			$result = Score_Manager::get_all_widget_scores($inst_id);
+		}
+		else
+		{
+			$semester = Semester::get_current_semester();
+			$result = Score_Manager::get_widget_scores_for_semester($inst_id, $semester);
+		}
+		
+		$scores = [];
+		foreach ($result as $score)
+		{
+			$scores[] = (int) $score['score'];
+		}
+		return $scores;
+	}
+
+	/**	
+	 * Gets Storage Data (if any) for the widget with the given instance ID.
+	 * Current user must have access permission to the widget.
+	 * @param int $inst_id the The id of the widget instance to request
+	 * @return array Array containing storage data for this widget instance 
 	 */
 	static public function play_storage_get($inst_id)
 	{
@@ -747,24 +783,31 @@ class Api_V1
 		return Storage_Manager::get_storage_data($inst_id);
 	}
 	/**
+	 * Gets the Question Set for the widget with the given instance ID.
+	 * Current user must have author/collab access to the widget or
+	 * a valid play ID for this to work.
+	 * @notes users that are logged in and already have a valid play ID have already passed access test, so no need to try again
 	 * @param int $inst_id The id of the widget instance to get the qset for (formerly inst_id)
 	 * @param int $play_id The play id associated with a play session
+	 * @param int $timestamp The timestamp after which no qsets should be returned
 	 * @return object QSET
 	 */
-	static public function question_set_get($inst_id, $play_id = null)
+	static public function question_set_get($inst_id, $play_id = null, $timestamp = false)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		// valid play id sent?
-		if ( ! empty($play_id) && ! static::_validate_play_id($play_id)) return Msg::no_login();
+		if ( ! empty($play_id) && ! $timestamp && ! static::_validate_play_id($play_id))
+		{
+			return Msg::no_login();
+		}
 
 		// if preview mode, can I preview?
 		if (empty($play_id) && ! $inst->viewable_by(\Model_User::find_current_id())) return Msg::no_perm();
 
-
-		$inst->get_qset($inst_id);
+		$inst->get_qset($inst_id, $timestamp);
 
 		return $inst->qset;
 	}

@@ -8,9 +8,9 @@
 				</a></li>
 			</ul>
 		</nav>
-		
+
 		<h1 class="header-element widget-title" ng-style="headerStyle">{{ widget.title }}</h1>
-		
+
 		<nav class="play-again header-element">
 			<h1>
 				<a id="play-again" ng-hide="hidePlayAgain" class="action_button" href="{{ playAgainUrl }}">
@@ -20,8 +20,8 @@
 			</h1>
 		</nav>
 	</header>
-	<h1 class="scoreFontColor">Scores:</h1>
-	<section class="overview" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
+	<h1 class="scoreFontColor" ng-show="showScoresOverview">Scores:</h1>
+	<section class="overview" ng-class="{ preview: isPreview }" ng-show="showScoresOverview && !restricted && !expired">
 		<div id='overview-incomplete' ng-hide="overview.complete">
 			<h2>Incomplete Attempt</h2>
 			<hr/>
@@ -57,7 +57,16 @@
 		</div>
 	</section>
 
-	<section class="details" ng-repeat="detail in details" ng-show="!restricted && !expired">
+	<iframe id="container"
+		class="html"
+		scrolling="yes"
+		ng-attr-src="{{ htmlPath }}"
+		ng-class="{ 'margin-above': showScoresOverview,'margin-below': showResultsTable }"
+		ng-show="customScoreScreen && !expired && !restricted"
+		fullscreen-dir>
+	</iframe>
+
+	<section class="details" ng-repeat="detail in details" ng-show="showResultsTable && !restricted && !expired">
 		<h1>{{ detail.title }}</h1>
 		<ul>
 			<li class="details_header">
