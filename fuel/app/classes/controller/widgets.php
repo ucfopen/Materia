@@ -157,6 +157,7 @@ class Controller_Widgets extends Controller
 		Session::set('context_id', \Input::post('context_id'));
 		$this->_header = 'partials/header_empty';
 		$this->_embedded = true;
+
 		return $this->_play_widget($inst_id, false, true);
 	}
 
@@ -338,6 +339,7 @@ class Controller_Widgets extends Controller
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
 		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
 		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
+		if (isset($_GET['autoplay']) && $_GET['autoplay'] === 'false') return $this->pre_embed_placeholder($inst);
 
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
@@ -474,5 +476,29 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/play')
 			->set('inst_id', $inst->id);
+	}
+
+	protected function pre_embed_placeholder($inst)
+	{
+		$this->_disable_browser_cache = true;
+		$this->theme->get_template()
+			->set('title', 'Widget Unavailable')
+			->set('page_type', 'login');
+
+		$uri = URI::current();
+		$context = strpos($uri, 'play/') != false ? 'play' : 'embed';
+
+		$this->theme->set_partial('footer', 'partials/angular_alert');
+		$this->theme->set_partial('content', 'partials/widget/pre_embed_placeholder')
+			->set('classes', 'widget')
+			->set('inst_id', $inst->id)
+			->set('context', $context)
+			->set('summary', $this->theme->view('partials/widget/summary')
+				->set('type',$inst->widget->name)
+				->set('name', $inst->name)
+				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+
+		Js::push_group(['angular', 'materia']);
+		Css::push_group(['login','pre_embed_placeholder']);
 	}
 }
