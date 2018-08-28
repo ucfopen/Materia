@@ -1,7 +1,9 @@
 {
   "name": "@ucfcdl/materia",
+  "license": "AGPL-3.0",
+  "description": "Materia Server",
   "author": "University of Central Florida, Center for Distributed Learning",
-  "homepage": "https://github.com/ucfcdl/Materia",
+  "homepage": "https://ucfopen.github.io/Materia-Docs",
   "engines": {
     "node": "^6.9.1"
   },
@@ -10,13 +12,13 @@
     "build-dev": "webpack",
     "watch": "webpack --watch",
     "postinstall": "napa && npm run build",
-    "devassets:git": "cd .. && git clone https://github.com/ucfcdl/materia-client-assets.git",
-    "devassets:link": "cd ../materia-client-assets && yarn link && cd ../app && yarn link materia-client-assets"
+    "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git materia-server-client-assets",
+    "devassets:link": "cd ../materia-server-client-assets && yarn link && cd ../app && yarn link materia-server-client-assets"
   },
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
     "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-client-assets": "https://github.com/ucfcdl/materia-client-assets.git#v0.3.4",
+    "materia-server-client-assets": "v0.3.5",
     "napa": "^3.0.0"
   },
   "napa": {
@@ -25,9 +27,5 @@
     "swfobject": "swfobject/swfobject#2.2",
     "fancybox": "fancyapps/fancybox#v3.2.5",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
-  },
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:ucfcdl/Materia.git",
-  "license": "UNLICENSED"
+  }
 }

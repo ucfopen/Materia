@@ -288,6 +288,10 @@
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
 						<textarea id="embed_link" ng-show="show.embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
+						<div class="autoplay-container" ng-show="show.embedToggle && !selected.is_draft">
+							<span>Autoplay: </span>
+							<input type="checkbox" class="unstyled" ng-checked="show.autoplayToggle" ng-click="show.autoplayToggle = !show.autoplayToggle"/>
+						</div>
 					</div>
 				</div>
 				<div class="scores">
