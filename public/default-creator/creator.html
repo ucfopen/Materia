@@ -1,33 +1,132 @@
 <!DOCTYPE html>
-<html class=""> 
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Generic Creator</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html class="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Generic Creator</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,400,700,700italic,900&amp;v2">
+		<style type="text/css">
+			body {
+				border-top: none;
+				font-family: Lato,arial,serif;
+			}
 
-    <!-- STYLESHEETS -->
-    <link rel="stylesheet" href="creator.css">
+			body, html {
+				background: rgba(0, 0, 0, .1);
+				height: 100%;
+				padding: 0;
+				margin: 0;
+			}
 
-    <!-- MATERIA JS -->
-    <script src="../../../js/materia.creatorcore.js"></script>
+			#default-creator {
+				background-color: white;
+				padding-left: 100px;
+				margin: 0 auto;
+				width: 450px;
+				height: 310px;
+				position: absolute;
+				left: 50%;
+				top: 10%;
+				transform: translate(-50%, 0);
+				border: solid 3px #aea79f;
+			}
 
-    <!-- PREREQUISITES -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.min.js"></script>
+			h1 {
+				padding-top: 20px;
+			}
 
-    <!-- MAIN SCRIPT -->
-    <script src="creator.js"></script>
-  </head>
-  <body ng-app="genericCreator" ng-controller="genericCreatorCtrl">
-	  <div id="default-creator">
-		<h1 id="title" ng-bind="engineName"></h1>
-		<div class="icon"><img class="icon-image" ng-src="{{icon}}" alt="default-icon" ></div>
-		<hr>
-		<p>Create a new widget:</p>
-		<h3>1. Give your widget a name:</h3>
-		<input type="text" placeholder="My Widget" id="widget-title-input" ng-model="title" required>
-		<h3>2. Press Publish on the top right</h3>
-	  </div>
-  </body>
+			input {
+				height: 25px;
+				width: 60%;
+				color: black;
+				font-size: 1em;
+				padding: 6px 8px;
+			}
+
+			input::placeholder{
+				color: #aaa;
+			}
+			input:-ms-input-placeholder{
+				color: #aaa;
+			}
+			input::-ms-input-placeholder{
+				color: #aaa;
+			}
+
+			.icon {
+				position: absolute;
+				display: block;
+				top: 25px;
+				left: -25px;
+			}
+
+			.icon-image {
+				display: relative;
+				width: 92px;
+				height: 92px;
+			}
+
+		</style>
+		<script src="../../../js/materia.creatorcore.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.min.js"></script>
+		<script>
+			var genericCreator = angular.module('genericCreator', []);
+
+			genericCreator.controller('genericCreatorCtrl', ['$scope', function($scope) {
+					var updateDisplay = function(engineName, title, dir){
+						$scope.engineName = engineName
+						$scope.title = title
+						// display high res icon?
+						var res = (window.devicePixelRatio >= 2 ? '@2x' : '')
+						$scope.icon = '/widget/' + dir + 'img/icon-92' + res + '.png';
+						$scope.$apply()
+					}
+
+					var initNewWidget = function(widget) {
+						updateDisplay(widget.name, '', widget.dir)
+					}
+
+					var initExistingWidget = function(title, widget) {
+						updateDisplay(widget.name, title, widget.dir)
+					}
+
+
+					var onSaveClicked = function() {
+						if ($scope.title) {
+							Materia.CreatorCore.save($scope.title);
+						}
+						else{
+							Materia.CreatorCore.cancelSave('Widget has no title!')
+						}
+					}
+
+					// register scope vars
+					$scope.engineName = ''
+					$scope.title = ''
+					$scope.icon = ''
+
+					// start creator core
+					Materia.CreatorCore.start({
+						initNewWidget,
+						initExistingWidget,
+						onSaveClicked
+					});
+				}
+			]);
+
+		</script>
+
+	</head>
+	<body ng-app="genericCreator" ng-controller="genericCreatorCtrl" >
+		<div id="default-creator">
+			<h1 id="title" ng-bind="engineName"></h1>
+			<div class="icon"><img class="icon-image" ng-src="{{icon}}" alt="default-icon" ></div>
+			<p>Create a new widget:</p>
+			<h3>1. Give your widget a name:</h3>
+			<input type="text" placeholder="Enter a name..." id="widget-title-input" ng-model="title" required>
+			<h3>2. Press Publish on the top right</h3>
+		</div>
+	</body>
 </html>
