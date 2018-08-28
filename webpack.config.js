@@ -4,13 +4,13 @@ const path = require('path');
 
 // build some paths
 const modulesPath = path.join(__dirname, 'node_modules')
-const srcPath = path.join(modulesPath, 'materia-client-assets', 'dist')
+const srcPath = path.join(modulesPath, 'materia-server-client-assets', 'dist')
 const pubPath = path.join(__dirname, 'public')
 const vendorPath = path.join(pubPath, 'js', 'vendor')
 const fuelConfigPath = path.join(__dirname, 'fuel', 'app', 'config')
 
 // use the materia-clients-asset webpack as a base
-let materiaClientAssets = require('materia-client-assets/webpack.config.js')
+let materiaClientAssets = require('materia-server-client-assets/webpack.config.js')
 
 const isProd = process.argv.indexOf('-p') != -1
 

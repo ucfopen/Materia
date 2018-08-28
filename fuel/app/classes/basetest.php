@@ -379,6 +379,25 @@ class Basetest extends TestCase
 		return $play_id;
 	}
 
+	protected function spoof_play_complete($play_id, $logs = [])
+	{
+		if (empty($logs))
+		{
+			$log = new stdClass();
+			$log->type = 1004;
+			$log->game_time = 0.5;
+			$logs[] = $log;
+
+			$log = new stdClass();
+			$log->type = 2;
+			$log->game_time = 1;
+			$logs[] = $log;
+		}
+
+		$score = \Materia\Api::play_logs_save($play_id, $logs);
+		return $score;
+	}
+
 	public function test_just_because_its_required()
 	{
 		self::assertTrue(true);

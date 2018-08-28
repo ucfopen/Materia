@@ -47,6 +47,7 @@ class Widget
 	public $player              = '';
 	public $question_types      = '';
 	public $score_module        = 'base';
+	public $score_screen        = '';
 	public $width               = 0;
 
 	public function __construct($properties=[])
@@ -107,6 +108,7 @@ class Widget
 			'is_scorable'         => $w['is_scorable'],
 			'is_scalable'         => $w['is_scalable'],
 			'score_module'        => $w['score_module'],
+			'score_screen'        => $w['score_screen'],
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
