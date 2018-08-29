@@ -114,12 +114,13 @@ class Widget
 			'width'               => $w['width'],
 			'meta_data'           => static::db_get_metadata($w['id']),
 		]);
-		if (empty($this->creator))
+
+		// if creator is empty or set to 'default', use the default creator
+		if (empty($this->creator) || $this->creator === 'default')
 		{
-			# if the widget does not have a creator, load default creator
-			$default_creator_url = \Config::get('materia.urls.static').'default-creator/creator.html';
-			$this->creator = $default_creator_url;
+			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
+
 		return true;
 	}
 
