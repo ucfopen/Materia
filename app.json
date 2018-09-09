@@ -1,0 +1,51 @@
+{
+  "name": "Materia",
+  "description": "Materia webserver",
+  "keywords": [
+    "education",
+    "edtech",
+    "materia",
+    "widgets",
+    "h5p",
+    "openedu",
+    "open education",
+    "learning"
+  ],
+  "website": "https://ucfopen.github.io/Materia-Docs/",
+  "logo": "https://ucfopen.github.io/Materia-Docs/assets/img/logos/black/materia-logo-square-black.svg",
+  "success_url": "/",
+  "scripts": {
+    "postdeploy": "composer run oil-install-quiet"
+  },
+  "env": {
+    "FUEL_ENV": {
+      "description": "FUELPHP Environment to load",
+      "required": "production",
+    },
+    "MATERIA_AUTH_SALT":{
+      "description": "Secret salt for hashing authentication variables",
+      "generator": "secret"
+    },
+    "MATERIA_ENABLE_UPLOADER": {
+      "description": "Enable the widget uploader for admins",
+      "required": "true",
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "image": "heroku/nodejs",
+  "addons": [
+    {
+      "plan": "cleardb:ignite"
+    }
+  ],
+  "buildpacks": [
+    {"url": "heroku/php"},
+    {"url": "heroku/nodejs"}
+  ],
+  "environments": {}
+}

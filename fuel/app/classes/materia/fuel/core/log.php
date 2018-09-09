@@ -1,8 +1,6 @@
 <?php
 class Log extends Fuel\Core\Log
 {
-
-
 	/**
 	 * initialize the created the monolog instance
 	 */
