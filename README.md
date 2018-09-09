@@ -6,6 +6,11 @@
 * [Clu Materia Repositories](https://clu.cdl.ucf.edu/groups/materia) for existing widgets and supporting projects.
 * [DevMateria](https://clu.cdl.ucf.edu/materia/devmateria) for fast widget development.
 
+## Quick Heroku Deploy
+
+Materia can be quickly and easily deployed using a free or paid Heroku server.
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ucfcdl/Materia/tree/issue/1155-support-for-heroku)
 
 # Installation
 
