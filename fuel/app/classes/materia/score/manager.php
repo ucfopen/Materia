@@ -87,7 +87,9 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id, $play);
+			// run the data through the score module
+			$class = $inst->widget->get_score_module_class();
+			$score_module = new $class($play->id, $inst, $play);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -97,44 +99,6 @@ class Score_Manager
 			$return_arr[] = $details;
 		}
 		return $return_arr;
-	}
-
-	public static function get_score_module_for_widget($inst_id,  $play_id, $play = null)
-	{
-
-		// build a sheltered scope to try and "safely" load the contents of the file
-		$load_score_module = function($widget)
-		{
-
-			if (\FUEL::$env === \FUEL::TEST)
-			{
-				// always load a module from our test widget
-				include_once(PKGPATH.'materia/tests/widget_source/test_widget/src/_score-modules/score_module.php');
-			}
-			else
-			{
-				// load the score module from the engines directory
-				$public_dir = \Config::get('materia.dirs.engines').$widget->id.'-'.$widget->clean_name;
-				include_once("{$public_dir}/_score-modules/score_module.php");
-			}
-
-			// @TODO: should be this instead to prevent file name issues
-			// include(PKGPATH."/materia/vendor/widget/{$widget->dir}/score_module.php");
-
-			// @TODO: requiring the score module class name to match increases complexity
-			// Would like to not have score modules extend a base class but rather
-			// define closures that get bound to the score module class
-			// like the playDataExporter class does using $widget->load_widget_methods('score')
-			$score_module = "\Materia\Score_Modules_{$widget->score_module}";
-			if ( ! class_exists($score_module)) throw new \Exception("Score module missing: {$widget->score_module}");
-			return $score_module;
-		};
-
-		$inst = new Widget_Instance();
-		$inst->db_get($inst_id, false);
-		$score_module = $load_score_module($inst->widget);
-
-		return new $score_module($play_id, $inst, $play);
 	}
 
 	/**
