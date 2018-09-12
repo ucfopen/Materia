@@ -35,6 +35,12 @@
 					<div class="tooltip" style="display: {{ data.show ? 'inline-block' : 'none' }}">{{ data.description }}</div>
 				</dd>
 			</div>
+			<dt>Helpers:</dt>
+			<div class="aligner">
+				<!-- Add widget helper url -->
+				<a id="createLink" href='{{ widget.helperurl }}' target="_blank">Creator Guide</a> 
+				<a id="createLink" href='#'>Player Guide</a>
+			</div>
 		</dl>
 		<section class="right widget_right_selection">
 			<h4>Want to see it in action?</h4>
