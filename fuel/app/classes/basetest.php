@@ -87,13 +87,13 @@ class Basetest extends TestCase
 		return \Materia\Widget_Manager::search($search)[0]->id;
 	}
 
-	protected function make_disposable_widget()
+	protected function make_disposable_widget($name = 'TestWidget')
 	{
 		$user = $this->make_random_author();
 
 		$mock_manifest_data = [
 			'general' => [
-				'name' => uniqid('test_'),
+				'name' => $name,
 				'group' => 'disposable',
 				'height' => 500,
 				'width' => 6000,
@@ -106,7 +106,7 @@ class Basetest extends TestCase
 				'api_version' => 2,
 			],
 			'score' => [
-				'score_module' => 'TestWidget', // NOTE: this matches the class name in our test widget
+				'score_module' => $name, // NOTE: this matches the class name in our test widget
 				'is_scorable' => false,
 			],
 			'files' => [

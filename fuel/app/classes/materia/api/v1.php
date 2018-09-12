@@ -750,8 +750,16 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		$score_mod = Score_Manager::get_score_module_for_widget($inst_id, -1);
-		if ( ! $score_mod || empty($score_mod->allow_distribution) ) return false;
+		// ask the score module if it allows score_distribution
+		try{
+			$class = $inst->widget->get_score_module_class();
+			$score_mod = new $class(-1, $inst);
+			if ( ! $score_mod || empty($score_mod->allow_distribution) ) return false;
+		}
+		catch (\Exception $e) {
+			trace("Error loading score module for {$inst_id}");
+			return false;
+		}
 
 		$result = null;
 
@@ -773,11 +781,11 @@ class Api_V1
 		return $scores;
 	}
 
-	/**	
+	/**
 	 * Gets Storage Data (if any) for the widget with the given instance ID.
 	 * Current user must have access permission to the widget.
 	 * @param int $inst_id the The id of the widget instance to request
-	 * @return array Array containing storage data for this widget instance 
+	 * @return array Array containing storage data for this widget instance
 	 */
 	static public function play_storage_get($inst_id)
 	{
