@@ -87,8 +87,7 @@ class Score_Manager
 			}
 
 			// run the data through the score module
-			$class = $inst->widget->get_score_module_class();
-			$score_module = new $class($play->id, $inst, $play);
+			$score_module = static::get_score_module_for_widget($play->inst_id,  $play->id, $play);
 			$score_module->logs = Session_Logger::get_logs($play->id);
 			$score_module->validate_scores($play->created_at);
 
@@ -109,20 +108,13 @@ class Score_Manager
 
 			if (\FUEL::$env === \FUEL::TEST)
 			{
-				$v = 'test_widget';
-				if (\Session::get_flash('alternate_test_widget', false))
-				{
-					$v = 'test_widget_two';
-					$widget->score_module = 'TestWidgetTwo';
-				}
-
 				// always load a module from our test widget
-				include_once(APPPATH.'materia/tests/widget_source/'.$v.'/src/_score-modules/score_module.php');
+				include_once(PKGPATH.'materia/tests/widget_source/test_widget/src/_score-modules/score_module.php');
 			}
 			else
 			{
 				// load the score module from the engines directory
-				$public_dir = \Config::get('materia.dirs.widgets').$widget->id.'-'.$widget->clean_name;
+				$public_dir = \Config::get('materia.dirs.engines').$widget->id.'-'.$widget->clean_name;
 				include_once("{$public_dir}/_score-modules/score_module.php");
 			}
 
@@ -208,28 +200,6 @@ class Score_Manager
 		return $semesters;
 	}
 
-	static public function get_widget_scores_for_semester($inst_id, $semester)
-	{
-		return \DB::select('id', 'created_at', 'score')
-			->from('log_play')
-			->where('is_complete', '1')
-			->where('inst_id', $inst_id)
-			->where('semester', $semester)
-			->execute()
-			->as_array();
-	}
-
-	static public function get_all_widget_scores($inst_id)
-	{
-		// returns randomly-sorted list of all scores for widget
-		return \DB::select('id','created_at','score')
-			->from('log_play')
-			->where('is_complete', '1')
-			->where('inst_id', $inst_id)
-			->execute()
-			->as_array();
-	}
-
 	static public function get_widget_score_summary($inst_id)
 	{
 
@@ -305,7 +275,6 @@ class Score_Manager
 		if ($play_logs == null) return $play_logs;
 
 		// run the data through the score module
-
 		$class = $inst->widget->get_score_module_class();
 		$score_module = new $class(-1, $inst);
 		$score_module->logs = $play_logs;
