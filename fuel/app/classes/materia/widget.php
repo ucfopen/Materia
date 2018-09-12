@@ -50,7 +50,7 @@ class Widget
 			}
 			// if a clean name wasn't created already, make one based on the name
 			if ( ! empty($properties['name']) && empty($this->clean_name)) $this->clean_name = self::make_clean_name($this->name);
-			$this->dir = "{$this->id}-{$this->clean_name}{DS}";
+			$this->dir = "{$this->id}-{$this->clean_name}".DS;
 			if ($this->api_version == 0) $this->api_version = \Config::get('materia.default_api_version');
 		}
 	}
@@ -273,7 +273,7 @@ class Widget
 			// int test, build a path w/o the widget id
 			if (\FUEL::$env === \FUEL::TEST)
 			{
-				$file = \Config::get('file.dirs.widgets')."{$this->clean_name}{DS}{$widget_script}";
+				$file = \Config::get('file.dirs.widgets').$this->clean_name.DS.$widget_script;
 			}
 
 			if (file_exists($file))
