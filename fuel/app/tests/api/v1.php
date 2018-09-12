@@ -984,33 +984,37 @@ class Test_Api_V1 extends \Basetest
 		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-		// == VALID WIDGET INSTANCE =
-		$widget = $this->make_disposable_widget();
 
-		// NEW INSTANCE - NO DISTRIBUTION
+		// == VALID WIDGET INSTANC with distrobution disabled =
+		$widget = $this->make_disposable_widget();
 		$title = "My Test Widget";
 		$question = 'This is another word for test';
 		$answer = 'Assert';
 		$qset = $this->create_new_qset($question, $answer);
 		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
-
 		$output = Api_V1::score_raw_distribution_get($instance->id);
 		$this->assertFalse($output);
 
-		\Session::set_flash('alternate_test_widget', true);
+		// == VALID WIDGET INSTANC with distrobution enabled
+		$widget = $this->make_disposable_widget('TestWidgetTwo');
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$qset = $this->create_new_qset($question, $answer);
+		$instance2 = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
 
 		// SAME INSTANCE - DISTRIBUTION, NO PLAYS
-		$output = Api_V1::score_raw_distribution_get($instance->id);
+		$output = Api_V1::score_raw_distribution_get($instance2->id);
 		$this->assertInternalType('array', $output);
 		$this->assertEquals(count($output), 0);
 
 		// SAME INSTANCE - DISTRIBUTION, FIVE PLAYS
 		for($i = 0; $i < 5; $i++)
 		{
-			$play = $this->spoof_widget_play($instance);
+			$play = $this->spoof_widget_play($instance2);
 			$this->spoof_play_complete($play);
 		}
-		$output = Api_V1::score_raw_distribution_get($instance->id);
+		$output = Api_V1::score_raw_distribution_get($instance2->id);
 		$this->assertInternalType('array', $output);
 		$this->assertEquals(count($output), 5);
 
