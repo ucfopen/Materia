@@ -61,6 +61,8 @@ public/css/user.css
 public/css/widget.css
 public/css/upload.css
 public/css/ng-modal.css
+public/css/homepage_spotlight.css
+public/css/embed.css
 
 public/js/admin.js
 public/js/author.js
