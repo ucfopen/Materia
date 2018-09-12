@@ -86,6 +86,30 @@ class Controller_Widgets extends Controller
 		$this->show_editor('Create Widget', $widget);
 	}
 
+	/**  
+	 * Loads helper for the given widget
+	 * 
+	 * @param string
+	 * @login required
+	*/
+	public function get_helper()
+	{
+		if (\Service_User::verify_session() !== true)
+		{
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to create this widget.');
+			Response::redirect(Router::get('login').'?redirect='.URI::current());
+		}
+
+		$widget = new Materia\Widget();
+		$loaded = $widget->get($this->param('id'));
+
+		if ( ! $loaded) throw new HttpNotFoundException;
+
+		View::set_global('me', Model_User::find_current());
+		$this->show_helper('Helper Doc', $widget);
+	}
+
 	/**
 	 * Loads the creator for the given widget and the given inst_id
 	 * @param $widgetName
@@ -213,6 +237,18 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/widget/create')
+			->set('widget', $widget)
+			->set('inst_id', $inst_id);
+	}
+
+	protected function show_helper($title, $widget, $inst_id=null)
+	{
+		$this->_disable_browser_cache = true;
+		Css::push_group(['core']);
+		Js::push_group(['angular', 'materia', 'author']);
+
+		$this->theme->set_partial('footer', 'partials/angular_alert');
+		$this->theme->set_partial('content', 'partials/widget/helper')
 			->set('widget', $widget)
 			->set('inst_id', $inst_id);
 	}
