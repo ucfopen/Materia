@@ -50,7 +50,7 @@ class Widget
 			}
 			// if a clean name wasn't created already, make one based on the name
 			if ( ! empty($properties['name']) && empty($this->clean_name)) $this->clean_name = self::make_clean_name($this->name);
-			$this->dir = "{$this->id}-{$this->clean_name}/";
+			$this->dir = "{$this->id}-{$this->clean_name}{DS}";
 			if ($this->api_version == 0) $this->api_version = \Config::get('materia.default_api_version');
 		}
 	}
@@ -267,15 +267,13 @@ class Widget
 		// closure helps to prevent the script poluting this class
 		$load_widget_script_safer = function($widget_script)
 		{
+			// load the score module from the engines directory
+			$file = \Config::get('file.dirs.widgets')."{$this->dir}{$widget_script}";
+
+			// int test, build a path w/o the widget id
 			if (\FUEL::$env === \FUEL::TEST)
 			{
-				// always load a module from our test widget
-				$file = APPPATH."tests{DS}widget_source{DS}test_widget{DS}src{DS}{$widget_script}";
-			}
-			else
-			{
-				// load the score module from the engines directory
-				$file = \Config::get('file.dirs.widgets')."{$this->dir}{$widget_script}";
+				$file = \Config::get('file.dirs.widgets')."{$this->clean_name}{DS}{$widget_script}";
 			}
 
 			if (file_exists($file))
