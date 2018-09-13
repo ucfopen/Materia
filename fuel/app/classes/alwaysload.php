@@ -14,7 +14,7 @@ class Alwaysload
 	/**
 	* materia is dynamically building the asset urls based on web requests
 	* this means their full paths can only be determined in context of a server request
-	* This function makes sure hashes built by the materia-client-assets node module
+	* This function makes sure hashes built by the materia-server-client-assets node module
 	* can be used to cache bust the dynamically created paths on the server
 	* npm makes "js/myfile.js": "xxxxxxx"
 	* this appends "https://materia.static.com/js/myfile.js": "xxxxxxxx"
