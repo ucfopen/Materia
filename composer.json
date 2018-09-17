@@ -31,7 +31,7 @@
         "ext-pdo": "*",
         "ext-gd": "*",
         "composer/installers": "~1.0",
-        "fuel/core": "1.8.1.5",
+        "fuel/core": "1.8.1.6",
         "fuel/auth": "1.8.1",
         "fuel/email": "1.8.1",
         "fuel/oil": "1.8.1.1",
