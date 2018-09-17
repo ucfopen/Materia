@@ -41,6 +41,7 @@ class LtiUserManager
 				try
 				{
 					\Session::destroy();
+					\Session::start();
 				}
 				catch (\Fuel\Core\FuelException $e)
 				{

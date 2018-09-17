@@ -204,7 +204,9 @@ class Perm_Manager
 
 				if ($num < 1)
 				{
-					\Cli::write("Unable to add user id: ${user_id} to role: ${role_names} (${role_id})");
+					$msg = "Unable to add user id: {$user_id} to role: {$role_name} ({$role_id})";
+					\Fuel::$is_cli ? \Cli::write($msg) : \Log::warning($msg);
+
 					$success = false;
 				}
 			}
