@@ -489,7 +489,9 @@ class Widget_Installer
 			$creator_file = $dir.'/'.$files['creator'];
 			if ( ! file_exists($creator_file))
 			{
-				throw new \Exception("Creator file missing: $creator_file");
+				// throw new \Exception("Creator file missing: $creator_file");
+				// make sure the widget installer requires 'default' or a creator file
+				$creator_file = \Config::get('materia.urls.static').'widget/0-default-creator/creator.html';
 			}
 		}
 
