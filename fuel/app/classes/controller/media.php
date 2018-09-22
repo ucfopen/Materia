@@ -21,6 +21,9 @@ class Controller_Media extends Controller
 		}
 
 		$asset->render($size);
+
+		// I can't exactly remember why this is here
+		// IIRC it solved some bug with IE?
 		return '';
 	}
 
