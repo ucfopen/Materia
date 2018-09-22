@@ -27,15 +27,17 @@ class Widget_Asset
 	public $type       = '';
 	public $widgets    = [];
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 */
 	public function __construct($properties=[])
 	{
 		$this->set_properties($properties);
 	}
 
-	static public function fetch_by_id($id)
+	/**
+	 * Search and fetch the database for a Widget_Asset by it's ID
+	 * @param  string $id ID of the Widget_Asset
+	 * @return Widget_Asset
+	 */
+	static public function fetch_by_id(string $id): Widget_Asset
 	{
 		$asset = new Widget_Asset();
 		$asset->db_get($id);
@@ -214,7 +216,13 @@ class Widget_Asset
 		}
 	}
 
-	public function db_store_data(&$image_data, $size)
+	/**
+	 * Store asset data into the database
+	 * @param  string $image_data String of binary image data to store in the db
+	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
+	 * @return integer Size in bytes of the image being stored
+	 */
+	public function db_store_data(string &$image_data, string $size): int
 	{
 		if (\Materia\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
 
@@ -226,14 +234,14 @@ class Widget_Asset
 		{
 			list($id, $num) = \DB::insert('asset_data')
 				->set([
-					'id'          => $this->id,
-					'type'        => $this->type,
-					'size'        => $size,
-					'bytes'       => $bytes,
-					'status'      => 'ready',
-					'hash'        => $sha1_hash,
-					'created_at'  => time(),
-					'data'        => $image_data,
+					'id'         => $this->id,
+					'type'       => $this->type,
+					'size'       => $size,
+					'bytes'      => $bytes,
+					'status'     => 'ready',
+					'hash'       => $sha1_hash,
+					'created_at' => time(),
+					'data'       => $image_data,
 				])
 				->execute();
 
@@ -243,16 +251,23 @@ class Widget_Asset
 		catch (Exception $e)
 		{
 			\LOG::error('The following exception occured while attempting to store and asset for user id,'.\Model_User::find_current_id().': '.$e);
-			\DB::rollback_transaction();
-			return false;
+			throw($e);
 		}
 	}
 
-	public function render($size, $disposition = 'inline')
+	/**
+	 * Send the binary data of a specific sized variant of an asset to the client, resizing if needed.
+	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
+	 * @return void
+	 */
+	public function render(string $size)
 	{
-		in_array($disposition, ['inline', 'attachment']) or $disposition = 'inline';
-
-		\Event::register('fuel-shutdown', function () use($size, $disposition) {
+		// register a shutdown function that will render the image
+		// allowing all of fuel's other shutdown methods to do their jobs
+		\Event::register('fuel-shutdown', function() use($size) {
+			// set a few ini settings before we start
+			ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
+			! ini_get('safe_mode') and set_time_limit(0);
 
 			// Get asset
 			$results = \DB::select()
@@ -266,36 +281,31 @@ class Widget_Asset
 				// original is missing, just do nothing
 				if ($size === 'original') return false;
 
-				// mock results
+				// resize the image on demand
+				// mock db results with build_size returns
 				$results = [$this->build_size($size)];
 			}
 
-			$image_data = $results[0]['data'];
-			$bytes = $results[0]['bytes'];
-
 			// turn off and clean output buffer
-			while (ob_get_level() > 0)
-			{
-				ob_end_clean();
-			}
+			while (ob_get_level() > 0) ob_end_clean();
 
-			ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
-			! ini_get('safe_mode') and set_time_limit(0);
-
+			// Set headers and send the file
 			header("Content-Type: image/{$this->type}");
-			header("Content-Disposition: {$disposition}; filename=\"{$this->title}\"");
-			$disposition === 'attachment' and header('Content-Description: File Transfer');
-			header("Content-Length: {$bytes}");
+			header("Content-Disposition: inline; filename=\"{$this->title}\"");
+			header("Content-Length: {$results[0]['bytes']}");
 			header('Content-Transfer-Encoding: binary');
-			$disposition === 'attachment' and header('Expires: 0');
-			$disposition === 'attachment' and header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-			echo $image_data;
+			echo $results[0]['data'];
 		});
 
 		exit; // don't do anything else, just run shutdown
 	}
 
-	protected function build_size($size)
+	/**
+	 * Build a specified size of an asset.
+	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
+	 * @return array Array containing 'data' (binary image data), and 'bytes' (integer byte size of image)
+	 */
+	protected function build_size(string $size): array
 	{
 		$crop = $size === 'thumbnail';
 		switch ($size)
@@ -307,24 +317,31 @@ class Widget_Asset
 			case 'large':
 				$width = 1024;
 				break;
+
+			default: // @codingStandardsIgnoreLine
+				throw("Asset size not supported: '{$size}'");
+				break;
 		}
 
-		// thumb doesn't exist, build one if the original file exists
-		// Get asset
+		// Get original asset data
 		$results = \DB::select()
 			->from('asset_data')
 			->where('id', $this->id)
 			->where('size', 'original')
 			->execute();
 
-		if ($results->count() < 1) return false;
+		if ($results->count() < 1) throw("Missing original asset data for asset: {$this->id}");
 
 		$ext = ".{$this->type}";
+
+		// Fuel's image manipulation require the images to be files
+		// So we'll put the original image data into a temp file
+		// And place the resized image into another temp file
 
 		// copy db contents to a file
 		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_orig_");
 		file_put_contents($tmp_file_path, $results[0]['data']);
-		unset($results);
+		unset($results); // free up image data memory
 
 		// add a file extension to the tmp file (oh, PHP)
 		rename($tmp_file_path, $tmp_file_path .= $ext);
@@ -334,7 +351,7 @@ class Widget_Asset
 		// add a file extension to the tmp file (oh, PHP)
 		rename($resized_file_path, $resized_file_path .= $ext);
 
-
+		// Resize the image
 		try
 		{
 			if ($crop)
@@ -360,7 +377,7 @@ class Widget_Asset
 		$data = file_get_contents($resized_file_path);
 		$bytes = $this->db_store_data($data, $size);
 
-		// clos the file handles and delete their temp files
+		// close the file handles and delete temp files
 		unlink($tmp_file_path);
 		unlink($resized_file_path);
 		return [
