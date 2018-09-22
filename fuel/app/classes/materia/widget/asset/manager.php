@@ -10,22 +10,11 @@
 namespace Materia;
 class Widget_Asset_Manager
 {
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
-	static public function get_asset($id)
-	{
-		$asset = new Widget_Asset();
-		$asset->db_get($id);
-		return $asset;
-	}
 
 	static public function update_asset($asset_id, $properties=[])
 	{
 		// find asset that was created on upload_keys_get
-		$asset = Widget_Asset_Manager::get_asset($asset_id);
+		$asset = Widget_Asset::fetch_by_id($asset_id);
 		// if not found, returned asset is default empty asset object
 		if (empty($asset->id))
 		{
@@ -93,9 +82,10 @@ class Widget_Asset_Manager
 		{
 			try
 			{
-				// move the file to the appropriate dir
-				$to_file = "{$asset->id}.{$asset->type}";
-				$copied = \File::rename($file_info['realpath'], $to_file, 'media');
+				// store the data into the database
+				$data = \File::read($file_info['realpath'], true, 'media');
+				$asset->db_store_data($data, 'original');
+				\File::delete($file_info['realpath'], 'media');
 
 				// set perms
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
@@ -168,7 +158,7 @@ class Widget_Asset_Manager
 	{
 		if (Widget_Asset_Manager::can_asset_be_deleted($id))
 		{
-			$asset = Widget_Asset_Manager::get_asset($id);
+			$asset = Widget_Asset::fetch_by_id($id);
 			return $asset->db_remove();
 		}
 		return false;
