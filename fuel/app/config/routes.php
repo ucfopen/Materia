@@ -43,9 +43,9 @@ return [
 
 	'media/import'             => 'media/import',
 	'media/upload'             => 'media/upload',
-	'media/(:alnum)'           => 'media/show_asset/$1',
-	'media/(:alnum)/thumbnail' => 'media/show_thumnail/$1',
-	'media/(:alnum)/large'     => 'media/show_large/$1',
+	'media/(:alnum)'           => 'media/render/$1',
+	'media/(:alnum)/thumbnail' => 'media/render/$1/thumbnail',
+	'media/(:alnum)/large'     => 'media/render/$1/large',
 
 	// ================================= USER ======================================
 

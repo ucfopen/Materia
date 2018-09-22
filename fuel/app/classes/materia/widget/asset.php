@@ -35,6 +35,13 @@ class Widget_Asset
 		$this->set_properties($properties);
 	}
 
+	static public function fetch_by_id($id)
+	{
+		$asset = new Widget_Asset();
+		$asset->db_get($id);
+		return $asset;
+	}
+
 	public function set_properties($properties=[])
 	{
 		if ( ! empty($properties))
@@ -205,6 +212,161 @@ class Widget_Asset
 			\DB::rollback_transaction();
 			return false;
 		}
+	}
+
+	public function db_store_data(&$image_data, $size)
+	{
+		if (\Materia\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
+
+		$sha1_hash = sha1($image_data);
+
+		$bytes = function_exists('mb_strlen') ? mb_strlen($image_data, '8bit') : strlen($image_data);
+
+		try
+		{
+			list($id, $num) = \DB::insert('asset_data')
+				->set([
+					'id'          => $this->id,
+					'type'        => $this->type,
+					'size'        => $size,
+					'bytes'       => $bytes,
+					'status'      => 'ready',
+					'hash'        => $sha1_hash,
+					'created_at'  => time(),
+					'data'        => $image_data,
+				])
+				->execute();
+
+			return $bytes;
+
+		}
+		catch (Exception $e)
+		{
+			\LOG::error('The following exception occured while attempting to store and asset for user id,'.\Model_User::find_current_id().': '.$e);
+			\DB::rollback_transaction();
+			return false;
+		}
+	}
+
+	public function render($size, $disposition = 'inline')
+	{
+		in_array($disposition, ['inline', 'attachment']) or $disposition = 'inline';
+
+		\Event::register('fuel-shutdown', function () use($size, $disposition) {
+
+			// Get asset
+			$results = \DB::select()
+				->from('asset_data')
+				->where('id', $this->id)
+				->where('size', $size)
+				->execute();
+
+			if ($results->count() < 1)
+			{
+				// original is missing, just do nothing
+				if ($size === 'original') return false;
+
+				// mock results
+				$results = [$this->build_size($size)];
+			}
+
+			$image_data = $results[0]['data'];
+			$bytes = $results[0]['bytes'];
+
+			// turn off and clean output buffer
+			while (ob_get_level() > 0)
+			{
+				ob_end_clean();
+			}
+
+			ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
+			! ini_get('safe_mode') and set_time_limit(0);
+
+			header("Content-Type: image/{$this->type}");
+			header("Content-Disposition: {$disposition}; filename=\"{$this->title}\"");
+			$disposition === 'attachment' and header('Content-Description: File Transfer');
+			header("Content-Length: {$bytes}");
+			header('Content-Transfer-Encoding: binary');
+			$disposition === 'attachment' and header('Expires: 0');
+			$disposition === 'attachment' and header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			echo $image_data;
+		});
+
+		exit; // don't do anything else, just run shutdown
+	}
+
+	protected function build_size($size)
+	{
+		$crop = $size === 'thumbnail';
+		switch ($size)
+		{
+			case 'thumbnail':
+				$width = 75;
+				break;
+
+			case 'large':
+				$width = 1024;
+				break;
+		}
+
+		// thumb doesn't exist, build one if the original file exists
+		// Get asset
+		$results = \DB::select()
+			->from('asset_data')
+			->where('id', $this->id)
+			->where('size', 'original')
+			->execute();
+
+		if ($results->count() < 1) return false;
+
+		$ext = ".{$this->type}";
+
+		// copy db contents to a file
+		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_orig_");
+		file_put_contents($tmp_file_path, $results[0]['data']);
+		unset($results);
+
+		// add a file extension to the tmp file (oh, PHP)
+		rename($tmp_file_path, $tmp_file_path .= $ext);
+
+		// target file for resized image
+		$resized_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_{$size}_");
+		// add a file extension to the tmp file (oh, PHP)
+		rename($resized_file_path, $resized_file_path .= $ext);
+
+
+		try
+		{
+			if ($crop)
+			{
+				\Image::load($tmp_file_path)
+					->crop_resize($width, $width)
+					->save($resized_file_path);
+			}
+			else
+			{
+				\Image::load($tmp_file_path)
+					->resize($width, $width)
+					->save($resized_file_path);
+			}
+		}
+		catch (\RuntimeException $e)
+		{
+			trace($e);
+			throw($e);
+		}
+
+		// write the resized file data to the db
+		$data = file_get_contents($resized_file_path);
+		$bytes = $this->db_store_data($data, $size);
+
+		// clos the file handles and delete their temp files
+		unlink($tmp_file_path);
+		unlink($resized_file_path);
+		return [
+			'data' => $data,
+			'bytes' => $bytes
+		];
 	}
 
 	/**
