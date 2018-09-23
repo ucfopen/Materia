@@ -222,37 +222,48 @@ class Widget_Asset
 	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
 	 * @return integer Size in bytes of the image being stored
 	 */
-	public function db_store_data(string &$image_data, string $size): int
+	public function db_store_data(string &$image_data, string $size, bool $is_update = false): int
 	{
 		if (\Materia\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
 
 		$sha1_hash = sha1($image_data);
-
 		$bytes = function_exists('mb_strlen') ? mb_strlen($image_data, '8bit') : strlen($image_data);
+
+		$data = [
+			'id'         => $this->id,
+			'type'       => $this->type,
+			'size'       => $size,
+			'bytes'      => $bytes,
+			'status'     => 'ready',
+			'hash'       => $sha1_hash,
+			'created_at' => time(),
+			'data'       => $image_data,
+		];
+
+		if ($is_update)
+		{
+			$query = \DB::update('asset_data')
+				->where('id', $this->id)
+				->where('size', $size);
+		}
+		else
+		{
+			$query = \DB::insert('asset_data');
+		}
 
 		try
 		{
-			list($id, $num) = \DB::insert('asset_data')
-				->set([
-					'id'         => $this->id,
-					'type'       => $this->type,
-					'size'       => $size,
-					'bytes'      => $bytes,
-					'status'     => 'ready',
-					'hash'       => $sha1_hash,
-					'created_at' => time(),
-					'data'       => $image_data,
-				])
+			$query
+				->set($data)
 				->execute();
-
-			return $bytes;
-
 		}
-		catch (Exception $e)
+		catch (\Exception $e)
 		{
-			\LOG::error('The following exception occured while attempting to store and asset for user id,'.\Model_User::find_current_id().': '.$e);
+			\LOG::error('Exception while storing asset data for user id,'.\Model_User::find_current_id().': '.$e);
 			throw($e);
 		}
+
+		return $bytes;
 	}
 
 	/**
@@ -265,6 +276,7 @@ class Widget_Asset
 		// register a shutdown function that will render the image
 		// allowing all of fuel's other shutdown methods to do their jobs
 		\Event::register('fuel-shutdown', function() use($size) {
+
 			// set a few ini settings before we start
 			ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
 			! ini_get('safe_mode') and set_time_limit(0);
@@ -276,11 +288,11 @@ class Widget_Asset
 				->where('size', $size)
 				->execute();
 
+
 			if ($results->count() < 1)
 			{
 				// original is missing, just do nothing
 				if ($size === 'original') return false;
-
 				// resize the image on demand
 				// mock db results with build_size returns
 				$results = [$this->build_size($size)];
@@ -323,6 +335,51 @@ class Widget_Asset
 				break;
 		}
 
+		// is another request in the middle of resizing?
+		// if it is - this row will be locked, pausing the results of this query
+		$results = \DB::select()
+			->from('asset_data')
+			->where('id', $this->id)
+			->where('size', $size)
+			->execute();
+
+		// if anything returns here, it should already be built
+		if ($results->count())
+		{
+			return [
+				'data' => $data,
+				'bytes' => $bytes
+			];
+		}
+
+		// insert a row to reserve our spot
+		// this row will be locked below
+		// so other requests will pause waiting for it
+		list($id, $num) = \DB::insert('asset_data')
+			->set([
+				'id'         => $this->id,
+				'type'       => $this->type,
+				'size'       => $size,
+				'bytes'      => 0,
+				'status'     => 'processing',
+				'hash'       => '',
+				'created_at' => time(),
+				'data'       => '',
+			])
+			->execute();
+
+		\DB::start_transaction();
+
+		// get an exclusive lock on the row
+		list($id, $num) = \DB::query(
+			'SELECT id
+				FROM '.\DB::quote_table('asset_data').'
+				WHERE id = :asset_id
+				FOR UPDATE',
+			\DB::SELECT)
+			->param('asset_id', $this->id)
+			->execute();
+
 		// Get original asset data
 		$results = \DB::select()
 			->from('asset_data')
@@ -332,23 +389,23 @@ class Widget_Asset
 
 		if ($results->count() < 1) throw("Missing original asset data for asset: {$this->id}");
 
+		$original_data = $results[0]['data'];
 		$ext = ".{$this->type}";
 
-		// Fuel's image manipulation require the images to be files
+		// copy image data into a temp file
+		// Fuel's image manipulation requires the images to be files
 		// So we'll put the original image data into a temp file
 		// And place the resized image into another temp file
-
-		// copy db contents to a file
 		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_orig_");
-		file_put_contents($tmp_file_path, $results[0]['data']);
-		unset($results); // free up image data memory
+		file_put_contents($tmp_file_path, $original_data);
+		unset($results, $original_data); // free up image data memory
 
-		// add a file extension to the tmp file (oh, PHP)
+		// add extension to tmp file so Image knows how to read it
 		rename($tmp_file_path, $tmp_file_path .= $ext);
 
-		// target file for resized image
+		// make a target file for resized image
 		$resized_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_{$size}_");
-		// add a file extension to the tmp file (oh, PHP)
+		// add extension to tmp file so Image knows what to write it
 		rename($resized_file_path, $resized_file_path .= $ext);
 
 		// Resize the image
@@ -369,17 +426,21 @@ class Widget_Asset
 		}
 		catch (\RuntimeException $e)
 		{
-			trace($e);
+			\LOG::error($e);
 			throw($e);
 		}
 
-		// write the resized file data to the db
+		// write the resized data to the db
 		$data = file_get_contents($resized_file_path);
-		$bytes = $this->db_store_data($data, $size);
+		$bytes = $this->db_store_data($data, $size, true);
+
+		// let go of the lock
+		\DB::commit_transaction();
 
 		// close the file handles and delete temp files
 		unlink($tmp_file_path);
 		unlink($resized_file_path);
+
 		return [
 			'data' => $data,
 			'bytes' => $bytes
