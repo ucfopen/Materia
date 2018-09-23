@@ -302,7 +302,7 @@ class Widget_Asset
 			while (ob_get_level() > 0) ob_end_clean();
 
 			// Set headers and send the file
-			header("Content-Type: image/{$this->type}");
+			header("Content-Type: {$this->get_mime_type()}");
 			header("Content-Disposition: inline; filename=\"{$this->title}\"");
 			header("Content-Length: {$results[0]['bytes']}");
 			header('Content-Transfer-Encoding: binary');
@@ -310,6 +310,26 @@ class Widget_Asset
 		});
 
 		exit; // don't do anything else, just run shutdown
+	}
+
+	/**
+	 * @return string Mime type based on $this->type for use in http headers
+	 */
+	public function get_mime_type(): string
+	{
+		switch ($this->type)
+		{
+			case 'png':
+			case 'gif':
+				return "image/{$this->type}";
+
+			case 'jpeg':
+			case 'jpg':
+				return 'image/jpeg';
+
+			case 'mp3':
+				return 'audio/mpeg';
+		}
 	}
 
 	/**
