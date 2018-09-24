@@ -15,12 +15,12 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 			// add employee role
 			if ($is_employee)
 			{
-				return \RocketDuck\Perm_Manager::add_users_to_role_system_only([$user->id], \RocketDuck\Perm_Role::AUTHOR);
+				return \Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 			}
 			// not an employee anymore, remove role
 			else
 			{
-				return \RocketDuck\Perm_Manager::remove_users_from_roles_system_only([$user->id], [\RocketDuck\Perm_Role::AUTHOR]);
+				return \Materia\Perm_Manager::remove_users_from_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 			}
 		}
 	}
@@ -122,7 +122,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 	public function update_user($values, $username = null)
 	{
 		$username = $username ?: $this->user['username'];
-		$user     = \Model_User::query()->where('username', $username)->get_one();
+		$user     = \Model_User::find_by_username($username);
 
 		if ( ! $user) throw new \SimpleUserUpdateException('Username not found', 4);
 

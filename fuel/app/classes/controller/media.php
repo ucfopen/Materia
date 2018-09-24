@@ -3,6 +3,8 @@
  * Materia
  * License outlined in licenses folder
  */
+use \Materia\Widget_Asset_Manager;
+use \Materia\Widget_Asset;
 
 class Controller_Media extends Controller
 {
@@ -13,15 +15,23 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if ( ! (\Service_User::verify_session() === true || \Materia\Session_Play::is_user_playing() )) throw new HttpNotFoundException;
 
-		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// Validate Asset exists
-		if ( ! ($asset instanceof Materia\Widget_Asset)) throw new HttpNotFoundException;
+		if ( ! ($asset instanceof Widget_Asset))
+		{
+			trace("Asset: {$asset_id} not found");
+			throw new HttpNotFoundException;
+		}
 
-		$file = Config::get('materia.dirs.media').$asset->id.'.'.$asset->type;
+		$file = Config::get('file.dirs.media')."{$asset->id}.{$asset->type}";
 
 		// Validate file exists
-		if ( ! file_exists($file)) throw new HttpNotFoundException;
+		if ( ! file_exists($file))
+		{
+			trace("Asset file not found {$file}");
+			throw new HttpNotFoundException;
+		}
 
 		File::render($file);
 
@@ -67,22 +77,66 @@ class Controller_Media extends Controller
 	}
 
 	// Handles the upload using plupload's classes
+	// This currently assumes a single uploaded file at a time
 	public function action_upload()
 	{
 		// Validate Logged in
-		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
+		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
-		Event::register('media-upload-complete', '\Controller_Media::on_upload_complete');
+		$res = new Response();
+		// Make sure file is not cached (as it happens for example on iOS devices)
+		$res->set_header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
+		$res->set_header('Last-Modified', gmdate('D, d M Y H:i:s').' GMT');
+		$res->set_header('Cache-Control', 'no-store, no-cache, must-revalidate');
+		$res->set_header('Pragma', 'no-cache');
 
-		Package::load('plupload');
-		return \Plupload\Plupload::upload();
-	}
+		// Upload::process is called automatically
+		if (\Upload::is_valid()) \Upload::save();
 
-	// Event handler called when an upload via plupload is complete
-	public static function on_upload_complete($uploaded_file)
-	{
-		$asset = Materia\Widget_Asset_Manager::process_upload(Input::post('name', 'New Asset'), $uploaded_file);
-		return $asset->id;
+		$errors = [];
+		$error_codes = [];
+		if ($file_info = \Upload::get_errors(0))
+		{
+			foreach ($file_info['errors'] as $value)
+			{
+				$errors[] = $value['message'];
+				$error_codes[] = $value['error'];
+			}
+		}
+
+		$uploaded_file = \Upload::get_files(0);
+
+		if ( ! $uploaded_file)
+		{
+			trace('Unable to process upload');
+			trace($error_codes);
+			trace($errors);
+			$res->body('{"error":{"code":"'.implode(',', $error_codes).'","message":"'.implode('. ', $errors).'"}}');
+			$res->set_status(400);
+			return $res;
+		}
+
+		$file_info = [
+			'size' => $uploaded_file['size'],
+			'extension' => $uploaded_file['extension'],
+			'realpath' => $uploaded_file['saved_to'].DS.$uploaded_file['saved_as']
+		];
+
+		$name = Input::post('name', 'New Asset');
+		$asset = Widget_Asset_Manager::new_asset_from_file($name, $file_info);
+
+		if ( ! isset($asset->id))
+		{
+			// error
+			trace('Unable to create asset');
+			$res->body('{"error":{"code":"16","message":"Unable to save new asset"}}');
+			$res->set_status(400);
+			return $res;
+		}
+
+		$res->body('{"success":"true","id":"'.$asset->id.'"}');
+		$res->set_status(200);
+		return $res;
 	}
 
 
@@ -91,17 +145,17 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
-		$asset = Materia\Widget_Asset_Manager::get_asset($asset_id);
+		$asset = Widget_Asset_Manager::get_asset($asset_id);
 
 		// Validate Asset exists
-		if ( ! ($asset instanceof Materia\Widget_Asset)) throw new HttpNotFoundException;
+		if ( ! ($asset instanceof Widget_Asset)) throw new HttpNotFoundException;
 
-		$resized_file = Config::get('materia.dirs.media').$size_name.'/'.$asset->id.'.'.$asset->type;
+		$resized_file = Config::get('file.dirs.media').$size_name.'/'.$asset->id.'.'.$asset->type;
 		// Validate file exists
 		if ( ! file_exists($resized_file))
 		{
 			// thumb doesn't exist, build one if the original file exists
-			$orig_file = Config::get('materia.dirs.media').$asset->id.'.'.$asset->type;
+			$orig_file = Config::get('file.dirs.media').$asset->id.'.'.$asset->type;
 			if ( ! file_exists($orig_file)) throw new HttpNotFoundException;
 
 			try
@@ -122,7 +176,7 @@ class Controller_Media extends Controller
 			catch (\RuntimeException $e)
 			{
 				// use a default image instead
-				$resized_file = Config::get('materia.dirs.media').$size_name.'/'.$asset->id.'.jpg';
+				$resized_file = Config::get('file.dirs.media').$size_name.'/'.$asset->id.'.jpg';
 				if ( ! file_exists($resized_file))
 				{
 					Image::load(Config::get('materia.no_media_preview'))
