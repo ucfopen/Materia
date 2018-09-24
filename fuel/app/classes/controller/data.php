@@ -18,7 +18,7 @@ class Controller_Data extends Controller
 		if (empty($export_type)) return new Response('', 400);
 
 		$user_id = \Model_User::find_current_id();
-		if ( ! Perm_Manager::user_has_any_perm_to($user_id, $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]) && ! \Service_User::verify_session(\RocketDuck\Perm_Role::SU))
+		if ( ! Perm_Manager::user_has_any_perm_to($user_id, $inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]) && ! \Service_User::verify_session(\Materia\Perm_Role::SU))
 		{
 			return new Response('', 403);
 		}
