@@ -43,7 +43,7 @@ class Test_Ltiauth extends \Basetest
 	public function test_admin_login_without_bypass()
 	{
 		$new_user = $this->make_new_user();
-		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$new_user[0]], ['super_user']);
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$new_user[0]], ['super_user']);
 
 		$this->assertEquals(\Service_User::login($new_user[1], $new_user[2]), true);
 	}
@@ -52,7 +52,7 @@ class Test_Ltiauth extends \Basetest
 	public function test_admin_login_with_bypass()
 	{
 		$new_user = $this->make_new_user();
-		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$new_user[0]], ['super_user']);
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$new_user[0]], ['super_user']);
 
 		Session::set_flash('bypass', true);
 		$this->assertEquals(\Service_User::login($new_user[1], $new_user[2]), true);

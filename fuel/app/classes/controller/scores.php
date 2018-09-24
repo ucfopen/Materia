@@ -10,8 +10,9 @@ class Controller_Scores extends Controller
 
 	public function get_show($inst_id)
 	{
+		// locate instance
 		$instances = Materia\Api::widget_instances_get([$inst_id]);
-		if ( ! count($instances)) throw new HttpNotFoundException;
+		if ( ! isset($instances[0])) throw new HttpNotFoundException;
 
 		$inst = $instances[0];
 		// not allowed to play the widget

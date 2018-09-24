@@ -344,7 +344,7 @@ class Controller_Widgets extends Controller
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
 
-		if ($play_id instanceof \RocketDuck\Msg)
+		if ($play_id instanceof \Materia\Msg)
 		{
 			\Log::warning('session_play_create failed!');
 			throw new HttpServerErrorException;
