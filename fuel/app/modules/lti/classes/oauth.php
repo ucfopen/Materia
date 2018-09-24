@@ -27,7 +27,7 @@ class Oauth
 		}
 		catch (\Exception $e)
 		{
-			\RocketDuck\Log::profile(['invalid-oauth-received', $e->getMessage(), \Uri::current(), print_r(\Input::post(), 1)], 'lti-error-dump');
+			\Materia\Log::profile(['invalid-oauth-received', $e->getMessage(), \Uri::current(), print_r(\Input::post(), 1)], 'lti-error-dump');
 		}
 
 		return false;
@@ -91,14 +91,14 @@ class Oauth
 				$result   = $success[0] == 'success';
 				if ($result == false)
 				{
-					\RocketDuck\Log::profile(['passback-failure', $body, $response], 'lti-error-dump');
+					\Materia\Log::profile(['passback-failure', $body, $response], 'lti-error-dump');
 				}
 				return $result;
 			}
 		}
 		catch (\Exception $e)
 		{
-			\RocketDuck\Log::profile(['send-oath-post-failure', $e->getMessage(), $endpoint, print_r($params, true)], 'lti-error-dump');
+			\Materia\Log::profile(['send-oath-post-failure', $e->getMessage(), $endpoint, print_r($params, true)], 'lti-error-dump');
 		}
 
 		return false;

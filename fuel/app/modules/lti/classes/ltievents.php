@@ -1,8 +1,8 @@
 <?php
 
 namespace Lti;
-use \RocketDuck\Log;
-use \RocketDuck\Util_Validator;
+use \Materia\Log;
+use \Materia\Util_Validator;
 
 class LtiEvents
 {
