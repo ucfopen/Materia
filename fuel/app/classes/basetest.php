@@ -87,13 +87,13 @@ class Basetest extends TestCase
 		return \Materia\Widget_Manager::search($search)[0]->id;
 	}
 
-	protected function make_disposable_widget()
+	protected function make_disposable_widget($name = 'TestWidget')
 	{
 		$user = $this->make_random_author();
 
 		$mock_manifest_data = [
 			'general' => [
-				'name' => uniqid('test_'),
+				'name' => $name,
 				'group' => 'disposable',
 				'height' => 500,
 				'width' => 6000,
@@ -106,7 +106,7 @@ class Basetest extends TestCase
 				'api_version' => 2,
 			],
 			'score' => [
-				'score_module' => 'TestWidget', // NOTE: this matches the class name in our test widget
+				'score_module' => $name, // NOTE: this matches the class name in our test widget
 				'is_scorable' => false,
 			],
 			'files' => [
@@ -122,8 +122,7 @@ class Basetest extends TestCase
 			->set($params)
 			->execute();
 
-		$widget = new \Materia\Widget();
-		$widget->get($id);
+		$widget = \Materia\Widget::forge($id);
 
 		// add the demo
 		$qset = (object) ['version' => 2, 'data' => []];
@@ -148,9 +147,7 @@ class Basetest extends TestCase
 		\Materia\Perm_Manager::clear_user_object_perms($demo_inst->id, \Materia\Perm::INSTANCE, $user->id);
 
 		// load a Model
-		$widget = new \Materia\Widget();
-		$widget->get($id);
-		return $widget;
+		return \Materia\Widget::forge($id);
 	}
 
 	protected function make_random_super_user($password = null)
@@ -171,11 +168,11 @@ class Basetest extends TestCase
 		$last = 'Droptables';
 		$password = $password ?: uniqid();
 
-		require_once(PKGPATH.'materia/tasks/admin.php');
+		require_once(APPPATH.'/tasks/admin.php');
 		$id = \Fuel\Tasks\Admin::new_user($name, $first, $middle, $last, $name.'@materia.com', $password);
 		$user = \Model_User::find($id);
 		$this->users_to_clean[] = $user;
-		\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user->id], $add_roles);
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], $add_roles);
 		return $user;
 	}
 
@@ -186,12 +183,12 @@ class Basetest extends TestCase
 		$uname = '~student';
 		$pword = 'kogneato';
 
-		$user = \Model_User::query()->where('username', $uname)->get_one();
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
-			$user = \Model_User::query()->where('username', $uname)->get_one();
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -207,13 +204,13 @@ class Basetest extends TestCase
 		$uname = '~author';
 		$pword = 'kogneato';
 
-		$user = \Model_User::query()->where('username', $uname)->get_one();
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'Prof', 'd', 'Author', 'testAuthor@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::query()->where('username', $uname)->get_one();
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -230,13 +227,13 @@ class Basetest extends TestCase
 		$uname = '~testAuthor2';
 		$pword = 'interstellar555!';
 
-		$user = \Model_User::query()->where('username', $uname)->get_one();
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor2@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::query()->where('username', $uname)->get_one();
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -252,13 +249,13 @@ class Basetest extends TestCase
 		$uname = '~testAuthor3';
 		$pword = 'interstellar555!';
 
-		$user = \Model_User::query()->where('username', $uname)->get_one();
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor3@ucf.edu', $pword);
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::query()->where('username', $uname)->get_one();
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -274,15 +271,15 @@ class Basetest extends TestCase
 		$uname = '~testSu';
 		$pword = 'interstellar555!';
 
-		$user = \Model_User::query()->where('username', $uname)->get_one();
+		$user = \Model_User::find_by_username($uname);
 		if ( ! $user instanceof \Model_User)
 		{
-			require_once(PKGPATH.'materia/tasks/admin.php');
+			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'su', 'testSu@ucf.edu', $pword);
 			// TODO: super_user should get all these rights inherently right??????!!!!
 			\Fuel\Tasks\Admin::give_user_role($uname, 'super_user');
 			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
-			$user = \Model_User::query()->where('username', $uname)->get_one();
+			$user = \Model_User::find_by_username($uname);
 		}
 
 		$login = \Service_User::login($uname, $pword);
@@ -367,12 +364,12 @@ class Basetest extends TestCase
 
 	protected function spoof_widget_play($inst, $context_id=false)
 	{
-		if ( $inst->is_draft) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Drafts are not playable');
-		if ( ! $inst->widget->is_playable) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget is retired');
+		if ( $inst->is_draft) return new \Materia\Msg(\Materia\Msg::ERROR, 'Drafts are not playable');
+		if ( ! $inst->widget->is_playable) return new \Materia\Msg(\Materia\Msg::ERROR, 'Widget is retired');
 
 		$status = $inst->status($context_id);
-		if ( ! $status['open']) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'Widget not available');
-		if ( ! $status['has_attempts']) return new \RocketDuck\Msg(\RocketDuck\Msg::ERROR, 'No attempts remaining');
+		if ( ! $status['open']) return new \Materia\Msg(\Materia\Msg::ERROR, 'Widget not available');
+		if ( ! $status['has_attempts']) return new \Materia\Msg(\Materia\Msg::ERROR, 'No attempts remaining');
 
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst->id, $context_id);

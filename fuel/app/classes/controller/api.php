@@ -43,7 +43,7 @@ class Controller_Api extends Controller_Rest
 		}
 		catch (\Exception $e)
 		{
-			\RocketDuck\Log::profile([get_class($e), get_class($api), $method, json_encode($args)], 'exception');
+			Materia\Log::profile([get_class($e), get_class($api), $method, json_encode($args)], 'exception');
 			trace($e);
 		}
 	}
