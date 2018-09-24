@@ -121,7 +121,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$result = \Lti\LtiUserManager::authenticate($launch);
 			$this->assertFalse($result);
 
-			$user = \Model_User::query()->where('username', $expected_username)->get_one();
+			$user = \Model_User::find_by_username($expected_username);
 			$this->assertNull($user);
 		};
 
@@ -164,7 +164,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$result = \Lti\LtiUserManager::authenticate($launch);
 			$this->assertFalse($result);
 
-			$user = \Model_User::query()->where('username', $expected_username)->get_one();
+			$user = \Model_User::find_by_username($expected_username);
 			$this->assertNull($user);
 		};
 
@@ -328,12 +328,12 @@ class Test_LtiUserManager extends \Test_Basetest
 
 	protected function assertIsInstructor($user)
 	{
-		self::assertTrue(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id));
+		self::assertTrue(\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR], $user->id));
 	}
 
 	protected function assertNotInstructor($user)
 	{
-		self::assertFalse(\RocketDuck\Perm_Manager::does_user_have_role([\RocketDuck\Perm_Role::AUTHOR], $user->id));
+		self::assertFalse(\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR], $user->id));
 	}
 }
 
@@ -374,7 +374,7 @@ class Auth_Login_LtiTestAuthDriver extends \Auth_Login_Driver
 	public function update_user($values, $username = null)
 	{
 		$username = $username ?: $this->user['username'];
-		$user     = \Model_User::query()->where('username', $username)->get_one();
+		$user     = \Model_User::find_by_username($username);
 
 		if ( ! $user) throw new \Exception('Username not found', 4);
 
@@ -400,12 +400,12 @@ class Auth_Login_LtiTestAuthDriver extends \Auth_Login_Driver
 			// add employee role
 			if ($is_employee)
 			{
-				return \RocketDuck\Perm_Manager::add_users_to_role_system_only([$user->id], \RocketDuck\Perm_Role::AUTHOR);
+				return \Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 			}
 			// not an employee anymore, remove role
 			else
 			{
-				return \RocketDuck\Perm_Manager::remove_users_from_roles_system_only([$user->id], [\RocketDuck\Perm_Role::AUTHOR]);
+				return \Materia\Perm_Manager::remove_users_from_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 			}
 		}
 	}

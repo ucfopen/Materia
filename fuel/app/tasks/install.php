@@ -1,22 +1,17 @@
 <?php
 namespace Fuel\Tasks;
 
-require_once(PKGPATH.'materia/tasks/admin.php');
-
-use \Fuel;
-use \Cli;
-
 class Install
 {
 	public static function run()
 	{
 		// let the user set the environment
-		if (Cli::option('skip_prompts', false) != true)
+		if (\Cli::option('skip_prompts', false) != true)
 		{
-			Fuel::$env = Cli::prompt('Choose your environment', ['development', 'production', 'staging']);
+			\Fuel::$env = \Cli::prompt('Choose your environment', ['development', 'production', 'staging']);
 		}
 
-		Cli::write("FuelPHP environment set to: '".Fuel::$env."'");
+		\Cli::write("FuelPHP environment set to: '".\Fuel::$env."'");
 
 		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard');
 		self::prompt_and_run('Set writable paths?', 'make_paths_writable');
@@ -30,12 +25,12 @@ class Install
 	private static function prompt_and_run($text, $method)
 	{
 		// was the cli option set to skip this method?
-		if (Cli::option("skip_{$method}", false)) return;
+		if (\Cli::option("skip_{$method}", false)) return;
 
 		// was prompt requested and they said no?
-		$should_prompt = Cli::option('skip_prompts', false) != true;
-		if ($should_prompt && Cli::prompt("\r\n{$text}", ['y', 'n']) == 'n') return;
+		$should_prompt = \Cli::option('skip_prompts', false) != true;
+		if ($should_prompt && \Cli::prompt("\r\n{$text}", ['y', 'n']) == 'n') return;
 		// execute the method
-		call_user_func("\Fuel\Tasks\Admin::${method}");
+		\Oil\Refine::run("admin:${method}" , []);
 	}
 }
