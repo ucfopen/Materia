@@ -5,33 +5,60 @@ class Widget_Asset_Dbstorage
 {
 	protected static $_instance;
 
+	/**
+	 * Get an instance of this class
+	 * @return object Widget_Asset_Dbstorage
+	 */
 	public static function instance()
 	{
 		static::$_instance = new Widget_Asset_Dbstorage();
 		return static::$_instance;
 	}
 
+	/**
+	 * Create a lock on a specific size of an asset.
+	 * Used to prevent multiple requests from using excessive resources.
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 */
 	public function lock_for_processing(string $id, string $size)
 	{
-
+		// @TODO
 	}
 
+	/**
+	 * Unlock a lock made for a specific size of an asset
+	 * Used to prevent multiple requests from using excessive resources.
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 */
 	public function unlock_for_processing(string $id, string $size)
 	{
-
+		// @TODO
 	}
 
-	public function delete(string $id, bool $all_sizes, $size = null)
+	/**
+	 * Delete asset data. Set size to '*' to delete all.
+	 * @param  string $id        Asset Id of asset data to delete
+	 * @param  [type] $size      Size to delete. Set to '*' to delete all.
+	 */
+	public function delete(string $id, string $size = '*')
 	{
 		$query = \DB::delete()
 			->from('asset_data')
 			->where('id', $id);
 
-		if ( ! $all_sizes) $query->where('size', $size);
+		if ($size !== '*') $query->where('size', $size);
 
 		$query->execute();
 	}
 
+	/**
+	 * Does a specific size of an asset exist
+	 * @param  string $id   Asset Id
+	 * @param  string $size Asset size
+	 * @return bool         True if data exists
+	 */
 	public function exists(string $id, string $size): bool
 	{
 		// Get fiel from db into temp file
@@ -44,6 +71,12 @@ class Widget_Asset_Dbstorage
 		return $results->count() > 0;
 	}
 
+	/**
+	 * Download asset data of a specific size into a file
+	 * @param  string $id               Asset Id
+	 * @param  string $size             Asset Size
+	 * @param  string $target_file_path Path to a file to write download into.
+	 */
 	public function download(string $id, string $size, string $target_file_path)
 	{
 		// Get fiel from db into temp file
@@ -65,7 +98,13 @@ class Widget_Asset_Dbstorage
 	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
 	 * @return integer Size in bytes of the image being stored
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size, bool $is_update = false): int
+	/**
+	 * [Store asset data into the database
+	 * @param  Widget_Asset $asset      Asset object to insert
+	 * @param  string       $image_path String of binary image data to store in the db
+	 * @param  string       $size       Which size variant is this data? EX: 'original', 'thumbnail'
+	 */
+	public function upload(Widget_Asset $asset, string $image_path, string $size)
 	{
 		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return false;
 
@@ -82,23 +121,12 @@ class Widget_Asset_Dbstorage
 			'status'     => 'ready',
 			'hash'       => $sha1_hash,
 			'data'       => $image_data,
+			'created_at' => time(),
 		];
-
-		if ($is_update)
-		{
-			$query = \DB::update('asset_data')
-				->where('id', $asset->id)
-				->where('size', $size);
-		}
-		else
-		{
-			$query = \DB::insert('asset_data');
-			$data['created_at'] = time();
-		}
 
 		try
 		{
-			$query
+			\DB::insert('asset_data')
 				->set($data)
 				->execute();
 		}
@@ -107,7 +135,5 @@ class Widget_Asset_Dbstorage
 			\LOG::error('Exception while storing asset data for user id,'.\Model_User::find_current_id().': '.$e);
 			throw($e);
 		}
-
-		return $bytes;
 	}
 }
