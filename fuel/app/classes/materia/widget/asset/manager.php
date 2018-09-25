@@ -31,39 +31,6 @@ class Widget_Asset_Manager
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
 	}
 
-	// new route for s3 uploads
-	static public function upload_temp($remote_url_stub, $type, $title, $size)
-	{
-		// remote_url will be completed once we successfully get
-		// an available asset_id
-		$asset = new Widget_Asset([
-			'type'       => $type,
-			'title'      => $title,
-			'file_size'  => $size,
-			'status'     => 'temp_asset', // signify temp asset
-			'remote_url' => $remote_url_stub
-		]);
-
-		if ($asset->db_store() && \Materia\Util_Validator::is_valid_hash($asset->id))
-		{
-			try
-			{
-				// set perms
-				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
-				return $asset;
-			}
-			catch (\Exception $e)
-			{
-				trace($e);
-			}
-
-			// failed, remove the asset
-			$asset->db_remove();
-		}
-
-		return $asset;
-	}
-
 	// old method for server upload storage
 	static public function new_asset_from_file($name, $file_info)
 	{
@@ -83,8 +50,7 @@ class Widget_Asset_Manager
 			try
 			{
 				// store the data into the database
-				$data = \File::read($file_info['realpath'], true, 'media');
-				$asset->db_store_data($data, 'original');
+				$asset->upload_asset_data($file_info['realpath']);
 				\File::delete($file_info['realpath'], 'media');
 
 				// set perms

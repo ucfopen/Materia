@@ -25,11 +25,14 @@ class Widget_Asset
 	public $status     = null;
 	public $questions  = [];
 	public $type       = '';
-	public $widgets    = [];
+	protected $_storage_driver;
 
 	public function __construct($properties=[])
 	{
 		$this->set_properties($properties);
+		$use_s3 = \Config::get('materia.s3_config.s3_enabled') === true;
+		$storage_class = $use_s3 ? '\Materia\Widget_Asset_S3storage' : '\Materia\Widget_Asset_Dbstorage';
+		$this->_storage_driver = call_user_func($storage_class.'::instance');
 	}
 
 	/**
@@ -127,7 +130,7 @@ class Widget_Asset
 	 * Finds an available asset id
 	 * to avoid conflicts in the db
 	 */
-	public function get_unused_id()
+	protected function get_unused_id()
 	{
 		// try finding an id not used in the database
 		$max_tries = 10;
@@ -216,55 +219,6 @@ class Widget_Asset
 		}
 	}
 
-	/**
-	 * Store asset data into the database
-	 * @param  string $image_data String of binary image data to store in the db
-	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
-	 * @return integer Size in bytes of the image being stored
-	 */
-	public function db_store_data(string &$image_data, string $size, bool $is_update = false): int
-	{
-		if (\Materia\Util_Validator::is_valid_hash($this->id) && empty($this->type)) return false;
-
-		$sha1_hash = sha1($image_data);
-		$bytes = function_exists('mb_strlen') ? mb_strlen($image_data, '8bit') : strlen($image_data);
-
-		$data = [
-			'id'         => $this->id,
-			'type'       => $this->type,
-			'size'       => $size,
-			'bytes'      => $bytes,
-			'status'     => 'ready',
-			'hash'       => $sha1_hash,
-			'created_at' => time(),
-			'data'       => $image_data,
-		];
-
-		if ($is_update)
-		{
-			$query = \DB::update('asset_data')
-				->where('id', $this->id)
-				->where('size', $size);
-		}
-		else
-		{
-			$query = \DB::insert('asset_data');
-		}
-
-		try
-		{
-			$query
-				->set($data)
-				->execute();
-		}
-		catch (\Exception $e)
-		{
-			\LOG::error('Exception while storing asset data for user id,'.\Model_User::find_current_id().': '.$e);
-			throw($e);
-		}
-
-		return $bytes;
-	}
 
 	/**
 	 * Send the binary data of a specific sized variant of an asset to the client, resizing if needed.
@@ -281,32 +235,29 @@ class Widget_Asset
 			ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
 			! ini_get('safe_mode') and set_time_limit(0);
 
-			// Get asset
-			$results = \DB::select()
-				->from('asset_data')
-				->where('id', $this->id)
-				->where('size', $size)
-				->execute();
-
-
-			if ($results->count() < 1)
+			if ( ! $this->_storage_driver->exists($this->id, $size))
 			{
-				// original is missing, just do nothing
-				if ($size === 'original') return false;
-				// resize the image on demand
-				// mock db results with build_size returns
-				$results = [$this->build_size($size)];
+				if ($size === 'original') throw new HttpNotFoundException;
+				$asset_path = $this->build_size($size);
+			}
+			else
+			{
+				$asset_path = $this->download_asset_to_temp_file($this->id, $size);
 			}
 
+			if ( ! file_exists($asset_path)) throw new HttpNotFoundException;
+			$bytes = filesize($asset_path);
 			// turn off and clean output buffer
 			while (ob_get_level() > 0) ob_end_clean();
 
 			// Set headers and send the file
 			header("Content-Type: {$this->get_mime_type()}");
 			header("Content-Disposition: inline; filename=\"{$this->title}\"");
-			header("Content-Length: {$results[0]['bytes']}");
+			header("Content-Length: {$bytes}");
 			header('Content-Transfer-Encoding: binary');
-			echo $results[0]['data'];
+			$fp = fopen($asset_path, 'rb');
+			fpassthru($fp); // write file directly to output
+			unlink($asset_path);
 		});
 
 		exit; // don't do anything else, just run shutdown
@@ -337,8 +288,9 @@ class Widget_Asset
 	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
 	 * @return array Array containing 'data' (binary image data), and 'bytes' (integer byte size of image)
 	 */
-	protected function build_size(string $size): array
+	protected function build_size(string $size): string
 	{
+		$ext = ".{$this->type}";
 		$crop = $size === 'thumbnail';
 		switch ($size)
 		{
@@ -355,75 +307,15 @@ class Widget_Asset
 				break;
 		}
 
-		// is another request in the middle of resizing?
-		// if it is - this row will be locked, pausing the results of this query
-		$results = \DB::select()
-			->from('asset_data')
-			->where('id', $this->id)
-			->where('size', $size)
-			->execute();
+		$this->_storage_driver->lock_for_processing($this->id, $size);
 
-		// if anything returns here, it should already be built
-		if ($results->count())
-		{
-			return [
-				'data' => $data,
-				'bytes' => $bytes
-			];
-		}
-
-		// insert a row to reserve our spot
-		// this row will be locked below
-		// so other requests will pause waiting for it
-		list($id, $num) = \DB::insert('asset_data')
-			->set([
-				'id'         => $this->id,
-				'type'       => $this->type,
-				'size'       => $size,
-				'bytes'      => 0,
-				'status'     => 'processing',
-				'hash'       => '',
-				'created_at' => time(),
-				'data'       => '',
-			])
-			->execute();
-
-		\DB::start_transaction();
-
-		// get an exclusive lock on the row
-		list($id, $num) = \DB::query(
-			'SELECT id
-				FROM '.\DB::quote_table('asset_data').'
-				WHERE id = :asset_id
-				FOR UPDATE',
-			\DB::SELECT)
-			->param('asset_id', $this->id)
-			->execute();
-
-		// Get original asset data
-		$results = \DB::select()
-			->from('asset_data')
-			->where('id', $this->id)
-			->where('size', 'original')
-			->execute();
-
-		if ($results->count() < 1) throw("Missing original asset data for asset: {$this->id}");
-
-		$original_data = $results[0]['data'];
-		$ext = ".{$this->type}";
-
-		// copy image data into a temp file
-		// Fuel's image manipulation requires the images to be files
-		// So we'll put the original image data into a temp file
-		// And place the resized image into another temp file
-		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_orig_");
-		file_put_contents($tmp_file_path, $original_data);
-		unset($results, $original_data); // free up image data memory
+		// get the original file
+		$original_asset_path = $this->download_asset_to_temp_file($this->id, 'original');
 
 		// add extension to tmp file so Image knows how to read it
-		rename($tmp_file_path, $tmp_file_path .= $ext);
+		rename($original_asset_path, $original_asset_path .= $ext);
 
-		// make a target file for resized image
+		// create temp file to put resized image into
 		$resized_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_{$size}_");
 		// add extension to tmp file so Image knows what to write it
 		rename($resized_file_path, $resized_file_path .= $ext);
@@ -433,13 +325,13 @@ class Widget_Asset
 		{
 			if ($crop)
 			{
-				\Image::load($tmp_file_path)
+				\Image::load($original_asset_path)
 					->crop_resize($width, $width)
 					->save($resized_file_path);
 			}
 			else
 			{
-				\Image::load($tmp_file_path)
+				\Image::load($original_asset_path)
 					->resize($width, $width)
 					->save($resized_file_path);
 			}
@@ -450,68 +342,35 @@ class Widget_Asset
 			throw($e);
 		}
 
-		// write the resized data to the db
-		$data = file_get_contents($resized_file_path);
-		$bytes = $this->db_store_data($data, $size, true);
+		$this->_storage_driver->upload($this, $resized_file_path, $size);
 
-		// let go of the lock
-		\DB::commit_transaction();
+		// update asset_data
+		$this->_storage_driver->unlock_for_processing($this->id, $size);
 
 		// close the file handles and delete temp files
-		unlink($tmp_file_path);
-		unlink($resized_file_path);
+		unlink($original_asset_path);
 
-		return [
-			'data' => $data,
-			'bytes' => $bytes
-		];
+		return $resized_file_path;
 	}
 
-	/**
-	 * New type is a string of the new type to specifiy the filetype of the returned file
-	 *
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param string NEEDS DOCUMENTATION
-	 *
-	 * @notes Path might need to be updated to however assets may be stored...
-	 */
-	public function get_file_name($new_type = '')
+	public function upload_asset_data(string $source_asset_path)
 	{
-
-		if ($new_type == '')
-		{
-			return \Config::get('file.dirs.media').$this->id.'.'.$this->type;
-		}
-		else
-		{
-			return  \Config::get('file.dirs.media').$this->id.'.'.$new_type;
-		}
+		$this->_storage_driver->upload($this, $source_asset_path, 'original', false);
 	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @review Needs code review
-	 */
-	public function get_preview_file_name()
+
+	protected function download_asset_to_temp_file(string $id, string $size): string
 	{
-		// NOTE: previews will go in the same directory as the assets
-		// HACK CODE: hardcoding the _p.jpg for the preview files
-		//     it should be a constant somewhere
-		return \Config::get('file.dirs.media').$this->id.'_p.jpg'; // NOTE: preview's will always be jpg
-		// also NOTE: it may not have a preview image, we return what the file name would be anyways
+		// create temp file to copy image into
+		// Fuel's image manipulation requires the images to be files
+		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$id}_{$size}_");
+
+		$this->_storage_driver->download($id, $size, $tmp_file_path);
+
+		return $tmp_file_path;
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 * @TODO this function shouldn't ever skip removing perms - we should probably have a replace function instead of using this as a replace
-	 * @notes (Nick) adding keep_perms to optionally prevent removing the perms
-	 *                this is used in replacing assets -> we're going to give the new
-	 *				 asset the old one's id, so go ahead and keep the perms for it
-	 * @param object The database manager
-	 * @param bool NEEDS DOCUMENTATION
-	 */
-	public function db_remove($keep_perms = false)
+
+	public function db_remove()
 	{
 		if (strlen($this->id) <= 0) return false;
 
@@ -525,17 +384,17 @@ class Widget_Asset
 				->limit(1)
 				->execute();
 
+			// delete data
+			\Db::delete('asset_data')
+				->where('id', $this->id)
+				->execute();
+
+			// @TODO: delete from s3?
+
 			// delete perms
-			if ( ! $keep_perms)
-			{
-				// TODO: change to support hashes
-				Perm_Manager::clear_all_perms_for_object($this->id, Perm::ASSET);
-			}
+			Perm_Manager::clear_all_perms_for_object($this->id, Perm::ASSET);
 
 			\DB::commit_transaction();
-
-			// delete any files used in this class
-			$this->remove_files(); // needs to be fixed...
 
 			// clear this object
 			$this->__construct();
@@ -546,31 +405,6 @@ class Widget_Asset
 			\LOG::error('The following exception occured while attempting to remove asset id, '.$this->id.', for user id,'.\Model_User::find_current_id().': '.$e);
 			\DB::rollback_transaction();
 			return false;
-		}
-	}
-
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @notes this is called when we db_remove
-	 * @notes (Nick) i moved this to a separate function when i was working
-	 *			     on replace asset, but ended up not using it for that
-	 */
-	protected function remove_files()
-	{
-
-		$file_dir = $this->get_file_name();
-
-		if (file_exists($file_dir))
-		{
-			@unlink($file_dir);
-		}
-
-		$preview_file = $this->get_preview_file_name();
-
-		if (file_exists($preview_file))
-		{
-			@unlink($preview_file);
 		}
 	}
 
