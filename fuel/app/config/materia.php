@@ -24,13 +24,13 @@ return [
 	*/
 	'urls' => [
 		'root'               => \Uri::create(''), // root directory http:://siteurl.com/
-		'media'              => \Uri::create('media'), // where the media is stored http:://siteurl.com/assets/upload/
-		'media_upload'       => \Uri::create('media/upload'),
+		'media'              => \Uri::create('media'), // where media is retrieved
+		'media_upload'       => \Uri::create('media/upload'), // where media is uploaded
 		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
 		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
 		'static'             => \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
-		'engines'            => \Uri::create('widget/'), // engine swf locations
+		'engines'            => \Uri::create('widget/'), // widget file locations
 	],
 
 
@@ -82,29 +82,13 @@ return [
 	*/
 	'enable_admin_uploader' => false,
 
-	/*
-	* To view detailed documentation on asset uploads using Amazon S3, visit:
-	* http://ucfcdl.github.io/Materia/develop/understanding-media-uploads
-	*
-	* To use fakes3, use the following config:
-	* ========================================
-	* > 's3_enabled'      => true
-	* > 'upload_url'      => 'dockerIP:10001' // probably replace dockerIP with localhost or 127.0.0.1
-	* > 'uploads_bucket'  => 'fakes3_uploads'
-	* > 'verified_bucket' => 'fakes3_assets'
-	* > 'subdir'          => 'media'
-	* > 'secret_key'      => 'secret'
-	* > 'AWSAccessKeyId'  => 'id'
-	* > 'expire_in'       => 100
-	*/
 	's3_config' => [
-		's3_enabled'      => false,
-		'upload_url'      => 's3.amazonaws.com', // only include domain and, if necessary, the port
-		'uploads_bucket'  => '', // bucket to store original user uploads
-		'verified_bucket' => '', // OPTIONAL - bucket to store user uploads that are manipulated and verified by Materia
-		'subdir'          => 'media', // OPTIONAL - directory to store original and resized assets
-		'secret_key'      => '',
-		'AWSAccessKeyId'  => '',
-		'expire_in'       => 100 // temporary key expiration time
+		's3_enabled' => false,
+		'endpoint'   => false, // set to url for testing endpoint
+		'region'     => 'us-east-1', // aws region for bucket
+		'bucket'     => '', // bucket to store original user uploads
+		'subdir'     => 'media', // OPTIONAL - directory to store original and resized assets
+		'secret_key' => '', // aws api secret key
+		'key'        => '' // aws api key
 	],
 ];
