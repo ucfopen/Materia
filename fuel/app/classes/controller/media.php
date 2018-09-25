@@ -8,7 +8,17 @@ use \Materia\Widget_Asset;
 
 class Controller_Media extends Controller
 {
-	use Trait_S3ResponseTrait;
+
+	use Trait_CommonControllerTemplate;
+
+	// overrides Trait_CommonControllerTemplate->before()
+	public function before(){}
+
+	// overrides Trait_CommonControllerTemplate->after()
+	public function after($response)
+	{
+		return parent::after($response);
+	}
 
 	public function get_render($asset_id, $size='original')
 	{
@@ -35,11 +45,7 @@ class Controller_Media extends Controller
 		Css::push_group(['core', 'media_catalog']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
-
-		$this->add_s3_config_to_response();
+		$this->inject_common_js_constants();
 
 		$theme = Theme::instance();
 		$theme->set_template('layouts/main');
