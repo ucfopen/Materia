@@ -223,7 +223,6 @@ class Widget_Asset
 	/**
 	 * Send the binary data of a specific sized variant of an asset to the client, resizing if needed.
 	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
-	 * @return void
 	 */
 	public function render(string $size)
 	{
@@ -264,6 +263,7 @@ class Widget_Asset
 	}
 
 	/**
+	 * Get the mime type for this asset
 	 * @return string Mime type based on $this->type for use in http headers
 	 */
 	public function get_mime_type(): string
@@ -286,7 +286,7 @@ class Widget_Asset
 	/**
 	 * Build a specified size of an asset.
 	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
-	 * @return array Array containing 'data' (binary image data), and 'bytes' (integer byte size of image)
+	 * @return string      File path for a file containing the resized asset
 	 */
 	protected function build_size(string $size): string
 	{
@@ -353,11 +353,21 @@ class Widget_Asset
 		return $resized_file_path;
 	}
 
+	/**
+	 * Save an uploaded / original asset
+	 * @param  string $source_asset_path Path to the uploaded asset file
+	 */
 	public function upload_asset_data(string $source_asset_path)
 	{
-		$this->_storage_driver->upload($this, $source_asset_path, 'original', false);
+		$this->_storage_driver->upload($this, $source_asset_path, 'original');
 	}
 
+	/**
+	 * Download an asset of a specific size to a temp file
+	 * @param  string $id   Asset Id
+	 * @param  string $size Asset size
+	 * @return string       path to the file containing the downloaded asset
+	 */
 	protected function download_asset_to_temp_file(string $id, string $size): string
 	{
 		// create temp file to copy image into
