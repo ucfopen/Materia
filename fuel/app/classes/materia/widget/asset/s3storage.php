@@ -7,22 +7,80 @@ class Widget_Asset_S3storage
 	protected static $_instance;
 	protected static $_s3_client;
 
+	/**
+	 * Get an instance of this class
+	 * @return object Widget_Asset_S3storage
+	 */
 	public static function instance()
 	{
 		static::$_instance = new Widget_Asset_S3storage();
 		return static::$_instance;
 	}
 
+	/**
+	 * Create a lock on a specific size of an asset.
+	 * Used to prevent multiple requests from using excessive resources.
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 */
 	public function lock_for_processing(string $id, string $size)
 	{
-
+		// @TODO
 	}
 
+	/**
+	 * Unlock a lock made for a specific size of an asset
+	 * Used to prevent multiple requests from using excessive resources.
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 */
 	public function unlock_for_processing(string $id, string $size)
 	{
-
+		// @TODO
 	}
 
+	/**
+	 * Delete asset data. Set size to '*' to delete all.
+	 * @param  string $id        Asset Id of asset data to delete
+	 * @param  string $size      Size to delete. Set to '*' to delete all.
+	 */
+	public function delete(string $id, string $size = '*')
+	{
+		$s3_config = \Config::get('materia.s3_config');
+		$s3 = $this->get_s3_client();
+
+		if ($size === '*')
+		{
+			$s3->deleteMatchingObjects($s3_config['bucket'], $this->get_key_name($id, 'original'), '*');
+		}
+		else
+		{
+			$s3->deleteObject([
+				'Bucket' => $s3_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+			]);
+		}
+	}
+
+	/**
+	 * Does a specific size of an asset exist
+	 * @param  string $id   Asset Id
+	 * @param  string $size Asset size
+	 * @return bool         True if data exists
+	 */
+	public function exists(string $id, string $size): bool
+	{
+		$s3_config = \Config::get('materia.s3_config');
+		$s3 = $this->get_s3_client();
+
+		return $s3->doesObjectExist($s3_config['bucket'], $this->get_key_name($id, $size));
+	}
+
+	/**
+	 * Delete asset data. Set size to '*' to delete all.
+	 * @param  string $id        Asset Id of asset data to delete
+	 * @param  [type] $size      Size to delete. Set to '*' to delete all.
+	 */
 	public function download(string $id, string $size, string $target_file_path)
 	{
 		$s3_config = \Config::get('materia.s3_config');
@@ -38,39 +96,13 @@ class Widget_Asset_S3storage
 		]);
 	}
 
-	public function exists(string $id, string $size): bool
-	{
-		$s3_config = \Config::get('materia.s3_config');
-		$s3 = $this->get_s3_client();
-
-		return $s3->doesObjectExist($s3_config['bucket'], $this->get_key_name($id, $size));
-	}
-
-	public function delete(string $id, bool $all_sizes, $size = null)
-	{
-		$s3_config = \Config::get('materia.s3_config');
-		$s3 = $this->get_s3_client();
-
-		if ($all_sizes)
-		{
-			$s3->deleteMatchingObjects($s3_config['bucket'], $this->get_key_name($id, 'original'), '*');
-		}
-		else
-		{
-			$s3->deleteObject([
-				'Bucket' => $s3_config['bucket'],
-				'Key' => $this->get_key_name($id, $size),
-			]);
-		}
-	}
-
 	/**
 	 * Store asset data in s3
+	 * @param Widget_Asset $asset Asset Object
 	 * @param  string $image_path String path to image to upload
 	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
-	 * @return integer Size in bytes of the image being stored
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size, bool $is_update = false)
+	public function upload(Widget_Asset $asset, string $image_path, string $size)
 	{
 		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return false;
 
@@ -90,6 +122,12 @@ class Widget_Asset_S3storage
 		]);
 	}
 
+	/**
+	 * Get the s3 key name for a specific asset id & size
+	 * @param  string $id   Asset Id
+	 * @param  string $size Asset Size
+	 * @return string       Key of the s3 asset
+	 */
 	protected function get_key_name(string $id, string $size): string
 	{
 		$s3_config = \Config::get('materia.s3_config');
@@ -98,6 +136,10 @@ class Widget_Asset_S3storage
 		return $key;
 	}
 
+	/**
+	 * Get a reference to and S3Client object
+	 * @return \Aws\S3\S3Client S3Client to send data to s3
+	 */
 	protected function get_s3_client(): \Aws\S3\S3Client
 	{
 		if (static::$_s3_client) return static::$_s3_client;
