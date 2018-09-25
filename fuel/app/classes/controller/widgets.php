@@ -7,7 +7,6 @@
 class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
-	use Trait_S3ResponseTrait;
 
 	protected $_embedded = false;
 
@@ -206,7 +205,6 @@ class Controller_Widgets extends Controller
 			Js::push_group('swfobject');
 		}
 
-		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
@@ -467,7 +465,6 @@ class Controller_Widgets extends Controller
 		}
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
-		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
 			->set('page_type', 'widget')
