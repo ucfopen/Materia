@@ -30,9 +30,15 @@ class Widget_Asset
 	public function __construct($properties=[])
 	{
 		$this->set_properties($properties);
-		$use_s3 = \Config::get('materia.s3_config.s3_enabled') === true;
-		$storage_class = $use_s3 ? '\Materia\Widget_Asset_S3storage' : '\Materia\Widget_Asset_Dbstorage';
-		$this->_storage_driver = call_user_func($storage_class.'::instance');
+		$driver = \Config::get('materia.asset_storage_driver', 'db');
+		$this->_storage_driver = static::get_storage_driver($driver);
+	}
+
+	public static function get_storage_driver($driver)
+	{
+		$config = \Config::get("materia.asset_storage.{$driver}");
+		$storage_class = $config['driver_class'];
+		return call_user_func("{$storage_class}::instance", $config);
 	}
 
 	/**
@@ -224,7 +230,7 @@ class Widget_Asset
 	 * Send the binary data of a specific sized variant of an asset to the client, resizing if needed.
 	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
 	 */
-	public function render(string $size)
+	public function render(string $size): void
 	{
 		// register a shutdown function that will render the image
 		// allowing all of fuel's other shutdown methods to do their jobs
@@ -357,7 +363,7 @@ class Widget_Asset
 	 * Save an uploaded / original asset
 	 * @param  string $source_asset_path Path to the uploaded asset file
 	 */
-	public function upload_asset_data(string $source_asset_path)
+	public function upload_asset_data(string $source_asset_path): void
 	{
 		$this->_storage_driver->upload($this, $source_asset_path, 'original');
 	}

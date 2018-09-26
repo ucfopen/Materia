@@ -6,13 +6,15 @@ class Widget_Asset_S3storage
 
 	protected static $_instance;
 	protected static $_s3_client;
+	protected static $_config;
 
 	/**
 	 * Get an instance of this class
 	 * @return object Widget_Asset_S3storage
 	 */
-	public static function instance()
+	public static function instance(array $config): Widget_Asset_S3storage
 	{
+		static::$_config = $config;
 		static::$_instance = new Widget_Asset_S3storage();
 		return static::$_instance;
 	}
@@ -23,7 +25,7 @@ class Widget_Asset_S3storage
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
-	public function lock_for_processing(string $id, string $size)
+	public function lock_for_processing(string $id, string $size): void
 	{
 		// @TODO
 	}
@@ -34,7 +36,7 @@ class Widget_Asset_S3storage
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
-	public function unlock_for_processing(string $id, string $size)
+	public function unlock_for_processing(string $id, string $size): void
 	{
 		// @TODO
 	}
@@ -44,19 +46,18 @@ class Widget_Asset_S3storage
 	 * @param  string $id        Asset Id of asset data to delete
 	 * @param  string $size      Size to delete. Set to '*' to delete all.
 	 */
-	public function delete(string $id, string $size = '*')
+	public function delete(string $id, string $size = '*'): void
 	{
-		$s3_config = \Config::get('materia.s3_config');
 		$s3 = $this->get_s3_client();
 
 		if ($size === '*')
 		{
-			$s3->deleteMatchingObjects($s3_config['bucket'], $this->get_key_name($id, 'original'), '*');
+			$s3->deleteMatchingObjects(static::$_config['bucket'], $this->get_key_name($id, 'original'), '*');
 		}
 		else
 		{
 			$s3->deleteObject([
-				'Bucket' => $s3_config['bucket'],
+				'Bucket' => static::$_config['bucket'],
 				'Key' => $this->get_key_name($id, $size),
 			]);
 		}
@@ -70,10 +71,9 @@ class Widget_Asset_S3storage
 	 */
 	public function exists(string $id, string $size): bool
 	{
-		$s3_config = \Config::get('materia.s3_config');
 		$s3 = $this->get_s3_client();
 
-		return $s3->doesObjectExist($s3_config['bucket'], $this->get_key_name($id, $size));
+		return $s3->doesObjectExist(static::$_config['bucket'], $this->get_key_name($id, $size));
 	}
 
 	/**
@@ -81,16 +81,15 @@ class Widget_Asset_S3storage
 	 * @param  string $id        Asset Id of asset data to delete
 	 * @param  [type] $size      Size to delete. Set to '*' to delete all.
 	 */
-	public function download(string $id, string $size, string $target_file_path)
+	public function download(string $id, string $size, string $target_file_path): void
 	{
-		$s3_config = \Config::get('materia.s3_config');
 		// get file from s3 into temp file
 		$s3 = $this->get_s3_client();
 
 		$key = $this->get_key_name($id, $size);
 
 		$result = $s3->getObject([
-			'Bucket' => \Config::get('materia.s3_config.bucket'),
+			'Bucket' => static::$_config['bucket'],
 			'Key' => $key,
 			'SaveAs' => $target_file_path,
 		]);
@@ -102,11 +101,9 @@ class Widget_Asset_S3storage
 	 * @param  string $image_path String path to image to upload
 	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size)
+	public function upload(Widget_Asset $asset, string $image_path, string $size): void
 	{
-		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return false;
-
-		$s3_config = \Config::get('materia.s3_config');
+		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
 
 		// Force all uploads in development to have the same bucket sub-directory
 		$key = $this->get_key_name($asset->id, $size);
@@ -115,7 +112,7 @@ class Widget_Asset_S3storage
 		$result = $s3->putObject([
 			'ACL'        => 'public-read',
 			'Metadata'   => ['Content-Type' => $asset->get_mime_type()],
-			'Bucket'     => $s3_config['bucket'],
+			'Bucket'     => static::$_config['bucket'],
 			'Key'        => $key,
 			'SourceFile' => $image_path,
 			// 'Body'       => $image_data, // use instead of SourceFile to send data
@@ -130,8 +127,7 @@ class Widget_Asset_S3storage
 	 */
 	protected function get_key_name(string $id, string $size): string
 	{
-		$s3_config = \Config::get('materia.s3_config');
-		$key = ($s3_config['subdir'] ? $s3_config['subdir'].'/' : '').$id;
+		$key = (static::$_config['subdir'] ? static::$_config['subdir'].'/' : '').$id;
 		if ($size !== 'original') $key .= "/{$size}";
 		return $key;
 	}
@@ -144,22 +140,20 @@ class Widget_Asset_S3storage
 	{
 		if (static::$_s3_client) return static::$_s3_client;
 
-		$s3_config = \Config::get('materia.s3_config');
-
 		$config = [
 			'endpoint'    => '',
-			'region'      => $s3_config['region'],
+			'region'      => static::$_config['region'],
 			'version'     => 'latest',
 			'credentials' => [
-				'key'    => $s3_config['key'],
-				'secret' => $s3_config['secret_key'],
+				'key'    => static::$_config['key'],
+				'secret' => static::$_config['secret_key'],
 			]
 		];
 
 		// should we use a mock endpoint for testing?
-		if ($s3_config['endpoint'] !== false)
+		if (static::$_config['endpoint'] !== false)
 		{
-			$config['endpoint'] = $s3_config['endpoint'];
+			$config['endpoint'] = static::$_config['endpoint'];
 		}
 
 		static::$_s3_client = new \Aws\S3\S3Client($config);
