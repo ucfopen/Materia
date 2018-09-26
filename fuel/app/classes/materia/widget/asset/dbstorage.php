@@ -4,13 +4,15 @@ namespace Materia;
 class Widget_Asset_Dbstorage
 {
 	protected static $_instance;
+	protected static $_config;
 
 	/**
 	 * Get an instance of this class
 	 * @return object Widget_Asset_Dbstorage
 	 */
-	public static function instance()
+	public static function instance(array $config): Widget_Asset_Dbstorage
 	{
+		static::$_config = $config;
 		static::$_instance = new Widget_Asset_Dbstorage();
 		return static::$_instance;
 	}
@@ -21,7 +23,7 @@ class Widget_Asset_Dbstorage
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
-	public function lock_for_processing(string $id, string $size)
+	public function lock_for_processing(string $id, string $size): void
 	{
 		// @TODO
 	}
@@ -32,7 +34,7 @@ class Widget_Asset_Dbstorage
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
-	public function unlock_for_processing(string $id, string $size)
+	public function unlock_for_processing(string $id, string $size): void
 	{
 		// @TODO
 	}
@@ -42,7 +44,7 @@ class Widget_Asset_Dbstorage
 	 * @param  string $id        Asset Id of asset data to delete
 	 * @param  [type] $size      Size to delete. Set to '*' to delete all.
 	 */
-	public function delete(string $id, string $size = '*')
+	public function delete(string $id, string $size = '*'): void
 	{
 		$query = \DB::delete()
 			->from('asset_data')
@@ -77,7 +79,7 @@ class Widget_Asset_Dbstorage
 	 * @param  string $size             Asset Size
 	 * @param  string $target_file_path Path to a file to write download into.
 	 */
-	public function download(string $id, string $size, string $target_file_path)
+	public function download(string $id, string $size, string $target_file_path): void
 	{
 		// Get fiel from db into temp file
 		$results = \DB::select()
@@ -94,19 +96,13 @@ class Widget_Asset_Dbstorage
 
 	/**
 	 * Store asset data into the database
-	 * @param  string $image_path String of binary image data to store in the db
-	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
-	 * @return integer Size in bytes of the image being stored
-	 */
-	/**
-	 * [Store asset data into the database
 	 * @param  Widget_Asset $asset      Asset object to insert
 	 * @param  string       $image_path String of binary image data to store in the db
 	 * @param  string       $size       Which size variant is this data? EX: 'original', 'thumbnail'
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size)
+	public function upload(Widget_Asset $asset, string $image_path, string $size): void
 	{
-		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return false;
+		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
 
 		$image_data = file_get_contents($image_path);
 

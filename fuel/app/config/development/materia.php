@@ -13,13 +13,12 @@ return [
 	*/
 	'enable_admin_uploader' => true,
 
-	's3_config' => [
-		's3_enabled' => true,
-		'endpoint'   => 'http://fakes3:10001',
-		'region'     => 'us-east-1', // aws region for bucket
-		'bucket'     => 'fake_bucket', // bucket to store original user uploads
-		'subdir'     => 'media', // OPTIONAL - directory to store original and resized assets
-		'secret_key' => '', // aws api secret key
-		'key'        => '' // aws api key
-	],
+	'asset_storage_driver' => 's3',
+
+	'asset_storage' => [
+		's3' => [
+			'endpoint'   => 'http://fakes3:10001',
+			'bucket'     => 'fake_bucket', // bucket to store original user uploads
+		],
+	]
 ];

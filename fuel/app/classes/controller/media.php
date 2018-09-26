@@ -12,7 +12,8 @@ class Controller_Media extends Controller
 	use Trait_CommonControllerTemplate;
 
 	// overrides Trait_CommonControllerTemplate->before()
-	public function before(){}
+	public function before()
+	{}
 
 	// overrides Trait_CommonControllerTemplate->after()
 	public function after($response)

@@ -82,13 +82,22 @@ return [
 	*/
 	'enable_admin_uploader' => false,
 
-	's3_config' => [
-		's3_enabled' => false,
-		'endpoint'   => false, // set to url for testing endpoint
-		'region'     => 'us-east-1', // aws region for bucket
-		'bucket'     => '', // bucket to store original user uploads
-		'subdir'     => 'media', // OPTIONAL - directory to store original and resized assets
-		'secret_key' => '', // aws api secret key
-		'key'        => '' // aws api key
-	],
+	// Asset storage configuration
+	'asset_storage_driver' => 'db',
+
+	'asset_storage' => [
+		'db' => [
+			'driver_class' => '\Materia\Widget_Asset_Dbstorage'
+		],
+		's3' => [
+			'driver_class' => '\Materia\Widget_Asset_S3storage',
+			'endpoint'     => false, // set to url for testing endpoint
+			'region'       => 'us-east-1', // aws region for bucket
+			'bucket'       => '', // bucket to store original user uploads
+			'subdir'       => 'media', // OPTIONAL - directory to store original and resized assets
+			'secret_key'   => '', // aws api secret key
+			'key'          => '' // aws api key
+		],
+	]
+
 ];

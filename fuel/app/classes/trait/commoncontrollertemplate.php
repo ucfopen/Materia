@@ -54,7 +54,8 @@ trait Trait_CommonControllerTemplate
 			'STATIC_CROSSDOMAIN' => Config::get('materia.urls.static'),
 		];
 
-		foreach ($consts as $key => $value) {
+		foreach ($consts as $key => $value)
+		{
 			Js::push_inline("var {$key} = '{$value}';");
 		}
 	}
