@@ -1,5 +1,9 @@
 <?php
-$url = parse_url($_ENV["CLEARDB_DATABASE_URL"]);
+// all files in heroku/config are copied to config/production on heroku
+// they will overwrite any files already in config/production
+if(isset($_ENV["CLEARDB_DATABASE_URL"])) $conn = $_ENV["CLEARDB_DATABASE_URL"];
+else if(isset($_ENV["JAWSDB_URL"])) $conn = $_ENV["JAWSDB_URL"];
+$url = parse_url($conn);
 $server = $url["host"];
 $username = $url["user"];
 $password = $url["pass"];
