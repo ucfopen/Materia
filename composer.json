@@ -15,8 +15,9 @@
         "widgets-install-test": "php oil r widget:install fuel/app/tests/widget_packages/*.wigt",
         "test": "php -dzend_extension=xdebug.so fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
         "coverage": "php oil test --coverage-html=coverage --coverage-clover=coverage.xml --coverage-text=coverage.txt",
-        "heroku-place-configs": "cp -R fuel/app/config/heroku fuel/app/config/production",
-        "compile": "@heroku-place-configs",
+        "heroku-place-configs": "cp -R fuel/app/config/heroku fuel/app/config/production && cp -R fuel/app/modules/lti/config/heroku fuel/app/modules/lti/config/production",
+        "heroku-extract-widgets": "php oil r widget:extract_from_config",
+        "compile": ["@heroku-place-configs", "@heroku-extract-widgets"],
         "devserver": "php oil server",
         "testci":[
             "@destroy-everything",
@@ -35,6 +36,7 @@
         "php": ">=7.1 <7.3",
         "ext-pdo": "*",
         "ext-gd": "*",
+        "ext-mbstring": "*",
         "composer/installers": "~1.0",
         "fuel/core": "1.8.1.6",
         "fuel/auth": "1.8.1",
@@ -85,5 +87,6 @@
             }
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
