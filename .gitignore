@@ -89,6 +89,7 @@ spec/widgets/*
 
 # media files
 fuel/packages/materia/media/*
+fuel/app/media/*
 
 fuel/app/tmp
 fuel/packages/materia/tests/widget_source/**/yarn.lock
