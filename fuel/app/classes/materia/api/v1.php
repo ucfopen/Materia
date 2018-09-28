@@ -490,76 +490,6 @@ class Api_V1
 	}
 
 	/**
-	* Obtains a file key and upload keys for an asset being uploaded to Amazon S3.
-	*
-	* @param string $file_name The name of the file being uploaded
-	*
-	* @return array $res An array containing the required header data for an Amazon AWS S3 upload
-	*/
-	static public function upload_keys_get($file_name, $file_size = null)
-	{
-		if (\Service_User::verify_session() !== true) return Msg::no_login();
-
-		if (empty($file_size) || ! is_int($file_size)) return Msg::invalid_input("The file, {$file_name}, has an invalid file size.");
-
-		$user_id = \Model_User::find_current_id();
-		$s3_config = \Config::get('materia.s3_config');
-
-		$valid_filename = '/([a-zA-Z_\-\s0-9\.]+)+\.\w+\/*$/';
-		if ( ! preg_match($valid_filename, $file_name))
-		{
-			\LOG::error("Invalid Filename: {$file_name}. This file was uploaded by user {$user_id}");
-			return Msg::invalid_input("{$file_name} is an unspported file name. Please upload a file with the following format: <filename>.<extension>");
-		}
-
-		$file_info = pathinfo($file_name);
-		$type = $file_info['extension'];
-		$title = $file_info['filename'];
-
-		// Force all uploads in development to have the same bucket sub-directory
-		$remote_url_stub = ($s3_config['subdir']) ? $s3_config['subdir'].'/' : '';
-
-		// store temporary row in db, obtain asset_id for building s3 file_key
-		$asset = Widget_Asset_Manager::upload_temp($remote_url_stub, $type, $title, $file_size);
-		// if we could not successfully create a new temporary asset row
-		if ( ! Util_Validator::is_valid_hash($asset->id))
-		{
-			\LOG::error("An invalid id was generated for file, {$file_name}, uploaded by user {$user_id}");
-			return Msg::invalid_input('There was an issue uploading your asset. Please try again.');
-		}
-
-		$file_key = $asset->remote_url;
-
-		// generate policy and signature object for response
-		$expiration = gmdate('Y-m-d\TH:i:s.000\Z', time() + $s3_config['expire_in']);
-
-		$param_hash = [
-			'expiration' => $expiration,
-			'conditions' => [
-			  ['bucket' => $s3_config['uploads_bucket']],
-			  ['acl' => 'public-read'], # makes the uploaded file public readable
-			  ['starts-with', '$key', $file_key], #restricts uploads to filenames that start with media/
-			  ['starts-with', '$Content-Type', ''], # allows all content types
-			  ['success_action_status' => '201'] # CREATED
-			]
-		];
-		$policy = base64_encode(json_encode($param_hash));
-
-		$secret_key = $s3_config['secret_key'];
-		$sha1_hash = hash_hmac('sha1', $policy, $secret_key, true); // raw_output = true
-		$signature = base64_encode($sha1_hash);
-
-		$res = [
-			'AWSAccessKeyId' => $s3_config['AWSAccessKeyId'],
-			'policy'         => $policy,
-			'signature'      => $signature,
-			'file_key'       => $file_key
-		];
-
-		return $res;
-	}
-
-	/**
 	* Updates the status of an asset upload using the status code returned by Amazon S3.
 	* Any errors reported by Amazon S3 are stored in Materia logs.
 	*
@@ -772,7 +702,7 @@ class Api_V1
 			$semester = Semester::get_current_semester();
 			$result = Score_Manager::get_widget_scores_for_semester($inst_id, $semester);
 		}
-		
+
 		$scores = [];
 		foreach ($result as $score)
 		{

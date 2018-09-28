@@ -10,22 +10,11 @@
 namespace Materia;
 class Widget_Asset_Manager
 {
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 */
-	static public function get_asset($id)
-	{
-		$asset = new Widget_Asset();
-		$asset->db_get($id);
-		return $asset;
-	}
 
 	static public function update_asset($asset_id, $properties=[])
 	{
 		// find asset that was created on upload_keys_get
-		$asset = Widget_Asset_Manager::get_asset($asset_id);
+		$asset = Widget_Asset::fetch_by_id($asset_id);
 		// if not found, returned asset is default empty asset object
 		if (empty($asset->id))
 		{
@@ -40,39 +29,6 @@ class Widget_Asset_Manager
 	{
 		$stats = Widget_Asset_Manager::get_user_asset_stats(\Model_User::find_current_id());
 		return $stats['kbUsed'] + ($bytes / 1024.0) < $stats['kbAvail'];
-	}
-
-	// new route for s3 uploads
-	static public function upload_temp($remote_url_stub, $type, $title, $size)
-	{
-		// remote_url will be completed once we successfully get
-		// an available asset_id
-		$asset = new Widget_Asset([
-			'type'       => $type,
-			'title'      => $title,
-			'file_size'  => $size,
-			'status'     => 'temp_asset', // signify temp asset
-			'remote_url' => $remote_url_stub
-		]);
-
-		if ($asset->db_store() && \Materia\Util_Validator::is_valid_hash($asset->id))
-		{
-			try
-			{
-				// set perms
-				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
-				return $asset;
-			}
-			catch (\Exception $e)
-			{
-				trace($e);
-			}
-
-			// failed, remove the asset
-			$asset->db_remove();
-		}
-
-		return $asset;
 	}
 
 	// old method for server upload storage
@@ -93,9 +49,9 @@ class Widget_Asset_Manager
 		{
 			try
 			{
-				// move the file to the appropriate dir
-				$to_file = "{$asset->id}.{$asset->type}";
-				$copied = \File::rename($file_info['realpath'], $to_file, 'media');
+				// store the data into the database
+				$asset->upload_asset_data($file_info['realpath']);
+				\File::delete($file_info['realpath'], 'media');
 
 				// set perms
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
@@ -168,7 +124,7 @@ class Widget_Asset_Manager
 	{
 		if (Widget_Asset_Manager::can_asset_be_deleted($id))
 		{
-			$asset = Widget_Asset_Manager::get_asset($id);
+			$asset = Widget_Asset::fetch_by_id($id);
 			return $asset->db_remove();
 		}
 		return false;

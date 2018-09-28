@@ -15,7 +15,6 @@ $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
 	'Fuel\\Session\\File'               => $materia_path.'/fuel/session/cache.php',
 	'Cache'                             => $materia_path.'/fuel/core/cache.php',
 	'Fuel\\Core\\Errorhandler'          => $materia_path.'/fuel/core/errorhandler.php',
-	'File'                              => $materia_path.'/fuel/core/file.php',
 	'Log'                               => $materia_path.'/fuel/core/log.php',
 	'TestCase'                          => $materia_path.'/fuel/core/testcase.php',
 	// TODO: build task that will resolve/populate all the classes in materia here
