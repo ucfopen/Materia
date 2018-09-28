@@ -1,0 +1,99 @@
+{
+  "name": "Materia",
+  "description": "Materia webserver",
+  "keywords": [
+    "education",
+    "edtech",
+    "materia",
+    "widgets",
+    "h5p",
+    "openedu",
+    "open education",
+    "learning"
+  ],
+  "website": "https://ucfopen.github.io/Materia-Docs/",
+  "logo": "https://ucfopen.github.io/Materia-Docs/assets/img/logos/black/materia-logo-square-black.svg",
+  "success_url": "/",
+  "scripts": {
+    "postdeploy": "composer run oil-install-quiet && php oil r widget:install_from_config"
+  },
+  "env": {
+    "FUEL_ENV": {
+      "description": "FUELPHP Environment to load",
+      "required": true,
+      "value": "production"
+    },
+    "LTI_USERNAME_PARAM":{
+      "description": "Which LTI post param to use as a username",
+      "required": true,
+      "value": "lis_person_sourcedid"
+    },
+    "LTI_KEY":{
+      "description": "LTI Key for configuring your LMS",
+      "required": true,
+      "value": "my-demo-materia-heroku-key"
+    },
+    "LTI_SECRET":{
+      "description": "LTI secret for configuring your LMS",
+      "required": true,
+      "generator": "secret"
+    },
+    "MATERIA_AUTH_SALT":{
+      "description": "Secret salt for hashing authentication variables",
+      "required": true,
+      "generator": "secret"
+    },
+    "CRYPTO_KEY":{
+      "description": "Secret for cyrptography",
+      "required": true,
+      "generator": "secret"
+    },
+    "CRYPTO_IV":{
+      "description": "Another Secret for cyrptography",
+      "required": true,
+      "generator": "secret"
+    },
+    "CRYPTO_HMAC":{
+      "description": "Yep, it's another Secret for cyrptography",
+      "required": true,
+      "generator": "secret"
+    },
+    "CIPHER_KEY":{
+      "description": "Just one more Secret for cyrptography",
+      "required": true,
+      "generator": "secret"
+    },
+    "USER_SYSTEM_PASSWORD":{
+      "description": "Auto generated password for the admin user",
+      "required": true,
+      "generator": "secret"
+    },
+    "USER_INSTRUCTOR_PASSWORD":{
+      "description": "Auto generated password for an instructor",
+      "required": true,
+      "generator": "secret"
+    },
+    "USER_STUDENT_PASSWORD":{
+      "description": "Auto generated password for a student",
+      "required": true,
+      "generator": "secret"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "image": "heroku/nodejs",
+  "addons": [
+    {
+      "plan": "cleardb:ignite"
+    }
+  ],
+  "buildpacks": [
+    {"url": "heroku/php"},
+    {"url": "heroku/nodejs"}
+  ],
+  "environments": {}
+}

@@ -155,6 +155,53 @@ class Widget extends \Basetask
 		return $output_dir.$file_name;
 	}
 
+	public static function install_from_url(string $package_url, string $checksum_url, ?int $desired_id = null): void
+	{
+		$local_package = static::download_package($package_url);
+		$local_checksum = static::download_package($checksum_url);
+		$valid = static::validate_checksum($local_package, $local_checksum);
+
+		\Cli::set_option('replace-id', $desired_id);
+		if ($valid) static::install($local_package);
+	}
+
+	protected static function validate_checksum(string $wigt_path, string $checksum_path): bool
+	{
+		$file_area = \File::forge(['basedir' => null]);
+		$checksums = \Format::forge($file_area->read($checksum_path, true), 'yaml')->to_array();
+		$sha_hash = hash_file('sha256', $wigt_path);
+
+		if ($sha_hash !== $checksums['sha256'])
+		{
+			\Cli::write('Error: sha256 checksum mis-match!!');
+			return false;
+		}
+
+		\Cli::write('Checksum Valid');
+		\Cli::write("Build date: {$checksums['build_date']}");
+		\Cli::write("Git Source: {$checksums['git']}");
+		\Cli::write("Git Commit: {$checksums['git_version']}");
+		return true;
+	}
+
+	public static function install_from_config()
+	{
+		$widgets = \Config::get('widgets');
+		foreach ($widgets as $w)
+		{
+			static::install_from_url($w['package'], $w['checksum'], $w['id']);
+		}
+	}
+
+	public static function extract_from_config()
+	{
+		$widgets = \Config::get('widgets');
+		foreach ($widgets as $index => $w)
+		{
+			static::extract_from_url_without_install($w['package'], $w['checksum'], $w['id']);
+		}
+	}
+
 	// must be passed .wigt file references, can use glob syntax to match multiple widgets
 	public static function install()
 	{
@@ -203,13 +250,27 @@ class Widget extends \Basetask
 
 	// This function will verify and extract the widget files without installing
 	// This is primarily used to deposit expanded widgets into a production Docker Container
-	public static function extract()
+	public static function extract_without_install(int $id, string $package_path): void
 	{
-		$widget_files = static::get_files_from_args(func_get_args());
-		$id = \Cli::option('id');
-		$success = \Materia\Widget_Installer::extract_package_files($widget_files[0], $id);
+		$success = \Materia\Widget_Installer::extract_package_files($package_path, $id);
 		\Cli::write('Widget '.($success ? 'installed' : 'not installed'));
 		if ($success !== true) exit(1); // linux exit code 1 = error
+	}
+
+	// This function will verify and extract the widget files without installing
+	// This is primarily used to deposit expanded widgets into a production Docker Container
+	public static function extract_from_url_without_install(string $package_url, string $checksum_url, int $id): void
+	{
+		$local_package = static::download_package($package_url);
+		$local_checksum = static::download_package($checksum_url);
+		$valid = static::validate_checksum($local_package, $local_checksum);
+
+		if ($valid)
+		{
+			$success = \Materia\Widget_Installer::extract_package_files($local_package, $id);
+			\Cli::write('Widget '.($success ? 'installed' : 'not installed'));
+			if ($success !== true) exit(1); // linux exit code 1 = error
+		}
 	}
 
 	private static function login_as_admin()
