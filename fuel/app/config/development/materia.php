@@ -5,7 +5,7 @@ return [
 	// append port 8008 for dev
 	'urls' => [
 		'static' => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()),
-		'engines'  => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')),
+		'engines' => preg_replace('/(http:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')),
 	],
 
 	/**
@@ -13,6 +13,12 @@ return [
 	*/
 	'enable_admin_uploader' => true,
 
-	// turn off s3 media by default
-	's3_config' => [ 's3_enabled' => false],
+	'asset_storage_driver' => 's3',
+
+	'asset_storage' => [
+		's3' => [
+			'endpoint'   => 'http://fakes3:10001',
+			'bucket'     => 'fake_bucket', // bucket to store original user uploads
+		],
+	]
 ];
