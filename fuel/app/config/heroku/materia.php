@@ -2,6 +2,7 @@
 // all files in heroku/config are copied to config/production on heroku
 // they will overwrite any files already in config/production
 return [
+	'send_emails' => false,
 	/**
 	* Uploader is disabled on Heroku by default
 	* Because we can't rely on disk storage
