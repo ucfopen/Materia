@@ -12,7 +12,7 @@
     "learning"
   ],
   "website": "https://ucfopen.github.io/Materia-Docs/",
-  "logo": "https://ucfopen.github.io/Materia-Docs/assets/img/logos/black/materia-logo-square-black.svg",
+  "logo": "https://ucfopen.github.io/Materia-Docs/assets/img/logos/color/materia-logo-square-color.svg",
   "success_url": "/",
   "scripts": {
     "postdeploy": "composer run oil-install-quiet && php oil r widget:install_from_config"
