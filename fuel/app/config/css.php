@@ -64,7 +64,6 @@ return [
 			$static_css.'question-import.css',
 		],
 		'media_catalog' => [
-			$static_css.'jquery.dataTables.css',
 			$static_css.'media-import.css'
 		],
 		'help' => [
