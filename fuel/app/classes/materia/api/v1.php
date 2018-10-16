@@ -385,12 +385,27 @@ class Api_V1
 		// but we don't want to include that in the results
 		$play  = new Session_Play();
 		$plays = $play->get_plays_by_user_id(\Model_User::find_current_id(), $start, $range + 1);
+		trace($plays);
 		$count = count($plays);
 		if ($count > $range) $plays = array_slice($plays, 0, $range);
 		return [
 			'activity' => $plays,
 			'more'     => $count > $range
 		];
+	}
+
+	static public function play_state_save($play_id, $state)
+	{
+		$inst = self::_get_instance_for_play_id($play_id);
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+		if ($inst->guest_access) return;
+
+		$encoded_state = base64_encode(json_encode($state));
+
+		\DB::update('log_play')
+			->value('last_state', $encoded_state)
+			->where('id', $play_id)
+			->execute();
 	}
 
 	static public function play_logs_save($play_id, $logs, $preview_inst_id = null)

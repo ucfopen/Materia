@@ -31,6 +31,7 @@ class Session_Play
 	public $referrer_url;
 	public $score;
 	public $user_id;
+	public $last_state;
 
 	/**
 	 * NEEDS DOCUMENTAION
@@ -60,6 +61,7 @@ class Session_Play
 				'ip_address' => \Input::ip(),
 				'referrer'   => \Input::referrer(),
 			];
+			$this->last_state = $this->unfinished_play_state() ?: '';
 
 			// @TODO: This is a hack - assuming 'lti_message_type' in POST or 'token' in GET implies an LTI.
 			// Essentially true but fragile.
@@ -102,6 +104,32 @@ class Session_Play
 	protected static function set_user_is_playing()
 	{
 		\Session::set('user_is_playing', true);
+	}
+
+	public static function get_play_state($play_id)
+	{
+		$last_state = \DB::select('last_state')
+			->from('log_play')
+			->where('id', $play_id)
+			->execute();
+		if ( ! empty($last_state[0])) return base64_decode($last_state[0]['last_state']);
+		return false;
+	}
+
+	//used to grab the most recent saved state from an unfinished play of this instance by this user
+	protected function unfinished_play_state()
+	{
+		$last_state = \DB::select('last_state')
+			->from('log_play')
+			->where('inst_id', $this->inst_id)
+			->where('user_id', $this->user_id)
+			->where('is_complete', '0')
+			->where('last_state', '!=', '')
+			->order_by('created_at', 'desc')
+			->limit(1)
+			->execute();
+		if ( ! empty($last_state[0])) return $last_state[0]['last_state'];
+		return false;
 	}
 
 	protected static function start_preview($inst_id)
@@ -154,7 +182,8 @@ class Session_Play
 				'auth'             => $this->auth,
 				'referrer_url'     => $this->referrer_url,
 				'context_id'       => $this->context_id,
-				'semester'         => $this->semester
+				'semester'         => $this->semester,
+				'last_state'       => $this->last_state
 			])
 			->execute();
 
@@ -427,7 +456,8 @@ class Session_Play
 				'p.is_complete',
 				'p.inst_id',
 				['w.name', 'widget_name'],
-				['i.name', 'inst_name']
+				['i.name', 'inst_name'],
+				'p.last_state'
 			)
 			->from( ['log_play', 'p'])
 			->join( ['widget_instance', 'i'], 'LEFT')
