@@ -18,7 +18,7 @@
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
     "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-server-client-assets": "v0.3.5",
+    "materia-server-client-assets": "https://github.com/ucfopen/Materia-Server-Client-Assets.git#v0.3.6-alpha1",
     "napa": "^3.0.0"
   },
   "napa": {
