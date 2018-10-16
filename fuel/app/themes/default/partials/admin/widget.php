@@ -20,8 +20,8 @@
 					<span>{{ selectedFileName }}</span>
 				</form>
 			<?php else: ?>
-				<p>Widget uploader is disabled</p>
-				<p>Change the "enable_admin_uploader" setting in config.php.</p>
+				<p>Widget uploader is <em>disabled</em></p>
+				<p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>
 			<?php endif ?>
 		</section>
 	</div>
