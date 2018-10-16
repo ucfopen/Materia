@@ -343,6 +343,7 @@ class Controller_Widgets extends Controller
 
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
+		$play_state = \Materia\Session_Play::get_play_state($play_id) ?: '';
 
 		if ($play_id instanceof \Materia\Msg)
 		{
@@ -350,7 +351,7 @@ class Controller_Widgets extends Controller
 			throw new HttpServerErrorException;
 		}
 
-		$this->display_widget($inst, $play_id, $is_embedded);
+		$this->display_widget($inst, $play_id, $is_embedded, $play_state);
 	}
 
 	/**
@@ -456,7 +457,7 @@ class Controller_Widgets extends Controller
 		return [$summary, $desc, $status['open']];
 	}
 
-	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
+	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false, $play_state=null)
 	{
 		Css::push_group(['core', 'widget_play']);
 		Js::push_group(['angular', 'materia', 'student']);
@@ -467,6 +468,7 @@ class Controller_Widgets extends Controller
 		}
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
+		Js::push_inline("var PLAY_STATE = '".$play_state."';");
 		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
