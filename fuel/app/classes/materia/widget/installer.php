@@ -491,7 +491,7 @@ class Widget_Installer
 		}
 		else
 		{
-			if ($files[creator] !== 'default')
+			if ($files['creator'] !== 'default')
 			{
 				$creator_file = $dir.'/'.$files['creator'];
 				if ( ! file_exists($creator_file))
