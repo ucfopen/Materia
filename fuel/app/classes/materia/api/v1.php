@@ -490,41 +490,6 @@ class Api_V1
 	}
 
 	/**
-	* Updates the status of an asset upload using the status code returned by Amazon S3.
-	* Any errors reported by Amazon S3 are stored in Materia logs.
-	*
- 	* @param string $asset_id The uploaded asset's ID
-	* @param boolean $s3_upload_success Tells whether or not the asset successfully uploaded
-	* @param strign $error Holds any error messages returned by a POST request to Amazon S3
-	*
-	* @return boolean $asset_updated Tells whether or not the asset record was successfully updates
-	*/
-	static public function upload_success_post($asset_id, $s3_upload_success, $error = null)
-	{
-		// Validate Logged in
-		if (\Service_User::verify_session() !== true) return Msg::no_login();
-
-
-		// bypass update if user sends back invalid hash
-		if ( ! Util_Validator::is_valid_hash($asset_id))
-		{
-			\LOG::error("Asset could not be updated due to the following invalid ID sent from client: {$asset_id}");
-			return Msg::invalid_input('There was an issue uploading your asset. Please try again.');
-		}
-
-		$status = $s3_upload_success ? 'upload_success' : 's3_upload_failed';
-
-		// This is an error reported by the client, and is not a fatal error in the api. The code following will still run.
-		if ($error) \Log::error("External asset upload failed with the following message - {$error}");
-
-		$asset_updated = Widget_Asset_Manager::update_asset($asset_id, [
-			'status' => $status
-		]);
-
-		return $asset_updated;
-	}
-
-	/**
 	 * Returns all scores for the given widget instance recorded by the current user, and attmepts remaining in the current context.
 	 * If no launch token is supplied, the current semester will be used as the current context.
 	 *

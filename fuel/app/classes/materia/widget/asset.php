@@ -21,8 +21,6 @@ class Widget_Asset
 	public $is_shared;
 	public $title      = '';
 	public $file_size  = '';
-	public $remote_url = null;
-	public $status     = null;
 	public $questions  = [];
 	public $type       = '';
 	protected $_storage_driver;
@@ -100,8 +98,6 @@ class Widget_Asset
 						'type'        => $this->type,
 						'title'       => $this->title,
 						'file_size'   => $this->file_size,
-						'remote_url'  => $this->remote_url,
-						'status'      => $this->status,
 						'created_at'  => time()
 					])
 					->where('id','=',$this->id)
@@ -173,17 +169,6 @@ class Widget_Asset
 			return false;
 		}
 
-		// if this asset has a remote_url stub, append the
-		// id. otherwise, leave it null
-		if (isset($this->remote_url))
-		{
-			// used to identify who uploaded asset
-			$user_id = \Model_User::find_current_id();
-
-			// Builds remote_url
-			$this->remote_url .= "{$user_id}-{$asset_id}.{$this->type}";
-		}
-
 		\DB::start_transaction();
 
 		try
@@ -194,8 +179,6 @@ class Widget_Asset
 					'type'        => $this->type,
 					'title'       => $this->title,
 					'file_size'   => $this->file_size,
-					'remote_url'  => $this->remote_url,
-					'status'      => $this->status,
 					'created_at'  => time()
 				])
 				->execute();

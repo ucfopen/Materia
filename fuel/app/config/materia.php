@@ -86,6 +86,9 @@ return [
 	'asset_storage_driver' => 'db',
 
 	'asset_storage' => [
+		'file' => [
+			'driver_class' => '\Materia\Widget_Asset_Filestorage'
+		],
 		'db' => [
 			'driver_class' => '\Materia\Widget_Asset_Dbstorage'
 		],
