@@ -495,12 +495,19 @@ class Widget_Installer
 			throw new \Exception("Player file missing: $player_file");
 		}
 
-		if (isset($files['creator']))
+		if (empty($files['creator']))
 		{
-			$creator_file = $dir.'/'.$files['creator'];
-			if ( ! file_exists($creator_file))
+			throw new \Exception('Creator does not exist');
+		}
+		else
+		{
+			if ($files[creator] !== 'default')
 			{
-				throw new \Exception("Creator file missing: $creator_file");
+				$creator_file = $dir.'/'.$files['creator'];
+				if ( ! file_exists($creator_file))
+				{
+					throw new \Exception("Creator file missing: $creator_file");
+				}
 			}
 		}
 
