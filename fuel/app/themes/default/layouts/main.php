@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html class="<?= (isset($html_class) ? $html_class : '') ?>">
 <head>
-<!-- <base href="/" /> -->
 <meta charset="utf-8" />
 <title><?= $title ?> | Materia</title>
 <?= Css::render() ?>
