@@ -36,9 +36,9 @@ class Assets
 				if ( ! $to_driver->exists($id, $size))
 				{
 					\Cli::write("Copying asset: {$id} from {$from_driver_name} >>> {$to_driver_name}");
-					$asset_path = tempnam(sys_get_temp_dir(), "asset_{$id}_");
-					$from_driver->download($id, $size, $asset_path);
-					$to_driver->upload($asset, $asset_path, $size);
+					$tmp_file = tempnam(sys_get_temp_dir(), "asset_{$id}_");
+					$from_driver->retrieve($id, $size, $tmp_file);
+					$to_driver->store($asset, $tmp_file, $size);
 					\Cli::write(' 👍 Complete');
 					$count++;
 				}
