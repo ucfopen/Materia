@@ -42,5 +42,10 @@ return [
 			'package'  => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/enigma_a149e18d93df78ef775665ffdc02b6490f8faad5.wigt',
 			'checksum' => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/enigma_a149e18d93df78ef775665ffdc02b6490f8faad5.wigt.yml',
 		],
+		[
+			'id' => 5,
+			'package'  => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/labeling_3bb91ca43aef61e252c58015631fb3cbc713badf.wigt',
+			'checksum' => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/labeling_3bb91ca43aef61e252c58015631fb3cbc713badf.wigt.yml',
+		],
 	],
 ];

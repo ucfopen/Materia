@@ -215,23 +215,35 @@ class Widget_Asset
 	 */
 	public function render(string $size): void
 	{
-		// register a shutdown function that will render the image
-		// allowing all of fuel's other shutdown methods to do their jobs
-		\Event::register('fuel-shutdown', function() use($size) {
 
-			// set a few ini settings before we start
-			ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
-			! ini_get('safe_mode') and set_time_limit(0);
+		// set a few ini settings before we start
+		ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
+		! ini_get('safe_mode') and set_time_limit(0);
 
+		try
+		{
+			// requested size doesnt exist?
 			if ( ! $this->_storage_driver->exists($this->id, $size))
 			{
-				if ($size === 'original') throw new HttpNotFoundException;
+				// if size is original, just 404
+				if ($size === 'original') throw("Missing asset data for asset: {$id} {$size}");
+
+				// rebuild the size (hopefully - we may not )
 				$asset_path = $this->build_size($size);
 			}
 			else
 			{
-				$asset_path = $this->download_asset_to_temp_file($this->id, $size);
+				$asset_path = $this->copy_asset_to_temp_file($this->id, $size);
 			}
+		} catch (\Throwable $e)
+		{
+			trace($e);
+			throw new \HttpNotFoundException;
+		}
+
+		// register a shutdown function that will render the image
+		// allowing all of fuel's other shutdown methods to do their jobs
+		\Event::register('fuel-shutdown', function() use($asset_path) {
 
 			if ( ! file_exists($asset_path)) throw new HttpNotFoundException;
 			$bytes = filesize($asset_path);
@@ -243,6 +255,7 @@ class Widget_Asset
 			header("Content-Disposition: inline; filename=\"{$this->title}\"");
 			header("Content-Length: {$bytes}");
 			header('Content-Transfer-Encoding: binary');
+			header('Cache-Control: max-age=31536000');
 			$fp = fopen($asset_path, 'rb');
 			fpassthru($fp); // write file directly to output
 			unlink($asset_path);
@@ -299,7 +312,7 @@ class Widget_Asset
 		$this->_storage_driver->lock_for_processing($this->id, $size);
 
 		// get the original file
-		$original_asset_path = $this->download_asset_to_temp_file($this->id, 'original');
+		$original_asset_path = $this->copy_asset_to_temp_file($this->id, 'original');
 
 		// add extension to tmp file so Image knows how to read it
 		rename($original_asset_path, $original_asset_path .= $ext);
@@ -331,7 +344,7 @@ class Widget_Asset
 			throw($e);
 		}
 
-		$this->_storage_driver->upload($this, $resized_file_path, $size);
+		$this->_storage_driver->store($this, $resized_file_path, $size);
 
 		// update asset_data
 		$this->_storage_driver->unlock_for_processing($this->id, $size);
@@ -348,22 +361,22 @@ class Widget_Asset
 	 */
 	public function upload_asset_data(string $source_asset_path): void
 	{
-		$this->_storage_driver->upload($this, $source_asset_path, 'original');
+		$this->_storage_driver->store($this, $source_asset_path, 'original');
 	}
 
 	/**
-	 * Download an asset of a specific size to a temp file
+	 * Copy the binary of an asset of a specific size to a temp file
 	 * @param  string $id   Asset Id
 	 * @param  string $size Asset size
 	 * @return string       path to the file containing the downloaded asset
 	 */
-	protected function download_asset_to_temp_file(string $id, string $size): string
+	protected function copy_asset_to_temp_file(string $id, string $size): string
 	{
 		// create temp file to copy image into
 		// Fuel's image manipulation requires the images to be files
 		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$id}_{$size}_");
 
-		$this->_storage_driver->download($id, $size, $tmp_file_path);
+		$this->_storage_driver->retrieve($id, $size, $tmp_file_path);
 
 		return $tmp_file_path;
 	}

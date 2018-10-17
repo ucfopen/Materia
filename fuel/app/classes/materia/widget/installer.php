@@ -35,8 +35,11 @@ class Widget_Installer
 		return $success;
 	}
 
+	// @codingStandardsIgnoreStart
+	// code sniffer needs major breaking updates to handle ?int and ?bool
 	public static function extract_package_and_install(string $widget_file, ?bool $skip_upgrade = false, ?int $replace_id = 0): bool
 	{
+	// @codingStandardsIgnoreEnd
 		try
 		{
 			$activity = new Session_Activity([

@@ -1,19 +1,19 @@
 <?php
 namespace Materia;
 
-class Widget_Asset_Dbstorage
+class Widget_Asset_Storage_Db implements Widget_Asset_Storage_Driver
 {
 	protected static $_instance;
 	protected static $_config;
 
 	/**
 	 * Get an instance of this class
-	 * @return object Widget_Asset_Dbstorage
+	 * @return object Widget_Asset_Storage_Driver
 	 */
-	public static function instance(array $config): Widget_Asset_Dbstorage
+	public static function instance(array $config): Widget_Asset_Storage_Driver
 	{
 		static::$_config = $config;
-		static::$_instance = new Widget_Asset_Dbstorage();
+		static::$_instance = new Widget_Asset_Storage_Db();
 		return static::$_instance;
 	}
 
@@ -74,12 +74,12 @@ class Widget_Asset_Dbstorage
 	}
 
 	/**
-	 * Download asset data of a specific size into a file
+	 * Copy asset data of a specific size into a file
 	 * @param  string $id               Asset Id
 	 * @param  string $size             Asset Size
 	 * @param  string $target_file_path Path to a file to write download into.
 	 */
-	public function download(string $id, string $size, string $target_file_path): void
+	public function retrieve(string $id, string $size, string $target_file_path): void
 	{
 		// Get fiel from db into temp file
 		$results = \DB::select()
@@ -88,7 +88,7 @@ class Widget_Asset_Dbstorage
 			->where('size', $size)
 			->execute();
 
-		if ($results->count() < 1) throw("Missing asset data for asset: {$id} {$size}");
+		if ($results->count() < 1) throw new \Exception("Missing asset data for asset: {$id} {$size}");
 
 		file_put_contents($target_file_path, $results[0]['data']);
 		unset($results); // free up image data memory
@@ -100,7 +100,7 @@ class Widget_Asset_Dbstorage
 	 * @param  string       $image_path String of binary image data to store in the db
 	 * @param  string       $size       Which size variant is this data? EX: 'original', 'thumbnail'
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size): void
+	public function store(Widget_Asset $asset, string $image_path, string $size): void
 	{
 		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
 
