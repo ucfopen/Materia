@@ -87,7 +87,8 @@ return [
 
 	'asset_storage' => [
 		'file' => [
-			'driver_class' => '\Materia\Widget_Asset_Filestorage'
+			'driver_class' => '\Materia\Widget_Asset_Filestorage',
+			'media_dir'    => APPPATH.'media'.DS,
 		],
 		'db' => [
 			'driver_class' => '\Materia\Widget_Asset_Dbstorage'
