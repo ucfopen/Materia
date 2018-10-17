@@ -38,11 +38,25 @@ trait Trait_CommonControllerTemplate
 			$response->set_header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate');
 		}
 
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
-		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		$this->inject_common_js_constants();
 		Css::push_group('core');
 
 		return parent::after($response);
+	}
+
+	public function inject_common_js_constants()
+	{
+		$consts = [
+			'BASE_URL'           => Uri::base(),
+			'WIDGET_URL'         => Config::get('materia.urls.engines'),
+			'MEDIA_URL'          => Config::get('materia.urls.media'),
+			'MEDIA_UPLOAD_URL'   => Config::get('materia.urls.media_upload'),
+			'STATIC_CROSSDOMAIN' => Config::get('materia.urls.static'),
+		];
+
+		foreach ($consts as $key => $value)
+		{
+			Js::push_inline("var {$key} = '{$value}';");
+		}
 	}
 }
