@@ -5,16 +5,20 @@
     "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida"],
     "license": "No License",
     "scripts":{
-        "sniff": "phpcs --extensions=php .",
-        "sniff-errors-only": "phpcs -n --extensions=php .",
-        "sniff-summary": "phpcs --report=summary --extensions=php .",
-        "post-install-cmd": "cp ./githooks/pre-commit ./.git/hooks/pre-commit",
-        "git-pre-commit":"@sniff-summary",
+        "sniff": "phpcs -n --extensions=php .",
+        "sniff-with-warnings": "phpcs --extensions=php .",
+        "sniff-ci": "phpcs --report=summary --extensions=php .",
+        "post-install-cmd": "test -d ./.git/hooks && cp ./githooks/pre-commit ./.git/hooks/pre-commit || true",
+        "git-pre-commit":"@sniff-ci",
         "destroy-everything": "php oil r admin:destroy_everything --quiet",
         "oil-install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
         "widgets-install-test": "php oil r widget:install fuel/app/tests/widget_packages/*.wigt",
         "test": "php -dzend_extension=xdebug.so fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
         "coverage": "php oil test --coverage-html=coverage --coverage-clover=coverage.xml --coverage-text=coverage.txt",
+        "heroku-place-configs": "cp -R fuel/app/config/heroku fuel/app/config/production && cp -R fuel/app/modules/lti/config/heroku fuel/app/modules/lti/config/production",
+        "heroku-extract-widgets": "php oil r widget:extract_from_config",
+        "compile": ["@heroku-place-configs", "@heroku-extract-widgets"],
+        "devserver": "php oil server",
         "testci":[
             "@destroy-everything",
             "@oil-install-quiet",
@@ -26,10 +30,13 @@
             "@coverage"
         ]
     },
+    "platform": {
+    },
     "require": {
-        "php": ">=5.6.0",
+        "php": ">=7.1 <7.3",
         "ext-pdo": "*",
         "ext-gd": "*",
+        "ext-mbstring": "*",
         "composer/installers": "~1.0",
         "fuel/core": "1.8.1.6",
         "fuel/auth": "1.8.1",
@@ -41,7 +48,11 @@
         "fuelphp/upload": "2.0.6",
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.0",
-        "eher/oauth": "1.0.7"
+        "eher/oauth": "1.0.7",
+        "aws/aws-sdk-php": "3.67.17"
+    },
+    "suggest": {
+        "ext-memcached": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "6.4.*",
@@ -77,5 +88,6 @@
             }
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

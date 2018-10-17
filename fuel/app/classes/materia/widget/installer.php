@@ -10,15 +10,19 @@ use \Materia\Util_Validator;
 
 class Widget_Installer
 {
-
-	// This function will verify and extract the widget files without installing
-	// This is primarily used to deposit expanded widgets into a production Docker Container
-	public static function extract_package_files($widget_file, $widget_id)
+	/**
+	 * Extracts a .wigt file to it's proper target destination without using a database connection
+	 * Usefull for Heroku build process, pre-packaging servers, or similar activities.
+	 * @param  string $widget_file Path to .wigt file
+	 * @param  int    $widget_id   ID to use for the widget's id (when using the normal db install, this comes from the db)
+	 * @return bool              Success
+	 */
+	public static function extract_package_files(string $widget_file, int $widget_id): bool
 	{
 		try
 		{
-			list($dir, $manifest_data, $clean_name) = static::unzip_and_read_manifest($widget_file);
-			static::install_widget_files($widget_id, $manifest_data, $dir);
+			[$dir, $manifest_data, $clean_name] = static::unzip_and_read_manifest($widget_file);
+			static::install_widget_files($widget_id, $clean_name, $dir);
 			$success = true;
 		}
 		catch (\Exception $e)
@@ -31,15 +35,18 @@ class Widget_Installer
 		return $success;
 	}
 
-	public static function extract_package_and_install($widget_file, $skip_upgrade = false, $replace_id = 0)
+	// @codingStandardsIgnoreStart
+	// code sniffer needs major breaking updates to handle ?int and ?bool
+	public static function extract_package_and_install(string $widget_file, ?bool $skip_upgrade = false, ?int $replace_id = 0): bool
 	{
+	// @codingStandardsIgnoreEnd
 		try
 		{
 			$activity = new Session_Activity([
 				'user_id' => \Model_User::find_current_id()
 			]);
 
-			list($dir, $manifest_data, $clean_name) = static::unzip_and_read_manifest($widget_file);
+			[$dir, $manifest_data, $clean_name] = static::unzip_and_read_manifest($widget_file);
 
 			// Check for existing widgets
 			$matching_widgets = static::find_by_clean_name($clean_name);
@@ -55,7 +62,7 @@ class Widget_Installer
 						\Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
 					}
 					\Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
-					return;
+					return false;
 				}
 				else
 				{
@@ -75,40 +82,41 @@ class Widget_Installer
 
 			$params = static::generate_install_params($manifest_data, $widget_file);
 
-			$demo_instance_id = null;
+			$existing_demo_inst_id = null;
 
-			// UPGRADE
-			if ( ! empty($replace_id))
+			// NEW
+			if (empty($replace_id))
 			{
+				static::out('Installing brand new widget');
+				$id = static::save_params($params);
+				$activity->type = Session_Activity::TYPE_INSTALL_WIDGET;
+			}
+			// UPGRADE
+			else
+			{
+				$existing_widget = \Materia\Widget::forge($replace_id);
 				static::out('Upgrading existing widget');
-				$widget = static::update_params($replace_id, $params, true);
-				$id = $widget->id;
+				$id = static::save_params($params, $replace_id);
 
 				// keep track of the previously used instance id used for the demo
-				if ($widget && ! empty($widget->meta_data['demo']))
+				if ($existing_widget && ! empty($existing_widget->meta_data['demo']))
 				{
-					$demo_instance_id = $widget->meta_data['demo'];
-					static::out("Existing demo found: $demo_instance_id", 'yellow');
+					$existing_demo_inst_id = $existing_widget->meta_data['demo'];
+					static::out("Existing demo found: $existing_demo_inst_id", 'yellow');
 				}
 				$activity->type = Session_Activity::TYPE_UPDATE_WIDGET;
 			}
-			// NEW
-			else
-			{
-				static::out('Installing brand new widget');
-				list($id, $num) = \DB::insert('widget')
-					->set($params)
-					->execute();
-				$activity->type = Session_Activity::TYPE_INSTALL_WIDGET;
-			}
 
 			// ADD the Demo
-			$demo_id = static::install_demo($id, $dir, $demo_instance_id);
+			$demo_id = static::install_demo($id, $dir, $existing_demo_inst_id);
 			$manifest_data['meta_data']['demo'] = $demo_id;
 
+			static::install_widget_files($id, $clean_name, $dir);
+
+			// save metadata into the db
 			static::save_metadata($id, $manifest_data['meta_data']);
-			static::install_widget_files($id, $manifest_data, $dir);
-			static::out("Widget installed: {$id}-{$clean_name}", 'green');
+
+			static::out("Widget installed: {$dir}", 'green');
 			$success = true;
 			$activity->item_id = $id;
 			$activity->value_1 = $clean_name;
@@ -124,7 +132,7 @@ class Widget_Installer
 		return $success;
 	}
 
-	public static function get_temp_dir()
+	public static function get_temp_dir(): ?string
 	{
 		$tempfile = tempnam(sys_get_temp_dir(), '');
 		if (file_exists($tempfile)) unlink($tempfile);
@@ -135,16 +143,16 @@ class Widget_Installer
 			if (substr($tempfile, -1) != '/') $tempfile .= '/';
 			return $tempfile;
 		}
-		return false;
+		return null;
 	}
 
-	protected static function unzip_to_tmp($file)
+	protected static function unzip_to_tmp(string $file): ?string
 	{
 		$extract_location = static::get_temp_dir();
 		if ( ! $extract_location)
 		{
 			throw new \Exception('Unable to extract widget.');
-			return false;
+			return null;
 		}
 
 		// assume it's a zip, attempt to extract
@@ -168,7 +176,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function validate_demo($demo_data)
+	protected static function validate_demo(array $demo_data): void
 	{
 		if ( ! isset($demo_data['name']))
 		{
@@ -191,10 +199,10 @@ class Widget_Installer
 		}
 	}
 
-	protected static function get_manifest_data($dir)
+	protected static function get_manifest_data(string $dir): array
 	{
 		$manifest_data = false;
-		$manifest_file = $dir.'/install.yaml';
+		$manifest_file = $dir.DS.'install.yaml';
 		if ( ! file_exists($manifest_file))
 		{
 			throw new \Exception('Missing manifest yaml file');
@@ -206,7 +214,7 @@ class Widget_Installer
 	}
 
 
-	protected static function preprocess_json_and_upload_assets($base_dir, $json_text)
+	protected static function preprocess_json_and_upload_assets(string $base_dir, string $json_text): string
 	{
 		preg_match_all('/<%\s*MEDIA\s*=\s*(\'|")(.*)(\'|")\s*%>/', $json_text, $matches);
 
@@ -232,7 +240,7 @@ class Widget_Installer
 	}
 
 	// "uploads" an asset from a widget package
-	protected static function sideload_asset($file)
+	protected static function sideload_asset(string $file): string
 	{
 		try
 		{
@@ -261,7 +269,7 @@ class Widget_Installer
 		}
 	}
 
-	public static function save_metadata($id, $metadata)
+	public static function save_metadata(int $id, array $metadata): void
 	{
 		// add in the metadata
 		foreach ($metadata as $metadata_key => $metadata_value)
@@ -280,7 +288,7 @@ class Widget_Installer
 		}
 	}
 
-	public static function db_insert_metadata($id, $key, $value)
+	public static function db_insert_metadata(int $id, string $key, string $value): void
 	{
 		\DB::insert('widget_metadata')
 			->set([
@@ -291,31 +299,34 @@ class Widget_Installer
 			->execute();
 	}
 
-	protected static function update_params($widget_id, $params, $force = false)
+	protected static function save_params(array $params, ?int $widget_id = null): int
 	{
-		$existing_widget = \Materia\Widget::forge($widget_id);
-
-		if ((int) $existing_widget->id !== (int) $widget_id)
-		{
-			throw new \Exception("No widget found to upgrade: $widget_id");
-		}
-
-		if ( ! $force && $existing_widget->package_hash == $params['package_hash'])
-		{
-			throw new \Exception('Updated packages appears to be the same.');
-		}
-
-		// Ignore the existing in_catalog flag
-		if (array_key_exists('in_catalog', $params))
-		{
-			unset($params['in_catalog']);
-		}
-
-		$num = \DB::update('widget')
-			->set($params)
+		// check for existing
+		$result = \DB::select()
+			->from('widget')
 			->where('id', $widget_id)
-			->limit(1)
 			->execute();
+
+		if ($result->count() == 0)
+		{
+			// new
+			if ( ! empty($widget_id)) $params['id'] = $widget_id; // allows us to insert new items and set id
+			[$widget_id, $num] = \Db::insert('widget')
+				->set($params)
+				->execute();
+		}
+		else
+		{
+			// update
+			// Do not over-write the db's in_catalog flag
+			if (isset($params['in_catalog'])) unset($params['in_catalog']);
+
+			$num = \DB::update('widget')
+				->set($params)
+				->where('id', $widget_id)
+				->limit(1)
+				->execute();
+		}
 
 		if ($num != 1)
 		{
@@ -327,10 +338,11 @@ class Widget_Installer
 			->where('widget_id', $widget_id)
 			->execute();
 
-		return $existing_widget;
+		return $widget_id;
 	}
 
-	protected static function install_demo($widget_id, $package_dir, $existing_inst_id = null)
+
+	protected static function install_demo(int $widget_id, string $package_dir, ?string $existing_inst_id = null): string
 	{
 		// ADD the Demo
 		$json_file = $package_dir.'/demo.json';
@@ -355,9 +367,9 @@ class Widget_Installer
 
 			$qset = (object) ['version' => $demo_data['qset']['version'], 'data' => $demo_data['qset']['data']];
 
-
 			if ($existing_inst_id)
 			{
+				// Update the existing instance by adding a new qset
 				$saved_demo = \Materia\API::widget_instance_update($existing_inst_id, $demo_data['name'], $qset, false, null, null, null, true);
 
 				if ( ! isset($saved_demo->id))
@@ -368,6 +380,7 @@ class Widget_Installer
 			}
 			else
 			{
+				// New instance, nothing to upgrade
 				$saved_demo = \Materia\API::widget_instance_new($widget_id, $demo_data['name'], $qset, false);
 
 				if ( ! isset($saved_demo->id))
@@ -386,7 +399,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function find_by_clean_name($clean_name)
+	protected static function find_by_clean_name(string $clean_name): array
 	{
 		$engine = \DB::select()
 			->from('widget')
@@ -397,7 +410,7 @@ class Widget_Installer
 		return $engine;
 	}
 
-	protected static function validate_keys_exist($section, $required)
+	protected static function validate_keys_exist(array $section, array $required): void
 	{
 		$missing_sections = array_diff($required, array_keys($section));
 		if (count($missing_sections))
@@ -406,7 +419,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function validate_numeric_values($section_data, $attributes)
+	protected static function validate_numeric_values(array $section_data, array $attributes): void
 	{
 		$values = [];
 		foreach ($attributes as $attribute)
@@ -427,7 +440,7 @@ class Widget_Installer
 		}
 	}
 
-	protected static function validate_boolean_values($section_data, $attributes)
+	protected static function validate_boolean_values(array $section_data, array $attributes): void
 	{
 		$values = [];
 		foreach ($attributes as $attribute)
@@ -451,7 +464,7 @@ class Widget_Installer
 
 	// checks to make sure the widget contains the required data.
 	// throws with the reason if not.
-	protected static function validate_widget($dir)
+	protected static function validate_widget(string $dir): void
 	{
 		// 1. Do we have a manifest yaml file?
 		$manifest_data = static::get_manifest_data($dir);
@@ -521,9 +534,9 @@ class Widget_Installer
 		}
 	}
 
-	public static function generate_install_params($manifest_data, $package_file)
+	public static function generate_install_params(array $manifest_data, string $package_file): array
 	{
-		$clean_name = static::clean_name_from_manifest($manifest_data);
+		$clean_name = \Materia\Widget::make_clean_name($manifest_data['general']['name']);
 		$package_hash = md5_file($package_file);
 		$params = [
 			'name'                => $manifest_data['general']['name'],
@@ -551,54 +564,59 @@ class Widget_Installer
 		return $params;
 	}
 
-	protected static function cleanup($dir)
+	protected static function cleanup(string $dir): void
 	{
 		$file_area = \File::forge(['basedir' => null]);
 		$file_area->delete_dir($dir);
 	}
 
-	protected static function install_widget_files($id, $manifest_data, $dir)
+	/**
+	 * Moves widget files from temp location to final location w/o touching db
+	 * @param  int    $id          Widget id
+	 * @param  string $clean_name  Widget clean_name
+	 * @param  string $source_path Full path to the directory currently containing widget files
+	 * @return void
+	 */
+	protected static function install_widget_files(int $id, string $clean_name, string $source_path): void
 	{
-		// the widget needs to have already been placed into the database
-		$widget = \Materia\Widget::forge($id);
-
-		// move widget files
-		$target_dir = \Config::get('file.dirs.widgets').$widget->dir;
+		$widget_dir = \Materia\Widget::make_dir($id, $clean_name);
+		$target_dir = \Config::get('file.dirs.widgets').$widget_dir;
 		$file_area = \File::forge(['basedir' => null]);
 		if (is_dir($target_dir)) $file_area->delete_dir($target_dir);
-		$file_area->copy_dir($dir, $target_dir);
+		$file_area->copy_dir($source_path, $target_dir);
 
-		// save play data exporter methods to metadata
-		$methods = $widget->get_playdata_exporter_methods();
-		$metadata = ['playdata_exporters' => array_keys($methods)];
-		static::save_metadata($id, $metadata);
-
-		static::out("Widget files deployed: {$widget->dir}", 'green');
+		static::out("Widget files deployed: {$widget_dir}", 'green');
 	}
 
-	protected static function clear_path($file)
+	protected static function clear_path(string $file): void
 	{
 		$file_area = \File::forge(['basedir' => null]);
 		if (is_dir($file)) $file_area->delete_dir($file);
 		if (file_exists($file)) $file_area->delete($file);
 	}
 
-	protected static function clean_name_from_manifest($manifest_data)
+	/**
+	 * Unzip a .wigt file into a temp directory, validate it, and extract manifest data
+	 * @param  string $widget_file Path to .wigt file
+	 * @return array
+	 */
+	protected static function unzip_and_read_manifest(string $widget_file): array
 	{
-		return \Inflector::friendly_title($manifest_data['general']['name'], '-', true);
+			$target_dir = static::unzip_to_tmp($widget_file);
+			static::validate_widget($target_dir);
+			$manifest_data = static::get_manifest_data($target_dir);
+			$clean_name = \Materia\Widget::make_clean_name($manifest_data['general']['name']);
+
+			// load the playdata script to add it's methods to the metadata
+			$playdata_path = $target_dir.DS.\Materia\Widget::PATHS_PLAYDATA;
+			$loaded = \Materia\Widget::load_script($playdata_path);
+			$play_data_methods = \Materia\Widget::make_callable_array($loaded);
+			$manifest_data['meta_data']['playdata_exporters'] = array_keys($play_data_methods);
+
+			return [$target_dir, $manifest_data, $clean_name];
 	}
 
-	protected static function unzip_and_read_manifest($widget_file)
-	{
-			$dir = static::unzip_to_tmp($widget_file);
-			static::validate_widget($dir);
-			$manifest_data = static::get_manifest_data($dir);
-			$clean_name = static::clean_name_from_manifest($manifest_data);
-
-			return [$dir, $manifest_data, $clean_name];
-	}
-
-	private static function out($msg, $color = null)
+	protected static function out(string $msg, ?string $color = null): void
 	{
 		if (\Fuel::$is_cli) \Cli::write($msg, $color);
 		else trace($msg);

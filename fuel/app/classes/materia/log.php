@@ -4,7 +4,6 @@ namespace Materia;
 
 class Log
 {
-
 	/**
 	 * reusable stuffs
 	 */

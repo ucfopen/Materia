@@ -13,7 +13,8 @@
     "watch": "webpack --watch",
     "postinstall": "napa && npm run build",
     "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git materia-server-client-assets",
-    "devassets:link": "cd ../materia-server-client-assets && yarn link && cd ../app && yarn link materia-server-client-assets"
+    "devassets:link": "cd ../materia-server-client-assets && yarn install && yarn link && cd ../app && yarn link materia-server-client-assets",
+    "devassets:unlink": "cd ../materia-server-client-assets && yarn unlink && cd ../app && yarn unlink materia-server-client-assets && yarn install"
   },
   "dependencies": {
     "copy-webpack-plugin": "^4.0.1",
