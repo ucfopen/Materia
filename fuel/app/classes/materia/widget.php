@@ -38,6 +38,9 @@ class Widget
 	public $score_screen        = '';
 	public $width               = 0;
 
+	public const PATHS_PLAYDATA = '_exports'.DS.'playdata_exporters.php';
+	public const PATHS_SCOREMOD = '_score-modules'.DS.'score_module.php';
+
 	protected $exporter_methods = [];
 
 	public function __construct($properties=[])
@@ -50,9 +53,14 @@ class Widget
 			}
 			// if a clean name wasn't created already, make one based on the name
 			if ( ! empty($properties['name']) && empty($this->clean_name)) $this->clean_name = self::make_clean_name($this->name);
-			$this->dir = "{$this->id}-{$this->clean_name}".DS;
+			$this->dir = static::make_dir($this->id, $this->clean_name);
 			if ($this->api_version == 0) $this->api_version = \Config::get('materia.default_api_version');
 		}
+	}
+
+	public static function make_dir($id, $clean_name)
+	{
+		return "{$id}-{$clean_name}".DS;
 	}
 
 	public static function forge($id_or_clean_name)
@@ -223,7 +231,8 @@ class Widget
 		// attempt to load the class if we don't have it
 		if ( ! class_exists($score_module_class_name))
 		{
-			self::load_widget_script('_score-modules'.DS.'score_module.php');
+			$script_path = self::make_relative_widget_path(static::PATHS_SCOREMOD);
+			static::load_script($script_path);
 			if ( ! class_exists($score_module_class_name))
 			{
 				throw new \Exception("Score module missing: {$score_module_class_name}");
@@ -235,19 +244,27 @@ class Widget
 
 
 	// To execute a method, use execute_custom_method()
-	public function get_playdata_exporter_methods($force = false)
+	public function get_playdata_exporter_methods(?string $script_path = null)
 	{
 		// short circuit with cached methods
-		if ( ! $force && ! empty($this->exporter_methods)) return $this->exporter_methods;
+		if ( ! empty($this->exporter_methods)) return $this->exporter_methods;
 
-		$methods = [];
+		if ( ! $script_path)
+		{
+			$script_path = self::make_relative_widget_path(static::PATHS_PLAYDATA);
+		}
 
 		// load the widget script
-		$methods = self::load_widget_script('_exports'.DS.'playdata_exporters.php');
+		$loaded = static::load_script($script_path);
 
-		// playdata must be an array of methods
-		if ( ! is_array($methods)) return $methods;
+		// filter out callables and cache them for later
+		$this->exporter_methods = static::make_callable_array($loaded);
+		return $this->exporter_methods;
+	}
 
+	public static function make_callable_array(array $array): array
+	{
+		$methods = [];
 		// copy only callable methods to output and clean up their method names
 		foreach ($methods as $name => &$method)
 		{
@@ -258,8 +275,6 @@ class Widget
 			}
 		}
 
-		// cache them for later
-		$this->exporter_methods = $methods;
 		return $methods;
 	}
 
@@ -268,33 +283,35 @@ class Widget
 		return \Inflector::friendly_title($unclean_name, '_', true);
 	}
 
-	protected function load_widget_script($widget_script)
+	protected function make_relative_widget_path($widget_script)
 	{
-		// closure helps to prevent the script poluting this class
-		$load_widget_script_safer = function($widget_script)
+		$file = \Config::get('file.dirs.widgets')."{$this->dir}{$widget_script}";
+
+		// in test, build a path w/o the widget id
+		if (\FUEL::$env === \FUEL::TEST)
 		{
-			// load the score module from the engines directory
-			$file = \Config::get('file.dirs.widgets')."{$this->dir}{$widget_script}";
+			$file = \Config::get('file.dirs.widgets').$this->clean_name.DS.$widget_script;
+		}
 
-			// int test, build a path w/o the widget id
-			if (\FUEL::$env === \FUEL::TEST)
-			{
-				$file = \Config::get('file.dirs.widgets').$this->clean_name.DS.$widget_script;
-			}
+		return $file;
+	}
 
-			if (file_exists($file))
+	public static function load_script(string $script_path)
+	{
+		// closure helps to prevent the script poluting this and isolate scope
+		// in within the included script
+		$load_safer = function($file)
+		{
+			if ( ! file_exists($file))
 			{
-				return include($file);
-			}
-			else
-			{
-				trace("Widget script not found: {$file}");
+				trace("Script not found: {$file}");
 				return [];
 			}
 
+			return include($file);
 		};
 
-		return $load_widget_script_safer($widget_script);
+		return $load_safer($script_path);
 	}
 
 }

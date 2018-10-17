@@ -205,7 +205,7 @@ class Admin extends \Basetask
 		foreach ($default_users as $user)
 		{
 			// make a random password if needed
-			if ( ! isset($user['password'])) $user['password'] = \Str::random('alnum', 16);
+			if (empty($user['password'])) $user['password'] = \Str::random('alnum', 16);
 
 			// exists?
 			$e_user = \Model_User::find_by_username($user['name']);

@@ -7,17 +7,18 @@ define('PUBPATH', realpath(__DIR__.DS.'..'.DS.'..'.DS.'public').DS );
 define('STATICPATH', realpath(PUBPATH.DS.'..'.DS.'static').DS );
 $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
 \Autoloader::add_classes([
-	// Override FUELPHP classes
+	// Add classes you want to override here
+	// Example: 'View' => APPPATH.'classes/view.php',
+
+	// MAKE SURE OUR core overrides are here so fuel doesn't try to load them
+	// before the other packages get a chance to load the overrides in
 	'Fuel\\Session\\File'               => $materia_path.'/fuel/session/cache.php',
 	'Cache'                             => $materia_path.'/fuel/core/cache.php',
 	'Fuel\\Core\\Errorhandler'          => $materia_path.'/fuel/core/errorhandler.php',
-	'File'                              => $materia_path.'/fuel/core/file.php',
 	'Log'                               => $materia_path.'/fuel/core/log.php',
 	'TestCase'                          => $materia_path.'/fuel/core/testcase.php',
-
 	// TODO: build task that will resolve/populate all the classes in materia here
 ]);
-
 
 // Register the autoloader
 \Autoloader::register();

@@ -22,19 +22,6 @@ return [
 	// key = the config value in dot notation
 	// value = the default value, if it's null, it'll use the value from the config as a default
 	'setup_wizard_config_options' => [
-		'file.enable_mod_xsendfile' => [
-			'options' => ['true', 'false'],
-			'default' => true,
-			'type' => FILTER_VALIDATE_BOOLEAN,
-			'description' => 'Using Apache? Enable X-Sendfile fast file downloads?',
-		],
-		'file.enable_x_accel' => [
-			'options' => ['true', 'false'],
-			'default' => true,
-			'type' => FILTER_VALIDATE_BOOLEAN,
-			'description' => 'Using NGINX? Enable X-Accell fast file downloads?',
-			'depends_on_value_match' => ['file.enable_mod_xsendfile' => false],
-		],
 		'materia.enable_admin_uploader' => [
 			'options' => ['true', 'false'],
 			'default' => true,

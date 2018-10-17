@@ -21,18 +21,34 @@ class Widget_Asset
 	public $is_shared;
 	public $title      = '';
 	public $file_size  = '';
-	public $remote_url = null;
-	public $status     = null;
 	public $questions  = [];
 	public $type       = '';
-	public $widgets    = [];
+	protected $_storage_driver;
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 */
 	public function __construct($properties=[])
 	{
 		$this->set_properties($properties);
+		$driver = \Config::get('materia.asset_storage_driver', 'db');
+		$this->_storage_driver = static::get_storage_driver($driver);
+	}
+
+	public static function get_storage_driver($driver)
+	{
+		$config = \Config::get("materia.asset_storage.{$driver}");
+		$storage_class = $config['driver_class'];
+		return call_user_func("{$storage_class}::instance", $config);
+	}
+
+	/**
+	 * Search and fetch the database for a Widget_Asset by it's ID
+	 * @param  string $id ID of the Widget_Asset
+	 * @return Widget_Asset
+	 */
+	static public function fetch_by_id(string $id): Widget_Asset
+	{
+		$asset = new Widget_Asset();
+		$asset->db_get($id);
+		return $asset;
 	}
 
 	public function set_properties($properties=[])
@@ -82,8 +98,6 @@ class Widget_Asset
 						'type'        => $this->type,
 						'title'       => $this->title,
 						'file_size'   => $this->file_size,
-						'remote_url'  => $this->remote_url,
-						'status'      => $this->status,
 						'created_at'  => time()
 					])
 					->where('id','=',$this->id)
@@ -118,7 +132,7 @@ class Widget_Asset
 	 * Finds an available asset id
 	 * to avoid conflicts in the db
 	 */
-	public function get_unused_id()
+	protected function get_unused_id()
 	{
 		// try finding an id not used in the database
 		$max_tries = 10;
@@ -155,17 +169,6 @@ class Widget_Asset
 			return false;
 		}
 
-		// if this asset has a remote_url stub, append the
-		// id. otherwise, leave it null
-		if (isset($this->remote_url))
-		{
-			// used to identify who uploaded asset
-			$user_id = \Model_User::find_current_id();
-
-			// Builds remote_url
-			$this->remote_url .= "{$user_id}-{$asset_id}.{$this->type}";
-		}
-
 		\DB::start_transaction();
 
 		try
@@ -176,8 +179,6 @@ class Widget_Asset
 					'type'        => $this->type,
 					'title'       => $this->title,
 					'file_size'   => $this->file_size,
-					'remote_url'  => $this->remote_url,
-					'status'      => $this->status,
 					'created_at'  => time()
 				])
 				->execute();
@@ -207,51 +208,181 @@ class Widget_Asset
 		}
 	}
 
-	/**
-	 * New type is a string of the new type to specifiy the filetype of the returned file
-	 *
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param string NEEDS DOCUMENTATION
-	 *
-	 * @notes Path might need to be updated to however assets may be stored...
-	 */
-	public function get_file_name($new_type = '')
-	{
-
-		if ($new_type == '')
-		{
-			return \Config::get('file.dirs.media').$this->id.'.'.$this->type;
-		}
-		else
-		{
-			return  \Config::get('file.dirs.media').$this->id.'.'.$new_type;
-		}
-	}
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @review Needs code review
-	 */
-	public function get_preview_file_name()
-	{
-		// NOTE: previews will go in the same directory as the assets
-		// HACK CODE: hardcoding the _p.jpg for the preview files
-		//     it should be a constant somewhere
-		return \Config::get('file.dirs.media').$this->id.'_p.jpg'; // NOTE: preview's will always be jpg
-		// also NOTE: it may not have a preview image, we return what the file name would be anyways
-	}
 
 	/**
-	 * NEEDS DOCUMENTATION
-	 * @TODO this function shouldn't ever skip removing perms - we should probably have a replace function instead of using this as a replace
-	 * @notes (Nick) adding keep_perms to optionally prevent removing the perms
-	 *                this is used in replacing assets -> we're going to give the new
-	 *				 asset the old one's id, so go ahead and keep the perms for it
-	 * @param object The database manager
-	 * @param bool NEEDS DOCUMENTATION
+	 * Send the binary data of a specific sized variant of an asset to the client, resizing if needed.
+	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
 	 */
-	public function db_remove($keep_perms = false)
+	public function render(string $size): void
+	{
+
+		// set a few ini settings before we start
+		ini_get('zlib.output_compression') and ini_set('zlib.output_compression', 0);
+		! ini_get('safe_mode') and set_time_limit(0);
+
+		try
+		{
+			// requested size doesnt exist?
+			if ( ! $this->_storage_driver->exists($this->id, $size))
+			{
+				// if size is original, just 404
+				if ($size === 'original') throw("Missing asset data for asset: {$id} {$size}");
+
+				// rebuild the size (hopefully - we may not )
+				$asset_path = $this->build_size($size);
+			}
+			else
+			{
+				$asset_path = $this->copy_asset_to_temp_file($this->id, $size);
+			}
+		} catch (\Throwable $e)
+		{
+			trace($e);
+			throw new \HttpNotFoundException;
+		}
+
+		// register a shutdown function that will render the image
+		// allowing all of fuel's other shutdown methods to do their jobs
+		\Event::register('fuel-shutdown', function() use($asset_path) {
+
+			if ( ! file_exists($asset_path)) throw new HttpNotFoundException;
+			$bytes = filesize($asset_path);
+			// turn off and clean output buffer
+			while (ob_get_level() > 0) ob_end_clean();
+
+			// Set headers and send the file
+			header("Content-Type: {$this->get_mime_type()}");
+			header("Content-Disposition: inline; filename=\"{$this->title}\"");
+			header("Content-Length: {$bytes}");
+			header('Content-Transfer-Encoding: binary');
+			header('Cache-Control: max-age=31536000');
+			$fp = fopen($asset_path, 'rb');
+			fpassthru($fp); // write file directly to output
+			unlink($asset_path);
+		});
+
+		exit; // don't do anything else, just run shutdown
+	}
+
+	/**
+	 * Get the mime type for this asset
+	 * @return string Mime type based on $this->type for use in http headers
+	 */
+	public function get_mime_type(): string
+	{
+		switch ($this->type)
+		{
+			case 'png':
+			case 'gif':
+				return "image/{$this->type}";
+
+			case 'jpeg':
+			case 'jpg':
+				return 'image/jpeg';
+
+			case 'mp3':
+				return 'audio/mpeg';
+		}
+	}
+
+	/**
+	 * Build a specified size of an asset.
+	 * @param string $size Choose size variant to render. 'original', 'large', 'thumbnail'
+	 * @return string      File path for a file containing the resized asset
+	 */
+	protected function build_size(string $size): string
+	{
+		$ext = ".{$this->type}";
+		$crop = $size === 'thumbnail';
+		switch ($size)
+		{
+			case 'thumbnail':
+				$width = 75;
+				break;
+
+			case 'large':
+				$width = 1024;
+				break;
+
+			default: // @codingStandardsIgnoreLine
+				throw("Asset size not supported: '{$size}'");
+				break;
+		}
+
+		$this->_storage_driver->lock_for_processing($this->id, $size);
+
+		// get the original file
+		$original_asset_path = $this->copy_asset_to_temp_file($this->id, 'original');
+
+		// add extension to tmp file so Image knows how to read it
+		rename($original_asset_path, $original_asset_path .= $ext);
+
+		// create temp file to put resized image into
+		$resized_file_path = tempnam(sys_get_temp_dir(), "{$this->id}_{$size}_");
+		// add extension to tmp file so Image knows what to write it
+		rename($resized_file_path, $resized_file_path .= $ext);
+
+		// Resize the image
+		try
+		{
+			if ($crop)
+			{
+				\Image::load($original_asset_path)
+					->crop_resize($width, $width)
+					->save($resized_file_path);
+			}
+			else
+			{
+				\Image::load($original_asset_path)
+					->resize($width, $width)
+					->save($resized_file_path);
+			}
+		}
+		catch (\RuntimeException $e)
+		{
+			\LOG::error($e);
+			throw($e);
+		}
+
+		$this->_storage_driver->store($this, $resized_file_path, $size);
+
+		// update asset_data
+		$this->_storage_driver->unlock_for_processing($this->id, $size);
+
+		// close the file handles and delete temp files
+		unlink($original_asset_path);
+
+		return $resized_file_path;
+	}
+
+	/**
+	 * Save an uploaded / original asset
+	 * @param  string $source_asset_path Path to the uploaded asset file
+	 */
+	public function upload_asset_data(string $source_asset_path): void
+	{
+		$this->_storage_driver->store($this, $source_asset_path, 'original');
+	}
+
+	/**
+	 * Copy the binary of an asset of a specific size to a temp file
+	 * @param  string $id   Asset Id
+	 * @param  string $size Asset size
+	 * @return string       path to the file containing the downloaded asset
+	 */
+	protected function copy_asset_to_temp_file(string $id, string $size): string
+	{
+		// create temp file to copy image into
+		// Fuel's image manipulation requires the images to be files
+		$tmp_file_path = tempnam(sys_get_temp_dir(), "{$id}_{$size}_");
+
+		$this->_storage_driver->retrieve($id, $size, $tmp_file_path);
+
+		return $tmp_file_path;
+	}
+
+
+	public function db_remove()
 	{
 		if (strlen($this->id) <= 0) return false;
 
@@ -265,17 +396,17 @@ class Widget_Asset
 				->limit(1)
 				->execute();
 
+			// delete data
+			\Db::delete('asset_data')
+				->where('id', $this->id)
+				->execute();
+
+			// @TODO: delete from s3?
+
 			// delete perms
-			if ( ! $keep_perms)
-			{
-				// TODO: change to support hashes
-				Perm_Manager::clear_all_perms_for_object($this->id, Perm::ASSET);
-			}
+			Perm_Manager::clear_all_perms_for_object($this->id, Perm::ASSET);
 
 			\DB::commit_transaction();
-
-			// delete any files used in this class
-			$this->remove_files(); // needs to be fixed...
 
 			// clear this object
 			$this->__construct();
@@ -286,31 +417,6 @@ class Widget_Asset
 			\LOG::error('The following exception occured while attempting to remove asset id, '.$this->id.', for user id,'.\Model_User::find_current_id().': '.$e);
 			\DB::rollback_transaction();
 			return false;
-		}
-	}
-
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @notes this is called when we db_remove
-	 * @notes (Nick) i moved this to a separate function when i was working
-	 *			     on replace asset, but ended up not using it for that
-	 */
-	protected function remove_files()
-	{
-
-		$file_dir = $this->get_file_name();
-
-		if (file_exists($file_dir))
-		{
-			@unlink($file_dir);
-		}
-
-		$preview_file = $this->get_preview_file_name();
-
-		if (file_exists($preview_file))
-		{
-			@unlink($preview_file);
 		}
 	}
 
