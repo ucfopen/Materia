@@ -1,7 +1,7 @@
 <?php
 namespace Materia;
 
-class Widget_Asset_Filestorage
+class Widget_Asset_Storage_File implements Widget_Asset_Storage_Driver
 {
 	protected static $_instance;
 	protected static $_config;
@@ -10,9 +10,9 @@ class Widget_Asset_Filestorage
 
 	/**
 	 * Get an instance of this class
-	 * @return object Widget_Asset_Filestorage
+	 * @return object Widget_Asset_Storage_Driver
 	 */
-	public static function instance(array $config): Widget_Asset_Filestorage
+	public static function instance(array $config): Widget_Asset_Storage_Driver
 	{
 		static::$_config = $config;
 		$config = [
@@ -21,7 +21,7 @@ class Widget_Asset_Filestorage
 		];
 		static::$_area = \File::forge($config);
 		static::$_area_tmp = \File::forge(['basedir' => '/tmp']);
-		static::$_instance = new Widget_Asset_Filestorage();
+		static::$_instance = new Widget_Asset_Storage_File();
 		return static::$_instance;
 	}
 
@@ -86,17 +86,17 @@ class Widget_Asset_Filestorage
 	}
 
 	/**
-	 * Download asset data of a specific size into a file
+	 * Copy asset data of a specific size into a temporary file
 	 * @param  string $id               Asset Id
 	 * @param  string $size             Asset Size
 	 * @param  string $target_file_path Path to a file to write download into.
 	 */
-	public function download(string $id, string $size, string $target_file_path): void
+	public function retrieve(string $id, string $size, string $target_file_path): void
 	{
-		if ( ! $this->exists($id, $size)) throw("Missing asset data for asset: {$id} {$size}");
+		if ( ! $this->exists($id, $size)) throw new \Exception("Missing asset data for asset: {$id} {$size}");
 		$file = $this->get_local_file_path($id, $size);
 		// Materia makes this file for us, we need to delete it to use copy
-		unlink($target_file_path);
+		@unlink($target_file_path);
 		\File::copy($file, $target_file_path, static::$_area, static::$_area_tmp);
 	}
 
@@ -106,12 +106,12 @@ class Widget_Asset_Filestorage
 	 * @param  string       $image_path String of binary image data to store in the db
 	 * @param  string       $size       Which size variant is this data? EX: 'original', 'thumbnail'
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size): void
+	public function store(Widget_Asset $asset, string $image_path, string $size): void
 	{
 		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
 
 		$file = $this->get_local_file_path($asset->id, $size);
-		\File::copy($image_path, $file, null, static::$_area);
+		\File::copy($image_path, $file, null, static::$_area); // this may be relying on the media area defined in config/file.php
 	}
 
 	/**

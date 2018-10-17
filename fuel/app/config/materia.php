@@ -83,18 +83,18 @@ return [
 	'enable_admin_uploader' => false,
 
 	// Asset storage configuration
-	'asset_storage_driver' => 'db',
+	'asset_storage_driver' => 'file',
 
 	'asset_storage' => [
 		'file' => [
-			'driver_class' => '\Materia\Widget_Asset_Filestorage',
+			'driver_class' => '\Materia\Widget_Asset_Storage_File',
 			'media_dir'    => APPPATH.'media'.DS,
 		],
 		'db' => [
-			'driver_class' => '\Materia\Widget_Asset_Dbstorage'
+			'driver_class' => '\Materia\Widget_Asset_Storage_Db'
 		],
 		's3' => [
-			'driver_class' => '\Materia\Widget_Asset_S3storage',
+			'driver_class' => '\Materia\Widget_Asset_Storage_S3',
 			'endpoint'     => false, // set to url for testing endpoint
 			'region'       => 'us-east-1', // aws region for bucket
 			'bucket'       => '', // bucket to store original user uploads

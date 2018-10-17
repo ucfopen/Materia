@@ -1,7 +1,7 @@
 <?php
 namespace Materia;
 
-class Widget_Asset_S3storage
+class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 {
 
 	protected static $_instance;
@@ -10,12 +10,12 @@ class Widget_Asset_S3storage
 
 	/**
 	 * Get an instance of this class
-	 * @return object Widget_Asset_S3storage
+	 * @return object Widget_Asset_Storage_Driver
 	 */
-	public static function instance(array $config): Widget_Asset_S3storage
+	public static function instance(array $config): Widget_Asset_Storage_Driver
 	{
 		static::$_config = $config;
-		static::$_instance = new Widget_Asset_S3storage();
+		static::$_instance = new Widget_Asset_Storage_S3();
 		return static::$_instance;
 	}
 
@@ -77,22 +77,29 @@ class Widget_Asset_S3storage
 	}
 
 	/**
-	 * Delete asset data. Set size to '*' to delete all.
-	 * @param  string $id        Asset Id of asset data to delete
-	 * @param  [type] $size      Size to delete. Set to '*' to delete all.
+	 * Download an asset from s3 into a file
+	 * @param  string $id               Asset Id
+	 * @param  string $size             Asset Size
+	 * @param  string $target_file_path Path to a file to write download into.
 	 */
-	public function download(string $id, string $size, string $target_file_path): void
+	public function retrieve(string $id, string $size, string $target_file_path): void
 	{
 		// get file from s3 into temp file
 		$s3 = $this->get_s3_client();
 
 		$key = $this->get_key_name($id, $size);
 
-		$result = $s3->getObject([
-			'Bucket' => static::$_config['bucket'],
-			'Key' => $key,
-			'SaveAs' => $target_file_path,
-		]);
+		try
+		{
+			$result = $s3->getObject([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $key,
+				'SaveAs' => $target_file_path,
+			]);
+		} catch (\Exception $e)
+		{
+			throw new \Exception("Missing asset data for asset: {$id} {$size}");
+		}
 	}
 
 	/**
@@ -101,7 +108,7 @@ class Widget_Asset_S3storage
 	 * @param  string $image_path String path to image to upload
 	 * @param  string $size Which size variant is this data? EX: 'original', 'thumbnail'
 	 */
-	public function upload(Widget_Asset $asset, string $image_path, string $size): void
+	public function store(Widget_Asset $asset, string $image_path, string $size): void
 	{
 		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
 
