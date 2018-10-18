@@ -11,8 +11,7 @@ return [
 		APPPATH.'config',
 		// media directories
 		\Config::get('file.dirs.media'),
-		\Config::get('file.dirs.media').'thumbnail',
-		\Config::get('file.dirs.media_uploads').'uploads',
+		\Config::get('file.dirs.media_uploads'),
 		// widget directories
 		\Config::get('file.dirs.widgets'),
 		\Config::get('file.dirs.widgets').'test',
