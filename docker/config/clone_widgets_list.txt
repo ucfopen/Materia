@@ -1,7 +1,0 @@
-{
-	"git@github.com:ucfopen/materia-widget-enigma.git":{
-		"id":1,
-		"name":"enigma.wigt",
-		"version":"master"
-	}
-}
