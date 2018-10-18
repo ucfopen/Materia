@@ -246,8 +246,13 @@ class Widget_Installer
 		{
 			// we need to move the file manually to the media/uploads directory so new_asset_from_file will work
 			$file_area = \File::forge(['basedir' => null]); // allow copying from/to anywhere
-			$uploaded_file = \File::file_info($file, $file_area);
-			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file("Demo asset {$uploaded_file['basename']}", $uploaded_file);
+			$file_info = \File::file_info($file, $file_area);
+			$upload_path = \Config::get('file.dirs.media_uploads').$file_info['basename'];
+			\File::rename($file, $upload_path, $file_area);
+			$upload_info = \File::file_info($upload_path, 'media');
+
+			// process the upload
+			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file("Demo asset {$upload_info['basename']}", $upload_info);
 
 			return $asset->id;
 		}
