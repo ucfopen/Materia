@@ -116,6 +116,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		$key = $this->get_key_name($asset->id, $size);
 
 		$s3 = $this->get_s3_client();
+
 		$result = $s3->putObject([
 			'ACL'        => 'public-read',
 			'Metadata'   => ['Content-Type' => $asset->get_mime_type()],

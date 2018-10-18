@@ -9,7 +9,6 @@ services:
     volumes:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ../public:/var/www/html/public:ro
-      - uploaded_media:/usr/share/media:ro
     links:
       - phpfpm
 
@@ -25,7 +24,6 @@ services:
       - ../:/var/www/html:rw
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
       - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
-      - uploaded_media:/var/www/html/fuel/app/media
     links:
       - mysql
       - memcached
