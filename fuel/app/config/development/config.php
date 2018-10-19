@@ -39,8 +39,8 @@ return [
 		],
 		[
 			'id' => 4,
-			'package'  => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/enigma_a149e18d93df78ef775665ffdc02b6490f8faad5.wigt',
-			'checksum' => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/enigma_a149e18d93df78ef775665ffdc02b6490f8faad5.wigt.yml',
+			'package'  => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/enigma_8d63e47cdef1297da78c4e5f36e3507edc2c0e4e.wigt',
+			'checksum' => 'https://ucfcdl-deploy-builds-public.s3.amazonaws.com/materia-widgets/enigma_8d63e47cdef1297da78c4e5f36e3507edc2c0e4e.wigt.yml',
 		],
 		[
 			'id' => 5,
