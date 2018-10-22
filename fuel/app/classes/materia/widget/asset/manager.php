@@ -57,18 +57,11 @@ class Widget_Asset_Manager
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
 				return $asset;
 			}
-			catch (\OutsideAreaException $e)
+			catch (\OutsideAreaException | InvalidPathException | \FileAccessException $e)
 			{
 				trace($e);
 			}
-			catch (\InvalidPathException $e)
-			{
-				trace($e);
-			}
-			catch (\FileAccessException $e)
-			{
-				trace($e);
-			}
+
 			// failed, remove the asset
 			$asset->db_remove();
 		}

@@ -226,7 +226,7 @@ class Widget_Asset
 			if ( ! $this->_storage_driver->exists($this->id, $size))
 			{
 				// if size is original, just 404
-				if ($size === 'original') throw("Missing asset data for asset: {$id} {$size}");
+				if ($size === 'original') throw new \Exception("Missing asset data for asset: {$this->id} {$size}");
 
 				// rebuild the size (hopefully - we may not )
 				$asset_path = $this->build_size($size);
@@ -245,7 +245,7 @@ class Widget_Asset
 		// allowing all of fuel's other shutdown methods to do their jobs
 		\Event::register('fuel-shutdown', function() use($asset_path) {
 
-			if ( ! file_exists($asset_path)) throw new HttpNotFoundException;
+			if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
 			$bytes = filesize($asset_path);
 			// turn off and clean output buffer
 			while (ob_get_level() > 0) ob_end_clean();
@@ -305,7 +305,7 @@ class Widget_Asset
 				break;
 
 			default: // @codingStandardsIgnoreLine
-				throw("Asset size not supported: '{$size}'");
+				throw new \Exception("Asset size not supported: '{$size}'");
 				break;
 		}
 
