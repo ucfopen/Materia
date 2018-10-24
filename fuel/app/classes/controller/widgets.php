@@ -53,8 +53,8 @@ class Controller_Widgets extends Controller
 
 		Css::push_group(['widget_detail', 'core']);
 
-		Js::push_group(['angular', 'jquery', 'materia', 'fancybox']);
-
+		Js::push_group(['angular', 'jquery', 'materia', 'fancybox', 'details']);
+		trace(Config::get('js'));
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
@@ -243,14 +243,14 @@ class Controller_Widgets extends Controller
 
 	protected function show_helper($title, $widget, $inst_id=null)
 	{
-		$this->_disable_browser_cache = true;
-		Css::push_group(['core']);
-		Js::push_group(['angular', 'materia', 'author']);
+		Js::push_group(['angular', 'materia', 'details']);
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/helper')
-			->set('widget', $widget)
-			->set('inst_id', $inst_id);
+		$this->theme->get_template()
+			->set('title', $title)
+			->set('page_type', 'docs help');
+		$this->theme->set_partial('content', 'partials/widget/helper');
+
+		Css::push_group('help');
 	}
 
 	protected function draft_not_playable()
