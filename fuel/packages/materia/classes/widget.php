@@ -49,7 +49,8 @@ class Widget
 	public $score_module        = 'base';
 	public $score_screen        = '';
 	public $width               = 0;
-	public $helper				= '';
+	public $creator_guide	    = '';
+	public $player_guide        = '';
 
 	public function __construct($properties=[])
 	{
@@ -113,12 +114,11 @@ class Widget
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
-			'helper'			  => $w['helper'],
+			'creator_guide'		  => $w['creator_guide'],
+			'player_guide'		  => $w['player_guide'],
 			'meta_data'           => static::db_get_metadata($w['id']),
 		]);
 
-		// Debug
-		trace($this);
 		return true;
 	}
 
