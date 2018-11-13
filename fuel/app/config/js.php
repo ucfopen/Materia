@@ -19,6 +19,7 @@ return [
 		'spinner'    => [$static.'vendor/spin.min.js', $static.'spin.jquery.js'],
 		'fancybox'   => [$static.'vendor/fancybox/jquery.fancybox.min.js'],
 		'swfobject'  => [$static.'vendor/swfobject/swfobject.js'],
+		'details'    => [$static.'details.js'],
 
 		'jqplot'     => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.js',
