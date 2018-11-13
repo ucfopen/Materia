@@ -541,7 +541,6 @@ class Widget_Installer
 			'creator_guide'		  => isset($manifest_data['files']['creator_guide']) ? $manifest_data['files']['creator_guide'] : '',
 			'player_guide'		  => isset($manifest_data['files']['player_guide']) ? $manifest_data['files']['player_guide'] : ''
 		];
-		trace($params);
 		return $params;
 	}
 
