@@ -36,7 +36,7 @@ class Controller_Widgets extends Controller
 	}
 
 
-	/**3
+	/**
 	 * Catalog page for an individual widget
 	 *
 	 * @param string The clean name of the widget to load
@@ -54,7 +54,6 @@ class Controller_Widgets extends Controller
 		Css::push_group(['widget_detail', 'core']);
 
 		Js::push_group(['angular', 'jquery', 'materia', 'fancybox', 'details']);
-		trace(Config::get('js'));
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
@@ -87,12 +86,12 @@ class Controller_Widgets extends Controller
 	}
 
 	/**  
-	 * Loads helper for the given widget
+	 * Loads guides for the given widget
 	 * 
 	 * @param string
 	 * @login required
 	*/
-	public function get_helper()
+	public function get_guide()
 	{
 		if (\Service_User::verify_session() !== true)
 		{
@@ -105,9 +104,18 @@ class Controller_Widgets extends Controller
 		$loaded = $widget->get($this->param('id'));
 
 		if ( ! $loaded) throw new HttpNotFoundException;
-
 		View::set_global('me', Model_User::find_current());
-		$this->show_helper('Helper Doc', $widget);
+		$guide_type = $this->param('guide_type');
+		switch ($guide_type)
+		{
+			case 'creatorGuide':
+				$this->show_guide('Creator Guide', $widget);
+				break;
+				
+			case 'playerGuide':
+				$this->show_guide('Player Guide', $widget);
+				break;
+		}
 	}
 
 	/**
@@ -241,16 +249,17 @@ class Controller_Widgets extends Controller
 			->set('inst_id', $inst_id);
 	}
 
-	protected function show_helper($title, $widget, $inst_id=null)
+	protected function show_guide($title, $widget, $inst_id=null)
 	{
+		$this->_disable_browser_cache = true;
+		Css::push_group(['core', 'widget_editor', 'guide']);
 		Js::push_group(['angular', 'materia', 'details']);
-
 		$this->theme->get_template()
 			->set('title', $title)
-			->set('page_type', 'docs help');
-		$this->theme->set_partial('content', 'partials/widget/helper');
+			->set('page_type', 'create');
 
-		Css::push_group('help');
+		$this->theme->set_partial('content', 'partials/widget/guide_doc');
+		
 	}
 
 	protected function draft_not_playable()
