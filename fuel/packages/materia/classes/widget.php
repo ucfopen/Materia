@@ -118,7 +118,6 @@ class Widget
 			'player_guide'        => $w['player_guide'],
 			'meta_data'           => static::db_get_metadata($w['id']),
 		]);
-
 		return true;
 	}
 

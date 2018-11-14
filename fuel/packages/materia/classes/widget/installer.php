@@ -538,8 +538,8 @@ class Widget_Installer
 			'creator'             => isset($manifest_data['files']['creator']) ? $manifest_data['files']['creator'] : '',
 			'player'              => isset($manifest_data['files']['player']) ? $manifest_data['files']['player'] : '' ,
 			'score_screen'        => isset($manifest_data['score']['score_screen']) ? $manifest_data['score']['score_screen'] : '',
-			'creator_guide'		  => isset($manifest_data['files']['creator_guide']) ? $manifest_data['files']['creator_guide'] : '',
-			'player_guide'		  => isset($manifest_data['files']['player_guide']) ? $manifest_data['files']['player_guide'] : ''
+			'creator_guide'       => isset($manifest_data['files']['creator_guide']) ? $manifest_data['files']['creator_guide'] : '',
+			'player_guide'        => isset($manifest_data['files']['player_guide']) ? $manifest_data['files']['player_guide'] : ''
 		];
 		return $params;
 	}
