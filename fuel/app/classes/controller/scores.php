@@ -7,6 +7,7 @@
 class Controller_Scores extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_S3ResponseTrait;
 
 	public function get_show($inst_id)
 	{
@@ -30,6 +31,8 @@ class Controller_Scores extends Controller
 		{
 			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
+
+		$this->add_s3_config_to_response();
 
 		$this->theme->get_template()
 			->set('title', 'Score Results')
