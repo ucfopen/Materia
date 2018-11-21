@@ -19,7 +19,7 @@ DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 
 # stop and remove docker containers
 $DC stop
-$DC rm -f --all
+$DC rm -f
 
 $DC pull
 $DC build mysql
@@ -29,18 +29,14 @@ $DC build phpfpm
 $DC run --rm phpfpm composer install --no-progress
 
 # run linter
-$DC run --rm phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-summary
+$DC run --rm phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
 
 # install widgets and run tests
 source ./run_tests_coverage.sh
 
 # turn off failure stop on error
 set +e
-# lets remove everything we just made
-$DC run --rm phpfpm bash -c 'rm -rf ./fuel'
-$DC run --rm phpfpm bash -c 'chmod -R 777 ./coverage'
-$DC run --rm phpfpm bash -c 'chmod -R 777 ./coverage*'
 
 # stop and remove docker containers
 $DC stop
-$DC rm -f --all
+$DC rm -f
