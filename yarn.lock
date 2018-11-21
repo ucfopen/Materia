@@ -2043,10 +2043,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-materia-server-client-assets@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-1.1.0.tgz#862df070549a23fd5bffc3ee9339ca573598bab3"
-  integrity sha512-09n5zTzuAmf8VT7Gv0UpLP1dQR7PivG4HJ1fMWitcpDCUgqpPicP05FpPjOFX+1+qP2nvCx9LxeYXXxowK8Sbw==
+materia-server-client-assets@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-1.2.0.tgz#4ebcbd086ba338cbe2e3ae8d20fccca8418cbdcf"
+  integrity sha512-kKHJkvae8nJF5cooD1CdB/2e8c/W2azPFouviMkVfHB3xhqOOF8T3BeThRXDPJ0eZBCD7FPrP0qOxFl0A7Hp9A==
   dependencies:
     angular "1.6.9"
     ngmodal ucfcdl/ngModal#v1.2.2
