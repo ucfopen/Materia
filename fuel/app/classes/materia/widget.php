@@ -280,7 +280,7 @@ class Widget
 
 	public static function make_clean_name($unclean_name)
 	{
-		return \Inflector::friendly_title($unclean_name, '_', true);
+		return \Inflector::friendly_title($unclean_name, '-', true);
 	}
 
 	protected function make_relative_widget_path($widget_script)
