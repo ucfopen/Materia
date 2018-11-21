@@ -8,19 +8,34 @@
     "node": "^6.9.1"
   },
   "scripts": {
-    "build": "webpack -p",
-    "build-dev": "webpack",
-    "watch": "webpack --watch",
+    "build": "node process_assets.js",
+    "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\" \"yarn build:browsersync\"",
+    "build:watchmateria": "nodemon process_assets.js",
+    "build:watchclientassets": "cd node_modules/materia-server-client-assets && yarn build-watch",
+    "build:browsersync": "browser-sync start --files \"public/css/**/*.css,public/js/**/*.js\"",
     "postinstall": "napa && npm run build",
-    "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git materia-server-client-assets",
-    "devassets:link": "cd ../materia-server-client-assets && yarn install && yarn link && cd ../app && yarn link materia-server-client-assets",
-    "devassets:unlink": "cd ../materia-server-client-assets && yarn unlink && cd ../app && yarn unlink materia-server-client-assets && yarn install"
+    "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git Materia-Server-Client-Assets",
+    "devassets:link": "cd ../Materia-Server-Client-Assets && yarn install && yarn link && cd - && yarn link materia-server-client-assets",
+    "devassets:unlink": "yarn unlink materia-server-client-assets && cd ../Materia-Server-Client-Assets && yarn unlink && cd - && yarn install"
   },
   "dependencies": {
-    "copy-webpack-plugin": "^4.0.1",
-    "hash-assets-webpack-plugin": "^0.3.2",
-    "materia-server-client-assets": "^1.0.0",
+    "fs-extra": "^7.0.0",
+    "materia-server-client-assets": "^1.2.0",
     "napa": "^3.0.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.26.3",
+    "concurrently": "^4.0.1",
+    "nodemon": "^1.18.5"
+  },
+  "nodemonConfig": {
+    "ignoreRoot": [
+      ".git"
+    ],
+    "watch": [
+      "./node_modules/materia-server-client-assets/dist/*"
+    ],
+    "delay": "500"
   },
   "napa": {
     "datatables": "DataTables/DataTables#1.10.16",
