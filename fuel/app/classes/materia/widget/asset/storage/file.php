@@ -123,7 +123,8 @@ class Widget_Asset_Storage_File implements Widget_Asset_Storage_Driver
 	 */
 	protected function get_local_file_path(string $id, string $size): string
 	{
-		return static::$_config['media_dir']."{$id}_{$size}";
+		// needs to use realpath due to fuelphp's file class (it'll append the area's filebase if it doesnt match)
+		return realpath(static::$_config['media_dir']."{$id}_{$size}");
 	}
 
 }
