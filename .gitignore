@@ -27,6 +27,7 @@ desktop.ini
 /fuel/packages/orm/
 /fuel/packages/parser/
 /fuel/packages/ucfauth/
+/fuel/packages/materia-theme-ucf/
 
 # dynamically generated files
 /fuel/app/logs/**/*
