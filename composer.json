@@ -3,7 +3,7 @@
     "type": "project",
     "description" : "Materia is UCF's educational game and application platform",
     "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida"],
-    "license": "No License",
+    "license": "AGPL-3.0-only",
     "scripts":{
         "sniff": "phpcs -n --extensions=php .",
         "sniff-with-warnings": "phpcs --extensions=php .",

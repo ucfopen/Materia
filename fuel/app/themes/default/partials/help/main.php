@@ -34,7 +34,7 @@
 				<dt>Email</dt>
 					<dd><a href="mailto:support@website">support@website</a></dd>
 				<dt>Phone</dt>
-					<dd>(407) 867-5309</dd>
+					<dd>PHONE NUMBER HERE</dd>
 			</dl>
 		</section>
 	</section>
