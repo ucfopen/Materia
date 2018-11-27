@@ -244,14 +244,13 @@ class Widget_Installer
 	{
 		try
 		{
-			// we need to move the file manually to the media/uploads directory so new_asset_from_file will work
-			$file_area = \File::forge(['basedir' => null]); // allow copying from/to anywhere
-			$file_info = \File::file_info($file, $file_area);
-			$upload_path = \Config::get('file.dirs.media_uploads').$file_info['basename'];
-			\File::rename($file, $upload_path, $file_area);
-			$upload_info = \File::file_info($upload_path, 'media');
+			// copy asset to where files would normally be uploaded to
+			$src_area = \File::forge(['basedir' => sys_get_temp_dir()]); // allow copying from system tmp
+			$mock_upload_file_path = \Config::get('file.dirs.media_uploads').uniqid('sideload_');
+			\File::copy($file, $mock_upload_file_path, $src_area, 'media');
 
 			// process the upload
+			$upload_info = \File::file_info($mock_upload_file_path, 'media');
 			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file("Demo asset {$upload_info['basename']}", $upload_info);
 
 			return $asset->id;
@@ -259,12 +258,6 @@ class Widget_Installer
 		catch (\Exception $e)
 		{
 			trace($e);
-			// delete our temporary file if necessary:
-			if (file_exists($new_temp_filepath))
-			{
-				$file_area->delete($new_temp_filepath);
-			}
-
 			throw($e);
 		}
 	}
