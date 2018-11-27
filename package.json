@@ -19,14 +19,14 @@
     "devassets:unlink": "yarn unlink materia-server-client-assets && cd ../Materia-Server-Client-Assets && yarn unlink && cd - && yarn install"
   },
   "dependencies": {
-    "fs-extra": "^7.0.0",
+    "fs-extra": "^7.0.1",
     "materia-server-client-assets": "^1.2.0",
     "napa": "^3.0.0"
   },
   "devDependencies": {
     "browser-sync": "^2.26.3",
-    "concurrently": "^4.0.1",
-    "nodemon": "^1.18.5"
+    "concurrently": "^4.1.0",
+    "nodemon": "^1.18.7"
   },
   "nodemonConfig": {
     "ignoreRoot": [
