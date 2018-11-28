@@ -253,6 +253,7 @@ class Widget_Installer
 			$upload_info = \File::file_info($mock_upload_file_path, 'media');
 			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file("Demo asset {$upload_info['basename']}", $upload_info);
 
+			if (\Fuel::$is_cli) \Cli::write('Asset '.basename($file)." sideloaded to asset {$asset->id}");
 			return $asset->id;
 		}
 		catch (\Exception $e)
