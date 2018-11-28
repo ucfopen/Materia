@@ -248,29 +248,39 @@ class Widget
 	{
 		// short circuit with cached methods
 		if ( ! empty($this->exporter_methods)) return $this->exporter_methods;
-
 		if ( ! $script_path)
 		{
 			$script_path = self::make_relative_widget_path(static::PATHS_PLAYDATA);
 		}
-
 		// load the widget script
 		$loaded = static::load_script($script_path);
 
-		// filter out callables and cache them for later
-		$this->exporter_methods = static::make_callable_array($loaded);
+		// filter out callables
+		$raw_methods = static::reduce_array_to_functions($loaded);
+
+		$exporter_methods = [];
+		// convert each key to it's cleanname
+		foreach ($raw_methods as $name => &$method)
+		{
+			$name = self::make_clean_export_method_name($name);
+			$exporter_methods[$name] = $method;
+		}
+
+		// cache in the class for reuse
+		$this->exporter_methods = $exporter_methods;
 		return $this->exporter_methods;
 	}
 
-	public static function make_callable_array(array $array): array
+	// filter out items in an array that aren't callable
+	public static function reduce_array_to_functions(array $array): array
 	{
 		$methods = [];
 		// copy only callable methods to output and clean up their method names
-		foreach ($methods as $name => &$method)
+		foreach ($array as $name => &$method)
 		{
 			if (is_callable($method))
 			{
-				$name = self::make_clean_name($name);
+				//$name = self::make_clean_export_method_name($name);
 				$methods[$name] = $method;
 			}
 		}
@@ -281,6 +291,11 @@ class Widget
 	public static function make_clean_name($unclean_name)
 	{
 		return \Inflector::friendly_title($unclean_name, '-', true);
+	}
+
+	public static function make_clean_export_method_name($unclean_name)
+	{
+		return \Inflector::friendly_title($unclean_name, '_', true);
 	}
 
 	protected function make_relative_widget_path($widget_script)
