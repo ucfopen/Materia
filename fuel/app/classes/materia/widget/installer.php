@@ -601,11 +601,11 @@ class Widget_Installer
 			$manifest_data = static::get_manifest_data($target_dir);
 			$clean_name = \Materia\Widget::make_clean_name($manifest_data['general']['name']);
 
-			// load the playdata script to add it's methods to the metadata
+			// load the playdata script to add it's method names to the metadata
 			$playdata_path = $target_dir.DS.\Materia\Widget::PATHS_PLAYDATA;
 			$loaded = \Materia\Widget::load_script($playdata_path);
-			$play_data_methods = \Materia\Widget::make_callable_array($loaded);
-			$manifest_data['meta_data']['playdata_exporters'] = array_keys($play_data_methods);
+			$playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
+			$manifest_data['meta_data']['playdata_exporters'] = $playdata_exporter_names;
 
 			return [$target_dir, $manifest_data, $clean_name];
 	}
