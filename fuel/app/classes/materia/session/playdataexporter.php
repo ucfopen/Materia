@@ -15,7 +15,7 @@ class Session_PlayDataExporter
 
 	public function export($unclean_name, $semesters_string)
 	{
-		$name = \Materia\Widget::make_clean_name($unclean_name);
+		$name = \Materia\Widget::make_clean_export_method_name($unclean_name);
 		$semesters = explode(',', $semesters_string);
 
 		// try a class methods
