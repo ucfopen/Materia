@@ -12,9 +12,23 @@ namespace Materia;
 
 class Widget_Asset
 {
-
 	const MAP_TYPE_QSET     = '1';
 	const MAP_TYPE_QUESTION = '2';
+
+	protected const MIME_TYPE_TO_EXTENSION = [
+		'image/png' => 'png',
+		'image/gif' => 'gif',
+		'image/jpeg' => 'jpg',
+		'image/mp3' => 'mp3',
+	];
+
+	protected const MIME_TYPE_FROM_EXTENSION = [
+		'png'  => 'image/png',
+		'gif'  => 'image/gif',
+		'jpg'  => 'image/jpeg',
+		'jpeg' => 'image/jpeg',
+		'mp3'  => 'image/mp3',
+	];
 
 	public $created_at = 0;
 	public $id         = 0;
@@ -23,6 +37,7 @@ class Widget_Asset
 	public $file_size  = '';
 	public $questions  = [];
 	public $type       = '';
+
 	protected $_storage_driver;
 
 	public function __construct($properties=[])
@@ -270,19 +285,18 @@ class Widget_Asset
 	 */
 	public function get_mime_type(): string
 	{
-		switch ($this->type)
-		{
-			case 'png':
-			case 'gif':
-				return "image/{$this->type}";
+		return self::MIME_TYPE_FROM_EXTENSION[$this->type];
+	}
 
-			case 'jpeg':
-			case 'jpg':
-				return 'image/jpeg';
 
-			case 'mp3':
-				return 'audio/mpeg';
-		}
+	/**
+	 * Get the materia asset type based on the mime type
+	 * @param string $mime_type string mime type to convert to materia asset type: ex 'image/png'
+	 * @return string Mime type based on $this->type for use in http headers
+	 */
+	public static function get_type_from_mime_type(string $mime_type): string
+	{
+		return self::MIME_TYPE_TO_EXTENSION[$mime_type];
 	}
 
 	/**
@@ -381,6 +395,10 @@ class Widget_Asset
 		return $tmp_file_path;
 	}
 
+	public function is_valid()
+	{
+		return \Materia\Util_Validator::is_valid_hash($this->id) && in_array($this->type, array_keys(self::MIME_TYPE_FROM_EXTENSION));
+	}
 
 	public function db_remove()
 	{
