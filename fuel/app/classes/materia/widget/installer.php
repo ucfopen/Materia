@@ -245,15 +245,15 @@ class Widget_Installer
 		try
 		{
 			// copy asset to where files would normally be uploaded to
-			$src_area = \File::forge(['basedir' => sys_get_temp_dir()]); // allow copying from system tmp
+			$src_area = \File::forge(['basedir' => sys_get_temp_dir()]); // restrict copying from system tmp dir
 			$mock_upload_file_path = \Config::get('file.dirs.media_uploads').uniqid('sideload_');
 			\File::copy($file, $mock_upload_file_path, $src_area, 'media');
 
 			// process the upload
 			$upload_info = \File::file_info($mock_upload_file_path, 'media');
-			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file("Demo asset {$upload_info['basename']}", $upload_info);
+			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file("Demo asset {baseanme($file)}", $upload_info);
 
-			if (\Fuel::$is_cli) \Cli::write('Asset '.basename($file)." sideloaded to asset {$asset->id}");
+			static::out('Asset '.basename($file)." sideloaded to asset {$asset->id}");
 			return $asset->id;
 		}
 		catch (\Exception $e)

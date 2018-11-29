@@ -1,11 +1,9 @@
 <?php
 /**
- * NEEDS DOCUMENTATION
- *
  * The widget managers for the Materia package.
  *
  * @package	    Main
- * @subpackage  asset * @author      ADD NAME HERE
+ * @subpackage  asset
  */
 namespace Materia;
 class Widget_Asset_Manager
@@ -37,9 +35,12 @@ class Widget_Asset_Manager
 		// Do I have space left?
 		if ( ! Widget_Asset_Manager::user_has_space_for($file_info['size']) ) return false;
 
+		$mime_type = mime_content_type($file_info['realpath']);
+		$extension = Widget_Asset::get_type_from_mime_type($mime_type);
+
 		// create and store the asset
 		$asset = new Widget_Asset([
-			'type'      => $file_info['extension'],
+			'type'      => $extension,
 			'title'     => $name,
 			'file_size' => $file_info['size']
 		]);
@@ -65,6 +66,7 @@ class Widget_Asset_Manager
 			// failed, remove the asset
 			$asset->db_remove();
 		}
+
 		return $asset;
 	}
 

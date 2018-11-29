@@ -108,7 +108,7 @@ class Widget_Asset_Storage_File implements Widget_Asset_Storage_Driver
 	 */
 	public function store(Widget_Asset $asset, string $image_path, string $size): void
 	{
-		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
+		if ( ! $asset->is_valid()) throw new \Exception("Invalid asset for storing");
 
 		$file = $this->get_local_file_path($asset->id, $size);
 		\File::copy($image_path, $file, null, static::$_area); // this may be relying on the media area defined in config/file.php
