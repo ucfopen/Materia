@@ -102,7 +102,7 @@ class Widget_Asset_Storage_Db implements Widget_Asset_Storage_Driver
 	 */
 	public function store(Widget_Asset $asset, string $image_path, string $size): void
 	{
-		if (\Materia\Util_Validator::is_valid_hash($asset->id) && empty($asset->type)) return;
+		if ( ! $asset->is_valid()) throw new \Exception("Invalid asset for storing");
 
 		$image_data = file_get_contents($image_path);
 
