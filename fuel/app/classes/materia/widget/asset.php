@@ -19,7 +19,7 @@ class Widget_Asset
 		'image/png' => 'png',
 		'image/gif' => 'gif',
 		'image/jpeg' => 'jpg',
-		'image/mp3' => 'mp3',
+		'audio/mpeg' => 'mp3',
 	];
 
 	protected const MIME_TYPE_FROM_EXTENSION = [
@@ -27,7 +27,7 @@ class Widget_Asset
 		'gif'  => 'image/gif',
 		'jpg'  => 'image/jpeg',
 		'jpeg' => 'image/jpeg',
-		'mp3'  => 'image/mp3',
+		'mp3'  => 'audio/mpeg',
 	];
 
 	public $created_at = 0;
