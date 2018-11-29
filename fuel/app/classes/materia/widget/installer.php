@@ -251,7 +251,7 @@ class Widget_Installer
 
 			// process the upload
 			$upload_info = \File::file_info($mock_upload_file_path, 'media');
-			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file('Demo asset '.baseanme($file), $upload_info);
+			$asset = \Materia\Widget_Asset_Manager::new_asset_from_file('Demo asset '.basename($file), $upload_info);
 
 
 			static::out('Asset '.basename($file)." sideloaded to asset {$asset->id}");
