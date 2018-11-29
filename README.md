@@ -26,7 +26,7 @@ Check out the ansible scripts used to deploy Materia on qa and production [Mater
 
 ## Running Tests
 
-Tests run in the docker environment to maintain consistancy.
+Tests run in the docker environment to maintain consistency.
 
 ### Full test suite
 
