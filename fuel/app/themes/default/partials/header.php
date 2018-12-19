@@ -23,6 +23,9 @@
 			Welcome <a href="/profile">{{currentUser.name}}</a>
 		</p>
 	</span>
+    <input type="checkbox" id="mobile-menu-toggle">
+    <label for="mobile-menu-toggle"><div><div></div></div></label>
+    <label for="mobile-menu-toggle" id="mobile-menu-background"></label>
 	<nav>
 		<ul>
 			<li><a href="/widgets" >Widget Catalog</a></li>
