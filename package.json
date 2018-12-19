@@ -43,5 +43,6 @@
     "swfobject": "swfobject/swfobject#2.2",
     "fancybox": "fancyapps/fancybox#v3.2.5",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
-  }
+  },
+  "version": "4.0.0"
 }
