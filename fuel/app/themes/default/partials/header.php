@@ -22,12 +22,6 @@
 			<img ng-src="{{currentUser.avatar}}" />
 			Welcome <a href="/profile">{{currentUser.name}}</a>
 		</p>
-		<p ng-switch-when="false" class="user">
-			Not logged in.
-			<?php if ($allow_logins): ?>
-			<a href="/users/login">Login with your <?= __('login.user') ?></a>
-			<?php endif; ?>
-		</p>
 	</span>
 	<nav>
 		<ul>
