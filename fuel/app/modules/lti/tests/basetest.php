@@ -138,7 +138,7 @@ class Test_Basetest extends \Basetest
 		if ($user === false)
 		{
 			// grab our test instructor
-			$user = \Model_User::query()->where('username', '_LTI_INSTRUCTOR_')->get_one();
+			$user = \Model_User::find_by_username('_LTI_INSTRUCTOR_');
 
 			if ( ! $user)
 			{
@@ -153,7 +153,7 @@ class Test_Basetest extends \Basetest
 				$user->save();
 
 				// add basic_author permissions
-				\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user_id], ['basic_author']);
+				\Materia\Perm_Manager::add_users_to_roles_system_only([$user_id], ['basic_author']);
 			}
 		}
 

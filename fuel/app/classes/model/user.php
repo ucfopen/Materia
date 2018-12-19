@@ -68,6 +68,13 @@ class Model_User extends Orm\Model
 		return $array[1];
 	}
 
+	public static function find_by_username($username)
+	{
+		return \Model_User::query()
+			->where('username', (string) $username)
+			->get_one();
+	}
+
 	static public function find_by_name_search($name)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
@@ -154,7 +161,7 @@ class Model_User extends Orm\Model
 
 	public function set_property($prop, $new_val)
 	{
-		if ( ! \RocketDuck\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$original_val = $this->get_property($prop, $new_val);
 		if ($original_val == $new_val) return true;
