@@ -19,13 +19,15 @@ class Controller_Widgets extends Controller
 	{
 		Css::push_group(['core', 'widget_catalog']);
 
-		Js::push_group(['angular', 'materia']);
+		Js::push_group(['angular', 'ng-animate', 'materia']);
+		Js::push_inline('try{angular.module("materia").requires.push("ngAnimate")}catch(e){console.log(e)}');
 
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
 			->set('page_type', 'catalog');
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
+		$this->theme->set_partial('meta', 'partials/responsive');
 	}
 
 	public function get_all()

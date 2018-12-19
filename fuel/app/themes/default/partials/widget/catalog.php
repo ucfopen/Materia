@@ -1,67 +1,70 @@
-<div ng-controller="widgetCatalogCtrl" class="container">
+<div ng-controller="widgetCatalogCtrl" class="container" id="widget-catalog-container">
 	<section class="page">
-		<div class="top">
+		<div class="top" ng-class="{mini: isMini}">
 			<h1>Widget Catalog</h1>
+			<div class="search">
+				<div class="textbox-background"></div>
+				<input class="textbox" ng-model="query" type="text">
+				<div class="search-icon"></div>
+				<div class="search-close" ng-click="query = ''" ng-show="query">x</div>
+			</div>
 		</div>
-		<div class="widgets" >
-			<section ng-repeat="widget in widgets" class="widget {{widget.clean_name}}" ng-show="displayAll || widget.in_catalog == '1'">
-
-				<div class="widgetMin {{widget.clean_name}}" ng-class="{hidden: !widget.visible}" data-id="{{widget.id}}">
-					<a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}"><img ng-src='{{widget.icon}}'></a>
-					<div class="header">
-						<h1><a ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}" >{{widget.name}}</a></h1>
-					</div>
-					<dl class="left inline_def blurb">
-						<dd>{{widget.meta_data['excerpt']}}</dd>
-					</dl>
+		<div id="filters-container" ng-class="{mini: isMini}">
+			<div>
+				<legend>Filter by Features</legend>
+				<div class="filter-labels-container">
+					<label class="feature-button" ng-class="{selected: filters.scorable}">
+						<input type="checkbox" ng-model="filters.scorable">Collects Scores
+					</label>
+					<label class="feature-button" ng-class="{selected: filters.mobile}">
+						<input type="checkbox" ng-model="filters.mobile">Mobile Friendly
+					</label>
+					<label class="feature-button" ng-class="{selected: filters.media}">
+						<input type="checkbox" ng-model="filters.media">Uploadable Media
+					</label>
 				</div>
+			</div>
+			<div>
+				<legend>Filter by Supported Data</legend>
+				<div class="filter-labels-container">
+					<label class="type-button" ng-class="{selected: filters.qa}">
+						<input type="checkbox" ng-model="filters.qa">Question/Answer
+					</label>
+					<label class="type-button" ng-class="{selected: filters.mc}">
+						<input type="checkbox" ng-model="filters.mc">Multiple Choice
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div id="no-widgets-message" ng-if="count < 1">
+			<span ng-if="count == 0">No widgets match the filters you set.</span>
+			<span ng-if="count == -1">Loading...</span>
+		</div>
+
+		<div id="widgets-container" ng-class="{mini: isMini}">
+
+			<div ng-repeat="widget in widgets" class="widget" id="widget-{{widget.clean_name}}" ng-style="widget.style" ng-show="widget.visible">
 
 				<a class="infocard" ng-href="/widgets/{{widget.id}}-{{widget.clean_name}}">
+					<div class="header">
+						<h1 class="infoHeader">{{widget.name}}</h1>
+					</div>
 					<div class="img-holder">
 						<img ng-src='{{widget.icon}}'>
 					</div>
 
-					<div class="header widget-banner">
-						<h1 class="infoHeader">{{widget.name}}</h1>
-					</div>
 					<div class="blurb-holder">
-						<dl class="left inline_def blurb">
-							<dt data-type="description">Description:</dt>
+						<dl class="inline_def blurb">
 							<dd>{{widget.meta_data['excerpt']}}</dd>
 						</dl>
-						<dl class="left inline_def features_list">
-							<dt data-type="features">Features:</dt>
-							<dd ng-repeat="feature in widget.meta_data['features']">{{feature}}{{$last ? '' : ','}}</dd>
-							<dt ng-show="widget.meta_data['supported_data']" data-type="supported">Supported Data:</dt>
-							<dd ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}{{$last ? '' : ','}}</dd>
+						<dl class="inline_def features_list" ng-show="!isMini">
+							<dd class="supported-feature" ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
+							<dd class="supported-data" ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}</dd>
 						</dl>
 					</div>
 				</a>
-			</section>
-			<br>
-		</div>
-		<div id="display-all"  ng-class="{expanded: displayAll}">
-			<button ng-click="displayAll = !displayAll">
-				{{displayAll ? 'Show Only Featured Widgets' : 'Display All Widgets'}}
-			</button>
+			</div>
 		</div>
 	</section>
-
-	<aside>
-		<h1>Filter by Features:</h1>
-		<dl class="features">
-			<dt><input ng-model="filters.scorable" type="checkbox" id="filter-scorable" /><label for="filter-scorable">Collects Scores</label></dt>
-			<dd>These widgets are well suited for gauging student performance.</dd>
-
-			<dt><input ng-model="filters.mobile" type="checkbox" id="filter-mobile" /><label for="filter-mobile">Optimized for Mobile</label></dt>
-			<dd>Widgets designed for viewing on mobile devices.</dd>
-
-			<dt><input ng-model="filters.media" value="Media" type="checkbox" id="filter-media" /><label for="filter-media">Uploadable Media</label></dt>
-			<dd>Show widgets that use custom uploaded images.</dd>
-
-			<h2>Support Question Types:</h2>
-			<dt class="supported-data"><input ng-model="filters.qa" value="Question/Answer" type="checkbox" id="filter-qa" /><label for="filter-qa">Question/Answer</label></dt>
-			<dt class="supported-data"><input ng-model="filters.mc" value="Multiple Choice" type="checkbox" id="filter-mc" /><label for="filter-mc">Multiple Choice</label></dt>
-		</dl>
-	</aside>
 </div>

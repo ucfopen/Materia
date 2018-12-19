@@ -9,6 +9,7 @@ return [
 	'groups' => [
 		'materia'    => [$static.'materia.js'],
 		'angular'    => [$cdnjs.'angular.js/1.6.9/angular.min.js'],
+		'ng-animate' => [$cdnjs.'angular.js/1.6.9/angular-animate.min.js'],
 		'jquery'     => [$cdnjs.'jquery/3.3.1/jquery.min.js'],
 		'admin'      => [$static.'admin.js'],
 		'author'     => [$static.'author.js'],

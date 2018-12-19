@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html class="<?= (isset($html_class) ? $html_class : '') ?>">
+<html class="<?= (isset($html_class) ? $html_class : '') ?>" lang="en">
 <head>
 <meta charset="utf-8" />
+<?= (isset($partials['meta']) ? $partials['meta'] : '' ) ?>
 <title><?= $title ?> | Materia</title>
 <?= Css::render() ?>
 <?= Js::render() ?>
