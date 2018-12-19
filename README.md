@@ -6,23 +6,27 @@
 * [Clu Materia Repositories](https://clu.cdl.ucf.edu/groups/materia) for existing widgets and supporting projects.
 * [DevMateria](https://clu.cdl.ucf.edu/materia/devmateria) for fast widget development.
 
+## Quick Heroku Deploy
+
+Materia can be quickly and easily deployed using a free or paid Heroku server.
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ucfcdl/Materia/tree/issue/1155-support-for-heroku)
 
 # Installation
 
 ## Developing with Docker
 
-Start your Development server with instructions found in the [Materia Docker repository](https://clu.cdl.ucf.edu/materia/materia-docker)
+Start your Development server with instructions found in the [Materia Docker repository](docker/README.md)
 
 ## Ansible Deployment
 
-Check out the ansible scripts used to deploy Materia on qa and production [Materia-Ansible](https://clu.cdl.ucf.edu/devops/materia-ansible
-)
+Check out the ansible scripts used to deploy Materia on qa and production [Materia-Ansible](https://clu.cdl.ucf.edu/devops/materia-ansible)
 
 # Development
 
 ## Running Tests
 
-Tests run in the docker environment to maintain consistancy.
+Tests run in the docker environment to maintain consistency.
 
 ### Full test suite
 

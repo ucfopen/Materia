@@ -1,15 +1,4 @@
 <?php
-/**
- * Part of the Fuel framework.
- *
- * @package    Fuel
- * @version    1.8
- * @author     Fuel Development Team
- * @license    MIT License
- * @copyright  2010 - 2016 Fuel Development Team
- * @link       http://fuelphp.com
- */
-
 return array(
 
 	/**
@@ -181,10 +170,9 @@ return array(
 			'Fuel\\Core\\Presenter',
 			'Fuel\\Core\\Response',
 			'Fuel\\Core\\View',
-			// 'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
-			'RocketDuck\\Msg',
+			'Materia\\Msg',
 			'Materia\\Score_Record',
 			'Materia\\Widget',
 		),
@@ -279,8 +267,6 @@ return array(
 		 */
 		'packages'  => array(
 			'orm',
-			'materia',
-			'rocketDuck',
 			'auth',
 			'materiaauth',
 			'ltiauth'
@@ -330,10 +316,4 @@ return array(
 			'login',
 		),
 	),
-
-	/**
-	* Allow browser based widget uploads by administrators
-	*/
-	'enable_uploader' => false
-
 );

@@ -27,6 +27,7 @@ desktop.ini
 /fuel/packages/orm/
 /fuel/packages/parser/
 /fuel/packages/ucfauth/
+/fuel/packages/materia-theme-ucf/
 
 # dynamically generated files
 /fuel/app/logs/**/*
@@ -61,6 +62,8 @@ public/css/user.css
 public/css/widget.css
 public/css/upload.css
 public/css/ng-modal.css
+public/css/homepage_spotlight.css
+public/css/embed.css
 
 public/js/admin.js
 public/js/author.js
@@ -80,7 +83,6 @@ public/js/vendor/*
 # Installed Widgets
 public/widget
 spec/widgets/*
-fuel/packages/materia/vendor/widget/*
 
 # Any widget zip packages
 *.zip
@@ -88,6 +90,7 @@ fuel/packages/materia/vendor/widget/*
 
 # media files
 fuel/packages/materia/media/*
+fuel/app/media/*
 
 fuel/app/tmp
 fuel/packages/materia/tests/widget_source/**/yarn.lock

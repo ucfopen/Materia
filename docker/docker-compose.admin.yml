@@ -1,0 +1,33 @@
+version: '2'
+# Docker Compose file meant for tasks like building assets and running tests
+services:
+
+  phpfpm:
+    environment:
+      - FUEL_ENV=test
+    volumes:
+      - static_files_test:/var/www/html/public/widget
+      - uploaded_media_test:/var/www/html/fuel/packages/materia/media
+    command: echo "yay"
+
+  # We use a node container to compile js, css, etc
+  node:
+    image: ucfopen/materia-node:latest
+    volumes:
+      - ../:/var/www/html:rw
+      - node_modules:/var/www/html/node_modules
+
+  mysql:
+    environment:
+      - MYSQL_DATABASE=test
+    volumes:
+      - "./config/mysql/dev.my.cnf:/etc/mysql/conf.d/my.cnf"
+    # this makes the unit tests much faster but it's a little weird jumping
+    # back and forth between running the server and testing
+    # tmpfs:
+    #   - /var/lib/mysql
+
+volumes:
+  static_files_test: {}
+  uploaded_media_test: {}
+  node_modules: {} # node modules for npm
