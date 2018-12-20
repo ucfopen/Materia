@@ -87,6 +87,12 @@
 			var container = document.createElement("div");
 			document.body.appendChild(container);
 
+			// all widgets require a qset, even if it doesn't contain anything
+			// establish a minimum default to satisfy the platform
+			var defaultQSet = {
+				data: {}
+			}
+
 			// renders a mustache type template to a target dom element
 			var renderTemplate = function(html, replaceVars, target){
 				var match
@@ -127,7 +133,7 @@
 				onSaveClicked: function() {
 					var input = document.getElementById('widget-title-input').value
 					if (input) {
-						Materia.CreatorCore.save(input);
+						Materia.CreatorCore.save(input, defaultQSet);
 					}
 					else{
 						Materia.CreatorCore.cancelSave('Widget has no title!')
