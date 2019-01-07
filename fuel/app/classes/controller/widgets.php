@@ -7,7 +7,6 @@
 class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
-	use Trait_S3ResponseTrait;
 
 	protected $_embedded = false;
 
@@ -238,7 +237,6 @@ class Controller_Widgets extends Controller
 			Js::push_group('swfobject');
 		}
 
-		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
@@ -389,7 +387,7 @@ class Controller_Widgets extends Controller
 		// create the play
 		$play_id = \Materia\Api::session_play_create($inst_id, $context_id);
 
-		if ($play_id instanceof \RocketDuck\Msg)
+		if ($play_id instanceof \Materia\Msg)
 		{
 			\Log::warning('session_play_create failed!');
 			throw new HttpServerErrorException;
@@ -512,7 +510,6 @@ class Controller_Widgets extends Controller
 		}
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
-		$this->add_s3_config_to_response();
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
 			->set('page_type', 'widget')

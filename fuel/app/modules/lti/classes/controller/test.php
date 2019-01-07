@@ -141,6 +141,7 @@ class Controller_Test extends \Controller_Rest
 		$resource_link_id = static::get_and_unset_post('resource_link');
 		$custom_inst_id   = static::get_and_unset_post('custom_widget_instance_id');
 
+		$use_bad_signature       = static::get_and_unset_post('use_bad_signature') ?: false;
 		$as_instructor           = static::get_and_unset_post('as_instructor') ?: false;
 		$as_test_student         = static::get_and_unset_post('test_student') ?: false;
 		$as_new_learner_email    = static::get_and_unset_post('new_learner_email') ?: false;
@@ -194,9 +195,14 @@ class Controller_Test extends \Controller_Rest
 				$learner_params = $this->create_test_case([
 					'context_id'                => $context_id,
 					'resource_link_id'          => $resource_link_id,
-					'custom_widget_instance_id' => $custom_inst_id
+					'custom_widget_instance_id' => $custom_inst_id,
 				], $lti_url);
 				break;
+		}
+
+		if ($use_bad_signature)
+		{
+			$learner_params[0]['oauth_signature'] = 'this will fail';
 		}
 
 		$this->theme = \Theme::instance();
@@ -224,7 +230,7 @@ class Controller_Test extends \Controller_Rest
 		if ($user === false)
 		{
 			// grab our test instructor
-			$user = \Model_User::query()->where('username', '_LTI_INSTRUCTOR_')->get_one();
+			$user = \Model_User::find_by_username('_LTI_INSTRUCTOR_');
 
 			if ( ! $user)
 			{
@@ -239,7 +245,7 @@ class Controller_Test extends \Controller_Rest
 				$user->save();
 
 				// add basic_author permissions
-				\RocketDuck\Perm_Manager::add_users_to_roles_system_only([$user_id], ['basic_author']);
+				\Materia\Perm_Manager::add_users_to_roles_system_only([$user_id], ['basic_author']);
 			}
 		}
 

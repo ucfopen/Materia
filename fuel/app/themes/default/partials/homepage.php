@@ -49,13 +49,12 @@
 	</section>
 
 	<section class="p_s">
-		<h2>Built by UCF, for UCF</h2>
+		<h2>Built at UCF, for Everyone</h2>
 		<p>
-			Materia is designed, built, and supported by UCF. Our team melds interface usability, graphic design, instructional pedagogy, expert developers, and award winning distance learning expertise to deliver an innovative and usable platform for interactive learning content.
-			Because of this, we can integrate very tightly with our systems at UCF, such as exporting scores into Webcourses@UCF and user accounts that tie directly to your official UCF credentials. When you need help, our on-campus staff is here for support.
-			We're committed to building a better tomorrow through better learning.
-			As a result of this commitment, our team is constantly improving, tweaking, polishing, and re-inventing Materia.
-			In fact, if you have an idea for a new widget or simply would like to give us feedback, we'd love to hear from you.
+			Materia is an open source project built by the University of Central Florida's <a href="https://cdl.ucf.edu/" target="_blank">Center for Distributed Learning</a>. Our team melds interface usability, graphic design, instructional pedagogy, expert developers, and award winning distance learning expertise to deliver an innovative and usable platform for interactive learning content.
+		</p>
+		<p>
+			We're committed to building a better tomorrow through better learning tools, so our team is constantly improving and re-inventing Materia. In fact, if you have an idea for a new widget or simply would like to give us feedback, we'd love to hear from you on <a href="https://github.com/ucfopen" target="_blank">Github</a>.
 		</p>
 		<p class="copyright">
 			&copy; <?= date("Y") ?> University of Central Florida
