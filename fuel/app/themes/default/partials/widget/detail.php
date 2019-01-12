@@ -5,20 +5,24 @@
 	</a>
 
 	<article class="widget_detail">
-		<div>
-			<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
+		<div class="widget_icon">
+			<img ng-src="{{ widget.icon }}" alt="" >
 			<div class="guide_buttons">
-				<a id="createLink" class="action_button green" href='{{ widget.creator_guide }}' target="_blank">Creator Guide</a>
-				<a id="createLink" class="action_button green" href='{{ widget.player_guide }}' target="_blank">Player Guide</a>
+				View Guides for: <a ng-if='widget.creators_guide' id="createLink" ng-href="{{ widget.creators_guide }}" >Authors</a>
+				/
+				<a ng-if='widget.players_guide'id="createLink" ng-href='{{ widget.players_guide }}'>Players</a>
 			</div>
 		</div>
-		
+
 		<div>
 			<div class="detail">
 				<h1>{{ widget.name }}</h1>
 				<h2>{{ widget.subheader }}</h2>
 			</div>
-			{{ widget.about }}
+
+			<div class="about">
+				{{ widget.about }}
+			</div>
 
 			<ul class="pics">
 				<li ng-repeat="screenshot in widget.screenshots">

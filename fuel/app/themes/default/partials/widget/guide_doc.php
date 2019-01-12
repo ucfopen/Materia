@@ -1,5 +1,3 @@
-<div ng-controller="guideCtrl">
-	<section class="page">
-		<iframe ng-attr-src="{{ helper }}" class="guide" width=100%></iframe>
-	</section>
-</div>
+<section class="page">
+	<iframe src="<?= $doc_path ?>" class="guide" width="100%"></iframe>
+</section>

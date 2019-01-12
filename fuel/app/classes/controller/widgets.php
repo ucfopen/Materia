@@ -84,37 +84,41 @@ class Controller_Widgets extends Controller
 		$this->show_editor('Create Widget', $widget);
 	}
 
-	/**  
+	/**
 	 * Loads guides for the given widget
-	 * 
-	 * @param string
-	 * @login required
-	*/
-	public function get_guide()
+	**/
+	public function get_guide(string $type)
 	{
-		if (\Service_User::verify_session() !== true)
-		{
-			Session::set('redirect_url', URI::current());
-			Session::set_flash('notice', 'Please log in to create this widget.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
-		}
-
 		$widget = new Materia\Widget();
 		$loaded = $widget->get($this->param('id'));
-
 		if ( ! $loaded) throw new HttpNotFoundException;
-		View::set_global('me', Model_User::find_current());
-		$guide_type = $this->param('guide_type');
-		switch ($guide_type)
+
+		switch ($type)
 		{
-			case 'creatorGuide':
-				$this->show_guide('Creator Guide', $widget);
+			case 'creators':
+				$title = "Creator's Guide";
+				$guide = $widget->creator_guide;
 				break;
-				
-			case 'playerGuide':
-				$this->show_guide('Player Guide', $widget);
+
+			case 'players':
+				$title = "Player's Guide";
+				$guide = $widget->player_guide;
+				break;
+
+			// @codingStandardsIgnoreLine
+			default:
+				throw new HttpNotFoundException;
 				break;
 		}
+
+		Css::push_group(['core', 'widget_editor', 'guide']);
+		Js::push_group(['angular', 'materia']);
+		$this->theme->get_template()
+			->set('title', $title)
+			->set('page_type', 'create');
+
+		$this->theme->set_partial('content', 'partials/widget/guide_doc')
+			->set('doc_path', Config::get('materia.urls.engines').$widget->dir.$guide);
 	}
 
 	/**
@@ -245,19 +249,6 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/create')
 			->set('widget', $widget)
 			->set('inst_id', $inst_id);
-	}
-
-	protected function show_guide($title, $widget, $inst_id=null)
-	{
-		$this->_disable_browser_cache = true;
-		Css::push_group(['core', 'widget_editor', 'guide']);
-		Js::push_group(['angular', 'materia', 'details']);
-		$this->theme->get_template()
-			->set('title', $title)
-			->set('page_type', 'create');
-
-		$this->theme->set_partial('content', 'partials/widget/guide_doc');
-		
 	}
 
 	protected function draft_not_playable()
