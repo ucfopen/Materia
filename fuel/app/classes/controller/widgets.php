@@ -61,6 +61,7 @@ class Controller_Widgets extends Controller
 			->set('page_type', 'widget');
 
 		$this->theme->set_partial('content', 'partials/widget/detail');
+		$this->theme->set_partial('meta', 'partials/responsive');
 	}
 
 	/**
