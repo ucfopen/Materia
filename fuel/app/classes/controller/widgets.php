@@ -45,23 +45,34 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_detail()
 	{
-		$widget = DB::select()
-			->from('widget')
-			->where('id', $this->param('id'))
-			->execute();
+		$widget = new Materia\Widget();
+		$loaded = $widget->get($this->param('id'));
 
-		if ( ! $widget) throw new HttpNotFoundException;
+		if ( ! $loaded) throw new HttpNotFoundException;
+
+		$demo = $widget->meta_data['demo'];
 
 		Css::push_group(['widget_detail', 'core']);
 
-		Js::push_group(['angular', 'jquery', 'materia', 'fancybox']);
+		Js::push_group(['angular', 'jquery', 'materia', 'fancybox', 'student']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
-		$this->theme->set_partial('content', 'partials/widget/detail');
+		$this->theme->set_partial('content', 'partials/widget/detail')
+			->set('inst_id', $demo);
 		$this->theme->set_partial('meta', 'partials/responsive');
+
+		$play_id = \Materia\Api::session_play_create($demo, false);
+
+		if ($play_id instanceof \Materia\Msg)
+		{
+			\Log::warning('session_play_create failed!');
+			throw new HttpServerErrorException;
+		}
+
+		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 	}
 
 	/**

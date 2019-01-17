@@ -5,16 +5,35 @@
 	</div>
 
 	<article class="widget_detail">
-		<div class="detail">
-			<h2>{{ widget.subheader }}</h2>
-		</div>
-
 		<div>{{ widget.about }}</div>
+
+		<div id="demo-container" ng-style="{height: widget.height+'px', width: widget.width+'px'}" ng-if="demoFits">
+			<div ng-if="showDemoCover" id="demo-cover">
+				<div>
+					<a class="action_button green circle_button" ng-click="showDemoClicked()">
+						<span class="arrow arrow_right"></span>
+						Play a demo now!
+					</a>
+				</div>
+			</div>
+			<div>
+				<section class="widget" ng-controller="playerCtrl" ng-init="inst_id = '<?= $inst_id ?>'" ng-class="{ preview: isPreview }">
+					<header ng-if="isPreview" class="preview-bar"></header>
+					<div class="center" ng-show="type == 'flash' || type == 'html'">
+						<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html" scrolling="yes" fullscreen-dir></iframe>
+						<div id="container" ng-if="type =='flash'"></div>
+					</div>
+					<div id="container" ng-if="type =='noflash'">
+						<?= Theme::instance()->view('partials/noflash') ?>
+					</div>
+				</section>
+			</div>
+		</div>
 
 		<ul class="pics">
 			<li ng-repeat="screenshot in widget.screenshots">
 				<a class="grouped_elements" data-fancybox="group1" href="{{ screenshot.a }}" fancybox>
-					<img ng-src="{{ screenshot.a }}" alt="">
+					<img ng-src="{{ screenshot.img }}" alt="">
 				</a>
 			</li>
 		</ul>
@@ -44,7 +63,7 @@
 					<dd><a class="guide" href="#">Player</a></dd>
 					<dd><a class="guide" href="#">Creator</a></dd>
 				</div>
-				<span id="last-updated">Widget Last Updated: {{ widget.created }}</span>
+				<span id="last-updated">Widget Last Updated {{ widget.created }}</span>
 			</dl>
 
 			<div class="widget-action-buttons">
