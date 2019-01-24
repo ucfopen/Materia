@@ -2,21 +2,21 @@
 	<div class="top">
 		<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
 		<h1>{{ widget.name }}</h1>
+		<p>{{ widget.about }}</p>
 	</div>
 
 	<article class="widget_detail">
-		<div>{{ widget.about }}</div>
+		<p class="widget-about">{{ widget.about }}</p>
 
-		<div id="demo-container" ng-style="{height: widget.height+'px', width: widget.width+'px'}" ng-if="demoFits">
-			<div ng-if="showDemoCover" id="demo-cover">
-				<div>
-					<a class="action_button green circle_button" ng-click="showDemoClicked()">
-						<span class="arrow arrow_right"></span>
-						Play a demo now!
-					</a>
-				</div>
+		<div id="demo-container" ng-style="{'min-height': widget.height+'px', width: widget.width+'px'}" ng-if="demoFits" ng-class="{loaded: loaded}">
+			<div id="demo-cover" ng-class="{hidden: !showDemoCover}" ng-click="showDemoClicked()" ng-style="{'background-image': demoScreenshot}">
+				<a>
+					<span class="arrow arrow_right"></span>
+					Play a demo now!
+				</a>
+				<div id="demo-cover-background"></div>
 			</div>
-			<div>
+			<div ng-if="!showDemoCover">
 				<section class="widget" ng-controller="playerCtrl" ng-init="inst_id = '<?= $inst_id ?>'" ng-class="{ preview: isPreview }">
 					<header ng-if="isPreview" class="preview-bar"></header>
 					<div class="center" ng-show="type == 'flash' || type == 'html'">
@@ -30,16 +30,17 @@
 			</div>
 		</div>
 
-		<ul class="pics">
-			<li ng-repeat="screenshot in widget.screenshots">
-				<a class="grouped_elements" data-fancybox="group1" href="{{ screenshot.a }}" fancybox>
-					<img ng-src="{{ screenshot.img }}" alt="">
-				</a>
-			</li>
-		</ul>
-		<div class="thumbnail_explanation">
-			<img src="../../../img/mag_glass.png">
-			<p>Click on a screenshot to enlarge</p>
+		<div ng-if="!demoFits" class="pics">
+			<div class="full-pic">
+				<img ng-src="{{ widget.screenshots[selectedImage].full }}" alt="">
+			</div>
+			<ul class="pics-picker">
+				<li ng-repeat="screenshot in widget.screenshots">
+					<a ng-click="selectImage($index)">
+						<img ng-src="{{ screenshot.thumb }}" alt="" ng-class="{selected: selectedImage == $index}">
+					</a>
+				</li>
+			</ul>
 		</div>
 
 		<section class="bottom">
