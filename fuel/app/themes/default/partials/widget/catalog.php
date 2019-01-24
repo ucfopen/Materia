@@ -1,6 +1,6 @@
 <div ng-controller="widgetCatalogCtrl" class="container" id="widget-catalog-container">
 	<section class="page">
-		<div class="top" ng-class="{mini: isMini}">
+		<div class="top">
 			<h1>Widget Catalog</h1>
 			<div class="search">
 				<div class="textbox-background"></div>
@@ -9,7 +9,7 @@
 				<div class="search-close" ng-click="query = ''" ng-show="query">x</div>
 			</div>
 		</div>
-		<div id="filters-container" ng-class="{mini: isMini}">
+		<div id="filters-container">
 			<div>
 				<legend>Filter by Features</legend>
 				<div class="filter-labels-container">
@@ -42,7 +42,7 @@
 			<span ng-if="count == -1">Loading...</span>
 		</div>
 
-		<div id="widgets-container" ng-class="{mini: isMini}">
+		<div id="widgets-container">
 
 			<div ng-repeat="widget in widgets" class="widget" id="widget-{{widget.clean_name}}" ng-style="widget.style" ng-show="widget.visible">
 
@@ -58,7 +58,7 @@
 						<dl class="inline_def blurb">
 							<dd>{{widget.meta_data['excerpt']}}</dd>
 						</dl>
-						<dl class="inline_def features_list" ng-show="!isMini">
+						<dl class="inline_def features_list">
 							<dd class="supported-feature" ng-repeat="feature in widget.meta_data['features']">{{feature}}</dd>
 							<dd class="supported-data" ng-repeat="supported in widget.meta_data['supported_data']">{{supported}}</dd>
 						</dl>
