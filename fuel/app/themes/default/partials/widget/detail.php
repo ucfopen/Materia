@@ -49,14 +49,14 @@
 				<div>
 					<dd ng-repeat='feature in widget.features'>
 						<a class="feature" ng-mouseover="feature.show = true" ng-mouseout="feature.show = false">{{ feature.text }}</a>
-						<div class="tooltip" style="display: {{ feature.show ? 'inline-block' : 'none' }}">{{ feature.description }}</div>
+						<div class="tooltip" style="display: {{ feature.show ? 'block' : 'none' }}">{{ feature.description }}</div>
 					</dd>
 				</div>
 				<dt ng-show='widget.supported_data.length'>Supported Data:</dt>
 				<div>
 					<dd ng-repeat='data in widget.supported_data'>
 						<a class="supported_data" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</a>
-						<div class="tooltip" style="display: {{ data.show ? 'inline-block' : 'none' }}">{{ data.description }}</div>
+						<div class="tooltip" style="display: {{ data.show ? 'block' : 'none' }}">{{ data.description }}</div>
 					</dd>
 				</div>
 				<dt>Guides:</dt>
