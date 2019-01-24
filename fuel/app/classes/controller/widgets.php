@@ -53,8 +53,7 @@ class Controller_Widgets extends Controller
 		$demo = $widget->meta_data['demo'];
 
 		Css::push_group(['widget_detail', 'core']);
-
-		Js::push_group(['angular', 'jquery', 'materia', 'fancybox', 'student']);
+		Js::push_group(['angular', 'jquery', 'materia', 'student']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
@@ -62,8 +61,10 @@ class Controller_Widgets extends Controller
 
 		$this->theme->set_partial('content', 'partials/widget/detail')
 			->set('inst_id', $demo);
+
 		$this->theme->set_partial('meta', 'partials/responsive');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
+		$this->_disable_browser_cache = true;
 
 		$play_id = \Materia\Api::session_play_create($demo, false);
 
