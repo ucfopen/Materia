@@ -63,6 +63,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/detail')
 			->set('inst_id', $demo);
 		$this->theme->set_partial('meta', 'partials/responsive');
+		$this->theme->set_partial('footer', 'partials/angular_alert');
 
 		$play_id = \Materia\Api::session_play_create($demo, false);
 
