@@ -68,9 +68,9 @@
 			</dl>
 
 			<div class="widget-action-buttons">
-				<h4>Want to see it in action?</h4>
-				<p>
-					<a id="demoLink" class="action_button green circle_button" href='{{ widget.demourl }}' target="_blank">
+				<h4 ng-if="!demoFits">Want to see it in action?</h4>
+				<p ng-if="!demoFits">
+					<a id="demoLink" class="action_button green circle_button" href='{{ widget.demourl }}'>
 						<span class="arrow arrow_right"></span>
 						Play a demo now!
 					</a>
