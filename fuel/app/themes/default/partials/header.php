@@ -17,15 +17,15 @@
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
-	<span ng-switch="currentUser.loggedIn">
-		<p ng-switch-when="true" class="user avatar">
+	<span ng-if="currentUser.loggedIn">
+		<p class="user avatar">
 			<img ng-src="{{currentUser.avatar}}" />
 			Welcome <a href="/profile">{{currentUser.name}}</a>
 		</p>
 	</span>
-    <input type="checkbox" id="mobile-menu-toggle">
-    <label for="mobile-menu-toggle"><div><div></div></div></label>
-    <label for="mobile-menu-toggle" id="mobile-menu-background"></label>
+	<button id="mobile-menu-toggle" ng-class="{expanded: menuExpanded}" ng-click="menuExpanded = !menuExpanded">
+		<div></div>
+	</button>
 	<nav>
 		<ul>
 			<li><a href="/widgets" >Widget Catalog</a></li>
