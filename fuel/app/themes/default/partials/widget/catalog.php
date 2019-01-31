@@ -13,26 +13,26 @@
 			<div>
 				<legend>Filter by Features</legend>
 				<div class="filter-labels-container">
-					<label class="feature-button" ng-class="{selected: filters.scorable}">
-						<input type="checkbox" ng-model="filters.scorable">Collects Scores
-					</label>
-					<label class="feature-button" ng-class="{selected: filters.mobile}">
-						<input type="checkbox" ng-model="filters.mobile">Mobile Friendly
-					</label>
-					<label class="feature-button" ng-class="{selected: filters.media}">
-						<input type="checkbox" ng-model="filters.media">Uploadable Media
-					</label>
+					<button class="feature-button" ng-class="{selected: filters.scorable}" ng-click="filters.scorable = !filters.scorable">
+						Collects Scores
+					</button>
+					<button class="feature-button" ng-class="{selected: filters.mobile}" ng-click="filters.mobile = !filters.mobile">
+						Mobile Friendly
+					</button>
+					<button class="feature-button" ng-class="{selected: filters.media}" ng-click="filters.media = !filters.media">
+						Uploadable Media
+					</button>
 				</div>
 			</div>
 			<div>
 				<legend>Filter by Supported Data</legend>
 				<div class="filter-labels-container">
-					<label class="type-button" ng-class="{selected: filters.qa}">
-						<input type="checkbox" ng-model="filters.qa">Question/Answer
-					</label>
-					<label class="type-button" ng-class="{selected: filters.mc}">
-						<input type="checkbox" ng-model="filters.mc">Multiple Choice
-					</label>
+					<button class="type-button" ng-class="{selected: filters.qa}" ng-click="filters.qa = !filters.qa">
+						Question/Answer
+					</button>
+					<button class="type-button" ng-class="{selected: filters.mc}" ng-click="filters.mc = !filters.mc">
+						Multiple Choice
+					</button>
 				</div>
 			</div>
 		</div>
