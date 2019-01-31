@@ -1,11 +1,10 @@
-<section class="page" ng-show="show" ng-controller="widgetDetailsController">
-	<div class="top">
-		<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
-		<h1>{{ widget.name }}</h1>
-		<p>{{ widget.about }}</p>
-	</div>
-
+<section class="page" ng-show="show" ng-controller="widgetDetailsController" ng-cloak>
 	<article class="widget_detail">
+		<div class="top">
+			<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
+			<h1>{{ widget.name }}</h1>
+			<p>{{ widget.about }}</p>
+		</div>
 		<p class="widget-about">{{ widget.about }}</p>
 
 		<div id="demo-container" ng-style="{'min-height': widget.height+'px', width: widget.width+'px'}" ng-if="demoFits" ng-class="{loaded: loaded}">
@@ -32,15 +31,15 @@
 
 		<div ng-if="!demoFits" class="pics">
 			<div class="full-pic">
+				<button class="pic-arrow"ng-click="prevImage()"><</button>
 				<img ng-src="{{ widget.screenshots[selectedImage].full }}" alt="">
+				<button class="pic-arrow" ng-click="nextImage()">></button>
 			</div>
-			<ul class="pics-picker">
-				<li ng-repeat="screenshot in widget.screenshots">
-					<a ng-click="selectImage($index)">
-						<img ng-src="{{ screenshot.thumb }}" alt="" ng-class="{selected: selectedImage == $index}">
-					</a>
-				</li>
-			</ul>
+			<div>
+				<button class="pic-dot" ng-class="{selected: selectedImage == 0}" ng-click="selectImage(0)"></button>
+				<button class="pic-dot" ng-class="{selected: selectedImage == 1}" ng-click="selectImage(1)"></button>
+				<button class="pic-dot" ng-class="{selected: selectedImage == 2}" ng-click="selectImage(2)"></button>
+			</div>
 		</div>
 
 		<section class="bottom">
