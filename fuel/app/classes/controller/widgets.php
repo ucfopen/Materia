@@ -51,9 +51,17 @@ class Controller_Widgets extends Controller
 		if ( ! $loaded) throw new HttpNotFoundException;
 
 		$demo = $widget->meta_data['demo'];
+		$play_id = \Materia\Api::session_play_create($demo, false);
+
+		if ($play_id instanceof \Materia\Msg)
+		{
+			\Log::warning('session_play_create failed!');
+			throw new HttpServerErrorException;
+		}
 
 		Css::push_group(['widget_detail', 'core']);
 		Js::push_group(['angular', 'jquery', 'materia', 'student']);
+		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
@@ -65,16 +73,6 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('meta', 'partials/responsive');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->_disable_browser_cache = true;
-
-		$play_id = \Materia\Api::session_play_create($demo, false);
-
-		if ($play_id instanceof \Materia\Msg)
-		{
-			\Log::warning('session_play_create failed!');
-			throw new HttpServerErrorException;
-		}
-
-		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 	}
 
 	/**
