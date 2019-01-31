@@ -1,0 +1,6 @@
+language: minimal
+services:
+  - docker
+before_script: cd docker
+script:
+  - bash run_tests_ci.sh

@@ -1,16 +1,14 @@
 # Materia
 
-* [Materia Docs](http://ucfcdl.github.io/Materia/) for public how-tos and widget descriptions.
-* [FuelPHP](http://fuelphp.com) 1.7.2 for the application's main backend framework.
-* [Gulp](http://gulpjs.com) for compiling static resources like CoffeeScript and SASS.
-* [Clu Materia Repositories](https://clu.cdl.ucf.edu/groups/materia) for existing widgets and supporting projects.
-* [DevMateria](https://clu.cdl.ucf.edu/materia/devmateria) for fast widget development.
+View the [Materia Docs](http://ucfopen.github.io/Materia-Docs/) for info on installing, using, and developing Materia and widgets.
+
+[Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/) [![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
 
 ## Quick Heroku Deploy
 
 Materia can be quickly and easily deployed using a free or paid Heroku server.
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/ucfcdl/Materia/tree/issue/1155-support-for-heroku)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 # Installation
 

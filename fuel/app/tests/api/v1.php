@@ -446,7 +446,7 @@ class Test_Api_V1 extends \Basetest
 	 */
 	public function test_widget_instance_lock_for_another_user()
 	{
-		\Config::set('materia.lock_timeout', .2);
+		\Config::set('materia.lock_timeout', .4);
 		$widget = $this->make_disposable_widget();
 		$id = $widget->id;
 

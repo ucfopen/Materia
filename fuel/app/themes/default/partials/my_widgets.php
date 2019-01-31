@@ -383,6 +383,7 @@
 							<li><h4>Scores</h4><p class="score-count">{{semester.totalScores}}</p></li>
 							<li><h4>Avg Final Score</h4><p class="final-average">{{semester.average}}</p></li>
 						</ul>
+						<a role="button" class="show-older-scores-button" href="javascript:;" ng-show="selected.scores.list.length > 1 && show.olderScores == false && $index == 0" ng-click="enableOlderScores()">Show older scores...</a>
 					</div>
 
 				</div>
