@@ -238,7 +238,7 @@
 											<label>Time Elapsed:</label>{{ play.elapsed }}s
 										</div>
 										<div>
-											<label>Completed:</label>{{ play.is_complete ? 'Yes' : 'No' }}
+											<label>Completed:</label>{{ play.is_complete == "1" ? 'Yes' : 'No' }}
 										</div>
 										<hr ng-if="$index < instance.plays.length-1" />
 									</li>
