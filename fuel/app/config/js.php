@@ -18,7 +18,7 @@ return [
 		'jquery_ui'  => [$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js'],
 		'labjs'      => [$static.'vendor/labjs/LAB.min.js'],
 		'spinner'    => [$static.'vendor/spin.min.js', $static.'spin.jquery.js'],
-		'fancybox'   => [$static.'vendor/fancybox/jquery.fancybox.min.js'],
+		'hammerjs'   => [$static.'vendor/hammer.min.js'],
 		'swfobject'  => [$static.'vendor/swfobject/swfobject.js'],
 
 		'jqplot'     => [

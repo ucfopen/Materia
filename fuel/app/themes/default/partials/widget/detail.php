@@ -9,10 +9,10 @@
 
 		<div id="demo-container" ng-style="{'min-height': widget.height+'px', width: widget.width+'px'}" ng-if="demoFits" ng-class="{loaded: loaded}">
 			<div id="demo-cover" ng-class="{hidden: !showDemoCover}" ng-click="showDemoClicked()" ng-style="{'background-image': demoScreenshot}">
-				<a>
+				<button>
 					<span class="arrow arrow_right"></span>
 					Play a demo now!
-				</a>
+				</button>
 				<div id="demo-cover-background"></div>
 			</div>
 			<div ng-if="!showDemoCover">
@@ -29,16 +29,16 @@
 			</div>
 		</div>
 
-		<div ng-if="!demoFits" class="pics">
-			<div class="full-pic">
-				<button class="pic-arrow"ng-click="prevImage()"><</button>
-				<img ng-src="{{ widget.screenshots[selectedImage].full }}" alt="">
-				<button class="pic-arrow" ng-click="nextImage()">></button>
+		<div ng-show="!demoFits" class="pics">
+			<button class="pic-arrow"ng-click="prevImage()">previous</button>
+			<button class="pic-arrow" ng-click="nextImage()">next</button>
+			<div id="pics-scroller-container">
+				<div id="pics-scroller">
+					<img ng-repeat="screenshot in widget.screenshots" ng-src="{{screenshot.full}}" ondragstart="return false">
+				</div>
 			</div>
 			<div>
-				<button class="pic-dot" ng-class="{selected: selectedImage == 0}" ng-click="selectImage(0)"></button>
-				<button class="pic-dot" ng-class="{selected: selectedImage == 1}" ng-click="selectImage(1)"></button>
-				<button class="pic-dot" ng-class="{selected: selectedImage == 2}" ng-click="selectImage(2)"></button>
+				<button class="pic-dot" ng-repeat="i in [0,1,2]" ng-class="{selected: selectedImage == i}" ng-click="selectImage(i)"></button>
 			</div>
 		</div>
 

@@ -60,7 +60,7 @@ class Controller_Widgets extends Controller
 		}
 
 		Css::push_group(['widget_detail', 'core']);
-		Js::push_group(['angular', 'jquery', 'materia', 'student']);
+		Js::push_group(['angular', 'hammerjs', 'jquery', 'materia', 'student']);
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 
 		$this->theme->get_template()

@@ -56,8 +56,8 @@ const copyList = [
 		to:  path.join(vendorPath, 'swfobject')
 	},
 	{
-		from: path.join(nodeModulesPath, 'fancybox', 'dist'),
-		to:  path.join(vendorPath, 'fancybox')
+		from: path.join(nodeModulesPath, 'hammerjs', 'hammer.min.js'),
+		to:  path.join(vendorPath, 'hammer.min.js')
 	},
 	{
 		from: path.join(nodeModulesPath, 'spinjs', 'dist', 'spin.min.js'),
