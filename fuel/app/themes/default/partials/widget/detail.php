@@ -30,8 +30,12 @@
 		</div>
 
 		<div ng-show="!demoFits" class="pics">
-			<button class="pic-arrow"ng-click="prevImage()">previous</button>
-			<button class="pic-arrow" ng-click="nextImage()">next</button>
+			<button class="pic-arrow"ng-click="prevImage()">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
+			</button>
+			<button class="pic-arrow" ng-click="nextImage()">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
+			</button>
 			<div id="pics-scroller-container">
 				<div id="pics-scroller">
 					<img ng-repeat="screenshot in widget.screenshots" ng-src="{{screenshot.full}}" ondragstart="return false">
