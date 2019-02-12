@@ -540,6 +540,7 @@ class Widget_Installer
 			'flash_version'       => $manifest_data['files']['flash_version'],
 			'height'              => $manifest_data['general']['height'],
 			'width'               => $manifest_data['general']['width'],
+			'author_only'         => Util_Validator::cast_to_bool_enum(isset($manifest_data['general']['author_only']) ? $manifest_data['general']['author_only'] : false),
 			'is_qset_encrypted'   => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_qset_encrypted']),
 			'is_answer_encrypted' => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_answer_encrypted']),
 			'is_storage_enabled'  => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_storage_enabled']),

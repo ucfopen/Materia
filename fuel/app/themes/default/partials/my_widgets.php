@@ -244,8 +244,8 @@
 						</ul>
 						<ul class="options">
 							<li class="share"><div class="link" ng-click="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
-							<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
+							<li class="copy" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showCopyDialog()">Make a Copy</div></li>
+							<li class="delete" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showDelete()">Delete</div></li>
 						</ul>
 						<div class="delete_dialogue" ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
