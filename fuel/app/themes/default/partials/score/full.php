@@ -20,7 +20,6 @@
 			</h1>
 		</nav>
 	</header>
-	<h1 class="scoreFontColor" ng-show="showScoresOverview">Scores:</h1>
 	<section class="overview" ng-class="{ preview: isPreview }" ng-show="showScoresOverview && !restricted && !expired">
 		<div id='overview-incomplete' ng-hide="overview.complete">
 			<h2>Incomplete Attempt</h2>
@@ -70,25 +69,29 @@
 		<h1>{{ detail.title }}</h1>
 
 		<table>
-			<tr class="details_header">
-				<th ng-repeat="header in detail.header">{{ header }}</th>
-			</tr>
-			<tr class="{{ row.style }}" ng-class="{ has_feedback: row.feedback != null }" ng-repeat-start="row in detail.table">
-				<td class="index" ng-if="row.graphic != 'none'">
-					<canvas class="question-number" id="question-{{ $parent.$parent.$index+1 }}-{{ $index+1 }}" >
-						<p>{{ $index+1 }}</p>
-					</canvas>
-					<span ng-if="row.display_score">
-						{{ row.score }}{{ row.symbol }}
-					</span>
-				</td>
-				<td class="{{ row.data_style[$index] }}" ng-repeat="data in row.data track by $index">{{ data }}</td>
-			</tr>
-			<tr ng-if="row.feedback != null" class="feedback single_column" ng-repeat-end>
-				<td colspan="{{ row.data.length + 1 }}">
-					<p>{{ row.feedback }}</p>
-				</td>
-			</tr>
+			<thead>
+				<tr class="details_header">
+					<th ng-repeat="header in detail.header">{{ header }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="{{ row.style }}" ng-class="{ has_feedback: row.feedback != null }" ng-repeat-start="row in detail.table">
+					<td class="index" ng-if="row.graphic != 'none'">
+						<canvas class="question-number" id="question-{{ $parent.$parent.$index+1 }}-{{ $index+1 }}" >
+							<p>{{ $index+1 }}</p>
+						</canvas>
+						<span ng-if="row.display_score">
+							{{ row.score }}{{ row.symbol }}
+						</span>
+					</td>
+					<td class="{{ row.data_style[$index] }}" ng-repeat="data in row.data track by $index">{{ data }}</td>
+				</tr>
+				<tr ng-if="row.feedback != null" class="feedback single_column" ng-repeat-end>
+					<td colspan="{{ row.data.length + 1 }}">
+						<p>{{ row.feedback }}</p>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 	</section>
 
