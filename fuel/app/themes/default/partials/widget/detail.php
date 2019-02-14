@@ -1,48 +1,55 @@
-<section class="page" ng-show="show" ng-controller="widgetDetailsController" ng-cloak>
+<section class="page" ng-show="show" ng-controller="widgetDetailsController" ng-cloak ng-style="{'max-width': maxPageWidth}">
 	<article class="widget_detail">
 		<div class="top">
 			<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
 			<h1>{{ widget.name }}</h1>
 			<p>{{ widget.about }}</p>
 		</div>
-		<p class="widget-about">{{ widget.about }}</p>
+		<p id="widget-about">{{ widget.about }}</p>
 
-		<div id="demo-container" ng-style="{'min-height': widget.height+'px', width: widget.width+'px'}" ng-if="demoFits" ng-class="{loaded: loaded}">
-			<div id="demo-cover" ng-class="{hidden: !showDemoCover}" ng-click="showDemoClicked()" ng-style="{'background-image': demoScreenshot}">
-				<button>
-					<span class="arrow arrow_right"></span>
-					Play a demo now!
-				</button>
-				<div id="demo-cover-background"></div>
-			</div>
-			<div ng-if="!showDemoCover">
-				<section class="widget" ng-controller="playerCtrl" ng-init="inst_id = '<?= $inst_id ?>'" ng-class="{ preview: isPreview }">
-					<header ng-if="isPreview" class="preview-bar"></header>
-					<div class="center" ng-show="type == 'flash' || type == 'html'">
-						<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html" scrolling="yes" fullscreen-dir></iframe>
-						<div id="container" ng-if="type =='flash'"></div>
-					</div>
-					<div id="container" ng-if="type =='noflash'">
-						<?= Theme::instance()->view('partials/noflash') ?>
-					</div>
-				</section>
-			</div>
-		</div>
-
-		<div ng-show="!demoFits" class="pics">
+		<div class="pics">
 			<button class="pic-arrow"ng-click="prevImage()">
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
 			</button>
 			<button class="pic-arrow" ng-click="nextImage()">
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
 			</button>
+
 			<div id="pics-scroller-container">
 				<div id="pics-scroller">
-					<img ng-repeat="screenshot in widget.screenshots" ng-src="{{screenshot.full}}" ondragstart="return false">
+					<div ng-class="{playing: !showDemoCover}" ng-style="{'min-height': demoHeight, width: demoWidth}">
+						<img ng-src="{{widget.screenshots[0].full}}" ng-show="showDemoCover" ondragstart="return false">
+						<div id="demo-cover" ng-class="{hidden: !showDemoCover}" ng-style="{'background-image': demoScreenshot}">
+							<button class="green" ng-click="showDemoClicked()">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+								Play a demo now!
+							</button>
+							<div id="demo-cover-background"></div>
+						</div>
+						<div id="player-container" ng-if="!showDemoCover">
+							<section class="widget" ng-controller="playerCtrl" ng-init="inst_id = '<?= $inst_id ?>'" ng-class="{ preview: isPreview }">
+								<header ng-if="isPreview" class="preview-bar"></header>
+								<div class="center" ng-show="type == 'flash' || type == 'html'">
+									<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html" scrolling="yes" fullscreen-dir></iframe>
+									<div id="container" ng-if="type =='flash'"></div>
+								</div>
+								<div id="container" ng-if="type =='noflash'">
+									<?= Theme::instance()->view('partials/noflash') ?>
+								</div>
+							</section>
+						</div>
+						<h3>{{!showDemoCover ? 'Playing ' : '' }}Demo</h3>
+					</div>
+
+					<div ng-repeat="screenshot in widget.screenshots">
+						<img ng-src="{{screenshot.full}}" ondragstart="return false">
+						<h3>Screenshot {{$index + 1}} of 3</h3>
+					</div>
 				</div>
 			</div>
+
 			<div>
-				<button class="pic-dot" ng-repeat="i in [0,1,2]" ng-class="{selected: selectedImage == i}" ng-click="selectImage(i)"></button>
+				<button class="pic-dot" ng-repeat="i in [0,1,2,3]" ng-class="{selected: selectedImage == i}" ng-click="selectImage(i)"></button>
 			</div>
 		</div>
 
@@ -71,16 +78,8 @@
 			</dl>
 
 			<div class="widget-action-buttons">
-				<h4 ng-if="!demoFits">Want to see it in action?</h4>
-				<p ng-if="!demoFits">
-					<a id="demoLink" class="action_button green circle_button" href='{{ widget.demourl }}'>
-						<span class="arrow arrow_right"></span>
-						Play a demo now!
-					</a>
-				</p>
-
 				<h4>Want to use it in your course?</h4>
-				<p><a id ="createLink" href='{{ widget.creatorurl }}' class="action_button green">Create your widget</a></p>
+				<p><a id ="createLink" href='{{ widget.creatorurl }}' class="action_button green"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/><path d="M0 0h24v24H0z" fill="none"/></svg>Create your widget</a></p>
 			</div>
 		</section>
 	</article>
