@@ -18,7 +18,8 @@
 			</div>
 		</div>
 
-		<div class="publish animate-show" ng-show="popup == 'publish'">
+		<!-- standard pre-publish confirmation dialog -->
+		<div class="publish animate-show" ng-show="popup == 'publish' && canPublish">
 			<h1>Publish Widget</h1>
 			<p>Publishing removes the "Draft" status of a widget, which grants you the ability to use it in your course and collect student scores &amp; data.</p>
 			<div class="publish_container">
@@ -27,10 +28,26 @@
 			</div>
 		</div>
 
+		<!-- warning when current user can't publish widget -->
+		<div class="publish animate-show" ng-show="popup == 'publish' && !canPublish">
+			<h1>Publish Restricted</h1>
+			<p>Only authors are able to publish this widget.</p>
+			<p>In order for this widget to be published, it must first be shared with an author.</p>
+
+			<div class="publish_container">
+				<a class="cancel_button" ng-click="cancelPublish()">Cancel</a>
+			</div>
+		</div>
+
 		<section id="action-bar" ng-show="showActionBar">
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
 			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
-			<button id="creatorPublishBtn" class="edit_button green" type="button" ng-click="onPublishPressed()">{{ publishText }}</button>
+			<button id="creatorPublishBtn"
+				class="edit_button green"
+				type="button"
+				ng-click="onPublishPressed()">
+				{{ publishText }}
+			</button>
 			<span ng-hide="updateMode || nonEditable">
 				<div class="dot"></div>
 				<button id="creatorPreviewBtn" class="edit_button orange" type="button" ng-click="requestSave('preview')"><span>{{ previewText }}</span></button>

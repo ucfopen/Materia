@@ -47,8 +47,6 @@ class Widget_Manager
 					break;
 			}
 
-			if ( ! \Service_User::verify_session(['basic_author', 'super_user'])) $query->where('author_only', '0');
-
 			$result = \DB::query($query)->execute();
 
 			$widget_ids = \Arr::flatten($result);
