@@ -6,7 +6,6 @@ use \Materia\Api_V1;
  * @group Api
  * @group v1
  * @group Materia
- * @group Only
  */
 class Test_Api_V1 extends \Basetest
 {

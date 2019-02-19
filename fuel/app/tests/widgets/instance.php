@@ -31,6 +31,7 @@ class Test_Widget_Instance extends \Basetest
 			'guest_access'    => 0,
 			'is_student_made' => 1,
 			'widget'          => $widget,
+			'published_by'    => 1
 		];
 
 
@@ -63,5 +64,19 @@ class Test_Widget_Instance extends \Basetest
 		$this->assertNotEquals($inst_id, $duplicate->id);
 	}
 
+	public function test_publishable_by()
+	{
+		$widget = $this->make_disposable_widget('RestrictPublish', true);
 
+		$inst = new Widget_Instance(['widget' => $widget]);
+		$inst->db_get($widget->meta_data['demo'], false);
+
+		$student = $this->_as_student();
+		$output = $inst->publishable_by($student->id);
+		$this->assertFalse($output);
+
+		$author = $this->_as_author();
+		$output = $inst->publishable_by($author->id);
+		$this->assertTrue($output);
+	}
 }
