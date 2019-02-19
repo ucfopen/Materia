@@ -251,7 +251,7 @@ class Widget_Instance
 	{
 		// check for requirements
 		if ( ! $this->user_id > 0) return false;
-		if ( ! $this->publishable_by(\Model_User::find_current_id())) return false;
+		if ( ! $this->is_draft && ! $this->publishable_by(\Model_User::find_current_id())) return false;
 
 		$is_new = ! Util_Validator::is_valid_hash($this->id);
 

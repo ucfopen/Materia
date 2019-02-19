@@ -6,6 +6,7 @@ use \Materia\Api_V1;
  * @group Api
  * @group v1
  * @group Materia
+ * @group Only
  */
 class Test_Api_V1 extends \Basetest
 {
@@ -187,6 +188,19 @@ class Test_Api_V1 extends \Basetest
 		// DELETE
 		Api_V1::widget_instance_delete($output->id);
 
+		// SECOND PASS FOR PUBLISH-RESTRICTED
+
+		//make sure we get an instance of a widget that restricts publish rights
+		$widget = $this->make_disposable_widget('RestrictPublish', true);
+
+		$this->_as_student();
+		$question = 'test';
+		$answer = 'test';
+		$qset = $this->create_new_qset($question, $answer);
+
+		$output = Api_V1::widget_instance_new($widget->id, 'test', $qset, false);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Widget can not be published by student!', $output->title);
 	}
 
 	public function test_widget_instance_update()
@@ -530,6 +544,47 @@ class Test_Api_V1 extends \Basetest
 
 		// not logged in, should get error message
 		$this->assert_invalid_login_message($output);
+	}
+
+	public function test_publish_verify()
+	{
+		//make sure we get an instance of a widget that restricts publish rights
+		$widget = $this->make_disposable_widget('RestrictPublish', true);
+
+		//get the author user's id for later
+		$author = $this->_as_author();
+
+		$this->_as_student();
+		$question = 'test';
+		$answer = 'test';
+		$qset = $this->create_new_qset($question, $answer);
+
+		$instance = Api_V1::widget_instance_new($widget->id, 'test', $qset, true);
+
+		//give author user access to the widget instance
+		$accessObj = new stdClass();
+		$accessObj->perms = [Perm::FULL => true];
+		$accessObj->expiration = null;
+		$accessObj->user_id = $author->id;
+		Api_V1::permissions_set(Perm::INSTANCE, $instance->id, [$accessObj]);
+
+		// ======= AS NO ONE ========
+		\Auth::logout();
+		$output = Api_V1::publish_verify($instance->id);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Invalid Login', $output->title);
+
+		// ======= STUDENT ========
+		$this->_as_student();
+		$output = Api_V1::publish_verify($instance->id);
+		$this->assertFalse($output);
+
+		// ======= AUTHOR ========
+		$this->_as_author();
+		$output = Api_V1::publish_verify($instance->id);
+		$this->assertTrue($output);
+
+		Api_V1::widget_instance_delete($instance->id);
 	}
 
 	public function test_session_play_create()
