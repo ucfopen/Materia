@@ -540,7 +540,7 @@ class Widget_Installer
 			'flash_version'       => $manifest_data['files']['flash_version'],
 			'height'              => $manifest_data['general']['height'],
 			'width'               => $manifest_data['general']['width'],
-			'restrict_publish'    => Util_Validator::cast_to_bool_enum(isset($manifest_data['general']['restrict_publish']) ? $manifest_data['general']['restrict_publish'] : false),
+			'restrict_publish'    => isset($manifest_data['general']['restrict_publish']) ? Util_Validator::cast_to_bool_enum($manifest_data['general']['restrict_publish']) : '0',
 			'is_qset_encrypted'   => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_qset_encrypted']),
 			'is_answer_encrypted' => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_answer_encrypted']),
 			'is_storage_enabled'  => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_storage_enabled']),
