@@ -71,13 +71,15 @@ class Api_V1
 	/**
 	 * @return bool, true if the current user can publish the given widget instance, false otherwise.
 	 */
-	static public function publish_verify($inst_id)
+	static public function publish_verify($widget_id)
 	{
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
-		return $inst->publishable_by(\Model_User::find_current_id());
+		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
+
+		$widget = new Widget();
+		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+
+		return $widget->publishable_by(\Model_User::find_current_id());
 	}
 
 	static private function has_perms_to_inst($inst_id, $perms)
@@ -137,7 +139,7 @@ class Api_V1
 			'guest_access'    => $is_student,
 			'attempts'        => -1
 		]);
-		if ( ! $is_draft && ! $inst->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget can not be published by student!');
+		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget can not be published by student!');
 
 		if ( ! empty($qset->data)) $inst->qset->data = $qset->data;
 		if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
@@ -177,7 +179,7 @@ class Api_V1
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
 		if ( $is_draft && ! $inst->widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
-		if ( ! $is_draft && ! $inst->publishable_by(\Model_User::find_current_id())) return new Msg(Msg::ERROR, 'Widgets can not be published by student!');
+		if ( ! $is_draft && ! $inst->widget->publishable_by(\Model_User::find_current_id())) return new Msg(Msg::ERROR, 'Widgets can not be published by student!');
 
 		// student made widgets are locked forever
 		if ($inst->is_student_made)

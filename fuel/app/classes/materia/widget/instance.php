@@ -251,7 +251,7 @@ class Widget_Instance
 	{
 		// check for requirements
 		if ( ! $this->user_id > 0) return false;
-		if ( ! $this->is_draft && ! $this->publishable_by(\Model_User::find_current_id())) return false;
+		if ( ! $this->is_draft && ! $this->widget->publishable_by(\Model_User::find_current_id())) return false;
 
 		$is_new = ! Util_Validator::is_valid_hash($this->id);
 
@@ -439,17 +439,6 @@ class Widget_Instance
 	public function viewable_by($user_id)
 	{
 		return Perm_Manager::user_has_any_perm_to($user_id, $this->id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]);
-	}
-
-	/**
-	 * Checks if user can publish widget.
-	 *
-	 * @return bool Whether or not the current user can publish the widget
-	 */
-	public function publishable_by($user_id)
-	{
-		if ( ! $this->widget->restrict_publish) return true;
-		return ! Perm_Manager::is_student($user_id);
 	}
 
 	/**

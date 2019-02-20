@@ -273,6 +273,17 @@ class Widget
 		return $this->exporter_methods;
 	}
 
+	/**
+	 * Checks if user can publish widget.
+	 *
+	 * @return bool Whether or not the current user can publish the widget
+	 */
+	public function publishable_by($user_id)
+	{
+		if ( ! $this->restrict_publish) return true;
+		return ! Perm_Manager::is_student($user_id);
+	}
+
 	// filter out items in an array that aren't callable
 	public static function reduce_array_to_functions(array $array): array
 	{
