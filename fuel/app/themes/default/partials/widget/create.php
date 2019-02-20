@@ -31,7 +31,7 @@
 		<!-- warning when current user can't publish widget -->
 		<div class="publish animate-show" ng-show="popup == 'publish' && !canPublish">
 			<h1>Publish Restricted</h1>
-			<p>Only authors are able to publish this widget.</p>
+			<p>Students are not allowed to publish this widget type.</p>
 			<p>In order for this widget to be published, it must first be shared with an author.</p>
 
 			<div class="publish_container">
