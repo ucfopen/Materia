@@ -32,7 +32,7 @@
 		<div class="publish animate-show" ng-show="popup == 'publish' && !canPublish">
 			<h1>Publish Restricted</h1>
 			<p>Students are not allowed to publish this widget type.</p>
-			<p>In order for this widget to be published, it must first be shared with an author.</p>
+			<p>Add a non-student as a collaborator, they must authorize and publish it for you.</p>
 
 			<div class="publish_container">
 				<a class="cancel_button" ng-click="cancelPublish()">Cancel</a>
