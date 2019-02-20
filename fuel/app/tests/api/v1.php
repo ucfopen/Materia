@@ -199,7 +199,7 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::widget_instance_new($widget->id, 'test', $qset, false);
 		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Widget can not be published by student!', $output->title);
+		$this->assertEquals('Widget type can not be published by students.', $output->title);
 	}
 
 	public function test_widget_instance_update()
