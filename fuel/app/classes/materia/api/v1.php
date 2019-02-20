@@ -139,7 +139,7 @@ class Api_V1
 			'guest_access'    => $is_student,
 			'attempts'        => -1
 		]);
-		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget can not be published by student!');
+		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
 
 		if ( ! empty($qset->data)) $inst->qset->data = $qset->data;
 		if ( ! empty($qset->version)) $inst->qset->version = $qset->version;
