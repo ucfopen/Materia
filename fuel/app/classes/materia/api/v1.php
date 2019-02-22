@@ -95,7 +95,7 @@ class Api_V1
 	/**
 	 * @return bool, true if the current user can publish the given widget instance, false otherwise.
 	 */
-	static public function publish_verify($widget_id)
+	static public function widget_publish_perms_verify($widget_id)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
