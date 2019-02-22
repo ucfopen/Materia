@@ -4,7 +4,7 @@
 		<div ng-controller="SelectedWidgetController">
 			<!-- standard post-publish warning for users who can publish this widget -->
 			<modal-dialog class="edit-published-widget"
-				show="show.editPublishedWarning && canPublish"
+				show="show.editPublishedWarning"
 				dialog-title="Warning About Editing Published Widgets:"
 				width="600px" height="320px">
 				<div class="container">
@@ -26,7 +26,7 @@
 
 			<!-- post-publish warning for users who can not publish this widget -->
 			<modal-dialog class="edit-published-widget"
-				show="show.editPublishedWarning && !canPublish"
+				show="show.restrictedPublishWarning"
 				dialog-title="Unable to Edit Published Widget:"
 				width="600px" height="170px">
 				<div class="container">

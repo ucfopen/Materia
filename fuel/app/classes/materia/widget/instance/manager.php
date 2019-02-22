@@ -65,6 +65,22 @@ class Widget_Instance_Manager
 	}
 
 	/**
+	 * Checks to see if the given widget instance is locked for the current user.
+	 *
+	 * @param inst_id widget instance id to check for lock
+	 *
+	 * @return bool whether the given instance is locked for the current user
+	 */
+	public static function locked_by_current_user($inst_id)
+	{
+		$me = \Model_User::find_current_id();
+		$locked_by = \Cache::easy_get('instance-lock.'.$inst_id);
+
+		if ( ! $locked_by) return true;
+		return $me && $locked_by == $me;
+	}
+
+	/**
 	 * Locks a widget instance for 2 minutes to prevent others from editing it.
 	 * Renew your locks by calling lock at least once per 2 minutes
 	 *
