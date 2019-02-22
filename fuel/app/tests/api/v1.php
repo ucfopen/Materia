@@ -545,25 +545,25 @@ class Test_Api_V1 extends \Basetest
 		$this->assert_invalid_login_message($output);
 	}
 
-	public function test_publish_verify()
+	public function test_widget_publish_perms_verify()
 	{
 		//make sure we get an instance of a widget that restricts publish rights
 		$widget = $this->make_disposable_widget('RestrictPublish', true);
 
 		// ======= AS NO ONE ========
 		\Auth::logout();
-		$output = Api_V1::publish_verify($widget->id);
+		$output = Api_V1::widget_publish_perms_verify($widget->id);
 		$this->assertInstanceOf('\Materia\Msg', $output);
 		$this->assertEquals('Invalid Login', $output->title);
 
 		// ======= STUDENT ========
 		$this->_as_student();
-		$output = Api_V1::publish_verify($widget->id);
+		$output = Api_V1::widget_publish_perms_verify($widget->id);
 		$this->assertFalse($output);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
-		$output = Api_V1::publish_verify($widget->id);
+		$output = Api_V1::widget_publish_perms_verify($widget->id);
 		$this->assertTrue($output);
 	}
 
