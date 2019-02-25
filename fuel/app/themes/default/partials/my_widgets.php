@@ -34,7 +34,7 @@
 					<p>You are not able to publish this widget or make any changes to it after it has been published.</p>
 
 					<span class="center">
-						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
+						<a class="cancel_button" href="javascript:;" ng-click="show.restrictedPublishWarning = false">Cancel</a>
 					</span>
 				</div>
 			</modal-dialog>

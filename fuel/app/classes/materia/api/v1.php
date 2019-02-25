@@ -72,7 +72,7 @@ class Api_V1
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */
-	static public function edit_verify($inst_id)
+	static public function widget_instance_edit_perms_verify($inst_id)
 	{
 		$response = new \stdClass();
 		$response->msg = null;
@@ -81,13 +81,17 @@ class Api_V1
 
 		$locked_by = \Cache::easy_get('instance-lock.'.$inst_id);
 
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return $response->msg = Msg::invalid_input($inst_id);
-		else if (\Service_User::verify_session() !== true) return $response->msg = Msg::no_login();
-		else if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return $response->msg = Msg::no_perm();
-		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return $response->msg = new Msg(Msg::ERROR, 'Widget instance does not exist.');
+		if ( ! Util_Validator::is_valid_hash($inst_id)) $response->msg = Msg::invalid_input($inst_id);
+		else if (\Service_User::verify_session() !== true) $response->msg = Msg::no_login();
+		else if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) $response->msg = Msg::no_perm();
+		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) $response->msg = new Msg(Msg::ERROR, 'Widget instance does not exist.');
 
-		$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
-		$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		//msg property only set if something went wrong
+		if ( ! $response->msg)
+		{
+			$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
+			$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		}
 
 		return $response;
 	}
