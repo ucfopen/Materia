@@ -103,3 +103,9 @@ coverage.xml
 coverage/*
 
 fuel/app/backend/*
+
+licenses/LICENSES_COMPOSER
+licenses/LICENSES_NPM
+
+materia-pkg.zip
+materia-pkg-build-info.yml
