@@ -31,8 +31,8 @@
 		<!-- warning when current user can't publish widget -->
 		<div class="publish animate-show" ng-show="popup == 'publish' && !canPublish">
 			<h1>Publish Restricted</h1>
-			<p>Students are not allowed to publish this widget type.</p>
-			<p>Add a non-student as a collaborator, they must authorize and publish it for you.</p>
+			<p>Students are not allowed to publish this widget.</p>
+			<p>You can share the widget with a non-student who can publish it for you. Select "Save Draft" and add a non-student as a collaborator on the My Widgets page.</p>
 
 			<div class="publish_container">
 				<a class="cancel_button" ng-click="cancelPublish()">Cancel</a>
