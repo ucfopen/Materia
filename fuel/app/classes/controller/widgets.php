@@ -32,7 +32,6 @@ class Controller_Widgets extends Controller
 
 	public function get_all()
 	{
-		Js::push_inline('var DISPLAY_TYPE = "all";');
 		$this->get_index();
 	}
 
