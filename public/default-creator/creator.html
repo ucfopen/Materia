@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Generic Widget Creator</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,400,700,700italic,900&amp;v2">
+		<style type="text/css">
+			body {
+				border-top: none;
+				font-family: Lato,arial,serif;
+			}
+
+			body, html {
+				background: rgba(0, 0, 0, .1);
+				height: 100%;
+				padding: 0;
+				margin: 0;
+			}
+
+			#creator {
+				background-color: white;
+				padding-left: 90px;
+				margin: 0 auto;
+				width: 450px;
+				height: 310px;
+				position: absolute;
+				left: 50%;
+				top: 10%;
+				transform: translate(-50%, 0);
+				border: solid 3px #aea79f;
+			}
+
+			.icon {
+				position: absolute;
+				display: block;
+				top: 25px;
+				left: -25px;
+				width: 92px;
+				height: 92px;
+			}
+
+			h1 {
+				padding-top: 20px;
+			}
+
+			h2 {
+				font-size: 1.3em;
+			}
+
+			input {
+				height: 25px;
+				width: 85%;
+				color: black;
+				font-size: 1em;
+				padding: 6px 8px;
+			}
+
+			input::placeholder{
+				color: #aaa;
+			}
+			input:-ms-input-placeholder{
+				color: #aaa;
+			}
+			input::-ms-input-placeholder{
+				color: #aaa;
+			}
+		</style>
+		<script src="../../../js/materia.creatorcore.js"></script>
+	</head>
+	<body>
+		<script id="page-template" type="text/template">
+			<div id="creator">
+				<h1>{{ engineName }}</h1>
+				<img class="icon" src="{{ icon }}" alt="Widget icon" />
+				<p>Create a new widget:</p>
+				<h2>1. Give your widget a name:</h3>
+				<input type="text" placeholder="Enter a name..." id="widget-title-input" value="{{ title }}" required />
+				<h2>2. Press "{{ publishText }}" on the top right</h3>
+			</div>
+		</script>
+		<script>
+			var mustacheMatch = /{{\s*([a-z\.]+)\s*}}/gi
+			var template = document.getElementById("page-template").innerHTML
+			var container = document.createElement("div");
+			document.body.appendChild(container);
+
+			// all widgets require a qset, even if it doesn't contain anything
+			// establish a minimum default to satisfy the platform
+			var defaultQSet = {
+				data: {}
+			}
+
+			// renders a mustache type template to a target dom element
+			var renderTemplate = function(html, replaceVars, target){
+				var match
+				while((match = mustacheMatch.exec(html)) !== null){
+					if(typeof replaceVars[match[1]] != 'undefined'){
+						html = html.substr(0, match.index) +
+							replaceVars[match[1]] +
+							html.substr(match.index + match[0].length)
+					}
+				}
+
+				target.innerHTML = html
+			}
+
+			// render template with current values
+			var updateDisplay = function(html, el, engineName, title, dir, isNewWiget){
+				// use high res icons?
+				var retina = (window.devicePixelRatio >= 2 ? '@2x' : '')
+
+				var vars = {
+					engineName: engineName,
+					title: title,
+					icon: '/widget/' + dir + 'img/icon-92' + retina + '.png',
+					publishText: isNewWiget ? 'Publish...' : 'Update'
+				}
+
+				renderTemplate(html, vars, el)
+			}
+
+			// Materia callbacks
+			var callbacks = {
+				initNewWidget: function(widget) {
+					updateDisplay(template, container, widget.name, '', widget.dir, true)
+				},
+				initExistingWidget: function(title, widget) {
+					updateDisplay(template, container, widget.name, title, widget.dir, false)
+				},
+				onSaveClicked: function() {
+					var input = document.getElementById('widget-title-input').value
+					if (input) {
+						Materia.CreatorCore.save(input, defaultQSet);
+					}
+					else{
+						Materia.CreatorCore.cancelSave('Widget has no title!')
+					}
+				},
+				onSaveComplete: function(){}
+			}
+
+			// start creator core
+			Materia.CreatorCore.start(callbacks);
+		</script>
+	</body>
+</html>

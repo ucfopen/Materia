@@ -1,15 +1,4 @@
 <?php
-/**
- * Part of the Fuel framework.
- *
- * @package    Fuel
- * @version    1.8
- * @author     Fuel Development Team
- * @license    MIT License
- * @copyright  2010 - 2016 Fuel Development Team
- * @link       http://fuelphp.com
- */
-
 return array(
 
 	/**
@@ -181,10 +170,9 @@ return array(
 			'Fuel\\Core\\Presenter',
 			'Fuel\\Core\\Response',
 			'Fuel\\Core\\View',
-			// 'Fuel\\Core\\ViewModel',
 			'Closure',
 			'Materia\\Widget_Instance',
-			'RocketDuck\\Msg',
+			'Materia\\Msg',
 			'Materia\\Score_Record',
 			'Materia\\Widget',
 		),
@@ -279,8 +267,6 @@ return array(
 		 */
 		'packages'  => array(
 			'orm',
-			'materia',
-			'rocketDuck',
 			'auth',
 			'materiaauth',
 			'ltiauth'
@@ -331,9 +317,57 @@ return array(
 		),
 	),
 
-	/**
-	* Allow browser based widget uploads by administrators
-	*/
-	'enable_uploader' => false
-
+	// which widgets are installed with the widget:install_from_config task
+	'widgets' => [
+		[
+			'id' => 1,
+			'package'  => 'https://github.com/ucfopen/crossword-materia-widget/releases/download/v1.2.3/crossword.wigt',
+			'checksum' => 'https://github.com/ucfopen/crossword-materia-widget/releases/download/v1.2.3/crossword-build-info.yml',
+		],
+		[
+			'id' => 2,
+			'package'  => 'https://github.com/ucfopen/hangman-materia-widget/releases/download/v1.1.2/hangman.wigt',
+			'checksum' => 'https://github.com/ucfopen/hangman-materia-widget/releases/download/v1.1.2/hangman-build-info.yml',
+		],
+		[
+			'id' => 3,
+			'package'  => 'https://github.com/ucfopen/matching-materia-widget/releases/download/v1.1.4/matching.wigt',
+			'checksum' => 'https://github.com/ucfopen/matching-materia-widget/releases/download/v1.1.4/matching-build-info.yml',
+		],
+		[
+			'id' => 4,
+			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.1/enigma.wigt',
+			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.1/enigma-build-info.yml',
+		],
+		[
+			'id' => 5,
+			'package'  => 'https://github.com/ucfopen/labeling-materia-widget/releases/download/v1.0.3/labeling.wigt',
+			'checksum' => 'https://github.com/ucfopen/labeling-materia-widget/releases/download/v1.0.3/labeling-build-info.yml',
+		],
+		[
+			'id' => 6,
+			'package' => 'https://github.com/ucfopen/flash-cards-materia-widget/releases/download/v1.1.2/flash-cards.wigt',
+			'checksum' => 'https://github.com/ucfopen/flash-cards-materia-widget/releases/download/v1.1.2/flash-cards-build-info.yml'
+		],
+		[
+			'id' => 7,
+			'package' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.6/this-or-that.wigt',
+			'checksum' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.6/this-or-that-build-info.yml'
+		],
+		[
+			'id' => 8,
+			'package' => 'https://github.com/ucfopen/word-search-materia-widget/releases/download/v1.1.4/word-search.wigt',
+			'checksum' => 'https://github.com/ucfopen/word-search-materia-widget/releases/download/v1.1.4/word-search-build-info.yml'
+		],
+		[
+			'id' => 9,
+			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.0.6/adventure.wigt',
+			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.0.6/adventure-build-info.yml'
+		],
+		[
+			'id' => 10,
+			'package' => 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/download/v2.0.2/equation-sandbox.wigt',
+			'checksum' => 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/download/v2.0.2/equation-sandbox-build-info.yml'
+		]
+	],
 );
