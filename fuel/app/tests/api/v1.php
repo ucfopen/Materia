@@ -545,7 +545,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assert_invalid_login_message($output);
 	}
 
-	public function test_widget_instance_edit_perms_verify()
+	public function test_widget_instance_edit_perms_verify(): void
 	{
 		//create a publish-restricted widget as a student and give an author full access to it
 		$widget = $this->make_disposable_widget('RestrictPublish', true);
@@ -605,7 +605,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertNull($output->msg);
 	}
 
-	public function test_widget_publish_perms_verify()
+	public function test_widget_publish_perms_verify(): void
 	{
 		//make sure we get an instance of a widget that restricts publish rights
 		$widget = $this->make_disposable_widget('RestrictPublish', true);

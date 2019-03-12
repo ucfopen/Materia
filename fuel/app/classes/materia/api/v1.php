@@ -72,14 +72,12 @@ class Api_V1
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */
-	static public function widget_instance_edit_perms_verify($inst_id)
+	static public function widget_instance_edit_perms_verify(string $inst_id): \stdClass
 	{
 		$response = new \stdClass();
 		$response->msg = null;
 		$response->is_locked = true;
 		$response->can_publish = false;
-
-		$locked_by = \Cache::easy_get('instance-lock.'.$inst_id);
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) $response->msg = Msg::invalid_input($inst_id);
 		else if (\Service_User::verify_session() !== true) $response->msg = Msg::no_login();
@@ -99,7 +97,7 @@ class Api_V1
 	/**
 	 * @return bool, true if the current user can publish the given widget instance, false otherwise.
 	 */
-	static public function widget_publish_perms_verify($widget_id)
+	static public function widget_publish_perms_verify(int $widget_id)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
@@ -154,6 +152,7 @@ class Api_V1
 
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
 		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
@@ -167,7 +166,6 @@ class Api_V1
 			'guest_access'    => $is_student,
 			'attempts'        => -1
 		]);
-		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
 
 		if ( ! empty($qset->data)) $inst->qset->data = $qset->data;
 		if ( ! empty($qset->version)) $inst->qset->version = $qset->version;

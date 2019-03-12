@@ -87,7 +87,7 @@ class Basetest extends TestCase
 		return \Materia\Widget_Manager::search($search)[0]->id;
 	}
 
-	protected function make_disposable_widget($name = 'TestWidget', $restricted = false)
+	protected function make_disposable_widget(string $name = 'TestWidget', bool $restrict_publish = false)
 	{
 		$user = $this->make_random_author();
 
@@ -103,7 +103,7 @@ class Basetest extends TestCase
 				'is_playable' => true,
 				'is_editable' => true,
 				'in_catalog' => true,
-				'restrict_publish' => $restricted,
+				'restrict_publish' => $restrict_publish,
 				'api_version' => 2,
 			],
 			'score' => [

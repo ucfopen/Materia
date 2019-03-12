@@ -71,7 +71,7 @@ class Widget_Instance_Manager
 	 *
 	 * @return bool whether the given instance is locked for the current user
 	 */
-	public static function locked_by_current_user($inst_id)
+	public static function locked_by_current_user(string $inst_id): bool
 	{
 		$me = \Model_User::find_current_id();
 		$locked_by = \Cache::easy_get('instance-lock.'.$inst_id);
