@@ -89,6 +89,12 @@
 											Is Scorable
 										</label>
 									</div>
+									<div>
+										<label class="normal">
+											<input type="checkbox" ng-model="widget.restrict_publish" ng-true-value='"1"' ng-false-value='"0"'/>
+											Restrict Publish
+										</label>
+									</div>
 								</span>
 							</div>
 							<div>
