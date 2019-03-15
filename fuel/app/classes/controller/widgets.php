@@ -20,7 +20,6 @@ class Controller_Widgets extends Controller
 		Css::push_group(['core', 'widget_catalog']);
 
 		Js::push_group(['angular', 'ng-animate', 'materia']);
-		Js::push_inline('try{angular.module("materia").requires.push("ngAnimate")}catch(e){console.log(e)}');
 
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
