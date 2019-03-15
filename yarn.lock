@@ -2215,7 +2215,7 @@ negotiator@0.6.1:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
   integrity sha1-KzJxhOiZIQEXeyhWP7XnECrNDKk=
 
-"ngmodal@github:ucfcdl/ngModal#v1.2.2":
+ngmodal@ucfcdl/ngModal#v1.2.2:
   version "1.2.2"
   resolved "https://codeload.github.com/ucfcdl/ngModal/tar.gz/6abad982bdb8f258ffcdc20316a907c2292399d2"
 
