@@ -74,7 +74,7 @@
 					<dd><a class="guide" href="#">Player</a></dd>
 					<dd><a class="guide" href="#">Creator</a></dd>
 				</div>
-				<span id="last-updated">Widget Last Updated {{ widget.created }}</span>
+				<span id="last-updated">{{ widget.name }} was updated on {{ widget.created }}</span>
 			</dl>
 
 			<div class="widget-action-buttons">
