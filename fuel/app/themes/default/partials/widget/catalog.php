@@ -22,16 +22,14 @@
 			</div>
 		</div>
 
-		<div style="position:absolute; left: 10px; top: 60px">
-			<div id="filter-dropdown" ng-show="mobileFiltersOpen" ng-click="mobileFiltersOpen = !mobileFiltersOpen" class="mobile-only">
-				<label ng-repeat="(id, filter) in filters">
-					<input type="checkbox" class="filter-button" ng-checked="filter.isActive" ng-click="toggleFilter(id)">
-					{{filter.text}}
-				</label>
-			</div>
+		<div id="filter-dropdown" ng-show="mobileFiltersOpen" ng-click="mobileFiltersOpen = !mobileFiltersOpen" class="mobile-only">
+			<label ng-repeat="(id, filter) in filters">
+				<input type="checkbox" class="filter-button" ng-checked="filter.isActive" ng-click="toggleFilter(id)">
+				{{filter.text}}
+			</label>
 		</div>
 
-		<div id="filters-container" class="animate-if" ng-if="isShowingFilters" >
+		<div id="filters-container" ng-if="isShowingFilters" ng-class="{ready: ready}">
 			<div class="filter-labels-container">
 				<button class="feature-button" ng-repeat="(id, filter) in filters" ng-class="{selected: filter.isActive}" ng-click="toggleFilter(id)">
 					{{filter.text}}
@@ -41,13 +39,13 @@
 
 		<div id="no-widgets-message" ng-if="widgets.length < 1">
 			<span ng-if="count == 0">No widgets match the filters you set. <button class="cancel_button" ng-click="clearFiltersAndSearch()">Show All</button></span>
-			<span ng-if="count == -1">Loading Widgets..</span>
+			<span ng-if="totalWidgets == -1">Loading Widgets...</span>
 		</div>
 
-		<div class="widget-group" ng-if="ready && !isFiltered">
+		<div class="widget-group" ng-if="totalWidgets > 0 && !isFiltered">
 			<h1 class="container-label"><span>Featured Widgets</span></h1>
 			<div class="widgets-container featured">
-				<div ng-repeat="widget in featuredWidgets" class="widget" id="widget-{{widget.clean_name}}" ng-style="widget.style" ng-class="{ready: ready}">
+				<div ng-repeat="widget in featuredWidgets" class="widget" id="widget-{{widget.clean_name}}" ng-style="widget.style">
 					<ng-include src="'widgetInfoCard'"></ng-include>
 				</div>
 			</div>
