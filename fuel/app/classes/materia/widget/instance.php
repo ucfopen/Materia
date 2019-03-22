@@ -71,10 +71,10 @@ class Widget_Instance
 					// new question sets need ids
 					if ($create_ids)
 					{
-						if (empty($real_q->id)) $real_q->id = md5(uniqid(rand(), true));
+						if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
 						foreach ($real_q->answers as &$a)
 						{
-							if (empty($a['id'])) $a['id'] = md5(uniqid(rand(), true));
+							if (empty($a['id'])) $a['id'] = \Str::random('uuid');
 						}
 						$source[$key] = json_decode(json_encode($real_q), true);
 					}

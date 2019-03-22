@@ -129,7 +129,6 @@ class Widget
 		{
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
-
 		return true;
 	}
 

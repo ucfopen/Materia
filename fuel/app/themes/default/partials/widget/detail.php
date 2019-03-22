@@ -6,13 +6,12 @@
 
 	<article class="widget_detail">
 		<div class="widget_icon">
-			<img ng-src="{{ widget.icon }}" alt="" >
+			<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
 			<div class="guide_buttons">
 				View Guides for: <a ng-if='widget.creators_guide' id="createLink" ng-href="{{ widget.creators_guide }}" >Authors</a>
 				/
 				<a ng-if='widget.players_guide'id="createLink" ng-href='{{ widget.players_guide }}'>Players</a>
 			</div>
-		</div>
 
 		<div>
 			<div class="detail">
@@ -33,6 +32,14 @@
 			</ul>
 			<p class="thumbnail_explination">Click on a thumbnail to view a screenshot</p>
 			<dl id="metaData" class="left inline_def">
+				<dt ng-show='widget.features.length'>Guides:</dt>
+				<div class="aligner">
+					<dd>
+						<div><a id="createLink" class="" href='{{ widget.creator_guide }}' target="_blank">Creator Guide</a></div>
+						<div><a id="createLink" class="" href='{{ widget.player_guide }}' target="_blank">Player Guide</a></div>
+						<div class="tooltip" style="display: {{ feature.show ? 'inline-block' : 'none' }}">{{ feature.description }}</div>
+					</dd>
+				</div>
 				<dt ng-show='widget.features.length'>Features:</dt>
 				<div class="aligner">
 					<dd ng-repeat='feature in widget.features'>
