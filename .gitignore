@@ -49,6 +49,7 @@ public/css/beard_mode.css
 public/css/catalog.css
 public/css/create.css
 public/css/docs.css
+public/css/guide.css
 public/css/login.css
 public/css/lti.css
 public/css/main.css
@@ -67,6 +68,7 @@ public/css/embed.css
 
 public/js/admin.js
 public/js/author.js
+public/js/details.js
 public/js/materia.coms.json.js
 public/js/materia.creatorcore.js
 public/js/materia.enginecore.js
