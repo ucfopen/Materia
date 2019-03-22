@@ -20,7 +20,8 @@ class Controller_Api_Site extends Controller_Rest
 		static::$rate_limiter_window    = 60; // seconds
 		self::incement_rate_limiter();
 
-		if ( ! self::check_rate_limiter()){
+		if ( ! self::check_rate_limiter())
+		{
 			$this->response(['error' => 'Rate limit exceeded'], 429);
 			return;
 		}
@@ -36,7 +37,7 @@ class Controller_Api_Site extends Controller_Rest
 
 		// test database connection
 		$q = \DB::query('SELECT 1 as good_to_go')->execute()->as_array();
-		$tests['database'] = !empty($q[0]['good_to_go']);
+		$tests['database'] = ! empty($q[0]['good_to_go']);
 
 		// test cache set and get
 		$random = uniqid();
@@ -49,7 +50,8 @@ class Controller_Api_Site extends Controller_Rest
 		$tests['session'] = $session_value === $random;
 
 
-		if($tests['database']){
+		if ($tests['database'])
+		{
 			$q = \Db::query('SELECT id from asset order by RAND() LIMIT 1')
 				->execute()
 				->as_array();
