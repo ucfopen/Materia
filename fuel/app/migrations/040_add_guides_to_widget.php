@@ -12,12 +12,12 @@ class Add_Guides_To_Widget
                 'creator_guide' => [
                     'constraint' => 255, 
                     'type' => 'varchar',
-                    'null' => true
+                    'null' => false
                 ],
                 'player_guide' => [
                     'constraint' => 255, 
                     'type' => 'varchar',
-                    'null' => true
+                    'null' => false
                 ]
             ]
         );

@@ -7,10 +7,10 @@
 	<article class="widget_detail">
 		<div class="widget_icon">
 			<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
-			<div class="guide_buttons">
+			<div class="guide_buttons" ng-if='widget.creators_guide && widget.players_guide'>
 				View Guides for: <a ng-if='widget.creators_guide' id="createLink" ng-href="{{ widget.creators_guide }}" >Authors</a>
 				/
-				<a ng-if='widget.players_guide'id="createLink" ng-href='{{ widget.players_guide }}'>Players</a>
+				<a ng-if='widget.players_guide' id="createLink" ng-href='{{ widget.players_guide }}'>Players</a>
 			</div>
 		</div>
 
