@@ -67,7 +67,6 @@ class Controller_Api_Site extends Controller_Rest
 
 
 		$tests['diskspace'] = disk_free_space('.') > (200 /*mb*/ * 1024 * 1024);
-		$tests['eh'] = static::$rate_limiter_max_count;
 		$this->response($tests, 200);
 	}
 
