@@ -43,13 +43,14 @@
 
 					<div ng-repeat="screenshot in widget.screenshots">
 						<img ng-src="{{screenshot.full}}" ondragstart="return false">
-						<h3>Screenshot {{$index + 1}} of 3</h3>
+						<h3>Screenshot {{$index + 1}} of {{numScreenshots}}</h3>
 					</div>
 				</div>
 			</div>
 
 			<div>
-				<button class="pic-dot" ng-repeat="i in [0,1,2,3]" ng-class="{selected: selectedImage == i}" ng-click="selectImage(i)"></button>
+				<button class="demo-dot" ng-class="{selected: selectedImage == 0}" ng-click="selectImage(0)">Demo</button>
+				<button class="pic-dot" ng-repeat="s in widget.screenshots" ng-class="{selected: selectedImage == $index + 1}" ng-click="selectImage($index + 1)"></button>
 			</div>
 		</div>
 
@@ -59,14 +60,14 @@
 				<div>
 					<dd ng-repeat='feature in widget.features'>
 						<a class="feature" ng-mouseover="feature.show = true" ng-mouseout="feature.show = false">{{ feature.text }}</a>
-						<div class="tooltip" style="display: {{ feature.show ? 'block' : 'none' }}">{{ feature.description }}</div>
+						<div class="tooltip" ng-show="feature.show">{{ feature.description }}</div>
 					</dd>
 				</div>
 				<dt ng-show='widget.supported_data.length'>Supported Data:</dt>
 				<div>
 					<dd ng-repeat='data in widget.supported_data'>
 						<a class="supported_data" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</a>
-						<div class="tooltip" style="display: {{ data.show ? 'block' : 'none' }}">{{ data.description }}</div>
+						<div class="tooltip" ng-show="data.show">{{ data.description }}</div>
 					</dd>
 				</div>
 				<dt>Guides:</dt>
