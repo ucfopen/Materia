@@ -42,7 +42,8 @@
 					</div>
 
 					<div ng-repeat="screenshot in widget.screenshots">
-						<img ng-src="{{screenshot.full}}" ondragstart="return false">
+						<img ng-src="{{screenshot.full}}">
+						<div class="screenshot-drag-cover"></div>
 						<h3>Screenshot {{$index + 1}} of {{numScreenshots}}</h3>
 					</div>
 				</div>
