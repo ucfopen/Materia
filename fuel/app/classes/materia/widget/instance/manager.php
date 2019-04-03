@@ -65,11 +65,11 @@ class Widget_Instance_Manager
 	}
 
 	/**
-	 * Checks to see if the given widget instance is locked for the current user.
+	 * Checks to see if the given widget instance is locked by the current user.
 	 *
 	 * @param inst_id widget instance id to check for lock
 	 *
-	 * @return bool whether the given instance is locked for the current user
+	 * @return bool whether the given instance is locked by the current user
 	 */
 	public static function locked_by_current_user(string $inst_id): bool
 	{
