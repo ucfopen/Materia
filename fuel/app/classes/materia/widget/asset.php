@@ -384,7 +384,7 @@ class Widget_Asset
 	 * @param  string $size Asset size
 	 * @return string       path to the file containing the downloaded asset
 	 */
-	protected function copy_asset_to_temp_file(string $id, string $size): string
+	public function copy_asset_to_temp_file(string $id, string $size): string
 	{
 		// create temp file to copy image into
 		// Fuel's image manipulation requires the images to be files
