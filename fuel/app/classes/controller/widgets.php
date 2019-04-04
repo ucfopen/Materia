@@ -49,17 +49,9 @@ class Controller_Widgets extends Controller
 		if ( ! $loaded) throw new HttpNotFoundException;
 
 		$demo = $widget->meta_data['demo'];
-		$play_id = \Materia\Api::session_play_create($demo, false);
-
-		if ($play_id instanceof \Materia\Msg)
-		{
-			\Log::warning('session_play_create failed!');
-			throw new HttpServerErrorException;
-		}
 
 		Css::push_group(['widget_detail', 'core']);
 		Js::push_group(['angular', 'hammerjs', 'jquery', 'materia', 'student']);
-		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 
 		$this->theme->get_template()
 			->set('title', 'Widget Details')

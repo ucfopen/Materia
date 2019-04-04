@@ -1,4 +1,4 @@
-<section class="page" ng-show="show" ng-controller="widgetDetailsController" ng-cloak ng-style="{'max-width': maxPageWidth}">
+<section class="page" ng-show="show" ng-controller="widgetDetailsController" ng-cloak ng-style="{'max-width': maxPageWidth}" ng-init="inst_id = '<?= $inst_id ?>'">
 	<div id="breadcrumb-container">
 		<div class="breadcrumb"><a href="/widgets">Widget Catalog</a></div>
 		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
@@ -22,9 +22,9 @@
 
 			<div id="pics-scroller-container">
 				<div id="pics-scroller">
-					<div ng-class="{playing: !showDemoCover}" ng-style="{'min-height': demoHeight, width: demoWidth}">
+					<div ng-class="{playing: !showDemoCover, loading: demoLoading}" ng-style="{'min-height': demoHeight, width: demoWidth}">
 						<img ng-src="{{widget.screenshots[0].full}}" ng-show="showDemoCover" ondragstart="return false">
-						<div id="demo-cover" ng-class="{hidden: !showDemoCover}" ng-style="{'background-image': demoScreenshot}">
+						<div id="demo-cover" ng-class="{hidden: !showDemoCover, loading: demoLoading}" ng-style="{'background-image': demoScreenshot}">
 							<button class="green" ng-click="showDemoClicked()">
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
 								Play a demo now!
@@ -32,7 +32,7 @@
 							<div id="demo-cover-background"></div>
 						</div>
 						<div id="player-container" ng-if="!showDemoCover">
-							<section class="widget" ng-controller="playerCtrl" ng-init="inst_id = '<?= $inst_id ?>'" ng-class="{ preview: isPreview }">
+							<section class="widget" ng-controller="playerCtrl" ng-class="{ preview: isPreview }">
 								<header ng-if="isPreview" class="preview-bar"></header>
 								<div class="center" ng-show="type == 'flash' || type == 'html'">
 									<iframe ng-attr-src="{{ htmlPath }}" ng-if="type == 'html'" id="container" class="html" scrolling="yes" fullscreen-dir></iframe>
