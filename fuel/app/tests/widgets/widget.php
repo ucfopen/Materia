@@ -7,7 +7,7 @@
 
 class Test_Widget extends \Basetest
 {
-	public function test_publishable_by()
+	public function test_publishable_by(): void
 	{
 		$widget = $this->make_disposable_widget('RestrictPublish', true);
 

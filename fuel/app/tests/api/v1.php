@@ -545,7 +545,67 @@ class Test_Api_V1 extends \Basetest
 		$this->assert_invalid_login_message($output);
 	}
 
-	public function test_widget_publish_perms_verify()
+	public function test_widget_instance_edit_perms_verify(): void
+	{
+		//create a publish-restricted widget as a student and give an author full access to it
+		$widget = $this->make_disposable_widget('RestrictPublish', true);
+
+		$author = $this->_as_author();
+
+		$this->_as_student();
+		$qset = $this->create_new_qset('question', 'answer');
+		$instance = Api_V1::widget_instance_new($widget->id, 'test', $qset, true);
+
+		$accessObj = new stdClass();
+		$accessObj->perms = [Perm::FULL => true];
+
+		$accessObj->expiration = null;
+		$accessObj->user_id = $author->id;
+		Api_V1::permissions_set(Perm::INSTANCE, $instance->id, [$accessObj]);
+
+		// ======= AS NO ONE ========
+		\Auth::logout();
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		trace($output);
+		$this->assertInstanceOf('\Materia\Msg', $output->msg);
+		$this->assertEquals('Invalid Login', $output->msg->title);
+		$this->assertTrue($output->is_locked);
+		$this->assertFalse($output->can_publish);
+
+		// ======= STUDENT ========
+		$this->_as_student();
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		$this->assertFalse($output->is_locked);
+		$this->assertFalse($output->can_publish);
+		$this->assertNull($output->msg);
+
+		// ======= AUTHOR ========
+		$this->_as_author();
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		$this->assertFalse($output->is_locked);
+		$this->assertTrue($output->can_publish);
+		$this->assertNull($output->msg);
+
+		// lock widget as author
+		Api_V1::widget_instance_lock($instance->id);
+
+		//check edit perms again
+		// ======= STUDENT ========
+		$this->_as_student();
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		$this->assertTrue($output->is_locked);
+		$this->assertFalse($output->can_publish);
+		$this->assertNull($output->msg);
+
+		// ======= AUTHOR ========
+		$this->_as_author();
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		$this->assertFalse($output->is_locked);
+		$this->assertTrue($output->can_publish);
+		$this->assertNull($output->msg);
+	}
+
+	public function test_widget_publish_perms_verify(): void
 	{
 		//make sure we get an instance of a widget that restricts publish rights
 		$widget = $this->make_disposable_widget('RestrictPublish', true);
