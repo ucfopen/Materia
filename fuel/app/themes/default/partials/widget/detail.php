@@ -71,11 +71,6 @@
 						<div class="tooltip" ng-show="data.show">{{ data.description }}</div>
 					</dd>
 				</div>
-				<dt>Guides:</dt>
-				<div>
-					<dd><a class="guide" href="#">Player</a></dd>
-					<dd><a class="guide" href="#">Creator</a></dd>
-				</div>
 				<span id="last-updated">{{ widget.name }} was updated on {{ widget.created }}</span>
 			</dl>
 
