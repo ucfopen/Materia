@@ -57,8 +57,7 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
-		$this->theme->set_partial('content', 'partials/widget/detail')
-			->set('inst_id', $demo);
+		$this->theme->set_partial('content', 'partials/widget/detail');
 
 		$this->theme->set_partial('meta', 'partials/responsive');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
