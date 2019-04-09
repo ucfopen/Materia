@@ -16,10 +16,6 @@ Materia can be quickly and easily deployed using a free or paid Heroku server.
 
 Start your Development server with instructions found in the [Materia Docker repository](docker/README.md)
 
-## Ansible Deployment
-
-Check out the ansible scripts used to deploy Materia on qa and production [Materia-Ansible](https://clu.cdl.ucf.edu/devops/materia-ansible)
-
 # Development
 
 ## Running Tests
