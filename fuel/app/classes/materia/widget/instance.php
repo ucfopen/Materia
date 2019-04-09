@@ -24,6 +24,7 @@ class Widget_Instance
 	public $open_at         = -1;
 	public $play_url        = '';
 	public $preview_url     = '';
+	public $published_by    = null;
 	public $user_id         = 0;
 	public $widget          = null;
 	public $width           = 0;
@@ -71,10 +72,10 @@ class Widget_Instance
 					// new question sets need ids
 					if ($create_ids)
 					{
-						if (empty($real_q->id)) $real_q->id = md5(uniqid(rand(), true));
+						if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
 						foreach ($real_q->answers as &$a)
 						{
-							if (empty($a['id'])) $a['id'] = md5(uniqid(rand(), true));
+							if (empty($a['id'])) $a['id'] = \Str::random('uuid');
 						}
 						$source[$key] = json_decode(json_encode($real_q), true);
 					}
@@ -250,6 +251,7 @@ class Widget_Instance
 	{
 		// check for requirements
 		if ( ! $this->user_id > 0) return false;
+		if ( ! $this->is_draft && ! $this->widget->publishable_by(\Model_User::find_current_id())) return false;
 
 		$is_new = ! Util_Validator::is_valid_hash($this->id);
 
@@ -283,6 +285,7 @@ class Widget_Instance
 							'guest_access'    => Util_Validator::cast_to_bool_enum($this->guest_access),
 							'is_student_made' => Util_Validator::cast_to_bool_enum($this->is_student_made),
 							'embedded_only'   => Util_Validator::cast_to_bool_enum($this->embedded_only),
+							'published_by'    => $this->is_draft ? null : \Model_User::find_current_id()
 						])
 						->execute();
 
@@ -301,6 +304,9 @@ class Widget_Instance
 		}
 		else // ===================== UPDATE EXISTING INSTANCE =======================
 		{
+			$new_publisher = $this->published_by;
+			if ( ! $new_publisher && ! $this->is_draft) $new_publisher = \Model_User::find_current_id();
+
 			// store the question set if it hasn't already been
 			$affected_rows = \DB::update('widget_instance') // should be updated to 'widget_instance' upon implementation
 				->set([
@@ -312,6 +318,7 @@ class Widget_Instance
 					'attempts'      => $this->attempts,
 					'guest_access'  => Util_Validator::cast_to_bool_enum($this->guest_access),
 					'embedded_only' => Util_Validator::cast_to_bool_enum($this->embedded_only),
+					'published_by'  => $new_publisher,
 					'updated_at'    => time()
 				])
 				->where('id', $this->id)

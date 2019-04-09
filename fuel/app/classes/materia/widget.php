@@ -34,6 +34,7 @@ class Widget
 	public $name                = '';
 	public $player              = '';
 	public $question_types      = '';
+	public $restrict_publish    = false;
 	public $score_module        = 'base';
 	public $score_screen        = '';
 	public $width               = 0;
@@ -114,6 +115,7 @@ class Widget
 			'is_scalable'         => $w['is_scalable'],
 			'score_module'        => $w['score_module'],
 			'score_screen'        => $w['score_screen'],
+			'restrict_publish'    => $w['restrict_publish'],
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
@@ -269,6 +271,17 @@ class Widget
 		// cache in the class for reuse
 		$this->exporter_methods = $exporter_methods;
 		return $this->exporter_methods;
+	}
+
+	/**
+	 * Checks if user can publish widget.
+	 *
+	 * @return bool Whether or not the current user can publish the widget
+	 */
+	public function publishable_by($user_id)
+	{
+		if ( ! $this->restrict_publish) return true;
+		return ! Perm_Manager::is_student($user_id);
 	}
 
 	// filter out items in an array that aren't callable

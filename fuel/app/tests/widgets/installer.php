@@ -44,6 +44,7 @@ class Test_Widget_Installer extends \Basetest
 			'flash_version' => 3,
 			'height' => 55,
 			'width' => 100,
+			'restrict_publish' => '0',
 			'is_qset_encrypted' => '0',
 			'is_answer_encrypted' => '1',
 			'is_storage_enabled' => '1',

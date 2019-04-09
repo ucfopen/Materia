@@ -2,7 +2,11 @@
 	<div class="qtip top nowidgets" ng-show="widgets.widgetList.length == 0">Click here to start making a new widget!</div>
 	<div class="container">
 		<div ng-controller="SelectedWidgetController">
-			<modal-dialog class="edit-published-widget" show="show.editPublishedWarning" dialog-title="Warning About Editing Published Widgets:" width="600px" height="320px">
+			<!-- standard post-publish warning for users who can publish this widget -->
+			<modal-dialog class="edit-published-widget"
+				show="show.editPublishedWarning && canPublish"
+				dialog-title="Warning About Editing Published Widgets:"
+				width="600px" height="320px">
 				<div class="container">
 					<p>Editing a published widget may affect statistical analysis when comparing data collected prior to your edits.</p>
 					<h3>Caution should be taken when:</h3>
@@ -16,6 +20,21 @@
 					<span class="center">
 						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
 						<a class="action_button green" ng-href="{{selected.edit}}">Edit Published Widget</a>
+					</span>
+				</div>
+			</modal-dialog>
+
+			<!-- post-publish warning for users who can not publish this widget -->
+			<modal-dialog class="edit-published-widget"
+				show="show.editPublishedWarning && !canPublish"
+				dialog-title="Unable to Edit Published Widget:"
+				width="600px" height="170px">
+				<div class="container">
+					<h3>This widget is restricted.</h3>
+					<p>You are not able to publish this widget or make any changes to it after it has been published.</p>
+
+					<span class="center">
+						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
 					</span>
 				</div>
 			</modal-dialog>
@@ -62,6 +81,7 @@
 								<div class="options" >
 									<span class="owner">Full</span>
 									<span class="undo">Removed <a href="#">Undo</a></span>
+
 									<select ng-disabled="selected.shareable==false" tabindex="0" id="perm" class="perm" ng-model="collaborator.access" ng-change="checkForWarning(collaborator)">
 										<option value={{ACCESS.FULL}} ng-selected="collaborator.access == ACCESS.FULL" >Full</option>
 										<option value={{ACCESS.VISIBLE}} ng-selected="collaborator.access == ACCESS.VISIBLE" >View Scores</option>
@@ -244,8 +264,8 @@
 						</ul>
 						<ul class="options">
 							<li class="share"><div class="link" ng-click="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
-							<li class="copy" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" ng-class="{'disabled' : selected.accessLevel == 0}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel == 0}" ng-click="showDelete()">Delete</div></li>
+							<li class="copy" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showCopyDialog()">Make a Copy</div></li>
+							<li class="delete" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showDelete()">Delete</div></li>
 						</ul>
 						<div class="delete_dialogue" ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
