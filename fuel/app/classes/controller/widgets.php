@@ -92,7 +92,6 @@ class Controller_Widgets extends Controller
 		$widget = new Materia\Widget();
 		$loaded = $widget->get($this->param('id'));
 		if ( ! $loaded) throw new HttpNotFoundException;
-
 		switch ($type)
 		{
 			case 'creators':
