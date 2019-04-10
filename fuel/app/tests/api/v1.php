@@ -187,6 +187,19 @@ class Test_Api_V1 extends \Basetest
 		// DELETE
 		Api_V1::widget_instance_delete($output->id);
 
+		// SECOND PASS FOR PUBLISH-RESTRICTED
+
+		//make sure we get an instance of a widget that restricts publish rights
+		$widget = $this->make_disposable_widget('RestrictPublish', true);
+
+		$this->_as_student();
+		$question = 'test';
+		$answer = 'test';
+		$qset = $this->create_new_qset($question, $answer);
+
+		$output = Api_V1::widget_instance_new($widget->id, 'test', $qset, false);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Widget type can not be published by students.', $output->title);
 	}
 
 	public function test_widget_instance_update()
@@ -530,6 +543,28 @@ class Test_Api_V1 extends \Basetest
 
 		// not logged in, should get error message
 		$this->assert_invalid_login_message($output);
+	}
+
+	public function test_widget_publish_perms_verify()
+	{
+		//make sure we get an instance of a widget that restricts publish rights
+		$widget = $this->make_disposable_widget('RestrictPublish', true);
+
+		// ======= AS NO ONE ========
+		\Auth::logout();
+		$output = Api_V1::widget_publish_perms_verify($widget->id);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Invalid Login', $output->title);
+
+		// ======= STUDENT ========
+		$this->_as_student();
+		$output = Api_V1::widget_publish_perms_verify($widget->id);
+		$this->assertFalse($output);
+
+		// ======= AUTHOR ========
+		$this->_as_author();
+		$output = Api_V1::widget_publish_perms_verify($widget->id);
+		$this->assertTrue($output);
 	}
 
 	public function test_session_play_create()
