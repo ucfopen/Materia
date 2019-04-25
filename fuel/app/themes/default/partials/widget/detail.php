@@ -76,6 +76,15 @@
 						<div class="tooltip" ng-show="data.show">{{ data.description }}</div>
 					</dd>
 				</div>
+				<dt ng-if="hasPlayerGuide || hasCreatorGuide">Guides:</dt>
+				<div>
+					<dd ng-if="hasCreatorGuide">
+						<a class="guide"ng-href="{{widget.creators_guide}}">Creator Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg></a>
+					</dd>
+					<dd ng-if="hasPlayerGuide">
+						<a class="guide" ng-href="{{widget.players_guide}}">Player Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg></a>
+					</dd>
+				</div>
 				<span id="last-updated">{{ widget.name }} was updated on {{ widget.created }}</span>
 			</dl>
 

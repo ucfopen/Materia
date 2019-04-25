@@ -122,6 +122,8 @@ class Controller_Widgets extends Controller
 			->set('title', $title)
 			->set('page_type', 'guide');
 
+		$this->theme->set_partial('meta', 'partials/responsive');
+
 		$this->theme->set_partial('content', 'partials/widget/guide_doc')
 			->set('name', $name)
 			->set('type', $type)
