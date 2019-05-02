@@ -38,8 +38,9 @@
 		</div>
 
 		<div id="no-widgets-message" ng-if="widgets.length < 1">
-			<span ng-if="count == 0">No widgets match the filters you set. <button class="cancel_button" ng-click="clearFiltersAndSearch()">Show All</button></span>
-			<span ng-if="totalWidgets == -1">Loading Widgets...</span>
+			<span ng-if="isFiltered == true && count == 0">No widgets match the filters you set. <button class="cancel_button" ng-click="clearFiltersAndSearch()">Show All</button></span>
+			<span ng-if="noWidgetsInstalled">No Widgets Installed</span>
+			<span ng-if="!noWidgetsInstalled && totalWidgets == -1">Loading Widgets...</span>
 		</div>
 
 		<div class="widget-group" ng-if="totalWidgets > 0 && !isFiltered">

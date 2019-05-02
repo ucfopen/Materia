@@ -25,7 +25,7 @@
 					<div ng-class="{playing: !showDemoCover, loading: demoLoading}" ng-style="{'min-height': demoHeight, width: demoWidth}">
 						<img ng-src="{{widget.screenshots[0].full}}" ng-show="showDemoCover" ondragstart="return false">
 						<div id="demo-cover" ng-class="{hidden: !showDemoCover, loading: demoLoading}" ng-style="{'background-image': demoScreenshot}">
-							<button class="green" ng-click="showDemoClicked()">
+							<button class="action_button green" ng-click="showDemoClicked()">
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
 								Play a demo now!
 							</button>
