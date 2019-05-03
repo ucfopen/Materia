@@ -1,15 +1,18 @@
 <section class="page" ng-show="show" ng-controller="widgetDetailsController" ng-cloak ng-style="{'max-width': maxPageWidth}">
+
 	<div id="breadcrumb-container">
 		<div class="breadcrumb"><a href="/widgets">Widget Catalog</a></div>
 		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
 		<div class="breadcrumb">{{ widget.name }}</div>
 	</div>
+
 	<article class="widget_detail">
 		<div class="top">
 			<img ng-src="{{ widget.icon }}" alt="" class="widget_icon">
 			<h1>{{ widget.name }}</h1>
 			<p>{{ widget.about }}</p>
 		</div>
+
 		<p id="widget-about">{{ widget.about }}</p>
 
 		<div class="pics">
@@ -61,28 +64,30 @@
 		</div>
 
 		<section class="bottom">
-			<dl id="metaData" class="inline_def">
-				<dt ng-show='widget.features.length'>Features:</dt>
-				<div>
-					<dd ng-repeat='feature in widget.features'>
-						<a class="feature" ng-mouseover="feature.show = true" ng-mouseout="feature.show = false">{{ feature.text }}</a>
-						<div class="tooltip" ng-show="feature.show">{{ feature.description }}</div>
-					</dd>
-				</div>
-				<dt ng-show='widget.supported_data.length'>Supported Data:</dt>
-				<div>
-					<dd ng-repeat='data in widget.supported_data'>
-						<a class="supported_data" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</a>
-						<div class="tooltip" ng-show="data.show">{{ data.description }}</div>
-					</dd>
-				</div>
-				<span id="last-updated">{{ widget.name }} was updated on {{ widget.created }}</span>
-			</dl>
 
 			<div class="widget-action-buttons">
 				<h4>Want to use it in your course?</h4>
 				<p><a id ="createLink" href='{{ widget.creatorurl }}' class="action_button green"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/><path d="M0 0h24v24H0z" fill="none"/></svg>Create your widget</a></p>
 			</div>
+
+			<div class="feature-list features" ng-show="widget.features.length">
+				<span class="feature-heading">Features:</span>
+				<div class="feature" ng-repeat="feature in widget.features">
+					<div class="feature-name" ng-mouseover="feature.show = true" ng-mouseout="feature.show = false">{{ feature.text }}</div>
+					<div class="feature-description" ng-show="feature.show">{{ feature.description }}</div>
+				</div>
+			</div>
+
+			<div class="feature-list supported-data" ng-show='widget.supported_data.length'>
+				<span class="feature-heading">Supported Data:</span>
+				<div class="feature" ng-repeat="data in widget.supported_data">
+					<dt class="feature-name" ng-mouseover="data.show=true" ng-mouseout="data.show = false">{{ data.text }}</dt>
+					<dd class="feature-description" ng-show="data.show">{{ data.description }}</dd>
+				</div>
+			</div>
+
+			<span id="last-updated">{{ widget.name }} was last updated on {{ widget.created }}</span>
+
 		</section>
 	</article>
 </section>
