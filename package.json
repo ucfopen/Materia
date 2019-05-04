@@ -41,7 +41,7 @@
     "datatables": "DataTables/DataTables#1.10.16",
     "labjs": "getify/LABjs#2.0.3",
     "swfobject": "swfobject/swfobject#2.2",
-    "fancybox": "fancyapps/fancybox#v3.2.5",
+    "hammerjs": "hammerjs/hammer.js#v2.0.8",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
   },
   "version": "4.0.0"

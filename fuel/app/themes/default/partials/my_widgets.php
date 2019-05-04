@@ -4,7 +4,7 @@
 		<div ng-controller="SelectedWidgetController">
 			<!-- standard post-publish warning for users who can publish this widget -->
 			<modal-dialog class="edit-published-widget"
-				show="show.editPublishedWarning && canPublish"
+				show="show.editPublishedWarning"
 				dialog-title="Warning About Editing Published Widgets:"
 				width="600px" height="320px">
 				<div class="container">
@@ -26,7 +26,7 @@
 
 			<!-- post-publish warning for users who can not publish this widget -->
 			<modal-dialog class="edit-published-widget"
-				show="show.editPublishedWarning && !canPublish"
+				show="show.restrictedPublishWarning"
 				dialog-title="Unable to Edit Published Widget:"
 				width="600px" height="170px">
 				<div class="container">
@@ -34,7 +34,7 @@
 					<p>You are not able to publish this widget or make any changes to it after it has been published.</p>
 
 					<span class="center">
-						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
+						<a class="cancel_button" href="javascript:;" ng-click="show.restrictedPublishWarning = false">Cancel</a>
 					</span>
 				</div>
 			</modal-dialog>

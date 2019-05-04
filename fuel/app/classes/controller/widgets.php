@@ -19,18 +19,18 @@ class Controller_Widgets extends Controller
 	{
 		Css::push_group(['core', 'widget_catalog']);
 
-		Js::push_group(['angular', 'materia']);
+		Js::push_group(['angular', 'ng-animate', 'materia']);
 
 		$this->theme->get_template()
 			->set('title', 'Widget Catalog')
 			->set('page_type', 'catalog');
 
 		$this->theme->set_partial('content', 'partials/widget/catalog');
+		$this->theme->set_partial('meta', 'partials/responsive');
 	}
 
 	public function get_all()
 	{
-		Js::push_inline('var DISPLAY_TYPE = "all";');
 		$this->get_index();
 	}
 
@@ -43,21 +43,25 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_detail()
 	{
-		$widget = DB::select()
-			->from('widget')
-			->where('id', $this->param('id'))
-			->execute();
+		$widget = new Materia\Widget();
+		$loaded = $widget->get($this->param('id'));
 
-		if ( ! $widget) throw new HttpNotFoundException;
+		if ( ! $loaded) throw new HttpNotFoundException;
+
+		$demo = $widget->meta_data['demo'];
 
 		Css::push_group(['widget_detail', 'core']);
+		Js::push_group(['angular', 'hammerjs', 'jquery', 'materia', 'student']);
 
-		Js::push_group(['angular', 'jquery', 'materia', 'fancybox', 'details']);
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
 		$this->theme->set_partial('content', 'partials/widget/detail');
+
+		$this->theme->set_partial('meta', 'partials/responsive');
+		$this->theme->set_partial('footer', 'partials/angular_alert');
+		$this->_disable_browser_cache = true;
 	}
 
 	/**
@@ -92,6 +96,7 @@ class Controller_Widgets extends Controller
 		$widget = new Materia\Widget();
 		$loaded = $widget->get($this->param('id'));
 		if ( ! $loaded) throw new HttpNotFoundException;
+
 		switch ($type)
 		{
 			case 'creators':
@@ -110,13 +115,17 @@ class Controller_Widgets extends Controller
 				break;
 		}
 
-		Css::push_group(['core', 'widget_editor', 'guide']);
+		Css::push_group(['core', 'guide']);
 		Js::push_group(['angular', 'materia']);
 		$this->theme->get_template()
 			->set('title', $title)
-			->set('page_type', 'create');
+			->set('page_type', 'guide');
+
+		$this->theme->set_partial('meta', 'partials/responsive');
 
 		$this->theme->set_partial('content', 'partials/widget/guide_doc')
+			->set('name', $widget->name)
+			->set('type', $type)
 			->set('doc_path', Config::get('materia.urls.engines').$widget->dir.$guide);
 	}
 
