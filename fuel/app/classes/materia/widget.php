@@ -1,12 +1,4 @@
 <?php
-/**
- * The go between for the user and the Materia Package.
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      Kevin Baugh
- */
 
 namespace Materia;
 
@@ -281,7 +273,7 @@ class Widget
 	 *
 	 * @return bool Whether or not the current user can publish the widget
 	 */
-	public function publishable_by($user_id)
+	public function publishable_by(int $user_id): bool
 	{
 		if ( ! $this->restrict_publish) return true;
 		return ! Perm_Manager::is_student($user_id);

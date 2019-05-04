@@ -38,8 +38,9 @@
 		</div>
 
 		<div id="no-widgets-message" ng-if="widgets.length < 1">
-			<span ng-if="count == 0">No widgets match the filters you set. <button class="cancel_button" ng-click="clearFiltersAndSearch()">Show All</button></span>
-			<span ng-if="totalWidgets == -1">Loading Widgets...</span>
+			<span ng-if="isFiltered == true && count == 0">No widgets match the filters you set. <button class="cancel_button" ng-click="clearFiltersAndSearch()">Show All</button></span>
+			<span ng-if="noWidgetsInstalled">No Widgets Installed</span>
+			<span ng-if="!noWidgetsInstalled && totalWidgets == -1">Loading Widgets...</span>
 		</div>
 
 		<div class="widget-group" ng-if="totalWidgets > 0 && !isFiltered">
@@ -81,10 +82,10 @@
 		<div class="blurb">
 			{{widget.meta_data['excerpt']}}
 		</div>
-		<dl class="inline_def features_list">
-			<dd ng-class="['supported-feature', {selected: filters[supported].isActive}]" ng-repeat="supported in widget.meta_data.supported_data">{{supported}}</dd>
-			<dd ng-class="['supported-feature', {selected: filters[filter].isActive}]" ng-repeat="filter in widget.meta_data.features">{{filter}}</dd>
-		</dl>
+		<ul class="inline_def features_list">
+			<li ng-class="['supported-feature', {selected: filters[supported].isActive}]" ng-repeat="supported in widget.meta_data.supported_data">{{supported}}</li>
+			<li ng-class="['supported-feature', {selected: filters[filter].isActive}]" ng-repeat="filter in widget.meta_data.features">{{filter}}</li>
+		</ul>
 	</div>
 </a>
 </script>
