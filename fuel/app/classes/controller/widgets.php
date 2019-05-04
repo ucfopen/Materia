@@ -97,15 +97,17 @@ class Controller_Widgets extends Controller
 		$loaded = $widget->get($this->param('id'));
 		if ( ! $loaded) throw new HttpNotFoundException;
 
+		// build title and determine which guide to show
+		$title = $widget->name;
 		switch ($type)
 		{
 			case 'creators':
-				$title = "Creator's Guide";
+				$title .= " Creator's Guide";
 				$guide = $widget->creator_guide;
 				break;
 
 			case 'players':
-				$title = "Player's Guide";
+				$title .= " Player's Guide";
 				$guide = $widget->player_guide;
 				break;
 
