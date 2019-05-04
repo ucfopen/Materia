@@ -454,9 +454,6 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // i own the lock, good to go
 	}
 
-	/**
-	 * @slowThreshold 1900
-	 */
 	public function test_widget_instance_lock_for_another_user()
 	{
 		$widget = $this->make_disposable_widget();
@@ -470,25 +467,13 @@ class Test_Api_V1 extends \Basetest
 
 		$this->_as_super_user();
 		$this->assertFalse(Api_V1::widget_instance_lock($inst->id)); // i dont own the lock, denied
-	}
 
-	public function test_widget_instance_lock_for_another_user_after_timeout()
-	{
-		\Config::set('materia.lock_timeout', .1);
-		$widget = $this->make_disposable_widget();
-		$id = $widget->id;
+		// the lock is stored in a cache that expires
+		// let's manually clear cache now, effectively removing the lock
+		\Cache::delete_all();
 
-		// have someone else create an instance
-		$this->_as_author();
-		$qset = $this->create_new_qset('question', 'answer');
-		$inst = Api_V1::widget_instance_new($id, 'delete', $qset, true);
-		Api_V1::widget_instance_lock($inst->id);
-		$this->_as_super_user();
-
-		usleep(500000); // .1s = 100000 microseconds, we * by 2 just to make sure we wait log enough
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
-
 
 	public function test_widget_instance_save()
 	{
