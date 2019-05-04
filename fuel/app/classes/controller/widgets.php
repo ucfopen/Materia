@@ -97,16 +97,17 @@ class Controller_Widgets extends Controller
 		$loaded = $widget->get($this->param('id'));
 		if ( ! $loaded) throw new HttpNotFoundException;
 
-		$name = $widget->name;
+		// build title and determine which guide to show
+		$title = $widget->name;
 		switch ($type)
 		{
 			case 'creators':
-				$title = $name.' Creator Guide';
+				$title .= " Creator's Guide";
 				$guide = $widget->creator_guide;
 				break;
 
 			case 'players':
-				$title = $name.' Player Guide';
+				$title .= " Player's Guide";
 				$guide = $widget->player_guide;
 				break;
 
@@ -125,7 +126,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('meta', 'partials/responsive');
 
 		$this->theme->set_partial('content', 'partials/widget/guide_doc')
-			->set('name', $name)
+			->set('name', $widget->name)
 			->set('type', $type)
 			->set('doc_path', Config::get('materia.urls.engines').$widget->dir.$guide);
 	}

@@ -91,13 +91,13 @@
 				<span class="feature-heading">Guides:</span>
 				<div class="feature" ng-if="hasCreatorGuide">
 					<a class="guide-link"ng-href="{{widget.creators_guide}}">
-						Creator Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg>
+						Creator's Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg>
 					</a>
 				</div>
 
 				<div class="feature" ng-if="hasPlayerGuide">
 					<a class="guide-link" ng-href="{{widget.players_guide}}">
-						Player Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg>
+						Player's Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg>
 					</a>
 				</div>
 			</div>
