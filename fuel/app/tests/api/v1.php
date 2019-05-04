@@ -485,7 +485,7 @@ class Test_Api_V1 extends \Basetest
 		Api_V1::widget_instance_lock($inst->id);
 		$this->_as_super_user();
 
-		usleep(200000); // .1s = 100000 microseconds, we * by 2 just to make sure we wait log enough
+		usleep(500000); // .1s = 100000 microseconds, we * by 2 just to make sure we wait log enough
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
 
