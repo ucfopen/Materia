@@ -35,7 +35,7 @@ class Controller_Widgets extends Controller
 	}
 
 
-	/**3
+	/**
 	 * Catalog page for an individual widget
 	 *
 	 * @param string The clean name of the widget to load
@@ -86,6 +86,48 @@ class Controller_Widgets extends Controller
 
 		View::set_global('me', Model_User::find_current());
 		$this->show_editor('Create Widget', $widget);
+	}
+
+	/**
+	 * Loads guides for the given widget
+	**/
+	public function get_guide(string $type)
+	{
+		$widget = new Materia\Widget();
+		$loaded = $widget->get($this->param('id'));
+		if ( ! $loaded) throw new HttpNotFoundException;
+
+		$name = $widget->name;
+		switch ($type)
+		{
+			case 'creators':
+				$title = $name.' Creator Guide';
+				$guide = $widget->creator_guide;
+				break;
+
+			case 'players':
+				$title = $name.' Player Guide';
+				$guide = $widget->player_guide;
+				break;
+
+			// @codingStandardsIgnoreLine
+			default:
+				throw new HttpNotFoundException;
+				break;
+		}
+
+		Css::push_group(['core', 'guide']);
+		Js::push_group(['angular', 'materia']);
+		$this->theme->get_template()
+			->set('title', $title)
+			->set('page_type', 'guide');
+
+		$this->theme->set_partial('meta', 'partials/responsive');
+
+		$this->theme->set_partial('content', 'partials/widget/guide_doc')
+			->set('name', $name)
+			->set('type', $type)
+			->set('doc_path', Config::get('materia.urls.engines').$widget->dir.$guide);
 	}
 
 	/**

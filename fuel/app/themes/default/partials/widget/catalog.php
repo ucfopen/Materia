@@ -82,10 +82,10 @@
 		<div class="blurb">
 			{{widget.meta_data['excerpt']}}
 		</div>
-		<dl class="inline_def features_list">
-			<dd ng-class="['supported-feature', {selected: filters[supported].isActive}]" ng-repeat="supported in widget.meta_data.supported_data">{{supported}}</dd>
-			<dd ng-class="['supported-feature', {selected: filters[filter].isActive}]" ng-repeat="filter in widget.meta_data.features">{{filter}}</dd>
-		</dl>
+		<ul class="inline_def features_list">
+			<li ng-class="['supported-feature', {selected: filters[supported].isActive}]" ng-repeat="supported in widget.meta_data.supported_data">{{supported}}</li>
+			<li ng-class="['supported-feature', {selected: filters[filter].isActive}]" ng-repeat="filter in widget.meta_data.features">{{filter}}</li>
+		</ul>
 	</div>
 </a>
 </script>

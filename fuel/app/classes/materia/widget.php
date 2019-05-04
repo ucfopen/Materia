@@ -30,6 +30,8 @@ class Widget
 	public $score_module        = 'base';
 	public $score_screen        = '';
 	public $width               = 0;
+	public $creator_guide	    = '';
+	public $player_guide        = '';
 
 	public const PATHS_PLAYDATA = '_exports'.DS.'playdata_exporters.php';
 	public const PATHS_SCOREMOD = '_score-modules'.DS.'score_module.php';
@@ -111,6 +113,8 @@ class Widget
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
+			'creator_guide'       => $w['creator_guide'],
+			'player_guide'        => $w['player_guide'],
 			'meta_data'           => static::db_get_metadata($w['id']),
 		]);
 
@@ -119,7 +123,6 @@ class Widget
 		{
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
-
 		return true;
 	}
 

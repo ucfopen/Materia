@@ -85,5 +85,8 @@ return [
 			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
 			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',
 		],
+		'guide' => [
+			$static_css.'guide.css',
+		],
 	],
 ];
