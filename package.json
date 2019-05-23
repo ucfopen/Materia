@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "fs-extra": "^7.0.1",
-    "materia-server-client-assets": "^1.2.2",
+    "materia-server-client-assets": "git+ssh://git@github.com:ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9",
     "napa": "^3.0.0"
   },
   "devDependencies": {

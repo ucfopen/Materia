@@ -1847,6 +1847,11 @@ isurl@^1.0.0-alpha5:
     has-to-string-tag-x "^1.2.0"
     is-object "^1.0.1"
 
+js-snakecase@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/js-snakecase/-/js-snakecase-1.2.0.tgz#61cf6f3d2e931757a49ce05197e9acd1448192b8"
+  integrity sha512-2XYxKNXlue3JpUYYhT5hfI87Z57hLm1n1AdVhqhxDX1NxupWrz9PqLToFgXLh1tYe4KVSVX1qyR+1jPe1bEjsg==
+
 json-parse-better-errors@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"
@@ -2009,12 +2014,12 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-materia-server-client-assets@^1.2.2:
+"materia-server-client-assets@git+ssh://git@github.com:ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9":
   version "1.2.2"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-1.2.2.tgz#fa07a251513ac95a80e92dbbeaee784ea829d561"
-  integrity sha512-mWHGwRyUON5Bwf7TwQPmTskFHXg32Sj4vcbeoeVwNAn7ZwCz+fBdOZ3dn9nYoJ+ZaxjGqschNmD3NrJDZoC4tA==
+  resolved "git+ssh://git@github.com:ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9"
   dependencies:
     angular "1.6.9"
+    js-snakecase "^1.2.0"
     ngmodal ucfcdl/ngModal#v1.2.2
 
 math-random@^1.0.1:
