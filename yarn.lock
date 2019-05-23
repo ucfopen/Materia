@@ -2014,9 +2014,9 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-"materia-server-client-assets@git+ssh://git@github.com:ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9":
+"materia-server-client-assets@git://github.com/ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9":
   version "1.2.2"
-  resolved "git+ssh://git@github.com:ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9"
+  resolved "git://github.com/ucfopen/Materia-Server-Client-Assets.git#12c37665ebe1481c702d6b7d6bd92ac4a852c7f9"
   dependencies:
     angular "1.6.9"
     js-snakecase "^1.2.0"
