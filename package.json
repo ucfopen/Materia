@@ -4,9 +4,6 @@
   "description": "Materia Server",
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://ucfopen.github.io/Materia-Docs",
-  "engines": {
-    "node": "^12.3.1"
-  },
   "scripts": {
     "build": "node process_assets.js",
     "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\" \"yarn build:browsersync\"",
