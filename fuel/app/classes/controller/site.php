@@ -53,7 +53,7 @@ class Controller_Site extends Controller
 
 	public function action_403()
 	{
-		Css::push_group('404');
+		Css::push_group('errors');
 
 		$this->theme->get_template()
 			->set('title', '403 Not Authorized')
@@ -73,7 +73,7 @@ class Controller_Site extends Controller
 	 */
 	public function action_404()
 	{
-		Css::push_group('404');
+		Css::push_group('errors');
 
 		$this->theme->get_template()
 			->set('title', '404 Page not Found')
@@ -93,7 +93,7 @@ class Controller_Site extends Controller
 	 */
 	public function action_500()
 	{
-		Css::push_group('500');
+		Css::push_group('errors');
 
 		$this->theme->get_template()
 			->set('title', '500 Server Error')

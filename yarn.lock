@@ -2014,15 +2014,6 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-materia-server-client-assets@1.3.0-alpha1:
-  version "1.3.0-alpha1"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-1.3.0-alpha1.tgz#5c1dfddd4240060fa196d87aff402a417477f266"
-  integrity sha512-Y5x6k54CCkm9iXhGt9qp8YxdBcI9Fua/kAAMw4z775sUY6VsR7gwzfU/Pv0WVi2AqqR2EUkdDtk7k2ZY0Tl3/Q==
-  dependencies:
-    angular "1.6.9"
-    js-snakecase "^1.2.0"
-    ngmodal ucfcdl/ngModal#v1.2.2
-
 math-random@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/math-random/-/math-random-1.0.1.tgz#8b3aac588b8a66e4975e3cdea67f7bb329601fac"

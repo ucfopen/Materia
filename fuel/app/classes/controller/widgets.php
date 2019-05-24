@@ -243,7 +243,7 @@ class Controller_Widgets extends Controller
 	protected function show_editor($title, $widget, $inst_id=null)
 	{
 		$this->_disable_browser_cache = true;
-		Css::push_group(['core', 'widget_editor']);
+		Css::push_group(['core', 'widget_create']);
 		Js::push_group(['angular', 'materia', 'author']);
 		if ( ! empty($widget->creator) && preg_match('/\.swf$/', $widget->creator))
 		{

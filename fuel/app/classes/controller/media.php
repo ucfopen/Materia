@@ -43,7 +43,7 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
-		Css::push_group(['core', 'media_catalog']);
+		Css::push_group(['core', 'media_import']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
 		$this->inject_common_js_constants();
