@@ -22,7 +22,6 @@ return [
 			$static_css.'ng-modal.css'
 		],
 		'lti' => [
-			$static_css.'core.css',
 			$static_css.'util-lti-picker.css',
 		],
 		'my_widgets' => [
