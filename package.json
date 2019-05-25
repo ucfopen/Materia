@@ -26,13 +26,14 @@
     "nodemon": "^1.19.0"
   },
   "nodemonConfig": {
+    "ext": "js,css",
+    "watch": [
+      "./node_modules/materia-server-client-assets/dist"
+    ],
+    "delay": "500",
     "ignoreRoot": [
       ".git"
-    ],
-    "watch": [
-      "./node_modules/materia-server-client-assets/dist/*"
-    ],
-    "delay": "500"
+    ]
   },
   "napa": {
     "datatables": "DataTables/DataTables#1.10.16",

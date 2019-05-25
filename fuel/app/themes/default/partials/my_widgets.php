@@ -240,12 +240,11 @@
 			</section>
 			<section class="page"  ng-hide="widgets.widgetList.length == 0 || !selected.widget || perms.error">
 				<div class="header">
-					<h1>{{selected.widget.name}}</h1>
-					<span class="widgetname">{{selected.widget.widget.name}}</span>
+					<h1>{{selected.widget.name}} Widget</h1>
 				</div>
 				<div class="overview">
 					<div class="icon_container med_{{ selected.widget.beard }}" ng-class="{ big_bearded: selected.widget.beard }">
-						<img class="icon" ng-src='{{selected.widget.iconbig}}' height="275px" width="275px"/>
+						<img class="icon" ng-src='{{selected.widget.iconbig}}' height="275px" width="275px" alt="{{selected.widget.widget.name}}"/>
 					</div>
 					<div class="controls">
 						<ul>
@@ -304,13 +303,17 @@
 						</div>
 					</div>
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
-						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students</h3>
+						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students <a href="https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html" target="_blank">View all sharing options.</a></h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
-						<p>Copy the link code &amp; paste it in an online course or class assignment (or <span class="show-embed link" ng-click="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
-						<textarea id="embed_link" ng-show="show.embedToggle && !selected.is_draft">{{ getEmbedLink() }}</textarea>
-						<div class="autoplay-container" ng-show="show.embedToggle && !selected.is_draft">
-							<span>Autoplay: </span>
-							<input type="checkbox" class="unstyled" ng-checked="show.autoplayToggle" ng-click="show.autoplayToggle = !show.autoplayToggle"/>
+						<p>Use this link to share with your students (or <span class="show-embed link" ng-click="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<div class="embed-options" ng-show="show.embedToggle && !selected.is_draft">
+							<h3>Embed Code</h3>
+							<p>Paste this HTML into a course page to embed.</p>
+							<textarea id="embed_link">{{ getEmbedLink() }}</textarea>
+							<label for="embed-code-autoplay">Autoplay: </label>
+							<input id="embed-code-autoplay" type="checkbox" class="unstyled" ng-checked="show.autoplayToggle" ng-click="show.autoplayToggle = !show.autoplayToggle"/>
+							<span ng-if="show.autoplayToggle">(widget starts automatically)</span>
+							<span ng-if="!show.autoplayToggle">(widget starts after clicking play)</span>
 						</div>
 					</div>
 				</div>
