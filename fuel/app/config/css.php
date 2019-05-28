@@ -18,33 +18,32 @@ return [
 			$static_css.'admin.css'
 		],
 		'widget_play' => [
-			$static_css.'play.css',
+			$static_css.'widget-play.css',
 			$static_css.'ng-modal.css'
 		],
 		'lti' => [
-			$static_css.'main.css',
-			$static_css.'lti.css',
+			$static_css.'util-lti-picker.css',
 		],
 		'my_widgets' => [
-			$static_css.'my_widgets.css',
+			$static_css.'my-widgets.css',
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$static_css.'ui-lightness/jquery-ui-1.8.21.custom.css',
 			$static_css.'jquery.dataTables.css',
 			$static_css.'ng-modal.css'
 		],
-		'widget_editor' => [
-			$static_css.'create.css',
+		'widget_create' => [
+			$static_css.'widget-create.css',
 			$static_css.'ng-modal.css'
 		],
 		'widget_detail' => [
-			$static_css.'widget.css',
+			$static_css.'widget-detail.css',
 			$static_css.'ng-modal.css'
 		],
 		'widget_catalog' => [
-			$static_css.'catalog.css',
+			$static_css.'widget-catalog.css',
 		],
 		'profile' => [
-			$static_css.'user.css',
+			$static_css.'profile.css',
 		],
 		'login' => [
 			$static_css.'login.css',
@@ -54,39 +53,33 @@ return [
 			$static_css.'scores.css',
 		],
 		'pre_embed_placeholder' => [
-			$static_css.'embed.css'
+			$static_css.'widget-embed-placeholder.css'
 		],
 		'embed_scores' => [
 			$static_css.'scores.css',
 		],
-		'question_catalog' => [
+		'question_import' => [
 			$static_css.'jquery.dataTables.css',
-			$static_css.'question-import.css',
+			$static_css.'util-question-import.css',
 		],
-		'media_catalog' => [
-			$static_css.'media-import.css'
+		'media_import' => [
+			$static_css.'util-media-import.css'
 		],
 		'help' => [
-			$static_css.'docs.css',
+			$static_css.'help.css',
 		],
-		'404' => [
-			$static_css.'404.css',
-		],
-		'500' => [
-			$static_css.'500.css',
+		'errors' => [
+			$static_css.'errors.css',
 		],
 		'core' => [
-			$static_css.'main.css',
-		],
-		'upload' => [
-			$static_css.'upload.css',
+			$static_css.'core.css',
 		],
 		'fonts' => [
 			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
 			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',
 		],
 		'guide' => [
-			$static_css.'guide.css',
+			$static_css.'widget-guide.css',
 		],
 	],
 ];

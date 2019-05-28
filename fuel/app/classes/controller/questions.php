@@ -13,7 +13,7 @@ class Controller_Questions extends Controller
 		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
 
-		Css::push_group(['core', 'question_catalog']);
+		Css::push_group(['core', 'question_import']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');

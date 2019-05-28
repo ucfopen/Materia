@@ -19,6 +19,7 @@
 					<input class="action_button" type="submit" value="Submit" <?= $upload_enabled ? '' : 'disabled' ?>/>
 					<span>{{ selectedFileName }}</span>
 				</form>
+				<p>Browse installable widgets on <a href="https://ucfopen.github.io/materia-widget-gallery/" target="_blank" rel="noopener noreferrer">The Official Materia Widget Gallery</a></p>
 			<?php else: ?>
 				<p>Widget uploader is <em>disabled</em></p>
 				<p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>

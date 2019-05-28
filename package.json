@@ -4,9 +4,6 @@
   "description": "Materia Server",
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://ucfopen.github.io/Materia-Docs",
-  "engines": {
-    "node": "^6.9.1"
-  },
   "scripts": {
     "build": "node process_assets.js",
     "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\" \"yarn build:browsersync\"",
@@ -19,23 +16,24 @@
     "devassets:unlink": "yarn unlink materia-server-client-assets && cd ../Materia-Server-Client-Assets && yarn unlink && cd - && yarn install"
   },
   "dependencies": {
-    "fs-extra": "^7.0.1",
-    "materia-server-client-assets":"1.3.0-alpha1",
+    "fs-extra": "^8.0.1",
+    "materia-server-client-assets":"2.0.0-alpha1",
     "napa": "^3.0.0"
   },
   "devDependencies": {
-    "browser-sync": "^2.26.3",
+    "browser-sync": "^2.26.5",
     "concurrently": "^4.1.0",
-    "nodemon": "^1.18.7"
+    "nodemon": "^1.19.0"
   },
   "nodemonConfig": {
+    "ext": "js,css",
+    "watch": [
+      "./node_modules/materia-server-client-assets/dist"
+    ],
+    "delay": "500",
     "ignoreRoot": [
       ".git"
-    ],
-    "watch": [
-      "./node_modules/materia-server-client-assets/dist/*"
-    ],
-    "delay": "500"
+    ]
   },
   "napa": {
     "datatables": "DataTables/DataTables#1.10.16",

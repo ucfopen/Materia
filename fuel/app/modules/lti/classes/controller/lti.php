@@ -90,7 +90,7 @@ class Controller_Lti extends \Controller
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 		\Js::push_inline($this->theme->view('partials/select_item_js')
 			->set('system', $system));
-		\Css::push_group('lti');
+		\Css::push_group(['core', 'lti']);
 
 		if ($is_selector_mode && ! empty($return_url))
 		{
@@ -123,7 +123,7 @@ class Controller_Lti extends \Controller
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 
-		\Css::push_group('lti');
+		\Css::push_group(['core', 'lti']);
 
 		return \Response::forge($this->theme->render());
 	}
