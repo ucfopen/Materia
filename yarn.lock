@@ -1911,10 +1911,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-materia-server-client-assets@1.3.0-alpha3:
-  version "1.3.0-alpha3"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-1.3.0-alpha3.tgz#b2ab8be132b1c6a3a4482a20a8db17c586e8c061"
-  integrity sha512-foHLBecsHusw3KlPd3meMaYyLQFbQoXkK3CnsAdB2U/uvRXW2WkhX3LJrOkP05/sb8pQIWSRtgfTSlELSmFLmw==
+materia-server-client-assets@2.0.0-alpha1:
+  version "2.0.0-alpha1"
+  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.0.0-alpha1.tgz#f053335c0d43ca58a1824e3476485bd392c77d7d"
+  integrity sha512-CvcMp6yo6FaRAxaDAGNeI6W4IQWK1T4oSwIKQvhHE0PSV1Z37JOBVDfGhJIisMFviX+Un1jWPUkexArjN06wOw==
   dependencies:
     angular "1.6.9"
     js-snakecase "^1.2.0"
