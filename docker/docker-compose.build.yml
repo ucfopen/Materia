@@ -1,5 +1,5 @@
 version: '2'
-# Docker Compose file meant for tasks like building assets and running tests
+# Docker Compose file meant for building release packages. Use w/ docker-compose.admin.yml
 services:
 
   phpfpm:

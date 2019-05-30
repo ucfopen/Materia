@@ -12,6 +12,7 @@ services:
 
   # We use a node container to compile js, css, etc
   node:
+    container_name: materia-node
     image: ucfopen/materia-node:${TAG}
     build:
       context: ./dockerfiles

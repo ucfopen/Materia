@@ -2,6 +2,7 @@ version: '2'
 
 services:
   nginx:
+    container_name: materia-nginx
     image: nginx:stable-alpine
     ports:
       - "80:80" # main materia
@@ -13,6 +14,7 @@ services:
       - phpfpm
 
   phpfpm:
+    container_name: materia-phpfpm
     image: ucfopen/materia-web-base:${TAG} # TAG default value is in .env file
     build:
       context: ./dockerfiles
@@ -34,6 +36,7 @@ services:
       - fakes3
 
   mysql:
+    container_name: materia-mysql
     image: mysql:5.7.18
     environment:
       - MYSQL_ROOT_PASSWORD
@@ -46,9 +49,11 @@ services:
       - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
 
   memcached:
+    container_name: materia-memcached
     image: memcached:1.4.27-alpine
 
   fakes3:
+    container_name: materia-fakes3
     image: ucfopen/materia-fake-s3:${TAG} # TAG default value is in .env file
     build:
       context: .
