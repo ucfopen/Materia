@@ -1,7 +1,7 @@
 {
-    "name": "ucfcdl/materia",
+    "name": "ucfopen/materia",
     "type": "project",
-    "description" : "Materia is UCF's educational game and application platform",
+    "description" : "Engage students with easily embedded apps for online courses.",
     "keywords": ["materia", "ucf", "cdl", "games", "edutainment", "widgets", "education", "university of central florida"],
     "license": "AGPL-3.0-only",
     "scripts":{
