@@ -13,13 +13,17 @@ services:
       - phpfpm
 
   phpfpm:
-    image: ucfopen/materia-web-base:latest
+    image: ucfopen/materia-web-base:${TAG} # TAG default value is in .env file
+    build:
+      context: ./dockerfiles
+      dockerfile: materia-web
     environment:
-      - FUEL_ENV=development
-      - DB_HOST=mysql
-      - DB_NAME=materia
-      - DB_USER=materia
-      - DB_PASS=odin
+      # See .env for default values
+      - FUEL_ENV
+      - DB_HOST
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASS=${MYSQL_DATABASE}
     volumes:
       - ../:/var/www/html:rw
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
@@ -32,10 +36,10 @@ services:
   mysql:
     image: mysql:5.7.18
     environment:
-      - MYSQL_ROOT_PASSWORD=drRoots
-      - MYSQL_USER=materia
-      - MYSQL_PASSWORD=odin
-      - MYSQL_DATABASE=materia
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
     ports:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
     volumes:
@@ -45,13 +49,16 @@ services:
     image: memcached:1.4.27-alpine
 
   fakes3:
-    image: ucfopen/materia-fake-s3:latest
+    image: ucfopen/materia-fake-s3:${TAG} # TAG default value is in .env file
+    build:
+      context: .
+      dockerfile: ./dockerfiles/materia-fakes3
     environment:
-      - INPUT_BUCKET=fakes3_uploads
-      - OUTPUT_BUCKET=fakes3_assets
-      - OUTPUT_MAX_DIMENSIONS=75x75, 0x0
-      - OUTPUT_BASE_KEY=media
-      - IS_FAKES3=True
+      - INPUT_BUCKET
+      - OUTPUT_BUCKET
+      - OUTPUT_MAX_DIMENSIONS
+      - OUTPUT_BASE_KEY
+      - IS_FAKES3
     ports:
       - "10001:10001"
     volumes:

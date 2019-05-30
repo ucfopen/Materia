@@ -5,7 +5,7 @@ before_script: cd docker
 script:
   - bash run_tests_ci.sh
 after_success:
-  - bash run_build_release_package.sh
+  - bash run_build_github_release_package.sh
 deploy:
   skip_cleanup: true
   provider: releases

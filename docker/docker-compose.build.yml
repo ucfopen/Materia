@@ -1,0 +1,21 @@
+version: '2'
+# Docker Compose file meant for tasks like building assets and running tests
+services:
+
+  phpfpm:
+    volumes:
+      - build_app_root:/var/www/html:rw
+      - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
+      - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
+
+  # We use a node container to compile js, css, etc
+  node:
+    volumes:
+      - build_app_root:/var/www/html:rw
+      - node_modules:/var/www/html/node_modules
+
+volumes:
+  build_app_root: {}
+  static_files_test: {}
+  uploaded_media_test: {}
+  node_modules: {} # node modules for npm

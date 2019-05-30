@@ -1,11 +1,23 @@
 #!/bin/bash
+#######################################################
+# ABOUT THIS SCRIPT
+#
+# RUNS TESTS WITH COVERAGE
+#
+# place .wigt files in app/fuel/app/tmp/widget_packages/
+# Supports globs, but you have to quote them so they aren't
+# expanded in your host's shell instead of the container's
+#
+# EX: ./run_tests_coverage.sh
+# EX: ./run_tests_coverage.sh --group=Lti
+#######################################################
 set -e
 
-echo "remember you can limit your test groups with './run_tests_coverage.sh --group=Lti'"
+DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 
-# If you have an issue with a broken widget package breaking this script, run the following to clear the widgets
-# docker-compose -f docker-compose.yml -f docker-compose.admin.yml run --rm phpfpm bash -c -e 'rm /var/www/html/fuel/packages/materia/vendor/widget/test/*'
+echo "remember you can limit your test groups with './run_tests_coverage.sh --group=Lti'"
+echo "If you have an issue with a broken widget, clear the widgets with:"
+echo "$DC run --rm phpfpm bash -c -e 'rm /var/www/html/fuel/packages/materia/vendor/widget/test/*'"
 
 # store the docker compose command to shorten the following commands
-DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 $DC run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env COMPOSER_ALLOW_SUPERUSER=1 composer run coverageci -- "$@"

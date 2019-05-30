@@ -23,26 +23,14 @@
 #######################################################
 set -e
 
-NODE_DC_COMMAND="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 DOCKER_IP="localhost"
 
-# docker-compose pull
-
-# create and migrate the database
-docker-compose build
-
-# create the contaners and setup networking
-docker-compose create
+# clean environment and configs
+source run_clean.sh
 
 # install composer deps
 docker-compose run --rm phpfpm composer install
 
-# run install if migration file is not there
-# sometimes it's left behind when copying or re-installing
-# it needs to be removed for install to work correctly
-if [ -f  ../fuel/app/config/development/migrations.php ]; then
-	rm -f ../fuel/app/config/development/migrations.php
-fi
 
 # setup mysql
 docker-compose run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- composer oil-install-quiet
@@ -53,7 +41,7 @@ docker-compose run --rm phpfpm bash -c 'php oil r widget:install_from_config'
 # Install any widgets in the tmp dir
 docker-compose run --rm phpfpm bash -c 'php oil r widget:install fuel/app/tmp/widget_packages/*.wigt'
 
-source run_assets_build.sh
+source run_build_assets.sh
 
 # run that beast
 # Use docker or set up the docker-machine environment
