@@ -1,7 +1,12 @@
 language: minimal
+addons:
+  apt:
+    packages:
+      - docker-ce
 services:
   - docker
-before_script: cd docker
+before_install:
+  - cd docker
 script:
   - bash run_tests_ci.sh
 after_success:
