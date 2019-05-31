@@ -1911,10 +1911,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-materia-server-client-assets@2.0.0-alpha1:
-  version "2.0.0-alpha1"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.0.0-alpha1.tgz#f053335c0d43ca58a1824e3476485bd392c77d7d"
-  integrity sha512-CvcMp6yo6FaRAxaDAGNeI6W4IQWK1T4oSwIKQvhHE0PSV1Z37JOBVDfGhJIisMFviX+Un1jWPUkexArjN06wOw==
+materia-server-client-assets@2.0.0-rc1:
+  version "2.0.0-rc1"
+  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.0.0-rc1.tgz#0bee4de465a08894068d750d6771a5a58b80bb1f"
+  integrity sha512-E3WqhGX50/XSTt8yvhTSpBtAvdpMYaviLcH0ZjNcpl5nb0k4EJWWPAz9BlMphYeFrB/haQeZ6HYvscELznzmbg==
   dependencies:
     angular "1.6.9"
     js-snakecase "^1.2.0"
@@ -2089,7 +2089,7 @@ negotiator@0.6.2:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
 
-ngmodal@ucfcdl/ngModal#v1.2.2:
+"ngmodal@github:ucfcdl/ngModal#v1.2.2":
   version "1.2.2"
   resolved "https://codeload.github.com/ucfcdl/ngModal/tar.gz/6abad982bdb8f258ffcdc20316a907c2292399d2"
 
