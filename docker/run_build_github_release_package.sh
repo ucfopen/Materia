@@ -118,4 +118,5 @@ echo "sha256: $SHA256" >> ../materia-pkg-build-info.yml
 echo "md5: $MD5" >> ../materia-pkg-build-info.yml
 
 # clean environment and configs
-$DC down --volumes --remove-orphans --timeout 1
+#$DC down --volumes --remove-orphans --timeout 1
+$DC down --volumes --remove-orphans

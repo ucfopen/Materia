@@ -13,7 +13,8 @@ rm -f $DIR/app/fuel/app/config/**/migrations.php
 # store the docker compose command to shorten the following commands
 DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml -f docker-compose.build.yml"
 
-# stop and remove docker containers
-$DC down --volumes --remove-orphans --timeout 1
+# # stop and remove docker containers
+$DC down --volumes --remove-orphans
+# $DC down --volumes --remove-orphans --timeout 1
 
 $DC build --pull
