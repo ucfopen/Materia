@@ -14,6 +14,6 @@ rm -f $DIR/app/fuel/app/config/**/migrations.php
 DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml -f docker-compose.build.yml"
 
 # stop and remove docker containers
-$DC down
+$DC down --volumes --remove-orphans --timeout 1
 
 $DC build --pull
