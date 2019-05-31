@@ -9,6 +9,7 @@
 # use "docker stop <box_name>" to kill it
 #######################################################
 set -e
+set -o xtrace
 
 # clean environment and configs
 source run_clean.sh
