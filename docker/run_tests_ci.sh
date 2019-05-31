@@ -11,8 +11,9 @@
 set -e
 set -o xtrace
 
-# clean environment and configs
-source run_clean.sh
+DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
+
+$DC build --pull phpfpm fakes3
 
 # install php deps
 $DC run --rm phpfpm composer install --no-progress
