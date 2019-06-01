@@ -20,6 +20,7 @@ services:
     volumes:
       - ../:/var/www/html:rw
       - node_modules:/var/www/html/node_modules
+      - build_app_root:/build:rw
 
   mysql:
     environment:
@@ -32,6 +33,7 @@ services:
     #   - /var/lib/mysql
 
 volumes:
+  build_app_root: {}
   static_widget_files_test: {} # contain widgets installed in tests
   uploaded_media_test: {} # contain files uploaded in tests
   node_modules: {} # node modules for npm

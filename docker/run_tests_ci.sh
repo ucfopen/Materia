@@ -28,5 +28,4 @@ source run_tests_coverage.sh
 set +e
 
 # stop and remove docker containers
-$DC stop
-$DC rm -f
+$DC rm --force --stop

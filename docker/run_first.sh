@@ -26,7 +26,16 @@ set -e
 DOCKER_IP="localhost"
 
 # clean environment and configs
-source run_clean.sh
+# clean migration files in every environment
+rm -f $DIR/app/fuel/app/config/**/migrations.php
+
+# store the docker compose command to shorten the following commands
+DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
+
+# stop and remove docker containers
+$DC down --volumes --remove-orphans
+
+$DC build --pull
 
 # install composer deps
 docker-compose run --rm phpfpm composer install
