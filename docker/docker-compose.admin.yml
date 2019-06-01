@@ -1,4 +1,4 @@
-version: '2'
+version: '3.2'
 # Docker Compose file meant for tasks like building assets and running tests
 services:
 
@@ -6,16 +6,23 @@ services:
     environment:
       - FUEL_ENV=test
     volumes:
-      - static_files_test:/var/www/html/public/widget
+      - static_widget_files_test:/var/www/html/public/widget
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
     command: echo "yay"
 
   # We use a node container to compile js, css, etc
   node:
-    image: ucfopen/materia-node:latest
+    container_name: materia-node
+    image: ucfopen/materia-node:${TAG}
+    build:
+      context: ./dockerfiles
+      dockerfile: materia-node
+    networks:
+      - backend
     volumes:
       - ../:/var/www/html:rw
       - node_modules:/var/www/html/node_modules
+      - build_app_root:/build:rw
 
   mysql:
     environment:
@@ -28,6 +35,7 @@ services:
     #   - /var/lib/mysql
 
 volumes:
-  static_files_test: {}
-  uploaded_media_test: {}
+  build_app_root: {}
+  static_widget_files_test: {} # contain widgets installed in tests
+  uploaded_media_test: {} # contain files uploaded in tests
   node_modules: {} # node modules for npm

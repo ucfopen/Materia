@@ -229,7 +229,7 @@ class Widget extends \Basetask
 
 		if ( ! $count)
 		{
-			self::write("No widgets found in '".implode(',', func_get_args()), true);
+			self::write('No widgets found in '.implode(',', func_get_args()), true);
 			return;
 		}
 

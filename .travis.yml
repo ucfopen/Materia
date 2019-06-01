@@ -1,11 +1,17 @@
 language: minimal
 services:
   - docker
-before_script: cd docker
+before_install:
+  # update docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - cd docker
 script:
   - bash run_tests_ci.sh
 after_success:
-  - bash run_build_release_package.sh
+  - bash run_build_github_release_package.sh
 deploy:
   skip_cleanup: true
   provider: releases
