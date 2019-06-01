@@ -56,4 +56,3 @@ source run_create_me.sh
 echo -e "Materia will be hosted on \033[32m$DOCKER_IP\033[0m"
 echo -e "\033[1mRun an oil comand:\033[0m ./run.sh php oil r  widget:show_engines"
 echo -e "\033[1mRun the web app:\033[0m docker-compose up"
-echo -e "\033[1mRun an oil comand:\033[0m ./run.sh php oil r  widget:show_engines"
