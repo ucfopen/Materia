@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.2'
 # Docker Compose file meant for tasks like building assets and running tests
 services:
 

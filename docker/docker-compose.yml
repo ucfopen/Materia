@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.2'
 
 services:
   nginx:
@@ -83,9 +83,11 @@ services:
 
 networks:
   frontend:
-    name: materia_frontend
+    # ommited till we can eaily use composer v3.5 on travis
+    # name: materia_frontend
   backend:
-    name: materia_backend
+    # ommited till we can eaily use composer v3.5 on travis
+    # name: materia_backend
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
