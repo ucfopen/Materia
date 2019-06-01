@@ -223,12 +223,8 @@ class Admin extends \Basetask
 			}
 			else
 			{
-				// create
-
 				// create user
 				static::new_user($user['name'], $user['first_name'], '',  $user['last_name'], $user['email'], $user['password']);
-				\Cli::write("adding user {$user['name']}");
-				\Cli::write(\Cli::color("password set to '{$user['password']}'", 'red'));
 
 				if ( ! empty($user['roles']))
 				{
@@ -438,46 +434,55 @@ class Admin extends \Basetask
 		\Cli::write(\Cli::color("Roles Added: $roles", 'green'));
 	}
 
-	public static function give_user_role($user_name, $role_name)
+	public static function give_user_role($username, $role_name)
 	{
-		if ($user = \Model_User::find_by_username($user_name))
+		if ($user = \Model_User::find_by_username($username))
 		{
 			if (\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [$role_name]))
 			{
-				if ( ! \Fuel::$is_test) \Cli::write(\Cli::color("$user_name now in role: $role_name", 'green'));
+				if ( ! \Fuel::$is_test) \Cli::write(\Cli::color("$username now in role: $role_name", 'green'));
 				return true;
 			}
 			else
 			{
 				\Cli::beep(1);
-				\Cli::write(\Cli::color("couldn't add user $user_name to role $role_name", 'red'));
+				\Cli::write(\Cli::color("couldn't add user $username to role $role_name", 'red'));
 				exit(1);  // linux exit code 1 = error
 			}
 		}
 		else
 		{
 			\Cli::beep(1);
-			\Cli::write(\Cli::color("$user_name doesnt exist", 'red'));
+			\Cli::write(\Cli::color("$username doesnt exist", 'red'));
 			exit(1);  // linux exit code 1 = error
 		}
 	}
 
-	public static function reset_password($username)
+	public static function reset_password(String $username, String $password=null) :void
 	{
-		$newpassword = \Auth::instance()->reset_password($username);
+		if ( ! empty($password))
+		{
+			\Auth::instance()->update_user(['password' => $password], $username);
+			$newpassword = $password;
+		}
+		else
+		{
+			$newpassword = \Auth::instance()->reset_password($username);
+		}
+
 		if ( ! \Fuel::$is_test)
 		{
-			\Cli::write("New password is $username ".\Cli::color($newpassword, 'yellow'));
+			\Cli::write("New password for $username is: ".\Cli::color($newpassword, 'yellow'));
 		}
 	}
 
-	public static function new_user($user_name, $first_name, $mi,  $last_name, $email, $password)
+	public static function new_user($username, $first_name, $mi,  $last_name, $email, $password)
 	{
 		try
 		{
 			// Auth instance must be MateriaAuth or similar auth module
 			// SimpleAuth does not work!!
-			$user_id = \Auth::instance('Materiaauth')->create_user($user_name, $password, $email, 1, [], $first_name, $last_name);
+			$user_id = \Auth::instance('Materiaauth')->create_user($username, $password, $email, 1, [], $first_name, $last_name);
 
 			if ($user_id === false)
 			{
@@ -489,7 +494,7 @@ class Admin extends \Basetask
 			}
 			else
 			{
-				if ( ! \Fuel::$is_test) \Cli::write('User Created', 'green');
+				if ( ! \Fuel::$is_test) \Cli::write("User Created: $username password: $password", 'green');
 				return $user_id;
 			}
 		}
@@ -511,19 +516,18 @@ class Admin extends \Basetask
 		if ( ! empty($name))
 		{
 			$first = $last = $name;
-			$pass = '123456';
 		}
 		else
 		{
 			$name = 'test'.\Model_User::count();
 			$first = 'Unofficial Test User';
-			$last = substr(str_shuffle(md5(time())),0,10); //generates a random 10-digit alphanumeric string
-			$pass = 'test';
+			$last = \Str::random('alnum', 10);
 		}
+
+		$pass = \Str::random('alnum', 16);
 
 		$user_id = static::new_user($name, $first, '', $last, $name.'@test.com', $pass);
 
-		static::reset_password($name);
 		static::give_user_role($name, $role);
 
 		return $user_id;
@@ -546,8 +550,8 @@ class Admin extends \Basetask
 	public static function anonymize_users()
 	{
 
-		$skip_user_names = func_get_args();
-		if (empty($skip_user_names)) $skip_user_names = [];
+		$skip_usernames = func_get_args();
+		if (empty($skip_usernames)) $skip_usernames = [];
 
 		require(APPPATH.'vendor/php-faker/faker.php');
 
@@ -555,7 +559,7 @@ class Admin extends \Basetask
 
 		$users = \DB::select()
 			->from('users')
-			->where('username', 'NOT IN', $skip_user_names)
+			->where('username', 'NOT IN', $skip_usernames)
 			->execute();
 
 		if ($users->count() > 0)

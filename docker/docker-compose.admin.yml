@@ -1,4 +1,4 @@
-version: '2'
+version: '3.5'
 # Docker Compose file meant for tasks like building assets and running tests
 services:
 
@@ -17,6 +17,8 @@ services:
     build:
       context: ./dockerfiles
       dockerfile: materia-node
+    networks:
+      - backend
     volumes:
       - ../:/var/www/html:rw
       - node_modules:/var/www/html/node_modules

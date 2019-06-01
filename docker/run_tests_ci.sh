@@ -13,7 +13,8 @@ set -o xtrace
 
 DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 
-$DC build --pull phpfpm fakes3
+$DC pull --ignore-pull-failures phpfpm fakes3
+# $DC build --pull phpfpm fakes3
 
 # install php deps
 $DC run --rm phpfpm composer install --no-progress

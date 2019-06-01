@@ -5,7 +5,8 @@
 # Install and build a base release package
 # This should try to include as many constructed
 # assets as possible to reduce the work needed
-# to deploy Materia.
+# to deploy Materia. This build will not
+# disrupt the current files on disk -
 # ex: no need to install node # or npm packages
 # to build js - just include the js
 #
@@ -40,7 +41,7 @@ declare -a FILES_TO_EXCLUDE=(
 	"coverage*"
 )
 
-## now loop through excludes to build args for zip
+# combine the files to exclude
 EXCLUDE=''
 for i in "${FILES_TO_EXCLUDE[@]}"
 do
@@ -52,52 +53,56 @@ DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 
 set -o xtrace
 
-# clean migration files in every environment
-rm -f $DIR/app/fuel/app/config/**/migrations.php
-
 # # stop and remove docker containers
 $DC down --volumes --remove-orphans
 
-$DC build --pull node
+$DC pull --ignore-pull-failures node
 
 # get rid of any left over package files
-rm -rf ../cleancopy || true
+rm -rf clean_build_clone || true
 rm -rf ../materia-pkg* || true
-git clone ../ ../cleancopy
+git clone ../ ./clean_build_clone
 
-# make sure we have a built containter to copy into the volume
-$DC run --no-deps --detach --workdir /build/cleancopy --name materia-build node tail -f /dev/null
+# gather build info
+DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+GITUSER=$(git config user.name)
+GITEMAIL=$(git config user.email)
+GITCOMMIT=$(cd clean_build_clone && git rev-parse HEAD)
+GITREMOTE=$(cd clean_build_clone&& git remote get-url origin)
 
-# install a copy of this git repo
-docker cp ../cleancopy materia-build:/build
-rm -rf ../cleancopy || true
+# remove .git dir for slightly faster copy
+rm -rf clean_build_clone/.git
 
-# install production node libs
+# start a build container
+$DC run --no-deps --detach --workdir /build/clean_build_clone --name materia-build node tail -f /dev/null
+
+# copy the clean build clone into the container
+docker cp ./clean_build_clone materia-build:/build
+
+# clean up
+rm -rf clean_build_clone || true
+
+# install production node_modules
 docker exec materia-build yarn install --frozen-lockfile --non-interactive --production
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
 do
-	docker exec materia-build stat /build/cleancopy/$i
+	docker exec materia-build stat /build/clean_build_clone/$i
 done
 
-# zip
+# zip, excluding some files
 docker exec materia-build  bash -c "zip -r $EXCLUDE ../materia-pkg.zip ./"
 
-# copy zip file to host
-docker cp materia-build:/build/materia-pkg.zip ../materia-pkg.zip
-
-# now calulate hashes and gather build info
-GITUSER=$(git config user.name)
-GITEMAIL=$(git config user.email)
-GITCOMMIT=$(git rev-parse HEAD)
-GITREMOTE=$(git remote get-url origin)
-DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-# we'll use the php box to keep things working on all systems
+# calulate hashes
 MD5=$(docker exec materia-build md5sum ../materia-pkg.zip)
 SHA1=$(docker exec materia-build sha1sum ../materia-pkg.zip)
 SHA256=$(docker exec materia-build sha256sum ../materia-pkg.zip)
 
+# copy zip file from container to host
+docker cp materia-build:/build/materia-pkg.zip ../materia-pkg.zip
+
+# write build info file
 echo "build_date: $DATE" > ../materia-pkg-build-info.yml
 echo "git: $GITREMOTE" >> ../materia-pkg-build-info.yml
 echo "git_version: $GITCOMMIT" >> ../materia-pkg-build-info.yml
@@ -108,5 +113,4 @@ echo "sha256: $SHA256" >> ../materia-pkg-build-info.yml
 echo "md5: $MD5" >> ../materia-pkg-build-info.yml
 
 # clean environment and configs
-#$DC down --volumes --remove-orphans --timeout 1
 $DC down --volumes --remove-orphans
