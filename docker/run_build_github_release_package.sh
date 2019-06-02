@@ -68,7 +68,7 @@ DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 GITUSER=$(git config user.name)
 GITEMAIL=$(git config user.email)
 GITCOMMIT=$(cd clean_build_clone && git rev-parse HEAD)
-GITREMOTE=$(cd clean_build_clone&& git remote get-url origin)
+GITREMOTE=$(git remote get-url origin)
 
 # remove .git dir for slightly faster copy
 rm -rf clean_build_clone/.git
@@ -95,9 +95,9 @@ done
 docker exec materia-build  bash -c "zip -r $EXCLUDE ../materia-pkg.zip ./"
 
 # calulate hashes
-MD5=$(docker exec materia-build md5sum ../materia-pkg.zip)
-SHA1=$(docker exec materia-build sha1sum ../materia-pkg.zip)
-SHA256=$(docker exec materia-build sha256sum ../materia-pkg.zip)
+MD5=$(docker exec materia-build md5sum ../materia-pkg.zip | awk '{ print $1 }')
+SHA1=$(docker exec materia-build sha1sum ../materia-pkg.zip | awk '{ print $1 }')
+SHA256=$(docker exec materia-build sha256sum ../materia-pkg.zip | awk '{ print $1 }')
 
 # copy zip file from container to host
 docker cp materia-build:/build/materia-pkg.zip ../materia-pkg.zip
