@@ -12,6 +12,7 @@ script:
   - bash run_tests_ci.sh
 after_success:
   - bash run_build_github_release_package.sh
+  - cd .. # return to top directory so deploy can find the files
 deploy:
   skip_cleanup: true
   provider: releases
