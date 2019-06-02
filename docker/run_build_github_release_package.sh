@@ -74,7 +74,7 @@ GITREMOTE=$(cd clean_build_clone&& git remote get-url origin)
 rm -rf clean_build_clone/.git
 
 # start a build container
-$DC run --no-deps --detach --workdir /build/clean_build_clone --name materia-build node tail -f /dev/null
+$DC run --no-deps -d --workdir /build/clean_build_clone --name materia-build node tail -f /dev/null
 
 # copy the clean build clone into the container
 docker cp ./clean_build_clone materia-build:/build
