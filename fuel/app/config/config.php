@@ -361,8 +361,8 @@ return array(
 		],
 		[
 			'id' => 9,
-			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.0.6/adventure.wigt',
-			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.0.6/adventure-build-info.yml'
+			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.1.0/adventure.wigt',
+			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.1.0/adventure-build-info.yml'
 		],
 		[
 			'id' => 10,
