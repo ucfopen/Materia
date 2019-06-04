@@ -22,6 +22,7 @@ return [
 	"widgets/$id-$clean_name/create(/.*)?" => 'widgets/create',
 	"widgets/$id-$clean_name/demo"         => 'widgets/play_demo', // each widget engine has a demo game made in it - this is a shortcut to it
 	"widgets/$id-$clean_name"              => 'widgets/detail', // details of the widget engine
+	"widgets/$id-$clean_name/(players|creators)-guide"  => 'widgets/guide/$3', // guide pages
 	'widgets/all'                          => 'widgets/all', // catalog page, with optional display option(s)
 	'widgets'                              => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
 	'my-widgets'                           => 'widgets/mywidgets/',

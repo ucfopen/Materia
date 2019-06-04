@@ -68,6 +68,46 @@ class Api_V1
 		return $inst->db_remove();
 	}
 
+	/**
+	 * @return object, contains properties indicating whether the current
+	 * user can edit the widget and a message object describing why, if not
+	 */
+	static public function widget_instance_edit_perms_verify(string $inst_id): \stdClass
+	{
+		$response = new \stdClass();
+		$response->msg = null;
+		$response->is_locked = true;
+		$response->can_publish = false;
+
+		if ( ! Util_Validator::is_valid_hash($inst_id)) $response->msg = Msg::invalid_input($inst_id);
+		else if (\Service_User::verify_session() !== true) $response->msg = Msg::no_login();
+		else if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) $response->msg = Msg::no_perm();
+		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) $response->msg = new Msg(Msg::ERROR, 'Widget instance does not exist.');
+
+		//msg property only set if something went wrong
+		if ( ! $response->msg)
+		{
+			$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
+			$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		}
+
+		return $response;
+	}
+
+	/**
+	 * @return bool, true if the current user can publish the given widget instance, false otherwise.
+	 */
+	static public function widget_publish_perms_verify(int $widget_id)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
+
+		$widget = new Widget();
+		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+
+		return $widget->publishable_by(\Model_User::find_current_id());
+	}
+
 	static private function has_perms_to_inst($inst_id, $perms)
 	{
 		return Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, $perms);
@@ -112,6 +152,7 @@ class Api_V1
 
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
 		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
@@ -164,6 +205,7 @@ class Api_V1
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
 		if ( $is_draft && ! $inst->widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
+		if ( ! $is_draft && ! $inst->widget->publishable_by(\Model_User::find_current_id())) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
 
 		// student made widgets are locked forever
 		if ($inst->is_student_made)

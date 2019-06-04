@@ -1,6 +1,29 @@
 language: minimal
 services:
   - docker
-before_script: cd docker
+before_install:
+  # update docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - cd docker
 script:
   - bash run_tests_ci.sh
+after_success:
+  - bash run_build_github_release_package.sh
+  - cd .. # return to top directory so deploy can find the files
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: "GK+ErnubkuvXmSU2OVfAeDdsAd793TTMbpZF7/XcpMqqs82WB1YDZ1WmxNepDeA3pW8aysZdlirQEnIX7yUKX7s35Olnc/ptcncgZFcyXbrlv65jpAWtz7UoZyo66Ds1e7917sq2NkkLJ3Fah22LVJifT/aD6kaO+Y3WESYlh0dKIUr58UZmcMFdYI5WUr9dc/1rRhnuxSXFUlZo0ipmWg5luGi+EksSgAnNZ9FwHvEsOWGSpG+WNfnj6DXt/Ad05xKr8DIYIUV7ocJqYiZS8nDLY+Jq7FXWVi5bn7cYV+/agBZc5tyA0vKglesCfVWAlYo9O5RmDHa+QO8MnCeIXRWC1Q/yBqaD/9t68lEI6ZRnLUF61Xr1cAVxjthOtWRWAQQkwW4k14XIBWPw9PavBfx9c2htAymI+Doz26R47nOnCUItJdJldfoqJXQQI7Bk89gCzINx0UVo9C+89zBe8fDmoknm6H+wYZnWqShxeilpEpE+Xn4lBWaCJK41UBgD7We/YaXHZ5Ru7jNr+wUiUz0u2Glw6QC9JLP2Pxh5PH8qArnOJDlJd35j7oUf06xFSMLdrudLi/GajQIK/m/dMQmZuXmgHIIIFlyQanBhQk8F215kN+RlfeCG+XkpOOdOl/dEQxZc8P+3U7/4z3i0UBY9X2d6+nK1yJTzKiIn00c="
+  file:
+    - materia-pkg.zip
+    - materia-pkg-build-info.yml
+  on:
+    tags: true
+    repo: ucfopen/Materia
+notifications:
+  slack:
+    secure: "ClZlpt4653CVvAWgmaM/0s3HJcVgvh3q4EjfHWFyWPStAR21youte0FRFOibJhDFrZv5wB/xsgCzXASNFoyYM7BfMVe3JHnwQQGkzeeW7+jShzgV6sVe92MUXWODQdZvac879zDbPx46FGI60T9G5FVeWueh8uE8c2YSJrGw4oAEEiWNIwD9QEcGTcotdD9qMV/+R67jbu6ucZtjeNCjDI0l0rX5gu81uCzIwCuldN7MrdEQ6dUV0tZH1QL3CprxlMHetrLZossFHSja1rmzjfuS2CYYj0Q16UydiFmtM0Nz1B+G0/8iNE9Z/lHh/4mkgZIktqMarTdePEYkp5eJIlUff+pDdicDclzrljEpnmCvUyPMtA3PhiPOB+8A8TIY1ep1erclgTxWQvTgnEDczYV0zhzbYzcXMK51QUDhFNFeY/qedf4MCxNocFsP9DzxkMJMhvZq8P/+ViPPf5beq//hPJ5QcWxqlnbTTC0AaWjyI3AH1D9cORKPz4ZhhpSK21ruSq/CaDPVYRvSyjJF8aiiGr7oNnVrTPKZ/7cY60btZc0V2YCcA10LdmnWq8a0nRhYqsCIeesjRNocwNsUnQi/Ics6ll2iC/5nqB9Nrba1MFC8ugVZcCQO+IWiLDoJ7qJ6SmjXTrJi/7cjX1UV18Dm6qsGoth3chxdqS+k7dA="

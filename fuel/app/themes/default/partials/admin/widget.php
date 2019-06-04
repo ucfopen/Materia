@@ -19,6 +19,7 @@
 					<input class="action_button" type="submit" value="Submit" <?= $upload_enabled ? '' : 'disabled' ?>/>
 					<span>{{ selectedFileName }}</span>
 				</form>
+				<p>Browse installable widgets on <a href="https://ucfopen.github.io/materia-widget-gallery/" target="_blank" rel="noopener noreferrer">The Official Materia Widget Gallery</a></p>
 			<?php else: ?>
 				<p>Widget uploader is <em>disabled</em></p>
 				<p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>
@@ -87,6 +88,12 @@
 										<label class="normal">
 											<input type="checkbox" ng-model="widget.is_scorable" ng-true-value='"1"' ng-false-value='"0"'/>
 											Is Scorable
+										</label>
+									</div>
+									<div>
+										<label class="normal">
+											<input type="checkbox" ng-model="widget.restrict_publish" ng-true-value='"1"' ng-false-value='"0"'/>
+											Restrict Publish
 										</label>
 									</div>
 								</span>

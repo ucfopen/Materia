@@ -1,12 +1,4 @@
 <?php
-/**
- * The go between for the user and the Materia Package.
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      Kevin Baugh
- */
 
 namespace Materia;
 
@@ -34,9 +26,12 @@ class Widget
 	public $name                = '';
 	public $player              = '';
 	public $question_types      = '';
+	public $restrict_publish    = false;
 	public $score_module        = 'base';
 	public $score_screen        = '';
 	public $width               = 0;
+	public $creator_guide	    = '';
+	public $player_guide        = '';
 
 	public const PATHS_PLAYDATA = '_exports'.DS.'playdata_exporters.php';
 	public const PATHS_SCOREMOD = '_score-modules'.DS.'score_module.php';
@@ -114,9 +109,12 @@ class Widget
 			'is_scalable'         => $w['is_scalable'],
 			'score_module'        => $w['score_module'],
 			'score_screen'        => $w['score_screen'],
+			'restrict_publish'    => $w['restrict_publish'],
 			'is_storage_enabled'  => $w['is_storage_enabled'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
+			'creator_guide'       => $w['creator_guide'],
+			'player_guide'        => $w['player_guide'],
 			'meta_data'           => static::db_get_metadata($w['id']),
 		]);
 
@@ -125,7 +123,6 @@ class Widget
 		{
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
-
 		return true;
 	}
 
@@ -269,6 +266,17 @@ class Widget
 		// cache in the class for reuse
 		$this->exporter_methods = $exporter_methods;
 		return $this->exporter_methods;
+	}
+
+	/**
+	 * Checks if user can publish widget.
+	 *
+	 * @return bool Whether or not the current user can publish the widget
+	 */
+	public function publishable_by(int $user_id): bool
+	{
+		if ( ! $this->restrict_publish) return true;
+		return ! Perm_Manager::is_student($user_id);
 	}
 
 	// filter out items in an array that aren't callable

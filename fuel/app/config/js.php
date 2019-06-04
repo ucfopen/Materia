@@ -9,6 +9,7 @@ return [
 	'groups' => [
 		'materia'    => [$static.'materia.js'],
 		'angular'    => [$cdnjs.'angular.js/1.6.9/angular.min.js'],
+		'ng-animate' => [$cdnjs.'angular.js/1.6.9/angular-animate.min.js'],
 		'jquery'     => [$cdnjs.'jquery/3.3.1/jquery.min.js'],
 		'admin'      => [$static.'admin.js'],
 		'author'     => [$static.'author.js'],
@@ -17,7 +18,7 @@ return [
 		'jquery_ui'  => [$cdnjs.'jqueryui/1.10.4/jquery-ui.min.js'],
 		'labjs'      => [$static.'vendor/labjs/LAB.min.js'],
 		'spinner'    => [$static.'vendor/spin.min.js', $static.'spin.jquery.js'],
-		'fancybox'   => [$static.'vendor/fancybox/jquery.fancybox.min.js'],
+		'hammerjs'   => [$static.'vendor/hammer.min.js'],
 		'swfobject'  => [$static.'vendor/swfobject/swfobject.js'],
 
 		'jqplot'     => [

@@ -540,6 +540,7 @@ class Widget_Installer
 			'flash_version'       => $manifest_data['files']['flash_version'],
 			'height'              => $manifest_data['general']['height'],
 			'width'               => $manifest_data['general']['width'],
+			'restrict_publish'    => isset($manifest_data['general']['restrict_publish']) ? Util_Validator::cast_to_bool_enum($manifest_data['general']['restrict_publish']) : '0',
 			'is_qset_encrypted'   => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_qset_encrypted']),
 			'is_answer_encrypted' => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_answer_encrypted']),
 			'is_storage_enabled'  => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_storage_enabled']),
@@ -553,9 +554,10 @@ class Widget_Installer
 			'score_module'        => $manifest_data['score']['score_module'],
 			'creator'             => isset($manifest_data['files']['creator']) ? $manifest_data['files']['creator'] : '',
 			'player'              => isset($manifest_data['files']['player']) ? $manifest_data['files']['player'] : '' ,
-			'score_screen'        => isset($manifest_data['score']['score_screen']) ? $manifest_data['score']['score_screen'] : ''
+			'score_screen'        => isset($manifest_data['score']['score_screen']) ? $manifest_data['score']['score_screen'] : '',
+			'creator_guide'       => isset($manifest_data['files']['creator_guide']) ? $manifest_data['files']['creator_guide'] : '',
+			'player_guide'        => isset($manifest_data['files']['player_guide']) ? $manifest_data['files']['player_guide'] : ''
 		];
-
 		return $params;
 	}
 

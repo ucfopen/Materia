@@ -7,9 +7,10 @@
 	<div class="cycler">
 	</div>
 </section>
+
 <section class="get_started">
 	<p class="desc">
-	Easily create <span class="bold">games &amp; study tools</span> for your <span class="bold">online course</span> with <span class="bold">Materia.</span>
+	Easily embed <span class="bold">engaging</span> apps in your online course.
 	</p>
 	<p class="button_wrap">
 	<a class="action_button" href="widgets">Get Started</a>
@@ -19,42 +20,47 @@
 <section class="front_bottom">
 	<section class="wrapper">
 		<div>
-			<h2>Engage and Inspire Your Students</h2>
+			<h2>Engage Your Students</h2>
 			<p>
-				With a growing library of games, applications, study tools, &amp; learning aids, Materia is designed to help you diversify your students' online learning experience.
-			</p>
-			<p>
-				Use game play mechanics to revitalize stale and boring questions, allow students to indulge in your content by delivering it in a fun and innovative way, and build interest by adding integrating concepts such as story-telling, competition, instant feedback, and instant reward systems.
+				Re-imagine your course filled with diverse and interesting experiences. It can bring life to content modules, practice, study activities, and even assessments. Engage students with game mechanics like: story-telling, competition, instant feedback, and instant reward systems.
 			</p>
 		</div>
-		<img src="<?= \Config::get('materia.urls.static') ?>img/front1.png"/>
+		<img src="<?= \Config::get('materia.urls.static') ?>img/front1.png" alt="screen shot of a labeling widget"/>
 		<div>
-			<h2>Easy to Use</h2>
+			<h2>Create Quickly and Easily</h2>
 			<p>
-				Every step of creating and delivering content in Materia has been finely tuned to be as clear and useful as possible.
-				Get started with a walking tour to familiarize yourself with each screen and to enhance your understanding of how each widget works.
-				Tooltips are also included to help you navigate and tab enabled forms facilitate power users to enter data quickly.
+				Materia's design philosophy is to be incredibly easy to use.  Every step of customizing and delivering apps has been finely tuned to be as clear and simple as possible. Players are greeted with clean and simple interfaces. We aim to get out of the way so your content can engage with students as quickly and clearly as possible.
 			<p>
 		</div>
-		<img src="<?= \Config::get('materia.urls.static') ?>img/front2.png"/>
+		<img src="<?= \Config::get('materia.urls.static') ?>img/front2.png" alt="screen shot of creating a crossword widget"/>
 		<div>
-			<h2>Superior Statistics</h2>
+			<h2>Integrate with Your Course</h2>
 			<p>
-				Materia keeps tabs on how each of your widgets is being utilized.
-				Quickly view your students' performance by comparing scores and statistics visually in dynamically rendered charts.
-				In keeping with Materia's core value that the learner is a first rate citizen, we make sure learners are able see their own progress and measure how they stack up against their peers.
+				Materia integrates into Canvas seamlessly.  As an assignment, student's scores can automatically sync to the grade book. Thanks to the magic of LTI, Students are logged in automatically!
 			</p>
 		</div>
-		<img src="<?= \Config::get('materia.urls.static') ?>img/front3.png"/>
+		<img src="<?= \Config::get('materia.urls.static') ?>img/front3.png" alt="screen shot of a widget score page"/>
 	</section>
 
-	<section class="p_s">
+	<section class="get_started" style="background: #f2824c;">
+		<p class="desc">
+			Use Materia at <span class="bold">your</span> organization.
+		</p>
+		<p class="button_wrap">
+			<a class="action_button" href="https://ucfopen.github.io/Materia-Docs/">
+				Get Materia
+				<span class="little-button-text" style="font-size: 18px; display:block;">(It's open source!)</span>
+			</a>
+		</p>
+	</section>
+
+	<section class="p_s" style="">
 		<h2>Built at UCF, for Everyone</h2>
 		<p>
-			Materia is an open source project built by the University of Central Florida's <a href="https://cdl.ucf.edu/" target="_blank">Center for Distributed Learning</a>. Our team melds interface usability, graphic design, instructional pedagogy, expert developers, and award winning distance learning expertise to deliver an innovative and usable platform for interactive learning content.
+			Materia is an open source project built by the University of Central Florida's <a href="https://cdl.ucf.edu/" target="_blank">Center for Distributed Learning</a>. Our team is a truly unique group of experts working directly with faculty <b>and</b> students to build enjoyable tools for teaching and learning.
 		</p>
 		<p>
-			We're committed to building a better tomorrow through better learning tools, so our team is constantly improving and re-inventing Materia. In fact, if you have an idea for a new widget or simply would like to give us feedback, we'd love to hear from you on <a href="https://github.com/ucfopen" target="_blank">Github</a>.
+			We're committed to building a better tomorrow through better learning tools, so our team is constantly improving and re-inventing Materia. If you have an idea for a new widget or simply would like to give us feedback, we'd love to hear from you on <a href="https://github.com/ucfopen" target="_blank">Github</a>.
 		</p>
 		<p class="copyright">
 			&copy; <?= date("Y") ?> University of Central Florida

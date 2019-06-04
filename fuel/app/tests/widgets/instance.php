@@ -31,6 +31,7 @@ class Test_Widget_Instance extends \Basetest
 			'guest_access'    => 0,
 			'is_student_made' => 1,
 			'widget'          => $widget,
+			'published_by'    => 1
 		];
 
 
@@ -62,6 +63,4 @@ class Test_Widget_Instance extends \Basetest
 		// make sure the new instance is different from the current demo
 		$this->assertNotEquals($inst_id, $duplicate->id);
 	}
-
-
 }

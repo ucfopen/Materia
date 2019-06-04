@@ -44,6 +44,7 @@ class Test_Widget_Installer extends \Basetest
 			'flash_version' => 3,
 			'height' => 55,
 			'width' => 100,
+			'restrict_publish' => '0',
 			'is_qset_encrypted' => '0',
 			'is_answer_encrypted' => '1',
 			'is_storage_enabled' => '1',
@@ -56,7 +57,9 @@ class Test_Widget_Installer extends \Basetest
 			'score_module' => 'scoreModule',
 			'creator' => 'creator.html',
 			'player' => 'player.html',
-			'score_screen' => ''
+			'score_screen' => '',
+			'creator_guide' => '',
+			'player_guide' => ''
 		];
 
 		$result = Widget_Installer::generate_install_params($manifest_data, __FILE__);

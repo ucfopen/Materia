@@ -42,31 +42,34 @@ desktop.ini
 # NPM modules
 node_modules
 
-public/css/404.css
-public/css/500.css
 public/css/admin.css
-public/css/beard_mode.css
-public/css/catalog.css
-public/css/create.css
-public/css/docs.css
 public/css/login.css
-public/css/lti.css
-public/css/main.css
 public/css/media-import.css
-public/css/my_widgets.css
-public/css/play.css
-public/css/question-import.css
+public/css/my-widgets.css
 public/css/scores.css
-public/css/store.css
-public/css/user.css
-public/css/widget.css
-public/css/upload.css
 public/css/ng-modal.css
-public/css/homepage_spotlight.css
-public/css/embed.css
+public/css/beard-mode.css
+public/css/core.css
+public/css/errors.css
+public/css/help.css
+public/css/my-widgets.css
+public/css/profile.css
+public/css/store_delete.css
+public/css/util-lti-picker.css
+public/css/util-media-import.css
+public/css/util-question-import.css
+public/css/widget-catalog.css
+public/css/widget-create.css
+public/css/widget-detail.css
+public/css/widget-embed-placeholder.css
+public/css/widget-guide.css
+public/css/widget-play.css
+
+
 
 public/js/admin.js
 public/js/author.js
+public/js/details.js
 public/js/materia.coms.json.js
 public/js/materia.creatorcore.js
 public/js/materia.enginecore.js
@@ -103,3 +106,9 @@ coverage.xml
 coverage/*
 
 fuel/app/backend/*
+
+licenses/LICENSES_COMPOSER
+licenses/LICENSES_NPM
+
+materia-pkg.zip
+materia-pkg-build-info.yml
