@@ -124,8 +124,8 @@ class Session_Logger
 			case 1004:
 				return Session_Log::TYPE_QUESTION_ANSWERED;
 
-			case 1009:
-				return Session_Log::TYPE_SCORE_ALERT;
+			case 1006:
+				return Session_Log::TYPE_UNSCORABLE;
 
 			case 1008:
 				return Session_Log::TYPE_SCORE_FEEDBACK;

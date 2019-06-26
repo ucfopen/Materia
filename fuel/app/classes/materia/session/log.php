@@ -36,6 +36,7 @@ class Session_Log
 	const TYPE_SCORE_ALERT             = 'SCORE_ALERT';
 	const TYPE_SCORE_FEEDBACK          = 'SCORE_FEEDBACK';
 	const TYPE_SCORE_SET_QUESTION      = 'SCORE_SET_QUESTION';
+	const TYPE_UNSCORABLE              = 'SCORE_UNSCORABLE';
 
 	/* Errors */
 	const TYPE_GENERAL_ERROR           = 'ERROR_GENERAL';
