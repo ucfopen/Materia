@@ -99,6 +99,15 @@
 					<a class="guide-link" ng-href="{{widget.players_guide}}">
 						Player's Guide<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" fill="white"/></svg>
 					</a>
+				</div>z
+			</div>
+
+			<div class="feature-list benefits" ng-if="hasBenefits" ng-show='widget.benefits.length'>
+				<span class="feature-heading">Academic Benefits:</span>
+				<div class="feature" ng-repeat="(num, link) in widget.benefits">
+					<a class="benefit-link"ng-href="{{link}}">
+						{{num}}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="#ffffff" transform="translate(0.000000,24.000000) scale(0.01200,-0.01200)"><path d="M290 1779 c-20 -11 -47 -37 -60 -56 l-25 -37 -3 -660 c-2 -364 0 -676 3 -694 7 -37 55 -96 96 -118 41 -21 1356 -21 1397 0 36 19 78 65 91 99 7 17 11 132 11 298 0 256 -1 270 -20 289 -27 27 -93 27 -120 0 -19 -19 -20 -33 -20 -244 0 -237 -6 -280 -43 -290 -29 -8 -1165 -7 -1194 0 -15 4 -26 18 -34 43 -16 56 -8 1196 9 1213 10 10 77 14 263 18 233 5 252 6 265 24 21 29 18 92 -6 116 -19 19 -33 20 -297 20 -262 0 -280 -2 -313 -21z"></path><path d="M1260 1780 c-13 -13 -20 -33 -20 -60 0 -69 20 -80 152 -80 l113 0 -298 -298 c-278 -278 -299 -301 -304 -340 -5 -36 -2 -45 26 -73 28 -28 37 -31 73 -26 39 5 62 26 340 304 l298 298 0 -113 c0 -99 2 -114 20 -132 27 -27 93 -27 120 0 19 19 20 33 20 260 0 227 -1 241 -20 260 -19 19 -33 20 -260 20 -227 0 -241 -1 -260 -20z"></path></g></svg>
+					</a>
 				</div>
 			</div>
 
