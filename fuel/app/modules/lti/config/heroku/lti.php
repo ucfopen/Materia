@@ -6,7 +6,6 @@ return [
 
 	'consumers' => [
 		'canvas' => [
-			'remote_username'   => $_ENV['LTI_USERNAME_PARAM'],
 			'remote_identifier' => $_ENV['LTI_USERNAME_PARAM'],
 			'secret'            => $_ENV['LTI_SECRET'],
 			'key'               => $_ENV['LTI_KEY'],

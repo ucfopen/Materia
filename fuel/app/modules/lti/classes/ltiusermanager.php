@@ -19,14 +19,14 @@ class LtiUserManager
 		// Check for the test user first
 		if ($launch->first === 'Test' && $launch->last === 'Student' && in_array('Learner', $launch->roles))
 		{
-			$launch->username = $launch->remote_id = 'teststudent';
+			$launch->remote_id = 'teststudent';
 			$launch->email    = "testuser@{$launch->consumer}.com";
 			$creates_users = true;
 		}
 
-		if (empty($launch->remote_id) || empty($launch->username) || empty($launch->consumer))
+		if (empty($launch->remote_id) || empty($launch->consumer))
 		{
-			Log::profile(['auth-data-missing', $launch->remote_id, $launch->username, $launch->consumer, \Input::param('resource_link_id')], 'lti');
+			Log::profile(['auth-data-missing', $launch->remote_id, $launch->consumer, \Input::param('resource_link_id')], 'lti');
 			return false;
 		}
 
@@ -93,7 +93,7 @@ class LtiUserManager
 	protected static function get_or_create_user($launch, $search_field, $auth_driver, $creates_users = false)
 	{
 		// allow any auth module that needs to look up external users to create them as needed
-		\Event::trigger('lti_get_or_create_user', $launch->username, 'json');
+		\Event::trigger('lti_get_or_create_user', $launch->remote_id, 'json');
 		$auth = \Auth::instance($auth_driver);
 
 		if ( ! $auth)
@@ -119,7 +119,7 @@ class LtiUserManager
 			{
 				//username, password, email, group, profile fields, first name, last name, requires password, requires email
 				$user_id = $auth->create_user(
-					$launch->username,
+					$launch->remote_id,
 					uniqid(),
 					$launch->email,
 					1,
@@ -139,15 +139,15 @@ class LtiUserManager
 
 					return $user;
 				}
-				Log::profile(['unable-to-create-user', $launch->username, $launch->email], 'lti-error');
+				Log::profile(['unable-to-create-user', $launch->remote_id, $launch->email], 'lti-error');
 			}
 			catch (\SimpleUserUpdateException $e)
 			{
-				Log::profile(['create-user-failed', $launch->username, $launch->email, $e->getMessage()], 'lti-error');
+				Log::profile(['create-user-failed', $launch->remote_id, $launch->email, $e->getMessage()], 'lti-error');
 			}
 		}
 
-		Log::profile(['unable-to-locate-user', $launch->username, $launch->email], 'lti-error');
+		Log::profile(['unable-to-locate-user', $launch->remote_id, $launch->email], 'lti-error');
 		return false;
 	}
 

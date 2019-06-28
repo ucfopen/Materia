@@ -13,7 +13,6 @@ return [
 			'title'             => 'Materia Widget Test Assignment',
 			'description'       => 'Add a Materia Widget to your Learning Module',
 			'platform'          => 'materia.test.edu',
-			'remote_username'   => 'lis_person_sourcedid',
 			'remote_identifier' => 'lis_person_sourcedid',
 			'local_identifier'  => 'username',
 			'creates_users'     => true,
