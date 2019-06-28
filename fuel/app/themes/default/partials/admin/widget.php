@@ -137,6 +137,16 @@
 							</div>
 							<div>
 								<span>
+									<label>Benefits:</label>
+								</span>
+								<span>
+									<ul>
+										<li ng-repeat="benefit in widget.meta_data.benefits">{{ benefit }}</li>
+									</ul>
+								</span>
+							</div>
+							<div>
+								<span>
 									<label>
 										Export Options:
 									</label>

@@ -128,7 +128,7 @@ class Widget
 
 	private static function db_get_metadata($id)
 	{
-		$meta_data = ['features' => [], 'supported_data' => []];
+		$meta_data = ['features' => [], 'supported_data' => [], 'benefits' => [] ];
 
 		$meta_results = \DB::select('name', 'value')
 			->from('widget_metadata')
@@ -145,6 +145,7 @@ class Widget
 				# multiple items with these keys will be placed in an array
 				case 'features':
 				case 'supported_data':
+				case 'benefits':
 				case 'playdata_exporters':
 					if ( ! isset($meta_data[$name])) $meta_data[$name] = []; // initialize if needed
 					$meta_data[$name][] = $value;
