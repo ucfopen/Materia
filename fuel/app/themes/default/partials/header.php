@@ -1,5 +1,6 @@
 <?php // @codingStandardsIgnoreStart ?>
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
+	<!-- <meta content="width=device-width, initial-scale=1" name="viewport"> -->
 	<?php
 		$allow_logins = ! \Config::get('auth.restrict_logins_to_lti_single_sign_on', false);
 	?>
@@ -19,8 +20,12 @@
 
 	<span ng-if="currentUser.loggedIn">
 		<p class="user avatar">
-			<img ng-src="{{currentUser.avatar}}" />
-			Welcome <a href="/profile">{{currentUser.name}}</a>
+			<span>Welcome</span>
+			<br>
+			<a href="/profile">
+				<span>{{currentUser.name}}</span>
+				<img ng-src="{{currentUser.avatar}}" />
+			</a>
 		</p>
 	</span>
 	<button id="mobile-menu-toggle" ng-class="{expanded: menuExpanded}" ng-click="menuExpanded = !menuExpanded">
@@ -30,6 +35,7 @@
 		<ul>
 			<li><a href="/widgets" >Widget Catalog</a></li>
 			<li><a href="/my-widgets">My Widgets</a></li>
+			<li><a href="/profile">My Profile</a></li>
 			<li><a href="/help">Help</a></li>
 
 			<?php if ( !$me->is_guest() && \Materia\Perm_Manager::is_super_user()): ?>
