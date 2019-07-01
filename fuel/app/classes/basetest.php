@@ -364,7 +364,7 @@ class Basetest extends TestCase
 		$this->assertInstanceOf('\Materia\Widget_Question_Type_MC', $mc);
 	}
 
-	protected function spoof_widget_play($inst, $context_id=false)
+	protected function mock_widget_play($inst, $context_id=false)
 	{
 		if ( $inst->is_draft) return new \Materia\Msg(\Materia\Msg::ERROR, 'Drafts are not playable');
 		if ( ! $inst->widget->is_playable) return new \Materia\Msg(\Materia\Msg::ERROR, 'Widget is retired');
@@ -378,7 +378,7 @@ class Basetest extends TestCase
 		return $play_id;
 	}
 
-	protected function spoof_play_complete($play_id, $logs = [])
+	protected function mock_play_complete($play_id, $logs = [])
 	{
 		if (empty($logs))
 		{
