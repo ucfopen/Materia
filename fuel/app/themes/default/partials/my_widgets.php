@@ -82,7 +82,7 @@
 									<span class="owner">Full</span>
 									<span class="undo">Removed <a href="#">Undo</a></span>
 
-									<select ng-disabled="selected.shareable==false" tabindex="0" id="perm" class="perm" ng-model="$scope.accessLevels[0]" ng-options="accessLevel as accessLevel.text for accessLevel in accessLevels" ng-change="checkForWarning(collaborator)">
+									<select ng-disabled="selected.shareable==false" tabindex="0" id="perm" class="perm" ng-model="accessLevels[0]" ng-options="accessLevel as accessLevel.text for accessLevel in accessLevels" ng-change="checkForWarning(collaborator)">
 										</select>
 
 									<a ng-if="selected.shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
