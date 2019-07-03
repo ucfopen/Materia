@@ -1,6 +1,5 @@
 <?php // @codingStandardsIgnoreStart ?>
 <header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
-	<!-- <meta content="width=device-width, initial-scale=1" name="viewport"> -->
 	<?php
 		$allow_logins = ! \Config::get('auth.restrict_logins_to_lti_single_sign_on', false);
 	?>
