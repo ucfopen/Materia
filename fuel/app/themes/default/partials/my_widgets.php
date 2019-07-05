@@ -82,11 +82,12 @@
 									<span class="owner">Full</span>
 									<span class="undo">Removed <a href="#">Undo</a></span>
 
-									<select ng-disabled="selected.shareable==false" tabindex="0" id="perm" class="perm" ng-model="collaborator.access" ng-change="checkForWarning(collaborator)" ng-options="accessLevel.value as accessLevel.text for accessLevel in accessLevels">
-										</select>
+									<select ng-disabled="selected.shareable==false" tabindex="0" id="perm" class="perm" ng-model="collaborator.access" ng-change="checkForWarning(collaborator)">
+										<option ng-repeat="accessLevel in accessLevels" value={{accessLevel.value}} ng-selected="collaborator.access == accessLevel.value">{{accessLevel.text}}</option>
+									</select>
 
 									<a ng-if="selected.shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
-									<span class="expires">Expires: </span><input ng-disabled="!selected.shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" />
+									<span class="expires">Expires: </span><input ng-disabled="!selected.shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" /><p>{{n}}</p>
 								</div>
 							</div>
 						</div>
