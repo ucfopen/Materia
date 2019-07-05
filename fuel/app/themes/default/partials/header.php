@@ -33,7 +33,7 @@
 			<li><a href="/help">Help</a></li>
 
 			<?php if ( !$me->is_guest() && \Materia\Perm_Manager::is_super_user()): ?>
-				<li class="nav_expandable">
+				<li tabindex="0" class="nav_expandable">
 					<span class='elevated'>Admin</span>
 					<ul>
 						<li>
