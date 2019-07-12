@@ -393,7 +393,7 @@ class Session_PlayDataExporter
 
 		foreach ($data as $datum_i)
 		{
-			$csv_i .= $datum_i["user_id"].', '.$datum_i["referrer_url"].', '.$datum_i["created_at"]."\r\n";
+			$csv_i .= $datum_i['user_id'].', '.$datum_i['referrer_url'].', '.$datum_i['created_at']."\r\n";
 		}
 
 		$headers_c = "URL, Count\r\n";
@@ -406,13 +406,13 @@ class Session_PlayDataExporter
 
 		foreach ($data as $datum_c)
 		{
-			if (array_key_exists($datum_c["referrer_url"], $referrer_count))
+			if (array_key_exists($datum_c['referrer_url'], $referrer_count))
 			{
-				$referrer_count[$datum_c["referrer_url"]]++;
+				$referrer_count[$datum_c['referrer_url']]++;
 			}
 			else
 			{
-				$referrer_count[$datum_c["referrer_url"]] = 1;
+				$referrer_count[$datum_c['referrer_url']] = 1;
 			}
 		}
 
