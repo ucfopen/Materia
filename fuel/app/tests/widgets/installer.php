@@ -16,7 +16,6 @@ class Test_Widget_Installer extends \Basetest
 		$manifest_data = [
 			'general' => [
 				'name'                => 'THIS IS A Name!',
-				'group'               => 'group',
 				'height'              => 55,
 				'width'               => 100,
 				'is_qset_encrypted'   => false,
@@ -40,7 +39,6 @@ class Test_Widget_Installer extends \Basetest
 
 		$expected = [
 			'name' => 'THIS IS A Name!',
-			'group' => 'group',
 			'flash_version' => 3,
 			'height' => 55,
 			'width' => 100,

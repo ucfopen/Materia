@@ -94,7 +94,6 @@ class Basetest extends TestCase
 		$mock_manifest_data = [
 			'general' => [
 				'name' => $name,
-				'group' => 'disposable',
 				'height' => 500,
 				'width' => 6000,
 				'is_qset_encrypted' => false,
@@ -318,7 +317,6 @@ class Basetest extends TestCase
 		$this->assertObjectHasAttribute('width', $widget);
 		$this->assertObjectHasAttribute('meta_data', $widget);
 		$this->assertObjectHasAttribute('clean_name', $widget);
-		$this->assertObjectHasAttribute('group', $widget);
 	}
 
 	protected function assert_is_widget_instance($inst, $skip_qset=false)
