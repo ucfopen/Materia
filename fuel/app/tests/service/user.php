@@ -72,7 +72,7 @@ class Test_Service_User extends \Basetest
 			]
 		];
 
-		$play_output = $this->spoof_widget_play($instance_output, 'test_context');
+		$play_output = $this->mock_widget_play($instance_output, 'test_context');
 		$score = \Materia\Api_V1::play_logs_save($play_output, $logs);
 
 		// log in as a super user to pass the safeguards
