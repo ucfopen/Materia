@@ -17,19 +17,20 @@
 
 	<h1 class="logo"><a href="/">Materia</a></h1>
 
-	<span ng-if="currentUser.loggedIn">
+	<span ng-switch="currentUser.loggedIn">
 		<p class="user avatar">
-			<a href="/profile">
+			<a ng-switch-when="true" href="/profile">
 				<span>{{currentUser.name}}</span>
 				<img ng-src="{{currentUser.avatar}}" />
 			</a>
 
-			<span ng-switch="currentUser.loggedIn" class="logout">
-				<a ng-switch-when="true" href="/users/logout">Logout</a>
-				<?php if ($allow_logins): ?>
-				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
-				<?php endif; ?>
+			<span ng-switch-when="true" class="logout">
+				<a href="/users/logout">Logout</a>
 			</span>
+
+			<?php if ($allow_logins): ?>
+			<a ng-switch-when="false" href="/users/login">Login</a>
+			<?php endif; ?>
 		</p>
 	</span>
 	<button id="mobile-menu-toggle" ng-class="{expanded: menuExpanded}" ng-click="menuExpanded = !menuExpanded">
@@ -39,7 +40,7 @@
 		<ul>
 			<li><a href="/widgets" >Widget Catalog</a></li>
 			<li><a href="/my-widgets">My Widgets</a></li>
-			<li><a href="/profile">My Profile</a></li>
+			<li><a ng-if="currentUser.loggedIn" href="/profile">My Profile</a></li>
 			<li><a href="/help">Help</a></li>
 
 			<?php if ( !$me->is_guest() && \Materia\Perm_Manager::is_super_user()): ?>
@@ -55,6 +56,12 @@
 					</ul>
 				</li>
 			<?php endif; ?>
+
+			<li ng-if="currentUser.loggedIn">
+				<span class="logout">
+					<a href="/users/logout">Logout</a>
+				</span>
+			</li>
 		</ul>
 	</nav>
 
