@@ -87,7 +87,7 @@
 									</select>
 
 									<a ng-if="selected.shareable" tabindex="0" class="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
-									<span class="expires">Expires: </span><input ng-disabled="!selected.shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" /><p>{{n}}</p>
+									<span class="expires">Expires: </span><input ng-disabled="!selected.shareable" type="text" class="exp-date user{{::collaborator.id}}" ng-model="collaborator.expiresText" readonly="true" />
 								</div>
 							</div>
 						</div>
