@@ -19,12 +19,17 @@
 
 	<span ng-if="currentUser.loggedIn">
 		<p class="user avatar">
-			<span>Welcome</span>
-			<br>
 			<a href="/profile">
 				<span>{{currentUser.name}}</span>
 				<img ng-src="{{currentUser.avatar}}" />
 			</a>
+
+			<span ng-switch="currentUser.loggedIn" class="logout">
+				<a ng-switch-when="true" href="/users/logout">Logout</a>
+				<?php if ($allow_logins): ?>
+				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
+				<?php endif; ?>
+			</span>
 		</p>
 	</span>
 	<button id="mobile-menu-toggle" ng-class="{expanded: menuExpanded}" ng-click="menuExpanded = !menuExpanded">
@@ -50,13 +55,6 @@
 					</ul>
 				</li>
 			<?php endif; ?>
-
-			<li ng-switch="currentUser.loggedIn" class="logout">
-				<a ng-switch-when="true" href="/users/logout">Logout</a>
-				<?php if ($allow_logins): ?>
-				<a ng-switch-when="false" href="/users/login">Login with your <?= __('login.user') ?></a>
-				<?php endif; ?>
-			</li>
 		</ul>
 	</nav>
 
