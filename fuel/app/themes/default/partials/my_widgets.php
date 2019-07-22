@@ -43,7 +43,7 @@
 				<div ng-if="show.collaborationModal" ng-controller="CollaborationController" ng-click="searchResults.show = false">
 					<div id="access" class="container">
 						<div ng-if="selected.shareable" class="list_tab_lock">
-							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)" />
+							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)"/>
 							<div class="search_list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
@@ -93,8 +93,8 @@
 							</div>
 						</div>
 						<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-						<a tabindex="0" class="cancel_button" ng-click="hideModal()" ng-keypress="hideModal()">Cancel</a>
-						<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()" ng-keypress="updatePermissions()">Save</a>
+						<a tabindex="0" class="cancel_button" ng-click="hideModal()" ng-enter="hideModal()">Cancel</a>
+						<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()" ng-enter="updatePermissions()">Save</a>
 					</div>
 				</div>
 			</modal-dialog>
@@ -255,16 +255,16 @@
 								</a>
 							</li>
 							<li>
-								<a id="edit_button" tabindex="0" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-click="editWidget()" ng-keypress="editWidget()">
+								<a id="edit_button" tabindex="0" class="action_button aux_button" ng-class="{'disabled' : selected.editable==false}" ng-click="editWidget()" ng-enter="editWidget()">
 									<span class="pencil"></span>
 									Edit Widget
 								</a>
 							</li>
 						</ul>
 						<ul class="options">
-							<li class="share"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-keypress="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
-							<li class="copy" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-keypress="showCopyDialog()" ng-click="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-keypress="showDelete()" ng-click="showDelete()">Delete</div></li>
+							<li class="share"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
+							<li class="copy" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showCopyDialog()" ng-click="showCopyDialog()">Make a Copy</div></li>
+							<li class="delete" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showDelete()" ng-click="showDelete()">Delete</div></li>
 						</ul>
 						<div class="delete_dialogue" ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
@@ -275,11 +275,11 @@
 							<h3>Settings:</h3>
 							<dl class="attempts_parent" ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}">
 								<dt>Attempts:</dt>
-								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" tabindex="0" ng-click="popup()" ng-keypress="popup()">
+								<dd class="num-attempts" ng-class="{'disabled':!selected.editable || !selected.shareable || selected.widget.is_draft}" tabindex="0" ng-click="popup()" ng-enter="popup()">
 									{{ attemptText }}
 								</dd>
 								<dt>Available:</dt>
-								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}"tabindex="0"  ng-click="popup()" ng-keypress="popup()" ng-switch="availabilityMode">
+								<dd class="availability-time" ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}"tabindex="0"  ng-click="popup()" ng-enter="popup()" ng-switch="availabilityMode">
 									<span ng-switch-when="anytime">
 										Anytime
 									</span>
@@ -294,7 +294,7 @@
 									</span>
 								</dd>
 								<dt>Access:</dt>
-								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" tabindex="0" ng-click="popup()" ng-keypress="popup()" class="access-level">
+								<dd ng-class="{'disabled':!selected.shareable || selected.widget.is_draft}" tabindex="0" ng-click="popup()" ng-enter="popup()" class="access-level">
 									<span ng-if="!selected.widget.guest_access">Staff and Students only</span>
 									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
 								</dd>
@@ -305,7 +305,7 @@
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students <a href="https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html" target="_blank">View all sharing options.</a></h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
-						<p>Use this link to share with your students (or <span class="show-embed link" tabindex="0" ng-click="show.embedToggle = !show.embedToggle" ng-keypress="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<p>Use this link to share with your students (or <span class="show-embed link" tabindex="0" ng-click="show.embedToggle = !show.embedToggle" ng-enter="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
 						<div class="embed-options" ng-show="show.embedToggle && !selected.is_draft">
 							<h3>Embed Code</h3>
 							<p>Paste this HTML into a course page to embed.</p>
@@ -319,7 +319,7 @@
 				</div>
 				<div class="scores">
 					<h2>Student Activity</h2>
-					<span id="export_scores_button" class="action_button aux_button" tabindex="0" ng-click="exportPopup()" ng-keypress="exportPopup()">
+					<span id="export_scores_button" class="action_button aux_button" tabindex="0" ng-click="exportPopup()" ng-enter="exportPopup()">
 						<span class="arrow_down"></span>
 						Export Options
 					</span>
@@ -424,7 +424,7 @@
 			</div>
 			<div class="courses">
 				<div class="widget_list" data-container="widget-list">
-					<div tabindex="0" ng-repeat="widget in widgets.widgetList | multiword:query:'AND'" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)" ng-keypress="setSelected(widget.id)">
+					<div tabindex="0" ng-repeat="widget in widgets.widgetList | multiword:query:'AND'" id="widget_{{widget.id}}" class="widget small_{{ widget.beard }}" ng-class-odd="'odd'" ng-class-even="'even'" ng-class="{is_draft: widget.is_draft, gameSelected: widget.id == selected.widget.id, bearded: widget.beard}" ng-click="setSelected(widget.id)" ng-enter="setSelected(widget.id)">
 						<img class="icon" ng-src="{{widget.icon}}"/>
 						<ul>
 							<li class="title searchable" ng-bind-html="widget.name | highlight:query"></li>
