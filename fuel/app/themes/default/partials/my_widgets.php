@@ -195,7 +195,7 @@
 									</a>
 								</p>
 
-								<p ng-show="exportType === 'All Scores' || exportType === 'High Scores'">You don't need to export scores and import them into Canvas if you have embedded a widget as a graded assignment. <a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html" target="_blank" class="external">See how</a></p>
+								<p ng-show="exportType === 'All Scores' || exportType === 'High Scores'">You don't need to export scores and import them into Canvas if you have embedded a widget as a graded assignment. <a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html" target="_blank" class="external">See how!</a></p>
 							</div>
 						</div>
 
