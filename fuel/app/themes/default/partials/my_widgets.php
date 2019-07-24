@@ -43,7 +43,7 @@
 				<div ng-if="show.collaborationModal" ng-controller="CollaborationController" ng-click="searchResults.show = false">
 					<div id="access" class="container">
 						<div ng-if="selected.shareable" class="list_tab_lock">
-							<span class="input_label">Add people:</span><input tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)"/>
+							<span class="input_label">Add people:</span><input focus-me="show.collaborationModal" tabindex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" class="user_add" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)"/>
 							<div class="search_list" ng-show="searchResults.show">
 								<div ng-repeat="match in searchResults.matches" ng-mouseup="searchMatchClick(match)" class="search_match" ng-class="{ focused: selectedMatch == match }">
 									<img class="user_match_avatar" ng-src="{{::match.gravatar}}">
@@ -107,15 +107,15 @@
 							<h3>Attempts</h3>
 							<div class="selector" ng-if="show.availabilityModal"></div>
 							<ul class="attemptHolder" ng-class="{disabled: guestAccess}">
-								<li id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)">1</li>
-								<li id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)">2</li>
-								<li id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)">3</li>
-								<li id="value_4" ng-class="{selected: attemptsSliderValue == 4}" ng-click="changeSlider(4)">4</li>
-								<li id="value_5" ng-class="{selected: attemptsSliderValue == 5}" ng-click="changeSlider(5)">5</li>
-								<li id="value_10" class="step first" ng-class="{selected: attemptsSliderValue == 10}" ng-click="changeSlider(10)">10</li>
-								<li id="value_15" class="step" ng-class="{selected: attemptsSliderValue == 15}" ng-click="changeSlider(15)">15</li>
-								<li id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)">20</li>
-								<li id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
+								<li focus-me="show.availabilityModal" tabIndex="0" id="value_1" ng-class="{selected: attemptsSliderValue == 1}" ng-click="changeSlider(1)" ng-enter="changeSlider(1)">1</li>
+								<li tabIndex="0" id="value_2" ng-class="{selected: attemptsSliderValue == 2}" ng-click="changeSlider(2)" ng-enter="changeSlider(2)">2</li>
+								<li tabIndex="0" id="value_3" ng-class="{selected: attemptsSliderValue == 3}" ng-click="changeSlider(3)" ng-enter="changeSlider(3)">3</li>
+								<li tabIndex="0" id="value_4" ng-class="{selected: attemptsSliderValue == 4}" ng-click="changeSlider(4)" ng-enter="changeSlider(4)">4</li>
+								<li tabIndex="0" id="value_5" ng-class="{selected: attemptsSliderValue == 5}" ng-click="changeSlider(5)" ng-enter="changeSlider(5)">5</li>
+								<li tabIndex="0" id="value_10" class="step first" ng-class="{selected: attemptsSliderValue == 10}" ng-click="changeSlider(10)" ng-enter="changeSlider(10)">10</li>
+								<li tabIndex="0" id="value_15" class="step" ng-class="{selected: attemptsSliderValue == 15}" ng-click="changeSlider(15)" ng-enter="changeSlider(15)">15</li>
+								<li tabIndex="0" id="value_20" class="step" ng-class="{selected: attemptsSliderValue == 20}" ng-click="changeSlider(20)" ng-enter="changeSlider(20)">20</li>
+								<li tabIndex="0" id="value_25" class="step last" ng-class="{selected: attemptsSliderValue == UNLIMITED_SLIDER_VALUE}" ng-click="changeSlider(UNLIMITED_SLIDER_VALUE)" ng-enter="changeSlider(UNLIMITED_SLIDER_VALUE)">Unlimited</li>
 							</ul>
 							<p class="data_explanation">Attempts are the number of times a student can complete a widget.  Only their highest score counts.</p>
 							<p ng-if="guestAccess" class="data_explanation "><b>Attempts are unlimited when Guest Mode is enabled.</b></p>
@@ -123,14 +123,14 @@
 						<ul class="toFrom">
 							<li ng-repeat="available in availability">
 								<h3>{{available.header}}</h3>
-								<ul class="datePicker">
-									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+								<ul class="datePicker" focus-me="">
+									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input tabIndex="0" type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
 									<li ng-click="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
-										<input type="radio" class="specify availability" ng-checked="!available.anytime"/>
+										<input tabIndex="0" type="radio" class="specify availability" ng-checked="!available.anytime"/>
 										<label>On</label>
-										<input type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
-										<input type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
-										<span class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'">am</span><span class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'">pm</span>
+										<input focus-me="dateError[$index]" type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
+										<input focus-me="timeError[$index]" type="text" class="time" ng-class="{error: timeError[$index] == true}" placeholder="Time" ng-blur="checkTime($index)" ng-model="available.time" ng-trim="false" date-validation validate="time"/>
+										<span tabIndex="0" class="am ampm" ng-class="{selected: available.period == 'am'}" ng-click="available.period = 'am'" ng-enter="available.period = 'am'">am</span><span tabIndex="0" class="pm ampm" ng-class="{selected: available.period == 'pm'}" ng-click="available.period = 'pm'" ng-enter="available.period = 'pm'">pm</span>
 									</li>
 								</ul>
 							</li>
@@ -170,7 +170,7 @@
 					<div class="download_wrapper">
 						<h2>Export</h2>
 						<ul class="options">
-							<li><a href class="show_options" ng-click="showOptions()">{{options ? "Hide" : "Semesters"}}</a></li>
+							<li><a focus-me="show.exportModal" href class="show_options" ng-click="showOptions()">{{options ? "Hide" : "Semesters"}}</a></li>
 						</ul>
 						<h3>{{header || "No Semester Selected"}}</h3>
 						<div class="score_table">
@@ -219,7 +219,7 @@
 			<modal-dialog class="copy" show="show.copyModal" dialog-title="Make a Copy:" width="620px" height="220px">
 				<div class="container">
 					<span class="input_label">New Title:</span>
-					<input class="newtitle" type="text" ng-model="selected.copy_title" placeholder="New Widget Title" />
+					<input focus-me="show.copyModal" class="newtitle" type="text" ng-model="selected.copy_title" placeholder="New Widget Title" />
 					<span class="copy_error">Please enter a valid widget title.</span>
 					<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
@@ -249,7 +249,7 @@
 					<div class="controls">
 						<ul>
 							<li>
-								<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{selected.preview}}" ng-class="{'disabled': !selected.widget.widget.is_playable}">
+								<a id="preview_button" class="action_button green circle_button" target="_blank" href="{{selected.preview}}" ng-class="{'disabled': !selected.widget.widget.is_playable}" focus-me="perms.stale" >
 									<span class="arrow arrow_right"></span>
 									Preview
 								</a>
@@ -263,10 +263,10 @@
 						</ul>
 						<ul class="options">
 							<li class="share"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
-							<li class="copy" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showCopyDialog()" ng-click="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showDelete()" ng-click="showDelete()">Delete</div></li>
+							<li class="copy" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showCopyDialog()"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showCopyDialog()">Make a Copy</div></li>
+							<li class="delete" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showDelete()"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showDelete()">Delete</div></li>
 						</ul>
-						<div class="delete_dialogue" ng-show="show.deleteDialog">
+						<div class="delete_dialogue" ng-show="show.deleteDialog" ng-enter="show.deleteDialog = true">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
 							<a class="cancel_button" href="javascript:;" ng-click="show.deleteDialog = false">Cancel</a>
 							<a class="action_button red delete_button" href="javascript:;" ng-click="deleteWidget()">Delete</a>
@@ -305,7 +305,7 @@
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students <a href="https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html" target="_blank">View all sharing options.</a></h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
-						<p>Use this link to share with your students (or <span class="show-embed link" tabindex="0" ng-click="show.embedToggle = !show.embedToggle" ng-enter="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<p>Use this link to share with your students (or <span class="show-embed link" tabindex="0" ng-click="show.embedToggle = !show.embedToggle" ng-keypress="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
 						<div class="embed-options" ng-show="show.embedToggle && !selected.is_draft">
 							<h3>Embed Code</h3>
 							<p>Paste this HTML into a course page to embed.</p>
@@ -327,9 +327,9 @@
 					<div class="scoreWrapper" ng-repeat="semester in selected.scores.list" ng-if="show.olderScores == true || $index == 0">
 						<h3 class="view">{{semester.term}} {{semester.year}}</h3>
 						<ul class="choices">
-							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_GRAPH}"><a class="graph" ng-show="semester.distribution" ng-click="setScoreViewTab($index, SCORE_TAB_GRAPH)">Graph</a></li>
-							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_INDIVIDUAL}"><a class="table" ng-show="semester.distribution" ng-click="setScoreViewTab($index, SCORE_TAB_INDIVIDUAL)">Individual Scores</a></li>
-							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_STORAGE}"><a class="data" ng-show="semester.storage" ng-click="setScoreViewTab($index, SCORE_TAB_STORAGE)">Data</a></li>
+							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_GRAPH}"><a class="graph" ng-show="semester.distribution" tabIndex="0" ng-click="setScoreViewTab($index, SCORE_TAB_GRAPH)" ng-enter="setScoreViewTab($index, SCORE_TAB_GRAPH)">Graph</a></li>
+							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_INDIVIDUAL}"><a class="table" ng-show="semester.distribution" tabIndex="0" ng-click="setScoreViewTab($index, SCORE_TAB_INDIVIDUAL)" ng-enter="setScoreViewTab($index, SCORE_TAB_INDIVIDUAL)">Individual Scores</a></li>
+							<li ng-class="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_STORAGE}"><a class="data" ng-show="semester.storage" tabIndex="0" ng-click="setScoreViewTab($index, SCORE_TAB_STORAGE)" ng-enter="setScoreViewTab($index, SCORE_TAB_STORAGE)">Data</a></li>
 						</ul>
 						<div score-table class="display table" id="table_{{semester.id}}" data-term="{{semester.term}}" data-year="{{semester.year}}" ng-if="selectedScoreView[$index] == SCORE_TAB_INDIVIDUAL">
 							<div class="score-search">
@@ -342,7 +342,7 @@
 									<table class="scoreListTable">
 										<tbody>
 											<tr ng-repeat="user in users track by user.uid" id="{{$index}}" ng-class="{'rowSelected' : user.uid == selectedUser.uid}">
-												<td class="listName" ng-click="setSelectedUser(user.uid)">{{user.name}}</td>
+												<td class="listName" ng-click="setSelectedUser(user.uid)" ng-enter="setSelectedUser(user.uid)" tabIndex="0" >{{user.name}}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -352,7 +352,7 @@
 								<!-- <div class="scoreTableTitle"></div> -->
 								<table class="scoreTable">
 									<tbody>
-										<tr ng-repeat="score in selectedUser.scores" ng-click="showScorePage(score.id)">
+										<tr ng-repeat="score in selectedUser.scores" ng-click="showScorePage(score.id)" ng-enter="showScorePage(score.id)" tabIndex="0">
 											<td>{{score.date.substring(0, 10)}}</td>
 											<td>{{ score.complete == "1" ? score.percent + "%" : "---" }}</td>
 											<td>{{score.elapsed}}</td>
