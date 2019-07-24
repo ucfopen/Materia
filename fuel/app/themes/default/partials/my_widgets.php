@@ -18,7 +18,7 @@
 					</ul>
 
 					<span class="center">
-						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false">Cancel</a>
+						<a class="cancel_button" href="javascript:;" ng-click="show.editPublishedWarning = false" focus-me="show.editPublishedWarning">Cancel</a>
 						<a class="action_button green" ng-href="{{selected.edit}}">Edit Published Widget</a>
 					</span>
 				</div>
@@ -262,9 +262,9 @@
 							</li>
 						</ul>
 						<ul class="options">
-							<li class="share"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
-							<li class="copy" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showCopyDialog()"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" tabindex="0" ng-class="{'disabled' : selected.accessLevel != 30}" ng-enter="showDelete()"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" ng-click="showDelete()">Delete</div></li>
+							<li class="share" id="collaboration-link"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
+							<li class="copy" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showCopyDialog()" ng-enter="showCopyDialog()">Make a Copy</div></li>
+							<li class="delete" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showDelete()" ng-keypress="showDelete()">Delete</div></li>
 						</ul>
 						<div class="delete_dialogue" ng-show="show.deleteDialog" ng-enter="show.deleteDialog = true">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
