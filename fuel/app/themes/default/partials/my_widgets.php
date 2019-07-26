@@ -93,7 +93,7 @@
 							</div>
 						</div>
 						<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-						<a tabindex="0" class="cancel_button" ng-click="hideModal()" ng-enter="hideModal()">Cancel</a>
+						<a tabindex="0" class="cancel_button" ng-click="hideModal()" ng-keypress="hideModal()">Cancel</a>
 						<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()" ng-enter="updatePermissions()">Save</a>
 					</div>
 				</div>
@@ -262,7 +262,7 @@
 							</li>
 						</ul>
 						<ul class="options">
-							<li class="share" id="collaboration-link"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
+							<li class="share"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
 							<li class="copy" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showCopyDialog()" ng-enter="showCopyDialog()">Make a Copy</div></li>
 							<li class="delete" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showDelete()" ng-keypress="showDelete()">Delete</div></li>
 						</ul>
