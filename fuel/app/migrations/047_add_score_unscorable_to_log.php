@@ -14,6 +14,8 @@ class Add_score_unscorable_to_log
 
 	public function down()
 	{
+		\DB::delete('log')->where('type', 'SCORE_UNSCORABLE')->execute();
+
 		\DBUtil::modify_fields(
 			'log',
 			[
