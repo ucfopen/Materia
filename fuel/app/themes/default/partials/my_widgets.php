@@ -174,24 +174,27 @@
 						<h3>{{header || "No Semester Selected"}}</h3>
 						<div class="score_table">
 							<p id="export-scores-description">
-									<span style="color: #0093E7">Export Scores</span>
-									provides a means of exporting student score information in .CSV
-									format, much like an excel spreadsheet. Teachers can use the scores
-									to analyze, compare, and gauge class performance. In addition, teachers
-									can also download a CSV containing a widget's question and answer set by
-									selecting the Questions and Answers option from the drop-down menu. Download
-									options may vary by widget, as some widgets provide specialized export options.
-								</p>
+								<span style="color: #0093E7">Export Scores</span>
+								provides a means of exporting student score information in .CSV
+								format, much like an excel spreadsheet. Teachers can use the scores
+								to analyze, compare, and gauge class performance. In addition, teachers
+								can also download a CSV containing a widget's question and answer set by
+								selecting the Questions and Answers option from the drop-down menu. Download
+								options may vary by widget, as some widgets provide specialized export options.
+							</p>
 
 							<div class="download-controls">
 
 								<select ng-model="exportType" ng-options="o as o for o in exportOpts"></select>
+
 								<p class="download">
 									<a href ng-href="/data/export/{{selected.widget.id}}?type={{exportType | escape}}&amp;semesters={{selectedSemesters}}"
 											class="action_button arrow_down_button">
 											<span class="arrow_down"></span>Download {{exportType}}
 									</a>
 								</p>
+
+								<p ng-show="exportType === 'All Scores' || exportType === 'High Scores'">You don't need to export scores and import them into Canvas if you have embedded a widget as a graded assignment. <a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html" target="_blank" class="external">See how!</a></p>
 							</div>
 						</div>
 
