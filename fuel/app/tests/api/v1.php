@@ -625,6 +625,68 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output);
 	}
 
+	public function test_participation_score_equals_input_value()
+	{
+		$this->markTestIncomplete(); // gotta make sure it ws made
+		return;
+
+		$this->_as_author();
+
+		$widget = $this->make_disposable_widget();
+
+		$title = "My Test Widget";
+		$question = 'Question';
+		$answer = 'Answer';
+		$qset = $this->create_new_qset($question, $answer);
+
+		$saveOutput = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
+		$qset = $saveOutput->qset;
+
+		$logs = [
+			[
+				'type' => 1006,
+				'item_id' => $qset->data['items'][0]['items'][0]['id'],
+				'text' => 'Answer',
+				'value' => 100,
+				'game_time' => 1
+			],
+			[
+				'type' => 2,
+				'item_id' => 0,
+				'text' => '',
+				'value' => '',
+				'game_time' => 1
+			]
+		];
+		$output = $this->spoof_widget_play($saveOutput, 'context_1');
+
+		$score = Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+
+		$logs = [
+			[
+				'type' => 1006,
+				'item_id' => $qset->data['items'][0]['items'][0]['id'],
+				'text' => 'Answer',
+				'value' => 50,
+				'game_time' => 1
+			],
+			[
+				'type' => 2,
+				'item_id' => 0,
+				'text' => '',
+				'value' => '',
+				'game_time' => 1
+			]
+		];
+		$output = $this->spoof_widget_play($saveOutput, 'context_2');
+
+		$score = Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(50, $score['score']);
+
+		Api_V1::widget_instance_delete($saveOutput->id);
+	}
+
 	public function test_session_play_create()
 	{
 
