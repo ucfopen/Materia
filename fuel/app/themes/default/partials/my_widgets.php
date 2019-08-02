@@ -124,8 +124,8 @@
 							<li ng-repeat="available in availability">
 								<h3>{{available.header}}</h3>
 								<ul class="datePicker" focus-me="">
-									<li ng-click="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input tabIndex="0" type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
-									<li ng-click="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
+									<li ng-click="available.anytime = true" ng-enter="available.anytime = true" class="{{available.header == 'Available' ? 'from' : 'to'}}"><input tabIndex="0" type="radio" class="anytime availability" ng-checked="available.anytime"/> <label>{{available.anytimeLabel}}</label></li>
+									<li ng-click="available.anytime = false" ng-enter="available.anytime = false" class="{{available.header == 'Available' ? 'from' : 'to'}}">
 										<input tabIndex="0" type="radio" class="specify availability" ng-checked="!available.anytime"/>
 										<label>On</label>
 										<input focus-me="dateError[$index]" type="text" class="date {{available.header == 'Available' ? 'from' : 'to'}}" ng-class="{error: dateError[$index] == true}" placeholder="Date" ng-model="available.date" date-validation validate="date"/> at
@@ -139,18 +139,18 @@
 								<h3>Access</h3>
 								<ul class="access-options">
 									<li>
-										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly" ng-click="toggleNormalAccess()" ng-disabled="!guestAccess && !embeddedOnly"/>
+										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly"  ng-click="toggleNormalAccess()" ng-keypress="toggleNormalAccess()" ng-disabled="!guestAccess && !embeddedOnly"/>
 										<label ng-click="toggleNormalAccess()">Normal</label>
 										<p class="access_explanation">Only students and users who can log into Materia can access this widget. If the widget collects scores, those scores will be associated with the user. The widget can be distributed via URL, embed code, or as an assignment in your LMS.</p>
 									</li>
 									<li>
-										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()"/>
+										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-keypress="toggleGuestAccess()"/>
 										<label ng-click="toggleGuestAccess()">Guest Mode</label>
 										<p class="access_explanation">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
 										<p ng-if="studentMade" class="data_explanation "><b>Guest Mode is always on for widgets created by students.</b></p>
 									</li>
 									<li id="embedded-only" ng-show="isEmbedded">
-										<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()"/>
+										<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()" ng-keypress="toggleEmbeddedOnly()"/>
 										<label ng-click="toggleEmbeddedOnly()">Embedded Only</label>
 										<p class="access_explanation">This widget will not be playable outside of the classes it is embedded within.</p>
 									</li>
