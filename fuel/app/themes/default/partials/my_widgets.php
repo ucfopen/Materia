@@ -93,7 +93,7 @@
 							</div>
 						</div>
 						<p class="disclaimer">Users with full access can edit or copy this widget and can add or remove people in this list.</p>
-						<a tabindex="0" class="cancel_button" ng-click="hideModal()" ng-keypress="hideModal()">Cancel</a>
+						<a tabindex="0" class="cancel_button" ng-click="hideModal()" ng-enter="hideModal()">Cancel</a>
 						<a tabindex="0" class="action_button green save_button" ng-click="updatePermissions()" ng-enter="updatePermissions()">Save</a>
 					</div>
 				</div>
@@ -139,18 +139,18 @@
 								<h3>Access</h3>
 								<ul class="access-options">
 									<li>
-										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly"  ng-click="toggleNormalAccess()" ng-keypress="toggleNormalAccess()" ng-disabled="!guestAccess && !embeddedOnly"/>
+										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly"  ng-click="toggleNormalAccess()" ng-enter="toggleNormalAccess()" ng-disabled="!guestAccess && !embeddedOnly"/>
 										<label ng-click="toggleNormalAccess()">Normal</label>
 										<p class="access_explanation">Only students and users who can log into Materia can access this widget. If the widget collects scores, those scores will be associated with the user. The widget can be distributed via URL, embed code, or as an assignment in your LMS.</p>
 									</li>
 									<li>
-										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-keypress="toggleGuestAccess()"/>
+										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-enter="toggleGuestAccess()"/>
 										<label ng-click="toggleGuestAccess()">Guest Mode</label>
 										<p class="access_explanation">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
 										<p ng-if="studentMade" class="data_explanation "><b>Guest Mode is always on for widgets created by students.</b></p>
 									</li>
 									<li id="embedded-only" ng-show="isEmbedded">
-										<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()" ng-keypress="toggleEmbeddedOnly()"/>
+										<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()" ng-enter="toggleEmbeddedOnly()"/>
 										<label ng-click="toggleEmbeddedOnly()">Embedded Only</label>
 										<p class="access_explanation">This widget will not be playable outside of the classes it is embedded within.</p>
 									</li>
@@ -264,7 +264,7 @@
 						<ul class="options">
 							<li class="share"><div class="link" tabindex="0" ng-click="showCollaboration()" ng-enter="showCollaboration()" ng-class="{'disabled' : perms.stale}">Collaborate{{ collaborateCount }}</div></li>
 							<li class="copy" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="copy_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showCopyDialog()" ng-enter="showCopyDialog()">Make a Copy</div></li>
-							<li class="delete" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showDelete()" ng-keypress="showDelete()">Delete</div></li>
+							<li class="delete" ng-class="{'disabled' : selected.accessLevel != 30}"><div class="link" id="delete_widget_link" ng-class="{'disabled' : selected.accessLevel != 30}" tabindex="0" ng-click="showDelete()" ng-enter="showDelete()">Delete</div></li>
 						</ul>
 						<div class="delete_dialogue" ng-show="show.deleteDialog" ng-enter="show.deleteDialog = true">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
@@ -305,7 +305,7 @@
 					<div class="share-widget-container closed" ng-class="{'draft' : selected.widget.is_draft}">
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students <a href="https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html" target="_blank">View all sharing options.</a></h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
-						<p>Use this link to share with your students (or <span class="show-embed link" tabindex="0" ng-click="show.embedToggle = !show.embedToggle" ng-keypress="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<p>Use this link to share with your students (or <span class="show-embed link" tabindex="0" ng-click="show.embedToggle = !show.embedToggle" ng-enter="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
 						<div class="embed-options" ng-show="show.embedToggle && !selected.is_draft">
 							<h3>Embed Code</h3>
 							<p>Paste this HTML into a course page to embed.</p>
