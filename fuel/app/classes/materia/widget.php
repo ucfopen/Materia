@@ -10,7 +10,6 @@ class Widget
 	public $dir                 = '';
 	public $flash_version       = 0;
 	public $api_version         = 0;
-	public $group               = '';
 	public $height              = 0;
 	public $id                  = 0;
 	public $is_answer_encrypted = true;
@@ -97,7 +96,6 @@ class Widget
 			'is_qset_encrypted'   => $w['is_qset_encrypted'],
 			'flash_version'       => $w['flash_version'],
 			'api_version'         => $w['api_version'],
-			'group'               => $w['group'],
 			'height'              => $w['height'],
 			'id'                  => $w['id'],
 			'in_catalog'          => $w['in_catalog'],

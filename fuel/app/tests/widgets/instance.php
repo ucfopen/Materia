@@ -17,7 +17,6 @@ class Test_Widget_Instance extends \Basetest
 
 		$props = [
 			'name'            => 'THIS IS A Name!',
-			'group'           => 'group',
 			'height'          => 55,
 			'width'           => 100,
 			'is_playable'     => 0,
