@@ -499,7 +499,7 @@ class Api_V1
 			if ( ! $inst->widget->is_scorable)
 			{
 				foreach ($logs as $log)
-				{	
+				{
 					if (Session_Logger::get_type($log['type']) == Session_Log::TYPE_UNSCORABLE)
 					{
 						\Event::trigger('score_updated', [$play->id, $play->inst_id, $play->user_id, $log['value'], 100], 'string');
