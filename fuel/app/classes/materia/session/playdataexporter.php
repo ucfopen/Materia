@@ -378,7 +378,7 @@ class Session_PlayDataExporter
 	}
 
 	// Outputs a .zip file of two CSV files for individual and collective referrers data
-	protected static function referrer_links($inst, $semesters)
+	protected static function referrer_urls($inst, $semesters)
 	{
 		if ($inst == null) return false;
 

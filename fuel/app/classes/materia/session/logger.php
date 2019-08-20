@@ -125,7 +125,7 @@ class Session_Logger
 				return Session_Log::TYPE_QUESTION_ANSWERED;
 
 			case 1006:
-				return Session_Log::TYPE_UNSCORABLE;
+				return Session_Log::TYPE_SCORE_PARTICIPATION;
 
 			case 1008:
 				return Session_Log::TYPE_SCORE_FEEDBACK;

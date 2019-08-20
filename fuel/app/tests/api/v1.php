@@ -627,8 +627,8 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_participation_score_equals_input_value()
 	{
-		$this->markTestIncomplete(); // gotta make sure it ws made
-		return;
+		// $this->markTestIncomplete(); // gotta make sure it ws made
+		// return;
 
 		$this->_as_author();
 
@@ -658,7 +658,7 @@ class Test_Api_V1 extends \Basetest
 				'game_time' => 1
 			]
 		];
-		$output = $this->spoof_widget_play($saveOutput, 'context_1');
+		$output = $this->mock_widget_play($saveOutput, 'context_1');
 
 		$score = Api_V1::play_logs_save($output, $logs);
 		$this->assertEquals(100, $score['score']);
@@ -679,7 +679,7 @@ class Test_Api_V1 extends \Basetest
 				'game_time' => 1
 			]
 		];
-		$output = $this->spoof_widget_play($saveOutput, 'context_2');
+		$output = $this->mock_widget_play($saveOutput, 'context_2');
 
 		$score = Api_V1::play_logs_save($output, $logs);
 		$this->assertEquals(50, $score['score']);

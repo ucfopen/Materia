@@ -500,7 +500,7 @@ class Api_V1
 			{
 				foreach ($logs as $log)
 				{
-					if (Session_Logger::get_type($log['type']) == Session_Log::TYPE_UNSCORABLE)
+					if (Session_Logger::get_type($log['type']) == Session_Log::TYPE_SCORE_PARTICIPATION)
 					{
 						\Event::trigger('score_updated', [$play->id, $play->inst_id, $play->user_id, $log['value'], 100], 'string');
 					}
