@@ -27,7 +27,7 @@ class Utils
 			->as_array();
 	}
 
-	public static function get_avatar($size=24, $user=false)
+	public static function get_avatar($size=35, $user=false)
 	{
 		$default = \Config::get('materia.urls.static').'/img/default-avatar.jpg';
 		if ( ! $user) $user = \Model_User::find_current();
