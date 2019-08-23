@@ -94,7 +94,6 @@ class Basetest extends TestCase
 		$mock_manifest_data = [
 			'general' => [
 				'name' => $name,
-				'group' => 'disposable',
 				'height' => 500,
 				'width' => 6000,
 				'is_qset_encrypted' => false,
@@ -318,7 +317,6 @@ class Basetest extends TestCase
 		$this->assertObjectHasAttribute('width', $widget);
 		$this->assertObjectHasAttribute('meta_data', $widget);
 		$this->assertObjectHasAttribute('clean_name', $widget);
-		$this->assertObjectHasAttribute('group', $widget);
 	}
 
 	protected function assert_is_widget_instance($inst, $skip_qset=false)
@@ -364,7 +362,7 @@ class Basetest extends TestCase
 		$this->assertInstanceOf('\Materia\Widget_Question_Type_MC', $mc);
 	}
 
-	protected function spoof_widget_play($inst, $context_id=false)
+	protected function mock_widget_play($inst, $context_id=false)
 	{
 		if ( $inst->is_draft) return new \Materia\Msg(\Materia\Msg::ERROR, 'Drafts are not playable');
 		if ( ! $inst->widget->is_playable) return new \Materia\Msg(\Materia\Msg::ERROR, 'Widget is retired');
@@ -378,7 +376,7 @@ class Basetest extends TestCase
 		return $play_id;
 	}
 
-	protected function spoof_play_complete($play_id, $logs = [])
+	protected function mock_play_complete($play_id, $logs = [])
 	{
 		if (empty($logs))
 		{

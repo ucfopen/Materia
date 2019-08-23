@@ -321,13 +321,13 @@ return array(
 	'widgets' => [
 		[
 			'id' => 1,
-			'package'  => 'https://github.com/ucfopen/crossword-materia-widget/releases/download/v1.2.3/crossword.wigt',
-			'checksum' => 'https://github.com/ucfopen/crossword-materia-widget/releases/download/v1.2.3/crossword-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/crossword-materia-widget/releases/download/v1.3.0/crossword.wigt',
+			'checksum' => 'https://github.com/ucfopen/crossword-materia-widget/releases/download/v1.3.0/crossword-build-info.yml',
 		],
 		[
 			'id' => 2,
-			'package'  => 'https://github.com/ucfopen/hangman-materia-widget/releases/download/v1.1.2/hangman.wigt',
-			'checksum' => 'https://github.com/ucfopen/hangman-materia-widget/releases/download/v1.1.2/hangman-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/hangman-materia-widget/releases/download/v1.1.3/hangman.wigt',
+			'checksum' => 'https://github.com/ucfopen/hangman-materia-widget/releases/download/v1.1.3/hangman-build-info.yml',
 		],
 		[
 			'id' => 3,
@@ -336,13 +336,13 @@ return array(
 		],
 		[
 			'id' => 4,
-			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.1/enigma.wigt',
-			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.1/enigma-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.2/enigma.wigt',
+			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.2/enigma-build-info.yml',
 		],
 		[
 			'id' => 5,
-			'package'  => 'https://github.com/ucfopen/labeling-materia-widget/releases/download/v1.0.3/labeling.wigt',
-			'checksum' => 'https://github.com/ucfopen/labeling-materia-widget/releases/download/v1.0.3/labeling-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/labeling-materia-widget/releases/download/v1.0.4/labeling.wigt',
+			'checksum' => 'https://github.com/ucfopen/labeling-materia-widget/releases/download/v1.0.4/labeling-build-info.yml',
 		],
 		[
 			'id' => 6,
@@ -361,8 +361,8 @@ return array(
 		],
 		[
 			'id' => 9,
-			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.1.0/adventure.wigt',
-			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.1.0/adventure-build-info.yml'
+			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.0/adventure.wigt',
+			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.0/adventure-build-info.yml'
 		],
 		[
 			'id' => 10,
@@ -371,8 +371,8 @@ return array(
 		],
 		[
 			'id' => 11,
-			'package' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.0/sort-it-out.wigt',
-			'checksum' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.0/sort-it-out-build-info.yml'
+			'package' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.1/sort-it-out.wigt',
+			'checksum' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.1/sort-it-out-build-info.yml'
 		],
 		[
 			'id' => 12,

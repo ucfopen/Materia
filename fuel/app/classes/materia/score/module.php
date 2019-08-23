@@ -135,6 +135,10 @@ abstract class Score_Module
 				case Session_Log::TYPE_WIDGET_INTERACTION:
 					$this->handle_log_widget_interaction($log);
 					break;
+
+				case Session_Log::TYPE_SCORE_PARTICIPATION:
+					$this->verified_score = $log->value;
+					break;
 			}
 		}
 	}

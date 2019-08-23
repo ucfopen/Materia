@@ -376,4 +376,64 @@ class Session_PlayDataExporter
 
 		return [$string, '_questions_answers.csv'];
 	}
+
+	// Outputs a .zip file of two CSV files for individual and collective referrers data
+	protected static function referrer_urls($inst, $semesters)
+	{
+		if ($inst == null) return false;
+
+		$inst_id = $inst->id;
+		$query = \DB::select('user_id', 'referrer_url', 'created_at')
+			->from('log_play')
+			->where('inst_id', $inst_id);
+		$data = $query->execute()->as_array();
+
+		$headers_i = "User, URL, Date\r\n";
+		$csv_i = $headers_i;
+
+		foreach ($data as $datum_i)
+		{
+			$url = $datum_i['referrer_url'];
+			if (strlen($datum_i['referrer_url']) < 1) $url = $inst->play_url;
+			$csv_i .= $datum_i['user_id'].', '.$url.', '.$datum_i['created_at']."\r\n";
+		}
+
+		$headers_c = "URL, Count\r\n";
+		$csv_c = $headers_c;
+
+		$count = [];
+
+		$referrer_count = [];
+
+		foreach ($data as $datum_c)
+		{
+			if (array_key_exists($datum_c['referrer_url'], $referrer_count))
+			{
+				$referrer_count[$datum_c['referrer_url']]++;
+			}
+			else
+			{
+				$referrer_count[$datum_c['referrer_url']] = 1;
+			}
+		}
+
+		foreach ($referrer_count as $url => $count)
+		{
+			if (strlen($url) < 1) $url = $inst->play_url;
+			$csv_c .= $url.', '.$count."\r\n";
+		}
+
+		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
+
+		$zip = new \ZipArchive();
+		$zip->open($tempname);
+		$zip->addFromString('individual_referrers.csv', $csv_i);
+		$zip->addFromString('collective_referrers.csv', $csv_c);
+		$zip->close();
+
+		$files = file_get_contents($tempname);
+		unlink($tempname);
+
+		return [$files, '_referrers.zip'];
+	}
 }

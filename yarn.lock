@@ -1868,9 +1868,9 @@ lodash.isfinite@^3.3.2:
   integrity sha1-+4m2WpqAKBgz8LdHizpRBPiY67M=
 
 lodash@^4.17.10:
-  version "4.17.11"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
-  integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
+  version "4.17.14"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
+  integrity sha512-mmKYbW3GLuJeX+iGP+Y7Gp1AiGHGbXHCOh/jZmrawMmsE7MS4znI3RL2FsjbqOyMayHInjOeykW7PEajUk1/xw==
 
 lowercase-keys@^1.0.0:
   version "1.0.1"
@@ -1911,10 +1911,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-materia-server-client-assets@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.0.0.tgz#341df286e4e4611e9fa9da943e2e76e0adb8d3b4"
-  integrity sha512-Mfg5cfSHMb3R0yOgsem+m87gc96+cJ/iQyADiopQmf3+nvhejthJx9fdja/lVw4BunXESRHDy41+SMyWtwaMiw==
+materia-server-client-assets@2.1.0-alpha3:
+  version "2.1.0-alpha3"
+  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.1.0-alpha3.tgz#0b7d1f897bbb7c383417eed229080c267d8de1e7"
+  integrity sha512-8MDKniOzHxVZKUeLKcRcF0Ix8g4I4TheFXv+4R3JG8WCFkT5RScrZlIhMcLn6d5pqvkBEfymoexktg6eRvcu2Q==
   dependencies:
     angular "1.6.9"
     js-snakecase "^1.2.0"

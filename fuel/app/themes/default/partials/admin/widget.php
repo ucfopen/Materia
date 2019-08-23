@@ -11,15 +11,15 @@
 			</div>
 			<?php if ($upload_enabled): ?>
 				<p>
-					Upload a <strong>.wigt</strong> widget package file to install into Materia.
+					Upload a <strong>.wigt</strong> widget package file to install a new widget or upgrade an existing widget on Materia.
 				</p>
 				<form enctype="multipart/form-data" method="POST" action="/admin/upload">
-					<input class="uploader" id="widget_uploader" type="file" name="file" <?= $upload_enabled ? '' : 'disabled' ?>/>
-					<label for="widget_uploader">Choose File</label>
-					<input class="action_button" type="submit" value="Submit" <?= $upload_enabled ? '' : 'disabled' ?>/>
+					<input class="uploader" id="widget_uploader" type="file" name="file" onchange="form.submit()" <?= $upload_enabled ? '' : 'disabled' ?>/>
+					<label for="widget_uploader">Upload .wigt</label>
 					<span>{{ selectedFileName }}</span>
 				</form>
 				<p>Browse installable widgets on <a href="https://ucfopen.github.io/materia-widget-gallery/" target="_blank" rel="noopener noreferrer">The Official Materia Widget Gallery</a></p>
+				<p>Browse features and more on <a href="https://ucfopen.github.io/Materia-Docs/" target="_blank" rel="noopener noreferrer">The Official Materia Documentation Page</a></p>
 			<?php else: ?>
 				<p>Widget uploader is <em>disabled</em></p>
 				<p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>

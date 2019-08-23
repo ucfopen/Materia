@@ -494,6 +494,19 @@ class Api_V1
 				return new Msg(Msg::ERROR, 'Timing validation error.', true);
 			}
 
+			// if widget is not scorable, check for a participation score log
+			// if one is found, use it as a "score" event for LTI passback
+			if ( ! $inst->widget->is_scorable)
+			{
+				foreach ($logs as $log)
+				{
+					if (Session_Logger::get_type($log['type']) == Session_Log::TYPE_SCORE_PARTICIPATION)
+					{
+						\Event::trigger('score_updated', [$play->id, $play->inst_id, $play->user_id, $log['value'], 100], 'string');
+					}
+				}
+			}
+
 			// validate the scores the game generated on the server
 			try
 			{

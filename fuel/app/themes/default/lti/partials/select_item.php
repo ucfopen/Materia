@@ -18,7 +18,7 @@
 						<span ng-show="widget.guest_access && !widget.is_draft" class="draft-label">Guest</span>
 					</div>
 					<a class="preview external" target="_blank" href="{{ widget.preview_url }}">Preview</a>
-					<a ng-show="widget.is_draft || widget.guest_access" class="view-at-materia external" target="_blank" href="{{ widget.edit_url }}">Edit at Materia</a>
+					<a ng-show="widget.is_draft || widget.guest_access" class="button embed-button" target="_blank" href="{{ widget.edit_url }}">Edit at Materia <div></div></a>
 					<a ng-hide="widget.is_draft || widget.guest_access" role="button" class="button embed-button" ng-class="{ first: $index==0 }" ng-click="embedWidget(widget)">Use this widget</a>
 				</li>
 			</ul>

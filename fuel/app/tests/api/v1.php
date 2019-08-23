@@ -625,6 +625,68 @@ class Test_Api_V1 extends \Basetest
 		$this->assertTrue($output);
 	}
 
+	public function test_participation_score_equals_input_value()
+	{
+		// $this->markTestIncomplete(); // gotta make sure it ws made
+		// return;
+
+		$this->_as_author();
+
+		$widget = $this->make_disposable_widget();
+
+		$title = "My Test Widget";
+		$question = 'Question';
+		$answer = 'Answer';
+		$qset = $this->create_new_qset($question, $answer);
+
+		$saveOutput = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
+		$qset = $saveOutput->qset;
+
+		$logs = [
+			[
+				'type' => 1006,
+				'item_id' => $qset->data['items'][0]['items'][0]['id'],
+				'text' => 'Answer',
+				'value' => 100,
+				'game_time' => 1
+			],
+			[
+				'type' => 2,
+				'item_id' => 0,
+				'text' => '',
+				'value' => '',
+				'game_time' => 1
+			]
+		];
+		$output = $this->mock_widget_play($saveOutput, 'context_1');
+
+		$score = Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(100, $score['score']);
+
+		$logs = [
+			[
+				'type' => 1006,
+				'item_id' => $qset->data['items'][0]['items'][0]['id'],
+				'text' => 'Answer',
+				'value' => 50,
+				'game_time' => 1
+			],
+			[
+				'type' => 2,
+				'item_id' => 0,
+				'text' => '',
+				'value' => '',
+				'game_time' => 1
+			]
+		];
+		$output = $this->mock_widget_play($saveOutput, 'context_2');
+
+		$score = Api_V1::play_logs_save($output, $logs);
+		$this->assertEquals(50, $score['score']);
+
+		Api_V1::widget_instance_delete($saveOutput->id);
+	}
+
 	public function test_session_play_create()
 	{
 
@@ -690,9 +752,9 @@ class Test_Api_V1 extends \Basetest
 		$context = 'context_1';
 
 		// ============ PLAY IN FIRST CONTEXT ============
-		$output = $this->spoof_widget_play($saveOutput, $context);
+		$output = $this->mock_widget_play($saveOutput, $context);
 
-		$output2 = $this->spoof_widget_play($saveOutput, $context); // we'll use this second play to try submitting scores past the attempt limit
+		$output2 = $this->mock_widget_play($saveOutput, $context); // we'll use this second play to try submitting scores past the attempt limit
 
 		$score = Api_V1::play_logs_save($output, $logs);
 		$this->assertEquals(100, $score['score']);
@@ -702,7 +764,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertEquals('Attempt Limit Met', $exception->title);
 
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN FIRST CONTEXT ============
-		$output = $this->spoof_widget_play($saveOutput, $context);
+		$output = $this->mock_widget_play($saveOutput, $context);
 		$this->assertInstanceOf('\Materia\Msg', $output);
 		$this->assertEquals('No attempts remaining', $output->title);
 
@@ -710,20 +772,20 @@ class Test_Api_V1 extends \Basetest
 		/*
 		Current implementation for checking attempts used does not factor in context ID; put these tests back in when that's fixed.
 		// ============ PLAY IN SECOND CONTEXT ============
-		$output = $this->spoof_widget_play($saveOutput, $context);
+		$output = $this->mock_widget_play($saveOutput, $context);
 		$score = Api_V1::play_logs_save($output, $logs);
 		$this->assertEquals(100, $score['score']);
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT IN SECOND CONTEXT ============
-		$output = $this->spoof_widget_play($saveOutput, $context);
+		$output = $this->mock_widget_play($saveOutput, $context);
 		$this->assertInstanceOf('\Materia\Msg', $output);
 		$this->assertEquals('No attempts remaining', $output->title);
 
 		// ============ PLAY WITHOUT CONTEXT ============
-		$output = $this->spoof_widget_play($saveOutput);
+		$output = $this->mock_widget_play($saveOutput);
 		$score = Api_V1::play_logs_save($output, $logs);
 		$this->assertEquals(100, $score['score']);
 		// ============ TRY PLAYING PAST ATTEMPT LIMIT WITHOUT CONTEXT ============
-		$output = $this->spoof_widget_play($saveOutput);
+		$output = $this->mock_widget_play($saveOutput);
 		$this->assertInstanceOf('\Materia\Msg', $output);
 		$this->assertEquals('No attempts remaining', $output->title);
 		*/
@@ -963,8 +1025,8 @@ class Test_Api_V1 extends \Basetest
 		// SAME INSTANCE - DISTRIBUTION, FIVE PLAYS
 		for($i = 0; $i < 5; $i++)
 		{
-			$play = $this->spoof_widget_play($instance2);
-			$this->spoof_play_complete($play);
+			$play = $this->mock_widget_play($instance2);
+			$this->mock_play_complete($play);
 		}
 		$output = Api_V1::score_raw_distribution_get($instance2->id);
 		$this->assertInternalType('array', $output);

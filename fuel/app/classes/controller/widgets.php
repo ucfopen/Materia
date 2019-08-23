@@ -128,6 +128,8 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/guide_doc')
 			->set('name', $widget->name)
 			->set('type', $type)
+			->set('has_player_guide', ! empty($widget->player_guide))
+			->set('has_creator_guide', ! empty($widget->creator_guide))
 			->set('doc_path', Config::get('materia.urls.engines').$widget->dir.$guide);
 	}
 

@@ -473,7 +473,7 @@ class Widget_Installer
 
 		// 3. make sure the general section is correct
 		$general = $manifest_data['general'];
-		static::validate_keys_exist($general, ['name', 'group', 'height', 'width', 'is_storage_enabled', 'in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'api_version']);
+		static::validate_keys_exist($general, ['name', 'height', 'width', 'is_storage_enabled', 'in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'api_version']);
 
 		static::validate_numeric_values($general, ['width', 'height']);
 		static::validate_boolean_values($general, ['in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'is_storage_enabled']);
@@ -536,7 +536,6 @@ class Widget_Installer
 		$params = [
 			'name'                => $manifest_data['general']['name'],
 			'created_at'          => time(),
-			'group'               => $manifest_data['general']['group'],
 			'flash_version'       => $manifest_data['files']['flash_version'],
 			'height'              => $manifest_data['general']['height'],
 			'width'               => $manifest_data['general']['width'],
