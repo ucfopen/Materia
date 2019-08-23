@@ -12,6 +12,9 @@ return [
 	*/
 	'enable_admin_uploader' => false,
 
+	// Asset storage configuration
+	'asset_storage_driver' => 'db',
+
 	'default_users' => [
 		// This user is used by the server to do management tasks, do not alter
 		[
