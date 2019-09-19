@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "git://github.com/clpetersonucf/Materia-Server-Client-Assets.git#v2.1.1-alpha1",
+    "materia-server-client-assets": "2.1.1-alpha1",
     "napa": "^3.0.0"
   },
   "devDependencies": {
