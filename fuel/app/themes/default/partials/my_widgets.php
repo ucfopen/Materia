@@ -308,6 +308,7 @@
 						<h3>{{selected.widget.is_draft ? "Publish to share" : "Share"}} with your students <a href="https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html" target="_blank">View all sharing options.</a></h3>
 						<input id="play_link" type="text" ng-disabled="selected.widget.is_draft" value="{{baseUrl}}play/{{selected.widget.id}}/{{selected.widget.clean_name}}"/>
 						<p>Use this link to share with your students (or <span class="show-embed link" ng-click="show.embedToggle = !show.embedToggle">use the embed code</span>).</p>
+						<p>You can embed this widget as a graded assignment in Canvas. <a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html" target="_blank" class="external">See how!</a></p>
 						<div class="embed-options" ng-show="show.embedToggle && !selected.is_draft">
 							<h3>Embed Code</h3>
 							<p>Paste this HTML into a course page to embed.</p>
