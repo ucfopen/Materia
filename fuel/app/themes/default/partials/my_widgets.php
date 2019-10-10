@@ -321,7 +321,7 @@
 				</div>
 				<div class="scores">
 					<h2>Student Activity</h2>
-					<span id="export_scores_button" class="action_button aux_button {{selected.scores.list.length === NULL ? 'disabled' : ''}}" ng-click="selected.scores.list.length === NULL ? angular.noop() : exportPopup()">
+					<span id="export_scores_button" class="action_button aux_button" ng-class="{'disabled' : selected.scores.list.length === NULL}" ng-click="selected.scores.list.length === NULL ? angular.noop() : exportPopup()">
 						<span class="arrow_down"></span>
 						Export Options
 					</span>
