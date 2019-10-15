@@ -11,6 +11,6 @@
 
 	<div class="help-container">
 		<p>You can preview the widget if you have access to it.</p>
-		<p>To view the widget in Canvas as a student, view the assignment while in Student View. <a href="https://community.canvaslms.com/docs/DOC-13122-415261153" target="_blank" class="external">See how!</a></p>
+		<p>To view the widget in Canvas as a student, view the assignment while in <a href="https://webcourses.ucf.edu/profile/settings" target="_blank" class="external">Student View</a>.</p>
 	</div>
 </section>
