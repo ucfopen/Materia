@@ -414,14 +414,16 @@
 				</div>
 
 				<div class="info">
-					<h2>Current Access Information</h2>
+					<h2>User Access Information</h2>
+						<h3>{{user.is_student ? 'Student' : ''}}</h3>
 						<h3>Access Level: {{selected.accessLevelName}} ({{selected.accessLevel}})</h3>
-						You are:
+						<h3>You are:</h3>
 						<ul>
 							<li>{{selected.editable ? 'A' : 'Not a'}}ble to edit this widget</li>
 							<li>{{selected.shareable ? 'A' : 'Not a'}}ble to copy or delete this widget</li>
-							<li>{{selected.shareable ? 'A' : 'Not a'}}ble to edit collaborators of this widget</li>
+							<li>{{selected.shareable ? 'A' : 'Not a'}}ble to make changes to collaborator settings</li>
 						</ul>
+						<h3>This widget is{{selected.widget.widget.restrict_publish == '0' ? ' not ' : ' '}}publish-restricted</h3>
 				</div>
 			</section>
 		</div>
