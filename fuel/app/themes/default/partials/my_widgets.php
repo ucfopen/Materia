@@ -412,6 +412,17 @@
 					</div>
 
 				</div>
+
+				<div class="info">
+					<h2>Current Access Information</h2>
+						<h3>Access Level: {{selected.accessLevelName}} ({{selected.accessLevel}})</h3>
+						You are:
+						<ul>
+							<li>{{selected.editable ? 'A' : 'Not a'}}ble to edit this widget</li>
+							<li>{{selected.shareable ? 'A' : 'Not a'}}ble to copy or delete this widget</li>
+							<li>{{selected.shareable ? 'A' : 'Not a'}}ble to edit collaborators of this widget</li>
+						</ul>
+				</div>
 			</section>
 		</div>
 		<aside>
