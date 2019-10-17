@@ -336,7 +336,7 @@
 					</div>
 				</div>
 
-				<span id="user_access_button" class="action_button aux_button" ng-click="accessInfoPopup()">
+				<span tabIndex=0 id="user_access_button" class="action_button aux_button" ng-click="accessInfoPopup()" ng-enter="accessInfoPopup()">
 					<span class="arrow_down"></span>
 					User Access Information
 				</span>
