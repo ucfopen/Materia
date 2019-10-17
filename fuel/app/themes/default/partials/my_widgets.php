@@ -230,8 +230,8 @@
 
 			<modal-dialog class="access-info" show="show.accessInfoModal" dialog-title="User Access Information" width="620px" height="370px">
 				<div class="container">
-					<h3>{{user.is_student ? 'Student' : 'Non-Student'}}</h3>
-					<h3>Access Level: {{selected.accessLevelName}} ({{selected.accessLevel}})</h3>
+					<h3>{{user.is_student ? 'Student' : 'Faculty/Staff'}}</h3>
+					<h3>Access Level: {{selected.accessLevelName}}</h3>
 					<h3>You are:</h3>
 					<ul>
 						<li>Able to view scores</li>
@@ -239,7 +239,7 @@
 						<li>{{selected.shareable ? 'A' : 'Not a'}}ble to copy or delete this widget</li>
 						<li>{{selected.shareable ? 'A' : 'Not a'}}ble to make changes to collaborator settings</li>
 					</ul>
-					<h3>This widget is{{selected.widget.widget.restrict_publish == '0' ? ' not ' : ' '}}publish-restricted</h3>
+					<h3 ng-class="{ 'disabled' : !user.is_student }">This widget is{{selected.widget.widget.restrict_publish == '0' ? ' not ' : ' '}}publish-restricted</h3>
 				</div>
 			</modal-dialog>
 
