@@ -775,6 +775,19 @@ class Api_V1
 		return $inst->qset;
 	}
 
+	static public function question_history_get($inst_id)
+	{
+		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		$history = $inst->get_qset_history($inst_id);
+
+		trace($history);
+
+		return $history;
+	}
+
 	/**
 	 * Gets the question with the given QID or an array of questions
 	 * with the given ids (passed as an array)

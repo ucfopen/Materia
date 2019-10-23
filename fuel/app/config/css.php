@@ -62,8 +62,11 @@ return [
 			$static_css.'jquery.dataTables.css',
 			$static_css.'util-question-import.css',
 		],
+		'qset_history' => [
+			$static_css.'util-qset-history.css',
+		],
 		'media_import' => [
-			$static_css.'util-media-import.css'
+			$static_css.'util-qset-history.css'
 		],
 		'help' => [
 			$static_css.'help.css',

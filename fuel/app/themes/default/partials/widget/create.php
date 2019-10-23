@@ -41,6 +41,7 @@
 
 		<section id="action-bar" ng-show="showActionBar">
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
+			<a ng-click="showQsetHistoryImporter()">Previously Saved</a>
 			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
 			<button id="creatorPublishBtn"
 				class="edit_button green"

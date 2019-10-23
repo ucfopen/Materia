@@ -180,6 +180,31 @@ class Widget_Instance
 		}
 	}
 
+	public function get_qset_history($inst_id)
+	{
+		$query = \DB::select()
+			->from('widget_qset')
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC');
+
+		$results = $query->execute();
+
+		$history = [];
+
+		for ($i = 0; $i < count($results); $i++)
+		{
+			$qset = (object) ['version' => null, 'data' => null, 'id' => null, 'created_at' => null];
+			$qset->data = json_decode(base64_decode($results[$i]['data']), true);
+			$qset->version = $results[$i]['version'];
+			$qset->id = $results[$i]['id'];
+			$qset->created_at = $results[$i]['created_at'];
+
+			array_push($history, $qset);
+		}
+
+		return $history;
+	}
+
 	/**
 	 * Grabs the qset with the id passed in from the database.
 	 */
