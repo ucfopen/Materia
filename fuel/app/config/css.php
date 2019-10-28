@@ -66,7 +66,7 @@ return [
 			$static_css.'util-qset-history.css',
 		],
 		'media_import' => [
-			$static_css.'util-qset-history.css'
+			$static_css.'util-media-import.css'
 		],
 		'help' => [
 			$static_css.'help.css',

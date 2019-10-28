@@ -11,7 +11,7 @@
 			</thead>
 			<tr ng-repeat="save in saves" ng-click="loadSaveData(save.id)">
 				<td>{{save.count}} Question{{save.count > 1 ? 's' : ''}}</td>
-				<td>{{save.created_at}}
+				<td>{{save.created_at}}</td>
 			</tr>
 		</table>
 	</form>
