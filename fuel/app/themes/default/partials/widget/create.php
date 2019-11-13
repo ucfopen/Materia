@@ -39,6 +39,12 @@
 			</div>
 		</div>
 
+		<section id="qset-rollback-confirmation-bar" ng-show="showRollbackConfirmBar">
+			<h3>Confirm or deny save</h3>
+
+			<button ng-click="rollbackConfirmation(false)">Cancel</button>
+			<button ng-click="rollbackConfirmation(true)">Keep</button>
+		</section>
 		<section id="action-bar" ng-show="showActionBar">
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
 			<a ng-click="showQsetHistoryImporter()">Previously Saved</a>

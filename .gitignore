@@ -58,13 +58,13 @@ public/css/store_delete.css
 public/css/util-lti-picker.css
 public/css/util-media-import.css
 public/css/util-question-import.css
+public/css/util-qset-history.css
 public/css/widget-catalog.css
 public/css/widget-create.css
 public/css/widget-detail.css
 public/css/widget-embed-placeholder.css
 public/css/widget-guide.css
 public/css/widget-play.css
-
 
 
 public/js/admin.js
