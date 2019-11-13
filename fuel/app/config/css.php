@@ -65,6 +65,9 @@ return [
 		'qset_history' => [
 			$static_css.'util-qset-history.css',
 		],
+		'rollback_dialog' => [
+			$static_css.'util-rollback-confirm.css'
+		],
 		'media_import' => [
 			$static_css.'util-media-import.css'
 		],

@@ -5,12 +5,12 @@
 		<table id="qset-table" width="100%">
 			<thead width="100%">
 				<tr>
-					<th>Question Count</th>
+					<th>Save Count</th>
 					<th>Saved At</th>
 				</tr>
 			</thead>
 			<tr ng-repeat="save in saves" ng-click="loadSaveData(save.id)">
-				<td>{{save.count}} Question{{save.count > 1 ? 's' : ''}}</td>
+				<td>Save #{{saves.length - $index}}</td>
 				<td>{{save.created_at}}</td>
 			</tr>
 		</table>
