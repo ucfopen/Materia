@@ -22,6 +22,5 @@
 
 	<div class="actions">
 		<a id="cancel-button" href="#" ng-click="closeDialog($event)">Cancel</a>
-		<!-- <input id="submit-button" type="button" class="action_button" value="Import Selected"> -->
 	</div>
 </div>
