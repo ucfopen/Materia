@@ -418,6 +418,7 @@ class Admin extends \Basetask
 		$roles = 0;
 		if (\Materia\Perm_Manager::create_role('basic_author')) $roles++;
 		if (\Materia\Perm_Manager::create_role('super_user')) $roles++;
+		if (\Materia\Perm_Manager::create_role('no_author')) $roles++;
 
 		if ($admin_role_id = \Materia\Perm_Manager::get_role_id('super_user'))
 		{

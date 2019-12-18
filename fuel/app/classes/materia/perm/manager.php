@@ -83,6 +83,24 @@ class Perm_Manager
 	}
 
 	/**
+	 * Return a list of users who have the given role.
+	 *
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
+	 *
+	 * @return array list of user ids with role $role_name
+	 */
+	static public function get_user_ids_with_role($role_name = '')
+	{
+		if (empty($role_name) || ! is_string($role_name) || ! role_exists($role_name)) return [];
+
+		$role_id = self::get_role_id($role_name);
+
+		return \DB::select('user_id')
+			->where('role_id', $role_id)
+			->execute();
+	}
+
+	/**
 	 * NEEDS DOCUMENTATION
 	 *
 	 * @var string NEEDS DOCUMENTATION
