@@ -355,7 +355,7 @@ class Perm_Manager
 	/**
 	 * Get a User's specific permissions to an object
 	 *
-	 * @param int $object_id id of object
+	 * @param string $object_id id of object
 	 * @param int $object_type type of object
 	 * @param int $user_id id of user with perms to object
 	 *
@@ -459,9 +459,9 @@ class Perm_Manager
 	/**
 	 * Clear a user's permissions to an object
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param string $object_id id of object
+	 * @param int $object_type type of object
+	 * @param int $user_id id of user with perms to object
 	 */
 	static public function clear_user_object_perms($object_id, $object_type, $user_id)
 	{
@@ -479,7 +479,9 @@ class Perm_Manager
 	/**
 	 * Converts query return to a keyed array
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $results array of records returned by query in get_user_object_perms
+	 *
+	 * @return array formatted array of permissions
 	 */
 	static private function make_perms_from_query($results)
 	{
@@ -497,7 +499,7 @@ class Perm_Manager
 	/**
 	 * Gets the role permissions based on a user's user_id, returns array with the key's as the permission values
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param int $user_id id of user to check role permissions for
 	 */
 	static public function get_user_role_perms($user_id)
 	{

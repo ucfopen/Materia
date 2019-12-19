@@ -217,4 +217,70 @@ class Test_Materia_Perm_Manager extends \Basetest
 		$authorBasicCheck = Perm_Manager::does_user_have_role(['basic_author'], $newTeacher->id);
 		$this->assertFalse($authorBasicCheck);
 	}
+
+	public function test_get_user_object_perms()
+	{
+		$this->_as_student();
+		$studentId = \Model_User::find_current_id();
+
+		//make a new widget instance and make sure the user has the right perms to it
+		$widget = $this->make_disposable_widget();
+		$qset = $this->create_new_qset('test', 'test');
+		$instance = \Materia\Api_V1::widget_instance_new($widget->id, 'test', $qset, true);
+
+		//it's hardly exhaustive, but just to make sure this method works,
+		// check to see if the current user has full access to the widget just created
+		$perms = Perm_Manager::get_user_object_perms($instance->id, \Materia\Perm::INSTANCE, $studentId);
+		$this->assertCount(1, $perms);
+		$this->assertArrayHasKey(\Materia\Perm::FULL, $perms);
+		$this->assertEquals($perms[\Materia\Perm::FULL], 1);
+	}
+
+	public function test_set_user_object_perms()
+	{
+		$this->_as_student();
+
+		//make a new widget instance and grant full access to another user, then make sure it stuck
+		$widget = $this->make_disposable_widget();
+		$qset = $this->create_new_qset('test', 'test');
+		$instance = \Materia\Api_V1::widget_instance_new($widget->id, 'test', $qset, true);
+
+		$newTeacher = $this->make_random_author();
+		$newPerms = [
+			\Materia\Perm::FULL => true
+		];
+		Perm_Manager::set_user_object_perms($instance->id, \Materia\Perm::INSTANCE, $newTeacher->id, $newPerms);
+
+		$perms = Perm_Manager::get_user_object_perms($instance->id, \Materia\Perm::INSTANCE, $newTeacher->id);
+		$this->assertCount(1, $perms);
+		$this->assertArrayHasKey(\Materia\Perm::FULL, $perms);
+		$this->assertEquals($perms[\Materia\Perm::FULL], 1);
+	}
+
+	//TODO: figure out how to test this without jumping hurdles for setup
+	// public function test_set_user_game_asset_perms()
+	// {
+
+	// }
+
+	public function test_clear_user_object_perms()
+	{
+		$this->_as_student();
+		$studentId = \Model_User::find_current_id();
+
+		$widget = $this->make_disposable_widget();
+		$qset = $this->create_new_qset('test', 'test');
+		$instance = \Materia\Api_V1::widget_instance_new($widget->id, 'test', $qset, true);
+
+		//make sure the student user has full perms to the widget before, and no perms after
+		$perms = Perm_Manager::get_user_object_perms($instance->id, \Materia\Perm::INSTANCE, $studentId);
+		$this->assertCount(1, $perms);
+		$this->assertArrayHasKey(\Materia\Perm::FULL, $perms);
+		$this->assertEquals($perms[\Materia\Perm::FULL], 1);
+
+		Perm_Manager::clear_user_object_perms($instance->id, \Materia\Perm::INSTANCE, $studentId);
+
+		$perms = Perm_Manager::get_user_object_perms($instance->id, \Materia\Perm::INSTANCE, $studentId);
+		$this->assertCount(0, $perms);
+	}
 }
