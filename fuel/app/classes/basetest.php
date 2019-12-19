@@ -156,6 +156,11 @@ class Basetest extends TestCase
 		return $this->make_random_student($password, ['super_user']);
 	}
 
+	protected function make_random_noauth($password = null)
+	{
+		return $this->make_random_student($password, ['no_author']);
+	}
+
 	protected function make_random_author($password = null)
 	{
 		return $this->make_random_student($password, ['basic_author']);
