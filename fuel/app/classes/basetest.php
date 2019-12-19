@@ -294,6 +294,28 @@ class Basetest extends TestCase
 		return $user;
 	}
 
+	protected function _as_noauth()
+	{
+		\Auth::logout();
+		$uname = '~testNoAuth';
+		$pword = 'interstellar555!';
+
+		$user = \Model_User::find_by_username($uname);
+		if ( ! $user instanceof \Model_User)
+		{
+			require_once(APPPATH.'/tasks/admin.php');
+			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'noauth', 'testNoAuth@ucf.edu', $pword);
+			// TODO: super_user should get all these rights inherently right??????!!!!
+			\Fuel\Tasks\Admin::give_user_role($uname, 'no_author');
+			$user = \Model_User::find_by_username($uname);
+		}
+
+		$login = \Service_User::login($uname, $pword);
+		$this->assertTrue($login);
+		$this->users_to_clean[] = $user;
+		return $user;
+	}
+
 	protected function assert_is_user_array($user)
 	{
 		$this->assertInternalType('array', $user);

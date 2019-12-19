@@ -147,6 +147,7 @@ class Api_V1
 	static public function widget_instance_new($widget_id=null, $name=null, $qset=null, $is_draft=null)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
 		if ( ! Util_Validator::is_pos_int($widget_id)) return Msg::invalid_input($widget_id);
 		if ( ! is_bool($is_draft)) $is_draft = true;
 
@@ -199,6 +200,7 @@ class Api_V1
 	static public function widget_instance_update($inst_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null, $guest_access=null, $embedded_only=null, $is_student_made=null)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
