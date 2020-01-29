@@ -21,8 +21,19 @@
 				<p>Browse installable widgets on <a href="https://ucfopen.github.io/materia-widget-gallery/" target="_blank" rel="noopener noreferrer">The Official Materia Widget Gallery</a></p>
 				<p>Browse features and more on <a href="https://ucfopen.github.io/Materia-Docs/" target="_blank" rel="noopener noreferrer">The Official Materia Documentation Page</a></p>
 			<?php else: ?>
-				<p>Widget uploader is <em>disabled</em></p>
+				<p>Widget uploader is <em>disabled</em>.</p>
 				<p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>
+				<?php if ($heroku_warning): ?>
+				<p>
+					Due to Heroku the temporary nature of Heroku servers, any widgets installed after the server
+					is spun up will not be available after the server spins down again. Read more at
+					<a href="https://ucfopen.github.io/Materia-Docs/admin/heroku.html#installing-widgets"
+						target="_blank"
+						rel="noopener noreferrer">
+						The Official Materia Documentation Page.
+					</a>
+				</p>
+				<?php endif; ?>
 			<?php endif ?>
 		</section>
 	</div>
