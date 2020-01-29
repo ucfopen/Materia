@@ -336,8 +336,8 @@ return array(
 		],
 		[
 			'id' => 4,
-			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.2/enigma.wigt',
-			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.2/enigma-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.3/enigma.wigt',
+			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.3/enigma-build-info.yml',
 		],
 		[
 			'id' => 5,
