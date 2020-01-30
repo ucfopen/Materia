@@ -331,13 +331,13 @@ return array(
 		],
 		[
 			'id' => 3,
-			'package'  => 'https://github.com/ucfopen/matching-materia-widget/releases/download/v1.1.4/matching.wigt',
-			'checksum' => 'https://github.com/ucfopen/matching-materia-widget/releases/download/v1.1.4/matching-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/matching-materia-widget/releases/download/v1.1.5/matching.wigt',
+			'checksum' => 'https://github.com/ucfopen/matching-materia-widget/releases/download/v1.1.5/matching-build-info.yml',
 		],
 		[
 			'id' => 4,
-			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.2/enigma.wigt',
-			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.2/enigma-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.3/enigma.wigt',
+			'checksum' => 'https://github.com/ucfopen/enigma-materia-widget/releases/download/v2.1.3/enigma-build-info.yml',
 		],
 		[
 			'id' => 5,
@@ -346,38 +346,38 @@ return array(
 		],
 		[
 			'id' => 6,
-			'package' => 'https://github.com/ucfopen/flash-cards-materia-widget/releases/download/v1.1.2/flash-cards.wigt',
-			'checksum' => 'https://github.com/ucfopen/flash-cards-materia-widget/releases/download/v1.1.2/flash-cards-build-info.yml'
+			'package' => 'https://github.com/ucfopen/flash-cards-materia-widget/releases/download/v1.1.3/flash-cards.wigt',
+			'checksum' => 'https://github.com/ucfopen/flash-cards-materia-widget/releases/download/v1.1.3/flash-cards-build-info.yml'
 		],
 		[
 			'id' => 7,
-			'package' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.6/this-or-that.wigt',
-			'checksum' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.6/this-or-that-build-info.yml'
+			'package' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.8/this-or-that.wigt',
+			'checksum' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.8/this-or-that-build-info.yml'
 		],
 		[
 			'id' => 8,
-			'package' => 'https://github.com/ucfopen/word-search-materia-widget/releases/download/v1.1.4/word-search.wigt',
-			'checksum' => 'https://github.com/ucfopen/word-search-materia-widget/releases/download/v1.1.4/word-search-build-info.yml'
+			'package' => 'https://github.com/ucfopen/word-search-materia-widget/releases/download/v1.1.5/word-search.wigt',
+			'checksum' => 'https://github.com/ucfopen/word-search-materia-widget/releases/download/v1.1.5/word-search-build-info.yml'
 		],
 		[
 			'id' => 9,
-			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.0/adventure.wigt',
-			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.0/adventure-build-info.yml'
+			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.1/adventure.wigt',
+			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.1/adventure-build-info.yml'
 		],
 		[
 			'id' => 10,
-			'package' => 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/download/v2.0.2/equation-sandbox.wigt',
-			'checksum' => 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/download/v2.0.2/equation-sandbox-build-info.yml'
+			'package' => 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/download/v2.0.3/equation-sandbox.wigt',
+			'checksum' => 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/download/v2.0.3/equation-sandbox-build-info.yml'
 		],
 		[
 			'id' => 11,
-			'package' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.1/sort-it-out.wigt',
-			'checksum' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.1/sort-it-out-build-info.yml'
+			'package' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.4/sort-it-out.wigt',
+			'checksum' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.4/sort-it-out-build-info.yml'
 		],
 		[
 			'id' => 12,
-			'package' => 'https://github.com/ucfopen/survey-materia-widget/releases/download/v1.0.3/simple-survey.wigt',
-			'checksum' => 'https://github.com/ucfopen/survey-materia-widget/releases/download/v1.0.3/simple-survey-build-info.yml'
+			'package' => 'https://github.com/ucfopen/survey-materia-widget/releases/download/v1.1.0/simple-survey.wigt',
+			'checksum' => 'https://github.com/ucfopen/survey-materia-widget/releases/download/v1.1.0/simple-survey-build-info.yml'
 		],
 	],
 );
