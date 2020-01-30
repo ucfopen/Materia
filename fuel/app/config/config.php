@@ -351,8 +351,8 @@ return array(
 		],
 		[
 			'id' => 7,
-			'package' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.7/this-or-that.wigt',
-			'checksum' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.7/this-or-that-build-info.yml'
+			'package' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.8/this-or-that.wigt',
+			'checksum' => 'https://github.com/ucfopen/this-or-that-materia-widget/releases/download/v1.0.8/this-or-that-build-info.yml'
 		],
 		[
 			'id' => 8,
@@ -361,8 +361,8 @@ return array(
 		],
 		[
 			'id' => 9,
-			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.0/adventure.wigt',
-			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.0/adventure-build-info.yml'
+			'package' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.1/adventure.wigt',
+			'checksum' => 'https://github.com/ucfopen/adventure-materia-widget/releases/download/v2.2.1/adventure-build-info.yml'
 		],
 		[
 			'id' => 10,
@@ -371,8 +371,8 @@ return array(
 		],
 		[
 			'id' => 11,
-			'package' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.2/sort-it-out.wigt',
-			'checksum' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.2/sort-it-out-build-info.yml'
+			'package' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.4/sort-it-out.wigt',
+			'checksum' => 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/download/v1.0.4/sort-it-out-build-info.yml'
 		],
 		[
 			'id' => 12,
