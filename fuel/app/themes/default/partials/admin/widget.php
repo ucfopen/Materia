@@ -25,8 +25,7 @@
 				<p>To enable, alter the "enable_admin_uploader" configuration option in config/materia.php.</p>
 				<?php if ($heroku_warning): ?>
 				<p>
-					Due to Heroku the temporary nature of Heroku servers, any widgets installed after the server
-					is spun up will not be available after the server spins down again. Read more at
+					<b>Note:</b> On Heroku, installing widgets must happen during the Heroku build process. Read more at
 					<a href="https://ucfopen.github.io/Materia-Docs/admin/heroku.html#installing-widgets"
 						target="_blank"
 						rel="noopener noreferrer">
