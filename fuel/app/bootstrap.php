@@ -12,11 +12,12 @@ $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
 
 	// MAKE SURE OUR core overrides are here so fuel doesn't try to load them
 	// before the other packages get a chance to load the overrides in
-	'Fuel\\Session\\File'               => $materia_path.'/fuel/session/cache.php',
-	'Cache'                             => $materia_path.'/fuel/core/cache.php',
-	'Fuel\\Core\\Errorhandler'          => $materia_path.'/fuel/core/errorhandler.php',
-	'Log'                               => $materia_path.'/fuel/core/log.php',
-	'TestCase'                          => $materia_path.'/fuel/core/testcase.php',
+	'Fuel\\Session\\File'      => $materia_path.'/fuel/session/cache.php',
+	'Cache'                    => $materia_path.'/fuel/core/cache.php',
+	'Fuel\\Core\\Errorhandler' => $materia_path.'/fuel/core/errorhandler.php',
+	'Log'                      => $materia_path.'/fuel/core/log.php',
+	'TestCase'                 => $materia_path.'/fuel/core/testcase.php',
+	'Cookie'                   => $materia_path.'/fuel/core/cookie.php'
 	// TODO: build task that will resolve/populate all the classes in materia here
 ]);
 
