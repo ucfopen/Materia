@@ -35,6 +35,7 @@ services:
       - ../:/var/www/html:rw
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
       - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
+      - node_modules:/var/www/html/node_modules
     links:
       - mysql
       - memcached
@@ -92,3 +93,4 @@ networks:
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
   uploaded_media: {} # uploaded media files
+  node_modules: {} # node modules for npm

@@ -1,47 +1,60 @@
-FROM php:7.1.22-fpm-alpine
-MAINTAINER Ian Turgeon
+FROM php:7.4.2-fpm-buster
+MAINTAINER UCFOpen
 
-RUN apk add --no-cache \
-	autoconf \
-	bash \
-	build-base \
-	cyrus-sasl-dev \
-	freetype \
-	git \
-	libjpeg-turbo-dev \
-	libmcrypt-dev \
-	libmemcached-dev \
-	libpng-dev \
-	libxml2-dev \
-	zlib-dev
+# mcrypt doesn't seem to be needed any more?
+ARG PHP_EXT="bcmath gd mbstring pdo_mysql xml zip"
+ARG PHP_MEMCACHED_VERSION="v3.1.5"
+ARG COMPOSER_VERSION="1.9.3"
+ARG NODE_VERSION="12.14.1"
+ARG NODE_DISTRO="linux-x64"
+ARG NODE_CHECKSUM="07cfcaa0aa9d0fcb6e99725408d9e0b07be03b844701588e3ab5dbc395b98e1b"
 
+# os packages needed for php extensions
+ARG BUILD_PACKAGES="libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev git"
+ARG PURGE_PACKAGES="libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev"
 
-# PECL Libraries
-# memcached build manually
-RUN docker-php-ext-configure gd --with-jpeg-dir=/usr/include
+RUN \
+	# ======== PHP COMPOSER \
+	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+	&& php -r "if (hash_file('sha384', 'composer-setup.php') === 'c5b9b6d368201a9db6f74e2611495f369991b72d9c8cbd3ffbc63edff210eb73d46ffbfce88669ad33695ef77dc76976') { echo 'COMPOSER VERIFIED'; } else { echo 'COMPOSER INVALID'; exit(1); } echo PHP_EOL;" \
+	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
+	&& rm -f composer-setup.php \
 
-RUN docker-php-ext-install \
-	bcmath \
-	gd \
-	mbstring \
-	mcrypt \
-	pdo_mysql \
-	xml \
-	zip \
-	&& rm -rf /usr/src/php
+	# ======== NODEJS
+	&& curl https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-$NODE_DISTRO.tar.xz --output /tmp/node.tar.xz --silent \
+	&& php -r "if (hash_file('sha256', '/tmp/node.tar.xz') === '$NODE_CHECKSUM') { echo 'NODE VERIFIED'; } else { echo 'NODE INVALID'; exit(1); } echo PHP_EOL;" \
+	&& cd /usr \
+	&& tar --strip-components 1 -xf /tmp/node.tar.xz \
+	&& apt-get update \
+	&& apt-get install --yes --no-install-recommends $BUILD_PACKAGES \
+	&& rm -f /tmp/node.tar.xz \
 
-RUN git clone -b v3.0.2 https://github.com/php-memcached-dev/php-memcached.git \
+	# ======== PHP CONFIGURE GD
+	&& docker-php-ext-configure gd --with-jpeg \
+
+	# ======== PHP XDEBUG
+	&& pecl install xdebug \
+	&& docker-php-ext-enable xdebug \
+
+	# ======== PHP EXTENSIONS
+	&& docker-php-ext-install $PHP_EXT \
+
+	# ======== PHP-MEMCACHED
+	&& git clone -b $PHP_MEMCACHED_VERSION https://github.com/php-memcached-dev/php-memcached.git \
 	&& cd php-memcached \
-	&& git checkout php7 \
 	&& phpize \
 	&& ./configure \
 	&& make \
 	&& make install \
 	&& docker-php-ext-enable memcached \
+
+	# ======== CLEANUP
+	&& apt-get remove --purge --yes $PURGE_PACKAGES \
+	&& apt clean \
+	&& rm -rf /var/lib/apt/lists/* \
 	&& rm -rf /usr/src/php
 
-# Make sure composer is installed globally
-RUN bash -c "curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer"
+RUN npm install --global yarn
 
 # hack to let php write to the shared disk with boot2docker shares
 # files shared from host into a container appear to use a user on host with UID 1000
@@ -50,7 +63,6 @@ RUN bash -c "curl -sS https://getcomposer.org/installer | php && mv composer.pha
 # RUN usermod -u 1000 www-data
 RUN sed -i "s/^www-data:x:[0-9]*/www-data:x:1000/" /etc/passwd
 
-RUN pecl install xdebug
 
 # add script that helps us wait for other containers
 COPY wait-for-it.sh /wait-for-it.sh
