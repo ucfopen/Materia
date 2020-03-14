@@ -2958,11 +2958,11 @@
         },
         {
             "name": "ucfcdl/fuelphp-phpcs",
-            "version": "master",
+            "version": "dev-master#639d97db80d2a346833f2a7be90cf5cb3b35cf15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfcdl/fuelphp-phpcs.git",
-                "reference": "master"
+                "reference": "639d97db80d2a346833f2a7be90cf5cb3b35cf15"
             },
             "dist": {
                 "type": "zip",
