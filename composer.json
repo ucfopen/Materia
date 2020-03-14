@@ -33,7 +33,7 @@
     "platform": {
     },
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.4",
         "ext-pdo": "*",
         "ext-gd": "*",
         "ext-mbstring": "*",
@@ -56,8 +56,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "6.4.*",
-        "squizlabs/php_codesniffer": "2.9",
-        "ucfcdl/fuelphp-phpcs": "master",
+        "squizlabs/php_codesniffer": "3.5.4",
+        "ucfcdl/fuelphp-phpcs": "dev-master#639d97db80d2a346833f2a7be90cf5cb3b35cf15",
         "johnkary/phpunit-speedtrap": "^2.0@dev"
     },
     "config": {

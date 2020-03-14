@@ -12,7 +12,7 @@ ARG NODE_DISTRO="linux-x64"
 ARG NODE_CHECKSUM="07cfcaa0aa9d0fcb6e99725408d9e0b07be03b844701588e3ab5dbc395b98e1b"
 
 # os packages needed for php extensions
-ARG BUILD_PACKAGES="libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev git"
+ARG BUILD_PACKAGES="locales libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev git"
 ARG PURGE_PACKAGES="libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev"
 
 RUN \
@@ -65,6 +65,13 @@ RUN npm install --global yarn
 # RUN usermod -u 1000 www-data
 RUN sed -i "s/^www-data:x:[0-9]*/www-data:x:1000/" /etc/passwd
 
+# Set the locale
+# based on http://jaredmarkell.com/docker-and-locales/
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 # add script that helps us wait for other containers
 COPY wait-for-it.sh /wait-for-it.sh
