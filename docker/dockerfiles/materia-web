@@ -35,8 +35,9 @@ RUN \
 	&& docker-php-ext-configure gd --with-jpeg \
 
 	# ======== PHP XDEBUG
-	&& pecl install xdebug \
-	&& docker-php-ext-enable xdebug \
+	# Disabled by default
+	# && pecl install xdebug \
+	# && docker-php-ext-enable xdebug \
 
 	# ======== PHP EXTENSIONS
 	&& docker-php-ext-install $PHP_EXT \
