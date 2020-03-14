@@ -291,7 +291,7 @@ class Basetest extends TestCase
 
 	protected function assert_is_user_array($user)
 	{
-		$this->assertInternalType('array', $user);
+		$this->assertIsArray($user);
 		$this->assertArrayHasKey('id', $user);
 		$this->assertArrayHasKey('username', $user);
 		$this->assertArrayHasKey('first', $user);
@@ -339,7 +339,7 @@ class Basetest extends TestCase
 
 	protected function assert_is_qset($qset)
 	{
-		$this->assertInternalType('object', $qset);
+		$this->assertIsObject($qset);
 		$this->assertObjectHasAttribute('data', $qset);
 		$this->assertObjectHasAttribute('version', $qset);
 		$this->assertArrayHasKey('id', $qset->data);

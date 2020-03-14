@@ -407,7 +407,7 @@ class Widget_Instance
 	 * @param array user_ids to be set as viewers
 	 * @notes this will clear out the previous owners and set the given users as the new ones
 	 */
-	public function set_owners($owners_list, $viewers_list = null)
+	public function set_owners(array $owners_list, array $viewers_list = null)
 	{
 
 		// first clear out the owners and viewers
@@ -418,6 +418,8 @@ class Widget_Instance
 		{
 			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $owners_list[$i], [Perm::FULL => Perm::ENABLE]);
 		}
+
+		if ( ! is_array($viewers_list)) return;
 
 		// add the new viewers
 		for ($i = 0; $i < count($viewers_list); $i++)
