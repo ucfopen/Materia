@@ -7,7 +7,7 @@
 class Test_LtiUserManager extends \Test_Basetest
 {
 	// Runs before every single test
-	protected function setUp()
+	protected function setUp(): void
 	{
 		\Auth::forge(['driver' => 'LtiTestAuthDriver']);
 		\Config::set("lti::lti.consumers.materia-test.auth_driver", 'LtiTestAuthDriver');

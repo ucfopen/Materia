@@ -75,4 +75,4 @@ Fuel::$is_test = true;
 Fuel::$env = Fuel::TEST;
 
 // Import the TestCase class
-import('testcase');
+// import('testcase');

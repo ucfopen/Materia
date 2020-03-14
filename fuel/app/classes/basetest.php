@@ -28,7 +28,7 @@ class Basetest extends TestCase
 
 	// Runs before every single test
 	// @codingStandardsIgnoreLine
-	protected function setUp()
+	protected function setUp(): void
 	{
 		Config::set('errors.throttle', 5000);
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
@@ -36,7 +36,7 @@ class Basetest extends TestCase
 	}
 
 	// @codingStandardsIgnoreLine
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		\Auth::logout();
 		if (is_array($this->users_to_clean))

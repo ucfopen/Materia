@@ -9,13 +9,13 @@ class Test_Ltiauth extends \Basetest
 {
 	protected $lastTestUser = null;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		\Config::set('auth.restrict_logins_to_lti_single_sign_on', true);
 		parent::setUp();
 	}
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		\Config::set('auth.restrict_logins_to_lti_single_sign_on', false);
 		if ($this->lastTestUser)
