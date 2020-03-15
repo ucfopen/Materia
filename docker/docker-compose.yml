@@ -17,10 +17,10 @@ services:
 
   phpfpm:
     container_name: materia-phpfpm
-    image: ucfopen/materia-web-base:${TAG} # TAG default value is in .env file
+    image: ucfopen/materia-phpfpm:${TAG} # TAG default value is in .env file
     build:
       context: ./dockerfiles
-      dockerfile: materia-web
+      dockerfile: materia-phpfpm
     environment:
       # See .env for default values
       - FUEL_ENV
