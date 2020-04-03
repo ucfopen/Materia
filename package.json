@@ -24,8 +24,8 @@
   },
   "devDependencies": {
     "browser-sync": "^2.26.5",
-    "concurrently": "^4.1.0",
-    "nodemon": "^1.19.0"
+    "concurrently": "^5.1.0",
+    "nodemon": "^2.0.2"
   },
   "nodemonConfig": {
     "delay": "500",
