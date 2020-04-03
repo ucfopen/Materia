@@ -19,6 +19,7 @@ return [
 	// THIS WILL SEND ERRORS TO STDOUT, VISIBLE VIA `docker-compose log phpfpm`
 	// This is being disabled till we upgrade to php 7.2 as there is a bugfix in phpfpm to make this work better
 	// see https://github.com/docker-library/php/issues/207 and https://github.com/php/php-src/pull/1076
-	// 'log_handler_factory'   => function($locals, $level){ return new \Monolog\Handler\ErrorLogHandler(); },
+	'log_handler_factory'   => function($locals, $level){ return new \Monolog\Handler\ErrorLogHandler(); },
 
+	'locale' => 'en_US.UTF-8', // PHP set_locale()
 ];

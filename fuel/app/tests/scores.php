@@ -29,7 +29,7 @@ class Test_Scores extends \Basetest
 
 		$play = new \Materia\Session_Play();
 		$play_id = $play->start($student->id, $results[0]['id']);
-		$this->assertInternalType('string', $play_id);
+		$this->assertIsString($play_id);
 
 		$event_fired = false;
 

@@ -40,12 +40,11 @@ class Test_Materiaauth extends \Basetest
 	}
 
 	//require password - should fail
-	/**
-	 * @expectedException        \Auth\SimpleUserUpdateException
-	 * @expectedExceptionMessage Username or password is not given
-	 */
 	public function test_creating_a_user_without_password_strict()
 	{
+		$this->expectException(\Auth\SimpleUserUpdateException::class);
+		$this->expectExceptionMessage('Username or password is not given');
+
 		$values = $this->make_user_values('Test2', 'McTest2');
 		$new_user_id = \Auth::instance()->create_user(
 			$values['username'],
@@ -91,12 +90,11 @@ class Test_Materiaauth extends \Basetest
 		}
 	}
 
-	/**
-	 * @expectedException        \Auth\SimpleUserUpdateException
-	 * @expectedExceptionMessage Username or password is not given
-	 */
 	public function test_creating_a_user_without_username()
 	{
+		$this->expectException(\Auth\SimpleUserUpdateException::class);
+		$this->expectExceptionMessage('Username or password is not given');
+
 		$values = $this->make_user_values('Test3', 'McTest3');
 
 		$new_user_id = \Auth::instance()->create_user(
@@ -113,12 +111,11 @@ class Test_Materiaauth extends \Basetest
 		return false;
 	}
 
-	/**
-	 * @expectedException        \Auth\SimpleUserUpdateException
-	 * @expectedExceptionMessage Email not given
-	 */
 	public function test_creating_a_user_without_email_strict()
 	{
+		$this->expectException(\Auth\SimpleUserUpdateException::class);
+		$this->expectExceptionMessage('Email not given');
+
 		$values = $this->make_user_values('Test3', 'McTest3');
 
 		$new_user_id = \Auth::instance()->create_user(
@@ -206,45 +203,40 @@ class Test_Materiaauth extends \Basetest
 	}
 
 	//expect the appropriate exceptions when trying to update with no user logged in
-	/**
-	 * @expectedException        \Auth\SimpleUserUpdateException
-	 * @expectedExceptionMessage Username not found
-	 */
 	public function test_update_no_user_without_username()
 	{
-		$values = $this->make_user_values('Test4', 'McTest4');
-		\Auth::update_user($values);
+		$this->expectException(\Auth\SimpleUserUpdateException::class);
+		$this->expectExceptionMessage('No username or user provided.');
 
-		return false;
+		// make different new values to update the user with
+		$newValues = $this->make_user_values('GGGG', 'FFFF');
+		// delete username because it cant be different
+		unset($newValues['username']);
+
+		\Auth::update_user($newValues);
 	}
 
 	//expect the appropriate exceptions when trying to update a user that doesn't exist
-	/**
-	 * @expectedException        \Auth\SimpleUserUpdateException
-	 * @expectedExceptionMessage Username not found
-	 */
 	public function test_update_no_user_with_username()
 	{
+		$this->expectException(\Auth\SimpleUserUpdateException::class);
+		$this->expectExceptionMessage('Username user_Test4_McTest4 not found');
+
 		$values = $this->make_user_values('Test4', 'McTest4');
 		\Auth::update_user($values, 'user_Test4_McTest4');
-
-		return false;
 	}
 
 	//if the update_user method is called without a second argument, the current user should be modified
-	/**
-	 * @expectedException        \Auth\SimpleUserUpdateException
-	 * @expectedExceptionMessage Username cannot be changed.
-	 */
 	public function test_can_not_update_username()
 	{
+		$this->expectException(\Auth\SimpleUserUpdateException::class);
+		$this->expectExceptionMessage('Username cannot be changed');
+
 		$user = $this->make_random_student();
 		$new_values = $this->make_user_values('Test3', 'McTest3');
 
 		\Auth::force_login($user->id);
 		\Auth::update_user($new_values);
-
-		return false;
 	}
 
 	//if the update_user method is called without a second argument, the current user should be modified
@@ -281,15 +273,32 @@ class Test_Materiaauth extends \Basetest
 		}
 	}
 
-	protected function make_user_values($f, $l)
+	protected function make_user_values($first, $last)
 	{
 		return [
-			'username'       => 'user_'.$f.'_'.$l,
+			'username'       => 'user_'.$first.'_'.$last,
 			'password'       => uniqid(),
-			'email'          => 'email_'.$f.'_'.$l.'@fake.fake',
-			'first'          => $f,
-			'last'           => $l,
+			'email'          => 'email_'.$first.'_'.$last.'@fake.fake',
+			'first'          => $first,
+			'last'           => $last,
 			'profile_fields' => []
 		];
+	}
+
+	protected function make_user($first, $last)
+	{
+		$values = $this->make_user_values($first, $last);
+		$new_user_id = \Auth::instance()->create_user(
+			$values['username'],
+			$values['password'],
+			$values['email'],
+			1,
+			$values['profile_fields'],
+			$values['first'],
+			$values['last'],
+			false
+		);
+
+		return [$new_user_id, $values];
 	}
 }
