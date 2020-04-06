@@ -782,9 +782,7 @@ class Api_V1
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
 		$history = $inst->get_qset_history($inst_id);
-
-		trace($history);
-
+		
 		return $history;
 	}
 
