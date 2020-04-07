@@ -146,6 +146,11 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::widget_instance_new();
 		$this->assert_invalid_login_message($output);
 
+		// // ==== AS NO-AUTHOR =====
+		$this->_as_noauth();
+		$output = Api_V1::widget_instance_new();
+		$this->assert_validation_error_message($output);
+
 		// // ======= STUDENT ========
 		$this->_as_student();
 
@@ -206,6 +211,11 @@ class Test_Api_V1 extends \Basetest
 	{
 		// only here to appease the api coverage
 		self::assertTrue(true);
+
+		// // ==== AS NO-AUTHOR =====
+		$this->_as_noauth();
+		$output = Api_V1::widget_instance_new();
+		$this->assert_validation_error_message($output);
 	}
 
 	public function test_widget_instance_update_requires_login()
@@ -1534,5 +1544,11 @@ class Test_Api_V1 extends \Basetest
 	{
 		$this->assertInstanceOf('\Materia\Msg', $msg);
 		$this->assertEquals('Permission Denied', $msg->title);
+	}
+
+	protected function assert_validation_error_message($msg)
+	{
+		$this->assertInstanceOf('\Materia\Msg', $msg);
+		$this->assertEquals('Validation Error', $msg->title);
 	}
 }
