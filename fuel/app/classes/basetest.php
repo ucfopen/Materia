@@ -28,7 +28,7 @@ class Basetest extends TestCase
 
 	// Runs before every single test
 	// @codingStandardsIgnoreLine
-	protected function setUp()
+	protected function setUp(): void
 	{
 		Config::set('errors.throttle', 5000);
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
@@ -36,7 +36,7 @@ class Basetest extends TestCase
 	}
 
 	// @codingStandardsIgnoreLine
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		\Auth::logout();
 		if (is_array($this->users_to_clean))
@@ -318,7 +318,7 @@ class Basetest extends TestCase
 
 	protected function assert_is_user_array($user)
 	{
-		$this->assertInternalType('array', $user);
+		$this->assertIsArray($user);
 		$this->assertArrayHasKey('id', $user);
 		$this->assertArrayHasKey('username', $user);
 		$this->assertArrayHasKey('first', $user);
@@ -366,7 +366,7 @@ class Basetest extends TestCase
 
 	protected function assert_is_qset($qset)
 	{
-		$this->assertInternalType('object', $qset);
+		$this->assertIsObject($qset);
 		$this->assertObjectHasAttribute('data', $qset);
 		$this->assertObjectHasAttribute('version', $qset);
 		$this->assertArrayHasKey('id', $qset->data);

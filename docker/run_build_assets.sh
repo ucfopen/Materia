@@ -6,6 +6,6 @@
 #######################################################
 set -e
 
-NODE_DC_COMMAND="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
+NODE_DC_COMMAND="docker-compose"
 
-$NODE_DC_COMMAND run --rm node yarn install --silent --pure-lockfile --force
+$NODE_DC_COMMAND run --rm phpfpm yarn install --silent --pure-lockfile --force

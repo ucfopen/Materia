@@ -6,9 +6,11 @@ View the [Materia Docs](http://ucfopen.github.io/Materia-Docs/) for info on inst
 
 ## Quick Heroku Deploy
 
-Materia can be quickly and easily deployed using a free or paid Heroku server.
+We added Heroku support as an easy way to give Materia a **free test drive** (or scale it up for production use).
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy Materia to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+> [Heroku](https://www.heroku.com/what) is a cloud service that lets you host web apps in the cloud without having to worry so much about the infrastructure.
 
 # Installation
 
