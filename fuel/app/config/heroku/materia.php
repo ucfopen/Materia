@@ -11,6 +11,11 @@ return [
 	* like S3 (see docs)
 	*/
 	'enable_admin_uploader' => false,
+	/**
+	* Add a Heroku-only warning to appear on the
+	* admin panel explaining Heroku-only limitations
+	*/
+	'heroku_admin_warning' => true,
 
 	// Asset storage configuration
 	'asset_storage_driver' => 'db',
