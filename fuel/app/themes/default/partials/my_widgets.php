@@ -167,16 +167,15 @@
 										</option>
 									</select>
 
-									<a ng-if="selected.shareable"
+									<a ng-if="!(collaborator.isCurrentUser && selected.accessLevel == ACCESS.FULL) && selected.shareable" 
 										tabindex="0"
 										class="remove-expiration"
 										role="button"
 										ng-click="removeExpires(collaborator)"
 										ng-show="collaborator.expires">
-										X
-									</a>
+										X</a>
 									<span class="expires">Expires: </span>
-									<input ng-disabled="!selected.shareable"
+									<input ng-disabled="(collaborator.isCurrentUser && selected.accessLevel == ACCESS.FULL) || !selected.shareable"
 										type="text"
 										class="exp-date user{{::collaborator.id}}"
 										ng-model="collaborator.expiresText"
