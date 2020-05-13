@@ -228,7 +228,7 @@ class Perm_Manager
 		$q = \DB::select('r.role_id', 'r.name')
 			->from(['user_role', 'r'])
 			->join(['perm_role_to_user', 'm'])
-				->on('r.id', '=', 'm.role_id')
+				->on('r.role_id', '=', 'm.role_id')
 			->as_object();
 
 		// return logged in user's roles if id is 0 or less, non su users can only use this method
@@ -647,16 +647,18 @@ class Perm_Manager
 	 * @param unknown NEEDS DOCUMENTATION
 	 * @return bool, true if removed object permissions, false if current user does not have owner premissions
 	 */
-	static public function remove_all_permissions($object_id, $object_type)
+	static public function remove_all_permissions($object_id, $object_type, $require_ownership = true)
 	{
 		// make sure the current user has rights to this item
 		// NOTE: might want to fix stuff to re-enable this
 		// there was a bug upon copying a game when the permissions to the copy wer being re-set
 		$current_user_id = (int)\Model_User::find_current_id();
 
-		if ( ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
+		if ($require_ownership && ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
 
-		\Event::trigger('delete_widget_event', ['user_id' => $current_user_id, 'object_id' => $object_id, 'object_type' => $object_type]);
+		if ($require_ownership) {
+			\Event::trigger('delete_widget_event', ['user_id' => $current_user_id, 'object_id' => $object_id, 'object_type' => $object_type]);
+		}
 
 		self::clear_all_perms_for_object($object_id, $object_type);
 

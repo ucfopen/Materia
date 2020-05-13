@@ -379,24 +379,51 @@ class Widget_Instance
 	 * @param string The new name of the new widget
 	 * @return Widget_Instance Returns duplicate widget instance
 	 */
-	public function duplicate($new_name=false, $set_current_user_as_new_owner=true)
+	public function duplicate($new_name=false, $retain_original_access=false)
 	{
 		$duplicate = new Widget_Instance();
 		$duplicate->db_get($this->id, true);
 
 		$duplicate->id = 0; // mark as a new game
+		$duplicate->user_id = \Model_User::find_current_id(); // set current user as owner in instance table
+
 		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
+		
+		// if original widget is student made - verify if new owner is a student or not
+		// if they have a basic_author role or above, turn off the is_student_made flag
+		if ($duplicate->is_student_made) {
+			$roles = Perm_Manager::get_user_roles();
+			if (count($roles) && $roles[0]->role_id >= 1) {
+				$duplicate->is_student_made = 0;
+			}
+		}
+		
 		$result = $duplicate->db_store();
 		if ($result instanceof \Materia\Msg)
 		{
 			return $result;
 		}
 
-		// make current user owner
-		if ($set_current_user_as_new_owner)
-		{
-			$duplicate->set_owners([\Model_User::find_current_id()]);
+		// grab users with perms to the original, grant them perms to the copy
+		// TODO does not yet work with read-only perms
+		if ($retain_original_access) {
+
+			$original_access = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
+			$users = [];
+
+			foreach ($original_access['widget_user_perms'] as $id => $perm) {
+				if ($perm[0] >= Perm::FULL) array_push($users, $id);
+			}
+
+			$duplicate->set_owners($users);
 		}
+
+		// make current user owner
+		// NOT REQUIRED WITH ABOVE CHANGE
+		// if ($set_current_user_as_new_owner)
+		// {
+		// 	$duplicate->set_owners([\Model_User::find_current_id()]);
+		// }
 
 		return $duplicate;
 	}
@@ -409,9 +436,9 @@ class Widget_Instance
 	 */
 	public function set_owners($owners_list, $viewers_list = null)
 	{
-
 		// first clear out the owners and viewers
-		Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE);
+		Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE, false);
+
 
 		// add the new owners
 		for ($i = 0; $i < count($owners_list); $i++)

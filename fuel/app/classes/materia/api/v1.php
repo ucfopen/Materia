@@ -113,7 +113,7 @@ class Api_V1
 		return Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, $perms);
 	}
 
-	static public function widget_instance_copy($inst_id, $new_name)
+	static public function widget_instance_copy($inst_id, $new_name, $retain_access = false)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
@@ -121,7 +121,8 @@ class Api_V1
 
 		try
 		{
-			$duplicate = $inst->duplicate($new_name);
+			// retain access - if true, grant access to the copy to all original owners
+			$duplicate = $inst->duplicate($new_name, $retain_access);
 			return $duplicate->id;
 		}
 		catch (\Exception $e)

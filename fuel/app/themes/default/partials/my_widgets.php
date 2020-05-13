@@ -222,6 +222,7 @@
 				<div class="container">
 					<span class="input_label">New Title:</span>
 					<input class="newtitle" type="text" ng-model="selected.copy_title" placeholder="New Widget Title" />
+					<div><input type="checkbox" ng-model="selected.copy_retain_access"><label>Grant Access to Original Owner(s)</label></div>
 					<span class="copy_error">Please enter a valid widget title.</span>
 					<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>
