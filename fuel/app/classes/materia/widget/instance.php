@@ -411,22 +411,17 @@ class Widget_Instance
 		if ($retain_original_access)
 		{
 			$original_access = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
-			$users = [];
+			$owners = [];
+			$viewers = [];
 
 			foreach ($original_access['widget_user_perms'] as $id => $perm)
 			{
-				if ($perm[0] >= Perm::FULL) array_push($users, $id);
+				if ($perm[0] == Perm::FULL) array_push($owners, $id);
+				else if ($perm[0] == Perm::VISIBLE) array_push($viewers, $id);
 			}
 
-			$duplicate->set_owners($users);
+			$duplicate->set_owners($owners, $viewers);
 		}
-
-		// make current user owner
-		// NOT REQUIRED WITH ABOVE CHANGE
-		// if ($set_current_user_as_new_owner)
-		// {
-		// 	$duplicate->set_owners([\Model_User::find_current_id()]);
-		// }
 
 		return $duplicate;
 	}
