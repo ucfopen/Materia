@@ -101,6 +101,7 @@
 			<modal-dialog class="availability" show="show.availabilityModal" dialog-title="Settings" width="660px">
 				<div ng-if="show.availabilityModal" ng-controller="WidgetSettingsController">
 					<p class="availabilityError" ng-show="error.length > 0">{{error}}</p>
+					<p ng-show="{{user.is_student}}" class="student-role-notice">You are viewing a limited version of this page due to your current role as a student. Students do not have permission to change certain settings like attempt limits or access levels.</p>
 					<ul class="attemptsPopup">
 						<li ng-hide="{{user.is_student}}">
 							<h3>Attempts</h3>
@@ -136,17 +137,16 @@
 
 							<li ng-hide="{{user.is_student}}">
 								<h3>Access</h3>
-								<ul class="access-options">
-									<li>
-										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly" ng-click="toggleNormalAccess()" ng-disabled="!guestAccess && !embeddedOnly"/>
+								<ul class="access-options" ng-disabled="studentMade" ng-class="{'disabled' : studentMade}">
+									<li ng-disabled="studentMade">
+										<input type="checkbox" class="normal-checkbox" ng-checked="!guestAccess && !embeddedOnly" ng-click="toggleNormalAccess()" ng-disabled="studentMade"/>
 										<label ng-click="toggleNormalAccess()">Normal</label>
 										<p class="access_explanation">Only students and users who can log into Materia can access this widget. If the widget collects scores, those scores will be associated with the user. The widget can be distributed via URL, embed code, or as an assignment in your LMS.</p>
 									</li>
-									<li>
-										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()"/>
+									<li ng-disabled="studentMade">
+										<input type="checkbox" class="guest-checkbox" ng-checked="guestAccess" ng-click="toggleGuestAccess()" ng-disabled="studentMade"/>
 										<label ng-click="toggleGuestAccess()">Guest Mode</label>
 										<p class="access_explanation">Anyone with a link can play this widget without logging in. All recorded scores will be anonymous. Can't use in an external system.</p>
-										<p ng-if="studentMade" class="data_explanation "><b>Guest Mode is always on for widgets created by students.</b></p>
 									</li>
 									<li id="embedded-only" ng-show="isEmbedded">
 										<input type="checkbox" class="embedded-checkbox" ng-checked="embeddedOnly" ng-click="toggleEmbeddedOnly()"/>
@@ -154,6 +154,7 @@
 										<p class="access_explanation">This widget will not be playable outside of the classes it is embedded within.</p>
 									</li>
 								</ul>
+								<p ng-if="studentMade" class="data_explanation "><b>Guest Mode is always on for widgets created by students.</b></p>
 							</li>
 						</ul>
 					</ul>
