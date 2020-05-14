@@ -391,9 +391,11 @@ class Widget_Instance
 		
 		// if original widget is student made - verify if new owner is a student or not
 		// if they have a basic_author role or above, turn off the is_student_made flag
-		if ($duplicate->is_student_made) {
+		if ($duplicate->is_student_made)
+		{
 			$roles = Perm_Manager::get_user_roles();
-			if (count($roles) && $roles[0]->role_id >= 1) {
+			if (count($roles) && $roles[0]->role_id >= 1)
+			{
 				$duplicate->is_student_made = 0;
 			}
 		}
@@ -406,12 +408,13 @@ class Widget_Instance
 
 		// grab users with perms to the original, grant them perms to the copy
 		// TODO does not yet work with read-only perms
-		if ($retain_original_access) {
-
+		if ($retain_original_access)
+		{
 			$original_access = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
 			$users = [];
 
-			foreach ($original_access['widget_user_perms'] as $id => $perm) {
+			foreach ($original_access['widget_user_perms'] as $id => $perm)
+			{
 				if ($perm[0] >= Perm::FULL) array_push($users, $id);
 			}
 

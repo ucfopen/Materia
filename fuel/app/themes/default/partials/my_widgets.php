@@ -218,11 +218,15 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="copy" show="show.copyModal" dialog-title="Make a Copy:" width="620px" height="220px">
+			<modal-dialog class="copy" show="show.copyModal" dialog-title="Make a Copy:" width="620px" height="300px">
 				<div class="container">
 					<span class="input_label">New Title:</span>
 					<input class="newtitle" type="text" ng-model="selected.copy_title" placeholder="New Widget Title" />
-					<div><input type="checkbox" ng-model="selected.copy_retain_access"><label>Grant Access to Original Owner(s)</label></div>
+					<div>
+						<input type="checkbox" ng-model="selected.copy_retain_access"><label>Grant Access to Original Owner(s)</label>
+						<p>If checked, all users who have access to the original widget will continue to have access to the new copy. Note that
+						the rules for sharing widgets with students will still apply.</p>
+					</div>
 					<span class="copy_error">Please enter a valid widget title.</span>
 					<a class="cancel_button" href="javascript:;" ng-click="hideModal()">Cancel</a>
 					<a class="action_button green copy_button" href="javascript:;" ng-click="copyWidget()">Copy</a>

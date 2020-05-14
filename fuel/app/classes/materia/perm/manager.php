@@ -656,7 +656,8 @@ class Perm_Manager
 
 		if ($require_ownership && ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
 
-		if ($require_ownership) {
+		if ($require_ownership)
+		{
 			\Event::trigger('delete_widget_event', ['user_id' => $current_user_id, 'object_id' => $object_id, 'object_type' => $object_type]);
 		}
 
