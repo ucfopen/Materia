@@ -407,7 +407,6 @@ class Widget_Instance
 		}
 
 		// grab users with perms to the original, grant them perms to the copy
-		// TODO does not yet work with read-only perms
 		if ($retain_original_access)
 		{
 			$original_access = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
