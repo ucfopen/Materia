@@ -1,4 +1,4 @@
-FROM php:7.1.22-fpm-alpine
+FROM php:7.3-fpm-alpine
 MAINTAINER Ian Turgeon
 
 RUN apk add --no-cache \
@@ -9,11 +9,12 @@ RUN apk add --no-cache \
 	freetype \
 	git \
 	libjpeg-turbo-dev \
-	libmcrypt-dev \
 	libmemcached-dev \
 	libpng-dev \
 	libxml2-dev \
-	zlib-dev
+	zip \
+	libzip \
+	libzip-dev
 
 
 # PECL Libraries
@@ -24,15 +25,13 @@ RUN docker-php-ext-install \
 	bcmath \
 	gd \
 	mbstring \
-	mcrypt \
 	pdo_mysql \
 	xml \
 	zip \
 	&& rm -rf /usr/src/php
 
-RUN git clone -b v3.0.2 https://github.com/php-memcached-dev/php-memcached.git \
+RUN git clone -b v3.1.5 https://github.com/php-memcached-dev/php-memcached.git \
 	&& cd php-memcached \
-	&& git checkout php7 \
 	&& phpize \
 	&& ./configure \
 	&& make \

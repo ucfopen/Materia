@@ -57,7 +57,7 @@ services:
 
   memcached:
     container_name: materia-memcached
-    image: memcached:1.4.27-alpine
+    image: memcached:1.6.6-alpine
     networks:
       - backend
 
