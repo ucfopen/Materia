@@ -36,7 +36,7 @@ DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 $DC pull --ignore-pull-failures
 
 # install composer deps
-docker-compose run --rm --no-deps phpfpm composer install
+docker-compose run --rm --no-deps phpfpm composer install --ignore-platform-reqs
 
 # setup mysql
 docker-compose run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- composer oil-install-quiet

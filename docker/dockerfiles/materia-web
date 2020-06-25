@@ -1,4 +1,4 @@
-FROM php:7.3-fpm-alpine
+FROM php:7.4-fpm-alpine
 MAINTAINER Ian Turgeon
 
 RUN apk add --no-cache \
@@ -19,12 +19,11 @@ RUN apk add --no-cache \
 
 # PECL Libraries
 # memcached build manually
-RUN docker-php-ext-configure gd --with-jpeg-dir=/usr/include
+RUN docker-php-ext-configure gd --with-jpeg=/usr/include
 
 RUN docker-php-ext-install \
 	bcmath \
 	gd \
-	mbstring \
 	pdo_mysql \
 	xml \
 	zip \
