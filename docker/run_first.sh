@@ -39,7 +39,7 @@ $DC pull --ignore-pull-failures
 docker-compose run --rm --no-deps phpfpm composer install --ignore-platform-reqs
 
 # setup mysql
-docker-compose run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- composer oil-install-quiet
+docker-compose run --rm phpfpm /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
 
 # install all the configured widgets
 docker-compose run --rm phpfpm bash -c 'php oil r widget:install_from_config'
