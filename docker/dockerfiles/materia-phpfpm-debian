@@ -11,7 +11,7 @@ ARG NODE_DISTRO="linux-x64"
 ARG NODE_CHECKSUM="07cfcaa0aa9d0fcb6e99725408d9e0b07be03b844701588e3ab5dbc395b98e1b"
 
 # os packages needed for php extensions
-ARG BUILD_PACKAGES="locales libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev git"
+ARG BUILD_PACKAGES="locales libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev git zip"
 ARG PURGE_PACKAGES="libpng-dev libjpeg-dev libmcrypt-dev libmemcached-dev libpng-dev libxml2-dev libonig-dev libzip-dev"
 ARG PURGE_FILES="/var/lib/apt/lists/* /usr/src/php /usr/include /usr/local/include /usr/share/doc /usr/share/doc-base /var/www/html/php-memcached"
 

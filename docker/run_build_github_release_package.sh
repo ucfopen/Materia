@@ -59,7 +59,7 @@ set -o xtrace
 # # stop and remove docker containers
 $DCTEST down --volumes --remove-orphans
 
-$DCTEST pull --ignore-pull-failures node
+$DCTEST pull --ignore-pull-failures phpfpm
 
 # get rid of any left over package files
 rm -rf clean_build_clone || true
@@ -77,7 +77,7 @@ GITREMOTE=$(git remote get-url origin)
 rm -rf clean_build_clone/.git
 
 # start a build container
-$DCTEST run --no-deps -d --workdir /build/clean_build_clone --name materia-build node tail -f /dev/null
+$DCTEST run --no-deps -d --workdir /build/clean_build_clone --name materia-build phpfpm tail -f /dev/null
 
 # copy the clean build clone into the container
 docker cp ./clean_build_clone materia-build:/build
