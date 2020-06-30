@@ -11,15 +11,18 @@
 set -e
 set -o xtrace
 
-DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
+# use env/args to determine which docker-compose files to load
+source run_dc.sh
 
-$DC pull --ignore-pull-failures phpfpm fakes3
+DCTEST="$DC -f docker-compose.test.yml"
+
+$DCTEST pull --ignore-pull-failures phpfpm fakes3
 
 # install php deps
-$DC run --rm phpfpm composer install --no-progress
+$DCTEST run --rm --no-deps phpfpm composer install --no-progress
 
 # run linter
-$DC run --rm phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
+$DCTEST run --rm --no-deps phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
 
 # install widgets and run tests
 source run_tests_coverage.sh
@@ -28,4 +31,4 @@ source run_tests_coverage.sh
 set +e
 
 # stop and remove docker containers
-$DC rm --force --stop
+$DCTEST rm --force --stop

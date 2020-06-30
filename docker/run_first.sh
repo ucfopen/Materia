@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 #######################################################
 # ABOUT THIS SCRIPT
 #
@@ -30,19 +29,19 @@ DOCKER_IP="localhost"
 # clean migration files in every environment
 rm -f ../fuel/app/config/**/migrations.php
 
-# store the docker compose command to shorten the following commands
-DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
+# use env/args to determine which docker-compose files to load
+source run_dc.sh
 
 $DC pull --ignore-pull-failures
 
 # install composer deps
-docker-compose run --rm --no-deps phpfpm composer install --ignore-platform-reqs
+$DC run --rm --no-deps phpfpm composer install --ignore-platform-reqs
 
 # setup mysql
-docker-compose run --rm phpfpm /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
+$DC run --rm phpfpm /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
 
 # install all the configured widgets
-docker-compose run --rm phpfpm bash -c 'php oil r widget:install_from_config'
+$DC run --rm phpfpm bash -c 'php oil r widget:install_from_config'
 
 # Install any widgets in the tmp dir
 source run_widgets_install.sh '*.wigt'

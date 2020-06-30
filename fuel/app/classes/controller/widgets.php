@@ -79,6 +79,8 @@ class Controller_Widgets extends Controller
 			Response::redirect(Router::get('login').'?redirect='.URI::current());
 		}
 
+		if (\Materia\Perm_Manager::does_user_have_role(['no_author'])) throw new HttpNotFoundException;
+
 		$widget = new Materia\Widget();
 		$loaded = $widget->get($this->param('id'));
 

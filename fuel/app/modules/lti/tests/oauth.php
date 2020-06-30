@@ -65,12 +65,10 @@ class Test_Oauth extends \Test_Basetest
 	public function test_oauth_validate_fails_with_an_old_signature()
 	{
 		require_once(APPPATH.'/tasks/admin.php');
-		$lti_config = \Config::get("lti::lti.consumers.".\Input::post('tool_consumer_info_product_family_code', 'default'));
-
 		$user_id = \Fuel\Tasks\Admin::instant_user();
 		$user = \Model_User::find($user_id);
 		$this->create_test_oauth_launch([], \Uri::current(), $user);
-		\Input::_set('post', ['oauth_consumer_key' => time() - $lti_config['oauth_signature'] - 1]);
+		\Input::_set('post', ['oauth_consumer_key' => time() - 3601]);
 		$valid = \Lti\Oauth::validate_post();
 		$this->assertEquals(false, $valid);
 	}

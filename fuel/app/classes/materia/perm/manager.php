@@ -9,6 +9,9 @@ class Perm_Manager
 	 * Create a new Role
 	 *
 	 * @param string $role_name role name with no spaces, snake case w/ underscores
+	 *
+	 * @return boolean whether or not a new role was created, or false if the role
+	 * does not exist or the current user is not a super user
 	 */
 	static public function create_role($role_name = '')
 	{
@@ -25,9 +28,9 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Checks if the currently logged in user is a super user
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
+	 * @return boolean whether or not the current user has the super user role as defined by the Perm_Role class
 	 */
 	static public function is_super_user()
 	{
@@ -53,8 +56,6 @@ class Perm_Manager
 	 * @param int	Optional user_id, defaults to the current session uid
 	 *
 	 * @return bool	True if user has any of the passed roles, false if no roles match
-	 *
-	 * @author Ian Turgeon
 	 **/
 	static public function does_user_have_role(Array $roles, $user_id = null)
 	{
@@ -83,11 +84,38 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Return a list of users who have the given role.
 	 *
-	 * @var string NEEDS DOCUMENTATION
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
+	 * @return array list of user ids with role $role_name
+	 */
+	static public function get_user_ids_with_role($role_name = '')
+	{
+		if (empty($role_name) || ! is_string($role_name) || ! self::role_exists($role_name)) return [];
+
+		$role_id = self::get_role_id($role_name);
+
+		$result = \DB::select('user_id')
+			->from('perm_role_to_user')
+			->where('role_id', $role_id)
+			->execute();
+
+		$user_ids = [];
+		foreach ($result as $row)
+		{
+			$user_ids[] = $row['user_id'];
+		}
+
+		return $user_ids;
+	}
+
+	/**
+	 * Check to see if a role with the given name already exists
+	 *
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
+	 *
+	 * @return boolean whether or not the given role name is already present in the database
 	 */
 	static private function role_exists($role_name = '')
 	{
@@ -103,11 +131,12 @@ class Perm_Manager
 
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Get the id of a role with the given name
 	 *
-	 * @var string NEEDS DOCUMENTATION
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
+	 * @return boolean false if no role with the given name exists in the database
+	 * @return integer the id in the database of the role with the given name
 	 */
 	static public function get_role_id($role_name = '')
 	{
@@ -130,14 +159,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Adds the given roles to the given users - only works if current user is super user
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should be granted the given roles
+	 * @param array $roles list of role names which should be granted to the given users
 	 *
-	 * @return NEEDS DOCUMENTATION
-	 *
-	 * @author Zachary Berry
+	 * @return boolean false if the current user is not a super user, or true if all given
+	 * users were successfully granted all given roles
 	 */
 	static public function add_users_to_roles(Array $users = [], Array $roles = [])
 	{
@@ -146,14 +174,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * This function is only for the system to call, it ignores administrator rights
+	 * Adds the given roles to the given users - bypasses super user check, for system use only
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should be granted the given roles
+	 * @param array $roles list of role names which should be granted to the given users
 	 *
-	 * @return NEEDS DOCUMENTATION
-	 *
-	 * @author Zachary Berry
+	 * @return boolean false if either given array is empty, or true if all given
+	 * users were successfully granted all given roles
 	 */
 	static public function add_users_to_roles_system_only(Array $user_ids = [], Array $role_names = [])
 	{
@@ -195,11 +222,10 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Returns all roles
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
-	 *
-	 * @todo FIX RETURN FOR DB ABSTRACTION
+	 * @return boolean false if the current user is not a super user, or if there are no roles
+	 * @return array all roles currently in the database as objects with properties 'role_id' and 'name'
 	 */
 	static public function get_all_roles()
 	{
@@ -217,26 +243,31 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENATION
+	 * Returns a list of all roles a given user has
 	 *
-	 * @param int NEEDS DOCUMENTATION
+	 * @param int $user_id id of the user to find roles for
 	 *
-	 * @todo FIX RETURN FOR DB ABSTRACTION
+	 * @return boolean false if the current user is not a super user and is trying to find
+	 * somebody else's roles, or if the given user id is 0 or a negative number
+	 * @return array an empty array if the given user does not exist, otherwise an array containing
+	 * all roles assigned to the given user as objects with properties 'role_id' and 'name'
 	 */
 	static public function get_user_roles($user_id = 0)
 	{
 		$q = \DB::select('r.role_id', 'r.name')
 			->from(['user_role', 'r'])
 			->join(['perm_role_to_user', 'm'])
-				->on('r.id', '=', 'm.role_id')
+				->on('r.role_id', '=', 'm.role_id')
 			->as_object();
 
+		$current_id = \Model_User::find_current_id();
+
 		// return logged in user's roles if id is 0 or less, non su users can only use this method
-		if ($user_id <= 0 || $user_id == \Model_User::find_current_id())
+		if ($user_id <= 0 || $user_id == $current_id)
 		{
 			$roles = [];
 
-			$results = $q->where('m.user_id', \Model_User::find_current_id())
+			$results = $q->where('m.user_id', $current_id)
 				->execute();
 
 			if ($results->count() > 0)
@@ -265,7 +296,7 @@ class Perm_Manager
 			}
 			else
 			{
-				trace(' not super user.', true);
+				\Log::warning("non-super user {$current_id} attempting role lookup for user {$user_id}");
 				return false;
 			}
 		}
@@ -273,12 +304,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Removes the given roles from the given users - only works if current user is super user
 	 *
-	 * @param array NEEDS DOCUMENTATION
-	 * @param array NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should have the given roles removed
+	 * @param array $roles list of role names which should be removed from the given users
 	 *
-	 * @return bool NEEDS DOCUMENTATION
+	 * @return boolean false if the current user is not a super user, or true if all given
+	 * roles were successfully removd from all given roles
 	 */
 	static public function remove_users_from_roles(Array $users = [], Array $roles = [])
 	{
@@ -288,12 +320,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * This function is only for the system to call, it ignores administrator rights
+	 * Removes the given roles from the given users - bypasses super user check, for system use only
 	 *
-	 * @param array NEEDS DOCUMENTATION
-	 * @param array NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should have the given roles removed
+	 * @param array $roles list of role names which should be removed from the given users
 	 *
-	 * @return bool NEEDS DOCUMENTATION
+	 * @return boolean false if either given array is empty, or true if all given
+	 * roles were successfully removd from all given roles
 	 */
 	static public function remove_users_from_roles_system_only(Array $user_ids = [], Array $role_names = [])
 	{
@@ -320,12 +353,14 @@ class Perm_Manager
 	 */
 
 	/**
-	* Get a User's specific permissions to an object
-	*
-	* @param unknown NEEDS DOCUMENTATION
-	* @param unknown NEEDS DOCUMENTATION
-	* @param unknown NEEDS DOCUMENTATION
-	*/
+	 * Get a User's specific permissions to an object
+	 *
+	 * @param string $object_id id of object
+	 * @param int $object_type type of object
+	 * @param int $user_id id of user with perms to object
+	 *
+	 * @return array array of perms given user has to given object of given type
+	 */
 	static public function get_user_object_perms($object_id, $object_type, $user_id)
 	{
 		$results = \DB::select('perm')
@@ -337,7 +372,7 @@ class Perm_Manager
 		return self::make_perms_from_query($results);
 	}
 
-	// rigts from user user to object
+	// rights from user to object
 	/**
 	 * Sets user permissions for a given object
 	 *
@@ -424,9 +459,9 @@ class Perm_Manager
 	/**
 	 * Clear a user's permissions to an object
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param string $object_id id of object
+	 * @param int $object_type type of object
+	 * @param int $user_id id of user with perms to object
 	 */
 	static public function clear_user_object_perms($object_id, $object_type, $user_id)
 	{
@@ -444,7 +479,9 @@ class Perm_Manager
 	/**
 	 * Converts query return to a keyed array
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $results array of records returned by query in get_user_object_perms
+	 *
+	 * @return array formatted array of permissions
 	 */
 	static private function make_perms_from_query($results)
 	{
@@ -462,7 +499,7 @@ class Perm_Manager
 	/**
 	 * Gets the role permissions based on a user's user_id, returns array with the key's as the permission values
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param int $user_id id of user to check role permissions for
 	 */
 	static public function get_user_role_perms($user_id)
 	{
