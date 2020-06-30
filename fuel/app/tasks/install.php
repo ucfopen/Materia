@@ -13,6 +13,8 @@ class Install
 
 		\Cli::write("FuelPHP environment set to: '".\Fuel::$env."'");
 
+		\Crypt::encode('this is just here to initialize fuel/app/config/crypt.php');
+
 		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard');
 		self::prompt_and_run('Set writable paths?', 'make_paths_writable');
 		self::prompt_and_run('Clear Server Cache?', 'clear_cache');
