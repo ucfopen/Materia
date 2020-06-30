@@ -109,7 +109,7 @@ return [
 		],
 		'auth.salt' => [
 			'generate_random_key' => true,
-			'generate_when_value_is' => '',
+			'generate_when_value_is' => 'SET THIS IN YOUR ENV CONFIG',
 			'description' => 'Randomized string for salting internal passwords.',
 		],
 		'crypt.crypto_key' => [
@@ -127,14 +127,9 @@ return [
 			'generate_when_value_is' => '',
 			'description' => 'Randomized private key for encyption (AND ANOTHER ONE).',
 		],
-		'crypt.sodium.cipherkey' => [
-			'generate_random_key' => true,
-			'generate_when_value_is' => '',
-			'description' => 'Randomized private key for encyption.',
-		],
 		'config.security.token_salt' => [
 			'generate_random_key' => true,
-			'generate_when_value_is' => '',
+			'generate_when_value_is' => 'put your salt value here to make the token more secure',
 			'description' => 'Salt used for session generation (and more).',
 		],
 	]
