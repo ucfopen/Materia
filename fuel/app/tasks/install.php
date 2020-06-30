@@ -31,6 +31,11 @@ class Install
 		$should_prompt = \Cli::option('skip_prompts', false) != true;
 		if ($should_prompt && \Cli::prompt("\r\n{$text}", ['y', 'n']) == 'n') return;
 		// execute the method
-		\Oil\Refine::run("admin:${method}" , []);
+		try{
+			\Oil\Refine::run("admin:{$method}" , []);
+		} catch(\Exception $e){
+			\Cli::write("Error running `php oil refine admin:{$method}`");
+			\Cli::write($e->getMessage());
+		}
 	}
 }

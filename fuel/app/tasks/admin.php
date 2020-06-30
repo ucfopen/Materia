@@ -46,106 +46,118 @@ class Admin extends \Basetask
 		$options = \Config::get('install.setup_wizard_config_options', []);
 		foreach ($options as $key => $key_settings)
 		{
-			$config_path = self::convert_string_to_config_path($env, $key);
-			self::create_directory(dirname($config_path));
-			list($value_name, $new_config) = self::get_config_from_string($env, $key);
+			try{
+				$config_path = self::convert_string_to_config_path($env, $key);
+				self::create_directory(dirname($config_path));
+				list($value_name, $new_config) = self::get_config_from_string($env, $key);
 
-			// does this config option depends on another option's value?
-			if (isset($key_settings['depends_on_value_match']))
-			{
-				// get the key and value out of the config
-				$required_value = reset($key_settings['depends_on_value_match']);
-				$required_key = key($key_settings['depends_on_value_match']);
-
-				// load the conifg
-				list($depends_key, $depends_config) = self::get_config_from_string($env, $required_key);
-
-				// compare values and skip if they aren't the same
-				$actual_value = \Arr::get($depends_config, $depends_key);
-
-				// ajdskfl jdsfl
-				if ($actual_value != $required_value)
+				// does this config option depend on another option's value?
+				if (isset($key_settings['depends_on_value_match']))
 				{
-					continue;
-				}
-			}
+					// get the key and value out of the config
+					$required_value = reset($key_settings['depends_on_value_match']);
+					$required_key = key($key_settings['depends_on_value_match']);
 
-			// get current value
-			$new_value = $default_value = $current_value = \Arr::get($new_config, $value_name);
+					// load the conifg
+					list($depends_key, $depends_config) = self::get_config_from_string($env, $required_key);
 
-			// if default configured, add it as an option
-			if (isset($key_settings['default']) && empty($current_value))
-			{
-				$default_value = $key_settings['default'];
-			}
+					// compare values and skip if they aren't the same
+					$actual_value = \Arr::get($depends_config, $depends_key);
 
-			// if no value is set and the config says generate a random key, do it here
-			if (empty($default_value) && isset($key_settings['generate_random_key']) && $key_settings['generate_random_key'])
-			{
-				$default_value = self::make_crypto_key();
-			}
-
-			// do some work to make boolean values display better
-			$current_value_string = (string) $current_value;
-			if (is_bool($current_value)) $current_value_string = $current_value ? 'true' : 'false';
-
-			$prompt_value_default = (string) $default_value;
-			if (is_bool($default_value)) $prompt_value_default = $default_value ? 'true' : 'false';
-
-			// prompt for new value
-			if ($should_prompt)
-			{
-				// if options are set, restrict input to those options
-				// we'll just copy the array into the input for the prompt
-				if (isset($key_settings['options']))
-				{
-					$prompt_value_default = $key_settings['options'];
+					if ($actual_value != $required_value)
+					{
+						continue;
+					}
 				}
 
-				if ( ! empty($key_settings['description']))
+				// get current value
+				$new_value = $default_value = $current_value = \Arr::get($new_config, $value_name);
+
+				// if default configured, add it as an option
+				if (isset($key_settings['default']) && empty($current_value))
 				{
-					\Cli::write("\r\n{$key_settings['description']}", 'yellow');
+					$default_value = $key_settings['default'];
+				}
+
+				// if no value is set and the config says generate a random key, do it here
+				$is_value_empty = empty($default_value);
+				// allows us to generate values when the key has a default value used to suggest it be changed (ex: CHANGE ME)
+				$is_matching_value = isset($key_settings['generate_when_value_is']) && $key_settings['generate_when_value_is'] == $default_value;
+				$is_generate_enabled = isset($key_settings['generate_random_key']) and $key_settings['generate_random_key'];
+
+				if ($is_generate_enabled && ($is_matching_value || $is_value_empty))
+				{
+					$default_value = self::make_crypto_key();
+				}
+
+				// do some work to make boolean values display better
+				$current_value_string = (string) $current_value;
+				if (is_bool($current_value)) $current_value_string = $current_value ? 'true' : 'false';
+
+				$prompt_value_default = (string) $default_value;
+				if (is_bool($default_value)) $prompt_value_default = $default_value ? 'true' : 'false';
+
+				// prompt for new value
+				if ($should_prompt)
+				{
+					// if options are set, restrict input to those options
+					// we'll just copy the array into the input for the prompt
+					if (isset($key_settings['options']))
+					{
+						$prompt_value_default = $key_settings['options'];
+					}
+
+					if ( ! empty($key_settings['description']))
+					{
+						\Cli::write("\r\n{$key_settings['description']}", 'yellow');
+					}
+					else
+					{
+						\Cli::write("\r\nSetting Config Variable: ${key}", 'yellow');
+					}
+
+					// show the current value if multiple options are avail
+					if (is_array($prompt_value_default))
+					{
+						\Cli::write("Current value: \"{$current_value_string}\"");
+					}
+
+					$new_value = trim(\Cli::prompt('Enter value', $prompt_value_default));
 				}
 				else
 				{
-					\Cli::write("\r\nSetting Config Variable: ${key}", 'yellow');
+					// set new value to default if not prompting and a the current value is empty
+					if (empty($current_value))
+					{
+						$new_value = $default_value;
+					}
 				}
 
-				// show the current value if multiple options are avail
-				if (is_array($prompt_value_default))
+				// type cast if provided
+				if (isset($key_settings['type']))
 				{
-					\Cli::write("Current value: \"{$current_value_string}\"");
+					$new_value = filter_var($new_value, $key_settings['type']);
 				}
 
-				$new_value = trim(\Cli::prompt('Enter value', $prompt_value_default));
-			}
-			else
-			{
-				// set new value to default if not prompting and a the current value is empty
-				if (empty($current_value))
+				if ($new_value !== $current_value)
 				{
-					$new_value = $default_value;
+					$new_value_string = $new_value;
+					if (is_bool($new_value)) $new_value_string = $new_value ? 'true' : 'false';
+
+
+					\Arr::set($new_config, $value_name, $new_value);
+					\Config::save($config_path, $new_config);
+					\Cli::write("${key} changed from '{$current_value_string}' to '{$new_value_string}'", 'green');
 				}
-			}
-
-			// type cast if provided
-			if (isset($key_settings['type']))
-			{
-				$new_value = filter_var($new_value, $key_settings['type']);
-			}
-
-			if ($new_value !== $current_value)
-			{
-				$new_value_string = $new_value;
-				if (is_bool($new_value)) $new_value_string = $new_value ? 'true' : 'false';
-
-				\Arr::set($new_config, $value_name, $new_value);
-				\Config::save($config_path, $new_config);
-				\Cli::write("${key} changed from '{$current_value_string}' to '{$new_value_string}'", 'green');
-			}
-			else
-			{
-				\Cli::write("${key} remains set to '{$current_value_string}'");
+				else
+				{
+					\Cli::write("${key} remains set to '{$current_value_string}'");
+				}
+			} catch(\Exception $e){
+				\Cli::write(" ERROR: There was an error attempting to set $key");
+				\Cli::write(" ERROR: ".$e->getMessage());
+				\Cli::write(" ERROR: Continuing on to next setting...");
+				trace($e);
 			}
 		}
 
@@ -607,8 +619,13 @@ class Admin extends \Basetask
 
 		$current_env = \Fuel::$env;
 		\Fuel::$env = $env;
+		trace("Loading config from $path");
 		$value = \Config::load($path, false, true);
+
 		\Fuel::$env = $current_env;
+
+		// if there is no config at $path, return a new array
+		if(!is_array($value)) $value = [];
 
 		return [
 			$value_name,

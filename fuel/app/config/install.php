@@ -71,6 +71,7 @@ return [
 		],
 		'db.default.connection.password' => [
 			'generate_random_key' => true,
+			'generate_when_value_is' => 'SECRET MATERIA DB USER PASSWORD',
 			'description' => 'Database user password?',
 		],
 		'lti::lti.tool_consumer_instance_guid' => [
@@ -93,6 +94,7 @@ return [
 		],
 		'lti::lti.consumers.canvas.secret' => [
 			'generate_random_key' => true,
+			'generate_when_value_is' => 'LTI_OAUTH_SECRET_KEY',
 			'description' => 'LTI Secret key for Canvas.',
 		],
 		'lti::lti.consumers.canvas.key' => [
@@ -107,22 +109,32 @@ return [
 		],
 		'auth.salt' => [
 			'generate_random_key' => true,
-			'description' => 'Random string for salting internal passwords.',
+			'generate_when_value_is' => '',
+			'description' => 'Randomized string for salting internal passwords.',
 		],
 		'crypt.crypto_key' => [
 			'generate_random_key' => true,
-			'description' => 'Random private key for encyption.',
+			'generate_when_value_is' => '',
+			'description' => 'Randomized private key for encyption.',
 		],
 		'crypt.crypto_iv' => [
 			'generate_random_key' => true,
-			'description' => 'Random private key for encyption (another one!).',
+			'generate_when_value_is' => '',
+			'description' => 'Randomized private key for encyption (another one!).',
 		],
 		'crypt.crypto_hmac' => [
 			'generate_random_key' => true,
-			'description' => 'Random private key for encyption (AND ANOTHER ONE).',
+			'generate_when_value_is' => '',
+			'description' => 'Randomized private key for encyption (AND ANOTHER ONE).',
+		],
+		'crypt.sodium.cipherkey' => [
+			'generate_random_key' => true,
+			'generate_when_value_is' => '',
+			'description' => 'Randomized private key for encyption.',
 		],
 		'config.security.token_salt' => [
 			'generate_random_key' => true,
+			'generate_when_value_is' => '',
 			'description' => 'Salt used for session generation (and more).',
 		],
 	]
