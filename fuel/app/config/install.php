@@ -132,5 +132,10 @@ return [
 			'generate_when_value_is' => 'put your salt value here to make the token more secure',
 			'description' => 'Salt used for session generation (and more).',
 		],
+		'auth.login_hash_salt' => [
+			'generate_random_key' => true,
+			'generate_when_value_is' => '',
+			'description' => 'Salt used for password hashing (if used).',
+		],
 	]
 ];
