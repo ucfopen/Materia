@@ -27,8 +27,8 @@ class Admin extends \Basetask
 
 	public static function configuration_wizard($skip_prompts=false)
 	{
-		\Cli::write("Running installer");
-		\Cli::write("NOTE: This updates configuration files in fuel/app/config.");
+		\Cli::write("Materia configuration wizard");
+		\Cli::write("NOTE: This updates configuration files in fuel/app/config and fuel/app/modules/*/config/");
 		\Cli::write("NOTE: To simplify install, it will NOT update environment based configurations.");
 		\Cli::write("NOTE: Environment based config files may override these values.");
 
