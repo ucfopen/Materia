@@ -17,7 +17,6 @@ class Install
 
 	private static function prompt_and_run($text, $method, $exec = true)
 	{
-		\Config::load('config.php', null, true);
 		// was the cli option set to skip this method?
 		if (\Cli::option("skip_{$method}", false)) return;
 
@@ -26,7 +25,9 @@ class Install
 		if ($should_prompt && \Cli::prompt("\r\n{$text}", ['y', 'n']) == 'n') return;
 
 		try{
-			\Oil\Refine::run("admin:{$method}" , []);
+			// these are run in a subshell because fuel doesn't much like
+			// changing the config variables on the fly
+			passthru("php oil r admin:{$method}");
 		} catch(\Exception $e){
 			\Cli::write("Error running `php oil refine admin:{$method}`");
 			\Cli::write($e->getMessage());
