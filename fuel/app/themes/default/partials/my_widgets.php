@@ -331,7 +331,7 @@
 
 							<li ng-hide="{{user.is_student}}">
 								<h3>Access</h3>
-								<ul class="access-options" ng-disabled="studentMade" ng-class="{'disabled' : studentMade}>
+								<ul class="access-options" ng-disabled="studentMade" ng-class="{'disabled' : studentMade}">
 									<li ng-disabled="studentMade">
 										<input type="checkbox"
 											class="normal-checkbox"
