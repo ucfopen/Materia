@@ -16,10 +16,10 @@ DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
 $DC pull --ignore-pull-failures phpfpm fakes3
 
 # install php deps
-$DC run --rm phpfpm composer install --no-progress
+$DC run --rm --no-deps phpfpm composer install --no-progress
 
 # run linter
-$DC run --rm phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
+$DC run --rm --no-deps phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
 
 # install widgets and run tests
 source run_tests_coverage.sh

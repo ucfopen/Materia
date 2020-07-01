@@ -7,7 +7,7 @@
 class Test_LtiUserManager extends \Test_Basetest
 {
 	// Runs before every single test
-	protected function setUp()
+	protected function setUp(): void
 	{
 		\Auth::forge(['driver' => 'LtiTestAuthDriver']);
 		\Config::set("lti::lti.consumers.materia-test.auth_driver", 'LtiTestAuthDriver');
@@ -376,7 +376,7 @@ class Auth_Login_LtiTestAuthDriver extends \Auth_Login_Driver
 		$username = $username ?: $this->user['username'];
 		$user     = \Model_User::find_by_username($username);
 
-		if ( ! $user) throw new \Exception('Username not found', 4);
+		if ( ! $user) throw new \Exception("Username {$username} not found", 4);
 
 		// save the new user record
 		try

@@ -5,14 +5,14 @@ class Test_Basetest extends \Basetest
 	protected $uniq_counter = 0;
 
 	// Runs before every single test
-	protected function setUp()
+	protected function setUp(): void
 	{
 		static::reset_input();
 		parent::setUp();
 	}
 
 
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		\Auth::logout();
 		parent::tearDown();

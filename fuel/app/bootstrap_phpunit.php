@@ -73,6 +73,3 @@ require_once APPPATH.'bootstrap.php';
 // Set test mode
 Fuel::$is_test = true;
 Fuel::$env = Fuel::TEST;
-
-// Import the TestCase class
-import('testcase');
