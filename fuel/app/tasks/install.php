@@ -5,17 +5,9 @@ class Install
 {
 	public static function run()
 	{
-		// let the user set the environment
-		if (\Cli::option('skip_prompts', false) != true)
-		{
-			\Fuel::$env = \Cli::prompt('Choose your environment', ['development', 'production', 'staging']);
-		}
-
-		\Cli::write("FuelPHP environment set to: '".\Fuel::$env."'");
-
 		\Crypt::encode('this is just here to initialize fuel/app/config/crypt.php');
 
-		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard');
+		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard', false);
 		self::prompt_and_run('Set writable paths?', 'make_paths_writable');
 		self::prompt_and_run('Clear Server Cache?', 'clear_cache');
 		self::prompt_and_run('Run Migrations?', 'setup_migrations');
@@ -24,7 +16,7 @@ class Install
 		self::prompt_and_run('Create Default Users?', 'create_default_users');
 	}
 
-	private static function prompt_and_run($text, $method)
+	private static function prompt_and_run($text, $method, $exec = true)
 	{
 		// was the cli option set to skip this method?
 		if (\Cli::option("skip_{$method}", false)) return;

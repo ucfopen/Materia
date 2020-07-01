@@ -8,7 +8,7 @@ class Admin extends \Basetask
 {
 
 	// convert 'lti.setting_name' to 'lti.php'
-	protected static function convert_string_to_config_path($env, $name)
+	protected static function convert_string_to_config_path($name)
 	{
 		$name = explode('.', $name);
 		return $name[0].'.php';
@@ -25,31 +25,23 @@ class Admin extends \Basetask
 		}
 	}
 
-	protected static function copy_config_to($source, $target)
-	{
-		$target = APPPATH.'config'.DS.$env.DS.$config.'.php';
-		self::create_directory(dirname($target));
-
-		if ( ! file_exists($target))
-		{
-			copy(APPPATH.'config'.DS.$config.'.php', $target);
-			\Cli::write("$target created", 'green');
-		}
-	}
-
 	public static function configuration_wizard($skip_prompts=false)
 	{
+		\Cli::write("Running installer");
+		\Cli::write("NOTE: This updates configuration files in fuel/app/config.");
+		\Cli::write("NOTE: To simplify install, it will NOT update environment based configurations.");
+		\Cli::write("NOTE: Environment based config files may override these values.");
+
 		\Config::load('install', true);
 		$should_prompt = \Cli::option('skip_prompts', $skip_prompts) != true;
-		$env = \Fuel::$env;
 
 		$options = \Config::get('install.setup_wizard_config_options', []);
 		foreach ($options as $key => $key_settings)
 		{
 			try{
-				$config_path = self::convert_string_to_config_path($env, $key);
+				$config_path = self::convert_string_to_config_path($key);
 				self::create_directory(dirname($config_path));
-				list($value_name, $new_config) = self::get_config_from_string($env, $key);
+				list($value_name, $new_config) = self::get_config_from_string($key);
 
 				// does this config option depend on another option's value?
 				if (isset($key_settings['depends_on_value_match']))
@@ -59,7 +51,7 @@ class Admin extends \Basetask
 					$required_key = key($key_settings['depends_on_value_match']);
 
 					// load the conifg
-					list($depends_key, $depends_config) = self::get_config_from_string($env, $required_key);
+					list($depends_key, $depends_config) = self::get_config_from_string($required_key);
 
 					// compare values and skip if they aren't the same
 					$actual_value = \Arr::get($depends_config, $depends_key);
@@ -162,7 +154,7 @@ class Admin extends \Basetask
 		}
 
 		\Cli::write("\r\nConfiguration complete.", 'green');
-		\Cli::write("\r\nPlease review the generated config files in fuel/app/config/{$env}.");
+		\Cli::write("\r\nPlease review the generated config files in fuel/app/config/");
 	}
 
 	public static function make_paths_writable()
@@ -288,6 +280,8 @@ class Admin extends \Basetask
 
 	public static function setup_migrations()
 	{
+		self::get_env();
+		trace(\Config::get('db'));
 		\Migrate::latest();
 
 		// run the module migrations
@@ -611,18 +605,14 @@ class Admin extends \Basetask
 		return $data;
 	}
 
-	protected static function get_config_from_string($env, $config_string)
+	protected static function get_config_from_string($config_string)
 	{
 		// converts "lti::lti.something.something_else" to "something.something_else"
 		$value_name = substr($config_string, strpos($config_string, '.') + 1);
-		$path = self::convert_string_to_config_path($env, $config_string);
+		$path = self::convert_string_to_config_path($config_string);
 
-		$current_env = \Fuel::$env;
-		\Fuel::$env = $env;
 		trace("Loading config from $path");
 		$value = \Config::load($path, false, true);
-
-		\Fuel::$env = $current_env;
 
 		// if there is no config at $path, return a new array
 		if(!is_array($value)) $value = [];
