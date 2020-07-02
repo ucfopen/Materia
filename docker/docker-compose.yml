@@ -17,10 +17,10 @@ services:
 
   phpfpm:
     container_name: materia-phpfpm
-    image: ucfopen/materia-web-base:${TAG} # TAG default value is in .env file
+    image: ucfopen/materia-phpfpm:${TAG} # TAG default value is in .env file
     build:
       context: ./dockerfiles
-      dockerfile: materia-web
+      dockerfile: materia-phpfpm-debian
     environment:
       # See .env for default values
       - FUEL_ENV
@@ -35,6 +35,7 @@ services:
       - ../:/var/www/html:rw
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
       - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
+      - node_modules:/var/www/html/node_modules
     depends_on:
       - mysql
       - memcached
@@ -57,7 +58,7 @@ services:
 
   memcached:
     container_name: materia-memcached
-    image: memcached:1.4.27-alpine
+    image: memcached:1.6.6-alpine
     networks:
       - backend
 
@@ -92,3 +93,4 @@ networks:
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
   uploaded_media: {} # uploaded media files
+  node_modules: {} # node modules for npm

@@ -1,0 +1,12 @@
+version: '3.2'
+# Docker Compose file meant for tasks like building assets and running tests
+services:
+
+  phpfpm:
+    container_name: materia-phpfpm
+    image: ucfopen/materia-phpfpm-amazon:${TAG} # TAG default value is in .env file
+    build:
+      context: ./dockerfiles
+      dockerfile: materia-phpfpm-amazon
+    ports:
+      - "9000:9000"

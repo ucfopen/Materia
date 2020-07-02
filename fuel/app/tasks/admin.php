@@ -339,7 +339,7 @@ class Admin extends \Basetask
 		}
 
 		$dirs = $file_area->read_dir(\Config::get('file.dirs.widgets'), 1, ['!^\.', '!^\D']);
-		if (count($dirs) > 0)
+		if (is_array($dirs) && count($dirs) > 0)
 		{
 			foreach ($dirs as $dir => $nothing)
 			{
@@ -422,6 +422,7 @@ class Admin extends \Basetask
 	public static function populate_roles()
 	{
 		$roles = 0;
+		if (\Materia\Perm_Manager::create_role('no_author')) $roles++;
 		if (\Materia\Perm_Manager::create_role('basic_author')) $roles++;
 		if (\Materia\Perm_Manager::create_role('super_user')) $roles++;
 

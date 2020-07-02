@@ -20,4 +20,5 @@ return [
 	// doesnt work below php7.2
 	'log_handler_factory'   => function($locals, $level){ return new \Monolog\Handler\ErrorLogHandler(); },
 
+	'locale' => 'en_US.UTF-8', // PHP set_locale()
 ];

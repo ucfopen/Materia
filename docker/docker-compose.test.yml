@@ -8,21 +8,8 @@ services:
     volumes:
       - static_widget_files_test:/var/www/html/public/widget
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
-    command: echo "yay"
-
-  # We use a node container to compile js, css, etc
-  node:
-    container_name: materia-node
-    image: ucfopen/materia-node:${TAG}
-    build:
-      context: ./dockerfiles
-      dockerfile: materia-node
-    networks:
-      - backend
-    volumes:
-      - ../:/var/www/html:rw
-      - node_modules:/var/www/html/node_modules
       - build_app_root:/build:rw
+    command: echo "yay"
 
   mysql:
     environment:
@@ -38,4 +25,3 @@ volumes:
   build_app_root: {}
   static_widget_files_test: {} # contain widgets installed in tests
   uploaded_media_test: {} # contain files uploaded in tests
-  node_modules: {} # node modules for npm
