@@ -28,7 +28,7 @@ class Install
 			// these are run in a subshell because fuel doesn't much like
 			// changing the config variables on the fly
 			passthru("php oil r admin:{$method}");
-		} catch(\Exception $e){
+		} catch (\Exception $e) {
 			\Cli::write("Error running `php oil refine admin:{$method}`");
 			\Cli::write($e->getMessage());
 		}

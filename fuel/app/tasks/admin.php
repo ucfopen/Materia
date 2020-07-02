@@ -27,10 +27,10 @@ class Admin extends \Basetask
 
 	public static function configuration_wizard($skip_prompts=false)
 	{
-		\Cli::write("Materia configuration wizard");
-		\Cli::write("NOTE: This updates configuration files in fuel/app/config and fuel/app/modules/*/config/");
-		\Cli::write("NOTE: To simplify install, it will NOT update environment based configurations.");
-		\Cli::write("NOTE: Environment based config files may override these values.");
+		\Cli::write('Materia configuration wizard');
+		\Cli::write('NOTE: This updates configuration files in fuel/app/config and fuel/app/modules/*/config/');
+		\Cli::write('NOTE: To simplify install, it will NOT update environment based configurations.');
+		\Cli::write('NOTE: Environment based config files may override these values.');
 
 		\Config::load('install', true);
 		$should_prompt = \Cli::option('skip_prompts', $skip_prompts) != true;
@@ -145,10 +145,10 @@ class Admin extends \Basetask
 				{
 					\Cli::write("${key} remains set to '{$current_value_string}'");
 				}
-			} catch(\Exception $e){
-				\Cli::write(" ERROR: There was an error attempting to set $key");
-				\Cli::write(" ERROR: ".$e->getMessage());
-				\Cli::write(" ERROR: Continuing on to next setting...");
+			} catch (\Exception $e){
+				\Cli::write("ERROR: There was an error attempting to set $key");
+				\Cli::write(' ERROR: '.$e->getMessage());
+				\Cli::write(' ERROR: Continuing on to next setting...');
 				trace($e);
 			}
 		}
@@ -616,7 +616,7 @@ class Admin extends \Basetask
 		$value = \Config::load($path, false, true);
 
 		// if there is no config at $path, return a new array
-		if(!is_array($value)) $value = [];
+		if ( ! is_array($value)) $value = [];
 
 		return [
 			$value_name,
