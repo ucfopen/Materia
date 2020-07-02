@@ -442,7 +442,7 @@ class Widget_Instance
 
 
 		// add the new owners
-		foreach($owners_list as $owner)
+		foreach ($owners_list as $owner)
 		{
 			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $owner, [Perm::FULL => Perm::ENABLE]);
 		}
@@ -450,7 +450,7 @@ class Widget_Instance
 		if ( ! is_array($viewers_list)) return;
 
 		// add the new viewers
-		foreach($viewers_list as $viewer)
+		foreach ($viewers_list as $viewer)
 		{
 			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $viewer, [Perm::VISIBLE => Perm::ENABLE]);
 		}

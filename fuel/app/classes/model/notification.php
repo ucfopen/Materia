@@ -68,7 +68,8 @@ public static function on_widget_delete_event($assoc_param_array)
 		switch ($item_type)
 		{
 			case \Materia\Perm::INSTANCE:
-				if($from_user_id === 0){
+				if ($from_user_id === 0)
+				{
 					// create a mock user
 					$user = (object)[
 						'first' => 'Materia',
