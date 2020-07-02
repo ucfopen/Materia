@@ -6,6 +6,7 @@
 #######################################################
 set -e
 
-NODE_DC_COMMAND="docker-compose"
+# use env/args to determine which docker-compose files to load
+source run_dc.sh
 
-$NODE_DC_COMMAND run --rm phpfpm yarn install --silent --pure-lockfile --force
+$DC run --rm phpfpm yarn install --silent --pure-lockfile --force

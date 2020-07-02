@@ -20,7 +20,7 @@ services:
     image: ucfopen/materia-phpfpm:${TAG} # TAG default value is in .env file
     build:
       context: ./dockerfiles
-      dockerfile: materia-phpfpm
+      dockerfile: materia-phpfpm-debian
     environment:
       # See .env for default values
       - FUEL_ENV
@@ -58,7 +58,7 @@ services:
 
   memcached:
     container_name: materia-memcached
-    image: memcached:1.4.27-alpine
+    image: memcached:1.6.6-alpine
     networks:
       - backend
 

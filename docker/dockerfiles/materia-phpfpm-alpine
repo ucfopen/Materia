@@ -1,0 +1,59 @@
+FROM php:7.4-fpm-alpine
+MAINTAINER UCF/Open_
+
+ARG PHP_EXT="bcmath gd pdo_mysql xml zip"
+ARG PHP_MEMCACHED_VERSION="v3.1.5"
+ARG COMPOSER_VERSION="1.10.0"
+ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/d2c7283f9a7df2db2ab64097a047aae780b8f6b7/web/installer"
+ARG COMPOSER_INSTALLER_SHA="e0012edf3e80b6978849f5eff0d4b4e4c79ff1609dd1e613307e16318854d24ae64f26d17af3ef0bf7cfb710ca74755a"
+ARG NODE_VERSION="12.14.1"
+ARG NODE_DISTRO="linux-x64"
+ARG NODE_CHECKSUM="07cfcaa0aa9d0fcb6e99725408d9e0b07be03b844701588e3ab5dbc395b98e1b"
+
+# os packages needed for php extensions
+ARG BUILD_PACKAGES="autoconf bash build-base cyrus-sasl-dev freetype git libjpeg-turbo-dev libmemcached-dev libpng-dev libxml2-dev zip libzip libzip-dev"
+ARG PURGE_PACKAGES="autoconf build-base cyrus-sasl-dev freetype libjpeg-turbo-dev"
+ARG PURGE_FILES="/var/lib/apt/lists/* /usr/src/php /usr/include /usr/local/include /usr/share/doc /usr/share/doc-base /var/www/html/php-memcached"
+
+RUN apk add --no-cache $BUILD_PACKAGES \
+	# ======== PHP CONFIGURE GD
+	&& docker-php-ext-configure gd --with-jpeg=/usr/include \
+	# ======== PHP XDEBUG
+	# Disabled by default
+	# && pecl install xdebug \
+	# && docker-php-ext-enable xdebug \
+	# ======== PHP EXTENSIONS
+	&& docker-php-ext-install $PHP_EXT \
+	# ======== PHP-MEMCACHED
+	&& git clone -b $PHP_MEMCACHED_VERSION https://github.com/php-memcached-dev/php-memcached.git \
+	&& cd php-memcached \
+	&& phpize \
+	&& ./configure \
+	&& make \
+	&& make install \
+	&& docker-php-ext-enable memcached \
+	# ======== PHP COMPOSER
+	&& php -r "copy('$COMPOSER_INSTALLER_URL', 'composer-setup.php');" \
+	&& php -r "if (hash_file('sha384', 'composer-setup.php') === '$COMPOSER_INSTALLER_SHA') { echo 'COMPOSER VERIFIED'; } else { echo 'COMPOSER INVALID'; exit(1); } echo PHP_EOL;" \
+	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
+	&& rm -f composer-setup.php \
+	# ======== NODE JS
+	&& curl https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-$NODE_DISTRO.tar.xz --output /tmp/node.tar.xz --silent \
+	&& php -r "if (hash_file('sha256', '/tmp/node.tar.xz') === '$NODE_CHECKSUM') { echo 'NODE VERIFIED'; } else { echo 'NODE INVALID'; exit(1); } echo PHP_EOL;" \
+	&& cd /usr \
+	&& tar --strip-components 1 -xf /tmp/node.tar.xz \
+	&& rm -f /tmp/node.tar.xz \
+	# ======== CLEANUP
+	&& apk del $PURGE_PACKAGES \
+	&& rm -rf $PURGE_FILES
+
+# hack to let php write to the shared disk with boot2docker shares
+# files shared from host into a container appear to use a user on host with UID 1000
+# looks like this container not only doesnt have a user at 1000, but the www-data user cant write to these files
+# so, this changes www-data's uid to 1000
+# RUN usermod -u 1000 www-data
+RUN sed -i "s/^www-data:x:[0-9]*/www-data:x:1000/" /etc/passwd
+
+# add script that helps us wait for other containers
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh

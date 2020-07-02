@@ -48,15 +48,18 @@ do
 	EXCLUDE="$EXCLUDE --exclude=\"./$i\""
 done
 
+# use env/args to determine which docker-compose files to load
+source run_dc.sh
+
 # store the docker compose command to shorten the following commands
-DC="docker-compose -f docker-compose.yml -f docker-compose.admin.yml"
+DCTEST="$DC -f docker-compose.test.yml"
 
 set -o xtrace
 
 # # stop and remove docker containers
-$DC down --volumes --remove-orphans
+$DCTEST down --volumes --remove-orphans
 
-$DC pull --ignore-pull-failures node
+$DCTEST pull --ignore-pull-failures phpfpm
 
 # get rid of any left over package files
 rm -rf clean_build_clone || true
@@ -74,7 +77,7 @@ GITREMOTE=$(git remote get-url origin)
 rm -rf clean_build_clone/.git
 
 # start a build container
-$DC run --no-deps -d --workdir /build/clean_build_clone --name materia-build node tail -f /dev/null
+$DCTEST run --no-deps -d --workdir /build/clean_build_clone --name materia-build phpfpm tail -f /dev/null
 
 # copy the clean build clone into the container
 docker cp ./clean_build_clone materia-build:/build
@@ -113,4 +116,4 @@ echo "sha256: $SHA256" >> ../materia-pkg-build-info.yml
 echo "md5: $MD5" >> ../materia-pkg-build-info.yml
 
 # clean environment and configs
-$DC down --volumes --remove-orphans
+$DCTEST down --volumes --remove-orphans

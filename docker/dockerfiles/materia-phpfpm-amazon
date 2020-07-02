@@ -1,0 +1,65 @@
+FROM amazonlinux:2.0.20200406.0
+MAINTAINER UCF/Open_
+
+ARG COMPOSER_VERSION="1.10.0"
+ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/d2c7283f9a7df2db2ab64097a047aae780b8f6b7/web/installer"
+ARG COMPOSER_INSTALLER_SHA="e0012edf3e80b6978849f5eff0d4b4e4c79ff1609dd1e613307e16318854d24ae64f26d17af3ef0bf7cfb710ca74755a"
+ARG NODE_VERSION="12.14.1"
+ARG NODE_DISTRO="linux-x64"
+ARG NODE_CHECKSUM="07cfcaa0aa9d0fcb6e99725408d9e0b07be03b844701588e3ab5dbc395b98e1b"
+
+# os packages needed for php extensions
+ARG ENABLE_AMAZON_EXTRAS="php7.4"
+ARG BUILD_PACKAGES="git htop tar unzip xz php php-bcmath php-cli php-common php-fpm php-gd php-json php-mbstring php-mysqlnd php-opcache php-pdo php-pecl-igbinary php-pecl-memcached php-pecl-msgpack php-pecl-oauth php-soap php-sodium php-xml php-xmlrpc"
+ARG PURGE_FILES="/var/cache/yum"
+
+RUN amazon-linux-extras enable $ENABLE_AMAZON_EXTRAS \
+	&& yum clean metadata \
+	&& yum install -y $BUILD_PACKAGES \
+	# ======== PHP COMPOSER
+	&& php -r "copy('$COMPOSER_INSTALLER_URL', 'composer-setup.php');" \
+	&& php -r "if (hash_file('sha384', 'composer-setup.php') === '$COMPOSER_INSTALLER_SHA') { echo 'COMPOSER VERIFIED'; } else { echo 'COMPOSER INVALID'; exit(1); } echo PHP_EOL;" \
+	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
+	&& rm -f composer-setup.php \
+	# ======== NODE JS
+	&& curl https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-$NODE_DISTRO.tar.xz --output /tmp/node.tar.xz --silent \
+	&& php -r "if (hash_file('sha256', '/tmp/node.tar.xz') === '$NODE_CHECKSUM') { echo 'NODE VERIFIED'; } else { echo 'NODE INVALID'; exit(1); } echo PHP_EOL;" \
+	&& cd /usr \
+	&& tar --strip-components 1 -xf /tmp/node.tar.xz \
+	&& rm -f /tmp/node.tar.xz \
+	# ======== CLEANUP
+	&& yum clean all \
+	&& rm -rf $PURGE_FILES
+
+RUN npm install --global yarn
+
+# hack to let php write to the shared disk with boot2docker shares
+# files shared from host into a container appear to use a user on host with UID 1000
+# looks like this container not only doesnt have a user at 1000, but the www-data user cant write to these files
+# so, this changes www-data's uid to 1000
+# RUN usermod -u 1000 www-data
+RUN sed -i "s/^www-data:x:[0-9]*/www-data:x:1000/" /etc/passwd
+
+# add script that helps us wait for other containers
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+# make sure includes are at the END so they beat the base config rules
+RUN echo 'include=/etc/php-fpm.d/*.conf' >> /etc/php-fpm.conf
+
+# remove listen host restriction in php-fpm. setting to any or unsetting in the config below failed
+# note - you need to make sure phpfpm container isn't accessable from outside docker
+RUN sed -i 's/listen.allowed_clients\ =/\;listen.allowed_clients\ =/g' /etc/php-fpm.d/www.conf
+
+# setup php-fpm config
+COPY phpfpm.amazon.conf /etc/php-fpm.d/zzz-docker.conf
+
+WORKDIR /var/www/html
+
+# Override stop signal to stop process gracefully
+# https://github.com/php/php-src/blob/17baa87faddc2550def3ae7314236826bc1b1398/sapi/fpm/php-fpm.8.in#L163
+STOPSIGNAL SIGQUIT
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

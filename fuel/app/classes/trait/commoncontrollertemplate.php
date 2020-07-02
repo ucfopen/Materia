@@ -60,7 +60,7 @@ trait Trait_CommonControllerTemplate
 		}
 
 		// browser-sync plugin for development
-		if (\FUEL::$env === 'development')
+		if (\Fuel::$env === 'development')
 		{
 			js::push_inline('document.write("<script async src=\"http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.3\"><\/script>".replace("HOST", location.hostname))');
 		}
