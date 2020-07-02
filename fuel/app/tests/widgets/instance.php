@@ -63,4 +63,30 @@ class Test_Widget_Instance extends \Basetest
 		// make sure the new instance is different from the current demo
 		$this->assertNotEquals($inst_id, $duplicate->id);
 	}
+
+	public function test_duplicate_existing_perms_copy()
+	{
+		// have to be logged in as author for perms checks to pass
+		$this->_as_author();
+
+		$widget = $this->make_disposable_widget();
+
+		$inst = new \Materia\Widget_Instance();
+		$inst->db_get($widget->meta_data['demo'], false);
+
+		// set multiple owners to the original widget
+		$owners = [2, 3, 4, 5];
+		$inst->set_owners($owners);
+
+		$original_perms = \Materia\Perm_Manager::get_all_users_explicit_perms($inst->id, \Materia\Perm::INSTANCE);
+		
+		// make a duplicate, with copy_existing_perms to true
+		$user_id = 2;
+		$duplicate = $inst->duplicate($user_id, 'New Widget Copy', true);
+
+		$duplicate_perms = \Materia\Perm_Manager::get_all_users_explicit_perms($duplicate->id, \Materia\Perm::INSTANCE);
+
+		// ensure duplicate perms match original perms
+		$this->assertEquals($original_perms['widget_user_perms'], $duplicate_perms['widget_user_perms']);
+	}
 }
