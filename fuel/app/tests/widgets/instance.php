@@ -57,7 +57,8 @@ class Test_Widget_Instance extends \Basetest
 		// get the original demo widget and duplicate it to test setting a new demo
 		$inst = new \Materia\Widget_Instance();
 		$inst->db_get($widget->meta_data['demo'], false);
-		$duplicate = $inst->duplicate();
+		$user_id = 1;
+		$duplicate = $inst->duplicate($user_id);
 
 		// make sure the new instance is different from the current demo
 		$this->assertNotEquals($inst_id, $duplicate->id);

@@ -376,30 +376,32 @@ class Widget_Instance
 	/**
 	 * Creates a duplicate widget instance and optionally makes the current user the owner.
 	 *
-	 * @param string The new name of the new widget
+	 * @param int owner_id user_id of the user who will be the primary owner of the duplicate
+	 * @param string new_name The new name of the new widget
+	 * @param bool copy_existing_perms Copy user permissions to the duplicate?
 	 * @return Widget_Instance Returns duplicate widget instance
 	 */
-	public function duplicate($new_name=false, $retain_original_access=false)
+	public function duplicate(int $owner_id, string $new_name = null, bool $copy_existing_perms = false): self
 	{
 		$duplicate = new Widget_Instance();
 		$duplicate->db_get($this->id, true);
 
 		$duplicate->id = 0; // mark as a new game
-		$duplicate->user_id = \Model_User::find_current_id(); // set current user as owner in instance table
+		$duplicate->user_id = $owner_id; // set current user as owner in instance table
 
 		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
-		
+
 		// if original widget is student made - verify if new owner is a student or not
 		// if they have a basic_author role or above, turn off the is_student_made flag
 		if ($duplicate->is_student_made)
 		{
-			$roles = Perm_Manager::get_user_roles();
-			if (count($roles) && $roles[0]->role_id >= 1)
+			$can_new_owner_author = Perm_Manager::does_user_have_role([Perm_Role::AUTHOR, Perm_Role::SU], $owner_id);
+			if ($can_new_owner_author)
 			{
 				$duplicate->is_student_made = 0;
 			}
 		}
-		
+
 		$result = $duplicate->db_store();
 		if ($result instanceof \Materia\Msg)
 		{
@@ -407,16 +409,17 @@ class Widget_Instance
 		}
 
 		// grab users with perms to the original, grant them perms to the copy
-		if ($retain_original_access)
+		if ($copy_existing_perms)
 		{
-			$original_access = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
+			$existing_perms = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
 			$owners = [];
 			$viewers = [];
 
-			foreach ($original_access['widget_user_perms'] as $id => $perm)
+			foreach ($existing_perms['widget_user_perms'] as $user_id => $perm_obj)
 			{
-				if ($perm[0] == Perm::FULL) array_push($owners, $id);
-				else if ($perm[0] == Perm::VISIBLE) array_push($viewers, $id);
+				list($perm) = $perm_obj;
+				if ($perm == Perm::FULL) $owners[] = $user_id;
+				else if ($perm == Perm::VISIBLE) $viewers[] = $user_id;
 			}
 
 			$duplicate->set_owners($owners, $viewers);
@@ -425,7 +428,8 @@ class Widget_Instance
 		return $duplicate;
 	}
 
-	/** a convienent way to set the perms of this game
+	/**
+	 * a convienent way to set the perms of this widget
 	 *
 	 * @param array user_ids to be set as owners
 	 * @param array user_ids to be set as viewers
@@ -438,17 +442,17 @@ class Widget_Instance
 
 
 		// add the new owners
-		for ($i = 0; $i < count($owners_list); $i++)
+		foreach($owners_list as $owner)
 		{
-			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $owners_list[$i], [Perm::FULL => Perm::ENABLE]);
+			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $owner, [Perm::FULL => Perm::ENABLE]);
 		}
 
 		if ( ! is_array($viewers_list)) return;
 
 		// add the new viewers
-		for ($i = 0; $i < count($viewers_list); $i++)
+		foreach($viewers_list as $viewer)
 		{
-			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $viewers_list[$i], [Perm::VISIBLE => Perm::ENABLE]);
+			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $viewer, [Perm::VISIBLE => Perm::ENABLE]);
 		}
 	}
 

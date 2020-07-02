@@ -520,7 +520,7 @@
 						/>
 					</div>
 					<div class="options_container">
-						<input type="checkbox" ng-model="selected.copy_retain_access" id="input_grant_og_owner">
+						<input type="checkbox" ng-model="selected.copy_retain_access" id="input_grant_og_owner" />
 						<label for="input_grant_og_owner">Grant Access to Original Owner(s)</label>
 						<p class="input_desc">If checked, all users who have access to the original widget will continue to have access to the new copy. Note that the rules for sharing widgets with students will still apply.</p>
 					</div>
@@ -623,16 +623,18 @@
 						<div class="delete_dialogue"
 							ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
-							<a class="cancel_button"
-								href="javascript:;"
-								ng-click="show.deleteDialog = false">
-								Cancel
-							</a>
-							<a class="action_button red delete_button"
-								href="javascript:;"
-								ng-click="deleteWidget()">
-								Delete
-							</a>
+							<div class="bottom_buttons">
+								<a class="cancel_button"
+									href="javascript:;"
+									ng-click="show.deleteDialog = false">
+									Cancel
+								</a>
+								<a class="action_button red delete_button"
+									href="javascript:;"
+									ng-click="deleteWidget()">
+									Delete
+								</a>
+							</div>
 						</div>
 						<div class="additional_options"
 							ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}"

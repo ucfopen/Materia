@@ -613,13 +613,15 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Returns all the user permissions an object has to it, for all users.
+	 * If the current user is a super user, they will automatically have superuser perms to each object.
+	 * Permissions are checked for expiration, if expired, they are removed and the user losing access is notified
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param string object_id id of the object
+	 * @param int object_type
 	 * @return array
 	 */
-	static public function get_all_users_explicit_perms($object_id, $object_type)
+	static public function get_all_users_explicit_perms(string $object_id, int $object_type): array
 	{
 		$current_user_id = \Model_User::find_current_id();
 		// make sure the current user has rights to this item
@@ -628,19 +630,24 @@ class Perm_Manager
 			return [];
 		}
 
+		// construct return variable
 		$perms = [
 			'user_perms' => [],
 			'widget_user_perms' => []
 		];
 
-		$cur_time = time();
+		// clear out expired permissions
+		self::check_and_expire_user_object_perms();
 
+		// load all object to  user perms to this object
 		$results = \DB::select()
 			->from('perm_object_to_user')
 			->where('object_id', $object_id)
 			->where('object_type', $object_type)
 			->execute();
 
+		// if the current user is a super user, append their user's perms into the results
+		// super users don't get explicit perms to things set in the db, so we'll fake it here
 		if (self::is_super_user())
 		{
 			$perms['user_perms'][$current_user_id] = [Perm::SUPERUSER, null];
@@ -652,43 +659,60 @@ class Perm_Manager
 			$perm     = $result['perm'];
 			$exp_time = $result['expires_at'];
 
-			//if this permission hasn't exceeded expiration date or doesn't have one at all
-			if ($exp_time == null || $cur_time < $exp_time)
+			if ($user_id == $current_user_id && empty($perms['user_perms']))
 			{
-				if ($user_id == $current_user_id && empty($perms['user_perms']))
-				{
-					$perms['user_perms'][$user_id] = [$perm, $exp_time];
-				}
-				$perms['widget_user_perms'][$user_id] = [$perm, $exp_time];
+				$perms['user_perms'][$user_id] = [$perm, $exp_time];
 			}
-			else //this permission has expired, notify the user and remove the permission
-			{
-				\Model_Notification::send_item_notification(
-					\Model_User::find_current_id(),
-					$user_id,
-					$object_type,
-					$object_id,
-					'expired',
-					$perm);
-
-				self::clear_user_object_perms($object_id, $object_type, $user_id);
-			}
+			$perms['widget_user_perms'][$user_id] = [$perm, $exp_time];
 		}
+
 		return $perms;
+	}
+
+	/**
+	 * Clears out all expired object permissions, sending notification to the person who's losing perms
+	 *
+	 * @return void
+	 */
+	static protected function check_and_expire_user_object_perms()
+	{
+		$now = time();
+
+		// load all expired items
+		$results = \DB::select()
+			->from('perm_object_to_user')
+			->where('expires_at', '<=', $now)
+			->execute();
+
+		foreach ($results as $r)
+		{
+			\Model_Notification::send_item_notification(
+				0,
+				$r['user_id'],
+				$r['object_type'],
+				$r['object_id'],
+				'expired',
+				$r['perm']
+			);
+		}
+
+		// delete all expired items
+		\DB::delete('perm_object_to_user')
+			->where('expires_at', '<=', $now)
+			->execute();
 	}
 
 	/**
 	 * Removes any permissions set for a specific object
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param mixed object_id Id of the object we're adding permissions to
+	 * @param string object_type Type of object to add permissions to
+	 * @param bool require_ownership Flag to restrict changes to the owner of the
 	 * @return bool, true if removed object permissions, false if current user does not have owner premissions
 	 */
-	static public function remove_all_permissions($object_id, $object_type, $require_ownership = true)
+	static public function remove_all_permissions($object_id, int $object_type, bool $require_ownership = true): bool
 	{
 		// make sure the current user has rights to this item
-		// NOTE: might want to fix stuff to re-enable this
-		// there was a bug upon copying a game when the permissions to the copy wer being re-set
 		$current_user_id = (int)\Model_User::find_current_id();
 
 		if ($require_ownership && ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
@@ -706,7 +730,7 @@ class Perm_Manager
 	/**
 	 * Check if user has ANY of the perms
 	 */
-	static public function user_has_any_perm_to($user_id, $object_id, $object_type, $search_perms)
+	static public function user_has_any_perm_to($user_id, $object_id, int $object_type, $search_perms)
 	{
 		if (empty($search_perms)) return false;
 
@@ -723,9 +747,9 @@ class Perm_Manager
 	}
 
 	/**
-	 * Check if user has ANY of the perms
+	 * Check if user has ALL of the permissions passed in search_perms
 	 */
-	static public function user_has_all_perms_to($user_id, $object_id, $object_type, $search_perms)
+	static public function user_has_all_perms_to(int $user_id, $object_id, string $object_type, array $search_perms): bool
 	{
 		if (empty($search_perms)) return false;
 

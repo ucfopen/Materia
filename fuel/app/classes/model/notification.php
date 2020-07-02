@@ -51,13 +51,13 @@ public static function on_widget_delete_event($assoc_param_array)
 	 * @param int User ID of sender.
 	 * @param int User ID of recipient.
 	 * @param int Integer referring to item type (widget, asset, etc.).
-	 * @param int ID of the item referred to in the notification.
+	 * @param string ID of the item referred to in the notification.
 	 * @param string The condition of the notification, i.e. 'enabled', 'disabled', or 'changed'.
 	 * @param int Integer referring to the enabled permission, currently only 30 (view) or 0 (own).
 	 * @param string (Optional) Customized message to attach to the notificaton, default is no message.
 	 * @param bool (Optional) Determines whether or not to send an e-mail along with notification, default is false.
 	 */
-	public static function send_item_notification($from_user_id, $to_user_id, $item_type, $inst_id, $mode='', $new_perm='')
+	public static function send_item_notification(int $from_user_id, int $to_user_id, int $item_type, string $inst_id, string $mode = null, int $new_perm = null): bool
 	{
 		if ($from_user_id == $to_user_id) return false; //no need to self-notify
 
@@ -68,7 +68,18 @@ public static function on_widget_delete_event($assoc_param_array)
 		switch ($item_type)
 		{
 			case \Materia\Perm::INSTANCE:
-				$user = \Model_User::find($from_user_id);
+				if($from_user_id === 0){
+					// create a mock user
+					$user = (object)[
+						'first' => 'Materia',
+						'last' => '',
+						'username' => 'Server'
+					];
+				}
+				else
+				{
+					$user = \Model_User::find($from_user_id);
+				}
 
 				$inst = new \Materia\Widget_Instance();
 				$inst->db_get($inst_id, false);
