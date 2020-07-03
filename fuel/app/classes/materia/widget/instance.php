@@ -134,13 +134,12 @@ class Widget_Instance
 	/**
 	 * Loads the game instance from the database.
 	 *
-	 * @param object the database manager
-	 * @param int    the id of the widget to load
-	 * @param bool   whether or not to load the full qset into this instance (optional, defaults to false)
-	 *
+	 * @param int $inst_id the id of the widget to load
+	 * @param bool $load_qset whether or not to load the full qset into this instance (optional, defaults to false)
+	 * @param int $timestamp UnixTimestamp or false, if provided, loads the newest qset before the timestamp
 	 * @return bool true on successful location of game, false on failure
 	 */
-	public function db_get($inst_id, $load_qset=false, $timestamp=false)
+	public function db_get(string $inst_id, bool $load_qset = false, $timestamp = false): bool
 	{
 		if (Util_Validator::is_valid_hash($inst_id))
 		{
@@ -155,7 +154,13 @@ class Widget_Instance
 		return false;
 	}
 
-	public function get_qset($inst_id, $timestamp=false)
+	/**
+	 * Load the qset for this instance
+	 *
+	 * @param int $inst_id the id of the widget to load
+	 * @param int $timestamp UnixTimestamp or false, if provided, loads the newest qset before the timestamp
+	 */
+	public function get_qset(string $inst_id, $timestamp=false)
 	{
 		$query = \DB::select()
 			->from('widget_qset')
@@ -349,28 +354,37 @@ class Widget_Instance
 	 */
 	public function db_remove()
 	{
-		// remove widget instance if instance id is a valid hash and successfully removed all permissions for widget instance
-		if (Util_Validator::is_valid_hash($this->id) && Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE))
-		{
-			\DB::update('widget_instance')
-				->set(['is_deleted' => '1', 'updated_at' => time()])
-				->where('id', $this->id)
-				->execute();
+		if ( ! Util_Validator::is_valid_hash($this->id)) return false;
 
-			$activity = new Session_Activity([
-				'user_id' => \Model_User::find_current_id(),
-				'type'    => Session_Activity::TYPE_DELETE_WIDGET,
-				'item_id' => $this->id,
-				'value_1' => $this->name,
-				'value_2' => $this->widget->id
-			]);
-			$activity->db_store();
+		$current_user_id = \Model_User::find_current_id();
 
-			\Event::trigger('widget_instance_delete', $this->id);
+		// does the user have full perms to be able to delete?
+		if ( ! Perm_Manager::user_has_all_perms_to($current_user_id, $this->id, Perm::INSTANCE, [Perm::FULL])) return false;
 
-			return true;
-		}
-		return false;
+		// clean up anyone's permissions
+		Perm_Manager::clear_all_perms_for_object($this->id, Perm::INSTANCE);
+
+		// notify users and allow other code to clean up before marking as deleted.
+		// Once it's deleted Widget_Instance::db_get won't retrieve it.
+		\Event::trigger('widget_instance_delete', ['inst_id' => $this->id, 'deleted_by_id' => $current_user_id], 'none');
+
+		\DB::update('widget_instance')
+			->set(['is_deleted' => '1', 'updated_at' => time()])
+			->where('id', $this->id)
+			->execute();
+
+		// store an activity log
+		$activity = new Session_Activity([
+			'user_id' => $current_user_id,
+			'type'    => Session_Activity::TYPE_DELETE_WIDGET,
+			'item_id' => $this->id,
+			'value_1' => $this->name,
+			'value_2' => $this->widget->id
+		]);
+
+		$activity->db_store();
+
+		return true;
 	}
 
 	/**
@@ -438,8 +452,7 @@ class Widget_Instance
 	public function set_owners(array $owners_list, array $viewers_list = null)
 	{
 		// first clear out the owners and viewers
-		Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE, false);
-
+		Perm_Manager::clear_all_perms_for_object($this->id, Perm::INSTANCE);
 
 		// add the new owners
 		foreach ($owners_list as $owner)

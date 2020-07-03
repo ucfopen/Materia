@@ -521,8 +521,8 @@ class Perm_Manager
 	/**
 	 * Removes all permissions for an object, used when deleting an object
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param int User ID the get permissions for
+	 * @param int Object type as defined in Perm constants
 	 */
 	static public function clear_all_perms_for_object($object_id, $object_type)
 	{
@@ -616,6 +616,19 @@ class Perm_Manager
 	 * Returns all the user permissions an object has to it, for all users.
 	 * If the current user is a super user, they will automatically have superuser perms to each object.
 	 * Permissions are checked for expiration, if expired, they are removed and the user losing access is notified
+	 * Returns an object like:
+	 * [
+	 *   'user_perms' => [
+	 *       1  => [perm, null]
+	 *   ],
+	 *   'widget_user_perms' => [
+	 *       1  => [perm, null],
+	 *       54 => [perm, expire_timestamp]
+	 *   ]
+	 * ]
+	 *
+	 * where I'm user 1, user_perms show me my access with super user taken into account
+	 * and widget_user_perms is everyone's access, ignoring super user
 	 *
 	 * @param string object_id id of the object
 	 * @param int object_type
@@ -624,18 +637,35 @@ class Perm_Manager
 	static public function get_all_users_explicit_perms(string $object_id, int $object_type): array
 	{
 		$current_user_id = \Model_User::find_current_id();
+
 		// make sure the current user has rights to this item
 		if ( ! self::user_has_any_perm_to($current_user_id, $object_id, $object_type, [Perm::FULL, Perm::VISIBLE]))
 		{
-			return [];
+			return ['user_perms' => [], 'widget_user_perms' => []];
 		}
 
-		// construct return variable
-		$perms = [
-			'user_perms' => [],
-			'widget_user_perms' => []
-		];
+		$all_perms = self::get_all_users_with_perms_to($object_id, $object_type);
 
+		// if the current user is a super user, append their user's perms into the results
+		// super users don't get explicit perms to things set in the db, so we'll fake it here
+		$cur_user_perms = self::is_super_user() ? [Perm::SUPERUSER, null] : $all_perms[$current_user_id];
+
+		return [
+			'user_perms' => [$current_user_id => $cur_user_perms],
+			'widget_user_perms' => $all_perms
+		];
+	}
+
+	/**
+	 * Get all users that have a permission to an object
+	 * Permissions are checked for expiration, if expired, they are removed and the user losing access is notified
+	 *
+	 * @param string $object_id
+	 * @param int $object_type
+	 * @return array Array of permission pairs, keyed by user id
+	 */
+	static public function get_all_users_with_perms_to(string $object_id, int $object_type): array
+	{
 		// clear out expired permissions
 		self::check_and_expire_user_object_perms();
 
@@ -646,12 +676,7 @@ class Perm_Manager
 			->where('object_type', $object_type)
 			->execute();
 
-		// if the current user is a super user, append their user's perms into the results
-		// super users don't get explicit perms to things set in the db, so we'll fake it here
-		if (self::is_super_user())
-		{
-			$perms['user_perms'][$current_user_id] = [Perm::SUPERUSER, null];
-		}
+		$perms = [];
 
 		foreach ($results as $result)
 		{
@@ -659,11 +684,7 @@ class Perm_Manager
 			$perm     = $result['perm'];
 			$exp_time = $result['expires_at'];
 
-			if ($user_id == $current_user_id && empty($perms['user_perms']))
-			{
-				$perms['user_perms'][$user_id] = [$perm, $exp_time];
-			}
-			$perms['widget_user_perms'][$user_id] = [$perm, $exp_time];
+			$perms[$user_id] = [$perm, $exp_time];
 		}
 
 		return $perms;
@@ -700,31 +721,6 @@ class Perm_Manager
 		\DB::delete('perm_object_to_user')
 			->where('expires_at', '<=', $now)
 			->execute();
-	}
-
-	/**
-	 * Removes any permissions set for a specific object
-	 *
-	 * @param mixed object_id Id of the object we're adding permissions to
-	 * @param string object_type Type of object to add permissions to
-	 * @param bool require_ownership Flag to restrict changes to the owner of the
-	 * @return bool, true if removed object permissions, false if current user does not have owner premissions
-	 */
-	static public function remove_all_permissions($object_id, int $object_type, bool $require_ownership = true): bool
-	{
-		// make sure the current user has rights to this item
-		$current_user_id = (int)\Model_User::find_current_id();
-
-		if ($require_ownership && ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
-
-		if ($require_ownership)
-		{
-			\Event::trigger('delete_widget_event', ['user_id' => $current_user_id, 'object_id' => $object_id, 'object_type' => $object_type]);
-		}
-
-		self::clear_all_perms_for_object($object_id, $object_type);
-
-		return true;
 	}
 
 	/**

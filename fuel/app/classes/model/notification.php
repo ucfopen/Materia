@@ -30,18 +30,18 @@ class Model_Notification extends \Orm\Model
 		],
 	];
 
-public static function on_widget_delete_event($assoc_param_array)
+public static function on_widget_delete_event($event_args)
 {
-	$from_user_id = $assoc_param_array['user_id'];
-	$object_id    = $assoc_param_array['object_id'];
-	$object_type  = $assoc_param_array['object_type'];
+	$from_user_id = $event_args['deleted_by_id'];
+	$inst_id      = $event_args['inst_id'];
 
 	// user_ids for all users that have permissions to this widget
-	$user_ids = array_keys(\Materia\Perm_Manager::get_all_users_explicit_perms($object_id, $object_type)['widget_user_perms']);
+	$perms = \Materia\Perm_Manager::get_all_users_with_perms_to($inst_id , \Materia\Perm::INSTANCE);
+	$user_ids = array_keys($perms);
 
-	foreach ($user_ids as $user_id)
+	foreach ($user_ids as $to_user_id)
 	{
-		\Model_Notification::send_item_notification($from_user_id, $user_id, $object_type, $object_id, 'deleted');
+		\Model_Notification::send_item_notification($from_user_id, $to_user_id, \Materia\Perm::INSTANCE, $inst_id, 'deleted');
 	}
 }
 

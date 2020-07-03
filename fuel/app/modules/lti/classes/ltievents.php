@@ -144,10 +144,12 @@ class LtiEvents
 
 	/**
 	 * FUEL EVENT fired by a widget instance when db_remove is called.
-	 * @param $inst_id The ID of the deleted instance
+	 * @param array $event_args containing inst_id and deleted_by_id keys.
 	 */
-	public static function on_widget_instance_delete_event($inst_id)
+	public static function on_widget_instance_delete_event($event_args)
 	{
+		$inst_id = $event_args['inst_id'];
+
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();
 
 		if (count($lti_data) > 0)
