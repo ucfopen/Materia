@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.2.0-alpha1",
+    "materia-server-client-assets": "2.2.0-alpha2",
     "napa": "^3.0.0"
   },
   "devDependencies": {
