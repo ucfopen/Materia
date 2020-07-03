@@ -48,7 +48,7 @@ if(\FUEL::$env === \FUEL::TEST){
 
 // register events after the app is initialized
 // if this is placed in config/events, it'll load notification before orm gets loaded :(
-\Event::register('delete_widget_event', '\Model_Notification::on_widget_delete_event');
+\Event::register('widget_instance_delete', '\Model_Notification::on_widget_delete_event');
 
 // A function to easily trace stuff to the log
 function trace($arg, $force=0)

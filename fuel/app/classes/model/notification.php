@@ -30,18 +30,18 @@ class Model_Notification extends \Orm\Model
 		],
 	];
 
-public static function on_widget_delete_event($assoc_param_array)
+public static function on_widget_delete_event($event_args)
 {
-	$from_user_id = $assoc_param_array['user_id'];
-	$object_id    = $assoc_param_array['object_id'];
-	$object_type  = $assoc_param_array['object_type'];
+	$from_user_id = $event_args['deleted_by_id'];
+	$inst_id      = $event_args['inst_id'];
 
 	// user_ids for all users that have permissions to this widget
-	$user_ids = array_keys(\Materia\Perm_Manager::get_all_users_explicit_perms($object_id, $object_type)['widget_user_perms']);
+	$perms = \Materia\Perm_Manager::get_all_users_with_perms_to($inst_id , \Materia\Perm::INSTANCE);
+	$user_ids = array_keys($perms);
 
-	foreach ($user_ids as $user_id)
+	foreach ($user_ids as $to_user_id)
 	{
-		\Model_Notification::send_item_notification($from_user_id, $user_id, $object_type, $object_id, 'deleted');
+		\Model_Notification::send_item_notification($from_user_id, $to_user_id, \Materia\Perm::INSTANCE, $inst_id, 'deleted');
 	}
 }
 
@@ -51,13 +51,13 @@ public static function on_widget_delete_event($assoc_param_array)
 	 * @param int User ID of sender.
 	 * @param int User ID of recipient.
 	 * @param int Integer referring to item type (widget, asset, etc.).
-	 * @param int ID of the item referred to in the notification.
+	 * @param string ID of the item referred to in the notification.
 	 * @param string The condition of the notification, i.e. 'enabled', 'disabled', or 'changed'.
 	 * @param int Integer referring to the enabled permission, currently only 30 (view) or 0 (own).
 	 * @param string (Optional) Customized message to attach to the notificaton, default is no message.
 	 * @param bool (Optional) Determines whether or not to send an e-mail along with notification, default is false.
 	 */
-	public static function send_item_notification($from_user_id, $to_user_id, $item_type, $inst_id, $mode='', $new_perm='')
+	public static function send_item_notification(int $from_user_id, int $to_user_id, int $item_type, string $inst_id, string $mode = null, int $new_perm = null): bool
 	{
 		if ($from_user_id == $to_user_id) return false; //no need to self-notify
 
@@ -68,7 +68,19 @@ public static function on_widget_delete_event($assoc_param_array)
 		switch ($item_type)
 		{
 			case \Materia\Perm::INSTANCE:
-				$user = \Model_User::find($from_user_id);
+				if ($from_user_id === 0)
+				{
+					// create a mock user
+					$user = (object)[
+						'first' => 'Materia',
+						'last' => '',
+						'username' => 'Server'
+					];
+				}
+				else
+				{
+					$user = \Model_User::find($from_user_id);
+				}
 
 				$inst = new \Materia\Widget_Instance();
 				$inst->db_get($inst_id, false);

@@ -134,13 +134,12 @@ class Widget_Instance
 	/**
 	 * Loads the game instance from the database.
 	 *
-	 * @param object the database manager
-	 * @param int    the id of the widget to load
-	 * @param bool   whether or not to load the full qset into this instance (optional, defaults to false)
-	 *
+	 * @param int $inst_id the id of the widget to load
+	 * @param bool $load_qset whether or not to load the full qset into this instance (optional, defaults to false)
+	 * @param int $timestamp UnixTimestamp or false, if provided, loads the newest qset before the timestamp
 	 * @return bool true on successful location of game, false on failure
 	 */
-	public function db_get($inst_id, $load_qset=false, $timestamp=false)
+	public function db_get(string $inst_id, bool $load_qset = false, $timestamp = false): bool
 	{
 		if (Util_Validator::is_valid_hash($inst_id))
 		{
@@ -155,7 +154,13 @@ class Widget_Instance
 		return false;
 	}
 
-	public function get_qset($inst_id, $timestamp=false)
+	/**
+	 * Load the qset for this instance
+	 *
+	 * @param int $inst_id the id of the widget to load
+	 * @param int $timestamp UnixTimestamp or false, if provided, loads the newest qset before the timestamp
+	 */
+	public function get_qset(string $inst_id, $timestamp=false)
 	{
 		$query = \DB::select()
 			->from('widget_qset')
@@ -349,59 +354,96 @@ class Widget_Instance
 	 */
 	public function db_remove()
 	{
-		// remove widget instance if instance id is a valid hash and successfully removed all permissions for widget instance
-		if (Util_Validator::is_valid_hash($this->id) && Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE))
-		{
-			\DB::update('widget_instance')
-				->set(['is_deleted' => '1', 'updated_at' => time()])
-				->where('id', $this->id)
-				->execute();
+		if ( ! Util_Validator::is_valid_hash($this->id)) return false;
 
-			$activity = new Session_Activity([
-				'user_id' => \Model_User::find_current_id(),
-				'type'    => Session_Activity::TYPE_DELETE_WIDGET,
-				'item_id' => $this->id,
-				'value_1' => $this->name,
-				'value_2' => $this->widget->id
-			]);
-			$activity->db_store();
+		$current_user_id = \Model_User::find_current_id();
 
-			\Event::trigger('widget_instance_delete', $this->id);
+		// does the user have full perms to be able to delete?
+		if ( ! Perm_Manager::user_has_all_perms_to($current_user_id, $this->id, Perm::INSTANCE, [Perm::FULL])) return false;
 
-			return true;
-		}
-		return false;
+		// clean up anyone's permissions
+		Perm_Manager::clear_all_perms_for_object($this->id, Perm::INSTANCE);
+
+		// notify users and allow other code to clean up before marking as deleted.
+		// Once it's deleted Widget_Instance::db_get won't retrieve it.
+		\Event::trigger('widget_instance_delete', ['inst_id' => $this->id, 'deleted_by_id' => $current_user_id], 'none');
+
+		\DB::update('widget_instance')
+			->set(['is_deleted' => '1', 'updated_at' => time()])
+			->where('id', $this->id)
+			->execute();
+
+		// store an activity log
+		$activity = new Session_Activity([
+			'user_id' => $current_user_id,
+			'type'    => Session_Activity::TYPE_DELETE_WIDGET,
+			'item_id' => $this->id,
+			'value_1' => $this->name,
+			'value_2' => $this->widget->id
+		]);
+
+		$activity->db_store();
+
+		return true;
 	}
 
 	/**
 	 * Creates a duplicate widget instance and optionally makes the current user the owner.
 	 *
-	 * @param string The new name of the new widget
+	 * @param int owner_id user_id of the user who will be the primary owner of the duplicate
+	 * @param string new_name The new name of the new widget
+	 * @param bool copy_existing_perms Copy user permissions to the duplicate?
 	 * @return Widget_Instance Returns duplicate widget instance
 	 */
-	public function duplicate($new_name=false, $set_current_user_as_new_owner=true)
+	public function duplicate(int $owner_id, string $new_name = null, bool $copy_existing_perms = false): self
 	{
 		$duplicate = new Widget_Instance();
 		$duplicate->db_get($this->id, true);
 
 		$duplicate->id = 0; // mark as a new game
+		$duplicate->user_id = $owner_id; // set current user as owner in instance table
+
 		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
+
+		// if original widget is student made - verify if new owner is a student or not
+		// if they have a basic_author role or above, turn off the is_student_made flag
+		if ($duplicate->is_student_made)
+		{
+			$can_new_owner_author = Perm_Manager::does_user_have_role([Perm_Role::AUTHOR, Perm_Role::SU], $owner_id);
+			if ($can_new_owner_author)
+			{
+				$duplicate->is_student_made = 0;
+			}
+		}
+
 		$result = $duplicate->db_store();
 		if ($result instanceof \Materia\Msg)
 		{
 			return $result;
 		}
 
-		// make current user owner
-		if ($set_current_user_as_new_owner)
+		// grab users with perms to the original, grant them perms to the copy
+		if ($copy_existing_perms)
 		{
-			$duplicate->set_owners([\Model_User::find_current_id()]);
+			$existing_perms = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
+			$owners = [];
+			$viewers = [];
+
+			foreach ($existing_perms['widget_user_perms'] as $user_id => $perm_obj)
+			{
+				list($perm) = $perm_obj;
+				if ($perm == Perm::FULL) $owners[] = $user_id;
+				else if ($perm == Perm::VISIBLE) $viewers[] = $user_id;
+			}
+
+			$duplicate->set_owners($owners, $viewers);
 		}
 
 		return $duplicate;
 	}
 
-	/** a convienent way to set the perms of this game
+	/**
+	 * a convienent way to set the perms of this widget
 	 *
 	 * @param array user_ids to be set as owners
 	 * @param array user_ids to be set as viewers
@@ -409,22 +451,21 @@ class Widget_Instance
 	 */
 	public function set_owners(array $owners_list, array $viewers_list = null)
 	{
-
 		// first clear out the owners and viewers
-		Perm_Manager::remove_all_permissions($this->id, Perm::INSTANCE);
+		Perm_Manager::clear_all_perms_for_object($this->id, Perm::INSTANCE);
 
 		// add the new owners
-		for ($i = 0; $i < count($owners_list); $i++)
+		foreach ($owners_list as $owner)
 		{
-			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $owners_list[$i], [Perm::FULL => Perm::ENABLE]);
+			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $owner, [Perm::FULL => Perm::ENABLE]);
 		}
 
 		if ( ! is_array($viewers_list)) return;
 
 		// add the new viewers
-		for ($i = 0; $i < count($viewers_list); $i++)
+		foreach ($viewers_list as $viewer)
 		{
-			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $viewers_list[$i], [Perm::VISIBLE => Perm::ENABLE]);
+			Perm_Manager::set_user_object_perms($this->id, Perm::INSTANCE, $viewer, [Perm::VISIBLE => Perm::ENABLE]);
 		}
 	}
 
