@@ -1,4 +1,4 @@
-<div ng-controller='mediaImportCtrl' class='media-importer'>
+<div ng-controller='MediaImportCtrl' class='media-importer'>
 	<section id='left-pane'>
 		<div class='pane-header'>
 			Upload a new file

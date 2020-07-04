@@ -5,7 +5,7 @@
 		Click here to start making a new widget!
 	</div>
 	<div class="container">
-		<div ng-controller="SelectedWidgetController">
+		<div ng-controller="MyWidgetsSelectedController">
 			<!-- standard post-publish warning for users who can publish this widget -->
 			<modal-dialog class="edit-published-widget"
 				show="show.editPublishedWarning"
@@ -68,7 +68,7 @@
 			>
 				<div
 					ng-if="show.collaborationModal"
-					ng-controller="CollaborationController"
+					ng-controller="MyWidgetsCollaborationController"
 					ng-click="searchResults.show = false"
 				>
 					<div id="access" class="container">
@@ -214,7 +214,7 @@
 			>
 				<div
 					ng-if="show.availabilityModal"
-					ng-controller="WidgetSettingsController"
+					ng-controller="MyWidgetsSettingsController"
 				>
 					<p class="availabilityError"
 						ng-show="error.length > 0">
@@ -413,7 +413,7 @@
 				show="show.exportModal"
 				width="580px"
 				height="580px">
-				<div ng-controller="ExportScoresController">
+				<div ng-controller="MyWidgetsExportController">
 					<div class="download_wrapper">
 						<h2>Export</h2>
 						<ul class="options">
@@ -602,19 +602,19 @@
 								</div>
 							</li>
 							<li class="copy"
-								ng-class="{'disabled' : selected.accessLevel != 30}">
+								ng-class="{'disabled' : !selected.can.copy}">
 								<div class="link"
 									id="copy_widget_link"
-									ng-class="{'disabled' : selected.accessLevel != 30}"
+									ng-class="{'disabled' : !selected.can.copy}"
 									ng-click="showCopyDialog()">
 									Make a Copy
 								</div>
 							</li>
 							<li class="delete"
-								ng-class="{'disabled' : selected.accessLevel != 30}">
+								ng-class="{'disabled' : !selected.can.delete}">
 								<div class="link"
 									id="delete_widget_link"
-									ng-class="{'disabled' : selected.accessLevel != 30}"
+									ng-class="{'disabled' : !selected.can.delete}"
 									ng-click="showDelete()">
 									Delete
 								</div>

@@ -1,6 +1,6 @@
 <section class="page"
 	ng-show="show"
-	ng-controller="widgetDetailsController"
+	ng-controller="WidgetCatalogDetailsController"
 	ng-cloak ng-style="{'max-width': maxPageWidth}">
 
 	<div id="breadcrumb-container">
@@ -76,7 +76,7 @@
 						<div id="player-container"
 							ng-if="!showDemoCover">
 							<section class="widget"
-								ng-controller="playerCtrl"
+								ng-controller="WidgetPlayerCtrl"
 								ng-class="{ preview: isPreview }">
 								<header ng-if="isPreview"
 									class="preview-bar">

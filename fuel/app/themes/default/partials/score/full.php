@@ -1,4 +1,4 @@
-<article class="container" ng-class="{ show: show }" ng-controller="scorePageController">
+<article class="container" ng-class="{ show: show }" ng-controller="ScorePageController">
 	<header class="header score-header" ng-class="{ preview: isPreview }" ng-show="!restricted && !expired">
 		<nav class="header-element previous-attempts {{ prevAttemptClass }}" ng-hide="hidePreviousAttempts || isPreview || guestAccess" ng-mouseover="prevMouseOver()" ng-mouseout="prevMouseOut()">
 			<h1 ng-click="prevClick()">Prev. Attempts</h1>

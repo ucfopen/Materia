@@ -1,5 +1,5 @@
 <?php // @codingStandardsIgnoreStart ?>
-<header ng-controller="currentUserCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
+<header ng-controller="UserCurrentCtrl" class="{loggedIn: currentUser.loggedIn==true}" >
 	<?php
 		$allow_logins = ! \Config::get('auth.restrict_logins_to_lti_single_sign_on', false);
 	?>
@@ -65,7 +65,7 @@
 		</ul>
 	</nav>
 
-	<div ng-if="currentUser.loggedIn" ng-controller="notificationCtrl" ng-show="notifications.length > 0">
+	<div ng-if="currentUser.loggedIn" ng-controller="UserNotificationCtrl" ng-show="notifications.length > 0">
 		<a id="notifications_link" data-notifications="{{notifications.length}}" ng-click="toggleOpen()"></a>
 		<div id="notices" ng-class="{open: isOpen}">
 			<div ng-repeat="notification in notifications" ng-class="{notice: true, deleted: notification.deleted}">
