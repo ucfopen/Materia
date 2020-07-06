@@ -28,10 +28,10 @@ return array(
 	 */
 
 	// default storage driver
-	'driver'      => 'file',
+	'driver' => $_ENV['CACHE_DRIVER'] ?? 'file',
 
 	// default expiration (null = no expiration)
-	'expiration'  => 18000,
+	'expiration'  => $_ENV['CACHE_EXPIRE'] ?? 18000,
 
 	/**
 	 * Default content handlers: convert values to strings to be stored
@@ -49,15 +49,18 @@ return array(
 
 	// specific configuration settings for the file driver
 	'file'  => array(
-		'path'  => '',  // if empty the default will be application/cache/
+		'path'  => '',  // if empty the default will be app/cache/
 	),
 
 	// specific configuration settings for the memcached driver
-	'memcached'  => array(
+	'memcached'  => [
 		'cache_id'  => 'materia',  // unique id to distinquish fuel cache items from others stored on the same server(s)
-		'servers'   => array(   // array of servers and portnumbers that run the memcached service
-			'default' => array('host' => 'localhost', 'port' => 11211, 'weight' => 100),
-		),
-	),
+		'servers'   => [   // array of servers and portnumbers that run the memcached service
+			'default' => [
+				'host' => $_ENV['MEMCACHED_HOST'] ?? 'localhost',
+				'port' => $_ENV['MEMCACHED_PORT'] ?? 11211,
+				'weight' => 100],
+		],
+	],
 
 );

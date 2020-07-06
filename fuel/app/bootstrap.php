@@ -24,6 +24,10 @@ $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
 // Register the autoloader
 \Autoloader::register();
 
+use Symfony\Component\Dotenv\Dotenv;
+$dotenv = new Dotenv();
+$dotenv->load(realpath(__DIR__.DS.'..'.DS.'..').DS.'.env');
+
 /**
  * Your environment.  Can be set to any of the following:
  *

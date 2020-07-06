@@ -7,7 +7,7 @@ return [
 	'tool_consumer_info_version'             => '1',
 	'launch_presentation_return_url'         => \Uri::create('lti/return'),
 	'tool_consumer_info_product_family_code' => 'materia',
-	'tool_consumer_instance_guid'            => 'materia.YOURSCHOOL.edu',
+	'tool_consumer_instance_guid'            => parse_url(\Uri::create('lti/return'))['host'],
 
 	'consumers' => [
 		 // the name here needs to match the LTI 'tool_consumer_info_product_family_code' paramater
@@ -21,24 +21,24 @@ return [
 
 			// Choose the key value of an LTI paramater to use as our username
 			// In this case the value of lis_person_sourceid may be 'dave'.  We will try to match username = 'dave'
-			'remote_username'       => 'lis_person_sourcedid',
+			'remote_username'       => $_ENV['LTI_CANVAS_REMOTE_USERNAME'] ?? 'lis_person_sourcedid',
 
 			// When looking or creating local users based on the external system, what fields do we use as an identifier?
 			// remote_identifier is the name of the lti data sent
 			// local_identifier is the name of the user object property that we will match the remote identifier against
 			// ex: incoming lis_person_sourceid = 'dave', we'll look for Model_User::query()->where($local_identifier, Input::post($remote_identifier))
 			// another option is to use email instead of sourcedid, remote = 'lis_person_contact_email_primary' and local = 'email'
-			'remote_identifier'     => 'lis_person_sourcedid',
+			'remote_identifier'     => $_ENV['LTI_CANVAS_REMOTE_IDENTIFIER'] ?? 'lis_person_sourcedid',
 			'local_identifier'      => 'username',
 
 			// When true, materia will accept user data from the external system.
 			// This means it will create users we don't have and update their user
 			// data if it changes. It will NOT update any external roles
 			// (see 'use_launch_roles')
-			'creates_users'         => true,
+			'creates_users'         => $_ENV['LTI_CANVAS_CREATE_USERS'] ?? true,
 
 			// allow an external system to define user roles in Materia
-			'use_launch_roles'      => true,
+			'use_launch_roles'      => $_ENV['LTI_CANVAS_USE_LAUNCH_ROLES'] ?? true,
 
 			// which auth driver will do the final work authenticating this user
 			'auth_driver'           => 'LtiAuth',
@@ -57,16 +57,16 @@ return [
 
 			// Define aspects of the course navigation link
 			// such as whether it is available at all, who can see it, and what text it displays
-			'course_nav_default'    => 'disabled',
+			'course_nav_default'    => $_ENV['LTI_COURSE_NAV_DEFAULT'] ?? 'disabled',
 			'course_nav_enabled'    => 'true',
 			'course_nav_text'       => 'Materia',
 			'course_nav_visibility' => 'members',
 
-			'tool_id'               => 'edu.ucf.materia',
+			'tool_id'               => strrev(parse_url(\Uri::create('lti/return'))['host']),
 
 			// Security Settings CHANGE SECRET AT LEAST!!!
-			'secret'            => 'LTI_OAUTH_SECRET_KEY',
-			'key'               => 'materia-production-lti-key',
+			'secret'                => $_ENV['LTI_CANVAS_SECRET'],
+			'key'                   => $_ENV['LTI_CANVAS_KEY'],
 
 		],
 
