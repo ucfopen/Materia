@@ -105,8 +105,8 @@ return [
 				'region'       => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
 				'bucket'       => $_ENV['ASSET_STORAGE_S3_BUCKET'], // bucket to store original user uploads
 				'subdir'       => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets
-				'secret_key'   => $_ENV['ASSET_STORAGE_S3_SECRET'], // aws api secret key
-				'key'          => $_ENV['ASSET_STORAGE_S3_KEY']// aws api key
+				'secret_key'   => $_ENV['ASSET_STORAGE_S3_SECRET'] ?? 'SECRET', // aws api secret key
+				'key'          => $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY' // aws api key
 			]
 			: null
 			,
