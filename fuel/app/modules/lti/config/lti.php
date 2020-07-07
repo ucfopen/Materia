@@ -7,10 +7,10 @@ return [
 	'tool_consumer_info_version'             => '1',
 	'launch_presentation_return_url'         => \Uri::create('lti/return'),
 	'tool_consumer_info_product_family_code' => 'materia',
-	'tool_consumer_instance_guid'            => parse_url(\Uri::create('lti/return'))['host'],
+	'tool_consumer_instance_guid'            => $_ENV['LTI_GUID'] ?? 'ucfopen.github.io',
 
 	'consumers' => [
-		 // the name here needs to match the LTI 'tool_consumer_info_product_family_code' paramater
+		 // the array index here is matched to 'tool_consumer_info_product_family_code' in lti launches
 		'canvas' => [
 			// these display in the consumer's dialogs
 			'title'                 => 'Materia Widget Assignment',
@@ -62,7 +62,7 @@ return [
 			'course_nav_text'       => 'Materia',
 			'course_nav_visibility' => 'members',
 
-			'tool_id'               => strrev(parse_url(\Uri::create('lti/return'))['host']),
+			'tool_id'               => $_ENV['LTI_TOOL_ID'] ?? 'io.github.ucfopen',
 
 			// Security Settings CHANGE SECRET AT LEAST!!!
 			'secret'                => $_ENV['LTI_CANVAS_SECRET'],

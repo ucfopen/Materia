@@ -10,6 +10,9 @@ build
 .idea
 nbproject/
 
+# custom config
+.env.local
+
 # hidden files created by Windows
 Thumbs.db
 desktop.ini
@@ -28,6 +31,7 @@ desktop.ini
 /fuel/packages/parser/
 /fuel/packages/ucfauth/
 /fuel/packages/materia-theme-ucf/
+
 
 # dynamically generated files
 /fuel/app/logs/**/*

@@ -28,9 +28,15 @@ services:
       - frontend
       - backend
     volumes:
+      # share the source files with host machine
       - ../:/var/www/html:rw
+      # replace php.ini with our own
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
+      # add docker-specific env.local
+      - ./config/materia-docker.env.local:/var/www/html/.env.local:ro
+      # add custom php extensions
       - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
+      # keep node_modules inside docker - perfomance is pretty terrible sharing a ton of files
       - node_modules:/var/www/html/node_modules
     depends_on:
       - mysql
