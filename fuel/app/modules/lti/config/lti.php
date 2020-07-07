@@ -57,7 +57,7 @@ return [
 
 			// Define aspects of the course navigation link
 			// such as whether it is available at all, who can see it, and what text it displays
-			'course_nav_default'    => $_ENV['LTI_COURSE_NAV_DEFAULT'] ?? 'disabled',
+			'course_nav_default'    => ($_ENV['LTI_COURSE_NAV_DEFAULT'] ?? false) ? 'enabled' : 'disabled',
 			'course_nav_enabled'    => 'true',
 			'course_nav_text'       => 'Materia',
 			'course_nav_visibility' => 'members',

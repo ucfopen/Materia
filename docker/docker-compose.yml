@@ -24,10 +24,6 @@ services:
     environment:
       # See .env for default values
       - FUEL_ENV
-      - DB_HOST
-      - DB_NAME=${MYSQL_DATABASE}
-      - DB_USER=${MYSQL_USER}
-      - DB_PASS=${MYSQL_DATABASE}
     networks:
       - frontend
       - backend
@@ -68,12 +64,6 @@ services:
     build:
       context: .
       dockerfile: ./dockerfiles/materia-fakes3
-    environment:
-      - INPUT_BUCKET
-      - OUTPUT_BUCKET
-      - OUTPUT_MAX_DIMENSIONS
-      - OUTPUT_BASE_KEY
-      - IS_FAKES3
     ports:
       - "10001:10001"
     networks:

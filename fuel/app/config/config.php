@@ -1,4 +1,5 @@
 <?php
+
 // See FuelPHP documentation on \Config for more info
 return array(
 
@@ -95,17 +96,22 @@ return array(
 	 * Fuel::L_INFO
 	 * Fuel::L_ALL
 	 */
-	'log_threshold'    => $_ENV['FUEL_LOG_THRESHOLD'] ?? Fuel::L_DEBUG,
+	'log_threshold'    => $_ENV['FUEL_LOG_THRESHOLD'] ?? Fuel::L_WARNING,
 	// 'log_path'         => APPPATH.'logs/',
 	'log_date_format'  => 'H:i:s',
 
-	// allows you to create a custom error handler for Monolog
-	// THIS WILL SEND ERRORS TO STDOUT, VISIBLE VIA `docker-compose log phpfpm`
-	// doesnt work below php7.2
-	// 'log_handler_factory' => $_ENV['LOG_HANDLER'] === 'STDOUT'
-	// 	? fn($locals, $level) => new \Monolog\Handler\ErrorLogHandler();
-	// 	: null
-	// ,
+	// provide a monolog handler
+	'log_handler_factory' => function($locals, $level)
+	{
+		$handler_type = $_ENV['LOG_HANDLER'] ?? '';
+		if($handler_type == 'STDOUT')
+		{
+			return new \Monolog\Handler\ErrorLogHandler();
+		}
+
+		// no matches, use the default handler
+		return null;
+	},
 
 	'log_file_perms'   => 0664,
 	/**

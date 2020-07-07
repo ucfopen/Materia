@@ -5,13 +5,9 @@ return [
 	*  System email address
 	*  All messages will be from this address
 	*/
-	'system_email'  => 'noReply@materia.com',
+	'system_email'  => $_ENV['SYSTEM_EMAIL'] ?? 'noReply@materia.com',
 	'system_version' => 'Bahumut',
 
-	'crossdomain' => [
-		// Adds in the static subdomain to the allowed domains in crossdomain.xml
-		substr(str_replace(['http://','https://'], 'static.', \Uri::base()), 0, -1),
-	],
 	/*
 	*  Name of the sestem
 	*  Messages sent out will use this name to refer to the system
@@ -23,14 +19,14 @@ return [
 	*
 	*/
 	'urls' => [
-		'root'               => \Uri::create(''), // root directory http:://siteurl.com/
-		'media'              => \Uri::create('media'), // where media is retrieved
-		'media_upload'       => \Uri::create('media/upload'), // where media is uploaded
-		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
-		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
-		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'             => $_ENV['URLS_STATIC'] ?? \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
-		'engines'            => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations
+		'root'         => \Uri::create(''), // root directory http:://siteurl.com/
+		'media'        => \Uri::create('media'), // where media is retrieved
+		'media_upload' => \Uri::create('media/upload'), // where media is uploaded
+		'play'         => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
+		'embed'        => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
+		'preview'      => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
+		'static'       => $_ENV['URLS_STATIC'] ?? \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
+		'engines'      => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations
 	],
 
 
@@ -46,7 +42,7 @@ return [
 
 	'debug_engines' => false,
 
-	'send_emails' => $_ENV['SEND_EMAILS'] ?? true,
+	'send_emails' => $_ENV['SEND_EMAILS'] ?? false,
 
 	'default_api_version' => 2,
 
@@ -98,7 +94,7 @@ return [
 		'db' => [
 			'driver_class' => '\Materia\Widget_Asset_Storage_Db'
 		],
-		's3' => $_ENV['ASSET_STORAGE_DRIVER'] == 's3'
+		's3' => $_ENV['ASSET_STORAGE_DRIVER'] ?? false == 's3'
 			? [
 				'driver_class' => '\Materia\Widget_Asset_Storage_S3',
 				'endpoint'     =>$_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? false, // set to url for testing endpoint
