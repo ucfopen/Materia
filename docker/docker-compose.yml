@@ -21,9 +21,6 @@ services:
     build:
       context: ./dockerfiles
       dockerfile: materia-phpfpm-debian
-    environment:
-      # See .env for default values
-      - FUEL_ENV
     networks:
       - frontend
       - backend
