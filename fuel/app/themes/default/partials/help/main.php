@@ -2,6 +2,11 @@
 	<section class="page">
 		<h1>Help &amp; Support</h1>
 		<section class="bordered">
+			<h2 id="getting-started-link">Getting Started</h2>
+			<p>Check out the <a href="https://cdl.ucf.edu/support/materia/materia-quick-start-guide/" class="external">Materia Quickstart Guide</a>.</p>
+		</section>
+
+		<section class="bordered">
 			<h2 id="flash-required">Requirements</h2>
 			<p class="flash-version">Materia requires that you use an up-to-date browser with javascript and cookies enabled.</p>
 		</section>
