@@ -708,7 +708,7 @@ class Perm_Manager
 		foreach ($results as $r)
 		{
 			\Model_Notification::send_item_notification(
-				0,
+				0, // 'from' user is Materia
 				$r['user_id'],
 				$r['object_type'],
 				$r['object_id'],

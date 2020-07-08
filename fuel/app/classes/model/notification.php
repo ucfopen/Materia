@@ -68,24 +68,11 @@ public static function on_widget_delete_event($event_args)
 		switch ($item_type)
 		{
 			case \Materia\Perm::INSTANCE:
-				if ($from_user_id === 0)
-				{
-					// create a mock user
-					$user = (object)[
-						'first' => 'Materia',
-						'last' => '',
-						'username' => 'Server'
-					];
-				}
-				else
-				{
-					$user = \Model_User::find($from_user_id);
-				}
-
+				$from = static::get_user_or_system($from_user_id);
 				$inst = new \Materia\Widget_Instance();
 				$inst->db_get($inst_id, false);
 
-				$user_link = $user->first.' '.$user->last.' ('.$user->username.')';
+				$user_link = $from->first.' '.$from->last.' ('.$from->username.')';
 				$widget_link = Html::anchor(\Config::get('materia.urls.root').'my-widgets#/'.$inst_id, $inst->name);
 				$widget_name = $inst->name;
 				$widget_type = $inst->widget->name;
@@ -143,7 +130,7 @@ public static function on_widget_delete_event($event_args)
 
 		$notification->save();
 
-		if ($send_email) \Model_Notification::send_email_notifications();
+		if ($send_email) $notification->send_email();
 
 		return true;
 	}
@@ -153,45 +140,56 @@ public static function on_widget_delete_event($event_args)
 	 *
 	 * @param int ID of the notification to send an e-mail for.
 	 */
-	protected static function send_email_notifications()
+	public function send_email()
 	{
 		if ( ! \Config::get('materia.send_emails', true)) return;
 
 		\Package::load('email');
 		$email = \Email::forge();
 
-		$notes = \Model_Notification::query()
-			->where('is_email_sent', '0')
-			->limit(100)
-			->get();
+		$from = static::get_user_or_system($this->from_id);
+		$to = \Model_User::find($this->to_id);
 
-		foreach ($notes as $note)
+		$email->from(\Config::get('materia.system_email'), $from->first.' '.$from->last);
+		$email->reply_to($from->email, $from->first.' '.$from->last);
+		$email->to($to->email, $to->first.' '.$to->last);
+		$email->subject(\Config::get('materia.name').' Notification');
+		$email->html_body($this->subject);
+
+		try
 		{
-			$from = \Model_User::find($note->from_id);
-			$to = \Model_User::find($note->to_id);
-
-			$email->from(\Config::get('materia.system_email'), $from->first.' '.$from->last);
-			$email->reply_to($from->email,$from->first.' '.$from->last);
-			$email->to($to->email, $to->first.' '.$to->last);
-			$email->subject(\Config::get('materia.name').' Notification');
-			$email->html_body($note->subject);
-
-			try
-			{
-				$email->send();
-				$note->is_email_sent = '1';
-				$note->save();
-			}
-			catch (\EmailValidationFailedException $e)
-			{
-				trace('VALIDATION ERROR');
-				trace($e);
-			}
-			catch (\EmailSendingFailedException $e)
-			{
-				trace('SEND ERROR');
-				trace($e);
-			}
+			$email->send();
+			$this->is_email_sent = '1';
+			$this->save();
 		}
+		catch (\EmailValidationFailedException $e)
+		{
+			trace('EMAIL VALIDATION ERROR');
+			trace($e->getMessage());
+		}
+		catch (\EmailSendingFailedException $e)
+		{
+			trace('EMAIL SEND ERROR');
+			trace($e->getMessage());
+		}
+	}
+
+
+
+	public static function get_user_or_system($user_id)
+	{
+		// 0 indicates the message is from a system event
+		if ($user_id === 0)
+		{
+			// create a mock user
+			return (object)[
+				'first' => 'Materia',
+				'last' => '',
+				'email' => \Config::get('materia.system_email'),
+				'username' => 'Server'
+			];
+		}
+
+		return \Model_User::find($user_id);
 	}
 }
