@@ -1,4 +1,4 @@
-<div ng-controller="ltiCtrl">
+<div ng-controller="LTIResourceSelectionCtrl">
 	<header>
 		<h1>{{strHeader}}</h1>
 		<div id="logo"></div>

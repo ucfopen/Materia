@@ -64,8 +64,8 @@ return [
 
 			'tool_id'               => 'edu.ucf.materia',
 
-			// Security Settings CHANGE THE SECRET (or both) !!!
-			'secret'            => 'CHANGE_ME_NOW',
+			// Security Settings CHANGE SECRET AT LEAST!!!
+			'secret'            => 'LTI_OAUTH_SECRET_KEY',
 			'key'               => 'materia-production-lti-key',
 
 		],

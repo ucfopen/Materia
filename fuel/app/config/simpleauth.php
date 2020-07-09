@@ -79,7 +79,7 @@ return array(
 	/**
 	 * Salt for the login hash
 	 */
-	'login_hash_salt' => '73Y169425098k8q8245G9706331d1p',
+	'login_hash_salt' => '',
 
 	/**
 	 * $_POST key for login username

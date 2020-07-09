@@ -3,7 +3,7 @@
 		<h1>Help &amp; Support</h1>
 		<section class="bordered">
 			<h2 id="flash-required">Requirements</h2>
-			<p class="flash-version">Materia requires that you have the latest Flash Player plug-in installed.</p>
+			<p class="flash-version">Materia requires that you use an up-to-date browser with javascript and cookies enabled.</p>
 		</section>
 
 		<section class="float left">
@@ -21,8 +21,11 @@
 		</section>
 
 		<section class="float right bordered">
-			<h2 id="faq-link">FAQs</h2>
-			<p>View the FAQ to get more information.</p>
+			<h2 id="faq-link">Documentation</h2>
+			<p><a href="https://ucfopen.github.io/Materia-Docs/">View the docs</a> for guides on using Materia.</p>
+			<h3 id="faq-link">Getting Started</h2>
+			<p><a href="https://ucfopen.github.io/Materia-Docs/play/getting-started.html">Player/Student Guide</a></p>
+			<p><a href="https://ucfopen.github.io/Materia-Docs/create/getting-started.html">Author/Instructor Guide</a></p>
 		</section>
 
 		<section class="float right">

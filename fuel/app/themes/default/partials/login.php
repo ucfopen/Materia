@@ -1,4 +1,4 @@
-<div class="container" ng-controller="loginCtrl">
+<div class="container" ng-controller="UserLoginCtrl">
 	<section class="page">
 		<div class="detail">
 			<h2 class="logo">Login to your account</h2>

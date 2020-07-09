@@ -1,4 +1,4 @@
-<div ng-controller="createCtrl">
+<div ng-controller="WidgetCreatorCtrl">
 	<section class="page" ng-show="loaded">
 		<div class="preview animate-show" ng-show="popup == 'blocked'">
 			<p>Your browser blocked the preview popup, click below to preview the widget.</p>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit colors="false" stopOnFailure="false" bootstrap="bootstrap_phpunit.php" >
+<phpunit
+	colors="false"
+	stopOnFailure="true"
+	bootstrap="bootstrap_phpunit.php"
+	processIsolation="false"
+	>
 	<php>
 		<server name="doc_root" value="../../"/>
 		<server name="app_path" value="fuel/app"/>

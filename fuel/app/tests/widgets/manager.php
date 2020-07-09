@@ -10,16 +10,13 @@ use \Materia\Widget_Manager;
 class Test_Widget_Manager extends \Basetest
 {
 
-	/**
-	 * @expectedException \HttpNotFoundException
-	 */
 	public function test_update_widget_requires_super_user()
 	{
+		$this->expectException(\HttpNotFoundException::class);
+
 		// create an object to hold necessary properties
 		$args = $this->sample_widget_update_args();
 		$msg = \Materia\Widget_Manager::update_widget($args);
-
-		return false;
 	}
 
 	public function test_update_widget_works_and_returns_expected_results()
@@ -31,7 +28,8 @@ class Test_Widget_Manager extends \Basetest
 		$inst_id = $mock_widget->meta_data['demo'];
 		$inst = new \Materia\Widget_Instance();
 		$inst->db_get($inst_id, false);
-		$duplicate = $inst->duplicate();
+		$user_id = 1;
+		$duplicate = $inst->duplicate($user_id);
 
 		// create an object to hold necessary properties
 		$args = new stdClass();
@@ -164,7 +162,7 @@ class Test_Widget_Manager extends \Basetest
 		self::assertCount(2, $res);
 
 		self::assertEquals($visible[0]->id, $res[0]->id);
-		self::assertContains($visible[1]->id, $res[1]->id);
+		self::assertEquals($visible[1]->id, $res[1]->id);
 	}
 
 
