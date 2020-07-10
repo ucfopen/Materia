@@ -11,7 +11,7 @@
         "post-install-cmd": "test -d ./.git/hooks && cp ./githooks/pre-commit ./.git/hooks/pre-commit || true",
         "git-pre-commit":"@sniff-ci",
         "destroy-everything": "php oil r admin:destroy_everything --quiet",
-        "oil-install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
+        "oil-install-quiet": "php oil r install --skip_prompts=true",
         "widgets-install-test": "php oil r widget:install fuel/app/tests/widget_packages/*.wigt",
         "test": "php fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
         "test-with-xdebug": "php -dzend_extension=xdebug.so fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
