@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9559d026288ced5b362a408a23861fcf",
+    "content-hash": "6fa382dfb9e2a572c6e32892e50fcbe5",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -3680,15 +3680,15 @@
         },
         {
             "name": "ucfcdl/fuelphp-phpcs",
-            "version": "master",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfcdl/fuelphp-phpcs.git",
-                "reference": "639d97db80d2a346833f2a7be90cf5cb3b35cf15"
+                "reference": "v3.0.0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/ucfcdl/fuelphp-phpcs/archive/639d97db80d2a346833f2a7be90cf5cb3b35cf15.zip"
+                "url": "https://github.com/ucfcdl/fuelphp-phpcs/archive/v3.0.0.zip"
             },
             "type": "library"
         },
@@ -3820,9 +3820,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "ucfcdl/fuelphp-phpcs": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
