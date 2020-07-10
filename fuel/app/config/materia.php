@@ -5,7 +5,7 @@ return [
 	*  System email address
 	*  All messages will be from this address
 	*/
-	'system_email'  => $_ENV['SYSTEM_EMAIL'] ?? 'noReply@materia.com',
+	'system_email'  => $_ENV['SYSTEM_EMAIL'],
 	'system_version' => 'Bahumut',
 
 	/*
@@ -42,7 +42,7 @@ return [
 
 	'debug_engines' => false,
 
-	'send_emails' => $_ENV['SEND_EMAILS'] ?? false,
+	'send_emails' => $_ENV['BOOL_SEND_EMAILS'] ?? false,
 
 	'default_api_version' => 2,
 
@@ -81,7 +81,7 @@ return [
 	/**
 	* Allow browser based widget uploads by administrators
 	*/
-	'enable_admin_uploader' => $_ENV['ADMIN_UPLOADER_ENABLE'] ?? true,
+	'enable_admin_uploader' => $_ENV['BOOL_ADMIN_UPLOADER_ENABLE'] ?? true,
 
 	// Asset storage configuration
 	'asset_storage_driver' => $_ENV['ASSET_STORAGE_DRIVER'] ?? 'file',
@@ -101,7 +101,7 @@ return [
 				'region'       => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
 				'bucket'       => $_ENV['ASSET_STORAGE_S3_BUCKET'], // bucket to store original user uploads
 				'subdir'       => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets
-				'secret_key'   => $_ENV['ASSET_STORAGE_S3_SECRET'] ?? 'SECRET', // aws api secret key
+				'secret_key'   => $_ENV['ASSET_STORAGE_S3_SECRET'], // aws api secret key
 				'key'          => $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY' // aws api key
 			]
 			: null

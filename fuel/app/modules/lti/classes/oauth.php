@@ -10,7 +10,7 @@ class Oauth
 			$signature  = \Input::post('oauth_signature', '');
 			$timestamp  = (int) \Input::post('oauth_timestamp', 0);
 			$nonce      = \Input::post('oauth_nonce', false);
-			$lti_config = \Config::get('lti::lti.consumers.'.\Input::post('tool_consumer_info_product_family_code', 'default'));
+			$lti_config = LtiLaunch::config();
 
 			if (empty($signature)) throw new \Exception('Authorization signature is missing.');
 			if (empty($nonce)) throw new \Exception('Authorization fingerprint is missing.');

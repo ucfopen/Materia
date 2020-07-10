@@ -3,21 +3,23 @@
  * @group App
  * @group Module
  * @group Lti
+ * @group LtiUserManager
  */
 class Test_LtiUserManager extends \Test_Basetest
 {
 	// Runs before every single test
 	protected function setUp(): void
 	{
+		\Lti\LtiLaunch::reset();
 		\Auth::forge(['driver' => 'LtiTestAuthDriver']);
-		\Config::set("lti::lti.consumers.materia-test.auth_driver", 'LtiTestAuthDriver');
-
+		\Config::load("lti::lti", true, true);
+		\Config::set("lti::lti.consumers.default.auth_driver", 'LtiTestAuthDriver');
 		parent::setUp();
 	}
 
 	public function test_authenticate_raises_exception_for_non_existant_auth_driver()
 	{
-		\Config::set("lti::lti.consumers.materia-test.auth_driver", 'PotatoAuthDriver');
+		\Config::set("lti::lti.consumers.default.auth_driver", 'PotatoAuthDriver');
 
 		// Exception thrown for auth driver that can't be found
 		try
@@ -37,12 +39,10 @@ class Test_LtiUserManager extends \Test_Basetest
 		$test_authenticate_finds_existing_user = function($creates_users, $use_launch_roles)
 		{
 			$this->create_users_and_use_launch_roles($creates_users, $use_launch_roles);
-
 			$user = $this->make_random_student();
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$_POST['roles'] = 'Learner';
 			$launch->email = 'gocu1@test.test';
-
 			\Lti\LtiUserManager::authenticate($launch);
 			$this->assertEquals($user->id, Auth_Login_LtiTestAuthDriver::$last_force_login_user->id);
 		};
@@ -322,8 +322,8 @@ class Test_LtiUserManager extends \Test_Basetest
 
 	protected function create_users_and_use_launch_roles($creates_users, $use_launch_roles)
 	{
-		\Config::set("lti::lti.consumers.materia-test.creates_users", $creates_users);
-		\Config::set("lti::lti.consumers.materia-test.use_launch_roles", $use_launch_roles);
+		\Config::set("lti::lti.consumers.default.creates_users", $creates_users);
+		\Config::set("lti::lti.consumers.default.use_launch_roles", $use_launch_roles);
 	}
 
 	protected function assertIsInstructor($user)

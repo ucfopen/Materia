@@ -105,7 +105,7 @@ class LtiEvents
 		if (static::get_lti_play_state($play_id) == self::PLAY_STATE_NOT_LTI) return false; //@TODO - is this supposed to return false????
 
 		$launch = static::session_get_launch($play_id);
-		$secret   = \Config::get("lti::lti.consumers.{$launch->consumer}.secret", false);
+		$secret = LtiLaunch::config()['secret'] ?? false;
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
@@ -240,8 +240,9 @@ class LtiEvents
 
 	protected static function save_lti_association_if_needed($launch)
 	{
+
 		// if the configuration says we don't save associations, just return now
-		if ( ! \Config::get("lti::lti.consumers.{$launch->consumer}.save_assoc", true)) return true;
+		if ( ! (LtiLaunch::config()['save_assoc'] ?? true)) return true;
 
 		// Search for any associations with this item id and resource link
 		$assoc = static::find_assoc_from_resource_id($launch->resource_id);

@@ -5,14 +5,17 @@ namespace Lti;
 class LtiLaunch
 {
 	protected static $launch;
+	protected static $config;
 
 	public static function from_request()
 	{
 		if (isset(static::$launch)) return static::$launch;
+
+		$config = static::config();
+
 		// these are configurable to let username and user_id come from custom launch variables
-		$consumer          = trim(\Input::param('tool_consumer_info_product_family_code', false));
-		$remote_id_field   = \Config::get("lti::lti.consumers.{$consumer}.remote_identifier", 'username');
-		$remote_user_field = \Config::get("lti::lti.consumers.{$consumer}.remote_username", 'user_id');
+		$remote_id_field   = $config['remote_identifier'] ?? 'username';
+		$remote_user_field = $config['remove_username'] ?? 'user_id';
 
 		// trim all the roles
 		$roles = explode(',', \Input::param('roles'));
@@ -25,7 +28,7 @@ class LtiLaunch
 			'context_id'     => trim(\Input::param('context_id', false)),
 			'context_title'  => trim(\Input::param('context_title', false)),
 			'consumer_id'    => trim(\Input::param('tool_consumer_instance_guid', false)), // unique install id of this tool
-			'consumer'       => $consumer,
+			'consumer'       => trim(\Input::param('tool_consumer_info_product_family_code', false)),
 			'email'          => trim(\Input::param('lis_person_contact_email_primary')),
 			'last'           => trim(\Input::param('lis_person_name_family', '')),
 			'first'          => trim(\Input::param('lis_person_name_given', '')),
@@ -38,6 +41,33 @@ class LtiLaunch
 		static::$launch = $vars;
 
 		return static::$launch;
+	}
+
+	public static function config()
+	{
+		if( ! empty(static::$config))
+		{
+			return static::$config;
+		}
+
+		// determine which config to use
+		$consumer       = trim(\Input::param('tool_consumer_info_product_family_code', 'default'));
+		$configs        = \Config::get("lti::lti.consumers");
+		static::$config = $configs[$consumer] ?? $configs['default'] ?? null;
+
+		if (empty(static::$config))
+		{
+			\LOG::error("LTI Launch for {$consumer} consumer but no matching or default lti config found.");
+			throw new HttpServerErrorException;
+		}
+
+		return static::$config;
+	}
+
+	public static function reset()
+	{
+		static::$launch = null;
+		static::$config = null;
 	}
 
 }

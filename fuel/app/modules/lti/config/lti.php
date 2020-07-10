@@ -11,7 +11,7 @@ return [
 
 	'consumers' => [
 		 // the array index here is matched to 'tool_consumer_info_product_family_code' in lti launches
-		'canvas' => [
+		'default' => [
 			// these display in the consumer's dialogs
 			'title'                 => 'Materia Widget Assignment',
 			'description'           => 'Add a Materia Widget as an assignment',
@@ -35,10 +35,10 @@ return [
 			// This means it will create users we don't have and update their user
 			// data if it changes. It will NOT update any external roles
 			// (see 'use_launch_roles')
-			'creates_users'         => $_ENV['LTI_CANVAS_CREATE_USERS'] ?? true,
+			'creates_users'         => $_ENV['BOOL_LTI_CANVAS_CREATE_USERS'] ?? true,
 
 			// allow an external system to define user roles in Materia
-			'use_launch_roles'      => $_ENV['LTI_CANVAS_USE_LAUNCH_ROLES'] ?? true,
+			'use_launch_roles'      => $_ENV['BOOL_LTI_CANVAS_USE_LAUNCH_ROLES'] ?? true,
 
 			// which auth driver will do the final work authenticating this user
 			'auth_driver'           => 'LtiAuth',
@@ -57,7 +57,7 @@ return [
 
 			// Define aspects of the course navigation link
 			// such as whether it is available at all, who can see it, and what text it displays
-			'course_nav_default'    => ($_ENV['LTI_COURSE_NAV_DEFAULT'] ?? false) ? 'enabled' : 'disabled',
+			'course_nav_default'    => ($_ENV['BOOL_LTI_COURSE_NAV_DEFAULT'] ?? false) ? 'enabled' : 'disabled',
 			'course_nav_enabled'    => 'true',
 			'course_nav_text'       => 'Materia',
 			'course_nav_visibility' => 'members',

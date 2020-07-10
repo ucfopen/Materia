@@ -12,5 +12,5 @@ return [
 				]
 			]
 		],
-		'expiration_time' => $_ENV['SESSION_EXPIRATION'] ?? 21600,
+		'expiration_time' => $_ENV['SESSION_EXPIRATION'] ?? null,
 ];

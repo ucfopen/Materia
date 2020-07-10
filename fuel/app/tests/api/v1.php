@@ -480,7 +480,7 @@ class Test_Api_V1 extends \Basetest
 
 		// the lock is stored in a cache that expires
 		// let's manually clear cache now, effectively removing the lock
-		\Cache::delete_all();
+		\Cache::delete_all('instance-lock');
 
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}

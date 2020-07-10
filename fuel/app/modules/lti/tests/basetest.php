@@ -123,8 +123,8 @@ class Test_Basetest extends \Basetest
 		$this->reset_input();
 		\Config::load('lti::lti', true, true);
 
-		$key    = \Config::get('lti::lti.consumers.materia-test.key');
-		$secret = \Config::get('lti::lti.consumers.materia-test.secret');
+		$key    = \Config::get('lti::lti.consumers.default.key');
+		$secret = \Config::get('lti::lti.consumers.default.secret');
 
 		$base_params    = [
 			'resource_link_id'     => 'test-resource',

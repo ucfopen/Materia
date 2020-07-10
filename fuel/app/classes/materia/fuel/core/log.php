@@ -31,7 +31,7 @@ class Log extends Fuel\Core\Log
 
 		// IMPORTANT - THIS IS DUPLICATED IN materia/Log.php prepare_logger
 		// If you update one, update both!
-		$handler_factory = \Config::get('log_handler_factory');
+		$handler_factory = \Config::get('log_handler_factory', false);
 
 		if (is_callable($handler_factory))
 		{

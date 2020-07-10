@@ -24,9 +24,21 @@ $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
 // Register the autoloader
 \Autoloader::register();
 
-use Symfony\Component\Dotenv\Dotenv;
-$dotenv = new Dotenv('FUEL_ENV');
-$dotenv->loadEnv(realpath(__DIR__.DS.'..'.DS.'..').DS.'.env', 'FUEL_ENV');
+
+// ENVIRONMENT CONFIG
+// converts .env and .env.local into $_ENV vars
+$env_path = realpath(__DIR__.DS.'..'.DS.'..').DS;
+$dotenv = new Symfony\Component\Dotenv\Dotenv();
+$dotenv->loadEnv("{$env_path}.env", "{$env_path}.env.local");
+
+// env vars starting with BOOL_ become true boolean
+foreach ($_ENV as $key => $value) {
+	if (strpos($key, 'BOOL_') === 0) {
+		// allowed true values 'true'
+		// everything else is false !!
+		$_ENV[$key] = $value === 'true';
+	}
+}
 
 /**
  * Your environment.  Can be set to any of the following:

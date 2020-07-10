@@ -20,21 +20,22 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_index()
 	{
+		$cfg = \Config::get('lti::lti.consumers.default');
 		// TODO: this is hard coded for Canvas, figure out if the request carries any info we can use to figure this out
 		$this->theme->set_template('partials/config_xml');
 		$this->theme->get_template()
-			->set('title', \Config::get('lti::lti.consumers.canvas.title'))
-			->set('description', \Config::get('lti::lti.consumers.canvas.description'))
+			->set('title', $cfg['title'])
+			->set('description', $cfg['description'])
 			->set('launch_url', \Uri::create('lti/assignment'))
 			->set('login_url', \Uri::create('lti/login'))
 			->set('picker_url', \Uri::create('lti/picker'))
-			->set('platform', \Config::get('lti::lti.consumers.canvas.platform'))
-			->set('privacy_level', \Config::get('lti::lti.consumers.canvas.privacy'))
-			->set('course_nav_enabled', \Config::get('lti::lti.consumers.canvas.course_nav_enabled', true))
-			->set('course_nav_default', \Config::get('lti::lti.consumers.canvas.course_nav_default', true))
-			->set('course_nav_text', \Config::get('lti::lti.consumers.canvas.course_nav_text', true))
-			->set('course_nav_visibility', \Config::get('lti::lti.consumers.canvas.course_nav_visibility', true))
-			->set('tool_id', \Config::get('lti::lti.consumers.canvas.tool_id', true));
+			->set('platform', $cfg['platform'])
+			->set('privacy_level', $cfg['privacy'])
+			->set('course_nav_enabled', $cfg['course_nav_enabled'] ?? true)
+			->set('course_nav_default', $cfg['course_nav_default'] ?? true)
+			->set('course_nav_text', $cfg['course_nav_text'] ?? true)
+			->set('course_nav_visibility', $cfg['course_nav_visibility'] ?? true)
+			->set('tool_id', $cfg['tool_id'] ?? true);
 
 		return \Response::forge($this->theme->render())->set_header('Content-Type', 'application/xml');
 	}
