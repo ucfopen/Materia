@@ -19,10 +19,6 @@ return [
 			// the platform that this lti consumer is intended to match up with
 			'platform'              => 'canvas.instructure.com',
 
-			// Choose the key value of an LTI paramater to use as our username
-			// In this case the value of lis_person_sourceid may be 'dave'.  We will try to match username = 'dave'
-			'remote_username'       => 'lis_person_sourcedid',
-
 			// When looking or creating local users based on the external system, what fields do we use as an identifier?
 			// remote_identifier is the name of the lti data sent
 			// local_identifier is the name of the user object property that we will match the remote identifier against
@@ -76,7 +72,6 @@ return [
 			'title'             => 'Materia Widget Assignment',
 			'description'       => 'Add a Materia Widget to your Learning Module',
 			'platform'          => 'obojobo.ucf.edu',
-			'remote_username'   => 'lis_person_sourcedid',
 			'remote_identifier' => 'lis_person_sourcedid',
 			'local_identifier'  => 'username',
 			'creates_users'     => true,

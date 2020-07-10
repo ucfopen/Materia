@@ -12,7 +12,6 @@ class LtiLaunch
 		// these are configurable to let username and user_id come from custom launch variables
 		$consumer          = trim(\Input::param('tool_consumer_info_product_family_code', false));
 		$remote_id_field   = \Config::get("lti::lti.consumers.{$consumer}.remote_identifier", 'username');
-		$remote_user_field = \Config::get("lti::lti.consumers.{$consumer}.remote_username", 'user_id');
 
 		// trim all the roles
 		$roles = explode(',', \Input::param('roles'));
@@ -32,7 +31,6 @@ class LtiLaunch
 			'fullname'       => trim(\Input::param('lis_person_name_full', '')),
 			'roles'          => $roles,
 			'remote_id'      => trim(\Input::param($remote_id_field)),
-			'username'       => trim(\Input::param($remote_user_field))
 		];
 
 		static::$launch = $vars;
