@@ -45,14 +45,14 @@ class LtiLaunch
 
 	public static function config()
 	{
-		if( ! empty(static::$config))
+		if ( ! empty(static::$config))
 		{
 			return static::$config;
 		}
 
 		// determine which config to use
 		$consumer       = trim(\Input::param('tool_consumer_info_product_family_code', 'default'));
-		$configs        = \Config::get("lti::lti.consumers");
+		$configs        = \Config::get('lti::lti.consumers');
 		static::$config = $configs[$consumer] ?? $configs['default'] ?? null;
 
 		if (empty(static::$config))
