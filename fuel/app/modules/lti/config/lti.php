@@ -21,24 +21,24 @@ return [
 
 			// Choose the key value of an LTI paramater to use as our username
 			// In this case the value of lis_person_sourceid may be 'dave'.  We will try to match username = 'dave'
-			'remote_username'       => $_ENV['LTI_CANVAS_REMOTE_USERNAME'] ?? 'lis_person_sourcedid',
+			'remote_username'       => $_ENV['LTI_REMOTE_USERNAME'] ?? 'lis_person_sourcedid',
 
 			// When looking or creating local users based on the external system, what fields do we use as an identifier?
 			// remote_identifier is the name of the lti data sent
 			// local_identifier is the name of the user object property that we will match the remote identifier against
 			// ex: incoming lis_person_sourceid = 'dave', we'll look for Model_User::query()->where($local_identifier, Input::post($remote_identifier))
 			// another option is to use email instead of sourcedid, remote = 'lis_person_contact_email_primary' and local = 'email'
-			'remote_identifier'     => $_ENV['LTI_CANVAS_REMOTE_IDENTIFIER'] ?? 'lis_person_sourcedid',
+			'remote_identifier'     => $_ENV['LTI_REMOTE_IDENTIFIER'] ?? 'lis_person_sourcedid',
 			'local_identifier'      => 'username',
 
 			// When true, materia will accept user data from the external system.
 			// This means it will create users we don't have and update their user
 			// data if it changes. It will NOT update any external roles
 			// (see 'use_launch_roles')
-			'creates_users'         => $_ENV['BOOL_LTI_CANVAS_CREATE_USERS'] ?? true,
+			'creates_users'         => $_ENV['BOOL_LTI_CREATE_USERS'] ?? true,
 
 			// allow an external system to define user roles in Materia
-			'use_launch_roles'      => $_ENV['BOOL_LTI_CANVAS_USE_LAUNCH_ROLES'] ?? true,
+			'use_launch_roles'      => $_ENV['BOOL_LTI_USE_LAUNCH_ROLES'] ?? true,
 
 			// which auth driver will do the final work authenticating this user
 			'auth_driver'           => 'LtiAuth',
@@ -65,8 +65,8 @@ return [
 			'tool_id'               => $_ENV['LTI_TOOL_ID'] ?? 'io.github.ucfopen',
 
 			// Security Settings CHANGE SECRET AT LEAST!!!
-			'secret'                => $_ENV['LTI_CANVAS_SECRET'],
-			'key'                   => $_ENV['LTI_CANVAS_KEY'],
+			'secret'                => $_ENV['LTI_SECRET'],
+			'key'                   => $_ENV['LTI_KEY'],
 
 		],
 

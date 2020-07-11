@@ -15,7 +15,7 @@ class LtiLaunch
 
 		// these are configurable to let username and user_id come from custom launch variables
 		$remote_id_field   = $config['remote_identifier'] ?? 'username';
-		$remote_user_field = $config['remove_username'] ?? 'user_id';
+		$remote_user_field = $config['remote_username'] ?? 'user_id';
 
 		// trim all the roles
 		$roles = explode(',', \Input::param('roles'));
