@@ -17,16 +17,9 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_index()
 	{
-		Css::push_group(['core', 'widget_catalog']);
-
-		Js::push_group(['angular', 'ng-animate', 'materia']);
-
-		$this->theme->get_template()
-			->set('title', 'Widget Catalog')
-			->set('page_type', 'catalog');
-
-		$this->theme->set_partial('content', 'partials/widget/catalog');
-		$this->theme->set_partial('meta', 'partials/responsive');
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/catalog');
+		$this->theme->get_template()->set('title', 'Widget Catalog');
 	}
 
 	public function get_all()
@@ -160,6 +153,23 @@ class Controller_Widgets extends Controller
 		$inst = new Materia\Widget_Instance();
 		$inst->db_get($inst_id);
 		$this->show_editor('Edit Widget', $inst->widget, $inst_id);
+	}
+
+	/**
+	 * Listing of all widgets i have rights to
+	 */
+	public function get_mywidgets2()
+	{
+		// if (\Service_User::verify_session() !== true)
+		// {
+		// 	Session::set('redirect_url', URI::current());
+		// 	Session::set_flash('notice', 'Please log in to view your widgets.');
+		// 	Response::redirect(Router::get('login'));
+		// }
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/mywidgets');
+		$this->theme->get_template()->set('title', 'My Widgets');
 	}
 
 	/**

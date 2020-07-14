@@ -7,6 +7,7 @@
   "repository": "https://github.com/ucfopen/Materia.git",
   "scripts": {
     "build": "node process_assets.js",
+    "dev": "webpack-dev-server",
     "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\" \"yarn build:browsersync\"",
     "build:watchmateria": "nodemon -e js,css -w ./node_modules/materia-server-client-assets/dist process_assets.js",
     "build:watchclientassets": "cd node_modules/materia-server-client-assets && yarn build-watch",
@@ -24,9 +25,22 @@
     "napa": "^3.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "autoprefixer": "^9.8.5",
+    "babel-loader": "^8.1.0",
     "browser-sync": "^2.26.5",
     "concurrently": "^5.1.0",
-    "nodemon": "^2.0.2"
+    "css-loader": "^3.6.0",
+    "mini-css-extract-plugin": "^0.9.0",
+    "node-sass": "^4.14.1",
+    "nodemon": "^2.0.2",
+    "postcss-loader": "^3.0.0",
+    "sass-loader": "^9.0.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   },
   "nodemonConfig": {
     "delay": "500",

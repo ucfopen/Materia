@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import Header from './header'
 import './my-widgets-page.scss'
@@ -8,7 +8,6 @@ import parseObjectToDateString from '../util/object-to-date-string'
 import parseTime from '../util/parse-time'
 import { iconUrl } from '../util/icon-url'
 
-const BASE_URL = 'http://localhost/'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -40,7 +39,6 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 }
 
 const getEmbedLink = (inst, autoplayToggle = true) => {
-	console.log('LINK', autoplayToggle)
 	if (inst === null) {
 		return ''
 	}
@@ -60,7 +58,7 @@ const getEmbedLink = (inst, autoplayToggle = true) => {
 		: inst.name
 
 
-	return `<iframe src="${BASE_URL}embed/${inst.id}/${inst.clean_name}?autoplay=${autoplayToggle?'true':'false'}" width="${width}" height="${height}" style="margin:0;padding:0;border:0;"></iframe>`
+	return `<iframe src="${inst.embed_url}?autoplay=${autoplayToggle?'true':'false'}" width="${width}" height="${height}" style="margin:0;padding:0;border:0;"></iframe>`
 }
 
 const MyWidgetEmbedInfo = ({inst}) => {
@@ -69,7 +67,7 @@ const MyWidgetEmbedInfo = ({inst}) => {
 		<div className="embed-options">
 			<h3>Embed Code</h3>
 			<p>Paste this HTML into a course page to embed.</p>
-			<textarea id="embed_link" value={ getEmbedLink(inst, autoplay) }></textarea>
+			<textarea id="embed_link" readOnly value={ getEmbedLink(inst, autoplay) }></textarea>
 			<label htmlFor="embed-code-autoplay">Autoplay: </label>
 			<input id="embed-code-autoplay"
 				type="checkbox"
@@ -85,6 +83,234 @@ const MyWidgetEmbedInfo = ({inst}) => {
 	)
 }
 
+
+const MyWidgetsScores = ({inst}) => {
+	const [scoreTab, setScoreTab] = useState('')
+	const [scores, setScores] = useState([])
+	const [isLoadingScores, setIsLoadingScores] = useState(false)
+	useEffect(
+		() => {
+			setIsLoadingScores(true)
+
+			// getScores
+			const options = {
+				"headers": {
+				"cache-control": "no-cache",
+				"pragma": "no-cache",
+				"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+				},
+				"body": `data=%5B%22${inst.id}%22%2C${true}%5D`,
+				"method": "POST",
+				"mode": "cors",
+				"credentials": "include"
+			}
+
+			fetch('/api/json/score_summary_get/', options)
+				.then(resp => {
+					if(resp.ok && resp.status !== 204) return resp.json()
+					return []
+				})
+				.then(scores => {
+					setScores(scores)
+					setIsLoadingScores(false)
+				})
+		}, [inst.id]
+	)
+
+	return (
+		<div className="scores">
+			<h2>Student Activity</h2>
+			<span id="export_scores_button"
+				className={`action_button aux_button ${scores.length ? '' : 'disabled'}`}
+				ng-click="selected.scores.list.length === NULL ? angular.noop() : exportPopup()">
+				<span className="arrow_down"></span>
+				Export Options
+			</span>
+
+
+			{scores.map(semester =>
+				<div key={semester} className="scoreWrapper">
+					<h3 className="view">{semester.term} {semester.year}</h3>
+					<ul className="choices">
+						<li className={scoreTab == 'SCORE_GRAPH_TAB' ? 'scoreTypeSelected' : ''}>
+							<a className="graph"
+								ng-show="semester.distribution"
+								ng-click="setScoreViewTab($index, SCORE_TAB_GRAPH)">
+								Graph
+							</a>
+						</li>
+						<li className={scoreTab == 'SCORE_TABLE_TAB' ? 'scoreTypeSelected' : ''}>
+							<a className="table"
+								ng-show="semester.distribution"
+								ng-click="setScoreViewTab($index, SCORE_TAB_INDIVIDUAL)">
+								Individual Scores
+							</a>
+						</li>
+						<li className={scoreTab == 'SCORE_STORAGE_TAB' ? 'scoreTypeSelected' : ''}>
+							<a className="data"
+								ng-show="semester.storage"
+								ng-click="setScoreViewTab($index, SCORE_TAB_STORAGE)">
+								Data
+							</a>
+						</li>
+					</ul>
+
+					{scoreTab == 'SCORE_GRAPH_TAB'
+						? <div className="display graph">
+								<div
+									score-graph
+									className="chart"
+									id={`chart_${semester.id}`}
+								>
+								</div>
+							</div>
+						: null
+
+					}
+
+					{scoreTab == 'SCORE_TABLE_TAB'
+						? <div score-table
+								className="display table"
+								id={`table_${semester.id}`}
+								data-term={semester.term}
+								data-year={semester.year}
+							>
+								<div className="score-search">
+									<input
+										type="text"
+										ng-model="studentSearch"
+										ng-change="searchStudentActivity(studentSearch)"
+										placeholder="Search Students" />
+								</div>
+								<h3>Select a student to view their scores.</h3>
+								<div className="scoreListContainer">
+									<div className="scoreListScrollContainer">
+										<table className="scoreListTable">
+											<tbody>
+
+												<tr ng-repeat="user in users track by user.uid"
+													id="{{$index}}"
+													ng-className="{'rowSelected' : user.uid == selectedUser.uid}">
+													<td className="listName"
+														ng-click="setSelectedUser(user.uid)">
+														{user.name}
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div className="scoreTableContainer"
+									ng-hide="selectedUser == null">
+									<table className="scoreTable">
+										<tbody>
+											<tr ng-repeat="score in selectedUser.scores"
+												ng-click="showScorePage(score.id)">
+												<td>{ score.date.substring(0, 10) }</td>
+												<td>{ score.complete == "1" ? score.percent + "%" : "---" }</td>
+												<td>{ score.elapsed }</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						: null
+					}
+
+					{scoreTab == 'SCORE_STORAGE_TAB'
+						? <div
+								score-data id="data_{{semester.id}}"
+								className="display data"
+								data-semester="{{semester.year}} {{semester.term.toLowerCase()}}"
+								data-has-storage="{{ semester.storage ? true : false }}"
+								ng-if="selectedScoreView[$index] == SCORE_TAB_STORAGE">
+								<div>
+									<input type='checkbox'
+										ng-model='semester.anonymize'
+										ng-init='semester.anonymize=false' />
+									Anonymize Download
+									<a className="storage"
+										ng-href="/data/export/{{inst.id}}?type=storage&amp;table={{selectedTable | escape}}&amp;semesters={{semester.year}}-{{semester.term}}&amp;anonymized={{semester.anonymize}}" >
+										Download Table
+									</a>
+								</div>
+								<div className="table label"
+									ng-show="tableNames.length == 1">
+									<h4>Table:
+										<span>{ tableNames[0] }</span>
+									</h4>
+								</div>
+								<select ng-model="selectedTable"
+									ng-options="tableName as tableName for tableName in tableNames"
+									ng-show="tableNames.length > 1">
+								</select>
+								<div ng-repeat="table in tables"
+									ng-show="tableNames[$index] == selectedTable">
+									<p ng-if="table.truncated"
+										className="truncated-table">
+										Showing only the first { MAX_ROWS } entries of this table.
+										Download the table to see all entries.
+									</p>
+									<table className="storage_table"
+										datatable>
+										<thead>
+											<tr>
+												<th>user</th>
+												<th>firstName</th>
+												<th>lastName</th>
+												<th>time</th>
+												<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="row in table.data">
+												<td>{ row.play.user }</td>
+												<td>{ row.play.firstName }</td>
+												<td>{ row.play.lastName }</td>
+												<td>{ row.play.cleanTime }</td>
+												<td ng-repeat="rowData in row.data"
+													ng-className="{'null':rowData == null}">
+													{ rowData }
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						:null
+					}
+
+					<ul className="numeric"
+						ng-show="selectedScoreView[$index] != SCORE_TAB_STORAGE">
+						<li>
+							<h4>Students</h4>
+							<p className="players"
+								className="playerShrink">
+								{ semester.students }
+							</p>
+						</li>
+						<li>
+							<h4>Scores</h4>
+							<p className="score-count">{ semester.totalScores }</p>
+						</li>
+						<li>
+							<h4>Avg Final Score</h4>
+							<p className="final-average">{ semester.average }</p>
+						</li>
+					</ul>
+					<a role="button"
+						className="show-older-scores-button"
+						ng-show="selected.scores.list.length > 1 && show.olderScores == false && $index == 0"
+						ng-click="enableOlderScores()">
+						Show older scores...
+					</a>
+				</div>
+			)}
+		</div>
+	)
+}
+
+
 const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 	const attempts = parseInt(inst.attempts, 10)
 	const collaborateCount = useMemo(
@@ -99,7 +325,38 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 		delete: true
 	}
 
-	const onEditClick = () => {}
+	const onEditClick = (inst) => {
+		debugger
+		const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
+		window.location = editUrl
+
+		// if(inst.editable){
+		// 	// send request to widget_instance_edit_perms_verify
+		// 	// Materia.Coms.Json.send('widget_instance_edit_perms_verify', [inst.id,])
+		// 	// .then((response) => {
+		// 	if(isLocked){
+		// 		return 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
+		// 	}
+
+		// 	if(isDraft){
+		// 		const editUrl = `http://localhost/${inst.widget.dir}/create#${inst.id}`
+		// 		window.location = editUrl
+		// 		return
+		// 	}
+
+		// 	if (response.can_publish){
+		// 		// show editPublished warning
+		// 		// $scope.show.editPublishedWarning = true
+		// 		return
+		// 	}
+		// 	else{
+		// 		// show restricted publish warning
+		// 		// $scope.show.restrictedPublishWarning = true
+		// 		return
+		// 	}
+		// }
+	}
+
 	const onShowCollaboration = () => {}
 	const onShowCopyDialog = () => {}
 	const onDelete = () => {}
@@ -122,8 +379,6 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 		availabilityMode = 'from'
 	}
 
-	const scores = []
-
 	return (
 		<section className="page">
 			<div className="header">
@@ -143,7 +398,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 							<a id="preview_button"
 								className={`action_button green circle_button ${ !inst.widget.is_playable ? 'disabled' : '' }`}
 								target="_blank"
-								href={inst.preview}
+								href={inst.preview_url}
 							>
 								<span className="arrow arrow_right"></span>Preview
 							</a>
@@ -282,6 +537,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 					</div>
 
 				</div>
+
 				<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 					<h3>
 						{inst.is_draft ? "Publish to share" : "Share"} with your students
@@ -294,7 +550,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 						type="text"
 						disabled={inst.is_draft}
 						readOnly
-						value={`${BASE_URL}play/${inst.id}/${inst.clean_name}`}
+						value={inst.play_url}
 					/>
 					<p>
 						Use this link to share with your students (or
@@ -314,194 +570,49 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 				</div>
 			</div>
 
-			<div className="scores">
-				<h2>Student Activity</h2>
-				<span id="export_scores_button"
-					className={`action_button aux_button ${scores.length ? '' : 'disabled'}`}
-					ng-click="selected.scores.list.length === NULL ? angular.noop() : exportPopup()">
-					<span className="arrow_down"></span>
-					Export Options
-				</span>
-
-			{scores.map(semester =>
-				<div className="scoreWrapper"
-					ng-if="show.olderScores == true || $index == 0">
-					<h3 className="view">{semester.term} {semester.year}</h3>
-					<ul className="choices">
-						<li ng-className="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_GRAPH}">
-							<a className="graph"
-								ng-show="semester.distribution"
-								ng-click="setScoreViewTab($index, SCORE_TAB_GRAPH)">
-								Graph
-							</a>
-						</li>
-						<li ng-className="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_INDIVIDUAL}">
-							<a className="table"
-								ng-show="semester.distribution"
-								ng-click="setScoreViewTab($index, SCORE_TAB_INDIVIDUAL)">
-								Individual Scores
-							</a>
-						</li>
-						<li ng-className="{'scoreTypeSelected' : selectedScoreView[$index] == SCORE_TAB_STORAGE}">
-							<a className="data"
-								ng-show="semester.storage"
-								ng-click="setScoreViewTab($index, SCORE_TAB_STORAGE)">
-								Data
-							</a>
-						</li>
-					</ul>
-					<div score-table
-						className="display table"
-						id="table_{{semester.id}}"
-						data-term="{{semester.term}}"
-						data-year="{{semester.year}}"
-						ng-if="selectedScoreView[$index] == SCORE_TAB_INDIVIDUAL">
-						<div className="score-search">
-							<input type="text"
-								ng-model="studentSearch"
-								ng-change="searchStudentActivity(studentSearch)"
-								placeholder="Search Students" />
-						</div>
-						<h3>Select a student to view their scores.</h3>
-						<div className="scoreListContainer">
-							<div className="scoreListScrollContainer">
-								<table className="scoreListTable">
-									<tbody>
-										<tr ng-repeat="user in users track by user.uid"
-											id="{{$index}}"
-											ng-className="{'rowSelected' : user.uid == selectedUser.uid}">
-											<td className="listName"
-												ng-click="setSelectedUser(user.uid)">
-												{user.name}
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-						<div className="scoreTableContainer"
-							ng-hide="selectedUser == null">
-							<table className="scoreTable">
-								<tbody>
-									<tr ng-repeat="score in selectedUser.scores"
-										ng-click="showScorePage(score.id)">
-										<td>{ score.date.substring(0, 10) }</td>
-										<td>{ score.complete == "1" ? score.percent + "%" : "---" }</td>
-										<td>{ score.elapsed }</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-					<div className="display graph"
-						ng-if="selectedScoreView[$index] == SCORE_TAB_GRAPH">
-						<div score-graph
-							className="chart"
-							id="chart_{{semester.id}}">
-						</div>
-					</div>
-					<div
-						score-data id="data_{{semester.id}}"
-						className="display data"
-						data-semester="{{semester.year}} {{semester.term.toLowerCase()}}"
-						data-has-storage="{{ semester.storage ? true : false }}"
-						ng-if="selectedScoreView[$index] == SCORE_TAB_STORAGE">
-						<div>
-							<input type='checkbox'
-								ng-model='semester.anonymize'
-								ng-init='semester.anonymize=false' />
-							Anonymize Download
-							<a className="storage"
-								ng-href="/data/export/{{inst.id}}?type=storage&amp;table={{selectedTable | escape}}&amp;semesters={{semester.year}}-{{semester.term}}&amp;anonymized={{semester.anonymize}}" >
-								Download Table
-							</a>
-						</div>
-						<div className="table label"
-							ng-show="tableNames.length == 1">
-							<h4>Table:
-								<span>{ tableNames[0] }</span>
-							</h4>
-						</div>
-						<select ng-model="selectedTable"
-							ng-options="tableName as tableName for tableName in tableNames"
-							ng-show="tableNames.length > 1">
-						</select>
-						<div ng-repeat="table in tables"
-							ng-show="tableNames[$index] == selectedTable">
-							<p ng-if="table.truncated"
-								className="truncated-table">
-								Showing only the first { MAX_ROWS } entries of this table.
-								Download the table to see all entries.
-							</p>
-							<table className="storage_table"
-								datatable>
-								<thead>
-									<tr>
-										<th>user</th>
-										<th>firstName</th>
-										<th>lastName</th>
-										<th>time</th>
-										<th ng-repeat="(name, data) in table.data[0].data">{{name}}</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr ng-repeat="row in table.data">
-										<td>{ row.play.user }</td>
-										<td>{ row.play.firstName }</td>
-										<td>{ row.play.lastName }</td>
-										<td>{ row.play.cleanTime }</td>
-										<td ng-repeat="rowData in row.data"
-											ng-className="{'null':rowData == null}">
-											{ rowData }
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-					<ul className="numeric"
-						ng-show="selectedScoreView[$index] != SCORE_TAB_STORAGE">
-						<li>
-							<h4>Students</h4>
-							<p className="players"
-								className="playerShrink">
-								{ semester.students }
-							</p>
-						</li>
-						<li>
-							<h4>Scores</h4>
-							<p className="score-count">{ semester.totalScores }</p>
-						</li>
-						<li>
-							<h4>Avg Final Score</h4>
-							<p className="final-average">{ semester.average }</p>
-						</li>
-					</ul>
-					<a role="button"
-						className="show-older-scores-button"
-						href="javascript:;"
-						ng-show="selected.scores.list.length > 1 && show.olderScores == false && $index == 0"
-						ng-click="enableOlderScores()">
-						Show older scores...
-					</a>
-				</div>
-			)}
-			</div>
+			<MyWidgetsScores inst={inst} />
 		</section>
 	)
 }
 
 
-const MyWidgetsPage = ({widgets}) => {
+const MyWidgetsPage = () => {
 	const [noAccess, setNoAccess] = useState(false)
-	const [selectedInst, setSelectedInst] = useState(widgets[0])
+	const [selectedInst, setSelectedInst] = useState(null)
+	const [isLoading, setIsLoading] = useState(true)
+	const [widgets, setWidgets] = useState([])
+
+	// load instances after initial render
+	useEffect(() => {
+		const options = {
+			"headers": {
+			  "cache-control": "no-cache",
+			  "pragma": "no-cache",
+			  "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+			},
+			"body": "data=%5B%5D",
+			"method": "POST",
+			"mode": "cors",
+			"credentials": "include"
+		  }
+
+		fetch('/api/json/widget_instances_get/', options)
+			.then(resp => resp.json())
+			.then(widgets => {
+				setIsLoading(false)
+				setWidgets(widgets)
+				// setSelectedInst(widgets[0])
+			})
+	}, [])
+
+
 
 	return (
 		<>
 			<Header />
 			<div className="my_widgets">
 
-				{widgets.length == 0
+				{!isLoading && widgets.length == 0
 					? <div className="qtip top nowidgets">
 							Click here to start making a new widget!
 						</div>
@@ -511,7 +622,15 @@ const MyWidgetsPage = ({widgets}) => {
 
 				<div className="container">
 					<div>
-						{noAccess
+						{isLoading
+							? <section className="directions no-widgets">
+								<h1>Loading.</h1>
+								<p>Just a sec...</p>
+							</section>
+							: null
+						}
+
+						{!isLoading && noAccess
 							? <section className="directions error">
 								<div className="error error-nowidget">
 									<p className="errorWindowPara">
@@ -522,7 +641,7 @@ const MyWidgetsPage = ({widgets}) => {
 							: null
 						}
 
-						{widgets.length < 1 && !noAccess
+						{!isLoading && widgets.length < 1 && !noAccess
 							? <section className="directions no-widgets">
 									<h1>You have no widgets!</h1>
 									<p>Make a new widget in the widget catalog.</p>
@@ -530,7 +649,7 @@ const MyWidgetsPage = ({widgets}) => {
 							: null
 						}
 
-						{widgets.length > 0 && !selectedInst && !noAccess
+						{!isLoading && widgets.length > 0 && !selectedInst && !noAccess
 							? <section className="directions unchosen">
 									<h1>Your Widgets</h1>
 									<p>Choose a widget from the list on the left.</p>
@@ -538,13 +657,16 @@ const MyWidgetsPage = ({widgets}) => {
 							: null
 						}
 
-						<MyWidgetSelectedInstance inst={selectedInst} />
+						{!isLoading && selectedInst
+							? <MyWidgetSelectedInstance inst={selectedInst} />
+							: null
+						}
 
 					</div>
 
 					<MyWidgetsSideBar
 						instances={widgets}
-						selectedId={selectedInst.id}
+						selectedId={selectedInst ? selectedInst.id : null}
 						onClick={setSelectedInst}
 						Card={MyWidgetsInstanceCard}
 					/>
