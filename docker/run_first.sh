@@ -29,6 +29,9 @@ DOCKER_IP="localhost"
 # clean migration files in every environment
 rm -f ../fuel/app/config/**/migrations.php
 
+# generate a self-signed ssl cert
+openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout ./config/nginx/key.pem -out ./config/nginx/cert.pem -days 365
+
 # use env/args to determine which docker-compose files to load
 source run_dc.sh
 
