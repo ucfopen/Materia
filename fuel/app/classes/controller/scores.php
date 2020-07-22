@@ -8,8 +8,9 @@ class Controller_Scores extends Controller
 {
 	use Trait_CommonControllerTemplate;
 
-	public function get_show($inst_id)
+	public function get_show(string $inst_id, bool $is_embeded = false)
 	{
+
 		// locate instance
 		$instances = Materia\Api::widget_instances_get([$inst_id]);
 		if ( ! isset($instances[0])) throw new HttpNotFoundException;
@@ -32,6 +33,8 @@ class Controller_Scores extends Controller
 			Js::push_inline('var LAUNCH_TOKEN = "'.$token.'";');
 		}
 
+		if ($is_embeded) $this->_header = 'partials/header_empty';
+
 		$this->theme->get_template()
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
@@ -40,9 +43,8 @@ class Controller_Scores extends Controller
 		$this->theme->set_partial('content', 'partials/score/full');
 	}
 
-	public function get_show_embedded($inst_id)
+	public function get_show_embedded(string $inst_id)
 	{
-		$this->_header = 'partials/header_empty';
-		$this->get_show($inst_id);
+		$this->get_show($inst_id, true);
 	}
 }

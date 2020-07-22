@@ -8,8 +8,6 @@ class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
 
-	protected $_embedded = false;
-
 	/**
 	 * Catalog page to show all the available widgets
 	 *
@@ -203,14 +201,17 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		// context_id isolates attempt count for an class so a user's attempt limit is reset per course
 		Session::set('context_id', \Input::post('context_id'));
-		$this->_header = 'partials/header_empty';
-		$this->_embedded = true;
-
 		return $this->_play_widget($inst_id, false, true);
 	}
 
-	public function get_preview_widget($inst_id)
+	public function get_play_embedded_preview(string $inst_id)
+	{
+		$this->get_preview_widget($inst_id, true);
+	}
+
+	public function get_preview_widget($inst_id, $is_embedded = false)
 	{
 		if (\Service_User::verify_session() !== true)
 		{
@@ -233,7 +234,7 @@ class Controller_Widgets extends Controller
 			}
 			else
 			{
-				$this->display_widget($inst);
+				$this->display_widget($inst, false, $is_embedded);
 			}
 		}
 
@@ -290,7 +291,7 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'materia']);
 	}
 
-	protected function no_attempts($inst)
+	protected function no_attempts(string $inst, bool $is_embedded)
 	{
 		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
@@ -301,7 +302,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_partial('content', 'partials/widget/no_attempts')
 			->set('classes', 'widget')
 			->set('attempts', $inst->attempts)
-			->set('scores_path', '/scores'.($this->_embedded ? '/embed' : '').'/'.$inst->id)
+			->set('scores_path', '/scores'.($is_embedded ? '/embed' : '').'/'.$inst->id)
 
 			->set('summary', $this->theme->view('partials/widget/summary')
 				->set('type',$inst->widget->name)
@@ -508,6 +509,7 @@ class Controller_Widgets extends Controller
 	{
 		Css::push_group(['core', 'widget_play']);
 		Js::push_group(['angular', 'materia', 'student']);
+		if($is_embedded) $this->_header = 'partials/header_empty';
 		if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
 		{
 			// add swfobject if it's needed
