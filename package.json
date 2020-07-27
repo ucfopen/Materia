@@ -20,6 +20,11 @@
     "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'"
   },
   "dependencies": {
+    "@vx/axis": "^0.0.198",
+    "@vx/gradient": "^0.0.198",
+    "@vx/group": "^0.0.198",
+    "@vx/scale": "^0.0.198",
+    "@vx/shape": "^0.0.198",
     "fs-extra": "^8.0.1",
     "materia-server-client-assets": "2.2.0",
     "napa": "^3.0.0"

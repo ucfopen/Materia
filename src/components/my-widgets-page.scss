@@ -4,6 +4,21 @@
 /*        Catalog                                                  */
 /* *************************************************************** */
 
+
+.graph{
+	rect.vx-bar {
+		fill: #0093e7;
+	}
+
+	.vx-axis tspan{
+		fill: #666;
+	}
+
+	.vx-line{
+		stroke: #a9a9a9;
+	}
+}
+
 .hide {
 	display: none;
 }
