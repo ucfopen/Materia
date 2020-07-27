@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import Header from './header'
 import './my-widgets-page.scss'
@@ -6,32 +6,50 @@ import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
 
+const mkOptions = body => ({
+	headers: {
+		pragma: "no-cache",
+		"cache-control": "no-cache",
+		"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+	},
+	method: "POST",
+	mode: "cors",
+	credentials: "include",
+	body
+})
+
+
+const fetchWidgets = () => fetch('/api/json/widget_instances_get/', mkOptions('data=%5B%5D'))
+
+
 const MyWidgetsPage = () => {
 	const [noAccess, setNoAccess] = useState(false)
 	const [selectedInst, setSelectedInst] = useState(null)
 	const [isLoading, setIsLoading] = useState(true)
 	const [widgets, setWidgets] = useState([])
 
-	// load instances after initial render
-	useEffect(() => {
-		const options = {
-			"headers": {
-			  "cache-control": "no-cache",
-			  "pragma": "no-cache",
-			  "content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-			},
-			"body": "data=%5B%5D",
-			"method": "POST",
-			"mode": "cors",
-			"credentials": "include"
-		  }
+	const onDelete = useCallback(
+		inst => {
+			setIsLoading(true)
+			setSelectedInst(null)
 
-		fetch('/api/json/widget_instances_get/', options)
+			fetch('/api/json/widget_instance_delete/', mkOptions(`data=%5B%22${inst.id}%22%5D`))
+			.then(fetchWidgets)
 			.then(resp => resp.json())
 			.then(widgets => {
 				setIsLoading(false)
 				setWidgets(widgets)
-				// setSelectedInst(widgets[0])
+			})
+		}, []
+	)
+
+	// load instances after initial render
+	useEffect(() => {
+		fetchWidgets()
+			.then(resp => resp.json())
+			.then(widgets => {
+				setIsLoading(false)
+				setWidgets(widgets)
 			})
 	}, [])
 
@@ -86,13 +104,13 @@ const MyWidgetsPage = () => {
 						}
 
 						{!isLoading && selectedInst
-							? <MyWidgetSelectedInstance inst={selectedInst} />
+							? <MyWidgetSelectedInstance inst={selectedInst} onDelete={onDelete} />
 							: null
 						}
 
 					</div>
-
 					<MyWidgetsSideBar
+						isLoading={isLoading}
 						instances={widgets}
 						selectedId={selectedInst ? selectedInst.id : null}
 						onClick={setSelectedInst}

@@ -1,9 +1,10 @@
-import React, { useMemo, useState} from 'react'
+import React, { useEffect, useMemo, useState} from 'react'
 import { iconUrl } from '../util/icon-url'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
 import parseObjectToDateString from '../util/object-to-date-string'
 import parseTime from '../util/parse-time'
+import Modal from './modal'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -34,7 +35,7 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	}
 }
 
-const MyWidgetSelectedInstance = ({ inst = {}, }) => {
+const MyWidgetSelectedInstance = ({ inst = {}, onDelete}) => {
 	const attempts = parseInt(inst.attempts, 10)
 	const collaborateCount = useMemo(
 		() => {
@@ -81,12 +82,17 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 	}
 
 	const onShowCollaboration = () => {}
-	const onShowCopyDialog = () => {}
-	const onDelete = () => {}
 	const onPopup = () => {}
 
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [showEmbed, setShowEmbed] = useState(false)
+	const [showCopy, setShowCopy] = useState(false)
+	const [showCollab, setShowCollab] = useState(false)
+	const [showExport, setShowExport] = useState(false)
+
+	useEffect(() => {
+		setShowDeleteDialog(false);
+	}, [inst])
 
 	const availability = convertAvailibilityDates(inst.open_at, inst.close_at)
 	const availabilityStart = inst.open_at
@@ -138,7 +144,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 					<ul className="options">
 						<li className="share">
 							<div className={`link ${perms.stale ? 'disabled' : ''}`}
-								onClick={() => {onShowCollaboration(inst)}}
+								onClick={() => {setShowCollab(true)}}
 							>
 								Collaborate ({ collaborateCount })
 							</div>
@@ -146,7 +152,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 						<li className={`copy ${can.copy ? '' : 'disabled'}`}>
 							<div className={`link ${can.copy ? '' : 'disabled'}`}
 								id="copy_widget_link"
-								onClick={() => {onShowCopyDialog(inst)}}
+								onClick={() => {setShowCopy(true)}}
 							>
 								Make a Copy
 							</div>
@@ -292,7 +298,24 @@ const MyWidgetSelectedInstance = ({ inst = {}, }) => {
 
 				</div>
 			</div>
-
+			{showCopy
+				? <Modal onClose={() => {setShowCopy(false)}}>
+						Copy
+					</Modal>
+				: null
+			}
+			{showCollab
+				? <Modal onClose={() => {setShowCollab(false)}}>
+						Collaborate
+					</Modal>
+				: null
+			}
+			{showExport
+				? <Modal onClose={() => {setShowExport(false)}}>
+						Export
+					</Modal>
+				: null
+			}
 			<MyWidgetsScores inst={inst} />
 		</section>
 	)

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Bar } from '@vx/shape';
 import { Group } from "@vx/group"
-import { LinearGradient } from "@vx/gradient"
 import { scaleBand, scaleLinear } from "@vx/scale"
 import { AxisLeft, AxisBottom } from "@vx/axis"
 

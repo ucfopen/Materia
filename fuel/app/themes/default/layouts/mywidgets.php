@@ -10,9 +10,9 @@
 		<?=  $partials['google_analytics'] ?? '' ?>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
-	<body class="<?= $page_type ?? '' ?>" ng-app="materia">
+	<body>
 		<div id="app"></div>
-		<?= $partials['footer'] ?? '' ?>
+		<div id="modal"></div>
 		<script src="//unpkg.com/react@16.13.1/umd/react.development.js"></script>
 		<script src="//unpkg.com/react-dom@16.13.1/umd/react-dom.development.js"></script>
 		<script src="//localhost:8080/mywidgets.js"></script>

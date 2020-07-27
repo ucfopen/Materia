@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import ReactDOM from 'react-dom'
 
-const MyWidgetsSideBar = ({instances = [], selectedId, onClick, Card}) => {
+const MyWidgetsSideBar = ({instances = [], selectedId, onClick, Card, isLoading}) => {
 	const [searchText, setSearchText] = useState('')
 	const hiddenSet = useMemo(
 		() => {
@@ -39,15 +39,18 @@ const MyWidgetsSideBar = ({instances = [], selectedId, onClick, Card}) => {
 
 			<div className="courses">
 				<div className="widget_list" data-container="widget-list">
-					{instances.map(inst =>
-						<Card
-							key={inst.id}
-							inst={inst}
-							onClick={onClick}
-							selected={inst.id === selectedId}
-							hidden={hiddenSet.has(inst.id)}
-						/>
-					)}
+					{!isLoading
+						? instances.map(inst =>
+							<Card
+								key={inst.id}
+								inst={inst}
+								onClick={onClick}
+								selected={inst.id === selectedId}
+								hidden={hiddenSet.has(inst.id)}
+							/>
+						)
+						: null
+					}
 				</div>
 			</div>
 		</aside>
