@@ -78,6 +78,15 @@ class Oauth
 			]
 		];
 
+		// in development, allow self-signed certs from the destination
+		if (\Fuel::$env === 'development') {
+			$params['ssl'] = [
+				'verify_peer'       => false,
+				'verify_peer_name'  => false,
+				'allow_self_signed' => true,
+			];
+		}
+
 		// ================= SEND REQUEST ===================
 		try
 		{
