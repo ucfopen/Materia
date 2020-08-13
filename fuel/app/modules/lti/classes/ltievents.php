@@ -106,6 +106,7 @@ class LtiEvents
 
 		$launch = static::session_get_launch($play_id);
 		$secret   = \Config::get("lti::lti.consumers.{$launch->consumer}.secret", false);
+		$key      = \Config::get("lti::lti.consumers.{$launch->consumer}.key", false);
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
@@ -121,7 +122,7 @@ class LtiEvents
 		];
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
-		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret);
+		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 
