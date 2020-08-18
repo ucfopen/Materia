@@ -976,6 +976,19 @@
     "@types/react" "*"
     prop-types "^15.5.7"
 
+"@vx/grid@^0.0.198":
+  version "0.0.198"
+  resolved "https://registry.yarnpkg.com/@vx/grid/-/grid-0.0.198.tgz#9f8d39b1fae5f69f92908c92709cbaff0817a37a"
+  integrity sha512-aggsG3Ne0zs40W8vLZElJVn0QWc6xt/oYWfTMw6KPyyoyQcGEUS9usYxCPQ4VGKitnskTKm3Sv52e6Ymcf+gGw==
+  dependencies:
+    "@types/classnames" "^2.2.9"
+    "@types/react" "*"
+    "@vx/group" "0.0.198"
+    "@vx/point" "0.0.198"
+    "@vx/shape" "0.0.198"
+    classnames "^2.2.5"
+    prop-types "^15.6.2"
+
 "@vx/group@0.0.198", "@vx/group@^0.0.198":
   version "0.0.198"
   resolved "https://registry.yarnpkg.com/@vx/group/-/group-0.0.198.tgz#acfd16953a39eac8f9901dcfaaf3936f4b05eb9c"
