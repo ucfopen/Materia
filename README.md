@@ -51,7 +51,7 @@ There is a pre-commit hook available to ensure your code follows our linting sta
 
 Configuration settings are handled through environment variables. There are several ways to accomplish changing these settings (yay, flexibility!).  Pick the one that best suits your deployment.
 
-> Note: It is crutial that you don't expose phpinfo() pages to the web. It will display your secrets!
+> Note: It is crucial that you don't expose phpinfo() pages to the web. It will display your secrets!
 > In development mode, Materia exposes `/dev/php-info`!).
 
 ### Configure Using .env
