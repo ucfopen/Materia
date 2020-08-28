@@ -101,7 +101,7 @@ All the the environment variables are converted into regular FuelPHP configurati
 
 ### Environment Variables
 
-The config key below shows on all the availible environment variables.
+The config key below shows on all the available environment variables.
 
 > Note: only `BOOL_` options become boolean values. And ONLY `true` evaluates to true.
 
