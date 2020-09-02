@@ -78,7 +78,7 @@ class Controller_Lti extends \Controller
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
 		$is_selector_mode = \Input::post('selection_directive') === 'select_link' || \Input::post('lti_message_type') === 'ContentItemSelectionRequest';
- 		$return_url       = \Input::post('launch_presentation_return_url') ?? \Input::post('content_item_return_url');
+		$return_url       = \Input::post('launch_presentation_return_url') ?? \Input::post('content_item_return_url');
 
 		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
