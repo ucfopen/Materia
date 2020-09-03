@@ -6,12 +6,15 @@ services:
     image: nginx:stable-alpine
     ports:
       - "80:80" # main materia
+      - "443:443" # main materia
       - "8008:8008" # static files
     networks:
       - frontend
     volumes:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ../public:/var/www/html/public:ro
+      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem
+      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem
     depends_on:
       - phpfpm
 
