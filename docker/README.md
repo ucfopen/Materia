@@ -13,31 +13,76 @@ Materia development environment using docker containers.
 
 ## Setup
 
-Clone repo and execute `./run_first.sh`
+Clone Materia, cd into `/docker` and execute `./run_first.sh`.
 
 Please take note of the user accounts that are created for you in the install process.  The user names and a random password will be echoed to the terminal after Composer installs the required PHP libraries.
 
 ### Common Dev Commands
 
-* Run the server
+* Run the containers after ./run_first.sh has finished
 	```
 	docker-compose up
 	```
+* Run the servers in background
+	```
+	docker-compose up -d
+	```
+* Tail logs from backgrounded servers
+	```
+	docker-compose logs -f phpfpm
+	```
+* Run commands on the phpfpm container (like php, composer, or fuelphp oil commands)
+	```
+	./run.sh php -i 
+	./run.sh php oil r admin:help
+	./run.sh composer run --list
+	```
+* Stop containers (db data is retained)
+	```
+	docker-compose stop
+	```
+* Stop and destroy the containers (deletes database data!, first_run.sh required after)
+	```
+	docker-compose down
+	```
 * Compile the javascript and sass
 	```
-	./run_assets_build.sh
+	./run_build_assets.sh
 	```
 * Install composer libraries
 	```
-	docker-compose run --rm phpfpm composer install
-	```
-* Clone main materia widgets packages into fuel/app/tmp/widget_packages/*.wigt
-	```
-	./run_widgets_build.sh
+	./run.sh composer install
 	```
 * Install all Widgets in fuel/app/tmp/widget_packages/*.wigt
 	```
 	./run_widgets_install.sh '*.wigt'
+	```
+* Run Tests for development
+ 	```
+	./run_tests.sh
+	```
+* Run Tests for as like the CI server
+ 	```
+	./run_tests_ci.sh
+	```
+* Run Tests with code coverage
+ 	```
+	./run_tests_coverage.sh
+	```
+* Create a user based on your docker host machine's current user
+ 	```
+	$ iturgeon@ucf: ./run_create_me.sh
+	User Created: iturgeon password: kogneato
+	iturgeon now in role: super_user
+	iturgeon now in role: basic_author
+	```
+* Create the [default users outlined in the config](https://github.com/ucfopen/Materia/blob/master/fuel/app/config/materia.php#L56-L78)
+	```
+	./run_create_default_users.sh
+	```
+* Build a deployable materia package (zip w/ compiled assets, and dependencies; see [assets on our releases](https://github.com/ucfopen/Materia/releases))
+	```
+	./run_build_github_release_package.sh
 	```
 * Installing widgets: Copy the widget file you want to install into **app/fuel/app/tmp/widget\_packages/** and then run **install_widget.sh** passing the name of the widget file to install. Example:
 
@@ -56,7 +101,7 @@ Please take note of the user accounts that are created for you in the install pr
     ```
 ### Default User Accounts
 
-If you wish to log into Materia, there are 2 default accounts created for you.
+If you wish to log into Materia, there are [3 default accounts created for you based on the config](https://github.com/ucfopen/Materia/blob/master/fuel/app/config/materia.php#L56-L78). If you're on osx or linux, you'll also get a user based on the username you use on the host machine.
 
 ### Updating a container
 
@@ -89,6 +134,25 @@ You can clone the repositories from the repositories from the materia widget con
 Then install them all
 `./run_widgets_install.sh '*.wigt'`
 
-### Building new docker images
+## Running on different platform containers
 
-Use the `build_xxxx.sh` scripts to build new versions of the images.  You'll need write access to the aws docker repository to upload them.
+We've included Alpine, Amazon Linux 2, and Debian (default) Docker files so that you can run, test, and compare production installs.
+
+Note the [Dockerfiles](https://github.com/ucfopen/Materia/tree/master/docker/dockerfiles) and corrisponding Docker Compose files for each platform.
+
+To run in an Amazon Linux Docker environment, all of the above commands need to be run with an environment variable set.  
+```sh
+export COMPOSE_WITH=alpine
+./run_first.sh
+```
+or
+```sh
+COMPOSE_WITH=alpine ./run_first.sh
+
+```
+Then docker-compose up needs to be run using the selected config
+
+```sh
+docker-commpose -f docker-commpose.yml -f docker-compose.alpine.yml up
+
+```
