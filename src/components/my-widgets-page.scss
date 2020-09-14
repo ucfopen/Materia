@@ -1449,3 +1449,80 @@ table.storage_table {
 		}
 	}
 }
+
+
+
+// COPY DIALOG
+
+.modal .copy-modal{
+	// .ng-modal-dialog {
+	// 	padding: 20px 20px 5px 20px;
+	// 	min-width: 500px
+	// }
+
+	.title {
+		margin: 0;
+		padding: 0;
+		font-size: 1.3em;
+		color: #555;
+		border-bottom: #999 dotted 1px;
+		padding-bottom: 20px;
+		margin-bottom: 20px;
+		position: relative;
+		text-align: left;
+		display: block;
+	}
+
+	a.close {
+		display: block;
+		position: absolute;
+		right: 5px;
+		top: 4px;
+		margin: 4px;
+		// background: url("../../../img/close.png") no-repeat;
+		text-indent: -10000px;
+		width: 19px;
+		height: 19px;
+	}
+
+	.container {
+		width: 100%;
+	}
+
+	.input_desc {
+		padding: 10px;
+		margin-bottom: 0;
+		background: #f2f2f2;
+		border-radius: 5px;
+		margin: 0.5em 1em 1em;
+	}
+
+	.title_container label {
+		margin: 0 25px 0 0;
+	}
+
+	.new-title {
+		width: 345px;
+		height: 30px;
+		padding-left: 10px;
+		position: relative;
+		z-index: 2;
+	}
+
+	.options_container {
+		margin: 20px 0 0 0;
+		padding: 20px 0 0 0;
+		text-align: left;
+	}
+
+	.options_container input {
+		margin-right: 5px;
+	}
+
+	.bottom_buttons {
+		margin-top: 20px;
+		text-align: center;
+		width: 100%;
+	}
+
+}

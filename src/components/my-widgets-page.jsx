@@ -1,5 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useState, useCallback, useEffect } from 'react'
 import Header from './header'
 import './my-widgets-page.scss'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
@@ -8,6 +7,7 @@ import MyWidgetSelectedInstance from './my-widgets-selected-instance'
 import fetchOptions from '../util/fetch-options'
 
 const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=%5B%5D'}))
+const fetchCopyWidget = (id, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: `data=%5B%22${id}%22%2C%22${encodeURIComponent(title)}%22%2C${copyPermissions?'true':'false'}%5D`}))
 
 const MyWidgetsPage = () => {
 	const [noAccess, setNoAccess] = useState(false)
@@ -15,13 +15,9 @@ const MyWidgetsPage = () => {
 	const [isLoading, setIsLoading] = useState(true)
 	const [widgets, setWidgets] = useState([])
 
-	const onDelete = useCallback(
-		inst => {
-			setIsLoading(true)
-			setSelectedInst(null)
-
-			fetch('/api/json/widget_instance_delete/', mkOptions(`data=%5B%22${inst.id}%22%5D`))
-			.then(fetchWidgets)
+	const refreshWidgets = useCallback(
+		() => {
+			fetchWidgets()
 			.then(resp => resp.json())
 			.then(widgets => {
 				setIsLoading(false)
@@ -30,14 +26,28 @@ const MyWidgetsPage = () => {
 		}, []
 	)
 
+	const onCopy = useCallback(
+		(instId, title, copyPermissions) => {
+			setIsLoading(true)
+			setSelectedInst(null)
+			fetchCopyWidget(instId, title, copyPermissions)
+			.then(refreshWidgets)
+		}, []
+	)
+
+	const onDelete = useCallback(
+		inst => {
+			setIsLoading(true)
+			setSelectedInst(null)
+
+			fetch('/api/json/widget_instance_delete/', fetchOptions({body:`data=%5B%22${inst.id}%22%5D`}))
+			.then(refreshWidgets)
+		}, []
+	)
+
 	// load instances after initial render
 	useEffect(() => {
-		fetchWidgets()
-			.then(resp => resp.json())
-			.then(widgets => {
-				setIsLoading(false)
-				setWidgets(widgets)
-			})
+		refreshWidgets()
 	}, [])
 
 	return (
@@ -91,7 +101,12 @@ const MyWidgetsPage = () => {
 						}
 
 						{!isLoading && selectedInst
-							? <MyWidgetSelectedInstance inst={selectedInst} onDelete={onDelete} />
+							? <MyWidgetSelectedInstance
+								inst={selectedInst}
+								onDelete={onDelete}
+								onCopy={onCopy}
+								refreshWidgets={refreshWidgets}
+							/>
 							: null
 						}
 

@@ -23,11 +23,11 @@ class Modal extends React.Component {
 	render() {
 	  const stuff = (
 		<>
-			<div class="modal-overlay" id="modal-overlay"></div>
+			<div className="modal-overlay" id="modal-overlay"></div>
 
-			<div class="modal" id="modal">
-				<button class="close-button" id="close-button" onClick={this.props.onClose}>X</button>
-				<div class="modal-guts">
+			<div className="modal" id="modal">
+				<button className="close-button" id="close-button" onClick={this.props.onClose}>X</button>
+				<div className="modal-guts">
 					{this.props.children}
 				</div>
 			</div>

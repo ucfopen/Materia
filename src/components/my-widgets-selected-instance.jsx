@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useState} from 'react'
+import React, { useEffect, useMemo, useCallback, useState} from 'react'
 import { iconUrl } from '../util/icon-url'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
 import parseObjectToDateString from '../util/object-to-date-string'
 import parseTime from '../util/parse-time'
 import Modal from './modal'
+import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
+import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
+import MyWidgetsExportDataDialog  from './my-widgets-export-data-dialog'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -35,7 +38,7 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	}
 }
 
-const MyWidgetSelectedInstance = ({ inst = {}, onDelete}) => {
+const MyWidgetSelectedInstance = ({ inst = {}, onDelete, onCopy}) => {
 	const attempts = parseInt(inst.attempts, 10)
 	const collaborateCount = useMemo(
 		() => {
@@ -89,6 +92,14 @@ const MyWidgetSelectedInstance = ({ inst = {}, onDelete}) => {
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 	const [showExport, setShowExport] = useState(false)
+
+
+	const makeCopy = useCallback(
+		(title, copyPermissions) => {
+			setShowCopy(false)
+			onCopy(inst.id, title, copyPermissions)
+		}, [inst, setShowCopy]
+	)
 
 	useEffect(() => {
 		setShowDeleteDialog(false);
@@ -299,21 +310,15 @@ const MyWidgetSelectedInstance = ({ inst = {}, onDelete}) => {
 				</div>
 			</div>
 			{showCopy
-				? <Modal onClose={() => {setShowCopy(false)}}>
-						Copy
-					</Modal>
+				? <MyWidgetsCopyDialog onClose={() => {setShowCopy(false)}} onCopy={makeCopy} />
 				: null
 			}
 			{showCollab
-				? <Modal onClose={() => {setShowCollab(false)}}>
-						Collaborate
-					</Modal>
+				? <MyWidgetsCollaborateDialog onClose={() => {setShowCollab(false)}} />
 				: null
 			}
 			{showExport
-				? <Modal onClose={() => {setShowExport(false)}}>
-						Export
-					</Modal>
+				? <MyWidgetsExportDataDialog onClose={() => {setShowExport(false)}} />
 				: null
 			}
 			<MyWidgetsScores inst={inst} />
