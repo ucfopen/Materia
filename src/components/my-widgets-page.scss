@@ -17,6 +17,10 @@
 	.vx-line{
 		stroke: #a9a9a9;
 	}
+
+	.vx-graph{
+		fill: white;
+	}
 }
 
 .hide {
@@ -1412,4 +1416,36 @@ div.link {
 
 aside .widget {
 	position: relative;
+}
+
+
+
+// STORAGE TABLE SCSS
+table.storage_table {
+	// font-family: 'Lucida Grande', sans-serif;
+	// width: 638px;
+	font-size: 13px;
+	thead{
+		th{
+			padding: 3px 18px 3px 10px;
+			border-bottom: 1px solid black;
+			font-weight: bold;
+		}
+	}
+	tbody{
+		display: table-row-group;
+    	vertical-align: middle;
+		border-color: inherit;
+		tr:nth-child(odd){
+			background-color: #EEE;
+		}
+		tr{
+			background-color: white;
+		}
+		td{
+			padding: 5px 10px;
+			margin: 0;
+			position: relative;
+		}
+	}
 }

@@ -50,7 +50,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, onDelete}) => {
 	}
 
 	const onEditClick = (inst) => {
-		debugger
+
 		const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
 		window.location = editUrl
 

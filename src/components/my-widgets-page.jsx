@@ -5,22 +5,9 @@ import './my-widgets-page.scss'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
+import fetchOptions from '../util/fetch-options'
 
-const mkOptions = body => ({
-	headers: {
-		pragma: "no-cache",
-		"cache-control": "no-cache",
-		"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-	},
-	method: "POST",
-	mode: "cors",
-	credentials: "include",
-	body
-})
-
-
-const fetchWidgets = () => fetch('/api/json/widget_instances_get/', mkOptions('data=%5B%5D'))
-
+const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=%5B%5D'}))
 
 const MyWidgetsPage = () => {
 	const [noAccess, setNoAccess] = useState(false)

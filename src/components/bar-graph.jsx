@@ -10,7 +10,7 @@ import { Grid } from '@vx/grid'
 const x = d => d.label
 const y = d => d.value
 
-const BarChart = ({ data, width, height }) => {
+const BarGraph = ({ data, width, height }) => {
 	// bounds
 	const xMax = width - 80
 	const yMax = height - 80
@@ -55,4 +55,4 @@ const BarChart = ({ data, width, height }) => {
 	)
 }
 
-export default BarChart
+export default BarGraph
