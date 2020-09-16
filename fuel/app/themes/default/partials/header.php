@@ -53,6 +53,9 @@
 						<li>
 							<a class='elevated' href="/admin/user">Users</a>
 						</li>
+						<li>
+							<a class='elevated' href="/admin/support">Support</a>
+						</li>
 					</ul>
 				</li>
 			<?php endif; ?>

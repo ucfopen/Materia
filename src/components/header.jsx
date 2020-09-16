@@ -13,8 +13,8 @@ const Header = ({
 	loggedIn = true,
 	isGuest = false,
 	userAvatar = 'https://secure.gravatar.com/avatar/14707c40f71ff09565e3a10b3217bddc?s=35&d=retro',
-	userFirst = 'Test',
-	userLast = 'Student',
+	userFirst = 'doesnt',
+	userLast = 'work, yet',
 	userRoles = [],
 	userNotify = true,
 	allowLogins = true,
@@ -94,6 +94,9 @@ const Header = ({
 									</li>
 									<li>
 										<a className='elevated' href="/admin/user">Users</a>
+									</li>
+									<li>
+										<a className='elevated' href="/admin/support">Support</a>
 									</li>
 								</ul>
 							</li>

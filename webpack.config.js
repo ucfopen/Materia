@@ -19,9 +19,9 @@ module.exports =
 			// mode: is_production ? 'production' : 'development',
 			target: 'web',
 			devServer: {
-				// https: true,
 				host: '127.0.0.1',
 				publicPath: '/',
+				https: true,
 				watchContentBase: true,
 				watchOptions: {
 					ignored: '/node_modules/'
@@ -38,6 +38,7 @@ module.exports =
 				homepage: require.resolve('./src/homepage'),
 				catalog: require.resolve('./src/catalog'),
 				mywidgets: require.resolve('./src/mywidgets'),
+				support: require.resolve('./src/support'),
 			},
 			// output: {
 			// 	publicPath: '/',
