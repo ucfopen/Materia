@@ -4,7 +4,6 @@ import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
 import parseObjectToDateString from '../util/object-to-date-string'
 import parseTime from '../util/parse-time'
-import Modal from './modal'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsExportDataDialog  from './my-widgets-export-data-dialog'
@@ -38,7 +37,7 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	}
 }
 
-const MyWidgetSelectedInstance = ({ inst = {}, onDelete, onCopy}) => {
+const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPerms, onDelete, onCopy}) => {
 	const attempts = parseInt(inst.attempts, 10)
 	const collaborateCount = useMemo(
 		() => {
@@ -314,7 +313,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, onDelete, onCopy}) => {
 				: null
 			}
 			{showCollab
-				? <MyWidgetsCollaborateDialog onClose={() => {setShowCollab(false)}} />
+				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} onClose={() => {setShowCollab(false)}} />
 				: null
 			}
 			{showExport

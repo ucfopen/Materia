@@ -6,14 +6,47 @@ import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
 import fetchOptions from '../util/fetch-options'
 
-const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=%5B%5D'}))
-const fetchCopyWidget = (id, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: `data=%5B%22${id}%22%2C%22${encodeURIComponent(title)}%22%2C${copyPermissions?'true':'false'}%5D`}))
+const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
+const fetchCopyInstance = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
+const fetchCurrentUser = () => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
+const fetchUserPermsForInstance = (userId, instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["${userId}","${instId}"]`)}))
+
+const PERM_VISIBLE = 1
+const PERM_PLAY = 5
+const PERM_SCORE = 10
+const PERM_DATA = 15
+const PERM_EDIT = 20
+const PERM_COPY = 25
+const PERM_FULL = 30
+const PERM_SHARE = 35
+const PERM_SU = 90
+
+const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable) => {
+	console.log('code', permCode)
+	permCode = parseInt(permCode, 10)
+	return {
+		accessLevel: permCode,
+		expireTime,
+		editable: permCode > PERM_VISIBLE && (parseInt(isEditable, 10) === 1),
+		shareable: permCode > PERM_VISIBLE, // old, but difficult to replace with can.share :/
+		can: {
+			view: [PERM_VISIBLE, PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
+			copy: [PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
+			edit: [PERM_FULL, PERM_SU].includes(permCode),
+			delete: [PERM_FULL, PERM_SU].includes(permCode),
+			share: [PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode)
+		}
+	}
+}
 
 const MyWidgetsPage = () => {
 	const [noAccess, setNoAccess] = useState(false)
 	const [selectedInst, setSelectedInst] = useState(null)
 	const [isLoading, setIsLoading] = useState(true)
 	const [widgets, setWidgets] = useState([])
+	const [user, setUser] = useState(null)
+	const [otherUserPerms, setOtherUserPerms] = useState(null)
+	const [myPerms, setMyPerms] = useState(null)
 
 	const refreshWidgets = useCallback(
 		() => {
@@ -26,11 +59,31 @@ const MyWidgetsPage = () => {
 		}, []
 	)
 
+	const onSelect = (inst) => {
+		setSelectedInst(inst)
+
+		fetchUserPermsForInstance(user.id, inst.id)
+			.then(resp => resp.json())
+			.then(perms => {
+				const isEditable = inst.widget.is_editable === "1"
+				const othersPerms = new Map()
+				for(const i in perms.widget_user_perms){
+					othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
+				}
+				let myPerms
+				for(const i in perms.user_perms){
+					myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
+				}
+				setMyPerms(myPerms)
+				setOtherUserPerms(othersPerms)
+			})
+	}
+
 	const onCopy = useCallback(
 		(instId, title, copyPermissions) => {
 			setIsLoading(true)
 			setSelectedInst(null)
-			fetchCopyWidget(instId, title, copyPermissions)
+			fetchCopyInstance(instId, title, copyPermissions)
 			.then(refreshWidgets)
 		}, []
 	)
@@ -48,6 +101,11 @@ const MyWidgetsPage = () => {
 	// load instances after initial render
 	useEffect(() => {
 		refreshWidgets()
+		fetchCurrentUser()
+			.then(resp => resp.json())
+			.then(user => {
+				setUser(user)
+			})
 	}, [])
 
 	return (
@@ -105,6 +163,9 @@ const MyWidgetsPage = () => {
 								inst={selectedInst}
 								onDelete={onDelete}
 								onCopy={onCopy}
+								currentUser={user}
+								myPerms={myPerms}
+								otherUserPerms={otherUserPerms}
 								refreshWidgets={refreshWidgets}
 							/>
 							: null
@@ -115,7 +176,7 @@ const MyWidgetsPage = () => {
 						isLoading={isLoading}
 						instances={widgets}
 						selectedId={selectedInst ? selectedInst.id : null}
-						onClick={setSelectedInst}
+						onClick={onSelect}
 						Card={MyWidgetsInstanceCard}
 					/>
 
