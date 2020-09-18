@@ -51,9 +51,11 @@ class LtiLaunch
 		}
 
 		// determine which config to use
-		$consumer       = trim(\Input::param('tool_consumer_info_product_family_code', 'default'));
+		$consumer       = trim(\Input::param('tool_consumer_info_product_family_code', null));
 		$configs        = \Config::get('lti::lti.consumers');
-		static::$config = $configs[$consumer] ?? $configs['default'] ?? null;
+		$allow_fallback = \Config::get('lti::lti.graceful_fallback_to_default', true);
+		$default        = $allow_fallback ? $configs['default'] : null;
+		static::$config = $configs[$consumer] ?? $default ?? null;
 
 		if (empty(static::$config))
 		{

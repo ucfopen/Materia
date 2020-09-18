@@ -349,4 +349,13 @@ LTI_KEY="materia-production-lti-key"
 # (default: true)
 #BOOL_LTI_USE_LAUNCH_ROLES=true
 
+
+#lti.graceful_fallback_to_default
+# If an lti configuration for a specific provider isn't present, should Materia use the default configuration?
+# The default is set in lti.consumers.default.  If false, a consumer must be defined that matches the lti launch param 'tool_consumer_info_product_family_code'. Ex family code is 'canvas', a config must exist for lti.consumers.canvas.
+# Using default is a nice option for simplicity, but it's advisable to use a different key and secret for each family_code.
+# [true|false]
+# (default: true)
+#BOOL_LTI_GRACEFUL_CONFIG_FALLBACK=true
+
 ```

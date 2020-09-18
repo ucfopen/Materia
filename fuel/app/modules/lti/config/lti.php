@@ -8,6 +8,7 @@ return [
 	'launch_presentation_return_url'         => \Uri::create('lti/return'),
 	'tool_consumer_info_product_family_code' => 'materia',
 	'tool_consumer_instance_guid'            => $_ENV['LTI_GUID'] ?? 'ucfopen.github.io',
+	'graceful_fallback_to_default'           => $_ENV['BOOL_LTI_GRACEFUL_CONFIG_FALLBACK'] ?? true,
 
 	'consumers' => [
 		 // the array index here is matched to 'tool_consumer_info_product_family_code' in lti launches
