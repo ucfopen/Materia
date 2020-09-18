@@ -22,39 +22,59 @@ const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions(
 
 
 const defaultState = {
-	expireDate: 'never'
+	deleted: false
 }
-const CollaborateUserRow = ({user, perms, isCurrentUser}) => {
-	console.log(user, perms)
-	const ref = useRef();
-	const [state, setState] = useState(defaultState)
 
+const timestampToDisplayDate = (timestamp) => {
+	if(!timestamp) return 'never'
+	var date = new Date(timestamp*1000);
+	return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
+}
+
+
+const CollaborateUserRow = ({user, perms, isCurrentUser}) => {
+	const ref = useRef();
+	const [state, setState] = useState({...defaultState, ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
+console.log(state)
 	const checkForWarning = (user) => {
 	}
 
-	const removeAccess = user => {
+	const removeAccess = () => {
+		setState({...state, deleted: true})
 	}
 
-	const toggleExpireDate = () => {
+	const toggleShowExpire = () => {
 		setState({...state, showExpire: !state.showExpire})
 	}
 
 	const clearExpire = () => {
-		setState({...state, showExpire: false, expireDate: defaultState.expireDate})
+		setState({...state, showExpire: false, expireDate: timestampToDisplayDate(), expireTime: null})
 	}
 
+	const changeLevel = e => {
+		setState({...state, accessLevel: e.target.value})
+	}
 	const onExpireChange = e => {
-		setState({...state, expireDate: e.target.value || defaultState.expireDate})
+		const d = new Date(e.target.value+"T00:00") // +"T00:00" causes JS to be interpreted in the local timezone
+		const timestamp = d.getTime()/1000
+		setState({...state, expireDate: timestampToDisplayDate(timestamp), expireTime: timestamp})
 	}
 
 	useClickOutside(ref, () => {
 		setState({...state, showExpire: false})
 	});
 
+
 	return (
 		<div className="user_perm">
+			{state.deleted
+				? <div className="removed">
+					<div>Remove</div>
+				</div>
+				: null
+			}
 			<a tabIndex="0"
-				onClick={() => {removeAccess(user)}}
+				onClick={removeAccess}
 				className="remove">
 				X
 			</a>
@@ -84,17 +104,18 @@ const CollaborateUserRow = ({user, perms, isCurrentUser}) => {
 		}
 
 			<div className="options">
-				{/* <span className="owner">Full</span>
-				<span className="undo">
-					Removed
-					<a>Undo</a>
-				</span> */}
 
-				<select disabled={perms.sharable==false} tabIndex="0" className="perm" value={perms.accessLevel} onChange={checkForWarning(user)}>
+				<select
+					disabled={state.sharable==false}
+					tabIndex="0"
+					className="perm"
+					value={state.accessLevel}
+					onChange={changeLevel}
+				>
 					{Object.values(accessLevels).map(level =>  <option key={level.value} value={level.value}>{level.text}</option> )}
 				</select>
 
-				{isCurrentUser && perms.accessLevel === PERM_FULL && perms.sharable
+				{isCurrentUser && state.accessLevel === PERM_FULL && state.sharable
 					? <a tabIndex="0" className="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
 					: null
 				}
@@ -104,9 +125,9 @@ const CollaborateUserRow = ({user, perms, isCurrentUser}) => {
 						? <span ref={ref} className="expire-date-container">
 							<input type="date" value={state.expireDate} onChange={onExpireChange} />
 							<span className="remove" onClick={clearExpire}>Set to Never</span>
-							<span className="date-finish" onClick={toggleExpireDate}>Done</span>
+							<span className="date-finish" onClick={toggleShowExpire}>Done</span>
 							</span>
-						: <span className="expire-open-button" onClick={toggleExpireDate}>{state.expireDate}</span>
+						: <span className="expire-open-button" onClick={toggleShowExpire}>{state.expireDate}</span>
 					}
 				</div>
 			</div>

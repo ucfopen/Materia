@@ -1593,6 +1593,26 @@ table.storage_table {
 			}
 
 
+			.removed{
+				position: absolute;
+				width: 100%;
+				background: #f2f2f2d4;
+				height: 100%;
+				z-index: 2;
+				text-align: center;
+				user-select: none;
+
+				>div{
+					font-size: 1.4em;
+					font-weight: bold;
+					color: #757373;
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+					width: 100%;
+				}
+			}
+
 			.remove{
 				display: block;
 				color: #bfbfbf;
@@ -1602,6 +1622,7 @@ table.storage_table {
 				padding: .5em;
 				margin: .5em;
 				cursor: pointer;
+				user-select: none;
 
 				&:hover{
 					color: black;
