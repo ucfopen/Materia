@@ -9,6 +9,7 @@
 build
 .idea
 nbproject/
+*.pem
 
 # custom config
 .env.local

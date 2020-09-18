@@ -105,7 +105,9 @@ class LtiEvents
 		if (static::get_lti_play_state($play_id) == self::PLAY_STATE_NOT_LTI) return false; //@TODO - is this supposed to return false????
 
 		$launch = static::session_get_launch($play_id);
+
 		$secret = LtiLaunch::config()['secret'] ?? false;
+		$key = LtiLaunch::config()['key'] ?? false;
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
@@ -121,7 +123,7 @@ class LtiEvents
 		];
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
-		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret);
+		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 
