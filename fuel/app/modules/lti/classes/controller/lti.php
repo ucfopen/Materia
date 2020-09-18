@@ -110,14 +110,20 @@ class Controller_Lti extends \Controller
 	}
 
 	// Successfully linked LTI page
-	public function action_success($inst_id)
+	public function action_success(string $inst_id)
 	{
+		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')
 			->set('page_type', 'preview');
 
 		$this->theme->set_partial('content', 'partials/open_preview')
-			->set('preview_url', \Uri::create('/preview/'.$inst_id));
+			->set('inst_name', $inst->name)
+			->set('widget_name', $inst->widget->name)
+			->set('preview_url', \Uri::create('/preview/'.$inst_id))
+			->set('icon', \Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
+			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id));
 
 		$this->insert_analytics();
 
