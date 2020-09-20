@@ -574,7 +574,6 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		\Auth::logout();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
-		trace($output);
 		$this->assertInstanceOf('\Materia\Msg', $output->msg);
 		$this->assertEquals('Invalid Login', $output->msg->title);
 		$this->assertTrue($output->is_locked);
