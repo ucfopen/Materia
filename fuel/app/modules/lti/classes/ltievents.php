@@ -123,6 +123,12 @@ class LtiEvents
 		];
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
+
+		if(\Config::get('lti::lti.log_for_debug', false))
+		{
+			\Materia\Log::profile(['score-outcome-sent', $body], 'lti-launch');
+		}
+
 		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);

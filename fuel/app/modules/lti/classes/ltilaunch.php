@@ -40,6 +40,12 @@ class LtiLaunch
 
 		static::$launch = $vars;
 
+		if(\Config::get('lti::lti.log_for_debug', false))
+		{
+			\Materia\Log::profile(['raw-launch-data', print_r(\Input::param(), true)], 'lti-launch');
+			\Materia\Log::profile(['LtiLaunch-object', print_r(static::$launch, true)], 'lti-launch');
+		}
+
 		return static::$launch;
 	}
 
