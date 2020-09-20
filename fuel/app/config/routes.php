@@ -2,6 +2,8 @@
 // setup more specific regex matches with names
 $id = '(?<id>\d+)';
 $clean_name = '(?<clean_name>[a-zA-Z0-9_\-]+)';
+$play_id = '([a-zA-Z0-9_\-]+)';
+
 return [
 	// ================================= MISC ======================================
 
@@ -35,7 +37,7 @@ return [
 	'lti/assignment?'                      => 'widgets/play_embedded/$1', // legacy LTI url
 
 	'data/export/(:alnum)'                 => 'data/export/$1',
-
+	"scores/single/{$play_id}/(:alnum)(/.*)?"  => 'scores/single/$1/$2',
 	'scores/preview/(:alnum)(/.*)?'        => 'scores/show/$1', // legacy
 	'scores/preview-embed/(:alnum)(/.*)?'  => 'scores/show_embedded/$1',
 	'scores/embed/(:alnum)(/.*)?'          => 'scores/show_embedded/$1',

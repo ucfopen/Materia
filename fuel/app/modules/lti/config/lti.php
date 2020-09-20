@@ -66,6 +66,12 @@ return [
 
 			'tool_id'               => $_ENV['LTI_TOOL_ID'] ?? 'io.github.ucfopen',
 
+			// Canvas launches with `ext_outcome_data_values_accepted=text,url`
+			// this flag upgrades `url` support to `ltiLaunchUrl`
+			// I believe this is a custom Canvas convention.
+			// Disabled if the LTI consumer doesn't handle upgrading url to ltiLaunchUrl
+			'upgrade_to_launch_url' => true,
+
 			// Security Settings CHANGE SECRET AT LEAST!!!
 			'secret'                => $_ENV['LTI_SECRET'],
 			'key'                   => $_ENV['LTI_KEY'],
@@ -75,20 +81,26 @@ return [
 		// Example Obojobo assignment integration
 		/*
 		'obojobo' => [
-			'title'             => 'Materia Widget Assignment',
-			'description'       => 'Add a Materia Widget to your Learning Module',
-			'platform'          => 'obojobo.ucf.edu',
-			'remote_username'   => 'lis_person_sourcedid',
-			'remote_identifier' => 'lis_person_sourcedid',
-			'local_identifier'  => 'username',
-			'creates_users'     => true,
-			'use_launch_roles'  => true,
-			'auth_driver'       => 'Materiaauth',
-			'save_assoc'        => false,
-			'timeout'           => 3600,
-			'privacy'           => 'public',
-			'secret'            => 'secret',
-			'key'               => 'key',
+			'title'                 => 'Materia Widget Assignment',
+			'description'           => 'Add a Materia Widget to your Learning Module',
+			'platform'              => 'obojobo.ucf.edu',
+			'remote_username'       => 'lis_person_sourcedid',
+			'remote_identifier'     => 'lis_person_sourcedid',
+			'local_identifier'      => 'username',
+			'creates_users'         => true,
+			'use_launch_roles'      => true,
+			'auth_driver'           => 'Materiaauth',
+			'save_assoc'            => false,
+			'timeout'               => 3600,
+			'privacy'               => 'public',
+			'course_nav_default'    => 'enabled'
+			'course_nav_enabled'    => 'true',
+			'course_nav_text'       => 'Materia',
+			'course_nav_visibility' => 'members',
+			'tool_id'               => 'io.github.ucfopen',
+			'upgrade_to_launch_url' => true,
+			'secret'                => 'secret',
+			'key'                   => 'key',
 		],
 		*/
 	]

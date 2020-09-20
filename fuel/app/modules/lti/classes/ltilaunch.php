@@ -10,6 +10,7 @@ class LtiLaunch
 	public static function from_request()
 	{
 		if (isset(static::$launch)) return static::$launch;
+		if (!\Input::param('lti_message_type')) return null;
 
 		$config = static::config();
 
@@ -22,6 +23,7 @@ class LtiLaunch
 		$roles = array_map( function($role) { return trim($role); }, $roles); // @codingStandardsIgnoreLine
 
 		$vars = (object) [
+			'message_type'   => trim(\Input::param('lti_message_type', '')),
 			'source_id'      => trim(\Input::param('lis_result_sourcedid', false)), // the unique id for this course&context&user&launch used for returning scores
 			'service_url'    => trim(\Input::param('lis_outcome_service_url', false)), // where to send score data back to, can be blank if not supported
 			'resource_id'    => trim(\Input::param('resource_link_id', false)), // unique placement of this tool in the consumer
@@ -33,9 +35,10 @@ class LtiLaunch
 			'last'           => trim(\Input::param('lis_person_name_family', '')),
 			'first'          => trim(\Input::param('lis_person_name_given', '')),
 			'fullname'       => trim(\Input::param('lis_person_name_full', '')),
+			'outcome_ext'    => trim(\Input::param('ext_outcome_data_values_accepted'), ''),
 			'roles'          => $roles,
 			'remote_id'      => trim(\Input::param($remote_id_field)),
-			'username'       => trim(\Input::param($remote_user_field))
+			'username'       => trim(\Input::param($remote_user_field)),
 		];
 
 		static::$launch = $vars;
