@@ -43,21 +43,8 @@ class Session_Logger
 		}
 	}
 
-	/**
-	 * NEEDS DOCUMENTATION
-	 *
-	 * @param int    NEEDS DOCUMENTATION
-	 * @param int    NEEDS DOCUMENTATION
-	 * @param int    NEEDS DOCUMENTATION
-	 * @param string NEEDS DOCUMENTATION
-	 * @param string NEEDS DOCUMENTATION
-	 * @param int    NEEDS DOCUMENTATION
-	 * @param int    NEEDS DOCUMENTATION
-	 */
 	static public function add_log($play_id=0, $type, $item_id, $text, $value, $game_time, $created_at)
 	{
-		trace('log type: '.$type);
-
 		$log = new Session_Log([
 			'play_id'    => $play_id,
 			'type'       => $type,
