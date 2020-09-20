@@ -21,7 +21,8 @@ class LtiEvents
 
 		// if this is an lti launch validate it and indicate we should use the embedded view
 		$launch = LtiLaunch::from_request();
-		if($launch){
+		if ($launch)
+		{
 			if ( ! Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $result['redirect'] = '/lti/error/unknown_user';
 			$result['is_embedded'] = true;
@@ -159,7 +160,7 @@ class LtiEvents
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
 
-		if(\Config::get('lti::lti.log_for_debug', false))
+		if (\Config::get('lti::lti.log_for_debug', false))
 		{
 			\Materia\Log::profile(['score-outcome-sent', $body], 'lti-launch');
 		}

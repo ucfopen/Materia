@@ -10,7 +10,7 @@ class LtiLaunch
 	public static function from_request()
 	{
 		if (isset(static::$launch)) return static::$launch;
-		if (!\Input::param('lti_message_type')) return null;
+		if ( ! \Input::param('lti_message_type')) return null;
 
 		$config = static::config();
 
@@ -43,7 +43,7 @@ class LtiLaunch
 
 		static::$launch = $vars;
 
-		if(\Config::get('lti::lti.log_for_debug', false))
+		if (\Config::get('lti::lti.log_for_debug', false))
 		{
 			\Materia\Log::profile(['raw-launch-data', print_r(\Input::param(), true)], 'lti-launch');
 			\Materia\Log::profile(['LtiLaunch-object', print_r(static::$launch, true)], 'lti-launch');

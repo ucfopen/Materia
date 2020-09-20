@@ -509,7 +509,7 @@ class Controller_Widgets extends Controller
 	{
 		Css::push_group(['core', 'widget_play']);
 		Js::push_group(['angular', 'materia', 'student']);
-		if($is_embedded) $this->_header = 'partials/header_empty';
+		if ($is_embedded) $this->_header = 'partials/header_empty';
 		if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
 		{
 			// add swfobject if it's needed

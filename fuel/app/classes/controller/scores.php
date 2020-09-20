@@ -15,8 +15,8 @@ class Controller_Scores extends Controller
 	{
 		$play = new \Materia\Session_Play();
 		$play_found = $play->get_by_id($play_id);
-		if(!$play_found) throw new HttpNotFoundException;
-		if($play->inst_id !== $inst_id) throw new HttpNotFoundException;
+		if ( ! $play_found) throw new HttpNotFoundException;
+		if ($play->inst_id !== $inst_id) throw new HttpNotFoundException;
 
 		$redirect = null;
 
@@ -27,16 +27,18 @@ class Controller_Scores extends Controller
 		foreach ($results as $result)
 		{
 			// allow events to redirect
-			if ( ! empty($result['redirect'])) {
+			if ( ! empty($result['redirect']))
+			{
 				$redirect = $result['redirect'];
 			}
-			if ( ! empty($result['is_embedded'])) {
+			if ( ! empty($result['is_embedded']))
+			{
 				$is_embedded = true;
 			}
-
 		}
 
-		if($redirect) {
+		if ($redirect)
+		{
 			return Response::redirect($redirect);
 		}
 
