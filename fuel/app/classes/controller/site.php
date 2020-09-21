@@ -15,13 +15,11 @@ class Controller_Site extends Controller
 	public function action_index()
 	{
 		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/homepage');
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Welcome to Materia');
 
-		// $spotlight = $this->theme->view('partials/spotlight');
-		// $this->theme->set_partial('content', 'partials/homepage')
-		// 	->set_safe('spotlight', $spotlight);
-
+		Css::push_group(['homepage']);
+		Js::push_group(['react', 'homepage']);
 	}
 
 	public function action_permission_denied()

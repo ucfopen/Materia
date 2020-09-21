@@ -18,8 +18,11 @@ class Controller_Widgets extends Controller
 	public function get_index()
 	{
 		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/catalog');
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Widget Catalog');
+
+		Css::push_group(['catalog']);
+		Js::push_group(['react', 'catalog']);
 	}
 
 	public function get_all()
@@ -160,16 +163,20 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_mywidgets2()
 	{
-		// if (\Service_User::verify_session() !== true)
-		// {
-		// 	Session::set('redirect_url', URI::current());
-		// 	Session::set_flash('notice', 'Please log in to view your widgets.');
-		// 	Response::redirect(Router::get('login'));
-		// }
+		if (\Service_User::verify_session() !== true)
+		{
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your widgets.');
+			Response::redirect(Router::get('login'));
+			return;
+		}
 
 		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/mywidgets');
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'My Widgets');
+
+		Css::push_group(['mywidgets']);
+		Js::push_group(['react', 'mywidgets']);
 	}
 
 	/**
@@ -185,7 +192,7 @@ class Controller_Widgets extends Controller
 		}
 
 		Css::push_group(['core', 'my_widgets']);
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'jqplot', 'my_widgets', 'dataTables']);
 
 		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
 

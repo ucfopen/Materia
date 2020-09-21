@@ -1,23 +1,23 @@
 {
-  "name": "@ucfopen/materia",
+  "name": "@ucfopen/materia-server-client-assets",
+  "version": "7.0.1",
   "license": "AGPL-3.0",
   "description": "Engage students with easily embedded apps for online courses.",
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://ucfopen.github.io/Materia-Docs",
   "repository": "https://github.com/ucfopen/Materia.git",
   "scripts": {
-    "build": "node process_assets.js",
+    "postinstall": "napa",
     "dev": "webpack-dev-server",
-    "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\" \"yarn build:browsersync\"",
-    "build:watchmateria": "nodemon -e js,css -w ./node_modules/materia-server-client-assets/dist process_assets.js",
-    "build:watchclientassets": "cd node_modules/materia-server-client-assets && yarn build-watch",
-    "build:browsersync": "browser-sync start --files \"public/css/**/*.css,public/js/**/*.js\"",
-    "postinstall": "napa && npm run build",
-    "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git Materia-Server-Client-Assets",
-    "devassets:link": "cd ../Materia-Server-Client-Assets && yarn install && yarn link && cd - && yarn link materia-server-client-assets",
-    "devassets:unlink": "yarn unlink materia-server-client-assets && cd ../Materia-Server-Client-Assets && yarn unlink && cd - && yarn install",
+    "build": "webpack -p",
+    "test": "TZ=Etc/UTC jest --verbose",
+    "test:dev": "TZ=Etc/UTC jest --verbose --watch --coverage",
+    "test:ci": "TZ=Etc/UTC CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura",
     "test:php": "composer run testci",
-    "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'"
+    "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'",
+    "prettier:run": "prettier --write 'src/**/*.{js,scss}'",
+    "prettier:debug": "prettier -l 'src/**/*.{js,scss}'",
+    "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
   },
   "dependencies": {
     "@vx/axis": "^0.0.198",
@@ -26,19 +26,35 @@
     "@vx/group": "^0.0.198",
     "@vx/scale": "^0.0.198",
     "@vx/shape": "^0.0.198",
+    "angular": "1.8.0",
     "fs-extra": "^8.0.1",
     "materia-server-client-assets": "2.2.0",
-    "napa": "^3.0.0"
+    "napa": "^3.0.0",
+    "ngmodal": "ucfcdl/ngModal#v1.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
+    "angular-animate": "1.8.0",
+    "angular-mocks": "1.8.0",
     "autoprefixer": "^9.8.5",
+    "babel-jest": "^26.1.0",
     "babel-loader": "^8.1.0",
+    "babel-plugin-angularjs-annotate": "^0.10.0",
+    "jquery": "3.5.1",
+    "jquery-ui": "1.12.1",
     "browser-sync": "^2.26.5",
+    "clean-webpack-plugin": "^3.0.0",
     "concurrently": "^5.1.0",
+    "copy-webpack-plugin": "^6.1.1",
+    "core-js": "3",
     "css-loader": "^3.6.0",
+    "hammerjs": "2.0.8",
+    "husky": "^4.2.5",
+    "ignore-emit-webpack-plugin": "^2.0.2",
+    "jest": "^26.1.0",
+    "lint-staged": "^10.2.11",
     "mini-css-extract-plugin": "^0.9.0",
     "node-sass": "^4.14.1",
     "nodemon": "^2.0.2",
@@ -46,7 +62,9 @@
     "sass-loader": "^9.0.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "webpack-manifest-plugin": "^2.2.0",
+    "webpack-strip-block": "^0.2.0"
   },
   "nodemonConfig": {
     "delay": "500",
@@ -58,8 +76,51 @@
     "datatables": "DataTables/DataTables#1.10.16",
     "labjs": "getify/LABjs#2.0.3",
     "swfobject": "swfobject/swfobject#2.2",
-    "hammerjs": "hammerjs/hammer.js#v2.0.8",
-    "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
+    "hammerjs": "hammerjs/hammer.js#v2.0.8"
   },
-  "version": "7.0.1"
+  "prettier": {
+    "printWidth": 100,
+    "semi": false,
+    "useTabs": true,
+    "singleQuote": true
+  },
+  "lint-staged": {
+    "src/**/*.{js,scss}": [
+      "yarn prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn test:ci && yarn lint-staged"
+    }
+  },
+  "browserslist": [
+    "> 0.5%",
+    "not ie >= 0",
+    "not op_mini all"
+  ],
+  "jest": {
+    "transform": {
+      "ctrl-widget-catalog.js": "babel-jest"
+    },
+    "verbose": false,
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ],
+    "setupFilesAfterEnv": [
+      "./testSetup.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 43,
+        "branches": 32,
+        "functions": 48,
+        "lines": 43
+      }
+    }
+  }
 }

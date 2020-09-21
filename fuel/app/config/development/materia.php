@@ -1,11 +1,17 @@
 <?php
+
+$assets_exist = file_exists(DOCROOT."dist/js/my-widgets.js");
+// convert current url to https://whatever:8008/ for simulated pass through cdn
+$simulated_cdn_url = preg_replace('/(https:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create());
 return [
 	'send_emails' => false, // disable email in dev
 
-	// append port 8008 for dev
 	'urls' => [
-		'static' => preg_replace('/(https:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create()),
-		'engines' => preg_replace('/(https:\/\/.+?)(\:[0-9]*){0,1}(\/.*)/', '${1}:8008${3}', \Uri::create('widget/')),
+		// append port 8008 for dev
+		// simulates loading from a pass-through cdn
+		'static'  => $simulated_cdn_url,
+		'engines' => $simulated_cdn_url.'widget/',
+		'js_css'  => $assets_exist ? $simulated_cdn_url.'dist/' : '//127.0.0.1:8080/dist/',
 	],
 
 	/**
