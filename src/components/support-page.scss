@@ -1,7 +1,51 @@
 @import 'include.scss';
 
-.support-page {
-	button {
-		font-weight: bold;
+h1 {
+	font-family: Lato, arial, serif;
+}
+
+.container {
+	background-color: #fff;
+	position: relative;
+	margin: 10px auto;
+	padding: 0 10px 10px;
+	display: block;
+	border: 1px solid #ccc;
+	box-shadow: 0 0 10px #aaa;
+	width: 700px;
+
+	.page > ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		> li {
+			background-color: #eee;
+			display: block;
+			margin: 0 0 5px 0;
+			border: 1px solid #ccc;
+			border-radius: 10px;
+		}
 	}
+}
+
+.instance_search {
+	width: 200px;
+}
+
+.search_match {
+	box-sizing: border-box;
+	display: inline-block;
+	width: 48%;
+	margin: 5px;
+	padding: 10px;
+	border: 1px solid #d3d3d3;
+
+	> div {
+		display: inline-block;
+	}
+}
+
+.clickable {
+	cursor: pointer;
 }

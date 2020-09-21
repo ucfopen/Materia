@@ -1,27 +1,27 @@
 import './support-page.scss'
+import SupportSearch from './support-search'
 
 import React, { useState } from 'react'
 import Header from './header'
 
-const defaultState = {
-	toggle: true
-}
 
 const SupportPage = () => {
-	const [state, setState] = useState(defaultState)
+	const [selectedInstance, setSelectedInstance] = useState(null)
 
 	return (
-		<React.Fragment>
+		<>
 			<Header />
-			<div className="support-page">
-				<button
-					onClick={() => {setState({...state, toggle: !state.toggle})}
-				}>
-					{state.toggle ? 'On' : 'Off'}
-				</button>
+			<div className="container">
+				<div>
+					{ !selectedInstance
+					? <SupportSearch 
+							onClick={setSelectedInstance}/>
+					: null
+					}
+				</div>
 			</div>
 
-		</React.Fragment>
+		</>
 	)
 }
 
