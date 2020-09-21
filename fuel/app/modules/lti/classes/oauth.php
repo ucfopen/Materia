@@ -61,12 +61,12 @@ class Oauth
 		return $request->get_parameters();
 	}
 
-	public static function send_body_hashed_post($endpoint, $body, $secret)
+	public static function send_body_hashed_post($endpoint, $body, $secret, $key = null)
 	{
 		// ================ BUILD OAUTH REQUEST =========================
 		$body_hash = base64_encode(sha1($body, true)); // hash the contents of the body
 		$hmcsha1   = new \Eher\OAuth\HmacSha1();
-		$consumer  = new \Eher\OAuth\Consumer(null, $secret);
+		$consumer  = new \Eher\OAuth\Consumer($key, $secret);
 		$request   = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', $endpoint, ['oauth_body_hash' => $body_hash]);
 		$request->sign_request($hmcsha1, $consumer, null);
 
@@ -77,6 +77,16 @@ class Oauth
 				'header'  => $request->to_header()."\r\nContent-Type: application/xml\r\n",
 			]
 		];
+
+		// in development, allow self-signed certs from the destination
+		if (\Fuel::$env === 'development')
+		{
+			$params['ssl'] = [
+				'verify_peer'       => false,
+				'verify_peer_name'  => false,
+				'allow_self_signed' => true,
+			];
+		}
 
 		// ================= SEND REQUEST ===================
 		try

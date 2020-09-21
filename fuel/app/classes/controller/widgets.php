@@ -17,16 +17,12 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_index()
 	{
-		Css::push_group(['core', 'widget_catalog']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Widget Catalog');
 
-		Js::push_group(['angular', 'ng-animate', 'materia']);
-
-		$this->theme->get_template()
-			->set('title', 'Widget Catalog')
-			->set('page_type', 'catalog');
-
-		$this->theme->set_partial('content', 'partials/widget/catalog');
-		$this->theme->set_partial('meta', 'partials/responsive');
+		Css::push_group(['catalog']);
+		Js::push_group(['react', 'catalog']);
 	}
 
 	public function get_all()
@@ -165,6 +161,27 @@ class Controller_Widgets extends Controller
 	/**
 	 * Listing of all widgets i have rights to
 	 */
+	public function get_mywidgets2()
+	{
+		if (\Service_User::verify_session() !== true)
+		{
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your widgets.');
+			Response::redirect(Router::get('login'));
+			return;
+		}
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'My Widgets');
+
+		Css::push_group(['mywidgets']);
+		Js::push_group(['react', 'mywidgets']);
+	}
+
+	/**
+	 * Listing of all widgets i have rights to
+	 */
 	public function get_mywidgets()
 	{
 		if (\Service_User::verify_session() !== true)
@@ -175,7 +192,7 @@ class Controller_Widgets extends Controller
 		}
 
 		Css::push_group(['core', 'my_widgets']);
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'jqplot', 'my_widgets', 'dataTables']);
 
 		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
 

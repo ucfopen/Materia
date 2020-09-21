@@ -46,6 +46,9 @@ class Cookie extends Fuel\Core\Cookie
 		// add the current time so we have an offset
 		$expiration = $expiration > 0 ? $expiration + time() : 0;
 
+		// make sure same_site isn't None when cookie isn't secure
+		if(!$secure && $same_site === 'None') $same_site = 'Strict';
+
 		//setcookie readily supports SameSite in 7.3 and up, big hacks necessary any earlier than that
 		if( version_compare(phpversion(), '7.3', '<'))
 		{
@@ -75,7 +78,7 @@ class Cookie extends Fuel\Core\Cookie
 	 * @param   string   $domain     domain of the cookie
 	 * @param   boolean  $secure     if true, the cookie should only be transmitted over a secure HTTPS connection
 	 * @param   boolean  $http_only  if true, the cookie will be made accessible only through the HTTP protocol
-	 * @param   string    $same_site   SameSite value for the cookie
+	 * @param   string   $same_site   SameSite value for the cookie
 	 * @return  boolean
 	 * @uses    static::set
 	 */

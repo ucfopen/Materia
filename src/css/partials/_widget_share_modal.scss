@@ -1,0 +1,626 @@
+.ng-modal.share .avatar,
+.user_perm_name,
+.user-perm .options,
+.user_perm_select,
+.user_match_avatar,
+.user_match_name {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.ng-modal.share {
+	text-align: center;
+
+	.cancel_button {
+		position: absolute;
+		bottom: -35px;
+		left: 200px;
+
+		color: #555;
+		text-decoration: underline;
+		margin: 10px 15px;
+		cursor: pointer;
+	}
+
+	.cancel_button.close_only {
+		left: 250px;
+	}
+
+	.search_container {
+		text-align: left;
+		position: relative;
+		margin-bottom: 20px;
+	}
+
+	.action_button.save_button {
+		position: absolute;
+		bottom: -35px;
+		left: 285px;
+	}
+
+	.toggle_transfer {
+		font-size: 12px;
+		position: absolute;
+		bottom: 20px;
+		left: 20px;
+		padding: 5px 10px;
+	}
+	.cancel_button .share_button {
+		margin-top: 10px;
+	}
+
+	#adding {
+		background-color: #f0f0f0;
+		border: none;
+		background: transparent;
+		position: absolute;
+		top: 0;
+	}
+
+	.container {
+		left: 0;
+		width: 580px;
+		height: 390px;
+		padding-top: 0;
+	}
+
+	.ng-modal-title {
+		margin: 0;
+		padding: 0;
+		font-size: 1.3em;
+		color: #555;
+		border-bottom: #999 dotted 1px;
+		padding-bottom: 20px;
+		margin-bottom: 20px;
+		position: relative;
+		text-align: left;
+	}
+
+	a.close {
+		display: block;
+		position: absolute;
+		right: 5px;
+		top: 4px;
+		margin: 4px;
+		background: url('../../../img/close.png') no-repeat;
+		text-indent: -10000px;
+		width: 19px;
+		height: 19px;
+	}
+	a.remove {
+		display: inline-block;
+		color: #bfbfbf;
+		text-decoration: none;
+		font-size: 15px;
+		position: absolute;
+		left: -30px;
+		top: 30px;
+	}
+	.name {
+		float: left;
+		font-weight: bold;
+		font-size: 15px;
+		margin-top: 8px;
+		text-align: left;
+		width: 160px;
+	}
+
+	.name span {
+		display: block;
+		font-weight: normal;
+		text-align: left;
+	}
+
+	.input_label {
+		font-size: 19px;
+		margin: 5px 25px 0 0;
+	}
+
+	#adding .input_label {
+		left: 20px;
+		top: 20px;
+	}
+
+	#access input.user_add,
+	#access .placeholder {
+		width: 445px;
+		height: 30px;
+		z-index: 2;
+		border: solid 1px #c9c9c9;
+		font-size: 16px;
+	}
+
+	#adding #input_holder {
+		width: 445px;
+		height: 30px;
+		padding-left: 10px;
+		z-index: 2;
+		border: solid 1px #c9c9c9;
+		font-size: 16px;
+		background: #fff;
+		position: absolute;
+		right: 0;
+		text-align: left;
+		top: 20px;
+		right: 20px;
+	}
+
+	#adding #input_area {
+		display: inline-block;
+		outline: none;
+		min-width: 15px;
+		min-height: 30px;
+		font-family: 'Lucida Grande', sans-serif;
+		font-size: 16px;
+		padding-top: 5px;
+	}
+	#adding #input_area input.user_add {
+		width: 460px;
+		height: 30px;
+		border: none;
+		margin: 0;
+		padding: 0;
+		display: inline-block;
+	}
+
+	#adding #input_area input.user_add::input-placeholder {
+		color: #343434;
+	}
+
+	#adding #expArea {
+		display: block;
+	}
+	#adding #expArea #expSet {
+		display: none;
+		padding: 0;
+		margin: 0;
+	}
+	.expElement {
+		padding: 0;
+		margin: 0 5px;
+	}
+
+	.changeRoleExpiration {
+		display: none;
+	}
+
+	#adding #expArea .exp_disclaimer {
+		padding: 0;
+		margin: 10px 0;
+	}
+	#adding #expArea #roleExpiration {
+		width: 100px;
+	}
+
+	.share_user_to_add {
+		display: inline-block;
+		font-size: 14px;
+		border-radius: 3px;
+		background-color: #fbfbfb;
+		border: 1px solid #aeaeae;
+		margin: 3px;
+		padding: 3px;
+		height: 30px;
+	}
+
+	.search_list {
+		width: 456px;
+		min-height: 130px;
+		height: 340px;
+		position: absolute;
+		background-color: #ffffff;
+		border: #bfbfbf 1px solid;
+		padding-bottom: 5px;
+		overflow: auto;
+		z-index: 3;
+		text-align: left;
+		top: 50px;
+		left: 120px;
+	}
+	.no_match_message,
+	.no_match_reason {
+		width: 60%;
+		text-align: center;
+		margin: 10px auto;
+	}
+
+	.no_match_reason {
+		color: #a0a0a0;
+		font-size: 14px;
+	}
+
+	.search_match {
+		width: 200px;
+		height: 56px;
+		margin: 5px 5px 0 5px;
+		padding: 0 5px 5px 0;
+		border-radius: 3px;
+		display: inline-block;
+		background-color: #ffffff;
+	}
+	.search_match:hover {
+		background-color: #c5e7fa;
+		cursor: pointer;
+	}
+	.search_match.focused {
+		background-color: #7fc9f3;
+	}
+	.access_list {
+		background-color: #f2f2f2;
+		width: 520px;
+		height: 250px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		padding: 0 30px;
+		text-align: right;
+		overflow: auto;
+	}
+
+	.access_list.no-add-access {
+		background-color: #f2f2f2;
+		height: 320px;
+		margin-top: 0px;
+	}
+
+	.access_heading {
+		margin: 5px 125px 0 0;
+		padding: 0;
+	}
+
+	.user_match_name {
+		font-size: 14px;
+		text-align: left;
+		width: 140px;
+		height: 40px;
+		font-family: 'Lucida Grande', sans-serif;
+	}
+	.user_match_student {
+		position: relative;
+	}
+	.user_match_student:after {
+		content: 'Student';
+		position: absolute;
+		top: -10px;
+		left: 0;
+		font-size: 10px;
+	}
+
+	.disclaimer {
+		color: #575757;
+		font-size: 14px;
+		margin-top: 10px;
+	}
+
+	.user_perm {
+		border-bottom: #e1e1e1 1px solid;
+		margin: 5px 0;
+		margin: 0;
+	}
+
+	.user_perm:last-child {
+		border: none;
+	}
+
+	.user_perm {
+		width: 420px;
+		min-height: 64px;
+		vertical-align: middle;
+		position: relative;
+		margin-left: auto;
+		margin-right: auto;
+		display: block;
+		padding: 15px 0 0 0;
+	}
+
+	.user_perm .options {
+		position: absolute;
+		right: 0;
+		width: 145px;
+		float: left;
+		text-align: left;
+		margin-top: 6px;
+	}
+
+	.user_perm .options select {
+		display: block;
+	}
+
+	.avatar {
+		margin-left: 40px;
+	}
+
+	.avatar,
+	.user_match_avatar {
+		width: 50px;
+		height: 50px;
+		-moz-border-radius: 3px;
+		border-radius: 3px;
+		display: inline-block;
+		float: left;
+		margin-right: 10px;
+		margin: 5px;
+	}
+
+	.user_perm_name {
+		width: 187px;
+		font-size: 15px;
+		text-align: left;
+		padding: 0 0 0 18px;
+		margin: 0;
+		font-weight: bold;
+	}
+
+	.user_perm_name span {
+		display: block;
+		font-weight: normal;
+	}
+
+	.user_perm_select {
+		width: 150px;
+		height: 20px;
+		margin-right: 33px;
+		text-align: left;
+	}
+
+	#adding .options {
+		width: 450px;
+		margin: 10px 25px 0 0;
+		float: right;
+	}
+	#adding .user_perm_select {
+		margin-left: 8px;
+	}
+
+	hr {
+		width: 100%;
+		border: 1px dotted;
+		margin: 10px 0;
+	}
+
+	.user_perm_check {
+		float: left;
+		margin-bottom: 10px;
+	}
+
+	.user_perm_message {
+		display: block;
+		text-align: left;
+		width: 426px;
+	}
+	#adding textarea {
+		resize: none;
+	}
+
+	.options {
+		text-align: right;
+	}
+
+	.owner {
+		display: none;
+		width: 145px;
+		text-align: left;
+	}
+
+	.owner a {
+		display: block;
+		font-size: 13px;
+	}
+
+	.transfer {
+		display: none;
+	}
+
+	a.cancel-transfer {
+		display: inline !important;
+	}
+
+	.transfer .do-transfer,
+	.transfer span {
+		display: none;
+	}
+
+	.transfer span {
+		font-size: 14px;
+	}
+
+	.owner .transfer-owner {
+		display: none;
+	}
+
+	.undo {
+		display: none;
+		width: 145px;
+		text-align: left;
+	}
+
+	.deleted .avatar {
+		opacity: 0.5;
+	}
+
+	.deleted .name {
+		color: #5f5f5f;
+	}
+
+	.user_perm .exp_change_view {
+		display: none;
+		text-align: right;
+		background: #f2f2f2;
+
+		position: absolute;
+		top: 0;
+		right: 0;
+		height: 64px;
+		font-size: 12px;
+		top: -15px;
+		width: 225px;
+		padding-left: 16px;
+
+		background: white;
+		border-radius: 1px;
+		box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
+	}
+
+	.user_perm .exp_change_view .access_expires {
+		text-align: left;
+		font-family: 'Lato';
+		font-size: 13px;
+		line-height: 0;
+		padding-top: 6px;
+	}
+
+	.user_perm label {
+		margin-right: 10px;
+	}
+
+	.exp_change_view .exp_button {
+		font-family: Lato, arial, serif;
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+
+	.exp_change_view .gray_min {
+		background: #aeaeae;
+		color: #545454;
+	}
+	.exp_change_view .gray_min:hover {
+		background: #919191;
+	}
+	.exp_change_view .green_min {
+		background: #b2cd43;
+		color: #4d5822;
+	}
+	.exp_change_view .green_min:hover {
+		background: #a2c129;
+	}
+
+	.exp_change_view input[type='text'] {
+		display: none;
+		position: absolute;
+		width: 75px;
+		left: 145px;
+	}
+
+	.demote_dialogue {
+		border-radius: 4px;
+		box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+		padding: 1em;
+		width: 310px;
+		font-family: 'Lucida Grande', sans-serif;
+		font-size: 9pt;
+		color: black;
+		text-align: center;
+		background: #fcdbdb;
+		height: 40px;
+		z-index: 10000;
+		position: absolute;
+		margin-left: 90px;
+	}
+
+	.demote_dialogue .arrow {
+		background: url('../../../img/pink-arrow-left.png') no-repeat 0 center;
+		width: 13px;
+		height: 23px;
+		display: inline-block;
+		top: 0;
+		left: -13px;
+		position: absolute;
+		height: 100%;
+	}
+
+	.demote_dialogue .warning {
+		display: block;
+		margin: -4px 0 6px 0;
+		text-align: center;
+	}
+
+	.demote_dialogue .button {
+		text-align: center;
+		margin: 0 10px 0 10px;
+	}
+
+	.demote_dialogue .red {
+		color: white;
+		font-size: 11pt;
+		padding: 5px 12px;
+	}
+
+	.demote_dialogue .no_button {
+		font-family: Lato, arial, serif;
+		color: #555;
+		text-decoration: underline;
+		font-size: 12pt;
+	}
+}
+
+.ng-modal .green {
+	background: #b2cd43;
+	background-image: linear-gradient(#d1e776, #a6c430);
+	border-color: #95a74e;
+	color: #4d5822;
+}
+.ng-modal .green:hover {
+	background: #a2c129;
+	background-image: linear-gradient(#a6c430, #d1e776);
+	text-decoration: none;
+}
+.ng-modal .gray {
+	background: #aeaeae;
+	background-image: linear-gradient(#e4e4e4, #b8b8b8);
+	border-color: #747474;
+	color: #545454;
+}
+.ng-modal .gray:hover {
+	background: #a2c129;
+	background-image: linear-gradient(#b8b8b8, #e4e4e4);
+	text-decoration: none;
+}
+
+.share_user_to_add_name {
+	vertical-align: middle;
+	padding: 0;
+	margin: 0;
+}
+
+.share {
+	.perm-text {
+		width: 100%;
+		display: inline-block;
+	}
+
+	.exp-date {
+		padding: 0;
+		text-decoration: underline;
+		color: #545454;
+		font-size: 8pt;
+		cursor: pointer;
+		background: transparent;
+		border: none;
+		width: 85px;
+
+		&:hover {
+			color: #969696;
+		}
+
+		&:disabled {
+			cursor: default;
+			color: #c5c5c5;
+			text-decoration: none;
+		}
+
+		&:focus {
+			outline: none;
+			background: #fff;
+			border: solid 1px #f7b64a;
+		}
+	}
+
+	.expires {
+		font-size: 8pt;
+	}
+
+	.remove-expiration {
+		font-size: 8pt;
+		cursor: pointer;
+	}
+}

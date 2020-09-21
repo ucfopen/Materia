@@ -14,16 +14,12 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
-		Js::push_group(['angular', 'materia']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Welcome to Materia');
 
-		$this->theme->get_template()
-			->set('title', 'Welcome to Materia')
-			->set('page_type', 'store');
-
-		$spotlight = $this->theme->view('partials/spotlight');
-		$this->theme->set_partial('content', 'partials/homepage')
-			->set_safe('spotlight', $spotlight);
-
+		Css::push_group(['homepage']);
+		Js::push_group(['react', 'homepage']);
 	}
 
 	public function action_permission_denied()

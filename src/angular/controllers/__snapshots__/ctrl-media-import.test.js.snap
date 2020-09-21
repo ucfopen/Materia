@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MediaImportCtrl announces readyForDirectUpload via postmessage before loading media 1`] = `
+Array [
+  "{\\"type\\":\\"readyForDirectUpload\\",\\"source\\":\\"media-importer\\",\\"data\\":\\"\\"}",
+  "*",
+]
+`;
+
+exports[`MediaImportCtrl grabs a list of valid image assets 1`] = `
+Array [
+  Object {
+    "created": "6/14/2017",
+    "id": "00003",
+    "name": "image1",
+    "thumb": "https://mediaurl.com/00003/thumbnail",
+    "timestamp": "1500000000",
+    "type": "png",
+  },
+  Object {
+    "created": "6/14/2017",
+    "id": "00004",
+    "name": "image2",
+    "thumb": "https://mediaurl.com/00004/thumbnail",
+    "timestamp": "1500000000",
+    "type": "jpg",
+  },
+  Object {
+    "created": "6/14/2017",
+    "id": "00005",
+    "name": "image3",
+    "thumb": "https://mediaurl.com/00005/thumbnail",
+    "timestamp": "1500000000",
+    "type": "jpg",
+  },
+  Object {
+    "created": "6/14/2017",
+    "id": "00007",
+    "name": "image4",
+    "thumb": "https://mediaurl.com/00007/thumbnail",
+    "timestamp": "1500000000",
+    "type": "gif",
+  },
+  Object {
+    "created": "6/14/2017",
+    "id": "00008",
+    "name": "valid image without extension in title",
+    "thumb": "https://mediaurl.com/00008/thumbnail",
+    "timestamp": "1500000000",
+    "type": "jpg",
+  },
+]
+`;

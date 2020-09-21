@@ -1,0 +1,145 @@
+/* HOMEPAGE spotlight */
+
+.store_main {
+	padding: 0px;
+	overflow: visible;
+	position: absolute;
+	left: 0;
+	display: block;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s linear;
+
+	&.selected {
+		visibility: visible;
+		opacity: 1;
+	}
+}
+.main_container {
+	position: relative;
+	width: 960px;
+	height: 320px;
+	margin: 0 auto;
+	border: rgba(0, 0, 0, 0.11) 1px solid;
+	box-shadow: 1px 3px 10px #888;
+	overflow: visible;
+}
+
+.main section,
+store_main section {
+	padding: 20px;
+}
+.hidden {
+	display: none;
+}
+
+.cycler {
+	width: 60px;
+	margin: -22px auto 0;
+	position: relative;
+	z-index: 10;
+	padding: 0 3px;
+	border-radius: 4px;
+}
+.cycler input {
+	display: inline-block;
+	text-indent: -999999px;
+}
+.cycler .span_next {
+	vertical-align: middle;
+	background: #d7d7d7;
+	display: inline-block;
+	width: 5px;
+	height: 5px;
+	border-radius: 3px;
+	margin: 0 3px 1px 3px;
+	cursor: pointer;
+}
+.cycler span.spotlight_selected {
+	background: #0093e7;
+	width: 8px;
+	height: 8px;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+}
+
+.spotlight h1 {
+	font-family: 'Lato', arial, serif;
+	font-weight: 900;
+	font-size: 36px;
+	border-bottom: dotted black 1px;
+	margin: 0;
+	padding: 0 0 10px 0;
+}
+
+.spotlight aside {
+	width: 1005px;
+	padding: 0 15px;
+}
+.spotlight aside p {
+	display: inline;
+	background: #fff389;
+	margin: 0;
+	padding: 5px 10px;
+	font-family: 'Lato', arial, serif;
+	font-weight: bold;
+	font-size: 18px;
+}
+
+.spotlight .main_container {
+	background: #fff;
+	width: 960px;
+	text-align: left;
+}
+
+.spotlight .store_main p {
+	color: #4a4a4a;
+	font-size: 17px;
+	line-height: 24px;
+}
+
+.spotlight a.more {
+	position: absolute;
+	top: 270px;
+	text-decoration: underline;
+	font-size: 17px;
+	font-weight: 700;
+}
+
+.spotlight .store_main section {
+	background: transparent;
+	padding: 30px 40px 100px;
+	width: 920px;
+	height: 230px;
+	overflow: visible;
+}
+.spotlight .store_main section.enigma {
+	background: url(../../../img/spotlight/enigma.png) right 10px no-repeat;
+	padding-right: 490px;
+	width: 415px;
+}
+.spotlight .store_main section.crossword {
+	background: url(../../../img/spotlight/crossword.png) left 10px no-repeat;
+	padding-left: 425px;
+	width: 507px;
+}
+.spotlight .store_main section.adventure {
+	background: url(../../../img/spotlight/adventure.png) right center no-repeat;
+	padding-right: 350px;
+	width: 558px;
+}
+.spotlight .store_main section.html5 {
+	background: url(../../../img/spotlight/materia-html5.png) -30px -8px no-repeat;
+	padding-left: 400px;
+	width: 530px;
+}
+
+.spotlight .store_main section.crossword h1,
+.spotlight .store_main section.crossword p {
+	text-align: right;
+}
+
+.spotlight .store_main section.crossword a.more,
+.spotlight .store_main section.materia_new a.more {
+	right: 40px;
+}

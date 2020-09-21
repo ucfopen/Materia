@@ -1,0 +1,72 @@
+body,
+html {
+	margin: 0;
+	padding: 0;
+	font-size: 16px;
+}
+
+html {
+	background-image: url(//localhost/img/back.png);
+}
+
+body {
+	font-family: 'Lucida Grande', arial, serif;
+	overflow: auto;
+}
+
+.action_button {
+	font-family: 'Lato', arial, serif;
+	padding: 7px 23px 8px 23px;
+	background: #ffba5d;
+	background-image: linear-gradient(#ffce8c, #ffa42a);
+
+	font-weight: 700;
+	color: #694d28;
+	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+	box-shadow: 1px 2px 4px #888;
+	font-size: 18px;
+	position: relative;
+	cursor: pointer;
+	display: inline-block;
+	user-select: none;
+
+	border: 1px solid #525252;
+	border-radius: 4px;
+
+	.ng-modal & {
+		margin: 5px auto;
+	}
+
+	&.green {
+		background: #c4dd61;
+		color: #525252;
+
+		&:hover {
+			background: #d5ea7f;
+		}
+	}
+
+	&:hover {
+		background: #eca444;
+		background-image: linear-gradient(#ffa42a, #ffce8c);
+		text-decoration: none;
+	}
+
+	.little-button-text{
+		font-size: 18px;
+		display:block;
+	}
+}
+
+a {
+	color: #0093e7;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	img {
+		border: none;
+	}
+}

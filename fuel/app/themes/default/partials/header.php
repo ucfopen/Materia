@@ -40,6 +40,7 @@
 		<ul>
 			<li><a href="/widgets" >Widget Catalog</a></li>
 			<li><a href="/my-widgets">My Widgets</a></li>
+			<li><a href="/widgets/mywidgets2">MW React</a></li>
 			<li><a ng-if="currentUser.loggedIn" href="/profile">My Profile</a></li>
 			<li><a href="/help">Help</a></li>
 
@@ -52,6 +53,9 @@
 						</li>
 						<li>
 							<a class='elevated' href="/admin/user">Users</a>
+						</li>
+						<li>
+							<a class='elevated' href="/admin/support">Support</a>
 						</li>
 					</ul>
 				</li>

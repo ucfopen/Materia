@@ -1,0 +1,20 @@
+{
+	"presets": [
+		"@babel/preset-react",
+		[
+			"@babel/preset-env",
+			{
+				useBuiltIns: "usage",
+				corejs: 3,
+				debug: false, // outputs polyfills and browserlist
+				// targets: 'defaults' // allows .browserslistrc to work
+			},
+		],
+		"jest"
+	],
+	"plugins": [
+		[
+			"babel-plugin-angularjs-annotate"
+		]
+	]
+}
