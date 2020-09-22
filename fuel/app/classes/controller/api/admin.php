@@ -68,9 +68,7 @@ class Controller_Api_Admin extends Controller_Rest
 	public function get_widget_search($input)
 	{
 		//no need to search if for some reason an empty string is passed
-		if($input == ''){
-			return [];
-		} 
+		if ($input == '') return [];
 		return \Materia\Widget_Instance_Manager::get_search($input);
 	}
 }

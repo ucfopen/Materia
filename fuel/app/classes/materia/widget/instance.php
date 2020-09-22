@@ -14,6 +14,7 @@ class Widget_Instance
 	public $embed_url       = '';
 	public $is_student_made = false;
 	public $is_embedded     = false;
+	public $is_deleted			= false;
 	public $embedded_only   = false;
 	public $student_access  = false;
 	public $guest_access    = false;
