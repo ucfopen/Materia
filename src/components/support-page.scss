@@ -14,6 +14,61 @@ h1 {
 	box-shadow: 0 0 10px #aaa;
 	width: 700px;
 
+	.page {
+
+		.search_list {
+			
+			.icon {
+				background-repeat: no-repeat;
+				background-size: 60px;
+				margin: 0;
+				padding: 0;
+				width: 60px;
+				height: 60px;
+				display: inline-block;
+				margin-right: 5px;
+			}
+
+			div {
+				display: inline-block;
+				padding: 4px;
+			}
+
+			.info-holder {
+				position: relative;
+				vertical-align: top;
+			}
+
+			div > ul {
+				display: inline-block;
+				width: 235px;
+				vertical-align: top;
+			}
+
+			ul {
+				margin: 0;
+				padding: 0;
+			}
+
+			ul li {
+				margin: 0;
+				padding: 2px;
+				list-style: none;
+				overflow: hidden;
+			}
+
+			ul li.title {
+				font-weight: bold;
+				font-size: 0.9em;
+			}
+
+			ul li.type {
+				color: #444;
+				font-size: 0.8em;
+			}
+		}
+	}
+
 	.page > ul {
 		list-style: none;
 		margin: 0;

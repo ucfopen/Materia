@@ -64,4 +64,13 @@ class Controller_Api_Admin extends Controller_Rest
 		unset($user->id);
 		return \Service_User::update_user($user_id, $user);
 	}
+
+	public function get_widget_search($input)
+	{
+		//no need to search if for some reason an empty string is passed
+		if($input == ''){
+			return [];
+		} 
+		return \Materia\Widget_Instance_Manager::get_search($input);
+	}
 }

@@ -101,4 +101,42 @@ class Widget_Instance_Manager
 		// true if the lock is mine
 		return $locked_by == $me;
 	}
+
+	public static function get_search($input)
+	{
+		$results = \DB::select()
+			->from('widget_instance')
+			->where('id', 'LIKE', "%$input%")
+			->or_where('name', 'LIKE', "%$input%")
+			->order_by('created_at', 'desc')
+			->execute()
+			->as_array();
+
+		$instances = [];
+		foreach ($results as $r)
+		{
+			$widget = new Widget();
+			$widget->get($r['widget_id']);
+			$inst = new Widget_Instance([
+				'id'              => $r['id'],
+				'user_id'         => $r['user_id'],
+				'name'            => $r['name'],
+				'is_student_made' => (bool) $r['is_student_made'],
+				'student_access'  => Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE),
+				'guest_access'    => (bool) $r['guest_access'],
+				'is_draft'        => (bool) $r['is_draft'],
+				'created_at'      => $r['created_at'],
+				'open_at'         => $r['open_at'],
+				'close_at'        => $r['close_at'],
+				'attempts'        => $r['attempts'],
+				'is_deleted'			=> $r['is_deleted'],
+				'embedded_only'   => (bool) $r['embedded_only'],
+				'widget'          => $widget,
+			]);
+
+			$instances[] = $inst;
+		}
+
+		return $instances;
+	}
 }

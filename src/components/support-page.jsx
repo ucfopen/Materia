@@ -16,7 +16,7 @@ const SupportPage = () => {
 					{ !selectedInstance
 					? <SupportSearch 
 							onClick={setSelectedInstance}/>
-					: null
+					: <h1>{selectedInstance.name}</h1>
 					}
 				</div>
 			</div>

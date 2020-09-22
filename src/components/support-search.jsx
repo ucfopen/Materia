@@ -1,11 +1,40 @@
 import React, { useState, useEffect } from 'react'
+import { iconUrl } from '../util/icon-url'
 
-const SupportSearch = (onClick) => {
+const searchWidgets = (input) => fetch(`/api/admin/widget_search/${input}`)
+
+const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
+	const [lastSearch, setLastSearch] = useState('')
 	const [searchResults, setSearchResults] = useState([])
 	const [isSearching, setIsSearching] = useState(false)
+
+	
 	useEffect(() => {
 		//get search results using search text
+		if(searchText !== lastSearch)
+		{
+			setLastSearch(searchText)
+			
+			if(searchText === '') 
+			{
+				setSearchResults([])
+			}
+			else 
+			{
+				setIsSearching(true)
+				searchWidgets(searchText)
+				.then(resp => resp.json())
+				.then(instances => 
+					{
+						console.log(instances)
+						setSearchResults(instances)
+						setIsSearching(false)
+					})
+			}
+			
+		}
+		
 	})
 
 	return (
@@ -25,10 +54,11 @@ const SupportSearch = (onClick) => {
 				? <div className="search_list">
 							{searchResults.map((match) => 
 								<div 
-									className="search_match clickable"
-									onClick={() => onClick(match)}>
+									key={match.id}
+									className={`search_match clickable`}
+									onClick={() => {onClick(match)} }>
 									<div className="img-holder">
-										<img src={iconUrl('http://localhost/widget/', match.widget.dir, 275)} />
+										<img className="icon" src={iconUrl('http://localhost/widget/', match.widget.dir, 275)} />
 									</div>
 									<div className="info-holder">
 										<ul>
@@ -41,8 +71,16 @@ const SupportSearch = (onClick) => {
 					</div>
 				: null
 			}
+			{ !isSearching && !searchResults
+				? <div className="searching_message">
+						<b>No matches found</b>
+					</div>
+				: null
+			}
 			{	isSearching
-				? <b>Searching Widget Instances ...</b>
+				? <div className="searching_message">
+						<b>Searching Widget Instances ...</b>
+					</div>
 				: null
 			}
 			
