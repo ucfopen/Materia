@@ -24,7 +24,10 @@ const SupportSearch = ({onClick = () => {}}) => {
 			{
 				setIsSearching(true)
 				searchWidgets(searchText)
-				.then(resp => resp.json())
+				.then(resp => {
+					if(resp.status == 204) return []
+					return resp.json()
+				})
 				.then(instances => 
 					{
 						console.log(instances)
@@ -71,16 +74,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 					</div>
 				: null
 			}
-			{ !isSearching && !searchResults
-				? <div className="searching_message">
-						<b>No matches found</b>
-					</div>
-				: null
-			}
 			{	isSearching
-				? <div className="searching_message">
-						<b>Searching Widget Instances ...</b>
-					</div>
+				? <b>Searching Widget Instances ...</b>
 				: null
 			}
 			
