@@ -1,13 +1,17 @@
 import './support-page.scss'
 import SupportSearch from './support-search'
+import SupportSelectedInstance from './support-selected-instance'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from './header'
 
 
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
 
+	useEffect(() => {
+		console.log(selectedInstance)
+	})
 	return (
 		<>
 			<Header />
@@ -16,7 +20,9 @@ const SupportPage = () => {
 					{ !selectedInstance
 					? <SupportSearch 
 							onClick={setSelectedInstance}/>
-					: <h1>{selectedInstance.name}</h1>
+					: <SupportSelectedInstance
+							inst={selectedInstance}
+							onReturn={() => {setSelectedInstance(null)}}/>
 					}
 				</div>
 			</div>

@@ -129,7 +129,7 @@ class Widget_Instance_Manager
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
-				'is_deleted'			=> $r['is_deleted'],
+				'is_deleted'			=> (bool) $r['is_deleted'],
 				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);

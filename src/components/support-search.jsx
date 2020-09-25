@@ -8,6 +8,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const [lastSearch, setLastSearch] = useState('')
 	const [searchResults, setSearchResults] = useState([])
 	const [isSearching, setIsSearching] = useState(false)
+	const [showDeleted, setShowDeleted] = useState(false)
 
 	
 	useEffect(() => {
@@ -25,6 +26,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 				setIsSearching(true)
 				searchWidgets(searchText)
 				.then(resp => {
+					// no content
 					if(resp.status == 204) return []
 					return resp.json()
 				})
@@ -53,12 +55,20 @@ const SupportSearch = ({onClick = () => {}}) => {
 				className="instance_search"
 				type="text"
 				placeholder="Enter a Materia widget instance's info"/>
+			<div className="show_deleted">
+				<input
+					tabIndex="1"
+					type="checkbox"
+					checked={showDeleted}
+					onChange={() => setShowDeleted(!showDeleted)}/>
+				<span className="deleted_label">Show Deleted Instances?</span>
+			</div>
 			{ searchResults.length !== 0
 				? <div className="search_list">
 							{searchResults.map((match) => 
 								<div 
 									key={match.id}
-									className={`search_match clickable`}
+									className={`search_match clickable ${(match.is_deleted && !showDeleted) ? 'hidden' : ''} ${match.is_deleted ? 'deleted' : ''}`}
 									onClick={() => {onClick(match)} }>
 									<div className="img-holder">
 										<img className="icon" src={iconUrl('http://localhost/widget/', match.widget.dir, 275)} />
@@ -67,6 +77,10 @@ const SupportSearch = ({onClick = () => {}}) => {
 										<ul>
 											<li className="title">{match.name}</li>
 											<li className="type">{match.widget.name}</li>
+											{match.is_deleted
+												? <li className="deleted">Deleted</li>
+												: null
+											}
 										</ul>
 									</div>
 								</div>
@@ -75,7 +89,10 @@ const SupportSearch = ({onClick = () => {}}) => {
 				: null
 			}
 			{	isSearching
-				? <b>Searching Widget Instances ...</b>
+				? <div className="searching">
+						<b>Searching Widget Instances ...</b>
+					</div>
+				
 				: null
 			}
 			
