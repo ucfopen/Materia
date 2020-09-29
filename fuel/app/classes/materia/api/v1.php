@@ -69,6 +69,17 @@ class Api_V1
 	}
 
 	/**
+	 * @return bool, true if successfully undeleted widget instance, false otherwise.
+	 */
+	static public function widget_instance_undelete($inst_id)
+	{
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id, $deleted = true))) return false;
+		return $inst->db_undelete();
+	}
+
+	/**
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */

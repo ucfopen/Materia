@@ -389,6 +389,35 @@ class Widget_Instance
 	}
 
 	/**
+	 * 'Undeletes' instance by updating is_deleted flag from 1 to 0
+	 * @return bool true if successfully undeleted, false if unable to restore
+	 */
+	public function db_undelete()
+	{
+		if ( ! Util_Validator::is_valid_hash($this->id)) return false;
+
+		$current_user_id = \Model_User::find_current_id();
+
+		\DB::update('widget_instance')
+			->set(['is_deleted' => '0', 'updated_at' => time()])
+			->where('id', $this->id)
+			->execute();
+
+			// store an activity log
+		$activity = new Session_Activity([
+			'user_id' => $current_user_id,
+			'type'    => Session_Activity::TYPE_EDIT_WIDGET,
+			'item_id' => $this->id,
+			'value_1' => $this->name,
+			'value_2' => $this->widget->id
+		]);
+
+		$activity->db_store();
+
+		return true;
+	}
+
+	/**
 	 * Creates a duplicate widget instance and optionally makes the current user the owner.
 	 *
 	 * @param int owner_id user_id of the user who will be the primary owner of the duplicate

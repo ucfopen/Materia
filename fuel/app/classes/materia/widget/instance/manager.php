@@ -6,13 +6,13 @@ class Widget_Instance_Manager
 {
 	public $validate = true;
 
-	static public function get($inst_id, $load_qset=false, $timestamp=false)
+	static public function get($inst_id, $load_qset=false, $timestamp=false, $deleted=false)
 	{
-		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp);
+		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp, $deleted);
 		return count($instances) > 0 ? $instances[0] : false;
 	}
 
-	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false)
+	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false, $deleted=false)
 	{
 		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
 
@@ -23,7 +23,7 @@ class Widget_Instance_Manager
 		$results = \DB::select()
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids)
-			->and_where('is_deleted', '=', '0')
+			->and_where('is_deleted', '=', $deleted ? '1' : '0')
 			->order_by('created_at', 'desc')
 			->execute()
 			->as_array();
@@ -45,6 +45,7 @@ class Widget_Instance_Manager
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
+				'is_deleted'			=> (bool) $r['is_deleted'],
 				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);
