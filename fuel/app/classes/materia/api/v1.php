@@ -73,12 +73,9 @@ class Api_V1
 	 */
 	static public function widget_instance_undelete($inst_id)
 	{
-		trace('hello from v1.php');
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		trace('hash valid, session verified v1.php');
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id, false, false, true))) return false; //TODO: THIS IS RETURNING FALSE
-		trace('valid instance v1.php');
 		return $inst->db_undelete();
 	}
 
