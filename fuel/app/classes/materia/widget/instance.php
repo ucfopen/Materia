@@ -394,6 +394,7 @@ class Widget_Instance
 	 */
 	public function db_undelete()
 	{
+		trace('hello?');
 		if ( ! Util_Validator::is_valid_hash($this->id)) return false;
 
 		$current_user_id = \Model_User::find_current_id();

@@ -42,7 +42,7 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null)
+	static public function widget_instances_get($inst_ids = null, $deleted = false)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
@@ -53,7 +53,7 @@ class Api_V1
 
 		// get specific instances - no log in required
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
-		return Widget_Instance_Manager::get_all($inst_ids);
+		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
 	}
 
 	/**
@@ -73,9 +73,12 @@ class Api_V1
 	 */
 	static public function widget_instance_undelete($inst_id)
 	{
+		trace('hello from v1.php');
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id, $deleted = true))) return false;
+		trace('hash valid, session verified v1.php');
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id, false, false, true))) return false; //TODO: THIS IS RETURNING FALSE
+		trace('valid instance v1.php');
 		return $inst->db_undelete();
 	}
 

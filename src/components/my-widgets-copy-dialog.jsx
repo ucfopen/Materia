@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Modal from './modal'
 
 const MyWidgetsCopyDialog = ({onClose, onCopy}) => {
-	const [newTitle, setNewTitle] = useState('Name of Widget (Copy)')
+	const [newTitle, setNewTitle] = useState('')
 	const [copyPermissions, setCopyPermissions] = useState(false)
 	return (
 		<Modal onClose={onClose}>
