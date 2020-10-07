@@ -84,7 +84,10 @@ class Controller_Admin extends Controller
 		// if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 
 		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/support');
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Support');
+
+		Css::push_group(['support']);
+		Js::push_group(['react', 'support']);
 	}
 }

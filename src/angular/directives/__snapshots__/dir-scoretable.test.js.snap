@@ -1,0 +1,149 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`scoreTable Directive is initialized on the element 1`] = `
+Object {
+  "2": Object {
+    "name": "Turgeon, Ian",
+    "scores": Object {
+      "1519272328": Object {
+        "complete": "1",
+        "date": "Thu Feb 22 2018",
+        "elapsed": "16m 39s",
+        "id": "one",
+        "percent": "99",
+      },
+    },
+    "uid": "2",
+  },
+  "5": Object {
+    "name": "Peterson, Corey",
+    "scores": Object {
+      "1519372329": Object {
+        "complete": "0",
+        "date": "Fri Feb 23 2018",
+        "elapsed": "12s",
+        "id": "two",
+        "percent": 0,
+      },
+    },
+    "uid": "5",
+  },
+}
+`;
+
+exports[`scoreTable Directive searchStudentActivity locates users 1`] = `
+Object {
+  "2": Object {
+    "name": "Turgeon, Ian",
+    "scores": Object {
+      "1519272328": Object {
+        "complete": "1",
+        "date": "Thu Feb 22 2018",
+        "elapsed": "16m 39s",
+        "id": "one",
+        "percent": "99",
+      },
+    },
+    "uid": "2",
+  },
+}
+`;
+
+exports[`scoreTable Directive searchStudentActivity locates users 2`] = `
+Object {
+  "5": Object {
+    "name": "Peterson, Corey",
+    "scores": Object {
+      "1519372329": Object {
+        "complete": "0",
+        "date": "Fri Feb 23 2018",
+        "elapsed": "12s",
+        "id": "two",
+        "percent": 0,
+      },
+    },
+    "uid": "5",
+  },
+}
+`;
+
+exports[`scoreTable Directive searchStudentActivity locates users 3`] = `
+Object {
+  "2": Object {
+    "name": "Turgeon, Ian",
+    "scores": Object {
+      "1519272328": Object {
+        "complete": "1",
+        "date": "Thu Feb 22 2018",
+        "elapsed": "16m 39s",
+        "id": "one",
+        "percent": "99",
+      },
+    },
+    "uid": "2",
+  },
+  "5": Object {
+    "name": "Peterson, Corey",
+    "scores": Object {
+      "1519372329": Object {
+        "complete": "0",
+        "date": "Fri Feb 23 2018",
+        "elapsed": "12s",
+        "id": "two",
+        "percent": 0,
+      },
+    },
+    "uid": "5",
+  },
+}
+`;
+
+exports[`scoreTable Directive searchStudentActivity resets selecteUser 1`] = `
+Object {
+  "name": "Peterson, Corey",
+  "scores": Object {
+    "1519372329": Object {
+      "complete": "0",
+      "date": "Fri Feb 23 2018",
+      "elapsed": "12s",
+      "id": "two",
+      "percent": 0,
+    },
+  },
+  "uid": "5",
+}
+`;
+
+exports[`scoreTable Directive searchStudentActivity resets selecteUser 2`] = `
+Object {
+  "2": Object {
+    "name": "Turgeon, Ian",
+    "scores": Object {
+      "1519272328": Object {
+        "complete": "1",
+        "date": "Thu Feb 22 2018",
+        "elapsed": "16m 39s",
+        "id": "one",
+        "percent": "99",
+      },
+    },
+    "uid": "2",
+  },
+}
+`;
+
+exports[`scoreTable Directive setSelectedUser sets selectedUser object as expected 1`] = `
+Object {
+  "name": "Peterson, Corey",
+  "scores": Object {
+    "1519372329": Object {
+      "complete": "0",
+      "date": "Fri Feb 23 2018",
+      "elapsed": "12s",
+      "id": "two",
+      "percent": 0,
+    },
+  },
+  "uid": "5",
+}
+`;

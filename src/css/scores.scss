@@ -1,0 +1,565 @@
+$table-background-color: #929aa4;
+$table-border-color: lighten($table-background-color, 15%);
+$attention-color: #f8f0be;
+$header-color: #454545;
+$full-value-color: #d7e3d6;
+$partial-value-color: #e2dee1;
+$preview-purple: #b944cc;
+
+body.scores {
+	.container {
+		width: 800px;
+		margin: 0 auto;
+
+		background-color: $table-background-color;
+		background-image: linear-gradient(
+			$table-background-color 0%,
+			darken($table-background-color, 10%) 20%
+		);
+		box-shadow: 0px 0px 34px 1px #999;
+
+		margin-top: 55px;
+		margin-bottom: 25px;
+		text-align: center;
+
+		opacity: 0;
+		transition: all 0.5s ease;
+	}
+
+	.overview {
+		background-color: lighten($table-background-color, 10%);
+		border-radius: 0 0 6px 6px;
+		width: 550px;
+		margin: 0 auto;
+		box-shadow: 0px 3px 5px 0px #333;
+		overflow: auto;
+
+		#overview-incomplete {
+			background-color: lighten($table-background-color, 10%);
+			padding: 10px;
+			display: block;
+			margin: 0;
+			color: #fff;
+			position: relative;
+			box-shadow: 0 1px 3px 0 #777;
+
+			h2 {
+				font-size: 24px;
+				font-weight: bold;
+				margin: 0;
+			}
+
+			hr {
+				width: auto;
+				margin: 5px;
+				padding: 0;
+			}
+
+			p {
+				font-size: 14px;
+				margin: 5px 0 0 0;
+			}
+		}
+
+		#overview-score {
+			display: inline-block;
+			padding: 10px 10px 0 10px;
+			box-sizing: border-box;
+			text-align: center;
+			width: 200px;
+		}
+
+		#overview-score h1 {
+			color: darken($table-background-color, 50%);
+			margin: 0;
+			font-size: 14px;
+			margin-bottom: 10px;
+			text-transform: uppercase;
+		}
+
+		#overview-score h1 span.attempt-num {
+			font-size: 23px;
+		}
+
+		#overview-score .overall_score {
+			border-radius: 6px;
+			background-color: lighten($table-background-color, 20%);
+			padding: 10px;
+			color: darken($table-background-color, 20%);
+			display: inline-block;
+			margin: 0;
+			font-size: 64px;
+		}
+
+		#overview-score span.percent {
+			position: relative;
+			font-size: 30px;
+			display: inline-block;
+			bottom: 12px;
+		}
+
+		#overview-table {
+			min-height: 180px;
+			margin-right: 5px;
+			margin-bottom: 5px;
+			background-color: lighten($table-background-color, 30%);
+			float: right;
+			width: 330px;
+			padding-top: 5px;
+			border-bottom-right-radius: 5px;
+			border-right-radius: 5px;
+
+			table {
+				width: 80%;
+				height: 100%;
+				margin: 0 auto;
+				font-size: 14px;
+				color: #555;
+
+				tr td {
+					padding: 5px;
+				}
+
+				tr:last-child td {
+					color: black;
+					border-top: 1px solid #aaa;
+					color: #222;
+				}
+
+				td:last-child {
+					font-weight: bold;
+				}
+
+				.negative {
+					color: #b24a2d;
+				}
+
+				.positive {
+					color: green;
+				}
+
+				.number {
+					text-align: right;
+				}
+			}
+		}
+	}
+
+	article {
+		header {
+			height: auto;
+			min-height: 50px;
+			background: $header-color;
+			border-bottom: 4px #ccc solid;
+			box-shadow: 0px 1px 3px 0px #777;
+			z-index: 8;
+			position: relative;
+			padding: 0px 0px 15px;
+			margin: 0;
+
+			&.preview {
+				border-top: 4px $preview-purple solid;
+
+				&:before {
+					content: 'Previewing';
+					background: $preview-purple;
+
+					position: absolute;
+					left: 0;
+					top: -40px;
+					width: 160px;
+					height: 20px;
+					padding: 8px 0 12px 0;
+
+					font-family: 'Lato', 'Arial', sans-serif;
+					font-size: 20px;
+					font-weight: 900;
+					color: #ffffff;
+					text-align: center;
+					vertical-align: middle;
+
+					border-radius: 5px 5px 0 0;
+				}
+
+				&:after {
+					content: 'Scores and interactions will not be recorded while previewing.';
+					position: absolute;
+					right: 0;
+					top: -30px;
+
+					font-family: 'Lato', 'Arial', sans-serif;
+					font-size: 14px;
+					font-weight: 300;
+				}
+			}
+
+			.header-element {
+				display: inline-block;
+			}
+
+			.header-element.widget-title {
+				max-width: 500px;
+				padding-bottom: 5px;
+				padding-top: 16px;
+				overflow-wrap: break-word;
+				word-wrap: break-word; // have to include word-wrap since Edge/IE11 will not support overflow-wrap
+				margin-left: -10px;
+			}
+
+			nav.play-again {
+				margin: 12px;
+				padding: 0;
+				position: absolute;
+				top: 0px;
+				right: 0px;
+
+				h1 {
+					margin: 0;
+					padding: 0;
+
+					#play-again span {
+						font-size: 7.5pt;
+					}
+				}
+			}
+
+			nav.previous-attempts {
+				cursor: default;
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				margin: 0px;
+				text-align: left;
+				user-select: none;
+
+				h1 {
+					font-size: 12px;
+					color: #fff;
+					display: inline-block;
+					border-radius: 15px;
+					background: #222;
+					padding: 10px 18px;
+					margin: 14px 0 0 10px;
+				}
+
+				&.open {
+					h1 {
+						color: #222;
+						background: #fff;
+					}
+
+					ul {
+						display: block !important;
+						margin-top: 10px;
+					}
+				}
+
+				ul {
+					display: none;
+					background: #fff;
+					margin: 0;
+					z-index: 10;
+					position: relative;
+					margin-left: 6px;
+					border-radius: 15px;
+					box-shadow: 5px 5px 15px 1px #666;
+
+					.date {
+						color: #005391;
+						font-size: 13px;
+						display: block;
+						font-weight: normal;
+					}
+
+					.score {
+						color: #333;
+						font-weight: bold;
+						font-size: 20px;
+						padding-left: 10px;
+					}
+
+					li {
+						padding: 5px 15px;
+						list-style: none;
+						display: block;
+
+						&:hover {
+							background-color: #ddd;
+							border-radius: 15px;
+						}
+
+						a:hover {
+							text-decoration: none;
+						}
+					}
+				}
+			}
+
+			> h1 {
+				color: #fff;
+				margin: 0px;
+				padding-top: 8px;
+			}
+		}
+
+		&.container header > h1 {
+			font-size: 24px;
+		}
+	}
+
+	.special_details {
+		padding-bottom: 40px;
+		position: relative;
+	}
+
+	.details {
+		padding-bottom: 2em;
+		position: relative;
+
+		h1 {
+			color: #fff;
+			font-size: 17px;
+			text-transform: uppercase;
+			font-weight: bold;
+			margin: 23px 0px;
+		}
+
+		table {
+			padding: 0px;
+			width: 95%;
+			margin: 0 auto;
+			border-collapse: collapse;
+
+			tr {
+				background: lighten($table-background-color, 50%);
+				word-break: break-word;
+
+				td,
+				th {
+					padding: 18px 15px;
+				}
+
+				&.has_feedback {
+					td,
+					th {
+					}
+				}
+
+				&:not(.feedback) {
+					box-shadow: 0px 10px 0px 0px rgba(0, 0, 0, 0.1);
+
+					td,
+					th {
+						background: lighten($table-background-color, 33%);
+						border-right: solid 1px $table-border-color;
+						border-bottom: solid 1px $table-border-color;
+					}
+				}
+
+				tr:last-child td {
+					border-bottom: 0px;
+				}
+
+				th {
+					text-align: center;
+					text-transform: uppercase;
+					font-size: 14px;
+					color: darken($table-background-color, 30%);
+					font-weight: bold;
+					white-space: nowrap;
+					border-bottom: solid 2px $table-border-color !important;
+
+					&:first-child {
+						font-size: 0px;
+					}
+				}
+
+				.question-number {
+					height: 50px;
+					width: 50px;
+				}
+
+				td {
+					vertical-align: middle;
+					padding: 18px 24px;
+
+					&:first-child {
+						width: 50px;
+					}
+
+					&.index span {
+						margin: 0px auto;
+						font-size: 12px;
+						display: block;
+						text-align: center;
+					}
+
+					&.response {
+						white-space: pre-wrap;
+					}
+
+					&.question {
+						text-align: left;
+					}
+				}
+
+				&.no-value td.response,
+				&.partial-value td.response {
+					background-color: $partial-value-color;
+					font-weight: bold;
+				}
+
+				&.full-value td.response {
+					font-weight: bold;
+					background-color: $full-value-color;
+				}
+
+				&.ignored-value td {
+					background-color: lighten($table-background-color, 25%);
+				}
+
+				&.single_column {
+					background: transparent;
+
+					p {
+						padding: 18px 60px;
+						margin: 0;
+						text-align: center;
+						border-bottom-left-radius: 3px;
+						border-bottom-right-radius: 3px;
+						line-height: 1.25em;
+						background-color: lighten($table-background-color, 50%);
+						z-index: 5;
+						vertical-align: middle;
+					}
+
+					.index {
+						position: absolute;
+						z-index: 10;
+					}
+				}
+
+				&.feedback td {
+					padding-top: 0;
+					p {
+						background-color: $attention-color !important;
+						box-shadow: 0px 10px 0px 0px rgba(0, 0, 0, 0.1);
+					}
+				}
+			}
+		}
+	}
+
+	.graph {
+		background: lighten($table-background-color, 40%);
+		margin: 15px auto 0 auto;
+		padding: 20px 16px 0 16px;
+		width: 746px;
+		height: 320px;
+		box-shadow: inset 0px 1px 6px #333;
+
+		.jqplot-yaxis-label {
+			padding-left: 5px;
+		}
+	}
+
+	section.score-graph {
+		max-height: 0;
+		overflow: hidden;
+		transition: max-height 0.5s linear;
+
+		&.open {
+			max-height: 600px;
+		}
+	}
+
+	#class-rank-button {
+		font-size: 12px;
+		margin: 10px 0px 10px;
+		display: block;
+	}
+
+	.overview.preview #overview-score h1 {
+		margin-top: 10px;
+	}
+
+	.expired.container,
+	.score_restrict.container {
+		opacity: 1;
+		background: #fff;
+		box-shadow: none;
+		border: none;
+		outline: none;
+	}
+
+	.expired.container .page {
+		text-align: center !important;
+	}
+
+	.expired.container section,
+	.score_restrict.container section {
+		box-shadow: none;
+		border: none;
+		outline: none;
+	}
+
+	.container.show {
+		opacity: 1;
+	}
+
+	h1.scoreFontColor {
+		color: #fff;
+	}
+
+	.action_button.gray {
+		$color: #aeaeae;
+		$hover: #ffba5d;
+
+		background: $color;
+		background-image: linear-gradient(lighten($color, 20%), $color);
+		border-color: darken($color, 20%);
+		color: #545454;
+
+		&:hover {
+			background: $hover;
+			background-image: linear-gradient(lighten($hover, 20%), $hover);
+			border-color: darken($hover, 20%);
+		}
+	}
+}
+
+#popup.score_restrict {
+	text-align: center;
+	border-radius: 3px;
+	border: #f0f0f0 3px solid;
+	width: 300px;
+	height: 100px;
+
+	h2,
+	p {
+		font-family: Lato, arial, serif;
+		text-align: center;
+	}
+	h2 {
+		font-size: 24px;
+		font-weight: bold;
+		margin: 4px;
+	}
+	p {
+		font-weight: 500;
+	}
+}
+
+iframe#container {
+	min-height: 600px;
+	width: 100%;
+	border: none;
+
+	&.margin-above {
+		margin-top: 25px;
+	}
+
+	&.margin-below {
+		margin-bottom: 25px;
+	}
+}
