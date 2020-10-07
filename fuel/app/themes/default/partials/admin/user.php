@@ -240,6 +240,9 @@
 										<div>
 											<label>Completed:</label>{{ play.is_complete == "1" ? 'Yes' : 'No' }}
 										</div>
+										<div>
+											<label>Context:</label>{{play.auth == 'LTI' ? 'LTI' : 'Web' }}
+										</div>	
 										<hr ng-if="$index < instance.plays.length-1" />
 									</li>
 								</ul>
