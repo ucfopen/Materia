@@ -29,6 +29,7 @@ class Perm_Role
 	const NOAUTH = 'no_author';
 	const AUTHOR = 'basic_author';
 	const SU     = 'super_user';
+	const SUPPORT = 'support_user';
 
 	public $id;
 	public $name;
