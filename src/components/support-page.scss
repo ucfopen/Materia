@@ -109,9 +109,12 @@ h1 {
 				vertical-align: middle;
 			}
 
-			h1 {
+			input {
 				display: inline-block;
 				margin-left: 15px;
+				width: 500px;
+				height: 40px;
+				font-size: 1.35em;
 			}
 		}
 
@@ -142,7 +145,7 @@ h1 {
 
 			.radio {
 				display: inline-block;
-				width: 200px;
+				// width: 200px;
 				
 				input {
 					margin: 0px 5px;
@@ -155,6 +158,29 @@ h1 {
 				width: 500px;
 				font-size: 70%;
 				margin: 0px 0px;
+			}
+			
+			.right-justify {
+				margin-top: 20px;
+				display: flex;
+				justify-content: flex-end;
+
+				.apply-changes {
+					display: flex;
+					flex-direction: column;
+					justify-content: flex-end;
+					width: 220px;
+
+					.apply {
+						padding: 6px 10px 6px 10px;
+					}
+
+					.error-text {
+						height: 15px;
+						color: red;
+						font-size: 0.8em;
+					}
+				}
 			}
 		}
 		

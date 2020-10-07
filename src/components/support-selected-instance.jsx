@@ -5,6 +5,12 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 
 const deleteInstance = (instId) => fetch('/api/json/widget_instance_delete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
 const undeleteInstance = (instId) => fetch('/api/json/widget_instance_undelete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
+const updateInstance = (updated) => fetch('/api/json/widget_instance_update', fetchOptions({body: 'data=' + encodeURIComponent(`["${updated.id}", "${updated.name}", null, null, "${updated.open_at}", "${updated.close_at}", "${updated.attempts}", ${updated.guest_access}, ${updated.embedded_only}, null]`)}))
+
+const addZero = i => {
+	if(i<10) i = "0" + i
+	return i
+}
 
 const objToDateString = (time) => {
 	if(time < 0) return time
@@ -13,32 +19,37 @@ const objToDateString = (time) => {
 	return year + "-" + addZero(timeObj.getMonth() + 1) + "-" + addZero(timeObj.getDate())
 }
 
-const addZero = i => {
-	if(i<10) i = "0" + i
-	return i
-}
-
 const objToTimeString = (time) => {
 	if(time < 0) return time
 	const timeObj = new Date(time * 1000)
 	return addZero(timeObj.getHours()) + ":" + addZero(timeObj.getMinutes())
 }
 
+const stringToDateObj = (date, time) => {
+	return Date.parse(date + 'T' + time) / 1000
+}
+
 const stringToBoolean = s => {
 	return s == 'true'
 }
 
-
-
 const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
 	const [showCopy, setShowCopy] = useState(false)
+	const [availableDisabled, setAvailableDisabled] = useState(inst.open_at < 0)
+	const [availableDate, setAvailableDate] = useState(inst.open_at < 0 ? '' : objToDateString(inst.open_at))
+	const [availableTime, setAvailableTime] = useState(inst.open_at < 0 ? '' : objToTimeString(inst.open_at))
+	const [closeDisabled, setCloseDisabled] = useState(inst.close_at < 0)
+	const [closeDate, setCloseDate] = useState(inst.close_at < 0 ? '' : objToDateString(inst.close_at))
+	const [closeTime, setCloseTime] = useState(inst.close_at < 0 ? '' : objToTimeString(inst.close_at))
+	const [errorText, setErrorText] = useState('')
 
 	useEffect(() => {
-		console.log(updatedInst)
+		// console.log(updatedInst)
 	})
 
-	const handleChange = () => {
+	const handleChange = (attr, value) => {
+		setUpdatedInst({...updatedInst, [attr]: value })
 
 	}
 
@@ -74,6 +85,52 @@ const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 		})
 	}
 
+	const applyChanges = () => {
+		setErrorText('')
+		let u = updatedInst
+
+		// set date and time from input boxes
+		if(!availableDisabled) {
+			if(availableDate == '' || availableTime == '') {
+				setErrorText('Please enter valid dates and times')
+				return
+			}
+			else {
+				u.open_at = stringToDateObj(availableDate, availableTime)
+				setUpdatedInst({...updatedInst, 'open_at': stringToDateObj(availableDate, availableTime)})
+			}
+		}
+		if(!closeDisabled){
+			console.log(closeDate)
+			console.log(closeTime)
+			if(closeDate == '' || closeTime == '') {
+				setErrorText('Please enter valid dates and times')
+				return
+			}
+			else {
+				u.close_at = stringToDateObj(closeDate, closeTime)
+				setUpdatedInst({...updatedInst, 'close_at': stringToDateObj(closeDate, closeTime)})
+			}
+		}
+
+		//make sure title is not blank
+		if(u.name == '' || u.name == null){
+			setErrorText('Name cannot be blank')
+			return
+		}
+
+		updateInstance(u)
+		.then(resp => {
+			if(resp.status != 200){
+				setErrorText('Error: Update Unsuccessful')
+			}
+		})
+
+		// console.log(u.close_at)
+		// console.log(updatedInst.close_at)
+		
+	}
+
 
 	return (
 		<section className="page inst-info">
@@ -88,7 +145,7 @@ const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 			</div>
 			<div className="header">
 				<img src={iconUrl('http://localhost/widget/', updatedInst.widget.dir, 60)}/>
-				<h1>{updatedInst.name}</h1>
+				<input type="text" value={updatedInst.name} onChange={(event) => handleChange('name', event.target.value)}/>
 			</div>
 			<div className="inst-action-buttons">
 				<button 
@@ -126,21 +183,17 @@ const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 				</span>
 				<span>
 					<label>Guest Access:</label>
-					<select value={updatedInst.guest_access} onChange={(event) => {setUpdatedInst({...updatedInst, guest_access: stringToBoolean(event.target.value)})}}>
+					<select value={updatedInst.guest_access} onChange={(event) => handleChange('guest_access', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
 				</span>
 				<span>
-					<label>Student Access:</label>
-					<select value={updatedInst.student_access} onChange={(event) => {setUpdatedInst({...updatedInst, student_access: stringToBoolean(event.target.value)})}}>
-						<option value={false}>No</option>
-						<option value={true}>Yes</option>
-					</select>
+					<label>Student Access:</label>{updatedInst.student_access ? 'Yes' : 'No'}
 				</span>
 				<span>
 					<label>Embedded Only:</label>
-					<select value={updatedInst.embedded_only} onChange={handleChange}>
+					<select value={updatedInst.embedded_only} onChange={(event) => handleChange('embedded_only', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
@@ -153,7 +206,7 @@ const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 				</span>
 				<span>
 					<label>Attempts Allowed:</label>
-					<select value={updatedInst.attempts} onChange={handleChange}>
+					<select value={updatedInst.attempts} onChange={(event) => handleChange('attempts', event.target.value)}>
 						<option value={-1}>Unlimited</option>
 						<option value={1}>1</option>
 						<option value={2}>2</option>
@@ -168,24 +221,26 @@ const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 				<span>
 					<label>Available:</label>
 					<div className="radio">
-						<input type="radio" name="available" value="" checked={updatedInst.open_at > 0} onChange={handleChange}/>
+						<input type="radio" name="available" value={updatedInst.open_at} checked={availableDisabled == false} onChange={() => setAvailableDisabled(false)}/>
 						On
-						<input type="date" value={objToDateString(updatedInst.open_at)} onChange={handleChange}/>
+						<input type="date" value={availableDate != -1 ? availableDate : ''} onChange={(event) => setAvailableDate(event.target.value)} disabled={availableDisabled}/>
+						<input type="time" value={availableTime != -1 ? availableTime : ''} onChange={(event) => setAvailableTime(event.target.value)} disabled={availableDisabled}/>
 					</div>
 					<div className="radio">
-						<input type="radio" name="available" value={-1} checked={updatedInst.open_at < 0} onChange={handleChange}/>
+						<input type="radio" name="available" value={-1} checked={availableDisabled} onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}/>
 						Now 
 					</div>
 				</span>
 				<span>
 					<label>Closes:</label>
 					<div className="radio">
-						<input type="radio" name="closes" value="" checked={updatedInst.close_at > 0}/>
+						<input type="radio" name="closes" value={updatedInst.close_at} checked={closeDisabled == false} onChange={() => setCloseDisabled(false)}/>
 						On
-						<input type="date" />
+						<input type="date" value={closeDate != -1 ? closeDate : ''} onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}/>
+						<input type="time" value={closeTime != -1 ? closeTime : ''} onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}/>
 					</div>
 					<div className="radio">
-						<input type="radio" name="closes" value={-1} checked={updatedInst.close_at < 0}/>
+						<input type="radio" name="closes" value={-1} checked={closeDisabled} onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}/>
 						Never
 					</div>
 				</span>
@@ -201,6 +256,18 @@ const SupportSelectedInstance = ({inst, onReturn, onCopy}) => {
 					<label>Preview URL:</label>
 					<a className="url" href={updatedInst.preview_url}>{updatedInst.preview_url}</a>
 				</span>
+				<div className='right-justify'>
+					<div className="apply-changes">
+						<button 
+						className="action_button apply"
+						onClick={() => applyChanges()}
+						>
+							<span>Apply Changes</span>
+						</button>
+						<span className="error-text">{errorText}</span>
+					</div>
+				</div>
+				
 			</div>
 			{showCopy 
 				? <MyWidgetsCopyDialog onClose={() => setShowCopy(false)} onCopy={makeCopy}/>
