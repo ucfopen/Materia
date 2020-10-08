@@ -15,14 +15,14 @@ return [
 
 	'groups' => [
 		'admin' => [$webpack.'css/admin.css'],
-		'support' => [$webpack.'css/support.css'],
+		'support' => [$webpack.'js/support.css'],
 		'catalog' => [$webpack.'css/widget-catalog.css'],
 		'widget_play' => [
 			$webpack.'css/widget-play.css',
 			$vendor.'ng-modal.css'
 		],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
-		'mywidgets'  => [$webpack.'css/my-widgets.css'],
+		'mywidgets'  => [$webpack.'js/my-widgets.css'],
 		'my_widgets' => [
 			$webpack.'css/my-widgets.css',
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',

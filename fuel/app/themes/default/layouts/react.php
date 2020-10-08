@@ -10,6 +10,7 @@
 	</head>
 	<body>
 		<div id="app"></div>
+		<div id="modal"></div>
 		<?= Js::render() ?>
 	</body>
 </html>
