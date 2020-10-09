@@ -1,4 +1,4 @@
-<div class="container" ng-controller="settingsController">
+<div class="container" ng-controller="UserSettingsController">
 	<section class="page">
 
 		<ul class="main_navigation">
@@ -37,6 +37,13 @@
 					<label for="avatar_default">None</label>
 				</li>
 			</ul>
+
+			<div ng-if="beardMode === 'true'">
+				<h3>Beard Mode</h3>
+				<button
+					class="action_button no_top_margin"
+					ng-click="disableBeardMode()">Disable Beard Mode</button>
+			</div>
 
 			<p>
 				<button type="submit" class="action_button" ng-disabled="!settingsForm.$dirty">Save</button>

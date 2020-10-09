@@ -106,6 +106,7 @@ class LtiEvents
 
 		$launch = static::session_get_launch($play_id);
 		$secret   = \Config::get("lti::lti.consumers.{$launch->consumer}.secret", false);
+		$key      = \Config::get("lti::lti.consumers.{$launch->consumer}.key", false);
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
@@ -121,7 +122,7 @@ class LtiEvents
 		];
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
-		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret);
+		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 
@@ -144,10 +145,12 @@ class LtiEvents
 
 	/**
 	 * FUEL EVENT fired by a widget instance when db_remove is called.
-	 * @param $inst_id The ID of the deleted instance
+	 * @param array $event_args containing inst_id and deleted_by_id keys.
 	 */
-	public static function on_widget_instance_delete_event($inst_id)
+	public static function on_widget_instance_delete_event($event_args)
 	{
+		$inst_id = $event_args['inst_id'];
+
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();
 
 		if (count($lti_data) > 0)

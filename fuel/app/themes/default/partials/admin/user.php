@@ -1,4 +1,4 @@
-<div ng-controller="adminUserController">
+<div ng-controller="AdminUserController">
 	<div class="container">
 		<section class="page" ng-show="selectedUser == null">
 			<div class="top">

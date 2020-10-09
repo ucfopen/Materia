@@ -9,6 +9,7 @@
 build
 .idea
 nbproject/
+*.pem
 
 # hidden files created by Windows
 Thumbs.db

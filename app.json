@@ -1,6 +1,6 @@
 {
   "name": "Materia",
-  "description": "Materia webserver",
+  "description": "Run Materia on Heroku",
   "keywords": [
     "education",
     "edtech",

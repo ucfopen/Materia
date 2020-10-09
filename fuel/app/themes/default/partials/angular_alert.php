@@ -1,4 +1,4 @@
-<div ng-controller="alertCtrl">
+<div ng-controller="AlertCtrl">
 	<modal-dialog show="alert.msg"
 		class="alert"
 		ng-class="{ fatal: alert.fatal }"

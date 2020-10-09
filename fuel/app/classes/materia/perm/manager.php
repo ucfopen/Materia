@@ -9,6 +9,9 @@ class Perm_Manager
 	 * Create a new Role
 	 *
 	 * @param string $role_name role name with no spaces, snake case w/ underscores
+	 *
+	 * @return boolean whether or not a new role was created, or false if the role
+	 * does not exist or the current user is not a super user
 	 */
 	static public function create_role($role_name = '')
 	{
@@ -25,9 +28,9 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Checks if the currently logged in user is a super user
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
+	 * @return boolean whether or not the current user has the super user role as defined by the Perm_Role class
 	 */
 	static public function is_super_user()
 	{
@@ -53,8 +56,6 @@ class Perm_Manager
 	 * @param int	Optional user_id, defaults to the current session uid
 	 *
 	 * @return bool	True if user has any of the passed roles, false if no roles match
-	 *
-	 * @author Ian Turgeon
 	 **/
 	static public function does_user_have_role(Array $roles, $user_id = null)
 	{
@@ -83,11 +84,38 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Return a list of users who have the given role.
 	 *
-	 * @var string NEEDS DOCUMENTATION
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
+	 * @return array list of user ids with role $role_name
+	 */
+	static public function get_user_ids_with_role($role_name = '')
+	{
+		if (empty($role_name) || ! is_string($role_name) || ! self::role_exists($role_name)) return [];
+
+		$role_id = self::get_role_id($role_name);
+
+		$result = \DB::select('user_id')
+			->from('perm_role_to_user')
+			->where('role_id', $role_id)
+			->execute();
+
+		$user_ids = [];
+		foreach ($result as $row)
+		{
+			$user_ids[] = $row['user_id'];
+		}
+
+		return $user_ids;
+	}
+
+	/**
+	 * Check to see if a role with the given name already exists
+	 *
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
+	 *
+	 * @return boolean whether or not the given role name is already present in the database
 	 */
 	static private function role_exists($role_name = '')
 	{
@@ -103,11 +131,12 @@ class Perm_Manager
 
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Get the id of a role with the given name
 	 *
-	 * @var string NEEDS DOCUMENTATION
+	 * @param string $role_name role name with no spaces, snake case w/ underscores
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
+	 * @return boolean false if no role with the given name exists in the database
+	 * @return integer the id in the database of the role with the given name
 	 */
 	static public function get_role_id($role_name = '')
 	{
@@ -130,14 +159,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Adds the given roles to the given users - only works if current user is super user
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should be granted the given roles
+	 * @param array $roles list of role names which should be granted to the given users
 	 *
-	 * @return NEEDS DOCUMENTATION
-	 *
-	 * @author Zachary Berry
+	 * @return boolean false if the current user is not a super user, or true if all given
+	 * users were successfully granted all given roles
 	 */
 	static public function add_users_to_roles(Array $users = [], Array $roles = [])
 	{
@@ -146,14 +174,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * This function is only for the system to call, it ignores administrator rights
+	 * Adds the given roles to the given users - bypasses super user check, for system use only
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should be granted the given roles
+	 * @param array $roles list of role names which should be granted to the given users
 	 *
-	 * @return NEEDS DOCUMENTATION
-	 *
-	 * @author Zachary Berry
+	 * @return boolean false if either given array is empty, or true if all given
+	 * users were successfully granted all given roles
 	 */
 	static public function add_users_to_roles_system_only(Array $user_ids = [], Array $role_names = [])
 	{
@@ -195,11 +222,10 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Returns all roles
 	 *
-	 * @return unknown NEEDS DOCUMENTATION
-	 *
-	 * @todo FIX RETURN FOR DB ABSTRACTION
+	 * @return boolean false if the current user is not a super user, or if there are no roles
+	 * @return array all roles currently in the database as objects with properties 'role_id' and 'name'
 	 */
 	static public function get_all_roles()
 	{
@@ -217,26 +243,31 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENATION
+	 * Returns a list of all roles a given user has
 	 *
-	 * @param int NEEDS DOCUMENTATION
+	 * @param int $user_id id of the user to find roles for
 	 *
-	 * @todo FIX RETURN FOR DB ABSTRACTION
+	 * @return boolean false if the current user is not a super user and is trying to find
+	 * somebody else's roles, or if the given user id is 0 or a negative number
+	 * @return array an empty array if the given user does not exist, otherwise an array containing
+	 * all roles assigned to the given user as objects with properties 'role_id' and 'name'
 	 */
 	static public function get_user_roles($user_id = 0)
 	{
 		$q = \DB::select('r.role_id', 'r.name')
 			->from(['user_role', 'r'])
 			->join(['perm_role_to_user', 'm'])
-				->on('r.id', '=', 'm.role_id')
+				->on('r.role_id', '=', 'm.role_id')
 			->as_object();
 
+		$current_id = \Model_User::find_current_id();
+
 		// return logged in user's roles if id is 0 or less, non su users can only use this method
-		if ($user_id <= 0 || $user_id == \Model_User::find_current_id())
+		if ($user_id <= 0 || $user_id == $current_id)
 		{
 			$roles = [];
 
-			$results = $q->where('m.user_id', \Model_User::find_current_id())
+			$results = $q->where('m.user_id', $current_id)
 				->execute();
 
 			if ($results->count() > 0)
@@ -265,7 +296,7 @@ class Perm_Manager
 			}
 			else
 			{
-				trace(' not super user.', true);
+				\Log::warning("non-super user {$current_id} attempting role lookup for user {$user_id}");
 				return false;
 			}
 		}
@@ -273,12 +304,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Removes the given roles from the given users - only works if current user is super user
 	 *
-	 * @param array NEEDS DOCUMENTATION
-	 * @param array NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should have the given roles removed
+	 * @param array $roles list of role names which should be removed from the given users
 	 *
-	 * @return bool NEEDS DOCUMENTATION
+	 * @return boolean false if the current user is not a super user, or true if all given
+	 * roles were successfully removd from all given roles
 	 */
 	static public function remove_users_from_roles(Array $users = [], Array $roles = [])
 	{
@@ -288,12 +320,13 @@ class Perm_Manager
 	}
 
 	/**
-	 * This function is only for the system to call, it ignores administrator rights
+	 * Removes the given roles from the given users - bypasses super user check, for system use only
 	 *
-	 * @param array NEEDS DOCUMENTATION
-	 * @param array NEEDS DOCUMENTATION
+	 * @param array $users list of user ids which should have the given roles removed
+	 * @param array $roles list of role names which should be removed from the given users
 	 *
-	 * @return bool NEEDS DOCUMENTATION
+	 * @return boolean false if either given array is empty, or true if all given
+	 * roles were successfully removd from all given roles
 	 */
 	static public function remove_users_from_roles_system_only(Array $user_ids = [], Array $role_names = [])
 	{
@@ -320,12 +353,14 @@ class Perm_Manager
 	 */
 
 	/**
-	* Get a User's specific permissions to an object
-	*
-	* @param unknown NEEDS DOCUMENTATION
-	* @param unknown NEEDS DOCUMENTATION
-	* @param unknown NEEDS DOCUMENTATION
-	*/
+	 * Get a User's specific permissions to an object
+	 *
+	 * @param string $object_id id of object
+	 * @param int $object_type type of object
+	 * @param int $user_id id of user with perms to object
+	 *
+	 * @return array array of perms given user has to given object of given type
+	 */
 	static public function get_user_object_perms($object_id, $object_type, $user_id)
 	{
 		$results = \DB::select('perm')
@@ -337,7 +372,7 @@ class Perm_Manager
 		return self::make_perms_from_query($results);
 	}
 
-	// rigts from user user to object
+	// rights from user to object
 	/**
 	 * Sets user permissions for a given object
 	 *
@@ -424,9 +459,9 @@ class Perm_Manager
 	/**
 	 * Clear a user's permissions to an object
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param string $object_id id of object
+	 * @param int $object_type type of object
+	 * @param int $user_id id of user with perms to object
 	 */
 	static public function clear_user_object_perms($object_id, $object_type, $user_id)
 	{
@@ -444,7 +479,9 @@ class Perm_Manager
 	/**
 	 * Converts query return to a keyed array
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param array $results array of records returned by query in get_user_object_perms
+	 *
+	 * @return array formatted array of permissions
 	 */
 	static private function make_perms_from_query($results)
 	{
@@ -462,7 +499,7 @@ class Perm_Manager
 	/**
 	 * Gets the role permissions based on a user's user_id, returns array with the key's as the permission values
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param int $user_id id of user to check role permissions for
 	 */
 	static public function get_user_role_perms($user_id)
 	{
@@ -484,8 +521,8 @@ class Perm_Manager
 	/**
 	 * Removes all permissions for an object, used when deleting an object
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * @param int User ID the get permissions for
+	 * @param int Object type as defined in Perm constants
 	 */
 	static public function clear_all_perms_for_object($object_id, $object_type)
 	{
@@ -576,38 +613,70 @@ class Perm_Manager
 	}
 
 	/**
-	 * NEEDS DOCUMENTATION
+	 * Returns all the user permissions an object has to it, for all users.
+	 * If the current user is a super user, they will automatically have superuser perms to each object.
+	 * Permissions are checked for expiration, if expired, they are removed and the user losing access is notified
+	 * Returns an object like:
+	 * [
+	 *   'user_perms' => [
+	 *       1  => [perm, null]
+	 *   ],
+	 *   'widget_user_perms' => [
+	 *       1  => [perm, null],
+	 *       54 => [perm, expire_timestamp]
+	 *   ]
+	 * ]
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
+	 * where I'm user 1, user_perms show me my access with super user taken into account
+	 * and widget_user_perms is everyone's access, ignoring super user
+	 *
+	 * @param string object_id id of the object
+	 * @param int object_type
 	 * @return array
 	 */
-	static public function get_all_users_explicit_perms($object_id, $object_type)
+	static public function get_all_users_explicit_perms(string $object_id, int $object_type): array
 	{
 		$current_user_id = \Model_User::find_current_id();
+
 		// make sure the current user has rights to this item
 		if ( ! self::user_has_any_perm_to($current_user_id, $object_id, $object_type, [Perm::FULL, Perm::VISIBLE]))
 		{
-			return [];
+			return ['user_perms' => [], 'widget_user_perms' => []];
 		}
 
-		$perms = [
-			'user_perms' => [],
-			'widget_user_perms' => []
+		$all_perms = self::get_all_users_with_perms_to($object_id, $object_type);
+
+		// if the current user is a super user, append their user's perms into the results
+		// super users don't get explicit perms to things set in the db, so we'll fake it here
+		$cur_user_perms = self::is_super_user() ? [Perm::SUPERUSER, null] : $all_perms[$current_user_id];
+
+		return [
+			'user_perms' => [$current_user_id => $cur_user_perms],
+			'widget_user_perms' => $all_perms
 		];
+	}
 
-		$cur_time = time();
+	/**
+	 * Get all users that have a permission to an object
+	 * Permissions are checked for expiration, if expired, they are removed and the user losing access is notified
+	 *
+	 * @param string $object_id
+	 * @param int $object_type
+	 * @return array Array of permission pairs, keyed by user id
+	 */
+	static public function get_all_users_with_perms_to(string $object_id, int $object_type): array
+	{
+		// clear out expired permissions
+		self::check_and_expire_user_object_perms();
 
+		// load all object to  user perms to this object
 		$results = \DB::select()
 			->from('perm_object_to_user')
 			->where('object_id', $object_id)
 			->where('object_type', $object_type)
 			->execute();
 
-		if (self::is_super_user())
-		{
-			$perms['user_perms'][$current_user_id] = [Perm::SUPERUSER, null];
-		}
+		$perms = [];
 
 		foreach ($results as $result)
 		{
@@ -615,58 +684,49 @@ class Perm_Manager
 			$perm     = $result['perm'];
 			$exp_time = $result['expires_at'];
 
-			//if this permission hasn't exceeded expiration date or doesn't have one at all
-			if ($exp_time == null || $cur_time < $exp_time)
-			{
-				if ($user_id == $current_user_id && empty($perms['user_perms']))
-				{
-					$perms['user_perms'][$user_id] = [$perm, $exp_time];
-				}
-				$perms['widget_user_perms'][$user_id] = [$perm, $exp_time];
-			}
-			else //this permission has expired, notify the user and remove the permission
-			{
-				\Model_Notification::send_item_notification(
-					\Model_User::find_current_id(),
-					$user_id,
-					$object_type,
-					$object_id,
-					'expired',
-					$perm);
-
-				self::clear_user_object_perms($object_id, $object_type, $user_id);
-			}
+			$perms[$user_id] = [$perm, $exp_time];
 		}
+
 		return $perms;
 	}
 
 	/**
-	 * Removes any permissions set for a specific object
+	 * Clears out all expired object permissions, sending notification to the person who's losing perms
 	 *
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @param unknown NEEDS DOCUMENTATION
-	 * @return bool, true if removed object permissions, false if current user does not have owner premissions
+	 * @return void
 	 */
-	static public function remove_all_permissions($object_id, $object_type)
+	static protected function check_and_expire_user_object_perms()
 	{
-		// make sure the current user has rights to this item
-		// NOTE: might want to fix stuff to re-enable this
-		// there was a bug upon copying a game when the permissions to the copy wer being re-set
-		$current_user_id = (int)\Model_User::find_current_id();
+		$now = time();
 
-		if ( ! self::get_user_object_perms($object_id, $object_type, $current_user_id)) return false;
+		// load all expired items
+		$results = \DB::select()
+			->from('perm_object_to_user')
+			->where('expires_at', '<=', $now)
+			->execute();
 
-		\Event::trigger('delete_widget_event', ['user_id' => $current_user_id, 'object_id' => $object_id, 'object_type' => $object_type]);
+		foreach ($results as $r)
+		{
+			\Model_Notification::send_item_notification(
+				0, // 'from' user is Materia
+				$r['user_id'],
+				$r['object_type'],
+				$r['object_id'],
+				'expired',
+				$r['perm']
+			);
+		}
 
-		self::clear_all_perms_for_object($object_id, $object_type);
-
-		return true;
+		// delete all expired items
+		\DB::delete('perm_object_to_user')
+			->where('expires_at', '<=', $now)
+			->execute();
 	}
 
 	/**
 	 * Check if user has ANY of the perms
 	 */
-	static public function user_has_any_perm_to($user_id, $object_id, $object_type, $search_perms)
+	static public function user_has_any_perm_to($user_id, $object_id, int $object_type, $search_perms)
 	{
 		if (empty($search_perms)) return false;
 
@@ -683,9 +743,9 @@ class Perm_Manager
 	}
 
 	/**
-	 * Check if user has ANY of the perms
+	 * Check if user has ALL of the permissions passed in search_perms
 	 */
-	static public function user_has_all_perms_to($user_id, $object_id, $object_type, $search_perms)
+	static public function user_has_all_perms_to(int $user_id, $object_id, string $object_type, array $search_perms): bool
 	{
 		if (empty($search_perms)) return false;
 

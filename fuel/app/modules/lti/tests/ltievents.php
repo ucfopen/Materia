@@ -235,7 +235,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$this->assertEquals(1, count($lti_data));
 
 		// Trigger the event
-		\Lti\LtiEvents::on_widget_instance_delete_event($inst_id);
+		\Lti\LtiEvents::on_widget_instance_delete_event(['inst_id' => $inst_id]);
 
 		// The lti association should be gone
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();

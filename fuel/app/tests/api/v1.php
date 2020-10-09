@@ -101,13 +101,13 @@ class Test_Api_V1 extends \Basetest
 	{
 		// ======= AS NO ONE ========
 		$output = Api_V1::widget_instances_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertCount(0, $output);
 
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::widget_instances_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertFalse(array_key_exists('msg', $output));
 		foreach ($output as $key => $value)
 		{
@@ -117,7 +117,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instances_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertFalse(array_key_exists('msg', $output));
 		foreach ($output as $key => $value)
 		{
@@ -127,7 +127,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= SU ========
 		$this->_as_super_user();
 		$output = Api_V1::widget_instances_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertFalse(array_key_exists('msg', $output));
 		foreach ($output as $key => $value)
 		{
@@ -145,6 +145,11 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		$output = Api_V1::widget_instance_new();
 		$this->assert_invalid_login_message($output);
+
+		// // ==== AS NO-AUTHOR =====
+		$this->_as_noauth();
+		$output = Api_V1::widget_instance_new();
+		$this->assert_validation_error_message($output);
 
 		// // ======= STUDENT ========
 		$this->_as_student();
@@ -206,6 +211,11 @@ class Test_Api_V1 extends \Basetest
 	{
 		// only here to appease the api coverage
 		self::assertTrue(true);
+
+		// // ==== AS NO-AUTHOR =====
+		$this->_as_noauth();
+		$output = Api_V1::widget_instance_new();
+		$this->assert_validation_error_message($output);
 	}
 
 	public function test_widget_instance_update_requires_login()
@@ -899,7 +909,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::play_activity_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertArrayHasKey('activity', $output);
 		$this->assertArrayHasKey('more', $output);
 		// ======= AUTHOR ========
@@ -1019,7 +1029,7 @@ class Test_Api_V1 extends \Basetest
 
 		// SAME INSTANCE - DISTRIBUTION, NO PLAYS
 		$output = Api_V1::score_raw_distribution_get($instance2->id);
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertEquals(count($output), 0);
 
 		// SAME INSTANCE - DISTRIBUTION, FIVE PLAYS
@@ -1029,7 +1039,7 @@ class Test_Api_V1 extends \Basetest
 			$this->mock_play_complete($play);
 		}
 		$output = Api_V1::score_raw_distribution_get($instance2->id);
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertEquals(count($output), 5);
 
 		\Session::delete_flash('alternate_test_widget');
@@ -1068,20 +1078,20 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_student();
 		$output = Api_V1::questions_get();
 		$this->assert_not_message($output);
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::questions_get();
 		$this->assert_not_message($output);
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 
 
 		// ======= SU ========
 		$this->_as_super_user();
 		$output = Api_V1::questions_get();
 		$this->assert_not_message($output);
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertCount(0, $output);
 	}
 
@@ -1348,26 +1358,26 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::notifications_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::notifications_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		// Assert author received a notification from author2 about widget2
 		$this->assert_notification_exists($output, $author2->id, $author->id, $widget2->id);
 
 		// ======= AUTHOR2 ========
 		$this->_as_author_2();
 		$output = Api_V1::notifications_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		// Assert author2 received a notification from author about widget
 		$this->assert_notification_exists($output, $author->id, $author2->id, $widget->id);
 
 		// ======= SU ========
 		$this->_as_super_user();
 		$output = Api_V1::notifications_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 	}
 
 	public function test_notification_delete(){
@@ -1386,7 +1396,7 @@ class Test_Api_V1 extends \Basetest
 
 		$author = $this->_as_author();
 		$notifications = Api_V1::notifications_get();
-		$this->assertInternalType('array', $notifications);
+		$this->assertIsArray($notifications);
 		$start_count = count($notifications);
 
 		// ======= Create a widget and share it with author1
@@ -1424,7 +1434,7 @@ class Test_Api_V1 extends \Basetest
 	public function test_semester_get()
 	{
 		$output = Api_V1::semester_get();
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 	}
 
 	public function test_users_search()
@@ -1455,7 +1465,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_student();
 
 		$output = Api_V1::users_search('droptables');
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertCount(2, $output);
 		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output));
@@ -1471,7 +1481,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_author();
 
 		$output = Api_V1::users_search('droptables');
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertCount(2, $output);
 		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output));
@@ -1487,7 +1497,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_super_user();
 
 		$output = Api_V1::users_search('droptables');
-		$this->assertInternalType('array', $output);
+		$this->assertIsArray($output);
 		$this->assertCount(2, $output);
 		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output[0]));
@@ -1534,5 +1544,11 @@ class Test_Api_V1 extends \Basetest
 	{
 		$this->assertInstanceOf('\Materia\Msg', $msg);
 		$this->assertEquals('Permission Denied', $msg->title);
+	}
+
+	protected function assert_validation_error_message($msg)
+	{
+		$this->assertInstanceOf('\Materia\Msg', $msg);
+		$this->assertEquals('Validation Error', $msg->title);
 	}
 }

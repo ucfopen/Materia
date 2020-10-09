@@ -69,7 +69,7 @@ class Controller_Lti extends \Controller
 	 * Instructor LTI view for choosing a widget
 	 *
 	 */
-	public function action_picker($authenticate = true)
+	public function action_picker(bool $authenticate = true)
 	{
 		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
@@ -77,8 +77,8 @@ class Controller_Lti extends \Controller
 		if ($authenticate && ! LtiUserManager::authenticate($launch)) return \Response::redirect('/lti/error/unknown_user');
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
-		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
-		$return_url       = \Input::post('launch_presentation_return_url');
+		$is_selector_mode = \Input::post('selection_directive') === 'select_link' || \Input::post('lti_message_type') === 'ContentItemSelectionRequest';
+		$return_url       = \Input::post('launch_presentation_return_url') ?? \Input::post('content_item_return_url');
 
 		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 

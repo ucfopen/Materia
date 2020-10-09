@@ -1,4 +1,4 @@
-<section class="page spotlight" ng-controller="spotlightCtrl">
+<section class="page spotlight" ng-controller="HomePageSpotlightCtrl">
 	<section class="main_container">
 		<span class="spotlight-wrapper">
 			<?= $spotlight ?>

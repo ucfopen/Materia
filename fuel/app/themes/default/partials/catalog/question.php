@@ -1,4 +1,4 @@
-<div style="width:100%" ng-controller="questionImporterCtrl">
+<div style="width:100%" ng-controller="QuestionImporterCtrl">
 	<form id="import-form">
 		<h1>Question Catalog</h1>
 		<table id="question-table" width="100%">

@@ -28,7 +28,7 @@ class Basetest extends TestCase
 
 	// Runs before every single test
 	// @codingStandardsIgnoreLine
-	protected function setUp()
+	protected function setUp(): void
 	{
 		Config::set('errors.throttle', 5000);
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
@@ -36,7 +36,7 @@ class Basetest extends TestCase
 	}
 
 	// @codingStandardsIgnoreLine
-	protected function tearDown()
+	protected function tearDown(): void
 	{
 		\Auth::logout();
 		if (is_array($this->users_to_clean))
@@ -154,6 +154,11 @@ class Basetest extends TestCase
 	protected function make_random_super_user($password = null)
 	{
 		return $this->make_random_student($password, ['super_user']);
+	}
+
+	protected function make_random_noauth($password = null)
+	{
+		return $this->make_random_student($password, ['no_author']);
 	}
 
 	protected function make_random_author($password = null)
@@ -289,9 +294,31 @@ class Basetest extends TestCase
 		return $user;
 	}
 
+	protected function _as_noauth()
+	{
+		\Auth::logout();
+		$uname = '~testNoAuth';
+		$pword = 'interstellar555!';
+
+		$user = \Model_User::find_by_username($uname);
+		if ( ! $user instanceof \Model_User)
+		{
+			require_once(APPPATH.'/tasks/admin.php');
+			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'noauth', 'testNoAuth@ucf.edu', $pword);
+			// TODO: super_user should get all these rights inherently right??????!!!!
+			\Fuel\Tasks\Admin::give_user_role($uname, 'no_author');
+			$user = \Model_User::find_by_username($uname);
+		}
+
+		$login = \Service_User::login($uname, $pword);
+		$this->assertTrue($login);
+		$this->users_to_clean[] = $user;
+		return $user;
+	}
+
 	protected function assert_is_user_array($user)
 	{
-		$this->assertInternalType('array', $user);
+		$this->assertIsArray($user);
 		$this->assertArrayHasKey('id', $user);
 		$this->assertArrayHasKey('username', $user);
 		$this->assertArrayHasKey('first', $user);
@@ -339,7 +366,7 @@ class Basetest extends TestCase
 
 	protected function assert_is_qset($qset)
 	{
-		$this->assertInternalType('object', $qset);
+		$this->assertIsObject($qset);
 		$this->assertObjectHasAttribute('data', $qset);
 		$this->assertObjectHasAttribute('version', $qset);
 		$this->assertArrayHasKey('id', $qset->data);

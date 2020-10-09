@@ -57,9 +57,72 @@ class Test_Widget_Instance extends \Basetest
 		// get the original demo widget and duplicate it to test setting a new demo
 		$inst = new \Materia\Widget_Instance();
 		$inst->db_get($widget->meta_data['demo'], false);
-		$duplicate = $inst->duplicate();
+		$user_id = 1;
+		$duplicate = $inst->duplicate($user_id);
 
 		// make sure the new instance is different from the current demo
 		$this->assertNotEquals($inst_id, $duplicate->id);
 	}
+
+	public function test_duplicate_existing_perms_copy()
+	{
+		// have to be logged in as author for perms checks to pass
+		$me = $this->_as_author();
+
+		$widget = $this->make_disposable_widget();
+
+		$inst = new \Materia\Widget_Instance();
+		$inst->db_get($widget->meta_data['demo'], false);
+
+		// set multiple owners to the original widget
+		$owners = [$me->id, 2, 3, 4, 5];
+		$inst->set_owners($owners);
+
+		$original_perms = \Materia\Perm_Manager::get_all_users_explicit_perms($inst->id, \Materia\Perm::INSTANCE);
+
+		// make a duplicate, with copy_existing_perms to true
+		$duplicate = $inst->duplicate(2, 'New Widget Copy', true);
+
+		$duplicate_perms = \Materia\Perm_Manager::get_all_users_explicit_perms($duplicate->id, \Materia\Perm::INSTANCE);
+
+		// make sure the original perms look like we expect before
+		// comparing them below
+		$this->assertEquals($original_perms,[
+			'user_perms' => [$me->id => [30, null]],
+			'widget_user_perms' => [$me->id => [30, null], 2 => [30, null], 3 => [30, null], 4 => [30, null], 5 => [30, null]]
+		]);
+
+		// ensure duplicate perms match original perms
+		$this->assertEquals($original_perms['widget_user_perms'], $duplicate_perms['widget_user_perms']);
+	}
+
+
+	public function test_db_remove_is_successful()
+	{
+		// have to be logged in as author for perms checks to pass
+		$me = $this->_as_author();
+
+		$widget = $this->make_disposable_widget();
+		$inst = new \Materia\Widget_Instance();
+		$inst->db_get($widget->meta_data['demo'], false);
+		$inst->set_owners([$me->id]);
+
+		// lets register an event listener
+		// and a variable to capture the args
+		$event_fired_args = null;
+		\Event::register('widget_instance_delete', function($event) use (&$event_fired_args)
+		{
+			$event_fired_args = $event;
+		});
+
+		$result = $inst->db_remove();
+
+		$this->assertTrue($result);
+		$this->assertEquals($event_fired_args, ['inst_id' => $inst->id, 'deleted_by_id' => $me->id]);
+
+		// make sure the instance doesn't load now
+		$reload_inst = new \Materia\Widget_Instance();
+		$this->assertFalse($reload_inst->db_get($inst->id));
+	}
+
 }
