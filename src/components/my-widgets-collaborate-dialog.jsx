@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import Modal from './modal'
 import fetchOptions from '../util/fetch-options'
 import useClickOutside from '../util/use-click-outside'
+import './my-widgets-collaborate-dialog.scss'
 
 const PERM_VISIBLE = 1
 const PERM_PLAY = 5
@@ -19,6 +20,7 @@ const accessLevels = {
 }
 
 const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
+const searchUsers = (input) => fetch('/api/json/users_search', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([input]))}`}))
 
 
 const defaultState = {
@@ -28,7 +30,9 @@ const defaultState = {
 const timestampToDisplayDate = (timestamp) => {
 	if(!timestamp) return 'never'
 	var date = new Date(timestamp*1000);
-	return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
+	//this date works properly with input's date value (yyyy-mm-dd)
+	return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+	// return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
 }
 
 
@@ -58,6 +62,7 @@ console.log(state)
 		const d = new Date(e.target.value+"T00:00") // +"T00:00" causes JS to be interpreted in the local timezone
 		const timestamp = d.getTime()/1000
 		setState({...state, expireDate: timestampToDisplayDate(timestamp), expireTime: timestamp})
+		console.log(state)
 	}
 
 	useClickOutside(ref, () => {
@@ -138,12 +143,15 @@ console.log(state)
 
 const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, currentUser}) => {
 	const [users, setUsers] = useState({})
-
+	const [searchText, setSearchText] = useState('')
+	const [lastSearch, setLastSearch] = useState('')
+	const [searchResults, setSearchResults] = useState([])
+	
 
 	const collaborator = {
 		is_student: false,
 		warning: false,
-	}
+	} 
 
 	useEffect(
 		() => {
@@ -157,19 +165,85 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, cur
 			})
 		}, [inst]
 	)
+
+	useEffect(
+		() => {
+			if(searchText !== lastSearch)
+			{
+				setLastSearch(searchText)
+				
+				if(searchText === '') 
+				{
+					setSearchResults([])
+				}
+				else 
+				{
+					// setIsSearching(true)
+					searchUsers(searchText)
+					.then(resp => {
+						// no content
+						if(resp.status == 204) return []
+						return resp.json()
+					})
+					.then(results => 
+						{
+							console.log(results)
+							setSearchResults(results)
+							// setIsSearching(false)
+						})
+				}
+				
+			}
+		}, [searchText]
+	)
+
+	const onClickMatch = (match) => {
+		setSearchText('')
+		setLastSearch('')
+		setSearchResults([])
+
+		if(!(match.id in users)) 
+		{
+			const tempUsers = users
+			tempUsers[match.id] = match
+			setUsers(tempUsers)
+			// turns out the list doesn't use the users object, but the otherUserPerms object 
+			// not sure how to edit that 
+		}
+		console.log(users)
+	}
+
 	return (
 		<Modal onClose={onClose}>
 			<div className="collaborate-modal">
 				<span className="title">Collaborate with Others</span>
 				<div>
-					<div id="access" className="container">
+					<div id="access" className="collab-container">
 						<div ng-if="selected.shareable" className="list_tab_lock search_container ng-scope">
-							<span className="input_label">
+							<span className="collab_input_label">
 								Add people:
 							</span>
-							<input tabIndex="0" ng-model="inputs.userSearchInput" ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }" ng-enter="searchMatchClick(selectedMatch)" className="user_add ng-pristine ng-untouched ng-valid ng-empty" type="text" placeholder="Enter a Materia user's name or e-mail" ng-keydown="searchKeyDown($event)"/>
-							<div className="search_list ng-hide" ng-show="searchResults.show">
-							</div>
+							<input 
+								tabIndex="0" 
+								value={searchText}
+								onChange={(e) => setSearchText(e.target.value)}
+								className="user_add ng-pristine ng-untouched ng-valid ng-empty" 
+								type="text" 
+								placeholder="Enter a Materia user's name or e-mail"/>
+							{ searchResults.length !== 0
+								? <div className="collab_search_list">
+									{searchResults.map((match) => 
+										<div
+											key={match.id}
+											className='collab_search_match clickable'
+											onClick={() => onClickMatch(match)}>
+												<img className="collab_match_avatar" src={match.avatar} />
+												<p className="collab_match_name">{match.first} {match.last}</p>
+										</div>
+									)}
+									</div>
+								: null
+							}
 						</div>
 
 						<div className="access_list">

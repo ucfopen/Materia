@@ -8,10 +8,22 @@ import Header from './header'
 
 const fetchCopyInstanceId = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
 const fetchInstance = (instId) => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
+const fetchCurrentUser = () => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
 
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
-	
+	const [currentUser, setCurrentUser] = useState(null)
+
+	useEffect( () => 
+		{ //fetch current user on initial render
+			fetchCurrentUser()
+			.then(resp => resp.json())
+			.then(user => {
+				setCurrentUser(user)
+			})
+		}, [] 
+	)
+
 	useEffect(() => {
 		console.log(selectedInstance)
 	})
@@ -27,6 +39,10 @@ const SupportPage = () => {
 		})
 	}
 	
+	const onSelect = (inst) => {
+		setSelectedInstance(inst)
+
+	}
 
 	return (
 		<>
@@ -35,9 +51,10 @@ const SupportPage = () => {
 				<div>
 					{ !selectedInstance
 					? <SupportSearch 
-							onClick={setSelectedInstance}/>
+							onClick={onSelect}/>
 					: <SupportSelectedInstance
 							inst={selectedInstance}
+							currentUser={currentUser}
 							onReturn={() => {setSelectedInstance(null)}}
 							onCopy={onCopy}/>
 					}

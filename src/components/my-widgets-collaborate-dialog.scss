@@ -1,0 +1,261 @@
+// Collaborate dialog
+.modal .collaborate-modal{
+	.title {
+		margin: 0;
+		padding: 0;
+		font-size: 1.3em;
+		color: #555;
+		border-bottom: #999 dotted 1px;
+		padding-bottom: 20px;
+		margin-bottom: 20px;
+		position: relative;
+		text-align: left;
+		display: block;
+		font-family: Lato, arial, serif;
+		font-weight: bold;
+	}
+
+	.user_add{
+		width: 445px;
+		height: 30px;
+		z-index: 2;
+		border: solid 1px #c9c9c9;
+		font-size: 16px;
+	}
+
+	.collab_search_list {
+		width: 447px;
+		position: absolute;
+		background-color: #ffffff;
+		border: #bfbfbf 1px solid;
+		padding-bottom: 5px;
+		overflow: auto;
+		z-index: 3;
+		text-align: left;
+		left: 114px;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+
+		.collab_search_match {
+			width: 200px;
+			height: 56px;
+			margin: 5px 5px 0 5px;
+			padding: 0 5px 5px 0;
+			border-radius: 3px;
+			display: inline-block;
+			background-color: #ffffff;
+
+			.collab_match_avatar {
+				width: 50px;
+				height: 50px;
+				-moz-border-radius: 3px;
+				border-radius: 3px;
+				display: inline-block;
+				float: left;
+				margin-right: 10px;
+				margin: 5px;
+			}
+
+			.collab_match_name {
+				font-size: 14px;
+				text-align: left;
+				height: 40px;
+				font-family: 'Lucida Grande', sans-serif;
+				overflow: auto;
+			}
+		}
+
+		.collab_search_match:hover {
+			background-color: #c5e7fa;
+			cursor: pointer;
+		}
+	}
+
+	
+
+	.access_list{
+		background-color: #f2f2f2;
+		height: 250px;
+		border-radius: 5px;
+		padding: 0 30px;
+		text-align: right;
+		overflow: auto;
+	}
+
+	.disclaimer {
+		color: #575757;
+		font-size: 14px;
+		margin-top: 10px;
+	}
+
+	.access_list{
+
+		margin-top: 15px;
+
+		.user_perm {
+			display: flex;
+			align-items: center;
+			position: relative;
+			margin: 25px 10px;
+
+			&::after{
+				content: ' ';
+				width: 70%;
+				margin-left: 15%; // (100% - 70%) / 2
+				display: block;
+				border-bottom: 1px solid #d2d2d2;
+				position: absolute;
+				bottom: -11px;
+			}
+
+			&:last-child::after{
+				display:none
+			}
+
+
+			.removed{
+				position: absolute;
+				width: 100%;
+				background: #f2f2f2d4;
+				height: 100%;
+				z-index: 2;
+				text-align: center;
+				user-select: none;
+
+				>div{
+					font-size: 1.4em;
+					font-weight: bold;
+					color: #757373;
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+					width: 100%;
+				}
+			}
+
+			.remove{
+				display: block;
+				color: #bfbfbf;
+				text-decoration: none;
+				font-size: 15px;
+				text-align: center;
+				padding: .5em;
+				margin: .5em;
+				cursor: pointer;
+				user-select: none;
+
+				&:hover{
+					color: black;
+					background: white;
+					border-radius: 5px;
+				}
+			}
+
+			.about{
+				.avatar{
+					vertical-align: middle;
+					display: inline-block;
+					height: 40px;
+					width: 40px;
+					margin-right: 10px;
+				}
+				.name{
+					font-weight: bold;
+					font-size: 15px;
+					text-align: left;
+					position: relative;
+
+					&.user_match_student:after {
+						content: 'Student';
+						position: absolute;
+						top: -12px;
+						left: 0;
+						font-size: 11px;
+						color: gray;
+					}
+				}
+			}
+
+			.options{
+				flex: 1;
+				text-align: right;
+
+				select{
+					display: inline-block;
+					margin-bottom:5px;
+				}
+
+				.expires{
+					display: block;
+					font-size: 8pt;
+					position: relative;
+					.remove{
+						display: inline;
+						font-size: 8pt
+					}
+					.expire-label{
+
+					}
+					.expire-open-button{
+						display: inline-block;
+						border-bottom: 1px #1778af solid;
+						color: #1778af;
+						padding: 0 0 1px 0;
+						font-weight: bold;
+						cursor: pointer;
+
+						&:hover{
+							border-bottom: 1px #1778af solid;
+							color: #135c85;
+							padding: 0 0 1px 0;
+						}
+
+					}
+					.expire-date-container{
+						position: absolute;
+						display: block;
+						right: 0;
+						bottom: 0;
+						background: white;
+						padding: 6px;
+						border-radius: 5px;
+						min-height: 25px;
+						min-width: 150px;
+
+						.remove{
+							color: #7b7b7b;
+							margin-right: 10px;
+							&:hover{
+								color: black;
+							}
+						}
+
+						input{
+							height: 100%;
+							width: 100%;
+							box-sizing: border-box;
+							display: block;
+						}
+
+						.date-finish{
+							cursor: pointer;
+							padding: 4px;
+							display: inline-block;
+							background: #1778af;
+							border-radius: 2px;
+							color: white;
+							font-weight: bold;
+							margin-top: 5px;
+
+							&:hover{
+								background: #43a2d7;
+							}
+						}
+					}
+				}
+
+			}
+		}
+	}
+}
