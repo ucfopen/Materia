@@ -3,12 +3,13 @@ version: '3.2'
 services:
 
   phpfpm:
-    environment:
-      - FUEL_ENV=test
     volumes:
+      # isolate test widget files just for test
       - static_widget_files_test:/var/www/html/public/widget
+      # add docker-specific env.local for test
+      - ./config/materia-docker-test.env.local:/var/www/html/.env.local:ro
+      # isolate test media just for test
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
-      - build_app_root:/build:rw
     command: echo "yay"
 
   mysql:

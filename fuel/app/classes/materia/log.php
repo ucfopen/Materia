@@ -52,11 +52,13 @@ class Log
 			}
 			$filename = static::prepare_file($type);
 
-			if ($handler_factory = \Config::get('log_handler_factory'))
+			$handler_factory = \Config::get('log_handler_factory', false);
+			if (is_callable($handler_factory))
 			{
 				$handler = $handler_factory(get_defined_vars(), \Monolog\Logger::DEBUG);
 			}
-			else
+
+			if ( ! $handler instanceof \Monolog\Handler\AbstractProcessingHandler)
 			{
 				$handler = new \Monolog\Handler\RotatingFileHandler($filename, 0, \Monolog\Logger::DEBUG);
 			}

@@ -330,7 +330,7 @@ class Basetest extends TestCase
 
 	protected function assert_is_valid_id($id)
 	{
-		$this->assertRegExp('/[a-zA-Z0-9]/', $id);
+		$this->assertMatchesRegularExpression('/[a-zA-Z0-9]/', $id);
 	}
 
 	protected function assert_is_widget($widget)

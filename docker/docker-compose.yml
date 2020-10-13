@@ -24,20 +24,19 @@ services:
     build:
       context: ./dockerfiles
       dockerfile: materia-phpfpm-debian
-    environment:
-      # See .env for default values
-      - FUEL_ENV
-      - DB_HOST
-      - DB_NAME=${MYSQL_DATABASE}
-      - DB_USER=${MYSQL_USER}
-      - DB_PASS=${MYSQL_DATABASE}
     networks:
       - frontend
       - backend
     volumes:
+      # share the source files with host machine
       - ../:/var/www/html:rw
+      # replace php.ini with our own
       - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
+      # add docker-specific env.local
+      - ./config/materia-docker.env.local:/var/www/html/.env.local:ro
+      # add custom php extensions
       - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
+      # keep node_modules inside docker - perfomance is pretty terrible sharing a ton of files
       - node_modules:/var/www/html/node_modules
     depends_on:
       - mysql
@@ -71,12 +70,6 @@ services:
     build:
       context: .
       dockerfile: ./dockerfiles/materia-fakes3
-    environment:
-      - INPUT_BUCKET
-      - OUTPUT_BUCKET
-      - OUTPUT_MAX_DIMENSIONS
-      - OUTPUT_BASE_KEY
-      - IS_FAKES3
     ports:
       - "10001:10001"
     networks:

@@ -19,7 +19,7 @@
  * This will allow you to upgrade fuel without losing your custom config.
  */
 
-return array(
+return [
 	/**
 	 * The active theme to use.  This can also be set in code using Theme::active('foo');
 	 */
@@ -35,9 +35,7 @@ return array(
 	 * The theme search paths.  They are searched in the order given.  You can add paths
 	 * on the fly via Theme::add_path($path) or Theme::add_paths(array($path1, $path2));
 	 */
-	'paths' => array(
-		APPPATH.'themes',
-	),
+	'paths' => explode(',', APPPATH.'themes'.','.($_ENV['THEME_PATH'] ?? '')),
 
 	/**
 	 * The folder inside the theme to be used to store assets.  This is relative to the
@@ -64,4 +62,4 @@ return array(
 	 * Use auto prefixing for modules
 	 */
 	'use_modules' => true,
-);
+];

@@ -1,4 +1,6 @@
 <?php
+
+// See FuelPHP documentation on \Config for more info
 return array(
 
 	/**
@@ -68,7 +70,7 @@ return array(
 	 */
 	// 'language'           => 'en', // Default language
 	// 'language_fallback'  => 'en', // Fallback language when file isn't available for default language
-	// 'locale'             => 'en_US', // PHP set_locale() setting, null to not set
+	'locale'             => $_ENV['FUEL_LOCAL'] ?? 'en_US.UTF-8', // PHP set_locale() setting, null to not set
 
 	/**
 	 * Internal string encoding charset
@@ -94,9 +96,22 @@ return array(
 	 * Fuel::L_INFO
 	 * Fuel::L_ALL
 	 */
-	'log_threshold'    => Fuel::L_WARNING,
+	'log_threshold'    => $_ENV['FUEL_LOG_THRESHOLD'] ?? Fuel::L_WARNING,
 	// 'log_path'         => APPPATH.'logs/',
 	'log_date_format'  => 'H:i:s',
+
+	// provide a monolog handler
+	'log_handler_factory' => function($locals, $level)
+	{
+		$handler_type = $_ENV['LOG_HANDLER'] ?? '';
+		if($handler_type == 'STDOUT')
+		{
+			return new \Monolog\Handler\ErrorLogHandler();
+		}
+
+		// no matches, use the default handler
+		return null;
+	},
 
 	'log_file_perms'   => 0664,
 	/**
@@ -265,12 +280,7 @@ return array(
 		 *     array('auth'	=> PKGPATH.'auth/')
 		 * );
 		 */
-		'packages'  => array(
-			'orm',
-			'auth',
-			'materiaauth',
-			'ltiauth'
-		),
+		'packages'  => explode(',', $_ENV['FUEL_ALWAYS_LOAD_PACKAGES'] ?? 'orm,auth,materiaauth,ltiauth'),
 
 		/**
 		 * These modules are always loaded on Fuel's startup. You can specify them
@@ -280,10 +290,7 @@ return array(
 		 *
 		 * A path must be set in module_paths for this to work.
 		 */
-		'modules' => array(
-			// NOTE: Moved Lti loading to app/config/event.php
-			// 'Lti',
-		),
+		'modules' => explode(',', $_ENV['FUEL_ALWAYS_LOAD_MODULES'] ?? ''),
 
 		/**
 		 * Classes to autoload & initialize even when not used

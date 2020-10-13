@@ -30,22 +30,22 @@ class Model_Notification extends \Orm\Model
 		],
 	];
 
-public static function on_widget_delete_event($event_args)
-{
-	$from_user_id = $event_args['deleted_by_id'];
-	$inst_id      = $event_args['inst_id'];
-
-	// user_ids for all users that have permissions to this widget
-	$perms = \Materia\Perm_Manager::get_all_users_with_perms_to($inst_id , \Materia\Perm::INSTANCE);
-	$user_ids = array_keys($perms);
-
-	foreach ($user_ids as $to_user_id)
+	public static function on_widget_delete_event($event_args)
 	{
-		\Model_Notification::send_item_notification($from_user_id, $to_user_id, \Materia\Perm::INSTANCE, $inst_id, 'deleted');
-	}
-}
+		$from_user_id = $event_args['deleted_by_id'];
+		$inst_id      = $event_args['inst_id'];
 
-/**
+		// user_ids for all users that have permissions to this widget
+		$perms = \Materia\Perm_Manager::get_all_users_with_perms_to($inst_id , \Materia\Perm::INSTANCE);
+		$user_ids = array_keys($perms);
+
+		foreach ($user_ids as $to_user_id)
+		{
+			\Model_Notification::send_item_notification($from_user_id, $to_user_id, \Materia\Perm::INSTANCE, $inst_id, 'deleted');
+		}
+	}
+
+	/**
 	 * Generates a notification and places it in the database.
 	 *
 	 * @param int User ID of sender.
@@ -135,7 +135,7 @@ public static function on_widget_delete_event($event_args)
 		return true;
 	}
 
-		/**
+	/**
 	 * Send an e-mail copy of the given notification.
 	 *
 	 * @param int ID of the notification to send an e-mail for.
@@ -173,8 +173,6 @@ public static function on_widget_delete_event($event_args)
 			trace($e->getMessage());
 		}
 	}
-
-
 
 	public static function get_user_or_system($user_id)
 	{

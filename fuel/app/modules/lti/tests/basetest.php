@@ -89,7 +89,8 @@ class Test_Basetest extends \Basetest
 			'lis_person_name_family'                 => 'lis_person_name_family',
 			'lis_person_name_given'                  => 'lis_person_name_given',
 			'lis_person_name_full'                   => 'lis_person_name_full',
-			'tool_consumer_info_product_family_code' => 'materia-test'
+			'tool_consumer_info_product_family_code' => 'materia-test',
+			'lti_message_type'                       => 'ContentItemSelectionRequest'
 		]);
 	}
 
@@ -123,8 +124,8 @@ class Test_Basetest extends \Basetest
 		$this->reset_input();
 		\Config::load('lti::lti', true, true);
 
-		$key    = \Config::get('lti::lti.consumers.materia-test.key');
-		$secret = \Config::get('lti::lti.consumers.materia-test.secret');
+		$key    = \Config::get('lti::lti.consumers.default.key');
+		$secret = \Config::get('lti::lti.consumers.default.secret');
 
 		$base_params    = [
 			'resource_link_id'     => 'test-resource',

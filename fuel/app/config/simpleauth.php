@@ -79,7 +79,7 @@ return array(
 	/**
 	 * Salt for the login hash
 	 */
-	'login_hash_salt' => '',
+	'login_hash_salt' => $_ENV['AUTH_SIMPLEAUTH_SALT'],
 
 	/**
 	 * $_POST key for login username

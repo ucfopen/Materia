@@ -72,6 +72,6 @@ class Controller_Admin extends Controller
 
 		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
 
-		Response::redirect(URI::create('admin/widget'));
+		Response::redirect('admin/widget');
 	}
 }
