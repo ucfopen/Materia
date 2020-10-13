@@ -24,7 +24,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
 
 		// Test a first launch, OAuth should fail
-		\Input::_set('post', ['resource_link_id' => 'test-resource']);
+		\Input::_set('post', ['resource_link_id' => 'test-resource', 'lti_message_type' => 'ContentItemSelectionRequest']);
 		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
 
 		$this->assertArrayHasKey('redirect', $result);

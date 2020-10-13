@@ -89,7 +89,8 @@ class Test_Basetest extends \Basetest
 			'lis_person_name_family'                 => 'lis_person_name_family',
 			'lis_person_name_given'                  => 'lis_person_name_given',
 			'lis_person_name_full'                   => 'lis_person_name_full',
-			'tool_consumer_info_product_family_code' => 'materia-test'
+			'tool_consumer_info_product_family_code' => 'materia-test',
+			'lti_message_type'                       => 'ContentItemSelectionRequest'
 		]);
 	}
 
