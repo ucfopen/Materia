@@ -28,7 +28,8 @@ class Test_Widget_Manager extends \Basetest
 		$inst_id = $mock_widget->meta_data['demo'];
 		$inst = new \Materia\Widget_Instance();
 		$inst->db_get($inst_id, false);
-		$duplicate = $inst->duplicate();
+		$user_id = 1;
+		$duplicate = $inst->duplicate($user_id);
 
 		// create an object to hold necessary properties
 		$args = new stdClass();

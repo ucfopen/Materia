@@ -11,12 +11,13 @@ return [
 
 	'fuelphp' => [
 		// LTI Events
-		'score_updated'          => '\Lti\LtiEvents::on_score_updated_event',
-		'widget_instance_delete' => '\Lti\LtiEvents::on_widget_instance_delete_event',
-		'play_completed'         => '\Lti\LtiEvents::on_play_completed_event',
-		'before_play_start'      => '\Lti\LtiEvents::on_before_play_start_event',
-		'play_start'             => '\Lti\LtiEvents::on_play_start_event',
-		'before_score_display'   => '\Lti\LtiEvents::on_before_score_display_event',
+		'score_updated'               => '\Lti\LtiEvents::on_score_updated_event',
+		'widget_instance_delete'      => '\Lti\LtiEvents::on_widget_instance_delete_event',
+		'play_completed'              => '\Lti\LtiEvents::on_play_completed_event',
+		'before_play_start'           => '\Lti\LtiEvents::on_before_play_start_event',
+		'play_start'                  => '\Lti\LtiEvents::on_play_start_event',
+		'before_score_display'        => '\Lti\LtiEvents::on_before_score_display_event',
+		'before_single_score_review'  => '\Lti\LtiEvents::on_before_single_score_review'
 
 		/*
 		'app_created' => function()

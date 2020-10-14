@@ -52,7 +52,7 @@ class Controller_Test extends \Controller_Rest
 			$assoc->consumer_guid = 'test';
 			$assoc->item_id       = $parts[0];
 			$assoc->user_id       = $user->id;
-			$assoc->consumer      = 'materia';
+			$assoc->consumer      = 'default';
 			$assoc->name          = $user->first.' '.$user->last;
 			$assoc->context_id    = 'test_context';
 			$assoc->context_title = 'test_context';
@@ -215,8 +215,8 @@ class Controller_Test extends \Controller_Rest
 
 	protected function create_test_case($custom_params, $endpoint, $user = false, $passback_url = false)
 	{
-		$key    = \Config::get('lti::lti.consumers.materia.key');
-		$secret = \Config::get('lti::lti.consumers.materia.secret');
+		$key    = \Config::get('lti::lti.consumers.default.key');
+		$secret = \Config::get('lti::lti.consumers.default.secret');
 
 		$base_params    = [
 			'resource_link_id'     => 'test-resource',

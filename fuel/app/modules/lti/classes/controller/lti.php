@@ -20,21 +20,22 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_index()
 	{
+		$cfg = \Config::get('lti::lti.consumers.default');
 		// TODO: this is hard coded for Canvas, figure out if the request carries any info we can use to figure this out
 		$this->theme->set_template('partials/config_xml');
 		$this->theme->get_template()
-			->set('title', \Config::get('lti::lti.consumers.canvas.title'))
-			->set('description', \Config::get('lti::lti.consumers.canvas.description'))
+			->set('title', $cfg['title'])
+			->set('description', $cfg['description'])
 			->set('launch_url', \Uri::create('lti/assignment'))
 			->set('login_url', \Uri::create('lti/login'))
 			->set('picker_url', \Uri::create('lti/picker'))
-			->set('platform', \Config::get('lti::lti.consumers.canvas.platform'))
-			->set('privacy_level', \Config::get('lti::lti.consumers.canvas.privacy'))
-			->set('course_nav_enabled', \Config::get('lti::lti.consumers.canvas.course_nav_enabled', true))
-			->set('course_nav_default', \Config::get('lti::lti.consumers.canvas.course_nav_default', true))
-			->set('course_nav_text', \Config::get('lti::lti.consumers.canvas.course_nav_text', true))
-			->set('course_nav_visibility', \Config::get('lti::lti.consumers.canvas.course_nav_visibility', true))
-			->set('tool_id', \Config::get('lti::lti.consumers.canvas.tool_id', true));
+			->set('platform', $cfg['platform'])
+			->set('privacy_level', $cfg['privacy'])
+			->set('course_nav_enabled', $cfg['course_nav_enabled'] ?? true)
+			->set('course_nav_default', $cfg['course_nav_default'] ?? true)
+			->set('course_nav_text', $cfg['course_nav_text'] ?? true)
+			->set('course_nav_visibility', $cfg['course_nav_visibility'] ?? true)
+			->set('tool_id', $cfg['tool_id'] ?? true);
 
 		return \Response::forge($this->theme->render())->set_header('Content-Type', 'application/xml');
 	}
@@ -58,7 +59,7 @@ class Controller_Lti extends \Controller
 		$this->insert_analytics();
 
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static_crossdomain').'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 
 		\Css::push_group('core');
 
@@ -69,7 +70,7 @@ class Controller_Lti extends \Controller
 	 * Instructor LTI view for choosing a widget
 	 *
 	 */
-	public function action_picker($authenticate = true)
+	public function action_picker(bool $authenticate = true)
 	{
 		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
@@ -77,8 +78,8 @@ class Controller_Lti extends \Controller
 		if ($authenticate && ! LtiUserManager::authenticate($launch)) return \Response::redirect('/lti/error/unknown_user');
 
 		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
-		$is_selector_mode = \Input::post('selection_directive') == 'select_link';
-		$return_url       = \Input::post('launch_presentation_return_url');
+		$is_selector_mode = \Input::post('selection_directive') === 'select_link' || \Input::post('lti_message_type') === 'ContentItemSelectionRequest';
+		$return_url       = \Input::post('launch_presentation_return_url') ?? \Input::post('content_item_return_url');
 
 		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
@@ -109,14 +110,20 @@ class Controller_Lti extends \Controller
 	}
 
 	// Successfully linked LTI page
-	public function action_success($inst_id)
+	public function action_success(string $inst_id)
 	{
+		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')
 			->set('page_type', 'preview');
 
 		$this->theme->set_partial('content', 'partials/open_preview')
-			->set('preview_url', \Uri::create('/preview/'.$inst_id));
+			->set('inst_name', $inst->name)
+			->set('widget_name', $inst->widget->name)
+			->set('preview_url', \Uri::create('/preview/'.$inst_id))
+			->set('icon', \Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
+			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id));
 
 		$this->insert_analytics();
 

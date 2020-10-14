@@ -24,6 +24,22 @@ $materia_path = realpath(__DIR__.DS.'classes'.DS.'materia');
 // Register the autoloader
 \Autoloader::register();
 
+
+// ENVIRONMENT CONFIG
+// converts .env and .env.local into $_ENV vars
+$env_path = realpath(__DIR__.DS.'..'.DS.'..').DS;
+$dotenv = new Symfony\Component\Dotenv\Dotenv();
+$dotenv->loadEnv("{$env_path}.env", "{$env_path}.env.local");
+
+// env vars starting with BOOL_ become true boolean
+foreach ($_ENV as $key => $value) {
+	if (strpos($key, 'BOOL_') === 0) {
+		// allowed true values 'true'
+		// everything else is false !!
+		$_ENV[$key] = $value === 'true';
+	}
+}
+
 /**
  * Your environment.  Can be set to any of the following:
  *
@@ -48,7 +64,7 @@ if(\FUEL::$env === \FUEL::TEST){
 
 // register events after the app is initialized
 // if this is placed in config/events, it'll load notification before orm gets loaded :(
-\Event::register('delete_widget_event', '\Model_Notification::on_widget_delete_event');
+\Event::register('widget_instance_delete', '\Model_Notification::on_widget_delete_event');
 
 // A function to easily trace stuff to the log
 function trace($arg, $force=0)

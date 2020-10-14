@@ -1,4 +1,4 @@
-<div ng-controller="adminWidgetController">
+<div ng-controller="AdminWidgetController">
 	<div class="container" id="upload_area">
 		<section class="page">
 			<?php if ($msg = Session::get_flash('upload_notice')): ?>

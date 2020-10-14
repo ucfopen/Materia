@@ -5,24 +5,16 @@ class Install
 {
 	public static function run()
 	{
-		// let the user set the environment
-		if (\Cli::option('skip_prompts', false) != true)
-		{
-			\Fuel::$env = \Cli::prompt('Choose your environment', ['development', 'production', 'staging']);
-		}
-
-		\Cli::write("FuelPHP environment set to: '".\Fuel::$env."'");
-
-		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard');
-		self::prompt_and_run('Set writable paths?', 'make_paths_writable');
-		self::prompt_and_run('Clear Server Cache?', 'clear_cache');
-		self::prompt_and_run('Run Migrations?', 'setup_migrations');
-		self::prompt_and_run('Populate User Roles?', 'populate_roles');
-		self::prompt_and_run('Populate Defaults Semesters?', 'populate_semesters');
-		self::prompt_and_run('Create Default Users?', 'create_default_users');
+		\Crypt::encode('this is just here to initialize fuel/app/config/crypt.php');
+		self::prompt_and_run('Make required paths writable?', 'make_paths_writable');
+		self::prompt_and_run('Clear server cache?', 'clear_cache');
+		self::prompt_and_run('Run migrations?', 'setup_migrations');
+		self::prompt_and_run('Populate user roles?', 'populate_roles');
+		self::prompt_and_run('Populate defaults semesters?', 'populate_semesters');
+		self::prompt_and_run('Create default users?', 'create_default_users');
 	}
 
-	private static function prompt_and_run($text, $method)
+	private static function prompt_and_run($text, $method, $exec = true)
 	{
 		// was the cli option set to skip this method?
 		if (\Cli::option("skip_{$method}", false)) return;
@@ -30,7 +22,14 @@ class Install
 		// was prompt requested and they said no?
 		$should_prompt = \Cli::option('skip_prompts', false) != true;
 		if ($should_prompt && \Cli::prompt("\r\n{$text}", ['y', 'n']) == 'n') return;
-		// execute the method
-		\Oil\Refine::run("admin:${method}" , []);
+
+		try{
+			// these are run in a subshell because fuel doesn't much like
+			// changing the config variables on the fly
+			passthru("php oil r admin:{$method}");
+		} catch (\Exception $e) {
+			\Cli::write("Error running `php oil refine admin:{$method}`");
+			\Cli::write($e->getMessage());
+		}
 	}
 }

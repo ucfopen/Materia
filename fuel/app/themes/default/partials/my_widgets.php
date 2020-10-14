@@ -5,7 +5,7 @@
 		Click here to start making a new widget!
 	</div>
 	<div class="container">
-		<div ng-controller="SelectedWidgetController">
+		<div ng-controller="MyWidgetsSelectedController">
 			<!-- standard post-publish warning for users who can publish this widget -->
 			<modal-dialog class="edit-published-widget"
 				show="show.editPublishedWarning"
@@ -59,22 +59,25 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="share"
+			<modal-dialog
+				class="share"
 				show="show.collaborationModal"
-				dialog-title="Collaboration:"
+				dialog-title="Collaborate"
 				width="620px"
-				height="500px">
-				<div ng-if="show.collaborationModal"
-					ng-controller="CollaborationController"
-					ng-click="searchResults.show = false">
-					<div id="access"
-						class="container">
-						<div ng-if="selected.shareable"
-							class="list_tab_lock">
+				height="500px"
+			>
+				<div
+					ng-if="show.collaborationModal"
+					ng-controller="MyWidgetsCollaborationController"
+					ng-click="searchResults.show = false"
+				>
+					<div id="access" class="container">
+						<div ng-if="selected.shareable" class="list_tab_lock search_container">
 							<span class="input_label">
 								Add people:
 							</span>
-							<input tabindex="0"
+							<input
+								tabindex="0"
 								ng-model="inputs.userSearchInput"
 								ng-model-options="{ updateOn: 'default', debounce: {'default': 400, 'blur': 0} }"
 								ng-enter="searchMatchClick(selectedMatch)"
@@ -82,29 +85,31 @@
 								type="text"
 								placeholder="Enter a Materia user's name or e-mail"
 								ng-keydown="searchKeyDown($event)" />
-							<div class="search_list"
-								ng-show="searchResults.show">
-								<div ng-repeat="match in searchResults.matches"
+							<div
+								class="search_list"
+								ng-show="searchResults.show"
+							>
+								<div
+									ng-repeat="match in searchResults.matches"
 									ng-mouseup="searchMatchClick(match)"
 									class="search_match"
-									ng-class="{ focused: selectedMatch == match }">
-									<img class="user_match_avatar"
-										ng-src="{{::match.gravatar}}" />
-									<p class="user_match_name"
+									ng-class="{ focused: selectedMatch == match }"
+								>
+									<img class="user_match_avatar" ng-src="{{::match.gravatar}}" />
+									<p
+										class="user_match_name"
 										ng-class="{user_match_student: match.is_student}">
 										{{::match.first}} {{::match.last}}
 									</p>
 								</div>
-								<div ng-if="searchResults.none && !searchResults.searching"
-									class="no_match_message">
+								<div ng-if="searchResults.none && !searchResults.searching"	class="no_match_message">
 									<b>No matches found.</b>
 									<p>
 										The person you're searching for may need to log in to
 										create an account.
 									</p>
 								</div>
-								<div ng-if="searchResults.searching"
-									class="no_match_message">
+								<div ng-if="searchResults.searching" class="no_match_message">
 									<b>Searching Users...</b>
 								</div>
 							</div>
@@ -167,16 +172,15 @@
 										</option>
 									</select>
 
-									<a ng-if="selected.shareable"
+									<a ng-if="!(collaborator.isCurrentUser && selected.accessLevel == ACCESS.FULL) && selected.shareable"
 										tabindex="0"
 										class="remove-expiration"
 										role="button"
 										ng-click="removeExpires(collaborator)"
 										ng-show="collaborator.expires">
-										X
-									</a>
+										X</a>
 									<span class="expires">Expires: </span>
-									<input ng-disabled="!selected.shareable"
+									<input ng-disabled="(collaborator.isCurrentUser && selected.accessLevel == ACCESS.FULL) || !selected.shareable"
 										type="text"
 										class="exp-date user{{::collaborator.id}}"
 										ng-model="collaborator.expiresText"
@@ -202,21 +206,25 @@
 				</div>
 			</modal-dialog>
 
-			<modal-dialog class="availability"
+			<modal-dialog
+				class="availability"
 				show="show.availabilityModal"
-				dialog-title="Settings" width="660px">
-				<div ng-if="show.availabilityModal"
-					ng-controller="WidgetSettingsController">
+				dialog-title="Settings"
+				width="660px"
+			>
+				<div
+					ng-if="show.availabilityModal"
+					ng-controller="MyWidgetsSettingsController"
+				>
 					<p class="availabilityError"
 						ng-show="error.length > 0">
 						{{error}}
 					</p>
+					<p ng-show="{{user.is_student}}" class="student-role-notice">You are viewing a limited version of this page due to your current role as a student. Students do not have permission to change certain settings like attempt limits or access levels.</p>
 					<ul class="attemptsPopup">
 						<li ng-hide="{{user.is_student}}">
 							<h3>Attempts</h3>
-							<div class="selector"
-								ng-if="show.availabilityModal">
-							</div>
+							<div class="selector" ng-if="show.availabilityModal"></div>
 							<ul class="attemptHolder"
 								ng-class="{disabled: guestAccess}">
 								<li id="value_1"
@@ -269,14 +277,15 @@
 									Unlimited
 								</li>
 							</ul>
-							<p class="data_explanation">
-								Attempts are the number of times a student can complete a widget.
-								Only their highest score counts.
-							</p>
-							<p ng-if="guestAccess"
-								class="data_explanation">
-								<b>Attempts are unlimited when Guest Mode is enabled.</b>
-							</p>
+							<div class="data_explanation">
+								<div class="input_desc">
+									Attempts are the number of times a student can complete a widget.
+									Only their highest score counts.
+									<div class="desc_notice" ng-if="guestAccess">
+										<b>Attempts are unlimited when Guest Mode is enabled.</b>
+									</div>
+								</div>
+							</div>
 						</li>
 						<ul class="toFrom">
 							<li ng-repeat="available in availability">
@@ -328,51 +337,54 @@
 
 							<li ng-hide="{{user.is_student}}">
 								<h3>Access</h3>
-								<ul class="access-options">
-									<li>
+								<ul class="access-options" ng-disabled="studentMade" ng-class="{'disabled' : studentMade}">
+									<li ng-disabled="studentMade">
 										<input type="checkbox"
 											class="normal-checkbox"
 											ng-checked="!guestAccess && !embeddedOnly"
 											ng-click="toggleNormalAccess()"
-											ng-disabled="!guestAccess && !embeddedOnly" />
+											ng-disabled="studentMade" />
 										<label ng-click="toggleNormalAccess()">Normal</label>
-										<p class="access_explanation">
+										<div class="input_desc">
 											Only students and users who can log into Materia can
 											access this widget. If the widget collects scores, those
 											scores will be associated with the user. The widget can
 											be distributed via URL, embed code, or as an assignment
 											in your LMS.
-										</p>
+										</div>
 									</li>
-									<li>
+									<li ng-disabled="studentMade">
 										<input type="checkbox"
 											class="guest-checkbox"
 											ng-checked="guestAccess"
-											ng-click="toggleGuestAccess()" />
+											ng-click="toggleGuestAccess()"
+											ng-disabled="studentMade"/>
 										<label ng-click="toggleGuestAccess()">Guest Mode</label>
-										<p class="access_explanation">
+										<div class="input_desc">
 											Anyone with a link can play this widget without logging in.
 											All recorded scores will be anonymous. Can't use in an
 											external system.
-										</p>
-										<p ng-if="studentMade"
-											class="data_explanation ">
-											<b>Guest Mode is always on for widgets created by students.</b>
-										</p>
+											<div class="desc_notice" ng-if="studentMade"><b>Guest Mode is always on for widgets created by students.</b></div>
+										</div>
 									</li>
-									<li id="embedded-only"
-										ng-show="isEmbedded">
+									<li
+										id="embedded-only"
+										ng-show="isEmbedded"
+									>
 										<input type="checkbox"
 											class="embedded-checkbox"
 											ng-checked="embeddedOnly"
-											ng-click="toggleEmbeddedOnly()" />
+											ng-click="toggleEmbeddedOnly()"
+											ng-disabled="studentMade"
+										/>
 										<label ng-click="toggleEmbeddedOnly()">Embedded Only</label>
-										<p class="access_explanation">
+										<div class="input_desc">
 											This widget will not be playable outside of the classes
 											it is embedded within.
-										</p>
+										</div>
 									</li>
 								</ul>
+
 							</li>
 						</ul>
 					</ul>
@@ -401,7 +413,7 @@
 				show="show.exportModal"
 				width="580px"
 				height="580px">
-				<div ng-controller="ExportScoresController">
+				<div ng-controller="MyWidgetsExportController">
 					<div class="download_wrapper">
 						<h2>Export</h2>
 						<ul class="options">
@@ -493,28 +505,40 @@
 
 			<modal-dialog class="copy"
 				show="show.copyModal"
-				dialog-title="Make a Copy:"
+				dialog-title="Make a Copy"
 				width="620px"
-				height="220px">
+				height="330px"
+			>
 				<div class="container">
-					<span class="input_label">New Title:</span>
-					<input class="newtitle"
-						type="text"
-						ng-model="selected.copy_title"
-						placeholder="New Widget Title" />
-					<span class="copy_error">Please enter a valid widget title.</span>
-					<a class="cancel_button"
-						href="javascript:;"
-						ng-click="hideModal()">
-						Cancel
-					</a>
-					<a class="action_button green copy_button"
-						href="javascript:;"
-						ng-click="copyWidget()">
-						Copy
-					</a>
+					<div class="title_container">
+						<label for="copy_input_title">New Title:</label>
+						<input
+							id="copy_input_title"
+							type="text"
+							ng-model="selected.copy_title"
+							placeholder="New Widget Title"
+						/>
+					</div>
+					<div class="options_container">
+						<input type="checkbox" ng-model="selected.copy_retain_access" id="input_grant_og_owner" />
+						<label for="input_grant_og_owner">Grant Access to Original Owner(s)</label>
+						<p class="input_desc">If checked, all users who have access to the original widget will continue to have access to the new copy. Note that the rules for sharing widgets with students will still apply.</p>
+					</div>
+					<div class="bottom_buttons">
+						<a class="cancel_button"
+							href="javascript:;"
+							ng-click="hideModal()">
+							Cancel
+						</a>
+						<a class="action_button green copy_button"
+							href="javascript:;"
+							ng-click="copyWidget()">
+							Copy
+						</a>
+					</div>
 				</div>
 			</modal-dialog>
+
 			<section class="directions error"
 				ng-show="perms.error">
 				<div class="error error-nowidget">
@@ -578,19 +602,19 @@
 								</div>
 							</li>
 							<li class="copy"
-								ng-class="{'disabled' : selected.accessLevel != 30}">
+								ng-class="{'disabled' : !selected.can.copy}">
 								<div class="link"
 									id="copy_widget_link"
-									ng-class="{'disabled' : selected.accessLevel != 30}"
+									ng-class="{'disabled' : !selected.can.copy}"
 									ng-click="showCopyDialog()">
 									Make a Copy
 								</div>
 							</li>
 							<li class="delete"
-								ng-class="{'disabled' : selected.accessLevel != 30}">
+								ng-class="{'disabled' : !selected.can.delete}">
 								<div class="link"
 									id="delete_widget_link"
-									ng-class="{'disabled' : selected.accessLevel != 30}"
+									ng-class="{'disabled' : !selected.can.delete}"
 									ng-click="showDelete()">
 									Delete
 								</div>
@@ -599,16 +623,18 @@
 						<div class="delete_dialogue"
 							ng-show="show.deleteDialog">
 							<span class="delete-warning">Are you sure you want to delete this widget?</span>
-							<a class="cancel_button"
-								href="javascript:;"
-								ng-click="show.deleteDialog = false">
-								Cancel
-							</a>
-							<a class="action_button red delete_button"
-								href="javascript:;"
-								ng-click="deleteWidget()">
-								Delete
-							</a>
+							<div class="bottom_buttons">
+								<a class="cancel_button"
+									href="javascript:;"
+									ng-click="show.deleteDialog = false">
+									Cancel
+								</a>
+								<a class="action_button red delete_button"
+									href="javascript:;"
+									ng-click="deleteWidget()">
+									Delete
+								</a>
+							</div>
 						</div>
 						<div class="additional_options"
 							ng-class="{'disabled': !selected.shareable || selected.widget.is_draft}"
@@ -658,7 +684,7 @@
 									ng-click="popup()"
 									class="access-level">
 									<span ng-if="!selected.widget.guest_access">Staff and Students only</span>
-									<span ng-if="selected.widget.guest_access">Anonymous - No Login Required</span>
+									<span ng-if="selected.widget.guest_access">Guest Mode - No Login Required</span>
 								</dd>
 							</dl>
 							<a id="edit-availability-button"
@@ -691,6 +717,7 @@
 							</span>
 							).
 						</p>
+						<p>You can embed this widget as a graded assignment in your LMS. <a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html" target="_blank" class="external">See how!</a></p>
 						<div class="embed-options"
 							ng-show="show.embedToggle && !selected.is_draft">
 							<h3>Embed Code</h3>

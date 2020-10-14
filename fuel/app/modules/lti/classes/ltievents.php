@@ -3,6 +3,8 @@
 namespace Lti;
 use \Materia\Log;
 use \Materia\Util_Validator;
+use \Materia\Widget_Instance_Manager;
+use \Lti\Oauth;
 
 class LtiEvents
 {
@@ -11,13 +13,32 @@ class LtiEvents
 	const PLAY_STATE_NOT_LTI = 'not_lti';
 	protected static $inst_id;
 
+	// the single score review page MAY be launched via lti
+	// If an lti launch is used
+	public static function on_before_single_score_review()
+	{
+		$result = [];
+
+		// if this is an lti launch validate it and indicate we should use the embedded view
+		$launch = LtiLaunch::from_request();
+		if ($launch)
+		{
+			if ( ! Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
+			elseif ( ! LtiUserManager::authenticate($launch)) $result['redirect'] = '/lti/error/unknown_user';
+			$result['is_embedded'] = true;
+		}
+
+		return $result;
+	}
+
 	public static function on_before_play_start_event($payload)
 	{
 		if (static::get_lti_play_state() == self::PLAY_STATE_FIRST_LAUNCH)
 		{
 			extract($payload); // exposes event args $inst_id and $is_embedded
+
 			if ( ! $inst_id) $inst_id = static::get_widget_from_request();
-			$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+			$inst = Widget_Instance_Manager::get($inst_id);
 
 			$redirect = false;
 
@@ -40,7 +61,7 @@ class LtiEvents
 				}
 			}
 
-			if ( ! \Lti\Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
+			if ( ! Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
 			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';
@@ -105,23 +126,46 @@ class LtiEvents
 		if (static::get_lti_play_state($play_id) == self::PLAY_STATE_NOT_LTI) return false; //@TODO - is this supposed to return false????
 
 		$launch = static::session_get_launch($play_id);
-		$secret   = \Config::get("lti::lti.consumers.{$launch->consumer}.secret", false);
+
+		$secret = LtiLaunch::config()['secret'] ?? false;
+		$key = LtiLaunch::config()['key'] ?? false;
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
 			static::log($play_id, 'outcome-no-passback', $max_score);
-			return false; //@TODO - when uncommented, caused errors (still need to test)
+			return false;
+		}
+
+		// LTI outcomes extension for ext_outcome_data_values_accepted
+		// Canvas invisibly supports url upgrading to ltiLaunchUrl
+		// Materia assumes this is ok, but it can be disabled via a
+		// LTI config for the specific consumer (or default)
+		$extension_type = null;
+		$extension_value = null;
+		if (strpos($launch->outcome_ext, 'url') !== false)
+		{
+			// url supported, does the config say we should upgrade it to ltiLaunchUrl?
+			$extension_type = LtiLaunch::config()['upgrade_to_launch_url'] ? 'ltiLaunchUrl' : 'url';
+			$extension_value = \Uri::create("/scores/single/{$play_id}/{$inst_id}");
 		}
 
 		$max_score = (int) $max_score / 100;
 		$view_data = [
-			'score'     => $max_score,
-			'message'   => uniqid(),
-			'source_id' => $launch->source_id
+			'score'           => $max_score,
+			'message'         => uniqid(),
+			'source_id'       => $launch->source_id,
+			'extension_type'  => $extension_type,
+			'extension_value' => $extension_value
 		];
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
-		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret);
+
+		if (\Config::get('lti::lti.log_for_debug', false))
+		{
+			\Materia\Log::profile(['score-outcome-sent', $body], 'lti-launch');
+		}
+
+		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 
@@ -144,10 +188,12 @@ class LtiEvents
 
 	/**
 	 * FUEL EVENT fired by a widget instance when db_remove is called.
-	 * @param $inst_id The ID of the deleted instance
+	 * @param array $event_args containing inst_id and deleted_by_id keys.
 	 */
-	public static function on_widget_instance_delete_event($inst_id)
+	public static function on_widget_instance_delete_event($event_args)
 	{
+		$inst_id = $event_args['inst_id'];
+
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();
 
 		if (count($lti_data) > 0)
@@ -193,28 +239,29 @@ class LtiEvents
 
 	protected static function get_lti_play_state($play_id = false)
 	{
-		//Is there a resource_link_id? Then this is an LTI launch
+		// Is there a resource_link_id? Then this is an LTI launch
 		if (\Input::param('resource_link_id')) return self::PLAY_STATE_FIRST_LAUNCH;
 
-		//Do we have a token? Then this is a replay
+		// Do we have a token? Then this is a replay
+		// tokens are provided by the score screen replay button
+		// so that we can connect replay events to the initial launch
 		if (\Input::param('token')) return self::PLAY_STATE_REPLAY;
 
-		//Ok, nothing in Input, so we have to dig deeper.
-		//Do we have a play_id? If no, then assume not in an LTI
+		// No PlayID? assume not in an LTI
 		if ( ! $play_id) return self::PLAY_STATE_NOT_LTI;
 
-		//Do we have variables stored by the given play_id?
-		//We only store variables by the first play ID, so this is the first attempt
+		// Do we have session vars stored by the given play_id?
+		// We only store variables by the first play ID, so this is the first attempt
 		$launch = \Session::get("lti-{$play_id}", false);
 		if ($launch) return self::PLAY_STATE_FIRST_LAUNCH;
 
-		//Do we have variables that are *linked* to the given play_id?
-		//We only do this for replays, so this is a replay
+		// Do we have variables that are *linked* to the given play_id?
+		// We only do this for replays, so this is a replay
 		$token = \Session::get("lti-link-{$play_id}", false);
 		$launch = \Session::get("lti-{$token}", false);
 		if ($launch) return self::PLAY_STATE_REPLAY;
 
-		//Nothing in the request, nothing in the session, assume not an LTI launch
+		// Nothing in the request, nothing in the session, assume not an LTI launch
 		return self::PLAY_STATE_NOT_LTI;
 	}
 
@@ -238,8 +285,9 @@ class LtiEvents
 
 	protected static function save_lti_association_if_needed($launch)
 	{
+
 		// if the configuration says we don't save associations, just return now
-		if ( ! \Config::get("lti::lti.consumers.{$launch->consumer}.save_assoc", true)) return true;
+		if ( ! (LtiLaunch::config()['save_assoc'] ?? true)) return true;
 
 		// Search for any associations with this item id and resource link
 		$assoc = static::find_assoc_from_resource_id($launch->resource_id);

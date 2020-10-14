@@ -1,4 +1,4 @@
-<div class="container <?= $classes ?>" ng-controller="loginCtrl">
+<div class="container <?= $classes ?>" ng-controller="UserLoginCtrl">
 	<section class="page">
 		<?= $summary ?>
 		<div class="detail">

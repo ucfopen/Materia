@@ -26,14 +26,9 @@ namespace Materia;
 
 class Perm_Role
 {
-
+	const NOAUTH = 'no_author';
 	const AUTHOR = 'basic_author';
 	const SU     = 'super_user';
-
-	//role IDs
-	// TODO: can't count on these being correct
-	const ROLE_AUTHOR = 1;
-	const ROLE_SU     = 2;
 
 	public $id;
 	public $name;

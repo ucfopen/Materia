@@ -1,4 +1,4 @@
-<div class="container <?= $classes ?>" ng-controller="loginCtrl">
+<div class="container <?= $classes ?>" ng-controller="UserLoginCtrl">
 	<section class="page">
 		<?= isset($date) ? "<span class=\"server_date\" ng-init=\"date='$date'\"></span>" : '' ?>
 		<?= $summary ?>

@@ -41,10 +41,6 @@ class Msg
 		$this->title = $title;
 		$this->msg   = $msg;
 		$this->halt  = $halt;
-		// if (\FUEL::$env != \FUEL::PRODUCTION)
-		// {
-		// 	trace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4));
-		// }
 	}
 
 	static public function invalid_input($msg='')

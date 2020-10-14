@@ -13,10 +13,12 @@ class Log extends Fuel\Core\Log
 		$path     = \Config::get('log_path', APPPATH.'logs'.DS);
 		$filename = \Config::get('log_file', 'materia');
 		$perms    = \Config::get('log_file_perms', null);
+
 		if (empty($filename))
 		{
 			$filename = 'materia';
 		}
+
 		$filepath = $path.$filename;
 
 		// make sure the log directories exist
@@ -27,11 +29,17 @@ class Log extends Fuel\Core\Log
 			chmod($path, $permission);
 		}
 
-		if ($handler_factory = \Config::get('log_handler_factory'))
+		// IMPORTANT - THIS IS DUPLICATED IN materia/Log.php prepare_logger
+		// If you update one, update both!
+		$handler_factory = \Config::get('log_handler_factory', false);
+
+		if (is_callable($handler_factory))
 		{
 			$handler = $handler_factory(get_defined_vars(), \Monolog\Logger::DEBUG);
 		}
-		else
+
+		// default handler
+		if ( ! $handler instanceof \Monolog\Handler\AbstractProcessingHandler)
 		{
 			$handler = new \Monolog\Handler\RotatingFileHandler($filepath, 0, \Monolog\Logger::DEBUG, true, $perms);
 		}
