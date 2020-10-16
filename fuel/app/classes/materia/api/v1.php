@@ -780,6 +780,12 @@ class Api_V1
 		return $inst->qset;
 	}
 
+	/**
+	 * Requests all qsets for a given widget instance ID.
+	 * Current user must have author/collab access to the widget.
+	 * @param int $inst_id The id of the widget instance for which to get qset history
+	 * @return array Array of qset objects
+	 */
 	static public function question_history_get($inst_id)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);

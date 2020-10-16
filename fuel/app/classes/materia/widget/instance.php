@@ -185,6 +185,11 @@ class Widget_Instance
 		}
 	}
 
+	/**
+	 * Get all the previous qsets for a given instance id
+	 *
+	 * @param int $inst_id the widget instance id for which to grab all qsets
+	 */
 	public function get_qset_history($inst_id)
 	{
 		$query = \DB::select()
@@ -196,13 +201,14 @@ class Widget_Instance
 
 		$history = [];
 
-		for ($i = 0; $i < count($results); $i++)
+		// for ($i = 0; $i < count($results); $i++)
+		foreach ($results as $result)
 		{
 			$qset = (object) ['version' => null, 'data' => null, 'id' => null, 'created_at' => null];
-			$qset->data = json_decode(base64_decode($results[$i]['data']), true);
-			$qset->version = $results[$i]['version'];
-			$qset->id = $results[$i]['id'];
-			$qset->created_at = $results[$i]['created_at'];
+			$qset->data = json_decode(base64_decode($result['data']), true);
+			$qset->version = $result['version'];
+			$qset->id = $result['id'];
+			$qset->created_at = $result['created_at'];
 
 			array_push($history, $qset);
 		}
