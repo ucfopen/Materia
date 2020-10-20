@@ -1064,18 +1064,19 @@ class Test_Api_V1 extends \Basetest
 		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-
 	}
 
 	public function test_question_history_get()
 	{
 		// ======= AS NO ONE ========
-		try {
-			$output = Api_V1::question_history_get(555);
-			$this->fail("Expected exception HttpNotFoundException not thrown");
-		} catch ( Exception $e) {
-			$this->assertInstanceOf('HttpNotFoundException', $e);
-		}
+		$this->expectException(\ HttpNotFoundException::class);
+		$output = Api_V1::question_history_get(555);
+
+		// ======= AUTHOR ========
+		$this->_as_author();
+		$output = Api_V1::question_history_get(555);
+		$this->assert_not_message($output);
+		$this->assertIsArray($output);
 	}
 
 	public function test_questions_get()
