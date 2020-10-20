@@ -1,8 +1,8 @@
 <div ng-controller="qsetHistoryCtrl">
 	
-	<form id="import-form">
+	<form id="import_form">
 		<h1>Previous Saves</h1>
-		<table id="qset-table" width="100%">
+		<table id="qset_table" width="100%">
 			<thead width="100%">
 				<tr>
 					<th>Save Count</th>
@@ -15,12 +15,12 @@
 			</tr>
 		</table>
 	</form>
-	<div class="no-saves" ng-show="saves.length == 0">
+	<div class="no_saves" ng-show="saves.length == 0">
 		<h3>No previous saves for this widget.</h3>
 		If you publish or a save a draft of your widget and then come back, you can view and restore previous saves from here.
 	</div>
 
 	<div class="actions">
-		<a id="cancel-button" href="#" ng-click="closeDialog($event)">Cancel</a>
+		<a id="cancel_button" href="#" ng-click="closeDialog($event)">Cancel</a>
 	</div>
 </div>
