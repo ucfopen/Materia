@@ -1,7 +1,7 @@
 <div ng-controller="qsetHistoryCtrl">
 	
 	<form id="import_form">
-		<h1>Previous Saves</h1>
+		<h1>Save History</h1>
 		<table id="qset_table" width="100%">
 			<thead width="100%">
 				<tr>
