@@ -21,30 +21,49 @@ const accessLevels = {
 
 const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
 const searchUsers = (input) => fetch('/api/json/users_search', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([input]))}`}))
-
+const setUserPermsForInstance = (instId, permsObj) => fetch('/api/json/permissions_set', fetchOptions({body: 'data=' + encodeURIComponent(`[4,"${instId}",${JSON.stringify(permsObj)}]`)}))
 
 const defaultState = {
-	deleted: false
+	remove: false
 }
 
 const timestampToDisplayDate = (timestamp) => {
 	if(!timestamp) return 'never'
 	var date = new Date(timestamp*1000);
-	//this date works properly with input's date value (yyyy-mm-dd)
 	return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
-	// return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
 }
 
 
-const CollaborateUserRow = ({user, perms, isCurrentUser}) => {
+const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
 	const ref = useRef();
 	const [state, setState] = useState({...defaultState, ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
-console.log(state)
-	const checkForWarning = (user) => {
+	const [showDemoteDialog, setShowDemoteDialog] = useState(false)
+	console.log(state)
+
+	useEffect(
+		() => {
+			onChange(user.id, {
+				accessLevel: state.accessLevel,
+				expireTime: state.expireTime,
+				editable: state.editable,
+				shareable: state.shareable,
+				can: state.can,
+				remove: state.remove
+			})
+		}, [state]
+	)
+
+	const checkForWarning = () => {
+		if(isCurrentUser) { 
+			console.log("this code is running bruh")
+			setShowDemoteDialog(true)
+		}
+		else removeAccess()
 	}
 
 	const removeAccess = () => {
-		setState({...state, deleted: true})
+			setState({...state, remove: true})
+			setShowDemoteDialog(false)
 	}
 
 	const toggleShowExpire = () => {
@@ -71,18 +90,13 @@ console.log(state)
 
 
 	return (
-		<div className="user_perm">
-			{state.deleted
-				? <div className="removed">
-					<div>Remove</div>
-				</div>
-				: null
-			}
-			<a tabIndex="0"
-				onClick={removeAccess}
-				className="remove">
+		<div className={`user_perm ${state.remove ? "deleted" : ""}`}>
+			<button tabIndex="0"
+				onClick={checkForWarning}
+				className="remove"
+				disabled={readOnly && !isCurrentUser}>
 				X
-			</a>
+			</button>
 
 			<div className="about">
 				<img className="avatar" src={user.avatar} />
@@ -91,6 +105,17 @@ console.log(state)
 					{`${user.first} ${user.last}`}
 				</span>
 			</div>
+			{ showDemoteDialog
+				? <div className="demote-dialog">
+						<div className="warning">
+							Are you sure you want to limit <strong>your</strong> access?
+						</div>
+						<a className="no-button" onClick={() => setShowDemoteDialog(false)}>No</a>
+						<a className="button action_button yes-button" onClick={removeAccess}>Yes</a>
+					</div>
+				: null
+
+			}
 			{true
 					? null
 					:
@@ -111,7 +136,7 @@ console.log(state)
 			<div className="options">
 
 				<select
-					disabled={state.sharable==false}
+					disabled={readOnly}
 					tabIndex="0"
 					className="perm"
 					value={state.accessLevel}
@@ -132,7 +157,7 @@ console.log(state)
 							<span className="remove" onClick={clearExpire}>Set to Never</span>
 							<span className="date-finish" onClick={toggleShowExpire}>Done</span>
 							</span>
-						: <span className="expire-open-button" onClick={toggleShowExpire}>{state.expireDate}</span>
+						: <button className={readOnly ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={toggleShowExpire} disabled={readOnly}>{state.expireDate}</button>
 					}
 				</div>
 			</div>
@@ -141,17 +166,28 @@ console.log(state)
 }
 
 
-const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, currentUser}) => {
+const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
 	const [users, setUsers] = useState({})
 	const [searchText, setSearchText] = useState('')
 	const [lastSearch, setLastSearch] = useState('')
 	const [searchResults, setSearchResults] = useState([])
+	const [updatedOtherUserPerms, setUpdatedOtherUserPerms] = useState({})
+	const [shareNotAllowed, setShareNotAllowed] = useState(false)
+
 	
 
 	const collaborator = {
 		is_student: false,
 		warning: false,
 	} 
+
+	useEffect(
+		() => {
+			const map = new Map(otherUserPerms)
+			map.forEach(key => key.remove = false)
+			setUpdatedOtherUserPerms(map)
+		}, [otherUserPerms]
+	)
 
 	useEffect(
 		() => {
@@ -163,6 +199,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, cur
 				_users.forEach(u => { keyedUsers[u.id] = u})
 				setUsers(keyedUsers)
 			})
+			// console.log(users)
 		}, [inst]
 	)
 
@@ -192,7 +229,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, cur
 							// setIsSearching(false)
 						})
 				}
-				
 			}
 		}, [searchText]
 	)
@@ -202,15 +238,58 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, cur
 		setLastSearch('')
 		setSearchResults([])
 
-		if(!(match.id in users)) 
+		if(!inst.guest_access && match.is_student){
+			setShareNotAllowed(true)
+			return
+		}
+		else setShareNotAllowed(false)
+
+		if(!(match.id in users) || updatedOtherUserPerms.get(match.id).remove == true) 
 		{
 			const tempUsers = users
 			tempUsers[match.id] = match
 			setUsers(tempUsers)
 			// turns out the list doesn't use the users object, but the otherUserPerms object 
 			// not sure how to edit that 
+			const tempPerms = updatedOtherUserPerms
+			tempPerms.set(
+				match.id, 
+				{
+					accessLevel: 1,
+					expireTime: null,
+					editable: false,
+					shareable: false,
+					can: {
+						view: true,
+						copy: false, 
+						edit: false,
+						delete: false, 
+						share: false
+					},
+					remove: false
+				}
+			)
+			setUpdatedOtherUserPerms(tempPerms)
 		}
-		console.log(users)
+	}
+
+	const onSave = () => {
+		// TODO: account for deleting users
+		setUserPermsForInstance(inst.id, Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => 
+		{
+			return {
+				user_id: userId,
+				expiration: userPerms.expireTime,
+				perms: {[userPerms.accessLevel]: !userPerms.remove}
+			}
+		}))
+		.then(() => {
+			updatedOtherUserPerms.forEach((value, key) => {
+				if(value.remove == true) updatedOtherUserPerms.delete(key)
+			})
+			setOtherUserPerms(updatedOtherUserPerms)
+			onClose()
+		})
 	}
 
 	return (
@@ -219,42 +298,59 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, cur
 				<span className="title">Collaborate with Others</span>
 				<div>
 					<div id="access" className="collab-container">
-						<div ng-if="selected.shareable" className="list_tab_lock search_container ng-scope">
-							<span className="collab_input_label">
-								Add people:
-							</span>
-							<input 
-								tabIndex="0" 
-								value={searchText}
-								onChange={(e) => setSearchText(e.target.value)}
-								className="user_add ng-pristine ng-untouched ng-valid ng-empty" 
-								type="text" 
-								placeholder="Enter a Materia user's name or e-mail"/>
-							{ searchResults.length !== 0
-								? <div className="collab_search_list">
-									{searchResults.map((match) => 
-										<div
-											key={match.id}
-											className='collab_search_match clickable'
-											onClick={() => onClickMatch(match)}>
-												<img className="collab_match_avatar" src={match.avatar} />
-												<p className="collab_match_name">{match.first} {match.last}</p>
+							{ //cannot search unless you have full access
+								myPerms.shareable
+								? 
+									<div className="list_tab_lock search_container ng-scope">
+										<span className="collab_input_label">
+											Add people:
+										</span>
+										<input 
+											tabIndex="0" 
+											value={searchText}
+											onChange={(e) => setSearchText(e.target.value)}
+											className="user_add ng-pristine ng-untouched ng-valid ng-empty" 
+											type="text" 
+											placeholder="Enter a Materia user's name or e-mail"/>
+										<div className="shareNotAllowed">
+										{ shareNotAllowed
+											? <p>Share Not Allowed: Access must be set to "Guest Mode" to collaborate with students.</p>
+											: null
+										}
 										</div>
-									)}
+										<div>
+										{ searchResults.length !== 0
+											? <div className="collab_search_list">
+												{searchResults.map((match) => 
+													<div
+														key={match.id}
+														className='collab_search_match clickable'
+														onClick={() => onClickMatch(match)}>
+															<img className="collab_match_avatar" src={match.avatar} />
+															<p className={`collab_match_name ${match.is_student ? 'collab_match_student' : ''}`}>{match.first} {match.last}</p>
+													</div>
+												)}
+												</div>
+											: null
+										}
+										</div>
 									</div>
 								: null
-							}
-						</div>
+							}	
+						
 
 						<div className="access_list">
-							{Array.from(otherUserPerms).map(([userId, userPerms]) => {
+							{Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => {
+								if(userPerms.remove == true) return
 								const user = users[userId]
-								if(!user) return <div>Loading...</div>
+								if(!user) return <div key={userId}>Loading...</div>
 								return <CollaborateUserRow
 									key={user.id}
 									user={user}
 									perms={userPerms}
-									isCurrentUser={currentUser.id === user.id }
+									isCurrentUser={currentUser.id === user.id}
+									onChange={(userId, perms) => updatedOtherUserPerms.set(userId, perms)}
+									readOnly={myPerms.shareable == false}
 								/>
 							})}
 
@@ -266,7 +362,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, cur
 						<a tabIndex="0" className="cancel_button" onClick={onClose}>
 							Cancel
 						</a>
-						<a tabIndex="0" className="action_button green save_button" ng-click="updatePermissions()">
+						<a tabIndex="0" className="action_button green save_button" onClick={onSave}>
 							Save
 						</a>
 					</div>

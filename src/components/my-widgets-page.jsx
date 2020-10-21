@@ -9,7 +9,7 @@ import fetchOptions from '../util/fetch-options'
 const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
 const fetchCopyInstance = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
 const fetchCurrentUser = () => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
-const fetchUserPermsForInstance = (userId, instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["${userId}","${instId}"]`)}))
+const fetchUserPermsForInstance = (instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["4","${instId}"]`)}))
 
 const PERM_VISIBLE = 1
 const PERM_PLAY = 5
@@ -62,7 +62,7 @@ const MyWidgetsPage = () => {
 	const onSelect = (inst) => {
 		setSelectedInst(inst)
 
-		fetchUserPermsForInstance(user.id, inst.id)
+		fetchUserPermsForInstance(inst.id)
 			.then(resp => resp.json())
 			.then(perms => {
 				const isEditable = inst.widget.is_editable === "1"
@@ -77,6 +77,7 @@ const MyWidgetsPage = () => {
 				setMyPerms(myPerms)
 				setOtherUserPerms(othersPerms)
 			})
+
 	}
 
 	const onCopy = useCallback(
@@ -166,6 +167,7 @@ const MyWidgetsPage = () => {
 								currentUser={user}
 								myPerms={myPerms}
 								otherUserPerms={otherUserPerms}
+								setOtherUserPerms={(p) => setOtherUserPerms(p)}
 								refreshWidgets={refreshWidgets}
 							/>
 							: null

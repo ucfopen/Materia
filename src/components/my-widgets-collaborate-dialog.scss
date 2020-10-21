@@ -23,6 +23,18 @@
 		font-size: 16px;
 	}
 
+	.shareNotAllowed {
+		height: 25px;
+
+		p {
+			padding-top: 5px;
+			text-align: center;
+			margin: 0px;
+			font-size: 0.8em;
+			color: red;
+		}
+	}
+
 	.collab_search_list {
 		width: 447px;
 		position: absolute;
@@ -66,6 +78,17 @@
 			}
 		}
 
+		.collab_match_student {
+			position: relative;
+		}
+		.collab_match_student:after {
+			content: 'Student';
+			position: absolute;
+			bottom: 5px;
+			left: 0;
+			font-size: 10px;
+		}
+
 		.collab_search_match:hover {
 			background-color: #c5e7fa;
 			cursor: pointer;
@@ -75,6 +98,7 @@
 	
 
 	.access_list{
+		margin-top: 0px;
 		background-color: #f2f2f2;
 		height: 250px;
 		border-radius: 5px;
@@ -91,7 +115,10 @@
 
 	.access_list{
 
-		margin-top: 15px;
+		.deleted {
+			display: none !important;
+		}
+		
 
 		.user_perm {
 			display: flex;
@@ -113,25 +140,54 @@
 				display:none
 			}
 
-
-			.removed{
-				position: absolute;
-				width: 100%;
-				background: #f2f2f2d4;
-				height: 100%;
-				z-index: 2;
+			.demote-dialog {
+				border-radius: 4px;
+				box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+				padding: 1em;
+				width: 310px;
+				font-family: 'Lucida Grande', sans-serif;
+				font-size: 9pt;
+				color: black;
 				text-align: center;
-				user-select: none;
+				background: #fcdbdb;
+				height: 40px;
+				z-index: 10000;
+				position: absolute;
+				margin-left: 90px;
 
-				>div{
-					font-size: 1.4em;
-					font-weight: bold;
-					color: #757373;
-					position: absolute;
-					top: 50%;
-					transform: translateY(-50%);
-					width: 100%;
+				.warning {
+					display: block;
+					margin: -4px 0 6px 0;
+					text-align: center;
 				}
+
+				.button {
+					text-align: center;
+					margin: 0 10px 0 10px;
+				}
+
+				.no-button {
+					font-family: Lato, arial, serif;
+					color: #555;
+					text-decoration: underline;
+					font-size: 12pt;
+					cursor: pointer;
+				}
+
+				.yes-button {
+					background: #ca0000;
+					background-image: linear-gradient(#e10000, #ca0000);
+					border-color: #747474;
+					color: #ffffff;	
+					padding: 3px 15px;
+				}
+				
+				.yes-button:hover {
+					background: #ca0000;
+					background-image: linear-gradient(#ca0000, #e10000);
+					text-decoration: none;
+				}
+
 			}
 
 			.remove{
@@ -142,13 +198,19 @@
 				text-align: center;
 				padding: .5em;
 				margin: .5em;
-				cursor: pointer;
 				user-select: none;
+				border: none;
+				background: transparent;
 
-				&:hover{
+				&:hover:enabled{
 					color: black;
 					background: white;
 					border-radius: 5px;
+					cursor: pointer;
+				}
+
+				&:disabled {
+					color: transparent;
 				}
 			}
 
@@ -199,7 +261,9 @@
 					}
 					.expire-open-button{
 						display: inline-block;
-						border-bottom: 1px #1778af solid;
+						// border-bottom: 1px #1778af solid;
+						border: none;
+						background: transparent;
 						color: #1778af;
 						padding: 0 0 1px 0;
 						font-weight: bold;
@@ -211,6 +275,13 @@
 							padding: 0 0 1px 0;
 						}
 
+					}
+					.expire-open-button-disabled {
+						display: inline-block;
+						border: none;
+						background: transparent;
+						padding: 0 0 1px 0;
+						font-weight: bold;
 					}
 					.expire-date-container{
 						position: absolute;
@@ -258,4 +329,19 @@
 			}
 		}
 	}
+}
+.demote_dialogue {
+	border-radius: 4px;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+	padding: 1em;
+	width: 310px;
+	font-family: 'Lucida Grande', sans-serif;
+	font-size: 9pt;
+	color: black;
+	text-align: center;
+	background: #fcdbdb;
+	height: 40px;
+	z-index: 10000;
+	position: absolute;
+	margin-left: 90px;
 }

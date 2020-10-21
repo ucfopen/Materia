@@ -7,7 +7,7 @@ import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 const deleteInstance = (instId) => fetch('/api/json/widget_instance_delete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
 const undeleteInstance = (instId) => fetch('/api/json/widget_instance_undelete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
 const updateInstance = (updated) => fetch('/api/json/widget_instance_update', fetchOptions({body: 'data=' + encodeURIComponent(`["${updated.id}", "${updated.name}", null, null, "${updated.open_at}", "${updated.close_at}", "${updated.attempts}", ${updated.guest_access}, ${updated.embedded_only}, null]`)}))
-const fetchUserPermsForInstance = (userId, instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["${userId}","${instId}"]`)}))
+const fetchUserPermsForInstance = (instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["4","${instId}"]`)}))
 
 const addZero = i => {
 	if(i<10) i = "0" + i
@@ -78,7 +78,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 	const [otherUserPerms, setOtherUserPerms] = useState(null)
 
 	useEffect(() => {
-		fetchUserPermsForInstance(currentUser.id, inst.id)
+		fetchUserPermsForInstance(inst.id)
 			.then(resp => resp.json())
 			.then(perms => {
 				console.log(perms)
@@ -209,7 +209,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				<button 
 					className="action_button"
 					onClick={() => setShowCollab(true)}>
-					<span>Collaborate ({1})</span>
+					<span>Collaborate ({otherUserPerms ? otherUserPerms.size : 0})</span>
 				</button>
 				<button 
 					className="action_button"
@@ -325,7 +325,14 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			}
 
 			{showCollab
-				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} onClose={() => {setShowCollab(false)}}/>
+				? <MyWidgetsCollaborateDialog 
+						currentUser={currentUser} 
+						inst={inst} 
+						myPerms={myPerms} 
+						otherUserPerms={otherUserPerms} 
+						setOtherUserPerms={(p) => setOtherUserPerms(p)} 
+						onClose={() => {setShowCollab(false)}}
+					/>
 				: null
 			}
 		</section>

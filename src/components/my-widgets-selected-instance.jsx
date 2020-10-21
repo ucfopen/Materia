@@ -37,14 +37,14 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	}
 }
 
-const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPerms, onDelete, onCopy}) => {
+const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPerms, setOtherUserPerms, onDelete, onCopy}) => {
 	const attempts = parseInt(inst.attempts, 10)
-	const collaborateCount = useMemo(
-		() => {
-			return 0
-		},
-		[inst]
-	)
+	// const collaborateCount = useMemo(
+	// 	() => {
+	// 		return 0
+	// 	},
+	// 	[inst]
+	// )
 	const perms = {}
 	const can = {
 		copy: true,
@@ -156,7 +156,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 							<div className={`link ${perms.stale ? 'disabled' : ''}`}
 								onClick={() => {setShowCollab(true)}}
 							>
-								Collaborate ({ collaborateCount })
+								Collaborate ({ otherUserPerms ? otherUserPerms.size : 0 })
 							</div>
 						</li>
 						<li className={`copy ${can.copy ? '' : 'disabled'}`}>
@@ -313,7 +313,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				: null
 			}
 			{showCollab
-				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} onClose={() => {setShowCollab(false)}} />
+				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} setOtherUserPerms={setOtherUserPerms} onClose={() => {setShowCollab(false)}} />
 				: null
 			}
 			{showExport
