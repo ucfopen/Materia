@@ -127,6 +127,9 @@ h1 {
 				display: inline-block;
 				margin: 0px 10px;
 			}
+			button:disabled {
+				cursor: not-allowed;
+			}
 		}
 		
 		.overview {

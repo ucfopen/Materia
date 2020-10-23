@@ -208,8 +208,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				</button>
 				<button 
 					className="action_button"
-					onClick={() => setShowCollab(true)}>
-					<span>Collaborate ({otherUserPerms ? otherUserPerms.size : 0})</span>
+					onClick={() => setShowCollab(true)}
+					disabled={updatedInst.is_deleted}>
+					<span title={updatedInst.is_deleted ? 'cannot collab on deleted instance' : null}>Collaborate ({otherUserPerms ? otherUserPerms.size : 0})</span>
 				</button>
 				<button 
 					className="action_button"
