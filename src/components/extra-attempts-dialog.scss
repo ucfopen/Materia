@@ -1,0 +1,94 @@
+.modal .extraAttemptsModal {
+	.title {
+		margin: 0;
+		padding: 0;
+		font-size: 1.3em;
+		color: #555;
+		border-bottom: #999 dotted 1px;
+		padding-bottom: 20px;
+		margin-bottom: 20px;
+		position: relative;
+		text-align: left;
+		display: block;
+		font-family: Lato, arial, serif;
+		font-weight: bold;
+	}
+
+	.attempts-input {
+		width: 445px;
+		height: 30px;
+		z-index: 2;
+		border: solid 1px #c9c9c9;
+		font-size: 16px;
+	}
+
+	.attempts_search_list {
+		width: 447px;
+		position: absolute;
+		background-color: #ffffff;
+		border: #bfbfbf 1px solid;
+		padding-bottom: 5px;
+		overflow: auto;
+		z-index: 3;
+		text-align: left;
+		left: 114px;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+
+		.attempts_search_match {
+			width: 200px;
+			height: 56px;
+			margin: 5px 5px 0 5px;
+			padding: 0 5px 5px 0;
+			border-radius: 3px;
+			display: inline-block;
+			background-color: #ffffff;
+
+			.attempts_match_avatar {
+				width: 50px;
+				height: 50px;
+				-moz-border-radius: 3px;
+				border-radius: 3px;
+				display: inline-block;
+				float: left;
+				margin-right: 10px;
+				margin: 5px;
+			}
+
+			.attempts_match_name {
+				font-size: 14px;
+				text-align: left;
+				height: 40px;
+				font-family: 'Lucida Grande', sans-serif;
+				overflow: auto;
+			}
+		}
+
+		.attempts_match_student {
+			position: relative;
+		}
+		.attempts_match_student:after {
+			content: 'Student';
+			position: absolute;
+			bottom: 5px;
+			left: 0;
+			font-size: 10px;
+		}
+
+		.attempts_search_match:hover {
+			background-color: #c5e7fa;
+			cursor: pointer;
+		}
+	}
+
+	.attempts_list{
+		margin-top: 15px;
+		background-color: #f2f2f2;
+		height: 250px;
+		border-radius: 5px;
+		padding: 0 30px;
+		text-align: right;
+		overflow: auto;
+	}
+}

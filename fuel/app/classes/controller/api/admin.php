@@ -71,4 +71,18 @@ class Controller_Api_Admin extends Controller_Rest
 		if ($input == '') return [];
 		return \Materia\Widget_Instance_Manager::get_search($input);
 	}
+
+	public function get_extra_attempts($inst_id)
+	{
+		$semester = \Materia\Semester::get_current_semester();
+
+		$result = \DB::select('id', 'user_id', 'context_id','extra_attempts')
+			->from('user_extra_attempts')
+			->where('inst_id', $inst_id)
+			->where('semester', $semester)
+			->execute()
+			->as_array();
+
+			return $result;
+	}
 }
