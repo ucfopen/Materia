@@ -39,8 +39,15 @@
 			</div>
 		</div>
 
+		<section id="qset-rollback-confirmation-bar" ng-show="showRollbackConfirmBar">
+			<h3>Previewing Prior Save</h3>
+			<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>			
+			<button ng-click="rollbackConfirmation(true)">Keep</button>
+			<button ng-click="rollbackConfirmation(false)">Cancel</button>
+		</section>
 		<section id="action-bar" ng-show="showActionBar">
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
+			<a ng-click="showQsetHistoryImporter()">Save History</a>
 			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
 			<button id="creatorPublishBtn"
 				class="edit_button green"
@@ -66,7 +73,7 @@
 
 		<div id="modal-cover" class="page" ng-show="modal"></div>
 
-		<iframe ng-attr-src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="embed_dialog" frameborder=0 width=675 height=500></iframe>
+		<iframe ng-attr-src="{{ iframeUrl }}" ng-class="{ show: iframeUrl }" id="{{embedDialogType}}" frameborder=0 width=675 height=500></iframe>
 	</section>
 	<div ng-if="invalid">
 		<?= Theme::instance()->view('partials/nopermission') ?>

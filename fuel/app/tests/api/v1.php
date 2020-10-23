@@ -1064,7 +1064,6 @@ class Test_Api_V1 extends \Basetest
 		} catch ( Exception $e) {
 			$this->assertInstanceOf('HttpNotFoundException', $e);
 		}
-
 	}
 
 	public function test_questions_get()
