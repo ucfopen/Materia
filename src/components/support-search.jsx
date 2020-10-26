@@ -11,36 +11,37 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const [showDeleted, setShowDeleted] = useState(false)
 
 	
-	useEffect(() => {
-		//get search results using search text
-		if(searchText !== lastSearch)
-		{
-			setLastSearch(searchText)
-			
-			if(searchText === '') 
+	useEffect(
+		() => {
+			//get search results using search text
+			if(searchText !== lastSearch)
 			{
-				setSearchResults([])
-			}
-			else 
-			{
-				setIsSearching(true)
-				searchWidgets(searchText)
-				.then(resp => {
-					// no content
-					if(resp.status == 204) return []
-					return resp.json()
-				})
-				.then(instances => 
-					{
-						console.log(instances)
-						setSearchResults(instances)
-						setIsSearching(false)
+				setLastSearch(searchText)
+				
+				if(searchText === '') 
+				{
+					setSearchResults([])
+				}
+				else 
+				{
+					setIsSearching(true)
+					searchWidgets(searchText)
+					.then(resp => {
+						// no content
+						if(resp.status == 204) return []
+						return resp.json()
 					})
-			}
-			
-		}
-		
-	})
+					.then(instances => 
+						{
+							console.log(instances)
+							setSearchResults(instances)
+							setIsSearching(false)
+						})
+				}
+				
+			}	
+		}, [searchText]
+	)
 
 	return (
 		<section className="page">
