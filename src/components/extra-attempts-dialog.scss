@@ -82,13 +82,103 @@
 		}
 	}
 
-	.attempts_list{
-		margin-top: 15px;
+	.attempts_list_container {
+		margin: 15px 0px;
 		background-color: #f2f2f2;
 		height: 250px;
 		border-radius: 5px;
-		padding: 0 30px;
-		text-align: right;
-		overflow: auto;
+		// padding: 0 30px;
+		// text-align: right;
+		// overflow: auto;
+		position: relative;
+
+		.headers {
+			background: #555555;
+			height: 30px;
+			color: white;
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			border-top-left-radius: 5px;
+			border-top-right-radius: 5px;
+
+			.user-header {
+				width: 250px;
+				text-align: center;
+			}
+		}
+
+		.attempts_list {
+			overflow: scroll;
+			height: 220px;
+
+			.extra_attempt {
+				display: flex;
+				align-items: center;
+				position: relative;
+				margin: 10px 10px;
+	
+				.remove {
+					display: block;
+					color: #bfbfbf;
+					text-decoration: none;
+					font-size: 15px;
+					text-align: center;
+					padding: .5em;
+					margin: .5em;
+					user-select: none;
+					border: none;
+					background: transparent;
+	
+					&:hover{
+						color: black;
+						background: white;
+						border-radius: 5px;
+						cursor: pointer;
+					}
+				}
+	
+				.user {
+					width: 250px;
+					
+					.avatar {
+						vertical-align: middle;
+						display: inline-block;
+						height: 40px;
+						width: 40px;
+						margin-right: 10px;
+					}
+	
+					.user_name {
+						font-size: 14px;
+						text-align: left;
+						position: relative;
+					}
+				}
+	
+				.context {
+					input {
+						width: 40%;
+						text-align: center;
+						display: block;
+						margin: 0 auto;
+					}
+				}
+	
+				.num_attempts {
+					input {
+						width: 20%;
+						text-align: center;
+						display: block;
+						margin: 0 auto;
+					}
+					
+				}
+			}
+		}
+	}
+
+	.cancel_button:hover {
+		cursor: pointer;
 	}
 }
