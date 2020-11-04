@@ -598,7 +598,7 @@ class Widget_Instance
 	{
 		$semester = Semester::get_current_semester();
 
-		// update an existing row
+		// we have an ID, update an existing row
 		if ($id != null)
 		{
 			if ($extra_attempts > 0)
@@ -617,7 +617,7 @@ class Widget_Instance
 					->execute();
 			}
 		}
-		// add new row
+		// no ID provided, add new row
 		else
 		{
 			// make sure extra attempts are > 0, otherwise no need to add

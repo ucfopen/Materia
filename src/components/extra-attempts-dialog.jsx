@@ -6,6 +6,7 @@ import './extra-attempts-dialog.scss'
 // note: this module is originally intended for the admin panel 
 // and does not check user permissions
 
+// fetch requests relevant for this component
 const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
 const searchUsers = (input) => fetch('/api/json/users_search', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([input]))}`}))
 const getExtraAttemptsForInstance = (instId) => fetch(`/api/admin/extra_attempts/${instId}`)
@@ -19,8 +20,10 @@ const setExtraAttemptsForInstance = (instId, attempts) => fetch(`/api/admin/extr
 		"cache-control": "no-cache",
 		"content-type": "application/json; charset=UTF-8"
 	},
-	body: JSON.stringify(attempts) })
+	body: JSON.stringify(attempts) 
+})
 
+// Component for each individual row in the Extra Attempts Gui
 const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 	// holds updated state of each extra attempts object/row
 	// to send to parent if changed
@@ -90,14 +93,20 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 	)
 }
 
+// Component for Extra Attempts Gui
 const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const [searchText, setSearchText] = useState('')
 	const [lastSearch, setLastSearch] = useState('')
 	const [searchResults, setSearchResults] = useState([])
+	// map of extra attempt objects for a particular instance
+	// key: id of extra attempt row in the db
+	// when creating a new row, id's are negative increments (newIdCount)
 	const [extraAttempts, setExtraAttempts] = useState({})
+	// hold users that correlate to extra attempts
 	const [users, setUsers] = useState({})
 	// new attempt object Id's are negative so as not to conflict with existing Id's
 	const [newIdCount, setNewIdCount] = useState(-1)
+	// display error above save button using the text from this hook:
 	const [saveError, setSaveError] = useState('')
 
 	// set the hooks on initial load
@@ -105,7 +114,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		() => {
 			getExtraAttemptsForInstance(inst.id)
 			.then(resp => {
-				if(resp.status != 200) return []
+				if(resp.status != 200) return [] // no response means map will be empty
 				return resp.json()
 			})
 			.then(resp => {
