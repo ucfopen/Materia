@@ -9,24 +9,52 @@ import './extra-attempts-dialog.scss'
 const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
 const searchUsers = (input) => fetch('/api/json/users_search', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([input]))}`}))
 const getExtraAttemptsForInstance = (instId) => fetch(`/api/admin/extra_attempts/${instId}`)
+const setExtraAttemptsForInstance = (instId, attempts) => fetch(`/api/admin/extra_attempts/${instId}`, 
+{
+	method: 'POST',
+	mode: 'cors', 
+	credentials: 'include', 
+	headers: {
+		pragma: "no-cache",
+		"cache-control": "no-cache",
+		"content-type": "application/json; charset=UTF-8"
+	},
+	body: JSON.stringify(attempts) })
 
 const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
+	// holds updated state of each extra attempts object/row
+	// to send to parent if changed
 	const [state, setState] = useState({...extraAttempt})
+	// sets row to display:none if removed, until parent render updates
+	const [disabled, setDisabled] = useState(false)
+
+	// anytime the state of this row changes, update the parent object
+	useEffect(
+		() => {
+			onChange(extraAttempt.id, {
+				id: state.id,
+				context_id: state.context_id,
+				extra_attempts: state.extra_attempts,
+				user_id: state.user_id
+			})
+		}, [state]
+	)
 
 	const onRemove = () => {
-
+		setState({...state, extra_attempts: -1})
+		setDisabled(true)
 	}
 
-	const onContextChange = () => {
-
+	const onContextChange = e => {
+		setState({...state, context_id: e.target.value })
 	}
 
-	const onAttemptsChange = () => {
-
+	const onAttemptsChange = e => {
+		setState({...state, extra_attempts: e.target.value})
 	}
 
 	return (
-		<div className='extra_attempt'>
+		<div className={`extra_attempt ${disabled ? 'disabled' : ''}`}>
 			<button tabIndex="0"
 				onClick={onRemove}
 				className="remove">
@@ -45,14 +73,18 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 				<input 
 					type="text"
 					value={state.context_id}
-					onChange={onContextChange} />
+					onChange={onContextChange} 
+					required />
 			</div>
 
 			<div className='num_attempts'>
 				<input 
-					type="text"
+					type="number"
+					min="1"
+					max="99"
 					value={state.extra_attempts}
-					onChange={onAttemptsChange} />
+					onChange={onAttemptsChange}
+					required />
 			</div>
 		</div>
 	)
@@ -64,11 +96,11 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const [searchResults, setSearchResults] = useState([])
 	const [extraAttempts, setExtraAttempts] = useState({})
 	const [users, setUsers] = useState({})
+	// new attempt object Id's are negative so as not to conflict with existing Id's
+	const [newIdCount, setNewIdCount] = useState(-1)
+	const [saveError, setSaveError] = useState('')
 
-	const onSave = () => {
-		
-	}
-
+	// set the hooks on initial load
 	useEffect(
 		() => {
 			getExtraAttemptsForInstance(inst.id)
@@ -78,7 +110,16 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 			})
 			.then(resp => {
 				const map = new Map()
-				for(const i in resp) map.set(resp[i].id, resp[i])
+				for(const i in resp)
+				{
+					map.set(parseInt(resp[i].id), 
+						{
+							id: parseInt(resp[i].id),
+							user_id: parseInt(resp[i].user_id),
+							context_id: resp[i].context_id,
+							extra_attempts: parseInt(resp[i].extra_attempts)
+						})
+				} 
 				setExtraAttempts(map)
 				const userIds = Array.from(resp, user => user.user_id)
 				return fetchUsers(userIds)
@@ -92,6 +133,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		}, [inst]
 	)
 
+	// find search results
 	useEffect(
 		() => {
 			if(searchText !== lastSearch)
@@ -123,6 +165,43 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 			}
 		}, [searchText]
 	)
+
+	const onClickMatch = match => {
+		setSearchText('')
+		setLastSearch('')
+		setSearchResults([])
+
+		// add user to users list if not already there 
+		if(!(match.id in users)){
+			const tempUsers = users
+			tempUsers[match.id] = match
+			setUsers(tempUsers)
+		}
+
+		// add another extra attempts row
+		const tempAttempts = extraAttempts
+		tempAttempts.set(
+			newIdCount,
+			{
+				id: newIdCount,
+				context_id: '',
+				extra_attempts: 1,
+				user_id: match.id
+			}
+		)
+		setExtraAttempts(tempAttempts)
+		setNewIdCount(newIdCount-1)
+	}
+
+	const onSave = () => {
+		// check to see if course id is null or extra attempts is < 1
+		extraAttempts.forEach((obj) => {
+			if(obj.context_id == '') setSaveError('Must fill in Course ID field')
+		})
+		// post request
+		setExtraAttemptsForInstance(inst.id, Array.from(extraAttempts.values()))
+		.then(onClose())
+	}
 
 	return (
 		<Modal onClose={onClose}>
@@ -165,6 +244,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 
 						<div className="attempts_list">
 							{Array.from(extraAttempts).map(([attemptId, attemptObj]) => {
+								if(attemptObj.extra_attempts < 0) return
 								const user = users[attemptObj.user_id]
 								if(!user) return <div key={attemptId}>Loading...</div>
 								return <ExtraAttemptsRow
@@ -176,12 +256,18 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 							})}
 						</div>
 					</div>
+					<div className="save-error">
+						{ saveError != ''
+							? <p>{saveError}</p>
+							: null
+						}
+					</div>
 					<a tabIndex="1" className="cancel_button" onClick={onClose}>
 							Cancel
-						</a>
-						<a tabIndex="2" className="action_button green save_button" onClick={onSave}>
-							Save
-						</a>
+					</a>
+					<a tabIndex="2" className="action_button green save_button" onClick={onSave}>
+						Save
+					</a>
 				</div>
 			</div>
 		</Modal>

@@ -74,15 +74,27 @@ class Controller_Api_Admin extends Controller_Rest
 
 	public function get_extra_attempts($inst_id)
 	{
-		$semester = \Materia\Semester::get_current_semester();
+		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+		return $inst->get_all_extra_attempts();
+	}
 
-		$result = \DB::select('id', 'user_id', 'context_id','extra_attempts')
-			->from('user_extra_attempts')
-			->where('inst_id', $inst_id)
-			->where('semester', $semester)
-			->execute()
-			->as_array();
+	public function post_extra_attempts($inst_id)
+	{
+		// Validate input
+		$extra_attempts = Input::json();
+		trace(Input::post());
+		trace($extra_attempts);
+		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+		trace('list each extra attempt');
+		foreach($extra_attempts as $value)
+		{
+			$inst->set_extra_attempts(
+				$value['user_id'], 
+				$value['extra_attempts'], 
+				$value['context_id'],
+				$value['id'] > 0 ? $value['id'] : null);
+		}
 
-			return $result;
+		return true;
 	}
 }

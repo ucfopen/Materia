@@ -112,6 +112,10 @@
 			overflow: scroll;
 			height: 220px;
 
+			.disabled {
+				display: none !important;
+			}
+
 			.extra_attempt {
 				display: flex;
 				align-items: center;
@@ -166,15 +170,26 @@
 				}
 	
 				.num_attempts {
+					display: block;
+					margin: 0 auto;
+
 					input {
-						width: 20%;
+						width: 90%;
 						text-align: center;
-						display: block;
-						margin: 0 auto;
 					}
 					
 				}
 			}
+		}
+	}
+
+	.save-error {
+		height: 20px;
+
+		p {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 	}
 
