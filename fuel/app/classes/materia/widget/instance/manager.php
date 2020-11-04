@@ -103,6 +103,13 @@ class Widget_Instance_Manager
 		return $locked_by == $me;
 	}
 
+	/**
+	 * Gets all widget instances related to a given input, including id or name. 
+	 * 
+	 * @param input search input
+	 * 
+	 * @return array of widget instances related to the given input
+	 */
 	public static function get_search($input)
 	{
 		$results = \DB::select()

@@ -19,6 +19,7 @@ const accessLevels = {
 	[PERM_FULL]: { value: PERM_FULL, text: 'Full' }
 }
 
+// api calls for this component
 const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
 const searchUsers = (input) => fetch('/api/json/users_search', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([input]))}`}))
 const setUserPermsForInstance = (instId, permsObj) => fetch('/api/json/permissions_set', fetchOptions({body: 'data=' + encodeURIComponent(`[4,"${instId}",${JSON.stringify(permsObj)}]`)}))
@@ -27,6 +28,7 @@ const defaultState = {
 	remove: false
 }
 
+// convert time in ms to a displayable format for the component
 const timestampToDisplayDate = (timestamp) => {
 	if(!timestamp) return 'never'
 	var date = new Date(timestamp*1000);
@@ -38,8 +40,8 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 	const ref = useRef();
 	const [state, setState] = useState({...defaultState, ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
 	const [showDemoteDialog, setShowDemoteDialog] = useState(false)
-	console.log(state)
 
+	// update parent everytime local state changes
 	useEffect(
 		() => {
 			onChange(user.id, {
@@ -55,7 +57,6 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 
 	const checkForWarning = () => {
 		if(isCurrentUser) { 
-			console.log("this code is running bruh")
 			setShowDemoteDialog(true)
 		}
 		else removeAccess()
@@ -81,7 +82,6 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 		const d = new Date(e.target.value+"T00:00") // +"T00:00" causes JS to be interpreted in the local timezone
 		const timestamp = d.getTime()/1000
 		setState({...state, expireDate: timestampToDisplayDate(timestamp), expireTime: timestamp})
-		console.log(state)
 	}
 
 	useClickOutside(ref, () => {
@@ -174,8 +174,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const [updatedOtherUserPerms, setUpdatedOtherUserPerms] = useState({})
 	const [shareNotAllowed, setShareNotAllowed] = useState(false)
 
-	
-
 	const collaborator = {
 		is_student: false,
 		warning: false,
@@ -199,7 +197,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				_users.forEach(u => { keyedUsers[u.id] = u})
 				setUsers(keyedUsers)
 			})
-			// console.log(users)
 		}, [inst]
 	)
 
@@ -224,7 +221,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					})
 					.then(results => 
 						{
-							console.log(results)
 							setSearchResults(results)
 							// setIsSearching(false)
 						})
@@ -274,7 +270,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	const onSave = () => {
-		// TODO: account for deleting users
 		setUserPermsForInstance(inst.id, Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => 
 		{
 			return {
