@@ -599,9 +599,9 @@ class Widget_Instance
 		$semester = Semester::get_current_semester();
 
 		// update an existing row
-		if($id != null)
+		if ($id != null)
 		{
-			if($extra_attempts > 0)
+			if ($extra_attempts > 0)
 			{
 				\DB::update('user_extra_attempts')
 					->value('extra_attempts', $extra_attempts)
@@ -621,15 +621,16 @@ class Widget_Instance
 		else
 		{
 			// make sure extra attempts are > 0, otherwise no need to add
-			if($extra_attempts > 0)
+			if ($extra_attempts > 0)
 			{
 				\DB::insert('user_extra_attempts')
 					->set([
 						'inst_id' => $this->id,
 						'semester' => $semester,
-						'user_id' => $attemptObj->user_id,
-						'extra_attempts' => $attemptObj->extra_attempts,
-						'context_id' => $attemptObj->context_id
+						'user_id' => $user_id,
+						'extra_attempts' => $extra_attempts,
+						'context_id' => $context_id,
+						'created_at' => time()
 						])
 					->execute();
 			}

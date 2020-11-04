@@ -82,11 +82,10 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		// Validate input
 		$extra_attempts = Input::json();
-		trace(Input::post());
 		trace($extra_attempts);
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 		trace('list each extra attempt');
-		foreach($extra_attempts as $value)
+		foreach ($extra_attempts as $value)
 		{
 			$inst->set_extra_attempts(
 				$value['user_id'], 
