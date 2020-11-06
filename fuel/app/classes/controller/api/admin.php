@@ -10,17 +10,21 @@ class Controller_Api_Admin extends Controller_Rest
 
 	public function before()
 	{
-		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		if ( ! (\Materia\Perm_Manager::is_super_user() || \Materia\Perm_Manager::is_support_user()) ) throw new \HttpNotFoundException;
 		parent::before();
 	}
 
 	public function get_widgets()
 	{
+		// must be super user for admin/widgets
+		if (! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		return \Materia\Widget_Manager::get_widgets(null, 'admin');
 	}
 
 	public function post_widget($widget_id)
 	{
+		// must be super user for admin/widgets
+		if (! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		// VALIDATE INPUT
 		$widget = (object) Input::json();
 		return \Materia\Widget_Manager::update_widget($widget);
