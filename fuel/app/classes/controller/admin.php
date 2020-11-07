@@ -22,7 +22,7 @@ class Controller_Admin extends Controller
 
 	public function get_widget()
 	{
-		if( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		$this->theme->get_template()->set('title', 'Widget Admin');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/admin/widget')
@@ -39,7 +39,7 @@ class Controller_Admin extends Controller
 
 	public function post_upload()
 	{
-		if( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		if (Config::get('materia.enable_admin_uploader', false) !== true) throw new HttpNotFoundException;
 
 		// Custom configuration for this upload
