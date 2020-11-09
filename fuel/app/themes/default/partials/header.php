@@ -44,13 +44,15 @@
 			<li><a ng-if="currentUser.loggedIn" href="/profile">My Profile</a></li>
 			<li><a href="/help">Help</a></li>
 
-			<?php if ( !$me->is_guest() && \Materia\Perm_Manager::is_super_user()): ?>
+			<?php if ( !$me->is_guest() && (\Materia\Perm_Manager::is_super_user() || \Materia\Perm_Manager::is_support_user()) ): ?>
 				<li class="nav_expandable">
 					<span class='elevated'>Admin</span>
 					<ul>
-						<li>
-							<a class='elevated' href="/admin/widget">Widgets</a>
-						</li>
+						<?php if (\Materia\Perm_Manager::is_super_user()): ?>
+							<li>
+								<a class='elevated' href="/admin/widget">Widgets</a>
+							</li>
+						<?php endif; ?>
 						<li>
 							<a class='elevated' href="/admin/user">Users</a>
 						</li>
