@@ -3,6 +3,7 @@ import { iconUrl } from '../util/icon-url'
 import fetchOptions from '../util/fetch-options'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
+import ExtraAttemptsDialog from './extra-attempts-dialog'
 
 const deleteInstance = (instId) => fetch('/api/json/widget_instance_delete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
 const undeleteInstance = (instId) => fetch('/api/json/widget_instance_undelete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
@@ -67,6 +68,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
+	const [showAttempts, setShowAttempts] = useState(false)
 	const [availableDisabled, setAvailableDisabled] = useState(inst.open_at < 0)
 	const [availableDate, setAvailableDate] = useState(inst.open_at < 0 ? '' : objToDateString(inst.open_at))
 	const [availableTime, setAvailableTime] = useState(inst.open_at < 0 ? '' : objToTimeString(inst.open_at))
@@ -214,6 +216,12 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				</button>
 				<button 
 					className="action_button"
+					onClick={() => setShowAttempts(true)}
+					disabled={updatedInst.is_deleted}>
+						<span>Extra Attempts</span>
+				</button>
+				<button 
+					className="action_button"
 					onClick={() => {window.location = `http://localhost/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}
 				>
 					<span>Edit Widget</span>
@@ -333,6 +341,14 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 						otherUserPerms={otherUserPerms} 
 						setOtherUserPerms={(p) => setOtherUserPerms(p)} 
 						onClose={() => {setShowCollab(false)}}
+					/>
+				: null
+			}
+
+			{showAttempts 
+				? <ExtraAttemptsDialog 
+						onClose={() => setShowAttempts(false)}
+						inst={inst}
 					/>
 				: null
 			}

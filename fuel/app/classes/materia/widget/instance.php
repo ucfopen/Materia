@@ -580,6 +580,63 @@ class Widget_Instance
 			->get();
 	}
 
+	public function get_all_extra_attempts()
+	{
+		$semester = Semester::get_current_semester();
+
+		$result = \DB::select('id', 'user_id', 'context_id','extra_attempts')
+			->from('user_extra_attempts')
+			->where('inst_id', $this->id)
+			->where('semester', $semester)
+			->execute()
+			->as_array();
+
+		return $result;
+	}
+
+	public function set_extra_attempts($user_id, $extra_attempts, $context_id, $id=null)
+	{
+		$semester = Semester::get_current_semester();
+
+		// we have an ID, update an existing row
+		if ($id != null)
+		{
+			if ($extra_attempts > 0)
+			{
+				\DB::update('user_extra_attempts')
+					->value('extra_attempts', $extra_attempts)
+					->value('context_id', $context_id)
+					->where('id', '=', $id)
+					->execute();
+			}
+			// delete existing row if attempts <= 0
+			else
+			{
+				\DB::delete('user_extra_attempts')
+					->where('id', $id)
+					->execute();
+			}
+		}
+		// no ID provided, add new row
+		else
+		{
+			// make sure extra attempts are > 0, otherwise no need to add
+			if ($extra_attempts > 0)
+			{
+				\DB::insert('user_extra_attempts')
+					->set([
+						'inst_id' => $this->id,
+						'semester' => $semester,
+						'user_id' => $user_id,
+						'extra_attempts' => $extra_attempts,
+						'context_id' => $context_id,
+						'created_at' => time()
+						])
+					->execute();
+			}
+		}
+	}
+
 	public function export()
 	{
 	}

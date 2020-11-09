@@ -71,4 +71,30 @@ class Controller_Api_Admin extends Controller_Rest
 		if ($input == '') return [];
 		return \Materia\Widget_Instance_Manager::get_search($input);
 	}
+
+	public function get_extra_attempts($inst_id)
+	{
+		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+		return $inst->get_all_extra_attempts();
+	}
+
+	public function post_extra_attempts($inst_id)
+	{
+		// Validate input
+		$extra_attempts = Input::json();
+		
+		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+		
+		// iterate thru each extra attempt and set it in the db
+		foreach ($extra_attempts as $value)
+		{
+			$inst->set_extra_attempts(
+				$value['user_id'], 
+				$value['extra_attempts'], 
+				$value['context_id'],
+				$value['id'] > 0 ? $value['id'] : null);
+		}
+
+		return true;
+	}
 }
