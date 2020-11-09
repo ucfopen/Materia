@@ -174,6 +174,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			if(resp.status != 200){
 				setErrorText('Error: Update Unsuccessful')
 			}
+			else {
+				setErrorText('Success!')
+			}
 		})
 
 		// console.log(u.close_at)
