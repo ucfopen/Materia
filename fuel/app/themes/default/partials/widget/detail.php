@@ -127,97 +127,122 @@
 
 		<section class="bottom">
 
-			<?php if ( ! \Materia\Perm_Manager::does_user_have_role(['no_author'])): ?>
-			<div class="widget-action-buttons">
-				<h4>Want to use it in your course?</h4>
-				<p>
-					<a id ="createLink"
-						href='{{ widget.creatorurl }}'
-						class="action_button green">
-						<svg xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24">
-							<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-							<path d="M0 0h24v24H0z"
-								fill="none"/>
-						</svg>
-						Create your widget
-					</a>
-				</p>
-			</div>
-			<?php endif; ?>
-
-			<div class="feature-list features"
-				ng-show="widget.features.length">
-				<span class="feature-heading">Features:</span>
-				<div class="feature"
-					ng-repeat="feature in widget.features">
-					<div class="feature-name"
-						ng-mouseover="feature.show = true"
-						ng-mouseout="feature.show = false">
-						{{ feature.text }}
+			<div class="bottom-content">
+				<div class="left-content">
+					<div class="feature-list features"
+						ng-show="widget.features.length">
+						<span class="feature-heading">Features</span>
+						<div class="item-list">
+							<div class="feature"
+								ng-repeat="feature in widget.features">
+								<div class="feature-name"
+									ng-mouseover="feature.show = true"
+									ng-mouseout="feature.show = false">
+									{{ feature.text }}
+								</div>
+								<div class="feature-description"
+									ng-show="feature.show">
+									{{ feature.description }}
+								</div>
+							</div>
+						</div>
 					</div>
-					<div class="feature-description"
-						ng-show="feature.show">
-						{{ feature.description }}
+
+					<div class="feature-list supported-data"
+						ng-show='widget.supported_data.length'>
+						<span class="feature-heading">Supported Data</span>
+						<div class="item-list">
+							<div class="feature"
+								ng-repeat="data in widget.supported_data">
+								<div class="feature-name"
+									ng-mouseover="data.show=true"
+									ng-mouseout="data.show = false">
+									{{ data.text }}
+								</div>
+								<div class="feature-description"
+									ng-show="data.show">
+									{{ data.description }}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="feature-list accessibility-options"
+						ng-show='widget.accessibility.score'>
+						<div class="list-holder">
+							<span class="feature-heading">Accessibility</span>
+							<div class="progress-bar">
+								<div class="bar red"></div>
+								<div class="bar orange"></div>
+								<div class="bar green"></div>
+								<div class="arrow score{{widget.accessibility.score}}"></div>
+							</div>
+							<span class="feature-footer">{{widget.accessibility.description}}</span>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="feature-list supported-data"
-				ng-show='widget.supported_data.length'>
-				<span class="feature-heading">Supported Data:</span>
-				<div class="feature"
-					ng-repeat="data in widget.supported_data">
-					<div class="feature-name"
-						ng-mouseover="data.show=true"
-						ng-mouseout="data.show = false">
-						{{ data.text }}
+				<div class="right-content">
+					<?php if ( ! \Materia\Perm_Manager::does_user_have_role(['no_author'])): ?>
+					<div class="widget-action-buttons">
+						<h4>Want to use it in your course?</h4>
+						<p>
+							<a id ="createLink"
+								href='{{ widget.creatorurl }}'
+								class="action_button green">
+								<svg xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24">
+									<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+									<path d="M0 0h24v24H0z"
+										fill="none"/>
+								</svg>
+								Create your widget
+							</a>
+						</p>
 					</div>
-					<div class="feature-description"
-						ng-show="data.show">
-						{{ data.description }}
+					<?php endif; ?>
+
+					<div class="feature-list guides"
+						ng-if="hasPlayerGuide || hasCreatorGuide">
+						<span class="feature-heading guide">Learn more about playing and creating this widget.</span>
+						<div class="item-list">
+							<div class="feature"
+								ng-if="hasPlayerGuide">
+								<a class="guide-link"
+									ng-href="{{widget.players_guide}}">
+									Player's Guide
+									<svg xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24">
+										<path d="M0 0h24v24H0z"
+											fill="none"/>
+										<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+											fill="white"/>
+									</svg>
+								</a>
+							</div>
+
+							<div class="feature"
+								ng-if="hasCreatorGuide">
+								<a class="guide-link"
+									ng-href="{{widget.creators_guide}}">
+									Creator's Guide
+									<svg xmlns="http://www.w3.org/2000/svg"
+										width="24"
+										height="24"
+										viewBox="0 0 24 24">
+										<path d="M0 0h24v24H0z"
+											fill="none"/>
+										<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+											fill="white"/>
+									</svg>
+								</a>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-
-
-			<div class="feature-list guides"
-				ng-if="hasPlayerGuide || hasCreatorGuide">
-				<span class="feature-heading">Guides:</span>
-				<div class="feature"
-					ng-if="hasPlayerGuide">
-					<a class="guide-link"
-						ng-href="{{widget.players_guide}}">
-						Player's Guide
-						<svg xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24">
-							<path d="M0 0h24v24H0z"
-								fill="none"/>
-							<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
-								fill="white"/>
-						</svg>
-					</a>
-				</div>
-
-				<div class="feature"
-					ng-if="hasCreatorGuide">
-					<a class="guide-link"
-						ng-href="{{widget.creators_guide}}">
-						Creator's Guide
-						<svg xmlns="http://www.w3.org/2000/svg"
-							width="24"
-							height="24"
-							viewBox="0 0 24 24">
-							<path d="M0 0h24v24H0z"
-								fill="none"/>
-							<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
-								fill="white"/>
-						</svg>
-					</a>
 				</div>
 			</div>
 

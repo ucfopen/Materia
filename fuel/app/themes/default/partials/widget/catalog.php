@@ -86,6 +86,16 @@
 			<li ng-class="['supported-feature', {selected: filters[supported].isActive}]" ng-repeat="supported in widget.meta_data.supported_data">{{supported}}</li>
 			<li ng-class="['supported-feature', {selected: filters[filter].isActive}]" ng-repeat="filter in widget.meta_data.features">{{filter}}</li>
 		</ul>
+		<div class="accessibility-indicators" ng-if="widget.meta_data.accessibility_options.length > 0">
+			<div ng-if="widget.meta_data.accessibility_options.length > 0 && widget.meta_data.accessibility_options[0] != 'None'">
+				<img src="<?= \Config::get('materia.urls.static') ?>img/keyboard_icon.png" alt="Keyboard support"></img>
+				<span class="tool-tip">Keyboard Accessible</span>
+			</div>
+			<div ng-if="widget.meta_data.accessibility_options.length > 1 && widget.meta_data.accessibility_options[1] != 'None'">
+				<img src="<?= \Config::get('materia.urls.static') ?>img/screen_reader_icon.png" alt="Screen reader support"></img>
+				<span class="tool-tip">Screen Reader Accessible</span>
+			</div>
+		</div>
 	</div>
 </a>
 </script>
