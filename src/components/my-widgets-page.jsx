@@ -53,8 +53,13 @@ const MyWidgetsPage = () => {
 			fetchWidgets()
 			.then(resp => resp.json())
 			.then(widgets => {
+				console.log(widgets)
 				setIsLoading(false)
 				setWidgets(widgets)
+			})
+			.catch(error => {
+				setIsLoading(false)
+				setWidgets([])
 			})
 		}, []
 	)
