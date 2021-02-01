@@ -12,7 +12,10 @@ return [
 	'log_for_debug'                          => $_ENV['BOOL_LTI_LOG_FOR_DEBUGGING'] ?? false,
 
 	'consumers' => [
-		 // the array index here is matched to 'tool_consumer_info_product_family_code' in lti launches
+		// The array key here is matched to 'tool_consumer_info_product_family_code' in lti launches
+		// if there is no specific match, 'default' is used as a fallback
+		// NOTE that custom consumers do not merge with default
+		// you need to re-define every key for each consumer
 		'default' => [
 			// these display in the consumer's dialogs
 			'title'                 => 'Materia Widget Assignment',

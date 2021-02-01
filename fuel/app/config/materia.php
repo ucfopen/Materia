@@ -83,6 +83,8 @@ return [
 	*/
 	'enable_admin_uploader' => $_ENV['BOOL_ADMIN_UPLOADER_ENABLE'] ?? true,
 
+	'google_tracking_id' => $_ENV['GOOGLE_ANALYTICS_ID'] ?? false,
+
 	// Asset storage configuration
 	'asset_storage_driver' => $_ENV['ASSET_STORAGE_DRIVER'] ?? 'file',
 
