@@ -10,8 +10,8 @@ const Homepage = () => (
 			<section className="main_container">
 				<span className="spotlight-wrapper">
 
-					<article class="store_main selected">
-						<section class="html5">
+					<article className="store_main selected">
+						<section className="html5">
 							<h1>Supercharged HTML 5 Widgets</h1>
 
 							<p>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>

@@ -100,6 +100,20 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 		}, [inst, setShowCopy]
 	)
 
+	const closeModal = (setModal) => {
+		if (setModal != undefined) {
+			setModal(false)
+			document.body.style.overflow = "auto"
+		}
+	}
+
+	const showModal = (setModal) => {
+		if (setModal != undefined) {
+			setModal(true)
+			document.body.style.overflow = "hidden"
+		}
+	}
+
 	useEffect(() => {
 		setShowDeleteDialog(false);
 	}, [inst])
@@ -154,15 +168,17 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 					<ul className="options">
 						<li className="share">
 							<div className={`link ${perms.stale ? 'disabled' : ''}`}
-								onClick={() => {setShowCollab(true)}}
+								onClick={() => {
+									showModal(setShowCollab)
+								}}
 							>
-								Collaborate ({ otherUserPerms ? otherUserPerms.size : 0 })
+								Collaborate { otherUserPerms && otherUserPerms.size > 1 ? "(" +(otherUserPerms.size-1) + ")" : "" }
 							</div>
 						</li>
 						<li className={`copy ${can.copy ? '' : 'disabled'}`}>
 							<div className={`link ${can.copy ? '' : 'disabled'}`}
 								id="copy_widget_link"
-								onClick={() => {setShowCopy(true)}}
+								onClick={() => {showModal(setShowCopy)}}
 							>
 								Make a Copy
 							</div>
@@ -309,11 +325,11 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				</div>
 			</div>
 			{showCopy
-				? <MyWidgetsCopyDialog onClose={() => {setShowCopy(false)}} onCopy={makeCopy} />
+				? <MyWidgetsCopyDialog onClose={() => {closeModal(setShowCopy)}} onCopy={makeCopy} />
 				: null
 			}
 			{showCollab
-				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} setOtherUserPerms={setOtherUserPerms} onClose={() => {setShowCollab(false)}} />
+				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} setOtherUserPerms={setOtherUserPerms} onClose={() => {closeModal(setShowCollab)}} />
 				: null
 			}
 			{showExport

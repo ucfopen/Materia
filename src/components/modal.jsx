@@ -3,9 +3,6 @@ import { createPortal } from 'react-dom';
 import './modal.scss'
 import useClickOutside from '../util/use-click-outside'
 
-
-
-
 // We get hold of the div with the id modal that we have created in index.html
 const modalRoot = document.getElementById( 'modal' );
 
@@ -24,13 +21,15 @@ class Modal extends React.Component {
 			return;
 		}
 
-		this.props.onClose()
+		if (this.props.ignoreClose !== true) {
+			this.props.onClose()
+		}
 	};
 
 	componentDidMount() {
 		modalRoot.appendChild( this.element );
 		document.addEventListener('mousedown', this.clickOutsideListener);
-  		document.addEventListener('touchstart', this.clickOutsideListener);
+  	document.addEventListener('touchstart', this.clickOutsideListener);
 	}
 
 	componentWillUnmount() {
@@ -42,10 +41,10 @@ class Modal extends React.Component {
 	render() {
 	  const stuff = (
 		<>
-			<div className="modal-overlay" id="modal-overlay"></div>
+			<div className={`modal-overlay ${this.props.alert ? 'alert' : ''}`} id="modal-overlay"></div>
 
-			<div ref={this.modalRef} className="modal" id="modal">
-				<button className="close-button" id="close-button" onClick={this.props.onClose}>X</button>
+			<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''}`} id="inner-modal">
+				<span className="close-button" id="close-button" onClick={this.props.onClose}>X</span>
 				<div className="modal-guts">
 					{this.props.children}
 				</div>

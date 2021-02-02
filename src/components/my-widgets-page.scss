@@ -4,21 +4,20 @@
 /*        Catalog                                                  */
 /* *************************************************************** */
 
-
-.graph{
+.graph {
 	rect.vx-bar {
 		fill: #0093e7;
 	}
 
-	.vx-axis tspan{
+	.vx-axis tspan {
 		fill: #666;
 	}
 
-	.vx-line{
+	.vx-line {
 		stroke: #a9a9a9;
 	}
 
-	.vx-graph{
+	.vx-graph {
 		fill: white;
 	}
 }
@@ -261,7 +260,7 @@
 		background: #ffcb68;
 	}
 
-	aside .widget_list .my-widgets-instance-card.hidden{
+	aside .widget_list .my-widgets-instance-card.hidden {
 		display: none;
 	}
 
@@ -523,7 +522,8 @@
 		padding-left: 100px;
 		position: relative;
 		box-sizing: border-box;
-		background: rgba(0, 0, 0, 0.05) url(http://localhost/img/widget_link_icon.png) no-repeat 20px 20px;
+		background: rgba(0, 0, 0, 0.05) url(http://localhost/img/widget_link_icon.png) no-repeat 20px
+			20px;
 
 		h3 {
 			font-size: 1.4em;
@@ -1418,31 +1418,29 @@ aside .widget {
 	position: relative;
 }
 
-
-
 // STORAGE TABLE SCSS
 table.storage_table {
 	// font-family: 'Lucida Grande', sans-serif;
 	// width: 638px;
 	font-size: 13px;
-	thead{
-		th{
+	thead {
+		th {
 			padding: 3px 18px 3px 10px;
 			border-bottom: 1px solid black;
 			font-weight: bold;
 		}
 	}
-	tbody{
+	tbody {
 		display: table-row-group;
-    	vertical-align: middle;
+		vertical-align: middle;
 		border-color: inherit;
-		tr:nth-child(odd){
-			background-color: #EEE;
+		tr:nth-child(odd) {
+			background-color: #eee;
 		}
-		tr{
+		tr {
 			background-color: white;
 		}
-		td{
+		td {
 			padding: 5px 10px;
 			margin: 0;
 			position: relative;
@@ -1450,15 +1448,12 @@ table.storage_table {
 	}
 }
 
-
-
 // COPY DIALOG
 
-.modal .copy-modal{
-	// .ng-modal-dialog {
-	// 	padding: 20px 20px 5px 20px;
-	// 	min-width: 500px
-	// }
+.modal .copy-modal {
+	width: 620px;
+	height: 330px;
+	padding: 10px 10px 0 10px;
 
 	.title {
 		margin: 0;
@@ -1471,6 +1466,7 @@ table.storage_table {
 		position: relative;
 		text-align: left;
 		display: block;
+		font-weight: bold;
 	}
 
 	a.close {
@@ -1524,5 +1520,4 @@ table.storage_table {
 		text-align: center;
 		width: 100%;
 	}
-
 }

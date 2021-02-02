@@ -67,8 +67,9 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 			setShowDemoteDialog(false)
 	}
 
-	const toggleShowExpire = () => {
-		setState({...state, showExpire: !state.showExpire})
+	const toggleShowExpire = (e) => {
+		if (!isCurrentUser)
+			setState({...state, showExpire: !state.showExpire})
 	}
 
 	const clearExpire = () => {
@@ -90,7 +91,7 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 
 
 	return (
-		<div className={`user_perm ${state.remove ? "deleted" : ""}`}>
+		<div className={`user-perm ${state.remove ? "deleted" : ""}`}>
 			<button tabIndex="0"
 				onClick={checkForWarning}
 				className="remove"
@@ -101,12 +102,13 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 			<div className="about">
 				<img className="avatar" src={user.avatar} />
 
-				<span className={`name ${user.is_student ? 'user_match_student' : ''}`}>
+				<span className={`name ${user.is_student ? 'user-match-student' : ''}`}>
 					{`${user.first} ${user.last}`}
 				</span>
 			</div>
 			{ showDemoteDialog
 				? <div className="demote-dialog">
+						<div className="arrow"></div>
 						<div className="warning">
 							Are you sure you want to limit <strong>your</strong> access?
 						</div>
@@ -116,25 +118,7 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 				: null
 
 			}
-			{true
-					? null
-					:
-			<div className="demote_dialogue ng-hide" ng-show="collaborator.warning">
-				<div className="arrow"></div>
-				<div className="warning">
-					Are you sure you want to limit <strong>your</strong> access?
-				</div>
-					<a ng-click="cancelDemote(collaborator)" className="no_button">
-					No
-				</a>
-				<a ng-click="collaborator.warning = false" className="button red action_button yes_button">
-					Yes
-				</a>
-			</div>
-		}
-
 			<div className="options">
-
 				<select
 					disabled={readOnly}
 					tabIndex="0"
@@ -155,16 +139,15 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 						? <span ref={ref} className="expire-date-container">
 							<input type="date" value={state.expireDate} onChange={onExpireChange} />
 							<span className="remove" onClick={clearExpire}>Set to Never</span>
-							<span className="date-finish" onClick={toggleShowExpire}>Done</span>
+							<span className="date-finish" onClick={(e) => {toggleShowExpire(e)}}>Done</span>
 							</span>
-						: <button className={readOnly ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={toggleShowExpire} disabled={readOnly}>{state.expireDate}</button>
+						: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{state.expireDate}</button>
 					}
 				</div>
 			</div>
 		</div>
 	)
 }
-
 
 const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
 	const [users, setUsers] = useState({})
@@ -288,41 +271,35 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	return (
-		<Modal onClose={onClose}>
+		<Modal onClose={onClose} ignoreClose={shareNotAllowed}>
 			<div className="collaborate-modal">
-				<span className="title">Collaborate with Others</span>
+				<span className="title">Collaborate</span>
 				<div>
 					<div id="access" className="collab-container">
 							{ //cannot search unless you have full access
 								myPerms.shareable
 								? 
-									<div className="list_tab_lock search_container ng-scope">
-										<span className="collab_input_label">
+									<div className="search-container ng-scope">
+										<span className="collab-input-label">
 											Add people:
 										</span>
 										<input 
 											tabIndex="0" 
 											value={searchText}
 											onChange={(e) => setSearchText(e.target.value)}
-											className="user_add ng-pristine ng-untouched ng-valid ng-empty" 
+											className="user-add" 
 											type="text" 
 											placeholder="Enter a Materia user's name or e-mail"/>
-										<div className="shareNotAllowed">
-										{ shareNotAllowed
-											? <p>Share Not Allowed: Access must be set to "Guest Mode" to collaborate with students.</p>
-											: null
-										}
-										</div>
 										<div>
 										{ searchResults.length !== 0
-											? <div className="collab_search_list">
+											? <div className="collab-search-list">
 												{searchResults.map((match) => 
 													<div
 														key={match.id}
-														className='collab_search_match clickable'
+														className='collab-search-match clickable'
 														onClick={() => onClickMatch(match)}>
-															<img className="collab_match_avatar" src={match.avatar} />
-															<p className={`collab_match_name ${match.is_student ? 'collab_match_student' : ''}`}>{match.first} {match.last}</p>
+															<img className="collab-match-avatar" src={match.avatar} />
+															<p className={`collab-match-name ${match.is_student ? 'collab-match-student' : ''}`}>{match.first} {match.last}</p>
 													</div>
 												)}
 												</div>
@@ -334,11 +311,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 							}	
 						
 
-						<div className="access_list">
+						<div className="access-list">
 							{Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => {
 								if(userPerms.remove == true) return
 								const user = users[userId]
-								if(!user) return <div key={userId}>Loading...</div>
+								if(!user) return <div key={userId}></div>
 								return <CollaborateUserRow
 									key={user.id}
 									user={user}
@@ -354,15 +331,27 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 							Users with full access can edit or copy this widget and can
 							add or remove people in this list.
 						</p>
-						<a tabIndex="0" className="cancel_button" onClick={onClose}>
-							Cancel
-						</a>
-						<a tabIndex="0" className="action_button green save_button" onClick={onSave}>
-							Save
-						</a>
+						<div className="btn-box">
+							<a tabIndex="0" className="cancel_button" onClick={onClose}>
+								Cancel
+							</a>
+							<a tabIndex="0" className="action_button green save_button" onClick={onSave}>
+								Save
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
+			{ shareNotAllowed == true
+				?
+				<Modal onClose={() => {setShareNotAllowed(false)}} smaller={true} alert={true}>
+					<span className="alert-title">Share Not Allowed</span>
+					<p className="alert-description">Access must be set to "Guest Mode" to collaborate with students.</p>
+					<button className="alert-btn" onClick={() => {setShareNotAllowed(false)}}>Okay</button>
+				</Modal>
+				:
+				null
+			}
 		</Modal>
 	)
 }
