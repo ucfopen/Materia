@@ -7,6 +7,9 @@ import parseTime from '../util/parse-time'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsExportDataDialog  from './my-widgets-export-data-dialog'
+import fetchOptions from '../util/fetch-options'
+
+const fetchEdit = (arrayOfWidgetIds) => fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfWidgetIds]))}`}))
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -53,8 +56,38 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 
 	const onEditClick = (inst) => {
 
-		const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
-		window.location = editUrl
+		console.log(inst)
+
+		if (inst.widget.is_editable) {
+			fetchEdit(inst.id)
+			.then(res => res.json())
+			.then(widgetInfo => {
+				console.log(widgetInfo)
+
+				if(widgetInfo.isLocked){
+					return 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
+				}
+				if(inst.isDraft){
+					const editUrl = `http://localhost/${inst.widget.dir}/create#${inst.id}`
+					window.location = editUrl
+					return
+				}
+
+				if (widgetInfo.can_publish){
+					// show editPublished warning
+					const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
+					window.location = editUrl
+					return
+				}
+				else {
+					// show restricted publish warning
+					return
+				}
+			})
+			.catch(error => {
+				console.log(error)
+			})
+		}
 
 		// if(inst.editable){
 		// 	// send request to widget_instance_edit_perms_verify
@@ -146,19 +179,24 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 						alt={inst.widget.name} />
 				</div>
 				<div className="controls">
-					<ul>
-						<li>
+					<ul className="button-list">
+						<li class="preview_holder">
 							<a id="preview_button"
-								className={`action_button green circle_button ${ !inst.widget.is_playable ? 'disabled' : '' }`}
+								className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
 								target="_blank"
 								href={inst.preview_url}
 							>
-								<span className="arrow arrow_right"></span>Preview
+								<svg class="preview-svg" viewBox="-40 32 155 70" width="125">
+									<path d="M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44" stroke="#525252"/>
+									<polyline points="-15 51.5 -15 81.5 5 66.5" fill="#4c5823"/>
+									<span className="">Preview</span>
+								</svg>
+								<span className="">Preview</span>
 							</a>
 						</li>
 						<li>
 							<a id="edit_button"
-								className={`action_button aux_button ${inst.widget.is_editable ? '' : 'disabled'} `}
+								className={`action-button aux_button ${inst.widget.is_editable ? '' : 'disabled'} `}
 								onClick={() => {onEditClick(inst)}}>
 								<span className="pencil"></span>
 								Edit Widget
@@ -325,7 +363,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				</div>
 			</div>
 			{showCopy
-				? <MyWidgetsCopyDialog onClose={() => {closeModal(setShowCopy)}} onCopy={makeCopy} />
+				? <MyWidgetsCopyDialog onClose={() => {closeModal(setShowCopy)}} name={inst.name} onCopy={makeCopy} />
 				: null
 			}
 			{showCollab

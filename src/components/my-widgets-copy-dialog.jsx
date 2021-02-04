@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from './modal'
 
-const MyWidgetsCopyDialog = ({onClose, onCopy}) => {
+const MyWidgetsCopyDialog = ({onClose, onCopy, name}) => {
 	const [newTitle, setNewTitle] = useState('')
 	const [copyPermissions, setCopyPermissions] = useState(false)
+
+	useEffect(() => {setNewTitle(name + " copy")}, [])
+
 	return (
 		<Modal onClose={onClose}>
 			<div className="copy-modal">
@@ -12,16 +15,15 @@ const MyWidgetsCopyDialog = ({onClose, onCopy}) => {
 				<div className="ng-modal-dialog-content">
 					<div className="container">
 						<div className="title_container">
-							<label>
-								New Title:
-								<input
+							<label htmlFor="copy-title">New Title:</label>
+							<input
+									id="copy-title"
 									className="new-title"
 									type="text"
 									placeholder="New Widget Title"
 									value={newTitle}
 									onChange={(e) => {setNewTitle(e.target.value)}}
 								/>
-							</label>
 						</div>
 						<div className="options_container">
 							<label>

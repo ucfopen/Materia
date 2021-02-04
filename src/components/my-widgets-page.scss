@@ -344,14 +344,90 @@
 		height: 288px;
 		width: 374px;
 		vertical-align: top;
+
+		.preview-svg {
+			-webkit-filter: drop-shadow(1px 2px 4px #888);
+			filter: drop-shadow(1px 2px 4px #888);
+		}
+
+		.button-list {
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+
+			.preview_holder {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.green {
+				fill: #c4dd61;
+
+				&:hover {
+					fill: #a2c129;
+				}
+			}
+		}
+
+		.action-button {
+			font-family: 'Lato', arial, serif;
+			padding: 7px 23px 8px 23px;
+			background: #ffba5d;
+
+			font-weight: 700;
+			color: #694d28;
+			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+			box-shadow: 1px 2px 4px #888;
+			font-size: 18px;
+			position: relative;
+			cursor: pointer;
+			display: inline-block;
+			user-select: none;
+
+			border: 1px solid #525252;
+			border-radius: 4px;
+
+			&.green {
+				border: 0;
+				border-radius: 0;
+				background: none;
+				color: #525252;
+				box-shadow: none;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+
+				span {
+					position: absolute;
+					right: 0.7em;
+				}
+
+				&:hover {
+					background: none;
+				}
+			}
+
+			&:hover {
+				background: #eca444;
+				text-decoration: none;
+			}
+
+			.little-button-text {
+				font-size: 18px;
+				display: block;
+			}
+		}
 	}
 
+	/*
 	.page .controls .green {
 		background: #b2cd43;
-		background-image: linear-gradient(#d1e776, #a6c430);
 		border-color: #95a74e;
 		color: #4d5822;
-	}
+	}*/
+
 	.page .controls .green:hover .arrow_right {
 		background: url(http://localhost/img/button_arrow_circle_green_hover.png) no-repeat bottom;
 	}
@@ -368,19 +444,19 @@
 		background: url(http://localhost/img/button_arrow_circle_gray.png) no-repeat bottom;
 	}
 
+	.page .controls ul {
+		margin: 10px 0 0 0;
+	}
+
 	.page .controls ul li {
 		display: inline;
 		list-style: none;
-	}
-	.page .controls ul:first-child li:first-child {
-		margin-left: 28px;
 	}
 	.page .controls ul.options {
 		padding: 0;
 		padding-bottom: 5px;
 		text-align: center;
 		font-size: 15px;
-		margin-top: 22px;
 		font-family: 'Lucida Grande', sans-serif;
 	}
 	.page .controls ul.options li a,
@@ -1512,7 +1588,7 @@ table.storage_table {
 	}
 
 	.options_container input {
-		margin-right: 5px;
+		margin-right: 8px;
 	}
 
 	.bottom_buttons {

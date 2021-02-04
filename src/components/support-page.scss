@@ -26,15 +26,14 @@ h1 {
 		}
 
 		.search_list {
-
 			.search_match.deleted {
-				background-color: rgba(0,0,0,0.2);
+				background-color: rgba(0, 0, 0, 0.2);
 			}
 
 			.search_match.hidden {
 				display: none;
 			}
-			
+
 			.icon {
 				background-repeat: no-repeat;
 				background-size: 60px;
@@ -134,7 +133,7 @@ h1 {
 				background: #ffba5d7a;
 			}
 		}
-		
+
 		.overview {
 			padding: 10px;
 
@@ -152,7 +151,7 @@ h1 {
 			.radio {
 				display: inline-block;
 				// width: 200px;
-				
+
 				input {
 					margin: 0px 5px;
 				}
@@ -165,7 +164,7 @@ h1 {
 				font-size: 70%;
 				margin: 0px 0px;
 			}
-			
+
 			.right-justify {
 				margin-top: 20px;
 				display: flex;
@@ -190,7 +189,6 @@ h1 {
 				}
 			}
 		}
-		
 	}
 
 	.page > ul {
@@ -228,9 +226,6 @@ h1 {
 	}
 }
 
-
-
-
 .instance_search {
 	width: 200px;
 }
@@ -257,10 +252,9 @@ h1 {
 	cursor: pointer;
 }
 
-
 // COPY DIALOG
 
-.modal .copy-modal{
+.modal .copy-modal {
 	// .ng-modal-dialog {
 	// 	padding: 20px 20px 5px 20px;
 	// 	min-width: 500px
@@ -334,5 +328,4 @@ h1 {
 			margin: 0px 10px;
 		}
 	}
-
 }
