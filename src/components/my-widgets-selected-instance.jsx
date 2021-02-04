@@ -7,6 +7,7 @@ import parseTime from '../util/parse-time'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsExportDataDialog  from './my-widgets-export-data-dialog'
+import MyWidgetsWarningDialog  from './my-widgets-warning-dialog'
 import fetchOptions from '../util/fetch-options'
 
 const fetchEdit = (arrayOfWidgetIds) => fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfWidgetIds]))}`}))
@@ -42,17 +43,16 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 
 const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPerms, setOtherUserPerms, onDelete, onCopy}) => {
 	const attempts = parseInt(inst.attempts, 10)
-	// const collaborateCount = useMemo(
-	// 	() => {
-	// 		return 0
-	// 	},
-	// 	[inst]
-	// )
-	const perms = {}
-	const can = {
-		copy: true,
-		delete: true
-	}
+	const [perms, setPerms] = useState({})
+	const [can, setCan] = useState({})
+
+	useEffect(() => {
+		if (myPerms) {
+			console.log(myPerms)
+			setCan(myPerms.can)
+			setPerms(myPerms)
+		}
+	}, [myPerms, inst])
 
 	const onEditClick = (inst) => {
 
@@ -73,8 +73,9 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 
 				if (widgetInfo.can_publish){
 					// show editPublished warning
-					const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
-					window.location = editUrl
+					setShowWarning(true)
+					//const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
+					//window.location = editUrl
 					return
 				}
 				else {
@@ -86,32 +87,6 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				console.log(error)
 			})
 		}
-
-		// if(inst.editable){
-		// 	// send request to widget_instance_edit_perms_verify
-		// 	// Materia.Coms.Json.send('widget_instance_edit_perms_verify', [inst.id,])
-		// 	// .then((response) => {
-		// 	if(isLocked){
-		// 		return 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
-		// 	}
-
-		// 	if(isDraft){
-		// 		const editUrl = `http://localhost/${inst.widget.dir}/create#${inst.id}`
-		// 		window.location = editUrl
-		// 		return
-		// 	}
-
-		// 	if (response.can_publish){
-		// 		// show editPublished warning
-		// 		// $scope.show.editPublishedWarning = true
-		// 		return
-		// 	}
-		// 	else{
-		// 		// show restricted publish warning
-		// 		// $scope.show.restrictedPublishWarning = true
-		// 		return
-		// 	}
-		// }
 	}
 
 	const onShowCollaboration = () => {}
@@ -122,6 +97,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 	const [showExport, setShowExport] = useState(false)
+	const [showWarning, setShowWarning] = useState(false)
 
 
 	const makeCopy = useCallback(
@@ -143,6 +119,11 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 			setModal(true)
 			document.body.style.overflow = "hidden"
 		}
+	}
+
+	const editWidget = () => {
+		const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
+		window.location = editUrl
 	}
 
 	useEffect(() => {
@@ -194,7 +175,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 						</li>
 						<li>
 							<a id="edit_button"
-								className={`action-button aux_button ${inst.widget.is_editable ? '' : 'disabled'} `}
+								className={`action-button aux_button ${can.edit ? '' : 'disabled'} `}
 								onClick={() => {onEditClick(inst)}}>
 								<span className="pencil"></span>
 								Edit Widget
@@ -252,19 +233,19 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 						: null
 					}
 
-					<div className={`additional_options ${!myPerms?.can.share || inst.is_draft ? 'disabled' : '' }`}>
+					<div className={`additional_options ${!can.share || inst.is_draft ? 'disabled' : '' }`}>
 						<h3>Settings:</h3>
-						<dl className={`attempts_parent ${!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}>
+						<dl className={`attempts_parent ${!can.share || inst.is_draft ? 'disabled' : ''}`}>
 							<dt>Attempts:</dt>
 							<dd
-								className={`num-attempts ${!myPerms?.can.edit || !myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}
+								className={`num-attempts ${!can.edit || !can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
 								{ attempts > 0 ? attempts : 'Unlimited' }
 							</dd>
 							<dt>Available:</dt>
 							<dd
-								className={`availability-time ${!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}
+								className={`availability-time ${!can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
 								{availabilityMode == "anytime"
@@ -308,7 +289,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 							</dd>
 							<dt>Access:</dt>
 							<dd
-								className={`access-level ${!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}
+								className={`access-level ${!can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
 								<span>
@@ -319,8 +300,8 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 						</dl>
 						<a id="edit-availability-button"
 							role="button"
-							className={!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}
-							disabled={!myPerms?.can.share || inst.is_draft}
+							className={!can.share || inst.is_draft ? 'disabled' : ''}
+							disabled={!can.share || inst.is_draft}
 							onClick={onPopup}
 						>
 							Edit settings...
@@ -370,6 +351,10 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 			}
 			{showExport
 				? <MyWidgetsExportDataDialog onClose={() => {setShowExport(false)}} />
+				: null
+			}
+			{showWarning
+				? <MyWidgetsWarningDialog onClose={() => {setShowWarning(false)}} onEdit={editWidget} />
 				: null
 			}
 			<MyWidgetsScores inst={inst} />
