@@ -56,8 +56,6 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 
 	const onEditClick = (inst) => {
 
-		console.log(inst)
-
 		if (inst.widget.is_editable) {
 			fetchEdit(inst.id)
 			.then(res => res.json())
@@ -180,13 +178,13 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				</div>
 				<div className="controls">
 					<ul className="button-list">
-						<li class="preview_holder">
+						<li className="preview_holder">
 							<a id="preview_button"
 								className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
 								target="_blank"
 								href={inst.preview_url}
 							>
-								<svg class="preview-svg" viewBox="-40 32 155 70" width="125">
+								<svg className="preview-svg" viewBox="-40 32 155 70" width="125">
 									<path d="M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44" stroke="#525252"/>
 									<polyline points="-15 51.5 -15 81.5 5 66.5" fill="#4c5823"/>
 									<span className="">Preview</span>
@@ -254,19 +252,19 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 						: null
 					}
 
-					<div className={`additional_options ${!inst.sharable || inst.is_draft ? 'disabled' : '' }`}>
+					<div className={`additional_options ${!myPerms?.can.share || inst.is_draft ? 'disabled' : '' }`}>
 						<h3>Settings:</h3>
-						<dl className={`attempts_parent ${!inst.starable || inst.is_draft ? 'disabled' : ''}`}>
+						<dl className={`attempts_parent ${!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}>
 							<dt>Attempts:</dt>
 							<dd
-								className={`num-attempts ${!inst.editable || !inst.shareable || inst.is_draft ? 'disabled' : ''}`}
+								className={`num-attempts ${!myPerms?.can.edit || !myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
 								{ attempts > 0 ? attempts : 'Unlimited' }
 							</dd>
 							<dt>Available:</dt>
 							<dd
-								className={`availability-time ${!inst.shareable || inst.is_draft ? 'disabled' : ''}`}
+								className={`availability-time ${!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
 								{availabilityMode == "anytime"
@@ -310,7 +308,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 							</dd>
 							<dt>Access:</dt>
 							<dd
-								className={`access-level ${!inst.sharable || inst.is_draft ? 'disabled' : ''}`}
+								className={`access-level ${!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
 								<span>
@@ -321,8 +319,8 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 						</dl>
 						<a id="edit-availability-button"
 							role="button"
-							className={!inst.shareable || inst.is_draft ? 'disabled' : ''}
-							disabled={!inst.shareable || inst.is_draft}
+							className={!myPerms?.can.share || inst.is_draft ? 'disabled' : ''}
+							disabled={!myPerms?.can.share || inst.is_draft}
 							onClick={onPopup}
 						>
 							Edit settings...
