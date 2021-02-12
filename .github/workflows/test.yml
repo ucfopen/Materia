@@ -1,0 +1,11 @@
+name: Run Tests and Deploy
+on: [push, pull_request]
+jobs:
+  php_test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Tests
+      run: cd docker && ./run_tests_ci.sh
