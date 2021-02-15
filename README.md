@@ -252,11 +252,15 @@ SESSION_EXPIRATION=21600
 #AUTH_DRIVERS=Materiaauth
 
 #auth.salt:
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/auth.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/auth.php
+# Create one: `docker-compose run --rm phpfpm php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #AUTH_SALT=<MUST_SET>
 
 #simpleauth.login_hash_salt
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one for new installs: `docker-compose run --rm phpfpm php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #AUTH_SIMPLEAUTH_SALT=<MUST_SET>
 
 # DEFAULT USERS ===================
@@ -279,19 +283,26 @@ SESSION_EXPIRATION=21600
 # CRYPTO ===================
 
 #crypto.key
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one: `docker-compose run --rm phpfpm php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #CRYPTO_KEY=<MUST_SET>
 
 #crypto.iv
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one: see crypto.key instructions
 #CRYPTO_IV=<MUST_SET>
 
 #crypto.hmac
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one: see crypto.key instructions
 #CRYPTO_HMAC=<MUST_SET>
 
 #crypto.sodium.cipherkey
-# A special cipher used to encrypt newer fuelphp data using lib sodium. Format is important (@TODO: docs for creating one)
+# A special cipher used to encrypt newer fuelphp data using lib sodium.
+# Create one: see crypto.key instructions
 #CIPHER_KEY=<MUST_SET>
 
 # LTI ===================

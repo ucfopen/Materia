@@ -1,0 +1,10 @@
+node_modules
+fuel/core
+fuel/packages/oil
+fuel/packages/orm
+fuel/packages/parser
+fuel/packages/email
+fuel/packages/auth
+fuel/app/vendor
+.github
+.vscode

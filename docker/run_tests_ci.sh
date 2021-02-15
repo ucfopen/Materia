@@ -11,10 +11,7 @@
 set -e
 set -o xtrace
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
-
-DCTEST="$DC -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
 
 $DCTEST pull --ignore-pull-failures phpfpm fakes3
 

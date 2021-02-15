@@ -9,8 +9,5 @@
 # EX: ./run_create_default_users.sh
 #######################################################
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
-
 # create/update the default users
-$DC run --rm phpfpm bash -c "php oil r admin:create_default_users"
+docker-compose run --rm phpfpm bash -c "php oil r admin:create_default_users"

@@ -48,11 +48,8 @@ do
 	EXCLUDE="$EXCLUDE --exclude=\"./$i\""
 done
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
-
 # store the docker compose command to shorten the following commands
-DCTEST="$DC -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
 
 set -o xtrace
 

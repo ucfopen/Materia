@@ -13,10 +13,7 @@
 #######################################################
 set -e
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
-
-DCTEST="$DC -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
 
 echo "remember you can limit your test groups with './run_tests_coverage.sh --group=Lti'"
 echo "If you have an issue with a broken widget, clear the widgets with:"

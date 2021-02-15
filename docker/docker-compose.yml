@@ -7,7 +7,7 @@ services:
     ports:
       - "80:80" # main materia
       - "443:443" # main materia
-      - "8008:8008" # static files
+      - "8008:8008" # static files (simulates a different domain sandbox & cdn)
     networks:
       - frontend
     volumes:
@@ -20,23 +20,44 @@ services:
 
   phpfpm:
     container_name: materia-phpfpm
-    image: ucfopen/materia-phpfpm:${TAG} # TAG default value is in .env file
+    image: ucfopen/materia-phpfpm:${MATERIA_VERSION} # TAG default value is in .env file
     build:
-      context: ./dockerfiles
-      dockerfile: materia-phpfpm-debian
+      context: ../
+      dockerfile: materia-app-alpine.Dockerfile
+    environment:
+      # View Materia README for env settings
+      - ASSET_STORAGE_DRIVER=s3
+      - ASSET_STORAGE_S3_BUCKET=fake_bucket
+      - ASSET_STORAGE_S3_ENDPOINT=http://fakes3:10001
+      - ASSET_STORAGE_S3_KEY=KEY
+      - ASSET_STORAGE_S3_SECRET=SECRET
+      - AUTH_DRIVERS=Materiaauth
+      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
+      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - BOOL_LTI_LOG_FOR_DEBUGGING=true
+      - CACHE_DRIVER=memcached
+      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/${MYSQL_DATABASE}
+      - FUEL_ENV=development
+      - FUEL_LOG_THRESHOLD=100
+      - LOG_HANDLER=STDOUT
+      - LTI_KEY=materia-lti-key
+      - LTI_SECRET=materia-lti-secret
+      - MEMCACHED_HOST=memcached
+      - SESSION_DRIVER=memcached
+      - SYSTEM_EMAIL=noReply@materia.edu
+      - THEME_PACKAGE=materia-theme-ucf
+      - URLS_ENGINES=https://localhost:8008/widget/
+      - URLS_STATIC=https://localhost:8008/
+      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
     networks:
       - frontend
       - backend
     volumes:
-      # share the source files with host machine
       - ../:/var/www/html:rw
-      # replace php.ini with our own
-      - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
-      # add docker-specific env.local
-      - ./config/materia-docker.env.local:/var/www/html/.env.local:ro
-      # add custom php extensions
-      - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
-      # keep node_modules inside docker - perfomance is pretty terrible sharing a ton of files
+      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
       - node_modules:/var/www/html/node_modules
     depends_on:
       - mysql
@@ -66,7 +87,7 @@ services:
 
   fakes3:
     container_name: materia-fakes3
-    image: ucfopen/materia-fake-s3:${TAG} # TAG default value is in .env file
+    image: ucfopen/materia-fake-s3:${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: .
       dockerfile: ./dockerfiles/materia-fakes3
