@@ -8,4 +8,4 @@ echo "remember you can limit your test groups with './run_tests.sh --group=Lti'"
 
 DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
 
-$DCTEST run --rm app /wait-for-it.sh mysql:3306 -t 20 -- env COMPOSER_ALLOW_SUPERUSER=1 composer run testci -- "$@"
+$DCTEST run --rm app /wait-for-it.sh mysql:3306 -t 20 -- composer run testci -- "$@"

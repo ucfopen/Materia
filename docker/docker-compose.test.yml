@@ -6,10 +6,13 @@ services:
     volumes:
       # isolate test widget files just for test
       - static_widget_files_test:/var/www/html/public/widget
-      # add docker-specific env.local for test
-      - ./config/materia-docker-test.env.local:/var/www/html/.env.local:ro
       # isolate test media just for test
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
+    environment:
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
+      - FUEL_ENV=test
+      - FUEL_LOG_THRESHOLD=0
+      - LOG_HANDLER=DEFAULT
     command: echo "yay"
 
   mysql:

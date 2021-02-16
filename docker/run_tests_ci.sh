@@ -19,7 +19,7 @@ $DCTEST pull --ignore-pull-failures app fakes3
 $DCTEST run --rm --no-deps app composer install --no-progress
 
 # run linter
-$DCTEST run --rm --no-deps app env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
+$DCTEST run --rm --no-deps app composer sniff-ci
 
 # install widgets and run tests
 source run_tests_coverage.sh

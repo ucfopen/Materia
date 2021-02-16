@@ -13,4 +13,4 @@
 
 set -e
 
-docker-compose run --rm app /wait-for-it.sh mysql:3306 -t 20 -- env COMPOSER_ALLOW_SUPERUSER=1 "$@"
+docker-compose run --rm app /wait-for-it.sh mysql:3306 -t 20 -- "$@"
