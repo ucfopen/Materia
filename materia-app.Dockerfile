@@ -16,7 +16,7 @@ ARG BUILD_PACKAGES="autoconf build-base cyrus-sasl-dev libpng-dev libjpeg-turbo-
 ARG PURGE_FILES="/var/lib/apt/lists/* /usr/src/php /usr/include /usr/local/include /usr/share/doc /usr/share/doc-base /var/www/html/php-memcached"
 
 RUN apk add --no-cache $BASE_PACKAGES $BUILD_PACKAGES \
-	&& usermod -u 1000 www-data && groupmod -g 1000 www-data
+	&& usermod -u 1000 www-data && groupmod -g 1000 www-data \
 	&& docker-php-ext-configure gd --with-jpeg=/usr/include \
 	&& docker-php-ext-install $PHP_EXT \
 	&& git clone -b $PHP_MEMCACHED_VERSION https://github.com/php-memcached-dev/php-memcached.git \
