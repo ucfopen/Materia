@@ -15,6 +15,9 @@ DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
 
 $DCTEST pull --ignore-pull-failures app fakes3
 
+# annoying workaround to get host mounted file ownership mapped to the user inside the container
+docker run --rm -v $(pwd)/../:/source alpine:latest chown -R 1000 /source
+
 # install php deps
 $DCTEST run --rm --no-deps app composer install --no-progress
 

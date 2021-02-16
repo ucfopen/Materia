@@ -1,19 +1,15 @@
 version: '3.2'
-# Docker Compose file meant for tasks like building assets and running tests
 services:
-
   app:
+    environment:
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
+      - FUEL_ENV=test
+      - LOG_HANDLER=DEFAULT
     volumes:
       # isolate test widget files just for test
       - static_widget_files_test:/var/www/html/public/widget
       # isolate test media just for test
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
-    environment:
-      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
-      - FUEL_ENV=test
-      - FUEL_LOG_THRESHOLD=0
-      - LOG_HANDLER=DEFAULT
-    command: echo "yay"
 
   mysql:
     environment:
@@ -26,6 +22,5 @@ services:
     #   - /var/lib/mysql
 
 volumes:
-  build_app_root: {}
   static_widget_files_test: {} # contain widgets installed in tests
   uploaded_media_test: {} # contain files uploaded in tests

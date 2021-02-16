@@ -37,9 +37,9 @@ RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer --ve
 WORKDIR /var/www/html
 
 # =====================================================================================================
-# build stage adds files that we dont want in the final stage
+# composer stage runs composer install
 # =====================================================================================================
-FROM base_stage as build_stage
+FROM base_stage as composer_stage
 
 USER www-data
 
@@ -55,9 +55,9 @@ RUN composer install --ignore-platform-reqs --no-dev --no-progress --no-scripts 
 
 
 # =====================================================================================================
-# Node build stage adds files that we dont want in the final stage
+# Yarn stage buils js/css assets
 # =====================================================================================================
-FROM node:12.11.1-alpine AS node_stage
+FROM node:12.11.1-alpine AS yarn_stage
 
 RUN apk add --no-cache git
 
@@ -79,8 +79,6 @@ COPY docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
 
 USER www-data
 # ======== COPY FINAL APP
-COPY --from=build_stage --chown=www-data:www-data /var/www/html /var/www/html
-COPY --from=node_stage --chown=www-data:www-data /build/public /var/www/html/public
-COPY --from=node_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
-RUN mkdir /var/www/html/fuel/vendor
-
+COPY --from=composer_stage --chown=www-data:www-data /var/www/html /var/www/html
+COPY --from=yarn_stage --chown=www-data:www-data /build/public /var/www/html/public
+COPY --from=yarn_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json

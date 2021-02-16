@@ -58,7 +58,7 @@ services:
       - frontend
       - backend
     volumes:
-      - ../:/var/www/html:rw
+      - ../:/var/www/html:z
       - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh:ro
       - node_modules:/var/www/html/node_modules:rw
     depends_on:
