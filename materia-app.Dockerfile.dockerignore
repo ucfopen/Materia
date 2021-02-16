@@ -6,5 +6,12 @@ fuel/packages/parser
 fuel/packages/email
 fuel/packages/auth
 fuel/app/vendor
+fuel/public/widget/*
+fuel/vendor
+fuel/app/logs
+fuel/app/cache
+fuel/app/tmp
+development
 .github
 .vscode
+.git
