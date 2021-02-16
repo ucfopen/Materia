@@ -15,8 +15,8 @@ services:
       - frontend
     volumes:
       - ../public:/var/www/html/public:ro
-      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem
-      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem
+      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
+      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
     depends_on:
       - app
 
@@ -59,8 +59,8 @@ services:
       - backend
     volumes:
       - ../:/var/www/html:rw
-      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
-      - node_modules:/var/www/html/node_modules
+      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh:ro
+      - node_modules:/var/www/html/node_modules:rw
     depends_on:
       - mysql
       - memcached

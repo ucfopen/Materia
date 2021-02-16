@@ -73,10 +73,15 @@ RUN cd build && yarn install --frozen-lockfile --non-interactive --production --
 # =====================================================================================================
 FROM base_stage as FINAL_STAGE
 
-RUN mkdir /static_public
-COPY docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
+# Add user for laravel application
+# RUN groupadd -g 1000 www
+# RUN useradd -u 1000 -ms /bin/bash -g www www
+USER www-data
+
+COPY --chown=www-data:www-data docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
 # ======== COPY FINAL APP
-COPY --from=build_stage /var/www/html /var/www/html
-COPY --from=node_stage /build/public /var/www/html/public
-COPY --from=node_stage /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
+COPY --from=build_stage --chown=www-data:www-data /var/www/html /var/www/html
+COPY --from=node_stage --chown=www-data:www-data /build/public /var/www/html/public
+COPY --from=node_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
+
 
