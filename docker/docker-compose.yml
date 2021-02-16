@@ -91,8 +91,8 @@ services:
     container_name: materia-fakes3
     image: ucfopen/materia-fake-s3:${MATERIA_VERSION} # TAG default value is in .env file
     build:
-      context: .
-      dockerfile: ./dockerfiles/materia-fakes3
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
     ports:
       - "10001:10001"
     networks:
