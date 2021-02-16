@@ -58,12 +58,13 @@ RUN composer install --ignore-platform-reqs --no-dev --no-progress --no-scripts 
 FROM node:12.11.1-alpine AS node_stage
 
 RUN apk add --no-cache git
-COPY ./src /build/src
+
 COPY ./public /build/public
 COPY ./package.json /build/package.json
 COPY ./process_assets.js /build/process_assets.js
 COPY ./yarn.lock /build/yarn.lock
-COPY ./fuel/app/config/asset_hash.json /build/fuel/app/config/asset_hash.json
+# make sure the directory where asset_hash.json is generated exists
+RUN mkdir -p /build/fuel/app/config/
 RUN cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force
 
 
