@@ -1,9 +1,12 @@
 version: '3.2'
 
 services:
-  nginx:
-    container_name: materia-nginx
-    image: nginx:stable-alpine
+  webserver:
+    container_name: materia-webserver
+    image: ucfopen/materia-webserver:${MATERIA_VERSION} # TAG default value is in .env file
+    build:
+      context: ../
+      dockerfile: materia-webserver.Dockerfile
     ports:
       - "80:80" # main materia
       - "443:443" # main materia
@@ -11,19 +14,18 @@ services:
     networks:
       - frontend
     volumes:
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ../public:/var/www/html/public:ro
       - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem
       - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem
     depends_on:
-      - phpfpm
+      - app
 
-  phpfpm:
-    container_name: materia-phpfpm
-    image: ucfopen/materia-phpfpm:${MATERIA_VERSION} # TAG default value is in .env file
+  app:
+    container_name: materia-app
+    image: ucfopen/materia-app:${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: ../
-      dockerfile: materia-app-alpine.Dockerfile
+      dockerfile: materia-app.Dockerfile
     environment:
       # View Materia README for env settings
       - ASSET_STORAGE_DRIVER=s3

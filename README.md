@@ -36,7 +36,7 @@ Inspect the actual test command in `/.run_tests.sh` for guidance, but as of the 
 
 The following command will run just the **Oauth** tests rather quickly:
 
-`docker-compose -f docker-compose.yml -f docker-compose.admin.yml run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env SKIP_BOOTSTRAP_TASKS=true php oil test --group=Oauth`
+`docker-compose -f docker-compose.yml -f docker-compose.admin.yml run --rm app /wait-for-it.sh mysql:3306 -t 20 -- env SKIP_BOOTSTRAP_TASKS=true php oil test --group=Oauth`
 
 ### Tests for Jenkins
 
@@ -254,13 +254,13 @@ SESSION_EXPIRATION=21600
 #auth.salt:
 # A string used to salt older Materia Servers
 # Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/auth.php
-# Create one: `docker-compose run --rm phpfpm php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
+# Create one: `docker-compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #AUTH_SALT=<MUST_SET>
 
 #simpleauth.login_hash_salt
 # A string used to salt older Materia Servers
 # Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
-# Create one for new installs: `docker-compose run --rm phpfpm php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
+# Create one for new installs: `docker-compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #AUTH_SIMPLEAUTH_SALT=<MUST_SET>
 
 # DEFAULT USERS ===================
@@ -285,7 +285,7 @@ SESSION_EXPIRATION=21600
 #crypto.key
 # A string used to salt older Materia Servers
 # Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
-# Create one: `docker-compose run --rm phpfpm php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
+# Create one: `docker-compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #CRYPTO_KEY=<MUST_SET>
 
 #crypto.iv

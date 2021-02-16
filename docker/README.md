@@ -8,8 +8,7 @@ Materia development environment using docker containers.
  3. [PHP-FPM](https://php-fpm.org/) manages the PHP processes for the application
  4. [MySQL](https://www.mysql.com/) for storing relational application data
  5. [Memcached](https://memcached.org/) for caching data and sessions
- 6. [Node.js](https://nodejs.org/en/) compiles all the js and css assets
- 7. [FakeS3](https://github.com/jubos/fake-s3) mocks AWS S3 behavior for asset uploading
+ 6. [FakeS3](https://github.com/jubos/fake-s3) mocks AWS S3 behavior for asset uploading
 
 ## Setup
 
@@ -29,11 +28,11 @@ Please take note of the user accounts that are created for you in the install pr
 	```
 * Tail logs from backgrounded servers
 	```
-	docker-compose logs -f phpfpm
+	docker-compose logs -f app
 	```
-* Run commands on the phpfpm container (like php, composer, or fuelphp oil commands)
+* Run commands on the app container (like php, composer, or fuelphp oil commands)
 	```
-	./run.sh php -i 
+	./run.sh php -i
 	./run.sh php oil r admin:help
 	./run.sh composer run --list
 	```
@@ -126,7 +125,7 @@ When running fuelphp's install, it uses fuel/app/config/development/migrations.p
 
 If you get a *no space left on dev* error: Remove the machine with `docker-machine rm default` then start over from step 3 in OSX Docker Setup. You may need to attempt the rm command twice before it removes the VM successfully.)
 
-Run oil commands: `docker-compose run --rm phpfpm php oil ......`
+Run oil commands: `docker-compose run --rm app php oil ......`
 
 You can clone the repositories from the repositories from the materia widget config:
 `./run_build_widgets.sh`
@@ -140,7 +139,7 @@ We've included Alpine, Amazon Linux 2, and Debian (default) Docker files so that
 
 Note the [Dockerfiles](https://github.com/ucfopen/Materia/tree/master/docker/dockerfiles) and corrisponding Docker Compose files for each platform.
 
-To run in an Amazon Linux Docker environment, all of the above commands need to be run with an environment variable set.  
+To run in an Amazon Linux Docker environment, all of the above commands need to be run with an environment variable set.
 ```sh
 export COMPOSE_WITH=alpine
 ./run_first.sh

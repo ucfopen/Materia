@@ -2,7 +2,7 @@ version: '3.2'
 # Docker Compose file meant for tasks like building assets and running tests
 services:
 
-  phpfpm:
+  app:
     volumes:
       # isolate test widget files just for test
       - static_widget_files_test:/var/www/html/public/widget

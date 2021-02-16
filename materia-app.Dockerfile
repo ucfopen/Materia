@@ -72,6 +72,7 @@ RUN cd build && yarn install --frozen-lockfile --non-interactive --production --
 # =====================================================================================================
 FROM base_stage as FINAL_STAGE
 
+RUN mkdir /static_public
 COPY docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
 # ======== COPY FINAL APP
 COPY --from=build_stage /var/www/html /var/www/html

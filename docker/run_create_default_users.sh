@@ -10,4 +10,4 @@
 #######################################################
 
 # create/update the default users
-docker-compose run --rm phpfpm bash -c "php oil r admin:create_default_users"
+docker-compose run --rm app bash -c "php oil r admin:create_default_users"

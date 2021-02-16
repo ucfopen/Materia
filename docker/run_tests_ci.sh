@@ -13,13 +13,13 @@ set -o xtrace
 
 DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
 
-$DCTEST pull --ignore-pull-failures phpfpm fakes3
+$DCTEST pull --ignore-pull-failures app fakes3
 
 # install php deps
-$DCTEST run --rm --no-deps phpfpm composer install --no-progress
+$DCTEST run --rm --no-deps app composer install --no-progress
 
 # run linter
-$DCTEST run --rm --no-deps phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
+$DCTEST run --rm --no-deps app env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
 
 # install widgets and run tests
 source run_tests_coverage.sh

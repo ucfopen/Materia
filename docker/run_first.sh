@@ -27,13 +27,13 @@ openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout ./config
 docker-compose pull --ignore-pull-failures
 
 # install php composer deps
-docker-compose run --rm --no-deps phpfpm composer install --ignore-platform-reqs
+docker-compose run --rm --no-deps app composer install --ignore-platform-reqs
 
 # run migrations and seed any db data needed for a new install
-docker-compose run --rm phpfpm /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
+docker-compose run --rm app /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
 
 # install all the configured widgets
-docker-compose run --rm phpfpm bash -c 'php oil r widget:install_from_config'
+docker-compose run --rm app bash -c 'php oil r widget:install_from_config'
 
 # Install any widgets in the tmp dir
 source run_widgets_install.sh '*.wigt'
