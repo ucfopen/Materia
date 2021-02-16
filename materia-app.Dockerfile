@@ -12,10 +12,11 @@ ARG COMPOSER_INSTALLER_SHA="e0012edf3e80b6978849f5eff0d4b4e4c79ff1609dd1e613307e
 
 # os packages needed for php extensions
 ARG BASE_PACKAGES="bash zip libmemcached-dev libxml2-dev zip libzip libzip-dev git freetype libpng libjpeg-turbo"
-ARG BUILD_PACKAGES="autoconf build-base cyrus-sasl-dev libpng-dev libjpeg-turbo-dev"
+ARG BUILD_PACKAGES="autoconf build-base cyrus-sasl-dev libpng-dev libjpeg-turbo-dev shadow"
 ARG PURGE_FILES="/var/lib/apt/lists/* /usr/src/php /usr/include /usr/local/include /usr/share/doc /usr/share/doc-base /var/www/html/php-memcached"
 
 RUN apk add --no-cache $BASE_PACKAGES $BUILD_PACKAGES \
+	&& usermod -u 1000 www-data && groupmod -g 1000 www-data
 	&& docker-php-ext-configure gd --with-jpeg=/usr/include \
 	&& docker-php-ext-install $PHP_EXT \
 	&& git clone -b $PHP_MEMCACHED_VERSION https://github.com/php-memcached-dev/php-memcached.git \
@@ -32,7 +33,6 @@ RUN apk add --no-cache $BASE_PACKAGES $BUILD_PACKAGES \
 RUN php -r "copy('$COMPOSER_INSTALLER_URL', 'composer-setup.php');"
 RUN php -r "if (hash_file('sha384', 'composer-setup.php') === '$COMPOSER_INSTALLER_SHA') { echo 'COMPOSER VERIFIED'; } else { echo 'COMPOSER INVALID'; exit(1); } echo PHP_EOL;"
 RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION
-ENV COMPOSER_ALLOW_SUPERUSER=1
 
 WORKDIR /var/www/html
 
@@ -41,14 +41,16 @@ WORKDIR /var/www/html
 # =====================================================================================================
 FROM base_stage as build_stage
 
+USER www-data
+
 # ======== COPY APP IN
-COPY ./README.md /var/www/html/README.md
-COPY ./fuel /var/www/html/fuel
-COPY ./public /var/www/html/public
-COPY ./.env /var/www/html/.env
-COPY ./composer.json /var/www/html/composer.json
-COPY ./composer.lock /var/www/html/composer.lock
-COPY ./oil /var/www/html/oil
+COPY --chown=www-data:www-data ./README.md /var/www/html/README.md
+COPY --chown=www-data:www-data ./fuel /var/www/html/fuel
+COPY --chown=www-data:www-data ./public /var/www/html/public
+COPY --chown=www-data:www-data ./.env /var/www/html/.env
+COPY --chown=www-data:www-data ./composer.json /var/www/html/composer.json
+COPY --chown=www-data:www-data ./composer.lock /var/www/html/composer.lock
+COPY --chown=www-data:www-data ./oil /var/www/html/oil
 RUN composer install --ignore-platform-reqs --no-dev --no-progress --no-scripts --prefer-dist --optimize-autoloader
 
 
@@ -73,15 +75,11 @@ RUN cd build && yarn install --frozen-lockfile --non-interactive --production --
 # =====================================================================================================
 FROM base_stage as FINAL_STAGE
 
-# Add user for laravel application
-# RUN groupadd -g 1000 www
-# RUN useradd -u 1000 -ms /bin/bash -g www www
-USER www-data
+COPY docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
 
-COPY --chown=www-data:www-data docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
+USER www-data
 # ======== COPY FINAL APP
 COPY --from=build_stage --chown=www-data:www-data /var/www/html /var/www/html
 COPY --from=node_stage --chown=www-data:www-data /build/public /var/www/html/public
 COPY --from=node_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
-
 
