@@ -5,12 +5,12 @@ services:
       - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
       - FUEL_ENV=test
       - LOG_HANDLER=DEFAULT
-      - XDEBUG_CONFIG=xdebug.mode=coverage
     volumes:
       # isolate test widget files just for test
       - static_widget_files_test:/var/www/html/public/widget
       # isolate test media just for test
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
+      - ./config/php/materia.test.php.ini:/usr/local/etc/php/conf.d/test.ini
 
   mysql:
     environment:
