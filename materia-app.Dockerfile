@@ -17,6 +17,9 @@ ARG PURGE_FILES="/var/lib/apt/lists/* /usr/src/php /usr/include /usr/local/inclu
 
 RUN apk add --no-cache $BASE_PACKAGES $BUILD_PACKAGES \
 	&& usermod -u 1000 www-data && groupmod -g 1000 www-data \
+	# ======== PHP XDEBUG
+	&& pecl install xdebug \
+	&& docker-php-ext-enable xdebug \
 	&& docker-php-ext-configure gd --with-jpeg=/usr/include \
 	&& docker-php-ext-install $PHP_EXT \
 	&& git clone -b $PHP_MEMCACHED_VERSION https://github.com/php-memcached-dev/php-memcached.git \
@@ -33,6 +36,9 @@ RUN apk add --no-cache $BASE_PACKAGES $BUILD_PACKAGES \
 RUN php -r "copy('$COMPOSER_INSTALLER_URL', 'composer-setup.php');"
 RUN php -r "if (hash_file('sha384', 'composer-setup.php') === '$COMPOSER_INSTALLER_SHA') { echo 'COMPOSER VERIFIED'; } else { echo 'COMPOSER INVALID'; exit(1); } echo PHP_EOL;"
 RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION
+
+# Use the default production configuration
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 WORKDIR /var/www/html
 
@@ -75,7 +81,8 @@ RUN cd build && yarn install --frozen-lockfile --non-interactive --production --
 # =====================================================================================================
 FROM base_stage as FINAL_STAGE
 
-COPY docker/config/php/php.ini /usr/local/etc/php/conf.d/php.ini
+COPY docker/config/php/materia.php.ini $PHP_INI_DIR/conf.d/materia.php.ini
+
 
 USER www-data
 # ======== COPY FINAL APP
