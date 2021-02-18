@@ -291,7 +291,7 @@ class Controller_Widgets extends Controller
 		Js::push_group(['angular', 'materia']);
 	}
 
-	protected function no_attempts(string $inst, bool $is_embedded)
+	protected function no_attempts(object $inst, bool $is_embedded)
 	{
 		$this->_disable_browser_cache = true;
 		$this->theme->get_template()
@@ -387,7 +387,7 @@ class Controller_Widgets extends Controller
 		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
 		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
-		if ( ! $status['has_attempts']) return $this->no_attempts($inst);
+		if ( ! $status['has_attempts']) return $this->no_attempts($inst, $is_embedded);
 		if (isset($_GET['autoplay']) && $_GET['autoplay'] === 'false') return $this->pre_embed_placeholder($inst);
 
 		// create the play
