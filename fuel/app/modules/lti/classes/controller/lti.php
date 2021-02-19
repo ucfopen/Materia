@@ -113,6 +113,42 @@ class Controller_Lti extends \Controller
 	public function action_success(string $inst_id)
 	{
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+		$my_user_id = false;
+		$owner_names = 'no owners';
+
+		$widget_perms = \Materia\Perm_Manager::get_all_users_explicit_perms($inst_id, \Materia\Perm::INSTANCE);
+
+		// capture the current user's id from the perms
+		// user_perms is the current user's perms, the keys in this array are the user's id
+		if (isset($widget_perms['user_perms']) && is_array($widget_perms['user_perms']))
+		{
+			$my_user_id = array_key_first($widget_perms['user_perms']);
+		}
+
+		// build a list of people w/ any permission
+		// widget_user_perms are everyone's perms, the key being the user id and the value being the typs of perms
+		if (isset($widget_perms['widget_user_perms']) && is_array($widget_perms['widget_user_perms']))
+		{
+			$users = [];
+			foreach($widget_perms['widget_user_perms'] as $user_id => $perm)
+			{
+				// load this user and add their name to the display
+				$user = \Model_User::find($user_id);
+				if ($user)
+				{
+					$name = $user->first . ' ' . $user->last;
+					// add an indicator that this is you
+					if($user->id == $my_user_id)
+					{
+						$name .= ' (you)';
+					}
+					$users[] = $name;
+				}
+			}
+
+			$owner_names = implode(', ', $users);
+		}
+
 
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')
@@ -123,7 +159,8 @@ class Controller_Lti extends \Controller
 			->set('widget_name', $inst->widget->name)
 			->set('preview_url', \Uri::create('/preview/'.$inst_id))
 			->set('icon', \Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id));
+			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id))
+			->set('owner_names', $owner_names);
 
 		$this->insert_analytics();
 

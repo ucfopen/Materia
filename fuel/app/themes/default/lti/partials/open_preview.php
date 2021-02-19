@@ -15,7 +15,11 @@
 	</div>
 
 	<div class="help-container">
-		<p class="note">Preview restricted by widget permissions in Materia.</p>
-		<p>To view the widget in Canvas as a student, view the assignment while in <a href="https://webcourses.ucf.edu/profile/settings" target="_blank" class="external">Student View</a>.</p>
+		<p class="note">Ability to preview is restricted by permissions in Materia.</p>
+		<?php if ( ! empty($owner_names)): ?>
+			<p class="note">Materia users with management access:  <?= $owner_names ?></p>
+		<?php endif ?>
+
+		<p>Embedding in Canvas? View the assignment as a student using <a href="https://webcourses.ucf.edu/profile/settings" target="_blank" class="external">Student View</a>.</p>
 	</div>
 </section>
