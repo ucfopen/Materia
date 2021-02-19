@@ -101,7 +101,7 @@ Please take note of the user accounts that are created for you in the install pr
     ```
 ### Default User Accounts
 
-If you wish to log into Materia, there are [3 default accounts created for you based on the config](https://github.com/ucfopen/Materia/blob/master/fuel/app/config/materia.php#L56-L78). If you're on osx or linux, you'll also get a user based on the username you use on the host machine.
+If you wish to log into Materia, there are [3 default accounts created for you based on the config](https://github.com/ucfopen/Materia/blob/master/fuel/app/config/materia.php#L56-L78). If you're on OSX or Linux, you'll also get a user based on the username you use on the host machine.
 
 ### Updating a container
 
@@ -138,7 +138,7 @@ Then install them all
 
 We've included Alpine, Amazon Linux 2, and Debian (default) Docker files so that you can run, test, and compare production installs.
 
-Note the [Dockerfiles](https://github.com/ucfopen/Materia/tree/master/docker/dockerfiles) and corrisponding Docker Compose files for each platform.
+Note the [Dockerfiles](https://github.com/ucfopen/Materia/tree/master/docker/dockerfiles) and corresponding Docker Compose files for each platform.
 
 To run in an Amazon Linux Docker environment, all of the above commands need to be run with an environment variable set.  
 ```sh
@@ -150,7 +150,7 @@ or
 COMPOSE_WITH=alpine ./run_first.sh
 
 ```
-Then docker-compose up needs to be run using the selected config
+Then `docker-compose up` needs to be run using the selected config
 
 ```sh
 docker-commpose -f docker-commpose.yml -f docker-compose.alpine.yml up

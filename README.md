@@ -62,7 +62,7 @@ This is the most common approach. Simply copy `.env` to `.env.local` and edit th
 
 ### Configure Using NGINX
 
-You can set php environment variables in your Nginx config using the fastcgi_param option.
+You can set php environment variables in your NGINX config using the fastcgi_param option.
 
 ```
 location ~ ^/index.php$ {
@@ -87,7 +87,7 @@ SetEnv MY_ENV_VAR_1 'value1'
 
 ### Configure Using PHPFPM
 
-PHPFPM allows you to add env vars using it's config. For example, your config may be located in `/etc/php/fpm/pool.d/www.conf`. Uncomment `clear_env = no` and add your environment variables to the config.  A restart of php-fpm will be required.
+PHPFPM allows you to add env vars using its config. For example, your config may be located in `/etc/php/fpm/pool.d/www.conf`. Uncomment `clear_env = no` and add your environment variables to the config.  A restart of php-fpm will be required.
 
 ```
 clear_env = no
@@ -97,11 +97,11 @@ env[MY_ENV_VAR_2] = 'value2'
 
 ### Manual Overide
 
-All the the environment variables are converted into regular FuelPHP configuration options in the files in fuel/app/config. If you prefer, you can edit those files directly, skipping the environment settings all together.  The config path to each setting in our configuration key below.
+All of the environment variables are converted into regular FuelPHP configuration options in the files in fuel/app/config. If you prefer, you can edit those files directly, skipping the environment settings all together.  The config path to each setting is in our configuration key below.
 
 ### Environment Variables
 
-The config key below shows on all the available environment variables.
+The config key below shows all of the available environment variables.
 
 > Note: only `BOOL_` options become boolean values. And ONLY `true` evaluates to true.
 
@@ -179,7 +179,7 @@ BOOL_SEND_EMAILS=false
 #BOOL_ADMIN_UPLOADER_ENABLE=true
 
 #materia.asset_storage_driver
-# Where to store author uploaded media? file is easy. db is easy & works when running multiple Materia servers. s3 is harder to set up, but effecient and multi-server friendly.
+# Where to store author uploaded media? file is easy. db is easy & works when running multiple Materia servers. s3 is harder to set up, but efficient and multi-server friendly.
 # [file|db|s3]
 # (default: file)
 #ASSET_STORAGE_DRIVER=file
@@ -352,7 +352,7 @@ LTI_KEY="materia-production-lti-key"
 
 #lti.graceful_fallback_to_default
 # If an lti configuration for a specific provider isn't present, should Materia use the default configuration?
-# The default is set in lti.consumers.default.  If false, a consumer must be defined that matches the lti launch param 'tool_consumer_info_product_family_code'. Ex family code is 'canvas', a config must exist for lti.consumers.canvas.
+# The default is set in lti.consumers.default.  If false, a consumer must be defined that matches the lti launch param 'tool_consumer_info_product_family_code'. For example: if the family code is 'canvas', a config must exist for lti.consumers.canvas.
 # Using default is a nice option for simplicity, but it's advisable to use a different key and secret for each family_code.
 # [true|false]
 # (default: true)
