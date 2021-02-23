@@ -241,7 +241,7 @@ SESSION_EXPIRATION=21600
 
 #theme.custom_path (default: <empty>)
 # Tell FuelPHP where your custom themes are located
-#THEME_PATH=
+#THEME_PACKAGE=
 
 # AUTH ===================
 
