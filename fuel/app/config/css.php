@@ -62,6 +62,12 @@ return [
 			$static_css.'jquery.dataTables.css',
 			$static_css.'util-question-import.css',
 		],
+		'qset_history' => [
+			$static_css.'util-qset-history.css',
+		],
+		'rollback_dialog' => [
+			$static_css.'util-rollback-confirm.css'
+		],
 		'media_import' => [
 			$static_css.'util-media-import.css'
 		],

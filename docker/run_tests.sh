@@ -11,4 +11,4 @@ source run_dc.sh
 
 DCTEST="$DC -f docker-compose.test.yml"
 
-$DC -f docker-compose.test.yml run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env COMPOSER_ALLOW_SUPERUSER=1 composer run testci -- "$@"
+$DCTEST run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env COMPOSER_ALLOW_SUPERUSER=1 composer run testci -- "$@"

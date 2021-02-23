@@ -15,12 +15,12 @@
     "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git Materia-Server-Client-Assets",
     "devassets:link": "cd ../Materia-Server-Client-Assets && yarn install && yarn link && cd - && yarn link materia-server-client-assets",
     "devassets:unlink": "yarn unlink materia-server-client-assets && cd ../Materia-Server-Client-Assets && yarn unlink && cd - && yarn install",
-    "test:php": "composer run testci",
+    "test:php": "echo 'Additional env setup needed to run on host. You probably want docker/run_tests.sh'; composer run testci",
     "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'"
   },
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.2.0",
+    "materia-server-client-assets": "2.3.0",
     "napa": "^3.0.0"
   },
   "devDependencies": {
@@ -41,5 +41,5 @@
     "hammerjs": "hammerjs/hammer.js#v2.0.8",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
   },
-  "version": "7.0.1"
+  "version": "8.0.0-alpha1"
 }

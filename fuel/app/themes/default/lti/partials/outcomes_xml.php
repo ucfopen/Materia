@@ -17,6 +17,12 @@
 						<language>en</language>
 						<textString><?= $score ?></textString>
 					</resultScore>
+					<?php if ($extension_type && $extension_value): ?>
+
+						<resultData>
+							<<?= $extension_type ?>><?= $extension_value ?></<?= $extension_type ?>>
+						</resultData>
+					<?php endif ?>
 				</result>
 			</resultRecord>
 		</replaceResultRequest>

@@ -12,9 +12,11 @@ class LtiUserManager
 	public static function authenticate($launch)
 	{
 		// =================== LOAD COFIGURATION ============================
-		$local_id_field     = \Config::get("lti::lti.consumers.{$launch->consumer}.local_identifier", 'username');
-		$auth_driver        = \Config::get("lti::lti.consumers.{$launch->consumer}.auth_driver", '');
-		$creates_users      = \Config::get("lti::lti.consumers.{$launch->consumer}.creates_users");
+		$cfg            = LtiLaunch::config();
+		$local_id_field = $cfg['local_identifier'] ?? 'username';
+		$auth_driver    = $cfg['auth_driver'] ?? '';
+		$creates_users  = $cfg['creates_users'] ?? true;
+
 
 		// Check for the test user first
 		if ($launch->first === 'Test' && $launch->last === 'Student' && in_array('Learner', $launch->roles))
@@ -158,7 +160,8 @@ class LtiUserManager
 	 */
 	protected static function update_user_roles(\Model_User $user, $launch, $auth)
 	{
-		if (\Config::get("lti::lti.consumers.{$launch->consumer}.use_launch_roles") && method_exists($auth, 'update_role'))
+		$cfg = LtiLaunch::config();
+		if ($cfg['use_launch_roles'] && method_exists($auth, 'update_role'))
 		{
 			$auth->update_role($user->id, static::is_lti_user_a_content_creator($launch));
 		}

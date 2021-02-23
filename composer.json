@@ -11,7 +11,7 @@
         "post-install-cmd": "test -d ./.git/hooks && cp ./githooks/pre-commit ./.git/hooks/pre-commit || true",
         "git-pre-commit":"@sniff-ci",
         "destroy-everything": "php oil r admin:destroy_everything --quiet",
-        "oil-install-quiet": "php oil r install --skip_prompts=true --skip_configuration_wizard",
+        "oil-install-quiet": "php oil r install --skip_prompts=true",
         "widgets-install-test": "php oil r widget:install fuel/app/tests/widget_packages/*.wigt",
         "test": "php fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
         "test-with-xdebug": "php -dzend_extension=xdebug.so fuel/vendor/bin/phpunit -c fuel/app/phpunit.xml",
@@ -50,7 +50,8 @@
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.0",
         "eher/oauth": "1.0.7",
-        "aws/aws-sdk-php": "3.67.17"
+        "aws/aws-sdk-php": "3.67.17",
+        "symfony/dotenv": "^5.1"
     },
     "suggest": {
         "ext-memcached": "*"
@@ -58,7 +59,7 @@
     "require-dev": {
         "phpunit/phpunit": "9.*",
         "squizlabs/php_codesniffer": "3.5.4",
-        "ucfcdl/fuelphp-phpcs": "dev-master#639d97db80d2a346833f2a7be90cf5cb3b35cf15",
+        "ucfcdl/fuelphp-phpcs": "3.0.0",
         "johnkary/phpunit-speedtrap": "3.2.0"
     },
     "config": {
@@ -76,15 +77,15 @@
             "type"    : "package",
             "package" : {
                 "name"    : "ucfcdl/fuelphp-phpcs",
-                "version" : "master",
+                "version" : "3.0.0",
                 "dist"    : {
-                    "url"  : "https://github.com/ucfcdl/fuelphp-phpcs/archive/master.zip",
+                    "url"  : "https://github.com/ucfcdl/fuelphp-phpcs/archive/v3.0.0.zip",
                     "type": "zip"
                 },
                 "source"  : {
                     "url"       : "https://github.com/ucfcdl/fuelphp-phpcs.git",
                     "type"      : "git",
-                    "reference" : "master"
+                    "reference" : "v3.0.0"
                 }
             }
         }

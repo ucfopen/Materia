@@ -717,6 +717,7 @@
 							</span>
 							).
 						</p>
+						<p>You can embed this widget as a graded assignment in your LMS. <a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html" target="_blank" class="external">See how!</a></p>
 						<div class="embed-options"
 							ng-show="show.embedToggle && !selected.is_draft">
 							<h3>Embed Code</h3>

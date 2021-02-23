@@ -15,6 +15,7 @@ return [
 				<ul>
 				<li><a href="/dev/routes">Registered Fuel Routes</a></li>
 				<li><a href="/dev/php-info">phpinfo</a></li>
+				<li><a href="/lti/test/provider">LTI Launch Tool</a></li>
 				</ul>
 			</body>
 		</html>
