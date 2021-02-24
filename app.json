@@ -48,6 +48,11 @@
       "required": true,
       "generator": "secret"
     },
+    "AUTH_SALT":{
+      "description": "Secret salt for hashing authentication variables. See Readme",
+      "required": true,
+      "generator": "secret"
+    },
     "AUTH_SIMPLEAUTH_SALT":{
       "description": "Secret salt for hashing authentication variables. See Readme",
       "required": true,
