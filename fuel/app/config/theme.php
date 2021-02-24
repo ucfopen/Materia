@@ -35,7 +35,7 @@ return [
 	 * The theme search paths.  They are searched in the order given.  You can add paths
 	 * on the fly via Theme::add_path($path) or Theme::add_paths(array($path1, $path2));
 	 */
-	'paths' => explode(',', APPPATH.'themes'.','.($_ENV['THEME_PACKAGE'] ? PKGPATH.$_ENV['THEME_PACKAGE'] : '')),
+	'paths' => explode(',', APPPATH.'themes'.','.(isset($_ENV['THEME_PACKAGE']) ? PKGPATH.$_ENV['THEME_PACKAGE'] : '')),
 
 	/**
 	 * The folder inside the theme to be used to store assets.  This is relative to the
