@@ -28,6 +28,16 @@
       "required": true,
       "value": "300"
     },
+    "SESSION_DRIVER":{
+      "description": "Where to keep user sessions? See Readme",
+      "required": true,
+      "value": "db"
+    },
+    "ASSET_STORAGE_DRIVER":{
+      "description": "Where to store author uploaded media? See Readme",
+      "required": true,
+      "value": "db"
+    },
     "LTI_REMOTE_IDENTIFIER":{
       "description": "Which LTI post param to use as a username. See Readme",
       "required": true,

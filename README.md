@@ -179,7 +179,7 @@ BOOL_SEND_EMAILS=false
 #BOOL_ADMIN_UPLOADER_ENABLE=true
 
 #materia.asset_storage_driver
-# Where to store author uploaded media? file is easy. db is easy & works when running multiple Materia servers. s3 is harder to set up, but efficient and multi-server friendly.
+# Where to store author uploaded media? file is easy. db is easy & works when running multiple Materia servers. s3 is harder to set up, but efficient and multi-server friendly. Do not use file on Heroku.
 # [file|db|s3]
 # (default: file)
 #ASSET_STORAGE_DRIVER=file
@@ -206,7 +206,7 @@ BOOL_SEND_EMAILS=false
 #ASSET_STORAGE_S3_SECRET=
 
 # SESSION & CACHE ===================
-
+# Where to store app cache. file is an easy default if you don't have a memcached server. file is OK on Heroku.
 #cache.driver: [memcached|file] (default: file)
 #CACHE_DRIVER=file
 
@@ -221,7 +221,7 @@ BOOL_SEND_EMAILS=false
 #MEMCACHED_PORT=11211
 
 #session.driver
-# Where to keep user sessions? file = easy, db = multi-server support, memcached = fast! & multiserver!
+# Where to keep user sessions? file = easy, db = multi-server support, memcached = fast! & multiserver! Do not use file on Heroku.
 # [db|file|memcached]
 # (default: file)
 #SESSION_DRIVER=file
