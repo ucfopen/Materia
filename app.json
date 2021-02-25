@@ -18,28 +18,53 @@
     "postdeploy": "composer run oil-install-quiet && php oil r widget:install_from_config"
   },
   "env": {
-    "FUEL_ENV": {
-      "description": "FUELPHP Environment to load",
+    "SYSTEM_EMAIL":{
+      "description": "From email address for this server",
       "required": true,
-      "value": "production"
+      "value": "invalid-email@invalid-host.com"
     },
-    "LTI_USERNAME_PARAM":{
-      "description": "Which LTI post param to use as a username",
+    "FUEL_LOG_THRESHOLD":{
+      "description": "Threshold for for which types of logs get written. See Readme",
+      "required": true,
+      "value": "300"
+    },
+    "SESSION_DRIVER":{
+      "description": "Where to keep user sessions? See Readme",
+      "required": true,
+      "value": "db"
+    },
+    "ASSET_STORAGE_DRIVER":{
+      "description": "Where to store author uploaded media? See Readme",
+      "required": true,
+      "value": "db"
+    },
+    "LTI_REMOTE_IDENTIFIER":{
+      "description": "Which LTI post param to use as a username. See Readme",
+      "required": true,
+      "value": "lis_person_sourcedid"
+    },
+    "LTI_REMOTE_USERNAME":{
+      "description": "Which LTI post param to use as a username, duplicate of LTI_REMOTE_IDENTIFIER",
       "required": true,
       "value": "lis_person_sourcedid"
     },
     "LTI_KEY":{
-      "description": "LTI Key for configuring your LMS",
+      "description": "LTI Key for configuring your LMS. See Readme",
       "required": true,
       "value": "my-demo-materia-heroku-key"
     },
     "LTI_SECRET":{
-      "description": "LTI secret for configuring your LMS",
+      "description": "LTI secret for configuring your LMS. See Readme",
       "required": true,
       "generator": "secret"
     },
-    "MATERIA_AUTH_SALT":{
-      "description": "Secret salt for hashing authentication variables",
+    "AUTH_SALT":{
+      "description": "Secret salt for hashing authentication variables. See Readme",
+      "required": true,
+      "generator": "secret"
+    },
+    "AUTH_SIMPLEAUTH_SALT":{
+      "description": "Secret salt for hashing authentication variables. See Readme",
       "required": true,
       "generator": "secret"
     },
