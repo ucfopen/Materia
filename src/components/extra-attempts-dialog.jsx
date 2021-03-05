@@ -58,18 +58,19 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 
 	return (
 		<div className={`extra_attempt ${disabled ? 'disabled' : ''}`}>
-			<button tabIndex="0"
-				onClick={onRemove}
-				className="remove">
-				X
-			</button>
+			<div className="user_holder">
+				<button tabIndex="0"
+					onClick={onRemove}
+					className="remove">
+					X
+				</button>
+				<div className='user'>
+					<img className="avatar" src={user.avatar} />
 
-			<div className='user'>
-				<img className="avatar" src={user.avatar} />
-
-				<span className='user_name'>
-					{`${user.first} ${user.last}`}
-				</span>
+					<span className='user_name'>
+						{`${user.first} ${user.last}`}
+					</span>
+				</div>
 			</div>
 
 			<div className='context'>
@@ -136,6 +137,8 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 			.then(resp => resp.json())
 			.then(_users => {
 				const keyedUsers = {}
+				console.log("===================================")
+				console.log(_users)
 				_users.forEach(u => { keyedUsers[u.id] = u })
 				setUsers(keyedUsers)
 			})
@@ -271,12 +274,14 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 							: null
 						}
 					</div>
-					<a tabIndex="1" className="cancel_button" onClick={onClose}>
-							Cancel
-					</a>
-					<a tabIndex="2" className="action_button green save_button" onClick={onSave}>
-						Save
-					</a>
+					<div className="button-holder">
+						<a tabIndex="1" className="cancel_button" onClick={onClose}>
+								Cancel
+						</a>
+						<a tabIndex="2" className="action_button green save_button" onClick={onSave}>
+							Save
+						</a>
+					</div>
 				</div>
 			</div>
 		</Modal>

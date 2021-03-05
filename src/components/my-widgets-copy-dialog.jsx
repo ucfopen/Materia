@@ -12,7 +12,7 @@ const MyWidgetsCopyDialog = ({onClose, onCopy, name}) => {
 			<div className="copy-modal">
 				<span className="title">Make a Copy</span>
 
-				<div className="ng-modal-dialog-content">
+				<div className="">
 					<div className="container">
 						<div className="title_container">
 							<label htmlFor="copy-title">New Title:</label>

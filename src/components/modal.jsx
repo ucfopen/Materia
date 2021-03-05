@@ -43,9 +43,9 @@ class Modal extends React.Component {
 		<>
 			<div className={`modal-overlay ${this.props.alert ? 'alert' : ''}`} id="modal-overlay"></div>
 
-			<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''}`} id="inner-modal">
+			<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''} ${this.props.noGutter ? 'no-gutter' : ''}`} id="inner-modal">
 				<span className="close-button" id="close-button" onClick={this.props.onClose}>X</span>
-				<div className="modal-guts">
+				<div className={`modal-guts ${this.props.noGutter ? 'no-gutter' : ''}`}>
 					{this.props.children}
 				</div>
 			</div>

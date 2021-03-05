@@ -1,4 +1,6 @@
 .modal .extraAttemptsModal {
+	min-width: 580px;
+
 	.title {
 		margin: 0;
 		padding: 0;
@@ -12,6 +14,19 @@
 		display: block;
 		font-family: Lato, arial, serif;
 		font-weight: bold;
+	}
+
+	.search-container {
+		display: flex;
+		align-items: center;
+
+		span {
+			margin: 0 auto;
+		}
+
+		input {
+			margin: 0 auto;
+		}
 	}
 
 	.attempts-input {
@@ -97,14 +112,20 @@
 			height: 30px;
 			color: white;
 			display: flex;
-			justify-content: space-around;
 			align-items: center;
 			border-top-left-radius: 5px;
 			border-top-right-radius: 5px;
+			text-align: center;
+			padding: 0 2%;
 
 			.user-header {
-				width: 250px;
-				text-align: center;
+				width: 50%;
+			}
+			.context-header {
+				width: 25%;
+			}
+			.attempts-header {
+				width: 25%;
 			}
 		}
 
@@ -120,31 +141,39 @@
 				display: flex;
 				align-items: center;
 				position: relative;
-				margin: 10px 10px;
-	
+				margin: 2%;
+
 				.remove {
 					display: block;
 					color: #bfbfbf;
 					text-decoration: none;
 					font-size: 15px;
 					text-align: center;
-					padding: .5em;
-					margin: .5em;
+					padding: 0.5em;
+					margin: 0.5em;
 					user-select: none;
 					border: none;
 					background: transparent;
-	
-					&:hover{
+
+					&:hover {
 						color: black;
 						background: white;
 						border-radius: 5px;
 						cursor: pointer;
 					}
 				}
-	
+
+				.user_holder {
+					display: flex;
+					align-items: center;
+					width: 50%;
+				}
+
 				.user {
+					display: flex;
+					align-items: center;
 					width: 250px;
-					
+
 					.avatar {
 						vertical-align: middle;
 						display: inline-block;
@@ -152,32 +181,36 @@
 						width: 40px;
 						margin-right: 10px;
 					}
-	
+
 					.user_name {
 						font-size: 14px;
 						text-align: left;
 						position: relative;
+						overflow-wrap: break-word;
+						word-wrap: break-word;
+						hyphens: auto;
+						max-width: 60%;
 					}
 				}
-	
+
 				.context {
-					input {
-						width: 40%;
-						text-align: center;
-						display: block;
-						margin: 0 auto;
-					}
-				}
-	
-				.num_attempts {
-					display: block;
-					margin: 0 auto;
+					width: 25%;
+					text-align: center;
 
 					input {
-						width: 90%;
+						width: 60%;
 						text-align: center;
 					}
-					
+				}
+
+				.num_attempts {
+					width: 25%;
+					text-align: center;
+
+					input {
+						width: 60%;
+						text-align: center;
+					}
 				}
 			}
 		}
@@ -191,6 +224,13 @@
 			font-size: 0.8em;
 			margin: 0px 15px;
 		}
+	}
+
+	.button-holder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 5px;
 	}
 
 	.cancel_button:hover {

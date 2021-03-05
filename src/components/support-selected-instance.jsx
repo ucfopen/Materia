@@ -332,7 +332,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				
 			</div>
 			{showCopy 
-				? <MyWidgetsCopyDialog onClose={() => setShowCopy(false)} onCopy={makeCopy}/>
+				? <MyWidgetsCopyDialog onClose={() => setShowCopy(false)} name={updatedInst.name} onCopy={makeCopy}/>
 				: null
 			}
 

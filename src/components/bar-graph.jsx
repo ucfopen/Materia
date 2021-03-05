@@ -8,7 +8,8 @@ import { Grid } from '@vx/grid'
 
 // accessors return the label and value of that data item
 const x = d => d.label
-const y = d => d.value
+// This makes it so the max graph height will never be reached
+const y = d => (1.2 * d.value)
 
 const BarGraph = ({ data, width, height }) => {
 	// bounds
@@ -47,7 +48,12 @@ const BarGraph = ({ data, width, height }) => {
 					const barHeight = yMax - yScale(d.value)
 					const barX = xScale(label)
 					const barY = yMax - barHeight
-					return <Bar key={`bar-${label}`} x={barX} y={barY} width={barWidth} height={barHeight} />
+					return <Bar key={`bar-${label}`}
+						x={barX}
+						y={barY}
+						width={barWidth}
+						height={barHeight}
+				><title>{d.value + " scores"}</title></Bar>
 				})}
 				<AxisBottom scale={xScale} label="Score" labelOffset={15} top={yMax} />
 			</Group>

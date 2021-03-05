@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import MyWidgetScoreSemester from './my-widgets-score-semester'
+import MyWidgetsExport from './my-widgets-export'
+import LoadingIcon from './loading-icon'
 
 const MyWidgetsScores = ({inst}) => {
 	const [state, setState] = useState({
@@ -7,6 +9,17 @@ const MyWidgetsScores = ({inst}) => {
 		isShowingAll: false,
 		isLoadingScores: true
 	})
+	const [showExport, setShowExport] = useState(false)
+
+	const openExport = () => {
+		setShowExport(true)
+		document.body.style.overflow = "hidden"
+	}
+
+	const closeExport = () => {
+		setShowExport(false)
+		document.body.style.overflow = "auto"
+	}
 
 	useEffect(
 		() => {
@@ -30,6 +43,8 @@ const MyWidgetsScores = ({inst}) => {
 					return []
 				})
 				.then(scores => {
+					console.log('here')
+					console.log(scores)
 					const ranges = [
 						"0-9",
 						"10-19",
@@ -65,29 +80,31 @@ const MyWidgetsScores = ({inst}) => {
 			<h2>Student Activity</h2>
 			<span
 				id="export_scores_button"
-				className={`action_button aux_button ${state.scores.length ? '' : 'disabled'}`}
+				className={`aux_button ${state.scores.length ? '' : 'disabled'}`}
+				onClick={openExport}
 			>
 				<span className="arrow_down"></span>
 				Export Options
 			</span>
 			{state.isLoadingScores
-				? <div>Loading Score Data...</div>
+				? <LoadingIcon />
 				: <div>
 					{displayedSemesters.map(semester => <MyWidgetScoreSemester key={semester.id} semester={semester} instId={inst.id} />)}
-					{!state.isShowingAll
-						?	<a role="button"
-								className="show-older-scores-button"
-								onClick={() => setState({...state, isShowingAll: true})}
-							>
-
-								Show older scores...
-							</a>
-						: null
-					}
+					<a role="button"
+						className={`show-older-scores-button ${state.scores.length > 1 ? '' : 'hide'}`}
+						onClick={() => setState({...state, isShowingAll: !state.isShowingAll})}
+					>
+						{!state.isShowingAll
+							? "Show older scores..."
+							: "Hide older scores..."
+						}
+					</a>
 					</div>
 			}
-
-
+			{showExport
+			? <MyWidgetsExport onClose={closeExport} inst={inst} scores={state.scores}/>
+			: null
+			}
 		</div>
 	)
 }

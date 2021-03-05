@@ -136,6 +136,8 @@ app.controller('MyWidgetsSettingsController', function (
 				$scope.availability[i].period = ''
 				$scope.availability[i].anytime = true
 			}
+
+			console.log($scope.availability[i])
 		})
 	}
 
@@ -204,9 +206,9 @@ app.controller('MyWidgetsSettingsController', function (
 		$scope.timeError = [false, false]
 
 		for (let range of Array.from(ranges)) {
-			;({ date } = range)
+			; ({ date } = range)
 			const period = range.period ? range.period : 'am'
-			;({ time } = range)
+				; ({ time } = range)
 			const { anytime } = range
 			// if anytime was selected, then the times value will be negative one.
 			if (anytime === true) {
@@ -240,6 +242,7 @@ app.controller('MyWidgetsSettingsController', function (
 						errors.invalid++
 						$scope.timeError[i] = true
 					} else {
+						console.log(date + ' ' + time + ' ' + period)
 						$scope.times.push(Date.parse(date + ' ' + time + ' ' + period) / 1000)
 					}
 				} else {

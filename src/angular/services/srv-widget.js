@@ -106,6 +106,10 @@ app.service('WidgetSrv', function (SelectedWidgetSrv, DateTimeServ, $q, $rootSco
 				params.guest_access,
 				params.embedded_only,
 			]
+
+			console.log(args)
+			console.log(args)
+
 			Materia.Coms.Json.send('widget_instance_update', args).then((widget) => {
 				if (widget != null) {
 					_initSearchCache(widget)

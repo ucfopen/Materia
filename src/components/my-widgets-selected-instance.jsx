@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback, useState} from 'react'
+import React, { useEffect, useRef, useCallback, useState} from 'react'
 import { iconUrl } from '../util/icon-url'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
@@ -6,8 +6,9 @@ import parseObjectToDateString from '../util/object-to-date-string'
 import parseTime from '../util/parse-time'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
-import MyWidgetsExportDataDialog  from './my-widgets-export-data-dialog'
-import MyWidgetsWarningDialog  from './my-widgets-warning-dialog'
+import MyWidgetsExportDataDialog from './my-widgets-export-data-dialog'
+import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
+import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import fetchOptions from '../util/fetch-options'
 
 const fetchEdit = (arrayOfWidgetIds) => fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfWidgetIds]))}`}))
@@ -45,6 +46,27 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 	const attempts = parseInt(inst.attempts, 10)
 	const [perms, setPerms] = useState({})
 	const [can, setCan] = useState({})
+	const [playUrl, setPlayUrl] = useState("")
+	const shareLinkRef = useRef(null)
+
+	useEffect(() => {
+		const inp = shareLinkRef.current
+		console.log(inst)
+
+		// Disables highlighting the play link if it is a draft
+		if (inst.is_draft) {
+			const regex = /preview/i
+			let new_url = inst.preview_url.replace(regex, 'play')
+			if (!new_url)
+				new_url = ""
+
+			setPlayUrl(new_url)
+		}
+		else {
+			setPlayUrl(inst.play_url)
+		}
+
+	}, [inst])
 
 	useEffect(() => {
 		if (myPerms) {
@@ -73,9 +95,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 
 				if (widgetInfo.can_publish){
 					// show editPublished warning
-					setShowWarning(true)
-					//const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
-					//window.location = editUrl
+					showModal(setShowWarning)
 					return
 				}
 				else {
@@ -90,7 +110,12 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 	}
 
 	const onShowCollaboration = () => {}
-	const onPopup = () => {}
+	
+	const onPopup = () => {
+		if (can.edit && can.share && !inst.is_draft) {
+			showModal(setShowSettings)
+		}
+	}
 
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [showEmbed, setShowEmbed] = useState(false)
@@ -98,6 +123,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 	const [showCollab, setShowCollab] = useState(false)
 	const [showExport, setShowExport] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
+	const [showSettings, setShowSettings] = useState(false)
 
 
 	const makeCopy = useCallback(
@@ -254,34 +280,34 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 								}
 
 								{availabilityMode == "open until"
-									? <span>
-											Open until
-											<span className="available_date">{ availability.end.date }</span>
-											at
-											<span className="available_time">{ availability.end.time }</span>
+									? <span className="open-until">
+											<span>Open until</span>
+											<span className="available-date">{ availability.end.date }</span>
+											<span>at</span>
+											<span className="available-time">{ availability.end.time }</span>
 										</span>
 									: null
 								}
 
 								{availabilityMode == "anytime after"
-									? <span>
-											Anytime after
+									? <span className="available-after">
+											<span>Anytime after</span>
 											<span className="available_date">{ availability.start.date }</span>
-											at
+											<span>at</span>
 											<span className="available_time">{ availability.start.time }</span>
 										</span>
 									: null
 								}
 
 								{availabilityMode == "from"
-									? <span>
-											From
+									? <span className="available-from">
+											<span>From</span>
 											<span className="available_date">{ availability.start.date }</span>
-											at
+											<span>at</span>
 											<span className="available_time">{ availability.start.time }</span>
-											until
+											<span>until</span>
 											<span className="available_date">{ availability.end.date }</span>
-											at
+											<span>at</span>
 											<span className="available_time">{ availability.end.time }</span>
 										</span>
 									: null
@@ -318,12 +344,15 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 							View all sharing options.
 						</a>
 					</h3>
-					<input id="play_link"
-						type="text"
-						disabled={inst.is_draft}
-						readOnly
-						value={inst.play_url}
-					/>
+					<div onMouseDown={(e)=>{ if (inst.is_draft) e.preventDefault() }}>
+						<input ref={shareLinkRef}
+							className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
+							type="text"
+							readOnly
+							disabled={inst.is_draft}
+							value={playUrl}
+						/>
+					</div>
 					<p>
 						Use this link to share with your students (or
 						<span
@@ -354,7 +383,11 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				: null
 			}
 			{showWarning
-				? <MyWidgetsWarningDialog onClose={() => {setShowWarning(false)}} onEdit={editWidget} />
+				? <MyWidgetsWarningDialog onClose={() => {closeModal(setShowWarning)}} onEdit={editWidget} />
+				: null
+			}
+			{showSettings
+				? <MyWidgetsSettingsDialog onClose={() => {closeModal(setShowSettings)}} inst={inst} currentUser={currentUser} />
 				: null
 			}
 			<MyWidgetsScores inst={inst} />

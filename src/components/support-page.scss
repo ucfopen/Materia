@@ -252,13 +252,10 @@ h1 {
 	cursor: pointer;
 }
 
-// COPY DIALOG
-
 .modal .copy-modal {
-	// .ng-modal-dialog {
-	// 	padding: 20px 20px 5px 20px;
-	// 	min-width: 500px
-	// }
+	width: 620px;
+	height: 330px;
+	padding: 10px 10px 0 10px;
 
 	.title {
 		margin: 0;
@@ -271,6 +268,7 @@ h1 {
 		position: relative;
 		text-align: left;
 		display: block;
+		font-weight: bold;
 	}
 
 	a.close {
@@ -287,6 +285,9 @@ h1 {
 
 	.container {
 		width: 100%;
+		padding: 0;
+		box-shadow: none;
+		border: 0;
 	}
 
 	.input_desc {
@@ -316,16 +317,16 @@ h1 {
 	}
 
 	.options_container input {
-		margin-right: 5px;
+		margin-right: 8px;
 	}
 
 	.bottom_buttons {
 		margin-top: 20px;
 		text-align: center;
 		width: 100%;
+	}
 
-		a {
-			margin: 0px 10px;
-		}
+	.cancel_button {
+		cursor: pointer;
 	}
 }

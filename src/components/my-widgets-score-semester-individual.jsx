@@ -32,6 +32,7 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 				const scoresByUser = new Map()
 				results.forEach(log => {
 					let scoresForUser
+					console.log(log)
 					if(!scoresByUser.has(log.user_id)){
 						// initialize user
 						const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
@@ -62,6 +63,11 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 			})
 	}, [])
 
+	function getRandomIntInclusive(min, max) {
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
+	}
 
 	const onSearchInput = useCallback(
 		search => {
@@ -111,7 +117,9 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 													onClick={() => {setState({...state, selectedUser: user})}}
 													title={`View all scores for ${user.name}`}
 												>
-													<td className="listName">{user.name}</td>
+													<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
+														{user.name}
+													</td>
 												</tr>
 											)
 										}

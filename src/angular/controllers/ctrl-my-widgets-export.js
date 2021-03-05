@@ -6,6 +6,9 @@ app.controller('MyWidgetsExportController', function (Please, $scope, SelectedWi
 		const wgt = $scope.selected.widget
 		$scope.selectedId = wgt.id
 
+		console.log("==================================")
+		console.log($scope.selected)
+
 		if ($scope.selected.scores.list.length === 0 || !$scope.selected.hasScores) {
 			$scope.exportOpts = ['Questions and Answers', 'Referrer URLs']
 		} else {

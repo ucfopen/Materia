@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
+import useDebounce from './use-debounce'
 
 const searchWidgets = (input) => fetch(`/api/admin/widget_search/${input}`)
 
@@ -9,39 +10,45 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const [searchResults, setSearchResults] = useState([])
 	const [isSearching, setIsSearching] = useState(false)
 	const [showDeleted, setShowDeleted] = useState(false)
+	const debouncedSearchTerm = useDebounce(searchText, 500)
 
-	
-	useEffect(
-		() => {
-			//get search results using search text
-			if(searchText !== lastSearch)
-			{
-				setLastSearch(searchText)
-				
-				if(searchText === '') 
+	useEffect(() => {
+		// Make sure we have a value (user has entered something in input)
+		if (debouncedSearchTerm) {
+
+			if (debouncedSearchTerm !== "")
+				setIsSearching(true)
+			
+			searchWidgets(debouncedSearchTerm)
+				.then(resp => {
+					// no content
+					if(resp.status === 502 || resp.status === 204) {
+						setIsSearching(false)
+						return []
+					}
+					
+					return resp.json()
+				})
+				.then(instances => 
 				{
-					setSearchResults([])
-				}
-				else 
-				{
-					setIsSearching(true)
-					searchWidgets(searchText)
-					.then(resp => {
-						// no content
-						if(resp.status == 204) return []
-						return resp.json()
-					})
-					.then(instances => 
-						{
-							console.log(instances)
-							setSearchResults(instances)
-							setIsSearching(false)
-						})
-				}
-				
-			}	
-		}, [searchText]
-	)
+					console.log(instances)
+					setSearchResults(instances)
+					setIsSearching(false)
+				})
+		} else {
+			setSearchResults([])
+		}
+	}, [debouncedSearchTerm])
+
+	const setSearchVal = (e) => {
+		if (!isSearching && e.target.value  !== "")
+			setIsSearching(true)
+
+		if (e.target.value === "")
+			setIsSearching(false)
+
+		setSearchText(e.target.value)
+	}
 
 	return (
 		<section className="page">
@@ -52,7 +59,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<input
 				tabIndex="0"
 				value={searchText}
-				onChange={(e) => setSearchText(e.target.value)}
+				onChange={(e) => setSearchVal(e)}
 				className="instance_search"
 				type="text"
 				placeholder="Enter a Materia widget instance's info"/>
@@ -87,14 +94,14 @@ const SupportSearch = ({onClick = () => {}}) => {
 								</div>
 							)}
 					</div>
-				: null
-			}
-			{	isSearching
-				? <div className="searching">
-						<b>Searching Widget Instances ...</b>
-					</div>
-				
-				: null
+				: <div>
+					{	isSearching
+						? <div className="searching">
+								<b>Searching Widget Instances ...</b>
+							</div>
+						: <p>{`${searchText.length == 0 ? "Search for a widget by entering it's name, ID, or creation time" : "No widgets match your description"}`}</p>
+					}
+				</div>
 			}
 			
 		</section>
