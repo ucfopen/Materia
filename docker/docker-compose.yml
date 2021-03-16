@@ -45,7 +45,7 @@ services:
 
   mysql:
     container_name: materia-mysql
-    image: mysql:5.7.18
+    image: mariadb:10.1
     environment:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_USER
