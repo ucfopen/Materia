@@ -3,6 +3,8 @@ import Modal from './modal'
 import fetchOptions from '../util/fetch-options'
 import useClickOutside from '../util/use-click-outside'
 import './my-widgets-collaborate-dialog.scss'
+import useDebounce from './use-debounce'
+import DatePicker from "react-datepicker"
 
 const PERM_VISIBLE = 1
 const PERM_PLAY = 5
@@ -30,11 +32,14 @@ const defaultState = {
 
 // convert time in ms to a displayable format for the component
 const timestampToDisplayDate = (timestamp) => {
-	if(!timestamp) return 'never'
-	var date = new Date(timestamp*1000);
-	return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+	if(!timestamp) return (new Date())
+	return new Date(timestamp*1000);
 }
 
+const dateToStr = (date) => {
+	if(!date) return ""
+	return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
+}
 
 const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
 	const ref = useRef();
@@ -79,10 +84,9 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 	const changeLevel = e => {
 		setState({...state, accessLevel: e.target.value})
 	}
-	const onExpireChange = e => {
-		const d = new Date(e.target.value+"T00:00") // +"T00:00" causes JS to be interpreted in the local timezone
-		const timestamp = d.getTime()/1000
-		setState({...state, expireDate: timestampToDisplayDate(timestamp), expireTime: timestamp})
+	const onExpireChange = date => {
+		const timestamp = date.getTime()/1000
+		setState({...state, expireDate: date, expireTime: timestamp})
 	}
 
 	useClickOutside(ref, () => {
@@ -128,20 +132,21 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 				>
 					{Object.values(accessLevels).map(level =>  <option key={level.value} value={level.value}>{level.text}</option> )}
 				</select>
-
-				{isCurrentUser && state.accessLevel === PERM_FULL && state.sharable
-					? <a tabIndex="0" className="remove-expiration" role="button" ng-click="removeExpires(collaborator)" ng-show="collaborator.expires">X</a>
-					: null
-				}
 				<div className="expires">
 					<span className="expire-label">Expires: </span>
 					{state.showExpire
 						? <span ref={ref} className="expire-date-container">
-							<input type="date" value={state.expireDate} onChange={onExpireChange} />
+							<DatePicker
+								selected={state.expireDate}
+								onChange={onExpireChange}
+							placeholderText="Date"/>
 							<span className="remove" onClick={clearExpire}>Set to Never</span>
 							<span className="date-finish" onClick={(e) => {toggleShowExpire(e)}}>Done</span>
 							</span>
-						: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{state.expireDate}</button>
+						: 
+							state.expireTime !== null
+							? <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{dateToStr(state.expireDate)}</button>
+							: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>Never</button>
 					}
 				</div>
 			</div>
@@ -156,62 +161,56 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const [searchResults, setSearchResults] = useState([])
 	const [updatedOtherUserPerms, setUpdatedOtherUserPerms] = useState({})
 	const [shareNotAllowed, setShareNotAllowed] = useState(false)
+	const debouncedSearchTerm = useDebounce(searchText, 250)
 
-	const collaborator = {
-		is_student: false,
-		warning: false,
-	} 
+	// Sets Perms
+	useEffect(() => {
+		const map = new Map(otherUserPerms)
+		map.forEach(key => key.remove = false)
+		setUpdatedOtherUserPerms(map)
+	}, [otherUserPerms])
 
-	useEffect(
-		() => {
-			const map = new Map(otherUserPerms)
-			map.forEach(key => key.remove = false)
-			setUpdatedOtherUserPerms(map)
-		}, [otherUserPerms]
-	)
+	// Gets users
+	useEffect(() => {
+		const userIdsToLoad = Array.from(otherUserPerms.keys())
+		fetchUsers(userIdsToLoad)
+		.then(res => res.json())
+		.then(_users => {
+			const keyedUsers = {}
+			_users.forEach(u => { keyedUsers[u.id] = u})
+			setUsers(keyedUsers)
+		})
+	}, [inst])
 
-	useEffect(
-		() => {
-			const userIdsToLoad = Array.from(otherUserPerms.keys())
-			fetchUsers(userIdsToLoad)
-			.then(res => res.json())
-			.then(_users => {
-				const keyedUsers = {}
-				_users.forEach(u => { keyedUsers[u.id] = u})
-				setUsers(keyedUsers)
-			})
-		}, [inst]
-	)
-
-	useEffect(
-		() => {
-			if(searchText !== lastSearch)
+	// Handles the search with debounce
+	useEffect(() => {
+		if(debouncedSearchTerm !== lastSearch)
+		{
+			setLastSearch(debouncedSearchTerm)
+			
+			if(debouncedSearchTerm === '') 
 			{
-				setLastSearch(searchText)
-				
-				if(searchText === '') 
-				{
-					setSearchResults([])
-				}
-				else 
-				{
-					// setIsSearching(true)
-					searchUsers(searchText)
-					.then(resp => {
-						// no content
-						if(resp.status == 204) return []
-						return resp.json()
-					})
-					.then(results => 
-						{
-							setSearchResults(results)
-							// setIsSearching(false)
-						})
-				}
+				setSearchResults([])
 			}
-		}, [searchText]
-	)
+			else 
+			{
+				// setIsSearching(true)
+				searchUsers(debouncedSearchTerm)
+				.then(resp => {
+					// no content
+					if(resp.status == 204) return []
+					return resp.json()
+				})
+				.then(results => 
+					{
+						setSearchResults(results)
+						// setIsSearching(false)
+					})
+			}
+		}
+	}, [debouncedSearchTerm])
 
+	// Handles clicking a search result
 	const onClickMatch = (match) => {
 		setSearchText('')
 		setLastSearch('')
@@ -228,8 +227,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			const tempUsers = users
 			tempUsers[match.id] = match
 			setUsers(tempUsers)
-			// turns out the list doesn't use the users object, but the otherUserPerms object 
-			// not sure how to edit that 
 			const tempPerms = updatedOtherUserPerms
 			tempPerms.set(
 				match.id, 
@@ -279,7 +276,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 							{ //cannot search unless you have full access
 								myPerms.shareable
 								? 
-									<div className="search-container ng-scope">
+									<div className="search-container">
 										<span className="collab-input-label">
 											Add people:
 										</span>
@@ -309,23 +306,22 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 									</div>
 								: null
 							}	
-						
-
 						<div className="access-list">
-							{Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => {
-								if(userPerms.remove == true) return
-								const user = users[userId]
-								if(!user) return <div key={userId}></div>
-								return <CollaborateUserRow
-									key={user.id}
-									user={user}
-									perms={userPerms}
-									isCurrentUser={currentUser.id === user.id}
-									onChange={(userId, perms) => updatedOtherUserPerms.set(userId, perms)}
-									readOnly={myPerms.shareable == false}
-								/>
-							})}
-
+							{
+								Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => {
+									if(userPerms.remove == true) return
+									const user = users[userId]
+									if(!user) return <div key={userId}></div>
+									return <CollaborateUserRow
+										key={user.id}
+										user={user}
+										perms={userPerms}
+										isCurrentUser={currentUser.id === user.id}
+										onChange={(userId, perms) => updatedOtherUserPerms.set(userId, perms)}
+										readOnly={myPerms.shareable == false}
+									/>
+								})
+							}
 						</div>
 						<p className="disclaimer">
 							Users with full access can edit or copy this widget and can
@@ -343,19 +339,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				</div>
 			</div>
 			{ shareNotAllowed == true
-				?
-				<Modal onClose={() => {setShareNotAllowed(false)}} smaller={true} alert={true}>
+				? <Modal onClose={() => {setShareNotAllowed(false)}} smaller={true} alert={true}>
 					<span className="alert-title">Share Not Allowed</span>
 					<p className="alert-description">Access must be set to "Guest Mode" to collaborate with students.</p>
 					<button className="alert-btn" onClick={() => {setShareNotAllowed(false)}}>Okay</button>
 				</Modal>
-				:
-				null
+				: null
 			}
 		</Modal>
 	)
 }
-
-
 
 export default MyWidgetsCollaborateDialog

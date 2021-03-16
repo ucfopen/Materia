@@ -47,7 +47,6 @@ const PERM_SHARE = 35
 const PERM_SU = 90
 
 const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable) => {
-	console.log('code', permCode)
 	permCode = parseInt(permCode, 10)
 	return {
 		accessLevel: permCode,
@@ -83,7 +82,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		fetchUserPermsForInstance(inst.id)
 			.then(resp => resp.json())
 			.then(perms => {
-				console.log(perms)
 				const isEditable = inst.widget.is_editable === "1"
 				const othersPerms = new Map()
 				for(const i in perms.widget_user_perms){
@@ -151,8 +149,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			}
 		}
 		if(!closeDisabled){
-			console.log(closeDate)
-			console.log(closeTime)
 			if(closeDate == '' || closeTime == '') {
 				setErrorText('Please enter valid dates and times')
 				return
@@ -178,12 +174,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				setErrorText('Success!')
 			}
 		})
-
-		// console.log(u.close_at)
-		// console.log(updatedInst.close_at)
-		
 	}
-
 
 	return (
 		<section className="page inst-info">

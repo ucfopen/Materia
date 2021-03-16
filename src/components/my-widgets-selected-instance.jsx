@@ -6,7 +6,6 @@ import parseObjectToDateString from '../util/object-to-date-string'
 import parseTime from '../util/parse-time'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
-import MyWidgetsExportDataDialog from './my-widgets-export-data-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import fetchOptions from '../util/fetch-options'
@@ -42,18 +41,31 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	}
 }
 
-const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPerms, setOtherUserPerms, onDelete, onCopy}) => {
-	const attempts = parseInt(inst.attempts, 10)
+const MyWidgetSelectedInstance = ({ inst = {},
+	currentUser, 
+	myPerms, 
+	otherUserPerms, 
+	setOtherUserPerms, 
+	onDelete, 
+	onCopy,
+	updateWidget
+}) => {
 	const [perms, setPerms] = useState({})
 	const [can, setCan] = useState({})
 	const [playUrl, setPlayUrl] = useState("")
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+	const [showEmbed, setShowEmbed] = useState(false)
+	const [showCopy, setShowCopy] = useState(false)
+	const [showCollab, setShowCollab] = useState(false)
+	const [showWarning, setShowWarning] = useState(false)
+	const [showSettings, setShowSettings] = useState(false)
+	const [availabilityMode, setAvailabilityMode] = useState("")
+	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
 
+	// Initializes the data when widgets changes
 	useEffect(() => {
-		const inp = shareLinkRef.current
-		console.log(inst)
-
-		// Disables highlighting the play link if it is a draft
+		// Sets the play url
 		if (inst.is_draft) {
 			const regex = /preview/i
 			let new_url = inst.preview_url.replace(regex, 'play')
@@ -66,29 +78,49 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 			setPlayUrl(inst.play_url)
 		}
 
+		// Clears the modal if the instance changes
+		setShowDeleteDialog(false)
+
+		// Sets the availability mode
+		let _availabilityMode = ''
+
+		if (inst.close_at < 0 && inst.open_at < 0) {
+			_availabilityMode = 'anytime'
+		} else if (inst.open_at < 0 && inst.close_at > 0) {
+			_availabilityMode = 'open until'
+		} else if (inst.open_at > 0 && inst.close_at < 0) {
+			_availabilityMode = 'anytime after'
+		} else {
+			_availabilityMode = 'from'
+		}
+
+		setAvailabilityMode(_availabilityMode)
+
 	}, [inst])
 
 	useEffect(() => {
 		if (myPerms) {
-			console.log(myPerms)
 			setCan(myPerms.can)
 			setPerms(myPerms)
 		}
 	}, [myPerms, inst])
 
-	const onEditClick = (inst) => {
+	const makeCopy = useCallback((title, copyPermissions) => {
+		setShowCopy(false)
+		onCopy(inst.id, title, copyPermissions)
+	}, [inst, setShowCopy])
 
+	const onEditClick = (inst) => {
 		if (inst.widget.is_editable) {
 			fetchEdit(inst.id)
 			.then(res => res.json())
 			.then(widgetInfo => {
-				console.log(widgetInfo)
+				const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
 
 				if(widgetInfo.isLocked){
 					return 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
 				}
-				if(inst.isDraft){
-					const editUrl = `http://localhost/${inst.widget.dir}/create#${inst.id}`
+				if(inst.is_draft){
 					window.location = editUrl
 					return
 				}
@@ -108,30 +140,12 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 			})
 		}
 	}
-
-	const onShowCollaboration = () => {}
 	
 	const onPopup = () => {
 		if (can.edit && can.share && !inst.is_draft) {
 			showModal(setShowSettings)
 		}
 	}
-
-	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-	const [showEmbed, setShowEmbed] = useState(false)
-	const [showCopy, setShowCopy] = useState(false)
-	const [showCollab, setShowCollab] = useState(false)
-	const [showExport, setShowExport] = useState(false)
-	const [showWarning, setShowWarning] = useState(false)
-	const [showSettings, setShowSettings] = useState(false)
-
-
-	const makeCopy = useCallback(
-		(title, copyPermissions) => {
-			setShowCopy(false)
-			onCopy(inst.id, title, copyPermissions)
-		}, [inst, setShowCopy]
-	)
 
 	const closeModal = (setModal) => {
 		if (setModal != undefined) {
@@ -148,27 +162,11 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 	}
 
 	const editWidget = () => {
-		const editUrl = `http://localhost/widgets/${inst.widget.dir}create#${inst.id}`
+		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
 		window.location = editUrl
 	}
 
-	useEffect(() => {
-		setShowDeleteDialog(false);
-	}, [inst])
-
 	const availability = convertAvailibilityDates(inst.open_at, inst.close_at)
-	const availabilityStart = inst.open_at
-	const availabilityEnd = inst.close_at
-	let availabilityMode
-	if (inst.close_at < 0 && inst.open_at < 0) {
-		availabilityMode = 'anytime'
-	} else if (inst.open_at < 0 && inst.close_at > 0) {
-		availabilityMode = 'open until'
-	} else if (inst.open_at > 0 && inst.close_at < 0) {
-		availabilityMode = 'anytime after'
-	} else {
-		availabilityMode = 'from'
-	}
 
 	return (
 		<section className="page">
@@ -178,7 +176,7 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 			<div className="overview">
 				<div className={`icon_container med_${inst.beard} ${inst.beard ? 'big_bearded' : ''}`} >
 					<img className="icon"
-						src={iconUrl('http://localhost/widget/', inst.widget.dir, 275)}
+						src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
 						height="275px"
 						width="275px"
 						alt={inst.widget.name} />
@@ -378,16 +376,12 @@ const MyWidgetSelectedInstance = ({ inst = {}, currentUser, myPerms, otherUserPe
 				? <MyWidgetsCollaborateDialog currentUser={currentUser} inst={inst} myPerms={myPerms} otherUserPerms={otherUserPerms} setOtherUserPerms={setOtherUserPerms} onClose={() => {closeModal(setShowCollab)}} />
 				: null
 			}
-			{showExport
-				? <MyWidgetsExportDataDialog onClose={() => {setShowExport(false)}} />
-				: null
-			}
 			{showWarning
 				? <MyWidgetsWarningDialog onClose={() => {closeModal(setShowWarning)}} onEdit={editWidget} />
 				: null
 			}
 			{showSettings
-				? <MyWidgetsSettingsDialog onClose={() => {closeModal(setShowSettings)}} inst={inst} currentUser={currentUser} />
+				? <MyWidgetsSettingsDialog onClose={() => {closeModal(setShowSettings)}} inst={inst} currentUser={currentUser} otherUserPerms={otherUserPerms} updateWidget={updateWidget} />
 				: null
 			}
 			<MyWidgetsScores inst={inst} />

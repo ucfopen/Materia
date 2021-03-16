@@ -176,6 +176,13 @@
 				display: none;
 			}
 
+			.expire-date-container {
+				.react-datepicker__tab-loop {
+					position: fixed;
+					z-index: 1;
+				}
+			}
+
 			.demote-dialog {
 				border-radius: 4px;
 				box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
@@ -337,7 +344,7 @@
 						position: absolute;
 						display: block;
 						right: 0;
-						bottom: 0;
+						bottom: -10px;
 						background: white;
 						padding: 6px;
 						border-radius: 5px;

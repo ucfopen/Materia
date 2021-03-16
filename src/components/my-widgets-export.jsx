@@ -1,13 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Modal from './modal'
-import fetchOptions from '../util/fetch-options'
 import useClickOutside from '../util/use-click-outside'
 
-// api calls for this component
-//const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
-
 const MyWidgetsExport = ({onClose, inst, scores}) => {
-	const [semesters, setSemesters] = useState([])
 	const [header, setHeader] = useState("No semester selected")
 	const [selectedSemesters, setSelectedSemesters] = useState("")
 	const [exportOptions, setExportOptions] = useState(['Questions and Answers', 'Referrer URLs'])
@@ -16,9 +11,8 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 	const [semesterOptions, setSemesterOptions] = useState([])
 	const [checkAll, setCheckAll] = useState(false)
 
+	// Initializes data
 	useEffect (() => {
-		let selectedId = inst.id
-		console.log(scores)
 		let hasScores = false
 		let tmpOps = ['Questions and Answers', 'Referrer URLs']
 
@@ -47,16 +41,14 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 
 			let options = new Array(scores.length).fill(false)
 			options[0] = true
-			console.log(options)
 			setSemesterOptions(options)
 			setExportOptions(tmpOps)
 		}
 
 		setExportType(tmpOps[0])
-
-		//_getScores()
 	}, [])
 	
+	// Sets all values to checked or unchecked when checkall is clicked
 	useEffect(() => {
 		if (semesterOptions.length > 0) {
 			let arr = new Array(scores.length).fill(checkAll)
@@ -64,10 +56,12 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 		}
 	}, [checkAll])
 
+	// Sets selected semesters and their respective header text
 	useEffect(() => {
 		if (semesterOptions.length > 0) {
 			let str = ""
 			let str_cpy = ""
+			
 			for (let i = 0; i < semesterOptions.length; i++) {
 				if (semesterOptions[i]) {
 					if (str !== "") {
@@ -84,17 +78,15 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 				str = "No semester selected"
 			}
 
-			console.log(str_cpy)
-
 			setHeader(str)
 			setSelectedSemesters(str_cpy)
 		}
 	}, [semesterOptions])
 
+	// Used on semester selection
 	const semesterCheck = (index) => {
 		let arr = [... semesterOptions]
 		arr[index] = !arr[index]
-		console.log(arr)
 		setSemesterOptions(arr)
 	}
 
@@ -126,7 +118,6 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 							menu. Download options may vary by widget, as some widgets
 							provide specialized export options.
 						</p>
-
 						<div className="download-controls">
 							<select value={exportType} onChange={(e) => {setExportType(e.target.value)}} >
 								{ 
@@ -135,7 +126,6 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 									})
 								}
 							</select>
-
 							<p className="download">
 								<a href={`/data/export/${inst.id}?type=${exportType}&semesters=${selectedSemesters}`}
 									className="action_button arrow_down_button">
@@ -143,19 +133,20 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 									Download {exportType}
 								</a>
 							</p>
-
-							<p className="see-how" ng-show="exportType === 'All Scores' || exportType === 'High Scores'">
-								You don't need to export scores and import them into Canvas if you have
-								embedded a widget as a graded assignment. 
-								<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"
-									target="_blank"
-									className="external">
-									{" "}See how!
-								</a>
-							</p>
+							{ exportType === 'All Scores' || exportType === 'High Scores'
+								? <p className="see-how">
+									You don't need to export scores and import them into Canvas if you have
+									embedded a widget as a graded assignment. 
+									<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"
+										target="_blank"
+										className="external">
+										{" "}See how!
+									</a>
+								</p>
+								: null
+							}
 						</div>
 					</div>
-
 					<p className="cancel">
 						<a onClick={onClose}>
 							Cancel
@@ -170,7 +161,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 					No semesters available
 				</p>
 				<ul>
-					<li className={`checkallLi ${scores.length > 0 ? 'active' : ''}`}>
+					<li className={`checkallLi ${scores.length > 1 ? 'active' : ''}`}>
 						<input type="checkbox"
 							id="checkall"
 							checked={checkAll}
@@ -184,29 +175,17 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 									id={val.id}
 									className="semester"
 									name={val.id}
+									disabled={scores.length === 1}
 									checked={semesterOptions[index] || false} // makes sure it will never be null
 									onChange={() => {semesterCheck(index)}}></input>
 									<label htmlFor={val.id}>{val.year + " " + val.term}</label>
 							</li>)
 						})
 					}
-					{/* 
-					<li ng-repeat="semester in semesters">
-						<input type="checkbox"
-							id="{{semester.id}}"
-							class="semester"
-							ng-model="semester.checked"
-							ng-disabled="semesters.length == 1"
-							ng-click="onSelectedSemestersChange()"/>
-						<label for="{{semester.id}}">{semester.label}</label>
-					</li>
-					*/}
 				</ul>
 			</div>
 		</Modal>
 	)
 }
-
-
 
 export default MyWidgetsExport

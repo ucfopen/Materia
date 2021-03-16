@@ -22,7 +22,6 @@ const PERM_SHARE = 35
 const PERM_SU = 90
 
 const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable) => {
-	console.log('code', permCode)
 	permCode = parseInt(permCode, 10)
 	return {
 		accessLevel: permCode,
@@ -48,25 +47,65 @@ const MyWidgetsPage = () => {
 	const [otherUserPerms, setOtherUserPerms] = useState(null)
 	const [myPerms, setMyPerms] = useState(null)
 
-	const refreshWidgets = useCallback(
-		() => {
-			fetchWidgets()
+	// load instances after initial render
+	useEffect(() => {
+		refreshWidgets()
+		fetchCurrentUser()
 			.then(resp => resp.json())
-			.then(widgets => {
-				console.log(widgets)
-				setIsLoading(false)
-				setWidgets(widgets)
+			.then(user => {
+				setUser(user)
 			})
-			.catch(error => {
-				setIsLoading(false)
-				setWidgets([])
-			})
-		}, []
-	)
+	}, [])
+
+	// Sets the current widget to what's in the URL when the widgets load
+	useEffect(() => {
+		const url = window.location.href
+
+		if (widgets.length !== 0) {
+			let url_id = url.split('#')[1]
+
+			if (url_id && (!selectedInst || selectedInst.id !== url_id)) {
+				for (let i = 0; i < widgets.length; i++) {
+					if (widgets[i].id === url_id) {
+						onSelect(widgets[i])
+						break
+					}
+				}
+			}
+		}
+	}, [widgets])
+
+	const refreshWidgets = useCallback(() => {
+		fetchWidgets()
+		.then(resp => resp.json())
+		.then(widgets => {
+			setIsLoading(false)
+			setWidgets(widgets)
+		})
+		.catch(error => {
+			setIsLoading(false)
+			setWidgets([])
+		})
+	}, [])
+
+	const updateWidget = (inst) => {
+		let _widgets = []
+		widgets.forEach((widget) => {
+			if (widget.id === inst.id) {
+				_widgets.push(inst)
+			}
+			else {
+				_widgets.push(widget)
+			}
+		})
+
+		setSelectedInst(inst)
+		setWidgets(_widgets)
+	}
 
 	const onSelect = (inst) => {
 		setSelectedInst(inst)
-
+		setUrl(inst)
 		fetchUserPermsForInstance(inst.id)
 			.then(resp => resp.json())
 			.then(perms => {
@@ -82,11 +121,12 @@ const MyWidgetsPage = () => {
 				setMyPerms(myPerms)
 				setOtherUserPerms(othersPerms)
 			})
-
 	}
 
 	const onCopy = useCallback(
 		(instId, title, copyPermissions) => {
+			// Clears the overflow hidden on the modal
+			document.body.style.overflow = 'auto'
 			setIsLoading(true)
 			setSelectedInst(null)
 			fetchCopyInstance(instId, title, copyPermissions)
@@ -104,15 +144,10 @@ const MyWidgetsPage = () => {
 		}, []
 	)
 
-	// load instances after initial render
-	useEffect(() => {
-		refreshWidgets()
-		fetchCurrentUser()
-			.then(resp => resp.json())
-			.then(user => {
-				setUser(user)
-			})
-	}, [])
+	// Sets widget id in the url
+	const setUrl = (inst) => {
+		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`);
+	}
 
 	return (
 		<>
@@ -174,6 +209,7 @@ const MyWidgetsPage = () => {
 								otherUserPerms={otherUserPerms}
 								setOtherUserPerms={(p) => setOtherUserPerms(p)}
 								refreshWidgets={refreshWidgets}
+								updateWidget={updateWidget}
 							/>
 							: null
 						}
@@ -186,10 +222,8 @@ const MyWidgetsPage = () => {
 						onClick={onSelect}
 						Card={MyWidgetsInstanceCard}
 					/>
-
 				</div>
 			</div>
-
 		</>
 	)
 }

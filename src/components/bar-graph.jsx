@@ -5,10 +5,9 @@ import { scaleBand, scaleLinear } from "@vx/scale"
 import { AxisLeft, AxisBottom } from "@vx/axis"
 import { Grid } from '@vx/grid'
 
-
 // accessors return the label and value of that data item
 const x = d => d.label
-// This makes it so the max graph height will never be reached
+// * 1.2 makes it so the max graph height will never be reached
 const y = d => (1.2 * d.value)
 
 const BarGraph = ({ data, width, height }) => {
@@ -16,16 +15,20 @@ const BarGraph = ({ data, width, height }) => {
 	const xMax = width - 80
 	const yMax = height - 80
 
+	const getScaleVal = () => {
+		return (data !== undefined ? Math.max(...data?.map(y)) : 0)
+	}
+
 	// scales
 	const xScale = scaleBand({
 		rangeRound: [0, xMax],
-		domain: data.map(x),
+		domain: data?.map(x),
 		padding: 0.4,
 	})
 
 	const yScale = scaleLinear({
 		rangeRound: [0, yMax],
-		domain: [Math.max(...data.map(y)), 0],
+		domain: [getScaleVal(), 0],
 	})
 
 	return (
@@ -42,7 +45,7 @@ const BarGraph = ({ data, width, height }) => {
 					numTicksColumns={11}
 				/>
 				<AxisLeft left={13} scale={yScale} numTicks={4} label="Plays" />
-				{data.map((d, i) => {
+				{data?.map((d, i) => {
 					const label = d.label
 					const barWidth = xScale.bandwidth()
 					const barHeight = yMax - yScale(d.value)

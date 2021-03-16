@@ -30,7 +30,8 @@
     "fs-extra": "^8.0.1",
     "materia-server-client-assets": "2.2.0",
     "napa": "^3.0.0",
-    "ngmodal": "ucfcdl/ngModal#v1.2.2"
+    "ngmodal": "ucfcdl/ngModal#v1.2.2",
+    "react-datepicker": "^3.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
@@ -42,8 +43,6 @@
     "babel-jest": "^26.1.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-angularjs-annotate": "^0.10.0",
-    "jquery": "3.5.1",
-    "jquery-ui": "1.12.1",
     "browser-sync": "^2.26.5",
     "clean-webpack-plugin": "^3.0.0",
     "concurrently": "^5.1.0",
@@ -54,6 +53,8 @@
     "husky": "^4.2.5",
     "ignore-emit-webpack-plugin": "^2.0.2",
     "jest": "^26.1.0",
+    "jquery": "3.5.1",
+    "jquery-ui": "1.12.1",
     "lint-staged": "^10.2.11",
     "mini-css-extract-plugin": "^0.9.0",
     "node-sass": "^4.14.1",

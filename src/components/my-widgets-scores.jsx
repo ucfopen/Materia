@@ -7,69 +7,74 @@ const MyWidgetsScores = ({inst}) => {
 	const [state, setState] = useState({
 		scores: [],
 		isShowingAll: false,
-		isLoadingScores: true
+		isLoadingScores: true,
+		hasScores: false,
+		showExport: false
 	})
-	const [showExport, setShowExport] = useState(false)
+
+	// Initializes the data when widget changes
+	useEffect(() => {
+		setState({...state, scores: [], isShowingAll: false,  isLoadingScores: true})
+		// getScores
+		const options = {
+			"headers": {
+			"cache-control": "no-cache",
+			"pragma": "no-cache",
+			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+			},
+			"body": `data=%5B%22${inst.id}%22%2C${true}%5D`,
+			"method": "POST",
+			"mode": "cors",
+			"credentials": "include"
+		}
+
+		fetch('/api/json/score_summary_get/', options)
+			.then(resp => {
+				if(resp.ok && resp.status !== 204) return resp.json()
+				return []
+			})
+			.then(scores => {
+				let _hasScores = false
+				const ranges = [
+					"0-9",
+					"10-19",
+					"20-29",
+					"30-39",
+					"40-49",
+					"50-59",
+					"60-69",
+					"70-79",
+					"80-89",
+					"90-100",
+				]
+				scores.forEach(semester => {
+					semester.graphData = semester.distribution?.map((d, i) => ({ label: ranges[i], value: d }) )
+					semester.totalScores = semester.distribution?.reduce((total, count) => total+count)
+
+					if (semester.distribution !== undefined) {
+						_hasScores = true
+					}
+				})
+
+				setState({
+					scores,
+					isShowingAll: scores.length < 2,
+					isLoadingScores: false,
+					hasScores: _hasScores,
+					showExport: false
+				})
+			})
+	}, [inst.id])
 
 	const openExport = () => {
-		setShowExport(true)
+		setState({...state, showExport: true})
 		document.body.style.overflow = "hidden"
 	}
 
 	const closeExport = () => {
-		setShowExport(false)
+		setState({...state, showExport: false})
 		document.body.style.overflow = "auto"
 	}
-
-	useEffect(
-		() => {
-			setState({...state, scores: [], isShowingAll: false,  isLoadingScores: true})
-			// getScores
-			const options = {
-				"headers": {
-				"cache-control": "no-cache",
-				"pragma": "no-cache",
-				"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
-				},
-				"body": `data=%5B%22${inst.id}%22%2C${true}%5D`,
-				"method": "POST",
-				"mode": "cors",
-				"credentials": "include"
-			}
-
-			fetch('/api/json/score_summary_get/', options)
-				.then(resp => {
-					if(resp.ok && resp.status !== 204) return resp.json()
-					return []
-				})
-				.then(scores => {
-					console.log('here')
-					console.log(scores)
-					const ranges = [
-						"0-9",
-						"10-19",
-						"20-29",
-						"30-39",
-						"40-49",
-						"50-59",
-						"60-69",
-						"70-79",
-						"80-89",
-						"90-100",
-					]
-					scores.forEach(semester => {
-						semester.graphData = semester.distribution.map((d, i) => ({ label: ranges[i], value: d }) )
-						semester.totalScores = semester.distribution.reduce((total, count) => total+count)
-					})
-
-					setState({
-						scores,
-						isShowingAll: scores.length < 2,
-						isLoadingScores: false
-					})
-				})
-		}, [inst.id]
-	)
 
 	const displayedSemesters = state.isShowingAll
 		? state.scores // all semester being displayed
@@ -89,7 +94,13 @@ const MyWidgetsScores = ({inst}) => {
 			{state.isLoadingScores
 				? <LoadingIcon />
 				: <div>
-					{displayedSemesters.map(semester => <MyWidgetScoreSemester key={semester.id} semester={semester} instId={inst.id} />)}
+					{
+					displayedSemesters.map(semester => 
+						<MyWidgetScoreSemester key={semester.id}
+							semester={semester}
+							instId={inst.id}
+							hasScores={state.hasScores} />
+					)}
 					<a role="button"
 						className={`show-older-scores-button ${state.scores.length > 1 ? '' : 'hide'}`}
 						onClick={() => setState({...state, isShowingAll: !state.isShowingAll})}
@@ -101,7 +112,7 @@ const MyWidgetsScores = ({inst}) => {
 					</a>
 					</div>
 			}
-			{showExport
+			{state.showExport
 			? <MyWidgetsExport onClose={closeExport} inst={inst} scores={state.scores}/>
 			: null
 			}

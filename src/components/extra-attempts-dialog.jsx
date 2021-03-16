@@ -137,8 +137,6 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 			.then(resp => resp.json())
 			.then(_users => {
 				const keyedUsers = {}
-				console.log("===================================")
-				console.log(_users)
 				_users.forEach(u => { keyedUsers[u.id] = u })
 				setUsers(keyedUsers)
 			})

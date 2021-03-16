@@ -4,7 +4,6 @@ import './loading-icon.scss'
 
 const LoadingIcon = ({size="med"}) => {
 	// Supported sizes: sm, med, lrg
-	// tri_color_spinner.png
 	return (
 		<div className="icon-holder">
 			<div className="loading-icon">

@@ -6,7 +6,6 @@ const searchWidgets = (input) => fetch(`/api/admin/widget_search/${input}`)
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
-	const [lastSearch, setLastSearch] = useState('')
 	const [searchResults, setSearchResults] = useState([])
 	const [isSearching, setIsSearching] = useState(false)
 	const [showDeleted, setShowDeleted] = useState(false)
@@ -31,7 +30,6 @@ const SupportSearch = ({onClick = () => {}}) => {
 				})
 				.then(instances => 
 				{
-					console.log(instances)
 					setSearchResults(instances)
 					setIsSearching(false)
 				})

@@ -1,29 +1,35 @@
 import React, { useState, useEffect } from 'react'
 import Modal from './modal'
 import fetchOptions from '../util/fetch-options'
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 
-const updateWidget = (args) => fetch('/api/json/widget_instance_update', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify(args))}`}))
+const fetchUpdateWidget = (args) => fetch('/api/json/widget_instance_update', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify(args))}`}))
+const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
 
-const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
+const initForm = {
+	data: {}, 
+	actions: {
+		radios: [false, false],
+		dates: [new Date(), new Date()],
+		times: ["",""],
+		periods: ["",""],
+		access: ""
+	},
+	errors: {
+		date: [false, false],
+		time: [false, false]
+	}
+}
+
+const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, updateWidget }) => {
 	const [error, setError] = useState("")
 	const [sliderVal, setSliderVal] = useState("100")
 	const [lastActive, setLastActive] = useState(0)
 	const [availability, setAvailability] = useState([{}, {}])
 	const [submitData, setSubmitData] = useState({form: {}, error: "", submit: false})
-	const initForm = {
-		data: {}, 
-		actions: {
-			radios: [false, false],
-			dates: [new Date(), new Date()],
-			times: ["",""],
-			periods: ["",""],
-			access: ""
-		},
-		errors: {
-			date: [false, false],
-			time: [false, false]
-		}
-	}
+	const [showWarning, setShowWarning] = useState(false)
+	const [collabUsers, setCollabUsers] = useState({})
 	const [formData, setFormData] = useState(initForm)
 
 	// Used for initialization
@@ -34,8 +40,10 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 			open > -1 ? new Date(open * 1000) : null,
 			close > -1 ? new Date(close * 1000) : null,
 		]
+		const attempts = parseInt(inst.attempts)
+		let elems = document.getElementsByClassName("slider-val")
 		let temp_avail = []
-		let access = inst.guest_access == true ? "guest" : "normal"		
+		let access = inst.guest_access == true ? "guest" : "normal"
 		access = inst.embedded_only == true ? "embed" : access
 
 		// Gets the initila date, time, & period data
@@ -111,47 +119,44 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 			}
 		})
 
-		let attempts = parseInt(inst.attempts)
-		let elems = document.getElementsByClassName("slider-val")
-
 		//Initializes the slider
-		switch(true) {
-			case (attempts == 1):
+		switch(attempts) {
+			case (1):
 				setSliderVal("1")
 				setLastActive(0)
 				elems[0].classList.add("active")
 				break
-			case (attempts == 2):
+			case (2):
 				setSliderVal("5")
 				setLastActive(1)
 				elems[1].classList.add("active")
 				break
-			case (attempts == 3):
+			case (3):
 				setSliderVal("9")
 				setLastActive(2)
 				elems[2].classList.add("active")
 				break
-			case (attempts == 4):
+			case (4):
 				setSliderVal("13")
 				setLastActive(3)
 				elems[3].classList.add("active")
 				break
-			case (attempts == 5):
+			case (5):
 				setSliderVal("17")
 				setLastActive(4)
 				elems[4].classList.add("active")
 				break
-			case (attempts == 10):
+			case (10):
 				setSliderVal("39")
 				setLastActive(5)
 				elems[5].classList.add("active")
 				break
-			case (attempts == 15):
+			case (15):
 				setSliderVal("59")
 				setLastActive(6)
 				elems[6].classList.add("active")
 				break
-			case (attempts == 20):
+			case (20):
 				setSliderVal("79")
 				setLastActive(7)
 				elems[7].classList.add("active")
@@ -163,6 +168,18 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 				break
 		}
 	}, [])
+
+	// Gets the collab users
+	useEffect(() => {
+		const userIdsToLoad = Array.from(otherUserPerms.keys())
+		fetchUsers(userIdsToLoad)
+		.then(res => res.json())
+		.then(_users => {
+			const keyedUsers = {}
+			_users.forEach(u => { keyedUsers[u.id] = u})
+			setCollabUsers(keyedUsers)
+		})
+	}, [inst])
 
 	// Handles settings form submission
 	useEffect(() => {
@@ -179,13 +196,13 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 				submitData.form.embedded_only,
 			]
 
-			updateWidget(args)
+			fetchUpdateWidget(args)
 			.then(res => res.json())
 			.then(widgetInfo => {
-				console.log(widgetInfo)
-
 				if (widgetInfo.msg !== "error")
 					onClose()
+					
+				updateWidget(widgetInfo)
 			})
 			.catch(error => {
 				console.log(error)
@@ -207,13 +224,13 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 
 	// Used when the number is clicked on the slider
 	const updateSliderNum = (val, index) => {
-		// Attempts alwaysunlimited when guest access is true
+		// Attempts always unlimited when guest access is true
 		if (inst.guest_access) 
 			return
 
-		let sliderVals = document.getElementsByClassName("slider-val")
+		const sliderVals = document.getElementsByClassName("slider-val")
 
-		if (lastActive != -1 && elems.length > lastActive) {
+		if (lastActive != -1 && sliderVals.length > lastActive) {
 			sliderVals[lastActive].classList.remove("active")
 		}
 
@@ -304,6 +321,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 	const dateChange = (date, index) => {
 		let newDates = formData.actions.dates
 
+		// Sets the availability to "On"
 		availChange(index, false)
 
 		if (newDates)
@@ -372,6 +390,16 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 	}
 
 	const accessChange = (val) => {
+		// Warns the user if doing this will remove students from collaboration
+		if (val != "guest" && inst.guest_access) {
+			for (let key in collabUsers) {
+				if (collabUsers.hasOwnProperty(key) && collabUsers[key].is_student) {
+						setShowWarning(true)
+						break
+				}
+			}
+		}
+
 		setFormData({...formData, actions: {...formData.actions, access: val}})
 	}
 
@@ -398,6 +426,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 		}
 		else if (formData.actions.access == "guest") {
 			form.guest_access = true
+			form.attempts = -1
 		}
 
 		setSubmitData({form: form, error: errMsg, submit: true})
@@ -458,7 +487,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 			newDates.push(newDate)
 		}
 
-		if (dates[0] > dates[1]) {
+		if (formData.actions.radios[1] !== true && dates[0] > dates[1]) {
 			errors.startTimeError = true
 		}
 
@@ -483,16 +512,16 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 		timeErrCount += formErrors.timeErrors[1] == true ? 1 : 0
 		
 		// Sets the input error color
-		errors.date[0] = dateErrCount >= 1 ? true : false
-		errors.date[1] = dateErrCount >= 2 ? true : false
-		errors.time[0] = timeErrCount >= 1 ? true : false
-		errors.time[1] = timeErrCount >= 2 ? true : false
+		errors.date[0] = formErrors.dateErrors[0] == true ? true : false
+		errors.date[1] = formErrors.dateErrors[1] == true ? true : false
+		errors.time[0] = formErrors.timeErrors[0] == true ? true : false
+		errors.time[1] = formErrors.timeErrors[1] == true ? true : false
 
 		// Gets if missing or invalid
-		numMissing += formData.actions.dates[0].length == 0 ? 1 : 0
-		numMissing += formData.actions.dates[1].length == 0 ? 1 : 0
-		numMissing += formData.actions.times[0].length == 0 ? 1 : 0
-		numMissing += formData.actions.times[1].length == 0 ? 1 : 0
+		numMissing += formData.actions.dates[0].length === 0 ? 1 : 0
+		numMissing += formData.actions.dates[1].length === 0 ? 1 : 0
+		numMissing += formData.actions.times[0].length === 0 ? 1 : 0
+		numMissing += formData.actions.times[1].length === 0 ? 1 : 0
 
 		setFormData({...formData, errors: errors})
 
@@ -566,7 +595,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 	}
 
 	return (
-		<Modal onClose={onClose}>
+		<Modal onClose={onClose} ignoreClose={showWarning}>
 			<div className="settings-modal">
 				<div className="top-bar">
 					<span className="title">Settings</span>
@@ -640,13 +669,13 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 													checked={!formData.actions.radios[index]}
 													onChange={() => {availChange(index, false)}}/>
 												<label>On</label>
-												<input type="date"
+												<DatePicker
 													selected={formData.actions.dates[index]} 
 													className={`date ${formData.errors.date[index] ? 'error' : ''}`}
 													onChange={date => dateChange(date, index)}
 													placeholderText="Date"/>
 												at
-												<input type="time"
+												<input type="text"
 													className={`time ${formData.errors.time[index] ? 'error' : ''}`}
 													placeholder="Time"
 													onBlur={() => {blurTime(index)}}
@@ -735,6 +764,16 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser }) => {
 					</li>
 				</ul>
 			</div>
+			{ showWarning === true
+				?
+				<Modal onClose={() => {setShowWarning(false)}} smaller={true} alert={true}>
+					<span className="alert-title">Students with access will be removed</span>
+					<p className="alert-description">Warning: Disabling Guest Mode will automatically revoke access to this widget for any students it has been shared with!</p>
+					<button className="alert-btn" onClick={() => {setShowWarning(false)}}>Okay</button>
+				</Modal>
+				:
+				null
+			}
 		</Modal>
 	)
 }

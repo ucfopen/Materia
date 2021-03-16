@@ -14,66 +14,171 @@ const defaultState = {
 	anonymous: false,
 	tableNames: [],
 	pages: [1],
+	tableKeys: [],
 	isTruncated: false,
 	isGuest: false,
-	isLoading: true
+	isLoading: true,
+	footerText: ""
 }
 
 const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
-	const MAX_ROWS = 100
 	const [state, setState] = useState(defaultState)
+	const [paginateBtns, setPageinateBtns] = useState([])
+	const [searchInput, setSearchInput] = useState("")
+	const [rowVals, setRowVals] = useState([])
+	const MAX_ROWS = 100
 
-	const onChangePageCount = useCallback(newValue => {
-		const numPages = Math.ceil(state.storageData[state.selectedTableName].length/newValue)
-		const pagesArr = Array.from({length: numPages}, (_, i) => i + 1) // Generates list of ints 1 to numPages
-		const startIndex = 0
-		const endIndex = Math.min(state.storageData[state.selectedTableName].length, newValue)
-		const _selectedTable = state.storageData[state.selectedTableName].slice(startIndex, endIndex)
-		setState({...state, rowsPerPage: newValue, selectedTable: _selectedTable, startIndex: startIndex, endIndex: endIndex, pageNumber: 0, pages: pagesArr})
-	}, [state])
+	useEffect(() => {
+		getPaginateBtns()
+	}, [state, searchInput])
 
-	const onChangeTable = useCallback(_selectedTableName => {
-		const numPages = Math.ceil(state.storageData[_selectedTableName].length/state.rowsPerPage)
-		const pagesArr = Array.from({length: numPages}, (_, i) => i + 1) // Generates list of ints 1 to numPages
-		const startIndex = 0
-		const endIndex = Math.min (state.storageData[_selectedTableName].length, state.rowsPerPage + 1)
-		const _selectedTable = state.storageData[_selectedTableName].slice(startIndex, endIndex)
-		const _isTruncated = _selectedTable.length < MAX_ROWS
-		setState({...state, selectedTable: _selectedTable, selectedTableName: _selectedTableName, isTruncated: _isTruncated, startIndex: startIndex, endIndex: endIndex, pageNumber: 0, pages: pagesArr})
-	}, [state])
-
-	const onChangePageNumber = useCallback(newPageNum => {
-		const startIndex = Math.min(state.storageData[state.selectedTableName].length, newPageNum*state.rowsPerPage)
-		const endIndex = Math.min (state.storageData[state.selectedTableName].length, (newPageNum + 1)*state.rowsPerPage)
-		const _selectedTable = state.storageData[state.selectedTableName].slice(startIndex, endIndex)
-		setState({...state, startIndex: startIndex, endIndex: endIndex, selectedTable: _selectedTable, pageNumber: newPageNum})
-	}, [state])
-
+	// Gets the storage data from db and loads it
 	useEffect(() => {
 		fetchStorageData(instId, semester.term, semester.year)
 			.then(resp => resp.json())
 			.then(results => {
 				const _tableNames = Object.keys(results)
 				const _selectedTableName = _tableNames[0]
-				const _selectedTable = results[_selectedTableName].slice(0, state.rowsPerPage)
+				const _tableKeys = Object.keys(results[_selectedTableName][0].data)
+				const tmpResults = results[_selectedTableName].length <= MAX_ROWS 
+					?	results[_selectedTableName]
+					: results[_selectedTableName].slice(0, MAX_ROWS)
+				const filteredRes = tmpResults.filter(val => getFilter(val))
+				const _selectedTable = filteredRes.slice(0, state.rowsPerPage)
 				const _isTruncated = results[_selectedTableName].length > MAX_ROWS
-				const pageLen = Math.ceil(Math.min(results[_selectedTableName].length, MAX_ROWS) / state.rowsPerPage)
-				const _pages = Array.from({length: pageLen}, (_, i) => i + 1)
-				console.log(_selectedTable.length)
+				const pageLen = Math.min(filteredRes.length, state.rowsPerPage)
+				const _pages = Array.from({length: Math.ceil(filteredRes.length/pageLen)}, (_, i) => i + 1)
 
 				setState({
 					...state,
-					storageData: results,
+					storageData: filteredRes,
 					tableNames: _tableNames,
 					selectedTable: _selectedTable,
 					selectedTableName: _selectedTableName,
 					isTruncated: _isTruncated,
 					pages: _pages,
+					tableKeys: _tableKeys,
 					isLoading: false
 				})
 			})
 			.catch(err => {console.error(err)})
-	}, [semester, instId])
+	}, [semester, instId, searchInput])
+
+	// Sets the paginated rows and footer text
+	useEffect(() => {
+		if (state.isLoading == false)
+		{
+			let tmpVals = state.selectedTable.map((row, index) =>
+				<tr key={index}>
+					<td>{ row.play.user }</td>
+					<td>{ row.play.firstName }</td>
+					<td>{ row.play.lastName }</td>
+					<td>{ row.play.cleanTime }</td>
+					{Object.values(row.data).map((rowData, index) =>
+						<td key={index} className={{'null': rowData == null}}>
+							{ rowData }
+						</td>
+					)}
+
+				</tr>
+			)
+
+			let text = tmpVals.length === state.rowsPerPage ? 
+				`Showing ${state.startIndex + 1} to ${state.endIndex} of ${Math.min(state.storageData?.length, MAX_ROWS)} entries` :
+				`Showing ${Math.min(tmpVals.length, state.startIndex + 1)} to ${Math.min(tmpVals.length, state.endIndex)} of ${tmpVals.length} entries (filtered from ${Math.min(state.storageData?.length, MAX_ROWS)} total entries)`
+
+			setRowVals(tmpVals)
+			setState({...state, footerText: text})
+		}
+	}, [state.isLoading,
+		state.selectedTable,
+		state.startIndex,
+		state.endIndex,
+		state.storageData,
+		state.selectedTableName,
+		state.pages,
+		state.storageData,
+		searchInput
+	])
+
+	const onChangePageCount = useCallback(newValue => {
+		const numPages = Math.ceil(state.storageData?.length/newValue)
+		const pagesArr = Array.from({length: numPages}, (_, i) => i + 1) // Generates list of ints 1 to numPages
+		const startIndex = 0
+		const endIndex = Math.min(state.storageData?.length, newValue)
+		const _selectedTable = state.storageData?.slice(startIndex, endIndex)
+		setState({...state, rowsPerPage: newValue, selectedTable: _selectedTable, startIndex: startIndex, endIndex: endIndex, pageNumber: 0, pages: pagesArr})
+	}, [state])
+
+	const onChangeTable = useCallback(_selectedTableName => {
+		const numPages = Math.ceil(state.storageData?.length/state.rowsPerPage)
+		const pagesArr = Array.from({length: numPages}, (_, i) => i + 1) // Generates list of ints 1 to numPages
+		const startIndex = 0
+		const endIndex = Math.min (state.storageData?.length, state.rowsPerPage + 1)
+		const _selectedTable = state.storageData?.slice(startIndex, endIndex)
+		const _isTruncated = _selectedTable.length > MAX_ROWS
+		setState({...state, selectedTable: _selectedTable, selectedTableName: _selectedTableName, isTruncated: _isTruncated, startIndex: startIndex, endIndex: endIndex, pageNumber: 0, pages: pagesArr})
+	}, [state])
+
+	const onChangePageNumber = useCallback(newPageNum => {
+		const startIndex = Math.min(state.storageData?.length, newPageNum*state.rowsPerPage)
+		const endIndex = Math.min (state.storageData?.length, (newPageNum + 1)*state.rowsPerPage)
+		const _selectedTable = state.storageData?.slice(startIndex, endIndex)
+		setState({...state, startIndex: startIndex, endIndex: endIndex, selectedTable: _selectedTable, pageNumber: newPageNum})
+	}, [state])
+
+	const getPaginateBtns = useCallback(() => {
+		let pagesArr = state.pages?.map((val, index) => {
+			return(<a className={`paginate_button ${index === state.pageNumber ? 'current' : ''}`}
+			aria-controls="DataTables_Table_1"
+			tabIndex="0"
+			onClick={() => {onChangePageNumber(index)}}
+			key={index}>
+			{index+1}
+		</a>)
+		})
+
+		if (pagesArr.length > 7) {
+			const paginateIconL = <span className="ellipsis" key={999}>…</span>
+			const paginateIconR = <span className="ellipsis" key={888}>…</span>
+			const curPage = state.pageNumber + 1
+			const numPages = pagesArr.length
+			let paginateType = numPages - curPage < 4 ? "right" : "middle"
+			paginateType = curPage <= 4 ? "left" : paginateType
+
+			switch(paginateType) {
+				case ("right"):
+					pagesArr = [pagesArr[0]].concat(paginateIconR).concat(pagesArr.slice(pagesArr.length - 5, pagesArr.length))
+					break
+				case ("middle"):
+					pagesArr = [pagesArr[0]].concat(paginateIconL).concat(pagesArr.slice(curPage - 2, curPage + 1)).concat(paginateIconR).concat(pagesArr[pagesArr.length - 1])
+					break
+				case ("left"):
+					pagesArr = pagesArr.slice(0, 5).concat(paginateIconL).concat(pagesArr[pagesArr.length - 1])
+					break
+			}
+		}
+
+		setPageinateBtns(pagesArr)
+	}, [state, searchInput])
+
+	// Filters search
+	const getFilter = useCallback((val) => {
+		const firstLast = val.play.firstName + val.play.lastName
+
+		if (searchInput.length == 0)
+			return true
+
+		// Matches by user
+		if (val.play.user.replace(/\s+/g, '').toUpperCase().indexOf(searchInput.replace(/\s+/g, '').toUpperCase()) > -1)
+			return true
+
+		// Matches by first and last
+		if (firstLast.replace(/\s+/g, '').toUpperCase().indexOf(searchInput.replace(/\s+/g, '').toUpperCase()) > -1)
+			return true
+
+		return false
+	}, [searchInput])
 
 	return (
 		<div className="display data" >
@@ -115,17 +220,30 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 								: null
 							}
 
-							<div className="dataTables_length">
-								<label>
-									Show
-									<select value={state.rowsPerPage} onChange={e => {onChangePageCount(parseInt(e.target.value, 10))}}>
-										<option value="10">10</option>
-										<option value="25">25</option>
-										<option value="50">50</option>
-										<option value="100">100</option>
-									</select>
-									entries
-								</label>
+							<div className="dataTables_info_holder">
+								<div className="dataTables_length">
+									<label>
+										Show
+										<select value={state.rowsPerPage} onChange={e => {onChangePageCount(parseInt(e.target.value, 10))}}>
+											<option value="10">10</option>
+											<option value="25">25</option>
+											<option value="50">50</option>
+											<option value="100">100</option>
+										</select>
+										entries
+									</label>
+								</div>
+
+								<div id="dataTables_filter" className="dataTables_filter">
+									<label>Search:
+										<input type="search"
+											className=""
+											placeholder=""
+											aria-controls="DataTables_Table_0"
+											value={searchInput}
+											onChange={(e) => {setSearchInput(e.target.value)}}/>
+									</label>
+								</div>
 							</div>
 
 							<table className="storage_table dataTable no-footer">
@@ -135,29 +253,17 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 										<th>firstName</th>
 										<th>lastName</th>
 										<th>time</th>
-										{
-											Object.keys(state.selectedTable[0].data).map((columName, index) =>
+										{ 
+											state.tableKeys.map((columName, index) =>
 												<th key={index}>{columName}</th>
 											)
 										}
 									</tr>
 								</thead>
 								<tbody>
-									{
-										state.selectedTable.map((row, index) =>
-											<tr key={index}>
-												<td>{ row.play.user }</td>
-												<td>{ row.play.firstName }</td>
-												<td>{ row.play.lastName }</td>
-												<td>{ row.play.cleanTime }</td>
-												{Object.values(row.data).map((rowData, index) =>
-													<td key={index} className={{'null': rowData == null}}>
-														{ rowData }
-													</td>
-												)}
-
-											</tr>
-										)
+									{ rowVals.length > 0
+										? rowVals
+										: <tr style={{height: "50px"}}></tr>
 									}
 								</tbody>
 							</table>
@@ -165,7 +271,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 								<div className="data_tables_info"
 									role="status"
 									aria-live="polite">
-									Showing {state.startIndex + 1} to {state.endIndex} of {Math.min(state.storageData[state.selectedTableName]?.length, MAX_ROWS)} entries
+									{state.footerText}
 								</div>
 								<div className="data_tables_paginate" id="DataTables_Table_1_paginate">
 									<a className={`paginate_button previous ${state.pageNumber - 1 < 0 ? 'disable' : ''}`}
@@ -179,15 +285,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 									</a>
 									<span>
 										{
-											state.pages?.map((val, index) => {
-												return(<a className={`paginate_button ${index === state.pageNumber ? 'current' : ''}`}
-												aria-controls="DataTables_Table_1"
-												tabIndex="0"
-												onClick={() => {onChangePageNumber(index)}}
-												key={index}>
-												{index+1}
-											</a>)
-											})
+											paginateBtns
 										}
 									</span>
 									<a className={`paginate_button next ${state.pageNumber + 1 >= state.pages?.length ? 'disable' : ''}`}

@@ -8,40 +8,47 @@ const TAB_GRAPH='TAB_GRAPH'
 const TAB_INDIVIDUAL='TAB_INDIVIDUAL'
 const TAB_STORAGE='TAB_STORAGE'
 
-const MyWidgetScoreSemester = ({semester, instId}) => {
-	const [scoreTab, setScoreTab] = useState(TAB_GRAPH)
+const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
+	let initData = hasScores ? TAB_GRAPH : TAB_STORAGE
+	const [scoreTab, setScoreTab] = useState(initData)
 
 	const activeTab = useMemo(() => {
-			switch(scoreTab){
-				case TAB_GRAPH:
-					return <MyWidgetScoreSemesterGraph semester={semester} />
+		switch(scoreTab){
+			case TAB_GRAPH:
+				return <MyWidgetScoreSemesterGraph semester={semester} />
 
-				case TAB_INDIVIDUAL:
-					return <MyWidgetScoreSemesterIndividual semester={semester} instId={instId} />
+			case TAB_INDIVIDUAL:
+				return <MyWidgetScoreSemesterIndividual semester={semester} instId={instId} />
 
-				case TAB_STORAGE:
-					return <MyWidgetScoreSemesterStorage semester={semester} instId={instId} />
-			}
-		}, [scoreTab, semester]
-	)
+			case TAB_STORAGE:
+				return <MyWidgetScoreSemesterStorage semester={semester} instId={instId} />
+		}
+	}, [scoreTab, semester])
 
 	return (
 		<div className="scoreWrapper">
 			<h3 className="view">{semester.term} {semester.year}</h3>
 			<ul className="choices">
-				<li className={scoreTab == TAB_GRAPH ? 'scoreTypeSelected' : ''}>
-					<a className="graph" onClick={() => {setScoreTab(TAB_GRAPH)}}>
-						Graph
-					</a>
-				</li>
-				<li className={scoreTab == TAB_INDIVIDUAL ? 'scoreTypeSelected' : ''}>
-					<a className="table" onClick={() => {setScoreTab(TAB_INDIVIDUAL)}}>
-						Individual Scores
-					</a>
-				</li>
+				{
+					hasScores
+					? <React.Fragment>
+						<li key={0} className={scoreTab == TAB_GRAPH ? 'scoreTypeSelected' : ''}>
+							<a className="graph" onClick={() => {setScoreTab(TAB_GRAPH)}}>
+								Graph
+							</a>
+						</li>
+						<li key={1} className={scoreTab == TAB_INDIVIDUAL ? 'scoreTypeSelected' : ''}>
+							<a className="table" onClick={() => {setScoreTab(TAB_INDIVIDUAL)}}>
+								Individual Scores
+							</a>
+						</li>
+					</React.Fragment>
+					: null
+				}
 
-				{semester.storage
-					? <li className={scoreTab == TAB_STORAGE ? 'scoreTypeSelected' : ''}>
+				{
+					semester.storage
+					? <li key={2} className={scoreTab == TAB_STORAGE ? 'scoreTypeSelected' : ''}>
 						<a className="data" onClick={() => {setScoreTab(TAB_STORAGE)}}>
 							Data
 						</a>

@@ -832,6 +832,11 @@
 
 			.data_tables_paginate {
 				color: #333;
+				margin-left: auto;
+
+				.ellipsis {
+					padding: 0 1em;
+				}
 
 				.paginate_button {
 					box-sizing: border-box;
@@ -850,7 +855,7 @@
 
 					&.current {
 						border: 1px solid #979797;
-						background-color: #f5f5f5;
+						background-color: #fdfdfd;
 					}
 
 					&:not(.current):not(.disable):hover {
@@ -1569,6 +1574,20 @@
 .ui-datepicker {
 	font-size: 12px !important;
 }
+
+.dataTables_info_holder {
+	display: flex;
+	align-items: center;
+
+	.dataTables_length {
+		margin-right: auto;
+	}
+
+	.dataTables_filter {
+		margin-left: auto;
+	}
+}
+
 .dataTable {
 	width: 100%;
 	overflow: auto;
@@ -1582,6 +1601,7 @@
 .paginate_button {
 	margin-right: 5px;
 	cursor: pointer;
+	user-select: none;
 }
 
 div.link {
@@ -1960,20 +1980,8 @@ table.storage_table {
 						margin: 0;
 					}
 
-					input[type='date'] {
-						margin: 0 5px 0 5px;
-						border: 1px solid rgba(0, 0, 0, 0.2);
-						padding: 7px;
-						font-size: 0.8em;
-						border-radius: 7px;
-
-						&.error {
-							background-color: rgba(255, 0, 0, 0.2);
-						}
-					}
-
-					input[type='time'] {
-						margin: 0 5px 0 5px;
+					input[type='text'] {
+						margin: 0 5px;
 						border: 1px solid rgba(0, 0, 0, 0.2);
 						padding: 7px;
 						font-size: 0.8em;
@@ -2056,12 +2064,22 @@ table.storage_table {
 					}
 
 					.guest-mode {
-						&.disabled {
-							color: #b5b3b3;
+						input {
+							margin: 0;
+						}
 
-							.input_desc {
-								background: #f7f7f7;
+						label {
+							margin-left: 5px;
+						}
+
+						&.disabled {
+							label {
+								color: #b5b3b3;
 							}
+
+							//.input_desc {
+							//background: #f7f7f7;
+							//}
 						}
 					}
 				}
@@ -2088,6 +2106,14 @@ table.storage_table {
 			cursor: pointer;
 		}
 	}
+}
+
+.student-warning {
+	display: flex;
+	flex-direction: column;
+	width: 680px;
+	max-height: 675px;
+	padding: 10px 10px 0 10px;
 }
 
 // COPY DIALOG
@@ -2344,40 +2370,5 @@ table.storage_table {
 
 	&.active {
 		display: inline-block;
-	}
-}
-.icon-holder {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: auto;
-
-	.loading-icon {
-		img {
-			max-height: 300px;
-			width: auto;
-			//-webkit-animation: spin 2s linear infinite;
-			//-moz-animation: spin 2s linear infinite;
-			animation: spin 2s ease-in-out infinite;
-
-			&.sm {
-				max-height: 50px;
-			}
-			&.med {
-				max-height: 150px;
-			}
-			&.lrg {
-				max-height: 300px;
-			}
-
-			@keyframes spin {
-				100% {
-					-webkit-transform: rotate(360deg);
-					transform: rotate(360deg);
-				}
-			}
-		}
 	}
 }

@@ -32,7 +32,6 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 				const scoresByUser = new Map()
 				results.forEach(log => {
 					let scoresForUser
-					console.log(log)
 					if(!scoresByUser.has(log.user_id)){
 						// initialize user
 						const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
@@ -129,7 +128,7 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 						</div>
 
 						{state.selectedUser.userId
-							? <div className="scoreTableContainer" ng-hide="selectedUser == null">
+							? <div className="scoreTableContainer">
 									<table className="scoreTable">
 										<tbody>
 											{

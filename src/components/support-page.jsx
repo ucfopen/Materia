@@ -14,19 +14,14 @@ const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [currentUser, setCurrentUser] = useState(null)
 
-	useEffect( () => 
-		{ //fetch current user on initial render
-			fetchCurrentUser()
-			.then(resp => resp.json())
-			.then(user => {
-				setCurrentUser(user)
-			})
-		}, [] 
-	)
-
 	useEffect(() => {
-		console.log(selectedInstance)
-	})
+		//fetch current user on initial render
+		fetchCurrentUser()
+		.then(resp => resp.json())
+		.then(user => {
+			setCurrentUser(user)
+		})
+	}, [])
 
 	const onCopy = (instId, title, copyPerms) => {
 		fetchCopyInstanceId(instId, title, copyPerms)
@@ -41,7 +36,6 @@ const SupportPage = () => {
 	
 	const onSelect = (inst) => {
 		setSelectedInstance(inst)
-
 	}
 
 	return (
@@ -60,7 +54,6 @@ const SupportPage = () => {
 					}
 				</div>
 			</div>
-
 		</>
 	)
 }
