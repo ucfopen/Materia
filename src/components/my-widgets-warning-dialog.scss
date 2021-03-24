@@ -1,0 +1,25 @@
+.warning-modal {
+	display: flex;
+	flex-direction: column;
+	width: 600px;
+	height: 320px;
+
+	.title {
+		font-weight: bold;
+		font-size: 24px;
+		margin: 4px;
+	}
+
+	.content {
+		margin: 0 auto;
+		width: 450px;
+	}
+
+	.buttons {
+		margin: 15px auto 0 auto;
+
+		.cancel_button {
+			cursor: pointer;
+		}
+	}
+}

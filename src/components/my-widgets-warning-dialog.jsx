@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Modal from './modal'
+import './my-widgets-warning-dialog.scss'
 
 const MyWidgetsWarningDialog = ({onClose, onEdit}) => {
-	const [newTitle, setNewTitle] = useState('')
-	const [copyPermissions, setCopyPermissions] = useState(false)
 
 	return (
 		<Modal onClose={onClose}>
@@ -19,7 +18,6 @@ const MyWidgetsWarningDialog = ({onClose, onEdit}) => {
 						<li>Statistics will be used for research</li>
 					</ul>
 				</div>
-
 				<span className="buttons">
 					<a className="cancel_button"
 						onClick={onClose}>

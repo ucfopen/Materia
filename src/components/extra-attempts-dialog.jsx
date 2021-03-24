@@ -160,7 +160,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 					searchUsers(searchText)
 					.then(resp => {
 						// no content
-						if(resp.status == 204) return []
+						if(resp.status == 502 || resp.status == 204) return []
 						return resp.json()
 					})
 					.then(results => 

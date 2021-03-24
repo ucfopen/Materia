@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useState} from 'react'
+import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
 import { iconUrl } from '../util/icon-url'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
@@ -8,6 +8,7 @@ import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
+import Modal from './modal'
 import fetchOptions from '../util/fetch-options'
 
 const fetchEdit = (arrayOfWidgetIds) => fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfWidgetIds]))}`}))
@@ -41,7 +42,8 @@ const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	}
 }
 
-const MyWidgetSelectedInstance = ({ inst = {},
+const MyWidgetSelectedInstance = ({
+	inst = {},
 	currentUser, 
 	myPerms, 
 	otherUserPerms, 
@@ -56,6 +58,7 @@ const MyWidgetSelectedInstance = ({ inst = {},
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [showEmbed, setShowEmbed] = useState(false)
 	const [showCopy, setShowCopy] = useState(false)
+	const [showLocked, setShowLocked] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
@@ -69,17 +72,12 @@ const MyWidgetSelectedInstance = ({ inst = {},
 		if (inst.is_draft) {
 			const regex = /preview/i
 			let new_url = inst.preview_url.replace(regex, 'play')
-			if (!new_url)
-				new_url = ""
 
 			setPlayUrl(new_url)
 		}
 		else {
 			setPlayUrl(inst.play_url)
 		}
-
-		// Clears the modal if the instance changes
-		setShowDeleteDialog(false)
 
 		// Sets the availability mode
 		let _availabilityMode = ''
@@ -96,6 +94,9 @@ const MyWidgetSelectedInstance = ({ inst = {},
 
 		setAvailabilityMode(_availabilityMode)
 
+		// Clears the modal if the instance changes
+		setShowDeleteDialog(false)
+
 	}, [inst])
 
 	useEffect(() => {
@@ -111,14 +112,15 @@ const MyWidgetSelectedInstance = ({ inst = {},
 	}, [inst, setShowCopy])
 
 	const onEditClick = (inst) => {
-		if (inst.widget.is_editable) {
+		if (inst.widget.is_editable && perms.editable) {
 			fetchEdit(inst.id)
 			.then(res => res.json())
 			.then(widgetInfo => {
 				const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
 
-				if(widgetInfo.isLocked){
-					return 'This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.'
+				if(widgetInfo.is_locked){
+					setShowLocked(true)
+					return
 				}
 				if(inst.is_draft){
 					window.location = editUrl
@@ -136,7 +138,7 @@ const MyWidgetSelectedInstance = ({ inst = {},
 				}
 			})
 			.catch(error => {
-				console.log(error)
+				//console.log(error)
 			})
 		}
 	}
@@ -166,7 +168,9 @@ const MyWidgetSelectedInstance = ({ inst = {},
 		window.location = editUrl
 	}
 
-	const availability = convertAvailibilityDates(inst.open_at, inst.close_at)
+	const availability = useMemo(() => {
+		return convertAvailibilityDates(inst.open_at, inst.close_at)
+	}, [inst.open_at, inst.close_at])
 
 	return (
 		<section className="page">
@@ -192,14 +196,13 @@ const MyWidgetSelectedInstance = ({ inst = {},
 								<svg className="preview-svg" viewBox="-40 32 155 70" width="125">
 									<path d="M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44" stroke="#525252"/>
 									<polyline points="-15 51.5 -15 81.5 5 66.5" fill="#4c5823"/>
-									<span className="">Preview</span>
 								</svg>
 								<span className="">Preview</span>
 							</a>
 						</li>
 						<li>
 							<a id="edit_button"
-								className={`action-button aux_button ${can.edit ? '' : 'disabled'} `}
+								className={`action-button aux_button ${perms.editable ? '' : 'disabled'} `}
 								onClick={() => {onEditClick(inst)}}>
 								<span className="pencil"></span>
 								Edit Widget
@@ -280,9 +283,9 @@ const MyWidgetSelectedInstance = ({ inst = {},
 								{availabilityMode == "open until"
 									? <span className="open-until">
 											<span>Open until</span>
-											<span className="available-date">{ availability.end.date }</span>
+											<span className="available_date">{ availability.end.date }</span>
 											<span>at</span>
-											<span className="available-time">{ availability.end.time }</span>
+											<span className="available_time">{ availability.end.time }</span>
 										</span>
 									: null
 								}
@@ -331,7 +334,6 @@ const MyWidgetSelectedInstance = ({ inst = {},
 							Edit settings...
 						</a>
 					</div>
-
 				</div>
 
 				<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
@@ -382,6 +384,18 @@ const MyWidgetSelectedInstance = ({ inst = {},
 			}
 			{showSettings
 				? <MyWidgetsSettingsDialog onClose={() => {closeModal(setShowSettings)}} inst={inst} currentUser={currentUser} otherUserPerms={otherUserPerms} updateWidget={updateWidget} />
+				: null
+			}
+			{showLocked
+			//width: 520px;
+				? <Modal onClose={() => {setShowLocked(false)}} smaller>
+						<div className="locked-modal">
+							<p>This widget is currently locked, you will be able to edit this widget when it is no longer being edited by somebody else.</p>
+							<a tabIndex="1" className="action_button" onClick={() => {setShowLocked(false)}}>
+								Okay
+							</a>
+						</div>
+					</Modal>
 				: null
 			}
 			<MyWidgetsScores inst={inst} />

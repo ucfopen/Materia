@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import BarGraph from './bar-graph'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 

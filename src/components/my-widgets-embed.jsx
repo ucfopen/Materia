@@ -14,12 +14,7 @@ const getEmbedLink = (inst, autoplayToggle = true) => {
 		String(inst.widget.height) !== '0'
 			? inst.widget.height
 			: 600
-
-	const draft = inst.is_draft
-		? `${inst.widget.name} Widget`
-		: inst.name
-
-
+			
 	return `<iframe src="${inst.embed_url}?autoplay=${autoplayToggle?'true':'false'}" width="${width}" height="${height}" style="margin:0;padding:0;border:0;"></iframe>`
 }
 

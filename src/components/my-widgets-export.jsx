@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import Modal from './modal'
 import useClickOutside from '../util/use-click-outside'
+import './my-widgets-export.scss'
 
 const MyWidgetsExport = ({onClose, inst, scores}) => {
 	const [header, setHeader] = useState("No semester selected")
@@ -22,7 +23,8 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 
 		if (scores.length === 0 || !hasScores) {
 			setExportOptions(['Questions and Answers', 'Referrer URLs'])
-		} else {
+		}
+		else {
 			let scores_only
 			if (inst.guest_access) {
 				scores_only = 'All Scores'
@@ -157,11 +159,11 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 			<div className={`download-options ${ showOptions ? 'active' : ''}`}>
 				<h4>Semesters</h4>
 				<p className="export_which">Export which semesters?</p>
-				<p className={`export-none ${scores.length == 0 ? 'active' : ''}`}>
+				<p className={`export-none ${scores.length === 0 ? 'active' : ''}`}>
 					No semesters available
 				</p>
 				<ul>
-					<li className={`checkallLi ${scores.length > 1 ? 'active' : ''}`}>
+					<li className={`${scores.length > 1 ? 'active' : ''}`}>
 						<input type="checkbox"
 							id="checkall"
 							checked={checkAll}

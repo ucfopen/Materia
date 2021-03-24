@@ -26,7 +26,7 @@ const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable)
 	return {
 		accessLevel: permCode,
 		expireTime,
-		editable: permCode > PERM_VISIBLE && (parseInt(isEditable, 10) === 1),
+		editable: permCode > PERM_VISIBLE && isEditable === true,
 		shareable: permCode > PERM_VISIBLE, // old, but difficult to replace with can.share :/
 		can: {
 			view: [PERM_VISIBLE, PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
@@ -60,16 +60,15 @@ const MyWidgetsPage = () => {
 	// Sets the current widget to what's in the URL when the widgets load
 	useEffect(() => {
 		const url = window.location.href
+		const url_id = url.split('#')[1]
 
-		if (widgets.length !== 0) {
-			let url_id = url.split('#')[1]
+		if (widgets.length === 0) return
 
-			if (url_id && (!selectedInst || selectedInst.id !== url_id)) {
-				for (let i = 0; i < widgets.length; i++) {
-					if (widgets[i].id === url_id) {
-						onSelect(widgets[i])
-						break
-					}
+		if (url_id && (!selectedInst || selectedInst.id !== url_id)) {
+			for (let i = 0; i < widgets.length; i++) {
+				if (widgets[i].id === url_id) {
+					onSelect(widgets[i])
+					return
 				}
 			}
 		}
@@ -106,6 +105,7 @@ const MyWidgetsPage = () => {
 	const onSelect = (inst) => {
 		setSelectedInst(inst)
 		setUrl(inst)
+
 		fetchUserPermsForInstance(inst.id)
 			.then(resp => resp.json())
 			.then(perms => {
@@ -123,26 +123,22 @@ const MyWidgetsPage = () => {
 			})
 	}
 
-	const onCopy = useCallback(
-		(instId, title, copyPermissions) => {
-			// Clears the overflow hidden on the modal
-			document.body.style.overflow = 'auto'
-			setIsLoading(true)
-			setSelectedInst(null)
-			fetchCopyInstance(instId, title, copyPermissions)
-			.then(refreshWidgets)
-		}, []
-	)
+	const onCopy = useCallback((instId, title, copyPermissions) => {
+		// Clears the overflow hidden from the modal
+		document.body.style.overflow = 'auto'
+		setIsLoading(true)
+		setSelectedInst(null)
+		fetchCopyInstance(instId, title, copyPermissions)
+		.then(refreshWidgets)
+	}, [])
 
-	const onDelete = useCallback(
-		inst => {
-			setIsLoading(true)
-			setSelectedInst(null)
+	const onDelete = useCallback(inst => {
+		setIsLoading(true)
+		setSelectedInst(null)
 
-			fetch('/api/json/widget_instance_delete/', fetchOptions({body:`data=%5B%22${inst.id}%22%5D`}))
-			.then(refreshWidgets)
-		}, []
-	)
+		fetch('/api/json/widget_instance_delete/', fetchOptions({body:`data=%5B%22${inst.id}%22%5D`}))
+		.then(refreshWidgets)
+	}, [])
 
 	// Sets widget id in the url
 	const setUrl = (inst) => {
@@ -154,7 +150,7 @@ const MyWidgetsPage = () => {
 			<Header />
 			<div className="my_widgets">
 
-				{!isLoading && widgets.length == 0
+				{!isLoading && widgets.length === 0
 					? <div className="qtip top nowidgets">
 							Click here to start making a new widget!
 						</div>

@@ -13,7 +13,22 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 	const [scoreTab, setScoreTab] = useState(initData)
 
 	const activeTab = useMemo(() => {
-		switch(scoreTab){
+		let curTab = scoreTab
+
+		// Tests if there are scores to show
+		if ((scoreTab === TAB_INDIVIDUAL || scoreTab === TAB_GRAPH) && hasScores === false) {
+			// Has storage data so switch to that
+			if (semester.storage) {
+				curTab = TAB_STORAGE
+				setScoreTab(TAB_STORAGE)
+			}
+			else {
+				curTab = ""
+				setScoreTab("")
+			}
+		}
+
+		switch(curTab){
 			case TAB_GRAPH:
 				return <MyWidgetScoreSemesterGraph semester={semester} />
 
@@ -22,8 +37,11 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 
 			case TAB_STORAGE:
 				return <MyWidgetScoreSemesterStorage semester={semester} instId={instId} />
+
+			default:
+				return null
 		}
-	}, [scoreTab, semester])
+	}, [scoreTab, semester, hasScores])
 
 	return (
 		<div className="scoreWrapper">
@@ -56,9 +74,7 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 					: null
 				}
 			</ul>
-
 			{activeTab}
-
 		</div>
 	)
 }
