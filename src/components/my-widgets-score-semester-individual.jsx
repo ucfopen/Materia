@@ -93,7 +93,7 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 
 	return (
 		<React.Fragment>
-			<div className={`display table ${state.isLoading == true ? 'loading' : ''}`}
+			<div className={`display table ${state.isLoading === true ? 'loading' : ''}`}
 				id={`table_${semester.id}`} >
 				{state.isLoading
 				? <LoadingIcon />

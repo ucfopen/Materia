@@ -167,7 +167,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 
 		updateInstance(u)
 		.then(resp => {
-			if(resp.status != 200){
+			if(resp.status !== 200){
 				setErrorText('Error: Update Unsuccessful')
 			}
 			else {
@@ -276,8 +276,8 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 					<div className="radio">
 						<input type="radio" name="available" value={updatedInst.open_at} checked={availableDisabled == false} onChange={() => setAvailableDisabled(false)}/>
 						On
-						<input type="date" value={availableDate != -1 ? availableDate : ''} onChange={(event) => setAvailableDate(event.target.value)} disabled={availableDisabled}/>
-						<input type="time" value={availableTime != -1 ? availableTime : ''} onChange={(event) => setAvailableTime(event.target.value)} disabled={availableDisabled}/>
+						<input type="date" value={availableDate !== -1 ? availableDate : ''} onChange={(event) => setAvailableDate(event.target.value)} disabled={availableDisabled}/>
+						<input type="time" value={availableTime !== -1 ? availableTime : ''} onChange={(event) => setAvailableTime(event.target.value)} disabled={availableDisabled}/>
 					</div>
 					<div className="radio">
 						<input type="radio" name="available" value={-1} checked={availableDisabled} onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}/>
@@ -289,8 +289,8 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 					<div className="radio">
 						<input type="radio" name="closes" value={updatedInst.close_at} checked={closeDisabled == false} onChange={() => setCloseDisabled(false)}/>
 						On
-						<input type="date" value={closeDate != -1 ? closeDate : ''} onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}/>
-						<input type="time" value={closeTime != -1 ? closeTime : ''} onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}/>
+						<input type="date" value={closeDate !== -1 ? closeDate : ''} onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}/>
+						<input type="time" value={closeTime !== -1 ? closeTime : ''} onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}/>
 					</div>
 					<div className="radio">
 						<input type="radio" name="closes" value={-1} checked={closeDisabled} onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}/>

@@ -63,6 +63,7 @@ const MyWidgetSelectedInstance = ({
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
 	const [availabilityMode, setAvailabilityMode] = useState("")
+	const [collabLabel, setCollabLabel] = useState("")
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
 
@@ -98,6 +99,22 @@ const MyWidgetSelectedInstance = ({
 		setShowDeleteDialog(false)
 
 	}, [inst])
+
+	// Gets the collab label
+	useEffect(() => {
+		let usersList = []
+		
+		if (!otherUserPerms) return
+		
+		// Filters out the current user for the collab label
+		for (let [key, user] of otherUserPerms) {
+			if (key !== currentUser.id) {
+				usersList.push(user)
+			}
+		}
+
+		setCollabLabel(`Collaborate ${ usersList && usersList.length > 0 ? "(" +(usersList.length) + ")" : "" }`)
+	}, [otherUserPerms, inst])
 
 	useEffect(() => {
 		if (myPerms) {
@@ -150,14 +167,14 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const closeModal = (setModal) => {
-		if (setModal != undefined) {
+		if (setModal !== undefined) {
 			setModal(false)
 			document.body.style.overflow = "auto"
 		}
 	}
 
 	const showModal = (setModal) => {
-		if (setModal != undefined) {
+		if (setModal !== undefined) {
 			setModal(true)
 			document.body.style.overflow = "hidden"
 		}
@@ -216,7 +233,7 @@ const MyWidgetSelectedInstance = ({
 									showModal(setShowCollab)
 								}}
 							>
-								Collaborate { otherUserPerms && otherUserPerms.size > 1 ? "(" +(otherUserPerms.size-1) + ")" : "" }
+								{collabLabel}
 							</div>
 						</li>
 						<li className={`copy ${can.copy ? '' : 'disabled'}`}>
@@ -275,12 +292,12 @@ const MyWidgetSelectedInstance = ({
 								className={`availability-time ${!can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}
 							>
-								{availabilityMode == "anytime"
+								{availabilityMode === "anytime"
 									? <span>Anytime</span>
 									: null
 								}
 
-								{availabilityMode == "open until"
+								{availabilityMode === "open until"
 									? <span className="open-until">
 											<span>Open until</span>
 											<span className="available_date">{ availability.end.date }</span>
@@ -290,7 +307,7 @@ const MyWidgetSelectedInstance = ({
 									: null
 								}
 
-								{availabilityMode == "anytime after"
+								{availabilityMode === "anytime after"
 									? <span className="available-after">
 											<span>Anytime after</span>
 											<span className="available_date">{ availability.start.date }</span>
@@ -300,7 +317,7 @@ const MyWidgetSelectedInstance = ({
 									: null
 								}
 
-								{availabilityMode == "from"
+								{availabilityMode === "from"
 									? <span className="available-from">
 											<span>From</span>
 											<span className="available_date">{ availability.start.date }</span>

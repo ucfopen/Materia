@@ -10,7 +10,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 	const [exportType, setExportType] = useState("Questions and Answers")
 	const [showOptions, setShowOptions] = useState(false)
 	const [semesterOptions, setSemesterOptions] = useState([])
-	const [checkAll, setCheckAll] = useState(false)
+	const [checkAll, setCheckAll] = useState({check: false, noChange: false})
 
 	// Initializes data
 	useEffect (() => {
@@ -52,8 +52,10 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 	
 	// Sets all values to checked or unchecked when checkall is clicked
 	useEffect(() => {
+		if (checkAll.noChange === true) return
+
 		if (semesterOptions.length > 0) {
-			let arr = new Array(scores.length).fill(checkAll)
+			let arr = new Array(scores.length).fill(checkAll.check)
 			setSemesterOptions(arr)
 		}
 	}, [checkAll])
@@ -78,6 +80,13 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 
 			if (str === "") {
 				str = "No semester selected"
+			}
+
+			// sets check all if all options are checked/unchecked
+			if (semesterOptions.includes(true) && !semesterOptions.includes(false))
+				setCheckAll({check: true, noChange: true})
+			else {
+				setCheckAll({check: false, noChange: true})
 			}
 
 			setHeader(str)
@@ -166,8 +175,8 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 					<li className={`${scores.length > 1 ? 'active' : ''}`}>
 						<input type="checkbox"
 							id="checkall"
-							checked={checkAll}
-							onChange={() => {setCheckAll(!checkAll)}}/>
+							checked={checkAll.check}
+							onChange={() => {setCheckAll({check: !checkAll.check, noChange: false})}}/>
 						<label htmlFor="checkall"> - Check all</label>
 					</li>
 					{

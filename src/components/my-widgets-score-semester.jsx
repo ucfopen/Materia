@@ -50,12 +50,12 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 				{
 					hasScores
 					? <React.Fragment>
-						<li key={0} className={scoreTab == TAB_GRAPH ? 'scoreTypeSelected' : ''}>
+						<li key={0} className={scoreTab === TAB_GRAPH ? 'scoreTypeSelected' : ''}>
 							<a className="graph" onClick={() => {setScoreTab(TAB_GRAPH)}}>
 								Graph
 							</a>
 						</li>
-						<li key={1} className={scoreTab == TAB_INDIVIDUAL ? 'scoreTypeSelected' : ''}>
+						<li key={1} className={scoreTab === TAB_INDIVIDUAL ? 'scoreTypeSelected' : ''}>
 							<a className="table" onClick={() => {setScoreTab(TAB_INDIVIDUAL)}}>
 								Individual Scores
 							</a>
@@ -66,7 +66,7 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 
 				{
 					semester.storage
-					? <li key={2} className={scoreTab == TAB_STORAGE ? 'scoreTypeSelected' : ''}>
+					? <li key={2} className={scoreTab === TAB_STORAGE ? 'scoreTypeSelected' : ''}>
 						<a className="data" onClick={() => {setScoreTab(TAB_STORAGE)}}>
 							Data
 						</a>

@@ -248,7 +248,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, u
 
 		const sliderVals = document.getElementsByClassName("slider-val")
 
-		if (lastActive != -1 && sliderVals.length > lastActive) {
+		if (lastActive !== -1 && sliderVals.length > lastActive) {
 			sliderVals[lastActive].classList.remove("active")
 		}
 
@@ -265,7 +265,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, u
 		let val = parseFloat(document.getElementById("ui-slider").value)
 		let elems = document.getElementsByClassName("slider-val")
 		
-		if (lastActive != -1 && elems.length > lastActive) {
+		if (lastActive !== -1 && elems.length > lastActive) {
 			elems[lastActive].classList.remove("active")
 		}
 
@@ -299,7 +299,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, u
 		// Prevents anything other than numbers and the : symbol to be entered
 		if (val.length > 0) {
 			let char = val.charAt(val.length - 1)
-			if ((char < "0" || char > "9") && char != ":") {
+			if ((char < "0" || char > "9") && char !== ":") {
 				val = val.slice(0, -1)
 			}
 		}

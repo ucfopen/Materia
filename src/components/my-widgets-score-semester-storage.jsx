@@ -78,7 +78,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 
 	// Sets the paginated rows and footer text
 	useEffect(() => {
-		if (state.isLoading == false)
+		if (state.isLoading === false)
 		{
 			let tmpVals = state.selectedTable.map((row, index) =>
 				<tr key={index}>
@@ -87,7 +87,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 					<td>{ row.play.lastName }</td>
 					<td>{ row.play.cleanTime }</td>
 					{Object.values(row.data).map((rowData, index) =>
-						<td key={index} className={{'null': rowData == null}}>
+						<td key={index} className={{'null': rowData === null}}>
 							{ rowData }
 						</td>
 					)}
@@ -184,7 +184,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 		const firstLast = val.play.firstName + val.play.lastName
 		const sanatizedSearch = searchInput.replace(/\s+/g, '').toUpperCase()
 
-		if (searchInput.length == 0)
+		if (searchInput.length === 0)
 			return true
 
 		// Matches by user
