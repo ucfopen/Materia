@@ -14,7 +14,7 @@ class Widget_Instance
 	public $embed_url       = '';
 	public $is_student_made = false;
 	public $is_embedded     = false;
-	public $is_deleted			= false;
+	public $is_deleted      = false;
 	public $embedded_only   = false;
 	public $student_access  = false;
 	public $guest_access    = false;
@@ -392,7 +392,7 @@ class Widget_Instance
 	 * 'Undeletes' instance by updating is_deleted flag from 1 to 0
 	 * @return bool true if successfully undeleted, false if unable to restore
 	 */
-	public function db_undelete()
+	public function db_undelete(): bool
 	{
 		if ( ! Util_Validator::is_valid_hash($this->id)) return false;
 
@@ -403,7 +403,7 @@ class Widget_Instance
 			->where('id', $this->id)
 			->execute();
 
-			// store an activity log
+		// store an activity log
 		$activity = new Session_Activity([
 			'user_id' => $current_user_id,
 			'type'    => Session_Activity::TYPE_EDIT_WIDGET,
@@ -580,7 +580,7 @@ class Widget_Instance
 			->get();
 	}
 
-	public function get_all_extra_attempts()
+	public function get_all_extra_attempts(): array
 	{
 		$semester = Semester::get_current_semester();
 
@@ -594,7 +594,7 @@ class Widget_Instance
 		return $result;
 	}
 
-	public function set_extra_attempts($user_id, $extra_attempts, $context_id, $id=null)
+	public function set_extra_attempts(int $user_id, int $extra_attempts, string $context_id, $id=null)
 	{
 		$semester = Semester::get_current_semester();
 

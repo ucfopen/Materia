@@ -63,8 +63,8 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 	// Sets selected semesters and their respective header text
 	useEffect(() => {
 		if (semesterOptions.length > 0) {
-			let str = ""
-			let str_cpy = ""
+			let str = "" // creates: 2020 Fall, 2020 Spring
+			let str_cpy = "" // creates: 2020-Fall,2020-Spring
 			
 			for (let i = 0; i < semesterOptions.length; i++) {
 				if (semesterOptions[i]) {
@@ -132,9 +132,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 						<div className="download-controls">
 							<select value={exportType} onChange={(e) => {setExportType(e.target.value)}} >
 								{ 
-									exportOptions.map((val, index) => {
-										return (<option key={index} value={val}>{val}</option>)
-									})
+									exportOptions.map((val, index) => <option key={index} value={val}>{val}</option>)
 								}
 							</select>
 							<p className="download">

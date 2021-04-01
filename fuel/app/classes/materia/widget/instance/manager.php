@@ -6,7 +6,7 @@ class Widget_Instance_Manager
 {
 	public $validate = true;
 
-	static public function get($inst_id, $load_qset=false, $timestamp=false, $deleted=false)
+	static public function get(string $inst_id, bool $load_qset=false, $timestamp=false, bool $deleted=false): bool
 	{
 		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp, $deleted);
 		return count($instances) > 0 ? $instances[0] : false;
@@ -110,7 +110,7 @@ class Widget_Instance_Manager
 	 * 
 	 * @return array of widget instances related to the given input
 	 */
-	public static function get_search($input)
+	public static function get_search(string $input): array
 	{
 		$results = \DB::select()
 			->from('widget_instance')
@@ -125,19 +125,20 @@ class Widget_Instance_Manager
 		{
 			$widget = new Widget();
 			$widget->get($r['widget_id']);
+			$student_access = Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE);
 			$inst = new Widget_Instance([
 				'id'              => $r['id'],
 				'user_id'         => $r['user_id'],
 				'name'            => $r['name'],
 				'is_student_made' => (bool) $r['is_student_made'],
-				'student_access'  => Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE),
+				'student_access'  => $student_access,
 				'guest_access'    => (bool) $r['guest_access'],
 				'is_draft'        => (bool) $r['is_draft'],
 				'created_at'      => $r['created_at'],
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
-				'is_deleted'			=> (bool) $r['is_deleted'],
+				'is_deleted'      => (bool) $r['is_deleted'],
 				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);

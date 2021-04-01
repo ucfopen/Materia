@@ -51,7 +51,7 @@ class Perm_Manager
 	 * 
 	 * @return boolean wheter or not the current user has the support role as defined by Perm_Role class
 	 */
-	static public function is_support_user()
+	static public function is_support_user(): bool
 	{
 		$login_hash = \Session::get('login_hash');
 		$key = 'is_support_user_'.$login_hash;
