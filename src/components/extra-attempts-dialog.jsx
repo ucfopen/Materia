@@ -210,6 +210,16 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		})
 		// post request
 		setExtraAttemptsForInstance(inst.id, Array.from(extraAttempts.values()))
+		.then(resp => {
+			// no content
+			if(resp.status == 502 || resp.status == 204) return []
+			return resp.json()
+		})
+		.then(results => 
+		{
+			console.log(results)
+			return 
+		})
 		.then(onClose())
 	}
 

@@ -12,6 +12,7 @@ html {
 body {
 	font-family: 'Lucida Grande', arial, serif;
 	overflow: auto;
+	min-width: fit-content;
 }
 
 .action_button {
@@ -52,9 +53,9 @@ body {
 		text-decoration: none;
 	}
 
-	.little-button-text{
+	.little-button-text {
 		font-size: 18px;
-		display:block;
+		display: block;
 	}
 }
 

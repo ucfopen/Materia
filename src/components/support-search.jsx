@@ -3,6 +3,7 @@ import { iconUrl } from '../util/icon-url'
 import useDebounce from './use-debounce'
 
 const searchWidgets = (input) => fetch(`/api/admin/widget_search/${input}`)
+const searchWidgetsBad = (input = null) => fetch(`/api/admin/widget_search/${input}`)
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
@@ -12,11 +13,31 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 
 	useEffect(() => {
-		// Make sure we have a value (user has entered something in input)
-		if (debouncedSearchTerm) {
+		searchWidgetsBad(null)
+		.then(resp => {
+			// no content
+			if(resp.status === 502 || resp.status === 204) {
+				setIsSearching(false)
+				return null
+			}
+			
+			return resp.json()
+		})
+		.then(instance => 
+		{
+			if (instance !== null) {
+				console.log(instance)
+			}
+			else {
+				console.log("BAD API CALL")
+			}
+		})
+	}, [])
 
-			if (debouncedSearchTerm !== "")
-				setIsSearching(true)
+	useEffect(() => {
+		// Make sure we have a value (user has entered something in input)
+		if (debouncedSearchTerm && debouncedSearchTerm !== "" && debouncedSearchTerm !== " ") {
+			setIsSearching(true)
 			
 			searchWidgets(debouncedSearchTerm)
 				.then(resp => {
@@ -35,6 +56,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 				})
 		} else {
 			setSearchResults([])
+			setIsSearching(false)
 		}
 	}, [debouncedSearchTerm])
 

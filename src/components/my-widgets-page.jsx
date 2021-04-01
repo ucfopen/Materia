@@ -7,6 +7,7 @@ import MyWidgetSelectedInstance from './my-widgets-selected-instance'
 import fetchOptions from '../util/fetch-options'
 
 const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
+const fetchWidget = (instId) => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
 const fetchCopyInstance = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
 const fetchCurrentUser = () => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
 const fetchUserPermsForInstance = (instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["4","${instId}"]`)}))
@@ -39,13 +40,14 @@ const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable)
 }
 
 const MyWidgetsPage = () => {
-	const [noAccess, setNoAccess] = useState(false)
+	const [noAccess, setNoAccess] = useState(null)
 	const [selectedInst, setSelectedInst] = useState(null)
 	const [isLoading, setIsLoading] = useState(true)
 	const [widgets, setWidgets] = useState([])
 	const [user, setUser] = useState(null)
 	const [otherUserPerms, setOtherUserPerms] = useState(null)
 	const [myPerms, setMyPerms] = useState(null)
+	const [firstLoad, setFirstLoad] = useState(true)
 
 	// load instances after initial render
 	useEffect(() => {
@@ -57,34 +59,68 @@ const MyWidgetsPage = () => {
 			})
 	}, [])
 
-	// Sets the current widget to what's in the URL when the widgets load
-	useEffect(() => {
-		const url = window.location.href
-		const url_id = url.split('#')[1]
-
-		if (widgets.length === 0) return
-
-		if (url_id && (!selectedInst || selectedInst.id !== url_id)) {
-			for (let i = 0; i < widgets.length; i++) {
-				if (widgets[i].id === url_id) {
-					onSelect(widgets[i])
-					return
-				}
-			}
-		}
-	}, [widgets])
-
 	const refreshWidgets = useCallback(() => {
 		fetchWidgets()
 		.then(resp => resp.json())
 		.then(widgets => {
-			setIsLoading(false)
+			setWidgetFromUrl(widgets)
 			setWidgets(widgets)
 		})
 		.catch(error => {
 			setIsLoading(false)
 			setWidgets([])
 		})
+	}, [])
+
+	// Sets the current widget to what's in the URL when the widgets load
+	const setWidgetFromUrl = useCallback((widgets) => {
+		if (!firstLoad) {
+			setIsLoading(false)
+			return
+		}
+		else {
+			setFirstLoad(false)
+		}
+
+		const url = window.location.href
+		const url_id = url.split('#')[1]
+
+		if (url_id && (!selectedInst || selectedInst.id !== url_id)) {
+			for (let i = 0; i < widgets.length; i++) {
+				if (widgets[i].id === url_id) {
+					onSelect(widgets[i])
+					setIsLoading(false)
+					return
+				}
+			}
+
+			// \w matches any alphanumeric or _
+			// i flag means case insensitive
+			const widgetIdReg = /^\w{5}$/i
+
+			// Invalid widget ID in URL
+			if (url_id.search(widgetIdReg) === -1) {
+				console.log('Invalid widget ID')
+				setIsLoading(false)
+				return
+			}
+
+			fetchWidget(url_id)
+			.then(resp => resp.json())
+			.then(widget => {
+				if (widget.length >= 1) 
+					setNoAccess(widget[0])
+
+				setIsLoading(false)
+			})
+			.catch(error => {
+				setIsLoading(false)
+				console.log("Failed to fetch widget permissions")
+			})
+		}
+		else {
+			setIsLoading(false)
+		}
 	}, [])
 
 	const updateWidget = (inst) => {
@@ -118,6 +154,7 @@ const MyWidgetsPage = () => {
 				for(const i in perms.user_perms){
 					myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
 				}
+
 				setMyPerms(myPerms)
 				setOtherUserPerms(othersPerms)
 			})
@@ -172,7 +209,7 @@ const MyWidgetsPage = () => {
 							? <section className="directions error">
 								<div className="error error-nowidget">
 									<p className="errorWindowPara">
-										You do not have access to this widget or this widget does not exist.
+										{`You do not have access to widget ${noAccess.id}.`}
 									</p>
 								</div>
 							</section>
@@ -195,7 +232,7 @@ const MyWidgetsPage = () => {
 							: null
 						}
 
-						{!isLoading && selectedInst
+						{!isLoading && selectedInst && !noAccess
 							? <MyWidgetSelectedInstance
 								inst={selectedInst}
 								onDelete={onDelete}
