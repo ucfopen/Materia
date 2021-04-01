@@ -184,15 +184,14 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 		const firstLast = val.play.firstName + val.play.lastName
 		const sanatizedSearch = searchInput.replace(/\s+/g, '').toUpperCase()
 
-		if (searchInput.length === 0)
-			return true
+		if (searchInput.length === 0) return true
 
 		// Matches by user
-		if (val.play.user.replace(/\s+/g, '').toUpperCase().indexOf(sanatizedSearch) > -1)
+		if (val.play.user.replace(/\s+/g, '').toUpperCase().includes(sanatizedSearch))
 			return true
 
 		// Matches by first and last
-		if (firstLast.replace(/\s+/g, '').toUpperCase().indexOf(sanatizedSearch) > -1)
+		if (firstLast.replace(/\s+/g, '').toUpperCase().includes(sanatizedSearch))
 			return true
 
 		return false

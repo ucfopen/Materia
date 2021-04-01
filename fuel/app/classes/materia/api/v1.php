@@ -42,7 +42,7 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null, $deleted = false)
+	static public function widget_instances_get($inst_ids = null, bool $deleted = false)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
@@ -71,7 +71,7 @@ class Api_V1
 	/**
 	 * @return bool, true if successfully undeleted widget instance, false otherwise.
 	 */
-	static public function widget_instance_undelete($inst_id)
+	static public function widget_instance_undelete(string $inst_id)
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();

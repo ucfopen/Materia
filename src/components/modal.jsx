@@ -29,7 +29,7 @@ class Modal extends React.Component {
 	componentDidMount() {
 		modalRoot.appendChild( this.element );
 		document.addEventListener('mousedown', this.clickOutsideListener);
-  	document.addEventListener('touchstart', this.clickOutsideListener);
+		document.addEventListener('touchstart', this.clickOutsideListener);
 	}
 
 	componentWillUnmount() {

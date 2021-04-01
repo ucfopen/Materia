@@ -136,8 +136,6 @@ app.controller('MyWidgetsSettingsController', function (
 				$scope.availability[i].period = ''
 				$scope.availability[i].anytime = true
 			}
-
-			console.log($scope.availability[i])
 		})
 	}
 

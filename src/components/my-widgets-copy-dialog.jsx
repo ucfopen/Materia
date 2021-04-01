@@ -7,7 +7,7 @@ const MyWidgetsCopyDialog = ({onClose, onCopy, name}) => {
 	const [copyPermissions, setCopyPermissions] = useState(false)
 
 	// Sets the initial title
-	useEffect(() => {setNewTitle(name + " copy")}, [])
+	useEffect(() => {setNewTitle(name + " (Copy)")}, [])
 
 	return (
 		<Modal onClose={onClose}>

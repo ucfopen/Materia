@@ -61,11 +61,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 	}, [debouncedSearchTerm])
 
 	const setSearchVal = (e) => {
-		if (!isSearching && e.target.value  !== "")
-			setIsSearching(true)
-
-		if (e.target.value === "")
-			setIsSearching(false)
+		if (!isSearching && e.target.value  !== "") setIsSearching(true)
+		if (e.target.value === "") setIsSearching(false)
 
 		setSearchText(e.target.value)
 	}

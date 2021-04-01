@@ -6,6 +6,8 @@
 
 class Controller_Api_Admin extends Controller_Rest
 {
+	use \Trait_RateLimit;
+	
 	protected $_supported_formats = ['json' => 'application/json'];
 
 	public function before()
@@ -16,15 +18,11 @@ class Controller_Api_Admin extends Controller_Rest
 
 	public function get_widgets()
 	{
-		// must be super user for admin/widgets
-		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		return \Materia\Widget_Manager::get_widgets(null, 'admin');
 	}
 
 	public function post_widget($widget_id)
 	{
-		// must be super user for admin/widgets
-		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		// VALIDATE INPUT
 		$widget = (object) Input::json();
 		return \Materia\Widget_Manager::update_widget($widget);
@@ -69,22 +67,23 @@ class Controller_Api_Admin extends Controller_Rest
 		return \Service_User::update_user($user_id, $user);
 	}
 
-	public function get_widget_search($input)
+	public function get_widget_search(string $input)
 	{
+		$input = trim($input);	
 		//no need to search if for some reason an empty string is passed
 		if ($input == '') return [];
 		return \Materia\Widget_Instance_Manager::get_search($input);
 	}
 
-	public function get_extra_attempts($inst_id)
+	public function get_extra_attempts(string $inst_id)
 	{
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 		return $inst->get_all_extra_attempts();
 	}
 
-	public function post_extra_attempts($inst_id)
+	public function post_extra_attempts(string $inst_id)
 	{
-		// Validate input
+		// Get POSTed json input
 		$extra_attempts = Input::json();
 		
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
