@@ -6,6 +6,8 @@
 
 class Controller_Api_Admin extends Controller_Rest
 {
+	use \Trait_RateLimit;
+	
 	protected $_supported_formats = ['json' => 'application/json'];
 
 	public function before()
