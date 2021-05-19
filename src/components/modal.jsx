@@ -1,7 +1,7 @@
 import React from 'react'
 import { createPortal } from 'react-dom';
 import './modal.scss'
-import useClickOutside from '../util/use-click-outside'
+//import useClickOutside from '../util/use-click-outside'
 
 // We get hold of the div with the id modal that we have created in index.html
 const modalRoot = document.getElementById( 'modal' );

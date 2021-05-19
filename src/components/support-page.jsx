@@ -1,36 +1,52 @@
 import './support-page.scss'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
-import fetchOptions from '../util/fetch-options'
-
-import React, { useState, useEffect } from 'react'
+import { useQuery } from 'react-query'
+import { apiGetWidget, apiGetUser} from '../util/api'
+import useCopyWidget from './hooks/useSupportCopyWidget'
+import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'
-
-const fetchCopyInstanceId = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
-const fetchInstance = (instId) => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
-const fetchCurrentUser = () => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
 
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
-	const [currentUser, setCurrentUser] = useState(null)
+	const [copyId, setCopyId] = useState(null)
+	const { data: currentUser} = useQuery({
+		queryKey: 'user',
+		queryFn: apiGetUser,
+		staleTime: Infinity
+	})
+	const { data: copyInst } = useQuery({
+		queryKey: [`copy-widget`, copyId],
+		queryFn: () => apiGetWidget(copyId),
+		enabled: copyId !== null,
+		staleTime: Infinity
+	})
+	const copyWidget = useCopyWidget()
+	const mounted = useRef(false)
 
 	useEffect(() => {
-		//fetch current user on initial render
-		fetchCurrentUser()
-		.then(resp => resp.json())
-		.then(user => {
-			setCurrentUser(user)
-		})
+    mounted.current = true
+    return () => (mounted.current = false)
 	}, [])
 
-	const onCopy = (instId, title, copyPerms) => {
-		fetchCopyInstanceId(instId, title, copyPerms)
-		.then(resp => resp.json())
-		.then(duplicateId => {
-			setSelectedInstance(null)
-			fetchInstance(duplicateId)
-			.then(resp => resp.json())
-			.then(instances => setSelectedInstance(instances[0]))
+	// Sets the current instance when the copied widget's data is fetched
+	useEffect(() => {
+		if (copyId && copyInst && copyInst[0] && copyId === copyInst[0].id) {
+			setSelectedInstance(copyInst[0])
+		}
+	}, [JSON.stringify(copyInst)])
+
+	const onCopy = (instId, title, copyPerms, inst) => {
+		copyWidget.mutate({
+			instId: instId,
+			title: title,
+			copyPermissions: copyPerms,
+			dir: inst.widget.dir,
+			successFunc: (newInst) => {
+				if (mounted.current) {
+					setCopyId(newInst)
+				}
+			}
 		})
 	}
 	
@@ -47,6 +63,7 @@ const SupportPage = () => {
 					? <SupportSearch 
 							onClick={onSelect}/>
 					: <SupportSelectedInstance
+							key={selectedInstance ? selectedInstance.id : ''}
 							inst={selectedInstance}
 							currentUser={currentUser}
 							onReturn={() => {setSelectedInstance(null)}}

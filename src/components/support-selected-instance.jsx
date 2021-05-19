@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
-import fetchOptions from '../util/fetch-options'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
-
-const deleteInstance = (instId) => fetch('/api/json/widget_instance_delete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
-const undeleteInstance = (instId) => fetch('/api/json/widget_instance_undelete', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
-const updateInstance = (updated) => fetch('/api/json/widget_instance_update', fetchOptions({body: 'data=' + encodeURIComponent(`["${updated.id}", "${updated.name}", null, null, "${updated.open_at}", "${updated.close_at}", "${updated.attempts}", ${updated.guest_access}, ${updated.embedded_only}, null]`)}))
-const fetchUserPermsForInstance = (instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["4","${instId}"]`)}))
+import { access } from './materia-constants'
+import useDeleteWidget from './hooks/useSupportDeleteWidget'
+import useUnDeleteWidget from './hooks/useSupportUnDeleteWidget'
+import useUpdateWidget from './hooks/useSupportUpdateWidget'
+import { apiGetUserPermsForInstance } from '../util/api'
+import { useQuery } from 'react-query'
 
 const addZero = i => {
 	if(i<10) i = "0" + i
@@ -36,29 +36,19 @@ const stringToBoolean = s => {
 	return s == 'true'
 }
 
-const PERM_VISIBLE = 1
-const PERM_PLAY = 5
-const PERM_SCORE = 10
-const PERM_DATA = 15
-const PERM_EDIT = 20
-const PERM_COPY = 25
-const PERM_FULL = 30
-const PERM_SHARE = 35
-const PERM_SU = 90
-
-const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable) => {
+const rawPermsToObj = ([permCode = access.VISIBLE, expireTime = null], isEditable) => {
 	permCode = parseInt(permCode, 10)
 	return {
 		accessLevel: permCode,
 		expireTime,
-		editable: permCode > PERM_VISIBLE && (parseInt(isEditable, 10) === 1),
-		shareable: permCode > PERM_VISIBLE, // old, but difficult to replace with can.share :/
+		editable: permCode > access.VISIBLE && (parseInt(isEditable, 10) === 1),
+		shareable: permCode > access.VISIBLE, // old, but difficult to replace with can.share :/
 		can: {
-			view: [PERM_VISIBLE, PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
-			copy: [PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
-			edit: [PERM_FULL, PERM_SU].includes(permCode),
-			delete: [PERM_FULL, PERM_SU].includes(permCode),
-			share: [PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode)
+			view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
+			copy: [access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
+			edit: [access.FULL, access.SU].includes(permCode),
+			delete: [access.FULL, access.SU].includes(permCode),
+			share: [access.SHARE, access.FULL, access.SU].includes(permCode)
 		}
 	}
 }
@@ -75,61 +65,54 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 	const [closeDate, setCloseDate] = useState(inst.close_at < 0 ? '' : objToDateString(inst.close_at))
 	const [closeTime, setCloseTime] = useState(inst.close_at < 0 ? '' : objToTimeString(inst.close_at))
 	const [errorText, setErrorText] = useState('')
-	const [myPerms, setMyPerms] = useState(null)
-	const [otherUserPerms, setOtherUserPerms] = useState(null)
+	const [allPerms, setAllPerms] = useState({myPerms: null, otherUserPerms: null})
+	const { data: perms, isFetching: loadingPerms} = useQuery({
+		queryKey: ['user-perms', inst.id],
+		queryFn: () => apiGetUserPermsForInstance(inst.id),
+		enabled: !!inst && inst.id !== undefined,
+		placeholderData: null,
+		staleTime: Infinity
+	})
+	const deleteWidget = useDeleteWidget()
+	const unDeleteWidget = useUnDeleteWidget()
+	const updateWidget = useUpdateWidget()
 
 	useEffect(() => {
-		fetchUserPermsForInstance(inst.id)
-			.then(resp => resp.json())
-			.then(perms => {
-				const isEditable = inst.widget.is_editable === "1"
-				const othersPerms = new Map()
-				for(const i in perms.widget_user_perms){
-					othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
-				}
-				let myPerms
-				for(const i in perms.user_perms){
-					myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
-				}
-				setMyPerms(myPerms)
-				setOtherUserPerms(othersPerms)
-			})
-	}, [])
+		if (perms) {
+			const isEditable = inst.widget.is_editable === "1"
+			const othersPerms = new Map()
+			for(const i in perms.widget_user_perms){
+				othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
+			}
+			let _myPerms
+			for(const i in perms.user_perms){
+				_myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
+			}
+
+			setAllPerms({myPerms: _myPerms, otherUserPerms: othersPerms})
+		}
+	}, [perms])
 
 	const handleChange = (attr, value) => {
 		setUpdatedInst({...updatedInst, [attr]: value })
-
 	}
 
 	const makeCopy = (title, copyPerms) => {
 		setShowCopy(false)
-		onCopy(updatedInst.id, title, copyPerms)
-		
+		onCopy(updatedInst.id, title, copyPerms, updatedInst)
 	}
 
 	const onDelete = (instId) => {
-		console.log("calling delete")
-		deleteInstance(instId)
-		.then(resp => {
-			if (resp.status == 200){
-				setUpdatedInst({...updatedInst, is_deleted: true})
-			}
-			else {
-				console.log("did not successfully delete")
-			}
+		deleteWidget.mutate({
+			instId: instId,
+			successFunc: () => setUpdatedInst({...updatedInst, is_deleted: true})
 		})
 	}
 
 	const onUndelete = (instId) => {
-		console.log("calling undelete")
-		undeleteInstance(instId)
-		.then(resp => {
-			if (resp.status == 200){
-				setUpdatedInst({...updatedInst, is_deleted: false})
-			}
-			else {
-				console.log("did not successfully undelete")
-			}
+		unDeleteWidget.mutate({
+			instId: instId,
+			successFunc: () => setUpdatedInst({...updatedInst, is_deleted: false})
 		})
 	}
 
@@ -145,7 +128,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			}
 			else {
 				u.open_at = stringToDateObj(availableDate, availableTime)
-				setUpdatedInst({...updatedInst, 'open_at': stringToDateObj(availableDate, availableTime)})
 			}
 		}
 		if(!closeDisabled){
@@ -155,7 +137,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			}
 			else {
 				u.close_at = stringToDateObj(closeDate, closeTime)
-				setUpdatedInst({...updatedInst, 'close_at': stringToDateObj(closeDate, closeTime)})
 			}
 		}
 
@@ -165,15 +146,29 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			return
 		}
 
-		updateInstance(u)
-		.then(resp => {
-			if(resp.status !== 200){
-				setErrorText('Error: Update Unsuccessful')
-			}
-			else {
-				setErrorText('Success!')
-			}
+		setUpdatedInst({...updatedInst, 
+			'open_at': stringToDateObj(availableDate, availableTime),
+			'close_at': stringToDateObj(closeDate, closeTime)
 		})
+
+		const args = [
+			u.id,
+			undefined,
+			null,
+			null,
+			u.open_at,
+			u.close_at,
+			u.attempts,
+			u.guest_access,
+			u.embedded_only,
+		]
+
+		updateWidget.mutate({
+			args: args,
+			successFunc: () => setErrorText('Success!'),
+			errorFunc: () => setErrorText('Error: Update Unsuccessful')
+		})
+
 	}
 
 	return (
@@ -206,7 +201,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 					className="action_button"
 					onClick={() => setShowCollab(true)}
 					disabled={updatedInst.is_deleted}>
-					<span title={updatedInst.is_deleted ? 'cannot collab on deleted instance' : null}>Collaborate ({otherUserPerms ? otherUserPerms.size : 0})</span>
+					<span title={updatedInst.is_deleted ? 'cannot collab on deleted instance' : null}
+						>{loadingPerms === false ? `Collaborate (${allPerms.otherUserPerms ? allPerms.otherUserPerms.size : 0})` : 'Collaborate'}
+					</span>
 				</button>
 				<button 
 					className="action_button"
@@ -331,9 +328,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				? <MyWidgetsCollaborateDialog 
 						currentUser={currentUser} 
 						inst={inst} 
-						myPerms={myPerms} 
-						otherUserPerms={otherUserPerms} 
-						setOtherUserPerms={(p) => setOtherUserPerms(p)} 
+						myPerms={allPerms.myPerms} 
+						otherUserPerms={allPerms.otherUserPerms} 
+						setOtherUserPerms={(p) => setAllPerms({...allPerms, otherUserPerms: p})} 
 						onClose={() => {setShowCollab(false)}}
 					/>
 				: null

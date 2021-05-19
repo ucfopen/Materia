@@ -763,6 +763,11 @@
 		padding: 0 0 2px 0;
 		font-weight: bold;
 		cursor: pointer;
+
+		&.disabled {
+			cursor: default;
+			pointer-events: none;
+		}
 	}
 
 	// Shown when there are no widgets

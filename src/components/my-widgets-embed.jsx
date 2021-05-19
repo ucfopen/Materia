@@ -20,6 +20,7 @@ const getEmbedLink = (inst, autoplayToggle = true) => {
 
 const MyWidgetEmbedInfo = ({inst}) => {
 	const [autoplay, setAutoplay] = useState(true)
+	
 	return (
 		<div className="embed-options">
 			<h3>Embed Code</h3>

@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Modal from './modal'
 import './my-widgets-copy-dialog.scss'
 
 const MyWidgetsCopyDialog = ({onClose, onCopy, name}) => {
-	const [newTitle, setNewTitle] = useState('')
+	const [newTitle, setNewTitle] = useState(name + " (Copy)")
 	const [copyPermissions, setCopyPermissions] = useState(false)
-
-	// Sets the initial title
-	useEffect(() => {setNewTitle(name + " (Copy)")}, [])
 
 	return (
 		<Modal onClose={onClose}>

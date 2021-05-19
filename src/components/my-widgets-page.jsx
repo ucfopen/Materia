@@ -1,181 +1,145 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from './header'
 import './my-widgets-page.scss'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
-import fetchOptions from '../util/fetch-options'
+import { useQuery } from 'react-query'
+import { access } from './materia-constants'
+import useCopyWidget from './hooks/useCopyWidget'
+import useDeleteWidget from './hooks/useDeleteWidget'
+import { apiGetWidgets, apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
 
-const fetchWidgets = () => fetch('/api/json/widget_instances_get/', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
-const fetchWidget = (instId) => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
-const fetchCopyInstance = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
-const fetchCurrentUser = () => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent('[]')}`}))
-const fetchUserPermsForInstance = (instId) => fetch('/api/json/permissions_get', fetchOptions({body: 'data=' + encodeURIComponent(`["4","${instId}"]`)}))
-
-const PERM_VISIBLE = 1
-const PERM_PLAY = 5
-const PERM_SCORE = 10
-const PERM_DATA = 15
-const PERM_EDIT = 20
-const PERM_COPY = 25
-const PERM_FULL = 30
-const PERM_SHARE = 35
-const PERM_SU = 90
-
-const rawPermsToObj = ([permCode = PERM_VISIBLE, expireTime = null], isEditable) => {
+const rawPermsToObj = ([permCode = access.VISIBLE, expireTime = null], isEditable) => {
 	permCode = parseInt(permCode, 10)
 	return {
 		accessLevel: permCode,
 		expireTime,
-		editable: permCode > PERM_VISIBLE && isEditable === true,
-		shareable: permCode > PERM_VISIBLE, // old, but difficult to replace with can.share :/
+		editable: permCode > access.VISIBLE && isEditable === true,
+		shareable: permCode > access.VISIBLE, // old, but difficult to replace with can.share :/
 		can: {
-			view: [PERM_VISIBLE, PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
-			copy: [PERM_COPY, PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode),
-			edit: [PERM_FULL, PERM_SU].includes(permCode),
-			delete: [PERM_FULL, PERM_SU].includes(permCode),
-			share: [PERM_SHARE, PERM_FULL, PERM_SU].includes(permCode)
+			view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
+			copy: [access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
+			edit: [access.FULL, access.SU].includes(permCode),
+			delete: [access.FULL, access.SU].includes(permCode),
+			share: [access.SHARE, access.FULL, access.SU].includes(permCode)
 		}
 	}
 }
 
+const initState = () => {
+	return({
+		selectedInst: null,
+		otherUserPerms: null,
+		myPerms: null,
+		noAccess: false,
+		firstLoad: true
+	})
+}
+
 const MyWidgetsPage = () => {
-	const [noAccess, setNoAccess] = useState(null)
-	const [selectedInst, setSelectedInst] = useState(null)
-	const [isLoading, setIsLoading] = useState(true)
-	const [widgets, setWidgets] = useState([])
-	const [user, setUser] = useState(null)
-	const [otherUserPerms, setOtherUserPerms] = useState(null)
-	const [myPerms, setMyPerms] = useState(null)
-	const [firstLoad, setFirstLoad] = useState(true)
+	const [state, setState] = useState(initState())
+	const { data: widgets, isLoading: isFetching} = useQuery({
+		queryKey: 'widgets',
+		queryFn: apiGetWidgets,
+		staleTime: Infinity
+	})
+	const { data: user} = useQuery({
+		queryKey: 'user',
+		queryFn: apiGetUser,
+		staleTime: Infinity
+	})
+	const { data: permUsers} = useQuery({
+		queryKey: ['user-perms', state.selectedInst?.id],
+		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
+		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
+		placeholderData: null,
+		staleTime: Infinity
+	})
 
-	// load instances after initial render
+	const copyWidget = useCopyWidget()
+	const deleteWidget = useDeleteWidget()
+	readFromStorage()
+
 	useEffect(() => {
-		refreshWidgets()
-		fetchCurrentUser()
-			.then(resp => resp.json())
-			.then(user => {
-				setUser(user)
-			})
-	}, [])
+		if (state.selectedInst && permUsers) {
+			const isEditable = state.selectedInst.widget.is_editable === "1"
+			const othersPerms = new Map()
+			for(const i in permUsers.widget_user_perms){
+				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
+			}
+			let _myPerms
+			for(const i in permUsers.user_perms){
+				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
+			}
+			setState({...state, otherUserPerms: othersPerms, myPerms: _myPerms})
+		}
+	}, [state.selectedInst, JSON.stringify(permUsers)])
 
-	const refreshWidgets = useCallback(() => {
-		fetchWidgets()
-		.then(resp => resp.json())
-		.then(widgets => {
+	useEffect(() => {
+		if (!isFetching) {
 			setWidgetFromUrl(widgets)
-			setWidgets(widgets)
-		})
-		.catch(error => {
-			setIsLoading(false)
-			setWidgets([])
-		})
-	}, [])
+		}
+	}, [isFetching])
+
+	useEffect(() => {
+		// Clears the current widget if it no longer exists
+		if (widgets && state.selectedInst && !widgets.some(widget => widget.id === state.selectedInst.id)) {
+			setState({...state, selectedInst: null})
+		}
+	}, [widgets?.length])
 
 	// Sets the current widget to what's in the URL when the widgets load
-	const setWidgetFromUrl = useCallback((widgets) => {
-		if (!firstLoad) {
-			setIsLoading(false)
+	const setWidgetFromUrl = (widgets) => {
+		if (!state.firstLoad) {
 			return
-		}
-		else {
-			setFirstLoad(false)
 		}
 
 		const url = window.location.href
 		const url_id = url.split('#')[1]
 
-		if (url_id && (!selectedInst || selectedInst.id !== url_id)) {
+		if (url_id && (!state.selectedInst || state.selectedInst.id !== url_id)) {
 			for (let i = 0; i < widgets.length; i++) {
 				if (widgets[i].id === url_id) {
 					onSelect(widgets[i])
-					setIsLoading(false)
 					return
 				}
 			}
 
-			// \w matches any alphanumeric or _
-			// i flag means case insensitive
-			const widgetIdReg = /^\w{5}$/i
-
-			// Invalid widget ID in URL
-			if (url_id.search(widgetIdReg) === -1) {
-				console.log('Invalid widget ID')
-				setIsLoading(false)
-				return
-			}
-
-			fetchWidget(url_id)
-			.then(resp => resp.json())
-			.then(widget => {
-				if (widget.length >= 1) 
-					setNoAccess(widget[0])
-
-				setIsLoading(false)
-			})
-			.catch(error => {
-				setIsLoading(false)
-				console.log("Failed to fetch widget permissions")
-			})
+			// User doesn't have access to the widget
+			setState({...state, firstLoad: false, noAccess: true})
 		}
-		else {
-			setIsLoading(false)
-		}
-	}, [])
-
-	const updateWidget = (inst) => {
-		let _widgets = []
-		widgets.forEach((widget) => {
-			if (widget.id === inst.id) {
-				_widgets.push(inst)
-			}
-			else {
-				_widgets.push(widget)
-			}
-		})
-
-		setSelectedInst(inst)
-		setWidgets(_widgets)
+		else setState({...state, firstLoad: false})
 	}
 
 	const onSelect = (inst) => {
-		setSelectedInst(inst)
+		if (inst.is_fake) return
+
+		setState({...state, selectedInst: inst, noAccess: false, firstLoad: false})
 		setUrl(inst)
-
-		fetchUserPermsForInstance(inst.id)
-			.then(resp => resp.json())
-			.then(perms => {
-				const isEditable = inst.widget.is_editable === "1"
-				const othersPerms = new Map()
-				for(const i in perms.widget_user_perms){
-					othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
-				}
-				let myPerms
-				for(const i in perms.user_perms){
-					myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
-				}
-
-				setMyPerms(myPerms)
-				setOtherUserPerms(othersPerms)
-			})
 	}
 
-	const onCopy = useCallback((instId, title, copyPermissions) => {
+	const onCopy = (instId, newTitle, newPerm, inst) => {
 		// Clears the overflow hidden from the modal
 		document.body.style.overflow = 'auto'
-		setIsLoading(true)
-		setSelectedInst(null)
-		fetchCopyInstance(instId, title, copyPermissions)
-		.then(refreshWidgets)
-	}, [])
+		setState({...state, selectedInst: null})
+		
+		copyWidget.mutate({
+			instId: instId, 
+			title: newTitle, 
+			copyPermissions: newPerm,
+			widgetName: inst.widget.name,
+			dir: inst.widget.dir
+		})
+	}
 
-	const onDelete = useCallback(inst => {
-		setIsLoading(true)
-		setSelectedInst(null)
+	const onDelete = (inst) => {
+		setState({...state, selectedInst: null})
 
-		fetch('/api/json/widget_instance_delete/', fetchOptions({body:`data=%5B%22${inst.id}%22%5D`}))
-		.then(refreshWidgets)
-	}, [])
+		deleteWidget.mutate({
+			instId: inst.id
+		})
+	}
 
 	// Sets widget id in the url
 	const setUrl = (inst) => {
@@ -187,7 +151,7 @@ const MyWidgetsPage = () => {
 			<Header />
 			<div className="my_widgets">
 
-				{!isLoading && widgets.length === 0
+				{!isFetching && (!widgets || widgets?.length === 0)
 					? <div className="qtip top nowidgets">
 							Click here to start making a new widget!
 						</div>
@@ -197,7 +161,7 @@ const MyWidgetsPage = () => {
 
 				<div className="container">
 					<div>
-						{isLoading
+						{(isFetching || state.firstLoad)
 							? <section className="directions no-widgets">
 								<h1>Loading.</h1>
 								<p>Just a sec...</p>
@@ -205,18 +169,18 @@ const MyWidgetsPage = () => {
 							: null
 						}
 
-						{!isLoading && noAccess
+						{!isFetching && state.noAccess
 							? <section className="directions error">
 								<div className="error error-nowidget">
 									<p className="errorWindowPara">
-										{`You do not have access to widget ${noAccess.id}.`}
+										You do not have access to this widget or this widget does not exist.
 									</p>
 								</div>
 							</section>
 							: null
 						}
 
-						{!isLoading && widgets.length < 1 && !noAccess
+						{!isFetching && widgets?.length < 1 && !state.noAccess
 							? <section className="directions no-widgets">
 									<h1>You have no widgets!</h1>
 									<p>Make a new widget in the widget catalog.</p>
@@ -224,7 +188,7 @@ const MyWidgetsPage = () => {
 							: null
 						}
 
-						{!isLoading && widgets.length > 0 && !selectedInst && !noAccess
+						{(!isFetching || widgets?.length > 0) && !state.selectedInst && !state.noAccess && !state.firstLoad
 							? <section className="directions unchosen">
 									<h1>Your Widgets</h1>
 									<p>Choose a widget from the list on the left.</p>
@@ -232,26 +196,24 @@ const MyWidgetsPage = () => {
 							: null
 						}
 
-						{!isLoading && selectedInst && !noAccess
+						{(!isFetching || widgets?.length > 0) && state.selectedInst && !state.noAccess
 							? <MyWidgetSelectedInstance
-								inst={selectedInst}
+								inst={state.selectedInst}
 								onDelete={onDelete}
 								onCopy={onCopy}
 								currentUser={user}
-								myPerms={myPerms}
-								otherUserPerms={otherUserPerms}
-								setOtherUserPerms={(p) => setOtherUserPerms(p)}
-								refreshWidgets={refreshWidgets}
-								updateWidget={updateWidget}
+								myPerms={state.myPerms}
+								otherUserPerms={state.otherUserPerms}
+								setOtherUserPerms={(p) => setState({...state, otherUserPerms: p})}
 							/>
 							: null
 						}
 
 					</div>
 					<MyWidgetsSideBar
-						isLoading={isLoading}
+						isLoading={isFetching}
 						instances={widgets}
-						selectedId={selectedInst ? selectedInst.id : null}
+						selectedId={state.selectedInst ? state.selectedInst.id : null}
 						onClick={onSelect}
 						Card={MyWidgetsInstanceCard}
 					/>

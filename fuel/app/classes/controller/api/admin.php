@@ -3,11 +3,14 @@
  * Materia
  * License outlined in licenses folder
  */
+//namespace Materia;
+use \Materia\Msg;
 
 class Controller_Api_Admin extends Controller_Rest
 {
-	use \Trait_RateLimit;
 	
+	use \Trait_RateLimit;
+
 	protected $_supported_formats = ['json' => 'application/json'];
 
 	public function before()
@@ -69,7 +72,8 @@ class Controller_Api_Admin extends Controller_Rest
 
 	public function get_widget_search(string $input)
 	{
-		$input = trim($input);	
+		$input = trim($input);
+		$input = urldecode($input);
 		//no need to search if for some reason an empty string is passed
 		if ($input == '') return [];
 		return \Materia\Widget_Instance_Manager::get_search($input);
@@ -85,19 +89,28 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		// Get POSTed json input
 		$extra_attempts = Input::json();
+
+		if ( ! is_string($inst_id)) return Msg::invalid_input($inst_id);
 		
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
-		
+
+		$attempts = [];
+
 		// iterate thru each extra attempt and set it in the db
 		foreach ($extra_attempts as $value)
 		{
-			$inst->set_extra_attempts(
-				$value['user_id'], 
-				$value['extra_attempts'], 
-				$value['context_id'],
-				$value['id'] > 0 ? $value['id'] : null);
+			if ( ! is_int($value['user_id']) ) return Msg::invalid_input($inst_id);
+			if ( ! is_int($value['extra_attempts']) ) return Msg::invalid_input($inst_id);
+			if ( ! is_string($value['context_id']) ) return Msg::invalid_input($inst_id);
+			if ( ! is_int($value['id']) ) return Msg::invalid_input($inst_id);
+
+			
+			$attempts[] = $inst->set_extra_attempts($value['user_id'], $value['extra_attempts'], $value['context_id'], $value['id'] > 0 ? $value['id'] : null);
 		}
 
-		return true;
+		// Allows empty arrays to be returned
+		// $attempts = count($attempts) == 0 ? (object) array() : $attempts;
+
+		return $attempts;
 	}
 }

@@ -1,8 +1,12 @@
 import React, { useState, useMemo } from 'react'
 import ReactDOM from 'react-dom'
+import MyWidgetScoreSemester from './my-widgets-score-semester'
+import { useQuery } from 'react-query'
+import { apiGetWidgets } from '../util/api'
 
-const MyWidgetsSideBar = ({instances = [], selectedId, onClick, Card, isLoading}) => {
+const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, Card}) => {
 	const [searchText, setSearchText] = useState('')
+
 	const hiddenSet = useMemo(
 		() => {
 			const result = new Set()
@@ -19,6 +23,7 @@ const MyWidgetsSideBar = ({instances = [], selectedId, onClick, Card, isLoading}
 		},
 		[instances, searchText]
 	)
+
 	return (
 		<aside className="my-widgets-side-bar">
 			<div className="top">
@@ -39,7 +44,7 @@ const MyWidgetsSideBar = ({instances = [], selectedId, onClick, Card, isLoading}
 
 			<div className="courses">
 				<div className="widget_list" data-container="widget-list">
-					{!isLoading
+					{!isLoading || instances?.length > 0
 						? instances.map(inst =>
 							<Card
 								key={inst.id}

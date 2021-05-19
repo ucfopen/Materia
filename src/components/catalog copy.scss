@@ -144,17 +144,28 @@
 		position: relative;
 		background: #d1d1d1;
 		overflow: hidden;
+		transition: max-height 0.3s ease;
 
 		&.ready {
+			//transition: all ease 250ms;
 			max-height: 0;
-			transition: max-height 0.3s ease;
 
 			&.open {
 				max-height: 300px;
 			}
 
-			&.closed {
-				max-height: 0;
+			&.open .filter-labels-container {
+				visibility: visible;
+				height: auto;
+				opacity: 1;
+				transition: max-height 0.7s, opacity 3s, visibility 4s ease;
+			}
+
+			&.closed .filter-labels-container {
+				visibility: hidden;
+				opacity: 0;
+				max-height: 0px;
+				transition: max-height 0.6s ease;
 			}
 		}
 

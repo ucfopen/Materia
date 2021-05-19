@@ -1,32 +1,32 @@
 import React, { useEffect, useState, useRef } from 'react'
 import Modal from './modal'
-import fetchOptions from '../util/fetch-options'
 import useClickOutside from '../util/use-click-outside'
-import useDebounce from './use-debounce'
+import useDebounce from './hooks/useDebounce'
 import DatePicker from "react-datepicker"
+import setUserInstancePerms from './hooks/useSetUserInstancePerms'
+import { access } from './materia-constants'
+import { useQuery, useQueryClient } from 'react-query'
+import { apiGetUsers, apiSearchUsers } from '../util/api'
 import './my-widgets-collaborate-dialog.scss'
 
-const PERM_VISIBLE = 1
-const PERM_PLAY = 5
-const PERM_SCORE = 10
-const PERM_DATA = 15
-const PERM_EDIT = 20
-const PERM_COPY = 25
-const PERM_FULL = 30
-const PERM_SHARE = 35
-const PERM_SU = 90
 const accessLevels = {
-	[PERM_VISIBLE]: { value: PERM_VISIBLE, text: 'View Scores' },
-	[PERM_FULL]: { value: PERM_FULL, text: 'Full' }
+	[access.VISIBLE]: { value: access.VISIBLE, text: 'View Scores' },
+	[access.FULL]: { value: access.FULL, text: 'Full' }
 }
 
-// api calls for this component
-const fetchUsers = (arrayOfUserIds) => fetch('/api/json/user_get', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}`}))
-const searchUsers = (input) => fetch('/api/json/users_search', fetchOptions({body: `data=${encodeURIComponent(JSON.stringify([input]))}`}))
-const setUserPermsForInstance = (instId, permsObj) => fetch('/api/json/permissions_set', fetchOptions({body: 'data=' + encodeURIComponent(`[4,"${instId}",${JSON.stringify(permsObj)}]`)}))
+const defaultState = () => {
+	return({
+		remove: false,
+		showDemoteDialog: false
+	})
+}
 
-const defaultState = {
-	remove: false
+const initState = () => {
+	return ({
+		searchText: '',
+		shareNotAllowed: false,
+		updatedOtherUserPerms: {}
+	})
 }
 
 const dateToStr = (date) => {
@@ -42,8 +42,7 @@ const timestampToDisplayDate = (timestamp) => {
 
 const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
 	const ref = useRef();
-	const [state, setState] = useState({...defaultState, ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
-	const [showDemoteDialog, setShowDemoteDialog] = useState(false)
+	const [state, setState] = useState({...defaultState(), ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
 
 	// updates parent everytime local state changes
 	useEffect(() => {
@@ -63,14 +62,13 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 
 	const checkForWarning = () => {
 		if(isCurrentUser) { 
-			setShowDemoteDialog(true)
+			setState({...state, showDemoteDialog: true})
 		}
 		else removeAccess()
 	}
 
 	const removeAccess = () => {
-			setState({...state, remove: true})
-			setShowDemoteDialog(false)
+			setState({...state, remove: true, showDemoteDialog: false})
 	}
 
 	const toggleShowExpire = (e) => {
@@ -107,13 +105,13 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 					{`${user.first} ${user.last}`}
 				</span>
 			</div>
-			{ showDemoteDialog
+			{ state.showDemoteDialog
 				? <div className="demote-dialog">
 						<div className="arrow"></div>
 						<div className="warning">
 							Are you sure you want to limit <strong>your</strong> access?
 						</div>
-						<a className="no-button" onClick={() => setShowDemoteDialog(false)}>No</a>
+						<a className="no-button" onClick={() => setState({...state, showDemoteDialog: false})}>No</a>
 						<a className="button action_button yes-button" onClick={removeAccess}>Yes</a>
 					</div>
 				: null
@@ -151,81 +149,66 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 }
 
 const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
-	const [users, setUsers] = useState({})
-	const [searchText, setSearchText] = useState('')
-	const [searchResults, setSearchResults] = useState([])
-	const [updatedOtherUserPerms, setUpdatedOtherUserPerms] = useState({})
-	const [shareNotAllowed, setShareNotAllowed] = useState(false)
-	const debouncedSearchTerm = useDebounce(searchText, 250)
+	const [state, setState] = useState(initState())
+	const debouncedSearchTerm = useDebounce(state.searchText, 250)
+	const queryClient = useQueryClient()
+	const setUserPerms = setUserInstancePerms()
 	const mounted = useRef(false)
-
-	// Tells if the component is mounted
+	const { data: collabUsers, remove: clearUsers} = useQuery({
+		queryKey: ['collab-users', inst.id],
+		enabled: !!otherUserPerms,
+		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
+		staleTime: Infinity,
+		placeholderData: {}
+	})
+	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
+		queryKey: `user-search`,
+		enabled: !!debouncedSearchTerm,
+		queryFn: () => apiSearchUsers(debouncedSearchTerm),
+		staleTime: Infinity,
+		placeholderData: [],
+		retry: false
+	})
+	
 	useEffect(() => {
     mounted.current = true
-    return () => (mounted.current = false)
-  }, [])
+    return () => {
+			mounted.current = false
+		}
+	}, [])
+
+	// Handles the search with debounce
+	useEffect(() => {
+		if(debouncedSearchTerm === '') clearSearch()
+		else refetchSearch()
+	}, [debouncedSearchTerm])
 
 	// Sets Perms
 	useEffect(() => {
 		const map = new Map(otherUserPerms)
 		map.forEach(key => key.remove = false)
-		setUpdatedOtherUserPerms(map)
+		setState({...state, updatedOtherUserPerms: map})
 	}, [otherUserPerms])
-
-	// Gets users
-	useEffect(() => {
-		const userIdsToLoad = Array.from(otherUserPerms.keys())
-
-		fetchUsers(userIdsToLoad)
-		.then(res => res.json())
-		.then(_users => {
-			const keyedUsers = {}
-
-			if (mounted.current && Array.isArray(_users)) {
-				_users.forEach(u => { keyedUsers[u.id] = u})
-				setUsers(keyedUsers)
-			}
-		})
-	}, [inst])
-
-	// Handles the search with debounce
-	useEffect(() => {
-		if(debouncedSearchTerm === '') 
-		{
-			setSearchResults([])
-		}
-		else 
-		{
-			searchUsers(debouncedSearchTerm)
-			.then(resp => {
-				// no content
-				if(resp.status === 502 || resp.status === 204) return []
-				return resp.json()
-			})
-			.then(results => {
-				if (mounted.current)
-					setSearchResults(results)
-			})
-		}
-	}, [debouncedSearchTerm])
 
 	// Handles clicking a search result
 	const onClickMatch = (match) => {
-		setSearchText('')
-		setSearchResults([])
+		const tempPerms = state.updatedOtherUserPerms
+		let shareNotAllowed = false
 
 		if(!inst.guest_access && match.is_student){
-			setShareNotAllowed(true)
+			shareNotAllowed = true
+			setState({...state, searchText: '', updatedOtherUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 			return
 		}
-		else setShareNotAllowed(false)
 
-		if(!(match.id in users) || updatedOtherUserPerms.get(match.id).remove === true) 
+		if(!(match.id in collabUsers) || state.updatedOtherUserPerms.get(match.id).remove === true) 
 		{
-			const tempUsers = users
-			tempUsers[match.id] = match
-			setUsers(tempUsers)
-			const tempPerms = updatedOtherUserPerms
+			// Adds user to query data
+			let tmpMatch = {}
+			tmpMatch[match.id] = match
+			queryClient.setQueryData(['collab-users', inst.id], old => ({...old, ...tmpMatch}))
+
+			// Updateds the perms
 			tempPerms.set(
 				match.id, 
 				{
@@ -243,36 +226,68 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					remove: false
 				}
 			)
-			setUpdatedOtherUserPerms(tempPerms)
 		}
+
+		setState({...state, searchText: '', updatedOtherUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 	}
 
 	const onSave = () => {
-		setUserPermsForInstance(inst.id, Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => 
-		{
-			return {
-				user_id: userId,
-				expiration: userPerms.expireTime,
-				perms: {[userPerms.accessLevel]: !userPerms.remove}
+		let isCurrUser = false
+		if (state.updatedOtherUserPerms.get(currentUser.id)?.remove) {
+			isCurrUser = true
+		}
+		
+		setUserPerms.mutate({
+			instId: inst.id, 
+			permsObj: Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
+				return {
+					user_id: userId,
+					expiration: userPerms.expireTime,
+					perms: {[userPerms.accessLevel]: !userPerms.remove}
+				}
+			}),
+			successFunc: () => {
+				if (mounted.current) {
+					setOtherUserPerms(state.updatedOtherUserPerms)
+					if (isCurrUser) {
+						queryClient.invalidateQueries('widgets')
+					}
+					queryClient.invalidateQueries('search-widgets')
+					queryClient.invalidateQueries(['user-perms', inst.id])
+					queryClient.invalidateQueries(['user-search', inst.id])
+					queryClient.removeQueries(['collab-users', inst.id])
+					customClose()
+				}
 			}
-		}))
-		.then(() => {
-			updatedOtherUserPerms.forEach((value, key) => {
-				if(value.remove === true) updatedOtherUserPerms.delete(key)
-			})
-			setOtherUserPerms(updatedOtherUserPerms)
-			onClose()
+		})
+
+		state.updatedOtherUserPerms.forEach((value, key) => {
+			if(value.remove === true) {
+				state.updatedOtherUserPerms.delete(key)
+			}
 		})
 	}
 
+	const customClose = () => {
+		clearUsers()
+		clearSearch()
+		onClose()
+	}
+
+	const updatePerms = (userId, perms) => {
+		let newPerms = new Map(state.updatedOtherUserPerms)
+		newPerms.set(userId, perms)
+		setState({...state, updatedOtherUserPerms: newPerms})
+	}
+
 	return (
-		<Modal onClose={onClose} ignoreClose={shareNotAllowed}>
+		<Modal onClose={customClose} ignoreClose={state.shareNotAllowed}>
 			<div className="collaborate-modal">
 				<span className="title">Collaborate</span>
 				<div>
 					<div id="access" className="collab-container">
 							{ //cannot search unless you have full access
-								myPerms.shareable
+								myPerms?.shareable
 								? 
 									<div className="search-container">
 										<span className="collab-input-label">
@@ -280,15 +295,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 										</span>
 										<input 
 											tabIndex="0" 
-											value={searchText}
-											onChange={(e) => setSearchText(e.target.value)}
+											value={state.searchText}
+											onChange={(e) => setState({...state, searchText: e.target.value})}
 											className="user-add" 
 											type="text" 
 											placeholder="Enter a Materia user's name or e-mail"/>
 										<div>
-										{ searchResults.length !== 0
+										{ debouncedSearchTerm !== '' && searchResults && searchResults?.length !== 0
 											? <div className="collab-search-list">
-												{searchResults.map((match) => 
+												{searchResults?.map((match) => 
 													<div
 														key={match.id}
 														className='collab-search-match clickable'
@@ -306,17 +321,17 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 							}	
 						<div className="access-list">
 							{
-								Array.from(updatedOtherUserPerms).map(([userId, userPerms]) => {
+								Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
 									if(userPerms.remove === true) return
-									const user = users[userId]
+									const user = collabUsers[userId]
 									if(!user) return <div key={userId}></div>
 									return <CollaborateUserRow
 										key={user.id}
 										user={user}
 										perms={userPerms}
 										isCurrentUser={currentUser.id === user.id}
-										onChange={(userId, perms) => updatedOtherUserPerms.set(userId, perms)}
-										readOnly={myPerms.shareable === false}
+										onChange={(userId, perms) => updatePerms(userId, perms)}
+										readOnly={myPerms?.shareable === false}
 									/>
 								})
 							}
@@ -326,7 +341,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 							add or remove people in this list.
 						</p>
 						<div className="btn-box">
-							<a tabIndex="0" className="cancel_button" onClick={onClose}>
+							<a tabIndex="0" className="cancel_button" onClick={customClose}>
 								Cancel
 							</a>
 							<a tabIndex="0" className="action_button green save_button" onClick={onSave}>
@@ -336,11 +351,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					</div>
 				</div>
 			</div>
-			{ shareNotAllowed === true
-				? <Modal onClose={() => {setShareNotAllowed(false)}} smaller={true} alert={true}>
+			{ state.shareNotAllowed === true
+				? <Modal onClose={() => {setState({...state, shareNotAllowed: false})}} smaller={true} alert={true}>
 					<span className="alert-title">Share Not Allowed</span>
 					<p className="alert-description">Access must be set to "Guest Mode" to collaborate with students.</p>
-					<button className="alert-btn" onClick={() => {setShareNotAllowed(false)}}>Okay</button>
+					<button className="alert-btn" onClick={() => {setState({...state, shareNotAllowed: false})}}>Okay</button>
 				</Modal>
 				: null
 			}

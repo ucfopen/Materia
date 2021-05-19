@@ -598,6 +598,8 @@ class Widget_Instance
 	{
 		$semester = Semester::get_current_semester();
 
+		$result = [ 'user_id' => $user_id, 'success' => false ];
+
 		// we have an ID, update an existing row
 		if ($id != null)
 		{
@@ -608,6 +610,13 @@ class Widget_Instance
 					->value('context_id', $context_id)
 					->where('id', '=', $id)
 					->execute();
+				
+				$result = [
+					'user_id' => $user_id, 
+					'extra_attempts' => $extra_attempts, 
+					'context_id' => $context_id,
+					'success' => true 
+				];
 			}
 			// delete existing row if attempts <= 0
 			else
@@ -615,6 +624,8 @@ class Widget_Instance
 				\DB::delete('user_extra_attempts')
 					->where('id', $id)
 					->execute();
+				
+				$result = [ 'user_id' => $user_id, 'success' => true ];
 			}
 		}
 		// no ID provided, add new row
@@ -633,8 +644,19 @@ class Widget_Instance
 						'created_at' => time()
 						])
 					->execute();
+				
+					$result = [
+						'inst_id' => $this->id,
+						'semester' => $semester,
+						'user_id' => $user_id,
+						'extra_attempts' => $extra_attempts,
+						'context_id' => $context_id,
+						'success' => true 
+					];
 			}
 		}
+
+		return $result;
 	}
 
 	public function export()

@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import Modal from './modal'
-import useClickOutside from '../util/use-click-outside'
 import './my-widgets-export.scss'
 
+const initState = () => {
+	return({
+		header: "No semester selected",
+		selectedSemesters: "",
+		checkAll: false,
+		exportOptions: ['Questions and Answers', 'Referrer URLs'],
+		exportType: "Questions and Answers",
+		semesterOptions: []
+	})
+}
+
 const MyWidgetsExport = ({onClose, inst, scores}) => {
-	const [header, setHeader] = useState("No semester selected")
-	const [selectedSemesters, setSelectedSemesters] = useState("")
-	const [exportOptions, setExportOptions] = useState(['Questions and Answers', 'Referrer URLs'])
-	const [exportType, setExportType] = useState("Questions and Answers")
+	const [state, setState] = useState(initState())
 	const [showOptions, setShowOptions] = useState(false)
-	const [semesterOptions, setSemesterOptions] = useState([])
-	const [checkAll, setCheckAll] = useState({check: false, noChange: false})
 
 	// Initializes data
 	useEffect (() => {
@@ -22,7 +27,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 		})
 
 		if (scores.length === 0 || !hasScores) {
-			setExportOptions(['Questions and Answers', 'Referrer URLs'])
+			setState({...state, exportOptions: ['Questions and Answers', 'Referrer URLs'], exportType: tmpOps[0]})
 		}
 		else {
 			let scores_only
@@ -43,31 +48,19 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 
 			let options = new Array(scores.length).fill(false)
 			options[0] = true
-			setSemesterOptions(options)
-			setExportOptions(tmpOps)
+			setState({...state, exportOptions: tmpOps, exportType: tmpOps[0], semesterOptions: options})
 		}
-
-		setExportType(tmpOps[0])
 	}, [])
-	
-	// Sets all values to checked or unchecked when checkall is clicked
-	useEffect(() => {
-		if (checkAll.noChange === true) return
-
-		if (semesterOptions.length > 0) {
-			let arr = new Array(scores.length).fill(checkAll.check)
-			setSemesterOptions(arr)
-		}
-	}, [checkAll])
 
 	// Sets selected semesters and their respective header text
 	useEffect(() => {
-		if (semesterOptions.length > 0) {
+		if (state.semesterOptions.length > 0) {
 			let str = "" // creates: 2020 Fall, 2020 Spring
 			let str_cpy = "" // creates: 2020-Fall,2020-Spring
+			let _checkAll = false
 			
-			for (let i = 0; i < semesterOptions.length; i++) {
-				if (semesterOptions[i]) {
+			for (let i = 0; i < state.semesterOptions.length; i++) {
+				if (state.semesterOptions[i]) {
 					if (str !== "") {
 						str += ", "
 						str_cpy += ","
@@ -83,22 +76,26 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 			}
 
 			// sets check all if all options are checked/unchecked
-			if (semesterOptions.includes(true) && !semesterOptions.includes(false))
-				setCheckAll({check: true, noChange: true})
-			else {
-				setCheckAll({check: false, noChange: true})
+			if (state.semesterOptions.includes(true) && !state.semesterOptions.includes(false)) {
+				_checkAll = true
 			}
 
-			setHeader(str)
-			setSelectedSemesters(str_cpy)
+			setState({...state, checkAll: _checkAll, header: str, selectedSemesters: str_cpy})
 		}
-	}, [semesterOptions])
+	}, [state.semesterOptions])
+
+	const checkAllVals = () => {
+		if (state.semesterOptions.length > 0) {
+			const arr = new Array(scores.length).fill(!state.checkAll)
+			setState({...state, semesterOptions: arr, checkAll: !state.checkAll})
+		}
+	}
 
 	// Used on semester selection
 	const semesterCheck = (index) => {
-		let arr = [... semesterOptions]
+		let arr = [... state.semesterOptions]
 		arr[index] = !arr[index]
-		setSemesterOptions(arr)
+		setState({...state, semesterOptions: arr})
 	}
 
 	return (
@@ -117,7 +114,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 					<div className="underline"></div>
 				</div>
 				<div className="semester-content">
-					<h3>{header}</h3>
+					<h3>{state.header}</h3>
 					<div className="score-table">
 						<p id="export-scores-description">
 							<span className="highlight">Export Scores{" "}</span>
@@ -130,19 +127,19 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 							provide specialized export options.
 						</p>
 						<div className="download-controls">
-							<select value={exportType} onChange={(e) => {setExportType(e.target.value)}} >
+							<select value={state.exportType} onChange={(e) => {setState({...state, exportType: e.target.value})}} >
 								{ 
-									exportOptions.map((val, index) => <option key={index} value={val}>{val}</option>)
+									state.exportOptions.map((val, index) => <option key={index} value={val}>{val}</option>)
 								}
 							</select>
 							<p className="download">
-								<a href={`/data/export/${inst.id}?type=${exportType}&semesters=${selectedSemesters}`}
+								<a href={`/data/export/${inst.id}?type=${state.exportType}&semesters=${state.selectedSemesters}`}
 									className="action_button arrow_down_button">
 									<span className="arrow-down"></span>
-									Download {exportType}
+									Download {state.exportType}
 								</a>
 							</p>
-							{ exportType === 'All Scores' || exportType === 'High Scores'
+							{ state.exportType === 'All Scores' || state.exportType === 'High Scores'
 								? <p className="see-how">
 									You don't need to export scores and import them into Canvas if you have
 									embedded a widget as a graded assignment. 
@@ -173,8 +170,8 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 					<li className={`${scores.length > 1 ? 'active' : ''}`}>
 						<input type="checkbox"
 							id="checkall"
-							checked={checkAll.check}
-							onChange={() => {setCheckAll({check: !checkAll.check, noChange: false})}}/>
+							checked={state.checkAll}
+							onChange={checkAllVals}/>
 						<label htmlFor="checkall"> - Check all</label>
 					</li>
 					{
@@ -185,7 +182,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 									className="semester"
 									name={val.id}
 									disabled={scores.length === 1}
-									checked={semesterOptions[index] || false} // makes sure it will never be null
+									checked={state.semesterOptions[index] || false} // makes sure it will never be null
 									onChange={() => {semesterCheck(index)}}></input>
 									<label htmlFor={val.id}>{val.year + " " + val.term}</label>
 							</li>)

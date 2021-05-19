@@ -31,7 +31,8 @@
     "materia-server-client-assets": "2.2.0",
     "napa": "^3.0.0",
     "ngmodal": "ucfcdl/ngModal#v1.2.2",
-    "react-datepicker": "^3.6.0"
+    "react-datepicker": "^3.6.0",
+    "react-query": "^3.13.4"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",

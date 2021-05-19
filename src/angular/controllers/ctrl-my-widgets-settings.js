@@ -189,8 +189,6 @@ app.controller('MyWidgetsSettingsController', function (
 
 		// Reset all of the variables
 		let i = 0
-		let date
-		let time
 		const ranges = [$scope.availability[0], $scope.availability[1]]
 		const errors = {
 			date: 0,
@@ -204,9 +202,9 @@ app.controller('MyWidgetsSettingsController', function (
 		$scope.timeError = [false, false]
 
 		for (let range of Array.from(ranges)) {
-			; ({ date } = range)
 			const period = range.period ? range.period : 'am'
-				; ({ time } = range)
+			const { date } = range
+			const { time } = range
 			const { anytime } = range
 			// if anytime was selected, then the times value will be negative one.
 			if (anytime === true) {

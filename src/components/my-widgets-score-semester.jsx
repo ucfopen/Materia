@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 import MyWidgetScoreSemesterIndividual from './my-widgets-score-semester-individual'
 import MyWidgetScoreSemesterStorage from './my-widgets-score-semester-storage'
@@ -9,8 +9,12 @@ const TAB_INDIVIDUAL='TAB_INDIVIDUAL'
 const TAB_STORAGE='TAB_STORAGE'
 
 const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
-	let initData = hasScores ? TAB_GRAPH : TAB_STORAGE
+	const initData = hasScores ? TAB_GRAPH : TAB_STORAGE
 	const [scoreTab, setScoreTab] = useState(initData)
+
+	useEffect(() => {
+		if (hasScores)	setScoreTab(TAB_GRAPH)
+	}, [hasScores])
 
 	const activeTab = useMemo(() => {
 		let curTab = scoreTab

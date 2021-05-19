@@ -1,69 +1,22 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { iconUrl } from '../util/icon-url'
-import useDebounce from './use-debounce'
-
-const searchWidgets = (input) => fetch(`/api/admin/widget_search/${input}`)
-const searchWidgetsBad = (input = null) => fetch(`/api/admin/widget_search/${input}`)
+import { useQuery } from 'react-query'
+import useDebounce from './hooks/useDebounce'
+import { apiSearchWidgets } from '../util/api'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
-	const [searchResults, setSearchResults] = useState([])
-	const [isSearching, setIsSearching] = useState(false)
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
-
-	useEffect(() => {
-		searchWidgetsBad(null)
-		.then(resp => {
-			// no content
-			if(resp.status === 502 || resp.status === 204) {
-				setIsSearching(false)
-				return null
-			}
-			
-			return resp.json()
-		})
-		.then(instance => 
-		{
-			if (instance !== null) {
-				console.log(instance)
-			}
-			else {
-				console.log("BAD API CALL")
-			}
-		})
-	}, [])
-
-	useEffect(() => {
-		// Make sure we have a value (user has entered something in input)
-		if (debouncedSearchTerm && debouncedSearchTerm !== "" && debouncedSearchTerm !== " ") {
-			setIsSearching(true)
-			
-			searchWidgets(debouncedSearchTerm)
-				.then(resp => {
-					// no content
-					if(resp.status === 502 || resp.status === 204) {
-						setIsSearching(false)
-						return []
-					}
-					
-					return resp.json()
-				})
-				.then(instances => 
-				{
-					setSearchResults(instances)
-					setIsSearching(false)
-				})
-		} else {
-			setSearchResults([])
-			setIsSearching(false)
-		}
-	}, [debouncedSearchTerm])
+	const { data: searchedWidgets, isFetching} = useQuery({
+		queryKey: ['search-widgets', debouncedSearchTerm],
+		queryFn: () => apiSearchWidgets(debouncedSearchTerm),
+		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,
+		placeholderData: null,
+		staleTime: Infinity
+	})
 
 	const setSearchVal = (e) => {
-		if (!isSearching && e.target.value  !== "") setIsSearching(true)
-		if (e.target.value === "") setIsSearching(false)
-
 		setSearchText(e.target.value)
 	}
 
@@ -88,9 +41,9 @@ const SupportSearch = ({onClick = () => {}}) => {
 					onChange={() => setShowDeleted(!showDeleted)}/>
 				<span className="deleted_label">Show Deleted Instances?</span>
 			</div>
-			{ searchResults.length !== 0
+			{ searchedWidgets && searchedWidgets.length !== 0
 				? <div className="search_list">
-							{searchResults.map((match) => 
+							{searchedWidgets.map((match) => 
 								<div 
 									key={match.id}
 									className={`search_match clickable ${(match.is_deleted && !showDeleted) ? 'hidden' : ''} ${match.is_deleted ? 'deleted' : ''}`}
@@ -112,7 +65,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 							)}
 					</div>
 				: <div>
-					{	isSearching
+					{	(isFetching || !searchedWidgets) && searchText.length > 0
 						? <div className="searching">
 								<b>Searching Widget Instances ...</b>
 							</div>

@@ -6,7 +6,7 @@ class Widget_Instance_Manager
 {
 	public $validate = true;
 
-	static public function get(string $inst_id, bool $load_qset=false, $timestamp=false, bool $deleted=false): bool
+	static public function get(string $inst_id, bool $load_qset=false, $timestamp=false, bool $deleted=false)
 	{
 		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp, $deleted);
 		return count($instances) > 0 ? $instances[0] : false;
@@ -45,7 +45,7 @@ class Widget_Instance_Manager
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
-				'is_deleted'			=> (bool) $r['is_deleted'],
+				'is_deleted'      => (bool) $r['is_deleted'],
 				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);

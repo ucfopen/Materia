@@ -16,7 +16,7 @@ return [
 	'groups' => [
 		'admin' => [$webpack.'css/admin.css'],
 		'support' => [$webpack.'js/support.css'],
-		'catalog' => [$webpack.'css/widget-catalog.css'],
+		'catalog' => [$webpack.'js/catalog.css'],
 		'widget_play' => [
 			$webpack.'css/widget-play.css',
 			$vendor.'ng-modal.css'
