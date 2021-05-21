@@ -1,4 +1,4 @@
 
 FROM nginxinc/nginx-unprivileged:1.19-alpine
-COPY ./docker/config/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/config/nginx/nginx-production.conf /etc/nginx/nginx.conf
 

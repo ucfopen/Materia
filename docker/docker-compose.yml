@@ -1,8 +1,7 @@
-version: '3.2'
+version: '3.5'
 
 services:
   webserver:
-    container_name: materia-webserver
     image: ucfopen/materia-webserver:${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: ../
@@ -15,13 +14,14 @@ services:
       - frontend
     volumes:
       - ../public:/var/www/html/public:ro
+      - uploaded_widgets:/var/www/html/public/widget/:ro
       - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
       - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
+      - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - app
 
   app:
-    container_name: materia-app
     image: ucfopen/materia-app:${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: ../
@@ -40,8 +40,8 @@ services:
       - CACHE_DRIVER=memcached
       - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
       - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/${MYSQL_DATABASE}
-      - FUEL_ENV=development
-      - FUEL_LOG_THRESHOLD=100
+      - FUEL_ENV=production
+      - FUEL_LOG_THRESHOLD=300
       - LOG_HANDLER=STDOUT
       - LTI_KEY=materia-lti-key
       - LTI_SECRET=materia-lti-secret
@@ -58,16 +58,13 @@ services:
       - frontend
       - backend
     volumes:
-      - ../:/var/www/html:z
-      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh:ro
-      - node_modules:/var/www/html/node_modules:rw
+      - uploaded_widgets:/var/www/html/public/widget/
     depends_on:
       - mysql
       - memcached
       - fakes3
 
   mysql:
-    container_name: materia-mysql
     image: mysql:5.7.18
     environment:
       - MYSQL_ROOT_PASSWORD
@@ -78,17 +75,13 @@ services:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
     networks:
       - backend
-    volumes:
-      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
 
   memcached:
-    container_name: materia-memcached
     image: memcached:1.6.6-alpine
     networks:
       - backend
 
   fakes3:
-    container_name: materia-fakes3
     image: ucfopen/materia-fake-s3:${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: ../
@@ -103,13 +96,11 @@ services:
 
 networks:
   frontend:
-    # ommited till we can eaily use composer v3.5 on travis
-    # name: materia_frontend
+    name: materia_frontend
   backend:
-    # ommited till we can eaily use composer v3.5 on travis
-    # name: materia_backend
+    name: materia_backend
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
   uploaded_media: {} # uploaded media files
-  node_modules: {} # node modules for npm
+  uploaded_widgets: {}
