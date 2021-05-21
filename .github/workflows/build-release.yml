@@ -13,6 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # run_build_github_release_package.sh relies on the current git user info
+      - run: git config --global user.email "lst@ucf.edu"
+      - run: git config --global user.name "ucfcdl-robot"
+
       - name: Build Packages
         run: cd docker && ./run_build_github_release_package.sh
 
@@ -23,4 +27,4 @@ jobs:
           file: materia-pkg*
           file_glob: true
           tag: ${{ github.ref }}
-          overwrite: false
+          overwrite: true
