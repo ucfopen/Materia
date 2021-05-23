@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   webserver:
-    image: ucfopen/materia-webserver:${MATERIA_VERSION} # TAG default value is in .env file
+    image: ghcr.io/ucfopen/materia:webserver-${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: ../
       dockerfile: materia-webserver.Dockerfile
@@ -22,7 +22,7 @@ services:
       - app
 
   app:
-    image: ucfopen/materia-app:${MATERIA_VERSION} # TAG default value is in .env file
+    image: ghcr.io/ucfopen/materia:app-${MATERIA_VERSION} # TAG default value is in .env file
     build:
       context: ../
       dockerfile: materia-app.Dockerfile
@@ -58,6 +58,7 @@ services:
       - frontend
       - backend
     volumes:
+      - ..:/var/www/html/
       - uploaded_widgets:/var/www/html/public/widget/
     depends_on:
       - mysql

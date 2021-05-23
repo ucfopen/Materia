@@ -50,7 +50,8 @@
         "phpseclib/phpseclib": "2.0.0",
         "eher/oauth": "1.0.7",
         "aws/aws-sdk-php": "3.67.17",
-        "symfony/dotenv": "^5.1"
+        "symfony/dotenv": "^5.1",
+        "ucfopen/materia-theme-ucf": "1.2.1"
     },
     "suggest": {
         "ext-memcached": "*"
@@ -73,18 +74,36 @@
     },
     "repositories": [
         {
-            "type"    : "package",
-            "package" : {
-                "name"    : "ucfcdl/fuelphp-phpcs",
-                "version" : "3.0.0",
-                "dist"    : {
-                    "url"  : "https://github.com/ucfcdl/fuelphp-phpcs/archive/v3.0.0.zip",
+            "type": "package",
+            "package": {
+                "name": "ucfcdl/fuelphp-phpcs",
+                "version": "3.0.0",
+                "dist": {
+                    "url": "https://github.com/ucfcdl/fuelphp-phpcs/archive/v3.0.0.zip",
                     "type": "zip"
                 },
-                "source"  : {
-                    "url"       : "https://github.com/ucfcdl/fuelphp-phpcs.git",
-                    "type"      : "git",
-                    "reference" : "v3.0.0"
+                "source": {
+                    "url": "https://github.com/ucfcdl/fuelphp-phpcs.git",
+                    "type": "git",
+                    "reference": "v3.0.0"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "ucfopen/materia-theme-ucf",
+                "type": "fuel-package",
+                "version": "1.2.1",
+                "dist": {
+                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v1.2.1.zip",
+                    "type": "zip"
+                },
+                "source": {
+                    "no-api": true,
+                    "url": "https://github.com/ucfopen/Materia-Theme-UCF.git",
+                    "type": "git",
+                    "reference": "master"
                 }
             }
         }

@@ -57,8 +57,8 @@ COPY --chown=www-data:www-data ./.env /var/www/html/.env
 COPY --chown=www-data:www-data ./composer.json /var/www/html/composer.json
 COPY --chown=www-data:www-data ./composer.lock /var/www/html/composer.lock
 COPY --chown=www-data:www-data ./oil /var/www/html/oil
-RUN composer install --ignore-platform-reqs --no-dev --no-progress --no-scripts --prefer-dist --optimize-autoloader
 
+RUN composer install --no-cache --no-dev --no-progress --no-scripts --prefer-dist --optimize-autoloader
 
 # =====================================================================================================
 # Yarn stage buils js/css assets
