@@ -19,10 +19,14 @@ cd docker
 
 echo "Running git pre-commit"
 
+set -e
+
 # run linter
 execute_and_check_status "./run_tests_lint.sh"
 
 # install widgets and run tests
 execute_and_check_status "./run_tests.sh"
+
+set +e
 
 exit 0
