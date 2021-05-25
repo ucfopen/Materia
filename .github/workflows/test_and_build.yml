@@ -13,7 +13,7 @@ jobs:
           concurrent_skipping: 'same_content'
           paths_ignore: '["**/README.md"]'
 
-  php_test:
+  ci_tests:
     needs: skip_check
     if: ${{ needs.skip_check.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
@@ -24,8 +24,8 @@ jobs:
     - name: Run Tests
       run: cd docker && ./run_tests_ci.sh
 
-  build_docker_images:
-    needs: php_test
+  docker_images:
+    needs: ci_tests
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
@@ -57,3 +57,27 @@ jobs:
           docker push ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
           docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ github.sha }}
           docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ steps.tag_name.outputs.GIT_TAG }}
+
+  release_package:
+    needs: ci_tests
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # run_build_github_release_package.sh relies on the current git user info
+      - run: git config --global user.email "lst@ucf.edu"
+      - run: git config --global user.name "ucfcdl-robot"
+
+      - name: Build Packages
+        run: cd docker && ./run_build_github_release_package.sh
+
+      - name: Upload to Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: materia-pkg*
+          file_glob: true
+          tag: ${{ github.ref }}
+          overwrite: true
