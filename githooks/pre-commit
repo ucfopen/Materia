@@ -1,13 +1,13 @@
 #!/bin/sh
 
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
+cd docker
+
 echo "Running git-pre-commit script from composer.json"
 echo "In an emergency, use 'git commit --no-verify' to skip."
 
-cd docker
 set -e
-set -o xtrace
-
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
+set -o
 
 # run linter
 source run_tests_lint.sh
