@@ -34,7 +34,7 @@ services:
       - CACHE_DRIVER=memcached
       - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
       - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/${MYSQL_DATABASE}
-      - FUEL_ENV=production
+      - FUEL_ENV=development
       - FUEL_LOG_THRESHOLD=300
       - LOG_HANDLER=STDOUT
       - LTI_KEY=materia-lti-key
