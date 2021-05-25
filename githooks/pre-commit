@@ -1,23 +1,24 @@
 #!/bin/sh
 
 echo "Running git-pre-commit script from composer.json"
+echo "In an emergency, use 'git commit --no-verify' to skip."
 
-# Use composer.phar or global composer
-if [ ! -f ./composer.phar ]; then
-	COMPOSER=$(which composer)
-	if [ $? != 0 ]; then
-		echo "Commit Blocked."
-		echo "Pre-commit hook can't locate global composer or local composer.phar"
-		echo "In an emergency, use 'git commit --no-verify' to skip."
-		exit 1
-	else
-		composer git-pre-commit
-		composer_exit_status=$?
-	fi
-else
-	php composer.phar git-pre-commit
-	composer_exit_status=$?
-fi
+cd docker
+set -e
+set -o xtrace
+
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
+
+# run linter
+source run_tests_lint.sh
+
+# install widgets and run tests
+source run_tests.sh
+
+# turn off failure stop on error
+set +e
+
+composer_exit_status=$?
 
 if (($composer_exit_status > 0)); then
 	echo "Commit Blocked."

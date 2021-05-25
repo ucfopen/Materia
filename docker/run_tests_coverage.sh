@@ -13,7 +13,7 @@
 #######################################################
 set -e
 
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
 echo "remember you can limit your test groups with './run_tests_coverage.sh --group=Lti'"
 echo "If you have an issue with a broken widget, clear the widgets with:"

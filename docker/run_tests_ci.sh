@@ -11,7 +11,7 @@
 set -e
 set -o xtrace
 
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
 $DCTEST pull --ignore-pull-failures app fakes3
 
@@ -22,7 +22,7 @@ docker run --rm -v $(pwd)/../:/source alpine:latest chown -R 1000 /source
 $DCTEST run --rm --no-deps app composer install --no-progress
 
 # run linter
-$DCTEST run --rm --no-deps app composer sniff-ci
+source run_tests_lint.sh
 
 # install widgets and run tests
 source run_tests_coverage.sh

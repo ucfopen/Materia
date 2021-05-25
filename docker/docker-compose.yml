@@ -12,12 +12,6 @@ services:
       - "8008:8008" # static files (simulates a different domain sandbox & cdn)
     networks:
       - frontend
-    volumes:
-      - ../public:/var/www/html/public:ro
-      - uploaded_widgets:/var/www/html/public/widget/:ro
-      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
-      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
-      - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - app
 
@@ -57,9 +51,6 @@ services:
     networks:
       - frontend
       - backend
-    volumes:
-      - ..:/var/www/html/
-      - uploaded_widgets:/var/www/html/public/widget/
     depends_on:
       - mysql
       - memcached
@@ -67,11 +58,6 @@ services:
 
   mysql:
     image: mysql:5.7.18
-    environment:
-      - MYSQL_ROOT_PASSWORD
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-      - MYSQL_DATABASE
     ports:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
     networks:
@@ -92,8 +78,6 @@ services:
     networks:
       - frontend
       - backend
-    volumes:
-      - uploaded_media:/s3mnt/fakes3_root/fakes3_uploads/media/
 
 networks:
   frontend:
@@ -101,7 +85,3 @@ networks:
   backend:
     name: materia_backend
 
-volumes:
-  # static_files: {} # compiled js/css and uploaded widgets
-  uploaded_media: {} # uploaded media files
-  uploaded_widgets: {}

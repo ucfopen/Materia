@@ -49,7 +49,7 @@ do
 done
 
 # store the docker compose command to shorten the following commands
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
 set -o xtrace
 
