@@ -1,30 +1,28 @@
 #!/bin/sh
 
+function execute_and_check_status {
+    "$@"
+    local status=$?
+    if (( status != 0 )); then
+        echo "error with $1" >&2
+        echo ""
+		echo "Commit Blocked."
+		echo "Fix the errors above and try to commit again."
+		echo "In an emergency, use 'git commit --no-verify' to skip."
+		exit 1
+    fi
+    return $status
+}
+
 DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
 cd docker
 
-echo "Running git-pre-commit script from composer.json"
-echo "In an emergency, use 'git commit --no-verify' to skip."
-
-set -e
-set -o
+echo "Running git pre-commit"
 
 # run linter
-source run_tests_lint.sh
+execute_and_check_status "./run_tests_lint.sh"
 
 # install widgets and run tests
-source run_tests.sh
-
-# turn off failure stop on error
-set +e
-
-composer_exit_status=$?
-
-if (($composer_exit_status > 0)); then
-	echo "Commit Blocked."
-	echo "Fix the errors and try to commit again."
-	echo "In an emergency, use 'git commit --no-verify' to skip."
-	exit 1
-fi
+execute_and_check_status "./run_tests.sh"
 
 exit 0
