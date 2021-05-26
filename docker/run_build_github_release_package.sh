@@ -10,9 +10,22 @@
 # ex: no need to install node # or npm packages
 # to build js - just include the js
 #
-# EX: ./run_build_release_package.sh
+# EX: ./run_build_github_release_package.sh.sh ghcr.io/ucfopen/private-materia:app-v8.0.0
 #######################################################
 set -e
+
+
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+# exit without args
+if [ $# -lt 1 ]; then
+	die "1 required argument: docker-image-name"
+fi
+
+DOCKER_IMAGE=$1
 
 # declare files that should have been created
 declare -a FILES_THAT_SHOULD_EXIST=(
@@ -48,15 +61,7 @@ do
 	EXCLUDE="$EXCLUDE --exclude=\"./$i\""
 done
 
-# store the docker compose command to shorten the following commands
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
-
 set -o xtrace
-
-# # stop and remove docker containers
-$DCTEST down --volumes --remove-orphans
-
-$DCTEST pull --ignore-pull-failures app
 
 # get rid of any left over package files
 rm -rf clean_build_clone || true
@@ -71,36 +76,28 @@ GITCOMMIT=$(cd clean_build_clone && git rev-parse HEAD)
 GITREMOTE=$(git remote get-url origin)
 
 # remove .git dir for slightly faster copy
-rm -rf clean_build_clone/.git
+rm -rf ./clean_build_clone/.git
+rm -rf ./clean_build_clone/public
+rm -rf ./clean_build_clone/fuel/app/config/asset_hash.json
 
-# start a build container
-$DCTEST run --no-deps -d --workdir /build/clean_build_clone --name materia-build app tail -f /dev/null
 
 # copy the clean build clone into the container
-docker cp ./clean_build_clone materia-build:/build
-
-# clean up
-rm -rf clean_build_clone || true
-
-# install production node_modules
-docker exec materia-build yarn install --frozen-lockfile --non-interactive --production
+docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/public ./clean_build_clone/public/
+docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/fuel/app/config/asset_hash.json ./clean_build_clone/fuel/app/config/asset_hash.json
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
 do
-	docker exec materia-build stat /build/clean_build_clone/$i
+	stat ./clean_build_clone/$i
 done
 
 # zip, excluding some files
-docker exec materia-build  bash -c "zip -r $EXCLUDE ../materia-pkg.zip ./"
+zip -r $EXCLUDE ../materia-pkg.zip ./clean_build_clone/
 
 # calulate hashes
-MD5=$(docker exec materia-build md5sum ../materia-pkg.zip | awk '{ print $1 }')
-SHA1=$(docker exec materia-build sha1sum ../materia-pkg.zip | awk '{ print $1 }')
-SHA256=$(docker exec materia-build sha256sum ../materia-pkg.zip | awk '{ print $1 }')
-
-# copy zip file from container to host
-docker cp materia-build:/build/materia-pkg.zip ../materia-pkg.zip
+MD5=$(md5sum ../materia-pkg.zip | awk '{ print $1 }')
+SHA1=$(sha1sum ../materia-pkg.zip | awk '{ print $1 }')
+SHA256=$(sha256sum ../materia-pkg.zip | awk '{ print $1 }')
 
 # write build info file
 echo "build_date: $DATE" > ../materia-pkg-build-info.yml
@@ -112,5 +109,4 @@ echo "sha1: $SHA1" >> ../materia-pkg-build-info.yml
 echo "sha256: $SHA256" >> ../materia-pkg-build-info.yml
 echo "md5: $MD5" >> ../materia-pkg-build-info.yml
 
-# clean environment and configs
-$DCTEST down --volumes --remove-orphans
+rm -rf ./clean_build_clone
