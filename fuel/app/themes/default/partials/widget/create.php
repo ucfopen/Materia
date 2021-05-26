@@ -41,7 +41,7 @@
 
 		<section id="qset-rollback-confirmation-bar" ng-show="showRollbackConfirmBar">
 			<h3>Previewing Prior Save</h3>
-			<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>			
+			<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
 			<button ng-click="rollbackConfirmation(true)">Keep</button>
 			<button ng-click="rollbackConfirmation(false)">Cancel</button>
 		</section>

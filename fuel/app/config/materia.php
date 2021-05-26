@@ -96,7 +96,8 @@ return [
 		'db' => [
 			'driver_class' => '\Materia\Widget_Asset_Storage_Db'
 		],
-		's3' => $_ENV['ASSET_STORAGE_DRIVER'] ?? false == 's3'
+		's3' => (
+			(($_ENV['ASSET_STORAGE_DRIVER'] ?? 'file') == 's3')
 			? [
 				'driver_class' => '\Materia\Widget_Asset_Storage_S3',
 				'endpoint'     =>$_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? false, // set to url for testing endpoint
@@ -107,7 +108,7 @@ return [
 				'key'          => $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY' // aws api key
 			]
 			: null
-			,
+		),
 	]
 
 ];
