@@ -24,70 +24,70 @@ Please take note of the user accounts that are created for you in the install pr
 ### Common Dev Commands
 
 * Run the containers after ./run_first.sh has finished
-	```
-	docker-compose up
-	```
+    ```
+    docker-compose up
+    ```
 * Run the servers in background
-	```
-	docker-compose up -d
-	```
+    ```
+    docker-compose up -d
+    ```
 * Tail logs from background process
-	```
-	docker-compose logs -f app
-	```
+    ```
+    docker-compose logs -f app
+    ```
 * Run commands on the app container (like php, composer, or fuelphp oil commands)
-	```
-	./run.sh php -i
-	./run.sh php oil r admin:help
-	./run.sh composer run --list
-	```
+    ```
+    ./run.sh php -i
+    ./run.sh php oil r admin:help
+    ./run.sh composer run --list
+    ```
 * Stop containers (db data is retained)
-	```
-	docker-compose stop
-	```
+    ```
+    docker-compose stop
+    ```
 * Stop and destroy the containers (deletes database data!, first_run.sh required after)
-	```
-	docker-compose down
-	```
+    ```
+    docker-compose down
+    ```
 * Compile the javascript and sass
-	```
-	./run_build_assets.sh
-	```
+    ```
+    ./run_build_assets.sh
+    ```
 * Install composer libraries
-	```
-	./run.sh composer install
-	```
+    ```
+    ./run.sh composer install
+    ```
 * Install all Widgets in fuel/app/tmp/widget_packages/*.wigt
-	```
-	./run_widgets_install.sh '*.wigt'
-	```
+    ```
+    ./run_widgets_install.sh '*.wigt'
+    ```
 * Run Tests for development
- 	```
-	./run_tests.sh
-	```
+     ```
+    ./run_tests.sh
+    ```
 * Run Tests for as like the CI server
- 	```
-	./run_tests_ci.sh
-	```
+     ```
+    ./run_tests_ci.sh
+    ```
 * Run Tests with code coverage
- 	```
-	./run_tests_coverage.sh
-	```
+     ```
+    ./run_tests_coverage.sh
+    ```
 * Create a user based on your docker host machine's current user
- 	```
-	$ iturgeon@ucf: ./run_create_me.sh
-	User Created: iturgeon password: kogneato
-	iturgeon now in role: super_user
-	iturgeon now in role: basic_author
-	```
+     ```
+    $ iturgeon@ucf: ./run_create_me.sh
+    User Created: iturgeon password: kogneato
+    iturgeon now in role: super_user
+    iturgeon now in role: basic_author
+    ```
 * Create the [default users outlined in the config](https://github.com/ucfopen/Materia/blob/master/fuel/app/config/materia.php#L56-L78)
-	```
-	./run_create_default_users.sh
-	```
+    ```
+    ./run_create_default_users.sh
+    ```
 * Build a deployable materia package (zip w/ compiled assets, and dependencies; see [assets on our releases](https://github.com/ucfopen/Materia/releases))
-	```
-	./run_build_github_release_package.sh
-	```
+    ```
+    ./run_build_github_release_package.sh
+    ```
 * Installing widgets: Copy the widget file you want to install into **app/fuel/app/tmp/widget\_packages/** and then run **install_widget.sh** passing the name of the widget file to install. Example:
 
     ```
@@ -135,15 +135,15 @@ services:
   webserver:
     image: ghcr.io/ucfopen/materia:webserver-v8.0.0
     ports:
-	  # 443 would be terminated at the load balancer
-	  # Some customization required to terminate 443 here (see dev nginx config)
+      # 443 would be terminated at the load balancer
+      # Some customization required to terminate 443 here (see dev nginx config)
       - "80:80"
     networks:
       - frontend
     volumes:
-	  # mount css/js assets from the app image
+      # mount css/js assets from the app image
       - compiled_assets:/var/www/html/public
-	  # mount installed widget engines on the host
+      # mount installed widget engines on the host
       - ./widget/:/var/www/html/public/widget
     depends_on:
       - app
@@ -151,21 +151,21 @@ services:
   app:
     image: ghcr.io/ucfopen/materia:app-v8.0.0
     env_file:
-		# View Materia Readme for ENV vars
+        # View Materia Readme for ENV vars
         - .env
     networks:
       - frontend
       - backend
     volumes:
-	  # share css/js assets
+      # share css/js assets
       - compiled_assets:/var/www/html/public
-	  # mount installed widget engines on the host
+      # mount installed widget engines on the host
       - ./widget/:/var/www/html/public/widget/
-	  # # mount uploaded media on the host
+      # # mount uploaded media on the host
       - ./media/:/var/www/html/fuel/app/media/
     depends_on:
       - memcached
-	  # - mysql
+      # - mysql
 
   memcached:
     image: memcached:1.6.6-alpine
