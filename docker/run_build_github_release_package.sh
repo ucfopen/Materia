@@ -92,21 +92,22 @@ do
 done
 
 # zip, excluding some files
-zip -r $EXCLUDE ../materia-pkg.zip ./clean_build_clone/
+cd ./clean_build_clone
+zip -r $EXCLUDE ../../materia-pkg.zip ./
 
 # calulate hashes
-MD5=$(md5sum ../materia-pkg.zip | awk '{ print $1 }')
-SHA1=$(sha1sum ../materia-pkg.zip | awk '{ print $1 }')
-SHA256=$(sha256sum ../materia-pkg.zip | awk '{ print $1 }')
+MD5=$(md5sum ../../materia-pkg.zip | awk '{ print $1 }')
+SHA1=$(sha1sum ../../materia-pkg.zip | awk '{ print $1 }')
+SHA256=$(sha256sum ../../materia-pkg.zip | awk '{ print $1 }')
 
 # write build info file
-echo "build_date: $DATE" > ../materia-pkg-build-info.yml
-echo "git: $GITREMOTE" >> ../materia-pkg-build-info.yml
-echo "git_version: $GITCOMMIT" >> ../materia-pkg-build-info.yml
-echo "git_user: $GITUSER" >> ../materia-pkg-build-info.yml
-echo "git_user_email: $GITEMAIL" >> ../materia-pkg-build-info.yml
-echo "sha1: $SHA1" >> ../materia-pkg-build-info.yml
-echo "sha256: $SHA256" >> ../materia-pkg-build-info.yml
-echo "md5: $MD5" >> ../materia-pkg-build-info.yml
+echo "build_date: $DATE" > ../../materia-pkg-build-info.yml
+echo "git: $GITREMOTE" >> ../../materia-pkg-build-info.yml
+echo "git_version: $GITCOMMIT" >> ../../materia-pkg-build-info.yml
+echo "git_user: $GITUSER" >> ../../materia-pkg-build-info.yml
+echo "git_user_email: $GITEMAIL" >> ../../materia-pkg-build-info.yml
+echo "sha1: $SHA1" >> ../../materia-pkg-build-info.yml
+echo "sha256: $SHA256" >> ../../materia-pkg-build-info.yml
+echo "md5: $MD5" >> ../../materia-pkg-build-info.yml
 
 rm -rf ./clean_build_clone
