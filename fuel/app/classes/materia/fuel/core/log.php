@@ -39,7 +39,7 @@ class Log extends Fuel\Core\Log
 		}
 
 		// default handler
-		if ( ! $handler instanceof \Monolog\Handler\AbstractProcessingHandler)
+		if (! isset($handler) || ! $handler instanceof \Monolog\Handler\AbstractProcessingHandler)
 		{
 			$handler = new \Monolog\Handler\RotatingFileHandler($filepath, 0, \Monolog\Logger::DEBUG, true, $perms);
 		}

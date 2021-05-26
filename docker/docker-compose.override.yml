@@ -1,0 +1,37 @@
+version: '3.5'
+# loaded by default unless you use docker-compose -f flag
+# this is needed because we want test to mount throw-away file storage that doesn't affect your dev environment
+# docker-compose won't let an override file define the same mount point.
+# since this file is loaded by default except when using -f to load a different override, that avoids
+# the problem of multiple mounts at the same point
+
+services:
+  webserver:
+    volumes:
+      - ../public:/var/www/html/public:ro
+      - uploaded_widgets:/var/www/html/public/widget/:ro
+      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
+      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
+      - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+
+  app:
+    volumes:
+      - ..:/var/www/html/
+      - uploaded_widgets:/var/www/html/public/widget/
+      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
+
+  mysql:
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+
+  fakes3:
+    volumes:
+      - uploaded_media:/s3mnt/fakes3_root/fakes3_uploads/media/
+
+volumes:
+  # static_files: {} # compiled js/css and uploaded widgets
+  uploaded_media: {} # uploaded media files
+  uploaded_widgets: {}

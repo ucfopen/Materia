@@ -14,21 +14,28 @@ We added Heroku support as an easy way to give Materia a **free test drive** (or
 
 # Installation
 
-## Developing with Docker
+# Docker
 
-Start your Development server with instructions found in the [Materia Docker repository](docker/README.md)
+We publish production ready docker and nginx containers in the [Materia Docker repository](https://github.com/orgs/ucfopen/packages/container/package/materia).  For more info on using Docker in Production, read the [Materia Docker Readme](docker/README.md)
 
 # Development
 
+## Local Dev with Docker
+
+Get started with a local dev server:
+
+```
+git clone https://github.com/ucfopen/Materia.git
+
+cd Materia/docker
+
+./run_first.sh
+```
+More info about Materia Docker can be found in the [Materia Docker Readme](docker/README.md)
+
 ## Running Tests
 
-Tests run in the docker environment to maintain consistency.
-
-### Full test suite
-
-Installs the base widgets, sets up and cleans a test database, runs all the tests and generates coverage reports
-
-`./run_tests.sh` will prepare the test environment and run all the unit tests and integration tests
+Tests run in the docker environment to maintain consistency. View the `run_tests_*.sh` scripts in the docker directory for options.
 
 ### Running A single test group
 
@@ -36,16 +43,13 @@ Inspect the actual test command in `/.run_tests.sh` for guidance, but as of the 
 
 The following command will run just the **Oauth** tests rather quickly:
 
-`docker-compose -f docker-compose.yml -f docker-compose.admin.yml run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env SKIP_BOOTSTRAP_TASKS=true php oil test --group=Oauth`
-
-### Tests for Jenkins
-
-Jenkins has a few special requirements, so it extends run_tests.sh with it's own setup code.
+```
+./run_tests.sh --group=Oauth
+```
 
 ## Git Hooks
 
 There is a pre-commit hook available to ensure your code follows our linting standards. Check out the comments contained inside the hook files (in the githooks directory) to install it, you'll need a few dependencies installed to get linting working.
-
 
 ## Configuring
 
@@ -95,7 +99,7 @@ env[MY_ENV_VAR_1] = 'value1'
 env[MY_ENV_VAR_2] = 'value2'
 ```
 
-### Manual Overide
+### Manual Override
 
 All of the environment variables are converted into regular FuelPHP configuration options in the files in fuel/app/config. If you prefer, you can edit those files directly, skipping the environment settings all together.  The config path to each setting is in our configuration key below.
 
@@ -252,11 +256,15 @@ SESSION_EXPIRATION=21600
 #AUTH_DRIVERS=Materiaauth
 
 #auth.salt:
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/auth.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/auth.php
+# Create one: `docker-compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #AUTH_SALT=<MUST_SET>
 
 #simpleauth.login_hash_salt
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one for new installs: `docker-compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #AUTH_SIMPLEAUTH_SALT=<MUST_SET>
 
 # DEFAULT USERS ===================
@@ -279,19 +287,26 @@ SESSION_EXPIRATION=21600
 # CRYPTO ===================
 
 #crypto.key
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one: `docker-compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"`
 #CRYPTO_KEY=<MUST_SET>
 
 #crypto.iv
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one: see crypto.key instructions
 #CRYPTO_IV=<MUST_SET>
 
 #crypto.hmac
-# A string used to salt older Materia Servers (copy from your old fuel/app/config/crypt.php file)
+# A string used to salt older Materia Servers
+# Upgrades from Materia 7.0.1 or earlier: copy from existing fuel/app/config/crypt.php
+# Create one: see crypto.key instructions
 #CRYPTO_HMAC=<MUST_SET>
 
 #crypto.sodium.cipherkey
-# A special cipher used to encrypt newer fuelphp data using lib sodium. Format is important (@TODO: docs for creating one)
+# A special cipher used to encrypt newer fuelphp data using lib sodium.
+# Create one: see crypto.key instructions
 #CIPHER_KEY=<MUST_SET>
 
 # LTI ===================

@@ -1,6 +1,6 @@
 FROM ruby:2.5-alpine
 
-RUN gem install fakes3 -v 2.0.0
+RUN gem install fakes3 -v 2.0.0 --no-document
 
 # create directory for s3 to hold uploads
 RUN mkdir -p /s3mnt

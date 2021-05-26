@@ -10,6 +10,7 @@ build
 .idea
 nbproject/
 *.pem
+.phpunit.result.cache
 
 # custom config
 .env.local
@@ -114,3 +115,4 @@ licenses/LICENSES_NPM
 
 materia-pkg.zip
 materia-pkg-build-info.yml
+yarn-error.log

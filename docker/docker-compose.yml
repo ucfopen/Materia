@@ -1,92 +1,87 @@
-version: '3.2'
+version: '3.5'
 
 services:
-  nginx:
-    container_name: materia-nginx
-    image: nginx:stable-alpine
+  webserver:
+    image: ucfopen/materia:webserver-dev
+    build:
+      context: ../
+      dockerfile: materia-webserver.Dockerfile
     ports:
       - "80:80" # main materia
       - "443:443" # main materia
-      - "8008:8008" # static files
+      - "8008:8008" # static files (simulates a different domain sandbox & cdn)
     networks:
       - frontend
-    volumes:
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../public:/var/www/html/public:ro
-      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem
-      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem
     depends_on:
-      - phpfpm
+      - app
 
-  phpfpm:
-    container_name: materia-phpfpm
-    image: ucfopen/materia-phpfpm:${TAG} # TAG default value is in .env file
+  app:
+    image: ucfopen/materia:app-dev
     build:
-      context: ./dockerfiles
-      dockerfile: materia-phpfpm-debian
+      context: ../
+      dockerfile: materia-app.Dockerfile
+    environment:
+      # View Materia README for env settings
+      - ASSET_STORAGE_DRIVER=s3
+      - ASSET_STORAGE_S3_BUCKET=fake_bucket
+      - ASSET_STORAGE_S3_ENDPOINT=http://fakes3:10001
+      - ASSET_STORAGE_S3_KEY=KEY
+      - ASSET_STORAGE_S3_SECRET=SECRET
+      - AUTH_DRIVERS=Materiaauth
+      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
+      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - BOOL_LTI_LOG_FOR_DEBUGGING=true
+      - CACHE_DRIVER=memcached
+      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/${MYSQL_DATABASE}
+      - FUEL_ENV=development
+      - FUEL_LOG_THRESHOLD=100
+      - LOG_HANDLER=STDOUT
+      - LTI_KEY=materia-lti-key
+      - LTI_SECRET=materia-lti-secret
+      - MEMCACHED_HOST=memcached
+      - SESSION_DRIVER=memcached
+      - SYSTEM_EMAIL=noReply@materia.edu
+      - THEME_PACKAGE=materia-theme-ucf
+      - URLS_ENGINES=https://localhost:8008/widget/
+      - URLS_STATIC=https://localhost:8008/
+      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
     networks:
       - frontend
       - backend
-    volumes:
-      # share the source files with host machine
-      - ../:/var/www/html:rw
-      # replace php.ini with our own
-      - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
-      # add docker-specific env.local
-      - ./config/materia-docker.env.local:/var/www/html/.env.local:ro
-      # add custom php extensions
-      - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
-      # keep node_modules inside docker - perfomance is pretty terrible sharing a ton of files
-      - node_modules:/var/www/html/node_modules
     depends_on:
       - mysql
       - memcached
       - fakes3
 
   mysql:
-    container_name: materia-mysql
     image: mysql:5.7.18
-    environment:
-      - MYSQL_ROOT_PASSWORD
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-      - MYSQL_DATABASE
     ports:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
     networks:
       - backend
-    volumes:
-      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
 
   memcached:
-    container_name: materia-memcached
     image: memcached:1.6.6-alpine
     networks:
       - backend
 
   fakes3:
-    container_name: materia-fakes3
-    image: ucfopen/materia-fake-s3:${TAG} # TAG default value is in .env file
+    image: ucfopen/materia:fake-s3-dev
     build:
-      context: .
-      dockerfile: ./dockerfiles/materia-fakes3
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
     ports:
       - "10001:10001"
     networks:
       - frontend
       - backend
-    volumes:
-      - uploaded_media:/s3mnt/fakes3_root/fakes3_uploads/media/
 
 networks:
   frontend:
-    # ommited till we can eaily use composer v3.5 on travis
-    # name: materia_frontend
+    name: materia_frontend
   backend:
-    # ommited till we can eaily use composer v3.5 on travis
-    # name: materia_backend
+    name: materia_backend
 
-volumes:
-  # static_files: {} # compiled js/css and uploaded widgets
-  uploaded_media: {} # uploaded media files
-  node_modules: {} # node modules for npm
