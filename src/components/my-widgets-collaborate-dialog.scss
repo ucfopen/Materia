@@ -129,6 +129,12 @@
 			padding: 0 30px;
 			text-align: right;
 			overflow: auto;
+
+			&.no-content {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
 		}
 
 		.btn-box {
@@ -174,13 +180,6 @@
 
 			&:last-child::after {
 				display: none;
-			}
-
-			.expire-date-container {
-				.react-datepicker__tab-loop {
-					position: fixed;
-					z-index: 1;
-				}
 			}
 
 			.demote-dialog {
@@ -386,4 +385,8 @@
 			}
 		}
 	}
+}
+
+.react-datepicker__tab-loop .react-datepicker-popper {
+	z-index: 9000;
 }

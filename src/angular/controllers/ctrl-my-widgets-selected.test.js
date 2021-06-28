@@ -11,8 +11,8 @@ describe('MyWidgetSelectedController', () => {
 		let app = angular.module('materia')
 		app.factory('Please', () => mockPlease)
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('../services/srv-admin')
 		require('../services/srv-widget')
 		require('../services/srv-selectedwidget')
@@ -60,14 +60,16 @@ describe('MyWidgetSelectedController', () => {
 	it('hideModal uses a flexible scope', () => {
 		expect($scope.hideModal).toBeDefined()
 
-		this.$parent = {
-			hideModal: jest.fn(),
+		const ref = {
+			$parent: {
+				hideModal: jest.fn()
+			}
 		}
 
 		// calling hideModal should call the hideModal we provide in this scope
 		// this will not pass if $scope.hideModal is an arrow function
-		$scope.hideModal.bind(this)()
-		expect(this.$parent.hideModal).toHaveBeenCalled()
+		$scope.hideModal.bind(ref)()
+		expect(ref.$parent.hideModal).toHaveBeenCalled()
 	})
 
 	it('does nothing if a widget is not editable', () => {

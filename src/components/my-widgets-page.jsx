@@ -1,30 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useQuery } from 'react-query'
+import { apiGetWidgetInstances, apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
+import rawPermsToObj from '../util/raw-perms-to-object'
 import Header from './header'
-import './my-widgets-page.scss'
-import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
-import { useQuery } from 'react-query'
-import { access } from './materia-constants'
+import LoadingIcon from './loading-icon'
 import useCopyWidget from './hooks/useCopyWidget'
 import useDeleteWidget from './hooks/useDeleteWidget'
-import { apiGetWidgets, apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
+import useKonamiCode from './hooks/useKonamiCode'
+import './css/beard-mode.scss'
+import './my-widgets-page.scss'
 
-const rawPermsToObj = ([permCode = access.VISIBLE, expireTime = null], isEditable) => {
-	permCode = parseInt(permCode, 10)
-	return {
-		accessLevel: permCode,
-		expireTime,
-		editable: permCode > access.VISIBLE && isEditable === true,
-		shareable: permCode > access.VISIBLE, // old, but difficult to replace with can.share :/
-		can: {
-			view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
-			copy: [access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
-			edit: [access.FULL, access.SU].includes(permCode),
-			delete: [access.FULL, access.SU].includes(permCode),
-			share: [access.SHARE, access.FULL, access.SU].includes(permCode)
-		}
-	}
+function getRandomInt(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const randomBeard = () => {
+	const beard_vals = ['black_chops', 'dusty_full', 'grey_gandalf', 'red_soul']
+	return beard_vals[getRandomInt(0, 3)]
 }
 
 const initState = () => {
@@ -33,15 +29,23 @@ const initState = () => {
 		otherUserPerms: null,
 		myPerms: null,
 		noAccess: false,
-		firstLoad: true
+		loading: true,
+		currentBeard: ''
 	})
 }
 
+const localBeard = window.localStorage.beardMode
+
 const MyWidgetsPage = () => {
 	const [state, setState] = useState(initState())
-	const { data: widgets, isLoading: isFetching} = useQuery({
+	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
+	const validCode = useKonamiCode()
+	const copyWidget = useCopyWidget()
+	const deleteWidget = useDeleteWidget()
+	readFromStorage()
+	const { data: widgets, isLoading } = useQuery({
 		queryKey: 'widgets',
-		queryFn: apiGetWidgets,
+		queryFn: apiGetWidgetInstances,
 		staleTime: Infinity
 	})
 	const { data: user} = useQuery({
@@ -57,9 +61,12 @@ const MyWidgetsPage = () => {
 		staleTime: Infinity
 	})
 
-	const copyWidget = useCopyWidget()
-	const deleteWidget = useDeleteWidget()
-	readFromStorage()
+	useEffect(() => {
+		if (validCode) {
+			window.localStorage.beardMode = !beardMode
+			setBeardMode(!beardMode)
+		}
+	}, [validCode])
 
 	useEffect(() => {
 		if (state.selectedInst && permUsers) {
@@ -77,10 +84,10 @@ const MyWidgetsPage = () => {
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
 	useEffect(() => {
-		if (!isFetching) {
+		if (!isLoading) {
 			setWidgetFromUrl(widgets)
 		}
-	}, [isFetching])
+	}, [isLoading])
 
 	useEffect(() => {
 		// Clears the current widget if it no longer exists
@@ -91,9 +98,7 @@ const MyWidgetsPage = () => {
 
 	// Sets the current widget to what's in the URL when the widgets load
 	const setWidgetFromUrl = (widgets) => {
-		if (!state.firstLoad) {
-			return
-		}
+		if (!state.loading) return // Blocks the function from running after first use
 
 		const url = window.location.href
 		const url_id = url.split('#')[1]
@@ -101,27 +106,25 @@ const MyWidgetsPage = () => {
 		if (url_id && (!state.selectedInst || state.selectedInst.id !== url_id)) {
 			for (let i = 0; i < widgets.length; i++) {
 				if (widgets[i].id === url_id) {
-					onSelect(widgets[i])
+					onSelect(widgets[i], i)
 					return
 				}
 			}
 
 			// User doesn't have access to the widget
-			setState({...state, firstLoad: false, noAccess: true})
+			setState({...state, loading: false, noAccess: true})
 		}
-		else setState({...state, firstLoad: false})
+		else setState({...state, loading: false})
 	}
 
-	const onSelect = (inst) => {
+	const onSelect = (inst, index) => {
 		if (inst.is_fake) return
 
-		setState({...state, selectedInst: inst, noAccess: false, firstLoad: false})
+		setState({...state, selectedInst: inst, noAccess: false, loading: false, currentBeard: beards[index]})
 		setUrl(inst)
 	}
 
 	const onCopy = (instId, newTitle, newPerm, inst) => {
-		// Clears the overflow hidden from the modal
-		document.body.style.overflow = 'auto'
 		setState({...state, selectedInst: null})
 		
 		copyWidget.mutate({
@@ -146,30 +149,40 @@ const MyWidgetsPage = () => {
 		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`);
 	}
 
+	const beards = useMemo(
+		() => {
+			const result = []
+			widgets?.forEach(() => {
+				result.push(randomBeard())
+			})
+			return result
+		},
+		[widgets]
+	)
+
 	return (
 		<>
 			<Header />
 			<div className="my_widgets">
 
-				{!isFetching && (!widgets || widgets?.length === 0)
+				{!isLoading && (!widgets || widgets?.length === 0)
 					? <div className="qtip top nowidgets">
 							Click here to start making a new widget!
 						</div>
 					: null
-
 				}
 
 				<div className="container">
 					<div>
-						{(isFetching || state.firstLoad)
+						{(isLoading || state.loading)
 							? <section className="directions no-widgets">
-								<h1>Loading.</h1>
-								<p>Just a sec...</p>
+								<h1 className='loading-text'>Loading</h1>
+								<LoadingIcon size="lrg"/>
 							</section>
 							: null
 						}
 
-						{!isFetching && state.noAccess
+						{!isLoading && state.noAccess
 							? <section className="directions error">
 								<div className="error error-nowidget">
 									<p className="errorWindowPara">
@@ -180,7 +193,7 @@ const MyWidgetsPage = () => {
 							: null
 						}
 
-						{!isFetching && widgets?.length < 1 && !state.noAccess
+						{!isLoading && widgets?.length < 1 && !state.noAccess
 							? <section className="directions no-widgets">
 									<h1>You have no widgets!</h1>
 									<p>Make a new widget in the widget catalog.</p>
@@ -188,15 +201,15 @@ const MyWidgetsPage = () => {
 							: null
 						}
 
-						{(!isFetching || widgets?.length > 0) && !state.selectedInst && !state.noAccess && !state.firstLoad
-							? <section className="directions unchosen">
+						{(!isLoading || widgets?.length > 0) && !state.selectedInst && !state.noAccess && !state.loading
+							? <section className={`directions unchosen ${beardMode ? 'bearded' : ''}`}>
 									<h1>Your Widgets</h1>
 									<p>Choose a widget from the list on the left.</p>
 								</section>
 							: null
 						}
 
-						{(!isFetching || widgets?.length > 0) && state.selectedInst && !state.noAccess
+						{(!isLoading || widgets?.length > 0) && state.selectedInst && !state.noAccess
 							? <MyWidgetSelectedInstance
 								inst={state.selectedInst}
 								onDelete={onDelete}
@@ -205,17 +218,21 @@ const MyWidgetsPage = () => {
 								myPerms={state.myPerms}
 								otherUserPerms={state.otherUserPerms}
 								setOtherUserPerms={(p) => setState({...state, otherUserPerms: p})}
+								beardMode={beardMode}
+								beard={state.currentBeard}
 							/>
 							: null
 						}
 
 					</div>
 					<MyWidgetsSideBar
-						isLoading={isFetching}
+						key="widget-side-bar"
+						isLoading={isLoading}
 						instances={widgets}
 						selectedId={state.selectedInst ? state.selectedInst.id : null}
 						onClick={onSelect}
-						Card={MyWidgetsInstanceCard}
+						beardMode={beardMode}
+						beards={beards}
 					/>
 				</div>
 			</div>

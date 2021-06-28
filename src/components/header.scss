@@ -171,6 +171,14 @@ header {
 		&:hover > span {
 			display: inline-block;
 			height: 27px;
+
+			&.admin {
+				padding-right: 165px;
+			}
+
+			&.support {
+				padding-right: 75px;
+			}
 		}
 
 		&:hover > ul {
@@ -303,6 +311,16 @@ header {
 							display: inline-block;
 							padding: 0 10px 5px;
 							height: auto;
+						}
+
+						&:hover > span {
+							&.admin {
+								padding-right: 0;
+							}
+
+							&.support {
+								padding-right: 0;
+							}
 						}
 
 						ul {

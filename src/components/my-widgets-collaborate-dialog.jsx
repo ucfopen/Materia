@@ -1,27 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react'
-import Modal from './modal'
-import useClickOutside from '../util/use-click-outside'
-import useDebounce from './hooks/useDebounce'
-import DatePicker from "react-datepicker"
-import setUserInstancePerms from './hooks/useSetUserInstancePerms'
-import { access } from './materia-constants'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { apiGetUsers, apiSearchUsers } from '../util/api'
+import setUserInstancePerms from './hooks/useSetUserInstancePerms'
+import Modal from './modal'
+import useDebounce from './hooks/useDebounce'
+import LoadingIcon from './loading-icon'
+import NoContentIcon from './no-content-icon'
+import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
 
-const accessLevels = {
-	[access.VISIBLE]: { value: access.VISIBLE, text: 'View Scores' },
-	[access.FULL]: { value: access.FULL, text: 'Full' }
-}
-
-const defaultState = () => {
-	return({
-		remove: false,
-		showDemoteDialog: false
-	})
-}
-
-const initState = () => {
+const initDialogState = () => {
 	return ({
 		searchText: '',
 		shareNotAllowed: false,
@@ -29,132 +17,14 @@ const initState = () => {
 	})
 }
 
-const dateToStr = (date) => {
-	if(!date) return ""
-	return date.getFullYear() + '-' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '-' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate()))
-}
-
-// convert time in ms to a displayable format for the component
-const timestampToDisplayDate = (timestamp) => {
-	if(!timestamp) return (new Date())
-	return new Date(timestamp*1000);
-}
-
-const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
-	const ref = useRef();
-	const [state, setState] = useState({...defaultState(), ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
-
-	// updates parent everytime local state changes
-	useEffect(() => {
-		onChange(user.id, {
-			accessLevel: state.accessLevel,
-			expireTime: state.expireTime,
-			editable: state.editable,
-			shareable: state.shareable,
-			can: state.can,
-			remove: state.remove
-		})
-	}, [state])
-
-	useClickOutside(ref, () => {
-		setState({...state, showExpire: false})
-	})
-
-	const checkForWarning = () => {
-		if(isCurrentUser) { 
-			setState({...state, showDemoteDialog: true})
-		}
-		else removeAccess()
-	}
-
-	const removeAccess = () => {
-			setState({...state, remove: true, showDemoteDialog: false})
-	}
-
-	const toggleShowExpire = (e) => {
-		if (!isCurrentUser)
-			setState({...state, showExpire: !state.showExpire})
-	}
-
-	const clearExpire = () => {
-		setState({...state, showExpire: false, expireDate: timestampToDisplayDate(), expireTime: null})
-	}
-
-	const changeLevel = e => {
-		setState({...state, accessLevel: e.target.value})
-	}
-
-	const onExpireChange = date => {
-		const timestamp = date.getTime()/1000
-		setState({...state, expireDate: date, expireTime: timestamp})
-	}
-
-	return (
-		<div className={`user-perm ${state.remove ? "deleted" : ""}`}>
-			<button tabIndex="0"
-				onClick={checkForWarning}
-				className="remove"
-				disabled={readOnly && !isCurrentUser}>
-				X
-			</button>
-
-			<div className="about">
-				<img className="avatar" src={user.avatar} />
-
-				<span className={`name ${user.is_student ? 'user-match-student' : ''}`}>
-					{`${user.first} ${user.last}`}
-				</span>
-			</div>
-			{ state.showDemoteDialog
-				? <div className="demote-dialog">
-						<div className="arrow"></div>
-						<div className="warning">
-							Are you sure you want to limit <strong>your</strong> access?
-						</div>
-						<a className="no-button" onClick={() => setState({...state, showDemoteDialog: false})}>No</a>
-						<a className="button action_button yes-button" onClick={removeAccess}>Yes</a>
-					</div>
-				: null
-			}
-			<div className="options">
-				<select
-					disabled={readOnly}
-					tabIndex="0"
-					className="perm"
-					value={state.accessLevel}
-					onChange={changeLevel}
-				>
-					{Object.values(accessLevels).map(level =>  <option key={level.value} value={level.value}>{level.text}</option> )}
-				</select>
-				<div className="expires">
-					<span className="expire-label">Expires: </span>
-					{state.showExpire
-						? <span ref={ref} className="expire-date-container">
-							<DatePicker
-								selected={state.expireDate}
-								onChange={onExpireChange}
-							placeholderText="Date"/>
-							<span className="remove" onClick={clearExpire}>Set to Never</span>
-							<span className="date-finish" onClick={(e) => {toggleShowExpire(e)}}>Done</span>
-							</span>
-						: 
-							state.expireTime !== null
-							? <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{dateToStr(state.expireDate)}</button>
-							: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>Never</button>
-					}
-				</div>
-			</div>
-		</div>
-	)
-}
-
 const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
-	const [state, setState] = useState(initState())
+	const [state, setState] = useState(initDialogState())
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
 	const setUserPerms = setUserInstancePerms()
 	const mounted = useRef(false)
-	const { data: collabUsers, remove: clearUsers} = useQuery({
+	const popperRef = useRef(null)
+	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id],
 		enabled: !!otherUserPerms,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
@@ -231,6 +101,14 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		setState({...state, searchText: '', updatedOtherUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 	}
 
+	const containsUser = useMemo(() => {
+		for (const [id, val] of Array.from(state.updatedOtherUserPerms)) {
+			if(val.remove === false) return true
+		}
+
+		return false
+	},[inst, Array.from(state.updatedOtherUserPerms)])
+
 	const onSave = () => {
 		let isCurrUser = false
 		if (state.updatedOtherUserPerms.get(currentUser.id)?.remove) {
@@ -282,7 +160,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	return (
 		<Modal onClose={customClose} ignoreClose={state.shareNotAllowed}>
-			<div className="collaborate-modal">
+			<div className="collaborate-modal" ref={popperRef}>
 				<span className="title">Collaborate</span>
 				<div>
 					<div id="access" className="collab-container">
@@ -319,21 +197,29 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 									</div>
 								: null
 							}	
-						<div className="access-list">
+						<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
 							{
-								Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
-									if(userPerms.remove === true) return
-									const user = collabUsers[userId]
-									if(!user) return <div key={userId}></div>
-									return <CollaborateUserRow
-										key={user.id}
-										user={user}
-										perms={userPerms}
-										isCurrentUser={currentUser.id === user.id}
-										onChange={(userId, perms) => updatePerms(userId, perms)}
-										readOnly={myPerms?.shareable === false}
-									/>
-								})
+								!isFetching
+								? <>
+										{
+											containsUser
+											? Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
+												if(userPerms.remove === true) return
+												const user = collabUsers[userId]
+												if(!user) return <div key={userId}></div>
+												return <CollaborateUserRow
+													key={user.id}
+													user={user}
+													perms={userPerms}
+													isCurrentUser={currentUser.id === user.id}
+													onChange={(userId, perms) => updatePerms(userId, perms)}
+													readOnly={myPerms?.shareable === false}
+												/>
+											})
+											: <NoContentIcon />
+										}
+									</>
+								: <LoadingIcon />
 							}
 						</div>
 						<p className="disclaimer">

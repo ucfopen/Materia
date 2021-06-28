@@ -4,7 +4,7 @@ describe('Materia.Storage.Table', () => {
 	let mockSendStorage
 
 	beforeEach(() => {
-		require('../common/materia-namespace')
+		require('../util/materia-namespace')
 		require('./materia.storage.manager')
 		require('./materia.storage.table')
 		Table = Materia.Storage.Table()

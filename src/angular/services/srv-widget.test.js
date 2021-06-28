@@ -2,6 +2,7 @@ describe('WidgetSrv', () => {
 	var _service
 	var $scope
 	var sendMock
+	var getCurrentUserMock
 	var _SelectedWidgetSrv
 	var _dateTimeServ
 	var mockWindow
@@ -44,8 +45,8 @@ describe('WidgetSrv', () => {
 		})
 		app.factory('$window', () => mockWindow)
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('./srv-widget')
 
 		inject(function (_$rootScope_, WidgetSrv, _$q_) {

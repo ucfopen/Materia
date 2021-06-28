@@ -51,7 +51,7 @@ describe('creatorcore', () => {
 			$q = _$q_
 		})
 		global.API_LINK = 'my_api_url'
-		require('../common/materia-namespace')
+		require('../util/materia-namespace')
 		require('./materia.creatorcore')
 		creatorCore = Namespace('Materia.CreatorCore')
 		global.fetch = jest.fn()

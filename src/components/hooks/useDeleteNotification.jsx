@@ -1,19 +1,14 @@
 import { useMutation, useQueryClient } from 'react-query'
-import fetchOptions from '../../util/fetch-options'
-
-async function deleteNotificationFetch(notifId) {
-	await fetch('/api/json/notification_delete/', fetchOptions({body: "data=" + encodeURIComponent(`[${notifId}]`)}))
-	.then((resp) => resp.json())
-}
+import { apiDeleteNotification } from '../../util/api'
 
 export default function useDeleteNotification() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		deleteNotificationFetch,
+		apiDeleteNotification,
 		{
 			// Handles the optomistic update for deleting a Notification
-			onMutate: async delID => {
+			onMutate: async (delID) => {
         await queryClient.cancelQueries('notifications')
 
 				const previousValue = queryClient.getQueryData('notifications')

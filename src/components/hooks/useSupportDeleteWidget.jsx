@@ -1,20 +1,11 @@
 import { useMutation, useQueryClient } from 'react-query'
-import fetchOptions from '../../util/fetch-options'
-
-async function deleteWidgetFetch({instId}) {
-	await fetch('/api/json/widget_instance_delete/', fetchOptions({body:`data=%5B%22${instId}%22%5D`}))
-	.then((resp) => {
-		console.log(resp)
-		if (resp.status === 502) return null
-		return resp.json()
-	})
-}
+import { apiDeleteWidget } from '../../util/api'
 
 export default function useSupportDeleteWidget() {
 	const queryClient = useQueryClient()
 
 	return useMutation(
-		deleteWidgetFetch,
+		apiDeleteWidget,
 		{
 			onSuccess: (data, variables) => {
 				if (data !== null) {

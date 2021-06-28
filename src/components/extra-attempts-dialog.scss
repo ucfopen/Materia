@@ -133,6 +133,12 @@
 			overflow: scroll;
 			height: 220px;
 
+			&.no-content {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
 			.disabled {
 				display: none !important;
 			}

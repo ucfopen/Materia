@@ -30,7 +30,7 @@ describe('MediaImportCtrl', function () {
 		setRequestHeader: jest.fn(),
 	}
 
-	XMLHttpRequest = jest.fn().mockImplementation(() => XHR)
+	window.XMLHttpRequest = jest.fn().mockImplementation(() => XHR)
 
 	var useAssets
 	var defaultAssets = [
@@ -65,8 +65,8 @@ describe('MediaImportCtrl', function () {
 		}
 		app.factory('$window', () => $window)
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('./ctrl-media-import')
 
 		global.MEDIA_UPLOAD_URL = 'https://mediauploadurl.com'

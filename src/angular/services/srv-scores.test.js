@@ -15,7 +15,7 @@ describe('ScoreSrv', () => {
 	}
 
 	beforeEach(() => {
-		require('../common/materia-namespace')
+		require('../../util/materia-namespace')
 		require('./srv-scores')
 
 		inject(function (ScoreSrv, _$q_, _$rootScope_) {

@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
-import Modal from './modal'
-import PeriodSelect from './period-select'
 import { useQuery } from 'react-query'
 import { apiGetUsers } from '../util/api'
 import useUpdateWidget from './hooks/useUpdateWidget'
-import "./my-widgets-settings-dialog.scss"
+import Modal from './modal'
+import PeriodSelect from './period-select'
 import AttemptsSlider from './attempts-slider'
+import "./my-widgets-settings-dialog.scss"
 
 const initState = () => {
 	return({
 		sliderVal: "100",
 		errorLabel: "",
 		lastActive: 8,
-		sliderDisabled: false,
 		showWarning: false,
 		availability: [{}, {}],
 		formData: {
@@ -104,6 +103,7 @@ const attemptsToIndex = (attempts) => {
 const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms }) => {
 	const [state, setState] = useState(initState())
 	const mounted = useRef(false)
+	const mutateWidget = useUpdateWidget()
 	const { data: fetchedUsers } = useQuery({
 		queryKey: ['user-search', inst.id],
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
@@ -111,7 +111,6 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
 		staleTime: Infinity
 	})
-	const mutateWidget = useUpdateWidget()
 
 	// Used for initialization
 	useEffect(() => {
@@ -189,7 +188,6 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 					_availability[1].period
 				],
 				access: access,
-
 			},
 			errors: {
 				date: [false, false],
@@ -197,7 +195,12 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 			}
 		}
 
-		setState({...state, sliderVal: attemptsToValue(parseInt(inst.attempts)), lastActive: attemptsToIndex(parseInt(inst.attempts)), availability: _availability, formData: _formData})
+		setState({...state,
+			sliderVal: attemptsToValue(parseInt(inst.attempts)),
+			lastActive: attemptsToIndex(parseInt(inst.attempts)),
+			availability: _availability,
+			formData: _formData
+		})
 		
 		return () => (mounted.current = false)
 	}, [])
@@ -208,12 +211,8 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 			setState({...state,
 				sliderVal: "100",
 				lastActive: 8,
-				sliderDisabled: true,
 				formData: {...state.formData, data: {...state.formData.data, attempts: -1}}
 			})
-		}
-		else if (state.sliderDisabled) {
-			setState({...state, sliderDisabled: false})
 		}
 	}, [inst.guest_access, JSON.stringify(state.formData)])
 

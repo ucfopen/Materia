@@ -3,6 +3,7 @@ describe('AdminUserController', function () {
 	var _UserServ
 	var sendMock
 	var postMock
+	var getCurrentUserMock
 	var getMock
 	var $controller
 	var $window
@@ -36,8 +37,8 @@ describe('AdminUserController', function () {
 		}
 		app.factory('$window', () => $window)
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('../services/srv-admin')
 		require('./ctrl-admin-user')
 

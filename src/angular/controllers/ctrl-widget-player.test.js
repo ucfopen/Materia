@@ -3,6 +3,7 @@ describe('WidgetPlayerCtrl', () => {
 	let _UserServ
 	let _scope
 	let sendMock
+	let getCurrentUserMock
 	let $q
 	let $controller
 	let $window
@@ -15,12 +16,12 @@ describe('WidgetPlayerCtrl', () => {
 
 	let buildPostMessage = (type, data) => {
 		let e = new Event('message')
-		;(e.origin = 'https://crossdomain.com'),
-			(e.currentTarget = 'whaaaat'),
-			(e.data = JSON.stringify({
-				type: type,
-				data: data,
-			}))
+			; (e.origin = 'https://crossdomain.com'),
+				// (e.currentTarget = 'whaaaat'), cannot set currentTarget
+				(e.data = JSON.stringify({
+					type: type,
+					data: data,
+				}))
 		return e
 	}
 
@@ -124,8 +125,8 @@ describe('WidgetPlayerCtrl', () => {
 		mockPlease = { $apply: jest.fn() }
 		let app = angular.module('materia')
 		app.factory('Please', () => mockPlease)
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 
 		_UserServ = { getAvatar: jest.fn(() => 'avatar') }
 		_WidgetSrv = {

@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react'
-
 import MyWidgetScoreSemesterIndividual from './my-widgets-score-semester-individual'
 import MyWidgetScoreSemesterStorage from './my-widgets-score-semester-storage'
 import MyWidgetScoreSemesterGraph from './my-widgets-score-semester-graph'
@@ -53,18 +52,18 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 			<ul className="choices">
 				{
 					hasScores
-					? <React.Fragment>
-						<li key={0} className={scoreTab === TAB_GRAPH ? 'scoreTypeSelected' : ''}>
-							<a className="graph" onClick={() => {setScoreTab(TAB_GRAPH)}}>
-								Graph
-							</a>
-						</li>
-						<li key={1} className={scoreTab === TAB_INDIVIDUAL ? 'scoreTypeSelected' : ''}>
-							<a className="table" onClick={() => {setScoreTab(TAB_INDIVIDUAL)}}>
-								Individual Scores
-							</a>
-						</li>
-					</React.Fragment>
+					? <>
+							<li key={0} className={scoreTab === TAB_GRAPH ? 'scoreTypeSelected' : ''}>
+								<a className="graph" onClick={() => {setScoreTab(TAB_GRAPH)}}>
+									Graph
+								</a>
+							</li>
+							<li key={1} className={scoreTab === TAB_INDIVIDUAL ? 'scoreTypeSelected' : ''}>
+								<a className="table" onClick={() => {setScoreTab(TAB_INDIVIDUAL)}}>
+									Individual Scores
+								</a>
+							</li>
+						</>
 					: null
 				}
 

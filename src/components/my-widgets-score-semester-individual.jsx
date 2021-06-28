@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback ,useRef } from 'react'
-import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
-import LoadingIcon from './loading-icon'
 import { useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
+import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
+import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => {
 	window.open(`/scores/${instId}/#single-${playId}`)
@@ -20,6 +20,7 @@ const initState = () => {
 
 const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 	const [state, setState] = useState(initState())
+	const mounted = useRef(false)
 	const { data: currLogs, isFetching: loadingLogs } = useQuery({
 		queryKey: ['play-logs', instId],
 		queryFn: () => apiGetPlayLogs(instId, semester.term, semester.year),
@@ -27,7 +28,6 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 		staleTime: Infinity,
 		placeholderData: []
 	})
-	const mounted = useRef(false)
 
 	useEffect(() => {
     mounted.current = true
@@ -61,12 +61,12 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 	[state.searchText, state.selectedUser, state.logs])
 
 	return (
-		<React.Fragment>
+		<>
 			<div className={`display table ${state.isLoading === true ? 'loading' : ''}`}
 				id={`table_${semester.id}`} >
 				{state.isLoading
-				? <LoadingIcon />
-				: <React.Fragment>
+				? <LoadingIcon width="570px" />
+				: <>
 						<div className="score-search">
 							<input
 								type="text"
@@ -122,11 +122,11 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 							: null
 						}
 
-					</React.Fragment>
+					</>
 				}
 			</div>
 			<MyWidgetScoreSemesterSummary {...semester} />
-		</React.Fragment>
+		</>
 	)
 }
 

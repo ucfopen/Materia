@@ -15,10 +15,9 @@ const initState = () => {
 	})
 }
 
-
 const Catalog = ({widgets = [], isLoading = true}) => {
-	const totalWidgets = widgets.length
 	const [state, setState] = useState(initState())
+	const totalWidgets = widgets.length
 
 	// collect all unique features and supported data
 	const filters = useMemo(() => {
@@ -26,6 +25,14 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			widgets.forEach(w => {
 				w.meta_data.features.forEach(f => {filters.add(f)})
 				w.meta_data.supported_data.forEach(f => {filters.add(f)})
+				if (w.meta_data.hasOwnProperty('accessibility_options')) {
+					w.meta_data.accessibility_options.forEach((f, index) => {
+						if (!filters.hasOwnProperty('Keyboard Accessible') && index == 0 && (f.toLowerCase() === "full" || f.toLowerCase() === "limited"))
+							filters.add('Keyboard Accessible')
+						if (!filters.hasOwnProperty('Screen Reader Accessible') && index == 1 && (f.toLowerCase() === "full" || f.toLowerCase() === "limited"))
+							filters.add('Screen Reader Accessible')
+					})
+				}
 			})
 			return Array.from(filters)
 		},
@@ -43,10 +50,21 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 				// find widgets that have all the active filters
 				results = []
 				widgets.forEach(w => {
-					const {features, supported_data} = w.meta_data
-					const hasAll = state.activeFilters.every(f =>
-						features.includes(f) || supported_data.includes(f)
-					)
+					const {features, supported_data, accessibility_options} = w.meta_data
+					const hasAll = state.activeFilters.every(f =>{
+						if (features.includes(f) || supported_data.includes(f)) return true
+						if (accessibility_options) {
+							for (let index = 0; index < accessibility_options.length; index++) {
+								const option = accessibility_options[index]
+
+								if (option.toLowerCase() !== "full" && option.toLowerCase() !== "limited") return false
+								if (f === 'Keyboard Accessible' && index == 0) return true
+								if (f === 'Screen Reader Accessible' && index == 1) return true
+							}
+						}
+
+						return false
+					})
 
 					if(hasAll) results.push(w)
 				})
@@ -165,7 +183,6 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						</div>
 					</div>
 
-
 					{!isFiltered && totalWidgets > 0
 						? <div className="widget-group">
 								<h1 className="container-label">
@@ -182,7 +199,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 
 					<div className="widgets-container">
 						{ filteredWidgets.map(w =>
-							<CatalogCard {...w} key={w.id} />
+							<CatalogCard {...w} key={w.id} isFiltered activeFilters={state.activeFilters} />
 						)}
 					</div>
 

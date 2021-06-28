@@ -4,7 +4,7 @@ describe('Materia.Storage.Manager', () => {
 	let mockSendStorage
 
 	beforeEach(() => {
-		require('../common/materia-namespace')
+		require('../util/materia-namespace')
 		require('./materia.storage.manager')
 		Storage = Materia.Storage.Manager
 		Namespace('Materia.Storage').Table = mockTable = jest.fn()

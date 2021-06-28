@@ -19,8 +19,10 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 	}
 
 	const onAttemptsChange = e => {
-		onChange(extraAttempt.id, {...state, extra_attempts: parseInt(e.target.value)})
-		setState({...state, extra_attempts: parseInt(e.target.value)})
+		if (e.target.value) {
+			onChange(extraAttempt.id, {...state, extra_attempts: parseInt(e.target.value)})
+			setState({...state, extra_attempts: parseInt(e.target.value)})
+		}
 	}
 
 	return (

@@ -16,7 +16,7 @@ describe('Materia.Coms.Json', () => {
 			$q = _$q_
 		})
 		global.API_LINK = 'my_api_url'
-		require('../common/materia-namespace')
+		require('../util/materia-namespace')
 		require('./materia.coms.json.js')
 		coms = Namespace('Materia.Coms').Json
 		global.fetch = jest.fn()

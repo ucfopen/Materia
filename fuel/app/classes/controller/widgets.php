@@ -20,7 +20,8 @@ class Controller_Widgets extends Controller
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Widget Catalog');
-
+		$this->theme->set_partial('meta', 'partials/responsive');
+		
 		Css::push_group(['catalog']);
 		Js::push_group(['react', 'catalog']);
 	}
@@ -45,19 +46,18 @@ class Controller_Widgets extends Controller
 		if ( ! $loaded) throw new HttpNotFoundException;
 
 		$demo = $widget->meta_data['demo'];
+		
+		Js::push_inline('var NO_AUTHOR = "'.\Materia\Perm_Manager::does_user_have_role(['no_author']).'";');
+		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
 
-		Css::push_group(['widget_detail', 'core']);
-		Js::push_group(['angular', 'hammerjs', 'jquery', 'materia', 'student']);
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
-		$this->theme->set_partial('content', 'partials/widget/detail');
-
-		$this->theme->set_partial('meta', 'partials/responsive');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->_disable_browser_cache = true;
+		Css::push_group(['detail']);
+		Js::push_group(['react', 'detail']);
 	}
 
 	/**
@@ -254,7 +254,7 @@ class Controller_Widgets extends Controller
 			}
 		}
 
-		Css::push_group('widget_play');
+		//Css::push_group('widget_play');
 
 	}
 
@@ -523,23 +523,28 @@ class Controller_Widgets extends Controller
 
 	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
-		Css::push_group(['core', 'widget_play']);
-		Js::push_group(['angular', 'materia', 'student']);
-		if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
-		{
+		//Css::push_group(['core', 'widget_play']);
+		//Js::push_group(['angular', 'materia', 'student']);
+		//if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
+		//{
 			// add swfobject if it's needed
-			Js::push_group('swfobject');
-		}
+		//	Js::push_group('swfobject');
+		//}
 
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
+		Js::push_inline('var DEMO_ID = "'.$inst->id.'";');
+		Js::push_inline('var WIDGET_HEIGHT = "'.$inst->widget->height.'";');
+		Js::push_inline('var WIDGET_WIDTH = "'.$inst->widget->width.'";');
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
 			->set('page_type', 'widget')
 			->set('html_class', $is_embedded ? 'embedded' : '' );
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/play')
-			->set('inst_id', $inst->id);
+		Css::push_group(['playpage']);
+		Js::push_group(['react', 'playpage']);
 	}
 
 	protected function pre_embed_placeholder($inst)

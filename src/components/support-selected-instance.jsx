@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { apiGetUserPermsForInstance } from '../util/api'
+import { useQuery } from 'react-query'
 import { iconUrl } from '../util/icon-url'
-import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
-import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
-import ExtraAttemptsDialog from './extra-attempts-dialog'
-import { access } from './materia-constants'
+import rawPermsToObj from '../util/raw-perms-to-object'
 import useDeleteWidget from './hooks/useSupportDeleteWidget'
 import useUnDeleteWidget from './hooks/useSupportUnDeleteWidget'
 import useUpdateWidget from './hooks/useSupportUpdateWidget'
-import { apiGetUserPermsForInstance } from '../util/api'
-import { useQuery } from 'react-query'
+import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
+import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
+import ExtraAttemptsDialog from './extra-attempts-dialog'
 
 const addZero = i => {
 	if(i<10) i = "0" + i
@@ -33,24 +33,7 @@ const stringToDateObj = (date, time) => {
 }
 
 const stringToBoolean = s => {
-	return s == 'true'
-}
-
-const rawPermsToObj = ([permCode = access.VISIBLE, expireTime = null], isEditable) => {
-	permCode = parseInt(permCode, 10)
-	return {
-		accessLevel: permCode,
-		expireTime,
-		editable: permCode > access.VISIBLE && (parseInt(isEditable, 10) === 1),
-		shareable: permCode > access.VISIBLE, // old, but difficult to replace with can.share :/
-		can: {
-			view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
-			copy: [access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),
-			edit: [access.FULL, access.SU].includes(permCode),
-			delete: [access.FULL, access.SU].includes(permCode),
-			share: [access.SHARE, access.FULL, access.SU].includes(permCode)
-		}
-	}
+	return s === 'true'
 }
 
 const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
@@ -66,6 +49,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 	const [closeTime, setCloseTime] = useState(inst.close_at < 0 ? '' : objToTimeString(inst.close_at))
 	const [errorText, setErrorText] = useState('')
 	const [allPerms, setAllPerms] = useState({myPerms: null, otherUserPerms: null})
+	const deleteWidget = useDeleteWidget()
+	const unDeleteWidget = useUnDeleteWidget()
+	const updateWidget = useUpdateWidget()
 	const { data: perms, isFetching: loadingPerms} = useQuery({
 		queryKey: ['user-perms', inst.id],
 		queryFn: () => apiGetUserPermsForInstance(inst.id),
@@ -73,9 +59,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		placeholderData: null,
 		staleTime: Infinity
 	})
-	const deleteWidget = useDeleteWidget()
-	const unDeleteWidget = useUnDeleteWidget()
-	const updateWidget = useUpdateWidget()
 
 	useEffect(() => {
 		if (perms) {
@@ -168,7 +151,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			successFunc: () => setErrorText('Success!'),
 			errorFunc: () => setErrorText('Error: Update Unsuccessful')
 		})
-
 	}
 
 	return (

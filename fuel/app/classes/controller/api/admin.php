@@ -99,18 +99,22 @@ class Controller_Api_Admin extends Controller_Rest
 		// iterate thru each extra attempt and set it in the db
 		foreach ($extra_attempts as $value)
 		{
-			if ( ! is_int($value['user_id']) ) return Msg::invalid_input($inst_id);
-			if ( ! is_int($value['extra_attempts']) ) return Msg::invalid_input($inst_id);
-			if ( ! is_string($value['context_id']) ) return Msg::invalid_input($inst_id);
-			if ( ! is_int($value['id']) ) return Msg::invalid_input($inst_id);
-
+			if ( ! is_int($value['user_id']) ) return $this->response('User ID must be type int', 400);
+			if ( ! is_int($value['extra_attempts']) ) return $this->response('Extra attempts must be type int', 400);
+			if ( ! is_string($value['context_id']) ) return $this->response('Context ID must be type string', 400);
+			if ( ! is_int($value['id']) ) return $this->response('Widget ID must be type int', 400);
 			
 			$attempts[] = $inst->set_extra_attempts($value['user_id'], $value['extra_attempts'], $value['context_id'], $value['id'] > 0 ? $value['id'] : null);
 		}
-
-		// Allows empty arrays to be returned
-		// $attempts = count($attempts) == 0 ? (object) array() : $attempts;
-
+		
 		return $attempts;
+	}
+
+	public function post_widget_instance_undelete(string $inst_id)
+	{
+		if ( ! \Materia\Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id, false, false, true))) return new Msg(Msg::ERROR, 'Widget instance does not exist.');
+		return $inst->db_undelete();
 	}
 }

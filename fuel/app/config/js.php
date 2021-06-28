@@ -13,6 +13,8 @@ return [
 		'homepage'   => [$webpack.'js/homepage.js'],
 		'catalog'    => [$webpack.'js/catalog.js'],
 		'mywidgets'  => [$webpack.'js/my-widgets.js'],
+		'detail'     => [$webpack.'js/detail.js'],
+		'playpage'   => [$webpack.'js/player-page.js'],
 
 		'angular'    => [$vendor.'angular.min.js'],
 		'ng-animate' => [$vendor.'angular-animate.min.js'],

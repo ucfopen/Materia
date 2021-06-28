@@ -1,15 +1,17 @@
-import './support-page.scss'
+import React, { useState, useRef, useEffect } from 'react'
+import { useQuery } from 'react-query'
+import { apiGetWidgetInstance, apiGetUser} from '../util/api'
+import useCopyWidget from './hooks/useSupportCopyWidget'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
-import { useQuery } from 'react-query'
-import { apiGetWidget, apiGetUser} from '../util/api'
-import useCopyWidget from './hooks/useSupportCopyWidget'
-import React, { useState, useRef, useEffect } from 'react'
 import Header from './header'
+import './support-page.scss'
 
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [copyId, setCopyId] = useState(null)
+	const copyWidget = useCopyWidget()
+	const mounted = useRef(false)
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
@@ -17,12 +19,10 @@ const SupportPage = () => {
 	})
 	const { data: copyInst } = useQuery({
 		queryKey: [`copy-widget`, copyId],
-		queryFn: () => apiGetWidget(copyId),
+		queryFn: () => apiGetWidgetInstance(copyId),
 		enabled: copyId !== null,
 		staleTime: Infinity
 	})
-	const copyWidget = useCopyWidget()
-	const mounted = useRef(false)
 
 	useEffect(() => {
     mounted.current = true
@@ -31,10 +31,10 @@ const SupportPage = () => {
 
 	// Sets the current instance when the copied widget's data is fetched
 	useEffect(() => {
-		if (copyId && copyInst && copyInst[0] && copyId === copyInst[0].id) {
-			setSelectedInstance(copyInst[0])
+		if (copyId && !!copyInst && copyId === copyInst.id) {
+			setSelectedInstance(copyInst)
 		}
-	}, [JSON.stringify(copyInst)])
+	}, [JSON.stringify([copyInst])])
 
 	const onCopy = (instId, title, copyPerms, inst) => {
 		copyWidget.mutate({
@@ -49,10 +49,6 @@ const SupportPage = () => {
 			}
 		})
 	}
-	
-	const onSelect = (inst) => {
-		setSelectedInstance(inst)
-	}
 
 	return (
 		<>
@@ -61,7 +57,7 @@ const SupportPage = () => {
 				<div>
 					{ !selectedInstance
 					? <SupportSearch 
-							onClick={onSelect}/>
+							onClick={(inst) => setSelectedInstance(inst)}/>
 					: <SupportSelectedInstance
 							key={selectedInstance ? selectedInstance.id : ''}
 							inst={selectedInstance}

@@ -9,6 +9,7 @@ return [
 	'urls' => [
 		// append port 8008 for dev
 		// simulates loading from a pass-through cdn
+		// No port is specified so 8080 is picked by default
 		'static'  => $simulated_cdn_url,
 		'engines' => $simulated_cdn_url.'widget/',
 		'js_css'  => $assets_exist ? $simulated_cdn_url.'dist/' : '//127.0.0.1:8080/dist/',

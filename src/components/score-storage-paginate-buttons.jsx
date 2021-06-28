@@ -23,12 +23,13 @@ const PaginateButtons = ({state, setState, searchInput}) => {
 			const paginateIconR = <span className="ellipsis" key={888}>…</span>
 			const curPage = state.pageNumber + 1
 			const numPages = pagesArr.length
-			let paginateType = numPages - curPage >= 4 ?  
+			const paginateType = numPages - curPage >= 4 ?  
 				(curPage <= 4 ? 
 					"left" : 
 					"middle") :
 				"right"
 
+			// paginateType represents the location where the buttons are concentrated
 			switch(paginateType) {
 				case "right":
 					pagesArr = [pagesArr[0]].concat(paginateIconR).concat(pagesArr.slice(pagesArr.length - 5, pagesArr.length))
@@ -49,7 +50,7 @@ const PaginateButtons = ({state, setState, searchInput}) => {
 	useEffect(() => {
 		if (state.isLoading === false)
 		{
-			let text = !state.isFiltered && searchInput.length == 0 ? 
+			const text = !state.isFiltered && searchInput.length == 0 ? 
 				`Showing ${Math.min(state.storageData?.length, state.startIndex + 1)} to ${Math.min(state.storageData?.length, state.endIndex)} of ${Math.min(state.storageData?.length, MAX_ROWS)} entries` :
 				`Showing ${Math.min(state.storageData?.length, state.startIndex + 1)} to ${Math.min(state.storageData?.length, state.endIndex)} of 
 				${state.storageData?.length} entries (filtered from ${Math.min(state.totalEntries, MAX_ROWS)} total entries)`

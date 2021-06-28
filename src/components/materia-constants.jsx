@@ -24,3 +24,5 @@ export const access = {
 	SHARE: 35,
 	SU: 90,
 }
+
+export const WIDGET_URL = window.location.origin + '/widget/'

@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { iconUrl } from '../util/icon-url'
 import { useQuery } from 'react-query'
-import useDebounce from './hooks/useDebounce'
 import { apiSearchWidgets } from '../util/api'
+import useDebounce from './hooks/useDebounce'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
@@ -16,10 +16,6 @@ const SupportSearch = ({onClick = () => {}}) => {
 		staleTime: Infinity
 	})
 
-	const setSearchVal = (e) => {
-		setSearchText(e.target.value)
-	}
-
 	return (
 		<section className="page">
 			<div className="top">
@@ -29,7 +25,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<input
 				tabIndex="0"
 				value={searchText}
-				onChange={(e) => setSearchVal(e)}
+				onChange={(e) => setSearchText(e.target.value)}
 				className="instance_search"
 				type="text"
 				placeholder="Enter a Materia widget instance's info"/>

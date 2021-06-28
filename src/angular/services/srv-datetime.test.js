@@ -5,7 +5,7 @@ describe('DateTimeServ', () => {
 	var mockLocationGet
 
 	beforeEach(() => {
-		require('../common/materia-namespace')
+		require('../../util/materia-namespace')
 		require('./srv-datetime')
 		inject(function (DateTimeServ) {
 			_service = DateTimeServ

@@ -1,13 +1,9 @@
 import { useMutation } from 'react-query'
-import fetchOptions from '../../util/fetch-options'
-
-async function setUserInstancePermsFetch({instId, permsObj}) {
-	await fetch('/api/json/permissions_set', fetchOptions({body: 'data=' + encodeURIComponent(`[4,"${instId}",${JSON.stringify(permsObj)}]`)}))
-}
+import { apiSetUserInstancePerms } from '../../util/api'
 
 export default function setUserInstancePerms() {
 	return useMutation(
-		setUserInstancePermsFetch,
+		apiSetUserInstancePerms,
 		{
 			onSuccess: (data, variables) => {
 				variables.successFunc()

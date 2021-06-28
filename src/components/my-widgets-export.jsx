@@ -30,12 +30,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 			setState({...state, exportOptions: ['Questions and Answers', 'Referrer URLs'], exportType: tmpOps[0]})
 		}
 		else {
-			let scores_only
-			if (inst.guest_access) {
-				scores_only = 'All Scores'
-			} else {
-				scores_only = 'High Scores'
-			}
+			const scores_only = inst.guest_access ? 'All Scores' : 'High Scores'
 			
 			tmpOps = [scores_only, 'Full Event Log', 'Questions and Answers', 'Referrer URLs']
 			if (

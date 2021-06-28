@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react'
 import { iconUrl } from '../util/icon-url'
+import KeyboardIcon from './keyboard-icon'
+import ScreenReaderIcon from './screen-reader-icon'
 
+const isValidAccessVal = (val) => val.toLowerCase() === 'full' || val.toLowerCase() === 'limited' ? true : false
 
 const CatalogCard = ({
 	id,
@@ -9,9 +11,11 @@ const CatalogCard = ({
 	in_catalog = '0',
 	name = '',
 	dir = '',
-	meta_data
+	meta_data,
+	isFiltered,
+	activeFilters = []
 	}) => (
-	<div className="widget">
+	<div className={`widget ${isFiltered ? 'filtered' : ''}`}>
 		<a
 			className="infocard"
 			href={`/widgets/${id}-${clean_name}`}
@@ -25,7 +29,7 @@ const CatalogCard = ({
 						</div>
 					: null
 				}
-				<h1 className="infoHeader" >{name}</h1>
+				<h1 className={`infoHeader ${in_catalog === "1" ? 'featured' : ''}`} >{name}</h1>
 			</div>
 
 			<div className="img-holder">
@@ -38,13 +42,38 @@ const CatalogCard = ({
 				</div>
 				<ul className="inline_def features_list">
 					{meta_data.supported_data.map(supported =>
-						<li key={supported}>{supported}</li>
+						<li className={`${activeFilters.includes(supported) ? 'selected' : ''}`} key={supported}>{supported}</li>
 					)}
 
 					{meta_data.features.map(filter =>
-						<li key={filter}>{filter}</li>
+						<li className={`${activeFilters.includes(filter) ? 'selected' : ''}`} key={filter}>{filter}</li>
 					)}
 				</ul>
+				<div className="accessibility-holder">
+					{
+						meta_data.accessibility_options && meta_data.accessibility_options.length > 0
+						?	<div className="accessibility-indicators">
+							{
+								meta_data.accessibility_options.length > 0 && isValidAccessVal(meta_data.accessibility_options[0])
+								? <div>
+										<KeyboardIcon color={`${activeFilters.includes('Keyboard Accessible') ? '#3498db' : 'black'}`}/>
+										<span className="tool-tip">Keyboard Accessible</span>
+									</div>
+								: null
+							}
+
+							{
+								meta_data.accessibility_options.length > 1 && isValidAccessVal(meta_data.accessibility_options[1])
+								? <div>
+										<ScreenReaderIcon color={`${activeFilters.includes('Screen Reader Accessible') ? '#3498db' : 'black'}`}/>
+										<span className="tool-tip">Screen Reader Accessible</span>
+									</div>
+								: null
+							}
+							</div>
+						: null
+					}
+				</div>
 			</div>
 		</a>
 	</div>

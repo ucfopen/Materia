@@ -32,12 +32,17 @@
     "napa": "^3.0.0",
     "ngmodal": "ucfcdl/ngModal#v1.2.2",
     "react-datepicker": "^3.6.0",
+    "react-overlays": "^5.0.1",
     "react-query": "^3.13.4"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
+    "@testing-library/dom": "7.31.2",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "11.2.7",
+    "@testing-library/user-event": "^13.1.9",
     "angular-animate": "1.8.0",
     "angular-mocks": "1.8.0",
     "autoprefixer": "^9.8.5",
@@ -50,6 +55,9 @@
     "copy-webpack-plugin": "^6.1.1",
     "core-js": "3",
     "css-loader": "^3.6.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "enzyme-to-json": "^3.6.2",
     "hammerjs": "2.0.8",
     "husky": "^4.2.5",
     "ignore-emit-webpack-plugin": "^2.0.2",
@@ -61,6 +69,9 @@
     "node-sass": "^4.14.1",
     "nodemon": "^2.0.2",
     "postcss-loader": "^3.0.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-test-renderer": "^17.0.2",
     "sass-loader": "^9.0.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
@@ -102,8 +113,12 @@
     "not op_mini all"
   ],
   "jest": {
-    "transform": {
-      "ctrl-widget-catalog.js": "babel-jest"
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.(css|less|scss)$": "babel-jest"
     },
     "verbose": false,
     "coverageReporters": [
@@ -111,10 +126,13 @@
       "lcov"
     ],
     "setupFilesAfterEnv": [
-      "./testSetup.js"
+      "./src/testSetup.js"
     ],
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}"
+      "src/components/**/*.{js,jsx}"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
     ],
     "coverageThreshold": {
       "global": {

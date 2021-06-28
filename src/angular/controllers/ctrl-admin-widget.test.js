@@ -16,12 +16,25 @@ describe('AdminWidgetController', () => {
 	}
 
 	beforeEach(() => {
+		let w = {
+			clean_name: 'f',
+			in_catalog: 'f',
+			is_editable: 'f',
+			is_scorable: 'f',
+			is_playable: 'f',
+			restrict_publish: 'f',
+			meta_data: {
+				about: 'f',
+				excerpt: 'f',
+				demo: 'f',
+			}
+		}
 		mockPlease = { $apply: jest.fn() }
 		let app = angular.module('materia')
 		app.factory('Please', () => mockPlease)
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('../services/srv-admin')
 		require('./ctrl-admin-widget')
 
@@ -41,7 +54,7 @@ describe('AdminWidgetController', () => {
 			addEventListener: widgetUploaderChangeListener,
 		})
 		jest.spyOn(AdminSrv, 'getWidgets')
-		mockPromiseOnce(AdminSrv.getWidgets, ['sampleval'])
+		mockPromiseOnce(AdminSrv.getWidgets, [w])
 		$scope = { $watch: jest.fn() }
 		var controller = $controller('AdminWidgetController', { $scope })
 	})
@@ -51,7 +64,19 @@ describe('AdminWidgetController', () => {
 		expect($scope.selectedFileName).toBe('No File Selected')
 		expect($scope.widgets).toMatchObject([])
 		$rootScope.$digest() // processes promise
-		expect($scope.widgets).toMatchObject(['sampleval'])
+		expect($scope.widgets).toMatchObject([{
+			clean_name: 'f',
+			in_catalog: 'f',
+			is_editable: 'f',
+			is_scorable: 'f',
+			is_playable: 'f',
+			restrict_publish: 'f',
+			meta_data: {
+				about: 'f',
+				excerpt: 'f',
+				demo: 'f',
+			},
+		}])
 	})
 
 	it('changing the uploader updates the selected File name', () => {

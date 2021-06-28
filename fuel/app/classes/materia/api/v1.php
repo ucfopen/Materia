@@ -63,18 +63,9 @@ class Api_V1
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
-		trace('here!');
 		return $inst->db_remove();
-	}
-
-	static public function widget_instance_undelete(string $inst_id)
-	{
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id, false, false, true))) return new Msg(Msg::ERROR, 'Widget instance does not exist.');
-		return $inst->db_undelete();
 	}
 
 	/**

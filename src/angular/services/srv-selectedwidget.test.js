@@ -14,8 +14,8 @@ describe('SelectedWidgetSrv', () => {
 	}
 
 	beforeEach(() => {
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('./srv-selectedwidget')
 
 		inject(function (_$rootScope_, SelectedWidgetSrv, _$q_) {

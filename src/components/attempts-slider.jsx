@@ -4,6 +4,9 @@ import "./my-widgets-settings-dialog.scss"
 const AttemptsSlider = ({inst, state, setState}) => {
 
 	const sliderChange = (e) => {
+		if (state.formData.changes.access === "guest") 
+			return
+
 		setState({...state, sliderVal: e.target.value})
 	}
 
@@ -60,7 +63,7 @@ const AttemptsSlider = ({inst, state, setState}) => {
 		if (state.formData.changes.access === "guest") 
 			return
 
-		let val = parseFloat(e.target.value)
+		const val = parseFloat(e.target.value)
 
 		const sliderInfo = getSliderInfo(val)
 		setState({...state, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
@@ -71,20 +74,20 @@ const AttemptsSlider = ({inst, state, setState}) => {
 
 	return (
 		<div className="data-holder">
-			<div className={`selector ${state.sliderDisabled || state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
+			<div className={`selector ${state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
 				<input id="ui-slider"
-					className={`${state.sliderDisabled ? 'disabled' : ''}`}
+					className={`${state.formData.changes.access === "guest" ? 'disabled' : ''}`}
 					type="range"
 					min="1"
 					max="100"
-					disabled={state.sliderDisabled}
+					disabled={state.formData.changes.access === "guest"}
 					value={state.sliderVal}
 					onMouseUp={roundInput}
 					onChange={sliderChange}
 					onBlur={roundInput}
 				></input>
 			</div>
-			<div id='attempt-holder' className={`attempt-holder ${state.sliderDisabled || state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
+			<div id='attempt-holder' className={`attempt-holder ${state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
 				<span className={`${state.lastActive === 0 ? 'active' : ''}`} onClick={() => { updateSliderNum(1, 0) }}>1</span>
 				<span className={`${state.lastActive === 1 ? 'active' : ''}`} onClick={() => { updateSliderNum(5, 1) }}>2</span>
 				<span className={`${state.lastActive === 2 ? 'active' : ''}`} onClick={() => { updateSliderNum(9, 2) }}>3</span>

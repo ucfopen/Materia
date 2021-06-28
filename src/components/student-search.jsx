@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
-import useDebounce from './hooks/useDebounce'
 import { useQuery } from 'react-query'
 import { apiSearchUsers } from '../util/api'
+import useDebounce from './hooks/useDebounce'
 
 const initState = () => {
 	return({
@@ -14,7 +14,7 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 	const [state, setState] = useState(initState())
 	const debouncedSearchTerm = useDebounce(state.searchText, debounceTime)
 	const { data: studentsSearched } = useQuery({
-		queryKey: `student-search-${debouncedSearchTerm}`,
+		queryKey: ['student-search',debouncedSearchTerm],
 		queryFn: () => apiSearchUsers(debouncedSearchTerm),
 		placeholderData: [],
 		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,

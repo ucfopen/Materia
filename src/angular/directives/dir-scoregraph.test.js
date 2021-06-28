@@ -13,7 +13,7 @@ describe('scoreGraph Directive', function () {
 			return { getScoreSummaries: mock2 }
 		})
 
-		require('../common/materia-namespace')
+		require('../../util/materia-namespace')
 		require('./dir-scoregraph.js')
 
 		inject(function (_$compile_, _$rootScope_, _$timeout_) {

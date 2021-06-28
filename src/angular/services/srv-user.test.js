@@ -14,8 +14,8 @@ describe('UserServ', () => {
 	}
 
 	beforeEach(() => {
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('./srv-user')
 
 		inject(function (_$rootScope_, UserServ, _$q_) {

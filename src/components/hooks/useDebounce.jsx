@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-// Custom hook
+// Wait for delay then sets value
 export default function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value)
 

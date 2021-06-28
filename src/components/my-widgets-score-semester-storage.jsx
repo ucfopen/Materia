@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
-import LoadingIcon from './loading-icon'
 import { useQuery } from 'react-query'
 import { apiGetStorageData } from '../util/api'
+import LoadingIcon from './loading-icon'
 import PaginateButtons from './score-storage-paginate-buttons'
 import StorageRows from './score-storage-rows'
 
@@ -47,7 +47,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 	useEffect(() => {
 		if (results && Object.keys(results).length > 0) {
 			const _tableNames = Object.keys(results)
-			const _selectedTableName = state.selectedTableName !== null ? state.selectedTableName : _tableNames[0]
+			const _selectedTableName = state.selectedTableName !== null && _tableNames.includes(state.selectedTableName) ? state.selectedTableName : _tableNames[0]
 			const _tableKeys = Object.keys(results[_selectedTableName][0].data)
 			const tmpResults = results[_selectedTableName].length <= MAX_ROWS 
 				?	results[_selectedTableName]
@@ -86,7 +86,14 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 		const startIndex = 0
 		const endIndex = Math.min(state.storageData?.length, newValue)
 		const _selectedValues = state.storageData?.slice(startIndex, endIndex)
-		setState({...state, rowsPerPage: newValue, selectedValues: _selectedValues, startIndex: startIndex, endIndex: endIndex, pageNumber: 0, pages: pagesArr})
+		setState({...state,
+			rowsPerPage: newValue,
+			selectedValues: _selectedValues,
+			startIndex: startIndex,
+			endIndex: endIndex,
+			pageNumber: 0,
+			pages: pagesArr
+		})
 	}
 
 	// Filter used in search
@@ -111,7 +118,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 		<div className={`display data ${state.isLoading ? 'loading' : ''}`} >
 
 			{!state.isLoading
-				? <React.Fragment>
+				? <>
 					<div>
 						<label>
 							<input
@@ -177,7 +184,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 						<StorageRows isLoading={state.isLoading} selectedValues={state.selectedValues} tableKeys={state.tableKeys} />
 						<PaginateButtons key='paginate-component' state={state} setState={setState} searchInput={searchInput}/>
 					</div>
-					</React.Fragment>
+					</>
 				: <div className="loading-holder">
 						<LoadingIcon />
 					</div>

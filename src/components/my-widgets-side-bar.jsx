@@ -1,28 +1,23 @@
 import React, { useState, useMemo } from 'react'
-import ReactDOM from 'react-dom'
-import MyWidgetScoreSemester from './my-widgets-score-semester'
-import { useQuery } from 'react-query'
-import { apiGetWidgets } from '../util/api'
+import MyWidgetsInstanceCard from './my-widgets-instance-card'
 
-const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, Card}) => {
+const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, beardMode, beards}) => {
 	const [searchText, setSearchText] = useState('')
 
-	const hiddenSet = useMemo(
-		() => {
-			const result = new Set()
-			if(searchText == '') return result
+	const hiddenSet = useMemo(() => {
+		const result = new Set()
+		if(searchText == '') return result
 
-			const re = RegExp(searchText, 'i')
-			instances.forEach(i => {
-				if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
-					result.add(i.id)
-				}
-			})
+		const re = RegExp(searchText, 'i')
+		instances.forEach(i => {
+			if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
+				result.add(i.id)
+			}
+		})
 
-			return result
-		},
-		[instances, searchText]
-	)
+		return result
+	},
+	[instances, searchText])
 
 	return (
 		<aside className="my-widgets-side-bar">
@@ -45,13 +40,15 @@ const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, Card}) => 
 			<div className="courses">
 				<div className="widget_list" data-container="widget-list">
 					{!isLoading || instances?.length > 0
-						? instances.map(inst =>
-							<Card
+						? instances.map((inst, index) =>
+							<MyWidgetsInstanceCard
 								key={inst.id}
 								inst={inst}
+								indexVal={index}
 								onClick={onClick}
 								selected={inst.id === selectedId}
 								hidden={hiddenSet.has(inst.id)}
+								beard={beardMode ? beards[index] : ''}
 							/>
 						)
 						: null

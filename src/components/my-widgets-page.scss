@@ -23,7 +23,9 @@
 			text-align: center;
 
 			&.unchosen {
-				background: #fff url('http://localhost/../img/kogneato_mywidgets.png') 50% 30% no-repeat;
+				&:not(.bearded) {
+					background: #fff url('http://localhost/../img/kogneato_mywidgets.png') 50% 30% no-repeat;
+				}
 				min-height: 850px;
 			}
 
@@ -32,6 +34,10 @@
 				font-weight: bold;
 				padding: 0;
 				margin: 20px 0 5px 0;
+
+				&.loading-text {
+					margin-bottom: 2em;
+				}
 			}
 
 			p {
@@ -157,6 +163,8 @@
 					}
 
 					.my-widgets-instance-card {
+						position: relative;
+
 						&:nth-child(odd):not(:hover) {
 							background: #fff;
 						}

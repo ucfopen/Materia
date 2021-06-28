@@ -6,7 +6,6 @@
 		<title><?= $title ?? '' ?> | Materia</title>
 		<?= Css::render() ?>
 		<?=  $partials['google_analytics'] ?? '' ?>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
 	<body>
 		<div id="app"></div>

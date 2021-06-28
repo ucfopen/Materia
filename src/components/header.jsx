@@ -11,6 +11,7 @@ const Header = ({
 }) => {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [navOpen, setNavOpen] = useState(false)
+	const deleteNotification = useDeleteNotification()
 	const { data: user, isLoading: userLoading} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
@@ -31,7 +32,6 @@ const Header = ({
 		queryFn: apiGetNotifications,
 		staleTime: Infinity
 	})
-	const deleteNotification = useDeleteNotification()
 	const cn = user?.loggedIn ? 'logged-in' : ''
 
 	const logoutUser = () => {
@@ -57,7 +57,7 @@ const Header = ({
 			{	!userLoading
 				?	<span>
 						<p className="user avatar">
-							{ user != undefined
+							{ !!user
 								? <a href="/profile">
 										<span>{`${user.first} ${user.last}`}</span>
 										<img src={user.avatar} />
@@ -103,7 +103,7 @@ const Header = ({
 
 					{ isAdmin
 						? <li className="nav_expandable">
-								<span className='elevated'>Admin</span>
+								<span className='elevated admin'>Admin</span>
 								<ul>
 									<li>
 										<a className='elevated' href="/admin/widget">Widgets</a>
@@ -121,7 +121,7 @@ const Header = ({
 
 					{ isSupport
 						? <li className="nav_expandable">
-								<span className='elevated'>Support</span>
+								<span className='elevated support'>Support</span>
 								<ul>
 									<li>
 										<a className='elevated' href="/admin/user">Users</a>

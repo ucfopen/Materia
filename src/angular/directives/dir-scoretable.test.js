@@ -32,7 +32,7 @@ describe('scoreTable Directive', function () {
 	]
 
 	beforeEach(() => {
-		require('../common/materia-constants')
+		require('../materia-constants')
 		require('../services/srv-selectedwidget')
 		require('./dir-scoretable')
 

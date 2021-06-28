@@ -14,21 +14,22 @@ const handleErrors = async resp => {
 
 const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then(handleErrors)
 
-export const apiGetWidget = (instId) => {
+export const apiGetWidgetInstance = (instId) => {
 	return fetch(`/api/json/widget_instances_get/${instId}`)
 		.then(resp => {
-			if (resp.status == 502) return []
+			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(widget => {
-			return widget
+			if (widget.length > 0) return widget[0]
+			else return {}
 		})
 }
 
-export const apiGetWidgets = () => {
+export const apiGetWidgetInstances = () => {
 	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: 'data=' + encodeURIComponent(`[]`) }))
 		.then(resp => {
-			if (resp.status == 502) return []
+			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(resp => {
@@ -38,7 +39,7 @@ export const apiGetWidgets = () => {
 		})
 }
 
-// Sorts widgets by creation date
+// Helper function to sort widgets
 const _compareWidgets = (a, b) => {
 	return (new Date(a.created_at) <= new Date(b.created_at))
 }
@@ -61,6 +62,25 @@ export const apiGetWidgetsByType = () => {
 		.then(widgets => widgets)
 }
 
+// Gets widget info
+export const apiGetWidget = (widgetId) => {
+	const options = {
+		"headers": {
+			"cache-control": "no-cache",
+			"pragma": "no-cache",
+			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+		},
+		"body": `data=${encodeURIComponent(JSON.stringify([[widgetId]]))}`,
+		"method": "POST",
+		"mode": "cors",
+		"credentials": "include"
+	}
+
+	return fetch('/api/json/widgets_get/', options)
+		.then(resp => resp.json())
+		.then(widgets => widgets.length > 0 ? widgets[0] : {})
+}
+
 export const apiCopyWidget = (values) => {
 	return fetchGet(`/api/json/widget_instance_copy`, { body: 'data=' + encodeURIComponent(`["${values.instId}","${values.title}","${values.copyPermissions.toString()}"]`) })
 		.then(widget => {
@@ -68,8 +88,30 @@ export const apiCopyWidget = (values) => {
 		})
 }
 
-export const apiDeleteWidget = (instId) => {
-	return fetchGet(`/api/json/widget_instance_delete/`, { body: `data=%5B%22${instId}%22%5D` })
+export const apiDeleteWidget = ({ instId }) => {
+	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=%5B%22${instId}%22%5D` }))
+		.then((resp) => {
+			if (resp.status === 204 || resp.status === 502) return null
+			return resp.json()
+		})
+}
+
+export function apiUnDeleteWidget({ instId }) {
+	return fetch(`/api/admin/widget_instance_undelete/${instId}`,
+		{
+			method: 'POST',
+			mode: 'cors',
+			credentials: 'include',
+			headers: {
+				pragma: "no-cache",
+				"cache-control": "no-cache",
+				"content-type": "application/json; charset=UTF-8"
+			}
+		})
+		.then((resp) => {
+			if (resp.status === 204 || resp.status === 502) return false
+			return true
+		})
 }
 
 export const apiGetUser = () => {
@@ -82,6 +124,19 @@ export const apiGetUser = () => {
 
 			writeToStorage('user', user)
 			return user
+		})
+}
+
+export const apiGetUsers = (arrayOfUserIds) => {
+	return fetchGet('/api/json/user_get', { body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}` })
+		.then(users => {
+			const keyedUsers = {}
+
+			if (Array.isArray(users)) {
+				users.forEach(u => { keyedUsers[u.id] = u })
+			}
+
+			return keyedUsers
 		})
 }
 
@@ -100,10 +155,15 @@ export const apiAuthorSupport = () => {
 export const apiGetNotifications = () => {
 	return fetch('/api/json/notifications_get/')
 		.then(resp => {
-			if (resp.status == 502) return []
+			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(notifications => notifications)
+}
+
+export function apiDeleteNotification(notifId) {
+	return fetch('/api/json/notification_delete/', fetchOptions({ body: "data=" + encodeURIComponent(`[${notifId}]`) }))
+		.then((resp) => resp.json())
 }
 
 export const apiGetExtraAttempts = (instId) => {
@@ -128,23 +188,25 @@ export const apiGetExtraAttempts = (instId) => {
 		})
 }
 
-export const apiGetUsers = (arrayOfUserIds) => {
-	return fetchGet('/api/json/user_get', { body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}` })
-		.then(users => {
-			const keyedUsers = {}
-
-			if (Array.isArray(users)) {
-				users.forEach(u => { keyedUsers[u.id] = u })
-			}
-
-			return keyedUsers
+export const apiSetAttempts = ({ instId, attempts }) => {
+	return fetch(`/api/admin/extra_attempts/${instId}`,
+		{
+			method: 'POST',
+			mode: 'cors',
+			credentials: 'include',
+			headers: {
+				pragma: "no-cache",
+				"cache-control": "no-cache",
+				"content-type": "application/json; charset=UTF-8"
+			},
+			body: JSON.stringify(attempts)
 		})
 }
 
 export const apiSearchUsers = (input = "") => {
 	return fetch('/api/json/users_search', fetchOptions({ body: `data=${encodeURIComponent(JSON.stringify([input]))}` }))
 		.then(resp => {
-			if (resp.status == 502) return []
+			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(users => users)
@@ -153,10 +215,14 @@ export const apiSearchUsers = (input = "") => {
 export const apiGetUserPermsForInstance = (instId) => {
 	return fetch('/api/json/permissions_get', fetchOptions({ body: 'data=' + encodeURIComponent(`["4","${instId}"]`) }))
 		.then(resp => {
-			if (resp.status == 502) return null
+			if (resp.status === 204 || resp.status === 502) return null
 			return resp.json()
 		})
 		.then(perms => perms)
+}
+
+export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
+	return fetch('/api/json/permissions_set', fetchOptions({ body: 'data=' + encodeURIComponent(`[4,"${instId}",${JSON.stringify(permsObj)}]`) }))
 }
 
 export const apiCanEditWidgets = (arrayOfWidgetIds) => {
@@ -174,7 +240,7 @@ export const apiUpdateWidget = ({ args }) => {
 export const apiSearchWidgets = (input) => {
 	return fetch(`/api/admin/widget_search/${input}`)
 		.then(resp => {
-			if (resp.status == 502) return []
+			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(widgets => widgets)
@@ -276,29 +342,39 @@ export const apiGetStorageData = (instId) => {
 		.then(results => results)
 }
 
-const getFilter = (val, searchInput) => {
-	const firstLast = val.play.firstName + val.play.lastName
-	const sanatizedSearch = searchInput.replace(/\s+/g, '').toUpperCase()
+// Widget player api calls
+export const apiGetPlaySession = ({ widgetId }) => {
+	return fetch('/api/json/session_play_create/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify([widgetId])) }))
+		.then(resp => {
+			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+			return null
+		})
+}
 
-	if (searchInput.length === 0) return true
+export const apiGetQuestionSet = (instId, playId) => {
+	return fetch('/api/json/question_set_get/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify([instId, playId])) }))
+		.then(qset => qset.json())
+}
 
-	// Matches by user
-	if (val.play.user.replace(/\s+/g, '').toUpperCase().includes(sanatizedSearch))
-		return true
+export const apiSavePlayStorage = ({ play_id, logs }) => {
+	return fetch('/api/json/play_storage_data_save/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify([play_id, logs])) }))
+		.then(resp => resp.json())
+}
 
-	// Matches by first and last
-	if (firstLast.replace(/\s+/g, '').toUpperCase().includes(sanatizedSearch))
-		return true
-
-	return false
+export const apiSavePlayLogs = ({ request }) => {
+	return fetch('/api/json/play_logs_save/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify(request)) }))
+		.then(resp => {
+			if (resp.status !== 504) return resp.json()
+			return null
+		})
 }
 
 // Persist to wherever using the super-secret object
-export const writeToStorage = (queryKey, data) => {
+const writeToStorage = (queryKey, data) => {
 	let storageData = window.sessionStorage.getItem('queries');
 
 	storageData = {
-		...JSON.parse(storageData ?? '{}'),
+		...JSON.parse(storageData || '{}'),
 		[queryKey]: data,
 	}
 

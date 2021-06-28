@@ -12,7 +12,7 @@ class Widget_Instance_Manager
 		return count($instances) > 0 ? $instances[0] : false;
 	}
 
-	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false, $deleted=false)
+	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false, bool $deleted=false): array
 	{
 		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
 

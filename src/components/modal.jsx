@@ -4,21 +4,21 @@ import './modal.scss'
 //import useClickOutside from '../util/use-click-outside'
 
 // We get hold of the div with the id modal that we have created in index.html
-const modalRoot = document.getElementById( 'modal' );
+const modalRoot = document.getElementById( 'modal' )
 
 class Modal extends React.Component {
 	constructor( props ) {
-		super( props );
+		super( props )
 		// create an element div for this modal
-		this.modalRef = React.createRef();
-		this.element = document.createElement( 'div' );
+		this.modalRef = React.createRef()
+		this.element = document.createElement( 'div' )
 		this.clickOutsideListener = this.clickOutsideListener.bind(this)
 	}
 
 	clickOutsideListener(event){
 		// Do nothing if clicking ref's element or descendent elements
 		if (!this.modalRef.current || this.modalRef.current.contains(event.target)) {
-			return;
+			return
 		}
 
 		if (this.props.ignoreClose !== true) {
@@ -27,15 +27,17 @@ class Modal extends React.Component {
 	};
 
 	componentDidMount() {
-		modalRoot.appendChild( this.element );
-		document.addEventListener('mousedown', this.clickOutsideListener);
-		document.addEventListener('touchstart', this.clickOutsideListener);
+		modalRoot.appendChild( this.element )
+		document.addEventListener('mousedown', this.clickOutsideListener)
+		document.addEventListener('touchstart', this.clickOutsideListener)
+		document.body.style.overflow = 'hidden'
 	}
 
 	componentWillUnmount() {
-		modalRoot.removeChild( this.element );
-		document.removeEventListener('mousedown', this.clickOutsideListener);
-		document.removeEventListener('touchstart', this.clickOutsideListener);
+		modalRoot.removeChild( this.element )
+		document.removeEventListener('mousedown', this.clickOutsideListener)
+		document.removeEventListener('touchstart', this.clickOutsideListener)
+		document.body.style.overflow = 'auto'
 	}
 
 	render() {

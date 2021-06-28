@@ -17,6 +17,11 @@ return [
 		'admin' => [$webpack.'css/admin.css'],
 		'support' => [$webpack.'js/support.css'],
 		'catalog' => [$webpack.'js/catalog.css'],
+		'detail' => [$webpack.'js/detail.css'],
+		'playpage' => [
+			$webpack.'css/widget-player-page.css',
+			$webpack.'css/loading-icon.css'
+		],
 		'widget_play' => [
 			$webpack.'css/widget-play.css',
 			$vendor.'ng-modal.css'

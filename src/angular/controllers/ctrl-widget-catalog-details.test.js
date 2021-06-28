@@ -1,6 +1,7 @@
 describe('WidgetCatalogDetailsController', () => {
 	var $controller
 	var mockPlease
+	var mockWindow
 	var $q
 	var $rootScope
 	var $scope
@@ -14,6 +15,8 @@ describe('WidgetCatalogDetailsController', () => {
 	var screenshotThumbMock
 	var widgetPromise
 	var getWidthMock
+	var mockLocationSet
+	var mockLocationGet
 
 	const baseWidget = {
 		name: 'hi',
@@ -50,9 +53,9 @@ describe('WidgetCatalogDetailsController', () => {
 			</div>
 		`
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
-		require('../materia/materia.coms.json')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
+		require('../../materia/materia.coms.json')
 		require('../services/srv-selectedwidget')
 		require('../services/srv-datetime')
 		require('../services/srv-widget')

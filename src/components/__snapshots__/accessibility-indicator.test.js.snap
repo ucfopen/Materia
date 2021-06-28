@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccessibilityIndicator should render 1`] = `
+<div
+  className="feature-list accessibility-options"
+>
+  <div
+    className="list-holder"
+  >
+    <span
+      className="feature-heading"
+    >
+      Accessibility:
+    </span>
+    <ul>
+      <li>
+        <div
+          className="icon-spacer"
+        >
+          <KeyboardIcon
+            color="#5a5a5a"
+          />
+        </div>
+        <span>
+          Keyboard is 
+          <span
+            className="highlighted full"
+            id="keyboard-access-level"
+          >
+            fully supported
+          </span>
+        </span>
+      </li>
+      <li>
+        <div
+          className="icon-spacer"
+        >
+          <ScreenReaderIcon
+            color="#5a5a5a"
+          />
+        </div>
+        <span>
+          Screen reader is 
+          <span
+            className="highlighted full"
+            id="screen-reader-access-level"
+          >
+            fully supported
+          </span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</div>
+`;

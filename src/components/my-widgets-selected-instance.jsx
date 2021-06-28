@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
+import { useQuery } from 'react-query'
+import { apiCanEditWidgets } from '../util/api'
 import { iconUrl } from '../util/icon-url'
+import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
 import parseObjectToDateString from '../util/object-to-date-string'
-import parseTime from '../util/parse-time'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
-import { useQuery } from 'react-query'
-import { apiCanEditWidgets } from '../util/api'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -58,7 +58,9 @@ const MyWidgetSelectedInstance = ({
 	otherUserPerms, 
 	setOtherUserPerms, 
 	onDelete, 
-	onCopy
+	onCopy,
+	beardMode,
+	beard
 }) => {
 	const [state, setState] = useState(initState())
 	const [showEmbed, setShowEmbed] = useState(false)
@@ -84,9 +86,7 @@ const MyWidgetSelectedInstance = ({
 		// Sets the play url
 		if (inst.is_draft) {
 			const regex = /preview/i
-			let new_url = inst.preview_url.replace(regex, 'play')
-
-			_playUrl = new_url
+			_playUrl = inst.preview_url.replace(regex, 'play')
 		}
 
 		// Sets the availability mode
@@ -102,7 +102,7 @@ const MyWidgetSelectedInstance = ({
 			_availabilityMode = 'from'
 		}
 
-		setState({...state, playUrl: _playUrl, availabilityMode: _availabilityMode, showDeleteDialog: false})
+		setState((prevState) => ({...prevState, playUrl: _playUrl, availabilityMode: _availabilityMode, showDeleteDialog: false}))
 
 	}, [JSON.stringify(inst)])
 
@@ -124,7 +124,7 @@ const MyWidgetSelectedInstance = ({
 
 	useEffect(() => {
 		if (myPerms) {
-			setState({...state, can: myPerms.can, perms: myPerms})
+			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
 		}
 	}, [myPerms, inst])
 
@@ -167,14 +167,12 @@ const MyWidgetSelectedInstance = ({
 	const closeModal = (setModal) => {
 		if (setModal !== undefined) {
 			setModal(false)
-			document.body.style.overflow = "auto"
 		}
 	}
 
 	const showModal = (setModal) => {
 		if (setModal !== undefined) {
 			setModal(true)
-			document.body.style.overflow = "hidden"
 		}
 	}
 
@@ -193,7 +191,7 @@ const MyWidgetSelectedInstance = ({
 				<h1>{inst.name} Widget</h1>
 			</div>
 			<div className="overview">
-				<div className={`icon_container med_${inst.beard} ${inst.beard ? 'big_bearded' : ''}`} >
+				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
 					<img className="icon"
 						src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
 						height="275px"
@@ -245,7 +243,7 @@ const MyWidgetSelectedInstance = ({
 						<li className={`delete ${state.can.delete ? '' : 'disabled'}`}>
 							<div className={`link ${state.can.delete ? '' : 'disabled'}`}
 								id="delete_widget_link"
-								onClick={() => {setState({...state, showDeleteDialog: !state.showDeleteDialog})}}
+								onClick={() => {setState((prevState) => ({...prevState, showDeleteDialog: !state.showDeleteDialog}))}}
 							>
 								Delete
 							</div>
@@ -259,7 +257,7 @@ const MyWidgetSelectedInstance = ({
 								<a
 									className="cancel_button"
 									href="#"
-									onClick={() => {setState({...state, showDeleteDialog: false})}}
+									onClick={() => {setState((prevState) => ({...prevState, showDeleteDialog: false}))}}
 								>
 									Cancel
 								</a>

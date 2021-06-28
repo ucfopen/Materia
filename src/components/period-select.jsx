@@ -16,19 +16,18 @@ const PeriodSelect = ({availInfo, index, formData, setFormData}) => {
 
 	const availChange = (index, val) => {
 		let newRadios = [...formData.changes.radios]
-
 		newRadios[index] = val
 		setFormData({...formData, changes: {...formData.changes, radios: newRadios}})
 	}
 
 	const dateChange = (date, index) => {
 		let newDates = [...formData.changes.dates]
+		let newRadios = [...formData.changes.radios]
 
-		// Sets the availability to "On"
-		availChange(index, false)
-		
+		newRadios[index] = false
 		newDates[index] = date
-		setFormData({...formData, changes: {...formData.changes, dates: newDates}})
+
+		setFormData({...formData, changes: {...formData.changes, dates: newDates, radios: newRadios}})
 	}
 
 	const timeChange = (index, event) => {

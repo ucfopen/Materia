@@ -17,7 +17,7 @@ describe('APIServ', () => {
 		let app = angular.module('materia')
 		app.factory('$window', () => mockWindow)
 
-		require('../common/materia-namespace')
+		require('../../util/materia-namespace')
 		require('./srv-api')
 		inject(function (APIServ) {
 			_service = APIServ

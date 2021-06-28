@@ -4,9 +4,6 @@ import { apiGetUser} from '../util/api'
 import React from 'react'
 import Header from './header'
 
-//const fetchCopyInstanceId = (instId, title, copyPermissions) => fetch('/api/json/widget_instance_copy', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}","${title}","${copyPermissions.toString()}"]`)}))
-//const fetchInstance = (instId) => fetch('/api/json/widget_instances_get/', fetchOptions({body: 'data=' + encodeURIComponent(`["${instId}"]`)}))
-
 const SupportPage = () => {
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
