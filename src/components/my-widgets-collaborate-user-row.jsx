@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Portal } from 'react-overlays'
+import { Modal, Portal } from 'react-overlays'
 import { access } from './materia-constants'
 import useClickOutside from '../util/use-click-outside'
 import DatePicker from "react-datepicker"
@@ -30,7 +30,7 @@ const timestampToDisplayDate = (timestamp) => {
 
 // Portal so date picker doesn't have to worry about overflow
 const CalendarContainer = ({children}) => {
-  const el = document.getElementById('calendar-portal')
+	const el = document.getElementById('calendar-portal')
 
   return (
     <Portal container={el}>
@@ -53,6 +53,8 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 			can: state.can,
 			remove: state.remove
 		})
+
+		//changeIgnoreClose()
 	}, [state])
 
 	useClickOutside(ref, () => {
@@ -88,12 +90,16 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 		setState({...state, expireDate: date, expireTime: timestamp})
 	}
 
+	//console.log(`${user.first}: ${state.accessLevel}`)
+
 	return (
 		<div className={`user-perm ${state.remove ? "deleted" : ""}`}>
 			<button tabIndex="0"
 				onClick={checkForWarning}
 				className="remove"
-				disabled={readOnly && !isCurrentUser}>
+				disabled={readOnly && !isCurrentUser}
+				aria-hidden={readOnly && !isCurrentUser}
+				data-testid={`${user.id}-delete-user`}>
 				X
 			</button>
 
@@ -110,20 +116,21 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 						<div className="warning">
 							Are you sure you want to limit <strong>your</strong> access?
 						</div>
-						<a className="no-button" onClick={() => setState({...state, showDemoteDialog: false})}>No</a>
-						<a className="button action_button yes-button" onClick={removeAccess}>Yes</a>
+						<a data-testid={`cancel-remove-access`} className="no-button" onClick={() => setState({...state, showDemoteDialog: false})}>No</a>
+						<a data-testid={`accept-remove-access`} className="button action_button yes-button" onClick={removeAccess}>Yes</a>
 					</div>
 				: null
 			}
 			<div className="options">
 				<select
 					disabled={readOnly}
+					data-testid={`${user.id}-select`}
 					tabIndex="0"
 					className="perm"
 					value={state.accessLevel}
 					onChange={changeLevel}
 				>
-					{Object.values(accessLevels).map(level =>  <option key={level.value} value={level.value}>{level.text}</option> )}
+					{Object.values(accessLevels).map(level =>  <option data-testid={`${user.id}-${level.value}`} key={level.value} value={level.value}>{level.text}</option> )}
 				</select>
 				<div className="expires">
 					<span className="expire-label">Expires: </span>
@@ -139,8 +146,8 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 							</span>
 						: 
 							state.expireTime !== null
-							? <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{dateToStr(state.expireDate)}</button>
-							: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>Never</button>
+							? <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} data-testid={`${user.id}-expire`} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{dateToStr(state.expireDate)}</button>
+							: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} data-testid={`${user.id}-never-expire`} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly || isCurrentUser}>Never</button>
 					}
 				</div>
 			</div>

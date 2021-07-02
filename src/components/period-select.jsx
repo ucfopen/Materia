@@ -70,6 +70,7 @@ const PeriodSelect = ({availInfo, index, formData, setFormData}) => {
 			<ul className="date-picker">
 				<li>
 					<input type="radio"
+						aria-label={`anytime-input-${index}`}
 						value={"anytime"}
 						checked={formData.changes.radios[index]}
 						onChange={() => {availChange(index, true)}}/>
@@ -77,6 +78,7 @@ const PeriodSelect = ({availInfo, index, formData, setFormData}) => {
 				</li>
 				<li className="date-list-elem">
 					<input type="radio"
+						aria-label={`on-input-${index}`}
 						value={"specify"}
 						checked={!formData.changes.radios[index]}
 						onChange={() => {availChange(index, false)}}/>
@@ -88,6 +90,7 @@ const PeriodSelect = ({availInfo, index, formData, setFormData}) => {
 						placeholderText="Date"/>
 					at
 					<input type="text"
+						aria-label={`time-input-${index}`}
 						className={`time ${formData.errors.time[index] ? 'error' : ''}`}
 						placeholder="Time"
 						onBlur={() => {blurTime()}}
@@ -95,11 +98,13 @@ const PeriodSelect = ({availInfo, index, formData, setFormData}) => {
 						value={(formData.changes.times[index])}
 						onChange={(e) => {timeChange(index, e)}}/>
 					<span className={`am ${availInfo.period === 'am' ? 'selected' : ''}`}
+						aria-label={`am-input-${index}`}
 						ref={amRef}
 						onClick={() => {periodChange(index, "am")}}>
 						am
 					</span>
 					<span className={`pm ${availInfo.period === 'pm' ? 'selected' : ''}`}
+						aria-label={`pm-input-${index}`}
 						ref={pmRef}
 						onClick={() => {periodChange(index, "pm")}}>
 						pm

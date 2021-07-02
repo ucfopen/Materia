@@ -269,7 +269,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		}
 	}
 
-	// Player demo functions
+	// Starts player demo, but navigates to separate demo of screen isn't big enough
 	const showDemoClicked = () => {
 		if (isWideEnough()) {
 			const _height = (parseInt(widget.height) + 48) + 'px'

@@ -13,6 +13,7 @@ const initState = () => {
 		errorLabel: "",
 		lastActive: 8,
 		showWarning: false,
+		warningType: 'normal',
 		availability: [{}, {}],
 		formData: {
 			data: {}, 
@@ -229,7 +230,12 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 			}
 		}
 
-		setState({...state, showWarning: _showWarning, formData: {...state.formData, changes: {...state.formData.changes, access: val}}})
+		if (!_showWarning) {
+			setState({...state, showWarning: _showWarning, formData: {...state.formData, changes: {...state.formData.changes, access: val}}})
+		}
+		else {
+			setState({...state, showWarning: _showWarning, warningType: val})
+		}
 	}
 
 	const submitForm = () => {
@@ -416,6 +422,10 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 		return {msg: errMsg, errors: errors}
 	}
 
+	const warningSuccess = () => {
+		setState({...state, showWarning: false, formData: {...state.formData, changes: {...state.formData.changes, access: state.warningType}}})
+	}
+
 	return (
 		<Modal onClose={onClose} ignoreClose={state.showWarning}>
 			<div className="settings-modal">
@@ -452,7 +462,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 										value="normal"
 										checked={state.formData.changes.access === "normal"}
 										onChange={() => {accessChange("normal")}} />
-									<label>Normal</label>
+									<label htmlFor="normal-radio">Normal</label>
 									<div className="input-desc">
 										Only students and users who can log into Materia can
 										access this widget. If the widget collects scores, those
@@ -467,7 +477,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 										value="guest"
 										checked={state.formData.changes.access === "guest"}
 										onChange={() => {accessChange("guest")}} />
-									<label>Guest Mode</label>
+									<label htmlFor="guest-radio">Guest Mode</label>
 									<div className="input-desc">
 										Anyone with a link can play this widget without logging in.
 										All recorded scores will be anonymous. Can't use in an
@@ -512,10 +522,10 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 			</div>
 			{ state.showWarning === true
 				?
-				<Modal onClose={() => {setState({...state, showWarning: false})}} smaller={true} alert={true}>
+				<Modal onClose={() => {setState({...state, showWarning: false})}} smaller={true} alert={true} testId="warning">
 					<span className="alert-title">Students with access will be removed</span>
 					<p className="alert-description">Warning: Disabling Guest Mode will automatically revoke access to this widget for any students it has been shared with!</p>
-					<button className="alert-btn" onClick={() => {setState({...state, showWarning: false})}}>Okay</button>
+					<button aria-label="remove-student" className="alert-btn" onClick={warningSuccess}>Okay</button>
 				</Modal>
 				:
 				null

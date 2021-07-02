@@ -15,6 +15,10 @@ const initState = () => {
 	})
 }
 
+const isMobileDevice = function() {
+  return window.matchMedia("(max-width: 720px)").matches;
+};
+
 const Catalog = ({widgets = [], isLoading = true}) => {
 	const [state, setState] = useState(initState())
 	const totalWidgets = widgets.length
@@ -125,7 +129,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						</div>
 					</div>
 
-					<div id="active-filters" className="mobile-only">
+					<div aria-hidden={!isMobileDevice()} id="active-filters" className="mobile-only">
 						<button
 							id="add-filter"
 							onClick={ () =>  { setState({...state, showMobileFilters: !state.showMobileFilters}) } }
@@ -142,6 +146,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 								id="filter-dropdown"
 								onClick={ () => { setState({...state, showMobileFilters: !state.showMobileFilters}) } }
 								className="mobile-only"
+								aria-hidden={!isMobileDevice()}
 							>
 								{filters.map(filter =>
 									<label key={filter}>
@@ -172,6 +177,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 								return <button
 										key={index}
 										className={"feature-button" + (isEnabled ? ' selected' : '')}
+										aria-hidden={!state.showingFilters}
 										onClick={() => {
 											setState({...state, activeFilters: getFiltersAfterToggle(state.activeFilters, filter)})
 										}}
@@ -188,7 +194,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 								<h1 className="container-label">
 									<span>Featured Widgets</span>
 								</h1>
-								<div className="widgets-container featured">
+								<div data-testid="featured-widgets" className="widgets-container featured">
 									{ widgets.filter(w => w.in_catalog==='1').map(w =>
 										<CatalogCard {...w} key={w.id} />
 									)}
@@ -197,7 +203,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						: null
 					}
 
-					<div className="widgets-container">
+					<div data-testid="non-featured-widgets" className="widgets-container">
 						{ filteredWidgets.map(w =>
 							<CatalogCard {...w} key={w.id} isFiltered activeFilters={state.activeFilters} />
 						)}

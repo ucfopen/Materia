@@ -16,7 +16,7 @@ describe('AccessibilityIndicator', () => {
 		expect(toJson(wrapper)).toMatchSnapshot();
 	})
 
-	test('changing props should change component as expected', () => {
+	it('should change component as props change expected', () => {
 		// Full
 		let component = shallow(<AccessibilityIndicator widget={getProps()} />);
 		expect(component.find('#keyboard-access-level').text()).toBe('fully supported');

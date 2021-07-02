@@ -76,6 +76,7 @@ const AttemptsSlider = ({inst, state, setState}) => {
 		<div className="data-holder">
 			<div className={`selector ${state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
 				<input id="ui-slider"
+					aria-label="attempts-input"
 					className={`${state.formData.changes.access === "guest" ? 'disabled' : ''}`}
 					type="range"
 					min="1"
@@ -87,7 +88,7 @@ const AttemptsSlider = ({inst, state, setState}) => {
 					onBlur={roundInput}
 				></input>
 			</div>
-			<div id='attempt-holder' className={`attempt-holder ${state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
+			<div id='attempt-holder' aria-label='attempts-choices-container' className={`attempt-holder ${state.formData.changes.access === "guest" ? 'disabled' : ''}`}>
 				<span className={`${state.lastActive === 0 ? 'active' : ''}`} onClick={() => { updateSliderNum(1, 0) }}>1</span>
 				<span className={`${state.lastActive === 1 ? 'active' : ''}`} onClick={() => { updateSliderNum(5, 1) }}>2</span>
 				<span className={`${state.lastActive === 2 ? 'active' : ''}`} onClick={() => { updateSliderNum(9, 2) }}>3</span>

@@ -3,9 +3,6 @@ import { createPortal } from 'react-dom';
 import './modal.scss'
 //import useClickOutside from '../util/use-click-outside'
 
-// We get hold of the div with the id modal that we have created in index.html
-const modalRoot = document.getElementById( 'modal' )
-
 class Modal extends React.Component {
 	constructor( props ) {
 		super( props )
@@ -13,6 +10,9 @@ class Modal extends React.Component {
 		this.modalRef = React.createRef()
 		this.element = document.createElement( 'div' )
 		this.clickOutsideListener = this.clickOutsideListener.bind(this)
+
+		// We get hold of the div with the id modal that we have created in index.html
+		this.modalRoot = document.getElementById( 'modal' )
 	}
 
 	clickOutsideListener(event){
@@ -27,14 +27,14 @@ class Modal extends React.Component {
 	};
 
 	componentDidMount() {
-		modalRoot.appendChild( this.element )
+		this.modalRoot.appendChild( this.element )
 		document.addEventListener('mousedown', this.clickOutsideListener)
 		document.addEventListener('touchstart', this.clickOutsideListener)
 		document.body.style.overflow = 'hidden'
 	}
 
 	componentWillUnmount() {
-		modalRoot.removeChild( this.element )
+		this.modalRoot.removeChild( this.element )
 		document.removeEventListener('mousedown', this.clickOutsideListener)
 		document.removeEventListener('touchstart', this.clickOutsideListener)
 		document.body.style.overflow = 'auto'
@@ -46,7 +46,10 @@ class Modal extends React.Component {
 			<div className={`modal-overlay ${this.props.alert ? 'alert' : ''}`} id="modal-overlay"></div>
 
 			<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''} ${this.props.noGutter ? 'no-gutter' : ''}`} id="inner-modal">
-				<span className="close-button" id="close-button" onClick={this.props.onClose}>X</span>
+				<span className="close-button"
+					id="close-button"
+					aria-label={`close${this.props.testId ? `-${this.props.testId}-` : '-'}modal`}
+					onClick={this.props.onClose}>X</span>
 				<div className={`modal-guts ${this.props.noGutter ? 'no-gutter' : ''}`}>
 					{this.props.children}
 				</div>

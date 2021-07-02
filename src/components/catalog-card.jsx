@@ -46,7 +46,7 @@ const CatalogCard = ({
 					)}
 
 					{meta_data.features.map(filter =>
-						<li className={`${activeFilters.includes(filter) ? 'selected' : ''}`} key={filter}>{filter}</li>
+						<li className={`${activeFilters.includes(filter) ? 'selected' : ''}`} title={filter} key={filter}>{filter}</li>
 					)}
 				</ul>
 				<div className="accessibility-holder">
@@ -57,16 +57,16 @@ const CatalogCard = ({
 								meta_data.accessibility_options.length > 0 && isValidAccessVal(meta_data.accessibility_options[0])
 								? <div>
 										<KeyboardIcon color={`${activeFilters.includes('Keyboard Accessible') ? '#3498db' : 'black'}`}/>
-										<span className="tool-tip">Keyboard Accessible</span>
+										<span aria-label="keyboard-access-popup" className="tool-tip">Keyboard Accessible</span>
 									</div>
 								: null
 							}
 
 							{
 								meta_data.accessibility_options.length > 1 && isValidAccessVal(meta_data.accessibility_options[1])
-								? <div>
+								? <div aria-label="screen-reader-access-icon">
 										<ScreenReaderIcon color={`${activeFilters.includes('Screen Reader Accessible') ? '#3498db' : 'black'}`}/>
-										<span className="tool-tip">Screen Reader Accessible</span>
+										<span aria-label="screen-reader-access-popup" className="tool-tip">Screen Reader Accessible</span>
 									</div>
 								: null
 							}

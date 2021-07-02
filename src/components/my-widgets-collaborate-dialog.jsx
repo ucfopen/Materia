@@ -13,7 +13,7 @@ const initDialogState = () => {
 	return ({
 		searchText: '',
 		shareNotAllowed: false,
-		updatedOtherUserPerms: {}
+		updatedOtherUserPerms: new Map()
 	})
 }
 
@@ -62,7 +62,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Handles clicking a search result
 	const onClickMatch = (match) => {
-		const tempPerms = state.updatedOtherUserPerms
+		const tempPerms = new Map(state.updatedOtherUserPerms)
 		let shareNotAllowed = false
 
 		if(!inst.guest_access && match.is_student){
@@ -110,9 +110,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	},[inst, Array.from(state.updatedOtherUserPerms)])
 
 	const onSave = () => {
-		let isCurrUser = false
+		let delCurrUser = false
 		if (state.updatedOtherUserPerms.get(currentUser.id)?.remove) {
-			isCurrUser = true
+			delCurrUser = true
 		}
 		
 		setUserPerms.mutate({
@@ -127,7 +127,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			successFunc: () => {
 				if (mounted.current) {
 					setOtherUserPerms(state.updatedOtherUserPerms)
-					if (isCurrUser) {
+					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}
 					queryClient.invalidateQueries('search-widgets')
@@ -139,11 +139,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			}
 		})
 
-		state.updatedOtherUserPerms.forEach((value, key) => {
+		let tmpPerms = new Map(state.updatedOtherUserPerms)
+
+		tmpPerms.forEach((value, key) => {
 			if(value.remove === true) {
-				state.updatedOtherUserPerms.delete(key)
+				tmpPerms.delete(key)
 			}
 		})
+
+		setState({...state, updatedOtherUserPerms: tmpPerms})
 	}
 
 	const customClose = () => {
@@ -179,7 +183,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 											type="text" 
 											placeholder="Enter a Materia user's name or e-mail"/>
 										<div>
-										{ debouncedSearchTerm !== '' && searchResults && searchResults?.length !== 0
+										{ debouncedSearchTerm !== '' && state.searchText !== '' && searchResults && searchResults?.length !== 0
 											? <div className="collab-search-list">
 												{searchResults?.map((match) => 
 													<div
@@ -222,6 +226,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 								: <LoadingIcon />
 							}
 						</div>
+						{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
+						<div id="calendar-portal"></div>
 						<p className="disclaimer">
 							Users with full access can edit or copy this widget and can
 							add or remove people in this list.
