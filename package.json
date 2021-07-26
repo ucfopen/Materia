@@ -1,6 +1,6 @@
 {
   "name": "@ucfopen/materia-server-client-assets",
-  "version": "7.0.1",
+  "version": "8.0.0",
   "license": "AGPL-3.0",
   "description": "Engage students with easily embedded apps for online courses.",
   "author": "University of Central Florida, Center for Distributed Learning",
@@ -28,7 +28,7 @@
     "@vx/shape": "^0.0.198",
     "angular": "1.8.0",
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.2.0",
+    "materia-server-client-assets": "2.3.0",
     "napa": "^3.0.0",
     "ngmodal": "ucfcdl/ngModal#v1.2.2",
     "react-datepicker": "^3.6.0",

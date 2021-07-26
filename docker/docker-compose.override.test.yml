@@ -1,0 +1,48 @@
+version: '3.5'
+# use with dockercompose -f docker-compose.yml -f docker-compose.overide.test.yml
+services:
+  webserver:
+    volumes:
+      - ../public:/var/www/html/public:ro
+      - static_widget_files_test:/var/www/html/public/widget/:ro
+      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
+      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
+      - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+
+  app:
+    environment:
+      # View Materia README for env settings
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
+      - FUEL_ENV=test
+      - FUEL_LOG_THRESHOLD=300
+      - LOG_HANDLER=DEFAULT
+    volumes:
+      - ..:/var/www/html/
+      # isolate test widget files just for test
+      - static_widget_files_test:/var/www/html/public/widget
+      # isolate test media just for test
+      - uploaded_media_test:/var/www/html/fuel/packages/materia/media
+      - ./config/php/materia.test.php.ini:/usr/local/etc/php/conf.d/test.ini
+      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
+
+  mysql:
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE=test
+    volumes:
+      - "./config/mysql/dev.my.cnf:/etc/mysql/conf.d/my.cnf"
+    # this makes the unit tests much faster but it's a little weird jumping
+    # back and forth between running the server and testing
+    # tmpfs:
+    #   - /var/lib/mysql
+
+  fakes3:
+    volumes:
+      - uploaded_media_test:/s3mnt/fakes3_root/fakes3_uploads/media/
+
+volumes:
+  # static_files: {} # compiled js/css and uploaded widgets
+  static_widget_files_test: {} # contain widgets installed in tests
+  uploaded_media_test: {} # contain files uploaded in tests

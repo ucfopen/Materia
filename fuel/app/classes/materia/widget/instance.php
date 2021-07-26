@@ -187,6 +187,37 @@ class Widget_Instance
 	}
 
 	/**
+	 * Get all the previous qsets for a given instance id
+	 *
+	 * @param int $inst_id the widget instance id for which to grab all qsets
+	 */
+	public function get_qset_history($inst_id)
+	{
+		$query = \DB::select()
+			->from('widget_qset')
+			->where('inst_id', $inst_id)
+			->order_by('created_at', 'DESC');
+
+		$results = $query->execute();
+
+		$history = [];
+
+		// for ($i = 0; $i < count($results); $i++)
+		foreach ($results as $result)
+		{
+			$qset = (object) ['version' => null, 'data' => null, 'id' => null, 'created_at' => null];
+			$qset->data = json_decode(base64_decode($result['data']), true);
+			$qset->version = $result['version'];
+			$qset->id = $result['id'];
+			$qset->created_at = $result['created_at'];
+
+			array_push($history, $qset);
+		}
+
+		return $history;
+	}
+
+	/**
 	 * Grabs the qset with the id passed in from the database.
 	 */
 	public function get_specific_qset($qset_id)

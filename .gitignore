@@ -10,6 +10,10 @@ build
 .idea
 nbproject/
 *.pem
+.phpunit.result.cache
+
+# custom config
+.env.local
 
 # hidden files created by Windows
 Thumbs.db
@@ -30,15 +34,13 @@ desktop.ini
 /fuel/packages/ucfauth/
 /fuel/packages/materia-theme-ucf/
 
+
 # dynamically generated files
 /fuel/app/logs/**/*
 /fuel/app/logs/*
 /fuel/app/cache/**/*
-/fuel/app/config/crypt.php
-/fuel/app/config/development/crypt.php
 /fuel/app/config/asset_hash*
 /fuel/app/config/**/migrations.php
-/fuel/app/modules/lti/config/development/*
 
 # NPM modules
 node_modules
@@ -59,13 +61,13 @@ public/css/store_delete.css
 public/css/util-lti-picker.css
 public/css/util-media-import.css
 public/css/util-question-import.css
+public/css/util-qset-history.css
 public/css/widget-catalog.css
 public/css/widget-create.css
 public/css/widget-detail.css
 public/css/widget-embed-placeholder.css
 public/css/widget-guide.css
 public/css/widget-play.css
-
 
 
 public/js/admin.js
@@ -115,3 +117,4 @@ materia-pkg.zip
 materia-pkg-build-info.yml
 
 public/dist
+yarn-error.log

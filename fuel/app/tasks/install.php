@@ -6,7 +6,6 @@ class Install
 	public static function run()
 	{
 		\Crypt::encode('this is just here to initialize fuel/app/config/crypt.php');
-		self::prompt_and_run('Run configuration wizard?', 'configuration_wizard', false);
 		self::prompt_and_run('Make required paths writable?', 'make_paths_writable');
 		self::prompt_and_run('Clear server cache?', 'clear_cache');
 		self::prompt_and_run('Run migrations?', 'setup_migrations');

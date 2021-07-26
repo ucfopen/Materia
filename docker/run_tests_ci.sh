@@ -11,18 +11,18 @@
 set -e
 set -o xtrace
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
-DCTEST="$DC -f docker-compose.test.yml"
+$DCTEST pull --ignore-pull-failures app fakes3
 
-$DCTEST pull --ignore-pull-failures phpfpm fakes3
+# annoying workaround to get host mounted file ownership mapped to the user inside the container
+docker run --rm -v $(pwd)/../:/source alpine:latest chown -R 1000 /source
 
 # install php deps
-$DCTEST run --rm --no-deps phpfpm composer install --no-progress
+$DCTEST run --rm --no-deps app composer install --no-progress
 
 # run linter
-$DCTEST run --rm --no-deps phpfpm env COMPOSER_ALLOW_SUPERUSER=1 composer sniff-ci
+source run_tests_lint.sh
 
 # install widgets and run tests
 source run_tests_coverage.sh

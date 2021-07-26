@@ -10,7 +10,7 @@
 		<p>
 			Materia features a growing library of customizable widgets.
 			Learn more about the available widgets and how to make your own
-			<a class='external' target='_blank' href='http://ucfcdl.github.io/Materia/create/getting-started.html'>here</a>.
+			<a class='external' target='_blank' href='http://ucfopen.github.io/Materia-Docs/create/getting-started.html'>here</a>.
 		</p>
 		<a style="margin-bottom: 40px;" class="action_button" target='_blank' href="/my-widgets">Go to Materia</a>
 	</div>
@@ -22,6 +22,6 @@
 			Embedding the widgets you create into your Canvas courses as assignments - graded or not - is a quick and easy process.
 			Learn more about embedding your widgets.
 		</p>
-		<a class="action_button" target='_blank' href="http://ucfcdl.github.io/Materia/create/embedding-in-canvas.html">Learn More</a>
+		<a class="action_button" target='_blank' href="http://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html">Learn More</a>
 	</div>
 </section>

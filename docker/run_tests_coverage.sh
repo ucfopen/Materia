@@ -13,14 +13,11 @@
 #######################################################
 set -e
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
-
-DCTEST="$DC -f docker-compose.test.yml"
+DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
 echo "remember you can limit your test groups with './run_tests_coverage.sh --group=Lti'"
 echo "If you have an issue with a broken widget, clear the widgets with:"
-echo "$DCTEST run --rm phpfpm bash -c -e 'rm /var/www/html/fuel/packages/materia/vendor/widget/test/*'"
+echo "$DCTEST run --rm app bash -c -e 'rm /var/www/html/fuel/packages/materia/vendor/widget/test/*'"
 
 # store the docker compose command to shorten the following commands
-$DCTEST run --rm phpfpm /wait-for-it.sh mysql:3306 -t 20 -- env COMPOSER_ALLOW_SUPERUSER=1 composer run coverageci -- "$@"
+$DCTEST run --rm app /wait-for-it.sh mysql:3306 -t 20 -- composer run coverageci -- "$@"

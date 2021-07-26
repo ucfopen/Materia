@@ -16,6 +16,7 @@
     <exclude-pattern>*/fuel/core/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/auth/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/email/*</exclude-pattern>
+    <exclude-pattern>*/fuel/packages/materia-theme-ucf/*</exclude-pattern>
     <exclude-pattern>*/fuel/app/classes/materia/fuel/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/oil/*</exclude-pattern>
     <exclude-pattern>*/fuel/packages/orm/*</exclude-pattern>

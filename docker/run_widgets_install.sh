@@ -13,7 +13,4 @@
 #######################################################
 set -e
 
-# use env/args to determine which docker-compose files to load
-source run_dc.sh
-
-$DC run --rm phpfpm bash -c 'php oil r widget:install fuel/app/tmp/widget_packages/'$1
+docker-compose run --rm app bash -c 'php oil r widget:install fuel/app/tmp/widget_packages/'$1
