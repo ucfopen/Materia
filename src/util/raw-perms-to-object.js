@@ -5,7 +5,7 @@ const rawPermsToObj = ([permCode = access.VISIBLE, expireTime = null], isEditabl
 	return {
 		accessLevel: permCode,
 		expireTime,
-		editable: permCode > access.VISIBLE && (parseInt(isEditable, 10) === 1),
+		editable: permCode > access.VISIBLE && isEditable,
 		shareable: permCode > access.VISIBLE, // old, but difficult to replace with can.share :/
 		can: {
 			view: [access.VISIBLE, access.COPY, access.SHARE, access.FULL, access.SU].includes(permCode),

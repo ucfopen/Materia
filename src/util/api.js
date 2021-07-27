@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import fetchOptions from './fetch-options'
 import { useQueryClient } from 'react-query'
+import { objectTypes } from '../components/materia-constants'
 
 // checks response for errors and decodes json
 const handleErrors = async resp => {
@@ -14,7 +15,10 @@ const handleErrors = async resp => {
 
 const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then(handleErrors)
 
-export const apiGetWidgetInstance = (instId) => {
+// Helper function to simplify encoding fetch body values
+const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
+
+export const apiGetWidgetInstance = instId => {
 	return fetch(`/api/json/widget_instances_get/${instId}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -27,7 +31,7 @@ export const apiGetWidgetInstance = (instId) => {
 }
 
 export const apiGetWidgetInstances = () => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: 'data=' + encodeURIComponent(`[]`) }))
+	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -51,7 +55,7 @@ export const apiGetWidgetsByType = () => {
 			"pragma": "no-cache",
 			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 		},
-		"body": "data=%5B%22all%22%5D",
+		"body": `data=${formatFetchBody(['all'])}`,
 		"method": "POST",
 		"mode": "cors",
 		"credentials": "include"
@@ -63,14 +67,14 @@ export const apiGetWidgetsByType = () => {
 }
 
 // Gets widget info
-export const apiGetWidget = (widgetId) => {
+export const apiGetWidget = widgetId => {
 	const options = {
 		"headers": {
 			"cache-control": "no-cache",
 			"pragma": "no-cache",
 			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
 		},
-		"body": `data=${encodeURIComponent(JSON.stringify([[widgetId]]))}`,
+		"body": `data=${formatFetchBody([[widgetId]])}`,
 		"method": "POST",
 		"mode": "cors",
 		"credentials": "include"
@@ -81,22 +85,22 @@ export const apiGetWidget = (widgetId) => {
 		.then(widgets => widgets.length > 0 ? widgets[0] : {})
 }
 
-export const apiCopyWidget = (values) => {
-	return fetchGet(`/api/json/widget_instance_copy`, { body: 'data=' + encodeURIComponent(`["${values.instId}","${values.title}","${values.copyPermissions.toString()}"]`) })
+export const apiCopyWidget = values => {
+	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions.toString()])}` })
 		.then(widget => {
 			return widget
 		})
 }
 
 export const apiDeleteWidget = ({ instId }) => {
-	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=%5B%22${instId}%22%5D` }))
+	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then((resp) => {
 			if (resp.status === 204 || resp.status === 502) return null
 			return resp.json()
 		})
 }
 
-export function apiUnDeleteWidget({ instId }) {
+export const apiUnDeleteWidget = ({ instId }) => {
 	return fetch(`/api/admin/widget_instance_undelete/${instId}`,
 		{
 			method: 'POST',
@@ -115,7 +119,8 @@ export function apiUnDeleteWidget({ instId }) {
 }
 
 export const apiGetUser = () => {
-	return fetchGet('/api/json/user_get', { body: `data=${encodeURIComponent('[]')}` })
+
+	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([])}` })
 		.then(user => {
 			if (user.halt) {
 				sessionStorage.clear()
@@ -127,8 +132,8 @@ export const apiGetUser = () => {
 		})
 }
 
-export const apiGetUsers = (arrayOfUserIds) => {
-	return fetchGet('/api/json/user_get', { body: `data=${encodeURIComponent(JSON.stringify([arrayOfUserIds]))}` })
+export const apiGetUsers = arrayOfUserIds => {
+	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
 		.then(users => {
 			const keyedUsers = {}
 
@@ -141,13 +146,13 @@ export const apiGetUsers = (arrayOfUserIds) => {
 }
 
 export const apiAuthorSuper = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${encodeURIComponent(JSON.stringify(['super_user']))}` })
+	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['super_user'])}` })
 		.then(user => user)
 		.catch(error => false)
 }
 
 export const apiAuthorSupport = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${encodeURIComponent(JSON.stringify(['support_user']))}` })
+	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['support_user'])}` })
 		.then(user => user)
 		.catch(error => false)
 }
@@ -161,12 +166,12 @@ export const apiGetNotifications = () => {
 		.then(notifications => notifications)
 }
 
-export function apiDeleteNotification(notifId) {
-	return fetch('/api/json/notification_delete/', fetchOptions({ body: "data=" + encodeURIComponent(`[${notifId}]`) }))
+export const apiDeleteNotification = notifId => {
+	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([notifId])}` }))
 		.then((resp) => resp.json())
 }
 
-export const apiGetExtraAttempts = (instId) => {
+export const apiGetExtraAttempts = instId => {
 	return fetch(`/api/admin/extra_attempts/${instId}`)
 		.then(resp => {
 			if (resp.status != 200) return []
@@ -204,7 +209,7 @@ export const apiSetAttempts = ({ instId, attempts }) => {
 }
 
 export const apiSearchUsers = (input = "") => {
-	return fetch('/api/json/users_search', fetchOptions({ body: `data=${encodeURIComponent(JSON.stringify([input]))}` }))
+	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -212,8 +217,8 @@ export const apiSearchUsers = (input = "") => {
 		.then(users => users)
 }
 
-export const apiGetUserPermsForInstance = (instId) => {
-	return fetch('/api/json/permissions_get', fetchOptions({ body: 'data=' + encodeURIComponent(`["4","${instId}"]`) }))
+export const apiGetUserPermsForInstance = instId => {
+	return fetch('/api/json/permissions_get', fetchOptions({ body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return null
 			return resp.json()
@@ -222,22 +227,22 @@ export const apiGetUserPermsForInstance = (instId) => {
 }
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
-	return fetch('/api/json/permissions_set', fetchOptions({ body: 'data=' + encodeURIComponent(`[4,"${instId}",${JSON.stringify(permsObj)}]`) }))
+	return fetch('/api/json/permissions_set', fetchOptions({ body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` }))
 }
 
-export const apiCanEditWidgets = (arrayOfWidgetIds) => {
-	return fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({ body: `data=${encodeURIComponent(JSON.stringify([arrayOfWidgetIds]))}` }))
+export const apiCanEditWidgets = arrayOfWidgetIds => {
+	return fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({ body: `data=${formatFetchBody([arrayOfWidgetIds])}` }))
 		.then(res => res.json())
 		.then(widgetInfo => widgetInfo)
 }
 
 export const apiUpdateWidget = ({ args }) => {
-	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${encodeURIComponent(JSON.stringify(args))}` }))
+	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
 		.then(res => res.json())
 		.then(widget => widget)
 }
 
-export const apiSearchWidgets = (input) => {
+export const apiSearchWidgets = input => {
 	return fetch(`/api/admin/widget_search/${input}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -246,7 +251,7 @@ export const apiSearchWidgets = (input) => {
 		.then(widgets => widgets)
 }
 
-export const apiGetScoreSummary = (instId) => {
+export const apiGetScoreSummary = instId => {
 	const options = {
 		"headers": {
 			"cache-control": "no-cache",
@@ -288,7 +293,7 @@ export const apiGetScoreSummary = (instId) => {
 }
 
 export const apiGetPlayLogs = (instId, term, year) => {
-	return fetch('/api/json/play_logs_get', fetchOptions({ body: `data=%5B%22${instId}%22%2C%22${term}%22%2C%22${year}%22%5D` }))
+	return fetch('/api/json/play_logs_get', fetchOptions({ body: `data=${formatFetchBody([instId, term, year])}` }))
 		.then(resp => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return []
@@ -333,8 +338,8 @@ export const apiGetPlayLogs = (instId, term, year) => {
 		})
 }
 
-export const apiGetStorageData = (instId) => {
-	return fetch('/api/json/play_storage_get', fetchOptions({ body: `data=%5B%22${instId}%22%5D` }))
+export const apiGetStorageData = instId => {
+	return fetch('/api/json/play_storage_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then(resp => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return {}
@@ -344,7 +349,7 @@ export const apiGetStorageData = (instId) => {
 
 // Widget player api calls
 export const apiGetPlaySession = ({ widgetId }) => {
-	return fetch('/api/json/session_play_create/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify([widgetId])) }))
+	return fetch('/api/json/session_play_create/', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
 		.then(resp => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return null
@@ -352,17 +357,17 @@ export const apiGetPlaySession = ({ widgetId }) => {
 }
 
 export const apiGetQuestionSet = (instId, playId) => {
-	return fetch('/api/json/question_set_get/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify([instId, playId])) }))
+	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
 		.then(qset => qset.json())
 }
 
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return fetch('/api/json/play_storage_data_save/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify([play_id, logs])) }))
+	return fetch('/api/json/play_storage_data_save/', fetchOptions({ body: `data=${formatFetchBody([play_id, logs])}` }))
 		.then(resp => resp.json())
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetch('/api/json/play_logs_save/', fetchOptions({ body: 'data=' + encodeURIComponent(JSON.stringify(request)) }))
+	return fetch('/api/json/play_logs_save/', fetchOptions({ body: `data=${formatFetchBody(request)}` }))
 		.then(resp => {
 			if (resp.status !== 504) return resp.json()
 			return null

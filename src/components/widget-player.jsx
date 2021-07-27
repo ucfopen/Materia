@@ -24,19 +24,19 @@ const initDemo = () => ({
 const initLogs = () => ({ play: [], storage: [] })
 
 const logReducer = (state, action) => {
-  switch (action.type) {
-    case 'addPlay':
-			return {...state, play: [...state.play, action.payload.log]}
-		case 'addStorage':
-			return {...state, storage: [...state.storage, action.payload.log]}
-		case 'clearPlay':
-			return {...state, play: []}
-		case 'clearStorage':
-			return {...state, storage: []}
-			
-    default:
-      throw new Error(`Unrecognized action: ${action.type}`);
-  }
+	switch (action.type) {
+		case 'addPlay':
+				return {...state, play: [...state.play, action.payload.log]}
+			case 'addStorage':
+				return {...state, storage: [...state.storage, action.payload.log]}
+			case 'clearPlay':
+				return {...state, play: []}
+			case 'clearStorage':
+				return {...state, storage: []}
+
+		default:
+			throw new Error(`Unrecognized action: ${action.type}`);
+	}
 }
 
 // converts current widget/instance structure to the one expected by the player
@@ -237,13 +237,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 	// Receives messages from widget player
 	const _onPostMessage = (e) => {
-		// This might be neccessary for PROD
-		//const a = document.createElement('a')
-		//a.href = STATIC_CROSSDOMAIN
-		//const expectedOrigin = a.href.substring(0, a.href.length - 1)
-
-		// TODO: Fix this for prod
-		const expectedOrigin = 'https://127.0.0.1:8008'
+		// build a link element to deconstruct the static url
+		// this helps us match the static url against the event origin
+		const a = document.createElement('a')
+		a.href = STATIC_CROSSDOMAIN
+		const expectedOrigin = a.href.substring(0, a.href.length - 1)
 
 		if (e.origin === expectedOrigin) {
 			const msg = JSON.parse(e.data)
@@ -272,8 +270,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 					throw new Error(`Unknown PostMessage received from player core: ${msg.type}`)
 			}
 		}
-		// TODO : make this an else
-		else if (e.data.source !== "react-devtools-content-script" && e.data.source !== "react-devtools-bridge" && e.data.source !== "react-devtools-inject-backend") {
+		// TODO : make this an else?
+		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
 				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${e.origin}`
 			)
@@ -376,7 +374,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	const _sendPendingStorageLogs = () => {
 		if (!isPreview && pendingLogs.storage.length > 0) {
 			saveStorage.mutate({
-				play_id: playId, 
+				play_id: playId,
 				logs: pendingLogs.storage,
 				successFunc: () => {
 					dispatchPendingLogs({type: 'clearStorage'})
@@ -505,7 +503,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 			return undefined
 		}
 	}
-	
+
 	return (
 			<section className={`widget ${isPreview ? 'preview' : ''}`}
 				style={{display: demoData.loading ? 'none' : 'block'}}>

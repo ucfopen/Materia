@@ -53,11 +53,11 @@ const initState = () => {
 
 const MyWidgetSelectedInstance = ({
 	inst = {},
-	currentUser, 
-	myPerms, 
-	otherUserPerms, 
-	setOtherUserPerms, 
-	onDelete, 
+	currentUser,
+	myPerms,
+	otherUserPerms,
+	setOtherUserPerms,
+	onDelete,
 	onCopy,
 	beardMode,
 	beard
@@ -109,9 +109,9 @@ const MyWidgetSelectedInstance = ({
 	// Gets the collab label
 	useEffect(() => {
 		let usersList = []
-		
+
 		if (!otherUserPerms) return
-		
+
 		// Filters out the current user for the collab label
 		for (let [key, user] of otherUserPerms) {
 			if (key !== currentUser?.id) {
@@ -157,7 +157,7 @@ const MyWidgetSelectedInstance = ({
 			}
 		}
 	}
-	
+
 	const onPopup = () => {
 		if (state.can.edit && state.can.share && !inst.is_draft) {
 			showModal(setShowSettings)

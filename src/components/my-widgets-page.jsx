@@ -126,10 +126,10 @@ const MyWidgetsPage = () => {
 
 	const onCopy = (instId, newTitle, newPerm, inst) => {
 		setState({...state, selectedInst: null})
-		
+
 		copyWidget.mutate({
-			instId: instId, 
-			title: newTitle, 
+			instId: instId,
+			title: newTitle,
 			copyPermissions: newPerm,
 			widgetName: inst.widget.name,
 			dir: inst.widget.dir

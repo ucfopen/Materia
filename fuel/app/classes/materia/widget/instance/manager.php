@@ -6,7 +6,9 @@ class Widget_Instance_Manager
 {
 	public $validate = true;
 
-	static public function get(string $inst_id, bool $load_qset=false, $timestamp=false, bool $deleted=false)
+	// rolling back type expectations for now to resolve failing tests - this isn't a bad idea but it needs more focused attention
+	// static public function get(string $inst_id, bool $load_qset=false, $timestamp=false, bool $deleted=false)
+	static public function get($inst_id, $load_qset=false, $timestamp=false, $deleted=false)
 	{
 		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp, $deleted);
 		return count($instances) > 0 ? $instances[0] : false;

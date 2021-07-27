@@ -355,10 +355,10 @@
 						border: 1px solid #525252;
 						border-radius: 4px;
 						text-decoration: none;
-						cursor: pointer;
 
 						&:hover:not(.disabled) {
 							background: #eca444;
+							cursor: pointer;
 						}
 
 						&.disabled {

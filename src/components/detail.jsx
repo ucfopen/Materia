@@ -107,7 +107,6 @@ const Detail = ({widget, isFetching}) => {
 		.then(() => {
 			setNoAuthor(window.NO_AUTHOR === "1" ? true : false)
 			setHeight(window.WIDGET_HEIGHT === '0' ? '' : window.WIDGET_HEIGHT) // Preloads height to avoid detail window resizing
-			console.log(window.WIDGET_HEIGHT)
 		})
 	}, [])
 
