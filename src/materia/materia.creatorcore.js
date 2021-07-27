@@ -38,6 +38,9 @@ Namespace('Materia').CreatorCore = (() => {
 			case 'onQuestionImportComplete':
 				_tellCreator('onQuestionImportComplete', [msg.data[0]])
 				break
+			case 'reloadCreator':
+				_forceCreatorReload()
+				break
 			default:
 				console.warn(`Error, unknown message sent to creator core: ${msg.type}`)
 				break
@@ -65,6 +68,10 @@ Namespace('Materia').CreatorCore = (() => {
 		_baseurl = baseUrl
 		_mediaUrl = mediaUrl
 		_tellCreator('initExistingWidget', [widget, title, qset, qsetVersion])
+	}
+
+	const _forceCreatorReload = () => {
+		location.reload(true)
 	}
 
 	const start = (creatorClass) => {

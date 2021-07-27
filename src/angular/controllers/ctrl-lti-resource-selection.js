@@ -80,9 +80,16 @@ app.controller('LTIResourceSelectionCtrl', function (
 		$timeout(() => {
 			announceChoice()
 
+			// RETURN_URL is sent from the Tool Consumer at the time of LTI Launch
+			// provided by launch_presentation_return_url or content_item_return_url
+			// if RETURN_URL is set, we'll use it to inform the LTI Tool consumer of our choice
 			if (typeof RETURN_URL !== 'undefined' && RETURN_URL !== null) {
-				window.location =
-					RETURN_URL + '?embed_type=basic_lti&url=' + encodeURI(selectedWidget.embed_url)
+				// add a ? or & depending on RETURN_URL already containing query params
+				const seperator = RETURN_URL.includes('?') ? '&' : '?'
+				// endode the url
+				const url = encodeURI(selectedWidget.embed_url)
+				// redirect the client to the return url with our new variables
+				window.location = `${RETURN_URL}${seperator}embed_type=basic_lti&url=${url}`
 			}
 		}, 1000)
 	}

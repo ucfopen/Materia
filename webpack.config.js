@@ -44,6 +44,8 @@ module.exports =
 			target: 'web',
 			devServer: {
 				index: '', // specify to enable root proxying
+				hot: false,
+				inline: false,
 				host: '127.0.0.1',
 				publicPath: '/dist/',
 				https: true,
@@ -56,7 +58,7 @@ module.exports =
 					context: () => true,
 					target: 'https://127.0.0.1:443',
 					secure: false
-				  }
+				}
 			},
 			entry,
 			output: {
@@ -167,7 +169,7 @@ module.exports =
 							to: 'vendor/jquery.dataTables.min.css'
 						}
 					],
-				  }),
+				}),
 				// new ManifestPlugin({ publicPath: '/', writeToFileEmit: true }),
 				new IgnoreEmitPlugin(/css\/.+\.js$/) // omit all js files in the css directory
 			],

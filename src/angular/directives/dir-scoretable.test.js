@@ -81,7 +81,7 @@ describe('scoreTable Directive', function () {
 		$window.open = jest.fn()
 		global.BASE_URL = 'some_url'
 		$scope.showScorePage('two')
-		expect($window.open).toHaveBeenLastCalledWith('some_urlscores/6/#single-two')
+		expect($window.open).toHaveBeenLastCalledWith('some_urlscores/single/two/6')
 	})
 
 	it('searchStudentActivity locates users', function () {

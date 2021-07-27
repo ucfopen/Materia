@@ -540,13 +540,14 @@ app.controller('WidgetPlayerCtrl', function (
 
 	const _showScoreScreen = () => {
 		if (!scoreScreenURL) {
-			if ($scope.isPreview) {
-				scoreScreenURL = `${BASE_URL}scores/preview/${$scope.inst_id}`
-			} else if ($scope.isEmbedded) {
-				scoreScreenURL = `${BASE_URL}scores/embed/${$scope.inst_id}#play-${play_id}`
-			} else {
-				scoreScreenURL = `${BASE_URL}scores/${$scope.inst_id}#play-${play_id}`
-			}
+			const { isEmbedded, isPreview, inst_id } = $scope
+			let path = 'scores/'
+			if (isEmbedded && isPreview) path = 'scores/preview-embed/'
+			else if (isEmbedded) path = 'scores/embed/'
+			else if (isPreview) path = 'scores/preview/'
+
+			let hash = $scope.isPreview ? '' : `#play-${play_id}`
+			scoreScreenURL = `${BASE_URL}${path}${$scope.inst_id}${hash}`
 		}
 
 		if (!$scope.alert.fatal) {

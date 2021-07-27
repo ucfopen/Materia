@@ -19,7 +19,7 @@ class Controller_Widgets extends Controller
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Widget Catalog');
 		$this->theme->set_partial('meta', 'partials/responsive');
-		
+
 		Css::push_group(['catalog']);
 		Js::push_group(['react', 'catalog']);
 	}
@@ -44,7 +44,7 @@ class Controller_Widgets extends Controller
 		if ( ! $loaded) throw new HttpNotFoundException;
 
 		$demo = $widget->meta_data['demo'];
-		
+
 		Js::push_inline('var NO_AUTHOR = "'.\Materia\Perm_Manager::does_user_have_role(['no_author']).'";');
 		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
 

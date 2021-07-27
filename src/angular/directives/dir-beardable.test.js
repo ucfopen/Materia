@@ -7,15 +7,14 @@ describe('beardable Directive', function () {
 	let html = '<div beardable>text</div>'
 
 	let keyEvent = (code, unsetWhich = false) => {
-		var e = new Event('keydown', {
-			bubbles: true
-		})
+		var e = new Event('keydown')
 		e.keyCode = code
 		e.which = code
 		e.altKey = false
 		e.ctrlKey = true
 		e.shiftKey = false
 		e.metaKey = false
+		e.bubbles = true
 		if (unsetWhich) delete e.which
 		return e
 	}

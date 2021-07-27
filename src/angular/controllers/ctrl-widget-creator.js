@@ -10,6 +10,8 @@ app.controller('WidgetCreatorCtrl', function (
 	Alert
 ) {
 	$scope.alert = Alert
+	$scope.embedDialogType = 'embed_dialog'
+	$scope.showActionBar = true
 
 	const HEARTBEAT_INTERVAL = 30000
 	// How far from the top of the window that the creator frame starts
@@ -29,6 +31,10 @@ app.controller('WidgetCreatorCtrl', function (
 	let widget_info = null
 	let widgetType = null
 	let mediaFile = null
+
+	// qset storage for previous save feature
+	let qsetToBeCached = null // current working qset, temporarily cached to await confirm/cancel
+	let qsetToReload = null // qset selected to be loaded after requested reload
 
 	const _requestSave = (mode) => {
 		// hide dialogs
@@ -56,6 +62,17 @@ app.controller('WidgetCreatorCtrl', function (
 		//?type=QA or ?type=MC or ?type=QA,MC
 		showEmbedDialog(`${BASE_URL}questions/import/?type=${encodeURIComponent(types.join())}`)
 		return null // else Safari will give the .swf data that it can't handle
+	}
+
+	const _showQsetHistoryImporter = () => {
+		showEmbedDialog(`${BASE_URL}qsets/import/?inst_id=${inst_id}`)
+		return null
+	}
+
+	const _showQsetHistoryConfirmation = () => {
+		$scope.embedDialogType = 'confirm_dialog'
+		showEmbedDialog(`${BASE_URL}qsets/confirm/?inst_id=${inst_id}`)
+		return null
 	}
 
 	const _onPublishPressed = () => {
@@ -368,6 +385,14 @@ app.controller('WidgetCreatorCtrl', function (
 	const onCreatorReady = () => {
 		creator = document.querySelector('#container')
 		// resize swf now and when window resizes
+		if (qsetToReload != null) {
+			keepQSet = {
+				data: qsetToReload.data,
+				version: qsetToReload.version,
+			}
+			initCreator()
+			qsetToReload = null
+		}
 
 		return embedDonePromise.resolve() // used to keep events synchronous
 	}
@@ -378,6 +403,7 @@ app.controller('WidgetCreatorCtrl', function (
 	// move the embed dialog off to invisibility
 	const hideEmbedDialog = () => {
 		$scope.iframeUrl = ''
+		$scope.embedDialogType = 'embed_dialog'
 		$scope.modal = false
 		$timeout(() => {
 			Please.$apply()
@@ -413,6 +439,16 @@ app.controller('WidgetCreatorCtrl', function (
 			qset: { version, data: qset },
 			is_draft: saveMode !== 'publish',
 			inst_id,
+		}
+
+		// 'history' is sent from onQsetHistorySelectionComplete to request the current qset trait from the creator
+		// since the qset is all we need, no need to save to the DB
+		if (saveMode == 'history') {
+			qsetToBeCached = {
+				qset,
+				version,
+			}
+			return false
 		}
 
 		return WidgetSrv.saveWidget(w).then((inst) => {
@@ -510,6 +546,22 @@ ${msg.toLowerCase()}`,
 		Please.$apply()
 	}
 
+	const _qsetRollbackConfirmation = (confirm) => {
+		$scope.showActionBar = true
+		$scope.showRollbackConfirmBar = false
+
+		if (confirm) {
+			return false
+		} else {
+			// re-apply cached qset saved via onQsetHistorySelectionComplete
+			qsetToReload = {
+				data: qsetToBeCached.qset,
+				version: qsetToBeCached.version,
+			}
+			sendToCreator('reloadCreator')
+		}
+	}
+
 	// Exposed to the window object so that popups and frames can use this public functions
 	Namespace('Materia').Creator = {
 		// Exposed to the question importer screen
@@ -547,6 +599,27 @@ ${msg.toLowerCase()}`,
 				return sendToCreator('onMediaImportComplete', [anArray])
 			}
 		},
+
+		// When a qset is selected from the prior saves list
+		onQsetHistorySelectionComplete(qset, version = 1) {
+			hideEmbedDialog()
+
+			if (!qset) return false
+
+			// request a save from the widget to grab the current qset state
+			// passing 'history' as the save mode short-circuits the save functionality so a new save isn't actually made in the database
+			_requestSave('history')
+
+			// use initExistingWidget to apply the selected qset
+			qsetToReload = {
+				data: JSON.parse(qset),
+				version: version,
+			}
+			sendToCreator('reloadCreator')
+
+			$scope.showActionBar = false
+			$scope.showRollbackConfirmBar = true
+		},
 	}
 
 	// expose to scope
@@ -560,9 +633,14 @@ ${msg.toLowerCase()}`,
 	$scope.modal = false
 	$scope.requestSave = _requestSave
 	$scope.showQuestionImporter = _showQuestionImporter
+	$scope.showQsetHistoryImporter = _showQsetHistoryImporter
+	$scope.showQsetHistoryConfirmation = _showQsetHistoryConfirmation
 	$scope.onPublishPressed = _onPublishPressed
 	$scope.cancelPublish = _cancelPublish
 	$scope.cancelPreview = _cancelPreview
+
+	$scope.rollbackConfirmation = _qsetRollbackConfirmation
+	$scope.showRollbackConfirmBar = false
 
 	// initialize
 

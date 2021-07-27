@@ -1,0 +1,72 @@
+body,
+html {
+	font-family: 'Lato', arial, serif;
+}
+
+#import_form {
+	background: #fff;
+	border: rgba(0, 0, 0, 0.11) 1px solid;
+	box-shadow: 1px 3px 10px #888;
+
+	// margin: 10px;
+
+	h1 {
+		background: #f1814b;
+		padding: 6px 10px;
+		margin: 0px;
+		font-size: 18px;
+		font-weight: bold;
+		// text-shadow: 0 1px #fbfbfb;
+		color: #ffffff;
+	}
+
+	thead {
+		// margin-bottom: 5px;
+
+		tr {
+			height: 2em;
+			padding: 6px 0px;
+			border-bottom: solid 1px #888;
+		}
+	}
+
+	tbody {
+		tr {
+			height: 2em;
+			cursor: pointer;
+
+			td {
+				text-align: center;
+			}
+			&:hover {
+				background: #bde3ff;
+			}
+		}
+	}
+}
+
+.no_saves {
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+
+	h3 {
+		font-size: 1.5em;
+		font-weight: bold;
+	}
+}
+
+.actions {
+	position: absolute;
+	width: 100%;
+	bottom: 0px;
+	padding-bottom: 14px;
+
+	text-align: center;
+	font-size: 1.1em;
+
+	a {
+		color: #000000;
+	}
+}

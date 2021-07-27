@@ -35,7 +35,7 @@ class Controller_Qsets extends Controller
 	public function action_confirm()
 	{
 		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
-		
+
 		Css::push_group(['core', 'rollback_dialog']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author']);
 

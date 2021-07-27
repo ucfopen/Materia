@@ -109,7 +109,7 @@ app.controller('WidgetCatalogDetailsController', function (
 			x = Math.max(x, rightEdge + (x - rightEdge) / 10) // overflow right
 
 			_pics.style.transition = ''
-			_pics.style.transform = `translate3D(${x}px, 0, 0)`
+			_pics.style.transform = `translate(${x}px, 0)`
 
 			// snap to the closest image when released
 			if (e.isFinal) {
@@ -133,7 +133,7 @@ app.controller('WidgetCatalogDetailsController', function (
 			}
 		}
 
-		_pics.style.transform = `translate3D(${_offset}px, 0, 0)`
+		_pics.style.transform = `translate(${_offset}px, 0)`
 		_pics.style.transition = animate ? 'ease transform 500ms' : ''
 		Please.$apply()
 	}
@@ -143,7 +143,7 @@ app.controller('WidgetCatalogDetailsController', function (
 		const i = $scope.selectedImage
 		if (_pics.children.length && _pics.children[i]) {
 			_offset = _pics.children[i].offsetLeft * -1
-			_pics.style.transform = `translate3D(${_offset}px, 0, 0)`
+			_pics.style.transform = `translate(${_offset}px, 0)`
 			_pics.style.transition = 'ease transform 500ms'
 		}
 	}

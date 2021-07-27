@@ -9,14 +9,19 @@ app.controller('ScorePageController', function (Please, $scope, $q, $timeout, Wi
 	let currentAttempt = null
 	let widgetInstance = null
 	let attemptsLeft = 0
-	let single_id = window.location.hash.split('single-')[1]
+
+	// get the play_id from the url if using /scores/single/:play_id/:inst_id url
+	const res = window.location.pathname.match(/\/scores\/single\/([a-z0-9\-_]+)/i)
+	let single_id = (res && res[1]) || null
+
 	// @TODO @IE8 This method of checking for isEmbedded is hacky, but
 	// IE8 didn't like "window.self == window.top" (which also might be
 	// problematic with weird plugins that put the page in an iframe).
 	// This should work pretty well but if we ever decide to change the
 	// scores embed URL this will need to be modified!
-	let isEmbedded = window.location.href.toLowerCase().indexOf('/scores/embed/') !== -1
-	let isPreview = /\/preview\//i.test(document.URL)
+	let isEmbedded = /embed\//i.test(document.URL) // /preview-embed/xxx and /embed/xxxx
+	let isPreview = /\/preview/i.test(document.URL) // /preview/xxx and /preview-embed/xxxx
+
 	let _graphData = []
 
 	// We don't want users who click the 'View more details' link via an LTI to play again, since at that point
@@ -217,14 +222,10 @@ app.controller('ScorePageController', function (Please, $scope, $q, $timeout, Wi
 		// show play again button?
 		if (!single_id && (widgetInstance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)) {
 			const prefix = (() => {
-				switch (false) {
-					case !isEmbedded:
-						return '/embed/'
-					case !isPreview:
-						return '/preview/'
-					default:
-						return '/play/'
-				}
+				if (isEmbedded && isPreview) return '/preview-embed/'
+				if (isEmbedded) return '/embed/'
+				if (isPreview) return '/preview/'
+				return '/play/'
 			})()
 
 			widget.href = prefix + widgetInstance.id + '/' + widgetInstance.clean_name

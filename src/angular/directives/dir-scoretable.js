@@ -62,8 +62,8 @@ app.directive('scoreTable', function (SelectedWidgetSrv, $window) {
 				$scope.selectedUser = $scope.users[id]
 			}
 
-			$scope.showScorePage = function (scoreId) {
-				$window.open(`${BASE_URL}scores/${widgetId}/#single-${scoreId}`)
+			$scope.showScorePage = function (playId) {
+				$window.open(`${BASE_URL}scores/single/${playId}/${widgetId}`)
 				return true
 			}
 

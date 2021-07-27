@@ -380,7 +380,7 @@ $color-features-active: #0357a5;
 
 			&.hidden,
 			&.loading {
-				transform: translate3d(0, 0, 0); // safari fix for loading animation
+				transform: translate(0, 0); // safari fix for loading animation
 
 				button {
 					padding-right: 45px;

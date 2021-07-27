@@ -252,9 +252,10 @@ app.controller('MyWidgetsCollaborationController', function (
 	}
 
 	const _cancelDemote = (user) => {
+		const accessLevel = String($scope.selected.accessLevel)
 		user.warning = false
 		user.remove = false
-		return (user.access = ACCESS.FULL)
+		return (user.access = accessLevel)
 	}
 
 	$scope.inputs = { userSearchInput: '' }

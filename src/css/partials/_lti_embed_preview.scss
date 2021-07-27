@@ -1,0 +1,51 @@
+.preview {
+	header {
+		visibility: visible;
+	}
+	header h1 {
+		background: #68d053;
+	}
+
+	.container {
+		background: #ebebeb;
+		width: 500px;
+		margin: 0 auto;
+		text-align: center;
+		margin-top: 3em;
+		padding: 2em;
+		box-sizing: border-box;
+		position: relative;
+
+		h2 {
+			margin-top: 0;
+		}
+
+		p {
+			margin-bottom: 2em;
+		}
+
+		.button {
+		}
+
+		.widget_info {
+			display: flex;
+			align-items: center;
+			align-content: stretch;
+			position: relative;
+			width: 100%;
+			justify-content: center;
+			margin-top: -20px;
+
+			.widget_icon {
+				flex: 0 1 auto;
+				margin: 10px;
+			}
+
+			.widget_name {
+				flex: 0 1 auto;
+				font-size: 1.2em;
+				text-align: left;
+			}
+		}
+	}
+}

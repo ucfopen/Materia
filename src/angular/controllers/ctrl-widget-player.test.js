@@ -3,7 +3,6 @@ describe('WidgetPlayerCtrl', () => {
 	let _UserServ
 	let _scope
 	let sendMock
-	let getCurrentUserMock
 	let $q
 	let $controller
 	let $window
@@ -16,12 +15,12 @@ describe('WidgetPlayerCtrl', () => {
 
 	let buildPostMessage = (type, data) => {
 		let e = new Event('message')
-			; (e.origin = 'https://crossdomain.com'),
-				// (e.currentTarget = 'whaaaat'), cannot set currentTarget
-				(e.data = JSON.stringify({
-					type: type,
-					data: data,
-				}))
+		;(e.origin = 'https://crossdomain.com'),
+			(e.currentTarget = 'whaaaat'),
+			(e.data = JSON.stringify({
+				type: type,
+				data: data,
+			}))
 		return e
 	}
 
@@ -603,6 +602,38 @@ describe('WidgetPlayerCtrl', () => {
 			mockGetEl,
 		} = setupDomStuff()
 
+		$scope.isPreview = false
+		$scope.isEmbedded = true // make sure preview prevails over isEmbedded
+
+		mockSendPromiseOnce()
+		jest.spyOn($location, 'replace')
+
+		mockPostMessage(buildPostMessage('start', ''))
+		mockPostMessage(buildPostMessage('end'))
+
+		_scope.$digest() // make sure defer from post message completes
+
+		expect(window.location.assign).toHaveBeenCalledWith(
+			'https://test_base_url.com/scores/embed/bb8#play-ff88gg'
+		)
+	})
+
+	it('end redirects to preview embed url', () => {
+		let {
+			$scope,
+			controller,
+			mockCreateElement,
+			mockPostMessageFromWidget,
+			mockPostMessage,
+			mockHref,
+			embedStyle,
+			previewStyle,
+			widgetStyle,
+			centerStyle,
+			widgetInstance,
+			mockGetEl,
+		} = setupDomStuff()
+
 		$scope.isPreview = true
 		$scope.isEmbedded = true // make sure preview prevails over isEmbedded
 
@@ -615,7 +646,7 @@ describe('WidgetPlayerCtrl', () => {
 		_scope.$digest() // make sure defer from post message completes
 
 		expect(window.location.assign).toHaveBeenCalledWith(
-			'https://test_base_url.com/scores/preview/bb8'
+			'https://test_base_url.com/scores/preview-embed/bb8'
 		)
 	})
 

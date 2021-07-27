@@ -1,3 +1,6 @@
+// included here for now, should seprate in the future
+@import 'partials/lti_embed_preview';
+
 html {
 	background: white;
 	width: 100%;
@@ -18,28 +21,6 @@ header {
 	height: auto;
 	z-index: 0;
 	visibility: hidden;
-}
-
-.preview header {
-	visibility: visible;
-}
-.preview header h1 {
-	background: #68d053;
-}
-
-.preview .container {
-	background: #ebebeb;
-	width: 500px;
-	height: 300px;
-	margin: 0 auto;
-	text-align: center;
-	margin-top: 5em;
-	padding: 2em;
-	box-sizing: border-box;
-}
-
-.preview .container p {
-	margin-bottom: 2em;
 }
 
 .help-container {
