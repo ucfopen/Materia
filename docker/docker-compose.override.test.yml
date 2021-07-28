@@ -31,8 +31,8 @@ services:
       - MYSQL_USER
       - MYSQL_PASSWORD
       - MYSQL_DATABASE=test
-    volumes:
-      - "./config/mysql/dev.my.cnf:/etc/mysql/conf.d/my.cnf"
+    # volumes:
+    #   - "./config/mysql/dev.my.cnf:/etc/mysql/conf.d/my.cnf"
     # this makes the unit tests much faster but it's a little weird jumping
     # back and forth between running the server and testing
     # tmpfs:
