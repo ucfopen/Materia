@@ -37,6 +37,7 @@ return [
 			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.categoryAxisRenderer.min.js',
 			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.cursor.min.js',
 			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.highlighter.min.js',
-		]
+		],
+		'question-importer' => [$webpack.'js/question-importer.js']
 	]
 ];

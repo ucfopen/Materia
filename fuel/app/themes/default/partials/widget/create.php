@@ -49,6 +49,7 @@
 			<a id="returnLink" href="{{ returnUrl }}">&larr;Return to {{ returnPlace }}</a>
 			<a ng-click="showQsetHistoryImporter()">Save History</a>
 			<a id="importLink" ng-click="showQuestionImporter()">Import Questions...</a>
+			<a ng-click="showQuestionImporter2()">QI React></a>
 			<button id="creatorPublishBtn"
 				class="edit_button green"
 				type="button"

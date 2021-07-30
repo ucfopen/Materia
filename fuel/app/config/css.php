@@ -55,7 +55,9 @@ return [
 		'question_import' => [
 			$vendor.'jquery.dataTables.min.css',
 			$webpack.'css/util-question-import.css',
+			$webpack.'css/question-importer.css',
 		],
+		'questionimport' => [$webpack.'js/question-importer.css'],
 		'qset_history' => [
 			$webpack.'css/util-qset-history.css',
 		],
