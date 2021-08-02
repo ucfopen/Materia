@@ -9,7 +9,9 @@ const initState = () => {
 	return {
 		allQuestions: [], // all available questions
 		displayQuestions: [], // questions matching an optionally provided filter
-		filterValue: ''
+		filterValue: '',
+		sortProperty: null,
+		sortAscending: null
 	}
 }
 
@@ -17,7 +19,7 @@ const QuestionImporter = () => {
 	const [state, setState] = useState(initState())
 	const tableRef = useRef(null)
 
-	const { data: allQuestions, isLoading } = useQuery({
+	const { data: allQuestions } = useQuery({
 		queryKey: 'questions',
 		queryFn: () => apiGetQuestionsByType(null, _getType()),
 		staleTime: Infinity
@@ -25,9 +27,40 @@ const QuestionImporter = () => {
 
 	useEffect(() => {
 		if(allQuestions && allQuestions.length) {
-			setState({...state, allQuestions: allQuestions, displayQuestions: allQuestions})
+			// add a 'selected' property with a default value of false to each question
+			const formattedAllQuestions = allQuestions.map(q => ({...q, selected: false}))
+			setState({...state, allQuestions: formattedAllQuestions, displayQuestions: formattedAllQuestions})
 		}
 	}, [allQuestions?.length])
+
+	// reset displayQuestions whenever question selection, filter, or sort column/direction change
+	useEffect(() => {
+		const newDisplayQuestions = state.allQuestions.filter(q => q.text.includes(state.filterValue))
+
+		if(state.sortProperty) {
+			newDisplayQuestions.sort((a, b) => {
+				if(state.sortAscending) {
+					return a[state.sortProperty] > b[state.sortProperty] ? 1 : -1
+				} else {
+					return a[state.sortProperty] < b[state.sortProperty] ? 1 : -1
+				}
+			})
+		}
+
+		setState({...state, displayQuestions: newDisplayQuestions})
+	}, [state.filterValue, state.allQuestions, state.sortProperty, state.sortAscending])
+
+	const filterValueChangeHandler = e => {
+		if (e.target.value != state.filterValue) setState({...state, filterValue: e.target.value})
+	}
+
+	const questionSelectChangeHandler = e => {
+		const newAllQuestions = [...state.allQuestions]
+		newAllQuestions.forEach(q => {
+			if(q.id == e.target.value) q.selected = e.target.checked
+		})
+		setState({...state, allQuestions: newAllQuestions})
+	}
 
 	const _getType = () => {
 		const l = document.location.href
@@ -35,9 +68,26 @@ const QuestionImporter = () => {
 		return type
 	}
 
-	const close = e => {
-		e.stopPropagation()
-		window.parent.Materia.Creator.onQuestionImportComplete(null)
+	const renderHeading = (headingText, property) => {
+		let sortRender = null
+		if (state.sortProperty == property) {
+			sortRender = (
+				<span className={state.sortAscending ? 'sort-asc' : 'sort-desc'}></span>
+			)
+		}
+
+		return (
+			<th onClick={() => handleHeadingClick(property)}>
+				{headingText}
+				{sortRender}
+			</th>
+		)
+	}
+
+	const handleHeadingClick = property => {
+		const newSortAscending = property == state.sortProperty ? !state.sortAscending : true
+
+		setState({...state, sortProperty: property, sortAscending: newSortAscending})
 	}
 
 	const renderDisplayableRows = () => {
@@ -55,7 +105,7 @@ const QuestionImporter = () => {
 			return (
 				<tr key={`question-${question.id}`}>
 					<td>
-						<input type="checkbox" name="id" value={question.id} />
+						<input type="checkbox" name="id" checked={question.selected} value={question.id} onChange={questionSelectChangeHandler}/>
 						<span className="q">{question.text}</span>
 					</td>
 					<td>{question.type}</td>
@@ -66,12 +116,23 @@ const QuestionImporter = () => {
 		})
 	}
 
+	const close = () => window.parent.Materia.Creator.onQuestionImportComplete(null)
+
 	const loadSelectedQuestions = e => {
 		e.stopPropagation()
 
 		// map a NodeList to an array so we can map it
 		const selectedQuestionIds = [...tableRef.current.querySelectorAll(':checked')].map(input => input.value)
-		console.log(selectedQuestionIds)
+		apiGetQuestionsByType(selectedQuestionIds).then(result => {
+			if (result != null && !('msg' in result) && result.length > 0) {
+				window.parent.Materia.Creator.onQuestionImportComplete(JSON.stringify(result))
+			}
+		})
+	}
+
+	const renderShowingText = () => {
+		if (! state.filterValue) return state.allQuestions.length
+		return `${state.displayQuestions.length} / ${state.allQuestions.length}`
 	}
 
 	return (
@@ -79,26 +140,30 @@ const QuestionImporter = () => {
 			<div id='question-importer'>
 				<div className='header'>
 					<h1>Question Catalog</h1>
+					<span className='showing-text'>Showing: {renderShowingText()}</span>
+					<span>
+						<label>Filter:</label>
+						<input type='search' value={state.filterValue}
+							onChange={filterValueChangeHandler}/>
+					</span>
 				</div>
 				<div className='table-container'>
 					<table id='question-table' ref={tableRef}>
 						<thead>
-							<tr>
-								<th>Question Text</th>
-								<th>Type</th>
-								<th>Date</th>
-								<th>Used</th>
-							</tr>
+						<tr>
+							{renderHeading('Question Text', 'text')}
+							{renderHeading('Type', 'type')}
+							{renderHeading('Date', 'created_at')}
+							{renderHeading('Used', 'uses')}
+						</tr>
 						</thead>
 						<tbody>
-						{
-							renderDisplayableRows()
-						}
+							{renderDisplayableRows()}
 						</tbody>
 					</table>
 				</div>
 				<div className='actions'>
-					<a id='cancel-button' href='#' onClick={close}>Cancel</a>
+					<span id='cancel-button' onClick={close}>Cancel</span>
 					<input onClick={loadSelectedQuestions}
 						id='submit-button'
 						className='action_button'
