@@ -28,9 +28,9 @@ return [
 	 */
 
 	// specific configuration settings for the file driver
-	'file'  => [
-		'path'  => '',  // if empty the default will be application/cache/
-	],
+	'file'  => array(
+		'path'  => '',  // if empty the default will be app/cache/
+	),
 
 	// specific configuration settings for the memcached driver
 	'memcached'  => [
@@ -41,6 +41,5 @@ return [
 				'port' => $_ENV['MEMCACHED_PORT'] ?? 11211,
 				'weight' => 100],
 		],
-	],
-
+	]
 ];

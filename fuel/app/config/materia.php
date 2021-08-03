@@ -21,21 +21,21 @@ return [
 	* You may wish to simply hard code these values
 	*/
 	'urls' => [
-		'root'               => \Uri::create(''), // root directory http:://siteurl.com/
-		'media'              => \Uri::create('media'), // where media is retrieved
-		'media_upload'       => \Uri::create('media/upload'), // where media is uploaded
-		'play'               => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
-		'embed'              => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
-		'preview'            => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
-		'static'             => \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
-		'engines'            => \Uri::create('widget/'), // widget file locations
+		'root'         => \Uri::create(''), // root directory http:://siteurl.com/
+		'media'        => \Uri::create('media'), // where media is retrieved
+		'media_upload' => \Uri::create('media/upload'), // where media is uploaded
+		'play'         => \Uri::create('play/'), // game play  urls http://siteurl.com/play/3443
+		'embed'        => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
+		'preview'      => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
+		'static'       => $_ENV['URLS_STATIC'] ?? \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
+		'engines'      => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations
 		// where are js and css assets hosted?
 		// DEFAULT: public/dist (hosted as as https://site.com/dist)
-		'js_css'             => \Uri::create('dist/'),
+		'js_css'       => \Uri::create('dist/'),
 		// CDN PASS-THROUGH: set up aws cloudfront cdn have it load data from the default url
-		//'js_css'           => '//xxxxxxxx.cloudfront.net/dist/',
+		//'js_css'     => '//xxxxxxxx.cloudfront.net/dist/',
 		// CDN UNPKG.COM: load assets from npm module with the same release (version must match your version of materia)
-		// 'js_css'          => '//unpkg.com/materia-server-client-assets@2.2.0/',
+		// 'js_css'    => '//unpkg.com/materia-server-client-assets@2.2.0/',
 	],
 
 
