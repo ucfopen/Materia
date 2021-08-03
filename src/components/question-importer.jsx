@@ -57,10 +57,11 @@ const QuestionImporter = () => {
 		if (e.target.value != state.filterValue) setState({...state, filterValue: e.target.value})
 	}
 
-	const questionSelectChangeHandler = e => {
+	const questionClickHandler = e => {
+		const questionId = e.currentTarget.dataset.id
 		const newAllQuestions = [...state.allQuestions]
 		newAllQuestions.forEach(q => {
-			if(q.id == e.target.value) q.selected = e.target.checked
+			if(q.id == questionId) q.selected = !q.selected
 		})
 		setState({...state, allQuestions: newAllQuestions})
 	}
@@ -115,9 +116,15 @@ const QuestionImporter = () => {
 			const d = new Date(question.created_at * 1000)
 			const dateString = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 			return (
-				<tr key={`question-${question.id}`}>
+				<tr key={`question-${question.id}`}
+					data-id={question.id}
+					onClick={questionClickHandler}>
 					<td>
-						<input type="checkbox" name="id" checked={question.selected} value={question.id} onChange={questionSelectChangeHandler}/>
+						<input type="checkbox"
+							name="id"
+							checked={question.selected}
+							readOnly={true}
+							value={question.id}/>
 						<span className="q">{question.text}</span>
 					</td>
 					<td>{question.type}</td>

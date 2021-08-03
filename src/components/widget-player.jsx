@@ -89,8 +89,11 @@ const _translateForApiVersion = (instance, qset) => {
 	return output
 }
 
-const isPreview = window.location.href.includes('/preview/')
-const isEmbedded = window.location.href.includes('/embed/')
+console.log('WHERE ARE WE!?')
+console.log(window.location.href)
+
+const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
+const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 
 const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	const [alertMsg, setAlertMsg] = useState(initAlert())

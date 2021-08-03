@@ -6,83 +6,96 @@ const EMBED = 'embed'
 const PLAY = 'play'
 const PREVIEW = 'preview'
 const DEMO = 'demo'
+const PREVIEW_EMBED = 'preview-embed'
 
-const getWidgetType = (path) => {
-	if (path.includes('/embed/')) return EMBED
-	else if (path.includes('/play/')) return PLAY
-	else if (path.includes('/preview/')) return PREVIEW
-	else if (path.includes('/demo')) return DEMO
-	else return null
+const getWidgetType = path => {
+	switch(true) {
+		case path.includes('/embed/'): return EMBED
+		case path.includes('/play/'): return PLAY
+		case path.includes('/preview/'): return PREVIEW
+		case path.includes('/demo/'): return DEMO
+		case path.includes('/preview-embed/'): return PREVIEW_EMBED
+		default: return null
+	}
 }
-
-const initData = () => ({
-	playID: undefined,
-	widgetHeight: 0,
-	widgetWidth: 0,
-	widgetID: undefined
-})
 
 const WidgetPlayerPage = () => {
 	const type = getWidgetType(window.location.pathname)
 	const nameArr = window.location.pathname.replace(`/${type}/`, '').split('/')
-	const [initialData, setInitialData] = useState(initData())
+	const [state, setState] = useState({
+		playID: undefined,
+		widgetHeight: 0,
+		widgetWidth: 0,
+		widgetID: undefined
+	})
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
-		if (type === EMBED) document.body.classList.add('embedded')
+		if (type == EMBED || type == PREVIEW_EMBED) document.body.classList.add('embedded')
 
 		waitForWindow()
 		.then(() => {
-			if (type === PREVIEW) {
-				setInitialData({
-					playID: null,
-					widgetHeight: window.WIDGET_HEIGHT,
-					widgetWidth: window.WIDGET_WIDTH,
-					widgetID: nameArr.length >= 1 ? nameArr[0] : null
-				})
-			}
-			else if (type === DEMO) {
-				setInitialData({
-					playID: window.PLAY_ID,
-					widgetHeight: window.WIDGET_HEIGHT,
-					widgetWidth: window.WIDGET_WIDTH,
-					widgetID: window.DEMO_ID
-				})
-			}
-			else {
-				setInitialData({
-					playID: window.PLAY_ID,
-					widgetHeight: window.WIDGET_HEIGHT,
-					widgetWidth: window.WIDGET_WIDTH,
-					widgetID: nameArr.length >= 1 ? nameArr[0] : null
-				})
+			switch(type) {
+				case PREVIEW_EMBED:
+				case PREVIEW:
+					setState({
+						playID: null,
+						widgetHeight: window.WIDGET_HEIGHT,
+						widgetWidth: window.WIDGET_WIDTH,
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+					})
+					break
+				case DEMO:
+					setState({
+						playID: window.PLAY_ID,
+						widgetHeight: window.WIDGET_HEIGHT,
+						widgetWidth: window.WIDGET_WIDTH,
+						widgetID: window.DEMO_ID
+					})
+					break
+				default:
+					setState({
+						playID: window.PLAY_ID,
+						widgetHeight: window.WIDGET_HEIGHT,
+						widgetWidth: window.WIDGET_WIDTH,
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+					})
+					break
 			}
 		})
 	}, [])
 
 	// Used to wait for window data to load
 	const waitForWindow = async () => {
-		while(!window.hasOwnProperty("PLAY_ID") && !window.hasOwnProperty("WIDGET_HEIGHT") && !window.hasOwnProperty("WIDGET_WIDTH") && !window.hasOwnProperty("DEMO_ID"))
+		while(!window.hasOwnProperty('PLAY_ID')
+		&& !window.hasOwnProperty('WIDGET_HEIGHT')
+		&& !window.hasOwnProperty('WIDGET_WIDTH')
+		&& !window.hasOwnProperty('DEMO_ID')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
+		}
+	}
+
+	// no header for embedded widgets
+	const headerRender = () => {
+		if ( type == EMBED || type == PREVIEW_EMBED ) return null
+		return <Header />
+	}
+	const bodyRender = () => {
+		if( (!!state.widgetID) && state.playID !== undefined ) {
+			return (
+				<WidgetPlayer instanceId={state.widgetID}
+					playId={state.playID}
+					minHeight={state.widgetHeight}
+					minWidth={state.widgetWidth}/>
+			)
+		}
+		return null
 	}
 
 	return (
 		<>
-			{
-				type !== EMBED
-				? <Header />
-				: null
-			}
-			{
-				(!!initialData.widgetID) && initialData.playID !== undefined
-				? <WidgetPlayer 
-						instanceId={initialData.widgetID}
-						playId={initialData.playID}
-						minHeight={initialData.widgetHeight}
-						minWidth={initialData.widgetWidth}/>
-				: null
-			}
-			
+			{ headerRender() }
+			{ bodyRender() }
 		</>
 	)
 }
