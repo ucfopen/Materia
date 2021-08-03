@@ -376,7 +376,10 @@ export const apiSavePlayLogs = ({ request }) => {
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) => {
 	return fetch('/api/json/questions_get', fetchOptions({ body: `data=${formatFetchBody([arrayOfQuestionIds, arrayOfQuestionTypes])}` }))
-		.then(resp => resp.json())
+		.then(resp => {
+			if (resp.status !== 200) return []
+			return resp.json()
+		})
 }
 
 // Persist to wherever using the super-secret object

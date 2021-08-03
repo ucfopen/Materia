@@ -8,7 +8,7 @@ import './question-importer.scss'
 const initState = () => {
 	return {
 		allQuestions: [], // all available questions
-		displayQuestions: [], // questions matching an optionally provided filter
+		displayQuestions: null, // questions matching an optionally provided filter
 		filterValue: '',
 		sortProperty: null,
 		sortAscending: null
@@ -19,22 +19,25 @@ const QuestionImporter = () => {
 	const [state, setState] = useState(initState())
 	const tableRef = useRef(null)
 
-	const { data: allQuestions } = useQuery({
+	const { data: allQuestions, isLoading } = useQuery({
 		queryKey: 'questions',
 		queryFn: () => apiGetQuestionsByType(null, _getType()),
+		enabled: state.displayQuestions == null,
 		staleTime: Infinity
 	})
 
 	useEffect(() => {
-		if(allQuestions && allQuestions.length) {
+		if ( ! isLoading) {
 			// add a 'selected' property with a default value of false to each question
 			const formattedAllQuestions = allQuestions.map(q => ({...q, selected: false}))
 			setState({...state, allQuestions: formattedAllQuestions, displayQuestions: formattedAllQuestions})
 		}
-	}, [allQuestions?.length])
+	}, [isLoading])
 
 	// reset displayQuestions whenever question selection, filter, or sort column/direction change
 	useEffect(() => {
+		// don't run any of this if there are no questions to do anything with
+		if ( ! state.allQuestions || ! state.allQuestions.length) return
 		const newDisplayQuestions = state.allQuestions.filter(q => q.text.includes(state.filterValue))
 
 		if(state.sortProperty) {
@@ -91,13 +94,22 @@ const QuestionImporter = () => {
 	}
 
 	const renderDisplayableRows = () => {
-		if ( state.allQuestions.length < 1) return (
-			<tr className='loading'>
-				<td colSpan={4}>
-					Loading Available Questions...
-				</td>
-			</tr>
-		)
+		if ( ! state.displayQuestions || ! state.displayQuestions.length ) {
+			let message = 'Loading...'
+
+			if (state.displayQuestions !== null) {
+				message = !state.allQuestions.length ? 'No questions available' : 'No questions matching filter'
+			}
+
+			return (
+				<tr>
+					<td className='loading'
+						colSpan={4}>
+						{message}
+					</td>
+				</tr>
+			)
+		}
 
 		return state.displayQuestions.map(question => {
 			const d = new Date(question.created_at * 1000)
@@ -131,48 +143,49 @@ const QuestionImporter = () => {
 	}
 
 	const renderShowingText = () => {
-		if (! state.filterValue) return state.allQuestions.length
-		return `${state.displayQuestions.length} / ${state.allQuestions.length}`
+		if (! state.allQuestions || state.allQuestions.length < 1) return null
+
+		const showingText = state.filterValue ? `${state.displayQuestions.length} / ${state.allQuestions.length}` : state.allQuestions.length
+
+		return <span className='showing-text'>Showing: {showingText}</span>
 	}
 
 	return (
-		<>
-			<div id='question-importer'>
-				<div className='header'>
-					<h1>Question Catalog</h1>
-					<span className='showing-text'>Showing: {renderShowingText()}</span>
-					<span>
-						<label>Filter:</label>
-						<input type='search' value={state.filterValue}
-							onChange={filterValueChangeHandler}/>
-					</span>
-				</div>
-				<div className='table-container'>
-					<table id='question-table' ref={tableRef}>
-						<thead>
-						<tr>
-							{renderHeading('Question Text', 'text')}
-							{renderHeading('Type', 'type')}
-							{renderHeading('Date', 'created_at')}
-							{renderHeading('Used', 'uses')}
-						</tr>
-						</thead>
-						<tbody>
-							{renderDisplayableRows()}
-						</tbody>
-					</table>
-				</div>
-				<div className='actions'>
-					<span id='cancel-button' onClick={close}>Cancel</span>
-					<input onClick={loadSelectedQuestions}
-						id='submit-button'
-						className='action_button'
-						type='button'
-						value='Import Selected'>
-					</input>
-				</div>
+		<div id='question-importer'>
+			<div className='header'>
+				<h1>Question Catalog</h1>
+				{renderShowingText()}
+				<span>
+					<label>Filter:</label>
+					<input type='search' value={state.filterValue}
+						onChange={filterValueChangeHandler}/>
+				</span>
 			</div>
-		</>
+			<div className='table-container'>
+				<table id='question-table' ref={tableRef}>
+					<thead>
+					<tr>
+						{renderHeading('Question Text', 'text')}
+						{renderHeading('Type', 'type')}
+						{renderHeading('Date', 'created_at')}
+						{renderHeading('Used', 'uses')}
+					</tr>
+					</thead>
+					<tbody>
+						{renderDisplayableRows()}
+					</tbody>
+				</table>
+			</div>
+			<div className='actions'>
+				<span id='cancel-button' onClick={close}>Cancel</span>
+				<input onClick={loadSelectedQuestions}
+					id='submit-button'
+					className='action_button'
+					type='button'
+					value='Import Selected'>
+				</input>
+			</div>
+		</div>
 	)
 }
 
