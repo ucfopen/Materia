@@ -76,14 +76,8 @@ class Controller_Admin extends Controller
 		Response::redirect('admin/widget');
 	}
 
-	// ADD SUPPORT ONLY STUFF HERE?
-	// only here so we can reuse admins stuff
-	// but we can split it off if that makes more sense
-
 	public function get_support()
 	{
-		// if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
-
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Support');

@@ -92,7 +92,6 @@ const Header = ({
 				<ul>
 					<li><a href="/widgets" >Widget Catalog</a></li>
 					<li><a href="/my-widgets">My Widgets</a></li>
-					<li><a href="/widgets/mywidgets2">MW React</a></li>
 					{ user
 						? <li>
 							<a href="/profile">My Profile</a>

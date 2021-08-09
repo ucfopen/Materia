@@ -39,7 +39,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		placeholderData: [],
 		retry: false
 	})
-	
+
 	useEffect(() => {
     mounted.current = true
     return () => {
@@ -61,7 +61,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}, [otherUserPerms])
 
 	// Handles clicking a search result
-	const onClickMatch = (match) => {
+	const onClickMatch = match => {
 		const tempPerms = new Map(state.updatedOtherUserPerms)
 		let shareNotAllowed = false
 
@@ -71,7 +71,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			return
 		}
 
-		if(!(match.id in collabUsers) || state.updatedOtherUserPerms.get(match.id).remove === true) 
+		// if(!(match.id in collabUsers) || state.updatedOtherUserPerms.get(match.id).remove === true)
+		if(!state.updatedOtherUserPerms.get(match.id) || state.updatedOtherUserPerms.get(match.id).remove === true)
 		{
 			// Adds user to query data
 			let tmpMatch = {}
@@ -80,7 +81,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 			// Updateds the perms
 			tempPerms.set(
-				match.id, 
+				match.id,
 				{
 					accessLevel: 1,
 					expireTime: null,
@@ -88,9 +89,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					shareable: false,
 					can: {
 						view: true,
-						copy: false, 
+						copy: false,
 						edit: false,
-						delete: false, 
+						delete: false,
 						share: false
 					},
 					remove: false
@@ -114,9 +115,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		if (state.updatedOtherUserPerms.get(currentUser.id)?.remove) {
 			delCurrUser = true
 		}
-		
+
 		setUserPerms.mutate({
-			instId: inst.id, 
+			instId: inst.id,
 			permsObj: Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
 				return {
 					user_id: userId,
@@ -170,22 +171,22 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					<div id="access" className="collab-container">
 							{ //cannot search unless you have full access
 								myPerms?.shareable
-								? 
+								?
 									<div className="search-container">
 										<span className="collab-input-label">
 											Add people:
 										</span>
-										<input 
-											tabIndex="0" 
+										<input
+											tabIndex="0"
 											value={state.searchText}
 											onChange={(e) => setState({...state, searchText: e.target.value})}
-											className="user-add" 
-											type="text" 
+											className="user-add"
+											type="text"
 											placeholder="Enter a Materia user's name or e-mail"/>
 										<div>
 										{ debouncedSearchTerm !== '' && state.searchText !== '' && searchResults && searchResults?.length !== 0
 											? <div className="collab-search-list">
-												{searchResults?.map((match) => 
+												{searchResults?.map((match) =>
 													<div
 														key={match.id}
 														className='collab-search-match clickable'
@@ -200,7 +201,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 										</div>
 									</div>
 								: null
-							}	
+							}
 						<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
 							{
 								!isFetching

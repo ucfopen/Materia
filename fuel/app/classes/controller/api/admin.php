@@ -8,7 +8,6 @@ use \Materia\Msg;
 
 class Controller_Api_Admin extends Controller_Rest
 {
-	
 	use \Trait_RateLimit;
 
 	protected $_supported_formats = ['json' => 'application/json'];
@@ -91,7 +90,7 @@ class Controller_Api_Admin extends Controller_Rest
 		$extra_attempts = Input::json();
 
 		if ( ! is_string($inst_id)) return Msg::invalid_input($inst_id);
-		
+
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
 		$attempts = [];
@@ -103,10 +102,10 @@ class Controller_Api_Admin extends Controller_Rest
 			if ( ! is_int($value['extra_attempts']) ) return $this->response('Extra attempts must be type int', 400);
 			if ( ! is_string($value['context_id']) ) return $this->response('Context ID must be type string', 400);
 			if ( ! is_int($value['id']) ) return $this->response('Widget ID must be type int', 400);
-			
+
 			$attempts[] = $inst->set_extra_attempts($value['user_id'], $value['extra_attempts'], $value['context_id'], $value['id'] > 0 ? $value['id'] : null);
 		}
-		
+
 		return $attempts;
 	}
 

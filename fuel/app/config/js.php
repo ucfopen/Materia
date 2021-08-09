@@ -12,7 +12,7 @@ return [
 		'materia'    => [$webpack.'js/materia.js'],
 		'homepage'   => [$webpack.'js/homepage.js'],
 		'catalog'    => [$webpack.'js/catalog.js'],
-		'mywidgets'  => [$webpack.'js/my-widgets.js'],
+		'my_widgets' => [$webpack.'js/my-widgets.js'],
 		'detail'     => [$webpack.'js/detail.js'],
 		'playpage'   => [$webpack.'js/player-page.js'],
 
@@ -28,7 +28,6 @@ return [
 			'//unpkg.com/react@16.13.1/umd/react.development.js',
 			'//unpkg.com/react-dom@16.13.1/umd/react-dom.development.js'
 		],
-		'my_widgets' => [$cdnjs.'jqueryui/1.12.1/jquery-ui.min.js'],
 		'jqplot'     => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.js',
 			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.barRenderer.min.js',

@@ -32,11 +32,11 @@ const timestampToDisplayDate = (timestamp) => {
 const CalendarContainer = ({children}) => {
 	const el = document.getElementById('calendar-portal')
 
-  return (
-    <Portal container={el}>
-      {children}
-    </Portal>
-  )
+	return (
+		<Portal container={el}>
+			{children}
+		</Portal>
+	)
 }
 
 const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
@@ -62,7 +62,7 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 	})
 
 	const checkForWarning = () => {
-		if(isCurrentUser) { 
+		if(isCurrentUser) {
 			setState({...state, showDemoteDialog: true})
 		}
 		else removeAccess()
@@ -144,7 +144,7 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 							<span className="remove" onClick={clearExpire}>Set to Never</span>
 							<span className="date-finish" onClick={(e) => {toggleShowExpire(e)}}>Done</span>
 							</span>
-						: 
+						:
 							state.expireTime !== null
 							? <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} data-testid={`${user.id}-expire`} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly}>{dateToStr(state.expireDate)}</button>
 							: <button className={readOnly || isCurrentUser ? 'expire-open-button-disabled' : 'expire-open-button'} data-testid={`${user.id}-never-expire`} onClick={(e) => {toggleShowExpire(e)}} disabled={readOnly || isCurrentUser}>Never</button>

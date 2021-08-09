@@ -39,7 +39,7 @@ const MyWidgetsScores = ({inst}) => {
 		if (currScores && (state.isShowingAll || currScores.length < 2)) return currScores // all semester being displayed
 		return currScores.slice(0,1) // show just one semester, gracefully handles empty array
 	}, [currScores, state.isShowingAll])
-	
+
 	const openExport = () => {
 		if (containsData()) setState({...state, showExport: true})
 	}
@@ -82,14 +82,14 @@ const MyWidgetsScores = ({inst}) => {
 			</span>
 			{!isFetched
 				? <LoadingIcon />
-				: 
+				:
 					<>
 						{
 							state.hasScores || containsStorage()
 							? <div>
 									{
-									displayedSemesters.map(semester => 
-										<MyWidgetScoreSemester 
+									displayedSemesters.map(semester =>
+										<MyWidgetScoreSemester
 											key={semester.id}
 											semester={semester}
 											instId={inst.id}

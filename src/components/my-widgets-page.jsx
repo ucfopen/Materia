@@ -30,6 +30,7 @@ const initState = () => {
 		myPerms: null,
 		noAccess: false,
 		loading: true,
+		widgetHash: window.location.href.split('#')[1],
 		currentBeard: ''
 	})
 }
@@ -43,7 +44,7 @@ const MyWidgetsPage = () => {
 	const copyWidget = useCopyWidget()
 	const deleteWidget = useDeleteWidget()
 	readFromStorage()
-	const { data: widgets, isLoading } = useQuery({
+	const { data: widgets, isLoading, isFetching } = useQuery({
 		queryKey: 'widgets',
 		queryFn: apiGetWidgetInstances,
 		staleTime: Infinity
@@ -83,36 +84,42 @@ const MyWidgetsPage = () => {
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
+	// isLoading - initial data, from cache
+	// isFetching - actual data, from API
 	useEffect(() => {
-		if (!isLoading) {
-			setWidgetFromUrl(widgets)
+		if (!isFetching) {
+			checkPreselectedWidgetAccess(widgets)
 		}
-	}, [isLoading])
+	}, [isFetching])
 
-	useEffect(() => {
-		// Clears the current widget if it no longer exists
-		if (widgets && state.selectedInst && !widgets.some(widget => widget.id === state.selectedInst.id)) {
-			setState({...state, selectedInst: null})
-		}
-	}, [widgets?.length])
-
-	// Sets the current widget to what's in the URL when the widgets load
-	const setWidgetFromUrl = (widgets) => {
+	// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
+	//  fetching, double-check that the current user actually has access to it
+	const checkPreselectedWidgetAccess = widgets => {
 		if (!state.loading) return // Blocks the function from running after first use
 
-		const url = window.location.href
-		const url_id = url.split('#')[1]
+		// if (state.widgetHash && (!state.selectedInst || state.selectedInst.id !== state.widgetHash)) {
+		if (state.widgetHash || state.selectedInst) {
+			const desiredId = state.widgetHash ? state.widgetHash : state.selectedInst.id
 
-		if (url_id && (!state.selectedInst || state.selectedInst.id !== url_id)) {
+			const selectWidget = state.widgetHash && (!state.selectedInst || state.selectedInst.id !== state.widgetHash)
+
+			let widgetFound = false
+
 			for (let i = 0; i < widgets.length; i++) {
-				if (widgets[i].id === url_id) {
-					onSelect(widgets[i], i)
-					return
+				if (widgets[i].id === desiredId) {
+					if (selectWidget) {
+						return onSelect(widgets[i], i)
+					}
+					widgetFound = true
+					break
 				}
 			}
+			// always set loading to false and noAccess to whether we found a matching instance or not
+			const newState = {...state, loading: false, noAccess: !widgetFound}
 
-			// User doesn't have access to the widget
-			setState({...state, loading: false, noAccess: true})
+			// if we didn't find a matching instance for either case, make sure there isn't a selected instance
+			if ( !widgetFound) newState.selectedInst = null
+			setState(newState)
 		}
 		else setState({...state, loading: false})
 	}
@@ -120,7 +127,8 @@ const MyWidgetsPage = () => {
 	const onSelect = (inst, index) => {
 		if (inst.is_fake) return
 
-		setState({...state, selectedInst: inst, noAccess: false, loading: false, currentBeard: beards[index]})
+		// setState({...state, selectedInst: inst, noAccess: false, loading: false, currentBeard: beards[index]})
+		setState({...state, selectedInst: inst, noAccess: false, currentBeard: beards[index]})
 		setUrl(inst)
 	}
 
@@ -160,73 +168,84 @@ const MyWidgetsPage = () => {
 		[widgets]
 	)
 
+	// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
+	const mainContentRender = () => {
+		if (isLoading) {
+			return <section className='directions no-widgets'>
+				<h1 className='loading-text'>Loading</h1>
+				<LoadingIcon size='lrg'/>
+			</section>
+		}
+
+		const widgetSpecified = (state.widgetHash || state.selectedInst)
+
+		if (isFetching && widgetSpecified) {
+			return <section className='directions error'>
+				<div className='error error-nowidget'>
+					<p className='errorWindowPara'>
+						Almost done! Just making sure you have access to this widget.
+					</p>
+				</div>
+			</section>
+		}
+
+		if (state.noAccess) {
+			return <section className='directions error'>
+				<div className='error error-nowidget'>
+					<p className='errorWindowPara'>
+						You do not have access to this widget or this widget does not exist.
+					</p>
+				</div>
+			</section>
+		}
+
+		if (widgets?.length < 1) {
+			return <section className='directions no-widgets'>
+				<h1>You have no widgets!</h1>
+				<p>Make a new widget in the widget catalog.</p>
+			</section>
+		}
+
+		if (!widgetSpecified) {
+			return <section className={`directions unchosen ${beardMode ? 'bearded' : ''}`}>
+				<h1>Your Widgets</h1>
+				<p>Choose a widget from the list on the left.</p>
+			</section>
+		}
+
+		if ( state.selectedInst) {
+			return <MyWidgetSelectedInstance
+				inst={state.selectedInst}
+				onDelete={onDelete}
+				onCopy={onCopy}
+				currentUser={user}
+				myPerms={state.myPerms}
+				otherUserPerms={state.otherUserPerms}
+				setOtherUserPerms={(p) => setState({...state, otherUserPerms: p})}
+				beardMode={beardMode}
+				beard={state.currentBeard}
+			/>
+		}
+	}
+
 	return (
 		<>
 			<Header />
-			<div className="my_widgets">
+			<div className='my_widgets'>
 
-				{!isLoading && (!widgets || widgets?.length === 0)
-					? <div className="qtip top nowidgets">
+				{!isFetching && (!widgets || widgets?.length === 0)
+					? <div className='qtip top nowidgets'>
 							Click here to start making a new widget!
 						</div>
 					: null
 				}
 
-				<div className="container">
+				<div className='container'>
 					<div>
-						{(isLoading || state.loading)
-							? <section className="directions no-widgets">
-								<h1 className='loading-text'>Loading</h1>
-								<LoadingIcon size="lrg"/>
-							</section>
-							: null
-						}
-
-						{!isLoading && state.noAccess
-							? <section className="directions error">
-								<div className="error error-nowidget">
-									<p className="errorWindowPara">
-										You do not have access to this widget or this widget does not exist.
-									</p>
-								</div>
-							</section>
-							: null
-						}
-
-						{!isLoading && widgets?.length < 1 && !state.noAccess
-							? <section className="directions no-widgets">
-									<h1>You have no widgets!</h1>
-									<p>Make a new widget in the widget catalog.</p>
-								</section>
-							: null
-						}
-
-						{(!isLoading || widgets?.length > 0) && !state.selectedInst && !state.noAccess && !state.loading
-							? <section className={`directions unchosen ${beardMode ? 'bearded' : ''}`}>
-									<h1>Your Widgets</h1>
-									<p>Choose a widget from the list on the left.</p>
-								</section>
-							: null
-						}
-
-						{(!isLoading || widgets?.length > 0) && state.selectedInst && !state.noAccess
-							? <MyWidgetSelectedInstance
-								inst={state.selectedInst}
-								onDelete={onDelete}
-								onCopy={onCopy}
-								currentUser={user}
-								myPerms={state.myPerms}
-								otherUserPerms={state.otherUserPerms}
-								setOtherUserPerms={(p) => setState({...state, otherUserPerms: p})}
-								beardMode={beardMode}
-								beard={state.currentBeard}
-							/>
-							: null
-						}
-
+						{mainContentRender()}
 					</div>
 					<MyWidgetsSideBar
-						key="widget-side-bar"
+						key='widget-side-bar'
 						isLoading={isLoading}
 						instances={widgets}
 						selectedId={state.selectedInst ? state.selectedInst.id : null}

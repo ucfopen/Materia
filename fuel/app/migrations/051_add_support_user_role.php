@@ -13,5 +13,9 @@ class Add_support_user_role
 	{
 		$users = \Materia\Perm_Manager::get_user_ids_with_role('support_user');
 		\Materia\Perm_Manager::remove_users_from_roles($users, 'support_user');
+
+		\DB::delete('user_role')
+			->where('name', 'support_user')
+			->execute();
 	}
 }

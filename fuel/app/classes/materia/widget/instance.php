@@ -641,12 +641,12 @@ class Widget_Instance
 					->value('context_id', $context_id)
 					->where('id', '=', $id)
 					->execute();
-				
+
 				$result = [
-					'user_id' => $user_id, 
-					'extra_attempts' => $extra_attempts, 
+					'user_id' => $user_id,
+					'extra_attempts' => $extra_attempts,
 					'context_id' => $context_id,
-					'success' => true 
+					'success' => true
 				];
 			}
 			// delete existing row if attempts <= 0
@@ -655,7 +655,7 @@ class Widget_Instance
 				\DB::delete('user_extra_attempts')
 					->where('id', $id)
 					->execute();
-				
+
 				$result = [ 'user_id' => $user_id, 'success' => true ];
 			}
 		}
@@ -675,14 +675,14 @@ class Widget_Instance
 						'created_at' => time()
 						])
 					->execute();
-				
+
 					$result = [
 						'inst_id' => $this->id,
 						'semester' => $semester,
 						'user_id' => $user_id,
 						'extra_attempts' => $extra_attempts,
 						'context_id' => $context_id,
-						'success' => true 
+						'success' => true
 					];
 			}
 		}

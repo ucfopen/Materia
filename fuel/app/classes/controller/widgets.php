@@ -157,9 +157,11 @@ class Controller_Widgets extends Controller
 	}
 
 	/**
-	 * Listing of all widgets i have rights to
+	 * Listing of all widgets a given user has rights to
 	 */
-	public function get_mywidgets2()
+	// this exists as an alternative to the next one for use with the React component
+	// once we're sure that is good enough, replace the action after this one with this action, rename it, remove unnecessary routes etc.
+	public function get_mywidgets()
 	{
 		if (\Service_User::verify_session() !== true)
 		{
@@ -173,33 +175,8 @@ class Controller_Widgets extends Controller
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'My Widgets');
 
-		Css::push_group(['mywidgets']);
-		Js::push_group(['react', 'mywidgets']);
-	}
-
-	/**
-	 * Listing of all widgets i have rights to
-	 */
-	public function get_mywidgets()
-	{
-		if (\Service_User::verify_session() !== true)
-		{
-			Session::set('redirect_url', URI::current());
-			Session::set_flash('notice', 'Please log in to view your widgets.');
-			Response::redirect(Router::get('login'));
-		}
-
-		Css::push_group(['core', 'my_widgets']);
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'jqplot', 'my_widgets', 'dataTables']);
-
-		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
-
-		$this->theme->get_template()
-			->set('title', 'My Widgets')
-			->set('page_type', 'my_widgets');
-
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/my_widgets');
+		Css::push_group(['my_widgets']);
+		Js::push_group(['react', 'my_widgets']);
 	}
 
 	public function get_play_demo()
@@ -254,9 +231,6 @@ class Controller_Widgets extends Controller
 				$this->display_widget($inst, false, $is_embedded);
 			}
 		}
-
-		//Css::push_group('widget_play');
-
 	}
 
 	/* ============================== PROTECTED ================================== */
@@ -524,14 +498,6 @@ class Controller_Widgets extends Controller
 
 	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
-		//Css::push_group(['core', 'widget_play']);
-		//Js::push_group(['angular', 'materia', 'student']);
-		//if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
-		//{
-			// add swfobject if it's needed
-		//	Js::push_group('swfobject');
-		//}
-
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
 		Js::push_inline('var DEMO_ID = "'.$inst->id.'";');
 		Js::push_inline('var WIDGET_HEIGHT = "'.$inst->widget->height.'";');

@@ -10,7 +10,7 @@ for each function that will sort related functions near one another alphabetical
 - Verb Last
 - Use a underscore between the item and the verb
 EX: gameInstance_get, gameInstance_create, gameInstance_edit, gameInstance_copy
-Availible Verbs:
+Available Verbs:
 - get   	(retrive a value)
 - create	(create/save a new value)
 - delete	(remove a value)

@@ -48,7 +48,7 @@ class Perm_Manager
 
 	/**
 	 * Check if user is currently logged in as a support user
-	 * 
+	 *
 	 * @return boolean wheter or not the current user has the support role as defined by Perm_Role class
 	 */
 	static public function is_support_user(): bool

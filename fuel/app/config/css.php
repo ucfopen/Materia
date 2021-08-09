@@ -27,14 +27,7 @@ return [
 			$vendor.'ng-modal.css'
 		],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
-		'mywidgets'  => [$webpack.'js/my-widgets.css'],
-		'my_widgets' => [
-			$webpack.'css/my-widgets.css',
-			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
-			$cdnjs.'jqueryui/1.12.1/themes/ui-lightness/jquery-ui.min.css',
-			$vendor.'jquery.dataTables.min.css',
-			$vendor.'ng-modal.css'
-		],
+		'my_widgets'  => [$webpack.'js/my-widgets.css'],
 		'widget_create' => [
 			$webpack.'css/widget-create.css',
 			$vendor.'ng-modal.css'

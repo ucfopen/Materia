@@ -39,9 +39,9 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => (mounted.current = false)
-  }, [])
+		mounted.current = true
+		return () => (mounted.current = false)
+	}, [])
 
 	// Gets the storage data from db and loads it as well as filters based on search val
 	useEffect(() => {
@@ -49,7 +49,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 			const _tableNames = Object.keys(results)
 			const _selectedTableName = state.selectedTableName !== null && _tableNames.includes(state.selectedTableName) ? state.selectedTableName : _tableNames[0]
 			const _tableKeys = Object.keys(results[_selectedTableName][0].data)
-			const tmpResults = results[_selectedTableName].length <= MAX_ROWS 
+			const tmpResults = results[_selectedTableName].length <= MAX_ROWS
 				?	results[_selectedTableName]
 				: results[_selectedTableName].slice(0, MAX_ROWS)
 			const filteredRes = tmpResults.filter(val => getFilter(val))

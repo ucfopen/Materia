@@ -32,6 +32,9 @@ class Controller_Questions extends Controller
 		return Response::forge($theme->render());
 	}
 
+	// this exists as an alternative to the above for use with the React component
+	// once that is confirmed and is ready for real use as a replacement for the current question importer,
+	//  remove the above action and rename this one 'get_import', remove extra routes etc.
 	public function get_import2()
 	{
 		// Validate Logged in
