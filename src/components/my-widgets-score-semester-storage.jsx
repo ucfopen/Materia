@@ -131,7 +131,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 						</label>
 						<a
 							className="storage"
-							href={`/data/export/${instId}?type=storage&table=${state.selectedTableName}&semesters=${semester.year}-${semester.term}&anonymized=${state.anonymous}`}
+							href={`/data/export/${instId}?type=storage&table=${encodeURIComponent(state.selectedTableName)}&semesters=${semester.year}-${semester.term}&anonymized=${state.anonymous}`}
 						>
 							Download Table
 						</a>

@@ -31,7 +31,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 		}
 		else {
 			const scores_only = inst.guest_access ? 'All Scores' : 'High Scores'
-			
+
 			tmpOps = [scores_only, 'Full Event Log', 'Questions and Answers', 'Referrer URLs']
 			if (
 				(inst.widget.meta_data.playdata_exporters != null
@@ -53,7 +53,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 			let str = "" // creates: 2020 Fall, 2020 Spring
 			let str_cpy = "" // creates: 2020-Fall,2020-Spring
 			let _checkAll = false
-			
+
 			for (let i = 0; i < state.semesterOptions.length; i++) {
 				if (state.semesterOptions[i]) {
 					if (str !== "") {
@@ -123,12 +123,12 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 						</p>
 						<div className="download-controls">
 							<select value={state.exportType} onChange={(e) => {setState({...state, exportType: e.target.value})}} >
-								{ 
+								{
 									state.exportOptions.map((val, index) => <option key={index} value={val}>{val}</option>)
 								}
 							</select>
 							<p className="download">
-								<a href={`/data/export/${inst.id}?type=${state.exportType}&semesters=${state.selectedSemesters}`}
+								<a href={`/data/export/${inst.id}?type=${encodeURIComponent(state.exportType)}&semesters=${state.selectedSemesters}`}
 									className="action_button arrow_down_button">
 									<span className="arrow-down"></span>
 									Download {state.exportType}
@@ -137,7 +137,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 							{ state.exportType === 'All Scores' || state.exportType === 'High Scores'
 								? <p className="see-how">
 									You don't need to export scores and import them into Canvas if you have
-									embedded a widget as a graded assignment. 
+									embedded a widget as a graded assignment.
 									<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"
 										target="_blank"
 										className="external">

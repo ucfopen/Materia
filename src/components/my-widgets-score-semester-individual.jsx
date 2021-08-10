@@ -5,7 +5,7 @@ import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => {
-	window.open(`/scores/${instId}/#single-${playId}`)
+	window.open(`/scores/single/${playId}/${instId}`)
 }
 
 const initState = () => {
@@ -30,9 +30,9 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => (mounted.current = false)
-  }, [])
+		mounted.current = true
+		return () => (mounted.current = false)
+	}, [])
 
 	// load instances after initial render
 	useEffect(() => {

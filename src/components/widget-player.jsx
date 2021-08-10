@@ -89,9 +89,6 @@ const _translateForApiVersion = (instance, qset) => {
 	return output
 }
 
-console.log('WHERE ARE WE!?')
-console.log(window.location.href)
-
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 
@@ -248,7 +245,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 		if (e.origin === expectedOrigin) {
 			const msg = JSON.parse(e.data)
-			console.log(msg)
+			// console.log(msg)
 
 			switch (msg.type) {
 				case 'start':
@@ -459,7 +456,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 							true
 						)
 					}
-					console.log(`retrying in ${retrySpeed/1000} second(s)`)
+					// console.log(`retrying in ${retrySpeed/1000} second(s)`)
 
 					setTimeout(() => {
 						setLogPushInProgress(false)

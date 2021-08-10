@@ -62,8 +62,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 
 	useEffect(() => {
 		if (perms) {
-			console.log('perms updated')
-			console.log(perms)
 			const isEditable = inst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for(const i in perms.widget_user_perms){

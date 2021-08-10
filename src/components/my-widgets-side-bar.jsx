@@ -49,6 +49,7 @@ const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, beardMode,
 								selected={inst.id === selectedId}
 								hidden={hiddenSet.has(inst.id)}
 								beard={beardMode ? beards[index] : ''}
+								searchText={searchText}
 							/>
 						)
 						: null
