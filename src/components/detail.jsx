@@ -21,9 +21,15 @@ const initWidgetData = () => ({
 	accessibility: {},
 })
 
-const getAccessibilityData = (list) => {
-	let score1 = 0
-	let score2 = 0
+const getAccessibilityData = metadata => {
+	// The 'score' property of the object being returned is derived from both accessibility options' values.
+	// A score of 0 indicates that neither accessibility option was set.
+	const VALUE_SCORES = {
+		None: 1,
+		Limited: 2,
+		Full: 3
+	}
+
 	let data = {
 		keyboard: 'Unavailable',
 		screen_reader: 'Unavailable',
@@ -31,30 +37,17 @@ const getAccessibilityData = (list) => {
 	}
 
 	// Checks if widgets don't have accessibility options
-	if (!list) return data
+	if (metadata.accessibility_keyboard) {
+		data.keyboard = metadata.accessibility_keyboard
+		data.score += VALUE_SCORES[metadata.accessibility_keyboard]
+	}
 
-	list.forEach((val, index) => {
-		const entry = getValidAccessData(val)
-
-		index == 0 ? (data.keyboard = entry.text) : (data.screen_reader = entry.text)
-		index == 0 ? (score1 = entry.score) : (score2 = entry.score)
-	})
-
-	data.score = score1 + score2
+	if (metadata.accessibility_reader) {
+		data.screen_reader = metadata.accessibility_reader
+		data.score += VALUE_SCORES[metadata.accessibility_reader]
+	}
 
 	return data
-}
-
-// Validates the accessibility data and formats it
-const getValidAccessData = (entry) => {
-	const scores = { none: 1, limited: 2, full: 3 }
-
-	if (scores.hasOwnProperty(entry.toLowerCase())) {
-		return { text: entry, score: scores[entry.toLowerCase()] }
-	}
-	else {
-		return { text: 'Unavailable', score: 0 }
-	}
 }
 
 const _tooltipObject = (text) => ({
@@ -94,7 +87,7 @@ const Detail = ({widget, isFetching}) => {
 				maxWidth: ((parseInt(widget.width) || 700) + 150) + 'px',
 				supported_data: widget.meta_data['supported_data'].map(_tooltipObject),
 				features: widget.meta_data['features'].map(_tooltipObject),
-				accessibility: getAccessibilityData(widget.meta_data['accessibility_options']),
+				accessibility: getAccessibilityData(widget.meta_data),
 				date: new Date(widget['created_at'] * 1000).toLocaleDateString(),
 				dataLoading: false,
 			})

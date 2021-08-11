@@ -143,7 +143,6 @@ class Widget
 				# multiple items with these keys will be placed in an array
 				case 'features':
 				case 'supported_data':
-				case 'accessibility_options':
 				case 'playdata_exporters':
 					if ( ! isset($meta_data[$name])) $meta_data[$name] = []; // initialize if needed
 					$meta_data[$name][] = $value;
