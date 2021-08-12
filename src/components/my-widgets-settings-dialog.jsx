@@ -16,7 +16,7 @@ const initState = () => {
 		warningType: 'normal',
 		availability: [{}, {}],
 		formData: {
-			data: {}, 
+			data: {},
 			changes: {
 				radios: [true, true],
 				dates: [new Date(), new Date()],
@@ -202,7 +202,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 			availability: _availability,
 			formData: _formData
 		})
-		
+
 		return () => (mounted.current = false)
 	}, [])
 
@@ -293,8 +293,8 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 	const validateFormData = (dates, times, periods) => {
 		let newDates = []
 		let errors = {
-			dateErrors: [false, false], 
-			timeErrors: [false, false], 
+			dateErrors: [false, false],
+			timeErrors: [false, false],
 			startTimeError: false
 		}
 
@@ -316,7 +316,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 			// Validates the time
 			const reTime = /^\d{1,2}:\d\d$/
 			const val = reTime.exec(time)
-			
+
 			// Regex wasn't matched
 			if (val === null) {
 				timeError = true
@@ -367,7 +367,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 		dateErrCount += formErrors.dateErrors[1] === true ? 1 : 0
 		timeErrCount += formErrors.timeErrors[0] === true ? 1 : 0
 		timeErrCount += formErrors.timeErrors[1] === true ? 1 : 0
-		
+
 		// Sets the input error color
 		errors.date[0] = formErrors.dateErrors[0]
 		errors.date[1] = formErrors.dateErrors[1]

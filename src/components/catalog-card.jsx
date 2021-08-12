@@ -3,11 +3,7 @@ import { iconUrl } from '../util/icon-url'
 import KeyboardIcon from './keyboard-icon'
 import ScreenReaderIcon from './screen-reader-icon'
 
-const isValidAccessVal = val => {
-	console.log(val)
-	// val.toLowerCase() === 'full' || val.toLowerCase() === 'limited' ? true : false
-	return ['Full', 'Limited'].includes(val)
-}
+const isValidAccessVal = val => ['Full', 'Limited'].includes(val)
 
 const CatalogCard = ({
 	id,

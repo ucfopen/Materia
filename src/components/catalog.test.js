@@ -30,7 +30,8 @@ const getWidgets = () => ([
 			about: "An advanced flexible scenario-building tool.",
 			playdata_exporters: ["Survey Formatting"],
 			demo: "hFLbU",
-			accessibility_options: ["Full", "Full"],
+			accessibility_keyboard: "Full",
+			accessibility_reader: "Full"
 		},
 		name: "Adventure",
 		player: "player.html",
@@ -67,7 +68,8 @@ const getWidgets = () => ([
 			about: "In Crossword, fill in the blank squares with: (a) words based on the clues provided in the text and/or (b) by the letters overlapping from other words.",
 			playdata_exporters: ["Survey Formatting"],
 			demo: "y4Cye",
-			accessibility_options: ["Full", "Limited"],
+			accessibility_keyboard: "Full",
+			accessibility_reader: "Limited"
 		},
 		name: "Crossword",
 		player: "player.html",
@@ -168,7 +170,7 @@ describe('Catalog', () => {
 		}
 	})
 
-	it('renders correctly', async () => {
+	it.only('renders correctly', async () => {
 		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
 
 		// Waits for data to load
