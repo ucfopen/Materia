@@ -232,7 +232,7 @@
 										</div>
 										<div>
 											<label>Score:</label><!--gross hack to remove space between inline elements
-											--><a target="_blank" href="{{ '/scores/'+play.id+'/#single-'+play.play_id }}">{{ play.percent }}%</a>
+											--><a target="_blank" href="{{ '/scores/single/'+play.play_id+'/'+play.id }}">{{ play.percent }}%</a>
 										</div>
 										<div>
 											<label>Time Elapsed:</label>{{ play.elapsed }}s
@@ -242,7 +242,7 @@
 										</div>
 										<div>
 											<label>Context:</label>{{play.auth == 'LTI' ? 'LTI' : 'Web' }}
-										</div>	
+										</div>
 										<hr ng-if="$index < instance.plays.length-1" />
 									</li>
 								</ul>
