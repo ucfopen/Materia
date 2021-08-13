@@ -9,7 +9,7 @@ import NoContentIcon from './no-content-icon'
 import StudentSearch from './student-search'
 import './extra-attempts-dialog.scss'
 
-// note: this module is originally intended for the admin panel 
+// note: this module is originally intended for the admin panel
 // and does not check user permissions
 
 const defaultState = () => ({
@@ -90,7 +90,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 				if (parseInt(attemptVal.user_id) === parseInt(match.id)) {
 					// Only changes when necessary
 					if (attemptVal.extra_attempts < 0 || attemptVal.disabled === true) {
-						tempAttempts.set(attemptId, 
+						tempAttempts.set(attemptId,
 							{
 								...attemptVal,
 								extra_attempts: 1,
@@ -118,7 +118,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 				isError = true
 			}
 		})
-		
+
 		if (!isError) {
 			setExtraAttempts.mutate({
 				instId: inst.id,
@@ -141,59 +141,71 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		return false
 	},[inst, Array.from(state.extraAttempts)])
 
+	let contentRender = <LoadingIcon />
+	if (!isFetching) {
+		let extraAttemptsRender = <NoContentIcon />
+		if (containsUser) {
+			extraAttemptsRender = Array.from(state.extraAttempts).map(([attemptId, attemptObj]) => {
+				if (attemptObj.extra_attempts < 0) return
+				const user = state.users[attemptObj.user_id]
+				if (!user) return
+
+				const attemptsForUserChangeHandler = (id, updatedAttempt) => setState((oldState) => {
+					const attemptsMap = new Map(oldState.extraAttempts)
+					attemptsMap.set(id, updatedAttempt)
+					return {
+						...oldState,
+						extraAttempts: attemptsMap
+					}
+				})
+
+				return <ExtraAttemptsRow
+					key={attemptId}
+					extraAttempt={attemptObj}
+					user={user}
+					onChange={attemptsForUserChangeHandler}
+				/>
+			})
+		}
+
+		contentRender = (
+			<>
+				{ extraAttemptsRender }
+			</>
+		)
+	}
+
+	let saveErrorRender = null
+	if (saveError) {
+		saveErrorRender = <p>{saveError}</p>
+	}
+
 	return (
 		<Modal onClose={onClose}>
-			<div className="extraAttemptsModal">
-				<span className="title">Give Students Extra Attempts</span>
-				<div className="attempts-container">
+			<div className='extraAttemptsModal'>
+				<span className='title'>Give Students Extra Attempts</span>
+				<div className='attempts-container'>
 					<StudentSearch addUser={addUser} debounceTime={300}/>
 
-					<div className="attempts_list_container">
-						<div className="headers">
-							<span className="user-header">User</span>
-							<span className="context-header">Course ID</span>
-							<span className="attempts-header">Extra Attempts</span>
+					<div className='attempts_list_container'>
+						<div className='headers'>
+							<span className='user-header'>User</span>
+							<span className='context-header'>Course ID</span>
+							<span className='attempts-header'>Extra Attempts</span>
 						</div>
 
 						<div className={`attempts_list ${containsUser ? '' : 'no-content'}`}>
-							{
-								!isFetching
-								? <>
-										{
-											containsUser
-											?	Array.from(state.extraAttempts).map(([attemptId, attemptObj]) => {
-													if(attemptObj.extra_attempts < 0) return
-													const user = state.users[attemptObj.user_id]
-													if(!user) return
-													return <ExtraAttemptsRow
-														key={attemptId}
-														extraAttempt={attemptObj}
-														user={user}
-														onChange={(id, updatedAttempt) => (setState((oldState) => {
-															const attemptsMap = new Map(oldState.extraAttempts)
-															attemptsMap.set(id, updatedAttempt)
-															return {...oldState, extraAttempts: attemptsMap}
-														}))}
-													/>
-												})
-											: <NoContentIcon />
-										}
-									</>
-								: <LoadingIcon />
-							}
+							{ contentRender }
 						</div>
 					</div>
-					<div className="save-error">
-						{ saveError != ''
-							? <p>{saveError}</p>
-							: null
-						}
+					<div className='save-error'>
+						{ saveErrorRender }
 					</div>
-					<div className="button-holder">
-						<a tabIndex="1" className="cancel_button" onClick={onClose}>
+					<div className='button-holder'>
+						<a tabIndex='1' className='cancel_button' onClick={onClose}>
 								Cancel
 						</a>
-						<a tabIndex="2" className="action_button green save_button" onClick={onSave}>
+						<a tabIndex='2' className='action_button green save_button' onClick={onSave}>
 							Save
 						</a>
 					</div>

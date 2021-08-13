@@ -55,7 +55,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 	const picScrollerRef = useRef(null)
 	const [windowWidth] = windowSize()
 	const createPlaySession = useCreatePlaySession()
-	
+
 	// Automatically adjusts screenshots based on window resize
 	useEffect(() => {
 		if (windowWidth !== 0) {
@@ -94,7 +94,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		if (screenshotData.numScreenshots !== 0) {
 			const index = (selectionData.selectedImage.num + screenshotData.numScreenshots) % (screenshotData.numScreenshots + 1)
 			setSelectionData({
-				...selectionData, 
+				...selectionData,
 				selectedImage: {
 					num: index,
 					reset: true
@@ -107,7 +107,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		if (screenshotData.numScreenshots !== 0) {
 			const index = (selectionData.selectedImage.num + 1) % (screenshotData.numScreenshots + 1)
 			setSelectionData({
-				...selectionData, 
+				...selectionData,
 				selectedImage: {
 					num: index,
 					reset: true
@@ -228,7 +228,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		}
 
 		setSelectionData({
-			...selectionData, 
+			...selectionData,
 			selectedImage: {
 				num: _selectedImage,
 				reset: false
@@ -252,9 +252,9 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 			const _offset = _pics.children[i].offsetLeft * -1
 			fast ? _pics.style.transition = '' : _pics.style.transition = 'ease transform 500ms'
 			_pics.style.transform = `translate3D(${_offset}px, 0, 0)`
-			
+
 			setSelectionData({
-				...selectionData, 
+				...selectionData,
 				selectedImage: {
 					...selectionData.selectedImage,
 					reset: false
@@ -301,103 +301,118 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		return userWidth > sizeNeeded
 	}
 
+	const screenshotElements = []
+	const screenshotDotElements = []
+	screenshotData.screenshots.forEach((screenshot, index) => {
+		screenshotElements.push(
+			<div key={index}>
+				<img src={screenshot.full} />
+				<div className='screenshot-drag-cover'></div>
+				<h3>Screenshot {index + 1} of {screenshotData.numScreenshots}</h3>
+			</div>
+		)
+		screenshotDotElements.push(
+			<button key={index}
+				className={`pic-dot ${selectionData.selectedImage.num === index + 1 ? 'selected' : ''}`}
+				onClick={() => setSelectionData({...selectionData, selectedImage: {num: index + 1, reset: true}})}>
+			</button>
+		)
+	})
+
+	const handleDemoShortcutClick = () => setSelectionData({...selectionData, selectedImage: {num: 0, reset: true}})
+
+	let screenshotCarouselContentsRender = null
+	if (screenshotData.numScreenshots > 0) {
+		let demoRender = (
+			<div id='player-container'>
+				<WidgetPlayer
+				instanceId={widget.meta_data.demo}
+				playId={demoData.playId}
+				minHeight={parseInt(widget.height)}
+				minWidth={parseInt(widget.width)}/>
+			</div>
+		)
+
+		if (demoData.showDemoCover) {
+			demoRender = (
+				<>
+					<img style={{minHeight: demoData.demoHeight, height: (parseInt(widgetHeight) + 48) + 'px'}} src={screenshotData.screenshots[0]?.full}/>
+					<div id='demo-cover'
+						className={`${demoData.demoLoading ? 'loading' : ''}`}
+						style={{backgroundImage: `url(${screenshotData.screenshots[0]?.full})`}} >
+						<button className='action_button green'
+							onClick={showDemoClicked}>
+							<svg xmlns='http://www.w3.org/2000/svg'
+								width='24'
+								height='24'
+								viewBox='0 0 24 24'>
+								<path d='M8 5v14l11-7z'/>
+								<path d='M0 0h24v24H0z'
+									fill='none'/>
+							</svg>
+							Play a demo now!
+						</button>
+						<div id='demo-cover-background'></div>
+					</div>
+				</>
+			)
+		}
+
+
+		screenshotCarouselContentsRender = (
+			<div id='pics-scroller'
+				ref={picScrollerRef}
+				onTouchStart={handleTouchDown}
+				onTouchEnd={handleTouchUp}
+				onTouchMove={handleTouchMove}
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleMouseUp}
+				onMouseMove={handleMouseMove}
+				onMouseLeave={handleMouseUp}
+				>
+				<div className={`${demoData.demoLoading ? 'loading' : ''} ${!demoData.showDemoCover ? 'playing' : ''}`}
+					style={{minHeight: demoData.demoHeight, width: demoData.demoWidth}}>
+					{ demoRender }
+					<h3>{!demoData.showDemoCover ? 'Playing ' : '' }Demo</h3>
+				</div>
+
+				{ screenshotElements }
+			</div>
+		)
+	}
+
 	return (
-		<div className="pics">
-			<button className="pic-arrow" onClick={prevImage}>
-				<svg xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24">
-					<path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
-					<path fill="none" d="M0 0h24v24H0V0z"/>
+		<div className='pics'>
+			<button className='pic-arrow' onClick={prevImage}>
+				<svg xmlns='http://www.w3.org/2000/svg'
+					width='24'
+					height='24'
+					viewBox='0 0 24 24'>
+					<path d='M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z'/>
+					<path fill='none' d='M0 0h24v24H0V0z'/>
 				</svg>
 			</button>
-			<button className="pic-arrow"
+			<button className='pic-arrow'
 				onClick={nextImage}>
-				<svg xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24">
-					<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-					<path fill="none" d="M0 0h24v24H0V0z"/>
+				<svg xmlns='http://www.w3.org/2000/svg'
+					width='24'
+					height='24'
+					viewBox='0 0 24 24'>
+					<path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z'/>
+					<path fill='none' d='M0 0h24v24H0V0z'/>
 				</svg>
 			</button>
 
-			<div id="pics-scroller-container">
-				{
-					screenshotData.numScreenshots > 0
-					?	<div id="pics-scroller"
-							style={{transform: 'translate3D(-2px, 0, 0)'}}
-							ref={picScrollerRef}
-							onTouchStart={handleTouchDown}
-							onTouchEnd={handleTouchUp}
-							onTouchMove={handleTouchMove}
-							onMouseDown={handleMouseDown}
-							onMouseUp={handleMouseUp}
-							onMouseMove={handleMouseMove}
-							onMouseLeave={handleMouseUp}
-							>
-							<div className={`${demoData.demoLoading ? 'loading' : ''} ${!demoData.showDemoCover ? 'playing' : ''}`}
-								style={{minHeight: demoData.demoHeight, width: demoData.demoWidth}}>
-								{
-									!demoData.showDemoCover
-									? <div id="player-container">
-											<WidgetPlayer 
-											instanceId={widget.meta_data.demo}
-											playId={demoData.playId}
-											minHeight={parseInt(widget.height)}
-											minWidth={parseInt(widget.width)}/>
-										</div>
-									: <>
-											<img style={{minHeight: demoData.demoHeight, height: (parseInt(widgetHeight) + 48) + 'px'}} src={screenshotData.screenshots[0]?.full}/>
-											<div id="demo-cover"
-												className={`${demoData.demoLoading ? 'loading' : ''}`}
-												style={{backgroundImage: `url(${screenshotData.screenshots[0]?.full})`}} >
-												<button className="action_button green"
-													onClick={showDemoClicked}>
-													<svg xmlns="http://www.w3.org/2000/svg"
-														width="24"
-														height="24"
-														viewBox="0 0 24 24">
-														<path d="M8 5v14l11-7z"/>
-														<path d="M0 0h24v24H0z"
-															fill="none"/>
-													</svg>
-													Play a demo now!
-												</button>
-												<div id="demo-cover-background"></div>
-											</div>
-										</>
-								}
-								<h3>{!demoData.showDemoCover ? 'Playing ' : '' }Demo</h3>
-							</div>
-											
-							{
-								screenshotData.screenshots.map((screenshot, index) => {
-									return(<div key={index}>
-											<img src={screenshot.full} />
-											<div className="screenshot-drag-cover"></div>
-											<h3>Screenshot {index + 1} of {screenshotData.numScreenshots}</h3>
-										</div>)
-								})
-							}
-						</div>
-					: null
-				}
+			<div id='pics-scroller-container'>
+				{ screenshotCarouselContentsRender }
 			</div>
 
 			<div>
 				<button className={`demo-dot ${selectionData.selectedImage.num === 0 ? 'selected' : ''}`}
-					onClick={() => setSelectionData({...selectionData, selectedImage: {num: 0, reset: true}})}>
+					onClick={handleDemoShortcutClick}>
 					Demo
 				</button>
-				{
-					screenshotData.screenshots.map((screenshot, index) => {
-						return(<button className={`pic-dot ${selectionData.selectedImage.num === index + 1 ? 'selected' : ''}`} key={index}
-								onClick={() => setSelectionData({...selectionData, selectedImage: {num: index + 1, reset: true}})}>
-							</button>)
-					})
-				}
+				{ screenshotDotElements }
 			</div>
 		</div>
 	)
