@@ -8,8 +8,8 @@ export default function useUpdateWidget() {
 	return useMutation(
 		apiUpdateWidget,
 		{
-      onMutate: async inst => {
-        await queryClient.cancelQueries('widgets')
+			onMutate: async inst => {
+				await queryClient.cancelQueries('widgets')
 
 				const copyValue = [...queryClient.getQueryData('widgets')]
 				const previousValue = queryClient.getQueryData('widgets')
@@ -23,11 +23,11 @@ export default function useUpdateWidget() {
 						val.embedded_only = inst.args[8]
 					}
 				}
-				
+
 				queryClient.setQueryData('widgets', () => copyValue)
 
 				// Stores the old value for use if there is an error
-        return { previousValue }
+				return { previousValue }
 			},
 			onSuccess: (data, variables) => {
 				variables.successFunc()

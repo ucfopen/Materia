@@ -43,16 +43,14 @@ const ExtraAttemptsRow = ({extraAttempt, user, onChange}) => {
 			</div>
 
 			<div className='context'>
-				<input 
-					type="text"
+				<input type="text"
 					value={state.context_id}
-					onChange={onContextChange} 
+					onChange={onContextChange}
 					required />
 			</div>
 
 			<div className='num_attempts'>
-				<input 
-					type="number"
+				<input type="number"
 					min="1"
 					max="99"
 					value={state.extra_attempts}

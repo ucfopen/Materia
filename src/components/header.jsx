@@ -34,145 +34,186 @@ const Header = ({
 	})
 	const cn = user?.loggedIn ? 'logged-in' : ''
 
+	const toggleMobileNavMenu = () => setMenuOpen(!menuOpen)
+	const toggleNavOpen = () => setNavOpen(!navOpen)
+
 	const logoutUser = () => {
 		sessionStorage.clear()
-		window.location.href = "/users/logout"
+		window.location.href = '/users/logout'
+	}
+
+	let userDataRender = <span id='current-user' data-logged-in='false'></span>
+
+	let profileNavRender = null
+
+	let adminNavRender = null
+	if (isAdmin) {
+		adminNavRender = (
+			<li className='nav_expandable'>
+				<span className='elevated admin'>Admin</span>
+				<ul>
+					<li>
+						<a className='elevated' href='/admin/widget'>Widgets</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/user'>Users</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/support'>Support</a>
+					</li>
+				</ul>
+			</li>
+		)
+	}
+
+	let supportNavRender = null
+	if (isSupport) {
+		supportNavRender = (
+			<li className='nav_expandable'>
+				<span className='elevated support'>Support</span>
+				<ul>
+					<li>
+						<a className='elevated' href='/admin/user'>Users</a>
+					</li>
+					<li>
+						<a className='elevated' href='/admin/support'>Support</a>
+					</li>
+				</ul>
+			</li>
+		)
+	}
+
+	/*
+	There will seemingly be two 'Logout' links when a user is logged in - one is inline with the
+	user name and avatar, the second is invisible unless the screen is extremely narrow, at which point
+	it becomes visible alongside all other nav options in the expanded hamburger menu.
+	This variable will account for the second Logout link.
+	*/
+	let logoutNavRender = null
+
+	let notificationsRender = null
+
+	let userRender = null
+	if (!userLoading) {
+		let nameAvatarRender = null
+		let loginRender = null
+
+		// this used to be !!user - not sure if the distinction was important
+		if (user) {
+			userDataRender = (
+				<span id='current-user'
+					data-logged-in='true'
+					data-name={`${user.first} ${user.last}`}
+					data-avatar={user.avatar}
+					data-role={userRoles.includes('author') ? 'Staff' : 'Student'}
+					data-notify={userNotify}
+				/>
+			)
+
+			profileNavRender = (
+				<li>
+					<a href='/profile'>My Profile</a>
+				</li>
+			)
+
+			nameAvatarRender = (
+				<a href='/profile'>
+					<span>{`${user.first} ${user.last}`}</span>
+					<img src={user.avatar} />
+				</a>
+			)
+
+			loginRender = (
+				<span className='logout'>
+					<a onClick={logoutUser}>Logout</a>
+				</span>
+			)
+
+			logoutNavRender = (
+				<li>
+					<span className='logout'>
+						<a href='/users/logout'>Logout</a>
+					</span>
+				</li>
+			)
+
+			if (notifications?.length > 0) {
+				const notificationElements = notifications.map(notification => (
+					<div className={`notice ${notification.deleted ? 'deleted' : ''}`}
+						key={notification.id}>
+						<p className='icon'>
+							<img className='senderAvatar' src={notification.avatar} />
+						</p>
+						<div className='notice_right_side'>
+							<div dangerouslySetInnerHTML={{__html: `<p class='subject'>${notification.subject}</p>`}}></div>
+						</div>
+						<span
+							className='noticeClose'
+							onClick={() => {deleteNotification.mutate(notification.id)}}
+						></span>
+					</div>
+				))
+
+				notificationsRender = (
+					<>
+						<a id='notifications_link'
+							data-notifications={notifications.length}
+							onClick={toggleNavOpen} />
+						<div id='notices' className={navOpen ? 'open' : ''}>
+							{ notificationElements }
+						</div>
+					</>
+				)
+			}
+
+		} else {
+			if (allowLogins) {
+				loginRender = <a href='/users/login'>Login</a>
+			}
+		}
+
+		userRender = (
+			<span>
+				<p className='user avatar'>
+					{ nameAvatarRender }
+					{ loginRender }
+				</p>
+			</span>
+		)
 	}
 
 	return (
 		<header className={cn} >
-			{ !user
-				? <span id="current-user" data-logged-in="false"></span>
-				: <span id="current-user"
-						data-logged-in="true"
-						data-name={`${user.first} ${user.last}`}
-						data-avatar={user.avatar}
-						data-role={userRoles.includes('author') ? 'Staff' : 'Student'}
-						data-notify={userNotify}
-					></span>
-			}
-
-			<h1 className="logo"><a href="/">Materia</a></h1>
-
-			{	!userLoading
-				?	<span>
-						<p className="user avatar">
-							{ !!user
-								? <a href="/profile">
-										<span>{`${user.first} ${user.last}`}</span>
-										<img src={user.avatar} />
-									</a>
-								: null
-							}
-							{ user
-								? <span className="logout">
-										<a onClick={logoutUser}>Logout</a>
-									</span>
-								: null
-							}
-
-							{ allowLogins && ! user
-								? <a href="/users/login">Login</a>
-								: null
-							}
-						</p>
-					</span>
-				: null
-			}
-
-			<button
-				id="mobile-menu-toggle"
+			<h1 className='logo'><a href='/'>Materia</a></h1>
+			{ userDataRender }
+			{ userRender }
+			<button id='mobile-menu-toggle'
 				className={menuOpen ? 'expanded' : ''}
-				onClick={() => {setMenuOpen(!menuOpen)}}
-			>
-				<div></div>
+				onClick={toggleMobileNavMenu}>
+				<div/>
 			</button>
 
 			<nav>
 				<ul>
-					<li><a href="/widgets" >Widget Catalog</a></li>
-					<li><a href="/my-widgets">My Widgets</a></li>
-					{ user
-						? <li>
-							<a href="/profile">My Profile</a>
-							</li>
-						: null
-					}
-					<li><a href="/help">Help</a></li>
+					<li>
+						<a href='/widgets' >Widget Catalog</a>
+					</li>
+					<li>
+						<a href='/my-widgets'>My Widgets</a>
+					</li>
+					{ profileNavRender }
+					<li>
+						<a href='/help'>Help</a>
+					</li>
 
-					{ isAdmin
-						? <li className="nav_expandable">
-								<span className='elevated admin'>Admin</span>
-								<ul>
-									<li>
-										<a className='elevated' href="/admin/widget">Widgets</a>
-									</li>
-									<li>
-										<a className='elevated' href="/admin/user">Users</a>
-									</li>
-									<li>
-										<a className='elevated' href="/admin/support">Support</a>
-									</li>
-								</ul>
-							</li>
-						: null
-					}
+					{ adminNavRender }
+					{ supportNavRender }
 
-					{ isSupport
-						? <li className="nav_expandable">
-								<span className='elevated support'>Support</span>
-								<ul>
-									<li>
-										<a className='elevated' href="/admin/user">Users</a>
-									</li>
-									<li>
-										<a className='elevated' href="/admin/support">Support</a>
-									</li>
-								</ul>
-							</li>
-						: null
-					}
-
-					{ user
-						? <li>
-								<span className="logout">
-									<a href="/users/logout">Logout</a>
-								</span>
-							</li>
-						: null
-					}
-
+					{ logoutNavRender }
 				</ul>
 			</nav>
 
-			{ user && notifications?.length > 0
-				? <>
-					<a
-						id="notifications_link"
-						data-notifications={notifications.length}
-						onClick={ () => { setNavOpen(!navOpen) } }
-					></a>
-					<div id="notices" className={navOpen ? 'open' : ''}>
-						{ notifications.map(notification => (
-							<div className={`notice ${notification.deleted ? 'deleted' : ''}`}
-								key={notification.id}>
-								<p className="icon">
-									<img className="senderAvatar" src={notification.avatar} />
-								</p>
-								<div className="notice_right_side">
-									<div dangerouslySetInnerHTML={{__html: `<p class="subject">${notification.subject}</p>`}}></div>
-								</div>
-								<span
-									className="noticeClose"
-									onClick={() => {deleteNotification.mutate(notification.id)}}
-								></span>
-							</div>
-						))
-						}
-					</div>
-					</>
-				: null
-			}
+			{ notificationsRender }
 
 		</header>
 	)

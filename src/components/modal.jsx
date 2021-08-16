@@ -1,7 +1,6 @@
 import React from 'react'
 import { createPortal } from 'react-dom';
 import './modal.scss'
-//import useClickOutside from '../util/use-click-outside'
 
 class Modal extends React.Component {
 	constructor( props ) {
@@ -41,23 +40,23 @@ class Modal extends React.Component {
 	}
 
 	render() {
-	  const stuff = (
-		<>
-			<div className={`modal-overlay ${this.props.alert ? 'alert' : ''}`} id="modal-overlay"></div>
+		const stuff = (
+			<>
+				<div className={`modal-overlay ${this.props.alert ? 'alert' : ''}`} id='modal-overlay'></div>
 
-			<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''} ${this.props.noGutter ? 'no-gutter' : ''}`} id="inner-modal">
-				<span className="close-button"
-					id="close-button"
-					aria-label={`close${this.props.testId ? `-${this.props.testId}-` : '-'}modal`}
-					onClick={this.props.onClose}>X</span>
-				<div className={`modal-guts ${this.props.noGutter ? 'no-gutter' : ''}`}>
-					{this.props.children}
+				<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''} ${this.props.noGutter ? 'no-gutter' : ''}`} id='inner-modal'>
+					<span className='close-button'
+						id='close-button'
+						aria-label={`close${this.props.testId ? `-${this.props.testId}-` : '-'}modal`}
+						onClick={this.props.onClose}>X</span>
+					<div className={`modal-guts ${this.props.noGutter ? 'no-gutter' : ''}`}>
+						{this.props.children}
+					</div>
 				</div>
-			</div>
-		</>
-	  )
-	  return createPortal( stuff, this.element );
-   }
+			</>
+		)
+		return createPortal( stuff, this.element );
+	}
 }
 
 export default Modal
