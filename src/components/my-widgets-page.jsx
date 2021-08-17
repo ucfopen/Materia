@@ -11,6 +11,7 @@ import useDeleteWidget from './hooks/useDeleteWidget'
 import useKonamiCode from './hooks/useKonamiCode'
 import './css/beard-mode.scss'
 import './my-widgets-page.scss'
+import { cssNumber } from 'jquery'
 
 function getRandomInt(min, max) {
 	min = Math.ceil(min);
@@ -30,6 +31,7 @@ const initState = () => {
 		myPerms: null,
 		noAccess: false,
 		loading: true,
+		postFetch: false, // Used to wait for changes to the widgets list after the initial fetch - copy or delete
 		widgetHash: window.location.href.split('#')[1],
 		currentBeard: ''
 	})
@@ -92,6 +94,12 @@ const MyWidgetsPage = () => {
 		}
 	}, [isFetching])
 
+	useEffect(() => {
+		if (state.postFetch) {
+			checkPreselectedWidgetAccess(widgets)
+		}
+	}, [widgets])
+
 	// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
 	//  fetching, double-check that the current user actually has access to it
 	const checkPreselectedWidgetAccess = widgets => {
@@ -115,47 +123,66 @@ const MyWidgetsPage = () => {
 				}
 			}
 			// always set loading to false and noAccess to whether we found a matching instance or not
-			const newState = {...state, loading: false, noAccess: !widgetFound}
+			const newState = {...state, loading: false, noAccess: !widgetFound, postFetch: false}
 
 			// if we didn't find a matching instance for either case, make sure there isn't a selected instance
 			if ( !widgetFound) newState.selectedInst = null
 			setState(newState)
+		} else if (state.postFetch) {
+			// We're updating the selected widget following a post-fetch change - probably a delete
+			// With no given instance ID to select, just select the topmost one in the list
+			return onSelect(widgets[0], 0)
 		}
-		else setState({...state, loading: false})
+		else setState({...state, loading: false, postFetch: false})
 	}
 
 	const onSelect = (inst, index) => {
 		if (inst.is_fake) return
 
-		// setState({...state, selectedInst: inst, noAccess: false, loading: false, currentBeard: beards[index]})
-		setState({...state, selectedInst: inst, noAccess: false, currentBeard: beards[index]})
+		setState({...state, selectedInst: inst, noAccess: false, currentBeard: beards[index], postFetch: false})
 		setUrl(inst)
 	}
 
 	const onCopy = (instId, newTitle, newPerm, inst) => {
 		setState({...state, selectedInst: null})
 
-		copyWidget.mutate({
-			instId: instId,
-			title: newTitle,
-			copyPermissions: newPerm,
-			widgetName: inst.widget.name,
-			dir: inst.widget.dir
-		})
+		copyWidget.mutate(
+			{
+				instId: instId,
+				title: newTitle,
+				copyPermissions: newPerm,
+				widgetName: inst.widget.name,
+				dir: inst.widget.dir
+			},
+			{
+				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
+				onSettled: newInstId => {
+					// Setting selectedInst to null again to avoid race conditions.
+					setState({...state, selectedInst: null, widgetHash: newInstId, postFetch: true, loading: true})
+				}
+			}
+		)
 	}
 
-	const onDelete = (inst) => {
-		setState({...state, selectedInst: null})
+	const onDelete = inst => {
+		setState({...state, selectedInst: null, widgetHash: null})
 
-		deleteWidget.mutate({
-			instId: inst.id
-		})
+		deleteWidget.mutate(
+			{
+				instId: inst.id
+			},
+			{
+				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
+				onSettled: () => {
+					// Setting selectedInst and widgetHash to null again to avoid race conditions.
+					setState({...state, selectedInst: null, widgetHash: null, postFetch: true, loading: true})
+				}
+			}
+		)
 	}
 
 	// Sets widget id in the url
-	const setUrl = (inst) => {
-		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`);
-	}
+	const setUrl = inst => window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 
 	const beards = useMemo(
 		() => {
@@ -167,6 +194,15 @@ const MyWidgetsPage = () => {
 		},
 		[widgets]
 	)
+
+	let widgetCatalogCalloutRender = null
+	if (!isFetching && (!widgets || widgets?.length === 0)) {
+		widgetCatalogCalloutRender = (
+			<div className='qtip top nowidgets'>
+				Click here to start making a new widget!
+			</div>
+		)
+	}
 
 	// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
 	const mainContentRender = () => {
@@ -233,12 +269,7 @@ const MyWidgetsPage = () => {
 			<Header />
 			<div className='my_widgets'>
 
-				{!isFetching && (!widgets || widgets?.length === 0)
-					? <div className='qtip top nowidgets'>
-							Click here to start making a new widget!
-						</div>
-					: null
-				}
+				{ widgetCatalogCalloutRender }
 
 				<div className='container'>
 					<div>

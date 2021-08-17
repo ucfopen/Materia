@@ -86,7 +86,7 @@ export const apiGetWidget = widgetId => {
 }
 
 export const apiCopyWidget = values => {
-	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions.toString()])}` })
+	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
 		.then(widget => {
 			return widget
 		})

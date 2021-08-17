@@ -12,7 +12,7 @@ export default function useCopyWidget() {
 				await queryClient.cancelQueries('widgets')
 				const previousValue = queryClient.getQueryData('widgets')
 
-				const new_inst = {
+				const newInst = {
 					id: 'tmp',
 					widget: {
 						name: inst.widgetName,
@@ -23,12 +23,12 @@ export default function useCopyWidget() {
 					is_fake: true
 				}
 
-				queryClient.setQueryData('widgets', old => [new_inst, ...old])
+				queryClient.setQueryData('widgets', old => [newInst, ...old])
 
 				// Stores the old value for use if there is an error
 				return { previousValue }
 			},
-			onSettled: () => {
+			onSuccess: () => {
 				queryClient.invalidateQueries('widgets')
 			},
 			onError: (err, newWidget, context) => {

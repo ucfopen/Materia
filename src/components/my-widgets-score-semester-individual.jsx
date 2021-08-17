@@ -4,19 +4,15 @@ import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
-const showScore = (instId, playId) => {
-	window.open(`/scores/single/${playId}/${instId}`)
-}
+const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
 
-const initState = () => {
-	return({
-		isLoading: true,
-		searchText: '',
-		selectedUser: {},
-		logs: [],
-		filteredLogs: []
-	})
-}
+const initState = () => ({
+	isLoading: true,
+	searchText: '',
+	selectedUser: {},
+	logs: [],
+	filteredLogs: []
+})
 
 const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 	const [state, setState] = useState(initState())
@@ -60,70 +56,74 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 	},
 	[state.searchText, state.selectedUser, state.logs])
 
+	const handleSearchChange = e => onSearchInput(e.target.value)
+
+	let mainContentRender = <LoadingIcon width='570px' />
+	if (!state.isLoading) {
+		const userRowElements = state.filteredLogs.map(user => (
+			<tr key={user.userId}
+				className={{rowSelected: state.selectedUser.userId === user.userId}}
+				onClick={() => {setState({...state, selectedUser: user})}}
+				title={`View all scores for ${user.name}`}>
+				<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
+					{user.name}
+				</td>
+			</tr>
+		))
+
+		let selectedUserRender = null
+		if (state.selectedUser.userId) {
+			const selectedUserScoreRows = state.selectedUser.scores.map(score => (
+				<tr key={score.playId}
+					onClick={() => {showScore(instId, score.playId)}}
+					title='View Detailed Scores for this Play'>
+					<td>{ score.date }</td>
+					<td>{ score.score }</td>
+					<td>{ score.elapsed }</td>
+				</tr>
+			))
+
+			selectedUserRender = (
+				<div className='scoreTableContainer'>
+					<table className='scoreTable'>
+						<tbody>
+							{ selectedUserScoreRows }
+						</tbody>
+					</table>
+				</div>
+			)
+		}
+
+		mainContentRender = (
+			<>
+				<div className='score-search'>
+					<input type='text'
+						value={state.searchText}
+						onChange={handleSearchChange}
+						placeholder='Search Students'
+					/>
+				</div>
+
+				<h3>Select a student to view their scores.</h3>
+				<div className='scoreListContainer'>
+					<div className='scoreListScrollContainer'>
+						<table className='scoreListTable'>
+							<tbody>
+								{ userRowElements }
+							</tbody>
+						</table>
+					</div>
+				</div>
+				{ selectedUserRender }
+			</>
+		)
+	}
+
 	return (
 		<>
 			<div className={`display table ${state.isLoading === true ? 'loading' : ''}`}
 				id={`table_${semester.id}`} >
-				{state.isLoading
-				? <LoadingIcon width="570px" />
-				: <>
-						<div className="score-search">
-							<input
-								type="text"
-								value={state.searchText}
-								onChange={(e) => {onSearchInput(e.target.value)}}
-								placeholder="Search Students" />
-						</div>
-
-						<h3>Select a student to view their scores.</h3>
-						<div className="scoreListContainer">
-							<div className="scoreListScrollContainer">
-								<table className="scoreListTable">
-									<tbody>
-										{
-											state.filteredLogs.map(user =>
-												<tr
-													key={user.userId}
-													className={{rowSelected: state.selectedUser.userId === user.userId}}
-													onClick={() => {setState({...state, selectedUser: user})}}
-													title={`View all scores for ${user.name}`}
-												>
-													<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
-														{user.name}
-													</td>
-												</tr>
-											)
-										}
-									</tbody>
-								</table>
-							</div>
-						</div>
-
-						{state.selectedUser.userId
-							? <div className="scoreTableContainer">
-									<table className="scoreTable">
-										<tbody>
-											{
-												state.selectedUser.scores.map(score =>
-													<tr
-														key={score.playId}
-														onClick={() => {showScore(instId, score.playId)}}
-														title="View Detailed Scores for this Play"
-													>
-														<td>{score.date}</td>
-														<td>{score.score}</td>
-														<td>{ score.elapsed }</td>
-													</tr>
-												)
-											}
-										</tbody>
-									</table>
-								</div>
-							: null
-						}
-
-					</>
-				}
+				{ mainContentRender }
 			</div>
 			<MyWidgetScoreSemesterSummary {...semester} />
 		</>

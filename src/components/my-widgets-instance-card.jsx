@@ -20,22 +20,22 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 		widgetNameTextRender = createHighlightSpan(widgetNameTextRender, searchText)
 	}
 
+	const clickHandler = () => onClick(inst, indexVal)
+
 	return (
-		<div
-			id={`widget_${id}`}
+		<div id={`widget_${id}`}
 			className={classes.join(' ')}
-			onClick={() => {onClick(inst, indexVal)}}
-		>
-			<img className="icon" src={iconUrl('http://localhost/widget/', widget.dir, 275)} />
+			onClick={clickHandler}>
+			<img className='icon' src={iconUrl('http://localhost/widget/', widget.dir, 275)} />
 			<ul>
-				<li className="title searchable"
+				<li className='title searchable'
 					dangerouslySetInnerHTML={{ __html: nameTextRender }}>
 				</li>
-				<li className="type searchable"
+				<li className='type searchable'
 					dangerouslySetInnerHTML={{ __html: widgetNameTextRender }}>
 				</li>
-				<li className="score">
-					{is_draft ? "Draft" : ""}
+				<li className='score'>
+					{is_draft ? 'Draft' : ''}
 				</li>
 			</ul>
 		</div>
