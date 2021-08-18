@@ -3,12 +3,10 @@ import { useQuery } from 'react-query'
 import { apiSearchUsers } from '../util/api'
 import useDebounce from './hooks/useDebounce'
 
-const initState = () => {
-	return({
-		searchText: '',
-		clicked: false
-	})
-}
+const initState = () => ({
+	searchText: '',
+	clicked: false
+})
 
 const StudentSearch = ({addUser, debounceTime=300}) => {
 	const [state, setState] = useState(initState())
@@ -31,32 +29,43 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 		addUser(match)
 	}
 
+	let searchMatchElementsRender = null
+	if (!state.clicked && studentsSearched && studentsSearched.filter(res => res.is_student === true).length !== 0) {
+		const searchMatchElements = studentsSearched.filter(res => res.is_student === true).map(match => (
+			<div key={match.id}
+				className='attempts_search_match clickable'
+				onClick={() => onClickMatch(match)}>
+					<img className='attempts_match_avatar'
+						src={match.avatar}
+					/>
+					<p className={`attempts_match_name ${match.is_student ? 'attempts_match_student' : ''}`}>
+						{match.first} {match.last}
+					</p>
+			</div>
+		))
+
+		searchMatchElementsRender = (
+			<div className='attempts_search_list'>
+				{ searchMatchElements}
+			</div>
+		)
+	}
+
+
 	return (
-		<div className="search-container">
-		<span className="search-title">Add students:</span>
-		<input
-			tabIndex="0"
-			value={state.searchText}
-			onChange={(e) => setState({...state, searchText: e.target.value})}
-			type="text"
-			placeholder="Enter a Materia user's name or e-mail"
-			className="attempts-input"/>
-		<div>
-			{ !state.clicked && studentsSearched && studentsSearched.filter(res => res.is_student === true).length !== 0
-				? <div className="attempts_search_list">
-					{studentsSearched.filter(res => res.is_student === true).map((match) => 
-						<div
-							key={match.id}
-							className='attempts_search_match clickable'
-							onClick={() => onClickMatch(match)}>
-								<img className="attempts_match_avatar" src={match.avatar} />
-								<p className={`attempts_match_name ${match.is_student ? 'attempts_match_student' : ''}`}>{match.first} {match.last}</p>
-						</div>
-					)}
-					</div>
-				: null
-			}
-		</div>
+		<div className='search-container'>
+			<span className='search-title'>Add students:</span>
+			<input
+				tabIndex='0'
+				value={state.searchText}
+				onChange={(e) => setState({...state, searchText: e.target.value})}
+				type='text'
+				placeholder="Enter a Materia user's name or e-mail"
+				className='attempts-input'
+			/>
+			<div>
+				{ searchMatchElementsRender }
+			</div>
 		</div>
 	)
 }

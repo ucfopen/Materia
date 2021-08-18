@@ -149,19 +149,17 @@ const QuestionImporter = () => {
 		})
 	}
 
-	const renderShowingText = () => {
-		if (! state.allQuestions || state.allQuestions.length < 1) return null
-
+	let showingRender = null
+	if (state.allQuestions?.length > 0) {
 		const showingText = state.filterValue ? `${state.displayQuestions.length} / ${state.allQuestions.length}` : state.allQuestions.length
-
-		return <span className='showing-text'>Showing: {showingText}</span>
+		showingRender = <span className='showing-text'>Showing: {showingText}</span>
 	}
 
 	return (
 		<div id='question-importer'>
 			<div className='header'>
 				<h1>Question Catalog</h1>
-				{renderShowingText()}
+				{ showingRender }
 				<span>
 					<label>Filter:</label>
 					<input type='search' value={state.filterValue}

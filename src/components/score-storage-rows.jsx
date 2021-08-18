@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import "./my-widgets-settings-dialog.scss"
+import './my-widgets-settings-dialog.scss'
 
 const PaginateButtons = ({isLoading, selectedValues, tableKeys}) => {
 	const [rowVals, setRowVals] = useState([])
@@ -25,30 +25,30 @@ const PaginateButtons = ({isLoading, selectedValues, tableKeys}) => {
 
 			setRowVals(tmpVals)
 		}
-	}, [isLoading,
-		selectedValues
-	])
-	
+	}, [isLoading, selectedValues])
+
+	const variableKeysRender = tableKeys.map((columName, index) =>
+		<th key={index}>{columName}</th>
+	)
+
+	let storageRowsRender = <tr style={{height: '50px'}}></tr>
+	if (rowVals.length > 0) {
+		storageRowsRender = rowVals
+	}
+
 	return (
-		<table className="storage_table dataTable">
+		<table className='storage_table dataTable'>
 			<thead>
 				<tr>
 					<th>user</th>
 					<th>firstName</th>
 					<th>lastName</th>
 					<th>time</th>
-					{ 
-						tableKeys.map((columName, index) =>
-							<th key={index}>{columName}</th>
-						)
-					}
+					{ variableKeysRender }
 				</tr>
 			</thead>
 			<tbody>
-				{ rowVals.length > 0
-					? rowVals
-					: <tr style={{height: "50px"}}></tr>
-				}
+				{ storageRowsRender }
 			</tbody>
 		</table>
 	)
