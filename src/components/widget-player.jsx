@@ -126,7 +126,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 	// Adds warning event listener
 	useEffect(() => {
-		window.addEventListener("beforeunload", _beforeUnload)
+		window.addEventListener('beforeunload', _beforeUnload)
 
 		return () => {
 			window.removeEventListener('beforeunload', _beforeUnload);
@@ -236,7 +236,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	}
 
 	// Receives messages from widget player
-	const _onPostMessage = (e) => {
+	const _onPostMessage = e => {
 		// build a link element to deconstruct the static url
 		// this helps us match the static url against the event origin
 		const a = document.createElement('a')
@@ -299,7 +299,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	}
 
 	// Used to add play logs
-	const _addLog = (log) => {
+	const _addLog = log => {
 		playSaved.current = false
 		log['game_time'] = (new Date().getTime() - startTime) / 1000 // log time in seconds
 		dispatchPendingLogs({type: 'addPlay', payload: {log: log}})
@@ -350,14 +350,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		}
 	}
 
-	const _sendStorage = (msg) => {
+	const _sendStorage = msg => {
 		if (!isPreview) {
 			storageSaved.current = false
 			dispatchPendingLogs({type: 'addStorage', payload: {log: msg}})
 		}
 	}
 
-	const _sendAllPendingLogs = (callback) => {
+	const _sendAllPendingLogs = callback => {
 		if (callback == null) {
 			callback = () => {}
 		}
@@ -396,7 +396,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		}
 	}
 
-	const _pushPendingLogs = (logQueue) => {
+	const _pushPendingLogs = logQueue => {
 		if (logPushInProgress) {
 			return
 		}
@@ -425,8 +425,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 						let title = 'Something went wrong...'
 						let msg = result.msg
 						if (!msg) {
-							msg =
-								"Your play session is no longer valid! This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. You'll need to reload the page to start over."
+							msg = 'Your play session is no longer valid! ' +
+							'This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. ' +
+							"You'll need to reload the page to start over."
 						}
 
 						_alert(msg, title, true)
@@ -479,21 +480,21 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		alert(`${title} : ${msg} : is${!fatal ? ' not' : ''} fatal`)
 	}
 
-	const _setHeight = (h) => {
+	const _setHeight = h => {
 		const min_h = inst.widget.height
 		let desiredHeight = Math.max(h, min_h)
 		setDemoData((oldData) => ({...oldData, height: `${desiredHeight}px`}))
 	}
 
-	const _setVerticalScroll = (location) => {
+	const _setVerticalScroll = location => {
 		const containerElement = frameRef.current
 		const calculatedLocation = window.scrollY + containerElement.getBoundingClientRect().y + location
 		window.scrollTo(0, calculatedLocation)
 	}
 
-	const _onLoadFail = (msg) => _alert(msg, 'Failure!', true)
+	const _onLoadFail = msg => _alert(msg, 'Failure!', true)
 
-	const _beforeUnload = (e) => {
+	const _beforeUnload = e => {
 		if (inst.widget.is_scorable === '1' && !isPreview && endState !== 'sent') {
 			const confirmationMsg = 'Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget.'
 			e.returnValue = confirmationMsg
@@ -504,36 +505,46 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		}
 	}
 
+	let previewBarRender = null
+	if (isPreview) {
+		previewBarRender = (
+			<header className='preview-bar'
+				style={{width: demoData.width !== '0px' ? demoData.width : ''}}>
+			</header>
+		)
+	}
+
+	let loadingRender = null
+	if (demoData.loading) {
+		loadingRender = (
+			<LoadingIcon size='lrg'
+				position='absolute'
+				top={`0px`}
+				left={`0px`}
+			/>
+		)
+	}
+
 	return (
-			<section className={`widget ${isPreview ? 'preview' : ''}`}
-				style={{display: demoData.loading ? 'none' : 'block'}}>
-				{
-					isPreview
-					? <header className="preview-bar"
-							style={{width: demoData.width !== '0px' ? demoData.width : ''}}>
-						</header>
-					: null
-				}
-				<div className="center"
-					ref={centerRef}
-					style={{minHeight: minHeight + 'px',
-						minWidth: minWidth + 'px',
-						width: demoData.width !== '0px' ? demoData.width : 'auto',
-						height: demoData.height !== '0px' ? demoData.height : '',
-						position: demoData.loading ? 'relative' : 'static'}}>
-					<iframe src={ demoData.htmlPath }
-						id="container"
-						className="html"
-						scrolling="yes"
-						ref={frameRef}>
-					</iframe>
-					{
-						demoData.loading
-						? <LoadingIcon size='lrg' position='absolute' top={`0px`} left={`0px`}/>
-						: null
-					}
-				</div>
-			</section>
+		<section className={`widget ${isPreview ? 'preview' : ''}`}
+			style={{display: demoData.loading ? 'none' : 'block'}}>
+			{ previewBarRender }
+			<div className='center'
+				ref={centerRef}
+				style={{minHeight: minHeight + 'px',
+					minWidth: minWidth + 'px',
+					width: demoData.width !== '0px' ? demoData.width : 'auto',
+					height: demoData.height !== '0px' ? demoData.height : '',
+					position: demoData.loading ? 'relative' : 'static'}}>
+				<iframe src={ demoData.htmlPath }
+					id='container'
+					className='html'
+					scrolling='yes'
+					ref={frameRef}
+				/>
+				{ loadingRender }
+			</div>
+		</section>
 	)
 }
 

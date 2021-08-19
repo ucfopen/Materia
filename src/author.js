@@ -5,7 +5,6 @@ require('./angular/controllers/ctrl-question-import')
 require('./angular/controllers/ctrl-qset-history')
 require('./angular/directives/dir-filedropper')
 require('./angular/directives/dir-fileonchange')
-require('./materia/materia.mywidgets.statistics')
 require('./angular/services/srv-api')
 require('./angular/services/srv-scores')
 

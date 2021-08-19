@@ -75,27 +75,24 @@ const WidgetPlayerPage = () => {
 		}
 	}
 
-	// no header for embedded widgets
-	const headerRender = () => {
-		if ( type == EMBED || type == PREVIEW_EMBED ) return null
-		return <Header />
-	}
-	const bodyRender = () => {
-		if( (!!state.widgetID) && state.playID !== undefined ) {
-			return (
-				<WidgetPlayer instanceId={state.widgetID}
-					playId={state.playID}
-					minHeight={state.widgetHeight}
-					minWidth={state.widgetWidth}/>
-			)
-		}
-		return null
+	let headerRender = <Header />
+	// No header for embedded widgets
+	if ( type == EMBED || type == PREVIEW_EMBED ) headerRender = null
+
+	let bodyRender = null
+	if( (!!state.widgetID) && state.playID !== undefined ) {
+		bodyRender = (
+			<WidgetPlayer instanceId={state.widgetID}
+				playId={state.playID}
+				minHeight={state.widgetHeight}
+				minWidth={state.widgetWidth}/>
+		)
 	}
 
 	return (
 		<>
-			{ headerRender() }
-			{ bodyRender() }
+			{ headerRender }
+			{ bodyRender }
 		</>
 	)
 }

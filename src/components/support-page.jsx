@@ -25,8 +25,8 @@ const SupportPage = () => {
 	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => (mounted.current = false)
+		mounted.current = true
+		return () => (mounted.current = false)
 	}, [])
 
 	// Sets the current instance when the copied widget's data is fetched
@@ -42,7 +42,7 @@ const SupportPage = () => {
 			title: title,
 			copyPermissions: copyPerms,
 			dir: inst.widget.dir,
-			successFunc: (newInst) => {
+			successFunc: newInst => {
 				if (mounted.current) {
 					setCopyId(newInst)
 				}
@@ -50,21 +50,26 @@ const SupportPage = () => {
 		})
 	}
 
+	const handleSearchClick = inst => setSelectedInstance(inst)
+	const unselectInstance = () => setSelectedInstance(null)
+	let mainContentRender = <SupportSearch onClick={handleSearchClick}/>
+	if (selectedInstance) {
+		mainContentRender = (
+			<SupportSelectedInstance inst={selectedInstance}
+				key={selectedInstance ? selectedInstance.id : ''}
+				currentUser={currentUser}
+				onReturn={unselectInstance}
+				onCopy={onCopy}
+			/>
+		)
+	}
+
 	return (
 		<>
 			<Header />
 			<div className="support-page">
 				<div>
-					{ !selectedInstance
-					? <SupportSearch 
-							onClick={(inst) => setSelectedInstance(inst)}/>
-					: <SupportSelectedInstance
-							key={selectedInstance ? selectedInstance.id : ''}
-							inst={selectedInstance}
-							currentUser={currentUser}
-							onReturn={() => {setSelectedInstance(null)}}
-							onCopy={onCopy}/>
-					}
+					{ mainContentRender }
 				</div>
 			</div>
 		</>

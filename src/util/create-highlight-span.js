@@ -12,7 +12,7 @@ const escapeHtml = string => String(string).replace(/[&<>"'\/]/g, (s) => entityM
 const createHighlightSpan = (text, search) => {
 	text = escapeHtml(text)
 	text = text.replace(new RegExp(`${search}`, 'gi'), (match, offset) => {
-		return `<span class="highlighted">${match}</span>`
+		return `<span class='highlighted'>${match}</span>`
 	})
 
 	return text

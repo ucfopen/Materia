@@ -9,11 +9,11 @@
 // 		}
 // 	}
 // }
-window.Namespace = (ns) => {
+window.Namespace = ns => {
 	let namespaces = ns.split('.')
 	let w = window
 
-	namespaces.forEach((namespace) => {
+	namespaces.forEach(namespace => {
 		w[namespace] = w[namespace] || {}
 		w = w[namespace] // recurse down
 	})
