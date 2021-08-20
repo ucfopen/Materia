@@ -22,7 +22,7 @@
 	z-index: 100;
 	width: 575px; /*625px*/
 	padding: 30px 60px 30px 145px;
-	background: url('../../../img/user_page_background.gif') 0 0 repeat-y;
+	background: url('/img/user_page_background.gif') 0 0 repeat-y;
 	background-color: #fff;
 	min-height: 400px;
 }
@@ -34,7 +34,7 @@
 	z-index: 100;
 	width: 575px; /*625px*/
 	padding: 30px 60px 30px 145px;
-	background: url('../../../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
+	background: url('/img/repeat_border_diag_bottom.png') 0 100% repeat-x;
 	background-color: #fff;
 	min-height: 400px;
 }
@@ -92,7 +92,7 @@
 
 .user .avatar_big a.external {
 	padding-right: 18px;
-	background: url('../../../img/external_link_arrow.png') right center no-repeat;
+	background: url('/img/external_link_arrow.png') right center no-repeat;
 }
 
 .user .rank {
@@ -158,7 +158,7 @@
 }
 
 .user h3.loading {
-	background: transparent url('../../../img/loading_icon_black_on_white.gif') no-repeat bottom
+	background: transparent url('/img/loading_icon_black_on_white.gif') no-repeat bottom
 		center;
 }
 
@@ -180,7 +180,7 @@
 }
 
 .user .message_loading {
-	background: url('../../../img/profile_load_more_activity.gif');
+	background: url('/img/profile_load_more_activity.gif');
 	width: 16px;
 	height: 16px;
 	margin: 0 5px 0 0;
@@ -370,25 +370,25 @@
 }
 
 .user .main_navigation li.selected.settings a {
-	background-image: url('../../../img/user_page_icons_sprite.png');
+	background-image: url('/img/user_page_icons_sprite.png');
 	background-repeat: no-repeat;
 	background-position: 89px -18px;
 }
 
 .user .main_navigation li.selected.profile a {
-	background-image: url('../../../img/user_page_icons_sprite.png');
+	background-image: url('/img/user_page_icons_sprite.png');
 	background-repeat: no-repeat;
 	background-position: 89px 10px;
 }
 
 .user .main_navigation li.settings a {
-	background-image: url('../../../img/user_page_icons_sprite.png');
+	background-image: url('/img/user_page_icons_sprite.png');
 	background-repeat: no-repeat;
 	background-position: 89px -75px;
 }
 
 .user .main_navigation li.profile a {
-	background-image: url('../../../img/user_page_icons_sprite.png');
+	background-image: url('/img/user_page_icons_sprite.png');
 	background-repeat: no-repeat;
 	background-position: 89px -46px;
 }

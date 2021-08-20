@@ -24,7 +24,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #fff url('http://localhost/../img/kogneato_mywidgets.png') 50% 30% no-repeat;
+					background: #fff url('/img/kogneato_mywidgets.png') 50% 30% no-repeat;
 				}
 				min-height: 850px;
 			}
@@ -97,7 +97,7 @@
 					margin: 4px 0px 0px 9px;
 					height: 15px;
 					width: 20px;
-					background: url('http://localhost/../img/magnifyingglass.png') 5px 50% no-repeat;
+					background: url('/img/magnifyingglass.png') 5px 50% no-repeat;
 				}
 
 				.search-close {
@@ -401,7 +401,7 @@
 					}
 
 					span.pencil {
-						background: url(http://localhost/img/pencil.png) no-repeat center bottom;
+						background: url(/img/pencil.png) no-repeat center bottom;
 						margin: 0;
 						width: 21px;
 						height: 21px;
@@ -667,7 +667,7 @@
 			padding-left: 100px;
 			position: relative;
 			box-sizing: border-box;
-			background: rgba(0, 0, 0, 0.05) url(http://localhost/img/widget_link_icon.png) no-repeat 20px
+			background: rgba(0, 0, 0, 0.05) url(/img/widget_link_icon.png) no-repeat 20px
 				20px;
 
 			h3 {
@@ -816,99 +816,3 @@
 		width: fit-content;
 	}
 }
-
-/* Coulnd't find these
-
-	.highlighted {
-		background-color: #ffd800;
-	}
-
-	.circle_button {
-		padding-left: 10px;
-	}
-
-	.circle_button .arrow_right {
-		background: url(http://localhost/img/button_arrow_circle_green.png) no-repeat bottom;
-		position: absolute;
-		top: -8px;
-		left: -39px;
-		width: 48px;
-		height: 56px;
-		display: inline-block;
-		z-index: 600;
-	}
-	.circle_button .arrow_right.disabled {
-		background: url(http://localhost/img/button_arrow_circle_gray.png) no-repeat bottom;
-	}
-
-	.noScores {
-		font-family: 'Lucida Grande', sans-serif;
-		display: none;
-	}
-	.table_wrapper {
-		overflow-x: scroll;
-		width: 638px;
-	}
-	
-	.page .scores .table .scoreListTitle {
-		width: 100%;
-	}
-
-	.page .scores .table .scoreListTitle p {
-		height: 1.5em;
-		margin: 0 0 2px 0;
-	}
-
-	.clickToEdit {
-		text-align: left;
-		margin: 0;
-		padding: 0;
-		color: #1399e7;
-		cursor: pointer;
-	}
-	
-	.toggle_transfer {
-		text-decoration: underline;
-		cursor: pointer;
-		color: #969696;
-	}
-
-	.transfer_button {
-		font-family: Lato, arial, serif;
-		font-weight: 700;
-		padding: 5px 10px;
-		color: #694d28;
-		font-size: 12px;
-		text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-
-		background: #ffba5d;
-		background-image: linear-gradient(#ffce8c, #ffa42a);
-
-		border-radius: 6px;
-		border: #fdb34f 1px solid;
-
-		box-shadow: 1px 2px 4px #888;
-
-		display: inline-block;
-		margin-right: 20px;
-		vertical-align: middle;
-		cursor: pointer;
-	}
-
-	.dataTables_wrapper {
-		top: 15px;
-	}
-
-	aside .widget {
-		position: relative;
-	}
-	
-	//In modal area
-	.student-warning {
-		display: flex;
-		flex-direction: column;
-		width: 680px;
-		max-height: 675px;
-		padding: 10px 10px 0 10px;
-	}
-*/

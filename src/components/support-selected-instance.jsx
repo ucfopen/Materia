@@ -192,7 +192,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				</button>
 			</div>
 			<div className='header'>
-				<img src={iconUrl('http://localhost/widget/', updatedInst.widget.dir, 60)} />
+				<img src={iconUrl('/widget/', updatedInst.widget.dir, 60)} />
 				<input type='text' value={updatedInst.name}
 					onChange={event => handleChange('name', event.target.value)}
 				/>
@@ -219,7 +219,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 						<span>Extra Attempts</span>
 				</button>
 				<button className='action_button'
-					onClick={() => {window.location = `http://localhost/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}>
+					onClick={() => {window.location = `/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}>
 					<span>Edit Widget</span>
 				</button>
 			</div>

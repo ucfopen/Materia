@@ -39,7 +39,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 							className={`search_match clickable ${(match.is_deleted && !showDeleted) ? 'hidden' : ''} ${match.is_deleted ? 'deleted' : ''}`}
 							onClick={() => {onClick(match)} }>
 							<div className='img-holder'>
-								<img className='icon' src={iconUrl('http://localhost/widget/', match.widget.dir, 275)} />
+								<img className='icon' src={iconUrl('/widget/', match.widget.dir, 275)} />
 							</div>
 							<div className='info-holder'>
 								<ul>

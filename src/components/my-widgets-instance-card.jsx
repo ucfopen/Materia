@@ -26,7 +26,7 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 		<div id={`widget_${id}`}
 			className={classes.join(' ')}
 			onClick={clickHandler}>
-			<img className='icon' src={iconUrl('http://localhost/widget/', widget.dir, 275)} />
+			<img className='icon' src={iconUrl('/widget/', widget.dir, 275)} />
 			<ul>
 				<li className='title searchable'
 					dangerouslySetInnerHTML={{ __html: nameTextRender }}>
