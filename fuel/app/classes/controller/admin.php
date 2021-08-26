@@ -31,9 +31,18 @@ class Controller_Admin extends Controller
 
 	public function get_user()
 	{
+		/* uncomment this for php/angular version */
+		// $this->theme->get_template()->set('title', 'User Admin');
+		// $this->theme->set_partial('footer', 'partials/angular_alert');
+		// $this->theme->set_partial('content', 'partials/admin/user');
+
+		/* uncomment these for react version */
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'User Admin');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/admin/user');
+
+		Css::push_group(['user-admin']);
+		Js::push_group(['react', 'user_admin']);
 	}
 
 	public function post_upload()

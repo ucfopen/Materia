@@ -45,7 +45,11 @@
 
 			<?php if ( !$me->is_guest() && (\Materia\Perm_Manager::is_super_user() || \Materia\Perm_Manager::is_support_user()) ): ?>
 				<li class="nav_expandable">
-					<span class='elevated'>Admin</span>
+					<?php if (\Materia\Perm_Manager::is_super_user()): ?>
+						span class='elevated'>Admin Dashboard</span>
+					<?php elseif (\Materia\Perm_Manager::is_support_user()): ?>
+						<span class='elevated'>Support Dashboard</span>
+					<?php endif; ?>
 					<ul>
 						<?php if (\Materia\Perm_Manager::is_super_user()): ?>
 							<li>

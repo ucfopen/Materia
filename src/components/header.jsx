@@ -41,6 +41,7 @@ const Header = ({
 
 	return (
 		<header className={cn} >
+			<span>I'm a React component!</span>
 			{ !user
 				? <span id="current-user" data-logged-in="false"></span>
 				: <span id="current-user"
@@ -102,7 +103,7 @@ const Header = ({
 
 					{ isAdmin
 						? <li className="nav_expandable">
-								<span className='elevated admin'>Admin</span>
+								<span className='elevated admin'>Admin Dashboard</span>
 								<ul>
 									<li>
 										<a className='elevated' href="/admin/widget">Widgets</a>
@@ -111,7 +112,7 @@ const Header = ({
 										<a className='elevated' href="/admin/user">Users</a>
 									</li>
 									<li>
-										<a className='elevated' href="/admin/support">Support</a>
+										<a className='elevated' href="/admin/support">Instances</a>
 									</li>
 								</ul>
 							</li>
@@ -120,13 +121,13 @@ const Header = ({
 
 					{ isSupport
 						? <li className="nav_expandable">
-								<span className='elevated support'>Support</span>
+								<span className='elevated support'>Support Dashboard</span>
 								<ul>
 									<li>
 										<a className='elevated' href="/admin/user">Users</a>
 									</li>
 									<li>
-										<a className='elevated' href="/admin/support">Support</a>
+										<a className='elevated' href="/admin/support">Instances</a>
 									</li>
 								</ul>
 							</li>

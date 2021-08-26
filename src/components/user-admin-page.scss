@@ -1,0 +1,293 @@
+@import 'include.scss';
+
+h1 {
+	font-family: Lato, arial, serif;
+}
+
+.support-page {
+	background-color: #fff;
+	position: relative;
+	margin: 10px auto;
+	padding: 0 10px 10px;
+	display: block;
+	border: 1px solid #ccc;
+	box-shadow: 0 0 10px #aaa;
+	width: 700px;
+
+	.page {
+		.show_deleted {
+			display: inline-block;
+			margin-left: 10px;
+
+			span {
+				margin-left: 3px;
+				font-size: 0.85em;
+			}
+		}
+
+		.search_list {
+			.search_match.deleted {
+				background-color: rgba(0, 0, 0, 0.2);
+			}
+
+			.search_match.hidden {
+				display: none;
+			}
+
+			.icon {
+				background-repeat: no-repeat;
+				background-size: 60px;
+				margin: 0;
+				padding: 0;
+				width: 60px;
+				height: 60px;
+				display: inline-block;
+				margin-right: 5px;
+			}
+
+			div {
+				display: inline-block;
+				padding: 4px;
+			}
+
+			.info-holder {
+				position: relative;
+				vertical-align: top;
+			}
+
+			div > ul {
+				display: inline-block;
+				width: 235px;
+				vertical-align: top;
+			}
+
+			ul {
+				margin: 0;
+				padding: 0;
+			}
+
+			ul li {
+				margin: 0;
+				padding: 2px;
+				list-style: none;
+				overflow: hidden;
+			}
+
+			ul li.title {
+				font-weight: bold;
+				font-size: 0.9em;
+			}
+
+			ul li.type {
+				color: #444;
+				font-size: 0.8em;
+			}
+
+			ul li.deleted {
+				color: red;
+				font-size: 0.8em;
+				font-weight: bold;
+			}
+		}
+
+		.inst-info {
+			margin: 10px 0;
+
+			div {
+				display: inline-block;
+				vertical-align: top;
+				margin: 5px 0 0;
+			}
+		}
+
+		.header {
+			margin-top: 10px;
+
+			img {
+				display: inline-block;
+				vertical-align: middle;
+			}
+
+			input {
+				display: inline-block;
+				margin-left: 15px;
+				width: 500px;
+				height: 40px;
+				font-size: 1.35em;
+			}
+		}
+
+		.inst-action-buttons {
+			padding: 10px;
+			display: flex;
+			flex-wrap: nowrap;
+
+			button {
+				display: inline-block;
+				margin: 0px 5px;
+				font-size: 16px;
+				padding: 15px 15px 15px 15px;
+			}
+			button:disabled {
+				cursor: not-allowed;
+				background: #ffba5d7a;
+			}
+		}
+
+		.overview {
+			padding: 10px;
+
+			span {
+				display: block;
+				margin: 5px 0px;
+			}
+
+			label {
+				display: inline-block;
+				vertical-align: top;
+				width: 160px;
+			}
+
+			.radio {
+				display: inline-block;
+				// width: 200px;
+
+				input {
+					margin: 0px 5px;
+				}
+			}
+
+			.url {
+				display: inline-block;
+				vertical-align: middle;
+				width: 500px;
+				font-size: 70%;
+				margin: 0px 0px;
+			}
+
+			.right-justify {
+				margin-top: 20px;
+				display: flex;
+				justify-content: flex-end;
+
+				.apply-changes {
+					display: flex;
+					flex-direction: column;
+					justify-content: flex-end;
+					width: 220px;
+
+					.apply {
+						padding: 6px 10px 6px 10px;
+					}
+
+					.error-text {
+						height: 15px;
+						color: red;
+						font-size: 0.8em;
+						text-align: center;
+					}
+				}
+			}
+		}
+	}
+
+	.page > ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		> li {
+			background-color: #eee;
+			display: block;
+			margin: 0 0 5px 0;
+			border: 1px solid #ccc;
+			border-radius: 10px;
+		}
+	}
+}
+
+.back {
+	// position: absolute;
+	top: 3px;
+	right: 5px;
+	cursor: pointer;
+	font-size: 120%;
+
+	.arrow {
+		display: inline-block;
+		padding-top: 19px;
+		margin-bottom: -4px;
+		width: 17px;
+		height: 0;
+		margin-right: 5px;
+		margin-left: -2px;
+
+		background: url(https://localhost/img/arrow.png) bottom no-repeat;
+	}
+}
+
+.instance_search {
+	width: 200px;
+}
+
+.search_match {
+	box-sizing: border-box;
+	display: inline-block;
+	width: 48%;
+	margin: 5px;
+	padding: 10px;
+	border: 1px solid #d3d3d3;
+
+	> div {
+		display: inline-block;
+	}
+}
+
+.searching {
+	vertical-align: bottom;
+	margin-top: 10px;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.instances ul {
+	width: 100%;
+	padding: 0;
+	flex-direction: row;
+	list-style-type: none;
+
+	li.instance {
+
+		div.widget-title {
+			display: flex;
+			padding: 10px 15px;
+	
+			span:first-child {
+				flex-basis: 1;
+			}
+		
+			span:last-child {
+				flex-grow: 1; 
+			}
+		}
+
+		.info-holder {
+			display: none;
+		}
+
+		&.expanded {
+			.info-holder {
+				display: block;
+			}
+		}
+	} 
+
+	
+
+	// span {
+	// 	display: inline-block;
+	// }
+}
+

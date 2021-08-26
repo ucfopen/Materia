@@ -88,4 +88,4 @@ USER www-data
 # ======== COPY FINAL APP
 COPY --from=composer_stage --chown=www-data:www-data /var/www/html /var/www/html
 COPY --from=yarn_stage --chown=www-data:www-data /build/public /var/www/html/public
-COPY --from=yarn_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
+# COPY --from=yarn_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
