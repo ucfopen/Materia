@@ -15,10 +15,6 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 		staleTime: Infinity
 	})
 
-	console.log(user)
-	console.log(updatedUser)
-	console.log(selectedUser)
-
 	const handleChange = (attr, value) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
 	}
@@ -34,9 +30,6 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 		widgets.instances_played?.map((play, index) => {
 			return (<UserAdminInstancePlayed play={play} key={index} />)
 		})
-
-	console.log(widgets)
-	console.log(isLoadingWidgets)
 
 	return (
 		<section className='page inst-info'>
