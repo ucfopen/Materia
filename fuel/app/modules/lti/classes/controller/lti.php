@@ -114,6 +114,10 @@ class Controller_Lti extends \Controller
 	{
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
+		// If the current user does not have ownership over the embedded widget, find all of the users who do
+		$current_user_owns = \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::FULL]);
+		$instance_owner_list = $current_user_owns ? [] : $inst->get_owners();
+
 		$this->theme->set_template('layouts/main')
 			->set('title', 'Widget Connected Successfully')
 			->set('page_type', 'preview');
@@ -123,7 +127,9 @@ class Controller_Lti extends \Controller
 			->set('widget_name', $inst->widget->name)
 			->set('preview_url', \Uri::create('/preview/'.$inst_id))
 			->set('icon', \Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id));
+			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id))
+			->set('current_user_owns', $current_user_owns)
+			->set('instance_owner_list', $instance_owner_list);
 
 		$this->insert_analytics();
 
