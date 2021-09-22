@@ -58,11 +58,5 @@ trait Trait_CommonControllerTemplate
 		{
 			Js::push_inline("var {$key} = '{$value}';");
 		}
-
-		// browser-sync plugin for development
-		if (\Fuel::$env === 'development')
-		{
-			js::push_inline('document.write("<script async src=\"http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.3\"><\/script>".replace("HOST", location.hostname))');
-		}
 	}
 }
