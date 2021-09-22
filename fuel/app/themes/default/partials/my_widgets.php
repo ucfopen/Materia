@@ -194,7 +194,7 @@
 						</p>
 						<a tabindex="0"
 							class="cancel_button"
-							ng-click="hideModal()">
+							ng-click="handleCollabCancel()">
 							Cancel
 						</a>
 						<a tabindex="0"

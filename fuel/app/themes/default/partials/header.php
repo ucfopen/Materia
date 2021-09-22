@@ -72,6 +72,7 @@
 				<p class="icon"><img class="senderAvatar" ng-src="{{notification.avatar}}"></p>
 				<div class="notice_right_side">
 					<p class="subject" ng-bind-html="trust(notification.subject)"></p>
+					<button class="notification_action" ng-if="notification.action" ng-click="notification.button_action_callback()">{{notification.button_action_text}}</button>
 				</div>
 				<span class="noticeClose" ng-click="removeNotification($index, notification.id)"></span>
 			</div>
