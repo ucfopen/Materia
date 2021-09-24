@@ -65,6 +65,7 @@
 				dialog-title="Collaborate"
 				width="620px"
 				height="500px"
+				on-close="handleDialogClose()"
 			>
 				<div
 					ng-if="show.collaborationModal"
@@ -194,7 +195,7 @@
 						</p>
 						<a tabindex="0"
 							class="cancel_button"
-							ng-click="handleCollabCancel()">
+							ng-click="hideModal()">
 							Cancel
 						</a>
 						<a tabindex="0"
