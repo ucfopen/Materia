@@ -5,32 +5,42 @@
 <section>
 	<?php if(!$current_user_owns): ?>
 		<script type="text/javascript">
+
+			const requested = []
+
 			const requestAccess = (owner_id) => {
+
+				if (requested[owner_id]) return
+
 				let req = new XMLHttpRequest()
 				req.open('POST', '/api/instance/request_access')
 				req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
 				req.send(`inst_id=${inst_id}&owner_id=${owner_id}`)
+				
+				let el = document.getElementById(`owner-${owner_id}`)
+				el.setAttribute('disabled', 'disabled')
+				el.className = 'button disabled'
+
+				requested[owner_id] = true
 			}
 		</script>
-		<div class="help-container">
+		<div class="container not_an_owner">
 			<div class="widget_info">
 				<div class="widget_icon">
 					<img src="<?= $icon ?>" alt="<?= $widget_name ?> Type Widget Icon">
 				</div>
 				<div class="widget_name"><?= $inst_name ?></div>
 			</div>
-			<p>You don't own this widget!</p>
-			<p>Please contact one of the widget owners listed below to request access to this widget:</p>
+			<h3>You don't own this widget!</h3>
+			<p>You may contact one of the widget owners listed below to request access to this widget. Clicking the Request Access option will notify them and provide them the option to add you as a collaborator.</p>
 			<ul>
 				<?php foreach($instance_owner_list as $owner):?>
-					<li>
+					<li class="instance_owner">
 						<?= $owner->first.' '.$owner->last ?>
-						<button id="request_widget_access" onclick="requestAccess(<?= $owner->id ?>)">Request Access</button>
+						<a id="owner-<?= $owner->id ?>" class="button request_widget_access" onclick="requestAccess(<?= $owner->id ?>)">Request Access</a>
 					</li>
 				<?php endforeach; ?>
 			</ul>
-
-			<p>You may also request access to the widget by clicking the option below. The owner will receive a notification with the option to grant you access.</p>
 		</div>
 	<?php else: ?>
 
