@@ -120,6 +120,7 @@
 							<div ng-repeat="collaborator in perms.collaborators"
 								ng-show="!collaborator.remove || collaborator.warning"
 								class="user_perm"
+								ng-class="{'highlight' : collaborator.highlight}"
 								data-user-id="{{collaborator.id}}">
 								<a ng-if="selected.shareable || user.id == collaborator.id"
 									tabindex="0"
