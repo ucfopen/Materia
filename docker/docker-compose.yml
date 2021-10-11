@@ -57,7 +57,7 @@ services:
       - fakes3
 
   mysql:
-    image: mysql:5.7.18
+    image: mariadb:10.6.4
     ports:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
     networks:
