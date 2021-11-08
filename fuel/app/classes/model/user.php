@@ -68,6 +68,13 @@ class Model_User extends Orm\Model
 		return $array[1];
 	}
 
+	public static function find_by_id($id)
+	{
+		return \Model_User::query()
+			->where('id', $id)
+			->get_one();
+	}
+
 	public static function find_by_username($username)
 	{
 		return \Model_User::query()

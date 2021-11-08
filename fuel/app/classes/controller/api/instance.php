@@ -28,4 +28,12 @@ class Controller_Api_Instance extends Controller_Rest
 
 		return $this->response($history, 200);
 	}
+
+	public function post_request_access()
+	{
+		$user_id = \Model_User::find_current_id();
+		$inst_id = Input::post('inst_id', null);
+		$owner_id = Input::post('owner_id', null);
+		\Model_Notification::send_item_notification($user_id, $owner_id, \Materia\Perm::INSTANCE, $inst_id, 'access_request', \Materia\Perm::FULL);
+	}
 }

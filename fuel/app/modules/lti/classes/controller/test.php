@@ -143,6 +143,7 @@ class Controller_Test extends \Controller_Rest
 
 		$use_bad_signature       = static::get_and_unset_post('use_bad_signature') ?: false;
 		$as_instructor           = static::get_and_unset_post('as_instructor') ?: false;
+		$as_instructor2          = static::get_and_unset_post('as_instructor2') ?: false;
 		$as_test_student         = static::get_and_unset_post('test_student') ?: false;
 		$as_new_learner_email    = static::get_and_unset_post('new_learner_email') ?: false;
 		$as_new_learner_no_email = static::get_and_unset_post('new_learner_no_email') ?: false;
@@ -156,6 +157,15 @@ class Controller_Test extends \Controller_Rest
 					'resource_link_id'          => $resource_link_id,
 					'custom_widget_instance_id' => $custom_inst_id
 				], $lti_url);
+				break;
+
+			case $as_instructor2:
+				$learner_params = $this->create_test_case([
+					'roles'                     => 'Instructor',
+					'context_id'                => $context_id,
+					'resource_link_id'          => $resource_link_id,
+					'custom_widget_instance_id' => $custom_inst_id
+				], $lti_url, false, false, 2);
 				break;
 
 			case $as_test_student:
@@ -213,7 +223,7 @@ class Controller_Test extends \Controller_Rest
 		return \Response::forge(\Theme::instance()->render());
 	}
 
-	protected function create_test_case($custom_params, $endpoint, $user = false, $passback_url = false)
+	protected function create_test_case($custom_params, $endpoint, $user = false, $passback_url = false, $new_faculty_user_override_number = false)
 	{
 		$key    = \Config::get('lti::lti.consumers.default.key');
 		$secret = \Config::get('lti::lti.consumers.default.secret');
@@ -227,20 +237,22 @@ class Controller_Test extends \Controller_Rest
 
 		$params = array_merge($base_params, $custom_params);
 
-		if ($user === false)
+		if ($user === false || $new_faculty_user_override_number)
 		{
 			// grab our test instructor
-			$user = \Model_User::find_by_username('_LTI_INSTRUCTOR_');
+			$base_username = '_LTI_INSTRUCTOR_';
+			$username = $new_faculty_user_override_number ? $base_username.$new_faculty_user_override_number : $base_username;
+			$user = \Model_User::find_by_username($username);
 
 			if ( ! $user)
 			{
 				// none - make one
-				$user_id = \Auth::instance()->create_user('_LTI_INSTRUCTOR_', uniqid(), '_LTI_INSTRUCTOR_@materia.com', 1, []);
+				$user_id = \Auth::instance()->create_user($username, uniqid(), $username.'@materia.com', 1, []);
 
 				//manually add first/last name to make up for simpleauth not doing it
 				$user                 = \Model_User::find($user_id);
-				$user->first          = '_LTI_INSTRUCTOR_';
-				$user->last           = '_LTI_INSTRUCTOR_';
+				$user->first          = $username;
+				$user->last           = $username;
 				$user->profile_fields = ['notify' => true, 'avatar' => 'gravatar'];
 				$user->save();
 
