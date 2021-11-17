@@ -260,7 +260,7 @@ class Widget_Asset
 
 		// register a shutdown function that will render the image
 		// allowing all of fuel's other shutdown methods to do their jobs
-		\Event::register('fuel-shutdown', function() use($asset_path) {
+		\Event::register('fuel-shutdown', function() use($asset_path) { 
 
 			if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
 			$bytes = filesize($asset_path);
@@ -274,10 +274,10 @@ class Widget_Asset
 			header('Content-Transfer-Encoding: binary');
 			header('Cache-Control: max-age=31536000');
 
-			// Header for 3D models
+			// Special case for 3D labeling
 			if ($this->get_mime_type() == self::MIME_TYPE_FROM_EXTENSION['obj'])
 			{
-				header('Access-Control-Allow-Origin: * ');
+				header('Access-Control-Allow-Origin: '.rtrim(\Config::get('materia.urls.static'), '/'));
 			}
 
 			$fp = fopen($asset_path, 'rb');

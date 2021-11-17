@@ -7,7 +7,7 @@
     "scripts":{
         "sniff": "phpcs -n --extensions=php .",
         "sniff-with-warnings": "phpcs --extensions=php .",
-        "sniff-ci": "phpcs --report=summary --extensions=php .",
+        "sniff-ci": "phpcs --report=full --extensions=php .",
         "post-install-cmd": "test -d ./.git/hooks && cp ./githooks/pre-commit ./.git/hooks/pre-commit || true",
         "git-pre-commit":"@sniff-ci",
         "destroy-everything": "php oil r admin:destroy_everything --quiet",
