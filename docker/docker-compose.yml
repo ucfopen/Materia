@@ -22,7 +22,7 @@ services:
       dockerfile: materia-app.Dockerfile
     environment:
       # View Materia README for env settings
-      - ASSET_STORAGE_DRIVER=s3
+      - ASSET_STORAGE_DRIVER=file
       - ASSET_STORAGE_S3_BUCKET=fake_bucket
       - ASSET_STORAGE_S3_ENDPOINT=http://fakes3:10001
       - ASSET_STORAGE_S3_KEY=KEY

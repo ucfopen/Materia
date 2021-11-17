@@ -20,6 +20,7 @@ class Widget_Asset
 		'image/gif' => 'gif',
 		'image/jpeg' => 'jpg',
 		'audio/mpeg' => 'mp3',
+		'text/plain' => 'obj',
 	];
 
 	protected const MIME_TYPE_FROM_EXTENSION = [
@@ -28,6 +29,7 @@ class Widget_Asset
 		'jpg'  => 'image/jpeg',
 		'jpeg' => 'image/jpeg',
 		'mp3'  => 'audio/mpeg',
+		'obj' => 'text/plain',
 	];
 
 	public $created_at = 0;
@@ -271,6 +273,13 @@ class Widget_Asset
 			header("Content-Length: {$bytes}");
 			header('Content-Transfer-Encoding: binary');
 			header('Cache-Control: max-age=31536000');
+
+			// Special case for 3D labeling
+			if ($this->get_mime_type() == self::MIME_TYPE_FROM_EXTENSION['obj'])
+			{
+				header('Access-Control-Allow-Origin: '.rtrim(\Config::get('materia.urls.static'), '/'));
+			}
+
 			$fp = fopen($asset_path, 'rb');
 			fpassthru($fp); // write file directly to output
 			unlink($asset_path);
