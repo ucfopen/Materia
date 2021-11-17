@@ -260,7 +260,7 @@ class Widget_Asset
 
 		// register a shutdown function that will render the image
 		// allowing all of fuel's other shutdown methods to do their jobs
-		\Event::register('fuel-shutdown', function() use($asset_path) { 
+		\Event::register('fuel-shutdown', function() use($asset_path) {
 
 			if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
 			$bytes = filesize($asset_path);
