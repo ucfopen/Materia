@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.3.0",
+    "materia-server-client-assets": "2.4.0-alpha1",
     "napa": "^3.0.0"
   },
   "devDependencies": {
@@ -41,5 +41,5 @@
     "hammerjs": "hammerjs/hammer.js#v2.0.8",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
   },
-  "version": "8.0.1"
+  "version": "9.0.0-alpha1"
 }
