@@ -1,5 +1,3 @@
-These pages are built using jekyll https://jekyllrb.com/docs/usage/
+# This repository has moved!
 
-
-install jekyll, run `jekyll server`, load up `http://localhost:4000`
-
+Looking to contribute to the docs? Don't update them here - visit https://github.com/ucfopen/Materia-Docs
