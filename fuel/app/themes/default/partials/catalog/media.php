@@ -62,6 +62,14 @@
 				</span>
 				<span class='file-date'>
 					{{file.created}}
+					<br>
+
+					<!-- Write code structure for delete btn -->
+					<div class='delete-btn green'
+						ng-click='deleteOption(file)'
+						>
+						DELETE
+					</div>
 				</span>
 			</div>
 		</div>
