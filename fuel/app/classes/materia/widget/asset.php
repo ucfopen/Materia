@@ -276,10 +276,10 @@ class Widget_Asset
 			header('Content-Transfer-Encoding: binary');
 			header('Cache-Control: max-age=31536000');
 
-			// Header for 3D models
+			// Special case for 3D labeling
 			if ($this->get_mime_type() == self::MIME_TYPE_FROM_EXTENSION['obj'])
 			{
-				header('Access-Control-Allow-Origin: * ');
+				header('Access-Control-Allow-Origin: '.rtrim(\Config::get('materia.urls.static'), '/'));
 			}
 
 			$fp = fopen($asset_path, 'rb');

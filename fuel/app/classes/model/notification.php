@@ -17,6 +17,7 @@ class Model_Notification extends \Orm\Model
 		'avatar',
 		'created_at',
 		'updated_at',
+		'action'
 	];
 
 	protected static $_observers = [
@@ -77,6 +78,8 @@ class Model_Notification extends \Orm\Model
 				$widget_name = $inst->name;
 				$widget_type = $inst->widget->name;
 
+				$action = '';
+
 				switch ($new_perm)
 				{
 					case \Materia\Perm::FULL:
@@ -106,6 +109,11 @@ class Model_Notification extends \Orm\Model
 						$subject = "<b>$user_link deleted $widget_type widget \"$widget_name\".</b>";
 						break;
 
+					case 'access_request':
+						$subject = "<b>$user_link is requesting access to your widget \"$widget_name\".</b><br /> The widget is currently being used within a course in your LMS.";
+						$action = 'access_request';
+						break;
+
 					default:
 						return false;
 				}
@@ -126,6 +134,7 @@ class Model_Notification extends \Orm\Model
 			'is_read'       => '0',
 			'subject'       => $subject,
 			'avatar'        => \Materia\Utils::get_avatar(50),
+			'action'        => $action
 		]);
 
 		$notification->save();

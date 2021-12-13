@@ -473,6 +473,22 @@ class Widget_Instance
 		return $duplicate;
 	}
 
+	public function get_owners()
+	{
+		$all_users_with_perms = \Materia\Perm_Manager::get_all_users_with_perms_to($this->id, Perm::INSTANCE);
+		$owners = [];
+		$current_timestamp = time();
+		foreach ($all_users_with_perms as $user_id => $perm)
+		{
+			$not_expired = $perm[1] ? $perm[1] > $current_timestamp : true;
+			if ($perm[0] == \Materia\Perm::FULL && $not_expired)
+			{
+				$owners[] = \Model_User::find_by_id($user_id);
+			}
+		}
+		return $owners;
+	}
+
 	/**
 	 * a convienent way to set the perms of this widget
 	 *
