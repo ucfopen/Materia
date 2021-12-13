@@ -11,27 +11,39 @@ class Controller_Api_Asset extends Controller_Rest
 	public function delete_delete($id)
 	{
 		\DB::start_transaction();
-		trace('----------------------------------------------------------------');
-		trace('Inside Controller_Api_Delete');
-		trace('----------------------------------------------------------------');
 
 		try
 		{
 			if (\Service_User::verify_session() !== true) return Msg::no_login();
-			// Make sure the user making the DELETE request
-			// owns the asset they are trying to 'delete'.
 
-			$deleted = \DB::update('asset')
-										->value('is_deleted', '1')
-										->where('id', $id)
-										->execute();
+			\DB::update('asset')
+				->value('deleted_at', time())
+				->value('is_deleted', '1')
+				->where('id', $id)
+				->execute();
+		}
+		catch (\Exception $th)
+		{
+			trace('Error: In the deletion process');
+			trace($th);
+		}
 
-			$time = \DB::update('asset')
-								->value('deleted_at', time())
-								->where('id', $id)
-								->execute();
+		\DB::commit_transaction();
+	}
 
-			// return $this->response(200);
+	public function delete_restore($id)
+	{
+		\DB::start_transaction();
+
+		try
+		{
+			if (\Service_User::verify_session() !== true) return Msg::no_login();
+
+			\DB::update('asset')
+				->value('deleted_at', '-1')
+				->value('is_deleted', '0')
+				->where('id', $id)
+				->execute();
 		}
 		catch (\Exception $th)
 		{

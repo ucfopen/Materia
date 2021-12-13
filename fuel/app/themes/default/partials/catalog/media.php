@@ -42,7 +42,6 @@
 					ng-change='filterFiles()'/>
 			</div>
 		</div>
-
 		<div id='file-display'>
 			<div class='file-info'
 				ng-if='displayFiles.length < 1'>
@@ -63,13 +62,11 @@
 				<span class='file-date'>
 					{{file.created}}
 					<br>
-
-					<!-- Write code structure for delete btn -->
-					<div class='delete-btn green'
-						ng-click='deleteOption(file)'
-						>
-						DELETE
-					</div>
+					<button ng-class="file.is_deleted == 0 ? 'delete-btn green' : 'delete-btn orange'"
+						ng-click='deleteAsset(file)'>
+						<span ng-if='file.is_deleted == 0'>DELETE</span>
+						<span ng-if='file.is_deleted == 1'>DELETED</span>
+					</button>
 				</span>
 			</div>
 		</div>
