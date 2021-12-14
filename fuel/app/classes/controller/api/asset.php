@@ -16,11 +16,11 @@ class Controller_Api_Asset extends Controller_Rest
 		{
 			if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-			\DB::update('asset')
-				->value('deleted_at', time())
-				->value('is_deleted', '1')
-				->where('id', $id)
-				->execute();
+		$asset = \DB::update('asset')
+							->value('deleted_at', time())
+							->value('is_deleted', '1')
+							->where('id', $id)
+							->execute();
 		}
 		catch (\Exception $th)
 		{
