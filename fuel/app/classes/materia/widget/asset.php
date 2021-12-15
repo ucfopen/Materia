@@ -274,7 +274,8 @@ class Widget_Asset
 			header('Content-Transfer-Encoding: binary');
 			header('Cache-Control: max-age=31536000');
 
-			// Special case for 3D labeling
+			// Certain third-party libraries (e.g., 3D labeling) request media resources in a way that requires a CORS header
+			// restrict CORS requests to the static domain
 			if ($this->get_mime_type() == self::MIME_TYPE_FROM_EXTENSION['obj'])
 			{
 				header('Access-Control-Allow-Origin: '.rtrim(\Config::get('materia.urls.static'), '/'));
