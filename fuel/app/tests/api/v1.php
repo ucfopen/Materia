@@ -97,6 +97,12 @@ class Test_Api_V1 extends \Basetest
 		}
 	}
 
+	public function test_widget_instance_access_perms_verify()
+	{
+		$output = Api_V1::widget_instance_access_perms_verify('test');
+		$this->assert_invalid_login_message($output);
+	}
+
 	public function test_widget_instances_get()
 	{
 		// ======= AS NO ONE ========
