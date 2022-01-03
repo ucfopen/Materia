@@ -41,5 +41,5 @@
     "hammerjs": "hammerjs/hammer.js#v2.0.8",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
   },
-  "version": "9.0.0-alpha2"
+  "version": "9.0.0-alpha3"
 }
