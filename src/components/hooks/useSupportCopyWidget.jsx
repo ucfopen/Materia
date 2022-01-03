@@ -3,7 +3,7 @@ import { apiCopyWidget } from '../../util/api'
 
 export default function useSupportCopyWidget() {
 	const queryClient = useQueryClient()
-	
+
 	return useMutation(
 		apiCopyWidget,
 		{

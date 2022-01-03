@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useQuery } from 'react-query'
 import { apiGetWidgetsByType } from '../util/api'
-import ReactDOM from 'react-dom'
 import Header from './header'
 import Catalog from './catalog'
 
-const CatalogPage = props => {
+const CatalogPage = () => {
 	const { data: widgets, isLoading} = useQuery({
 		queryKey: 'catalog-widgets',
 		queryFn: apiGetWidgetsByType,

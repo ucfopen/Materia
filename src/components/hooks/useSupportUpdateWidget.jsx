@@ -14,9 +14,7 @@ export default function useSupportUpdateWidget() {
 					exact: false
 				})
 			},
-			onError: (err, newWidget, context) => {
-				variables.errorFunc()
-			}
+			onError: (err, newWidget, context) => variables.errorFunc()
 		}
 	)
 }

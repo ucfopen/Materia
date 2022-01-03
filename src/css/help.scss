@@ -17,9 +17,9 @@
 	overflow: auto;
 
 	width: 685px;
-	background: url('../../../img/question_mark_circle.png') 780px 30px no-repeat;
-	background: url('../../../img/question_mark_circle.png') 780px 30px no-repeat,
-		url('../../../img/repeat_border_diag_bottom.png') 0 100% repeat-x;
+	background: url('/img/question_mark_circle.png') 780px 30px no-repeat;
+	background: url('/img/question_mark_circle.png') 780px 30px no-repeat,
+		url('/img/repeat_border_diag_bottom.png') 0 100% repeat-x;
 
 	background-color: #fff;
 	margin-bottom: 60px;
@@ -88,7 +88,7 @@
 }
 
 .get_flash {
-	background: url('../../../img/get_flashplayer.gif');
+	background: url('/img/get_flashplayer.gif');
 	width: 160px;
 	display: block;
 	margin: 0 auto;

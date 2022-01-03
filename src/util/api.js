@@ -60,15 +60,15 @@ const _compareWidgets = (a, b) => {
 
 export const apiGetWidgetsByType = () => {
 	const options = {
-		"headers": {
-			"cache-control": "no-cache",
-			"pragma": "no-cache",
-			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
 		},
-		"body": `data=${formatFetchBody(['all'])}`,
-		"method": "POST",
-		"mode": "cors",
-		"credentials": "include"
+		'body': `data=${formatFetchBody(['all'])}`,
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
 	}
 
 	return fetch('/api/json/widgets_get_by_type/', options)
@@ -79,15 +79,15 @@ export const apiGetWidgetsByType = () => {
 // Gets widget info
 export const apiGetWidget = widgetId => {
 	const options = {
-		"headers": {
-			"cache-control": "no-cache",
-			"pragma": "no-cache",
-			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
 		},
-		"body": `data=${formatFetchBody([[widgetId]])}`,
-		"method": "POST",
-		"mode": "cors",
-		"credentials": "include"
+		'body': `data=${formatFetchBody([[widgetId]])}`,
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
 	}
 
 	return fetch('/api/json/widgets_get/', options)
@@ -96,7 +96,7 @@ export const apiGetWidget = widgetId => {
 }
 
 export const apiCopyWidget = values => {
-	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions.toString()])}` })
+	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
 		.then(widget => {
 			return widget
 		})
@@ -117,9 +117,9 @@ export const apiUnDeleteWidget = ({ instId }) => {
 			mode: 'cors',
 			credentials: 'include',
 			headers: {
-				pragma: "no-cache",
-				"cache-control": "no-cache",
-				"content-type": "application/json; charset=UTF-8"
+				pragma: 'no-cache',
+				'cache-control': 'no-cache',
+				'content-type': 'application/json; charset=UTF-8'
 			}
 		})
 		.then((resp) => {
@@ -210,15 +210,15 @@ export const apiSetAttempts = ({ instId, attempts }) => {
 			mode: 'cors',
 			credentials: 'include',
 			headers: {
-				pragma: "no-cache",
-				"cache-control": "no-cache",
-				"content-type": "application/json; charset=UTF-8"
+				pragma: 'no-cache',
+				'cache-control': 'no-cache',
+				'content-type': 'application/json; charset=UTF-8'
 			},
 			body: JSON.stringify(attempts)
 		})
 }
 
-export const apiSearchUsers = (input = "") => {
+export const apiSearchUsers = (input = '') => {
 	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -263,15 +263,15 @@ export const apiSearchWidgets = input => {
 
 export const apiGetScoreSummary = instId => {
 	const options = {
-		"headers": {
-			"cache-control": "no-cache",
-			"pragma": "no-cache",
-			"content-type": "application/x-www-form-urlencoded; charset=UTF-8"
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
 		},
-		"body": `data=%5B%22${instId}%22%2C${true}%5D`,
-		"method": "POST",
-		"mode": "cors",
-		"credentials": "include"
+		'body': `data=${formatFetchBody([instId, true])}`,
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
 	}
 
 	return fetch('/api/json/score_summary_get/', options)
@@ -281,16 +281,16 @@ export const apiGetScoreSummary = instId => {
 		})
 		.then(scores => {
 			const ranges = [
-				"0-9",
-				"10-19",
-				"20-29",
-				"30-39",
-				"40-49",
-				"50-59",
-				"60-69",
-				"70-79",
-				"80-89",
-				"90-100",
+				'0-9',
+				'10-19',
+				'20-29',
+				'30-39',
+				'40-49',
+				'50-59',
+				'60-69',
+				'70-79',
+				'80-89',
+				'90-100',
 			]
 
 			scores.forEach(semester => {
@@ -338,7 +338,7 @@ export const apiGetPlayLogs = (instId, term, year) => {
 				scoresForUser.scores.push({
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
-					score: log.done === "1" ? Math.round(parseFloat(log.perc)) + '%' : "---",
+					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
 					date: timestampToDateDisplay(log.time)
 				})
 			})

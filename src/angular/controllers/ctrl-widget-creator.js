@@ -63,14 +63,6 @@ app.controller('WidgetCreatorCtrl', function (
 		showEmbedDialog(`${BASE_URL}questions/import/?type=${encodeURIComponent(types.join())}`)
 		return null // else Safari will give the .swf data that it can't handle
 	}
-	const _showQuestionImporter2 = () => {
-		// must be loose comparison
-		const types = widget_info.meta_data.supported_data
-		//the value passed on needs to be a list of one or two elements, i.e.
-		//?type=QA or ?type=MC or ?type=QA,MC
-		showEmbedDialog(`${BASE_URL}questions/import2/?type=${encodeURIComponent(types.join())}`)
-		return null // else Safari will give the .swf data that it can't handle
-	}
 
 	const _showQsetHistoryImporter = () => {
 		showEmbedDialog(`${BASE_URL}qsets/import/?inst_id=${inst_id}`)
@@ -641,7 +633,6 @@ ${msg.toLowerCase()}`,
 	$scope.modal = false
 	$scope.requestSave = _requestSave
 	$scope.showQuestionImporter = _showQuestionImporter
-	$scope.showQuestionImporter2 = _showQuestionImporter2
 	$scope.showQsetHistoryImporter = _showQsetHistoryImporter
 	$scope.showQsetHistoryConfirmation = _showQsetHistoryConfirmation
 	$scope.onPublishPressed = _onPublishPressed

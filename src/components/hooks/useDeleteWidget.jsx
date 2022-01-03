@@ -9,15 +9,15 @@ export default function useDeleteWidget() {
 		{
 			// Handles the optomistic update for deleting a widget
 			onMutate: async inst => {
-        await queryClient.cancelQueries('widgets')
+				await queryClient.cancelQueries('widgets')
 
 				const previousValue = queryClient.getQueryData('widgets')
 				const delID = inst.instId
 
-        queryClient.setQueryData('widgets', old => old.filter(widget => widget.id !== delID))
+				queryClient.setQueryData('widgets', old => old.filter(widget => widget.id !== delID))
 
 				// Stores the old value for use if there is an error
-        return { previousValue }
+				return { previousValue }
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries('widgets')

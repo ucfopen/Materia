@@ -1,43 +1,44 @@
 import React, { useState, useEffect } from 'react'
-import "./my-widgets-settings-dialog.scss"
+import './my-widgets-settings-dialog.scss'
+
+const MAX_ROWS = 100
 
 const PaginateButtons = ({state, setState, searchInput}) => {
 	const [paginateBtns, setPageinateBtns] = useState([])
-	const [footerText, setFooterText] = useState("")
-	const MAX_ROWS = 100
+	const [footerText, setFooterText] = useState('')
 
 	useEffect(() => {
-		let pagesArr = state.pages?.map((val, index) => {
-			return(<a className={`paginate_button ${index === state.pageNumber ? 'current' : ''}`}
-				aria-controls="DataTables_Table_1"
-				tabIndex="0"
+		let pagesArr = state.pages?.map((val, index) => (
+			<a className={`paginate_button ${index === state.pageNumber ? 'current' : ''}`}
+				aria-controls='DataTables_Table_1'
+				tabIndex='0'
 				onClick={() => {onChangePageNumber(index)}}
 				key={index}>
 				{index+1}
-			</a>)
-		})
+			</a>
+		))
 
 		// Compresses the buttons
 		if (pagesArr.length > 7) {
-			const paginateIconL = <span className="ellipsis" key={999}>…</span>
-			const paginateIconR = <span className="ellipsis" key={888}>…</span>
+			const paginateIconL = <span className='ellipsis' key={999}>…</span>
+			const paginateIconR = <span className='ellipsis' key={888}>…</span>
 			const curPage = state.pageNumber + 1
 			const numPages = pagesArr.length
-			const paginateType = numPages - curPage >= 4 ?  
-				(curPage <= 4 ? 
-					"left" : 
-					"middle") :
-				"right"
+			const paginateType = numPages - curPage >= 4 ?
+				(curPage <= 4 ?
+					'left' :
+					'middle') :
+				'right'
 
 			// paginateType represents the location where the buttons are concentrated
 			switch(paginateType) {
-				case "right":
+				case 'right':
 					pagesArr = [pagesArr[0]].concat(paginateIconR).concat(pagesArr.slice(pagesArr.length - 5, pagesArr.length))
 					break
-				case "middle":
+				case 'middle':
 					pagesArr = [pagesArr[0]].concat(paginateIconL).concat(pagesArr.slice(curPage - 2, curPage + 1)).concat(paginateIconR).concat(pagesArr[pagesArr.length - 1])
 					break
-				case "left":
+				case 'left':
 					pagesArr = pagesArr.slice(0, 5).concat(paginateIconL).concat(pagesArr[pagesArr.length - 1])
 					break
 			}
@@ -50,11 +51,11 @@ const PaginateButtons = ({state, setState, searchInput}) => {
 	useEffect(() => {
 		if (state.isLoading === false)
 		{
-			const text = !state.isFiltered && searchInput.length == 0 ? 
+			const text = !state.isFiltered && searchInput.length == 0 ?
 				`Showing ${Math.min(state.storageData?.length, state.startIndex + 1)} to ${Math.min(state.storageData?.length, state.endIndex)} of ${Math.min(state.storageData?.length, MAX_ROWS)} entries` :
-				`Showing ${Math.min(state.storageData?.length, state.startIndex + 1)} to ${Math.min(state.storageData?.length, state.endIndex)} of 
+				`Showing ${Math.min(state.storageData?.length, state.startIndex + 1)} to ${Math.min(state.storageData?.length, state.endIndex)} of
 				${state.storageData?.length} entries (filtered from ${Math.min(state.totalEntries, MAX_ROWS)} total entries)`
-				
+
 			setFooterText(text)
 		}
 	}, [state.isLoading,
@@ -73,35 +74,36 @@ const PaginateButtons = ({state, setState, searchInput}) => {
 		setState({...state, startIndex: _startIndex, endIndex: _endIndex, selectedValues: _selectedValues, pageNumber: newPageNum})
 	}
 
+	const handlePreviousClick = () => {
+		if (state.pageNumber - 1 >= 0) onChangePageNumber(state.pageNumber - 1)
+	}
+	const handleNextClick = () => {
+		if (state.pageNumber + 1 < state.pages?.length) onChangePageNumber(state.pageNumber + 1)
+	}
+
 	return (
-		<div className="data_tables_info_holder">
-			<div className="data_tables_info"
-				role="status"
-				aria-live="polite">
+		<div className='data_tables_info_holder'>
+			<div className='data_tables_info'
+				role='status'
+				aria-live='polite'>
 				{footerText}
 			</div>
-			<div className="data_tables_paginate" id="DataTables_Table_1_paginate">
+			<div className='data_tables_paginate' id='DataTables_Table_1_paginate'>
 				<a className={`paginate_button previous ${state.pageNumber - 1 < 0 ? 'disable' : ''}`}
-					aria-controls="DataTables_Table_1"
-					tabIndex="0"
-					id="DataTables_Table_1_previous"
-					onClick={() => {
-						if (state.pageNumber - 1 >= 0) onChangePageNumber(state.pageNumber - 1)
-					}}>
+					aria-controls='DataTables_Table_1'
+					tabIndex='0'
+					id='DataTables_Table_1_previous'
+					onClick={handlePreviousClick}>
 					Previous
 				</a>
 				<span>
-					{
-						paginateBtns
-					}
+					{ paginateBtns }
 				</span>
 				<a className={`paginate_button next ${state.pageNumber + 1 >= state.pages?.length ? 'disable' : ''}`}
-					aria-controls="DataTables_Table_1"
-					tabIndex="0"
-					id="DataTables_Table_1_next"
-					onClick={() => {
-						if (state.pageNumber + 1 < state.pages?.length) onChangePageNumber(state.pageNumber + 1)
-					}}>
+					aria-controls='DataTables_Table_1'
+					tabIndex='0'
+					id='DataTables_Table_1_next'
+					onClick={handleNextClick}>
 					Next
 				</a>
 			</div>

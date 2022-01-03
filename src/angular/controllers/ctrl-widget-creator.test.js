@@ -18,8 +18,8 @@ describe('WidgetCreatorCtrl', () => {
 		let app = angular.module('materia')
 		app.factory('Please', () => mockPlease)
 
-		require('../common/materia-namespace')
-		require('../common/materia-constants')
+		require('../../util/materia-namespace')
+		require('../materia-constants')
 		require('../services/srv-datetime')
 		require('../services/srv-widget')
 		require('../services/srv-selectedwidget')

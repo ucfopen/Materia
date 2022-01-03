@@ -23,14 +23,14 @@ const MyWidgetsScores = ({inst}) => {
 
 	// Initializes the data when widget changes
 	useEffect(() => {
-		let _hasScores = false
+		let hasScores = false
 
-		currScores.map((val) => {
-			if (val.distribution) _hasScores = true
+		currScores.map(val => {
+			if (val.distribution) hasScores = true
 		})
 
 		setState({
-			hasScores: _hasScores,
+			hasScores: hasScores,
 			showExport: false
 		})
 	}, [JSON.stringify(currScores)])
@@ -69,50 +69,54 @@ const MyWidgetsScores = ({inst}) => {
 		return hasStorageData
 	}
 
+	const handleShowOlderClick = () => setState({...state, isShowingAll: !state.isShowingAll})
+
+	let contentRender = <LoadingIcon />
+	if (isFetched) {
+		contentRender = <NoContentIcon />
+		if (state.hasScores || containsStorage()) {
+			const semesterElements = displayedSemesters.map(semester => (
+				<MyWidgetScoreSemester key={semester.id}
+					semester={semester}
+					instId={inst.id}
+					hasScores={state.hasScores}
+				/>
+			))
+
+			contentRender = (
+				<div>
+					{ semesterElements }
+					<a role='button'
+						className={`show-older-scores-button ${currScores?.length > 1 ? '' : 'hide'}`}
+						onClick={handleShowOlderClick}>
+						{ state.isShowingAll ? 'Hide' : 'Show' } older scores...
+					</a>
+				</div>
+			)
+		}
+	}
+
+	let exportRender = null
+	if (state.showExport) {
+		exportRender = (
+			<MyWidgetsExport onClose={closeExport}
+				inst={inst}
+				scores={currScores}
+			/>
+		)
+	}
+
 	return (
-		<div className="scores">
+		<div className='scores'>
 			<h2>Student Activity</h2>
-			<span
-				id="export_scores_button"
+			<span id='export_scores_button'
 				className={`aux_button ${containsData() ? '' : 'disabled'}`}
-				onClick={openExport}
-			>
-				<span className="arrow_down"></span>
+				onClick={openExport}>
+				<span className='arrow_down'></span>
 				Export Options
 			</span>
-			{!isFetched
-				? <LoadingIcon />
-				:
-					<>
-						{
-							state.hasScores || containsStorage()
-							? <div>
-									{
-									displayedSemesters.map(semester =>
-										<MyWidgetScoreSemester
-											key={semester.id}
-											semester={semester}
-											instId={inst.id}
-											hasScores={state.hasScores} />
-									)}
-									<a role="button"
-										className={`show-older-scores-button ${currScores?.length > 1 ? '' : 'hide'}`}
-										onClick={() => setState({...state, isShowingAll: !state.isShowingAll})}
-									>
-										{!state.isShowingAll
-											? "Show older scores..."
-											: "Hide older scores..."
-										}
-									</a>
-								</div>
-							: <NoContentIcon />
-						}
-					</>
-			}
-			{state.showExport
-				? <MyWidgetsExport onClose={closeExport} inst={inst} scores={currScores}/>
-				: null
-			}
+			{ contentRender }
+			{ exportRender }
 		</div>
 	)
 }

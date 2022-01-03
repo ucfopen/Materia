@@ -17,18 +17,6 @@ global.resetNamespace = () => {
 	}
 }
 
-global.testGetFilter = (filterName, load = true) => {
-	if (load) {
-		require(`./angular/filters/filter-${filterName}`)
-	}
-
-	let filter
-	inject(function ($filter) {
-		filter = $filter(filterName)
-	})
-	return filter
-}
-
 global.API_LINK = '/api/'
 global.BASE_URL = 'https://test_base_url.com/'
 global.WIDGET_URL = 'widget_url/'

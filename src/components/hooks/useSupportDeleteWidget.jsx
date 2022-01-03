@@ -18,9 +18,7 @@ export default function useSupportDeleteWidget() {
 					console.log('failed to delete widget')
 				}
 			},
-			onError: () => {
-				console.log('Failed to delete widget on backend')
-			}
+			onError: () => console.log('Failed to delete widget on backend')
 		}
 	)
 }

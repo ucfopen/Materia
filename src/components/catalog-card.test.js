@@ -17,7 +17,8 @@ const getPropData = () => ({
 		about: "An advanced flexible scenario-building tool.",
 		playdata_exporters: ["Survey Formatting"],
 		demo: "hFLbU",
-		accessibility_options: ["Full", "Full"],
+		accessibility_keyboard: 'Full',
+		accessibility_reader: 'Full'
 	},
 	isFiltered: false,
 	activeFilters: []

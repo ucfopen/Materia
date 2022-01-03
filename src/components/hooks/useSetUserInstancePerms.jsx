@@ -5,12 +5,8 @@ export default function setUserInstancePerms() {
 	return useMutation(
 		apiSetUserInstancePerms,
 		{
-			onSuccess: (data, variables) => {
-				variables.successFunc()
-			},
-			onError: () => {
-				console.log('failed to update extra attempts')
-			}
+			onSuccess: (data, variables) => variables.successFunc(),
+			onError: () => console.log('failed to update extra attempts')
 		}
 	)
 }

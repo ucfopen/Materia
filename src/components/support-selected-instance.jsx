@@ -10,31 +10,28 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
 
-const addZero = i => {
-	if(i<10) i = "0" + i
-	return i
-}
+const addZero = i => `${i}`.padStart(2, '0')
 
-const objToDateString = (time) => {
-	if(time < 0) return time
+const objToDateString = time => {
+	if (time < 0) return time
 	const timeObj = new Date(time * 1000)
 	const year = String(timeObj.getFullYear())
-	return year + "-" + addZero(timeObj.getMonth() + 1) + "-" + addZero(timeObj.getDate())
+	const month = addZero(timeObj.getMonth() + 1)
+	const day = addZero(timeObj.getDate())
+	return `${year}-${month}-${day}`
 }
 
-const objToTimeString = (time) => {
-	if(time < 0) return time
+const objToTimeString = time => {
+	if (time < 0) return time
 	const timeObj = new Date(time * 1000)
-	return addZero(timeObj.getHours()) + ":" + addZero(timeObj.getMinutes())
+	const hours = addZero(timeObj.getHours())
+	const minutes = addZero(timeObj.getMinutes())
+	return `${hours}:${minutes}`
 }
 
-const stringToDateObj = (date, time) => {
-	return Date.parse(date + 'T' + time) / 1000
-}
+const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
 
-const stringToBoolean = s => {
-	return s === 'true'
-}
+const stringToBoolean = s => s === 'true'
 
 const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
@@ -62,9 +59,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 
 	useEffect(() => {
 		if (perms) {
-			console.log('perms updated')
-			console.log(perms)
-			const isEditable = inst.widget.is_editable === "1"
+			const isEditable = inst.widget.is_editable === '1'
 			const othersPerms = new Map()
 			for(const i in perms.widget_user_perms){
 				othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
@@ -87,14 +82,14 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		onCopy(updatedInst.id, title, copyPerms, updatedInst)
 	}
 
-	const onDelete = (instId) => {
+	const onDelete = instId => {
 		deleteWidget.mutate({
 			instId: instId,
 			successFunc: () => setUpdatedInst({...updatedInst, is_deleted: true})
 		})
 	}
 
-	const onUndelete = (instId) => {
+	const onUndelete = instId => {
 		unDeleteWidget.mutate({
 			instId: instId,
 			successFunc: () => setUpdatedInst({...updatedInst, is_deleted: false})
@@ -106,7 +101,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		let u = updatedInst
 
 		// set date and time from input boxes
-		if(!availableDisabled) {
+		if (!availableDisabled) {
 			if(availableDate == '' || availableTime == '') {
 				setErrorText('Please enter valid dates and times')
 				return
@@ -115,7 +110,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				u.open_at = stringToDateObj(availableDate, availableTime)
 			}
 		}
-		if(!closeDisabled){
+		if (!closeDisabled){
 			if(closeDate == '' || closeTime == '') {
 				setErrorText('Please enter valid dates and times')
 				return
@@ -126,12 +121,12 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		}
 
 		//make sure title is not blank
-		if(u.name == '' || u.name == null){
+		if (u.name == '' || u.name == null){
 			setErrorText('Name cannot be blank')
 			return
 		}
 
-		setUpdatedInst({...updatedInst, 
+		setUpdatedInst({...updatedInst,
 			'open_at': stringToDateObj(availableDate, availableTime),
 			'close_at': stringToDateObj(closeDate, closeTime)
 		})
@@ -155,92 +150,128 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		})
 	}
 
+	let copyDialogRender = null
+	if (showCopy) {
+		copyDialogRender = (
+			<MyWidgetsCopyDialog name={updatedInst.name}
+				onClose={() => setShowCopy(false)}
+				onCopy={makeCopy}
+			/>
+		)
+	}
+
+	let collaborateDialogRender = null
+	if (showCollab) {
+		collaborateDialogRender = (
+			<MyWidgetsCollaborateDialog inst={inst}
+				currentUser={currentUser}
+				myPerms={allPerms.myPerms}
+				otherUserPerms={allPerms.otherUserPerms}
+				setOtherUserPerms={(p) => setAllPerms({...allPerms, otherUserPerms: p})}
+				onClose={() => {setShowCollab(false)}}
+			/>
+		)
+	}
+
+	const extraAttemptsDialogRender = null
+	if (showAttempts) {
+		extraAttemptsDialogRender = (
+			<ExtraAttemptsDialog inst={inst}
+				onClose={() => setShowAttempts(false)}
+			/>
+		)
+	}
+
 	return (
-		<section className="page inst-info">
+		<section className='page inst-info'>
 			<div>
-				<button 
-					className="action_button back" 
-					onClick={() => {onReturn()}}
-				>
-					<span className="arrow"></span>
-					<span className="goBackText">Return</span>
+				<button className='action_button back'
+					onClick={onReturn}>
+					<span className='arrow' />
+					<span className='goBackText'>Return</span>
 				</button>
 			</div>
-			<div className="header">
-				<img src={iconUrl('http://localhost/widget/', updatedInst.widget.dir, 60)}/>
-				<input type="text" value={updatedInst.name} onChange={(event) => handleChange('name', event.target.value)}/>
+			<div className='header'>
+				<img src={iconUrl('/widget/', updatedInst.widget.dir, 60)} />
+				<input type='text' value={updatedInst.name}
+					onChange={event => handleChange('name', event.target.value)}
+				/>
 			</div>
-			<div className="inst-action-buttons">
-				<button 
-					className="action_button"
+			<div className='inst-action-buttons'>
+				<button className='action_button'
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
 					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
-				<button 
-					className="action_button"
+				<button className='action_button'
 					onClick={() => setShowCopy(true)}>
 					<span>Make a Copy</span>
 				</button>
-				<button 
-					className="action_button"
+				<button className='action_button'
 					onClick={() => setShowCollab(true)}
 					disabled={updatedInst.is_deleted}>
-					<span title={updatedInst.is_deleted ? 'cannot collab on deleted instance' : null}
-						>{loadingPerms === false ? `Collaborate (${allPerms.otherUserPerms ? allPerms.otherUserPerms.size : 0})` : 'Collaborate'}
+					<span title={updatedInst.is_deleted ? 'cannot collab on deleted instance' : null}>
+						{loadingPerms === false ? `Collaborate (${allPerms.otherUserPerms ? allPerms.otherUserPerms.size : 0})` : 'Collaborate'}
 					</span>
 				</button>
-				<button 
-					className="action_button"
+				<button className='action_button'
 					onClick={() => setShowAttempts(true)}
 					disabled={updatedInst.is_deleted}>
 						<span>Extra Attempts</span>
 				</button>
-				<button 
-					className="action_button"
-					onClick={() => {window.location = `http://localhost/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}
-				>
+				<button className='action_button'
+					onClick={() => {window.location = `/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}>
 					<span>Edit Widget</span>
 				</button>
 			</div>
-			<div className="overview">
+			<div className='overview'>
 				<span>
-					<label>ID:</label>{updatedInst.id}
+					<label>ID:</label>
+					{updatedInst.id}
 				</span>
 				<span>
-					<label>Date Created:</label>{(new Date(updatedInst.created_at*1000)).toLocaleString()}
+					<label>Date Created:</label>
+					{(new Date(updatedInst.created_at*1000)).toLocaleString()}
 				</span>
 				<span>
-					<label>Draft:</label>{updatedInst.is_draft ? 'Yes' : 'No'}
+					<label>Draft:</label>
+					{updatedInst.is_draft ? 'Yes' : 'No'}
 				</span>
 				<span>
-					<label>Student Made:</label>{updatedInst.is_student_made ? 'Yes' : 'No'}
+					<label>Student Made:</label>
+					{updatedInst.is_student_made ? 'Yes' : 'No'}
 				</span>
 				<span>
 					<label>Guest Access:</label>
-					<select value={updatedInst.guest_access} onChange={(event) => handleChange('guest_access', stringToBoolean(event.target.value))}>
+					<select value={updatedInst.guest_access}
+						onChange={event => handleChange('guest_access', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
 				</span>
 				<span>
-					<label>Student Access:</label>{updatedInst.student_access ? 'Yes' : 'No'}
+					<label>Student Access:</label>
+					{updatedInst.student_access ? 'Yes' : 'No'}
 				</span>
 				<span>
 					<label>Embedded Only:</label>
-					<select value={updatedInst.embedded_only} onChange={(event) => handleChange('embedded_only', stringToBoolean(event.target.value))}>
+					<select value={updatedInst.embedded_only}
+						onChange={event => handleChange('embedded_only', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
 				</span>
 				<span>
-					<label>Embedded:</label>{updatedInst.is_embedded ? 'Yes' : 'No'}
+					<label>Embedded:</label>
+					{updatedInst.is_embedded ? 'Yes' : 'No'}
 				</span>
 				<span>
-					<label>Deleted:</label>{updatedInst.is_deleted ? 'Yes' : 'No'}
+					<label>Deleted:</label>
+					{updatedInst.is_deleted ? 'Yes' : 'No'}
 				</span>
 				<span>
 					<label>Attempts Allowed:</label>
-					<select value={updatedInst.attempts} onChange={(event) => handleChange('attempts', event.target.value)}>
+					<select value={updatedInst.attempts}
+						onChange={event => handleChange('attempts', event.target.value)}>
 						<option value={-1}>Unlimited</option>
 						<option value={1}>1</option>
 						<option value={2}>2</option>
@@ -254,79 +285,99 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				</span>
 				<span>
 					<label>Available:</label>
-					<div className="radio">
-						<input type="radio" name="available" value={updatedInst.open_at} checked={availableDisabled == false} onChange={() => setAvailableDisabled(false)}/>
+					<div className='radio'>
+						<input type='radio'
+							name='available'
+							value={updatedInst.open_at}
+							checked={availableDisabled == false}
+							onChange={() => setAvailableDisabled(false)}
+						/>
 						On
-						<input type="date" value={availableDate !== -1 ? availableDate : ''} onChange={(event) => setAvailableDate(event.target.value)} disabled={availableDisabled}/>
-						<input type="time" value={availableTime !== -1 ? availableTime : ''} onChange={(event) => setAvailableTime(event.target.value)} disabled={availableDisabled}/>
+						<input type='date'
+							value={availableDate !== -1 ? availableDate : ''}
+							onChange={event => setAvailableDate(event.target.value)}
+							disabled={availableDisabled}
+						/>
+						<input type='time'
+							value={availableTime !== -1 ? availableTime : ''}
+							onChange={event => setAvailableTime(event.target.value)}
+							disabled={availableDisabled}
+						/>
 					</div>
-					<div className="radio">
-						<input type="radio" name="available" value={-1} checked={availableDisabled} onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}/>
-						Now 
+					<div className='radio'>
+						<input type='radio'
+							name='available'
+							value={-1}
+							checked={availableDisabled}
+							onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}
+						/>
+						Now
 					</div>
 				</span>
 				<span>
 					<label>Closes:</label>
-					<div className="radio">
-						<input type="radio" name="closes" value={updatedInst.close_at} checked={closeDisabled == false} onChange={() => setCloseDisabled(false)}/>
+					<div className='radio'>
+						<input type='radio'
+							name='closes'
+							value={updatedInst.close_at}
+							checked={closeDisabled == false}
+							onChange={() => setCloseDisabled(false)}
+						/>
 						On
-						<input type="date" value={closeDate !== -1 ? closeDate : ''} onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}/>
-						<input type="time" value={closeTime !== -1 ? closeTime : ''} onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}/>
+						<input type='date'
+							value={closeDate !== -1 ? closeDate : ''}
+							onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}
+						/>
+						<input type='time'
+							value={closeTime !== -1 ? closeTime : ''}
+							onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}
+						/>
 					</div>
-					<div className="radio">
-						<input type="radio" name="closes" value={-1} checked={closeDisabled} onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}/>
+					<div className='radio'>
+						<input type='radio'
+							name='closes'
+							value={-1}
+							checked={closeDisabled}
+							onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
+						/>
 						Never
 					</div>
 				</span>
 				<span>
 					<label>Embed URL:</label>
-					<a className="url" href={updatedInst.embed_url}>{updatedInst.embed_url}</a>
+					<a className='url'
+						href={updatedInst.embed_url}>
+						{updatedInst.embed_url}
+					</a>
 				</span>
 				<span>
 					<label>Play URL:</label>
-					<a className="url" href={updatedInst.play_url}>{updatedInst.play_url}</a>
+					<a className='url'
+						href={updatedInst.play_url}>
+						{updatedInst.play_url}
+					</a>
 				</span>
 				<span>
 					<label>Preview URL:</label>
-					<a className="url" href={updatedInst.preview_url}>{updatedInst.preview_url}</a>
+					<a className='url'
+						href={updatedInst.preview_url}>
+						{updatedInst.preview_url}
+					</a>
 				</span>
 				<div className='right-justify'>
-					<div className="apply-changes">
-						<button 
-						className="action_button apply"
-						onClick={() => applyChanges()}
-						>
+					<div className='apply-changes'>
+						<button className='action_button apply'
+							onClick={applyChanges}>
 							<span>Apply Changes</span>
 						</button>
-						<span className="error-text">{errorText}</span>
+						<span className='error-text'>{errorText}</span>
 					</div>
 				</div>
-				
+
 			</div>
-			{showCopy 
-				? <MyWidgetsCopyDialog onClose={() => setShowCopy(false)} name={updatedInst.name} onCopy={makeCopy}/>
-				: null
-			}
-
-			{showCollab
-				? <MyWidgetsCollaborateDialog 
-						currentUser={currentUser} 
-						inst={inst} 
-						myPerms={allPerms.myPerms} 
-						otherUserPerms={allPerms.otherUserPerms} 
-						setOtherUserPerms={(p) => setAllPerms({...allPerms, otherUserPerms: p})} 
-						onClose={() => {setShowCollab(false)}}
-					/>
-				: null
-			}
-
-			{showAttempts 
-				? <ExtraAttemptsDialog 
-						onClose={() => setShowAttempts(false)}
-						inst={inst}
-					/>
-				: null
-			}
+			{ copyDialogRender }
+			{ collaborateDialogRender }
+			{ extraAttemptsDialogRender }
 		</section>
 	)
 }

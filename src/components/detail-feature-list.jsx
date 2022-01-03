@@ -24,8 +24,8 @@ const DetailFeatureList = ({title, widgetData, type={SUPPORTED_DATA}}) => {
 
 	return (
 		<div className={`feature-list ${type}`}>
-			<span className="feature-heading">{title}:</span>
-			<div className="item-list">
+			<span className='feature-heading'>{title}:</span>
+			<div className='item-list'>
 				{activeTab}
 			</div>
 		</div>

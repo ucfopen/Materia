@@ -592,6 +592,7 @@ a {
 
 	#pics-scroller {
 		display: flex;
+		transform: translate3d(-2px, 0, 0);
 
 		> div {
 			width: 100%;
@@ -637,6 +638,7 @@ a {
 				padding: 10px 30px;
 				font-size: 15px;
 				height: 20px;
+				user-select: none;
 			}
 		}
 	}

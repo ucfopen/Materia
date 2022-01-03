@@ -86,7 +86,7 @@ header > h1 {
 	position: absolute;
 	top: 0;
 	left: 30px;
-	background: white url(../../../img/materia_tmp_logo.png) 0% 0% no-repeat;
+	background: white url(/img/materia_tmp_logo.png) 0% 0% no-repeat;
 }
 
 #select-widget {
@@ -104,7 +104,7 @@ header > h1 {
 	border: solid 1px #b0b0b0;
 	border-radius: 12px;
 	height: 19px;
-	background: #fff url('../../../img/magnifyingglass.png') 5px 50% no-repeat;
+	background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
 	padding-left: 23px;
 	padding-right: 10px;
 	outline: none;
@@ -168,10 +168,6 @@ header > h1 {
 #list-container li:hover {
 	background-color: #ffe0a5;
 }
-#list-container li.selected,
-#list-container li.selected:hover {
-	/*background-color: #ffcb68;*/
-}
 
 #list-container li h2 {
 	font-size: 14pt;
@@ -227,7 +223,7 @@ header > h1 {
 		display: inline-block;
 		width: 12px;
 		height: 12px;
-		background: url(../../../img/external_link_arrow_brown.png) 0% 0% no-repeat;
+		background: url(/img/external_link_arrow_brown.png) 0% 0% no-repeat;
 	}
 }
 
@@ -298,7 +294,7 @@ header > h1 {
 }
 
 .arrow_right {
-	background: url(../../../img/button_arrow_circle_green.png) no-repeat bottom;
+	background: url(/img/button_arrow_circle_green.png) no-repeat bottom;
 	position: absolute;
 	top: -7px;
 	left: -36px;
@@ -308,7 +304,7 @@ header > h1 {
 	z-index: 600;
 }
 .preview-button:hover .arrow_right {
-	background: url(../../../img/button_arrow_circle_green_hover.png) no-repeat bottom;
+	background: url(/img/button_arrow_circle_green_hover.png) no-repeat bottom;
 }
 
 #progress .widget-info {

@@ -18,9 +18,7 @@ export default function useSupportUnDeleteWidget() {
 					console.log('failed to undelete widget')
 				}
 			},
-			onError: () => {
-				console.log('Failed to undelete widget on backend')
-			}
+			onError: () => console.log('Failed to undelete widget on backend')
 		}
 	)
 }
