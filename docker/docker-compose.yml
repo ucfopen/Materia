@@ -22,7 +22,7 @@ services:
       dockerfile: materia-app.Dockerfile
     environment:
       # View Materia README for env settings
-      - ASSET_STORAGE_DRIVER=s3
+      - ASSET_STORAGE_DRIVER=file
       - ASSET_STORAGE_S3_BUCKET=fake_bucket
       - ASSET_STORAGE_S3_ENDPOINT=http://fakes3:10001
       - ASSET_STORAGE_S3_KEY=KEY
@@ -62,6 +62,8 @@ services:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
     networks:
       - backend
+    volumes:
+      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
 
   memcached:
     image: memcached:1.6.6-alpine

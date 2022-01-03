@@ -213,7 +213,7 @@
 				One of the advantages of this method is the signature is generated and timestamped
 				when you click the button.  The other buttons on this page build the signature and timestamp
 				when the page is loaded - so they can easily expire
-			 -->
+			-->
 
 			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
 				<input type="hidden" class="lti_url" name="lti_url" />
@@ -268,6 +268,15 @@
 				<input type="submit" id="play_as_instructor" value="As Instructor">
 			</form>
 
+			<form onsubmit="setLtiUrl(this)" method="POST" target="embed_iframe" action="<?= $learner_endpoint ?>" >
+				<input type="hidden" class="lti_url" name="lti_url" />
+				<input type="hidden" class="context_id" name="context_id" />
+				<input type="hidden" class="resource_link" name="resource_link" />
+				<input type="hidden" class="custom_widget_instance_id" name="custom_widget_instance_id" />
+				<input type="hidden" id="as_instructor2" name="as_instructor2" value="as_instructor2" />
+				<input type="submit" id="play_as_instructor2" value="As New Instructor">
+			</form>
+
 			<hr />
 			<h2>Other</h2>
 
@@ -284,7 +293,7 @@
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
 					<? else: ?>
-					 	<?= \Form::hidden($name, $value) ?>
+						<?= \Form::hidden($name, $value) ?>
 					<? endif ?>
 				<?php endforeach ?>
 				<input type="submit" value="Test Validation (bad signature)">
