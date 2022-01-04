@@ -4,22 +4,27 @@
  * License outlined in licenses folder
  */
 
+use \Materia\Perm;
+use \Materia\Perm_Manager;
+
 class Controller_Api_Asset extends Controller_Rest
 {
-	protected $_supported_formats = ['json' => 'application/json'];
 
-	public function delete_delete($id)
+	public function delete_delete($asset_id)
 	{
-		\DB::start_transaction();
+		$user_id = \Model_User::find_current_id();
+
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+
+		if (! Perm_Manager::user_has_any_perm_to($user_id, $asset_id, Perm::ASSET, Perm::FULL))
+			return new Response('You don not have access to this asset', 401);
 
 		try
 		{
-			if (\Service_User::verify_session() !== true) return Msg::no_login();
-
 			\DB::update('asset')
 				->value('deleted_at', time())
 				->value('is_deleted', '1')
-				->where('id', $id)
+				->where('id', $asset_id)
 				->execute();
 		}
 		catch (\Exception $th)
@@ -27,22 +32,22 @@ class Controller_Api_Asset extends Controller_Rest
 			trace('Error: In the deletion process');
 			trace($th);
 		}
-
-		\DB::commit_transaction();
 	}
 
-	public function delete_restore($id)
+	public function delete_restore($asset_id)
 	{
-		\DB::start_transaction();
+		$user_id = \Model_User::find_current_id();
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+
+		if (! Perm_Manager::user_has_any_perm_to($user_id, $asset_id, Perm::ASSET, Perm::FULL))
+			return new Response('You don not have access to this asset', 401);
 
 		try
 		{
-			if (\Service_User::verify_session() !== true) return Msg::no_login();
-
 			\DB::update('asset')
 				->value('deleted_at', '-1')
 				->value('is_deleted', '0')
-				->where('id', $id)
+				->where('id', $asset_id)
 				->execute();
 		}
 		catch (\Exception $th)
@@ -50,7 +55,5 @@ class Controller_Api_Asset extends Controller_Rest
 			trace('Error: In the deletion process');
 			trace($th);
 		}
-
-		\DB::commit_transaction();
 	}
 }
