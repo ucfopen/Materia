@@ -68,6 +68,12 @@ class Api_V1
 		return $inst->db_remove();
 	}
 
+	static public function widget_instance_access_perms_verify($inst_id)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		return static::has_perms_to_inst($inst_id, [Perm::SCORE, Perm::FULL]);
+	}
+
 	/**
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not

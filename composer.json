@@ -7,7 +7,7 @@
     "scripts":{
         "sniff": "phpcs -n --extensions=php .",
         "sniff-with-warnings": "phpcs --extensions=php .",
-        "sniff-ci": "phpcs --report=source --extensions=php .",
+        "sniff-ci": "phpcs --report=full --extensions=php .",
         "post-install-cmd": "test -d ./.git/hooks && cp ./githooks/pre-commit ./.git/hooks/pre-commit || true",
         "git-pre-commit":"@sniff-ci",
         "destroy-everything": "php oil r admin:destroy_everything --quiet",
@@ -47,7 +47,7 @@
         "iturgeon/qasset": "1.0.5",
         "fuelphp/upload": "2.0.6",
         "monolog/monolog": "1.18.*",
-        "phpseclib/phpseclib": "2.0.0",
+        "phpseclib/phpseclib": "2.0.31",
         "eher/oauth": "1.0.7",
         "aws/aws-sdk-php": "3.67.17",
         "symfony/dotenv": "^5.1",
