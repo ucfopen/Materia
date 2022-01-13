@@ -16,7 +16,7 @@ class Controller_Api_Asset extends Controller_Rest
 
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-		if (! Perm_Manager::user_has_any_perm_to($user_id, $asset_id, Perm::ASSET, Perm::FULL))
+		if ( ! Perm_Manager::user_has_any_perm_to($user_id, $asset_id, Perm::ASSET, Perm::FULL))
 			return new Response('You don not have access to this asset', 401);
 
 		try
@@ -39,7 +39,7 @@ class Controller_Api_Asset extends Controller_Rest
 		$user_id = \Model_User::find_current_id();
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-		if (! Perm_Manager::user_has_any_perm_to($user_id, $asset_id, Perm::ASSET, Perm::FULL))
+		if ( ! Perm_Manager::user_has_any_perm_to($user_id, $asset_id, Perm::ASSET, Perm::FULL))
 			return new Response('You don not have access to this asset', 401);
 
 		try
