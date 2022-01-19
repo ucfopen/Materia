@@ -34,7 +34,7 @@ class Controller_Api_Asset extends Controller_Rest
 		}
 	}
 
-	public function delete_restore($asset_id)
+	public function post_restore($asset_id)
 	{
 		$user_id = \Model_User::find_current_id();
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
