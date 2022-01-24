@@ -37,10 +37,21 @@
 					{{option.name}}
 				</div>
 			</div>
-			<div>
-				<input ng-model='filter'
-					ng-change='filterFiles()'/>
+
+			<div class='darker'>
+				<label>
+					<input type='checkbox'
+					ng-model='isDeleted'
+					ng-change='showDeleted()'>
+					Show Deleted
+				</label>
 			</div>
+		</div>
+
+
+		<div class='sort-bar'>
+			<input ng-model='filter'
+				ng-change='filterFiles()'/>
 		</div>
 		<div id='file-display'>
 			<div class='file-info'
@@ -65,7 +76,7 @@
 					<button ng-class="file.is_deleted == 0 ? 'delete-btn green' : 'delete-btn orange'"
 						ng-click='deleteAsset(file)'>
 						<span ng-if='file.is_deleted == 0'>DELETE</span>
-						<span ng-if='file.is_deleted == 1'>DELETED</span>
+						<span ng-if='file.is_deleted == 1'>RESTORE</span>
 					</button>
 				</span>
 			</div>
