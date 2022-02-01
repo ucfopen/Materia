@@ -7,6 +7,7 @@ h1 {
 .support-page {
 	background-color: #fff;
 	position: relative;
+	top: 40px;
 	margin: 10px auto;
 	padding: 0 10px 10px;
 	display: block;
@@ -15,6 +16,70 @@ h1 {
 	width: 700px;
 
 	.page {
+
+		#breadcrumb-container {
+			display: inline-block;
+			position: absolute;
+			top: -40px;
+			left: -10px;
+			// margin-left: 10px;
+			padding: 5px 10px;
+			background: #eee;
+			border-radius: 3px;
+			font-size: 12px;
+			border: 1px solid #ccc;
+		
+			.breadcrumb {
+				display: inline-block;
+		
+				a {
+					color: black;
+				}
+			}
+		
+			svg {
+				position: relative;
+				height: 15px;
+				top: 2px;
+			}
+		}
+
+		.top {
+			position: relative;
+			top: 0;
+			left: -10px;
+			padding: 10px;
+			width: 100%;
+
+			color: #ffffff;
+			background: $gray;
+
+			h1 {
+				margin: 0;
+				padding: 5px 0;
+			}
+
+			h2 {
+				font-size: 14px;
+				margin: 0;
+				padding: 5px 0;
+			}
+		}
+
+		.search {
+			margin: 10px 0 10px 10px;
+
+			input.user_search {
+				width: 60%;
+				height: 30px;
+				margin: 10px 5px;
+				padding: 5px;
+
+				border-radius: 5px;
+				border: solid 1px $gray;
+			}
+		}
+
 		.show_deleted {
 			display: inline-block;
 			margin-left: 10px;
@@ -259,10 +324,18 @@ h1 {
 	list-style-type: none;
 
 	li.instance {
+		margin: 0 0 10px 0;
+
+		border-radius: 3px;
 
 		div.widget-title {
 			display: flex;
 			padding: 10px 15px;
+
+			background: $very-light-gray;
+			border: none;
+			border-radius: 3px;
+			transition: background-color 0.5s;
 	
 			span:first-child {
 				flex-basis: 1;
@@ -278,8 +351,21 @@ h1 {
 		}
 
 		&.expanded {
+
+			div.widget-title {
+				background: $light-gray;
+				border-bottom-left-radius: 0px;
+				border-bottom-right-radius: 0px;
+			}
+
 			.info-holder {
 				display: block;
+				padding: 15px;
+				background: $very-light-gray;
+				border-bottom-left-radius: 3px;
+				border-bottom-right-radius: 3px;
+
+				line-height: 1.5em;
 			}
 		}
 	} 

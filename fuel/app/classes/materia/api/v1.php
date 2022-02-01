@@ -123,7 +123,7 @@ class Api_V1
 	static public function widget_instance_copy(string $inst_id, string $new_name, bool $copy_existing_perms = false)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 
 		try

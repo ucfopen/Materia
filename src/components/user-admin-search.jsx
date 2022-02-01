@@ -35,14 +35,15 @@ const UserAdminSearch = ({onClick = () => {}}) => {
 			<div className="top">
 				<h1>User Admin</h1>
 			</div>
-			<span className="input_label">Search:</span>
-			<input
-				tabIndex="0"
-				value={searchText}
-				onChange={(e) => setSearchText(e.target.value)}
-				className="user_search"
-				type="text"
-				placeholder="Enter a Materia user's name or email address"/>
+			<div className="search">
+				<input
+					tabIndex="0"
+					value={searchText}
+					onChange={(e) => setSearchText(e.target.value)}
+					className="user_search"
+					type="text"
+					placeholder="Enter a Materia user's name or email address"/>
+			</div>
 			<div className="search_list">
 				{ userSearchList }
 			</div>

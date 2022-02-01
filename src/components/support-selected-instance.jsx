@@ -64,10 +64,11 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			for(const i in perms.widget_user_perms){
 				othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
 			}
-			let _myPerms
+			let _myPerms = {}
 			for(const i in perms.user_perms){
 				_myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
 			}
+			_myPerms.isSupportUser = true
 
 			setAllPerms({myPerms: _myPerms, otherUserPerms: othersPerms})
 		}
@@ -173,25 +174,33 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		)
 	}
 
-	const extraAttemptsDialogRender = null
+	let extraAttemptsDialogRender = null
 	if (showAttempts) {
 		extraAttemptsDialogRender = (
-			<ExtraAttemptsDialog inst={inst}
+			<ExtraAttemptsDialog 
 				onClose={() => setShowAttempts(false)}
+				inst={inst}
 			/>
 		)
 	}
 
 	return (
 		<section className='page inst-info'>
-			<div>
-				<button className='action_button back'
-					onClick={onReturn}>
-					<span className='arrow' />
-					<span className='goBackText'>Return</span>
-				</button>
+			<div id="breadcrumb-container">
+				<div className="breadcrumb">
+					<a href="/admin/instance">Instance Search</a>
+				</div>
+				<svg xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24">
+					<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+					<path fill="none" d="M0 0h24v24H0V0z"/>
+				</svg>
+				<div className="breadcrumb">{updatedInst.name}</div>
 			</div>
-			<div className='header'>
+			<div className='instance-management'>
+				<div className='header'>
 				<img src={iconUrl('/widget/', updatedInst.widget.dir, 60)} />
 				<input type='text' value={updatedInst.name}
 					onChange={event => handleChange('name', event.target.value)}
@@ -199,8 +208,8 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			</div>
 			<div className='inst-action-buttons'>
 				<button className='action_button'
-					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
-					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
+					onClick={() => {window.location = `/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}>
+					<span>Edit Widget</span>
 				</button>
 				<button className='action_button'
 					onClick={() => setShowCopy(true)}>
@@ -218,10 +227,12 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 					disabled={updatedInst.is_deleted}>
 						<span>Extra Attempts</span>
 				</button>
-				<button className='action_button'
-					onClick={() => {window.location = `/widgets/${updatedInst.widget.dir}create#${updatedInst.id}`}}>
-					<span>Edit Widget</span>
+				<button className='action_button delete'
+					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
+					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
+				
+			</div>
 			</div>
 			<div className='overview'>
 				<span>

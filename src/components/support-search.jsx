@@ -62,21 +62,22 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<div className='top'>
 				<h1>Instance Admin</h1>
 			</div>
-			<span className='input_label'>Search:</span>
-			<input tabIndex='0'
-				value={searchText}
-				onChange={handleSearchChange}
-				className='instance_search'
-				type='text'
-				placeholder="Enter a Materia widget instance's info"
-			/>
-			<div className='show_deleted'>
-				<input tabIndex='1'
-					type='checkbox'
-					checked={showDeleted}
-					onChange={handleShowDeletedClick}
+			<div className='search'>
+				<input tabIndex='0'
+					value={searchText}
+					onChange={handleSearchChange}
+					className='instance_search'
+					type='text'
+					placeholder="Enter a Materia widget instance's info"
 				/>
-				<span className='deleted_label'>Show Deleted Instances?</span>
+				<div className='show_deleted'>
+					<input tabIndex='1'
+						type='checkbox'
+						checked={showDeleted}
+						onChange={handleShowDeletedClick}
+					/>
+					<span className='deleted_label'>Show Deleted Instances?</span>
+				</div>
 			</div>
 			{ searchResultsRender }
 

@@ -22,19 +22,19 @@ const UserAdminInstancePlayed = ({play, index}) => {
 			</div>
 			<div className="info-holder">
 				<div>
-					<label>Date:</label>{ play.created_at*1000 }
+					<label>Date:</label> { `${new Date(play.created_at*1000).toLocaleString()} (${play.created_at})` }
 				</div>
 				<div>
-					<label>Score:</label><a target="_blank" href={ '/scores/'+play.id+'/#single-'+play.play_id }>{ play.percent }%</a>
+					<label>Score:</label> <a target="_blank" href={ '/scores/'+play.id+'/#single-'+play.play_id }>{ play.percent }%</a>
 				</div>
 				<div>
-					<label>Time Elapsed:</label>{ play.elapsed }s
+					<label>Time Elapsed:</label> { play.elapsed }s
 				</div>
 				<div>
-					<label>Completed:</label>{ play.is_complete == "1" ? 'Yes' : 'No' }
+					<label>Completed:</label> { play.is_complete == "1" ? 'Yes' : 'No' }
 				</div>
 				<div>
-					<label>Context:</label>{play.auth == 'LTI' ? 'LTI' : 'Web' }
+					<label>Context:</label> {play.auth == 'LTI' ? 'LTI' : 'Web' }
 				</div>
 			</div>
 		</li>

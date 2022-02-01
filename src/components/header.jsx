@@ -59,7 +59,7 @@ const Header = ({
 						<a className='elevated' href='/admin/user'>Users</a>
 					</li>
 					<li>
-						<a className='elevated' href='/admin/support'>Support</a>
+						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
 				</ul>
 			</li>
@@ -76,7 +76,7 @@ const Header = ({
 						<a className='elevated' href='/admin/user'>Users</a>
 					</li>
 					<li>
-						<a className='elevated' href='/admin/support'>Support</a>
+						<a className='elevated' href='/admin/instance'>Instances</a>
 					</li>
 				</ul>
 			</li>

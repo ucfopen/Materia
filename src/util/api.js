@@ -253,6 +253,8 @@ export const apiUpdateWidget = ({ args }) => {
 }
 
 export const apiSearchWidgets = input => {
+	let pattern = /[A-Za-z]+/g
+	if ( !input.match(pattern).length) return false
 	return fetch(`/api/admin/widget_search/${input}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []

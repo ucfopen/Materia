@@ -33,23 +33,28 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 
 	return (
 		<section className='page inst-info'>
-			<div>
-				<button 
-						className='action_button back' 
-						onClick={() => {onReturn()}}>
-					<span className='arrow'></span>
-					<span className='goBackText'>Return</span>
-				</button>
+			<div id="breadcrumb-container">
+				<div className="breadcrumb">
+					<a href="/admin/user">User Search</a>
+				</div>
+				<svg xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24">
+					<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+					<path fill="none" d="M0 0h24v24H0V0z"/>
+				</svg>
+				<div className="breadcrumb">{`${updatedUser.first} ${updatedUser.last}`}</div>
 			</div>
-			<div className='header'>
-				{ `${updatedUser.first} ${updatedUser.last}` }
+			<div className='top'>
+				<h1>{ `${updatedUser.first} ${updatedUser.last}` }</h1>
 			</div>
 			<div className='overview'>
 				<span>
-					<label>Created: </label>{ updatedUser.created_at }
+					<label>Created: </label>{ new Date(updatedUser.created_at * 1000).toLocaleString() } ({ updatedUser.created_at })
 				</span>
 				<span>
-					<label>Last login: </label>{ updatedUser.last_login }
+					<label>Last login: </label>{ updatedUser.last_login > 0 ? `${new Date(updatedUser.last_login * 1000).toLocaleString()} ( ${updatedUser.last_login} )` : 'No login on record' }
 				</span>
 				<span>
 					<label>Username: </label>{ updatedUser.username }
@@ -58,8 +63,9 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 					<label>Email: </label><input type='text' onChange={(event) => handleChange('email', event.target.value)} value={updatedUser.email}></input>
 				</span>
 				<span>
-					<label>Role: </label> NYI (is student?: { updatedUser.is_student ? 'true' : 'false' })
+					<label>Role: </label> { updatedUser.is_student ? 'Student' : 'Instructor' }
 				</span>
+				<h3>User Settings</h3>
 				<span>
 					<label>Notifications: </label>{ updatedUser.profile_fields.notify ? 'Enabled' : 'Disabled' }
 				</span>
@@ -70,7 +76,7 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 			<div className="info-holder">
 				<div className="instances">
 					<div className="top">
-						<h1>Instances Available:</h1>
+						<h2>Owned or Managed Instances:</h2>
 					</div>
 					<ul>
 						{ instancesAvailable }
@@ -78,11 +84,11 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 				</div>
 				<div className="instances">
 					<div className="top">
-						<h1>Instances Played:</h1>
-						<ul>
-							{ instancesPlayed }
-						</ul>
+						<h2>Instance Play History:</h2>
 					</div>
+					<ul>
+						{ instancesPlayed }
+					</ul>
 				</div>
 			</div>
 		</section>

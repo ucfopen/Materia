@@ -7,6 +7,7 @@ h1 {
 .support-page {
 	background-color: #fff;
 	position: relative;
+	top: 40px;
 	margin: 10px auto;
 	padding: 0 10px 10px;
 	display: block;
@@ -14,7 +15,68 @@ h1 {
 	box-shadow: 0 0 10px #aaa;
 	width: 700px;
 
+	#breadcrumb-container {
+		display: inline-block;
+		position: absolute;
+		top: -40px;
+		left: -10px;
+		// margin-left: 10px;
+		padding: 5px 10px;
+		background: #eee;
+		border-radius: 3px;
+		font-size: 12px;
+		border: 1px solid #ccc;
+	
+		.breadcrumb {
+			display: inline-block;
+	
+			a {
+				color: black;
+			}
+		}
+	
+		svg {
+			position: relative;
+			height: 15px;
+			top: 2px;
+		}
+	}
+
 	.page {
+
+		// position: relative;
+		// top: 20px;
+
+		.top {
+			position: relative;
+			top: 0;
+			left: -10px;
+			padding: 10px;
+			width: 100%;
+
+			color: #ffffff;
+			background: $gray;
+
+			h1 {
+				margin: 0;
+				padding: 5px 0;
+			}
+		}
+
+		.search {
+			margin: 10px 0 10px 10px;
+
+			input.instance_search {
+				width: 60%;
+				height: 30px;
+				margin: 10px 5px;
+				padding: 5px;
+
+				border-radius: 5px;
+				border: solid 1px $gray;
+			}
+		}
+		
 		.show_deleted {
 			display: inline-block;
 			margin-left: 10px;
@@ -100,37 +162,59 @@ h1 {
 			}
 		}
 
-		.header {
-			margin-top: 10px;
-
-			img {
-				display: inline-block;
-				vertical-align: middle;
-			}
-
-			input {
-				display: inline-block;
-				margin-left: 15px;
-				width: 500px;
-				height: 40px;
-				font-size: 1.35em;
-			}
-		}
-
-		.inst-action-buttons {
+		.instance-management {
+			position: relative;
+			width: 100%;
 			padding: 10px;
-			display: flex;
-			flex-wrap: nowrap;
+			left: -10px;
+			background: $very-light-gray;
 
-			button {
-				display: inline-block;
-				margin: 0px 5px;
-				font-size: 16px;
-				padding: 15px 15px 15px 15px;
+			.header {
+				margin-top: 15px;
+				padding: 10px 15px;
+	
+				background: $light-gray;
+				border: solid 1px $gray;
+				border-radius: 5px;
+	
+				img {
+					display: inline-block;
+					vertical-align: middle;
+				}
+	
+				input {
+					display: inline-block;
+					margin-left: 15px;
+					width: 500px;
+					height: 40px;
+					font-size: 1.35em;
+				}
 			}
-			button:disabled {
-				cursor: not-allowed;
-				background: #ffba5d7a;
+	
+			.inst-action-buttons {
+				padding: 10px;
+				display: flex;
+				flex-wrap: nowrap;
+	
+				button {
+					display: inline-block;
+					margin: 0px 5px;
+					font-size: 16px;
+					padding: 15px 15px 15px 15px;
+
+					&.delete {
+						color: #ffffff;
+						background-image: linear-gradient(rgb(225, 0, 0), rgb(202, 0, 0));
+
+						&:hover {
+							background-image: linear-gradient(rgb(202, 0, 0)), linear-gradient(rgb(225, 0, 0));
+						}
+					}
+				}
+				button:disabled {
+					cursor: not-allowed;
+					background: #ffba5d7a;
+				}
 			}
 		}
 
@@ -207,9 +291,10 @@ h1 {
 }
 
 .back {
-	// position: absolute;
-	top: 3px;
-	right: 5px;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	// margin: 10px;
 	cursor: pointer;
 	font-size: 120%;
 

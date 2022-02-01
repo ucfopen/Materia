@@ -110,7 +110,8 @@ class Service_User
 				'p.elapsed',
 				'p.is_complete',
 				'p.percent',
-				'p.auth'
+				'p.auth',
+				'p.context_id'
 			)
 			->from(['log_play', 'p'])
 			->join(['widget_instance', 'i'])

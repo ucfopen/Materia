@@ -23,57 +23,57 @@ const UserAdminInstanceAvailable = ({instance, index}) => {
 			<div className='info-holder'>
 				<div>
 					<span>
-						<label>ID:</label>{ instance.id }
+						<label>ID:</label> { instance.id }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Created:</label>{ instance.created_at*1000 }
+						<label>Created:</label> { `${new Date(instance.created_at * 1000).toLocaleDateString()} (${instance.created_at})` }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Draft:</label>{ instance.is_draft ? 'Yes' : 'No' }
+						<label>Publish status:</label> { instance.is_draft ? 'Draft' : 'Published' }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Student-Made:</label>{ instance.is_student_made ? 'Yes' : 'No' }
+						<label>Student-Made:</label> { instance.is_student_made ? 'Yes' : 'No' }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Guest Access:</label>{ instance.guest_access ? 'Yes' : 'No' }
+						<label>Access Type:</label> { instance.guest_access ? 'Guest Access' : 'Normal Access' }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Student Access:</label>{ instance.student_access ? 'Yes' : 'No' }
+						<label>Student Collaborators: </label> { instance.student_access ? 'Yes' : 'No' }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Embedded Only:</label>{ instance.embedded_only ? 'Yes' : 'No' }
+						<label>Embedded Only:</label> { instance.embedded_only ? 'Yes' : 'No' }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Embedded:</label>{ instance.is_embedded ? 'Yes' : 'No' }
+						<label>Embedded:</label> { instance.is_embedded ? 'Yes' : 'No' }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Open Time:</label>{ instance.open_at < 0 ? 'Forever' : (instance.open_at*1000) }
+						<label>Open Time:</label> { instance.open_at < 0 ? 'Forever' : `${new Date(instance.open_at*1000).toLocaleString()} (${instance.open_at})` }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Close Time:</label>{ instance.close_at < 0 ? 'Never' : (instance.close_at*1000) }
+						<label>Close Time:</label> { instance.close_at < 0 ? 'Never' : `${new Date(instance.close_at*1000).toLocaleString()} (${instance.close_at})` }
 					</span>
 				</div>
 				<div>
 					<span>
-						<label>Attempts Allowed:</label>{ instance.attempts < 0 ? 'Unlimited' : instance.attempts }
+						<label>Attempts Allowed:</label> { instance.attempts < 0 ? 'Unlimited' : instance.attempts }
 					</span>
 				</div>
 				<div>

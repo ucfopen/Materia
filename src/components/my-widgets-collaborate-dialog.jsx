@@ -106,6 +106,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	const containsUser = useMemo(() => {
+		if (myPerms?.isSupportUser) return true
 		for (const [id, val] of Array.from(state.updatedOtherUserPerms)) {
 			if(val.remove === false) return true
 		}
@@ -168,7 +169,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Can't search unless you have full access.
 	let searchContainerRender = null
-	if (myPerms?.shareable) {
+	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
 		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults && searchResults?.length !== 0) {
 			const searchResultElements = searchResults?.map(match =>
