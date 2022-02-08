@@ -12,16 +12,16 @@
 			width: auto;
 			//-webkit-animation: spin 2s linear infinite;
 			//-moz-animation: spin 2s linear infinite;
-			animation: spin 2s ease-in-out infinite;
+			animation: spin 1s ease-in-out infinite;
 
 			&.sm {
-				max-height: 50px;
+				max-height: 20px;
 			}
 			&.med {
-				max-height: 150px;
+				max-height: 60px;
 			}
 			&.lrg {
-				max-height: 300px;
+				max-height: 80px;
 			}
 
 			@keyframes spin {
