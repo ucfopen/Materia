@@ -38,7 +38,7 @@ return [
 			$vendor.'ng-modal.css'
 		],
 		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
-		'profile' => [$webpack.'css/profile.css'],
+		'profile' => [$webpack.'js/profile.css'],
 		'login' => [$webpack.'css/login.css'],
 		'scores' => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',

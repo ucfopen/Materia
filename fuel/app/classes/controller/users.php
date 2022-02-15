@@ -84,25 +84,18 @@ class Controller_Users extends Controller
 	{
 		if (\Service_User::verify_session() !== true)
 		{
-			Session::set_flash('notice', 'Please log in to view this page.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your profile.');
+			Response::redirect(Router::get('login'));
+			return;
 		}
 
-		Css::push_group(['core', 'profile']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'My Profile');
 
-		Js::push_group(['angular', 'materia', 'student']);
-
-		// to properly fix the date display, we need to provide the raw server date for JS to access
-		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
-		Js::push_inline("var DATE = '$server_date'");
-
-		$this->theme->get_template()
-			->set('title', 'Profile')
-			->set('page_type', 'user profile');
-
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/user/profile')
-			->set('me', \Model_User::find_current());
+		Css::push_group(['profile']);
+		Js::push_group(['react', 'profile']);
 	}
 
 	/**

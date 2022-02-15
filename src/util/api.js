@@ -155,6 +155,14 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
+export const apiGetUserActivity = ({pageParam = 0}) => {
+	return fetch(`/api/user/activity?start=${pageParam * 6}`)
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
 export const apiAuthorSuper = () => {
 	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['super_user'])}` })
 		.then(user => user)
