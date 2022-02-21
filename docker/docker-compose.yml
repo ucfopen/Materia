@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   webserver:
@@ -81,9 +81,21 @@ services:
       - frontend
       - backend
 
+  h5p:
+    build:
+      context: ../
+      dockerfile: ./h5p-server/materia-h5p.Dockerfile
+      args:
+        ENVIRONMENT: dev
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+    environment:
+      - MATERIA_WEBSERVER_NETWORK=webserver
+
 networks:
   frontend:
     name: materia_frontend
   backend:
     name: materia_backend
-
