@@ -5,6 +5,7 @@
  */
 use \Materia\Widget_Asset_Manager;
 use \Materia\Widget_Asset;
+use \Thirdparty\Oauth;
 
 class Controller_Media extends Controller
 {
@@ -64,8 +65,11 @@ class Controller_Media extends Controller
 	// This currently assumes a single uploaded file at a time
 	public function action_upload()
 	{
-		// Validate Logged in
-		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
+		// Either Validate Logged in
+		// or validate a third party server thru Oauth
+		if (\Service_User::verify_session() !== true)
+			if (Oauth::validate_post() !== true) 
+				throw new HttpNotFoundException;
 
 		$res = new Response();
 		// Make sure file is not cached (as it happens for example on iOS devices)
