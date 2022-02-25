@@ -169,21 +169,23 @@ new Promise(setupConfig)
       res.status(200).end();
     });
 
-    // TODO clean this up
-    app.get("/admin", (req, res) => {
-      h5pEditor.setRenderer(adminRenderer);
-      h5pEditor
-        .render(undefined, "en", req.user)
-        .then(page => {
-          res.send(page);
-          res.status(200).end();
-        })
-        .catch(error => {
-          console.error("Error GET /admin:");
-          console.error(error);
-          res.status(500).end();
-        });
-    });
+    // only expose /admin route if in development
+    if (process.env.ENVIRONMENT != "prod") {
+      app.get("/admin", (req, res) => {
+        h5pEditor.setRenderer(adminRenderer);
+        h5pEditor
+          .render(undefined, "en", req.user)
+          .then(page => {
+            res.send(page);
+            res.status(200).end();
+          })
+          .catch(error => {
+            console.error("Error GET /admin:");
+            console.error(error);
+            res.status(500).end();
+          });
+      });
+    }
 
     // create new h5p content of a given type
     app.get("/new/:type", (req, res) => {
