@@ -31,14 +31,14 @@ const Homepage = () => (
 
 		<section className='get_started'>
 			<div className='get_started_content'>
-				{/* <p className='desc'> Materia is Open Source! </p> */}
+				<h1 className='subHeader'> Materia is Open Source! </h1>
 		 			<p className='desc'>
-						Easily embed <span className='engaging'>engaging</span> apps in your online course.
+						Use Materia at your organization through UCF Open.
 					</p>
+					</div>
 					<p className='button_wrap'>
-						<a className='action_button' href='widgets'>Get Started</a>
+						<a className='action_button' href='widgets'>Get Materia</a>
 					</p>
-				</div>
 		</section>
 
 		<section className='front_bottom'>
