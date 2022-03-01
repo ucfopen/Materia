@@ -886,7 +886,7 @@ h3 {
 	vertical-align: middle;
 	width: 100%;
 	height: 300px;
-	background-color: #3690e6;
+	background-image: linear-gradient(115deg, #3690E6 60%, #37A9E6 40%);
 
 	p {
 		display: inline-block;
@@ -900,8 +900,9 @@ h3 {
 			font-weight: 500;
 			color: #ffffff;
 			text-align: left;
-			width: 720px;
+			width: 50%;
 			margin-right: 15px;
+			margin-left: 30px;
 		}
 		&.button_wrap {
 			height: 100%;
@@ -1060,7 +1061,7 @@ hr {
 	}
 
 	header {
-		background: #fff url(/img/header_border.png) 0% 100% repeat-x;
+		background: #fff;
 		background-size: 12px 6px;
 	}
 }
