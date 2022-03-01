@@ -35,10 +35,11 @@ const Homepage = () => (
 		 			<p className='desc'>
 						Use Materia at your organization through UCF Open.
 					</p>
-					</div>
-					<p className='button_wrap'>
-						<a className='action_button' href='widgets'>Get Materia</a>
-					</p>
+				</div>
+				<p className='button_wrap'>
+					<a className='action_button' href='widgets'>Get Materia</a>
+				</p>
+				<img style={{width: "300px", float: "right"}} src="/img/social-ucf-open.png"/>
 		</section>
 
 		<section className='front_bottom'>
