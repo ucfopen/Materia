@@ -50,14 +50,14 @@ header {
 	z-index: 1000;
 
 	padding: 35px 0 0 136px;
-	margin: 0 0 25px 0;
+	margin: 0;
 	display: block;
 
-	background: #fff url(/img/header_border.png) 0% 100% repeat-x;
+	background: #fff;
 	height: 49px;
 
 	&.logged_in {
-		background: #fff url(/img/header_border_alt.png) 0% 100% repeat-x;
+		background: #fff;
 	}
 
 	ul,
@@ -457,20 +457,21 @@ h3 {
 .action_button {
 	font-family: 'Lato', arial, serif;
 	padding: 7px 23px 8px 23px;
-	background: #ffba5d;
-	background-image: linear-gradient(#ffce8c, #ffa42a);
+	background-color: #ffd439;
+	transition: all 0.4s ease-in-out;
+	// background-image: linear-gradient(#ffce8c, #ffa42a);
 
 	font-weight: 700;
-	color: #694d28;
-	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-	box-shadow: 1px 2px 4px #888;
+	color: #333;
+	// text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+	// box-shadow: 1px 2px 4px #888;
 	font-size: 18px;
 	position: relative;
 	cursor: pointer;
 	display: inline-block;
 	user-select: none;
 
-	border: 1px solid #525252;
+	// border: 1px solid #525252;
 	border-radius: 4px;
 
 	.ng-modal & {
@@ -498,8 +499,10 @@ h3 {
 }
 
 .action_button:hover {
-	background: #eca444;
-	background-image: linear-gradient(#ffa42a, #ffce8c);
+	background-color: #ffc904;
+	// background-image: linear-gradient(#ffc904, #ffe68c);
+	color: #000;
+	box-shadow: 0px 1px 3px #979696;
 	text-decoration: none;
 }
 .index_catalog_button {
@@ -878,7 +881,7 @@ h3 {
 	font-size: 24px;
 	font-weight: 900;
 	color: #474747;
-	margin-top: 50px;
+	// margin-top: 50px;
 	padding: 0;
 	vertical-align: middle;
 	width: 100%;

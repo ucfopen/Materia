@@ -69,6 +69,10 @@ store_main section {
 
 .spotlight{
 
+	.engage {
+		color: #0093e7;
+	}
+
 	h1 {
 		font-family: 'Lato', arial, serif;
 		font-weight: 900;
@@ -159,8 +163,8 @@ store_main section {
 	font-size: 24px;
 	font-weight: 900;
 	color: #474747;
-	margin-top: 50px;
-	padding: 0;
+	// margin-top: 50px;
+	padding-top: 50px;
 	vertical-align: middle;
 	width: 100%;
 	background-color: #3690e6;

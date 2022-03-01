@@ -17,11 +17,9 @@
 }
 .main_container {
 	position: relative;
-	width: 960px;
-	height: 320px;
+	width: 100vw;
+	height: 450px;
 	margin: 0 auto;
-	border: rgba(0, 0, 0, 0.11) 1px solid;
-	box-shadow: 1px 3px 10px #888;
 	overflow: visible;
 }
 
@@ -66,7 +64,7 @@ store_main section {
 .spotlight h1 {
 	font-family: 'Lato', arial, serif;
 	font-weight: 900;
-	font-size: 36px;
+	font-size: 40px;
 	border-bottom: dotted black 1px;
 	margin: 0;
 	padding: 0 0 10px 0;
@@ -88,12 +86,12 @@ store_main section {
 
 .spotlight .main_container {
 	background: #fff;
-	width: 960px;
+	// width: auto;
 	text-align: left;
 }
 
 .spotlight .store_main p {
-	color: #4a4a4a;
+	color: #000;
 	font-size: 17px;
 	line-height: 24px;
 }
@@ -102,7 +100,7 @@ store_main section {
 	position: absolute;
 	top: 270px;
 	text-decoration: underline;
-	font-size: 17px;
+	font-size: 19px;
 	font-weight: 700;
 }
 
@@ -110,7 +108,7 @@ store_main section {
 	background: transparent;
 	padding: 30px 40px 100px;
 	width: 920px;
-	height: 230px;
+	height: fit-content;
 	overflow: visible;
 }
 .spotlight .store_main section.enigma {
@@ -129,9 +127,22 @@ store_main section {
 	width: 558px;
 }
 .spotlight .store_main section.html5 {
-	background: url(/img/spotlight/materia-html5.png) -30px -8px no-repeat;
-	padding-left: 400px;
-	width: 530px;
+	background: url(/img/banner_final.png) -30px -8px no-repeat;
+	// padding-left: 550px;
+	// purely center aligned
+	left: calc(50% - 50vw);
+	text-align: center;
+	width: 100vw;
+	background-size: contain;
+	display: flex;
+	justify-content: center;
+}
+
+.spotlight .store_main section.html5.html5Content {
+	  text-shadow: 1px 1px 3px #fff;
+		min-width: 500px;
+		max-width: 800px;
+		margin-left: 25vw;
 }
 
 .spotlight .store_main section.crossword h1,
