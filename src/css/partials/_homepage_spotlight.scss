@@ -18,7 +18,7 @@
 .main_container {
 	position: relative;
 	width: 100vw;
-	height: 450px;
+	height: 550px;
 	margin: 0 auto;
 	overflow: visible;
 }
@@ -65,7 +65,6 @@ store_main section {
 	font-family: 'Lato', arial, serif;
 	font-weight: 900;
 	font-size: 40px;
-	border-bottom: dotted black 1px;
 	margin: 0;
 	padding: 0 0 10px 0;
 }
@@ -127,7 +126,7 @@ store_main section {
 	width: 558px;
 }
 .spotlight .store_main section.html5 {
-	background: url(/img/banner_final.png) -30px -8px no-repeat;
+	background: linear-gradient(90deg, rgba(255,255,255, 0), 30%, rgba(255, 255, 255,1)), url(/img/banner_final.png) no-repeat;
 	// padding-left: 550px;
 	// purely center aligned
 	left: calc(50% - 50vw);

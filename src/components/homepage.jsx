@@ -12,7 +12,7 @@ const Homepage = () => (
 					<article className='store_main selected'>
 						<section className='html5'>
 						{/* inline styling just temporary */}
-							<div className="html5Content" style={{textShadow: "1px 1px 3px #fff", minWidth: "500px", maxWidth: "800px", marginLeft: "30vw", paddingRight: "5vw"}}>
+							<div className="html5Content" style={{textShadow: "1px 1px 3px #fff", width: "600px", marginLeft: "40vw", paddingRight: "5vw"}}>
 								<h1>Create <span className="engage">Engaging</span> Apps!</h1>
 								<p>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
 								<p>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
@@ -30,12 +30,15 @@ const Homepage = () => (
 		</section>
 
 		<section className='get_started'>
-			<p className='desc'>
-				Easily embed <span className='engaging'>engaging</span> apps in your online course.
-			</p>
-			<p className='button_wrap'>
-				<a className='action_button' href='widgets'>Get Started</a>
-			</p>
+			<div className='get_started_content'>
+				{/* <p className='desc'> Materia is Open Source! </p> */}
+		 			<p className='desc'>
+						Easily embed <span className='engaging'>engaging</span> apps in your online course.
+					</p>
+					<p className='button_wrap'>
+						<a className='action_button' href='widgets'>Get Started</a>
+					</p>
+				</div>
 		</section>
 
 		<section className='front_bottom'>

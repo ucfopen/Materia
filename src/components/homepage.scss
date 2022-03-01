@@ -171,7 +171,6 @@ store_main section {
 
 	p {
 		display: inline-block;
-		vertical-align: middle;
 		padding: 0;
 		margin: 36px 0;
 
@@ -186,6 +185,7 @@ store_main section {
 		}
 		&.button_wrap {
 			height: 100%;
+			vertical-align: middle;
 			display: inline-block;
 		}
 		.bold {
