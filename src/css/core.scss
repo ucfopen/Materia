@@ -15,7 +15,9 @@ html {
 }
 
 body {
-	font-family: 'Lucida Grande', arial, serif;
+	font-family: 'Lato', arial, serif;
+	font-size: 18px;
+	font-weight: 300;
 	overflow: auto;
 }
 
@@ -895,7 +897,7 @@ h3 {
 	padding: 0;
 	vertical-align: middle;
 	width: 100%;
-	height: 300px;
+	height: 280px;
 	background-image: linear-gradient(115deg, #3690E6 60%, #37A9E6 40%);
 
 	h1 {
@@ -913,7 +915,7 @@ h3 {
 			text-align: left;
 			width: 50%;
 			margin-right: 15px;
-			margin-left: 50px;
+			margin-left: 160px;
 		}
 	}
 
@@ -930,13 +932,13 @@ h3 {
 			text-align: left;
 			width: 50%;
 			margin-right: 15px;
-			margin-left: 50px;
+			margin-left: 160px;
 			margin-bottom: 0px;
 		}
 		&.button_wrap {
-			height: 100%;
+			height: auto;
 			display: inline-block;
-			margin-left: 50px;
+			margin-left: 160px;
 		}
 		.bold {
 			font-weight: 700;
@@ -976,40 +978,45 @@ h3 {
 		margin: 0 auto;
 	}
 	div {
-		width: 600px;
+		width: 500px;
 		height: 275px;
 
-		font-family: 'Lucida Grande', arial, serif;
+		font-family: 'Lato', arial, serif;
 		font-weight: 300;
 		font-size: 14px;
-		color: #4c4c4c;
+		color: #000;
 
 		margin: 10px 0px 20px 20px;
-		padding: 0 20px;
+		padding: 0;
 		text-align: left;
 		display: inline-block;
 
 		&:nth-of-type(2) {
 			text-align: right;
-			margin-left: 20px;
+			margin-left: 80px;
 		}
 		h2 {
 			font-family: 'Lato', arial, serif;
 			font-size: 30px;
-			font-weight: 700;
-			color: #3690e6;
+			font-weight: 500;
+			color: #000;
+		}
+
+		p {
+			font-size: 16px;
+			line-height: 150%;
 		}
 	}
 
 	img {
 		display: inline-block;
-		float: left;
+		float: right;
 		border: solid 2px #ffffff;
 		box-shadow: 1px 2px 4px #888;
 		margin-top: 20px;
 	}
 	img:nth-of-type(2) {
-		float: right;
+		float: left;
 	}
 }
 

@@ -30,23 +30,35 @@ const Homepage = () => (
 		</section>
 
 		<section className='get_started'>
+		<img style={{width: "300px", right: "calc(50% - 50vw)", marginTop: "6%", marginRight: "110px", position: "absolute"}} src="/img/social-ucf-open.png"/>
+
 			<div className='get_started_content'>
 				<h1 className='subHeader'> Materia is Open Source! </h1>
 		 			<p className='desc'>
 						Use Materia at your organization through UCF Open.
 					</p>
 				</div>
+
 				<p className='button_wrap'>
 					<a className='action_button' href='widgets'>Get Materia</a>
 				</p>
-				<img style={{width: "300px", float: "right"}} src="/img/social-ucf-open.png"/>
 		</section>
 
 		<section className='front_bottom'>
 			<section className='wrapper'>
+			<div>
+				<h2>Create Quickly and Easily</h2>
+				<p className="front_bottom_desc">
+					Materia's design philosophy is to be incredibly easy to use.
+					Every step of customizing and delivering apps has been finely tuned to be as clear and simple as possible.
+					Players are greeted with clean and simple interfaces.
+					We aim to get out of the way so your content can engage with students as quickly and clearly as possible.
+				</p>
+			</div>
+			<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
 				<div>
 					<h2>Engage Your Students</h2>
-					<p>
+					<p className="front_bottom_desc">
 						Re-imagine your course filled with diverse and interesting experiences.
 						It can bring life to content modules, practice, study activities, and even assessments.
 						Engage students with game mechanics like: story-telling, competition, instant feedback, and instant reward systems.
@@ -54,18 +66,8 @@ const Homepage = () => (
 				</div>
 				<img src='/img/front1.png' alt='screen shot of a labeling widget' />
 				<div>
-					<h2>Create Quickly and Easily</h2>
-					<p>
-						Materia's design philosophy is to be incredibly easy to use.
-						Every step of customizing and delivering apps has been finely tuned to be as clear and simple as possible.
-						Players are greeted with clean and simple interfaces.
-						We aim to get out of the way so your content can engage with students as quickly and clearly as possible.
-					</p>
-				</div>
-				<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
-				<div>
 					<h2>Integrate with Your Course</h2>
-					<p>
+					<p className="front_bottom_desc">
 						Materia integrates into Canvas seamlessly.
 						As an assignment, student's scores can automatically sync to the grade book.
 						Thanks to the magic of LTI, Students are logged in automatically!
@@ -74,7 +76,7 @@ const Homepage = () => (
 				<img src='/img/front3.png' alt='screen shot of a widget score page'/>
 			</section>
 
-			<section className='get_started use_materia' >
+			{/* <section className='get_started use_materia' >
 				<p className='desc'>
 					Use Materia at <span className='bold'>your</span> organization.
 				</p>
@@ -84,7 +86,7 @@ const Homepage = () => (
 						<span className='little-button-text'> (It's open source!)</span>
 					</a>
 				</p>
-			</section>
+			</section> */}
 
 			<section className='p_s'>
 				<h2>Built at UCF, for Everyone</h2>
