@@ -129,7 +129,7 @@ store_main section {
 	// padding-left: 550px;
 	// purely center aligned
 	left: calc(50% - 50vw);
-	text-align: center;
+	text-align: right;
 	// width: 100vw;
 	background-size: contain;
 	display: flex;
@@ -137,7 +137,6 @@ store_main section {
 }
 
 .spotlight .store_main section.html5.html5Content {
-	  text-shadow: 1px 1px 3px #fff;
 		min-width: 500px;
 		max-width: 800px;
 		margin-left: 25vw;

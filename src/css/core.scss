@@ -94,14 +94,16 @@ header {
 		top: 24px;
 
 		a {
-			font-size: 17px;
+			font-size: 15px;
 			font-weight: 400;
 			font-family: 'Lato', arial, serif;
 			position: absolute;
-			top: 36px;
-			right: 5px;
+			top: 34px;
+			right: 15px;
 			width: 500px;
 			text-align: right;
+			color: #4c4c4c;
+			transition: all 0.3s linear;
 
 			span {
 				text-align: right;
@@ -121,6 +123,13 @@ header {
 				right: 2px;
 			}
 		}
+
+		a:hover {
+			color: #000;
+			text-decoration: none;
+			// font-size: 16px;
+		}
+
 		.logout a {
 			font-size: 14px;
 			top: 26px;
@@ -181,12 +190,12 @@ a.external {
 
 nav {
 	display: block;
-	margin-top: 14px;
+	// margin-top: 14px;
 
 	ul {
 		li {
 			display: inline;
-			padding: 0 10px 0 0;
+			padding: 0 20px 0 0;
 
 			.logout a {
 				display: none;
@@ -198,10 +207,20 @@ nav {
 
 			a {
 				font-family: 'Lato', arial, serif;
-				font-size: 17px;
-				font-weight: 400;
+				font-size: 14px;
+				font-weight: 300;
 				margin: 0;
 				padding: 0;
+				color: #4c4c4c;
+				transition: all 0.2s linear;
+			}
+
+			a:hover {
+				border: none;
+				border-bottom: 2px solid #0093E7;
+				padding: 5px 0;
+				color: #000;
+				text-decoration: none;
 			}
 		}
 	}

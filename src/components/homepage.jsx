@@ -12,11 +12,11 @@ const Homepage = () => (
 					<article className='store_main selected'>
 						<section className='html5'>
 						{/* inline styling just temporary */}
-							<div className="html5Content" style={{textShadow: "1px 1px 3px #fff", width: "600px", marginLeft: "40vw"}}>
+							<div className="html5Content" style={{ width: "600px", marginLeft: "40vw"}}>
 								<h1>Create <span className="engage" style={{color: "#0093e7"}}>Engaging</span> Apps!</h1>
-								<p style={{textShadow: "rgb(209 209 209) 1px 1px 7px"}}>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
-								<p style={{textShadow: "rgb(209 209 209) 1px 1px 7px"}}>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
-								<p style={{textShadow: "rgb(209 209 209) 1px 1px 7px"}}>Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+								<p>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
+								<p>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
+								<p>Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
 								<p className='button_wrap'>
 									<a className='action_button' href='widgets'>Get Started</a>
 								</p>
