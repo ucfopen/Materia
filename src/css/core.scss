@@ -910,7 +910,7 @@ h3 {
 		&.subHeader {
 			font-family: 'Lato', arial, serif;
 			font-size: 40px;
-			font-weight: 600;
+			font-weight: 400;
 			color: #ffffff;
 			text-align: left;
 			width: 50%;
@@ -1034,14 +1034,15 @@ hr {
 	h2 {
 		font-family: 'Lato', arial, serif;
 		font-size: 30px;
-		font-weight: 700;
-		color: #3690e6;
+		font-weight: 400;
+		color: #000;
 	}
 	p {
-		font-family: 'Lucida Grande', arial, serif;
-		color: #4c4c4c;
+		font-family: 'Lato', arial, serif;
+		color: #000;
+		line-height: 150%;
 		font-weight: 300;
-		font-size: 14px;
+		font-size: 16px;
 		text-align: left;
 
 		&.copyright {
