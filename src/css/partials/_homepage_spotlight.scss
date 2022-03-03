@@ -18,9 +18,15 @@
 .main_container {
 	position: relative;
 	width: 100vw;
-	height: calc(100vh - 30px);
+	height: calc(100vh - 120px);
 	margin: 0 auto;
 	overflow: visible;
+}
+
+@media only screen and (min-width: 200px) and (max-width: 800px) {
+	.main_container {
+		height: 600px;
+	}
 }
 
 .main section,
@@ -64,7 +70,7 @@ store_main section {
 .spotlight h1 {
 	font-family: 'Lato', arial, serif;
 	font-weight: 500;
-	font-size: 40px;
+	font-size: calc(35px + (40 - 35) * ((100vw - 300px) / (1600 - 300)));
 	margin: 0;
 	padding: 0 0 10px 0;
 }
@@ -91,7 +97,7 @@ store_main section {
 
 .spotlight .store_main p {
 	color: #000;
-	font-size: 19px;
+	font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1600 - 300)));
 	line-height: 24px;
 }
 
@@ -134,10 +140,15 @@ store_main section {
 
 .html5Content {
 	margin-right: 40px;
+	height: 400px;
 }
 
 #html5Content_body {
 	margin-left: 50%;
+}
+
+.mobile_spotlight_banner {
+	visibility: hidden;
 }
 
 @media only screen and (min-width: 200px) and (max-width: 800px) {
@@ -152,6 +163,11 @@ store_main section {
 
 	#html5Content_body {
 		margin-left: 0px;
+	}
+
+	.mobile_spotlight_banner {
+		visibility: visible;
+		width: calc(70% - 50px);
 	}
 
 }

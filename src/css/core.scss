@@ -1,10 +1,10 @@
 @import 'partials/homepage_spotlight';
 
 html {
-	background-image: url('/img/back.png');
+	// background-image: url('/img/back.png');
 
 	// background-image: linear-gradient(left, #f5f5f5 15px, white 2px);
-	background-size: 17px 100%;
+	// background-size: 17px 100%;
 }
 
 body,
@@ -98,7 +98,7 @@ header {
 			font-weight: 400;
 			font-family: 'Lato', arial, serif;
 			position: absolute;
-			top: 34px;
+			top: 25px;
 			right: 15px;
 			width: 500px;
 			text-align: right;
@@ -302,10 +302,18 @@ nav {
 
 				a {
 					font-family: 'Lato', arial, serif;
-					font-size: 17px;
-					font-weight: bold;
+					font-size: 15px;
+					font-weight: 300;
 					margin: 0;
 					padding: 0;
+				}
+
+				a:hover {
+					border: none;
+					border-bottom: 2px solid #0093E7;
+					padding: 5px 0;
+					color: #000;
+					text-decoration: none;
 				}
 			}
 		}
@@ -319,7 +327,7 @@ nav {
 		top: 25px;
 		height: 35px;
 		width: 37px;
-		border: 1px solid #888;
+		border: none;
 		padding: 2px 5px;
 		border-radius: 3px;
 		text-align: left;
