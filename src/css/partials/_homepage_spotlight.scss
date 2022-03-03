@@ -125,15 +125,13 @@ store_main section {
 	width: 558px;
 }
 .spotlight .store_main section.html5 {
-	background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1)), url(/img/banner_final.png) no-repeat;
+	background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/img/banner_final.png) no-repeat;
 	// padding-left: 550px;
 	// purely center aligned
 	left: calc(50% - 50vw);
 	text-align: right;
 	// width: 100vw;
 	background-size: contain;
-	display: flex;
-	justify-content: center;
 
 	// &.html5Content {
 	// 	width: 600px;
