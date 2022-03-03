@@ -134,13 +134,17 @@ store_main section {
 	background-size: contain;
 	display: flex;
 	justify-content: center;
+
+	// &.html5Content {
+	// 	width: 600px;
+	// 	margin-left: 40vw;
+	// }
 }
 
-.spotlight .store_main section.html5.html5Content {
-		min-width: 500px;
-		max-width: 800px;
-		margin-left: 25vw;
-}
+// .spotlight .store_main section.html5 div.html5Content {
+// 	width: 600px;
+// 	margin-left: 40vw;
+// }
 
 .spotlight .store_main section.crossword h1,
 .spotlight .store_main section.crossword p {

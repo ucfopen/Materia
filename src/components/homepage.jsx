@@ -12,7 +12,7 @@ const Homepage = () => (
 					<article className='store_main selected'>
 						<section className='html5'>
 						{/* inline styling just temporary */}
-							<div className="html5Content" style={{ width: "600px", marginLeft: "40vw"}}>
+							<div className="html5Content">
 								<h1>Create <span className="engage" style={{color: "#0093e7"}}>Engaging</span> Apps!</h1>
 								<p>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
 								<p>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
