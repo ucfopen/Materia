@@ -12,11 +12,11 @@ const Homepage = () => (
 					<article className='store_main selected'>
 						<section className='html5'>
 						{/* inline styling just temporary */}
-							<div className="html5Content" style={{marginRight: "40px"}}>
+							<div className="html5Content">
 								<h1>Create <span className="engage" style={{color: "#0093e7"}}>Engaging</span> Apps!</h1>
-								<p style={{marginLeft: "550px"}}>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
-								<p style={{marginLeft: "550px"}}>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
-								<p style={{marginLeft: "550px"}}>Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+								<p id="html5Content_body">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
+								<p id="html5Content_body">We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
+								<p id="html5Content_body">Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
 								<p className='button_wrap'>
 									<a className='action_button' href='widgets'>Get Started</a>
 								</p>

@@ -126,23 +126,35 @@ store_main section {
 }
 .spotlight .store_main section.html5 {
 	background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/img/banner_final.png) no-repeat;
-	// padding-left: 550px;
-	// purely center aligned
 	left: calc(50% - 50vw);
 	text-align: right;
-	// width: 100vw;
 	background-size: contain;
 
-	// &.html5Content {
-	// 	width: 600px;
-	// 	margin-left: 40vw;
-	// }
 }
 
-// .spotlight .store_main section.html5 div.html5Content {
-// 	width: 600px;
-// 	margin-left: 40vw;
-// }
+.html5Content {
+	margin-right: 40px;
+}
+
+#html5Content_body {
+	margin-left: 50%;
+}
+
+@media only screen and (min-width: 200px) and (max-width: 800px) {
+	.spotlight .store_main section.html5 {
+		background: none;
+		text-align: center;
+	}
+
+	.html5Content {
+		margin: 0 40px;
+	}
+
+	#html5Content_body {
+		margin-left: 0px;
+	}
+
+}
 
 .spotlight .store_main section.crossword h1,
 .spotlight .store_main section.crossword p {
