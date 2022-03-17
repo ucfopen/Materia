@@ -18,7 +18,6 @@ const SettingsPage = () => {
 	useEffect(() => {
 		if (mounted && ! isFetching) {
 			mounted.current = true
-			console.log('init state')
 			setState({...state, notify: currentUser.profile_fields.notify, useGravatar: currentUser.profile_fields.useGravatar})
 			return () => (mounted.current = false)
 		}
@@ -34,13 +33,10 @@ const SettingsPage = () => {
 	}
 
 	const _updateIconPref = pref => {
-		console.log('setting icon state to ')
-		console.log(pref)
 		setState({...state, useGravatar: pref})
 	}
 
 	const _submitSettings = () => {
-		console.log(state)
 		mutateUserSettings.mutate({
 			notify: state.notify,
 			useGravatar: state.useGravatar

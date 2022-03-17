@@ -9,7 +9,6 @@ export default function useUpdateUserSettings() {
 		apiUpdateUserSettings,
 		{
 			onMutate: async settings => {
-				console.log(settings)
 				await queryClient.cancelQueries('user')
 				const val = {...queryClient.getQueryData('user')}
 				const prior = queryClient.getQueryData('user')

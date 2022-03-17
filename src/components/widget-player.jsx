@@ -245,7 +245,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 		if (e.origin === expectedOrigin) {
 			const msg = JSON.parse(e.data)
-			// console.log(msg)
 
 			switch (msg.type) {
 				case 'start':

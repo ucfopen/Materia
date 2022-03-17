@@ -44,8 +44,6 @@ export const apiGetWidgetInstances = () => {
 }
 
 export const apiGetInstancesForUser = userId => {
-	console.log("hi I'm the API")
-	console.log(userId)
 	return fetch(`/api/admin/user/${userId}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
