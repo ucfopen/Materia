@@ -6,6 +6,7 @@ $cdnjs = '//cdnjs.cloudflare.com/ajax/libs/';
 return [
 	'groups' => [
 		'profile'    => [$webpack.'js/profile.js'],
+		'settings'   => [$webpack.'js/settings.js'],
 		'admin'      => [$webpack.'js/admin.js'],
 		'support'    => [$webpack.'js/support.js'],
 		'user_admin' => [$webpack.'js/user-admin.js'],

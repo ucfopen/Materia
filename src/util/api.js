@@ -175,6 +175,19 @@ export const apiAuthorSupport = () => {
 		.catch(error => false)
 }
 
+export const apiUpdateUserSettings = (settings) => {
+	return fetch('/api/user/settings', {
+		...fetchOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json'
+		},
+		body: JSON.stringify(settings)
+	})
+		.then((resp) => resp.json())
+}
+
 export const apiGetNotifications = () => {
 	return fetch('/api/json/notifications_get/')
 		.then(resp => {

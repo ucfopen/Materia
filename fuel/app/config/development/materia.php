@@ -20,7 +20,9 @@ return [
 	*/
 	'enable_admin_uploader' => true,
 
-	'asset_storage_driver' => 's3',
+	// Storage driver can be overridden from env here
+	// s3 uses fakes3 on dev
+	'asset_storage_driver' => 'file',
 
 	'asset_storage' => [
 		's3' => [
