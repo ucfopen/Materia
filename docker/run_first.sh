@@ -44,6 +44,10 @@ source run_build_assets.sh
 # create a dev user based on your current shell user (password will be 'kogneato') MATERIA_DEV_PASS=whatever can be used to set a custom pw
 source run_create_me.sh
 
+# run setup for the h5p server
+cd ../h5p-server/
+source setup.sh
+
 echo -e "Materia will be hosted on \033[32m$DOCKER_IP\033[0m"
 echo -e "\033[1mRun an oil comand:\033[0m ./run.sh php oil r  widget:show_engines"
 echo -e "\033[1mRun the web app:\033[0m docker-compose up"

@@ -1,6 +1,6 @@
 node_modules
 h5p/libraries/*
 h5p/temporary_storage/*
-h5p/core/*
-h5p/editor/*
+h5p/core/
+h5p/editor/
 .env
