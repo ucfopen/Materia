@@ -34,15 +34,14 @@ const Homepage = () => (
 		<img style={{width: "300px", right: "calc(50% - 50vw)", marginTop: "6%", marginRight: "110px", position: "absolute"}} src="/img/social-ucf-open.png"/>
 
 			<div className='get_started_content'>
-				<h1 className='subHeader'> Materia is Open Source! </h1>
-		 			<p className='desc'>
-						Use Materia at your organization through UCF Open.
-					</p>
-				</div>
-
+					<h1 className='subHeader'> Materia is Open Source! </h1>
+			 			<p className='desc'>
+							Use Materia at your organization through UCF Open.
+						</p>
 				<p className='button_wrap'>
 					<a className='action_button' href='widgets'>Get Materia</a>
 				</p>
+			</div>
 		</section>
 
 		<section className='front_bottom'>

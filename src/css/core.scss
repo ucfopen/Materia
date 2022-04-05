@@ -927,6 +927,9 @@ h3 {
 	height: 280px;
 	background-image: linear-gradient(115deg, #3690E6 60%, #37A9E6 40%);
 
+	div {
+		display: grid;
+	}
 	h1 {
 		display: inline-block;
 		vertical-align: middle;
@@ -941,8 +944,8 @@ h3 {
 			color: #ffffff;
 			text-align: left;
 			width: 50%;
-			margin-right: 15px;
-			margin-left: 160px;
+			float: left;
+			margin-left: 50px;
 		}
 	}
 
@@ -958,14 +961,14 @@ h3 {
 			color: #ffffff;
 			text-align: left;
 			width: 50%;
-			margin-right: 15px;
-			margin-left: 160px;
+			float:left;
 			margin-bottom: 0px;
+			margin-left: 50px;
 		}
 		&.button_wrap {
 			height: auto;
-			display: inline-block;
-			margin-left: 160px;
+			float: left;
+			margin-left: 50px;
 		}
 		.bold {
 			font-weight: 700;
