@@ -911,7 +911,8 @@ h3 {
 	.get_started {
 		height: 280px !important;
 		img {
-			margin-top: calc(2.5% + 100px) !important;
+			margin-top: calc(2% + 100px) !important;
+			right: calc(53% - 50vw) !important;
 		}
 	}
 }
@@ -931,7 +932,7 @@ h3 {
 		width: 30%;
 		max-width: 300px;
 		right: calc(55% - 50vw);
-		margin-top: 60px;
+		margin-top: 65px;
 		position: absolute;
 	}
 
