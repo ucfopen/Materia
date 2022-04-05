@@ -1,4 +1,6 @@
 const express = require("express");
+const https = require("https");
+const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
 const upload = require("express-fileupload");
@@ -267,11 +269,20 @@ new Promise(setupConfig)
         });
     });
 
-    app.listen(port, () =>
+    var key = fs.readFileSync('/etc/nginx/conf.d/key.pem');
+    var cert = fs.readFileSync('/etc/nginx/conf.d/cert.pem');
+    var options = {
+      key: key,
+      cert: cert
+    };
+
+    const server = https.createServer(options, app);
+
+    server.listen(port, () => {
       console.log(
-        `Server is running at http://localhost:${port}. Current Materia context: ${process.env.ENVIRONMENT}.`
+        `Server is running at http(s)://localhost:${port}. Current Materia context: ${process.env.ENVIRONMENT}.`
       )
-    );
+    });
   })
   .catch(error => {
     console.error("Error setting up the h5p node express server:");
