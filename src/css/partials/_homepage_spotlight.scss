@@ -23,7 +23,7 @@
 	overflow: visible;
 }
 
-@media only screen and (min-width: 200px) and (max-width: 800px) {
+@media (max-width: 800px) {
 	.main_container {
 		height: 600px;
 	}
@@ -113,7 +113,7 @@ store_main section {
 	padding: 30px 0px 100px;
 	width: 100vw;
 	height: fit-content;
-	overflow: visible;
+	overflow: hidden;
 }
 .spotlight .store_main section.enigma {
 	background: url(/img/spotlight/enigma.png) right 10px no-repeat;
@@ -152,7 +152,7 @@ store_main section {
 	visibility: hidden;
 }
 
-@media only screen and (min-width: 200px) and (max-width: 800px) {
+@media (max-width: 800px) {
 	.spotlight .store_main section.html5 {
 		background: none;
 		text-align: center;
