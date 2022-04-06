@@ -46,16 +46,19 @@ const Homepage = () => (
 
 		<section className='front_bottom'>
 			<section className='wrapper'>
-			<div>
-				<h2>Create Quickly and Easily</h2>
-				<p className="front_bottom_desc">
-					Materia's design philosophy is to be incredibly easy to use.
-					Every step of customizing and delivering apps has been finely tuned to be as clear and simple as possible.
-					Players are greeted with clean and simple interfaces.
-					We aim to get out of the way so your content can engage with students as quickly and clearly as possible.
-				</p>
+			<div className="wrapper_first">
+				<div>
+					<h2>Create Quickly and Easily</h2>
+					<p className="front_bottom_desc">
+						Materia's design philosophy is to be incredibly easy to use.
+						Every step of customizing and delivering apps has been finely tuned to be as clear and simple as possible.
+						Players are greeted with clean and simple interfaces.
+						We aim to get out of the way so your content can engage with students as quickly and clearly as possible.
+					</p>
+				</div>
+				<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
 			</div>
-			<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
+			<div className="wrapper_second">
 				<div>
 					<h2>Engage Your Students</h2>
 					<p className="front_bottom_desc">
@@ -65,6 +68,8 @@ const Homepage = () => (
 					</p>
 				</div>
 				<img src='/img/front1.png' alt='screen shot of a labeling widget' />
+			</div>
+			<div className="wrapper_third">
 				<div>
 					<h2>Integrate with Your Course</h2>
 					<p className="front_bottom_desc">
@@ -74,6 +79,7 @@ const Homepage = () => (
 					</p>
 				</div>
 				<img src='/img/front3.png' alt='screen shot of a widget score page'/>
+			</div>
 			</section>
 
 			{/* <section className='get_started use_materia' >
