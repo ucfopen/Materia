@@ -997,9 +997,19 @@ h3 {
 	}
 }
 
-// @media only screen and (min-width: 200px) and (max-width: 1000px) {
-//
-// }
+@media only screen and (min-width: 800px) {
+	.front_bottom {
+		div {
+			margin: 0px 50px 20px 20px !important;
+			text-align: left !important;
+
+			&.wrapper_first, &.wrapper_second, &.wrapper_third {
+				display: inline-flex;
+				align-items: center;
+			}
+		}
+	}
+}
 
 .front_bottom {
 	display: grid;
@@ -1012,7 +1022,7 @@ h3 {
 		margin: 0 auto;
 	}
 	div {
-		width: 600px;
+		// width: 600px;
 		// height: 275px;
 
 		font-family: 'Lato', arial, serif;
@@ -1037,7 +1047,7 @@ h3 {
 		}
 
 		&.wrapper_first, &.wrapper_second, &.wrapper_third {
-			padding: 0 50px;
+			margin: 0 10%;
 			justify-items: center;
 		}
 
