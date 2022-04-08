@@ -72,7 +72,10 @@ const setupPlayerAndEditor = config => {
     {
       customization: {
         global: {
-          scripts: ["/custom/fullscreen.js"]
+          scripts: [
+            "/custom/fullscreen.js",
+            "/custom/interactiveVideoUpload.js"
+          ]
         },
         alterLibrarySemantics: hooks.alterLibrarySemanticsHook
       }
