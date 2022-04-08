@@ -65,11 +65,11 @@ export function editorRenderer(model) {
     switch (context) {
       case "prod":
       case "dev":
-        materiaPath = "https://localhost:8008";
+        materiaPath = materiaUrl;
         break;
       case "mwdk":
       default:
-        materiaPath = "http://localhost:8118";
+        materiaPath = "http://localhost:8118"; // this is the default mwdk URL
         break;
     }
 
@@ -199,27 +199,6 @@ export function editorRenderer(model) {
               materiaPath
             );
 
-            // TODO we should no longer be communicating to the H5P server to save this information
-            // $.ajax({
-            // 	url: "/new/3", // TODO change this URL
-            // 	data: JSON.stringify({
-            // 		library: h5peditor.getLibrary(),
-            // 		params
-            // 	}),
-            // 	headers: {
-            // 		'Content-Type': 'application/json'
-            // 	},
-            // 	type: 'POST'
-            // }).then((result) => {
-            // 	const parsedResult = JSON.parse(result)
-            // 	window.parent.postMessage({
-            // 		message: 'save',
-            // 		contentID: parsedResult.contentId,
-            // 		library: h5peditor.getLibrary(),
-            // 		params
-            // 	}, "http://localhost:8118") // TODO add this url to a config somewhere?
-            // });
-
             return event.preventDefault();
             // TODO - Calculate & set max score
             // $maxscore.val(h5peditor.getMaxScore(params.params));
@@ -292,6 +271,7 @@ export function editorRenderer(model) {
 				<script>
 				var modelParams = '${model.urlGenerator.parameters()}'
 				var context = '${process.env.ENVIRONMENT}'
+        var materiaUrl = '${process.env.MATERIA_URL}'
 
 				// emit and run the rendererEmit function that was converted into a string
 				${initAsString}

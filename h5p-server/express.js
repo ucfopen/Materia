@@ -96,15 +96,12 @@ const setupServer = ([editor, player]) => {
 
   const setupServerPromise = (resolve, reject) => {
     // TODO replace whitelist with hosts from context env var
+
+    const whitelist = process.env.ENVIRONMENT == 'prod' || process.env.ENVIRONMENT == 'dev' ? [process.env.MATERIA_URL] : ['http://localhost:8118']
+
     app.use(
       cors({
-        origin: [
-          "http://localhost:8118",
-          "http://localhost",
-          "http://localhost:8008",
-          "http://127.0.0.1",
-          "http://127.0.0.1:8008"
-        ]
+        origin: whitelist
       })
     );
 

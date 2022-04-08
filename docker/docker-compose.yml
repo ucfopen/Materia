@@ -94,6 +94,7 @@ services:
       - frontend
     environment:
       - MATERIA_WEBSERVER_NETWORK=webserver
+      - MATERIA_URL=https://localhost:8008 # should be same as static URL above
 
 networks:
   frontend:
