@@ -914,6 +914,18 @@ h3 {
 			margin-top: calc(2% + 100px) !important;
 			right: calc(53% - 50vw) !important;
 		}
+
+		h1 {
+			&.subHeader {
+				margin-left: 20px !important;
+			}
+		}
+
+		p {
+			&.desc, &.button_wrap {
+				margin-left: 20px;
+			}
+		}
 	}
 }
 
