@@ -997,15 +997,29 @@ h3 {
 	}
 }
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 900px) {
 	.front_bottom {
 		div {
-			margin: 0px 50px 20px 20px !important;
+			margin: 0px 110px 20px 50px !important;
 			text-align: left !important;
 
 			&.wrapper_first, &.wrapper_second, &.wrapper_third {
 				display: inline-flex;
 				align-items: center;
+				}
+
+			&.wrapper_second {
+				margin: 0px 50px 20px 110px !important;
+				flex-direction: row-reverse;
+
+				div {
+					text-align: right !important;
+					margin-right: 50px !important;
+				}
+
+				img {
+					float: left;
+				}
 			}
 		}
 	}
