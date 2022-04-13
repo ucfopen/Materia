@@ -1010,6 +1010,12 @@ h3 {
 }
 
 @media only screen and (min-width: 900px) {
+
+	.p_s {
+		p {
+			text-align: left !important;
+		}
+	}
 	.front_bottom {
 		div {
 			margin: 0px 110px 20px 50px !important;
@@ -1117,7 +1123,7 @@ hr {
 		line-height: 150%;
 		font-weight: 300;
 		font-size: 16px;
-		text-align: left;
+		text-align: center;
 
 		&.copyright {
 			text-align: center;
