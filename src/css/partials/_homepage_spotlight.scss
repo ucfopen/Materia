@@ -18,7 +18,7 @@
 .main_container {
 	position: relative;
 	width: 100vw;
-	height: calc(100vh - 120px);
+	height: 600px;
 	margin: 0 auto;
 	overflow: visible;
 }
@@ -113,7 +113,7 @@ store_main section {
 	padding: 30px 0px 100px;
 	width: 100vw;
 	height: fit-content;
-	overflow: visible;
+	overflow: hidden;
 }
 .spotlight .store_main section.enigma {
 	background: url(/img/spotlight/enigma.png) right 10px no-repeat;
@@ -156,6 +156,8 @@ store_main section {
 	.spotlight .store_main section.html5 {
 		background: none;
 		text-align: center;
+		overflow: hidden;
+		padding: 30px 0px 300px;
 	}
 
 	.html5Content {
