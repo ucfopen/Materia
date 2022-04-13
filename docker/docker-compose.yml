@@ -45,6 +45,7 @@ services:
       - THEME_PACKAGE=materia-theme-ucf
       - URLS_ENGINES=https://localhost:8008/widget/
       - URLS_STATIC=https://localhost:8008/
+      - URLS_H5P=https://localhost:3000
       - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
@@ -88,11 +89,12 @@ services:
       args:
         ENVIRONMENT: dev
     ports:
-      - "3000:3000"
+      - "3000:3000" # port should match what's being provided in URLS_H5P above
     networks:
       - frontend
     environment:
       - MATERIA_WEBSERVER_NETWORK=webserver
+      - MATERIA_URL=https://localhost:8008 # should be same as static URL above
 
 networks:
   frontend:

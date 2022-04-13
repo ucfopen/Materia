@@ -30,6 +30,11 @@ services:
   fakes3:
     volumes:
       - uploaded_media:/s3mnt/fakes3_root/fakes3_uploads/media/
+  
+  h5p:
+    volumes:
+      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
+      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
