@@ -929,6 +929,17 @@ h3 {
 	}
 }
 
+@media (max-width: 370px) {
+	.get_started {
+		h1 {
+			margin-top: 30px !important;
+		}
+	}
+	.action_button {
+		font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1600 - 300)));
+	}
+}
+
 .get_started {
 	font-family: 'Lato', arial, serif;
 	font-size: 24px;
