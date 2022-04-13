@@ -113,7 +113,7 @@ store_main section {
 	padding: 30px 0px 100px;
 	width: 100vw;
 	height: fit-content;
-	overflow: hidden;
+	overflow: visible;
 }
 .spotlight .store_main section.enigma {
 	background: url(/img/spotlight/enigma.png) right 10px no-repeat;
