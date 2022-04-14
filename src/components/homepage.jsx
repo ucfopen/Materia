@@ -8,18 +8,18 @@ const Homepage = () => (
 		<section className='page spotlight' ng-controller='HomePageSpotlightCtrl'>
 			<section className='main_container'>
 				<span className='spotlight-wrapper'>
-
 					<article className='store_main selected'>
 						<section className='html5'>
-						{/* inline styling just temporary */}
 							<div className="html5Content">
-								<h1>Create <span className="engage" style={{color: "#0093e7"}}>Engaging</span> Apps!</h1>
-								<p id="html5Content_body">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
-								<p id="html5Content_body">We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
-								<p id="html5Content_body">Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
-								<p className='button_wrap'>
-									<a className='action_button' href='widgets'>Get Started</a>
-								</p>
+								<h1>Create <span className="engage">Engaging</span> Apps!</h1>
+								<div>
+									<p id="">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
+									<p>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
+									<p>Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+									<p className='button_wrap'>
+										<a className='action_button' href='widgets'>Get Started</a>
+									</p>
+								</div>
 								<img class="mobile_spotlight_banner" src='/img/banner_final.png' alt='homepage final banner design for materia'/>
 							</div>
 						</section>
@@ -81,18 +81,6 @@ const Homepage = () => (
 				<img src='/img/front3.png' alt='screen shot of a widget score page'/>
 			</div>
 			</section>
-
-			{/* <section className='get_started use_materia' >
-				<p className='desc'>
-					Use Materia at <span className='bold'>your</span> organization.
-				</p>
-				<p className='button_wrap'>
-					<a className='action_button' href='https://ucfopen.github.io/Materia-Docs/'>
-						Get Materia
-						<span className='little-button-text'> (It's open source!)</span>
-					</a>
-				</p>
-			</section> */}
 
 			<section className='p_s'>
 				<h2>Built at UCF, for Everyone</h2>
