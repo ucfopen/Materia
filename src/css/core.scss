@@ -1,12 +1,5 @@
 @import 'partials/homepage_spotlight';
 
-html {
-	// background-image: url('/img/back.png');
-
-	// background-image: linear-gradient(left, #f5f5f5 15px, white 2px);
-	// background-size: 17px 100%;
-}
-
 body,
 html {
 	margin: 0;
@@ -127,7 +120,6 @@ header {
 		a:hover {
 			color: #000;
 			text-decoration: none;
-			// font-size: 16px;
 		}
 
 		.logout a {
@@ -190,7 +182,6 @@ a.external {
 
 nav {
 	display: block;
-	// margin-top: 14px;
 
 	ul {
 		li {
@@ -488,19 +479,15 @@ h3 {
 	padding: 7px 23px 8px 23px;
 	background-color: #ffd439;
 	transition: all 0.4s ease-in-out;
-	// background-image: linear-gradient(#ffce8c, #ffa42a);
 
 	font-weight: 700;
 	color: #333;
-	// text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-	// box-shadow: 1px 2px 4px #888;
 	font-size: 18px;
 	position: relative;
 	cursor: pointer;
 	display: inline-block;
 	user-select: none;
 
-	// border: 1px solid #525252;
 	border-radius: 4px;
 
 	.ng-modal & {
@@ -529,7 +516,6 @@ h3 {
 
 .action_button:hover {
 	background-color: #ffc904;
-	// background-image: linear-gradient(#ffc904, #ffe68c);
 	color: #000;
 	box-shadow: 0px 1px 3px #979696;
 	text-decoration: none;
@@ -1065,8 +1051,6 @@ h3 {
 		margin: 0 auto;
 	}
 	div {
-		// width: 600px;
-		// height: 275px;
 
 		font-family: 'Lato', arial, serif;
 		font-weight: 300;
@@ -1078,10 +1062,6 @@ h3 {
 		text-align: center;
 		display: grid;
 
-		// &:nth-of-type(2) {
-		// 	text-align: right;
-		// 	// margin-left: 180px;
-		// }
 		h2 {
 			font-family: 'Lato', arial, serif;
 			font-size: 30px;
@@ -1101,8 +1081,6 @@ h3 {
 	}
 
 	img {
-		// display: inline-block;
-		// float: right;
 		border: solid 2px #ffffff;
 		box-shadow: 1px 2px 4px #888;
 		margin-top: 20px;
