@@ -140,15 +140,13 @@ store_main section {
 .html5Content {
 	margin-right: 40px;
 	height: 400px;
-
-	h1 {
-		span.engage {
-				color: #0093e7;
-			}
-	}
 }
 
-#html5_body {
+.html5Content h1 span.engage {
+	color: #0093e7;
+}
+
+#html5Content_body {
 	margin-left: 50%;
 	line-height: 160%;
 }
@@ -169,7 +167,7 @@ store_main section {
 		margin: 0 40px;
 	}
 
-	#html5_body {
+	#html5Content_body {
 		margin-left: 0px;
 	}
 

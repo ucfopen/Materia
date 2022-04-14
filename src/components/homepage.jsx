@@ -13,9 +13,9 @@ const Homepage = () => (
 							<div className="html5Content">
 								<h1>Create <span className="engage">Engaging</span> Apps!</h1>
 								<div>
-									<p id="ht5ml_body">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
-									<p id="ht5ml_body">We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
-									<p id="ht5ml_body">Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+									<p id="html5Content_body">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
+									<p id="html5Content_body">We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
+									<p id="html5Content_body">Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
 									<p className='button_wrap'>
 										<a className='action_button' href='widgets'>Get Started</a>
 									</p>
