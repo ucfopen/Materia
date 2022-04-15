@@ -1,4 +1,5 @@
 node_modules
 h5p/libraries/*
 h5p/temporary_storage/*
-.env
+config/*.pem
+.env*

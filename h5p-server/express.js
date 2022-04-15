@@ -40,7 +40,9 @@ let h5pPlayer = {};
 
 const setupConfig = (resolve, reject) => {
   new H5PServer.H5PConfig(
-    new H5PServer.fsImplementations.JsonStorage(path.resolve("h5p-config.json"))
+    new H5PServer.fsImplementations.JsonStorage(
+      path.resolve("config/h5p-config.json")
+    )
   )
     .load()
     .then(config => {
@@ -100,7 +102,10 @@ const setupServer = ([editor, player]) => {
   const setupServerPromise = (resolve, reject) => {
     // TODO replace whitelist with hosts from context env var
 
-    const whitelist = process.env.ENVIRONMENT == 'prod' || process.env.ENVIRONMENT == 'dev' ? [process.env.MATERIA_URL] : ['http://localhost:8118']
+    const whitelist =
+      process.env.ENVIRONMENT == "prod" || process.env.ENVIRONMENT == "dev"
+        ? [process.env.MATERIA_URL]
+        : ["http://localhost:8118"];
 
     app.use(
       cors({
@@ -269,8 +274,8 @@ new Promise(setupConfig)
         });
     });
 
-    var key = fs.readFileSync('/etc/nginx/conf.d/key.pem');
-    var cert = fs.readFileSync('/etc/nginx/conf.d/cert.pem');
+    var key = fs.readFileSync("config/key.pem");
+    var cert = fs.readFileSync("config/cert.pem");
     var options = {
       key: key,
       cert: cert
@@ -281,7 +286,7 @@ new Promise(setupConfig)
     server.listen(port, () => {
       console.log(
         `Server is running at http(s)://localhost:${port}. Current Materia context: ${process.env.ENVIRONMENT}.`
-      )
+      );
     });
   })
   .catch(error => {

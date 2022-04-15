@@ -9,11 +9,11 @@ export function playerRenderer(model) {
       switch (context) {
         case "prod":
         case "dev":
-          materiaPath = "https://localhost:8008";
+          materiaPath = materiaUrl;
           break;
         case "mwdk":
         default:
-          materiaPath = "http://localhost:8118";
+          materiaPath = "http://localhost:8118"; // this is the default mwdk url
           break;
       }
 
@@ -60,7 +60,8 @@ export function playerRenderer(model) {
 					<div class="h5p-content" data-content-id="${model.contentId}">
 					</div>
 					<script>
-						context = '${process.env.ENVIRONMENT}'
+            context = '${process.env.ENVIRONMENT}'
+            materiaUrl = '${process.env.MATERIA_URL}'
 						${initAsString}
 						playerInit(${model.contentId})
 					</script>

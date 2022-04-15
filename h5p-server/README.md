@@ -32,6 +32,18 @@ Start the server with
 `yarn start:{mwdk/dev/prod}`
 The server will be running at localhost:3000. If not in prod, view the h5p hub client at localhost:3000/admin.
 
+### Configure .env
+
+If you are running this server in the Materia stack, it will pull the .env file from there. However if you are running it alone with the steps above, you will have to create a `.env.local` file at the root directory, and add the following contents:
+
+```
+OAUTH_KEY="materia-third-party-oauth-key"
+OAUTH_SECRET="third-party-oauth-secret"
+MATERIA_URL="https://localhost:8008" # whatever your local static materia url is set to
+```
+
+Where the `key` and `secret` values have to match those on your local materia server. These will allow you to upload any media when creating an H5P widget.
+
 ## Development
 
 ### Selecting a Materia Environment Variable

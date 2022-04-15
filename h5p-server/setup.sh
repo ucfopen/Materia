@@ -15,3 +15,10 @@ rm -rf libraries.zip
 curl -o libraries.zip https://h5p.org/sites/default/files/h5p/exports/question-set-616.h5p
 unzip -n libraries.zip -d h5p/libraries/
 rm -rf libraries.zip
+
+# clear out any existing certs
+rm -rf ./config/key.pem
+rm -rf ./config/cert.pem
+
+# generate a self-signed ssl cert
+openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout ./config/key.pem -out ./config/cert.pem -days 365

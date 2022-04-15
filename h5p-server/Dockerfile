@@ -24,4 +24,8 @@ RUN ./setup.sh
 
 EXPOSE 3000
 
+# connect to the localhost of our machine from inside the docker container
+# used to make requests to local materia server
+ENV MATERIA_WEBSERVER_NETWORK=host.docker.internal
+
 CMD ["yarn", "start"]

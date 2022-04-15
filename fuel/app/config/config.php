@@ -338,8 +338,8 @@ return array(
 		],
 		[
 			'id' => 3,
-			'package'  => 'https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching.wigt',
-			'checksum' => 'https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase.wigt',
+			'checksum' => 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase-build-info.yml',
 		],
 		[
 			'id' => 4,
