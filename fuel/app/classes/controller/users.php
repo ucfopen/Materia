@@ -34,6 +34,8 @@ class Controller_Users extends Controller
 			->set('title', 'Login')
 			->set('page_type', 'login');
 
+		$this->theme->set_partial('meta', 'partials/responsive');
+
 		$this->theme->set_partial('content', 'partials/login')
 			->set('redirect', urlencode($redirect));
 	}
