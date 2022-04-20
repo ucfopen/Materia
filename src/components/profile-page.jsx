@@ -56,7 +56,7 @@ const ProfilePage = () => {
 
 	const _getDate = (activity) => {
 		return 'NYI'
-		// return DateTimeServ.parseObjectToDateString(activity.created_at) + 
+		// return DateTimeServ.parseObjectToDateString(activity.created_at) +
 		// 	' at ' +
 		// 	DateTimeServ.fixTime(parseInt(activity.created_at, 10) * 1000, DATE)
 	}
@@ -82,7 +82,7 @@ const ProfilePage = () => {
 
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
 	if ( !isFetching ) {
-		mainContentRender = 
+		mainContentRender =
 			<section className="page">
 
 				<ul className="main_navigation">
@@ -94,14 +94,19 @@ const ProfilePage = () => {
 					<img src={currentUser.avatar} />
 				</div>
 
-				<h2>
-					<span>Profile</span>
-					{`${currentUser.first} ${currentUser.last}`}
-				</h2>
-
-				<ul className="user_information">
-					<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}</li>
-				</ul>
+					<h2>
+						<div style={{display: "flex", alignItems: "baseline", justifyContent: "space-between"}}>
+							<span>Profile</span>
+							<span>
+								<ul className="user_information">
+									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}</li>
+								</ul>
+							</span>
+						</div>
+						<h2>
+						{`${currentUser.first} ${currentUser.last}`}
+						</h2>
+					</h2>
 
 				<h3>Activity</h3>
 
@@ -118,8 +123,8 @@ const ProfilePage = () => {
 			</section>
 	}
 
-	
-	
+
+
 
 	return (
 		<>

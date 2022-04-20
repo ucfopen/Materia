@@ -3,6 +3,11 @@
 	background: #fff;
 }
 
+.header nav ul li a {
+	font-size: 14px;
+	font-weight: 400;
+}
+
 .user .container {
 	display: flex;
 	justify-content: center;
@@ -24,8 +29,8 @@
 	right: 0;
 	z-index: 100;
 	width: 575px; /*625px*/
-	padding: 30px 60px 30px 145px;
-	// background: url('/img/user_page_background.gif') 0 0 repeat-y;
+	padding: 10px 60px 30px 145px;
+	background: url('/img/user_page_background.gif') 0 0 repeat-y;
 	background-color: #fff;
 	min-height: 400px;
 }
@@ -62,21 +67,21 @@
 	position: absolute;
 	top: 25px;
 	left: 12px;
-	// background: #0093e7;
-	// width: 115px;
-	// height: inherit;
-	// padding: 15px;
+	background: #0093e7;
+	width: 115px;
+	height: inherit;
+	padding: 15px;
 	text-align: right;
 	color: #fff;
 	font-size: 10px;
 	line-height: 13px;
 
-	// box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
 }
 
 .user .avatar_big img {
-	// padding-bottom: 5px;
-	// padding-left: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
 	width: 90px;
 	height: 90px;
 }
@@ -343,7 +348,8 @@
 .user .main_navigation li a {
 	display: block;
 	width: 83px;
-	text-align: right;
+	text-align: left;
+	padding-left: 20px;
 	font-size: 12px;
 	text-transform: uppercase;
 	font-family: 'Lato', arial, serif;
@@ -358,7 +364,7 @@
 
 .user .main_navigation li.selected a {
 	background: #fff;
-	border: solid 1px #e6e6e6;
+	// border: solid 1px #e6e6e6;
 	border-right: 0;
 	border-left: 0;
 	color: #333;

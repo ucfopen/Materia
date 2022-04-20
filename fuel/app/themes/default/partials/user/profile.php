@@ -10,13 +10,14 @@
 			<img ng-src="{{avatar}}" />
 		</div>
 
+		<div>
 		<h2><span>Profile</span>
 		{{user.name}}
 		</h2>
-
 		<ul class="user_information">
 			<li class="user_type" ng-class="user.role == 'Staff' ? 'staff' : ''">{{user.role}}</li>
 		</ul>
+	</div>
 
 		<h3 ng-class="loading ? 'loading' : ''">Activity</h3>
 
