@@ -19,7 +19,7 @@
 }
 
 .user section.page {
-	margin: 0 auto;
+	margin: 15px auto 0px auto;
 	top: 0;
 	right: 0;
 	z-index: 100;
@@ -61,24 +61,24 @@
 .user .avatar_big {
 	position: absolute;
 	top: 25px;
-	left: -25px;
-	background: #0093e7;
-	width: 115px;
-	height: inherit;
-	padding: 15px;
+	left: 12px;
+	// background: #0093e7;
+	// width: 115px;
+	// height: inherit;
+	// padding: 15px;
 	text-align: right;
 	color: #fff;
 	font-size: 10px;
 	line-height: 13px;
 
-	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
+	// box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
 }
 
 .user .avatar_big img {
-	padding-bottom: 5px;
-	padding-left: 10px;
-	width: 100px;
-	height: 100px;
+	// padding-bottom: 5px;
+	// padding-left: 10px;
+	width: 90px;
+	height: 90px;
 }
 
 .user .avatar_big a:link,
