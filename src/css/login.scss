@@ -21,7 +21,18 @@
 
 	.login .form-content ul {
 		width: 0px !important;
+		margin: 0 !important;
 	}
+
+	.login ul.help_links {
+		width: 100% !important;
+	}
+
+.login .form-content ul li input[type='text'],
+.login .form-content ul li input[type='password'] {
+		width: 300px !important;
+	}
+
 }
 
 .login .container {
