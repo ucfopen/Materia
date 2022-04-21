@@ -110,6 +110,10 @@ const ProfilePage = () => {
 
 				<span style={{marginTop: "20px"}}>Activity</span>
 
+				<div className="no_activity">
+				You currently have no activity.
+				</div>
+
 				<div className='activity'>
 					<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}><LoadingIcon /></div>
 					<ul className='activity_list'>

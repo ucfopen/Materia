@@ -41,12 +41,26 @@
 		span {
 			font-family: 'Lato', arial, serif;
 			font-weight: 700;
-			margin: 0;
 			padding: 0 0 5px 0;
 			font-size: 12px;
 			text-transform: uppercase;
 			color: #b2b2b2;
 			display: block;
+			margin-top: 20px;
+		}
+
+		ul {
+			font-family: 'Lato', arial, serif;
+			font-weight: 100;
+			font-size: 16px;
+			list-style-type: none;
+			padding-left: 0px;
+
+			&.email_exp_addr {
+				font-family: 'Lato', arial, serif;
+				font-weight: 300;
+				margin: 0;
+			}
 		}
 
 		h3 {
@@ -422,7 +436,6 @@
 					font-size: 14px;
 					list-style-type: none;
 					padding: 0;
-					margin: 0;
 					margin-bottom: 3em;
 
 					li {
@@ -458,7 +471,8 @@
 				color: #7f7f7f;
 				font-family: 'Lato', arial, serif;
 				font-size: 12px;
-				padding: 0 0 0 20px;
+				font-weight: 300;
+				// padding: 0 0 0 20px;
 				margin: 0;
 
 				.email_exp_addr {

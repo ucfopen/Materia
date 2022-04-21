@@ -5,7 +5,7 @@
 
 .header nav ul li a {
 	font-size: 14px;
-	font-weight: 400;
+	font-weight: 300;
 }
 
 .user .container {
@@ -56,11 +56,12 @@
 	padding: 0 0 5px 0;
 }
 
-.user h2 span {
+.user span {
 	font-size: 12px;
 	text-transform: uppercase;
 	color: #b2b2b2;
 	display: block;
+	margin-top: 20px;
 }
 
 .user .avatar_big {
@@ -373,6 +374,8 @@
 
 .user .main_navigation li a:hover {
 	text-decoration: none;
+	font-family: "Lato", arial, sans-serif;
+	font-weight: 300;
 }
 .user .main_navigation li.selected a:hover {
 	text-decoration: underline;
@@ -411,10 +414,12 @@
 }
 .user.settings form label {
 	font-size: 14px;
+	font-weight: 100;
 }
 
 .user.settings form ul {
-	font-size: 14px;
+	font-size: 16px;
+	font-weight: 100;
 	list-style-type: none;
 	padding: 0;
 	margin: 0;
