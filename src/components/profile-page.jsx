@@ -94,7 +94,7 @@ const ProfilePage = () => {
 					<img src={currentUser.avatar} />
 				</div>
 
-					<h2>
+					<div>
 						<div style={{display: "flex", alignItems: "baseline", justifyContent: "space-between"}}>
 							<span>Profile</span>
 							<span>
@@ -106,9 +106,9 @@ const ProfilePage = () => {
 						<h2>
 						{`${currentUser.first} ${currentUser.last}`}
 						</h2>
-					</h2>
+					</div>
 
-				<h3>Activity</h3>
+				<span style={{marginTop: "20px"}}>Activity</span>
 
 				<div className='activity'>
 					<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}><LoadingIcon /></div>
