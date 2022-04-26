@@ -127,9 +127,6 @@ const ProfilePage = () => {
 			</section>
 	}
 
-
-
-
 	return (
 		<>
 			<Header />
