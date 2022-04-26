@@ -2,8 +2,19 @@
 
 .user {
 
-	@media (max-width: 720px) {
+	@media (max-width: 800px) {
+		.container {
+			display: flex;
+			justify-content: center;
+		}
+
+		// section.page, aside {
+		// 	border: none !important;
+		// 	box-shadow: none !important;
+		// }
+
 		section.page {
+			margin: 15px 10px 0px 10px !important;
 			width: auto !important;
 		}
 	}
