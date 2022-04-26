@@ -22,20 +22,17 @@ body {
 .action_button {
 	font-family: 'Lato', arial, serif;
 	padding: 7px 23px 8px 23px;
-	background: #ffba5d;
-	background-image: linear-gradient(#ffce8c, #ffa42a);
-
+	background-color: #ffd439;
+	transition: all 0.4s ease-in-out;
 	font-weight: 700;
-	color: #694d28;
-	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-	box-shadow: 1px 2px 4px #888;
+	color: #333;
 	font-size: 18px;
 	position: relative;
 	cursor: pointer;
 	display: inline-block;
 	user-select: none;
 
-	border: 1px solid #525252;
+	border: none;
 	border-radius: 4px;
 
 	.ng-modal & {
@@ -52,8 +49,9 @@ body {
 	}
 
 	&:hover {
-		background: #eca444;
-		background-image: linear-gradient(#ffa42a, #ffce8c);
+		background-color: #ffc904;
+		color: #000;
+		box-shadow: 0px 1px 3px #979696;
 		text-decoration: none;
 	}
 
