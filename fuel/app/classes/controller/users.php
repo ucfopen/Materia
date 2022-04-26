@@ -95,6 +95,7 @@ class Controller_Users extends Controller
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'My Profile');
+		$this->theme->set_partial('meta', 'partials/responsive');
 
 		Css::push_group(['profile']);
 		Js::push_group(['react', 'profile']);
@@ -119,8 +120,10 @@ class Controller_Users extends Controller
 			->set('title', 'Settings')
 			->set('page_type', 'user profile settings');
 
+		$this->theme->set_partial('meta', 'partials/responsive');
 		$this->theme->set_partial('footer', 'partials/angular_alert');
 		$this->theme->set_partial('content', 'partials/user/settings')
+
 			->set('me', \Model_User::find_current());
 	}
 
