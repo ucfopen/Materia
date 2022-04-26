@@ -9,6 +9,10 @@ header {
 	// background: #fff url(/img/header_border.png) 0% 100% repeat-x;
 	height: 49px;
 
+	&.logged_in {
+		background: #fff url(/img/header_border_alt.png) 0% 100% repeat-x;
+	}
+
 	ul,
 	p {
 		margin: 0;
@@ -114,8 +118,8 @@ header {
 
 				a {
 					font-family: 'Lato', arial, serif;
-					font-size: 17px;
-					font-weight: bold;
+					font-size: 14px;
+					font-weight: 300;
 					margin: 0;
 					padding: 0;
 				}
