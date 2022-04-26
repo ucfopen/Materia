@@ -3,7 +3,7 @@
 
 		<ul class="main_navigation">
 			<li class="profile"><a href="/profile">Profile</a></li>
-			<li class="selected ettings"><a href="/settings">Settings</a></li>
+			<li class="selected settings"><a href="/settings">Settings</a></li>
 		</ul>
 
 		<div class="avatar_big">
@@ -29,7 +29,7 @@
 					<input type="checkbox" id="notify" name="notify" ng-model="user.notify" />
 					<label for="notify">Send me an email when a widget has been shared with me.</label>
 					<br/>
-					<div class="email_exp">Email notifications will be sent to <p class="email_exp_addr"><?= $me->email ?></p>.</div>
+					<div class="email_exp">Email notifications will be sent to <?= $me->email ?>.</div>
 				</li>
 			</ul>
 
