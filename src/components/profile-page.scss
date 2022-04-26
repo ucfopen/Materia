@@ -2,6 +2,12 @@
 
 .user {
 
+	@media (max-width: 720px) {
+		section.page {
+			width: auto !important;
+		}
+	}
+
 	section.page, aside {
 		background: #fff;
 		border-radius: 4px;
