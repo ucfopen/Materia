@@ -14,10 +14,7 @@
 			<div style={{display: "flex", alignItems: "baseline", justifyContent: "space-between"}}>
 				<span>Settings</span>
 			</div>
-			<h2>Temp Name</h2>
-			<!-- <h2>
-				{{first} {{last}}
-			</h2> -->
+			<h2>{{user.name}}</h2>
 		</div>
 
 		<form name="settingsForm" ng-submit="saveSettings()" novalidate>
