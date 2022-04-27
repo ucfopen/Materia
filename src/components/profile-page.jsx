@@ -55,10 +55,8 @@ const ProfilePage = () => {
 	}
 
 	const _getDate = (activity) => {
-		return 'NYI'
-		// return DateTimeServ.parseObjectToDateString(activity.created_at) +
-		// 	' at ' +
-		// 	DateTimeServ.fixTime(parseInt(activity.created_at, 10) * 1000, DATE)
+		let activityDate = new Date(activity.created_at * 1000)
+		return `${activityDate.toLocaleDateString([],{dateStyle: 'short'})} at ${activityDate.toLocaleTimeString([],{timeStyle: 'short'})}`
 	}
 
 	const _getMoreLogs = () => {

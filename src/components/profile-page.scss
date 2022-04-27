@@ -1,6 +1,6 @@
 @import 'include.scss';
 
-.user {
+.user, .settings {
 
 	@media (max-width: 800px) {
 		.container {
@@ -389,9 +389,9 @@
 					// text-decoration: underline;
 					// border: transparent 1px #fff;
 
-					&:hover {
-						text-decoration: none;
-					}
+				&:hover {
+					text-decoration: none;
+				}
 
 					// &.settings a {
 					// 	background-image: url('/img/user_page_icons_sprite.png');
@@ -408,6 +408,7 @@
 
 				&.selected {
 					a {
+						margin-left: 0px;
 						background: #fff;
 						// border: solid 1px #e6e6e6;
 						border-right: 0;
@@ -440,47 +441,46 @@
 				margin-bottom: 0.5em;
 			}
 
-			form {
-				label, input {
-					cursor: pointer;
+			label, input {
+				cursor: pointer;
+			}
+
+			label {
+				font-size: 14px;
+			}
+
+			ul {
+				font-size: 14px;
+				list-style-type: none;
+				padding: 0;
+				margin: 0;
+				margin-bottom: 3em;
+
+				li {
+					display: block;
+					margin-bottom: 0.5em;
 				}
 
-				label {
-					font-size: 14px;
+				a {
+					margin-left: 5px;
+					font-size: 8pt;
+				}
+			}
+
+			.action_button {
+				margin-top: 3em;
+
+				&.no_top_margin {
+					margin-top: 0;
 				}
 
-				ul {
-					font-size: 14px;
-					list-style-type: none;
-					padding: 0;
-					margin-bottom: 3em;
-
-					li {
-						display: block;
-						margin-bottom: 0.5em;
-					}
-
-					a {
-						margin-left: 5px;
-						font-size: 8pt;
-					}
-				}
-
-				.action_button {
-					margin-top: 3em;
-
-					&.no_top_margin {
-						margin-top: 0;
-					}
-
-					&.disabled {
-						background: #aeaeae;
-						background-image: linear-gradient(#e4e4e4, #b8b8b8);
-						border-color: #747474;
-						color: #545454;
-						cursor: default;
-						opacity: 0.5;
-					}
+				&.disabled {
+					background: #aeaeae;
+					background-image: linear-gradient(#e4e4e4, #b8b8b8);
+					border-color: #747474;
+					color: #545454;
+					cursor: default;
+					opacity: 0.5;
 				}
 			}
 
@@ -500,41 +500,10 @@
 
 	} // end section.page
 
-	// .container {
-	// 	margin: 0 auto;
-	// 	width: 970px;
-	// 	position: relative;
-	// }
-
 	.settingSaveAlert {
 		display: inline-block;
 		font-family: 'Lucida Grande', sans;
 		margin: 0;
 		padding: 0 0 0 20px;
 	}
-
 }
-
-// .user.search section.page {
-// 	margin: 0 auto;
-// 	top: 0;
-// 	right: 0;
-// 	z-index: 100;
-// 	width: 575px; /*625px*/
-// 	padding: 30px 60px 30px 145px;
-// 	background: url('/img/repeat_border_diag_bottom.png') 0 100% repeat-x;
-// 	background-color: #fff;
-// 	min-height: 400px;
-// }
-
-
-
-// .user .message_loading {
-// 	background: url('/img/profile_load_more_activity.gif');
-// 	width: 16px;
-// 	height: 16px;
-// 	margin: 0 5px 0 0;
-// 	overflow: hidden;
-// 	text-indent: -99999px;
-// 	display: inline-block;
-// }

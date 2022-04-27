@@ -44,8 +44,6 @@ export const apiGetWidgetInstances = () => {
 }
 
 export const apiGetInstancesForUser = userId => {
-	console.log("hi I'm the API")
-	console.log(userId)
 	return fetch(`/api/admin/user/${userId}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -173,6 +171,19 @@ export const apiAuthorSupport = () => {
 	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['support_user'])}` })
 		.then(user => user)
 		.catch(error => false)
+}
+
+export const apiUpdateUserSettings = (settings) => {
+	return fetch('/api/user/settings', {
+		...fetchOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json'
+		},
+		body: JSON.stringify(settings)
+	})
+		.then((resp) => resp.json())
 }
 
 export const apiGetNotifications = () => {

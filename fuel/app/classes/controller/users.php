@@ -109,22 +109,18 @@ class Controller_Users extends Controller
 	{
 		if (\Service_User::verify_session() !== true)
 		{
-			Session::set_flash('notice', 'Please log in to view this page.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your profile settings.');
+			Response::redirect(Router::get('login'));
+			return;
 		}
 
-		Css::push_group(['core', 'profile']);
-		Js::push_group(['angular', 'materia', 'student']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Settings');
 
-		$this->theme->get_template()
-			->set('title', 'Settings')
-			->set('page_type', 'user profile settings');
-
-		$this->theme->set_partial('meta', 'partials/responsive');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/user/settings')
-
-			->set('me', \Model_User::find_current());
+		Css::push_group(['profile']);
+		Js::push_group(['react', 'settings']);
 	}
 
 }
