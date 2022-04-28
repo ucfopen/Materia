@@ -81,7 +81,7 @@ const ProfilePage = () => {
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
 	if ( !isFetching ) {
 		mainContentRender =
-			<section className="page">
+			<section className="page user">
 
 				<ul className="main_navigation">
 					<li className="selected profile"><a href="/profile">Profile</a></li>
@@ -93,7 +93,7 @@ const ProfilePage = () => {
 				</div>
 
 					<div>
-						<div style={{display: "flex", alignItems: "baseline", justifyContent: "space-between"}}>
+						<div className="profile_status">
 							<span>Profile</span>
 							<span>
 								<ul className="user_information">
@@ -106,7 +106,7 @@ const ProfilePage = () => {
 						</h2>
 					</div>
 
-				<span style={{marginTop: "20px"}}>Activity</span>
+				<span className="activity_subheader">Activity</span>
 
 				<div className="no_activity">
 				You currently have no activity.
