@@ -6,6 +6,10 @@
 			display: flex;
 			justify-content: center;
 		}
+
+		body {
+			min-width: none !important;
+		}
 	}
 
 .user, .settings {
