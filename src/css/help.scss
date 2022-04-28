@@ -1,6 +1,23 @@
+@media (max-width: 850px) {
+	.docs .container .page {
+		padding: 40px 20px 20px 60px !important;
+	}
+
+	.docs .container .page section.float.right {
+		float: none !important;
+		width: 100% !important;
+	}
+
+	.docs .container .page section.float.left {
+		width: 100% !important;
+	}
+}
+
 .docs .container {
-	margin: 0 auto;
-	width: 970px;
+	display: flex;
+	justify-content: center;
+	// margin: 0 auto;
+	// width: 970px;
 	position: relative;
 }
 
@@ -9,7 +26,7 @@
 	border: #e4e4e4 1px solid;
 	box-shadow: 1px 3px 10px #dcdcdc;
 
-	margin: 15px auto;
+	margin: 15px 50px;
 	z-index: 100;
 	min-height: 400px;
 	text-align: left;
@@ -18,7 +35,7 @@
 	overflow: auto;
 
 	width: 685px;
-	background: url('/img/question_mark_circle.png') 780px 30px no-repeat;
+	// background: url('/img/question_mark_circle.png') 780px 30px no-repeat;
 
 	background-color: #fff;
 	margin-bottom: 60px;

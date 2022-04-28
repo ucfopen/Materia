@@ -21,7 +21,7 @@
 			<h3>Expired Password</h3>
 			<p>You may need to reset your password.</p>
 
-			<h3>User Account Doesn't exist</h3>
+			<h3>User Account Doesn't Exist</h3>
 			<p>Your user account may not have been created yet.</p>
 		</section>
 
