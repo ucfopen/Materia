@@ -1,6 +1,7 @@
 @media (max-width: 850px) {
 	.docs .container .page {
-		padding: 40px 20px 20px 60px !important;
+		padding: 40px 20px 20px 20px !important;
+		margin: 15px 30px !important;
 	}
 
 	.docs .container .page section.float.right {
@@ -10,6 +11,10 @@
 
 	.docs .container .page section.float.left {
 		width: 100% !important;
+	}
+
+	.docs .container .page section.float.left {
+		margin-bottom: 20px !important;
 	}
 }
 
@@ -55,8 +60,8 @@
 
 .docs .container h2 {
 	font-family: 'Lato', arial, serif;
-
-	font-size: 26px;
+	font-weight: 400;
+	font-size: 20px;
 	margin: 20px 0 0 0;
 }
 
@@ -92,7 +97,7 @@
 
 .docs .container h3 {
 	margin: 30px 0 0 0;
-	font-size: 1.3em;
+	font-size: 12px;
 }
 
 .docs .container h3 + p {
@@ -119,6 +124,7 @@
 
 .docs .container dl dt {
 	font-weight: bold;
+	font-size: 12px;
 	font-family: 'Lato', arial, serif;
 }
 .docs .container dl dd {
