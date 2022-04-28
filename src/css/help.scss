@@ -5,10 +5,11 @@
 }
 
 .docs .container .page {
-	border: rgba(0, 0, 0, 0.22) 1px solid;
-	box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	border: #e4e4e4 1px solid;
+	box-shadow: 1px 3px 10px #dcdcdc;
 
-	margin: 0 auto;
+	margin: 15px auto;
 	z-index: 100;
 	min-height: 400px;
 	text-align: left;
@@ -18,8 +19,6 @@
 
 	width: 685px;
 	background: url('/img/question_mark_circle.png') 780px 30px no-repeat;
-	background: url('/img/question_mark_circle.png') 780px 30px no-repeat,
-		url('/img/repeat_border_diag_bottom.png') 0 100% repeat-x;
 
 	background-color: #fff;
 	margin-bottom: 60px;

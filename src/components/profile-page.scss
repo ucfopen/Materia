@@ -3,10 +3,10 @@
 .user, .settings {
 
 	@media (max-width: 800px) {
-		.container {
-			display: flex;
-			justify-content: center;
-		}
+		// .container {
+		// 	display: flex;
+		// 	justify-content: center;
+		// }
 
 		section.page {
 			margin: 15px 10px 0px 10px !important;
@@ -455,6 +455,7 @@
 					display: block;
 					margin-bottom: 0.5em;
 				}
+
 			}
 
 			.action_button {
