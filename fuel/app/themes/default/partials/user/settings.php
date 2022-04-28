@@ -11,7 +11,7 @@
 		</div>
 
 		<div>
-			<div style={{display: "flex", alignItems: "baseline", justifyContent: "space-between"}}>
+			<div>
 				<span>Settings</span>
 			</div>
 			<h2>{{user.name}}</h2>
