@@ -521,16 +521,18 @@
 			position: absolute;
 			left: 10px;
 			top: calc(50% - 10px);
-			background: white;
-			border-radius: 3px;
-			border: 1px solid #777;
 			padding: 2px 7px;
+			border: none;
+			color: #3690e6;
+			text-decoration: underline;
+			cursor: pointer;
+			font-family: "Lato", arial, sans-serif;
 
 			&.open:before {
 				background: transparent;
 				bottom: 0;
 				content: ' ';
-				cursor: default;
+				cursor: pointer;
 				display: block;
 				left: 0;
 				position: fixed;
@@ -555,6 +557,7 @@
 			label {
 				display: block;
 				padding: 3px 5px;
+				font-size: 12px;
 			}
 		}
 
