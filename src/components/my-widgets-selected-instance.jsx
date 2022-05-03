@@ -438,11 +438,13 @@ const MyWidgetSelectedInstance = ({
 				<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 					<h3>
 						{inst.is_draft ? 'Publish to share' : 'Share'} with your students
-						<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html'
-							target='_blank'>
-							View all sharing options.
-						</a>
 					</h3>
+					<h4> Via LMS / LTI Setup </h4>
+					<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
+					<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
+					</p>
+					<h4> Via URL / Embed Code </h4>
+					<p>Quickly share access to your widget by copying the link below. </p>
 					<div onMouseDown={shareInputMouseDownHandler}>
 						<input ref={shareLinkRef}
 							className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
@@ -453,7 +455,7 @@ const MyWidgetSelectedInstance = ({
 						/>
 					</div>
 					<p>
-						Use this link to share with your students (or
+						Use the link provided above to share with your students (or
 						<span
 							className='show-embed link'
 							onClick={toggleShowEmbed}>
@@ -463,6 +465,11 @@ const MyWidgetSelectedInstance = ({
 					</p>
 
 					{ embedInfoRender }
+
+					<p>						<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html'
+												target='_blank'>
+												View all sharing options.
+											</a> </p>
 
 				</div>
 			</div>
