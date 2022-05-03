@@ -136,7 +136,6 @@
 		justify-content: space-between;
 		flex-direction: column;
 		position: relative;
-		background: #d1d1d1;
 		overflow: hidden;
 
 		&.ready {
@@ -172,6 +171,7 @@
 					margin: 3px 3px;
 					border-radius: 5px;
 					padding: 8px 10px;
+					font-family: "Lato", arial, sans-serif;
 
 					&:hover {
 						background: #bfe5ff;
@@ -289,7 +289,8 @@
 					h1 {
 						display: block;
 						font-size: 18px;
-						font-family: 'Lato-Black', arial, serif;
+						font-family: 'Lato', arial, serif;
+						font-weight: bold;
 						margin: 7px 5px 5px;
 						color: #333;
 
