@@ -439,37 +439,43 @@ const MyWidgetSelectedInstance = ({
 					<h3>
 						{inst.is_draft ? 'Publish to share' : 'Share'} with your students
 					</h3>
-					<h4> Via LMS / LTI Setup </h4>
-					<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
-					<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
-					</p>
-					<h4> Via URL / Embed Code </h4>
-					<p>Quickly share access to your widget by copying the link below. </p>
-					<div onMouseDown={shareInputMouseDownHandler}>
-						<input ref={shareLinkRef}
-							className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
-							type='text'
-							readOnly
-							disabled={inst.is_draft}
-							value={state.playUrl}
-						/>
+					<div className="share-widget-options-first" id="first-share-widget-option">
+						<h4> Via LMS / LTI Setup </h4>
+						<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
+						<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
+						</p>
 					</div>
-					<p>
-						Use the link provided above to share with your students (or
-						<span
-							className='show-embed link'
-							onClick={toggleShowEmbed}>
-							&nbsp;use the embed code
-						</span>
-						).
-					</p>
+					<div className="share-widget-options-second" id="third-share-widget-option">
+					<h4> Via Embed Code </h4>
+						<p>
+							Use the link provided above to share with your students (or
+							<span
+								className='show-embed link'
+								onClick={toggleShowEmbed}>
+								&nbsp;use the embed code
+							</span>
+							).
+						</p>
 
 					{ embedInfoRender }
+					</div>
+					<div className="share-widget-options-third" id="second-share-widget-option">
+						<h4> Via URL </h4>
+						<p>Quickly share access to your widget by copying the link below. </p>
+						<div onMouseDown={shareInputMouseDownHandler}>
+							<input ref={shareLinkRef}
+								className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
+								type='text'
+								readOnly
+								disabled={inst.is_draft}
+								value={state.playUrl}
+							/>
+						</div>
+					</div>
 
-					<p>						<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html'
-												target='_blank'>
-												View all sharing options.
-											</a> </p>
+					<p className="view-more">
+						<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html' target='_blank'> View all sharing options. </a>
+					</p>
 
 				</div>
 			</div>
