@@ -330,8 +330,8 @@
 				vertical-align: top;
 
 				.preview-svg {
-					-webkit-filter: drop-shadow(1px 2px 4px #888);
-					filter: drop-shadow(1px 2px 4px #888);
+					-webkit-filter: drop-shadow(1px 2px 4px #ececec);
+					filter: drop-shadow(1px 2px 4px #ececec);
 				}
 
 				.button-list {
@@ -352,12 +352,12 @@
 						font-weight: 700;
 						color: #694d28;
 						text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-						box-shadow: 1px 2px 4px #888;
+						box-shadow: 1px 2px 4px #ececec;
 						font-size: 18px;
 						position: relative;
 						display: inline-block;
 						user-select: none;
-						border: 1px solid #525252;
+						// border: 1px solid #525252;
 						border-radius: 4px;
 						text-decoration: none;
 
@@ -623,10 +623,10 @@
 			#edit-availability-button {
 				font-family: 'Lucida Grande', sans-serif;
 				font-size: 10pt;
-				font-weight: bold;
-				text-decoration: underline;
+				font-weight: 400;
+				// text-decoration: underline;
 				margin-left: 98px;
-				color: #1778af;
+				color: #0093e7;
 				cursor: pointer;
 
 				&:hover {
@@ -817,11 +817,11 @@
 
 	div.link {
 		display: inline-block;
-		border-bottom: 1px #1778af solid;
-		color: #1778af;
+		border-bottom: 1px #0093e7 solid;
+		color: #0093e7;
 		margin: 0 10px;
 		padding: 0 0 2px 0;
-		font-weight: bold;
+		font-weight: 400;
 		cursor: pointer;
 
 		&.disabled {

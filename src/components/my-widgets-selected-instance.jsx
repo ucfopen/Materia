@@ -355,7 +355,6 @@ const MyWidgetSelectedInstance = ({
 								href={inst.preview_url}>
 								<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
 									<path d='M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44'
-										stroke='#525252'
 									/>
 									<polyline points='-15 51.5 -15 81.5 5 66.5'
 										fill='#4c5823'
@@ -430,7 +429,7 @@ const MyWidgetSelectedInstance = ({
 							className={!state.can.share || inst.is_draft ? 'disabled' : ''}
 							disabled={!state.can.share || inst.is_draft}
 							onClick={onPopup}>
-							Edit settings...
+							Edit settings
 						</a>
 					</div>
 				</div>
