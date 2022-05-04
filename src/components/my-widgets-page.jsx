@@ -272,7 +272,7 @@ const MyWidgetsPage = () => {
 				{ widgetCatalogCalloutRender }
 
 				<div className='container'>
-					<div style={{boxShadow: "1px 3px 10px #dbdbdb"}}>
+					<div className="container_main-content">
 						{mainContentRender()}
 					</div>
 					<MyWidgetsSideBar
