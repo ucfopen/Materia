@@ -71,7 +71,7 @@ class Api_V1
 	static public function widget_instance_access_perms_verify($inst_id)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		return static::has_perms_to_inst($inst_id, [Perm::SCORE, Perm::FULL]);
+		return static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL]);
 	}
 
 	/**
