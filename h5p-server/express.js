@@ -19,7 +19,7 @@ import MateriaTempFileStorage from "./interfaces/MateriaTempFileStorage.js";
 
 const app = express();
 
-const port = 3000;
+const port = 3333;
 
 // if in development use '.env.local' file, else use '.env' file
 const envFile = process.env.ENVIRONMENT == "prod" ? `.env` : ".env.local";

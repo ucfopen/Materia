@@ -10,6 +10,7 @@ services:
       - "80:80" # main materia
       - "443:443" # main materia
       - "8008:8008" # static files (simulates a different domain sandbox & cdn)
+      - "3000:3000" # h5p
     networks:
       - frontend
     depends_on:
@@ -89,7 +90,7 @@ services:
       args:
         ENVIRONMENT: dev
     ports:
-      - "3000:3000" # port should match what's being provided in URLS_H5P above
+      - "3333:3333" # port should match what's being provided in URLS_H5P above
     networks:
       - frontend
     environment:

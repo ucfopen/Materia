@@ -22,7 +22,7 @@ COPY . .
 
 RUN ./setup.sh
 
-EXPOSE 3000
+EXPOSE 3333
 
 # connect to the localhost of our machine from inside the docker container
 # used to make requests to local materia server
