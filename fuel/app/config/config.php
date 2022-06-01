@@ -53,16 +53,16 @@ return array(
 	// 'ob_callback'  => null,
 
 	// 'errors'  => array(
-		// Which errors should we show, but continue execution? You can add the following:
-		// E_NOTICE, E_WARNING, E_DEPRECATED, E_STRICT to mimic PHP's default behaviour
-		// (which is to continue on non-fatal errors). We consider this bad practice.
-		// 'continue_on'  => array(),
-		// How many errors should we show before we stop showing them? (prevents out-of-memory errors)
-		// 'throttle'     => 10,
-		// Should notices from Error::notice() be shown?
-		// 'notices'      => true,
-		// Render previous contents or show it as HTML?
-		// 'render_prior' => false,
+	// Which errors should we show, but continue execution? You can add the following:
+	// E_NOTICE, E_WARNING, E_DEPRECATED, E_STRICT to mimic PHP's default behaviour
+	// (which is to continue on non-fatal errors). We consider this bad practice.
+	// 'continue_on'  => array(),
+	// How many errors should we show before we stop showing them? (prevents out-of-memory errors)
+	// 'throttle'     => 10,
+	// Should notices from Error::notice() be shown?
+	// 'notices'      => true,
+	// Render previous contents or show it as HTML?
+	// 'render_prior' => false,
 	// ),
 
 	/**
@@ -101,11 +101,9 @@ return array(
 	'log_date_format'  => 'H:i:s',
 
 	// provide a monolog handler
-	'log_handler_factory' => function($locals, $level)
-	{
+	'log_handler_factory' => function ($locals, $level) {
 		$handler_type = $_ENV['LOG_HANDLER'] ?? '';
-		if($handler_type == 'STDOUT')
-		{
+		if ($handler_type == 'STDOUT') {
 			return new \Monolog\Handler\ErrorLogHandler();
 		}
 
@@ -197,46 +195,46 @@ return array(
 	 * Cookie settings
 	 */
 	// 'cookie' => array(
-		// Number of seconds before the cookie expires
-		// 'expiration'  => 0,
-		// Restrict the path that the cookie is available to
-		// 'path'        => '/',
-		// Restrict the domain that the cookie is available to
-		// 'domain'      => null,
-		// Only transmit cookies over secure connections
-		// 'secure'      => false,
-		// Only transmit cookies over HTTP, disabling Javascript access
-		// 'http_only'   => false,
+	// Number of seconds before the cookie expires
+	// 'expiration'  => 0,
+	// Restrict the path that the cookie is available to
+	// 'path'        => '/',
+	// Restrict the domain that the cookie is available to
+	// 'domain'      => null,
+	// Only transmit cookies over secure connections
+	// 'secure'      => false,
+	// Only transmit cookies over HTTP, disabling Javascript access
+	// 'http_only'   => false,
 	// ),
 
 	/**
 	 * Validation settings
 	 */
 	// 'validation' => array(
-		/**
-		 * Whether to fallback to global when a value is not found in the input array.
-		 */
-		// 'global_input_fallback' => true,
+	/**
+	 * Whether to fallback to global when a value is not found in the input array.
+	 */
+	// 'global_input_fallback' => true,
 	// ),
 
 	/**
 	 * Controller class prefix
 	 */
-	 // 'controller_prefix' => 'Controller_',
+	// 'controller_prefix' => 'Controller_',
 
 	/**
 	 * Routing settings
 	 */
 	// 'routing' => array(
-		/**
-		 * Whether URI routing is case sensitive or not
-		 */
-		// 'case_sensitive' => true,
+	/**
+	 * Whether URI routing is case sensitive or not
+	 */
+	// 'case_sensitive' => true,
 
-		/**
-		 *  Whether to strip the extension
-		 */
-		// 'strip_extension' => true,
+	/**
+	 *  Whether to strip the extension
+	 */
+	// 'strip_extension' => true,
 	// ),
 
 	/**
@@ -249,7 +247,7 @@ return array(
 	 * Paths MUST end with a directory separator (the DS constant)!
 	 */
 	'module_paths' => array(
-		APPPATH.'modules'.DS
+		APPPATH . 'modules' . DS
 	),
 
 	/**
@@ -333,8 +331,8 @@ return array(
 		],
 		[
 			'id' => 2,
-			'package'  => 'https://github.com/ucfopen/hangman-materia-widget/releases/latest/download/hangman.wigt',
-			'checksum' => 'https://github.com/ucfopen/hangman-materia-widget/releases/latest/download/hangman-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase.wigt',
+			'checksum' => 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase-build-info.yml',
 		],
 		[
 			'id' => 3,

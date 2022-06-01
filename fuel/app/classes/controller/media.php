@@ -1,8 +1,12 @@
 <?php
+
 /**
  * Materia
  * License outlined in licenses folder
  */
+
+use Fuel\Core\Response;
+use Fuel\Core\Theme;
 use \Materia\Widget_Asset_Manager;
 use \Materia\Widget_Asset;
 
@@ -13,7 +17,8 @@ class Controller_Media extends Controller
 
 	// overrides Trait_CommonControllerTemplate->before()
 	public function before()
-	{}
+	{
+	}
 
 	// overrides Trait_CommonControllerTemplate->after()
 	public function after($response)
@@ -21,7 +26,7 @@ class Controller_Media extends Controller
 		return parent::after($response);
 	}
 
-	public function get_render($asset_id, $size='original')
+	public function get_render($asset_id, $size = 'original')
 	{
 		$asset = Widget_Asset::fetch_by_id($asset_id);
 
@@ -38,6 +43,7 @@ class Controller_Media extends Controller
 		return '';
 	}
 
+	/*
 	public function get_import()
 	{
 		// Validate Logged in
@@ -58,6 +64,28 @@ class Controller_Media extends Controller
 		$theme->set_partial('content', 'partials/catalog/media');
 
 		return Response::forge($theme->render());
+	}
+*/
+
+	public function get_import()
+	{
+		// Validate Logged in
+		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
+
+		// Require for injecting array of uri
+		$this->inject_common_js_constants();
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()
+			->set('title', 'Media Catalog')
+			->set('page_type', 'import');
+
+		Css::push_group(['media']);
+		Js::push_group(['react', 'media']);
+
+		// Forge is needed to render content of the iframe.
+		return Response::forge($this->theme->render());
 	}
 
 	// Handles the upload using plupload's classes
@@ -122,5 +150,4 @@ class Controller_Media extends Controller
 		$res->set_status(200);
 		return $res;
 	}
-
 }
