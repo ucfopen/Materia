@@ -238,23 +238,40 @@ class Controller_Widgets extends Controller
 
 	protected function show_editor($title, $widget, $inst_id=null)
 	{
-		$this->_disable_browser_cache = true;
-		Css::push_group(['core', 'widget_create']);
-		Js::push_group(['angular', 'materia', 'author']);
-		if ( ! empty($widget->creator) && preg_match('/\.swf$/', $widget->creator))
-		{
-			// add swfobject if it's needed
-			Js::push_group('swfobject');
-		}
+		// $this->_disable_browser_cache = true;
+		// Js::push_group(['angular', 'materia', 'author']);
+		// if ( ! empty($widget->creator) && preg_match('/\.swf$/', $widget->creator))
+		// {
+		// 	// add swfobject if it's needed
+		// 	Js::push_group('swfobject');
+		// }
+		//
+		// $this->theme->get_template()
+		// 	->set('title', $title)
+		// 	->set('page_type', 'create');
+		//
+		// $this->theme->set_partial('footer', 'partials/angular_alert');
+		// $this->theme->set_partial('content', 'partials/widget/create')
+		// 	->set('widget', $widget)
+		// 	->set('inst_id', $inst_id);
+		Js::push_inline('var DEMO_ID = "'.$inst_id.'";');
+		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
+		Js::push_inline('var WIDGET_WIDTH = "'.$widget->width.'";');
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
+		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		Js::push_inline('var MEDIA_URL = "'.\Config::get('materia.urls.media').'";');
 
+		Css::push_group(['core', 'widget_create']);
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'create');
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/create')
-			->set('widget', $widget)
-			->set('inst_id', $inst_id);
+		Css::push_group(['createpage']);
+		Js::push_group(['react', 'createpage']);
 	}
 
 	protected function draft_not_playable()

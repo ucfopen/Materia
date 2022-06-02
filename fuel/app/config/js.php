@@ -18,6 +18,7 @@ return [
 		'my_widgets' => [$webpack.'js/my-widgets.js'],
 		'detail'     => [$webpack.'js/detail.js'],
 		'playpage'   => [$webpack.'js/player-page.js'],
+		'createpage' => [$webpack.'js/creator-page.js'],
 
 		'angular'    => [$vendor.'angular.min.js'],
 		'ng-animate' => [$vendor.'angular-animate.min.js'],

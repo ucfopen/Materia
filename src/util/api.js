@@ -126,6 +126,50 @@ export const apiUnDeleteWidget = ({ instId }) => {
 		})
 }
 
+export const apiSaveWidget = (_params) => {
+	const defaults = {
+		qset: null,
+		is_draft: null,
+		open_at: null,
+		close_at: null,
+		attempts: null,
+		guest_access: null,
+		embedded_only: null,
+	}
+
+	let params = Object.assign({}, defaults, _params)
+
+	if (params.inst_id != null) {
+		// limit args to the the following params
+		let args = [
+			params.inst_id,
+			params.name,
+			params.qset,
+			params.is_draft,
+			params.open_at,
+			params.close_at,
+			params.attempts,
+			params.guest_access,
+			params.embedded_only,
+		]
+
+		return fetch('/api/json/widget_instance_update/', fetchOptions({ body: `data=${formatFetchBody(args)}` })).then(resp => {
+			return resp.json()
+		})
+
+	} else {
+		let args = [
+			params.widget_id,
+			params.name,
+			params.qset,
+			params.is_draft
+		]
+		return fetch('/api/json/widget_instance_save/', fetchOptions({ body: `data=${formatFetchBody(args)}` })).then(resp => {
+			return resp.json()
+		})
+	}
+}
+
 export const apiGetUser = () => {
 
 	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([])}` })
@@ -169,6 +213,12 @@ export const apiAuthorSuper = () => {
 
 export const apiAuthorSupport = () => {
 	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['support_user'])}` })
+		.then(user => user)
+		.catch(error => false)
+}
+
+export const apiAuthorNull = () => {
+	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([null, false])}` })
 		.then(user => user)
 		.catch(error => false)
 }
@@ -269,6 +319,12 @@ export const apiUpdateWidget = ({ args }) => {
 	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
 		.then(res => res.json())
 		.then(widget => widget)
+}
+
+export const apiGetWidgetLock = (id = null) => {
+	return fetch('/api/json/widget_instance_lock', fetchOptions({ body: `data=${formatFetchBody([id])}` }))
+		.then(res => res.json())
+		.then(lock => lock)
 }
 
 export const apiSearchWidgets = input => {
@@ -387,7 +443,7 @@ export const apiGetPlaySession = ({ widgetId }) => {
 		})
 }
 
-export const apiGetQuestionSet = (instId, playId) => {
+export const apiGetQuestionSet = (instId, playId = null) => {
 	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
 		.then(qset => qset.json())
 }
@@ -443,4 +499,10 @@ export const readFromStorage = () => {
 			}
 		}
 	}, [])
+}
+
+// Returns boolean, true if the current user can publish the given widget instance, false otherwise
+export const apiCanBePublishedByCurrentUser = (widgetId) => {
+	return fetch('/api/json/widget_publish_perms_verify',  fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
+		.then(resp => resp.json())
 }

@@ -333,8 +333,8 @@ return array(
 		],
 		[
 			'id' => 2,
-			'package'  => 'https://github.com/ucfopen/hangman-materia-widget/releases/latest/download/hangman.wigt',
-			'checksum' => 'https://github.com/ucfopen/hangman-materia-widget/releases/latest/download/hangman-build-info.yml',
+			'package'  => 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase.wigt',
+			'checksum' => 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase-build-info.yml',
 		],
 		[
 			'id' => 3,
