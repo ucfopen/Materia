@@ -12,9 +12,12 @@ const initAlert = () => ({
   enableLoginButton: false,
 })
 
-const initDemo = () => ({
+const initWidgetData = () => ({
 	loading: true,
 	htmlPath: null,
+	hasPlayerGuide: false,
+	hasCreatorGuide: false,
+  creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
 })
 
 const initInstance = () => ({
@@ -26,9 +29,9 @@ const initInstance = () => ({
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 
-const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
+const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   const [alertMsg, setAlertMsg] = useState(initAlert());
-  const [demoData, setDemoData] = useState(initDemo());
+  const [widgetData, setWidgetData] = useState(initWidgetData());
   const [embedDialogType, setEmbedDialogType] = useState('embed_dialog');
   const [modal, setModal] = useState(false);
   const [iframeUrl, setIframeUrl] = useState(null);
@@ -168,9 +171,12 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
     }
 
     setType(creatorPath.split('.').pop());
-    setDemoData({
+    setWidgetData({
       loading: false,
       htmlPath: creatorPath + '?' + instance.widget.created_at,
+      hasPlayerGuide: instance.widget.player_guide != '',
+      hasCreatorGuide: instance.widget.creator_guide != '',
+      creatorGuideUrl: widgetData.creatorGuideUrl
     })
   }
 
@@ -198,7 +204,7 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
   }, [startTime, isPreview])
 
   useEffect(() => {
-    if (!demoData.loading) {
+    if (!widgetData.loading) {
       // setup the postmessage listener
       window.addEventListener('message', onPostMessage, false)
 
@@ -208,7 +214,7 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
 			}
     }
   }, [
-    demoData.loading,
+    widgetData.loading,
     keepQSet,
     instance,
     startTime,
@@ -622,7 +628,7 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
     while (!instance.widget || Object.keys(instance.widget).length === 0) {
       await new Promise(resolve => setTimeout(resolve, 500))
     }
-    demoData.loading = false
+    widgetData.loading = false
   }
 
   const waitForWidget = async () => {
@@ -653,6 +659,7 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
     actionBarRender = (
       <section id='action-bar'>
         <a id="returnLink" href={returnUrl}>&larr;Return to {returnPlace}</a>
+        <a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl}>Creator's Guide</a>
   			<a onClick={showQsetHistoryImporter}>Save History</a>
   			<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
   			<button id="creatorPublishBtn"
@@ -667,13 +674,9 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
   }
 
   let loadingRender = null
-  if (demoData.loading) {
+  if (widgetData.loading) {
     loadingRender = (
-      <LoadingIcon size='lrg'
-        position='absolute'
-        top={`0px`}
-        left={`0px`}
-      />
+      <LoadingIcon size='lrg'/>
     )
   }
 
@@ -764,10 +767,13 @@ const WidgetCreator = ({instId, widgetId, minHeight, minWidth}) => {
         { actionBarRender }
 
     		<div className="center">
-    			<iframe src={ demoData.htmlPath }
+    			<iframe src={ widgetData.htmlPath }
   					id='container'
   					className='html'
   					scrolling='yes'
+            style={{
+            minWidth: minWidth + 'px',
+            minHeight: minHeight + 'px'}}
   					ref={frameRef}/>
     				{ loadingRender }
     		</div>

@@ -3,20 +3,12 @@ import Header from './header'
 import WidgetCreator from './widget-creator'
 
 const EMBED = 'embed'
-const PLAY = 'play'
-const PREVIEW = 'preview'
-const DEMO = 'demo'
 const PREVIEW_EMBED = 'preview-embed'
-const CREATE = 'create'
 
 const getWidgetType = path => {
   switch(true) {
     case path.includes('/embed/'): return EMBED
-    case path.includes('/play/'): return PLAY
-    case path.includes('/preview/'): return PREVIEW
-    case path.includes('/demo/'): return DEMO
     case path.includes('/preview-embed/'): return PREVIEW_EMBED
-    case path.includes('/create'): return CREATE
     default: return null
   }
 }
@@ -39,41 +31,19 @@ const WidgetCreatorPage = () => {
 
     waitForWindow()
     .then(() => {
-      switch(type) {
-        case PREVIEW_EMBED:
-        case PREVIEW:
-          setState({
-            widgetHeight: window.WIDGET_HEIGHT,
-            widgetWidth: window.WIDGET_WIDTH,
-            widgetID: widgetID ? widgetID : null,
-            instanceID: instanceID ? instanceID : null
-          })
-          break
-        case DEMO:
-          setState({
-            widgetHeight: window.WIDGET_HEIGHT,
-            widgetWidth: window.WIDGET_WIDTH,
-            widgetID: window.DEMO_ID,
-            instanceID: instanceID ? instanceID : null
-          })
-          break
-        default:
-          setState({
-            widgetHeight: window.WIDGET_HEIGHT,
-            widgetWidth: window.WIDGET_WIDTH,
-            widgetID: widgetID ? widgetID : null,
-            instanceID: instanceID ? instanceID : null
-          })
-          break
-      }
+      setState({
+        widgetHeight: window.WIDGET_HEIGHT,
+        widgetWidth: window.WIDGET_WIDTH,
+        widgetID: widgetID ? widgetID : null,
+        instanceID: instanceID ? instanceID : null
+      })
     })
   }, [])
 
   // Used to wait for window data to load
   const waitForWindow = async () => {
     while(!window.hasOwnProperty('WIDGET_HEIGHT')
-    && !window.hasOwnProperty('WIDGET_WIDTH')
-    && !window.hasOwnProperty('DEMO_ID')) {
+    && !window.hasOwnProperty('WIDGET_WIDTH')) {
       await new Promise(resolve => setTimeout(resolve, 500))
     }
   }

@@ -133,6 +133,21 @@ a {
 	margin-top: 23px;
 }
 
+#creatorGuideLink {
+  background: #555;
+  color: #fff;
+  position: relative;
+  display: inline-block;
+  line-height: normal;
+  cursor: pointer;
+	text-shadow: none;
+	text-decoration: none !important;
+}
+
+#creatorGuideLink:hover {
+	background-color: #000;
+}
+
 .edit_button {
 	margin: 10px 0 0 6px;
 
@@ -212,7 +227,7 @@ a {
 }
 .page .center {
 	min-height: 600px;
-	height: calc(100vh - 150px);
+	height: calc(100vh - 185px);
 	position: relative;
 	z-index: 5;
 }

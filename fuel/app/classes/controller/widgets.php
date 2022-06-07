@@ -254,7 +254,6 @@ class Controller_Widgets extends Controller
 		// $this->theme->set_partial('content', 'partials/widget/create')
 		// 	->set('widget', $widget)
 		// 	->set('inst_id', $inst_id);
-		Js::push_inline('var DEMO_ID = "'.$inst_id.'";');
 		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
 		Js::push_inline('var WIDGET_WIDTH = "'.$widget->width.'";');
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
@@ -262,15 +261,14 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Js::push_inline('var MEDIA_URL = "'.\Config::get('materia.urls.media').'";');
 
-		Css::push_group(['core', 'widget_create']);
 
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $title)
-			->set('page_type', 'create');
+			->set('page_type', 'widget');
 
-		Css::push_group(['createpage']);
+		Css::push_group(['createpage', 'core', 'widget_create']);
 		Js::push_group(['react', 'createpage']);
 	}
 

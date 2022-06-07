@@ -29,6 +29,9 @@ return [
 		],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
 		'my_widgets'  => [$webpack.'js/my-widgets.css'],
+		'createpage' => [
+			$webpack.'css/loading-icon.css'
+		],
 		'widget_create' => [
 			$webpack.'css/widget-create.css',
 			$vendor.'ng-modal.css'
