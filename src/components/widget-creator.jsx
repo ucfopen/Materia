@@ -15,7 +15,6 @@ const initAlert = () => ({
 const initWidgetData = () => ({
 	loading: true,
 	htmlPath: null,
-	hasPlayerGuide: false,
 	hasCreatorGuide: false,
   creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
 })
@@ -174,7 +173,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     setWidgetData({
       loading: false,
       htmlPath: creatorPath + '?' + instance.widget.created_at,
-      hasPlayerGuide: instance.widget.player_guide != '',
       hasCreatorGuide: instance.widget.creator_guide != '',
       creatorGuideUrl: widgetData.creatorGuideUrl
     })
@@ -654,12 +652,19 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     )
   }
 
+	let creatorGuideLink = null
+	if (widgetData.hasCreatorGuide) {
+		creatorGuideLink = (
+			<a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl}>Creator's Guide</a>
+		)
+	}
+
   let actionBarRender = null
   if (showActionBar) {
     actionBarRender = (
       <section id='action-bar'>
         <a id="returnLink" href={returnUrl}>&larr;Return to {returnPlace}</a>
-        <a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl}>Creator's Guide</a>
+				{ creatorGuideLink }
   			<a onClick={showQsetHistoryImporter}>Save History</a>
   			<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
   			<button id="creatorPublishBtn"
