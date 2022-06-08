@@ -2,254 +2,254 @@
 $arrow_size: 4px;
 
 html {
-  background: #fff;
-  font-family: 'Lato', arial, serif;
+	background: #fff;
+	font-family: 'Lato', arial, serif;
 }
 
 .media-importer {
-  display: flex;
-  flex-flow: row nowrap;
+	display: flex;
+	flex-flow: row nowrap;
 
-  >section {
-    height: 100vh;
-    width: 50%;
+	> section {
+		height: 100vh;
+		width: 50%;
 
-    &:first-child {
-      &:before {
-        color: #dadada;
-        content: 'or';
-        position: absolute;
-        top: 4vh;
-        left: 50vw;
-        transform: translateX(-50%);
-      }
+		&:first-child {
+			&:before {
+				color: #dadada;
+				content: 'or';
+				position: absolute;
+				top: 4vh;
+				left: 50vw;
+				transform: translateX(-50%);
+			}
 
-      &:after {
-        content: '';
-        border-left: thin solid #dadada;
-        height: 85vh;
-        position: absolute;
-        top: 10vh;
-        right: 50vw;
-      }
-    }
+			&:after {
+				content: '';
+				border-left: thin solid #dadada;
+				height: 85vh;
+				position: absolute;
+				top: 10vh;
+				right: 50vw;
+			}
+		}
 
-    &:last-child {
-      display: flex;
-      flex-flow: column;
-    }
-  }
+		&:last-child {
+			display: flex;
+			flex-flow: column;
+		}
+	}
 
-  .pane-header {
-    text-align: center;
-    margin-top: 10px;
+	.pane-header {
+		text-align: center;
+		margin-top: 10px;
 
-    &.darker {
-      font-size: 16px;
-      color: #484848;
-      font-weight: 700;
-      margin: 20px auto 10px;
-    }
+		&.darker {
+			font-size: 16px;
+			color: #484848;
+			font-weight: 700;
+			margin: 20px auto 10px;
+		}
 
-    .close-button {
-      background: transparent;
-      position: absolute;
-      right: 10px;
-      top: 5px;
+		.close-button {
+			background: transparent;
+			position: absolute;
+			right: 10px;
+			top: 5px;
 
-      &:after {
-        content: 'X';
-        font-size: 15px;
-        color: #000;
-        cursor: pointer;
-      }
-    }
-  }
+			&:after {
+				content: 'X';
+				font-size: 15px;
+				color: #000;
+				cursor: pointer;
+			}
+		}
+	}
 
-  input[type='file'] {
-    display: none;
-  }
+	input[type='file'] {
+		display: none;
+	}
 
-  .select_file_button {
-    margin: 5px 20px;
-    font-weight: 400;
-  }
+	.select_file_button {
+		margin: 5px 20px;
+		font-weight: 400;
+	}
 }
 
 #drag-wrapper {
-  position: relative;
-  height: 333px;
-  margin: 45px 55px 30px;
-  border: 5px dashed #dadada;
-  outline: #f5f5f5 solid 30px;
-  background: #f5f5f5;
+	position: relative;
+	height: 333px;
+	margin: 45px 55px 30px;
+	border: 5px dashed #dadada;
+	outline: #f5f5f5 solid 30px;
+	background: #f5f5f5;
 
-  .drag-text {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    left: 50%;
-  }
+	.drag-text {
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		left: 50%;
+	}
 
-  &.drag-is-dragover {
-    background-color: grey;
-  }
+	&.drag-is-dragover {
+		background-color: grey;
+	}
 }
 
 #sort-bar {
-  display: flex;
-  flex-flow: row;
-  margin-left: 20px;
+	display: flex;
+	flex-flow: row;
+	margin-left: 20px;
 
-  label {
-    margin-left: 60px;
-  }
+	label {
+		margin-left: 60px;
+	}
 }
 
 .sort-bar {
-  display: flex;
-  flex-flow: row;
-  margin-left: 20px;
-  padding-top: 7px;
+	display: flex;
+	flex-flow: row;
+	margin-left: 20px;
+	padding-top: 7px;
 
-  input {
-    padding-right: 200px;
-    padding-left: 25px;
-    height: 20px;
-    background: #fff;
-    border: 1px solid #b0b0b0;
-    border-radius: 12px;
+	input {
+		padding-right: 200px;
+		padding-left: 25px;
+		height: 20px;
+		background: #fff;
+		border: 1px solid #b0b0b0;
+		border-radius: 12px;
 
-    background-image: url(../img/magnifyingglass.png);
-    background-repeat: no-repeat;
-    background-position: left;
-    background-position-x: 5px;
-  }
+		background-image: url(../img/magnifyingglass.png);
+		background-repeat: no-repeat;
+		background-position: left;
+		background-position-x: 5px;
+	}
 }
 
 #sort-options {
-  display: flex;
-  flex-flow: row;
+	display: flex;
+	flex-flow: row;
 
-  text-decoration: underline;
-  font-size: 15px;
+	text-decoration: underline;
+	font-size: 15px;
 
-  .sort-option {
-    margin-right: 20px;
-    cursor: pointer;
-    position: relative;
-  }
+	.sort-option {
+		margin-right: 20px;
+		cursor: pointer;
+		position: relative;
+	}
 
-  .sort-asc:after,
-  .sort-desc:after {
-    position: absolute;
-    top: 0;
-    right: -5px;
-    content: '';
-    width: 0;
-    height: 0;
-    border-left: $arrow_size solid transparent;
-    border-right: $arrow_size solid transparent;
-  }
+	.sort-asc:after,
+	.sort-desc:after {
+		position: absolute;
+		top: 0;
+		right: -5px;
+		content: '';
+		width: 0;
+		height: 0;
+		border-left: $arrow_size solid transparent;
+		border-right: $arrow_size solid transparent;
+	}
 
-  .sort-asc:after {
-    border-bottom: $arrow_size solid #000;
-  }
+	.sort-asc:after {
+		border-bottom: $arrow_size solid #000;
+	}
 
-  .sort-desc:after {
-    border-top: $arrow_size solid #f00;
-  }
+	.sort-desc:after {
+		border-top: $arrow_size solid #f00;
+	}
 }
 
 #file-display {
-  height: 100%;
-  flex-shrink: 1;
-  overflow-y: auto;
-  margin-top: 10px;
-  margin-left: 20px;
+	height: 100%;
+	flex-shrink: 1;
+	overflow-y: auto;
+	margin-top: 10px;
+	margin-left: 20px;
 
-  .file-info {
-    display: flex;
-    flex-flow: row;
-    align-content: space-between;
+	.file-info {
+		display: flex;
+		flex-flow: row;
+		align-content: space-between;
 
-    color: #6b6b6b;
-    font-size: 13px;
-    padding: 5px 10px;
+		color: #6b6b6b;
+		font-size: 13px;
+		padding: 5px 10px;
 
-    &:nth-child(odd) {
-      background-color: #eaeaea;
-    }
+		&:nth-child(odd) {
+			background-color: #eaeaea;
+		}
 
-    &:hover {
-      background-color: #f9d991;
-    }
+		&:hover {
+			background-color: #f9d991;
+		}
 
-    span {
-      vertical-align: top;
-    }
+		span {
+			vertical-align: top;
+		}
 
-    .file-thumbnail {
-      width: 75px;
-    }
+		.file-thumbnail {
+			width: 75px;
+		}
 
-    .file-name {
-      flex-grow: 1;
-      padding: 0 5px;
+		.file-name {
+			flex-grow: 1;
+			padding: 0 5px;
 
-      strong {
-        display: block;
-        color: #484848;
-      }
-    }
+			strong {
+				display: block;
+				color: #484848;
+			}
+		}
 
-    .delete-btn {
-      font-family: 'Lato', arial, serif;
-      margin-top: 10px;
-      padding: 4px 13px 4px 13px;
-      background: #ffba5d;
-      background-image: linear-gradient(#ffce8c, #ffa42a);
+		.delete-btn {
+			font-family: 'Lato', arial, serif;
+			margin-top: 10px;
+			padding: 4px 13px 4px 13px;
+			background: #ffba5d;
+			background-image: linear-gradient(#ffce8c, #ffa42a);
 
-      font-weight: 700;
-      color: #694d28;
-      text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-      box-shadow: 1px 2px 4px #888;
-      font-size: 18px;
-      position: relative;
-      cursor: pointer;
-      display: inline-block;
-      user-select: none;
+			font-weight: 700;
+			color: #694d28;
+			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+			box-shadow: 1px 2px 4px #888;
+			font-size: 18px;
+			position: relative;
+			cursor: pointer;
+			display: inline-block;
+			user-select: none;
 
-      border: 1px solid #525252;
-      border-radius: 4px;
+			border: 1px solid #525252;
+			border-radius: 4px;
 
-      .ng-modal & {
-        margin: 5px auto;
-      }
+			.ng-modal & {
+				margin: 5px auto;
+			}
 
-      &.green {
-        background: #c4dd61;
-        background-image: linear-gradient(#c0e195, #8dcb45);
-        color: #525252;
+			&.green {
+				background: #c4dd61;
+				background-image: linear-gradient(#c0e195, #8dcb45);
+				color: #525252;
 
-        &:hover {
-          background: #d5ea7f;
-        }
-      }
+				&:hover {
+					background: #d5ea7f;
+				}
+			}
 
-      &.orange {
-        background: #eca444;
-        background-image: linear-gradient(#ffa42a, #ffce8c);
-        color: #525252;
+			&.orange {
+				background: #eca444;
+				background-image: linear-gradient(#ffa42a, #ffce8c);
+				color: #525252;
 
-        &:hover {
-          background: #ffd091;
-        }
-      }
-    }
-  }
+				&:hover {
+					background: #ffd091;
+				}
+			}
+		}
+	}
 
-  img {
-    max-height: 75px;
-  }
+	img {
+		max-height: 75px;
+	}
 }

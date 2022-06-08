@@ -1,36 +1,93 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useQuery, useMutation } from 'react-query'
-import { queryClient } from '../media'
-import { getAllAssets } from '../util/media-importer'
+// import { queryClient } from '../media'
+import { useQuery } from 'react-query'
+import { _loadAllMedia, uploadFile } from '../util/media-importer'
 
 import LoadingIcon from './loading-icon'
 import './media.scss'
 
-const MediaImporter = () => {
-	const mounted = useRef(false)
-	// const listOfAssets = useRef(null)
+const DragAndDrop = ({ children }) => {
+	const mount = useRef(false)
+	const [state, setState] = useState(null)
 
-	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
+	const handleDragEvent = (ev) => {
+		ev.preventDefault()
+		ev.stopPropagation()
+	}
+
+	const handleOnChange = (ev) => {
+		ev.preventDefault()
+		ev.stopPropagation()
+
+		setState(ev)
+		uploadFile(ev)
+	}
 
 	useEffect(() => {
-		mounted.current = true
+		if (mount.current) {
+			console.log(state)
+			// uploadFile(state)
+		}
+	}, [state])
 
+	useEffect(() => {
+		mount.current = true
+		// document.addEventListener('dragenter', handleDragEvent)
+		// document.addEventListener('dragleave', handleDragEvent)
+		// document.addEventListener('drag', handleDragEvent)
+		// document.addEventListener('change', handleOnChange)
 		return () => {
-			mounted.current = false
+			mount.current = false
+			// document.removeEventListener('dragenter', handleDragEvent)
+			// document.removeEventListener('dragleave', handleDragEvent)
+			// document.removeEventListener('drag', handleDragEvent)
+			// document.removeEventListener('change', handleOnChange)
 		}
 	}, [])
 
-	const testPrint = (props) => {
-		console.log(props)
+	return (
+		<div
+			id="drag-and-drop"
+			onDragEnter={(ev) => {
+				handleDragEvent(ev)
+			}}
+			onDragEnd={(ev) => {
+				handleDragEvent(ev)
+			}}
+			onDrag={(ev) => {
+				handleDragEvent(ev)
+			}}
+			onChange={(ev) => {
+				handleOnChange(ev)
+			}}
+		>
+			{children}
+		</div>
+	)
+}
+
+const MediaImporter = () => {
+	const mounted = useRef(false)
+	const [selectedFile, setSelectedFile] = useState('wait')
+	const [sortOrder, setSortOrder] = useState(false)
+	const { data: listOfAssets, isSuccess } = useQuery('assets', _loadAllMedia)
+
+	const onBrowseClick = (ev) => {
+		console.log(ev)
+		setSelectedFile(ev)
+	}
+
+	const sendMediaToCreator = (media) => {
+		return window.Materia.onMediaImportComplete([media])
 	}
 
 	/**
 	 * It returns a card component that contains the assets data.
 	 * @returns A React component.
 	 */
-	const AssetCard = ({ name, thumb, created, type }) => {
+	const AssetCard = ({ name, thumb, created, type, media }) => {
 		return (
-			<div className="file-info" onClick={() => testPrint(props)}>
+			<div className="file-info" onClick={() => sendMediaToCreator([media])}>
 				<span className="file-thumbnail">
 					<img src={thumb} alt={name} />
 				</span>
@@ -40,23 +97,6 @@ const MediaImporter = () => {
 				</span>
 				<span className="file-date">{created}</span>
 			</div>
-		)
-	}
-
-	const LeftPane = () => {
-		return (
-			<section id="left-pane">
-				<div className="plane-header">Upload a new file</div>
-				<div id="drag-wrapper">
-					<div className="drag-text">Drag a file here to upload</div>
-				</div>
-				<div className="drag-footer">
-					<label>
-						<input type="file" /> {/* upload file */}
-						<span className="action_button select_file_button">Browse...</span>
-					</label>
-				</div>
-			</section>
 		)
 	}
 
@@ -72,10 +112,10 @@ const MediaImporter = () => {
 					<div className="sort-options">
 						<div className="sort-option">
 							{/* sort assets in asc or desc */}
+
 							{/* option.name */}
 						</div>
 					</div>
-					<div></div>
 				</div>
 
 				<div id="file-display">
@@ -91,6 +131,7 @@ const MediaImporter = () => {
 										type={element.type}
 										thumb={element.thumb}
 										created={element.created_at}
+										media={element}
 									/>
 								)
 							})
@@ -100,9 +141,32 @@ const MediaImporter = () => {
 		)
 	}
 
+	useEffect(() => {
+		mounted.current = true
+
+		return () => {
+			mounted.current = false
+		}
+	}, [])
+
 	return (
 		<div className="media-importer">
-			<LeftPane />
+			<section id="left-pane">
+				<div className="plane-header">Upload a new file</div>
+
+				<DragAndDrop>
+					<div id="drag-wrapper">
+						<div className="drag-text">Drag a file here to upload</div>
+					</div>
+				</DragAndDrop>
+				<div className="drag-footer">
+					<label>
+						<input type="file" onChange={(ev) => uploadFile(ev)} />
+						<span className="action_button select_file_button">Browse...</span>
+					</label>
+				</div>
+			</section>
+
 			<RightPane />
 		</div>
 	)

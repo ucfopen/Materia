@@ -44,28 +44,28 @@ class Controller_Media extends Controller
 	}
 
 	/*
-	public function get_import()
-	{
-		// Validate Logged in
-		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
+		public function get_import()
+		{
+			// Validate Logged in
+			if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
-		Css::push_group(['core', 'media_import']);
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
+			Css::push_group(['core', 'media_import']);
+			Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
-		$this->inject_common_js_constants();
+			$this->inject_common_js_constants();
 
-		$theme = Theme::instance();
-		$theme->set_template('layouts/main');
-		$theme->get_template()
-			->set('title', 'Media Catalog')
-			->set('page_type', 'import');
+			$theme = Theme::instance();
+			$theme->set_template('layouts/main');
+			$theme->get_template()
+				->set('title', 'Media Catalog')
+				->set('page_type', 'import');
 
-		$theme->set_partial('footer', 'partials/angular_alert');
-		$theme->set_partial('content', 'partials/catalog/media');
+			$theme->set_partial('footer', 'partials/angular_alert');
+			$theme->set_partial('content', 'partials/catalog/media');
 
-		return Response::forge($theme->render());
-	}
-*/
+			return Response::forge($theme->render());
+		}
+	*/
 
 	public function get_import()
 	{
@@ -81,7 +81,7 @@ class Controller_Media extends Controller
 			->set('title', 'Media Catalog')
 			->set('page_type', 'import');
 
-		Css::push_group(['media']);
+		Css::push_group(['media_import']);
 		Js::push_group(['react', 'media']);
 
 		// Forge is needed to render content of the iframe.

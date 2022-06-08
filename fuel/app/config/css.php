@@ -58,7 +58,7 @@ return [
 		'rollback_dialog' => [
 			$webpack.'css/util-rollback-confirm.css'
 		],
-		'media_import' => [$webpack.'css/util-media-import.css'],
+		'media_import' => [$webpack.'js/media.css'],
 		'help' => [$webpack.'css/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
 		'core' => [$webpack.'css/core.css'],
