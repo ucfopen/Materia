@@ -156,7 +156,7 @@ const _getMimeType = (dataUrl) => {
   return mime
 }
 
-export const _loadAllMedia = async (file = null) => {
+const _loadAllMedia = async (file = null) => {
   // 1. Fetch assets from the DB
   const resp = await fetch(`/api/json/assets_get`)
   if (resp.status === 204 || resp.status === 502) return []
@@ -172,7 +172,18 @@ export const _loadAllMedia = async (file = null) => {
     const creationDate = new Date(element.created_at * 1000)
     const dateString = [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/')
     element.created_at = dateString
+
+    if (file == element.id) {
+      window.parent.Materia.Creator.onMediaImportComplete([element])
+    }
+
   });
 
+  return listOfAssets
+}
+
+// public version
+export const getAllAssets = async () => {
+  const listOfAssets = await _loadAllMedia()
   return listOfAssets
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 // import { queryClient } from '../media'
 import { useQuery } from 'react-query'
-import { _loadAllMedia, uploadFile } from '../util/media-importer'
+import { getAllAssets, uploadFile } from '../util/media-importer'
 
 import LoadingIcon from './loading-icon'
 import './media.scss'
@@ -70,7 +70,7 @@ const MediaImporter = () => {
 	const mounted = useRef(false)
 	const [selectedFile, setSelectedFile] = useState('wait')
 	const [sortOrder, setSortOrder] = useState(false)
-	const { data: listOfAssets, isSuccess } = useQuery('assets', _loadAllMedia)
+	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
 
 	const onBrowseClick = (ev) => {
 		console.log(ev)
