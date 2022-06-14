@@ -174,7 +174,8 @@ const _loadAllMedia = async (file = null) => {
     element.created_at = dateString
 
     if (file == element.id) {
-      window.parent.Materia.Creator.onMediaImportComplete([element])
+      // window.parent.Materia.Creator.onMediaImportComplete([element])
+      loadPickedAsset(element)
     }
 
   });
@@ -186,4 +187,8 @@ const _loadAllMedia = async (file = null) => {
 export const getAllAssets = async () => {
   const listOfAssets = await _loadAllMedia()
   return listOfAssets
+}
+
+export const loadPickedAsset = async (element) => {
+  window.parent.Materia.Creator.onMediaImportComplete([element])
 }

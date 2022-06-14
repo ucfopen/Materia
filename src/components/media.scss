@@ -74,6 +74,31 @@ html {
 		margin: 5px 20px;
 		font-weight: 400;
 	}
+
+	.action_button {
+		font-family: 'Lato', arial, serif;
+		padding: 7px 23px 8px 23px;
+		background: #ffba5d;
+		background-image: linear-gradient(#ffce8c, #ffa42a);
+
+		font-weight: 700;
+		color: #694d28;
+		text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+		box-shadow: 1px 2px 4px #888;
+		font-size: 18px;
+		position: relative;
+		cursor: pointer;
+		display: inline-block;
+		user-select: none;
+
+		border: 1px solid #525252;
+		border-radius: 4px;
+
+		&:hover {
+			background: #ffba5d;
+			background-image: linear-gradient(#ffa42a, #ffce8c);
+		}
+	}
 }
 
 #drag-wrapper {
