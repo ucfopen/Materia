@@ -1,18 +1,79 @@
 import React, { useState, useEffect, useRef } from 'react'
-// import { queryClient } from '../media'
 import { useQuery } from 'react-query'
 import DragAndDrop from './drag-and-drop'
-import { getAllAssets, uploadFile, loadPickedAsset } from '../util/media-importer'
+import { getAllAssets, uploadFile, loadPickedAsset, onCancel } from '../util/media-importer'
 import './media.scss'
+
+const SORTING_NONE = false
+const SORTING_ASC = 'asc'
+const SORTING_DESC = 'desc'
+
+const sortString = (field, a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase())
+const sortNumber = (field, a, b) => a[field] - b[field]
+
+const SORT_OPTIONS = [
+	{
+		sortMethod: sortString.bind(null, 'name'), // bind the field name to the sort method
+		name: 'Name',
+		field: 'name',
+		status: SORTING_ASC,
+	},
+	{
+		sortMethod: sortString.bind(null, 'type'), // bind the field name to the sort method
+		name: 'Type',
+		field: 'type',
+		status: SORTING_NONE,
+	},
+	{
+		sortMethod: sortNumber.bind(null, 'timestamp'), // bind the field name to the sort method
+		name: 'Date',
+		field: 'timestamp',
+		status: SORTING_NONE,
+	},
+]
 
 const MediaImporter = () => {
 	const mounted = useRef(false)
+	const [sortAssets, setSortAssets] = useState(null)
+	const [sortOrder, setSortOrder] = useState(0)
 	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
 
-	/**
-	 * It returns a card component that contains the assets data.
-	 * @returns A React component.
-	 */
+	const sortAssetList = (sortType) => {
+		switch (sortType) {
+			case SORT_OPTIONS[0].name:
+				setSortOrder(0)
+				break
+
+			case SORT_OPTIONS[1].name:
+				setSortOrder(1)
+				break
+
+			case SORT_OPTIONS[2].name:
+				setSortOrder(2)
+				break
+
+			default:
+				break
+		}
+	}
+
+	const displayAssetList = (sortOptionIndex) => {
+		let sortedAssets = listOfAssets.sort(SORT_OPTIONS[sortOptionIndex].sortMethod)
+		let sortedAssetsList = sortedAssets.map((element, index) => {
+			return (
+				<AssetCard
+					key={index}
+					name={element.name}
+					type={element.type}
+					thumb={element.thumb}
+					created={element.created_at}
+					media={element}
+				/>
+			)
+		})
+		setSortAssets(sortedAssetsList)
+	}
+
 	const AssetCard = ({ name, thumb, created, type, media }) => {
 		return (
 			<div className="file-info" onClick={() => loadPickedAsset(media)}>
@@ -28,21 +89,32 @@ const MediaImporter = () => {
 		)
 	}
 
+	const SortOption = ({ sortType }) => {
+		return (
+			<span
+				className="sort-option"
+				onClick={(ev) => {
+					sortAssetList(sortType)
+				}}
+			>
+				{sortType}
+			</span>
+		)
+	}
+
 	const RightPane = () => {
 		return (
 			<section id="right-pane">
 				<div className="pane-header darker">
 					Pick from you library
-					<span className="close-button">{/* cancel option */}</span>
+					<span className="close-button" onClick={onCancel} />
 				</div>
 
 				<div id="sort-bar">
 					<div className="sort-options">
-						<div className="sort-option">
-							{/* sort assets in asc or desc */}
-
-							{/* option.name */}
-						</div>
+						<SortOption sortType={'Name'} />
+						<SortOption sortType={'Date'} />
+						<SortOption sortType={'Type'} />
 					</div>
 				</div>
 
@@ -50,24 +122,18 @@ const MediaImporter = () => {
 					<div className="file-info">No files available!</div>
 					{
 						// for some reason this breaks while the top works.
-						isSuccess === true &&
-							listOfAssets.map((element, index) => {
-								return (
-									<AssetCard
-										key={index}
-										name={element.name}
-										type={element.type}
-										thumb={element.thumb}
-										created={element.created_at}
-										media={element}
-									/>
-								)
-							})
+						isSuccess === true && sortAssets
 					}
 				</div>
 			</section>
 		)
 	}
+
+	useEffect(() => {
+		if (mounted.current === true) {
+			displayAssetList(sortOrder)
+		}
+	}, [sortOrder, isSuccess])
 
 	useEffect(() => {
 		mounted.current = true
@@ -80,7 +146,7 @@ const MediaImporter = () => {
 	return (
 		<div className="media-importer">
 			<section id="left-pane">
-				<div className="plane-header">Upload a new file</div>
+				<div className="pane-header">Upload a new file</div>
 
 				<DragAndDrop parseMethod={uploadFile} idStr={'drag-wrapper'}>
 					<div className="drag-text">Drag a file here to upload</div>

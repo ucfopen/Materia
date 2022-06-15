@@ -60,14 +60,6 @@ const _thumbnailUrl = (data, type) => {
 
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-// just picks the first selected image
-export const uploadFile = (e) => {
-
-  const file =
-    (e.target.files && e.target.files[0]) || (e.dataTransfer.files && e.dataTransfer.files[0])
-  if (file) _getFileData(file, _upload)
-}
-
 const _getFileData = (file, callback) => {
   const dataReader = new FileReader()
   // File size is measured in bytes
@@ -95,7 +87,7 @@ const _getFileData = (file, callback) => {
   dataReader.readAsDataURL(file)
 }
 
-export const _upload = async (fileData) => {
+const _upload = async (fileData) => {
 
   const fd = new FormData()
   fd.append('name', fileData.name)
@@ -108,7 +100,7 @@ export const _upload = async (fileData) => {
     const res = JSON.parse(request.response) //parse response string
     if (res.error) {
       alert(`Error code ${res.error.code}: ${res.error.message}`)
-      window.parent.Materia.Creator.onMediaImportComplete(null)
+      onCancel()
       return
     }
     _loadAllMedia(res.id)
@@ -174,13 +166,22 @@ const _loadAllMedia = async (file = null) => {
     element.created_at = dateString
 
     if (file == element.id) {
-      // window.parent.Materia.Creator.onMediaImportComplete([element])
       loadPickedAsset(element)
     }
 
   });
 
   return listOfAssets
+}
+
+const _announceReady = () => {
+  // announce to the creator that the importer is available, if waiting to auto-upload
+  let msg = {
+    type: 'readyForDirectUpload',
+    source: 'media-importer',
+    data: '',
+  }
+  window.parent.postMessage(JSON.stringify(msg), '*')
 }
 
 // public version
@@ -192,3 +193,16 @@ export const getAllAssets = async () => {
 export const loadPickedAsset = async (element) => {
   window.parent.Materia.Creator.onMediaImportComplete([element])
 }
+
+// just picks the first selected image
+export const uploadFile = (e) => {
+  const file =
+    (e.target.files && e.target.files[0]) || (e.dataTransfer.files && e.dataTransfer.files[0])
+  if (file) _getFileData(file, _upload)
+}
+
+export const onCancel = () => {
+  window.parent.Materia.Creator.onMediaImportComplete(null)
+}
+
+_announceReady()

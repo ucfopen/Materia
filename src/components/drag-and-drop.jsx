@@ -10,7 +10,7 @@ const DragAndDrop = ({ children, parseMethod, idStr }) => {
 		ev.stopPropagation()
 	}
 
-	const handleOnChange = (ev) => {
+	const handleDrop = (ev) => {
 		ev.preventDefault()
 		ev.stopPropagation()
 		parseMethod(ev) // parse function
@@ -32,7 +32,7 @@ const DragAndDrop = ({ children, parseMethod, idStr }) => {
 				handleDragEvent(ev)
 			}}
 			onDrop={(ev) => {
-				handleOnChange(ev)
+				handleDrop(ev)
 			}}
 		>
 			{children}
