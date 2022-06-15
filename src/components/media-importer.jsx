@@ -36,6 +36,7 @@ const MediaImporter = () => {
 	const mounted = useRef(false)
 	const [sortAssets, setSortAssets] = useState(null)
 	const [sortOrder, setSortOrder] = useState(0)
+	const [numOfAssets, setNumOfAssets] = useState(0)
 	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
 
 	const sortAssetList = (sortType) => {
@@ -119,11 +120,11 @@ const MediaImporter = () => {
 				</div>
 
 				<div id="file-display">
-					<div className="file-info">No files available!</div>
-					{
-						// for some reason this breaks while the top works.
-						isSuccess === true && sortAssets
-					}
+					{isSuccess === true && numOfAssets < 1 ? (
+						<div className="file-info">No files available!</div>
+					) : (
+						sortAssets
+					)}
 				</div>
 			</section>
 		)
@@ -131,9 +132,17 @@ const MediaImporter = () => {
 
 	useEffect(() => {
 		if (mounted.current === true) {
-			displayAssetList(sortOrder)
+			if (numOfAssets > 0) {
+				displayAssetList(sortOrder)
+			}
 		}
-	}, [sortOrder, isSuccess])
+	}, [sortOrder, numOfAssets])
+
+	useEffect(() => {
+		if (mounted.current === true) {
+			setNumOfAssets(listOfAssets.length)
+		}
+	}, [isSuccess])
 
 	useEffect(() => {
 		mounted.current = true
