@@ -69,6 +69,10 @@ store_main section {
 
 .spotlight{
 
+	.engage {
+		color: #0093e7;
+	}
+
 	h1 {
 		font-family: 'Lato', arial, serif;
 		font-weight: 900;
@@ -151,23 +155,19 @@ store_main section {
 	}
 }
 
-
-
 .get_started {
 	text-align: center;
 	font-family: 'Lato', arial, serif;
 	font-size: 24px;
 	font-weight: 900;
 	color: #474747;
-	margin-top: 50px;
-	padding: 0;
+	padding-top: 50px;
 	vertical-align: middle;
 	width: 100%;
 	background-color: #3690e6;
 
 	p {
 		display: inline-block;
-		vertical-align: middle;
 		padding: 0;
 		margin: 36px 0;
 
@@ -182,6 +182,7 @@ store_main section {
 		}
 		&.button_wrap {
 			height: 100%;
+			vertical-align: middle;
 			display: inline-block;
 		}
 		.bold {

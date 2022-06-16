@@ -8,13 +8,20 @@ const Homepage = () => (
 		<section className='page spotlight' ng-controller='HomePageSpotlightCtrl'>
 			<section className='main_container'>
 				<span className='spotlight-wrapper'>
-
 					<article className='store_main selected'>
 						<section className='html5'>
-							<h1>Supercharged HTML 5 Widgets</h1>
-							<p>We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
-							<p>We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
-							<p>Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+							<div className="html5Content">
+								<h1>Create <span className="engage">Engaging</span> Apps!</h1>
+								<div>
+									<p id="html5Content_body">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
+									<p id="html5Content_body">We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
+									<p id="html5Content_body">Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+									<p className='button_wrap'>
+										<a className='action_button' href='widgets'>Get Started</a>
+									</p>
+								</div>
+								<img class="mobile_spotlight_banner" src='/img/banner_final.png' alt='homepage final banner design for materia'/>
+							</div>
 						</section>
 					</article>
 
@@ -24,28 +31,25 @@ const Homepage = () => (
 		</section>
 
 		<section className='get_started'>
-			<p className='desc'>
-				Easily embed <span className='bold'>engaging</span> apps in your online course.
-			</p>
-			<p className='button_wrap'>
-				<a className='action_button' href='widgets'>Get Started</a>
-			</p>
+		<img src="/img/social-ucf-open.png"/>
+
+			<div className='get_started_content'>
+					<h1 className='subHeader'> Materia is Open Source! </h1>
+			 			<p className='desc'>
+							Use Materia at your organization through UCF Open.
+						</p>
+				<p className='button_wrap'>
+					<a className='action_button' href='widgets'>Get Materia</a>
+				</p>
+			</div>
 		</section>
 
 		<section className='front_bottom'>
 			<section className='wrapper'>
-				<div>
-					<h2>Engage Your Students</h2>
-					<p>
-						Re-imagine your course filled with diverse and interesting experiences.
-						It can bring life to content modules, practice, study activities, and even assessments.
-						Engage students with game mechanics like: story-telling, competition, instant feedback, and instant reward systems.
-					</p>
-				</div>
-				<img src='/img/front1.png' alt='screen shot of a labeling widget' />
+			<div className="wrapper_first">
 				<div>
 					<h2>Create Quickly and Easily</h2>
-					<p>
+					<p className="front_bottom_desc">
 						Materia's design philosophy is to be incredibly easy to use.
 						Every step of customizing and delivering apps has been finely tuned to be as clear and simple as possible.
 						Players are greeted with clean and simple interfaces.
@@ -53,27 +57,29 @@ const Homepage = () => (
 					</p>
 				</div>
 				<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
+			</div>
+			<div className="wrapper_second">
+				<div>
+					<h2>Engage Your Students</h2>
+					<p className="front_bottom_desc">
+						Re-imagine your course filled with diverse and interesting experiences.
+						It can bring life to content modules, practice, study activities, and even assessments.
+						Engage students with game mechanics like: story-telling, competition, instant feedback, and instant reward systems.
+					</p>
+				</div>
+				<img src='/img/front1.png' alt='screen shot of a labeling widget' />
+			</div>
+			<div className="wrapper_third">
 				<div>
 					<h2>Integrate with Your Course</h2>
-					<p>
+					<p className="front_bottom_desc">
 						Materia integrates into Canvas seamlessly.
 						As an assignment, student's scores can automatically sync to the grade book.
 						Thanks to the magic of LTI, Students are logged in automatically!
 					</p>
 				</div>
 				<img src='/img/front3.png' alt='screen shot of a widget score page'/>
-			</section>
-
-			<section className='get_started use_materia' >
-				<p className='desc'>
-					Use Materia at <span className='bold'>your</span> organization.
-				</p>
-				<p className='button_wrap'>
-					<a className='action_button' href='https://ucfopen.github.io/Materia-Docs/'>
-						Get Materia
-						<span className='little-button-text'> (It's open source!)</span>
-					</a>
-				</p>
+			</div>
 			</section>
 
 			<section className='p_s'>
