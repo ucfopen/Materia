@@ -217,12 +217,6 @@ export const apiAuthorSupport = () => {
 		.catch(error => false)
 }
 
-export const apiAuthorNull = () => {
-	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([null, false])}` })
-		.then(user => user)
-		.catch(error => false)
-}
-
 export const apiUpdateUserSettings = (settings) => {
 	return fetch('/api/user/settings', {
 		...fetchOptions({}),
@@ -336,6 +330,30 @@ export const apiSearchWidgets = input => {
 			return resp.json()
 		})
 		.then(widgets => widgets)
+}
+
+export const apiGetWidgetInstanceScores = instId => {
+	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+		.then(res => res.json())
+		.then(scores => scores)
+}
+
+
+export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
+	return fetch('/api/json/guest_widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
+		.then(res => res.json())
+		.then(scores => scores)
+}
+
+export const apiGetWidgetInstancePlayScores = (playId, previewInstId) => {
+	return fetch('/api/json/widget_instance_play_scores_get', fetchOptions({ body: `data=${formatFetchBody([playId, previewInstId])}` }))
+		.then(res => res.json())
+}
+
+export const apiGetScoreDistribution = instId => {
+	return fetch('/api/json/score_raw_distribution_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+		.then(res => res.json())
+		.then(scores => scores)
 }
 
 export const apiGetScoreSummary = instId => {

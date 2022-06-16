@@ -19,6 +19,7 @@ return [
 		'detail'     => [$webpack.'js/detail.js'],
 		'playpage'   => [$webpack.'js/player-page.js'],
 		'createpage' => [$webpack.'js/creator-page.js'],
+		'scores'		 => [$webpack.'js/scores.js'],
 
 		'angular'    => [$vendor.'angular.min.js'],
 		'ng-animate' => [$vendor.'angular-animate.min.js'],
