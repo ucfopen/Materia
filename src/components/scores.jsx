@@ -70,7 +70,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		staleTime: Infinity,
 		placeholderData: null,
     onSettled: (data) => {
-      console.log(data)
       if (
 				(data != null ? data.title : undefined) === 'Permission Denied' ||
 				data.type === 'error'

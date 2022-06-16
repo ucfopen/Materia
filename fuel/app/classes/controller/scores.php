@@ -51,7 +51,7 @@ class Controller_Scores extends Controller
 		$instances = Materia\Api::widget_instances_get([$inst_id]);
 		if ( ! isset($instances[0])) throw new HttpNotFoundException;
 
-		$is_preview = !!preg_match('/preview/', URI::current());
+		$is_preview = ! ! preg_match('/preview/', URI::current());
 
 		$inst = $instances[0];
 		// not allowed to play the widget
