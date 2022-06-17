@@ -7,20 +7,55 @@
 	background: #fff;
 }
 
+@media (max-width: 720px) {
+	.login .container {
+		margin: 10% auto 0px auto !important;
+		align-items: center;
+	}
+
+	.login section.page,
+	.login aside {
+		border: none !important;
+		box-shadow: none !important;
+	}
+
+	.login .form-content ul {
+		width: 0px !important;
+		margin: 0 !important;
+	}
+
+	.login ul.help_links {
+		width: 100% !important;
+	}
+
+.login .form-content ul li input[type='text'],
+.login .form-content ul li input[type='password'] {
+		width: 300px !important;
+	}
+
+	.login .error p {
+		width: 307px !important;
+	}
+
+}
+
 .login .container {
+	display: flex;
+	justify-content: center;
 	margin: 15px auto 0px auto;
-	width: 640px;
+	// width: 640px;
 	position: relative;
 }
 
 .login section.page,
 .login aside {
-	border: rgba(0, 0, 0, 0.11) 1px solid;
-	box-shadow: 1px 3px 10px #888;
+	border-radius: 4px;
+	border: #e4e4e4 1px solid;
+	box-shadow: 1px 3px 10px #dcdcdc;
 }
 
 .login section.page {
-	width: 600px;
+	// width: 600px;
 	margin: 0 auto;
 	top: 0;
 	right: 0;
@@ -126,7 +161,9 @@ div.detail.icon-offset {
 	left: 0;
 	display: block;
 	width: 300px;
-	font-size: 17px;
+	font-size: 14px;
+	font-family: 'Lato';
+	font-weight: 200;
 }
 
 .login .form-content ul li label {
@@ -142,11 +179,12 @@ div.detail.icon-offset {
 	padding-left: 12px;
 	padding-right: 12px;
 	width: 326px;
-	border: solid 1px #abadb3;
+	border: solid 1.5px #abadb3;
 	background: #fff;
 }
 
 .login ul.help_links {
+	font-size: 14px;
 	text-align: center;
 	padding: 0;
 }

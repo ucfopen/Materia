@@ -1,8 +1,8 @@
 <div class="container" ng-controller="UserLoginCtrl">
 	<section class="page">
 		<div class="detail">
-			<h2 class="logo">Login to your account</h2>
-			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?></span>
+			<h2 class="logo">Log In to Your Account</h2>
+			<span class="subtitle">Using your <?= __('login.user') ?> and <?= __('login.password') ?> to access your Widgets.</span>
 		</div>
 
 		<div id="form">

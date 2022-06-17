@@ -9,8 +9,9 @@
 	section.page {
 		margin: 0 auto;
 		background: #fff;
-		border: rgba(0, 0, 0, 0.11) 1px solid;
-		box-shadow: 1px 3px 10px #888;
+		border-radius: 4px;
+		border: #e4e4e4 1px solid;
+		box-shadow: 1px 3px 10px #dcdcdc;
 		width: 96%;
 		max-width: 1500px;
 		//overflow: hidden;
@@ -26,8 +27,9 @@
 		padding: 10px 15px;
 		position: relative;
 		z-index: 2;
+		font-weight: bold;
 
-		font-family: 'Lato-Black', arial, serif;
+		font-family: "Lato", arial, serif;
 
 		h1 {
 			margin: 0;
@@ -41,6 +43,7 @@
 			top: 5px;
 			font-size: 0.8em;
 			margin: 10px 15px;
+			font-family: "Lato", arial, sans-serif;
 		}
 
 		.search {
@@ -56,7 +59,7 @@
 				left: 9px;
 				height: 16px;
 				width: 20px;
-				fill: #898686;
+				// fill: #898686;
 				svg {
 					height: 100%;
 					width: 100%;
@@ -102,25 +105,15 @@
 				width: 100%;
 				right: 0;
 				padding: 4px 35px 4px 35px;
-				font-size: 16px;
+				font-size: 14px;
 				background: #fff;
 				border: solid 1px #b0b0b0;
 				border-radius: 12px;
 				margin: 0;
+				font-family: "Lato", arial, sans-serif;
 
 				&::-ms-clear {
 					display: none;
-				}
-			}
-
-			&.not-empty {
-				.search-icon {
-					fill: rgba(255, 255, 255, 0.8);
-				}
-
-				input {
-					background: #3498db;
-					color: white;
 				}
 			}
 		}
@@ -134,6 +127,7 @@
 		margin: 0;
 		font-size: 0.9em;
 		cursor: pointer;
+		font-family: "Lato", arial, sans-serif;
 	}
 
 	#filters-container {
@@ -142,7 +136,6 @@
 		justify-content: space-between;
 		flex-direction: column;
 		position: relative;
-		background: #d1d1d1;
 		overflow: hidden;
 
 		&.ready {
@@ -178,6 +171,7 @@
 					margin: 3px 3px;
 					border-radius: 5px;
 					padding: 8px 10px;
+					font-family: "Lato", arial, sans-serif;
 
 					&:hover {
 						background: #bfe5ff;
@@ -196,6 +190,7 @@
 		text-align: center;
 		margin: 40px;
 		font-style: italic;
+		color: #888888;
 	}
 
 	.widget-group {
@@ -208,8 +203,10 @@
 			font-size: 1.3em;
 			color: #888888;
 			text-align: center;
+			font-style: italic;
+			font-weight: bold;
 
-			font-family: 'Lato-Black', arial, serif;
+			font-family: 'Lato', arial, serif;
 
 			span {
 				padding: 0 20px;
@@ -232,20 +229,18 @@
 			min-width: 300px;
 			min-height: 135px;
 			margin: 15px;
-			border-radius: 5px;
 			background-color: #ffffff;
-			border: solid 1px #bababa;
-			box-shadow: 0px 0px 3px #dedede;
+			border-radius: 5px;
+			border: #e4e4e4 1px solid;
+			box-shadow: 1px 3px 10px #dcdcdc;
 			opacity: 0;
 			position: relative;
+			transition: all 0.3s ease-in-out;
 
 			&:hover {
+				border: transparent 1px solid;
 				background-color: #e2f3ff;
-				box-shadow: 0px 0px 4px #888; // 1px 3px 10px 2px #888;
-
-				h1 {
-					text-decoration: underline;
-				}
+				box-shadow: 0px 0px 4px #dcdcdc; // 1px 3px 10px 2px #888;
 			}
 
 			&.filtered {
@@ -295,7 +290,8 @@
 					h1 {
 						display: block;
 						font-size: 18px;
-						font-family: 'Lato-Black', arial, serif;
+						font-family: 'Lato', arial, serif;
+						font-weight: bold;
 						margin: 7px 5px 5px;
 						color: #333;
 
@@ -309,7 +305,7 @@
 						font-weight: bold;
 						margin: 0;
 						padding: 6px 10px;
-						font-family: 'Lato-Black', arial, serif;
+						font-family: 'Lato', arial, serif;
 						background: #bfe5ff;
 						border-radius: 0 5px 0 0;
 						position: absolute;
@@ -336,7 +332,7 @@
 
 				.widget-info {
 					margin-left: 135px;
-					margin-right: 5px;
+					margin-right: 8px;
 					font-size: 0.88em;
 
 					.accessibility-holder {
@@ -526,16 +522,18 @@
 			position: absolute;
 			left: 10px;
 			top: calc(50% - 10px);
-			background: white;
-			border-radius: 3px;
-			border: 1px solid #777;
 			padding: 2px 7px;
+			border: none;
+			color: #3690e6;
+			text-decoration: underline;
+			cursor: pointer;
+			font-family: "Lato", arial, sans-serif;
 
 			&.open:before {
 				background: transparent;
 				bottom: 0;
 				content: ' ';
-				cursor: default;
+				cursor: pointer;
 				display: block;
 				left: 0;
 				position: fixed;
@@ -560,6 +558,7 @@
 			label {
 				display: block;
 				padding: 3px 5px;
+				font-size: 12px;
 			}
 		}
 

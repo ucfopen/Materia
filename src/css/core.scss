@@ -9,7 +9,7 @@ html {
 
 body {
 	font-family: 'Lato', arial, serif;
-	font-size: 18px;
+	// font-size: 18px;
 	font-weight: 300;
 	overflow: auto;
 }
@@ -28,7 +28,7 @@ a {
 	text-decoration: none;
 
 	&:hover {
-		text-decoration: underline;
+		text-decoration: none;
 	}
 
 	img {
@@ -91,8 +91,8 @@ header {
 			font-weight: 400;
 			font-family: 'Lato', arial, serif;
 			position: absolute;
-			top: 25px;
-			right: 15px;
+			top: 0;
+			right: 7px;
 			width: 500px;
 			text-align: right;
 			color: #4c4c4c;
@@ -199,7 +199,7 @@ nav {
 			a {
 				font-family: 'Lato', arial, serif;
 				font-size: 14px;
-				font-weight: 300;
+				font-weight: 100;
 				margin: 0;
 				padding: 0;
 				color: #4c4c4c;
@@ -380,7 +380,7 @@ nav {
 	color: #0093e7;
 	font-family: 'Lato', arial, serif;
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: 100;
 	height: 27px;
 	position: relative;
 	margin-left: 20px;
@@ -437,9 +437,9 @@ nav {
 	font-weight: 900;
 	font-size: 20pt;
 	font-family: 'Lato', arial, serif;
-	margin: 0;
+	margin: 10px auto;
 	padding: 0;
-	text-shadow: 0px 1px 0px #ccc;
+	// text-shadow: 0px 1px 0px #ccc;
 }
 
 h3 {
@@ -489,6 +489,7 @@ h3 {
 	user-select: none;
 
 	border-radius: 4px;
+	border: none;
 
 	.ng-modal & {
 		margin: 5px auto;
@@ -1226,8 +1227,8 @@ hr {
 }
 
 span.subtitle {
-	font-size: 1.1em;
-	font-weight: 700;
+	font-size: .7em;
+	font-weight: 300;
 	font-family: 'Lato', arial, serif;
 }
 

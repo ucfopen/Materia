@@ -14,7 +14,7 @@ const SettingsPage = () => {
 		queryFn: apiGetUser,
 		staleTime: Infinity
 	})
-	
+
 	useEffect(() => {
 		if (mounted && ! isFetching) {
 			mounted.current = true
@@ -29,7 +29,7 @@ const SettingsPage = () => {
 
 	const _updateEmailPref = event => {
 		setState({...state, notify: !state.notify})
-		
+
 	}
 
 	const _updateIconPref = pref => {
@@ -57,20 +57,20 @@ const SettingsPage = () => {
 				</div>
 
 				<h2>
-					<span>Account</span>
-					Settings
+					<span>Settings</span>
+					{`${currentUser.first} ${currentUser.last}`}
 				</h2>
 
-				<h3>Notifications</h3>
+				<span>Notifications</span>
 				<ul>
 					<li>
 						<input type='checkbox' id='notify' name='notify' checked={state.notify == true} onChange={_updateEmailPref} />
 						<label>Send me an email when a widget has been shared with me.</label>
 						<br/>
-						<p className='email_exp'>Email notifications will be sent to <span className='email_exp_addr'>{currentUser.email}</span>.</p>
+						<p className='email_exp'>Email notifications will be sent to {currentUser.email}.</p>
 					</li>
 				</ul>
-				<h3>User Icon</h3>
+				<span>User Icon</span>
 				<ul>
 					<li>
 						<input type="radio" name="avatar" id="avatar_gravatar" checked={state.useGravatar == true} onChange={() => _updateIconPref(true)}/>

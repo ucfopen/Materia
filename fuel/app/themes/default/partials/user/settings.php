@@ -3,30 +3,35 @@
 
 		<ul class="main_navigation">
 			<li class="profile"><a href="/profile">Profile</a></li>
-			<li class="selected ettings"><a href="/settings">Settings</a></li>
+			<li class="selected settings"><a href="/settings">Settings</a></li>
 		</ul>
 
 		<div class="avatar_big">
 			<img ng-src="{{avatar}}" />
 		</div>
 
-		<h2><span>Account</span>Settings</h2>
+		<div>
+			<div>
+				<span>Settings</span>
+			</div>
+			<h2>{{user.name}}</h2>
+		</div>
 
 		<form name="settingsForm" ng-submit="saveSettings()" novalidate>
 
-			<h3>Notifications</h3>
+			<span class="settings_subheader">Notifications</span>
 
-			<ul>
+			<ul class="settings_subtext">
 				<li>
 					<input type="checkbox" id="notify" name="notify" ng-model="user.notify" />
 					<label for="notify">Send me an email when a widget has been shared with me.</label>
 					<br/>
-					<p class="email_exp">Email notifications will be sent to <span class="email_exp_addr"><?= $me->email ?></span>.</p>
+					<div class="email_exp">Email notifications will be sent to <?= $me->email ?>.</div>
 				</li>
 			</ul>
 
-			<h3>User Icon</h3>
-			<ul>
+			<span class="settings_subheader">User Icon</span>
+			<ul class="settings_subtext">
 				<li>
 					<input type="radio" name="avatar" id="avatar_gravatar" ng-value="true" ng-model="useGravatar" required/>
 					<label for="avatar_gravatar">Use Gravatar</label>
@@ -45,9 +50,11 @@
 					ng-click="disableBeardMode()">Disable Beard Mode</button>
 			</div>
 
-			<p>
-				<button type="submit" class="action_button" ng-disabled="!settingsForm.$dirty">Save</button>
-			</p>
+			<ul class="settings_subtext">
+				<li class="submit_button">
+					<button type="submit" class="action_button" ng-disabled="!settingsForm.$dirty">Save</button>
+				</li>
+			</ul>
 
 		</form>
 
