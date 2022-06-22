@@ -115,8 +115,8 @@ class Controller_Widgets extends Controller
 
 		Js::push_inline('var NAME = "'.$widget->name.'";');
 		Js::push_inline('var TYPE = "'.$type.'";');
-		Js::push_inline('var HAS_PLAYER_GUIDE = "'.! empty($widget->player_guide).'";');
-		Js::push_inline('var HAS_CREATOR_GUIDE = "'.! empty($widget->creator_guide).'";');
+		Js::push_inline('var HAS_PLAYER_GUIDE = "'.( ! empty($widget->player_guide)).'";');
+		Js::push_inline('var HAS_CREATOR_GUIDE = "'.( ! empty($widget->creator_guide)).'";');
 		Js::push_inline('var DOC_PATH = "'.Config::get('materia.urls.engines').$widget->dir.$guide.'";');
 
 
