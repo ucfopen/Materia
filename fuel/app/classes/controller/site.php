@@ -24,25 +24,25 @@ class Controller_Site extends Controller
 
 	public function action_permission_denied()
 	{
-		Js::push_group(['angular', 'materia']);
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
 
-		$this->theme->set_partial('content', 'partials/nopermission');
+		Js::push_group(['react', 'no_permission']);
 	}
 
 	public function action_help()
 	{
-		Js::push_group(['angular', 'materia']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 
 		$this->theme->get_template()
 			->set('title', 'Help')
 			->set('page_type', 'docs help');
 
-		$this->theme->set_partial('content', 'partials/help/main');
-
+		Js::push_group(['react', 'help']);
 		Css::push_group('help');
 	}
 
@@ -50,11 +50,13 @@ class Controller_Site extends Controller
 	{
 		Css::push_group('errors');
 
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', '403 Not Authorized')
 			->set('page_type', '404');
 
-		$this->theme->set_partial('content', 'partials/404');
+		Js::push_group(['react', '404']);
 
 		Log::warning('403 URL: '.Uri::main());
 
@@ -70,11 +72,13 @@ class Controller_Site extends Controller
 	{
 		Css::push_group('errors');
 
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
-			->set('title', '404 Page not Found')
+			->set('title', '404 Page Not Found')
 			->set('page_type', '404');
 
-		$this->theme->set_partial('content', 'partials/404');
+		Js::push_group(['react', '404']);
 
 		Log::warning('404 URL: '.Uri::main());
 
@@ -90,11 +94,13 @@ class Controller_Site extends Controller
 	{
 		Css::push_group('errors');
 
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', '500 Server Error')
 			->set('page_type', '500');
 
-		$this->theme->set_partial('content', 'partials/500');
+		Js::push_group(['react', '500']);
 
 		Log::warning('500 URL: '.Uri::main());
 

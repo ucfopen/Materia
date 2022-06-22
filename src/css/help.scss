@@ -1,10 +1,10 @@
-.docs .container {
+.container {
 	margin: 0 auto;
 	width: 970px;
 	position: relative;
 }
 
-.docs .container .page {
+.container .page {
 	border: rgba(0, 0, 0, 0.22) 1px solid;
 	box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
 
@@ -27,7 +27,7 @@
 	padding: 40px 215px 20px 60px;
 }
 
-.docs .container h1 {
+.container h1 {
 	font-family: 'Lato', arial, serif;
 	font-weight: 700;
 	font-size: 38px;
@@ -37,53 +37,53 @@
 	border-bottom: dotted black 1px;
 }
 
-.docs .container h2 {
+.container h2 {
 	font-family: 'Lato', arial, serif;
 
 	font-size: 26px;
 	margin: 20px 0 0 0;
 }
 
-.docs .container .page section {
+.container .page section {
 	margin-bottom: 0px;
 	padding-bottom: 15px;
 	clear: both;
 }
 
-.docs .container .page section.float {
+.container .page section.float {
 	width: 25%;
 	clear: none;
 	float: left;
 }
 
-.docs .container .page section.float.right {
+.container .page section.float.right {
 	width: 40%;
 	float: right;
 }
 
-.docs .container .page section.float.left {
+.container .page section.float.left {
 	width: 53%;
 	float: left;
 }
 
-.docs .container .page section.bordered {
+.container .page section.bordered {
 	border-bottom: dotted 1px #ccc;
 }
 
-.docs .container .page section.bordered-top {
+.container .page section.bordered-top {
 	border-top: dotted 1px #ccc;
 }
 
-.docs .container h3 {
+.container h3 {
 	margin: 30px 0 0 0;
 	font-size: 1.3em;
 }
 
-.docs .container h3 + p {
+.container h3 + p {
 	margin-top: 0.5em;
 }
 
-.docs .container a {
+.container a {
 	text-decoration: underline;
 }
 
@@ -101,17 +101,17 @@
 	background-position: 0 2px;
 }
 
-.docs .container dl dt {
+.container dl dt {
 	font-weight: bold;
 	font-family: 'Lato', arial, serif;
 }
-.docs .container dl dd {
+.container dl dd {
 	padding-bottom: 10px;
 	margin: 0 0 0 20px;
 }
 
-.docs .no_flash,
-.docs .flash_installed {
+.no_flash,
+.flash_installed {
 	background: #f7f7f7;
 	border-radius: 5px;
 	padding: 15px 20px;

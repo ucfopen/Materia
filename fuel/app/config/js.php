@@ -27,6 +27,9 @@ return [
 		'no_permission' => [$webpack.'js/no-permission.js'],
 		'embedded_only' => [$webpack.'js/embedded-only.js'],
 		'pre_embed_placeholder' => [$webpack.'js/pre-embed-placeholder.js'],
+		'help'			 => [$webpack.'js/help.js'],
+		'404'				 => [$webpack.'js/404.js'],
+		'500'				 => [$webpack.'js/500.js'],
 
 		'angular'    => [$vendor.'angular.min.js'],
 		'ng-animate' => [$vendor.'angular-animate.min.js'],
