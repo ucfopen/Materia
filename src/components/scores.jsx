@@ -60,7 +60,10 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
   const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
 		queryFn: () => apiGetWidgetInstance(inst_id),
-		staleTime: Infinity
+		staleTime: Infinity,
+    onSettled: (data) => {
+      console.log(data)
+    }
 	})
 
   // Gets qset

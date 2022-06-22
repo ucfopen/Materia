@@ -20,6 +20,13 @@ return [
 		'playpage'   => [$webpack.'js/player-page.js'],
 		'createpage' => [$webpack.'js/creator-page.js'],
 		'scores'		 => [$webpack.'js/scores.js'],
+		'guides'		 => [$webpack.'js/guides.js'],
+		'retired'	 	 => [$webpack.'js/retired.js'],
+		'no_attempts'=> [$webpack.'js/no-attempts.js'],
+		'draft_not_playable' => [$webpack.'js/draft-not-playable.js'],
+		'no_permission' => [$webpack.'js/no-permission.js'],
+		'embedded_only' => [$webpack.'js/embedded-only.js'],
+		'pre_embed_placeholder' => [$webpack.'js/pre-embed-placeholder.js'],
 
 		'angular'    => [$vendor.'angular.min.js'],
 		'ng-animate' => [$vendor.'angular-animate.min.js'],
