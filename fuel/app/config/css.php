@@ -39,7 +39,7 @@ return [
 		],
 		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'js/profile.css'],
-		'login' => [$webpack.'css/login.css'],
+		'login' => [$webpack.'js/login.css'],
 		'scores' => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$webpack.'css/scores.css',
