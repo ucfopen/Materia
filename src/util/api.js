@@ -466,6 +466,11 @@ export const apiGetQuestionSet = (instId, playId = null) => {
 		.then(qset => qset.json())
 }
 
+export const apiGetQuestionSetHistory = (instId) => {
+	return fetch('/api/instance/history', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+		.then(resp => resp.json())
+}
+
 export const apiSavePlayStorage = ({ play_id, logs }) => {
 	return fetch('/api/json/play_storage_data_save/', fetchOptions({ body: `data=${formatFetchBody([play_id, logs])}` }))
 		.then(resp => resp.json())
