@@ -20,7 +20,7 @@ const Homepage = () => (
 										<a className='action_button' href='widgets'>Get Started</a>
 									</p>
 								</div>
-								<img class="mobile_spotlight_banner" src='/img/banner_final.png' alt='homepage final banner design for materia'/>
+								<img className="mobile_spotlight_banner" src='/img/banner_final.png' alt='homepage final banner design for materia'/>
 							</div>
 						</section>
 					</article>
