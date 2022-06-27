@@ -90,8 +90,14 @@ const MediaImporter = () => {
 
 	const SortOption = ({ sortTypeIndex }) => {
 		return (
-			<span
-				className="sort-option"
+			<div
+				className={
+					sortTypeIndex !== sortState.sortOrder
+						? 'sort-option'
+						: sortState.sortAsc === true
+						? 'sort-option sort-asc'
+						: 'sort-option sort-desc'
+				}
 				onClick={() => {
 					setSortState({
 						...sortState,
@@ -101,7 +107,7 @@ const MediaImporter = () => {
 				}}
 			>
 				{SORT_OPTIONS[sortTypeIndex].name}
-			</span>
+			</div>
 		)
 	}
 
@@ -164,12 +170,10 @@ const MediaImporter = () => {
 				</div>
 
 				<div id="sort-bar">
-					<div className="sort-options">
+					<div id="sort-options">
 						<SortOption sortTypeIndex={0} />
 						<SortOption sortTypeIndex={1} />
 						<SortOption sortTypeIndex={2} />
-					</div>
-					<div>
 						<input
 							type="input"
 							placeholder="File Search"
