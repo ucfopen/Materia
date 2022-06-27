@@ -5,17 +5,16 @@ import './homepage.scss'
 const Homepage = () => (
 	<>
 		<Header />
-		<section className='page spotlight' ng-controller='HomePageSpotlightCtrl'>
+		<section className='page spotlight'>
 			<section className='main_container'>
-				<span className='spotlight-wrapper'>
-					<article className='store_main selected'>
-						<section className='html5'>
-							<div className="html5Content">
+					<article className='store_main'>
+						<section>
+							<div className="store_content">
 								<h1>Create <span className="engage">Engaging</span> Apps!</h1>
 								<div>
-									<p id="html5Content_body">We're proud to introduce our new, updated <b>HTML 5</b> catalog!</p>
-									<p id="html5Content_body">We've been toiling away in the lab polishing, improving, and re-imagining every single widget in the catalog.</p>
-									<p id="html5Content_body">Best of all, we now support <b>phones</b> and <b>tablets</b> for students on the go.</p>
+									<p>With Materia, you have the power to create effective, interactive learning tools called <b>Widgets.</b></p>
+									<p>Browse our catalog and begin customizing in seconds. Widgets can be tailored to suit your needs, no matter the subject matter.</p>
+									<p>Best of all, widgets can be embedded directly in your LMS to enhance your online course.</p>
 									<p className='button_wrap'>
 										<a className='action_button' href='widgets'>Get Started</a>
 									</p>
@@ -24,10 +23,7 @@ const Homepage = () => (
 							</div>
 						</section>
 					</article>
-
-				</span>
 			</section>
-			<div className='cycler' />
 		</section>
 
 		<section className='get_started'>
