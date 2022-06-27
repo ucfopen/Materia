@@ -33,7 +33,6 @@ const MediaImporter = () => {
 		sortOrder: 0, // List sorting options
 	})
 	const [sortedList, setSortedList] = useState([])
-
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 	const [numOfAssets, setNumOfAssets] = useState(0) // Number of Assets fetched
 	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
@@ -60,7 +59,6 @@ const MediaImporter = () => {
 			sortedAssetsList = assets
 				.filter((asset) => asset.name.toLowerCase().match(filterSearch))
 				.map((element, index) => {
-					console.log(element)
 					return (
 						<AssetCard
 							key={index}
@@ -112,41 +110,6 @@ const MediaImporter = () => {
 		setFilterSearch(ev.target.value)
 	}
 
-	const RightPane = () => {
-		return (
-			<section id="right-pane">
-				<div className="pane-header darker">
-					Pick from you library
-					<span className="close-button" onClick={onCancel} />
-				</div>
-
-				<div id="sort-bar">
-					<div className="sort-options">
-						<SortOption sortTypeIndex={0} />
-						<SortOption sortTypeIndex={1} />
-						<SortOption sortTypeIndex={2} />
-					</div>
-					<div>
-						<input
-							type="search"
-							placeholder="File Search"
-							onChange={filterFiles}
-							value={filterSearch}
-						/>
-					</div>
-				</div>
-
-				<div id="file-display">
-					{isSuccess === true && numOfAssets <= 1 ? (
-						<div className="file-info">No files available!</div>
-					) : (
-						sortAssets
-					)}
-				</div>
-			</section>
-		)
-	}
-
 	useEffect(() => {
 		if (mounted.current === true) {
 			displayAssetList()
@@ -194,7 +157,36 @@ const MediaImporter = () => {
 				</div>
 			</section>
 
-			<RightPane />
+			<section id="right-pane">
+				<div className="pane-header darker">
+					Pick from you library
+					<span className="close-button" onClick={onCancel} />
+				</div>
+
+				<div id="sort-bar">
+					<div className="sort-options">
+						<SortOption sortTypeIndex={0} />
+						<SortOption sortTypeIndex={1} />
+						<SortOption sortTypeIndex={2} />
+					</div>
+					<div>
+						<input
+							type="input"
+							placeholder="File Search"
+							onChange={filterFiles}
+							value={filterSearch}
+						/>
+					</div>
+				</div>
+
+				<div id="file-display">
+					{isSuccess === true && numOfAssets <= 1 ? (
+						<div className="file-info">No files available!</div>
+					) : (
+						sortAssets
+					)}
+				</div>
+			</section>
 		</div>
 	)
 }
