@@ -39,6 +39,7 @@ class Widget_Asset
 	public $file_size  = '';
 	public $questions  = [];
 	public $type       = '';
+	public $is_deleted = 0;
 
 	protected $_storage_driver;
 
@@ -115,7 +116,8 @@ class Widget_Asset
 						'type'        => $this->type,
 						'title'       => $this->title,
 						'file_size'   => $this->file_size,
-						'created_at'  => time()
+						'created_at'  => time(),
+						'is_deleted'	=> $this->is_deleted
 					])
 					->where('id','=',$this->id)
 					->execute();

@@ -33,11 +33,12 @@ const MediaImporter = () => {
 		sortOrder: 0, // List sorting options
 	})
 	const [sortedList, setSortedList] = useState([])
+	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 	const [numOfAssets, setNumOfAssets] = useState(0) // Number of Assets fetched
 	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
 
-	const AssetCard = ({ name, thumb, created, type, media }) => {
+	const AssetCard = ({ name, thumb, created, type, media, is_deleted }) => {
 		return (
 			<div className="file-info" onClick={() => loadPickedAsset(media)}>
 				<span className="file-thumbnail">
@@ -47,7 +48,20 @@ const MediaImporter = () => {
 					<strong>{name}</strong>
 					{type}
 				</span>
-				<span className="file-date">{created}</span>
+				<span className="file-date">
+					{created}
+					<br />
+					<button
+						className={is_deleted === '0' ? 'delete-btn orange' : 'delete-btn green'}
+						onClick={(ev) => {
+							ev.preventDefault()
+							ev.stopPropagation()
+							console.log(media)
+						}}
+					>
+						{is_deleted === '0' ? <span>DELETE</span> : <span>RESTORE</span>}
+					</button>
+				</span>
 			</div>
 		)
 	}
@@ -59,29 +73,69 @@ const MediaImporter = () => {
 			sortedAssetsList = assets
 				.filter((asset) => asset.name.toLowerCase().match(filterSearch))
 				.map((element, index) => {
-					return (
-						<AssetCard
-							key={index}
-							name={element.name}
-							type={element.type}
-							thumb={element.thumb}
-							created={element.created_at}
-							media={element}
-						/>
-					)
+					if (element.is_deleted === '1') {
+						if (showDeletedAssets === true) {
+							return (
+								<AssetCard
+									key={index}
+									name={element.name}
+									type={element.type}
+									thumb={element.thumb}
+									created={element.created_at}
+									media={element}
+									is_deleted={element.is_deleted}
+								/>
+							)
+						}
+						return
+					} else {
+						if (showDeletedAssets === false) {
+							return (
+								<AssetCard
+									key={index}
+									name={element.name}
+									type={element.type}
+									thumb={element.thumb}
+									created={element.created_at}
+									media={element}
+									is_deleted={element.is_deleted}
+								/>
+							)
+						}
+					}
 				})
 		} else {
 			sortedAssetsList = assets.map((element, index) => {
-				return (
-					<AssetCard
-						key={index}
-						name={element.name}
-						type={element.type}
-						thumb={element.thumb}
-						created={element.created_at}
-						media={element}
-					/>
-				)
+				if (element.is_deleted === '1') {
+					if (showDeletedAssets === true) {
+						return (
+							<AssetCard
+								key={index}
+								name={element.name}
+								type={element.type}
+								thumb={element.thumb}
+								created={element.created_at}
+								media={element}
+								is_deleted={element.is_deleted}
+							/>
+						)
+					}
+					return
+				} else {
+					if (showDeletedAssets === false) {
+						return (
+							<AssetCard
+								key={index}
+								name={element.name}
+								type={element.type}
+								thumb={element.thumb}
+								created={element.created_at}
+								media={element}
+								is_deleted={element.is_deleted}
+							/>
+						)
+					}
+				}
 			})
 		}
 
@@ -120,7 +174,7 @@ const MediaImporter = () => {
 		if (mounted.current === true) {
 			displayAssetList()
 		}
-	}, [filterSearch])
+	}, [filterSearch, showDeletedAssets])
 
 	useEffect(() => {
 		if (mounted.current === true) {
@@ -174,13 +228,28 @@ const MediaImporter = () => {
 						<SortOption sortTypeIndex={0} />
 						<SortOption sortTypeIndex={1} />
 						<SortOption sortTypeIndex={2} />
-						<input
-							type="input"
-							placeholder="File Search"
-							onChange={filterFiles}
-							value={filterSearch}
-						/>
 					</div>
+
+					<div className="darker">
+						<label>
+							<input
+								type="checkbox"
+								onChange={() => {
+									setShowDeletedAssets(!showDeletedAssets)
+								}}
+							/>
+							Show Deleted
+						</label>
+					</div>
+				</div>
+
+				<div className="sort-bar">
+					<input
+						type="input"
+						placeholder="File Search"
+						onChange={filterFiles}
+						value={filterSearch}
+					/>
 				</div>
 
 				<div id="file-display">

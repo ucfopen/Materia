@@ -29,16 +29,19 @@ const SORT_OPTIONS = [
 
 // generic media type definitions and substitutions for compatibility
 const MIME_MAP = {
-  //generic types, preferred
+  // generic types, preferred
   image: ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
   audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
-  video: [], //placeholder
-  //incompatibility prevention, not preferred
+  video: [], // placeholder
+  model: ['model/obj'],
+
+  // incompatibility prevention, not preferred
   jpg: ['image/jpg'],
   jpeg: ['image/jpeg'],
   gif: ['image/gif'],
   png: ['image/png'],
   mp3: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
+  obj: ['application/octet-stream', 'model/obj'],
 }
 
 const REQUESTED_FILE_TYPES = window.location.hash.substring(1).split(',')
