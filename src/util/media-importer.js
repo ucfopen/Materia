@@ -1,32 +1,4 @@
 
-const SORTING_NONE = false
-const SORTING_ASC = 'asc'
-const SORTING_DESC = 'desc'
-
-const sortString = (field, a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase())
-const sortNumber = (field, a, b) => a[field] - b[field]
-
-const SORT_OPTIONS = [
-  {
-    sortMethod: sortString.bind(null, 'name'), // bind the field name to the sort method
-    name: 'Title',
-    field: 'name',
-    status: SORTING_ASC,
-  },
-  {
-    sortMethod: sortString.bind(null, 'type'), // bind the field name to the sort method
-    name: 'Type',
-    field: 'type',
-    status: SORTING_NONE,
-  },
-  {
-    sortMethod: sortNumber.bind(null, 'timestamp'), // bind the field name to the sort method
-    name: 'Date',
-    field: 'timestamp',
-    status: SORTING_NONE,
-  },
-]
-
 // generic media type definitions and substitutions for compatibility
 const MIME_MAP = {
   // generic types, preferred
@@ -60,8 +32,6 @@ const _thumbnailUrl = (data, type) => {
       return '/img/audio.png'
   }
 }
-
-const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
 const _getFileData = (file, callback) => {
   const dataReader = new FileReader()
@@ -206,21 +176,6 @@ export const uploadFile = (e) => {
 
 export const onCancel = () => {
   window.parent.Materia.Creator.onMediaImportComplete(null)
-}
-
-const _sendRequest = (method, url, body) => {
-  const options = {
-    method,
-    body,
-    credentials: 'same-origin',
-    cache: 'no-cache',
-    headers: {
-      accept: 'application/json;',
-      'content-type': 'application/json; charset=utf-8',
-    },
-  }
-
-  fetch(url, options)
 }
 
 export const deleteAsset = async (assetId) => {

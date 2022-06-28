@@ -165,7 +165,6 @@ const MediaImporter = () => {
 
 	useEffect(() => {
 		if (mounted.current === true) {
-			console.log(updateList)
 			displayAssetList()
 		}
 	}, [filterSearch, showDeletedAssets, updateList])
