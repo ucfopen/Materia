@@ -208,4 +208,49 @@ export const onCancel = () => {
   window.parent.Materia.Creator.onMediaImportComplete(null)
 }
 
+const _sendRequest = (method, url, body) => {
+  const options = {
+    method,
+    body,
+    credentials: 'same-origin',
+    cache: 'no-cache',
+    headers: {
+      accept: 'application/json;',
+      'content-type': 'application/json; charset=utf-8',
+    },
+  }
+
+  fetch(url, options)
+}
+
+export const deleteAsset = async (assetId) => {
+
+  const options = {
+    method: 'DELETE',
+    mode: 'cors',
+    credentials: 'include',
+    headers: {
+      pragma: 'no-cache',
+      'cache-control': 'no-cache',
+      'content-type': 'application/json; charset=UTF-8'
+    }
+  }
+  await fetch(`/api/asset/delete/${assetId}`, options)
+}
+
+export const restoreAsset = async (assetId) => {
+  const options = {
+    method: 'POST',
+    mode: 'cors',
+    credentials: 'include',
+    headers: {
+      pragma: 'no-cache',
+      'cache-control': 'no-cache',
+      'content-type': 'application/json; charset=UTF-8'
+    }
+  }
+  await fetch(`/api/asset/restore/${assetId}`, options)
+}
+
+
 _announceReady()

@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery } from 'react-query'
 import DragAndDrop from './drag-and-drop'
-import { getAllAssets, uploadFile, loadPickedAsset, onCancel } from '../util/media-importer'
+import {
+	getAllAssets,
+	uploadFile,
+	loadPickedAsset,
+	onCancel,
+	deleteAsset,
+	restoreAsset,
+} from '../util/media-importer'
 import './media.scss'
 
 const sortString = (field, a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase())
@@ -34,6 +41,7 @@ const MediaImporter = () => {
 	})
 	const [sortedList, setSortedList] = useState([])
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
+	const [updateList, setUpdateList] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 	const [numOfAssets, setNumOfAssets] = useState(0) // Number of Assets fetched
 	const { data: listOfAssets, isSuccess } = useQuery('assets', getAllAssets)
@@ -54,9 +62,8 @@ const MediaImporter = () => {
 					<button
 						className={is_deleted === '0' ? 'delete-btn orange' : 'delete-btn green'}
 						onClick={(ev) => {
-							ev.preventDefault()
 							ev.stopPropagation()
-							console.log(media)
+							updateDeleteStatus(media)
 						}}
 					>
 						{is_deleted === '0' ? <span>DELETE</span> : <span>RESTORE</span>}
@@ -66,6 +73,18 @@ const MediaImporter = () => {
 		)
 	}
 
+	const updateDeleteStatus = (asset) => {
+		if (asset.is_deleted === '0') {
+			asset.is_deleted = '1'
+			deleteAsset(asset.id)
+		} else {
+			asset.is_deleted = '0'
+			restoreAsset(asset.id)
+		}
+		setUpdateList(!updateList)
+	}
+
+	// Render assets base on the value of element.is_deleted and the showDeletedAssets state
 	const renderAssets = (element, index) => {
 		if (element.is_deleted === '1') {
 			if (showDeletedAssets === true) {
@@ -99,6 +118,7 @@ const MediaImporter = () => {
 		}
 	}
 
+	// Func that display assets based on the state of filterSearch.
 	const displayAssetList = () => {
 		const assets = sortedList.length >= 1 ? sortedList : listOfAssets
 		let sortedAssetsList
@@ -113,6 +133,7 @@ const MediaImporter = () => {
 		setSortAssets(sortedAssetsList)
 	}
 
+	// Options available based on SORT_OPTIONS
 	const SortOption = ({ sortTypeIndex }) => {
 		return (
 			<div
@@ -136,6 +157,7 @@ const MediaImporter = () => {
 		)
 	}
 
+	// Update the filterSearch state
 	const filterFiles = (ev) => {
 		ev.preventDefault()
 		setFilterSearch(ev.target.value)
@@ -143,9 +165,10 @@ const MediaImporter = () => {
 
 	useEffect(() => {
 		if (mounted.current === true) {
+			console.log(updateList)
 			displayAssetList()
 		}
-	}, [filterSearch, showDeletedAssets])
+	}, [filterSearch, showDeletedAssets, updateList])
 
 	useEffect(() => {
 		if (mounted.current === true) {
