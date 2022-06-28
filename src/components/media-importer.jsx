@@ -66,77 +66,48 @@ const MediaImporter = () => {
 		)
 	}
 
+	const renderAssets = (element, index) => {
+		if (element.is_deleted === '1') {
+			if (showDeletedAssets === true) {
+				return (
+					<AssetCard
+						key={index}
+						name={element.name}
+						type={element.type}
+						thumb={element.thumb}
+						created={element.created_at}
+						media={element}
+						is_deleted={element.is_deleted}
+					/>
+				)
+			}
+			return
+		} else {
+			if (showDeletedAssets === false) {
+				return (
+					<AssetCard
+						key={index}
+						name={element.name}
+						type={element.type}
+						thumb={element.thumb}
+						created={element.created_at}
+						media={element}
+						is_deleted={element.is_deleted}
+					/>
+				)
+			}
+		}
+	}
+
 	const displayAssetList = () => {
 		const assets = sortedList.length >= 1 ? sortedList : listOfAssets
 		let sortedAssetsList
 		if (filterSearch != '') {
 			sortedAssetsList = assets
 				.filter((asset) => asset.name.toLowerCase().match(filterSearch))
-				.map((element, index) => {
-					if (element.is_deleted === '1') {
-						if (showDeletedAssets === true) {
-							return (
-								<AssetCard
-									key={index}
-									name={element.name}
-									type={element.type}
-									thumb={element.thumb}
-									created={element.created_at}
-									media={element}
-									is_deleted={element.is_deleted}
-								/>
-							)
-						}
-						return
-					} else {
-						if (showDeletedAssets === false) {
-							return (
-								<AssetCard
-									key={index}
-									name={element.name}
-									type={element.type}
-									thumb={element.thumb}
-									created={element.created_at}
-									media={element}
-									is_deleted={element.is_deleted}
-								/>
-							)
-						}
-					}
-				})
+				.map((element, index) => renderAssets(element, index))
 		} else {
-			sortedAssetsList = assets.map((element, index) => {
-				if (element.is_deleted === '1') {
-					if (showDeletedAssets === true) {
-						return (
-							<AssetCard
-								key={index}
-								name={element.name}
-								type={element.type}
-								thumb={element.thumb}
-								created={element.created_at}
-								media={element}
-								is_deleted={element.is_deleted}
-							/>
-						)
-					}
-					return
-				} else {
-					if (showDeletedAssets === false) {
-						return (
-							<AssetCard
-								key={index}
-								name={element.name}
-								type={element.type}
-								thumb={element.thumb}
-								created={element.created_at}
-								media={element}
-								is_deleted={element.is_deleted}
-							/>
-						)
-					}
-				}
-			})
+			sortedAssetsList = assets.map((element, index) => renderAssets(element, index))
 		}
 
 		setSortAssets(sortedAssetsList)
