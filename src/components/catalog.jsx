@@ -200,7 +200,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						<button
 							className='filter-toggle cancel_button desktop-only'
 							onClick={ filterLinkClickHandler }>
-								{state.showingFilters ? 'Clear Filters' : 'Filter by feature...'}
+								{state.showingFilters ? 'Clear Filters' : 'Filter by feature'}
 						</button>
 						<div className={'search' + (state.searchText === '' ? '' : ' not-empty')}>
 							<input value={state.searchText} onChange={(e) => {setState({...state, searchText: e.target.value})}} type='text'/>

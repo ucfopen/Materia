@@ -8,7 +8,7 @@
 		<?= Css::render() ?>
 		<?=  $partials['google_analytics'] ?? '' ?>
 	</head>
-	<body>
+	<body class="<?= (isset($page_type) ? $page_type : '') ?>">
 		<div id="app"></div>
 		<div id="modal"></div>
 		<?= Js::render() ?>

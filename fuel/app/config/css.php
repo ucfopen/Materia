@@ -14,6 +14,8 @@ return [
 	],
 
 	'groups' => [
+		'core' => [$webpack.'css/core.css'],
+		'homepage' => [$webpack.'js/homepage.css'],
 		'admin' => [$webpack.'css/admin.css'],
 		'user-admin' => [$webpack.'js/user-admin.css'],
 		'support' => [$webpack.'js/support.css'],
@@ -39,7 +41,7 @@ return [
 		],
 		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'js/profile.css'],
-		'login' => [$webpack.'css/login.css'],
+		'login' => [$webpack.'js/login.css'],
 		'scores' => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$webpack.'css/scores.css',
@@ -61,7 +63,6 @@ return [
 		'media_import' => [$webpack.'css/util-media-import.css'],
 		'help' => [$webpack.'css/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
-		'core' => [$webpack.'css/core.css'],
 		'fonts' => [
 			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
 			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',

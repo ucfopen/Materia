@@ -355,7 +355,6 @@ const MyWidgetSelectedInstance = ({
 								href={inst.preview_url}>
 								<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
 									<path d='M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44'
-										stroke='#525252'
 									/>
 									<polyline points='-15 51.5 -15 81.5 5 66.5'
 										fill='#4c5823'
@@ -430,7 +429,7 @@ const MyWidgetSelectedInstance = ({
 							className={!state.can.share || inst.is_draft ? 'disabled' : ''}
 							disabled={!state.can.share || inst.is_draft}
 							onClick={onPopup}>
-							Edit settings...
+							Edit settings
 						</a>
 					</div>
 				</div>
@@ -438,31 +437,44 @@ const MyWidgetSelectedInstance = ({
 				<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
 					<h3>
 						{inst.is_draft ? 'Publish to share' : 'Share'} with your students
-						<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html'
-							target='_blank'>
-							View all sharing options.
-						</a>
 					</h3>
-					<div onMouseDown={shareInputMouseDownHandler}>
-						<input ref={shareLinkRef}
-							className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
-							type='text'
-							readOnly
-							disabled={inst.is_draft}
-							value={state.playUrl}
-						/>
+					<div className="share-widget-options-first" id="first-share-widget-option">
+						<h4> Via LMS / LTI Setup </h4>
+						<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
+						<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
+						</p>
 					</div>
-					<p>
-						Use this link to share with your students (or
-						<span
-							className='show-embed link'
-							onClick={toggleShowEmbed}>
-							&nbsp;use the embed code
-						</span>
-						).
-					</p>
+					<div className="share-widget-options-second" id="third-share-widget-option">
+					<h4> Via Embed Code </h4>
+						<p>
+							Use the link provided above to share with your students (or
+							<span
+								className='show-embed link'
+								onClick={toggleShowEmbed}>
+								&nbsp;use the embed code
+							</span>
+							).
+						</p>
 
 					{ embedInfoRender }
+					</div>
+					<div className="share-widget-options-third" id="second-share-widget-option">
+						<h4> Via URL </h4>
+						<p>Quickly share access to your widget by copying the link below. </p>
+						<div onMouseDown={shareInputMouseDownHandler}>
+							<input ref={shareLinkRef}
+								className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
+								type='text'
+								readOnly
+								disabled={inst.is_draft}
+								value={state.playUrl}
+							/>
+						</div>
+					</div>
+
+					<p className="view-more">
+						<a href='https://ucfopen.github.io/Materia-Docs/create/assigning-widgets.html' target='_blank'> View all sharing options. </a>
+					</p>
 
 				</div>
 			</div>
