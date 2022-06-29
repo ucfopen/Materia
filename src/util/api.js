@@ -19,7 +19,7 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
 export const apiGetWidgetInstance = instId => {
-	return fetch(`/api/json/widget_instances_get/${instId}`)
+	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -187,10 +187,10 @@ export const apiUpdateUserSettings = (settings) => {
 }
 
 export const apiGetNotifications = () => {
-	return fetch('/api/json/notifications_get/')
+	return fetchGet('/api/json/notifications_get/', {body: `data=${formatFetchBody([])}`})
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
+			return resp
 		})
 		.then(notifications => notifications)
 }

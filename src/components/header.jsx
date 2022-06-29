@@ -29,6 +29,7 @@ const Header = ({
 	})
 	const { data: notifications} = useQuery({
 		queryKey: 'notifications',
+		enabled: user?.loggedIn,
 		queryFn: apiGetNotifications,
 		staleTime: Infinity
 	})
