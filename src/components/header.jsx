@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { apiGetUser, apiAuthorSuper, apiAuthorSupport, apiGetNotifications } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
-import './header.scss'
 
 const Header = ({
 	userRoles = [],
@@ -29,7 +28,9 @@ const Header = ({
 	})
 	const { data: notifications} = useQuery({
 		queryKey: 'notifications',
+		enabled: user?.loggedIn,
 		queryFn: apiGetNotifications,
+		enabled: user?.loggedIn,
 		staleTime: Infinity
 	})
 	const cn = user?.loggedIn ? 'logged-in' : ''
@@ -173,7 +174,7 @@ const Header = ({
 		}
 
 		userRender = (
-			<span>
+			<span className='user'>
 				<p className='user avatar'>
 					{ nameAvatarRender }
 					{ loginRender }

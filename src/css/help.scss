@@ -1,14 +1,37 @@
-.container {
-	margin: 0 auto;
-	width: 970px;
+@media (max-width: 850px) {
+	.docs .container .page {
+		padding: 40px 20px 20px 20px !important;
+		margin: 15px 30px !important;
+	}
+
+	.docs .container .page section.float.right {
+		float: none !important;
+		width: 100% !important;
+	}
+
+	.docs .container .page section.float.left {
+		width: 100% !important;
+	}
+
+	.docs .container .page section.float.left {
+		margin-bottom: 20px !important;
+	}
+}
+
+.docs .container {
+	display: flex;
+	justify-content: center;
+	// margin: 0 auto;
+	// width: 970px;
 	position: relative;
 }
 
-.container .page {
-	border: rgba(0, 0, 0, 0.22) 1px solid;
-	box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+.docs .container .page {
+	border-radius: 4px;
+	border: #e4e4e4 1px solid;
+	box-shadow: 1px 3px 10px #dcdcdc;
 
-	margin: 0 auto;
+	margin: 15px 50px;
 	z-index: 100;
 	min-height: 400px;
 	text-align: left;
@@ -17,9 +40,7 @@
 	overflow: auto;
 
 	width: 685px;
-	background: url('/img/question_mark_circle.png') 780px 30px no-repeat;
-	background: url('/img/question_mark_circle.png') 780px 30px no-repeat,
-		url('/img/repeat_border_diag_bottom.png') 0 100% repeat-x;
+	// background: url('/img/question_mark_circle.png') 780px 30px no-repeat;
 
 	background-color: #fff;
 	margin-bottom: 60px;
@@ -34,13 +55,13 @@
 	padding: 0 0 5px 0;
 	padding-bottom: 20px;
 	margin: 0 0 30px 0;
-	border-bottom: dotted black 1px;
+	border-bottom: solid #dcdcdc .5px;
 }
 
 .container h2 {
 	font-family: 'Lato', arial, serif;
-
-	font-size: 26px;
+	font-weight: 400;
+	font-size: 20px;
 	margin: 20px 0 0 0;
 }
 
@@ -66,17 +87,26 @@
 	float: left;
 }
 
+<<<<<<< HEAD
 .container .page section.bordered {
 	border-bottom: dotted 1px #ccc;
 }
 
 .container .page section.bordered-top {
 	border-top: dotted 1px #ccc;
+=======
+.docs .container .page section.bordered {
+	border-bottom: solid #dcdcdc .5px
+}
+
+.docs .container .page section.bordered-top {
+	border-top: solid #dcdcdc .5px
+>>>>>>> 251d1df7a72e05774b22bd6433ed107a52a66a02
 }
 
 .container h3 {
 	margin: 30px 0 0 0;
-	font-size: 1.3em;
+	font-size: 12px;
 }
 
 .container h3 + p {
@@ -103,11 +133,12 @@
 
 .container dl dt {
 	font-weight: bold;
+	font-size: 12px;
 	font-family: 'Lato', arial, serif;
 }
 .container dl dd {
 	padding-bottom: 10px;
-	margin: 0 0 0 20px;
+	margin: 0.5em 0 0 0;
 }
 
 .no_flash,

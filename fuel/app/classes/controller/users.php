@@ -24,18 +24,47 @@ class Controller_Users extends Controller
 			// already logged in
 			Response::redirect($redirect);
 		}
+		
+		Js::push_inline('var LOGIN_USER = "'.\Lang::get('login.user').'";');
+		Js::push_inline('var LOGIN_PW = "'.\Lang::get('login.password').'";');
+
+		// condense login links into a string with delimiters to be embedded as a JS global
+		$link_items = [];
+		foreach (\Lang::get('login.links') as $a)
+		{
+			$link_items[] = $a['href'].'***'.$a['title'];
+		}
+		$login_links = implode('@@@', $link_items);
+		Js::push_inline('var LOGIN_LINKS = "'.urlencode($login_links).'";');
+
+		// additional JS globals. Previously, these were rendered directly in the partial view. Now we have to hand them off 
+		// to the React template to be rendered.
+		Js::push_inline('var ACTION_LOGIN = "'.\Router::get('login').'";');
+		Js::push_inline('var ACTION_REDIRECT = "'.$redirect.'";');
+		Js::push_inline('var ACTION_DIRECTLOGIN = "'.($direct_login ? 'true' : 'false').'";');
+
+		Js::push_inline('var BYPASS  = "'.(Session::get_flash('bypass', false, false) ? 'true' : 'false').'";');
+
+		// conditionally add globals if there is an error or notice
+		if ($msg = Session::get_flash('login_error'))
+		{
+			Js::push_inline('var ERR_LOGIN = "'.$msg.'";');
+		}
+		if ($notice = (array) Session::get_flash('notice'))
+		{
+			Js::push_inline('var NOTICE_LOGIN = "'.implode('</p><p>', $notice).'";');
+		}
 
 		Event::trigger('request_login', $direct_login);
 
-		Css::push_group(['core', 'login']);
-		Js::push_group(['angular', 'materia']);
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Login')
 			->set('page_type', 'login');
 
-		$this->theme->set_partial('content', 'partials/login')
-			->set('redirect', urlencode($redirect));
+		Css::push_group(['login']);
+		Js::push_group(['react', 'login']);
 	}
 
 	public function post_login()
