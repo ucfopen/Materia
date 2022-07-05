@@ -1268,6 +1268,10 @@ hr {
 	margin: 0;
 }
 
+#is-draft a:hover {
+	text-decoration: underline;
+}
+
 @media only screen and (min-device-pixel-ratio: 2),
 	only screen and (-webkit-min-device-pixel-ratio: 2) {
 	h1.logo a {

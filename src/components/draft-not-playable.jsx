@@ -17,7 +17,7 @@ const DraftNotPlayable = () => {
           <li>Preview instead of play.</li>
           <li>Publish this widget to start collecting scores.</li>
           <li>Check out our documentation.</li>
-          <li>Take a break, watch <a href="http://youtu.be/S1k86fWsmRE?t=35s" style="color:black;">cat</a> <a href="http://www.youtube.com/watch?v=q8Z3NEVIwYg&feature=relmfu" style="color:black;">videos</a>.</li>
+          <li>Take a break, watch cat <a href="http://www.youtube.com/watch?v=q8Z3NEVIwYg&feature=relmfu">videos</a>.</li>
         </ul>
 
         <SupportInfo/>

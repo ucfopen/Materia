@@ -523,8 +523,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			setTimeout(() => _addCircleToDetailTable(deets.details), 10)
 		}
 
-		setAttemptDates(attemptDates)
-
 		const referrerUrl = deets.overview.referrer_url
 		if (
 			deets.overview.auth === 'lti' &&
@@ -686,7 +684,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
         <ul onMouseOver={prevMouseOver}>
           {attempts.forEach((attempt, index) => (
             <li key={index}>
-              <a href={`#attempt-${index}`} onClick={attemptClick}>Attempt {index}: <span className="score">{ attempt.roundedPercent}%</span><span className="date">{ dates[index]}</span></a>
+              <a href={`#attempt-${index}`} onClick={attemptClick}>Attempt {index}: <span className="score">{ attempt.roundedPercent}%</span><span className="date">{ attemptDates[index]}</span></a>
             </li>
           ))}
         </ul>

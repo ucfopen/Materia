@@ -467,7 +467,7 @@ export const apiGetQuestionSet = (instId, playId = null) => {
 }
 
 export const apiGetQuestionSetHistory = (instId) => {
-	return fetch('/api/instance/history', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+	return fetch('/api/json/history', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then(resp => resp.json())
 }
 

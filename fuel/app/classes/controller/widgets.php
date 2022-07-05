@@ -288,11 +288,9 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
-		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
 		Js::push_inline('var ATTEMPTS = "'.$inst->attempts.'";');
 		Js::push_inline('var WIDGET_ID = "'.$inst->id.'";');
 		Js::push_inline('var IS_EMBEDDED = "'.$is_embedded.'";');
-		Js::push_inline('var TYPE = "'.$inst->widget->name.'";');
 		Js::push_inline('var NAME = "'.$inst->name.'";');
 		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
 
@@ -321,7 +319,6 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
-		Js::push_inline('var TYPE = "'.$inst->widget->name.'";');
 		Js::push_inline('var NAME = "'.$inst->name.'";');
 		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
 
@@ -520,7 +517,6 @@ class Controller_Widgets extends Controller
 
 		Js::push_inline('var INST_ID = "'.$inst->id.'";');
 		Js::push_inline('var CONTEXT = "'.$context.'";');
-		Js::push_inline('var TYPE = "'.$inst->widget->name.'";');
 		Js::push_inline('var NAME = "'.$inst->name.'";');
 		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
 
