@@ -77,13 +77,13 @@ header {
 		}
 	}
 
-	#current-user {
-		display: none;
-	}
+	.user.avatar {
 
-	.avatar {
+		position: absolute;
+		top: 35px;
+
 		font-family: 'Lucida Grande', arial, serif;
-		right: 20px;
+		
 		line-height: 0;
 
 		img {
@@ -92,27 +92,23 @@ header {
 			border-radius: 2px;
 		}
 
-		span {
+		span.logout {
 			position: absolute;
 			right: 32px;
 		}
-	}
-	.user {
-		position: absolute;
-		top: 0px;
-		right: 16px;
-	}
-	.user.avatar {
 
 		a {
-			font-size: 17px;
-			font-weight: bold;
-			font-family: 'Lato', arial, serif;
 			position: absolute;
 			top: 36px;
 			right: 5px;
 			width: 500px;
+
+			font-size: 17px;
+			font-weight: 300;
+			font-family: 'Lato', arial, serif;
+			
 			text-align: right;
+			color: #4c4c4c;
 
 			span {
 				text-align: right;
@@ -138,6 +134,18 @@ header {
 			right: 18px;
 			font-weight: 400;
 			cursor: pointer;
+		}
+	}
+
+	&.logged-in {
+		.user.avatar {
+			right: 20px;
+		}
+	}
+
+	&.logged-out {
+		.user.avatar {
+			right: 35px;
 		}
 	}
 
