@@ -65,7 +65,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   const { isLoading: instanceIsLoading, data: widgetInstance } = useQuery({
 		queryKey: ['widget-inst', instId],
 		queryFn: () => apiGetWidgetInstance(instId),
-		enabled: instId !== null,
+		enabled: !!instId,
 		staleTime: Infinity
 	})
 
@@ -73,7 +73,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   const { isLoading: widgetInfoIsLoading, data: widgetInfo } = useQuery({
 		queryKey: ['widget-inst', widgetId],
 		queryFn: () => apiGetWidget(widgetId),
-		enabled: widgetId !== null,
+		enabled: !!widgetId,
 		staleTime: Infinity
 	})
 
@@ -91,8 +91,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
   const { data: canPublish } = useQuery({
 		queryKey: ['can-publish', instanceId],
-		queryFn: () => apiCanBePublishedByCurrentUser(instanceId),
-		enabled: instanceId !== null,
+		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
+		enabled: instance?.widget !== null,
 		staleTime: Infinity
 	})
 
@@ -125,32 +125,31 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
   // Initializes the instance after query is complete
   useEffect(() => {
-    waitForWidget().then(() => {
-      if (!widgetInfo && !widgetInstance) {
-			  onInitFail('Unable to get widget info.')
-  		}
-      else if (Object.keys(widgetInstance).length !== 0) {
-        setInstance(widgetInstance)
-      }
-      else if (Object.keys(widgetInfo).length !== 0){
-        setInstance({...instance, widget: widgetInfo})
-      }
-    })
+
+    if (widgetInstance && Object.keys(widgetInstance).length !== 0) {
+      setInstance(widgetInstance)
+      setInstanceId(widgetInstance.id)
+    }
+
+    if (widgetInfo && Object.keys(widgetInfo).length !== 0){
+      setInstance({...instance, widget: widgetInfo})
+    }
   }, [instanceIsLoading, widgetInfoIsLoading])
 
   // Calls embedCreator() once the instance and qset (if applicable) have loaded
   useEffect(() => {
-    waitForInstance().then(() => {
-      if (instance.widget) {
-        if (instId && instance.hasOwnProperty('id')) {
-          waitForQSet().then(() => {
-            embedCreator();
-          })
-        } else {
+
+    if (instance.widget && Object.keys(instance.widget).length > 0) {
+
+      if ((instId && instance.hasOwnProperty('id'))) {
+        waitForQSet().then(() => {
           embedCreator();
-        }
+        })
+      } else {
+        embedCreator();
       }
-    })
+
+    }
   }, [instance])
 
   // Embeds the creator
@@ -629,11 +628,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     widgetData.loading = false
   }
 
-  const waitForWidget = async () => {
-    while (instanceIsLoading || widgetInfoIsLoading) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-    }
-  }
 
   const waitForQSet = async () => {
     while (qSetIsLoading) {
@@ -655,7 +649,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	let creatorGuideLink = null
 	if (widgetData.hasCreatorGuide) {
 		creatorGuideLink = (
-			<a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl}>Creator's Guide</a>
+			<a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl} target="_blank">Creator's Guide</a>
 		)
 	}
 
@@ -665,7 +659,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       <section id='action-bar'>
         <a id="returnLink" href={returnUrl}>&larr;Return to {returnPlace}</a>
 				{ creatorGuideLink }
-  			<a onClick={showQsetHistoryImporter}>Save History</a>
+  			{ instanceId ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
   			<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
   			<button id="creatorPublishBtn"
   				className="edit_button green"

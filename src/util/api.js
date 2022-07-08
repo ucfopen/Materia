@@ -231,9 +231,9 @@ export const apiUpdateUserSettings = (settings) => {
 }
 
 export const apiGetNotifications = () => {
-	return fetchGet('/api/json/notifications_get/', {body: `data=${formatFetchBody([])}`})
+	return fetch('/api/json/notifications_get/', fetchOptions({ body: `data=${formatFetchBody([])}` }))
 		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
+			if (resp.status === 204 || resp.status === 502) return {}
 			return resp
 		})
 		.then(notifications => notifications)
@@ -467,8 +467,11 @@ export const apiGetQuestionSet = (instId, playId = null) => {
 }
 
 export const apiGetQuestionSetHistory = (instId) => {
-	return fetch('/api/json/history', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
-		.then(resp => resp.json())
+	return fetch(`/api/instance/history?inst_id=${instId}`)
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
 }
 
 export const apiSavePlayStorage = ({ play_id, logs }) => {

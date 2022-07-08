@@ -10,7 +10,7 @@ const Summary = () => {
     waitForWindow().then(() => {
       setName(window.NAME)
       setIcon(window.ICON)
-      setIcon(window.AVAIL)
+      setAvail(window.AVAIL)
     })
   })
 

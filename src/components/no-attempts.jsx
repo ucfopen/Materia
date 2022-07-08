@@ -13,7 +13,7 @@ const NoAttempts = () => {
       setScoresPath(scoresPath);
       setAttempts(window.ATTEMPTS)
     })
-  })
+  }, [])
 
   const waitForWindow = async () => {
 		while(!window.hasOwnProperty('WIDGET_ID')
@@ -22,8 +22,6 @@ const NoAttempts = () => {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
-
-  let headerRender = <Header/>
 
   let bodyRender = null
   if (!!attempts) {
@@ -46,7 +44,7 @@ const NoAttempts = () => {
 
   return (
     <>
-      { headerRender }
+      <Header />
       { bodyRender }
     </>
   )

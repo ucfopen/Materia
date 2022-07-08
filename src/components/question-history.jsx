@@ -21,7 +21,7 @@ const QuestionHistory = () => {
   })
 
   useEffect(() => {
-    if (!!qsetHistory)
+    if (qsetHistory && qsetHistory.type != 'error')
     {
       qsetHistory.map((qset) => {
         return {
