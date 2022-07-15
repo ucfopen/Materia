@@ -2,42 +2,35 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
 import { creator } from './materia-constants'
-import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiAuthorNull, apiSaveWidget, apiGetWidgetLock, apiGetWidget} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
 import NoPermission from './no-permission'
+import Alert from './alert'
 
-const initAlert = () => ({
-	msg: '',
-	title: '',
-	fatal: false,
-  enableLoginButton: false,
-})
-
-const initWidgetData = () => ({
-	loading: true,
-	htmlPath: null,
-	hasCreatorGuide: false,
-  creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
-})
-
-const initInstance = () => ({
-  qset: null,
-  is_draft: true,
-  widget: null
-})
-
-const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
-const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
+// const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
+// const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
+const creatorGuideUrl = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
 
 const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
-  const [alertMsg, setAlertMsg] = useState(initAlert());
-  const [widgetData, setWidgetData] = useState(initWidgetData());
+  const [alertDialog, setAlertDialog] = useState({
+    enabled: false,
+    msg: '',
+    title: '',
+    fatal: false,
+    enableLoginButton: false
+  });
+  const [widgetData, setWidgetData] = useState({
+    loading: true,
+    htmlPath: null,
+    hasCreatorGuide: false,
+    creatorGuideUrl: creatorGuideUrl
+  });
   const [embedDialogType, setEmbedDialogType] = useState('embed_dialog');
   const [modal, setModal] = useState(false);
   const [iframeUrl, setIframeUrl] = useState(null);
   const [showActionBar, setShowActionBar] = useState(true);
   const [showRollbackConfirmBar, setShowRollbackConfirmBar] = useState(null)
   const [height, setHeight] = useState(null);
-  const [heartbeatInterval, setHeartbeatInterval] = useState(-1)
+  const [heartbeatEnabled, toggleHeartbeat] = useState(true)
   const [startTime, setStartTime] = useState(0);
   const frameRef = useRef(null);
   const [updateMode, setUpdateMode] = useState(null);
@@ -58,7 +51,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   const [widgetType, setWidgetType] = useState('');
   const [type, setType] = useState('');
 
-  const [instance, setInstance] = useState(initInstance());
+  const [instance, setInstance] = useState({
+    qset: null,
+    is_draft: true,
+    widget: null
+  });
   const [instanceId, setInstanceId] = useState(instId);
 
   // Gets widget instance
@@ -77,10 +74,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity
 	})
 
+  // if this is an existing instance, check lock status
   const { data: isLocked } = useQuery({
     queryKey: ['widget-lock', instanceId],
 		queryFn: () => apiGetWidgetLock(instanceId),
-		enabled: instanceId !== null,
+		enabled: !!instanceId,
 		staleTime: Infinity,
     onSettled: (success) => {
         if (!success) {
@@ -96,9 +94,23 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity
 	})
 
+  useQuery({
+    queryKey: 'heartbeat',
+    queryFn: () => apiAuthorVerify(),
+    staleTime: 30000,
+    refetchInterval: 30000,
+    enabled: heartbeatEnabled,
+    onSettled: (valid) => {
+      if (!valid) {
+        toggleHeartbeat(false)
+        _alert('You have been logged out due to inactivity', 'Invalid Login', true, true)
+      }
+    }
+  })
+  
   // qset storage for previous save feature
   // current working qset, temporarily cached to await confirm/cancel
-  const [qsetToBeCached, setQsetBeCached] = useState(null);
+  const [qsetToBeCached, setQsetToBeCached] = useState(null);
   // qset selected to be loaded after requested reload
   const [qsetToReload, setQsetToReload] = useState(null);
   const [keepQSet, setKeepQSet] = useState(null);
@@ -156,9 +168,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   const embedCreator = () => {
     let creatorPath
 
-    setNonEditable(instance.widget.is_editable === '0');
-
-    setWidgetType(instance.widget.creator.slice(instance.widget.creator.lastIndexOf('.')));
+    setNonEditable(instance.widget.is_editable === '0')
+    setWidgetType(instance.widget.creator.slice(instance.widget.creator.lastIndexOf('.')))
 
     if (instance.widget.creator.substring(0, 4) === 'http') {
       // allow creator paths to be absolute urls
@@ -191,15 +202,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     }
   }
 
-  // Every 30 seconds, renew/check the session
-  useEffect(() => {
-    if (!isPreview && startTime !== 0) {
-      const interval = setInterval(creator.INTERVAL)
-      setHeartbeatInterval(interval);
-      return () => clearInterval(interval);
-    }
-  }, [startTime, isPreview])
-
   useEffect(() => {
     if (!widgetData.loading) {
       // setup the postmessage listener
@@ -215,8 +217,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     keepQSet,
     instance,
     startTime,
-    alertMsg,
-    heartbeatInterval
+    alertDialog,
   ])
 
   // Show the buttons that interact with the creator
@@ -287,18 +288,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
   // If Initialization Fails
   const onInitFail = (msg) => {
-    stopHeartBeat()
-    if (msg.toLowerCase() !== 'flash player required.') {
-      _alert(msg, 'Failure', true, false)
-    }
+    toggleHeartbeat(false)
+    _alert(msg, 'Failure', true, false)
   }
 
-  const stopHeartBeat = () => {
-    clearInterval(heartbeatInterval)
-    setHeartbeatInterval(-1)
-  }
-
-  // Send messages to the creator, handles flash and html creators
+  // Send messages to the creator
   const sendToCreator = (type, args) => {
     return frameRef.current.contentWindow.postMessage(
       JSON.stringify({ type, data: args }),
@@ -451,7 +445,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       // did we get back an error message?
       if ((inst != null ? inst.msg : undefined) != null) {
         onSaveCanceled(inst)
-        setAlertMsg({...alertMsg, fatal: inst.halt});
+        setAlertDialog({...alertDialog, fatal: inst.halt, enabled: true});
       } else if (inst != null && inst.id != null) {
         // update this creator's url
         if (String(instanceId).length !== 0) {
@@ -510,7 +504,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
           true,
           true
         )
-        return stopHeartBeat()
+        return toggleHeartbeat(false)
       }
     } else {
       if (msg) {
@@ -526,14 +520,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   }
 
   const _alert = (msg, title = 'Warning!', fatal = false, enableLoginButton = false) => {
-		setAlertMsg({
+		setAlertDialog({
+      enabled: true,
 			msg: msg,
 			title: title,
 			fatal: fatal,
       enableLoginButton: enableLoginButton,
 		})
-
-		alert(`${title} : ${msg} : is${!fatal ? ' not' : ''} fatal`)
   }
 
   const _qsetRollbackConfirmation = (confirm) => {
@@ -621,14 +614,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       onInitFail('Widget type can not be edited by students after publishing.')
   }
 
-  const waitForInstance = async () => {
-    while (!instance.widget || Object.keys(instance.widget).length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 500))
-    }
-    widgetData.loading = false
-  }
-
-
   const waitForQSet = async () => {
     while (qSetIsLoading) {
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -676,6 +661,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   if (widgetData.loading) {
     loadingRender = (
       <LoadingIcon size='lrg'/>
+    )
+  }
+
+  let alertDialogRender = null
+  if (alertDialog.enabled) {
+    alertDialogRender = (
+      <Alert
+        msg={alertDialog.msg}
+        title={alertDialog.title}
+        fatal={alertDialog.fatal}
+        showLoginButton={alertDialog.enableLoginButton}
+        onCloseCallback={() => {
+          setAlertDialog({...alertDialog, enabled: false})
+        }} />
     )
   }
 
@@ -737,18 +736,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       <section id="qset-rollback-confirmation-bar">
         <h3>Previewing Prior Save</h3>
         <p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-        <button onClick={rollbackConfirmation}>Keep</button>
-        <button onClick={() => rollbackConfirmation(false)}>Cancel</button>
+        <button onClick={() => _qsetRollbackConfirmation(true)}>Keep</button>
+        <button onClick={() => _qsetRollbackConfirmation(false)}>Cancel</button>
       </section>
     )
   }
 
-  let modalRender = null
-  if (modal) {
-    modalRender = (
-      <div id="modal-cover" className="page"></div>
-    )
-  }
 
   let noPermissionRender = null
   if (invalid)
@@ -761,6 +754,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   return (
     <div>
     	<section className="page" ng-show="loaded">
+        { alertDialogRender }
         { popupRender }
         { rollbackConfirmBarRender }
         { actionBarRender }
@@ -776,9 +770,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   					ref={frameRef}/>
     				{ loadingRender }
     		</div>
-
-        { modalRender }
-
     		<iframe src={ iframeUrl } className={ iframeUrl ? 'show' : 'hidden' } id={embedDialogType} frameBorder={0} width={675} height={500}></iframe>
     	</section>
       { noPermissionRender }

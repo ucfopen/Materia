@@ -2,6 +2,8 @@ import React, { useState, useEffect} from 'react'
 import Header from './header'
 import WidgetCreator from './widget-creator'
 
+import './widget-creator-page.scss'
+
 const EMBED = 'embed'
 const PREVIEW_EMBED = 'preview-embed'
 

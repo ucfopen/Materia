@@ -217,6 +217,12 @@ export const apiAuthorSupport = () => {
 		.catch(error => false)
 }
 
+export const apiAuthorVerify = () => {
+	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([])}` })
+		.then(user => user)
+		.catch(error => false)
+}
+
 export const apiUpdateUserSettings = (settings) => {
 	return fetch('/api/user/settings', {
 		...fetchOptions({}),

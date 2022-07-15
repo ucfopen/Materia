@@ -67,7 +67,7 @@ const QuestionHistory = () => {
   if (!!saves && saves.length > 0) {
     savesRender = saves.map((save, index) => {
       return (
-        <tr onClick={() => loadSaveData(save.id)}>
+        <tr onClick={() => loadSaveData(save.id)} key={index}>
           <td>Save #{saves.length - index}</td>
           <td>{save.created_at}</td>
         </tr>
@@ -93,7 +93,9 @@ const QuestionHistory = () => {
     					<th>Saved At</th>
     				</tr>
     			</thead>
-    			{ savesRender }
+          <tbody>
+           { savesRender }
+          </tbody>
     		</table>
     	</form>
       { noSavesRender }

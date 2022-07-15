@@ -251,7 +251,7 @@ class Controller_Widgets extends Controller
 			->set('title', $title)
 			->set('page_type', 'widget');
 
-		Css::push_group(['createpage', 'core', 'widget_create']);
+		Css::push_group(['core', 'widget_create']);
 		Js::push_group(['react', 'createpage']);
 	}
 
