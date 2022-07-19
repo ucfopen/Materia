@@ -1,3 +1,51 @@
+
+
+.alert-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+    z-index: 9998;
+    width: 100%;
+    height: 100%;
+
+	background: rgba(0,0,0,0.66);
+
+	.alert-dialog {
+		position: absolute;
+		top: 25%;
+		left: 50%;
+		width: 400px;
+		margin-left: -200px;
+
+		padding: 15px;
+		background: #fff;
+
+		h3 {
+			margin: 5px 0;
+			font-size: 1.2em;
+		}
+
+		.buttons {
+			display: block;
+			width: 100%;
+
+			margin-top: 5px;
+
+			button {
+				display: inline-block;
+				margin-right: 10px;
+				margin: 10px 0 5px 0;
+			}
+		}
+
+		
+	}
+}
+
+
+
+/* from widget-create.scss */
+
 body {
 	overflow: hidden;
 }
@@ -301,3 +349,5 @@ a {
 	z-index: 1;
 	display: block !important;
 }
+
+

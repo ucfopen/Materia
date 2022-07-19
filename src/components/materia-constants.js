@@ -1,3 +1,7 @@
+export const creator = {
+	INTERVAL: 30000
+}
+
 export const player = {
 	LOG_INTERVAL: 10000, // How often to send logs to the server
 	RETRY_LIMIT: 15, // When the logs fail to send, retry how many times before switching to slow mode?
