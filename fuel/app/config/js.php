@@ -43,7 +43,8 @@ return [
 
 		'react'      => [
 			'//unpkg.com/react@16.13.1/umd/react.development.js',
-			'//unpkg.com/react-dom@16.13.1/umd/react-dom.development.js'
+			'//unpkg.com/react-dom@16.13.1/umd/react-dom.development.js',
+			$webpack.'js/include.js'
 		],
 		'jqplot'     => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.js',

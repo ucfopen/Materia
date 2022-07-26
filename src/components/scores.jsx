@@ -2,22 +2,15 @@ import React, { useState, useEffect, useRef} from 'react'
 import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores, apiGetQuestionSet } from '../util/api'
 import { useQuery } from 'react-query'
 import SupportInfo from './support-info'
+import LoadingIcon from './loading-icon'
 import '../materia/materia.scores.scoregraphics.js'
+
+import './scores.scss'
 
 const COMPARE_TEXT_CLOSE = 'Close Graph'
 const COMPARE_TEXT_OPEN = 'Compare With Class'
 
-const initCustomScoreScreen = () => ({
-	htmlPath: null,
-	type: null,
-	qset: null,
-	scoreTable: null,
-	show: false,
-	loading: true
-})
-
 const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}) => {
-	const [hashAllowUpdate, setHashAllowUpdate] = useState(null)
 	const [guestAccess, setGuestAccess] = useState(null)
 	const [invalid, setInvalid] = useState(null)
 	// attemptDates is an array of attempts, [0] is the newest
@@ -36,7 +29,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 
 	const [restricted, setRestricted] = useState(null)
 	const [expired, setExpired] = useState(null)
-	const [show, setShow] = useState(false)
 	const [showScoresOverview, setShowScoresOverview] = useState(true)
 	const [showResultsTable, setShowResultsTable] = useState(true)
 	const [toggleClassRankGraph, setToggleClassRankGraph] = useState(null)
@@ -48,7 +40,14 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const [playId, setPlayId] = useState(null)
 	const [previewInstId, setPreviewInstId] = useState(null)
 
-	const [customScoreScreen, setCustomScoreScreen] = useState(initCustomScoreScreen())
+	const [customScoreScreen, setCustomScoreScreen] = useState({
+		htmlPath: null,
+		type: null,
+		qset: null,
+		scoreTable: null,
+		show: false,
+		loading: true
+	})
 	const [playAgainUrl, setPlayAgainUrl] = useState(null)
 	const [hidePlayAgain, setHidePlayAgain] = useState(null)
 	const scoreHeaderRef = useRef(null)
@@ -60,10 +59,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
 		queryFn: () => apiGetWidgetInstance(inst_id),
-		staleTime: Infinity,
-		onSettled: (data) => {
-			console.log(data)
-		}
+		staleTime: Infinity
 	})
 
 	// Gets qset
@@ -85,10 +81,12 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	})
 
 	// Gets widget instance scores
+	// Because of how we handle the results object, we can't follow-up via useEffect targeting instanceScores
+	// As a result, instanceScores is never read.
 	const { isLoading: scoresAreLoading, data: instanceScores, refetch: loadInstanceScores } = useQuery({
 		queryKey: ['inst-scores', inst_id, send_token],
 		queryFn: () => apiGetWidgetInstanceScores(inst_id, send_token),
-		enabled: false,
+		enabled: !!inst_id,
 		staleTime: Infinity,
 		onSettled: (result) => {
 			_populateScores(result.scores)
@@ -114,8 +112,9 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		queryKey: ['play-scores', playId, previewInstId],
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
-		onSettled: (scores) => {
-			_displayDetails(scores)
+		enabled: !!playId || !!previewInstId,
+		onSettled: (result) => {
+			if (!result || result.length < 1) setExpired(true)
 		}
 	})
 
@@ -137,19 +136,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		staleTime: Infinity,
 		enabled: !!inst_id
 	})
-
-	const listenToHashChange = () => {
-		// when the url has changes, reload the questions
-		if (!hashAllowUpdate) {
-			setHashAllowUpdate(true)
-			return
-		}
-		_getScoreDetails()
-		if (customScoreScreen.show) {
-			// update the customScoreScreen
-			_sendWidgetUpdate()
-		}
-	}
 
 	useEffect(() => {
 		window.addEventListener('hashchange', listenToHashChange)
@@ -224,58 +210,9 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		_getInstanceScores()
 	}, [guestAccess])
 
-	//
-	const _populateScores = (scores) => {
-		if (scores === null || scores.length < 1) {
-			if (single_id) {
-				single_id = null
-			} else {
-				//load up an error screen of some sort
-				setRestricted(true)
-				setShow(true)
-			}
-			return
-		}
-		// Round scores
-		for (let attemptScore of Array.from(scores)) {
-			attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
-		}
-		setAttempts(scores)
-		setAttempt(scores[0])
-	}
-
-	const _getScoreDetails = () => {
-		if (isPreview) {
-			setCurrentAttempt(1)
-			setPlayId(null)
-			setPreviewInstId(instance.id)
-		} else if (single_id) {
-			setPlayId(single_id)
-			setPreviewInstId(null)
-		} else {
-			// get the current attempt from the url
-			const hash = getAttemptNumberFromHash()
-			if (currentAttempt === hash) {
-				return
-			} else {
-				setCurrentAttempt(hash)
-				setPlayId(attempts[attempts.length - hash].id)
-				// display existing data or get more from the server
-				if (details && details[attempts.length - hash] != null) {
-					_displayDetails(details[attempts.length - hash])
-				} else {
-					setPreviewInstId(null)
-				}
-			}
-		}
-	}
-
 	// _displayAttempts
 	useEffect(() => {
-		if (isPreview) {
-			_getScoreDetails()
-			return
-		} else if (!!attempts) {
+		if (!!attempts) {
 			if (attempts instanceof Array && attempts.length > 0) {
 				let matchedAttempt = false
 				attempts.forEach((a, i) => {
@@ -298,20 +235,120 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 					// we only want to do this if there's more than one attempt. Otherwise it's a guest widget
 					// or the score is being viewed by an instructor, so we don't want to get rid of the playid
 					// in the hash
+
+					// copied from getScoreDetails
+					setCurrentAttempt(1)
+					setPlayId(null)
+					setPreviewInstId(instance.id)
+				} else if (single_id) {
+					// copied from getScoreDeta
+					setPlayId(single_id)
+					setPreviewInstId(null)
 				} else if (matchedAttempt !== false && attempts.length > 1) {
-					// changing the hash will call _getScoreDetails()
-					setHashAllowUpdate(false)
 					window.location.hash = `#attempt-${matchedAttempt}`
-					_getScoreDetails()
+					
 				} else if (getAttemptNumberFromHash() === undefined) {
 					window.location.hash = `#attempt-${attempts.length}`
 				} else {
-					_getScoreDetails()
+
+					const hash = getAttemptNumberFromHash()
+					if (currentAttempt != hash) {
+						setCurrentAttempt(hash)
+					}
 				}
 			}
 		}
 	}, [attempts])
 
+	useEffect(() => {
+		if (!!currentAttempt) {
+			const hash = getAttemptNumberFromHash()
+			setPlayId(attempts[hash - 1].id)
+		}
+	}, [currentAttempt])
+
+	useEffect(() => {
+
+		if (playScores && playScores.length > 0) {
+			
+			// if (!customScoreScreen.show) {
+			// }
+
+			const deets = playScores[0]
+			setDetails([...deets.details])
+
+			let score
+
+			// Round the score for display
+			for (tableItem of Array.from(deets.details[0].table)) {
+				score = parseFloat(tableItem.score)
+				if (score !== 0 && score !== 100) {
+					tableItem.score = score.toFixed(2)
+				}
+			}
+
+			// send the materiaScoreRecorded postMessage
+			// previously within the if block below, but should happen regardless of whether the overview is shown
+			deets.overview.score = Math.round(deets.overview.score)
+			sendPostMessage(deets.overview.score)
+
+			if (showScoresOverview) {
+				for (var tableItem of Array.from(deets.overview.table)) {
+					if (tableItem.value.constructor === String) {
+						tableItem.value = parseFloat(tableItem.value)
+					}
+					tableItem.value = tableItem.value.toFixed(2)
+				}
+
+				setOverview(deets.overview)
+				setAttemptNum(currentAttempt)
+			}
+			if (showResultsTable) {
+
+				// why is this required?????
+				// setDetails(deets.details)
+				setTimeout(() => _addCircleToDetailTable(deets.details), 10)
+			}
+
+			const referrerUrl = deets.overview.referrer_url
+			if ( deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}` ) === -1 ) {
+				setPlayAgainUrl(referrerUrl)
+			} else {
+				setPlayAgainUrl(widget.href)
+			}
+			setScoreTable(deets.details[0].table)
+		}
+	}, [playScores])
+
+	const listenToHashChange = () => {
+		const hash = getAttemptNumberFromHash()
+		if (currentAttempt != hash) setCurrentAttempt(hash)
+		
+		if (customScoreScreen.show) {
+			// update the customScoreScreen
+			_sendWidgetUpdate()
+		}
+	}
+
+	const _populateScores = (scores) => {
+		if (scores === null || scores.length < 1) {
+			if (single_id) {
+				single_id = null
+			} else {
+				//load up an error screen of some sort
+				setRestricted(true)
+			}
+			return
+		}
+		// Round scores
+		for (let attemptScore of Array.from(scores)) {
+			attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
+		}
+		setAttempts(scores)
+		setAttempt(scores[0])
+	}
+
+	// only referenced once, after instance and qset are loaded
 	const _displayWidgetInstance = () => {
 		// Build the data for the overview section, prep for display through Underscore
 		const widget = {
@@ -365,7 +402,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			'paddingTop': paddingSize,
 		}
 
-		setHidePlayAgain(hidePlayAgain)
 		setHidePreviousAttempts(single_id)
 		setWidget(widget)
 	}
@@ -475,67 +511,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		})
 	}
 
-	const _displayDetails = (results) => {
-		let score
-
-		if (!customScoreScreen.show) {
-			setShow(true)
-		}
-
-		if (!results || !results[0]) {
-			setExpired(true)
-			setShow(true)
-			return
-		}
-
-		let detailsCopy = details
-		detailsCopy[attempts.length - currentAttempt] = results
-		setDetails(detailsCopy)
-
-		const deets = results[0]
-
-		// Round the score for display
-		for (tableItem of Array.from(deets.details[0].table)) {
-			score = parseFloat(tableItem.score)
-			if (score !== 0 && score !== 100) {
-				tableItem.score = score.toFixed(2)
-			}
-		}
-
-		// send the materiaScoreRecorded postMessage
-		// previously within the if block below, but should happen regardless of whether the overview is shown
-		deets.overview.score = Math.round(deets.overview.score)
-		sendPostMessage(deets.overview.score)
-
-		if (showScoresOverview) {
-			for (var tableItem of Array.from(deets.overview.table)) {
-				if (tableItem.value.constructor === String) {
-					tableItem.value = parseFloat(tableItem.value)
-				}
-				tableItem.value = tableItem.value.toFixed(2)
-			}
-
-			setOverview(deets.overview)
-			setAttemptNum(currentAttempt)
-		}
-		if (showResultsTable) {
-			setDetails(deets.details)
-			setTimeout(() => _addCircleToDetailTable(deets.details), 10)
-		}
-
-		const referrerUrl = deets.overview.referrer_url
-		if (
-			deets.overview.auth === 'lti' &&
-			!!referrerUrl &&
-			referrerUrl.indexOf(`/scores/${inst_id}`) === -1
-		) {
-			setPlayAgainUrl(referrerUrl)
-		} else {
-			setPlayAgainUrl(widget.href)
-		}
-		setScoreTable(deets.details[0].table)
-	}
-
 	const _addCircleToDetailTable = (detail) => {
 		detail.forEach((item, i) => {
 			if (item.table && item.table.length) {
@@ -618,6 +593,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		}
 	}
 
+	/****** helper methods ******/
+
 	const getAttemptNumberFromHash = () => {
 		const match = window.location.hash.match(/^#attempt-(\d+)/)
 		if (match && match[1] != null && !isNaN(match[1])) {
@@ -642,7 +619,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			setInvalid(true)
 			return
 		}
-		setShow(true)
 		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
@@ -662,31 +638,30 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		}
 	}
 
-	const prevMouseOver = () => {
-		setPrevAttemptClass('open')
-	}
-
-	const prevMouseOut = () => {
-		setPrevAttemptClass('')
-	}
-
 	const attemptClick = () => {
 		if (isMobile.any()) {
 			setPrevAttemptClass('')
 		}
 	}
 
+	/******* DOM element rendering ********/
+
 	let previousAttempts = null
 	if (!hidePreviousAttempts && !isPreview && !guestAccess) {
+
+		let attemptList = attempts.map((attempt, index) => {
+			return (
+				<li key={index}>
+					<a href={`#attempt-${index + 1}`} onClick={attemptClick}>Attempt {index + 1}: <span className="score">{ attempt.roundedPercent}%</span><span className="date">{ attemptDates[index]}</span></a>
+				</li>
+			)
+		})
+
 		previousAttempts = (
-			<nav className={`header-element previous-attempts ${prevAttemptClass}`} onMouseOver={prevMouseOver} onMouseOut={prevMouseOut}>
-				<h1 onClick={prevMouseOver}>Prev. Attempts</h1>
-				<ul onMouseOver={prevMouseOver}>
-					{attempts.forEach((attempt, index) => (
-						<li key={index}>
-							<a href={`#attempt-${index}`} onClick={attemptClick}>Attempt {index}: <span className="score">{ attempt.roundedPercent}%</span><span className="date">{ attemptDates[index]}</span></a>
-						</li>
-					))}
+			<nav className={`header-element previous-attempts ${prevAttemptClass}`} onMouseOver={() => setPrevAttemptClass('open')} onMouseOut={() => setPrevAttemptClass('')}>
+				<h1 onClick={() => setPrevAttemptClass('open')}>Prev. Attempts</h1>
+				<ul onMouseOver={() => setPrevAttemptClass('open')}>
+					{attemptList}
 				</ul>
 			</nav>
 		)
@@ -902,7 +877,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	}
 
 	return (
-		<article className={`container ${show && 'show'}`}>
+		<article className={`container ${ instanceIsLoading || qSetIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
+			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			{ scoreHeader }
 			{ overviewRender }
 			{ scoreGraphRender }

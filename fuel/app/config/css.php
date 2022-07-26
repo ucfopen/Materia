@@ -45,7 +45,7 @@ return [
 		'login' => [$webpack.'js/login.css'],
 		'scores' => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
-			$webpack.'css/scores.css',
+			$webpack.'js/scores.css',
 		],
 		'pre_embed_placeholder' => [$webpack.'css/widget-embed-placeholder.css'],
 		'embed_scores' => [$webpack.'css/scores.css'],

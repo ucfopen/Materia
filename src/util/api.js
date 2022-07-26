@@ -338,8 +338,8 @@ export const apiSearchWidgets = input => {
 		.then(widgets => widgets)
 }
 
-export const apiGetWidgetInstanceScores = instId => {
-	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+export const apiGetWidgetInstanceScores = (instId, send_token) => {
+	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, send_token])}` }))
 		.then(res => res.json())
 		.then(scores => scores)
 }
