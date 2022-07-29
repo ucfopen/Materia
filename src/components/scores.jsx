@@ -59,7 +59,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
 		queryFn: () => apiGetWidgetInstance(inst_id),
-		staleTime: Infinity
+		enabled: !!inst_id,
+		staleTime: Infinity,
 	})
 
 	// Gets qset
@@ -69,14 +70,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		staleTime: Infinity,
 		placeholderData: null,
 		onSettled: (data) => {
-			if (
-				(data != null ? data.title : undefined) === 'Permission Denied' ||
-				data.type === 'error'
-			) {
-					setInvalid(true);
-				} else {
-					setInvalid(false);
-				}
+			if ( (data != null ? data.title : undefined) === 'Permission Denied' || data.type === 'error' ) setExpired(true)
 		}
 	})
 
@@ -86,22 +80,36 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const { isLoading: scoresAreLoading, data: instanceScores, refetch: loadInstanceScores } = useQuery({
 		queryKey: ['inst-scores', inst_id, send_token],
 		queryFn: () => apiGetWidgetInstanceScores(inst_id, send_token),
-		enabled: !!inst_id,
+		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
+		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			_populateScores(result.scores)
-			setAttemptsLeft(result.attempts_left)
+			console.log('result from getWidgetInstanceScores query')
+			console.log(result)
+			if (result && result.type == 'error') setRestricted(true)
+			else {
+				_populateScores(result.scores)
+				setAttemptsLeft(result.attempts_left)
+			}
 		}
 	})
 
 	// Gets guest widget instance scores
+	// important note: play_id is only set when the user first visits the score screen after completing a guest instance
+	// otherwise, single_id will contain the play ID and play_id will be null
+	const guestPlayId = play_id ? play_id : single_id
 	const { isLoading: guestScoresAreLoading, data: guestScores, refetch: loadGuestScores } = useQuery({
-		queryKey: ['guest-scores', inst_id, play_id],
-		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, play_id),
-		enabled: false,
+		queryKey: ['guest-scores', inst_id, guestPlayId],
+		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, guestPlayId),
+		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
+		retry: false,
+		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			_populateScores(result)
+			console.log('result from getWidgetInstanceScores query')
+			console.log(result)
+			if (result && result.type == 'error') setRestricted(true)
+			else _populateScores(result)
 		}
 	})
 
@@ -112,9 +120,13 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		queryKey: ['play-scores', playId, previewInstId],
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
-		enabled: !!playId || !!previewInstId,
+		enabled: false,
+		retry: false,
+		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (!result || result.length < 1) setExpired(true)
+			if (!result || result.length < 1) {
+				setExpired(true)
+			}
 		}
 	})
 
@@ -169,6 +181,14 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			let enginePath
 			setGuestAccess(instance.guest_access)
 
+			if (isPreview) {
+				setPreviewInstId(instance.id)
+				setPlayId(null)
+			} else if (single_id) {
+				setPlayId(single_id)
+				setPreviewInstId(null)
+			}
+
 			const score_screen = instance.widget.score_screen
 			if (score_screen && scoreTable) {
 				const splitSpot = score_screen.lastIndexOf('.')
@@ -194,21 +214,22 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		}
 	}, [instance, qset, scoreTable])
 
-	const _getInstanceScores = () => {
-		if (isPreview || single_id) {
-			setAttempts([{ id: -1, created_at: 0, percent: 0 }])
-		} else if (!guestAccess) {
-			// Want to get all of the scores for a user if the widget doesn't support guests.
-			loadInstanceScores()
-		} else {
-			// Only want score corresponding to play_id if guest widget
-			loadGuestScores()
-		}
-	}
-
+	// _getInstanceScores
+	// only for non-preview scores, guest or normal
 	useEffect(() => {
-		_getInstanceScores()
+		if (guestAccess !== null && !isPreview) {
+			if (guestAccess) {
+				loadGuestScores()
+			} else {
+				loadInstanceScores()
+			}
+		}
 	}, [guestAccess])
+
+	// instance scores are not loaded for previews - request play scores directly
+	useEffect(() => {
+		if (previewInstId) loadPlayScores()
+	}, [previewInstId])
 
 	// _displayAttempts
 	useEffect(() => {
@@ -231,19 +252,10 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 				})
 
 				if (isPreview) {
-					window.location.hash = `#attempt-${1}`
+					setCurrentAttempt(1)
 					// we only want to do this if there's more than one attempt. Otherwise it's a guest widget
 					// or the score is being viewed by an instructor, so we don't want to get rid of the playid
 					// in the hash
-
-					// copied from getScoreDetails
-					setCurrentAttempt(1)
-					setPlayId(null)
-					setPreviewInstId(instance.id)
-				} else if (single_id) {
-					// copied from getScoreDeta
-					setPlayId(single_id)
-					setPreviewInstId(null)
 				} else if (matchedAttempt !== false && attempts.length > 1) {
 					window.location.hash = `#attempt-${matchedAttempt}`
 					
@@ -262,10 +274,18 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 
 	useEffect(() => {
 		if (!!currentAttempt) {
-			const hash = getAttemptNumberFromHash()
-			setPlayId(attempts[hash - 1].id)
+			if (guestAccess) {
+				setPlayId(play_id)
+			} else {
+				const hash = getAttemptNumberFromHash()
+				setPlayId(attempts[hash - 1].id)
+			}
 		}
 	}, [currentAttempt])
+
+	useEffect(() => {
+		if (!!playId) loadPlayScores()
+	}, [playId])
 
 	useEffect(() => {
 
@@ -301,12 +321,10 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 				}
 
 				setOverview(deets.overview)
+				console.log('setting currentAttempt here')
 				setAttemptNum(currentAttempt)
 			}
 			if (showResultsTable) {
-
-				// why is this required?????
-				// setDetails(deets.details)
 				setTimeout(() => _addCircleToDetailTable(deets.details), 10)
 			}
 
@@ -331,21 +349,18 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	}
 
 	const _populateScores = (scores) => {
-		if (scores === null || scores.length < 1) {
-			if (single_id) {
-				single_id = null
-			} else {
-				//load up an error screen of some sort
-				setRestricted(true)
+		if (!scores || scores.length < 1) {
+			// score request was not in error, but request is empty
+			setExpired(true)
+		} else {
+			// Round scores
+			for (let attemptScore of Array.from(scores)) {
+				attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
 			}
-			return
+			if (!single_id) {
+				setAttempts(scores)
+			}
 		}
-		// Round scores
-		for (let attemptScore of Array.from(scores)) {
-			attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
-		}
-		setAttempts(scores)
-		setAttempt(scores[0])
 	}
 
 	// only referenced once, after instance and qset are loaded
@@ -378,8 +393,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 
 		// Modify display of several elements after HTML is outputted
 		const lengthRange = Math.floor(instance.name.length / 10)
-		let textSize = parseInt(getComputedStyle(scoreHeaderRef.current).fontSize)
-		let paddingSize = parseInt(getComputedStyle(scoreHeaderRef.current).paddingTop)
+		let textSize = 24
+		let paddingSize = 16
 
 		switch (lengthRange) {
 			case 0:
