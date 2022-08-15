@@ -69,8 +69,9 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		queryFn: () => apiGetQuestionSet(inst_id),
 		staleTime: Infinity,
 		placeholderData: null,
+		enabled: !!inst_id,
 		onSettled: (data) => {
-			if ( (data != null ? data.title : undefined) === 'Permission Denied' || data.type === 'error' ) setExpired(true)
+			if (data && data.type === 'error' ) setExpired(true)
 		}
 	})
 
@@ -84,8 +85,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			console.log('result from getWidgetInstanceScores query')
-			console.log(result)
 			if (result && result.type == 'error') setRestricted(true)
 			else {
 				_populateScores(result.scores)
@@ -106,8 +105,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			console.log('result from getWidgetInstanceScores query')
-			console.log(result)
 			if (result && result.type == 'error') setRestricted(true)
 			else _populateScores(result)
 		}
@@ -321,7 +318,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 				}
 
 				setOverview(deets.overview)
-				console.log('setting currentAttempt here')
 				setAttemptNum(currentAttempt)
 			}
 			if (showResultsTable) {

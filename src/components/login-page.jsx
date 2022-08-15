@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Header from './header'
+import Summary from './widget-summary'
 import './login-page.scss'
 
 const LoginPage = () => {
@@ -32,6 +33,11 @@ const LoginPage = () => {
 				actionLogin: window.ACTION_LOGIN,
 				actionRedirect: window.ACTION_REDIRECT,
 				bypass: window.BYPASS,
+				context: window.CONTEXT,
+				instName: window.NAME != undefined ? window.INST_NAME : null,
+				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
+				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
+				iconURL: window.ICON != undefined ? window.ICON_URL : null,
 				loginLinks: links,
 				errContent: window.ERR_LOGIN != undefined ? <div className='error'><p>{`${window.ERR_LOGIN}`}</p></div> : '',
 				noticeContent: window.NOTICE_LOGIN != undefined ? <div className='error'><p>{`${window.NOTICE_LOGIN}`}</p></div> : ''
@@ -45,7 +51,8 @@ const LoginPage = () => {
 		&& !window.hasOwnProperty('ACTION_LOGIN')
 		&& !window.hasOwnProperty('ACTION_REDIRECT')
 		&& !window.hasOwnProperty('BYPASS')
-		&& !window.hasOwnProperty('LOGIN_LINKS')) {
+		&& !window.hasOwnProperty('LOGIN_LINKS')
+		&& !window.hasOwnProperty('CONTEXT')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
@@ -53,15 +60,31 @@ const LoginPage = () => {
 	const onInputChange = (input) => {
 	}
 
+	let detailContent = <></>
+	if (!state.context || state.context == 'login') {
+		detailContent = 
+		<div className="login_context detail">
+			<h2 className="logo">Log In to Your Account</h2>
+			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
+		</div>
+	} else if (state.context && state.context == 'widget') {
+		detailContent = 
+		<div className="login_context detail">
+			<h2 className="logo">Log in to play this widget</h2>
+			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
+		</div>
+	}
+	
+	console.log('boop')
+	console.log(state.context)
+
 	return (
 		<>
 			<Header />
 			<div className="container">
 				<section className="page">
-					<div className="detail">
-						<h2 className="logo">Log In to Your Account</h2>
-						<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
-					</div>
+					{ state.context && state.context == 'widget' ? <Summary /> : ''}
+					{ detailContent }
 
 					<div id="form">
 						{ state.errContent }

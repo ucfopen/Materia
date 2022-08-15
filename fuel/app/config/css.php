@@ -47,7 +47,7 @@ return [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
 			$webpack.'js/scores.css',
 		],
-		'pre_embed_placeholder' => [$webpack.'css/widget-embed-placeholder.css'],
+		'pre_embed_placeholder' => [$webpack.'js/pre-embed-common-styles.css'],
 		'embed_scores' => [$webpack.'css/scores.css'],
 		'question_import' => [
 			$vendor.'jquery.dataTables.min.css',

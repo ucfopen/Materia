@@ -55,6 +55,8 @@ class Controller_Users extends Controller
 			Js::push_inline('var NOTICE_LOGIN = "'.implode('</p><p>', $notice).'";');
 		}
 
+		Js::push_inline('var CONTEXT = "login";');
+
 		Event::trigger('request_login', $direct_login);
 
 		$this->theme = Theme::instance();

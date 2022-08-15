@@ -411,15 +411,45 @@ class Controller_Widgets extends Controller
 			// fire an event prior to deciding which theme to render
 			$alt = \Event::Trigger('before_widget_login');
 			// if something came back as a result of the event being triggered, use that instead of the default
-			$theme = $alt ?: 'partials/widget/login';
-			$content = $this->theme->set_partial('content', $theme);
-			$content
-				->set('user', __('user'))
-				->set('pass', __('password'))
-				->set('links', __('links'))
-				->set('title', $login_title)
-				->set('date', $server_date)
-				->set('preview', $is_preview);
+			// TODO this no longer seems necessary to support
+			if ($alt)
+			{
+				$content = $this->theme->set_partial('content', $alt);
+				$content
+					->set('user', __('user'))
+					->set('pass', __('password'))
+					->set('links', __('links'))
+					->set('title', $login_title)
+					->set('date', $server_date)
+					->set('preview', $is_preview);
+			}
+			else
+			{
+				$this->theme->set_template('layouts/react');
+				$this->theme->get_template()
+					->set('title', 'Login')
+					->set('page_type', 'login');
+
+				Css::push_group(['login']);
+				Js::push_group(['react', 'login']);
+
+				Js::push_inline('var LOGIN_USER = "'.\Lang::get('login.user').'";');
+				Js::push_inline('var LOGIN_PW = "'.\Lang::get('login.password').'";');
+				Js::push_inline('var CONTEXT = "widget";');
+				Js::push_inline('var NAME = "'.$inst->name.'";');
+				Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
+				Js::push_inline('var IS_PREVIEW = "'.$is_preview.'";');
+				Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+
+				// condense login links into a string with delimiters to be embedded as a JS global
+				$link_items = [];
+				foreach (\Lang::get('login.links') as $a)
+				{
+					$link_items[] = $a['href'].'***'.$a['title'];
+				}
+				$login_links = implode('@@@', $link_items);
+				Js::push_inline('var LOGIN_LINKS = "'.urlencode($login_links).'";');
+			}
 		}
 		else
 		{
@@ -431,14 +461,14 @@ class Controller_Widgets extends Controller
 		}
 
 		// add widget summary
-		$content->set('classes', 'widget '.($is_preview ? 'preview' : ''))
-			->set('summary', $this->theme->view('partials/widget/summary')
-				->set('type',$inst->widget->name)
-				->set('name', $inst->name)
-				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-				->set_safe('avail', $summary));
+		// $content->set('classes', 'widget '.($is_preview ? 'preview' : ''))
+		// 	->set('summary', $this->theme->view('partials/widget/summary')
+		// 		->set('type',$inst->widget->name)
+		// 		->set('name', $inst->name)
+		// 		->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
+		// 		->set_safe('avail', $summary));
 
-		if ($is_embedded) $this->_header = 'partials/header_empty';
+		// if ($is_embedded) $this->_header = 'partials/header_empty';
 
 		Js::push_group(['angular', 'materia', 'student']);
 		Css::push_group('login');
@@ -509,8 +539,8 @@ class Controller_Widgets extends Controller
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
-			->set('title', 'Widget Unavailable')
-			->set('page_type', 'login');
+			->set('title', $inst->name.' '.$inst->widget->name)
+			->set('page_type', 'widget');
 
 		$uri = URI::current();
 		$context = strpos($uri, 'play/') != false ? 'play' : 'embed';
@@ -518,9 +548,9 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var INST_ID = "'.$inst->id.'";');
 		Js::push_inline('var CONTEXT = "'.$context.'";');
 		Js::push_inline('var NAME = "'.$inst->name.'";');
-		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-275.png".'";');
 
-		Js::push_group(['react', 'pre_embed_placeholder']);
+		Js::push_group(['react', 'pre_embed']);
 		Css::push_group(['login','pre_embed_placeholder']);
 	}
 }
