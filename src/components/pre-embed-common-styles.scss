@@ -43,7 +43,7 @@ body {
 	section.page {
 		min-height: 350px;
 		margin: 0;
-		padding: 30px 10px;
+		padding: 15px 10px 30px 10px;
 		text-align: center;
 
 		background: #fff;
@@ -53,9 +53,12 @@ body {
 		box-shadow: 1px 3px 10px #dcdcdc;
 
 		div.detail {
-			margin-top: 20px;
 			text-align: center;
 			clear: both;
+
+			h2 {
+				font-size: 18pt;
+			}
 
 			h3 {
 				margin-top: 3px;
@@ -83,7 +86,9 @@ body {
 		}
 
 		.widget_info {
-			margin: 0 0 20px 0;
+			position: relative;
+			min-height: 122px;
+			padding-left: 110px;
 
 			list-style: none;
 
@@ -107,7 +112,7 @@ body {
 
 			.widget_icon {
 				position: absolute;
-				top: 25px;
+				top: 0;
 				left: -25px;
 				background: #0093e7;
 				width: 92px;
@@ -133,13 +138,20 @@ body {
 			list-style-type: none;
 
 			li.widget_name {
-				margin: 0 0 10px 0;
+				position: relative;
+				display: flex;
+				align-items: center;
+				// position: relative;
+				// top: 15px;
+				min-height: 100px;
+				padding: 11px 0;
 				padding: 0 0 5px 0;
 				font-family: 'Lato', arial, serif;
 				font-weight: 700;
 				font-size: 38px;
 				
 				line-height: 37px;
+				text-align: left;
 			}
 		}
 
@@ -241,6 +253,18 @@ body {
 
 		.additional_info {
 			padding: 0 20px 20px 20px;
+		}
+	}
+}
+
+@media (max-width: 720px) {
+	.container {
+		margin: 10% auto 0 auto;
+		align-items: center;
+
+		section.page {
+			border: 0;
+			box-shadow: none;
 		}
 	}
 }

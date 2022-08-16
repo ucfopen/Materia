@@ -20,8 +20,6 @@ const LoginPage = () => {
 	useEffect(() => {
 		waitForWindow()
 		.then(() => {
-			console.log('server vals received')
-
 			let links = decodeURIComponent(window.LOGIN_LINKS).split('@@@').map((link, index) => {
 				let vals = link.split('***')
 				return <li key={index}><a href={`${vals[0]}`}>{`${vals[1]?.replace('+',' ')}`}</a></li>
@@ -64,19 +62,16 @@ const LoginPage = () => {
 	if (!state.context || state.context == 'login') {
 		detailContent = 
 		<div className="login_context detail">
-			<h2 className="logo">Log In to Your Account</h2>
+			<h2 className="context-header">Log In to Your Account</h2>
 			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
 		</div>
 	} else if (state.context && state.context == 'widget') {
 		detailContent = 
 		<div className="login_context detail">
-			<h2 className="logo">Log in to play this widget</h2>
+			<h2 className="context-header">Log in to play this widget</h2>
 			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
 		</div>
 	}
-	
-	console.log('boop')
-	console.log(state.context)
 
 	return (
 		<>
