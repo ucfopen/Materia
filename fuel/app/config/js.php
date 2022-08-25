@@ -11,6 +11,7 @@ return [
 		'admin'      => [$webpack.'js/admin.js'],
 		'support'    => [$webpack.'js/support.js'],
 		'user_admin' => [$webpack.'js/user-admin.js'],
+		'widget_admin' => [$webpack.'js/widget-admin.js'],
 		'author'     => [$webpack.'js/author.js'],
 		'student'    => [$webpack.'js/student.js'],
 		'materia'    => [$webpack.'js/materia.js'],
