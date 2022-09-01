@@ -56,6 +56,13 @@ class Api_V1
 		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
 	}
 
+	static public function widget_paginate_instances_get($page_number = 1)
+	{
+		if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
+		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
+		return $data;
+	}
+
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */

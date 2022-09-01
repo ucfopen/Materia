@@ -43,6 +43,19 @@ export const apiGetWidgetInstances = () => {
 		})
 }
 
+export const apiGetPaginatedWidgetInstances = page_number => {
+	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+		.then(resp => {
+			resp['pagination'].sort(_compareWidgets)
+			writeToStorage('widgets', resp)
+			return resp
+		})
+}
+
 export const apiGetInstancesForUser = userId => {
 	return fetch(`/api/admin/user/${userId}`)
 		.then(resp => {
@@ -197,7 +210,7 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
-export const apiGetUserActivity = ({pageParam = 0}) => {
+export const apiGetUserActivity = ({ pageParam = 0 }) => {
 	return fetch(`/api/user/activity?start=${pageParam * 6}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -329,7 +342,7 @@ export const apiGetWidgetLock = (id = null) => {
 
 export const apiSearchWidgets = input => {
 	let pattern = /[A-Za-z]+/g
-	if ( !input.match(pattern).length) return false
+	if (!input.match(pattern).length) return false
 	return fetch(`/api/admin/widget_search/${input}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -535,6 +548,6 @@ export const readFromStorage = () => {
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
-	return fetch('/api/json/widget_publish_perms_verify',  fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
+	return fetch('/api/json/widget_publish_perms_verify', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
 		.then(resp => resp.json())
 }

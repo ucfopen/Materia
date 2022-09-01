@@ -67,6 +67,28 @@ class Widget_Instance_Manager
 		else return [];
 	}
 
+	public static function get_paginated_for_user($user_id, $page_number = 1)
+	{
+		$widgets_per_page = 5;
+
+		// inst_ids corresponds to all instances owned by the current user
+		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
+
+		$total_num_pages = ceil(sizeof($inst_ids) / $widgets_per_page);
+
+		$offset = $widgets_per_page * ($page_number - 1);
+
+		// inst_ids corresponds to a single page's worth of instances
+		$inst_ids = array_slice($inst_ids, $offset, $widgets_per_page);
+
+		$data = [
+			'total_num_pages' => $total_num_pages,
+			'pagination'      => Widget_Instance_Manager::get_all($inst_ids),
+		];
+
+		return $data;
+	}
+
 	/**
 	 * Checks to see if the given widget instance is locked by the current user.
 	 *
