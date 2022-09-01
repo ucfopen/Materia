@@ -54,7 +54,7 @@ const MyWidgetsPage = () => {
 		isLoading,
 		isFetching,
 		refetch,
-	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true, refetchOnWindowFocus: false, })
+	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true, })
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
@@ -112,7 +112,7 @@ const MyWidgetsPage = () => {
 		checkPreselectedWidgetAccess(widgetsList)
 
 		// triggers the final refetch for retrieving the final page.
-		if (page == data?.total_num_pages) { refetch() }
+		if (page <= data?.total_num_pages) { refetch() }
 	}, [widgetsList])
 
 	// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
