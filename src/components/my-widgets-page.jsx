@@ -52,9 +52,9 @@ const MyWidgetsPage = () => {
 	const {
 		data,
 		isLoading,
-		isSuccess,
 		isFetching,
-	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true })
+		refetch,
+	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true, refetchOnWindowFocus: false, })
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
@@ -95,12 +95,10 @@ const MyWidgetsPage = () => {
 	// isFetching - actual data, from API
 	useEffect(() => {
 		if (!isFetching) {
-
 			if (page <= data.total_num_pages) {
-				setWidgetsList(current => [...current, ...data?.pagination])
 				setPage(page + 1)
 			}
-			checkPreselectedWidgetAccess(widgetsList)
+			setWidgetsList(current => [...current, ...data.pagination])
 		}
 	}, [isFetching])
 
@@ -112,8 +110,10 @@ const MyWidgetsPage = () => {
 
 	useEffect(() => {
 		checkPreselectedWidgetAccess(widgetsList)
-	}, [widgetsList])
 
+		// triggers the final refetch for retrieving the final page.
+		if (page == data?.total_num_pages) { refetch() }
+	}, [widgetsList])
 
 	// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
 	//  fetching, double-check that the current user actually has access to it
