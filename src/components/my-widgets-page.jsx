@@ -96,14 +96,11 @@ const MyWidgetsPage = () => {
 	useEffect(() => {
 		if (!isFetching) {
 
-			if (data?.total_num_pages != page) {
+			if (page <= data.total_num_pages) {
 				setWidgetsList(current => [...current, ...data?.pagination])
 				setPage(page + 1)
 			}
-
-			if (data?.total_num_pages > page) {
-				checkPreselectedWidgetAccess(widgetsList)
-			}
+			checkPreselectedWidgetAccess(widgetsList)
 		}
 	}, [isFetching])
 
@@ -114,7 +111,6 @@ const MyWidgetsPage = () => {
 	}, [data])
 
 	useEffect(() => {
-		console.log(widgetsList)
 		checkPreselectedWidgetAccess(widgetsList)
 	}, [widgetsList])
 
