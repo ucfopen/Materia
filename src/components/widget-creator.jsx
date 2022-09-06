@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
 import { creator } from './materia-constants'
-import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify } from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 
@@ -10,7 +10,7 @@ import Alert from './alert'
 // const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 const creatorGuideUrl = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
 
-const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
+const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
   const [alertDialog, setAlertDialog] = useState({
     enabled: false,
     msg: '',
@@ -60,39 +60,39 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
   // Gets widget instance
   const { isLoading: instanceIsLoading, data: widgetInstance } = useQuery({
-		queryKey: ['widget-inst', instId],
-		queryFn: () => apiGetWidgetInstance(instId),
-		enabled: !!instId,
-		staleTime: Infinity
-	})
+    queryKey: ['widget-inst', instId],
+    queryFn: () => apiGetWidgetInstance(instId),
+    enabled: !!instId,
+    staleTime: Infinity
+  })
 
   // Gets widget info
   const { isLoading: widgetInfoIsLoading, data: widgetInfo } = useQuery({
-		queryKey: ['widget-inst', widgetId],
-		queryFn: () => apiGetWidget(widgetId),
-		enabled: !!widgetId,
-		staleTime: Infinity
-	})
+    queryKey: ['widget-inst', widgetId],
+    queryFn: () => apiGetWidget(widgetId),
+    enabled: !!widgetId,
+    staleTime: Infinity
+  })
 
   // if this is an existing instance, check lock status
   const { data: isLocked } = useQuery({
     queryKey: ['widget-lock', instanceId],
-		queryFn: () => apiGetWidgetLock(instanceId),
-		enabled: !!instanceId,
-		staleTime: Infinity,
+    queryFn: () => apiGetWidgetLock(instanceId),
+    enabled: !!instanceId,
+    staleTime: Infinity,
     onSettled: (success) => {
-        if (!success) {
-          onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
-        }
+      if (!success) {
+        onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
+      }
     }
   })
 
   const { data: canPublish } = useQuery({
-		queryKey: ['can-publish', instanceId],
-		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
-		enabled: instance?.widget !== null,
-		staleTime: Infinity
-	})
+    queryKey: ['can-publish', instanceId],
+    queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
+    enabled: instance?.widget !== null,
+    staleTime: Infinity
+  })
 
   useQuery({
     queryKey: 'heartbeat',
@@ -107,7 +107,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       }
     }
   })
-  
+
   // qset storage for previous save feature
   // current working qset, temporarily cached to await confirm/cancel
   const [qsetToBeCached, setQsetToBeCached] = useState(null);
@@ -116,24 +116,24 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   const [keepQSet, setKeepQSet] = useState(null);
   const [invalid, setInvalid] = useState(null);
 
-	const { isLoading: qSetIsLoading, data: qset } = useQuery({
-		queryKey: ['qset', instId],
-		queryFn: () => apiGetQuestionSet(instId),
-		staleTime: Infinity,
-		placeholderData: null,
+  const { isLoading: qSetIsLoading, data: qset } = useQuery({
+    queryKey: ['qset', instId],
+    queryFn: () => apiGetQuestionSet(instId),
+    staleTime: Infinity,
+    placeholderData: null,
     onSettled: (data) => {
       if (
-				(data != null ? data.title : undefined) === 'Permission Denied' ||
-				data.title === 'error'
-			) {
-          setInvalid(true);
-          onInitFail('Permission Denied')
-        } else {
-          setInvalid(false);
-          setKeepQSet(data);
-        }
+        (data != null ? data.title : undefined) === 'Permission Denied' ||
+        data.title === 'error'
+      ) {
+        setInvalid(true);
+        onInitFail('Permission Denied')
+      } else {
+        setInvalid(false);
+        setKeepQSet(data);
+      }
     }
-	})
+  })
 
   // Initializes the instance after query is complete
   useEffect(() => {
@@ -143,8 +143,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       setInstanceId(widgetInstance.id)
     }
 
-    if (widgetInfo && Object.keys(widgetInfo).length !== 0){
-      setInstance({...instance, widget: widgetInfo})
+    if (widgetInfo && Object.keys(widgetInfo).length !== 0) {
+      setInstance({ ...instance, widget: widgetInfo })
     }
   }, [instanceIsLoading, widgetInfoIsLoading])
 
@@ -190,7 +190,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
   // Initializes the Creator, sending required widget data
   const initCreator = () => {
-		setStartTime(new Date().getTime())
+    setStartTime(new Date().getTime())
     let args
     if (instId && keepQSet) {
       args = [widgetInstance.name, widgetInstance, keepQSet.data, keepQSet.version, window.BASE_URL, window.MEDIA_URL];
@@ -208,9 +208,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       window.addEventListener('message', onPostMessage, false)
 
       // cleanup this listener
-			return () => {
-				window.removeEventListener('message', onPostMessage, false);
-			}
+      return () => {
+        window.removeEventListener('message', onPostMessage, false);
+      }
     }
   }, [
     widgetData.loading,
@@ -308,7 +308,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
       const msg = JSON.parse(e.data)
       switch (
-        msg.source // currently 'creator-core' || 'media-importer' - can be extended to other sources
+      msg.source // currently 'creator-core' || 'media-importer' - can be extended to other sources
       ) {
         case 'media-importer':
           // options for media-importer postMessages
@@ -372,15 +372,15 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   // Note this is psuedo public as it's exposed to flash
   const onCreatorReady = () => {
     switch (false) {
-			case !(keepQSet == null && instanceId):
-				onInitFail('Unable to load widget data.')
-				break
-			case !(frameRef.current == null):
-				onInitFail('Unable to load widget.')
-				break
+      case !(keepQSet == null && instanceId):
+        onInitFail('Unable to load widget data.')
+        break
+      case !(frameRef.current == null):
+        onInitFail('Unable to load widget.')
+        break
       case !(!canPublish && instanceId && !instance.is_draft):
         onInitFail('Widget type can not be edited by students after publishing.')
-			default:
+      default:
         if (qsetToReload != null) {
           setKeepQSet({
             data: qsetToReload.data,
@@ -389,7 +389,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
           setQsetToReload(null)
         }
         initCreator()
-		}
+    }
   }
 
   // Show an embedded dialog, as opposed to a popup
@@ -445,7 +445,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
       // did we get back an error message?
       if ((inst != null ? inst.msg : undefined) != null) {
         onSaveCanceled(inst)
-        setAlertDialog({...alertDialog, fatal: inst.halt, enabled: true});
+        setAlertDialog({ ...alertDialog, fatal: inst.halt, enabled: true });
       } else if (inst != null && inst.id != null) {
         // update this creator's url
         if (String(instanceId).length !== 0) {
@@ -520,13 +520,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   }
 
   const _alert = (msg, title = 'Warning!', fatal = false, enableLoginButton = false) => {
-		setAlertDialog({
+    setAlertDialog({
       enabled: true,
-			msg: msg,
-			title: title,
-			fatal: fatal,
+      msg: msg,
+      title: title,
+      fatal: fatal,
       enableLoginButton: enableLoginButton,
-		})
+    })
   }
 
   const _qsetRollbackConfirmation = (confirm) => {
@@ -625,34 +625,34 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
     editButtonsRender = (
       <span>
         <div className="dot"></div>
-        <button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={()=>requestSave('preview')}><span>{previewText}</span></button>
-        <button id="creatorSaveBtn" className={`edit_button orange ${saveStatus}`} type="button" onClick={()=>requestSave('save')}><span>{saveText}</span></button>
+        <button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={() => requestSave('preview')}><span>{previewText}</span></button>
+        <button id="creatorSaveBtn" className={`edit_button orange ${saveStatus}`} type="button" onClick={() => requestSave('save')}><span>{saveText}</span></button>
       </span>
     )
   }
 
-	let creatorGuideLink = null
-	if (widgetData.hasCreatorGuide) {
-		creatorGuideLink = (
-			<a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl} target="_blank">Creator's Guide</a>
-		)
-	}
+  let creatorGuideLink = null
+  if (widgetData.hasCreatorGuide) {
+    creatorGuideLink = (
+      <a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl} target="_blank">Creator's Guide</a>
+    )
+  }
 
   let actionBarRender = null
   if (showActionBar) {
     actionBarRender = (
       <section id='action-bar'>
         <a id="returnLink" href={returnUrl}>&larr;Return to {returnPlace}</a>
-				{ creatorGuideLink }
-  			{ instanceId ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
-  			<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
-  			<button id="creatorPublishBtn"
-  				className="edit_button green"
-  				type="button"
-  				onClick={onPublishPressed}>
-  				{publishText}
-  			</button>
-  			{ editButtonsRender }
+        {creatorGuideLink}
+        {instanceId ? <a onClick={showQsetHistoryImporter}>Save History</a> : ''}
+        <a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
+        <button id="creatorPublishBtn"
+          className="edit_button green"
+          type="button"
+          onClick={onPublishPressed}>
+          {publishText}
+        </button>
+        {editButtonsRender}
       </section>
     )
   }
@@ -660,7 +660,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
   let loadingRender = null
   if (widgetData.loading) {
     loadingRender = (
-      <LoadingIcon size='lrg'/>
+      <LoadingIcon size='lrg' />
     )
   }
 
@@ -673,22 +673,22 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
         fatal={alertDialog.fatal}
         showLoginButton={alertDialog.enableLoginButton}
         onCloseCallback={() => {
-          setAlertDialog({...alertDialog, enabled: false})
+          setAlertDialog({ ...alertDialog, enabled: false })
         }} />
     )
   }
 
   let popupRender = null
-  switch(popup) {
+  switch (popup) {
     case 'blocked':
       popupRender = (
         <div className="preview animate-show">
-    			<p>Your browser blocked the preview popup, click below to preview the widget.</p>
-    			<div className="publish_container">
-    				<a className="cancel_button" onClick={cancelPreview}>Close</a>
-    				<a href={previewUrl} target="_blank" onClick={cancelPreview} className="action_button green">Open Preview</a>
-    			</div>
-    		</div>
+          <p>Your browser blocked the preview popup, click below to preview the widget.</p>
+          <div className="publish_container">
+            <a className="cancel_button" onClick={cancelPreview}>Close</a>
+            <a href={previewUrl} target="_blank" onClick={cancelPreview} className="action_button green">Open Preview</a>
+          </div>
+        </div>
       )
     case 'update':
       popupRender = (
@@ -744,35 +744,35 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 
   let noPermissionRender = null
-  if (invalid)
-  {
+  if (invalid) {
     noPermissionRender = (
-      <NoPermission/>
+      <NoPermission />
     )
   }
 
   return (
     <div>
-    	<section className="page" ng-show="loaded">
-        { alertDialogRender }
-        { popupRender }
-        { rollbackConfirmBarRender }
-        { actionBarRender }
+      <section className="page" ng-show="loaded">
+        {alertDialogRender}
+        {popupRender}
+        {rollbackConfirmBarRender}
+        {actionBarRender}
 
-    		<div className="center">
-    			<iframe src={ widgetData.htmlPath }
-  					id='container'
-  					className='html'
-  					scrolling='yes'
+        <div className="center">
+          <iframe src={widgetData.htmlPath}
+            id='container'
+            className='html'
+            scrolling='yes'
             style={{
-            minWidth: minWidth + 'px',
-            minHeight: minHeight + 'px'}}
-  					ref={frameRef}/>
-    				{ loadingRender }
-    		</div>
-    		<iframe src={ iframeUrl } className={ iframeUrl ? 'show' : 'hidden' } id={embedDialogType} frameBorder={0} width={675} height={500}></iframe>
-    	</section>
-      { noPermissionRender }
+              minWidth: minWidth + 'px',
+              minHeight: minHeight + 'px'
+            }}
+            ref={frameRef} />
+          {loadingRender}
+        </div>
+        <iframe src={iframeUrl} className={iframeUrl ? 'show' : 'hidden'} id={embedDialogType} frameBorder={0} width={675} height={500}></iframe>
+      </section>
+      {noPermissionRender}
     </div>
   )
 }

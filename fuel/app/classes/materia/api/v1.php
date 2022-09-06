@@ -653,6 +653,16 @@ class Api_V1
 		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
 	}
 
+	static public function paginated_play_logs_get($inst_id, $semester='all', $year='all', $page_number=1)
+	{
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		return $data;
+	}
+
 	/**
 	 * Gets score distributions (total and by semester) for a widget instance.
 	 * See documentation in Score_Manager for more information.
@@ -824,6 +834,7 @@ class Api_V1
 			return Widget_Question_Manager::get_users_questions(\Model_User::find_current_id(), $type);
 		}
 	}
+
 	static public function play_storage_data_save($play_id, $data)
 	{
 		$inst = self::_get_instance_for_play_id($play_id);

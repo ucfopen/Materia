@@ -988,6 +988,10 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_paginated_play_logs_get()
+	{
+	}
+
 	public function test_score_summary_get()
 	{
 		// ======= AS NO ONE ========
