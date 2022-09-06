@@ -81,7 +81,8 @@ class Controller_Admin extends Controller
 			}
 		}
 		
-		if ($failed) {
+		if ($failed) 
+		{
 			throw new HttpServerErrorException;
 		}
 
