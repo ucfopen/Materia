@@ -121,6 +121,7 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
     queryFn: () => apiGetQuestionSet(instId),
     staleTime: Infinity,
     placeholderData: null,
+    enabled: !!instId,
     onSettled: (data) => {
       if (
         (data != null ? data.title : undefined) === 'Permission Denied' ||

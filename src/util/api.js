@@ -462,6 +462,58 @@ export const apiGetPlayLogs = (instId, term, year) => {
 		})
 }
 
+export const apiGetPlayLogsPaginate = (instId, term, year, page_number) => {
+	return fetch('/api/json/paginated_play_logs_get', fetchOptions({ body: `data=${formatFetchBody([instId, term, year, page_number])}` }))
+		.then(resp => {
+			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+			return []
+		})
+		.then(results => {
+			if (results.pagination.length == 0) return []
+
+			const timestampToDateDisplay = timestamp => {
+				const d = new Date(parseInt(timestamp, 10) * 1000)
+				return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
+			}
+
+			const scoresByUser = new Map()
+			results.pagination.forEach(log => {
+				let scoresForUser
+
+				if (!scoresByUser.has(log.user_id)) {
+
+					// initialize user
+					const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
+					scoresForUser = {
+						userId: log.user_id,
+						name,
+						searchableName: name.toLowerCase(),
+						scores: []
+					}
+
+					scoresByUser.set(log.user_id, scoresForUser)
+
+				} else {
+					// already initialized
+					scoresForUser = scoresByUser.get(log.user_id)
+				}
+
+				// append to scores
+				scoresForUser.scores.push({
+					elapsed: parseInt(log.elapsed, 10) + 's',
+					playId: log.id,
+					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
+					date: timestampToDateDisplay(log.time)
+				})
+
+			})
+
+			const logs = Array.from(scoresByUser, ([name, value]) => value)
+			const data = { 'total_num_pages': results.total_num_pages, pagination: logs }
+			return data
+		})
+}
+
 export const apiGetStorageData = instId => {
 	return fetch('/api/json/play_storage_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then(resp => {

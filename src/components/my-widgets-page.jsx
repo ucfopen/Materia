@@ -98,7 +98,7 @@ const MyWidgetsPage = () => {
 			if (page <= data.total_num_pages) {
 				setPage(page + 1)
 			}
-			setWidgetsList(current => [...current, ...data.pagination])
+			setWidgetsList(current => [...current, ...data?.pagination])
 		}
 	}, [isFetching])
 
