@@ -80,6 +80,10 @@ class Controller_Admin extends Controller
 				}
 			}
 		}
+		
+		if ($failed) {
+			throw new HttpServerErrorException;
+		}
 
 		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
 

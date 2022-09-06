@@ -1,18 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { apiUploadWidgets } from '../util/api'
 
-const WidgetInstall = () => {
+const WidgetInstall = ({refetchWidgets}) => {
     const [state, setState] = useState({
         uploadNotice: undefined,
         uploadEnabled: false,
         actionLink: undefined,
         herokuWarning: undefined,
-        selectedFilename: 'No File Selected',
+        selectedFilename: '',
         isUploading: false,
+        uploadError: false
     })
 
 	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('UPLOAD_ENABLED') || !window.hasOwnProperty('ACTION_LINK') || !window.hasOwnProperty('HEROKU_WARNING') || !window.hasOwnProperty('UPLOAD_NOTICE')) {
+		while(!window.hasOwnProperty('UPLOAD_ENABLED') || !window.hasOwnProperty('ACTION_LINK') || !window.hasOwnProperty('HEROKU_WARNING')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
     }
@@ -23,35 +24,34 @@ const WidgetInstall = () => {
             setState({...state,
                 uploadEnabled: !!+window.UPLOAD_ENABLED,
                 actionLink: window.ACTION_LINK,
-                herokuWarning: window.HEROKU_WARNING,
-                uploadNotice: window.UPLOAD_NOTICE
+                herokuWarning: window.HEROKU_WARNING
             })
 		})
     }, [])
     
-    const handleChange = (event) => {
+    const handleChange = async (event) => {
         const files = event.target.files
-        setState({...state, selectedFilename: files[0].name})
-        if (files && files[0]) {
-            setState({...state, selectedFilename: files[0].name})
-        }
+        let correctFileExtension = true;
 
-        setState({...state, isUploading: true})
+        setState({...state, isUploading: true, uploadNotice: undefined})
 
-        apiUploadWidgets(files)
-        .then((response) => {
-			if (response.ok && response.status !== 204 && response.status !== 502) {
-                setState({...state, uploadNotice: "Success"})
-            } else {
-                setState({...state, uploadNotice: "Failed"})
+        Array.from(files).forEach((file) => {
+            if (file.name.split('.')[1] !== 'wigt') {
+                correctFileExtension = false;
+                setState({...state, isUploading: false, uploadNotice: 'File type not accepted! Please upload a .wigt file.', uploadError: true})
             }
-            setState({...state, isUploading: false})
         })
+        if (correctFileExtension)
+            apiUploadWidgets(files)
+            .then((response) => {
+                if (response.ok && response.status !== 204 && response.status !== 502) {
+                    setState({...state, uploadNotice: `Successfully uploaded '${files[0].name}'!`, isUploading: false, uploadError: false})
+                    refetchWidgets()
+                } else {
+                    setState({...state, uploadNotice: `Failed to upload '${files[0].name}'`, isUploading: false, uploadError: true})
+                }
+            })
     }
-
-    useEffect(() => {
-        console.log(state)
-    }, [state])
 
     let herokuWarning = null
     if (state.herokuWarning) {
@@ -73,7 +73,7 @@ const WidgetInstall = () => {
             <form>
                 <input className="uploader" id="widget_uploader" type="file" name="file" onChange={handleChange} disabled={state.uploadEnabled ? false : true}/>
                 <label htmlFor="widget_uploader"> {state.isUploading ? 'Uploading...' : 'Upload .wigt'}</label>
-                <span>{ state.uploadNotice || state.selectedFilename }</span>
+                <span className={state.uploadError ? 'failed' : 'success'}>{ state.uploadNotice }</span>
             </form>
             <p>Browse installable widgets on <a href="https://ucfopen.github.io/materia-widget-gallery/" target="_blank" rel="noopener noreferrer">The Official Materia Widget Gallery</a></p>
             <p>Browse features and more on <a href="https://ucfopen.github.io/Materia-Docs/" target="_blank" rel="noopener noreferrer">The Official Materia Documentation Page</a></p>
@@ -89,9 +89,6 @@ const WidgetInstall = () => {
     return (
         <div className="container" id="upload_area">
             <section className="page">
-                <div className="error">
-                    <p>{ state.uploadNotice }</p>
-                </div>
                 <div className="top">
                     <h1>Install Widget</h1>
                 </div>

@@ -9,12 +9,12 @@ import WidgetList from './widget-list'
 const WidgetAdminPage = () => {
 	const [widgets, setWidgets] = useState([])
 	
-	const { data, isLoading} = useQuery({
-		queryKey: 'admin-widgets',
+	const { data, isLoading, refetch: refetchWidgets} = useQuery({
+		queryKey: ['widgets'],
 		queryFn: apiGetWidgetsAdmin,
 		staleTime: Infinity,
-		onSuccess: (widgets) => {
-			widgets.forEach((w) => {
+		onSuccess: (widgetData) => {
+			widgetData.forEach((w) => {
 				w.icon = Materia.Image.iconUrl(w.dir, 60)
 				// Convert "0" and "1" to false and true
 				w.in_catalog = !!+w.in_catalog
@@ -27,13 +27,13 @@ const WidgetAdminPage = () => {
 				w.is_storage_enabled = !!+w.is_storage_enabled
 				w.is_scalable = !!+w.is_scalable
 			})
-			setWidgets(widgets)
+			setWidgets(widgetData)
 		}
 	})
-
+	
 	let pageRenderContent = (
         <>
-            <WidgetInstall/>
+            <WidgetInstall refetchWidgets={refetchWidgets}/>
             <WidgetList widgets={widgets} isLoading={isLoading}/>
         </>
     )

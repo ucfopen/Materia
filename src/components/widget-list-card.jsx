@@ -12,6 +12,14 @@ const WidgetListCard = ({widget = null}) => {
         success: false
     })
 
+    // Set state after uploading new widget
+    useEffect(() => {
+        setState({...state, widget: {
+            ...widget,
+            expanded: state.widget.expanded
+        }})
+    }, [widget])
+
     // Timeout function for success message upon saving widget
     useEffect(() => {
         if (state.success)
@@ -101,31 +109,31 @@ const WidgetListCard = ({widget = null}) => {
 
     let widgetSuccessRender = null
     if (state.success) {
-        widgetSuccessRender = <div class="success-holder">Widget Saved!</div>
+        widgetSuccessRender = <div className="success-holder">Widget Saved!</div>
     }
 
     let featuresRender = null
     if (state.widget.meta_data.features) {
-        featuresRender = state.widget.meta_data.features.map(feature => <li>{ feature }</li>)
+        featuresRender = state.widget.meta_data.features.map((feature, i) => <li>{ feature }</li>)
     }
 
     let questionTypes = null
     if (state.widget.meta_data.supported_data) {
-        questionTypes = state.widget.meta_data.supported_data.map(qtype => <li>{ qtype }</li>)
+        questionTypes = state.widget.meta_data.supported_data.map((qtype, i) => <li>{ qtype }</li>)
     }
 
     let exportOptions = null
     if (state.widget.meta_data.playdata_exporters) {
-        exportOptions = state.widget.meta_data.playdata_exporters.map(qtype => <li>{ qtype }</li>)
+        exportOptions = state.widget.meta_data.playdata_exporters.map((qtype, i) => <li>{ qtype }</li>)
     }
 
     return (
         <li>
             <div className="clickable widget-title" onClick={handleWidgetClick}>
                 <span className="img-holder">
-                    <img src={widget.icon}/>
+                    <img src={state.widget.icon}/>
                 </span>
-                <span className="title">{widget.name}</span>
+                <span className="title">{state.widget.name}</span>
             </div>
             { ! state.widget.expanded ? <></> : 
             <div className="widget-info">
@@ -154,35 +162,35 @@ const WidgetListCard = ({widget = null}) => {
                         <span>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.in_catalog}
+                                    <input type="checkbox" defaultChecked={state.widget.in_catalog} checked={state.widget.in_catalog}
                                     onClick={toggleInCatalog}/>
                                     In Catalog
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.is_editable}
+                                    <input type="checkbox" defaultChecked={state.widget.is_editable} checked={state.widget.is_editable}
                                     onClick={toggleIsEditable}/>
                                     Is Editable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.is_playable}
+                                    <input type="checkbox" defaultChecked={state.widget.is_playable} checked={state.widget.is_playable}
                                     onClick={toggleIsPlayable}/>
                                     Is Playable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.is_scorable}
+                                    <input type="checkbox" defaultChecked={state.widget.is_scorable} checked={state.widget.is_scorable}
                                     onClick={toggleIsScoreable}/>
                                     Is Scorable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.restrict_publish}
+                                    <input type="checkbox" defaultChecked={state.widget.restrict_publish} checked={state.widget.restrict_publish}
                                     onClick={toggleRestrictPublish}/>
                                     Restrict Publish
                                 </label>

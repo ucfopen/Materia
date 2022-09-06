@@ -23,6 +23,7 @@
 	cursor: pointer;
 	display: inline-block;
 	user-select: none;
+	margin-right: 10px;
 
 	&:hover {
 		background: #eca444;
@@ -239,4 +240,12 @@ h1 {
 
 .no_match_message {
 	margin-top: 10px;
+}
+
+.success {
+	color:rgb(0, 143, 7);
+}
+
+.failed {
+	color: rgb(255, 0, 0);
 }
