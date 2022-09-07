@@ -30,6 +30,7 @@ const LoginPage = () => {
 				loginPw: window.LOGIN_PW,
 				actionLogin: window.ACTION_LOGIN,
 				actionRedirect: window.ACTION_REDIRECT,
+				is_embedded: window.EMBEDDED != undefined ? window.EMBEDDED : false,
 				bypass: window.BYPASS,
 				context: window.CONTEXT,
 				instName: window.NAME != undefined ? window.INST_NAME : null,
@@ -75,7 +76,7 @@ const LoginPage = () => {
 
 	return (
 		<>
-			<Header />
+			{ state.is_embedded ? '' : <Header /> }
 			<div className="container">
 				<section className="page">
 					{ state.context && state.context == 'widget' ? <Summary /> : ''}

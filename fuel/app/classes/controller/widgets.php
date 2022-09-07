@@ -409,19 +409,19 @@ class Controller_Widgets extends Controller
 		if ($is_open)
 		{
 			// fire an event prior to deciding which theme to render
-			$alt = \Event::Trigger('before_widget_login');
 			// if something came back as a result of the event being triggered, use that instead of the default
-			// TODO this no longer seems necessary to support
-			if ($alt)
+			// theme_overrides object should include an array with a js and css index
+			// these specify a) the react page to render and b) its associated css
+			$theme_overrides = \Event::Trigger('before_widget_login', '', 'array');
+			if ($theme_overrides)
 			{
-				$content = $this->theme->set_partial('content', $alt);
-				$content
-					->set('user', __('user'))
-					->set('pass', __('password'))
-					->set('links', __('links'))
-					->set('title', $login_title)
-					->set('date', $server_date)
-					->set('preview', $is_preview);
+				$this->theme->set_template('layouts/react');
+				$this->theme->get_template()
+					->set('title', 'Login')
+					->set('page_type', 'login');
+
+				Css::push_group([$theme_overrides[0]['css']]);
+				Js::push_group(['react', $theme_overrides[0]['js']]);
 			}
 			else
 			{
@@ -432,24 +432,27 @@ class Controller_Widgets extends Controller
 
 				Css::push_group(['login']);
 				Js::push_group(['react', 'login']);
-
-				Js::push_inline('var LOGIN_USER = "'.\Lang::get('login.user').'";');
-				Js::push_inline('var LOGIN_PW = "'.\Lang::get('login.password').'";');
-				Js::push_inline('var CONTEXT = "widget";');
-				Js::push_inline('var NAME = "'.$inst->name.'";');
-				Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
-				Js::push_inline('var IS_PREVIEW = "'.$is_preview.'";');
-				Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
-
-				// condense login links into a string with delimiters to be embedded as a JS global
-				$link_items = [];
-				foreach (\Lang::get('login.links') as $a)
-				{
-					$link_items[] = $a['href'].'***'.$a['title'];
-				}
-				$login_links = implode('@@@', $link_items);
-				Js::push_inline('var LOGIN_LINKS = "'.urlencode($login_links).'";');
 			}
+
+			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
+			Js::push_inline('var ACTION_LOGIN = "'.\Router::get('login').'";');
+			Js::push_inline('var ACTION_REDIRECT = "'.urlencode(URI::current()).'";');
+			Js::push_inline('var LOGIN_USER = "'.\Lang::get('login.user').'";');
+			Js::push_inline('var LOGIN_PW = "'.\Lang::get('login.password').'";');
+			Js::push_inline('var CONTEXT = "widget";');
+			Js::push_inline('var NAME = "'.$inst->name.'";');
+			Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
+			Js::push_inline('var IS_PREVIEW = "'.$is_preview.'";');
+			Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+
+			// condense login links into a string with delimiters to be embedded as a JS global
+			$link_items = [];
+			foreach (\Lang::get('login.links') as $a)
+			{
+				$link_items[] = $a['href'].'***'.$a['title'];
+			}
+			$login_links = implode('@@@', $link_items);
+			Js::push_inline('var LOGIN_LINKS = "'.urlencode($login_links).'";');
 		}
 		else
 		{
@@ -459,19 +462,6 @@ class Controller_Widgets extends Controller
 				->set('date', $server_date)
 				->set_safe('availability', $desc);
 		}
-
-		// add widget summary
-		// $content->set('classes', 'widget '.($is_preview ? 'preview' : ''))
-		// 	->set('summary', $this->theme->view('partials/widget/summary')
-		// 		->set('type',$inst->widget->name)
-		// 		->set('name', $inst->name)
-		// 		->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-		// 		->set_safe('avail', $summary));
-
-		// if ($is_embedded) $this->_header = 'partials/header_empty';
-
-		Js::push_group(['angular', 'materia', 'student']);
-		Css::push_group('login');
 	}
 
 	protected function build_widget_login_messages($inst)
