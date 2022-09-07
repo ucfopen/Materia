@@ -37,51 +37,55 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 		{
 			keepPreviousData: true,
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
-			// staleTime: Infinity,
-			placeholderData: []
+			placeholderData: [],
 		})
 
 	// load instances after initial render
 	useEffect(() => {
 		if (!isFetching) {
+			if (page <= data?.total_num_pages) { setPage(page + 1) }
 
-			if (logsList.length == 0) { setLogsList(current => [...current, ...data?.pagination]) }
+			if (logsList.length == 0) {
+				console.log(data?.pagination)
+				setLogsList(current => [...current, ...data?.pagination])
+			}
 			else {
 
 				let copyLogsList = logsList
 				copyLogsList?.forEach(current => {
+
 					for (let index = 0; index < data?.pagination?.length; index++) {
 
 						let incomingLog = data.pagination[index]
 						if (current.userId === incomingLog.userId) {
 
 							for (let scoreIndex = 0; scoreIndex < incomingLog.scores.length; scoreIndex++) {
-								if (!current.scores.includes(incomingLog.scores[scoreIndex])) { current.scores.push(incomingLog.scores[scoreIndex]) }
+								// console.log(incomingLog.scores[scoreIndex].playId)
+								if (!current.scores.includes(incomingLog.scores[scoreIndex])) {
+									console.log(`++++++++ new hash ${incomingLog.scores[scoreIndex].playId}`)
+									current.scores.push(incomingLog.scores[scoreIndex])
+								}
 							}
 						}
-						else { return data?.pagination[i] }
+						else { return data?.pagination[index] }
 					}
 
 				})// End of copyLogsList
-
-				setLogsList(copyLogsList)
 			} // end of else
 
-			if (page <= data?.total_num_pages) {
-				setPage(page + 1)
 
-				// triggers the final refetch for retrieving the final page.
-				if (page != data?.total_num_pages + 1) { refetch() }
-			}
+			// triggers the final refetch for retrieving the final page.
+			if (page != data?.total_num_pages + 1) { refetch() }
 
 
-			console.log(page)
-			console.log(`total_num_pages: ${data?.total_num_pages}`)
 		}
 	}, [isFetching])
 
 	useEffect(() => {
-		console.log(logsList)
+
+	}, [page])
+
+	useEffect(() => {
 		setState({ ...state, logs: logsList, filteredLogs: logsList, isLoading: false })
 	}, [logsList])
 

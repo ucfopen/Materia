@@ -272,6 +272,7 @@ class Session_Play
 			'pagination' => $page,
 		];
 
+		trace($data['pagination']);
 		return $data;
 	}
 
