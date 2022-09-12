@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetWidgetInstances, apiGetPaginatedWidgetInstances, apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
+import { apiGetWidgetInstances, apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
 import rawPermsToObj from '../util/raw-perms-to-object'
 import Header from './header'
 import MyWidgetsSideBar from './my-widgets-side-bar'
@@ -54,7 +54,7 @@ const MyWidgetsPage = () => {
 		isLoading,
 		isFetching,
 		refetch,
-	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true, refetchOnWindowFocus: false })
+	} = useQuery('widgets', () => apiGetWidgetInstances(page), { keepPreviousData: true, refetchOnWindowFocus: false })
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
@@ -160,7 +160,6 @@ const MyWidgetsPage = () => {
 
 	const onCopy = (instId, newTitle, newPerm, inst) => {
 		setState({ ...state, selectedInst: null })
-		console.log(inst.widget)
 		copyWidget.mutate(
 			{
 				instId: instId,

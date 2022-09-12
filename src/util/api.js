@@ -30,20 +30,7 @@ export const apiGetWidgetInstance = instId => {
 		})
 }
 
-export const apiGetWidgetInstances = () => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
-		.then(resp => {
-			resp.sort(_compareWidgets)
-			writeToStorage('widgets', resp)
-			return resp
-		})
-}
-
-export const apiGetPaginatedWidgetInstances = page_number => {
+export const apiGetWidgetInstances = page_number => {
 	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
