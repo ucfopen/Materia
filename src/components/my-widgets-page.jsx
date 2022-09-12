@@ -54,7 +54,7 @@ const MyWidgetsPage = () => {
 		isLoading,
 		isFetching,
 		refetch,
-	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true, })
+	} = useQuery('widgets', () => apiGetPaginatedWidgetInstances(page), { keepPreviousData: true, refetchOnWindowFocus: false })
 
 	const { data: user } = useQuery({
 		queryKey: 'user',

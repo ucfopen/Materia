@@ -18,7 +18,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	const [state, setState] = useState(initState())
 
 	const [page, setPage] = useState(1)
-	const [logsList, setLogsList] = useState([])
+	const [logsList, setLogsList] = useState({})
 	const {
 		data,
 		isFetching,
@@ -37,50 +37,35 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	useEffect(() => {
 		if (!isFetching) {
 
-			if (logsList.length == 0) { setLogsList(current => [...current, ...data?.pagination]) }
-			else {
-
-
-				let copyLogsList = logsList
-				copyLogsList?.forEach(current => {
-
-					for (let index = 0; index < data?.pagination?.length; index++) {
-						let incomingLog = data.pagination[index]
-
-						if (current.userId === incomingLog.userId) {
-							console.log(`current.userId === incomingLog.userId: ${current.userId === incomingLog.userId}`)
-							for (let scoreIndex = 0; scoreIndex < incomingLog.scores.length; scoreIndex++) {
-
-								if (!current.scores.includes(incomingLog.scores[scoreIndex])) { current.scores.push(incomingLog.scores[scoreIndex]) }
-
-							}
-
-						}
-						else {
-							console.log(`current.userId === incomingLog.userId: ${current.userId === incomingLog.userId}`)
-							console.log({ incomingLog })
-							return incomingLog
-						}
-					}
-
-				})// End of copyLogsList
-
-				setLogsList(copyLogsList)
-			} // end of else
-
 			if (page <= data?.total_num_pages) { setPage(page + 1) }
-			// triggers the final refetch for retrieving the final page.
 
+			if (!data || !data.pagination) return
+			else {
+				const newLogs = logsList
+				const dataLength = data.pagination.length
 
+				for (let index = 0; index < dataLength; index++) {
+					const scoreObject = data.pagination[index]
 
+					if (!newLogs[scoreObject.userId]) {
+						newLogs[scoreObject.userId] = { userId: scoreObject.userId, name: scoreObject.name, searchableName: scoreObject.searchableName, scores: scoreObject.scores }
+					}
+					else {
+						for (let scoreIndex = 0; scoreIndex < scoreObject.scores.length; scoreIndex++)
+							newLogs[scoreObject.userId].scores.push(scoreObject.scores[scoreIndex])
+					}
+				}
+
+				setLogsList(newLogs)
+			}
 		}
 	}, [isFetching])
 
 	useEffect(() => {
-		setState({ ...state, logs: logsList, filteredLogs: logsList, isLoading: false })
-	}, [logsList])
 
-	useEffect(() => {
+		const logs = Object.values(logsList)
+		setState({ ...state, logs: logs, filteredLogs: logs, isLoading: false })
+
 		if (page != data?.total_num_pages + 1) { refetch() }
 	}, [page])
 
