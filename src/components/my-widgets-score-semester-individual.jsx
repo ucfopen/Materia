@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetPlayLogs, apiGetPlayLogsPaginate } from '../util/api'
+import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
@@ -16,7 +17,6 @@ const initState = () => ({
 
 const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	const [state, setState] = useState(initState())
-
 	const [page, setPage] = useState(1)
 	const [logsList, setLogsList] = useState({})
 	const {
@@ -25,7 +25,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 		refetch
 	} = useQuery(
 		['play-logs', instId, semester],
-		() => apiGetPlayLogsPaginate(instId, semester.term, semester.year, page),
+		() => apiGetPlayLogs(instId, semester.term, semester.year, page),
 		{
 			keepPreviousData: true,
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
@@ -164,3 +164,4 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 }
 
 export default MyWidgetScoreSemesterIndividual
+

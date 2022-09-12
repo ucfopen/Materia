@@ -645,17 +645,9 @@ class Api_V1
 	 *				  [quickStats]	contains attempts, scores, currentPlayers, avScore, replays <br />
 	 *				  [playLogs]    a log of all scores recoreded
 	 */
-	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all')
+	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
-		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
-	}
-
-	static public function paginated_play_logs_get($inst_id, $semester='all', $year='all', $page_number=1)
-	{
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
