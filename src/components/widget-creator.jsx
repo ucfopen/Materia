@@ -123,10 +123,7 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 		placeholderData: null,
 		enabled: !!instId,
 		onSettled: (data) => {
-			if (
-				(data != null ? data.title : undefined) === 'Permission Denied' ||
-				data.title === 'error'
-			) {
+			if ((data != null ? data.title : undefined) === 'Permission Denied' || data.title === 'error') {
 				setInvalid(true);
 				onInitFail('Permission Denied')
 			} else {
@@ -356,11 +353,11 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 		if (instanceId != null) {
 			// editing
 			setReturnUrl(getMyWidgetsUrl(instanceId))
-			setReturnPlace('my widgets')
+			setReturnPlace('My Widgets')
 		} else {
 			// new
 			setReturnUrl(`${window.BASE_URL}widgets`)
-			setReturnPlace('widget catalog')
+			setReturnPlace('Widget Catalog')
 		}
 	}
 
@@ -625,7 +622,6 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 	if (!updateMode || !nonEditable) {
 		editButtonsRender = (
 			<span>
-				<div className="dot"></div>
 				<button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={() => requestSave('preview')}><span>{previewText}</span></button>
 				<button id="creatorSaveBtn" className={`edit_button orange ${saveStatus}`} type="button" onClick={() => requestSave('save')}><span>{saveText}</span></button>
 			</span>
@@ -635,7 +631,7 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 	let creatorGuideLink = null
 	if (widgetData.hasCreatorGuide) {
 		creatorGuideLink = (
-			<a id="creatorGuideLink" className="edit_button" href={widgetData.creatorGuideUrl} target="_blank">Creator's Guide</a>
+			<a id="creatorGuideLink" href={widgetData.creatorGuideUrl} target="_blank">Creator's Guide</a>
 		)
 	}
 
@@ -647,13 +643,14 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 				{creatorGuideLink}
 				{instanceId ? <a onClick={showQsetHistoryImporter}>Save History</a> : ''}
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
+				{editButtonsRender}
+				<div className="dot"></div>
 				<button id="creatorPublishBtn"
 					className="edit_button green"
 					type="button"
 					onClick={onPublishPressed}>
 					{publishText}
 				</button>
-				{editButtonsRender}
 			</section>
 		)
 	}
@@ -746,9 +743,7 @@ const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 
 	let noPermissionRender = null
 	if (invalid) {
-		noPermissionRender = (
-			<NoPermission />
-		)
+		noPermissionRender = <NoPermission />
 	}
 
 	return (
