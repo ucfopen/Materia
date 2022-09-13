@@ -1,6 +1,5 @@
 import { apiUpdateWidgetAdmin } from '../util/api'
-import useUpdateWidget from './hooks/useUpdateWidget'
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const WidgetListCard = ({widget = null}) => {
     const [state, setState] = useState({
@@ -69,8 +68,6 @@ const WidgetListCard = ({widget = null}) => {
         setState(prevState => ({...prevState, widget: {...prevState.widget, restrict_publish: !prevState.widget.restrict_publish}}))
     }
 
-    const mutateWidget = useUpdateWidget()
-
     const saveWidget = () => {
         const update = {
 			id: state.widget.id,
@@ -114,21 +111,21 @@ const WidgetListCard = ({widget = null}) => {
 
     let featuresRender = null
     if (state.widget.meta_data.features) {
-        featuresRender = state.widget.meta_data.features.map((feature, i) => <li>{ feature }</li>)
+        featuresRender = state.widget.meta_data.features.map((feature, i) => <li key={i}>{ feature }</li>)
     }
 
     let questionTypes = null
     if (state.widget.meta_data.supported_data) {
-        questionTypes = state.widget.meta_data.supported_data.map((qtype, i) => <li>{ qtype }</li>)
+        questionTypes = state.widget.meta_data.supported_data.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
     let exportOptions = null
     if (state.widget.meta_data.playdata_exporters) {
-        exportOptions = state.widget.meta_data.playdata_exporters.map((qtype, i) => <li>{ qtype }</li>)
+        exportOptions = state.widget.meta_data.playdata_exporters.map((qtype, i) => <li key={i}>{ qtype }</li>)
     }
 
     return (
-        <li>
+        <li key={state.widget.id}>
             <div className="clickable widget-title" onClick={handleWidgetClick}>
                 <span className="img-holder">
                     <img src={state.widget.icon}/>
@@ -162,36 +159,36 @@ const WidgetListCard = ({widget = null}) => {
                         <span>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.in_catalog} checked={state.widget.in_catalog}
-                                    onClick={toggleInCatalog}/>
+                                    <input type="checkbox" checked={state.widget.in_catalog}
+                                    onChange={toggleInCatalog}/>
                                     In Catalog
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.is_editable} checked={state.widget.is_editable}
-                                    onClick={toggleIsEditable}/>
+                                    <input type="checkbox" checked={state.widget.is_editable}
+                                    onChange={toggleIsEditable}/>
                                     Is Editable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.is_playable} checked={state.widget.is_playable}
-                                    onClick={toggleIsPlayable}/>
+                                    <input type="checkbox" checked={state.widget.is_playable}
+                                    onChange={toggleIsPlayable}/>
                                     Is Playable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.is_scorable} checked={state.widget.is_scorable}
-                                    onClick={toggleIsScoreable}/>
+                                    <input type="checkbox" checked={state.widget.is_scorable}
+                                    onChange={toggleIsScoreable}/>
                                     Is Scorable
                                 </label>
                             </div>
                             <div>
                                 <label className="normal">
-                                    <input type="checkbox" defaultChecked={state.widget.restrict_publish} checked={state.widget.restrict_publish}
-                                    onClick={toggleRestrictPublish}/>
+                                    <input type="checkbox" checked={state.widget.restrict_publish}
+                                    onChange={toggleRestrictPublish}/>
                                     Restrict Publish
                                 </label>
                             </div>
