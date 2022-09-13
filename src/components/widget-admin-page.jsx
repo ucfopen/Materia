@@ -1,5 +1,5 @@
-import { apiGetWidgetsByType, apiGetWidgetsAdmin } from '../util/api'
-import React, { useState, useRef, useEffect } from 'react'
+import { apiGetWidgetsAdmin } from '../util/api'
+import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
 import Header from './header'
