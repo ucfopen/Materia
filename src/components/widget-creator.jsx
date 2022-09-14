@@ -193,7 +193,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		setStartTime(new Date().getTime())
     let args
     if (instId && keepQSet) {
-      args = [widgetInstance.name, widgetInstance, keepQSet.data, keepQSet.version, window.BASE_URL, window.MEDIA_URL];
+      args = [instance.name, instance, keepQSet.data, keepQSet.version, window.BASE_URL, window.MEDIA_URL];
       sendToCreator('initExistingWidget', args);
     }
     else if (!instanceId && widgetInfo) {
