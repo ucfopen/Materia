@@ -42,8 +42,19 @@ class Controller_Site extends Controller
 			->set('title', 'Help')
 			->set('page_type', 'docs help');
 
-		Js::push_group(['react', 'help']);
-		Css::push_group('help');
+		// check to see if a theme override exists for the help page
+		$theme_overrides = \Event::Trigger('before_help_page', '', 'array');
+
+		if ($theme_overrides)
+		{
+			Js::push_group(['react', $theme_overrides[0]['js']]);
+			Css::push_group($theme_overrides[0]['css']);
+		}
+		else
+		{
+			Js::push_group(['react', 'help']);
+			Css::push_group('help');
+		}
 	}
 
 	public function action_403()
