@@ -511,6 +511,10 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var DEMO_ID = "'.$inst->id.'";');
 		Js::push_inline('var WIDGET_HEIGHT = "'.$inst->widget->height.'";');
 		Js::push_inline('var WIDGET_WIDTH = "'.$inst->widget->width.'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
+		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		Js::push_inline('var MEDIA_URL = "'.Config::get('materia.urls.media').'";');
 
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');

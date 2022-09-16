@@ -338,6 +338,48 @@ export const apiSearchWidgets = input => {
 		.then(widgets => widgets)
 }
 
+export const apiGetWidgetsAdmin = () => {
+	return fetch(`/api/admin/widgets/`)
+		.then(resp => resp.json())
+		.then(widgets => widgets)
+}
+
+export const apiUpdateWidgetAdmin = widget => {
+	return fetch(`/api/admin/widget/${widget.id}`,
+	{
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		body: JSON.stringify(widget)
+	})
+	.then(res => res.json())
+}
+
+export const apiUploadWidgets = (files) => {
+	const formData = new FormData()
+
+	Array.from(files).forEach(file => {
+		formData.append('files[]', file, file.name)
+		formData.append('content-type', 'multipart/form-data')
+	})
+
+	return fetch(`/admin/upload`, {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			'pragma': 'no-cache',
+			'cache-control': 'no-cache'
+		},
+		body: formData
+	}).then(res => res)
+}
+
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
 	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, send_token])}` }))
 		.then(res => res.json())

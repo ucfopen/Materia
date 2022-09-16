@@ -22,11 +22,18 @@ class Controller_Admin extends Controller
 	public function get_widget()
 	{
 		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+	
+		JS::push_inline('var UPLOAD_ENABLED ="'.Config::get('materia.enable_admin_uploader').'";');
+		JS::push_inline('var HEROKU_WARNING ="'.Config::get('materia.heroku_admin_warning').'";');
+		JS::push_inline('var ACTION_LINK ="/admin/upload";');
+		Js::push_inline('var UPLOAD_NOTICE = "'.Session::get_flash('upload_notice').'";');
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Widget Admin');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/admin/widget')
-			->set('upload_enabled', Config::get('materia.enable_admin_uploader', false))
-			->set('heroku_warning', Config::get('materia.heroku_admin_warning', false));
+
+		// Css::push_group(['widget-admin']);
+		Js::push_group(['react', 'widget_admin']);
 	}
 
 	public function get_user()
@@ -72,6 +79,11 @@ class Controller_Admin extends Controller
 					break;
 				}
 			}
+		}
+		
+		if ($failed) 
+		{
+			throw new HttpServerErrorException;
 		}
 
 		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
