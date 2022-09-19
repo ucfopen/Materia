@@ -37,7 +37,6 @@ export const apiGetWidgetInstances = page_number => {
 			return resp.json()
 		})
 		.then(resp => {
-			resp['pagination'].sort(_compareWidgets)
 			writeToStorage('widgets', resp)
 			return resp
 		})
@@ -49,11 +48,6 @@ export const apiGetInstancesForUser = userId => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-}
-
-// Helper function to sort widgets
-const _compareWidgets = (a, b) => {
-	return (new Date(a.created_at) <= new Date(b.created_at))
 }
 
 export const apiGetWidgetsByType = () => {

@@ -24,6 +24,11 @@ const randomBeard = () => {
 	return beard_vals[getRandomInt(0, 3)]
 }
 
+// Helper function to sort widgets
+const _compareWidgets = (a, b) => {
+	return (new Date(a.created_at) <= new Date(b.created_at))
+}
+
 const initState = () => {
 	return ({
 		selectedInst: null,
@@ -109,6 +114,7 @@ const MyWidgetsPage = () => {
 	}, [data])
 
 	useEffect(() => {
+		widgetsList.sort(_compareWidgets)
 		checkPreselectedWidgetAccess(widgetsList)
 
 		// triggers the final refetch for retrieving the final page.
@@ -286,7 +292,7 @@ const MyWidgetsPage = () => {
 				{widgetCatalogCalloutRender}
 
 				<div className='container'>
-					<div>
+					<div className="container_main-content">
 						{mainContentRender()}
 					</div>
 					<MyWidgetsSideBar
