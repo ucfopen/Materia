@@ -52,6 +52,7 @@ const MyWidgetsPage = () => {
 	const deleteWidget = useDeleteWidget()
 	readFromStorage()
 
+	const [loadingWidgets, setLoadingWidgets] = useState(true)
 	const [page, setPage] = useState(1)
 	const [widgetsList, setWidgetsList] = useState([])
 	const {
@@ -73,53 +74,6 @@ const MyWidgetsPage = () => {
 		placeholderData: null,
 		staleTime: Infinity
 	})
-
-	useEffect(() => {
-		if (validCode) {
-			window.localStorage.beardMode = !beardMode
-			setBeardMode(!beardMode)
-		}
-	}, [validCode])
-
-	useEffect(() => {
-		if (state.selectedInst && permUsers) {
-			const isEditable = state.selectedInst.widget.is_editable === "1"
-			const othersPerms = new Map()
-			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
-			}
-			let _myPerms
-			for (const i in permUsers.user_perms) {
-				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
-			}
-			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
-		}
-	}, [state.selectedInst, JSON.stringify(permUsers)])
-
-	// isLoading - initial data, from cache
-	// isFetching - actual data, from API
-	useEffect(() => {
-		if (!isFetching) {
-			if (page <= data.total_num_pages) {
-				setPage(page + 1)
-			}
-			setWidgetsList(current => [...current, ...data?.pagination])
-		}
-	}, [isFetching])
-
-	useEffect(() => {
-		if (state.postFetch) {
-			checkPreselectedWidgetAccess(widgetsList)
-		}
-	}, [data])
-
-	useEffect(() => {
-		widgetsList.sort(_compareWidgets)
-		checkPreselectedWidgetAccess(widgetsList)
-
-		// triggers the final refetch for retrieving the final page.
-		if (page <= data?.total_num_pages) { refetch() }
-	}, [widgetsList])
 
 	// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
 	//  fetching, double-check that the current user actually has access to it
@@ -144,6 +98,7 @@ const MyWidgetsPage = () => {
 				}
 			}
 			// always set loading to false and noAccess to whether we found a matching instance or not
+
 			const newState = { ...state, loading: false, noAccess: !widgetFound, postFetch: false }
 
 			// if we didn't find a matching instance for either case, make sure there isn't a selected instance
@@ -165,6 +120,7 @@ const MyWidgetsPage = () => {
 	}
 
 	const onCopy = (instId, newTitle, newPerm, inst) => {
+		console.log(instId, newTitle, newPerm, inst)
 		setState({ ...state, selectedInst: null })
 		copyWidget.mutate(
 			{
@@ -225,8 +181,9 @@ const MyWidgetsPage = () => {
 	}
 
 	// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
+	// The function is trigger only once; Which cause complication when using pagination.
 	const mainContentRender = () => {
-		if (isLoading) {
+		if (loadingWidgets) {
 			return <section className='directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 				<LoadingIcon size='lrg' />
@@ -283,6 +240,65 @@ const MyWidgetsPage = () => {
 			/>
 		}
 	}
+
+	useEffect(() => {
+		if (validCode) {
+			window.localStorage.beardMode = !beardMode
+			setBeardMode(!beardMode)
+		}
+	}, [validCode])
+
+	useEffect(() => {
+		if (state.selectedInst && permUsers) {
+			const isEditable = state.selectedInst.widget.is_editable === "1"
+			const othersPerms = new Map()
+			for (const i in permUsers.widget_user_perms) {
+				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
+			}
+			let _myPerms
+			for (const i in permUsers.user_perms) {
+				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
+			}
+			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
+		}
+	}, [state.selectedInst, JSON.stringify(permUsers)])
+
+	// isLoading - initial data, from cache
+	// isFetching - actual data, from API
+	useEffect(() => {
+		if (!isFetching) {
+			if (page <= data.total_num_pages) {
+				setPage(page + 1)
+			}
+			setWidgetsList(current => [...current, ...data?.pagination])
+		}
+	}, [isFetching])
+
+	useEffect(() => {
+		if (state.postFetch) {
+			checkPreselectedWidgetAccess(widgetsList)
+		}
+	}, [data])
+
+	useEffect(() => {
+		widgetsList.sort(_compareWidgets)
+		checkPreselectedWidgetAccess(widgetsList)
+
+		// triggers the final refetch for retrieving the final page.
+		if (page <= data?.total_num_pages) {
+			refetch()
+		}
+
+		if (page >= data?.total_num_pages) {
+			setLoadingWidgets(false)
+		}
+
+	}, [widgetsList])
+
+	useEffect(() => {
+		const newState = { ...state, loading: true }
+		setState(newState)
+	}, [loadingWidgets])
 
 	return (
 		<>
