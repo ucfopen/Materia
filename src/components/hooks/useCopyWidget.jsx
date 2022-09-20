@@ -23,10 +23,15 @@ export default function useCopyWidget() {
 					is_fake: true
 				}
 
-				queryClient.setQueryData('widgets', old => [newInst, ...old])
+				let updateData = previousValue
+				updateData.pagination.unshift(newInst)
+
+				console.log('5) updateData:', updateData.pagination)
+				// It's trying to access the pagination
+				queryClient.setQueryData('widgets', updateData)
 
 				// Stores the old value for use if there is an error
-				return { previousValue }
+				return { updateData }
 			},
 			onSuccess: () => {
 				queryClient.invalidateQueries('widgets')

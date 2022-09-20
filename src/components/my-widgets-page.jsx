@@ -25,9 +25,7 @@ const randomBeard = () => {
 }
 
 // Helper function to sort widgets
-const _compareWidgets = (a, b) => {
-	return (new Date(a.created_at) <= new Date(b.created_at))
-}
+const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
 
 const initState = () => {
 	return ({
@@ -120,8 +118,12 @@ const MyWidgetsPage = () => {
 	}
 
 	const onCopy = (instId, newTitle, newPerm, inst) => {
-		console.log(instId, newTitle, newPerm, inst)
 		setState({ ...state, selectedInst: null })
+		data.pagination = [...widgetsList]
+		setPage(0)
+		setWidgetsList([]) // when running causes the system to print warnings because of the shifting of components.
+		setLoadingWidgets(true)
+
 		copyWidget.mutate(
 			{
 				instId: instId,
@@ -183,7 +185,7 @@ const MyWidgetsPage = () => {
 	// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
 	// The function is trigger only once; Which cause complication when using pagination.
 	const mainContentRender = () => {
-		if (loadingWidgets) {
+		if (loadingWidgets || isLoading) {
 			return <section className='directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 				<LoadingIcon size='lrg' />
@@ -263,35 +265,44 @@ const MyWidgetsPage = () => {
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
+	useEffect(() => {
+		if (state.postFetch) {
+			checkPreselectedWidgetAccess(widgetsList)
+			setWidgetsList(data.pagination)
+
+			console.log('1) data widgetsList:', widgetsList)
+			console.log('data.pagination:', data.pagination)
+		}
+	}, [data])
+
 	// isLoading - initial data, from cache
 	// isFetching - actual data, from API
 	useEffect(() => {
 		if (!isFetching) {
-			if (page <= data.total_num_pages) {
-				setPage(page + 1)
+			setPage(page + 1)
+			console.log('2) fetch widgetsList:', widgetsList)
+
+			if (page == 1) {
+				setWidgetsList([...data?.pagination].sort(_compareWidgets))
 			}
-			setWidgetsList(current => [...current, ...data?.pagination])
+			else {
+				setWidgetsList(current => [...current, ...data?.pagination].sort(_compareWidgets))
+			}
+
 		}
 	}, [isFetching])
 
-	useEffect(() => {
-		if (state.postFetch) {
-			checkPreselectedWidgetAccess(widgetsList)
-		}
-	}, [data])
+
 
 	useEffect(() => {
-		widgetsList.sort(_compareWidgets)
 		checkPreselectedWidgetAccess(widgetsList)
+		console.log('page:', page, 'total_num_pages: ', data?.total_num_pages)
+		console.log('3) widgetsList:', widgetsList)
+
 
 		// triggers the final refetch for retrieving the final page.
-		if (page <= data?.total_num_pages) {
-			refetch()
-		}
-
-		if (page >= data?.total_num_pages) {
-			setLoadingWidgets(false)
-		}
+		if (page <= data?.total_num_pages) { refetch() }
+		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
 
 	}, [widgetsList])
 

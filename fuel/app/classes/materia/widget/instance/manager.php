@@ -69,21 +69,18 @@ class Widget_Instance_Manager
 
 	public static function get_paginated_for_user($user_id, $page_number = 1)
 	{
-		$widgets_per_page = 10;
-
-		// inst_ids corresponds to all instances owned by the current user
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
-
-		$total_num_pages = ceil(sizeof($inst_ids) / $widgets_per_page);
-
+		$displayable_inst = self::get_all($inst_ids);
+		$widgets_per_page = 10;
+		$total_num_pages = ceil(sizeof($displayable_inst) / $widgets_per_page);
 		$offset = $widgets_per_page * ($page_number - 1);
 
 		// inst_ids corresponds to a single page's worth of instances
-		$inst_ids = array_slice($inst_ids, $offset, $widgets_per_page);
-
+		$displayable_inst = array_slice($displayable_inst, $offset, $widgets_per_page);
+		trace($displayable_inst);
 		$data = [
 			'total_num_pages' => $total_num_pages,
-			'pagination'      => Widget_Instance_Manager::get_all($inst_ids),
+			'pagination'      => $displayable_inst,
 		];
 
 		return $data;
