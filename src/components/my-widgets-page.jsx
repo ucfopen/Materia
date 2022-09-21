@@ -43,13 +43,12 @@ const initState = () => {
 const localBeard = window.localStorage.beardMode
 
 const MyWidgetsPage = () => {
+	readFromStorage()
 	const [state, setState] = useState(initState())
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
 	const copyWidget = useCopyWidget()
 	const deleteWidget = useDeleteWidget()
-	readFromStorage()
-
 	const [loadingWidgets, setLoadingWidgets] = useState(true)
 	const [page, setPage] = useState(1)
 	const [widgetsList, setWidgetsList] = useState([])
@@ -58,7 +57,26 @@ const MyWidgetsPage = () => {
 		isLoading,
 		isFetching,
 		refetch,
-	} = useQuery('widgets', () => apiGetWidgetInstances(page), { keepPreviousData: true, refetchOnWindowFocus: false })
+	} = useQuery(
+		'widgets',
+		() => apiGetWidgetInstances(page),
+		{
+			keepPreviousData: true,
+			refetchOnWindowFocus: false,
+			onSuccess: (data) => {
+
+				if (page <= data.total_num_pages) {
+					setWidgetsList(current => [...current, ...data.pagination].sort(_compareWidgets))
+				}
+
+				if (page > data.total_num_pages) {
+					checkPreselectedWidgetAccess(data.pagination.sort(_compareWidgets))
+				}
+
+				checkPreselectedWidgetAccess(widgetsList)
+				setPage(page + 1)
+			},
+		})
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
@@ -73,9 +91,15 @@ const MyWidgetsPage = () => {
 		staleTime: Infinity
 	})
 
-	// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
-	//  fetching, double-check that the current user actually has access to it
+	/**
+	 * If we have a widget ID in the URL, select that widget. If we don't, select the first widget in the
+	 * list
+	 * @param {array} widgets
+	 * @returns the onSelect function with the parameters of widgets[0] and 0.
+	 */
 	const checkPreselectedWidgetAccess = widgets => {
+		// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
+		// fetching, double-check that the current user actually has access to it
 		if (!state.loading) return // Blocks the function from running after first use
 
 		// if (state.widgetHash && (!state.selectedInst || state.selectedInst.id !== state.widgetHash)) {
@@ -110,6 +134,12 @@ const MyWidgetsPage = () => {
 		else setState({ ...state, loading: false, postFetch: false })
 	}
 
+	/**
+	 * It sets the state of the app to the selected to the selected widget instance by the user.
+	 * @param {string} inst
+	 * @param {int} index
+	 * @return nothing
+	 */
 	const onSelect = (inst, index) => {
 		if (inst.is_fake) return
 
@@ -117,11 +147,17 @@ const MyWidgetsPage = () => {
 		setUrl(inst)
 	}
 
+	/**
+	 * Creates a copy of currently selected widget.
+	 * @param {string} instId
+	 * @param {string} newTitle
+	 * @param {boolean} newPerm
+	 * @param {object} inst
+	 * @return nothing
+	 */
 	const onCopy = (instId, newTitle, newPerm, inst) => {
 		setState({ ...state, selectedInst: null })
 		data.pagination = [...widgetsList]
-		setPage(0)
-		setWidgetsList([]) // when running causes the system to print warnings because of the shifting of components.
 		setLoadingWidgets(true)
 
 		copyWidget.mutate(
@@ -140,8 +176,15 @@ const MyWidgetsPage = () => {
 				}
 			}
 		)
+		checkPreselectedWidgetAccess(data.pagination.sort(_compareWidgets))
 	}
 
+	/**
+	 * When the user clicks the delete button, delete the widget and set the state to a loading state.
+	 * The first thing we do is set the state to null. This is to avoid race conditions
+	 * @param {object} inst
+	 * @return null
+	 */
 	const onDelete = inst => {
 		setState({ ...state, selectedInst: null, widgetHash: null })
 
@@ -159,7 +202,10 @@ const MyWidgetsPage = () => {
 		)
 	}
 
-	// Sets widget id in the url
+	/**
+	 * It takes an instance of a component and sets the URL to the component's ID.
+	 * @param {object}
+	 */
 	const setUrl = inst => window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 
 	const beards = useMemo(
@@ -182,9 +228,15 @@ const MyWidgetsPage = () => {
 		)
 	}
 
-	// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
-	// The function is trigger only once; Which cause complication when using pagination.
+	/**
+	 * If the user is loading, show a loading screen. If the user is fetching, show a loading screen. If
+	 * the user has no widgets, show a message. If the user has no selected widget, show a message. If the
+	 * user has a selected widget, show the widget
+	 * @returns The main content of the page.
+	 */
 	const mainContentRender = () => {
+		// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
+		// The function is trigger only once; Which cause complication when using pagination.
 		if (loadingWidgets || isLoading) {
 			return <section className='directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
@@ -268,47 +320,24 @@ const MyWidgetsPage = () => {
 	useEffect(() => {
 		if (state.postFetch) {
 			checkPreselectedWidgetAccess(widgetsList)
-			setWidgetsList(data.pagination)
-
-			console.log('1) data widgetsList:', widgetsList)
-			console.log('data.pagination:', data.pagination)
 		}
 	}, [data])
 
-	// isLoading - initial data, from cache
-	// isFetching - actual data, from API
 	useEffect(() => {
-		if (!isFetching) {
-			setPage(page + 1)
-			console.log('2) fetch widgetsList:', widgetsList)
-
-			if (page == 1) {
-				setWidgetsList([...data?.pagination].sort(_compareWidgets))
-			}
-			else {
-				setWidgetsList(current => [...current, ...data?.pagination].sort(_compareWidgets))
-			}
-
-		}
-	}, [isFetching])
-
-
+		if (page < data?.total_num_pages) { refetch() }
+		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
+		checkPreselectedWidgetAccess(widgetsList)
+	}, [page])
 
 	useEffect(() => {
 		checkPreselectedWidgetAccess(widgetsList)
-		console.log('page:', page, 'total_num_pages: ', data?.total_num_pages)
-		console.log('3) widgetsList:', widgetsList)
-
-
-		// triggers the final refetch for retrieving the final page.
 		if (page <= data?.total_num_pages) { refetch() }
 		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
 
 	}, [widgetsList])
 
 	useEffect(() => {
-		const newState = { ...state, loading: true }
-		setState(newState)
+		setState({ ...state, loading: true })
 	}, [loadingWidgets])
 
 	return (

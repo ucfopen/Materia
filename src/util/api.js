@@ -30,6 +30,11 @@ export const apiGetWidgetInstance = instId => {
 		})
 }
 
+/**
+ * It fetches the widget instances from the server, and if successful, writes the response to local
+ * storage
+ * @returns An array of objects.
+ */
 export const apiGetWidgetInstances = page_number => {
 	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
@@ -87,6 +92,12 @@ export const apiGetWidget = widgetId => {
 		.then(widgets => widgets.length > 0 ? widgets[0] : {})
 }
 
+/**
+ * Takes a widget instance id, a new title, and a boolean value copy in the shape of a object.
+ * permissions, and returns a new widget instance
+ * @param {object} value
+ * @returns The widget instance id
+ */
 export const apiCopyWidget = values => {
 	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
 		.then(widget => {
@@ -514,6 +525,9 @@ const writeToStorage = (queryKey, data) => {
 }
 
 // Hydrate from sessionStorage
+/**
+ * It reads the data from sessionStorage and sets it to the queryClient
+ */
 export const readFromStorage = () => {
 	const queryClient = useQueryClient()
 

@@ -56,6 +56,14 @@ class Api_V1
 		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
 	}
 
+/**
+ * Takes a page number, and returns objects containing the total_num_pages and
+ * widget instances that are visible to the user.
+ *
+ * @param page_number The page to be retreated. By default it is set to 1.
+ *
+ * @return array of objects containing total_num_pages and widget instances that are visible to the user.
+ */
 	static public function widget_paginate_instances_get($page_number = 1)
 	{
 		if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
