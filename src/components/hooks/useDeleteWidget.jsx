@@ -7,14 +7,15 @@ export default function useDeleteWidget() {
 	return useMutation(
 		apiDeleteWidget,
 		{
-			// Handles the optomistic update for deleting a widget
+			// Handles the optimistic update for deleting a widget
 			onMutate: async inst => {
 				await queryClient.cancelQueries('widgets')
 
 				const previousValue = queryClient.getQueryData('widgets')
 				const delID = inst.instId
 
-				queryClient.setQueryData('widgets', old => old.filter(widget => widget.id !== delID))
+				// old = { total_num_pages: int, pagination: [] }
+				queryClient.setQueryData('widgets', old => old.pagination.filter(widget => widget.id !== delID))
 
 				// Stores the old value for use if there is an error
 				return { previousValue }

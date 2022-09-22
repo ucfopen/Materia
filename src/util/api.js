@@ -105,6 +105,11 @@ export const apiCopyWidget = values => {
 		})
 }
 
+/**
+ * It deletes a widget instance
+ * @param {string} instID
+ * @returns The response from the server.
+ */
 export const apiDeleteWidget = ({ instId }) => {
 	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then((resp) => {

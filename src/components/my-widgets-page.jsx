@@ -67,17 +67,21 @@ const MyWidgetsPage = () => {
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
+				console.log('page', page, 'data.total_num_pages', data.total_num_pages)
 
 				if (widgetCopy == true) { setWidgetCopy(false) }
 				else {
 
 					if (page <= data.total_num_pages && !widgetCopy) {
 						setWidgetsList(current => [...current, ...data.pagination].sort(_compareWidgets))
-					}
-					else {
-						let temp = widgetsList
-						temp.unshift(data.pagination[0]) // place the new copy inst in the current widgetList.
-						setWidgetsList(temp) // no need for sorting since the new copy is appended to the beginning.
+
+					} else { //
+						if (!widgetDelete) {
+							let temp = widgetsList
+							temp.unshift(data.pagination[0]) // place the new copy inst in the current widgetList.
+							setWidgetsList(temp) // no need for sorting since the new copy is appended to the beginning.
+							setWidgetDelete(false)
+						}
 					}
 					setPage(page + 1)
 				}
@@ -195,6 +199,7 @@ const MyWidgetsPage = () => {
 	 */
 	const onDelete = inst => {
 		setState({ ...state, selectedInst: null, widgetHash: null })
+		setWidgetDelete(true)
 
 		deleteWidget.mutate(
 			{
