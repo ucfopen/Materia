@@ -49,6 +49,9 @@ const MyWidgetsPage = () => {
 	const validCode = useKonamiCode()
 	const copyWidget = useCopyWidget()
 	const deleteWidget = useDeleteWidget()
+	const [widgetCopy, setWidgetCopy] = useState(false)
+	const [widgetDelete, setWidgetDelete] = useState(false)
+	const [widgetSelect, setWidgetSelect] = useState(false)
 	const [loadingWidgets, setLoadingWidgets] = useState(true)
 	const [page, setPage] = useState(1)
 	const [widgetsList, setWidgetsList] = useState([])
@@ -65,16 +68,20 @@ const MyWidgetsPage = () => {
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
 
-				if (page <= data.total_num_pages) {
-					setWidgetsList(current => [...current, ...data.pagination].sort(_compareWidgets))
+				if (widgetCopy == true) { setWidgetCopy(false) }
+				else {
+
+					if (page <= data.total_num_pages && !widgetCopy) {
+						setWidgetsList(current => [...current, ...data.pagination].sort(_compareWidgets))
+					}
+					else {
+						let temp = widgetsList
+						temp.unshift(data.pagination[0]) // place the new copy inst in the current widgetList.
+						setWidgetsList(temp) // no need for sorting since the new copy is appended to the beginning.
+					}
+					setPage(page + 1)
 				}
 
-				if (page > data.total_num_pages) {
-					checkPreselectedWidgetAccess(data.pagination.sort(_compareWidgets))
-				}
-
-				checkPreselectedWidgetAccess(widgetsList)
-				setPage(page + 1)
 			},
 		})
 
@@ -159,6 +166,8 @@ const MyWidgetsPage = () => {
 		setState({ ...state, selectedInst: null })
 		data.pagination = [...widgetsList]
 		setLoadingWidgets(true)
+		setWidgetCopy(true)
+		setPage(1)
 
 		copyWidget.mutate(
 			{
@@ -176,7 +185,6 @@ const MyWidgetsPage = () => {
 				}
 			}
 		)
-		checkPreselectedWidgetAccess(data.pagination.sort(_compareWidgets))
 	}
 
 	/**
@@ -317,28 +325,23 @@ const MyWidgetsPage = () => {
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
-	useEffect(() => {
-		if (state.postFetch) {
-			checkPreselectedWidgetAccess(widgetsList)
-		}
-	}, [data])
+	// The state.postFetch does NOT contribute to anything at this point.
 
 	useEffect(() => {
-		if (page < data?.total_num_pages) { refetch() }
-		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
-		checkPreselectedWidgetAccess(widgetsList)
-	}, [page])
-
-	useEffect(() => {
-		checkPreselectedWidgetAccess(widgetsList)
 		if (page <= data?.total_num_pages) { refetch() }
 		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
-
-	}, [widgetsList])
+		if (widgetCopy) { setPage(data.total_num_pages + 2) }
+		checkPreselectedWidgetAccess(widgetsList)
+	}, [page, widgetsList])
 
 	useEffect(() => {
 		setState({ ...state, loading: true })
 	}, [loadingWidgets])
+
+	// ones a copy is exec a refetch
+	useEffect(() => {
+		if (widgetCopy) { refetch() }
+	}, [widgetCopy])
 
 	return (
 		<>
