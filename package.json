@@ -28,6 +28,7 @@
     "@vx/shape": "^0.0.198",
     "angular": "1.8.0",
     "fs-extra": "^8.0.1",
+    "js-base64": "^3.7.2",
     "materia-server-client-assets": "2.4.0",
     "napa": "^3.0.0",
     "ngmodal": "ucfcdl/ngModal#v1.2.2",

@@ -6,6 +6,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const WatchIgnorePlugin = require('webpack/lib/WatchIgnorePlugin')
 const jsPath = path.join(__dirname, 'src',)
+const packageJsPath = path.join(__dirname, 'fuel','packages')
 const cssPath = path.join(__dirname, 'src', 'css')
 const componentCssPath = path.join(__dirname, 'src', 'components')
 const outPath = path.join(__dirname, 'public/dist/')
@@ -30,6 +31,11 @@ glob.sync(path.join(componentCssPath, '*.scss')).forEach(file => {
 // JS webpack entry point registration
 // locates all `js/*.js` files
 glob.sync(path.join(jsPath, '*.js')).map(file => {
+	entry['js/'+path.basename(file, '.js')] = file
+})
+
+// some packages (like the reactified materia-theme-ucf) have js that needs to be added to webpack
+glob.sync(path.join(packageJsPath, '**/*.js')).map(file => {
 	entry['js/'+path.basename(file, '.js')] = file
 })
 

@@ -69,5 +69,10 @@ return [
 			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',
 		],
 		'guide' => [$webpack.'css/widget-guide.css'],
+		// the following are required for the support-info styles to be embedded
+		// TODO probably consolidate the support_info styles in a common stylesheet
+		'draft-not-playable' => [$webpack.'js/draft-not-playable.css'],
+		'500' => [$webpack.'js/500.css'],
+		'no_permission' => [$webpack.'js/no-permission.css']
 	],
 ];

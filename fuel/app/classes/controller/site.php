@@ -7,6 +7,7 @@
 class Controller_Site extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	/**
 	 * Handles the homepage
@@ -103,8 +104,6 @@ class Controller_Site extends Controller
 	 */
 	public function action_500()
 	{
-		Css::push_group('errors');
-
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
@@ -114,6 +113,9 @@ class Controller_Site extends Controller
 		Js::push_group(['react', '500']);
 
 		Log::warning('500 URL: '.Uri::main());
+
+		$this->add_inline_info();
+		Css::push_group(['errors','500']);
 
 		$response = \Response::forge(\Theme::instance()->render(), 500);
 

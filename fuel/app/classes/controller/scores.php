@@ -80,6 +80,7 @@ class Controller_Scores extends Controller
 
 		Js::push_group(['react', 'scores', 'labjs', 'jquery', 'jqplot']);
 
+		$this->add_inline_info();
 	}
 
 	public function get_show_embedded(string $inst_id)

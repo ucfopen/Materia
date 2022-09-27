@@ -57,7 +57,8 @@ return [
 
 	// location of the lang files
 	'lang_path' => [
-		'login' => APPPATH.DS
+		'login' => APPPATH.DS,
+		'support' => APPPATH.DS
 	],
 
 	'default_users' => [

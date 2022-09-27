@@ -7,6 +7,7 @@
 class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	/**
 	 * Catalog page to show all the available widgets
@@ -266,6 +267,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		Js::push_group(['react', 'draft_not_playable']);
+		Css::push_group(['draft-not-playable']);
+
+		$this->add_inline_info();
 	}
 
 	protected function retired()
@@ -309,6 +313,8 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		Js::push_group(['react', 'no_permission']);
+		Css::push_group('no_permission');
+		$this->add_inline_info();
 	}
 
 	protected function embedded_only($inst)

@@ -1,32 +1,68 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
+import { Base64 } from 'js-base64'
+
+import './support-info.scss'
 
 const SupportInfo = () => {
 
-  return (
-    <div className="error-support">
-    	<h3>Trouble Logging In?</h3>
-    	<span className="subtitle">Contact the Service Desk.</span>
-    	<dl className="contact">
-    		<dt>Website</dt>
-    			<dd><a href="http://website/support">http://website/support</a></dd>
-    		<dt>Email</dt>
-    			<dd><a href="mailto:support@website">support@website</a></dd>
-    		<dt>Phone</dt>
-    			<dd>PHONE NUMBER HERE</dd>
-    	</dl>
+	const [state, setState] = useState({
+		supportInfo: []
+	})
 
-    	<h3>Get Help Using Materia</h3>
-    	<span className="subtitle">When something's gone wrong, or you just need a hand.</span>
-    	<dl className="online-support">
-    		<dt>Materia Support</dt>
-    			<dd><a href="http://website/support/">http://website/support/</a></dd>
-    		<dt>Email</dt>
-    			<dd><a href="mailto:support@website">support@website</a></dd>
-    		<dt>Phone</dt>
-    			<dd>PHONE NUMBER HERE</dd>
-    	</dl>
-    </div>
-  )
+	const waitForWindow = async () => {
+		while(!window.hasOwnProperty('SUPPORT_INFO')) {
+			await new Promise(resolve => setTimeout(resolve, 500))
+		}
+	}
+
+	useEffect(() => {
+		waitForWindow()
+		.then(() => {
+			let parsed = JSON.parse(Base64.decode(window.SUPPORT_INFO))
+			let sections = []
+			for (let [section, values] of Object.entries(parsed)) {
+				console.log(section)
+				console.log(values)
+				sections.push(
+					<section key={section}>
+						<h3>{values.title ? values.title : 'No title'}</h3>
+						{values.subtitle ? <span className='subtitle'>{values.subtitle}</span> : ''}
+						<dl className='contact'>
+							{values.website ? 
+								<>
+									<dt>Website</dt>
+									<dd><a href={values.website}>{values.website}</a></dd>
+								</>
+								: ''}
+							{values.email ? 
+								<>
+									<dt>Email</dt>
+									<dd><a href={`mailto:${values.email}`}>{values.email}</a></dd>
+								</>
+								: ''}
+							{values.phone ?
+								<>
+									<dt>Phone</dt>
+									<dd>{values.phone}</dd>
+								</>
+								: ''}
+						</dl>
+						
+					</section>
+				)
+			}
+
+			setState({
+				supportInfo: sections
+			})
+		})
+	}, [])
+
+	return (
+		<div className="error-support">
+			{ state.supportInfo }
+		</div>
+ 	)
 }
 
 export default SupportInfo
