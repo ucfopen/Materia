@@ -51,7 +51,6 @@ const MyWidgetsPage = () => {
 	const deleteWidget = useDeleteWidget()
 	const [widgetCopy, setWidgetCopy] = useState(false)
 	const [widgetDelete, setWidgetDelete] = useState(false)
-	const [widgetSelect, setWidgetSelect] = useState(false)
 	const [loadingWidgets, setLoadingWidgets] = useState(true)
 	const [page, setPage] = useState(1)
 	const [widgetsList, setWidgetsList] = useState([])
@@ -67,7 +66,6 @@ const MyWidgetsPage = () => {
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
-				console.log('page', page, 'data.total_num_pages', data.total_num_pages)
 
 				if (widgetCopy == true) { setWidgetCopy(false) }
 				else {

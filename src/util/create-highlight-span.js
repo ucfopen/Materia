@@ -5,9 +5,13 @@ const entityMap = {
 	'"': '&quot;',
 	"'": '&#39;',
 	'/': '&#x2F;',
+	'(': '&#40;',
+	')': '&#41;',
+	'[': '&#91;',
+	']': '&#93;',
 }
 
-const escapeHtml = string => String(string).replace(/[&<>"'\/]/g, (s) => entityMap[s])
+const escapeHtml = string => String(string).replace(/[&<>()[\]"'\/]/g, (s) => entityMap[s])
 
 const createHighlightSpan = (text, search) => {
 	text = escapeHtml(text)

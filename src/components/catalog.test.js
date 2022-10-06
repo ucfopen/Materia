@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, getByPlaceholderText, queryByTestId, queryByText } from '@testing-library/react'
+import { render, screen, fireEvent, getByPlaceholderText, queryByTestId, queryByText, prettyDOM } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import Catalog from './catalog.jsx'
 import '@testing-library/jest-dom'
@@ -170,15 +170,14 @@ describe('Catalog', () => {
 		}
 	})
 
-	it.only('renders correctly', async () => {
+	test('renders correctly', () => {
 		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
 
 		// Waits for data to load
-		//await screen.findAllByText('Test_Student_One Test_Lastname_One')
-
-		expect(screen.queryByText('Adventure')).not.toBeNull()
-		expect(screen.queryByText('Crossword')).not.toBeNull()
-		expect(screen.queryByText('Evaluate a Rejection Letter')).not.toBeNull()
+		// await screen.findAllByText('Test_Student_One Test_Lastname_One')
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).not.toBeUndefined()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).not.toBeUndefined()
 
 		// Gets widget card filters and not filter buttons in filter drawer
 		expect(screen.getAllByRole('listitem', {
@@ -206,7 +205,7 @@ describe('Catalog', () => {
 		expect(screen.getAllByRole('button').length).toBe(10)
 	})
 
-	it('renders with no widgets', async () => {
+	test('renders with no widgets', () => {
 		const rendered = renderWithClient(<Catalog widgets={[]} isLoading={false} />)
 
 		expect(screen.getByText(/No Widgets Installed/i)).not.toBeNull()
@@ -225,18 +224,78 @@ describe('Catalog', () => {
 		expect(screen.getAllByRole('button').length).toBe(1)
 	})
 
-	it.todo('should properly filter widgets')
+	test('search input should filter widgets', () => {
+		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
 
-	it.todo('should highlight filter tag')
+		fireEvent.change(screen.queryByTestId('search-bar'), { target: { value: 'adventure' } })
+		expect(screen.queryByTestId('search-bar').value).toBe('adventure')
+		expect(screen.getByTestId('non-featured-widgets').children.length).toBe(1)
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+	})
 
-	it.todo('should highlight accessibility icon')
+	test('should display show all button', async () => {
+		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
 
-	it.todo('should display show all button')
+		fireEvent.change(screen.queryByTestId('search-bar'), { target: { value: 'adventure' } })
+		expect(await screen.findByText(/show all/i))
+	})
 
-	test.todo('clicking show all button should show all widgets')
+	test('clicking show all button should show all widgets', async () => {
+		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
 
-	it.todo('should show all widgets and close filter box when filters are cleared')
+		fireEvent.change(screen.queryByTestId('search-bar'), { target: { value: 'adventure' } })
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).toBeNull()
 
-	it.todo('search input should filter widgets')
+		fireEvent.click(await screen.findByText(/show all/i))
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).not.toBeUndefined()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).not.toBeUndefined()
+	})
+
+	test('should highlight accessibility icon', async () => {
+		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
+
+		fireEvent.click(screen.getByRole('button', { name: /Filter by feature/i }))
+
+		const button = screen.getByRole('button', { name: /Multiple Choice/i })
+		await fireEvent.click(button)
+		expect(button).toHaveClass('selected')
+	})
+
+	test('should highlight filter tag', async () => {
+		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
+
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).not.toBeUndefined()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).not.toBeUndefined()
+
+		fireEvent.click(screen.getByRole('button', { name: /Filter by feature/i }))
+		await fireEvent.click(screen.getByRole('button', { name: /Multiple Choice/i }))
+
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).toBeNull()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).toBeNull()
+	})
+
+	test('should show all widgets and close filter box when filters are cleared', async () => {
+		const rendered = renderWithClient(<Catalog widgets={getWidgets()} isLoading={false} />)
+
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).not.toBeUndefined()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).not.toBeUndefined()
+
+		fireEvent.click(screen.getByRole('button', { name: /Filter by feature/i }))
+		await fireEvent.click(screen.getByRole('button', { name: /Multiple Choice/i }))
+
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).toBeNull()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).toBeNull()
+
+		await fireEvent.click(screen.getByRole('button', { name: /Clear Filters/i }))
+		expect(screen.queryByText('Adventure')).not.toBeUndefined()
+		expect(screen.queryByText('Crossword')).not.toBeUndefined()
+		expect(screen.queryByText('Evaluate a Rejection Letter')).not.toBeUndefined()
+	})
 
 })
