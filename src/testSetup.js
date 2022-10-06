@@ -21,6 +21,7 @@ global.API_LINK = '/api/'
 global.BASE_URL = 'https://test_base_url.com/'
 global.WIDGET_URL = 'widget_url/'
 global.STATIC_CROSSDOMAIN = 'https://crossdomain.com/'
+global.UPLOAD_ENABLED = true
 global.MEDIA_URL = 'https://mediaurl.com/'
 global.getMockApiData = (type) => {
 	return require(`./__test__/mockapi/${type}.json`)

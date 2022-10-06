@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { apiUploadWidgets } from '../util/api'
 
 const WidgetInstall = ({refetchWidgets}) => {
@@ -12,22 +12,13 @@ const WidgetInstall = ({refetchWidgets}) => {
         uploadError: false
     })
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('UPLOAD_ENABLED') || !window.hasOwnProperty('ACTION_LINK') || !window.hasOwnProperty('HEROKU_WARNING')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-    }
-	
-	// Wait for window data to load then set global variables to state
     useEffect(() => {
-		waitForWindow().then(() => {
-            setState({...state,
-                uploadEnabled: !!+window.UPLOAD_ENABLED,
-                actionLink: window.ACTION_LINK,
-                herokuWarning: window.HEROKU_WARNING
-            })
-		})
-    }, [])
+        setState({...state,
+            uploadEnabled: !!+window.UPLOAD_ENABLED,
+            actionLink: window.ACTION_LINK,
+            herokuWarning: window.HEROKU_WARNING
+        })
+    }, [window.UPLOAD_ENABLED, window.ACTION_LINK, window.HEROKU_WARNING])
     
     const handleChange = async (event) => {
         const files = event.target.files
@@ -44,7 +35,7 @@ const WidgetInstall = ({refetchWidgets}) => {
         if (correctFileExtension)
             apiUploadWidgets(files)
             .then((response) => {
-                if (response.ok && response.status !== 204 && response.status !== 502) {
+                if (response.ok && response.status !== 204 && response.status < 400) {
                     setState({...state, uploadNotice: `Successfully uploaded '${files[0].name}'!`, isUploading: false, uploadError: false})
                     refetchWidgets()
                 } else {

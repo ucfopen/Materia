@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
 import Header from './header'
-import WidgetInstall from './widget-install'
-import WidgetList from './widget-list'
+import WidgetInstall from './widget-admin-install'
+import WidgetList from './widget-admin-list'
 
 const WidgetAdminPage = () => {
 	const [widgets, setWidgets] = useState([])
@@ -14,6 +14,7 @@ const WidgetAdminPage = () => {
 		queryFn: apiGetWidgetsAdmin,
 		staleTime: Infinity,
 		onSuccess: (widgetData) => {
+			console.log(widgetData)
 			widgetData.forEach((w) => {
 				w.icon = Materia.Image.iconUrl(w.dir, 60)
 				// Convert "0" and "1" to false and true
