@@ -51,7 +51,6 @@ const MyWidgetsPage = () => {
 	const deleteWidget = useDeleteWidget()
 	const [widgetCopy, setWidgetCopy] = useState(false)
 	const [widgetDelete, setWidgetDelete] = useState(false)
-	const [widgetSelect, setWidgetSelect] = useState(false)
 	const [loadingWidgets, setLoadingWidgets] = useState(true)
 	const [page, setPage] = useState(1)
 	const [widgetsList, setWidgetsList] = useState([])
@@ -67,7 +66,6 @@ const MyWidgetsPage = () => {
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
-				console.log('page', page, 'data.total_num_pages', data.total_num_pages)
 
 				if (widgetCopy == true) { setWidgetCopy(false) }
 				else {
@@ -85,7 +83,6 @@ const MyWidgetsPage = () => {
 					}
 					setPage(page + 1)
 				}
-
 			},
 		})
 
@@ -198,8 +195,10 @@ const MyWidgetsPage = () => {
 	 * @return null
 	 */
 	const onDelete = inst => {
+		data.pagination = [...widgetsList]
 		setState({ ...state, selectedInst: null, widgetHash: null })
 		setWidgetDelete(true)
+		setLoadingWidgets(true)
 
 		deleteWidget.mutate(
 			{
@@ -208,8 +207,15 @@ const MyWidgetsPage = () => {
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
 				onSettled: () => {
-					// Setting selectedInst and widgetHash to null again to avoid race conditions.
-					setState({ ...state, selectedInst: null, widgetHash: null, postFetch: true, loading: true })
+
+					if (inst.id == widgetsList[0].id) {
+						setState({ ...state, selectedInst: null, widgetHash: data.pagination[1].id, postFetch: true, loading: true })
+					}
+					else {
+						setState({ ...state, selectedInst: null, widgetHash: data.pagination[0].id, postFetch: true, loading: true })
+					}
+
+					setWidgetsList(widgetsList.filter(widget => widget.id !== inst.id))
 				}
 			}
 		)

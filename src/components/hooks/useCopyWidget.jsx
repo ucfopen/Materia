@@ -33,7 +33,6 @@ export default function useCopyWidget() {
 
 				// 'setQueryData()' is a sync method
 				queryClient.setQueryData('widgets', updateData) // can confirm 'widgets' is updating
-				console.log('5) updateData:', updateData.pagination)
 
 				return { previousValue }
 			},
