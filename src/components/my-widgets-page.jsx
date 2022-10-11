@@ -329,7 +329,6 @@ const MyWidgetsPage = () => {
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
 	// The state.postFetch does NOT contribute to anything at this point.
-
 	useEffect(() => {
 		if (page <= data?.total_num_pages) { refetch() }
 		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
