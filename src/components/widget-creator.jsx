@@ -144,9 +144,9 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 		if (creatorReady) {
 			if (widgetInstance && !keepQSet) {
 				return;
-			} else if (frameRef.current == null) {
+			} else if (widgetInstance && frameRef.current == null) {
 				onInitFail('Unable to load widget.')
-			} else if (!canPublish && widgetInstance && !widgetInstance.is_draft) {
+			} else if (widgetInstance && !canPublish && !widgetInstance.is_draft) {
 				onInitFail('Widget type can not be edited by students after publishing.')
 			} else {
 				if (qsetToReload) {

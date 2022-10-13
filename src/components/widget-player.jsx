@@ -111,6 +111,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	const frameRef = useRef(null)
 	const saveStorage = usePlayStorageDataSave()
 	const savePlayLog = usePlayLogSave()
+
+	const [widgetReady, setWidgetReady] = useState(false)
+
 	const { data: inst } = useQuery({
 		queryKey: ['widget-inst', instanceId],
 		queryFn: () => apiGetWidgetInstance(instanceId),
@@ -144,17 +147,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				window.removeEventListener('message', _onPostMessage, false);
 			}
 		}
-	}, [
-		demoData.loading,
-		qset,
-		inst,
-		startTime,
-		alertMsg,
-		pendingLogs,
-		heartbeatInterval,
-		logPushInProgress,
-		endState
-	])
+	}, [demoData])
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
@@ -243,7 +236,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 			switch (msg.type) {
 				case 'start':
-					return _onWidgetReady()
+					return setWidgetReady(true)
 				case 'addLog':
 					return _addLog(msg.data)
 				case 'end':
@@ -272,19 +265,20 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		}
 	}
 
-	// Tests if the widget failed to load
-	const _onWidgetReady = () => {
-		switch (false) {
-			case !(qset == null):
-				_onLoadFail('Unable to load widget data.')
-				break
-			case !(frameRef.current == null):
-				_onLoadFail('Unable to load widget.')
-				break
-			default:
-				_sendWidgetInit()
+	useEffect(() => {
+		if (widgetReady && !demoData.loading) {
+			switch (false) {
+				case !(qset == null):
+					_onLoadFail('Unable to load widget data.')
+					break
+				case !(frameRef.current == null):
+					_onLoadFail('Unable to load widget.')
+					break
+				default:
+					_sendWidgetInit()
+			}
 		}
-	}
+	}, [widgetReady, demoData])
 
 	const _sendWidgetInit = () => {
 		const convertedInstance = _translateForApiVersion(inst, qset)
