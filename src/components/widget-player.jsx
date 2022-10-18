@@ -120,6 +120,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		enabled: instanceId !== null,
 		staleTime: Infinity
 	})
+	
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
@@ -129,12 +130,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 	// Adds warning event listener
 	useEffect(() => {
-		window.addEventListener('beforeunload', _beforeUnload)
+		if (!!inst) {
+			window.addEventListener('beforeunload', _beforeUnload)
 
-		return () => {
-			window.removeEventListener('beforeunload', _beforeUnload);
+			return () => {
+				window.removeEventListener('beforeunload', _beforeUnload);
+			}
 		}
-	}, [inst, isPreview, endState])
+	}, [inst])
 
 	// Ensures the callback doesn't have stale state
 	useEffect(() => {
@@ -149,13 +152,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		}
 	}, [demoData])
 
-	// Starts the widget player once the instance and qset have loaded
+	// Starts the widget player once the instance has loaded
 	useEffect(() => {
-		// _getWidgetInstance
 		if (!!inst && !inst.hasOwnProperty('id')) {
 			_onLoadFail('Unable to get widget info.')
 		}
-		else if (inst && qset) {
+		else if (inst) {
 			const fullscreen = inst.widget.meta_data.features.find((f) => f.toLowerCase() === 'fullscreen')
 			let enginePath
 
@@ -183,7 +185,28 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				height: `${inst.widget.height}px`
 			})
 		}
-	}, [inst, qset])
+	}, [inst])
+
+	useEffect(() => {
+		if (widgetReady && !demoData.loading) {
+			switch (false) {
+				case !(qset == null):
+					_onLoadFail('Unable to load widget data.')
+					break
+				case !(frameRef.current == null):
+					_onLoadFail('Unable to load widget.')
+					break
+				default:
+					_sendWidgetInit()
+			}
+		}
+	}, [widgetReady, demoData, qset])
+
+	const _sendWidgetInit = () => {
+		const convertedInstance = _translateForApiVersion(inst, qset)
+		setStartTime(new Date().getTime())
+		_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
+	}
 
 	// Sets the hearbeat when not preview and given valid startTime
 	useEffect(() => {
@@ -263,27 +286,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
 			)
 		}
-	}
-
-	useEffect(() => {
-		if (widgetReady && !demoData.loading) {
-			switch (false) {
-				case !(qset == null):
-					_onLoadFail('Unable to load widget data.')
-					break
-				case !(frameRef.current == null):
-					_onLoadFail('Unable to load widget.')
-					break
-				default:
-					_sendWidgetInit()
-			}
-		}
-	}, [widgetReady, demoData])
-
-	const _sendWidgetInit = () => {
-		const convertedInstance = _translateForApiVersion(inst, qset)
-		setStartTime(new Date().getTime())
-		_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 	}
 
 	// Used to add play logs
