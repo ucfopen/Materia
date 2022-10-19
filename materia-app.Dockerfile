@@ -1,7 +1,7 @@
 # =====================================================================================================
 # Base stage used for build and final stages
 # =====================================================================================================
-FROM php:8.0.24-fpm-alpine3.16 AS base_stage
+FROM php:8.1.11-fpm-alpine3.16 AS base_stage
 
 ARG PHP_EXT="bcmath gd pdo_mysql xml zip opcache"
 ARG PHP_MEMCACHED_VERSION="v3.1.5"

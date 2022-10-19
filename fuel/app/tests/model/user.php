@@ -97,8 +97,8 @@ class Test_Model_User extends \Basetest
 
 		$ids = [$x[0]->id, $x[1]->id];
 
-		self::assertContains($user1->id, $ids);
-		self::assertContains($user2->id, $ids);
+		self::assertContains((int)$user1->id, $ids);
+		self::assertContains((int)$user2->id, $ids);
 	}
 
 }
