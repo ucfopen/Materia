@@ -36,6 +36,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	const [iframeUrl, setIframeUrl] = useState(null);
 	const [showActionBar, setShowActionBar] = useState(true);
 	const [showRollbackConfirmBar, setShowRollbackConfirmBar] = useState(null)
+	const [showQsetHistoryDialog, setShowQsetHistoryDialog] = useState(false);
 	const [height, setHeight] = useState(null);
 	const [heartbeatEnabled, toggleHeartbeat] = useState(true)
 	const [startTime, setStartTime] = useState(0);
@@ -142,31 +143,42 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	// Called only if instId exists and the fetch for qset was successful
 	useEffect(() => {
 		if (creatorReady) {
-			if (widgetInstance && !keepQSet) {
+			if (widgetInstance && (!keepQSet || Object.keys(keepQSet).length == 0)) {
 				return;
 			} else if (widgetInstance && frameRef.current == null) {
 				onInitFail('Unable to load widget.')
 			} else if (widgetInstance && !canPublish && !widgetInstance.is_draft) {
 				onInitFail('Widget type can not be edited by students after publishing.')
 			} else {
-				if (qsetToReload) {
-					setKeepQSet({
-						data: qsetToReload.data,
-						version: qsetToReload.version,
-					});
-					setQsetToReload(null)
-				}
-				if (widgetInstance && keepQSet) {
+				if (widgetInstance && (keepQSet || qsetToReload)) {
 					setStartTime(new Date().getTime());
+
+					let qsetToInit;
+
+					if (qsetToReload && Object.keys(qsetToReload).length !== 0) {
+						qsetToInit = qsetToReload;
+						setQsetToReload(null)
+					} else {
+						qsetToInit = keepQSet;
+					}
+
+					setKeepQSet({
+						data: qsetToInit.data,
+						version: qsetToInit.version,
+					});
 		
-					let args = [widgetInstance.name, widgetInstance, keepQSet.data, keepQSet.version, window.BASE_URL, window.MEDIA_URL];
-					
+					let args = [widgetInstance.name, widgetInstance, qsetToInit.data, qsetToInit.version, window.BASE_URL, window.MEDIA_URL];
+
 					sendToCreator('initExistingWidget', args);
+					// Reset creator ready
+					setCreatorReady(false);
 				} else if (widgetInfo) {
 					// No qset so create a new widget after getting widget data
 					setStartTime(new Date().getTime());
 					let args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
 					sendToCreator('initNewWidget', args);
+					// Reset creator ready
+					setCreatorReady(false);
 				}
 			}
 		}
@@ -233,13 +245,13 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	}
 
 	const showQsetHistoryImporter = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instId}`)
-		return null
-	}
-
-	const showQsetHistoryConfirmation = () => {
-		setEmbedDialogType('confirm_dialog')
-		showEmbedDialog(`${window.BASE_URL}qsets/confirm/?inst_id=${instId}`)
+		if (showQsetHistoryDialog) {
+			setShowQsetHistoryDialog(false);
+			hideEmbedDialog();
+		} else {
+			setShowQsetHistoryDialog(true);
+			showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instId}`)
+		}
 		return null
 	}
 
@@ -484,8 +496,10 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	const _qsetRollbackConfirmation = (confirm) => {
 		setShowActionBar(true)
 		setShowRollbackConfirmBar(false)
+		setShowQsetHistoryDialog(false)
 
 		if (confirm) {
+			setQsetToReload(null)
 			return false
 		} else {
 			// re-apply cached qset saved via onQsetHistorySelectionComplete
