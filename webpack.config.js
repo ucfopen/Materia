@@ -61,6 +61,7 @@ module.exports =
 				publicPath: '/dist/',
 				https: true,
 				watchContentBase: true,
+				writeToDisk: true, // required for nginx redirects targeting /dist to actually see the files being served
 				watchOptions: {
 					ignored: '/node_modules/',
 				},
@@ -138,7 +139,11 @@ module.exports =
 				// new WatchIgnorePlugin([
 				// 	path.join(__dirname, 'server', 'public', 'compiled', 'manifest.json')
 				// ]),
-				new CleanWebpackPlugin(), // clear the dist folder before build
+				new CleanWebpackPlugin({
+					cleanOnceBeforeBuildPatterns: [
+						'!package.json'
+					]
+				}), // clear the dist folder before build
 				new MiniCssExtractPlugin({ filename: '[name].css' }),
 				// Copy all the frontend dependencies from node_modules to dist/vendor
 				new CopyPlugin({

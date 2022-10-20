@@ -69,7 +69,7 @@ const QuestionHistory = () => {
       return (
         <tr onClick={() => loadSaveData(save.id)} key={index}>
           <td>Save #{saves.length - index}</td>
-          <td>{save.created_at}</td>
+          <td>{new Date(parseInt(save.created_at) * 1000).toLocaleString()}</td>
         </tr>
       )
     })
