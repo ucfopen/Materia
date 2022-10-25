@@ -92,7 +92,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 
-const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
+const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='', widgetURL}) => {
 	const [alertMsg, setAlertMsg] = useState(initAlert())
 	const [demoData, setDemoData] = useState(initDemo())
 	const [startTime, setStartTime] = useState(0)
@@ -111,25 +111,40 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	const frameRef = useRef(null)
 	const saveStorage = usePlayStorageDataSave()
 	const savePlayLog = usePlayLogSave()
+
+	const [widgetReady, setWidgetReady] = useState(false)
+
 	const { data: inst } = useQuery({
 		queryKey: ['widget-inst', instanceId],
 		queryFn: () => apiGetWidgetInstance(instanceId),
 		enabled: instanceId !== null,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onSuccess: (data) => {
+			if (!data) {
+				_onLoadFail('Unable to get widget info.')
+			}
+		}
 	})
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
-		placeholderData: null
+		placeholderData: null,
+		onSuccess: (data) => {
+			if (!data) {
+				_onLoadFail('Unable to load widget data.')
+			}
+		}
 	})
 
 	// Adds warning event listener
 	useEffect(() => {
-		window.addEventListener('beforeunload', _beforeUnload)
+		if (!!inst) {
+			window.addEventListener('beforeunload', _beforeUnload)
 
-		return () => {
-			window.removeEventListener('beforeunload', _beforeUnload);
+			return () => {
+				window.removeEventListener('beforeunload', _beforeUnload);
+			}
 		}
 	}, [inst, isPreview, endState])
 
@@ -144,25 +159,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				window.removeEventListener('message', _onPostMessage, false);
 			}
 		}
-	}, [
-		demoData.loading,
-		qset,
-		inst,
-		startTime,
-		alertMsg,
-		pendingLogs,
-		heartbeatInterval,
-		logPushInProgress,
-		endState
-	])
+	}, [demoData])
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
 		// _getWidgetInstance
-		if (!!inst && !inst.hasOwnProperty('id')) {
-			_onLoadFail('Unable to get widget info.')
-		}
-		else if (inst && qset) {
+		if (inst && qset) {
 			const fullscreen = inst.widget.meta_data.features.find((f) => f.toLowerCase() === 'fullscreen')
 			let enginePath
 
@@ -178,7 +180,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				enginePath = inst.widget.player
 			} else {
 				// link to the static widget
-				enginePath = window.WIDGET_URL + inst.widget.dir + inst.widget.player
+				enginePath = widgetURL + inst.widget.dir + inst.widget.player
 			}
 
 			// Starts up the demo with the htmlPath
@@ -243,7 +245,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 
 			switch (msg.type) {
 				case 'start':
-					return _onWidgetReady()
+					return setWidgetReady(true)
 				case 'addLog':
 					return _addLog(msg.data)
 				case 'end':
@@ -272,19 +274,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		}
 	}
 
-	// Tests if the widget failed to load
-	const _onWidgetReady = () => {
-		switch (false) {
-			case !(qset == null):
-				_onLoadFail('Unable to load widget data.')
-				break
-			case !(frameRef.current == null):
+	useEffect(() => {
+		if (widgetReady && !demoData.loading) {
+			if (!frameRef.current)
 				_onLoadFail('Unable to load widget.')
-				break
-			default:
+			else
 				_sendWidgetInit()
 		}
-	}
+	}, [widgetReady, demoData])
 
 	const _sendWidgetInit = () => {
 		const convertedInstance = _translateForApiVersion(inst, qset)
@@ -535,6 +532,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 					className='html'
 					scrolling='yes'
 					ref={frameRef}
+					title='Widget Embed'
 				/>
 				{ loadingRender }
 			</div>

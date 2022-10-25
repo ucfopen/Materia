@@ -26,7 +26,8 @@ const WidgetPlayerPage = () => {
 		playID: undefined,
 		widgetHeight: 0,
 		widgetWidth: 0,
-		widgetID: undefined
+		widgetID: undefined,
+		widgetURL: ''
 	})
 
 	// Waits for window values to load from server then sets them
@@ -42,7 +43,8 @@ const WidgetPlayerPage = () => {
 						playID: null,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null,
+						widgetURL: window.WIDGET_URL
 					})
 					break
 				case DEMO:
@@ -50,7 +52,8 @@ const WidgetPlayerPage = () => {
 						playID: window.PLAY_ID,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: window.DEMO_ID
+						widgetID: window.DEMO_ID,
+						widgetURL: window.WIDGET_URL
 					})
 					break
 				default:
@@ -58,7 +61,8 @@ const WidgetPlayerPage = () => {
 						playID: window.PLAY_ID,
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
-						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+						widgetID: nameArr.length >= 1 ? nameArr[0] : null,
+						widgetURL: window.WIDGET_URL
 					})
 					break
 			}
@@ -70,7 +74,8 @@ const WidgetPlayerPage = () => {
 		while(!window.hasOwnProperty('PLAY_ID')
 		&& !window.hasOwnProperty('WIDGET_HEIGHT')
 		&& !window.hasOwnProperty('WIDGET_WIDTH')
-		&& !window.hasOwnProperty('DEMO_ID')) {
+		&& !window.hasOwnProperty('DEMO_ID')
+		&& !window.hasOwnProperty('WIDGET_URL')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
@@ -85,7 +90,8 @@ const WidgetPlayerPage = () => {
 			<WidgetPlayer instanceId={state.widgetID}
 				playId={state.playID}
 				minHeight={state.widgetHeight}
-				minWidth={state.widgetWidth}/>
+				minWidth={state.widgetWidth}
+				widgetURL={state.widgetURL}/>
 		)
 	}
 
