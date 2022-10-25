@@ -21,8 +21,6 @@ const SupportInfo = () => {
 			let parsed = JSON.parse(Base64.decode(window.SUPPORT_INFO))
 			let sections = []
 			for (let [section, values] of Object.entries(parsed)) {
-				console.log(section)
-				console.log(values)
 				sections.push(
 					<section key={section}>
 						<h3>{values.title ? values.title : 'No title'}</h3>

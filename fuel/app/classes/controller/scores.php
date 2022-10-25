@@ -7,6 +7,7 @@
 class Controller_Scores extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	// Allow LTI launches to score screens
 	// In canvas, this is shown on the grade review
