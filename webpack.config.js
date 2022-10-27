@@ -20,17 +20,17 @@ const entry = {}
 
 // SASS/CSS webpack entry point registration
 glob.sync(path.join(cssPath, '*.scss')).forEach(file => {
-	entry['css/'+path.basename(file, '.scss')] = file
+	entry['css/' + path.basename(file, '.scss')] = file
 })
 
 glob.sync(path.join(componentCssPath, '*.scss')).forEach(file => {
-	entry['css/'+path.basename(file, '.scss')] = file
+	entry['css/' + path.basename(file, '.scss')] = file
 })
 
 // JS webpack entry point registration
 // locates all `js/*.js` files
 glob.sync(path.join(jsPath, '*.js')).map(file => {
-	entry['js/'+path.basename(file, '.js')] = file
+	entry['js/' + path.basename(file, '.js')] = file
 })
 
 module.exports =
@@ -89,6 +89,11 @@ module.exports =
 						use: [
 							'babel-loader' // configuration in .babelrc
 						]
+					},
+					{
+						test: /\.mjs$/,
+						include: /node_modules/,
+						type: "javascript/auto"
 					},
 					{
 						test: /\.s?css$/,
@@ -179,7 +184,7 @@ module.exports =
 				new IgnoreEmitPlugin(/css\/.+\.js$/) // omit all js files in the css directory
 			],
 			resolve: {
-				extensions: ['.js', '.jsx'],
+				extensions: ['.js', '.jsx', '.mjs'],
 			}
 		}
 	}
