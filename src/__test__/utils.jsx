@@ -1,5 +1,5 @@
 import React from 'react'
-// import { rest } from "msw"
+import { rest } from "msw"
 import { render } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "react-query"
 import apiGetUserResult from '../__test__/mockapi/apiGetUser.json'
@@ -8,7 +8,7 @@ import apiGetUserPermsForInstance from '../__test__/mockapi/api_Get_User_Perms_F
 
 
 export const handlers = [
-  rest.get("*/api/json/widget_paginate_instances_get/*", (req, res, ctx) => {
+  rest.get("*/widget_paginate_instances_get/*", (req, res, ctx) => {
     // req, an information about a matching request;
     // res, a functional utility to create the mocked response;
     // ctx, a group of functions that help to set a status code, headers, body, etc.of the mocked response.
@@ -20,13 +20,13 @@ export const handlers = [
       ctx.json(widgetsInstances)
     )
   }),
-  rest.post("*/api/json/user_get", (req, res, ctx) => {
+  rest.post("*/user_get", (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json(apiGetUserResult)
     )
   }),
-  rest.post("*/api/json/permissions_get", (req, res, ctx) => {
+  rest.post("*/permissions_get", (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json(apiGetUserPermsForInstance)
