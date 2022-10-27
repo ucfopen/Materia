@@ -54,12 +54,7 @@ const MyWidgetsPage = () => {
 	const [loadingWidgets, setLoadingWidgets] = useState(true)
 	const [page, setPage] = useState(1)
 	const [widgetsList, setWidgetsList] = useState([])
-	const {
-		data,
-		isLoading,
-		isFetching,
-		refetch,
-	} = useQuery(
+	const { data, isLoading, isFetching, refetch, } = useQuery(
 		'widgets',
 		() => apiGetWidgetInstances(page),
 		{
@@ -91,6 +86,7 @@ const MyWidgetsPage = () => {
 		queryFn: apiGetUser,
 		staleTime: Infinity
 	})
+
 	const { data: permUsers } = useQuery({
 		queryKey: ['user-perms', state.selectedInst?.id],
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
