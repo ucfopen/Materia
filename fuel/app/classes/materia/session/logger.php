@@ -29,7 +29,7 @@ class Session_Logger
 					$value     = isset($log['value']) ? $log['value'] : '';
 					$game_time = isset($log['game_time']) ? $log['game_time'] : '';
 
-					static::add_log($play_id, static::get_type($type), $item_id, $text, $value, $game_time, $time);
+					static::add_log(static::get_type($type), $item_id, $text, $value, $game_time, $time, $play_id);
 				}
 			}
 			else
@@ -43,7 +43,7 @@ class Session_Logger
 		}
 	}
 
-	static public function add_log($play_id=0, $type, $item_id, $text, $value, $game_time, $created_at)
+	static public function add_log($type, $item_id, $text, $value, $game_time, $created_at, $play_id=0)
 	{
 		$log = new Session_Log([
 			'play_id'    => $play_id,

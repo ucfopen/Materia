@@ -49,6 +49,11 @@ class Model_User extends Orm\Model
 	{
 		$profile_fields = $this->get('profile_fields');
 
+		if (is_string($profile_fields))
+		{
+			$profile_fields = unserialize($profile_fields);
+		}
+
 		$this->set('profile_fields', array_merge(static::$_default_profile_fields, $profile_fields));
 		//don't allow notifications to be sent if there's no e-mail address to send them to
 		if (empty($this->email)) $this->profile_fields['notify'] = false;

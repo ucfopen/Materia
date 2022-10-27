@@ -197,7 +197,15 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 
 		if ( ! empty($values))
 		{
-			$profile_fields = @unserialize($current_values['profile_fields']) ?: [];
+			if (is_string($current_values['profile_fields']))
+			{
+				$profile_fields = @unserialize($current_values['profile_fields']) ?: [];
+			}
+			else
+			{
+				$profile_fields = $current_values['profile_fields'] ?: [];
+			}
+
 			foreach ($values as $key => $val)
 			{
 				if ($val === null)
@@ -224,6 +232,8 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 			{
 				return false;
 			}
+
+			if ($this->user === false) return false;
 
 			// refresh our user
 			if ($this->user['username'] == $username) $this->user = $user->to_array();
