@@ -108,7 +108,7 @@ class Session_PlayDataExporter
 				$len = count($storage_data[$semester_str]);
 				for ($i = 0; $i < $len; $i++)
 				{
-					$d =& $storage_data[$semester_str][$i];
+					$d = &$storage_data[$semester_str][$i];
 					$d['data'] = $d['data'] + $fields;
 					ksort($d['data']);
 

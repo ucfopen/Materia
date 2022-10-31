@@ -1,12 +1,4 @@
 <?php
-/**
- * NEEDS DOCUMENTATION
- *
- * The widget managers for the Materia package.
- *
- * @package	    Main
- * @author      ADD NAME HERE
- */
 
 namespace Materia;
 
@@ -43,7 +35,7 @@ class Widget_Question
 					foreach ($q as $q_prop => &$q_val)
 					{
 						if ( ! in_array($q_prop, $this->_question_properties)) unset($q[$q_prop]);
-						if (is_string($q_val)) $q_val = trim($q_val); // trim all strings
+						$q_val = Utils::safeTrim($q_val); // trim all strings
 					}
 				}
 			}
@@ -54,7 +46,7 @@ class Widget_Question
 					foreach ($a as $a_prop => &$a_val)
 					{
 						if ( ! in_array($a_prop, $this->_answer_properties)) unset($a[$a_prop]);
-						if (is_string($a_val)) $a_val = trim($a_val); // trim all strings
+						$a_val = Utils::safeTrim($a_val); // trim all strings
 					}
 				}
 			}
