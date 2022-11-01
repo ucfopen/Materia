@@ -79,7 +79,7 @@ const BarGraph1 = ({ data, width, height }) => {
 	)
 }
 
-const BarGraph = ({ data, width, height, rowLabel = `Grades`, colLabel = `Students` }) => {
+const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` }) => {
 	console.log(data)
 
 	const margin = { top: 25, bottom: 25, left: 25, right: 25 }
@@ -118,8 +118,25 @@ const BarGraph = ({ data, width, height, rowLabel = `Grades`, colLabel = `Studen
 		return <g ref={ref} />
 	}
 
-	const ColLabel = ({ label, transform, rotation }) => {
-		return <text transform={transform} rotate={rotation}>{label}</text>
+	const ColLabel = ({ label }) => {
+
+		return (<g style={{ textAlign: `center` }}>
+			{
+				[...label].map((letter, index) => {
+					return (
+						<text
+							key={index}
+							x={(graphHeight * 0.30) + index * 15}
+							y={37}
+							style={{ transform: `rotate(90deg)`, textAlign: `center` }}
+							rotate={-90}
+						>
+							{letter}
+						</text>
+					)
+				})
+			}
+		</g>)
 	}
 
 
@@ -138,8 +155,6 @@ const BarGraph = ({ data, width, height, rowLabel = `Grades`, colLabel = `Studen
 		</>)
 	}
 
-
-
 	return (
 		<svg width={width} height={height}>
 			<g transform={`translate(${margin.left + 20}, ${margin.top - 15})`}>
@@ -147,12 +162,13 @@ const BarGraph = ({ data, width, height, rowLabel = `Grades`, colLabel = `Studen
 				<text transform={`translate(${graphWidth * 0.4}, ${graphHeight + margin.bottom * 1.5})`}>{rowLabel}</text>
 
 				<ColAxis scale={yAxis} />
+				{/* <ColLabel label={colLabel} /> */}
 				<text
-					x={graphHeight * 0.38}
-					y={35}
-					// transform={`translate(${-50}, ${0})`}
-					style={{ transform: `rotate(90deg)` }}
-					rotate={-90}
+					x={graphHeight * -0.60}
+					y={-30}
+					textLength={50}
+					style={{ transform: `rotate(-90deg)` }}
+				// rotate={-90}
 				>
 					{colLabel}
 				</text>
