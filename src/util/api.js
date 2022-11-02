@@ -139,7 +139,7 @@ export const apiSaveWidget = (_params) => {
 
 	let params = Object.assign({}, defaults, _params)
 
-	if (params.inst_id != null) {
+	if (!!params.inst_id) {
 		// limit args to the the following params
 		let args = [
 			params.inst_id,

@@ -23,13 +23,13 @@ const QuestionHistory = () => {
   useEffect(() => {
     if (qsetHistory && qsetHistory.type != 'error')
     {
-      qsetHistory.map((qset) => {
-        return {
+      qsetHistory.forEach((qset, i) => {
+        qsetHistory[i] = {
 					id: qset.id,
 					data: qset.data,
 					version: qset.version,
 					count: readQuestionCount(qset.data),
-					created_at: new Date(parseInt(qset.created_at) * 1000).toLocaleString(),
+					created_at: new Date(qset.created_at * 1000).toLocaleString(),
 				}
       })
       setSaves(qsetHistory)

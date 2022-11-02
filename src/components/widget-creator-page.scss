@@ -142,6 +142,13 @@ a {
 }
 
 #qset-rollback-confirmation-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 10px;
+	box-sizing: border-box;
+
 	position: relative;
 	z-index: 5;
 	height: 52px;
@@ -156,7 +163,6 @@ a {
 	font-family: 'Lato', 'Arial', sans-serif;
 
 	h3 {
-		display: inline-block;
 		margin: 0 15px;
 		padding: 14px 0;
 
@@ -164,8 +170,6 @@ a {
 	}
 
 	p {
-		display: inline-block;
-		margin: 0 0 0 60px;
 		padding: 14px 0;
 
 		font-size: 0.8em;
@@ -176,8 +180,6 @@ a {
 	}
 
 	button {
-		float: right;
-		margin: 10px 40px 10px -25px;
 		padding: 6px 15px;
 		color: #3d3d3d;
 		font-weight: bold;

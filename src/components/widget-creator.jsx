@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { creator } from './materia-constants'
-import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 
-// const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
-// const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
-const creatorGuideUrl = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
-
-const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
+const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth='', creatorGuideUrl}) => {
 	const [alertDialog, setAlertDialog] = useState({
 		enabled: false,
 		msg: '',
@@ -24,11 +19,23 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		hasCreatorGuide: false,
 		creatorGuideUrl: creatorGuideUrl
 	});
+	
+	// qset storage for previous save feature
+	// current working qset, temporarily cached to await confirm/cancel
+	const [qsetToBeCached, setQsetToBeCached] = useState({});
+	// qset selected to be loaded after requested reload
+	const [qsetToReload, setQsetToReload] = useState({});
+	const [keepQSet, setKeepQSet] = useState({});
+	const [keepQSetIsLoading, setKeepQSetIsLoading] = useState(true);
+	const [invalid, setInvalid] = useState(null);
+	
+	const [creatorReady, setCreatorReady] = useState(false);
 	const [embedDialogType, setEmbedDialogType] = useState('embed_dialog');
 	const [modal, setModal] = useState(false);
 	const [iframeUrl, setIframeUrl] = useState(null);
 	const [showActionBar, setShowActionBar] = useState(true);
 	const [showRollbackConfirmBar, setShowRollbackConfirmBar] = useState(null)
+	const [showQsetHistoryDialog, setShowQsetHistoryDialog] = useState(false);
 	const [height, setHeight] = useState(null);
 	const [heartbeatEnabled, toggleHeartbeat] = useState(true)
 	const [startTime, setStartTime] = useState(0);
@@ -48,22 +55,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const [returnPlace, setReturnPlace] = useState(null);
 
 	const [nonEditable, setNonEditable] = useState(null);
-	const [widgetType, setWidgetType] = useState('');
-	const [type, setType] = useState('');
-
-	const [instance, setInstance] = useState({
-		qset: null,
-		is_draft: true,
-		widget: null
-	});
-	const [instanceId, setInstanceId] = useState(instId);
 
 	// Gets widget instance
 	const { isLoading: instanceIsLoading, data: widgetInstance } = useQuery({
 		queryKey: ['widget-inst', instId],
 		queryFn: () => apiGetWidgetInstance(instId),
 		enabled: !!instId,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onSuccess: (data => {
+			if (!data || Object.keys(data).length == 0) {
+				_alert(`Instance not found`)
+				// Clear instance id
+				setInstanceId('')
+			}
+		})
 	})
 
 	// Gets widget info
@@ -74,25 +79,50 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity
 	})
 
-	// if this is an existing instance, check lock status
-	const { data: isLocked } = useQuery({
-		queryKey: ['widget-lock', instanceId],
-		queryFn: () => apiGetWidgetLock(instanceId),
-		enabled: !!instanceId,
+	// Gets qset if instId is not null
+	const { isLoading: qSetIsLoading, data: qset } = useQuery({
+		queryKey: ['qset', widgetInstance],
+		queryFn: () => apiGetQuestionSet(instId),
 		staleTime: Infinity,
-		onSettled: (success) => {
-				if (!success) {
-					onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
-				}
+		placeholderData: null,
+		enabled: !!widgetInstance && !!instId,
+		onSettled: data => {
+			if ( (data ? data.title : undefined) === 'Permission Denied' || (data ? data.title : undefined) === 'error') {
+				setInvalid(true);
+				onInitFail('Permission Denied')
+			} else if (!data) {
+				onInitFail('Unable to load widget data.')
+			} else {
+				setInvalid(false);
+				setKeepQSet(data);
+			}
 		}
 	})
 
+	// if this is an existing instance, check lock status
+	const { data: isLocked } = useQuery({
+		queryKey: ['widget-lock', instId],
+		queryFn: () => apiGetWidgetLock(instId),
+		enabled: !!instId,
+		onSettled: (success) => {
+			if (!success) {
+				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
+			}
+		}
+	})
+
+	// Checks whether the flag 'restrict_publish' is set to true on the widget
 	const { data: canPublish } = useQuery({
-		queryKey: ['can-publish', instanceId],
-		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
-		enabled: instance?.widget !== null,
+		queryKey: ['can-publish', widgetId],
+		queryFn: () => apiCanBePublishedByCurrentUser(widgetId || (widgetInstance ? widgetInstance.widget.id : (widgetInfo ? widgetInfo.id : ''))),
 		staleTime: Infinity
 	})
+
+	useEffect(() => {
+		if (widgetInstance && canPublish === false && !widgetInstance.is_draft) {
+			onInitFail('Widget type can not be edited by students after publishing.')
+		}
+	}, [canPublish, widgetInstance])
 
 	useQuery({
 		queryKey: 'heartbeat',
@@ -107,127 +137,103 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			}
 		}
 	})
-	
-	// qset storage for previous save feature
-	// current working qset, temporarily cached to await confirm/cancel
-	const [qsetToBeCached, setQsetToBeCached] = useState(null);
-	// qset selected to be loaded after requested reload
-	const [qsetToReload, setQsetToReload] = useState(null);
-	const [keepQSet, setKeepQSet] = useState(null);
-	const [invalid, setInvalid] = useState(null);
 
-	const { isLoading: qSetIsLoading, data: qset } = useQuery({
-		queryKey: ['qset', instId],
-		queryFn: () => apiGetQuestionSet(instId),
-		staleTime: Infinity,
-		placeholderData: null,
-		enabled: !!instId,
-		onSettled: (data) => {
-			if ( (data != null ? data.title : undefined) === 'Permission Denied' ||data.title === 'error') {
-					setInvalid(true);
-					onInitFail('Permission Denied')
-				} else {
-					setInvalid(false);
-					setKeepQSet(data);
-				}
-		}
-	})
-
-	// Initializes the instance after query is complete
+	// Calls embedCreator() once the widgetInstance and/or widgetInfo have loaded
 	useEffect(() => {
-
-		if (widgetInstance && Object.keys(widgetInstance).length !== 0) {
-			setInstance(widgetInstance)
-			setInstanceId(widgetInstance.id)
-		}
-
-		if (widgetInfo && Object.keys(widgetInfo).length !== 0){
-			setInstance({...instance, widget: widgetInfo})
-		}
-	}, [instanceIsLoading, widgetInfoIsLoading])
-
-	// Calls embedCreator() once the instance and qset (if applicable) have loaded
-	useEffect(() => {
-
-		if (instance.widget && Object.keys(instance.widget).length > 0) {
-
-			if ((instId && instance.hasOwnProperty('id'))) {
-				waitForQSet().then(() => {
-					embedCreator();
-				})
-			} else {
-				embedCreator();
+		if (widgetInstance && widgetInstance.widget && Object.keys(widgetInstance.widget).length > 0) {
+			if (!widgetInstance.is_draft) {
+				setPublishText('Update')
+				setUpdateMode(true)
 			}
-
+			embedCreator(widgetInstance.widget);
 		}
-	}, [instance])
+		else if (widgetInfo) {
+			embedCreator(widgetInfo);
+		}
+
+		// Show the buttons that interact with the creator
+		enableReturnLink()
+		setShowActionBar(true)
+
+	}, [widgetInstance, widgetInfo])
 
 	// Embeds the creator
-	const embedCreator = () => {
+	const embedCreator = (widget) => {
 		let creatorPath
 
-		setNonEditable(instance.widget.is_editable === '0')
-		setWidgetType(instance.widget.creator.slice(instance.widget.creator.lastIndexOf('.')))
+		setNonEditable(widget.is_editable === '0')
 
-		if (instance.widget.creator.substring(0, 4) === 'http') {
+		if (widget.creator.substring(0, 4) === 'http') {
 			// allow creator paths to be absolute urls
-			creatorPath = instance.widget.creator
+			creatorPath = widget.creator
 		} else {
 			// link to the static widget
-			creatorPath = window.WIDGET_URL + instance.widget.dir + instance.widget.creator
+			creatorPath = window.WIDGET_URL + widget.dir + widget.creator
 		}
 
-		setType(creatorPath.split('.').pop());
 		setWidgetData({
 			loading: false,
-			htmlPath: creatorPath + '?' + instance.widget.created_at,
-			hasCreatorGuide: instance.widget.creator_guide != '',
-			creatorGuideUrl: widgetData.creatorGuideUrl
+			htmlPath: creatorPath + '?' + widget.created_at,
+			hasCreatorGuide: widget.creator_guide != '',
+			creatorGuideUrl: creatorGuideUrl
 		})
 	}
 
-	// Initializes the Creator, sending required widget data
-	const initCreator = () => {
-		setStartTime(new Date().getTime())
-    let args
-    if (instId && keepQSet) {
-      args = [instance.name, instance, keepQSet.data, keepQSet.version, window.BASE_URL, window.MEDIA_URL];
-      sendToCreator('initExistingWidget', args);
-    }
-    else if (!instanceId && widgetInfo) {
-      args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
-      sendToCreator('initNewWidget', args);
-    }
-  }
+  	useEffect(() => {
+		if (!widgetData.loading) {
+			// setup the postmessage listener
+			window.addEventListener('message', onPostMessage, false)
 
-  useEffect(() => {
-    if (!widgetData.loading) {
-      // setup the postmessage listener
-      window.addEventListener('message', onPostMessage, false)
-
-      // cleanup this listener
+			// cleanup this listener
 			return () => {
 				window.removeEventListener('message', onPostMessage, false);
 			}
 		}
-	}, [
-		widgetData.loading,
-		keepQSet,
-		instance,
-		startTime,
-		alertDialog,
-	])
+	}, [widgetData])
 
-	// Show the buttons that interact with the creator
+	// Called only if instId exists and the fetch for qset was successful
 	useEffect(() => {
-		// change the buttons if this isnt a draft
-		if (instance && !instance.is_draft) {
-			setPublishText('Update')
-			setUpdateMode(true)
+		if (creatorReady) {
+			if (widgetInstance && (!keepQSet || Object.keys(keepQSet).length == 0)) {
+				return;
+			} else if (frameRef.current == null) {
+				onInitFail('Unable to load widget.')
+			} else if (!canPublish && widgetInstance && !widgetInstance.is_draft) {
+				onInitFail('Widget type can not be edited by students after publishing.')
+			} else {
+				if (widgetInstance && (keepQSet || qsetToReload)) {
+					setStartTime(new Date().getTime());
+
+					let qsetToInit;
+
+					if (qsetToReload && Object.keys(qsetToReload).length !== 0) {
+						qsetToInit = qsetToReload;
+						setQsetToReload(null)
+					} else {
+						qsetToInit = keepQSet;
+					}
+
+					setKeepQSet({
+						data: qsetToInit.data,
+						version: qsetToInit.version,
+					});
+		
+					let args = [widgetInstance.name, widgetInstance, qsetToInit.data, qsetToInit.version, window.BASE_URL, window.MEDIA_URL];
+
+					sendToCreator('initExistingWidget', args);
+					// Reset creator ready
+					setCreatorReady(false);
+				} else if (widgetInfo) {
+					// No qset so create a new widget after getting widget data
+					setStartTime(new Date().getTime());
+					let args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
+					sendToCreator('initNewWidget', args);
+					// Reset creator ready
+					setCreatorReady(false);
+				}
+			}
 		}
-		enableReturnLink()
-		setShowActionBar(true)
-	}, [instance])
+	}, [keepQSet, creatorReady])
 
 	const requestSave = (mode) => {
 		// hide dialogs
@@ -256,18 +262,18 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showQsetHistoryImporter = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instanceId}`)
-		return null
-	}
-
-	const showQsetHistoryConfirmation = () => {
-		setEmbedDialogType('confirm_dialog')
-		showEmbedDialog(`${window.BASE_URL}qsets/confirm/?inst_id=${instanceId}`)
+		if (showQsetHistoryDialog) {
+			setShowQsetHistoryDialog(false);
+			hideEmbedDialog();
+		} else {
+			setShowQsetHistoryDialog(true);
+			showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instId}`)
+		}
 		return null
 	}
 
 	const onPublishPressed = () => {
-		if (instanceId != null && instance != null && !instance.is_draft) {
+		if (!!instId && !!widgetInstance && !widgetInstance.is_draft) {
 			// Show the Update Dialog
 			setPopup('update')
 		} else {
@@ -326,7 +332,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					// options for creator-core postMessages
 					switch (msg.type) {
 						case 'start': // The creator notifies us when its ready
-							return onCreatorReady()
+							return setCreatorReady(true)
 						case 'save': // The creator issued a save request
 							return save(msg.data[0], msg.data[1], msg.data[2]) // instanceName, qset
 						case 'cancelSave': // the creator canceled a save request
@@ -350,9 +356,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	// Changes the Return link's functionality depending on use
 	const enableReturnLink = () => {
-		if (instanceId != null) {
+		if (!!instId) {
 			// editing
-			setReturnUrl(getMyWidgetsUrl(instanceId))
+			setReturnUrl(getMyWidgetsUrl(instId))
 			setReturnPlace('My Widgets')
 		} else {
 			// new
@@ -364,30 +370,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const onPreviewPopupBlocked = (url) => {
 		setPopup('blocked')
 		setPreviewUrl(url)
-	}
-
-	// When the creator says it's ready
-	// Note this is psuedo public as it's exposed to flash
-	const onCreatorReady = () => {
-		switch (false) {
-			case !(keepQSet == null && instanceId):
-				onInitFail('Unable to load widget data.')
-				break
-			case !(frameRef.current == null):
-				onInitFail('Unable to load widget.')
-				break
-			case !(!canPublish && instanceId && !instance.is_draft):
-				onInitFail('Widget type can not be edited by students after publishing.')
-			default:
-				if (qsetToReload != null) {
-					setKeepQSet({
-						data: qsetToReload.data,
-						version: qsetToReload.version,
-					});
-					setQsetToReload(null)
-				}
-				initCreator()
-		}
 	}
 
 	// Show an embedded dialog, as opposed to a popup
@@ -425,7 +407,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			name: instanceName,
 			qset: { version, data: qset },
 			is_draft: saveModeRef.current !== 'publish',
-			inst_id: instanceId,
+			inst_id: instId,
 		}
 
 		// 'history' is sent from onQsetHistorySelectionComplete to request the current qset trait from the creator
@@ -438,7 +420,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			return false
 		}
 
-
 		apiSaveWidget(w).then((inst) => {
 			// did we get back an error message?
 			if ((inst != null ? inst.msg : undefined) != null) {
@@ -446,9 +427,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				setAlertDialog({...alertDialog, fatal: inst.halt, enabled: true});
 			} else if (inst != null && inst.id != null) {
 				// update this creator's url
-				if (String(instanceId).length !== 0) {
-					window.location.hash = `#${inst.id}`
-				}
+				window.location.hash = `#${inst.id}`
+
 				switch (saveModeRef.current) {
 					case 'preview':
 						var url = `${window.BASE_URL}preview/${inst.id}`
@@ -469,6 +449,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						break
 					case 'save':
 						setSaveText('Saved!')
+						setPreviewText('Preview');
 						sendToCreator('onSaveComplete', [
 							inst.name,
 							inst.widget,
@@ -476,7 +457,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 							inst.qset.version,
 						])
 						setInstanceId(inst.id)
-						setInstance(inst)
 						setSaveStatus('saved')
 						break
 				}
@@ -496,8 +476,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if ((msg != null ? msg.msg : undefined) != null) {
 			if (msg.halt != null) {
 				_alert(
-					`Unfortunately, your progress was not saved because \
-	${msg.msg.toLowerCase()}. Any unsaved progress will be lost.`,
+					`Unfortunately, your progress was not saved because ${msg.msg.toLowerCase()}. Any unsaved progress will be lost.`,
 					'Invalid Login',
 					true,
 					true
@@ -507,8 +486,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		} else {
 			if (msg) {
 				return _alert(
-					`Unfortunately your progress was not saved because \
-	${msg.toLowerCase()}`,
+					`Unfortunately your progress was not saved because ${msg.toLowerCase()}`,
 					'Hold on a sec',
 					false,
 					false
@@ -530,8 +508,10 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const _qsetRollbackConfirmation = (confirm) => {
 		setShowActionBar(true)
 		setShowRollbackConfirmBar(false)
+		setShowQsetHistoryDialog(false)
 
 		if (confirm) {
+			setQsetToReload(null)
 			return false
 		} else {
 			// re-apply cached qset saved via onQsetHistorySelectionComplete
@@ -605,19 +585,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 	}
 
-	const checkUserPublishPerms = () => {
-		// if the widget is published and the current user can not publish it, then they can not edit it
-		// also make sure that this isn't the creation of a new widget - which technically is also not a draft
-		if (!instanceId && !instance.is_draft && !canPublish)
-			onInitFail('Widget type can not be edited by students after publishing.')
-	}
-
-	const waitForQSet = async () => {
-		while (qSetIsLoading) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	let editButtonsRender = null
 	if (!updateMode || !nonEditable) {
 		editButtonsRender = (
@@ -641,7 +608,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			<section id='action-bar'>
 				<a id="returnLink" href={returnUrl}>&larr;Return to {returnPlace}</a>
 				{ creatorGuideLink }
-				{ instanceId ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
+				{ instId ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
 				{ editButtonsRender }
 				<div className="dot"></div>
@@ -688,6 +655,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				</div>
 			)
+			break;
 		case 'update':
 			popupRender = (
 				<div className="publish animate-show">
@@ -700,6 +668,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				</div>
 			)
+			break;
 		case 'publish':
 			if (canPublish) {
 				popupRender = (
@@ -726,6 +695,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				)
 			}
+			break;
 	}
 
 	let rollbackConfirmBarRender = null
@@ -734,7 +704,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			<section id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
 				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-				<button onClick={() => _qsetRollbackConfirmation(true)}>Keep</button>
+				<button data-testid='keep_qset' onClick={() => _qsetRollbackConfirmation(true)}>Keep</button>
 				<button onClick={() => _qsetRollbackConfirmation(false)}>Cancel</button>
 			</section>
 		)
@@ -755,7 +725,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				{ actionBarRender }
 
 				<div className="center">
-					<iframe src={ widgetData.htmlPath }
+					<iframe src={ widgetData.htmlPath } 
+						title="Widget Embed"
 						id='container'
 						className='html'
 						scrolling='yes'
@@ -765,7 +736,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						ref={frameRef}/>
 						{ loadingRender }
 				</div>
-				<iframe src={ iframeUrl } className={ iframeUrl ? 'show' : 'hidden' } id={embedDialogType} frameBorder={0} width={675} height={500}></iframe>
+				<iframe src={ iframeUrl } title="Embed Dialog" className={ iframeUrl ? 'show' : 'hidden' } id={embedDialogType} frameBorder={0} width={675} height={500}></iframe>
 			</section>
 			{ noPermissionRender }
 		</div>

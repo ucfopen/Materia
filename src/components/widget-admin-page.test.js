@@ -37,7 +37,7 @@ const renderWithClient = (children) => {
 describe('WidgetAdmin', () => {
 
     it('should render widget admin page', async () => {
-        const rendered = renderWithClient(<WidgetAdminPage />)
+        renderWithClient(<WidgetAdminPage />)
 
         expect(screen.queryByText(/Install Widget/i)).not.toBeNull()
         expect(screen.queryByText(/Widget List/i)).not.toBeNull()
@@ -69,7 +69,7 @@ describe('WidgetInstall', () => {
 
         const mockFetchWidgets = jest.fn()
 
-        const rendered = renderWithClient(<WidgetInstall refetchWidgets={mockFetchWidgets}/>)
+        renderWithClient(<WidgetInstall refetchWidgets={mockFetchWidgets}/>)
 
         expect(screen.queryByText(/Install Widget/i)).not.toBeNull()
         expect(screen.queryByText(/widget package file to install a new widget or upgrade an existing widget on Materia./i)).not.toBeNull()
@@ -85,7 +85,7 @@ describe('WidgetInstall', () => {
 
         const mockRefetch = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue(widgets)
         
-        const rendered = renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
+        renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
 
         await uploadFile('Adventure.wigt')
 
@@ -99,7 +99,7 @@ describe('WidgetInstall', () => {
     it('should render error message if uploading non .wigt file', async () => {
         const mockRefetch = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue(widgets)
         
-        const rendered = renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
+        renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
 
         await uploadFile('Adventure.png')
 
@@ -117,7 +117,7 @@ describe('WidgetInstall', () => {
 
         const mockRefetch = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue(widgets)
         
-        const rendered = renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
+        renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
 
         await uploadFile('Adventure.wigt')
 
@@ -130,14 +130,13 @@ describe('WidgetInstall', () => {
 })
 
 describe('WidgetList', () => {
-    let rendered;
 
     afterEach(() => {
         cleanup()
     })
 
     it('should load all widgets', async () => {
-        rendered = renderWithClient(<WidgetList widgets={widgets} isLoading={false}/>)
+        renderWithClient(<WidgetList widgets={widgets} isLoading={false}/>)
 
         let count = 0;
         for (const w of widgets) {
@@ -150,7 +149,7 @@ describe('WidgetList', () => {
     })
 
     it('should not load all widgets', async () => {
-        rendered = renderWithClient(<WidgetList widgets={widgets} isLoading={true}/>)
+        renderWithClient(<WidgetList widgets={widgets} isLoading={true}/>)
 
         for (const w of widgets) {
             const widget = screen.queryByText(w.name);
@@ -161,11 +160,10 @@ describe('WidgetList', () => {
 })
 
 describe('WidgetListCard', () => {
-    let rendered; 
     let widget = widgets[0];
 
     beforeEach(() => {
-        rendered = renderWithClient(<WidgetListCard widget={widget} isLoading={false}/>)
+        renderWithClient(<WidgetListCard widget={widget} isLoading={false}/>)
     })
 
     afterEach(() => {
