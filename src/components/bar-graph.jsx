@@ -6,6 +6,7 @@ import { Group } from '@vx/group'
 import { scaleBand, scaleLinear } from '@vx/scale'
 import { AxisLeft, AxisBottom } from '@vx/axis'
 import { Grid } from '@vx/grid'
+import { timeFormat } from 'd3';
 
 // accessors return the label and value of that data item
 const x = d => d.label
@@ -79,8 +80,9 @@ const BarGraph1 = ({ data, width, height }) => {
 	)
 }
 
+const linesColor = { color: `#a9a9a9` }
+
 const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` }) => {
-	console.log(data)
 
 	const margin = { top: 25, bottom: 25, left: 25, right: 25 }
 	const graphWidth = width - margin.left - margin.right
@@ -94,19 +96,15 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 	const largestNumStudents = Math.max(...data.map(({ value }) => value))
 	largestNumStudents === 1 ? yAxis.domain([0, 1.2]) : yAxis.domain([0, largestNumStudents])
 
-	const RowAxis = ({ scale, transform }) => {
-		const ref = useRef(null)
 
-		useEffect(() => {
-			if (ref.current) { d3.select(ref.current).call(d3.axisBottom(scale)) }
-		}, [scale])
 
-		return <g ref={ref} transform={transform} />
-	}
 
-	const RowLabel = ({ label, transform }) => {
-		return <text transform={transform}> {label}</text>
-	}
+
+
+
+
+
+
 
 	const ColAxis = ({ scale }) => {
 		const ref = useRef(null)
@@ -115,30 +113,48 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 			if (ref.current) { d3.select(ref.current).call(d3.axisLeft(scale)) }
 		}, [scale])
 
-		return <g ref={ref} />
+		return <g ref={ref} style={linesColor} />
 	}
 
-	const ColLabel = ({ label }) => {
+	const RowAxis = ({ scale, transform }) => {
+		const ref = useRef(null)
 
-		return (<g style={{ textAlign: `center` }}>
-			{
-				[...label].map((letter, index) => {
-					return (
-						<text
-							key={index}
-							x={(graphHeight * 0.30) + index * 15}
-							y={37}
-							style={{ transform: `rotate(90deg)`, textAlign: `center` }}
-							rotate={-90}
-						>
-							{letter}
-						</text>
-					)
-				})
+		useEffect(() => {
+			if (ref.current) { d3.select(ref.current).call(d3.axisBottom(scale)) }
+		}, [scale])
+
+		return <g ref={ref} transform={transform} style={linesColor} />
+	}
+
+	const VerticalLines = ({ scale, transform }) => {
+		const ref = useRef(null)
+
+		useEffect(() => {
+			if (ref.current) {
+				d3.select(ref.current).call(d3.axisBottom(scale)
+					.tickSize(-graphHeight, 0, 0)
+					.tickFormat("")
+				)
 			}
-		</g>)
+		}, [scale])
+
+		return <g ref={ref} transform={transform} style={linesColor} />
 	}
 
+	const HorizontalLines = ({ scale }) => {
+		const ref = useRef(null)
+
+		useEffect(() => {
+			if (ref.current) {
+				d3.select(ref.current).call(d3.axisLeft(scale)
+					.tickSize(-graphWidth, 0, 0)
+					.tickFormat("")
+				)
+			}
+		}, [scale])
+
+		return <g ref={ref} style={linesColor} />
+	}
 
 	const Bars = ({ data, height, xAxis, yAxis }) => {
 		return (<>
@@ -149,37 +165,40 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 					y={yAxis(value)}
 					width={xAxis.bandwidth()}
 					height={height - yAxis(value)}
-					fill={`teal`}
+					fill={`#0093e7`}
 				/>
 			))}
 		</>)
 	}
 
+	console.log(yAxis)
+
+	console.log(yAxis.domain())
+	console.log(yAxis.range())
 	return (
 		<svg width={width} height={height}>
 			<g transform={`translate(${margin.left + 20}, ${margin.top - 15})`}>
-				<RowAxis scale={xAxis} transform={`translate(0, ${graphHeight})`} />
-				<text transform={`translate(${graphWidth * 0.4}, ${graphHeight + margin.bottom * 1.5})`}>{rowLabel}</text>
+				<HorizontalLines scale={yAxis} />
+				<VerticalLines scale={xAxis} transform={`translate(0, ${graphHeight})`} />
 
 				<ColAxis scale={yAxis} />
-				{/* <ColLabel label={colLabel} /> */}
+				<RowAxis scale={xAxis} transform={`translate(0, ${graphHeight})`} />
+
+				<Bars data={data} height={graphHeight} xAxis={xAxis} yAxis={yAxis} />
+
+				<text transform={`translate(${graphWidth * 0.4}, ${graphHeight + margin.bottom * 1.5})`}>{rowLabel}</text>
 				<text
 					x={graphHeight * -0.60}
 					y={-30}
 					textLength={50}
 					style={{ transform: `rotate(-90deg)` }}
-				// rotate={-90}
 				>
 					{colLabel}
 				</text>
-				{/* <ColLabel label={colLabel} transform={`translate(${-50}, ${graphHeight * 0.5})`} rotation={90} /> */}
-				<Bars data={data} height={graphHeight} xAxis={xAxis} yAxis={yAxis} />
+
 			</g>
 		</svg>
 	)
 }
-
-// const testing = 1
-// const BarGraph = testing == 0 ? BarGraph1 : newBarGraph
 
 export default BarGraph
