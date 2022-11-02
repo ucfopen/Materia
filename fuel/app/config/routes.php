@@ -28,8 +28,6 @@ return [
 	'widgets/all'                          => 'widgets/all', // catalog page, with optional display option(s)
 	'widgets'                              => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
 	'my-widgets'                           => 'widgets/mywidgets/',
-
-	'edit/(:alnum)(/.*)?'                  => 'widgets/edit/$1',
 	'play/(:alnum)(/.*)?'                  => 'widgets/play_widget/$1',
 	'preview/(:alnum)(/.*)?'               => 'widgets/preview_widget/$1',
 	'preview-embed/(:alnum)(/.*)?'         => 'widgets/play_embedded_preview/$1',
