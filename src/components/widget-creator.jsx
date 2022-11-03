@@ -144,37 +144,24 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 		}
 	})
 
-	// Calls embedCreator() once the widgetInstance and/or widgetInfo have loaded
+	// Calls embedCreator() once the widgetInfo, widgetInstance, and keepQset have finished loading
 	useEffect(() => {
-		if (widgetInstance 
-			&& widgetInstance.widget 
-			&& Object.keys(widgetInstance.widget).length > 0 
-			&& keepQSet && Object.keys(keepQSet).length > 0 // Only load instance once the qset has loaded
-		) {
-			if (!widgetInstance.is_draft) {
-				setPublishText('Update')
-				setUpdateMode(true)
-			}
-			embedCreator(widgetInstance.widget);
-		}
-		else if (instId && (instanceIsLoading || qSetIsLoading)) {
+		if (instId && (instanceIsLoading || qSetIsLoading)) {
 			// Wait for apiGetWidgetInstance and apiGetQuestionSet to finish fetching
 			return
-		}
-		else if (widgetInfo) {
-			// Widget instance does not exist
+		} else if (widgetInfo) {
 			embedCreator(widgetInfo);
 		}
-
-		// Show the buttons that interact with the creator
-		enableReturnLink()
-		setShowActionBar(true)
 
 	}, [widgetInfo, instanceIsLoading, qSetIsLoading])
 
 	// Embeds the creator
 	const embedCreator = (widget) => {
 		let creatorPath
+
+		// Show the buttons that interact with the creator
+		enableReturnLink()
+		setShowActionBar(true)
 
 		setNonEditable(widget.is_editable === '0')
 
@@ -218,7 +205,13 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 				onInitFail('Widget type can not be edited by students after publishing.')
 			} else {
 				if (widgetInstance && (keepQSet || qsetToReload)) {
+					// Widget instance exists and qset has loaded
 					setStartTime(new Date().getTime());
+
+					if (!widgetInstance.is_draft) {
+						setPublishText('Update')
+						setUpdateMode(true)
+					}
 
 					let qsetToInit;
 
@@ -241,7 +234,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 					setCreatorReady(false);
 				} else if (widgetInfo && !widgetInstance) {
 					// Widget instance does not exist
-					// Create a new widget after getting widget data
+					// Widget info has loaded
 					setStartTime(new Date().getTime());
 					let args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
 					sendToCreator('initNewWidget', args);

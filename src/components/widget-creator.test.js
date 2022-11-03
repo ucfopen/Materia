@@ -102,7 +102,23 @@ describe('Widget Creator', () => {
         // Check to see if action bar is loaded
         expect(await rendered.queryByText('Save Draft')).toBeTruthy()
         expect(await rendered.queryByText('Save History')).toBeTruthy()
-        // Button should be set to 'Update' if instance is published
+
+        // Send mock message from widget iframe indicating the creator is ready
+        const e = {
+            source: window,
+            origin: window.BASE_URL.substring(0, window.BASE_URL.length - 1),
+            data: {
+                source: 'creator-core',
+                type: 'start',
+                data: [widgetInstance.name, qset, 1]
+            }
+        }
+
+        act(() => {
+            window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
+        })
+
+        // Button should be set to 'Update' since instance is published
         expect(await rendered.queryByText('Update')).toBeTruthy()
     })
 
@@ -117,10 +133,26 @@ describe('Widget Creator', () => {
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
+
+        // Send mock message from widget iframe indicating the creator is ready
+        const e = {
+            source: window,
+            origin: window.BASE_URL.substring(0, window.BASE_URL.length - 1),
+            data: {
+                source: 'creator-core',
+                type: 'start',
+                data: [widgetInstance.name, qset, 1]
+            }
+        }
+
+        act(() => {
+            window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
+        })
         
         // Action bar
         expect(await rendered.queryByText('Save Draft')).toBeTruthy()
         expect(await rendered.queryByText('Save History')).toBeFalsy()
+        expect(await rendered.queryByText('Publish...')).toBeTruthy()
     })
 
     it('selects a qset from save history', async () => {
@@ -296,6 +328,21 @@ describe('Widget Creator', () => {
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
+        })
+
+        // Sets creatorReady to true
+        const e = {
+            source: window,
+            origin: window.BASE_URL.substring(0, window.BASE_URL.length - 1),
+            data: {
+                source: 'creator-core',
+                type: 'start',
+                data: [widgetInstance.name, qset, 1]
+            }
+        }
+
+        act(() => {
+            window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
 
         // Click Update
