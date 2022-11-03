@@ -20,6 +20,7 @@ global.resetNamespace = () => {
 global.API_LINK = '/api/'
 global.BASE_URL = 'https://test_base_url.com/'
 global.WIDGET_URL = 'https://localhost/widget/'
+global.MY_WIDGETS_URL = 'https://test_base_url.com/my-widgets'
 global.WIDGET_HEIGHT = ''
 global.WIDGET_WIDTH = ''
 global.DEMO_ID = 'XxSgi'

@@ -60,6 +60,8 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	const { isLoading: instanceIsLoading, data: widgetInstance } = useQuery({
 		queryKey: ['widget-inst', instId],
 		queryFn: () => apiGetWidgetInstance(instId),
+		// Uncomment to test network delay
+		// () => new Promise(resolve => setTimeout(() => resolve(apiGetWidgetInstance(instId)), 5000)),
 		enabled: !!instId,
 		staleTime: Infinity,
 		onSuccess: (data => {
@@ -83,6 +85,8 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	const { isLoading: qSetIsLoading, data: qset } = useQuery({
 		queryKey: ['qset', widgetInstance],
 		queryFn: () => apiGetQuestionSet(instId),
+			// Uncomment to test network delay
+			// () => new Promise(resolve => setTimeout(() => resolve(apiGetQuestionSet(instId)), 2000)),
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!widgetInstance && !!instId,
@@ -90,8 +94,10 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 			if ( (data ? data.title : undefined) === 'Permission Denied' || (data ? data.title : undefined) === 'error') {
 				setInvalid(true);
 				onInitFail('Permission Denied')
+				setKeepQSet(null)
 			} else if (!data) {
 				onInitFail('Unable to load widget data.')
+				setKeepQSet(null)
 			} else {
 				setInvalid(false);
 				setKeepQSet(data);
@@ -140,14 +146,23 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 
 	// Calls embedCreator() once the widgetInstance and/or widgetInfo have loaded
 	useEffect(() => {
-		if (widgetInstance && widgetInstance.widget && Object.keys(widgetInstance.widget).length > 0) {
+		if (widgetInstance 
+			&& widgetInstance.widget 
+			&& Object.keys(widgetInstance.widget).length > 0 
+			&& keepQSet && Object.keys(keepQSet).length > 0 // Only load instance once the qset has loaded
+		) {
 			if (!widgetInstance.is_draft) {
 				setPublishText('Update')
 				setUpdateMode(true)
 			}
 			embedCreator(widgetInstance.widget);
 		}
+		else if (instId && (instanceIsLoading || qSetIsLoading)) {
+			// Wait for apiGetWidgetInstance and apiGetQuestionSet to finish fetching
+			return
+		}
 		else if (widgetInfo) {
+			// Widget instance does not exist
 			embedCreator(widgetInfo);
 		}
 
@@ -155,7 +170,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 		enableReturnLink()
 		setShowActionBar(true)
 
-	}, [widgetInstance, widgetInfo])
+	}, [widgetInfo, instanceIsLoading, qSetIsLoading])
 
 	// Embeds the creator
 	const embedCreator = (widget) => {
@@ -195,6 +210,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	useEffect(() => {
 		if (creatorReady) {
 			if (widgetInstance && (!keepQSet || Object.keys(keepQSet).length == 0)) {
+				// If qset has not loaded yet but we know the instance exists, return and wait until qset has loaded
 				return;
 			} else if (frameRef.current == null) {
 				onInitFail('Unable to load widget.')
@@ -223,8 +239,9 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 					sendToCreator('initExistingWidget', args);
 					// Reset creator ready
 					setCreatorReady(false);
-				} else if (widgetInfo) {
-					// No qset so create a new widget after getting widget data
+				} else if (widgetInfo && !widgetInstance) {
+					// Widget instance does not exist
+					// Create a new widget after getting widget data
 					setStartTime(new Date().getTime());
 					let args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
 					sendToCreator('initNewWidget', args);
@@ -233,7 +250,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 				}
 			}
 		}
-	}, [keepQSet, creatorReady])
+	}, [creatorReady, keepQSet, widgetInstance])
 
 	const requestSave = (mode) => {
 		// hide dialogs
@@ -623,10 +640,16 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 	}
 
 	let loadingRender = null
-	if (widgetData.loading) {
-		loadingRender = (
-			<LoadingIcon size='lrg'/>
-		)
+	if (
+		// iframe hasn't loaded
+		widgetData.loading 		
+		// widgetInstance isn't loaded
+		|| instanceIsLoading 	
+		// instance has loaded but qset is still loading
+		|| widgetInstance && !!keepQSet && Object.keys(keepQSet).length == 0) {
+			loadingRender = (
+				<LoadingIcon size='lrg'/>
+			)
 	}
 
 	let alertDialogRender = null
@@ -703,7 +726,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 		rollbackConfirmBarRender = (
 			<section id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
-				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
+				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to edit this version.</p>
 				<button data-testid='keep_qset' onClick={() => _qsetRollbackConfirmation(true)}>Keep</button>
 				<button onClick={() => _qsetRollbackConfirmation(false)}>Cancel</button>
 			</section>
