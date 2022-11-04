@@ -11,7 +11,6 @@ import useDeleteWidget from './hooks/useDeleteWidget'
 import useKonamiCode from './hooks/useKonamiCode'
 import './css/beard-mode.scss'
 import './my-widgets-page.scss'
-import { cssNumber } from 'jquery'
 
 function getRandomInt(min, max) {
 	min = Math.ceil(min);
@@ -27,62 +26,46 @@ const randomBeard = () => {
 // Helper function to sort widgets
 const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
 
-const initState = () => {
-	return ({
-		selectedInst: null,
-		otherUserPerms: null,
-		myPerms: null,
-		noAccess: false,
-		loading: true,
-		postFetch: false, // Used to wait for changes to the widgets list after the initial fetch - copy or delete
-		widgetHash: window.location.href.split('#')[1],
-		currentBeard: ''
-	})
-}
+// const initState = () => {
+// 	return ()
+// }
 
 const localBeard = window.localStorage.beardMode
 
 const MyWidgetsPage = () => {
 	readFromStorage()
-	const [state, setState] = useState(initState())
+	const [state, setState] = useState({
+		page: 1,
+		totalPages: 0,
+		widgetList: [],
+		selectedInst: null,
+		otherUserPerms: null,
+		myPerms: null,
+		noAccess: false,
+		loadingWidgets: true,
+		widgetHash: window.location.href.split('#')[1],
+		currentBeard: ''
+	})
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
 	const copyWidget = useCopyWidget()
 	const deleteWidget = useDeleteWidget()
-	const [widgetCopy, setWidgetCopy] = useState(false)
-	const [widgetDelete, setWidgetDelete] = useState(false)
-	const [loadingWidgets, setLoadingWidgets] = useState(true)
-	const [page, setPage] = useState(1)
-	const [widgetsList, setWidgetsList] = useState([])
 	const {
 		data,
 		isLoading,
 		isFetching,
-		refetch,
 	} = useQuery(
-		'widgets',
-		() => apiGetWidgetInstances(page),
+		['widgets', state.page],
+		() => apiGetWidgetInstances(state.page),
 		{
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
-
-				if (widgetCopy == true) { setWidgetCopy(false) }
-				else {
-
-					if (page <= data.total_num_pages && !widgetCopy) {
-						setWidgetsList(current => [...current, ...data.pagination].sort(_compareWidgets))
-
-					} else { //
-						if (!widgetDelete) {
-							let temp = widgetsList
-							temp.unshift(data.pagination[0]) // place the new copy inst in the current widgetList.
-							setWidgetsList(temp) // no need for sorting since the new copy is appended to the beginning.
-							setWidgetDelete(false)
-						}
-					}
-					setPage(page + 1)
-				}
+				setState({
+					...state,
+					totalPages: data.total_num_pages,
+					widgetList: [...state.widgetList, ...data.pagination].sort(_compareWidgets)
+				})
 			},
 		})
 
@@ -99,48 +82,80 @@ const MyWidgetsPage = () => {
 		staleTime: Infinity
 	})
 
+	useEffect(() => {
+		if (validCode) {
+			window.localStorage.beardMode = !beardMode
+			setBeardMode(!beardMode)
+		}
+	}, [validCode])
+
+	useEffect(() => {
+		if (state.selectedInst && permUsers) {
+			const isEditable = state.selectedInst.widget.is_editable === "1"
+			const othersPerms = new Map()
+			for (const i in permUsers.widget_user_perms) {
+				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
+			}
+			let _myPerms
+			for (const i in permUsers.user_perms) {
+				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
+			}
+			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
+		}
+	}, [state.selectedInst, JSON.stringify(permUsers)])
+
+	useEffect(() => {
+		// forcedRefresh flag is enabled when the widgetList is purged manually by copying or deleting an instance
+		if (state.forcedRefresh) {
+			setState({...state, forcedRefresh: false, loadingWidgets: true})
+		}
+		// pagination in progress but incomplete
+		// this triggers the 'widgets' query
+		else if (state.page < state.totalPages) {
+			setState({...state, page: state.page + 1})
+		}
+		// pagination complete, widgetList assumed to be fully loaded
+		else {
+			// if a widget hash exists in the URL OR a widget is already selected in state
+			if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {
+				let desiredId = state.widgetHash ? state.widgetHash : state.selectedInst.id
+				// should the widget be selected?
+				let selectWidget = state.widgetHash && (!state.selectedInst || state.selectedInst.id != state.widgetHash)
+
+				// locate the desired widget instance from the widgetList
+				let widgetFound = null
+				state.widgetList.forEach((widget, index) => {
+					if (widget.id == desiredId) {
+						widgetFound = widget
+						if (selectWidget) onSelect(widget, index)
+					}
+				})
+
+				setState({
+					...state,
+					selectedInst: selectWidget && widgetFound ? widgetFound : null,
+					loadingWidgets: false,
+					noAccess: widgetFound == null,
+				})
+			} else {
+				// no instance selected (either in state or the url), for example when the my-widgets page is first loaded
+				setState({ ...state, loadingWidgets: false})
+			}
+		}
+	}, [state.widgetList])
+
+	useEffect(() => {
+		if (isLoading == true) {
+			setState({ ...state, loadingWidgets: true})
+		}
+	}, [isLoading])
+
 	/**
 	 * If we have a widget ID in the URL, select that widget. If we don't, select the first widget in the
 	 * list
 	 * @param {array} widgets
 	 * @returns the onSelect function with the parameters of widgets[0] and 0.
 	 */
-	const checkPreselectedWidgetAccess = widgets => {
-		// If a widget ID was provided in the URL or a widget was selected from the sidebar before the API finished
-		// fetching, double-check that the current user actually has access to it
-		if (!state.loading) return // Blocks the function from running after first use
-
-		// if (state.widgetHash && (!state.selectedInst || state.selectedInst.id !== state.widgetHash)) {
-		if (state.widgetHash || state.selectedInst) {
-			const desiredId = state.widgetHash ? state.widgetHash : state.selectedInst.id
-
-			const selectWidget = state.widgetHash && (!state.selectedInst || state.selectedInst.id !== state.widgetHash)
-
-			let widgetFound = false
-
-			for (let i = 0; i < widgets.length; i++) {
-				if (widgets[i].id === desiredId) {
-					if (selectWidget) {
-						return onSelect(widgets[i], i)
-					}
-					widgetFound = true
-					break
-				}
-			}
-			// always set loading to false and noAccess to whether we found a matching instance or not
-
-			const newState = { ...state, loading: false, noAccess: !widgetFound, postFetch: false }
-
-			// if we didn't find a matching instance for either case, make sure there isn't a selected instance
-			if (!widgetFound) newState.selectedInst = null
-			setState(newState)
-		} else if (state.postFetch) {
-			// We're updating the selected widget following a post-fetch change - probably a delete
-			// With no given instance ID to select, just select the topmost one in the list
-			return onSelect(widgets[0], 0)
-		}
-		else setState({ ...state, loading: false, postFetch: false })
-	}
 
 	/**
 	 * It sets the state of the app to the selected to the selected widget instance by the user.
@@ -151,7 +166,7 @@ const MyWidgetsPage = () => {
 	const onSelect = (inst, index) => {
 		if (inst.is_fake) return
 
-		setState({ ...state, selectedInst: inst, noAccess: false, currentBeard: beards[index], postFetch: false })
+		setState({ ...state, selectedInst: inst, noAccess: false, currentBeard: beards[index], loadingWidgets: false })
 		setUrl(inst)
 	}
 
@@ -165,10 +180,6 @@ const MyWidgetsPage = () => {
 	 */
 	const onCopy = (instId, newTitle, newPerm, inst) => {
 		setState({ ...state, selectedInst: null })
-		data.pagination = [...widgetsList]
-		setLoadingWidgets(true)
-		setWidgetCopy(true)
-		setPage(1)
 
 		copyWidget.mutate(
 			{
@@ -182,7 +193,14 @@ const MyWidgetsPage = () => {
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
 				onSettled: newInstId => {
 					// Setting selectedInst to null again to avoid race conditions.
-					setState({ ...state, selectedInst: null, widgetHash: newInstId, postFetch: true, loading: true })
+					setState({
+						...state,
+						selectedInst: null,
+						widgetHash: newInstId,
+						page: 1,
+						widgetList: [],
+						forcedRefresh: true
+					})
 				}
 			}
 		)
@@ -195,10 +213,6 @@ const MyWidgetsPage = () => {
 	 * @return null
 	 */
 	const onDelete = inst => {
-		data.pagination = [...widgetsList]
-		setState({ ...state, selectedInst: null, widgetHash: null })
-		setWidgetDelete(true)
-		setLoadingWidgets(true)
 
 		deleteWidget.mutate(
 			{
@@ -207,15 +221,14 @@ const MyWidgetsPage = () => {
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
 				onSettled: () => {
-
-					if (inst.id == widgetsList[0].id) {
-						setState({ ...state, selectedInst: null, widgetHash: data.pagination[1].id, postFetch: true, loading: true })
-					}
-					else {
-						setState({ ...state, selectedInst: null, widgetHash: data.pagination[0].id, postFetch: true, loading: true })
-					}
-
-					setWidgetsList(widgetsList.filter(widget => widget.id !== inst.id))
+					setState({
+						...state,
+						selectedInst: null,
+						widgetHash: null,
+						page: 1,
+						widgetList: [],
+						forcedRefresh: true
+					})
 				}
 			}
 		)
@@ -230,7 +243,7 @@ const MyWidgetsPage = () => {
 	const beards = useMemo(
 		() => {
 			const result = []
-			widgetsList?.forEach(() => {
+			state.widgetList?.forEach(() => {
 				result.push(randomBeard())
 			})
 			return result
@@ -239,7 +252,7 @@ const MyWidgetsPage = () => {
 	)
 
 	let widgetCatalogCalloutRender = null
-	if (!isFetching && (!widgetsList || widgetsList?.pagination?.length === 0)) {
+	if (!isFetching && (!state.widgetList || state.widgetList?.pagination?.length === 0)) {
 		widgetCatalogCalloutRender = (
 			<div className='qtip top nowidgets'>
 				Click here to start making a new widget!
@@ -256,7 +269,7 @@ const MyWidgetsPage = () => {
 	const mainContentRender = () => {
 		// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
 		// The function is trigger only once; Which cause complication when using pagination.
-		if (loadingWidgets || isLoading) {
+		if (state.loadingWidgets) {
 			return <section className='directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 				<LoadingIcon size='lrg' />
@@ -285,7 +298,7 @@ const MyWidgetsPage = () => {
 			</section>
 		}
 
-		if (widgetsList?.length < 1) {
+		if (state.widgetList?.length < 1) {
 			return <section className='directions no-widgets'>
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
@@ -314,46 +327,6 @@ const MyWidgetsPage = () => {
 		}
 	}
 
-	useEffect(() => {
-		if (validCode) {
-			window.localStorage.beardMode = !beardMode
-			setBeardMode(!beardMode)
-		}
-	}, [validCode])
-
-	useEffect(() => {
-		if (state.selectedInst && permUsers) {
-			const isEditable = state.selectedInst.widget.is_editable === "1"
-			const othersPerms = new Map()
-			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
-			}
-			let _myPerms
-			for (const i in permUsers.user_perms) {
-				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
-			}
-			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
-		}
-	}, [state.selectedInst, JSON.stringify(permUsers)])
-
-	// The state.postFetch does NOT contribute to anything at this point.
-
-	useEffect(() => {
-		if (page <= data?.total_num_pages) { refetch() }
-		if (page >= data?.total_num_pages) { setLoadingWidgets(false) } // if change to else the loading in not display.
-		if (widgetCopy) { setPage(data.total_num_pages + 2) }
-		checkPreselectedWidgetAccess(widgetsList)
-	}, [page, widgetsList])
-
-	useEffect(() => {
-		setState({ ...state, loading: true })
-	}, [loadingWidgets])
-
-	// ones a copy is exec a refetch
-	useEffect(() => {
-		if (widgetCopy) { refetch() }
-	}, [widgetCopy])
-
 	return (
 		<>
 			<Header />
@@ -368,7 +341,7 @@ const MyWidgetsPage = () => {
 					<MyWidgetsSideBar
 						key='widget-side-bar'
 						isLoading={isLoading}
-						instances={widgetsList}
+						instances={state.widgetList}
 						selectedId={state.selectedInst ? state.selectedInst.id : null}
 						onClick={onSelect}
 						beardMode={beardMode}
