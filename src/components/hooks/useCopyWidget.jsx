@@ -29,7 +29,7 @@ export default function useCopyWidget() {
 				}
 
 				let updateData = previousValue
-				updateData.pagination.unshift(newInst)
+				updateData.pagination?.unshift(newInst)
 
 				// 'setQueryData()' is a sync method
 				queryClient.setQueryData('widgets', updateData) // can confirm 'widgets' is updating

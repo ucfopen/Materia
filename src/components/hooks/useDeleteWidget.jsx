@@ -14,8 +14,7 @@ export default function useDeleteWidget() {
 				const previousValue = queryClient.getQueryData('widgets')
 				const delID = inst.instId
 
-				// old = { total_num_pages: int, pagination: [] }
-				queryClient.setQueryData('widgets', old => old.pagination.filter(widget => widget.id !== delID))
+				queryClient.setQueryData('widgets', old => old.pagination?.filter(widget => widget.id !== delID))
 
 				// Stores the old value for use if there is an error
 				return { previousValue }

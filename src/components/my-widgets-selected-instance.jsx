@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
+import React, { useEffect, useRef, useCallback, useState, useMemo } from 'react'
 import { useQuery } from 'react-query'
 import { apiCanEditWidgets } from '../util/api'
 import { iconUrl } from '../util/icon-url'
@@ -70,7 +70,7 @@ const MyWidgetSelectedInstance = ({
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
-	const { data: editPerms, isFetching: permsFetching} = useQuery({
+	const { data: editPerms, isFetching: permsFetching } = useQuery({
 		queryKey: ['widget-perms', inst.id],
 		queryFn: () => apiCanEditWidgets(inst.id),
 		placeholderData: null,
@@ -100,7 +100,7 @@ const MyWidgetSelectedInstance = ({
 			availabilityMode = 'from'
 		}
 
-		setState(prevState => ({...prevState, playUrl: playUrl, availabilityMode: availabilityMode, showDeleteDialog: false}))
+		setState(prevState => ({ ...prevState, playUrl: playUrl, availabilityMode: availabilityMode, showDeleteDialog: false }))
 
 	}, [JSON.stringify(inst)])
 
@@ -123,7 +123,7 @@ const MyWidgetSelectedInstance = ({
 
 	useEffect(() => {
 		if (myPerms) {
-			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
+			setState((prevState) => ({ ...prevState, can: myPerms.can, perms: myPerms }))
 		}
 	}, [myPerms, inst])
 
@@ -136,16 +136,16 @@ const MyWidgetSelectedInstance = ({
 		if (inst.widget.is_editable && state.perms.editable && editPerms && !permsFetching) {
 			const editUrl = `${window.location.origin}/widgets/${inst.widget.dir}create#${inst.id}`
 
-			if(editPerms.is_locked){
+			if (editPerms.is_locked) {
 				setShowLocked(true)
 				return
 			}
-			if(inst.is_draft){
+			if (inst.is_draft) {
 				window.location = editUrl
 				return
 			}
 
-			if (editPerms.can_publish){
+			if (editPerms.can_publish) {
 				// show editPublished warning
 				showModal(setShowWarning)
 				return
@@ -178,8 +178,8 @@ const MyWidgetSelectedInstance = ({
 	const editClickHandler = () => onEditClick(inst)
 	const collaborateClickHandler = () => showModal(setShowCollab)
 	const copyClickHandler = () => showModal(setShowCopy)
-	const deleteClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: !state.showDeleteDialog}))
-	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
+	const deleteClickHandler = () => setState(prevState => ({ ...prevState, showDeleteDialog: !state.showDeleteDialog }))
+	const deleteCancelClickHandler = () => setState(prevState => ({ ...prevState, showDeleteDialog: false }))
 	const deleteConfirmClickHandler = () => onDelete(inst)
 
 	const editWidget = () => {
@@ -223,9 +223,9 @@ const MyWidgetSelectedInstance = ({
 		openUntilRender = (
 			<span className='open-until'>
 				<span>Open until</span>
-				<span className='available_date'>{ availability.end.date }</span>
+				<span className='available_date'>{availability.end.date}</span>
 				<span>at</span>
-				<span className='available_time'>{ availability.end.time }</span>
+				<span className='available_time'>{availability.end.time}</span>
 			</span>
 		)
 	}
@@ -235,9 +235,9 @@ const MyWidgetSelectedInstance = ({
 		anytimeAfterRender = (
 			<span className='available-after'>
 				<span>Anytime after</span>
-				<span className='available_date'>{ availability.start.date }</span>
+				<span className='available_date'>{availability.start.date}</span>
 				<span>at</span>
-				<span className='available_time'>{ availability.start.time }</span>
+				<span className='available_time'>{availability.start.time}</span>
 			</span>
 		)
 	}
@@ -247,13 +247,13 @@ const MyWidgetSelectedInstance = ({
 		fromToRender = (
 			<span className='available-from'>
 				<span>From</span>
-				<span className='available_date'>{ availability.start.date }</span>
+				<span className='available_date'>{availability.start.date}</span>
 				<span>at</span>
-				<span className='available_time'>{ availability.start.time }</span>
+				<span className='available_time'>{availability.start.time}</span>
 				<span>until</span>
-				<span className='available_date'>{ availability.end.date }</span>
+				<span className='available_date'>{availability.end.date}</span>
 				<span>at</span>
-				<span className='available_time'>{ availability.end.time }</span>
+				<span className='available_time'>{availability.end.time}</span>
 			</span>
 		)
 	}
@@ -350,7 +350,7 @@ const MyWidgetSelectedInstance = ({
 					<ul className='button-list'>
 						<li className='preview_holder'>
 							<a id='preview_button'
-								className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
+								className={`action-button green ${!inst.widget.is_playable ? 'disabled' : ''}`}
 								target='_blank'
 								href={inst.preview_url}>
 								<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
@@ -395,25 +395,25 @@ const MyWidgetSelectedInstance = ({
 						</li>
 					</ul>
 
-					{ deleteDialogRender }
+					{deleteDialogRender}
 
-					<div className={`additional_options ${!state.can.share || inst.is_draft ? 'disabled' : '' }`}>
+					<div className={`additional_options ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}>
 						<h3>Settings:</h3>
 						<dl className={`attempts_parent ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}>
 							<dt>Attempts:</dt>
 							<dd
 								className={`num-attempts ${!state.can.edit || !state.can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}>
-								{ attempts > 0 ? attempts : 'Unlimited' }
+								{attempts > 0 ? attempts : 'Unlimited'}
 							</dd>
 							<dt>Available:</dt>
 							<dd
 								className={`availability-time ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}>
-								{ openAnytimeRender }
-								{ openUntilRender }
-								{ anytimeAfterRender }
-								{ fromToRender }
+								{openAnytimeRender}
+								{openUntilRender}
+								{anytimeAfterRender}
+								{fromToRender}
 							</dd>
 							<dt>Access:</dt>
 							<dd
@@ -441,11 +441,11 @@ const MyWidgetSelectedInstance = ({
 					<div className="share-widget-options-first" id="first-share-widget-option">
 						<h4> Via LMS / LTI Setup </h4>
 						<p> Integrate your widget into your LMS. You can use External Tools in Canvas to embed directly into Webcourses, allowing for immediate authentication, automatic grade passback, and more. Learn more
-						<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
+							<a href="https://ucfopen.github.io/Materia-Docs/create/embedding-in-canvas.html"> here.</a>
 						</p>
 					</div>
 					<div className="share-widget-options-second" id="third-share-widget-option">
-					<h4> Via Embed Code </h4>
+						<h4> Via Embed Code </h4>
 						<p>
 							Use the link provided above to share with your students (or
 							<span
@@ -456,7 +456,7 @@ const MyWidgetSelectedInstance = ({
 							).
 						</p>
 
-					{ embedInfoRender }
+						{embedInfoRender}
 					</div>
 					<div className="share-widget-options-third" id="second-share-widget-option">
 						<h4> Via URL </h4>
@@ -478,11 +478,11 @@ const MyWidgetSelectedInstance = ({
 
 				</div>
 			</div>
-			{ copyDialogRender }
-			{ collaborateDialogRender }
-			{ warningDialogRender }
-			{ settingsDialogRender }
-			{ lockedDialogRender }
+			{copyDialogRender}
+			{collaborateDialogRender}
+			{warningDialogRender}
+			{settingsDialogRender}
+			{lockedDialogRender}
 			<MyWidgetsScores inst={inst} />
 		</section>
 	)

@@ -1,5 +1,5 @@
-import * as d3 from 'd3'
 import React, { useEffect, useRef } from 'react'
+import { axisBottom, axisLeft, scaleBand, scaleLinear, select } from 'd3'
 
 const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` }) => {
 
@@ -9,10 +9,10 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 	const graphHeight = height - margin.top - margin.bottom
 
 	// grade points / bars
-	const xAxis = d3.scaleBand().domain(data.map(({ label }) => label)).range([0, graphWidth]).padding(0.5)
+	const xAxis = scaleBand().domain(data.map(({ label }) => label)).range([0, graphWidth]).padding(0.5)
 
 	// num of students
-	const yAxis = d3.scaleLinear().range([graphHeight, 0]).nice()
+	const yAxis = scaleLinear().range([graphHeight, 0]).nice()
 	const largestNumStudents = Math.max(...data.map(({ value }) => value))
 	largestNumStudents === 1 ? yAxis.domain([0, 1.2]) : yAxis.domain([0, largestNumStudents])
 
@@ -20,7 +20,7 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 		const ref = useRef(null)
 
 		useEffect(() => {
-			if (ref.current) { d3.select(ref.current).call(d3.axisLeft(scale)) }
+			if (ref.current) { select(ref.current).call(axisLeft(scale)) }
 		}, [scale])
 
 		return <g ref={ref} style={linesColor} />
@@ -30,7 +30,7 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 		const ref = useRef(null)
 
 		useEffect(() => {
-			if (ref.current) { d3.select(ref.current).call(d3.axisBottom(scale)) }
+			if (ref.current) { select(ref.current).call(axisBottom(scale)) }
 		}, [scale])
 
 		return <g ref={ref} transform={transform} style={linesColor} />
@@ -41,7 +41,7 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 
 		useEffect(() => {
 			if (ref.current) {
-				d3.select(ref.current).call(d3.axisBottom(scale)
+				select(ref.current).call(axisBottom(scale)
 					.tickSize(-graphHeight, 0, 0)
 					.tickFormat("")
 				)
@@ -56,7 +56,7 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 
 		useEffect(() => {
 			if (ref.current) {
-				d3.select(ref.current).call(d3.axisLeft(scale)
+				select(ref.current).call(axisLeft(scale)
 					.tickSize(-graphWidth, 0, 0)
 					.tickFormat("")
 				)
