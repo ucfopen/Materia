@@ -10,9 +10,9 @@
 		<p>
 			Materia features a growing library of customizable widgets.
 			Learn more about the available widgets and how to make your own
-			<a class='external' target='_blank' href='http://ucfopen.github.io/Materia-Docs/create/getting-started.html'>here</a>.
+			<a class='external' target='_blank' href='http://ucfopen.github.io/Materia-Docs/create/getting-started.html'> here</a>.
 		</p>
-		<a style="margin-bottom: 40px;" class="action_button" target='_blank' href="/my-widgets">Go to Materia</a>
+		<a class="action_button" target='_blank' href="/my-widgets">Go to Materia</a>
 	</div>
 
 	<div class="widget-info" id="embed-widgets">

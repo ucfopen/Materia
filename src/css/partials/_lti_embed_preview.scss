@@ -24,7 +24,12 @@
 			margin-bottom: 2em;
 		}
 
-		.button {
+		.instance_owner {
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			list-style-type: none;
+			margin: 10px 0;
 		}
 
 		.widget_info {

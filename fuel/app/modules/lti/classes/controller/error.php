@@ -18,23 +18,20 @@ class Controller_Error extends \Controller
 		$system = str_replace('_', ' ', \Input::param('system', 'the system'));
 
 		$this->theme = \Theme::instance();
-		$this->theme->set_template('layouts/main');
-		$this->theme->set_partial('header', 'partials/header_empty');
+
+		$this->insert_analytics();
+		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('var TITLE = "'.'Error - '.$msg.'";');
+		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
+
+		\Css::push_group('lti');
+
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Error - '.$msg)
 			->set('page_type', 'lti-error');
 
-		$this->theme->set_partial('content', $this->_content_partial )
-			->set('title', "Error - {$msg}")
-			->set('system', $system);
-
-		$this->insert_analytics();
-
-		\Js::push_group(['angular', 'materia']);
-		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
-
-		\Css::push_group('lti');
+		\Js::push_group(['react', 'error_general']);
 
 		return \Response::forge(\Theme::instance()->render());
 	}

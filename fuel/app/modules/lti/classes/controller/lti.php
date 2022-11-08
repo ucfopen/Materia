@@ -51,17 +51,19 @@ class Controller_Lti extends \Controller
 		$launch = LtiLaunch::from_request();
 		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
-		$this->theme->set_template('layouts/main')
+		$this->insert_analytics();
+
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()
 			->set('title', 'Materia')
 			->set('page_type', 'lti-login');
 
-		$this->theme->set_partial('content', 'partials/post_login');
-		$this->insert_analytics();
-
-		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 
 		\Css::push_group('core');
+		\Js::push_group(['react', 'post_login']);
+
+
 
 		return \Response::forge($this->theme->render());
 	}
@@ -83,28 +85,25 @@ class Controller_Lti extends \Controller
 
 		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
-		$this->theme->set_template('layouts/main');
-
 		\Js::push_group(['angular', 'materia', 'author']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
-		\Js::push_inline($this->theme->view('partials/select_item_js')
-			->set('system', $system));
+		\Js::push_inline('var SYSTEM = "'.$system.'";');
 		\Css::push_group(['core', 'lti']);
 
 		if ($is_selector_mode && ! empty($return_url))
 		{
 			\Js::push_inline('var RETURN_URL = "'.$return_url.'"');
 		}
+		$this->insert_analytics();
 
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Select a Widget for Use in '.$system)
 			->set('page_type', 'lti-select');
-
-		$this->theme->set_partial('content', 'partials/select_item');
-		$this->theme->set_partial('header', 'partials/header_empty');
-		$this->insert_analytics();
+		
+		\Js::push_group(['react', 'select_item']);
 
 		return \Response::forge($this->theme->render());
 	}
@@ -118,26 +117,25 @@ class Controller_Lti extends \Controller
 		$current_user_owns = \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::VISIBLE, \Materia\Perm::FULL]);
 		$instance_owner_list = $current_user_owns ? [] : $inst->get_owners();
 
-		$this->theme->set_template('layouts/main')
-			->set('title', 'Widget Connected Successfully')
-			->set('page_type', 'preview');
-
-		$this->theme->set_partial('content', 'partials/open_preview')
-			->set('inst_name', $inst->name)
-			->set('widget_name', $inst->widget->name)
-			->set('preview_url', \Uri::create('/preview/'.$inst_id))
-			->set('icon', \Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-			->set('preview_embed_url', \Uri::create('/preview-embed/'.$inst_id))
-			->set('current_user_owns', $current_user_owns)
-			->set('instance_owner_list', $instance_owner_list);
-
 		$this->insert_analytics();
 
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var inst_id = "'.$inst_id.'";');
+		\Js::push_inline('var PREVIEW_URL = "'.\Uri::create('/preview/'.$inst_id).'";');
+		\Js::push_inline('var ICON_URL = "'.\Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+		\Js::push_inline('var PREVIEW_EMBED_URL = "'.\Uri::create('/preview-embed/'.$inst_id).'";');
+		\Js::push_inline('var CURRENT_USER_OWNS = "'.$current_user_owns.'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
+		\Js::push_inline('var OWNER_LIST = "'.json_encode($instance_owner_list).'";');
+		\Js::push_inline('var USER_ID = "'.\Model_User::find_current_id().'";');
 
 		\Css::push_group(['core', 'lti']);
+
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()
+			->set('title', 'Widget Connected Successfully')
+			->set('page_type', 'preview');
+		
+		\Js::push_group(['react', 'open_preview']);
 
 		return \Response::forge($this->theme->render());
 	}

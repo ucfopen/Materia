@@ -538,3 +538,17 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 	return fetch('/api/json/widget_publish_perms_verify',  fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
 		.then(resp => resp.json())
 }
+
+// Request access to widget
+export const apiRequestAccess = (instId, ownerId) => {
+	return fetch('/api/json/request_access', fetchOptions({ body: `data=${formatFetchBody([instId, ownerId])}` }))
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return null
+	})
+}
+
+export const apiGetOwners = (instId) => {
+	return fetch('/api/json/get_owners', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+	.then(resp => resp.json())
+}
