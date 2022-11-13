@@ -4,8 +4,6 @@
  * License outlined in licenses folder
  */
 
-namespace Lti;
-
 class Controller_Lti extends \Controller
 {
 	use \Trait_Analytics;
@@ -20,7 +18,7 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_index()
 	{
-		$cfg = \Config::get('lti::lti.consumers.default');
+		$cfg = \Config::get('lti.consumers.default');
 		// TODO: this is hard coded for Canvas, figure out if the request carries any info we can use to figure this out
 		$this->theme->set_template('partials/config_xml');
 		$this->theme->get_template()
@@ -58,8 +56,8 @@ class Controller_Lti extends \Controller
 		$this->theme->set_partial('content', 'partials/post_login');
 		$this->insert_analytics();
 
-		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
+		\Js::push_inline('const BASE_URL = "'.\Uri::base().'";');
+		\Js::push_inline('const STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 
 		\Css::push_group('core');
 
@@ -77,8 +75,10 @@ class Controller_Lti extends \Controller
 		$launch = LtiLaunch::from_request();
 		if ($authenticate && ! LtiUserManager::authenticate($launch)) return \Response::redirect('/lti/error/unknown_user');
 
-		$system           = ucfirst(\Input::post('tool_consumer_info_product_family_code', 'this system'));
-		$is_selector_mode = \Input::post('selection_directive') === 'select_link' || \Input::post('lti_message_type') === 'ContentItemSelectionRequest';
+		$system           = \Input::post('tool_consumer_info_product_family_code', 'this system');
+		$lti_message_type = \Input::post('lti_message_type', 'none');
+		$lti_key          = \Input::post('oauth_consumer_key', '');
+		$is_selector_mode = \Input::post('selection_directive') === 'select_link' || $lti_message_type === 'ContentItemSelectionRequest';
 		$return_url       = \Input::post('launch_presentation_return_url') ?? \Input::post('content_item_return_url');
 
 		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
@@ -89,17 +89,18 @@ class Controller_Lti extends \Controller
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
-		\Js::push_inline($this->theme->view('partials/select_item_js')
-			->set('system', $system));
-		\Css::push_group(['core', 'lti']);
-
+		\Js::push_inline('var LTI_MESSAGE_TYPE = "'.$lti_message_type.'"');
+		\Js::push_inline('var system = "'.htmlentities($system).'"');
+		\Js::push_inline('const LTI_KEY = "'.$lti_key.'"');
 		if ($is_selector_mode && ! empty($return_url))
 		{
 			\Js::push_inline('var RETURN_URL = "'.$return_url.'"');
 		}
 
+		\Css::push_group(['core', 'lti']);
+
 		$this->theme->get_template()
-			->set('title', 'Select a Widget for Use in '.$system)
+			->set('title', 'Select a Widget for Use in '.ucfirst($system))
 			->set('page_type', 'lti-select');
 
 		$this->theme->set_partial('content', 'partials/select_item');

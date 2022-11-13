@@ -10,4 +10,4 @@ DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml
 set -e
 set -o xtrace
 
-$DCTEST run --rm --no-deps app composer sniff-ci
+$DCTEST run -T --rm --no-deps app composer sniff-ci

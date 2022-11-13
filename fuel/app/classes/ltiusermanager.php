@@ -1,6 +1,5 @@
 <?php
 
-namespace Lti;
 use \Materia\Log;
 
 class LtiUserManager
@@ -11,7 +10,7 @@ class LtiUserManager
 	 */
 	public static function authenticate($launch)
 	{
-		// =================== LOAD COFIGURATION ============================
+		// =================== LOAD CONFIGURATION ============================
 		$cfg            = LtiLaunch::config();
 		$local_id_field = $cfg['local_identifier'] ?? 'username';
 		$auth_driver    = $cfg['auth_driver'] ?? '';
@@ -51,7 +50,7 @@ class LtiUserManager
 				}
 			}
 
-			// For some reason unkown to us - passing the authdriver here causes a strange error on production
+			// For some reason unknown to us - passing the authdriver here causes a strange error on production
 			// The user can start playing a widget, but the playid is registered to userid 0
 			// But for testing, we need to be able to specify the auth driver
 			if ( ! \Fuel::$is_test) $auth_driver = null;
@@ -83,14 +82,14 @@ class LtiUserManager
 	 * Creates a user based on data passed to Materia from an LTI consumer.
 	 * If the consumer config looks up user by username, misses, but a matching email address is found:
 	 * The username is optionally updated with the update_existing flag
-	 * If the consuemr config looks up users by email, misses, but a matching username is found:
+	 * If the consumer config looks up users by email, misses, but a matching username is found:
 	 * The email is optionally updated with the update_existing flag
 	 *
 	 * @param  object  $launch              the launch vars
 	 * @param  string  $search_field        user field to search in
 	 * @param  string  $auth_driver         FuelPHP Auth driver to use
-	 * @param  boolean $creates_users       Create & update the user if it doesnt exist
-	 * @return mixed                        Either return a Model_User or false if the user couldnt be found or created
+	 * @param  boolean $creates_users       Create & update the user if it doesn't exist
+	 * @return mixed                        Either return a Model_User or false if the user couldn't be found or created
 	 */
 	protected static function get_or_create_user($launch, $search_field, $auth_driver, $creates_users = false)
 	{

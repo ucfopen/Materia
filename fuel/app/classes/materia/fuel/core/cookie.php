@@ -41,7 +41,7 @@ class Cookie extends Fuel\Core\Cookie
 		// is_null($secure) and $secure = static::$config['secure'];
 		is_null($http_only) and $http_only = static::$config['http_only'];
 		//static::$config is protected - can't get it in an extended class, hack workaround here
-		is_null($same_site) and $same_site = 'None';
+		empty($same_site) and $same_site = 'None';
 
 		// add the current time so we have an offset
 		$expiration = $expiration > 0 ? $expiration + time() : 0;

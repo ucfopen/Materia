@@ -23,7 +23,9 @@ class Test_Service_User extends \Basetest
 		$data->useGravatar = false;
 
 		// update him
-		\Service_User::update_user($user->id, $data);
+		$changes = \Service_User::update_user($user->id, $data);
+
+		$this->assertEquals($changes, ['is_student' => 1, 'email' => 1, 'notify' => 1, 'useGravatar' => 1]);
 
 		// make sure the variables were set
 		$this->assertEquals($data->email, $user->email);

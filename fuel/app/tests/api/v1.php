@@ -19,6 +19,91 @@ class Test_Api_V1 extends \Basetest
 		}
 	}
 
+	public function test_lti_sign_content_item_selection()
+	{
+		$url = 'https://someurl.com/something?some_var=10&another_var=20';
+		$content_items = '{
+			"@context" : "http://purl.imsglobal.org/ctx/lti/v1/ContentItem",
+			"@graph" : [
+				{
+					"@type": "LtiLinkItem",
+					"mediaType": "application/vnd.ims.lti.v1.ltilink",
+					"@id": "https://materia.edu/play/3c@jd!",
+					"url": "https://materia.edu/play/3c@jd!",
+					"title": "The widgets name",
+					"text": "A Materia Crossword Activity",
+					"placementAdvice": {
+						"presentationDocumentTarget": "frame",
+					},
+				}
+			]
+		}';
+
+		$invalid_lti_key = "key_that_doesnt_exist";
+		$valid_lti_key = "materia-lti-key";
+
+		// ======= AS NO ONE ========
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $invalid_lti_key);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Invalid Login', $output->title);
+
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $valid_lti_key);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Invalid Login', $output->title);
+
+		// ======= STUDENT ========
+		$this->_as_student();
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $invalid_lti_key);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Permission Denied', $output->title);
+
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $valid_lti_key);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Permission Denied', $output->title);
+
+		// ======= AUTHOR ========
+		$this->_as_author();
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $invalid_lti_key);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Validation Error', $output->title);
+
+		$this->_as_author();
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $valid_lti_key);
+		$this->assertNotInstanceOf('\Materia\Msg', $output);
+		$this->assertIsArray($output);
+		$this->assertArrayHasKey('oauth_version', $output);
+		$this->assertArrayHasKey('oauth_nonce', $output);
+		$this->assertArrayHasKey('oauth_timestamp', $output);
+		$this->assertArrayHasKey('oauth_consumer_key', $output);
+		$this->assertArrayHasKey('lti_message_type', $output);
+		$this->assertArrayHasKey('lti_version', $output);
+		$this->assertArrayHasKey('data', $output);
+		$this->assertArrayHasKey('oauth_callback', $output);
+		$this->assertArrayHasKey('oauth_signature_method', $output);
+		$this->assertArrayHasKey('oauth_signature', $output);
+
+		// ======= SU ========
+		$this->_as_super_user();
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $invalid_lti_key);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Validation Error', $output->title);
+
+		$this->_as_super_user();
+		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $valid_lti_key);
+		$this->assertNotInstanceOf('\Materia\Msg', $output);
+		$this->assertIsArray($output);
+		$this->assertArrayHasKey('oauth_version', $output);
+		$this->assertArrayHasKey('oauth_nonce', $output);
+		$this->assertArrayHasKey('oauth_timestamp', $output);
+		$this->assertArrayHasKey('oauth_consumer_key', $output);
+		$this->assertArrayHasKey('lti_message_type', $output);
+		$this->assertArrayHasKey('lti_version', $output);
+		$this->assertArrayHasKey('data', $output);
+		$this->assertArrayHasKey('oauth_callback', $output);
+		$this->assertArrayHasKey('oauth_signature_method', $output);
+		$this->assertArrayHasKey('oauth_signature', $output);
+	}
+
 	public function test_widgets_get()
 	{
 		$this->make_disposable_widget();

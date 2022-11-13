@@ -592,7 +592,7 @@ class Widget_Instance
 	 */
 	public function lti_associations()
 	{
-		return \Lti\Model_Lti::query()
+		return \Model_Lti::query()
 			->where('item_id', $this->id)
 			->get();
 	}

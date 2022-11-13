@@ -1,10 +1,8 @@
 <?php
 
-namespace Lti;
 use \Materia\Log;
 use \Materia\Util_Validator;
 use \Materia\Widget_Instance_Manager;
-use \Lti\Oauth;
 
 class LtiEvents
 {
@@ -23,7 +21,7 @@ class LtiEvents
 		$launch = LtiLaunch::from_request();
 		if ($launch)
 		{
-			if ( ! Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
+			if ( ! \Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $result['redirect'] = '/lti/error/unknown_user';
 			$result['is_embedded'] = true;
 		}
@@ -33,7 +31,9 @@ class LtiEvents
 
 	public static function on_before_play_start_event($payload)
 	{
-		if (static::get_lti_play_state() == self::PLAY_STATE_FIRST_LAUNCH)
+		$play_state = static::get_lti_play_state();
+
+		if ($play_state == self::PLAY_STATE_FIRST_LAUNCH)
 		{
 			extract($payload); // exposes event args $inst_id and $is_embedded
 
@@ -61,7 +61,7 @@ class LtiEvents
 				}
 			}
 
-			if ( ! Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
+			if ( ! \Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
 			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';
@@ -160,12 +160,12 @@ class LtiEvents
 
 		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
 
-		if (\Config::get('lti::lti.log_for_debug', false))
+		if (\Config::get('lti.log_for_debug', false))
 		{
 			\Materia\Log::profile(['score-outcome-sent', $body], 'lti-launch');
 		}
 
-		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
+		$success = \Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 

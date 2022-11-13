@@ -1,14 +1,12 @@
 <?php
 /**
  * @group App
- * @group Module
- * @group Lti
  */
 class Test_LtiLaunch extends \Test_Basetest
 {
 	public function test_get_widget_from_request()
 	{
-		$get_widget_from_request = static::get_protected_method('\Lti\LtiEvents', 'get_widget_from_request');
+		$get_widget_from_request = static::get_protected_method('\LtiEvents', 'get_widget_from_request');
 
 		// Retreive from database via resource_link_id
 		$resource_id = $this->get_uniq_string();
@@ -34,7 +32,7 @@ class Test_LtiLaunch extends \Test_Basetest
 	public function test_from_request()
 	{
 		$this->create_testing_post('test-resource', 'user', ['Student']);
-		$launch = \Lti\LtiLaunch::from_request();
+		$launch = \LtiLaunch::from_request();
 
 		// $this->assertEquals($launch->remote_id, 'user');
 		$this->assertEquals('test-resource', $launch->resource_id);
@@ -43,7 +41,7 @@ class Test_LtiLaunch extends \Test_Basetest
 
 	public function test_find_assoc_from_resource_id()
 	{
-		$find_assoc_from_resource_id = static::get_protected_method('\Lti\LtiEvents', 'find_assoc_from_resource_id');
+		$find_assoc_from_resource_id = static::get_protected_method('\LtiEvents', 'find_assoc_from_resource_id');
 
 		$resource_id = $this->get_uniq_string();
 		$launch = $this->create_testing_launch_vars($resource_id);

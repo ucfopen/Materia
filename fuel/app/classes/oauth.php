@@ -1,5 +1,4 @@
 <?php
-namespace Lti;
 
 class Oauth
 {
@@ -14,12 +13,12 @@ class Oauth
 
 			if (empty($signature)) throw new \Exception('Authorization signature is missing.');
 			if (empty($nonce)) throw new \Exception('Authorization fingerprint is missing.');
-			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new \Exception('Authorization signature failure.');
+			if (\Input::post('oauth_consumer_key') !== $lti_config['key']) throw new \Exception('Authorization key failure.');
 			if ($timestamp < (time() - $lti_config['timeout'])) throw new \Exception('Authorization signature is too old.');
 
 			$hasher   = new \Eher\OAuth\HmacSha1(); // THIS CODE ASSUMES HMACSHA1, could be more versetile, but hey
 			$consumer = new \Eher\OAuth\Consumer(null, $lti_config['secret']);
-			$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', \Uri::current(), \Input::post());
+			$request  = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'POST', \Uri::main(), \Input::post());
 			$new_sig  = $request->build_signature($hasher, $consumer, false);
 
 			if ($new_sig !== $signature) throw new \Exception('Authorization signature failure.');
@@ -27,7 +26,7 @@ class Oauth
 		}
 		catch (\Exception $e)
 		{
-			\Materia\Log::profile(['invalid-oauth-received', $e->getMessage(), \Uri::current(), print_r(\Input::post(), 1)], 'lti-error-dump');
+			\Materia\Log::profile(['invalid-oauth-received', $e->getMessage(), \Uri::main(), print_r(\Input::post(), 1)], 'lti-error-dump');
 		}
 
 		return false;
@@ -39,8 +38,8 @@ class Oauth
 		$oauth_params = [
 			'oauth_consumer_key'                     => $key,
 			'lti_message_type'                       => 'basic-lti-launch-request',
-			'tool_consumer_instance_guid'            => \Config::get('lti::lti.tool_consumer_instance_guid'),
-			'tool_consumer_info_product_family_code' => \Config::get('lti::lti.tool_consumer_info_product_family_code'),
+			'tool_consumer_instance_guid'            => \Config::get('lti.tool_consumer_instance_guid'),
+			'tool_consumer_info_product_family_code' => \Config::get('lti.tool_consumer_info_product_family_code'),
 			'tool_consumer_instance_contact_email'   => \Config::get('materia.system_email'),
 			'tool_consumer_info_version'             => \Config::get('materia.system_version'),
 			'user_id'                                => $user->id,

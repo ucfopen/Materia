@@ -56,6 +56,58 @@ class Api_V1
 		return Widget_Instance_Manager::get_all($inst_ids);
 	}
 
+	static public function lti_sign_content_item_selection(string $url, string $content_items, string $lti_key)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if (\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR, \Materia\Perm_Role::SU]) !== true) return Msg::no_perm();
+		if (\Service_User::verify_session('no_author')) return Msg::no_perm();
+
+		$lti_config = \LtiLaunch::config_from_key($lti_key);
+
+		if (is_null($lti_config)) return Msg::invalid_input('Lti key not found.');
+
+		$params = [
+			'lti_message_type' => 'ContentItemSelection',
+			'lti_version' => 'LTI-1p0',
+			'content_items' => $content_items,
+			'data' => '{"sentBy": "Materia"}',
+			'oauth_nonce' => sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)),
+			'oauth_timestamp' => time(),
+			'oauth_callback' => 'about:blank',
+			'oauth_consumer_key' => $lti_key,
+			'oauth_signature_method' => 'HMAC-SHA1',
+			'oauth_version' => '1.0',
+		];
+
+		$secret = $lti_config['secret'] ?? false;
+		$hmc_sha1  = new \Eher\OAuth\HmacSha1();
+		$consumer = new \Eher\OAuth\Consumer('', $secret);
+
+		// assumes the results will be sent via POST
+		$request = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'post', $url, $params);
+		$request->sign_request($hmc_sha1, $consumer, '');
+		$results = $request->get_parameters();
+
+		// Remove GET params in $url from $results as they may mess up validation.
+		// if duplicated here. (ex: Sakai will fail validation)
+		$query_str = parse_url($url, PHP_URL_QUERY);
+		parse_str($query_str, $query_params);
+		if (is_array($query_params))
+		{
+			$keys = array_keys($query_params);
+			foreach ($keys as $key)
+			{
+				if (isset($results[$key]))
+				{
+					unset($results[$key]);
+				}
+			}
+		}
+
+		return $results;
+	}
+
+
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */
@@ -201,7 +253,7 @@ class Api_V1
 	 * @param int     $open_at
 	 * @param int     $close_at
 	 * @param int     $attempts
-	 * @param bool    $guest_access
+	 * @param bool    $guest_accesss
 	 * @param bool 	  $is_student_made
 	 *
 	 * @return array An associative array with details about the save

@@ -1,7 +1,5 @@
 <?php
 
-namespace Lti;
-
 class Model_Lti extends \Orm\Model
 {
 
