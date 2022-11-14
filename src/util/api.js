@@ -451,7 +451,6 @@ export const apiGetScoreSummary = instId => {
 				semester.totalScores = semester.distribution?.reduce((total, count) => total + count)
 			})
 
-			console.log(scores)
 			return scores
 		})
 }
@@ -497,7 +496,8 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
 					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
-					date: timestampToDateDisplay(log.time)
+					date: timestampToDateDisplay(log.time),
+					created_at: log.time
 				})
 
 			})

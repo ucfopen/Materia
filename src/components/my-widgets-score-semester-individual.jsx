@@ -6,6 +6,7 @@ import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
+const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
 
 const initState = () => ({
 	isLoading: true,
@@ -49,13 +50,18 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 
 					if (!newLogs[scoreObject.userId]) {
 						newLogs[scoreObject.userId] = { userId: scoreObject.userId, name: scoreObject.name, searchableName: scoreObject.searchableName, scores: scoreObject.scores }
+
 					}
 					else {
 						for (let scoreIndex = 0; scoreIndex < scoreObject.scores.length; scoreIndex++)
 							newLogs[scoreObject.userId].scores.push(scoreObject.scores[scoreIndex])
+
+						newLogs[scoreObject.userId].scores.sort(_compareWidgets).reverse()
 					}
 				}
 
+				console.log(newLogs)
+				// for (let index=0; index <newLogs.)
 				setLogsList(newLogs)
 			}
 		}

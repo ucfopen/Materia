@@ -1,9 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom'
 import { renderWithClient } from '../__test__/utils'
-
-// import { act } from 'react-test-renderer'
-import { act, cleanup, fireEvent, getByText, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
 
 import * as api from '../util/api'
 import MyWidgetsPage from './my-widgets-page'
@@ -17,6 +15,10 @@ jest.mock("./header", () => () => {
 
 jest.mock("./bar-graph", () => () => {
   return <mock-BarGraph data-testid="mockBarGraph" />
+})
+
+jest.mock('./my-widgets-settings-dialog', () => () => {
+  return <mock-MyWidgetsSettingsDialog data-testid='mockMyWidgetsSettingsDialog' />
 })
 
 let mockCanEditData = {
@@ -42,9 +44,12 @@ describe('MyWidgetsPage', () => {
   })
 
   beforeEach(() => {
+    cleanup()
     mockApiGetUser.mockResolvedValue(apiGetUserResult)
     mockWidgetInst.mockResolvedValue(widgetsInstances)
     mockApiGetUserPermsForInstance.mockResolvedValue(apiGetUserPermsForInstance)
+    mockApiCanEditWidgets.mockResolvedValue(mockCanEditData)
+    mockApiGetScoreSummary.mockResolvedValue([])
   })
 
   afterEach(() => {
@@ -59,31 +64,29 @@ describe('MyWidgetsPage', () => {
       rendered = await renderWithClient(<MyWidgetsPage />)
     })
 
-    expect(screen.getByText('test14 test (1)', { exact: true }))
-    expect(screen.getByText('play-logs-paginate', { exact: true }))
-    expect(screen.getByText('My labeling widget', { exact: true }))
+    expect(rendered.getByText('test14 test (1)', { exact: true }))
+    expect(rendered.getByText('play-logs-paginate', { exact: true }))
+    expect(rendered.getByText('My labeling widget', { exact: true }))
   })
 
   it('render on widget inst selected', async () => {
-
 
     let rendered
     await act(async () => {
       rendered = await renderWithClient(<MyWidgetsPage />)
     })
 
-
-    let widgetInst = await screen.getByText('test14 test (1)', { exact: true })
+    let widgetInst = rendered.getByText('test14 test (1)', { exact: true })
     fireEvent.click(widgetInst)
-    expect(await screen.findByRole('heading', { level: 1, name: 'test14 test (1) Widget', exact: true }))
+    expect(await rendered.findByRole('heading', { level: 1, name: 'test14 test (1) Widget', exact: true }))
 
-    widgetInst = await screen.getByText('play-logs-paginate', { exact: true })
+    widgetInst = rendered.getByText('play-logs-paginate', { exact: true })
     fireEvent.click(widgetInst)
-    expect(await screen.findByRole('heading', { level: 1, name: 'play-logs-paginate Widget', exact: true }))
+    expect(await rendered.findByRole('heading', { level: 1, name: 'play-logs-paginate Widget', exact: true }))
 
-    widgetInst = await screen.getByText('My labeling widget', { exact: true })
+    widgetInst = rendered.getByText('My labeling widget', { exact: true })
     fireEvent.click(widgetInst)
-    expect(await screen.findByRole('heading', { level: 1, name: 'My labeling widget Widget', exact: true }))
+    expect(await rendered.findByRole('heading', { level: 1, name: 'My labeling widget Widget', exact: true }))
   })
 
   it('render widget inst options', async () => {
@@ -93,31 +96,34 @@ describe('MyWidgetsPage', () => {
       rendered = await renderWithClient(<MyWidgetsPage />)
     })
 
-    let widgetInst = await screen.getByText('test14 test (1)', { exact: true })
+    let widgetInst = rendered.getByText('test14 test (1)', { exact: true })
     fireEvent.click(widgetInst)
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'test14 test (1) Widget', exact: true }))
-    expect(await screen.getByRole('link', { name: 'Preview', exact: true }))
-    expect(await screen.getByRole('button', { name: 'Edit settings', exact: true }))
-    expect(await screen.getByRole('link', { name: 'View all sharing options.', exact: true }))
-    expect(await screen.getByDisplayValue('https://127.0.0.1/play/2Ek4W/test14-test-1'))
-    expect(await screen.getByText('Export Options', { exact: true }))
+    expect(rendered.findByRole('heading', { level: 1, name: 'test14 test (1) Widget', exact: true }))
+    expect(rendered.getByRole('link', { name: 'Preview', exact: true }))
+    expect(rendered.getByRole('button', { name: 'Edit settings', exact: true }))
+    expect(rendered.getByRole('link', { name: 'View all sharing options.', exact: true }))
+    expect(rendered.getByDisplayValue('https://127.0.0.1/play/2Ek4W/test14-test-1'))
+
+    const exportBtn = rendered.getByText('Export Options', { exact: true })
+    expect(exportBtn)
+    expect(exportBtn).toHaveClass('disabled')
   })
 
-  it.only('render Settings container', async () => {
+  it('render Settings container', async () => {
     let rendered
     await act(async () => {
       rendered = await renderWithClient(<MyWidgetsPage />)
     })
 
-    let clickItem = await screen.getByText('test14 test (1)', { exact: true })
-    fireEvent.click(clickItem)
+    let widgetInst = rendered.getByText('test14 test (1)', { exact: true })
+    fireEvent.click(widgetInst)
 
-    clickItem = await screen.getByRole('button', { name: 'Edit settings', exact: true })
-    fireEvent.click(clickItem)
+    // let clickItem = rendered.getByText('Edit settings', { exact: true })
+    // fireEvent.click(clickItem)
 
     // Looking into rendering the SETTINGS container.
-    console.log(await screen.getByText('Attempts', { exact: true }))
+    console.log(rendered.getByText('Attempts', { exact: true }))
   })
 
 })

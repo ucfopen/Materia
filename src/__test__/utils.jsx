@@ -16,6 +16,12 @@ export const renderWithClient = async (ui) => {
     <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
   )
 
+  // let rendered;
+  // await waitFor(() => {
+  //   rendered = render(<QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>)
+  // })
+  // const { rerender, ...result } = rendered;
+
   return {
     ...result,
     rerender: (rerenderUi) => rerender(
