@@ -1,11 +1,10 @@
 import React from 'react'
 
-const MyWidgetScoreSemesterSummary = ({students, totalScores, average}) => (
+const MyWidgetScoreSemesterSummary = ({ students, totalScores, average }) => (
 	<ul className='numeric'>
 		<li>
 			<h4>Students</h4>
-			<p className='players'
-				className='playerShrink'>
+			<p className='players playerShrink'>
 				{students}
 			</p>
 		</li>

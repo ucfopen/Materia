@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { axisBottom, axisLeft, scaleBand, scaleLinear, select } from 'd3'
 
-const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` }) => {
+const BarGraph = ({ data, width, height, rowLabel = `Y Axis`, colLabel = `X Axis`, graphTitle = 'Title' }) => {
 
 	const linesColor = { color: `#a9a9a9` }
-	const margin = { top: 25, bottom: 25, left: 25, right: 25 }
+	const margin = { top: 50, bottom: 25, left: 25, right: 25 }
 	const graphWidth = width - margin.left - margin.right
 	const graphHeight = height - margin.top - margin.bottom
 
@@ -92,14 +92,22 @@ const BarGraph = ({ data, width, height, rowLabel = `Score`, colLabel = `Plays` 
 
 				<Bars data={data} height={graphHeight} xAxis={xAxis} yAxis={yAxis} />
 
-				<text transform={`translate(${graphWidth * 0.4}, ${graphHeight + margin.bottom * 1.5})`}>{rowLabel}</text>
+				<text
+					x={graphWidth * 0.5}
+					y={-10}
+					textAnchor={'middle'}
+				>
+					{graphTitle}
+				</text>
 				<text
 					x={graphHeight * -0.60}
 					y={-30}
-					textLength={50}
 					style={{ transform: `rotate(-90deg)` }}
 				>
 					{colLabel}
+				</text>
+				<text transform={`translate(${graphWidth * 0.4}, ${graphHeight + margin.bottom * 1.5})`}>
+					{rowLabel}
 				</text>
 			</g>
 		</svg>

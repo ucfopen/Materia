@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef} from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores, apiGetQuestionSet } from '../util/api'
 import { useQuery } from 'react-query'
 import SupportInfo from './support-info'
 import LoadingIcon from './loading-icon'
+import BarGraph from './bar-graph'
 import '../materia/materia.scores.scoregraphics.js'
-
 import './scores.scss'
 
 const COMPARE_TEXT_CLOSE = 'Close Graph'
 const COMPARE_TEXT_OPEN = 'Compare With Class'
 
-const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}) => {
+const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview }) => {
 	const [guestAccess, setGuestAccess] = useState(null)
 	const [invalid, setInvalid] = useState(null)
 	// attemptDates is an array of attempts, [0] is the newest
@@ -18,7 +18,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const [attempts, setAttempts] = useState([])
 	// current attempt is the index of the attempt (the 1st attempt is attempts.length)
 	const [currentAttempt, setCurrentAttempt] = useState(null)
-	const [attempt, setAttempt] = useState(null)
 	const [attemptsLeft, setAttemptsLeft] = useState(0)
 	const [attemptNum, setAttemptNum] = useState(null)
 
@@ -31,7 +30,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const [expired, setExpired] = useState(null)
 	const [showScoresOverview, setShowScoresOverview] = useState(true)
 	const [showResultsTable, setShowResultsTable] = useState(true)
-	const [toggleClassRankGraph, setToggleClassRankGraph] = useState(null)
 	const graphRef = useRef(null)
 	const [scoreTable, setScoreTable] = useState(null)
 	const [classRankText, setClassRankText] = useState(COMPARE_TEXT_OPEN)
@@ -71,7 +69,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		placeholderData: null,
 		enabled: !!inst_id,
 		onSettled: (data) => {
-			if (data && data.type === 'error' ) setExpired(true)
+			if (data && data.type === 'error') setExpired(true)
 		}
 	})
 
@@ -145,6 +143,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		staleTime: Infinity,
 		enabled: !!inst_id
 	})
+
+
 
 	useEffect(() => {
 		window.addEventListener('hashchange', listenToHashChange)
@@ -237,8 +237,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 					const d = new Date(a.created_at * 1000)
 
 					// attemptDates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
-					let dates = {...attemptDates}
-					let date = {...dates[i]}
+					let dates = { ...attemptDates }
+					let date = { ...dates[i] }
 					date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 					dates[i] = date
 					setAttemptDates(dates)
@@ -255,7 +255,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 					// in the hash
 				} else if (matchedAttempt !== false && attempts.length > 1) {
 					window.location.hash = `#attempt-${matchedAttempt}`
-					
+
 				} else if (getAttemptNumberFromHash() === undefined) {
 					window.location.hash = `#attempt-${attempts.length}`
 				} else {
@@ -287,7 +287,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	useEffect(() => {
 
 		if (playScores && playScores.length > 0) {
-			
+
 			// if (!customScoreScreen.show) {
 			// }
 
@@ -325,7 +325,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			}
 
 			const referrerUrl = deets.overview.referrer_url
-			if ( deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}` ) === -1 ) {
+			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}`) === -1) {
 				setPlayAgainUrl(referrerUrl)
 			} else {
 				setPlayAgainUrl(widget.href)
@@ -337,7 +337,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const listenToHashChange = () => {
 		const hash = getAttemptNumberFromHash()
 		if (currentAttempt != hash) setCurrentAttempt(hash)
-		
+
 		if (customScoreScreen.show) {
 			// update the customScoreScreen
 			_sendWidgetUpdate()
@@ -439,87 +439,6 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		if (isPreview) {
 			return
 		}
-
-		// ========== BUILD THE GRAPH =============
-		waitForScoreSummary().then(() => {
-			// add up all semesters data into one dataset
-			let _graphData = [
-				['0-9%', 0],
-				['10-19%', 0],
-				['20-29%', 0],
-				['30-39%', 0],
-				['40-49%', 0],
-				['50-59%', 0],
-				['60-69%', 0],
-				['70-79%', 0],
-				['80-89%', 0],
-				['90-100%', 0],
-			]
-
-			for (let d of Array.from(scoreSummary)) {
-				for (let n = 0; n < _graphData.length; n++) {
-					const bracket = _graphData[n]
-					bracket[1] += d.distribution[n]
-				}
-			}
-
-			// setup options
-			const jqOptions = {
-				animate: true,
-				animateReplot: true,
-				series: [
-					{
-						renderer: $.jqplot.BarRenderer,
-						shadow: false,
-						color: '#1e91e1',
-						rendererOptions: {
-							animation: {
-								speed: 500,
-							},
-						},
-					},
-				],
-				seriesDefaults: {
-					showMarker: false,
-					pointLabels: {
-						show: true,
-						formatString: '%.0f',
-						color: '#000',
-					},
-				},
-				title: {
-					text: "Compare Your Score With Everyone Else's",
-					fontFamily: 'Lato, Lucida Grande, Arial, sans',
-				},
-				axesDefaults: {
-					tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-					tickOptions: {
-						angle: 0,
-						fontSize: '8pt',
-						color: '#000',
-					},
-				},
-				axes: {
-					xaxis: {
-						renderer: $.jqplot.CategoryAxisRenderer,
-						label: 'Score Percent',
-					},
-					yaxis: {
-						tickOptions: { formatString: '%.1f', angle: 45 },
-						label: 'Number of Scores',
-						labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-						color: '#000',
-					},
-				},
-				cursor: { show: false },
-				grid: { shadow: false },
-			}
-
-			// light the fuse
-			$.jqplot('graph', [_graphData], jqOptions)
-
-			setGraphData(_graphData)
-		})
 	}
 
 	const _addCircleToDetailTable = (detail) => {
@@ -624,7 +543,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const _sendWidgetInit = () => {
 		if (customScoreScreen.qset == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
-			setCustomScoreScreen({...customScoreScreen, loading: true, show: false})
+			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
 			setShowResultsTable(true)
 			setShowScoresOverview(true)
 			setInvalid(true)
@@ -663,7 +582,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		let attemptList = attempts.map((attempt, index) => {
 			return (
 				<li key={index}>
-					<a href={`#attempt-${index + 1}`} onClick={attemptClick}>Attempt {index + 1}: <span className="score">{ attempt.roundedPercent}%</span><span className="date">{ attemptDates[index]}</span></a>
+					<a href={`#attempt-${index + 1}`} onClick={attemptClick}>Attempt {index + 1}: <span className="score">{attempt.roundedPercent}%</span><span className="date">{attemptDates[index]}</span></a>
 				</li>
 			)
 		})
@@ -684,8 +603,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			<nav className="play-again header-element">
 				<h1>
 					<a id="play-again" className="action_button" href={playAgainUrl}>
-						{ isPreview ? 'Preview' : 'Play' } Again
-						{ attemptsLeft > 0 ? <span>({ attemptsLeft } Left)</span> : <></>}
+						{isPreview ? 'Preview' : 'Play'} Again
+						{attemptsLeft > 0 ? <span>({attemptsLeft} Left)</span> : <></>}
 					</a>
 				</h1>
 			</nav>
@@ -696,9 +615,9 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	if (!restricted && !expired) {
 		scoreHeader = (
 			<header className={`header score-header ${isPreview ? 'preview' : ''}`}>
-				{ previousAttempts }
-				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={widget ? widget.headerStyle : {}}>{ widget ? widget.title : ''}</h1>
-				{ playAgainBtn }
+				{previousAttempts}
+				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={widget ? widget.headerStyle : {}}>{widget ? widget.title : ''}</h1>
+				{playAgainBtn}
 			</header>
 		)
 	}
@@ -708,7 +627,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		overviewIncomplete = (
 			<div id='overview-incomplete'>
 				<h2>Incomplete Attempt</h2>
-				<hr/>
+				<hr />
 				<p>
 					This student didn't complete this attempt.
 					This score was not counted in any linked gradebooks and is only available for informational purposes.
@@ -740,20 +659,20 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 
 		overviewRender = (
 			<section className={`overview ${isPreview ? 'preview' : ''}`}>
-				{ overviewIncomplete }
+				{overviewIncomplete}
 				<div id="overview-score">
-					{ !guestAccess ?
-						<h1>Attempt <span className="attempt-num">{ attemptNum }</span> Score:</h1>
-					:
+					{!guestAccess ?
+						<h1>Attempt <span className="attempt-num">{attemptNum}</span> Score:</h1>
+						:
 						<h1>This Attempt Score:</h1>
 					}
 					<span className="overall_score">{overview.score}<span className="percent">%</span></span>
-					{ classRankBtn }
+					{classRankBtn}
 				</div>
 				<div id="overview-table">
 					<table>
 						<tbody>
-							{ overviewTable }
+							{overviewTable}
 						</tbody>
 					</table>
 				</div>
@@ -766,8 +685,17 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		scoreGraphRender = (
 			<section className="score-graph" ref={graphRef}>
 				<div className="graph">
-					<div id="graph">
-					</div>
+					{
+						scoreSummary !== undefined &&
+						<BarGraph
+							data={scoreSummary[0]?.graphData}
+							width={746}
+							height={300}
+							rowLabel={'Scores Percent'}
+							colLabel={'Number of Scores'}
+							graphTitle={"Compare Your Score With Everyone Else's"}
+						/>
+					}
 				</div>
 			</section>
 		)
@@ -787,67 +715,67 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 
 	let detailsRender = []
 	if (showResultsTable && !restricted && !expired) {
-		 details.forEach((detail, i) => {
-			 let detailsTableRows = []
-			 let detailsHeaders = []
-			 detail.table.forEach((row, index) => {
-				 let detailsTableData = []
-				 if (row.graphic != 'none') {
-					 detailsTableData.push(
-						 <td key={`${row}-${index}`} className="index">
-							 <canvas className="question-number" id={`question-${i+1}-${index+1}`} >
-								 <p>{ index+1 }</p>
-							 </canvas>
-							 {row.display_score &&
-								 <span>
-									 { row.score }{ row.symbol }
-								 </span>
-							 }
-						 </td>
-					 )
-				 }
+		details.forEach((detail, i) => {
+			let detailsTableRows = []
+			let detailsHeaders = []
+			detail.table.forEach((row, index) => {
+				let detailsTableData = []
+				if (row.graphic != 'none') {
+					detailsTableData.push(
+						<td key={`${row}-${index}`} className="index">
+							<canvas className="question-number" id={`question-${i + 1}-${index + 1}`} >
+								<p>{index + 1}</p>
+							</canvas>
+							{row.display_score &&
+								<span>
+									{row.score}{row.symbol}
+								</span>
+							}
+						</td>
+					)
+				}
 
-				 row.data.forEach((data, index) => {
-					 detailsTableData.push(
-						 <td key={`${data}-${index}`} className={row.data_style[index]}>{data}</td>
-					 )
-				 })
+				row.data.forEach((data, index) => {
+					detailsTableData.push(
+						<td key={`${data}-${index}`} className={row.data_style[index]}>{data}</td>
+					)
+				})
 
-				 detailsTableRows.push(
-					 <tr key={`${row}-${index+1}`} className={`${row.style} ${row.feedback != null ? 'has_feedback' : ''}`}>
-						 { detailsTableData }
-					 </tr>
-				 )
+				detailsTableRows.push(
+					<tr key={`${row}-${index + 1}`} className={`${row.style} ${row.feedback != null ? 'has_feedback' : ''}`}>
+						{detailsTableData}
+					</tr>
+				)
 
-				 if (row.feedback != null) {
-					 detailsTableRows.push(
-						 <tr key={`${row}-${index+2}`} className="feedback single_column">
-							 <td colSpan={ row.data.length + 1 }>
-								 <p>{ row.feedback }</p>
-							 </td>
-						 </tr>
-					 )
-				 }
+				if (row.feedback != null) {
+					detailsTableRows.push(
+						<tr key={`${row}-${index + 2}`} className="feedback single_column">
+							<td colSpan={row.data.length + 1}>
+								<p>{row.feedback}</p>
+							</td>
+						</tr>
+					)
+				}
 
-			 })
+			})
 
-			 detail.header.forEach((header, i) => {
-				 detailsHeaders.push(
-					 <th key={`${header}-${i}`}>{header}</th>
-				 )
-			 })
-			 detailsRender.push(
+			detail.header.forEach((header, i) => {
+				detailsHeaders.push(
+					<th key={`${header}-${i}`}>{header}</th>
+				)
+			})
+			detailsRender.push(
 				<section className="details" key={i}>
-					<h1>{ detail.title }</h1>
+					<h1>{detail.title}</h1>
 
 					<table>
 						<thead>
 							<tr className="details_header">
-								{ detailsHeaders }
+								{detailsHeaders}
 							</tr>
 						</thead>
 						<tbody>
-							{ detailsTableRows }
+							{detailsTableRows}
 						</tbody>
 					</table>
 				</section>
@@ -881,22 +809,22 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 						<li>Check out our documentation.</li>
 					</ul>
 
-					<SupportInfo/>
+					<SupportInfo />
 				</section>
 			</div>
 		)
 	}
 
 	return (
-		<article className={`container ${ instanceIsLoading || qSetIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
+		<article className={`container ${instanceIsLoading || qSetIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
 			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
-			{ scoreHeader }
-			{ overviewRender }
-			{ scoreGraphRender }
-			{ customScoreScreenRender }
-			{ detailsRender }
-			{ expiredRender }
-			{ restrictedRender }
+			{scoreHeader}
+			{overviewRender}
+			{scoreGraphRender}
+			{customScoreScreenRender}
+			{detailsRender}
+			{expiredRender}
+			{restrictedRender}
 		</article>
 	)
 }
