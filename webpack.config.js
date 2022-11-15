@@ -142,14 +142,14 @@ module.exports =
 				// Copy all the frontend dependencies from node_modules to dist/vendor
 				new CopyPlugin({
 					patterns: [
-						{
-							from: require.resolve('datatables/media/js/jquery.dataTables.min.js'),
-							to: 'vendor/jquery.dataTables.min.js'
-						},
-						{
-							from: require.resolve('labjs/LAB.min.js'),
-							to: 'vendor/LAB.min.js'
-						},
+						// {
+						// 	from: require.resolve('datatables/media/js/jquery.dataTables.min.js'),
+						// 	to: 'vendor/jquery.dataTables.min.js'
+						// },
+						// {
+						// 	from: require.resolve('labjs/LAB.min.js'),
+						// 	to: 'vendor/LAB.min.js'
+						// },
 						{
 							from: require.resolve('hammerjs/hammer.min.js'),
 							to: 'vendor/hammer.min.js'
@@ -174,10 +174,10 @@ module.exports =
 							from: require.resolve('ngmodal/dist/ng-modal.css'),
 							to: 'vendor/ng-modal.css'
 						},
-						{
-							from: require.resolve('datatables/media/css/jquery.dataTables.min.css'),
-							to: 'vendor/jquery.dataTables.min.css'
-						}
+						// {
+						// 	from: require.resolve('datatables/media/css/jquery.dataTables.min.css'),
+						// 	to: 'vendor/jquery.dataTables.min.css'
+						// }
 					],
 				}),
 				// new ManifestPlugin({ publicPath: '/', writeToFileEmit: true }),

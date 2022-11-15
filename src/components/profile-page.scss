@@ -1,19 +1,18 @@
 @import 'include.scss';
 
-
-	@media (max-width: 800px) {
-		.container {
-			display: flex;
-			justify-content: center;
-		}
-
-		body {
-			min-width: inherit !important;
-		}
+@media (max-width: 800px) {
+	.container {
+		display: flex;
+		justify-content: center;
 	}
 
-.user, .settings {
+	body {
+		min-width: inherit !important;
+	}
+}
 
+.user,
+.settings {
 	@media (max-width: 800px) {
 		section.page {
 			margin: 15px 10px 0px 10px !important;
@@ -21,7 +20,8 @@
 		}
 	}
 
-	section.page, aside {
+	section.page,
+	aside {
 		background: #fff;
 		border-radius: 4px;
 		border: #e4e4e4 1px solid;
@@ -52,7 +52,7 @@
 			font-family: 'Lato', arial, serif;
 			font-weight: 700;
 			font-size: 38px;
-			border-bottom: solid #dcdcdc .5px;
+			border-bottom: solid #dcdcdc 0.5px;
 			margin: 0;
 			padding: 0 0 5px 0;
 		}
@@ -103,7 +103,6 @@
 			color: #fff;
 			font-size: 10px;
 			line-height: 13px;
-
 
 			img {
 				width: 90px;
@@ -201,7 +200,7 @@
 					height: 150px;
 					left: calc(50% - 75px);
 					top: calc(50% - 75px);
-					background: rgba(255,255,255,0.75);
+					background: rgba(255, 255, 255, 0.75);
 					border-radius: 25px;
 				}
 			}
@@ -417,7 +416,8 @@
 				margin-bottom: 0.5em;
 			}
 
-			label, input {
+			label,
+			input {
 				cursor: pointer;
 			}
 
@@ -436,7 +436,6 @@
 					display: block;
 					margin-bottom: 0.5em;
 				}
-
 			}
 
 			.action_button {
@@ -468,7 +467,6 @@
 				}
 			}
 		} // end settings
-
 	} // end section.page
 
 	.settingSaveAlert {

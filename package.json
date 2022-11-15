@@ -1,153 +1,143 @@
 {
-  "name": "@ucfopen/materia-server-client-assets",
-  "version": "10.0.0",
-  "license": "AGPL-3.0",
-  "description": "Engage students with easily embedded apps for online courses.",
-  "author": "University of Central Florida, Center for Distributed Learning",
-  "homepage": "https://ucfopen.github.io/Materia-Docs",
-  "repository": "https://github.com/ucfopen/Materia.git",
-  "scripts": {
-    "postinstall": "napa",
-    "dev": "webpack-dev-server",
-    "build": "webpack -p",
-    "test": "TZ=Etc/UTC jest --verbose",
-    "test:dev": "TZ=Etc/UTC jest --verbose --watch --coverage",
-    "test:ci": "TZ=Etc/UTC CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura",
-    "test:php": "composer run testci",
-    "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'",
-    "prettier:run": "prettier --write 'src/**/*.{js,scss}'",
-    "prettier:debug": "prettier -l 'src/**/*.{js,scss}'",
-    "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
-  },
-  "dependencies": {
-    "@vx/axis": "^0.0.198",
-    "@vx/gradient": "^0.0.198",
-    "@vx/grid": "^0.0.198",
-    "@vx/group": "^0.0.198",
-    "@vx/scale": "^0.0.198",
-    "@vx/shape": "^0.0.198",
-    "angular": "1.8.0",
-    "d3": "^7.2.0",
-    "fs-extra": "^8.0.1",
-    "napa": "^3.0.0",
-    "ngmodal": "ucfcdl/ngModal#v1.2.2",
-    "node-fetch": "^3.2.10",
-    "react-datepicker": "^3.6.0",
-    "react-overlays": "^5.0.1",
-    "react-query": "^3.13.4"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.10.4",
-    "@babel/preset-env": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
-    "@testing-library/dom": "7.31.2",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "11.2.7",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@testing-library/user-event": "^13.1.9",
-    "angular-animate": "1.8.0",
-    "angular-mocks": "1.8.0",
-    "autoprefixer": "^9.8.5",
-    "axios": "^1.1.3",
-    "babel-jest": "^26.1.0",
-    "babel-loader": "^8.1.0",
-    "babel-plugin-angularjs-annotate": "^0.10.0",
-    "browser-sync": "^2.26.5",
-    "clean-webpack-plugin": "^3.0.0",
-    "concurrently": "^5.1.0",
-    "copy-webpack-plugin": "^6.1.1",
-    "core-js": "3",
-    "css-loader": "^3.6.0",
-    "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.6",
-    "enzyme-to-json": "^3.6.2",
-    "hammerjs": "2.0.8",
-    "husky": "^4.2.5",
-    "ignore-emit-webpack-plugin": "^2.0.2",
-    "jest": "^26.1.0",
-    "jquery": "3.5.1",
-    "jquery-ui": "1.12.1",
-    "lint-staged": "^10.2.11",
-    "mini-css-extract-plugin": "^0.9.0",
-    "msw": "^0.30.0",
-    "node-sass": "^4.14.1",
-    "nodemon": "^2.0.2",
-    "postcss-loader": "^3.0.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-test-renderer": "^17.0.2",
-    "sass-loader": "^9.0.2",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
-    "webpack-manifest-plugin": "^2.2.0",
-    "webpack-strip-block": "^0.2.0"
-  },
-  "nodemonConfig": {
-    "delay": "500",
-    "ignoreRoot": [
-      ".git"
-    ]
-  },
-  "napa": {
-    "datatables": "DataTables/DataTables#1.10.16",
-    "labjs": "getify/LABjs#2.0.3",
-    "swfobject": "swfobject/swfobject#2.2",
-    "hammerjs": "hammerjs/hammer.js#v2.0.8"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "semi": false,
-    "useTabs": true,
-    "singleQuote": true
-  },
-  "lint-staged": {
-    "src/**/*.{js,scss}": [
-      "yarn prettier --write"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn test:ci && yarn lint-staged"
-    }
-  },
-  "browserslist": [
-    "> 0.5%",
-    "not ie >= 0",
-    "not op_mini all"
-  ],
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "jsx"
-    ],
-    "moduleNameMapper": {
-      "^.+\\.(css|less|scss)$": "babel-jest"
-    },
-    "verbose": false,
-    "coverageReporters": [
-      "text",
-      "lcov"
-    ],
-    "setupFilesAfterEnv": [
-      "./src/testSetup.js"
-    ],
-    "collectCoverageFrom": [
-      "src/components/**/*.{js,jsx}"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "statements": 43,
-        "branches": 32,
-        "functions": 48,
-        "lines": 43
-      }
-    }
-  },
-  "msw": {
-    "workerDirectory": "public"
-  }
+	"name": "@ucfopen/materia-server-client-assets",
+	"version": "10.0.0",
+	"license": "AGPL-3.0",
+	"description": "Engage students with easily embedded apps for online courses.",
+	"author": "University of Central Florida, Center for Distributed Learning",
+	"homepage": "https://ucfopen.github.io/Materia-Docs",
+	"repository": "https://github.com/ucfopen/Materia.git",
+	"scripts": {
+		"postinstall": "napa",
+		"dev": "webpack-dev-server",
+		"build": "webpack -p",
+		"test": "TZ=Etc/UTC jest --verbose",
+		"test:dev": "TZ=Etc/UTC jest --verbose --watch --coverage",
+		"test:ci": "TZ=Etc/UTC CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura",
+		"test:php": "composer run testci",
+		"test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'",
+		"prettier:run": "prettier --write 'src/**/*.{js,scss}'",
+		"prettier:debug": "prettier -l 'src/**/*.{js,scss}'",
+		"prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
+	},
+	"dependencies": {
+		"angular": "1.8.0",
+		"d3": "^7.2.0",
+		"fs-extra": "^8.0.1",
+		"napa": "^3.0.0",
+		"ngmodal": "ucfcdl/ngModal#v1.2.2",
+		"node-fetch": "^3.2.10",
+		"react-datepicker": "^3.6.0",
+		"react-overlays": "^5.0.1",
+		"react-query": "^3.13.4"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.10.4",
+		"@babel/preset-env": "^7.10.4",
+		"@babel/preset-react": "^7.10.4",
+		"@testing-library/dom": "7.31.2",
+		"@testing-library/jest-dom": "^5.14.1",
+		"@testing-library/react": "11.2.7",
+		"@testing-library/react-hooks": "^8.0.1",
+		"@testing-library/user-event": "^13.1.9",
+		"angular-animate": "1.8.0",
+		"angular-mocks": "1.8.0",
+		"autoprefixer": "^9.8.5",
+		"axios": "^1.1.3",
+		"babel-jest": "^26.1.0",
+		"babel-loader": "^8.1.0",
+		"babel-plugin-angularjs-annotate": "^0.10.0",
+		"browser-sync": "^2.26.5",
+		"clean-webpack-plugin": "^3.0.0",
+		"concurrently": "^5.1.0",
+		"copy-webpack-plugin": "^6.1.1",
+		"core-js": "3",
+		"css-loader": "^3.6.0",
+		"enzyme": "^3.11.0",
+		"enzyme-adapter-react-16": "^1.15.6",
+		"enzyme-to-json": "^3.6.2",
+		"hammerjs": "2.0.8",
+		"husky": "^4.2.5",
+		"ignore-emit-webpack-plugin": "^2.0.2",
+		"jest": "^26.1.0",
+		"jquery": "3.5.1",
+		"jquery-ui": "1.12.1",
+		"lint-staged": "^10.2.11",
+		"mini-css-extract-plugin": "^0.9.0",
+		"node-sass": "^4.14.1",
+		"nodemon": "^2.0.2",
+		"postcss-loader": "^3.0.0",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1",
+		"react-test-renderer": "^17.0.2",
+		"sass-loader": "^9.0.2",
+		"webpack": "^4.43.0",
+		"webpack-cli": "^3.3.12",
+		"webpack-dev-server": "^3.11.0",
+		"webpack-manifest-plugin": "^2.2.0",
+		"webpack-strip-block": "^0.2.0"
+	},
+	"nodemonConfig": {
+		"delay": "500",
+		"ignoreRoot": [
+			".git"
+		]
+	},
+	"napa": {
+		"datatables": "DataTables/DataTables#1.10.16",
+		"labjs": "getify/LABjs#2.0.3",
+		"swfobject": "swfobject/swfobject#2.2",
+		"hammerjs": "hammerjs/hammer.js#v2.0.8"
+	},
+	"prettier": {
+		"printWidth": 100,
+		"semi": false,
+		"useTabs": true,
+		"singleQuote": true
+	},
+	"lint-staged": {
+		"src/**/*.{js,scss}": [
+			"yarn prettier --write"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "yarn test:ci && yarn lint-staged"
+		}
+	},
+	"browserslist": [
+		"> 0.5%",
+		"not ie >= 0",
+		"not op_mini all"
+	],
+	"jest": {
+		"moduleFileExtensions": [
+			"js",
+			"jsx"
+		],
+		"moduleNameMapper": {
+			"^.+\\.(css|less|scss)$": "babel-jest"
+		},
+		"verbose": false,
+		"coverageReporters": [
+			"text",
+			"lcov"
+		],
+		"setupFilesAfterEnv": [
+			"./src/testSetup.js"
+		],
+		"collectCoverageFrom": [
+			"src/components/**/*.{js,jsx}"
+		],
+		"snapshotSerializers": [
+			"enzyme-to-json/serializer"
+		],
+		"coverageThreshold": {
+			"global": {
+				"statements": 43,
+				"branches": 32,
+				"functions": 48,
+				"lines": 43
+			}
+		}
+	}
 }

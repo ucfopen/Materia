@@ -233,6 +233,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (!!attempts) {
 			if (attempts instanceof Array && attempts.length > 0) {
 				let matchedAttempt = false
+				// sort added here so it displays the correct date with the attempt and score
 				attempts.forEach((a, i) => {
 					const d = new Date(a.created_at * 1000)
 
@@ -244,7 +245,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					setAttemptDates(dates)
 
 					if (play_id === a.id) {
-						matchedAttempt = attempts.length - i
+						matchedAttempt = attempts.length // sets to uri attempt to the most resent one
 					}
 				})
 
@@ -257,7 +258,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					window.location.hash = `#attempt-${matchedAttempt}`
 
 				} else if (getAttemptNumberFromHash() === undefined) {
-					window.location.hash = `#attempt-${attempts.length}`
+					window.location.hash = `#attempt-${attempts.length - 1}`
 				} else {
 
 					const hash = getAttemptNumberFromHash()
@@ -582,14 +583,27 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		let attemptList = attempts.map((attempt, index) => {
 			return (
 				<li key={index}>
-					<a href={`#attempt-${index + 1}`} onClick={attemptClick}>Attempt {index + 1}: <span className="score">{attempt.roundedPercent}%</span><span className="date">{attemptDates[index]}</span></a>
+					<a
+						href={`#attempt-${index + 1}`}
+						onClick={attemptClick}
+					>
+						Attempt {index + 1}:
+						<span className="score">{attempt.roundedPercent}%</span>
+						<span className="date">{attemptDates[index]}</span>
+					</a>
 				</li>
 			)
 		})
 
 		previousAttempts = (
-			<nav className={`header-element previous-attempts ${prevAttemptClass}`} onMouseOver={() => setPrevAttemptClass('open')} onMouseOut={() => setPrevAttemptClass('')}>
-				<h1 onClick={() => setPrevAttemptClass('open')}>Prev. Attempts</h1>
+			<nav
+				className={`header-element previous-attempts ${prevAttemptClass}`}
+				onMouseOver={() => setPrevAttemptClass('open')}
+				onMouseOut={() => setPrevAttemptClass('')}
+			>
+				<h1 onClick={() => setPrevAttemptClass('open')}>
+					Prev. Attempts
+				</h1>
 				<ul onMouseOver={() => setPrevAttemptClass('open')}>
 					{attemptList}
 				</ul>
