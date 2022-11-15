@@ -2,6 +2,7 @@
 <html class="<?= (isset($html_class) ? $html_class : '') ?>" lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <?= (isset($partials['meta']) ? $partials['meta'] : '' ) ?>
 <title><?= $title ?> | Materia</title>
 <?= Css::render() ?>

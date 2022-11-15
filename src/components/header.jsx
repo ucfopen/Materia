@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { apiGetUser, apiAuthorSuper, apiAuthorSupport, apiGetNotifications } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
-import './header.scss'
 
 const Header = ({
 	userRoles = [],
@@ -29,10 +28,14 @@ const Header = ({
 	})
 	const { data: notifications} = useQuery({
 		queryKey: 'notifications',
+		enabled: user?.loggedIn,
+		retry: false,
+		refetchInterval: 60000,
+		refetchOnMount: false,
+		refetchOnWindowFocus: true,
 		queryFn: apiGetNotifications,
 		staleTime: Infinity
 	})
-	const cn = user?.loggedIn ? 'logged-in' : ''
 
 	const toggleMobileNavMenu = () => setMenuOpen(!menuOpen)
 	const toggleNavOpen = () => setNavOpen(!navOpen)
@@ -100,15 +103,6 @@ const Header = ({
 
 		// this used to be !!user - not sure if the distinction was important
 		if (user) {
-			userDataRender = (
-				<span id='current-user'
-					data-logged-in='true'
-					data-name={`${user.first} ${user.last}`}
-					data-avatar={user.avatar}
-					data-role={userRoles.includes('author') ? 'Staff' : 'Student'}
-					data-notify={userNotify}
-				/>
-			)
 
 			profileNavRender = (
 				<li>
@@ -173,19 +167,16 @@ const Header = ({
 		}
 
 		userRender = (
-			<span>
-				<p className='user avatar'>
-					{ nameAvatarRender }
-					{ loginRender }
-				</p>
-			</span>
+			<p className='user avatar'>
+				{ nameAvatarRender }
+				{ loginRender }
+			</p>
 		)
 	}
-
+	
 	return (
-		<header className={cn} >
+		<header className={user ? 'logged-in' : 'logged-out'} >
 			<h1 className='logo'><a href='/'>Materia</a></h1>
-			{ userDataRender }
 			{ userRender }
 			<button id='mobile-menu-toggle'
 				className={menuOpen ? 'expanded' : ''}

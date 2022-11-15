@@ -115,7 +115,7 @@ class Controller_Lti extends \Controller
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
 		// If the current user does not have ownership over the embedded widget, find all of the users who do
-		$current_user_owns = \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::FULL]);
+		$current_user_owns = \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::VISIBLE, \Materia\Perm::FULL]);
 		$instance_owner_list = $current_user_owns ? [] : $inst->get_owners();
 
 		$this->theme->set_template('layouts/main')

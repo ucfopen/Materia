@@ -1,26 +1,32 @@
 @import 'include.scss';
 
 .my_widgets {
-	font-family: 'Lato', arial, serif;
+	display: flex;
+	justify-content: center;
 
 	.container {
-		margin: 0 auto 100px auto;
-		width: 970px;
+		margin: 30px auto 100px auto;
+		// width: 970px;
 		position: relative;
 		overflow-x: visible;
 
+		.container_main-content {
+			box-shadow: 1px 3px 10px #dbdbdb;
+		}
+
 		section.directions {
 			background: #fff;
-			border: rgba(0, 0, 0, 0.11) 1px solid;
-			box-shadow: 1px 3px 10px #888;
+			// border: rgba(0, 0, 0, 0.11) 1px solid;
+			// box-shadow: 1px 3px 10px #888;
 			position: relative;
 			width: 700px;
 			margin: 0 0 0 245px;
 			padding: 10px;
 			z-index: 100;
 			min-height: 850px;
-			border-radius: 4px;
+			// border-radius: 4px;
 			text-align: center;
+			font-family: "Lato", arial, sans-serif;
 
 			&.unchosen {
 				&:not(.bearded) {
@@ -33,7 +39,7 @@
 				font-size: 3em;
 				font-weight: bold;
 				padding: 0;
-				margin: 20px 0 5px 0;
+				margin: 50px 0 5px 0;
 
 				&.loading-text {
 					margin-bottom: 2em;
@@ -42,7 +48,7 @@
 
 			p {
 				font-size: 1em;
-				font-weight: 500;
+				font-weight: 300;
 				padding: 0;
 				margin: 0;
 			}
@@ -50,42 +56,52 @@
 
 		section.page {
 			background: #fff;
-			border: rgba(0, 0, 0, 0.11) 1px solid;
-			box-shadow: 1px 3px 10px #888;
+			// border: rgba(0, 0, 0, 0.11) 1px solid;
+			// box-shadow: 1px 3px 10px #888;
 			position: relative;
 			width: 700px;
-			margin: 0 0 0 245px;
-			padding: 10px;
+			margin: 0 0 0 260px;
 			z-index: 100;
 			min-height: 850px;
-			border-radius: 4px;
+			// border-radius: 4px;
+		}
+
+		@media (max-width: 980px) {
+			section.page {
+				margin: 0!important;
+			}
+
+			aside {
+				visibility: hidden;
+			}
 		}
 
 		aside {
-			background: #fff;
-			border: rgba(0, 0, 0, 0.11) 1px solid;
-			box-shadow: 1px 3px 10px #888;
+			// background: #fff;
+			// border: rgba(0, 0, 0, 0.11) 1px solid;
+			// box-shadow: 1px 3px 10px #888;
 			width: 250px;
-			margin: 37px 0 0 0;
-			padding: 0 20px 0 0;
+			height: 100%;
+			margin: 0;
+			// padding: 0 20px 0 0;
 			position: absolute;
 			top: 0;
-			left: 5px;
+			// left: 5px;
 			z-index: 80;
-			border-top-left-radius: 10px;
+			// border-top-left-radius: 10px;
 			background: #ebebeb;
 			min-height: 200px;
-			border-bottom-right-radius: 4px;
-			border-bottom-left-radius: 4px;
+			// border-bottom-right-radius: 4px;
+			// border-bottom-left-radius: 4px;
 
 			.top {
 				color: #a6a6a6;
 				height: 34px;
-				border-top-left-radius: 4px;
-				border-bottom: 1px solid #0276b9;
+				// border-top-left-radius: 4px;
+				// border-bottom: 1px solid #0276b9;
 
-				background: #83caf3; /* Old browsers */
-				background: linear-gradient(#83caf3 16%, #37a9e6 89%);
+				background: #3fa7e3;
+				// background: linear-gradient(#83caf3 16%, #37a9e6 89%);
 			}
 
 			.search {
@@ -134,10 +150,10 @@
 			}
 
 			.courses {
-				width: 240px;
+				// width: 240px;
 				height: 700px;
 				overflow: auto;
-				border-top: 1px solid rgba(100, 100, 100, 0.2);
+				// border-top: 1px solid rgba(100, 100, 100, 0.2);
 
 				.widget_list {
 					overflow: auto;
@@ -305,12 +321,12 @@
 
 		.overview {
 			display: inline-block;
-			background: #ededed;
+			// background: #ededed;
 			margin: 10px;
 			width: 678px;
 			vertical-align: top;
 			border-radius: 4px;
-			border: solid 1px #dadada;
+			// border: solid 1px #dadada;
 			border-width: 1px;
 
 			.icon_container {
@@ -329,8 +345,8 @@
 				vertical-align: top;
 
 				.preview-svg {
-					-webkit-filter: drop-shadow(1px 2px 4px #888);
-					filter: drop-shadow(1px 2px 4px #888);
+					-webkit-filter: drop-shadow(1px 2px 4px #ececec);
+					filter: drop-shadow(1px 2px 4px #ececec);
 				}
 
 				.button-list {
@@ -351,12 +367,12 @@
 						font-weight: 700;
 						color: #694d28;
 						text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-						box-shadow: 1px 2px 4px #888;
+						box-shadow: 1px 2px 4px #ececec;
 						font-size: 18px;
 						position: relative;
 						display: inline-block;
 						user-select: none;
-						border: 1px solid #525252;
+						// border: 1px solid #525252;
 						border-radius: 4px;
 						text-decoration: none;
 
@@ -622,10 +638,10 @@
 			#edit-availability-button {
 				font-family: 'Lucida Grande', sans-serif;
 				font-size: 10pt;
-				font-weight: bold;
-				text-decoration: underline;
+				font-weight: 400;
+				// text-decoration: underline;
 				margin-left: 98px;
-				color: #1778af;
+				color: #0093e7;
 				cursor: pointer;
 
 				&:hover {
@@ -658,17 +674,62 @@
 		}
 
 		.share-widget-container {
-			border-top: 1px solid rgba(0, 0, 0, 0.3);
+			// border-top: 1px solid rgba(0, 0, 0, 0.3);
 			display: inline-block;
 			padding: 22px 20px 4px 20px;
 			width: 100%;
 			font-size: 10pt;
 			margin: 0;
-			padding-left: 100px;
+			// padding-left: 100px;
 			position: relative;
 			box-sizing: border-box;
-			background: rgba(0, 0, 0, 0.05) url(/img/widget_link_icon.png) no-repeat 20px
-				20px;
+			// background: #fff url(/img/widget_link_icon.png) no-repeat 20px
+			// 	20px;
+
+			.share-widget-options-first {
+				padding-left: 10px;
+				border-left: 8px solid rgba(239, 129, 82, 0.5);
+			}
+
+			.share-widget-options-second {
+				padding-left: 10px;
+				border-left: 8px solid rgba(117, 191, 91, 0.5);
+			}
+
+			.share-widget-options-third {
+				padding-left: 10px;
+				border-left: 8px solid rgba(93, 163, 203, 0.5);
+			}
+
+			.view-more {
+				margin-top: 20px;
+			}
+				//
+				// #first-share-widget-option {
+				// 	border-left: 8px solid #EF8152;
+				// }
+				//
+				// #second-share-widget-option {
+				// 	border-left: 8px solid #75BF5B;
+				// }
+				//
+				// #third-share-widget-option {
+				// 	border-left: 8px solid #5DA3CB;
+				// }
+			// }
+
+			a {
+				font-weight: 400;
+			}
+
+			h4 {
+				margin-top: 2px;
+				margin-bottom: 5px;
+			}
+
+			p {
+				margin-top: 6px;
+			}
 
 			h3 {
 				font-size: 1.4em;
@@ -678,7 +739,7 @@
 				a {
 					font-size: 13px;
 					margin-left: 10px;
-					font-weight: normal;
+					font-weight: 400;
 				}
 			}
 
@@ -690,12 +751,14 @@
 
 			.link {
 				cursor: pointer;
-				color: #1778af;
-				text-decoration: underline;
+				// color: #1778af;
+				color: #0093e7;
+				// text-decoration: underline;
+				font-weight: 400;
 
-				&:hover {
-					color: #0093e7;
-				}
+				// &:hover {
+				// 	// color: #0093e7;
+				// }
 			}
 
 			.play_link {
@@ -769,11 +832,11 @@
 
 	div.link {
 		display: inline-block;
-		border-bottom: 1px #1778af solid;
-		color: #1778af;
+		border-bottom: 1px #0093e7 solid;
+		color: #0093e7;
 		margin: 0 10px;
 		padding: 0 0 2px 0;
-		font-weight: bold;
+		font-weight: 400;
 		cursor: pointer;
 
 		&.disabled {

@@ -14,6 +14,8 @@ return [
 	],
 
 	'groups' => [
+		'core' => [$webpack.'css/core.css'],
+		'homepage' => [$webpack.'js/homepage.css'],
 		'admin' => [$webpack.'css/admin.css'],
 		'user-admin' => [$webpack.'js/user-admin.css'],
 		'support' => [$webpack.'js/support.css'],
@@ -30,7 +32,8 @@ return [
 		'lti' => [$webpack.'css/util-lti-picker.css'],
 		'my_widgets'  => [$webpack.'js/my-widgets.css'],
 		'widget_create' => [
-			$webpack.'css/widget-create.css',
+			$webpack.'css/loading-icon.css',
+			$webpack.'js/creator-page.css',
 			$vendor.'ng-modal.css'
 		],
 		'widget_detail' => [
@@ -39,12 +42,12 @@ return [
 		],
 		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'js/profile.css'],
-		'login' => [$webpack.'css/login.css'],
+		'login' => [$webpack.'js/login.css'],
 		'scores' => [
 			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
-			$webpack.'css/scores.css',
+			$webpack.'js/scores.css',
 		],
-		'pre_embed_placeholder' => [$webpack.'css/widget-embed-placeholder.css'],
+		'pre_embed_placeholder' => [$webpack.'js/pre-embed-common-styles.css'],
 		'embed_scores' => [$webpack.'css/scores.css'],
 		'question_import' => [
 			$vendor.'jquery.dataTables.min.css',
@@ -61,7 +64,6 @@ return [
 		'media_import' => [$webpack.'js/media.css'],
 		'help' => [$webpack.'css/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
-		'core' => [$webpack.'css/core.css'],
 		'fonts' => [
 			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
 			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',

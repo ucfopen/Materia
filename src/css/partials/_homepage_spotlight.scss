@@ -17,12 +17,16 @@
 }
 .main_container {
 	position: relative;
-	width: 960px;
-	height: 320px;
+	width: 100vw;
+	height: 600px;
 	margin: 0 auto;
-	border: rgba(0, 0, 0, 0.11) 1px solid;
-	box-shadow: 1px 3px 10px #888;
 	overflow: visible;
+}
+
+@media (max-width: 800px) {
+	.main_container {
+		height: 600px;
+	}
 }
 
 .main section,
@@ -65,9 +69,8 @@ store_main section {
 
 .spotlight h1 {
 	font-family: 'Lato', arial, serif;
-	font-weight: 900;
-	font-size: 36px;
-	border-bottom: dotted black 1px;
+	font-weight: 500;
+	font-size: calc(35px + (40 - 35) * ((100vw - 300px) / (1600 - 300)));
 	margin: 0;
 	padding: 0 0 10px 0;
 }
@@ -88,13 +91,12 @@ store_main section {
 
 .spotlight .main_container {
 	background: #fff;
-	width: 960px;
-	text-align: left;
+ 	text-align: left;
 }
 
 .spotlight .store_main p {
-	color: #4a4a4a;
-	font-size: 17px;
+	color: #000;
+	font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1600 - 300)));
 	line-height: 24px;
 }
 
@@ -102,16 +104,15 @@ store_main section {
 	position: absolute;
 	top: 270px;
 	text-decoration: underline;
-	font-size: 17px;
+	font-size: 19px;
 	font-weight: 700;
 }
 
 .spotlight .store_main section {
-	background: transparent;
-	padding: 30px 40px 100px;
-	width: 920px;
-	height: 230px;
-	overflow: visible;
+	padding: 30px 0px 100px;
+	width: 100vw;
+	height: fit-content;
+	overflow: hidden;
 }
 .spotlight .store_main section.enigma {
 	background: url(/img/spotlight/enigma.png) right 10px no-repeat;
@@ -129,9 +130,52 @@ store_main section {
 	width: 558px;
 }
 .spotlight .store_main section.html5 {
-	background: url(/img/spotlight/materia-html5.png) -30px -8px no-repeat;
-	padding-left: 400px;
-	width: 530px;
+	background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/img/banner_final.png) no-repeat;
+	left: calc(50% - 50vw);
+	text-align: right;
+	background-size: contain;
+
+}
+
+.html5Content {
+	margin-right: 40px;
+	height: 400px;
+}
+
+.html5Content h1 span.engage {
+	color: #0093e7;
+}
+
+#html5Content_body {
+	margin-left: 50%;
+	line-height: 160%;
+}
+
+.mobile_spotlight_banner {
+	visibility: hidden;
+}
+
+@media (max-width: 800px) {
+	.spotlight .store_main section.html5 {
+		background: none;
+		text-align: center;
+		overflow: hidden;
+		padding: 30px 0px 300px;
+	}
+
+	.html5Content {
+		margin: 0 40px;
+	}
+
+	#html5Content_body {
+		margin-left: 0px;
+	}
+
+	.mobile_spotlight_banner {
+		visibility: visible;
+		width: calc(70% - 40px);
+	}
+
 }
 
 .spotlight .store_main section.crossword h1,

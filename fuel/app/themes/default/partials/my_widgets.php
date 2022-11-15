@@ -695,7 +695,7 @@
 								href
 								ng-disabled="!selected.shareable || selected.widget.is_draft"
 								ng-click="popup()">
-								Edit settings...
+								Edit settings
 							</a>
 						</div>
 					</div>

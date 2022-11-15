@@ -7,6 +7,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const WatchIgnorePlugin = require('webpack/lib/WatchIgnorePlugin')
 const jsPath = path.join(__dirname, 'src',)
 const cssPath = path.join(__dirname, 'src', 'css')
+const componentCssPath = path.join(__dirname, 'src', 'components')
 const outPath = path.join(__dirname, 'public/dist/')
 const CopyPlugin = require('copy-webpack-plugin')
 
@@ -19,6 +20,10 @@ const entry = {}
 
 // SASS/CSS webpack entry point registration
 glob.sync(path.join(cssPath, '*.scss')).forEach(file => {
+	entry['css/'+path.basename(file, '.scss')] = file
+})
+
+glob.sync(path.join(componentCssPath, '*.scss')).forEach(file => {
 	entry['css/'+path.basename(file, '.scss')] = file
 })
 

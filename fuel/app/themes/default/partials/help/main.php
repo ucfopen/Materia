@@ -11,7 +11,7 @@
 			<p class="flash-version">Materia requires that you use an up-to-date browser with javascript and cookies enabled.</p>
 		</section>
 
-		<section class="float left">
+		<section class="float left bordered">
 			<h2 id="login-issues">Login Issues</h2>
 			<p>In many cases, problems logging in are a result of one of the following:</p>
 
@@ -21,7 +21,7 @@
 			<h3>Expired Password</h3>
 			<p>You may need to reset your password.</p>
 
-			<h3>User Account Doesn't exist</h3>
+			<h3>User Account Doesn't Exist</h3>
 			<p>Your user account may not have been created yet.</p>
 		</section>
 

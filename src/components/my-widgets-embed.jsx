@@ -13,8 +13,6 @@ const getEmbedLink = (inst, autoplayToggle = true) => {
 const MyWidgetEmbedInfo = ({inst}) => {
 	const [autoplay, setAutoplay] = useState(true)
 
-	const autoplayText = autoplay ? 'widget starts automatically' : 'widget starts after clicking play'
-
 	return (
 		<div className='embed-options'>
 			<h3>Embed Code</h3>
@@ -28,7 +26,7 @@ const MyWidgetEmbedInfo = ({inst}) => {
 				onChange={() => {setAutoplay(!autoplay)}}
 			/>
 			<span>
-				{ autoPlayText }
+				{ autoplay ? 'Widget starts automatically' : 'Widget starts after clicking play' }
 			</span>
 		</div>
 	)

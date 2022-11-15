@@ -80,8 +80,8 @@ const ProfilePage = () => {
 
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
 	if ( !isFetching ) {
-		mainContentRender = 
-			<section className="page">
+		mainContentRender =
+			<section className="page user">
 
 				<ul className="main_navigation">
 					<li className="selected profile"><a href="/profile">Profile</a></li>
@@ -92,16 +92,21 @@ const ProfilePage = () => {
 					<img src={currentUser.avatar} />
 				</div>
 
-				<h2>
-					<span>Profile</span>
-					{`${currentUser.first} ${currentUser.last}`}
-				</h2>
+					<div>
+						<div className="profile_status">
+							<span>Profile</span>
+							<span>
+								<ul className="user_information">
+									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}</li>
+								</ul>
+							</span>
+						</div>
+						<h2>
+						{`${currentUser.first} ${currentUser.last}`}
+						</h2>
+					</div>
 
-				<ul className="user_information">
-					<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}</li>
-				</ul>
-
-				<h3>Activity</h3>
+				<span className="activity_subheader">Activity</span>
 
 				<div className='activity'>
 					<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}><LoadingIcon /></div>
@@ -115,9 +120,6 @@ const ProfilePage = () => {
 
 			</section>
 	}
-
-	
-	
 
 	return (
 		<>
