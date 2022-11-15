@@ -30,14 +30,18 @@ export const apiGetWidgetInstance = instId => {
 		})
 }
 
-export const apiGetWidgetInstances = () => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
+/**
+ * It fetches the widget instances from the server, and if successful, writes the response to local
+ * storage
+ * @returns An array of objects.
+ */
+export const apiGetWidgetInstances = page_number => {
+	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(resp => {
-			resp.sort(_compareWidgets)
 			writeToStorage('widgets', resp)
 			return resp
 		})
@@ -49,11 +53,6 @@ export const apiGetInstancesForUser = userId => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-}
-
-// Helper function to sort widgets
-const _compareWidgets = (a, b) => {
-	return (new Date(a.created_at) <= new Date(b.created_at))
 }
 
 export const apiGetWidgetsByType = () => {
@@ -93,6 +92,12 @@ export const apiGetWidget = widgetId => {
 		.then(widgets => widgets.length > 0 ? widgets[0] : {})
 }
 
+/**
+ * Takes a widget instance id, a new title, and a boolean value copy in the shape of a object.
+ * permissions, and returns a new widget instance
+ * @param {object} value
+ * @returns The widget instance id
+ */
 export const apiCopyWidget = values => {
 	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
 		.then(widget => {
@@ -100,6 +105,11 @@ export const apiCopyWidget = values => {
 		})
 }
 
+/**
+ * It deletes a widget instance
+ * @param {string} instID
+ * @returns The response from the server.
+ */
 export const apiDeleteWidget = ({ instId }) => {
 	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then((resp) => {
@@ -197,7 +207,7 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
-export const apiGetUserActivity = ({pageParam = 0}) => {
+export const apiGetUserActivity = ({ pageParam = 0 }) => {
 	return fetch(`/api/user/activity?start=${pageParam * 6}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -329,13 +339,55 @@ export const apiGetWidgetLock = (id = null) => {
 
 export const apiSearchWidgets = input => {
 	let pattern = /[A-Za-z]+/g
-	if ( !input.match(pattern).length) return false
+	if (!input.match(pattern).length) return false
 	return fetch(`/api/admin/widget_search/${input}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
 		.then(widgets => widgets)
+}
+
+export const apiGetWidgetsAdmin = () => {
+	return fetch(`/api/admin/widgets/`)
+		.then(resp => resp.json())
+		.then(widgets => widgets)
+}
+
+export const apiUpdateWidgetAdmin = widget => {
+	return fetch(`/api/admin/widget/${widget.id}`,
+	{
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		body: JSON.stringify(widget)
+	})
+	.then(res => res.json())
+}
+
+export const apiUploadWidgets = (files) => {
+	const formData = new FormData()
+
+	Array.from(files).forEach(file => {
+		formData.append('files[]', file, file.name)
+		formData.append('content-type', 'multipart/form-data')
+	})
+
+	return fetch(`/admin/upload`, {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			'pragma': 'no-cache',
+			'cache-control': 'no-cache'
+		},
+		body: formData
+	}).then(res => res)
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
@@ -403,14 +455,14 @@ export const apiGetScoreSummary = instId => {
 		})
 }
 
-export const apiGetPlayLogs = (instId, term, year) => {
-	return fetch('/api/json/play_logs_get', fetchOptions({ body: `data=${formatFetchBody([instId, term, year])}` }))
+export const apiGetPlayLogs = (instId, term, year, page_number) => {
+	return fetch('/api/json/play_logs_get', fetchOptions({ body: `data=${formatFetchBody([instId, term, year, page_number])}` }))
 		.then(resp => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return []
 		})
 		.then(results => {
-			if (results.length == 0) return []
+			if (results.pagination.length == 0) return []
 
 			const timestampToDateDisplay = timestamp => {
 				const d = new Date(parseInt(timestamp, 10) * 1000)
@@ -418,9 +470,11 @@ export const apiGetPlayLogs = (instId, term, year) => {
 			}
 
 			const scoresByUser = new Map()
-			results.forEach(log => {
+			results.pagination.forEach(log => {
 				let scoresForUser
+
 				if (!scoresByUser.has(log.user_id)) {
+
 					// initialize user
 					const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
 					scoresForUser = {
@@ -429,7 +483,9 @@ export const apiGetPlayLogs = (instId, term, year) => {
 						searchableName: name.toLowerCase(),
 						scores: []
 					}
+
 					scoresByUser.set(log.user_id, scoresForUser)
+
 				} else {
 					// already initialized
 					scoresForUser = scoresByUser.get(log.user_id)
@@ -442,10 +498,12 @@ export const apiGetPlayLogs = (instId, term, year) => {
 					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
 					date: timestampToDateDisplay(log.time)
 				})
+
 			})
 
 			const logs = Array.from(scoresByUser, ([name, value]) => value)
-			return logs
+			const data = { 'total_num_pages': results.total_num_pages, pagination: logs }
+			return data
 		})
 }
 
@@ -514,6 +572,9 @@ const writeToStorage = (queryKey, data) => {
 }
 
 // Hydrate from sessionStorage
+/**
+ * It reads the data from sessionStorage and sets it to the queryClient
+ */
 export const readFromStorage = () => {
 	const queryClient = useQueryClient()
 
@@ -535,6 +596,6 @@ export const readFromStorage = () => {
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
-	return fetch('/api/json/widget_publish_perms_verify',  fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
+	return fetch('/api/json/widget_publish_perms_verify', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
 		.then(resp => resp.json())
 }

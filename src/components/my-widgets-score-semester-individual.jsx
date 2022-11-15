@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback ,useRef } from 'react'
+
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
@@ -14,28 +15,60 @@ const initState = () => ({
 	filteredLogs: []
 })
 
-const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
+const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	const [state, setState] = useState(initState())
-	const mounted = useRef(false)
-	const { data: currLogs, isFetching: loadingLogs } = useQuery({
-		queryKey: ['play-logs', instId],
-		queryFn: () => apiGetPlayLogs(instId, semester.term, semester.year),
-		enabled: !!instId && !!semester && !!semester.term && !!semester.year,
-		staleTime: Infinity,
-		placeholderData: []
-	})
-
-	useEffect(() => {
-		mounted.current = true
-		return () => (mounted.current = false)
-	}, [])
+	const [page, setPage] = useState(1)
+	const [logsList, setLogsList] = useState({})
+	const {
+		data,
+		isFetching,
+		refetch
+	} = useQuery(
+		['play-logs', instId, semester],
+		() => apiGetPlayLogs(instId, semester.term, semester.year, page),
+		{
+			keepPreviousData: true,
+			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
+			placeholderData: [],
+			refetchOnWindowFocus: false,
+		})
 
 	// load instances after initial render
 	useEffect(() => {
-		if (mounted.current === true && !loadingLogs) {
-			setState({...state, logs: currLogs, filteredLogs: currLogs, isLoading: false })
+		if (!isFetching) {
+
+			if (page <= data?.total_num_pages) { setPage(page + 1) }
+
+			if (!data || !data.pagination) return
+			else {
+				const newLogs = logsList
+				const dataLength = data.pagination.length
+
+				for (let index = 0; index < dataLength; index++) {
+					const scoreObject = data.pagination[index]
+
+					if (!newLogs[scoreObject.userId]) {
+						newLogs[scoreObject.userId] = { userId: scoreObject.userId, name: scoreObject.name, searchableName: scoreObject.searchableName, scores: scoreObject.scores }
+					}
+					else {
+						for (let scoreIndex = 0; scoreIndex < scoreObject.scores.length; scoreIndex++)
+							newLogs[scoreObject.userId].scores.push(scoreObject.scores[scoreIndex])
+					}
+				}
+
+				setLogsList(newLogs)
+			}
 		}
-	}, [loadingLogs])
+	}, [isFetching])
+
+	useEffect(() => {
+
+		const logs = Object.values(logsList)
+		setState({ ...state, logs: logs, filteredLogs: logs, isLoading: false })
+
+		if (page != data?.total_num_pages + 1) { refetch() }
+	}, [page])
+
 
 	const onSearchInput = useCallback(search => {
 		search = search.toLowerCase()
@@ -49,12 +82,12 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 
 		// unselect user if not in filtered results
 		const isSelectedInResults = filteredLogs.includes(state.selectedUser)
-		if(!isSelectedInResults){
+		if (!isSelectedInResults) {
 			newState.selectedUser = {}
 		}
 		setState(newState)
 	},
-	[state.searchText, state.selectedUser, state.logs])
+		[state.searchText, state.selectedUser, state.logs])
 
 	const handleSearchChange = e => onSearchInput(e.target.value)
 
@@ -62,8 +95,8 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 	if (!state.isLoading) {
 		const userRowElements = state.filteredLogs.map(user => (
 			<tr key={user.userId}
-				className={{rowSelected: state.selectedUser.userId === user.userId}}
-				onClick={() => {setState({...state, selectedUser: user})}}
+				className={{ rowSelected: state.selectedUser.userId === user.userId }}
+				onClick={() => { setState({ ...state, selectedUser: user }) }}
 				title={`View all scores for ${user.name}`}>
 				<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
 					{user.name}
@@ -75,11 +108,11 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 		if (state.selectedUser.userId) {
 			const selectedUserScoreRows = state.selectedUser.scores.map(score => (
 				<tr key={score.playId}
-					onClick={() => {showScore(instId, score.playId)}}
+					onClick={() => { showScore(instId, score.playId) }}
 					title='View Detailed Scores for this Play'>
-					<td>{ score.date }</td>
-					<td>{ score.score }</td>
-					<td>{ score.elapsed }</td>
+					<td>{score.date}</td>
+					<td>{score.score}</td>
+					<td>{score.elapsed}</td>
 				</tr>
 			))
 
@@ -87,7 +120,7 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 				<div className='scoreTableContainer'>
 					<table className='scoreTable'>
 						<tbody>
-							{ selectedUserScoreRows }
+							{selectedUserScoreRows}
 						</tbody>
 					</table>
 				</div>
@@ -109,12 +142,12 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 					<div className='scoreListScrollContainer'>
 						<table className='scoreListTable'>
 							<tbody>
-								{ userRowElements }
+								{userRowElements}
 							</tbody>
 						</table>
 					</div>
 				</div>
-				{ selectedUserRender }
+				{selectedUserRender}
 			</>
 		)
 	}
@@ -123,7 +156,7 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 		<>
 			<div className={`display table ${state.isLoading === true ? 'loading' : ''}`}
 				id={`table_${semester.id}`} >
-				{ mainContentRender }
+				{mainContentRender}
 			</div>
 			<MyWidgetScoreSemesterSummary {...semester} />
 		</>
@@ -131,3 +164,4 @@ const MyWidgetScoreSemesterIndividual = ({semester, instId}) => {
 }
 
 export default MyWidgetScoreSemesterIndividual
+

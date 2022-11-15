@@ -144,6 +144,11 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_widget_paginate_instances_get()
+	{
+
+	}
+
 	public function test_widget_instance_new()
 	{
 		$widget = $this->make_disposable_widget();
@@ -981,6 +986,10 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::play_logs_get(555);
 		$this->assert_invalid_login_message($output);
 
+	}
+
+	public function test_paginated_play_logs_get()
+	{
 	}
 
 	public function test_score_summary_get()
