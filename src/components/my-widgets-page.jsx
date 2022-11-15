@@ -26,10 +26,6 @@ const randomBeard = () => {
 // Helper function to sort widgets
 const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
 
-// const initState = () => {
-// 	return ()
-// }
-
 const localBeard = window.localStorage.beardMode
 
 const MyWidgetsPage = () => {
