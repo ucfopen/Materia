@@ -86,8 +86,9 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 		queryFn: () => apiGetQuestionSet(instId),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!widgetInstance && !!instId,
+		enabled: !!instId,
 		onSettled: data => {
+			console.log(data)
 			if ( (data ? data.title : undefined) === 'Permission Denied' || data.title === 'error') {
 				setInvalid(true);
 				onInitFail('Permission Denied')
@@ -177,8 +178,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 					setStartTime(new Date().getTime());
 					let args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
 					sendToCreator('initNewWidget', args);
-					// Reset creator ready
-					setCreatorReady(false);
+					// Don't reset creatorReady to false in case widgetInstance and/or qset are still loading
 				}
 			}
 		}
