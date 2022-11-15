@@ -56,6 +56,21 @@ class Api_V1
 		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
 	}
 
+/**
+ * Takes a page number, and returns objects containing the total_num_pages and
+ * widget instances that are visible to the user.
+ *
+ * @param page_number The page to be retreated. By default it is set to 1.
+ *
+ * @return array of objects containing total_num_pages and widget instances that are visible to the user.
+ */
+	static public function widget_paginate_instances_get($page_number = 1)
+	{
+		if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
+		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
+		return $data;
+	}
+
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */
@@ -638,12 +653,14 @@ class Api_V1
 	 *				  [quickStats]	contains attempts, scores, currentPlayers, avScore, replays <br />
 	 *				  [playLogs]    a log of all scores recoreded
 	 */
-	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all')
+	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
-		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
+
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		return $data;
 	}
 
 	/**
@@ -817,6 +834,7 @@ class Api_V1
 			return Widget_Question_Manager::get_users_questions(\Model_User::find_current_id(), $type);
 		}
 	}
+
 	static public function play_storage_data_save($play_id, $data)
 	{
 		$inst = self::_get_instance_for_play_id($play_id);

@@ -1,16 +1,16 @@
 import React, { useState, useMemo } from 'react'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 
-const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, beardMode, beards}) => {
+const MyWidgetsSideBar = ({ instances, isLoading, selectedId, onClick, beardMode, beards }) => {
 	const [searchText, setSearchText] = useState('')
 
 	const hiddenSet = useMemo(() => {
 		const result = new Set()
-		if(searchText == '') return result
+		if (searchText == '') return result
 
 		const re = RegExp(searchText, 'i')
 		instances.forEach(i => {
-			if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
+			if (!re.test(`${i.name} ${i.widget.name} ${i.id}`)) {
 				result.add(i.id)
 			}
 		})
@@ -23,7 +23,7 @@ const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, beardMode,
 
 	let widgetInstanceElementsRender = null
 	if (!isLoading || instances?.length > 0) {
-		widgetInstanceElementsRender = instances.map((inst, index) => (
+		widgetInstanceElementsRender = instances?.map((inst, index) => (
 			<MyWidgetsInstanceCard
 				key={inst.id}
 				inst={inst}
@@ -59,7 +59,7 @@ const MyWidgetsSideBar = ({instances, isLoading, selectedId, onClick, beardMode,
 
 			<div className='courses'>
 				<div className='widget_list' data-container='widget-list'>
-					{ widgetInstanceElementsRender }
+					{widgetInstanceElementsRender}
 				</div>
 			</div>
 		</aside>

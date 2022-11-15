@@ -67,6 +67,33 @@ class Widget_Instance_Manager
 		else return [];
 	}
 
+/**
+ * It takes a user ID and a page number, and returns an array of instances that the user has permission
+ * to see, along with the total number of pages
+ *
+ * @param user_id The user id of the user whose instances we want to get
+ * @param page_number The page number of the pagination.
+ *
+ * @return array of widget instances that are visible to the user.
+ */
+	public static function get_paginated_for_user($user_id, $page_number = 1)
+	{
+		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
+		$displayable_inst = self::get_all($inst_ids);
+		$widgets_per_page = 10;
+		$total_num_pages = ceil(sizeof($displayable_inst) / $widgets_per_page);
+		$offset = $widgets_per_page * ($page_number - 1);
+
+		// inst_ids corresponds to a single page's worth of instances
+		$displayable_inst = array_slice($displayable_inst, $offset, $widgets_per_page);
+		$data = [
+			'total_num_pages' => $total_num_pages,
+			'pagination'      => $displayable_inst,
+		];
+
+		return $data;
+	}
+
 	/**
 	 * Checks to see if the given widget instance is locked by the current user.
 	 *
