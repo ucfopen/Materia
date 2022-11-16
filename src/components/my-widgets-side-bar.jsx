@@ -63,10 +63,8 @@ const MyWidgetsSideBar = ({ instances, isLoading, selectedId, onClick, beardMode
 				</div>
 			</div>
 
-			<div className='courses'>
-				<div className='widget_list' data-container='widget-list'>
-					{widgetInstanceElementsRender}
-				</div>
+			<div className='widget_list' data-container='widget-list'>
+				{widgetInstanceElementsRender}
 			</div>
 		</aside>
 	)

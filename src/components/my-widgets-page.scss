@@ -81,7 +81,7 @@
 			// border: rgba(0, 0, 0, 0.11) 1px solid;
 			// box-shadow: 1px 3px 10px #888;
 			width: 250px;
-			height: 100%;
+			height: calc(100% - 10px);
 			margin: 0;
 			// padding: 0 20px 0 0;
 			position: absolute;
@@ -155,124 +155,125 @@
 				}
 			}
 
-			.courses {
-				// width: 240px;
-				height: 700px;
+			// .courses {
+			// 	// width: 240px;
+			// 	height: 700px;
+			// 	overflow: auto;
+			// 	// border-top: 1px solid rgba(100, 100, 100, 0.2);
+
+			.widget_list {
+				height: calc(100% - 74px); // combined height of top and search sections
 				overflow: auto;
-				// border-top: 1px solid rgba(100, 100, 100, 0.2);
 
-				.widget_list {
-					overflow: auto;
+				.icon {
+					background-repeat: no-repeat;
+					background-size: 60px;
+					margin: 0;
+					padding: 0;
+					width: 60px;
+					height: 60px;
+					display: inline-block;
+					margin-right: 5px;
+				}
 
-					.icon {
-						background-repeat: no-repeat;
-						background-size: 60px;
+				.widget {
+					cursor: pointer;
+					user-select: none;
+
+					&:hover {
+						// background-color: #ffe0a5;
+						background: #d0eeff;
+					}
+
+					.highlighted {
+						background-color: #ffd800;
+					}
+				}
+
+				.my-widgets-instance-card {
+					position: relative;
+					transition: background 0.5s;
+
+					&:nth-child(odd):not(:hover) {
+						background: #fff;
+					}
+
+					&.selected:not(:hover) {
+						// background: #ffcb68;
+						// color: #fff;
+						background: #86d3ff;
+					}
+
+					&.hidden {
+						display: none;
+					}
+
+					&.is_draft ul li.score {
+						border-radius: 3px;
+
+						width: 45px;
+						height: 15px;
+
+						text-align: center;
+						font-family: Lato, arial, serif;
+						font-size: 12px;
+						font-weight: 900;
+						color: #ffffff !important;
+
+						background: #b944cc;
+					}
+				}
+
+				h2 {
+					font-size: 0.7em;
+					margin: 0 0 0 1px;
+					padding: 3px 7px;
+					background-color: #d3d3d3;
+					border-bottom: 1px #aaa solid;
+					border-top: 1px #ccc solid;
+					color: #2a2a2a;
+				}
+
+				div {
+					padding: 10px;
+				}
+
+				div > ul {
+					display: inline-block;
+					width: 130px;
+					vertical-align: top;
+				}
+
+				ul {
+					margin: 0;
+					padding: 0;
+
+					li {
 						margin: 0;
 						padding: 0;
-						width: 60px;
-						height: 60px;
-						display: inline-block;
-						margin-right: 5px;
-					}
+						list-style: none;
+						overflow: hidden;
 
-					.widget {
-						cursor: pointer;
-						user-select: none;
-
-						&:hover {
-							// background-color: #ffe0a5;
-							background: #d0eeff;
+						&.title {
+							font-weight: bold;
+							font-size: 0.9em;
 						}
 
-						.highlighted {
-							background-color: #ffd800;
-						}
-					}
-
-					.my-widgets-instance-card {
-						position: relative;
-						transition: background 0.5s;
-
-						&:nth-child(odd):not(:hover) {
-							background: #fff;
+						&.type {
+							color: #444;
+							font-size: 0.7em;
+							font-size: 11px;
 						}
 
-						&.selected:not(:hover) {
-							// background: #ffcb68;
-							// color: #fff;
-							background: #86d3ff;
-						}
-
-						&.hidden {
-							display: none;
-						}
-
-						&.is_draft ul li.score {
-							border-radius: 3px;
-
-							width: 45px;
-							height: 15px;
-
-							text-align: center;
-							font-family: Lato, arial, serif;
+						&.score {
+							color: #444;
+							margin-top: 10px;
 							font-size: 12px;
-							font-weight: 900;
-							color: #ffffff !important;
-
-							background: #b944cc;
-						}
-					}
-
-					h2 {
-						font-size: 0.7em;
-						margin: 0 0 0 1px;
-						padding: 3px 7px;
-						background-color: #d3d3d3;
-						border-bottom: 1px #aaa solid;
-						border-top: 1px #ccc solid;
-						color: #2a2a2a;
-					}
-
-					div {
-						padding: 10px;
-					}
-
-					div > ul {
-						display: inline-block;
-						width: 130px;
-						vertical-align: top;
-					}
-
-					ul {
-						margin: 0;
-						padding: 0;
-
-						li {
-							margin: 0;
-							padding: 0;
-							list-style: none;
-							overflow: hidden;
-
-							&.title {
-								font-weight: bold;
-								font-size: 0.9em;
-							}
-
-							&.type {
-								color: #444;
-								font-size: 0.7em;
-								font-size: 11px;
-							}
-
-							&.score {
-								color: #444;
-								margin-top: 10px;
-								font-size: 12px;
-							}
 						}
 					}
 				}
 			}
+			// }
 
 			h1 {
 				padding: 7px 0 0 11px;
