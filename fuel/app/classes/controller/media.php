@@ -26,7 +26,7 @@ class Controller_Media extends Controller
 		return parent::after($response);
 	}
 
-	public function get_render($asset_id, $size = 'original')
+	public function get_render($asset_id, $size='original')
 	{
 		$asset = Widget_Asset::fetch_by_id($asset_id);
 
@@ -42,30 +42,6 @@ class Controller_Media extends Controller
 		// IIRC it solved some bug with IE?
 		return '';
 	}
-
-	/*
-		public function get_import()
-		{
-			// Validate Logged in
-			if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
-
-			Css::push_group(['core', 'media_import']);
-			Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
-
-			$this->inject_common_js_constants();
-
-			$theme = Theme::instance();
-			$theme->set_template('layouts/main');
-			$theme->get_template()
-				->set('title', 'Media Catalog')
-				->set('page_type', 'import');
-
-			$theme->set_partial('footer', 'partials/angular_alert');
-			$theme->set_partial('content', 'partials/catalog/media');
-
-			return Response::forge($theme->render());
-		}
-	*/
 
 	public function get_import()
 	{

@@ -141,8 +141,8 @@ const MediaImporter = () => {
 					sortTypeIndex !== sortState.sortOrder
 						? 'sort-option'
 						: sortState.sortAsc === true
-						? 'sort-option sort-asc'
-						: 'sort-option sort-desc'
+							? 'sort-option sort-asc'
+							: 'sort-option sort-desc'
 				}
 				onClick={() => {
 					setSortState({

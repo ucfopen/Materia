@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
-import LoadingIcon from './loading-icon';
+import LoadingIcon from './loading-icon'
 import { creator } from './materia-constants'
-import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify } from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 
@@ -10,7 +10,7 @@ import Alert from './alert'
 // const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 const creatorGuideUrl = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide'
 
-const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
+const WidgetCreator = ({ instId, widgetId, minHeight = '', minWidth = '' }) => {
 	const [alertDialog, setAlertDialog] = useState({
 		enabled: false,
 		msg: '',
@@ -107,7 +107,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			}
 		}
 	})
-	
+
 	// qset storage for previous save feature
 	// current working qset, temporarily cached to await confirm/cancel
 	const [qsetToBeCached, setQsetToBeCached] = useState(null);
@@ -622,8 +622,22 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	if (!updateMode || !nonEditable) {
 		editButtonsRender = (
 			<span>
-				<button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={()=>requestSave('preview')}><span>{previewText}</span></button>
-				<button id="creatorSaveBtn" className={`edit_button orange ${saveStatus}`} type="button" onClick={()=>requestSave('save')}><span>{saveText}</span></button>
+				<button
+					id="creatorPreviewBtn"
+					className="edit_button orange"
+					type="button"
+					onClick={() => requestSave('preview')}
+				>
+					<span>{previewText}</span>
+				</button>
+				<button
+					id="creatorSaveBtn"
+					className={`edit_button orange ${saveStatus}`}
+					type="button"
+					onClick={() => requestSave('save')}
+				>
+					<span>{saveText}</span>
+				</button>
 			</span>
 		)
 	}
