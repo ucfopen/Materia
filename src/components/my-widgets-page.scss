@@ -110,14 +110,20 @@
 
 				.search-icon {
 					position: absolute;
-					margin: 4px 0px 0px 9px;
-					height: 15px;
-					width: 20px;
-					background: url('/img/magnifyingglass.png') 5px 50% no-repeat;
+					top: 12px;
+					left: 13px;
+					height: 14px;
+					width: 18px;
+					fill: #9a9a9a;
+					svg {
+						height: 100%;
+						width: 100%;
+					}
 				}
 
 				.search-close {
 					position: absolute;
+					top: 8px;
 					right: 40px;
 					margin-top: 1px;
 					color: rgb(221, 221, 221);
@@ -174,7 +180,8 @@
 						user-select: none;
 
 						&:hover {
-							background-color: #ffe0a5;
+							// background-color: #ffe0a5;
+							background: #d0eeff;
 						}
 
 						.highlighted {
@@ -184,13 +191,16 @@
 
 					.my-widgets-instance-card {
 						position: relative;
+						transition: background 0.5s;
 
 						&:nth-child(odd):not(:hover) {
 							background: #fff;
 						}
 
-						&.gameSelected:not(:hover) {
-							background: #ffcb68;
+						&.selected:not(:hover) {
+							// background: #ffcb68;
+							// color: #fff;
+							background: #86d3ff;
 						}
 
 						&.hidden {
