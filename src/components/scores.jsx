@@ -66,10 +66,10 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	// Gets qset
 	const { isLoading: qSetIsLoading, data: qset } = useQuery({
 		queryKey: ['qset', inst_id],
-		queryFn: () => apiGetQuestionSet(inst_id),
+		queryFn: () => apiGetQuestionSet(inst_id, play_id, instance.widget.created_at),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!inst_id,
+		enabled: !!instance && !!instance.widget,
 		onSettled: (data) => {
 			if (data && data.type === 'error' ) setExpired(true)
 		}

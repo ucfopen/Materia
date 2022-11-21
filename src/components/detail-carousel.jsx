@@ -329,7 +329,8 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 				instanceId={widget.meta_data.demo}
 				playId={demoData.playId}
 				minHeight={parseInt(widget.height)}
-				minWidth={parseInt(widget.width)}/>
+				minWidth={parseInt(widget.width)}
+				widgetURL={WIDGET_URL}/>
 			</div>
 		)
 

@@ -238,8 +238,7 @@ const WidgetCreator = ({instId, setInstanceId, widgetId, minHeight='', minWidth=
 					setStartTime(new Date().getTime());
 					let args = [widgetInfo, window.BASE_URL, window.MEDIA_URL];
 					sendToCreator('initNewWidget', args);
-					// Reset creator ready
-					setCreatorReady(false);
+					// Don't set creatorReady to false in case widgetInstance and/or qset are still loading
 				}
 			}
 		}

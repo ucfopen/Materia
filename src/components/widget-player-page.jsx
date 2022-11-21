@@ -10,11 +10,11 @@ const PREVIEW_EMBED = 'preview-embed'
 
 const getWidgetType = path => {
 	switch(true) {
-		case path.includes('/embed/'): return EMBED
-		case path.includes('/play/'): return PLAY
-		case path.includes('/preview/'): return PREVIEW
-		case path.includes('/demo/'): return DEMO
-		case path.includes('/preview-embed/'): return PREVIEW_EMBED
+		case path.includes('/embed'): return EMBED
+		case path.includes('/play'): return PLAY
+		case path.includes('/preview'): return PREVIEW
+		case path.includes('/demo'): return DEMO
+		case path.includes('/preview-embed'): return PREVIEW_EMBED
 		default: return null
 	}
 }
@@ -85,7 +85,8 @@ const WidgetPlayerPage = () => {
 	if ( type == EMBED || type == PREVIEW_EMBED ) headerRender = null
 
 	let bodyRender = null
-	if( (!!state.widgetID) && state.playID !== undefined ) {
+	if( (!!state.widgetID) && state.playID !== undefined && state.widgetURL !== undefined) {
+		console.log(state.widgetURL)
 		bodyRender = (
 			<WidgetPlayer instanceId={state.widgetID}
 				playId={state.playID}

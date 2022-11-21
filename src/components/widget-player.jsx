@@ -146,7 +146,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='', widgetURL}
 				window.removeEventListener('beforeunload', _beforeUnload);
 			}
 		}
-	}, [inst, isPreview, endState])
+	}, [inst])
 
 	// Ensures the callback doesn't have stale state
 	useEffect(() => {
@@ -231,10 +231,17 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='', widgetURL}
 
 	// Sends messages to the widget player
 	const _sendToWidget = (type, args) => {
-		return frameRef.current.contentWindow.postMessage(
-			JSON.stringify({ type, data: args }),
-			window.STATIC_CROSSDOMAIN
-		)
+		if (isPreview) {
+			return frameRef.current.contentWindow.postMessage(
+				JSON.stringify({ type, data: args }),
+				window.BASE_URL
+			)
+		}
+		else {
+			return frameRef.current.contentWindow.postMessage(
+				JSON.stringify({ type, data: args }),
+				window.STATIC_CROSSDOMAIN)	
+		}
 	}
 
 	// Receives messages from widget player
