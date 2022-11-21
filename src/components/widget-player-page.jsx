@@ -86,7 +86,6 @@ const WidgetPlayerPage = () => {
 
 	let bodyRender = null
 	if( (!!state.widgetID) && state.playID !== undefined && state.widgetURL !== undefined) {
-		console.log(state.widgetURL)
 		bodyRender = (
 			<WidgetPlayer instanceId={state.widgetID}
 				playId={state.playID}

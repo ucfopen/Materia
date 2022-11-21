@@ -231,17 +231,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='', widgetURL}
 
 	// Sends messages to the widget player
 	const _sendToWidget = (type, args) => {
-		if (isPreview) {
-			return frameRef.current.contentWindow.postMessage(
-				JSON.stringify({ type, data: args }),
-				window.BASE_URL
-			)
-		}
-		else {
-			return frameRef.current.contentWindow.postMessage(
-				JSON.stringify({ type, data: args }),
-				window.STATIC_CROSSDOMAIN)	
-		}
+		return frameRef.current.contentWindow.postMessage(
+			JSON.stringify({ type, data: args }),
+			window.STATIC_CROSSDOMAIN)	
 	}
 
 	// Receives messages from widget player

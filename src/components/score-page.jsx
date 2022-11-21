@@ -17,6 +17,8 @@ const ScorePage = () => {
 	// this is only actually set to something when coming from the profile page
 	const play_id = window.location.hash.split('play-')[1]
 
+	const isPreview = window.location.includes('/preview')
+
 	const [state, setState] = useState({
 		instanceID: undefined,
 		playID: undefined,
@@ -38,7 +40,7 @@ const ScorePage = () => {
 				singleID: single_id ? single_id : null,
 				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
 				isEmbedded: window.IS_EMBEDDED ? window.IS_EMBEDDED : false,
-				isPreview: window.IS_PREVIEW ? window.IS_PREVIEW : false,
+				isPreview: isPreview || false
 			})
 		})
 	}, [])

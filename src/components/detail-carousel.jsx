@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import WidgetPlayer from './widget-player'
 import windowSize from './hooks/useWindowSize'
-import { WIDGET_URL } from './materia-constants'
 import useCreatePlaySession from './hooks/useCreatePlaySession'
 
 const screenshotUrl = (widgetDir, size) =>
-	WIDGET_URL + widgetDir + 'img/screen-shots/' + size + '.png'
+	window.WIDGET_URL + widgetDir + 'img/screen-shots/' + size + '.png'
 
 const screenshotThumbUrl = (widgetDir, size) =>
-	WIDGET_URL + widgetDir + 'img/screen-shots/' + size + '-thumb.png'
+	window.WIDGET_URL + widgetDir + 'img/screen-shots/' + size + '-thumb.png'
 
 const initScreenshotData = () => {
 	return({
@@ -330,7 +329,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 				playId={demoData.playId}
 				minHeight={parseInt(widget.height)}
 				minWidth={parseInt(widget.width)}
-				widgetURL={WIDGET_URL}/>
+				widgetURL={window.WIDGET_URL}/>
 			</div>
 		)
 

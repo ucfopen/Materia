@@ -777,7 +777,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	if (customScoreScreen.show && !restricted && !expired) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef} id="container"
-				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}`}
+				className={`html ${showScoresOverview ? 'margin-above' : ''} ${showResultsTable ? 'margin-below' : ''}`}
 				scrolling="yes"
 				src={customScoreScreen.htmlPath}
 				fullscreen-dir="true">
