@@ -121,6 +121,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
+			console.log(result)
 			if (!result || result.length < 1) {
 				setExpired(true)
 			}
