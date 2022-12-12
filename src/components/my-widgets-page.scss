@@ -5,7 +5,7 @@
 	justify-content: center;
 
 	.container {
-		margin: 30px auto 100px auto;
+		margin: 0 auto 100px auto;
 		// width: 970px;
 		position: relative;
 		overflow-x: visible;
@@ -81,7 +81,7 @@
 			// border: rgba(0, 0, 0, 0.11) 1px solid;
 			// box-shadow: 1px 3px 10px #888;
 			width: 250px;
-			height: calc(100% - 10px);
+			height: 100%;
 			margin: 0;
 			// padding: 0 20px 0 0;
 			position: absolute;
