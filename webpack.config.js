@@ -55,6 +55,7 @@ module.exports =
 				publicPath: '/dist/',
 				https: true,
 				watchContentBase: true,
+				writeToDisk: true,
 				watchOptions: {
 					ignored: '/node_modules/',
 				},
