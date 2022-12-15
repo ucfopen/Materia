@@ -45,7 +45,7 @@
         "fuel/orm": "dev-1.9/develop",
         "fuel/parser": "dev-1.9/develop",
         "iturgeon/qasset": "1.0.5",
-        "fuelphp/upload": "2.0.6",
+        "fuelphp/upload": "2.0.7",
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.31",
         "eher/oauth": "1.0.7",

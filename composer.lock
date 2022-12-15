@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b980f6a9f0d31f42fa7260dfcd0ae3e8",
+    "content-hash": "d71a4c647a0eae503daf308c37a3798b",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -464,16 +464,16 @@
         },
         {
             "name": "fuelphp/upload",
-            "version": "2.0.6",
+            "version": "2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuelphp/upload.git",
-                "reference": "73b3abfa317c22d6b4d63588e9601c13623ea6f6"
+                "reference": "79cde2b3e73185062e123db05282f3d4ffe3cac6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuelphp/upload/zipball/73b3abfa317c22d6b4d63588e9601c13623ea6f6",
-                "reference": "73b3abfa317c22d6b4d63588e9601c13623ea6f6",
+                "url": "https://api.github.com/repos/fuelphp/upload/zipball/79cde2b3e73185062e123db05282f3d4ffe3cac6",
+                "reference": "79cde2b3e73185062e123db05282f3d4ffe3cac6",
                 "shasum": ""
             },
             "require": {
@@ -510,7 +510,7 @@
                 "file uploads",
                 "upload"
             ],
-            "time": "2015-11-04T17:19:56+00:00"
+            "time": "2022-05-10T20:42:04+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
