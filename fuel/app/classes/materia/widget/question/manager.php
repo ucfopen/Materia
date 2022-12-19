@@ -23,7 +23,7 @@ class Widget_Question_Manager
 	static public function get_users_questions($user_id, $q_type=null)
 	{
 		//q_type is a urlencoded string containing the types of questions to search for
-		$q_type = urldecode($q_type);
+		$q_type = is_null($q_type) ? '' : urldecode($q_type);
 		$q_type = str_replace('Question/Answer', 'QA', $q_type);
 		$q_type = str_replace('Multiple Choice', 'MC', $q_type);
 

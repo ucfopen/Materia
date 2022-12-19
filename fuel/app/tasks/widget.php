@@ -85,7 +85,7 @@ class Widget extends \Basetask
 		foreach ($engines as $engine)
 		{
 			\Cli::write(
-				\Cli::color(str_pad($engine['id'], 3, ' ', STR_PAD_LEFT).' : ', 'green').\Cli::color($engine['name'], 'yellow').\Cli::color(' '.$engine['group'], 'red')
+				\Cli::color(str_pad($engine['id'], 3, ' ', STR_PAD_LEFT).' : ', 'green').\Cli::color($engine['name'], 'yellow')
 			);
 		}
 	}
