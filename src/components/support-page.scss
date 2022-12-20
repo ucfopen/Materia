@@ -265,8 +265,13 @@ h1 {
 					}
 
 					.error-text {
-						height: 15px;
 						color: red;
+						font-size: 0.8em;
+						text-align: center;
+					}
+
+					.success-text {
+						color: green;
 						font-size: 0.8em;
 						text-align: center;
 					}

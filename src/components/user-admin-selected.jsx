@@ -4,9 +4,9 @@ import { apiGetInstancesForUser } from '../util/api'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
 
-const UserAdminSelected = ({user, selectedUser, onReturn}) => {
+const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 
-	const [updatedUser, setUpdatedUser] = useState({...user})
+	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 
 	const { data: widgets, isFetching: isLoadingWidgets} = useQuery({
 		queryKey: 'widgets',
@@ -22,7 +22,7 @@ const UserAdminSelected = ({user, selectedUser, onReturn}) => {
 	const instancesAvailable = isLoadingWidgets ? 
 		<span>Widgets are loading...</span> : 
 		widgets.instances_available?.map((instance, index) => {
-			return (<UserAdminInstanceAvailable instance={instance} key={index} />)
+			return (<UserAdminInstanceAvailable instance={instance} key={index} currentUser={currentUser}/>)
 		})
 
 	const instancesPlayed = isLoadingWidgets ? 

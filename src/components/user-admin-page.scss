@@ -204,7 +204,7 @@ h1 {
 
 			span {
 				display: block;
-				margin: 5px 0px;
+				// margin: 5px 0px;
 			}
 
 			label {
@@ -246,8 +246,13 @@ h1 {
 					}
 
 					.error-text {
-						height: 15px;
 						color: red;
+						font-size: 0.8em;
+						text-align: center;
+					}
+
+					.success-text {
+						color: green;
 						font-size: 0.8em;
 						text-align: center;
 					}
@@ -358,6 +363,11 @@ h1 {
 				border-bottom-right-radius: 0px;
 			}
 
+			.manage-btn-container {
+				display: flex;
+				justify-content: end;
+			}
+
 			.info-holder {
 				display: block;
 				padding: 15px;
@@ -369,6 +379,7 @@ h1 {
 			}
 		}
 	} 
+
 
 	
 

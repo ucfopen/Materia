@@ -10,11 +10,19 @@ export default function useSupportUpdateWidget() {
 		{
 			onSuccess: (data, variables) => {
 				variables.successFunc()
+
+				// Refresh widgets
+				queryClient.invalidateQueries('widgets')
+
 				queryClient.removeQueries('search-widgets', {
 					exact: false
 				})
 			},
-			onError: (err, newWidget, context) => variables.errorFunc()
+			onError: (err, newWidget, context) => {
+				queryClient.setQueryData('widgets', context.previousValue)
+				
+				variables.errorFunc()
+			}
 		}
 	)
 }

@@ -15,7 +15,7 @@ const UserAdminPage = () => {
 	})
 
 	let pageRenderContent = <UserAdminSearch onClick={(user) => setSelectedUser(user)}/>
-	if (selectedUser) pageRenderContent = <UserAdminSelected user={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
+	if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
 
 	return (
 		<>
