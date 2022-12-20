@@ -7,10 +7,9 @@
   "repository": "https://github.com/ucfopen/Materia.git",
   "scripts": {
     "build": "node process_assets.js",
-    "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\" \"yarn build:browsersync\"",
+    "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\"",
     "build:watchmateria": "nodemon -e js,css -w ./node_modules/materia-server-client-assets/dist process_assets.js",
     "build:watchclientassets": "cd node_modules/materia-server-client-assets && yarn build-watch",
-    "build:browsersync": "browser-sync start --files \"public/css/**/*.css,public/js/**/*.js\"",
     "postinstall": "napa && npm run build",
     "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git Materia-Server-Client-Assets",
     "devassets:link": "cd ../Materia-Server-Client-Assets && yarn install && yarn link && cd - && yarn link materia-server-client-assets",
@@ -20,11 +19,10 @@
   },
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.4.0",
+    "materia-server-client-assets": "2.4.2",
     "napa": "^3.0.0"
   },
   "devDependencies": {
-    "browser-sync": "^2.26.5",
     "concurrently": "^5.1.0",
     "nodemon": "^2.0.2"
   },
@@ -41,5 +39,5 @@
     "hammerjs": "hammerjs/hammer.js#v2.0.8",
     "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
   },
-  "version": "9.0.1"
+  "version": "9.0.2-alpha4"
 }

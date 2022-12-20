@@ -53,10 +53,10 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 	 */
 	public function create_user($username, $password, $email = '', $group = 1, Array $profile_fields = [], $first_name = '', $last_name = '', $requires_password = true, $requires_email = true)
 	{
-		$first_name = trim($first_name);
-		$last_name  = trim($last_name);
-		$username   = trim($username);
-		$email      = filter_var(trim($email), FILTER_VALIDATE_EMAIL);
+		$first_name = trim($first_name ?? '');
+		$last_name  = trim($last_name ?? '');
+		$username   = trim($username ?? '');
+		$email      = filter_var(trim($email ?? ''), FILTER_VALIDATE_EMAIL);
 
 		if (empty($username) or ($requires_password && empty($password)))
 		{
@@ -145,7 +145,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 
 		if (array_key_exists('email', $values))
 		{
-			$email = filter_var(trim($values['email']), FILTER_VALIDATE_EMAIL);
+			$email = filter_var(trim($values['email'] ?? ''), FILTER_VALIDATE_EMAIL);
 			if ( ! $email)
 			{
 				// currently and empty email, use a default
@@ -177,7 +177,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 
 		if (array_key_exists('first', $values))
 		{
-			$first = trim($values['first']);
+			$first = trim($values['first'] ?? '');
 			if ( ! empty($first) && $current_values['first'] != $first)
 			{
 				$update['first'] = (string) $first;
@@ -187,7 +187,7 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 
 		if (array_key_exists('last', $values))
 		{
-			$last = trim($values['last']);
+			$last = trim($values['last'] ?? '');
 			if ( ! empty($last) && $current_values['last'] != $last)
 			{
 				$update['last'] = (string) $last;
@@ -197,7 +197,15 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 
 		if ( ! empty($values))
 		{
-			$profile_fields = @unserialize($current_values['profile_fields']) ?: [];
+			if (is_string($current_values['profile_fields']))
+			{
+				$profile_fields = @unserialize($current_values['profile_fields']) ?: [];
+			}
+			else
+			{
+				$profile_fields = $current_values['profile_fields'] ?: [];
+			}
+
 			foreach ($values as $key => $val)
 			{
 				if ($val === null)
@@ -224,6 +232,8 @@ class Auth_Login_Materiaauth extends Auth_Login_Simpleauth
 			{
 				return false;
 			}
+
+			if ($this->user === false) return false;
 
 			// refresh our user
 			if ($this->user['username'] == $username) $this->user = $user->to_array();
