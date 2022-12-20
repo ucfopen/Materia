@@ -957,10 +957,10 @@ make-dir@^1.0.0:
   dependencies:
     pify "^3.0.0"
 
-materia-server-client-assets@2.4.1-alpha1:
-  version "2.4.1-alpha1"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.4.1-alpha1.tgz#16408bb0465d342c1243d4aa5824049647834e2d"
-  integrity sha512-5yhYWl2aZO6UVUicrfjLQHjbCoynSwUIfCMEZoVK07fnBnIzYyB5lqf9k1/K0lilddx0UNccr65ZkbKr0ruWXw==
+materia-server-client-assets@2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.4.2.tgz#c4111c2671dafef2926eb8bd385099828da5c913"
+  integrity sha512-L6wMYvlMISabmh7naQ8kNGLBwqgMVqof7zC1UnS9SkEd61Syv4zpa1I/SYSd/M2MVQmHNaX5l0pFC89tTWeOVg==
   dependencies:
     angular "1.8.0"
     js-snakecase "^1.2.0"
