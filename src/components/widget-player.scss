@@ -1,3 +1,5 @@
+@import 'include.scss';
+
 .center {
 	margin: 0 auto 38px;
 	background: white;
@@ -12,4 +14,10 @@
 		display: block;
 		border: none;
 	}
+}
+
+h3 {
+	font-size: 1.1em;
+	font-weight: 700;
+	font-family: 'Lato', arial, serif;
 }
