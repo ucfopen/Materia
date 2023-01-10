@@ -88,6 +88,6 @@ class Cookie extends Fuel\Core\Cookie
 		unset($_COOKIE[$name]);
 
 		// Nullify the cookie and make it expire
-		return static::set($name, null, -86400, $path, $domain, $secure, $http_only, $same_site);
+		return static::set($name, false, -86400, $path, $domain, $secure, $http_only, $same_site);
 	}
 }

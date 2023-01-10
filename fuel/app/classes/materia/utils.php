@@ -1,13 +1,4 @@
 <?php
-/**
- * NEEDS DOCUMENTATION
- *
- * General utilities that are needed but don't fit anywhere else
- *
- * @package	    Main
- * @subpackage  scoring
- * @author      ggalperi
- */
 
 namespace Materia;
 
@@ -25,6 +16,11 @@ class Utils
 			->order_by('id')
 			->execute()
 			->as_array();
+	}
+
+	public static function safeTrim($value)
+	{
+		return is_string($value) ? trim($value) : $value;
 	}
 
 	public static function get_avatar($size=35, $user=false)
