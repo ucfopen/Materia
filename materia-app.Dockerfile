@@ -63,7 +63,7 @@ RUN composer install --no-cache --no-dev --no-progress --no-scripts --prefer-dis
 # =====================================================================================================
 # Yarn stage buils js/css assets
 # =====================================================================================================
-FROM node:12.11.1-alpine AS yarn_stage
+FROM node:18.13.0-alpine AS yarn_stage
 
 RUN apk add --no-cache git
 
