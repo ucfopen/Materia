@@ -37,6 +37,7 @@ export default function useCopyWidget() {
 			},
 			onSuccess: (data, variables) => {
 				queryClient.invalidateQueries('widgets')
+				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)
