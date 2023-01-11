@@ -14,7 +14,7 @@ return [
 	],
 
 	'groups' => [
-		'core' => [$webpack.'css/core.css'],
+		
 		'homepage' => [$webpack.'js/homepage.css'],
 		'admin' => [$webpack.'css/admin.css'],
 		'user-admin' => [$webpack.'js/user-admin.css'],
