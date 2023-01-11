@@ -162,8 +162,10 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						</button>
 					</span>
 				)
-			} else {
+			} else if (!widgets.length) {
 				noWidgetsRender = <span>No Widgets Installed</span>
+			} else {
+				noWidgetsRender = null
 			}
 		}
 

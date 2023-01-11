@@ -6,6 +6,7 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // // const WatchIgnorePlugin = require('webpack/lib/WatchIgnorePlugin')
 const jsPath = path.join(__dirname, 'src',)
+const packageJsPath = path.join(__dirname, 'fuel','packages')
 const cssPath = path.join(__dirname, 'src', 'css')
 const componentCssPath = path.join(__dirname, 'src', 'components')
 // const outPath = path.join(__dirname, 'public/dist/')
@@ -33,6 +34,11 @@ glob.sync(path.join(jsPath, '*.js')).map(file => {
 	entry['js/'+path.basename(file, '.js')] = file
 })
 
+// some packages (like the reactified materia-theme-ucf) have js that needs to be added to webpack
+glob.sync(path.join(packageJsPath, '**/*.js')).map(file => {
+	entry['js/'+path.basename(file, '.js')] = file
+})
+
 module.exports = {
 	mode: 'development',
 	devServer: {
@@ -46,7 +52,8 @@ module.exports = {
 		},
 		proxy: {
 			target: 'https://127.0.0.1:443'
-		}
+		},
+		webSocketServer: false
 	},
 	entry,
 	output: {

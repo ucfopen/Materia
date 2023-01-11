@@ -7,6 +7,7 @@
 class Controller_Scores extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	// Allow LTI launches to score screens
 	// In canvas, this is shown on the grade review
@@ -80,6 +81,7 @@ class Controller_Scores extends Controller
 
 		Js::push_group(['react', 'scores', 'labjs', 'jquery', 'jqplot']);
 
+		$this->add_inline_info();
 	}
 
 	public function get_show_embedded(string $inst_id)

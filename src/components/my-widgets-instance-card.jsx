@@ -9,6 +9,7 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 	if (hidden) classes.push('hidden')
 	if (is_draft) classes.push('is_draft')
 	if (beard) classes.push('bearded', `small_${beard}`)
+	if (selected) classes.push('selected')
 
 	// Default widget/instance names to plain text
 	let nameTextRender = name
