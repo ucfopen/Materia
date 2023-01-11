@@ -34,6 +34,11 @@ glob.sync(path.join(jsPath, '*.js')).map(file => {
 	entry['js/'+path.basename(file, '.js')] = file
 })
 
+// some packages (like the reactified materia-theme-ucf) have js that needs to be added to webpack
+glob.sync(path.join(packageJsPath, '**/*.js')).map(file => {
+	entry['js/'+path.basename(file, '.js')] = file
+})
+
 module.exports = {
 	mode: 'development',
 	devServer: {
