@@ -21,5 +21,5 @@ docker run \
 	--name materia-asset-build \
 	--mount type=bind,source="$(pwd)"/../,target=/build \
 	--mount source=materia-asset-build-vol,target=/build/node_modules \
-	node:12.11.1-alpine \
+	node:18.13.0-alpine \
 	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force"

@@ -62,7 +62,7 @@ abstract class Score_Module
 				{
 					if ($this->log_problems && \Materia\Util_Validator::is_valid_long_hash($this->play_id))
 					{
-						Session_Logger::add_log($this->play_id, Session_Log::TYPE_TIME_VALIDATION_FAILURE, $log->item_id, $log->id, $last_time, $log->game_time);
+						Session_Logger::add_log(Session_Log::TYPE_TIME_VALIDATION_FAILURE, $log->item_id, $log->id, $last_time, $log->game_time, $this->play_id);
 					}
 				}
 				$last_time = $log->game_time;
@@ -305,7 +305,7 @@ abstract class Score_Module
 	{
 		if ($this->log_problems)
 		{
-			Session_Logger::add_log($this->play_id, $error_code, $id, $description, $value);
+			Session_Logger::add_log($error_code, $id, $description, $value, -1, -1, $this->play_id);
 		}
 	}
 

@@ -238,7 +238,7 @@ class Score_Manager
 			$value     = isset($log->value) ? $log->value : '';
 			$game_time = isset($log->game_time) ? $log->game_time : '';
 
-			$new_log = Session_Logger::add_log(-1, $type, $item_id, $text,  $value, $game_time, time());
+			$new_log = Session_Logger::add_log($type, $item_id, $text,  $value, $game_time, time(), -1);
 			$logs[] = $new_log;
 		}
 

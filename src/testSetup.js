@@ -1,7 +1,5 @@
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-require('angular/angular.js');
-require('angular-mocks/angular-mocks.js');
 
 configure({ adapter: new Adapter() });
 

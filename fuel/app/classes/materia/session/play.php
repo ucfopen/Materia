@@ -86,7 +86,7 @@ class Session_Play
 
 			static::set_user_is_playing();
 			$logger = new Session_Logger();
-			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
+			$logger->add_log(Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time(), $this->id);
 			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id, 'context_id' => $this->context_id]);
 			return $this->id;
 		}

@@ -5,48 +5,16 @@ const glob = require('glob')
 const crypto = require('crypto');
 
 const nodeModulesPath = path.join(__dirname, 'node_modules')
-const srcPath = path.join(nodeModulesPath, 'materia-server-client-assets', 'dist')
+// const srcPath = path.join(nodeModulesPath, 'materia-server-client-assets', 'dist')
 const pubPath = path.join(__dirname, 'public')
 const vendorPath = path.join(pubPath, 'js', 'vendor')
 const filesFound = {}
 
 const copyList = [
-	{
-		from: path.join(srcPath, 'css'),
-		to: path.join(pubPath, 'css')
-	},
-	{
-		from: path.join(srcPath, 'js', 'materia.js'),
-		to: path.join(pubPath, 'js', 'materia.js')
-	},
-	{
-		from: path.join(srcPath, 'js', 'student.js'),
-		to: path.join(pubPath, 'js', 'student.js')
-	},
-	{
-		from: path.join(srcPath, 'js', 'author.js'),
-		to: path.join(pubPath, 'js', 'author.js')
-	},
-	{
-		from: path.join(srcPath, 'js', 'admin.js'),
-		to: path.join(pubPath, 'js', 'admin.js')
-	},
-	{
-		from: path.join(srcPath, 'js', 'materia.creatorcore.js'),
-		to: path.join(pubPath, 'js', 'materia.creatorcore.js')
-	},
-	{
-		from: path.join(srcPath, 'js', 'materia.enginecore.js'),
-		to: path.join(pubPath, 'js', 'materia.enginecore.js')
-	},
-	{
-		from: path.join(srcPath, 'js', 'materia.scorecore.js'),
-		to: path.join(pubPath, 'js', 'materia.scorecore.js')
-	},
-	{
-		from: path.join(nodeModulesPath, 'datatables', 'media', 'js', 'jquery.dataTables.min.js'),
-		to:  path.join(vendorPath, 'datatables', 'jquery.dataTables.min.js')
-	},
+	// {
+	// 	from: path.join(nodeModulesPath, 'datatables', 'media', 'js', 'jquery.dataTables.min.js'),
+	// 	to:  path.join(vendorPath, 'datatables', 'jquery.dataTables.min.js')
+	// },
 	{
 		from: path.join(nodeModulesPath, 'labjs', 'LAB.min.js'),
 		to:  path.join(vendorPath, 'labjs', 'LAB.min.js')
