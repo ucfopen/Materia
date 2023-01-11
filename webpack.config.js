@@ -52,7 +52,8 @@ module.exports = {
 		},
 		proxy: {
 			target: 'https://127.0.0.1:443'
-		}
+		},
+		webSocketServer: false
 	},
 	entry,
 	output: {
