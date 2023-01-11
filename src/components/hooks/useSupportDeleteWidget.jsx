@@ -10,9 +10,7 @@ export default function useSupportDeleteWidget() {
 			onSuccess: (data, variables) => {
 				if (data !== null) {
 					variables.successFunc()
-					queryClient.removeQueries('search-widgets', {
-						exact: false
-					})
+					queryClient.invalidateQueries('widgets')
 				}
 				else {
 					console.log('failed to delete widget')
