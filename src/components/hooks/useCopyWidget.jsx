@@ -33,12 +33,10 @@ export default function useCopyWidget() {
 
 				// 'setQueryData()' is a sync method
 				queryClient.setQueryData('widgets', updateData) // can confirm 'widgets' is updating
-				console.log(updateData)
 				return { previousValue }
 			},
 			onSuccess: (data, variables) => {
 				queryClient.invalidateQueries('widgets')
-				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)

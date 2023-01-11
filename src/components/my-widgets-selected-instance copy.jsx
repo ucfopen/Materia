@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
 import { useQuery } from 'react-query'
-import { apiCanEditWidgets } from '../util/api'
+import { apiCanEditWidgets, apiGetWidgetInstance } from '../util/api'
 import { iconUrl } from '../util/icon-url'
 import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
@@ -46,7 +46,8 @@ const initState = () => ({
 	can: {},
 	playUrl: '',
 	availabilityMode: '',
-	showDeleteDialog: false
+	showDeleteDialog: false,
+	inst: {}
 })
 
 const MyWidgetSelectedInstance = ({
@@ -57,7 +58,6 @@ const MyWidgetSelectedInstance = ({
 	setOtherUserPerms,
 	onDelete,
 	onCopy,
-	onEdit,
 	beardMode,
 	beard
 }) => {
@@ -68,6 +68,7 @@ const MyWidgetSelectedInstance = ({
 	const [showCollab, setShowCollab] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
+	const [updatedSettings, setUpdatedSettings] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
@@ -79,23 +80,37 @@ const MyWidgetSelectedInstance = ({
 		staleTime: Infinity
 	})
 
+	const { data, isFetching: instFetching} = useQuery({
+		queryKey: ['state.inst', inst.id, updatedSettings],
+		queryFn: () => apiGetWidgetInstance(inst.id),
+		enabled: !!inst.id,
+		onSuccess: (data) => {
+			console.log(data)
+			setState({
+				...state,
+				inst: data
+			})
+			setUpdatedSettings(false)
+		}
+	})
+
 	// Initializes the data when widgets changes
 	useEffect(() => {
-		let playUrl = inst.play_url
+		let playUrl = state.inst.play_url
 		// Sets the play url
-		if (inst.is_draft) {
+		if (state.inst.is_draft) {
 			const regex = /preview/i
-			playUrl = inst.preview_url.replace(regex, 'play')
+			playUrl = state.inst.preview_url.replace(regex, 'play')
 		}
 
 		// Sets the availability mode
 		let availabilityMode = ''
 
-		if (`${inst.close_at}` === '-1' && `${inst.open_at}` === '-1') {
+		if (`${state.inst.close_at}` === '-1' && `${state.inst.open_at}` === '-1') {
 			availabilityMode = 'anytime'
-		} else if (`${inst.open_at}` === '-1') {
+		} else if (`${state.inst.open_at}` === '-1') {
 			availabilityMode = 'open until'
-		} else if (`${inst.close_at}` === '-1') {
+		} else if (`${state.inst.close_at}` === '-1') {
 			availabilityMode = 'anytime after'
 		} else {
 			availabilityMode = 'from'
@@ -103,7 +118,7 @@ const MyWidgetSelectedInstance = ({
 
 		setState(prevState => ({...prevState, playUrl: playUrl, availabilityMode: availabilityMode, showDeleteDialog: false}))
 
-	}, [JSON.stringify(inst)])
+	}, [JSON.stringify(state.inst)])
 
 	// Gets the collab label
 	useEffect(() => {
@@ -120,18 +135,18 @@ const MyWidgetSelectedInstance = ({
 
 		const collaborationCountString = usersList && usersList.length > 0 ? `(${usersList.length})` : ''
 		setCollabLabel(`Collaborate ${collaborationCountString}`)
-	}, [otherUserPerms, inst])
+	}, [otherUserPerms, state.inst])
 
 	useEffect(() => {
 		if (myPerms) {
 			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
 		}
-	}, [myPerms, inst])
+	}, [myPerms, state.inst])
 
 	const makeCopy = useCallback((title, copyPermissions) => {
 		setShowCopy(false)
-		onCopy(inst.id, title, copyPermissions, inst)
-	}, [inst, setShowCopy])
+		onCopy(state.inst.id, title, copyPermissions, state.inst)
+	}, [state.inst, setShowCopy])
 
 	const onEditClick = inst => {
 		if (inst.widget.is_editable && state.perms.editable && editPerms && !permsFetching) {
@@ -159,7 +174,7 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const onPopup = () => {
-		if (state.can.edit && state.can.share && !inst.is_draft) {
+		if (state.can.edit && state.can.share && !state.inst.is_draft) {
 			showModal(setShowSettings)
 		}
 	}
@@ -176,21 +191,21 @@ const MyWidgetSelectedInstance = ({
 		}
 	}
 
-	const editClickHandler = () => onEditClick(inst)
+	const editClickHandler = () => onEditClick(state.inst)
 	const collaborateClickHandler = () => showModal(setShowCollab)
 	const copyClickHandler = () => showModal(setShowCopy)
 	const deleteClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: !state.showDeleteDialog}))
 	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
-	const deleteConfirmClickHandler = () => onDelete(inst)
+	const deleteConfirmClickHandler = () => onDelete(state.inst)
 
 	const editWidget = () => {
-		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
+		const editUrl = window.location.origin + `/widgets/${state.inst.widget.dir}create#${state.inst.id}`
 		window.location = editUrl
 	}
 
 	const availability = useMemo(() => {
-		return convertAvailibilityDates(inst.open_at, inst.close_at)
-	}, [inst.open_at, inst.close_at])
+		return convertAvailibilityDates(state.inst.open_at, state.inst.close_at)
+	}, [state.inst.open_at, state.inst.close_at])
 
 	let deleteDialogRender = null
 	if (state.showDeleteDialog) {
@@ -260,11 +275,11 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const shareInputMouseDownHandler = e => {
-		if (inst.is_draft) e.preventDefault()
+		if (state.inst.is_draft) e.preventDefault()
 	}
 
 	let embedInfoRender = null
-	if (showEmbed) embedInfoRender = <MyWidgetEmbedInfo inst={inst} />
+	if (showEmbed) embedInfoRender = <MyWidgetEmbedInfo inst={state.inst} />
 
 	const toggleShowEmbed = () => setShowEmbed(!showEmbed)
 
@@ -273,7 +288,7 @@ const MyWidgetSelectedInstance = ({
 	if (showCopy) {
 		copyDialogRender = (
 			<MyWidgetsCopyDialog onClose={copyDialogOnClose}
-				name={inst.name}
+				name={state.inst.name}
 				onCopy={makeCopy}
 			/>
 		)
@@ -284,7 +299,7 @@ const MyWidgetSelectedInstance = ({
 	if (showCollab) {
 		collaborateDialogRender = (
 			<MyWidgetsCollaborateDialog currentUser={currentUser}
-				inst={inst}
+				inst={state.inst}
 				myPerms={myPerms}
 				otherUserPerms={otherUserPerms}
 				setOtherUserPerms={setOtherUserPerms}
@@ -307,11 +322,11 @@ const MyWidgetSelectedInstance = ({
 	let settingsDialogRender = null
 	if (showSettings) {
 		settingsDialogRender = (
-			<MyWidgetsSettingsDialog inst={inst}
+			<MyWidgetsSettingsDialog inst={state.inst}
 				onClose={settingsDialogOnClose}
 				currentUser={currentUser}
 				otherUserPerms={otherUserPerms}
-				onEdit={onEdit}
+				setUpdatedSettings={setUpdatedSettings}
 			/>
 		)
 	}
@@ -334,27 +349,29 @@ const MyWidgetSelectedInstance = ({
 		)
 	}
 
-	return (
-		<section className='page'>
+	let instanceRender = null
+
+	if (state.inst && state.inst.widget && state.inst.widget.dir) {
+		instanceRender = <>
 			<div className='header'>
-				<h1>{inst.name} Widget</h1>
+				<h1>{state.inst.name}</h1>
 			</div>
 			<div className='overview'>
 				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
 					<img className='icon'
-						src={iconUrl(`${window.location.origin}/widget/`, inst.widget.dir, 275)}
+						src={iconUrl(`${window.location.origin}/widget/`, state.inst.widget.dir, 275)}
 						height='275px'
 						width='275px'
-						alt={inst.widget.name}
+						alt={state.inst.widget.name}
 					/>
 				</div>
 				<div className='controls'>
 					<ul className='button-list'>
 						<li className='preview_holder'>
 							<a id='preview_button'
-								className={`action-button green ${ !inst.widget.is_playable ? 'disabled' : '' }`}
+								className={`action-button green ${ !state.inst.widget.is_playable ? 'disabled' : '' }`}
 								target='_blank'
-								href={inst.preview_url}>
+								href={state.inst.preview_url}>
 								<svg className='preview-svg' viewBox='-40 32 155 70' width='125'>
 									<path d='M 108 44 H 11 a 30 30 90 1 0 0 45 H 108 C 110 89 111 88 111 86 V 47 C 111 45 110 44 108 44'
 									/>
@@ -399,18 +416,18 @@ const MyWidgetSelectedInstance = ({
 
 					{ deleteDialogRender }
 
-					<div className={`additional_options ${!state.can.share || inst.is_draft ? 'disabled' : '' }`}>
+					<div className={`additional_options ${!state.can.share || state.inst.is_draft ? 'disabled' : '' }`}>
 						<h3>Settings:</h3>
-						<dl className={`attempts_parent ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}>
+						<dl className={`attempts_parent ${!state.can.share || state.inst.is_draft ? 'disabled' : ''}`}>
 							<dt>Attempts:</dt>
 							<dd
-								className={`num-attempts ${!state.can.edit || !state.can.share || inst.is_draft ? 'disabled' : ''}`}
+								className={`num-attempts ${!state.can.edit || !state.can.share || state.inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}>
 								{ attempts > 0 ? attempts : 'Unlimited' }
 							</dd>
 							<dt>Available:</dt>
 							<dd
-								className={`availability-time ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
+								className={`availability-time ${!state.can.share || state.inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}>
 								{ openAnytimeRender }
 								{ openUntilRender }
@@ -419,26 +436,26 @@ const MyWidgetSelectedInstance = ({
 							</dd>
 							<dt>Access:</dt>
 							<dd
-								className={`access-level ${!state.can.share || inst.is_draft ? 'disabled' : ''}`}
+								className={`access-level ${!state.can.share || state.inst.is_draft ? 'disabled' : ''}`}
 								onClick={onPopup}>
 								<span>
-									{inst.guest_access ? 'Guest Mode - No Login Required' : 'Staff and Students only'}
+									{state.inst.guest_access ? 'Guest Mode - No Login Required' : 'Staff and Students only'}
 								</span>
 							</dd>
 						</dl>
 						<a id='edit-availability-button'
 							role='button'
-							className={!state.can.share || inst.is_draft ? 'disabled' : ''}
-							disabled={!state.can.share || inst.is_draft}
+							className={!state.can.share || state.inst.is_draft ? 'disabled' : ''}
+							disabled={!state.can.share || state.inst.is_draft}
 							onClick={onPopup}>
 							Edit settings
 						</a>
 					</div>
 				</div>
 
-				<div className={`share-widget-container closed ${inst.is_draft ? 'draft' : ''}`}>
+				<div className={`share-widget-container closed ${state.inst.is_draft ? 'draft' : ''}`}>
 					<h3>
-						{inst.is_draft ? 'Publish to share' : 'Share'} with your students
+						{state.inst.is_draft ? 'Publish to share' : 'Share'} with your students
 					</h3>
 					<div className="share-widget-options-first" id="first-share-widget-option">
 						<h4> Via LMS / LTI Setup </h4>
@@ -465,10 +482,10 @@ const MyWidgetSelectedInstance = ({
 						<p>Quickly share access to your widget by copying the link below. </p>
 						<div onMouseDown={shareInputMouseDownHandler}>
 							<input ref={shareLinkRef}
-								className={`play_link ${inst.is_draft ? 'disabled' : ''}`}
+								className={`play_link ${state.inst.is_draft ? 'disabled' : ''}`}
 								type='text'
 								readOnly
-								disabled={inst.is_draft}
+								disabled={state.inst.is_draft}
 								value={state.playUrl}
 							/>
 						</div>
@@ -485,7 +502,13 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			<MyWidgetsScores inst={inst} />
+			<MyWidgetsScores inst={state.inst} />
+		</>
+	}
+
+	return (
+		<section className="page">
+			{ instanceRender }
 		</section>
 	)
 }
