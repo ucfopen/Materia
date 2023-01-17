@@ -42,7 +42,7 @@ class Cookie extends Fuel\Core\Cookie
 		is_null($http_only) and $http_only = static::$config['http_only'];
 		//static::$config is protected - can't get it in an extended class, hack workaround here
 		// FuelPHP casts $same_site as a string, which converts null into an empty string. Just using is_null is insufficient.
-		if ( is_null($same_site) || ! $same_site) $same_site = 'None';
+		if ( ! $same_site) $same_site = 'None';
 
 		// add the current time so we have an offset
 		$expiration = $expiration > 0 ? $expiration + time() : 0;
