@@ -321,6 +321,7 @@ return array(
 		 */
 		'language' => array(
 			'login',
+			'support'
 		),
 	),
 

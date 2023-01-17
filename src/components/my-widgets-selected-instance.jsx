@@ -337,7 +337,7 @@ const MyWidgetSelectedInstance = ({
 	return (
 		<section className='page'>
 			<div className='header'>
-				<h1>{inst.name} Widget</h1>
+				<h1>{inst.name}</h1>
 			</div>
 			<div className='overview'>
 				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >

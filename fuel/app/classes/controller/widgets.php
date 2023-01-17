@@ -7,6 +7,7 @@
 class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	/**
 	 * Catalog page to show all the available widgets
@@ -266,6 +267,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		Js::push_group(['react', 'draft_not_playable']);
+		Css::push_group(['draft-not-playable']);
+
+		$this->add_inline_info();
 	}
 
 	protected function retired()
@@ -309,6 +313,8 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		Js::push_group(['react', 'no_permission']);
+		Css::push_group('no_permission');
+		$this->add_inline_info();
 	}
 
 	protected function embedded_only($inst)
@@ -319,12 +325,26 @@ class Controller_Widgets extends Controller
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
+		$theme_overrides = \Event::Trigger('before_embedded_only', '', 'array');
+		if ($theme_overrides)
+		{
+			$this->theme->set_template('layouts/react');
+			$this->theme->get_template()
+				->set('title', 'Login')
+				->set('page_type', 'login');
+
+			Css::push_group([$theme_overrides[0]['css']]);
+			Js::push_group(['react', $theme_overrides[0]['js']]);
+		}
+		else
+		{
+			Js::push_group(['react', 'embedded_only']);
+			// The styles for this are in login, should probably be moved?
+			Css::push_group('login');
+		}
+
 		Js::push_inline('var NAME = "'.$inst->name.'";');
 		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
-
-		Js::push_group(['react', 'embedded_only']);
-		// The styles for this are in login, should probably be moved?
-		Css::push_group('login');
 	}
 
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
