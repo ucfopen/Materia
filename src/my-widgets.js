@@ -10,6 +10,6 @@ export const queryClient = new QueryClient({ queryCache })
 ReactDOM.render(
 	<QueryClientProvider client={queryClient} contextSharing={true}>
 		<MyWidgetsPage />
-		<ReactQueryDevtools initialIsOpen={true} />
+		<ReactQueryDevtools initialIsOpen={false} />
 	</QueryClientProvider>, document.getElementById('app')
 )
