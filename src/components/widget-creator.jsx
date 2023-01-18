@@ -103,7 +103,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					onInitFail('Permission Denied')
 				} else {
 					setCreatorState({...creatorState, invalid: false})
-					setInstance({ ...instance, qset: data })
+					// the readyForInit flag has to be added to the instance state (instead of creator state) to ensure it's updated in sync with the qset, or widget init will fail
+					setInstance({ ...instance, qset: data, readyForInit: true })
 				}
 			}
 	})
@@ -197,42 +198,52 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// normally, we're either initializing a new widget, or an existing one is being edited
 	useEffect(() => {
 
-		// we have a qset to reload manually (for qset history), ask creator to reload
-		// this hook will then fire a second time when a new save postMessage is sent
-		// the second hook will initialize an existing widget with the newly provided qset data
-		// note: this condition will also apply when rolling back and applying the original cached qset
-		if (widgetReady && !!instId && instance.qset && creatorState.reloadWithQset) {
+		if (instance.readyForInit && widgetReady) {
 
-			// flip to false because creator will re-init and send start postMessage
-			setWidgetReady(false)
-			// remove reloadWithQset property now that it's loaded into instance.qset
-			setCreatorState({
-				...creatorState,
-				reloadWithQset: null
-			})
-			// tell creator to manually reload
-			sendToCreator('reloadCreator')
+			// we have a qset to reload manually (for qset history), ask creator to reload
+			// this hook will then fire a second time when a new save postMessage is sent
+			// the second hook will initialize an existing widget with the newly provided qset data
+			// note: this condition will also apply when rolling back and applying the original cached qset
+			if (!!instId && instance.qset && creatorState.reloadWithQset) {
 
-		} else if (widgetReady && !!instId && instance.qset) {
+				// flip to false because creator will re-init and send start postMessage
+				setWidgetReady(false)
+				// remove reloadWithQset property now that it's loaded into instance.qset
+				setCreatorState({
+					...creatorState,
+					reloadWithQset: null
+				})
+				// tell creator to manually reload
+				sendToCreator('reloadCreator')
 
-			let args = [instance.name, instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
-			sendToCreator('initExistingWidget', args)
+			} else if (!!instId && instance.qset) {
 
-		} else if (widgetReady && !instId) {
+				let args = [instance.name, instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
+				sendToCreator('initExistingWidget', args)
 
-			let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
-			sendToCreator('initNewWidget', args)
+				delete instance.readyForInit
+				setInstance({ ...instance })
 
+			} else if (!instId) {
+
+				let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
+				sendToCreator('initNewWidget', args)
+
+				delete instance.readyForInit
+				setInstance({ ...instance })
+
+			}
 		}
 
-	}, [widgetReady, instance.qset])
+	}, [widgetReady, instance.readyForInit])
 
 	useEffect(() => {
 
 		if (!!creatorState.reloadWithQset) {
 			setInstance({
 				...instance,
-				qset: creatorState.reloadWithQset
+				qset: creatorState.reloadWithQset,
+				readyForInit: true
 			})
 		}
 	},[creatorState.reloadWithQset])
@@ -443,11 +454,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		// if asked to confirm rollback, we apply the cached qset to reloadWithQset
 		// doing so will trigger the hook when reloadWithQset updates
 		// that hook will apply the cached qset and trigger the reload process
+
+		// otherwise, nothing is required except to restore the action bar
 		if (!confirm) {
 			let qsetToApply = creatorState.cachedQset
 			setCreatorState({
 				...creatorState,
 				reloadWithQset: qsetToApply,
+				cachedQset: null,
+				showActionBar: true,
+				showRollbackConfirm: false
+			})
+		} else {
+			setCreatorState({
+				...creatorState,
 				cachedQset: null,
 				showActionBar: true,
 				showRollbackConfirm: false
