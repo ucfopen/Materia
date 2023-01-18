@@ -57,10 +57,13 @@ const MyWidgetsPage = () => {
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
+				// Removes duplicates
+				let widgetSet = new Set([...data.pagination, ...state.widgetList])
+
 				setState({
 					...state,
 					totalPages: data.total_num_pages,
-					widgetList: [...state.widgetList, ...data.pagination].sort(_compareWidgets)
+					widgetList: [...widgetSet].sort(_compareWidgets)
 				})
 			},
 		})
@@ -129,7 +132,7 @@ const MyWidgetsPage = () => {
 
 				setState({
 					...state,
-					selectedInst: selectWidget && widgetFound ? widgetFound : null,
+					selectedInst: widgetFound,
 					loadingWidgets: false,
 					noAccess: widgetFound == null,
 				})
@@ -183,7 +186,8 @@ const MyWidgetsPage = () => {
 				title: newTitle,
 				copyPermissions: newPerm,
 				widgetName: inst.widget.name,
-				dir: inst.widget.dir
+				dir: inst.widget.dir,
+				successFunc: () => {}
 			},
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
@@ -228,6 +232,17 @@ const MyWidgetsPage = () => {
 				}
 			}
 		)
+	}
+
+	const onEdit = (inst) => {
+		setState({
+			...state,
+			selectedInst: inst,
+			widgetHash: inst.id,
+			page: 1,
+			widgetList: [],
+			forcedRefresh: true
+		})
 	}
 
 	/**
@@ -313,6 +328,7 @@ const MyWidgetsPage = () => {
 				inst={state.selectedInst}
 				onDelete={onDelete}
 				onCopy={onCopy}
+				onEdit={onEdit}
 				currentUser={user}
 				myPerms={state.myPerms}
 				otherUserPerms={state.otherUserPerms}

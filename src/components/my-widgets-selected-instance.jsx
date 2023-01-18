@@ -57,6 +57,7 @@ const MyWidgetSelectedInstance = ({
 	setOtherUserPerms,
 	onDelete,
 	onCopy,
+	onEdit,
 	beardMode,
 	beard
 }) => {
@@ -310,6 +311,7 @@ const MyWidgetSelectedInstance = ({
 				onClose={settingsDialogOnClose}
 				currentUser={currentUser}
 				otherUserPerms={otherUserPerms}
+				onEdit={onEdit}
 			/>
 		)
 	}
