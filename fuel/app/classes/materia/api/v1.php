@@ -134,47 +134,6 @@ class Api_V1
 		return Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, $perms);
 	}
 
-	// Returns the owners of an instance
-	static public function get_owners(string $inst_id) 
-	{
-		$all_users_with_perms = Perm_Manager::get_all_users_with_perms_to($inst_id, Perm::INSTANCE);
-		$owners = [];
-		$current_timestamp = time();
-		foreach ($all_users_with_perms as $user_id => $perm)
-		{
-			$not_expired = $perm[1] ? $perm[1] > $current_timestamp : true;
-			if ($perm[0] == Perm::FULL && $not_expired)
-			{
-				$owners[] = \Model_User::find_by_id($user_id);
-			}
-		}
-		return $owners;
-	}
-
-	// Sends a notification to user requesting access to instance
-	static public function request_access(string $inst_id, int $owner_id) 
-	{
-		try 
-		{
-			$owner = \Model_User::find($owner_id);
-			if ($owner)
-			{
-				$user_id = \Model_User::find_current_id();
-				\Model_Notification::send_item_notification($user_id, $owner_id, Perm::INSTANCE, $inst_id, 'access_request', Perm::FULL);
-			}
-			else
-			{
-				return new Msg(Msg::ERROR, 'Owner not found');
-			}
-		}
-		catch (\Exception $e) 
-		{
-			return new Msg(Msg::ERROR, 'Notification could not be sent');
-		}
-
-		return new Msg('success', 'Notification sent!');
-	}
-
 	// copies a widget instance
 	static public function widget_instance_copy(string $inst_id, string $new_name, bool $copy_existing_perms = false)
 	{
