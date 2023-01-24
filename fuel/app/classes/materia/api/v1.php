@@ -85,21 +85,28 @@ class Api_V1
 
 		// assumes the results will be sent via POST
 		$request = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'post', $url, $params);
+		$base_string = $request->get_signature_base_string();
 		$request->sign_request($hmc_sha1, $consumer, '');
 		$results = $request->get_parameters();
 
+		\Materia\Log::profile(['lti-content-item-select', $url, print_r($params, 1), print_r($results, 1), $base_string,], 'lti-launch');
+
 		// Remove GET params in $url from $results as they may mess up validation.
 		// if duplicated here. (ex: Sakai will fail validation)
-		$query_str = parse_url($url, PHP_URL_QUERY);
-		parse_str($query_str, $query_params);
-		if (is_array($query_params))
+		if ($lti_config['tmp_enable_lti_signature_duplicate_cleanup'] === true)
 		{
-			$keys = array_keys($query_params);
-			foreach ($keys as $key)
+			$query_str = parse_url($url, PHP_URL_QUERY);
+			$query_params = self::_safer_parse_str($query_str);
+			if (is_array($query_params))
 			{
-				if (isset($results[$key]))
+				$keys = array_keys($query_params);
+				foreach ($keys as $key)
 				{
-					unset($results[$key]);
+					\Fuel\Core\Log::debug($key);
+					if (isset($results[$key]))
+					{
+						unset($results[$key]);
+					}
 				}
 			}
 		}
@@ -1218,5 +1225,18 @@ class Api_V1
 		$inst_id = $play->inst_id;
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		return $inst;
+	}
+
+
+	// this function is needed to protect variable names in the query string, like dots, from becoming underscores
+	static private function _safer_parse_str($data)
+	{
+		$data = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', function($match) {
+			return bin2hex(urldecode($match[0]));
+		}, $data);
+
+		parse_str($data, $values);
+
+		return array_combine(array_map('hex2bin', array_keys($values)), $values);
 	}
 }

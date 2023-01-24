@@ -79,6 +79,9 @@ return [
 			'secret'                => $_ENV['LTI_SECRET'],
 			'key'                   => $_ENV['LTI_KEY'],
 
+			// temporary
+			'tmp_enable_lti_signature_duplicate_cleanup' => $_ENV['TMP_ENABLE_LTI_SIGNATURE_DUPLICATE_CLEANUP'] ?? true,
+
 		],
 
 		// Example Obojobo assignment integration
