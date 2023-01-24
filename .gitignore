@@ -116,5 +116,9 @@ licenses/LICENSES_NPM
 materia-pkg.zip
 materia-pkg-build-info.yml
 
-public/dist
 yarn-error.log
+
+public/dist/*
+!public/dist/package.json
+!public/dist/README.md
+!public/dist/path.js
