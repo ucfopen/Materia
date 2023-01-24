@@ -35,7 +35,7 @@ export const apiGetWidgetInstance = instId => {
  * storage
  * @returns An array of objects.
  */
-export const apiGetWidgetInstances = page_number => {
+export const apiGetWidgetInstances = (page_number = 1) => {
 	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []

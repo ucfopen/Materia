@@ -12,17 +12,24 @@ const SelectItem = () => {
     const fillRef = useRef(null)
     const [progressComplete, setProgressComplete] = useState(false)
 
-    const { data: instances, isFetching: isFetching, refetch: refetchInstances} = useQuery({
+    const [state, setState] = useState({
+		page: 1,
+        instances: [],
+    })
+
+    const { data, isFetching: isFetching, refetch: refetchInstances} = useQuery({
 		queryKey: 'instances',
-		queryFn: () => apiGetWidgetInstances(),
+		queryFn: () => apiGetWidgetInstances(state.page),
         staleTime: Infinity, 
         onSuccess: (data) => {
             if (data) {
-                data.map((instance, index) => {
+                data.pagination.map((instance, index) => {
                     instance.img = Materia.Image.iconUrl(instance.widget.dir, 60)
                     instance.preview_url = BASE_URL + 'preview/' + instance.id
                     instance.edit_url = BASE_URL + 'my-widgets/#' + instance.id
                 })
+
+                setState({...state, instances: data.pagination})
             }
         }
     })
@@ -38,15 +45,15 @@ const SelectItem = () => {
 		if(searchText == '') return result
 
         const re = RegExp(searchText, 'i')
-        if (instances && instances.length > 0)
-            instances.forEach(i => {
+        if (state.instances && state.instances.length > 0)
+            state.instances.forEach(i => {
                 if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
                     result.add(i.id)
                 }
             })
 
 		return result
-    }, [searchText, instances])
+    }, [searchText, state.instances])
 
     const handleChange = (e) => {
         setSearchText(e.target.value)
@@ -125,8 +132,8 @@ const SelectItem = () => {
     }, [selectedInstance, progressComplete])
 
     let instanceList = null
-    if (instances && instances.length > 0) {
-        instanceList = instances.map((instance, index) => {
+    if (state.instances && state.instances.length > 0) {
+        instanceList = state.instances.map((instance, index) => {
             var classList = []
             if (instance.draft) classList.push('draft')
             if (instance.selected) classList.push('selected')
@@ -155,7 +162,7 @@ const SelectItem = () => {
 
     let noInstanceRender = null
     let createNewInstanceLink = null
-    if (instances && instances.length < 1) {
+    if (state.instances && state.instances.length < 1) {
         noInstanceRender = <div id="no-widgets-container">
             <div id="no-instances">
                 You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.

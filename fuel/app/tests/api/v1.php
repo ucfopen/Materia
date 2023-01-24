@@ -623,16 +623,6 @@ class Test_Api_V1 extends \Basetest
 		$this->assertNull($output->msg);
 	}
 
-	public function test_get_owners(): void
-	{
-		// TO DO
-	}
-
-	public function test_request_access(): void
-	{
-		// TO DO
-	}
-
 	public function test_widget_publish_perms_verify(): void
 	{
 		//make sure we get an instance of a widget that restricts publish rights

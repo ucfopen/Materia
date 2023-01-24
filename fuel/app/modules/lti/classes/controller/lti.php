@@ -63,8 +63,6 @@ class Controller_Lti extends \Controller
 		\Css::push_group('core');
 		\Js::push_group(['react', 'post_login']);
 
-
-
 		return \Response::forge($this->theme->render());
 	}
 
