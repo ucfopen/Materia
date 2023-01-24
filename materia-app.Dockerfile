@@ -1,17 +1,17 @@
 # =====================================================================================================
 # Base stage used for build and final stages
 # =====================================================================================================
-FROM php:7.4-fpm-alpine AS base_stage
+FROM php:8.1.11-fpm-alpine3.16 AS base_stage
 
 ARG PHP_EXT="bcmath gd pdo_mysql xml zip opcache"
 ARG PHP_MEMCACHED_VERSION="v3.1.5"
 
-ARG COMPOSER_VERSION="1.10.0"
-ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/d2c7283f9a7df2db2ab64097a047aae780b8f6b7/web/installer"
-ARG COMPOSER_INSTALLER_SHA="e0012edf3e80b6978849f5eff0d4b4e4c79ff1609dd1e613307e16318854d24ae64f26d17af3ef0bf7cfb710ca74755a"
+ARG COMPOSER_VERSION="1.10.26"
+ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/2e4127af2d638693670a33b1a63ee035c20277d7/web/installer"
+ARG COMPOSER_INSTALLER_SHA="55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae"
 
 # os packages needed for php extensions
-ARG BASE_PACKAGES="bash zip libmemcached-dev libxml2-dev zip libzip libzip-dev git freetype libpng libjpeg-turbo"
+ARG BASE_PACKAGES="bash zip libmemcached-dev libxml2-dev zip libzip libzip-dev git freetype libpng libjpeg-turbo linux-headers"
 ARG BUILD_PACKAGES="autoconf build-base cyrus-sasl-dev libpng-dev libjpeg-turbo-dev shadow"
 ARG PURGE_FILES="/var/lib/apt/lists/* /usr/src/php /usr/include /usr/local/include /usr/share/doc /usr/share/doc-base /var/www/html/php-memcached"
 
@@ -63,7 +63,7 @@ RUN composer install --no-cache --no-dev --no-progress --no-scripts --prefer-dis
 # =====================================================================================================
 # Yarn stage buils js/css assets
 # =====================================================================================================
-FROM node:12.11.1-alpine AS yarn_stage
+FROM node:18.13.0-alpine AS yarn_stage
 
 RUN apk add --no-cache git
 

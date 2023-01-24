@@ -86,7 +86,7 @@ class Session_Play
 
 			static::set_user_is_playing();
 			$logger = new Session_Logger();
-			$logger->add_log($this->id, Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time());
+			$logger->add_log(Session_Log::TYPE_PLAY_CREATED, 0, '', $this->id, -1, time(), $this->id);
 			\Event::trigger('play_start', ['play_id' => $this->id, 'inst_id' => $inst_id, 'context_id' => $this->context_id]);
 			return $this->id;
 		}
@@ -258,6 +258,20 @@ class Session_Play
 		}
 
 		return $plays;
+	}
+
+	public static function get_by_inst_id_paginated($inst_id, $semester='all', $year='all', $page_number=1)
+	{
+		$items_per_page = 10;
+		$data = self::get_by_inst_id($inst_id, $semester, $year);
+		$total_num_pages = ceil(sizeof($data) / $items_per_page);
+		$offset = $items_per_page * ($page_number - 1);
+		$page = array_slice($data, $offset, $items_per_page);
+		$data = [
+			'total_num_pages' => $total_num_pages,
+			'pagination' => $page,
+		];
+		return $data;
 	}
 
 	/**

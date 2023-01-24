@@ -74,7 +74,7 @@ const attemptsToIndex = (attempts) => {
 	}
 }
 
-const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms }) => {
+const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, onEdit }) => {
 	const [state, setState] = useState(initState())
 	const mounted = useRef(false)
 	const mutateWidget = useUpdateWidget()
@@ -250,7 +250,9 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms })
 
 			mutateWidget.mutate({
 				args: args,
-				successFunc: () => {
+				successFunc: (updatedInst) => {
+					console.log(updatedInst)
+					onEdit(updatedInst)
 					if (mounted.current) {
 						onClose()
 					}

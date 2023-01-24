@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from 'react-query'
 import { apiCopyWidget } from '../../util/api'
 
+/**
+ * It optimistically updates the cache value on mutate
+ * @returns The mutation function and the result of the mutation
+ */
 export default function useCopyWidget() {
 	const queryClient = useQueryClient()
 
@@ -9,7 +13,8 @@ export default function useCopyWidget() {
 		apiCopyWidget,
 		{
 			onMutate: async inst => {
-				await queryClient.cancelQueries('widgets')
+				await queryClient.cancelQueries('widgets', { exact: true, active: true, })
+				// 'getQueryData()' is a sync method
 				const previousValue = queryClient.getQueryData('widgets')
 
 				const newInst = {
@@ -23,13 +28,16 @@ export default function useCopyWidget() {
 					is_fake: true
 				}
 
-				queryClient.setQueryData('widgets', old => [newInst, ...old])
+				let updateData = previousValue
+				if (updateData) updateData.pagination?.unshift(newInst)
 
-				// Stores the old value for use if there is an error
+				// 'setQueryData()' is a sync method
+				queryClient.setQueryData('widgets', updateData) // can confirm 'widgets' is updating
 				return { previousValue }
 			},
-			onSuccess: () => {
+			onSuccess: (data, variables) => {
 				queryClient.invalidateQueries('widgets')
+				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)

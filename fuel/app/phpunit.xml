@@ -29,9 +29,6 @@
 		</listener>
 	</listeners>
 	<testsuites>
-<!-- 		<testsuite name="core">
-			<directory suffix=".php">../core/tests</directory>
-		</testsuite> -->
 		<testsuite name="packages">
 			<directory suffix=".php">../packages/*/tests</directory>
 			<exclude>../packages/materia/tests/widget_source</exclude>
@@ -57,7 +54,4 @@
 			<directory suffix=".php">../app/tasks</directory>
 		</whitelist>
 	</filter>
-<!-- 	<logging>
-		<log type="coverage-html" target="../../coverage"/>
-	</logging> -->
 </phpunit>

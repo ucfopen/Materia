@@ -2,15 +2,7 @@
 
 View the [Materia Docs](http://ucfopen.github.io/Materia-Docs/) for info on installing, using, and developing Materia and widgets.
 
-[Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/) [![Join UCF Open Slack Discussions](https://ucf-open-slackin.herokuapp.com/badge.svg)](https://ucf-open-slackin.herokuapp.com/)
-
-## Quick Heroku Deploy
-
-We added Heroku support as an easy way to give Materia a **free test drive** (or scale it up for production use).
-
-[![Deploy Materia to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-> [Heroku](https://www.heroku.com/what) is a cloud service that lets you host web apps in the cloud without having to worry so much about the infrastructure.
+[Join UCF Open Slack Discussions](https://dl.ucf.edu/join-ucfopen/) [![Join UCF Open Slack Discussions](https://badgen.net/badge/icon/ucfopen?icon=slack&label=slack&color=e01563)](https://dl.ucf.edu/join-ucfopen/)
 
 # Installation
 

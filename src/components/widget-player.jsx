@@ -178,7 +178,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				enginePath = inst.widget.player
 			} else {
 				// link to the static widget
-				enginePath = WIDGET_URL + inst.widget.dir + inst.widget.player
+				enginePath = window.WIDGET_URL + inst.widget.dir + inst.widget.player
 			}
 
 			// Starts up the demo with the htmlPath
@@ -231,19 +231,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	const _sendToWidget = (type, args) => {
 		return frameRef.current.contentWindow.postMessage(
 			JSON.stringify({ type, data: args }),
-			STATIC_CROSSDOMAIN
+			window.STATIC_CROSSDOMAIN
 		)
 	}
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
-		// build a link element to deconstruct the static url
-		// this helps us match the static url against the event origin
-		const a = document.createElement('a')
-		a.href = STATIC_CROSSDOMAIN
-		const expectedOrigin = a.href.substring(0, a.href.length - 1)
-
-		if (e.origin === expectedOrigin) {
+	  const origin = `${e.origin}/`
+		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
 
 			switch (msg.type) {
@@ -272,7 +267,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		// TODO : make this an else?
 		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
-				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${e.origin}`
+				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
 			)
 		}
 	}
@@ -294,7 +289,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 	const _sendWidgetInit = () => {
 		const convertedInstance = _translateForApiVersion(inst, qset)
 		setStartTime(new Date().getTime())
-		_sendToWidget('initWidget',	[qset, convertedInstance, BASE_URL, MEDIA_URL])
+		_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
 	}
 
 	// Used to add play logs
@@ -333,13 +328,13 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		let _scoreScreenURL = scoreScreenURL
 		if (!scoreScreenURL) {
 			if (isPreview) {
-				_scoreScreenURL = `${BASE_URL}scores/preview/${instanceId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
 				setScoreScreenURL(_scoreScreenURL)
 			} else if (isEmbedded) {
-				_scoreScreenURL = `${BASE_URL}scores/embed/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
 				setScoreScreenURL(_scoreScreenURL)
 			} else {
-				_scoreScreenURL = `${BASE_URL}scores/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
 				setScoreScreenURL(_scoreScreenURL)
 			}
 		}

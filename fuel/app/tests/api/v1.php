@@ -144,6 +144,11 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_widget_paginate_instances_get()
+	{
+
+	}
+
 	public function test_widget_instance_new()
 	{
 		$widget = $this->make_disposable_widget();
@@ -486,7 +491,7 @@ class Test_Api_V1 extends \Basetest
 
 		// the lock is stored in a cache that expires
 		// let's manually clear cache now, effectively removing the lock
-		\Cache::delete_all('instance-lock');
+		\Cache::delete_all('');
 
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
@@ -991,6 +996,10 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::play_logs_get(555);
 		$this->assert_invalid_login_message($output);
 
+	}
+
+	public function test_paginated_play_logs_get()
+	{
 	}
 
 	public function test_score_summary_get()

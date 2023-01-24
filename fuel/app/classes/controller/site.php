@@ -7,6 +7,7 @@
 class Controller_Site extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	/**
 	 * Handles the homepage
@@ -42,8 +43,19 @@ class Controller_Site extends Controller
 			->set('title', 'Help')
 			->set('page_type', 'docs help');
 
-		Js::push_group(['react', 'help']);
-		Css::push_group('help');
+		// check to see if a theme override exists for the help page
+		$theme_overrides = \Event::Trigger('before_help_page', '', 'array');
+
+		if ($theme_overrides)
+		{
+			Js::push_group(['react', $theme_overrides[0]['js']]);
+			Css::push_group($theme_overrides[0]['css']);
+		}
+		else
+		{
+			Js::push_group(['react', 'help']);
+			Css::push_group('help');
+		}
 	}
 
 	public function action_403()
@@ -92,8 +104,6 @@ class Controller_Site extends Controller
 	 */
 	public function action_500()
 	{
-		Css::push_group('errors');
-
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
@@ -103,6 +113,9 @@ class Controller_Site extends Controller
 		Js::push_group(['react', '500']);
 
 		Log::warning('500 URL: '.Uri::main());
+
+		$this->add_inline_info();
+		Css::push_group(['errors','500']);
 
 		$response = \Response::forge(\Theme::instance()->render(), 500);
 

@@ -11,26 +11,26 @@ export default function useUpdateWidget() {
 			onMutate: async inst => {
 				await queryClient.cancelQueries('widgets')
 
-				const copyValue = [...queryClient.getQueryData('widgets')]
-				const previousValue = queryClient.getQueryData('widgets')
+				const previousWidgets = queryClient.getQueryData('widgets')
 
-				for (const val of copyValue) {
-					if (val.id === inst.args[0]) {
-						val.open_at = `${inst.args[4]}`
-						val.close_at = `${inst.args[5]}`
-						val.attempts = `${inst.args[6]}`
-						val.guest_access = inst.args[7]
-						val.embedded_only = inst.args[8]
+				if (previousWidgets) {
+					for (const val of previousWidgets.pagination) {
+						if (val.id === inst.args[0]) {
+							val.open_at = `${inst.args[4]}`
+							val.close_at = `${inst.args[5]}`
+							val.attempts = `${inst.args[6]}`
+							val.guest_access = inst.args[7]
+							val.embedded_only = inst.args[8]
+						}
 					}
+					queryClient.setQueryData('widgets', previousWidgets)
 				}
-
-				queryClient.setQueryData('widgets', () => copyValue)
-
+				
 				// Stores the old value for use if there is an error
-				return { previousValue }
+				return { previousWidgets }
 			},
-			onSuccess: (data, variables) => {
-				variables.successFunc()
+			onSuccess: (updatedInst, variables) => {
+				variables.successFunc(updatedInst)
 				queryClient.invalidateQueries('widgets')
 				queryClient.invalidateQueries(['user-perms', variables.args[0]])
 			},

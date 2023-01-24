@@ -33,7 +33,7 @@ const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
 
 const stringToBoolean = s => s === 'true'
 
-const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
+const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, embed = false}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
@@ -45,6 +45,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 	const [closeDate, setCloseDate] = useState(inst.close_at < 0 ? '' : objToDateString(inst.close_at))
 	const [closeTime, setCloseTime] = useState(inst.close_at < 0 ? '' : objToTimeString(inst.close_at))
 	const [errorText, setErrorText] = useState('')
+	const [successText, setSuccessText] = useState('')
 	const [allPerms, setAllPerms] = useState({myPerms: null, otherUserPerms: null})
 	const deleteWidget = useDeleteWidget()
 	const unDeleteWidget = useUnDeleteWidget()
@@ -110,6 +111,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			else {
 				u.open_at = stringToDateObj(availableDate, availableTime)
 			}
+			setUpdatedInst({...updatedInst,
+				'open_at': stringToDateObj(availableDate, availableTime)
+			})
 		}
 		if (!closeDisabled){
 			if(closeDate == '' || closeTime == '') {
@@ -119,6 +123,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			else {
 				u.close_at = stringToDateObj(closeDate, closeTime)
 			}
+			setUpdatedInst({...updatedInst,
+				'close_at': stringToDateObj(closeDate, closeTime)
+			})
 		}
 
 		//make sure title is not blank
@@ -127,10 +134,6 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 			return
 		}
 
-		setUpdatedInst({...updatedInst,
-			'open_at': stringToDateObj(availableDate, availableTime),
-			'close_at': stringToDateObj(closeDate, closeTime)
-		})
 
 		const args = [
 			u.id,
@@ -146,8 +149,14 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 
 		updateWidget.mutate({
 			args: args,
-			successFunc: () => setErrorText('Success!'),
-			errorFunc: () => setErrorText('Error: Update Unsuccessful')
+			successFunc: () => {
+				setSuccessText('Success!')
+				setErrorText('')
+			},
+			errorFunc: () => {
+				setErrorText('Error: Update Unsuccessful')
+				setSuccessText('')
+			}
 		})
 	}
 
@@ -184,8 +193,9 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 		)
 	}
 
-	return (
-		<section className='page inst-info'>
+	let breadcrumbContainer = null
+	if (!embed) {
+		breadcrumbContainer =
 			<div id="breadcrumb-container">
 				<div className="breadcrumb">
 					<a href="/admin/instance">Instance Search</a>
@@ -199,6 +209,11 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 				</svg>
 				<div className="breadcrumb">{updatedInst.name}</div>
 			</div>
+	}
+
+	return (
+		<section className='page inst-info'>
+			{ breadcrumbContainer }
 			<div className='instance-management'>
 				<div className='header'>
 				<img src={iconUrl('/widget/', updatedInst.widget.dir, 60)} />
@@ -382,6 +397,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn, onCopy}) => {
 							<span>Apply Changes</span>
 						</button>
 						<span className='error-text'>{errorText}</span>
+						<span className='success-text'>{successText}</span>
 					</div>
 				</div>
 
