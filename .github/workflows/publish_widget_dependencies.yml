@@ -1,5 +1,6 @@
 name: Upload Widget Dependencies Package
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 jobs:
   checkout-and-install:
     runs-on: ubuntu-latest
