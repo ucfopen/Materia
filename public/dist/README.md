@@ -4,7 +4,16 @@ This package is intended for use by [Materia](https://github.com/ucfopen/Materia
 
 With Materia 10.0 and the conversion from AngularJS to React, the **Materia-Server-Client-Assets** repo is deprecated, but the Materia Widget Development Kit still requires access to certain CSS and JS assets from the main repo. This package contains those assets.
 
-## TODOS:
+### Publishing New Versions
 
-- Include JS and CSS assets required to render the Materia player and creator in the MWDK.
-- Update the MWDK to Webpack 5 and add support for new JS and CSS assets provided in this package.
+This widget uses the `workflow_dispatch` event to publish new versions through GitHub Actions. No inputs are required. The action is configured to be publish the package to NPM, and as such, the `NPM_TOKEN` value must be available in the repository's secrets. If the `workflow_dispatch` option is unavailable, you can use GitHub CLI to run the workflow manually via:
+
+```
+gh workflow run publish_widget_dependencies.yml
+```
+
+If on a branch other than master, you can additionally specify the branch in the command:
+
+```
+gh workflow run publish_widget_dependencies.yml --ref <branch name>
+```

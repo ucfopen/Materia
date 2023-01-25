@@ -61,7 +61,7 @@ module.exports = {
 		filename: '[name].js',
 		clean: {
 			keep(asset) {
-				return (asset.includes('package.json') || asset.includes('README.md') || asset.includes('path.js'))
+				return (asset.includes('package.json') || asset.includes('README.md'))
 			}
 		}
 	},
