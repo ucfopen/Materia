@@ -29,7 +29,7 @@ class Controller_Api_Instance extends Controller_Rest
 		return $this->response($history, 200);
 	}
 
-	public function post_request_access()
+	public function post_request_access(string $inst_id, int $owner_id)
 	{
 		$user_id = \Model_User::find_current_id();
 		$inst_id = Input::post('inst_id', null);

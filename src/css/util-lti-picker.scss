@@ -19,7 +19,52 @@ header {
 	z-index: 0;
 }
 
-.help-container {
+.container {
+	text-align: center;
+	margin-top: 3em;
+	padding: 2em;
+	box-sizing: border-box;
+	position: relative;
+
+	h2 {
+		margin-top: 0;
+	}
+
+	p {
+		margin-bottom: 2em;
+	}
+	
+	.instance_owner {
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		list-style-type: none;
+		margin: 10px 0;
+	}
+
+	.widget_info {
+		display: flex;
+		align-items: center;
+		align-content: stretch;
+		position: relative;
+		width: 100%;
+		justify-content: center;
+		margin-top: -20px;
+
+		.widget_icon {
+			flex: 0 1 auto;
+			margin: 10px;
+		}
+
+		.widget_name {
+			flex: 0 1 auto;
+			font-size: 1.2em;
+			text-align: left;
+		}
+	}
+}
+
+.container, .help-container {
 	margin: 0 auto;
 	width: 500px;
 }
@@ -27,11 +72,13 @@ header {
 .lti-error header,
 .selectWidget header,
 .widgetSelected header,
-.progress header {
+.progress header,
+.preview-header {
 	visibility: visible;
 }
 
-.widgetSelected header h1 {
+.widgetSelected header h1,
+.preview header h1 {
 	background: #68d053;
 }
 
@@ -372,62 +419,3 @@ header > h1 {
 	font-size: 13px;
 	width: 195px;
 }
-
-// Embed Preview
-.preview {
-	header {
-		visibility: visible;
-	}
-	header h1 {
-		background: #68d053;
-	}
-
-	.container {
-		background: #ebebeb;
-		width: 500px;
-		margin: 0 auto;
-		text-align: center;
-		margin-top: 3em;
-		padding: 2em;
-		box-sizing: border-box;
-		position: relative;
-
-		h2 {
-			margin-top: 0;
-		}
-
-		p {
-			margin-bottom: 2em;
-		}
-
-		.instance_owner {
-			display: flex;
-			justify-content: space-around;
-			align-items: center;
-			list-style-type: none;
-			margin: 10px 0;
-		}
-
-		.widget_info {
-			display: flex;
-			align-items: center;
-			align-content: stretch;
-			position: relative;
-			width: 100%;
-			justify-content: center;
-			margin-top: -20px;
-
-			.widget_icon {
-				flex: 0 1 auto;
-				margin: 10px;
-			}
-
-			.widget_name {
-				flex: 0 1 auto;
-				font-size: 1.2em;
-				text-align: left;
-			}
-		}
-	}
-}
-

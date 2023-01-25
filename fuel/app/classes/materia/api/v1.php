@@ -1185,4 +1185,28 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		return $inst;
 	}
+
+	// Sends a notification to user requesting access to instance
+	static public function request_access(string $inst_id, int $owner_id) 
+	{
+		try 
+		{
+			$owner = \Model_User::find($owner_id);
+			if ($owner)
+			{
+				$user_id = \Model_User::find_current_id();
+				\Model_Notification::send_item_notification($user_id, $owner_id, Perm::INSTANCE, $inst_id, 'access_request', Perm::FULL);
+			}
+			else
+			{
+				return new Msg(Msg::ERROR, 'Owner not found');
+			}
+		}
+		catch (\Exception $e) 
+		{
+			return new Msg(Msg::ERROR, 'Notification could not be sent');
+		}
+
+		return new Msg('success', 'Notification sent!');
+	}
 }

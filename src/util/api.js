@@ -608,8 +608,3 @@ export const apiRequestAccess = (instId, ownerId) => {
 		return null
 	})
 }
-
-export const apiGetOwners = (instId) => {
-	return fetch('/api/json/get_owners', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
-	.then(resp => resp.json())
-}

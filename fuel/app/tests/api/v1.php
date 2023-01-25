@@ -1517,6 +1517,11 @@ class Test_Api_V1 extends \Basetest
 		$this->assertFalse(array_key_exists('login_hash', $output[0]));
 	}
 
+	public function test_request_access()
+	{
+		//
+	}
+
 	protected function assert_is_semester_rage($semester)
 	{
 		$this->assertArrayHasKey('year', $semester);

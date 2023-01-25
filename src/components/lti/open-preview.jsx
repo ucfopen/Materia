@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetWidget, apiGetUserPermsForInstance, apiGetWidgetInstance, apiRequestAccess, apiGetOwners } from '../../util/api'
+import { apiGetWidgetInstance, apiRequestAccess } from '../../util/api'
 import { iconUrl as getIconUrl } from '../../util/icon-url'
 
 const SelectItem = () => {
@@ -10,6 +10,7 @@ const SelectItem = () => {
     const [userOwnsInstance, setUserOwnsInstance] = useState(false)
     const [previewEmbedUrl, setPreviewEmbedUrl] = useState('')
     const [requestSuccess, setRequestSuccess] = useState(null)
+    const [instanceOwners, setOwnerList] = useState([])
 
 	const { data: instance } = useQuery({
 		queryKey: 'instance',
@@ -22,12 +23,12 @@ const SelectItem = () => {
         }
     })
 
-    const { data: instanceOwners } = useQuery({
-		queryKey: 'owners',
-		queryFn: () => apiGetOwners(instID),
-		placeholderData: {},
-        staleTime: Infinity
-    })
+    useEffect(() => {
+        if (window && window.OWNER_LIST)
+        {
+            setOwnerList(window.OWNER_LIST)
+        }
+    }, [window.OWNER_LIST])
 
     useEffect(() => {
         if (window && window.PREVIEW_EMBED_URL) {
@@ -43,13 +44,14 @@ const SelectItem = () => {
 
     const requestAccess = async (ownerID) => {
         await apiRequestAccess(instID, ownerID).then((data) => {
+            console.log(data)
             if (data) setRequestSuccess(data.title)
             else setRequestSuccess('Request Failed')
         })
     }
 
     let ownerList = null
-    if (!!instanceOwners && instanceOwners[0] && Object.keys(instanceOwners[0]).length !== 0) {
+    if (instanceOwners && Array.isArray(instanceOwners)) {
         ownerList = instanceOwners.map((owner, index) => {
             return <li className="instance_owner" key={index}>
                 <span>{owner.first} {owner.last}</span>

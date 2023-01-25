@@ -113,7 +113,15 @@ class Controller_Lti extends \Controller
 
 		// If the current user does not have ownership over the embedded widget, find all of the users who do
 		$current_user_owns = \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::VISIBLE, \Materia\Perm::FULL]);
-		$instance_owner_list = $current_user_owns ? [] : $inst->get_owners();
+
+		$instance_owner_list = $current_user_owns ? [] : (array_map(function ($object)
+		{ 
+			return (object) [
+				'first' 	=> $object->first,
+				'last' 		=> $object->last,
+				'id' 		=> $object->id
+			];
+		}, $inst->get_owners()));
 
 		$this->insert_analytics();
 
@@ -123,7 +131,7 @@ class Controller_Lti extends \Controller
 		\Js::push_inline('var PREVIEW_EMBED_URL = "'.\Uri::create('/preview-embed/'.$inst_id).'";');
 		\Js::push_inline('var CURRENT_USER_OWNS = "'.$current_user_owns.'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
-		\Js::push_inline('var OWNER_LIST = "'.json_encode($instance_owner_list).'";');
+		\Js::push_inline('var OWNER_LIST = '.json_encode($instance_owner_list).';');
 		\Js::push_inline('var USER_ID = "'.\Model_User::find_current_id().'";');
 
 		\Css::push_group(['core', 'lti']);
