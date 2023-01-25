@@ -7,10 +7,16 @@
 		"js/materia.enginecore.js",
 		"js/materia.creatorcore.js",
 		"js/materia.scorecore.js",
-        "js/player-page.js",
-        "js/creator-page.js"
+		"js/player-page.js",
+		"js/player-page.css",
+		"js/creator-page.js",
+		"js/creator-page.css",
+		"js/qset-history.js",
+		"js/qset-history.css",
+		"js/question-importer.js",
+		"js/question-importer.css"
 	],
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/clpetersonucf/Materia"
