@@ -59,9 +59,10 @@ module.exports = {
 	output: {
 		path: path.join(__dirname, 'public/dist/'),
 		filename: '[name].js',
-		clean: true,
-		keep(asset) {
-			return (asset.includes('package.json') || asset.includes('README.md') || asset.includes('path.js'))
+		clean: {
+			keep(asset) {
+				return (asset.includes('package.json') || asset.includes('README.md') || asset.includes('path.js'))
+			}
 		}
 	},
 	module: {
