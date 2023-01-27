@@ -559,6 +559,14 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) 
 		})
 }
 
+export const apiGetAssets = () => {
+	return fetch(`/api/json/assets_get`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
 // Persist to wherever using the super-secret object
 const writeToStorage = (queryKey, data) => {
 	let storageData = window.sessionStorage.getItem('queries');

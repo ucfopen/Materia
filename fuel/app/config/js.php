@@ -32,6 +32,7 @@ return [
 		'help'       => [$webpack.'js/help.js'],
 		'404'        => [$webpack.'js/404.js'],
 		'500'        => [$webpack.'js/500.js'],
+		'media'      => [$webpack.'js/media.js'],
 		'qset_history' => [$webpack.'js/qset-history.js'],
 		'angular'    => [$vendor.'angular.min.js'],
 		'ng-animate' => [$vendor.'angular-animate.min.js'],
