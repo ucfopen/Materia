@@ -41,7 +41,9 @@ class Cookie extends Fuel\Core\Cookie
 		// is_null($secure) and $secure = static::$config['secure'];
 		is_null($http_only) and $http_only = static::$config['http_only'];
 		//static::$config is protected - can't get it in an extended class, hack workaround here
-		empty($same_site) and $same_site = 'None';
+
+		// FuelPHP casts $same_site as a string, which converts null into an empty string. Just using is_null is insufficient.
+		if ( ! $same_site) $same_site = 'None';
 
 		// add the current time so we have an offset
 		$expiration = $expiration > 0 ? $expiration + time() : 0;
@@ -84,6 +86,9 @@ class Cookie extends Fuel\Core\Cookie
 	 */
 	public static function delete($name, $path = null, $domain = null, $secure = null, $http_only = null, $same_site = 'None')
 	{
+		// In case $same_site is an empty string, update its value to 'None', as intended
+		if ( ! $same_site) $same_site = 'None';
+
 		// Remove the cookie
 		unset($_COOKIE[$name]);
 

@@ -751,7 +751,7 @@ class Api_V1
 		$summary = array_values($summary);
 		// we want to be sure that the client can rely on the array order
 		usort($summary, function($a, $b) {
-			return($a['id'] < $b['id']);
+			return($b['id'] - $a['id']);
 		});
 		return $summary;
 	}
