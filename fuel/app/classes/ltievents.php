@@ -158,7 +158,7 @@ class LtiEvents
 			'extension_value' => $extension_value
 		];
 
-		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
+		$body = \Theme::instance()->view('partials/outcomes_xml', $view_data)->render();
 
 		if (\Config::get('lti.log_for_debug', false))
 		{
