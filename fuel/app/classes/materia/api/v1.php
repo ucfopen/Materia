@@ -62,58 +62,12 @@ class Api_V1
 		if (\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR, \Materia\Perm_Role::SU]) !== true) return Msg::no_perm();
 		if (\Service_User::verify_session('no_author')) return Msg::no_perm();
 
-		$lti_config = \LtiLaunch::config_from_key($lti_key);
-
-		if (is_null($lti_config)) return Msg::invalid_input('Lti key not found.');
-
-		$params = [
-			'lti_message_type' => 'ContentItemSelection',
-			'lti_version' => 'LTI-1p0',
-			'content_items' => $content_items,
-			'data' => '{"sentBy": "Materia"}',
-			'oauth_nonce' => sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)),
-			'oauth_timestamp' => time(),
-			'oauth_callback' => 'about:blank',
-			'oauth_consumer_key' => $lti_key,
-			'oauth_signature_method' => 'HMAC-SHA1',
-			'oauth_version' => '1.0',
-		];
-
-		$secret = $lti_config['secret'] ?? false;
-		$hmc_sha1  = new \Eher\OAuth\HmacSha1();
-		$consumer = new \Eher\OAuth\Consumer('', $secret);
-
-		// assumes the results will be sent via POST
-		$request = \Eher\OAuth\Request::from_consumer_and_token($consumer, null, 'post', $url, $params);
-		$base_string = $request->get_signature_base_string();
-		$request->sign_request($hmc_sha1, $consumer, '');
-		$results = $request->get_parameters();
-
-		\Materia\Log::profile(['lti-content-item-select', $url, print_r($params, 1), print_r($results, 1), $base_string,], 'lti-launch');
-
-		// Remove GET params in $url from $results as they may mess up validation.
-		// if duplicated here. (ex: Sakai will fail validation)
-		if ($lti_config['tmp_enable_lti_signature_duplicate_cleanup'] === true)
-		{
-			$query_str = parse_url($url, PHP_URL_QUERY);
-			$query_params = self::_safer_parse_str($query_str);
-			if (is_array($query_params))
-			{
-				$keys = array_keys($query_params);
-				foreach ($keys as $key)
-				{
-					\Fuel\Core\Log::debug($key);
-					if (isset($results[$key]))
-					{
-						unset($results[$key]);
-					}
-				}
-			}
+		try {
+			return \Oauth::sign_content_item_selection($url, $content_items, $lti_key);
+		} catch (\Exception $e) {
+			return new Msg(Msg::ERROR, $e->getMessage());
 		}
-
-		return $results;
 	}
-
 
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
@@ -1227,16 +1181,4 @@ class Api_V1
 		return $inst;
 	}
 
-
-	// this function is needed to protect variable names in the query string, like dots, from becoming underscores
-	static private function _safer_parse_str($data)
-	{
-		$data = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', function($match) {
-			return bin2hex(urldecode($match[0]));
-		}, $data);
-
-		parse_str($data, $values);
-
-		return array_combine(array_map('hex2bin', array_keys($values)), $values);
-	}
 }

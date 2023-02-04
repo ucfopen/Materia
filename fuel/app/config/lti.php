@@ -79,8 +79,10 @@ return [
 			'secret'                => $_ENV['LTI_SECRET'],
 			'key'                   => $_ENV['LTI_KEY'],
 
-			// temporary
-			'tmp_enable_lti_signature_duplicate_cleanup' => $_ENV['TMP_ENABLE_LTI_SIGNATURE_DUPLICATE_CLEANUP'] ?? true,
+			// When sending LTI ContentItem Selection requests, Sakai updated and required
+			// that GET params in the url aren't duplicated in the body of params
+			// as they caused oauth signature validation to fail in Sakai.
+			'enforce_unique_params' => $_ENV['LTI_ENFORCE_UNIQUE_PARAMS'] ?? true,
 
 		],
 

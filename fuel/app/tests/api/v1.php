@@ -65,7 +65,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_author();
 		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $invalid_lti_key);
 		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Validation Error', $output->title);
+		$this->assertEquals('Lti key not found.', $output->title);
 
 		$this->_as_author();
 		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $valid_lti_key);
@@ -86,7 +86,7 @@ class Test_Api_V1 extends \Basetest
 		$this->_as_super_user();
 		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $invalid_lti_key);
 		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Validation Error', $output->title);
+		$this->assertEquals('Lti key not found.', $output->title);
 
 		$this->_as_super_user();
 		$output = Api_V1::lti_sign_content_item_selection($url, $content_items, $valid_lti_key);
