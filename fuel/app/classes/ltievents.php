@@ -127,8 +127,10 @@ class LtiEvents
 
 		$launch = static::session_get_launch($play_id);
 
-		$secret = LtiLaunch::config()['secret'] ?? false;
-		$key = LtiLaunch::config()['key'] ?? false;
+		$cfg = LtiLaunch::config_from_request();
+
+		$secret = $cfg['secret'] ?? false;
+		$key = $cfg['key'] ?? false;
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
@@ -145,7 +147,7 @@ class LtiEvents
 		if (strpos($launch->outcome_ext, 'url') !== false)
 		{
 			// url supported, does the config say we should upgrade it to ltiLaunchUrl?
-			$extension_type = LtiLaunch::config()['upgrade_to_launch_url'] ? 'ltiLaunchUrl' : 'url';
+			$extension_type = $cfg['upgrade_to_launch_url'] ? 'ltiLaunchUrl' : 'url';
 			$extension_value = \Uri::create("/scores/single/{$play_id}/{$inst_id}");
 		}
 
@@ -287,7 +289,7 @@ class LtiEvents
 	{
 
 		// if the configuration says we don't save associations, just return now
-		if ( ! (LtiLaunch::config()['save_assoc'] ?? true)) return true;
+		if ( ! (LtiLaunch::config_from_request()['save_assoc'] ?? true)) return true;
 
 		// Search for any associations with this item id and resource link
 		$assoc = static::find_assoc_from_resource_id($launch->resource_id);

@@ -11,7 +11,7 @@ class LtiUserManager
 	public static function authenticate($launch)
 	{
 		// =================== LOAD CONFIGURATION ============================
-		$cfg            = LtiLaunch::config();
+		$cfg            = LtiLaunch::config_from_request();
 		$local_id_field = $cfg['local_identifier'] ?? 'username';
 		$auth_driver    = $cfg['auth_driver'] ?? '';
 		$creates_users  = $cfg['creates_users'] ?? true;
@@ -159,7 +159,7 @@ class LtiUserManager
 	 */
 	protected static function update_user_roles(\Model_User $user, $launch, $auth)
 	{
-		$cfg = LtiLaunch::config();
+		$cfg = LtiLaunch::config_from_request();
 		if ($cfg['use_launch_roles'] && method_exists($auth, 'update_role'))
 		{
 			$auth->update_role($user->id, static::is_lti_user_a_content_creator($launch));

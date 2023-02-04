@@ -12,7 +12,7 @@ class LtiLaunch
 		if (isset(static::$launch)) return static::$launch;
 		if ( ! \Input::param('lti_message_type')) return null;
 
-		$config = static::config();
+		$config = static::config_from_request();
 
 		// these are configurable to let username and user_id come from custom launch variables
 		$remote_id_field   = $config['remote_identifier'] ?? 'username';
@@ -52,7 +52,7 @@ class LtiLaunch
 		return static::$launch;
 	}
 
-	public static function config()
+	public static function config_from_request()
 	{
 		if ( ! empty(static::$config))
 		{
