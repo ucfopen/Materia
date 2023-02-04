@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.4.2",
+    "materia-server-client-assets": "https://github.com/iturgeon/Materia-Server-Client-Assets.git#842eaadcf38811bbaa37d804049cc36a4f643a9b",
     "napa": "^3.0.0"
   },
   "devDependencies": {

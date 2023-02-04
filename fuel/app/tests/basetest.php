@@ -23,7 +23,7 @@ class Test_Basetest extends \Basetest
 		static::clear_fuel_input();
 		$_POST = [];
 		$_GET  = [];
-		$class = new ReflectionClass("\Lti\LtiLaunch");
+		$class = new ReflectionClass("\LtiLaunch");
 		foreach (['launch'] as $value)
 		{
 			$property = $class->getProperty($value);
@@ -32,7 +32,7 @@ class Test_Basetest extends \Basetest
 		}
 
 
-		$class = new ReflectionClass("\Lti\LtiEvents");
+		$class = new ReflectionClass("\LtiEvents");
 		foreach (['inst_id'] as $value)
 		{
 			$property = $class->getProperty($value);
@@ -105,7 +105,7 @@ class Test_Basetest extends \Basetest
 	{
 		if ( ! $launch) $launch = $this->create_testing_launch_vars();
 
-		$assoc = \Lti\Model_Lti::forge();
+		$assoc = \Model_Lti::forge();
 
 		$assoc->resource_link = $launch->resource_id;
 		$assoc->consumer_guid = $launch->consumer_id;
@@ -122,10 +122,10 @@ class Test_Basetest extends \Basetest
 	protected function create_test_oauth_launch($custom_params, $endpoint, $user = false, $passback_url = false)
 	{
 		$this->reset_input();
-		\Config::load('lti::lti', true, true);
+		\Config::load('lti', true, true);
 
-		$key    = \Config::get('lti::lti.consumers.default.key');
-		$secret = \Config::get('lti::lti.consumers.default.secret');
+		$key    = \Config::get('lti.consumers.default.key');
+		$secret = \Config::get('lti.consumers.default.secret');
 
 		$base_params    = [
 			'resource_link_id'     => 'test-resource',
@@ -158,7 +158,7 @@ class Test_Basetest extends \Basetest
 			}
 		}
 
-		$post_args = \Lti\Oauth::build_post_args($user, $endpoint, $params, $key, $secret, $passback_url);
+		$post_args = \Oauth::build_post_args($user, $endpoint, $params, $key, $secret, $passback_url);
 		\Input::_set('post', $post_args);
 
 		return $post_args;

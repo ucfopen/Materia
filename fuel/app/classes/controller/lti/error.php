@@ -4,9 +4,8 @@
  * License outlined in licenses folder
  */
 
-namespace Lti;
 
-class Controller_Error extends \Controller
+class Controller_Lti_Error extends \Controller
 {
 	use \Trait_Analytics;
 	protected $_content_partial = 'partials/error_general';

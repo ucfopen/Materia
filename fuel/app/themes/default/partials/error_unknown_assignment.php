@@ -4,8 +4,8 @@
 </header>
 
 <section id="error-container">
-	<p>This Materia assignment hasn't been setup correctly in <?= $system ?>.</p>
-	<p>Non-autoplaying widgets can not be used as graded assignments.</p>
+	<p>This Materia assignment hasn't been setup correctly in <?= ucfirst($system) ?>.</p>
+	<p>Your instructor will need to complete the setup process.</p>
 
 	<?= Theme::instance()->view('partials/help/support_info') ?>
 </section>

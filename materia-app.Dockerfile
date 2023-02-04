@@ -65,7 +65,7 @@ RUN composer install --no-cache --no-dev --no-progress --no-scripts --prefer-dis
 # =====================================================================================================
 FROM node:12.11.1-alpine AS yarn_stage
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git python make g++
 
 COPY ./public /build/public
 COPY ./package.json /build/package.json
@@ -73,7 +73,7 @@ COPY ./process_assets.js /build/process_assets.js
 COPY ./yarn.lock /build/yarn.lock
 # make sure the directory where asset_hash.json is generated exists
 RUN mkdir -p /build/fuel/app/config/
-RUN cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force
+RUN cd build && yarn install --frozen-lockfile --non-interactive --production --pure-lockfile --force --check-files --cache-folder .ycache && rm -rf .ycache
 
 
 # =====================================================================================================
@@ -89,3 +89,15 @@ USER www-data
 COPY --from=composer_stage --chown=www-data:www-data /var/www/html /var/www/html
 COPY --from=yarn_stage --chown=www-data:www-data /build/public /var/www/html/public
 COPY --from=yarn_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json
+
+# set bogus values so admin task can run
+ENV AUTH_SIMPLEAUTH_SALT=TEMPINVALIDVALUE
+ENV SYSTEM_EMAIL=TEMPINVALIDVALUE
+ENV LTI_SECRET=TEMPINVALIDVALUE
+
+RUN php oil r admin:make_paths_writable
+
+# unset bogus values
+ENV AUTH_SIMPLEAUTH_SALT=
+ENV SYSTEM_EMAIL=
+ENV LTI_SECRET=

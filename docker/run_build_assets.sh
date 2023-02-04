@@ -22,4 +22,4 @@ docker run \
 	--mount type=bind,source="$(pwd)"/../,target=/build \
 	--mount source=materia-asset-build-vol,target=/build/node_modules \
 	node:12.11.1-alpine \
-	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force"
+	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force --check-files --cache-folder .ycache && rm -rf .ycache"

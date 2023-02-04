@@ -1,8 +1,6 @@
 <?php
 /**
  * @group App
- * @group Module
- * @group Lti
  * @group LtiUserManager
  */
 class Test_LtiUserManager extends \Test_Basetest
@@ -10,22 +8,22 @@ class Test_LtiUserManager extends \Test_Basetest
 	// Runs before every single test
 	protected function setUp(): void
 	{
-		\Lti\LtiLaunch::reset();
+		\LtiLaunch::reset();
 		\Auth::forge(['driver' => 'LtiTestAuthDriver']);
-		\Config::load("lti::lti", true, true);
-		\Config::set("lti::lti.consumers.default.auth_driver", 'LtiTestAuthDriver');
+		\Config::load("lti", true, true);
+		\Config::set("lti.consumers.default.auth_driver", 'LtiTestAuthDriver');
 		parent::setUp();
 	}
 
 	public function test_authenticate_raises_exception_for_non_existant_auth_driver()
 	{
-		\Config::set("lti::lti.consumers.default.auth_driver", 'PotatoAuthDriver');
+		\Config::set("lti.consumers.default.auth_driver", 'PotatoAuthDriver');
 
 		// Exception thrown for auth driver that can't be found
 		try
 		{
 			$launch = $this->create_testing_launch_vars('resource-link', 1, '~materia_system_only', ['Learner']);
-			\Lti\LtiUserManager::authenticate($launch);
+			\LtiUserManager::authenticate($launch);
 			$this->fail('Exception expected');
 		}
 		catch(\Exception $e)
@@ -43,7 +41,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$_POST['roles'] = 'Learner';
 			$launch->email = 'gocu1@test.test';
-			\Lti\LtiUserManager::authenticate($launch);
+			\LtiUserManager::authenticate($launch);
 			$this->assertEquals($user->id, Auth_Login_LtiTestAuthDriver::$last_force_login_user->id);
 		};
 
@@ -59,7 +57,7 @@ class Test_LtiUserManager extends \Test_Basetest
 		$user = $this->make_random_student();
 		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Instructor']);
 		$launch->email = 'gocu1@test.test';
-		self::assertTrue(\Lti\LtiUserManager::authenticate($launch));
+		self::assertTrue(\LtiUserManager::authenticate($launch));
 		$this->assertNotInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
 	}
 
@@ -69,7 +67,7 @@ class Test_LtiUserManager extends \Test_Basetest
 		$user = $this->make_random_student();
 		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Instructor']);
 		$launch->email = 'gocu1@test.test';
-		self::assertTrue(\Lti\LtiUserManager::authenticate($launch));
+		self::assertTrue(\LtiUserManager::authenticate($launch));
 		$this->assertIsInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
 	}
 
@@ -83,7 +81,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$launch->email = 'gocu1@test.test';
 
-			\Lti\LtiUserManager::authenticate($launch);
+			\LtiUserManager::authenticate($launch);
 			$this->assertIsInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
 		};
 
@@ -100,7 +98,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $user->username, $user->username, ['Learner']);
 			$launch->email = 'gocu1@test.test';
 
-			\Lti\LtiUserManager::authenticate($launch);
+			\LtiUserManager::authenticate($launch);
 			$this->assertNotInstructor(Auth_Login_LtiTestAuthDriver::$last_force_login_user);
 		};
 
@@ -118,7 +116,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Learner']);
 			$launch->email = 'gocu1@test.test';
 
-			$result = \Lti\LtiUserManager::authenticate($launch);
+			$result = \LtiUserManager::authenticate($launch);
 			$this->assertFalse($result);
 
 			$user = \Model_User::find_by_username($expected_username);
@@ -139,7 +137,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Learner']);
 			$launch->email = 'gocu1@test.test';
 
-			$result = \Lti\LtiUserManager::authenticate($launch);
+			$result = \LtiUserManager::authenticate($launch);
 			$this->assertTrue($result);
 
 			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
@@ -161,7 +159,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
 			$launch->email = 'gocu1@test.test';
 
-			$result = \Lti\LtiUserManager::authenticate($launch);
+			$result = \LtiUserManager::authenticate($launch);
 			$this->assertFalse($result);
 
 			$user = \Model_User::find_by_username($expected_username);
@@ -177,7 +175,7 @@ class Test_LtiUserManager extends \Test_Basetest
 		$this->create_users_and_use_launch_roles(true, false);
 		$expected_username = $this->get_uniq_string();
 		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
-		$this->assertTrue(\Lti\LtiUserManager::authenticate($launch));
+		$this->assertTrue(\LtiUserManager::authenticate($launch));
 		$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
 		$this->assertEquals($expected_username, $user->username);
 		$this->assertNotInstructor($user);
@@ -189,7 +187,7 @@ class Test_LtiUserManager extends \Test_Basetest
 		$expected_username = $this->get_uniq_string();
 		$launch = $this->create_testing_launch_vars('resource-link-gocu1', $expected_username, $expected_username, ['Instructor']);
 		$launch->email = 'gocu1@test.test';
-		$this->assertTrue(\Lti\LtiUserManager::authenticate($launch));
+		$this->assertTrue(\LtiUserManager::authenticate($launch));
 		$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
 		$this->assertEquals($expected_username, $user->username);
 		$this->assertIsInstructor($user);
@@ -207,7 +205,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch->email = 'gocu3@test.test';
 			$launch->first = 'First2';
 
-			\Lti\LtiUserManager::authenticate($launch);
+			\LtiUserManager::authenticate($launch);
 			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
 			$this->assertSame($expected_first, $user->first);
 		};
@@ -231,7 +229,7 @@ class Test_LtiUserManager extends \Test_Basetest
 			$launch->email = 'gocu3@test.test';
 			$launch->first = 'First2';
 
-			\Lti\LtiUserManager::authenticate($launch);
+			\LtiUserManager::authenticate($launch);
 			$user = Auth_Login_LtiTestAuthDriver::$last_force_login_user;
 			$this->assertSame('First2', $user->first);
 		};
@@ -244,86 +242,86 @@ class Test_LtiUserManager extends \Test_Basetest
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Administrator']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertTrue(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_instructor_is_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Instructor']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertTrue(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_learner_is_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Learner']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertFalse(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_student_not_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Student']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertFalse(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_mixed_instructor_is_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Instructor,Instructor']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertTrue(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_mixed_student_not_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Student,Student']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertFalse(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_unkown_not_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => '']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertFalse(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_student_admin_is_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Student,Learner,Administrator']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertTrue(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_instructor_student_is_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'Instructor,Student,Dogs']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertTrue(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertTrue(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	public function test_is_lti_student_daft_punk_not_content_creator()
 	{
 		$this->create_testing_post();
 		\Input::_set('post', ['roles' => 'DaftPunk,student,Shaq']);
-		$launch = \Lti\LtiLaunch::from_request();
-		$this->assertFalse(\Lti\LtiUserManager::is_lti_user_a_content_creator($launch));
+		$launch = \LtiLaunch::from_request();
+		$this->assertFalse(\LtiUserManager::is_lti_user_a_content_creator($launch));
 	}
 
 	protected function create_users_and_use_launch_roles($creates_users, $use_launch_roles)
 	{
-		\Config::set("lti::lti.consumers.default.creates_users", $creates_users);
-		\Config::set("lti::lti.consumers.default.use_launch_roles", $use_launch_roles);
+		\Config::set("lti.consumers.default.creates_users", $creates_users);
+		\Config::set("lti.consumers.default.use_launch_roles", $use_launch_roles);
 	}
 
 	protected function assertIsInstructor($user)

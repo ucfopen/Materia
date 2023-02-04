@@ -1,6 +1,5 @@
 <?php
 
-namespace Lti;
 use \Materia\Utils;
 
 class LtiLaunch
@@ -13,7 +12,7 @@ class LtiLaunch
 		if (isset(static::$launch)) return static::$launch;
 		if ( ! \Input::param('lti_message_type')) return null;
 
-		$config = static::config();
+		$config = static::config_from_request();
 
 		// these are configurable to let username and user_id come from custom launch variables
 		$remote_id_field   = $config['remote_identifier'] ?? 'username';
@@ -44,7 +43,7 @@ class LtiLaunch
 
 		static::$launch = $vars;
 
-		if (\Config::get('lti::lti.log_for_debug', false))
+		if (\Config::get('lti.log_for_debug', false))
 		{
 			\Materia\Log::profile(['raw-launch-data', print_r(\Input::param(), true)], 'lti-launch');
 			\Materia\Log::profile(['LtiLaunch-object', print_r(static::$launch, true)], 'lti-launch');
@@ -53,7 +52,7 @@ class LtiLaunch
 		return static::$launch;
 	}
 
-	public static function config()
+	public static function config_from_request()
 	{
 		if ( ! empty(static::$config))
 		{
@@ -63,8 +62,8 @@ class LtiLaunch
 		// determine which config to use
 		$consumer       = \Input::param('tool_consumer_info_product_family_code', null);
 		$consumer       = Utils::safeTrim($consumer);
-		$configs        = \Config::get('lti::lti.consumers');
-		$allow_fallback = \Config::get('lti::lti.graceful_fallback_to_default', true);
+		$configs        = \Config::get('lti.consumers');
+		$allow_fallback = \Config::get('lti.graceful_fallback_to_default', true);
 		$default        = $allow_fallback ? $configs['default'] : null;
 		static::$config = $configs[$consumer] ?? $default ?? null;
 
@@ -75,6 +74,23 @@ class LtiLaunch
 		}
 
 		return static::$config;
+	}
+
+	public static function config_from_key($key)
+	{
+		// determine which config to use
+		$configs = \Config::get('lti.consumers');
+
+		foreach ($configs as $config)
+		{
+			if ($config['key'] === $key)
+			{
+				return $config;
+			}
+		}
+
+		\LOG::error("LTI config could not be found for the key: {$key}.");
+		return null;
 	}
 
 	public static function reset()

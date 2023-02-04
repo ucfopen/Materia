@@ -16,7 +16,7 @@
 				req.open('POST', '/api/instance/request_access')
 				req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
 				req.send(`inst_id=${inst_id}&owner_id=${owner_id}`)
-				
+
 				let el = document.getElementById(`owner-${owner_id}`)
 				el.setAttribute('disabled', 'disabled')
 				el.className = 'button disabled'
@@ -57,7 +57,7 @@
 
 		<div class="help-container">
 			<p class="note">Preview restricted by widget permissions in Materia.</p>
-			<p>To view the widget in Canvas as a student, view the assignment while in <a href="https://webcourses.ucf.edu/profile/settings" target="_blank" class="external">Student View</a>.</p>
+			<p>If you're using Canvas, you can use Student View to simulate a student's experience.</p>
 		</div>
 
 	<?php endif; ?>

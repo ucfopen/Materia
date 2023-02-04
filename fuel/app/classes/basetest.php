@@ -54,6 +54,13 @@ class Basetest extends TestCase
 		}
 	}
 
+	protected static function remove_all_roles_for_user($user_id)
+	{
+		\DB::delete('perm_role_to_user')
+		->where('user_id', $user_id)
+		->execute();
+	}
+
 	protected static function clear_fuel_input()
 	{
 		// reset fuelphp's input class
@@ -196,6 +203,10 @@ class Basetest extends TestCase
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'student', 'testStudent@ucf.edu', $pword);
 			$user = \Model_User::find_by_username($uname);
 		}
+		else
+		{
+			static::remove_all_roles_for_user($user->id);
+		}
 
 		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
@@ -215,13 +226,16 @@ class Basetest extends TestCase
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'Prof', 'd', 'Author', 'testAuthor@ucf.edu', $pword);
-			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::find_by_username($uname);
 		}
+		else
+		{
+			static::remove_all_roles_for_user($user->id);
+		}
 
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
-
 		$this->users_to_clean[] = $user;
 		return $user;
 	}
@@ -238,10 +252,14 @@ class Basetest extends TestCase
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor2@ucf.edu', $pword);
-			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::find_by_username($uname);
 		}
+		else
+		{
+			static::remove_all_roles_for_user($user->id);
+		}
 
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
@@ -260,10 +278,14 @@ class Basetest extends TestCase
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'author', 'testAuthor3@ucf.edu', $pword);
-			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::find_by_username($uname);
 		}
+		else
+		{
+			static::remove_all_roles_for_user($user->id);
+		}
 
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR]);
 		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
@@ -282,12 +304,14 @@ class Basetest extends TestCase
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'su', 'testSu@ucf.edu', $pword);
-			// TODO: super_user should get all these rights inherently right??????!!!!
-			\Fuel\Tasks\Admin::give_user_role($uname, 'super_user');
-			\Fuel\Tasks\Admin::give_user_role($uname, 'basic_author');
 			$user = \Model_User::find_by_username($uname);
 		}
+		else
+		{
+			static::remove_all_roles_for_user($user->id);
+		}
 
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::AUTHOR, \Materia\Perm_Role::SU]);
 		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;
@@ -305,11 +329,14 @@ class Basetest extends TestCase
 		{
 			require_once(APPPATH.'/tasks/admin.php');
 			\Fuel\Tasks\Admin::new_user($uname, 'test', 'd', 'noauth', 'testNoAuth@ucf.edu', $pword);
-			// TODO: super_user should get all these rights inherently right??????!!!!
-			\Fuel\Tasks\Admin::give_user_role($uname, 'no_author');
 			$user = \Model_User::find_by_username($uname);
 		}
+		else
+		{
+			static::remove_all_roles_for_user($user->id);
+		}
 
+		\Materia\Perm_Manager::add_users_to_roles_system_only([$user->id], [\Materia\Perm_Role::NOAUTH]);
 		$login = \Service_User::login($uname, $pword);
 		$this->assertTrue($login);
 		$this->users_to_clean[] = $user;

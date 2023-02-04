@@ -1,10 +1,8 @@
 <?php
 
-namespace Lti;
 use \Materia\Log;
 use \Materia\Util_Validator;
 use \Materia\Widget_Instance_Manager;
-use \Lti\Oauth;
 
 class LtiEvents
 {
@@ -23,7 +21,7 @@ class LtiEvents
 		$launch = LtiLaunch::from_request();
 		if ($launch)
 		{
-			if ( ! Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
+			if ( ! \Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $result['redirect'] = '/lti/error/unknown_user';
 			$result['is_embedded'] = true;
 		}
@@ -33,7 +31,9 @@ class LtiEvents
 
 	public static function on_before_play_start_event($payload)
 	{
-		if (static::get_lti_play_state() == self::PLAY_STATE_FIRST_LAUNCH)
+		$play_state = static::get_lti_play_state();
+
+		if ($play_state == self::PLAY_STATE_FIRST_LAUNCH)
 		{
 			extract($payload); // exposes event args $inst_id and $is_embedded
 
@@ -61,7 +61,7 @@ class LtiEvents
 				}
 			}
 
-			if ( ! Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
+			if ( ! \Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
 			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';
@@ -127,8 +127,10 @@ class LtiEvents
 
 		$launch = static::session_get_launch($play_id);
 
-		$secret = LtiLaunch::config()['secret'] ?? false;
-		$key = LtiLaunch::config()['key'] ?? false;
+		$cfg = LtiLaunch::config_from_request();
+
+		$secret = $cfg['secret'] ?? false;
+		$key = $cfg['key'] ?? false;
 
 		if ( ! ($max_score >= 0) || empty($launch->inst_id) || empty($launch->source_id) || empty($launch->service_url) || empty($secret))
 		{
@@ -145,7 +147,7 @@ class LtiEvents
 		if (strpos($launch->outcome_ext, 'url') !== false)
 		{
 			// url supported, does the config say we should upgrade it to ltiLaunchUrl?
-			$extension_type = LtiLaunch::config()['upgrade_to_launch_url'] ? 'ltiLaunchUrl' : 'url';
+			$extension_type = $cfg['upgrade_to_launch_url'] ? 'ltiLaunchUrl' : 'url';
 			$extension_value = \Uri::create("/scores/single/{$play_id}/{$inst_id}");
 		}
 
@@ -158,14 +160,14 @@ class LtiEvents
 			'extension_value' => $extension_value
 		];
 
-		$body = \Theme::instance()->view('lti/partials/outcomes_xml', $view_data)->render();
+		$body = \Theme::instance()->view('partials/outcomes_xml', $view_data)->render();
 
-		if (\Config::get('lti::lti.log_for_debug', false))
+		if (\Config::get('lti.log_for_debug', false))
 		{
 			\Materia\Log::profile(['score-outcome-sent', $body], 'lti-launch');
 		}
 
-		$success = Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
+		$success = \Oauth::send_body_hashed_post($launch->service_url, $body, $secret, $key);
 
 		static::log($play_id, 'outcome-'.($success ? 'success' : 'failure'), $max_score);
 
@@ -287,7 +289,7 @@ class LtiEvents
 	{
 
 		// if the configuration says we don't save associations, just return now
-		if ( ! (LtiLaunch::config()['save_assoc'] ?? true)) return true;
+		if ( ! (LtiLaunch::config_from_request()['save_assoc'] ?? true)) return true;
 
 		// Search for any associations with this item id and resource link
 		$assoc = static::find_assoc_from_resource_id($launch->resource_id);

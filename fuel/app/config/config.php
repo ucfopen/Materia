@@ -308,7 +308,7 @@ return array(
 		 * If you don't want the config in a group use null as groupname.
 		 */
 		'config' => array(
-			'lti::lti',
+			'lti',
 		),
 
 		/**

@@ -34,7 +34,14 @@ return [
 	'preview/(:alnum)(/.*)?'               => 'widgets/preview_widget/$1',
 	'preview-embed/(:alnum)(/.*)?'         => 'widgets/play_embedded_preview/$1',
 	'embed/(:alnum)(/.*)?'                 => 'widgets/play_embedded/$1',
-	'lti/assignment?'                      => 'widgets/play_embedded/$1', // legacy LTI url
+	'lti/assignment?' => function () {
+		if(\Input::param('lti_message_type') === 'ContentItemSelectionRequest')
+        {
+            return \Request::forge('lti/picker', false)->execute();
+        }
+
+        return \Request::forge('widgets/play_embedded', false)->execute();
+	},
 
 	'data/export/(:alnum)'                 => 'data/export/$1',
 	"scores/single/{$play_id}/(:alnum)(/.*)?"  => 'scores/single/$1/$2',

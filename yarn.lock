@@ -957,10 +957,9 @@ make-dir@^1.0.0:
   dependencies:
     pify "^3.0.0"
 
-materia-server-client-assets@2.4.2:
+"materia-server-client-assets@https://github.com/iturgeon/Materia-Server-Client-Assets.git#842eaadcf38811bbaa37d804049cc36a4f643a9b":
   version "2.4.2"
-  resolved "https://registry.yarnpkg.com/materia-server-client-assets/-/materia-server-client-assets-2.4.2.tgz#c4111c2671dafef2926eb8bd385099828da5c913"
-  integrity sha512-L6wMYvlMISabmh7naQ8kNGLBwqgMVqof7zC1UnS9SkEd61Syv4zpa1I/SYSd/M2MVQmHNaX5l0pFC89tTWeOVg==
+  resolved "https://github.com/iturgeon/Materia-Server-Client-Assets.git#842eaadcf38811bbaa37d804049cc36a4f643a9b"
   dependencies:
     angular "1.8.0"
     js-snakecase "^1.2.0"
@@ -1028,7 +1027,6 @@ napa@^3.0.0:
 
 ngmodal@ucfcdl/ngModal#v1.2.2:
   version "1.2.2"
-  uid "6abad982bdb8f258ffcdc20316a907c2292399d2"
   resolved "https://codeload.github.com/ucfcdl/ngModal/tar.gz/6abad982bdb8f258ffcdc20316a907c2292399d2"
 
 nodemon@^2.0.2:

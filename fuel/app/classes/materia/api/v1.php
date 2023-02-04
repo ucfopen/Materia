@@ -56,6 +56,19 @@ class Api_V1
 		return Widget_Instance_Manager::get_all($inst_ids);
 	}
 
+	static public function lti_sign_content_item_selection(string $url, string $content_items, string $lti_key)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if (\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::AUTHOR, \Materia\Perm_Role::SU]) !== true) return Msg::no_perm();
+		if (\Service_User::verify_session('no_author')) return Msg::no_perm();
+
+		try {
+			return \Oauth::sign_content_item_selection($url, $content_items, $lti_key);
+		} catch (\Exception $e) {
+			return new Msg(Msg::ERROR, $e->getMessage());
+		}
+	}
+
 	/**
 	 * @return bool, true if successfully deleted widget instance, false otherwise.
 	 */
@@ -201,7 +214,7 @@ class Api_V1
 	 * @param int     $open_at
 	 * @param int     $close_at
 	 * @param int     $attempts
-	 * @param bool    $guest_access
+	 * @param bool    $guest_accesss
 	 * @param bool 	  $is_student_made
 	 *
 	 * @return array An associative array with details about the save
@@ -1167,4 +1180,5 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		return $inst;
 	}
+
 }

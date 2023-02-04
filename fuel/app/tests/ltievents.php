@@ -1,9 +1,6 @@
 <?php
 /**
  * @group App
- * @group Module
- * @group Lti
-  * @group LtiEvents
  */
 class Test_LtiEvents extends \Test_Basetest
 {
@@ -14,7 +11,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
 
 		// Not an LTI launch, so nothing should happen (and no events thrown)
-		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
+		$result = \LtiEvents::on_before_play_start_event($event_args);
 		$this->assertCount(0, $result);
 	}
 
@@ -25,7 +22,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 		// Test a first launch, OAuth should fail
 		\Input::_set('post', ['resource_link_id' => 'test-resource', 'lti_message_type' => 'ContentItemSelectionRequest']);
-		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
+		$result = \LtiEvents::on_before_play_start_event($event_args);
 
 		$this->assertArrayHasKey('redirect', $result);
 		$this->assertCount(1, $result);
@@ -34,14 +31,14 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_on_before_play_start_event_throws_unknown_user_exception_for_bad_user()
 	{
-		\Config::set("lti::lti.consumers.default.creates_users", false);
+		\Config::set("lti.consumers.default.creates_users", false);
 		$user = $this->make_random_student();
 		$user->username = 'non-existant-user';
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
-		$this->create_test_oauth_launch([], \Uri::current(), $user);
+		$this->create_test_oauth_launch([], \Uri::main(), $user);
 
-		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
+		$result = \LtiEvents::on_before_play_start_event($event_args);
 		$this->assertCount(1, $result);
 		$this->assertArrayHasKey('redirect', $result);
 		$this->assertEquals('/lti/error/unknown_user', $result['redirect']);
@@ -49,13 +46,13 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_on_before_play_start_event_throws_unknown_assignment_exception_for_bad_assignment()
 	{
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$event_args = ['inst_id' => false, 'is_embedded' => true];
-		$this->create_test_oauth_launch([], \Uri::current(), $user);
+		$this->create_test_oauth_launch([], \Uri::main(), $user);
 
-		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
+		$result = \LtiEvents::on_before_play_start_event($event_args);
 		$this->assertCount(1, $result);
 		$this->assertArrayHasKey('redirect', $result);
 		$this->assertEquals('/lti/error/unknown_assignment', $result['redirect']);
@@ -63,15 +60,15 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_on_before_play_start_event_throws_guest_mode_exception()
 	{
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$widget_instance->guest_access = true;
 		$widget_instance->db_store();
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
-		$this->create_test_oauth_launch([], \Uri::current(), $user);
+		$this->create_test_oauth_launch([], \Uri::main(), $user);
 
-		$result = \Lti\LtiEvents::on_before_play_start_event($event_args);
+		$result = \LtiEvents::on_before_play_start_event($event_args);
 		$this->assertCount(1, $result);
 		$this->assertArrayHasKey('redirect', $result);
 		$this->assertEquals('/lti/error/guest_mode', $result['redirect']);
@@ -79,35 +76,35 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_on_before_play_start_event_saves_lti_association_for_first_launch()
 	{
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$event_args = ['inst_id' => $inst_id, 'is_embedded' => true];
-		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
+		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::main(), $user);
 
 		// No association found
-		$this->assertEquals(0, \Lti\Model_Lti::query()->where('resource_link', $resource_id)->count());
+		$this->assertEquals(0, \Model_Lti::query()->where('resource_link', $resource_id)->count());
 
 		// This should store an association
-		\Lti\LtiEvents::on_before_play_start_event($event_args);
+		\LtiEvents::on_before_play_start_event($event_args);
 
 		// One association found
-		$this->assertEquals(1, \Lti\Model_Lti::query()->where('resource_link', $resource_id)->count());
+		$this->assertEquals(1, \Model_Lti::query()->where('resource_link', $resource_id)->count());
 	}
 
 	public function test_on_play_start_event_does_nothing_when_not_lti()
 	{
 		// First play
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
 		// Nothing should be in the session
 		$session_data = \Session::get("lti-{$play_id}", false);
@@ -119,16 +116,16 @@ class Test_LtiEvents extends \Test_Basetest
 	public function test_on_play_start_event_stores_request_into_session_for_first_launch()
 	{
 		// First play
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
-		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
+		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::main(), $user);
 
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
 		$session_data = \Session::get("lti-{$play_id}", false);
 		$this->assertEquals($inst_id, $session_data->inst_id);
@@ -138,24 +135,24 @@ class Test_LtiEvents extends \Test_Basetest
 	public function test_on_play_start_event_links_session_data_to_play_id_for_replay()
 	{
 		// First play
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
-		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
+		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::main(), $user);
 
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
 		// Replay
 		$this->reset_input();
 		$_GET['token'] = $token = $play_id;
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
 		$session_data = \Session::get("lti-link-{$play_id}", false);
 		$this->assertEquals($token, $session_data);
@@ -165,60 +162,60 @@ class Test_LtiEvents extends \Test_Basetest
 	public function test_on_score_updated_event_returns_false_when_not_lti()
 	{
 		// First play
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
-		$result = \Lti\LtiEvents::on_score_updated_event([$play_id, $inst_id, $author->id, 66, 99]);
+		$result = \LtiEvents::on_score_updated_event([$play_id, $inst_id, $author->id, 66, 99]);
 		$this->assertFalse($result);
 	}
 
 	public function test_on_play_completed_event_returns_empty_array_when_not_lti()
 	{
 		// First play
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
-		\Lti\LtiEvents::on_score_updated_event([$play_id, $inst_id, $author->id, 66, 99]);
+		\LtiEvents::on_score_updated_event([$play_id, $inst_id, $author->id, 66, 99]);
 
 		$play = new \Materia\Session_Play();
 		$play->get_by_id($play_id);
-		$result = \Lti\LtiEvents::on_play_completed_event($play);
+		$result = \LtiEvents::on_play_completed_event($play);
 		$this->assertSame([], $result);
 	}
 
 	public function test_on_play_completed_event_returns_score_url_for_lti()
 	{
 		// First play
-		\Config::set("lti::lti.consumers.default.creates_users", true);
+		\Config::set("lti.consumers.default.creates_users", true);
 		$resource_id = $this->get_uniq_string();
 		$user = $this->make_random_student();
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
-		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current(), $user);
+		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::main(), $user);
 
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
-		\Lti\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
+		\LtiEvents::on_play_start_event(['inst_id' => $inst_id, 'play_id' => $play_id]);
 
-		\Lti\LtiEvents::on_score_updated_event([$play_id, $inst_id, $author->id, 66, 99]);
+		\LtiEvents::on_score_updated_event([$play_id, $inst_id, $author->id, 66, 99]);
 
 		$play = new \Materia\Session_Play();
 		$play->get_by_id($play_id);
-		$result = \Lti\LtiEvents::on_play_completed_event($play);
+		$result = \LtiEvents::on_play_completed_event($play);
 		$this->assertTrue(array_key_exists('score_url', $result));
 	}
 
@@ -227,15 +224,15 @@ class Test_LtiEvents extends \Test_Basetest
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
 		$play_id = \Materia\Api_V1::session_play_create($inst_id);
 		$resource_id = $this->get_uniq_string();
-		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::current());
-		\Lti\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
+		$this->create_test_oauth_launch(['resource_link_id' => $resource_id], \Uri::main());
+		\LtiEvents::on_before_play_start_event(['inst_id' => $inst_id, 'is_embedded' => true]);
 
 		// There should be a lti association
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();
 		$this->assertEquals(1, count($lti_data));
 
 		// Trigger the event
-		\Lti\LtiEvents::on_widget_instance_delete_event(['inst_id' => $inst_id]);
+		\LtiEvents::on_widget_instance_delete_event(['inst_id' => $inst_id]);
 
 		// The lti association should be gone
 		$lti_data = \DB::select()->from('lti')->where('item_id', $inst_id)->execute();
@@ -251,7 +248,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 		$assocs_before = $this->get_all_associations();
 
-		\Config::set("lti::lti.consumers.default-test.save_assoc", true);
+		\Config::set("lti.consumers.default-test.save_assoc", true);
 
 		// create an instance
 		$qset = $this->create_new_qset('question', 'answer');
@@ -262,7 +259,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$launch = $this->create_testing_launch_vars($resource_link, $widget->id, '~materia_system_only', ['Learner']);
 		$launch->inst_id = $widget_instance->id;
 
-		$save_lti_resource_id_to_widget_association = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');
+		$save_lti_resource_id_to_widget_association = static::get_protected_method('\LtiEvents', 'save_lti_association_if_needed');
 		$assoc_result = $save_lti_resource_id_to_widget_association->invoke(null, $launch);
 		$this->assertTrue($assoc_result);
 		$this->validate_new_assocation_saved($assocs_before);
@@ -288,10 +285,10 @@ class Test_LtiEvents extends \Test_Basetest
 	 */
 	public function test_create_lti_association_if_needed_creates_new_association()
 	{
-		$create_lti_association_if_needed = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');
-		$find_assoc_from_resource_id = static::get_protected_method('\Lti\LtiEvents', 'find_assoc_from_resource_id');
+		$create_lti_association_if_needed = static::get_protected_method('\LtiEvents', 'save_lti_association_if_needed');
+		$find_assoc_from_resource_id = static::get_protected_method('\LtiEvents', 'find_assoc_from_resource_id');
 
-		\Config::set("lti::lti.consumers.default-test.save_assoc", true);
+		\Config::set("lti.consumers.default-test.save_assoc", true);
 
 		$resource_id = 'test-resource-A';
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
@@ -303,17 +300,17 @@ class Test_LtiEvents extends \Test_Basetest
 		$this->assertTrue($result);
 
 		$assoc1 = $find_assoc_from_resource_id->invoke(null, $resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc1);
+		$this->assertInstanceOf('\Model_Lti', $assoc1);
 		$this->assertEquals($assoc1->resource_link, $resource_id);
 		$this->assertEquals($assoc1->item_id, $inst_id);
 	}
 
 	public function test_create_lti_association_if_needed_shouldnt_modify_association_for_same_widget()
 	{
-		$create_lti_association_if_needed = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');
-		$find_assoc_from_resource_id = static::get_protected_method('\Lti\LtiEvents', 'find_assoc_from_resource_id');
+		$create_lti_association_if_needed = static::get_protected_method('\LtiEvents', 'save_lti_association_if_needed');
+		$find_assoc_from_resource_id = static::get_protected_method('\LtiEvents', 'find_assoc_from_resource_id');
 
-		\Config::set("lti::lti.consumers.default-test.save_assoc", true);
+		\Config::set("lti.consumers.default-test.save_assoc", true);
 
 		$resource_id = 'test-resource-A';
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
@@ -324,7 +321,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$result = $create_lti_association_if_needed->invoke(null, $launch);
 		$this->assertTrue($result);
 		$assoc1 = $find_assoc_from_resource_id->invoke(null, $resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc1);
+		$this->assertInstanceOf('\Model_Lti', $assoc1);
 		$this->assertEquals($assoc1->resource_link, $resource_id);
 		$this->assertEquals($assoc1->item_id, $inst_id);
 
@@ -332,7 +329,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$result = $create_lti_association_if_needed->invoke(null, $launch);
 		$this->assertTrue($result);
 		$assoc2 = $find_assoc_from_resource_id->invoke(null, $resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc2);
+		$this->assertInstanceOf('\Model_Lti', $assoc2);
 		$this->assertEquals($assoc2->resource_link, $resource_id);
 		$this->assertEquals($assoc2->item_id, $inst_id);
 		$this->assertEquals($assoc2->id, $assoc1->id); // same row!
@@ -346,10 +343,10 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_create_lti_association_if_needed_creates_new_association_for_different_resource_link()
 	{
-		$create_lti_association_if_needed = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');
-		$find_assoc_from_resource_id = static::get_protected_method('\Lti\LtiEvents', 'find_assoc_from_resource_id');
+		$create_lti_association_if_needed = static::get_protected_method('\LtiEvents', 'save_lti_association_if_needed');
+		$find_assoc_from_resource_id = static::get_protected_method('\LtiEvents', 'find_assoc_from_resource_id');
 
-		\Config::set("lti::lti.consumers.default-test.save_assoc", true);
+		\Config::set("lti.consumers.default-test.save_assoc", true);
 
 		$resource_id = 'test-resource-A';
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
@@ -360,7 +357,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$result = $create_lti_association_if_needed->invoke(null, $launch);
 		$this->assertTrue($result);
 		$assoc1 = $find_assoc_from_resource_id->invoke(null, $resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc1);
+		$this->assertInstanceOf('\Model_Lti', $assoc1);
 		$this->assertEquals($assoc1->resource_link, $resource_id);
 		$this->assertEquals($assoc1->item_id, $inst_id);
 
@@ -369,7 +366,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$result = $create_lti_association_if_needed->invoke(null, $launch);
 		$this->assertTrue($result);
 		$assoc3 = $find_assoc_from_resource_id->invoke(null, $launch->resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc3);
+		$this->assertInstanceOf('\Model_Lti', $assoc3);
 		$this->assertEquals($assoc3->resource_link, $launch->resource_id);
 		$this->assertEquals($assoc3->item_id, $inst_id);
 		$this->assertNotEquals($assoc3->id, $assoc1->id);
@@ -377,10 +374,10 @@ class Test_LtiEvents extends \Test_Basetest
 
 	public function test_create_lti_association_if_needed_updates_existing_association_for_new_widget()
 	{
-		$create_lti_association_if_needed = static::get_protected_method('\Lti\LtiEvents', 'save_lti_association_if_needed');
-		$find_assoc_from_resource_id = static::get_protected_method('\Lti\LtiEvents', 'find_assoc_from_resource_id');
+		$create_lti_association_if_needed = static::get_protected_method('\LtiEvents', 'save_lti_association_if_needed');
+		$find_assoc_from_resource_id = static::get_protected_method('\LtiEvents', 'find_assoc_from_resource_id');
 
-		\Config::set("lti::lti.consumers.default-test.save_assoc", true);
+		\Config::set("lti.consumers.default-test.save_assoc", true);
 
 		$resource_id = 'test-resource-A';
 		list($author, $widget_instance, $inst_id) = $this->create_instance();
@@ -391,7 +388,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$result = $create_lti_association_if_needed->invoke(null, $launch);
 		$this->assertTrue($result);
 		$assoc1 = $find_assoc_from_resource_id->invoke(null, $resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc1);
+		$this->assertInstanceOf('\Model_Lti', $assoc1);
 		$this->assertEquals($assoc1->resource_link, $resource_id);
 		$this->assertEquals($assoc1->item_id, $inst_id);
 
@@ -402,7 +399,7 @@ class Test_LtiEvents extends \Test_Basetest
 		$result = $create_lti_association_if_needed->invoke(null, $launch);
 		$this->assertTrue($result);
 		$assoc4 = $find_assoc_from_resource_id->invoke(null, $launch->resource_id);
-		$this->assertInstanceOf('\Lti\Model_Lti', $assoc4);
+		$this->assertInstanceOf('\Model_Lti', $assoc4);
 		$this->assertEquals($assoc4->resource_link, $launch->resource_id);
 		$this->assertNotEquals($assoc4->item_id, $inst_id);
 		$this->assertEquals($assoc4->item_id, $new_inst_id);
@@ -423,7 +420,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 	protected function get_all_associations()
 	{
-		$assocs = \Lti\Model_Lti::find('all');
+		$assocs = \Model_Lti::find('all');
 
 		$assocs_clone = [];
 

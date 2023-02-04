@@ -16,9 +16,9 @@ class Controller_Questions extends Controller
 		Css::push_group(['core', 'question_import']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
 
-		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
-		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
-		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
+		Js::push_inline('const BASE_URL = "'.Uri::base().'";');
+		Js::push_inline('const WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		Js::push_inline('const STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
 
 		$theme = Theme::instance();
 		$theme->set_template('layouts/main');
