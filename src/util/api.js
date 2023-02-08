@@ -567,6 +567,42 @@ export const apiGetAssets = () => {
 		})
 }
 
+export const apiDeleteAsset = async (assetId) => {
+	const options = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		}
+	}
+	return fetch(`/api/asset/delete/${assetId}`, options)
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
+export const apiRestoreAsset = (assetId) => {
+	const options = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		}
+	}
+	return fetch(`/api/asset/restore/${assetId}`, options)
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
 // Persist to wherever using the super-secret object
 const writeToStorage = (queryKey, data) => {
 	let storageData = window.sessionStorage.getItem('queries');
