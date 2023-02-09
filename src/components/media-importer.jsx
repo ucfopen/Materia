@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
 import { apiDeleteAsset, apiGetAssets, apiRestoreAsset } from '../util/api'
 import './media.scss'
@@ -46,6 +46,7 @@ const SORT_OPTIONS = [
 ]
 
 const MediaImporter = () => {
+	const queryClient = useQueryClient()
 	const [selectedAsset, setSelectedAsset] = useState(null)
 	const [sortAssets, setSortAssets] = useState(null) // Display assets list
 	const [sortState, setSortState] = useState({
@@ -64,6 +65,7 @@ const MediaImporter = () => {
 		onSettled: (data) => {
 			if (!data) console.warn('Error in asset retrieval')
 			else {
+				console.log(data)
 				setAssetList(data.map(asset => {
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
@@ -73,7 +75,7 @@ const MediaImporter = () => {
 						timestamp: asset.created_at,
 						thumb: _thumbnailUrl(asset.id, asset.type),
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
-						is_deleted: asset.is_deleted
+						is_deleted: parseInt(asset.is_deleted)
 					}
 				}))
 			}
@@ -82,15 +84,50 @@ const MediaImporter = () => {
 
 	/****** hooks ******/
 
-	// sort method changed
+	// Asset list is modified
 	useEffect(() => {
-		if (!sortState || !assetList || !assetList.length) return
+		if (assetList && assetList.length > 0) {
+
+			setSortAssets(assetList.map((asset, index) => {
+
+				// assetList has been reloaded and a just-uploaded asset is selected
+				if (asset.id == selectedAsset) {
+					_loadPickedAsset(asset)
+				}
+
+				if ((!asset.is_deleted && !showDeletedAssets) || showDeletedAssets) {
+					return (<AssetCard
+						name={asset.name}
+						thumb={asset.thumb}
+						created={asset.created_at}
+						type={asset.type}
+						asset={asset}
+						is_deleted={asset.is_deleted}
+						key={index}
+					/>)
+				}
+			}))
+		}
+	}, [assetList])
+
+	// Asset list sorting, search filter, or show delete flag is updated
+	// Processes the list sequentially based on the state of each
+	useEffect(() => {
+		if (!assetList || !assetList.length) return
+		
+		// first pass: filter out deleted assets, if we're not displaying them
+		let listStageOne = assetList.filter((asset) => (!showDeletedAssets && !asset.is_deleted) || showDeletedAssets )
+
+		// second pass: filter assets based on search string, if present
+		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match(filterSearch)) : listStageOne
+		
+		// third and final pass: sort assets based on the currently selected sort method and direction
+		let listStageThree = sortState.sortAsc ?
+			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod) :
+			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod).reverse()
 
 		setSortAssets(
-			(sortState.sortAsc ?
-				assetList.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod):
-				assetList.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod).reverse()
-			).map((asset, index) => {
+			listStageThree.map((asset, index) => {
 				return (<AssetCard
 					name={asset.name}
 					thumb={asset.thumb}
@@ -102,62 +139,8 @@ const MediaImporter = () => {
 				/>)
 			})
 		)
-	}, [sortState])
 
-	// Asset list is modified
-	useEffect(() => {
-		if (assetList && assetList.length > 0) {
-			setSortAssets(assetList.map((asset, index) => {
-
-				// assetList has been reloaded and a just-uploaded asset is selected
-				if (asset.id == selectedAsset) {
-					_loadPickedAsset(asset)
-				}
-
-				return (<AssetCard
-						name={asset.name}
-						thumb={asset.thumb}
-						created={asset.created_at}
-						type={asset.type}
-						asset={asset}
-						is_deleted={asset.is_deleted}
-						key={index}
-					/>)
-			}))
-		}
-	}, [assetList])
-
-	// search filter updated
-	useEffect(() => {
-		if (filterSearch.length) {
-			setSortAssets(assetList
-				.filter((asset) => asset.name.toLowerCase().match(filterSearch))
-				.map((item, index) => {
-					return (<AssetCard
-						name={item.name}
-						thumb={item.thumb}
-						created={item.created_at}
-						type={item.type}
-						asset={item}
-						is_deleted={item.is_deleted}
-						key={index}
-					/>)
-				})
-			)
-		} else if (Array.isArray(assetList)) {
-			setSortAssets(assetList.map((asset, index) => {
-				return (<AssetCard
-						name={asset.name}
-						thumb={asset.thumb}
-						created={asset.created_at}
-						type={asset.type}
-						asset={asset}
-						is_deleted={asset.is_deleted}
-						key={index}
-					/>)
-			}))
-		}
-	}, [filterSearch])
+	}, [showDeletedAssets, filterSearch, sortState])
 
 	/****** internal helper functions ******/
 
@@ -181,63 +164,15 @@ const MediaImporter = () => {
 	}
 
 	const _updateDeleteStatus = (asset) => {
-		if (asset.is_deleted === '0') {
-			asset.is_deleted = '1'
+		if (!asset.is_deleted) {
+			asset.is_deleted = 1
 			apiDeleteAsset(asset.id)
 		} else {
-			asset.is_deleted = '0'
-			// return something?
+			asset.is_deleted = 0
 			apiRestoreAsset(asset.id)
 		}
-		setUpdateList(!updateList)
+		// queryClient.invalidateQueries('media-assets')
 	}
-
-	// Render assets base on the value of element.is_deleted and the showDeletedAssets state
-	// const _renderAsset = (element, index) => {
-	// 	console.log(element)
-	// 	return (
-	// 		<AssetCard
-	// 			key={index}
-	// 			name={element.name}
-	// 			type={element.type}
-	// 			thumb={element.thumb}
-	// 			created={element.created_at}
-	// 			media={element}
-	// 			is_deleted={element.is_deleted}
-	// 		/>
-	// 	)
-
-	// 	// if (element.is_deleted === '1') {
-	// 	// 	if (showDeletedAssets === true) {
-	// 	// 		return (
-	// 	// 			<AssetCard
-	// 	// 				key={index}
-	// 	// 				name={element.name}
-	// 	// 				type={element.type}
-	// 	// 				thumb={element.thumb}
-	// 	// 				created={element.created_at}
-	// 	// 				media={element}
-	// 	// 				is_deleted={element.is_deleted}
-	// 	// 			/>
-	// 	// 		)
-	// 	// 	}
-	// 	// 	return
-	// 	// } else {
-	// 	// 	if (showDeletedAssets === false) {
-	// 	// 		return (
-	// 	// 			<AssetCard
-	// 	// 				key={index}
-	// 	// 				name={element.name}
-	// 	// 				type={element.type}
-	// 	// 				thumb={element.thumb}
-	// 	// 				created={element.created_at}
-	// 	// 				media={element}
-	// 	// 				is_deleted={element.is_deleted}
-	// 	// 			/>
-	// 	// 		)
-	// 	// 	}
-	// 	// }
-	// }
 
 	const _uploadFile = (e) => {
 		const file = (e.target.files && e.target.files[0]) || (e.dataTransfer.files && e.dataTransfer.files[0])
@@ -357,13 +292,13 @@ const MediaImporter = () => {
 					{created}
 					<br />
 					<button
-						className={is_deleted === '0' ? 'delete-btn orange' : 'delete-btn green'}
+						className={is_deleted ? 'delete-btn green' : 'delete-btn orange'}
 						onClick={(ev) => {
 							ev.stopPropagation()
 							_updateDeleteStatus(asset)
 						}}
 					>
-						{is_deleted === '0' ? <span>DELETE</span> : <span>RESTORE</span>}
+						{is_deleted ? <span>RESTORE</span> : <span>DELETE</span>}
 					</button>
 				</span>
 			</div>
