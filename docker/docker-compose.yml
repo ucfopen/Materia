@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   webserver:
@@ -10,6 +10,7 @@ services:
       - "80:80" # main materia
       - "443:443" # main materia
       - "8008:8008" # static files (simulates a different domain sandbox & cdn)
+      - "3000:3000" # h5p
     networks:
       - frontend
     depends_on:
@@ -48,6 +49,7 @@ services:
       - THEME_PACKAGE=materia-theme-ucf
       - URLS_ENGINES=https://localhost:8008/widget/
       - URLS_STATIC=https://localhost:8008/
+      - URLS_H5P=https://localhost:3000
       - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
@@ -85,9 +87,22 @@ services:
       - frontend
       - backend
 
+  h5p:
+    build:
+      context: ../
+      dockerfile: ./h5p-server/materia-h5p.Dockerfile
+      args:
+        ENVIRONMENT: dev
+    ports:
+      - "3333:3333" # port should match what's being provided in URLS_H5P above
+    networks:
+      - frontend
+    environment:
+      - MATERIA_WEBSERVER_NETWORK=webserver
+      - MATERIA_URL=https://localhost:8008 # should be same as static URL above
+
 networks:
   frontend:
     name: materia_frontend
   backend:
     name: materia_backend
-

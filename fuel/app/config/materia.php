@@ -26,7 +26,8 @@ return [
 		'embed'        => \Uri::create('embed/'), // game embed urls http://siteurl.com/embed/3434
 		'preview'      => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
 		'static'       => $_ENV['URLS_STATIC'] ?? \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
-		'engines'      => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations
+		'engines'      => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations,
+		'h5p'          => $_ENV['URLS_H5P'] ?? null
 	],
 
 

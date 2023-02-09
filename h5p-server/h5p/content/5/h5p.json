@@ -1,0 +1,110 @@
+{
+  "embedTypes": ["iframe"],
+  "language": "en",
+  "license": "U",
+  "extraTitle": "Materia h5p interactive video",
+  "title": "Materia h5p interactive video",
+  "mainLibrary": "H5P.InteractiveVideo",
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.Image",
+      "majorVersion": 1,
+      "minorVersion": 1
+    },
+    {
+      "machineName": "FontAwesome",
+      "majorVersion": 4,
+      "minorVersion": 5
+    },
+    {
+      "machineName": "EmbeddedJS",
+      "majorVersion": 1,
+      "minorVersion": 0
+    },
+    {
+      "machineName": "H5P.JoubelUI",
+      "majorVersion": 1,
+      "minorVersion": 3
+    },
+    {
+      "machineName": "H5P.GoToQuestion",
+      "majorVersion": 1,
+      "minorVersion": 3
+    },
+    {
+      "machineName": "H5P.Table",
+      "majorVersion": 1,
+      "minorVersion": 1
+    },
+    {
+      "machineName": "H5P.Link",
+      "majorVersion": 1,
+      "minorVersion": 3
+    },
+    {
+      "machineName": "H5P.SingleChoiceSet",
+      "majorVersion": 1,
+      "minorVersion": 11
+    },
+    {
+      "machineName": "H5P.IVHotspot",
+      "majorVersion": 1,
+      "minorVersion": 2
+    },
+    {
+      "machineName": "H5P.DragText",
+      "majorVersion": 1,
+      "minorVersion": 8
+    },
+    {
+      "machineName": "H5P.InteractiveVideo",
+      "majorVersion": 1,
+      "minorVersion": 22
+    },
+    {
+      "machineName": "H5P.Blanks",
+      "majorVersion": 1,
+      "minorVersion": 12
+    },
+    {
+      "machineName": "H5P.MarkTheWords",
+      "majorVersion": 1,
+      "minorVersion": 9
+    },
+    {
+      "machineName": "H5P.DragQuestion",
+      "majorVersion": 1,
+      "minorVersion": 13
+    },
+    {
+      "machineName": "H5P.MultiChoice",
+      "majorVersion": 1,
+      "minorVersion": 14
+    },
+    {
+      "machineName": "H5P.Summary",
+      "majorVersion": 1,
+      "minorVersion": 10
+    },
+    {
+      "machineName": "H5P.TrueFalse",
+      "majorVersion": 1,
+      "minorVersion": 6
+    },
+    {
+      "machineName": "H5P.Video",
+      "majorVersion": 1,
+      "minorVersion": 5
+    },
+    {
+      "machineName": "H5P.Text",
+      "majorVersion": 1,
+      "minorVersion": 1
+    },
+    {
+      "machineName": "H5P.FreeTextQuestion",
+      "majorVersion": 1,
+      "minorVersion": 0
+    }
+  ]
+}

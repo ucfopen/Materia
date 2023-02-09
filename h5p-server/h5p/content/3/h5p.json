@@ -1,0 +1,40 @@
+{
+  "embedTypes": ["iframe"],
+  "language": "en",
+  "license": "U",
+  "extraTitle": "Materia h5p advanced blanks",
+  "title": "Materia h5p advanced blanks",
+  "mainLibrary": "H5P.Blanks",
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.Image",
+      "majorVersion": 1,
+      "minorVersion": 1
+    },
+    {
+      "machineName": "FontAwesome",
+      "majorVersion": 4,
+      "minorVersion": 5
+    },
+    {
+      "machineName": "EmbeddedJS",
+      "majorVersion": 1,
+      "minorVersion": 0
+    },
+    {
+      "machineName": "H5P.JoubelUI",
+      "majorVersion": 1,
+      "minorVersion": 3
+    },
+    {
+      "machineName": "H5P.Blanks",
+      "majorVersion": 1,
+      "minorVersion": 12
+    },
+    {
+      "machineName": "H5P.Video",
+      "majorVersion": 1,
+      "minorVersion": 5
+    }
+  ]
+}

@@ -50,6 +50,7 @@ trait Trait_CommonControllerTemplate
 			'BASE_URL'           => Uri::base(),
 			'WIDGET_URL'         => Config::get('materia.urls.engines'),
 			'MEDIA_URL'          => Config::get('materia.urls.media'),
+			'H5P_URL'            => Config::get('materia.urls.h5p'),
 			'MEDIA_UPLOAD_URL'   => Config::get('materia.urls.media_upload'),
 			'STATIC_CROSSDOMAIN' => Config::get('materia.urls.static'),
 		];

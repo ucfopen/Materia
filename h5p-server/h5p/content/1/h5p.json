@@ -1,0 +1,40 @@
+{
+  "embedTypes": ["iframe"],
+  "language": "en",
+  "license": "U",
+  "extraTitle": "Materia h5p multiple choice",
+  "title": "Materia h5p multiple choice",
+  "mainLibrary": "H5P.MultiChoice",
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.Image",
+      "majorVersion": 1,
+      "minorVersion": 1
+    },
+    {
+      "machineName": "FontAwesome",
+      "majorVersion": 4,
+      "minorVersion": 5
+    },
+    {
+      "machineName": "EmbeddedJS",
+      "majorVersion": 1,
+      "minorVersion": 0
+    },
+    {
+      "machineName": "H5P.JoubelUI",
+      "majorVersion": 1,
+      "minorVersion": 3
+    },
+    {
+      "machineName": "H5P.MultiChoice",
+      "majorVersion": 1,
+      "minorVersion": 14
+    },
+    {
+      "machineName": "H5P.Video",
+      "majorVersion": 1,
+      "minorVersion": 5
+    }
+  ]
+}

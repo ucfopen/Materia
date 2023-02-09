@@ -1,0 +1,5 @@
+node_modules
+h5p/libraries/*
+h5p/temporary_storage/*
+config/*.pem
+.env*

@@ -1,0 +1,70 @@
+{
+  "embedTypes": ["iframe"],
+  "language": "en",
+  "license": "U",
+  "extraTitle": "Materia h5p question set",
+  "title": "Materia h5p question set",
+  "mainLibrary": "H5P.QuestionSet",
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.Image",
+      "majorVersion": 1,
+      "minorVersion": 1
+    },
+    {
+      "machineName": "FontAwesome",
+      "majorVersion": 4,
+      "minorVersion": 5
+    },
+    {
+      "machineName": "EmbeddedJS",
+      "majorVersion": 1,
+      "minorVersion": 0
+    },
+    {
+      "machineName": "H5P.JoubelUI",
+      "majorVersion": 1,
+      "minorVersion": 3
+    },
+    {
+      "machineName": "H5P.Question",
+      "majorVersion": 1,
+      "minorVersion": 4
+    },
+    {
+      "machineName": "H5P.MultiChoice",
+      "majorVersion": 1,
+      "minorVersion": 14
+    },
+    {
+      "machineName": "H5P.QuestionSet",
+      "majorVersion": 1,
+      "minorVersion": 17
+    },
+    {
+      "machineName": "H5P.DragQuestion",
+      "majorVersion": 1,
+      "minorVersion": 13
+    },
+    {
+      "machineName": "H5P.TrueFalse",
+      "majorVersion": 1,
+      "minorVersion": 6
+    },
+    {
+      "machineName": "H5P.Blanks",
+      "majorVersion": 1,
+      "minorVersion": 12
+    },
+    {
+      "machineName": "H5P.MarkTheWords",
+      "majorVersion": 1,
+      "minorVersion": 9
+    },
+    {
+      "machineName": "H5P.DragText",
+      "majorVersion": 1,
+      "minorVersion": 8
+    }
+  ]
+}
