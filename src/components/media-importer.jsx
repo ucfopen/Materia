@@ -55,7 +55,6 @@ const MediaImporter = () => {
 	})
 	const [assetList, setAssetList] = useState({})
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
-	const [updateList, setUpdateList] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
 
 	const { data: listOfAssets } = useQuery({
@@ -65,7 +64,6 @@ const MediaImporter = () => {
 		onSettled: (data) => {
 			if (!data) console.warn('Error in asset retrieval')
 			else {
-				console.log(data)
 				setAssetList(data.map(asset => {
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
@@ -84,33 +82,15 @@ const MediaImporter = () => {
 
 	/****** hooks ******/
 
-	// Asset list is modified
 	useEffect(() => {
-		if (assetList && assetList.length > 0) {
-
-			setSortAssets(assetList.map((asset, index) => {
-
-				// assetList has been reloaded and a just-uploaded asset is selected
-				if (asset.id == selectedAsset) {
-					_loadPickedAsset(asset)
-				}
-
-				if ((!asset.is_deleted && !showDeletedAssets) || showDeletedAssets) {
-					return (<AssetCard
-						name={asset.name}
-						thumb={asset.thumb}
-						created={asset.created_at}
-						type={asset.type}
-						asset={asset}
-						is_deleted={asset.is_deleted}
-						key={index}
-					/>)
-				}
-			}))
+		if (selectedAsset && assetList.length) {
+			assetList.forEach((asset) => {
+				if (asset.id == selectedAsset) _loadPickedAsset(asset)
+			})
 		}
-	}, [assetList])
+	}, [selectedAsset])
 
-	// Asset list sorting, search filter, or show delete flag is updated
+	// Asset list, sorting, search filter, or show delete flag is updated
 	// Processes the list sequentially based on the state of each
 	useEffect(() => {
 		if (!assetList || !assetList.length) return
@@ -140,7 +120,7 @@ const MediaImporter = () => {
 			})
 		)
 
-	}, [showDeletedAssets, filterSearch, sortState])
+	}, [assetList, showDeletedAssets, filterSearch, sortState])
 
 	/****** internal helper functions ******/
 
@@ -171,7 +151,7 @@ const MediaImporter = () => {
 			asset.is_deleted = 0
 			apiRestoreAsset(asset.id)
 		}
-		// queryClient.invalidateQueries('media-assets')
+		queryClient.invalidateQueries('media-assets', { refetchInactive: true})
 	}
 
 	const _uploadFile = (e) => {
