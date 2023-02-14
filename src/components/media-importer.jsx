@@ -10,6 +10,9 @@ const sortNumber = (field, a, b) => a[field] - b[field]
 
 const REQUESTED_FILE_TYPES = window.location.hash.substring(1).split(',')
 
+// Approx 20 MB
+const FILE_MAX_SIZE = 20000000
+
 // generic media type definitions and substitutions for compatibility
 const MIME_MAP = {
 	// generic types, preferred
@@ -151,7 +154,8 @@ const MediaImporter = () => {
 			asset.is_deleted = 0
 			apiRestoreAsset(asset.id)
 		}
-		queryClient.invalidateQueries('media-assets', { refetchInactive: true})
+		// invalidate assets query, force re-fetch to update the list after deleting or undeleting an asset
+		queryClient.invalidateQueries('media-assets', { refetchInactive: true })
 	}
 
 	const _uploadFile = (e) => {
@@ -222,9 +226,9 @@ const MediaImporter = () => {
 	const _getFileData = (file, callback) => {
 		const dataReader = new FileReader()
 		// File size is measured in bytes
-		if (file.size > 60000000) {
+		if (file.size > FILE_MAX_SIZE) {
 			alert(
-				`The file being uploaded has a size greater than 60MB. Please choose a file that is no greater than 60MB.`
+				`The file being uploaded has a size greater than 20MB. Please choose a file that is no greater than 20MB.`
 			)
 			return
 		}
@@ -272,7 +276,7 @@ const MediaImporter = () => {
 					{created}
 					<br />
 					<button
-						className={is_deleted ? 'delete-btn green' : 'delete-btn orange'}
+						className={is_deleted ? 'action_button green' : 'action_button'}
 						onClick={(ev) => {
 							ev.stopPropagation()
 							_updateDeleteStatus(asset)
@@ -320,14 +324,14 @@ const MediaImporter = () => {
 				<div className="drag-footer">
 					<label>
 						<input type="file" onChange={(ev) => _uploadFile(ev)} />
-						<span className="action_button select_file_button">Browse...</span>
+						<button className="action_button select_file_button">Browse...</button>
 					</label>
 				</div>
 			</section>
 
 			<section id="right-pane">
 				<div className="pane-header darker">
-					Pick from you library
+					Your Media Library
 					<span className="close-button" onClick={_onCancel} />
 				</div>
 
@@ -358,6 +362,13 @@ const MediaImporter = () => {
 						onChange={_filterFiles}
 						value={filterSearch}
 					/>
+					<div className='search-icon'>
+						<svg viewBox='0 0 250.313 250.313'>
+							<path d='m244.19 214.6l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 10.7-16.231 16.945-35.66 16.945-56.554 0-56.837-46.075-102.91-102.91-102.91s-102.91 46.075-102.91 102.91c0 56.835 46.074 102.91 102.91 102.91 20.895 0 40.323-6.245 56.554-16.945 0.269 0.301 0.47 0.64 0.759 0.929l54.38 54.38c8.169 8.168 21.413 8.168 29.583 0 8.168-8.169 8.168-21.413 0-29.582zm-141.28-44.458c-37.134 0-67.236-30.102-67.236-67.235 0-37.134 30.103-67.236 67.236-67.236 37.132 0 67.235 30.103 67.235 67.236s-30.103 67.235-67.235 67.235z'
+								clipRule='evenodd'
+								fillRule='evenodd'/>
+						</svg>
+					</div>
 				</div>
 
 				<div id="file-display">

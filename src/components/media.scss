@@ -1,3 +1,5 @@
+@import './include.scss';
+
 $arrow_size: 4px;
 
 html {
@@ -5,13 +7,20 @@ html {
 	font-family: 'Lato', arial, serif;
 }
 
+body.import {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
 .media-importer {
 	display: flex;
 	flex-flow: row nowrap;
 
 	> section {
-		height: 100vh;
-		width: 50%;
+		// height: 100vh;
+		width: 45%;
+		padding: 0 2.5%;
 
 		&:first-child {
 			&:before {
@@ -42,6 +51,7 @@ html {
 	.pane-header {
 		text-align: center;
 		margin-top: 10px;
+		font-family: 'Lato', arial, serif;
 
 		&.darker {
 			font-size: 16px;
@@ -70,33 +80,8 @@ html {
 	}
 
 	.select_file_button {
-		margin: 5px 20px;
+		margin: 5px 0px;
 		font-weight: 400;
-	}
-
-	.action_button {
-		font-family: 'Lato', arial, serif;
-		padding: 7px 23px 8px 23px;
-		background: #ffba5d;
-		background-image: linear-gradient(#ffce8c, #ffa42a);
-
-		font-weight: 700;
-		color: #694d28;
-		text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-		box-shadow: 1px 2px 4px #888;
-		font-size: 18px;
-		position: relative;
-		cursor: pointer;
-		display: inline-block;
-		user-select: none;
-
-		border: 1px solid #525252;
-		border-radius: 4px;
-
-		&:hover {
-			background: #ffba5d;
-			background-image: linear-gradient(#ffa42a, #ffce8c);
-		}
 	}
 }
 
@@ -104,8 +89,8 @@ html {
 	position: relative;
 	height: 333px;
 	margin: 45px 55px 30px;
-	border: 5px dashed #dadada;
-	outline: #f5f5f5 solid 30px;
+	border: 2px dashed #dadada;
+	border-radius: 5px;
 	background: #f5f5f5;
 
 	.drag-text {
@@ -113,6 +98,7 @@ html {
 		top: 50%;
 		transform: translate(-50%, -50%);
 		left: 50%;
+		text-align: center;
 	}
 
 	&.drag-is-dragover {
@@ -125,38 +111,50 @@ html {
 	flex-flow: row;
 	margin-left: 20px;
 
+	font-size: 14px;
+
 	label {
-		margin-left: 60px;
+		margin-left: 30px;
 	}
 }
 
 .sort-bar {
 	display: flex;
+	position: relative;
 	flex-flow: row;
 	margin-left: 20px;
 	padding-top: 7px;
 
 	input {
-		padding-right: 200px;
+		padding-right: 125px;
 		padding-left: 25px;
 		height: 20px;
 		background: #fff;
 		border: 1px solid #b0b0b0;
 		border-radius: 12px;
 
-		background-image: url(../img/magnifyingglass.png);
 		background-repeat: no-repeat;
 		background-position: left;
 		background-position-x: 5px;
+	}
+
+	.search-icon {
+		position: absolute;
+		top: 10px;
+		left: 6px;
+		height: 16px;
+		width: 20px;
+		fill: #898686;
+		svg {
+			height: 80%;
+			width: 80%;
+		}
 	}
 }
 
 #sort-options {
 	display: flex;
 	flex-flow: row;
-
-	text-decoration: underline;
-	font-size: 15px;
 
 	.sort-option {
 		margin-right: 20px;
@@ -190,16 +188,17 @@ html {
 	flex-shrink: 1;
 	overflow-y: auto;
 	margin-top: 10px;
-	margin-left: 20px;
+	margin-left: 5px;
 
 	.file-info {
 		display: flex;
 		flex-flow: row;
 		align-content: space-between;
+		cursor: pointer;
 
 		color: #6b6b6b;
 		font-size: 13px;
-		padding: 5px 10px;
+		padding: 10px;
 
 		&:nth-child(odd) {
 			background-color: #eaeaea;
@@ -214,12 +213,18 @@ html {
 		}
 
 		.file-thumbnail {
-			width: 75px;
+			width: 65px;
+
+			img {
+				max-width: 65px;
+				max-height: 65px;
+				border-radius: 5px;
+			}
 		}
 
 		.file-name {
 			flex-grow: 1;
-			padding: 0 5px;
+			padding: 0 10px;
 
 			strong {
 				display: block;
@@ -227,49 +232,9 @@ html {
 			}
 		}
 
-		.delete-btn {
-			font-family: 'Lato', arial, serif;
-			margin-top: 10px;
-			padding: 4px 13px 4px 13px;
-			background: #ffba5d;
-			background-image: linear-gradient(#ffce8c, #ffa42a);
-
-			font-weight: 700;
-			color: #694d28;
-			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-			box-shadow: 1px 2px 4px #888;
-			font-size: 18px;
-			position: relative;
-			cursor: pointer;
-			display: inline-block;
-			user-select: none;
-
-			border: 1px solid #525252;
-			border-radius: 4px;
-
-			.ng-modal & {
-				margin: 5px auto;
-			}
-
-			&.green {
-				background: #c4dd61;
-				background-image: linear-gradient(#c0e195, #8dcb45);
-				color: #525252;
-
-				&:hover {
-					background: #d5ea7f;
-				}
-			}
-
-			&.orange {
-				background: #eca444;
-				background-image: linear-gradient(#ffa42a, #ffce8c);
-				color: #525252;
-
-				&:hover {
-					background: #ffd091;
-				}
-			}
+		.action_button {
+			padding: 6px 12px;
+			font-size: 12px;
 		}
 	}
 
