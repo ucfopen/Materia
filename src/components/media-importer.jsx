@@ -67,7 +67,8 @@ const MediaImporter = () => {
 		onSettled: (data) => {
 			if (!data) console.warn('Error in asset retrieval')
 			else {
-				setAssetList(data.map(asset => {
+				const list = data.map(asset => {
+	
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
 						id: asset.id,
@@ -78,20 +79,29 @@ const MediaImporter = () => {
 						created: [creationDate.getMonth(), creationDate.getDate(), creationDate.getFullYear()].join('/'),
 						is_deleted: parseInt(asset.is_deleted)
 					}
-				}))
+				})
+
+				list.forEach((asset) => {
+					if (asset.id == selectedAsset) _loadPickedAsset(asset)
+				})
+
+				setAssetList(list)
 			}
 		}
 	})
 
 	/****** hooks ******/
 
-	useEffect(() => {
-		if (selectedAsset && assetList.length) {
-			assetList.forEach((asset) => {
-				if (asset.id == selectedAsset) _loadPickedAsset(asset)
-			})
-		}
-	}, [selectedAsset])
+	// useEffect(() => {
+	// 	console.log(selectedAsset)
+	// 	if (selectedAsset && assetList.length) {
+	// 		console.log('selected asset check')
+	// 		assetList.forEach((asset) => {
+	// 			console.log(asset)
+	// 			if (asset.id == selectedAsset) _loadPickedAsset(asset)
+	// 		})
+	// 	}
+	// }, [selectedAsset])
 
 	// Asset list, sorting, search filter, or show delete flag is updated
 	// Processes the list sequentially based on the state of each
@@ -269,8 +279,8 @@ const MediaImporter = () => {
 					<img src={thumb} alt={name} />
 				</span>
 				<span className="file-name">
-					<strong>{name}</strong>
-					{type}
+					{name}
+					<span className="file-type">{type}</span>
 				</span>
 				<span className="file-date">
 					{created}
@@ -324,7 +334,7 @@ const MediaImporter = () => {
 				<div className="drag-footer">
 					<label>
 						<input type="file" onChange={(ev) => _uploadFile(ev)} />
-						<button className="action_button select_file_button">Browse...</button>
+						<span className="action_button select_file_button">Browse...</span>
 					</label>
 				</div>
 			</section>

@@ -4,7 +4,6 @@ $arrow_size: 4px;
 
 html {
 	background: #fff;
-	font-family: 'Lato', arial, serif;
 }
 
 body.import {
@@ -16,9 +15,12 @@ body.import {
 .media-importer {
 	display: flex;
 	flex-flow: row nowrap;
+	width: 800px;
+
+	font-family: 'Lato', arial, serif;
 
 	> section {
-		// height: 100vh;
+		height: 100vh;
 		width: 45%;
 		padding: 0 2.5%;
 
@@ -44,14 +46,15 @@ body.import {
 
 		&:last-child {
 			display: flex;
+			width: 47%;
 			flex-flow: column;
+			padding: 0 0.5% 0 2.5%;
 		}
 	}
 
 	.pane-header {
 		text-align: center;
 		margin-top: 10px;
-		font-family: 'Lato', arial, serif;
 
 		&.darker {
 			font-size: 16px;
@@ -184,14 +187,17 @@ body.import {
 }
 
 #file-display {
+	width: calc(100% - 20px);
+	max-width: calc(100% - 20px);
 	height: 100%;
-	flex-shrink: 1;
-	overflow-y: auto;
+	overflow-y: scroll;
 	margin-top: 10px;
-	margin-left: 5px;
 
 	.file-info {
 		display: flex;
+		max-width: calc(100% - 20px);
+		// width: 100%;
+		min-height: 0%;
 		flex-flow: row;
 		align-content: space-between;
 		cursor: pointer;
@@ -223,12 +229,22 @@ body.import {
 		}
 
 		.file-name {
+			display: block;
 			flex-grow: 1;
 			padding: 0 10px;
+			min-width: 1%; // forces word-wrap
+			word-wrap: break-word;
 
-			strong {
+			color: #484848;
+
+
+			font-weight: bold;
+
+			.file-type {
 				display: block;
-				color: #484848;
+				color: #6b6b6b;
+
+				font-weight: normal;
 			}
 		}
 
@@ -236,9 +252,5 @@ body.import {
 			padding: 6px 12px;
 			font-size: 12px;
 		}
-	}
-
-	img {
-		max-height: 75px;
 	}
 }
