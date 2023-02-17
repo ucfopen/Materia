@@ -92,17 +92,6 @@ const MediaImporter = () => {
 
 	/****** hooks ******/
 
-	// useEffect(() => {
-	// 	console.log(selectedAsset)
-	// 	if (selectedAsset && assetList.length) {
-	// 		console.log('selected asset check')
-	// 		assetList.forEach((asset) => {
-	// 			console.log(asset)
-	// 			if (asset.id == selectedAsset) _loadPickedAsset(asset)
-	// 		})
-	// 	}
-	// }, [selectedAsset])
-
 	// Asset list, sorting, search filter, or show delete flag is updated
 	// Processes the list sequentially based on the state of each
 	useEffect(() => {
