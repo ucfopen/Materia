@@ -6,6 +6,7 @@ import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
+const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
 
 const initState = () => ({
 	isLoading: true,
@@ -53,6 +54,8 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 					else {
 						for (let scoreIndex = 0; scoreIndex < scoreObject.scores.length; scoreIndex++)
 							newLogs[scoreObject.userId].scores.push(scoreObject.scores[scoreIndex])
+
+						newLogs[scoreObject.userId].scores.sort(_compareWidgets).reverse()
 					}
 				}
 
@@ -62,7 +65,6 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	}, [isFetching])
 
 	useEffect(() => {
-
 		const logs = Object.values(logsList)
 		setState({ ...state, logs: logs, filteredLogs: logs, isLoading: false })
 
@@ -82,22 +84,22 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 
 		// unselect user if not in filtered results
 		const isSelectedInResults = filteredLogs.includes(state.selectedUser)
-		if (!isSelectedInResults) {
-			newState.selectedUser = {}
-		}
+		if (!isSelectedInResults) { newState.selectedUser = {} }
 		setState(newState)
-	},
-		[state.searchText, state.selectedUser, state.logs])
+
+	}, [state.searchText, state.selectedUser, state.logs])
 
 	const handleSearchChange = e => onSearchInput(e.target.value)
 
 	let mainContentRender = <LoadingIcon width='570px' />
 	if (!state.isLoading) {
 		const userRowElements = state.filteredLogs.map(user => (
-			<tr key={user.userId}
-				className={{ rowSelected: state.selectedUser.userId === user.userId }}
+			<tr
+				key={user.userId}
+				title={`View all scores for ${user.name}`}
 				onClick={() => { setState({ ...state, selectedUser: user }) }}
-				title={`View all scores for ${user.name}`}>
+				className={{ rowSelected: state.selectedUser.userId === user.userId }}
+			>
 				<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
 					{user.name}
 				</td>
@@ -107,9 +109,11 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 		let selectedUserRender = null
 		if (state.selectedUser.userId) {
 			const selectedUserScoreRows = state.selectedUser.scores.map(score => (
-				<tr key={score.playId}
+				<tr
+					key={score.playId}
+					title='View Detailed Scores for this Play'
 					onClick={() => { showScore(instId, score.playId) }}
-					title='View Detailed Scores for this Play'>
+				>
 					<td>{score.date}</td>
 					<td>{score.score}</td>
 					<td>{score.elapsed}</td>
