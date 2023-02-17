@@ -334,7 +334,7 @@ class Session_PlayDataExporter
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
 
 		$zip = new \ZipArchive();
-		$zip->open($tempname);
+		$zip->open($tempname, \ZipArchive::OVERWRITE);
 		$zip->addFromString('questions.csv', $csv_question_text);
 		$zip->addFromString('answers.csv', $csv_answer_text);
 		$zip->addFromString('logs.csv', $csv_playlog_text);
@@ -426,7 +426,7 @@ class Session_PlayDataExporter
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
 
 		$zip = new \ZipArchive();
-		$zip->open($tempname);
+		$zip->open($tempname, \ZipArchive::OVERWRITE);
 		$zip->addFromString('individual_referrers.csv', $csv_i);
 		$zip->addFromString('collective_referrers.csv', $csv_c);
 		$zip->close();
