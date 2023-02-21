@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef} from 'react'
-import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores, apiGetQuestionSet } from '../util/api'
+import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores } from '../util/api'
 import { useQuery } from 'react-query'
 import SupportInfo from './support-info'
 import LoadingIcon from './loading-icon'
@@ -56,23 +56,12 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const scoreWidgetRef = useRef(null)
 
 	// Gets widget instance
+	// And loads qset
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
-		queryFn: () => apiGetWidgetInstance(inst_id),
+		queryFn: () => apiGetWidgetInstance(inst_id, true),
 		enabled: !!inst_id,
-		staleTime: Infinity,
-	})
-
-	// Gets qset
-	const { isLoading: qSetIsLoading, data: qset } = useQuery({
-		queryKey: ['qset', inst_id],
-		queryFn: () => apiGetQuestionSet(inst_id),
-		staleTime: Infinity,
-		placeholderData: null,
-		enabled: !!inst_id,
-		onSettled: (data) => {
-			if (data && data.type === 'error' ) setExpired(true)
-		}
+		staleTime: Infinity
 	})
 
 	// Gets widget instance scores
@@ -113,6 +102,9 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	// Gets widget instance play scores when playId
 	// or previewInstId are changed
 	// playId and previewInstId are initialized in _getScoreDetails
+	// If previewInstId is null, verifies that instance is playable by current user
+	// If previewInstId is not null, verifies player session
+	// If the play details or preview logs are empty, sets expired to true
 	const { isLoading: playScoresAreLoading, data: playScores, refetch: loadPlayScores } = useQuery({
 		queryKey: ['play-scores', playId, previewInstId],
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
@@ -168,13 +160,12 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		}
 	}, [
 		customScoreScreen.loading,
-		qset,
 		instance,
 	])
 
 	// Initializes the custom score screen
 	useEffect(() => {
-		if (instance && qset) {
+		if (instance) {
 			let enginePath
 			setGuestAccess(instance.guest_access)
 
@@ -200,7 +191,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 				}
 				setCustomScoreScreen({
 					htmlPath: enginePath + '?' + instance.widget.created_at,
-					qset: qset,
+					qset: instance.qset,
 					scoreTable: scoreTable,
 					type: 'html',
 					loading: false,
@@ -209,7 +200,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 			}
 			_displayWidgetInstance()
 		}
-	}, [instance, qset, scoreTable])
+	}, [instance, scoreTable])
 
 	// _getInstanceScores
 	// only for non-preview scores, guest or normal
@@ -359,7 +350,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		}
 	}
 
-	// only referenced once, after instance and qset are loaded
+	// only referenced once, after instance is loaded
 	const _displayWidgetInstance = () => {
 		// Build the data for the overview section, prep for display through Underscore
 		const widget = {
@@ -622,7 +613,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	}
 
 	const _sendWidgetInit = () => {
-		if (customScoreScreen.qset == null || scoreWidgetRef.current == null) {
+		if (customScoreScreen.scoreTable == null || customScoreScreen.qset == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
 			setCustomScoreScreen({...customScoreScreen, loading: true, show: false})
 			setShowResultsTable(true)
@@ -634,7 +625,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	}
 
 	const _sendWidgetUpdate = () => {
-		_sendToWidget('updateWidget', [qset, scoreTable])
+		_sendToWidget('updateWidget', [instance.qset, scoreTable])
 	}
 
 	const _setHeight = (h) => {
@@ -888,7 +879,7 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	}
 
 	return (
-		<article className={`container ${ instanceIsLoading || qSetIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
+		<article className={`container ${ instanceIsLoading || scoresAreLoading ? 'loading' : 'ready'}`}>
 			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			{ scoreHeader }
 			{ overviewRender }
