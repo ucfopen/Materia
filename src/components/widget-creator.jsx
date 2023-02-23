@@ -132,7 +132,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		onSettled: (valid) => {
 			if (!valid) {
 				setCreatorState({...creatorState, hearbeatEnabled: false})
-				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You have been logged out due to inactivity', fatal: true, enableLoginButton: true })
+				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
 			}
 		}
 	})

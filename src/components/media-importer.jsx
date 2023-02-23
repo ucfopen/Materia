@@ -65,7 +65,7 @@ const MediaImporter = () => {
 		queryFn: () => apiGetAssets(),
 		staleTime: Infinity,
 		onSettled: (data) => {
-			if (!data) console.warn('Error in asset retrieval')
+			if (!data || data.type == 'error') console.error(`Asset request failed with error: ${data.msg}`)
 			else {
 				const list = data.map(asset => {
 	
@@ -101,7 +101,7 @@ const MediaImporter = () => {
 		let listStageOne = assetList.filter((asset) => (!showDeletedAssets && !asset.is_deleted) || showDeletedAssets )
 
 		// second pass: filter assets based on search string, if present
-		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match(filterSearch)) : listStageOne
+		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match( filterSearch.toLowerCase() )) : listStageOne
 		
 		// third and final pass: sort assets based on the currently selected sort method and direction
 		let listStageThree = sortState.sortAsc ?
