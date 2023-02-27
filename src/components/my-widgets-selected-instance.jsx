@@ -59,7 +59,8 @@ const MyWidgetSelectedInstance = ({
 	onCopy,
 	onEdit,
 	beardMode,
-	beard
+	beard,
+	setInvalidLogin
 }) => {
 	const [state, setState] = useState(initState())
 	const [showEmbed, setShowEmbed] = useState(false)
@@ -76,7 +77,17 @@ const MyWidgetSelectedInstance = ({
 		queryFn: () => apiCanEditWidgets(inst.id),
 		placeholderData: null,
 		enabled: !!inst.id,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onSuccess: (data) => {
+			if (!data || data.type == 'error')
+			{
+				console.error(`Error: ${data.msg}`);
+				if (data.title =="Invalid Login")
+				{
+					setInvalidLogin(true)
+				}
+			}
+		}
 	})
 
 	// Initializes the data when widgets changes
@@ -289,6 +300,7 @@ const MyWidgetSelectedInstance = ({
 				otherUserPerms={otherUserPerms}
 				setOtherUserPerms={setOtherUserPerms}
 				onClose={modalDialogOnClose}
+				setInvalidLogin={setInvalidLogin}
 			/>
 		)
 	}
@@ -312,6 +324,7 @@ const MyWidgetSelectedInstance = ({
 				currentUser={currentUser}
 				otherUserPerms={otherUserPerms}
 				onEdit={onEdit}
+				setInvalidLogin={setInvalidLogin}
 			/>
 		)
 	}
@@ -485,7 +498,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			<MyWidgetsScores inst={inst} />
+			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin}/>
 		</section>
 	)
 }
