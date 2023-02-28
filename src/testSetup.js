@@ -28,5 +28,3 @@ global.MEDIA_URL = 'https://mediaurl.com/'
 global.getMockApiData = (type) => {
 	return require(`./__test__/mockapi/${type}.json`)
 }
-
-beforeEach(() => { testResetAngular(); resetNamespace(); });

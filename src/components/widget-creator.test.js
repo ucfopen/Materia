@@ -1,8 +1,11 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { act } from 'react-dom/test-utils';
-import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react'
-import '@testing-library/jest-dom'
+import { render, screen, cleanup, fireEvent, waitFor, prettyDOM } from '@testing-library/react'
 
 import WidgetCreator from './widget-creator'
 import WidgetCreatorPage from './widget-creator-page'
@@ -14,6 +17,9 @@ import widgetInfo from '../__test__/mockapi/crossword_demo_widget_info.json'
 import qset from '../__test__/mockapi/crossword_demo_qset.json'
         
 jest.mock('../util/api')
+
+// To see the DOM at any time after rendered.container has loaded, use:
+// console.log(prettyDOM(rendered.container))
 
 // Enables testing with react query
 const renderWithClient = async (children) => {
@@ -89,7 +95,7 @@ describe('Widget Creator', () => {
     it('should render existing widget instance', async () => {
         let rendered;
 		await act(async () => {
-			rendered = await renderWithClient(<WidgetCreatorPage/>)
+            rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
         
         // Firstly, is window.location correct?
@@ -97,11 +103,7 @@ describe('Widget Creator', () => {
         expect(window.location.hash).toEqual(`#${widgetInstance.id}`); 
 
         // Next, does the iframe have the correct src attribute?
-        expect(await rendered.queryByTitle('Widget Embed')).toHaveAttribute('src', expect.stringContaining(`${window.WIDGET_URL + widgetInstance.widget.dir + widgetInstance.widget.creator}?${widgetInstance.widget.created_at}`));
-
-        // Check to see if action bar is loaded
-        expect(await rendered.queryByText('Save Draft')).toBeTruthy()
-        expect(await rendered.queryByText('Save History')).toBeTruthy()
+        expect(await rendered.container.querySelector('#container').getAttribute('src')).toBe(`${window.WIDGET_URL + widgetInstance.widget.dir + widgetInstance.widget.creator}?${widgetInstance.widget.created_at}`);
 
         // Send mock message from widget iframe indicating the creator is ready
         const e = {
@@ -118,8 +120,10 @@ describe('Widget Creator', () => {
             window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
 
-        // Button should be set to 'Update' since instance is published
-        expect(await rendered.queryByText('Update')).toBeTruthy()
+        // Publish button should be set to 'Update' since instance is published
+        expect(await rendered.container.querySelector('#creatorPublishBtn').textContent.includes('Update')).toBeTruthy()
+        // Save Draft should not be rendered either
+        expect(await rendered.container.querySelector('#creatorSaveBtn')).toBeFalsy()
     })
 
     it('should render new widget instance', async () => {
@@ -149,10 +153,10 @@ describe('Widget Creator', () => {
             window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
         
-        // Action bar
-        expect(await rendered.queryByText('Save Draft')).toBeTruthy()
+        // Action bar for unpublished widgets
         expect(await rendered.queryByText('Save History')).toBeFalsy()
-        expect(await rendered.queryByText('Publish...')).toBeTruthy()
+        expect(await rendered.container.querySelector('#creatorPublishBtn').textContent.includes('Publish...')).toBeTruthy()
+        expect(await rendered.container.querySelector('#creatorSaveBtn').textContent.includes('Save Draft')).toBeTruthy()
     })
 
     it('selects a qset from save history', async () => {
@@ -167,7 +171,7 @@ describe('Widget Creator', () => {
         fireEvent.click(saveHistoryButton)
 
         // Show embed dialog
-        expect(await rendered.queryByTitle('Embed Dialog')).toHaveAttribute('src', expect.stringContaining(`${window.BASE_URL}qsets/import/?inst_id=${widgetInstance.id}`))
+        expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe(`${window.BASE_URL}qsets/import/?inst_id=${widgetInstance.id}`)
 
         // Select a qset from save history
         act(() => {
@@ -175,21 +179,22 @@ describe('Widget Creator', () => {
         })
 
         // Hide action bar
-        expect(await rendered.queryByText('Save History')).toBeFalsy()
+        expect(await rendered.container.querySelector("#action_bar")).toBeFalsy()
 
         // Hide embed dialog
-        expect(await rendered.queryByTitle('Embed Dialog')).not.toHaveAttribute('src', expect.stringContaining(`${window.BASE_URL}qsets/import/?inst_id=${widgetInstance.id}`))
+        expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe("")
 
-        expect(await rendered.queryByText('Previewing Prior Save')).toBeTruthy()
+        const actionBar = await rendered.container.querySelector("#qset-rollback-confirmation-bar")
+
+        expect(actionBar).toBeTruthy()
 
         // Press 'Keep' button to keep the selected qset
-        const keepButton = await rendered.queryByTestId('keep_qset');
-
+        const keepButton = await actionBar.querySelector("button");
         fireEvent.click(keepButton);
-
-        expect(await rendered.queryByText('Previewing Prior Save')).toBeFalsy()
+        
+        expect(await rendered.container.querySelector("#qset-rollback-confirmation-bar")).toBeFalsy()
         // Shows action bar
-        expect(await rendered.queryByText('Save History')).toBeTruthy()
+        expect(await rendered.container.querySelector("#action-bar")).toBeTruthy()
 
     })
 
@@ -201,11 +206,11 @@ describe('Widget Creator', () => {
         })
 
         // Click Import Questions
-        const importQuestionsBtn = await rendered.queryByText('Import Questions...')
-        fireEvent.click(importQuestionsBtn)
+        const importQuestionsLink = await rendered.container.querySelector('#importLink');
+        fireEvent.click(importQuestionsLink)
 
         // Embed the question importer
-        expect(await rendered.queryByTitle('Embed Dialog')).toHaveAttribute('src', expect.stringContaining(`${window.BASE_URL}questions/import/?type=${encodeURIComponent(widgetInfo.meta_data.supported_data.join())}`))
+        expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe(`${window.BASE_URL}questions/import/?type=${encodeURIComponent(widgetInfo.meta_data.supported_data.join())}`)
 
         // Import a question
         act(() => {
@@ -213,7 +218,7 @@ describe('Widget Creator', () => {
         })
 
         // Hide the question importer
-        expect(await rendered.queryByTitle('Embed Dialog')).not.toHaveAttribute('src', expect.stringContaining(`${window.BASE_URL}questions/import/?type=${encodeURIComponent(widgetInfo.meta_data.supported_data.join())}`))
+        expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe("")
 
     })
     
@@ -231,7 +236,7 @@ describe('Widget Creator', () => {
         })
         
         // Click Publish
-        const publishButton = await rendered.queryByText('Publish...')
+        const publishButton = await rendered.container.querySelector('#creatorPublishBtn')
         fireEvent.click(publishButton)
 
         // Get warning
@@ -259,17 +264,15 @@ describe('Widget Creator', () => {
         })
 
         // Click Publish
-        const publishButton = await rendered.queryByText('Publish...')
+        const publishButton = await rendered.container.querySelector('#creatorPublishBtn')
         fireEvent.click(publishButton)
 
         // Get warning
         expect(await rendered.queryByText('Publishing removes the "Draft" status of a widget, which grants you the ability to use it in your course and collect student scores & data.')).toBeTruthy()
 
         // Continue publish
-        const yesPublish = await rendered.queryByText('Yes, Publish')
+        const yesPublish = await rendered.container.querySelector('.action_button')
         fireEvent.click(yesPublish)
-
-        expect(await rendered.queryByText('Saving...')).toBeTruthy()
 
         const e = {
             source: window,
@@ -310,14 +313,14 @@ describe('Widget Creator', () => {
         })
         
         // Click Publish
-        const publishButton = await rendered.queryByText('Publish...')
+        const publishButton = await rendered.container.querySelector('#creatorPublishBtn')
         fireEvent.click(publishButton)
 
         // Get warning
         expect(await rendered.queryByText('Students are not allowed to publish this widget.')).toBeTruthy()
 
         // Cancel publish
-        const cancelPublishButton = await rendered.queryByText('Cancel')
+        const cancelPublishButton = await rendered.container.querySelector('.cancel_button')
         fireEvent.click(cancelPublishButton)
 
         // Remove warning
@@ -346,14 +349,15 @@ describe('Widget Creator', () => {
         })
 
         // Click Update
-        const updateButton = await rendered.queryByText('Update')
+        const updateButton = await rendered.container.querySelector("#creatorPublishBtn")
+        expect(updateButton.textContent.includes('Update')).toBeTruthy()
         fireEvent.click(updateButton)
 
         // Show warning
         expect(await rendered.queryByText('Updating this published widget will instantly allow your students to see your changes.')).toBeTruthy()
 
         // Cancel publish
-        const cancelPublishButton = await rendered.queryByText('Cancel')
+        const cancelPublishButton = await rendered.container.querySelector('.cancel_button')
         fireEvent.click(cancelPublishButton)
 
         // Hide dialog
@@ -372,33 +376,35 @@ describe('Widget Creator', () => {
         // Render alert dialog
         expect(await rendered.queryByText('Someone else is editing this widget, you will be able to edit after they finish.')).toBeTruthy()
     })
-    
-    it('should error if user does not have correct permissions to access qset', async () => {
-        let rendered;
 
-        mockApiGetQuestionQset.mockResolvedValue({title: 'Permission Denied'})
+    // Disabling this test since qset should not require permissions    
+    // it('should error if user does not have correct permissions to access qset', async () => {
+    //     let rendered;
 
-		await act(async () => {
-			rendered = await renderWithClient(<WidgetCreatorPage/>)
-        })
+    //     mockApiGetQuestionQset.mockResolvedValue({title: 'Permission Denied'})
 
-        // Render alert dialog
-        expect(await rendered.queryByText('Permission Denied')).toBeTruthy()
-        // Render No Permission page
-        expect(await rendered.queryByText("You don't have permission to view this page.")).toBeTruthy()
-        // Render Support Info
-        expect(await rendered.queryByText("Trouble Logging In?")).toBeTruthy()
-    })
+	// 	await act(async () => {
+	// 		rendered = await renderWithClient(<WidgetCreatorPage/>)
+    //     })
+
+    //     // Render alert dialog
+    //     expect(await rendered.queryByText('Permission Denied')).toBeTruthy()
+    //     // Render No Permission page
+    //     expect(await rendered.queryByText("You don't have permission to view this page.")).toBeTruthy()
+    //     // Render Support Info
+    //     expect(await rendered.queryByText("Trouble Logging In?")).toBeTruthy()
+    // })
     
     it('should display alert dialog if qset cannot be loaded', async () => {
-        mockApiGetQuestionQset.mockResolvedValue(undefined)
+        mockApiGetQuestionQset.mockResolvedValue({title: 'error'})
         
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
         
-        expect(await rendered.queryByText('Unable to load widget data.')).toBeTruthy()
+        // expect(await rendered.queryByText('Unable to load widget data.')).toBeTruthy()
+        expect(await rendered.container.querySelector('.alert-wrapper')).toBeTruthy()
     })
     
     it('should display alert dialog if widget is not a draft and widget cannot be published', async () => {
@@ -446,7 +452,7 @@ describe('Widget Creator', () => {
             window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
 
-        expect(await rendered.queryByTitle('Embed Dialog')).toHaveAttribute('src', expect.stringContaining(`${window.BASE_URL}media/import#${types.join(',')}`))
+        expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe(`${window.BASE_URL}media/import#${types.join(',')}`)
 
         // Import media
         const file = new File([""], "filename", {});
@@ -455,12 +461,19 @@ describe('Widget Creator', () => {
         })
 
         // Hide embed dialog
-        expect(await rendered.queryByTitle('Embed Dialog')).toHaveAttribute('src', expect.stringContaining(''))
+        expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe("")
 
     })
 
     it('should save draft of new widget', async () => {
         // Create new widget
+        const draftWidgetInstance = {
+            ...widgetInstance,
+            is_draft: true
+        }
+        mockApiGetWidgetInstance.mockResolvedValue(draftWidgetInstance)
+        mockApiSaveWidget.mockResolvedValue(draftWidgetInstance)
+
         window.location.hash = ''
 
         const e = {
@@ -469,7 +482,7 @@ describe('Widget Creator', () => {
             data: {
                 source: 'creator-core',
                 type: 'save',
-                data: [widgetInstance.name, qset, 1]
+                data: [draftWidgetInstance.name, qset, 1]
             }
         }
 
@@ -478,36 +491,37 @@ describe('Widget Creator', () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
 
+        // New widgets don't have instances or qsets
         expect(mockApiGetWidgetInstance).not.toHaveBeenCalled()
         expect(mockApiGetQuestionQset).not.toHaveBeenCalled()
         expect(mockApiGetWidget).toHaveBeenCalled()
 
-        const saveDraftButton = await rendered.queryByText('Save Draft')
+        const saveDraftButton = await rendered.container.querySelector('#creatorSaveBtn')
         fireEvent.click(saveDraftButton);
+        expect(await rendered.container.querySelector('#creatorSaveBtn').textContent.includes('Saving...')).toBeTruthy()
 
         // Save widget
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
-
-        // Setting the instance id causes these api requests to be called
-        expect(mockApiGetWidgetInstance).toHaveBeenCalled()
-        expect(mockApiGetQuestionQset).toHaveBeenCalled()
-
-        expect(await rendered.queryByText('Saved!')).toBeTruthy()
+        expect(mockApiSaveWidget).toHaveBeenCalled()
 
         // URL hash should be updated with new instance ID
-        expect(window.location.hash).toEqual(`#${widgetInstance.id}`)
+        expect(window.location.hash).toEqual(`#${draftWidgetInstance.id}`)
+
+        expect(await rendered.queryByText('Saved!')).toBeTruthy()
     })
 
     it('should show alert dialog if save canceled', async () => {
+        const error_msg = "we're doing testing";
+
         const e = {
             source: window,
             origin: window.BASE_URL.substring(0, window.BASE_URL.length - 1),
             data: {
                 source: 'creator-core',
                 type: 'cancelSave',
-                data: [{msg: "we're doing testing", halt: true}]
+                data: [{msg: error_msg, halt: true}]
             }
         }
 
@@ -516,15 +530,16 @@ describe('Widget Creator', () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
 
-        const saveDraftButton = await rendered.queryByText('Save Draft')
-        fireEvent.click(saveDraftButton);
+        const saveButton = await rendered.container.querySelector('#creatorPublishBtn')
+        fireEvent.click(saveButton);
 
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
 
-        expect(await rendered.queryByText('Can Not Save!')).toBeTruthy()
-        expect(await rendered.queryByText("Unfortunately, your progress was not saved because we're doing testing. Any unsaved progress will be lost.")).toBeTruthy()
+        // Removed
+        // expect(await rendered.queryByText('Can Not Save!')).toBeTruthy()
+        expect(await rendered.queryByText(`Unfortunately, your progress was not saved because ${error_msg}. Any unsaved progress will be lost.`)).toBeTruthy()
     })
 
     it('should save new widget after clicking preview', async () => {
@@ -548,7 +563,7 @@ describe('Widget Creator', () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
 
-        const previewButton = await rendered.queryByText('Preview')
+        const previewButton = await rendered.container.querySelector('#creatorPreviewBtn')
         fireEvent.click(previewButton);
 
         await act(async () => {

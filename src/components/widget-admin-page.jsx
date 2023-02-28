@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
 import Header from './header'
-import WidgetInstall from './widget-install'
-import WidgetList from './widget-list'
+import WidgetInstall from './widget-admin-install'
+import WidgetList from './widget-admin-list'
 
 const WidgetAdminPage = () => {
 	const [widgets, setWidgets] = useState([])
