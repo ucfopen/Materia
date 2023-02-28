@@ -233,12 +233,17 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (!!attempts) {
 			if (attempts instanceof Array && attempts.length > 0) {
 				let matchedAttempt = false
+				// Reverse attempts so that the most recent attempt has the highest index
+				attempts.reverse()
+
+				// attemptDates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
+				let dates = [ ...attemptDates ]
+
 				// sort added here so it displays the correct date with the attempt and score
 				attempts.forEach((a, i) => {
 					const d = new Date(a.created_at * 1000)
 
 					// attemptDates is used to populate the overview data in displayWidgetInstance, it's just assembled here.
-					let dates = { ...attemptDates }
 					let date = { ...dates[i] }
 					date = d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
 					dates[i] = date
@@ -282,15 +287,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}, [currentAttempt])
 
 	useEffect(() => {
-		if (!!playId) loadPlayScores()
+		if (!!playId) 
+		{
+			loadPlayScores()
+		}
 	}, [playId])
 
 	useEffect(() => {
 
 		if (playScores && playScores.length > 0) {
-
-			// if (!customScoreScreen.show) {
-			// }
 
 			const deets = playScores[0]
 			setDetails([...deets.details])
@@ -338,11 +343,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const listenToHashChange = () => {
 		const hash = getAttemptNumberFromHash()
 		if (currentAttempt != hash) setCurrentAttempt(hash)
-
-		if (customScoreScreen.show) {
-			// update the customScoreScreen
-			_sendWidgetUpdate()
-		}
 	}
 
 	const _populateScores = (scores) => {
@@ -553,9 +553,13 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
-	const _sendWidgetUpdate = () => {
-		_sendToWidget('updateWidget', [qset, scoreTable])
-	}
+	useEffect(() => {
+		if (scoreWidgetRef.current != null)
+		{
+			// the "update" function is not implemented by every custom score screen, have to send "start"
+			_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
+		}
+	}, [customScoreScreen.scoreTable])
 
 	const _setHeight = (h) => {
 		const min_h = instance.widget.height
@@ -593,7 +597,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					</a>
 				</li>
 			)
-		})
+		}).reverse()
+		// Reverses attempt list so that the most recent appears at top
 
 		previousAttempts = (
 			<nav
