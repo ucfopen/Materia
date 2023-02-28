@@ -101,7 +101,7 @@ const WidgetListCard = ({widget = null}) => {
 
     let widgetErrorsRender = null
     if (state.errorMessage) {
-        widgetErrorsRender = state.errorMessage.map(error => <div className="error-holder">{error}</div>)
+        widgetErrorsRender = state.errorMessage.map((error, i) => <div key={i} className="error-holder">{error}</div>)
     }
 
     let widgetSuccessRender = null
@@ -196,19 +196,20 @@ const WidgetListCard = ({widget = null}) => {
                     </div>
                     <div>
                         <span>
-                            <label>Demo:</label>
+                            <label htmlFor="demo">Demo:</label>
                             <input value={state.widget.meta_data.demo} 
-                            onChange={handleDemoChange} type='text'/>
+                            onChange={handleDemoChange} type='text' id="demo"/>
                         </span>
                     </div>
                     <div>
                         <span className="long">
-                            <label>About:</label><textarea value={state.widget.meta_data.about} onChange={handleAboutChange}></textarea>
+                            <label htmlFor="about">About:</label>
+                            <textarea id="about" value={state.widget.meta_data.about} onChange={handleAboutChange}></textarea>
                         </span>
                     </div>
                     <div>
                         <span className="long">
-                            <label>Excerpt:</label><textarea value={state.widget.meta_data.excerpt} onChange={handleExcerptChange}></textarea>
+                            <label htmlFor="excerpt">Excerpt:</label><textarea id="excerpt" value={state.widget.meta_data.excerpt} onChange={handleExcerptChange}></textarea>
                         </span>
                     </div>
                     <div>
