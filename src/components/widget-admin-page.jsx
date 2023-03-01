@@ -2,6 +2,8 @@ import { apiGetWidgetsAdmin } from '../util/api'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
+import { iconUrl } from '../util/icon-url'
+
 import Header from './header'
 import WidgetInstall from './widget-admin-install'
 import WidgetList from './widget-admin-list'
@@ -15,7 +17,7 @@ const WidgetAdminPage = () => {
 		staleTime: Infinity,
 		onSuccess: (widgetData) => {
 			widgetData.forEach((w) => {
-				w.icon = Materia.Image.iconUrl(w.dir, 60)
+				w.icon = iconUrl('/widget/', w.dir, 60)
 				// Convert "0" and "1" to false and true
 				w.in_catalog = !!+w.in_catalog
 				w.is_editable = !!+w.is_editable

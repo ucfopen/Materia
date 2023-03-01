@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react'
@@ -135,7 +139,7 @@ describe('WidgetList', () => {
         cleanup()
     })
 
-    it('should load all widgets', async () => {
+    it('should load all widgets if widgets finished fetching', async () => {
         renderWithClient(<WidgetList widgets={widgets} isLoading={false}/>)
 
         let count = 0;
@@ -148,8 +152,36 @@ describe('WidgetList', () => {
         
     })
 
-    it('should not load all widgets', async () => {
+    it('should not load all widgets if still fetching widgets', async () => {
         renderWithClient(<WidgetList widgets={widgets} isLoading={true}/>)
+
+        for (const w of widgets) {
+            const widget = screen.queryByText(w.name);
+            expect(widget).not.toBeInTheDocument();
+        }
+    })
+
+    it('should not load all widgets if widgets are empty', async () => {
+        const mockApiGetWidgetsAdmin = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue([])
+
+        renderWithClient(<WidgetAdminPage />)
+
+        expect(mockApiGetWidgetsAdmin).toHaveBeenCalled()
+
+        for (const w of widgets) {
+            const widget = screen.queryByText(w.name);
+            expect(widget).not.toBeInTheDocument();
+        }
+    })
+
+    it('should not load page if user is logged out', async () => {
+        const mockApiGetWidgetsAdmin = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue([])
+
+        renderWithClient(<WidgetAdminPage />)
+
+        expect(mockApiGetWidgetsAdmin).toHaveBeenCalled()
+
+        expect(screen.queryByText("WidgetList")).not.toBeInTheDocument
 
         for (const w of widgets) {
             const widget = screen.queryByText(w.name);
@@ -221,6 +253,30 @@ describe('WidgetListCard', () => {
         expect(mockUpdate).toHaveBeenCalledTimes(1);
 
         mockUpdate.mockRestore()
+    })
+
+    it('should error if user is logged out', async () => {
+        const mockUpdate = jest.spyOn(api, 'apiUpdateWidgetAdmin').mockResolvedValue(['Error', true, true])
+       
+        // Open widget card
+        fireEvent.click(await screen.findByText(widget.name));
+
+        // Make changes to widget
+        fireEvent.click(await screen.findByLabelText(/In Catalog/i, {selector: 'input'}))
+        fireEvent.click(await screen.findByLabelText(/Is Editable/i, {selector: 'input'}))
+        fireEvent.click(await screen.findByLabelText(/Is Scorable/i, {selector: 'input'}))
+        fireEvent.change(await screen.findByLabelText(/About/i, {selector: 'textarea'}), {target: {value: 'What is this widget about?'}})
+        fireEvent.change(await screen.findByLabelText(/Excerpt/i, {selector: 'textarea'}), {target: {value: 'Some content here'}})
+
+        // Save changes
+        fireEvent.click(await screen.findByText('Save Changes'))
+
+        expect(await screen.findByText(/Error/i)).not.toBeNull()
+
+        expect(mockUpdate).toHaveBeenCalledTimes(1);
+
+        mockUpdate.mockRestore()
+
     })
 })
 

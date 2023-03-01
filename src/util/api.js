@@ -350,8 +350,10 @@ export const apiSearchWidgets = input => {
 
 export const apiGetWidgetsAdmin = () => {
 	return fetch(`/api/admin/widgets/`)
-		.then(resp => resp.json())
-		.then(widgets => widgets)
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return []
+	})
 }
 
 export const apiUpdateWidgetAdmin = widget => {
@@ -367,7 +369,10 @@ export const apiUpdateWidgetAdmin = widget => {
 		},
 		body: JSON.stringify(widget)
 	})
-	.then(res => res.json())
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return []
+	})
 }
 
 export const apiUploadWidgets = (files) => {

@@ -93,7 +93,11 @@ const WidgetListCard = ({widget = null}) => {
             }
             if (errorMessage.length == 0)
             {
-                success = true
+                if (response.length < 1)
+                {
+                    errorMessage.push("Error")
+                }
+                else success = true
             }
             setState(prevState => ({...prevState, errorMessage: errorMessage, success: success}))
         })
