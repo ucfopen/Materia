@@ -153,8 +153,13 @@ const MediaImporter = () => {
 			asset.is_deleted = 0
 			apiRestoreAsset(asset.id)
 		}
-		// invalidate assets query, force re-fetch to update the list after deleting or undeleting an asset
-		queryClient.invalidateQueries('media-assets', { refetchInactive: true })
+
+		let list = assetList.map((item) => {
+			if (item.id == asset.id) item.is_deleted = asset.is_deleted
+			return item
+		})
+
+		setAssetList(list)
 	}
 
 	const _uploadFile = (e) => {

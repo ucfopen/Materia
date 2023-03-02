@@ -6,7 +6,7 @@ import { objectTypes } from '../components/materia-constants'
 // checks response for errors and decodes json
 const handleErrors = async resp => {
 	if (!resp.ok) throw Error(resp.statusText)
-	const data = await resp.json()
+	const data = await resp.json().catch(() => { return null })
 	if (data?.errorID) {
 		throw Error(data.message)
 	}
@@ -578,11 +578,7 @@ export const apiDeleteAsset = async (assetId) => {
 			'content-type': 'application/json; charset=UTF-8'
 		}
 	}
-	return fetch(`/api/asset/delete/${assetId}`, options)
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
+	return fetch(`/api/asset/delete/${assetId}`, options).then(handleErrors)
 }
 
 export const apiRestoreAsset = (assetId) => {
@@ -596,11 +592,7 @@ export const apiRestoreAsset = (assetId) => {
 			'content-type': 'application/json; charset=UTF-8'
 		}
 	}
-	return fetch(`/api/asset/restore/${assetId}`, options)
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
+	return fetch(`/api/asset/restore/${assetId}`, options).then(handleErrors)
 }
 
 // Persist to wherever using the super-secret object

@@ -26,6 +26,8 @@ class Controller_Api_Asset extends Controller_Rest
 				->value('is_deleted', '1')
 				->where('id', $asset_id)
 				->execute();
+
+			return true;
 		}
 		catch (\Exception $th)
 		{
@@ -51,6 +53,8 @@ class Controller_Api_Asset extends Controller_Rest
 				->value('is_deleted', '0')
 				->where('id', $asset_id)
 				->execute();
+
+			return true;
 		}
 		catch (\Exception $th)
 		{
