@@ -43,19 +43,16 @@ class Controller_Media extends Controller
 		// Validate Logged in
 		if (\Service_User::verify_session() !== true) throw new HttpNotFoundException;
 
-		Css::push_group(['core', 'media_import']);
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'dataTables']);
-
 		$this->inject_common_js_constants();
 
 		$theme = Theme::instance();
-		$theme->set_template('layouts/main');
+		$theme->set_template('layouts/react');
 		$theme->get_template()
 			->set('title', 'Media Catalog')
 			->set('page_type', 'import');
 
-		$theme->set_partial('footer', 'partials/angular_alert');
-		$theme->set_partial('content', 'partials/catalog/media');
+		Css::push_group(['media_import']);
+		Js::push_group(['react', 'media']);
 
 		return Response::forge($theme->render());
 	}
