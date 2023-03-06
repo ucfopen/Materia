@@ -98,7 +98,7 @@ const ProfilePage = () => {
 							<span>
 								<ul className="user_information">
 									<li className={`user_type ${currentUser.is_student == true ? '' : 'staff'}`}>{`${currentUser.is_student == true ? 'Student' : 'Staff'}`}</li>
-									<li className={`user_type ${currentUser.is_support_user == true ? 'support' : ''}`}>{`${currentUser.is_support_user == true ? 'Support' : ''}`}</li>
+									{currentUser.is_support_user ? <li className={`user_type ${currentUser.is_support_user == true ? 'support' : ''}`}>{`${currentUser.is_support_user == true ? 'Support' : ''}`}</li> : <></>}
 								</ul>
 							</span>
 						</div>
