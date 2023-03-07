@@ -251,7 +251,6 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			mutateWidget.mutate({
 				args: args,
 				successFunc: (updatedInst) => {
-					console.log(updatedInst)
 					onEdit(updatedInst)
 					if (mounted.current) {
 						onClose()
