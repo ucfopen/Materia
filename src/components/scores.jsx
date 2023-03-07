@@ -55,8 +55,8 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 	const [widget, setWidget] = useState(null)
 	const scoreWidgetRef = useRef(null)
 
-	// Gets widget instance
-	// And loads qset
+	// Gets widget instance loads qset
+  // No login required
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
 		queryFn: () => apiGetWidgetInstance(inst_id, true),
@@ -135,7 +135,12 @@ const Scores = ({inst_id, play_id, single_id, send_token, isEmbedded, isPreview}
 		queryKey: ['score-summary', inst_id],
 		queryFn: () => apiGetScoreSummary(inst_id),
 		staleTime: Infinity,
-		enabled: !!inst_id
+		enabled: !!inst_id,
+		onSuccess: (result) => {
+			if (!result || result.length < 1) {
+				setExpired(true)
+			}
+		}
 	})
 
 	useEffect(() => {

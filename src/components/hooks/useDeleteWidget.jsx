@@ -19,8 +19,9 @@ export default function useDeleteWidget() {
 				// Stores the old value for use if there is an error
 				return { previousValue }
 			},
-			onSuccess: () => {
+			onSuccess: (data, variables) => {
 				queryClient.invalidateQueries('widgets')
+				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)
