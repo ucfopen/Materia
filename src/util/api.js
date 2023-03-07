@@ -433,6 +433,11 @@ export const apiGetScoreSummary = instId => {
 			return []
 		})
 		.then(scores => {
+			if (!scores || scores.type == "error")
+			{
+				return []
+			}
+
 			const ranges = [
 				'0-9',
 				'10-19',
@@ -462,6 +467,11 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			return []
 		})
 		.then(results => {
+			if (!results || results.type == "error")
+			{
+				return []
+			}
+
 			if (results.pagination.length == 0) return []
 
 			const timestampToDateDisplay = timestamp => {
