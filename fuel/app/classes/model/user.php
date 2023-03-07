@@ -158,6 +158,7 @@ class Model_User extends Orm\Model
 		$array = parent::to_array($custom, $recurse, $eav);
 		$array['avatar'] = $avatar;
 		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
+		$array['is_support_user'] = \Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SUPPORT]);
 		return $array;
 	}
 
