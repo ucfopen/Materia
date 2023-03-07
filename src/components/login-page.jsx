@@ -25,11 +25,17 @@ const LoginPage = () => {
 				return <li key={index}><a href={`${vals[0]}`}>{`${vals[1]?.replace('+',' ')}`}</a></li>
 			})
 
+			let actionRedirect = window.location.search && window.location.search.split("?redirect=").length > 1 ? window.location.search.split("?redirect=")[1] : ''
+
+			// If there is no redirect query in the url but there is a hash, it will redirect to my-widgets#hash
+			// Otherwise, it adds it onto the end of the redirect query
+			actionRedirect += (window.location.hash ? window.location.hash : '') 
+
 			setState({
 				loginUser: window.LOGIN_USER,
 				loginPw: window.LOGIN_PW,
 				actionLogin: window.ACTION_LOGIN,
-				actionRedirect: window.ACTION_REDIRECT,
+				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
 				is_embedded: window.EMBEDDED != undefined ? window.EMBEDDED : false,
 				bypass: window.BYPASS,
 				context: window.CONTEXT,

@@ -17,7 +17,7 @@ const initDialogState = () => {
 	})
 }
 
-const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
+const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser, setInvalidLogin}) => {
 	const [state, setState] = useState(initDialogState())
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
@@ -37,7 +37,17 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		queryFn: () => apiSearchUsers(debouncedSearchTerm),
 		staleTime: Infinity,
 		placeholderData: [],
-		retry: false
+		retry: false,
+		onSuccess: (data) => {
+			if (!data || (data.type == 'error'))
+			{
+				console.error(`User search failed with error: ${data.msg}`);
+				if (data.title =="Invalid Login")
+				{
+					setInvalidLogin(true)
+				}
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -174,7 +184,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults && searchResults?.length !== 0) {
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults.length && searchResults?.length !== 0) {
 			const searchResultElements = searchResults?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'

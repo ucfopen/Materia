@@ -27,18 +27,15 @@ return [
 		],
 		'widget_play' => [
 			$webpack.'css/widget-play.css',
-			$vendor.'ng-modal.css'
 		],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
 		'my_widgets'  => [$webpack.'js/my-widgets.css'],
 		'widget_create' => [
 			$webpack.'css/loading-icon.css',
 			$webpack.'js/creator-page.css',
-			$vendor.'ng-modal.css'
 		],
 		'widget_detail' => [
 			$webpack.'css/widget-detail.css',
-			$vendor.'ng-modal.css'
 		],
 		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'js/profile.css'],
@@ -61,7 +58,7 @@ return [
 		'rollback_dialog' => [
 			$webpack.'css/util-rollback-confirm.css'
 		],
-		'media_import' => [$webpack.'css/util-media-import.css'],
+		'media_import' => [$webpack.'js/media.css'],
 		'help' => [$webpack.'css/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
 		'fonts' => [
