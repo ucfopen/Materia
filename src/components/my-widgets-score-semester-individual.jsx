@@ -6,7 +6,12 @@ import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
-const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
+const _compareScores = (a, b) => { return (parseInt(b.created_at) - parseInt(a.created_at)) }
+
+const timestampToDateDisplay = timestamp => {
+	const d = new Date(parseInt(timestamp, 10) * 1000)
+	return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
+}
 
 const initState = () => ({
 	isLoading: true,
@@ -54,9 +59,8 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 					else {
 						for (let scoreIndex = 0; scoreIndex < scoreObject.scores.length; scoreIndex++)
 							newLogs[scoreObject.userId].scores.push(scoreObject.scores[scoreIndex])
-
-						newLogs[scoreObject.userId].scores.sort(_compareWidgets).reverse()
 					}
+					newLogs[scoreObject.userId].scores.sort(_compareScores)
 				}
 
 				setLogsList(newLogs)
@@ -114,7 +118,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 					title='View Detailed Scores for this Play'
 					onClick={() => { showScore(instId, score.playId) }}
 				>
-					<td>{score.date}</td>
+					<td>{timestampToDateDisplay(score.created_at)}</td>
 					<td>{score.score}</td>
 					<td>{score.elapsed}</td>
 				</tr>

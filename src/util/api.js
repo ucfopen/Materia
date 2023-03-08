@@ -464,11 +464,6 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 		.then(results => {
 			if (results.pagination.length == 0) return []
 
-			const timestampToDateDisplay = timestamp => {
-				const d = new Date(parseInt(timestamp, 10) * 1000)
-				return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
-			}
-
 			const scoresByUser = new Map()
 			results.pagination.forEach(log => {
 				let scoresForUser
@@ -496,7 +491,7 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
 					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
-					date: timestampToDateDisplay(log.time)
+					created_at: log.time
 				})
 
 			})
