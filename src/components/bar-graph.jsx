@@ -14,7 +14,7 @@ const BarGraph = ({ data, width, height, rowLabel = `Y Axis`, colLabel = `X Axis
 	// num of students
 	const yAxis = scaleLinear().range([graphHeight, 0]).nice()
 	const largestNumStudents = Math.max(...data.map(({ value }) => value))
-	largestNumStudents === 1 ? yAxis.domain([0, 1.2]) : yAxis.domain([0, largestNumStudents])
+	largestNumStudents === 1 ? yAxis.domain([0, 1]) : yAxis.domain([0, largestNumStudents])
 
 	const ColAxis = ({ scale }) => {
 		const ref = useRef(null)
