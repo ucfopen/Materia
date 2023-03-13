@@ -665,9 +665,9 @@ class Perm_Manager
 
 		$all_perms = self::get_all_users_with_perms_to($object_id, $object_type);
 
-		// if the current user is a super user, append their user's perms into the results
-		// super users don't get explicit perms to things set in the db, so we'll fake it here
-		$cur_user_perms = self::is_super_user() ? [Perm::SUPERUSER, null] : $all_perms[$current_user_id];
+		// if the current user is a super user or support user, append their user's perms into the results
+		// super users and support users don't get explicit perms to objects set in the db, so we'll fake it here
+		$cur_user_perms = self::is_super_user() ? [Perm::SUPERUSER, null] : (self::is_support_user() ? [Perm::FULL, null] : $all_perms[$current_user_id]);
 
 		return [
 			'user_perms' => [$current_user_id => $cur_user_perms],

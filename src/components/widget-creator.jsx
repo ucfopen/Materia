@@ -54,6 +54,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const [widgetReady, setWidgetReady] = useState(false)
 
 	const instIdRef = useRef(instId)
+	const creatorShouldInitRef = useRef(true) // this value is stored as a ref because of race conditions preventing it being used in state
 	const saveModeRef = useRef(null)
 	const frameRef = useRef(null)
 
@@ -131,7 +132,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		onSettled: (valid) => {
 			if (!valid) {
 				setCreatorState({...creatorState, hearbeatEnabled: false})
-				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You have been logged out due to inactivity', fatal: true, enableLoginButton: true })
+				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
 			}
 		}
 	})
@@ -196,40 +197,45 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// the type of initialization depends on several conditions
 	// normally, we're either initializing a new widget, or an existing one is being edited
 	useEffect(() => {
+		if (creatorShouldInitRef.current && widgetReady) {
 
-		// we have a qset to reload manually (for qset history), ask creator to reload
-		// this hook will then fire a second time when a new save postMessage is sent
-		// the second hook will initialize an existing widget with the newly provided qset data
-		// note: this condition will also apply when rolling back and applying the original cached qset
-		if (widgetReady && !!instId && instance.qset && creatorState.reloadWithQset) {
+			// we have a qset to reload manually (for qset history), ask creator to reload
+			// this hook will then fire a second time when a new save postMessage is sent
+			// the second hook will initialize an existing widget with the newly provided qset data
+			// note: this condition will also apply when rolling back and applying the original cached qset
+			if (!!instId && instance.qset && creatorState.reloadWithQset) {
 
-			// flip to false because creator will re-init and send start postMessage
-			setWidgetReady(false)
-			// remove reloadWithQset property now that it's loaded into instance.qset
-			setCreatorState({
-				...creatorState,
-				reloadWithQset: null
-			})
-			// tell creator to manually reload
-			sendToCreator('reloadCreator')
+				// flip to false because creator will re-init and send start postMessage
+				setWidgetReady(false)
+				// remove reloadWithQset property now that it's loaded into instance.qset
+				setCreatorState({
+					...creatorState,
+					reloadWithQset: null
+				})
+				// tell creator to manually reload
+				sendToCreator('reloadCreator')
 
-		} else if (widgetReady && !!instId && instance.qset) {
+			} else if (!!instId && instance.qset) {
 
-			let args = [instance.name, instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
-			sendToCreator('initExistingWidget', args)
+				let args = [instance.name, instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
+				sendToCreator('initExistingWidget', args)
 
-		} else if (widgetReady && !instId) {
+				creatorShouldInitRef.current = false
 
-			let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
-			sendToCreator('initNewWidget', args)
+			} else if (!instId) {
 
+				let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
+				sendToCreator('initNewWidget', args)
+
+				creatorShouldInitRef.current = false
+			}
 		}
 
 	}, [widgetReady, instance.qset])
 
 	useEffect(() => {
-
 		if (!!creatorState.reloadWithQset) {
+			creatorShouldInitRef.current = true
 			setInstance({
 				...instance,
 				qset: creatorState.reloadWithQset
@@ -242,6 +248,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const onPostMessage = (e) => {
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
+			if (typeof e.data !== 'string' || !e.data) return
 			const msg = JSON.parse(e.data)
 			switch (
 				msg.source // currently 'creator-core' || 'media-importer' - can be extended to other sources
@@ -443,11 +450,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		// if asked to confirm rollback, we apply the cached qset to reloadWithQset
 		// doing so will trigger the hook when reloadWithQset updates
 		// that hook will apply the cached qset and trigger the reload process
+
+		// otherwise, nothing is required except to restore the action bar
 		if (!confirm) {
 			let qsetToApply = creatorState.cachedQset
 			setCreatorState({
 				...creatorState,
 				reloadWithQset: qsetToApply,
+				cachedQset: null,
+				showActionBar: true,
+				showRollbackConfirm: false
+			})
+		} else {
+			setCreatorState({
+				...creatorState,
 				cachedQset: null,
 				showActionBar: true,
 				showRollbackConfirm: false

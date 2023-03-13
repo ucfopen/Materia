@@ -6,7 +6,7 @@ import { objectTypes } from '../components/materia-constants'
 // checks response for errors and decodes json
 const handleErrors = async resp => {
 	if (!resp.ok) throw Error(resp.statusText)
-	const data = await resp.json()
+	const data = await resp.json().catch(() => { return null })
 	if (data?.errorID) {
 		throw Error(data.message)
 	}
@@ -433,6 +433,11 @@ export const apiGetScoreSummary = instId => {
 			return []
 		})
 		.then(scores => {
+			if (!scores || scores.type == "error")
+			{
+				return []
+			}
+
 			const ranges = [
 				'0-9',
 				'10-19',
@@ -462,12 +467,12 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			return []
 		})
 		.then(results => {
-			if (results.pagination.length == 0) return []
-
-			const timestampToDateDisplay = timestamp => {
-				const d = new Date(parseInt(timestamp, 10) * 1000)
-				return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
+			if (!results || results.type == "error")
+			{
+				return []
 			}
+
+			if (results.pagination.length == 0) return []
 
 			const scoresByUser = new Map()
 			results.pagination.forEach(log => {
@@ -496,7 +501,7 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
 					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
-					date: timestampToDateDisplay(log.time)
+					created_at: log.time
 				})
 
 			})
@@ -557,6 +562,42 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) 
 			if (resp.status !== 200) return []
 			return resp.json()
 		})
+}
+
+export const apiGetAssets = () => {
+	return fetch(`/api/json/assets_get`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
+export const apiDeleteAsset = async (assetId) => {
+	const options = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		}
+	}
+	return fetch(`/api/asset/delete/${assetId}`, options).then(handleErrors)
+}
+
+export const apiRestoreAsset = (assetId) => {
+	const options = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		}
+	}
+	return fetch(`/api/asset/restore/${assetId}`, options).then(handleErrors)
 }
 
 // Persist to wherever using the super-secret object

@@ -22,12 +22,7 @@
     "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
   },
   "dependencies": {
-    "@vx/axis": "^0.0.199",
-    "@vx/gradient": "^0.0.199",
-    "@vx/grid": "^0.0.199",
-    "@vx/group": "^0.0.199",
-    "@vx/scale": "^0.0.199",
-    "@vx/shape": "^0.0.199",
+    "d3": "^7.2.0",
     "fs-extra": "^8.0.1",
     "js-base64": "^3.7.2",
     "react-datepicker": "^4.8.0",
