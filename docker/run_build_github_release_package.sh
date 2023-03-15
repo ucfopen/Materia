@@ -30,7 +30,7 @@ DOCKER_IMAGE=$1
 # declare files that should have been created
 declare -a FILES_THAT_SHOULD_EXIST=(
 	"public/js/materia.enginecore.js"
-	"public/css/widget-play.css"
+	"public/dist/css/widget-player.css"
 )
 
 # declare files to omit from zip
@@ -79,9 +79,18 @@ GITREMOTE=$(git remote get-url origin)
 rm -rf ./clean_build_clone/.git
 rm -rf ./clean_build_clone/public
 
-
 # copy the clean build clone into the container
 docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/public ./clean_build_clone/public/
+
+# compile js & css assets into the public/dist directory
+docker volume create materia-asset-build-vol
+docker run \
+	--rm \
+	--name materia-asset-build \
+	--mount type=bind,source="$(pwd)"/clean_build_clone/,target=/build \
+	--mount source=materia-asset-build-vol,target=/build/node_modules \
+	node:18.13.0-alpine \
+	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --pure-lockfile --force && npm run-script build"
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
