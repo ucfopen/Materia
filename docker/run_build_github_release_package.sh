@@ -78,12 +78,10 @@ GITREMOTE=$(git remote get-url origin)
 # remove .git dir for slightly faster copy
 rm -rf ./clean_build_clone/.git
 rm -rf ./clean_build_clone/public
-rm -rf ./clean_build_clone/fuel/app/config/asset_hash.json
 
 
 # copy the clean build clone into the container
 docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/public ./clean_build_clone/public/
-docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/fuel/app/config/asset_hash.json ./clean_build_clone/fuel/app/config/asset_hash.json
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
