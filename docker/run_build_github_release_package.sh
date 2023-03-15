@@ -35,8 +35,8 @@ declare -a FILES_THAT_SHOULD_EXIST=(
 
 # declare files to omit from zip
 declare -a FILES_TO_EXCLUDE=(
-	".git*"
-	".gitignore"
+	"*.git*"
+	"*.gitignore"
 	"app.json"
 	"nginx_app.conf"
 	"Procfile"
@@ -58,7 +58,7 @@ declare -a FILES_TO_EXCLUDE=(
 EXCLUDE=''
 for i in "${FILES_TO_EXCLUDE[@]}"
 do
-	EXCLUDE="$EXCLUDE --exclude=\"./$i\""
+	EXCLUDE="$EXCLUDE -x \"$i\""
 done
 
 set -o xtrace
@@ -92,6 +92,8 @@ docker run \
 	node:18.13.0-alpine \
 	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --pure-lockfile --force && npm run-script build"
 
+sleep 5
+
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
 do
@@ -100,7 +102,7 @@ done
 
 # zip, excluding some files
 cd ./clean_build_clone
-zip -r $EXCLUDE ../../materia-pkg.zip ./
+eval "zip -r ../../materia-pkg.zip ./ $EXCLUDE"
 
 # calulate hashes
 MD5=$(md5sum ../../materia-pkg.zip | awk '{ print $1 }')
@@ -117,4 +119,4 @@ echo "sha1: $SHA1" >> ../../materia-pkg-build-info.yml
 echo "sha256: $SHA256" >> ../../materia-pkg-build-info.yml
 echo "md5: $MD5" >> ../../materia-pkg-build-info.yml
 
-rm -rf ./clean_build_clone
+cd .. && rm -rf ./clean_build_clone
