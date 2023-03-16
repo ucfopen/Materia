@@ -29,7 +29,7 @@ DOCKER_IMAGE=$1
 
 # declare files that should have been created
 declare -a FILES_THAT_SHOULD_EXIST=(
-	"public/js/materia.enginecore.js"
+	"public/dist/js/materia.enginecore.js"
 	"public/dist/css/widget-player.css"
 )
 
@@ -91,8 +91,6 @@ docker run \
 	--mount source=materia-asset-build-vol,target=/build/node_modules \
 	node:18.13.0-alpine \
 	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --pure-lockfile --force && npm run-script build"
-
-sleep 5
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
