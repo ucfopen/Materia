@@ -69,9 +69,7 @@ RUN apk add --no-cache git
 
 COPY ./public /build/public
 COPY ./package.json /build/package.json
-COPY ./process_assets.js /build/process_assets.js
 COPY ./yarn.lock /build/yarn.lock
-# make sure the directory where asset_hash.json is generated exists
 RUN mkdir -p /build/fuel/app/config/
 RUN cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force
 
@@ -88,4 +86,3 @@ USER www-data
 # ======== COPY FINAL APP
 COPY --from=composer_stage --chown=www-data:www-data /var/www/html /var/www/html
 COPY --from=yarn_stage --chown=www-data:www-data /build/public /var/www/html/public
-# COPY --from=yarn_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json

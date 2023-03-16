@@ -29,14 +29,14 @@ DOCKER_IMAGE=$1
 
 # declare files that should have been created
 declare -a FILES_THAT_SHOULD_EXIST=(
-	"public/js/materia.enginecore.js"
-	"public/css/widget-play.css"
+	"public/dist/js/materia.enginecore.js"
+	"public/dist/css/widget-player.css"
 )
 
 # declare files to omit from zip
 declare -a FILES_TO_EXCLUDE=(
-	".git*"
-	".gitignore"
+	"*.git*"
+	"*.gitignore"
 	"app.json"
 	"nginx_app.conf"
 	"Procfile"
@@ -58,7 +58,7 @@ declare -a FILES_TO_EXCLUDE=(
 EXCLUDE=''
 for i in "${FILES_TO_EXCLUDE[@]}"
 do
-	EXCLUDE="$EXCLUDE --exclude=\"./$i\""
+	EXCLUDE="$EXCLUDE -x \"$i\""
 done
 
 set -o xtrace
@@ -78,12 +78,19 @@ GITREMOTE=$(git remote get-url origin)
 # remove .git dir for slightly faster copy
 rm -rf ./clean_build_clone/.git
 rm -rf ./clean_build_clone/public
-rm -rf ./clean_build_clone/fuel/app/config/asset_hash.json
-
 
 # copy the clean build clone into the container
 docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/public ./clean_build_clone/public/
-docker cp $(docker create --rm $DOCKER_IMAGE):/var/www/html/fuel/app/config/asset_hash.json ./clean_build_clone/fuel/app/config/asset_hash.json
+
+# compile js & css assets into the public/dist directory
+docker volume create materia-asset-build-vol
+docker run \
+	--rm \
+	--name materia-asset-build \
+	--mount type=bind,source="$(pwd)"/clean_build_clone/,target=/build \
+	--mount source=materia-asset-build-vol,target=/build/node_modules \
+	node:18.13.0-alpine \
+	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --pure-lockfile --force && npm run-script build"
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"
@@ -93,7 +100,7 @@ done
 
 # zip, excluding some files
 cd ./clean_build_clone
-zip -r $EXCLUDE ../../materia-pkg.zip ./
+eval "zip -r ../../materia-pkg.zip ./ $EXCLUDE"
 
 # calulate hashes
 MD5=$(md5sum ../../materia-pkg.zip | awk '{ print $1 }')
@@ -110,4 +117,4 @@ echo "sha1: $SHA1" >> ../../materia-pkg-build-info.yml
 echo "sha256: $SHA256" >> ../../materia-pkg-build-info.yml
 echo "md5: $MD5" >> ../../materia-pkg-build-info.yml
 
-rm -rf ./clean_build_clone
+cd .. && rm -rf ./clean_build_clone
