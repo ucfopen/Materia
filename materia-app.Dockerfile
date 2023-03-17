@@ -6,8 +6,8 @@ FROM php:8.1.11-fpm-alpine3.16 AS base_stage
 ARG PHP_EXT="bcmath gd pdo_mysql xml zip opcache"
 ARG PHP_MEMCACHED_VERSION="v3.1.5"
 
-ARG COMPOSER_VERSION="1.10.26"
-ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/2e4127af2d638693670a33b1a63ee035c20277d7/web/installer"
+ARG COMPOSER_VERSION="2.5.4"
+ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/be31d0a5e5e835063c29bb45804bd94eefd4cf34/web/installer"
 ARG COMPOSER_INSTALLER_SHA="55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae"
 
 # os packages needed for php extensions
