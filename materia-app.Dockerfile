@@ -61,18 +61,24 @@ COPY --chown=www-data:www-data ./oil /var/www/html/oil
 RUN composer install --no-cache --no-dev --no-progress --no-scripts --prefer-dist --optimize-autoloader
 
 # =====================================================================================================
-# Yarn stage buils js/css assets
+# Yarn stage build js/css assets
 # =====================================================================================================
 FROM node:18.13.0-alpine AS yarn_stage
 
 RUN apk add --no-cache git
 
 COPY ./public /build/public
+# copy configs into /build. These are required for yarn and webpack
 COPY ./package.json /build/package.json
+COPY ./babel.config.json /build/babel.config.json
+COPY ./webpack.prod.config.js /build/webpack.prod.config.js
 COPY ./yarn.lock /build/yarn.lock
+# these directories must be hoisted into /build in order for webpack to work on them
+COPY ./src /build/src
+COPY ./fuel/packages /build/fuel/packages
 RUN mkdir -p /build/fuel/app/config/
-RUN cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force
-
+# run yarn install and then the build script in the package.json (webpack --config webpack.prod.config.js)
+RUN cd build && yarn install --frozen-lockfile --non-interactive --silent --pure-lockfile --force && npm run-script build-for-image
 
 # =====================================================================================================
 # final stage creates the final deployable image
