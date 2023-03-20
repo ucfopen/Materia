@@ -1,43 +1,38 @@
 const glob = require('glob')
 const path = require('path')
-// // const ManifestPlugin = require('webpack-manifest-plugin')
-// // const IgnoreEmitPlugin = require('ignore-emit-webpack-plugin');
-// // const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-// // const WatchIgnorePlugin = require('webpack/lib/WatchIgnorePlugin')
+const WebpackRemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts')
+
 const jsPath = path.join(__dirname, 'src',)
 const packageJsPath = path.join(__dirname, 'fuel','packages')
 const cssPath = path.join(__dirname, 'src', 'css')
-const componentCssPath = path.join(__dirname, 'src', 'components')
-// const outPath = path.join(__dirname, 'public/dist/')
-// const CopyPlugin = require('copy-webpack-plugin')
 
 const entry = {}
 // Webpack Entry Point Registration Overview
 // Create object with:
-// Key = output name, Value = source sass file
-// for every scss file in the cssPath directory
-// EX: { 'css/<filename>.css' : './src/css/filename.scss', ...}
+// Key = output name and path, Value = source file path
+// You CAN prepend path.basename(...) with a path, but we're opting to use output.filename to determine the default output directory (js/)
+// the MiniCSSExtractPlugin has its own filename param that sends emitted CSS files to css/ instead
 
-// SASS/CSS webpack entry point registration
+// OLD CSS entry point registration
+// Ideally these are no longer included
 glob.sync(path.join(cssPath, '*.scss')).forEach(file => {
-	entry['css/'+path.basename(file, '.scss')] = file
-})
-
-glob.sync(path.join(componentCssPath, '*.scss')).forEach(file => {
-	entry['css/'+path.basename(file, '.scss')] = file
+	entry[path.basename(file, '.scss')] = file
 })
 
 // // JS webpack entry point registration
 // // locates all `js/*.js` files
 glob.sync(path.join(jsPath, '*.js')).map(file => {
-	entry['js/'+path.basename(file, '.js')] = file
+	entry[path.basename(file, '.js')] = file
 })
 
 // some packages (like the reactified materia-theme-ucf) have js that needs to be added to webpack
 glob.sync(path.join(packageJsPath, '**/*.js')).map(file => {
-	entry['js/'+path.basename(file, '.js')] = file
+	entry[path.basename(file, '.js')] = file
 })
+
+// !!! Note that CSS entry points are not included.
+// MiniCSSExtractPlugin will create CSS files from js since they're part of each js file's dependency graph already
 
 module.exports = {
 	mode: 'development',
@@ -46,8 +41,6 @@ module.exports = {
 		server: 'https',
 		hot: false,
 		devMiddleware: {
-			// index: '',
-			// publicPath: '/dist/',
 			writeToDisk: true
 		},
 		proxy: {
@@ -58,7 +51,7 @@ module.exports = {
 	entry,
 	output: {
 		path: path.join(__dirname, 'public/dist/'),
-		filename: '[name].js',
+		filename: 'js/[name].js',
 		clean: true
 	},
 	module: {
@@ -86,8 +79,9 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new WebpackRemoveEmptyScriptsPlugin(), // webpack produces a js file for each emitted bundle no matter what. This removes leftover & unncessary js duplicates within css/
 		new MiniCssExtractPlugin({
-			filename: "[name].css"
+			filename: "css/[name].css"
 		})
 	],
 	resolve: {

@@ -30,8 +30,8 @@ return [
 		'static'       => $_ENV['URLS_STATIC'] ?? \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
 		'engines'      => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations
 		// where are js and css assets hosted?
-		// DEFAULT: public/dist (hosted as as https://site.com/dist)
-		'js_css'       => \Uri::create('dist/'),
+		// DEFAULT: public/dist (hosted as as https://site.com/)
+		'js_css'       => \Uri::create('/'),
 		// CDN PASS-THROUGH: set up aws cloudfront cdn have it load data from the default url
 		//'js_css'     => '//xxxxxxxx.cloudfront.net/dist/',
 		// CDN UNPKG.COM: load assets from npm module with the same release (version must match your version of materia)
