@@ -262,7 +262,7 @@ class Session_Play
 
 	public static function get_by_inst_id_paginated($inst_id, $semester='all', $year='all', $page_number=1)
 	{
-		$items_per_page = 10;
+		$items_per_page = 100;
 		$data = self::get_by_inst_id($inst_id, $semester, $year);
 		$total_num_pages = ceil(sizeof($data) / $items_per_page);
 		$offset = $items_per_page * ($page_number - 1);
