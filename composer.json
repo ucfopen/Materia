@@ -37,7 +37,7 @@
         "ext-pdo": "*",
         "ext-gd": "*",
         "ext-mbstring": "*",
-        "composer/installers": "~1.0",
+        "composer/installers": "1.*",
         "fuel/core": "dev-1.9/develop",
         "fuel/auth": "dev-1.9/develop",
         "fuel/email": "dev-1.9/develop",
@@ -64,7 +64,10 @@
     },
     "config": {
         "vendor-dir": "fuel/vendor",
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "composer/installers": true
+        }
     },
     "extra": {
         "installer-paths": {

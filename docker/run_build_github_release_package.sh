@@ -90,7 +90,7 @@ docker run \
 	--mount type=bind,source="$(pwd)"/clean_build_clone/,target=/build \
 	--mount source=materia-asset-build-vol,target=/build/node_modules \
 	node:18.13.0-alpine \
-	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --pure-lockfile --force && npm run-script build"
+	/bin/ash -c "apk add --no-cache git && cd build && yarn install --frozen-lockfile --non-interactive --pure-lockfile --force && npm run-script build-for-image"
 
 # verify all files we expect to be created exist
 for i in "${FILES_THAT_SHOULD_EXIST[@]}"

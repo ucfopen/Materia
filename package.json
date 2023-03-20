@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack",
+    "build-for-image": "webpack --config webpack.prod.config.js",
     "test": "TZ=Etc/UTC jest --verbose",
     "test:dev": "TZ=Etc/UTC jest --verbose --watch --coverage",
     "test:ci": "TZ=Etc/UTC CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura",
