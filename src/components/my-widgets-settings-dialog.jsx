@@ -261,6 +261,8 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			mutateWidget.mutate({
 				args: args,
 				successFunc: (updatedInst) => {
+					onEdit(updatedInst)
+
 					if (!updatedInst || updatedInst.type == "error")
 					{
 						if (updatedInst.title == "Invalid Login")

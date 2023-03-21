@@ -66,7 +66,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	// Sets Perms
 	useEffect(() => {
 		const map = new Map(otherUserPerms)
-		map.forEach(key => key.remove = false)
+		map.forEach((key, pair) => {
+			key.remove = false
+			pair = pair.toString()
+		})
 		setState({...state, updatedOtherUserPerms: map})
 	}, [otherUserPerms])
 
@@ -90,7 +93,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 			// Updateds the perms
 			tempPerms.set(
-				match.id,
+				match.id.toString(),
 				{
 					accessLevel: 1,
 					expireTime: null,
@@ -173,7 +176,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	const updatePerms = (userId, perms) => {
 		let newPerms = new Map(state.updatedOtherUserPerms)
-		newPerms.set(userId, perms)
+		newPerms.set(userId.toString(), perms)
 		setState({...state, updatedOtherUserPerms: newPerms})
 	}
 
