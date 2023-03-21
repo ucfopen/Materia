@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useQuery } from 'react-query';
 import { apiGetWidgetInstances } from '../../util/api'
+import { iconUrl } from '../../util/icon-url'
 
 const SelectItem = () => {
     const [strHeader, setStrHeader] = useState('Select a Widget:');
@@ -24,7 +25,7 @@ const SelectItem = () => {
         onSuccess: (data) => {
             if (data) {
                 data.pagination.map((instance, index) => {
-                    instance.img = Materia.Image.iconUrl(instance.widget.dir, 60)
+                    instance.img = iconUrl('/widget/', instance.widget.dir, 60)
                     instance.preview_url = BASE_URL + 'preview/' + instance.id
                     instance.edit_url = BASE_URL + 'my-widgets/#' + instance.id
                 })

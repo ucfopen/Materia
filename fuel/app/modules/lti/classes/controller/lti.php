@@ -83,7 +83,6 @@ class Controller_Lti extends \Controller
 
 		\Materia\Log::profile(['action_picker', \Input::post('selection_directive'), $system, $is_selector_mode ? 'yes' : 'no', $return_url], 'lti');
 
-		\Js::push_group(['angular', 'materia', 'author']);
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
