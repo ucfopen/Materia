@@ -14,7 +14,6 @@ return [
 	],
 
 	'groups' => [
-		'core' => [$webpack.'css/core.css'],
 		'homepage' => [$webpack.'js/homepage.css'],
 		'admin' => [$webpack.'css/admin.css'],
 		'user-admin' => [$webpack.'js/user-admin.css'],
@@ -62,8 +61,8 @@ return [
 		'help' => [$webpack.'css/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
 		'fonts' => [
-			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
-			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',
+			$g_fonts.'css2?family=Kameron:wght@700&display=swap',
+			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=swap',
 		],
 		'guide' => [$webpack.'css/widget-guide.css'],
 		// the following are required for the support-info styles to be embedded
