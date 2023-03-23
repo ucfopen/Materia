@@ -45,6 +45,8 @@
 	margin: 15px auto 0px auto;
 	// width: 640px;
 	position: relative;
+
+	font-family: 'Lato', arial, sans-serif;
 }
 
 .login section.page,
@@ -101,7 +103,6 @@
 	height: 20px;
 	padding: 8px 0 12px 0;
 
-	font-family: 'Lato', 'Arial', sans-serif;
 	font-size: 20px;
 	font-weight: 900;
 	color: #ffffff;
@@ -162,7 +163,6 @@ div.detail.icon-offset {
 	display: block;
 	width: 300px;
 	font-size: 14px;
-	font-family: 'Lato';
 	font-weight: 200;
 }
 
@@ -212,7 +212,6 @@ div.detail.icon-offset {
 .login .error p {
 	background: #ffcfcf;
 	color: red;
-	font-family: 'Lato';
 	font-weight: 600;
 	font-size: 17px;
 	padding: 6px 10px;
@@ -289,7 +288,6 @@ div.detail.icon-offset {
 }
 
 .login .widget_info li.widget_name {
-	font-family: 'Lato', arial, serif;
 	font-weight: 700;
 	font-size: 38px;
 	border-bottom: dotted black 1px;

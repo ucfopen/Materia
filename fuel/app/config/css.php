@@ -61,8 +61,8 @@ return [
 		'help' => [$webpack.'css/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
 		'fonts' => [
-			$g_fonts.'css2?family=Kameron:wght@700&display=swap',
-			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=swap',
+			$g_fonts.'css2?family=Kameron:wght@700&display=block',
+			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=block',
 		],
 		'guide' => [$webpack.'css/widget-guide.css'],
 		// the following are required for the support-info styles to be embedded

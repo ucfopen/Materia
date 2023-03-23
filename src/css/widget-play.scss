@@ -7,6 +7,8 @@ body {
 	margin: 0 auto;
 	outline: 1px solid #999;
 	display: block;
+
+	font-family: 'Lato', arial, sans-serif;
 }
 
 #container.html {
@@ -85,7 +87,6 @@ section.widget.preview {
 	height: 20px;
 	padding: 8px 0 12px 0;
 
-	font-family: 'Lato', 'Arial', sans-serif;
 	font-size: 20px;
 	font-weight: 900;
 	color: #ffffff;
@@ -103,7 +104,6 @@ section.widget.preview {
 	right: 0px;
 	top: 16px;
 
-	font-family: 'Lato', 'Arial', sans-serif;
 	font-size: 14px;
 	font-weight: 300;
 }

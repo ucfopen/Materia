@@ -2,6 +2,8 @@
 	.container {
 		margin: 25px auto;
 		position: relative;
+
+		font-family: 'Lato', arial, sans-serif;
 	}
 
 	section.page {
@@ -25,7 +27,7 @@
 		position: relative;
 		z-index: 2;
 
-		font-family: 'Lato-Black', arial, serif;
+		font-family: 'Lato-Black', arial, sans-serif;
 
 		h1 {
 			margin: 0;
@@ -206,7 +208,7 @@
 			text-align: center;
 			font-weight: bold;
 
-			font-family: 'Lato', arial, serif;
+			
 
 			span {
 				padding: 0 20px;
@@ -286,7 +288,7 @@
 					h1 {
 						display: block;
 						font-size: 18px;
-						font-family: 'Lato-Black', arial, serif;
+						font-family: 'Lato-Black', arial, sans-serif;
 						margin: 7px 5px 5px;
 						color: #333;
 
@@ -300,7 +302,7 @@
 						font-weight: bold;
 						margin: 0;
 						padding: 6px 10px;
-						font-family: 'Lato-Black', arial, serif;
+						font-family: 'Lato-Black', arial, sans-serif;
 						background: #bfe5ff;
 						border-radius: 0 5px 0 0;
 						position: absolute;

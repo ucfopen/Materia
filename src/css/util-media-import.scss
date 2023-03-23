@@ -3,12 +3,13 @@ $arrow_size: 4px;
 
 html {
 	background: #fff;
-	font-family: 'Lato', arial, serif;
 }
 
 .media-importer {
 	display: flex;
 	flex-flow: row nowrap;
+
+	font-family: 'Lato', arial, sans-serif;
 
 	> section {
 		height: 100vh;

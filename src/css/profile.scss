@@ -8,6 +8,8 @@
 	justify-content: center;
 	margin: 15px auto 0px auto;
 	position: relative;
+
+	font-family: 'Lato', arial, serif;
 }
 
 .user section.page,
@@ -42,7 +44,6 @@
 }
 
 .user h2 {
-	font-family: 'Lato', arial, serif;
 	font-weight: 700;
 	font-size: 38px;
 	border-bottom: dotted #000 1px;
@@ -106,7 +107,6 @@
 	font-size: 55px;
 	padding: 0;
 	margin: 0;
-	font-family: 'Lato', arial, serif;
 	font-weight: 600;
 	color: #0093e7;
 	line-height: 35px;
@@ -130,7 +130,6 @@
 	padding: 0;
 	font-size: 13px;
 	font-weight: bold;
-	font-family: 'Lato', arial, serif;
 }
 
 .user ul.user_information li {
@@ -156,7 +155,6 @@
 .user h3 {
 	color: #000;
 	font-weight: 700;
-	font-family: 'Lato', arial, serif;
 	height: 25px;
 }
 
@@ -198,7 +196,6 @@
 	background-color: #dddddd;
 	border: 1px solid #cecece;
 	color: #777777;
-	font-family: 'Lato', arial, serif;
 	font-size: 14px;
 	font-weight: bold;
 	padding: 12px 0px;
@@ -266,7 +263,6 @@
 	font-size: 28px;
 	min-height: 28px;
 	font-weight: 700;
-	font-family: 'Lato', arial, serif;
 	text-align: center;
 	overflow: hidden;
 
@@ -296,17 +292,15 @@
 
 	font-size: 11px;
 	font-weight: 700;
-	font-family: 'Lato', arial, serif;
 }
 
 .user .activity_log .widget {
 	display: block;
 	text-align: left;
-	font-family: 'LatoBlack', arial, serif;
+	font-family: 'LatoBlack', arial, sans-serif;
 	color: #7b7b7b;
 	font-size: 11px;
 	font-weight: 700;
-	font-family: 'Lato', arial, serif;
 	text-transform: uppercase;
 	position: absolute;
 	left: 55px;
@@ -314,7 +308,6 @@
 }
 
 .user .activity_log .title {
-	font-family: 'Lato', arial, serif;
 	font-size: 17px;
 	position: absolute;
 	left: 55px;
@@ -347,7 +340,6 @@
 	padding-left: 20px;
 	font-size: 12px;
 	text-transform: uppercase;
-	font-family: 'Lato', arial, serif;
 	font-weight: 700;
 	padding-top: 10px;
 	padding-bottom: 10px;
@@ -368,7 +360,6 @@
 
 .user .main_navigation li a:hover {
 	text-decoration: none;
-	font-family: "Lato", arial, sans-serif;
 	font-weight: 300;
 }
 .user .main_navigation li.selected a:hover {
@@ -451,7 +442,6 @@
 
 .user.settings .email_exp {
 	color: #7f7f7f;
-	font-family: 'Lato', arial, serif;
 	font-size: 12px;
 	padding: 0 0 0 20px;
 	margin: 0;
@@ -462,7 +452,7 @@
 
 .settingSaveAlert {
 	display: inline-block;
-	font-family: 'Lucida Grande', sans;
+	font-family: 'Lucida Grande', sans-serif;
 	margin: 0;
 	padding: 0 0 0 20px;
 }

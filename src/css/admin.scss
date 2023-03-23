@@ -5,9 +5,11 @@
 	overflow: hidden;
 	position: absolute;
 	z-index: -1;
+
+	font-family: 'Lato', arial, serif;
 }
 .uploader + label {
-	font-family: 'Lato', arial, serif;
+	
 	padding: 7px 23px 8px 23px;
 	background: #ffba5d;
 	background-image: linear-gradient(#ffce8c, #ffa42a);
@@ -32,9 +34,9 @@
 	}
 }
 
-h1 {
-	font-family: Lato, arial, serif;
-}
+// h1 {
+// 	font-family: 'Lato', arial, serif;
+// }
 
 .container {
 	background-color: #fff;

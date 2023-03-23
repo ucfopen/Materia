@@ -19,6 +19,8 @@ body {
 	margin: 0;
 	padding: 0;
 	text-align: center;
+
+	font-family: 'Lato', arial, sans-serif;
 }
 .center {
 	position: relative;
@@ -85,7 +87,7 @@ section.widget.preview {
 	height: 20px;
 	padding: 8px 0 12px 0;
 
-	font-family: 'Lato', 'Arial', sans-serif;
+	
 	font-size: 20px;
 	font-weight: 900;
 	color: #ffffff;
@@ -103,7 +105,6 @@ section.widget.preview {
 	right: 0px;
 	top: 16px;
 
-	font-family: 'Lato', 'Arial', sans-serif;
 	font-size: 14px;
 	font-weight: 300;
 }
