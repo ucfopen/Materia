@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react'
 import { useQuery } from 'react-query'
 import Header from './header'
+import './guide-page.scss'
 
 const GuidePage = () => {
 

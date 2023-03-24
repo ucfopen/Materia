@@ -834,11 +834,14 @@
 
 	div.link {
 		display: inline-block;
-		border-bottom: 1px #0093e7 solid;
-		color: #0093e7;
 		margin: 0 10px;
 		padding: 0 0 2px 0;
-		font-weight: 400;
+
+		border-bottom: 1px #0093e7 solid;
+		color: #0093e7;
+		
+		font-size: 14px;
+		font-weight: 700;
 		cursor: pointer;
 
 		&.disabled {

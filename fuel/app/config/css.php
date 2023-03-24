@@ -20,13 +20,7 @@ return [
 		'support' => [$webpack.'js/support.css'],
 		'catalog' => [$webpack.'js/catalog.css'],
 		'detail' => [$webpack.'js/detail.css'],
-		'playpage' => [
-			$webpack.'css/widget-player-page.css',
-			$webpack.'css/loading-icon.css'
-		],
-		'widget_play' => [
-			$webpack.'css/widget-play.css',
-		],
+		'playpage' => [$webpack.'js/player-page.css'],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
 		'my_widgets'  => [$webpack.'js/my-widgets.css'],
 		'widget_create' => [
@@ -64,7 +58,7 @@ return [
 			$g_fonts.'css2?family=Kameron:wght@700&display=block',
 			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=block',
 		],
-		'guide' => [$webpack.'css/widget-guide.css'],
+		'guide' => [$webpack.'css/guide-page.css'],
 		// the following are required for the support-info styles to be embedded
 		// TODO probably consolidate the support_info styles in a common stylesheet
 		'draft-not-playable' => [$webpack.'js/draft-not-playable.css'],

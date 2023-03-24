@@ -14,7 +14,6 @@ class Controller_Admin extends Controller
 	{
 		$this->common_before();
 		if ( ! (\Materia\Perm_Manager::is_super_user() || \Materia\Perm_Manager::is_support_user()) ) throw new \HttpNotFoundException;
-		Css::push_group('admin');
 		Js::push_group(['materia', 'admin']);
 		parent::before();
 	}
