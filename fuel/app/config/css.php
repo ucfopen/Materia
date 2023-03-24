@@ -33,10 +33,7 @@ return [
 		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'js/profile.css'],
 		'login' => [$webpack.'js/login.css'],
-		'scores' => [
-			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
-			$webpack.'js/scores.css',
-		],
+		'scores' => [$webpack.'js/scores.css'],
 		'pre_embed_placeholder' => [$webpack.'js/pre-embed-common-styles.css'],
 		'embed_scores' => [$webpack.'css/scores.css'],
 		'question_import' => [
@@ -45,9 +42,7 @@ return [
 			$webpack.'css/question-importer.css',
 		],
 		'questionimport' => [$webpack.'js/question-importer.css'],
-		'qset_history' => [
-			$webpack.'css/util-qset-history.css',
-		],
+		'qset_history' => [$webpack.'js/qset-history.css'],
 		'rollback_dialog' => [
 			$webpack.'css/util-rollback-confirm.css'
 		],
