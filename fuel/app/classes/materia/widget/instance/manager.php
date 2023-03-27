@@ -80,7 +80,7 @@ class Widget_Instance_Manager
 	{
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
 		$displayable_inst = self::get_all($inst_ids);
-		$widgets_per_page = 10;
+		$widgets_per_page = 80;
 		$total_num_pages = ceil(sizeof($displayable_inst) / $widgets_per_page);
 		$offset = $widgets_per_page * ($page_number - 1);
 
