@@ -26,10 +26,6 @@ return [
 			$webpack.'css/loading-icon.css',
 			$webpack.'js/creator-page.css',
 		],
-		'widget_detail' => [
-			$webpack.'css/widget-detail.css',
-		],
-		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'js/profile.css'],
 		'login' => [$webpack.'js/login.css'],
 		'scores' => [$webpack.'js/scores.css'],
@@ -46,7 +42,7 @@ return [
 			$webpack.'css/util-rollback-confirm.css'
 		],
 		'media_import' => [$webpack.'js/media.css'],
-		'help' => [$webpack.'css/help.css'],
+		'help' => [$webpack.'js/help.css'],
 		'errors' => [$webpack.'css/errors.css'],
 		'fonts' => [
 			$g_fonts.'css2?family=Kameron:wght@700&display=block',
