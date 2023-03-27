@@ -15,7 +15,6 @@ return [
 
 	'groups' => [
 		'homepage' => [$webpack.'js/homepage.css'],
-		'admin' => [$webpack.'css/admin.css'],
 		'user-admin' => [$webpack.'js/user-admin.css'],
 		'support' => [$webpack.'js/support.css'],
 		'catalog' => [$webpack.'js/catalog.css'],

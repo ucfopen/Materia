@@ -1,6 +1,7 @@
+/* Styles for the instance admin and widget admin pages */
 @import 'include.scss';
 
-.support-page {
+.support-page, .widget-admin-page {
 	background-color: #fff;
 	position: relative;
 	top: 40px;
@@ -284,9 +285,90 @@
 		> li {
 			background-color: #eee;
 			display: block;
-			margin: 0 0 5px 0;
+			margin: 5px 0 0 0;
 			border: 1px solid #ccc;
 			border-radius: 10px;
+		}
+	}
+}
+
+.widget-admin-page {
+
+	.page {
+
+		.widget-title {
+			background-color: #ddd;
+			margin: 0;
+			padding: 10px 10px 7px;
+			border-radius: 10px;
+			border-bottom: 1px solid #ccc;
+
+			.img-holder {
+				display: inline-block;
+				vertical-align: middle;
+			
+				img {
+					width: 50px;
+					height: 50px;
+					-moz-border-radius: 3px;
+					border-radius: 3px;
+					display: inline-block;
+					float: left;
+					margin-right: 10px;
+				}
+			}
+		
+			.title {
+				margin: 0;
+				padding: 0;
+				vertical-align: middle;
+				font-weight: bold;
+				font-size: 20px;
+			}
+		}
+
+		.info-holder {
+			position: relative;
+			vertical-align: top;
+
+			padding: 10px;
+	
+			span:not(.long),
+			label {
+				display: inline-block;
+				vertical-align: top;
+			}
+	
+			label:not(.normal) {
+				width: 145px;
+			}
+	
+			.normal input {
+				margin: 0;
+				padding: 0;
+			}
+	
+			ul {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+	
+			li {
+				padding: 0 5px;
+			}
+	
+			hr {
+				margin: 5px auto;
+				clear: right;
+				width: auto;
+			}
+	
+			.action_button {
+				position: absolute;
+				right: 5px;
+				bottom: 5px;
+			}
 		}
 	}
 }

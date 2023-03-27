@@ -14,7 +14,6 @@ class Controller_Admin extends Controller
 	{
 		$this->common_before();
 		if ( ! (\Materia\Perm_Manager::is_super_user() || \Materia\Perm_Manager::is_support_user()) ) throw new \HttpNotFoundException;
-		Js::push_group(['materia', 'admin']);
 		parent::before();
 	}
 
@@ -31,7 +30,7 @@ class Controller_Admin extends Controller
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Widget Admin');
 
-		// Css::push_group(['widget-admin']);
+		Css::push_group(['support']);
 		Js::push_group(['react', 'widget_admin']);
 	}
 
