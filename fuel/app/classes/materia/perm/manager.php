@@ -618,7 +618,7 @@ class Perm_Manager
 		// this means either Perm::ADMINISTRATOR (85) or Perm::SUPERUSER (90)
 		foreach ($roles_perms as $role)
 		{
-			if (is_array($role) && $role['perm'] >= Perm::ADMINISTRATOR) $user_is_admin_or_su = true;
+			if (in_array([Perm::ADMINISTRATOR, Perm::SUPERUSER], $role['perm'])) $user_is_admin_or_su = true;
 		}
 
 		if ($user_is_admin_or_su == true)
