@@ -735,6 +735,13 @@ a {
 	#player-container {
 		position: relative;
 		z-index: 2;
+
+		section.widget {
+			top: 0px;
+			left: 0px;
+			right: 0px;
+			bottom: 0px;
+		}
 	}
 
 	// cover over images to make them draggable on iOS

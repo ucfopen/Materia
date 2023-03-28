@@ -19,7 +19,7 @@ return [
 		'support' => [$webpack.'css/support.css'],
 		'catalog' => [$webpack.'css/catalog.css'],
 		'detail' => [$webpack.'css/detail.css'],
-		'playpage' => [$webpack.'css/widget-player-page.css'],
+		'playpage' => [$webpack.'css/player-page.css'],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
 		'my_widgets'  => [$webpack.'css/my-widgets.css'],
 		'widget_create' => [
