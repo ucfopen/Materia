@@ -14,7 +14,7 @@
 	</body>
 	<script type="text/javascript">
 		var postData = JSON.parse('<?= $post ?>');
-		var $form = $('#form');
+		var $form = document.querySelector('#form');
 
 		for(var attr in postData)
 		{

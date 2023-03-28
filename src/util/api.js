@@ -643,7 +643,7 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 // Request access to widget
 export const apiRequestAccess = (instId, ownerId) => {
-	return fetch('/api/json/request_access', fetchOptions({ body: `data=${formatFetchBody([instId, ownerId])}` }))
+	return fetch('/api/instance/request_access', fetchOptions({ body: `data=${formatFetchBody([instId, ownerId])}` }))
 	.then(resp => {
 		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 		return null

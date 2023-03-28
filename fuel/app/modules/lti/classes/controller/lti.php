@@ -8,8 +8,9 @@ namespace Lti;
 
 class Controller_Lti extends \Controller
 {
-	use \Trait_Analytics;
+	use \Trait_CommonControllerTemplate;
 
+	// overrides Trait_CommonControllerTemplate->before()
 	public function before()
 	{
 		$this->theme = \Theme::instance();
@@ -51,16 +52,11 @@ class Controller_Lti extends \Controller
 		$launch = LtiLaunch::from_request();
 		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error?message=invalid_oauth_request');
 
-		$this->insert_analytics();
-
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Materia')
 			->set('page_type', 'lti-login');
 
-		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
-
-		\Css::push_group('core');
 		\Js::push_group(['react', 'post_login']);
 
 		return \Response::forge($this->theme->render());
@@ -93,7 +89,6 @@ class Controller_Lti extends \Controller
 		{
 			\Js::push_inline('var RETURN_URL = "'.$return_url.'"');
 		}
-		$this->insert_analytics();
 
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
@@ -121,8 +116,6 @@ class Controller_Lti extends \Controller
 				'id' 		=> $object->id
 			];
 		}, $inst->get_owners()));
-
-		$this->insert_analytics();
 
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
 		\Js::push_inline('var PREVIEW_URL = "'.\Uri::create('/preview/'.$inst_id).'";');
