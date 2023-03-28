@@ -1,5 +1,10 @@
 <?php
 return [
+
+	// Direct access to error states
+	'404' => 'site/404',
+	'500' => 'site/500',
+
 	// Route for testing what Materia looks like using the embed code
 	'test/external/(:alnum)(/.*)?' => 'widgets/test/external/$1',
 

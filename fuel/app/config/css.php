@@ -41,15 +41,13 @@ return [
 		'rollback_dialog' => [$webpack.'css/util-rollback-confirm.css'],
 		'media_import' => [$webpack.'css/media.css'],
 		'help' => [$webpack.'css/help.css'],
-		'errors' => [$webpack.'css/404.css'],
 		'fonts' => [
 			$g_fonts.'css2?family=Kameron:wght@700&display=block',
 			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=block',
 		],
 		'guide' => [$webpack.'css/guide-page.css'],
-		// the following are required for the support-info styles to be embedded
-		// TODO probably consolidate the support_info styles in a common stylesheet
 		'draft-not-playable' => [$webpack.'css/draft-not-playable.css'],
+		'404' => [$webpack.'css/404.css'],
 		'500' => [$webpack.'css/500.css'],
 		'no_permission' => [$webpack.'css/no-permission.css']
 	],
