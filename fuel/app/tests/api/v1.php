@@ -15,7 +15,7 @@ class Test_Api_V1 extends \Basetest
 		$testMethods = get_class_methods($this);
 		foreach ($apiMethods as $value)
 		{
-			$this->assertContains('test_'.$value, $testMethods);
+			$this->assertContainsEquals('test_'.$value, $testMethods);
 		}
 	}
 
@@ -491,8 +491,8 @@ class Test_Api_V1 extends \Basetest
 
 		// the lock is stored in a cache that expires
 		// let's manually clear cache now, effectively removing the lock
-		\Cache::delete_all('instance-lock');
-
+		\Cache::delete('instance-lock.'.($inst->id));
+		
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
 
@@ -1527,7 +1527,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertArrayHasKey('year', $semester);
 		$this->assertGreaterThan(0, $semester['year']);
 		$this->assertArrayHasKey('semester', $semester);
-		$this->assertContains($semester['semester'], array('Spring', 'Summer', 'Fall') );
+		$this->assertContainsEquals($semester['semester'], array('Spring', 'Summer', 'Fall') );
 		$this->assertArrayHasKey('start', $semester);
 		$this->assertGreaterThan(0, $semester['start']);
 		$this->assertArrayHasKey('end', $semester);
