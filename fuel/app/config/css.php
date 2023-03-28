@@ -37,7 +37,7 @@ return [
 			$webpack.'css/question-importer.css',
 		],
 		'questionimport' => [$webpack.'css/question-importer.css'],
-		'qset_history' => [$webpack.'js/qset-history.css'],
+		'qset_history' => [$webpack.'css/qset-history.css'],
 		'rollback_dialog' => [$webpack.'css/util-rollback-confirm.css'],
 		'media_import' => [$webpack.'css/media.css'],
 		'help' => [$webpack.'css/help.css'],
