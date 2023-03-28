@@ -589,7 +589,7 @@ class Perm_Manager
 	/**
 	 * Gets an array of object ids that a user has permissions to access EXCLUSIVELY based on an elevated role
 	 * This requires the user has a role with elevated perms, and that the group rights associated with those perms are present in the perm_role_to_perm table
-	 * Currently, the role must be Perm::ADMINISTRATOR or Perm::SUPERUSER
+	 * Currently, the role must be Perm::SUPPORTUSER or Perm::SUPERUSER
 	 * 
 	 * Perm_Manager->get_all_objects_for_users($user->user_id, \Materia\Perm::INSTANCE);
 	 *
@@ -615,10 +615,10 @@ class Perm_Manager
 
 		
 		// verify that perms returned from perm_role_to_perm table are elevated
-		// this means either Perm::ADMINISTRATOR (85) or Perm::SUPERUSER (90)
+		// this means either Perm::SUPPORTUSER (85) or Perm::SUPERUSER (90)
 		foreach ($roles_perms as $role)
 		{
-			if (in_array([Perm::ADMINISTRATOR, Perm::SUPERUSER], $role['perm'])) $user_is_admin_or_su = true;
+			if (in_array([Perm::SUPPORTUSER, Perm::SUPERUSER], $role['perm'])) $user_is_admin_or_su = true;
 		}
 
 		if ($user_is_admin_or_su == true)
