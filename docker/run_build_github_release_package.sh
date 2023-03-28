@@ -30,7 +30,7 @@ DOCKER_IMAGE=$1
 # declare files that should have been created
 declare -a FILES_THAT_SHOULD_EXIST=(
 	"public/js/materia.enginecore.js"
-	"public/css/widget-player.css"
+	"public/css/player-page.css"
 )
 
 # declare files to omit from zip
