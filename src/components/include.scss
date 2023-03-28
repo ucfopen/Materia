@@ -300,6 +300,8 @@ header {
 			background: none;
 			box-shadow: none;
 
+			cursor: pointer;
+
 			&.expanded {
 				~ nav {
 					visibility: visible;
@@ -351,7 +353,7 @@ header {
 		}
 
 		.user.avatar {
-			right: 54px;
+			top: 25px;
 			max-width: calc(100% - 185px);
 
 			span {
@@ -360,6 +362,7 @@ header {
 
 			a {
 				top: 18px;
+				right: 54px;
 
 				img {
 					float: none;
