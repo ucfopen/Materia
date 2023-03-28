@@ -14,36 +14,21 @@ return [
 	],
 
 	'groups' => [
-		'core' => [$webpack.'css/core.css'],
 		'homepage' => [$webpack.'css/homepage.css'],
-		'admin' => [$webpack.'css/admin.css'],
 		'user-admin' => [$webpack.'css/user-admin.css'],
 		'support' => [$webpack.'css/support.css'],
 		'catalog' => [$webpack.'css/catalog.css'],
 		'detail' => [$webpack.'css/detail.css'],
-		'playpage' => [
-			$webpack.'css/widget-player-page.css',
-			$webpack.'css/loading-icon.css'
-		],
-		'widget_play' => [
-			$webpack.'css/widget-play.css',
-		],
+		'playpage' => [$webpack.'css/player-page.css'],
 		'lti' => [$webpack.'css/util-lti-picker.css'],
 		'my_widgets'  => [$webpack.'css/my-widgets.css'],
 		'widget_create' => [
 			$webpack.'css/loading-icon.css',
 			$webpack.'css/creator-page.css',
 		],
-		'widget_detail' => [
-			$webpack.'css/widget-detail.css',
-		],
-		'widget_catalog' => [$webpack.'css/widget-catalog.css'],
 		'profile' => [$webpack.'css/profile.css'],
 		'login' => [$webpack.'css/login.css'],
-		'scores' => [
-			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.css',
-			$webpack.'css/scores.css',
-		],
+		'scores' => [$webpack.'css/scores.css'],
 		'pre_embed_placeholder' => [$webpack.'css/pre-embed-common-styles.css'],
 		'embed_scores' => [$webpack.'css/scores.css'],
 		'question_import' => [
@@ -52,23 +37,17 @@ return [
 			$webpack.'css/question-importer.css',
 		],
 		'questionimport' => [$webpack.'css/question-importer.css'],
-		'qset_history' => [
-			$webpack.'css/util-qset-history.css',
-		],
-		'rollback_dialog' => [
-			$webpack.'css/util-rollback-confirm.css'
-		],
+		'qset_history' => [$webpack.'css/qset-history.css'],
+		'rollback_dialog' => [$webpack.'css/util-rollback-confirm.css'],
 		'media_import' => [$webpack.'css/media.css'],
 		'help' => [$webpack.'css/help.css'],
-		'errors' => [$webpack.'css/errors.css'],
 		'fonts' => [
-			$g_fonts.'css?family=Kameron:700&text=0123456789%25',
-			$g_fonts.'css?family=Lato:300,400,700,700italic,900&amp;v2',
+			$g_fonts.'css2?family=Kameron:wght@700&display=block',
+			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=block',
 		],
-		'guide' => [$webpack.'css/widget-guide.css'],
-		// the following are required for the support-info styles to be embedded
-		// TODO probably consolidate the support_info styles in a common stylesheet
+		'guide' => [$webpack.'css/guide-page.css'],
 		'draft-not-playable' => [$webpack.'css/draft-not-playable.css'],
+		'404' => [$webpack.'css/404.css'],
 		'500' => [$webpack.'css/500.css'],
 		'no_permission' => [$webpack.'css/no-permission.css']
 	],

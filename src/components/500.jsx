@@ -2,12 +2,14 @@ import React from 'react'
 import Header from './header'
 import SupportInfo from './support-info'
 
+import './500.scss'
+
 const Action500 = () => (
 	<>
 		<Header />
     <div className="container general" id="broken">
     	<section className="page">
-    		<h1>500</h1>
+    		<h1>500 :(</h1>
     		<p>
     			Uh oh! Something's broken. Looks like an internal server error.
     			To get help with resolving this issue, contact support below.

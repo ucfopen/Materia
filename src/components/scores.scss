@@ -1,3 +1,5 @@
+@import './include.scss';
+
 $table-background-color: #929aa4;
 $table-border-color: lighten($table-background-color, 15%);
 $attention-color: #f8f0be;
@@ -22,6 +24,8 @@ $preview-purple: #b944cc;
 	text-align: center;
 
 	transition: all 0.5s ease;
+
+	font-family: 'Lato', arial, sans-serif;
 
 	&.loading {
 		background-color: #fff;
@@ -188,7 +192,7 @@ article {
 				height: 20px;
 				padding: 8px 0 12px 0;
 
-				font-family: 'Lato', 'Arial', sans-serif;
+				
 				font-size: 20px;
 				font-weight: 900;
 				color: #ffffff;
@@ -204,7 +208,6 @@ article {
 				right: 0;
 				top: -30px;
 
-				font-family: 'Lato', 'Arial', sans-serif;
 				font-size: 14px;
 				font-weight: 300;
 			}
@@ -554,7 +557,6 @@ height: 100px;
 
 h2,
 p {
-	font-family: Lato, arial, serif;
 	text-align: center;
 }
 h2 {
