@@ -32,7 +32,7 @@ class Controller_Qsets extends Controller
 	{
 		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
-		Css::push_group(['core', 'rollback_dialog']);
+		Css::push_group(['rollback_dialog']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author']);
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');

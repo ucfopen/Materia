@@ -45,7 +45,7 @@ return [
 			$g_fonts.'css2?family=Kameron:wght@700&display=block',
 			$g_fonts.'css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,700&display=block',
 		],
-		'guide' => [$webpack.'css/guide-page.css'],
+		'guide' => [$webpack.'css/guides.css'],
 		'draft-not-playable' => [$webpack.'css/draft-not-playable.css'],
 		'404' => [$webpack.'css/404.css'],
 		'500' => [$webpack.'css/500.css'],

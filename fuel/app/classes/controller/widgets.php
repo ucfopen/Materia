@@ -127,7 +127,7 @@ class Controller_Widgets extends Controller
 			->set('title', $title)
 			->set('page_type', 'guide');
 
-		Css::push_group(['core', 'guide']);
+		Css::push_group(['guide']);
 		Js::push_group(['react', 'guides']);
 	}
 
@@ -252,7 +252,7 @@ class Controller_Widgets extends Controller
 			->set('title', $title)
 			->set('page_type', 'widget');
 
-		Css::push_group(['core', 'widget_create']);
+		Css::push_group(['widget_create']);
 		Js::push_group(['react', 'createpage']);
 	}
 
