@@ -62,10 +62,10 @@ abstract class Perm
 	const GIVE_SHARE   = 75;
 
 	// group rights only
-	/** @const Has rights to access manger interface */
-	const AUTHORACCESS  = 80;
-	/** @const Has rights to administer users */
-	const ADMINISTRATOR = 85;
-	/** @const Has super user rights to do anything */
+	/** @const Standard author access level. Can edit/publish/modify and share widgets without restrictions. */
+	const BASICAUTHOR  = 80;
+	/** @const Elevated access level. Grants access to instance and user admin interface. Can review user settings, ownership, and play history, and access/modify instances and their settings. */
+	const SUPPORTUSER = 85;
+	/** @const Super-elevated access level. Can do anything. */
 	const SUPERUSER     = 90;
 }
