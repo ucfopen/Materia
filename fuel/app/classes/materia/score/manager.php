@@ -143,9 +143,9 @@ class Score_Manager
 			->execute()
 			->as_array();
 
-		// we have to post process this query O(n)
+		// we have to πpost process this query O(n)
 		$semesters = [];
-		\Log::Error(count($result));
+
 		foreach ($result as $log)
 		{
 			$key = $log['id'];

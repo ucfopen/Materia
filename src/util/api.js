@@ -643,7 +643,21 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 // Request access to widget
 export const apiRequestAccess = (instId, ownerId) => {
-	return fetch('/api/instance/request_access', fetchOptions({ body: `data=${formatFetchBody([instId, ownerId])}` }))
+	return fetch('/api/instance/request_access', 
+	{
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({
+			'inst_id': instId,
+			'owner_id': ownerId
+		})
+	})
 	.then(resp => {
 		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 		return null

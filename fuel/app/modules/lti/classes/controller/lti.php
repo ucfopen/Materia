@@ -47,10 +47,10 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_login()
 	{
-		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
+		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error/invalid_oauth_request');
 
 		$launch = LtiLaunch::from_request();
-		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error?message=invalid_oauth_request');
+		if ( ! LtiUserManager::authenticate($launch)) \Response::redirect('/lti/error/invalid_oauth_request');
 
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
@@ -68,7 +68,7 @@ class Controller_Lti extends \Controller
 	 */
 	public function action_picker(bool $authenticate = true)
 	{
-		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error?message=invalid_oauth_request');
+		if ( ! Oauth::validate_post()) \Response::redirect('/lti/error/invalid_oauth_request');
 
 		$launch = LtiLaunch::from_request();
 		if ($authenticate && ! LtiUserManager::authenticate($launch)) return \Response::redirect('/lti/error/unknown_user');
@@ -94,7 +94,7 @@ class Controller_Lti extends \Controller
 		$this->theme->get_template()
 			->set('title', 'Select a Widget for Use in '.$system)
 			->set('page_type', 'lti-select');
-		
+
 		\Js::push_group(['react', 'select_item']);
 
 		return \Response::forge($this->theme->render());
@@ -109,7 +109,7 @@ class Controller_Lti extends \Controller
 		$current_user_owns = \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::VISIBLE, \Materia\Perm::FULL]);
 
 		$instance_owner_list = $current_user_owns ? [] : (array_map(function ($object)
-		{ 
+		{
 			return (object) [
 				'first' 	=> $object->first,
 				'last' 		=> $object->last,
@@ -132,7 +132,7 @@ class Controller_Lti extends \Controller
 		$this->theme->get_template()
 			->set('title', 'Widget Connected Successfully')
 			->set('page_type', 'preview');
-		
+
 		\Js::push_group(['react', 'open_preview']);
 
 		return \Response::forge($this->theme->render());

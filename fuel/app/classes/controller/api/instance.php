@@ -9,7 +9,7 @@ class Controller_Api_Instance extends Controller_Rest
 
 	use Trait_Apiutils;
 
-	protected $_supported_formats = ['json' => 'application/json'];
+	protected $_supported_formats = ['json' => 'application/json', ''];
 	
 	/**
 	 * Requests all qsets for a given widget instance ID.
@@ -29,11 +29,25 @@ class Controller_Api_Instance extends Controller_Rest
 		return $this->response($history, 200);
 	}
 
-	public function post_request_access(string $inst_id, int $owner_id)
+	public function post_request_access()
 	{
 		$user_id = \Model_User::find_current_id();
-		$inst_id = Input::post('inst_id', null);
-		$owner_id = Input::post('owner_id', null);
-		\Model_Notification::send_item_notification($user_id, $owner_id, \Materia\Perm::INSTANCE, $inst_id, 'access_request', \Materia\Perm::FULL);
+
+		$inst_id = Input::json('inst_id', null);
+		$owner_id = Input::json('owner_id', null);
+
+		if ( ! $inst_id) return $this->response('Requires an inst_id parameter', 401);
+		if ( ! $owner_id) return $this->response('Requires an owner_id parameter', 401);
+
+		if ( ! \Model_User::find_by_id($owner_id)) return $this->response('Owner not found', 404);
+
+		if ( ! Materia\Perm_Manager::user_has_any_perm_to($owner_id, $inst_id, Materia\Perm::INSTANCE, [Materia\Perm::FULL, Materia\Perm::VISIBLE])) return $this->response('Owner does not own instance', 404);
+
+		if ( ! \Materia\Util_Validator::is_valid_hash($inst_id) ) return $this->response(\Materia\Msg::invalid_input($inst_id), 401);
+		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id))) return $this->response('Instance not found', 404);
+
+		$requested_access = \Model_Notification::send_item_notification($user_id, $owner_id, \Materia\Perm::INSTANCE, $inst_id, 'access_request', \Materia\Perm::FULL);
+
+		return $this->response($requested_access, 200);
 	}
 }

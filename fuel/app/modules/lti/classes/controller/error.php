@@ -8,27 +8,32 @@ namespace Lti;
 
 class Controller_Error extends \Controller
 {
-	use \Trait_Analytics;
-	protected $_content_partial = 'partials/error_general';
+	use \Trait_CommonControllerTemplate;
+	use \Trait_Supportinfo;
+
+	// overrides Trait_CommonControllerTemplate->before()
+	public function before()
+	{
+		$this->theme = \Theme::instance();
+	}
+
 	protected $_message = 'There was a problem';
+	protected $_type = 'error_general';
 
 	public function after($response)
 	{
-		$msg    = str_replace('_', ' ', \Input::param('message', $this->_message));
-		$system = str_replace('_', ' ', \Input::param('system', 'the system'));
-
-		$this->theme = \Theme::instance();
-
-		$this->insert_analytics();
 		\Js::push_inline('var BASE_URL = "'.\Uri::base().'";');
-		\Js::push_inline('var TITLE = "'.'Error - '.$msg.'";');
+		\Js::push_inline('var TITLE = "'.'Error - '.$this->_message.'";');
+		\Js::push_inline('var ERROR_TYPE = "'.$this->_type.'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
+
+		$this->add_inline_info();
 
 		\Css::push_group('lti');
 
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
-			->set('title', 'Error - '.$msg)
+			->set('title', 'Error - '.$this->_message)
 			->set('page_type', 'lti-error');
 
 		\Js::push_group(['react', 'error_general']);
@@ -38,14 +43,20 @@ class Controller_Error extends \Controller
 
 	public function action_unknown_user()
 	{
-		$this->_content_partial = 'partials/error_unknown_user';
+		$this->_type = 'error_unknown_user';
 		$this->_message = 'Unknown User';
 	}
 
 	public function action_unknown_assignment()
 	{
-		$this->_content_partial = 'partials/error_unknown_assignment';
 		$this->_message = 'Unknown Assignment';
+		$this->_type = 'error_unknown_assignment';
+	}
+
+	public function action_invalid_oauth_request()
+	{
+		$this->_message = 'Invalid OAuth Request';
+		$this->_type = 'error_invalid_oauth_request';
 	}
 
 	/**
@@ -55,14 +66,14 @@ class Controller_Error extends \Controller
 	*/
 	public function action_autoplay_misconfigured()
 	{
-		$this->_content_partial = 'partials/error_autoplay_misconfigured';
 		$this->_message = 'Widget Misconfigured - Autoplay cannot be set to false for LTI assignment widgets';
+		$this->_type = 'error_autoplay_misconfigured';
 	}
 
 	public function action_guest_mode()
 	{
-		$this->_content_partial = 'partials/error_lti_guest_mode';
 		$this->_message = 'Assignment has guest mode enabled';
+		$this->_type = 'error_lti_guest_mode';
 	}
 
 	public function action_index()

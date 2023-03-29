@@ -29,7 +29,7 @@ class Test_LtiEvents extends \Test_Basetest
 
 		$this->assertArrayHasKey('redirect', $result);
 		$this->assertCount(1, $result);
-		$this->assertEquals('/lti/error?message=invalid_oauth_request', $result['redirect']);
+		$this->assertEquals('/lti/error/invalid_oauth_request', $result['redirect']);
 	}
 
 	public function test_on_before_play_start_event_throws_unknown_user_exception_for_bad_user()

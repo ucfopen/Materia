@@ -18,7 +18,11 @@
 
 		for(var attr in postData)
 		{
-			$form.append('<input type="hidden" name="' + attr + '" value="' + postData[attr] + '" />');
+			input = document.createElement("input");
+			input.setAttribute("type", "hidden");
+			input.setAttribute("name", attr);
+			input.setAttribute("value", postData[attr]);
+			$form.append(input);
 		}
 
 		$form.submit();

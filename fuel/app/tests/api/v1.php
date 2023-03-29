@@ -492,7 +492,7 @@ class Test_Api_V1 extends \Basetest
 		// the lock is stored in a cache that expires
 		// let's manually clear cache now, effectively removing the lock
 		\Cache::delete('instance-lock.'.($inst->id));
-		
+
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
 
@@ -1515,11 +1515,6 @@ class Test_Api_V1 extends \Basetest
 		$this->assert_is_user_array($output[0]);
 		$this->assertFalse(array_key_exists('password', $output[0]));
 		$this->assertFalse(array_key_exists('login_hash', $output[0]));
-	}
-
-	public function test_request_access()
-	{
-		//
 	}
 
 	protected function assert_is_semester_rage($semester)

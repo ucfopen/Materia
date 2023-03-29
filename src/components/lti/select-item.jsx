@@ -21,7 +21,7 @@ const SelectItem = () => {
     const { data, isFetching: isFetching, refetch: refetchInstances} = useQuery({
 		queryKey: 'instances',
 		queryFn: () => apiGetWidgetInstances(state.page),
-        staleTime: Infinity, 
+        staleTime: Infinity,
         onSuccess: (data) => {
             if (data) {
                 data.pagination.map((instance, index) => {
@@ -82,7 +82,7 @@ const SelectItem = () => {
             let pgSpan = document.querySelector('.progress-container span')
             pg.classList.add('success')
             pgSpan.innerText = 'Success!'
-            
+
             if (!!window.RETURN_URL) {
                 // add a ? or & depending on window.RETURN_URL already containing query params
                 const separator = window.RETURN_URL.includes('?') ? '&' : '?'
@@ -91,7 +91,7 @@ const SelectItem = () => {
                 // redirect the client to the return url with our new variables
                 window.location = `${window.RETURN_URL}${separator}embed_type=basic_lti&url=${url}`
             }
-        } 
+        }
         // Start progress bar
         else if (!!selectedInstance) {
 
@@ -152,9 +152,9 @@ const SelectItem = () => {
                 </div>
                 <a className="preview external" target="_blank" href={instance.preview_url}>Preview</a>
                 {
-                    (instance.guest_access || instance.is_draft) ? 
-                    <a className="button embed-button" target="_blank" href={instance.edit_url}>Edit at Materia</a> 
-                    : 
+                    (instance.guest_access || instance.is_draft) ?
+                    <a className="button embed-button" target="_blank" href={instance.edit_url}>Edit at Materia</a>
+                    :
                     <a role="button" className={index == 0 ? 'first button embed-button' : 'button embed-button'} onClick={() => embedInstance(instance)}>Use this widget</a>
                 }
             </li>
@@ -176,7 +176,7 @@ const SelectItem = () => {
 
     let sectionRender = null
     if (displayState == 'selectInstance') {
-        sectionRender = 
+        sectionRender =
         <section id="select-widget">
             <input type="text" id="search" value={searchText} onChange={handleChange}/>
             <button id="refresh" onClick={refreshListing} className="button" >Refresh listing</button>

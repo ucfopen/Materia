@@ -51,6 +51,14 @@
 				form.querySelector('.custom_widget_instance_id').value = document.querySelector('#custom-inst-id').value;
 			}
 
+			function setInvalidOAuthSignature(form)
+			{
+				inputs = form.querySelectorAll('#form_oauth_signature');
+				inputs.forEach(input => {
+					input.value = "THIS_WILL_FAIL";
+				})
+			}
+
 			function createLearnerButtons(event)
 			{
 				event.returnValue = false;
@@ -121,7 +129,7 @@
 
 			<h2>LTI Navigation Launch</h2>
 
-			<form method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
+			<form onsubmit="setInvalidOAuthSignature(this)" method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
 				<?php foreach ($login_params as $name => $value) : ?>
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
@@ -143,7 +151,7 @@
 			<hr />
 			<h2>LTI Picker Launch</h2>
 
-			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
+			<form onsubmit="setInvalidOAuthSignature(this)" method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
 				<?php foreach ($instructor_params as $name => $value) : ?>
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
@@ -288,7 +296,7 @@
 				<input type="submit" value="Test Validation">
 			</form>
 
-			<form method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
+			<form onsubmit="setInvalidOAuthSignature(this)" method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
 				<?php foreach ($validation_params as $name => $value) : ?>
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
@@ -303,7 +311,7 @@
 				<?php foreach ($unknown_assignment_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
 				<?php endforeach ?>
-				<input type="submit" id="test_unkown_assignment" value="Unknown Assignment Error">
+				<input type="submit" id="test_unknown_assignment" value="Unknown Assignment Error">
 			</form>
 			<?php //@codingStandardsIgnoreEnd ?>
 		</section>
