@@ -18,8 +18,8 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-export const apiGetWidgetInstance = instId => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+export const apiGetWidgetInstance = (instId, loadQset=false) => {
+	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId, false, loadQset])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
