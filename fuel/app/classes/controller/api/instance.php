@@ -9,7 +9,7 @@ class Controller_Api_Instance extends Controller_Rest
 
 	use Trait_Apiutils;
 
-	protected $_supported_formats = ['json' => 'application/json', ''];
+	protected $_supported_formats = ['json' => 'application/json'];
 
 	/**
 	 * Requests all qsets for a given widget instance ID.
