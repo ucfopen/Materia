@@ -175,6 +175,12 @@
 						background: #3498db;
 						color: white;
 					}
+
+					svg {
+						width: 16px;
+						height: auto;
+						margin-right: 6px;
+					}
 				}
 			}
 		}
@@ -395,6 +401,14 @@
 						&.selected {
 							background: #3498db;
 							color: white;
+						}
+
+						&.accessibility-status {
+							svg {
+								width: 12px;
+								height: auto;
+								margin-right: 6px;
+							}
 						}
 					}
 				}

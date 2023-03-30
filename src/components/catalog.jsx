@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import CatalogCard from './catalog-card'
+import KeyboardIcon from './keyboard-icon'
+import ScreenReaderIcon from './screen-reader-icon'
 import './catalog.scss'
 
 const isMobileDevice = () => window.matchMedia('(max-width: 720px)').matches
@@ -119,6 +121,8 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 				className={'feature-button' + (isEnabled ? ' selected' : '')}
 				aria-hidden={!state.showingFilters}
 				onClick={ filterOptionClickHandler }>
+				{ filter == 'Keyboard Accessible' ? <KeyboardIcon color='#000' /> : '' }
+				{ filter == 'Screen Reader Accessible' ? <ScreenReaderIcon color='#000' /> : '' }
 				{filter}
 			</button>
 		}
