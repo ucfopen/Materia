@@ -40,13 +40,13 @@ const CatalogCard = ({
 
 	if(isValidAccessVal(meta_data.accessibility_keyboard)) {
 		featuresRender.push(
-			<li className='accessibility-status'><KeyboardIcon color='#000'/>{`${meta_data.accessibility_keyboard}`} Support</li>
+			<li className={`accessibility-status ${activeFilters.includes('Keyboard Accessible') ? 'selected' : ''}`}><KeyboardIcon color='#000'/>{`${meta_data.accessibility_keyboard}`} Support</li>
 		)
 	}
 
 	if(isValidAccessVal(meta_data.accessibility_reader)) {
 		featuresRender.push(
-			<li className='accessibility-status'><ScreenReaderIcon color='#000'/>{`${meta_data.accessibility_reader}`} Support</li>
+			<li className={`accessibility-status ${activeFilters.includes('Screen Reader Accessible') ? 'selected' : ''}`}><ScreenReaderIcon color='#000'/>{`${meta_data.accessibility_reader}`} Support</li>
 		)
 	}
 

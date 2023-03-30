@@ -21,9 +21,9 @@ class Controller_Admin extends Controller
 	{
 		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 	
-		JS::push_inline('var UPLOAD_ENABLED ="'.Config::get('materia.enable_admin_uploader').'";');
-		JS::push_inline('var HEROKU_WARNING ="'.Config::get('materia.heroku_admin_warning').'";');
-		JS::push_inline('var ACTION_LINK ="/admin/upload";');
+		Js::push_inline('var UPLOAD_ENABLED ="'.Config::get('materia.enable_admin_uploader').'";');
+		Js::push_inline('var HEROKU_WARNING ="'.Config::get('materia.heroku_admin_warning').'";');
+		Js::push_inline('var ACTION_LINK ="/admin/upload";');
 		Js::push_inline('var UPLOAD_NOTICE = "'.Session::get_flash('upload_notice').'";');
 
 		$this->theme = Theme::instance();
