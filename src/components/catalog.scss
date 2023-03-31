@@ -173,7 +173,17 @@
 
 					&.selected {
 						background: #3498db;
-						color: white;
+						color: #fff;
+
+						svg {
+							fill: #fff;
+						}
+					}
+
+					svg {
+						width: 16px;
+						height: auto;
+						margin-right: 6px;
 					}
 				}
 			}
@@ -395,6 +405,18 @@
 						&.selected {
 							background: #3498db;
 							color: white;
+
+							&.accessibility-status svg {
+								fill: #fff;
+							}
+						}
+
+						&.accessibility-status {
+							svg {
+								width: 12px;
+								height: auto;
+								margin-right: 6px;
+							}
 						}
 					}
 				}

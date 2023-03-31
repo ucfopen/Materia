@@ -66,6 +66,7 @@ $color-green: #c5dd60;
 					.icon-spacer {
 						display: inline-block;
 						width: 35px;
+						margin-right: 10px;
 
 						svg {
 							position: relative;
@@ -75,28 +76,8 @@ $color-green: #c5dd60;
 					}
 
 					span {
-						color: #525252;
-						font-size: 14px;
-					}
-
-					.highlighted {
-						color: white;
-						background-color: $color-red;
-						font-weight: bold;
-						justify-content: center;
-						padding: 3px 6px;
-						border-radius: 5px;
-						box-shadow: 1px 2px 1px rgba(146, 146, 146, 0.8);
-
-						&.full {
-							color: #525252;
-							background-color: $color-green;
-						}
-
-						&.limited {
-							color: #525252;
-							background-color: $color-yellow;
-						}
+						color: #000;
+						font-size: 16px;
 					}
 				}
 			}
@@ -105,6 +86,7 @@ $color-green: #c5dd60;
 
 	.feature-heading {
 		font-size: 14px;
+		// font-weight: 700;
 		margin-bottom: 6px;
 
 		&.guide {
@@ -255,7 +237,7 @@ $color-green: #c5dd60;
 			border-radius: 2px;
 			background: $color-features;
 			color: #fff;
-			padding: 2px 6px;
+			padding: 4px 12px;
 			margin-right: 5px;
 
 			font-weight: 700;
@@ -450,8 +432,8 @@ a {
 		background: #eee;
 		border-radius: 4px 4px 0 0;
 		color: #333;
-		padding: 25px 20px;
-		min-height: 65px;
+		padding: 15px 15px;
+		min-height: 92px;
 
 		img {
 			height: 92px;
