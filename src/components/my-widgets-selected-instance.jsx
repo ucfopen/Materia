@@ -124,7 +124,7 @@ const MyWidgetSelectedInstance = ({
 
 		// Filters out the current user for the collab label
 		for (let [key, user] of otherUserPerms) {
-			if (key !== currentUser?.id) {
+			if (key != currentUser?.id) {
 				usersList.push(user)
 			}
 		}
