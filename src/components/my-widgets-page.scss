@@ -369,9 +369,9 @@
 
 					.action-button {
 						padding: 7px 23px 8px 23px;
-						background: #ffba5d;
+						background: $color-yellow;
 						font-weight: 700;
-						color: #694d28;
+						color: $extremely-dark-gray;
 						text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 						box-shadow: 1px 2px 4px #ececec;
 						font-size: 18px;
@@ -383,7 +383,7 @@
 						text-decoration: none;
 
 						&:hover:not(.disabled) {
-							background: #eca444;
+							background: $color-yellow-hover;
 							cursor: pointer;
 						}
 
@@ -396,7 +396,7 @@
 							border: 0;
 							border-radius: 0;
 							background: none;
-							color: #525252;
+							color: $extremely-dark-gray;
 							fill: #c4dd61;
 							box-shadow: none;
 							padding: 0;
@@ -423,7 +423,7 @@
 					}
 
 					span.pencil {
-						background: url(/img/pencil.png) no-repeat center bottom;
+						background: url(/img/pencil.svg) no-repeat center bottom;
 						margin: 0;
 						width: 21px;
 						height: 21px;

@@ -116,7 +116,7 @@ const ProfilePage = () => {
 					</ul>
 				</div>
 
-				{ hasNextPage ? <a className="show_more_activity" onClick={_getMoreLogs}>{ isFetchingNextActivityPage ? <span className='message_loading'>Loading...</span> : <span>Show more</span>}</a> : '' }
+				{ hasNextPage ? <a className="show_more_activity action_button" onClick={_getMoreLogs}>{ isFetchingNextActivityPage ? <span className='message_loading'>Loading...</span> : <span>Show more</span>}</a> : '' }
 				{/* <p className="no_logs" ng-show="activities && activities.length == 0">You don't have any activity! Start doing stuff.</p> */}
 
 			</section>

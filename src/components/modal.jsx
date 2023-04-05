@@ -29,14 +29,12 @@ class Modal extends React.Component {
 		this.modalRoot.appendChild( this.element )
 		document.addEventListener('mousedown', this.clickOutsideListener)
 		document.addEventListener('touchstart', this.clickOutsideListener)
-		document.body.style.overflow = 'hidden'
 	}
 
 	componentWillUnmount() {
 		this.modalRoot.removeChild( this.element )
 		document.removeEventListener('mousedown', this.clickOutsideListener)
 		document.removeEventListener('touchstart', this.clickOutsideListener)
-		document.body.style.overflow = 'auto'
 	}
 
 	render() {

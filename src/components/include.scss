@@ -1,6 +1,16 @@
+
+$color-features: #0093e7;
+$color-features-active: #0357a5;
+$color-red: #ca3b3b;
+$color-yellow: #ffd439;
+$color-yellow-hover: #ffc904;
+$color-orange: #ffba5d;
+$color-green: #c5dd60;
+
 $very-light-gray: #ececec;
 $light-gray: #dadada;
 $gray: #9a9a9a;
+$extremely-dark-gray: #333;
 
 
 body,
@@ -18,10 +28,10 @@ body {
 
 .action_button {
 	padding: 7px 23px 8px 23px;
-	background-color: #ffd439;
+	background-color: $color-yellow;
 	transition: all 0.4s ease-in-out;
 	font-weight: 700;
-	color: #333;
+	color: $extremely-dark-gray;
 	font-size: 18px;
 	position: relative;
 	cursor: pointer;
