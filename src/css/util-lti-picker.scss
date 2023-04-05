@@ -11,7 +11,7 @@ html {
 body {
 	margin: 0;
 	padding: 0;
-	font-family: 'Lucida Grande', sans-serif;
+	// font-family: 'Lucida Grande', sans-serif;
 	min-width: 600px;
 }
 
@@ -46,7 +46,6 @@ a {
 header > h1 {
 	margin: 0;
 	background: #3690e6;
-	font-family: 'Lato', 'Arial', sans-serif;
 	color: white;
 	padding: 20px 20px 20px 162px;
 	font-size: 18pt;
@@ -55,7 +54,6 @@ header > h1 {
 .button {
 	text-decoration: none;
 	display: inline-block;
-	font-family: 'Lato', arial, serif;
 	padding: 7px 23px 8px 23px;
 	background: #ffba5d;
 	background-image: linear-gradient(#ffce8c, #ffa42a);
@@ -174,7 +172,6 @@ header > h1 {
 	margin-left: 80px;
 	margin-bottom: 0;
 	margin-top: 11px;
-	font-family: 'Lato', Arial, sans-serif;
 }
 
 #list-container li.draft h2 {
@@ -254,7 +251,6 @@ header > h1 {
 	background: gray;
 	background: rgba(0, 0, 0, 0.6);
 	color: white;
-	font-family: 'Lato', Arial, sans-serif;
 	padding: 1px 8px 1px 8px;
 	font-size: 9pt;
 	font-weight: 900;
@@ -318,7 +314,6 @@ header > h1 {
 	font-size: 24pt;
 	text-align: center;
 	margin-top: 0;
-	font-family: 'Lato', 'Arial', sans;
 	display: inline-block;
 	width: 465px;
 	float: right;

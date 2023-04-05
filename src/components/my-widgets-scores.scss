@@ -1,3 +1,5 @@
+@import './include.scss';
+
 .scores {
 	position: relative;
 	display: flex;
@@ -51,7 +53,6 @@
 	}
 
 	#export_scores_button {
-		font-family: 'Lato', arial, serif;
 		padding: 7px 23px 8px 23px;
 		background-color: #ffba5d;
 		font-weight: 700;

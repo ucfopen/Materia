@@ -49,7 +49,6 @@
 		}
 
 		h2 {
-			font-family: 'Lato', arial, serif;
 			font-weight: 700;
 			font-size: 38px;
 			border-bottom: solid #dcdcdc .5px;
@@ -58,7 +57,6 @@
 		}
 
 		span {
-			font-family: 'Lato', arial, serif;
 			font-weight: 700;
 			padding: 0 0 5px 0;
 			font-size: 12px;
@@ -69,14 +67,12 @@
 		}
 
 		ul {
-			font-family: 'Lato', arial, serif;
 			font-weight: 100;
 			font-size: 16px;
 			list-style-type: none;
 			padding-left: 0px;
 
 			&.email_exp_addr {
-				font-family: 'Lato', arial, serif;
 				font-weight: 300;
 				margin: 0;
 			}
@@ -85,7 +81,6 @@
 		h3 {
 			color: #000;
 			font-weight: 700;
-			font-family: 'Lato', arial, serif;
 			height: 25px;
 		}
 
@@ -136,7 +131,6 @@
 			font-size: 55px;
 			padding: 0;
 			margin: 0;
-			font-family: 'Lato', arial, serif;
 			font-weight: 600;
 			color: #0093e7;
 			line-height: 35px;
@@ -160,7 +154,6 @@
 			padding: 0;
 			font-size: 13px;
 			font-weight: bold;
-			font-family: 'Lato', arial, serif;
 
 			li {
 				list-style-type: none;
@@ -180,6 +173,11 @@
 			&.staff {
 				background: #ef0223;
 				color: #ffc4cc;
+			}
+
+			&.support {
+				background: #0093e7;
+				color:#f3f3f3;
 			}
 		}
 
@@ -264,7 +262,6 @@
 				font-size: 28px;
 				min-height: 28px;
 				font-weight: 700;
-				font-family: 'Lato', arial, serif;
 				text-align: center;
 				overflow: hidden;
 
@@ -284,7 +281,6 @@
 
 				font-size: 11px;
 				font-weight: 700;
-				font-family: 'Lato', arial, serif;
 			}
 
 			.widget {
@@ -294,7 +290,6 @@
 				color: #7b7b7b;
 				font-size: 11px;
 				font-weight: 700;
-				font-family: 'Lato', arial, serif;
 				text-transform: uppercase;
 				position: absolute;
 				left: 55px;
@@ -302,7 +297,6 @@
 			}
 
 			.title {
-				font-family: 'Lato', arial, serif;
 				font-size: 17px;
 				position: absolute;
 				left: 55px;
@@ -338,7 +332,6 @@
 			background-color: #dddddd;
 			border: 1px solid #cecece;
 			color: #777777;
-			font-family: 'Lato', arial, serif;
 			font-size: 14px;
 			font-weight: bold;
 			padding: 12px 0px;
@@ -383,7 +376,6 @@
 					text-align: left;
 					padding-left: 20px;
 					font-size: 12px;
-					font-family: 'Lato', arial, serif;
 					font-weight: 700;
 					padding-top: 10px;
 					padding-bottom: 10px;
@@ -458,7 +450,6 @@
 
 			.email_exp {
 				color: #7f7f7f;
-				font-family: 'Lato', arial, serif;
 				font-size: 12px;
 				font-weight: 300;
 				margin: 10px 0 0 0;
@@ -473,7 +464,7 @@
 
 	.settingSaveAlert {
 		display: inline-block;
-		font-family: 'Lucida Grande', sans;
+		font-family: 'Lucida Grande', sans-serif;
 		margin: 0;
 		padding: 0 0 0 20px;
 	}

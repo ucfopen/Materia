@@ -17,7 +17,7 @@ const initDialogState = () => {
 	})
 }
 
-const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
+const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser, setInvalidLogin}) => {
 	const [state, setState] = useState(initDialogState())
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
@@ -37,7 +37,17 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		queryFn: () => apiSearchUsers(debouncedSearchTerm),
 		staleTime: Infinity,
 		placeholderData: [],
-		retry: false
+		retry: false,
+		onSuccess: (data) => {
+			if (!data || (data.type == 'error'))
+			{
+				console.error(`User search failed with error: ${data.msg}`);
+				if (data.title =="Invalid Login")
+				{
+					setInvalidLogin(true)
+				}
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -56,7 +66,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	// Sets Perms
 	useEffect(() => {
 		const map = new Map(otherUserPerms)
-		map.forEach(key => key.remove = false)
+		map.forEach((key, pair) => {
+			key.remove = false
+			pair = pair.toString()
+		})
 		setState({...state, updatedOtherUserPerms: map})
 	}, [otherUserPerms])
 
@@ -80,7 +93,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 			// Updateds the perms
 			tempPerms.set(
-				match.id,
+				match.id.toString(),
 				{
 					accessLevel: 1,
 					expireTime: null,
@@ -163,7 +176,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	const updatePerms = (userId, perms) => {
 		let newPerms = new Map(state.updatedOtherUserPerms)
-		newPerms.set(userId, perms)
+		newPerms.set(userId.toString(), perms)
 		setState({...state, updatedOtherUserPerms: newPerms})
 	}
 
@@ -171,7 +184,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults && searchResults?.length !== 0) {
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults.length && searchResults?.length !== 0) {
 			const searchResultElements = searchResults?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'

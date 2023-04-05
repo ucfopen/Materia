@@ -22,7 +22,7 @@ class Controller_Qsets extends Controller
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
 
-		Css::push_group(['core', 'qset_history']);
+		Css::push_group(['qset_history']);
 		Js::push_group(['react', 'qset_history']);
 
 		return Response::forge($theme->render());
@@ -32,7 +32,7 @@ class Controller_Qsets extends Controller
 	{
 		if (\Service_User::verify_session() !== true ) throw new HttpNotFoundException;
 
-		Css::push_group(['core', 'rollback_dialog']);
+		Css::push_group(['rollback_dialog']);
 		Js::push_group(['angular', 'jquery', 'materia', 'author']);
 
 		Js::push_inline('var BASE_URL = "'.Uri::base().'";');

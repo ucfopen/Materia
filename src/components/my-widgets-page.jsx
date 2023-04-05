@@ -42,6 +42,8 @@ const MyWidgetsPage = () => {
 		widgetHash: window.location.href.split('#')[1],
 		currentBeard: ''
 	})
+	const [invalidLogin, setInvalidLogin] = useState(false);
+
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
 	const copyWidget = useCopyWidget()
@@ -57,12 +59,20 @@ const MyWidgetsPage = () => {
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
 			onSuccess: (data) => {
+				if (!data || data.type == 'error')
+				{
+					console.error(`Widget instances failed to load with error: ${data.msg}`);
+					if (data.title =="Invalid Login")
+					{
+						setInvalidLogin(true)
+					}
+				}
 				// Removes duplicates
-				let widgetSet = new Set([...data.pagination, ...state.widgetList])
+				let widgetSet = new Set([...(data.pagination ? data.pagination : []), ...state.widgetList])
 
 				setState({
 					...state,
-					totalPages: data.total_num_pages,
+					totalPages: data.total_num_pages || state.totalPages,
 					widgetList: [...widgetSet].sort(_compareWidgets)
 				})
 			},
@@ -87,6 +97,13 @@ const MyWidgetsPage = () => {
 			setBeardMode(!beardMode)
 		}
 	}, [validCode])
+
+	useEffect(() => {
+		if (invalidLogin)
+		{
+			window.location.reload();
+		}
+	}, [invalidLogin])
 
 	useEffect(() => {
 		if (state.selectedInst && permUsers) {
@@ -187,7 +204,16 @@ const MyWidgetsPage = () => {
 				copyPermissions: newPerm,
 				widgetName: inst.widget.name,
 				dir: inst.widget.dir,
-				successFunc: () => {}
+				successFunc: (data) => {
+					if (!data || (data.type == 'error'))
+					{
+						console.error(`Failed to copy widget with error: ${data.msg}`);
+						if (data.title == "Invalid Login")
+						{
+							setInvalidLogin(true)
+						}
+					}
+				}
 			},
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
@@ -216,7 +242,17 @@ const MyWidgetsPage = () => {
 
 		deleteWidget.mutate(
 			{
-				instId: inst.id
+				instId: inst.id,
+				successFunc: (data) => {
+					if (!data || (data.type == 'error')) 
+					{
+						console.error(`Deletion failed with error: ${data.msg}`);
+						if (data.title =="Invalid Login")
+						{
+							setInvalidLogin(true)
+						}
+					}
+				}
 			},
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
@@ -335,6 +371,7 @@ const MyWidgetsPage = () => {
 				setOtherUserPerms={(p) => setState({ ...state, otherUserPerms: p })}
 				beardMode={beardMode}
 				beard={state.currentBeard}
+				setInvalidLogin={setInvalidLogin}
 			/>
 		}
 	}

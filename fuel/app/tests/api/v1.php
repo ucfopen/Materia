@@ -105,10 +105,46 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_widget_instances_get()
 	{
+		// Create widget instance
+		$this->_as_author();
+		$title = "My Test Widget";
+		$question = 'What rhymes with harvest fests but are half as exciting (or tasty)';
+		$answer = 'Tests';
+		$qset = $this->create_new_qset($question, $answer);
+		$widget = $this->make_disposable_widget();
+
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+
 		// ======= AS NO ONE ========
+		$this->_as_noauth();
+
+		// ----- returns empty array if not requesting a specific instance --------
 		$output = Api_V1::widget_instances_get();
 		$this->assertIsArray($output);
 		$this->assertCount(0, $output);
+
+		// ----- loads specific instance without qset --------
+		$output = Api_V1::widget_instances_get($instance->id);
+		$this->assertIsArray($output);
+		$this->assertCount(1, $output);
+		foreach ($output as $key => $value)
+		{
+			$this->assert_is_widget_instance($value, true);
+			$this->assertObjectHasAttribute('qset', $value);
+			$this->assertNull($value->qset->data);
+			$this->assertNull($value->qset->version);
+		}
+
+		// ----- loads specific instance with qset --------
+		$output = Api_V1::widget_instances_get($instance->id, false, true);
+		$this->assertIsArray($output);
+		$this->assertCount(1, $output);
+		foreach ($output as $key => $value)
+		{
+			$this->assert_is_widget_instance($value, true);
+			$this->assertObjectHasAttribute('qset', $value);
+			$this->assert_is_qset($value->qset);
+		}
 
 		// ======= STUDENT ========
 		$this->_as_student();

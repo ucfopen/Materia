@@ -26,7 +26,6 @@
 			min-height: 850px;
 			// border-radius: 4px;
 			text-align: center;
-			font-family: "Lato", arial, sans-serif;
 
 			&.unchosen {
 				&:not(.bearded) {
@@ -215,7 +214,6 @@
 						height: 15px;
 
 						text-align: center;
-						font-family: Lato, arial, serif;
 						font-size: 12px;
 						font-weight: 900;
 						color: #ffffff !important;
@@ -282,7 +280,6 @@
 				color: #ffffff;
 				text-shadow: #184863 1px 1px 1px;
 				font-weight: 900;
-				font-family: 'Lato', arial, serif;
 			}
 		}
 
@@ -293,7 +290,6 @@
 			color: #ffffff;
 			text-shadow: #184863 1px 1px 1px;
 			font-weight: 900;
-			font-family: 'Lato', arial, serif;
 		}
 	}
 
@@ -372,7 +368,6 @@
 					}
 
 					.action-button {
-						font-family: 'Lato', arial, serif;
 						padding: 7px 23px 8px 23px;
 						background: #ffba5d;
 						font-weight: 700;
@@ -447,7 +442,6 @@
 						padding-bottom: 5px;
 						text-align: center;
 						font-size: 15px;
-						font-family: 'Lucida Grande', sans-serif;
 
 						li a {
 							font-weight: bold;
@@ -552,7 +546,6 @@
 			.attempts_parent {
 				width: 90%;
 				padding-top: 5px;
-				font-family: 'Lucida Grande', sans-serif;
 
 				dt {
 					float: left;
@@ -641,7 +634,6 @@
 			.attempts_parent.disabled {
 				width: 90%;
 				padding-top: 5px;
-				font-family: 'Lucida Grande', sans-serif;
 				background: none;
 				cursor: default;
 			}
@@ -806,7 +798,6 @@
 				vertical-align: top;
 				color: black;
 				position: relative;
-				font-family: Lato, arial, serif;
 
 				#embed_link {
 					width: 100%;
@@ -843,11 +834,14 @@
 
 	div.link {
 		display: inline-block;
-		border-bottom: 1px #0093e7 solid;
-		color: #0093e7;
 		margin: 0 10px;
 		padding: 0 0 2px 0;
-		font-weight: 400;
+
+		border-bottom: 1px #0093e7 solid;
+		color: #0093e7;
+		
+		font-size: 14px;
+		font-weight: 700;
 		cursor: pointer;
 
 		&.disabled {

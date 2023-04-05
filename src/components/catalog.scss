@@ -29,8 +29,6 @@
 		z-index: 2;
 		font-weight: bold;
 
-		font-family: "Lato", arial, serif;
-
 		h1 {
 			margin: 0;
 			display: inline-block;
@@ -43,7 +41,6 @@
 			top: 5px;
 			font-size: 0.8em;
 			margin: 10px 15px;
-			font-family: "Lato", arial, sans-serif;
 		}
 
 		.search {
@@ -110,7 +107,6 @@
 				border: solid 1px #b0b0b0;
 				border-radius: 12px;
 				margin: 0;
-				font-family: "Lato", arial, sans-serif;
 
 				&::-ms-clear {
 					display: none;
@@ -127,7 +123,6 @@
 		margin: 0;
 		font-size: 0.9em;
 		cursor: pointer;
-		font-family: "Lato", arial, sans-serif;
 	}
 
 	#filters-container {
@@ -171,7 +166,6 @@
 					margin: 3px 3px;
 					border-radius: 5px;
 					padding: 8px 10px;
-					font-family: "Lato", arial, sans-serif;
 
 					&:hover {
 						background: #bfe5ff;
@@ -179,7 +173,17 @@
 
 					&.selected {
 						background: #3498db;
-						color: white;
+						color: #fff;
+
+						svg {
+							fill: #fff;
+						}
+					}
+
+					svg {
+						width: 16px;
+						height: auto;
+						margin-right: 6px;
 					}
 				}
 			}
@@ -205,8 +209,6 @@
 			text-align: center;
 			font-style: italic;
 			font-weight: bold;
-
-			font-family: 'Lato', arial, serif;
 
 			span {
 				padding: 0 20px;
@@ -290,7 +292,6 @@
 					h1 {
 						display: block;
 						font-size: 18px;
-						font-family: 'Lato', arial, serif;
 						font-weight: bold;
 						margin: 7px 5px 5px;
 						color: #333;
@@ -305,7 +306,6 @@
 						font-weight: bold;
 						margin: 0;
 						padding: 6px 10px;
-						font-family: 'Lato', arial, serif;
 						background: #bfe5ff;
 						border-radius: 0 5px 0 0;
 						position: absolute;
@@ -405,6 +405,18 @@
 						&.selected {
 							background: #3498db;
 							color: white;
+
+							&.accessibility-status svg {
+								fill: #fff;
+							}
+						}
+
+						&.accessibility-status {
+							svg {
+								width: 12px;
+								height: auto;
+								margin-right: 6px;
+							}
 						}
 					}
 				}
@@ -527,7 +539,6 @@
 			color: #3690e6;
 			text-decoration: underline;
 			cursor: pointer;
-			font-family: "Lato", arial, sans-serif;
 
 			&.open:before {
 				background: transparent;

@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "webpack-dev-server",
     "build": "webpack",
+    "build-for-image": "webpack --config webpack.prod.config.js",
     "test": "TZ=Etc/UTC jest --verbose",
     "test:dev": "TZ=Etc/UTC jest --verbose --watch --coverage",
     "test:ci": "TZ=Etc/UTC CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura",
@@ -22,12 +23,7 @@
     "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
   },
   "dependencies": {
-    "@vx/axis": "^0.0.199",
-    "@vx/gradient": "^0.0.199",
-    "@vx/grid": "^0.0.199",
-    "@vx/group": "^0.0.199",
-    "@vx/scale": "^0.0.199",
-    "@vx/shape": "^0.0.199",
+    "d3": "^7.2.0",
     "fs-extra": "^8.0.1",
     "js-base64": "^3.7.2",
     "react-datepicker": "^4.8.0",
@@ -68,6 +64,7 @@
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
     "webpack-manifest-plugin": "^5.0.0",
+    "webpack-remove-empty-scripts": "1.0.1",
     "webpack-strip-block": "^0.3.0"
   },
   "nodemonConfig": {

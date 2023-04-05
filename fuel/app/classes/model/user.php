@@ -94,6 +94,7 @@ class Model_User extends Orm\Model
 		$user_table = \Model_User::table();
 		$matches = \DB::select()
 			->from($user_table)
+			// Do not return super users or the current user
 			->where($user_table.'.id', 'NOT', \DB::expr('IN('.\DB::select($user_table.'.id')
 				->from($user_table)
 				->join('perm_role_to_user', 'LEFT')
@@ -158,6 +159,7 @@ class Model_User extends Orm\Model
 		$array = parent::to_array($custom, $recurse, $eav);
 		$array['avatar'] = $avatar;
 		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
+		$array['is_support_user'] = \Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SUPPORT]);
 		return $array;
 	}
 

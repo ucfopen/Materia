@@ -1,12 +1,7 @@
 @import './pre-embed-common-styles.scss';
+@import './include.scss';
 
-// .login .widget_type {
-// 	font-size: 12px;
-// 	text-transform: uppercase;
-// 	color: #b2b2b2;
-// 	display: block;
-// }
-
-// .login .server_date {
-// 	display: none;
-// }
+span.subtitle {
+	font-size: .7em;
+	font-weight: 300;
+}

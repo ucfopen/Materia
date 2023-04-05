@@ -1,18 +1,26 @@
-//sort arrow size
+@import './include.scss';
+
 $arrow_size: 4px;
 
 html {
 	background: #fff;
-	font-family: 'Lato', arial, serif;
+}
+
+body.import {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
 }
 
 .media-importer {
 	display: flex;
 	flex-flow: row nowrap;
+	width: 800px;
 
 	> section {
 		height: 100vh;
-		width: 50%;
+		width: 45%;
+		padding: 0 2.5%;
 
 		&:first-child {
 			&:before {
@@ -23,6 +31,7 @@ html {
 				left: 50vw;
 				transform: translateX(-50%);
 			}
+
 			&:after {
 				content: '';
 				border-left: thin solid #dadada;
@@ -35,7 +44,9 @@ html {
 
 		&:last-child {
 			display: flex;
+			width: 47%;
 			flex-flow: column;
+			padding: 0 0.5% 0 2.5%;
 		}
 	}
 
@@ -47,7 +58,7 @@ html {
 			font-size: 16px;
 			color: #484848;
 			font-weight: 700;
-			margin: 20px auto 10px;
+			margin: 10px auto 10px;
 		}
 
 		.close-button {
@@ -70,7 +81,7 @@ html {
 	}
 
 	.select_file_button {
-		margin: 5px 20px;
+		margin: 5px 0px;
 		font-weight: 400;
 	}
 }
@@ -79,8 +90,8 @@ html {
 	position: relative;
 	height: 333px;
 	margin: 45px 55px 30px;
-	border: 5px dashed #dadada;
-	outline: #f5f5f5 solid 30px;
+	border: 2px dashed #dadada;
+	border-radius: 5px;
 	background: #f5f5f5;
 
 	.drag-text {
@@ -88,6 +99,7 @@ html {
 		top: 50%;
 		transform: translate(-50%, -50%);
 		left: 50%;
+		text-align: center;
 	}
 
 	&.drag-is-dragover {
@@ -100,33 +112,50 @@ html {
 	flex-flow: row;
 	margin-left: 20px;
 
-	:last-child {
-		display: flex;
-		flex-grow: 1;
+	font-size: 14px;
+
+	label {
+		margin-left: 30px;
 	}
+}
+
+.sort-bar {
+	display: flex;
+	position: relative;
+	flex-flow: row;
+	margin-left: 20px;
+	padding-top: 7px;
 
 	input {
-		margin-right: 20px;
-
+		padding-right: 125px;
+		padding-left: 25px;
 		height: 20px;
 		background: #fff;
 		border: 1px solid #b0b0b0;
 		border-radius: 12px;
 
-		padding-left: 18px;
-		background-image: url(/img/magnifyingglass.png);
 		background-repeat: no-repeat;
 		background-position: left;
 		background-position-x: 5px;
+	}
+
+	.search-icon {
+		position: absolute;
+		top: 10px;
+		left: 6px;
+		height: 16px;
+		width: 20px;
+		fill: #898686;
+		svg {
+			height: 80%;
+			width: 80%;
+		}
 	}
 }
 
 #sort-options {
 	display: flex;
 	flex-flow: row;
-
-	text-decoration: underline;
-	font-size: 15px;
 
 	.sort-option {
 		margin-right: 20px;
@@ -145,33 +174,40 @@ html {
 		border-left: $arrow_size solid transparent;
 		border-right: $arrow_size solid transparent;
 	}
+
 	.sort-asc:after {
 		border-bottom: $arrow_size solid #000;
 	}
+
 	.sort-desc:after {
 		border-top: $arrow_size solid #f00;
 	}
 }
 
 #file-display {
+	width: calc(100% - 20px);
+	max-width: calc(100% - 20px);
 	height: 100%;
-	flex-shrink: 1;
-	overflow-y: auto;
+	overflow-y: scroll;
 	margin-top: 10px;
-	margin-left: 20px;
 
 	.file-info {
 		display: flex;
+		max-width: calc(100% - 20px);
+		// width: 100%;
+		min-height: 0%;
 		flex-flow: row;
 		align-content: space-between;
+		cursor: pointer;
 
 		color: #6b6b6b;
 		font-size: 13px;
-		padding: 5px 10px;
+		padding: 10px;
 
 		&:nth-child(odd) {
 			background-color: #eaeaea;
 		}
+
 		&:hover {
 			background-color: #f9d991;
 		}
@@ -181,21 +217,38 @@ html {
 		}
 
 		.file-thumbnail {
-			width: 75px;
+			width: 65px;
+
+			img {
+				max-width: 65px;
+				max-height: 65px;
+				border-radius: 5px;
+			}
 		}
 
 		.file-name {
+			display: block;
 			flex-grow: 1;
-			padding: 0 5px;
+			padding: 0 10px;
+			min-width: 1%; // forces word-wrap
+			word-wrap: break-word;
 
-			strong {
+			color: #484848;
+
+
+			font-weight: bold;
+
+			.file-type {
 				display: block;
-				color: #484848;
+				color: #6b6b6b;
+
+				font-weight: normal;
 			}
 		}
-	}
 
-	img {
-		max-height: 75px;
+		.action_button {
+			padding: 6px 12px;
+			font-size: 12px;
+		}
 	}
 }
