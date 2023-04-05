@@ -519,6 +519,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		)
 	}
 
+	let footerRender = null
+	if (!isPreview) {
+		footerRender = <section className='player-footer' style={{ width: demoData.width !== '0px' ? demoData.width : 'auto' }}>
+			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src="/img/materia-logo-thin.svg" alt="materia logo" /></a>
+			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
+		</section>
+	}
+
 	return (
 		<section className={`widget ${isPreview ? 'preview' : ''}`}
 			style={{display: demoData.loading ? 'none' : 'block'}}>
@@ -538,6 +546,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				/>
 				{ loadingRender }
 			</div>
+			{ footerRender }
 		</section>
 	)
 }
