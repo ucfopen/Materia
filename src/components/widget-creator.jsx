@@ -635,9 +635,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	let actionBarRender = null
 	if (creatorState.showActionBar) {
+		
+		let returnLocationUrl = creatorState.returnLocation == 'Widget Catalog' ? '/widgets' : '/my-widgets#' + instance.id
+
 		actionBarRender = (
 			<section id='action-bar'>
-				<a id="returnLink" href={creatorState.returnLocation}>&larr;Return to {creatorState.returnLocation}</a>
+				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
