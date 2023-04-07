@@ -1,5 +1,6 @@
 import React from 'react'
 import Header from './header'
+import './404.scss'
 
 const Action404 = () => (
 	<>

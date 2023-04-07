@@ -38,30 +38,16 @@ const CatalogCard = ({
 		<li className={`${activeFilters.includes(filter) ? 'selected' : ''}`} title={filter} key={filter}>{filter}</li>
 	)
 
-	let keyboardIconRender = null
-	let readerIconRender = null
-
 	if(isValidAccessVal(meta_data.accessibility_keyboard)) {
-		keyboardIconRender = <div>
-			<KeyboardIcon color={`${activeFilters.includes('Keyboard Accessible') ? '#3498db' : 'black'}`}/>
-			<span aria-label='keyboard-access-popup' className='tool-tip'>Keyboard Accessible</span>
-		</div>
-	}
-	if(isValidAccessVal(meta_data.accessibility_reader)) {
-		readerIconRender = <div aria-label='screen-reader-access-icon'>
-			<ScreenReaderIcon color={`${activeFilters.includes('Screen Reader Accessible') ? '#3498db' : 'black'}`}/>
-			<span aria-label='screen-reader-access-popup' className='tool-tip'>Screen Reader Accessible</span>
-		</div>
+		featuresRender.push(
+			<li className={`accessibility-status ${activeFilters.includes('Keyboard Accessible') ? 'selected' : ''}`}><KeyboardIcon color='#000'/>{`${meta_data.accessibility_keyboard}`} Support</li>
+		)
 	}
 
-	let accessibilityRender = null
-	if ( keyboardIconRender || readerIconRender) {
-		accessibilityRender = <div className='accessibility-holder'>
-			<div className='accessibility-indicators'>
-				{ keyboardIconRender }
-				{ readerIconRender }
-			</div>
-		</div>
+	if(isValidAccessVal(meta_data.accessibility_reader)) {
+		featuresRender.push(
+			<li className={`accessibility-status ${activeFilters.includes('Screen Reader Accessible') ? 'selected' : ''}`}><ScreenReaderIcon color='#000'/>{`${meta_data.accessibility_reader}`} Support</li>
+		)
 	}
 
 	return (
@@ -87,7 +73,6 @@ const CatalogCard = ({
 						{ supportedDataRender }
 						{ featuresRender }
 					</ul>
-					{ accessibilityRender }
 				</div>
 			</a>
 		</div>

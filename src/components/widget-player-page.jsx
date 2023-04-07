@@ -13,7 +13,7 @@ const getWidgetType = path => {
 		case path.includes('/embed/'): return EMBED
 		case path.includes('/play/'): return PLAY
 		case path.includes('/preview/'): return PREVIEW
-		case path.includes('/demo/'): return DEMO
+		case path.includes('/demo'): return DEMO
 		case path.includes('/preview-embed/'): return PREVIEW_EMBED
 		default: return null
 	}

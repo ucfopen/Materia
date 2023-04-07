@@ -77,7 +77,7 @@ class Controller_Scores extends Controller
 			->set('title', 'Score Results')
 			->set('page_type', 'scores');
 
-		Css::push_group(['core', 'scores']);
+		Css::push_group(['scores']);
 
 		Js::push_group(['react', 'scores']);
 

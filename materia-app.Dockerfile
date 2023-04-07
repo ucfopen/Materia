@@ -75,7 +75,7 @@ COPY ./webpack.prod.config.js /build/webpack.prod.config.js
 COPY ./yarn.lock /build/yarn.lock
 # these directories must be hoisted into /build in order for webpack to work on them
 COPY ./src /build/src
-COPY ./fuel/packages /build/fuel/packages
+COPY --from=composer_stage /var/www/html/fuel/packages /build/fuel/packages
 RUN mkdir -p /build/fuel/app/config/
 # run yarn install and then the build script in the package.json (webpack --config webpack.prod.config.js)
 RUN cd build && yarn install --frozen-lockfile --non-interactive --silent --pure-lockfile --force && npm run-script build-for-image

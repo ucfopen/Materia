@@ -303,7 +303,7 @@ class Admin extends \Basetask
 			$q->execute();
 
 			$q->param('role_id', $admin_role_id);
-			$q->param('perm', \Materia\Perm::AUTHORACCESS);
+			$q->param('perm', \Materia\Perm::SUPERUSER);
 			$q->execute();
 		}
 		
@@ -313,6 +313,10 @@ class Admin extends \Basetask
 
 			$q->param('role_id', $support_role_id);
 			$q->param('perm', \Materia\Perm::FULL);
+			$q->execute();
+
+			$q->param('role_id', $support_role_id);
+			$q->param('perm', \Materia\Perm::SUPPORTUSER);
 			$q->execute();
 		}
 

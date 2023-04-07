@@ -1,9 +1,5 @@
 @import 'include.scss';
 
-h1 {
-	font-family: Lato, arial, serif;
-}
-
 .support-page {
 	background-color: #fff;
 	position: relative;
@@ -332,6 +328,21 @@ h1 {
 		margin: 0 0 10px 0;
 
 		border-radius: 3px;
+		
+		.img-holder {
+			display: inline-block;
+			vertical-align: middle;
+
+			img {
+				width: 50px;
+				height: 50px;
+				-moz-border-radius: 3px;
+				border-radius: 3px;
+				display: inline-block;
+				float: left;
+				margin-right: 10px;
+			}
+		}
 
 		div.widget-title {
 			display: flex;
@@ -348,6 +359,14 @@ h1 {
 		
 			span:last-child {
 				flex-grow: 1; 
+			}
+
+			.title {
+				margin: 0;
+				padding: 0;
+				vertical-align: middle;
+				font-weight: bold;
+				font-size: 20px;
 			}
 		}
 
