@@ -57,4 +57,89 @@ class Test_Controller_Api_Instance extends \Basetest
 		$this->assertTrue(is_array($output));
 		$this->assertCount(1, $output);
 	}
+
+	public function test_post_request_access()
+	{
+		$_SERVER['HTTP_ACCEPT'] = 'application/json';
+
+		// ======= NO INST ID PROVIDED ========
+		$response = Request::forge('/api/instance/request_access')
+			->set_method('POST')
+			->execute()
+			->response();
+
+		$this->assertEquals($response->status, 401);
+		$this->assertEquals($response->body, '"Requires an inst_id parameter"');
+
+		// ======= NO OWNER ID PROVIDED ========
+		$response = Request::forge('/api/instance/request_access')
+			->set_method('POST')
+			->set_json('inst_id', 555)
+			->execute()
+			->response();
+
+		$this->assertEquals($response->status, 401);
+		$this->assertEquals($response->body, '"Requires an owner_id parameter"');
+
+		// == Now we're an author
+		$this->_as_author();
+
+		// == Make a widget instance
+		$widget = $this->make_disposable_widget();
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$qset = $this->create_new_qset($question, $answer);
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
+		$author_id = \Model_User::find_current_id();
+
+		// ======= NO INST ID FOUND ========
+		$response = Request::forge('/api/instance/request_access')
+			->set_method('POST')
+			->set_json('inst_id', 555)
+			->set_json('owner_id', $author_id)
+			->execute()
+			->response();
+
+		$this->assertEquals($response->body, '"Instance not found"');
+		$this->assertEquals($response->status, 404);
+
+		// ======= NO OWNER ID FOUND ========
+		$response = Request::forge('/api/instance/request_access')
+			->set_method('POST')
+			->set_json('inst_id', $instance->id)
+			->set_json('owner_id', 111)
+			->execute()
+			->response();
+
+		$this->assertEquals($response->status, 404);
+		$this->assertEquals($response->body, '"Owner not found"');
+
+		// ======= OWNER DOES NOT OWN INSTANCE =========
+		// Switch users
+		$this->_as_student();
+
+		$response = Request::forge('/api/instance/request_access')
+			->set_method('POST')
+			->set_json('inst_id', $instance->id)
+			->set_json('owner_id', \Model_User::find_current_id())
+			->execute()
+			->response();
+
+		$this->assertEquals($response->status, 404);
+		$this->assertEquals($response->body, '"Owner does not own instance"');
+
+		// ======= SUCCESSFUL REQUEST ========
+		$response = Request::forge('/api/instance/request_access')
+			->set_method('POST')
+			->set_json('inst_id', $instance->id)
+			->set_json('owner_id', $author_id)
+			->execute()
+			->response();
+
+		// TODO: Test is_valid_hash
+
+		$this->assertEquals($response->body, 'true');
+		$this->assertEquals($response->status, 200);
+	}
 }

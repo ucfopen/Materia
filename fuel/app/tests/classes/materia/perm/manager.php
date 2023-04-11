@@ -66,14 +66,14 @@ class Test_Materia_Perm_Manager extends \Basetest
 		$newSuperUser = $this->make_random_super_user();
 		$superUserIds = Perm_Manager::get_user_ids_with_role('super_user');
 
-		$this->assertContains((int)$newSuperUser->id, $superUserIds);
+		$this->assertContainsEquals($newSuperUser->id, $superUserIds);
 
 		$newAuthorOne = $this->make_random_author();
 		$newAuthorTwo = $this->make_random_author();
 		$studentIds = Perm_Manager::get_user_ids_with_role('basic_author');
 
-		$this->assertContains((int)$newAuthorOne->id, $studentIds);
-		$this->assertContains((int)$newAuthorTwo->id, $studentIds);
+		$this->assertContainsEquals($newAuthorOne->id, $studentIds);
+		$this->assertContainsEquals($newAuthorTwo->id, $studentIds);
 		$this->assertCount(2, $studentIds);
 	}
 

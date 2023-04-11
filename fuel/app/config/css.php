@@ -20,7 +20,11 @@ return [
 		'catalog' => [$webpack.'css/catalog.css'],
 		'detail' => [$webpack.'css/detail.css'],
 		'playpage' => [$webpack.'css/player-page.css'],
-		'lti' => [$webpack.'css/util-lti-picker.css'],
+		'lti' => [
+			$webpack.'css/lti.css',
+			$webpack.'css/lti-select-item.css',
+			$webpack.'css/lti-error.css',
+		],
 		'my_widgets'  => [$webpack.'css/my-widgets.css'],
 		'widget_create' => [
 			$webpack.'css/loading-icon.css',
