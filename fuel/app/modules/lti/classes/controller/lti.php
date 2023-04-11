@@ -58,6 +58,7 @@ class Controller_Lti extends \Controller
 			->set('page_type', 'lti-login');
 
 		\Js::push_group(['react', 'post_login']);
+		\Css::push_group(['lti']);
 
 		return \Response::forge($this->theme->render());
 	}
@@ -83,7 +84,7 @@ class Controller_Lti extends \Controller
 		\Js::push_inline('var WIDGET_URL = "'.\Config::get('materia.urls.engines').'";');
 		\Js::push_inline('var STATIC_CROSSDOMAIN = "'.\Config::get('materia.urls.static').'";');
 		\Js::push_inline('var SYSTEM = "'.$system.'";');
-		\Css::push_group(['core', 'lti']);
+		\Css::push_group(['lti']);
 
 		if ($is_selector_mode && ! empty($return_url))
 		{
@@ -126,7 +127,7 @@ class Controller_Lti extends \Controller
 		\Js::push_inline('var OWNER_LIST = '.json_encode($instance_owner_list).';');
 		\Js::push_inline('var USER_ID = "'.\Model_User::find_current_id().'";');
 
-		\Css::push_group(['core', 'lti']);
+		\Css::push_group(['lti']);
 
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
