@@ -123,13 +123,14 @@
 		margin: 0 20px;
 
 		.access-list {
-			margin-top: 0px;
-			background-color: #f2f2f2;
 			height: 250px;
-			border-radius: 5px;
 			padding: 0 30px;
-			text-align: right;
+			margin-top: 0px;
+
 			overflow: auto;
+
+			background-color: #f2f2f2;
+			border-radius: 5px;
 
 			&.no-content {
 				display: flex;
@@ -264,6 +265,10 @@
 			}
 
 			.about {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+
 				.avatar {
 					vertical-align: middle;
 					display: inline-block;
@@ -272,6 +277,7 @@
 					margin-right: 10px;
 				}
 				.name {
+					display: inline-block;
 					font-weight: bold;
 					font-size: 15px;
 					text-align: left;
