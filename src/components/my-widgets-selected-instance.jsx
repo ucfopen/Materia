@@ -462,13 +462,13 @@ const MyWidgetSelectedInstance = ({
 					<div className="share-widget-options-second" id="third-share-widget-option">
 					<h4> Via Embed Code </h4>
 						<p>
-							Use the link provided above to share with your students (or
+							Provides a snippet of HTML to embed your widget directly in a webpage. Widgets
+							embedded in such a way do not synchronize scores or other data.
 							<span
 								className='show-embed link'
 								onClick={toggleShowEmbed}>
-								&nbsp;use the embed code
-							</span>
-							).
+								&nbsp;Show the embed code
+							</span>.
 						</p>
 
 					{ embedInfoRender }
