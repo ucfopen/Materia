@@ -45,6 +45,17 @@
 				}
 			}
 
+			h2 {
+				font-size: 2em;
+				font-weight: bold;
+				padding: 0;
+				margin: 30px 0 5px 0;
+
+				&.loading-text {
+					margin-bottom: 2em;
+				}
+			}
+
 			p {
 				font-size: 1em;
 				font-weight: 300;
@@ -106,6 +117,23 @@
 			.search {
 				position: relative;
 				padding: 10px 0 30px 0;
+
+				background: #ebebeb;
+
+				transition: background 1s;
+
+				&.loading {
+					background: #fff;
+				}
+
+				.loading-message {
+					position: absolute;
+					left: 40px;
+					top: 10px;
+
+					font-size: 14px;
+					font-weight: 700;
+				}
 
 				.search-icon {
 					position: absolute;
