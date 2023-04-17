@@ -16,6 +16,7 @@ export default function useUpdateWidget() {
 				if (previousWidgets) {
 					for (const val of previousWidgets.pagination) {
 						if (val.id === inst.args[0]) {
+							val.name = inst.args[1]
 							val.open_at = `${inst.args[4]}`
 							val.close_at = `${inst.args[5]}`
 							val.attempts = `${inst.args[6]}`
@@ -25,7 +26,7 @@ export default function useUpdateWidget() {
 					}
 					queryClient.setQueryData('widgets', previousWidgets)
 				}
-				
+
 				// Stores the old value for use if there is an error
 				return { previousWidgets }
 			},

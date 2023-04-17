@@ -26,7 +26,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const popperRef = useRef(null)
 	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id],
-		enabled: !!otherUserPerms,
+		enabled: !!otherUserPerms && otherUserPerms.size > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {}
@@ -51,8 +51,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => {
+		mounted.current = true
+		return () => {
 			mounted.current = false
 		}
 	}, [])
@@ -78,7 +78,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		const tempPerms = new Map(state.updatedOtherUserPerms)
 		let shareNotAllowed = false
 
-		if(!inst.guest_access && match.is_student){
+		if(!inst.guest_access && match.is_student && !match.is_support_user){
 			shareNotAllowed = true
 			setState({...state, searchText: '', updatedOtherUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 			return

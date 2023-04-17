@@ -244,7 +244,7 @@ const MyWidgetsPage = () => {
 			{
 				instId: inst.id,
 				successFunc: (data) => {
-					if (!data || (data.type == 'error')) 
+					if (!data || (data.type == 'error'))
 					{
 						console.error(`Deletion failed with error: ${data.msg}`);
 						if (data.title =="Invalid Login")

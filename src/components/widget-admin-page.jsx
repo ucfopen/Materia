@@ -2,11 +2,9 @@ import { apiGetWidgetsAdmin } from '../util/api'
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
-import { iconUrl } from '../util/icon-url'
-
 import Header from './header'
-import WidgetInstall from './widget-install'
-import WidgetList from './widget-list'
+import WidgetInstall from './widget-admin-install'
+import WidgetList from './widget-admin-list'
 import { iconUrl } from '../util/icon-url'
 
 const WidgetAdminPage = () => {

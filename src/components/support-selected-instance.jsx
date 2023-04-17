@@ -62,11 +62,13 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 		if (perms) {
 			const isEditable = inst.widget.is_editable === '1'
 			const othersPerms = new Map()
-			for(const i in perms.widget_user_perms){
+			for(const i in perms.widget_user_perms)
+			{
 				othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
 			}
 			let _myPerms = {}
-			for(const i in perms.user_perms){
+			for(const i in perms.user_perms)
+			{
 				_myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
 			}
 			_myPerms.isSupportUser = true
@@ -101,6 +103,20 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const applyChanges = () => {
 		setErrorText('')
 		let u = updatedInst
+
+		if (!availableDisabled && !closeDisabled)
+		{
+			if(availableDate == '' || availableTime == '' || closeDate == '' || closeTime == '') {
+				setErrorText('Please enter valid dates and times')
+				return
+			}
+
+			if (stringToDateObj(availableDate, availableTime) > stringToDateObj(closeDate, closeTime))
+			{
+				setErrorText('Please enter a close date after the available date.')
+				return
+			}
+		}
 
 		// set date and time from input boxes
 		if (!availableDisabled) {
@@ -137,7 +153,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 
 		const args = [
 			u.id,
-			undefined,
+			u.name,
 			null,
 			null,
 			u.open_at,
@@ -186,7 +202,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	let extraAttemptsDialogRender = null
 	if (showAttempts) {
 		extraAttemptsDialogRender = (
-			<ExtraAttemptsDialog 
+			<ExtraAttemptsDialog
 				onClose={() => setShowAttempts(false)}
 				inst={inst}
 			/>
@@ -198,7 +214,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 		breadcrumbContainer =
 			<div id="breadcrumb-container">
 				<div className="breadcrumb">
-					<a href="/admin/instance">Instance Search</a>
+					<a onClick={onReturn}>Instance Search</a>
 				</div>
 				<svg xmlns="http://www.w3.org/2000/svg"
 					width="24"
@@ -246,57 +262,58 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
 					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
-				
 			</div>
 			</div>
 			<div className='overview'>
-				<span>
+				<div>
 					<label>ID:</label>
-					{updatedInst.id}
-				</span>
-				<span>
+					<span>{updatedInst.id}</span>
+				</div>
+				<div>
 					<label>Date Created:</label>
 					{(new Date(updatedInst.created_at*1000)).toLocaleString()}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Draft:</label>
-					{updatedInst.is_draft ? 'Yes' : 'No'}
-				</span>
-				<span>
+					<span>{updatedInst.is_draft ? 'Yes' : 'No'}</span>
+				</div>
+				<div>
 					<label>Student Made:</label>
-					{updatedInst.is_student_made ? 'Yes' : 'No'}
-				</span>
-				<span>
-					<label>Guest Access:</label>
+					<span>{updatedInst.is_student_made ? 'Yes' : 'No'}</span>
+				</div>
+				<div>
+					<label htmlFor="guest-access">Guest Access:</label>
 					<select value={updatedInst.guest_access}
+						id="guest-access"
 						onChange={event => handleChange('guest_access', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Student Access:</label>
-					{updatedInst.student_access ? 'Yes' : 'No'}
-				</span>
-				<span>
-					<label>Embedded Only:</label>
-					<select value={updatedInst.embedded_only}
+					<span>{updatedInst.student_access ? 'Yes' : 'No'}</span>
+				</div>
+				<div>
+					<label htmlFor="embedded-only">Embedded Only:</label>
+					<select value={updatedInst.embedded_only} id="embedded-only"
 						onChange={event => handleChange('embedded_only', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Embedded:</label>
-					{updatedInst.is_embedded ? 'Yes' : 'No'}
-				</span>
-				<span>
+					<span>{updatedInst.is_embedded ? 'Yes' : 'No'}</span>
+				</div>
+				<div>
 					<label>Deleted:</label>
-					{updatedInst.is_deleted ? 'Yes' : 'No'}
-				</span>
-				<span>
-					<label>Attempts Allowed:</label>
+					<span>{updatedInst.is_deleted ? 'Yes' : 'No'}</span>
+				</div>
+				<div>
+					<label htmlFor="attempts">Attempts Allowed:</label>
 					<select value={updatedInst.attempts}
+						id="attempts"
 						onChange={event => handleChange('attempts', event.target.value)}>
 						<option value={-1}>Unlimited</option>
 						<option value={1}>1</option>
@@ -308,88 +325,84 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 						<option value={15}>15</option>
 						<option value={20}>20</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Available:</label>
 					<div className='radio'>
-						<input type='radio'
+						<input type='radio' id="open-at-available"
 							name='available'
 							value={updatedInst.open_at}
 							checked={availableDisabled == false}
 							onChange={() => setAvailableDisabled(false)}
 						/>
-						On
-						<input type='date'
+						<label htmlFor="open-at-available">On</label>
+						<input type='date' role="date"
 							value={availableDate !== -1 ? availableDate : ''}
 							onChange={event => setAvailableDate(event.target.value)}
 							disabled={availableDisabled}
 						/>
-						<input type='time'
+						<input type='time' role="time"
 							value={availableTime !== -1 ? availableTime : ''}
 							onChange={event => setAvailableTime(event.target.value)}
 							disabled={availableDisabled}
 						/>
-					</div>
-					<div className='radio'>
-						<input type='radio'
+						<input type='radio' id="now"
 							name='available'
 							value={-1}
 							checked={availableDisabled}
 							onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}
 						/>
-						Now
+						<label htmlFor="now">Now</label>
 					</div>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Closes:</label>
 					<div className='radio'>
-						<input type='radio'
+						<input type='radio' id="close-at"
 							name='closes'
 							value={updatedInst.close_at}
 							checked={closeDisabled == false}
 							onChange={() => setCloseDisabled(false)}
 						/>
-						On
-						<input type='date'
+						<label htmlFor="close-at">On</label>
+						<input type='date' role="date"
 							value={closeDate !== -1 ? closeDate : ''}
 							onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}
 						/>
-						<input type='time'
+						<input type='time' role="time"
 							value={closeTime !== -1 ? closeTime : ''}
 							onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}
 						/>
-					</div>
-					<div className='radio'>
-						<input type='radio'
+						<input type='radio' id="never"
 							name='closes'
 							value={-1}
 							checked={closeDisabled}
 							onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
 						/>
-						Never
+						<label htmlFor="never">Never</label>
 					</div>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Embed URL:</label>
 					<a className='url'
 						href={updatedInst.embed_url}>
 						{updatedInst.embed_url}
 					</a>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Play URL:</label>
 					<a className='url'
 						href={updatedInst.play_url}>
 						{updatedInst.play_url}
 					</a>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Preview URL:</label>
 					<a className='url'
 						href={updatedInst.preview_url}>
 						{updatedInst.preview_url}
 					</a>
-				</span>
+				</div>
 				<div className='right-justify'>
 					<div className='apply-changes'>
 						<button className='action_button apply'

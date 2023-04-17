@@ -16,7 +16,7 @@ import UserAdminInstancePlayed from './user-admin-instance-played'
 import UserAdminSelected from './user-admin-selected'
 
 import * as api from '../util/api'
-        
+
 jest.mock('../util/api')
 
 // Enables testing with react query
@@ -40,7 +40,16 @@ const renderWithClient = (children) => {
 }
 
 describe('UserAdmin', () => {
-    it('renders page')
+	let rendered;
+
+	beforeEach(() => {
+		act(() => {
+			rendered = renderWithClient(<UserAdminPage/>)
+		})
+	})
+    it('renders page', async () => {
+
+	})
 
     it('returns search results if there are user matches')
 

@@ -12,14 +12,41 @@ import '@testing-library/jest-dom'
 import userEvent from "@testing-library/user-event";
 
 import instances from '../__test__/mockapi/widget_instances_get.json'
+import updatedInstances from '../__test__/mockapi/widget_instances_after_update.json'
+import users from '../__test__/mockapi/users_get.json'
 
 import SupportPage from './support-page'
 import SupportSelectedInstance from './support-selected-instance'
 import SupportSearch from './support-search'
 
 import * as api from '../util/api'
+import { unmountComponentAtNode } from 'react-dom';
 
 jest.mock('../util/api')
+
+const search = (input, instances) => {
+	let results = [];
+
+	instances.forEach(w => {
+		// Search name and id
+		if (w.name.toLowerCase().includes(input.toLowerCase())
+		|| w.id.toLowerCase().includes(input.toLowerCase()))
+		{
+			results.push(w);
+		}
+		// Search created_at
+		else if (Date.parse(input) == w.created_at*1000
+		|| new Date(w.created_at*1000).toString().includes(input)
+		|| new Date(w.created_at*1000).toLocaleDateString().includes(input))
+		{
+			results.push(w);
+		}
+	})
+
+	return results;
+}
+
+const oldWindowLocation = window.location;
 
 // Enables testing with react query
 const renderWithClient = (children) => {
@@ -41,43 +68,15 @@ const renderWithClient = (children) => {
 	}
 }
 
-describe('InstanceAdmin', () => {
+describe('SupportSearch', () => {
 	let rendered;
 	let container;
 	let mockApiSearchWidgets;
 
 	beforeEach(() => {
-		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => {
-			let results = []
-
-			instances.forEach(w => {
-				// Search name and id
-				if (w.name.toLowerCase().includes(input.toLowerCase())
-				|| w.id.toLowerCase().includes(input.toLowerCase()))
-				{
-					results.push(w);
-				}
-				// Search created_at
-				else if (Date.parse(input) == w.created_at*1000
-				|| new Date(w.created_at*1000).toString().includes(input)
-				|| new Date(w.created_at*1000).toLocaleDateString().includes(input))
-				{
-					results.push(w);
-				}
-			})
-
-			return results;
-
-			// Mocks delay
-			// return new Promise((resolve) =>
-			// {
-			// 	setTimeout(() => resolve(results), 2000);
-			// })
-
-		});
+		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, instances));
 
 		act(() => {
-
 			rendered = renderWithClient(<SupportPage/>)
 
 			container = rendered.container;
@@ -262,5 +261,327 @@ describe('InstanceAdmin', () => {
 		await waitFor(() => {
 			expect(screen.getByText('Edit Widget')).toBeInTheDocument();
 		})
+	})
+})
+
+describe('SupportSelectedInstance', () => {
+	let rendered;
+	let container;
+	let mockApiSearchWidgets;
+	let mockApiGetUserPermsForInstance;
+	let mockApiDeleteWidget;
+	let mockApiUnDeleteWidget;
+	let mockApiUpdateWidget;
+	let mockApiCopyWidget;
+	let mockApiGetWidgetInstance;
+	let mockApiSearchUsers;
+	let mockApiSetAttempts;
+	let mockCopyID = 'robot';
+	const mockWinAssign = jest.fn();
+	let modal = null;
+
+	beforeEach(async () => {
+		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, instances));
+		mockApiGetUserPermsForInstance = jest.spyOn(api, 'apiGetUserPermsForInstance').mockResolvedValue({
+			user_perms: {
+				5: [
+				30,
+				null
+				]
+			},
+			widget_user_perms: {
+				4: [
+				30,
+				null
+				],
+				5: [
+				30,
+				null
+				],
+				9: [
+				1,
+				null
+				]
+			}
+			});
+		mockApiDeleteWidget = jest.spyOn(api, 'apiDeleteWidget').mockResolvedValue(true);
+		mockApiUnDeleteWidget = jest.spyOn(api, 'apiUnDeleteWidget').mockResolvedValue(true);
+		mockApiUpdateWidget = jest.spyOn(api, 'apiUpdateWidget').mockResolvedValue(updatedInstances[0]); // We'll update the first instance
+		mockApiCopyWidget = jest.spyOn(api, 'apiCopyWidget').mockResolvedValue(mockCopyID);
+		// Returns copied widget
+		mockApiGetWidgetInstance = jest.spyOn(api, 'apiGetWidgetInstance').mockResolvedValue(updatedInstances[1]);
+		mockApiSearchUsers = jest.spyOn(api, 'apiSearchUsers').mockResolvedValue(users);
+		mockApiSetAttempts = jest.spyOn(api, 'apiSetAttempts').mockResolvedValue(true);
+
+		act(() => {
+			rendered = renderWithClient(<SupportPage/>)
+
+			container = rendered.container;
+		})
+
+		// Append a modal div so the copy and other dialogs can render
+		modal = document.createElement("div");
+		modal.setAttribute('id', 'modal');
+		document.body.appendChild(modal);
+
+		let input = "My Adventure Widget";
+		let searchBar = screen.getByRole('textbox');
+		userEvent.type(searchBar, input);
+
+		expect(screen.getByText("Searching Widget Instances ...")).toBeInTheDocument();
+
+		await waitFor(() => {
+			expect(screen.getAllByText(input)).not.toBeNull();
+		})
+
+		// Clicks on instance
+		userEvent.click(screen.getAllByText(input)[0]);
+
+		// Shows edit page
+		await waitFor(async () => {
+			expect(screen.getByText('Edit Widget')).toBeInTheDocument();
+		})
+	})
+
+    afterEach(() => {
+		unmountComponentAtNode(modal);
+		modal.remove();
+		modal = null;
+		cleanup();
+		jest.clearAllMocks();
+	})
+
+	it('updates widget successfully', async () => {
+
+		// Update title
+		let title = screen.getByRole('textbox');
+		fireEvent.change(title, { target: { value: 'Market Day'}});
+
+		// Update Guest Access
+		let guest_access = screen.getByLabelText('Guest Access:', {selector: 'select'});
+		userEvent.selectOptions(guest_access, "No");
+
+		// Update Embedded only
+		let embedded_only = screen.getByLabelText('Embedded Only:', {selector: 'select'});
+		userEvent.selectOptions(embedded_only, "No");
+
+		// Update allowed attempts
+		let allowed_attempts = screen.getByLabelText('Attempts Allowed:', {selector: 'select'});
+		userEvent.selectOptions(allowed_attempts, "10");
+
+		// Update open_at and close_at times
+		// Turn on
+		let radios = screen.getAllByRole('radio');
+		radios.forEach((el) => {
+			userEvent.click(el);
+		})
+
+		// Choose date
+		let dates = screen.getAllByRole('date');
+		fireEvent.change(dates[0], { target: { value: '2023-04-12' } });
+		fireEvent.change(dates[1], { target: { value: '2023-04-13' } });
+
+		// Choose time
+		let times = screen.getAllByRole('time');
+		userEvent.type(times[0], '1000AM');
+		userEvent.type(times[1], '1230PM');
+
+		// Apply changes
+		let apply_changes_btn = screen.getByText('Apply Changes');
+		act(() => {
+			userEvent.click(apply_changes_btn);
+		})
+
+		await waitFor(async () => {
+			// Show 'Success'
+			expect(screen.getByText('Success!')).toBeInTheDocument();
+		})
+
+		// Renavigate to instance to ensure that values were updated
+		// From here on might be sort of useless since we're giving it the updated widgets, but at least we'll know if the breadcrumb works
+
+		let instanceSearchBtn = screen.getByText('Instance Search');
+		act(() => {
+			userEvent.click(instanceSearchBtn);
+		})
+
+		// Search should return updated widgets
+		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, updatedInstances));
+
+		await waitFor(() => {
+			expect(screen.getByText('Instance Admin')).not.toBeNull();
+		})
+
+		let searchBar = screen.getByRole('textbox');
+		userEvent.type(searchBar, 'Market Day');
+
+		expect(screen.getByText("Searching Widget Instances ...")).toBeInTheDocument();
+
+		await waitFor(() => {
+			expect(screen.getAllByText('Market Day')).not.toBeNull();
+		})
+
+		// Clicks on instance
+		userEvent.click(screen.getByText('Market Day'));
+
+		// Shows edit page
+		await waitFor(() => {
+			expect(screen.getByText('Edit Widget')).toBeInTheDocument();
+		})
+	})
+
+	it('errors on invalid open_at and close_at times', async () => {
+		// Update open_at and close_at times
+		// Turn on
+		let radios = screen.getAllByLabelText('On');
+		radios.forEach((el) => {
+			userEvent.click(el);
+		})
+
+		// ======== Leaving date and times blank ========
+		// Apply changes
+		let apply_changes_btn = screen.getByText('Apply Changes');
+		act(() => {
+			userEvent.click(apply_changes_btn);
+		})
+
+		await waitFor(async () => {
+			// Show error
+			expect(screen.getByText('Please enter valid dates and times')).toBeInTheDocument();
+		})
+
+		// ========  Place start date after close date ========
+		let dates = screen.getAllByRole('date');
+		fireEvent.change(dates[0], { target: { value: '2023-04-13' } });
+		fireEvent.change(dates[1], { target: { value: '2023-04-12' } });
+
+		// Choose arbitrary time
+		let times = screen.getAllByRole('time');
+		fireEvent.change(times[0], { target: { value: '22:00' } });
+		fireEvent.change(times[1], { target: { value: '10:00' } });
+
+		// Apply changes
+		act(() => {
+			userEvent.click(apply_changes_btn);
+		})
+
+		await waitFor(async () => {
+			// Show error
+			expect(screen.getByText('Please enter a close date after the available date.')).toBeInTheDocument();
+		})
+
+		//  ======== Correct dates ========
+		fireEvent.change(dates[0], { target: { value: '2023-04-12' } });
+		fireEvent.change(dates[1], { target: { value: '2023-04-12' } });
+		//  ======== Invalid times ========
+		fireEvent.change(times[0], { target: { value: '22:00' } });
+		fireEvent.change(times[1], { target: { value: '10:00' } });
+
+
+		// Apply changes
+		act(() => {
+			userEvent.click(apply_changes_btn);
+		})
+
+		await waitFor(async () => {
+			// Show error
+			expect(screen.getByText('Please enter a close date after the available date.')).toBeInTheDocument();
+		})
+	})
+
+	it('makes a copy without granting access to original owner', async () => {
+		// Shows copy dialog
+		let copy_btn = screen.getByText('Make a Copy');
+		act(() => {
+			userEvent.click(copy_btn);
+		})
+
+		await waitFor(() => {
+			expect(screen.getByLabelText('New Title:')).toBeInTheDocument();
+		})
+
+		let newTitle = screen.getByPlaceholderText('New Widget Title');
+		userEvent.type(newTitle, 'Adventure Copy');
+
+		// Check grant access
+		let grant_access_checkbox = screen.getByLabelText("Grant Access to Original Owner(s)");
+		userEvent.click(grant_access_checkbox);
+
+		// Closes copy dialog
+		let save_btn = screen.getByText('Copy');
+		act(() => {
+			userEvent.click(save_btn);
+		})
+
+		// Should call apiCopyInstance, which returns the new id, and then call apiGetWidgetInstance with the new id
+		await waitFor(() => {
+			expect(mockApiCopyWidget).toHaveBeenCalled();
+			expect(mockApiGetWidgetInstance).toHaveBeenCalled();
+			expect(screen.getByText('Adventure Copy')).toBeInTheDocument();
+			expect(screen.getByText(mockCopyID)).toBeInTheDocument();
+		})
+	})
+
+	it('makes a copy and does not grant access to original owner', async () => {
+		// Shows copy dialog
+		let copy_btn = screen.getByText('Make a Copy');
+		act(() => {
+			userEvent.click(copy_btn);
+		})
+
+		await waitFor(() => {
+			expect(screen.getByLabelText('New Title:')).toBeInTheDocument();
+		})
+
+		let newTitle = screen.getByPlaceholderText('New Widget Title');
+		userEvent.type(newTitle, 'Adventure Copy');
+
+		// Closes copy dialog
+		let save_btn = screen.getByText('Copy');
+		act(() => {
+			userEvent.click(save_btn);
+		})
+
+		// Should call apiCopyInstance, which returns the new id, and then call apiGetWidgetInstance with the new id
+		await waitFor(() => {
+			expect(mockApiCopyWidget).toHaveBeenCalled();
+			expect(mockApiGetWidgetInstance).toHaveBeenCalled();
+			expect(screen.getByText('Adventure Copy')).toBeInTheDocument();
+			expect(screen.getByText(mockCopyID)).toBeInTheDocument();
+		})
+
+
+	})
+
+	it('opens and closes extra attempts dialog', async () => {
+		// Shows copy dialog
+		let btn = screen.getByText('Extra Attempts');
+		act(() => {
+			userEvent.click(btn);
+		})
+
+		await waitFor(() => {
+			expect(screen.getByText('Give Students Extra Attempts')).toBeInTheDocument();
+		})
+
+		let save_btn = screen.getByText('Save');
+		act(() => {
+			userEvent.click(save_btn);
+		})
+
+		await waitFor(() => {
+			expect(mockApiSetAttempts).toHaveBeenCalled();
+			try
+			{
+				expect(screen.getByText('Give Students Extra Attempts')).toBeNull();
+			}
+			catch
+			{
+				// If it's null, it will produce an error, therefore it worked
+				return true;
+			}
+			return false;
+		})
+
 	})
 })

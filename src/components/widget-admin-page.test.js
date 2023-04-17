@@ -15,7 +15,7 @@ import WidgetList from './widget-admin-list'
 import WidgetListCard from './widget-admin-list-card'
 
 import * as api from '../util/api'
-        
+
 jest.mock('../util/api')
 
 // Enables testing with react query
@@ -88,7 +88,7 @@ describe('WidgetInstall', () => {
         })
 
         const mockRefetch = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue(widgets)
-        
+
         renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
 
         await uploadFile('Adventure.wigt')
@@ -102,7 +102,7 @@ describe('WidgetInstall', () => {
 
     it('should render error message if uploading non .wigt file', async () => {
         const mockRefetch = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue(widgets)
-        
+
         renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
 
         await uploadFile('Adventure.png')
@@ -120,7 +120,7 @@ describe('WidgetInstall', () => {
         })
 
         const mockRefetch = jest.spyOn(api, 'apiGetWidgetsAdmin').mockResolvedValue(widgets)
-        
+
         renderWithClient(<WidgetInstall refetchWidgets={mockRefetch}/>)
 
         await uploadFile('Adventure.wigt')
@@ -149,7 +149,7 @@ describe('WidgetList', () => {
             count++;
         }
         expect(count).toBe(widgets.length)
-        
+
     })
 
     it('should not load all widgets if still fetching widgets', async () => {
@@ -188,7 +188,7 @@ describe('WidgetList', () => {
             expect(widget).not.toBeInTheDocument();
         }
     })
-    
+
 })
 
 describe('WidgetListCard', () => {
@@ -214,7 +214,7 @@ describe('WidgetListCard', () => {
 
     it('should render success message when update is successful', async () => {
         const mockUpdate = jest.spyOn(api, 'apiUpdateWidgetAdmin').mockResolvedValue([true, true, true])
-       
+
         // Open widget card
         fireEvent.click(await screen.findByText(widget.name));
 
@@ -257,7 +257,7 @@ describe('WidgetListCard', () => {
 
     it('should error if user is logged out', async () => {
         const mockUpdate = jest.spyOn(api, 'apiUpdateWidgetAdmin').mockResolvedValue(['Error', true, true])
-       
+
         // Open widget card
         fireEvent.click(await screen.findByText(widget.name));
 

@@ -1,4 +1,8 @@
-import React from 'react';
+/**
+ * @jest-environment jsdom
+ */
+
+ import React from 'react';
 import { render, screen } from '@testing-library/react'
 import AttemptsSlider from './attempts-slider.jsx';
 //import { shallow } from 'enzyme';

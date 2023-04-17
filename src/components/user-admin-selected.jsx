@@ -19,13 +19,13 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
 	}
 
-	const instancesAvailable = isLoadingWidgets ? 
-		<span>Widgets are loading...</span> : 
+	const instancesAvailable = isLoadingWidgets ?
+		<span>Widgets are loading...</span> :
 		widgets.instances_available?.map((instance, index) => {
 			return (<UserAdminInstanceAvailable instance={instance} key={index} currentUser={currentUser}/>)
 		})
 
-	const instancesPlayed = isLoadingWidgets ? 
+	const instancesPlayed = isLoadingWidgets ?
 		<span>Play history loading...</span> :
 		widgets.instances_played?.map((play, index) => {
 			return (<UserAdminInstancePlayed play={play} key={index} />)
@@ -63,7 +63,7 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 					<label>Email: </label><input type='text' onChange={(event) => handleChange('email', event.target.value)} value={updatedUser.email}></input>
 				</span>
 				<span>
-					<label>Role: </label> { updatedUser.is_student ? 'Student' : 'Instructor' }
+					<label>Roles: </label> { updatedUser.is_support_user ? 'Support, ' : '' } { updatedUser.is_student ? 'Student' : 'Instructor' }
 				</span>
 				<h3>User Settings</h3>
 				<span>
@@ -92,8 +92,8 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 				</div>
 			</div>
 		</section>
-		
-		
+
+
 
 		// avatar icon, name
 		// created: static date
