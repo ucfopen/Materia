@@ -276,17 +276,13 @@ const MyWidgetsPage = () => {
 		)
 	}
 
-	// an instance has been edited
+	// Note this method is only used when a widget setting is updated via the settings dialog (attempts, availability, guest mode)
+	// It is NOT called when actually editing a widget (going to the creator)
 	const onEdit = (inst) => {
 		setState({
 			...state,
 			selectedInst: inst,
 			widgetHash: inst.id
-		})
-		setWidgetList({
-			...widgetList,
-			instances: [],
-			page: 1
 		})
 	}
 

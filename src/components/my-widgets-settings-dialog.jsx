@@ -261,24 +261,20 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			mutateWidget.mutate({
 				args: args,
 				successFunc: (updatedInst) => {
-					onEdit(updatedInst)
 
-					if (!updatedInst || updatedInst.type == "error")
-					{
-						if (updatedInst.title == "Invalid Login")
-						{
+					if (!updatedInst || updatedInst.type == "error") {
+
+						if (updatedInst.title == "Invalid Login") {
 							setInvalidLogin(true);
 						}
-						else
+						else {
 							console.error(`Error: ${updatedInst.msg}`);
+							setState({...state, errorLabel: 'Something went wrong, and your changes were not saved.'})
+						}
 					}
-					else
-					{
+					else {
 						onEdit(updatedInst)
-					}
-					
-					if (mounted.current) {
-						onClose()
+						if (mounted.current) onClose()
 					}
 				}
 			})
