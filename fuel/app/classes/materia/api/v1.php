@@ -910,7 +910,6 @@ class Api_V1
 			$me = \Model_User::find_current_id();
 			$results = \Model_User::find($me);
 			$results = $results->to_array();
-			\Log::Error("We were here");
 		}
 		else
 		{
@@ -918,7 +917,6 @@ class Api_V1
 			//user ids provided, get all of the users with the given ids
 			$me = \Model_User::find_current_id();
 
-			\Log::Error("We were here 2");
 			foreach ($user_ids as $id)
 			{
 				if (Util_Validator::is_pos_int($id))
