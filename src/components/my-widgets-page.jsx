@@ -127,7 +127,7 @@ const MyWidgetsPage = () => {
 			const isEditable = state.selectedInst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
+				othersPerms.set(parseInt(i), rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
 			}
 			let _myPerms
 			for (const i in permUsers.user_perms) {
@@ -186,6 +186,23 @@ const MyWidgetsPage = () => {
 			}
 		}
 	}, [widgetList.instances, state.widgetHash])
+
+	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
+	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
+	useEffect(() => {
+		if (!state.otherUserPerms?.get(user.id)) {
+			setState({
+				...state,
+				selectedInst: null,
+				widgetHash: null
+			})
+			setWidgetList({
+				...widgetList,
+				instances: [],
+				page: 1
+			})
+		}
+	},[state.otherUserPerms])
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {
