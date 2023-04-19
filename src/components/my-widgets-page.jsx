@@ -175,6 +175,14 @@ const MyWidgetsPage = () => {
 						noAccess: widgetFound == null,
 					})
 				}
+			} else if (widgetList.page == widgetList.totalPages) {
+				// widgetList is fully loaded and the selected instance is not found
+				// let the user know it's missing or unavailable
+				setState({
+					...state,
+					selectedInst: null,
+					noAccess: true,
+				})
 			}
 		}
 	}, [widgetList.instances, state.widgetHash])
@@ -322,32 +330,30 @@ const MyWidgetsPage = () => {
 
 		// A widget is selected, we're in the process of fetching it but it hasn't returned from the API yet
 		if (isFetching && widgetSpecified && !selectedInstanceHasLoaded(widgetSpecified)) {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 					<h2 className='loading-text'>Loading Your Widget</h2>
 				</section>
 		}
 
 		// No widget specified, fetch in progress
 		if (isFetching && !widgetSpecified) {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 			</section>
 		}
 
 		// A widget was specified but we don't have access rights to it
 		if (state.noAccess) {
-			return <section className='directions error'>
-				<div className='error error-nowidget'>
-					<p className='errorWindowPara'>
-						You do not have access to this widget or this widget does not exist.
-					</p>
+			return <section className='page directions no-widgets'>
+				<div className='error-nowidget'>
+					You do not have access to this widget or this widget does not exist.
 				</div>
 			</section>
 		}
 
 		// Not loading anything and no widgets returned from the API
 		if (widgetList.instances?.length < 1) {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
@@ -355,7 +361,7 @@ const MyWidgetsPage = () => {
 
 		// Not loading anything, widgets are waiting to be selected
 		if (!widgetSpecified) {
-			return <section className={`directions unchosen ${beardMode ? 'bearded' : ''}`}>
+			return <section className={`page directions unchosen ${beardMode ? 'bearded' : ''}`}>
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
@@ -380,7 +386,7 @@ const MyWidgetsPage = () => {
 
 		// Fallback to keep the selected instance content area intact (presumably some other state is forthcoming)
 		else {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 			</section>
 		}

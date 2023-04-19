@@ -5,26 +5,19 @@
 	justify-content: center;
 
 	.container {
+		position: relative;
+		display: flex;
+		align-items: flex-start;
 		margin: 0 auto 100px auto;
 		// width: 970px;
-		position: relative;
 		overflow-x: visible;
 
 		.container_main-content {
+			top: 0px;
 			box-shadow: 1px 3px 10px #dbdbdb;
 		}
 
 		section.directions {
-			background: #fff;
-			// border: rgba(0, 0, 0, 0.11) 1px solid;
-			// box-shadow: 1px 3px 10px #888;
-			position: relative;
-			width: 700px;
-			margin: 0 0 0 245px;
-			padding: 10px;
-			z-index: 100;
-			min-height: 850px;
-			// border-radius: 4px;
 			text-align: center;
 
 			&.unchosen {
@@ -32,6 +25,13 @@
 					background: #fff url('/img/kogneato_mywidgets.png') 50% 30% no-repeat;
 				}
 				min-height: 850px;
+			}
+
+			.error-nowidget {
+				width: 80%;
+				margin: 50px auto 5px auto;
+				font-weight: bold;
+				font-size: 1.5em;
 			}
 
 			h1 {
@@ -65,15 +65,13 @@
 		}
 
 		section.page {
-			background: #fff;
-			// border: rgba(0, 0, 0, 0.11) 1px solid;
-			// box-shadow: 1px 3px 10px #888;
 			position: relative;
-			width: 700px;
-			margin: 0 0 0 260px;
 			z-index: 100;
+			width: 700px;
 			min-height: 850px;
-			// border-radius: 4px;
+			margin: 0 0 0 260px;
+			
+			background: #fff;
 		}
 
 		@media (max-width: 980px) {
