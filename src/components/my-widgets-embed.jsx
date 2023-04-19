@@ -16,7 +16,7 @@ const MyWidgetEmbedInfo = ({inst}) => {
 	return (
 		<div className='embed-options'>
 			<h3>Embed Code</h3>
-			<p>Paste this HTML into a course page to embed.</p>
+			<p>Paste this HTML into a webpage to embed it.</p>
 			<textarea id='embed_link' readOnly value={ getEmbedLink(inst, autoplay) }></textarea>
 			<label htmlFor='embed-code-autoplay'>Autoplay: </label>
 			<input id='embed-code-autoplay'

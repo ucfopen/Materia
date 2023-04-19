@@ -261,24 +261,20 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			mutateWidget.mutate({
 				args: args,
 				successFunc: (updatedInst) => {
-					onEdit(updatedInst)
 
-					if (!updatedInst || updatedInst.type == "error")
-					{
-						if (updatedInst.title == "Invalid Login")
-						{
+					if (!updatedInst || updatedInst.type == "error") {
+
+						if (updatedInst.title == "Invalid Login") {
 							setInvalidLogin(true);
 						}
-						else
+						else {
 							console.error(`Error: ${updatedInst.msg}`);
+							setState({...state, errorLabel: 'Something went wrong, and your changes were not saved.'})
+						}
 					}
-					else
-					{
+					else {
 						onEdit(updatedInst)
-					}
-					
-					if (mounted.current) {
-						onClose()
+						if (mounted.current) onClose()
 					}
 				}
 			})
@@ -487,7 +483,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 				<ul className='attemptsPopup'>
 					<li className={`attempt-content ${currentUser.is_student ? 'hide' : ''}`}>
 						<h3>Attempts</h3>
-						<AttemptsSlider key='slider-key' inst={inst} state={state} setState={setState}/>
+						<AttemptsSlider key='slider-key' inst={inst} parentState={state} setParentState={setState}/>
 					</li>
 					<ul className='to-from'>
 						{ periodSelectElements }

@@ -92,7 +92,7 @@ const _translateForApiVersion = (instance, qset) => {
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
 
-const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
+const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
 	const [alertMsg, setAlertMsg] = useState(initAlert())
 	const [demoData, setDemoData] = useState(initDemo())
 	const [startTime, setStartTime] = useState(0)
@@ -519,6 +519,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 		)
 	}
 
+	let footerRender = null
+	if (!isPreview && showFooter) {
+		footerRender = <section className='player-footer' style={{ width: demoData.width !== '0px' ? demoData.width : 'auto' }}>
+			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src="/img/materia-logo-thin.svg" alt="materia logo" /></a>
+			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
+		</section>
+	}
+
 	return (
 		<section className={`widget ${isPreview ? 'preview' : ''}`}
 			style={{display: demoData.loading ? 'none' : 'block'}}>
@@ -538,6 +546,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth=''}) => {
 				/>
 				{ loadingRender }
 			</div>
+			{ footerRender }
 		</section>
 	)
 }

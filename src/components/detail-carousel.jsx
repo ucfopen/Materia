@@ -329,14 +329,15 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 				instanceId={widget.meta_data.demo}
 				playId={demoData.playId}
 				minHeight={parseInt(widget.height)}
-				minWidth={parseInt(widget.width)}/>
+				minWidth={parseInt(widget.width)}
+				showFooter={false}/>
 			</div>
 		)
 
 		if (demoData.showDemoCover) {
 			demoRender = (
 				<>
-					<img style={{minHeight: demoData.demoHeight, height: (parseInt(widgetHeight) + 48) + 'px'}} src={screenshotData.screenshots[0]?.full}/>
+					<img style={{minHeight: demoData.demoHeight}} src={screenshotData.screenshots[0]?.full}/>
 					<div id='demo-cover'
 						className={`${demoData.demoLoading ? 'loading' : ''}`}
 						style={{backgroundImage: `url(${screenshotData.screenshots[0]?.full})`}} >

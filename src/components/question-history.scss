@@ -1,6 +1,7 @@
 body,
 html {
 	font-family: 'Lato', arial, serif;
+	overflow-x: hidden;
 }
 
 #import_form {
@@ -54,9 +55,11 @@ html {
 }
 
 .actions {
-	position: absolute;
-	width: 100%;
+	position: fixed;
+	width: 80px;
+	left: 50%;
 	bottom: 0px;
+	margin-left: -40px;
 	padding-bottom: 14px;
 
 	text-align: center;

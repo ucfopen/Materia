@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
+import LoadingIcon from './loading-icon'
 
-const MyWidgetsSideBar = ({ instances, isLoading, selectedId, onClick, beardMode, beards }) => {
+const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMode, beards }) => {
 	const [searchText, setSearchText] = useState('')
 
 	const hiddenSet = useMemo(() => {
@@ -22,7 +23,7 @@ const MyWidgetsSideBar = ({ instances, isLoading, selectedId, onClick, beardMode
 	const handleSearchCloseClick = () => setSearchText('')
 
 	let widgetInstanceElementsRender = null
-	if (!isLoading || instances?.length > 0) {
+	if (!isFetching || instances?.length > 0) {
 		widgetInstanceElementsRender = instances?.map((inst, index) => (
 			<MyWidgetsInstanceCard
 				key={inst.id}
@@ -37,12 +38,15 @@ const MyWidgetsSideBar = ({ instances, isLoading, selectedId, onClick, beardMode
 		))
 	}
 
-	return (
-		<aside className='my-widgets-side-bar'>
-			<div className='top'>
-				<h1>Your Widgets:</h1>
-			</div>
-
+	let searchBoxRender = null
+	if (isFetching) {
+		searchBoxRender = 
+		<div className='search loading'>
+			<LoadingIcon size='sm' width='20px' left='10px'/>
+			<span className='loading-message'>Loading Widgets...</span>
+		</div>
+	} else {
+		searchBoxRender =
 			<div className='search'>
 				<div className='textbox-background'></div>
 				<input className='textbox'
@@ -62,7 +66,14 @@ const MyWidgetsSideBar = ({ instances, isLoading, selectedId, onClick, beardMode
 					x
 				</div>
 			</div>
+	}
 
+	return (
+		<aside className='my-widgets-side-bar'>
+			<div className='top'>
+				<h1>Your Widgets:</h1>
+			</div>
+			{searchBoxRender}
 			<div className='widget_list' data-container='widget-list'>
 				{widgetInstanceElementsRender}
 			</div>

@@ -6,6 +6,10 @@ body {
 	min-height: 100%;
 }
 
+#app {
+	position: relative;
+}
+
 section.widget {
 	display: none;
 	position: absolute;
@@ -84,6 +88,48 @@ section.widget {
 			border: 0;
 			height: 100%;
 			width: 100%;
+		}
+	}
+
+	section.player-footer {
+		position: relative;
+		height: 20px;
+
+		top: -38px;
+
+		margin: 0 auto;
+		padding: 4px 0;
+
+		border-top: solid 2px $color-purple;
+		border-bottom-right-radius: 5px;
+		border-bottom-left-radius: 5px;
+
+		background: #ebebeb;
+
+		a {
+			position: absolute;
+			top: 0px;
+			right: 15px;
+			display: block;
+
+			padding-top: 4px;
+
+			color: $color-features;
+			font-weight: 400;
+			font-size: 13px;
+
+			text-decoration: underline;
+
+			&.materia-logo {
+				left: 10px;
+				width: 100px;
+
+				img {
+					width: auto;
+					height: 15px;
+					margin-top: 1px;
+				}
+			}
 		}
 	}
 }
