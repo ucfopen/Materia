@@ -31,8 +31,6 @@ const localBeard = window.localStorage.beardMode
 const MyWidgetsPage = () => {
 	readFromStorage()
 	const [state, setState] = useState({
-		page: 1,
-		totalPages: 0,
 		selectedInst: null,
 		otherUserPerms: null,
 		myPerms: null,
@@ -75,7 +73,7 @@ const MyWidgetsPage = () => {
 				
 				setWidgetList({
 					...widgetList,
-					totalPages: data.total_num_pages || state.totalPages,
+					totalPages: data.total_num_pages || widgetList.totalPages,
 					instances: [...widgetSet].sort(_compareWidgets)
 				})
 			},
@@ -145,7 +143,7 @@ const MyWidgetsPage = () => {
 		if (widgetList.page < widgetList.totalPages) {
 			setWidgetList({...widgetList, page: widgetList.page + 1})
 		}
-		
+
 		// if a widget hash exists in the URL OR a widget is already selected in state
 		if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {
 
@@ -190,7 +188,7 @@ const MyWidgetsPage = () => {
 	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
 	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
 	useEffect(() => {
-		if (!state.otherUserPerms?.get(user.id)) {
+		if (state.selectedInst && !state.otherUserPerms?.get(user.id)) {
 			setState({
 				...state,
 				selectedInst: null,
