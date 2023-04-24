@@ -182,6 +182,18 @@ const MyWidgetsPage = () => {
 					noAccess: true,
 				})
 			}
+		} else if (state.pendingWidgetHash && widgetList.page == widgetList.totalPages) {
+			// special case to handle widget copy behavior
+			// because state.widgetHash and widgetList.instances are both updated concurrently, race conditions could occur
+			// to resolve this, set a special flag that's addressed AFTER the instance list is re-fetched
+			// widgetHash is updated only once widgetList.instances is fully populated
+			// unfortunately this is less responsive than the normal loading of instances, but oh well
+			let hash = state.pendingWidgetHash
+			let {pendingWidgetHash, ...stateCopy} = state
+			setState({
+				...stateCopy,
+				widgetHash: hash
+			})
 		}
 	}, [widgetList.instances, state.widgetHash])
 
@@ -246,11 +258,13 @@ const MyWidgetsPage = () => {
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
 				onSettled: newInstId => {
-					// Setting selectedInst to null again to avoid race conditions.
+					// race conditions require we reset selectedInst and widgetHash to null prior to updating those values
+					// instead, pendingWidgetHash will be used to update widgetHash once the instance list has fully reloaded
 					setState({
 						...state,
 						selectedInst: null,
-						widgetHash: newInstId
+						widgetHash: null,
+						pendingWidgetHash: newInstId
 					})
 
 					setWidgetList({
