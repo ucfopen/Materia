@@ -1,16 +1,12 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiAuthorSuper, apiAuthorSupport, apiGetNotifications } from '../util/api'
-import useDeleteNotification from './hooks/useDeleteNotification'
+import { apiGetUser, apiAuthorSuper, apiAuthorSupport } from '../util/api'
+import Notifications from './notifications'
 
 const Header = ({
-	userRoles = [],
-	userNotify = true,
 	allowLogins = true
 }) => {
 	const [menuOpen, setMenuOpen] = useState(false)
-	const [navOpen, setNavOpen] = useState(false)
-	const deleteNotification = useDeleteNotification()
 	const { data: user, isLoading: userLoading} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
@@ -26,19 +22,8 @@ const Header = ({
 		queryFn: apiAuthorSupport,
 		staleTime: Infinity
 	})
-	const { data: notifications} = useQuery({
-		queryKey: 'notifications',
-		enabled: user?.loggedIn,
-		retry: false,
-		refetchInterval: 60000,
-		refetchOnMount: false,
-		refetchOnWindowFocus: true,
-		queryFn: apiGetNotifications,
-		staleTime: Infinity
-	})
 
 	const toggleMobileNavMenu = () => setMenuOpen(!menuOpen)
-	const toggleNavOpen = () => setNavOpen(!navOpen)
 
 	const logoutUser = () => {
 		sessionStorage.clear()
@@ -94,8 +79,6 @@ const Header = ({
 	*/
 	let logoutNavRender = null
 
-	let notificationsRender = null
-
 	let userRender = null
 	if (!userLoading) {
 		let nameAvatarRender = null
@@ -119,6 +102,7 @@ const Header = ({
 
 			loginRender = (
 				<span className='logout'>
+					<Notifications user={user}/>
 					<a onClick={logoutUser}>Logout</a>
 				</span>
 			)
@@ -131,35 +115,6 @@ const Header = ({
 				</li>
 			)
 
-			if (notifications?.length > 0) {
-				const notificationElements = notifications.map(notification => (
-					<div className={`notice ${notification.deleted ? 'deleted' : ''}`}
-						key={notification.id}>
-						<p className='icon'>
-							<img className='senderAvatar' src={notification.avatar} />
-						</p>
-						<div className='notice_right_side'>
-							<div dangerouslySetInnerHTML={{__html: `<p class='subject'>${notification.subject}</p>`}}></div>
-						</div>
-						<span
-							className='noticeClose'
-							onClick={() => {deleteNotification.mutate(notification.id)}}
-						></span>
-					</div>
-				))
-
-				notificationsRender = (
-					<>
-						<a id='notifications_link'
-							data-notifications={notifications.length}
-							onClick={toggleNavOpen} />
-						<div id='notices' className={navOpen ? 'open' : ''}>
-							{ notificationElements }
-						</div>
-					</>
-				)
-			}
-
 		} else {
 			if (allowLogins) {
 				loginRender = <a href='/users/login'>Login</a>
@@ -167,13 +122,13 @@ const Header = ({
 		}
 
 		userRender = (
-			<p className='user avatar'>
+			<div className='user avatar'>
 				{ nameAvatarRender }
 				{ loginRender }
-			</p>
+			</div>
 		)
 	}
-	
+
 	return (
 		<header className={user ? 'logged-in' : 'logged-out'} >
 			<h1 className='logo'><a href='/'>Materia</a></h1>
@@ -203,8 +158,6 @@ const Header = ({
 					{ logoutNavRender }
 				</ul>
 			</nav>
-
-			{ notificationsRender }
 
 		</header>
 	)

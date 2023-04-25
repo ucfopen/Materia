@@ -250,7 +250,7 @@ export const apiGetNotifications = () => {
 	return fetch('/api/json/notifications_get/', fetchOptions({ body: `data=${formatFetchBody([])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return {}
-			return resp
+			return resp.json()
 		})
 		.then(notifications => notifications)
 }
@@ -266,15 +266,15 @@ export const apiGetExtraAttempts = instId => {
 			if (resp.status != 200) return []
 			return resp.json()
 		})
-		.then(attemps => {
+		.then(attempts => {
 			const map = new Map()
-			for (const i in attemps) {
-				map.set(parseInt(attemps[i].id),
+			for (const i in attempts) {
+				map.set(parseInt(attempts[i].id),
 					{
-						id: parseInt(attemps[i].id),
-						user_id: parseInt(attemps[i].user_id),
-						context_id: attemps[i].context_id,
-						extra_attempts: parseInt(attemps[i].extra_attempts)
+						id: parseInt(attempts[i].id),
+						user_id: parseInt(attempts[i].user_id),
+						context_id: attempts[i].context_id,
+						extra_attempts: parseInt(attempts[i].extra_attempts)
 					})
 			}
 			//const userIds = Array.from(attemps, user => user.user_id)
@@ -643,7 +643,7 @@ export const apiCanBePublishedByCurrentUser = (widgetId) => {
 
 // Request access to widget
 export const apiRequestAccess = (instId, ownerId) => {
-	return fetch('/api/instance/request_access', 
+	return fetch('/api/instance/request_access',
 	{
 		headers: {
 			pragma: 'no-cache',
