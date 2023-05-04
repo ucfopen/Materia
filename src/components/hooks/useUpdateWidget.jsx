@@ -21,7 +21,7 @@ export default function useUpdateWidget() {
 			onSuccess: (updatedInst, variables) => {
 				
 				// update successful - insert new values into our local copy of widgetList
-				for (const inst of widgetList.pagination) {
+				for (const inst of widgetList?.pagination) {
 					if (inst.id === variables.args[0]) {
 						inst.open_at = `${variables.args[4]}`
 						inst.close_at = `${variables.args[5]}`
