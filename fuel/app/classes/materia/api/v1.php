@@ -244,6 +244,12 @@ class Api_V1
 		{
 			$inst->qset = $qset;
 		}
+		else
+		{
+			// if the qset is not explicitly provided, assume it is not being updated
+			// if $inst->qset is populated it will be saved to the db as a new qset version - which isn't necessary
+			$inst->qset = (object) ['version' => null, 'data' => null];
+		}
 		if ( ! empty($name))
 		{
 			if ($inst->name != $name)
