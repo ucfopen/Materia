@@ -16,8 +16,8 @@ const DraftNotPlayable = () => {
         <ul>
           <li>Preview instead of play.</li>
           <li>Publish this widget to start collecting scores.</li>
-          <li>Check out our documentation.</li>
-          <li>Take a break, watch cat <a href="http://www.youtube.com/watch?v=q8Z3NEVIwYg&feature=relmfu">videos</a>.</li>
+          <li>Check out <a href="https://ucfopen.github.io/Materia-Docs/create/getting-started.html" target="_blank">our documentation</a>.</li>
+          <li>Take a break, watch cat <a href="http://www.youtube.com/watch?v=q8Z3NEVIwYg&feature=relmfu" target="_blank">videos</a>.</li>
         </ul>
 
         <SupportInfo/>
