@@ -25,7 +25,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
 	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
-		queryKey: ['collab-users', inst.id],
+		queryKey: ['collab-users', inst.id, otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,

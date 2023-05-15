@@ -37,7 +37,7 @@ const MyWidgetsPage = () => {
 		otherUserPerms: null,
 		myPerms: null,
 		noAccess: false,
-		widgetHash: window.location.href.split('#')[1],
+		widgetHash: window.location.href.split('#')[1]?.split('-')[0],
 		currentBeard: ''
 	})
 
@@ -47,6 +47,7 @@ const MyWidgetsPage = () => {
 		totalPages: 0
 	})
 	const [invalidLogin, setInvalidLogin] = useState(false)
+	const [showCollab, setShowCollab] = useState(false)
 
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
@@ -72,7 +73,7 @@ const MyWidgetsPage = () => {
 				}
 				// Removes duplicates
 				let widgetSet = new Set([...(data.pagination ? data.pagination : []), ...widgetList.instances])
-				
+
 				setWidgetList({
 					...widgetList,
 					totalPages: data.total_num_pages || state.totalPages,
@@ -89,7 +90,7 @@ const MyWidgetsPage = () => {
 	})
 
 	const { data: permUsers } = useQuery({
-		queryKey: ['user-perms', state.selectedInst?.id],
+		queryKey: ['user-perms', state.selectedInst?.id, state.widgetHash],
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
 		placeholderData: null,
@@ -116,10 +117,31 @@ const MyWidgetsPage = () => {
 	useEffect(() => {
 		window.addEventListener('hashchange', listenToHashChange)
 
+		// check for collab hash on page load
+		setShowCollab(hashContainsCollab)
+
 		return () => {
 			window.removeEventListener('hashchange', listenToHashChange)
 		}
 	}, [])
+
+	// checks whether "-collab" is contained in hash id
+	const hashContainsCollab = () => {
+		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+
+		if (match != null && match[1] != null)
+		{
+			let hashParams = match[1].split('-');
+			if (hashParams.length > 1)
+			{
+				if (hashParams[1] == "collab")
+				{
+					return true
+				}
+			}
+		}
+		return false
+	}
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
@@ -145,7 +167,7 @@ const MyWidgetsPage = () => {
 		if (widgetList.page < widgetList.totalPages) {
 			setWidgetList({...widgetList, page: widgetList.page + 1})
 		}
-		
+
 		// if a widget hash exists in the URL OR a widget is already selected in state
 		if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {
 
@@ -153,9 +175,14 @@ const MyWidgetsPage = () => {
 			// selectedInst may lag behind for several reasons, including loading of the list or changes to the hash in the url
 			let desiredId = state.widgetHash ? state.widgetHash : state.selectedInst.id
 
+			let hashParams = desiredId.split('-')
+			if (hashParams.length > 1)
+			{
+				desiredId = hashParams[0];
+			}
+
 			// if the selected widget is loaded, go ahead and display it. The remaining widget list can comtinue to load concurrently
 			if (selectedInstanceHasLoaded(desiredId)) {
-
 				// prompt the new instance to be selected if it's different from the one in the hash (or not selected at all)
 				let selectWidget = state.widgetHash && (!state.selectedInst || state.selectedInst.id != state.widgetHash)
 
@@ -177,14 +204,17 @@ const MyWidgetsPage = () => {
 				}
 			}
 		}
-	}, [widgetList.instances, state.widgetHash])
+	}, [widgetList.instances, state.widgetHash, showCollab])
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {
-		const match = window.location.hash.match(/#([A-Za-z0-9]{5})$/)
-		if (match && match[1] != null) setState({...state, widgetHash: match[1]})
+		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+		if (match != null && match[1] != null)
+		{
+			setShowCollab(hashContainsCollab)
+			setState({...state, widgetHash: match[1]})
+		}
 	}
-
 	// boolean to verify if the current instance list in state contains the specified instance
 	const selectedInstanceHasLoaded = (inst) => {
 		if (!inst) return false
@@ -195,7 +225,9 @@ const MyWidgetsPage = () => {
 	const onSelect = (inst, index) => {
 		if (inst.is_fake) return
 		setState({ ...state, selectedInst: inst, widgetHash: inst.id, noAccess: false, currentBeard: beards[index] })
-		setUrl(inst)
+
+		// updates window URL history with current widget hash
+		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 	}
 
 	// an instance has been copied: the mutation will optimistically update the widget list while the list is re-fetched from the server
@@ -247,7 +279,7 @@ const MyWidgetsPage = () => {
 			{
 				instId: inst.id,
 				successFunc: (data) => {
-					if (!data || (data.type == 'error')) 
+					if (!data || (data.type == 'error'))
 					{
 						console.error(`Deletion failed with error: ${data.msg}`);
 						if (data.title =="Invalid Login")
@@ -289,9 +321,6 @@ const MyWidgetsPage = () => {
 			page: 1
 		})
 	}
-
-	// updates window URL history with current widget hash
-	const setUrl = inst => window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 
 	const beards = useMemo(
 		() => {
@@ -379,6 +408,8 @@ const MyWidgetsPage = () => {
 				beardMode={beardMode}
 				beard={state.currentBeard}
 				setInvalidLogin={setInvalidLogin}
+				showCollab={showCollab}
+				setShowCollab={setShowCollab}
 			/>
 		}
 

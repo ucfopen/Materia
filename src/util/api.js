@@ -198,6 +198,8 @@ export const apiGetUsers = arrayOfUserIds => {
 	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
 		.then(users => {
 			const keyedUsers = {}
+			console.log(users)
+			console.log(arrayOfUserIds)
 
 			if (Array.isArray(users)) {
 				users.forEach(u => { keyedUsers[u.id] = u })

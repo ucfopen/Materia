@@ -60,13 +60,14 @@ const MyWidgetSelectedInstance = ({
 	onEdit,
 	beardMode,
 	beard,
-	setInvalidLogin
+	setInvalidLogin,
+	showCollab,
+	setShowCollab
 }) => {
 	const [state, setState] = useState(initState())
 	const [showEmbed, setShowEmbed] = useState(false)
 	const [showCopy, setShowCopy] = useState(false)
 	const [showLocked, setShowLocked] = useState(false)
-	const [showCollab, setShowCollab] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
