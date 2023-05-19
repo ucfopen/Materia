@@ -9,27 +9,41 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 
 	const { data: widgets, isFetching: isLoadingWidgets} = useQuery({
-		queryKey: 'widgets',
+		queryKey: ['managed-widgets', updatedUser.id],
 		queryFn: () => apiGetInstancesForUser(updatedUser.id),
 		placeholderData: null,
 		staleTime: Infinity
 	})
 
+	useEffect(() => {
+		if (selectedUser && updatedUser && selectedUser.id != updatedUser.id) setUpdatedUser({...selectedUser})
+	},[selectedUser])
+
 	const handleChange = (attr, value) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
 	}
 
-	const instancesAvailable = isLoadingWidgets ? 
-		<span>Widgets are loading...</span> : 
-		widgets.instances_available?.map((instance, index) => {
-			return (<UserAdminInstanceAvailable instance={instance} key={index} currentUser={currentUser}/>)
-		})
+	let instancesAvailable = <span>Widgets are loading...</span>
+	if (!isLoadingWidgets) {
+		if (!!widgets.instances_available && widgets.instances_available.length > 0) {
+				instancesAvailable = widgets.instances_available?.map((instance, index) => {
+					return (<UserAdminInstanceAvailable instance={instance} key={index} currentUser={currentUser}/>)
+				})
+		} else {
+			instancesAvailable = <span>This user has not created or been granted access to any widgets.</span>
+		}
+	}
 
-	const instancesPlayed = isLoadingWidgets ? 
-		<span>Play history loading...</span> :
-		widgets.instances_played?.map((play, index) => {
-			return (<UserAdminInstancePlayed play={play} key={index} />)
-		})
+	let instancesPlayed = <span>Play history loading...</span>
+	if (!isLoadingWidgets) {
+		if (!!widgets.instances_played && widgets.instances_played.length > 0) {
+			instancesPlayed = widgets.instances_played?.map((play, index) => {
+				return (<UserAdminInstancePlayed play={play} key={index} />)
+			})
+		} else {
+			instancesPlayed = <span>This user has not played any widgets.</span>
+		}
+	}
 
 	return (
 		<section className='page inst-info'>
@@ -50,6 +64,9 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 				<h1>{ `${updatedUser.first} ${updatedUser.last}` }</h1>
 			</div>
 			<div className='overview'>
+				<span>
+					<label>ID: </label>{ updatedUser.id }
+				</span>
 				<span>
 					<label>Created: </label>{ new Date(updatedUser.created_at * 1000).toLocaleString() } ({ updatedUser.created_at })
 				</span>

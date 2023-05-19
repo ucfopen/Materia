@@ -28,7 +28,7 @@ const SupportPage = () => {
 	const { data: instFromHash } = useQuery({
 		queryKey: ['search-widgets', widgetHash],
 		queryFn: () => apiSearchWidgets(widgetHash),
-		enabled: widgetHash != undefined && widgetHash != selectedInstance,
+		enabled: widgetHash != undefined && widgetHash != selectedInstance?.id,
 		staleTime: Infinity
 	})
 
