@@ -42,7 +42,6 @@ const LoginPage = () => {
 				instName: window.NAME != undefined ? window.INST_NAME : null,
 				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
 				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
-				iconURL: window.ICON != undefined ? window.ICON_URL : null,
 				loginLinks: links,
 				errContent: window.ERR_LOGIN != undefined ? <div className='error'><p>{`${window.ERR_LOGIN}`}</p></div> : '',
 				noticeContent: window.NOTICE_LOGIN != undefined ? <div className='error'><p>{`${window.NOTICE_LOGIN}`}</p></div> : ''
@@ -60,9 +59,6 @@ const LoginPage = () => {
 		&& !window.hasOwnProperty('CONTEXT')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
-	}
-
-	const onInputChange = (input) => {
 	}
 
 	let detailContent = <></>

@@ -296,7 +296,7 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var WIDGET_ID = "'.$inst->id.'";');
 		Js::push_inline('var IS_EMBEDDED = "'.$is_embedded.'";');
 		Js::push_inline('var NAME = "'.$inst->name.'";');
-		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+		Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
@@ -344,7 +344,7 @@ class Controller_Widgets extends Controller
 		}
 
 		Js::push_inline('var NAME = "'.$inst->name.'";');
-		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+		Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 	}
 
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
@@ -420,6 +420,7 @@ class Controller_Widgets extends Controller
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
 
 		// ===================== RENDER ==========================
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $login_title ?: 'Login')
 			->set('page_type', 'login');
@@ -454,6 +455,8 @@ class Controller_Widgets extends Controller
 				Js::push_group(['react', 'login']);
 			}
 
+			// trace($inst);
+
 			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
 			Js::push_inline('var ACTION_LOGIN = "'.\Router::get('login').'";');
 			Js::push_inline('var ACTION_REDIRECT = "'.urlencode(URI::current()).'";');
@@ -463,7 +466,7 @@ class Controller_Widgets extends Controller
 			Js::push_inline('var NAME = "'.$inst->name.'";');
 			Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
 			Js::push_inline('var IS_PREVIEW = "'.$is_preview.'";');
-			Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png".'";');
+			Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 
 			// condense login links into a string with delimiters to be embedded as a JS global
 			$link_items = [];
@@ -562,7 +565,7 @@ class Controller_Widgets extends Controller
 		Js::push_inline('var INST_ID = "'.$inst->id.'";');
 		Js::push_inline('var CONTEXT = "'.$context.'";');
 		Js::push_inline('var NAME = "'.$inst->name.'";');
-		Js::push_inline('var ICON = "'.Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-275.png".'";');
+		Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 
 		Js::push_group(['react', 'pre_embed']);
 		Css::push_group(['login','pre_embed_placeholder']);
