@@ -166,6 +166,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					queryClient.invalidateQueries(['user-search', inst.id])
 					queryClient.removeQueries(['collab-users', inst.id])
 					customClose()
+					queryClient.removeQueries(['new-collab-user'])
+					customClose()
 				}
 			}
 		})

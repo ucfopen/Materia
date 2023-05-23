@@ -142,6 +142,8 @@ const Notifications = (user) => {
             return notifRow;
         })
 
+        notificationElements.reverse()
+
         render = (
             <div className="notifContainer">
                 { notificationIcon }
@@ -149,6 +151,7 @@ const Notifications = (user) => {
                     <div id='notices' ref={modalRef}>
                         <h2>Messages:</h2>
                         { notificationElements }
+                        {/* <button id="removeAllButton" onClick={() => removeAllNotifications()}>Remove All</button> */}
                     </div>
                 : <></> }
             </div>
