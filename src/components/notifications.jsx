@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
-import { apiGetNotifications } from '../util/api'
+import { apiGetNotifications, apiGetUser } from '../util/api'
 import useDeleteNotification from './hooks/useDeleteNotification'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
+import useGetUsers from './hooks/useGetUsers'
 
 const Notifications = (user) => {
     const [navOpen, setNavOpen] = useState(false);
@@ -10,6 +11,7 @@ const Notifications = (user) => {
 	const deleteNotification = useDeleteNotification()
 	const queryClient = useQueryClient()
     const setUserPerms = setUserInstancePerms()
+    const getUsers = useGetUsers();
     const [errorMsg, setErrorMsg] = useState('');
     let modalRef = useRef();
 
@@ -21,8 +23,7 @@ const Notifications = (user) => {
 		refetchOnMount: false,
 		refetchOnWindowFocus: true,
 		queryFn: apiGetNotifications,
-        staleTime: Infinity,
-        onSuccess: (data) => console.log(data)
+        staleTime: Infinity
     })
 
     // Close notification modal if user clicks outside of it
@@ -32,7 +33,6 @@ const Notifications = (user) => {
             const checkIfClickedOutsideModal = e => {
                 if (modalRef.current && !modalRef.current.contains(e.target) && !e.target.className.includes("noticeClose"))
                 {
-                    console.log(e.target)
                     setNavOpen(false);
                 }
             }
@@ -64,54 +64,43 @@ const Notifications = (user) => {
         deleteNotification.mutate(notif.id);
     }
 
+    const removeAllNotifications = () => {
+        // tbd
+    }
+
     const onClickGrantAccess = (notif) => {
-        const accessLevel = 30;
-        const expireTime = null;
-
-        const userPerms = [{
-            user_id: notif.from_id,
-            expiration: expireTime,
-            perms: {
-                [accessLevel]: true
-            },
-        }]
-        setUserPerms.mutate({
-            instId: notif.item_id,
-            permsObj: userPerms,
+        getUsers.mutate({
+            userIds: [notif.from_id],
             successFunc: (data) => {
-                if (data.status == 200)
+                queryClient.setQueryData(['new-collab-user'], data[notif.from_id], {staleTime: Infinity})
+
+                // Redirect to widget
+                if (!window.location.pathname.includes('my-widgets'))
                 {
-                    // Redirect to widget
-                    if (!window.location.pathname.includes('my-widgets'))
-                    {
-                        // No idea why this works
-                        // But setting hash after setting pathname would set the hash first and then the pathname in URL
-                        window.location.hash = notif.item_id + '-collab';
-                        window.location.pathname = '/my-widgets'
-                    }
-                    else
-                    {
-                        queryClient.invalidateQueries(['user-perms', notif.item_id])
-                        window.location.hash = notif.item_id + '-collab';
-                    }
-
-                    setErrorMsg('');
-
-                    // Remove notification
-                    deleteNotification.mutate(notif.id);
-
-                    // Close notifications
-                    setNavOpen(false)
-
+                    // No idea why this works
+                    // But setting hash after setting pathname would set the hash first and then the pathname in URL
+                    window.location.hash = notif.item_id + '-collab';
+                    window.location.pathname = '/my-widgets'
                 }
                 else
                 {
-                    setErrorMsg('Action failed.');
+                    //queryClient.invalidateQueries(['user-perms', notif.item_id])
+                    window.location.hash = notif.item_id + '-collab';
                 }
+
+                setErrorMsg('');
+
+                // Remove notification
+                deleteNotification.mutate(notif.id);
+
+                // Close notifications
+                setNavOpen(false)
+            },
+            errorFunc: (err) => {
+                setErrorMsg('Action failed: ' + err);
+
             }
         })
-
-
     }
 
     let render = null;
@@ -120,7 +109,6 @@ const Notifications = (user) => {
 
     if (notifications?.length > 0) {
         notificationElements = notifications.map((notification, index) => {
-            console.log(notification)
             let actionButton = null;
             if (notification.action == "access_request")
             {
