@@ -51,6 +51,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		enableLoginButton: false
 	})
 
+	useEffect(() => {
+		if (instId)
+		{
+			setInstance({...instance, id: instId})
+		}
+	}, [instId])
+
 	const [widgetReady, setWidgetReady] = useState(false)
 
 	const instIdRef = useRef(instId)
@@ -96,7 +103,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetQuestionSet(instId),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!instance.id, // requires instance state object to be prepopulated 
+		enabled: !!instance.id, // requires instance state object to be prepopulated
 		onSettled: (data) => {
 			if ( (data != null ? data.title : undefined) === 'Permission Denied' ||data.title === 'error') {
 					setCreatorState({...creatorState, invalid: true})
@@ -178,7 +185,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		} else {
 			setCreatorState({...creatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'})
 		}
-		
+
 	}, [instance])
 
 	useEffect(() => {
@@ -197,8 +204,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// the type of initialization depends on several conditions
 	// normally, we're either initializing a new widget, or an existing one is being edited
 	useEffect(() => {
-
-		if (instance.readyForInit && widgetReady) {
+		if (widgetReady) {
 
 			// we have a qset to reload manually (for qset history), ask creator to reload
 			// this hook will then fire a second time when a new save postMessage is sent
@@ -296,7 +302,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		console.warn(`Unknown message from creator: ${origin}`)
 	}
-	
+
 	const onCreatorReady = () => {
 		setWidgetReady(true)
 	}

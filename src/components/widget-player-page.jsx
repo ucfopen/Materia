@@ -80,14 +80,13 @@ const WidgetPlayerPage = () => {
 	if ( type == EMBED || type == PREVIEW_EMBED ) headerRender = null
 
 	let bodyRender = null
-	if( (!!state.widgetID) && state.playID !== undefined ) {
-		bodyRender = (
-			<WidgetPlayer instanceId={state.widgetID}
-				playId={state.playID}
-				minHeight={state.widgetHeight}
-				minWidth={state.widgetWidth}/>
-		)
-	}
+
+	bodyRender = (
+		<WidgetPlayer instanceId={state.widgetID}
+			playId={state.playID}
+			minHeight={state.widgetHeight}
+			minWidth={state.widgetWidth}/>
+	)
 
 	return (
 		<>

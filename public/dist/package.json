@@ -14,7 +14,9 @@
 		"js/qset-history.js",
 		"js/qset-history.css",
 		"js/question-importer.js",
-		"js/question-importer.css"
+		"js/question-importer.css",
+		"js/guides.js",
+		"js/widget-guide.css"
 	],
 	"version": "0.0.5",
 	"repository": {
