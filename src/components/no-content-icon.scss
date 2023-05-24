@@ -4,3 +4,25 @@ p#no-content-icon {
 	margin: auto;
 	font-size: 1.5em;
 }
+
+div#no-score-content {
+	display: flex;
+	flex-direction: column;
+	width: 40%;
+	height: 225px;
+	padding-top: 25px;
+	padding-left: 40%;
+	margin: 25px auto 0 auto;
+	
+	background: #fff url('/img/kogneato_no_scores.svg') 10% 30%/250px auto no-repeat;
+
+	p {
+		color: #2e2e2e;
+		font-size: 14px;
+		margin: 5px 0;
+
+		&:first-child {
+			font-weight: bold;
+		}
+	}
+}
