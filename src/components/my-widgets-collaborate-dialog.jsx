@@ -8,8 +8,9 @@ import LoadingIcon from './loading-icon'
 import NoContentIcon from './no-content-icon'
 import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
+import { useFetchQueryData } from './hooks/useFetchQueryData'
 
-const initDialogState = () => {
+const initDialogState = (state) => {
 	return ({
 		searchText: '',
 		shareNotAllowed: false,
@@ -31,6 +32,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		staleTime: Infinity,
 		placeholderData: {}
 	})
+	const newCollabUser = useFetchQueryData('new-collab-user');
+
+	useEffect(() => {
+		if (newCollabUser)
+		{
+			onClickMatch(newCollabUser);
+		}
+	}, [])
+
 	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
 		queryKey: 'user-search',
 		enabled: !!debouncedSearchTerm,
@@ -65,12 +75,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	// Sets Perms
 	useEffect(() => {
-		const map = new Map(otherUserPerms)
-		map.forEach((key, pair) => {
-			key.remove = false
-			pair = pair.toString()
-		})
-		setState({...state, updatedOtherUserPerms: map})
+		if (otherUserPerms != null)
+		{
+			const map = new Map([...otherUserPerms, ...state.updatedOtherUserPerms])
+			map.forEach((key, pair) => {
+				key.remove = false
+				pair = pair.toString()
+			})
+			setState({...state, updatedOtherUserPerms: map})
+		}
 	}, [otherUserPerms])
 
 	// Handles clicking a search result
@@ -153,6 +166,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					queryClient.invalidateQueries(['user-search', inst.id])
 					queryClient.removeQueries(['collab-users', inst.id])
 					customClose()
+					queryClient.removeQueries(['new-collab-user'])
+					customClose()
 				}
 			}
 		})
@@ -230,8 +245,16 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			const mainContentElements = Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
 				if (userPerms.remove === true) return
 
-				const user = collabUsers[userId]
-				if (!user) return <div key={userId}></div>
+				let user = collabUsers[userId]
+				if (!user)
+				{
+					// Check if the user was added from an external source (e.g. notifications)
+					if (userId == newCollabUser.id)
+					{
+						user = newCollabUser;
+					}
+					else return <div key={userId}></div>
+				}
 
 				return <CollaborateUserRow
 					key={user.id}

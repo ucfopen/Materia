@@ -144,7 +144,7 @@ const Notifications = (user) => {
             if (notification.action == "access_request")
             {
                 grantAccessDropdown = <div>
-                    <p className="grantAccessTitle">Grant Access</p>
+                <p className="grantAccessTitle">Grant Access</p>
                     <select name="access-level" id={notification.id + "-access-level"} defaultValue="" onChange={(value) => onChangeAccessLevel(notification, value)}>
                         <option value="30">Full</option>
                         <option value="1">View Scores</option>
