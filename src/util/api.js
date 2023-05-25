@@ -257,8 +257,8 @@ export const apiGetNotifications = () => {
 		.then(notifications => notifications)
 }
 
-export const apiDeleteNotification = notifId => {
-	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([notifId])}` }))
+export const apiDeleteNotification = (data) => {
+	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` }))
 		.then((resp) => resp.json())
 }
 

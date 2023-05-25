@@ -387,10 +387,6 @@ header {
 		left: 27px;
 		font-size: 0.9em;
 	}
-	.notification_action
-	{
-		margin-top: 15px;
-	}
 	.noticeClose
 	{
 		border: none;
@@ -413,6 +409,13 @@ header {
 	{
 		display: flex;
 		flex-direction: column;
+		gap: 5px;
+	}
+	.grantAccessTitle
+	{
+		margin-top: 5px;
+		padding: 5px 0;
+		border-top: 1px solid gray;
 	}
 	.notif-date
 	{
@@ -423,6 +426,16 @@ header {
 	.mobile-notifications
 	{
 		display: none;
+	}
+	#removeAllNotifications
+	{
+		color:#a2a2a2;
+		overflow: visible;
+		padding: 10px;
+		align-self: end;
+		&:hover {
+			color: red;
+		}
 	}
 }
 
@@ -719,7 +732,10 @@ h1.logo {
 
 	&.notification_action {
 		font-size: 14px;
-
+		display: none;
+		&.enabled {
+			display: block;
+		}
 	}
 }
 

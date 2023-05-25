@@ -7,8 +7,8 @@ import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 const Notifications = (user) => {
     const [navOpen, setNavOpen] = useState(false);
     const [showDeleteBtn, setShowDeleteBtn] = useState(-1);
-	const deleteNotification = useDeleteNotification()
-	const queryClient = useQueryClient()
+    const deleteNotification = useDeleteNotification()
+    const queryClient = useQueryClient()
     const setUserPerms = setUserInstancePerms()
     const [errorMsg, setErrorMsg] = useState('');
     let modalRef = useRef();
@@ -21,8 +21,7 @@ const Notifications = (user) => {
 		refetchOnMount: false,
 		refetchOnWindowFocus: true,
 		queryFn: apiGetNotifications,
-        staleTime: Infinity,
-        onSuccess: (data) => console.log(data)
+        staleTime: Infinity
     })
 
     // Close notification modal if user clicks outside of it
@@ -32,7 +31,6 @@ const Notifications = (user) => {
             const checkIfClickedOutsideModal = e => {
                 if (modalRef.current && !modalRef.current.contains(e.target) && !e.target.className.includes("noticeClose"))
                 {
-                    console.log(e.target)
                     setNavOpen(false);
                 }
             }
@@ -61,11 +59,28 @@ const Notifications = (user) => {
 
     const removeNotification = (index) => {
         let notif = notifications[index];
-        deleteNotification.mutate(notif.id);
+        deleteNotification.mutate({notifId: notif.id, deleteAll: false});
+    }
+
+    const removeAllNotifications = () => {
+        deleteNotification.mutate({notifId: '', deleteAll: true});
+    }
+
+    const onChangeAccessLevel = (notif, access) => {
+        if (access != "")
+        {
+            document.getElementById(notif.id + '_action_button').className = "action_button notification_action enabled";
+        }
     }
 
     const onClickGrantAccess = (notif) => {
-        const accessLevel = 30;
+        let accessLevel = document.getElementById(notif.id + '-access-level').value;
+
+        if (accessLevel == "")
+        {
+            return;
+        }
+
         const expireTime = null;
 
         const userPerms = [{
@@ -98,7 +113,8 @@ const Notifications = (user) => {
                     setErrorMsg('');
 
                     // Remove notification
-                    deleteNotification.mutate(notif.id);
+
+                    deleteNotification.mutate({notifId: notif.id, deleteAll: false});
 
                     // Close notifications
                     setNavOpen(false)
@@ -119,12 +135,23 @@ const Notifications = (user) => {
     let notificationIcon = null;
 
     if (notifications?.length > 0) {
-        notificationElements = notifications.map((notification, index) => {
-            console.log(notification)
+        notificationElements = []
+        for (let index = notifications.length - 1; index >= 0; index--)
+        {
+            const notification = notifications[index];
             let actionButton = null;
+            let grantAccessDropdown = null;
             if (notification.action == "access_request")
             {
-                actionButton =  <button className="action_button notification_action" onClick={() => onClickGrantAccess(notification)}>Grant Access</button>
+                grantAccessDropdown = <div>
+                    <p className="grantAccessTitle">Grant Access</p>
+                    <select name="access-level" id={notification.id + "-access-level"} defaultValue="" onChange={(value) => onChangeAccessLevel(notification, value)}>
+                        <option value="30">Full</option>
+                        <option value="1">View Scores</option>
+                        <option value="" disabled hidden>Select Access Level</option>
+                    </select>
+                </div>
+                actionButton =  <button className="action_button notification_action" id={notification.id + "_action_button"} onClick={() => onClickGrantAccess(notification)}>Grant Access</button>
             }
             let createdAt = new Date(0);
             createdAt.setUTCSeconds(notification.created_at)
@@ -136,6 +163,7 @@ const Notifications = (user) => {
                 <img className='senderAvatar' src={notification.avatar} />
                 <div className='notice_right_side'>
                     <div dangerouslySetInnerHTML={{__html: `<p class='subject'>${notification.subject}</p>`}}></div>
+                    { grantAccessDropdown }
                     { actionButton }
                     <p className="notif-date">Sent on {createdAt.toLocaleString()}</p>
                 </div>
@@ -151,8 +179,8 @@ const Notifications = (user) => {
                 data-notifications={notifications.length}
                 onClick={() => toggleNavOpen()}></button>
 
-            return notifRow;
-        })
+            notificationElements.push(notifRow)
+        }
 
         render = (
             <div className="notifContainer">
@@ -161,6 +189,7 @@ const Notifications = (user) => {
                     <div id='notices' ref={modalRef}>
                         <h2>Messages:</h2>
                         { notificationElements }
+                        <a id="removeAllNotifications" onClick={()=>removeAllNotifications()}>Remove all Notifications</a>
                     </div>
                 : <></> }
             </div>
