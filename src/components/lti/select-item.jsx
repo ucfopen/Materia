@@ -263,7 +263,7 @@ const SelectItem = () => {
 	if (showRefreshArrow) refreshArrow = <div className="qtip right lti">Click to see your new widget</div>
 
 	return (
-		<div>
+		<div id="lti-select-wrapper">
 			<header>
 				<h1>{strHeader}</h1>
 				<div id="logo"></div>
