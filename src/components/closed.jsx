@@ -14,7 +14,7 @@ const Closed = () => {
 	})
 
 	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('EMBEDDED')
+		while(!window.hasOwnProperty('IS_EMBEDDED')
 		&& !window.hasOwnProperty('NAME')
 		&& !window.hasOwnProperty('WIDGET_NAME')
 		&& !window.hasOwnProperty('ICON_DIR')
@@ -28,7 +28,7 @@ const Closed = () => {
 		waitForWindow()
 		.then(() => {
 			setState({
-				isEmbedded: window.EMBEDDED,
+				isEmbedded: window.IS_EMBEDDED,
 				instName: window.NAME,
 				widgetName: window.WIDGET_NAME,
 				summary: window.SUMMARY,

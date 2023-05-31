@@ -272,7 +272,7 @@ class Controller_Widgets extends Controller
 		$this->add_inline_info();
 	}
 
-	protected function retired()
+	protected function retired(bool $is_embedded = false)
 	{
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
@@ -281,6 +281,9 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		Js::push_group(['react', 'retired']);
+		Css::push_group(['login']);
+
+		Js::push_inline('var IS_EMBEDDED = "'.$is_embedded.'";');
 	}
 
 	protected function no_attempts(object $inst, bool $is_embedded)
@@ -381,9 +384,9 @@ class Controller_Widgets extends Controller
 
 		$status = $inst->status($context_id);
 
-		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
+		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id, $is_embedded);
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
-		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
+		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired($is_embedded);
 		if ( ! $status['has_attempts']) return $this->no_attempts($inst, $is_embedded);
 		if (isset($_GET['autoplay']) && $_GET['autoplay'] === 'false') return $this->pre_embed_placeholder($inst);
 
@@ -474,7 +477,7 @@ class Controller_Widgets extends Controller
 		}
 		else
 		{
-			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
+			Js::push_inline('var IS_EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
 			Js::push_inline('var NAME = "'.$inst->name.'";');
 			Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
 			Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
@@ -489,12 +492,6 @@ class Controller_Widgets extends Controller
 
 			Css::push_group(['login']);
 			Js::push_group(['react', 'closed']);
-
-			// $content = $this->theme->set_partial('content', 'partials/widget/closed');
-			// $content
-			// 	->set('msg', __('user'))
-			// 	->set('date', $server_date)
-			// 	->set_safe('availability', $desc);
 		}
 	}
 
