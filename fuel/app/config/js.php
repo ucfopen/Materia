@@ -24,6 +24,7 @@ return [
 		'no_attempts'=> [$webpack.'js/no-attempts.js'],
 		'draft_not_playable' => [$webpack.'js/draft-not-playable.js'],
 		'no_permission' => [$webpack.'js/no-permission.js'],
+		'closed'     => [$webpack.'js/closed.js'],
 		'embedded_only' => [$webpack.'js/embedded-only.js'],
 		'pre_embed'  => [$webpack.'js/pre-embed-placeholder.js'],
 		'help'       => [$webpack.'js/help.js'],

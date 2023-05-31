@@ -371,9 +371,6 @@ class Controller_Widgets extends Controller
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
 
-		// Disable header if embedded, prior to setting the widget view or any login/error screens
-		if ($is_embedded) $this->_header = 'partials/header_empty';
-
 		if ( ! $is_embedded && $inst->embedded_only) return $this->embedded_only($inst);
 
 		// display a login
@@ -455,8 +452,6 @@ class Controller_Widgets extends Controller
 				Js::push_group(['react', 'login']);
 			}
 
-			// trace($inst);
-
 			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
 			Js::push_inline('var ACTION_LOGIN = "'.\Router::get('login').'";');
 			Js::push_inline('var ACTION_REDIRECT = "'.urlencode(URI::current()).'";');
@@ -479,11 +474,27 @@ class Controller_Widgets extends Controller
 		}
 		else
 		{
-			$content = $this->theme->set_partial('content', 'partials/widget/closed');
-			$content
-				->set('msg', __('user'))
-				->set('date', $server_date)
-				->set_safe('availability', $desc);
+			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
+			Js::push_inline('var NAME = "'.$inst->name.'";');
+			Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
+			Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
+
+			Js::push_inline('var SUMMARY = "'.$summary.'";');
+			Js::push_inline('var DESC = "'.$desc.'";');
+
+			$this->theme->set_template('layouts/react');
+			$this->theme->get_template()
+				->set('title', 'Widget Unavailable')
+				->set('page_type', 'login');
+
+			Css::push_group(['login']);
+			Js::push_group(['react', 'closed']);
+
+			// $content = $this->theme->set_partial('content', 'partials/widget/closed');
+			// $content
+			// 	->set('msg', __('user'))
+			// 	->set('date', $server_date)
+			// 	->set_safe('availability', $desc);
 		}
 	}
 
@@ -496,13 +507,14 @@ class Controller_Widgets extends Controller
 		// Build the open/close dates for display
 		if ($status['opens'])
 		{
-			$start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
-			$start_sec    = '{{ time('.((int) $inst->open_at * 1000).') }}';
+			// $start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
+			$start_string = date($format, (int) $inst->open_at);
+			$start_sec    = date('h:i A', (int) $inst->open_at * 1000);
 		}
 		if ($status['closes'])
 		{
-			$end_string   = '<span class="available_date">'.date($format, (int) $inst->close_at).'</span>';
-			$end_sec      = '{{ time('.((int) $inst->close_at * 1000).') }}';
+			$end_string   = date($format, (int) $inst->close_at);
+			$end_sec      = date('h:i A', (int) $inst->close_at * 1000);
 		}
 
 		// finish the actual messages to the user
