@@ -329,8 +329,8 @@ header {
 		position:absolute;
 		display: flex;
 		flex-direction: column;
-		right: 0;
-		top: 40px;
+		right: 20px;
+		top: 45px;
 		width: 400px;
 		box-shadow: 1px 10px 10px 1px rgba(0,0,0,0.1);
 		background-color: #fff;
@@ -367,12 +367,15 @@ header {
 	}
 	#notifications_link {
 		cursor:pointer;
-		width: 50px;
-		height: 30px;
+		width: 45px;
+		height: 31px;
 		border: none;
-		background:url(../../../img/envelope.png) 0% 0% no-repeat;
-		background-size: 70%;
-		margin-top: 5px;
+		background:url(../../../img/envelope.svg) 0% 0% no-repeat;
+		padding: 0;
+		box-sizing: border-box;
+		&:hover {
+			box-shadow: 0px 0px 5px 0px grey;
+		}
 	}
 	#notifications_link.notEmpty:after {
 		content: attr(data-notifications);
@@ -384,7 +387,8 @@ header {
 		height: 15px;
 		background-color: red;
 		position: absolute;
-		left: 27px;
+		left: 35px;
+		bottom: -5px;
 		font-size: 0.9em;
 	}
 	.noticeClose
@@ -414,6 +418,7 @@ header {
 	.grantAccessTitle
 	{
 		margin-top: 5px;
+		margin-bottom: 0px;
 		padding: 5px 0;
 		border-top: 1px solid gray;
 	}
