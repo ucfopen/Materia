@@ -94,10 +94,7 @@ const MyWidgetsPage = () => {
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
 		placeholderData: null,
-		staleTime: Infinity,
-		onSuccess: (data) => {
-			console.log(data)
-		}
+		staleTime: Infinity
 	})
 
 	// konami code activate (or deactivate)

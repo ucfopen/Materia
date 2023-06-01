@@ -13,10 +13,10 @@ export default function useSupportDeleteWidget() {
 					queryClient.invalidateQueries('widgets')
 				}
 				else {
-					console.log('failed to delete widget')
+					console.error('failed to delete widget')
 				}
 			},
-			onError: () => console.log('Failed to delete widget on backend')
+			onError: () => console.error('Failed to delete widget on backend')
 		}
 	)
 }

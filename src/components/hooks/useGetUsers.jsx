@@ -9,9 +9,6 @@ export default function useGetUsers() {
 			mutationFn: (variables) => {
 				return apiGetUsers(variables.userIds)
 			},
-			onMutate: async users => {
-				console.log(users)
-			},
 			onSuccess: (data, variables) => {
 				variables.successFunc(data)
 			},
