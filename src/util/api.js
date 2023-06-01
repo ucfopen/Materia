@@ -113,7 +113,6 @@ export const apiCopyWidget = values => {
 export const apiDeleteWidget = ({ instId }) => {
 	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
 		.then((resp) => {
-			console.log(instId)
 			if (resp.status === 204 || resp.status === 502) return null
 			return resp.json()
 		})
@@ -199,9 +198,6 @@ export const apiGetUsers = arrayOfUserIds => {
 	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
 		.then(users => {
 			const keyedUsers = {}
-			console.log(users)
-			console.log(arrayOfUserIds)
-
 			if (Array.isArray(users)) {
 				users.forEach(u => { keyedUsers[u.id] = u })
 			}
