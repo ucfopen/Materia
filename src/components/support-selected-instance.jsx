@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { apiGetUserPermsForInstance } from '../util/api'
+import { apiGetUsers, apiGetUserPermsForInstance } from '../util/api'
 import { useQuery } from 'react-query'
 import { iconUrl } from '../util/icon-url'
 import rawPermsToObj from '../util/raw-perms-to-object'
@@ -50,6 +50,14 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const deleteWidget = useDeleteWidget()
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
+
+	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
+		queryKey: ['instance-owner', inst.id],
+		queryFn: () => apiGetUsers([updatedInst.user_id]),
+		enabled: !!updatedInst && !!updatedInst.user_id,
+		staleTime: Infinity
+	})
+
 	const { data: perms, isFetching: loadingPerms} = useQuery({
 		queryKey: ['user-perms', inst.id],
 		queryFn: () => apiGetUserPermsForInstance(inst.id),
@@ -253,6 +261,10 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 				<span>
 					<label>ID:</label>
 					{updatedInst.id}
+				</span>
+				<span>
+					<label>Owner:</label>
+					{loadingInstOwner ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
 				</span>
 				<span>
 					<label>Date Created:</label>

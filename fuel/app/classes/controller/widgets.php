@@ -267,7 +267,7 @@ class Controller_Widgets extends Controller
 			->set('page_type', '');
 
 		Js::push_group(['react', 'draft_not_playable']);
-		Css::push_group(['draft-not-playable']);
+		Css::push_group(['login']);
 
 		$this->add_inline_info();
 	}

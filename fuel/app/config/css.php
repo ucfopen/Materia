@@ -26,10 +26,7 @@ return [
 			$webpack.'css/lti-error.css',
 		],
 		'my_widgets'  => [$webpack.'css/my-widgets.css'],
-		'widget_create' => [
-			$webpack.'css/loading-icon.css',
-			$webpack.'css/creator-page.css',
-		],
+		'widget_create' => [$webpack.'css/creator-page.css'],
 		'profile' => [$webpack.'css/profile.css'],
 		'login' => [$webpack.'css/login.css'],
 		'scores' => [$webpack.'css/scores.css'],
