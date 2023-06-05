@@ -92,7 +92,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		let shareNotAllowed = false
 
 		if(!inst.guest_access && match.is_student && !match.is_support_user){
-			console.log(match)
 			shareNotAllowed = true
 			setState({...state, searchText: '', updatedAllUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 			return
@@ -265,6 +264,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					key={user.id}
 					user={user}
 					perms={userPerms}
+					myPerms={myPerms}
 					isCurrentUser={currentUser.id === user.id}
 					onChange={(userId, perms) => updatePerms(userId, perms)}
 					readOnly={myPerms?.shareable === false}
