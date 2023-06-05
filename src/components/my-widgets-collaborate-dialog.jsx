@@ -26,7 +26,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
 	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
-		queryKey: ['collab-users', inst.id, otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms], // check for changes in otherUserPerms
+		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
@@ -91,7 +91,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		const tempPerms = new Map(state.updatedOtherUserPerms)
 		let shareNotAllowed = false
 
-		if(!inst.guest_access && match.is_student){
+		if(!inst.guest_access && match.is_student && !match.is_support_user){
 			shareNotAllowed = true
 			setState({...state, searchText: '', updatedOtherUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 			return
@@ -103,6 +103,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			let tmpMatch = {}
 			tmpMatch[match.id] = match
 			queryClient.setQueryData(['collab-users', inst.id], old => ({...old, ...tmpMatch}))
+			if (!collabUsers[match.id])
+				collabUsers[match.id] = match
 
 			// Updateds the perms
 			tempPerms.set(
@@ -249,7 +251,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				if (!user)
 				{
 					// Check if the user was added from an external source (e.g. notifications)
-					if (userId == newCollabUser.id)
+					if (newCollabUser && userId == newCollabUser.id)
 					{
 						user = newCollabUser;
 					}
