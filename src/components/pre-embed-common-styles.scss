@@ -52,6 +52,25 @@ body {
 		border: #e4e4e4 1px solid;
 		box-shadow: 1px 3px 10px #dcdcdc;
 
+		&.is-draft {
+			
+			p {
+				width: 80%;
+				margin: 10px auto;
+				text-align: left;
+			}
+
+			ul {
+				width: 80%;
+				margin: 10px auto;
+
+				li {
+					text-align: left;
+					line-height: 1.5em;
+				}
+			}
+		}
+
 		div.detail {
 			text-align: center;
 			clear: both;

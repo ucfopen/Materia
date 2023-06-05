@@ -15,7 +15,7 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 		if (hasScores) {
 			setScoreTab(TAB_GRAPH)
 		}
-	}, [hasScores])
+	}, [hasScores, instId])
 
 	const activeTab = useMemo(() => {
 		let curTab = scoreTab

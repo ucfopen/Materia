@@ -10,6 +10,7 @@ const Notifications = (user) => {
     const deleteNotification = useDeleteNotification()
     const queryClient = useQueryClient()
     const setUserPerms = setUserInstancePerms()
+    const numNotifications = useRef(0);
     const [errorMsg, setErrorMsg] = useState('');
     let modalRef = useRef();
 
@@ -21,7 +22,10 @@ const Notifications = (user) => {
 		refetchOnMount: false,
 		refetchOnWindowFocus: true,
 		queryFn: apiGetNotifications,
-        staleTime: Infinity
+        staleTime: Infinity,
+        onSuccess: (data) => {
+            numNotifications.current = data.length;
+        }
     })
 
     // Close notification modal if user clicks outside of it
@@ -57,13 +61,33 @@ const Notifications = (user) => {
         setShowDeleteBtn(-1);
     }
 
-    const removeNotification = (index) => {
-        let notif = notifications[index];
-        deleteNotification.mutate({notifId: notif.id, deleteAll: false});
+    const removeNotification = (index, id = null) => {
+        let notif = null;
+        if (index >= 0) notif = notifications[index];
+        if (id == null) id = notif.id;
+
+        deleteNotification.mutate({
+            notifId: id,
+            deleteAll: false,
+            successFunc: () => {
+                Object.keys(notifications).forEach((key, index) => {
+                    if (notifications[key].id == id)
+                    {
+                        notifications[key].remove = true;
+                        numNotifications.current--;
+                        return;
+                    }
+                })
+            }
+        });
     }
 
     const removeAllNotifications = () => {
-        deleteNotification.mutate({notifId: '', deleteAll: true});
+        deleteNotification.mutate({
+            notifId: '',
+            deleteAll: true,
+            successFunc: () => {}
+        });
     }
 
     const onChangeAccessLevel = (notif, access) => {
@@ -112,9 +136,7 @@ const Notifications = (user) => {
 
                     setErrorMsg('');
 
-                    // Remove notification
-
-                    deleteNotification.mutate({notifId: notif.id, deleteAll: false});
+                    removeNotification(-1, notif.id);
 
                     // Close notifications
                     setNavOpen(false)
@@ -139,6 +161,9 @@ const Notifications = (user) => {
         for (let index = notifications.length - 1; index >= 0; index--)
         {
             const notification = notifications[index];
+            // If notification was deleted don't show
+            if (notification.remove) continue;
+
             let actionButton = null;
             let grantAccessDropdown = null;
             if (notification.action == "access_request")
@@ -176,24 +201,28 @@ const Notifications = (user) => {
 
             notificationIcon =
             <button id='notifications_link' className='notEmpty'
-                data-notifications={notifications.length}
+                data-notifications={numNotifications.current}
                 onClick={() => toggleNavOpen()}></button>
 
             notificationElements.push(notifRow)
         }
 
-        render = (
-            <div className="notifContainer">
-                { notificationIcon }
-                { navOpen ?
-                    <div id='notices' ref={modalRef}>
-                        <h2>Messages:</h2>
-                        { notificationElements }
-                        <a id="removeAllNotifications" onClick={()=>removeAllNotifications()}>Remove all Notifications</a>
-                    </div>
-                : <></> }
-            </div>
-        )
+        // In the case that some notifications were removed, we don't want to render the empty notificationElements
+        if (notificationElements.length > 0)
+        {
+            render = (
+                <div className="notifContainer">
+                    { notificationIcon }
+                    { navOpen ?
+                        <div id='notices' ref={modalRef}>
+                            <h2>Messages:</h2>
+                            { notificationElements }
+                            <a id="removeAllNotifications" onClick={()=>removeAllNotifications()}>Remove all Notifications</a>
+                        </div>
+                    : <></> }
+                </div>
+            )
+        }
     }
     else
     {

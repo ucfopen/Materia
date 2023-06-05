@@ -21,7 +21,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 
 	let searchResultsRender = (
 		<div>
-			<p>{`${searchText.length == 0 ? 'Search for a widget by entering its name, ID, or creation time' : 'No widgets match your description'}`}</p>
+			<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
 		</div>
 	)
 	if ((isFetching || !searchedWidgets) && searchText.length > 0) {

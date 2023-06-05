@@ -26,7 +26,7 @@ const SelectItem = () => {
 		onSuccess: (data) => {
 			if (data) {
 				data.pagination.map((instance, index) => {
-					instance.img = iconUrl('/widget/', instance.widget.dir, 60)
+					instance.img = iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)
 					instance.preview_url = BASE_URL + 'preview/' + instance.id
 					instance.edit_url = BASE_URL + 'my-widgets/#' + instance.id
 				})
@@ -83,6 +83,10 @@ const SelectItem = () => {
 			let pgSpan = document.querySelector('.progress-container span')
 			pg.classList.add('success')
 			pgSpan.innerText = 'Success!'
+
+			if (JSON.stringify && parent.postMessage) {
+				parent.postMessage(JSON.stringify(selectedInstance), '*')
+			}
 
 			if (!!window.RETURN_URL) {
 				// add a ? or & depending on window.RETURN_URL already containing query params
@@ -143,7 +147,7 @@ const SelectItem = () => {
 				if (instance.selected) classList.push('selected')
 				if (instance.guest_access) classList.push('guest')
 				if (hiddenSet.has(instance.id)) classList.push('hidden')
-	
+
 				return <li className={classList.join(' ')} key={index}>
 					<div className={`widget-info ${instance.is_draft ? 'draft' : ''} ${instance.guest_access ? 'guest' : ''}`}>
 						<img className="widget-icon" src={instance.img}/>
@@ -259,7 +263,7 @@ const SelectItem = () => {
 	if (showRefreshArrow) refreshArrow = <div className="qtip right lti">Click to see your new widget</div>
 
 	return (
-		<div>
+		<div id="lti-select-wrapper">
 			<header>
 				<h1>{strHeader}</h1>
 				<div id="logo"></div>

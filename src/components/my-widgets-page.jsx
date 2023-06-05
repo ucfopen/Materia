@@ -31,8 +31,6 @@ const localBeard = window.localStorage.beardMode
 const MyWidgetsPage = () => {
 	readFromStorage()
 	const [state, setState] = useState({
-		page: 1,
-		totalPages: 0,
 		selectedInst: null,
 		otherUserPerms: null,
 		myPerms: null,
@@ -76,7 +74,7 @@ const MyWidgetsPage = () => {
 
 				setWidgetList({
 					...widgetList,
-					totalPages: data.total_num_pages || state.totalPages,
+					totalPages: data.total_num_pages || widgetList.totalPages,
 					instances: [...widgetSet].sort(_compareWidgets)
 				})
 			},
@@ -149,7 +147,7 @@ const MyWidgetsPage = () => {
 			const isEditable = state.selectedInst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
+				othersPerms.set(parseInt(i), rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
 			}
 			let _myPerms
 			for (const i in permUsers.user_perms) {
@@ -202,9 +200,46 @@ const MyWidgetsPage = () => {
 						noAccess: widgetFound == null,
 					})
 				}
+			} else if (widgetList.page == widgetList.totalPages) {
+				// widgetList is fully loaded and the selected instance is not found
+				// let the user know it's missing or unavailable
+				setState({
+					...state,
+					selectedInst: null,
+					noAccess: true,
+				})
 			}
+		} else if (state.pendingWidgetHash && widgetList.page == widgetList.totalPages) {
+			// special case to handle widget copy behavior
+			// because state.widgetHash and widgetList.instances are both updated concurrently, race conditions could occur
+			// to resolve this, set a special flag that's addressed AFTER the instance list is re-fetched
+			// widgetHash is updated only once widgetList.instances is fully populated
+			// unfortunately this is less responsive than the normal loading of instances, but oh well
+			let hash = state.pendingWidgetHash
+			let {pendingWidgetHash, ...stateCopy} = state
+			setState({
+				...stateCopy,
+				widgetHash: hash
+			})
 		}
 	}, [widgetList.instances, state.widgetHash, showCollab])
+
+	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
+	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
+	useEffect(() => {
+		if (state.selectedInst && !state.otherUserPerms?.get(user.id)) {
+			setState({
+				...state,
+				selectedInst: null,
+				widgetHash: null
+			})
+			setWidgetList({
+				...widgetList,
+				instances: [],
+				page: 1
+			})
+		}
+	},[state.otherUserPerms])
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {
@@ -255,11 +290,13 @@ const MyWidgetsPage = () => {
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
 				onSettled: newInstId => {
-					// Setting selectedInst to null again to avoid race conditions.
+					// race conditions require we reset selectedInst and widgetHash to null prior to updating those values
+					// instead, pendingWidgetHash will be used to update widgetHash once the instance list has fully reloaded
 					setState({
 						...state,
 						selectedInst: null,
-						widgetHash: newInstId
+						widgetHash: null,
+						pendingWidgetHash: newInstId
 					})
 
 					setWidgetList({
@@ -308,17 +345,13 @@ const MyWidgetsPage = () => {
 		)
 	}
 
-	// an instance has been edited
+	// Note this method is only used when a widget setting is updated via the settings dialog (attempts, availability, guest mode)
+	// It is NOT called when actually editing a widget (going to the creator)
 	const onEdit = (inst) => {
 		setState({
 			...state,
 			selectedInst: inst,
 			widgetHash: inst.id
-		})
-		setWidgetList({
-			...widgetList,
-			instances: [],
-			page: 1
 		})
 	}
 
@@ -355,32 +388,30 @@ const MyWidgetsPage = () => {
 
 		// A widget is selected, we're in the process of fetching it but it hasn't returned from the API yet
 		if (isFetching && widgetSpecified && !selectedInstanceHasLoaded(widgetSpecified)) {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 					<h2 className='loading-text'>Loading Your Widget</h2>
 				</section>
 		}
 
 		// No widget specified, fetch in progress
 		if (isFetching && !widgetSpecified) {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 			</section>
 		}
 
 		// A widget was specified but we don't have access rights to it
 		if (state.noAccess) {
-			return <section className='directions error'>
-				<div className='error error-nowidget'>
-					<p className='errorWindowPara'>
-						You do not have access to this widget or this widget does not exist.
-					</p>
+			return <section className='page directions no-widgets'>
+				<div className='error-nowidget'>
+					You do not have access to this widget or this widget does not exist.
 				</div>
 			</section>
 		}
 
 		// Not loading anything and no widgets returned from the API
 		if (widgetList.instances?.length < 1) {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
@@ -388,7 +419,7 @@ const MyWidgetsPage = () => {
 
 		// Not loading anything, widgets are waiting to be selected
 		if (!widgetSpecified) {
-			return <section className={`directions unchosen ${beardMode ? 'bearded' : ''}`}>
+			return <section className={`page directions unchosen ${beardMode ? 'bearded' : ''}`}>
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
@@ -415,7 +446,7 @@ const MyWidgetsPage = () => {
 
 		// Fallback to keep the selected instance content area intact (presumably some other state is forthcoming)
 		else {
-			return <section className='directions no-widgets'>
+			return <section className='page directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 			</section>
 		}

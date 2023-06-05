@@ -25,8 +25,9 @@ export default function useDeleteNotification() {
 				// Stores the old value for use if there is an error
 				return { previousValue }
 			},
-			onSuccess: () => {
-				queryClient.invalidateQueries('notifications')
+			onSuccess: (data, variables) => {
+				// queryClient.invalidateQueries('notifications')
+				if (data) variables.successFunc(data);
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('notifications', context.previousValue)

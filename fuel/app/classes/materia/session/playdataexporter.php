@@ -243,7 +243,7 @@ class Session_PlayDataExporter
 						$semester,
 						$play_event->type,
 						$play_event->item_id,
-						str_replace(["\r","\n", ','], '', $play_event->text), // sanitize commas and newlines to keep CSV formatting intact
+						is_string($play_event->text) ? str_replace(["\r","\n", ','], '', $play_event->text) : '', // sanitize commas and newlines to keep CSV formatting intact
 						$play_event->value,
 						$play_event->game_time,
 						$play_event->created_at
@@ -307,7 +307,7 @@ class Session_PlayDataExporter
 		foreach ($csv_questions as $question)
 		{
 			// Sanitize newlines and commas, as they break CSV formatting
-			$sanitized_question_text = str_replace(["\r","\n", ','], '', $question['text']);
+			$sanitized_question_text = is_string($question['text']) ? str_replace(["\r","\n", ','], '', $question['text']) : '';
 			$csv_question_text .= "\r\n{$question['question_id']},{$question['id']},{$sanitized_question_text}";
 
 			foreach ($options as $key)
@@ -327,14 +327,14 @@ class Session_PlayDataExporter
 		foreach ($csv_answers as $answer)
 		{
 			// Sanitize newlines and commas, as they break CSV formatting
-			$sanitized_answer_text = str_replace(["\r","\n", ','], '', $answer['text']);
+			$sanitized_answer_text = is_string($answer['text']) ? str_replace(["\r","\n", ','], '', $answer['text']) : '';
 			$csv_answer_text .= "\r\n{$answer['question_id']},{$answer['id']},{$sanitized_answer_text},{$answer['value']}";
 		}
 
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
 
 		$zip = new \ZipArchive();
-		$zip->open($tempname);
+		$zip->open($tempname, \ZipArchive::OVERWRITE);
 		$zip->addFromString('questions.csv', $csv_question_text);
 		$zip->addFromString('answers.csv', $csv_answer_text);
 		$zip->addFromString('logs.csv', $csv_playlog_text);
@@ -362,12 +362,12 @@ class Session_PlayDataExporter
 
 		foreach ($questions as $question)
 		{
-			$sanitized_question = str_replace(["\r","\n", ','], '', $question->questions[0]['text']);
+			$sanitized_question = is_string($question->questions[0]['text']) ? str_replace(["\r","\n", ','], '', $question->questions[0]['text']) : '';
 			$sanitized_answers = [];
 
 			foreach ($question->answers as $answer)
 			{
-				$sanitized_answer = str_replace(["\r","\n", ','], '', $answer['text']);
+				$sanitized_answer = is_string($answer['text']) ? str_replace(["\r","\n", ','], '', $answer['text']) : '';
 				array_push($sanitized_answers, $sanitized_answer);
 			}
 
@@ -426,7 +426,7 @@ class Session_PlayDataExporter
 		$tempname = tempnam('/tmp', 'materia_raw_log_csv');
 
 		$zip = new \ZipArchive();
-		$zip->open($tempname);
+		$zip->open($tempname, \ZipArchive::OVERWRITE);
 		$zip->addFromString('individual_referrers.csv', $csv_i);
 		$zip->addFromString('collective_referrers.csv', $csv_c);
 		$zip->close();
