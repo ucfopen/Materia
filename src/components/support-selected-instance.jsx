@@ -71,7 +71,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 			const isEditable = inst.widget.is_editable === '1'
 			const othersPerms = new Map()
 			for(const i in perms.widget_user_perms){
-				othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
+				othersPerms.set(parseInt(i), rawPermsToObj(perms.widget_user_perms[i], isEditable))
 			}
 			let _myPerms = {}
 			for(const i in perms.user_perms){
@@ -194,7 +194,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	let extraAttemptsDialogRender = null
 	if (showAttempts) {
 		extraAttemptsDialogRender = (
-			<ExtraAttemptsDialog 
+			<ExtraAttemptsDialog
 				onClose={() => setShowAttempts(false)}
 				inst={inst}
 			/>
@@ -254,7 +254,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
 					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
-				
+
 			</div>
 			</div>
 			<div className='overview'>

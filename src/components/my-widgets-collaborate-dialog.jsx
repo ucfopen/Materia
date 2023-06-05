@@ -80,7 +80,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			const map = new Map([...otherUserPerms, ...state.updatedAllUserPerms])
 			map.forEach((key, pair) => {
 				key.remove = false
-				pair = pair.toString()
 			})
 			setState({...state, updatedAllUserPerms: map})
 		}
@@ -195,7 +194,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	const updatePerms = (userId, perms) => {
 		let newPerms = new Map(state.updatedAllUserPerms)
-		newPerms.set(userId, perms)
+		newPerms.set(parseInt(userId), perms)
 		setState({...state, updatedAllUserPerms: newPerms})
 	}
 
