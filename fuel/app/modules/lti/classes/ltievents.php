@@ -23,7 +23,7 @@ class LtiEvents
 		$launch = LtiLaunch::from_request();
 		if ($launch)
 		{
-			if ( ! Oauth::validate_post()) $result['redirect'] = '/lti/error?message=invalid_oauth_request';
+			if ( ! Oauth::validate_post()) $result['redirect'] = '/lti/error/invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $result['redirect'] = '/lti/error/unknown_user';
 			$result['is_embedded'] = true;
 		}
@@ -61,7 +61,7 @@ class LtiEvents
 				}
 			}
 
-			if ( ! Oauth::validate_post()) $redirect = '/lti/error?message=invalid_oauth_request';
+			if ( ! Oauth::validate_post()) $redirect = '/lti/error/invalid_oauth_request';
 			elseif ( ! LtiUserManager::authenticate($launch)) $redirect = '/lti/error/unknown_user';
 			elseif ( ! $inst_id || ! $inst) $redirect = '/lti/error/unknown_assignment';
 			elseif ($inst->guest_access) $redirect = '/lti/error/guest_mode';

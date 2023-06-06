@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from 'react'
+import { iconUrl } from '../util/icon-url'
 
 const Summary = () => {
 
@@ -9,14 +10,14 @@ const Summary = () => {
 	useEffect(() => {
 		waitForWindow().then(() => {
 			setName(window.NAME)
-			setIcon(window.ICON)
+			setIcon(iconUrl(`${window.ICON_DIR}`,'',92))
 			setAvail(window.AVAIL)
 		})
 	})
 
 	const waitForWindow = async () => {
 		while(!window.hasOwnProperty('NAME')
-		&& !window.hasOwnProperty('ICON')) {
+		&& !window.hasOwnProperty('ICON_DIR')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}

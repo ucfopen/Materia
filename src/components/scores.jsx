@@ -47,7 +47,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		loading: true
 	})
 	const [playAgainUrl, setPlayAgainUrl] = useState(null)
-	const [hidePlayAgain, setHidePlayAgain] = useState(null)
+	const [hidePlayAgain, setHidePlayAgain] = useState(true)
 	const scoreHeaderRef = useRef(null)
 	const [hidePreviousAttempts, setHidePreviousAttempts] = useState(null)
 	const [widget, setWidget] = useState(null)
@@ -213,7 +213,9 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (guestAccess !== null && !isPreview) {
 			if (guestAccess) {
 				loadGuestScores()
-			} else {
+			} else if (play_id) {
+				// play_id is only present when the score screen is visited from an instance play or the profile page
+				// if visited from My Widgets, single_id is populated instead and this call is unnecessary
 				loadInstanceScores()
 			}
 		}
@@ -336,6 +338,34 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		}
 	}, [playScores])
 
+	useEffect(() => {
+		if (instance && !single_id) {
+			// show play again button?
+			if (!single_id && (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)) {
+				const prefix = (() => {
+					if (isEmbedded && isPreview) return '/preview-embed/'
+					if (isEmbedded) return '/embed/'
+					if (isPreview) return '/preview/'
+					return '/play/'
+				})()
+
+				let href = prefix + instance.id + '/' + instance.clean_name
+				if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
+					href += `?token=${window.LAUNCH_TOKEN}`
+				}
+				setAttemptsLeft(attemptsLeft)
+				setHidePlayAgain(false)
+				setWidget({
+					...widget,
+					href: href
+				})
+			} else {
+				// if there are no attempts left, hide play again
+				setHidePlayAgain(true)
+			}
+		}
+	}, [attemptsLeft])
+
 	const listenToHashChange = () => {
 		const hash = getAttemptNumberFromHash()
 		if (currentAttempt != hash) setCurrentAttempt(hash)
@@ -358,30 +388,10 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	// only referenced once, after instance is loaded
 	const _displayWidgetInstance = () => {
-		// Build the data for the overview section, prep for display through Underscore
-		const widget = {
+		// Build the data for the overview section
+		let overview = {
 			title: instance.name,
 			dates: attemptDates,
-			href: null
-		}
-
-		// show play again button?
-		if (!single_id && (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)) {
-			const prefix = (() => {
-				if (isEmbedded && isPreview) return '/preview-embed/'
-				if (isEmbedded) return '/embed/'
-				if (isPreview) return '/preview/'
-				return '/play/'
-			})()
-
-			widget.href = prefix + instance.id + '/' + instance.clean_name
-			if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
-				widget.href += `?token=${window.LAUNCH_TOKEN}`
-			}
-			setAttemptsLeft(attemptsLeft)
-		} else {
-			// if there are no attempts left, hide play again
-			setHidePlayAgain(true)
 		}
 
 		// Modify display of several elements after HTML is outputted
@@ -405,13 +415,13 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				paddingSize += 12
 		}
 
-		widget.headerStyle = {
+		overview.headerStyle = {
 			'fontSize': textSize,
 			'paddingTop': paddingSize,
 		}
 
 		setHidePreviousAttempts(single_id)
-		setWidget(widget)
+		setWidget({...widget, ...overview})
 	}
 
 	// Uses jPlot to create the bargraph

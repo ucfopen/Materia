@@ -14,7 +14,7 @@ export default function useCreatePlaySession() {
 					alert('Error: Widget demo failed to load content : is fatal')
 				}
 				else {
-					console.log(`failed to create play session with data: ${data}`)
+					console.error(`failed to create play session with data: ${data}`)
 				}
 			}
 		}

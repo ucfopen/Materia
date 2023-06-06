@@ -35,7 +35,7 @@ export const apiGetWidgetInstance = (instId, loadQset=false) => {
  * storage
  * @returns An array of objects.
  */
-export const apiGetWidgetInstances = page_number => {
+export const apiGetWidgetInstances = (page_number = 1) => {
 	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -202,7 +202,6 @@ export const apiGetUsers = arrayOfUserIds => {
 	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
 		.then(users => {
 			const keyedUsers = {}
-
 			if (Array.isArray(users)) {
 				users.forEach(u => { keyedUsers[u.id] = u })
 			}
@@ -254,13 +253,13 @@ export const apiGetNotifications = () => {
 	return fetch('/api/json/notifications_get/', fetchOptions({ body: `data=${formatFetchBody([])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return {}
-			return resp
+			return resp.json()
 		})
 		.then(notifications => notifications)
 }
 
-export const apiDeleteNotification = notifId => {
-	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([notifId])}` }))
+export const apiDeleteNotification = (data) => {
+	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` }))
 		.then((resp) => resp.json())
 }
 
@@ -270,15 +269,15 @@ export const apiGetExtraAttempts = instId => {
 			if (resp.status != 200) return []
 			return resp.json()
 		})
-		.then(attemps => {
+		.then(attempts => {
 			const map = new Map()
-			for (const i in attemps) {
-				map.set(parseInt(attemps[i].id),
+			for (const i in attempts) {
+				map.set(parseInt(attempts[i].id),
 					{
-						id: parseInt(attemps[i].id),
-						user_id: parseInt(attemps[i].user_id),
-						context_id: attemps[i].context_id,
-						extra_attempts: parseInt(attemps[i].extra_attempts)
+						id: parseInt(attempts[i].id),
+						user_id: parseInt(attempts[i].user_id),
+						context_id: attempts[i].context_id,
+						extra_attempts: parseInt(attempts[i].extra_attempts)
 					})
 			}
 			//const userIds = Array.from(attemps, user => user.user_id)
@@ -672,4 +671,27 @@ export const readFromStorage = () => {
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
 	return fetch('/api/json/widget_publish_perms_verify', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
 		.then(resp => resp.json())
+}
+
+// Request access to widget
+export const apiRequestAccess = (instId, ownerId) => {
+	return fetch('/api/instance/request_access',
+	{
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({
+			'inst_id': instId,
+			'owner_id': ownerId
+		})
+	})
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return null
+	})
 }

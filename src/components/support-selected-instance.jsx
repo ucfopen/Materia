@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { apiGetUserPermsForInstance } from '../util/api'
+import { apiGetUsers, apiGetUserPermsForInstance } from '../util/api'
 import { useQuery } from 'react-query'
 import { iconUrl } from '../util/icon-url'
 import rawPermsToObj from '../util/raw-perms-to-object'
@@ -50,6 +50,14 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const deleteWidget = useDeleteWidget()
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
+
+	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
+		queryKey: ['instance-owner', inst.id],
+		queryFn: () => apiGetUsers([updatedInst.user_id]),
+		enabled: !!updatedInst && !!updatedInst.user_id,
+		staleTime: Infinity
+	})
+
 	const { data: perms, isFetching: loadingPerms} = useQuery({
 		queryKey: ['user-perms', inst.id],
 		queryFn: () => apiGetUserPermsForInstance(inst.id),
@@ -62,9 +70,8 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 		if (perms) {
 			const isEditable = inst.widget.is_editable === '1'
 			const othersPerms = new Map()
-			for(const i in perms.widget_user_perms)
-			{
-				othersPerms.set(i, rawPermsToObj(perms.widget_user_perms[i], isEditable))
+			for(const i in perms.widget_user_perms){
+				othersPerms.set(parseInt(i), rawPermsToObj(perms.widget_user_perms[i], isEditable))
 			}
 			let _myPerms = {}
 			for(const i in perms.user_perms)
@@ -262,14 +269,28 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
 					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 459204d2b422f8039eeb3ff33f667cbccda5e13c
 			</div>
 			</div>
 			<div className='overview'>
 				<div>
 					<label>ID:</label>
+<<<<<<< HEAD
 					<span>{updatedInst.id}</span>
 				</div>
 				<div>
+=======
+					{updatedInst.id}
+				</span>
+				<span>
+					<label>Owner:</label>
+					{loadingInstOwner ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
+				</span>
+				<span>
+>>>>>>> 459204d2b422f8039eeb3ff33f667cbccda5e13c
 					<label>Date Created:</label>
 					{(new Date(updatedInst.created_at*1000)).toLocaleString()}
 				</div>

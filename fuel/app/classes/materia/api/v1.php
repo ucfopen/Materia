@@ -245,6 +245,12 @@ class Api_V1
 		{
 			$inst->qset = $qset;
 		}
+		else
+		{
+			// if the qset is not explicitly provided, assume it is not being updated
+			// if $inst->qset is populated it will be saved to the db as a new qset version - which isn't necessary
+			$inst->qset = (object) ['version' => null, 'data' => null];
+		}
 		if ( ! empty($name))
 		{
 			if ($inst->name != $name)
@@ -1109,21 +1115,36 @@ class Api_V1
 		return $return_array;
 	}
 
-	static public function notification_delete($note_id)
+	static public function notification_delete($note_id, $delete_all)
 	{
 		if ( ! \Service_User::verify_session()) return Msg::no_login();
 
 		$user = \Model_User::find_current();
 
-		$note = \Model_Notification::query()
+		if ($delete_all)
+		{
+			$notes = \Model_Notification::query()
+				->where('to_id', $user->id)
+				->get();
+
+			foreach ($notes as $note)
+			{
+				$note->delete();
+			}
+			return true;
+		}
+		if ($note_id)
+		{
+			$note = \Model_Notification::query()
 			->where('id', $note_id)
 			->where('to_id', $user->id)
 			->get();
 
-		if ($note)
-		{
-			$note[$note_id]->delete();
-			return true;
+			if ($note)
+			{
+				$note[$note_id]->delete();
+				return true;
+			}
 		}
 		return false;
 	}

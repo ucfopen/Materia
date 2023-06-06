@@ -60,13 +60,14 @@ const MyWidgetSelectedInstance = ({
 	onEdit,
 	beardMode,
 	beard,
-	setInvalidLogin
+	setInvalidLogin,
+	showCollab,
+	setShowCollab
 }) => {
 	const [state, setState] = useState(initState())
 	const [showEmbed, setShowEmbed] = useState(false)
 	const [showCopy, setShowCopy] = useState(false)
 	const [showLocked, setShowLocked] = useState(false)
-	const [showCollab, setShowCollab] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
@@ -124,7 +125,7 @@ const MyWidgetSelectedInstance = ({
 
 		// Filters out the current user for the collab label
 		for (let [key, user] of otherUserPerms) {
-			if (key !== currentUser?.id) {
+			if (key != currentUser?.id) {
 				usersList.push(user)
 			}
 		}
@@ -462,13 +463,13 @@ const MyWidgetSelectedInstance = ({
 					<div className="share-widget-options-second" id="third-share-widget-option">
 					<h4> Via Embed Code </h4>
 						<p>
-							Use the link provided above to share with your students (or
+							Provides a snippet of HTML to embed your widget directly in a webpage. Widgets
+							embedded in such a way do not synchronize scores or other data.
 							<span
 								className='show-embed link'
 								onClick={toggleShowEmbed}>
-								&nbsp;use the embed code
-							</span>
-							).
+								&nbsp;Show the embed code
+							</span>.
 						</p>
 
 					{ embedInfoRender }
@@ -498,7 +499,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin}/>
+			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>
 	)
 }

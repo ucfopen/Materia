@@ -79,7 +79,7 @@ class Controller_Scores extends Controller
 
 		Css::push_group(['scores']);
 
-		Js::push_group(['react', 'scores', 'labjs', 'jquery', 'jqplot']);
+		Js::push_group(['react', 'scores']);
 
 		$this->add_inline_info();
 	}

@@ -52,6 +52,25 @@ body {
 		border: #e4e4e4 1px solid;
 		box-shadow: 1px 3px 10px #dcdcdc;
 
+		&.is-draft {
+			
+			p {
+				width: 80%;
+				margin: 10px auto;
+				text-align: left;
+			}
+
+			ul {
+				width: 80%;
+				margin: 10px auto;
+
+				li {
+					text-align: left;
+					line-height: 1.5em;
+				}
+			}
+		}
+
 		div.detail {
 			text-align: center;
 			clear: both;
@@ -152,75 +171,73 @@ body {
 
 		div#form {
 
-			.form-content {
-				ul {
-					position: relative;
-					width: 500px;
-					margin: 30px auto 0 auto;
+			ul {
+				position: relative;
+				width: 500px;
+				margin: 30px auto 0 auto;
+				padding: 0;
+
+				&.help_links {
+					width: 100%;
 					padding: 0;
 
-					&.help_links {
-						width: 100%;
-						padding: 0;
-
-						font-size: 14px;
-						text-align: center;
-
-						li {
-							display: inline;
-
-							&:after { 
-								content: '|';
-							}
-
-							&:last-child:after {
-								content: '';
-							}
-
-							a {
-								margin: 0 5px;
-							}
-						}
-					}
+					font-size: 14px;
+					text-align: center;
 
 					li {
-						position: relative;
+						display: inline;
+
+						&:after { 
+							content: '|';
+						}
+
+						&:last-child:after {
+							content: '';
+						}
+
+						a {
+							margin: 0 5px;
+						}
+					}
+				}
+
+				li {
+					position: relative;
+					display: block;
+					height: 46px;
+					width: 350px;
+					margin: 13px auto 0 auto;
+
+					list-style-type: none;
+
+					label, input[type='text'], input[type='password'] {
+						position: absolute;
 						display: block;
-						height: 46px;
-						width: 350px;
-						margin: 13px auto 0 auto;
+						z-index: 500;
+						top: 0;
+						left: 0;
+						width: 326px; // or 300?
+						height: 40px;
+						padding-left: 12px;
+						padding-right: 12px;
+						
 
-						list-style-type: none;
+						font-size: 14px;
+						font-weight: 200;
 
-						label, input[type='text'], input[type='password'] {
-							position: absolute;
-							display: block;
-							z-index: 500;
-							top: 0;
-							left: 0;
-							width: 326px; // or 300?
-							height: 40px;
-							padding-left: 12px;
-							padding-right: 12px;
-							
+						border: solid 1.5px #abadb3;
+						background: #fff;
+					}
 
-							font-size: 14px;
-							font-weight: 200;
+					label {
+						z-index: 1000;
+						height: 27px;
+						margin-top: 13px;
+						margin-left: 14px;
+					}
 
-							border: solid 1.5px #abadb3;
-							background: #fff;
-						}
-
-						label {
-							z-index: 1000;
-							height: 27px;
-							margin-top: 13px;
-							margin-left: 14px;
-						}
-
-						&.submit_button {
-							text-align: center;
-						}
+					&.submit_button {
+						text-align: center;
 					}
 				}
 			}

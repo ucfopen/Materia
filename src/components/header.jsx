@@ -1,16 +1,14 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiAuthorSuper, apiAuthorSupport, apiGetNotifications } from '../util/api'
-import useDeleteNotification from './hooks/useDeleteNotification'
+import { apiGetUser, apiAuthorSuper, apiAuthorSupport } from '../util/api'
+import Notifications from './notifications'
 
 const Header = ({
-	userRoles = [],
-	userNotify = true,
 	allowLogins = true
 }) => {
 	const [menuOpen, setMenuOpen] = useState(false)
-	const [navOpen, setNavOpen] = useState(false)
-	const deleteNotification = useDeleteNotification()
+	const [optionsOpen, setOptionsOpen] = useState(false)
+
 	const { data: user, isLoading: userLoading} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
@@ -26,23 +24,16 @@ const Header = ({
 		queryFn: apiAuthorSupport,
 		staleTime: Infinity
 	})
-	const { data: notifications} = useQuery({
-		queryKey: 'notifications',
-		enabled: user?.loggedIn,
-		retry: false,
-		refetchInterval: 60000,
-		refetchOnMount: false,
-		refetchOnWindowFocus: true,
-		queryFn: apiGetNotifications,
-		staleTime: Infinity
-	})
 
 	const toggleMobileNavMenu = () => setMenuOpen(!menuOpen)
-	const toggleNavOpen = () => setNavOpen(!navOpen)
 
 	const logoutUser = () => {
 		sessionStorage.clear()
 		window.location.href = '/users/logout'
+	}
+
+	const showUserOptions = () => {
+		setOptionsOpen(!optionsOpen);
 	}
 
 	let userDataRender = <span id='current-user' data-logged-in='false'></span>
@@ -93,34 +84,32 @@ const Header = ({
 	This variable will account for the second Logout link.
 	*/
 	let logoutNavRender = null
-
-	let notificationsRender = null
+	let profileMenuRender = null
+	let notificationRender = null;
 
 	let userRender = null
 	if (!userLoading) {
-		let nameAvatarRender = null
-		let loginRender = null
+		let userAvatarRender = null;
+		let loginRender = null;
 
 		// this used to be !!user - not sure if the distinction was important
 		if (user) {
+
+			notificationRender = <Notifications user={user}/>
 
 			profileNavRender = (
 				<li>
 					<a href='/profile'>My Profile</a>
 				</li>
 			)
-
-			nameAvatarRender = (
-				<a href='/profile'>
-					<span>{`${user.first} ${user.last}`}</span>
-					<img src={user.avatar} />
-				</a>
-			)
-
-			loginRender = (
-				<span className='logout'>
-					<a onClick={logoutUser}>Logout</a>
-				</span>
+			userAvatarRender = (
+				<>
+					<div className="profile-bar-options">
+						<a href='/profile'>{`${user.first} ${user.last}`}</a>
+						<a onClick={logoutUser}>Logout</a>
+					</div>
+					<a href='/profile'><img src={user.avatar} onClick={showUserOptions}/></a>
+				</>
 			)
 
 			logoutNavRender = (
@@ -131,53 +120,47 @@ const Header = ({
 				</li>
 			)
 
-			if (notifications?.length > 0) {
-				const notificationElements = notifications.map(notification => (
-					<div className={`notice ${notification.deleted ? 'deleted' : ''}`}
-						key={notification.id}>
-						<p className='icon'>
-							<img className='senderAvatar' src={notification.avatar} />
-						</p>
-						<div className='notice_right_side'>
-							<div dangerouslySetInnerHTML={{__html: `<p class='subject'>${notification.subject}</p>`}}></div>
-						</div>
-						<span
-							className='noticeClose'
-							onClick={() => {deleteNotification.mutate(notification.id)}}
-						></span>
-					</div>
-				))
-
-				notificationsRender = (
-					<>
-						<a id='notifications_link'
-							data-notifications={notifications.length}
-							onClick={toggleNavOpen} />
-						<div id='notices' className={navOpen ? 'open' : ''}>
-							{ notificationElements }
-						</div>
-					</>
-				)
-			}
+			// A dropdown menu for the profile icon
+			// Not being used
+			profileMenuRender = (
+				<nav className={`profile-menu ${optionsOpen ? 'show' : ''}`}>
+					<span class="arrow-top"></span>
+					<ul>
+						<li>
+							<span>{`${user.first} ${user.last}`}</span>
+						</li>
+						<li>
+							<a href='/profile'>Profile</a>
+						</li>
+						{ logoutNavRender }
+					</ul>
+				</nav>
+			)
 
 		} else {
 			if (allowLogins) {
-				loginRender = <a href='/users/login'>Login</a>
+				loginRender = <a href='/users/login' id="loginLink">Login</a>
 			}
 		}
 
 		userRender = (
-			<p className='user avatar'>
-				{ nameAvatarRender }
+			<div className="profile-bar">
+				<div className="desktop-notifications">
+					{ notificationRender }
+				</div>
+				{ userAvatarRender }
 				{ loginRender }
-			</p>
+			</div>
 		)
 	}
-	
+
 	return (
 		<header className={user ? 'logged-in' : 'logged-out'} >
 			<h1 className='logo'><a href='/'>Materia</a></h1>
 			{ userRender }
+			<div className="mobile-notifications">
+				{ notificationRender }
+			</div>
 			<button id='mobile-menu-toggle'
 				className={menuOpen ? 'expanded' : ''}
 				onClick={toggleMobileNavMenu}>
@@ -203,8 +186,6 @@ const Header = ({
 					{ logoutNavRender }
 				</ul>
 			</nav>
-
-			{ notificationsRender }
 
 		</header>
 	)

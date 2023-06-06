@@ -31,18 +31,21 @@ const localBeard = window.localStorage.beardMode
 const MyWidgetsPage = () => {
 	readFromStorage()
 	const [state, setState] = useState({
-		page: 1,
-		totalPages: 0,
-		widgetList: [],
 		selectedInst: null,
 		otherUserPerms: null,
 		myPerms: null,
 		noAccess: false,
-		loadingWidgets: true,
-		widgetHash: window.location.href.split('#')[1],
+		widgetHash: window.location.href.split('#')[1]?.split('-')[0],
 		currentBeard: ''
 	})
-	const [invalidLogin, setInvalidLogin] = useState(false);
+
+	const [widgetList, setWidgetList] = useState({
+		instances: [],
+		page: 1,
+		totalPages: 0
+	})
+	const [invalidLogin, setInvalidLogin] = useState(false)
+	const [showCollab, setShowCollab] = useState(false)
 
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
@@ -50,11 +53,10 @@ const MyWidgetsPage = () => {
 	const deleteWidget = useDeleteWidget()
 	const {
 		data,
-		isLoading,
 		isFetching,
 	} = useQuery(
-		['widgets', state.page],
-		() => apiGetWidgetInstances(state.page),
+		['widgets', widgetList.page],
+		() => apiGetWidgetInstances(widgetList.page),
 		{
 			keepPreviousData: true,
 			refetchOnWindowFocus: false,
@@ -68,29 +70,32 @@ const MyWidgetsPage = () => {
 					}
 				}
 				// Removes duplicates
-				let widgetSet = new Set([...(data.pagination ? data.pagination : []), ...state.widgetList])
+				let widgetSet = new Set([...(data.pagination ? data.pagination : []), ...widgetList.instances])
 
-				setState({
-					...state,
-					totalPages: data.total_num_pages || state.totalPages,
-					widgetList: [...widgetSet].sort(_compareWidgets)
+				setWidgetList({
+					...widgetList,
+					totalPages: data.total_num_pages || widgetList.totalPages,
+					instances: [...widgetSet].sort(_compareWidgets)
 				})
 			},
-		})
+		}
+	)
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
 		staleTime: Infinity
 	})
+
 	const { data: permUsers } = useQuery({
-		queryKey: ['user-perms', state.selectedInst?.id],
+		queryKey: ['user-perms', state.selectedInst?.id, state.widgetHash],
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
 		placeholderData: null,
 		staleTime: Infinity
 	})
 
+	// konami code activate (or deactivate)
 	useEffect(() => {
 		if (validCode) {
 			window.localStorage.beardMode = !beardMode
@@ -98,6 +103,7 @@ const MyWidgetsPage = () => {
 		}
 	}, [validCode])
 
+	// hook associated with the invalidLogin error
 	useEffect(() => {
 		if (invalidLogin)
 		{
@@ -105,12 +111,43 @@ const MyWidgetsPage = () => {
 		}
 	}, [invalidLogin])
 
+	// hook to attach the hashchange event listener to the window
+	useEffect(() => {
+		window.addEventListener('hashchange', listenToHashChange)
+
+		// check for collab hash on page load
+		setShowCollab(hashContainsCollab)
+
+		return () => {
+			window.removeEventListener('hashchange', listenToHashChange)
+		}
+	}, [])
+
+	// checks whether "-collab" is contained in hash id
+	const hashContainsCollab = () => {
+		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+
+		if (match != null && match[1] != null)
+		{
+			let hashParams = match[1].split('-');
+			if (hashParams.length > 1)
+			{
+				if (hashParams[1] == "collab")
+				{
+					return true
+				}
+			}
+		}
+		return false
+	}
+
+	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
 		if (state.selectedInst && permUsers) {
 			const isEditable = state.selectedInst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for (const i in permUsers.widget_user_perms) {
-				othersPerms.set(i, rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
+				othersPerms.set(parseInt(i), rawPermsToObj(permUsers.widget_user_perms[i], isEditable))
 			}
 			let _myPerms
 			for (const i in permUsers.user_perms) {
@@ -120,80 +157,115 @@ const MyWidgetsPage = () => {
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
+	// hook associated with updates to the widget list OR an update to the widget hash
+	// facilitates pagination and verifies if the selected widget is loaded when the widget list updates
+	// if there is a widget hash present AND the selected instance does not match the hash, perform an update to the selected widget state info
 	useEffect(() => {
-		// forcedRefresh flag is enabled when the widgetList is purged manually by copying or deleting an instance
-		if (state.forcedRefresh) {
-			setState({...state, forcedRefresh: false, loadingWidgets: true})
+		// increment pagination if the list isn't fully loaded
+		if (widgetList.page < widgetList.totalPages) {
+			setWidgetList({...widgetList, page: widgetList.page + 1})
 		}
-		// pagination in progress but incomplete
-		// this triggers the 'widgets' query
-		else if (state.page < state.totalPages) {
-			setState({...state, page: state.page + 1})
-		}
-		// pagination complete, widgetList assumed to be fully loaded
-		else {
-			// if a widget hash exists in the URL OR a widget is already selected in state
-			if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {
-				let desiredId = state.widgetHash ? state.widgetHash : state.selectedInst.id
-				// should the widget be selected?
+
+		// if a widget hash exists in the URL OR a widget is already selected in state
+		if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {
+
+			// the desired ID defaults to the widget hash
+			// selectedInst may lag behind for several reasons, including loading of the list or changes to the hash in the url
+			let desiredId = state.widgetHash ? state.widgetHash : state.selectedInst.id
+
+			let hashParams = desiredId.split('-')
+			if (hashParams.length > 1)
+			{
+				desiredId = hashParams[0];
+			}
+
+			// if the selected widget is loaded, go ahead and display it. The remaining widget list can comtinue to load concurrently
+			if (selectedInstanceHasLoaded(desiredId)) {
+				// prompt the new instance to be selected if it's different from the one in the hash (or not selected at all)
 				let selectWidget = state.widgetHash && (!state.selectedInst || state.selectedInst.id != state.widgetHash)
 
-				// locate the desired widget instance from the widgetList
-				let widgetFound = null
-				state.widgetList.forEach((widget, index) => {
-					if (widget.id == desiredId) {
-						widgetFound = widget
-						if (selectWidget) onSelect(widget, index)
-					}
-				})
+				if (selectWidget) {
+					// locate the desired widget instance from the widgetList
+					let widgetFound = null
+					widgetList.instances.forEach((widget, index) => {
+						if (widget.id == desiredId) {
+							widgetFound = widget
+							if (selectWidget) onSelect(widget, index)
+						}
+					})
 
+					setState({
+						...state,
+						selectedInst: widgetFound,
+						noAccess: widgetFound == null,
+					})
+				}
+			} else if (widgetList.page == widgetList.totalPages) {
+				// widgetList is fully loaded and the selected instance is not found
+				// let the user know it's missing or unavailable
 				setState({
 					...state,
-					selectedInst: widgetFound,
-					loadingWidgets: false,
-					noAccess: widgetFound == null,
+					selectedInst: null,
+					noAccess: true,
 				})
-			} else {
-				// no instance selected (either in state or the url), for example when the my-widgets page is first loaded
-				setState({ ...state, loadingWidgets: false})
 			}
+		} else if (state.pendingWidgetHash && widgetList.page == widgetList.totalPages) {
+			// special case to handle widget copy behavior
+			// because state.widgetHash and widgetList.instances are both updated concurrently, race conditions could occur
+			// to resolve this, set a special flag that's addressed AFTER the instance list is re-fetched
+			// widgetHash is updated only once widgetList.instances is fully populated
+			// unfortunately this is less responsive than the normal loading of instances, but oh well
+			let hash = state.pendingWidgetHash
+			let {pendingWidgetHash, ...stateCopy} = state
+			setState({
+				...stateCopy,
+				widgetHash: hash
+			})
 		}
-	}, [state.widgetList])
+	}, [widgetList.instances, state.widgetHash, showCollab])
 
+	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
+	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
 	useEffect(() => {
-		if (isLoading == true) {
-			setState({ ...state, loadingWidgets: true})
+		if (state.selectedInst && !state.otherUserPerms?.get(user.id)) {
+			setState({
+				...state,
+				selectedInst: null,
+				widgetHash: null
+			})
+			setWidgetList({
+				...widgetList,
+				instances: [],
+				page: 1
+			})
 		}
-	}, [isLoading])
+	},[state.otherUserPerms])
 
-	/**
-	 * If we have a widget ID in the URL, select that widget. If we don't, select the first widget in the
-	 * list
-	 * @param {array} widgets
-	 * @returns the onSelect function with the parameters of widgets[0] and 0.
-	 */
-
-	/**
-	 * It sets the state of the app to the selected to the selected widget instance by the user.
-	 * @param {string} inst
-	 * @param {int} index
-	 * @return nothing
-	 */
-	const onSelect = (inst, index) => {
-		if (inst.is_fake) return
-
-		setState({ ...state, selectedInst: inst, noAccess: false, currentBeard: beards[index], loadingWidgets: false })
-		setUrl(inst)
+	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
+	const listenToHashChange = () => {
+		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+		if (match != null && match[1] != null)
+		{
+			setShowCollab(hashContainsCollab)
+			setState({...state, widgetHash: match[1]})
+		}
+	}
+	// boolean to verify if the current instance list in state contains the specified instance
+	const selectedInstanceHasLoaded = (inst) => {
+		if (!inst) return false
+		return widgetList.instances.some(instance => instance.id == inst)
 	}
 
-	/**
-	 * Creates a copy of currently selected widget.
-	 * @param {string} instId
-	 * @param {string} newTitle
-	 * @param {boolean} newPerm
-	 * @param {object} inst
-	 * @return nothing
-	 */
+	// updates necessary state information for a newly selected widget
+	const onSelect = (inst, index) => {
+		if (inst.is_fake) return
+		setState({ ...state, selectedInst: inst, widgetHash: inst.id, noAccess: false, currentBeard: beards[index] })
+
+		// updates window URL history with current widget hash
+		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
+	}
+
+	// an instance has been copied: the mutation will optimistically update the widget list while the list is re-fetched from the server
 	const onCopy = (instId, newTitle, newPerm, inst) => {
 		setState({ ...state, selectedInst: null })
 
@@ -218,26 +290,26 @@ const MyWidgetsPage = () => {
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
 				onSettled: newInstId => {
-					// Setting selectedInst to null again to avoid race conditions.
+					// race conditions require we reset selectedInst and widgetHash to null prior to updating those values
+					// instead, pendingWidgetHash will be used to update widgetHash once the instance list has fully reloaded
 					setState({
 						...state,
 						selectedInst: null,
-						widgetHash: newInstId,
-						page: 1,
-						widgetList: [],
-						forcedRefresh: true
+						widgetHash: null,
+						pendingWidgetHash: newInstId
+					})
+
+					setWidgetList({
+						...widgetList,
+						instances: [],
+						page: 1
 					})
 				}
 			}
 		)
 	}
 
-	/**
-	 * When the user clicks the delete button, delete the widget and set the state to a loading state.
-	 * The first thing we do is set the state to null. This is to avoid race conditions
-	 * @param {object} inst
-	 * @return null
-	 */
+	// an instance has been deleted: the mutation will optimistically update the widget list while the list is re-fetched from the server
 	const onDelete = inst => {
 
 		deleteWidget.mutate(
@@ -260,37 +332,33 @@ const MyWidgetsPage = () => {
 					setState({
 						...state,
 						selectedInst: null,
-						widgetHash: null,
-						page: 1,
-						widgetList: [],
-						forcedRefresh: true
+						widgetHash: null
+					})
+
+					setWidgetList({
+						...widgetList,
+						instances: [],
+						page: 1
 					})
 				}
 			}
 		)
 	}
 
+	// Note this method is only used when a widget setting is updated via the settings dialog (attempts, availability, guest mode)
+	// It is NOT called when actually editing a widget (going to the creator)
 	const onEdit = (inst) => {
 		setState({
 			...state,
 			selectedInst: inst,
-			widgetHash: inst.id,
-			page: 1,
-			widgetList: [],
-			forcedRefresh: true
+			widgetHash: inst.id
 		})
 	}
-
-	/**
-	 * It takes an instance of a component and sets the URL to the component's ID.
-	 * @param {object}
-	 */
-	const setUrl = inst => window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 
 	const beards = useMemo(
 		() => {
 			const result = []
-			state.widgetList?.forEach(() => {
+			widgetList.instances?.forEach(() => {
 				result.push(randomBeard())
 			})
 			return result
@@ -299,7 +367,7 @@ const MyWidgetsPage = () => {
 	)
 
 	let widgetCatalogCalloutRender = null
-	if (!isFetching && (!state.widgetList || state.widgetList?.pagination?.length === 0)) {
+	if (!isFetching && (!widgetList.instances || widgetList.instances?.pagination?.length === 0)) {
 		widgetCatalogCalloutRender = (
 			<div className='qtip top nowidgets'>
 				Click here to start making a new widget!
@@ -315,50 +383,49 @@ const MyWidgetsPage = () => {
 	 */
 	const mainContentRender = () => {
 		// Go through a series of cascading conditional checks to determine what will be rendered on the right side of the page
-		// The function is trigger only once; Which cause complication when using pagination.
-		if (state.loadingWidgets) {
-			return <section className='directions no-widgets'>
-				<h1 className='loading-text'>Loading</h1>
-				<LoadingIcon size='lrg' />
-			</section>
-		}
 
 		const widgetSpecified = (state.widgetHash || state.selectedInst)
 
-		if (isFetching && widgetSpecified) {
-			return <section className='directions error'>
-				<div className='error error-nowidget'>
-					<p className='errorWindowPara'>
-						Almost done! Just making sure you have access to this widget.
-					</p>
-				</div>
+		// A widget is selected, we're in the process of fetching it but it hasn't returned from the API yet
+		if (isFetching && widgetSpecified && !selectedInstanceHasLoaded(widgetSpecified)) {
+			return <section className='page directions no-widgets'>
+					<h2 className='loading-text'>Loading Your Widget</h2>
+				</section>
+		}
+
+		// No widget specified, fetch in progress
+		if (isFetching && !widgetSpecified) {
+			return <section className='page directions no-widgets'>
+				<h1 className='loading-text'>Loading</h1>
 			</section>
 		}
 
+		// A widget was specified but we don't have access rights to it
 		if (state.noAccess) {
-			return <section className='directions error'>
-				<div className='error error-nowidget'>
-					<p className='errorWindowPara'>
-						You do not have access to this widget or this widget does not exist.
-					</p>
+			return <section className='page directions no-widgets'>
+				<div className='error-nowidget'>
+					You do not have access to this widget or this widget does not exist.
 				</div>
 			</section>
 		}
 
-		if (state.widgetList?.length < 1) {
-			return <section className='directions no-widgets'>
+		// Not loading anything and no widgets returned from the API
+		if (widgetList.instances?.length < 1) {
+			return <section className='page directions no-widgets'>
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
 			</section>
 		}
 
+		// Not loading anything, widgets are waiting to be selected
 		if (!widgetSpecified) {
-			return <section className={`directions unchosen ${beardMode ? 'bearded' : ''}`}>
+			return <section className={`page directions unchosen ${beardMode ? 'bearded' : ''}`}>
 				<h1>Your Widgets</h1>
 				<p>Choose a widget from the list on the left.</p>
 			</section>
 		}
 
+		// Not loading anything, a widget is currently selected
 		if (state.selectedInst) {
 			return <MyWidgetSelectedInstance
 				inst={state.selectedInst}
@@ -372,7 +439,16 @@ const MyWidgetsPage = () => {
 				beardMode={beardMode}
 				beard={state.currentBeard}
 				setInvalidLogin={setInvalidLogin}
+				showCollab={showCollab}
+				setShowCollab={setShowCollab}
 			/>
+		}
+
+		// Fallback to keep the selected instance content area intact (presumably some other state is forthcoming)
+		else {
+			return <section className='page directions no-widgets'>
+				<h1 className='loading-text'>Loading</h1>
+			</section>
 		}
 	}
 
@@ -389,8 +465,8 @@ const MyWidgetsPage = () => {
 					</div>
 					<MyWidgetsSideBar
 						key='widget-side-bar'
-						isLoading={isLoading}
-						instances={state.widgetList}
+						isFetching={isFetching}
+						instances={widgetList.instances}
 						selectedId={state.selectedInst ? state.selectedInst.id : null}
 						onClick={onSelect}
 						beardMode={beardMode}

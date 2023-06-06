@@ -4,39 +4,43 @@ import { apiUpdateWidget } from '../../util/api'
 export default function useUpdateWidget() {
 	const queryClient = useQueryClient()
 
+	let widgetList = null
+
 	// Optimistically updates the cache value on mutate
 	return useMutation(
 		apiUpdateWidget,
 		{
-			onMutate: async inst => {
+			onMutate: async formData => {
+				// cancel any in-progress queries and grab the current query cache for widgets
 				await queryClient.cancelQueries('widgets')
+				widgetList = queryClient.getQueryData('widgets')
 
-				const previousWidgets = queryClient.getQueryData('widgets')
-
-				if (previousWidgets) {
-					for (const val of previousWidgets.pagination) {
-						if (val.id === inst.args[0]) {
-							val.name = inst.args[1]
-							val.open_at = `${inst.args[4]}`
-							val.close_at = `${inst.args[5]}`
-							val.attempts = `${inst.args[6]}`
-							val.guest_access = inst.args[7]
-							val.embedded_only = inst.args[8]
-						}
-					}
-					queryClient.setQueryData('widgets', previousWidgets)
-				}
-
-				// Stores the old value for use if there is an error
-				return { previousWidgets }
+				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
+				return { widgetList }
 			},
 			onSuccess: (updatedInst, variables) => {
-				variables.successFunc(updatedInst)
-				queryClient.invalidateQueries('widgets')
+
+				// update successful - insert new values into our local copy of widgetList
+				for (const inst of widgetList?.pagination) {
+					if (inst.id === variables.args[0]) {
+						inst.open_at = `${variables.args[4]}`
+						inst.close_at = `${variables.args[5]}`
+						inst.attempts = `${variables.args[6]}`
+						inst.guest_access = variables.args[7]
+						inst.embedded_only = variables.args[8]
+					}
+				}
+
+				// update query cache for widgets. This does NOT invalidate the cache, forcing a re-fetch!!
+				queryClient.setQueryData('widgets', widgetList)
 				queryClient.invalidateQueries(['user-perms', variables.args[0]])
+
+				variables.successFunc(updatedInst)
 			},
-			onError: (err, newWidget, context) => {
-				queryClient.setQueryData('widgets', context.previousValue)
+			onError: (err, variables, previous) => {
+				// write previously intact widget list into the query cache. This should be the same data as before.
+				queryClient.setQueryData('widgets', previous)
+				variables.successFunc(null)
 			}
 		}
 	)

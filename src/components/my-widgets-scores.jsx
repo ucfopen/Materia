@@ -4,10 +4,10 @@ import { apiGetScoreSummary } from '../util/api'
 import MyWidgetScoreSemester from './my-widgets-score-semester'
 import MyWidgetsExport from './my-widgets-export'
 import LoadingIcon from './loading-icon'
-import NoContentIcon from'./no-content-icon'
+import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst}) => {
+const MyWidgetsScores = ({inst, beardMode}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -73,7 +73,7 @@ const MyWidgetsScores = ({inst}) => {
 
 	let contentRender = <LoadingIcon />
 	if (isFetched) {
-		contentRender = <NoContentIcon />
+		contentRender = <NoScoreContent beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}

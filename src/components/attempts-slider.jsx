@@ -1,14 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './my-widgets-settings-dialog.scss'
 
-const AttemptsSlider = ({inst, state, setState}) => {
+const AttemptsSlider = ({inst, parentState, setParentState}) => {
 
+	const [rawSliderVal, setRawSliderVal] = useState(parseInt(parentState.sliderVal))
+	const [sliderStopped, setSliderStopped] = useState(false)
+
+	// slider is moved
 	const sliderChange = e => {
-		if (state.formData.changes.access === 'guest') return
-
-		setState({...state, sliderVal: e.target.value})
+		if (parentState.formData.changes.access === 'guest') return
+		setRawSliderVal(parseFloat(e.target.value))
 	}
 
+	// slider is released (mouse up or blur event)
+	const sliderStop = e => {
+		setSliderStopped(true)
+	}
+	
+	// now that the slider value isn't actively changing, round the raw value to the nearest stop
+	// pass that rounded value up to the parent component
+	useEffect(() => {
+		if (sliderStopped && parentState.formData.changes.access != 'guest') {
+			const sliderInfo = getSliderInfo(rawSliderVal)
+			setParentState({...parentState, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
+			setSliderStopped(false)
+		}
+	},[sliderStopped])
+
+	// when the rounded value is updated in parent's state, update the raw slider value to match
+	// this also synchronizes the slider with the rounded value when the number is clicked instead of interacting with the slider itself
+	useEffect(() => {
+		if (parseInt(parentState.sliderVal) !== rawSliderVal) {
+			setRawSliderVal(parseInt(parentState.sliderVal))
+		}
+	}, [parentState.sliderVal])
+
+	// takes a raw value and returns the rounded value to match the closest stop
+	// note the values here represent the position on the slider that corresponds with a stop and not the actual attempt count
 	const getSliderInfo = val => {
 		switch(true){
 			case val === -1:
@@ -37,26 +65,13 @@ const AttemptsSlider = ({inst, state, setState}) => {
 	// Used when the number is clicked on the slider
 	const updateSliderNum = (val, index) => {
 		// Attempts always unlimited when guest access is true
-		if (state.formData.changes.access === 'guest') return
+		if (parentState.formData.changes.access === 'guest') return
 
-		setState({...state, sliderVal: val.toString(), lastActive: index})
-	}
-
-	// Rounds the input to the nearest specified value when the slider knob is released
-	const roundInput = (e) => {
-		if (state.formData.changes.access === 'guest') return
-
-		const val = parseFloat(e.target.value)
-
-		const sliderInfo = getSliderInfo(val)
-		setState({...state, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
-
-		e.stopPropagation()
-		e.preventDefault()
+		setParentState({...parentState, sliderVal: val.toString(), lastActive: index})
 	}
 
 	const generateStopSpan = (stopId, sliderPosition, display) => {
-		const spanClass = state.lastActive === stopId ? 'active' : ''
+		const spanClass = parentState.lastActive === stopId ? 'active' : ''
 		const stopClickHandler = () => updateSliderNum(sliderPosition, stopId)
 		return (
 			<span key={stopId}
@@ -68,7 +83,7 @@ const AttemptsSlider = ({inst, state, setState}) => {
 	}
 
 	let guestModeRender = null
-	if (state.formData.changes.access === 'guest') {
+	if (parentState.formData.changes.access === 'guest') {
 		guestModeRender = (
 			<div className='desc-notice'>
 				<b>Attempts are unlimited when Guest Mode is enabled.</b>
@@ -78,23 +93,23 @@ const AttemptsSlider = ({inst, state, setState}) => {
 
 	return (
 		<div className='data-holder'>
-			<div className={`selector ${state.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
+			<div className={`selector ${parentState.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
 				<input id='ui-slider'
 					aria-label='attempts-input'
-					className={`${state.formData.changes.access === 'guest' ? 'disabled' : ''}`}
+					className={`${parentState.formData.changes.access === 'guest' ? 'disabled' : ''}`}
 					type='range'
 					min='1'
 					max='100'
-					disabled={state.formData.changes.access === 'guest'}
-					value={state.sliderVal}
-					onMouseUp={roundInput}
+					disabled={parentState.formData.changes.access === 'guest'}
+					value={rawSliderVal}
+					onMouseUp={sliderStop}
 					onChange={sliderChange}
-					onBlur={roundInput}
+					onBlur={sliderStop}
 				></input>
 			</div>
 			<div id='attempt-holder'
 				aria-label='attempts-choices-container'
-				className={`attempt-holder ${state.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
+				className={`attempt-holder ${parentState.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
 				{ generateStopSpan(0, 1, '1') }
 				{ generateStopSpan(1, 5, '2') }
 				{ generateStopSpan(2, 9, '3') }

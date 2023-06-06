@@ -7,7 +7,7 @@ import './500.scss'
 const Action500 = () => (
 	<>
 		<Header />
-    <div className="container general" id="broken">
+    <div className="container general">
     	<section className="page">
     		<h1>500 :(</h1>
     		<p>
@@ -16,7 +16,7 @@ const Action500 = () => (
     		</p>
     	</section>
 
-    	<div id="supportInfo">
+    	<div id="support-info-500">
     		<SupportInfo/>
     	</div>
     </div>

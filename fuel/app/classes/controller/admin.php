@@ -89,7 +89,6 @@ class Controller_Admin extends Controller
 		Response::redirect('admin/widget');
 	}
 
-	// public function get_support()
 	public function get_instance()
 	{
 		$this->theme = Theme::instance();
