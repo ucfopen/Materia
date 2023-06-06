@@ -97,7 +97,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetQuestionSet(instId),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!instance.id, // requires instance state object to be prepopulated 
+		enabled: !!instance.id, // requires instance state object to be prepopulated
 		onSettled: (data) => {
 			if ( (data != null ? data.title : undefined) === 'Permission Denied' ||data.title === 'error') {
 					setCreatorState({...creatorState, invalid: true})
@@ -178,7 +178,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		} else {
 			setCreatorState({...creatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'})
 		}
-		
+
 	}, [instance])
 
 	useEffect(() => {
@@ -292,7 +292,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		console.warn(`Unknown message from creator: ${origin}`)
 	}
-	
+
 	const onCreatorReady = () => {
 		setWidgetReady(true)
 	}
@@ -322,8 +322,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 		sendToCreator('onRequestSave', [mode])
 	}
-
-	// console.log(instance)
 
 	const save = (instanceName, qset, version = 1) => {
 		let newWidget = {
@@ -383,8 +381,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const onSaveCanceled = (msg) => {
-		console.log(msg)
-
 		if (msg != null && msg != undefined) {
 			if (msg.halt != null) {
 
@@ -635,7 +631,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	let actionBarRender = null
 	if (creatorState.showActionBar) {
-		
+
 		let returnLocationUrl = creatorState.returnLocation == 'Widget Catalog' ? '/widgets' : '/my-widgets#' + instance.id
 
 		actionBarRender = (
