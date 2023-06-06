@@ -47,7 +47,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		loading: true
 	})
 	const [playAgainUrl, setPlayAgainUrl] = useState(null)
-	const [hidePlayAgain, setHidePlayAgain] = useState(null)
+	const [hidePlayAgain, setHidePlayAgain] = useState(true)
 	const scoreHeaderRef = useRef(null)
 	const [hidePreviousAttempts, setHidePreviousAttempts] = useState(null)
 	const [widget, setWidget] = useState(null)
@@ -213,7 +213,9 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (guestAccess !== null && !isPreview) {
 			if (guestAccess) {
 				loadGuestScores()
-			} else {
+			} else if (play_id) {
+				// play_id is only present when the score screen is visited from an instance play or the profile page
+				// if visited from My Widgets, single_id is populated instead and this call is unnecessary
 				loadInstanceScores()
 			}
 		}
@@ -337,7 +339,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}, [playScores])
 
 	useEffect(() => {
-		if (instance) {
+		if (instance && !single_id) {
 			// show play again button?
 			if (!single_id && (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)) {
 				const prefix = (() => {
@@ -352,6 +354,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					href += `?token=${window.LAUNCH_TOKEN}`
 				}
 				setAttemptsLeft(attemptsLeft)
+				setHidePlayAgain(false)
 				setWidget({
 					...widget,
 					href: href
