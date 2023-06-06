@@ -1435,12 +1435,12 @@ class Test_Api_V1 extends \Basetest
 		$id = $widget->id;
 
 		// ======= AS NO ONE ========
-		$output = Api_V1::notification_delete(5);
+		$output = Api_V1::notification_delete(5, false);
 		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
 		$this->_as_student();
-		$output = Api_V1::notification_delete(5);
+		$output = Api_V1::notification_delete(5, false);
 		$this->assertFalse($output);
 
 		$author = $this->_as_author();
@@ -1467,17 +1467,24 @@ class Test_Api_V1 extends \Basetest
 
 		// try as someone author2
 		$this->_as_author_2();
-		$output = Api_V1::notification_delete($notifications[0]['id']);
+		$output = Api_V1::notification_delete($notifications[0]['id'], false);
 		$this->assertFalse($output);
 
 		$this->_as_author();
-		$output = Api_V1::notification_delete($notifications[0]['id']);
+		$output = Api_V1::notification_delete($notifications[0]['id'], false);
 		$this->assertTrue($output);
 
 		$this->_as_author();
 		$notifications = Api_V1::notifications_get();
 		$this->assertEquals($start_count, count($notifications));
 
+		// try deleting all
+		$this->_as_author();
+		$output = Api_V1::notification_delete(null, true);
+		$this->assertTrue($output);
+
+		$notifications = Api_V1::notifications_get();
+		$this->assertEquals(0, count($notifications));
 	}
 
 	public function test_semester_get()

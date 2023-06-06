@@ -10,6 +10,7 @@ const SelectItem = () => {
 	const [userOwnsInstance, setUserOwnsInstance] = useState(false)
 	const [previewEmbedUrl, setPreviewEmbedUrl] = useState('')
 	const [requestSuccess, setRequestSuccess] = useState(null)
+	const [requestSuccessID, setRequestSuccessID] = useState(null)
 	const [instanceOwners, setOwnerList] = useState([])
 
 	const { data: instance } = useQuery({
@@ -46,6 +47,7 @@ const SelectItem = () => {
 		await apiRequestAccess(instID, ownerID).then((data) => {
 			if (data) setRequestSuccess('Request succeeded')
 			else setRequestSuccess('Request Failed')
+			setRequestSuccessID(ownerID)
 		})
 	}
 
@@ -54,8 +56,8 @@ const SelectItem = () => {
 		ownerList = instanceOwners.map((owner, index) => {
 			return <li className="instance_owner" key={index}>
 				<span>{owner.first} {owner.last}</span>
-				<button id={'owner-' + owner.id} className="action_button request_widget_access" onClick={() => requestAccess(owner.id)} disabled={requestSuccess !== null}>Request Access</button>
-				{requestSuccess !== null ? <span clasName="request_success">{requestSuccess}</span> : <></>}
+				<button id={'owner-' + owner.id} className="action_button request_widget_access" onClick={() => requestAccess(owner.id)} disabled={requestSuccess !== null && requestSuccessID == owner.id}>Request Access</button>
+				{requestSuccess !== null && requestSuccessID == owner.id ? <span className="request_success">{requestSuccess}</span> : <></>}
 			</li>
 		})
 	}
