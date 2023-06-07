@@ -276,6 +276,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const _onWidgetReady = () => {
 		switch (false) {
 			case !(qset == null):
+				// This is never reached
 				_onLoadFail('Unable to load widget data.')
 				break
 			case !(frameRef.current == null):

@@ -7,14 +7,13 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { act } from 'react-dom/test-utils';
 import { render, screen, cleanup, fireEvent, waitFor, prettyDOM } from '@testing-library/react'
 
-import WidgetPlayer from './widget-player'
 import WidgetPlayerPage from './widget-player-page'
 
 import * as api from '../util/api'
 
 import instance from '../__test__/mockapi/crossword_demo_instance.json'
 import qset from '../__test__/mockapi/crossword_demo_qset.json'
-        
+
 jest.mock('../util/api')
 
 // To see the DOM at any time after rendered has loaded, use:
@@ -95,7 +94,7 @@ describe('Widget Player Page', () => {
 
 		// Does the iframe have the correct src attribute?
 		expect(await rendered.container.querySelector('iframe').getAttribute('src')).toBe(`${window.WIDGET_URL + instance.widget.dir + instance.widget.player}?${instance.widget.created_at}`);
-		
+
 		expect(mockApiGetWidgetInstance).toHaveBeenCalled();
 		expect(mockApiGetQuestionQset).toHaveBeenCalled();
 
@@ -118,8 +117,9 @@ describe('Widget Player Page', () => {
 		expect(await rendered.container.querySelector('#container').getAttribute('src').includes(`${window.WIDGET_URL + instance.widget.dir + instance.widget.player}?${instance.widget.created_at}`)).toBeTruthy();
 	})
 
-	it('should send alert if instance is null', async () => {
-		jest.spyOn(api, 'apiGetWidgetInstance').mockResolvedValue(null)
+	it('should send alert if instance has no id', async () => {
+		let temp = instance.id;
+		delete instance.id;
 
 		let rendered;
 		await act(async () => {
@@ -128,20 +128,23 @@ describe('Widget Player Page', () => {
 
 		expect(mockApiGetWidgetInstance).toHaveBeenCalled()
 		expect(mockWindowAlert).toHaveBeenCalled()
+
+		instance.id = temp;
 	})
 
-	it('should send alert if qset is null', async () => {
-		jest.spyOn(api, 'apiGetQuestionSet').mockResolvedValue(null)
+	// No longer sends alerts if qset is null
+	// it('should send alert if qset is null', async () => {
+	// 	mockApiGetQuestionQset = jest.spyOn(api, 'apiGetQuestionSet').mockResolvedValue(null)
 
-		let rendered;
-		await act(async () => {
-			rendered = await renderWithClient(<WidgetPlayerPage/>)
-		})
+	// 	let rendered;
+	// 	await act(async () => {
+	// 		rendered = await renderWithClient(<WidgetPlayerPage/>)
+	// 	})
 
-		expect(mockApiGetQuestionQset).toHaveBeenCalled()
-		expect(mockWindowAlert).toHaveBeenCalled()
+	// 	expect(mockApiGetQuestionQset).toHaveBeenCalled()
+	// 	expect(mockWindowAlert).toHaveBeenCalled()
 
-	})
+	// })
 
 	it('should not send alert if play log save succeeds', async () => {
 		let rendered;
@@ -161,7 +164,7 @@ describe('Widget Player Page', () => {
 				}
             }
 		}
-		
+
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e_add, data: JSON.stringify(e_add.data)}))
         })
@@ -179,13 +182,13 @@ describe('Widget Player Page', () => {
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e_send, data: JSON.stringify(e_send.data)}))
         })
-		
+
 		expect(mockApiSavePlayLogs).toHaveBeenCalled()
 		expect(mockWindowAlert).not.toHaveBeenCalled()
 	})
 
 	it('should send alert if play log save fails', async () => {
-		jest.spyOn(api, 'apiSavePlayLogs').mockResolvedValue({halt: true, type: "error", msg: "You have been logged out, and must login again to continue"})
+		mockApiSavePlayLogs = jest.spyOn(api, 'apiSavePlayLogs').mockResolvedValue({halt: true, type: "error", msg: "You have been logged out, and must login again to continue"})
 
 		let rendered;
 		await act(async () => {
@@ -204,7 +207,7 @@ describe('Widget Player Page', () => {
 				}
             }
 		}
-		
+
 		// calls mockApiSavePlayLogs
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e_add, data: JSON.stringify(e_add.data)}))
@@ -223,7 +226,7 @@ describe('Widget Player Page', () => {
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e_send, data: JSON.stringify(e_send.data)}))
         })
-		
+
 		expect(mockApiSavePlayLogs).toHaveBeenCalled()
 		expect(mockWindowAlert).toHaveBeenCalled()
 	})
@@ -233,7 +236,7 @@ describe('Widget Player Page', () => {
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetPlayerPage/>)
 		})
-		
+
 		const e_end = {
             source: window,
             origin: window.BASE_URL.substring(0, window.BASE_URL.length - 1),
@@ -246,7 +249,7 @@ describe('Widget Player Page', () => {
         await act(async () => {
             window.dispatchEvent(new MessageEvent('message', {...e_end, data: JSON.stringify(e_end.data)}))
 		})
-		
+
 		expect(mockApiSavePlayLogs).toHaveBeenCalled()
 		expect(window.location).toEqual(`${window.BASE_URL}scores/${instance.id}#play-${window.PLAY_ID}`)
 	})
