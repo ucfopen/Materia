@@ -5,6 +5,7 @@
 import React from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react'
+import { act } from 'react-dom/test-utils';
 import '@testing-library/jest-dom'
 
 import widgets from '../__test__/mockapi/admin_widgets_get.json'
@@ -51,15 +52,27 @@ describe('UserAdmin', () => {
 
 	})
 
-    it('returns search results if there are user matches')
+    it('returns search results if there are user matches', async () => {
 
-    it('returns no search results if there are no matches')
+	});
 
-    it('selects user from search results and displays user page')
+    it('returns no search results if there are no matches', async () => {
 
-    it('shows success message after updating widget instance successfully')
+	});
 
-    it('shows error message after updating widget instance fails')
+    it('selects user from search results and displays user page', async () => {
 
-    it('should not load page if user is not logged in')
+	});
+
+    it('shows success message after updating widget instance successfully', async () => {
+
+	});
+
+    it('shows error message after updating widget instance fails', async () => {
+
+	});
+
+    it('should not load page if user is not logged in', async () => {
+
+	});
 })

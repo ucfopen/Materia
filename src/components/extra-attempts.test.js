@@ -14,6 +14,7 @@ import userEvent from "@testing-library/user-event";
 import * as api from '../util/api'
 import users from '../__test__/mockapi/users_get.json'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
+import instances from '../__test__/mockapi/widget_instances_get.json'
 
 jest.mock('../util/api')
 
@@ -40,21 +41,25 @@ const renderWithClient = (children) => {
 describe('ExtraAttemptsDialog', () => {
 	let rendered;
     let mockApiSearchUsers;
-    let mockApiSetAttempts;
+	let mockApiSetAttempts;
+	let mockApiGetUsers;
+	let mockApiGetExtraAttempts;
 
-	beforeEach(() => {
-		mockApiSearchUsers = jest.spyOn(api, 'apiSearchWidgets').mockResolvedValue(users);
-        mockApiSetAttempts = jest.spyOn(api, 'apiSetAttempts').mockResolvedValue(true);
+	// beforeEach(() => {
+	// 	mockApiSearchUsers = jest.spyOn(api, 'apiSearchUsers').mockResolvedValue(users);
+	// 	mockApiSetAttempts = jest.spyOn(api, 'apiSetAttempts').mockResolvedValue(true);
+	// 	mockApiGetUsers = jest.spyOn(api, 'apiGetUsers').mockResolvedValue(users);
+	// 	mockApiGetExtraAttempts = jest.spyOn(api, 'apiSetAttempts').mockResolvedValue();
 
-		act(() => {
-			rendered = renderWithClient(<ExtraAttemptsDialog/>)
-		})
-	})
+	// 	act(() => {
+	// 		rendered = renderWithClient(<ExtraAttemptsDialog inst={instances[0]}/>)
+	// 	})
+	// })
 
-    afterEach(() => {
-		cleanup();
-		jest.clearAllMocks();
-    })
+    // afterEach(() => {
+	// 	cleanup();
+	// 	jest.clearAllMocks();
+    // })
 
     // it('gives student extra attempts', async () => {
 	// 	// Shows copy dialog
