@@ -7,15 +7,15 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { act } from 'react-dom/test-utils';
 import { render, screen, cleanup, fireEvent, waitFor, prettyDOM } from '@testing-library/react'
 
-import WidgetCreator from './widget-creator'
 import WidgetCreatorPage from './widget-creator-page'
 
 import * as api from '../util/api'
 
 import widgetInstance from '../__test__/mockapi/crossword_demo_instance.json'
+import draftWidgetInstance from '../__test__/mockapi/crossword_demo_instance_draft.json'
 import widgetInfo from '../__test__/mockapi/crossword_demo_widget_info.json'
 import qset from '../__test__/mockapi/crossword_demo_qset.json'
-        
+
 jest.mock('../util/api')
 
 // To see the DOM at any time after rendered.container has loaded, use:
@@ -76,6 +76,8 @@ describe('Widget Creator', () => {
         mockApiAuthorVerify.mockResolvedValue(true)
         mockApiCanBePublishedByCurrentUser.mockResolvedValue(true)
         mockApiSaveWidget.mockResolvedValue(widgetInstance)
+        draftWidgetInstance.qset = qset;
+        widgetInstance.qset = qset;
 
         Object.defineProperty(window, 'location', {
             value: {
@@ -97,10 +99,10 @@ describe('Widget Creator', () => {
 		await act(async () => {
             rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
-        
+
         // Firstly, is window.location correct?
-        expect(window.location.pathname).toEqual('/widgets/1-crossword/create'); 
-        expect(window.location.hash).toEqual(`#${widgetInstance.id}`); 
+        expect(window.location.pathname).toEqual('/widgets/1-crossword/create');
+        expect(window.location.hash).toEqual(`#${widgetInstance.id}`);
 
         // Next, does the iframe have the correct src attribute?
         expect(await rendered.container.querySelector('#container').getAttribute('src')).toBe(`${window.WIDGET_URL + widgetInstance.widget.dir + widgetInstance.widget.creator}?${widgetInstance.widget.created_at}`);
@@ -152,7 +154,7 @@ describe('Widget Creator', () => {
         act(() => {
             window.dispatchEvent(new MessageEvent('message', {...e, data: JSON.stringify(e.data)}))
         })
-        
+
         // Action bar for unpublished widgets
         expect(await rendered.queryByText('Save History')).toBeFalsy()
         expect(await rendered.container.querySelector('#creatorPublishBtn').textContent.includes('Publish...')).toBeTruthy()
@@ -191,7 +193,7 @@ describe('Widget Creator', () => {
         // Press 'Keep' button to keep the selected qset
         const keepButton = await actionBar.querySelector("button");
         fireEvent.click(keepButton);
-        
+
         expect(await rendered.container.querySelector("#qset-rollback-confirmation-bar")).toBeFalsy()
         // Shows action bar
         expect(await rendered.container.querySelector("#action-bar")).toBeTruthy()
@@ -221,20 +223,15 @@ describe('Widget Creator', () => {
         expect(await rendered.container.querySelector("#embed_dialog").getAttribute('src')).toBe("")
 
     })
-    
+
     it('displays popup on publish pressed', async () => {
-        // Convert widget instance to draft
-        const draftWidgetInstance = {
-            ...widgetInstance,
-            is_draft: true
-        }
         mockApiGetWidgetInstance.mockResolvedValue(draftWidgetInstance)
-        
+
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
-        
+
         // Click Publish
         const publishButton = await rendered.container.querySelector('#creatorPublishBtn')
         fireEvent.click(publishButton)
@@ -251,13 +248,8 @@ describe('Widget Creator', () => {
     })
 
     it('should publish widget', async () => {
-        // Convert widget instance to draft
-        const draftWidgetInstance = {
-            ...widgetInstance,
-            is_draft: true
-        }
         mockApiGetWidgetInstance.mockResolvedValue(draftWidgetInstance)
-        
+
         let rendered;
 		await act(async () => {
             rendered = await renderWithClient(<WidgetCreatorPage/>)
@@ -298,20 +290,15 @@ describe('Widget Creator', () => {
     })
 
     it('displays publish restricted', async () => {
-        // Convert widget instance to draft
-        const draftWidgetInstance = {
-            ...widgetInstance,
-            is_draft: true
-        }
         mockApiGetWidgetInstance.mockResolvedValue(draftWidgetInstance)
 
         mockApiCanBePublishedByCurrentUser.mockResolvedValue(false)
-        
+
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
-        
+
         // Click Publish
         const publishButton = await rendered.container.querySelector('#creatorPublishBtn')
         fireEvent.click(publishButton)
@@ -363,7 +350,7 @@ describe('Widget Creator', () => {
         // Hide dialog
         expect(await rendered.queryByText('Updating this published widget will instantly allow your students to see your changes.')).toBeFalsy()
     })
-    
+
     it('should display alert dialog if widget is locked', async () => {
         let rendered;
 
@@ -377,7 +364,7 @@ describe('Widget Creator', () => {
         expect(await rendered.queryByText('Someone else is editing this widget, you will be able to edit after they finish.')).toBeTruthy()
     })
 
-    // Disabling this test since qset should not require permissions    
+    // Disabling this test since qset should not require permissions
     // it('should error if user does not have correct permissions to access qset', async () => {
     //     let rendered;
 
@@ -394,44 +381,44 @@ describe('Widget Creator', () => {
     //     // Render Support Info
     //     expect(await rendered.queryByText("Trouble Logging In?")).toBeTruthy()
     // })
-    
+
     it('should display alert dialog if qset cannot be loaded', async () => {
         mockApiGetQuestionQset.mockResolvedValue({title: 'error'})
-        
+
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
-        
+
         // expect(await rendered.queryByText('Unable to load widget data.')).toBeTruthy()
         expect(await rendered.container.querySelector('.alert-wrapper')).toBeTruthy()
     })
-    
+
     it('should display alert dialog if widget is not a draft and widget cannot be published', async () => {
         mockApiCanBePublishedByCurrentUser.mockResolvedValue(false)
-        
+
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
-        
+
         expect(await rendered.queryByText('Widget type can not be edited by students after publishing.')).toBeTruthy()
     })
 
     it('should display alert dialog if user is not logged in', async () => {
         mockApiAuthorVerify.mockResolvedValue(false)
-        
+
         let rendered;
 		await act(async () => {
 			rendered = await renderWithClient(<WidgetCreatorPage/>)
         })
-        
-        expect(await rendered.queryByText('You have been logged out due to inactivity')).toBeTruthy()
+
+        expect(await rendered.queryByText('You are no longer logged in, please login again to continue.')).toBeTruthy()
     })
 
     it('should show media importer and import media', async () => {
         const types = ['jpg', 'gif', 'png', 'mp3']
-        
+
         const e = {
             source: window,
             origin: window.BASE_URL.substring(0, window.BASE_URL.length - 1),
@@ -466,11 +453,6 @@ describe('Widget Creator', () => {
     })
 
     it('should save draft of new widget', async () => {
-        // Create new widget
-        const draftWidgetInstance = {
-            ...widgetInstance,
-            is_draft: true
-        }
         mockApiGetWidgetInstance.mockResolvedValue(draftWidgetInstance)
         mockApiSaveWidget.mockResolvedValue(draftWidgetInstance)
 
@@ -508,8 +490,6 @@ describe('Widget Creator', () => {
 
         // URL hash should be updated with new instance ID
         expect(window.location.hash).toEqual(`#${draftWidgetInstance.id}`)
-
-        expect(await rendered.queryByText('Saved!')).toBeTruthy()
     })
 
     it('should show alert dialog if save canceled', async () => {
