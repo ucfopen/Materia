@@ -143,8 +143,8 @@ const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, read
 			<button tabIndex='0'
 				onClick={checkForWarning}
 				className='remove'
-				disabled={readOnly && !isCurrentUser || myPerms.accessLevel == access.VISIBLE}
-				aria-hidden={readOnly && !isCurrentUser || myPerms.accessLevel == access.VISIBLE}
+				disabled={readOnly && !isCurrentUser}
+				aria-hidden={readOnly && !isCurrentUser}
 				data-testid={`${user.id}-delete-user`}>
 				X
 			</button>
