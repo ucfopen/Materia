@@ -9,6 +9,7 @@ import useUpdateWidget from './hooks/useSupportUpdateWidget'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
+import useCopyWidget from './hooks/useSupportCopyWidget'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
@@ -33,7 +34,7 @@ const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
 
 const stringToBoolean = s => s === 'true'
 
-const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, embed = false}) => {
+const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
@@ -50,6 +51,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const deleteWidget = useDeleteWidget()
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
+	const copyWidget = useCopyWidget()
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
 		queryKey: ['instance-owner', inst.id],
@@ -74,8 +76,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 				othersPerms.set(parseInt(i), rawPermsToObj(perms.widget_user_perms[i], isEditable))
 			}
 			let _myPerms = {}
-			for(const i in perms.user_perms)
-			{
+			for(const i in perms.user_perms){
 				_myPerms = rawPermsToObj(perms.user_perms[i], isEditable)
 			}
 			_myPerms.isSupportUser = true
@@ -91,6 +92,18 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const makeCopy = (title, copyPerms) => {
 		setShowCopy(false)
 		onCopy(updatedInst.id, title, copyPerms, updatedInst)
+	}
+
+	const onCopy = (instId, title, copyPerms, inst) => {
+		copyWidget.mutate({
+			instId: instId,
+			title: title,
+			copyPermissions: copyPerms,
+			dir: inst.widget.dir,
+			successFunc: newInst => {
+				window.location.hash = newInst;
+			}
+		})
 	}
 
 	const onDelete = instId => {
@@ -221,7 +234,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 		breadcrumbContainer =
 			<div id="breadcrumb-container">
 				<div className="breadcrumb">
-					<a onClick={onReturn}>Instance Search</a>
+					<a href="/admin/instance">Instance Search</a>
 				</div>
 				<svg xmlns="http://www.w3.org/2000/svg"
 					width="24"
@@ -269,40 +282,31 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
 					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
-<<<<<<< HEAD
-=======
 
->>>>>>> 459204d2b422f8039eeb3ff33f667cbccda5e13c
 			</div>
 			</div>
 			<div className='overview'>
-				<div>
+				<span>
 					<label>ID:</label>
-<<<<<<< HEAD
-					<span>{updatedInst.id}</span>
-				</div>
-				<div>
-=======
 					{updatedInst.id}
 				</span>
 				<span>
 					<label>Owner:</label>
-					{loadingInstOwner ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
+					{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
 				</span>
 				<span>
->>>>>>> 459204d2b422f8039eeb3ff33f667cbccda5e13c
 					<label>Date Created:</label>
 					{(new Date(updatedInst.created_at*1000)).toLocaleString()}
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Draft:</label>
-					<span>{updatedInst.is_draft ? 'Yes' : 'No'}</span>
-				</div>
-				<div>
+					{updatedInst.is_draft ? 'Yes' : 'No'}
+				</span>
+				<span>
 					<label>Student Made:</label>
-					<span>{updatedInst.is_student_made ? 'Yes' : 'No'}</span>
-				</div>
-				<div>
+					{updatedInst.is_student_made ? 'Yes' : 'No'}
+				</span>
+				<span>
 					<label htmlFor="guest-access">Guest Access:</label>
 					<select value={updatedInst.guest_access}
 						id="guest-access"
@@ -310,28 +314,29 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Student Access:</label>
-					<span>{updatedInst.student_access ? 'Yes' : 'No'}</span>
-				</div>
-				<div>
+					{updatedInst.student_access ? 'Yes' : 'No'}
+				</span>
+				<span>
 					<label htmlFor="embedded-only">Embedded Only:</label>
-					<select value={updatedInst.embedded_only} id="embedded-only"
+					<select value={updatedInst.embedded_only}
+						id="embedded-only"
 						onChange={event => handleChange('embedded_only', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Embedded:</label>
-					<span>{updatedInst.is_embedded ? 'Yes' : 'No'}</span>
-				</div>
-				<div>
+					{updatedInst.is_embedded ? 'Yes' : 'No'}
+				</span>
+				<span>
 					<label>Deleted:</label>
-					<span>{updatedInst.is_deleted ? 'Yes' : 'No'}</span>
-				</div>
-				<div>
+					{updatedInst.is_deleted ? 'Yes' : 'No'}
+				</span>
+				<span>
 					<label htmlFor="attempts">Attempts Allowed:</label>
 					<select value={updatedInst.attempts}
 						id="attempts"
@@ -346,12 +351,13 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 						<option value={15}>15</option>
 						<option value={20}>20</option>
 					</select>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Available:</label>
 					<div className='radio'>
-						<input type='radio' id="open-at-available"
+						<input type='radio'
 							name='available'
+							id="open-at-available"
 							value={updatedInst.open_at}
 							checked={availableDisabled == false}
 							onChange={() => setAvailableDisabled(false)}
@@ -367,7 +373,10 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 							onChange={event => setAvailableTime(event.target.value)}
 							disabled={availableDisabled}
 						/>
-						<input type='radio' id="now"
+					</div>
+					<div className='radio'>
+						<input type='radio'
+							id="now"
 							name='available'
 							value={-1}
 							checked={availableDisabled}
@@ -375,12 +384,13 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 						/>
 						<label htmlFor="now">Now</label>
 					</div>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Closes:</label>
 					<div className='radio'>
-						<input type='radio' id="close-at"
+						<input type='radio'
 							name='closes'
+							id="close-at"
 							value={updatedInst.close_at}
 							checked={closeDisabled == false}
 							onChange={() => setCloseDisabled(false)}
@@ -394,36 +404,39 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 							value={closeTime !== -1 ? closeTime : ''}
 							onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}
 						/>
-						<input type='radio' id="never"
+					</div>
+					<div className='radio'>
+						<input type='radio'
 							name='closes'
+							id="never"
 							value={-1}
 							checked={closeDisabled}
 							onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
 						/>
 						<label htmlFor="never">Never</label>
 					</div>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Embed URL:</label>
 					<a className='url'
 						href={updatedInst.embed_url}>
 						{updatedInst.embed_url}
 					</a>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Play URL:</label>
 					<a className='url'
 						href={updatedInst.play_url}>
 						{updatedInst.play_url}
 					</a>
-				</div>
-				<div>
+				</span>
+				<span>
 					<label>Preview URL:</label>
 					<a className='url'
 						href={updatedInst.preview_url}>
 						{updatedInst.preview_url}
 					</a>
-				</div>
+				</span>
 				<div className='right-justify'>
 					<div className='apply-changes'>
 						<button className='action_button apply'

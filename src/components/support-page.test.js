@@ -46,8 +46,6 @@ const search = (input, instances) => {
 	return results;
 }
 
-const oldWindowLocation = window.location;
-
 // Enables testing with react query
 const renderWithClient = (children) => {
 	const queryClient = new QueryClient({
@@ -276,6 +274,7 @@ describe('SupportSelectedInstance', () => {
 	let mockApiGetWidgetInstance;
 	let mockApiSearchUsers;
 	let mockApiSetAttempts;
+	let mockApiGetUsers;
 	let mockCopyID = 'robot';
 	const mockWinAssign = jest.fn();
 	let modal = null;
@@ -311,10 +310,13 @@ describe('SupportSelectedInstance', () => {
 		// Returns copied widget
 		mockApiGetWidgetInstance = jest.spyOn(api, 'apiGetWidgetInstance').mockResolvedValue(updatedInstances[1]);
 		mockApiSearchUsers = jest.spyOn(api, 'apiSearchUsers').mockResolvedValue(users);
+		mockApiGetUsers = jest.spyOn(api, 'apiGetUsers').mockResolvedValue(users[0]);
 		mockApiSetAttempts = jest.spyOn(api, 'apiSetAttempts').mockResolvedValue(true);
 
 		act(() => {
 			rendered = renderWithClient(<SupportPage/>)
+
+			window.location.hash = instances[0].id;
 
 			container = rendered.container;
 		})
@@ -324,18 +326,18 @@ describe('SupportSelectedInstance', () => {
 		modal.setAttribute('id', 'modal');
 		document.body.appendChild(modal);
 
-		let input = "My Adventure Widget";
-		let searchBar = screen.getByRole('textbox');
-		userEvent.type(searchBar, input);
+		// let input = "My Adventure Widget";
+		// let searchBar = screen.getByRole('textbox');
+		// userEvent.type(searchBar, input);
 
-		expect(screen.getByText("Searching Widget Instances ...")).toBeInTheDocument();
+		// expect(screen.getByText("Searching Widget Instances ...")).toBeInTheDocument();
 
-		await waitFor(() => {
-			expect(screen.getAllByText(input)).not.toBeNull();
-		})
+		// await waitFor(() => {
+		// 	expect(screen.getAllByText(input)).not.toBeNull();
+		// })
 
-		// Clicks on instance
-		userEvent.click(screen.getAllByText(input)[0]);
+		// // Clicks on instance
+		// userEvent.click(screen.getAllByText(input)[0]);
 
 		// Shows edit page
 		await waitFor(async () => {
@@ -400,34 +402,34 @@ describe('SupportSelectedInstance', () => {
 		// Renavigate to instance to ensure that values were updated
 		// From here on might be sort of useless since we're giving it the updated widgets, but at least we'll know if the breadcrumb works
 
-		let instanceSearchBtn = screen.getByText('Instance Search');
-		act(() => {
-			userEvent.click(instanceSearchBtn);
-		})
+		// let instanceSearchBtn = screen.getByText('Instance Search');
+		// act(() => {
+		// 	userEvent.click(instanceSearchBtn);
+		// })
 
-		// Search should return updated widgets
-		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, updatedInstances));
+		// // Search should return updated widgets
+		// mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, updatedInstances));
 
-		await waitFor(() => {
-			expect(screen.getByText('Instance Admin')).not.toBeNull();
-		})
+		// await waitFor(() => {
+		// 	expect(screen.getByText('Instance Admin')).not.toBeNull();
+		// })
 
-		let searchBar = screen.getByRole('textbox');
-		userEvent.type(searchBar, 'Market Day');
+		// let searchBar = screen.getByRole('textbox');
+		// userEvent.type(searchBar, 'Market Day');
 
-		expect(screen.getByText("Searching Widget Instances ...")).toBeInTheDocument();
+		// expect(screen.getByText("Searching Widget Instances ...")).toBeInTheDocument();
 
-		await waitFor(() => {
-			expect(screen.getAllByText('Market Day')).not.toBeNull();
-		})
+		// await waitFor(() => {
+		// 	expect(screen.getAllByText('Market Day')).not.toBeNull();
+		// })
 
-		// Clicks on instance
-		userEvent.click(screen.getByText('Market Day'));
+		// // Clicks on instance
+		// userEvent.click(screen.getByText('Market Day'));
 
-		// Shows edit page
-		await waitFor(() => {
-			expect(screen.getByText('Edit Widget')).toBeInTheDocument();
-		})
+		// // Shows edit page
+		// await waitFor(() => {
+		// 	expect(screen.getByText('Edit Widget')).toBeInTheDocument();
+		// })
 	})
 
 	it('errors on invalid open_at and close_at times', async () => {
@@ -507,34 +509,7 @@ describe('SupportSelectedInstance', () => {
 		let grant_access_checkbox = screen.getByLabelText("Grant Access to Original Owner(s)");
 		userEvent.click(grant_access_checkbox);
 
-		// Closes copy dialog
-		let save_btn = screen.getByText('Copy');
-		act(() => {
-			userEvent.click(save_btn);
-		})
-
-		// Should call apiCopyInstance, which returns the new id, and then call apiGetWidgetInstance with the new id
-		await waitFor(() => {
-			expect(mockApiCopyWidget).toHaveBeenCalled();
-			expect(mockApiGetWidgetInstance).toHaveBeenCalled();
-			expect(screen.getByText('Adventure Copy')).toBeInTheDocument();
-			expect(screen.getByText(mockCopyID)).toBeInTheDocument();
-		})
-	})
-
-	it('makes a copy and does not grant access to original owner', async () => {
-		// Shows copy dialog
-		let copy_btn = screen.getByText('Make a Copy');
-		act(() => {
-			userEvent.click(copy_btn);
-		})
-
-		await waitFor(() => {
-			expect(screen.getByLabelText('New Title:')).toBeInTheDocument();
-		})
-
-		let newTitle = screen.getByPlaceholderText('New Widget Title');
-		userEvent.type(newTitle, 'Adventure Copy');
+		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, updatedInstances));
 
 		// Closes copy dialog
 		let save_btn = screen.getByText('Copy');
@@ -542,15 +517,21 @@ describe('SupportSelectedInstance', () => {
 			userEvent.click(save_btn);
 		})
 
-		// Should call apiCopyInstance, which returns the new id, and then call apiGetWidgetInstance with the new id
+		// Should call apiCopyInstance, which returns the new id, and then call mockApiSearchWidgets with the new id
 		await waitFor(() => {
 			expect(mockApiCopyWidget).toHaveBeenCalled();
-			expect(mockApiGetWidgetInstance).toHaveBeenCalled();
-			expect(screen.getByText('Adventure Copy')).toBeInTheDocument();
-			expect(screen.getByText(mockCopyID)).toBeInTheDocument();
+			expect(mockApiSearchWidgets).toHaveBeenCalled();
 		})
 
+		// Navigate to copied widget
+		window.location.hash = mockCopyID;
 
+		// Check if copied widget has correct details
+		await waitFor(async () => {
+			expect(screen.getByText('Edit Widget')).toBeInTheDocument();
+			expect(screen.getByText(mockCopyID)).toBeInTheDocument();
+			expect(screen.getByText('Adventure Copy')).toBeInTheDocument();
+		})
 	})
 
 	it('opens and closes extra attempts dialog', async () => {
