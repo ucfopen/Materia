@@ -74,7 +74,7 @@ const attemptsToIndex = (attempts) => {
 	}
 }
 
-const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, onEdit }) => {
+const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, onEdit, setInvalidLogin }) => {
 	const [state, setState] = useState(initState())
 	const mounted = useRef(false)
 	const mutateWidget = useUpdateWidget()
@@ -83,7 +83,17 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		placeholderData: {},
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onSuccess: (data) => {
+			if (!data || (data.type == 'error'))
+			{
+				console.error(`Error: ${data.msg}`);
+				if (data.title =="Invalid Login")
+				{
+					setInvalidLogin(true)
+				}
+			}
+		}
 	})
 
 	// Used for initialization
@@ -251,10 +261,20 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			mutateWidget.mutate({
 				args: args,
 				successFunc: (updatedInst) => {
-					console.log(updatedInst)
-					onEdit(updatedInst)
-					if (mounted.current) {
-						onClose()
+
+					if (!updatedInst || updatedInst.type == "error") {
+
+						if (updatedInst.title == "Invalid Login") {
+							setInvalidLogin(true);
+						}
+						else {
+							console.error(`Error: ${updatedInst.msg}`);
+							setState({...state, errorLabel: 'Something went wrong, and your changes were not saved.'})
+						}
+					}
+					else {
+						onEdit(updatedInst)
+						if (mounted.current) onClose()
 					}
 				}
 			})
@@ -463,7 +483,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 				<ul className='attemptsPopup'>
 					<li className={`attempt-content ${currentUser.is_student ? 'hide' : ''}`}>
 						<h3>Attempts</h3>
-						<AttemptsSlider key='slider-key' inst={inst} state={state} setState={setState}/>
+						<AttemptsSlider key='slider-key' inst={inst} parentState={state} setParentState={setState}/>
 					</li>
 					<ul className='to-from'>
 						{ periodSelectElements }

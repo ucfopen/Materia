@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiUpdateWidget, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -61,6 +61,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const [widgetReady, setWidgetReady] = useState(false)
 
 	const instIdRef = useRef(instId)
+	const creatorShouldInitRef = useRef(true) // this value is stored as a ref because of race conditions preventing it being used in state
 	const saveModeRef = useRef(null)
 	const frameRef = useRef(null)
 
@@ -110,8 +111,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					onInitFail('Permission Denied')
 				} else {
 					setCreatorState({...creatorState, invalid: false})
-					// the readyForInit flag has to be added to the instance state (instead of creator state) to ensure it's updated in sync with the qset, or widget init will fail
-					setInstance({ ...instance, qset: data, readyForInit: true })
+					setInstance({ ...instance, qset: data })
 				}
 			}
 	})
@@ -139,7 +139,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		onSettled: (valid) => {
 			if (!valid) {
 				setCreatorState({...creatorState, hearbeatEnabled: false})
-				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You have been logged out due to inactivity', fatal: true, enableLoginButton: true })
+				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
 			}
 		}
 	})
@@ -204,7 +204,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// the type of initialization depends on several conditions
 	// normally, we're either initializing a new widget, or an existing one is being edited
 	useEffect(() => {
-		if (widgetReady) {
+		if (creatorShouldInitRef.current && widgetReady) {
 
 			// we have a qset to reload manually (for qset history), ask creator to reload
 			// this hook will then fire a second time when a new save postMessage is sent
@@ -227,29 +227,25 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				let args = [instance.name, instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
 				sendToCreator('initExistingWidget', args)
 
-				delete instance.readyForInit
-				setInstance({ ...instance })
+				creatorShouldInitRef.current = false
 
 			} else if (!instId) {
 
 				let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
 				sendToCreator('initNewWidget', args)
 
-				delete instance.readyForInit
-				setInstance({ ...instance })
-
+				creatorShouldInitRef.current = false
 			}
 		}
 
-	}, [widgetReady, instance.readyForInit])
+	}, [widgetReady, instance.qset])
 
 	useEffect(() => {
-
 		if (!!creatorState.reloadWithQset) {
+			creatorShouldInitRef.current = true
 			setInstance({
 				...instance,
-				qset: creatorState.reloadWithQset,
-				readyForInit: true
+				qset: creatorState.reloadWithQset
 			})
 		}
 	},[creatorState.reloadWithQset])
@@ -259,6 +255,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	const onPostMessage = (e) => {
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
+			if (typeof e.data !== 'string' || !e.data) return
 			const msg = JSON.parse(e.data)
 			switch (
 				msg.source // currently 'creator-core' || 'media-importer' - can be extended to other sources
@@ -333,8 +330,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		sendToCreator('onRequestSave', [mode])
 	}
 
-	// console.log(instance)
-
 	const save = (instanceName, qset, version = 1) => {
 		let newWidget = {
 			widget_id: widgetId,
@@ -393,8 +388,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const onSaveCanceled = (msg) => {
-		console.log(msg)
-
 		if (msg != null && msg != undefined) {
 			if (msg.halt != null) {
 
@@ -645,9 +638,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	let actionBarRender = null
 	if (creatorState.showActionBar) {
+
+		let returnLocationUrl = creatorState.returnLocation == 'Widget Catalog' ? '/widgets' : '/my-widgets#' + instance.id
+
 		actionBarRender = (
 			<section id='action-bar'>
-				<a id="returnLink" href={creatorState.returnLocation}>&larr;Return to {creatorState.returnLocation}</a>
+				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>

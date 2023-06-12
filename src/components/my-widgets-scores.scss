@@ -1,3 +1,5 @@
+@import './include.scss';
+
 .scores {
 	position: relative;
 	display: flex;
@@ -51,11 +53,10 @@
 	}
 
 	#export_scores_button {
-		font-family: 'Lato', arial, serif;
 		padding: 7px 23px 8px 23px;
-		background-color: #ffba5d;
+		background-color: $color-yellow;
 		font-weight: 700;
-		color: #694d28;
+		color: $extremely-dark-gray;
 		text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 		box-shadow: 1px 2px 4px #ececec;
 		font-size: 18px;
@@ -69,7 +70,7 @@
 		right: 2px;
 
 		&:hover:not(.disabled) {
-			background: #eca444;
+			background: $color-yellow-hover;
 			text-decoration: none;
 		}
 

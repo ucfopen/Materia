@@ -1,11 +1,17 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { useQuery } from 'react-query'
+import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
 import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
+const _compareScores = (a, b) => { return (parseInt(b.created_at) - parseInt(a.created_at)) }
+
+const timestampToDateDisplay = timestamp => {
+	const d = new Date(parseInt(timestamp, 10) * 1000)
+	return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
+}
 
 const initState = () => ({
 	isLoading: true,
@@ -18,10 +24,8 @@ const initState = () => ({
 const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	const [state, setState] = useState(initState())
 	const [page, setPage] = useState(1)
-	const [logsList, setLogsList] = useState({})
 	const {
 		data,
-		isFetching,
 		refetch
 	} = useQuery(
 		['play-logs', instId, semester],
@@ -31,44 +35,27 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
 			placeholderData: [],
 			refetchOnWindowFocus: false,
-		})
+			onSuccess: (result) => {
+				if (page <= result?.total_num_pages) setPage(page + 1)
+				if (result && result.pagination) {
+					let newLogs = state.logs
 
-	// load instances after initial render
-	useEffect(() => {
-		if (!isFetching) {
+					result.pagination.forEach((record) => {
+						if (newLogs[record.userId]) newLogs[record.userId].scores.push({...record.scores})
+						else newLogs[record.userId] = { userId: record.userId, name: record.name, searchableName: record.searchableName, scores: record.scores }
+						newLogs[record.userId].scores.sort(_compareScores)
+					})
 
-			if (page <= data?.total_num_pages) { setPage(page + 1) }
-
-			if (!data || !data.pagination) return
-			else {
-				const newLogs = logsList
-				const dataLength = data.pagination.length
-
-				for (let index = 0; index < dataLength; index++) {
-					const scoreObject = data.pagination[index]
-
-					if (!newLogs[scoreObject.userId]) {
-						newLogs[scoreObject.userId] = { userId: scoreObject.userId, name: scoreObject.name, searchableName: scoreObject.searchableName, scores: scoreObject.scores }
-					}
-					else {
-						for (let scoreIndex = 0; scoreIndex < scoreObject.scores.length; scoreIndex++)
-							newLogs[scoreObject.userId].scores.push(scoreObject.scores[scoreIndex])
-					}
+					setState({ ...state, logs: newLogs, filteredLogs: newLogs })
 				}
-
-				setLogsList(newLogs)
 			}
 		}
-	}, [isFetching])
+	)
 
 	useEffect(() => {
-
-		const logs = Object.values(logsList)
-		setState({ ...state, logs: logs, filteredLogs: logs, isLoading: false })
-
-		if (page != data?.total_num_pages + 1) { refetch() }
+		if (page < data?.total_num_pages) { refetch() }
+		else setState({ ...state, isLoading: false })
 	}, [page])
-
 
 	const onSearchInput = useCallback(search => {
 		search = search.toLowerCase()
@@ -82,22 +69,22 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 
 		// unselect user if not in filtered results
 		const isSelectedInResults = filteredLogs.includes(state.selectedUser)
-		if (!isSelectedInResults) {
-			newState.selectedUser = {}
-		}
+		if (!isSelectedInResults) { newState.selectedUser = {} }
 		setState(newState)
-	},
-		[state.searchText, state.selectedUser, state.logs])
+
+	}, [state.searchText, state.selectedUser, state.logs])
 
 	const handleSearchChange = e => onSearchInput(e.target.value)
 
 	let mainContentRender = <LoadingIcon width='570px' />
 	if (!state.isLoading) {
 		const userRowElements = state.filteredLogs.map(user => (
-			<tr key={user.userId}
-				className={{ rowSelected: state.selectedUser.userId === user.userId }}
+			<tr
+				key={user.userId}
+				title={`View all scores for ${user.name}`}
 				onClick={() => { setState({ ...state, selectedUser: user }) }}
-				title={`View all scores for ${user.name}`}>
+				className={{ rowSelected: state.selectedUser.userId === user.userId }}
+			>
 				<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
 					{user.name}
 				</td>
@@ -105,12 +92,14 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 		))
 
 		let selectedUserRender = null
-		if (state.selectedUser.userId) {
+		if (state.selectedUser.userId != undefined) {
 			const selectedUserScoreRows = state.selectedUser.scores.map(score => (
-				<tr key={score.playId}
+				<tr
+					key={score.playId}
+					title='View Detailed Scores for this Play'
 					onClick={() => { showScore(instId, score.playId) }}
-					title='View Detailed Scores for this Play'>
-					<td>{score.date}</td>
+				>
+					<td>{timestampToDateDisplay(score.created_at)}</td>
 					<td>{score.score}</td>
 					<td>{score.elapsed}</td>
 				</tr>

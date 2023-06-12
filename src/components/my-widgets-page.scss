@@ -5,28 +5,20 @@
 	justify-content: center;
 
 	.container {
+		position: relative;
+		display: flex;
+		align-items: flex-start;
 		margin: 0 auto 100px auto;
 		// width: 970px;
-		position: relative;
 		overflow-x: visible;
 
 		.container_main-content {
+			top: 0px;
 			box-shadow: 1px 3px 10px #dbdbdb;
 		}
 
 		section.directions {
-			background: #fff;
-			// border: rgba(0, 0, 0, 0.11) 1px solid;
-			// box-shadow: 1px 3px 10px #888;
-			position: relative;
-			width: 700px;
-			margin: 0 0 0 245px;
-			padding: 10px;
-			z-index: 100;
-			min-height: 850px;
-			// border-radius: 4px;
 			text-align: center;
-			font-family: "Lato", arial, sans-serif;
 
 			&.unchosen {
 				&:not(.bearded) {
@@ -35,11 +27,29 @@
 				min-height: 850px;
 			}
 
+			.error-nowidget {
+				width: 80%;
+				margin: 50px auto 5px auto;
+				font-weight: bold;
+				font-size: 1.5em;
+			}
+
 			h1 {
 				font-size: 3em;
 				font-weight: bold;
 				padding: 0;
 				margin: 50px 0 5px 0;
+
+				&.loading-text {
+					margin-bottom: 2em;
+				}
+			}
+
+			h2 {
+				font-size: 2em;
+				font-weight: bold;
+				padding: 0;
+				margin: 30px 0 5px 0;
 
 				&.loading-text {
 					margin-bottom: 2em;
@@ -55,25 +65,13 @@
 		}
 
 		section.page {
-			background: #fff;
-			// border: rgba(0, 0, 0, 0.11) 1px solid;
-			// box-shadow: 1px 3px 10px #888;
 			position: relative;
-			width: 700px;
-			margin: 0 0 0 260px;
 			z-index: 100;
+			width: 700px;
 			min-height: 850px;
-			// border-radius: 4px;
-		}
-
-		@media (max-width: 980px) {
-			section.page {
-				margin: 0!important;
-			}
-
-			aside {
-				visibility: hidden;
-			}
+			margin: 0 0 0 260px;
+			
+			background: #fff;
 		}
 
 		aside {
@@ -107,6 +105,23 @@
 			.search {
 				position: relative;
 				padding: 10px 0 30px 0;
+
+				background: #ebebeb;
+
+				transition: background 1s;
+
+				&.loading {
+					background: #fff;
+				}
+
+				.loading-message {
+					position: absolute;
+					left: 40px;
+					top: 10px;
+
+					font-size: 14px;
+					font-weight: 700;
+				}
 
 				.search-icon {
 					position: absolute;
@@ -215,7 +230,6 @@
 						height: 15px;
 
 						text-align: center;
-						font-family: Lato, arial, serif;
 						font-size: 12px;
 						font-weight: 900;
 						color: #ffffff !important;
@@ -282,7 +296,6 @@
 				color: #ffffff;
 				text-shadow: #184863 1px 1px 1px;
 				font-weight: 900;
-				font-family: 'Lato', arial, serif;
 			}
 		}
 
@@ -293,7 +306,6 @@
 			color: #ffffff;
 			text-shadow: #184863 1px 1px 1px;
 			font-weight: 900;
-			font-family: 'Lato', arial, serif;
 		}
 	}
 
@@ -372,11 +384,10 @@
 					}
 
 					.action-button {
-						font-family: 'Lato', arial, serif;
 						padding: 7px 23px 8px 23px;
-						background: #ffba5d;
+						background: $color-yellow;
 						font-weight: 700;
-						color: #694d28;
+						color: $extremely-dark-gray;
 						text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 						box-shadow: 1px 2px 4px #ececec;
 						font-size: 18px;
@@ -388,7 +399,7 @@
 						text-decoration: none;
 
 						&:hover:not(.disabled) {
-							background: #eca444;
+							background: $color-yellow-hover;
 							cursor: pointer;
 						}
 
@@ -401,7 +412,7 @@
 							border: 0;
 							border-radius: 0;
 							background: none;
-							color: #525252;
+							color: $extremely-dark-gray;
 							fill: #c4dd61;
 							box-shadow: none;
 							padding: 0;
@@ -428,7 +439,7 @@
 					}
 
 					span.pencil {
-						background: url(/img/pencil.png) no-repeat center bottom;
+						background: url(/img/pencil.svg) no-repeat center bottom;
 						margin: 0;
 						width: 21px;
 						height: 21px;
@@ -447,7 +458,6 @@
 						padding-bottom: 5px;
 						text-align: center;
 						font-size: 15px;
-						font-family: 'Lucida Grande', sans-serif;
 
 						li a {
 							font-weight: bold;
@@ -552,7 +562,6 @@
 			.attempts_parent {
 				width: 90%;
 				padding-top: 5px;
-				font-family: 'Lucida Grande', sans-serif;
 
 				dt {
 					float: left;
@@ -641,7 +650,6 @@
 			.attempts_parent.disabled {
 				width: 90%;
 				padding-top: 5px;
-				font-family: 'Lucida Grande', sans-serif;
 				background: none;
 				cursor: default;
 			}
@@ -806,7 +814,6 @@
 				vertical-align: top;
 				color: black;
 				position: relative;
-				font-family: Lato, arial, serif;
 
 				#embed_link {
 					width: 100%;
@@ -843,11 +850,14 @@
 
 	div.link {
 		display: inline-block;
-		border-bottom: 1px #0093e7 solid;
-		color: #0093e7;
 		margin: 0 10px;
 		padding: 0 0 2px 0;
-		font-weight: 400;
+
+		border-bottom: 1px #0093e7 solid;
+		color: #0093e7;
+		
+		font-size: 14px;
+		font-weight: 700;
 		cursor: pointer;
 
 		&.disabled {

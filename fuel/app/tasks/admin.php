@@ -303,7 +303,20 @@ class Admin extends \Basetask
 			$q->execute();
 
 			$q->param('role_id', $admin_role_id);
-			$q->param('perm', \Materia\Perm::AUTHORACCESS);
+			$q->param('perm', \Materia\Perm::SUPERUSER);
+			$q->execute();
+		}
+		
+		if ($support_role_id = \Materia\Perm_Manager::get_role_id('support_user'))
+		{
+			$q = \DB::query('INSERT INTO `perm_role_to_perm` SET `role_id` = :role_id, `perm` = :perm ON DUPLICATE KEY UPDATE `perm` = :perm');
+
+			$q->param('role_id', $support_role_id);
+			$q->param('perm', \Materia\Perm::FULL);
+			$q->execute();
+
+			$q->param('role_id', $support_role_id);
+			$q->param('perm', \Materia\Perm::SUPPORTUSER);
 			$q->execute();
 		}
 

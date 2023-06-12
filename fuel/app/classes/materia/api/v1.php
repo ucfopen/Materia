@@ -42,18 +42,18 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null, bool $deleted = false)
+	static public function widget_instances_get($inst_ids = null, bool $deleted = false, $load_qset = false)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
 		{
 			if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
-			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
+			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id(), $load_qset);
 		}
 
 		// get specific instances - no log in required
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
-		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
+		return Widget_Instance_Manager::get_all($inst_ids, $load_qset, false, $deleted);
 	}
 
 /**
@@ -243,6 +243,12 @@ class Api_V1
 		if ( ! empty($qset->data) && ! empty($qset->version))
 		{
 			$inst->qset = $qset;
+		}
+		else
+		{
+			// if the qset is not explicitly provided, assume it is not being updated
+			// if $inst->qset is populated it will be saved to the db as a new qset version - which isn't necessary
+			$inst->qset = (object) ['version' => null, 'data' => null];
 		}
 		if ( ! empty($name))
 		{
@@ -709,7 +715,7 @@ class Api_V1
 		$summary = array_values($summary);
 		// we want to be sure that the client can rely on the array order
 		usort($summary, function($a, $b) {
-			return($a['id'] < $b['id']);
+			return($b['id'] - $a['id']);
 		});
 		return $summary;
 	}
@@ -1105,21 +1111,36 @@ class Api_V1
 		return $return_array;
 	}
 
-	static public function notification_delete($note_id)
+	static public function notification_delete($note_id, $delete_all)
 	{
 		if ( ! \Service_User::verify_session()) return Msg::no_login();
 
 		$user = \Model_User::find_current();
 
-		$note = \Model_Notification::query()
+		if ($delete_all)
+		{
+			$notes = \Model_Notification::query()
+				->where('to_id', $user->id)
+				->get();
+
+			foreach ($notes as $note)
+			{
+				$note->delete();
+			}
+			return true;
+		}
+		if ($note_id)
+		{
+			$note = \Model_Notification::query()
 			->where('id', $note_id)
 			->where('to_id', $user->id)
 			->get();
 
-		if ($note)
-		{
-			$note[$note_id]->delete();
-			return true;
+			if ($note)
+			{
+				$note[$note_id]->delete();
+				return true;
+			}
 		}
 		return false;
 	}

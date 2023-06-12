@@ -59,13 +59,15 @@ const MyWidgetSelectedInstance = ({
 	onCopy,
 	onEdit,
 	beardMode,
-	beard
+	beard,
+	setInvalidLogin,
+	showCollab,
+	setShowCollab
 }) => {
 	const [state, setState] = useState(initState())
 	const [showEmbed, setShowEmbed] = useState(false)
 	const [showCopy, setShowCopy] = useState(false)
 	const [showLocked, setShowLocked] = useState(false)
-	const [showCollab, setShowCollab] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
@@ -76,7 +78,17 @@ const MyWidgetSelectedInstance = ({
 		queryFn: () => apiCanEditWidgets(inst.id),
 		placeholderData: null,
 		enabled: !!inst.id,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onSuccess: (data) => {
+			if (!data || data.type == 'error')
+			{
+				console.error(`Error: ${data.msg}`);
+				if (data.title =="Invalid Login")
+				{
+					setInvalidLogin(true)
+				}
+			}
+		}
 	})
 
 	// Initializes the data when widgets changes
@@ -113,7 +125,7 @@ const MyWidgetSelectedInstance = ({
 
 		// Filters out the current user for the collab label
 		for (let [key, user] of otherUserPerms) {
-			if (key !== currentUser?.id) {
+			if (key != currentUser?.id) {
 				usersList.push(user)
 			}
 		}
@@ -289,6 +301,7 @@ const MyWidgetSelectedInstance = ({
 				otherUserPerms={otherUserPerms}
 				setOtherUserPerms={setOtherUserPerms}
 				onClose={modalDialogOnClose}
+				setInvalidLogin={setInvalidLogin}
 			/>
 		)
 	}
@@ -312,6 +325,7 @@ const MyWidgetSelectedInstance = ({
 				currentUser={currentUser}
 				otherUserPerms={otherUserPerms}
 				onEdit={onEdit}
+				setInvalidLogin={setInvalidLogin}
 			/>
 		)
 	}
@@ -449,13 +463,13 @@ const MyWidgetSelectedInstance = ({
 					<div className="share-widget-options-second" id="third-share-widget-option">
 					<h4> Via Embed Code </h4>
 						<p>
-							Use the link provided above to share with your students (or
+							Provides a snippet of HTML to embed your widget directly in a webpage. Widgets
+							embedded in such a way do not synchronize scores or other data.
 							<span
 								className='show-embed link'
 								onClick={toggleShowEmbed}>
-								&nbsp;use the embed code
-							</span>
-							).
+								&nbsp;Show the embed code
+							</span>.
 						</p>
 
 					{ embedInfoRender }
@@ -485,7 +499,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			<MyWidgetsScores inst={inst} />
+			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin}/>
 		</section>
 	)
 }

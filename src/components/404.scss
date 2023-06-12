@@ -1,0 +1,63 @@
+@import './include.scss';
+
+#notfound {
+	background: #fff;
+	width: 100vw;
+	max-width: 1200px;
+	min-width: 600px;
+
+	margin: 0 auto;
+
+	.page {
+		position: relative;
+		display: block;
+
+		width: 80%;
+		height: 285px;
+		padding-top: 200px;
+		margin: 50px auto;	
+	
+		background: url('/img/kogneato_metal_detecting.png') 66% no-repeat,
+			url('/img/404_logo_balls.png') 80% no-repeat,
+			url('/img/404_beachandocean.png') 0 255px no-repeat;
+		background-position: right center;
+
+		h1 {
+			width: 50%;
+			height: 50%;
+			background: url('/img/404_insand.png') top center no-repeat;
+			background-size: contain;
+			text-indent: -9000px;
+			position: absolute;
+			top: 30px;
+			left: 10px;
+		}
+
+		p {
+			position: relative;
+			top: 100px;
+			padding-left: 5%;
+			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+			font-size: 18px;
+			font-weight: 700;
+			text-align: left;
+		}
+
+		@media (max-width: 625px) {
+			h1 {
+				left: 5px;
+
+				width: 33%;
+				height: 33%;
+			}
+
+			p {
+				position: relative;
+				top: 40px;
+				background: rgba(255,255,255,0.85);
+				padding: 15px 5px;
+				text-align: center;
+			}
+		}
+	}
+}

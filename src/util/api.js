@@ -6,7 +6,7 @@ import { objectTypes } from '../components/materia-constants'
 // checks response for errors and decodes json
 const handleErrors = async resp => {
 	if (!resp.ok) throw Error(resp.statusText)
-	const data = await resp.json()
+	const data = await resp.json().catch(() => { return null })
 	if (data?.errorID) {
 		throw Error(data.message)
 	}
@@ -18,8 +18,8 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-export const apiGetWidgetInstance = instId => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
+export const apiGetWidgetInstance = (instId, loadQset=false) => {
+	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId, false, loadQset])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -35,7 +35,7 @@ export const apiGetWidgetInstance = instId => {
  * storage
  * @returns An array of objects.
  */
-export const apiGetWidgetInstances = page_number => {
+export const apiGetWidgetInstances = (page_number = 1) => {
 	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -198,7 +198,6 @@ export const apiGetUsers = arrayOfUserIds => {
 	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([arrayOfUserIds])}` })
 		.then(users => {
 			const keyedUsers = {}
-
 			if (Array.isArray(users)) {
 				users.forEach(u => { keyedUsers[u.id] = u })
 			}
@@ -250,13 +249,13 @@ export const apiGetNotifications = () => {
 	return fetch('/api/json/notifications_get/', fetchOptions({ body: `data=${formatFetchBody([])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return {}
-			return resp
+			return resp.json()
 		})
 		.then(notifications => notifications)
 }
 
-export const apiDeleteNotification = notifId => {
-	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([notifId])}` }))
+export const apiDeleteNotification = (data) => {
+	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` }))
 		.then((resp) => resp.json())
 }
 
@@ -266,15 +265,15 @@ export const apiGetExtraAttempts = instId => {
 			if (resp.status != 200) return []
 			return resp.json()
 		})
-		.then(attemps => {
+		.then(attempts => {
 			const map = new Map()
-			for (const i in attemps) {
-				map.set(parseInt(attemps[i].id),
+			for (const i in attempts) {
+				map.set(parseInt(attempts[i].id),
 					{
-						id: parseInt(attemps[i].id),
-						user_id: parseInt(attemps[i].user_id),
-						context_id: attemps[i].context_id,
-						extra_attempts: parseInt(attemps[i].extra_attempts)
+						id: parseInt(attempts[i].id),
+						user_id: parseInt(attempts[i].user_id),
+						context_id: attempts[i].context_id,
+						extra_attempts: parseInt(attempts[i].extra_attempts)
 					})
 			}
 			//const userIds = Array.from(attemps, user => user.user_id)
@@ -433,6 +432,11 @@ export const apiGetScoreSummary = instId => {
 			return []
 		})
 		.then(scores => {
+			if (!scores || scores.type == "error")
+			{
+				return []
+			}
+
 			const ranges = [
 				'0-9',
 				'10-19',
@@ -462,12 +466,12 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			return []
 		})
 		.then(results => {
-			if (results.pagination.length == 0) return []
-
-			const timestampToDateDisplay = timestamp => {
-				const d = new Date(parseInt(timestamp, 10) * 1000)
-				return d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear()
+			if (!results || results.type == "error")
+			{
+				return []
 			}
+
+			if (results.pagination.length == 0) return []
 
 			const scoresByUser = new Map()
 			results.pagination.forEach(log => {
@@ -496,7 +500,7 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 					elapsed: parseInt(log.elapsed, 10) + 's',
 					playId: log.id,
 					score: log.done === '1' ? Math.round(parseFloat(log.perc)) + '%' : '---',
-					date: timestampToDateDisplay(log.time)
+					created_at: log.time
 				})
 
 			})
@@ -559,6 +563,42 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) 
 		})
 }
 
+export const apiGetAssets = () => {
+	return fetch(`/api/json/assets_get`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
+export const apiDeleteAsset = async (assetId) => {
+	const options = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		}
+	}
+	return fetch(`/api/asset/delete/${assetId}`, options).then(handleErrors)
+}
+
+export const apiRestoreAsset = (assetId) => {
+	const options = {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		}
+	}
+	return fetch(`/api/asset/restore/${assetId}`, options).then(handleErrors)
+}
+
 // Persist to wherever using the super-secret object
 const writeToStorage = (queryKey, data) => {
 	let storageData = window.sessionStorage.getItem('queries');
@@ -598,4 +638,27 @@ export const readFromStorage = () => {
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
 	return fetch('/api/json/widget_publish_perms_verify', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
 		.then(resp => resp.json())
+}
+
+// Request access to widget
+export const apiRequestAccess = (instId, ownerId) => {
+	return fetch('/api/instance/request_access',
+	{
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({
+			'inst_id': instId,
+			'owner_id': ownerId
+		})
+	})
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return null
+	})
 }

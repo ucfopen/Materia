@@ -387,5 +387,15 @@ return array(
 			'package' => 'https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey.wigt',
 			'checksum' => 'https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey-build-info.yml'
 		],
+		[
+			'id' => 13,
+			'package' => 'https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer.wigt',
+			'checksum' => 'https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer-build-info.yml'
+		],
+		[
+			'id' => 14,
+			'package' => 'https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter.wigt',
+			'checksum' => 'https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter-build-info.yml'
+		]
 	],
 );

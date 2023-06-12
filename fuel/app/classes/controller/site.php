@@ -82,8 +82,6 @@ class Controller_Site extends Controller
 	 */
 	public function action_404()
 	{
-		Css::push_group('errors');
-
 		$this->theme = Theme::instance();
 		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
@@ -91,6 +89,7 @@ class Controller_Site extends Controller
 			->set('page_type', '404');
 
 		Js::push_group(['react', '404']);
+		Css::push_group('404');
 
 		Log::warning('404 URL: '.Uri::main());
 
@@ -115,7 +114,7 @@ class Controller_Site extends Controller
 		Log::warning('500 URL: '.Uri::main());
 
 		$this->add_inline_info();
-		Css::push_group(['errors','500']);
+		Css::push_group(['500']);
 
 		$response = \Response::forge(\Theme::instance()->render(), 500);
 

@@ -3,6 +3,8 @@
 	width: 620px;
 	height: 500px;
 
+	font-family: 'Lato', arial, serif;
+
 	.title {
 		margin: 0;
 		padding: 0;
@@ -14,7 +16,7 @@
 		position: relative;
 		text-align: left;
 		display: block;
-		font-family: Lato, arial, serif;
+		
 		font-weight: bold;
 	}
 
@@ -27,7 +29,6 @@
 		align-items: center;
 
 		.collab-input-label {
-			font-family: 'Lato', arial, serif;
 			font-size: 19px;
 			margin-right: auto;
 		}
@@ -122,13 +123,14 @@
 		margin: 0 20px;
 
 		.access-list {
-			margin-top: 0px;
-			background-color: #f2f2f2;
 			height: 250px;
-			border-radius: 5px;
 			padding: 0 30px;
-			text-align: right;
+			margin-top: 0px;
+
 			overflow: auto;
+
+			background-color: #f2f2f2;
+			border-radius: 5px;
 
 			&.no-content {
 				display: flex;
@@ -150,7 +152,6 @@
 	}
 
 	.disclaimer {
-		font-family: 'Lato', arial, serif;
 		text-align: center;
 		color: #575757;
 		font-size: 14px;
@@ -220,7 +221,6 @@
 				}
 
 				.no-button {
-					font-family: Lato, arial, serif;
 					color: #555;
 					text-decoration: underline;
 					font-size: 12pt;
@@ -265,6 +265,10 @@
 			}
 
 			.about {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+
 				.avatar {
 					vertical-align: middle;
 					display: inline-block;
@@ -273,6 +277,7 @@
 					margin-right: 10px;
 				}
 				.name {
+					display: inline-block;
 					font-weight: bold;
 					font-size: 15px;
 					text-align: left;

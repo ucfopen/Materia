@@ -8,16 +8,17 @@ import LoadingIcon from './loading-icon'
 import NoContentIcon from './no-content-icon'
 import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
+import { useFetchQueryData } from './hooks/useFetchQueryData'
 
-const initDialogState = () => {
+const initDialogState = (state) => {
 	return ({
 		searchText: '',
 		shareNotAllowed: false,
-		updatedOtherUserPerms: new Map()
+		updatedAllUserPerms: new Map()
 	})
 }
 
-const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser}) => {
+const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, setOtherUserPerms, currentUser, setInvalidLogin}) => {
 	const [state, setState] = useState(initDialogState())
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
@@ -25,19 +26,38 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
 	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
-		queryKey: ['collab-users', inst.id],
+		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {}
 	})
+	const newCollabUser = useFetchQueryData('new-collab-user');
+
+	useEffect(() => {
+		if (newCollabUser)
+		{
+			onClickMatch(newCollabUser);
+		}
+	}, [])
+
 	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
 		queryKey: 'user-search',
 		enabled: !!debouncedSearchTerm,
 		queryFn: () => apiSearchUsers(debouncedSearchTerm),
 		staleTime: Infinity,
 		placeholderData: [],
-		retry: false
+		retry: false,
+		onSuccess: (data) => {
+			if (!data || (data.type == 'error'))
+			{
+				console.error(`User search failed with error: ${data.msg}`);
+				if (data.title =="Invalid Login")
+				{
+					setInvalidLogin(true)
+				}
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -53,30 +73,37 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		else refetchSearch()
 	}, [debouncedSearchTerm])
 
-	// Sets Perms
+	// updatedAllUserPerms is assigned the value of otherUserPerms (a read-only prop) when the component loads
 	useEffect(() => {
-		const map = new Map(otherUserPerms)
-		map.forEach(key => key.remove = false)
-		setState({...state, updatedOtherUserPerms: map})
+		if (otherUserPerms != null)
+		{
+			const map = new Map([...otherUserPerms, ...state.updatedAllUserPerms])
+			map.forEach((key, pair) => {
+				key.remove = false
+			})
+			setState({...state, updatedAllUserPerms: map})
+		}
 	}, [otherUserPerms])
 
 	// Handles clicking a search result
 	const onClickMatch = match => {
-		const tempPerms = new Map(state.updatedOtherUserPerms)
+		const tempPerms = new Map(state.updatedAllUserPerms)
 		let shareNotAllowed = false
 
-		if(!inst.guest_access && match.is_student){
+		if(!inst.guest_access && match.is_student && !match.is_support_user){
 			shareNotAllowed = true
-			setState({...state, searchText: '', updatedOtherUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
+			setState({...state, searchText: '', updatedAllUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 			return
 		}
 
-		if(!state.updatedOtherUserPerms.get(match.id) || state.updatedOtherUserPerms.get(match.id).remove === true)
+		if(!state.updatedAllUserPerms.get(match.id) || state.updatedAllUserPerms.get(match.id).remove === true)
 		{
 			// Adds user to query data
 			let tmpMatch = {}
 			tmpMatch[match.id] = match
 			queryClient.setQueryData(['collab-users', inst.id], old => ({...old, ...tmpMatch}))
+			if (!collabUsers[match.id])
+				collabUsers[match.id] = match
 
 			// Updateds the perms
 			tempPerms.set(
@@ -100,29 +127,30 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 		setState({...state,
 			searchText: '',
-			updatedOtherUserPerms: tempPerms,
+			updatedAllUserPerms: tempPerms,
 			shareNotAllowed: shareNotAllowed
 		})
 	}
 
-	const containsUser = useMemo(() => {
+	// does the perms set contain the current user?
+	// supportUsers always have implicit access. Otherwise, verify the user is in the perms set and isn't pending removal.
+	const containsUser = () => {
 		if (myPerms?.isSupportUser) return true
-		for (const [id, val] of Array.from(state.updatedOtherUserPerms)) {
-			if(val.remove === false) return true
+		for (const [id, val] of Array.from(state.updatedAllUserPerms)) {
+			if (id == currentUser.id) return !val.remove
 		}
-
 		return false
-	},[inst, Array.from(state.updatedOtherUserPerms)])
+	}
 
 	const onSave = () => {
 		let delCurrUser = false
-		if (state.updatedOtherUserPerms.get(currentUser.id)?.remove) {
+		if (state.updatedAllUserPerms.get(currentUser.id)?.remove) {
 			delCurrUser = true
 		}
 
 		setUserPerms.mutate({
 			instId: inst.id,
-			permsObj: Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
+			permsObj: Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				return {
 					user_id: userId,
 					expiration: userPerms.expireTime,
@@ -131,7 +159,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			}),
 			successFunc: () => {
 				if (mounted.current) {
-					setOtherUserPerms(state.updatedOtherUserPerms)
 					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}
@@ -139,12 +166,16 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					queryClient.invalidateQueries(['user-perms', inst.id])
 					queryClient.invalidateQueries(['user-search', inst.id])
 					queryClient.removeQueries(['collab-users', inst.id])
+
+					setOtherUserPerms(state.updatedAllUserPerms)
+					customClose()
+					queryClient.removeQueries(['new-collab-user'])
 					customClose()
 				}
 			}
 		})
 
-		let tmpPerms = new Map(state.updatedOtherUserPerms)
+		let tmpPerms = new Map(state.updatedAllUserPerms)
 
 		tmpPerms.forEach((value, key) => {
 			if(value.remove === true) {
@@ -152,7 +183,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			}
 		})
 
-		setState({...state, updatedOtherUserPerms: tmpPerms})
+		setState({...state, updatedAllUserPerms: tmpPerms})
 	}
 
 	const customClose = () => {
@@ -162,16 +193,16 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	}
 
 	const updatePerms = (userId, perms) => {
-		let newPerms = new Map(state.updatedOtherUserPerms)
-		newPerms.set(userId, perms)
-		setState({...state, updatedOtherUserPerms: newPerms})
+		let newPerms = new Map(state.updatedAllUserPerms)
+		newPerms.set(parseInt(userId), perms)
+		setState({...state, updatedAllUserPerms: newPerms})
 	}
 
 	// Can't search unless you have full access.
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults && searchResults?.length !== 0) {
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults.length && searchResults?.length !== 0) {
 			const searchResultElements = searchResults?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'
@@ -214,16 +245,25 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		mainContentRender = <NoContentIcon />
 
 		if (containsUser) {
-			const mainContentElements = Array.from(state.updatedOtherUserPerms).map(([userId, userPerms]) => {
+			const mainContentElements = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				if (userPerms.remove === true) return
 
-				const user = collabUsers[userId]
-				if (!user) return <div key={userId}></div>
+				let user = collabUsers[userId]
+				if (!user)
+				{
+					// Check if the user was added from an external source (e.g. notifications)
+					if (newCollabUser && userId == newCollabUser.id)
+					{
+						user = newCollabUser;
+					}
+					else return <div key={userId}></div>
+				}
 
 				return <CollaborateUserRow
 					key={user.id}
 					user={user}
 					perms={userPerms}
+					myPerms={myPerms}
 					isCurrentUser={currentUser.id === user.id}
 					onChange={(userId, perms) => updatePerms(userId, perms)}
 					readOnly={myPerms?.shareable === false}

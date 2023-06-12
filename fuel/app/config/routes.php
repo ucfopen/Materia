@@ -11,7 +11,7 @@ return [
 	'_404_'             => 'site/404',
 	'_500_'             => 'site/500',
 	'_root_'            => 'site/index',  // Homepage
-	'permission-denied' => ['site/permission_denied', 'name' => 'nopermission'],
+	'permission-denied' => ['site/permission_denied', 'name' => 'no_permission'],
 	'crossdomain'       => 'site/crossdomain',
 	'help'              => ['site/help', 'name' => 'help'],    // The main docs page
 

@@ -40,7 +40,7 @@ const CalendarContainer = ({children}) => {
 	)
 }
 
-const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
+const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, readOnly}) => {
 	const [state, setState] = useState({...initRowState(), ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
 	const ref = useRef()
 
@@ -143,8 +143,8 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 			<button tabIndex='0'
 				onClick={checkForWarning}
 				className='remove'
-				disabled={readOnly && !isCurrentUser}
-				aria-hidden={readOnly && !isCurrentUser}
+				disabled={readOnly && !isCurrentUser || myPerms.accessLevel == access.VISIBLE}
+				aria-hidden={readOnly && !isCurrentUser || myPerms.accessLevel == access.VISIBLE}
 				data-testid={`${user.id}-delete-user`}>
 				X
 			</button>

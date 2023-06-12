@@ -16,7 +16,6 @@ class Controller_Test extends \Controller_Rest
 			trace('these tests are not availible in production mode');
 			throw new \HttpNotFoundException;
 		}
-		\Js::push_group('jquery');
 		parent::before();
 	}
 

@@ -1,6 +1,8 @@
 import React from 'react'
 import Header from './header'
 
+import './help-page.scss';
+
 const HelpPage = () => {
 	return (
 		<>

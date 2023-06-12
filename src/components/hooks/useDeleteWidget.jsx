@@ -14,13 +14,17 @@ export default function useDeleteWidget() {
 				const previousValue = queryClient.getQueryData('widgets')
 				const delID = inst.instId
 
-				queryClient.setQueryData('widgets', old => old?.pagination?.filter(widget => widget.id !== delID))
+				queryClient.setQueryData('widgets', old => {
+					if (!old || !old.pagination) return old
+					return {...old, pagination: old.pagination.filter(widget => widget.id !== delID)}
+				})
 
 				// Stores the old value for use if there is an error
 				return { previousValue }
 			},
-			onSuccess: () => {
+			onSuccess: (data, variables) => {
 				queryClient.invalidateQueries('widgets')
+				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)

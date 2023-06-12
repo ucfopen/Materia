@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import { useQuery } from 'react-query'
 import { apiGetQuestionSetHistory } from '../util/api'
+import './question-history.scss'
 
 const getInstId = () => {
 	const l = document.location.href
@@ -57,10 +58,7 @@ const QuestionHistory = () => {
 		}
 	}
 
-	const closeDialog = (e) => {
-		e.stopPropagation()
-		return window.parent.Materia.Creator.onQsetHistorySelectionComplete(null)
-	}
+	const closeDialog = () => window.parent.Materia.Creator.onQsetHistorySelectionComplete(null)
 
 	let savesRender = null
 	let noSavesRender = null
@@ -100,7 +98,7 @@ const QuestionHistory = () => {
 			</form>
 			{ noSavesRender }
 			<div className="actions">
-				<a id="cancel_button" href="#" onClick={() => closeDialog}>Cancel</a>
+				<a id="cancel_button" href="#" onClick={closeDialog}>Cancel</a>
 			</div>
 		</div>
 	)

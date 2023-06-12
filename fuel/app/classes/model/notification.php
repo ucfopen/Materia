@@ -74,7 +74,7 @@ class Model_Notification extends \Orm\Model
 				$inst->db_get($inst_id, false);
 
 				$user_link = $from->first.' '.$from->last.' ('.$from->username.')';
-				$widget_link = Html::anchor(\Config::get('materia.urls.root').'my-widgets#/'.$inst_id, $inst->name);
+				$widget_link = Html::anchor(\Config::get('materia.urls.root').'my-widgets#'.$inst_id, $inst->name);
 				$widget_name = $inst->name;
 				$widget_type = $inst->widget->name;
 
@@ -134,7 +134,8 @@ class Model_Notification extends \Orm\Model
 			'is_read'       => '0',
 			'subject'       => $subject,
 			'avatar'        => \Materia\Utils::get_avatar(50),
-			'action'        => $action
+			'action'        => $action,
+			'created_at'	=> time()
 		]);
 
 		$notification->save();
