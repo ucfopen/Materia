@@ -557,9 +557,9 @@ class Test_Api_V1 extends \Basetest
 
 
 		$output = Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
-		$this->assert_is_valid_id($output);
+		$this->assert_is_valid_id($output->id);
 
-		$insts = Api_V1::widget_instances_get($output);
+		$insts = Api_V1::widget_instances_get($output->id);
 		$this->assert_is_widget_instance($insts[0], true);
 		$this->assertEquals('Copied Widget', $insts[0]->name);
 		$this->assertEquals(true, $insts[0]->is_draft);
@@ -577,9 +577,9 @@ class Test_Api_V1 extends \Basetest
 
 
 		$output = Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
-		$this->assert_is_valid_id($output);
+		$this->assert_is_valid_id($output->id);
 
-		$insts = Api_V1::widget_instances_get($output);
+		$insts = Api_V1::widget_instances_get($output->id);
 		$this->assert_is_widget_instance($insts[0], true);
 		$this->assertEquals('Copied Widget', $insts[0]->name);
 		$this->assertEquals(true, $insts[0]->is_draft);
