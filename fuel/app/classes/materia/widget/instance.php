@@ -474,6 +474,8 @@ class Widget_Instance
 		$duplicate->play_url    = $duplicate->is_draft === false ? \Config::get('materia.urls.play').$base_url : '';
 		$duplicate->embed_url   = $duplicate->is_draft === false ? \Config::get('materia.urls.embed').$base_url : '';
 
+		$duplicate->created_at = time(); // manually update created_at, the actual value saved to the db is created in db_store
+
 		// if original widget is student made - verify if new owner is a student or not
 		// if they have a basic_author role or above, turn off the is_student_made flag
 		if ($duplicate->is_student_made)
