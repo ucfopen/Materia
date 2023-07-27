@@ -22,11 +22,17 @@
 	}
 
 	.top {
-		background: #eee;
-		color: #333;
-		padding: 10px 15px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+
 		position: relative;
 		z-index: 2;
+
+		padding: 10px 15px;
+		background: #eee;
+		color: #333;
+
 		font-weight: bold;
 
 		h1 {
@@ -34,82 +40,104 @@
 			display: inline-block;
 		}
 
-		.filter-toggle {
-			display: inline-block;
-			position: absolute;
-			right: 212px;
-			top: 5px;
-			font-size: 0.8em;
-			margin: 10px 15px;
-		}
+		aside {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 5px;
 
-		.search {
-			position: absolute;
-			width: 215px;
-			max-width: 42%;
-			right: 10px;
-			top: 10px;
+			button.filter-toggle {
+				display: inline-block;
+				margin: 0 4px;
+				padding: 1px 0;
 
-			.search-icon {
-				position: absolute;
-				top: 6px;
-				left: 9px;
-				height: 16px;
-				width: 20px;
-				// fill: #898686;
-				svg {
-					height: 100%;
-					width: 100%;
-				}
-			}
-
-			.search-close {
-				cursor: pointer;
-				position: absolute;
-				border: none;
 				background: none;
-				width: 16px;
-				height: 16px;
-				top: 8px;
-				right: 15px;
-				opacity: 0.8;
+				border: 0;
+				border-bottom: solid 1px #3690e6;
+				color: #3690e6;
+				font-size: 0.8em;
+				
+				cursor: pointer;
+				// text-decoration: underline;
+	
+				&.close-mode:after {
+					position: relative;
+					bottom: -1px;
+					content: 'X';
+					margin-left: 3px;
 
-				&:hover {
-					opacity: 1;
-				}
-
-				&:before,
-				&:after {
-					position: absolute;
-					left: 8px;
-					top: 0;
-					content: ' ';
-					height: 14px;
-					width: 2px;
-					background-color: white;
-					transform: rotate(45deg);
-				}
-
-				&:after {
-					transform: rotate(-45deg);
+					color: #000;
+					font-weight: bold;
+					border: 0;
 				}
 			}
 
-			input {
-				position: absolute;
-				box-sizing: border-box;
-				border: none;
-				width: 100%;
-				right: 0;
-				padding: 4px 35px 4px 35px;
-				font-size: 14px;
-				background: #fff;
-				border: solid 1px #b0b0b0;
-				border-radius: 12px;
-				margin: 0;
-
-				&::-ms-clear {
-					display: none;
+			.search {
+				position: relative;
+				width: 215px;
+				margin-left: 10px;
+				// max-width: 42%;
+	
+				.search-icon {
+					position: absolute;
+					top: 6px;
+					left: 9px;
+					height: 16px;
+					width: 20px;
+					// fill: #898686;
+					svg {
+						height: 100%;
+						width: 100%;
+					}
+				}
+	
+				.search-close {
+					cursor: pointer;
+					position: absolute;
+					border: none;
+					background: none;
+					width: 16px;
+					height: 16px;
+					top: 8px;
+					right: 15px;
+					opacity: 0.8;
+	
+					&:hover {
+						opacity: 1;
+					}
+	
+					&:before,
+					&:after {
+						position: absolute;
+						left: 8px;
+						top: 0;
+						content: ' ';
+						height: 14px;
+						width: 2px;
+						background-color: white;
+						transform: rotate(45deg);
+					}
+	
+					&:after {
+						transform: rotate(-45deg);
+					}
+				}
+	
+				input {
+					box-sizing: border-box;
+					border: none;
+					width: 100%;
+					right: 0;
+					padding: 4px 35px 4px 35px;
+					font-size: 14px;
+					background: #fff;
+					border: solid 1px #b0b0b0;
+					border-radius: 12px;
+					margin: 0;
+	
+					&::-ms-clear {
+						display: none;
+					}
 				}
 			}
 		}
@@ -150,7 +178,29 @@
 			display: flex;
 			justify-content: center;
 			flex-wrap: wrap;
-			margin: 10px;
+			margin: 20px 10px 0px 10px;
+
+			&:before {
+				content: 'Features';
+				position: absolute;
+				left: 50%;
+				top: 5px;
+
+				font-size: 12px;
+				font-style: italic;
+				color: #888;
+			}
+
+			&.accessibility:before {
+				content: 'Accessibility';
+				position: absolute;
+				left: 50%;
+				top: 5px;
+
+				font-size: 12px;
+				font-style: italic;
+				color: #888;
+			}
 
 			button {
 				padding: 10px 12px;
@@ -509,9 +559,16 @@
 		}
 
 		.top {
-			flex-direction: column;
+			flex-direction: row;
 			position: relative;
 			padding: 10px 15px 5px;
+
+			aside {
+				margin-top: 4px;
+				.label {
+					display: none;
+				}
+			}
 
 			.search {
 				margin: auto;
