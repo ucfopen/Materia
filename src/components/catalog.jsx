@@ -12,7 +12,8 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 		showingFilters: false,
 		showingAccessibility: false,
 		activeFilters: [],
-		showMobileFilters: false
+		showMobileFilters: false,
+		showMobileAccessibilityFilters: false
 	})
 	const totalWidgets = widgets.length
 
@@ -122,6 +123,27 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			<div
 				id='filter-dropdown'
 				className='mobile-only'
+				aria-hidden={!isMobileDevice()}>
+				{ mobileFilterOptionsRender }
+			</div>
+		)
+	} else if (state.showMobileAccessibilityFilters) {
+		const mobileFilterOptionsRender = filters.accessibility.map(filter => (
+			<label key={filter}>
+				<input type='checkbox'
+					className='filter-button'
+					checked={state.activeFilters.includes(filter)}
+					readOnly={true}
+					onClick={ () => toggleFilter(filter) }
+				/>
+				{filter}
+			</label>
+		))
+
+		mobileFilterRender = (
+			<div
+				id='filter-dropdown'
+				className='mobile-only accessibility'
 				aria-hidden={!isMobileDevice()}>
 				{ mobileFilterOptionsRender }
 			</div>
@@ -254,12 +276,16 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 						
 					</div>
 
-					<div aria-hidden={!isMobileDevice()} id='active-filters' className='mobile-only'>
-						<button id='add-filter'
-							onClick={ () =>  { setState({...state, showMobileFilters: !state.showMobileFilters}) } }>
+					<div aria-hidden={!isMobileDevice()} className='mobile-filter-select mobile-only'>
+						<button className='add-filter'
+							onClick={ () =>  { setState({...state, showMobileFilters: !state.showMobileFilters, showMobileAccessibilityFilters: false}) } }>
 							{state.activeFilters.length ? 'Filters' : 'Filter by Feature'}
 						</button>
-						<div>
+						<button className='add-filter'
+							onClick={ () =>  { setState({...state, showMobileAccessibilityFilters: !state.showMobileAccessibilityFilters, showMobileFilters: false}) } }>
+							{state.activeFilters.length ? 'Accessibility' : 'Filter by Accessibility'}
+						</button>
+						<div className='active-filters'>
 							{ state.activeFilters.join(', ') }
 						</div>
 					</div>

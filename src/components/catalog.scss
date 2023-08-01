@@ -488,7 +488,7 @@
 			margin: auto 0;
 
 			.filter-labels-container {
-				margin: 10px 5px;
+				margin: 20px 10px 0px 10px;
 			}
 		}
 
@@ -556,6 +556,7 @@
 
 		section.page {
 			overflow: visible;
+			min-width: 320px;
 		}
 
 		.top {
@@ -579,18 +580,22 @@
 			}
 		}
 
-		#active-filters {
+		.mobile-filter-select {
 			background: #eee;
 			font-size: 13px;
-			padding: 6px 10px 6px 70px;
+			padding: 6px 10px;
 			position: relative;
 			min-height: 18px;
 		}
 
-		#add-filter {
-			position: absolute;
-			left: 10px;
-			top: calc(50% - 10px);
+		.active-filters {
+			width: calc(100% - 20px);
+			padding: 6px 10px;
+			font-size: 13px;
+			background: #eee;
+		}
+
+		.add-filter {
 			padding: 2px 7px;
 			border: none;
 			color: #3690e6;
@@ -622,6 +627,10 @@
 			z-index: 3;
 			left: 10px;
 			top: 67px;
+
+			&.accessibility {
+				left: 124px;
+			}
 
 			label {
 				display: block;
