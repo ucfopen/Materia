@@ -21,33 +21,13 @@ const initWidgetData = () => ({
 	accessibility: {},
 })
 
-const getAccessibilityData = metadata => {
-	// The 'score' property of the object being returned is derived from both accessibility options' values.
-	// A score of 0 indicates that neither accessibility option was set.
-	const VALUE_SCORES = {
-		None: 1,
-		Limited: 2,
-		Full: 3
-	}
+const getAccessibilityData = (metadata) => {
 
-	let data = {
-		keyboard: 'Unavailable',
-		screen_reader: 'Unavailable',
-		score: 0,
+	return {
+		keyboard: metadata.accessibility_keyboard ? metadata.accessibility_keyboard : 'Unavailable',
+		screen_reader: metadata.accessibility_reader ? metadata.accessibility_reader : 'Unavailable',
+		description: metadata.accessibility_description ? metadata.accessibility_description : ''
 	}
-
-	// Checks if widgets don't have accessibility options
-	if (metadata.accessibility_keyboard) {
-		data.keyboard = metadata.accessibility_keyboard
-		data.score += VALUE_SCORES[metadata.accessibility_keyboard]
-	}
-
-	if (metadata.accessibility_reader) {
-		data.screen_reader = metadata.accessibility_reader
-		data.score += VALUE_SCORES[metadata.accessibility_reader]
-	}
-
-	return data
 }
 
 const _tooltipObject = (text) => ({
@@ -154,11 +134,10 @@ const Detail = ({widget, isFetching}) => {
 				<DetailFeatureList widgetData={widgetData} title='Supported Data' type='supported-data'/>
 			)
 		}
-		let accessibilityRender = null
-		if (widgetData.accessibility.score) {
-			accessibilityRender = (
-				<AccessibilityIndicator widget={widgetData}/>
-			)
+
+		let accessibilityRender = null 
+		if(!widgetData.dataLoading) {
+			accessibilityRender = <AccessibilityIndicator widget={widgetData} />
 		}
 
 		let createRender = null

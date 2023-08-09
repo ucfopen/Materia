@@ -63,6 +63,28 @@ $color-green: #c5dd60;
 						margin-bottom: 10px;
 					}
 
+					&.accessibility-indicator {
+						display: none;
+
+						&.show {
+							display: block;
+						}
+					}
+
+					&.accessibility-description {
+						display: none;
+						margin: 10px 0 0 0;
+
+						font-size: 14px;
+						font-weight: 300;
+						font-style: italic;
+						color: #5a5a5a;
+
+						&.show {
+							display: block;
+						}
+					}
+
 					.icon-spacer {
 						display: inline-block;
 						width: 35px;
