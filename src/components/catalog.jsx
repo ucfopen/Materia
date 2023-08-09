@@ -155,7 +155,9 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 		const filterOptionClickHandler = () => toggleFilter(filter)
 		return <button key={index}
 				className={'feature-button' + (isEnabled ? ' selected' : '')}
+				aria-label={`Filter by ${filter}. ${isEnabled ? 'Selected.' : ''}`}
 				aria-hidden={!state.showingFilters}
+				disabled={!state.showingFilters}
 				onClick={ filterOptionClickHandler }>
 				{filter}
 			</button>
@@ -167,7 +169,9 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 		const filterOptionClickHandler = () => toggleFilter(filter)
 		return <button key={index}
 				className={'feature-button' + (isEnabled ? ' selected' : '')}
-				aria-hidden={!state.showingFilters}
+				aria-label={`Filter by ${filter}. ${isEnabled ? 'Selected.' : ''}`}
+				aria-hidden={!state.showingAccessibility}
+				disabled={!state.showingAccessibility}
 				onClick={ filterOptionClickHandler }>
 				{ filter == 'Keyboard Accessible' ? <KeyboardIcon color='#000' /> : '' }
 				{ filter == 'Screen Reader Accessible' ? <ScreenReaderIcon color='#000' /> : '' }
@@ -255,10 +259,12 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 							<span className='label'>Filter by:</span>
 							<button
 								className={`filter-toggle desktop-only ${state.showingFilters ? 'close-mode' : ''}`}
+								aria-label={state.showingFilters ? 'Feature filters drawer open' : 'Filter catalog by features'}
 								onClick={ filterLinkClickHandler }>
 								Feature</button>
 							<button
 								className={`filter-toggle desktop-only ${state.showingAccessibility ? 'close-mode' : ''}`}
+								aria-label={state.showingAccessibility ? 'Accessibility filters drawer open' : 'Filter catalog by accessibility'}
 								onClick={ accessibilityLinkClickHandler }>
 								Accessibility</button>
 							<div className={'search' + (state.searchText === '' ? '' : ' not-empty')}>
@@ -291,14 +297,14 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 					</div>
 					{ mobileFilterRender }
 					<div id='filters-container'
-						className={`ready ${state.showingFilters ? 'open' : 'closed'}`}>
-						<div className='filter-labels-container'>
+						className={`ready ${state.showingFilters ? 'open' : 'closed'}`} aria-hidden={!state.showingFilters}>
+						<div className='filter-labels-container' disabled={!state.showingFilters}>
 							{ filterOptionsRender }
 						</div>
 					</div>
 					<div id='filters-container'
-						className={`ready ${state.showingAccessibility ? 'open' : 'closed'}`}>
-						<div className='filter-labels-container accessibility'>
+						className={`ready ${state.showingAccessibility ? 'open' : 'closed'}`} aria-hidden={!state.showingAccessibility}>
+						<div className='filter-labels-container accessibility' disabled={!state.showingAccessibility}>
 							{ accessibilityOptionsRender }
 						</div>
 					</div>

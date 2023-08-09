@@ -328,6 +328,10 @@
 					text-decoration: none;
 				}
 
+				&:focus {
+					background-color: #e2f3ff;
+				}
+
 				.header {
 					float: left;
 					// margin-top: -4px;
