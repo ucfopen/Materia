@@ -38,7 +38,11 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	// filter widgets based on search & features
 	const [filteredWidgets, isFiltered] = useMemo(() => {
 		let isFiltered = false
-		let results = widgets
+
+		// widgets with the in_catalog flag set to false should not be included by default
+		let results = widgets.filter(w => {
+			return parseInt(w.in_catalog)
+		})
 		// filters are active, only match active filters
 		if(state.activeFilters.length){
 			isFiltered = true
@@ -62,10 +66,6 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 			const re = new RegExp(state.searchText, 'i')
 			results = results.filter(w => re.test(w.name))
 		}
-
-		// remove featured  when no search options are enabled
-		// (because they are shown in a seperate container)
-		if(!isFiltered) results = results.filter(w => w.in_catalog==='0')
 
 		return [results, isFiltered]
 	}, [widgets, state.searchText, state.activeFilters])
