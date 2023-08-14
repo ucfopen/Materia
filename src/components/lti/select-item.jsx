@@ -41,7 +41,7 @@ const SelectItem = () => {
 	}
 
 	const refreshListing = () => {
-		refetchInstances()
+		instanceList.refresh()
 		setShowRefreshArrow(false)
 	}
 
