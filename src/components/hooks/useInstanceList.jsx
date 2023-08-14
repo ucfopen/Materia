@@ -35,6 +35,7 @@ export default function useInstanceList() {
 		isFetching,
 		isFetchingNextPage,
 		status,
+		refetch
 	} = useInfiniteQuery({
 		queryKey: ['widgets'],
 		queryFn: getWidgetInstances,
@@ -48,7 +49,7 @@ export default function useInstanceList() {
 
 	// memoize the instance list since this is a large, expensive query
 	const instances = useMemo(() => formatData(data), [data])
-	
+
 	useEffect(() => {
 		if (hasNextPage) fetchNextPage()
 	},[instances])
@@ -56,6 +57,7 @@ export default function useInstanceList() {
 	return {
 		instances: instances,
 		isFetching: isFetching || hasNextPage,
+		refresh: () => refetch(),
 		...(errorState == true ? {error: true} : {}) // the error value is only provided if errorState is true
 	}
 }
