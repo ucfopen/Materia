@@ -74,6 +74,7 @@ section.widget {
 		background: white;
 		height: 100%;
 		min-height: 400px;
+		margin: 0 auto;
 
 		#container {
 			margin: 0 auto;
@@ -92,6 +93,8 @@ section.widget {
 
 	section.player-footer {
 		height: 38px;
+
+		margin: 0 auto;
 		padding: 4px 10px;
 
 		border-top: solid 2px $color-purple;
