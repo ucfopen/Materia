@@ -8,7 +8,7 @@ import LoadingIcon from './loading-icon'
 import NoContentIcon from './no-content-icon'
 import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
-import { useFetchQueryData } from './hooks/useFetchQueryData'
+import { access } from './materia-constants'
 
 const initDialogState = (state) => {
 	return ({
@@ -32,14 +32,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		staleTime: Infinity,
 		placeholderData: {}
 	})
-	const newCollabUser = useFetchQueryData('new-collab-user');
-
-	useEffect(() => {
-		if (newCollabUser)
-		{
-			onClickMatch(newCollabUser);
-		}
-	}, [])
 
 	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
 		queryKey: 'user-search',
@@ -77,7 +69,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	useEffect(() => {
 		if (otherUserPerms != null)
 		{
-			const map = new Map([...otherUserPerms, ...state.updatedAllUserPerms])
+			const map = new Map([...state.updatedAllUserPerms, ...otherUserPerms])
 			map.forEach((key, pair) => {
 				key.remove = false
 			})
@@ -148,15 +140,33 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			delCurrUser = true
 		}
 
-		setUserPerms.mutate({
-			instId: inst.id,
-			permsObj: Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
+		let permsObj = [];
+
+		if (delCurrUser && myPerms.accessLevel != access.FULL)
+		{
+			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
+			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
+			permsObj.push({
+				user_id: currentUser.id,
+				expiration: currentUserPerms.expireTime,
+				perms: {[currentUserPerms.accessLevel]: !currentUserPerms.remove}
+			})
+		}
+		else
+		{
+			// else send a request to update all perms
+			permsObj = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				return {
 					user_id: userId,
 					expiration: userPerms.expireTime,
 					perms: {[userPerms.accessLevel]: !userPerms.remove}
 				}
-			}),
+			})
+		}
+
+		setUserPerms.mutate({
+			instId: inst.id,
+			permsObj: permsObj,
 			successFunc: () => {
 				if (mounted.current) {
 					if (delCurrUser) {
@@ -168,8 +178,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					queryClient.removeQueries(['collab-users', inst.id])
 
 					setOtherUserPerms(state.updatedAllUserPerms)
-					customClose()
-					queryClient.removeQueries(['new-collab-user'])
 					customClose()
 				}
 			}
@@ -251,12 +259,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				let user = collabUsers[userId]
 				if (!user)
 				{
-					// Check if the user was added from an external source (e.g. notifications)
-					if (newCollabUser && userId == newCollabUser.id)
-					{
-						user = newCollabUser;
-					}
-					else return <div key={userId}></div>
+					return <div key={userId}></div>
 				}
 
 				return <CollaborateUserRow

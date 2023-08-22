@@ -60,13 +60,13 @@ class Api_V1
  * Takes a page number, and returns objects containing the total_num_pages and
  * widget instances that are visible to the user.
  *
- * @param page_number The page to be retreated. By default it is set to 1.
+ * @param page_number The page to be requested. By default it is set to 1.
  *
  * @return array of objects containing total_num_pages and widget instances that are visible to the user.
  */
-	static public function widget_paginate_instances_get($page_number = 1)
+	static public function widget_paginate_instances_get($page_number = 0)
 	{
-		if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
 		return $data;
 	}
@@ -146,7 +146,7 @@ class Api_V1
 			// retain access - if true, grant access to the copy to all original owners
 			$current_user_id = \Model_User::find_current_id();
 			$duplicate = $inst->duplicate($current_user_id, $new_name, $copy_existing_perms);
-			return $duplicate->id;
+			return $duplicate;
 		}
 		catch (\Exception $e)
 		{

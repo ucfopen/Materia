@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetWidgetInstances, apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
+import { apiGetUser, readFromStorage, apiGetUserPermsForInstance } from '../util/api'
 import rawPermsToObj from '../util/raw-perms-to-object'
 import Header from './header'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
 import LoadingIcon from './loading-icon'
+import useInstanceList from './hooks/useInstanceList'
 import useCopyWidget from './hooks/useCopyWidget'
 import useDeleteWidget from './hooks/useDeleteWidget'
 import useKonamiCode from './hooks/useKonamiCode'
@@ -23,9 +24,6 @@ const randomBeard = () => {
 	return beard_vals[getRandomInt(0, 3)]
 }
 
-// Helper function to sort widgets
-const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
-
 const localBeard = window.localStorage.beardMode
 
 const MyWidgetsPage = () => {
@@ -39,11 +37,7 @@ const MyWidgetsPage = () => {
 		currentBeard: ''
 	})
 
-	const [widgetList, setWidgetList] = useState({
-		instances: [],
-		page: 1,
-		totalPages: 0
-	})
+	const instanceList = useInstanceList()
 	const [invalidLogin, setInvalidLogin] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 
@@ -51,35 +45,6 @@ const MyWidgetsPage = () => {
 	const validCode = useKonamiCode()
 	const copyWidget = useCopyWidget()
 	const deleteWidget = useDeleteWidget()
-	const {
-		data,
-		isFetching,
-	} = useQuery(
-		['widgets', widgetList.page],
-		() => apiGetWidgetInstances(widgetList.page),
-		{
-			keepPreviousData: true,
-			refetchOnWindowFocus: false,
-			onSuccess: (data) => {
-				if (!data || data.type == 'error')
-				{
-					console.error(`Widget instances failed to load with error: ${data.msg}`);
-					if (data.title =="Invalid Login")
-					{
-						setInvalidLogin(true)
-					}
-				}
-				// Removes duplicates
-				let widgetSet = new Set([...(data.pagination ? data.pagination : []), ...widgetList.instances])
-
-				setWidgetList({
-					...widgetList,
-					totalPages: data.total_num_pages || widgetList.totalPages,
-					instances: [...widgetSet].sort(_compareWidgets)
-				})
-			},
-		}
-	)
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
@@ -105,10 +70,7 @@ const MyWidgetsPage = () => {
 
 	// hook associated with the invalidLogin error
 	useEffect(() => {
-		if (invalidLogin)
-		{
-			window.location.reload();
-		}
+		if (invalidLogin) window.location.reload();
 	}, [invalidLogin])
 
 	// hook to attach the hashchange event listener to the window
@@ -158,13 +120,9 @@ const MyWidgetsPage = () => {
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
 	// hook associated with updates to the widget list OR an update to the widget hash
-	// facilitates pagination and verifies if the selected widget is loaded when the widget list updates
 	// if there is a widget hash present AND the selected instance does not match the hash, perform an update to the selected widget state info
 	useEffect(() => {
-		// increment pagination if the list isn't fully loaded
-		if (widgetList.page < widgetList.totalPages) {
-			setWidgetList({...widgetList, page: widgetList.page + 1})
-		}
+		if (instanceList.error) setInvalidLogin(true)
 
 		// if a widget hash exists in the URL OR a widget is already selected in state
 		if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {
@@ -187,7 +145,7 @@ const MyWidgetsPage = () => {
 				if (selectWidget) {
 					// locate the desired widget instance from the widgetList
 					let widgetFound = null
-					widgetList.instances.forEach((widget, index) => {
+					instanceList.instances.forEach((widget, index) => {
 						if (widget.id == desiredId) {
 							widgetFound = widget
 							if (selectWidget) onSelect(widget, index)
@@ -200,7 +158,8 @@ const MyWidgetsPage = () => {
 						noAccess: widgetFound == null,
 					})
 				}
-			} else if (widgetList.page == widgetList.totalPages) {
+			}
+			else if (!instanceList.isFetching) {
 				// widgetList is fully loaded and the selected instance is not found
 				// let the user know it's missing or unavailable
 				setState({
@@ -209,20 +168,8 @@ const MyWidgetsPage = () => {
 					noAccess: true,
 				})
 			}
-		} else if (state.pendingWidgetHash && widgetList.page == widgetList.totalPages) {
-			// special case to handle widget copy behavior
-			// because state.widgetHash and widgetList.instances are both updated concurrently, race conditions could occur
-			// to resolve this, set a special flag that's addressed AFTER the instance list is re-fetched
-			// widgetHash is updated only once widgetList.instances is fully populated
-			// unfortunately this is less responsive than the normal loading of instances, but oh well
-			let hash = state.pendingWidgetHash
-			let {pendingWidgetHash, ...stateCopy} = state
-			setState({
-				...stateCopy,
-				widgetHash: hash
-			})
 		}
-	}, [widgetList.instances, state.widgetHash, showCollab])
+	}, [instanceList.instances, state.widgetHash, showCollab])
 
 	// hook to watch otherUserPerms (which despite the name also includes the current user perms)
 	// if the current user is no longer in the perms list, purge the selected instance & force a re-fetch of the list
@@ -232,11 +179,6 @@ const MyWidgetsPage = () => {
 				...state,
 				selectedInst: null,
 				widgetHash: null
-			})
-			setWidgetList({
-				...widgetList,
-				instances: [],
-				page: 1
 			})
 		}
 	},[state.otherUserPerms])
@@ -253,7 +195,7 @@ const MyWidgetsPage = () => {
 	// boolean to verify if the current instance list in state contains the specified instance
 	const selectedInstanceHasLoaded = (inst) => {
 		if (!inst) return false
-		return widgetList.instances.some(instance => instance.id == inst)
+		return instanceList.instances.some(instance => instance.id == inst)
 	}
 
 	// updates necessary state information for a newly selected widget
@@ -289,20 +231,11 @@ const MyWidgetsPage = () => {
 			},
 			{
 				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
-				onSettled: newInstId => {
-					// race conditions require we reset selectedInst and widgetHash to null prior to updating those values
-					// instead, pendingWidgetHash will be used to update widgetHash once the instance list has fully reloaded
+				onSettled: newInst => {
 					setState({
 						...state,
 						selectedInst: null,
-						widgetHash: null,
-						pendingWidgetHash: newInstId
-					})
-
-					setWidgetList({
-						...widgetList,
-						instances: [],
-						page: 1
+						widgetHash: newInst.id
 					})
 				}
 			}
@@ -334,12 +267,6 @@ const MyWidgetsPage = () => {
 						selectedInst: null,
 						widgetHash: null
 					})
-
-					setWidgetList({
-						...widgetList,
-						instances: [],
-						page: 1
-					})
 				}
 			}
 		)
@@ -358,16 +285,16 @@ const MyWidgetsPage = () => {
 	const beards = useMemo(
 		() => {
 			const result = []
-			widgetList.instances?.forEach(() => {
+			instanceList.instances?.forEach(() => {
 				result.push(randomBeard())
 			})
 			return result
 		},
-		[data]
+		[instanceList.instances]
 	)
 
 	let widgetCatalogCalloutRender = null
-	if (!isFetching && (!widgetList.instances || widgetList.instances?.pagination?.length === 0)) {
+	if (!instanceList.isFetching && instanceList.instances?.length === 0) {
 		widgetCatalogCalloutRender = (
 			<div className='qtip top nowidgets'>
 				Click here to start making a new widget!
@@ -387,14 +314,14 @@ const MyWidgetsPage = () => {
 		const widgetSpecified = (state.widgetHash || state.selectedInst)
 
 		// A widget is selected, we're in the process of fetching it but it hasn't returned from the API yet
-		if (isFetching && widgetSpecified && !selectedInstanceHasLoaded(widgetSpecified)) {
+		if (instanceList.isFetching && widgetSpecified && !selectedInstanceHasLoaded(widgetSpecified)) {
 			return <section className='page directions no-widgets'>
 					<h2 className='loading-text'>Loading Your Widget</h2>
 				</section>
 		}
 
 		// No widget specified, fetch in progress
-		if (isFetching && !widgetSpecified) {
+		if (instanceList.isFetching && !widgetSpecified) {
 			return <section className='page directions no-widgets'>
 				<h1 className='loading-text'>Loading</h1>
 			</section>
@@ -410,7 +337,7 @@ const MyWidgetsPage = () => {
 		}
 
 		// Not loading anything and no widgets returned from the API
-		if (widgetList.instances?.length < 1) {
+		if (!instanceList.isFetching && instanceList.instances?.length < 1) {
 			return <section className='page directions no-widgets'>
 				<h1>You have no widgets!</h1>
 				<p>Make a new widget in the widget catalog.</p>
@@ -465,8 +392,8 @@ const MyWidgetsPage = () => {
 					</div>
 					<MyWidgetsSideBar
 						key='widget-side-bar'
-						isFetching={isFetching}
-						instances={widgetList.instances}
+						isFetching={instanceList.isFetching}
+						instances={instanceList.instances}
 						selectedId={state.selectedInst ? state.selectedInst.id : null}
 						onClick={onSelect}
 						beardMode={beardMode}
