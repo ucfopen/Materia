@@ -201,7 +201,6 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 	}, [inst.guest_access, JSON.stringify(state.formData)])
 
 	const accessChange = (val) => {
-		console.log(val)
 		// Warns the user if doing this will remove students from collaboration
 		let _showWarning = false
 

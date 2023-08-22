@@ -286,27 +286,27 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			</div>
 			</div>
 			<div className='overview'>
-				<span>
+				<div>
 					<label>ID:</label>
 					{updatedInst.id}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Owner:</label>
 					{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Date Created:</label>
 					{(new Date(updatedInst.created_at*1000)).toLocaleString()}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Draft:</label>
 					{updatedInst.is_draft ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Student Made:</label>
 					{updatedInst.is_student_made ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label htmlFor="guest-access">Guest Access:</label>
 					<select value={updatedInst.guest_access}
 						id="guest-access"
@@ -314,12 +314,12 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Student Access:</label>
 					{updatedInst.student_access ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label htmlFor="embedded-only">Embedded Only:</label>
 					<select value={updatedInst.embedded_only}
 						id="embedded-only"
@@ -327,16 +327,16 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Embedded:</label>
 					{updatedInst.is_embedded ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Deleted:</label>
 					{updatedInst.is_deleted ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label htmlFor="attempts">Attempts Allowed:</label>
 					<select value={updatedInst.attempts}
 						id="attempts"
@@ -351,8 +351,8 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 						<option value={15}>15</option>
 						<option value={20}>20</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Available:</label>
 					<div className='radio'>
 						<input type='radio'
@@ -384,8 +384,8 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 						/>
 						<label htmlFor="now">Now</label>
 					</div>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Closes:</label>
 					<div className='radio'>
 						<input type='radio'
@@ -415,28 +415,28 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 						/>
 						<label htmlFor="never">Never</label>
 					</div>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Embed URL:</label>
 					<a className='url'
 						href={updatedInst.embed_url}>
 						{updatedInst.embed_url}
 					</a>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Play URL:</label>
 					<a className='url'
 						href={updatedInst.play_url}>
 						{updatedInst.play_url}
 					</a>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Preview URL:</label>
 					<a className='url'
 						href={updatedInst.preview_url}>
 						{updatedInst.preview_url}
 					</a>
-				</span>
+				</div>
 				<div className='right-justify'>
 					<div className='apply-changes'>
 						<button className='action_button apply'
