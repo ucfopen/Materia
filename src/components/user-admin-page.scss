@@ -156,7 +156,6 @@
 
 			div {
 				display: inline-block;
-				vertical-align: top;
 				margin: 5px 0 0;
 			}
 		}
@@ -196,7 +195,13 @@
 		}
 
 		.overview {
+			width: 100%;
 			padding: 10px;
+
+			div {
+				display: block;
+				margin: 0;
+			}
 
 			span {
 				display: block;
@@ -216,26 +221,31 @@
 				input {
 					margin: 0px 5px;
 				}
+
+				label {
+					width: auto;
+				}
 			}
 
 			.url {
 				display: inline-block;
 				vertical-align: middle;
-				width: 500px;
+				// width: 500px;
 				font-size: 70%;
 				margin: 0px 0px;
 			}
 
 			.right-justify {
-				margin-top: 20px;
 				display: flex;
 				justify-content: flex-end;
+				margin-top: 20px;
 
 				.apply-changes {
 					display: flex;
 					flex-direction: column;
 					justify-content: flex-end;
 					width: 220px;
+					margin-right: 20px;
 
 					.apply {
 						padding: 6px 10px 6px 10px;
@@ -385,6 +395,7 @@
 			.manage-btn-container {
 				display: flex;
 				justify-content: end;
+				margin-top: 20px;
 			}
 
 			.info-holder {
