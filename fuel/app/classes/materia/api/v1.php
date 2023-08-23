@@ -211,6 +211,7 @@ class Api_V1
 	 * Save and existing instance
 	 *
 	 * @param int     $inst_id
+	 * @param string  $name
 	 * @param object  $qset
 	 * @param bool    $is_draft Whether the widget is being saved as a draft
 	 * @param int     $open_at
@@ -911,7 +912,9 @@ class Api_V1
 		//no user ids provided, return current user
 		if ($user_ids === null)
 		{
-			$results = \Model_User::find_current();
+			//$results = \Model_User::find_current();
+			$me = \Model_User::find_current_id();
+			$results = \Model_User::find($me);
 			$results = $results->to_array();
 		}
 		else
@@ -919,6 +922,7 @@ class Api_V1
 			if (empty($user_ids) || ! is_array($user_ids)) return Msg::invalid_input();
 			//user ids provided, get all of the users with the given ids
 			$me = \Model_User::find_current_id();
+
 			foreach ($user_ids as $id)
 			{
 				if (Util_Validator::is_pos_int($id))

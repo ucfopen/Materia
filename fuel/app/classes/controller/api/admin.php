@@ -93,6 +93,11 @@ class Controller_Api_Admin extends Controller_Rest
 
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
 
+		if ( ! $inst)
+		{
+			return $this->response('Course ID not found.', 400);
+		}
+
 		$attempts = [];
 
 		// iterate thru each extra attempt and set it in the db

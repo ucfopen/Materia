@@ -118,6 +118,11 @@ export const apiDeleteWidget = ({ instId }) => {
 		})
 }
 
+/**
+ * It undeletes a widget instance
+ * @param {string} instID
+ * @returns {boolean} operation success
+ */
 export const apiUnDeleteWidget = ({ instId }) => {
 	return fetch(`/api/admin/widget_instance_undelete/${instId}`,
 		{
@@ -188,7 +193,6 @@ export const apiGetUser = () => {
 				sessionStorage.clear()
 				return null
 			}
-
 			writeToStorage('user', user)
 			return user
 		})
@@ -293,6 +297,9 @@ export const apiSetAttempts = ({ instId, attempts }) => {
 				'content-type': 'application/json; charset=UTF-8'
 			},
 			body: JSON.stringify(attempts)
+		}).then (resp => {
+			if (resp.status === 204 || resp.status === 502 || resp.status == 400) return []
+			return resp.json()
 		})
 }
 
@@ -302,7 +309,8 @@ export const apiSearchUsers = (input = '') => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-		.then(users => users)
+		.then(users => {
+			return users})
 }
 
 export const apiGetUserPermsForInstance = instId => {
@@ -324,6 +332,20 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
 		.then(widgetInfo => widgetInfo)
 }
 
+/**
+ * It updates a widget instance
+ * @param {array} args
+  	 * @param {int}     $inst_id
+	 * @param {string} 	$name
+	 * @param {object}  $qset
+	 * @param {bool}    $is_draft Whether the widget is being saved as a draft
+	 * @param {int}     $open_at
+	 * @param {int}     $close_at
+	 * @param {int}     $attempts
+	 * @param {bool}    $guest_access
+	 * @param {bool} 	$is_student_made
+ * @returns {object} updated instance
+ */
 export const apiUpdateWidget = ({ args }) => {
 	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
 		.then(res => res.json())
@@ -336,6 +358,12 @@ export const apiGetWidgetLock = (id = null) => {
 		.then(lock => lock)
 }
 
+/**
+ * It searches for widgets by name or ID
+ * @param {string} input (letters only)
+ * @returns {array} if matches were found
+ * @returns {bool}  if input does not match pattern
+ */
 export const apiSearchWidgets = input => {
 	let pattern = /[A-Za-z]+/g
 	if (!input.match(pattern).length) return false
@@ -349,8 +377,10 @@ export const apiSearchWidgets = input => {
 
 export const apiGetWidgetsAdmin = () => {
 	return fetch(`/api/admin/widgets/`)
-		.then(resp => resp.json())
-		.then(widgets => widgets)
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return []
+	})
 }
 
 export const apiUpdateWidgetAdmin = widget => {
@@ -366,7 +396,10 @@ export const apiUpdateWidgetAdmin = widget => {
 		},
 		body: JSON.stringify(widget)
 	})
-	.then(res => res.json())
+	.then(resp => {
+		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
+		return []
+	})
 }
 
 export const apiUploadWidgets = (files) => {

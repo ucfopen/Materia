@@ -1,0 +1,237 @@
+{
+    "attempts": "-1",
+    "clean_name": "famous-landmarks",
+    "close_at": "-1",
+    "created_at": "1656007466",
+    "embed_url": "https://localhost/embed/XxSgi/famous-landmarks",
+    "is_student_made": false,
+    "is_embedded": false,
+    "is_deleted": false,
+    "embedded_only": false,
+    "student_access": false,
+    "guest_access": true,
+    "height": 0,
+    "id": "XxSgi",
+    "is_draft": false,
+    "name": "Famous Landmarks",
+    "open_at": "-1",
+    "play_url": "https://localhost/play/XxSgi/famous-landmarks",
+    "preview_url": "https://localhost/preview/XxSgi/famous-landmarks",
+    "published_by": null,
+    "user_id": "1",
+    "widget": {
+      "clean_name": "crossword",
+      "creator": "creator.html",
+      "created_at": "1656007466",
+      "dir": "1-crossword/",
+      "flash_version": "10",
+      "api_version": "2",
+      "height": "592",
+      "id": "1",
+      "is_answer_encrypted": "1",
+      "in_catalog": "1",
+      "is_editable": "1",
+      "is_playable": "1",
+      "is_qset_encrypted": "1",
+      "is_scalable": "0",
+      "is_scorable": "1",
+      "is_storage_enabled": "0",
+      "package_hash": "0c0b0b35ff3edaad4f7c08f3e3e9366c",
+      "meta_data": {
+        "features": [
+          "Customizable",
+          "Scorable",
+          "Mobile Friendly"
+        ],
+        "supported_data": [
+          "Question/Answer"
+        ],
+        "about": "I",
+        "excerpt": "A quiz tool that uses words and clues to randomly generate a crossword puzzle.",
+        "demo": "XxSgi"
+      },
+      "name": "Crossword",
+      "player": "player.html",
+      "question_types": "",
+      "restrict_publish": "0",
+      "score_module": "Crossword",
+      "score_screen": "scoreScreen.html",
+      "width": "715",
+      "creator_guide": "guides/creator.html",
+      "player_guide": "guides/player.html"
+    },
+    "width": 0,
+    "qset": {
+      "version": "1",
+      "data": {
+        "items": [
+          {
+            "items": [
+              {
+                "materiaType": "question",
+                "id": "ac4b8819-8416-4a65-81d2-b327ea604663",
+                "type": "QA",
+                "created_at": 1656007466,
+                "questions": [
+                  {
+                    "text": "The tallest mountain in the world, and the ultimate challenge for mountain climbers everywhere."
+                  }
+                ],
+                "answers": [
+                  {
+                    "value": 100,
+                    "text": "Everest",
+                    "id": "d6643f8c-31fd-46e8-b86c-76e5be6ac215"
+                  }
+                ],
+                "options": {
+                  "y": 3,
+                  "x": 4,
+                  "posSet": 1,
+                  "hint": "Starts with an 'E'.",
+                  "dir": 1
+                },
+                "assets": []
+              },
+              {
+                "materiaType": "question",
+                "id": "da1a1385-2b17-4be6-b5d6-803dc783c9dc",
+                "type": "QA",
+                "created_at": 1656007466,
+                "questions": [
+                  {
+                    "text": "A white marble mausoleum commissioned in 1632 by an emperor to house the tomb of his favorite wife of three."
+                  }
+                ],
+                "answers": [
+                  {
+                    "value": 100,
+                    "text": "The Taj-Mahal",
+                    "id": "5c0f1f45-6b0d-4e1e-a3e6-a18a91335151"
+                  }
+                ],
+                "options": {
+                  "y": 17,
+                  "x": 5,
+                  "posSet": 1,
+                  "hint": "Located in India",
+                  "dir": 0
+                },
+                "assets": []
+              },
+              {
+                "materiaType": "question",
+                "id": "212d5992-beb2-40de-a655-75a1507323db",
+                "type": "QA",
+                "created_at": 1656007466,
+                "questions": [
+                  {
+                    "text": "Home for the president of the United States of America."
+                  }
+                ],
+                "answers": [
+                  {
+                    "value": 100,
+                    "text": "The White House",
+                    "id": "c58bf162-c1c2-4cee-9c39-863155371487"
+                  }
+                ],
+                "options": {
+                  "y": "3",
+                  "x": "7",
+                  "posSet": 1,
+                  "hint": "They painted it white.",
+                  "dir": "1"
+                },
+                "assets": []
+              },
+              {
+                "materiaType": "question",
+                "id": "54a6721e-f130-4adc-91b6-01fd18e40db2",
+                "type": "QA",
+                "created_at": 1656007466,
+                "questions": [
+                  {
+                    "text": "Mysterious landmark of several large standing stones arranged in a circle."
+                  }
+                ],
+                "answers": [
+                  {
+                    "value": 100,
+                    "text": "Stonehenge",
+                    "id": "dd6cf7e3-af2b-4646-af4e-9cc1442d1b4e"
+                  }
+                ],
+                "options": {
+                  "y": 10,
+                  "x": 6,
+                  "posSet": 1,
+                  "hint": "This monument is in England.",
+                  "dir": 0
+                },
+                "assets": []
+              },
+              {
+                "materiaType": "question",
+                "id": "e34b2621-b23a-43b7-9fc6-7c07a0394f9f",
+                "type": "QA",
+                "created_at": 1656007466,
+                "questions": [
+                  {
+                    "text": "This is one of the world's oldest statues - A lion with a human head that stands in the Giza Plateau."
+                  }
+                ],
+                "answers": [
+                  {
+                    "value": 100,
+                    "text": "Sphinx",
+                    "id": "52aca647-51b6-4081-9ea7-d3eb67a9c995"
+                  }
+                ],
+                "options": {
+                  "y": 0,
+                  "x": 1,
+                  "posSet": 1,
+                  "hint": "It needs a new nose!",
+                  "dir": 1
+                },
+                "assets": []
+              },
+              {
+                "materiaType": "question",
+                "id": "f6e25927-8239-4a5a-bcc3-be42d43360bb",
+                "type": "QA",
+                "created_at": 1656007466,
+                "questions": [
+                  {
+                    "text": "A monument built for the 1889 World's Fair, this metal structure can be found on the Champ de Mars in Paris."
+                  }
+                ],
+                "answers": [
+                  {
+                    "value": 100,
+                    "text": "Eiffel Tower",
+                    "id": "7b692988-9c8e-48a9-b908-695a30d7b6d3"
+                  }
+                ],
+                "options": {
+                  "y": 3,
+                  "x": 0,
+                  "posSet": 1,
+                  "hint": "___ Tower.",
+                  "dir": 0
+                },
+                "assets": []
+              }
+            ]
+          }
+        ],
+        "options": {
+          "freeWords": 1,
+          "hintPenalty": 50
+        },
+        "id": "2"
+      },
+      "id": "2"
+    }
+  }

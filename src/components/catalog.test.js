@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import React from 'react';
 import { render, screen, fireEvent, getByPlaceholderText, queryByTestId, queryByText } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'

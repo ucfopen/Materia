@@ -39,7 +39,7 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 						src={match.avatar}
 					/>
 					<p className={`attempts_match_name ${match.is_student ? 'attempts_match_student' : ''}`}>
-						{match.first} {match.last}
+						{match.first + ' ' + match.last}
 					</p>
 			</div>
 		))
@@ -54,9 +54,9 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 
 	return (
 		<div className='search-container'>
-			<span className='search-title'>Add students:</span>
+			<label htmlFor="attempts-input" className='search-title'>Add students:</label>
 			<input
-				tabIndex='0'
+				tabIndex='0' id="attempts-input"
 				value={state.searchText}
 				onChange={(e) => setState({...state, searchText: e.target.value})}
 				type='text'

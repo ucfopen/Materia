@@ -1,4 +1,8 @@
-import React from 'react';
+/**
+ * @jest-environment jsdom
+ */
+
+ import React from 'react';
 import { render, screen, fireEvent, getByPlaceholderText, queryByTestId } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog.jsx'

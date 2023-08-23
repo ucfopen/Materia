@@ -53,8 +53,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => {
+		mounted.current = true
+		return () => {
 			mounted.current = false
 		}
 	}, [])

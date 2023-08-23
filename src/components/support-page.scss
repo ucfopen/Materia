@@ -23,15 +23,19 @@
 		border-radius: 3px;
 		font-size: 12px;
 		border: 1px solid #ccc;
-	
+
 		.breadcrumb {
 			display: inline-block;
-	
+
 			a {
 				color: black;
+
+				:hover {
+					cursor: pointer;
+				}
 			}
 		}
-	
+
 		svg {
 			position: relative;
 			height: 15px;
@@ -73,7 +77,7 @@
 				border: solid 1px $gray;
 			}
 		}
-		
+
 		.show_deleted {
 			display: inline-block;
 			margin-left: 10px;
@@ -169,16 +173,16 @@
 			.header {
 				margin-top: 15px;
 				padding: 10px 15px;
-	
+
 				background: $light-gray;
 				border: solid 1px $gray;
 				border-radius: 5px;
-	
+
 				img {
 					display: inline-block;
 					vertical-align: middle;
 				}
-	
+
 				input {
 					display: inline-block;
 					margin-left: 15px;
@@ -187,12 +191,12 @@
 					font-size: 1.35em;
 				}
 			}
-	
+
 			.inst-action-buttons {
 				padding: 10px;
 				display: flex;
 				flex-wrap: nowrap;
-	
+
 				button {
 					display: inline-block;
 					margin: 0px 5px;
@@ -218,20 +222,23 @@
 		.overview {
 			padding: 10px;
 
-			span {
-				display: block;
+			div {
 				margin: 5px 0px;
 			}
 
 			label {
 				display: inline-block;
 				vertical-align: top;
-				width: 160px;
+				width: 150px;
 			}
 
 			.radio {
 				display: inline-block;
 				// width: 200px;
+
+				label {
+					width: auto;
+				}
 
 				input {
 					margin: 0px 5px;
@@ -306,7 +313,7 @@
 			.img-holder {
 				display: inline-block;
 				vertical-align: middle;
-			
+
 				img {
 					width: 50px;
 					height: 50px;
@@ -317,7 +324,7 @@
 					margin-right: 10px;
 				}
 			}
-		
+
 			.title {
 				margin: 0;
 				padding: 0;
@@ -332,38 +339,38 @@
 			vertical-align: top;
 
 			padding: 10px;
-	
+
 			span:not(.long),
 			label {
 				display: inline-block;
 				vertical-align: top;
 			}
-	
+
 			label:not(.normal) {
 				width: 145px;
 			}
-	
+
 			.normal input {
 				margin: 0;
 				padding: 0;
 			}
-	
+
 			ul {
 				list-style: none;
 				padding: 0;
 				margin: 0;
 			}
-	
+
 			li {
 				padding: 0 5px;
 			}
-	
+
 			hr {
 				margin: 5px auto;
 				clear: right;
 				width: auto;
 			}
-	
+
 			.action_button {
 				position: absolute;
 				right: 5px;

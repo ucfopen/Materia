@@ -80,7 +80,7 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 					<label>Email: </label><input type='text' onChange={(event) => handleChange('email', event.target.value)} value={updatedUser.email}></input>
 				</span>
 				<span>
-					<label>Role: </label> { updatedUser.is_student ? 'Student' : 'Instructor' }
+					<label>Roles: </label> { updatedUser.is_support_user ? 'Support, ' : '' } { updatedUser.is_student ? 'Student' : 'Instructor' }
 				</span>
 				<h3>User Settings</h3>
 				<span>
@@ -109,8 +109,8 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 				</div>
 			</div>
 		</section>
-		
-		
+
+
 
 		// avatar icon, name
 		// created: static date

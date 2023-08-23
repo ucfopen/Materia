@@ -9,6 +9,7 @@ import useUpdateWidget from './hooks/useSupportUpdateWidget'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
+import useCopyWidget from './hooks/useSupportCopyWidget'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
@@ -33,7 +34,7 @@ const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
 
 const stringToBoolean = s => s === 'true'
 
-const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, embed = false}) => {
+const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
@@ -50,6 +51,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const deleteWidget = useDeleteWidget()
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
+	const copyWidget = useCopyWidget()
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
 		queryKey: ['instance-owner', inst.id],
@@ -92,6 +94,18 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 		onCopy(updatedInst.id, title, copyPerms, updatedInst)
 	}
 
+	const onCopy = (instId, title, copyPerms, inst) => {
+		copyWidget.mutate({
+			instId: instId,
+			title: title,
+			copyPermissions: copyPerms,
+			dir: inst.widget.dir,
+			successFunc: newInst => {
+				window.location.hash = newInst;
+			}
+		})
+	}
+
 	const onDelete = instId => {
 		deleteWidget.mutate({
 			instId: instId,
@@ -109,6 +123,20 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 	const applyChanges = () => {
 		setErrorText('')
 		let u = updatedInst
+
+		if (!availableDisabled && !closeDisabled)
+		{
+			if(availableDate == '' || availableTime == '' || closeDate == '' || closeTime == '') {
+				setErrorText('Please enter valid dates and times')
+				return
+			}
+
+			if (stringToDateObj(availableDate, availableTime) > stringToDateObj(closeDate, closeTime))
+			{
+				setErrorText('Please enter a close date after the available date.')
+				return
+			}
+		}
 
 		// set date and time from input boxes
 		if (!availableDisabled) {
@@ -145,7 +173,7 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 
 		const args = [
 			u.id,
-			undefined,
+			u.name,
 			null,
 			null,
 			u.open_at,
@@ -258,57 +286,60 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 			</div>
 			</div>
 			<div className='overview'>
-				<span>
+				<div>
 					<label>ID:</label>
 					{updatedInst.id}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Owner:</label>
-					{loadingInstOwner ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
-				</span>
-				<span>
+					{loadingInstOwner || instOwner == undefined ? 'Loading...' : `${instOwner[updatedInst.user_id]?.first} ${instOwner[updatedInst.user_id]?.last}`}
+				</div>
+				<div>
 					<label>Date Created:</label>
 					{(new Date(updatedInst.created_at*1000)).toLocaleString()}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Draft:</label>
 					{updatedInst.is_draft ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Student Made:</label>
 					{updatedInst.is_student_made ? 'Yes' : 'No'}
-				</span>
-				<span>
-					<label>Guest Access:</label>
+				</div>
+				<div>
+					<label htmlFor="guest-access">Guest Access:</label>
 					<select value={updatedInst.guest_access}
+						id="guest-access"
 						onChange={event => handleChange('guest_access', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Student Access:</label>
 					{updatedInst.student_access ? 'Yes' : 'No'}
-				</span>
-				<span>
-					<label>Embedded Only:</label>
+				</div>
+				<div>
+					<label htmlFor="embedded-only">Embedded Only:</label>
 					<select value={updatedInst.embedded_only}
+						id="embedded-only"
 						onChange={event => handleChange('embedded_only', stringToBoolean(event.target.value))}>
 						<option value={false}>No</option>
 						<option value={true}>Yes</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Embedded:</label>
 					{updatedInst.is_embedded ? 'Yes' : 'No'}
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Deleted:</label>
 					{updatedInst.is_deleted ? 'Yes' : 'No'}
-				</span>
-				<span>
-					<label>Attempts Allowed:</label>
+				</div>
+				<div>
+					<label htmlFor="attempts">Attempts Allowed:</label>
 					<select value={updatedInst.attempts}
+						id="attempts"
 						onChange={event => handleChange('attempts', event.target.value)}>
 						<option value={-1}>Unlimited</option>
 						<option value={1}>1</option>
@@ -320,23 +351,24 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 						<option value={15}>15</option>
 						<option value={20}>20</option>
 					</select>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Available:</label>
 					<div className='radio'>
 						<input type='radio'
 							name='available'
+							id="open-at-available"
 							value={updatedInst.open_at}
 							checked={availableDisabled == false}
 							onChange={() => setAvailableDisabled(false)}
 						/>
-						On
-						<input type='date'
+						<label htmlFor="open-at-available">On</label>
+						<input type='date' role="date"
 							value={availableDate !== -1 ? availableDate : ''}
 							onChange={event => setAvailableDate(event.target.value)}
 							disabled={availableDisabled}
 						/>
-						<input type='time'
+						<input type='time' role="time"
 							value={availableTime !== -1 ? availableTime : ''}
 							onChange={event => setAvailableTime(event.target.value)}
 							disabled={availableDisabled}
@@ -344,29 +376,31 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 					</div>
 					<div className='radio'>
 						<input type='radio'
+							id="now"
 							name='available'
 							value={-1}
 							checked={availableDisabled}
 							onChange={() => {setAvailableDisabled(true); handleChange('open_at', -1)}}
 						/>
-						Now
+						<label htmlFor="now">Now</label>
 					</div>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Closes:</label>
 					<div className='radio'>
 						<input type='radio'
 							name='closes'
+							id="close-at"
 							value={updatedInst.close_at}
 							checked={closeDisabled == false}
 							onChange={() => setCloseDisabled(false)}
 						/>
-						On
-						<input type='date'
+						<label htmlFor="close-at">On</label>
+						<input type='date' role="date"
 							value={closeDate !== -1 ? closeDate : ''}
 							onChange={event => setCloseDate(event.target.value)} disabled={closeDisabled}
 						/>
-						<input type='time'
+						<input type='time' role="time"
 							value={closeTime !== -1 ? closeTime : ''}
 							onChange={event => setCloseTime(event.target.value)} disabled={closeDisabled}
 						/>
@@ -374,34 +408,35 @@ const SupportSelectedInstance = ({inst, currentUser, onReturn = null, onCopy, em
 					<div className='radio'>
 						<input type='radio'
 							name='closes'
+							id="never"
 							value={-1}
 							checked={closeDisabled}
 							onChange={() => {setCloseDisabled(true); handleChange('close_at', -1)}}
 						/>
-						Never
+						<label htmlFor="never">Never</label>
 					</div>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Embed URL:</label>
 					<a className='url'
 						href={updatedInst.embed_url}>
 						{updatedInst.embed_url}
 					</a>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Play URL:</label>
 					<a className='url'
 						href={updatedInst.play_url}>
 						{updatedInst.play_url}
 					</a>
-				</span>
-				<span>
+				</div>
+				<div>
 					<label>Preview URL:</label>
 					<a className='url'
 						href={updatedInst.preview_url}>
 						{updatedInst.preview_url}
 					</a>
-				</span>
+				</div>
 				<div className='right-justify'>
 					<div className='apply-changes'>
 						<button className='action_button apply'
