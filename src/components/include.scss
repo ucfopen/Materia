@@ -414,6 +414,15 @@ header {
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
+
+		.subject {
+			line-height: 1.5em;
+			
+			a {
+				font-weight: bold;
+				text-decoration: underline;
+			}
+		}
 	}
 	.grantAccessTitle
 	{
