@@ -78,7 +78,7 @@ const MyWidgetsPage = () => {
 		window.addEventListener('hashchange', listenToHashChange)
 
 		// check for collab hash on page load
-		setShowCollab(hashContainsCollab)
+		setShowCollab(hashContainsCollab())
 
 		return () => {
 			window.removeEventListener('hashchange', listenToHashChange)
@@ -87,18 +87,11 @@ const MyWidgetsPage = () => {
 
 	// checks whether "-collab" is contained in hash id
 	const hashContainsCollab = () => {
-		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+		const match = window.location.hash.match(/#(?:[A-Za-z0-9]{5})(-collab)*$/)
 
 		if (match != null && match[1] != null)
 		{
-			let hashParams = match[1].split('-');
-			if (hashParams.length > 1)
-			{
-				if (hashParams[1] == "collab")
-				{
-					return true
-				}
-			}
+			return match[1] == '-collab'
 		}
 		return false
 	}
@@ -185,10 +178,10 @@ const MyWidgetsPage = () => {
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {
-		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+		const match = window.location.hash.match(/#([A-Za-z0-9]{5})(-collab)*$/)
 		if (match != null && match[1] != null)
 		{
-			setShowCollab(hashContainsCollab)
+			setShowCollab(hashContainsCollab())
 			setState({...state, widgetHash: match[1]})
 		}
 	}
