@@ -21,8 +21,6 @@ const initDemo = () => ({
 	width: 'auto'
 })
 
-console.log('hello?')
-
 const initLogs = () => ({ play: [], storage: [] })
 
 const logReducer = (state, action) => {
@@ -93,9 +91,6 @@ const _translateForApiVersion = (instance, qset) => {
 
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
-
-console.log(window.location.href)
-console.log(isEmbedded)
 
 const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
 	const [alertMsg, setAlertMsg] = useState(initAlert())
@@ -176,9 +171,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				_onLoadFail('Unable to start play session.')
 				return
 			}
-
-			console.log(inst)
-			console.log(window)
 
 			// Gets the engine path
 			if (inst.widget.player.substring(0, 4) === 'http') {
@@ -460,7 +452,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 							true
 						)
 					}
-					// console.log(`retrying in ${retrySpeed/1000} second(s)`)
 
 					setTimeout(() => {
 						setLogPushInProgress(false)
@@ -535,8 +526,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
 		</section>
 	}
-
-	console.log('return called')
 
 	return (
 		<section className={`widget ${isPreview ? 'preview' : ''}`}
