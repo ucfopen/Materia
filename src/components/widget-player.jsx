@@ -536,7 +536,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				style={{minHeight: minHeight + 'px',
 					minWidth: minWidth + 'px',
 					width: demoData.width !== '0px' ? demoData.width : 'auto',
-					height: demoData.height !== '0px' ? demoData.height : '',
+					height: demoData.height !== '0px' ? demoData.height : '100%',
 					position: demoData.loading ? 'relative' : 'static'}}>
 				<iframe src={ demoData.htmlPath }
 					id='container'
