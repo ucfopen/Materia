@@ -98,7 +98,7 @@ const MyWidgetsPage = () => {
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
-		if (state.selectedInst && permUsers) {
+		if (state.selectedInst && permUsers && permUsers.user_perms?.hasOwnProperty(user.id)) {
 			const isEditable = state.selectedInst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for (const i in permUsers.widget_user_perms) {
@@ -109,6 +109,9 @@ const MyWidgetsPage = () => {
 				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
 			}
 			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
+		}
+		else if (state.selectedInst && permUsers) {
+			setState({...state, noAccess: true})
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 

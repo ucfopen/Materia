@@ -21,15 +21,19 @@ export default function useUpdateWidget() {
 			onSuccess: (updatedInst, variables) => {
 
 				// update successful - insert new values into our local copy of widgetList
-				for (const inst of widgetList?.pagination) {
-					if (inst.id === variables.args[0]) {
-						inst.open_at = `${variables.args[4]}`
-						inst.close_at = `${variables.args[5]}`
-						inst.attempts = `${variables.args[6]}`
-						inst.guest_access = variables.args[7]
-						inst.embedded_only = variables.args[8]
+				for (const page of widgetList?.pages) {
+					for (const inst of page?.pagination) {
+						if (inst.id === variables.args[0]) {
+							inst.open_at = `${variables.args[4]}`
+							inst.close_at = `${variables.args[5]}`
+							inst.attempts = `${variables.args[6]}`
+							inst.guest_access = variables.args[7]
+							inst.embedded_only = variables.args[8]
+							break
+						}
 					}
 				}
+				
 
 				// update query cache for widgets. This does NOT invalidate the cache, forcing a re-fetch!!
 				queryClient.setQueryData('widgets', widgetList)
