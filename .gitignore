@@ -120,4 +120,5 @@ yarn-error.log
 
 public/dist/*
 !public/dist/package.json
+!public/dist/path.js
 !public/dist/README.md
