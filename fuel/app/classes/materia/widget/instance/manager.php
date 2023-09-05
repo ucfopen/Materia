@@ -76,20 +76,23 @@ class Widget_Instance_Manager
  *
  * @return array of widget instances that are visible to the user.
  */
-	public static function get_paginated_for_user($user_id, $page_number = 1)
+	public static function get_paginated_for_user($user_id, $page_number = 0)
 	{
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
 		$displayable_inst = self::get_all($inst_ids);
 		$widgets_per_page = 80;
 		$total_num_pages = ceil(sizeof($displayable_inst) / $widgets_per_page);
-		$offset = $widgets_per_page * ($page_number - 1);
+		$offset = $widgets_per_page * $page_number;
+		$has_next_page = $offset + $widgets_per_page < sizeof($displayable_inst) ? true : false;
 
 		// inst_ids corresponds to a single page's worth of instances
 		$displayable_inst = array_slice($displayable_inst, $offset, $widgets_per_page);
+
 		$data = [
-			'total_num_pages' => $total_num_pages,
-			'pagination'      => $displayable_inst,
+			'pagination' => $displayable_inst,
 		];
+		
+		if ($has_next_page) $data['next_page'] = $page_number + 1;
 
 		return $data;
 	}

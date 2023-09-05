@@ -464,7 +464,17 @@ class Widget_Instance
 		$duplicate->id = 0; // mark as a new game
 		$duplicate->user_id = $owner_id; // set current user as owner in instance table
 
-		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
+		 // update name
+		if ( ! empty($new_name)) $duplicate->name = $new_name;
+
+		// these values aren't saved to the db - but the frontend will make use of them
+		$duplicate->clean_name  = \Inflector::friendly_title($duplicate->name, '-', true);
+		$base_url               = "{$duplicate->id}/{$duplicate->clean_name}";
+		$duplicate->preview_url = \Config::get('materia.urls.preview').$base_url;
+		$duplicate->play_url    = $duplicate->is_draft === false ? \Config::get('materia.urls.play').$base_url : '';
+		$duplicate->embed_url   = $duplicate->is_draft === false ? \Config::get('materia.urls.embed').$base_url : '';
+
+		$duplicate->created_at = time(); // manually update created_at, the actual value saved to the db is created in db_store
 
 		// if original widget is student made - verify if new owner is a student or not
 		// if they have a basic_author role or above, turn off the is_student_made flag

@@ -8,7 +8,6 @@ trait Trait_CommonControllerTemplate
 {
 	use Trait_Analytics;
 
-	protected $_header = 'partials/header';
 	protected $_disable_browser_cache = false;
 
 	public function before()

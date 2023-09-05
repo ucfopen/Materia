@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
-import { useQuery } from 'react-query';
-import { apiGetWidgetInstances } from '../../util/api'
+import useInstanceList from '../hooks/useInstanceList'
 import { iconUrl } from '../../util/icon-url'
 import LoadingIcon from '../loading-icon';
 
@@ -14,27 +13,7 @@ const SelectItem = () => {
 	const fillRef = useRef(null)
 	const [progressComplete, setProgressComplete] = useState(false)
 
-	const [state, setState] = useState({
-		page: 1,
-		instances: [],
-	})
-
-	const { data, isFetching: isFetching, refetch: refetchInstances} = useQuery({
-		queryKey: 'instances',
-		queryFn: () => apiGetWidgetInstances(state.page),
-		staleTime: Infinity,
-		onSuccess: (data) => {
-			if (data) {
-				data.pagination.map((instance, index) => {
-					instance.img = iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)
-					instance.preview_url = BASE_URL + 'preview/' + instance.id
-					instance.edit_url = BASE_URL + 'my-widgets/#' + instance.id
-				})
-
-				setState({...state, instances: data.pagination})
-			}
-		}
-	})
+	const instanceList = useInstanceList()
 
 	useEffect(() => {
 		if (window.SYSTEM) {
@@ -47,22 +26,22 @@ const SelectItem = () => {
 		if(searchText == '') return result
 
 		const re = RegExp(searchText, 'i')
-		if (state.instances && state.instances.length > 0)
-			state.instances.forEach(i => {
+		if (instanceList.instances && instanceList.instances.length > 0)
+			instanceList.instances.forEach(i => {
 				if(!re.test(`${i.name} ${i.widget.name} ${i.id}`)){
 					result.add(i.id)
 				}
 			})
 
 		return result
-	}, [searchText, state.instances])
+	}, [searchText, instanceList.instances])
 
 	const handleChange = (e) => {
 		setSearchText(e.target.value)
 	}
 
 	const refreshListing = () => {
-		refetchInstances()
+		instanceList.refresh()
 		setShowRefreshArrow(false)
 	}
 
@@ -137,11 +116,11 @@ const SelectItem = () => {
 		}
 	}, [selectedInstance, progressComplete])
 
-	let instanceList = null
-	if (state.instances && state.instances.length > 0) {
-		if (hiddenSet.size >= state.instances.length) instanceList = <p>No widgets match your search.</p>
+	let instanceListRender = null
+	if (instanceList.instances && instanceList.instances.length > 0) {
+		if (hiddenSet.size >= instanceList.instances.length) instanceListRender = <p>No widgets match your search.</p>
 		else {
-			instanceList = state.instances.map((instance, index) => {
+			instanceListRender = instanceList.instances.map((instance, index) => {
 				var classList = []
 				if (instance.is_draft) classList.push('draft')
 				if (instance.selected) classList.push('selected')
@@ -150,7 +129,7 @@ const SelectItem = () => {
 
 				return <li className={classList.join(' ')} key={index}>
 					<div className={`widget-info ${instance.is_draft ? 'draft' : ''} ${instance.guest_access ? 'guest' : ''}`}>
-						<img className="widget-icon" src={instance.img}/>
+						<img className="widget-icon" src={iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)}/>
 						<h2 className="searchable">{instance.name}</h2>
 						<h3 className="searchable">{instance.widget.name}</h3>
 						{instance.guest_access ? <h3 className="guest-notice">Guest instances cannot be embedded in courses. </h3> : <></>}
@@ -162,7 +141,7 @@ const SelectItem = () => {
 						<a className="preview external" target="_blank" href={instance.preview_url}>Preview</a>
 						{
 							(instance.guest_access || instance.is_draft) ?
-							<a className="action_button embed-button" target="_blank" href={instance.edit_url}>Edit at Materia</a>
+							<a className="action_button embed-button" target="_blank" href={`${BASE_URL}my-widgets/#${instance.id}`}>Edit at Materia</a>
 							:
 							<a role="button" className={index == 0 ? 'first action_button embed-button' : 'action_button embed-button'} onClick={() => embedInstance(instance)}>Use this widget</a>
 						}
@@ -174,7 +153,7 @@ const SelectItem = () => {
 
 	let noInstanceRender = null
 	let createNewInstanceLink = null
-	if (state.instances && state.instances.length < 1) {
+	if (instanceList.instances && instanceList.instances.length < 1) {
 		noInstanceRender = <div id="no-widgets-container">
 			<div id="no-instances">
 				<p>You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.</p>
@@ -186,7 +165,7 @@ const SelectItem = () => {
 	}
 
 	let sectionRender = null
-	if (isFetching) {
+	if (instanceList.isFetching) {
 		sectionRender =
 		<section id="loading">
 			<LoadingIcon size="med" />
@@ -214,7 +193,7 @@ const SelectItem = () => {
 			</section>
 			<div id="list-container">
 				<ul>
-					{instanceList}
+					{instanceListRender}
 				</ul>
 			</div>
 			{createNewInstanceLink}

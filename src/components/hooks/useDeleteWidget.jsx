@@ -10,24 +10,30 @@ export default function useDeleteWidget() {
 			// Handles the optimistic update for deleting a widget
 			onMutate: async inst => {
 				await queryClient.cancelQueries('widgets')
-
 				const previousValue = queryClient.getQueryData('widgets')
-				const delID = inst.instId
 
-				queryClient.setQueryData('widgets', old => {
-					if (!old || !old.pagination) return old
-					return {...old, pagination: old.pagination.filter(widget => widget.id !== delID)}
+				queryClient.setQueryData('widgets', previous => {
+					if (!previous || !previous.pages) return previous
+					return {
+						...previous,
+						pages: previous.pages.map((page) => ({
+							...page,
+							pagination: page.pagination.filter(widget => widget.id !== inst.instId)
+						}))
+					}
 				})
 
 				// Stores the old value for use if there is an error
 				return { previousValue }
 			},
 			onSuccess: (data, variables) => {
-				queryClient.invalidateQueries('widgets')
 				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
-				queryClient.setQueryData('widgets', context.previousValue)
+				console.error(err)
+				queryClient.setQueryData('widgets', (previous) => {
+					return context.previousValue
+				})
 			}
 		}
 	)

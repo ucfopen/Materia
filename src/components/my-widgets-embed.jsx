@@ -3,8 +3,10 @@ import React, { useState } from 'react'
 const getEmbedLink = (inst, autoplayToggle = true) => {
 	if (inst === null) return ''
 
+	let footerHeight = 38
+
 	const width = String(inst.widget.width) !== '0' ? inst.widget.width : 800
-	const height = String(inst.widget.height) !== '0' ? inst.widget.height : 600
+	const height = String(inst.widget.height) !== '0' ? inst.widget.height + footerHeight : 600
 
 	// This is kind of nasty, but cleaner alternatives are not currently worth the effort.
 	return `<iframe src='${inst.embed_url}?autoplay=${autoplayToggle?'true':'false'}' width='${width}' height='${height}' style='margin:0;padding:0;border:0;'></iframe>`

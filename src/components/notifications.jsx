@@ -24,7 +24,10 @@ const Notifications = (user) => {
 		queryFn: apiGetNotifications,
         staleTime: Infinity,
         onSuccess: (data) => {
-            numNotifications.current = data.length;
+            numNotifications.current = 0;
+            if (data && data.length > 0) data.forEach(element => {
+                if (!element.remove) numNotifications.current++;
+            });
         }
     })
 
