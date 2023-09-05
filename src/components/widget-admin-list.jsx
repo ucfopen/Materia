@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React from 'react'
 
-import WidgetListCard from './widget-list-card'
+import WidgetListCard from './widget-admin-list-card'
 
 const WidgetList = ({widgets = [], isLoading = true}) => {
     let widgetsListRender = null

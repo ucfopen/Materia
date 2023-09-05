@@ -500,6 +500,9 @@ class Widget_Instance
 			$owners = [];
 			$viewers = [];
 
+			// Add current user
+			$owners[] = $owner_id;
+
 			foreach ($existing_perms['widget_user_perms'] as $user_id => $perm_obj)
 			{
 				list($perm) = $perm_obj;

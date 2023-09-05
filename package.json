@@ -49,6 +49,7 @@
     "enzyme-to-json": "^3.6.2",
     "husky": "^4.2.5",
     "jest": "^29.3.1",
+    "jest-environment-jsdom": "^29.4.3",
     "jquery": "3.5.1",
     "jquery-ui": "1.12.1",
     "lint-staged": "^10.2.11",

@@ -340,7 +340,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 
 		apiSaveWidget(newWidget).then((inst) => {
-
 			if ((inst != null ? inst.msg : undefined) != null) {
 				setAlertDialog({...alertDialog, fatal: inst.halt, enabled: true})
 			} else if (inst != null && inst.id != null) {
@@ -362,11 +361,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						} else {
 							onPreviewPopupBlocked(url)
 						}
+						setCreatorState(creatorState => ({...creatorState, previewText: 'Preview', saveStatus: 'idle'}))
 						break
 					case 'publish':
 						window.location = getMyWidgetsUrl(inst.id)
 						break
 					case 'save':
+						setCreatorState(creatorState => ({...creatorState, saveText: 'Save Draft', saveStatus: 'idle'}))
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						sendToCreator('onSaveComplete', [
 							inst.name,
@@ -392,7 +393,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					enableLoginButton: true
 				})
 
-				setCreatorState({...creatorState, hearbeatEnabled: false})
+				setCreatorState({...creatorState, heartbeatEnabled: false})
 			} else {
 				setAlertDialog({
 					enabled: true,
@@ -676,6 +677,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				</div>
 			)
+			break;
 		case 'update':
 			popupRender = (
 				<div className="publish animate-show">
@@ -688,6 +690,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				</div>
 			)
+			break;
 		case 'publish':
 			if (canPublish) {
 				popupRender = (
@@ -714,6 +717,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				)
 			}
+			break;
 	}
 
 	return (

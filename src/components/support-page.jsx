@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetWidgetInstance, apiGetUser, apiSearchWidgets} from '../util/api'
-import useCopyWidget from './hooks/useSupportCopyWidget'
+import { apiGetUser, apiSearchWidgets} from '../util/api'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
 import Header from './header'
@@ -10,18 +9,10 @@ import './support-page.scss'
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [widgetHash, setWidgetHash] = useState(window.location.href.split('#')[1])
-	const [copyId, setCopyId] = useState(null)
-	const copyWidget = useCopyWidget()
 	const mounted = useRef(false)
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
-	})
-	const { data: copyInst } = useQuery({
-		queryKey: [`copy-widget`, copyId],
-		queryFn: () => apiGetWidgetInstance(copyId),
-		enabled: copyId !== null,
 		staleTime: Infinity
 	})
 
@@ -42,12 +33,6 @@ const SupportPage = () => {
 		}
 	}, [])
 
-	// Sets the current instance when the copied widget's data is fetched
-	useEffect(() => {
-		if (copyId && !!copyInst && copyId === copyInst.id) {
-			setSelectedInstance(copyInst)
-		}
-	}, [JSON.stringify([copyInst])])
 
 	useEffect(() => {
 		if (Array.isArray(instFromHash) && instFromHash.length > 0) {
@@ -63,37 +48,17 @@ const SupportPage = () => {
 		}
 	}
 
-	const onCopy = (instId, title, copyPerms, inst) => {
-		copyWidget.mutate({
-			instId: instId,
-			title: title,
-			copyPermissions: copyPerms,
-			dir: inst.widget.dir,
-			successFunc: newInst => {
-				if (mounted.current) {
-					setCopyId(newInst)
-				}
-			}
-		})
-	}
-
 	const handleSearchClick = inst => {
 		setSelectedInstance(inst)
 		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 	}
 
-	const unselectInstance = () => {
-		setSelectedInstance(null)
-		window.history.pushState(document.body.innerHTML, document.title, '')
-	}
 	let mainContentRender = <SupportSearch onClick={handleSearchClick}/>
 	if (selectedInstance) {
 		mainContentRender = (
 			<SupportSelectedInstance inst={selectedInstance}
 				key={selectedInstance ? selectedInstance.id : ''}
 				currentUser={currentUser}
-				onReturn={unselectInstance}
-				onCopy={onCopy}
 			/>
 		)
 	}

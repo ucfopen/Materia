@@ -14,12 +14,12 @@ export default function useUpdateWidget() {
 				// cancel any in-progress queries and grab the current query cache for widgets
 				await queryClient.cancelQueries('widgets')
 				widgetList = queryClient.getQueryData('widgets')
-				
+
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
 				return { widgetList }
 			},
 			onSuccess: (updatedInst, variables) => {
-				
+
 				// update successful - insert new values into our local copy of widgetList
 				for (const inst of widgetList?.pagination) {
 					if (inst.id === variables.args[0]) {
