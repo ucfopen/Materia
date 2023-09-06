@@ -47,7 +47,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		loading: true
 	})
 	const [playAgainUrl, setPlayAgainUrl] = useState(null)
-	const [hidePlayAgain, setHidePlayAgain] = useState(true)
+	const [hidePlayAgain, setHidePlayAgain] = useState(false)
 	const scoreHeaderRef = useRef(null)
 	const [hidePreviousAttempts, setHidePreviousAttempts] = useState(null)
 	const [widget, setWidget] = useState(null)
@@ -61,7 +61,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: !!inst_id,
 		staleTime: Infinity,
 	})
-  
+
 	// Gets widget instance scores
 	// Because of how we handle the results object, we can't follow-up via useEffect targeting instanceScores
 	// As a result, instanceScores is never read.
@@ -107,7 +107,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryKey: ['play-scores', playId, previewInstId],
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
-		enabled: false,
+		enabled: !!previewInstId || !!playId,
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
@@ -130,10 +130,10 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	// Gets score summary
 	const { isLoading: scoreSummaryIsLoading, data: scoreSummary, refetch: loadScoreSummary } = useQuery({
-		queryKey: ['score-summary', inst_id],
+		queryKey: ['score-summary', inst_id, isPreview],
 		queryFn: () => apiGetScoreSummary(inst_id),
 		staleTime: Infinity,
-		enabled: !!inst_id,
+		enabled: !!inst_id && !isPreview,
 		onSuccess: (result) => {
 			if (!result || result.length < 1) {
 				setExpired(true)
@@ -173,7 +173,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (instance) {
 			let enginePath
 			setGuestAccess(instance.guest_access)
-
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
@@ -285,7 +284,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}, [currentAttempt])
 
 	useEffect(() => {
-		if (!!playId) 
+		if (!!playId)
 		{
 			loadPlayScores()
 		}

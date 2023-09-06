@@ -28,17 +28,19 @@ const ScorePage = () => {
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
-		if (window.IS_EMBEDDED) document.body.classList.add('embedded')
-
 		waitForWindow()
 		.then(() => {
+			if (window.IS_EMBEDDED) document.body.classList.add('embedded')
+			const isPreview = window.location.pathname.includes('/preview/')
+			const isEmbedded = window.location.pathname.includes('/embed/')
+
 			setState({
 				instanceID: (inst_id ? inst_id : null),
 				playID: play_id ? play_id : null,
 				singleID: single_id ? single_id : null,
 				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
-				isEmbedded: window.IS_EMBEDDED ? window.IS_EMBEDDED : false,
-				isPreview: window.IS_PREVIEW ? window.IS_PREVIEW : false,
+				isEmbedded: window.IS_EMBEDDED === 'true' || window.IS_EMBEDDED === true || isEmbedded ? true : false,
+				isPreview: window.IS_PREVIEW === 'true' || window.IS_PREVIEW === true || isPreview ? true : false,
 			})
 		})
 	}, [])
