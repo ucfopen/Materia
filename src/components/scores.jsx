@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef} from 'react'
 import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores } from '../util/api'
 import { useQuery } from 'react-query'
+import ScoreOverview from './score-overview'
+import ScoreDetails from './score-details'
 import SupportInfo from './support-info'
 import LoadingIcon from './loading-icon'
-import BarGraph from './bar-graph'
-import '../materia/materia.scores.scoregraphics.js'
-import './scores.scss'
 
-const COMPARE_TEXT_CLOSE = 'Close Graph'
-const COMPARE_TEXT_OPEN = 'Compare With Class'
+import './scores.scss'
 
 const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview }) => {
 	const [guestAccess, setGuestAccess] = useState(null)
@@ -21,7 +19,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const [attemptsLeft, setAttemptsLeft] = useState(0)
 	const [attemptNum, setAttemptNum] = useState(null)
 
-	const [graphData, setGraphData] = useState([])
 	const [details, setDetails] = useState([])
 	const [overview, setOverview] = useState()
 	const [prevAttemptClass, setPrevAttemptClass] = useState(null)
@@ -30,13 +27,14 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const [expired, setExpired] = useState(null)
 	const [showScoresOverview, setShowScoresOverview] = useState(true)
 	const [showResultsTable, setShowResultsTable] = useState(true)
-	const graphRef = useRef(null)
 	const [scoreTable, setScoreTable] = useState(null)
-	const [classRankText, setClassRankText] = useState(COMPARE_TEXT_OPEN)
-	const [graphShown, setGraphShown] = useState(null)
 
 	const [playId, setPlayId] = useState(null)
 	const [previewInstId, setPreviewInstId] = useState(null)
+
+	const [attributes, setAttributes] = useState({
+		hidePlayAgain: true
+	})
 
 	const [customScoreScreen, setCustomScoreScreen] = useState({
 		htmlPath: null,
@@ -44,10 +42,11 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		qset: null,
 		scoreTable: null,
 		show: false,
-		loading: true
+		loading: true,
+		ready: false
 	})
+	
 	const [playAgainUrl, setPlayAgainUrl] = useState(null)
-	const [hidePlayAgain, setHidePlayAgain] = useState(true)
 	const scoreHeaderRef = useRef(null)
 	const [hidePreviousAttempts, setHidePreviousAttempts] = useState(null)
 	const [widget, setWidget] = useState(null)
@@ -128,21 +127,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		}
 	})
 
-	// Gets score summary
-	const { isLoading: scoreSummaryIsLoading, data: scoreSummary, refetch: loadScoreSummary } = useQuery({
-		queryKey: ['score-summary', inst_id],
-		queryFn: () => apiGetScoreSummary(inst_id),
-		staleTime: Infinity,
-		enabled: !!inst_id,
-		onSuccess: (result) => {
-			if (!result || result.length < 1) {
-				setExpired(true)
-			}
-		}
-	})
-
-
-
 	useEffect(() => {
 		window.addEventListener('hashchange', listenToHashChange)
 
@@ -157,6 +141,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (!customScoreScreen.loading) {
 			// setup the postmessage listener
 			window.addEventListener('message', _onPostMessage, false)
+
+			_displayWidgetInstance()
 
 			// cleanup this listener
 			return () => {
@@ -200,10 +186,12 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					scoreTable: scoreTable,
 					type: 'html',
 					loading: false,
-					show: true
+					show: true,
+					ready: false
 				})
-			}
-			_displayWidgetInstance()
+			} else if (instance.widget && scoreTable) {
+				setCustomScoreScreen({ ...customScoreScreen, loading: false })
+			} 
 		}
 	}, [instance, scoreTable])
 
@@ -213,7 +201,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (guestAccess !== null && !isPreview) {
 			if (guestAccess) {
 				loadGuestScores()
-			} else if (play_id) {
+			} else if (!single_id) {
 				// play_id is only present when the score screen is visited from an instance play or the profile page
 				// if visited from My Widgets, single_id is populated instead and this call is unnecessary
 				loadInstanceScores()
@@ -324,16 +312,19 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				setOverview(deets.overview)
 				setAttemptNum(currentAttempt)
 			}
-			if (showResultsTable) {
-				setTimeout(() => _addCircleToDetailTable(deets.details), 10)
+			// customScoreScreen.ready is applied when the scorecore is ready for startup (regardless of whether show is true or false)
+			// even if the widget doesn't have a custom score screen, we defer this function call until we're sure the resultsTable is going to be displayed
+			if (showResultsTable && customScoreScreen.ready) {
+				addCircleToDetailTable(deets.details)
 			}
 
 			const referrerUrl = deets.overview.referrer_url
 			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}`) === -1) {
 				setPlayAgainUrl(referrerUrl)
-			} else {
-				setPlayAgainUrl(widget.href)
+			} else if (!single_id) {
+				setPlayAgainUrl(attributes.href)
 			}
+
 			setScoreTable(deets.details[0].table)
 		}
 	}, [playScores])
@@ -354,14 +345,18 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					href += `?token=${window.LAUNCH_TOKEN}`
 				}
 				setAttemptsLeft(attemptsLeft)
-				setHidePlayAgain(false)
-				setWidget({
-					...widget,
-					href: href
+				
+				setAttributes({
+					...attributes,
+					href: href,
+					hidePlayAgain: false
 				})
 			} else {
 				// if there are no attempts left, hide play again
-				setHidePlayAgain(true)
+				setAttributes({
+					...attributes,
+					hidePlayAgain: true
+				})
 			}
 		}
 	}, [attemptsLeft])
@@ -421,57 +416,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		}
 
 		setHidePreviousAttempts(single_id)
-		setWidget({...widget, ...overview})
-	}
-
-	// Uses jPlot to create the bargraph
-	const _toggleClassRankGraph = () => {
-		// toggle button text
-		if (graphShown) {
-			setClassRankText(COMPARE_TEXT_OPEN)
-			setGraphShown(false)
-			graphRef.current.classList.remove('open')
-		} else {
-			setGraphShown(true)
-			setClassRankText(COMPARE_TEXT_CLOSE)
-			graphRef.current.classList.add('open')
-		}
-
-		// return if graph already built
-		if (graphData.length > 0) {
-			return
-		}
-
-		// return if preview
-		if (isPreview) {
-			return
-		}
-	}
-
-	const _addCircleToDetailTable = (detail) => {
-		detail.forEach((item, i) => {
-			if (item.table && item.table.length) {
-				item.table.forEach((table, j) => {
-					let greyMode = false
-					const index = j + 1
-					const canvas_id = `question-${i + 1}-${index}`
-					const percent = table.score / 100
-					switch (table.graphic) {
-						case 'modifier':
-							greyMode = table.score === 0
-							window.Materia.Scores.Scoregraphics.drawModifierCircle(canvas_id, index, percent, greyMode)
-							break
-						case 'final':
-							window.Materia.Scores.Scoregraphics.drawFinalScoreCircle(canvas_id, index, percent)
-							break
-						case 'score':
-							greyMode = table.score === -1
-							window.Materia.Scores.Scoregraphics.drawScoreCircle(canvas_id, index, percent, greyMode)
-							break
-					}
-				})
-			}
-		})
+		setAttributes({...attributes, ...overview})
 	}
 
 	const _onPostMessage = (e) => {
@@ -556,6 +501,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			setInvalid(true)
 			return
 		}
+		setCustomScoreScreen({ ...customScoreScreen, ready: true })
+
 		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
@@ -567,12 +514,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		const min_h = instance.widget.height
 		let desiredHeight = Math.max(h, min_h)
 		scoreWidgetRef.current.style.height = `${desiredHeight}px`
-	}
-
-	const waitForScoreSummary = async () => {
-		while (scoreSummaryIsLoading || !scoreSummary) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
 	}
 
 	const attemptClick = () => {
@@ -619,7 +560,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let playAgainBtn = null
-	if (!hidePlayAgain) {
+	if (!attributes.hidePlayAgain) {
 		playAgainBtn = (
 			<nav className="play-again header-element">
 				<h1>
@@ -637,89 +578,33 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		scoreHeader = (
 			<header className={`header score-header ${isPreview ? 'preview' : ''}`}>
 				{previousAttempts}
-				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={widget ? widget.headerStyle : {}}>{widget ? widget.title : ''}</h1>
+				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={attributes.headerStyle ? attributes.headerStyle : {}}>{attributes.title ? attributes.title : ''}</h1>
 				{playAgainBtn}
 			</header>
 		)
 	}
 
-	let overviewIncomplete = null
-	if (overview && !overview.complete) {
-		overviewIncomplete = (
-			<div id='overview-incomplete'>
-				<h2>Incomplete Attempt</h2>
-				<hr />
-				<p>
-					This student didn't complete this attempt.
-					This score was not counted in any linked gradebooks and is only available for informational purposes.
-				</p>
-			</div>
-		)
-	}
-
-	let classRankBtn = null
-	if (!isPreview) {
-		classRankBtn = (
-			<div id="class-rank-button" className="action_button gray" onClick={_toggleClassRankGraph}>{classRankText}</div>
-		)
-	}
-
 	let overviewRender = null
 	if (!restricted && !expired && showScoresOverview && !!overview) {
-		let overviewTable = []
-		overview.table.forEach((row, index) => {
-			overviewTable.push(
-				<tr key={`${row}-${index}`}>
-					<td>{row.message}</td>
-					<td className={`${(row.value > -1) ? 'positive' : 'negative'} number`}>
-						{row.value}{(row.symbol == null) ? '%' : row.symbol}
-					</td>
-				</tr>
+
+		if (customScoreScreen.show && !customScoreScreen.ready) {
+			overviewRender = (
+				<section className={`overview ${isPreview ? 'preview' : ''}`}>
+					<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
+				</section>
 			)
-		})
+		}
+		else {
+			overviewRender = <ScoreOverview
+				inst_id={inst_id}
+				overview={overview}
+				attemptNum={attemptNum}
+				isPreview={isPreview}
+				guestAccess={guestAccess}
+				restricted={restricted}
+				expired={expired} />
+		}
 
-		overviewRender = (
-			<section className={`overview ${isPreview ? 'preview' : ''}`}>
-				{overviewIncomplete}
-				<div id="overview-score">
-					{!guestAccess ?
-						<h1>Attempt <span className="attempt-num">{attemptNum}</span> Score:</h1>
-						:
-						<h1>This Attempt Score:</h1>
-					}
-					<span className="overall_score">{overview.score}<span className="percent">%</span></span>
-					{classRankBtn}
-				</div>
-				<div id="overview-table">
-					<table>
-						<tbody>
-							{overviewTable}
-						</tbody>
-					</table>
-				</div>
-			</section>
-		)
-	}
-
-	let scoreGraphRender = null
-	if (!restricted && !expired) {
-		scoreGraphRender = (
-			<section className="score-graph" ref={graphRef}>
-				<div className="graph">
-					{
-						scoreSummary !== undefined &&
-						<BarGraph
-							data={scoreSummary[0]?.graphData}
-							width={746}
-							height={300}
-							rowLabel={'Scores Percent'}
-							colLabel={'Number of Scores'}
-							graphTitle={"Compare Your Score With Everyone Else's"}
-						/>
-					}
-				</div>
-			</section>
-		)
 	}
 
 	let customScoreScreenRender = null
@@ -734,74 +619,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		)
 	}
 
-	let detailsRender = []
-	if (showResultsTable && !restricted && !expired) {
-		details.forEach((detail, i) => {
-			let detailsTableRows = []
-			let detailsHeaders = []
-			detail.table.forEach((row, index) => {
-				let detailsTableData = []
-				if (row.graphic != 'none') {
-					detailsTableData.push(
-						<td key={`${row}-${index}`} className="index">
-							<canvas className="question-number" id={`question-${i + 1}-${index + 1}`} >
-								<p>{index + 1}</p>
-							</canvas>
-							{row.display_score &&
-								<span>
-									{row.score}{row.symbol}
-								</span>
-							}
-						</td>
-					)
-				}
-
-				row.data.forEach((data, index) => {
-					detailsTableData.push(
-						<td key={`${data}-${index}`} className={row.data_style[index]}>{data}</td>
-					)
-				})
-
-				detailsTableRows.push(
-					<tr key={`${row}-${index + 1}`} className={`${row.style} ${row.feedback != null ? 'has_feedback' : ''}`}>
-						{detailsTableData}
-					</tr>
-				)
-
-				if (row.feedback != null) {
-					detailsTableRows.push(
-						<tr key={`${row}-${index + 2}`} className="feedback single_column">
-							<td colSpan={row.data.length + 1}>
-								<p>{row.feedback}</p>
-							</td>
-						</tr>
-					)
-				}
-
-			})
-
-			detail.header.forEach((header, i) => {
-				detailsHeaders.push(
-					<th key={`${header}-${i}`}>{header}</th>
-				)
-			})
-			detailsRender.push(
-				<section className="details" key={i}>
-					<h1>{detail.title}</h1>
-
-					<table>
-						<thead>
-							<tr className="details_header">
-								{detailsHeaders}
-							</tr>
-						</thead>
-						<tbody>
-							{detailsTableRows}
-						</tbody>
-					</table>
-				</section>
-			)
-		})
+	let detailsRender = null
+	if (customScoreScreen.show && !customScoreScreen.ready) {
+		detailsRender = (
+			<section className={`overview ${isPreview ? 'preview' : ''}`}>
+				<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
+			</section>
+		)
+	} else if (showResultsTable) {
+		detailsRender = <ScoreDetails details={details} complete={overview?.complete} />
 	}
 
 	let expiredRender = null
@@ -841,7 +667,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			{scoreHeader}
 			{overviewRender}
-			{scoreGraphRender}
 			{customScoreScreenRender}
 			{detailsRender}
 			{expiredRender}

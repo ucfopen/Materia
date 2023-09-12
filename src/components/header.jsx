@@ -124,7 +124,7 @@ const Header = ({
 			// Not being used
 			profileMenuRender = (
 				<nav className={`profile-menu ${optionsOpen ? 'show' : ''}`}>
-					<span class="arrow-top"></span>
+					<span className="arrow-top"></span>
 					<ul>
 						<li>
 							<span>{`${user.first} ${user.last}`}</span>
