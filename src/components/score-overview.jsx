@@ -1,45 +1,38 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { apiGetScoreSummary } from '../util/api'
 import { useQuery } from 'react-query'
 import BarGraph from './bar-graph'
 
-const ScoreOverview = ({inst_id, overview, attemptNum, isPreview, guestAccess, restricted, expired}) => {
+const ScoreOverview = ({inst_id, overview, attemptNum, isPreview, guestAccess}) => {
 
 	const [showGraph, setShowGraph] = useState(null)
 
 	// Gets score summary
-	const { isLoading: scoreSummaryIsLoading, data: scoreSummary, refetch: loadScoreSummary } = useQuery({
+	const { data: scoreSummary } = useQuery({
 		queryKey: ['score-summary', inst_id],
 		queryFn: () => apiGetScoreSummary(inst_id),
 		staleTime: Infinity,
-		enabled: !!inst_id,
-		onSuccess: (result) => {
-			if (!result || result.length < 1) {
-				setExpired(true)
-			}
-		}
+		enabled: !!inst_id
 	})
 
 	let scoreGraphRender = null
-	if (!restricted && !expired) {
+	if (scoreSummary && scoreSummary[0]?.graphData) {
 		scoreGraphRender = (
-			<section className={`score-graph ${showGraph ? 'open' : ''}`}>
-				<div className="graph">
-					{
-						scoreSummary !== undefined &&
-						<BarGraph
-							data={scoreSummary[0]?.graphData}
-							width={746}
-							height={300}
-							rowLabel={'Scores Percent'}
-							colLabel={'Number of Scores'}
-							graphTitle={"Compare Your Score With Everyone Else's"}
-						/>
-					}
-				</div>
-			</section>
+			<div className="graph">
+				{
+					scoreSummary !== undefined &&
+					<BarGraph
+						data={scoreSummary[0]?.graphData}
+						width={746}
+						height={300}
+						rowLabel={'Scores Percent'}
+						colLabel={'Number of Scores'}
+						graphTitle={"Compare Your Score With Everyone Else's"}
+					/>
+				}
+			</div>
 		)
-	}
+	} 
 
 	let overviewTable = []
 	overview.table.forEach((row, index) => {
@@ -54,7 +47,7 @@ const ScoreOverview = ({inst_id, overview, attemptNum, isPreview, guestAccess, r
 	})
 
 	let classRankBtn = null
-	if (!isPreview) {
+	if (!isPreview && scoreSummary) {
 		classRankBtn = (
 			<div id="class-rank-button" className="action_button" onClick={() => setShowGraph(!showGraph)}>
 				{`${showGraph ? 'Close' : 'Compare With Class'}`}
@@ -101,7 +94,9 @@ const ScoreOverview = ({inst_id, overview, attemptNum, isPreview, guestAccess, r
 			<section className={`overview ${isPreview ? 'preview' : ''}${!overview.complete ? 'incomplete' : ''}`}>
 				{overviewContent}
 			</section>
-			{scoreGraphRender}
+			<section className={`score-graph ${showGraph ? 'open' : ''}`}>
+				{scoreGraphRender}
+			</section>
 		</>
 	)
 }

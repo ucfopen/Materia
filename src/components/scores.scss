@@ -46,6 +46,30 @@ $preview-purple: #b944cc;
 			display: none;
 		}
 	}
+
+	&.expired, &.invalid, &.score_restrict {
+		min-height: 480px;
+		padding: 20px 40px;
+		background: #fff;
+
+		.page {
+			text-align: center;
+
+			p {
+				margin-bottom: 40px;
+			}
+
+			ul {
+				width: 60%;
+				margin: 20px auto;
+				text-align: left;
+
+				li {
+					margin-bottom: 5px;
+				}
+			}
+		}
+	}
 }
 
 .overview {
@@ -541,26 +565,6 @@ section.score-graph {
 
 .overview.preview #overview-score h1 {
 	margin-top: 10px;
-}
-
-.expired.container,
-.score_restrict.container {
-	opacity: 1;
-	background: #fff;
-	box-shadow: none;
-	border: none;
-	outline: none;
-}
-
-.expired.container .page {
-	text-align: center !important;
-}
-
-.expired.container section,
-.score_restrict.container section {
-	box-shadow: none;
-	border: none;
-	outline: none;
 }
 
 .container.show {

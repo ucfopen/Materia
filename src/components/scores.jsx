@@ -8,9 +8,16 @@ import LoadingIcon from './loading-icon'
 
 import './scores.scss'
 
+const STATE_RESTRICTED = 'restricted'
+const STATE_INVALID = 'invalid'
+const STATE_EXPIRED = 'expired'
+
 const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview }) => {
-	const [guestAccess, setGuestAccess] = useState(null)
-	const [invalid, setInvalid] = useState(null)
+
+	const [playId, setPlayId] = useState(null)
+	const [previewInstId, setPreviewInstId] = useState(null)
+
+
 	// attemptDates is an array of attempts, [0] is the newest
 	const [attemptDates, setAttemptDates] = useState([])
 	const [attempts, setAttempts] = useState([])
@@ -19,22 +26,24 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const [attemptsLeft, setAttemptsLeft] = useState(0)
 	const [attemptNum, setAttemptNum] = useState(null)
 
-	const [details, setDetails] = useState([])
 	const [overview, setOverview] = useState()
+	const [details, setDetails] = useState([])
 	const [prevAttemptClass, setPrevAttemptClass] = useState(null)
 
-	const [restricted, setRestricted] = useState(null)
-	const [expired, setExpired] = useState(null)
+	// set to one of the state constants above if an error state manifests
+	const [errorState, setErrorState] = useState(null)
+
 	const [showScoresOverview, setShowScoresOverview] = useState(true)
 	const [showResultsTable, setShowResultsTable] = useState(true)
 	const [scoreTable, setScoreTable] = useState(null)
 
-	const [playId, setPlayId] = useState(null)
-	const [previewInstId, setPreviewInstId] = useState(null)
-
+	const [guestAccess, setGuestAccess] = useState(null)
 	const [attributes, setAttributes] = useState({
-		hidePlayAgain: true
+		hidePlayAgain: true,
+		hidePreviousAttempts: true
 	})
+
+	const [playAgainUrl, setPlayAgainUrl] = useState(null)
 
 	const [customScoreScreen, setCustomScoreScreen] = useState({
 		htmlPath: null,
@@ -46,10 +55,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		ready: false
 	})
 	
-	const [playAgainUrl, setPlayAgainUrl] = useState(null)
 	const scoreHeaderRef = useRef(null)
-	const [hidePreviousAttempts, setHidePreviousAttempts] = useState(null)
-	const [widget, setWidget] = useState(null)
 	const scoreWidgetRef = useRef(null)
 
 	// Gets widget instance loads qset
@@ -71,7 +77,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (result && result.type == 'error') setRestricted(true)
+			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
 			else {
 				_populateScores(result.scores)
 				setAttemptsLeft(result.attempts_left)
@@ -91,7 +97,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (result && result.type == 'error') setRestricted(true)
+			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
 			else _populateScores(result)
 		}
 	})
@@ -110,14 +116,16 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (!result || result.length < 1) {
-				setExpired(true)
+			if (isPreview && (!result || result.length < 1)) {
+				setErrorState(STATE_EXPIRED)
+			} else if (!result || result.length < 1) {
+				setErrorState(STATE_INVALID)
 			}
 		}
 	})
 
 	// Gets score distribution
-	const { isLoading: scoreDistributionIsLoading, data: scoreDistribution, refetch: loadScoreDistribution } = useQuery({
+	const { refetch: loadScoreDistribution } = useQuery({
 		queryKey: ['score-dist', inst_id],
 		queryFn: () => apiGetScoreDistribution(inst_id),
 		enabled: false,
@@ -312,11 +320,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				setOverview(deets.overview)
 				setAttemptNum(currentAttempt)
 			}
-			// customScoreScreen.ready is applied when the scorecore is ready for startup (regardless of whether show is true or false)
-			// even if the widget doesn't have a custom score screen, we defer this function call until we're sure the resultsTable is going to be displayed
-			if (showResultsTable && customScoreScreen.ready) {
-				addCircleToDetailTable(deets.details)
-			}
 
 			const referrerUrl = deets.overview.referrer_url
 			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}`) === -1) {
@@ -369,7 +372,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const _populateScores = (scores) => {
 		if (!scores || scores.length < 1) {
 			// score request was not in error, but request is empty
-			setExpired(true)
+			setErrorState(STATE_INVALID)
+
 		} else {
 			// Round scores
 			for (let attemptScore of Array.from(scores)) {
@@ -415,8 +419,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			'paddingTop': paddingSize,
 		}
 
-		setHidePreviousAttempts(single_id)
-		setAttributes({...attributes, ...overview})
+		setAttributes({...attributes, ...overview, hidePreviousAttempts: !!single_id || attempts.length < 2 })
 	}
 
 	const _onPostMessage = (e) => {
@@ -492,13 +495,14 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		)
 	}
 
+	// this is only called in response from the score-core
+	// it will not be called for default score screens
 	const _sendWidgetInit = () => {
 		if (customScoreScreen.scoreTable == null || customScoreScreen.qset == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
 			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
 			setShowResultsTable(true)
 			setShowScoresOverview(true)
-			setInvalid(true)
 			return
 		}
 		setCustomScoreScreen({ ...customScoreScreen, ready: true })
@@ -524,8 +528,58 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	/******* DOM element rendering ********/
 
+	// Render error states, if any are active
+	let errorStateRender = null
+	if (errorState != null) {
+		switch (errorState) {
+			case STATE_EXPIRED:
+				errorStateRender = (
+					<div className="expired container general">
+						<section className="page score_expired">
+							<h2 className="logo">The preview score for this widget has expired.</h2>
+							<p>Preview scores are only available immediately after previewing a widget.</p>
+							<a className="action_button" href={attributes.href ? attributes.href : '#'}>Preview Again</a>
+						</section>
+					</div>
+				)
+				break
+			case STATE_INVALID:
+				errorStateRender = (
+					<div className="invalid container general">
+						<section className="page score_restrict">
+							<h2 className="logo">Play ID Invalid</h2>
+							<p>Well, that's awkward. We couldn't find any play scores to show you. Some common issues associated with this message:</p>
+							<ul>
+								<li>Materia doesn't think you have the right permissions to view this score.</li>
+								<li>There was an issue with displaying the score screen in this particular context - have you tried accessing it from the widget's Student Activity section or your profile page?</li>
+							</ul>
+							<p>It might be worth reaching out to technical support to report the issue:</p>
+							<SupportInfo />
+						</section>
+					</div>
+				)
+				break
+			case STATE_RESTRICTED:
+				errorStateRender = (
+					<div className="score_restrict container general">
+						<section className="page score_restrict">
+							<h2 className="logo">You don't have permission to view this page.</h2>
+		
+							<p>You may need to:</p>
+							<ul>
+								<li>Make sure the score you're trying to access belongs to you or your student.</li>
+								<li>Try to access this score through your profile page.</li>
+							</ul>
+		
+							<SupportInfo />
+						</section>
+					</div>
+				)
+		}
+	}
+
 	let previousAttempts = null
-	if (!hidePreviousAttempts && !isPreview && !guestAccess) {
+	if (!attributes.hidePreviousAttempts && !isPreview && !guestAccess) {
 
 		let attemptList = attempts.map((attempt, index) => {
 			return (
@@ -574,7 +628,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let scoreHeader = null
-	if (!restricted && !expired) {
+	if (!errorState) {
 		scoreHeader = (
 			<header className={`header score-header ${isPreview ? 'preview' : ''}`}>
 				{previousAttempts}
@@ -585,7 +639,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let overviewRender = null
-	if (!restricted && !expired && showScoresOverview && !!overview) {
+	if (!errorState && showScoresOverview && !!overview) {
 
 		if (customScoreScreen.show && !customScoreScreen.ready) {
 			overviewRender = (
@@ -600,15 +654,13 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				overview={overview}
 				attemptNum={attemptNum}
 				isPreview={isPreview}
-				guestAccess={guestAccess}
-				restricted={restricted}
-				expired={expired} />
+				guestAccess={guestAccess} />
 		}
 
 	}
 
 	let customScoreScreenRender = null
-	if (customScoreScreen.show && !restricted && !expired) {
+	if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef} id="container"
 				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}`}
@@ -620,46 +672,14 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let detailsRender = null
-	if (customScoreScreen.show && !customScoreScreen.ready) {
+	if (!errorStateRender && customScoreScreen.show && !customScoreScreen.ready) {
 		detailsRender = (
 			<section className={`overview ${isPreview ? 'preview' : ''}`}>
 				<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			</section>
 		)
-	} else if (showResultsTable) {
+	} else if (!errorStateRender && showResultsTable) {
 		detailsRender = <ScoreDetails details={details} complete={overview?.complete} />
-	}
-
-	let expiredRender = null
-	if (expired) {
-		expiredRender = (
-			<div className="expired container general">
-				<section className="page score_expired">
-					<h2 className="logo">The preview score for this widget has expired.</h2>
-					<a className="action_button" href={widget ? widget.href : '#'}>Preview Again</a>
-				</section>
-			</div>
-		)
-	}
-
-	let restrictedRender = null
-	if (restricted) {
-		restrictedRender = (
-			<div className="score_restrict container general">
-				<section className="page score_restrict">
-					<h2 className="logo">You don't have permission to view this page.</h2>
-
-					<p>You may need to:</p>
-					<ul>
-						<li>Make sure the score you're trying to access belongs to you or your student.</li>
-						<li>Try to access this score through your profile page.</li>
-						<li>Check out our documentation.</li>
-					</ul>
-
-					<SupportInfo />
-				</section>
-			</div>
-		)
 	}
 
 	return (
@@ -669,8 +689,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			{overviewRender}
 			{customScoreScreenRender}
 			{detailsRender}
-			{expiredRender}
-			{restrictedRender}
+			{errorStateRender}
 		</article>
 	)
 }
