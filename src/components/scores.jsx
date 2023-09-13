@@ -117,6 +117,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
 			if (isPreview && (!result || result.length < 1)) {
+				setAttributes({...attributes, href: `/preview/${inst_id}/${instance?.clean_name}`})
 				setErrorState(STATE_EXPIRED)
 			} else if (!result || result.length < 1) {
 				setErrorState(STATE_INVALID)
@@ -436,7 +437,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 						case 'hideResultsTable':
 							return (setShowResultsTable(false))
 						case 'hideScoresOverview':
-							return (setShowScoresOverview(false))
+							return (overview?.complete ? setShowScoresOverview(false) : setShowScoresOverview(true))
 						case 'requestScoreDistribution':
 							return loadScoreDistribution()
 						default:
@@ -663,7 +664,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef} id="container"
-				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}${!overview?.complete ? 'incomplete' : ''}`}
+				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}${!overview?.complete ? ' incomplete' : ''}`}
 				scrolling="yes"
 				src={customScoreScreen.htmlPath}>
 			</iframe>
