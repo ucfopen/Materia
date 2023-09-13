@@ -663,10 +663,9 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef} id="container"
-				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}`}
+				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}${!overview?.complete ? 'incomplete' : ''}`}
 				scrolling="yes"
-				src={customScoreScreen.htmlPath}
-				fullscreen-dir="true">
+				src={customScoreScreen.htmlPath}>
 			</iframe>
 		)
 	}

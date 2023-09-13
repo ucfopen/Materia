@@ -608,4 +608,8 @@ iframe#container {
 	&.margin-below {
 		margin-bottom: 25px;
 	}
+
+	&.incomplete {
+		filter: blur(2px);
+	}
 }

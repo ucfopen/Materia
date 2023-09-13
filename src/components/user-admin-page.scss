@@ -349,34 +349,45 @@
 				-moz-border-radius: 3px;
 				border-radius: 3px;
 				display: inline-block;
-				float: left;
 				margin-right: 10px;
 			}
 		}
 
 		div.widget-title {
 			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 10px;
 			padding: 10px 15px;
 
 			background: $very-light-gray;
 			border: none;
 			border-radius: 3px;
 			transition: background-color 0.5s;
-	
-			span:first-child {
-				flex-basis: 1;
-			}
-		
-			span:last-child {
-				flex-grow: 1; 
+
+			span.img-holder {
+				flex-basis: 0;
 			}
 
-			.title {
-				margin: 0;
-				padding: 0;
-				vertical-align: middle;
+			span.incomplete-status-holder {
+				color: #555;
+			}
+
+			span.title-holder {
+				flex-grow: 1;
+
+				.title {
+					margin: 0;
+					padding: 0;
+					vertical-align: middle;
+					font-weight: bold;
+					font-size: 20px;
+				}
+			}
+
+			span.date-holder {
+				font-size: 12px;
 				font-weight: bold;
-				font-size: 20px;
 			}
 		}
 

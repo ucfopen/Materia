@@ -44,7 +44,7 @@ const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
 				<span className='img-holder'>
 					<img src={iconUrl('/widget/', instance.widget.dir, 275)} />
 				</span>
-				<span>
+				<span className='title-holder'>
 					<div className='title'>
 						{ instance.name }
 					</div>
