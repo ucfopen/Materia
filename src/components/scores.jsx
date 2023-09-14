@@ -89,7 +89,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// important note: play_id is only set when the user first visits the score screen after completing a guest instance
 	// otherwise, single_id will contain the play ID and play_id will be null
 	const guestPlayId = play_id ? play_id : single_id
-	const { isLoading: guestScoresAreLoading, data: guestScores, refetch: loadGuestScores } = useQuery({
+	const { data: guestScores, refetch: loadGuestScores } = useQuery({
 		queryKey: ['guest-scores', inst_id, guestPlayId],
 		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, guestPlayId),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
@@ -104,15 +104,11 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	// Gets widget instance play scores when playId
 	// or previewInstId are changed
-	// playId and previewInstId are initialized in _getScoreDetails
-	// If previewInstId is null, verifies that instance is playable by current user
-	// If previewInstId is not null, verifies player session
-	// If the play details or preview logs are empty, sets expired to true
-	const { isLoading: playScoresAreLoading, data: playScores, refetch: loadPlayScores } = useQuery({
+	const { data: playScores } = useQuery({
 		queryKey: ['play-scores', playId, previewInstId],
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
-		enabled: false,
+		enabled: (!!playId || !!previewInstId),
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
@@ -169,13 +165,20 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			let enginePath
 			setGuestAccess(instance.guest_access)
 
+			// Preview? Set certain attributes that wouldn't be assigned otherwise
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
+				setAttributes({ ...attributes, href: `/preview/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
 			} else if (single_id) {
 				setPlayId(single_id)
 				setPreviewInstId(null)
 			}
+			else if (instance.guest_access) {
+				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
+				loadGuestScores()
+			}
+			else if (!single_id && !isPreview) loadInstanceScores()
 
 			const score_screen = instance.widget.score_screen
 			if (score_screen && scoreTable) {
@@ -203,25 +206,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			} 
 		}
 	}, [instance, scoreTable])
-
-	// _getInstanceScores
-	// only for non-preview scores, guest or normal
-	useEffect(() => {
-		if (guestAccess !== null && !isPreview) {
-			if (guestAccess) {
-				loadGuestScores()
-			} else if (!single_id) {
-				// play_id is only present when the score screen is visited from an instance play or the profile page
-				// if visited from My Widgets, single_id is populated instead and this call is unnecessary
-				loadInstanceScores()
-			}
-		}
-	}, [guestAccess])
-
-	// instance scores are not loaded for previews - request play scores directly
-	useEffect(() => {
-		if (previewInstId) loadPlayScores()
-	}, [previewInstId])
 
 	// _displayAttempts
 	useEffect(() => {
@@ -251,10 +235,10 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 				if (isPreview) {
 					setCurrentAttempt(1)
+				} else if (matchedAttempt !== false && attempts.length > 1) {
 					// we only want to do this if there's more than one attempt. Otherwise it's a guest widget
 					// or the score is being viewed by an instructor, so we don't want to get rid of the playid
 					// in the hash
-				} else if (matchedAttempt !== false && attempts.length > 1) {
 					window.location.hash = `#attempt-${matchedAttempt}`
 
 				} else if (getAttemptNumberFromHash() === undefined) {
@@ -280,13 +264,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			}
 		}
 	}, [currentAttempt])
-
-	useEffect(() => {
-		if (!!playId) 
-		{
-			loadPlayScores()
-		}
-	}, [playId])
 
 	useEffect(() => {
 
@@ -336,7 +313,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	useEffect(() => {
 		if (instance && !single_id) {
 			// show play again button?
-			if (!single_id && (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)) {
+			if (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview) {
 				const prefix = (() => {
 					if (isEmbedded && isPreview) return '/preview-embed/'
 					if (isEmbedded) return '/embed/'
@@ -348,7 +325,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
 					href += `?token=${window.LAUNCH_TOKEN}`
 				}
-				setAttemptsLeft(attemptsLeft)
 				
 				setAttributes({
 					...attributes,
@@ -380,9 +356,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			for (let attemptScore of Array.from(scores)) {
 				attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
 			}
-			if (!single_id) {
-				setAttempts(scores)
-			}
+
+			setAttempts(scores)
 		}
 	}
 
@@ -652,6 +627,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		else {
 			overviewRender = <ScoreOverview
 				inst_id={inst_id}
+				single_id={single_id}
 				overview={overview}
 				attemptNum={attemptNum}
 				isPreview={isPreview}

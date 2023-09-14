@@ -3,7 +3,7 @@ import { apiGetScoreSummary } from '../util/api'
 import { useQuery } from 'react-query'
 import BarGraph from './bar-graph'
 
-const ScoreOverview = ({inst_id, overview, attemptNum, isPreview, guestAccess}) => {
+const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, guestAccess}) => {
 
 	const [showGraph, setShowGraph] = useState(null)
 
@@ -12,7 +12,7 @@ const ScoreOverview = ({inst_id, overview, attemptNum, isPreview, guestAccess}) 
 		queryKey: ['score-summary', inst_id],
 		queryFn: () => apiGetScoreSummary(inst_id),
 		staleTime: Infinity,
-		enabled: !!inst_id
+		enabled: !!inst_id && !single_id
 	})
 
 	let scoreGraphRender = null
