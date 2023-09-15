@@ -33,7 +33,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		showRollbackConfirm: false,
 		saveStatus: 'idle',
 		saveMode: null,
-		previewText: 'Preview',
 		previewUrl: null,
 		saveText: 'Save Draft',
 		publishText: 'Publish...',
@@ -51,6 +50,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		enableLoginButton: false
 	})
 
+	const [sinceLastSave, setSinceLastSave] = useState({
+		lastSaved: null,
+		elapsed: 0
+	})
+	const [saveWidgetComplete, setSaveWidgetComplete] = useState(null)
 	const [widgetReady, setWidgetReady] = useState(false)
 
 	const instIdRef = useRef(instId)
@@ -153,6 +157,27 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	/* =========== hooks =========== */
 
+	// helper function to update the time elapsed since last save
+	// displayed after selecting Preview or Save Draft (both of which trigger a save)
+	const updateElapsed = () => {
+		setSinceLastSave(sinceLastSave => {
+			if (sinceLastSave.lastSave == null) return { ...sinceLastSave }
+			const duration = Math.floor((Date.now() - sinceLastSave.lastSave)/(60 * 1000))
+			return {...sinceLastSave, elapsed: duration}
+		})
+	}
+
+	// configures interval to update sinceLastSaved elapsed time
+	useEffect(() => {
+		const intervalId = setInterval(updateElapsed, 30000)
+		return () => clearInterval(intervalId)
+	},[])
+
+	// manually update elapsed time if lastSave is set to a new value
+	useEffect(() => {
+		if (creatorState.lastSave) updateElapsed()
+	},[creatorState.lastSave])
+
 	// the listener is applied (and reapplied) when the widget is ready
 	useEffect(() => {
 		// setup the postmessage listener
@@ -243,6 +268,21 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 	},[creatorState.reloadWithQset])
 
+	// setting creatorState within the API response callback can result in race conditions
+	// saveWidgetComplete is set instead to defer the creatorState updates
+	useEffect(() => {
+		if (!!saveWidgetComplete) {
+			if (saveWidgetComplete == 'save') {
+				setCreatorState(creatorState => ({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle'}))
+			}
+			else if (saveWidgetComplete == 'preview') {
+				setCreatorState(creatorState => ({...creatorState, saveStatus: 'idle'}))
+			}
+			setSinceLastSave({ lastSave: Date.now(), elapsed: 0 })
+			setSaveWidgetComplete(null)
+		}
+	},[saveWidgetComplete])
+
 	/* =========== postMessage handlers =========== */
 
 	const onPostMessage = (e) => {
@@ -306,8 +346,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					...creatorState,
 					popupState: null,
 					saveMode: mode,
-					saveStatus: 'saving',
-					previewText: 'Saving...'
+					saveStatus: 'saving'
 				})
 				break
 			case 'save':
@@ -361,13 +400,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						} else {
 							onPreviewPopupBlocked(url)
 						}
-						setCreatorState(creatorState => ({...creatorState, previewText: 'Preview', saveStatus: 'idle'}))
+						setSaveWidgetComplete(saveModeRef.current)
 						break
 					case 'publish':
 						window.location = getMyWidgetsUrl(inst.id)
 						break
 					case 'save':
-						setCreatorState(creatorState => ({...creatorState, saveText: 'Save Draft', saveStatus: 'idle'}))
+						setSaveWidgetComplete(saveModeRef.current)
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						sendToCreator('onSaveComplete', [
 							inst.name,
@@ -619,11 +658,22 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		noPermissionRender = <NoPermission />
 	}
 
+	let lastSavedRender = null
+	if (sinceLastSave.lastSave) {	
+		lastSavedRender = (
+			<span className="lastSaved">
+				{sinceLastSave.elapsed < 1 ? ' Last saved < 1m ago' : `Last saved ${sinceLastSave.elapsed}m ago`}
+				<div className="dot"></div>
+			</span>
+		)
+	}
+
 	let editButtonsRender = null
 	if (creatorState.mode == 'edit' && instance.editable) {
 		editButtonsRender = (
 			<span>
-				<button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={()=>requestSave('preview')}><span>{creatorState.previewText}</span></button>
+				{lastSavedRender}
+				<button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={()=>requestSave('preview')}><span>Preview</span></button>
 				<button id="creatorSaveBtn" className={`edit_button orange ${creatorState.saveStatus}`} type="button" onClick={()=>requestSave('save')}><span>{creatorState.saveText}</span></button>
 			</span>
 		)

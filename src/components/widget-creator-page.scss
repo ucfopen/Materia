@@ -90,12 +90,17 @@ a {
 		}
 	}
 
-	// #returnLink {
-	// 	float: left;
-	// 	margin-left: 120px;
-	// 	margin-top: 18px;
-	// 	font-size: 15px;
-	// }
+	.lastSaved {
+		font-family: 'Lucida Grande', 'Verdana', sans-serif;
+		font-style: italic;
+		font-size: 13px;
+	}
+
+	@media (max-width: 1150px) {
+		.lastSaved {
+			display: none;
+		}
+	}
 }
 
 #qset-rollback-confirmation-bar {
