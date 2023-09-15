@@ -43,7 +43,7 @@ const Homepage = () => (
 		<section className='front_bottom'>
 			<section className='wrapper'>
 			<div className="wrapper_first">
-				<div>
+				<div className='wrapper_content'>
 					<h2>Create Quickly and Easily</h2>
 					<p className="front_bottom_desc">
 						Materia's design philosophy is to be incredibly easy to use.
@@ -55,7 +55,7 @@ const Homepage = () => (
 				<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
 			</div>
 			<div className="wrapper_second">
-				<div>
+				<div className='wrapper_content'>
 					<h2>Engage Your Students</h2>
 					<p className="front_bottom_desc">
 						Re-imagine your course filled with diverse and interesting experiences.
@@ -63,10 +63,10 @@ const Homepage = () => (
 						Engage students with game mechanics like: story-telling, competition, instant feedback, and instant reward systems.
 					</p>
 				</div>
-				<img src='/img/front1.png' alt='screen shot of a labeling widget' />
+				<img src='/img/front1.png' alt='screen shot of a sort it out widget' />
 			</div>
 			<div className="wrapper_third">
-				<div>
+				<div className='wrapper_content'>
 					<h2>Integrate with Your Course</h2>
 					<p className="front_bottom_desc">
 						Materia integrates into Canvas seamlessly.
