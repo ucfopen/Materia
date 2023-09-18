@@ -181,6 +181,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			else if (!single_id && !isPreview) loadInstanceScores()
 
 			const score_screen = instance.widget.score_screen
+
+			// custom score screen exists?
 			if (score_screen && scoreTable) {
 				const splitSpot = score_screen.lastIndexOf('.')
 				if (splitSpot != -1) {
@@ -192,15 +194,23 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 						enginePath = window.WIDGET_URL + instance.widget.dir + score_screen
 					}
 				}
-				setCustomScoreScreen({
-					htmlPath: enginePath + '?' + instance.widget.created_at,
-					qset: instance.qset,
-					scoreTable: scoreTable,
-					type: 'html',
-					loading: false,
-					show: true,
-					ready: false
-				})
+				// first time loading the custom score screen
+				if (customScoreScreen.loading == true) {
+					setCustomScoreScreen({
+						...customScoreScreen,
+						htmlPath: enginePath + '?' + instance.widget.created_at,
+						qset: instance.qset,
+						scoreTable: scoreTable,
+						type: 'html',
+						loading: false,
+						show: true,
+					})
+				// custom score screen loaded previously - scoreTable updated, indicating a different play selected
+				// pass the message along to the score screen
+				} else if (customScoreScreen.ready) _sendWidgetUpdate()
+			
+			// no score screen - set loading to false regardless now that we know
+			// doing so kicks off _displayWidgetInstance and initializes the postMessage listener
 			} else if (instance.widget && scoreTable) {
 				setCustomScoreScreen({ ...customScoreScreen, loading: false })
 			} 
@@ -486,6 +496,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
+	// tell the custom score screen that the selected attempt/play has changed, and pass the new scoreTable accordingly
 	const _sendWidgetUpdate = () => {
 		_sendToWidget('updateWidget', [instance.qset, scoreTable])
 	}
@@ -639,9 +650,9 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	let customScoreScreenRender = null
 	if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
-			<iframe ref={scoreWidgetRef} id="container"
+			<iframe ref={scoreWidgetRef}
+				id="container"
 				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}${!overview?.complete ? ' incomplete' : ''}`}
-				scrolling="yes"
 				src={customScoreScreen.htmlPath}>
 			</iframe>
 		)
