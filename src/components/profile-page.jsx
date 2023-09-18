@@ -80,7 +80,7 @@ const ProfilePage = () => {
 	})
 
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching ) {
+	if ( !isFetching && !isFetchingActivity ) {
 		mainContentRender =
 			<section className="page user">
 
