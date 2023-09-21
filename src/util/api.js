@@ -249,6 +249,19 @@ export const apiUpdateUserSettings = (settings) => {
 		.then((resp) => resp.json())
 }
 
+export const apiUpdateUserRoles = (roles) => {
+	return fetch('/api/user/roles', {
+		...fetchOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json'
+		},
+		body: JSON.stringify(roles)
+	})
+		.then((resp) => resp.json())
+}
+
 export const apiGetNotifications = () => {
 	return fetch('/api/json/notifications_get/', fetchOptions({ body: `data=${formatFetchBody([])}` }))
 		.then(resp => {

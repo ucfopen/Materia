@@ -94,23 +94,23 @@ class Model_Notification extends \Orm\Model
 				switch ($mode)
 				{
 					case 'disabled':
-						$subject = "<b>$user_link is no longer sharing \"$widget_name\" with you.</b>";
+						$subject = "$user_link is no longer sharing \"$widget_name\" with you.";
 						break;
 
 					case 'changed':
-						$subject = "<b>$user_link changed your access to widget \"$widget_link\".</b><br/> You now have $perm_string access.";
+						$subject = "$user_link changed your access to widget \"$widget_link\".<br/> You now have $perm_string access.";
 						break;
 
 					case 'expired':
-						$subject = "<b>Your access to \"$widget_name\" has automatically expired.</b>";
+						$subject = "Your access to \"$widget_name\" has automatically expired.";
 						break;
 
 					case 'deleted':
-						$subject = "<b>$user_link deleted $widget_type widget \"$widget_name\".</b>";
+						$subject = "$user_link deleted $widget_type widget \"$widget_name\".";
 						break;
 
 					case 'access_request':
-						$subject = "<b>$user_link is requesting access to your widget \"$widget_name\".</b><br /> The widget is currently being used within a course in your LMS.";
+						$subject = "$user_link is requesting access to your widget \"$widget_name\".<br /> The widget is currently being used within a course in your LMS.";
 						$action = 'access_request';
 						break;
 

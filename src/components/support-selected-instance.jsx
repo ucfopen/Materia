@@ -101,7 +101,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			copyPermissions: copyPerms,
 			dir: inst.widget.dir,
 			successFunc: newInst => {
-				window.location.hash = newInst;
+				window.location.hash = newInst.id;
 			}
 		})
 	}

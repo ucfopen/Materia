@@ -90,7 +90,7 @@ const _translateForApiVersion = (instance, qset) => {
 }
 
 const isPreview = window.location.href.includes('/preview/') || window.location.href.includes('/preview-embed/')
-const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/')
+const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
 const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
 	const [alertMsg, setAlertMsg] = useState(initAlert())
@@ -452,7 +452,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 							true
 						)
 					}
-					// console.log(`retrying in ${retrySpeed/1000} second(s)`)
 
 					setTimeout(() => {
 						setLogPushInProgress(false)
@@ -537,7 +536,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				style={{minHeight: minHeight + 'px',
 					minWidth: minWidth + 'px',
 					width: demoData.width !== '0px' ? demoData.width : 'auto',
-					height: demoData.height !== '0px' ? demoData.height : '',
+					height: demoData.height !== '0px' ? demoData.height : '100%',
 					position: demoData.loading ? 'relative' : 'static'}}>
 				<iframe src={ demoData.htmlPath }
 					id='container'
