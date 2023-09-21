@@ -43,7 +43,7 @@ const ProfilePage = () => {
 	}, [])
 
 	const _getLink = (activity) => {
-		return activity.is_complete === '1' ? `/scores/${activity.inst_id}#play-${activity.play_id}` : ''
+		return activity.is_complete === '1' ? `/scores/${activity.inst_id}#play-${activity.play_id}` : '#'
 	}
 
 	const _getScore = (activity) => {
@@ -63,7 +63,8 @@ const ProfilePage = () => {
 		setActivityPage(previous => previous + 1)
 	}
 
-	// let activityContentRender = <LoadingIcon />
+	let noActivityRender = <p className='no_logs'>You don't have any activity! Once you play a widget, your score history will appear here.</p>
+
 	let activityContentRender = userActivity?.pages?.map((page) => {
 		return page.activity?.map((activity) => {
 			return <li className={`activity_log ${activity.is_complete == 1 ? 'complete' : 'incomplete'} ${activity.percent == 100 ? 'perfect_score' : ''}`} key={activity.play_id}>
@@ -79,7 +80,7 @@ const ProfilePage = () => {
 	})
 
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching ) {
+	if ( !isFetching && !isFetchingActivity ) {
 		mainContentRender =
 			<section className="page user">
 
@@ -112,12 +113,11 @@ const ProfilePage = () => {
 				<div className='activity'>
 					<div className={`loading-icon-holder ${isFetchingActivity ? 'loading' : ''}`}><LoadingIcon /></div>
 					<ul className='activity_list'>
-						{ activityContentRender }
+						{ userActivity?.pages[0]?.activity.length ? activityContentRender : noActivityRender }
 					</ul>
 				</div>
 
 				{ hasNextPage ? <a className="show_more_activity action_button" onClick={_getMoreLogs}>{ isFetchingNextActivityPage ? <span className='message_loading'>Loading...</span> : <span>Show more</span>}</a> : '' }
-				{/* <p className="no_logs" ng-show="activities && activities.length == 0">You don't have any activity! Start doing stuff.</p> */}
 
 			</section>
 	}

@@ -78,7 +78,7 @@ const MyWidgetsPage = () => {
 		window.addEventListener('hashchange', listenToHashChange)
 
 		// check for collab hash on page load
-		setShowCollab(hashContainsCollab)
+		setShowCollab(hashContainsCollab())
 
 		return () => {
 			window.removeEventListener('hashchange', listenToHashChange)
@@ -87,25 +87,18 @@ const MyWidgetsPage = () => {
 
 	// checks whether "-collab" is contained in hash id
 	const hashContainsCollab = () => {
-		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+		const match = window.location.hash.match(/#(?:[A-Za-z0-9]{5})(-collab)*$/)
 
 		if (match != null && match[1] != null)
 		{
-			let hashParams = match[1].split('-');
-			if (hashParams.length > 1)
-			{
-				if (hashParams[1] == "collab")
-				{
-					return true
-				}
-			}
+			return match[1] == '-collab'
 		}
 		return false
 	}
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
-		if (state.selectedInst && permUsers) {
+		if (state.selectedInst && permUsers && permUsers.user_perms?.hasOwnProperty(user.id)) {
 			const isEditable = state.selectedInst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for (const i in permUsers.widget_user_perms) {
@@ -116,6 +109,9 @@ const MyWidgetsPage = () => {
 				_myPerms = rawPermsToObj(permUsers.user_perms[i], isEditable)
 			}
 			setState({ ...state, otherUserPerms: othersPerms, myPerms: _myPerms })
+		}
+		else if (state.selectedInst && permUsers) {
+			setState({...state, noAccess: true})
 		}
 	}, [state.selectedInst, JSON.stringify(permUsers)])
 
@@ -185,10 +181,10 @@ const MyWidgetsPage = () => {
 
 	// event listener to listen to hash changes in the URL, so the selected instance can be updated appropriately
 	const listenToHashChange = () => {
-		const match = window.location.hash.match(/#([A-Za-z0-9]{5}[-][a-z]*)$/)
+		const match = window.location.hash.match(/#([A-Za-z0-9]{5})(-collab)*$/)
 		if (match != null && match[1] != null)
 		{
-			setShowCollab(hashContainsCollab)
+			setShowCollab(hashContainsCollab())
 			setState({...state, widgetHash: match[1]})
 		}
 	}

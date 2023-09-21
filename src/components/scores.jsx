@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useRef} from 'react'
 import { apiGetWidgetInstance, apiGetWidgetInstanceScores, apiGetGuestWidgetInstanceScores, apiGetScoreSummary, apiGetScoreDistribution, apiGetWidgetInstancePlayScores } from '../util/api'
 import { useQuery } from 'react-query'
+import ScoreOverview from './score-overview'
+import ScoreDetails from './score-details'
 import SupportInfo from './support-info'
 import LoadingIcon from './loading-icon'
-import BarGraph from './bar-graph'
-import '../materia/materia.scores.scoregraphics.js'
+
 import './scores.scss'
 
-const COMPARE_TEXT_CLOSE = 'Close Graph'
-const COMPARE_TEXT_OPEN = 'Compare With Class'
+const STATE_RESTRICTED = 'restricted'
+const STATE_INVALID = 'invalid'
+const STATE_EXPIRED = 'expired'
 
 const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview }) => {
-	const [guestAccess, setGuestAccess] = useState(null)
-	const [invalid, setInvalid] = useState(null)
+
+	const [playId, setPlayId] = useState(null)
+	const [previewInstId, setPreviewInstId] = useState(null)
+
+
 	// attemptDates is an array of attempts, [0] is the newest
 	const [attemptDates, setAttemptDates] = useState([])
 	const [attempts, setAttempts] = useState([])
@@ -21,22 +26,24 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const [attemptsLeft, setAttemptsLeft] = useState(0)
 	const [attemptNum, setAttemptNum] = useState(null)
 
-	const [graphData, setGraphData] = useState([])
-	const [details, setDetails] = useState([])
 	const [overview, setOverview] = useState()
+	const [details, setDetails] = useState([])
 	const [prevAttemptClass, setPrevAttemptClass] = useState(null)
 
-	const [restricted, setRestricted] = useState(null)
-	const [expired, setExpired] = useState(null)
+	// set to one of the state constants above if an error state manifests
+	const [errorState, setErrorState] = useState(null)
+
 	const [showScoresOverview, setShowScoresOverview] = useState(true)
 	const [showResultsTable, setShowResultsTable] = useState(true)
-	const graphRef = useRef(null)
 	const [scoreTable, setScoreTable] = useState(null)
-	const [classRankText, setClassRankText] = useState(COMPARE_TEXT_OPEN)
-	const [graphShown, setGraphShown] = useState(null)
 
-	const [playId, setPlayId] = useState(null)
-	const [previewInstId, setPreviewInstId] = useState(null)
+	const [guestAccess, setGuestAccess] = useState(null)
+	const [attributes, setAttributes] = useState({
+		hidePlayAgain: true,
+		hidePreviousAttempts: true
+	})
+
+	const [playAgainUrl, setPlayAgainUrl] = useState(null)
 
 	const [customScoreScreen, setCustomScoreScreen] = useState({
 		htmlPath: null,
@@ -44,13 +51,11 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		qset: null,
 		scoreTable: null,
 		show: false,
-		loading: true
+		loading: true,
+		ready: false
 	})
-	const [playAgainUrl, setPlayAgainUrl] = useState(null)
-	const [hidePlayAgain, setHidePlayAgain] = useState(true)
+	
 	const scoreHeaderRef = useRef(null)
-	const [hidePreviousAttempts, setHidePreviousAttempts] = useState(null)
-	const [widget, setWidget] = useState(null)
 	const scoreWidgetRef = useRef(null)
 
 	// Gets widget instance loads qset
@@ -72,7 +77,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (result && result.type == 'error') setRestricted(true)
+			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
 			else {
 				_populateScores(result.scores)
 				setAttemptsLeft(result.attempts_left)
@@ -84,7 +89,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// important note: play_id is only set when the user first visits the score screen after completing a guest instance
 	// otherwise, single_id will contain the play ID and play_id will be null
 	const guestPlayId = play_id ? play_id : single_id
-	const { isLoading: guestScoresAreLoading, data: guestScores, refetch: loadGuestScores } = useQuery({
+	const { data: guestScores, refetch: loadGuestScores } = useQuery({
 		queryKey: ['guest-scores', inst_id, guestPlayId],
 		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, guestPlayId),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
@@ -92,33 +97,32 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (result && result.type == 'error') setRestricted(true)
+			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
 			else _populateScores(result)
 		}
 	})
 
 	// Gets widget instance play scores when playId
 	// or previewInstId are changed
-	// playId and previewInstId are initialized in _getScoreDetails
-	// If previewInstId is null, verifies that instance is playable by current user
-	// If previewInstId is not null, verifies player session
-	// If the play details or preview logs are empty, sets expired to true
-	const { isLoading: playScoresAreLoading, data: playScores, refetch: loadPlayScores } = useQuery({
+	const { data: playScores } = useQuery({
 		queryKey: ['play-scores', playId, previewInstId],
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
-		enabled: false,
+		enabled: (!!playId || !!previewInstId),
 		retry: false,
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
-			if (!result || result.length < 1) {
-				setExpired(true)
+			if (isPreview && (!result || result.length < 1)) {
+				setAttributes({...attributes, href: `/preview/${inst_id}/${instance?.clean_name}`})
+				setErrorState(STATE_EXPIRED)
+			} else if (!result || result.length < 1) {
+				setErrorState(STATE_INVALID)
 			}
 		}
 	})
 
 	// Gets score distribution
-	const { isLoading: scoreDistributionIsLoading, data: scoreDistribution, refetch: loadScoreDistribution } = useQuery({
+	const { refetch: loadScoreDistribution } = useQuery({
 		queryKey: ['score-dist', inst_id],
 		queryFn: () => apiGetScoreDistribution(inst_id),
 		enabled: false,
@@ -127,21 +131,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			_sendToWidget('scoreDistribution', [data])
 		}
 	})
-
-	// Gets score summary
-	const { isLoading: scoreSummaryIsLoading, data: scoreSummary, refetch: loadScoreSummary } = useQuery({
-		queryKey: ['score-summary', inst_id],
-		queryFn: () => apiGetScoreSummary(inst_id),
-		staleTime: Infinity,
-		enabled: !!inst_id,
-		onSuccess: (result) => {
-			if (!result || result.length < 1) {
-				setExpired(true)
-			}
-		}
-	})
-
-
 
 	useEffect(() => {
 		window.addEventListener('hashchange', listenToHashChange)
@@ -157,6 +146,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (!customScoreScreen.loading) {
 			// setup the postmessage listener
 			window.addEventListener('message', _onPostMessage, false)
+
+			_displayWidgetInstance()
 
 			// cleanup this listener
 			return () => {
@@ -174,15 +165,24 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			let enginePath
 			setGuestAccess(instance.guest_access)
 
+			// Preview? Set certain attributes that wouldn't be assigned otherwise
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
+				setAttributes({ ...attributes, href: `/preview/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
 			} else if (single_id) {
 				setPlayId(single_id)
 				setPreviewInstId(null)
 			}
+			else if (instance.guest_access) {
+				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
+				loadGuestScores()
+			}
+			else if (!single_id && !isPreview) loadInstanceScores()
 
 			const score_screen = instance.widget.score_screen
+
+			// custom score screen exists?
 			if (score_screen && scoreTable) {
 				const splitSpot = score_screen.lastIndexOf('.')
 				if (splitSpot != -1) {
@@ -194,37 +194,28 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 						enginePath = window.WIDGET_URL + instance.widget.dir + score_screen
 					}
 				}
-				setCustomScoreScreen({
-					htmlPath: enginePath + '?' + instance.widget.created_at,
-					qset: instance.qset,
-					scoreTable: scoreTable,
-					type: 'html',
-					loading: false,
-					show: true
-				})
-			}
-			_displayWidgetInstance()
+				// first time loading the custom score screen
+				if (customScoreScreen.loading == true) {
+					setCustomScoreScreen({
+						...customScoreScreen,
+						htmlPath: enginePath + '?' + instance.widget.created_at,
+						qset: instance.qset,
+						scoreTable: scoreTable,
+						type: 'html',
+						loading: false,
+						show: true,
+					})
+				// custom score screen loaded previously - scoreTable updated, indicating a different play selected
+				// pass the message along to the score screen
+				} else if (customScoreScreen.ready) _sendWidgetUpdate()
+			
+			// no score screen - set loading to false regardless now that we know
+			// doing so kicks off _displayWidgetInstance and initializes the postMessage listener
+			} else if (instance.widget && scoreTable) {
+				setCustomScoreScreen({ ...customScoreScreen, loading: false })
+			} 
 		}
 	}, [instance, scoreTable])
-
-	// _getInstanceScores
-	// only for non-preview scores, guest or normal
-	useEffect(() => {
-		if (guestAccess !== null && !isPreview) {
-			if (guestAccess) {
-				loadGuestScores()
-			} else if (play_id) {
-				// play_id is only present when the score screen is visited from an instance play or the profile page
-				// if visited from My Widgets, single_id is populated instead and this call is unnecessary
-				loadInstanceScores()
-			}
-		}
-	}, [guestAccess])
-
-	// instance scores are not loaded for previews - request play scores directly
-	useEffect(() => {
-		if (previewInstId) loadPlayScores()
-	}, [previewInstId])
 
 	// _displayAttempts
 	useEffect(() => {
@@ -254,10 +245,10 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 				if (isPreview) {
 					setCurrentAttempt(1)
+				} else if (matchedAttempt !== false && attempts.length > 1) {
 					// we only want to do this if there's more than one attempt. Otherwise it's a guest widget
 					// or the score is being viewed by an instructor, so we don't want to get rid of the playid
 					// in the hash
-				} else if (matchedAttempt !== false && attempts.length > 1) {
 					window.location.hash = `#attempt-${matchedAttempt}`
 
 				} else if (getAttemptNumberFromHash() === undefined) {
@@ -283,13 +274,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			}
 		}
 	}, [currentAttempt])
-
-	useEffect(() => {
-		if (!!playId) 
-		{
-			loadPlayScores()
-		}
-	}, [playId])
 
 	useEffect(() => {
 
@@ -324,16 +308,14 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				setOverview(deets.overview)
 				setAttemptNum(currentAttempt)
 			}
-			if (showResultsTable) {
-				setTimeout(() => _addCircleToDetailTable(deets.details), 10)
-			}
 
 			const referrerUrl = deets.overview.referrer_url
 			if (deets.overview.auth === 'lti' && !!referrerUrl && referrerUrl.indexOf(`/scores/${inst_id}`) === -1) {
 				setPlayAgainUrl(referrerUrl)
-			} else {
-				setPlayAgainUrl(widget.href)
+			} else if (!single_id) {
+				setPlayAgainUrl(attributes.href)
 			}
+
 			setScoreTable(deets.details[0].table)
 		}
 	}, [playScores])
@@ -341,7 +323,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	useEffect(() => {
 		if (instance && !single_id) {
 			// show play again button?
-			if (!single_id && (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview)) {
+			if (instance.attempts <= 0 || parseInt(attemptsLeft) > 0 || isPreview) {
 				const prefix = (() => {
 					if (isEmbedded && isPreview) return '/preview-embed/'
 					if (isEmbedded) return '/embed/'
@@ -353,15 +335,18 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
 					href += `?token=${window.LAUNCH_TOKEN}`
 				}
-				setAttemptsLeft(attemptsLeft)
-				setHidePlayAgain(false)
-				setWidget({
-					...widget,
-					href: href
+				
+				setAttributes({
+					...attributes,
+					href: href,
+					hidePlayAgain: false
 				})
 			} else {
 				// if there are no attempts left, hide play again
-				setHidePlayAgain(true)
+				setAttributes({
+					...attributes,
+					hidePlayAgain: true
+				})
 			}
 		}
 	}, [attemptsLeft])
@@ -374,15 +359,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const _populateScores = (scores) => {
 		if (!scores || scores.length < 1) {
 			// score request was not in error, but request is empty
-			setExpired(true)
+			setErrorState(STATE_INVALID)
+
 		} else {
 			// Round scores
 			for (let attemptScore of Array.from(scores)) {
 				attemptScore.roundedPercent = String(parseFloat(attemptScore.percent).toFixed(2))
 			}
-			if (!single_id) {
-				setAttempts(scores)
-			}
+
+			setAttempts(scores)
 		}
 	}
 
@@ -420,58 +405,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			'paddingTop': paddingSize,
 		}
 
-		setHidePreviousAttempts(single_id)
-		setWidget({...widget, ...overview})
-	}
-
-	// Uses jPlot to create the bargraph
-	const _toggleClassRankGraph = () => {
-		// toggle button text
-		if (graphShown) {
-			setClassRankText(COMPARE_TEXT_OPEN)
-			setGraphShown(false)
-			graphRef.current.classList.remove('open')
-		} else {
-			setGraphShown(true)
-			setClassRankText(COMPARE_TEXT_CLOSE)
-			graphRef.current.classList.add('open')
-		}
-
-		// return if graph already built
-		if (graphData.length > 0) {
-			return
-		}
-
-		// return if preview
-		if (isPreview) {
-			return
-		}
-	}
-
-	const _addCircleToDetailTable = (detail) => {
-		detail.forEach((item, i) => {
-			if (item.table && item.table.length) {
-				item.table.forEach((table, j) => {
-					let greyMode = false
-					const index = j + 1
-					const canvas_id = `question-${i + 1}-${index}`
-					const percent = table.score / 100
-					switch (table.graphic) {
-						case 'modifier':
-							greyMode = table.score === 0
-							window.Materia.Scores.Scoregraphics.drawModifierCircle(canvas_id, index, percent, greyMode)
-							break
-						case 'final':
-							window.Materia.Scores.Scoregraphics.drawFinalScoreCircle(canvas_id, index, percent)
-							break
-						case 'score':
-							greyMode = table.score === -1
-							window.Materia.Scores.Scoregraphics.drawScoreCircle(canvas_id, index, percent, greyMode)
-							break
-					}
-				})
-			}
-		})
+		setAttributes({...attributes, ...overview, hidePreviousAttempts: !!single_id || attempts.length < 2 })
 	}
 
 	const _onPostMessage = (e) => {
@@ -488,7 +422,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 						case 'hideResultsTable':
 							return (setShowResultsTable(false))
 						case 'hideScoresOverview':
-							return (setShowScoresOverview(false))
+							return (overview?.complete ? setShowScoresOverview(false) : setShowScoresOverview(true))
 						case 'requestScoreDistribution':
 							return loadScoreDistribution()
 						default:
@@ -547,18 +481,22 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		)
 	}
 
+	// this is only called in response from the score-core
+	// it will not be called for default score screens
 	const _sendWidgetInit = () => {
 		if (customScoreScreen.scoreTable == null || customScoreScreen.qset == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
 			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
 			setShowResultsTable(true)
 			setShowScoresOverview(true)
-			setInvalid(true)
 			return
 		}
+		setCustomScoreScreen({ ...customScoreScreen, ready: true })
+
 		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
+	// tell the custom score screen that the selected attempt/play has changed, and pass the new scoreTable accordingly
 	const _sendWidgetUpdate = () => {
 		_sendToWidget('updateWidget', [instance.qset, scoreTable])
 	}
@@ -569,12 +507,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		scoreWidgetRef.current.style.height = `${desiredHeight}px`
 	}
 
-	const waitForScoreSummary = async () => {
-		while (scoreSummaryIsLoading || !scoreSummary) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
-
 	const attemptClick = () => {
 		if (isMobile.any()) {
 			setPrevAttemptClass('')
@@ -583,8 +515,58 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	/******* DOM element rendering ********/
 
+	// Render error states, if any are active
+	let errorStateRender = null
+	if (errorState != null) {
+		switch (errorState) {
+			case STATE_EXPIRED:
+				errorStateRender = (
+					<div className="expired container general">
+						<section className="page score_expired">
+							<h2 className="logo">The preview score for this widget has expired.</h2>
+							<p>Preview scores are only available immediately after previewing a widget.</p>
+							<a className="action_button" href={attributes.href ? attributes.href : '#'}>Preview Again</a>
+						</section>
+					</div>
+				)
+				break
+			case STATE_INVALID:
+				errorStateRender = (
+					<div className="invalid container general">
+						<section className="page score_restrict">
+							<h2 className="logo">Play ID Invalid</h2>
+							<p>Well, that's awkward. We couldn't find any play scores to show you. Some common issues associated with this message:</p>
+							<ul>
+								<li>Materia doesn't think you have the right permissions to view this score.</li>
+								<li>There was an issue with displaying the score screen in this particular context - have you tried accessing it from the widget's Student Activity section or your profile page?</li>
+							</ul>
+							<p>It might be worth reaching out to technical support to report the issue:</p>
+							<SupportInfo />
+						</section>
+					</div>
+				)
+				break
+			case STATE_RESTRICTED:
+				errorStateRender = (
+					<div className="score_restrict container general">
+						<section className="page score_restrict">
+							<h2 className="logo">You don't have permission to view this page.</h2>
+		
+							<p>You may need to:</p>
+							<ul>
+								<li>Make sure the score you're trying to access belongs to you or your student.</li>
+								<li>Try to access this score through your profile page.</li>
+							</ul>
+		
+							<SupportInfo />
+						</section>
+					</div>
+				)
+		}
+	}
+
 	let previousAttempts = null
-	if (!hidePreviousAttempts && !isPreview && !guestAccess) {
+	if (!attributes.hidePreviousAttempts && !isPreview && !guestAccess) {
 
 		let attemptList = attempts.map((attempt, index) => {
 			return (
@@ -619,7 +601,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let playAgainBtn = null
-	if (!hidePlayAgain) {
+	if (!attributes.hidePlayAgain) {
 		playAgainBtn = (
 			<nav className="play-again header-element">
 				<h1>
@@ -633,207 +615,58 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let scoreHeader = null
-	if (!restricted && !expired) {
+	if (!errorState) {
 		scoreHeader = (
 			<header className={`header score-header ${isPreview ? 'preview' : ''}`}>
 				{previousAttempts}
-				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={widget ? widget.headerStyle : {}}>{widget ? widget.title : ''}</h1>
+				<h1 className="header-element widget-title" ref={scoreHeaderRef} style={attributes.headerStyle ? attributes.headerStyle : {}}>{attributes.title ? attributes.title : ''}</h1>
 				{playAgainBtn}
 			</header>
 		)
 	}
 
-	let overviewIncomplete = null
-	if (overview && !overview.complete) {
-		overviewIncomplete = (
-			<div id='overview-incomplete'>
-				<h2>Incomplete Attempt</h2>
-				<hr />
-				<p>
-					This student didn't complete this attempt.
-					This score was not counted in any linked gradebooks and is only available for informational purposes.
-				</p>
-			</div>
-		)
-	}
-
-	let classRankBtn = null
-	if (!isPreview) {
-		classRankBtn = (
-			<div id="class-rank-button" className="action_button gray" onClick={_toggleClassRankGraph}>{classRankText}</div>
-		)
-	}
-
 	let overviewRender = null
-	if (!restricted && !expired && showScoresOverview && !!overview) {
-		let overviewTable = []
-		overview.table.forEach((row, index) => {
-			overviewTable.push(
-				<tr key={`${row}-${index}`}>
-					<td>{row.message}</td>
-					<td className={`${(row.value > -1) ? 'positive' : 'negative'} number`}>
-						{row.value}{(row.symbol == null) ? '%' : row.symbol}
-					</td>
-				</tr>
+	if (!errorState && showScoresOverview && !!overview) {
+
+		if (customScoreScreen.show && !customScoreScreen.ready) {
+			overviewRender = (
+				<section className={`overview ${isPreview ? 'preview' : ''}`}>
+					<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
+				</section>
 			)
-		})
+		}
+		else {
+			overviewRender = <ScoreOverview
+				inst_id={inst_id}
+				single_id={single_id}
+				overview={overview}
+				attemptNum={attemptNum}
+				isPreview={isPreview}
+				guestAccess={guestAccess} />
+		}
 
-		overviewRender = (
-			<section className={`overview ${isPreview ? 'preview' : ''}`}>
-				{overviewIncomplete}
-				<div id="overview-score">
-					{!guestAccess ?
-						<h1>Attempt <span className="attempt-num">{attemptNum}</span> Score:</h1>
-						:
-						<h1>This Attempt Score:</h1>
-					}
-					<span className="overall_score">{overview.score}<span className="percent">%</span></span>
-					{classRankBtn}
-				</div>
-				<div id="overview-table">
-					<table>
-						<tbody>
-							{overviewTable}
-						</tbody>
-					</table>
-				</div>
-			</section>
-		)
-	}
-
-	let scoreGraphRender = null
-	if (!restricted && !expired) {
-		scoreGraphRender = (
-			<section className="score-graph" ref={graphRef}>
-				<div className="graph">
-					{
-						scoreSummary !== undefined &&
-						<BarGraph
-							data={scoreSummary[0]?.graphData}
-							width={746}
-							height={300}
-							rowLabel={'Scores Percent'}
-							colLabel={'Number of Scores'}
-							graphTitle={"Compare Your Score With Everyone Else's"}
-						/>
-					}
-				</div>
-			</section>
-		)
 	}
 
 	let customScoreScreenRender = null
-	if (customScoreScreen.show && !restricted && !expired) {
+	if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
-			<iframe ref={scoreWidgetRef} id="container"
-				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}`}
-				scrolling="yes"
-				src={customScoreScreen.htmlPath}
-				fullscreen-dir="true">
+			<iframe ref={scoreWidgetRef}
+				id="container"
+				className={`html ${showScoresOverview ? 'margin-above' : ''}${showResultsTable ? 'margin-below' : ''}${!overview?.complete ? ' incomplete' : ''}`}
+				src={customScoreScreen.htmlPath}>
 			</iframe>
 		)
 	}
 
-	let detailsRender = []
-	if (showResultsTable && !restricted && !expired) {
-		details.forEach((detail, i) => {
-			let detailsTableRows = []
-			let detailsHeaders = []
-			detail.table.forEach((row, index) => {
-				let detailsTableData = []
-				if (row.graphic != 'none') {
-					detailsTableData.push(
-						<td key={`${row}-${index}`} className="index">
-							<canvas className="question-number" id={`question-${i + 1}-${index + 1}`} >
-								<p>{index + 1}</p>
-							</canvas>
-							{row.display_score &&
-								<span>
-									{row.score}{row.symbol}
-								</span>
-							}
-						</td>
-					)
-				}
-
-				row.data.forEach((data, index) => {
-					detailsTableData.push(
-						<td key={`${data}-${index}`} className={row.data_style[index]}>{data}</td>
-					)
-				})
-
-				detailsTableRows.push(
-					<tr key={`${row}-${index + 1}`} className={`${row.style} ${row.feedback != null ? 'has_feedback' : ''}`}>
-						{detailsTableData}
-					</tr>
-				)
-
-				if (row.feedback != null) {
-					detailsTableRows.push(
-						<tr key={`${row}-${index + 2}`} className="feedback single_column">
-							<td colSpan={row.data.length + 1}>
-								<p>{row.feedback}</p>
-							</td>
-						</tr>
-					)
-				}
-
-			})
-
-			detail.header.forEach((header, i) => {
-				detailsHeaders.push(
-					<th key={`${header}-${i}`}>{header}</th>
-				)
-			})
-			detailsRender.push(
-				<section className="details" key={i}>
-					<h1>{detail.title}</h1>
-
-					<table>
-						<thead>
-							<tr className="details_header">
-								{detailsHeaders}
-							</tr>
-						</thead>
-						<tbody>
-							{detailsTableRows}
-						</tbody>
-					</table>
-				</section>
-			)
-		})
-	}
-
-	let expiredRender = null
-	if (expired) {
-		expiredRender = (
-			<div className="expired container general">
-				<section className="page score_expired">
-					<h2 className="logo">The preview score for this widget has expired.</h2>
-					<a className="action_button" href={widget ? widget.href : '#'}>Preview Again</a>
-				</section>
-			</div>
+	let detailsRender = null
+	if (!errorStateRender && customScoreScreen.show && !customScoreScreen.ready) {
+		detailsRender = (
+			<section className={`overview ${isPreview ? 'preview' : ''}`}>
+				<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
+			</section>
 		)
-	}
-
-	let restrictedRender = null
-	if (restricted) {
-		restrictedRender = (
-			<div className="score_restrict container general">
-				<section className="page score_restrict">
-					<h2 className="logo">You don't have permission to view this page.</h2>
-
-					<p>You may need to:</p>
-					<ul>
-						<li>Make sure the score you're trying to access belongs to you or your student.</li>
-						<li>Try to access this score through your profile page.</li>
-						<li>Check out our documentation.</li>
-					</ul>
-
-					<SupportInfo />
-				</section>
-			</div>
-		)
+	} else if (!errorStateRender && showResultsTable) {
+		detailsRender = <ScoreDetails details={details} complete={overview?.complete} />
 	}
 
 	return (
@@ -841,11 +674,9 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			<div className='loading-icon-holder'><LoadingIcon size='med' /></div>
 			{scoreHeader}
 			{overviewRender}
-			{scoreGraphRender}
 			{customScoreScreenRender}
 			{detailsRender}
-			{expiredRender}
-			{restrictedRender}
+			{errorStateRender}
 		</article>
 	)
 }

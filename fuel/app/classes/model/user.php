@@ -160,6 +160,7 @@ class Model_User extends Orm\Model
 		$array['avatar'] = $avatar;
 		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
 		$array['is_support_user'] = \Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SUPPORT], $this->id);
+		if (\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SU], $this->id)) $array['is_super_user'] = true;
 		return $array;
 	}
 

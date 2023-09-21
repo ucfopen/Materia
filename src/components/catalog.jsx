@@ -39,9 +39,10 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 	const [filteredWidgets, isFiltered] = useMemo(() => {
 		let isFiltered = false
 
-		// widgets with the in_catalog flag set to false should not be included by default
+		// in_catalog widgets are already being rendered via featured widgets
+		// append remaining widgets that are playable but not in_catalog
 		let results = widgets.filter(w => {
-			return parseInt(w.in_catalog)
+			return parseInt(w.is_playable) == 1 && parseInt(w.in_catalog) == 0
 		})
 		// filters are active, only match active filters
 		if(state.activeFilters.length){

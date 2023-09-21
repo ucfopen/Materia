@@ -280,12 +280,11 @@ class Perm_Manager
 			->as_object();
 
 		$current_id = \Model_User::find_current_id();
+		$roles = [];
 
 		// return logged in user's roles if id is 0 or less, non su users can only use this method
 		if ($user_id <= 0 || $user_id == $current_id)
 		{
-			$roles = [];
-
 			$results = $q->where('m.user_id', $current_id)
 				->execute();
 

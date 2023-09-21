@@ -197,6 +197,8 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		// if routed from the legacy LTI URL, the instance id is available as a GET parameter
+		if ( ! $inst_id && \Input::get('widget') ) $inst_id = \Input::get('widget');
 		// context_id isolates attempt count for an class so a user's attempt limit is reset per course
 		Session::set('context_id', \Input::post('context_id'));
 		return $this->_play_widget($inst_id, false, true);
