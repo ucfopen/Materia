@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 import { apiGetInstancesForUser } from '../util/api'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
+import UserAdminRoleManager from './user-admin-role-manager'
 
 const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 
@@ -45,25 +46,30 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 		}
 	}
 
+	let suRender = null
+	if (currentUser?.is_super_user) {
+		suRender = <UserAdminRoleManager currentUser={currentUser} selectedUser={selectedUser} />
+	}
+
 	return (
 		<section className='page inst-info'>
-			<div id="breadcrumb-container">
-				<div className="breadcrumb">
-					<a href="/admin/user">User Search</a>
+			<div id='breadcrumb-container'>
+				<div className='breadcrumb'>
+					<a href='/admin/user'>User Search</a>
 				</div>
-				<svg xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24">
-					<path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-					<path fill="none" d="M0 0h24v24H0V0z"/>
+				<svg xmlns='http://www.w3.org/2000/svg'
+					width='24'
+					height='24'
+					viewBox='0 0 24 24'>
+					<path d='M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z'/>
+					<path fill='none' d='M0 0h24v24H0V0z'/>
 				</svg>
-				<div className="breadcrumb">{`${updatedUser.first} ${updatedUser.last}`}</div>
+				<div className='breadcrumb'>{`${updatedUser.first} ${updatedUser.last}`}</div>
 			</div>
 			<div className='top'>
 				<h1>{ `${updatedUser.first} ${updatedUser.last}` }</h1>
 			</div>
-			<div className='overview'>
+			<div className='overview admin-subsection'>
 				<span>
 					<label>ID: </label>{ updatedUser.id }
 				</span>
@@ -90,17 +96,18 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 					<label>User icon: </label>{ updatedUser.profile_fields.useGravatar ? 'Gravatar' : 'Default' }
 				</span>
 			</div>
-			<div className="info-holder">
-				<div className="instances">
-					<div className="top">
+			<div className='info-holder'>
+				{ suRender }
+				<div className='instances admin-subsection'>
+					<div className='top'>
 						<h2>Owned or Managed Instances:</h2>
 					</div>
 					<ul>
 						{ instancesAvailable }
 					</ul>
 				</div>
-				<div className="instances">
-					<div className="top">
+				<div className='instances admin-subsection'>
+					<div className='top'>
 						<h2>Instance Play History:</h2>
 					</div>
 					<ul>
@@ -109,22 +116,6 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 				</div>
 			</div>
 		</section>
-
-
-
-		// avatar icon, name
-		// created: static date
-		// last login: static date
-		// username: static string value
-		// email: input box
-		// role: drop-down
-		// notifications: checkmark true/false
-		// user icon: drop-down
-
-		// instances available section
-		// instances played section
-
-		// save changes btn
 	)
 }
 
