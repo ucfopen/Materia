@@ -17,7 +17,7 @@ const FILE_MAX_SIZE = 20000000
 const MIME_MAP = {
 	// generic types, preferred
 	image: ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
-	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
+	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/wave', 'audio/wav', 'audio/x-wav'],
 	video: [], // placeholder
 	model: ['model/obj'],
 
@@ -27,6 +27,8 @@ const MIME_MAP = {
 	gif: ['image/gif'],
 	png: ['image/png'],
 	mp3: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
+	m4a: ['audio/mp4'],
+	wav: ['audio/wave', 'audio/wav', 'audio/x-wav'],
 	obj: ['application/octet-stream', 'model/obj'],
 }
 
@@ -96,9 +98,11 @@ const MediaImporter = () => {
 	// Processes the list sequentially based on the state of each
 	useEffect(() => {
 		if (!assetList || !assetList.length) return
+
+		const allowed = _getAllowedFileTypes().map((type) => type.split('/')[1])
 		
-		// first pass: filter out deleted assets, if we're not displaying them
-		let listStageOne = assetList.filter((asset) => (!showDeletedAssets && !asset.is_deleted) || showDeletedAssets )
+		// first pass: filter out by allowed media types as well as deleted assets, if we're not displaying them
+		let listStageOne = assetList.filter((asset) => ((!showDeletedAssets && !asset.is_deleted) || showDeletedAssets) && allowed.indexOf(asset.type) != -1)
 
 		// second pass: filter assets based on search string, if present
 		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match( filterSearch.toLowerCase() )) : listStageOne
@@ -188,18 +192,20 @@ const MediaImporter = () => {
 		request.send(fd)
 	}
 
-	const _getMimeType = (dataUrl) => {
+	const _getAllowedFileTypes = () => {
 		let allowedFileExtensions = []
-	
 		REQUESTED_FILE_TYPES.forEach((type) => {
 			if (MIME_MAP[type]) {
 				allowedFileExtensions = [...allowedFileExtensions, ...MIME_MAP[type]]
 			}
 		})
-	
+		return allowedFileExtensions
+	}
+
+	const _getMimeType = (dataUrl) => {
+		const allowed = _getAllowedFileTypes()
 		const mime = dataUrl.split(';')[0].split(':')[1]
-	
-		if (mime == null || allowedFileExtensions.indexOf(mime) === -1) {
+		if (mime == null || allowed.indexOf(mime) === -1) {
 			alert(
 				'This widget does not support the type of file provided. ' +
 				`The allowed types are: ${REQUESTED_FILE_TYPES.join(', ')}.`
