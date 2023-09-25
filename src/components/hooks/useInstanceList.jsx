@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useInfiniteQuery } from 'react-query'
 import { apiGetWidgetInstances } from '../../util/api'
+import { iconUrl } from '../../util/icon-url'
 
 export default function useInstanceList() {
 
@@ -19,7 +20,18 @@ export default function useInstanceList() {
 		}
 		if (list?.pages) {
 			let dataMap = []
-			return [...dataMap.concat(...list.pages.map((page) => page.pagination))].sort(_compareWidgets)
+			return [
+				...dataMap.concat(
+					...list.pages.map(page => page.pagination.map(instance => {
+						// adding an 'img' property to widget instance objects for backwards
+						//  compatibility with any downstream LTIs using the wid
+						return {
+							...instance,
+							img: iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)
+						}
+					}))
+				)
+			].sort(_compareWidgets)
 		} else return []
 	}
 
