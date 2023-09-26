@@ -3,12 +3,13 @@ import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
 import { player } from './materia-constants'
+import Alert from './alert'
 import usePlayStorageDataSave from './hooks/usePlayStorageDataSave'
 import usePlayLogSave from './hooks/usePlayLogSave'
 import LoadingIcon from './loading-icon'
 import './widget-player.scss'
 
-const HEARTBEAT_INTERVAL = 30000 // 30 seconds for each heartbeat
+const HEARTBEAT_INTERVAL = 15000 // 15 seconds for each heartbeat
 
 const initLogs = () => ({ play: [], storage: [] })
 
@@ -135,7 +136,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		queryFn: () => apiSessionVerify(playId),
 		staleTime: Infinity,
 		refetchInterval: HEARTBEAT_INTERVAL,
-		enabled: playId && heartbeatActive,
+		enabled: !!playId && heartbeatActive,
 		onSettled: (result) => {
 			if (result != true) {
 				setAlert({
@@ -153,10 +154,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	// Adds warning event listener
 	useEffect(() => {
-		window.addEventListener('beforeunload', _beforeUnload)
+		if (inst && !isPreview && playState == 'playing') {
+			window.addEventListener('beforeunload', _beforeUnload)
 
-		return () => {
-			window.removeEventListener('beforeunload', _beforeUnload)
+			return () => {
+				window.removeEventListener('beforeunload', _beforeUnload)
+			}
 		}
 	}, [inst, isPreview, playState])
 
@@ -223,13 +226,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	useEffect(() => {
 		if (startTime !== 0 && !isPreview && !heartbeatActive) setHeartbeatActive(true)
-	},[startTime, isPreview, heartbeatActive])
+	},[startTime, isPreview])
 
 	useEffect(() => {
-		if (!!alert.msg && !!alert.title) {
-			console.log('ALARM: ALERT SET')
-			console.log(alert.title)
-			console.log(alert.msg)
+		if (!!alert.msg && !!alert.title && alert.fatal) {
+			setHeartbeatActive(false)
 		}
 	},[alert])
 
@@ -492,6 +493,20 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		)
 	}
 
+	let alertDialogRender = null
+	if (!!alert.msg && !!alert.title) {
+		alertDialogRender = (
+			<Alert
+				msg={alert.msg}
+				title={alert.title}
+				fatal={alert.fatal}
+				showLoginButton={false}
+				onCloseCallback={() => {
+					setAlert({msg: '', title: '', fatal: false})
+				}} />
+		)
+	}
+
 	let footerRender = null
 	if (!isPreview && showFooter) {
 		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
@@ -509,8 +524,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				style={{minHeight: minHeight + 'px',
 					minWidth: minWidth + 'px',
 					width: attributes.width !== '0px' ? attributes.width : 'auto',
-					height: attributes.height !== '0px' ? attributes.height : '100%',
-					position: attributes.loading ? 'relative' : 'static'}}>
+					height: attributes.height !== '0px' ? attributes.height : '100%'}}>
+				{ alertDialogRender }
 				<iframe src={ attributes.htmlPath }
 					id='container'
 					className='html'
