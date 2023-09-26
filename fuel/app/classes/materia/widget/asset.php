@@ -20,6 +20,7 @@ class Widget_Asset
 		'image/gif'   => 'gif',
 		'image/jpeg'  => 'jpg',
 		'audio/mp4'   => 'm4a',
+		'audio/x-m4a' => 'm4a',
 		'audio/mpeg'  => 'mp3',
 		'audio/wav'   => 'wav',
 		'audio/wave'  => 'wav',

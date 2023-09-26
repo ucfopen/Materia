@@ -17,7 +17,7 @@ const FILE_MAX_SIZE = 20000000
 const MIME_MAP = {
 	// generic types, preferred
 	image: ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
-	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/wave', 'audio/wav', 'audio/x-wav'],
+	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/x-m4a', 'audio/wave', 'audio/wav', 'audio/x-wav'],
 	video: [], // placeholder
 	model: ['model/obj'],
 
@@ -27,7 +27,7 @@ const MIME_MAP = {
 	gif: ['image/gif'],
 	png: ['image/png'],
 	mp3: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
-	m4a: ['audio/mp4'],
+	m4a: ['audio/mp4', 'audio/x-m4a'],
 	wav: ['audio/wave', 'audio/wav', 'audio/x-wav'],
 	obj: ['application/octet-stream', 'model/obj'],
 }
