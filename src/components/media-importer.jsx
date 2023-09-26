@@ -17,7 +17,7 @@ const FILE_MAX_SIZE = 20000000
 const MIME_MAP = {
 	// generic types, preferred
 	image: ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
-	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/x-m4a', 'audio/wave', 'audio/wav', 'audio/x-wav'],
+	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/x-m4a', 'audio/wave', 'audio/wav', 'audio/x-wav', 'audio/m4a'],
 	video: [], // placeholder
 	model: ['model/obj'],
 
@@ -27,7 +27,7 @@ const MIME_MAP = {
 	gif: ['image/gif'],
 	png: ['image/png'],
 	mp3: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
-	m4a: ['audio/mp4', 'audio/x-m4a'],
+	m4a: ['audio/mp4', 'audio/x-m4a', 'audio/m4a'],
 	wav: ['audio/wave', 'audio/wav', 'audio/x-wav'],
 	obj: ['application/octet-stream', 'model/obj'],
 }
@@ -72,7 +72,6 @@ const MediaImporter = () => {
 			if (!data || data.type == 'error') console.error(`Asset request failed with error: ${data.msg}`)
 			else {
 				const list = data.map(asset => {
-	
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
 						id: asset.id,
@@ -102,13 +101,13 @@ const MediaImporter = () => {
 		if (!assetList || !assetList.length) return
 
 		const allowed = _getAllowedFileTypes().map((type) => type.split('/')[1])
-		
+
 		// first pass: filter out by allowed media types as well as deleted assets, if we're not displaying them
 		let listStageOne = assetList.filter((asset) => ((!showDeletedAssets && !asset.is_deleted) || showDeletedAssets) && allowed.indexOf(asset.type) != -1)
 
 		// second pass: filter assets based on search string, if present
 		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match( filterSearch.toLowerCase() )) : listStageOne
-		
+
 		// third and final pass: sort assets based on the currently selected sort method and direction
 		let listStageThree = sortState.sortAsc ?
 			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod) :
@@ -139,7 +138,7 @@ const MediaImporter = () => {
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
 				return `${MEDIA_URL}/${data}/thumbnail`
-	
+
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through
 			case 'm4a': // intentional case fall-through
@@ -203,7 +202,7 @@ const MediaImporter = () => {
 			if (e.lengthComputable) {
 				const progress = Math.round((e.loaded / e.total) * 100);
 				setAssetLoadingProgress(progress);
-			  }
+			}
 		})
 
 		request.onreadystatechange = () => {
@@ -218,7 +217,7 @@ const MediaImporter = () => {
 				}
 			}
 		}
-		
+
 		request.open('POST', MEDIA_UPLOAD_URL, true)
 		request.send(fd)
 	}
