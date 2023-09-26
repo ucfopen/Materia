@@ -93,12 +93,14 @@ const WidgetPlayerPage = () => {
 
 	let bodyRender = null
 
-	bodyRender = (
-		<WidgetPlayer instanceId={state.widgetID}
-			playId={state.playID}
-			minHeight={state.widgetHeight}
-			minWidth={state.widgetWidth}/>
-	)
+	if( !!state.widgetID && state.playID !== undefined ) {
+		bodyRender = (
+			<WidgetPlayer instanceId={state.widgetID}
+				playId={state.playID}
+				minHeight={state.widgetHeight}
+				minWidth={state.widgetWidth}/>
+		)
+	}
 
 	return (
 		<>

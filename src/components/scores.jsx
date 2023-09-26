@@ -54,7 +54,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		loading: true,
 		ready: false
 	})
-	const [hidePlayAgain, setHidePlayAgain] = useState(false)
 
 	const scoreHeaderRef = useRef(null)
 	const scoreWidgetRef = useRef(null)
