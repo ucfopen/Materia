@@ -24,8 +24,8 @@ const logReducer = (state, action) => {
 			return {...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId))}
 		case 'addStorage':
 			return {...state, storage: [...state.storage, action.payload.log]}
-		case 'clearStorage':
-			return {...state, storage: []}
+		case 'shiftStorage':
+			return {...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId))}
 
 		default:
 			throw new Error(`Unrecognized action: ${action.type}`);
@@ -175,7 +175,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				window.removeEventListener('message', _onPostMessage, false)
 			}
 		}
-	}, [attributes, alert, playState])
+	}, [attributes, alert, playState, pendingLogs])
 
 	/*********************** hooks ***********************/
 
@@ -249,26 +249,20 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				if (isPreview) {
 					args.push(inst.id)
 				}
-				const newQueue = [{ request: args }]
+				var newQueue = [{ request: args }]
 				_pushPendingLogs(newQueue)
 			}
 
 			// STORAGE logs
 			if (!isPreview && pendingLogs.storage && pendingLogs.storage.length > 0) {
-				queueProcessing(true)
-				saveStorage.mutate({
-					play_id: playId,
-					logs: pendingLogs.storage,
-					successFunc: () => {
-						dispatchPendingLogs({type: 'clearStorage'})
-						setQueueProcessing(false)
-					}
-				})
+				const args = [playId, pendingLogs.storage]
+				var newQueue = [{ request: args }]
+				_pushPendingStorageLogs(newQueue)
 			}
 		}
 
-		// log queues are empty, we're no longer processing, and we're ready for the score screen
-		if (readyForScoreScreen && pendingLogs.play?.length == 0 && pendingLogs.storage?.length == 0 && !queueProcessing) {
+		// log queues are empty, we're no longer processing, playState can be updated to 'end' to indicate the widget has wrapped up
+		if (playState == 'pending' && pendingLogs.play?.length == 0 && pendingLogs.storage?.length == 0 && !queueProcessing) {
 			setPlayState('end')
 		}
 
@@ -345,6 +339,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		switch (playState) {
 			case 'init':
 			case 'playing':
+				// pending indicates we should process all remaining logs
 				setPlayState('pending')
 
 				// kill the heartbeat
@@ -353,6 +348,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				}
 				// required to end a play
 				_addLog({ type: 2, item_id: 0, text: '', value: null, is_end: true })
+				// readyForScoreScreen, in combination with playState == end, will determine advancement to the score screen
 				if (showScoreScreenAfter) setReadyForScoreScreen(true)
 				break
 
@@ -433,12 +429,42 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		})
 	}
 
+	const _pushPendingStorageLogs = logQueue => {
+		setQueueProcessing(true)
+
+		// create an array of the queue ids we can pass to the reducer to remove those logs from the pendingLogs state object
+		let qIds = logQueue[0].request[1]?.map((log) => {
+			return log.queueId
+		})
+
+		saveStorage.mutate({
+			play_id: logQueue[0].request[0],
+			logs: logQueue[0].request[1],
+			successFunc: (result) => {
+				if (result) {
+					dispatchPendingLogs({type: 'shiftStorage', payload: { ids: [...qIds]}})
+					logQueue.shift()
+
+					if (logQueue.length > 0) _pushPendingStorageLogs(logQueue)
+					else setQueueProcessing(false)
+
+				} else {
+					setAlert({
+						msg: 'There was an issue saving storage data. Check your connection or reload to start over.',
+						title: 'We ran into a problem',
+						fatal: false
+					})
+				}
+			}
+		})
+	}
+
 	const _sendAllPendingLogs = callback => {
 		console.warn('This postMessage request is deprecated, logs are automatically enqueued and processed')
 	}
 
-	const _sendStorage = data => {
-		console.warn('This postMessage request is deprecated, logs are automatically enqueued and processed')
+	const _sendStorage = msg => {
+		dispatchPendingLogs({type: 'addStorage', payload: {log: {...msg, queueId: uuidv4()}}})
 	}
 
 	/*********************** helper methods ***********************/

@@ -6,7 +6,7 @@ export default function usePlayStorageDataSave() {
 		apiSavePlayStorage,
 		{
 			onSettled: (data, error, widgetData) => {
-				widgetData.successFunc()
+				widgetData.successFunc(data)
 			}
 		}
 	)
