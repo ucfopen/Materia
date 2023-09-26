@@ -36,7 +36,7 @@ class LtiLaunch
 			'last'           => Utils::safeTrim(\Input::param('lis_person_name_family', '')),
 			'first'          => Utils::safeTrim(\Input::param('lis_person_name_given', '')),
 			'fullname'       => Utils::safeTrim(\Input::param('lis_person_name_full', '')),
-			'outcome_ext'    => Utils::safeTrim(\Input::param('ext_outcome_data_values_accepted'), ''),
+			'outcome_ext'    => Utils::safeTrim(\Input::param('ext_outcome_data_values_accepted', '')),
 			'roles'          => $roles,
 			'remote_id'      => Utils::safeTrim(\Input::param($remote_id_field)),
 			'username'       => Utils::safeTrim(\Input::param($remote_user_field)),
