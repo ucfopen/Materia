@@ -13,6 +13,9 @@ const HEARTBEAT_INTERVAL = 15000 // 15 seconds for each heartbeat
 
 const initLogs = () => ({ play: [], storage: [] })
 
+// Ensure the pending log queue is immutable by running each state update through the reducer
+// addPlay appends logs to the play log queue, shiftPlay removes logs from the queue based on the ids passed in action.payload.ids
+// storage logs are simpler, once the mutation is run the callback function calls clearStorage to empty the box
 const logReducer = (state, action) => {
 	switch (action.type) {
 		case 'addPlay':
@@ -21,7 +24,7 @@ const logReducer = (state, action) => {
 			return {...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId))}
 		case 'addStorage':
 			return {...state, storage: [...state.storage, action.payload.log]}
-		case 'clearStorage': // TODO is this required?
+		case 'clearStorage':
 			return {...state, storage: []}
 
 		default:
@@ -149,7 +152,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	/*********************** listeners ***********************/
 	/* note: the values being tracked by these hooks is so the state values referenced in the callbacks is up-to-date */
-	// TODO: clean these up?
 
 	// Adds warning event listener
 	useEffect(() => {
@@ -162,7 +164,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	}, [inst, isPreview, playState])
 
-	// Ensures the callback doesn't have stale state
+	// Ensures the postMessage callback doesn't have stale state
 	useEffect(() => {
 		if (!attributes.loading) {
 			// setup the postmessage listener
@@ -223,10 +225,12 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	}, [inst, qset])
 
+	// initializes heartbeat
 	useEffect(() => {
 		if (startTime !== 0 && !isPreview && !heartbeatActive) setHeartbeatActive(true)
 	},[startTime, isPreview])
 
+	// was a fatal alert triggered? Turn off the heartbeat, the play is abandoned
 	useEffect(() => {
 		if (!!alert.msg && !!alert.title && alert.fatal) {
 			setHeartbeatActive(false)
@@ -319,7 +323,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					throw new Error(`Unknown PostMessage received from player core: ${msg.type}`)
 			}
 		}
-		// TODO : make this an else?
 		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
 				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
@@ -431,8 +434,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	}
 
 	const _sendAllPendingLogs = callback => {
-		// this is a postMessage request available to the player
-		// but it's not really required anymore?
 		console.warn('This postMessage request is deprecated, logs are automatically enqueued and processed')
 	}
 
