@@ -23,8 +23,8 @@ export default function useInstanceList() {
 			return [
 				...dataMap.concat(
 					...list.pages.map(page => page.pagination.map(instance => {
-						// adding an 'img' property to widget instance objects for backwards
-						//  compatibility with any downstream LTIs using the wid
+						// adding an 'img' property to widget instance objects for continued
+						//  compatibility with any downstream LTIs using the widget picker
 						return {
 							...instance,
 							img: iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)
