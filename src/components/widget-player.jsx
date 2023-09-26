@@ -99,7 +99,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const [startTime, setStartTime] = useState(0)
 	const [heartbeatActive, setHeartbeatActive] = useState(false)
 	const [pendingLogs, dispatchPendingLogs] = useReducer(logReducer, initLogs())
-	const [playState, setplayState] = useState('init')
+	const [playState, setPlayState] = useState('init')
 
 	const [scoreScreenURL, setScoreScreenURL] = useState('')
 	const [readyForScoreScreen, setReadyForScoreScreen] = useState(false)
@@ -113,7 +113,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
 	const frameRef = useRef(null)
-
 
 	/*********************** queries ***********************/
 
@@ -174,7 +173,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				window.removeEventListener('message', _onPostMessage, false)
 			}
 		}
-	}, [attributes.loading])
+	}, [attributes, alert, playState])
 
 	/*********************** hooks ***********************/
 
@@ -267,14 +266,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 		// log queues are empty, we're no longer processing, and we're ready for the score screen
 		if (readyForScoreScreen && pendingLogs.play?.length == 0 && pendingLogs.storage?.length == 0 && !queueProcessing) {
-			setplayState('end')
+			setPlayState('end')
 		}
 
 	}, [pendingLogs, queueProcessing, playState, readyForScoreScreen])
 
 	/******* !!!!!! this is the hook that actually navigates to the score screen !!!!! *******/
 	useEffect(() => {
-		if (playState === 'end' && readyForScoreScreen && scoreScreenURL) {
+		if (playState == 'end' && readyForScoreScreen && scoreScreenURL) {
 			window.location.assign(scoreScreenURL)
 		}
 	}, [playState, readyForScoreScreen])
@@ -294,7 +293,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
-			console.log(msg.type)
 			switch (msg.type) {
 				case 'start':
 					return _onWidgetReady()
@@ -305,7 +303,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				case 'sendStorage':
 					return _sendStorage(msg.data)
 				case 'sendPendingLogs':
-					console.log('kekw')
 					return _sendAllPendingLogs()
 				case 'alert':
 					return setAlert({
@@ -338,7 +335,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			const convertedInstance = _translateForApiVersion(inst, qset)
 			setStartTime(new Date().getTime())
 			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
-			setplayState('playing')
+			setPlayState('playing')
 		}
 	}
 
@@ -346,7 +343,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		switch (playState) {
 			case 'init':
 			case 'playing':
-				setplayState('pending')
+				setPlayState('pending')
 
 				// kill the heartbeat
 				if (heartbeatActive) {
