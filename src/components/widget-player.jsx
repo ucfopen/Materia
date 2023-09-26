@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react'
 import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid';
-import { apiGetWidgetInstance, apiGetQuestionSet } from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
 import { player } from './materia-constants'
 import usePlayStorageDataSave from './hooks/usePlayStorageDataSave'
 import usePlayLogSave from './hooks/usePlayLogSave'
 import LoadingIcon from './loading-icon'
 import './widget-player.scss'
+
+const HEARTBEAT_INTERVAL = 30000 // 30 seconds for each heartbeat
 
 const initLogs = () => ({ play: [], storage: [] })
 
@@ -18,8 +20,6 @@ const logReducer = (state, action) => {
 			return {...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId))}
 		case 'addStorage':
 			return {...state, storage: [...state.storage, action.payload.log]}
-		// case 'clearPlay':
-		// 	return {...state, play: []}
 		case 'clearStorage': // TODO is this required?
 			return {...state, storage: []}
 
@@ -96,7 +96,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		width: 'auto',
 	})
 	const [startTime, setStartTime] = useState(0)
-	const [heartbeatInterval, setHeartbeatInterval] = useState(-1)
+	const [heartbeatActive, setHeartbeatActive] = useState(false)
 	const [pendingLogs, dispatchPendingLogs] = useReducer(logReducer, initLogs())
 	const [playState, setplayState] = useState('init')
 
@@ -130,6 +130,23 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		placeholderData: null
 	})
 
+	const { data: heartbeat } = useQuery({
+		queryKey: ['heartbeat', playId],
+		queryFn: () => apiSessionVerify(playId),
+		staleTime: Infinity,
+		refetchInterval: HEARTBEAT_INTERVAL,
+		enabled: playId && heartbeatActive,
+		onSettled: (result) => {
+			if (result != true) {
+				setAlert({
+					msg: "Your play session is no longer valid.  You'll need to reload the page and start over.",
+					title: 'Invalid Play Session',
+					fatal: true
+				})
+			}
+		}
+	})
+
 	/*********************** listeners ***********************/
 	/* note: the values being tracked by these hooks is so the state values referenced in the callbacks is up-to-date */
 	// TODO: clean these up?
@@ -139,7 +156,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		window.addEventListener('beforeunload', _beforeUnload)
 
 		return () => {
-			window.removeEventListener('beforeunload', _beforeUnload);
+			window.removeEventListener('beforeunload', _beforeUnload)
 		}
 	}, [inst, isPreview, playState])
 
@@ -151,18 +168,10 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 			// cleanup this listener
 			return () => {
-				window.removeEventListener('message', _onPostMessage, false);
+				window.removeEventListener('message', _onPostMessage, false)
 			}
 		}
-	}, [
-		attributes.loading,
-		qset,
-		inst,
-		startTime,
-		pendingLogs,
-		heartbeatInterval,
-		playState
-	])
+	}, [attributes.loading])
 
 	/*********************** hooks ***********************/
 
@@ -212,16 +221,17 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	}, [inst, qset])
 
-	// Sets the hearbeat when not preview and given valid startTime
-	// TODO HEARTBEAT NOT RUNNING!!!!!!
-	// Not using heartbeat to manage log dispatch - but should still verify play session is valid!!!! !! ! ! !!
-	// useEffect(() => {
-	// 	if (!isPreview && startTime !== 0) {
-	// 		const interval = setInterval(_sendAllPendingLogs, player.LOG_INTERVAL)
-	// 		setHeartbeatInterval(interval) // if not in preview mode, set the interval to send logs
-	// 		return () => clearInterval(interval);
-	// 	}
-	// }, [startTime, isPreview, pendingLogs])
+	useEffect(() => {
+		if (startTime !== 0 && !isPreview && !heartbeatActive) setHeartbeatActive(true)
+	},[startTime, isPreview, heartbeatActive])
+
+	useEffect(() => {
+		if (!!alert.msg && !!alert.title) {
+			console.log('ALARM: ALERT SET')
+			console.log(alert.title)
+			console.log(alert.msg)
+		}
+	},[alert])
 
 	// hook associated with log queue management
 	useEffect(() => {
@@ -237,34 +247,29 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				}
 				const newQueue = [{ request: args }]
 				_pushPendingLogs(newQueue)
-
-				for (const val of pendingLogs.play) {
-					// End session log received
-					if (val.type === 2 && val.is_end === true) {
-						setplayState('end')
-					}
-				}
 			}
 
 			// STORAGE logs
 			if (!isPreview && pendingLogs.storage && pendingLogs.storage.length > 0) {
+				queueProcessing(true)
 				saveStorage.mutate({
 					play_id: playId,
 					logs: pendingLogs.storage,
 					successFunc: () => {
 						dispatchPendingLogs({type: 'clearStorage'})
+						setQueueProcessing(false)
 						// storageSaved.current = true
 					}
 				})
 			}
 		}
 
-		// widget has requested we wrap up (via 'end' postMessage)
+		// log queues are empty, we're no longer processing, and we're ready for the score screen
 		if (readyForScoreScreen && pendingLogs.play?.length == 0 && pendingLogs.storage?.length == 0 && !queueProcessing) {
 			setplayState('end')
 		}
 
-	}, [pendingLogs, queueProcessing, playState])
+	}, [pendingLogs, queueProcessing, playState, readyForScoreScreen])
 
 	/******* !!!!!! this is the hook that actually navigates to the score screen !!!!! *******/
 	useEffect(() => {
@@ -343,9 +348,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				setplayState('pending')
 
 				// kill the heartbeat
-				if (heartbeatInterval !== -1) {
-					clearInterval(heartbeatInterval)
-					setHeartbeatInterval(-1)
+				if (heartbeatActive) {
+					setHeartbeatActive(false)
 				}
 				// required to end a play
 				_addLog({ type: 2, item_id: 0, text: '', value: null, is_end: true })
