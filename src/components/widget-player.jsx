@@ -227,8 +227,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	// initializes heartbeat
 	useEffect(() => {
-		if (startTime !== 0 && !isPreview && !heartbeatActive) setHeartbeatActive(true)
-	},[startTime, isPreview])
+		if (startTime !== 0 && !isPreview && !!inst && !inst.guest_access && !heartbeatActive) setHeartbeatActive(true)
+	},[startTime, inst, isPreview])
 
 	// was a fatal alert triggered? Turn off the heartbeat, the play is abandoned
 	useEffect(() => {
@@ -339,15 +339,16 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		switch (playState) {
 			case 'init':
 			case 'playing':
-				// pending indicates we should process all remaining logs
-				setPlayState('pending')
-
 				// kill the heartbeat
 				if (heartbeatActive) {
 					setHeartbeatActive(false)
 				}
 				// required to end a play
 				_addLog({ type: 2, item_id: 0, text: '', value: null, is_end: true })
+
+				// pending indicates we should process all remaining logs
+				setPlayState('pending')
+
 				// readyForScoreScreen, in combination with playState == end, will determine advancement to the score screen
 				if (showScoreScreenAfter) setReadyForScoreScreen(true)
 				break
