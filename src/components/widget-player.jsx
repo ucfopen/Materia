@@ -258,7 +258,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					successFunc: () => {
 						dispatchPendingLogs({type: 'clearStorage'})
 						setQueueProcessing(false)
-						// storageSaved.current = true
 					}
 				})
 			}
@@ -434,7 +433,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const _sendAllPendingLogs = callback => {
 		// this is a postMessage request available to the player
 		// but it's not really required anymore?
-		console.log('This postMessage request is deprecated, logs are automatically enqueued and processed')
+		console.warn('This postMessage request is deprecated, logs are automatically enqueued and processed')
+	}
+
+	const _sendStorage = data => {
+		console.warn('This postMessage request is deprecated, logs are automatically enqueued and processed')
 	}
 
 	/*********************** helper methods ***********************/
