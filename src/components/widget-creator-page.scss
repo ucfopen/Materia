@@ -172,7 +172,9 @@ a {
 
 .popup {
 	height: 0;
+	max-height: 0;
 	overflow: hidden;
+	transition: max-height 0.5s ease-in-out;
 
 	background: #fbfbfb;
 
@@ -196,6 +198,7 @@ a {
 
 	&.show {
 		height: auto;
+		max-height: 200px;
 		padding: 10px 20% 22px 20%;
 	}
 }
