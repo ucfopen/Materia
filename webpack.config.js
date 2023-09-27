@@ -52,13 +52,17 @@ module.exports = {
 	output: {
 		path: path.join(__dirname, 'public/dist/'),
 		filename: 'js/[name].js',
-		clean: true
+		clean: {
+			keep(asset) {
+				return (asset.includes('package.json') || asset.includes('README.md') || asset.includes('path.js'))
+			}
+		}
 	},
 	module: {
 		rules: [
 			{
 				test: /\.(js|jsx)$/,
-				exclude: /node_modules/,
+				exclude: /node_modules|public\/dist/,
 				use: {
 						loader: 'babel-loader'
 					}

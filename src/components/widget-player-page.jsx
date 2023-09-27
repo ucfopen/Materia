@@ -92,7 +92,8 @@ const WidgetPlayerPage = () => {
 	if ( type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED ) headerRender = null
 
 	let bodyRender = null
-	if( (!!state.widgetID) && state.playID !== undefined ) {
+
+	if( !!state.widgetID && state.playID !== undefined ) {
 		bodyRender = (
 			<WidgetPlayer instanceId={state.widgetID}
 				playId={state.playID}

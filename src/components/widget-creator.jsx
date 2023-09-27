@@ -689,7 +689,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			<section id='action-bar'>
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
-				{ instance.id ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
+				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
 				{ editButtonsRender }
 				<div className="dot"></div>

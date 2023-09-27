@@ -54,7 +54,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		loading: true,
 		ready: false
 	})
-	
+
 	const scoreHeaderRef = useRef(null)
 	const scoreWidgetRef = useRef(null)
 
@@ -66,7 +66,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: !!inst_id,
 		staleTime: Infinity,
 	})
-  
+
 	// Gets widget instance scores
 	// Because of how we handle the results object, we can't follow-up via useEffect targeting instanceScores
 	// As a result, instanceScores is never read.
@@ -208,12 +208,12 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				// custom score screen loaded previously - scoreTable updated, indicating a different play selected
 				// pass the message along to the score screen
 				} else if (customScoreScreen.ready) _sendWidgetUpdate()
-			
+
 			// no score screen - set loading to false regardless now that we know
 			// doing so kicks off _displayWidgetInstance and initializes the postMessage listener
 			} else if (instance.widget && scoreTable) {
 				setCustomScoreScreen({ ...customScoreScreen, loading: false })
-			} 
+			}
 		}
 	}, [instance, scoreTable])
 
@@ -335,7 +335,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				if (typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null) {
 					href += `?token=${window.LAUNCH_TOKEN}`
 				}
-				
+
 				setAttributes({
 					...attributes,
 					href: href,
@@ -551,13 +551,13 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					<div className="score_restrict container general">
 						<section className="page score_restrict">
 							<h2 className="logo">You don't have permission to view this page.</h2>
-		
+
 							<p>You may need to:</p>
 							<ul>
 								<li>Make sure the score you're trying to access belongs to you or your student.</li>
 								<li>Try to access this score through your profile page.</li>
 							</ul>
-		
+
 							<SupportInfo />
 						</section>
 					</div>
