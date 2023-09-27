@@ -105,9 +105,13 @@ a {
 
 #qset-rollback-confirmation-bar {
 	position: relative;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
 	z-index: 5;
 	height: 52px;
-	width: 100%;
+	width: calc(100% - 50px);
+	padding: 0 25px;
 	text-align: left;
 	white-space: nowrap;
 
@@ -116,7 +120,6 @@ a {
 	border-radius: 5px 5px 0 0;
 
 	h3 {
-		display: inline-block;
 		margin: 0 15px;
 		padding: 14px 0;
 
@@ -124,8 +127,8 @@ a {
 	}
 
 	p {
-		display: inline-block;
-		margin: 0 0 0 60px;
+		flex-grow: 2;
+		margin: 0 0 0 15px;
 		padding: 14px 0;
 
 		font-size: 0.8em;
@@ -136,8 +139,8 @@ a {
 	}
 
 	button {
-		float: right;
-		margin: 10px 40px 10px -25px;
+		flex-basis: 0;
+		margin: 5px;
 		padding: 6px 15px;
 		color: #3d3d3d;
 		font-weight: bold;

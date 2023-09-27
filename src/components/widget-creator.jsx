@@ -709,8 +709,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			<section id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
 				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
 				<button onClick={() => qsetRollbackConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
 			</section>
 		)
 	}
