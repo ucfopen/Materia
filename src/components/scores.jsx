@@ -28,7 +28,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	const [overview, setOverview] = useState()
 	const [details, setDetails] = useState([])
-	const [prevAttemptClass, setPrevAttemptClass] = useState(null)
+	const [prevAttemptOpen, setprevAttemptOpen] = useState(false)
 
 	// set to one of the state constants above if an error state manifests
 	const [errorState, setErrorState] = useState(null)
@@ -138,7 +138,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		return () => {
 			window.removeEventListener('hashchange', listenToHashChange)
 		}
-	}, [])
+	}, [currentAttempt])
 
 	useEffect(() => {
 		// if customScoreScreen is not loading
@@ -509,7 +509,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	const attemptClick = () => {
 		if (isMobile.any()) {
-			setPrevAttemptClass('')
+			setprevAttemptOpen(false)
 		}
 	}
 
@@ -586,14 +586,14 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 		previousAttempts = (
 			<nav
-				className={`header-element previous-attempts ${prevAttemptClass}`}
-				onMouseOver={() => setPrevAttemptClass('open')}
-				onMouseOut={() => setPrevAttemptClass('')}
+				className={`header-element previous-attempts ${prevAttemptOpen ? 'open' : ''}`}
+				onMouseOver={() =>!prevAttemptOpen && setprevAttemptOpen(true)}
+				onMouseOut={() => prevAttemptOpen && setprevAttemptOpen(false)}
 			>
-				<h1 onClick={() => setPrevAttemptClass('open')}>
+				<h1 onClick={() => !prevAttemptOpen && setprevAttemptOpen(true)}>
 					Prev. Attempts
 				</h1>
-				<ul onMouseOver={() => setPrevAttemptClass('open')}>
+				<ul>
 					{attemptList}
 				</ul>
 			</nav>
