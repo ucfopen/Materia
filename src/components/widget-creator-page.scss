@@ -170,34 +170,34 @@ a {
 	margin: 0 8px 0 14px;
 }
 
-.publish,
-.preview {
-	background: #fff6c9;
-	width: 558px;
-	height: 160px;
-	text-align: center;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-	padding: 0 0 12px 20px;
-	margin: 10px auto;
+.popup {
+	height: 0;
 	overflow: hidden;
 
-	h1, p {
-		color: #000000;
-		text-align: left;
-	}
+	background: #fbfbfb;
 
-	h1 {
-		font-size: 24px;
+	header {
+		height: auto;
+		padding: 0;
+		margin: 15px 0;
+
+		background: none;
+		
+		font-size: 21px;
+		font-weight: 700;
+		color: #000000;
 	}
 
 	p {
+		padding: 0;
+		margin: 10px 0 20px 0;
 		font-size: 14px;
 	}
-}
 
-.preview {
-	height: 100px;
+	&.show {
+		height: auto;
+		padding: 10px 20% 22px 20%;
+	}
 }
 
 .page {
@@ -310,11 +310,6 @@ a {
 	top: 65px;
 	width: 100%;
 	z-index: 7;
-}
-
-.animate-show {
-	opacity: 1;
-	transition: all ease 0.5s;
 }
 
 
