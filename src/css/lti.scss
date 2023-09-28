@@ -490,43 +490,104 @@ html {
 
 			.content {
 				display: flex;
+				flex-direction: column;
 				width: 700px;
 
 				margin: 0 auto;
 
 				align-items: flex-start;
 
-				.widget-info {
-					padding: 10px;
-					margin: 0;
+				div {
+					display: flex;
+					padding: 15px 25px;
 
-					text-align: center;
+					&:nth-child(1) {
 
-					p {
-						line-height: 2em;
-						margin: 10px auto;
-						padding: 20px;
-						width: 18em;
+						p {
+							border-left: solid 8px #9e53a0;
+						}
+					}
+
+					&:nth-child(2) {
+						p {
+							border-left: solid 8px #73c055;
+						}
+					}
+
+					&:nth-child(3) {
+						p {
+							border-left: solid 8px #5ca2cc;
+						}
 					}
 
 					img {
-						box-shadow: 1px 2px 4px #888;
-						width: 250px;
-						height: 150px;
+						margin-top: 10px;
+						align-self: flex-start;
+						flex-basis: 0;
+						width: 125px;
+						object-fit: contain;
+
+						border-radius: 7px;
 					}
 
-					#widgets-heading {
-						font-size: 20px;
-						color: #74bf5b;
-						text-align: center;
+					p {
+						margin: 10px;
+						padding-left: 10px;
+
+						.subheader {
+							display: block;
+							margin-bottom: 10px;
+							font-weight: 700;
+							font-size: 18px;
+							background: none;
+						}
 					}
 
-					#embed-heading {
-						font-size: 20px;
-						color: #f1824c;
-						text-align: center;
+					&.action_buttons {
+						width: 100%;
+						margin-top: 10px;
+						padding: 0;
+
+						justify-content: center;
+						gap: 20px;
+
+						a.action_button {
+							margin: 0;
+						}
 					}
 				}
+
+				// .widget-info {
+				// 	padding: 10px;
+				// 	margin: 0;
+
+				// 	text-align: center;
+
+				// 	p {
+				// 		line-height: 2em;
+				// 		margin: 10px auto;
+				// 		padding: 20px;
+				// 		width: 18em;
+				// 	}
+
+				// 	img {
+				// 		box-shadow: 1px 2px 4px #888;
+				// 		width: 250px;
+				// 		height: 150px;
+				// 	}
+
+				// 	#widgets-heading {
+				// 		font-size: 20px;
+				// 		color: #74bf5b;
+				// 		text-align: center;
+				// 	}
+
+				// 	#embed-heading {
+				// 		font-size: 20px;
+				// 		color: #f1824c;
+				// 		text-align: center;
+				// 	}
+				// }
 
 				.action_button {
 					margin-bottom: 40px;
