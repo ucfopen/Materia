@@ -94,10 +94,10 @@ $preview-purple: #b944cc;
 			display: block;
 			margin: 20px 0 0 0;
 			padding: 10px;
-			
+
 			color: #000;
 			// box-shadow: 0 1px 3px 0 #777;
-	
+
 			h2 {
 				font-size: 24px;
 				font-weight: bold;
@@ -106,20 +106,20 @@ $preview-purple: #b944cc;
 
 				border-bottom: solid 1px $light-gray-bg;
 			}
-	
+
 			hr {
 				width: auto;
 				margin: 5px;
 				padding: 0;
 			}
-	
+
 			p {
 				font-size: 14px;
 				margin: 5px 0 0 0;
 			}
 		}
 	}
-	
+
 	#overview-score {
 		display: inline-block;
 		margin: 0 auto;
@@ -169,7 +169,7 @@ $preview-purple: #b944cc;
 		width: 330px;
 		min-height: 180px;
 		background-color: $light-gray-bg;
-		
+
 		padding-top: 5px;
 		border-bottom-right-radius: 5px;
 
@@ -218,7 +218,7 @@ article {
 		min-height: 50px;
 
 		margin: 0;
-		
+
 		background: $header-color;
 		border-top-left-radius: 5px;
 		border-top-right-radius: 5px;
@@ -238,7 +238,7 @@ article {
 
 				content: 'Previewing';
 				background: $preview-purple;
-				
+
 				font-size: 20px;
 				font-weight: 900;
 				color: #ffffff;
@@ -271,6 +271,12 @@ article {
 			overflow-wrap: break-word;
 			word-wrap: break-word; // have to include word-wrap since Edge/IE11 will not support overflow-wrap
 			margin-left: -10px;
+		}
+
+		nav {
+			/** Override include.scss **/
+			visibility: visible;
+			opacity: 1;
 		}
 
 		nav.play-again {
@@ -308,10 +314,10 @@ article {
 				font-size: 12px;
 				color: #000;
 				background: #fff;
-				
+
 				border-radius: 15px;
-				
-				
+
+
 			}
 
 			&.open {
@@ -544,13 +550,13 @@ section.score-graph {
 	.graph {
 		width: 746px;
 		height: 320px;
-		
+
 		margin: 15px auto 0 auto;
 		padding: 20px 16px 0 16px;
-	
+
 		background: #fff;
 		box-shadow: inset 0px 1px 2px #333;
-	
+
 		.jqplot-yaxis-label {
 			padding-left: 5px;
 		}
