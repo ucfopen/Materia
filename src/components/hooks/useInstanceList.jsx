@@ -27,7 +27,7 @@ export default function useInstanceList() {
 						//  compatibility with any downstream LTIs using the widget picker
 						return {
 							...instance,
-							img: iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)
+							img: iconUrl(BASE_URL + 'widget/', instance.widget.dir, 275)
 						}
 					}))
 				)
