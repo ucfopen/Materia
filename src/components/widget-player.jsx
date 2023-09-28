@@ -249,15 +249,13 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				if (isPreview) {
 					args.push(inst.id)
 				}
-				var newQueue = [{ request: args }]
-				_pushPendingLogs(newQueue)
+				_pushPendingLogs([{ request: args }])
 			}
 
 			// STORAGE logs
 			if (!isPreview && pendingLogs.storage && pendingLogs.storage.length > 0) {
 				const args = [playId, pendingLogs.storage]
-				var newQueue = [{ request: args }]
-				_pushPendingStorageLogs(newQueue)
+				_pushPendingStorageLogs([{ request: args }])
 			}
 		}
 

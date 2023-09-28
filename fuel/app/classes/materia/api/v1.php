@@ -1165,7 +1165,7 @@ class Api_V1
 		{
 			if ($play->get_by_id($play_id))
 			{
-				if ($play->is_valid == '1')
+				if (intval($play->is_valid) == 1)
 				{
 					$play->update_elapsed(); // update the elapsed time
 					return $play;
