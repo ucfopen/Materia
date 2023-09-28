@@ -1,9 +1,8 @@
 import React from 'react'
-import { iconUrl } from '../util/icon-url'
 import createHighlightSpan from '../util/create-highlight-span'
 
 const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false, onClick = () => {}, beard = null, searchText = null}) => {
-	const {id, widget, name, is_draft} = inst
+	const {id, widget, name, is_draft, img} = inst
 	// Handle multiple conditional classes by keeping an array of all classes to apply, then imploding it in the render
 	const classes = ['my-widgets-instance-card', 'widget']
 	if (hidden) classes.push('hidden')
@@ -27,7 +26,7 @@ const MyWidgetsInstanceCard = ({inst, indexVal, hidden = false, selected = false
 		<div id={`widget_${id}`}
 			className={classes.join(' ')}
 			onClick={clickHandler}>
-			<img className='icon' src={iconUrl('/widget/', widget.dir, 275)} />
+			<img className='icon' src={img} />
 			<ul>
 				<li className='title searchable'
 					dangerouslySetInnerHTML={{ __html: nameTextRender }}>
