@@ -7,7 +7,13 @@
 
 .my_widgets section.page div.scores #no-score-content {
 	&.bearded {
-		background: #fff url('/img/kogneato_no_scores_bearded.svg') 10% 30%/250px auto no-repeat;
+		background: #fff url('/img/kogneato_no_scores_bearded.svg') 10% 30%/250px auto no-repeat !important;
+	}
+}
+
+.my_widgets section.page div.scores #not-scorable {
+	&.bearded {
+		background: #fff url('/img/kogneato_with_a_broom_bearded.svg') 20% 20%/auto 240px no-repeat !important;
 	}
 }
 

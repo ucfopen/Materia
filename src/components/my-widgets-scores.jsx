@@ -73,7 +73,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 
 	let contentRender = <LoadingIcon />
 	if (isFetched) {
-		contentRender = <NoScoreContent beardMode={beardMode} />
+		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}
