@@ -32,7 +32,7 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 				}
 			</div>
 		)
-	} 
+	}
 
 	let overviewTable = []
 	overview.table.forEach((row, index) => {
@@ -88,7 +88,7 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 			</>
 		)
 	}
-	
+
 	return (
 		<>
 			<section className={`overview ${isPreview ? 'preview' : ''}${!overview.complete ? 'incomplete' : ''}`}>

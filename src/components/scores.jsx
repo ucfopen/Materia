@@ -159,29 +159,36 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		instance,
 	])
 
-	// Initializes the custom score screen
 	useEffect(() => {
+		// Fetch score data based on instance access
 		if (instance) {
-			let enginePath
 			setGuestAccess(instance.guest_access)
-
 			// Preview? Set certain attributes that wouldn't be assigned otherwise
 			if (isPreview) {
 				setPreviewInstId(instance.id)
 				setPlayId(null)
 				setAttributes({ ...attributes, href: `/preview/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
-			} else if (single_id) {
+			}
+			// Single play session
+			else if (single_id) {
 				setPlayId(single_id)
 				setPreviewInstId(null)
 			}
+			// Guest play session
 			else if (instance.guest_access) {
 				setAttributes({ ...attributes, href: `/${isEmbedded ? 'embed' : 'play'}/${inst_id}/${instance.clean_name}`, hidePlayAgain: false })
 				loadGuestScores()
 			}
-			else if (!single_id && !isPreview) loadInstanceScores()
+			// User play session
+			else loadInstanceScores()
+		}
+	}, [instance])
 
+	// Initializes the custom score screen
+	useEffect(() => {
+		if (instance) {
+			let enginePath
 			const score_screen = instance.widget.score_screen
-
 			// custom score screen exists?
 			if (score_screen && scoreTable) {
 				const splitSpot = score_screen.lastIndexOf('.')
@@ -627,7 +634,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	let overviewRender = null
 	if (!errorState && showScoresOverview && !!overview) {
-
 		if (customScoreScreen.show && !customScoreScreen.ready) {
 			overviewRender = (
 				<section className={`overview ${isPreview ? 'preview' : ''}`}>

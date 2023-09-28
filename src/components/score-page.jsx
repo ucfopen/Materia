@@ -48,7 +48,8 @@ const ScorePage = () => {
 	// Used to wait for window data to load
 	const waitForWindow = async () => {
 		while(!window.hasOwnProperty('IS_EMBEDDED')
-		&& !window.hasOwnProperty('IS_PREVIEW') && !window.hasOwnProperty('LAUNCH_TOKEN')) {
+		&& !window.hasOwnProperty('IS_PREVIEW')
+		&& !window.hasOwnProperty('LAUNCH_TOKEN')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
@@ -59,15 +60,20 @@ const ScorePage = () => {
 		headerRender = <Header/>
 	}
 
+	let bodyRender = null
+	if ( state.isPreview !== undefined ) {
+		bodyRender = <Scores inst_id={state.instanceID}
+		play_id={state.playID}
+		single_id={state.singleID}
+		send_token={state.sendToken}
+		isEmbedded={state.isEmbedded}
+		isPreview={state.isPreview}/>
+	}
+
 	return (
 		<>
 			{ headerRender }
-			<Scores inst_id={state.instanceID}
-				play_id={state.playID}
-				single_id={state.singleID}
-				send_token={state.sendToken}
-				isEmbedded={state.isEmbedded}
-				isPreview={state.isPreview}/>
+			{ bodyRender }
 		</>
 	)
 }
