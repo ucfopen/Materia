@@ -41,21 +41,10 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 	}, [currScores, state.isShowingAll])
 
 	const openExport = () => {
-		if (containsData()) setState({...state, showExport: true})
+		setState({...state, showExport: true})
 	}
 	const closeExport = () => {
 		setState({...state, showExport: false})
-	}
-
-	const containsData = () => {
-		let hasGraphData = false
-		for(const val of currScores) {
-			if (val.graphData) {
-				hasGraphData = true
-			}
-		}
-
-		return hasGraphData
 	}
 
 	const containsStorage = () => {
@@ -110,7 +99,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 		<div className='scores'>
 			<h2>Student Activity</h2>
 			<span id='export_scores_button'
-				className={`aux_button ${containsData() ? '' : 'disabled'}`}
+				className='aux_button'
 				onClick={openExport}>
 				<span className='arrow_down'></span>
 				Export Options

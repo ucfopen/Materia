@@ -18,7 +18,7 @@
 				font-size: 1.5em;
 				color: #484848;
 				font-weight: bold;
-				margin-left: 10px;
+				margin-left: 15px;
 			}
 
 			.semester-btn {
@@ -50,6 +50,7 @@
 		padding: 0 10px;
 
 		h3 {
+			margin: 0 0 15px 0;
 			color: #0b97e8;
 			font-size: 1.2em;
 			text-align: center;
@@ -77,7 +78,7 @@
 			.download-controls {
 				position: relative;
 				z-index: 1;
-				margin: 9px 0px 0px 0px;
+				margin: 15px 0px 10px 0px;
 				padding: 0px 10px;
 				text-align: center;
 
@@ -86,6 +87,7 @@
 				}
 
 				.see-how {
+					padding: 0px 5px;
 					text-align: left;
 				}
 
@@ -94,17 +96,10 @@
 
 					a {
 						padding: 7px 12px 8px;
-						background: #ffba5d;
 						background-image: none;
-
-						&:hover {
-							background: #eca444;
-							text-decoration: none;
-						}
 					}
 
 					.arrow-down {
-						background: url(/img/arrow_down.png) no-repeat center bottom;
 						margin: 0;
 						width: 21px;
 						height: 21px;
@@ -118,11 +113,15 @@
 		}
 
 		.cancel {
+			font-size: 16px;
+			font-family: 'Lato', arial, sans-serif;
 			text-align: center;
-			font-size: 0.9em;
-			padding: 8px 0;
-			text-decoration: underline;
-			cursor: pointer;
+
+			a {
+				background: none;
+				border: none;
+				cursor: pointer;
+			}
 		}
 	}
 }

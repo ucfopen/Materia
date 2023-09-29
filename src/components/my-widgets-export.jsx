@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from './modal'
 import './my-widgets-export.scss'
 
-const DEFAULT_OPTIONS = ['Questions and Answers', 'Referrer URLs']
+const DEFAULT_OPTIONS = ['Questions and Answers']
 
 const initState = () => ({
 	header: 'No semester selected',
@@ -27,7 +27,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 		})
 
 		if (scores.length === 0 || !hasScores) {
-			setState({...state, exportOptions: DEFAULT_OPTIONS, exportType: tmpOps[0]})
+			setState({...state, exportOptions: DEFAULT_OPTIONS, exportType: tmpOps[0], header: 'Export Options Limited, No Scores Available'})
 		}
 		else {
 			const scores_only = inst.guest_access ? 'All Scores' : 'High Scores'
@@ -137,12 +137,12 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 					<h3>{state.header}</h3>
 					<div className='score-table'>
 						<p id='export-scores-description'>
-							<span className='highlight'>Export Scores{' '}</span>
-							provides a means of exporting student score information in .CSV format, much like an excel spreadsheet.
-							Teachers can use the scores to analyze, compare, and gauge class performance.
-							In addition, teachers can also download a CSV containing a widget's question and answer
-							set by selecting the Questions and Answers option from the drop-down menu.
-							Download options may vary by widget, as some widgets provide specialized export options.
+							<span className='highlight'>Export Options{' '}</span>
+							provide a means of exporting student performance information in .CSV format, much like an excel spreadsheet.
+							Use exported data to analyze, compare, and gauge class performance.
+							Additionally, export options are provided for <span className='highlight'>Question and Answer</span> data
+							as well as <span className='highlight'>Referrer URLs</span> for the selected widget. <span className='highlight'>Full Event Log {' '}</span>
+							is intended for advanced users performing data analysis. Note that some widgets may provide unique or specialized export options.
 						</p>
 						<div className='download-controls'>
 							<select value={state.exportType} onChange={(e) => {setState({...state, exportType: e.target.value})}} >
@@ -151,7 +151,6 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 							<p className='download'>
 								<a href={`/data/export/${inst.id}?type=${encodeURIComponent(state.exportType)}&semesters=${state.selectedSemesters}`}
 									className='action_button arrow_down_button'>
-									<span className='arrow-down' />
 									Download {state.exportType}
 								</a>
 							</p>
@@ -159,7 +158,7 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 						</div>
 					</div>
 					<p className='cancel'>
-						<a onClick={onClose}>
+						<a className='cancel_button' onClick={onClose}>
 							Cancel
 						</a>
 					</p>
