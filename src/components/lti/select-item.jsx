@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import useInstanceList from '../hooks/useInstanceList'
-import { iconUrl } from '../../util/icon-url'
 import LoadingIcon from '../loading-icon';
 
 const SelectItem = () => {
@@ -129,7 +128,7 @@ const SelectItem = () => {
 
 				return <li className={classList.join(' ')} key={index}>
 					<div className={`widget-info ${instance.is_draft ? 'draft' : ''} ${instance.guest_access ? 'guest' : ''}`}>
-						<img className="widget-icon" src={iconUrl(BASE_URL + 'widget/', instance.widget.dir, 60)}/>
+						<img className="widget-icon" src={instance.img}/>
 						<h2 className="searchable">{instance.name}</h2>
 						<h3 className="searchable">{instance.widget.name}</h3>
 						{instance.guest_access ? <h3 className="guest-notice">Guest instances cannot be embedded in courses. </h3> : <></>}

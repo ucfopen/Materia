@@ -1,38 +1,31 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetWidgetInstance, apiGetQuestionSet } from '../util/api'
+import { v4 as uuidv4 } from 'uuid';
+import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
 import { player } from './materia-constants'
+import Alert from './alert'
 import usePlayStorageDataSave from './hooks/usePlayStorageDataSave'
 import usePlayLogSave from './hooks/usePlayLogSave'
 import LoadingIcon from './loading-icon'
 import './widget-player.scss'
 
-const initAlert = () => ({
-	msg: '',
-	title: '',
-	fatal: false
-})
-
-const initDemo = () => ({
-	allowFullScreen: false,
-	loading: true,
-	htmlPath: null,
-	height: '',
-	width: 'auto'
-})
+const HEARTBEAT_INTERVAL = 15000 // 15 seconds for each heartbeat
 
 const initLogs = () => ({ play: [], storage: [] })
 
+// Ensure the pending log queue is immutable by running each state update through the reducer
+// addPlay appends logs to the play log queue, shiftPlay removes logs from the queue based on the ids passed in action.payload.ids
+// storage logs are simpler, once the mutation is run the callback function calls clearStorage to empty the box
 const logReducer = (state, action) => {
 	switch (action.type) {
 		case 'addPlay':
-				return {...state, play: [...state.play, action.payload.log]}
-			case 'addStorage':
-				return {...state, storage: [...state.storage, action.payload.log]}
-			case 'clearPlay':
-				return {...state, play: []}
-			case 'clearStorage':
-				return {...state, storage: []}
+			return {...state, play: [...state.play, action.payload.log]}
+		case 'shiftPlay':
+			return {...state, play: [...state.play].filter((play) => !action.payload.ids.includes(play.queueId))}
+		case 'addStorage':
+			return {...state, storage: [...state.storage, action.payload.log]}
+		case 'shiftStorage':
+			return {...state, storage: [...state.storage].filter((storage) => !action.payload.ids.includes(storage.queueId))}
 
 		default:
 			throw new Error(`Unrecognized action: ${action.type}`);
@@ -93,30 +86,46 @@ const isPreview = window.location.href.includes('/preview/') || window.location.
 const isEmbedded = window.location.href.includes('/embed/') || window.location.href.includes('/preview-embed/') || window.location.href.includes('/lti/assignment')
 
 const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=true}) => {
-	const [alertMsg, setAlertMsg] = useState(initAlert())
-	const [demoData, setDemoData] = useState(initDemo())
+
+	const [alert, setAlert] = useState({
+		msg: '',
+		title: '',
+		fatal: false
+	})
+	const [attributes, setAttributes] = useState({
+		allowFullScreen: false,
+		loading: true,
+		htmlPath: null,
+		height: '',
+		width: 'auto',
+	})
 	const [startTime, setStartTime] = useState(0)
-	const [heartbeatInterval, setHeartbeatInterval] = useState(-1)
-	const [scoreScreenPending, setScoreScreenPending] = useState(false)
+	const [heartbeatActive, setHeartbeatActive] = useState(false)
 	const [pendingLogs, dispatchPendingLogs] = useReducer(logReducer, initLogs())
-	const [logPushInProgress, setLogPushInProgress] = useState(false)
-	const [retryCount, setRetryCount] = useState(0)
-	const [scoreScreenURL, setScoreScreenURL] = useState(null)
-	const [showScoreScreen, setShowScoreScreen] = useState(null)
-	const [endState, setEndState] = useState(null)
-	const playSaved = useRef(true) // Guarantees logs are sent before finishing game
-	const storageSaved = useRef(true) // Guarantees logs are sent before finishing game
-	const showScoreRef = useRef(false)
+	const [playState, setPlayState] = useState('init')
+
+	const [scoreScreenURL, setScoreScreenURL] = useState('')
+	const [readyForScoreScreen, setReadyForScoreScreen] = useState(false)
+	const [retryCount, setRetryCount] = useState(0) // retryCount's value is referenced within the function passed to setRetryCount
+	const [queueProcessing, setQueueProcessing] = useState(false)
+
+	const savePlayLog = usePlayLogSave()
+	const saveStorage = usePlayStorageDataSave()
+	
+
+	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
 	const frameRef = useRef(null)
-	const saveStorage = usePlayStorageDataSave()
-	const savePlayLog = usePlayLogSave()
+
+	/*********************** queries ***********************/
+
 	const { data: inst } = useQuery({
 		queryKey: ['widget-inst', instanceId],
 		queryFn: () => apiGetWidgetInstance(instanceId),
 		enabled: instanceId !== null,
 		staleTime: Infinity
 	})
+
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
@@ -124,41 +133,54 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		placeholderData: null
 	})
 
+	const { data: heartbeat } = useQuery({
+		queryKey: ['heartbeat', playId],
+		queryFn: () => apiSessionVerify(playId),
+		staleTime: Infinity,
+		refetchInterval: HEARTBEAT_INTERVAL,
+		enabled: !!playId && heartbeatActive,
+		onSettled: (result) => {
+			if (result != true) {
+				setAlert({
+					msg: "Your play session is no longer valid.  You'll need to reload the page and start over.",
+					title: 'Invalid Play Session',
+					fatal: true
+				})
+			}
+		}
+	})
+
+	/*********************** listeners ***********************/
+	/* note: the values being tracked by these hooks is so the state values referenced in the callbacks is up-to-date */
+
 	// Adds warning event listener
 	useEffect(() => {
-		window.addEventListener('beforeunload', _beforeUnload)
+		if (inst && !isPreview && playState == 'playing') {
+			window.addEventListener('beforeunload', _beforeUnload)
 
-		return () => {
-			window.removeEventListener('beforeunload', _beforeUnload);
+			return () => {
+				window.removeEventListener('beforeunload', _beforeUnload)
+			}
 		}
-	}, [inst, isPreview, endState])
+	}, [inst, isPreview, playState])
 
-	// Ensures the callback doesn't have stale state
+	// Ensures the postMessage callback doesn't have stale state
 	useEffect(() => {
-		if (!demoData.loading) {
+		if (!attributes.loading) {
 			// setup the postmessage listener
 			window.addEventListener('message', _onPostMessage, false)
 
 			// cleanup this listener
 			return () => {
-				window.removeEventListener('message', _onPostMessage, false);
+				window.removeEventListener('message', _onPostMessage, false)
 			}
 		}
-	}, [
-		demoData.loading,
-		qset,
-		inst,
-		startTime,
-		alertMsg,
-		pendingLogs,
-		heartbeatInterval,
-		logPushInProgress,
-		endState
-	])
+	}, [attributes, alert, playState, pendingLogs])
+
+	/*********************** hooks ***********************/
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
-		// _getWidgetInstance
 		if (!!inst && !inst.hasOwnProperty('id')) {
 			_onLoadFail('Unable to get widget info.')
 		}
@@ -166,7 +188,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			const fullscreen = inst.widget.meta_data.features.find((f) => f.toLowerCase() === 'fullscreen')
 			let enginePath
 
-			// _startPlaySession
 			if (!isPreview && playId === null) {
 				_onLoadFail('Unable to start play session.')
 				return
@@ -182,50 +203,77 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			}
 
 			// Starts up the demo with the htmlPath
-			setDemoData ({
+			setAttributes ({
 				allowFullScreen: fullscreen != undefined,
 				loading: false,
 				htmlPath: enginePath + '?' + inst.widget.created_at,
 				width: `${inst.widget.width}px`,
 				height: `${inst.widget.height}px`
 			})
+
+			setScoreScreenURL(() => {
+				let _scoreScreenURL = ''
+				if (isPreview) {
+					_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
+				} else if (isEmbedded) {
+					_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
+				} else {
+					_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
+				}
+				return _scoreScreenURL
+			})
 		}
 	}, [inst, qset])
 
-	// Sets the hearbeat when not preview and given valid startTime
+	// initializes heartbeat
 	useEffect(() => {
-		if (!isPreview && startTime !== 0) {
-			const interval = setInterval(_sendAllPendingLogs, player.LOG_INTERVAL)
-			setHeartbeatInterval(interval) // if not in preview mode, set the interval to send logs
-			return () => clearInterval(interval);
+		if (startTime !== 0 && !isPreview && !!inst && !inst.guest_access && !heartbeatActive) setHeartbeatActive(true)
+	},[startTime, inst, isPreview])
+
+	// was a fatal alert triggered? Turn off the heartbeat, the play is abandoned
+	useEffect(() => {
+		if (!!alert.msg && !!alert.title && alert.fatal) {
+			setHeartbeatActive(false)
 		}
-	}, [startTime, isPreview, pendingLogs])
+	},[alert])
 
-	// Checks the logs to see if the end state should be triggered
+	// hook associated with log queue management
 	useEffect(() => {
-		if (endState === 'sent' || showScoreScreen === null) return
 
-		for (const val of pendingLogs.play) {
-			// End session log received
-			if (val.type === 2 && val.is_end === true) {
-				_sendAllPendingLogs(() => {
-					// Sets state to sent so logs don't try to send twice
-					setEndState('sent')
-					// shows the score screen upon callback if requested any time betwen method call and now
-					if (showScoreScreen || scoreScreenPending) {
-						_showScoreScreen()
-					}
-				})
+		// widget has initialized and we're listening for logs
+		if ((playState == 'playing' || playState == 'pending') && !queueProcessing) {
+
+			// PLAY logs
+			if (pendingLogs.play && pendingLogs.play.length > 0) {
+				const args = [playId, pendingLogs.play]
+				if (isPreview) {
+					args.push(inst.id)
+				}
+				_pushPendingLogs([{ request: args }])
+			}
+
+			// STORAGE logs
+			if (!isPreview && pendingLogs.storage && pendingLogs.storage.length > 0) {
+				const args = [playId, pendingLogs.storage]
+				_pushPendingStorageLogs([{ request: args }])
 			}
 		}
-	}, [pendingLogs, showScoreScreen])
 
-	// Switches to the score page when ready
+		// log queues are empty, we're no longer processing, playState can be updated to 'end' to indicate the widget has wrapped up
+		if (playState == 'pending' && pendingLogs.play?.length == 0 && pendingLogs.storage?.length == 0 && !queueProcessing) {
+			setPlayState('end')
+		}
+
+	}, [pendingLogs, queueProcessing, playState, readyForScoreScreen])
+
+	/******* !!!!!! this is the hook that actually navigates to the score screen !!!!! *******/
 	useEffect(() => {
-		if (showScoreRef.current && endState === 'sent' && playSaved.current && storageSaved.current) {
+		if (playState == 'end' && readyForScoreScreen && scoreScreenURL) {
 			window.location.assign(scoreScreenURL)
 		}
-	}, [endState, showScoreRef, scoreScreenURL, playSaved.current, storageSaved.current])
+	}, [playState, readyForScoreScreen])
+
+	/*********************** player communication ***********************/
 
 	// Sends messages to the widget player
 	const _sendToWidget = (type, args) => {
@@ -237,10 +285,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
-	  const origin = `${e.origin}/`
+		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
-
 			switch (msg.type) {
 				case 'start':
 					return _onWidgetReady()
@@ -253,7 +300,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				case 'sendPendingLogs':
 					return _sendAllPendingLogs()
 				case 'alert':
-					return _alert(msg.data.msg, msg.data.title, msg.fatal)
+					return setAlert({
+						msg: msg.data.msg || 'Something went wrong',
+						title: msg.data.title || 'We encountered a problem',
+						fatal: msg.fatal || false
+					})
 				case 'setHeight':
 					return _setHeight(msg.data[0])
 				case 'setVerticalScroll':
@@ -264,7 +315,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					throw new Error(`Unknown PostMessage received from player core: ${msg.type}`)
 			}
 		}
-		// TODO : make this an else?
 		else if( ! ['react-devtools-content-script', 'react-devtools-bridge', 'react-devtools-inject-backend'].includes(e.data.source)) {
 			throw new Error(
 				`Post message Origin does not match. Expected: ${expectedOrigin}, Actual: ${origin}`
@@ -272,171 +322,87 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	}
 
-	// Tests if the widget failed to load
 	const _onWidgetReady = () => {
-		switch (false) {
-			case !(qset == null):
-				// This is never reached
-				_onLoadFail('Unable to load widget data.')
-				break
-			case !(frameRef.current == null):
-				_onLoadFail('Unable to load widget.')
-				break
-			default:
-				_sendWidgetInit()
+		if (!frameRef.current) {
+			_onLoadFail('Unable to load widget.')
+		} else {
+			const convertedInstance = _translateForApiVersion(inst, qset)
+			setStartTime(new Date().getTime())
+			_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
+			setPlayState('playing')
 		}
-	}
-
-	const _sendWidgetInit = () => {
-		const convertedInstance = _translateForApiVersion(inst, qset)
-		setStartTime(new Date().getTime())
-		_sendToWidget('initWidget',	[qset, convertedInstance, window.BASE_URL, window.MEDIA_URL])
-	}
-
-	// Used to add play logs
-	const _addLog = log => {
-		playSaved.current = false
-		log['game_time'] = (new Date().getTime() - startTime) / 1000 // log time in seconds
-		dispatchPendingLogs({type: 'addPlay', payload: {log: log}})
 	}
 
 	const _end = (showScoreScreenAfter = true) => {
-		switch (endState) {
-			case 'sent':
-				if (showScoreScreenAfter) {
-					_showScoreScreen()
-				}
-				break
-			case 'pending':
-				if (showScoreScreenAfter) {
-					setScoreScreenPending(true)
-				}
-				break
-			default:
-				setEndState('pending')
+		switch (playState) {
+			case 'init':
+			case 'playing':
 				// kill the heartbeat
-				if (heartbeatInterval !== -1) {
-					clearInterval(heartbeatInterval)
-					setHeartbeatInterval(-1)
+				if (heartbeatActive) {
+					setHeartbeatActive(false)
 				}
 				// required to end a play
 				_addLog({ type: 2, item_id: 0, text: '', value: null, is_end: true })
-		}
-		setShowScoreScreen(showScoreScreenAfter)
-	}
 
-	const _showScoreScreen = () => {
-		let _scoreScreenURL = scoreScreenURL
-		if (!scoreScreenURL) {
-			if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
-				setScoreScreenURL(_scoreScreenURL)
-			} else if (isEmbedded) {
-				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
-				setScoreScreenURL(_scoreScreenURL)
-			} else {
-				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
-				setScoreScreenURL(_scoreScreenURL)
-			}
-		}
+				// pending indicates we should process all remaining logs
+				setPlayState('pending')
 
-		if (!alertMsg.fatal) {
-			showScoreRef.current = true
+				// readyForScoreScreen, in combination with playState == end, will determine advancement to the score screen
+				if (showScoreScreenAfter) setReadyForScoreScreen(true)
+				break
+
+			case 'pending':
+			case 'end':
+				if (showScoreScreenAfter) setReadyForScoreScreen(true)
 		}
 	}
 
-	const _sendStorage = msg => {
-		if (!isPreview) {
-			storageSaved.current = false
-			dispatchPendingLogs({type: 'addStorage', payload: {log: msg}})
-		}
-	}
+	/*********************** logging ***********************/
 
-	const _sendAllPendingLogs = callback => {
-		if (callback == null) {
-			callback = () => {}
-		}
-
-		Promise.resolve(undefined)
-			.then(_sendPendingStorageLogs())
-			.then(_sendPendingPlayLogs)
-			.then(callback)
-			.catch(() => {
-				_alert('There was a problem saving.', 'Something went wrong...', false)
-			})
-	}
-
-	const _sendPendingStorageLogs = () => {
-		if (!isPreview && pendingLogs.storage.length > 0) {
-			saveStorage.mutate({
-				play_id: playId,
-				logs: pendingLogs.storage,
-				successFunc: () => {
-					dispatchPendingLogs({type: 'clearStorage'})
-					storageSaved.current = true
-				}
-			})
-		}
-	}
-
-	const _sendPendingPlayLogs = () => {
-		if (pendingLogs.play.length > 0) {
-			const args = [playId, pendingLogs.play]
-			if (isPreview) {
-				args.push(inst.id)
-			}
-			const newQueue = [{ request: args }] //[...pendingQueue, {, request: args, promise: deferred }]
-			_pushPendingLogs(newQueue)
-			dispatchPendingLogs({type: 'clearPlay'})
-		}
+	// Used to add play logs
+	const _addLog = log => {
+		const d = new Date().getTime()
+		log['game_time'] = (d - startTime) / 1000 // log time in seconds
+		log['queueId'] = uuidv4() // this isn't actually used by the server, instead it's a way to identify which logs have been processed. Using a uuid to prevent collisions
+		dispatchPendingLogs({type: 'addPlay', payload: {log: log}})
 	}
 
 	const _pushPendingLogs = logQueue => {
-		if (logPushInProgress) {
-			return
-		}
+		setQueueProcessing(true)
 
-		// This shouldn't happen, but its a sanity check anyhow
-		if (logQueue.length === 0) {
-			setLogPushInProgress(false)
-			return
-		}
-		else setLogPushInProgress(true)
+		// create an array of the queue ids we can pass to the reducer to remove those logs from the pendingLogs state object
+		let qIds = logQueue[0].request[1]?.map((log) => {
+			return log.queueId
+		})
 
 		savePlayLog.mutate({
 			request: logQueue[0].request,
 			successFunc: (result) => {
 				setRetryCount(0) // reset on success
-				if (alertMsg.fatal) {
-					setAlertMsg({...alertMsg, fatal: false})
-				}
 
 				if (result) {
+					// this removes all the currently queued logs from the pendingLogs state object, by way of the reducer
+					// leverages React's built-in state management to prevent race conditions with log processing
+					// when a function is passed to useState, the results of the function are passed to each subsequent call of useState
+					// this way, the pendingLogs state object remains immutable and the alterations should be queued correctly
+					dispatchPendingLogs({type: 'shiftPlay', payload: { ids: [...qIds]}})
 					logQueue.shift()
+
 					if (result.score_url) {
 						// score_url is sent from server to redirect to a specific url
 						setScoreScreenURL(result.score_url)
 					} else if (result.type === 'error') {
-						let title = 'Something went wrong...'
-						let msg = result.msg
-						if (!msg) {
-							msg = 'Your play session is no longer valid! ' +
-							'This may be due to logging out, your session expiring, or trying to access another Materia account simultaneously. ' +
-							"You'll need to reload the page to start over."
-						}
 
-						_alert(msg, title, true)
+						setAlert({
+							title: 'We encountered a problem',
+							msg: result.msg || 'An error occurred when saving play logs',
+							fatal: true
+						})
 					}
 				}
 
-				setLogPushInProgress(false)
-
-				if (logQueue.length > 0) {
-					_pushPendingLogs(logQueue)
-				}
-				else {
-					playSaved.current = true
-				}
+				if (logQueue.length > 0) _pushPendingLogs(logQueue)
+				else setQueueProcessing(false)
 			},
 			failureFunc: () => {
 				setRetryCount((oldCount) => {
@@ -445,16 +411,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					if (oldCount > player.RETRY_LIMIT) {
 						retrySpeed = player.RETRY_SLOW
 
-						// TODO shouldn't this be false for fatal?
-						_alert(
-							"Connection to Materia's server was lost. Check your connection or reload to start over.",
-							'Something went wrong...',
-							true
-						)
+						setAlert({
+							title: 'We encountered a problem',
+							msg: 'Connection to the Materia server was lost. Check your connection or reload to start over.',
+							fatal: false
+						})
 					}
 
 					setTimeout(() => {
-						setLogPushInProgress(false)
 						_pushPendingLogs(logQueue)
 					}, retrySpeed)
 
@@ -464,20 +428,50 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		})
 	}
 
-	const _alert = (msg, title = 'Warning!', fatal = false) => {
-		setAlertMsg({
-			msg: msg,
-			title: title,
-			fatal: fatal
+	const _pushPendingStorageLogs = logQueue => {
+		setQueueProcessing(true)
+
+		// create an array of the queue ids we can pass to the reducer to remove those logs from the pendingLogs state object
+		let qIds = logQueue[0].request[1]?.map((log) => {
+			return log.queueId
 		})
 
-		alert(`${title} : ${msg} : is${!fatal ? ' not' : ''} fatal`)
+		saveStorage.mutate({
+			play_id: logQueue[0].request[0],
+			logs: logQueue[0].request[1],
+			successFunc: (result) => {
+				if (result) {
+					dispatchPendingLogs({type: 'shiftStorage', payload: { ids: [...qIds]}})
+					logQueue.shift()
+
+					if (logQueue.length > 0) _pushPendingStorageLogs(logQueue)
+					else setQueueProcessing(false)
+
+				} else {
+					setAlert({
+						msg: 'There was an issue saving storage data. Check your connection or reload to start over.',
+						title: 'We ran into a problem',
+						fatal: false
+					})
+				}
+			}
+		})
 	}
+
+	const _sendAllPendingLogs = callback => {
+		console.warn('This postMessage request is deprecated, logs are automatically enqueued and processed')
+	}
+
+	const _sendStorage = msg => {
+		dispatchPendingLogs({type: 'addStorage', payload: {log: {...msg, queueId: uuidv4()}}})
+	}
+
+	/*********************** helper methods ***********************/
 
 	const _setHeight = h => {
 		const min_h = inst.widget.height
 		let desiredHeight = Math.max(h, min_h)
-		setDemoData((oldData) => ({...oldData, height: `${desiredHeight}px`}))
+		setAttributes((oldData) => ({...oldData, height: `${desiredHeight}px`}))
 	}
 
 	const _setVerticalScroll = location => {
@@ -486,10 +480,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		window.scrollTo(0, calculatedLocation)
 	}
 
-	const _onLoadFail = msg => _alert(msg, 'Failure!', true)
+	const _onLoadFail = msg => setAlert({
+		msg: msg,
+		title: 'Failure!',
+		fatal: true
+	})
 
 	const _beforeUnload = e => {
-		if (inst.widget.is_scorable === '1' && !isPreview && endState !== 'sent') {
+		if (inst.widget.is_scorable === '1' && !isPreview && playState !== 'end') {
 			const confirmationMsg = 'Wait! Leaving now will forfeit this attempt. To save your score you must complete the widget.'
 			e.returnValue = confirmationMsg
 			e.preventDefault()
@@ -499,17 +497,19 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	}
 
+	/*********************** component rendering ***********************/
+
 	let previewBarRender = null
 	if (isPreview) {
 		previewBarRender = (
 			<header className='preview-bar'
-				style={{width: demoData.width !== '0px' ? demoData.width : ''}}>
+				style={{width: attributes.width !== '0px' ? attributes.width : ''}}>
 			</header>
 		)
 	}
 
 	let loadingRender = null
-	if (demoData.loading) {
+	if (attributes.loading) {
 		loadingRender = (
 			<LoadingIcon size='lrg'
 				position='absolute'
@@ -519,9 +519,23 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		)
 	}
 
+	let alertDialogRender = null
+	if (!!alert.msg && !!alert.title) {
+		alertDialogRender = (
+			<Alert
+				msg={alert.msg}
+				title={alert.title}
+				fatal={alert.fatal}
+				showLoginButton={false}
+				onCloseCallback={() => {
+					setAlert({msg: '', title: '', fatal: false})
+				}} />
+		)
+	}
+
 	let footerRender = null
 	if (!isPreview && showFooter) {
-		footerRender = <section className='player-footer' style={{ width: demoData.width !== '0px' ? demoData.width : 'auto' }}>
+		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
 			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src="/img/materia-logo-thin.svg" alt="materia logo" /></a>
 			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
 		</section>
@@ -529,16 +543,16 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	return (
 		<section className={`widget ${isPreview ? 'preview' : ''}`}
-			style={{display: demoData.loading ? 'none' : 'block'}}>
+			style={{display: attributes.loading ? 'none' : 'block'}}>
 			{ previewBarRender }
 			<div className='center'
 				ref={centerRef}
 				style={{minHeight: minHeight + 'px',
 					minWidth: minWidth + 'px',
-					width: demoData.width !== '0px' ? demoData.width : 'auto',
-					height: demoData.height !== '0px' ? demoData.height : '100%',
-					position: demoData.loading ? 'relative' : 'static'}}>
-				<iframe src={ demoData.htmlPath }
+					width: attributes.width !== '0px' ? attributes.width : 'auto',
+					height: attributes.height !== '0px' ? attributes.height : '100%'}}>
+				{ alertDialogRender }
+				<iframe src={ attributes.htmlPath }
 					id='container'
 					className='html'
 					scrolling='yes'
