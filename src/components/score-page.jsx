@@ -39,8 +39,8 @@ const ScorePage = () => {
 				playID: play_id ? play_id : null,
 				singleID: single_id ? single_id : null,
 				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
-				isEmbedded: window.IS_EMBEDDED === 'true' || window.IS_EMBEDDED === true || isEmbedded ? true : false,
-				isPreview: window.IS_PREVIEW === 'true' || window.IS_PREVIEW === true || isPreview ? true : false,
+				isEmbedded: window.IS_EMBEDDED == 'true' || window.IS_EMBEDDED == true || isEmbedded ? true : false,
+				isPreview: window.IS_PREVIEW == 'true' || window.IS_PREVIEW == true || isPreview ? true : false,
 			})
 		})
 	}, [])
