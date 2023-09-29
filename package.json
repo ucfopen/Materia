@@ -28,7 +28,8 @@
     "js-base64": "^3.7.2",
     "react-datepicker": "^4.8.0",
     "react-overlays": "^5.2.1",
-    "react-query": "^3.39.2"
+    "react-query": "^3.39.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.10.4",

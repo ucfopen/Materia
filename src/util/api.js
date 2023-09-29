@@ -588,6 +588,11 @@ export const apiGetQuestionSetHistory = (instId) => {
 		})
 }
 
+export const apiSessionVerify = (play_id) => {
+	return fetch('/api/json/session_play_verify/', fetchOptions({ body: `data=${formatFetchBody([play_id])}` }))
+		.then(resp => resp.json())
+}
+
 export const apiSavePlayStorage = ({ play_id, logs }) => {
 	return fetch('/api/json/play_storage_data_save/', fetchOptions({ body: `data=${formatFetchBody([play_id, logs])}` }))
 		.then(resp => resp.json())
