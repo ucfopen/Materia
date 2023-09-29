@@ -709,17 +709,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			<section id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
 				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
 				<button onClick={() => qsetRollbackConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
 			</section>
 		)
 	}
 
-	let popupRender = null
+	let popupRender = <div className='popup'></div>
 	switch(creatorState.popupState) {
 		case 'blocked':
 			popupRender = (
-				<div className="preview animate-show">
+				<div className="popup preview show">
 					<p>Your browser blocked the preview popup, click below to preview the widget.</p>
 					<div className="publish_container">
 						<a className="cancel_button" onClick={cancelPopup}>Close</a>
@@ -730,8 +730,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			break;
 		case 'update':
 			popupRender = (
-				<div className="publish animate-show">
-					<h1>Update Widget</h1>
+				<div className="popup publish show">
+					<header>Update Widget</header>
 					<p>Updating this published widget will instantly allow your students to see your changes.</p>
 
 					<div className="publish_container">
@@ -744,8 +744,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		case 'publish':
 			if (canPublish) {
 				popupRender = (
-					<div className="publish animate-show">
-						<h1>Publish Widget</h1>
+					<div className="popup publish show">
+						<header>Ready to Publish?</header>
 						<p>Publishing removes the "Draft" status of a widget, which grants you the ability to use it in your course and collect student scores &amp; data.</p>
 						<div className="publish_container">
 							<a className="cancel_button" onClick={cancelPopup}>Cancel</a>
@@ -756,8 +756,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			}
 			else {
 				popupRender = (
-					<div className="publish animate-show">
-						<h1>Publish Restricted</h1>
+					<div className="popup publish show">
+						<header>Publish Restricted</header>
 						<p>Students are not allowed to publish this widget.</p>
 						<p>You can share the widget with a non-student who can publish it for you. Select "Save Draft" and add a non-student as a collaborator on the My Widgets page.</p>
 

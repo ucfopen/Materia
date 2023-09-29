@@ -105,9 +105,13 @@ a {
 
 #qset-rollback-confirmation-bar {
 	position: relative;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
 	z-index: 5;
 	height: 52px;
-	width: 100%;
+	width: calc(100% - 50px);
+	padding: 0 25px;
 	text-align: left;
 	white-space: nowrap;
 
@@ -116,7 +120,6 @@ a {
 	border-radius: 5px 5px 0 0;
 
 	h3 {
-		display: inline-block;
 		margin: 0 15px;
 		padding: 14px 0;
 
@@ -124,8 +127,8 @@ a {
 	}
 
 	p {
-		display: inline-block;
-		margin: 0 0 0 60px;
+		flex-grow: 2;
+		margin: 0 0 0 15px;
 		padding: 14px 0;
 
 		font-size: 0.8em;
@@ -136,8 +139,8 @@ a {
 	}
 
 	button {
-		float: right;
-		margin: 10px 40px 10px -25px;
+		flex-basis: 0;
+		margin: 5px;
 		padding: 6px 15px;
 		color: #3d3d3d;
 		font-weight: bold;
@@ -167,34 +170,37 @@ a {
 	margin: 0 8px 0 14px;
 }
 
-.publish,
-.preview {
-	background: #fff6c9;
-	width: 558px;
-	height: 160px;
-	text-align: center;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-	padding: 0 0 12px 20px;
-	margin: 10px auto;
+.popup {
+	height: 0;
+	max-height: 0;
 	overflow: hidden;
+	transition: max-height 0.4s ease-in-out;
 
-	h1, p {
+	background: #fbfbfb;
+
+	header {
+		height: auto;
+		padding: 0;
+		margin: 15px 0;
+
+		background: none;
+		
+		font-size: 21px;
+		font-weight: 700;
 		color: #000000;
-		text-align: left;
-	}
-
-	h1 {
-		font-size: 24px;
 	}
 
 	p {
+		padding: 0;
+		margin: 10px 0 20px 0;
 		font-size: 14px;
 	}
-}
 
-.preview {
-	height: 100px;
+	&.show {
+		height: auto;
+		max-height: 200px;
+		padding: 10px 20% 22px 20%;
+	}
 }
 
 .page {
@@ -307,11 +313,6 @@ a {
 	top: 65px;
 	width: 100%;
 	z-index: 7;
-}
-
-.animate-show {
-	opacity: 1;
-	transition: all ease 0.5s;
 }
 
 
