@@ -6,7 +6,7 @@ const MyWidgetsWarningDialog = ({onClose, onEdit}) => (
 	<Modal onClose={onClose}>
 		<div className='warning-modal'>
 			<span className='title'>
-				Warning About Editing Published Widgets:
+				Before Editing Published Widgets:
 			</span>
 			<div className='content'>
 				<p>
