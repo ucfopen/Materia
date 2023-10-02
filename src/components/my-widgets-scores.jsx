@@ -41,7 +41,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 	}, [currScores, state.isShowingAll])
 
 	const openExport = () => {
-		setState({...state, showExport: true})
+		if (!inst.is_draft) setState({...state, showExport: true})
 	}
 	const closeExport = () => {
 		setState({...state, showExport: false})
@@ -62,7 +62,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 
 	let contentRender = <LoadingIcon />
 	if (isFetched) {
-		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} beardMode={beardMode} />
+		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}
@@ -99,7 +99,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 		<div className='scores'>
 			<h2>Student Activity</h2>
 			<span id='export_scores_button'
-				className='aux_button'
+				className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
 				onClick={openExport}>
 				<span className='arrow_down'></span>
 				Export Options
