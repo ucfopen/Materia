@@ -21,12 +21,13 @@
 	}
 
 	.search-container {
-		margin-bottom: 20px;
+		position: relative;
 		display: flex;
-		text-align: left;
+		align-items: center;
 		justify-content: center;
 		width: 100%;
-		align-items: center;
+		margin-bottom: 20px;
+		text-align: left;
 
 		.collab-input-label {
 			font-size: 19px;
@@ -60,26 +61,30 @@
 	}
 
 	.collab-search-list {
-		width: 447px;
-		position: absolute;
-		background-color: #ffffff;
-		border: #bfbfbf 1px solid;
-		padding-bottom: 5px;
-		overflow: auto;
 		z-index: 3;
-		text-align: left;
-		left: 114px;
+		position: absolute;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
 
+		top: 32px;
+		right: 0px;
+		width: 447px;
+		padding-bottom: 5px;
+		overflow: auto;
+		
+		background-color: #ffffff;
+		border: #bfbfbf 1px solid;
+		
+		text-align: left;
+
 		.collab-search-match {
-			width: 200px;
-			height: 56px;
+			display: flex;
+			flex-basis: 45%;
+			align-items: flex-start;
 			margin: 5px 5px 0 5px;
 			padding: 0 5px 5px 0;
 			border-radius: 3px;
-			display: inline-block;
 			background-color: #ffffff;
 
 			.collab-match-avatar {
@@ -88,17 +93,16 @@
 				-moz-border-radius: 3px;
 				border-radius: 3px;
 				display: inline-block;
-				float: left;
 				margin-right: 10px;
 				margin: 5px;
 			}
 
 			.collab-match-name {
+				margin: 5px 0 0 5px;
 				font-size: 14px;
 				text-align: left;
-				height: 40px;
+				
 				font-family: 'Lucida Grande', sans-serif;
-				overflow: auto;
 			}
 		}
 
@@ -108,7 +112,7 @@
 		.collab-match-student:after {
 			content: 'Student';
 			position: absolute;
-			bottom: 5px;
+			bottom: -15px;
 			left: 0;
 			font-size: 10px;
 		}

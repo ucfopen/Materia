@@ -489,11 +489,13 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 						{ periodSelectElements }
 						<li className='access'>
 							<h3>Access</h3>
-							<ul className={`access-options ${inst.is_embedded ? 'embedded' : ''}`}>
+							<ul className={`access-options ${inst.is_embedded ? 'embedded' : ''} ${currentUser.is_student && !inst.is_student_made ? 'limited-because-student' : ''}`}>
+								{currentUser.is_student && !inst.is_student_made ? <li className='studentWarningListItem student-role-notice'>Access settings are currently disabled because of your student status.</li> : ''}
 								<li className={`normal ${inst.is_student_made ? '' : 'show'}`}>
 									<input type='radio'
 										id='normal-radio'
 										value='normal'
+										disabled={currentUser.is_student}
 										checked={state.formData.changes.access === 'normal'}
 										onChange={() => accessChange('normal')} />
 									<label htmlFor='normal-radio'>Normal</label>
@@ -507,6 +509,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 									<input type='radio'
 										id='guest-radio'
 										value='guest'
+										disabled={currentUser.is_student && !inst.is_student_made}
 										checked={state.formData.changes.access === 'guest'}
 										onChange={() => accessChange('guest')} />
 									<label htmlFor='guest-radio'>Guest Mode</label>

@@ -30,7 +30,7 @@ services:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_USER
       - MYSQL_PASSWORD
-      - MYSQL_DATABASE=test
+      - MYSQL_DATABASE
     # this makes the unit tests much faster but it's a little weird jumping
     # back and forth between running the server and testing
     # tmpfs:
