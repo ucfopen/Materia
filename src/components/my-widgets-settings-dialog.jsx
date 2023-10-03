@@ -92,6 +92,8 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 				{
 					setInvalidLogin(true)
 				}
+			} else if (!data) {
+				console.error('Failed to fetch users.')
 			}
 		}
 	})

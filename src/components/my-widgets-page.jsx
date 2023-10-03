@@ -252,6 +252,8 @@ const MyWidgetsPage = () => {
 						{
 							setInvalidLogin(true)
 						}
+					} else if (!data) {
+						console.error(`Delete widget failed.`);
 					}
 				}
 			},

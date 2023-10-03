@@ -48,6 +48,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				{
 					setInvalidLogin(true)
 				}
+			} else if (!data) {
+				console.error(`User search failed.`);
 			}
 		}
 	})
