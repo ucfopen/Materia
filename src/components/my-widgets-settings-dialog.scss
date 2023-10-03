@@ -276,6 +276,17 @@
 						}
 					}
 
+					&.limited-because-student {
+
+						li.normal.show, li.guest-mode {
+							filter: blur(3px);
+						}
+
+						li.studentWarningListItem {
+							margin: 0 0 15px 0;
+						}
+					}
+
 					.input-desc {
 						padding: 10px;
 						margin-bottom: 0;

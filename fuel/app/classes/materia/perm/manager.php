@@ -34,16 +34,11 @@ class Perm_Manager
 	 */
 	static public function is_super_user()
 	{
-		$login_hash = \Session::get('login_hash');
-		$key = 'is_super_user_'.$login_hash;
-		$has_role = (\Fuel::$is_cli === true && ! \Fuel::$is_test) || \Session::get($key, false);
-
-		if ( ! $has_role)
-		{
-			$has_role = self::does_user_have_role([\Materia\Perm_Role::SU]);
-			\Session::set($key, $has_role);
-		}
-		return $has_role;
+		// @TODO this was previously creating a local session object storing the value returned from this
+		// The session caching has been removed due to issues related to the cache when the role is added or revoked
+		// Ideally we can still find a way to cache this and make it more performant!!
+		return (\Fuel::$is_cli === true && ! \Fuel::$is_test) || self::does_user_have_role([\Materia\Perm_Role::SU]);
+		
 	}
 
 	/**
@@ -53,16 +48,10 @@ class Perm_Manager
 	 */
 	static public function is_support_user(): bool
 	{
-		$login_hash = \Session::get('login_hash');
-		$key = 'is_support_user_'.$login_hash;
-		$has_role = (\Fuel::$is_cli === true && ! \Fuel::$is_test) || \Session::get($key, false);
-
-		if ( ! $has_role)
-		{
-			$has_role = self::does_user_have_role([\Materia\Perm_Role::SUPPORT]);
-			\Session::set($key, $has_role);
-		}
-		return $has_role;
+		// @TODO this was previously creating a local session object storing the value returned from this
+		// The session caching has been removed due to issues related to the cache when the role is added or revoked
+		// Ideally we can still find a way to cache this and make it more performant!!
+		return (\Fuel::$is_cli === true && ! \Fuel::$is_test) || self::does_user_have_role([\Materia\Perm_Role::SUPPORT]);
 	}
 
 	/**
