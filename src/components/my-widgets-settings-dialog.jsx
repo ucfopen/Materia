@@ -85,10 +85,10 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
 		staleTime: Infinity,
 		onSuccess: (data) => {
-			if (!data || (data.type == 'error'))
+			if (data && data.type == 'error')
 			{
 				console.error(`Error: ${data.msg}`);
-				if (data.title =="Invalid Login")
+				if (data.title == "Invalid Login")
 				{
 					setInvalidLogin(true)
 				}

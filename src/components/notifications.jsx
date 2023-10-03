@@ -121,7 +121,7 @@ const Notifications = (user) => {
             instId: notif.item_id,
             permsObj: userPerms,
             successFunc: (data) => {
-                if (data.status == 200)
+                if (data && data.status == 200)
                 {
                     // Redirect to widget
                     if (!window.location.pathname.includes('my-widgets'))

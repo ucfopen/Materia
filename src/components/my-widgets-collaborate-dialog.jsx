@@ -41,10 +41,10 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		placeholderData: [],
 		retry: false,
 		onSuccess: (data) => {
-			if (!data || (data.type == 'error'))
+			if (data && data.type == 'error')
 			{
 				console.error(`User search failed with error: ${data.msg}`);
-				if (data.title =="Invalid Login")
+				if (data.title == "Invalid Login")
 				{
 					setInvalidLogin(true)
 				}

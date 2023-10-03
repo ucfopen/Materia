@@ -80,10 +80,10 @@ const MyWidgetSelectedInstance = ({
 		enabled: !!inst.id,
 		staleTime: Infinity,
 		onSuccess: (data) => {
-			if (!data || data.type == 'error')
+			if (data && data.type == 'error')
 			{
 				console.error(`Error: ${data.msg}`);
-				if (data.title =="Invalid Login")
+				if (data.title == "Invalid Login")
 				{
 					setInvalidLogin(true)
 				}
