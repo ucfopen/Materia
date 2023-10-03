@@ -280,6 +280,8 @@
 
 						li.normal.show, li.guest-mode {
 							filter: blur(3px);
+							user-select: none;
+							pointer-events: none;
 						}
 
 						li.studentWarningListItem {
