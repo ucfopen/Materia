@@ -78,7 +78,7 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 				state.newIdCount,
 				{
 					id: parseInt(state.newIdCount),
-					context_id: '',
+					context_id: inst?.id || "",
 					extra_attempts: 1,
 					user_id: parseInt(match.id)
 				}
