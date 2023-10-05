@@ -1058,7 +1058,9 @@ class Api_V1
 				if ($is_enabled && Perm_Manager::is_student($new_perms->user_id))
 				{
 					// guest mode isn't enabled - don't give this student access
-					if ( ! $inst->allows_guest_players()) continue;
+					if ( ! $inst->allows_guest_players()) {
+						return Msg::student_collab();
+					}
 					Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
 				}
 			}

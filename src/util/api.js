@@ -337,6 +337,10 @@ export const apiGetUserPermsForInstance = instId => {
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
 	return fetch('/api/json/permissions_set', fetchOptions({ body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` }))
+	.then(resp => {
+		if (resp.status === 204 || resp.status === 502) return null
+		return resp.json()
+	})
 }
 
 export const apiCanEditWidgets = arrayOfWidgetIds => {
