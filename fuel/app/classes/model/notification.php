@@ -110,7 +110,7 @@ class Model_Notification extends \Orm\Model
 						break;
 
 					case 'access_request':
-						$subject = "$user_link is requesting access to your widget \"$widget_name\".<br /> The widget is currently being used within a course in your LMS.";
+						$subject = "$user_link is requesting access to your widget \"$widget_link\".<br /> The widget is currently being used within a course in your LMS.";
 						$action = 'access_request';
 						break;
 

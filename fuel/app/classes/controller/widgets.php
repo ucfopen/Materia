@@ -508,12 +508,12 @@ class Controller_Widgets extends Controller
 		{
 			// $start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
 			$start_string = date($format, (int) $inst->open_at);
-			$start_sec    = date('h:i A', (int) $inst->open_at * 1000);
+			$start_sec    = date('h:i A', (int) $inst->open_at);
 		}
 		if ($status['closes'])
 		{
 			$end_string   = date($format, (int) $inst->close_at);
-			$end_sec      = date('h:i A', (int) $inst->close_at * 1000);
+			$end_sec      = date('h:i A', (int) $inst->close_at);
 		}
 
 		// finish the actual messages to the user
