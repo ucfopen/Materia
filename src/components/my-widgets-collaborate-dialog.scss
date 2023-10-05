@@ -16,7 +16,7 @@
 		position: relative;
 		text-align: left;
 		display: block;
-		
+
 		font-weight: bold;
 	}
 
@@ -72,10 +72,10 @@
 		width: 447px;
 		padding-bottom: 5px;
 		overflow: auto;
-		
+
 		background-color: #ffffff;
 		border: #bfbfbf 1px solid;
-		
+
 		text-align: left;
 
 		.collab-search-match {
@@ -101,7 +101,7 @@
 				margin: 5px 0 0 5px;
 				font-size: 14px;
 				text-align: left;
-				
+
 				font-family: 'Lucida Grande', sans-serif;
 			}
 		}
@@ -289,6 +289,15 @@
 
 					&.user-match-student:after {
 						content: 'Student';
+						position: absolute;
+						top: -12px;
+						left: 0;
+						font-size: 11px;
+						color: gray;
+					}
+
+					&.user-match-owner:after {
+						content: 'Owner';
 						position: absolute;
 						top: -12px;
 						left: 0;

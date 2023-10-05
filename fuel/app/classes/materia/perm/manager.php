@@ -38,7 +38,7 @@ class Perm_Manager
 		// The session caching has been removed due to issues related to the cache when the role is added or revoked
 		// Ideally we can still find a way to cache this and make it more performant!!
 		return (\Fuel::$is_cli === true && ! \Fuel::$is_test) || self::does_user_have_role([\Materia\Perm_Role::SU]);
-		
+
 	}
 
 	/**
@@ -350,10 +350,30 @@ class Perm_Manager
 					->where('role_id', self::get_role_id($role_name))
 					->execute();
 			}
+
+			// Update user's instances' access modes
+			self::update_user_instance_permissions($user_id);
 		}
+
 		return $success;
 	}
 
+	/**
+	 * Updates access mode for all instances belonging to a user
+	 * @param int $user_id id of user with perms to object
+	 *
+	 * @return array array of perms given user has to given object of given type
+	 */
+	static public function update_user_instance_permissions($user_id)
+	{
+		if (self::is_student($user_id))
+		{
+			\DB::update('widget_instance')
+				->set(['guest_access' => Util_Validator::cast_to_bool_enum(1)])
+				->where('user_id', $user_id)
+				->execute();
+		}
+	}
 
 	/*
 	 **********************  User to Object Rights  ***************************************

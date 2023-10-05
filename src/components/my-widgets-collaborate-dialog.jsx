@@ -262,6 +262,12 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					return <div key={userId}></div>
 				}
 
+				if (user.id == inst.user_id) {
+					user.is_owner = true;
+				} else {
+					user.is_owner = false;
+				}
+
 				return <CollaborateUserRow
 					key={user.id}
 					user={user}
