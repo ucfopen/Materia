@@ -15,4 +15,4 @@ DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml
 set -e
 set -o xtrace
 
-$DCTEST run --rm app /wait-for-it.sh mysql:3306 -t 20 -- composer run testci -- "$@"
+$DCTEST run -T --rm app /wait-for-it.sh mysql:3306 -t 20 -- composer run testci -- "$@"

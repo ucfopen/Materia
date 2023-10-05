@@ -17,13 +17,16 @@ const ScorePage = () => {
 	// this is only actually set to something when coming from the profile page
 	const play_id = window.location.hash.split('play-')[1]
 
+	const pathIsPreview = window.location.pathname.includes('/preview/')
+	const pathIsEmbedded = window.location.pathname.includes('/embed/')
+
 	const [state, setState] = useState({
 		instanceID: undefined,
 		playID: undefined,
 		singleID: undefined,
 		sendToken: undefined,
-		isEmbedded: null,
-		isPreview: null
+		isEmbedded: pathIsEmbedded,
+		isPreview: pathIsPreview
 	})
 
 	// Waits for window values to load from server then sets them
@@ -31,16 +34,14 @@ const ScorePage = () => {
 		waitForWindow()
 		.then(() => {
 			if (window.IS_EMBEDDED) document.body.classList.add('embedded')
-			const isPreview = window.location.pathname.includes('/preview/')
-			const isEmbedded = window.location.pathname.includes('/embed/')
 
 			setState({
 				instanceID: (inst_id ? inst_id : null),
 				playID: play_id ? play_id : null,
 				singleID: single_id ? single_id : null,
 				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
-				isEmbedded: window.IS_EMBEDDED === 'true' || window.IS_EMBEDDED === true || isEmbedded ? true : false,
-				isPreview: window.IS_PREVIEW === 'true' || window.IS_PREVIEW === true || isPreview ? true : false,
+				isEmbedded: window.IS_EMBEDDED == 'true' || window.IS_EMBEDDED == true || pathIsEmbedded ? true : false,
+				isPreview: window.IS_PREVIEW == 'true' || window.IS_PREVIEW == true || pathIsPreview ? true : false,
 			})
 		})
 	}, [])
