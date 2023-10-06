@@ -133,7 +133,7 @@ class Model_Notification extends \Orm\Model
 			'is_email_sent' => ($send_email ? '0' : '1'),
 			'is_read'       => '0',
 			'subject'       => $subject,
-			'avatar'        => \Materia\Utils::get_avatar(50),
+			'avatar'        => \Materia\Utils::get_avatar(128),
 			'action'        => $action,
 			'created_at'	=> time()
 		]);
