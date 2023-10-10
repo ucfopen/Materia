@@ -1060,7 +1060,8 @@ class Api_V1
 					// guest mode isn't enabled - don't give this student access
 					if ( ! $inst->allows_guest_players())
 					{
-						return Msg::student_collab();
+						$refused[] = $new_perms->user_id;
+						continue;
 					}
 					Perm_Manager::set_user_game_asset_perms($item_id, $new_perms->user_id, [Perm::VISIBLE => $is_enabled], $new_perms->expiration);
 				}
@@ -1079,6 +1080,11 @@ class Api_V1
 			}
 
 			\Model_Notification::send_item_notification($cur_user_id, $new_perms->user_id, $item_type, $item_id, $notification_mode, $new_perm);
+		}
+
+		if (count($refused) > 0)
+		{
+			return Msg::student_collab();
 		}
 
 		return true;
