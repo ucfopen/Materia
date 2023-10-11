@@ -1,20 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
-import { useQuery } from 'react-query'
-import { apiSearchWidgets } from '../util/api'
+import useInstanceList from './hooks/useInstanceList'
 import useDebounce from './hooks/useDebounce'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
-	const { data: searchedWidgets, isFetching} = useQuery({
-		queryKey: ['search-widgets', debouncedSearchTerm],
-		queryFn: () => apiSearchWidgets(debouncedSearchTerm),
-		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,
-		placeholderData: null,
-		staleTime: Infinity
-	})
+	const instanceList = useInstanceList(false, debouncedSearchTerm)
+
+	useEffect(() => {
+		if (instanceList.error) console.log(instanceList.error)
+	}, [instanceList.instances])
 
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
@@ -24,16 +21,16 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
 		</div>
 	)
-	if ((isFetching || !searchedWidgets) && searchText.length > 0) {
+	if ((instanceList.isFetching || !instanceList.instances) && searchText.length > 0) {
 		searchResultsRender = (
 			<div className='searching'>
 				<b>Searching Widget Instances ...</b>
 			</div>
 		)
-	} else if (searchedWidgets && searchedWidgets.length !== 0) {
+	} else if (instanceList.instances && instanceList.instances.length !== 0) {
 		searchResultsRender = (
 			<div className='search_list'>
-					{searchedWidgets.map((match) =>
+					{instanceList.instances.map((match) =>
 						<div
 							key={match.id}
 							className={`search_match clickable ${(match.is_deleted && !showDeleted) ? 'hidden' : ''} ${match.is_deleted ? 'deleted' : ''}`}

@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useInfiniteQuery } from 'react-query'
-import { apiGetWidgetInstances } from '../../util/api'
+import { apiGetWidgetInstances, apiSearchWidgets } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
-export default function useInstanceList() {
+export default function useInstanceList(userOnly = true, query = "") {
 
 	const [errorState, setErrorState] = useState(false)
 
@@ -36,7 +36,11 @@ export default function useInstanceList() {
 	}
 
 	const getWidgetInstances = ({ pageParam = 0}) => {
-		return apiGetWidgetInstances(pageParam)
+		if (userOnly) {
+			return apiGetWidgetInstances(pageParam)
+		} else {
+			return apiSearchWidgets(query, pageParam)
+		}
 	}
 
 	const {
@@ -49,7 +53,7 @@ export default function useInstanceList() {
 		status,
 		refetch
 	} = useInfiniteQuery({
-		queryKey: ['widgets'],
+		queryKey: userOnly ? ['widgets'] : ['widgets', query],
 		queryFn: getWidgetInstances,
 		getNextPageParam: (lastPage, pages) => lastPage.next_page,
 		refetchOnWindowFocus: false

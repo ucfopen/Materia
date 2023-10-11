@@ -91,7 +91,7 @@ class Widget_Instance_Manager
 		$data = [
 			'pagination' => $displayable_inst,
 		];
-		
+
 		if ($has_next_page) $data['next_page'] = $page_number + 1;
 
 		return $data;
@@ -133,6 +133,26 @@ class Widget_Instance_Manager
 
 		// true if the lock is mine
 		return $locked_by == $me;
+	}
+
+	public static function get_paginated_search(string $input, $page_number = 0)
+	{
+		$displayable_insts = self::get_search($input);
+		$widgets_per_page = 80;
+		$total_num_pages = ceil(sizeof($displayable_insts) / $widgets_per_page);
+		$offset = $widgets_per_page * $page_number;
+		$has_next_page = $offset + $widgets_per_page < sizeof($displayable_insts) ? true : false;
+
+		// inst_ids corresponds to a single page's worth of instances
+		$displayable_insts = array_slice($displayable_insts, $offset, $widgets_per_page);
+
+		$data = [
+			'pagination' => $displayable_insts,
+		];
+
+		if ($has_next_page) $data['next_page'] = $page_number + 1;
+
+		return $data;
 	}
 
 	/**

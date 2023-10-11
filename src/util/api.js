@@ -377,15 +377,19 @@ export const apiGetWidgetLock = (id = null) => {
  * @returns {array} if matches were found
  * @returns {bool}  if input does not match pattern
  */
-export const apiSearchWidgets = input => {
+export const apiSearchWidgets = (input, page_number) => {
 	let pattern = /[A-Za-z]+/g
-	if (!input.match(pattern).length) return false
-	return fetch(`/api/admin/widget_search/${input}`)
+	let match = input.match(pattern)
+	if (!match || !match.length) input = ' '
+	return fetch(`/api/admin/widget_paginated_search/${input}/${page_number}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-		.then(widgets => widgets)
+		.then(resp => {
+			writeToStorage('widgets', resp)
+			return resp
+		})
 }
 
 export const apiGetWidgetsAdmin = () => {
