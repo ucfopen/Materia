@@ -301,7 +301,7 @@
 						font-size: 13px;
 					}
 
-					.normal {
+					.normal, .embed-only {
 						display: none;
 
 						&.show {
@@ -317,11 +317,9 @@
 						margin-left: 5px;
 					}
 
-					.guest-mode {
-						&.disabled {
-							label {
-								color: #b5b3b3;
-							}
+					.disabled {
+						label {
+							color: #b5b3b3;
 						}
 					}
 				}

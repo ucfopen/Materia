@@ -523,10 +523,11 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 									</div>
 								</li>
 								<li id='embedded-only'
-									className={`embed-only ${inst.is_embedded ? 'show' : ''}`}>
+									className={`embed-only ${inst.is_embedded && !inst.is_student_made ? 'show' : ''}`}>
 									<input type='radio'
 										id='embed-radio'
 										value='embed'
+										disabled={currentUser.is_student || inst.is_student_made}
 										checked={state.formData.changes.access === 'embed'}
 										onChange={() => {accessChange('embed')}}
 									/>
