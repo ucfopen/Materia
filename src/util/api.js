@@ -361,7 +361,10 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  */
 export const apiUpdateWidget = ({ args }) => {
 	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
-		.then(res => res.json())
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
 		.then(widget => widget)
 }
 

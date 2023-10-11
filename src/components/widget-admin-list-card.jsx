@@ -37,7 +37,7 @@ const WidgetListCard = ({widget = null}) => {
         event.persist()
         setState(prevState => ({...prevState, widget: {...prevState.widget, meta_data: {...prevState.widget.meta_data, demo: event.target.value}}}))
     }
-    
+
     const handleAboutChange = event => {
         event.persist()
         setState(prevState => ({...prevState, widget: {...prevState.widget, meta_data: {...prevState.widget.meta_data, about: event.target.value}}}))
@@ -81,7 +81,7 @@ const WidgetListCard = ({widget = null}) => {
 			excerpt: state.widget.meta_data.excerpt,
 			demo: state.widget.meta_data.demo,
         }
-        
+
         apiUpdateWidgetAdmin(update).then(response => {
             let errorMessage = []
             let success = false
@@ -136,7 +136,7 @@ const WidgetListCard = ({widget = null}) => {
                 </span>
                 <span className="title">{state.widget.name}</span>
             </div>
-            { ! state.widget.expanded ? <></> : 
+            { ! state.widget.expanded ? <></> :
             <div className="widget-info">
                 { widgetErrorsRender }
                 { widgetSuccessRender }
@@ -201,7 +201,7 @@ const WidgetListCard = ({widget = null}) => {
                     <div>
                         <span>
                             <label htmlFor="demo">Demo:</label>
-                            <input value={state.widget.meta_data.demo} 
+                            <input value={state.widget.meta_data.demo}
                             onChange={handleDemoChange} type='text' id="demo"/>
                         </span>
                     </div>

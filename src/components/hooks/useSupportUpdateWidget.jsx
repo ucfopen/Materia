@@ -9,6 +9,10 @@ export default function useSupportUpdateWidget() {
 		apiUpdateWidget,
 		{
 			onSuccess: (data, variables) => {
+				if (!data || (data.type == 'error'))
+				{
+					return variables.errorFunc(data.msg)
+				}
 				variables.successFunc()
 
 				// Refresh widgets
@@ -20,7 +24,7 @@ export default function useSupportUpdateWidget() {
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)
-				
+
 				variables.errorFunc()
 			}
 		}

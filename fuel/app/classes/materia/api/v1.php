@@ -237,6 +237,10 @@ class Api_V1
 		// student made widgets are locked forever
 		if ($inst->is_student_made)
 		{
+			if ( $guest_access === false )
+			{
+				return new Msg('Student-made widgets must stay in guest access mode.', 'Student Made', 'error', false);
+			}
 			$attempts = -1;
 			$guest_access = true;
 		}
