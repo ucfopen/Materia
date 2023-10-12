@@ -27,9 +27,9 @@ const HelpForStudents = () => {
 				<h2>Common Questions &amp; Issues</h2>
 				<dl>
 					<dt>I'm not seeing a widget, only an error message. What do I do?</dt>
-					<dd>For one reason or a another Materia encountered a server issue or an issue authenticating you. Contact support using the info above.</dd>
-				</dl>
-				<dl>
+					<dd>
+						<p>For one reason or a another Materia encountered a server issue or an issue authenticating you. Contact support using the info above.</p>
+					</dd>
 					<dt>I completed a widget, but my grade didn't update. What happened?</dt>
 					<dd>
 						<p>Widgets should automatically update the gradebook with your score when embedded correctly in an assignment. If a widget is embedded as a module item or directly in a regular course page,
@@ -39,22 +39,22 @@ const HelpForStudents = () => {
 					</dd>
 					<dt>How many times can I play a widget?</dt>
 					<dd>
-						By default, widgets can be played as many times as you want. When embedded as assignments, your highest score is the one synced with the gradebook. If your instructor has set an attempt limit,
-						the additional attempt count will be displayed on the score screen alongside the Play Again button.
+						<p>By default, widgets can be played as many times as you want. When embedded as assignments, your highest score is the one synced with the gradebook. If your instructor has set an attempt limit,
+						the additional attempt count will be displayed on the score screen alongside the Play Again button.</p>
 					</dd>
 					<dt>Can I see scores from widgets I've previously played in Materia?</dt>
 					<dd>
-						You can! Log in to Materia directly, if you're not already authenticated. Then, visit your profile by clicking your name at the top right, or the 
-						My Profile link the header. Your profile page will list your complete play history for every widget you've previously interacted with.
+						<p>You can! Log in to Materia directly, if you're not already authenticated. Then, visit your profile by clicking your name at the top right, or the 
+						My Profile link the header. Your profile page will list your complete play history for every widget you've previously interacted with.</p>
 					</dd>
 					<dt>Can I make my own widget?</dt>
 					<dd>
-						Students can make widgets, but there's one important limitation: the widget will be set to Guest Mode, which means it won't know who is playing it, and consequently, score
-						data will be anonymous.
+						<p>Students can make widgets, but there's one important limitation: the widget will be set to Guest Mode, which means it won't know who is playing it, and consequently, score
+						data will be anonymous.</p>
 					</dd>
 					<dt>What's the answer to life, the universe, and everything?</dt>
 					<dd>
-						That's a really big question, but we're pretty sure the answer is 42.
+						<p>That's a really big question, but we're pretty sure the answer is 42.</p>
 					</dd>
 				</dl>
 			</section>
