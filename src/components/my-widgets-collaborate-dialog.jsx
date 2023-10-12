@@ -167,8 +167,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		setUserPerms.mutate({
 			instId: inst.id,
 			permsObj: permsObj,
-			successFunc: () => {
-				if (mounted.current) {
+			successFunc: (data) => {
+				if (data && data.type == 'error')
+				{
+					if (data.title == "Share Not Allowed")
+					{
+						setState({...state, shareNotAllowed: true})
+					}
+				}
+				else if (mounted.current) {
 					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}

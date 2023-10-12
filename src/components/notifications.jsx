@@ -121,7 +121,11 @@ const Notifications = (user) => {
             instId: notif.item_id,
             permsObj: userPerms,
             successFunc: (data) => {
-                if (data.status == 200)
+                if (!data || data.title == "error")
+                {
+                    setErrorMsg('Action failed.');
+                }
+                else if (data)
                 {
                     // Redirect to widget
                     if (!window.location.pathname.includes('my-widgets'))
@@ -143,11 +147,6 @@ const Notifications = (user) => {
 
                     // Close notifications
                     setNavOpen(false)
-
-                }
-                else
-                {
-                    setErrorMsg('Action failed.');
                 }
             }
         })
