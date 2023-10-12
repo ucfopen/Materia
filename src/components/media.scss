@@ -1,0 +1,295 @@
+@import './include.scss';
+
+$arrow_size: 4px;
+
+html {
+	background: #fff;
+}
+
+body.import {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.media-importer {
+	display: flex;
+	flex-flow: row nowrap;
+	width: 800px;
+
+	> section {
+		position: relative;
+		height: calc(100vh - 35px);
+		width: 45%;
+		padding: 0 2.5% 35px 2.5%;
+
+		&:first-child {
+			&:before {
+				color: #dadada;
+				content: 'or';
+				position: absolute;
+				top: 4vh;
+				left: 50vw;
+				transform: translateX(-50%);
+			}
+
+			&:after {
+				content: '';
+				border-left: thin solid #dadada;
+				height: 85vh;
+				position: absolute;
+				top: 10vh;
+				right: 50vw;
+			}
+		}
+
+		&:last-child {
+			display: flex;
+			width: 47%;
+			flex-flow: column;
+			padding: 0 0.5% 0 2.5%;
+		}
+
+		.loading-icon-holder {
+			z-index: 100;
+			position: absolute;
+			top: calc(50vh - 100px);
+			left: 50%;
+			display: flex;
+			flex-direction: column-reverse;
+			width: 180px;
+			height: 200px;
+			margin-left: -90px;
+	
+			background: rgba(255,255,255,0.95);
+			border-radius: 10px;
+
+			.progress {
+				display: block;
+				padding-bottom: 10px;
+				text-align: center;
+				font-weight: bold;
+			}
+		}
+	}
+
+	.pane-header {
+		text-align: center;
+		margin-top: 10px;
+
+		&.darker {
+			font-size: 16px;
+			color: #484848;
+			font-weight: 700;
+			margin: 10px auto 10px;
+		}
+
+		.close-button {
+			background: transparent;
+			position: absolute;
+			right: 10px;
+			top: 5px;
+
+			&:after {
+				content: 'X';
+				font-size: 15px;
+				color: #000;
+				cursor: pointer;
+			}
+		}
+	}
+
+	input[type='file'] {
+		display: none;
+	}
+
+	.select_file_button {
+		margin: 5px 0px;
+		font-weight: 400;
+	}
+
+	.pane-footer {
+		position: absolute;
+		width: 100%;
+		bottom: 0px;
+
+		span.content {
+			display: inline-block;
+			padding: 6px 2.5%;
+			background: rgba(255,255,255,0.95);
+
+			font-size: 14px;
+
+			&.error-state {
+				font-weight: bold;
+				color: #730000;
+			}
+		}
+	}
+}
+
+#drag-wrapper {
+	position: relative;
+	height: 333px;
+	margin: 45px 55px 30px;
+	border: 2px dashed #dadada;
+	border-radius: 5px;
+	background: #f5f5f5;
+
+	.drag-text {
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		left: 50%;
+		text-align: center;
+	}
+
+	&.drag-is-dragover {
+		background-color: grey;
+	}
+}
+
+#sort-bar {
+	display: flex;
+	flex-flow: row;
+	margin-left: 20px;
+
+	font-size: 14px;
+
+	label {
+		margin-left: 30px;
+	}
+}
+
+.sort-bar {
+	display: flex;
+	position: relative;
+	flex-flow: row;
+	margin-left: 20px;
+	padding-top: 7px;
+
+	input {
+		padding-right: 125px;
+		padding-left: 25px;
+		height: 20px;
+		background: #fff;
+		border: 1px solid #b0b0b0;
+		border-radius: 12px;
+
+		background-repeat: no-repeat;
+		background-position: left;
+		background-position-x: 5px;
+	}
+
+	.search-icon {
+		position: absolute;
+		top: 10px;
+		left: 6px;
+		height: 16px;
+		width: 20px;
+		fill: #898686;
+		svg {
+			height: 80%;
+			width: 80%;
+		}
+	}
+}
+
+#sort-options {
+	display: flex;
+	flex-flow: row;
+
+	.sort-option {
+		margin-right: 20px;
+		cursor: pointer;
+		position: relative;
+	}
+
+	.sort-asc:after,
+	.sort-desc:after {
+		position: absolute;
+		top: 0;
+		right: -5px;
+		content: '';
+		width: 0;
+		height: 0;
+		border-left: $arrow_size solid transparent;
+		border-right: $arrow_size solid transparent;
+	}
+
+	.sort-asc:after {
+		border-bottom: $arrow_size solid #000;
+	}
+
+	.sort-desc:after {
+		border-top: $arrow_size solid #f00;
+	}
+}
+
+#file-display {
+	width: calc(100% - 20px);
+	max-width: calc(100% - 20px);
+	height: calc(100% - 65px);
+	overflow-y: auto;
+	margin-top: 10px;
+
+	.file-info {
+		display: flex;
+		max-width: calc(100% - 20px);
+		min-height: 0%;
+		flex-flow: row;
+		align-content: space-between;
+		cursor: pointer;
+
+		color: #6b6b6b;
+		font-size: 13px;
+		padding: 10px;
+
+		&:nth-child(odd) {
+			background-color: #eaeaea;
+		}
+
+		&:hover {
+			background-color: #f9d991;
+		}
+
+		span {
+			vertical-align: top;
+		}
+
+		.file-thumbnail {
+			width: 65px;
+
+			img {
+				max-width: 65px;
+				max-height: 65px;
+				border-radius: 5px;
+			}
+		}
+
+		.file-name {
+			display: block;
+			flex-grow: 1;
+			padding: 0 10px;
+			min-width: 1%; // forces word-wrap
+			word-wrap: break-word;
+
+			color: #484848;
+
+
+			font-weight: bold;
+
+			.file-type {
+				display: block;
+				color: #6b6b6b;
+
+				font-weight: normal;
+			}
+		}
+
+		.action_button {
+			padding: 6px 12px;
+			font-size: 12px;
+		}
+	}
+}

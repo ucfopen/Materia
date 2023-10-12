@@ -19,7 +19,7 @@ $DCTEST pull --ignore-pull-failures app fakes3
 docker run --rm -v $(pwd)/../:/source alpine:latest chown -R 1000 /source
 
 # install php deps
-$DCTEST run --rm --no-deps app composer install --no-progress
+$DCTEST run -T --rm --no-deps app composer install --no-progress
 
 # run linter
 source run_tests_lint.sh

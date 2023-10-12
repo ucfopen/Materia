@@ -24,18 +24,49 @@ class Controller_Users extends Controller
 			// already logged in
 			Response::redirect($redirect);
 		}
+		
+		Js::push_inline('var LOGIN_USER = "'.\Lang::get('login.user').'";');
+		Js::push_inline('var LOGIN_PW = "'.\Lang::get('login.password').'";');
+
+		// condense login links into a string with delimiters to be embedded as a JS global
+		$link_items = [];
+		foreach (\Lang::get('login.links') as $a)
+		{
+			$link_items[] = $a['href'].'***'.$a['title'];
+		}
+		$login_links = implode('@@@', $link_items);
+		Js::push_inline('var LOGIN_LINKS = "'.urlencode($login_links).'";');
+
+		// additional JS globals. Previously, these were rendered directly in the partial view. Now we have to hand them off 
+		// to the React template to be rendered.
+		Js::push_inline('var ACTION_LOGIN = "'.\Router::get('login').'";');
+		Js::push_inline('var ACTION_REDIRECT = "'.$redirect.'";');
+		Js::push_inline('var ACTION_DIRECTLOGIN = "'.($direct_login ? 'true' : 'false').'";');
+
+		Js::push_inline('var BYPASS  = "'.(Session::get_flash('bypass', false, false) ? 'true' : 'false').'";');
+
+		// conditionally add globals if there is an error or notice
+		if ($msg = Session::get_flash('login_error'))
+		{
+			Js::push_inline('var ERR_LOGIN = "'.$msg.'";');
+		}
+		if ($notice = (array) Session::get_flash('notice'))
+		{
+			Js::push_inline('var NOTICE_LOGIN = "'.implode('</p><p>', $notice).'";');
+		}
+
+		Js::push_inline('var CONTEXT = "login";');
 
 		Event::trigger('request_login', $direct_login);
 
-		Css::push_group(['core', 'login']);
-		Js::push_group(['angular', 'materia']);
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Login')
 			->set('page_type', 'login');
 
-		$this->theme->set_partial('content', 'partials/login')
-			->set('redirect', urlencode($redirect));
+		Css::push_group(['login']);
+		Js::push_group(['react', 'login']);
 	}
 
 	public function post_login()
@@ -84,25 +115,18 @@ class Controller_Users extends Controller
 	{
 		if (\Service_User::verify_session() !== true)
 		{
-			Session::set_flash('notice', 'Please log in to view this page.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your profile.');
+			Response::redirect(Router::get('login'));
+			return;
 		}
 
-		Css::push_group(['core', 'profile']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'My Profile');
 
-		Js::push_group(['angular', 'materia', 'student']);
-
-		// to properly fix the date display, we need to provide the raw server date for JS to access
-		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
-		Js::push_inline("var DATE = '$server_date'");
-
-		$this->theme->get_template()
-			->set('title', 'Profile')
-			->set('page_type', 'user profile');
-
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/user/profile')
-			->set('me', \Model_User::find_current());
+		Css::push_group(['profile']);
+		Js::push_group(['react', 'profile']);
 	}
 
 	/**
@@ -113,20 +137,18 @@ class Controller_Users extends Controller
 	{
 		if (\Service_User::verify_session() !== true)
 		{
-			Session::set_flash('notice', 'Please log in to view this page.');
-			Response::redirect(Router::get('login').'?redirect='.URI::current());
+			Session::set('redirect_url', URI::current());
+			Session::set_flash('notice', 'Please log in to view your profile settings.');
+			Response::redirect(Router::get('login'));
+			return;
 		}
 
-		Css::push_group(['core', 'profile']);
-		Js::push_group(['angular', 'materia', 'student']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Settings');
 
-		$this->theme->get_template()
-			->set('title', 'Settings')
-			->set('page_type', 'user profile settings');
-
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/user/settings')
-			->set('me', \Model_User::find_current());
+		Css::push_group(['profile']);
+		Js::push_group(['react', 'settings']);
 	}
 
 }

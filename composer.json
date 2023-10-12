@@ -37,7 +37,7 @@
         "ext-pdo": "*",
         "ext-gd": "*",
         "ext-mbstring": "*",
-        "composer/installers": "~1.0",
+        "composer/installers": "1.*",
         "fuel/core": "dev-1.9/develop",
         "fuel/auth": "dev-1.9/develop",
         "fuel/email": "dev-1.9/develop",
@@ -51,7 +51,7 @@
         "eher/oauth": "1.0.7",
         "aws/aws-sdk-php": "3.67.17",
         "symfony/dotenv": "^5.1",
-        "ucfopen/materia-theme-ucf": "1.2.1"
+        "ucfopen/materia-theme-ucf": "2.0.1"
     },
     "suggest": {
         "ext-memcached": "*"
@@ -64,7 +64,10 @@
     },
     "config": {
         "vendor-dir": "fuel/vendor",
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "composer/installers": true
+        }
     },
     "extra": {
         "installer-paths": {
@@ -94,9 +97,9 @@
             "package": {
                 "name": "ucfopen/materia-theme-ucf",
                 "type": "fuel-package",
-                "version": "1.2.1",
+                "version": "2.0.1",
                 "dist": {
-                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v1.2.1.zip",
+                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.1.zip",
                     "type": "zip"
                 },
                 "source": {

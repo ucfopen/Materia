@@ -1,30 +1,72 @@
 {
   "name": "@ucfopen/materia",
+  "version": "10.0.0",
   "license": "AGPL-3.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "description": "Engage students with easily embedded apps for online courses.",
   "author": "University of Central Florida, Center for Distributed Learning",
   "homepage": "https://ucfopen.github.io/Materia-Docs",
   "repository": "https://github.com/ucfopen/Materia.git",
   "scripts": {
-    "build": "node process_assets.js",
-    "build:watch": "concurrently \"yarn build:watchmateria\" \"yarn build:watchclientassets\"",
-    "build:watchmateria": "nodemon -e js,css -w ./node_modules/materia-server-client-assets/dist process_assets.js",
-    "build:watchclientassets": "cd node_modules/materia-server-client-assets && yarn build-watch",
-    "postinstall": "napa && npm run build",
-    "devassets:git": "cd .. && git clone https://github.com/ucfopen/Materia-Server-Client-Assets.git Materia-Server-Client-Assets",
-    "devassets:link": "cd ../Materia-Server-Client-Assets && yarn install && yarn link && cd - && yarn link materia-server-client-assets",
-    "devassets:unlink": "yarn unlink materia-server-client-assets && cd ../Materia-Server-Client-Assets && yarn unlink && cd - && yarn install",
+    "dev": "webpack-dev-server",
+    "build": "webpack",
+    "build-for-image": "webpack --config webpack.prod.config.js",
+    "test": "TZ=Etc/UTC jest --verbose",
+    "test:dev": "TZ=Etc/UTC jest --verbose --watch --coverage",
+    "test:ci": "TZ=Etc/UTC CI=true jest --ci --useStderr --coverage --coverageReporters text-summary cobertura",
     "test:php": "echo 'Additional env setup needed to run on host. You probably want docker/run_tests.sh'; composer run testci",
-    "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'"
+    "test:php:watch": "nodemon -e php -i node_modules/ -i coverage/ -i docker/ -i public/widget -i fuel/vendor/ -i fuel/core/ --exec 'composer run test || exit 1'",
+    "prettier:run": "prettier --write 'src/**/*.{js,scss}'",
+    "prettier:debug": "prettier -l 'src/**/*.{js,scss}'",
+    "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
   },
   "dependencies": {
+    "d3": "^7.2.0",
     "fs-extra": "^8.0.1",
-    "materia-server-client-assets": "2.4.2",
-    "napa": "^3.0.0"
+    "js-base64": "^3.7.2",
+    "react-datepicker": "^4.8.0",
+    "react-overlays": "^5.2.1",
+    "react-query": "^3.39.2",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "@testing-library/dom": "7.31.2",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "11.2.7",
+    "@testing-library/user-event": "^13.1.9",
+    "autoprefixer": "^9.8.5",
+    "babel-jest": "^29.3.1",
+    "babel-loader": "^9.1.2",
     "concurrently": "^5.1.0",
-    "nodemon": "^2.0.2"
+    "core-js": "3",
+    "css-loader": "^6.7.3",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "enzyme-to-json": "^3.6.2",
+    "husky": "^4.2.5",
+    "jest": "^29.3.1",
+    "jest-environment-jsdom": "^29.4.3",
+    "jquery": "3.5.1",
+    "jquery-ui": "1.12.1",
+    "lint-staged": "^10.2.11",
+    "mini-css-extract-plugin": "^2.7.2",
+    "node-sass": "^8.0.0",
+    "nodemon": "^2.0.20",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-test-renderer": "^17.0.2",
+    "sass-loader": "^13.2.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1",
+    "webpack-manifest-plugin": "^5.0.0",
+    "webpack-remove-empty-scripts": "1.0.1",
+    "webpack-strip-block": "^0.3.0"
   },
   "nodemonConfig": {
     "delay": "500",
@@ -32,12 +74,56 @@
       ".git"
     ]
   },
-  "napa": {
-    "datatables": "DataTables/DataTables#1.10.16",
-    "labjs": "getify/LABjs#2.0.3",
-    "swfobject": "swfobject/swfobject#2.2",
-    "hammerjs": "hammerjs/hammer.js#v2.0.8",
-    "spinjs": "https://github.com/fgnass/spin.js.git#1.2.8"
+  "prettier": {
+    "printWidth": 100,
+    "semi": false,
+    "useTabs": true,
+    "singleQuote": true
   },
-  "version": "9.0.3"
+  "lint-staged": {
+    "src/**/*.{js,scss}": [
+      "yarn prettier --write"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn test:ci && yarn lint-staged"
+    }
+  },
+  "browserslist": [
+    "> 0.5%",
+    "not ie >= 0",
+    "not op_mini all"
+  ],
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ],
+    "moduleNameMapper": {
+      "^.+\\.(css|less|scss)$": "babel-jest"
+    },
+    "verbose": false,
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ],
+    "setupFilesAfterEnv": [
+      "./src/testSetup.js"
+    ],
+    "collectCoverageFrom": [
+      "src/components/**/*.{js,jsx}"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 43,
+        "branches": 32,
+        "functions": 48,
+        "lines": 43
+      }
+    }
+  }
 }

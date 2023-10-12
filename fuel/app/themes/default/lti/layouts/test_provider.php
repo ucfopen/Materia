@@ -8,12 +8,12 @@
 		<?= Css::render() ?>
 		<?= Js::render() ?>
 		<script type="text/javascript">
-			$(function() {
+			window.onload = () => {
 				if(typeof window.localStorage !== 'undefined' && typeof localStorage.ltiUrl !== 'undefined')
 				{
 					document.getElementById('assignment-url').value = localStorage.ltiUrl;
 				}
-			});
+			}
 
 			function toggleVariableWidthIFrame()
 			{
@@ -45,10 +45,18 @@
 
 			function setLtiUrl(form)
 			{
-				$(form).find('.lti_url').val($('#assignment-url').val());
-				$(form).find('.context_id').val($('#context-id').val());
-				$(form).find('.resource_link').val($('#resource-link-id').val());
-				$(form).find('.custom_widget_instance_id').val($('#custom-inst-id').val());
+				form.querySelector('.lti_url').value = document.querySelector('#assignment-url').value;
+				form.querySelector('.context_id').value = document.querySelector('#context-id').value;
+				form.querySelector('.resource_link').value = document.querySelector('#resource-link-id').value;
+				form.querySelector('.custom_widget_instance_id').value = document.querySelector('#custom-inst-id').value;
+			}
+
+			function setInvalidOAuthSignature(form)
+			{
+				inputs = form.querySelectorAll('#form_oauth_signature');
+				inputs.forEach(input => {
+					input.value = "THIS_WILL_FAIL";
+				})
 			}
 
 			function createLearnerButtons(event)
@@ -59,14 +67,14 @@
 
 			function toggleLegacy()
 			{
-				var url = $('#assignment-url').val();
+				var url = document.querySelector('#assignment-url').value;
 				var isLegacy = url.indexOf('assignment') > -1;
 
 				if(isLegacy) // http://localhost/lti/assignment?widget=nQXe5
 				{
 					var index = url.indexOf('/lti/');
 					var instId = url.substr(index + 23, 7);
-					$('#assignment-url').val(url.substring(0, index) + '/embed/' + instId);
+					document.querySelector('#assignment-url').value = (url.substring(0, index) + '/embed/' + instId);
 				}
 				else // http://localhost/embed/nQXe5/alt1 or http://localhost/play/nQXe5/alt1
 				{
@@ -81,22 +89,22 @@
 						var instId = url.substr(index + 6, 5);
 					}
 
-					$('#assignment-url').val(url.substring(0, index) + '/lti/assignment?widget=' + instId);
+					document.querySelector('#assignment-url').value = url.substring(0, index) + '/lti/assignment?widget=' + instId;
 				}
 			}
 
 			function toggleEmbed()
 			{
-				var url = $('#assignment-url').val();
+				var url = document.querySelector('#assignment-url').value;
 				var isEmbedded = url.indexOf('/embed/') > -1;
 
 				if(isEmbedded) // http://localhost/embed/nQXe5/alt1
 				{
-					$('#assignment-url').val(url.replace('/embed/', '/play/'));
+					document.querySelector('#assignment-url').value = url.replace('/embed/', '/play/');
 				}
 				else if (url.indexOf('/play/' > -1)) // http://localhost/play/nQXe5/alt1
 				{
-					$('#assignment-url').val(url.replace('/play/', '/embed/'));
+					document.querySelector('#assignment-url').value = url.replace('/play/', '/embed/');
 				}
 				else // http://localhost/lti/assignment?widget=nQXe5
 				{
@@ -121,7 +129,7 @@
 
 			<h2>LTI Navigation Launch</h2>
 
-			<form method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
+			<form onsubmit="setInvalidOAuthSignature(this)" method="POST" target="embed_iframe" action="<?= $login_endpoint ?>" >
 				<?php foreach ($login_params as $name => $value) : ?>
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
@@ -143,7 +151,7 @@
 			<hr />
 			<h2>LTI Picker Launch</h2>
 
-			<form method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
+			<form onsubmit="setInvalidOAuthSignature(this)" method="POST" target="embed_iframe" action="<?= $instructor_endpoint ?>" >
 				<?php foreach ($instructor_params as $name => $value) : ?>
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
@@ -288,7 +296,7 @@
 				<input type="submit" value="Test Validation">
 			</form>
 
-			<form method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
+			<form onsubmit="setInvalidOAuthSignature(this)" method="POST" target="embed_iframe" action="<?= $validation_endpoint ?>">
 				<?php foreach ($validation_params as $name => $value) : ?>
 					<? if($name == 'oauth_signature') : ?>
 						<?= \Form::hidden('oauth_signature', 'THIS_WILL_FAIL') ?>
@@ -303,7 +311,7 @@
 				<?php foreach ($unknown_assignment_params as $name => $value) : ?>
 				<?= \Form::hidden($name, $value) ?>
 				<?php endforeach ?>
-				<input type="submit" id="test_unkown_assignment" value="Unknown Assignment Error">
+				<input type="submit" id="test_unknown_assignment" value="Unknown Assignment Error">
 			</form>
 			<?php //@codingStandardsIgnoreEnd ?>
 		</section>

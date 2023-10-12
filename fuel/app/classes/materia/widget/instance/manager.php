@@ -6,13 +6,15 @@ class Widget_Instance_Manager
 {
 	public $validate = true;
 
-	static public function get($inst_id, $load_qset=false, $timestamp=false)
+	// rolling back type expectations for now to resolve failing tests - this isn't a bad idea but it needs more focused attention
+	// static public function get(string $inst_id, bool $load_qset=false, $timestamp=false, bool $deleted=false)
+	static public function get($inst_id, $load_qset=false, $timestamp=false, $deleted=false)
 	{
-		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp);
+		$instances = Widget_Instance_Manager::get_all([$inst_id], $load_qset, $timestamp, $deleted);
 		return count($instances) > 0 ? $instances[0] : false;
 	}
 
-	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false)
+	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false, bool $deleted=false): array
 	{
 		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
 
@@ -23,7 +25,7 @@ class Widget_Instance_Manager
 		$results = \DB::select()
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids)
-			->and_where('is_deleted', '=', '0')
+			->and_where('is_deleted', '=', $deleted ? '1' : '0')
 			->order_by('created_at', 'desc')
 			->execute()
 			->as_array();
@@ -45,6 +47,7 @@ class Widget_Instance_Manager
 				'open_at'         => $r['open_at'],
 				'close_at'        => $r['close_at'],
 				'attempts'        => $r['attempts'],
+				'is_deleted'      => (bool) $r['is_deleted'],
 				'embedded_only'   => (bool) $r['embedded_only'],
 				'widget'          => $widget,
 			]);
@@ -56,12 +59,42 @@ class Widget_Instance_Manager
 		return $instances;
 	}
 
-	public static function get_all_for_user($user_id)
+	public static function get_all_for_user($user_id, $load_qset=false)
 	{
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
 
-		if ( ! empty($inst_ids)) return Widget_Instance_Manager::get_all($inst_ids);
+		if ( ! empty($inst_ids)) return Widget_Instance_Manager::get_all($inst_ids, $load_qset);
 		else return [];
+	}
+
+/**
+ * It takes a user ID and a page number, and returns an array of instances that the user has permission
+ * to see, along with the total number of pages
+ *
+ * @param user_id The user id of the user whose instances we want to get
+ * @param page_number The page number of the pagination.
+ *
+ * @return array of widget instances that are visible to the user.
+ */
+	public static function get_paginated_for_user($user_id, $page_number = 0)
+	{
+		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
+		$displayable_inst = self::get_all($inst_ids);
+		$widgets_per_page = 80;
+		$total_num_pages = ceil(sizeof($displayable_inst) / $widgets_per_page);
+		$offset = $widgets_per_page * $page_number;
+		$has_next_page = $offset + $widgets_per_page < sizeof($displayable_inst) ? true : false;
+
+		// inst_ids corresponds to a single page's worth of instances
+		$displayable_inst = array_slice($displayable_inst, $offset, $widgets_per_page);
+
+		$data = [
+			'pagination' => $displayable_inst,
+		];
+		
+		if ($has_next_page) $data['next_page'] = $page_number + 1;
+
+		return $data;
 	}
 
 	/**
@@ -100,5 +133,51 @@ class Widget_Instance_Manager
 
 		// true if the lock is mine
 		return $locked_by == $me;
+	}
+
+	/**
+	 * Gets all widget instances related to a given input, including id or name.
+	 *
+	 * @param input search input
+	 *
+	 * @return array of widget instances related to the given input
+	 */
+	public static function get_search(string $input): array
+	{
+		$results = \DB::select()
+			->from('widget_instance')
+			->where('id', 'LIKE', "%$input%")
+			->or_where('name', 'LIKE', "%$input%")
+			->order_by('created_at', 'desc')
+			->execute()
+			->as_array();
+
+		$instances = [];
+		foreach ($results as $r)
+		{
+			$widget = new Widget();
+			$widget->get($r['widget_id']);
+			$student_access = Perm_Manager::accessible_by_students($r['id'], Perm::INSTANCE);
+			$inst = new Widget_Instance([
+				'id'              => $r['id'],
+				'user_id'         => $r['user_id'],
+				'name'            => $r['name'],
+				'is_student_made' => (bool) $r['is_student_made'],
+				'student_access'  => $student_access,
+				'guest_access'    => (bool) $r['guest_access'],
+				'is_draft'        => (bool) $r['is_draft'],
+				'created_at'      => $r['created_at'],
+				'open_at'         => $r['open_at'],
+				'close_at'        => $r['close_at'],
+				'attempts'        => $r['attempts'],
+				'is_deleted'      => (bool) $r['is_deleted'],
+				'embedded_only'   => (bool) $r['embedded_only'],
+				'widget'          => $widget,
+			]);
+
+			$instances[] = $inst;
+		}
+
+		return $instances;
 	}
 }

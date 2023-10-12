@@ -1,0 +1,170 @@
+@import './include.scss';
+
+html,
+body {
+	height: 100%;
+	min-height: 100%;
+}
+
+#app {
+	position: relative;
+	height: calc(100% - 42px);
+}
+
+section.widget {
+	display: none;
+	position: absolute;
+	left: 20px;
+	right: 20px;
+	bottom: 20px;
+	top: 110px;
+	min-height: 400px;
+	min-width: 400px;
+
+	&.preview {
+		top: 150px;
+	}
+
+	.preview-bar {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		display: block;
+		border-bottom: 4px #b944cc solid;
+		width: 100%;
+		height: 40px;
+		padding: 0;
+		background: none;
+		margin-top: -44px;
+		z-index: 1;
+
+		&:before {
+			content: 'Previewing';
+			background: #b944cc;
+			display: block;
+
+			left: 0px;
+			top: -40px;
+			width: 160px;
+			height: 20px;
+			padding: 8px 0 12px 0;
+
+			font-size: 20px;
+			font-weight: 900;
+			color: #ffffff;
+			text-align: center;
+			vertical-align: middle;
+
+			border-radius: 5px 5px 0 0;
+		}
+
+		&:after {
+			content: 'Scores and interactions will not be recorded while previewing.';
+			position: absolute;
+			display: block;
+
+			right: 0px;
+			top: 16px;
+
+			font-size: 14px;
+			font-weight: 300;
+		}
+	}
+
+	.center {
+		position: relative;
+		height: 100%;
+		min-height: 400px;
+		margin: 0 auto;
+
+		background: #fff;
+
+		#container {
+			margin: 0 auto;
+			outline: 1px solid #999;
+			display: block;
+
+			font-family: 'Lato', arial, sans-serif;
+		}
+
+		#container.html {
+			border: 0;
+			height: 100%;
+			width: 100%;
+		}
+	}
+
+	section.player-footer {
+		height: 38px;
+
+		margin: 0 auto;
+		padding: 4px 10px;
+
+		border-top: solid 2px $color-purple;
+		border-bottom-right-radius: 5px;
+		border-bottom-left-radius: 5px;
+		box-sizing: border-box;
+
+		background: #ebebeb;
+
+		display: flex;
+		justify-content: space-between;
+
+		a {
+			display: block;
+
+			padding-top: 4px;
+
+			color: $color-features;
+			font-weight: 400;
+			font-size: 13px;
+
+			text-decoration: underline;
+
+			&.materia-logo {
+				width: 100px;
+
+				img {
+					width: auto;
+					height: 15px;
+					margin-top: 1px;
+				}
+			}
+		}
+	}
+}
+
+.embedded {
+
+	background-image: none;
+	background: #ffffff;
+
+	section.widget {
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.center {
+		box-shadow: none;
+	}
+}
+
+.no-flash {
+
+	section.widget {
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+
+	.center {
+		box-shadow: none;
+	}
+}
+
+h3 {
+	font-size: 1.1em;
+	font-weight: 700;
+}

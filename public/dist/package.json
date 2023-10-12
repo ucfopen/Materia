@@ -1,0 +1,29 @@
+{
+	"name": "materia-widget-dependencies",
+	"description": "The Widget Dependencies package provides js and css assets from Materia that are required for proper functioning of the Widget Development Kit.",
+	"author": "University of Central Florida, Center for Distributed Learning",
+	"license": "AGPL-3.0",
+	"files": [
+		"js/materia.js",
+		"js/materia.enginecore.js",
+		"js/materia.creatorcore.js",
+		"js/materia.scorecore.js",
+		"js/player-page.js",
+		"css/player-page.css",
+		"js/creator-page.js",
+		"css/creator-page.css",
+		"js/qset-history.js",
+		"css/qset-history.css",
+		"js/question-importer.js",
+		"css/question-importer.css",
+		"js/guides.js",
+		"css/widget-guide.css",
+		"js/scores.js",
+		"css/scores.css"
+	],
+	"version": "0.1.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ucfopen/Materia"
+	}
+}

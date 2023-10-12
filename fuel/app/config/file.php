@@ -12,13 +12,11 @@ return array(
 
 	'basedir' => APPPATH,
 	'areas' => [
-
-		 'media' => [
+		'media' => [
 			'basedir'    => realpath(APPPATH.'media').DS,
-			'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'wav', 'mp3', 'obj'],
+			'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'wav', 'mp3', 'obj', 'm4a'],
 			'url'        => DOCROOT . 'media',
 		]
 	],
 
 );
-

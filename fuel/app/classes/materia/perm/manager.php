@@ -34,16 +34,24 @@ class Perm_Manager
 	 */
 	static public function is_super_user()
 	{
-		$login_hash = \Session::get('login_hash');
-		$key = 'is_super_user_'.$login_hash;
-		$has_role = (\Fuel::$is_cli === true && ! \Fuel::$is_test) || \Session::get($key, false);
+		// @TODO this was previously creating a local session object storing the value returned from this
+		// The session caching has been removed due to issues related to the cache when the role is added or revoked
+		// Ideally we can still find a way to cache this and make it more performant!!
+		return (\Fuel::$is_cli === true && ! \Fuel::$is_test) || self::does_user_have_role([\Materia\Perm_Role::SU]);
+		
+	}
 
-		if ( ! $has_role)
-		{
-			$has_role = self::does_user_have_role([\Materia\Perm_Role::SU]);
-			\Session::set($key, $has_role);
-		}
-		return $has_role;
+	/**
+	 * Check if user is currently logged in as a support user
+	 *
+	 * @return boolean wheter or not the current user has the support role as defined by Perm_Role class
+	 */
+	static public function is_support_user(): bool
+	{
+		// @TODO this was previously creating a local session object storing the value returned from this
+		// The session caching has been removed due to issues related to the cache when the role is added or revoked
+		// Ideally we can still find a way to cache this and make it more performant!!
+		return (\Fuel::$is_cli === true && ! \Fuel::$is_test) || self::does_user_have_role([\Materia\Perm_Role::SUPPORT]);
 	}
 
 	/**
@@ -261,12 +269,11 @@ class Perm_Manager
 			->as_object();
 
 		$current_id = \Model_User::find_current_id();
+		$roles = [];
 
 		// return logged in user's roles if id is 0 or less, non su users can only use this method
 		if ($user_id <= 0 || $user_id == $current_id)
 		{
-			$roles = [];
-
 			$results = $q->where('m.user_id', $current_id)
 				->execute();
 
@@ -533,7 +540,10 @@ class Perm_Manager
 	}
 
 	/**
-	 * Gets an array of object id's that a user has permissions for matching any of the requested permissions.
+	 * Gets an array of object ids of a given type that a user has EXPLICIT permissions to that matches the perms provided.
+	 * (!!!) NOTE: Previously, this method would also return IMPLICITLY available objects based on the user's role (if elevated).
+	 * This is no longer the case. If IMPLICITLY available objects are required, use get_all_objects_for_elevated_user_role
+	 *
 	 * If an object has any of the requested permissions, it will be returned.
 	 * Perm_Manager->get_all_objects_for_users($user->user_id, \Materia\Perm::INSTANCE, [\Materia\Perm::SHARE]);
 	 *
@@ -551,41 +561,62 @@ class Perm_Manager
 			// WHERE id IN (5, 6) whould match ids that ***START*** with 5 or 6
 			foreach ($perms as &$value) $value = (string) $value;
 
-			// ====================== GET THE USERS ROLE PERMISSIONS ============================
-			// build a subquery that gets any roles the user has
-			$subquery_role_ids = \DB::select('role_id')
-				->from('perm_role_to_user')
-				->where('user_id', $user_id);
-
-			// get any perms that users roles have
-			$roles_perms = \DB::select('perm')
-				->from('perm_role_to_perm')
-				->where('role_id', 'IN', $subquery_role_ids)
+			// ==================== GET USER's EXPLICIT PERMISSSION ==============================
+			// get objects that the user has direct access to
+			$objects = \DB::select('object_id')
+				->from('perm_object_to_user')
+				->where('object_type', $object_type)
+				->where('user_id', $user_id)
 				->where('perm', 'IN', $perms)
-				->execute();
-
-			// Only super_user has role perm 30 -- get all assets/widgets
-			if ($roles_perms->count() != 0)
-			{
-				$objects = \DB::select('id')
-					->from($object_type == Perm::ASSET ? 'asset' : 'widget_instance')
-					->execute()
-					->as_array('id', 'id');
-			}
-			else
-			{
-				// ==================== GET USER's EXPLICIT PERMISSSION ==============================
-				// get objects that the user has direct access to
-				$objects = \DB::select('object_id')
-					->from('perm_object_to_user')
-					->where('object_type', $object_type)
-					->where('user_id', $user_id)
-					->where('perm', 'IN', $perms)
-					->execute()
-					->as_array('object_id', 'object_id');
-			}
+				->execute()
+				->as_array('object_id', 'object_id');
 			return $objects;
 		}
+	}
+
+	/**
+	 * Gets an array of object ids that a user has permissions to access EXCLUSIVELY based on an elevated role
+	 * This requires the user has a role with elevated perms, and that the group rights associated with those perms are present in the perm_role_to_perm table
+	 * Currently, the role must be Perm::SUPPORTUSER or Perm::SUPERUSER
+	 *
+	 * Perm_Manager->get_all_objects_for_users($user->user_id, \Materia\Perm::INSTANCE);
+	 *
+	 * @param int User ID the get permissions for
+	 * @param int Object type as defined in Perm constants
+	 */
+	static public function get_all_objects_for_elevated_user_role($user_id, $object_type)
+	{
+		$objects = [];
+		$user_is_admin_or_su = false;
+
+		// ====================== GET THE USERS ROLE PERMISSIONS ============================
+		// build a subquery that gets any roles the user has
+		$subquery_role_ids = \DB::select('role_id')
+			->from('perm_role_to_user')
+			->where('user_id', $user_id);
+
+		// get any perms that users roles have
+		$roles_perms = \DB::select('perm')
+			->from('perm_role_to_perm')
+			->where('role_id', 'IN', $subquery_role_ids)
+			->execute();
+
+
+		// verify that perms returned from perm_role_to_perm table are elevated
+		// this means either Perm::SUPPORTUSER (85) or Perm::SUPERUSER (90)
+		foreach ($roles_perms as $role)
+		{
+			if (in_array([Perm::SUPPORTUSER, Perm::SUPERUSER], $role['perm'])) $user_is_admin_or_su = true;
+		}
+
+		if ($user_is_admin_or_su == true)
+		{
+			$objects = \DB::select('id')
+				->from($object_type == Perm::ASSET ? 'asset' : 'widget_instance')
+				->execute()
+				->as_array('id', 'id');
+		}
+		return $objects;
 	}
 
 	/**
@@ -646,9 +677,9 @@ class Perm_Manager
 
 		$all_perms = self::get_all_users_with_perms_to($object_id, $object_type);
 
-		// if the current user is a super user, append their user's perms into the results
-		// super users don't get explicit perms to things set in the db, so we'll fake it here
-		$cur_user_perms = self::is_super_user() ? [Perm::SUPERUSER, null] : $all_perms[$current_user_id];
+		// if the current user is a super user or support user, append their user's perms into the results
+		// super users and support users don't get explicit perms to objects set in the db, so we'll fake it here
+		$cur_user_perms = self::is_super_user() ? [Perm::SUPERUSER, null] : (self::is_support_user() ? [Perm::FULL, null] : $all_perms[$current_user_id]);
 
 		return [
 			'user_perms' => [$current_user_id => $cur_user_perms],

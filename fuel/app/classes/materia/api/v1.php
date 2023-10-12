@@ -10,7 +10,7 @@ for each function that will sort related functions near one another alphabetical
 - Verb Last
 - Use a underscore between the item and the verb
 EX: gameInstance_get, gameInstance_create, gameInstance_edit, gameInstance_copy
-Availible Verbs:
+Available Verbs:
 - get   	(retrive a value)
 - create	(create/save a new value)
 - delete	(remove a value)
@@ -42,18 +42,33 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null)
+	static public function widget_instances_get($inst_ids = null, bool $deleted = false, $load_qset = false)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
 		{
 			if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
-			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
+			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id(), $load_qset);
 		}
 
 		// get specific instances - no log in required
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
-		return Widget_Instance_Manager::get_all($inst_ids);
+		return Widget_Instance_Manager::get_all($inst_ids, $load_qset, false, $deleted);
+	}
+
+/**
+ * Takes a page number, and returns objects containing the total_num_pages and
+ * widget instances that are visible to the user.
+ *
+ * @param page_number The page to be requested. By default it is set to 1.
+ *
+ * @return array of objects containing total_num_pages and widget instances that are visible to the user.
+ */
+	static public function widget_paginate_instances_get($page_number = 0)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
+		return $data;
 	}
 
 	/**
@@ -63,7 +78,7 @@ class Api_V1
 	{
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
 		return $inst->db_remove();
 	}
@@ -123,7 +138,7 @@ class Api_V1
 	static public function widget_instance_copy(string $inst_id, string $new_name, bool $copy_existing_perms = false)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 
 		try
@@ -131,7 +146,7 @@ class Api_V1
 			// retain access - if true, grant access to the copy to all original owners
 			$current_user_id = \Model_User::find_current_id();
 			$duplicate = $inst->duplicate($current_user_id, $new_name, $copy_existing_perms);
-			return $duplicate->id;
+			return $duplicate;
 		}
 		catch (\Exception $e)
 		{
@@ -196,6 +211,7 @@ class Api_V1
 	 * Save and existing instance
 	 *
 	 * @param int     $inst_id
+	 * @param string  $name
 	 * @param object  $qset
 	 * @param bool    $is_draft Whether the widget is being saved as a draft
 	 * @param int     $open_at
@@ -228,6 +244,12 @@ class Api_V1
 		if ( ! empty($qset->data) && ! empty($qset->version))
 		{
 			$inst->qset = $qset;
+		}
+		else
+		{
+			// if the qset is not explicitly provided, assume it is not being updated
+			// if $inst->qset is populated it will be saved to the db as a new qset version - which isn't necessary
+			$inst->qset = (object) ['version' => null, 'data' => null];
 		}
 		if ( ! empty($name))
 		{
@@ -638,12 +660,14 @@ class Api_V1
 	 *				  [quickStats]	contains attempts, scores, currentPlayers, avScore, replays <br />
 	 *				  [playLogs]    a log of all scores recoreded
 	 */
-	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all')
+	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
-		return Session_Play::get_by_inst_id($inst_id, $semester, $year);
+
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		return $data;
 	}
 
 	/**
@@ -817,6 +841,7 @@ class Api_V1
 			return Widget_Question_Manager::get_users_questions(\Model_User::find_current_id(), $type);
 		}
 	}
+
 	static public function play_storage_data_save($play_id, $data)
 	{
 		$inst = self::_get_instance_for_play_id($play_id);
@@ -887,7 +912,9 @@ class Api_V1
 		//no user ids provided, return current user
 		if ($user_ids === null)
 		{
-			$results = \Model_User::find_current();
+			//$results = \Model_User::find_current();
+			$me = \Model_User::find_current_id();
+			$results = \Model_User::find($me);
 			$results = $results->to_array();
 		}
 		else
@@ -895,6 +922,7 @@ class Api_V1
 			if (empty($user_ids) || ! is_array($user_ids)) return Msg::invalid_input();
 			//user ids provided, get all of the users with the given ids
 			$me = \Model_User::find_current_id();
+
 			foreach ($user_ids as $id)
 			{
 				if (Util_Validator::is_pos_int($id))
@@ -1087,21 +1115,36 @@ class Api_V1
 		return $return_array;
 	}
 
-	static public function notification_delete($note_id)
+	static public function notification_delete($note_id, $delete_all)
 	{
 		if ( ! \Service_User::verify_session()) return Msg::no_login();
 
 		$user = \Model_User::find_current();
 
-		$note = \Model_Notification::query()
+		if ($delete_all)
+		{
+			$notes = \Model_Notification::query()
+				->where('to_id', $user->id)
+				->get();
+
+			foreach ($notes as $note)
+			{
+				$note->delete();
+			}
+			return true;
+		}
+		if ($note_id)
+		{
+			$note = \Model_Notification::query()
 			->where('id', $note_id)
 			->where('to_id', $user->id)
 			->get();
 
-		if ($note)
-		{
-			$note[$note_id]->delete();
-			return true;
+			if ($note)
+			{
+				$note[$note_id]->delete();
+				return true;
+			}
 		}
 		return false;
 	}
@@ -1122,7 +1165,7 @@ class Api_V1
 		{
 			if ($play->get_by_id($play_id))
 			{
-				if ($play->is_valid == 1)
+				if (intval($play->is_valid) == 1)
 				{
 					$play->update_elapsed(); // update the elapsed time
 					return $play;

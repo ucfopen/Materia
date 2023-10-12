@@ -1,0 +1,159 @@
+{
+    "SomeExampleTable": [
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "D",
+                "Picture": "2",
+                "ReactionTime": "594",
+                "RotationAngle": "135",
+                "SubjectCorrect": "false"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "D",
+                "Picture": "4",
+                "ReactionTime": "190",
+                "RotationAngle": "45",
+                "SubjectCorrect": "false"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "S",
+                "Picture": "5",
+                "ReactionTime": "135",
+                "RotationAngle": "270",
+                "SubjectCorrect": "true"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "S",
+                "Picture": "6",
+                "ReactionTime": "32",
+                "RotationAngle": "135",
+                "SubjectCorrect": "true"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1020398401",
+                "cleanTime": "02/21/2002 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "S",
+                "Picture": "6",
+                "ReactionTime": "32",
+                "RotationAngle": "135",
+                "SubjectCorrect": "true"
+            }
+        }
+    ],
+    "SomeOtherTable": [
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "D",
+                "Picture": "2",
+                "ReactionTime": "594",
+                "RotationAngle": "135",
+                "SubjectCorrect": "false"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "D",
+                "Picture": "4",
+                "ReactionTime": "190",
+                "RotationAngle": "45",
+                "SubjectCorrect": "false"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "S",
+                "Picture": "5",
+                "ReactionTime": "135",
+                "RotationAngle": "270",
+                "SubjectCorrect": "true"
+            }
+        },
+        {
+            "play": {
+                "user": "0396856",
+                "firstName": "Ian",
+                "lastName": "Turgeon",
+                "time": "1470528099",
+                "cleanTime": "02/21/2016 12:07:12 EST",
+                "play_id": "3qVT1axpqa6nFUNLDpld5RTRsNVlQOTJ0VklIc05PY01Tb3R4Zmk4dHI3akFxeGZkZGpoRW5xRm8"
+            },
+            "data": {
+                "Mirrored": "S",
+                "Picture": "6",
+                "ReactionTime": "32",
+                "RotationAngle": "135",
+                "SubjectCorrect": "true"
+            }
+        }
+    ]
+}

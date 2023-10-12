@@ -16,7 +16,9 @@ return [
 
 	/*
 	*  URLS throughout the system
-	*
+	* \Uri::create('') will create full urls
+	* If you're having issues with urls not being correct
+	* You may wish to simply hard code these values
 	*/
 	'urls' => [
 		'root'         => \Uri::create(''), // root directory http:://siteurl.com/
@@ -27,6 +29,13 @@ return [
 		'preview'      => \Uri::create('preview/'), // game preview urls http://siteurl.com/preview/3443
 		'static'       => $_ENV['URLS_STATIC'] ?? \Uri::create(), // allows you to host another domain for static assets http://static.siteurl.com/
 		'engines'      => $_ENV['URLS_ENGINES'] ?? \Uri::create('widget/'), // widget file locations
+		// where are js and css assets hosted?
+		// DEFAULT: public/dist (hosted as as https://site.com/)
+		'js_css'       => \Uri::create('/'),
+		// CDN PASS-THROUGH: set up aws cloudfront cdn have it load data from the default url
+		//'js_css'     => '//xxxxxxxx.cloudfront.net/dist/',
+		// CDN UNPKG.COM: load assets from npm module with the same release (version must match your version of materia)
+		// 'js_css'    => '//unpkg.com/materia-server-client-assets@2.2.0/',
 	],
 
 
@@ -48,7 +57,8 @@ return [
 
 	// location of the lang files
 	'lang_path' => [
-		'login' => APPPATH.DS
+		'login' => APPPATH.DS,
+		'support' => APPPATH.DS
 	],
 
 	'default_users' => [

@@ -14,6 +14,7 @@ class Widget_Instance
 	public $embed_url       = '';
 	public $is_student_made = false;
 	public $is_embedded     = false;
+	public $is_deleted      = false;
 	public $embedded_only   = false;
 	public $student_access  = false;
 	public $guest_access    = false;
@@ -419,6 +420,35 @@ class Widget_Instance
 	}
 
 	/**
+	 * 'Undeletes' instance by updating is_deleted flag from 1 to 0
+	 * @return bool true if successfully undeleted, false if unable to restore
+	 */
+	public function db_undelete(): bool
+	{
+		if ( ! Util_Validator::is_valid_hash($this->id)) return false;
+
+		$current_user_id = \Model_User::find_current_id();
+
+		\DB::update('widget_instance')
+			->set(['is_deleted' => '0', 'updated_at' => time()])
+			->where('id', $this->id)
+			->execute();
+
+		// store an activity log
+		$activity = new Session_Activity([
+			'user_id' => $current_user_id,
+			'type'    => Session_Activity::TYPE_EDIT_WIDGET,
+			'item_id' => $this->id,
+			'value_1' => $this->name,
+			'value_2' => $this->widget->id
+		]);
+
+		$activity->db_store();
+
+		return true;
+	}
+
+	/**
 	 * Creates a duplicate widget instance and optionally makes the current user the owner.
 	 *
 	 * @param int owner_id user_id of the user who will be the primary owner of the duplicate
@@ -434,7 +464,17 @@ class Widget_Instance
 		$duplicate->id = 0; // mark as a new game
 		$duplicate->user_id = $owner_id; // set current user as owner in instance table
 
-		if ( ! empty($new_name)) $duplicate->name = $new_name; // update name
+		 // update name
+		if ( ! empty($new_name)) $duplicate->name = $new_name;
+
+		// these values aren't saved to the db - but the frontend will make use of them
+		$duplicate->clean_name  = \Inflector::friendly_title($duplicate->name, '-', true);
+		$base_url               = "{$duplicate->id}/{$duplicate->clean_name}";
+		$duplicate->preview_url = \Config::get('materia.urls.preview').$base_url;
+		$duplicate->play_url    = $duplicate->is_draft === false ? \Config::get('materia.urls.play').$base_url : '';
+		$duplicate->embed_url   = $duplicate->is_draft === false ? \Config::get('materia.urls.embed').$base_url : '';
+
+		$duplicate->created_at = time(); // manually update created_at, the actual value saved to the db is created in db_store
 
 		// if original widget is student made - verify if new owner is a student or not
 		// if they have a basic_author role or above, turn off the is_student_made flag
@@ -459,6 +499,9 @@ class Widget_Instance
 			$existing_perms = Perm_Manager::get_all_users_explicit_perms($this->id, Perm::INSTANCE);
 			$owners = [];
 			$viewers = [];
+
+			// Add current user
+			$owners[] = $owner_id;
 
 			foreach ($existing_perms['widget_user_perms'] as $user_id => $perm_obj)
 			{
@@ -595,6 +638,85 @@ class Widget_Instance
 		return \Lti\Model_Lti::query()
 			->where('item_id', $this->id)
 			->get();
+	}
+
+	public function get_all_extra_attempts(): array
+	{
+		$semester = Semester::get_current_semester();
+
+		$result = \DB::select('id', 'user_id', 'context_id','extra_attempts')
+			->from('user_extra_attempts')
+			->where('inst_id', $this->id)
+			->where('semester', $semester)
+			->execute()
+			->as_array();
+
+		return $result;
+	}
+
+	public function set_extra_attempts(int $user_id, int $extra_attempts, string $context_id, $id=null)
+	{
+		$semester = Semester::get_current_semester();
+
+		$result = [ 'user_id' => $user_id, 'success' => false ];
+
+		// we have an ID, update an existing row
+		if ($id != null)
+		{
+			if ($extra_attempts > 0)
+			{
+				\DB::update('user_extra_attempts')
+					->value('extra_attempts', $extra_attempts)
+					->value('context_id', $context_id)
+					->where('id', '=', $id)
+					->execute();
+
+				$result = [
+					'user_id' => $user_id,
+					'extra_attempts' => $extra_attempts,
+					'context_id' => $context_id,
+					'success' => true
+				];
+			}
+			// delete existing row if attempts <= 0
+			else
+			{
+				\DB::delete('user_extra_attempts')
+					->where('id', $id)
+					->execute();
+
+				$result = [ 'user_id' => $user_id, 'success' => true ];
+			}
+		}
+		// no ID provided, add new row
+		else
+		{
+			// make sure extra attempts are > 0, otherwise no need to add
+			if ($extra_attempts > 0)
+			{
+				\DB::insert('user_extra_attempts')
+					->set([
+						'inst_id' => $this->id,
+						'semester' => $semester,
+						'user_id' => $user_id,
+						'extra_attempts' => $extra_attempts,
+						'context_id' => $context_id,
+						'created_at' => time()
+						])
+					->execute();
+
+					$result = [
+						'inst_id' => $this->id,
+						'semester' => $semester,
+						'user_id' => $user_id,
+						'extra_attempts' => $extra_attempts,
+						'context_id' => $context_id,
+						'success' => true
+					];
+			}
+		}
+
+		return $result;
 	}
 
 	public function export()

@@ -15,7 +15,7 @@ class Test_Api_V1 extends \Basetest
 		$testMethods = get_class_methods($this);
 		foreach ($apiMethods as $value)
 		{
-			$this->assertContains('test_'.$value, $testMethods);
+			$this->assertContainsEquals('test_'.$value, $testMethods);
 		}
 	}
 
@@ -105,10 +105,46 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_widget_instances_get()
 	{
+		// Create widget instance
+		$this->_as_author();
+		$title = "My Test Widget";
+		$question = 'What rhymes with harvest fests but are half as exciting (or tasty)';
+		$answer = 'Tests';
+		$qset = $this->create_new_qset($question, $answer);
+		$widget = $this->make_disposable_widget();
+
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+
 		// ======= AS NO ONE ========
+		$this->_as_noauth();
+
+		// ----- returns empty array if not requesting a specific instance --------
 		$output = Api_V1::widget_instances_get();
 		$this->assertIsArray($output);
 		$this->assertCount(0, $output);
+
+		// ----- loads specific instance without qset --------
+		$output = Api_V1::widget_instances_get($instance->id);
+		$this->assertIsArray($output);
+		$this->assertCount(1, $output);
+		foreach ($output as $key => $value)
+		{
+			$this->assert_is_widget_instance($value, true);
+			$this->assertObjectHasAttribute('qset', $value);
+			$this->assertNull($value->qset->data);
+			$this->assertNull($value->qset->version);
+		}
+
+		// ----- loads specific instance with qset --------
+		$output = Api_V1::widget_instances_get($instance->id, false, true);
+		$this->assertIsArray($output);
+		$this->assertCount(1, $output);
+		foreach ($output as $key => $value)
+		{
+			$this->assert_is_widget_instance($value, true);
+			$this->assertObjectHasAttribute('qset', $value);
+			$this->assert_is_qset($value->qset);
+		}
 
 		// ======= STUDENT ========
 		$this->_as_student();
@@ -141,6 +177,11 @@ class Test_Api_V1 extends \Basetest
 		}
 
 		// TODO: widgetInstances should return an object instead of an stdObject
+
+	}
+
+	public function test_widget_paginate_instances_get()
+	{
 
 	}
 
@@ -486,7 +527,7 @@ class Test_Api_V1 extends \Basetest
 
 		// the lock is stored in a cache that expires
 		// let's manually clear cache now, effectively removing the lock
-		\Cache::delete_all('');
+		\Cache::delete('instance-lock.'.($inst->id));
 
 		$this->assertTrue(Api_V1::widget_instance_lock($inst->id)); // lock should be expired, i can edit it
 	}
@@ -516,9 +557,9 @@ class Test_Api_V1 extends \Basetest
 
 
 		$output = Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
-		$this->assert_is_valid_id($output);
+		$this->assert_is_valid_id($output->id);
 
-		$insts = Api_V1::widget_instances_get($output);
+		$insts = Api_V1::widget_instances_get($output->id);
 		$this->assert_is_widget_instance($insts[0], true);
 		$this->assertEquals('Copied Widget', $insts[0]->name);
 		$this->assertEquals(true, $insts[0]->is_draft);
@@ -536,9 +577,9 @@ class Test_Api_V1 extends \Basetest
 
 
 		$output = Api_V1::widget_instance_copy($inst_id, 'Copied Widget');
-		$this->assert_is_valid_id($output);
+		$this->assert_is_valid_id($output->id);
 
-		$insts = Api_V1::widget_instances_get($output);
+		$insts = Api_V1::widget_instances_get($output->id);
 		$this->assert_is_widget_instance($insts[0], true);
 		$this->assertEquals('Copied Widget', $insts[0]->name);
 		$this->assertEquals(true, $insts[0]->is_draft);
@@ -983,6 +1024,10 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
+	public function test_paginated_play_logs_get()
+	{
+	}
+
 	public function test_score_summary_get()
 	{
 		// ======= AS NO ONE ========
@@ -1390,12 +1435,12 @@ class Test_Api_V1 extends \Basetest
 		$id = $widget->id;
 
 		// ======= AS NO ONE ========
-		$output = Api_V1::notification_delete(5);
+		$output = Api_V1::notification_delete(5, false);
 		$this->assert_invalid_login_message($output);
 
 		// ======= STUDENT ========
 		$this->_as_student();
-		$output = Api_V1::notification_delete(5);
+		$output = Api_V1::notification_delete(5, false);
 		$this->assertFalse($output);
 
 		$author = $this->_as_author();
@@ -1422,17 +1467,24 @@ class Test_Api_V1 extends \Basetest
 
 		// try as someone author2
 		$this->_as_author_2();
-		$output = Api_V1::notification_delete($notifications[0]['id']);
+		$output = Api_V1::notification_delete($notifications[0]['id'], false);
 		$this->assertFalse($output);
 
 		$this->_as_author();
-		$output = Api_V1::notification_delete($notifications[0]['id']);
+		$output = Api_V1::notification_delete($notifications[0]['id'], false);
 		$this->assertTrue($output);
 
 		$this->_as_author();
 		$notifications = Api_V1::notifications_get();
 		$this->assertEquals($start_count, count($notifications));
 
+		// try deleting all
+		$this->_as_author();
+		$output = Api_V1::notification_delete(null, true);
+		$this->assertTrue($output);
+
+		$notifications = Api_V1::notifications_get();
+		$this->assertEquals(0, count($notifications));
 	}
 
 	public function test_semester_get()
@@ -1513,7 +1565,7 @@ class Test_Api_V1 extends \Basetest
 		$this->assertArrayHasKey('year', $semester);
 		$this->assertGreaterThan(0, $semester['year']);
 		$this->assertArrayHasKey('semester', $semester);
-		$this->assertContains($semester['semester'], array('Spring', 'Summer', 'Fall') );
+		$this->assertContainsEquals($semester['semester'], array('Spring', 'Summer', 'Fall') );
 		$this->assertArrayHasKey('start', $semester);
 		$this->assertGreaterThan(0, $semester['start']);
 		$this->assertArrayHasKey('end', $semester);

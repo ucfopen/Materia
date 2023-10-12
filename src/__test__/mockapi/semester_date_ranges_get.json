@@ -1,0 +1,662 @@
+[
+    {
+        "year": "2004",
+        "semester": "Summer",
+        "start": "1084147200",
+        "end": "1091663999"
+    },
+    {
+        "year": "2004",
+        "semester": "Fall",
+        "start": "1091664000",
+        "end": "1103155199"
+    },
+    {
+        "year": "2005",
+        "semester": "Spring",
+        "start": "1103155200",
+        "end": "1115337599"
+    },
+    {
+        "year": "2005",
+        "semester": "Summer",
+        "start": "1115337600",
+        "end": "1123718399"
+    },
+    {
+        "year": "2005",
+        "semester": "Fall",
+        "start": "1123718400",
+        "end": "1134604799"
+    },
+    {
+        "year": "2006",
+        "semester": "Spring",
+        "start": "1134604800",
+        "end": "1146787199"
+    },
+    {
+        "year": "2006",
+        "semester": "Summer",
+        "start": "1146787200",
+        "end": "1154822399"
+    },
+    {
+        "year": "2006",
+        "semester": "Fall",
+        "start": "1154822400",
+        "end": "1165795199"
+    },
+    {
+        "year": "2007",
+        "semester": "Spring",
+        "start": "1165795200",
+        "end": "1178063999"
+    },
+    {
+        "year": "2007",
+        "semester": "Summer",
+        "start": "1178064000",
+        "end": "1186271999"
+    },
+    {
+        "year": "2007",
+        "semester": "Fall",
+        "start": "1186272000",
+        "end": "1197590399"
+    },
+    {
+        "year": "2008",
+        "semester": "Spring",
+        "start": "1197590400",
+        "end": "1209686399"
+    },
+    {
+        "year": "2008",
+        "semester": "Summer",
+        "start": "1209686400",
+        "end": "1217635199"
+    },
+    {
+        "year": "2008",
+        "semester": "Fall",
+        "start": "1217635200",
+        "end": "1218067199"
+    },
+    {
+        "year": "2009",
+        "semester": "Spring",
+        "start": "1218067200",
+        "end": "1241740799"
+    },
+    {
+        "year": "2009",
+        "semester": "Summer",
+        "start": "1241740800",
+        "end": "1250121599"
+    },
+    {
+        "year": "2009",
+        "semester": "Fall",
+        "start": "1250121600",
+        "end": "1261094399"
+    },
+    {
+        "year": "2010",
+        "semester": "Spring",
+        "start": "1261094400",
+        "end": "1273190399"
+    },
+    {
+        "year": "2010",
+        "semester": "Summer",
+        "start": "1273190400",
+        "end": "1281571199"
+    },
+    {
+        "year": "2010",
+        "semester": "Fall",
+        "start": "1281571200",
+        "end": "1292543999"
+    },
+    {
+        "year": "2011",
+        "semester": "Spring",
+        "start": "1292544000",
+        "end": "1304639999"
+    },
+    {
+        "year": "2011",
+        "semester": "Summer",
+        "start": "1304640000",
+        "end": "1313038799"
+    },
+    {
+        "year": "2011",
+        "semester": "Fall",
+        "start": "1313038800",
+        "end": "1323910699"
+    },
+    {
+        "year": "2012",
+        "semester": "Spring",
+        "start": "1323910700",
+        "end": "1336089539"
+    },
+    {
+        "year": "2012",
+        "semester": "Summer",
+        "start": "1336089540",
+        "end": "1344297600"
+    },
+    {
+        "year": "2012",
+        "semester": "Fall",
+        "start": "1344297601",
+        "end": "1356912000"
+    },
+    {
+        "year": "2013",
+        "semester": "Spring",
+        "start": "1356912001",
+        "end": "1367539200"
+    },
+    {
+        "year": "2013",
+        "semester": "Summer",
+        "start": "1367539201",
+        "end": "1375833600"
+    },
+    {
+        "year": "2013",
+        "semester": "Fall",
+        "start": "1375833601",
+        "end": "1388448000"
+    },
+    {
+        "year": "2014",
+        "semester": "Spring",
+        "start": "1388448001",
+        "end": "1399075200"
+    },
+    {
+        "year": "2014",
+        "semester": "Summer",
+        "start": "1399075201",
+        "end": "1407369600"
+    },
+    {
+        "year": "2014",
+        "semester": "Fall",
+        "start": "1407369601",
+        "end": "1419984000"
+    },
+    {
+        "year": "2015",
+        "semester": "Spring",
+        "start": "1419984001",
+        "end": "1430611200"
+    },
+    {
+        "year": "2015",
+        "semester": "Summer",
+        "start": "1430611201",
+        "end": "1438905600"
+    },
+    {
+        "year": "2015",
+        "semester": "Fall",
+        "start": "1438905601",
+        "end": "1451520000"
+    },
+    {
+        "year": "2016",
+        "semester": "Spring",
+        "start": "1451520001",
+        "end": "1462233600"
+    },
+    {
+        "year": "2016",
+        "semester": "Summer",
+        "start": "1462233601",
+        "end": "1470528000"
+    },
+    {
+        "year": "2016",
+        "semester": "Fall",
+        "start": "1470528001",
+        "end": "1483142400"
+    },
+    {
+        "year": "2017",
+        "semester": "Spring",
+        "start": "1483142401",
+        "end": "1493769600"
+    },
+    {
+        "year": "2017",
+        "semester": "Summer",
+        "start": "1493769601",
+        "end": "1502064000"
+    },
+    {
+        "year": "2017",
+        "semester": "Fall",
+        "start": "1502064001",
+        "end": "1514678400"
+    },
+    {
+        "year": "2018",
+        "semester": "Spring",
+        "start": "1514678401",
+        "end": "1525305600"
+    },
+    {
+        "year": "2018",
+        "semester": "Summer",
+        "start": "1525305601",
+        "end": "1533600000"
+    },
+    {
+        "year": "2018",
+        "semester": "Fall",
+        "start": "1533600001",
+        "end": "1546214400"
+    },
+    {
+        "year": "2019",
+        "semester": "Spring",
+        "start": "1546214401",
+        "end": "1556841600"
+    },
+    {
+        "year": "2019",
+        "semester": "Summer",
+        "start": "1556841601",
+        "end": "1565136000"
+    },
+    {
+        "year": "2019",
+        "semester": "Fall",
+        "start": "1565136001",
+        "end": "1577750400"
+    },
+    {
+        "year": "2020",
+        "semester": "Spring",
+        "start": "1577750401",
+        "end": "1588464000"
+    },
+    {
+        "year": "2020",
+        "semester": "Summer",
+        "start": "1588464001",
+        "end": "1596758400"
+    },
+    {
+        "year": "2020",
+        "semester": "Fall",
+        "start": "1596758401",
+        "end": "1609372800"
+    },
+    {
+        "year": "2021",
+        "semester": "Spring",
+        "start": "1609372801",
+        "end": "1620000000"
+    },
+    {
+        "year": "2021",
+        "semester": "Summer",
+        "start": "1620000001",
+        "end": "1628294400"
+    },
+    {
+        "year": "2021",
+        "semester": "Fall",
+        "start": "1628294401",
+        "end": "1640908800"
+    },
+    {
+        "year": "2022",
+        "semester": "Spring",
+        "start": "1640908801",
+        "end": "1651536000"
+    },
+    {
+        "year": "2022",
+        "semester": "Summer",
+        "start": "1651536001",
+        "end": "1659830400"
+    },
+    {
+        "year": "2022",
+        "semester": "Fall",
+        "start": "1659830401",
+        "end": "1672444800"
+    },
+    {
+        "year": "2023",
+        "semester": "Spring",
+        "start": "1672444801",
+        "end": "1683072000"
+    },
+    {
+        "year": "2023",
+        "semester": "Summer",
+        "start": "1683072001",
+        "end": "1691366400"
+    },
+    {
+        "year": "2023",
+        "semester": "Fall",
+        "start": "1691366401",
+        "end": "1703980800"
+    },
+    {
+        "year": "2024",
+        "semester": "Spring",
+        "start": "1703980801",
+        "end": "1714694400"
+    },
+    {
+        "year": "2024",
+        "semester": "Summer",
+        "start": "1714694401",
+        "end": "1722988800"
+    },
+    {
+        "year": "2024",
+        "semester": "Fall",
+        "start": "1722988801",
+        "end": "1735603200"
+    },
+    {
+        "year": "2001",
+        "semester": "Spring",
+        "start": "978325201",
+        "end": "988862400"
+    },
+    {
+        "year": "2001",
+        "semester": "Summer",
+        "start": "988862401",
+        "end": "997156800"
+    },
+    {
+        "year": "2001",
+        "semester": "Fall",
+        "start": "997156801",
+        "end": "1009774800"
+    },
+    {
+        "year": "2002",
+        "semester": "Spring",
+        "start": "1009774801",
+        "end": "1020398400"
+    },
+    {
+        "year": "2002",
+        "semester": "Summer",
+        "start": "1020398401",
+        "end": "1028692800"
+    },
+    {
+        "year": "2002",
+        "semester": "Fall",
+        "start": "1028692801",
+        "end": "1041310800"
+    },
+    {
+        "year": "2003",
+        "semester": "Spring",
+        "start": "1041310801",
+        "end": "1051934400"
+    },
+    {
+        "year": "2003",
+        "semester": "Summer",
+        "start": "1051934401",
+        "end": "1060228800"
+    },
+    {
+        "year": "2003",
+        "semester": "Fall",
+        "start": "1060228801",
+        "end": "1072846800"
+    },
+    {
+        "year": "2025",
+        "semester": "Spring",
+        "start": "1735621201",
+        "end": "1746244800"
+    },
+    {
+        "year": "2025",
+        "semester": "Summer",
+        "start": "1746244801",
+        "end": "1754539200"
+    },
+    {
+        "year": "2025",
+        "semester": "Fall",
+        "start": "1754539201",
+        "end": "1767157200"
+    },
+    {
+        "year": "2026",
+        "semester": "Spring",
+        "start": "1767157201",
+        "end": "1777780800"
+    },
+    {
+        "year": "2026",
+        "semester": "Summer",
+        "start": "1777780801",
+        "end": "1786075200"
+    },
+    {
+        "year": "2026",
+        "semester": "Fall",
+        "start": "1786075201",
+        "end": "1798693200"
+    },
+    {
+        "year": "2027",
+        "semester": "Spring",
+        "start": "1798693201",
+        "end": "1809316800"
+    },
+    {
+        "year": "2027",
+        "semester": "Summer",
+        "start": "1809316801",
+        "end": "1817611200"
+    },
+    {
+        "year": "2027",
+        "semester": "Fall",
+        "start": "1817611201",
+        "end": "1830229200"
+    },
+    {
+        "year": "2028",
+        "semester": "Spring",
+        "start": "1830229201",
+        "end": "1840939200"
+    },
+    {
+        "year": "2028",
+        "semester": "Summer",
+        "start": "1840939201",
+        "end": "1849233600"
+    },
+    {
+        "year": "2028",
+        "semester": "Fall",
+        "start": "1849233601",
+        "end": "1861851600"
+    },
+    {
+        "year": "2029",
+        "semester": "Spring",
+        "start": "1861851601",
+        "end": "1872475200"
+    },
+    {
+        "year": "2029",
+        "semester": "Summer",
+        "start": "1872475201",
+        "end": "1880769600"
+    },
+    {
+        "year": "2029",
+        "semester": "Fall",
+        "start": "1880769601",
+        "end": "1893387600"
+    },
+    {
+        "year": "2030",
+        "semester": "Spring",
+        "start": "1893387601",
+        "end": "1904011200"
+    },
+    {
+        "year": "2030",
+        "semester": "Summer",
+        "start": "1904011201",
+        "end": "1912305600"
+    },
+    {
+        "year": "2030",
+        "semester": "Fall",
+        "start": "1912305601",
+        "end": "1924923600"
+    },
+    {
+        "year": "2031",
+        "semester": "Spring",
+        "start": "1924923601",
+        "end": "1935547200"
+    },
+    {
+        "year": "2031",
+        "semester": "Summer",
+        "start": "1935547201",
+        "end": "1943841600"
+    },
+    {
+        "year": "2031",
+        "semester": "Fall",
+        "start": "1943841601",
+        "end": "1956459600"
+    },
+    {
+        "year": "2032",
+        "semester": "Spring",
+        "start": "1956459601",
+        "end": "1967169600"
+    },
+    {
+        "year": "2032",
+        "semester": "Summer",
+        "start": "1967169601",
+        "end": "1975464000"
+    },
+    {
+        "year": "2032",
+        "semester": "Fall",
+        "start": "1975464001",
+        "end": "1988082000"
+    },
+    {
+        "year": "2033",
+        "semester": "Spring",
+        "start": "1988082001",
+        "end": "1998705600"
+    },
+    {
+        "year": "2033",
+        "semester": "Summer",
+        "start": "1998705601",
+        "end": "2007000000"
+    },
+    {
+        "year": "2033",
+        "semester": "Fall",
+        "start": "2007000001",
+        "end": "2019618000"
+    },
+    {
+        "year": "2034",
+        "semester": "Spring",
+        "start": "2019618001",
+        "end": "2030241600"
+    },
+    {
+        "year": "2034",
+        "semester": "Summer",
+        "start": "2030241601",
+        "end": "2038536000"
+    },
+    {
+        "year": "2034",
+        "semester": "Fall",
+        "start": "2038536001",
+        "end": "2051154000"
+    },
+    {
+        "year": "2035",
+        "semester": "Spring",
+        "start": "2051154001",
+        "end": "2061777600"
+    },
+    {
+        "year": "2035",
+        "semester": "Summer",
+        "start": "2061777601",
+        "end": "2070072000"
+    },
+    {
+        "year": "2035",
+        "semester": "Fall",
+        "start": "2070072001",
+        "end": "2082690000"
+    },
+    {
+        "year": "2036",
+        "semester": "Spring",
+        "start": "2082690001",
+        "end": "2093400000"
+    },
+    {
+        "year": "2036",
+        "semester": "Summer",
+        "start": "2093400001",
+        "end": "2101694400"
+    },
+    {
+        "year": "2036",
+        "semester": "Fall",
+        "start": "2101694401",
+        "end": "2114312400"
+    },
+    {
+        "year": "2037",
+        "semester": "Spring",
+        "start": "2114312401",
+        "end": "2124936000"
+    },
+    {
+        "year": "2037",
+        "semester": "Summer",
+        "start": "2124936001",
+        "end": "2133230400"
+    },
+    {
+        "year": "2037",
+        "semester": "Fall",
+        "start": "2133230401",
+        "end": "2145848400"
+    }
+]

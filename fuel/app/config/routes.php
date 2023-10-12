@@ -11,7 +11,7 @@ return [
 	'_404_'             => 'site/404',
 	'_500_'             => 'site/500',
 	'_root_'            => 'site/index',  // Homepage
-	'permission-denied' => ['site/permission_denied', 'name' => 'nopermission'],
+	'permission-denied' => ['site/permission_denied', 'name' => 'no_permission'],
 	'crossdomain'       => 'site/crossdomain',
 	'help'              => ['site/help', 'name' => 'help'],    // The main docs page
 
@@ -28,8 +28,6 @@ return [
 	'widgets/all'                          => 'widgets/all', // catalog page, with optional display option(s)
 	'widgets'                              => ['widgets/index', 'name' => 'catalog'], // catalog of all the widget engines
 	'my-widgets'                           => 'widgets/mywidgets/',
-
-	'edit/(:alnum)(/.*)?'                  => 'widgets/edit/$1',
 	'play/(:alnum)(/.*)?'                  => 'widgets/play_widget/$1',
 	'preview/(:alnum)(/.*)?'               => 'widgets/preview_widget/$1',
 	'preview-embed/(:alnum)(/.*)?'         => 'widgets/play_embedded_preview/$1',

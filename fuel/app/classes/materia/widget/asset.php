@@ -16,11 +16,16 @@ class Widget_Asset
 	const MAP_TYPE_QUESTION = '2';
 
 	protected const MIME_TYPE_TO_EXTENSION = [
-		'image/png' => 'png',
-		'image/gif' => 'gif',
-		'image/jpeg' => 'jpg',
-		'audio/mpeg' => 'mp3',
-		'text/plain' => 'obj',
+		'image/png'   => 'png',
+		'image/gif'   => 'gif',
+		'image/jpeg'  => 'jpg',
+		'audio/mp4'   => 'm4a',
+		'audio/x-m4a' => 'm4a',
+		'audio/mpeg'  => 'mp3',
+		'audio/wav'   => 'wav',
+		'audio/wave'  => 'wav',
+		'audio/x-wav' => 'wav',
+		'text/plain'  => 'obj',
 	];
 
 	protected const MIME_TYPE_FROM_EXTENSION = [
@@ -28,8 +33,10 @@ class Widget_Asset
 		'gif'  => 'image/gif',
 		'jpg'  => 'image/jpeg',
 		'jpeg' => 'image/jpeg',
+		'm4a'  => 'audio/mp4',
 		'mp3'  => 'audio/mpeg',
-		'obj' => 'text/plain',
+		'wav'  => 'audio/wav',
+		'obj'  => 'text/plain',
 	];
 
 	public $created_at = 0;
@@ -39,6 +46,7 @@ class Widget_Asset
 	public $file_size  = '';
 	public $questions  = [];
 	public $type       = '';
+	public $is_deleted = 0;
 
 	protected $_storage_driver;
 
@@ -115,7 +123,9 @@ class Widget_Asset
 						'type'        => $this->type,
 						'title'       => $this->title,
 						'file_size'   => $this->file_size,
-						'created_at'  => time()
+						'created_at'  => time(),
+						'is_deleted'	=> $this->is_deleted
+						
 					])
 					->where('id','=',$this->id)
 					->execute();

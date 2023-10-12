@@ -6,8 +6,8 @@ FROM php:8.1.11-fpm-alpine3.16 AS base_stage
 ARG PHP_EXT="bcmath gd pdo_mysql xml zip opcache"
 ARG PHP_MEMCACHED_VERSION="v3.1.5"
 
-ARG COMPOSER_VERSION="1.10.26"
-ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/2e4127af2d638693670a33b1a63ee035c20277d7/web/installer"
+ARG COMPOSER_VERSION="2.5.4"
+ARG COMPOSER_INSTALLER_URL="https://raw.githubusercontent.com/composer/getcomposer.org/be31d0a5e5e835063c29bb45804bd94eefd4cf34/web/installer"
 ARG COMPOSER_INSTALLER_SHA="55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae"
 
 # os packages needed for php extensions
@@ -61,20 +61,24 @@ COPY --chown=www-data:www-data ./oil /var/www/html/oil
 RUN composer install --no-cache --no-dev --no-progress --no-scripts --prefer-dist --optimize-autoloader
 
 # =====================================================================================================
-# Yarn stage buils js/css assets
+# Yarn stage build js/css assets
 # =====================================================================================================
-FROM node:12.11.1-alpine AS yarn_stage
+FROM node:18.13.0-alpine AS yarn_stage
 
 RUN apk add --no-cache git
 
 COPY ./public /build/public
+# copy configs into /build. These are required for yarn and webpack
 COPY ./package.json /build/package.json
-COPY ./process_assets.js /build/process_assets.js
+COPY ./babel.config.json /build/babel.config.json
+COPY ./webpack.prod.config.js /build/webpack.prod.config.js
 COPY ./yarn.lock /build/yarn.lock
-# make sure the directory where asset_hash.json is generated exists
+# these directories must be hoisted into /build in order for webpack to work on them
+COPY ./src /build/src
+COPY --from=composer_stage /var/www/html/fuel/packages /build/fuel/packages
 RUN mkdir -p /build/fuel/app/config/
-RUN cd build && yarn install --frozen-lockfile --non-interactive --production --silent --pure-lockfile --force
-
+# run yarn install and then the build script in the package.json (webpack --config webpack.prod.config.js)
+RUN cd build && yarn install --frozen-lockfile --non-interactive --silent --pure-lockfile --force && npm run-script build-for-image
 
 # =====================================================================================================
 # final stage creates the final deployable image
@@ -88,4 +92,3 @@ USER www-data
 # ======== COPY FINAL APP
 COPY --from=composer_stage --chown=www-data:www-data /var/www/html /var/www/html
 COPY --from=yarn_stage --chown=www-data:www-data /build/public /var/www/html/public
-COPY --from=yarn_stage --chown=www-data:www-data /build/fuel/app/config/asset_hash.json /var/www/html/fuel/app/config/asset_hash.json

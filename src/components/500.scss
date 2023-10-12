@@ -1,0 +1,43 @@
+@import './include.scss';
+
+.container.general {
+	width: 100vw;
+	max-width: 1000px;
+	min-width: 600px;
+	height: 100%;
+
+	margin: 40px auto 0 auto;
+	padding-bottom: 40px;
+	background-color: #fff;
+
+	.page {
+		position: relative;
+		width: 80%;
+		margin: 0 auto;
+
+		h1 {
+			position: relative;
+			left: 50%;
+			width: 400px;
+			margin: 50px 0 50px -200px;
+			padding-bottom: 30px;
+	
+			font-size: 100px;
+			text-align: center;
+			color: #5ca2cc;
+			
+		}
+
+		p {
+			font-weight: 400;
+		}
+	}
+
+	#support-info-500 {
+		width: 50%;
+		max-width: 600px;
+		margin: 0 auto;
+
+		text-align: center;
+	}
+}

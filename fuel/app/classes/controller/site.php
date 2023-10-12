@@ -7,6 +7,7 @@
 class Controller_Site extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	/**
 	 * Handles the homepage
@@ -14,51 +15,60 @@ class Controller_Site extends Controller
 	 */
 	public function action_index()
 	{
-		Js::push_group(['angular', 'materia']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Welcome to Materia');
 
-		$this->theme->get_template()
-			->set('title', 'Welcome to Materia')
-			->set('page_type', 'store');
-
-		$spotlight = $this->theme->view('partials/spotlight');
-		$this->theme->set_partial('content', 'partials/homepage')
-			->set_safe('spotlight', $spotlight);
-
+		Css::push_group(['homepage']);
+		Js::push_group(['react', 'homepage']);
 	}
 
 	public function action_permission_denied()
 	{
-		Js::push_group(['angular', 'materia']);
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
 
-		$this->theme->set_partial('content', 'partials/nopermission');
+		Js::push_group(['react', 'no_permission']);
 	}
 
 	public function action_help()
 	{
-		Js::push_group(['angular', 'materia']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 
 		$this->theme->get_template()
 			->set('title', 'Help')
 			->set('page_type', 'docs help');
 
-		$this->theme->set_partial('content', 'partials/help/main');
+		// check to see if a theme override exists for the help page
+		$theme_overrides = \Event::Trigger('before_help_page', '', 'array');
 
-		Css::push_group('help');
+		if ($theme_overrides)
+		{
+			Js::push_group(['react', $theme_overrides[0]['js']]);
+			Css::push_group($theme_overrides[0]['css']);
+		}
+		else
+		{
+			Js::push_group(['react', 'help']);
+			Css::push_group('help');
+		}
 	}
 
 	public function action_403()
 	{
 		Css::push_group('errors');
 
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', '403 Not Authorized')
 			->set('page_type', '404');
 
-		$this->theme->set_partial('content', 'partials/404');
+		Js::push_group(['react', '404']);
 
 		Log::warning('403 URL: '.Uri::main());
 
@@ -72,13 +82,14 @@ class Controller_Site extends Controller
 	 */
 	public function action_404()
 	{
-		Css::push_group('errors');
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
-			->set('title', '404 Page not Found')
+			->set('title', '404 Page Not Found')
 			->set('page_type', '404');
 
-		$this->theme->set_partial('content', 'partials/404');
+		Js::push_group(['react', '404']);
+		Css::push_group('404');
 
 		Log::warning('404 URL: '.Uri::main());
 
@@ -92,15 +103,18 @@ class Controller_Site extends Controller
 	 */
 	public function action_500()
 	{
-		Css::push_group('errors');
-
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', '500 Server Error')
 			->set('page_type', '500');
 
-		$this->theme->set_partial('content', 'partials/500');
+		Js::push_group(['react', '500']);
 
 		Log::warning('500 URL: '.Uri::main());
+
+		$this->add_inline_info();
+		Css::push_group(['500']);
 
 		$response = \Response::forge(\Theme::instance()->render(), 500);
 

@@ -6,7 +6,6 @@
 
 class Controller_Admin extends Controller
 {
-
 	use Trait_CommonControllerTemplate {
 		before as public common_before;
 	}
@@ -14,30 +13,40 @@ class Controller_Admin extends Controller
 	public function before()
 	{
 		$this->common_before();
-		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
-		Css::push_group('admin');
-		Js::push_group(['angular', 'materia', 'admin']);
+		if ( ! (\Materia\Perm_Manager::is_super_user() || \Materia\Perm_Manager::is_support_user()) ) throw new \HttpNotFoundException;
 		parent::before();
 	}
 
 	public function get_widget()
 	{
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
+	
+		Js::push_inline('var UPLOAD_ENABLED ="'.Config::get('materia.enable_admin_uploader').'";');
+		Js::push_inline('var HEROKU_WARNING ="'.Config::get('materia.heroku_admin_warning').'";');
+		Js::push_inline('var ACTION_LINK ="/admin/upload";');
+		Js::push_inline('var UPLOAD_NOTICE = "'.Session::get_flash('upload_notice').'";');
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'Widget Admin');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/admin/widget')
-			->set('upload_enabled', Config::get('materia.enable_admin_uploader', false))
-			->set('heroku_warning', Config::get('materia.heroku_admin_warning', false));
+
+		Css::push_group(['support']);
+		Js::push_group(['react', 'widget_admin']);
 	}
 
 	public function get_user()
 	{
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()->set('title', 'User Admin');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/admin/user');
+
+		Css::push_group(['user-admin']);
+		Js::push_group(['react', 'user_admin']);
 	}
 
 	public function post_upload()
 	{
+		if ( ! \Materia\Perm_Manager::is_super_user() ) throw new \HttpNotFoundException;
 		if (Config::get('materia.enable_admin_uploader', false) !== true) throw new HttpNotFoundException;
 
 		// Custom configuration for this upload
@@ -69,9 +78,24 @@ class Controller_Admin extends Controller
 				}
 			}
 		}
+		
+		if ($failed) 
+		{
+			throw new HttpServerErrorException;
+		}
 
 		Session::set_flash('upload_notice',  ($failed ? 'Failed' : 'Success') );
 
 		Response::redirect('admin/widget');
+	}
+
+	public function get_instance()
+	{
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Instance Admin');
+
+		Css::push_group(['support']);
+		Js::push_group(['react', 'support']);
 	}
 }

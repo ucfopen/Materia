@@ -1,38 +1,46 @@
 <?php
+$webpack = \Config::get('materia.urls.js_css');
+$vendor = \Config::get('materia.urls.js_css').'vendor/';
 $cdnjs = '//cdnjs.cloudflare.com/ajax/libs/';
-$static = \Config::get('materia.urls.static').'js/';
 
 return [
-	// 'hash_file' => 'asset_hash.js.json',
-	'remove_group_duplicates' => true,
-
 	'groups' => [
-		'materia'    => [$static.'materia.js'],
-		'angular'    => [$cdnjs.'angular.js/1.8.0/angular.min.js'],
-		'ng-animate' => [$cdnjs.'angular-animate/1.8.0/angular-animate.min.js'],
-		'jquery'     => [$cdnjs.'jquery/3.5.1/jquery.min.js'],
-		'admin'      => [$static.'admin.js'],
-		'author'     => [$static.'author.js'],
-		'student'    => [$static.'student.js'],
-		'dataTables' => [$static.'vendor/datatables/jquery.dataTables.min.js'],
-		'jquery_ui'  => [$cdnjs.'jqueryui/1.12.1/jquery-ui.min.js'],
-		'labjs'      => [$static.'vendor/labjs/LAB.min.js'],
-		'spinner'    => [$static.'vendor/spin.min.js', $static.'spin.jquery.js'],
-		'hammerjs'   => [$static.'vendor/hammer.min.js'],
-		'swfobject'  => [$static.'vendor/swfobject/swfobject.js'],
-
-		'jqplot'     => [
-			$cdnjs.'jqPlot/1.0.9/jquery.jqplot.min.js',
-			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.barRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.canvasTextRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.canvasAxisTickRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.categoryAxisRenderer.min.js',
-			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.cursor.min.js',
-			$cdnjs.'jqPlot/1.0.9/plugins/jqplot.highlighter.min.js',
+		'login'      => [$webpack.'js/login.js'],
+		'profile'    => [$webpack.'js/profile.js'],
+		'settings'   => [$webpack.'js/settings.js'],
+		'support'    => [$webpack.'js/support.js'],
+		'user_admin' => [$webpack.'js/user-admin.js'],
+		'widget_admin' => [$webpack.'js/widget-admin.js'],
+		'materia'    => [$webpack.'js/materia.js'],
+		'homepage'   => [$webpack.'js/homepage.js'],
+		'catalog'    => [$webpack.'js/catalog.js'],
+		'my_widgets' => [$webpack.'js/my-widgets.js'],
+		'detail'     => [$webpack.'js/detail.js'],
+		'playpage'   => [$webpack.'js/player-page.js'],
+		'createpage' => [$webpack.'js/creator-page.js'],
+		'scores'     => [$webpack.'js/scores.js'],
+		'guides'     => [$webpack.'js/guides.js'],
+		'retired'    => [$webpack.'js/retired.js'],
+		'no_attempts'=> [$webpack.'js/no-attempts.js'],
+		'draft_not_playable' => [$webpack.'js/draft-not-playable.js'],
+		'no_permission' => [$webpack.'js/no-permission.js'],
+		'closed'     => [$webpack.'js/closed.js'],
+		'embedded_only' => [$webpack.'js/embedded-only.js'],
+		'pre_embed'  => [$webpack.'js/pre-embed-placeholder.js'],
+		'help'       => [$webpack.'js/help.js'],
+		'404'        => [$webpack.'js/404.js'],
+		'500'        => [$webpack.'js/500.js'],
+		'media'      => [$webpack.'js/media.js'],
+		'qset_history' => [$webpack.'js/qset-history.js'],
+		'post_login' => [$webpack.'js/lti-post-login.js'],
+		'select_item' => [$webpack.'js/lti-select-item.js'],
+		'open_preview' => [$webpack.'js/lti-open-preview.js'],
+		'error_general' => [$webpack.'js/lti-error.js'],
+		'react'      => [
+			'//unpkg.com/react@16.13.1/umd/react.development.js',
+			'//unpkg.com/react-dom@16.13.1/umd/react-dom.development.js',
+			$webpack.'js/include.js'
 		],
-
-		'my_widgets' => [
-			$cdnjs.'jqueryui/1.12.1/jquery-ui.min.js'
-		]
-	],
+		'question-importer' => [$webpack.'js/question-importer.js']
+	]
 ];

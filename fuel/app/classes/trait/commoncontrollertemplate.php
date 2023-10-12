@@ -8,13 +8,11 @@ trait Trait_CommonControllerTemplate
 {
 	use Trait_Analytics;
 
-	protected $_header = 'partials/header';
 	protected $_disable_browser_cache = false;
 
 	public function before()
 	{
 		$this->theme = Theme::instance();
-		$this->theme->set_template('layouts/main');
 	}
 
 	public function after($response)
@@ -22,13 +20,7 @@ trait Trait_CommonControllerTemplate
 		// If no response object was returned by the action,
 		if (empty($response) or ! $response instanceof Response)
 		{
-			// render the defined template
-			$me = Model_User::find_current();
-
-			$this->theme->set_partial('header', $this->_header)->set('me', $me);
-
 			$this->insert_analytics();
-
 			$response = Response::forge(Theme::instance()->render());
 		}
 
@@ -39,7 +31,6 @@ trait Trait_CommonControllerTemplate
 		}
 
 		$this->inject_common_js_constants();
-		Css::push_group('core');
 
 		return parent::after($response);
 	}

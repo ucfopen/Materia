@@ -7,6 +7,7 @@
 class Controller_Widgets extends Controller
 {
 	use Trait_CommonControllerTemplate;
+	use Trait_Supportinfo;
 
 	/**
 	 * Catalog page to show all the available widgets
@@ -15,16 +16,13 @@ class Controller_Widgets extends Controller
 	 */
 	public function get_index()
 	{
-		Css::push_group(['core', 'widget_catalog']);
-
-		Js::push_group(['angular', 'ng-animate', 'materia']);
-
-		$this->theme->get_template()
-			->set('title', 'Widget Catalog')
-			->set('page_type', 'catalog');
-
-		$this->theme->set_partial('content', 'partials/widget/catalog');
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'Widget Catalog');
 		$this->theme->set_partial('meta', 'partials/responsive');
+
+		Css::push_group(['catalog']);
+		Js::push_group(['react', 'catalog']);
 	}
 
 	public function get_all()
@@ -48,18 +46,17 @@ class Controller_Widgets extends Controller
 
 		$demo = $widget->meta_data['demo'];
 
-		Css::push_group(['widget_detail', 'core']);
-		Js::push_group(['angular', 'hammerjs', 'jquery', 'materia', 'student']);
+		Js::push_inline('var NO_AUTHOR = "'.\Materia\Perm_Manager::does_user_have_role(['no_author']).'";');
+		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
 
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Widget Details')
 			->set('page_type', 'widget');
 
-		$this->theme->set_partial('content', 'partials/widget/detail');
-
-		$this->theme->set_partial('meta', 'partials/responsive');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->_disable_browser_cache = true;
+		Css::push_group(['detail']);
+		Js::push_group(['react', 'detail']);
 	}
 
 	/**
@@ -117,20 +114,21 @@ class Controller_Widgets extends Controller
 				break;
 		}
 
-		Css::push_group(['core', 'guide']);
-		Js::push_group(['angular', 'materia']);
+		Js::push_inline('var NAME = "'.$widget->name.'";');
+		Js::push_inline('var TYPE = "'.$type.'";');
+		Js::push_inline('var HAS_PLAYER_GUIDE = "'.( ! empty($widget->player_guide)).'";');
+		Js::push_inline('var HAS_CREATOR_GUIDE = "'.( ! empty($widget->creator_guide)).'";');
+		Js::push_inline('var DOC_PATH = "'.Config::get('materia.urls.engines').$widget->dir.$guide.'";');
+
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $title)
 			->set('page_type', 'guide');
 
-		$this->theme->set_partial('meta', 'partials/responsive');
-
-		$this->theme->set_partial('content', 'partials/widget/guide_doc')
-			->set('name', $widget->name)
-			->set('type', $type)
-			->set('has_player_guide', ! empty($widget->player_guide))
-			->set('has_creator_guide', ! empty($widget->creator_guide))
-			->set('doc_path', Config::get('materia.urls.engines').$widget->dir.$guide);
+		Css::push_group(['guide']);
+		Js::push_group(['react', 'guides']);
 	}
 
 	/**
@@ -161,8 +159,10 @@ class Controller_Widgets extends Controller
 	}
 
 	/**
-	 * Listing of all widgets i have rights to
+	 * Listing of all widgets a given user has rights to
 	 */
+	// this exists as an alternative to the next one for use with the React component
+	// once we're sure that is good enough, replace the action after this one with this action, rename it, remove unnecessary routes etc.
 	public function get_mywidgets()
 	{
 		if (\Service_User::verify_session() !== true)
@@ -170,19 +170,15 @@ class Controller_Widgets extends Controller
 			Session::set('redirect_url', URI::current());
 			Session::set_flash('notice', 'Please log in to view your widgets.');
 			Response::redirect(Router::get('login'));
+			return;
 		}
 
-		Css::push_group(['core', 'my_widgets']);
-		Js::push_group(['angular', 'jquery', 'materia', 'author', 'tablock', 'spinner', 'jqplot', 'my_widgets', 'dataTables']);
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
+		$this->theme->get_template()->set('title', 'My Widgets');
 
-		Js::push_inline('var IS_STUDENT = '.(\Service_User::verify_session(['basic_author', 'super_user']) ? 'false;' : 'true;'));
-
-		$this->theme->get_template()
-			->set('title', 'My Widgets')
-			->set('page_type', 'my_widgets');
-
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/my_widgets');
+		Css::push_group(['my_widgets']);
+		Js::push_group(['react', 'my_widgets']);
 	}
 
 	public function get_play_demo()
@@ -201,6 +197,8 @@ class Controller_Widgets extends Controller
 
 	public function action_play_embedded($inst_id = false)
 	{
+		// if routed from the legacy LTI URL, the instance id is available as a GET parameter
+		if ( ! $inst_id && \Input::get('widget') ) $inst_id = \Input::get('widget');
 		// context_id isolates attempt count for an class so a user's attempt limit is reset per course
 		Session::set('context_id', \Input::post('context_id'));
 		return $this->_play_widget($inst_id, false, true);
@@ -237,9 +235,6 @@ class Controller_Widgets extends Controller
 				$this->display_widget($inst, false, $is_embedded);
 			}
 		}
-
-		Css::push_group('widget_play');
-
 	}
 
 	/* ============================== PROTECTED ================================== */
@@ -248,103 +243,113 @@ class Controller_Widgets extends Controller
 	protected function show_editor($title, $widget, $inst_id=null)
 	{
 		$this->_disable_browser_cache = true;
-		Css::push_group(['core', 'widget_create']);
-		Js::push_group(['angular', 'materia', 'author']);
-		if ( ! empty($widget->creator) && preg_match('/\.swf$/', $widget->creator))
-		{
-			// add swfobject if it's needed
-			Js::push_group('swfobject');
-		}
 
+		Js::push_inline('var WIDGET_HEIGHT = "'.$widget->height.'";');
+		Js::push_inline('var WIDGET_WIDTH = "'.$widget->width.'";');
+
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $title)
-			->set('page_type', 'create');
+			->set('page_type', 'widget');
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/create')
-			->set('widget', $widget)
-			->set('inst_id', $inst_id);
+		Css::push_group(['widget_create']);
+		Js::push_group(['react', 'createpage']);
 	}
 
 	protected function draft_not_playable()
 	{
 		$this->_disable_browser_cache = true;
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Draft Not Playable')
 			->set('page_type', '');
 
-		$this->theme->set_partial('content', 'partials/widget/draft_not_playable');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
+		Js::push_group(['react', 'draft_not_playable']);
+		Css::push_group(['login']);
 
-		Js::push_group(['angular', 'materia']);
+		$this->add_inline_info();
 	}
 
-	protected function retired()
+	protected function retired(bool $is_embedded = false)
 	{
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Retired Widget')
 			->set('page_type', '');
 
-		$this->theme->set_partial('content', 'partials/widget/retired');
-		$this->theme->set_partial('footer', 'partials/angular_alert');
+		Js::push_group(['react', 'retired']);
+		Css::push_group(['login']);
 
-		Js::push_group(['angular', 'materia']);
+		Js::push_inline('var IS_EMBEDDED = "'.$is_embedded.'";');
 	}
 
 	protected function no_attempts(object $inst, bool $is_embedded)
 	{
 		$this->_disable_browser_cache = true;
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/no_attempts')
-			->set('classes', 'widget')
-			->set('attempts', $inst->attempts)
-			->set('scores_path', '/scores'.($is_embedded ? '/embed' : '').'/'.$inst->id)
+		Js::push_inline('var ATTEMPTS = "'.$inst->attempts.'";');
+		Js::push_inline('var WIDGET_ID = "'.$inst->id.'";');
+		Js::push_inline('var IS_EMBEDDED = "'.$is_embedded.'";');
+		Js::push_inline('var NAME = "'.$inst->name.'";');
+		Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 
-			->set('summary', $this->theme->view('partials/widget/summary')
-				->set('type',$inst->widget->name)
-				->set('name', $inst->name)
-				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
-
-		Js::push_group(['angular', 'materia']);
 		// The styles for this are in login, should probably be moved?
 		Css::push_group('login');
+		Js::push_group(['react', 'no_attempts']);
 	}
 
 	protected function no_permission()
 	{
 		$this->_disable_browser_cache = true;
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Permission Denied')
 			->set('page_type', '');
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/nopermission');
-
-		Js::push_group(['angular', 'materia']);
+		Js::push_group(['react', 'no_permission']);
+		Css::push_group('no_permission');
+		$this->add_inline_info();
 	}
 
 	protected function embedded_only($inst)
 	{
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', 'Widget Unavailable')
 			->set('page_type', 'login');
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/embedded_only')
-			->set('classes', 'widget')
+		$theme_overrides = \Event::Trigger('before_embedded_only', '', 'array');
+		if ($theme_overrides)
+		{
+			$this->theme->set_template('layouts/react');
+			$this->theme->get_template()
+				->set('title', 'Login')
+				->set('page_type', 'login');
 
-			->set('summary', $this->theme->view('partials/widget/summary')
-				->set('type',$inst->widget->name)
-				->set('name', $inst->name)
-				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+			Css::push_group([$theme_overrides[0]['css']]);
+			Js::push_group(['react', $theme_overrides[0]['js']]);
+		}
+		else
+		{
+			Js::push_group(['react', 'embedded_only']);
+			// The styles for this are in login, should probably be moved?
+			Css::push_group('login');
+		}
 
-		Js::push_group(['angular', 'materia']);
-		// The styles for this are in login, should probably be moved?
-		Css::push_group('login');
+		Js::push_inline('var NAME = "'.$inst->name.'";');
+		Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 	}
 
 	protected function _play_widget($inst_id = false, $demo=false, $is_embedded=false)
@@ -371,9 +376,6 @@ class Controller_Widgets extends Controller
 		$inst = Materia\Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) throw new HttpNotFoundException;
 
-		// Disable header if embedded, prior to setting the widget view or any login/error screens
-		if ($is_embedded) $this->_header = 'partials/header_empty';
-
 		if ( ! $is_embedded && $inst->embedded_only) return $this->embedded_only($inst);
 
 		// display a login
@@ -384,9 +386,9 @@ class Controller_Widgets extends Controller
 
 		$status = $inst->status($context_id);
 
-		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id);
+		if ( ! $status['open']) return $this->build_widget_login('Widget Unavailable', $inst_id, $is_embedded);
 		if ( ! $demo && $inst->is_draft) return $this->draft_not_playable();
-		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired();
+		if ( ! $demo && ! $inst->widget->is_playable) return $this->retired($is_embedded);
 		if ( ! $status['has_attempts']) return $this->no_attempts($inst, $is_embedded);
 		if (isset($_GET['autoplay']) && $_GET['autoplay'] === 'false') return $this->pre_embed_placeholder($inst);
 
@@ -420,6 +422,7 @@ class Controller_Widgets extends Controller
 		$server_date  = date_create('now', timezone_open('UTC'))->format('D, d M Y H:i:s');
 
 		// ===================== RENDER ==========================
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $login_title ?: 'Login')
 			->set('page_type', 'login');
@@ -429,39 +432,69 @@ class Controller_Widgets extends Controller
 		if ($is_open)
 		{
 			// fire an event prior to deciding which theme to render
-			$alt = \Event::Trigger('before_widget_login');
 			// if something came back as a result of the event being triggered, use that instead of the default
-			$theme = $alt ?: 'partials/widget/login';
-			$content = $this->theme->set_partial('content', $theme);
-			$content
-				->set('user', __('user'))
-				->set('pass', __('password'))
-				->set('links', __('links'))
-				->set('title', $login_title)
-				->set('date', $server_date)
-				->set('preview', $is_preview);
+			// theme_overrides object should include an array with a js and css index
+			// these specify a) the react page to render and b) its associated css
+			$theme_overrides = \Event::Trigger('before_widget_login', '', 'array');
+			if ($theme_overrides)
+			{
+				$this->theme->set_template('layouts/react');
+				$this->theme->get_template()
+					->set('title', 'Login')
+					->set('page_type', 'login');
+
+				Css::push_group([$theme_overrides[0]['css']]);
+				Js::push_group(['react', $theme_overrides[0]['js']]);
+			}
+			else
+			{
+				$this->theme->set_template('layouts/react');
+				$this->theme->get_template()
+					->set('title', 'Login')
+					->set('page_type', 'login');
+
+				Css::push_group(['login']);
+				Js::push_group(['react', 'login']);
+			}
+
+			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
+			Js::push_inline('var ACTION_LOGIN = "'.\Router::get('login').'";');
+			Js::push_inline('var ACTION_REDIRECT = "'.urlencode(URI::current()).'";');
+			Js::push_inline('var LOGIN_USER = "'.\Lang::get('login.user').'";');
+			Js::push_inline('var LOGIN_PW = "'.\Lang::get('login.password').'";');
+			Js::push_inline('var CONTEXT = "widget";');
+			Js::push_inline('var NAME = "'.$inst->name.'";');
+			Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
+			Js::push_inline('var IS_PREVIEW = "'.$is_preview.'";');
+			Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
+
+			// condense login links into a string with delimiters to be embedded as a JS global
+			$link_items = [];
+			foreach (\Lang::get('login.links') as $a)
+			{
+				$link_items[] = $a['href'].'***'.$a['title'];
+			}
+			$login_links = implode('@@@', $link_items);
+			Js::push_inline('var LOGIN_LINKS = "'.urlencode($login_links).'";');
 		}
 		else
 		{
-			$content = $this->theme->set_partial('content', 'partials/widget/closed');
-			$content
-				->set('msg', __('user'))
-				->set('date', $server_date)
-				->set_safe('availability', $desc);
+			Js::push_inline('var IS_EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
+			Js::push_inline('var NAME = "'.$inst->name.'";');
+			Js::push_inline('var WIDGET_NAME = "'.$inst->widget->name.'";');
+			Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
+
+			Js::push_inline('var SUMMARY = "'.$summary.'";');
+			Js::push_inline('var DESC = "'.$desc.'";');
+
+			$this->theme->set_template('layouts/react');
+			$this->theme->get_template()
+				->set('title', 'Widget Unavailable')
+				->set('page_type', 'login');
+
+			Css::push_group(['login']);
+			Js::push_group(['react', 'closed']);
 		}
-
-		// add widget summary
-		$content->set('classes', 'widget '.($is_preview ? 'preview' : ''))
-			->set('summary', $this->theme->view('partials/widget/summary')
-				->set('type',$inst->widget->name)
-				->set('name', $inst->name)
-				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png")
-				->set_safe('avail', $summary));
-
-		if ($is_embedded) $this->_header = 'partials/header_empty';
-
-		Js::push_group(['angular', 'materia', 'student']);
-		Css::push_group('login');
 	}
 
 	protected function build_widget_login_messages($inst)
@@ -473,13 +506,14 @@ class Controller_Widgets extends Controller
 		// Build the open/close dates for display
 		if ($status['opens'])
 		{
-			$start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
-			$start_sec    = '{{ time('.((int) $inst->open_at * 1000).') }}';
+			// $start_string = '<span class="available_date">'.date($format, (int) $inst->open_at).'</span>';
+			$start_string = date($format, (int) $inst->open_at);
+			$start_sec    = date('h:i A', (int) $inst->open_at * 1000);
 		}
 		if ($status['closes'])
 		{
-			$end_string   = '<span class="available_date">'.date($format, (int) $inst->close_at).'</span>';
-			$end_sec      = '{{ time('.((int) $inst->close_at * 1000).') }}';
+			$end_string   = date($format, (int) $inst->close_at);
+			$end_sec      = date('h:i A', (int) $inst->close_at * 1000);
 		}
 
 		// finish the actual messages to the user
@@ -507,47 +541,44 @@ class Controller_Widgets extends Controller
 
 	protected function display_widget(\Materia\Widget_Instance $inst, $play_id=false, $is_embedded=false)
 	{
-		Css::push_group(['core', 'widget_play']);
-		Js::push_group(['angular', 'materia', 'student']);
-		if ($is_embedded) $this->_header = 'partials/header_empty';
-		if ( ! empty($inst->widget->player) && preg_match('/\.swf$/', $inst->widget->player))
-		{
-			// add swfobject if it's needed
-			Js::push_group('swfobject');
-		}
-
 		Js::push_inline('var PLAY_ID = "'.$play_id.'";');
+		Js::push_inline('var DEMO_ID = "'.$inst->id.'";');
+		Js::push_inline('var WIDGET_HEIGHT = "'.$inst->widget->height.'";');
+		Js::push_inline('var WIDGET_WIDTH = "'.$inst->widget->width.'";');
+		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
+		Js::push_inline('var BASE_URL = "'.Uri::base().'";');
+		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
+		Js::push_inline('var MEDIA_URL = "'.Config::get('materia.urls.media').'";');
+
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
 			->set('title', $inst->name.' '.$inst->widget->name)
 			->set('page_type', 'widget')
 			->set('html_class', $is_embedded ? 'embedded' : '' );
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/play')
-			->set('inst_id', $inst->id);
+		Css::push_group(['playpage']);
+		Js::push_group(['react', 'playpage']);
 	}
 
 	protected function pre_embed_placeholder($inst)
 	{
 		$this->_disable_browser_cache = true;
+		$this->theme = Theme::instance();
+		$this->theme->set_template('layouts/react');
 		$this->theme->get_template()
-			->set('title', 'Widget Unavailable')
-			->set('page_type', 'login');
+			->set('title', $inst->name.' '.$inst->widget->name)
+			->set('page_type', 'widget');
 
 		$uri = URI::current();
 		$context = strpos($uri, 'play/') != false ? 'play' : 'embed';
 
-		$this->theme->set_partial('footer', 'partials/angular_alert');
-		$this->theme->set_partial('content', 'partials/widget/pre_embed_placeholder')
-			->set('classes', 'widget')
-			->set('inst_id', $inst->id)
-			->set('context', $context)
-			->set('summary', $this->theme->view('partials/widget/summary')
-				->set('type',$inst->widget->name)
-				->set('name', $inst->name)
-				->set('icon', Config::get('materia.urls.engines')."{$inst->widget->dir}img/icon-92.png"));
+		Js::push_inline('var INST_ID = "'.$inst->id.'";');
+		Js::push_inline('var CONTEXT = "'.$context.'";');
+		Js::push_inline('var NAME = "'.$inst->name.'";');
+		Js::push_inline('var ICON_DIR = "'.Config::get('materia.urls.engines').$inst->widget->dir.'";');
 
-		Js::push_group(['angular', 'materia']);
+		Js::push_group(['react', 'pre_embed']);
 		Css::push_group(['login','pre_embed_placeholder']);
 	}
 }
