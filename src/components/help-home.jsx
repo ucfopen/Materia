@@ -5,8 +5,10 @@ const HelpHome = () => {
 	return (
 		<>
 			<section className="full-width">
-			<h2 id="getting-started-link">Getting Started</h2>
-				lorem ipsum
+				<h2 id="faq-link">Getting Started</h2>
+				<p>Having issues with Materia or don't know where to get started? We're here to help. For first-time users, get more information about Materia from the links below.</p>
+				<p><a href="https://ucfopen.github.io/Materia-Docs/play/getting-started.html">Player/Student Guide</a></p>
+				<p><a href="https://ucfopen.github.io/Materia-Docs/create/getting-started.html">Author/Instructor Guide</a></p>
 			</section>
 			<section className="full-width">
 				<h2 id="flash-required">Requirements</h2>
@@ -39,13 +41,9 @@ const HelpHome = () => {
 						<dd>PHONE NUMBER HERE</dd>
 				</dl>
 			</section>
-
-			<section className="half-width">
+			<section className='full-width'>
 				<h2 id="faq-link">Documentation</h2>
-				<p><a href="https://ucfopen.github.io/Materia-Docs/">View the docs</a> for guides on using Materia.</p>
-				<h3 id="faq-link">Getting Started</h3>
-				<p><a href="https://ucfopen.github.io/Materia-Docs/play/getting-started.html">Player/Student Guide</a></p>
-				<p><a href="https://ucfopen.github.io/Materia-Docs/create/getting-started.html">Author/Instructor Guide</a></p>
+				<p><a href="https://ucfopen.github.io/Materia-Docs/">Our docs site</a> has extensive documentation for students, authors, support users, and developers.</p>
 			</section>
 		</>
 	)
