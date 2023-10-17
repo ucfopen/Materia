@@ -59,8 +59,8 @@ const Homepage = () => (
 					<h2>Engage Your Students</h2>
 					<p className="front_bottom_desc">
 						Re-imagine your course filled with diverse and interesting experiences.
-						It can bring life to content modules, practice, study activities, and even assessments.
-						Engage students with game mechanics like: story-telling, competition, instant feedback, and instant reward systems.
+						Materia can bring life to content modules, practice, study activities, and even assessments.
+						Engage students with game mechanics like story-telling, competition, instant feedback, and instant reward systems.
 					</p>
 				</div>
 				<img src='/img/front1.png' alt='screen shot of a sort it out widget' />
@@ -70,7 +70,7 @@ const Homepage = () => (
 					<h2>Integrate with Your Course</h2>
 					<p className="front_bottom_desc">
 						Materia integrates into Canvas seamlessly.
-						As an assignment, student's scores can automatically sync to the grade book.
+						As an assignment, students' scores can automatically sync to the grade book.
 						Thanks to the magic of LTI, Students are logged in automatically!
 					</p>
 				</div>
