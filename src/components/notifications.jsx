@@ -11,7 +11,10 @@ const Notifications = (user) => {
     const queryClient = useQueryClient()
     const setUserPerms = setUserInstancePerms()
     const numNotifications = useRef(0);
-    const [errorMsg, setErrorMsg] = useState('');
+    const [errorMsg, setErrorMsg] = useState({
+        notif_id: '',
+        msg: ''
+    });
     let modalRef = useRef();
 
 	const { data: notifications} = useQuery({
@@ -121,11 +124,7 @@ const Notifications = (user) => {
             instId: notif.item_id,
             permsObj: userPerms,
             successFunc: (data) => {
-                if (!data || data.title == "error")
-                {
-                    setErrorMsg('Action failed.');
-                }
-                else if (data)
+                if (data && data.status == 200)
                 {
                     // Redirect to widget
                     if (!window.location.pathname.includes('my-widgets'))
@@ -141,12 +140,16 @@ const Notifications = (user) => {
                         window.location.hash = notif.item_id + '-collab';
                     }
 
-                    setErrorMsg('');
+                    setErrorMsg({notif_id: notif.id, msg: ''});
 
                     removeNotification(-1, notif.id);
 
                     // Close notifications
                     setNavOpen(false)
+                }
+                else
+                {
+                    setErrorMsg({notif_id: notif.id, msg: 'Action failed.'});
                 }
             }
         })
@@ -198,7 +201,7 @@ const Notifications = (user) => {
                     className={`noticeClose ${showDeleteBtn == index ? 'show' : ''}`}
                     onClick={() => {removeNotification(index)}}
                 />
-                <p id="errorMsg">{errorMsg}</p>
+                <p className='errorMsg'>{errorMsg.notif_id == notification.id ? errorMsg.msg : ''}</p>
             </div>
 
             notificationIcon =
