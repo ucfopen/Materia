@@ -350,27 +350,9 @@ class Perm_Manager
 					->where('role_id', self::get_role_id($role_name))
 					->execute();
 			}
-
-			if (self::is_student($user_id))
-			{
-				// Update user's instances' access modes
-				self::update_user_instance_access_mode($user_id);
-			}
 		}
 
 		return $success;
-	}
-
-	/**
-	 * Updates access mode for all instances belonging to a user to guest mode
-	 * @param int $user_id id of user with perms to object
-	 */
-	static public function update_user_instance_access_mode($user_id)
-	{
-		\DB::update('widget_instance')
-			->set(['guest_access' => Util_Validator::cast_to_bool_enum(1)])
-			->where('user_id', $user_id)
-			->execute();
 	}
 
 	/*

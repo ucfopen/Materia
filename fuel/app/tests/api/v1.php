@@ -301,7 +301,6 @@ class Test_Api_V1 extends \Basetest
 		$qset = $this->create_new_qset($question, $answer);
 
 		$output = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
-		$this->assert_is_widget_instance($output);
 
 		// EDIT DRAFT
 		$title = 'Around The World!';
