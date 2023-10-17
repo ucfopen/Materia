@@ -146,7 +146,6 @@ const Notifications = (user) => {
 
                     // Close notifications
                     setNavOpen(false)
-
                 }
                 else
                 {

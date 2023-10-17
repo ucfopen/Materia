@@ -4,6 +4,7 @@
 	"author": "University of Central Florida, Center for Distributed Learning",
 	"license": "AGPL-3.0",
 	"files": [
+		"path.js",
 		"js/materia.js",
 		"js/materia.enginecore.js",
 		"js/materia.creatorcore.js",
@@ -21,7 +22,7 @@
 		"js/scores.js",
 		"css/scores.css"
 	],
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ucfopen/Materia"
