@@ -95,7 +95,7 @@ const MediaImporterAudioRecorder = ({uploadFromAudioRecorder}) => {
 			return false
 		}
 
-		const filename = `${nameInputRef.current.value}.webm` || 'my-audio-file.webm'
+		const filename = nameInputRef.current.value.length > 0 ? `${nameInputRef.current.value}.webm` : 'my-audio-file.webm'
 		const file = new File([audioBlob], filename, { type: 'audio/webm; codecs=opus' })
 		uploadFromAudioRecorder(file)
 	}

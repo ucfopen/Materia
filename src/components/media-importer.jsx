@@ -146,6 +146,7 @@ const MediaImporter = () => {
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through
 			case 'm4a': // intentional case fall-through
+			case 'webm':
 				return '/img/audio.png'
 		}
 	}
@@ -339,7 +340,7 @@ const MediaImporter = () => {
 					<input type="file" onChange={(ev) => _uploadFile(ev)} />
 					<span className="action_button select_file_button">Browse...</span>
 				</label>
-				<span className="action_button" onClick={() => { setRecorderDisplayToggle(true) }}>Record Audio</span>
+				<button className="action_button record-toggle" onClick={() => { setRecorderDisplayToggle(true) }}>Record Audio</button>
 			</div>
 			{ uploadingRender }
 		</section>
