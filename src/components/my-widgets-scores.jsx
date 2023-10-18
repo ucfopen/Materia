@@ -7,7 +7,7 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst, beardMode}) => {
+const MyWidgetsScores = ({inst, beardMode, is_student}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -16,7 +16,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 	const { data: currScores, isFetched } = useQuery({
 		queryKey: ['score-summary', inst.id],
 		queryFn: () => apiGetScoreSummary(inst.id),
-		enabled: !!inst && !!inst.id,
+		enabled: !!inst && !!inst.id && !is_student,
 		staleTime: Infinity,
 		placeholderData: []
 	})
@@ -61,7 +61,9 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 	const handleShowOlderClick = () => setState({...state, isShowingAll: !state.isShowingAll})
 
 	let contentRender = <LoadingIcon />
-	if (isFetched) {
+	if (is_student) {
+		contentRender = <p>Students cannot view scores.</p>
+	} else if (isFetched) {
 		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
@@ -99,8 +101,8 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 		<div className='scores'>
 			<h2>Student Activity</h2>
 			<span id='export_scores_button'
-				className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
-				onClick={openExport}>
+			className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
+			onClick={openExport}>
 				<span className='arrow_down'></span>
 				Export Options
 			</span>

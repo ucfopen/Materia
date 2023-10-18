@@ -16,7 +16,7 @@ const AttemptsSlider = ({inst, parentState, setParentState}) => {
 	const sliderStop = e => {
 		setSliderStopped(true)
 	}
-	
+
 	// now that the slider value isn't actively changing, round the raw value to the nearest stop
 	// pass that rounded value up to the parent component
 	useEffect(() => {

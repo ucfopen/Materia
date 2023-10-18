@@ -350,7 +350,7 @@ class Api_V1
 				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
 				foreach ($access as $user_id => $user_perms)
 				{
-					if (Perm_Manager::is_student($user_id))
+					if (Perm_Manager::is_student($user_id) && $user_id != $inst->user_id)
 					{
 						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
 						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);

@@ -2,7 +2,6 @@
 	display: flex;
 	flex-direction: column;
 	width: 680px;
-	max-height: 720px;
 	padding: 10px 10px 0 10px;
 
 	.top-bar {
@@ -276,15 +275,13 @@
 						}
 					}
 
-					&.limited-because-student {
+					.limited-because-student {
 
-						li.normal.show, li.guest-mode, li.embed-only {
-							filter: blur(3px);
-							user-select: none;
-							pointer-events: none;
-						}
+						filter: blur(3px);
+						user-select: none;
+						pointer-events: none;
 
-						li.studentWarningListItem {
+						&.studentWarningListItem {
 							margin: 0 0 15px 0;
 						}
 					}
