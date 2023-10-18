@@ -340,7 +340,7 @@ const MediaImporter = () => {
 					<input type="file" onChange={(ev) => _uploadFile(ev)} />
 					<span className="action_button select_file_button">Browse...</span>
 				</label>
-				<button className="action_button record-toggle" onClick={() => { setRecorderDisplayToggle(true) }}>Record Audio</button>
+				{ _getAllowedFileTypes().filter((type) => type.includes('audio')).length > 0 ? <button className="action_button record-toggle" onClick={() => { setRecorderDisplayToggle(true) }}>Record Audio</button> : '' }
 			</div>
 			{ uploadingRender }
 		</section>
