@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './my-widgets-settings-dialog.scss'
 
-const AttemptsSlider = ({inst, parentState, setParentState}) => {
+const AttemptsSlider = ({inst, is_student, parentState, setParentState, currentAttemptsVal}) => {
 
 	const [rawSliderVal, setRawSliderVal] = useState(parseInt(parentState.sliderVal))
 	const [sliderStopped, setSliderStopped] = useState(false)
@@ -22,6 +22,13 @@ const AttemptsSlider = ({inst, parentState, setParentState}) => {
 	useEffect(() => {
 		if (sliderStopped && parentState.formData.changes.access != 'guest') {
 			const sliderInfo = getSliderInfo(rawSliderVal)
+			// students cannot change attempts to anything other than
+			// the original number of attempts or unlimited
+			if (is_student && sliderInfo.val != currentAttemptsVal && sliderInfo.val != '100') {
+				setSliderStopped(false)
+				setRawSliderVal(parseInt(parentState.sliderVal))
+				return
+			}
 			setParentState({...parentState, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
 			setSliderStopped(false)
 		}
@@ -66,16 +73,16 @@ const AttemptsSlider = ({inst, parentState, setParentState}) => {
 	const updateSliderNum = (val, index) => {
 		// Attempts always unlimited when guest access is true
 		if (parentState.formData.changes.access === 'guest') return
+		if (is_student && val != currentAttemptsVal && val != '100') return
 
 		setParentState({...parentState, sliderVal: val.toString(), lastActive: index})
 	}
 
 	const generateStopSpan = (stopId, sliderPosition, display) => {
-		const spanClass = parentState.lastActive === stopId ? 'active' : ''
 		const stopClickHandler = () => updateSliderNum(sliderPosition, stopId)
 		return (
 			<span key={stopId}
-				className={spanClass}
+				className={`${parentState.lastActive === stopId ? 'active' : ''}`}
 				onClick={stopClickHandler}>
 				{display}
 			</span>

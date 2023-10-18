@@ -505,7 +505,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 				<ul className='attemptsPopup'>
 					<li className={`attempt-content ${currentUser.is_student && currentUser.id != inst.user_id ? 'hide' : ''}`}>
 						<h3>Attempts</h3>
-						<AttemptsSlider key='slider-key' inst={inst} parentState={state} setParentState={setState}/>
+						<AttemptsSlider key='slider-key' inst={inst} parentState={state} setParentState={setState} is_student={currentUser.is_student} currentAttemptsVal={attemptsToValue(inst.attempts)}/>
 					</li>
 					<ul className='to-from'>
 						{ periodSelectElements }

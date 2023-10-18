@@ -198,6 +198,10 @@
 						&.active {
 							color: rgba(0, 0, 0, 1);
 						}
+						&.disabled {
+							color: rgba(0,0,0,0.5);
+							cursor: default;
+						}
 					}
 
 					// Entire bar is 67% so 2.68% per 1 attempt
