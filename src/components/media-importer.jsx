@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
+import MediaImporterAudioRecorder from './media-importer-audio-recorder'
 import LoadingIcon from './loading-icon'
 import { apiDeleteAsset, apiGetAssets, apiRestoreAsset } from '../util/api'
 import './media.scss'
@@ -17,7 +18,7 @@ const FILE_MAX_SIZE = 20000000
 const MIME_MAP = {
 	// generic types, preferred
 	image: ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
-	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/x-m4a', 'audio/wave', 'audio/wav', 'audio/x-wav', 'audio/m4a'],
+	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/x-m4a', 'audio/wave', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/webm'],
 	video: [], // placeholder
 	model: ['model/obj'],
 
@@ -29,6 +30,7 @@ const MIME_MAP = {
 	mp3: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
 	m4a: ['audio/mp4', 'audio/x-m4a', 'audio/m4a'],
 	wav: ['audio/wave', 'audio/wav', 'audio/x-wav'],
+	webm: ['audio/webm'],
 	obj: ['application/octet-stream', 'model/obj'],
 }
 
@@ -63,6 +65,8 @@ const MediaImporter = () => {
 	const [assetList, setAssetList] = useState({})
 	const [showDeletedAssets, setShowDeletedAssets] = useState(false)
 	const [filterSearch, setFilterSearch] = useState('') // Search bar filter
+
+	const [recorderDisplayToggle, setRecorderDisplayToggle] = useState(false)
 
 	const { data: listOfAssets } = useQuery({
 		queryKey: ['media-assets', selectedAsset],
@@ -191,6 +195,8 @@ const MediaImporter = () => {
 
 	const _upload = (fileData) => {
 
+		console.log(fileData)
+
 		const fd = new FormData()
 		fd.append('name', fileData.name)
 		fd.append('Content-Type', fileData.type)
@@ -246,6 +252,10 @@ const MediaImporter = () => {
 
 	const _onCancel = () => {
 		window.parent.Materia.Creator.onMediaImportComplete(null)
+	}
+
+	const uploadFromAudioRecorder = (data) => {
+		_upload(data)
 	}
 
 	let uploadingRender = null
@@ -306,22 +316,38 @@ const MediaImporter = () => {
 		)
 	}
 
+	let leftPaneRender = null
+	if (recorderDisplayToggle) {
+		leftPaneRender = (
+			<section id="left-pane">
+				<div className="pane-header">Record some audio!</div>
+				<MediaImporterAudioRecorder uploadFromAudioRecorder={uploadFromAudioRecorder} />
+				<span className="cancel_button recorder_cancel" onClick={() => { setRecorderDisplayToggle(false) }}>Upload Instead</span>
+			</section>
+			
+		)
+	}
+	else leftPaneRender = (
+		<section id="left-pane">
+			<div className="pane-header">Upload a new file</div>
+
+			<DragAndDrop parseMethod={_uploadFile} idStr={'drag-wrapper'}>
+				<div className="drag-text">Drag a file here to upload</div>
+			</DragAndDrop>
+			<div className="drag-footer">
+				<label>
+					<input type="file" onChange={(ev) => _uploadFile(ev)} />
+					<span className="action_button select_file_button">Browse...</span>
+				</label>
+				<span className="action_button" onClick={() => { setRecorderDisplayToggle(true) }}>Record Audio</span>
+			</div>
+			{ uploadingRender }
+		</section>
+	)
+
 	return (
 		<div className="media-importer">
-			<section id="left-pane">
-				<div className="pane-header">Upload a new file</div>
-
-				<DragAndDrop parseMethod={_uploadFile} idStr={'drag-wrapper'}>
-					<div className="drag-text">Drag a file here to upload</div>
-				</DragAndDrop>
-				<div className="drag-footer">
-					<label>
-						<input type="file" onChange={(ev) => _uploadFile(ev)} />
-						<span className="action_button select_file_button">Browse...</span>
-					</label>
-				</div>
-				{ uploadingRender }
-			</section>
+			{ leftPaneRender }
 
 			<section id="right-pane">
 				<div className="pane-header darker">

@@ -71,6 +71,161 @@ body.import {
 				font-weight: bold;
 			}
 		}
+
+		.audio-recorder {
+			display: flex;
+			flex-direction: column;
+			margin-top: 20%;
+
+			.recorder-controls {
+				flex-basis: 3;
+
+				.controls {
+					position: relative;
+					display: flex;
+					justify-content: center;
+					margin-bottom: 10px;
+
+					&:after {
+						content: '';
+						position: absolute;
+						z-index: -1;
+						top: 50%;
+						left: 0;
+						right: 0;
+						border-top: 1px solid #dcdcdc;
+					}
+
+					button.control {
+						position: relative;
+						z-index: 0;
+						width: 52px;
+						height: 52px;
+
+						border: solid 0.5px #dcdcdc;
+						border-radius: 10px;
+
+						cursor: pointer;
+					}
+
+					button.record {
+						background: #fff url('/img/mic-icon.svg') no-repeat center center;
+					}
+
+					button.stop {
+						background: #fff url('/img/stop-icon.svg') no-repeat center center;
+					}
+				}
+			}
+
+			.audio-playback {
+				display: flex;
+				flex-direction: column;
+				justify-content: flex-start;
+				margin: 0 15px 15px 15px;
+				padding: 5px 20px 0 20px;
+
+				label {
+					margin-bottom: 5px;
+					font-weight: bold;
+					font-size: 12px;
+				}
+
+				.recording-duration {
+					display: none;
+					margin-top: 6px;
+					text-align: center;
+
+					font-weight: bold;
+
+					&.show {
+						display: block;
+					}
+				}
+
+				.wave-animation {
+					display: flex;
+					height: 0px;
+					flex-direction: row;
+					align-self: center;
+					gap: 5px;
+					width: 120px;
+					justify-content: center;
+					align-items: center;
+				
+					overflow:hidden;
+				
+					transition: height 0.6s;
+				
+					&.show {
+						display: flex;
+						height: 30px;
+					}
+				
+					.wave {
+						width: 5px;
+						height: 30px;
+						border-radius: 5px;
+						background-color: #0093e7;
+						animation: wave 1s ease-in-out infinite;
+				
+						&:nth-child(1), &:nth-child(7) {
+							animation-delay: 0.8s;
+						}
+				
+						&:nth-child(2), &:nth-child(6) {
+							animation-delay: 0.6s;
+						}
+				
+						&:nth-child(3), &:nth-child(5) {
+							animation-delay: 0.4s;
+						}
+				
+						&:nth-child(4) {
+							animation-delay: 0.2;
+						}
+					}
+				
+					@keyframes wave {
+						0%, 100% {
+							transform: scaleY(0.2);
+						}
+				
+						50% {
+							transform: scaleY(1);
+						}
+					}
+				}
+			}
+
+			.recorder-options {
+				flex-basis: 1;
+				margin: 0 15px;
+				padding: 5px 20px 0 20px;
+
+				label {
+					margin-bottom: 3px;
+					font-size: 12px;
+					font-weight: bold;
+				}
+
+				input {
+					width: 100%;
+					height: 1.5em;
+					font-size: 1.1em;
+				}
+			}
+		}
+
+		button.action_button {
+			margin-top: 18px;
+			font-size: 16px;
+		}
+
+		.recorder_cancel {
+			display: block;
+			margin: 12px 0 0 0;
+		}
 	}
 
 	.pane-header {

@@ -25,6 +25,8 @@ class Widget_Asset
 		'audio/wav'   => 'wav',
 		'audio/wave'  => 'wav',
 		'audio/x-wav' => 'wav',
+		'audio/webm'  => 'webm',
+		'video/webm'  => 'webm',
 		'text/plain'  => 'obj',
 	];
 
@@ -36,6 +38,7 @@ class Widget_Asset
 		'm4a'  => 'audio/mp4',
 		'mp3'  => 'audio/mpeg',
 		'wav'  => 'audio/wav',
+		'webm' => 'audio/webm',
 		'obj'  => 'text/plain',
 	];
 

@@ -14,7 +14,7 @@ return array(
 	'areas' => [
 		'media' => [
 			'basedir'    => realpath(APPPATH.'media').DS,
-			'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'wav', 'mp3', 'obj', 'm4a'],
+			'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'wav', 'mp3', 'obj', 'm4a', 'webm'],
 			'url'        => DOCROOT . 'media',
 		]
 	],
