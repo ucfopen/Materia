@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6cd12e58a2eadc64a08ed0a8f5d0cf24",
+    "content-hash": "f25597c889d3990ca0401225ac22f8a2",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1972,7 +1972,7 @@
         },
         {
             "name": "ucfopen/materia-theme-ucf",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfopen/Materia-Theme-UCF.git",
@@ -1980,7 +1980,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.1.zip"
+                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.2.zip"
             },
             "type": "fuel-package"
         }
