@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
 import useInstanceList from './hooks/useInstanceList'
 import useDebounce from './hooks/useDebounce'
+import LoadingIcon from './loading-icon'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
@@ -16,18 +17,32 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
 
-	let searchResultsRender = (
-		<div>
-			<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
-		</div>
-	)
+	let searchPromptRender = null
+	let loadingRender = null
+
 	if ((instanceList.isFetching || !instanceList.instances) && searchText.length > 0) {
-		searchResultsRender = (
-			<div className='searching'>
-				<b>Searching Widget Instances ...</b>
+		loadingRender = (
+			<div className='loading'>
+				<LoadingIcon size="sm" width="50px"></LoadingIcon>
+				<p className="loading-text">Searching Widget Instances ...</p>
 			</div>
 		)
-	} else if (instanceList.instances && instanceList.instances.length !== 0) {
+	} else if (instanceList.isFetching) {
+		loadingRender = <div className="loading">
+			<LoadingIcon size="sm" width="50px"></LoadingIcon>
+			<p className="loading-text">Loading widget instances...</p>
+		</div>
+	} else {
+		searchPromptRender = (
+			<div>
+				<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
+			</div>
+		)
+	}
+
+	let searchResultsRender = null
+
+	if (instanceList.instances && instanceList.instances.length !== 0) {
 		searchResultsRender = (
 			<div className='search_list'>
 					{instanceList.instances.map((match) =>
@@ -60,6 +75,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 				<h1>Instance Admin</h1>
 			</div>
 			<div className='search'>
+				{ searchPromptRender }
 				<input tabIndex='0'
 					value={searchText}
 					onChange={handleSearchChange}
@@ -76,8 +92,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 					<span className='deleted_label'>Show Deleted Instances?</span>
 				</div>
 			</div>
+			{ loadingRender }
 			{ searchResultsRender }
-
 		</section>
 	)
 }

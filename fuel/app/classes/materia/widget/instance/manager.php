@@ -135,22 +135,35 @@ class Widget_Instance_Manager
 		return $locked_by == $me;
 	}
 
-	public static function get_paginated_search(string $input, $page_number = 0)
+	public static function get_paginated_search(string $input, $page_number = 0, $total_num_pages = -1)
 	{
-		$displayable_insts = self::get_search($input);
 		$widgets_per_page = 80;
-		$total_num_pages = ceil(sizeof($displayable_insts) / $widgets_per_page);
 		$offset = $widgets_per_page * $page_number;
-		$has_next_page = $offset + $widgets_per_page < sizeof($displayable_insts) ? true : false;
 
-		// inst_ids corresponds to a single page's worth of instances
-		$displayable_insts = array_slice($displayable_insts, $offset, $widgets_per_page);
+		// if this is the first request, fetch all to get total num pages
+		if ($total_num_pages == -1)
+		{
+			$displayable_insts = self::get_search($input);
+			$total_num_pages = ceil(sizeof($displayable_insts) / $widgets_per_page);
+
+			// inst_ids corresponds to a single page's worth of instances
+			$displayable_insts = array_slice($displayable_insts, $offset, $widgets_per_page);
+		}
+		else
+		{
+			// query DB for only a single page of instances
+			$displayable_insts = self::get_search($input, $offset, $widgets_per_page + 20);
+		}
+
+		$has_next_page = $page_number < $total_num_pages ? true : false;
 
 		$data = [
 			'pagination' => $displayable_insts,
 		];
 
 		if ($has_next_page) $data['next_page'] = $page_number + 1;
+		// return the total num of pages to client
+		$data['total_num_pages'] = $total_num_pages;
 
 		return $data;
 	}
@@ -162,13 +175,15 @@ class Widget_Instance_Manager
 	 *
 	 * @return array of widget instances related to the given input
 	 */
-	public static function get_search(string $input): array
+	public static function get_search(string $input, int $offset = 0, int $limit = 2147483647): array
 	{
 		$results = \DB::select()
 			->from('widget_instance')
 			->where('id', 'LIKE', "%$input%")
 			->or_where('name', 'LIKE', "%$input%")
 			->order_by('created_at', 'desc')
+			->limit("$limit")
+			->offset("$offset")
 			->execute()
 			->as_array();
 

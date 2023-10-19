@@ -48,6 +48,15 @@
 		// position: relative;
 		// top: 20px;
 
+		.loading {
+			position: relative;
+			height: 30px;
+
+			.loading-text {
+				margin-left: 50px;
+			}
+		}
+
 		.top {
 			position: relative;
 			top: 0;

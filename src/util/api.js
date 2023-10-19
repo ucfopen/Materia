@@ -377,11 +377,11 @@ export const apiGetWidgetLock = (id = null) => {
  * @returns {array} if matches were found
  * @returns {bool}  if input does not match pattern
  */
-export const apiSearchWidgets = (input, page_number) => {
+export const apiSearchWidgets = (input, page_number, total_num_pages = -1) => {
 	let pattern = /[A-Za-z]+/g
 	let match = input.match(pattern)
 	if (!match || !match.length) input = ' '
-	return fetch(`/api/admin/widget_paginated_search/${input}/${page_number}`)
+	return fetch(`/api/admin/widget_paginated_search/${input}/${page_number}/${total_num_pages}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
