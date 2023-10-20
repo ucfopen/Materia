@@ -75,7 +75,10 @@ body.import {
 		.audio-recorder {
 			display: flex;
 			flex-direction: column;
-			margin-top: 20%;
+			margin-top: 5%;
+			padding-top: 40%;
+
+			background: url('/img/dj-kogneato.svg') no-repeat center top/50%;
 
 			.recorder-controls {
 				flex-basis: 3;
@@ -106,14 +109,24 @@ body.import {
 						border-radius: 10px;
 
 						cursor: pointer;
+
+						box-shadow: none;
 					}
 
 					button.record {
 						background: #fff url('/img/mic-icon.svg') no-repeat center center;
+
+						&:hover {
+							background-color: #b8e5ff;
+						}
 					}
 
 					button.stop {
 						background: #fff url('/img/stop-icon.svg') no-repeat center center;
+
+						&:hover {
+							background-color: #b8e5ff;
+						}
 					}
 				}
 			}
