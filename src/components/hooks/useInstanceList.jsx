@@ -36,12 +36,10 @@ export default function useInstanceList(userOnly = true, query = "") {
 	}
 
 	const getWidgetInstances = ({ pageParam = 0 }) => {
-		let totalPages = -1
-		if (!!data) totalPages = data.pages[0].total_num_pages
 		if (userOnly) {
 			return apiGetWidgetInstances(pageParam)
 		} else {
-			return apiSearchWidgets(query, pageParam, totalPages)
+			return apiSearchWidgets(query, pageParam)
 		}
 	}
 

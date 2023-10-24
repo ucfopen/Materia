@@ -13,6 +13,19 @@
 
 	.page {
 
+		.loading {
+			position: relative;
+			height: 40px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin: 5px 0;
+
+			.loading-text {
+				margin-left: 50px;
+			}
+		}
+
 		#breadcrumb-container {
 			display: inline-block;
 			position: absolute;
@@ -60,12 +73,12 @@
 		}
 
 		.search {
-			margin: 10px 0 10px 10px;
+			margin: 10px 0 10px 15px;
 
 			input.user_search {
 				width: 60%;
 				height: 30px;
-				margin: 10px 5px;
+				margin: 10px 0;
 				padding: 5px;
 
 				border-radius: 5px;
@@ -87,6 +100,11 @@
 
 			> div {
 				display: inline-block;
+			}
+
+			img {
+				width: 50px;
+				height: 50px;
 			}
 		}
 
@@ -196,6 +214,57 @@
 					display: inline-block;
 					vertical-align: top;
 					width: 160px;
+				}
+
+				.radio {
+					display: inline-block;
+					// width: 200px;
+
+					input {
+						margin: 0px 5px;
+					}
+
+					label {
+						width: auto;
+					}
+				}
+
+				.url {
+					display: inline-block;
+					vertical-align: middle;
+					// width: 500px;
+					font-size: 70%;
+					margin: 0px 0px;
+				}
+
+				.right-justify {
+					display: flex;
+					justify-content: flex-end;
+					margin-top: 20px;
+
+					.apply-changes {
+						display: flex;
+						flex-direction: column;
+						justify-content: flex-end;
+						width: 220px;
+						margin-right: 20px;
+
+						.apply {
+							padding: 6px 10px 6px 10px;
+						}
+
+						.error-text {
+							color: red;
+							font-size: 0.8em;
+							text-align: center;
+						}
+
+						.success-text {
+							color: green;
+							font-size: 0.8em;
+							text-align: center;
+						}
+					}
 				}
 			}
 
@@ -314,76 +383,14 @@
 							.info-holder {
 								position: relative;
 								display: block;
+								padding: 15px;
+								background: $very-light-gray;
+								border-bottom-left-radius: 3px;
+								border-bottom-right-radius: 3px;
 
-								padding: 10px;
-
-								span:not(.long),
-								label {
-									display: inline-block;
-									vertical-align: top;
-								}
-
-								label:not(.normal) {
-									width: 145px;
-								}
-
-								.normal input {
-									margin: 0;
-									padding: 0;
-								}
-							}
-							.overview {
-								padding: 10px;
-
-								div {
-									margin: 5px 0px;
-								}
-
-								label {
-									display: inline-block;
-									vertical-align: top;
-									width: 150px;
-								}
-
-								.url {
-									display: inline-block;
-									vertical-align: middle;
-									width: 500px;
-									font-size: 70%;
-									margin: 0px 0px;
-								}
-
-								.right-justify {
-									margin-top: 20px;
-									display: flex;
-									justify-content: flex-end;
-
-									.apply-changes {
-										display: flex;
-										flex-direction: column;
-										justify-content: flex-end;
-										width: 220px;
-
-										.apply {
-											padding: 6px 10px 6px 10px;
-										}
-
-										.error-text {
-											color: red;
-											font-size: 0.8em;
-											text-align: center;
-										}
-
-										.success-text {
-											color: green;
-											font-size: 0.8em;
-											text-align: center;
-										}
-									}
-								}
+								line-height: 1.5em;
 							}
 						}
-
 					}
 				}
 			}

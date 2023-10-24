@@ -17,9 +17,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
 
-	let searchPromptRender = null
 	let loadingRender = null
-
 	if ((instanceList.isFetching || !instanceList.instances) && searchText.length > 0) {
 		loadingRender = (
 			<div className='loading'>
@@ -32,13 +30,13 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<LoadingIcon size="sm" width="50px"></LoadingIcon>
 			<p className="loading-text">Loading widget instances...</p>
 		</div>
-	} else {
-		searchPromptRender = (
-			<div>
-				<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
-			</div>
-		)
 	}
+
+	let searchPromptRender = (
+		<div>
+			<p>{`${searchText.length == 0 || (instanceList.instances && instanceList.instances.length > 0) || instanceList.isFetching ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
+		</div>
+	)
 
 	let searchResultsRender = null
 

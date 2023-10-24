@@ -316,8 +316,8 @@ export const apiSetAttempts = ({ instId, attempts }) => {
 		})
 }
 
-export const apiSearchUsers = (input = '') => {
-	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input])}` }))
+export const apiSearchUsers = (input = '', page_number = 0) => {
+	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input, page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -377,15 +377,14 @@ export const apiGetWidgetLock = (id = null) => {
 
 /**
  * It searches for widgets by name or ID
- * @param {string} input (must contain letters)
- * @returns {array} if matches were found
- * @returns {bool}  if input does not match pattern
+ * @param {string} input (letters only)
+ * @returns {array} of matches
  */
-export const apiSearchWidgets = (input, page_number, total_num_pages = -1) => {
+export const apiSearchWidgets = (input, page_number) => {
 	let pattern = /[A-Za-z]+/g
 	let match = input.match(pattern)
 	if (!match || !match.length) input = ' '
-	return fetch(`/api/admin/widget_paginated_search/${input}/${page_number}/${total_num_pages}`)
+	return fetch(`/api/admin/widget_paginated_search/${input}/${page_number}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()

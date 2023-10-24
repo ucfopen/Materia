@@ -69,7 +69,7 @@ class Controller_Api_Admin extends Controller_Rest
 		return \Service_User::update_user($user_id, $user);
 	}
 
-	public function get_widget_paginated_search(string $input, string $page_number, string $total_num_pages)
+	public function get_widget_paginated_search(string $input, string $page_number)
 	{
 		$input = trim($input);
 		$input = urldecode($input);
@@ -82,7 +82,7 @@ class Controller_Api_Admin extends Controller_Rest
 				'next_page'  => $page_number
 			];
 		}
-		return \Materia\Widget_Instance_Manager::get_paginated_search($input, $page_number, $total_num_pages);
+		return \Materia\Widget_Instance_Manager::get_paginated_instance_search($input, $page_number);
 	}
 
 	public function get_extra_attempts(string $inst_id)

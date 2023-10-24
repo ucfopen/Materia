@@ -67,7 +67,7 @@ class Api_V1
 	static public function widget_paginate_instances_get($page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
+		$data = Widget_Instance_Manager::get_paginated_instances_for_user(\Model_User::find_current_id(), $page_number);
 		return $data;
 	}
 
@@ -881,23 +881,40 @@ class Api_V1
 		return Utils::get_date_ranges();
 	}
 
-	static public function users_search($search)
+	/**
+	 * Paginated search for users that match input
+	 *
+	 * @param string Search query
+	 * @param string Page number
+	 * @return array List of users
+	 */
+	static public function users_search($input, $page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-		$user_objects = \Model_User::find_by_name_search($search);
-		$user_arrays = [];
+		$items_per_page = 50;
+		$offset = $items_per_page * $page_number;
+
+		// query DB for only a single page + 1 item
+		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page + 1);
+
+		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
 
 		// scrub the user models with to_array
-		if (count($user_objects))
+		if ($has_next_page) array_pop($displayable_items);
+		foreach ($displayable_items as $key => $person)
 		{
-			foreach ($user_objects as $key => $person)
-			{
-				$user_arrays[$key] = $person->to_array();
-			}
+			$displayable_items[$key] = $person->to_array();
 		}
 
-		return $user_arrays;
+		$data = [
+			'pagination' => $displayable_items,
+		];
+
+		if ($has_next_page) $data['next_page'] = $page_number + 1;
+		else $data['next_page'] = $page_number;
+
+		return $data;
 	}
 	/**
 	 * Gets information about the current user

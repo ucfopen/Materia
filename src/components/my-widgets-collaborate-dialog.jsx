@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
-import { apiGetUsers, apiSearchUsers } from '../util/api'
+import { apiGetUsers } from '../util/api'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 import Modal from './modal'
 import useDebounce from './hooks/useDebounce'
@@ -9,6 +9,7 @@ import NoContentIcon from './no-content-icon'
 import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
 import { access } from './materia-constants'
+import useUserList from './hooks/useUserList'
 
 const initDialogState = (state) => {
 	return ({
@@ -25,6 +26,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const setUserPerms = setUserInstancePerms()
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
+	const userList = useUserList(debouncedSearchTerm)
+
 	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms,
@@ -33,26 +36,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		placeholderData: {}
 	})
 
-	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
-		queryKey: 'user-search',
-		enabled: !!debouncedSearchTerm,
-		queryFn: () => apiSearchUsers(debouncedSearchTerm),
-		staleTime: Infinity,
-		placeholderData: [],
-		retry: false,
-		onSuccess: (data) => {
-			if (data && data.type == 'error')
+	useEffect(() => {
+		if (userList.error) {
+			console.error(`User search failed with error: ${data.msg}`);
+			if (userList.error.title == "Invalid Login")
 			{
-				console.error(`User search failed with error: ${data.msg}`);
-				if (data.title == "Invalid Login")
-				{
-					setInvalidLogin(true)
-				}
-			} else if (!data) {
-				console.error(`User search failed.`);
+				setInvalidLogin(true)
 			}
 		}
-	})
+	}, [userList.error])
 
 	useEffect(() => {
 		mounted.current = true
@@ -60,12 +52,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			mounted.current = false
 		}
 	}, [])
-
-	// Handles the search with debounce
-	useEffect(() => {
-		if(debouncedSearchTerm === '') clearSearch()
-		else refetchSearch()
-	}, [debouncedSearchTerm])
 
 	// updatedAllUserPerms is assigned the value of otherUserPerms (a read-only prop) when the component loads
 	useEffect(() => {
@@ -205,7 +191,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	const customClose = () => {
 		clearUsers()
-		clearSearch()
 		onClose()
 	}
 
@@ -219,8 +204,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults.length && searchResults?.length !== 0) {
-			const searchResultElements = searchResults?.map(match =>
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
+			const searchResultElements = userList.users?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'
 					onClick={() => onClickMatch(match)}>
