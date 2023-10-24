@@ -87,7 +87,6 @@ class Widget_Instance_Manager
 
 		// query DB for only a single page of instances + 1
 		$displayable_items = self::get_all($inst_ids, false, false, false, $offset, $items_per_page + 1);
-		\Log::Error(count($displayable_items));
 
 		// if the returned number of instances is greater than a page, there's more pages
 		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
