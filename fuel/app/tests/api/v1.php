@@ -1522,7 +1522,6 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::users_search('droptables');
 		$this->assertIsArray($output);
-		$this->assertCount(2, $output);
 		$this->assertIsArray($output['pagination']);
 		$this->assert_is_user_array($output['pagination'][0]);
 		$this->assertFalse(array_key_exists('password', $output['pagination']));
@@ -1539,7 +1538,6 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::users_search('droptables');
 		$this->assertIsArray($output);
-		$this->assertCount(2, $output);
 		$this->assertIsArray($output['pagination']);
 		$this->assert_is_user_array($output['pagination'][0]);
 		$this->assertFalse(array_key_exists('password', $output['pagination']));
@@ -1556,7 +1554,6 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::users_search('droptables');
 		$this->assertIsArray($output);
-		$this->assertCount(2, $output);
 		$this->assertIsArray($output['pagination']);
 		$this->assert_is_user_array($output['pagination'][0]);
 		$this->assertFalse(array_key_exists('password', $output['pagination']));

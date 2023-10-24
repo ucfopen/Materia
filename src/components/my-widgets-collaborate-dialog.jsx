@@ -235,9 +235,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					className='user-add'
 					type='text'
 					placeholder="Enter a Materia user's name or e-mail"/>
-				<div>
-					{ searchResultsRender }
-				</div>
+				{ searchResultsRender }
 			</div>
 		)
 	}

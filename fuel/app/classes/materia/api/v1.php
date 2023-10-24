@@ -912,7 +912,6 @@ class Api_V1
 		];
 
 		if ($has_next_page) $data['next_page'] = $page_number + 1;
-		else $data['next_page'] = $page_number;
 
 		return $data;
 	}
