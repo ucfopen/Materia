@@ -290,30 +290,28 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			ignoreClose={state.shareNotAllowed}>
 			<div className='collaborate-modal' ref={popperRef}>
 				<span className='title'>Collaborate</span>
-				<div>
-					<div id='access' className='collab-container'>
-						{ searchContainerRender }
-						<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
-							{ mainContentRender }
-						</div>
-						{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
-						<div id='calendar-portal' />
-						<p className='disclaimer'>
-							Users with full access can edit or copy this widget and can
-							add or remove people in this list.
-						</p>
-						<div className='btn-box'>
-							<a tabIndex='0'
-								className='cancel_button'
-								onClick={customClose}>
-								Cancel
-							</a>
-							<a tabIndex='0'
-								className='action_button green save_button'
-								onClick={onSave}>
-								Save
-							</a>
-						</div>
+				<div id='access' className='collab-container'>
+					{ searchContainerRender }
+					<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
+						{ mainContentRender }
+					</div>
+					{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
+					<div id='calendar-portal' />
+					<p className='disclaimer'>
+						Users with full access can edit or copy this widget and can
+						add or remove people in this list.
+					</p>
+					<div className='btn-box'>
+						<a tabIndex='0'
+							className='cancel_button'
+							onClick={customClose}>
+							Cancel
+						</a>
+						<a tabIndex='0'
+							className='action_button green save_button'
+							onClick={onSave}>
+							Save
+						</a>
 					</div>
 				</div>
 			</div>
