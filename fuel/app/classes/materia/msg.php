@@ -60,6 +60,11 @@ class Msg
 		return new Msg('You do not have permission to access the requested content', 'Permission Denied', Msg::WARN);
 	}
 
+	static public function student_collab()
+	{
+		return new Msg('Students cannot be added as collaborators to widgets that have guest access disabled.', 'Share Not Allowed', Msg::ERROR);
+	}
+
 	static public function student()
 	{
 		return new Msg('Students are unable to receive notifications via Materia', 'No Notifications', Msg::NOTICE);

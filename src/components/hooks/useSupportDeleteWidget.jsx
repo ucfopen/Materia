@@ -8,7 +8,7 @@ export default function useSupportDeleteWidget() {
 		apiDeleteWidget,
 		{
 			onSuccess: (data, variables) => {
-				if (data !== null) {
+				if (!!data) {
 					variables.successFunc()
 					queryClient.invalidateQueries('widgets')
 				}

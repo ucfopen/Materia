@@ -110,7 +110,7 @@ class Model_Notification extends \Orm\Model
 						break;
 
 					case 'access_request':
-						$subject = "$user_link is requesting access to your widget \"$widget_name\".<br /> The widget is currently being used within a course in your LMS.";
+						$subject = "$user_link is requesting access to your widget \"$widget_link\".<br /> The widget is currently being used within a course in your LMS.";
 						$action = 'access_request';
 						break;
 
@@ -133,7 +133,7 @@ class Model_Notification extends \Orm\Model
 			'is_email_sent' => ($send_email ? '0' : '1'),
 			'is_read'       => '0',
 			'subject'       => $subject,
-			'avatar'        => \Materia\Utils::get_avatar(50),
+			'avatar'        => \Materia\Utils::get_avatar(128),
 			'action'        => $action,
 			'created_at'	=> time()
 		]);
