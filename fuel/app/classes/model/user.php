@@ -155,7 +155,7 @@ class Model_User extends Orm\Model
 
 	public function to_array($custom = false, $recurse = false, $eav = false)
 	{
-		$avatar = \Materia\Utils::get_avatar(50, $this);
+		$avatar = \Materia\Utils::get_avatar(256, $this);
 		$array = parent::to_array($custom, $recurse, $eav);
 		$array['avatar'] = $avatar;
 		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
