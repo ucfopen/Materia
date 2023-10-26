@@ -87,6 +87,18 @@
 
 			> div {
 				display: inline-block;
+
+				&.img-holder {
+					display: inline-block;
+
+					img {
+						width: 50px;
+						height: 50px;
+						border-radius: 3px;
+						display: inline-block;
+						margin-right: 10px;
+					}
+				}
 			}
 		}
 

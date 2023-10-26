@@ -1,4 +1,4 @@
-FROM ruby:2.5-alpine
+FROM ruby:2.6-alpine
 
 RUN gem install fakes3 -v 2.0.0 --no-document
 
