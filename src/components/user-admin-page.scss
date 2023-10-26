@@ -23,15 +23,15 @@
 			border-radius: 3px;
 			font-size: 12px;
 			border: 1px solid #ccc;
-		
+
 			.breadcrumb {
 				display: inline-block;
-		
+
 				a {
 					color: black;
 				}
 			}
-		
+
 			svg {
 				position: relative;
 				height: 15px;
@@ -84,12 +84,24 @@
 			margin: 5px;
 			padding: 10px;
 			border: 1px solid #d3d3d3;
-		
+
 			> div {
 				display: inline-block;
+
+				&.img-holder {
+					display: inline-block;
+
+					img {
+						width: 50px;
+						height: 50px;
+						border-radius: 3px;
+						display: inline-block;
+						margin-right: 10px;
+					}
+				}
 			}
 		}
-		
+
 		.searching {
 			vertical-align: bottom;
 			margin-top: 10px;
@@ -172,7 +184,7 @@
 
 		.admin-subsection {
 			padding: 15px;
-		
+
 			.top {
 				width: calc(100% + 10px);
 				left: -15px;
@@ -181,72 +193,21 @@
 			&.overview {
 				width: calc(100% - 20px);
 				padding: 10px;
-	
+
 				div {
 					display: block;
 					margin: 0;
 				}
-	
+
 				span {
 					display: block;
 					margin: 5px 0;
 				}
-	
+
 				label {
 					display: inline-block;
 					vertical-align: top;
 					width: 160px;
-				}
-	
-				.radio {
-					display: inline-block;
-					// width: 200px;
-	
-					input {
-						margin: 0px 5px;
-					}
-	
-					label {
-						width: auto;
-					}
-				}
-	
-				.url {
-					display: inline-block;
-					vertical-align: middle;
-					// width: 500px;
-					font-size: 70%;
-					margin: 0px 0px;
-				}
-	
-				.right-justify {
-					display: flex;
-					justify-content: flex-end;
-					margin-top: 20px;
-	
-					.apply-changes {
-						display: flex;
-						flex-direction: column;
-						justify-content: flex-end;
-						width: 220px;
-						margin-right: 20px;
-	
-						.apply {
-							padding: 6px 10px 6px 10px;
-						}
-	
-						.error-text {
-							color: red;
-							font-size: 0.8em;
-							text-align: center;
-						}
-	
-						.success-text {
-							color: green;
-							font-size: 0.8em;
-							text-align: center;
-						}
-					}
 				}
 			}
 
@@ -286,16 +247,16 @@
 					padding: 0;
 					flex-direction: row;
 					list-style-type: none;
-				
+
 					li.instance {
 						margin: 0 0 10px 0;
-				
+
 						border-radius: 3px;
-						
+
 						.img-holder {
 							display: inline-block;
 							vertical-align: middle;
-				
+
 							img {
 								width: 50px;
 								height: 50px;
@@ -305,30 +266,30 @@
 								margin-right: 10px;
 							}
 						}
-				
+
 						div.widget-title {
 							display: flex;
 							justify-content: flex-start;
 							align-items: center;
 							gap: 10px;
 							padding: 10px 15px;
-				
+
 							background: $very-light-gray;
 							border: none;
 							border-radius: 3px;
 							transition: background-color 0.5s;
-				
+
 							span.img-holder {
 								flex-basis: 0;
 							}
-				
+
 							span.incomplete-status-holder {
 								color: #555;
 							}
-				
+
 							span.title-holder {
 								flex-grow: 1;
-				
+
 								.title {
 									margin: 0;
 									padding: 0;
@@ -337,42 +298,105 @@
 									font-size: 20px;
 								}
 							}
-				
+
 							span.date-holder {
 								font-size: 12px;
 								font-weight: bold;
 							}
 						}
-				
+
 						.info-holder {
 							display: none;
 						}
-				
+
 						&.expanded {
-				
+
 							div.widget-title {
 								background: $light-gray;
 								border-bottom-left-radius: 0px;
 								border-bottom-right-radius: 0px;
 							}
-				
+
 							.manage-btn-container {
 								display: flex;
 								justify-content: end;
 								margin-top: 20px;
 							}
-				
+
 							.info-holder {
+								position: relative;
 								display: block;
-								padding: 15px;
-								background: $very-light-gray;
-								border-bottom-left-radius: 3px;
-								border-bottom-right-radius: 3px;
-				
-								line-height: 1.5em;
+
+								padding: 10px;
+
+								span:not(.long),
+								label {
+									display: inline-block;
+									vertical-align: top;
+								}
+
+								label:not(.normal) {
+									width: 145px;
+								}
+
+								.normal input {
+									margin: 0;
+									padding: 0;
+								}
+							}
+							.overview {
+								padding: 10px;
+
+								div {
+									margin: 5px 0px;
+								}
+
+								label {
+									display: inline-block;
+									vertical-align: top;
+									width: 150px;
+								}
+
+								.url {
+									display: inline-block;
+									vertical-align: middle;
+									width: 500px;
+									font-size: 70%;
+									margin: 0px 0px;
+								}
+
+								.right-justify {
+									margin-top: 20px;
+									display: flex;
+									justify-content: flex-end;
+
+									.apply-changes {
+										display: flex;
+										flex-direction: column;
+										justify-content: flex-end;
+										width: 220px;
+
+										.apply {
+											padding: 6px 10px 6px 10px;
+										}
+
+										.error-text {
+											color: red;
+											font-size: 0.8em;
+											text-align: center;
+										}
+
+										.success-text {
+											color: green;
+											font-size: 0.8em;
+											text-align: center;
+										}
+									}
+								}
 							}
 						}
-					} 
+
+					}
 				}
 			}
 		}
