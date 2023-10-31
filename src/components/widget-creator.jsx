@@ -103,14 +103,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		placeholderData: null,
 		enabled: !!instance.id, // requires instance state object to be prepopulated
 		onSettled: (data) => {
-			if ( (data != null ? data.title : undefined) === 'Permission Denied' ||data.title === 'error') {
-					setCreatorState({...creatorState, invalid: true})
-					onInitFail('Permission Denied')
-				} else {
-					setCreatorState({...creatorState, invalid: false})
-					setInstance({ ...instance, qset: data })
-				}
+			if ( (data != null ? data.title : undefined) === 'Permission Denied' || (data && data.title === 'error')) {
+				setCreatorState({...creatorState, invalid: true})
+				onInitFail('Permission Denied')
+			} else {
+				setCreatorState({...creatorState, invalid: false})
+				setInstance({ ...instance, qset: data })
 			}
+		}
 	})
 
 	// verify user can publish a given instance
@@ -659,7 +659,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	let lastSavedRender = null
-	if (sinceLastSave.lastSave) {	
+	if (sinceLastSave.lastSave) {
 		lastSavedRender = (
 			<span className="lastSaved">
 				{sinceLastSave.elapsed < 1 ? ' Last saved < 1m ago' : `Last saved ${sinceLastSave.elapsed}m ago`}

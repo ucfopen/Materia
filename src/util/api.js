@@ -337,6 +337,10 @@ export const apiGetUserPermsForInstance = instId => {
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
 	return fetch('/api/json/permissions_set', fetchOptions({ body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` }))
+	.then(resp => {
+		if (resp.status === 204 || resp.status === 502) return null
+		return resp.json()
+	})
 }
 
 export const apiCanEditWidgets = arrayOfWidgetIds => {
@@ -376,13 +380,14 @@ export const apiGetWidgetLock = (id = null) => {
 
 /**
  * It searches for widgets by name or ID
- * @param {string} input (letters only)
+ * @param {string} input (must contain letters)
  * @returns {array} if matches were found
  * @returns {bool}  if input does not match pattern
  */
 export const apiSearchWidgets = input => {
 	let pattern = /[A-Za-z]+/g
 	if (!input.match(pattern).length) return false
+	input = input.replace("'","%27")
 	return fetch(`/api/admin/widget_search/${input}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []

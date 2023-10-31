@@ -41,7 +41,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 					let newLogs = state.logs
 
 					result.pagination.forEach((record) => {
-						if (newLogs[record.userId]) newLogs[record.userId].scores.push({...record.scores})
+						if (newLogs[record.userId]) newLogs[record.userId].scores.push(...record.scores)
 						else newLogs[record.userId] = { userId: record.userId, name: record.name, searchableName: record.searchableName, scores: record.scores }
 						newLogs[record.userId].scores.sort(_compareScores)
 					})

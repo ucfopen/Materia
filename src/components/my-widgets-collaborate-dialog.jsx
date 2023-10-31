@@ -41,13 +41,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		placeholderData: [],
 		retry: false,
 		onSuccess: (data) => {
-			if (!data || (data.type == 'error'))
+			if (data && data.type == 'error')
 			{
 				console.error(`User search failed with error: ${data.msg}`);
-				if (data.title =="Invalid Login")
+				if (data.title == "Invalid Login")
 				{
 					setInvalidLogin(true)
 				}
+			} else if (!data) {
+				console.error(`User search failed.`);
 			}
 		}
 	})
@@ -167,8 +169,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		setUserPerms.mutate({
 			instId: inst.id,
 			permsObj: permsObj,
-			successFunc: () => {
-				if (mounted.current) {
+			successFunc: (data) => {
+				if (data && data.type == 'error')
+				{
+					if (data.title == "Share Not Allowed")
+					{
+						setState({...state, shareNotAllowed: true})
+					}
+				}
+				else if (mounted.current) {
 					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}
