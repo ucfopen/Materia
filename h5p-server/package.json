@@ -1,0 +1,15 @@
+{
+    "name": "materia-h5p-server",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "start": "node -r esm express.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "esm": "^3.2.25",
+        "express": "^4.17.1",
+        "got": "^11.3.0",
+        "h5p-nodejs-library": "^3.0.4"
+    }
+}

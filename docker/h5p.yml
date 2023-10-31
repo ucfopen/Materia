@@ -1,0 +1,105 @@
+version: '3.2'
+
+services:
+  nginx:
+    container_name: materia-nginx
+    image: nginx:stable-alpine
+    ports:
+      - "80:80" # main materia
+      - "8008:8008" # static files
+    networks:
+      - frontend
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../public:/var/www/html/public:ro
+    depends_on:
+      - phpfpm
+
+  phpfpm:
+    container_name: materia-phpfpm
+    image: ucfopen/materia-phpfpm:${TAG} # TAG default value is in .env file
+    build:
+      context: ./dockerfiles
+      dockerfile: materia-phpfpm-debian
+    environment:
+      # See .env for default values
+      - FUEL_ENV
+      - DB_HOST
+      - DB_NAME=${MYSQL_DATABASE}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASS=${MYSQL_DATABASE}
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ../:/var/www/html:rw
+      - ./config/php/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
+      - ./config/php/php-extensions-runtime.ini:/usr/local/etc/php/conf.d/php-extensions-runtime.ini:ro
+      - node_modules:/var/www/html/node_modules
+    depends_on:
+      - mysql
+      - memcached
+      - fakes3
+
+  mysql:
+    container_name: materia-mysql
+    image: mysql:5.7.18
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+    ports:
+      - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
+    networks:
+      - backend
+    volumes:
+      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
+
+  memcached:
+    container_name: materia-memcached
+    image: memcached:1.6.6-alpine
+    networks:
+      - backend
+
+  fakes3:
+    container_name: materia-fakes3
+    image: ucfopen/materia-fake-s3:${TAG} # TAG default value is in .env file
+    build:
+      context: .
+      dockerfile: ./dockerfiles/materia-fakes3
+    environment:
+      - INPUT_BUCKET
+      - OUTPUT_BUCKET
+      - OUTPUT_MAX_DIMENSIONS
+      - OUTPUT_BASE_KEY
+      - IS_FAKES3
+    ports:
+      - "10001:10001"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - uploaded_media:/s3mnt/fakes3_root/fakes3_uploads/media/
+      
+  h5p:
+    container_name: materia-h5p
+    build:
+      context: ../h5p-server/
+      dockerfile: ../docker/dockerfiles/materia-h5p
+    ports:
+      - "3000:3000"
+
+
+networks:
+  frontend:
+    # ommited till we can eaily use composer v3.5 on travis
+    # name: materia_frontend
+  backend:
+    # ommited till we can eaily use composer v3.5 on travis
+    # name: materia_backend
+
+volumes:
+  # static_files: {} # compiled js/css and uploaded widgets
+  uploaded_media: {} # uploaded media files
+  node_modules: {} # node modules for npm
