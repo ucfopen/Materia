@@ -122,7 +122,9 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		if (!isError) {
 			setExtraAttempts.mutate({
 				instId: inst.id,
-				attempts: Array.from(state.extraAttempts.values())
+				attempts: Array.from(state.extraAttempts.values()),
+				successFunc: (data) => {},
+				errorFunc: (err) => {}
 			})
 
 			// Removed current queries from cache to force reload on next open

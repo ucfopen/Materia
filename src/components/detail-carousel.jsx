@@ -55,6 +55,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 	const picScrollerRef = useRef(null)
 	const [windowWidth] = windowSize()
 	const createPlaySession = useCreatePlaySession()
+	const [error, setError] = useState(null)
 
 	// Automatically adjusts screenshots based on window resize
 	useEffect(() => {
@@ -283,7 +284,10 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 					demoHeight: _height,
 					demoWidth: _width,
 					playId: idVal
-				})
+				}),
+				errorFunc: (err) => {
+					setError("Error creating play session. Please try again later.")
+				}
 			})
 		}
 		else {
@@ -335,7 +339,15 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		)
 
 		if (demoData.showDemoCover) {
-			demoRender = (
+			if (error) {
+				demoRender = (
+					<div id='demo-cover'
+						className='error'>
+						<p>{error}</p>
+					</div>
+				)
+			}
+			else demoRender = (
 				<>
 					<img style={{minHeight: demoData.demoHeight}} src={screenshotData.screenshots[0]?.full}/>
 					<div id='demo-cover'

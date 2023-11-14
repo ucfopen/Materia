@@ -23,14 +23,29 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
 	const setUserPerms = setUserInstancePerms()
+	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
-	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
+	const [collabUsers, setCollabUsers] = useState({})
+
+	const { data, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
-		enabled: !!otherUserPerms,
+		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
-		placeholderData: {}
+		placeholderData: {},
+		onSuccess: (data) => {
+			setCollabUsers({...collabUsers,...data})
+		},
+		onError: (err) => {
+			if (err.message == "Invalid Login")
+			{
+				setInvalidLogin(true)
+				customClose()
+			} else {
+				setError("Failed to load users")
+			}
+		}
 	})
 
 	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
@@ -40,16 +55,13 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		staleTime: Infinity,
 		placeholderData: [],
 		retry: false,
-		onSuccess: (data) => {
-			if (data && data.type == 'error')
+		onError: (err) => {
+			if (err.message == "Invalid Login")
 			{
-				console.error(`User search failed with error: ${data.msg}`);
-				if (data.title == "Invalid Login")
-				{
-					setInvalidLogin(true)
-				}
-			} else if (!data) {
-				console.error(`User search failed.`);
+				setInvalidLogin(true)
+				customClose()
+			} else {
+				setError("Failed to search users")
 			}
 		}
 	})
@@ -97,7 +109,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			tmpMatch[match.id] = match
 			queryClient.setQueryData(['collab-users', inst.id], old => ({...old, ...tmpMatch}))
 			if (!collabUsers[match.id])
-				collabUsers[match.id] = match
+			{
+				setCollabUsers({...collabUsers, [match.id]: match})
+			}
 
 			// Updateds the perms
 			tempPerms.set(
@@ -170,14 +184,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			instId: inst.id,
 			permsObj: permsObj,
 			successFunc: (data) => {
-				if (data && data.type == 'error')
-				{
-					if (data.title == "Share Not Allowed")
-					{
-						setState({...state, shareNotAllowed: true})
-					}
-				}
-				else if (mounted.current) {
+				if (mounted.current) {
 					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}
@@ -188,6 +195,17 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 					setOtherUserPerms(state.updatedAllUserPerms)
 					customClose()
+				}
+			},
+			errorFunc: (err) => {
+				if (err.message == "Share Not Allowed")
+				{
+					setState({...state, shareNotAllowed: true})
+				} else if (err.message == "Invalid Login")
+				{
+					setInvalidLogin(true)
+				} else {
+					setError("Failed to save permissions")
 				}
 			}
 		})
@@ -219,7 +237,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults.length && searchResults?.length !== 0) {
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults?.length && searchResults?.length !== 0) {
 			const searchResultElements = searchResults?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'
@@ -302,12 +320,22 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		)
 	}
 
+	let errorRender = null
+	if (error) {
+		errorRender = (
+			<div className='error'>
+				<p>{error}</p>
+			</div>
+		)
+	}
+
 	return (
 		<Modal onClose={customClose}
 			ignoreClose={state.shareNotAllowed}>
 			<div className='collaborate-modal' ref={popperRef}>
 				<span className='title'>Collaborate</span>
 				<div>
+					{ errorRender }
 					<div id='access' className='collab-container'>
 						{ searchContainerRender }
 						<div className={`access-list ${containsUser ? '' : 'no-content'}`}>

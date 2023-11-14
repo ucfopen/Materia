@@ -18,10 +18,9 @@ export default function useSupportUpdateWidget() {
 					exact: false
 				})
 			},
-			onError: (err, newWidget, context) => {
-				queryClient.setQueryData('widgets', context.previousValue)
-				
-				variables.errorFunc()
+			onError: (err, variables, context) => {
+				variables.errorFunc(err)
+				console.error('Failed to update widget: ' + err.cause)
 			}
 		}
 	)

@@ -7,11 +7,11 @@ import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
 import LoadingIcon from './loading-icon'
 import useInstanceList from './hooks/useInstanceList'
-import useCopyWidget from './hooks/useCopyWidget'
 import useDeleteWidget from './hooks/useDeleteWidget'
 import useKonamiCode from './hooks/useKonamiCode'
 import './css/beard-mode.scss'
 import './my-widgets-page.scss'
+import Alert from './alert'
 
 function getRandomInt(min, max) {
 	min = Math.ceil(min);
@@ -37,19 +37,41 @@ const MyWidgetsPage = () => {
 		currentBeard: ''
 	})
 
+	const [alertDialog, setAlertDialog] = useState({
+		enabled: false,
+		message: '',
+		title: 'Failure',
+		fatal: false,
+		enableLoginButton: false
+	})
+
 	const instanceList = useInstanceList()
 	const [invalidLogin, setInvalidLogin] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 
 	const [beardMode, setBeardMode] = useState(!!localBeard ? localBeard === 'true' : false)
 	const validCode = useKonamiCode()
-	const copyWidget = useCopyWidget()
 	const deleteWidget = useDeleteWidget()
 
 	const { data: user } = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login")
+			{
+				setInvalidLogin(true)
+			} else {
+				setAlertDialog({
+					enabled: true,
+					message: 'Failed to get user data.',
+					title: err.message,
+					fatal: err.halt,
+					enableLoginButton: false
+				})
+			}
+		}
 	})
 
 	const { data: permUsers } = useQuery({
@@ -57,7 +79,13 @@ const MyWidgetsPage = () => {
 		queryFn: () => apiGetUserPermsForInstance(state.selectedInst?.id),
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
 		placeholderData: null,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setInvalidLogin(true)
+			}
+		}
 	})
 
 	// konami code activate (or deactivate)
@@ -70,7 +98,15 @@ const MyWidgetsPage = () => {
 
 	// hook associated with the invalidLogin error
 	useEffect(() => {
-		if (invalidLogin) window.location.reload();
+		if (invalidLogin) {
+			setAlertDialog({
+				enabled: true,
+				message: 'You must be logged in to view your widgets.',
+				title: 'Login Required',
+				fatal: true,
+				enableLoginButton: true
+			})
+		}
 	}, [invalidLogin])
 
 	// hook to attach the hashchange event listener to the window
@@ -203,63 +239,27 @@ const MyWidgetsPage = () => {
 		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 	}
 
-	// an instance has been copied: the mutation will optimistically update the widget list while the list is re-fetched from the server
-	const onCopy = (instId, newTitle, newPerm, inst) => {
-		setState({ ...state, selectedInst: null })
-
-		copyWidget.mutate(
-			{
-				instId: instId,
-				title: newTitle,
-				copyPermissions: newPerm,
-				widgetName: inst.widget.name,
-				dir: inst.widget.dir,
-				successFunc: (data) => {
-					if (data && (data.type == 'error'))
-					{
-						console.error(`Failed to copy widget with error: ${data.msg}`);
-						if (data.title == "Invalid Login")
-						{
-							setInvalidLogin(true)
-						}
-					}
-				}
-			},
-			{
-				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
-				onSettled: newInst => {
-					setState({
-						...state,
-						selectedInst: null,
-						widgetHash: newInst.id
-					})
-				}
-			}
-		)
-	}
-
 	// an instance has been deleted: the mutation will optimistically update the widget list while the list is re-fetched from the server
 	const onDelete = inst => {
 
 		deleteWidget.mutate(
 			{
 				instId: inst.id,
-				successFunc: (data) => {
-					if (data && data.type == 'error')
+				errorFunc: (err) => {
+					if (err.message == "Invalid Login")
 					{
-						console.error(`Error: ${data.msg}`);
-						if (data.title == "Invalid Login")
-						{
-							setInvalidLogin(true)
-						}
-					} else if (!data) {
-						console.error(`Delete widget failed.`);
+						setInvalidLogin(true)
+					} else {
+						setAlertDialog({
+							enabled: true,
+							message: 'Failed to delete widget.',
+							title: err.message,
+							fatal: err.halt,
+							enableLoginButton: false
+						})
 					}
-				}
-			},
-			{
-				// Still waiting on the widget list to refresh, return to a 'loading' state and indicate a post-fetch change is coming.
-				onSettled: () => {
+				},
+				successFunc: (data) => {
 					setState({
 						...state,
 						selectedInst: null,
@@ -297,6 +297,20 @@ const MyWidgetsPage = () => {
 			<div className='qtip top nowidgets'>
 				Click here to start making a new widget!
 			</div>
+		)
+	}
+
+	let alertDialogRender = null
+	if (alertDialog.enabled) {
+		alertDialogRender = (
+			<Alert
+				msg={alertDialog.message}
+				title={alertDialog.title}
+				fatal={alertDialog.fatal}
+				showLoginButton={alertDialog.enableLoginButton}
+				onCloseCallback={() => {
+					setAlertDialog({...alertDialog, enabled: false})
+				}} />
 		)
 	}
 
@@ -355,7 +369,6 @@ const MyWidgetsPage = () => {
 			return <MyWidgetSelectedInstance
 				inst={state.selectedInst}
 				onDelete={onDelete}
-				onCopy={onCopy}
 				onEdit={onEdit}
 				currentUser={user}
 				myPerms={state.myPerms}
@@ -383,6 +396,7 @@ const MyWidgetsPage = () => {
 			<div className='my_widgets'>
 
 				{widgetCatalogCalloutRender}
+				{alertDialogRender}
 
 				<div className='container'>
 					<div className="container_main-content">

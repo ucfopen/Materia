@@ -76,11 +76,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
-		onSettled: (result) => {
-			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
-			else {
-				_populateScores(result.scores)
-				setAttemptsLeft(result.attempts_left)
+		onSuccess: (result) => {
+			_populateScores(result.scores)
+			setAttemptsLeft(result.attempts_left)
+		},
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
 			}
 		}
 	})
@@ -96,9 +100,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		staleTime: Infinity,
 		retry: false,
 		refetchOnWindowFocus: false,
-		onSettled: (result) => {
-			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
-			else _populateScores(result)
+		onSuccess: (result) => {
+			_populateScores(result)
+		},
+		onError: (error) => {
+			if (error.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
+			}
 		}
 	})
 
@@ -111,11 +121,13 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: (!!playId || !!previewInstId),
 		retry: false,
 		refetchOnWindowFocus: false,
-		onSettled: (result) => {
-			if (isPreview && (!result || result.length < 1)) {
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else if (isPreview) {
 				setAttributes({...attributes, href: `/preview/${inst_id}/${instance?.clean_name}`})
 				setErrorState(STATE_EXPIRED)
-			} else if (!result || result.length < 1) {
+			} else {
 				setErrorState(STATE_INVALID)
 			}
 		}
@@ -127,8 +139,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetScoreDistribution(inst_id),
 		enabled: false,
 		staleTime: Infinity,
-		onSettled: (data) => {
+		onSuccess: (data) => {
 			_sendToWidget('scoreDistribution', [data])
+		},
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
+			}
 		}
 	})
 

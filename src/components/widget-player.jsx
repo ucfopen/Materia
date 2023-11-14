@@ -111,7 +111,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
-	
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -123,14 +122,50 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		queryKey: ['widget-inst', instanceId],
 		queryFn: () => apiGetWidgetInstance(instanceId),
 		enabled: instanceId !== null,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setAlert({
+					msg: "You are no longer logged in.",
+					title: 'Invalid Play Session',
+					fatal: true,
+					showLoginButton: true
+				})
+			} else if (err.message == "Permission Denied") {
+				setAlert({
+					msg: "You do not have permission to view this widget.",
+					title: 'Failure',
+					fatal: err.halt,
+					showLoginButton: false
+				})
+			}
+			else _onLoadFail("There was a problem loading the widget instance.")
+		}
 	})
 
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
-		placeholderData: null
+		placeholderData: null,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setAlert({
+					msg: "You are no longer logged in.",
+					title: 'Invalid Play Session',
+					fatal: true,
+					showLoginButton: true
+				})
+			} else if (err.message == "Permission Denied") {
+				setAlert({
+					msg: "You do not have permission to view this widget.",
+					title: 'Failure',
+					fatal: err.halt,
+					showLoginButton: false
+				})
+			}
+			else _onLoadFail("There was a problem loading the widget's question set.")
+		}
 	})
 
 	const { data: heartbeat } = useQuery({
@@ -139,13 +174,20 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		staleTime: Infinity,
 		refetchInterval: HEARTBEAT_INTERVAL,
 		enabled: !!playId && heartbeatActive,
-		onSettled: (result) => {
-			if (result != true) {
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
 				setAlert({
-					msg: "Your play session is no longer valid.  You'll need to reload the page and start over.",
+					msg: "You are no longer logged in.",
 					title: 'Invalid Play Session',
-					fatal: true
+					fatal: true,
+					showLoginButton: true
 				})
+			}
+			else _onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
+		},
+		onSuccess: (data) => {
+			if (!data) {
+				_onLoadFail("Your play session is no longer valid.  You'll need to reload the page and start over.")
 			}
 		}
 	})
@@ -391,20 +433,19 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					if (result.score_url) {
 						// score_url is sent from server to redirect to a specific url
 						setScoreScreenURL(result.score_url)
-					} else if (result.type === 'error') {
-
-						setAlert({
-							title: 'We encountered a problem',
-							msg: result.msg || 'An error occurred when saving play logs',
-							fatal: true
-						})
 					}
 				}
 
 				if (logQueue.length > 0) _pushPendingLogs(logQueue)
 				else setQueueProcessing(false)
 			},
-			failureFunc: () => {
+			errorFunc: (err) => {
+				setAlert({
+					title: 'We encountered a problem',
+					msg: 'An error occurred when saving play logs',
+					fatal: err.halt
+				})
+
 				setRetryCount((oldCount) => {
 					let retrySpeed = player.RETRY_FAST
 
@@ -414,7 +455,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 						setAlert({
 							title: 'We encountered a problem',
 							msg: 'Connection to the Materia server was lost. Check your connection or reload to start over.',
-							fatal: false
+							fatal: err.halt
 						})
 					}
 
@@ -454,6 +495,13 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 						fatal: false
 					})
 				}
+			},
+			errorFunc: (err) => {
+				setAlert({
+					msg: 'There was an issue saving storage data. Check your connection or reload to start over.',
+					title: 'We ran into a problem',
+					fatal: err.halt
+				})
 			}
 		})
 	}
@@ -483,7 +531,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const _onLoadFail = msg => setAlert({
 		msg: msg,
 		title: 'Failure!',
-		fatal: true
+		fatal: true,
+		showLoginButton: false
 	})
 
 	const _beforeUnload = e => {
@@ -526,9 +575,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				msg={alert.msg}
 				title={alert.title}
 				fatal={alert.fatal}
-				showLoginButton={false}
+				showLoginButton={alert.showLoginButton}
 				onCloseCallback={() => {
-					setAlert({msg: '', title: '', fatal: false})
+					setAlert({msg: '', title: '', fatal: false, showLoginButton: false})
 				}} />
 		)
 	}
@@ -542,26 +591,28 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	}
 
 	return (
-		<section className={`widget ${isPreview ? 'preview' : ''}`}
-			style={{display: attributes.loading ? 'none' : 'block'}}>
-			{ previewBarRender }
-			<div className='center'
-				ref={centerRef}
-				style={{minHeight: minHeight + 'px',
-					minWidth: minWidth + 'px',
-					width: attributes.width !== '0px' ? attributes.width : 'auto',
-					height: attributes.height !== '0px' ? attributes.height : '100%'}}>
-				{ alertDialogRender }
-				<iframe src={ attributes.htmlPath }
-					id='container'
-					className='html'
-					scrolling='yes'
-					ref={frameRef}
-				/>
-				{ loadingRender }
-			</div>
-			{ footerRender }
-		</section>
+		<>
+			{ alertDialogRender }
+			<section className={`widget ${isPreview ? 'preview' : ''}`}
+				style={{display: attributes.loading ? 'none' : 'block'}}>
+				{ previewBarRender }
+				<div className='center'
+					ref={centerRef}
+					style={{minHeight: minHeight + 'px',
+						minWidth: minWidth + 'px',
+						width: attributes.width !== '0px' ? attributes.width : 'auto',
+						height: attributes.height !== '0px' ? attributes.height : '100%'}}>
+					<iframe src={ attributes.htmlPath }
+						id='container'
+						className='html'
+						scrolling='yes'
+						ref={frameRef}
+					/>
+					{ loadingRender }
+				</div>
+				{ footerRender }
+			</section>
+		</>
 	)
 }
 

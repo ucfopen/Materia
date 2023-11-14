@@ -118,7 +118,7 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		if ( ! \Materia\Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id, false, false, true))) return new Msg(Msg::ERROR, 'Widget instance does not exist.');
+		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id, false, false, true))) return Msg::failure('Widget instance does not exist.');
 		return $inst->db_undelete();
 	}
 }

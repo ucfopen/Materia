@@ -19,7 +19,7 @@ const Notifications = (user) => {
 
 	const { data: notifications} = useQuery({
 		queryKey: 'notifications',
-		enabled: user?.loggedIn,
+		enabled: !!user && user.loggedIn,
 		retry: false,
 		refetchInterval: 60000,
 		refetchOnMount: false,
@@ -31,6 +31,13 @@ const Notifications = (user) => {
             if (data && data.length > 0) data.forEach(element => {
                 if (!element.remove) numNotifications.current++;
             });
+        },
+        onError: (err) => {
+            if (err.message == "Invalid Login") {
+                window.location.href = '/users/login'
+            } else {
+                console.error(err)
+            }
         }
     })
 
@@ -84,6 +91,9 @@ const Notifications = (user) => {
                         return;
                     }
                 })
+            },
+            errorFunc: (err) => {
+                setErrorMsg({notif_id: id, msg: 'Action failed.'});
             }
         });
     }
@@ -92,7 +102,8 @@ const Notifications = (user) => {
         deleteNotification.mutate({
             notifId: '',
             deleteAll: true,
-            successFunc: () => {}
+            successFunc: () => {},
+            errorFunc: (err) => {}
         });
     }
 
@@ -124,33 +135,29 @@ const Notifications = (user) => {
             instId: notif.item_id,
             permsObj: userPerms,
             successFunc: (data) => {
-                if (data && data.status == 200)
+                // Redirect to widget
+                if (!window.location.pathname.includes('my-widgets'))
                 {
-                    // Redirect to widget
-                    if (!window.location.pathname.includes('my-widgets'))
-                    {
-                        // No idea why this works
-                        // But setting hash after setting pathname would set the hash first and then the pathname in URL
-                        window.location.hash = notif.item_id + '-collab';
-                        window.location.pathname = '/my-widgets'
-                    }
-                    else
-                    {
-                        queryClient.invalidateQueries(['user-perms', notif.item_id])
-                        window.location.hash = notif.item_id + '-collab';
-                    }
-
-                    setErrorMsg({notif_id: notif.id, msg: ''});
-
-                    removeNotification(-1, notif.id);
-
-                    // Close notifications
-                    setNavOpen(false)
+                    // No idea why this works
+                    // But setting hash after setting pathname would set the hash first and then the pathname in URL
+                    window.location.hash = notif.item_id + '-collab';
+                    window.location.pathname = '/my-widgets'
                 }
                 else
                 {
-                    setErrorMsg({notif_id: notif.id, msg: 'Action failed.'});
+                    queryClient.invalidateQueries(['user-perms', notif.item_id])
+                    window.location.hash = notif.item_id + '-collab';
                 }
+
+                setErrorMsg({notif_id: notif.id, msg: ''});
+
+                removeNotification(-1, notif.id);
+
+                // Close notifications
+                setNavOpen(false)
+            },
+            errorFunc: (err) => {
+                setErrorMsg({notif_id: notif.id, msg: 'Action failed.'})
             }
         })
 
@@ -201,7 +208,7 @@ const Notifications = (user) => {
                     className={`noticeClose ${showDeleteBtn == index ? 'show' : ''}`}
                     onClick={() => {removeNotification(index)}}
                 />
-                <p className='errorMsg'>{errorMsg.notif_id == notification.id ? errorMsg.msg : ''}</p>
+                <p className='notif-error'>{errorMsg.notif_id == notification.id ? errorMsg.msg : ''}</p>
             </div>
 
             notificationIcon =

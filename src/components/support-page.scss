@@ -267,18 +267,6 @@
 					.apply {
 						padding: 6px 10px 6px 10px;
 					}
-
-					.error-text {
-						color: red;
-						font-size: 0.8em;
-						text-align: center;
-					}
-
-					.success-text {
-						color: green;
-						font-size: 0.8em;
-						text-align: center;
-					}
 				}
 			}
 		}
@@ -377,6 +365,17 @@
 				bottom: 5px;
 			}
 		}
+
+		.failed {
+			color:rgb(202, 0, 0);
+		}
+		.success-holder {
+			margin: 5px;
+		}
+
+		.success {
+			color: green;
+		}
 	}
 }
 
@@ -429,7 +428,6 @@
 
 .modal .copy-modal {
 	width: 620px;
-	height: 330px;
 	padding: 10px 10px 0 10px;
 
 	.title {

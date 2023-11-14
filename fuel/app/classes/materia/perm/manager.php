@@ -38,7 +38,7 @@ class Perm_Manager
 		// The session caching has been removed due to issues related to the cache when the role is added or revoked
 		// Ideally we can still find a way to cache this and make it more performant!!
 		return (\Fuel::$is_cli === true && ! \Fuel::$is_test) || self::does_user_have_role([\Materia\Perm_Role::SU]);
-		
+
 	}
 
 	/**

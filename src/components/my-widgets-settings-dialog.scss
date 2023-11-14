@@ -2,7 +2,6 @@
 	display: flex;
 	flex-direction: column;
 	width: 680px;
-	max-height: 675px;
 	padding: 10px 10px 0 10px;
 
 	.top-bar {
@@ -10,7 +9,6 @@
 		flex-direction: row;
 		border-bottom: #999 dotted 1px;
 		padding-bottom: 20px;
-		margin-bottom: 20px;
 		align-items: center;
 
 		.title {
@@ -48,7 +46,7 @@
 
 		.attempt-content {
 			display: flex;
-			margin-bottom: 5px;
+			margin: 15px 0 5px 0;
 
 			&.hide {
 				display: none;

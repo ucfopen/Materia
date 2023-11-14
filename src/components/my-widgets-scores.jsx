@@ -24,20 +24,22 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 	// Initializes the data when widget changes
 	useEffect(() => {
 		let hasScores = false
+		if (currScores) {
+			currScores.map(val => {
+				if (val.distribution) hasScores = true
+			})
 
-		currScores.map(val => {
-			if (val.distribution) hasScores = true
-		})
-
-		setState({
-			hasScores: hasScores,
-			showExport: false
-		})
+			setState({
+				hasScores: hasScores,
+				showExport: false
+			})
+		}
 	}, [JSON.stringify(currScores)])
 
 	const displayedSemesters = useMemo(() => {
 		if (currScores && (state.isShowingAll || currScores.length < 2)) return currScores // all semester being displayed
-		return currScores.slice(0,1) // show just one semester, gracefully handles empty array
+		else if (currScores) return currScores.slice(0,1) // show just one semester, gracefully handles empty array
+		else return [] // no scores yet
 	}, [currScores, state.isShowingAll])
 
 	const openExport = () => {

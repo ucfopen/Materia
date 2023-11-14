@@ -12,51 +12,22 @@ export default function useCopyWidget() {
 	return useMutation(
 		apiCopyWidget,
 		{
-			onMutate: async inst => {
-				await queryClient.cancelQueries('widgets', { exact: true, active: true, })
-				const previousValue = queryClient.getQueryData('widgets')
-
-				// dummy data that's appended to the query cache as an optimistic update
-				// this will be replaced with actual data returned from the API
-				const newInst = {
-					id: 'tmp',
-					widget: {
-						name: inst.widgetName,
-						dir: inst.dir
-					},
-					name: inst.title,
-					is_draft: false,
-					is_fake: true
-				}
-
-				// setQueryClient must treat the query cache as immutable!!!
-				// previous will contain the cached value, the function argument creates a new object from previous
-				queryClient.setQueryData('widgets', (previous) => ({
-					...previous,
-					pages: previous.pages.map((page, index) => {
-						if (index == 0) return { ...page, pagination: [ newInst, ...page.pagination] }
-						else return page
-					})
-				}))
-
-				return { previousValue }
-			},
 			onSuccess: (data, variables) => {
-				// update the query cache, which previously contained a dummy instance, with the real instance info
-				queryClient.setQueryData('widgets', (previous) => ({
-					...previous,
-					pages: previous.pages.map((page, index) => {
-						if (index == 0) return { ...page, pagination: page.pagination.map((inst) => {
-							if (inst.id == 'tmp') inst = data
-							return inst
-						}) }
-						else return page
-					})
-				}))
+				if (queryClient.getQueryData('widgets'))
+				{
+					// optimistically update the query cache with the new instance info
+					queryClient.setQueryData('widgets', (previous) => ({
+						...previous,
+						pages: previous.pages.map((page, index) => {
+							if (index == 0) return { ...page, pagination: [ data, ...page.pagination] }
+							else return page
+						})
+					}))
+				}
 				variables.successFunc(data)
 			},
-			onError: (err, newWidget, context) => {
-				console.error(err)
+			onError: (err, variables, context) => {
+				variables.errorFunc(err)
 				queryClient.setQueryData('widgets', (previous) => {
 					return context.previousValue
 				})

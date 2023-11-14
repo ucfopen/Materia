@@ -68,9 +68,8 @@ const MediaImporter = () => {
 		queryKey: ['media-assets', selectedAsset],
 		queryFn: () => apiGetAssets(),
 		staleTime: Infinity,
-		onSettled: (data) => {
-			if (!data || data.type == 'error') console.error(`Asset request failed with error: ${data.msg}`)
-			else {
+		onSuccess: (data) => {
+			if (data) {
 				const list = data.map(asset => {
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
@@ -90,6 +89,9 @@ const MediaImporter = () => {
 
 				setAssetList(list)
 			}
+		},
+		onError: (err) => {
+			console.error(`Asset request failed with error: ${err.cause}`)
 		}
 	})
 

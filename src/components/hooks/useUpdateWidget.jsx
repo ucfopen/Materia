@@ -33,7 +33,7 @@ export default function useUpdateWidget() {
 						}
 					}
 				}
-				
+
 
 				// update query cache for widgets. This does NOT invalidate the cache, forcing a re-fetch!!
 				queryClient.setQueryData('widgets', widgetList)
@@ -43,8 +43,7 @@ export default function useUpdateWidget() {
 			},
 			onError: (err, variables, previous) => {
 				// write previously intact widget list into the query cache. This should be the same data as before.
-				queryClient.setQueryData('widgets', previous)
-				variables.successFunc(null)
+				variables.errorFunc(err)
 			}
 		}
 	)

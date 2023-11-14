@@ -56,7 +56,6 @@ const MyWidgetSelectedInstance = ({
 	otherUserPerms,
 	setOtherUserPerms,
 	onDelete,
-	onCopy,
 	onEdit,
 	beardMode,
 	beard,
@@ -79,16 +78,13 @@ const MyWidgetSelectedInstance = ({
 		placeholderData: null,
 		enabled: !!inst.id,
 		staleTime: Infinity,
-		onSuccess: (data) => {
-			if (data && data.type == 'error')
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login")
 			{
-				console.error(`Error: ${data.msg}`);
-				if (data.title == "Invalid Login")
-				{
-					setInvalidLogin(true)
-				}
-			} else if (!data) {
-				console.error(`Failed to fetch permissions.`);
+				setInvalidLogin(true)
+			} else {
+				console.error(err)
 			}
 		}
 	})
@@ -141,11 +137,6 @@ const MyWidgetSelectedInstance = ({
 			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
 		}
 	}, [myPerms, inst])
-
-	const makeCopy = useCallback((title, copyPermissions) => {
-		setShowCopy(false)
-		onCopy(inst.id, title, copyPermissions, inst)
-	}, [inst, setShowCopy])
 
 	const onEditClick = inst => {
 		if (inst.widget.is_editable && state.perms.editable && editPerms && !permsFetching) {
@@ -282,13 +273,29 @@ const MyWidgetSelectedInstance = ({
 
 	const toggleShowEmbed = () => setShowEmbed(!showEmbed)
 
-	const copyDialogOnClose = () => closeModal(setShowCopy)
+	const onCopyClose = () => {
+		closeModal(setShowCopy)
+	}
+	const onCopySuccess = (newInst) => {
+		setState({ ...state, selectedInst: null, widgetHash: newInst.id })
+		window.location.hash = newInst.id;
+		onCopyClose()
+	}
+	const onCopyError = (err) => {
+		if (err.message == "Invalid Login") {
+			setInvalidLogin(true)
+		}
+	}
+
 	let copyDialogRender = null
 	if (showCopy) {
 		copyDialogRender = (
-			<MyWidgetsCopyDialog onClose={copyDialogOnClose}
+			<MyWidgetsCopyDialog
+				inst={inst}
 				name={inst.name}
-				onCopy={makeCopy}
+				onClose={onCopyClose}
+				onCopySuccess={onCopySuccess}
+				onCopyError={onCopyError}
 			/>
 		)
 	}

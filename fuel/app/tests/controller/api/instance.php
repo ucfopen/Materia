@@ -21,7 +21,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->response();
 
 		$this->assertEquals($response->status, 401);
-		$this->assertEquals($response->body, '"Requires an inst_id parameter!"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Requires an inst_id parameter!');
 
 		// ======= NO INST ID FOUND ========
 		$response = Request::forge('/api/instance/history')
@@ -31,7 +32,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->response();
 
 		$this->assertEquals($response->status, 404);
-		$this->assertEquals($response->body, '"Instance not found"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Instance not found');
 
 		// == Now we're an author
 		$this->_as_author();
@@ -69,7 +71,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->response();
 
 		$this->assertEquals($response->status, 401);
-		$this->assertEquals($response->body, '"Requires an inst_id parameter"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Requires an inst_id parameter');
 
 		// ======= NO OWNER ID PROVIDED ========
 		$response = Request::forge('/api/instance/request_access')
@@ -79,7 +82,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->response();
 
 		$this->assertEquals($response->status, 401);
-		$this->assertEquals($response->body, '"Requires an owner_id parameter"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Requires an owner_id parameter');
 
 		// == Now we're an author
 		$this->_as_author();
@@ -101,7 +105,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->execute()
 			->response();
 
-		$this->assertEquals($response->body, '"Instance not found"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Instance not found');
 		$this->assertEquals($response->status, 404);
 
 		// ======= NO OWNER ID FOUND ========
@@ -113,7 +118,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->response();
 
 		$this->assertEquals($response->status, 404);
-		$this->assertEquals($response->body, '"Owner not found"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Owner not found');
 
 		// ======= OWNER DOES NOT OWN INSTANCE =========
 		// Switch users
@@ -127,7 +133,8 @@ class Test_Controller_Api_Instance extends \Basetest
 			->response();
 
 		$this->assertEquals($response->status, 404);
-		$this->assertEquals($response->body, '"Owner does not own instance"');
+		$body = json_decode($response->body);
+		$this->assertEquals($body->msg, 'Owner does not own instance');
 
 		// ======= SUCCESSFUL REQUEST ========
 		$response = Request::forge('/api/instance/request_access')

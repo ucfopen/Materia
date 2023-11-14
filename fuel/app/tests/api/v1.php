@@ -99,7 +99,7 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_widget_instance_access_perms_verify()
 	{
-		$output = Api_V1::widget_instance_access_perms_verify('test');
+		$output = Api_V1::widget_instance_access_perms_verify('you_do_not_exist');
 		$this->assert_invalid_login_message($output);
 	}
 
@@ -250,8 +250,9 @@ class Test_Api_V1 extends \Basetest
 		$qset = $this->create_new_qset($question, $answer);
 
 		$output = Api_V1::widget_instance_new($widget->id, 'test', $qset, false);
-		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Widget type can not be published by students.', $output->title);
+		$this->assertInstanceOf('\Response', $output);
+		$body = json_decode($output->body);
+		$this->assertEquals('Widget type can not be published by students.', $body->msg);
 	}
 
 	public function test_widget_instance_update()
@@ -621,24 +622,21 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		\Auth::logout();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
-		$this->assertInstanceOf('\Materia\Msg', $output->msg);
-		$this->assertEquals('Invalid Login', $output->msg->title);
-		$this->assertTrue($output->is_locked);
-		$this->assertFalse($output->can_publish);
+		$this->assertInstanceOf('\Response', $output);
+		$body = json_decode($output->body);
+		$this->assertEquals('Invalid Login', $body->title);
 
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertFalse($output->can_publish);
-		$this->assertNull($output->msg);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertTrue($output->can_publish);
-		$this->assertNull($output->msg);
 
 		// lock widget as author
 		Api_V1::widget_instance_lock($instance->id);
@@ -649,14 +647,12 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertTrue($output->is_locked);
 		$this->assertFalse($output->can_publish);
-		$this->assertNull($output->msg);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertTrue($output->can_publish);
-		$this->assertNull($output->msg);
 	}
 
 	public function test_widget_publish_perms_verify(): void
@@ -667,8 +663,9 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		\Auth::logout();
 		$output = Api_V1::widget_publish_perms_verify($widget->id);
-		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Invalid Login', $output->title);
+		$this->assertInstanceOf('\Response', $output);
+		$body = json_decode($output->body);
+		$this->assertEquals('Invalid Login', $body->title);
 
 		// ======= STUDENT ========
 		$this->_as_student();
@@ -771,8 +768,9 @@ class Test_Api_V1 extends \Basetest
 
 		// this should fail - you cant play drafts
 		$output = Api_V1::session_play_create($saveOutput->id);
-		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Drafts Not Playable', $output->title);
+		$this->assertInstanceOf('\Response', $output);
+		$body = json_decode($output->body);
+		$this->assertEquals('Drafts Not Playable', $body->title);
 
 		Api_V1::widget_instance_delete($saveOutput->id);
 
@@ -1441,7 +1439,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::notification_delete(5, false);
-		$this->assertFalse($output);
+		$this->assertInstanceOf('\Response', $output);
 
 		$author = $this->_as_author();
 		$notifications = Api_V1::notifications_get();
@@ -1468,7 +1466,7 @@ class Test_Api_V1 extends \Basetest
 		// try as someone author2
 		$this->_as_author_2();
 		$output = Api_V1::notification_delete($notifications[0]['id'], false);
-		$this->assertFalse($output);
+		$this->assertInstanceOf('\Response', $output);
 
 		$this->_as_author();
 		$output = Api_V1::notification_delete($notifications[0]['id'], false);
@@ -1592,19 +1590,22 @@ class Test_Api_V1 extends \Basetest
 
 	protected function assert_invalid_login_message($msg)
 	{
-		$this->assertInstanceOf('\Materia\Msg', $msg);
-		$this->assertEquals('Invalid Login', $msg->title);
+		$this->assertInstanceOf('\Response', $msg);
+		$body = json_decode($msg->body);
+		$this->assertEquals('Invalid Login', $body->title);
 	}
 
 	protected function assert_permission_denied_message($msg)
 	{
-		$this->assertInstanceOf('\Materia\Msg', $msg);
-		$this->assertEquals('Permission Denied', $msg->title);
+		$this->assertInstanceOf('\Response', $msg);
+		$body = json_decode($msg->body);
+		$this->assertEquals('Permission Denied', $body->title);
 	}
 
 	protected function assert_validation_error_message($msg)
 	{
-		$this->assertInstanceOf('\Materia\Msg', $msg);
-		$this->assertEquals('Validation Error', $msg->title);
+		$this->assertInstanceOf('\Response', $msg);
+		$body = json_decode($msg->body);
+		$this->assertEquals('Validation Error', $body->title);
 	}
 }
