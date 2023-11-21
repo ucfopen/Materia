@@ -78,7 +78,7 @@ const SettingsPage = () => {
 						enableLoginButton: false
 					})
 				}
-				setError("Error updating settings.")
+				setError((err.message || "Error") + ": Failed to update settings.")
 			}
 		})
 	}

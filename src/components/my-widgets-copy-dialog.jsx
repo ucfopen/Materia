@@ -29,7 +29,7 @@ const MyWidgetsCopyDialog = ({inst, name, onClose, onCopySuccess, onCopyError}) 
 					onCopySuccess(newInst)
 				},
 				errorFunc: (err) => {
-					setErrorText('Error: Copy Unsuccessful')
+					setErrorText(('Error' || err.message) + ': Copy Unsuccesful')
 					if (onCopyError) onCopyError(err)
 					else if (err.message == "Invalid Login") {
 						window.location.href = '/users/login'

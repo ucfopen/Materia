@@ -120,7 +120,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			instId: instId,
 			successFunc: () => setUpdatedInst({...updatedInst, is_deleted: true}),
 			errorFunc: (err) => {
-				setErrorText('Error: Delete Unsuccessful')
+				setErrorText(('Error' || err.message)  + ': Delete Unsuccessful')
 				setSuccessText('')
 				if (err.message == "Invalid Login") {
 					setInvalidLogin(true)
@@ -134,7 +134,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			instId: instId,
 			successFunc: () => setUpdatedInst({...updatedInst, is_deleted: false}),
 			errorFunc: (err) => {
-				setErrorText('Error: Undelete Unsuccessful')
+				setErrorText(('Error' || err.message)  + ': Un-delete Unsuccessful')
 				setSuccessText('')
 				if (err.message == "Invalid Login") {
 					setInvalidLogin(true)
@@ -214,7 +214,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 				setErrorText('')
 			},
 			errorFunc: (err) => {
-				setErrorText('Error: Update Unsuccessful')
+				setErrorText(('Error' || err.message)  + ': Update failed.')
 				setSuccessText('')
 				if (err.message == "Invalid Login") {
 					setInvalidLogin(true)

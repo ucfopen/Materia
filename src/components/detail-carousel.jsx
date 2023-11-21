@@ -286,7 +286,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 					playId: idVal
 				}),
 				errorFunc: (err) => {
-					setError("Error creating play session. Please try again later.")
+					setError("Failed to create play session. Please try again later.")
 				}
 			})
 		}

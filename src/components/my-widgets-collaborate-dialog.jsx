@@ -205,7 +205,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				{
 					setInvalidLogin(true)
 				} else {
-					setError("Failed to save permissions")
+					setError((err.message || "Error") + ": Failed to save permissions.")
 				}
 			}
 		})
