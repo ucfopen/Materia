@@ -69,12 +69,6 @@ class Msg
 		return $msg;
 	}
 
-	static public function student()
-	{
-		$msg = new Msg('Students are unable to receive notifications via Materia', 'No Notifications', Msg::NOTICE, false, 403);
-		return $msg;
-	}
-
 	static public function failure($msg = 'The requested action could not be completed', $title = 'Action Failed')
 	{
 		$msg = new Msg($msg, $title, Msg::ERROR, false, 403);
