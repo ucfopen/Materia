@@ -22,7 +22,7 @@ class Controller_Api_Instance extends Controller_Rest
 		if ( ! $inst_id = Input::get('inst_id')) return $this->response(\Materia\Msg::invalid_input('Requires an inst_id parameter!'), 401);
 		if ( ! \Materia\Util_Validator::is_valid_hash($inst_id) ) return $this->response(\Materia\Msg::invalid_input($inst_id), 401);
 		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id))) return $this->response(new \Materia\Msg('Instance not found', \Materia\Msg::ERROR), 404);
-		if ( ! \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::FULL])) return $this->response(\Materia\Msg::no_login(), 401);
+		if ( ! \Materia\Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, \Materia\Perm::INSTANCE, [\Materia\Perm::FULL])) return $this->response(\Materia\Msg::no_perm(), 401);
 
 		$history = $inst->get_qset_history($inst_id);
 
