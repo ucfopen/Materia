@@ -13,7 +13,14 @@ const UserAdminPage = () => {
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve current user.")
+			}
+		}
 	})
 
 	const { data: userFromHash } = useQuery({

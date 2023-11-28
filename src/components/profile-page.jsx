@@ -4,6 +4,7 @@ import LoadingIcon from './loading-icon'
 import {apiGetUser, apiGetUserActivity} from '../util/api'
 import Header from './header'
 import './profile-page.scss'
+import Alert from './alert'
 
 const ProfilePage = () => {
 	const [alertDialog, setAlertDialog] = useState({
