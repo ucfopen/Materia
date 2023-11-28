@@ -9,6 +9,7 @@ import './support-page.scss'
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [widgetHash, setWidgetHash] = useState(window.location.href.split('#')[1])
+	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
@@ -20,7 +21,14 @@ const SupportPage = () => {
 		queryKey: ['search-widgets', widgetHash],
 		queryFn: () => apiSearchWidgets(widgetHash),
 		enabled: widgetHash != undefined && widgetHash != selectedInstance?.id,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve widget(s).")
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -53,14 +61,19 @@ const SupportPage = () => {
 		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 	}
 
-	let mainContentRender = <SupportSearch onClick={handleSearchClick}/>
-	if (selectedInstance) {
+	let mainContentRender = null
+	if (error) {
+		mainContentRender = <div className='error'>{error}</div>
+	}
+	else if (selectedInstance) {
 		mainContentRender = (
 			<SupportSelectedInstance inst={selectedInstance}
 				key={selectedInstance ? selectedInstance.id : ''}
 				currentUser={currentUser}
 			/>
 		)
+	} else {
+		mainContentRender = <SupportSearch onClick={handleSearchClick}/>
 	}
 
 	return (

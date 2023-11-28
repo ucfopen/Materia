@@ -8,7 +8,7 @@ const initState = () => ({
 	clicked: false
 })
 
-const StudentSearch = ({addUser, debounceTime=300}) => {
+const StudentSearch = ({addUser, debounceTime=300, setError}) => {
 	const [state, setState] = useState(initState())
 	const debouncedSearchTerm = useDebounce(state.searchText, debounceTime)
 	const { data: studentsSearched } = useQuery({
@@ -16,7 +16,15 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 		queryFn: () => apiSearchUsers(debouncedSearchTerm),
 		placeholderData: [],
 		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve student data.")
+			}
+		}
 	})
 
 	// Handles closign the search window immediately on click without debounce delay

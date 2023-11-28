@@ -11,6 +11,7 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 720px;
 
+
 	.page {
 
 		#breadcrumb-container {
@@ -105,6 +106,10 @@
 		.searching {
 			vertical-align: bottom;
 			margin-top: 10px;
+			position: relative;
+			min-height: 100px;
+			width: 100%;
+			text-align: center;
 		}
 
 		.show_deleted {
@@ -115,6 +120,12 @@
 				margin-left: 3px;
 				font-size: 0.85em;
 			}
+		}
+
+		.search_error {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 
 		.search_list {

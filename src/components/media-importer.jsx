@@ -155,10 +155,20 @@ const MediaImporter = () => {
 	const _updateDeleteStatus = (asset) => {
 		if (!asset.is_deleted) {
 			asset.is_deleted = 1
-			apiDeleteAsset(asset.id)
+			apiDeleteAsset(asset.id).then(() => {
+				queryClient.invalidateQueries('media-assets')
+			})
+			.catch((err) => {
+				setErrorState(err.message)
+			})
 		} else {
 			asset.is_deleted = 0
-			apiRestoreAsset(asset.id)
+			apiRestoreAsset(asset.id).then(() => {
+				queryClient.invalidateQueries('media-assets')
+			})
+			.catch((err) => {
+				setErrorState(err.message)
+			})
 		}
 
 		let list = assetList.map((item) => {

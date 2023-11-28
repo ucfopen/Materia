@@ -29,20 +29,35 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 	const [state, setState] = useState(defaultState())
 	// display error above save button using the text from this hook:
 	const [saveError, setSaveError] = useState('')
+	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const setExtraAttempts = useSetAttempts()
 	const { data: attempts, isLoading: attemptsLoading, isFetching, remove: removeAttempts } = useQuery({
 		queryKey: 'extra-attempts',
 		queryFn: () => apiGetExtraAttempts(inst.id),
 		placeholderData: [],
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve extra attempts.")
+			}
+		}
 	})
 	const { data: queryUsers, remove: removeUsers } = useQuery({
 		queryKey: ['attempt-users', inst.id],
 		queryFn: () => apiGetUsers(state.userIDs),
 		enabled: !!state.userIDs && state.userIDs.length > 0 && attemptsLoading == false,
 		placeholderData: {},
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve user(s).")
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -182,12 +197,18 @@ const ExtraAttemptsDialog = ({onClose, inst}) => {
 		saveErrorRender = <p>{saveError}</p>
 	}
 
+	let errorRender = null
+	if (error) {
+		errorRender = <p class="attempts_search_error">{error}</p>
+	}
+
 	return (
 		<Modal onClose={onClose}>
 			<div className='extraAttemptsModal'>
 				<span className='title'>Give Students Extra Attempts</span>
 				<div className='attempts-container'>
-					<StudentSearch addUser={addUser} debounceTime={300}/>
+					{ errorRender }
+					<StudentSearch addUser={addUser} debounceTime={300} setError={setError}/>
 
 					<div className='attempts_list_container'>
 						<div className='headers'>

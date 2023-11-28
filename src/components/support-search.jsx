@@ -6,6 +6,7 @@ import useDebounce from './hooks/useDebounce'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
+	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 	const { data: searchedWidgets, isFetching} = useQuery({
@@ -13,7 +14,14 @@ const SupportSearch = ({onClick = () => {}}) => {
 		queryFn: () => apiSearchWidgets(debouncedSearchTerm),
 		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,
 		placeholderData: null,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve widget(s).")
+			}
+		}
 	})
 
 	const handleSearchChange = e => setSearchText(e.target.value)
@@ -24,7 +32,13 @@ const SupportSearch = ({onClick = () => {}}) => {
 			<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
 		</div>
 	)
-	if ((isFetching || !searchedWidgets) && searchText.length > 0) {
+	if (error) {
+		searchResultsRender = (
+			<div className='searching'>
+				<p className='search_error'>{error}</p>
+			</div>
+		)
+	} else if ((isFetching || !searchedWidgets) && searchText.length > 0) {
 		searchResultsRender = (
 			<div className='searching'>
 				<b>Searching Widget Instances ...</b>

@@ -13,7 +13,12 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 		queryKey: ['managed-widgets', updatedUser.id],
 		queryFn: () => apiGetInstancesForUser(updatedUser.id),
 		placeholderData: null,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			}
+		}
 	})
 
 	useEffect(() => {

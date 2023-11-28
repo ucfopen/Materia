@@ -16,7 +16,7 @@ const handleErrors = async resp => {
 			throw new Error(resp.statusText)
 		})
 		// check if error has message
-		if (errMsg.type == "error") {
+		if (errMsg.msg && errMsg.title) {
 			throw new Error(errMsg.title, {cause: errMsg.msg, halt: errMsg.halt, type: errMsg.type})
 		}
 		// sometimes it's in body

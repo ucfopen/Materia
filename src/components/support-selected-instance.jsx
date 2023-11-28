@@ -74,9 +74,18 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 		enabled: !!inst && inst.id !== undefined,
 		placeholderData: null,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setInvalidLogin(true)
+			} else {
+				setAlertDialog({
+					enabled: true,
+					message: err.cause,
+					title: err.message,
+					fatal: err.halt,
+					enableLoginButton: false
+				})
 			}
 		}
 	})
