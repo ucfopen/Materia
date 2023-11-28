@@ -20,7 +20,6 @@ const Notifications = (user) => {
 	const { data: notifications} = useQuery({
 		queryKey: 'notifications',
 		enabled: !!user && user.loggedIn,
-		retry: false,
 		refetchInterval: 60000,
 		refetchOnMount: false,
 		refetchOnWindowFocus: true,

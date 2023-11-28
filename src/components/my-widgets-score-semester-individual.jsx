@@ -36,7 +36,6 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 			enabled: !!instId && !!semester && !!semester.term && !!semester.year,
 			placeholderData: [],
 			refetchOnWindowFocus: false,
-			retry: false,
 			onSuccess: (result) => {
 				if (page <= result?.total_num_pages) setPage(page + 1)
 				if (result && result.pagination) {

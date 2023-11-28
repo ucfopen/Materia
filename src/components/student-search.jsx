@@ -17,7 +17,6 @@ const StudentSearch = ({addUser, debounceTime=300, setError}) => {
 		placeholderData: [],
 		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,
 		staleTime: Infinity,
-		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				window.location.href = '/login'

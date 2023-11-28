@@ -98,7 +98,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, guestPlayId),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
-		retry: false,
 		refetchOnWindowFocus: false,
 		onSuccess: (result) => {
 			_populateScores(result)
@@ -119,7 +118,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
 		enabled: (!!playId || !!previewInstId),
-		retry: false,
 		refetchOnWindowFocus: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {

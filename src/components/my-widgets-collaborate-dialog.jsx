@@ -54,7 +54,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		queryFn: () => apiSearchUsers(debouncedSearchTerm),
 		staleTime: Infinity,
 		placeholderData: [],
-		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login")
 			{

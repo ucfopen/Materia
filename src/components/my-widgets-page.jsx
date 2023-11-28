@@ -57,7 +57,6 @@ const MyWidgetsPage = () => {
 		queryKey: 'user',
 		queryFn: apiGetUser,
 		staleTime: Infinity,
-		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login")
 			{
@@ -80,7 +79,6 @@ const MyWidgetsPage = () => {
 		enabled: !!state.selectedInst && !!state.selectedInst.id && state.selectedInst?.id !== undefined,
 		placeholderData: null,
 		staleTime: Infinity,
-		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setInvalidLogin(true)
