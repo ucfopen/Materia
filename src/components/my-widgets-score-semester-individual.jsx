@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
+import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
 
 const showScore = (instId, playId) => window.open(`/scores/single/${playId}/${instId}`)
@@ -24,6 +25,7 @@ const initState = () => ({
 const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	const [state, setState] = useState(initState())
 	const [page, setPage] = useState(1)
+	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const {
 		data,
 		refetch
@@ -57,11 +59,15 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 		else setState({ ...state, isLoading: false })
 	}, [page])
 
+	useEffect(() => {
+		if (typeof debouncedSearchTerm === 'string') onSearchInput(debouncedSearchTerm)
+	}, [debouncedSearchTerm])
+
 	const onSearchInput = useCallback(search => {
 		search = search.toLowerCase()
 		const filteredLogs = state.logs.filter(item => item.searchableName.includes(search))
 
-		const newState = {
+		let newState = {
 			...state,
 			filteredLogs: filteredLogs,
 			searchText: search
@@ -69,12 +75,15 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 
 		// unselect user if not in filtered results
 		const isSelectedInResults = filteredLogs.includes(state.selectedUser)
-		if (!isSelectedInResults) { newState.selectedUser = {} }
+		if (!isSelectedInResults) {
+			newState = {
+				...newState,
+				selectedUser: {}
+			}
+		}
 		setState(newState)
 
 	}, [state.searchText, state.selectedUser, state.logs])
-
-	const handleSearchChange = e => onSearchInput(e.target.value)
 
 	let mainContentRender = <LoadingIcon width='570px' />
 	if (!state.isLoading) {
@@ -121,7 +130,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 				<div className='score-search'>
 					<input type='text'
 						value={state.searchText}
-						onChange={handleSearchChange}
+						onChange={(e) => setState({...state, searchText: e.target.value})}
 						placeholder='Search Students'
 					/>
 				</div>
