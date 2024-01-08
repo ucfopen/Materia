@@ -125,6 +125,10 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 			)
 		}
 
+		else if (state.filteredLogs.length == 0) {
+			selectedUserRender = <p className='no-user-search-results'>No users match that search.</p>
+		}
+
 		mainContentRender = (
 			<>
 				<div className='score-search'>

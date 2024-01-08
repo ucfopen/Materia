@@ -180,6 +180,11 @@
 			&.loading {
 				display: flex;
 			}
+
+			.no-user-search-results {
+				margin-left: 20px;
+				font-weight: 700;
+			}
 		}
 
 		.display.data {
