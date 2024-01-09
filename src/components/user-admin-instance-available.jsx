@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { iconUrl } from '../util/icon-url'
 import SupportSelectedInstance from './support-selected-instance'
 
-const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
+const UserAdminInstanceAvailable = ({instance, index, onCopySuccess, currentUser}) => {
 	const [error, setError] = useState('')
 
 	const [instanceState, setInstanceState] = useState({
@@ -16,6 +16,7 @@ const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
 			<SupportSelectedInstance inst={instance}
 				key={instance ? instance.id : ''}
 				currentUser={currentUser}
+				onCopySuccess={onCopySuccess}
 				embed={true}
 			/>
 		)

@@ -152,11 +152,13 @@ class Api_V1
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
+		if ( ! $inst) return Msg::failure('Widget instance could not be found.');
 
 		try
 		{
 			// retain access - if true, grant access to the copy to all original owners
 			$current_user_id = \Model_User::find_current_id();
+			if ( ! $current_user_id) return Msg::failure('Could not find current user.');
 			$duplicate = $inst->duplicate($current_user_id, $new_name, $copy_existing_perms);
 			return $duplicate;
 		}
@@ -920,6 +922,7 @@ class Api_V1
 	static public function user_get($user_ids = null)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		$results = [];
 
 		//no user ids provided, return current user
 		if ($user_ids === null)

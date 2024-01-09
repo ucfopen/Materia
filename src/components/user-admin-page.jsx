@@ -26,7 +26,7 @@ const UserAdminPage = () => {
 	const { data: userFromHash } = useQuery({
 		queryKey: ['search-users', userHash],
 		queryFn: () => apiGetUsers([userHash]),
-		enabled: userHash != undefined && userHash != undefined && userHash != selectedUser?.id,
+		enabled: userHash != undefined && userHash != selectedUser?.id,
 		placeholderData: null,
 		staleTime: Infinity,
 		onError: (err) => {

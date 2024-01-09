@@ -34,7 +34,7 @@ const stringToDateObj = (date, time) => Date.parse(date + 'T' + time) / 1000
 
 const stringToBoolean = s => s === 'true'
 
-const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
+const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = false}) => {
 	const [updatedInst, setUpdatedInst] = useState({...inst})
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
@@ -248,7 +248,8 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 				onClose={() => setShowCopy(false)}
 				onCopySuccess={(newInst) => {
 					setShowCopy(false)
-					window.location.hash = newInst.id
+					// window.location.hash = newInst.id
+					onCopySuccess(newInst)
 				}}
 				onCopyError={(err) => {
 					if (err.message == "Invalid Login") {

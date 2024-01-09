@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { apiGetInstancesForUser } from '../util/api'
 import UserAdminInstanceAvailable from './user-admin-instance-available'
 import UserAdminInstancePlayed from './user-admin-instance-played'
 import UserAdminRoleManager from './user-admin-role-manager'
 
 const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
-
+	const queryClient = useQueryClient()
 	const [updatedUser, setUpdatedUser] = useState({...selectedUser})
 
 	const { data: widgets, isFetching: isLoadingWidgets} = useQuery({
@@ -29,11 +29,21 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 		setUpdatedUser({...updatedUser, [attr]: value})
 	}
 
+	const onCopySuccess = (instance) => {
+		// optimistically update managed widget instances
+		queryClient.setQueriesData('managed-widgets', (previous) => {
+			return {
+				...previous,
+				instances_available: [ instance, ...previous.instances_available ]
+			}
+		})
+	}
+
 	let instancesAvailable = <span>Widgets are loading...</span>
 	if (!isLoadingWidgets) {
 		if (!!widgets.instances_available && widgets.instances_available.length > 0) {
 				instancesAvailable = widgets.instances_available?.map((instance, index) => {
-					return (<UserAdminInstanceAvailable instance={instance} key={index} currentUser={currentUser}/>)
+					return (<UserAdminInstanceAvailable instance={instance} key={index} currentUser={currentUser} onCopySuccess={onCopySuccess}/>)
 				})
 		} else {
 			instancesAvailable = <span>This user has not created or been granted access to any widgets.</span>

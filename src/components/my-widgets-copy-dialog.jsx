@@ -15,7 +15,6 @@ const MyWidgetsCopyDialog = ({inst, name, onClose, onCopySuccess, onCopyError}) 
 
 	// an instance has been copied: the mutation will optimistically update the widget list while the list is re-fetched from the server
 	const onCopy = (instId, newTitle, newPerm, inst) => {
-		// setState({ ...state, selectedInst: null })
 		setErrorText('')
 
 		copyWidget.mutate(
@@ -29,7 +28,7 @@ const MyWidgetsCopyDialog = ({inst, name, onClose, onCopySuccess, onCopyError}) 
 					onCopySuccess(newInst)
 				},
 				errorFunc: (err) => {
-					setErrorText(('Error' || err.message) + ': Copy Unsuccesful')
+					setErrorText(('Error' || err.message) + ': Copy Unsuccessful')
 					if (onCopyError) onCopyError(err)
 					else if (err.message == "Invalid Login") {
 						window.location.href = '/users/login'

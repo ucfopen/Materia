@@ -68,6 +68,11 @@ const SupportPage = () => {
 		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 	}
 
+	const onCopySuccess = (inst) => {
+		setSelectedInstance(inst)
+		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
+	}
+
 	let mainContentRender = null
 	if (error) {
 		mainContentRender = <div className='error'>{error}</div>
@@ -77,6 +82,7 @@ const SupportPage = () => {
 			<SupportSelectedInstance inst={selectedInstance}
 				key={selectedInstance ? selectedInstance.id : ''}
 				currentUser={currentUser}
+				onCopySuccess={onCopySuccess}
 			/>
 		)
 	} else {
