@@ -36,7 +36,8 @@ export default function useCopyWidget() {
 					pages: previous.pages.map((page, index) => {
 						if (index == 0) return { ...page, pagination: [ newInst, ...page.pagination] }
 						else return page
-					})
+					}),
+					modified: Math.floor(Date.now() / 1000)
 				}))
 
 				return { previousValue }
@@ -51,7 +52,8 @@ export default function useCopyWidget() {
 							return inst
 						}) }
 						else return page
-					})
+					}),
+					modified: Math.floor(Date.now() / 1000)
 				}))
 				variables.successFunc(data)
 			},
