@@ -15,14 +15,10 @@ export default function useUpdateWidget() {
 				await queryClient.cancelQueries('widgets')
 				widgetList = queryClient.getQueryData('widgets')
 
-				console.log(widgetList)
-
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
 				return { ...widgetList }
 			},
 			onSuccess: (updatedInst, variables) => {
-
-				console.log(widgetList)
 
 				// update successful - insert new values into our local copy of widgetList
 				for (const page of widgetList?.pages) {
