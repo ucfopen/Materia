@@ -89,8 +89,7 @@ class Widget_Instance_Manager
 		$displayable_inst = array_slice($displayable_inst, $offset, $widgets_per_page);
 
 		$data = [
-			'pagination' => $displayable_inst,
-			'modified'   => time(),
+			'pagination' => $displayable_inst
 		];
 		
 		if ($has_next_page) $data['next_page'] = $page_number + 1;
