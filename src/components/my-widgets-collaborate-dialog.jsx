@@ -312,9 +312,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	if (state.shareNotAllowed === true) {
 		noShareWarningRender = (
 			<Modal onClose={disableShareNotAllowed} smaller={true} alert={true}>
-				<span className='alert-title'>Share Not Allowed</span>
-				<p className='alert-description'>Access must be set to "Guest Mode" to collaborate with students.</p>
-				<button className='alert-btn' onClick={disableShareNotAllowed}>Okay</button>
+				<div>
+					<span className='alert-title'>Share Not Allowed</span>
+					<p className='alert-description'>Access must be set to "Guest Mode" to collaborate with students.</p>
+					<button className='action_button' onClick={disableShareNotAllowed}>Okay</button>
+				</div>
 			</Modal>
 		)
 	}

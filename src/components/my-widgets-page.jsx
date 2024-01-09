@@ -5,6 +5,7 @@ import rawPermsToObj from '../util/raw-perms-to-object'
 import Header from './header'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
+import InvalidLoginModal from './invalid-login-modal'
 import LoadingIcon from './loading-icon'
 import useInstanceList from './hooks/useInstanceList'
 import useDeleteWidget from './hooks/useDeleteWidget'
@@ -93,19 +94,6 @@ const MyWidgetsPage = () => {
 			setBeardMode(!beardMode)
 		}
 	}, [validCode])
-
-	// hook associated with the invalidLogin error
-	useEffect(() => {
-		if (invalidLogin) {
-			setAlertDialog({
-				enabled: true,
-				message: 'You must be logged in to view your widgets.',
-				title: 'Login Required',
-				fatal: true,
-				enableLoginButton: true
-			})
-		}
-	}, [invalidLogin])
 
 	// hook to attach the hashchange event listener to the window
 	useEffect(() => {
@@ -309,6 +297,12 @@ const MyWidgetsPage = () => {
 				onCloseCallback={() => {
 					setAlertDialog({...alertDialog, enabled: false})
 				}} />
+  )}
+
+	let invalidLoginRender = null
+	if (invalidLogin) {
+		invalidLoginRender = (
+			<InvalidLoginModal onClose={() => { window.location.href = 'users/logout' }}></InvalidLoginModal>
 		)
 	}
 
@@ -394,7 +388,8 @@ const MyWidgetsPage = () => {
 			<div className='my_widgets'>
 
 				{widgetCatalogCalloutRender}
-				{alertDialogRender}
+				{invalidLoginRender}
+        {alertDialogRender}
 
 				<div className='container'>
 					<div className="container_main-content">
