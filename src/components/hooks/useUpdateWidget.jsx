@@ -16,7 +16,7 @@ export default function useUpdateWidget() {
 				widgetList = queryClient.getQueryData('widgets')
 
 				// widgetList is passed to onSuccess or onError depending on resolution of mutation function
-				return { widgetList }
+				return { ...widgetList }
 			},
 			onSuccess: (updatedInst, variables) => {
 
@@ -24,9 +24,9 @@ export default function useUpdateWidget() {
 				for (const page of widgetList?.pages) {
 					for (const inst of page?.pagination) {
 						if (inst.id === variables.args[0]) {
-							inst.open_at = `${variables.args[4]}`
-							inst.close_at = `${variables.args[5]}`
-							inst.attempts = `${variables.args[6]}`
+							inst.open_at = parseInt(variables.args[4])
+							inst.close_at = parseInt(variables.args[5])
+							inst.attempts = parseInt(variables.args[6])
 							inst.guest_access = variables.args[7]
 							inst.embedded_only = variables.args[8]
 							break
@@ -34,9 +34,14 @@ export default function useUpdateWidget() {
 					}
 				}
 				
-
 				// update query cache for widgets. This does NOT invalidate the cache, forcing a re-fetch!!
-				queryClient.setQueryData('widgets', widgetList)
+				queryClient.setQueryData('widgets', previous => {
+					return {
+						...widgetList,
+						modified: Math.floor(Date.now() / 1000)
+					}
+				})
+
 				queryClient.invalidateQueries(['user-perms', variables.args[0]])
 
 				variables.successFunc(updatedInst)
