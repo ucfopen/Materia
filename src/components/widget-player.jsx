@@ -237,6 +237,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	},[alert])
 
+	// addresses a special case where queue processing needs to be deferred until the scoreScreenURL state object is updated
+	// if not, score_url passed by a response to play_logs_save may not be properly updated in time before the widget is completed
+	useEffect(() => {
+		if (playState == 'pending' || playState == 'playing' && queueProcessing) {
+			setQueueProcessing(false)
+		}
+	},[scoreScreenURL])
+
 	// hook associated with log queue management
 	useEffect(() => {
 
@@ -378,6 +386,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		savePlayLog.mutate({
 			request: logQueue[0].request,
 			successFunc: (result) => {
+
+				let deferProcessingComplete = false
 				setRetryCount(0) // reset on success
 
 				if (result) {
@@ -388,8 +398,10 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					dispatchPendingLogs({type: 'shiftPlay', payload: { ids: [...qIds]}})
 					logQueue.shift()
 
+					// score_url is sent from the server to redirect to a specific url
+					// defer queue processing completion until after the state value is updated
 					if (result.score_url) {
-						// score_url is sent from server to redirect to a specific url
+						deferProcessingComplete = true
 						setScoreScreenURL(result.score_url)
 					} else if (result.type === 'error') {
 
@@ -402,7 +414,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				}
 
 				if (logQueue.length > 0) _pushPendingLogs(logQueue)
-				else setQueueProcessing(false)
+				else if (!deferProcessingComplete) setQueueProcessing(false)
 			},
 			failureFunc: () => {
 				setRetryCount((oldCount) => {
