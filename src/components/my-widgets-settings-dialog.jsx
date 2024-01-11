@@ -497,7 +497,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 	let canEditEmbedded = canViewEmbedded && !currentUser.is_student
 
 	return (
-		<Modal onClose={onClose} ignoreClose={state.showWarning}>
+		<Modal onClose={onClose}>
 			<div className='settings-modal'>
 				<div className='top-bar'>
 					<span className='title'>Settings</span>

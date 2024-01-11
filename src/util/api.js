@@ -530,11 +530,12 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			const scoresByUser = new Map()
 			results.pagination.forEach(log => {
 				let scoresForUser
+				if (log.user_id === null || log.user_id == undefined) log.user_id = 0
 
 				if (!scoresByUser.has(log.user_id)) {
 
 					// initialize user
-					const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
+					const name = log.first === null || log.first === undefined ? 'All Guests' : `${log.first} ${log.last}`
 					scoresForUser = {
 						userId: log.user_id,
 						name,
