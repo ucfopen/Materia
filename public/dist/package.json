@@ -18,11 +18,11 @@
 		"js/question-importer.js",
 		"css/question-importer.css",
 		"js/guides.js",
-		"css/widget-guide.css",
+		"css/guides.css",
 		"js/scores.js",
 		"css/scores.css"
 	],
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ucfopen/Materia"
