@@ -226,7 +226,7 @@ class Session_Play
 			$cache_id = 'all';
 		}
 
-		$plays = null;
+		$plays = \Cache::easy_get('play-logs.'.$inst_id.'.'.$cache_id);
 
 		if (is_null($plays))
 		{
