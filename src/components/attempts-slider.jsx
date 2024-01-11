@@ -88,6 +88,11 @@ const AttemptsSlider = ({inst, is_student, parentState, setParentState, currentA
 			</span>
 		)
 	}
+	const selectChange = e => {
+		if (parentState.formData.changes.access === 'guest') return
+		let sliderInfo = getSliderInfo(parseInt(e.target.value))
+		setParentState({...parentState, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
+	}
 
 	let guestModeRender = null
 	if (parentState.formData.changes.access === 'guest') {
@@ -101,15 +106,15 @@ const AttemptsSlider = ({inst, is_student, parentState, setParentState, currentA
 	return (
 		<div className='data-holder'>
 			<div className ={`mobile selector ${parentState.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
-				<select>
+				<select onChange={selectChange}  value={parentState.sliderVal}>
 					<option value='1'>1</option>
-					<option value='2'>2</option>
-					<option value='3'>3</option>
-					<option value='4'>4</option>
-					<option value='5'>5</option>
-					<option value='10'>10</option>
-					<option value='15'>15</option>
-					<option value='20'>20</option>
+					<option value='5'>2</option>
+					<option value='9'>3</option>
+					<option value='13'>4</option>
+					<option value='17'>5</option>
+					<option value='39'>10</option>
+					<option value='59'>15</option>
+					<option value='79'>20</option>
 					<option value='100'>Unlimited</option>
 				</select>
 			</div>
