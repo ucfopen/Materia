@@ -211,17 +211,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				height: `${inst.widget.height}px`
 			})
 
-			scoreScreenUrlRef.current = () => {
-				let _scoreScreenURL = ''
-				if (isPreview) {
-					_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
-				} else if (isEmbedded) {
-					_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
-				} else {
-					_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
-				}
-				return _scoreScreenURL
-			}
+			scoreScreenUrlRef.current = _initScoreScreenUrl()
 		}
 	}, [inst, qset])
 
@@ -469,6 +459,18 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	}
 
 	/*********************** helper methods ***********************/
+
+	const _initScoreScreenUrl = () => {
+		let _scoreScreenURL = ''
+			if (isPreview) {
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
+			} else if (isEmbedded) {
+				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
+			} else {
+				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
+			}
+		return _scoreScreenURL
+	}
 
 	const _setHeight = h => {
 		const min_h = inst.widget.height
