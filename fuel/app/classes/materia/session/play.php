@@ -327,6 +327,8 @@ class Session_Play
 				$this->elapsed     = $r['elapsed'];
 				$this->context_id  = $r['context_id'];
 				$this->semester    = $r['semester'];
+				$this->auth        = $r['auth'];
+				$this->environment_data     = $r['environment_data'];
 				return true;
 			}
 		}
