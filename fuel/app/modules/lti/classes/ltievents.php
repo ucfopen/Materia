@@ -178,6 +178,9 @@ class LtiEvents
 	 */
 	public static function on_play_completed_event($play)
 	{
+		// triage log:
+		\Log::error('on_play_complete: play id '.$play->id.' play state is '.static::get_lti_play_state($play->id));
+
 		if (static::get_lti_play_state($play->id, $play) == self::PLAY_STATE_NOT_LTI) return [];
 
 		$launch = static::session_get_launch($play->id);
@@ -255,17 +258,42 @@ class LtiEvents
 		$launch = \Session::get("lti-{$play_id}", false);
 		if ($launch) return self::PLAY_STATE_FIRST_LAUNCH;
 
+		// triage log:
+		// \Log::error($play_id.' might be a replay, lti-link token session value: '.\Session::get("lti-link-{$play_id}", "no value"));
+
 		// Do we have variables that are *linked* to the given play_id?
 		// We only do this for replays, so this is a replay
 		$token = \Session::get("lti-link-{$play_id}", false);
 
 		// This is an EMERGENCY TRIAGE MEASURE to search for the LTI token in the play's environment data
-		if ($play)
+		if ($play && ! $token)
 		{
 			if ($play->auth == 'lti')
 			{
 				$ev_data = json_decode(base64_decode($play->environment_data), true);
-				if ($ev_data['input']['token']) $token = $ev_data['input']['token'];
+				if ($ev_data['input']['token'])
+				{
+					$token = $ev_data['input']['token'];
+					\Log::error('Triage recovery of token '.$token.' for play_id '.$play_id);
+					\Log::error(print_r(\Session::get(), true));
+				}
+			}
+		}
+
+		elseif ($play_id && ! $token)
+		{
+			$play = new \Materia\Session_Play();
+			$play->get_by_id($play_id);
+
+			if ($play->auth == 'lti')
+			{
+				$ev_data = json_decode(base64_decode($play->environment_data), true);
+				if ($ev_data['input']['token'])
+				{
+					$token = $ev_data['input']['token'];
+					\Log::error('Triage recovery of token '.$token.' for play_id '.$play_id);
+					\Log::error(print_r(\Session::get(), true));
+				}
 			}
 		}
 
