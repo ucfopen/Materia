@@ -271,7 +271,7 @@ class LtiEvents
 			if ($play->auth == 'lti')
 			{
 				$ev_data = json_decode(base64_decode($play->environment_data), true);
-				if ($ev_data['input']['token'])
+				if (isset($ev_data['input']['token']))
 				{
 					$token = $ev_data['input']['token'];
 					\Log::error('Triage recovery of token '.$token.' for play_id '.$play_id);
@@ -288,7 +288,7 @@ class LtiEvents
 			if ($play->auth == 'lti')
 			{
 				$ev_data = json_decode(base64_decode($play->environment_data), true);
-				if ($ev_data['input']['token'])
+				if (isset($ev_data['input']['token']))
 				{
 					$token = $ev_data['input']['token'];
 					\Log::error('Triage recovery of token '.$token.' for play_id '.$play_id);
@@ -320,7 +320,7 @@ class LtiEvents
 			if ($play->auth == 'lti')
 			{
 				$ev_data = json_decode(base64_decode($play->environment_data), true);
-				if ($ev_data['input']['token']) $token = $ev_data['input']['token'];
+				if (isset($ev_data['input']['token'])) $token = $ev_data['input']['token'];
 			}
 		}
 
