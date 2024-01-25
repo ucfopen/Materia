@@ -5,6 +5,7 @@ import rawPermsToObj from '../util/raw-perms-to-object'
 import Header from './header'
 import MyWidgetsSideBar from './my-widgets-side-bar'
 import MyWidgetSelectedInstance from './my-widgets-selected-instance'
+import InvalidLoginModal from './invalid-login-modal'
 import LoadingIcon from './loading-icon'
 import useInstanceList from './hooks/useInstanceList'
 import useCopyWidget from './hooks/useCopyWidget'
@@ -67,11 +68,6 @@ const MyWidgetsPage = () => {
 			setBeardMode(!beardMode)
 		}
 	}, [validCode])
-
-	// hook associated with the invalidLogin error
-	useEffect(() => {
-		if (invalidLogin) window.location.reload();
-	}, [invalidLogin])
 
 	// hook to attach the hashchange event listener to the window
 	useEffect(() => {
@@ -300,6 +296,13 @@ const MyWidgetsPage = () => {
 		)
 	}
 
+	let invalidLoginRender = null
+	if (invalidLogin) {
+		invalidLoginRender = (
+			<InvalidLoginModal onClose={() => { window.location.href = 'users/logout' }}></InvalidLoginModal>
+		)
+	}
+
 	/**
 	 * If the user is loading, show a loading screen. If the user is fetching, show a loading screen. If
 	 * the user has no widgets, show a message. If the user has no selected widget, show a message. If the
@@ -383,6 +386,7 @@ const MyWidgetsPage = () => {
 			<div className='my_widgets'>
 
 				{widgetCatalogCalloutRender}
+				{invalidLoginRender}
 
 				<div className='container'>
 					<div className="container_main-content">

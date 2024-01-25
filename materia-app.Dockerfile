@@ -40,6 +40,11 @@ RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer --ve
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+# By default the php-fpm image is including access.log in the docker stream
+# These logs aren't particularly useful and add considerable bloat to the prod logs that have to be filtered out
+# Modify php-fpm.d/docker.conf to point access.log to /dev/null/, which effectively prevents it from being picked up by the log driver
+RUN sed -i 's/access.log = .*/access.log = \/dev\/null/' /usr/local/etc/php-fpm.d/docker.conf
+
 WORKDIR /var/www/html
 
 # =====================================================================================================

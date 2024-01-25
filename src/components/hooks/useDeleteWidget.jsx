@@ -19,7 +19,8 @@ export default function useDeleteWidget() {
 						pages: previous.pages.map((page) => ({
 							...page,
 							pagination: page.pagination.filter(widget => widget.id !== inst.instId)
-						}))
+						})),
+						modified: Math.floor(Date.now() / 1000)
 					}
 				})
 

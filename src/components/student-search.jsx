@@ -12,7 +12,7 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 	const debouncedSearchTerm = useDebounce(state.searchText, debounceTime)
 	const userList = useUserList(debouncedSearchTerm)
 
-	// Handles closign the search window immediately on click without debounce delay
+	// Handles closing the search window immediately on click without debounce delay
 	useEffect(() => {
 		if (state.clicked && state.searchText?.length > 0) setState({...state, clicked: false})
 	}, [state.searchText])
