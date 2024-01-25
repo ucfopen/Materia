@@ -10,12 +10,6 @@
 	overflow-y: auto;
 	padding-bottom: 1em;
 
-	&.limited_because_student {
-		filter: blur(3px);
-		user-select: none;
-		pointer-events: none;
-	}
-
 	#export_scores_button.disabled,
 	#export_scores_button.disabled:hover {
 		background: #d4d4d4;

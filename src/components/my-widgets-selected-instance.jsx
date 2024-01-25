@@ -501,7 +501,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode} is_student={currentUser.is_student}/>
+			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>
 	)
 }

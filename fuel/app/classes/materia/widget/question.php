@@ -135,7 +135,6 @@ class Widget_Question
 			//============ MAPPING ASSETS TO QUESTION / QSET ================
 			if (is_array($this->assets) && count($this->assets) > 0)
 			{
-				\Log::Error('Mapping assets to question');
 				Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QUESTION, $this->id, $this->assets);// link assets to question
 				if ($qset_id) Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $this->assets);// link assets to qset
 			}

@@ -183,6 +183,11 @@ $mobile-width: 620px;
 				.mobile {
 					display: none;
 					margin-bottom: 1em;
+					select {
+						border: 1px solid #ccc;
+						border-radius: 5px;
+						padding: 2px;
+					}
 				}
 
 				.attempt-holder {

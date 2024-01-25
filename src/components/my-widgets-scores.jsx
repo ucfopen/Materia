@@ -7,7 +7,7 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst, beardMode, is_student}) => {
+const MyWidgetsScores = ({inst, beardMode}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
