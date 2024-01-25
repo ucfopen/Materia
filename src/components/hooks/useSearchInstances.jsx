@@ -1,17 +1,16 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useInfiniteQuery } from 'react-query'
-import { apiGetWidgetInstances } from '../../util/api'
+import { apiSearchInstances } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
-export default function useInstanceList() {
+export default function useSearchInstances(query = "") {
 
 	const [errorState, setErrorState] = useState(false)
 
 	// Helper function to sort widgets
 	const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
 
-	// transforms data object returned from infinite query into one we can use in the my-widgets-page component
-	// this creates a flat list of instances from the paginated list that's subsequently sorted
+	// transforms data object returned from infinite query
 	const formatData = (list) => {
 		if (list?.type == 'error') {
 			console.error(`Widget instances failed to load with error: ${list.msg}`);
@@ -23,20 +22,19 @@ export default function useInstanceList() {
 			return [
 				...dataMap.concat(
 					...list.pages.map(page => page.pagination.map(instance => {
-						// adding an 'img' property to widget instance objects for continued
-						//  compatibility with any downstream LTIs using the widget picker
+						// adding an 'img' property to widget instance objects
 						return {
 							...instance,
 							img: iconUrl(BASE_URL + 'widget/', instance.widget.dir, 275)
 						}
 					}))
 				)
-			].sort(_compareWidgets)
+			].sort(_compareWidgets) // sort instances by creation date
 		} else return []
 	}
 
 	const getWidgetInstances = ({ pageParam = 0 }) => {
-		return apiGetWidgetInstances(pageParam)
+		return apiSearchInstances(query, pageParam)
 	}
 
 	const {
@@ -49,8 +47,9 @@ export default function useInstanceList() {
 		status,
 		refetch
 	} = useInfiniteQuery({
-		queryKey: ['widgets'],
+		queryKey: ['searched_instances', query],
 		queryFn: getWidgetInstances,
+		enabled: query.length > 0,
 		getNextPageParam: (lastPage, pages) => lastPage.next_page,
 		refetchOnWindowFocus: false
 	})

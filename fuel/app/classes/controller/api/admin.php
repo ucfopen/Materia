@@ -69,7 +69,7 @@ class Controller_Api_Admin extends Controller_Rest
 		return \Service_User::update_user($user_id, $user);
 	}
 
-	public function get_widget_paginated_search(string $input, string $page_number)
+	public function get_instance_search(string $input, string $page_number)
 	{
 		$input = trim($input);
 		$input = urldecode($input);

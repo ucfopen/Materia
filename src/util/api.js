@@ -380,11 +380,11 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {string} input (letters only)
  * @returns {array} of matches
  */
-export const apiSearchWidgets = (input, page_number) => {
+export const apiSearchInstances = (input, page_number) => {
 	let pattern = /[A-Za-z]+/g
 	let match = input.match(pattern)
 	if (!match || !match.length) input = ' '
-	return fetch(`/api/admin/widget_paginated_search/${input}/${page_number}`)
+	return fetch(`/api/admin/instance_search/${input}/${page_number}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
-import useInstanceList from './hooks/useInstanceList'
+import useSearchInstances from './hooks/useSearchInstances'
 import useDebounce from './hooks/useDebounce'
 import LoadingIcon from './loading-icon'
 
@@ -8,7 +8,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
-	const instanceList = useInstanceList(false, debouncedSearchTerm)
+	const instanceList = useSearchInstances(debouncedSearchTerm)
 
 	useEffect(() => {
 		if (instanceList.error) console.log(instanceList.error)
