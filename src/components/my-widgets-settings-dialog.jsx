@@ -97,7 +97,6 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			}
 		}
 	})
-	inst.is_embedded = true
 
 	// Used for initialization
 	useEffect(() => {
