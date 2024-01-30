@@ -221,7 +221,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		const changes = state.formData.changes
 		const openClose = validateFormData(changes.dates, changes.times, changes.periods)
 		const errInfo = getErrorInfo(openClose[2]) // Creates an error message if needed
-		const errMsg = errInfo.msg
+		let errMsg = errInfo.msg
 		const errors = errInfo.errors
 		let form = {
 			inst_id: inst.id,
@@ -238,6 +238,10 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		else if (state.formData.changes.access === 'guest') {
 			form.guest_access = true
 			form.attempts = -1
+		}
+
+		if (currentUser.is_student && form.attempts != inst.attempts && form.attempts != -1 ) {
+			errMsg = "Cannot set attempts to " + form.attempts + ". Students can keep the current number of attempts or set the attempt limits to Unlimited."
 		}
 
 		// Submits the form if there are no errors
@@ -420,11 +424,18 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 	}
 
 	let studentLimitWarningRender = null
-	if ( currentUser.is_student) {
+	if ( currentUser.is_student && currentUser.id != inst.user_id ) {
 		studentLimitWarningRender = (
 			<p className='student-role-notice'>
 				You are viewing a limited version of this page due to your current role as a student.
 				Students do not have permission to change certain settings like attempt limits or access levels.
+			</p>
+		)
+	} else if (currentUser.is_student && currentUser.id == inst.user_id) {
+		studentLimitWarningRender = (
+			<p className='student-role-notice'>
+				You are viewing a limited version of this page due to your current role as a student.
+				Owners who are students may only change access to Guest Mode and increase attempt limits to Unlimited.
 			</p>
 		)
 	}
@@ -461,8 +472,18 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		)
 	}
 
+	// Viewing access settings
+	let canViewNormal 	= !inst.is_student_made
+	let canViewEmbedded = inst.is_embedded && !inst.is_student_made
+	let canViewGuest 	= !currentUser.is_student || currentUser.id == inst.user_id
+						|| inst.is_student_made
+	// Editing access settings
+	let canEditNormal 	= canViewNormal && !currentUser.is_student
+	let canEditGuest 	= !currentUser.is_student || currentUser.id == inst.user_id
+	let canEditEmbedded = canViewEmbedded && !currentUser.is_student
+
 	return (
-		<Modal onClose={onClose} ignoreClose={state.showWarning}>
+		<Modal onClose={onClose}>
 			<div className='settings-modal'>
 				<div className='top-bar'>
 					<span className='title'>Settings</span>
@@ -470,21 +491,21 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 				{ studentLimitWarningRender }
 				{ errorLabelRender }
 				<ul className='attemptsPopup'>
-					<li className={`attempt-content ${currentUser.is_student ? 'hide' : ''}`}>
+					<li className={`attempt-content ${currentUser.is_student && currentUser.id != inst.user_id ? 'hide' : ''}`}>
 						<h3>Attempts</h3>
-						<AttemptsSlider key='slider-key' inst={inst} parentState={state} setParentState={setState}/>
+						<AttemptsSlider key='slider-key' inst={inst} parentState={state} setParentState={setState} is_student={currentUser.is_student} currentAttemptsVal={attemptsToValue(inst.attempts)}/>
 					</li>
 					<ul className='to-from'>
 						{ periodSelectElements }
 						<li className='access'>
 							<h3>Access</h3>
-							<ul className={`access-options ${inst.is_embedded ? 'embedded' : ''} ${currentUser.is_student && !inst.is_student_made ? 'limited-because-student' : ''}`}>
-								{currentUser.is_student && !inst.is_student_made ? <li className='studentWarningListItem student-role-notice'>Access settings are currently disabled because of your student status.</li> : ''}
-								<li className={`normal ${inst.is_student_made ? '' : 'show'}`}>
+							<ul className={`access-options ${inst.is_embedded ? 'embedded' : ''}`}>
+								{currentUser.is_student && !inst.is_student_made ? <li className='studentWarningListItem student-role-notice'>Access settings are currently limited because of your student status.</li> : ''}
+								<li className={`normal ${!canViewNormal ? '' : 'show'} ${!canEditNormal ? ' limited-because-student' : ''}`} aria-hidden={!canViewNormal}>
 									<input type='radio'
 										id='normal-radio'
 										value='normal'
-										disabled={currentUser.is_student}
+										disabled={!canEditNormal}
 										checked={state.formData.changes.access === 'normal'}
 										onChange={() => accessChange('normal')} />
 									<label htmlFor='normal-radio'>Normal</label>
@@ -494,11 +515,11 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 										The widget can be distributed via URL, embed code, or as an assignment in your LMS.
 									</div>
 								</li>
-								<li className={`guest-mode ${inst.is_student_made ? 'disabled' : ''}`}>
+								<li className={`guest-mode ${!canEditGuest ? 'disabled' : ''} ${!canViewGuest ? ' limited-because-student ' : ''} `} aria-hidden={!canViewGuest}>
 									<input type='radio'
 										id='guest-radio'
 										value='guest'
-										disabled={currentUser.is_student && !inst.is_student_made}
+										disabled={!canEditGuest}
 										checked={state.formData.changes.access === 'guest'}
 										onChange={() => accessChange('guest')} />
 									<label htmlFor='guest-radio'>Guest Mode</label>
@@ -512,14 +533,15 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 									</div>
 								</li>
 								<li id='embedded-only'
-									className={`embed-only ${inst.is_embedded ? 'show' : ''}`}>
+								className={`embed-only ${canViewEmbedded ? ' show' : ''} ${!canEditEmbedded ? ' limited-because-student disabled' : ''}`} aria-hidden={!canViewEmbedded}>
 									<input type='radio'
 										id='embed-radio'
 										value='embed'
+										disabled={!canEditEmbedded}
 										checked={state.formData.changes.access === 'embed'}
 										onChange={() => {accessChange('embed')}}
 									/>
-									<label>Embedded Only</label>
+									<label htmlFor='embed-radio'>Embedded Only</label>
 									<div className='input-desc'>
 										This widget will not be playable outside of the classes
 										it is embedded within.

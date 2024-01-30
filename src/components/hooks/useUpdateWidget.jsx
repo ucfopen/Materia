@@ -19,7 +19,6 @@ export default function useUpdateWidget() {
 				return { ...widgetList }
 			},
 			onSuccess: (updatedInst, variables) => {
-
 				// update successful - insert new values into our local copy of widgetList
 				for (const page of widgetList?.pages) {
 					for (const inst of page?.pagination) {

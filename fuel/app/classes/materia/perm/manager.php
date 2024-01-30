@@ -351,9 +351,9 @@ class Perm_Manager
 					->execute();
 			}
 		}
+
 		return $success;
 	}
-
 
 	/*
 	 **********************  User to Object Rights  ***************************************

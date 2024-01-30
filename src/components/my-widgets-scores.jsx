@@ -113,8 +113,8 @@ const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
 		<div className='scores'>
 			<h2>Student Activity</h2>
 			<span id='export_scores_button'
-				className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
-				onClick={openExport}>
+			className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
+			onClick={openExport}>
 				<span className='arrow_down'></span>
 				Export Options
 			</span>

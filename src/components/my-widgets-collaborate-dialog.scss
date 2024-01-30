@@ -295,6 +295,15 @@
 						font-size: 11px;
 						color: gray;
 					}
+
+					&.user-match-owner:after {
+						content: 'Owner';
+						position: absolute;
+						top: -12px;
+						left: 0;
+						font-size: 11px;
+						color: gray;
+					}
 				}
 			}
 
