@@ -367,7 +367,6 @@ class Widget_Instance
 		// =========================== NOW STORE THE QSET ====================
 		if ( ! empty($this->qset->data))
 		{
-			// \Log::Error("Qset data is not empty. Storing qset.");
 			$success = $this->store_qset();
 		}
 

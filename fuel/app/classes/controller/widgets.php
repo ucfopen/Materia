@@ -271,7 +271,6 @@ class Controller_Widgets extends Controller
 		{
 			$bytes = 0;
 			$asset_ids = Materia\Api_V1::assets_get_for_instance($inst_id, false, $qset->id);
-			\Log::Error('asset_ids: '.print_r($asset_ids, true));
 			$size = 'original';
 
 			if (count($asset_ids) == 0)
