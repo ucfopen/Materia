@@ -25,6 +25,7 @@ export default function useCopyWidget() {
 						modified: Math.floor(Date.now() / 1000)
 					}))
 				}
+				variables.successFunc(data)
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
