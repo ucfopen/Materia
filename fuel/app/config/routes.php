@@ -43,8 +43,8 @@ return [
 	'scores/(:alnum)(/.*)?'                => 'scores/show/$1',
 
 	'widgets/export/(:alnum)'			   => 'widgets/export/$1',
-	'widgets/export/(:alnum)/media'	   	   => 'widgets/export/$1/media',
-	'widgets/export/(:alnum)/qset'	   	   => 'widgets/export/$1/qset',
+	'widgets/export/(:alnum)/media'		   => 'widgets/export/$1/media',
+	'widgets/export/(:alnum)/qset'		   => 'widgets/export/$1/qset',
 
 	// ================================= MEDIA ======================================
 
