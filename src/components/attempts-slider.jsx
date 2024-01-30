@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './my-widgets-settings-dialog.scss'
 
-const AttemptsSlider = ({inst, parentState, setParentState}) => {
+const AttemptsSlider = ({inst, is_student, parentState, setParentState, currentAttemptsVal}) => {
 
 	const [rawSliderVal, setRawSliderVal] = useState(parseInt(parentState.sliderVal))
 	const [sliderStopped, setSliderStopped] = useState(false)
@@ -16,12 +16,19 @@ const AttemptsSlider = ({inst, parentState, setParentState}) => {
 	const sliderStop = e => {
 		setSliderStopped(true)
 	}
-	
+
 	// now that the slider value isn't actively changing, round the raw value to the nearest stop
 	// pass that rounded value up to the parent component
 	useEffect(() => {
 		if (sliderStopped && parentState.formData.changes.access != 'guest') {
 			const sliderInfo = getSliderInfo(rawSliderVal)
+			// students cannot change attempts to anything other than
+			// the original number of attempts or unlimited
+			if (is_student && sliderInfo.val != currentAttemptsVal && sliderInfo.val != '100') {
+				setSliderStopped(false)
+				setRawSliderVal(parseInt(parentState.sliderVal))
+				return
+			}
 			setParentState({...parentState, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
 			setSliderStopped(false)
 		}
@@ -66,20 +73,25 @@ const AttemptsSlider = ({inst, parentState, setParentState}) => {
 	const updateSliderNum = (val, index) => {
 		// Attempts always unlimited when guest access is true
 		if (parentState.formData.changes.access === 'guest') return
+		if (is_student && val != currentAttemptsVal && val != '100') return
 
 		setParentState({...parentState, sliderVal: val.toString(), lastActive: index})
 	}
 
 	const generateStopSpan = (stopId, sliderPosition, display) => {
-		const spanClass = parentState.lastActive === stopId ? 'active' : ''
 		const stopClickHandler = () => updateSliderNum(sliderPosition, stopId)
 		return (
 			<span key={stopId}
-				className={spanClass}
+				className={`${parentState.lastActive === stopId ? 'active' : ''}`}
 				onClick={stopClickHandler}>
 				{display}
 			</span>
 		)
+	}
+	const selectChange = e => {
+		if (parentState.formData.changes.access === 'guest') return
+		let sliderInfo = getSliderInfo(parseInt(e.target.value))
+		setParentState({...parentState, sliderVal: sliderInfo.val, lastActive: sliderInfo.last})
 	}
 
 	let guestModeRender = null
@@ -93,6 +105,19 @@ const AttemptsSlider = ({inst, parentState, setParentState}) => {
 
 	return (
 		<div className='data-holder'>
+			<div className ={`mobile selector ${parentState.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
+				<select onChange={selectChange}  value={parentState.sliderVal}>
+					<option value='1'>1</option>
+					<option value='5'>2</option>
+					<option value='9'>3</option>
+					<option value='13'>4</option>
+					<option value='17'>5</option>
+					<option value='39'>10</option>
+					<option value='59'>15</option>
+					<option value='79'>20</option>
+					<option value='100'>Unlimited</option>
+				</select>
+			</div>
 			<div className={`selector ${parentState.formData.changes.access === 'guest' ? 'disabled' : ''}`}>
 				<input id='ui-slider'
 					aria-label='attempts-input'

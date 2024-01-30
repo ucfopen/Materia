@@ -189,8 +189,8 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 				setSuccessText('Success!')
 				setErrorText('')
 			},
-			errorFunc: () => {
-				setErrorText('Error: Update Unsuccessful')
+			errorFunc: (msg) => {
+				setErrorText('Error: ' + msg)
 				setSuccessText('')
 			}
 		})
