@@ -336,7 +336,7 @@ class Controller_Widgets extends Controller
 
 		// send zip file back to user
 		header('Content-Type: application/zip');
-		header('Content-Disposition: attachment; filename=${filename}.zip');
+		header("Content-Disposition: attachment; filename={$filename}.zip");
 
 		fpassthru(fopen('assets_export', 'rb'));
 		unlink('assets_export');
