@@ -4,7 +4,6 @@ import { useState } from 'react'
 
 export default function useDeleteWidget() {
 	const queryClient = useQueryClient()
-	const [instId, setInstId] = useState('')
 
 	return useMutation(
 		apiDeleteWidget,
@@ -18,7 +17,8 @@ export default function useDeleteWidget() {
 						pages: previous.pages.map((page) => ({
 							...page,
 							pagination: page.pagination.filter(widget => widget.id !== data)
-						}))
+						})),
+						modified: Math.floor(Date.now() / 1000)
 					}
 				})
 				variables.successFunc(data)

@@ -21,10 +21,10 @@ export default function useCopyWidget() {
 						pages: previous.pages.map((page, index) => {
 							if (index == 0) return { ...page, pagination: [ data, ...page.pagination] }
 							else return page
-						})
+						}),
+						modified: Math.floor(Date.now() / 1000)
 					}))
 				}
-				variables.successFunc(data)
 			},
 			onError: (err, variables, context) => {
 				variables.errorFunc(err)
