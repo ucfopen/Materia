@@ -265,6 +265,28 @@ class Test_Api_V1 extends \Basetest
 		$this->assert_validation_error_message($output);
 	}
 
+	public function test_widget_instance_update_qset()
+	{
+		$this->_as_student();
+
+		$title = "Montyst Widget";
+		$question = 'What is the top air speed of an unladen swallow?';
+		$answer = 'African or European?';
+		$widget = $this->make_disposable_widget();
+		$qset = $this->create_new_qset($question, $answer);
+
+		$inst = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+
+		// Update qset
+		$qset = $this->create_new_qset($question, $answer);
+		$this->assert_is_qset($qset);
+		$updated_inst = Api_V1::widget_instance_update_qset($inst->id, $qset);
+		$this->assertEquals($updated_inst->id, $inst->id);
+		$stored_qset = Api_V1::question_set_get($inst->id);
+		$this->assertEquals($qset->data['items'][0]['items'][0]['questions'][0]['text'], $stored_qset->data['items'][0]['items'][0]['questions'][0]['text']);
+		$this->assertEquals($qset->data['items'][0]['items'][0]['answers'][0]['text'], $stored_qset->data['items'][0]['items'][0]['answers'][0]['text']);
+	}
+
 	public function test_widget_instance_update_requires_login()
 	{
 		$output = Api_V1::widget_instance_update();
@@ -903,6 +925,50 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		$output = Api_V1::assets_get();
 		$this->assert_invalid_login_message($output);
+	}
+
+	public function test_assets_get_for_instance()
+	{
+		$this->_as_student();
+
+		$title = "Montyst Widget";
+		$question = 'What is the top air speed of an unladen swallow?';
+		$answer = 'African or European?';
+		$widget = $this->make_disposable_widget();
+		$asset_name = 'test';
+		$extension = 'jpg';
+		$filesize = 15000;
+
+		$asset = new \Materia\Widget_Asset([
+			'type'      => $extension,
+			'title'     => $asset_name,
+			'file_size' => $filesize
+		]);
+
+		// save the asset
+		$asset->db_store();
+		// get the new asset id
+		$asset_id = $asset->id;
+
+		// create a new qset
+		$qset = $this->create_new_qset($question, $answer, 0, [$asset_id]);
+
+		// create a new instance, which should map assets to instance ID
+		$inst = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+
+		// test asset retrieval
+		$output = Api_V1::assets_get_for_instance($inst->id, true);
+		$this->assertIsArray($output);
+		// assert asset array length
+		$this->assertCount(1, $output);
+		// assert asset ID is same as one we made
+		$this->assertEquals($asset_id, $output[0]);
+
+		// ======= AS NO ONE ========
+		\Auth::logout();
+		$output = Api_V1::assets_get_for_instance($inst->id, true);
+		$this->assert_invalid_login_message($output);
+
 	}
 
 	public function test_session_play_verify()

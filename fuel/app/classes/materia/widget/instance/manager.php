@@ -91,7 +91,7 @@ class Widget_Instance_Manager
 		$data = [
 			'pagination' => $displayable_inst
 		];
-		
+
 		if ($has_next_page) $data['next_page'] = $page_number + 1;
 
 		return $data;

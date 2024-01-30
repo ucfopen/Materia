@@ -111,7 +111,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
-	
+
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)

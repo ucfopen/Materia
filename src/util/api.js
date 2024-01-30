@@ -372,6 +372,15 @@ export const apiUpdateWidget = ({ args }) => {
 		.then(widget => widget)
 }
 
+export const apiUpdateQset = ({ args }) => {
+	return fetch('/api/json/widget_instance_update_qset', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+		.then(qset => qset)
+}
+
 export const apiGetWidgetLock = (id = null) => {
 	return fetch('/api/json/widget_instance_lock', fetchOptions({ body: `data=${formatFetchBody([id])}` }))
 		.then(res => res.json())
@@ -624,6 +633,14 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) 
 
 export const apiGetAssets = () => {
 	return fetch(`/api/json/assets_get`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
+export const apiGetAssetIDsForInstance = (inst_id, get_all_qsets=false, qset_id=null) => {
+	return fetch(`/api/json/assets_get_for_instance`, fetchOptions({ body: `data=${formatFetchBody([inst_id,get_all_qsets,qset_id])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()

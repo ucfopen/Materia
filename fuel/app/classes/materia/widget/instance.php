@@ -365,7 +365,11 @@ class Widget_Instance
 		}
 
 		// =========================== NOW STORE THE QSET ====================
-		if ( ! empty($this->qset->data)) $success = $this->store_qset();
+		if ( ! empty($this->qset->data))
+		{
+			// \Log::Error("Qset data is not empty. Storing qset.");
+			$success = $this->store_qset();
+		}
 
 		// =========================== SAVE ACTIVITY ====================
 		$activity = new Session_Activity([

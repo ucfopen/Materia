@@ -42,6 +42,10 @@ return [
 	'scores/semesters?'                    => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                => 'scores/show/$1',
 
+	'widgets/export/(:alnum)'			   => 'widgets/export/$1',
+	'widgets/export/(:alnum)/media'	   	   => 'widgets/export/$1/media',
+	'widgets/export/(:alnum)/qset'	   	   => 'widgets/export/$1/qset',
+
 	// ================================= MEDIA ======================================
 
 	'media/import'             => 'media/import',
@@ -49,6 +53,7 @@ return [
 	'media/(:alnum)'           => 'media/render/$1',
 	'media/(:alnum)/thumbnail' => 'media/render/$1/thumbnail',
 	'media/(:alnum)/large'     => 'media/render/$1/large',
+	'media/zip/(:alnum)'	   => 'media/zip/$1',
 
 	// ================================= USER ======================================
 

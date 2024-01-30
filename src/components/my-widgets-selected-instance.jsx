@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
 import { useQuery } from 'react-query'
-import { apiCanEditWidgets } from '../util/api'
+import { apiCanEditWidgets, apiGetQuestionSet, apiGetAssetIDsForInstance } from '../util/api'
 import { iconUrl } from '../util/icon-url'
+import useUpdateQset from './hooks/useUpdateQset'
 import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
@@ -70,9 +71,15 @@ const MyWidgetSelectedInstance = ({
 	const [showLocked, setShowLocked] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
+	const [error, setError] = useState('')
+	const [success, setSuccess] = useState('')
+	const [showOptions, setShowOptions] = useState(false)
+	const [showExportOptions, setShowExportOptions] = useState(false)
+	const [showImportOptions, setShowImportOptions] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
+	const updateQset = useUpdateQset()
 	const { data: editPerms, isFetching: permsFetching} = useQuery({
 		queryKey: ['widget-perms', inst.id],
 		queryFn: () => apiCanEditWidgets(inst.id),
@@ -90,6 +97,18 @@ const MyWidgetSelectedInstance = ({
 			} else if (!data) {
 				console.error(`Failed to fetch permissions.`);
 			}
+		}
+	})
+
+	// fetch asset IDs for export
+	const { data: assetIDs } = useQuery({
+		queryKey: ['widget-assets', inst.id],
+		queryFn: () => apiGetAssetIDsForInstance(inst.id, inst.qset ? inst.qset.id : null),
+		placeholderData: null,
+		enabled: !!inst.id,
+		staleTime: Infinity,
+		onSuccess: (data) => {
+			console.log(data)
 		}
 	})
 
@@ -141,6 +160,21 @@ const MyWidgetSelectedInstance = ({
 			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
 		}
 	}, [myPerms, inst])
+
+	// register click listener to listen for clicks outside of the options menu
+	useEffect(() => {
+		const clickListener = e => {
+			if (!e.target.closest('.meatballs')) {
+				setShowOptions(false)
+			}
+		}
+
+		document.addEventListener('click', clickListener)
+
+		return () => {
+			document.removeEventListener('click', clickListener)
+		}
+	}, [])
 
 	const makeCopy = useCallback((title, copyPermissions) => {
 		setShowCopy(false)
@@ -196,6 +230,68 @@ const MyWidgetSelectedInstance = ({
 	const deleteClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: !state.showDeleteDialog}))
 	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
 	const deleteConfirmClickHandler = () => onDelete(inst)
+
+	const exportClickHandler = (asset_type) => {
+		const condenseName = inst.name.replace(/[^a-zA-Z0-9]/g, '_')
+		if (asset_type === 'qset') {
+			apiGetQuestionSet(inst.id).then(data => {
+				const a = document.createElement('a')
+				a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: 'application/json'}))
+				a.download = `${condenseName}.json`
+				a.click()
+			})
+		} else if (asset_type === 'all' && assetIDs && assetIDs.length > 0) {
+			const a = document.createElement('a')
+			a.href = `/widgets/export/${inst.id}`
+			a.download = `${condenseName}.zip`
+			a.click()
+		} else if (asset_type === 'media' && assetIDs) {
+			const a = document.createElement('a')
+			a.href = `/widgets/export/${inst.id}/media`
+			a.download = `${condenseName}.zip`
+			a.click()
+		}
+	}
+
+	const importClickHandler = (asset_type) => {
+		if (asset_type == 'qset') {
+			const input = document.createElement('input')
+			input.type = 'file'
+			input.accept = 'application/json'
+			input.onchange = e => {
+				const file = e.target.files[0]
+				const reader = new FileReader()
+				reader.onload = e => {
+					const data = JSON.parse(e.target.result)
+					importQuestionSet(data)
+				}
+				reader.readAsText(file)
+			}
+			input.click()
+		}
+	}
+
+	const importQuestionSet = (qset) => {
+		updateQset.mutate({
+			args: [inst.id, qset],
+			successFunc: (data) => {
+				if (data.type != 'error') {
+					// remove this after API error handling PR is merged
+					updateSuccess(`The question set for ${inst.name} has been updated.`)
+				}
+			},
+			errorFunc: (err) => {
+				setError((err.message || "Error") + ": Failed to import question set.")
+			}
+		})
+	}
+
+	const updateSuccess = (msg) => {
+		setSuccess(msg)
+		setTimeout(() => {
+			setSuccess('')
+		}, 5000)
+	}
 
 	const editWidget = () => {
 		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
@@ -350,10 +446,61 @@ const MyWidgetSelectedInstance = ({
 		)
 	}
 
+	let successRender = null
+	if (success) {
+		successRender = (
+			<div className='success'>
+				{success}
+				<div className='bar'>
+				</div>
+			</div>
+		)
+	}
+
 	return (
 		<section className='page'>
 			<div className='header'>
 				<h1>{inst.name}</h1>
+				<div className='meatballs'>
+					<svg className='meatball_icon' viewBox='0 0 100 100' onClick={() => setShowOptions(!showOptions)}>
+						<circle cx='50' cy='10' r='10' stroke='none' fill="#333"/>
+						<circle cx='50' cy='40' r='10' stroke='none' fill="#333"/>
+						<circle cx='50' cy='70' r='10' stroke='none' fill="#333"/>
+					</svg>
+					<div className='meatball-menu'>
+						<div className={`option ${showOptions ? 'show' : ''}`} onMouseEnter={() => setShowExportOptions(true)} onMouseLeave={() => setShowExportOptions(false)}>
+							<p>Export</p>
+							<svg className='arrow' viewBox='0 0 100 100'>
+								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
+							</svg>
+							<div className={`sub-menu ${showExportOptions ? 'show' : ''}`}>
+								<div onClick={() => exportClickHandler('qset')}>
+									Export Qset
+								</div>
+								<div className={`export-option ${assetIDs ? 'show' : ''}`} onClick={() => exportClickHandler('media')}>
+									Export Media
+								</div>
+								<div className={`export-option ${assetIDs ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
+									Export All
+								</div>
+							</div>
+						</div>
+						<div className={`option ${showOptions ? 'show' : ''}`} onMouseEnter={() => setShowImportOptions(true)} onMouseLeave={() => setShowImportOptions(false)}>
+							<p>Import</p>
+							<svg className='arrow' viewBox='0 0 100 100'>
+								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
+							</svg>
+							<div className={`sub-menu ${showImportOptions ? 'show' : ''}`}>
+								<div onClick={() => importClickHandler('qset')}>
+									Import Qset
+								</div>
+								{/* <div onClick={() => importClickHandler('all')}>
+									Import All
+								</div> */}
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div className='overview'>
 				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
@@ -502,6 +649,7 @@ const MyWidgetSelectedInstance = ({
 			{ settingsDialogRender }
 			{ lockedDialogRender }
 			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode} is_student={currentUser.is_student}/>
+			{ successRender }
 		</section>
 	)
 }

@@ -2,6 +2,10 @@ body,
 html {
 	font-family: 'Lato', arial, serif;
 	overflow-x: hidden;
+	height: 100%;
+	margin: 0;
+	padding: 5px;
+	box-sizing: border-box;
 }
 
 #import_form {
@@ -9,13 +13,20 @@ html {
 	border: rgba(0, 0, 0, 0.11) 1px solid;
 	box-shadow: 1px 3px 10px #888;
 
-	h1 {
+	.header {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
 		background: #f1814b;
 		padding: 6px 10px;
 		margin: 0px;
-		font-size: 18px;
-		font-weight: bold;
-		color: #ffffff;
+
+		h1, a {
+			font-size: 18px;
+			font-weight: bold;
+			color: #ffffff;
+		}
 	}
 
 	thead {
@@ -30,13 +41,21 @@ html {
 	tbody {
 		tr {
 			height: 2em;
-			cursor: pointer;
 
 			td {
 				text-align: center;
+				cursor: pointer;
 			}
 			&:hover {
 				background: #bde3ff;
+			}
+		}
+
+		.export {
+			position: relative;
+			.export-icon {
+				width: 15px;
+				height: 15px;
 			}
 		}
 	}
@@ -60,12 +79,16 @@ html {
 	left: 50%;
 	bottom: 0px;
 	margin-left: -40px;
-	padding-bottom: 14px;
 
 	text-align: center;
 	font-size: 1.1em;
 
+	background: rgba(255, 255, 255, 0.562);
+	padding: 14px;
+	border-radius: 6px;
+	margin-bottom: 5px;
+
 	a {
-		color: #000000;
+		color: #f00;
 	}
 }

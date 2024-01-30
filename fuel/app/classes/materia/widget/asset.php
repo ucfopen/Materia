@@ -125,7 +125,7 @@ class Widget_Asset
 						'file_size'   => $this->file_size,
 						'created_at'  => time(),
 						'is_deleted'	=> $this->is_deleted
-						
+
 					])
 					->where('id','=',$this->id)
 					->execute();

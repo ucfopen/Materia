@@ -70,7 +70,7 @@
 			width: 700px;
 			min-height: 850px;
 			margin: 0 0 0 260px;
-			
+
 			background: #fff;
 		}
 
@@ -314,6 +314,8 @@
 		.header {
 			padding: 15px 10px 0 10px;
 			margin: 0;
+			display: flex;
+			justify-content: space-between;
 
 			h1 {
 				margin: 0;
@@ -340,6 +342,94 @@
 			padding: 0 0 0 10px;
 			margin: 0;
 			font-size: 13px;
+		}
+
+		.meatball_icon {
+			width: 25px;
+			height: 25px;
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		.meatballs {
+			position: relative;
+		}
+		.meatball-menu {
+			display: flex;
+			flex-direction: column;
+			position: absolute;
+			right: 0;
+			z-index: 100;
+			background-color: #fff;
+			box-shadow:1px 3px 10px #dbdbdb;
+			border-radius: 4px;
+
+			> .option {
+				display: none;
+				height: 30px;
+				width: 105px;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-around;
+				gap: 10px;
+				position: relative;
+
+				.arrow {
+					width: 10px;
+					height: 10px;
+				}
+
+				&:hover {
+					cursor: default;
+				}
+
+				&.show {
+					display: flex;
+				}
+
+				.sub-menu {
+					display: none;
+					position: absolute;
+					left: -105px;
+					top: 0;
+					background-color:#fff;
+					width: 105px;
+					gap: 10px;
+					box-shadow:1px 3px 10px #dbdbdb;
+					border-radius: 4px;
+
+					div {
+						padding: 5px;
+						height: 30px;
+						box-sizing: border-box;
+						align-items: center;
+						display: flex;
+
+						&.export-option {
+							display: none;
+
+							&.show {
+								display: flex;
+							}
+						}
+					}
+
+					> :hover {
+						background-color:#eee;
+					}
+
+					&.show {
+						display: flex;
+						flex-direction: column;
+					}
+
+					.show {
+						display: flex;
+					}
+				}
+			}
 		}
 
 		.overview {
@@ -838,6 +928,50 @@
 				}
 			}
 		}
+
+		.success {
+			background-color: #0093e7e8;
+			color: white;
+			font-weight: bold;
+			font-size: 1.2em;
+			margin: 0;
+			padding: 10px;
+
+			position: fixed;
+			bottom: 50px;
+			border-radius: 5px;
+
+			animation: slide-up 0.5s ease-in-out;
+
+			.bar {
+				border-bottom: #8eccef 5px solid;
+				position: absolute;
+				bottom: 0;
+				height: 100%;
+				width: 100%;
+				left: 0;
+
+				animation: shrink 5s linear;
+			}
+
+			@keyframes slide-up {
+				0% {
+					bottom: -100px;
+				}
+				100% {
+					bottom: 50px;
+				}
+			}
+
+			@keyframes shrink {
+				0% {
+					width: 100%;
+				}
+				100% {
+					width: 0;
+				}
+			}
+		}
 	}
 
 	.hide {
@@ -855,7 +989,7 @@
 
 		border-bottom: 1px #0093e7 solid;
 		color: #0093e7;
-		
+
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
