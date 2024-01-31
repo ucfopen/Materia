@@ -406,13 +406,13 @@
 						box-sizing: border-box;
 						align-items: center;
 						display: flex;
+					}
 
-						&.export-option {
-							display: none;
+					.export-option {
+						display: none;
 
-							&.show {
-								display: flex;
-							}
+						&.show {
+							display: flex;
 						}
 					}
 

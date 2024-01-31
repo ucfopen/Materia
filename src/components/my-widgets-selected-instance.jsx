@@ -245,7 +245,7 @@ const MyWidgetSelectedInstance = ({
 			a.href = `/widgets/export/${inst.id}`
 			a.download = `${condenseName}.zip`
 			a.click()
-		} else if (asset_type === 'media' && assetIDs) {
+		} else if (asset_type === 'media' && assetIDs && assetIDs.length > 0) {
 			const a = document.createElement('a')
 			a.href = `/widgets/export/${inst.id}/media`
 			a.download = `${condenseName}.zip`
@@ -477,10 +477,10 @@ const MyWidgetSelectedInstance = ({
 								<div onClick={() => exportClickHandler('qset')}>
 									Export Qset
 								</div>
-								<div className={`export-option ${assetIDs ? 'show' : ''}`} onClick={() => exportClickHandler('media')}>
+								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('media')}>
 									Export Media
 								</div>
-								<div className={`export-option ${assetIDs ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
+								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
 									Export All
 								</div>
 							</div>
