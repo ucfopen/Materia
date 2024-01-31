@@ -174,7 +174,7 @@ class Widget_Instance_Manager
 	 *
 	 * @return array of widget instances related to the given input
 	 */
-	public static function get_widget_instance_search(string $input, int $offset = 0, int $limit = 2147483647): array
+	public static function get_widget_instance_search(string $input, int $offset = 0, int $limit = 80): array
 	{
 		$results = \DB::select()
 			->from('widget_instance')
