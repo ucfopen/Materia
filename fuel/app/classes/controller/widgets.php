@@ -279,8 +279,6 @@ class Controller_Widgets extends Controller
 				$zip->setArchiveComment('zipped on '.date('Y-M-d'));
 				$zip->close();
 
-				unlink('assets_export');
-
 				return new Response('No assets found for this widget.', 403);
 			}
 
@@ -290,7 +288,7 @@ class Controller_Widgets extends Controller
 
 				if ( ! ($asset instanceof Materia\Widget_Asset))
 				{
-					trace("Asset: {$id} not found");
+					$zip->close();
 					throw new HttpNotFoundException;
 				}
 
@@ -313,7 +311,7 @@ class Controller_Widgets extends Controller
 					}
 				} catch (\Throwable $e)
 				{
-					trace($e);
+					$zip->close();
 					throw new \HttpNotFoundException;
 				}
 
