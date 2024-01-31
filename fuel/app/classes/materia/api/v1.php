@@ -729,11 +729,12 @@ class Api_V1
 	 */
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
 
-		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number, $is_student);
 		return $data;
 	}
 

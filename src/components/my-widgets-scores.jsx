@@ -7,7 +7,7 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst, beardMode, is_student}) => {
+const MyWidgetsScores = ({inst, beardMode}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -16,7 +16,7 @@ const MyWidgetsScores = ({inst, beardMode, is_student}) => {
 	const { data: currScores, isFetched } = useQuery({
 		queryKey: ['score-summary', inst.id],
 		queryFn: () => apiGetScoreSummary(inst.id),
-		enabled: !!inst && !!inst.id && !is_student,
+		enabled: !!inst && !!inst.id,
 		staleTime: Infinity,
 		placeholderData: []
 	})
@@ -61,9 +61,7 @@ const MyWidgetsScores = ({inst, beardMode, is_student}) => {
 	const handleShowOlderClick = () => setState({...state, isShowingAll: !state.isShowingAll})
 
 	let contentRender = <LoadingIcon />
-	if (is_student) {
-		contentRender = <p>Students cannot view scores.</p>
-	} else if (isFetched) {
+	if (isFetched) {
 		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (

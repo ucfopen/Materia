@@ -9,10 +9,6 @@ export default function useSupportUpdateWidget() {
 		apiUpdateWidget,
 		{
 			onSuccess: (data, variables) => {
-				if (!data || (data.type == 'error'))
-				{
-					return variables.errorFunc(data.msg)
-				}
 				variables.successFunc()
 
 				// Refresh widgets
