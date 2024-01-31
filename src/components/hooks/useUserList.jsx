@@ -40,6 +40,7 @@ export default function useUserList(query = "") {
 	} = useInfiniteQuery({
 		queryKey: ['users', query],
 		queryFn: getData,
+		enabled: query.length > 0,
 		getNextPageParam: (lastPage, pages) => {
 			return lastPage.next_page
 		},

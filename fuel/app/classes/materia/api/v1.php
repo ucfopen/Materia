@@ -64,7 +64,7 @@ class Api_V1
  *
  * @return array of objects containing total_num_pages and widget instances that are visible to the user.
  */
-	static public function widget_paginate_instances_get($page_number = 0)
+	static public function widget_paginate_user_instances_get($page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		$data = Widget_Instance_Manager::get_paginated_instances_for_user(\Model_User::find_current_id(), $page_number);
@@ -901,12 +901,10 @@ class Api_V1
 		$offset = $items_per_page * $page_number;
 
 		// query DB for only a single page + 1 item
-		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page + 1);
+		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page);
 
-		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
+		$has_next_page = sizeof($displayable_items) > ($items_per_page - 1) ? true : false;
 
-		// scrub the user models with to_array
-		if ($has_next_page) array_pop($displayable_items);
 		foreach ($displayable_items as $key => $person)
 		{
 			$displayable_items[$key] = $person->to_array();

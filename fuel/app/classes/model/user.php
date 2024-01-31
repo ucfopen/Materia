@@ -87,7 +87,7 @@ class Model_User extends Orm\Model
 			->get_one();
 	}
 
-	static public function find_by_name_search($name, $offset = 0, $limit = 50)
+	static public function find_by_name_search($name, $offset = 0, $limit=80)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
 

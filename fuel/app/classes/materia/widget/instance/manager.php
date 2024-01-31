@@ -14,7 +14,7 @@ class Widget_Instance_Manager
 		return count($instances) > 0 ? $instances[0] : false;
 	}
 
-	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false, bool $deleted=false, $offset=0, $limit=2147483647): array
+	static public function get_all(Array $inst_ids, $load_qset=false, $timestamp=false, bool $deleted=false, $offset=0, $limit=80): array
 	{
 		if ( ! is_array($inst_ids) || count($inst_ids) < 1) return [];
 
@@ -26,7 +26,6 @@ class Widget_Instance_Manager
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids)
 			->and_where('is_deleted', '=', $deleted ? '1' : '0')
-			->order_by('created_at', 'desc')
 			->offset("$offset")
 			->limit("$limit")
 			->execute()
@@ -65,7 +64,7 @@ class Widget_Instance_Manager
 	{
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
 
-		if ( ! empty($inst_ids)) return Widget_Instance_Manager::get_all($inst_ids, $load_qset);
+		if ( ! empty($inst_ids)) return self::get_all($inst_ids, $load_qset);
 		else return [];
 	}
 
@@ -86,13 +85,10 @@ class Widget_Instance_Manager
 		$offset = $items_per_page * $page_number;
 
 		// query DB for only a single page of instances + 1
-		$displayable_items = self::get_all($inst_ids, false, false, false, $offset, $items_per_page + 1);
+		$displayable_items = self::get_all($inst_ids, false, false, false, $offset, $items_per_page);
 
 		// if the returned number of instances is greater than a page, there's more pages
-		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
-
-		// remove last instance if there are multiple pages
-		if ($has_next_page) array_pop($displayable_items);
+		$has_next_page = sizeof($displayable_items) > ($items_per_page - 1) ? true : false;
 
 		$data = [
 			'pagination' => $displayable_items
@@ -155,13 +151,10 @@ class Widget_Instance_Manager
 		$offset = $items_per_page * $page_number;
 
 		// query DB for only a single page of instances + 1
-		$displayable_items = self::get_widget_instance_search($input, $offset, $items_per_page + 1);
+		$displayable_items = self::get_widget_instance_search($input, $offset, $items_per_page);
 
 		// if the returned number of instances is greater than a page, there's more pages
-		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
-
-		// remove last instance if there are multiple pages
-		if ($has_next_page) array_pop($displayable_items);
+		$has_next_page = sizeof($displayable_items) > ($items_per_page - 1) ? true : false;
 
 		$data = [
 			'pagination' => $displayable_items,
@@ -187,7 +180,6 @@ class Widget_Instance_Manager
 			->from('widget_instance')
 			->where('id', 'LIKE', "%$input%")
 			->or_where('name', 'LIKE', "%$input%")
-			->order_by('created_at', 'desc')
 			->limit("$limit")
 			->offset("$offset")
 			->execute()

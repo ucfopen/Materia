@@ -180,7 +180,7 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
-	public function test_widget_paginate_instances_get()
+	public function test_widget_paginate_user_instances_get()
 	{
 
 	}

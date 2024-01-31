@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useInfiniteQuery } from 'react-query'
-import { apiGetWidgetInstances } from '../../util/api'
+import { apiGetUserWidgetInstances } from '../../util/api'
 import { iconUrl } from '../../util/icon-url'
 
 export default function useInstanceList() {
@@ -36,7 +36,7 @@ export default function useInstanceList() {
 	}
 
 	const getWidgetInstances = ({ pageParam = 0 }) => {
-		return apiGetWidgetInstances(pageParam)
+		return apiGetUserWidgetInstances(pageParam)
 	}
 
 	const {
