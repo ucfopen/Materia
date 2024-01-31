@@ -90,6 +90,17 @@ module.exports = {
 	],
 	resolve: {
 		extensions: ['.js', '.jsx'],
+	},
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					test: /\.js$/,
+					name: 'commons',
+					chunks: 'initial'
+				}
+			}
+		}
 	}
 	// externals: {
 	// 	react: 'React',
