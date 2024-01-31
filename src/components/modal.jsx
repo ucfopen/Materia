@@ -6,10 +6,11 @@ import './modal.scss'
 const Modal = (props) => {
 
 	const innerModalRef = useRef(null)
+	const innerModalOverlayRef = useRef(null)
 
 	const clickOutsideListener = (event) => {
 		// Do nothing if clicking ref's element or descendent elements
-		if (!innerModalRef.current || innerModalRef.current.contains(event.target)) return
+		if (!innerModalOverlayRef.current.contains(event.target)) return
 		if (props.ignoreClose != true) props.onClose()
 	}
 
@@ -25,9 +26,9 @@ const Modal = (props) => {
 
 	},[])
 
-	const modal = 
+	const modal =
 		(<>
-			<div className={`modal-overlay ${props.alert ? 'alert' : ''}`} id='modal-overlay'></div>
+			<div ref={innerModalOverlayRef} className={`modal-overlay ${props.alert ? 'alert' : ''}`} id='modal-overlay'></div>
 			<div ref={innerModalRef} className={`modal ${props.smaller ? 'small' : ''} ${props.noGutter ? 'no-gutter' : ''}`} id='inner-modal'>
 				<span className='close-button'
 					id='close-button'

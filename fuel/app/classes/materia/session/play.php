@@ -213,7 +213,7 @@ class Session_Play
 	 *  Must be fast because it can be asked to retrieve large data sets
 	 *
 	 */
-	public static function get_by_inst_id($inst_id, $semester='all', $year='all')
+	public static function get_by_inst_id($inst_id, $semester='all', $year='all', $is_student=false)
 	{
 		if ($semester != 'all' && $year != 'all')
 		{
@@ -230,7 +230,23 @@ class Session_Play
 
 		if (is_null($plays))
 		{
-			$query = \DB::select(
+			// if user is student, do not query user information
+			if ($is_student)
+			{
+				$query = \DB::select(
+					's.id',
+					['s.created_at', 'time'],
+					['s.is_complete', 'done'],
+					['s.percent', 'perc'],
+					['s.elapsed', 'elapsed'],
+					['s.qset_id', 'qset_id']
+				)
+				->from(['log_play', 's'])
+				->where('s.inst_id', $inst_id);
+			}
+			else
+			{
+				$query = \DB::select(
 					's.id',
 					['s.created_at', 'time'],
 					['s.is_complete', 'done'],
@@ -246,6 +262,7 @@ class Session_Play
 				->join(['users', 'u'], 'LEFT OUTER')
 					->on('u.id', '=', 's.user_id')
 				->where('s.inst_id', $inst_id);
+			}
 
 			if (isset($date))
 			{
@@ -256,14 +273,28 @@ class Session_Play
 
 			\Cache::set('play-logs.'.$inst_id.'.'.$cache_id, $plays);
 		}
+		else
+		{
+			// if user is student, do not show user information
+			if ($is_student)
+			{
+				foreach ($plays as &$play)
+				{
+					$play['user_id'] = 0;
+					unset($play['first']);
+					unset($play['last']);
+					unset($play['username']);
+				}
+			}
+		}
 
 		return $plays;
 	}
 
-	public static function get_by_inst_id_paginated($inst_id, $semester='all', $year='all', $page_number=1)
+	public static function get_by_inst_id_paginated($inst_id, $semester='all', $year='all', $page_number=1, $is_student=false)
 	{
 		$items_per_page = 100;
-		$data = self::get_by_inst_id($inst_id, $semester, $year);
+		$data = self::get_by_inst_id($inst_id, $semester, $year, $is_student);
 		$total_num_pages = ceil(sizeof($data) / $items_per_page);
 		$offset = $items_per_page * ($page_number - 1);
 		$page = array_slice($data, $offset, $items_per_page);
@@ -327,6 +358,8 @@ class Session_Play
 				$this->elapsed     = $r['elapsed'];
 				$this->context_id  = $r['context_id'];
 				$this->semester    = $r['semester'];
+				$this->auth        = $r['auth'];
+				$this->environment_data     = $r['environment_data'];
 				return true;
 			}
 		}

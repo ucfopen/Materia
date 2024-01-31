@@ -237,6 +237,10 @@ class Api_V1
 		// student made widgets are locked forever
 		if ($inst->is_student_made)
 		{
+			if ($guest_access === false)
+			{
+				return new Msg('Student-made widgets must stay in guest access mode.', 'Student Made', 'error', false);
+			}
 			$attempts = -1;
 			$guest_access = true;
 		}
@@ -346,7 +350,7 @@ class Api_V1
 				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
 				foreach ($access as $user_id => $user_perms)
 				{
-					if (Perm_Manager::is_student($user_id))
+					if (Perm_Manager::is_student($user_id) && $user_id != $inst->user_id)
 					{
 						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
 						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
@@ -662,11 +666,12 @@ class Api_V1
 	 */
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
 
-		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number, $is_student);
 		return $data;
 	}
 

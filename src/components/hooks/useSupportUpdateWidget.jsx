@@ -20,7 +20,7 @@ export default function useSupportUpdateWidget() {
 			},
 			onError: (err, newWidget, context) => {
 				queryClient.setQueryData('widgets', context.previousValue)
-				
+
 				variables.errorFunc()
 			}
 		}

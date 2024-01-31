@@ -365,7 +365,10 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  */
 export const apiUpdateWidget = ({ args }) => {
 	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
-		.then(res => res.json())
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
 		.then(widget => widget)
 }
 
@@ -529,11 +532,12 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			const scoresByUser = new Map()
 			results.pagination.forEach(log => {
 				let scoresForUser
+				if (log.user_id === null || log.user_id == undefined) log.user_id = 0
 
 				if (!scoresByUser.has(log.user_id)) {
 
 					// initialize user
-					const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
+					const name = log.first === null || log.first === undefined ? 'All Guests' : `${log.first} ${log.last}`
 					scoresForUser = {
 						userId: log.user_id,
 						name,
