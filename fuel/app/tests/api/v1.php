@@ -182,7 +182,30 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_widget_paginate_user_instances_get()
 	{
+		// Create widget instance
+		$this->_as_author();
+		$title = "My Test Widget";
+		$question = 'What rhymes with harvest fests but are half as exciting (or tasty)';
+		$answer = 'Tests';
+		$qset = $this->create_new_qset($question, $answer);
+		$widget = $this->make_disposable_widget();
 
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+
+		// ----- loads author's instances --------
+		$output = Api_V1::widget_paginate_user_instances_get();
+		$this->assertIsArray($output);
+		$this->assertArrayHasKey('pagination', $output);
+		foreach ($output['pagination'] as $key => $value)
+		{
+			$this->assert_is_widget_instance($value, true);
+		}
+
+		// ======= AS NO ONE ========
+		\Auth::logout();
+		// ----- returns no login --------
+		$output = Api_V1::widget_paginate_user_instances_get();
+		$this->assert_invalid_login_message($output);
 	}
 
 	public function test_widget_instance_new()
@@ -1022,10 +1045,6 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::play_logs_get(555);
 		$this->assert_invalid_login_message($output);
 
-	}
-
-	public function test_paginated_play_logs_get()
-	{
 	}
 
 	public function test_score_summary_get()
