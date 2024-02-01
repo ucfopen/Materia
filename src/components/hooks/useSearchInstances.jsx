@@ -7,9 +7,6 @@ export default function useSearchInstances(query = "") {
 
 	const [errorState, setErrorState] = useState(false)
 
-	// Helper function to sort widgets
-	const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
-
 	// transforms data object returned from infinite query
 	const formatData = (list) => {
 		if (list?.type == 'error') {
@@ -29,7 +26,7 @@ export default function useSearchInstances(query = "") {
 						}
 					}))
 				)
-			].sort(_compareWidgets) // sort instances by creation date
+			]
 		} else return []
 	}
 

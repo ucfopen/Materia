@@ -7,9 +7,6 @@ export default function useInstanceList() {
 
 	const [errorState, setErrorState] = useState(false)
 
-	// Helper function to sort widgets
-	const _compareWidgets = (a, b) => { return (b.created_at - a.created_at) }
-
 	// transforms data object returned from infinite query into one we can use in the my-widgets-page component
 	// this creates a flat list of instances from the paginated list that's subsequently sorted
 	const formatData = (list) => {
@@ -31,7 +28,7 @@ export default function useInstanceList() {
 						}
 					}))
 				)
-			].sort(_compareWidgets)
+			]
 		} else return []
 	}
 
