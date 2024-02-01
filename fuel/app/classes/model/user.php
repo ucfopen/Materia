@@ -87,7 +87,7 @@ class Model_User extends Orm\Model
 			->get_one();
 	}
 
-	static public function find_by_name_search($name)
+	static public function find_by_name_search($name, $offset = 0, $limit=80)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
 
@@ -108,11 +108,19 @@ class Model_User extends Orm\Model
 				->or_where(\DB::expr('REPLACE(CONCAT(first, last), " ", "")'), 'LIKE', "%$name%")
 				->or_where('email', 'LIKE', "$name%")
 			->and_where_close()
-			->limit(50)
+			->offset($offset)
+			->limit($limit)
 			->as_object('Model_User')
 			->execute();
 
-		return $matches;
+		// convert object to array
+		$list = [];
+		foreach ($matches as $match)
+		{
+			$list[] = $match;
+		}
+
+		return $list;
 	}
 
 	public static function validate($factory)

@@ -1,10 +1,10 @@
 import React from 'react'
 import './loading-icon.scss'
 
-const LoadingIcon = ({size='med', width='100%', top= '0', left='0'}) => {
+const LoadingIcon = ({size='med', width='100%', top= '0', left='0', position='absolute'}) => {
 	// Supported sizes: sm, med, lrg
 	return (
-		<div className='icon-holder' style={{position: 'absolute', width: width, top: top, left: left}}>
+		<div className='icon-holder' style={{position: position, width: width, top: top, left: left}}>
 			<div className='loading-icon'>
 				<svg className={`${size}`} xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 162.8'>
 				<path d='M121.4,85.7a39.2,39.2,0,0,0-16.9,3.9,34.1,34.1,0,0,1-4.1,6.3l13.7,13.7a16.3,16.3,0,0,1,7.3-1.7,16.3,16.3,0,0,1,0,32.5,16.3,16.3,0,0,1-16.3-16.3h0a18.7,18.7,0,0,1,1.8-7.3L93.2,103.2a41.8,41.8,0,0,1-6.3,4,38.3,38.3,0,1,0,34.5-21.5Z' transform='translate(0 0)' style={{fill:'#73bf54'}}></path>
