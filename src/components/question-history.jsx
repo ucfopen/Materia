@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { apiGetQuestionSetHistory } from '../util/api'
 import './question-history.scss'
+import useImportQset from './hooks/useImportQset'
+import useToast from './hooks/useToast'
+import useExportQset from './hooks/useExportQset'
 
 const getInstId = () => {
 	const l = document.location.href
@@ -13,6 +16,9 @@ const getInstId = () => {
 const QuestionHistory = () => {
 	const [saves, setSaves] = useState([])
 	const [instId, setInstId] = useState(getInstId())
+	const { importQset } = useImportQset()
+	const { exportQset } = useExportQset()
+	const { toast, toastRender } = useToast()
 
 	const { data: qsetHistory, isLoading: loading } = useQuery({
 		queryKey: ['questions', instId],
@@ -38,35 +44,28 @@ const QuestionHistory = () => {
 	}, [qsetHistory])
 
 	const exportClickHandler = (qsetId) => {
-		const condenseName = 'save_' + qsetId
-		const a = document.createElement('a')
-		a.href = URL.createObjectURL(new Blob([JSON.stringify(saves[qsetId])], {type: 'application/json'}))
-		a.download = `${condenseName}.json`
-		a.click()
+		exportQset.mutate({args: qsetId, errorFunc: onExportFailure})
 	}
 
 	const importClickHandler = () => {
-		const input = document.createElement('input')
-		input.type = 'file'
-		input.accept = 'application/json'
-		input.onchange = e => {
-			const file = e.target.files[0]
-			const reader = new FileReader()
-			reader.onload = e => {
-				const data = JSON.parse(e.target.result)
-				importQuestionSet(data)
-			}
-			reader.readAsText(file)
-		}
-		input.click()
+		importQset(instId, onImportSuccess, onImportFailure)
 	}
 
-	const importQuestionSet = (qset) => {
+	const onImportSuccess = (inst) => {
+		const qset = inst.qset
 		window.parent.Materia.Creator.onQsetHistorySelectionComplete(
 			JSON.stringify(qset.data),
 			qset.version,
 			qset.created_at
 		)
+	}
+
+	const onImportFailure = (err) => {
+		toast('Import Failed: There was an error importing the question set.', false, true)
+	}
+
+	const onExportFailure = (err) => {
+		toast('Export Failed: There was an error exporting the question set.', false, true)
 	}
 
 	const readQuestionCount = (qset) => {
@@ -146,6 +145,8 @@ const QuestionHistory = () => {
 			<div className="actions">
 				<a id="cancel_button" href="#" onClick={closeDialog}>Cancel</a>
 			</div>
+
+			{ toastRender }
 		</div>
 	)
 

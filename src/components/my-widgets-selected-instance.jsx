@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
 import { useQuery } from 'react-query'
-import { apiCanEditWidgets, apiGetQuestionSet, apiGetAssetIDsForInstance } from '../util/api'
+import { apiCanEditWidgets, apiGetAssetIDsForInstance } from '../util/api'
 import { iconUrl } from '../util/icon-url'
-import useUpdateQset from './hooks/useUpdateQset'
 import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
 import MyWidgetEmbedInfo from './my-widgets-embed'
@@ -12,6 +11,9 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
+import useExportQset from './hooks/useExportQset'
+import useImportQset from './hooks/useImportQset'
+import useToast from './hooks/useToast'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -79,7 +81,10 @@ const MyWidgetSelectedInstance = ({
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
-	const updateQset = useUpdateQset()
+	const { exportConditional } = useExportQset()
+	const { importQset } = useImportQset()
+	const { toast, toastRender } = useToast()
+
 	const { data: editPerms, isFetching: permsFetching} = useQuery({
 		queryKey: ['widget-perms', inst.id],
 		queryFn: () => apiCanEditWidgets(inst.id),
@@ -232,65 +237,27 @@ const MyWidgetSelectedInstance = ({
 	const deleteConfirmClickHandler = () => onDelete(inst)
 
 	const exportClickHandler = (asset_type) => {
-		const condenseName = inst.name.replace(/[^a-zA-Z0-9]/g, '_')
-		if (asset_type === 'qset') {
-			apiGetQuestionSet(inst.id).then(data => {
-				const a = document.createElement('a')
-				a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: 'application/json'}))
-				a.download = `${condenseName}.json`
-				a.click()
-			})
-		} else if (asset_type === 'all' && assetIDs && assetIDs.length > 0) {
-			const a = document.createElement('a')
-			a.href = `/widgets/export/${inst.id}`
-			a.download = `${condenseName}.zip`
-			a.click()
-		} else if (asset_type === 'media' && assetIDs && assetIDs.length > 0) {
-			const a = document.createElement('a')
-			a.href = `/widgets/export/${inst.id}/media`
-			a.download = `${condenseName}.zip`
-			a.click()
+		if (asset_type === 'media' && (!assetIDs || assetIDs.length === 0)) {
+			toast('No media assets to export.', false, false, true)
+			return
 		}
+		exportConditional(asset_type, inst, onExportFailure)
 	}
 
-	const importClickHandler = (asset_type) => {
-		if (asset_type == 'qset') {
-			const input = document.createElement('input')
-			input.type = 'file'
-			input.accept = 'application/json'
-			input.onchange = e => {
-				const file = e.target.files[0]
-				const reader = new FileReader()
-				reader.onload = e => {
-					const data = JSON.parse(e.target.result)
-					importQuestionSet(data)
-				}
-				reader.readAsText(file)
-			}
-			input.click()
-		}
+	const importClickHandler = () => {
+		importQset(inst.id, onImportSuccess, onImportFailure)
 	}
 
-	const importQuestionSet = (qset) => {
-		updateQset.mutate({
-			args: [inst.id, qset],
-			successFunc: (data) => {
-				if (data.type != 'error') {
-					// remove this after API error handling PR is merged
-					updateSuccess(`The question set for ${inst.name} has been updated.`)
-				}
-			},
-			errorFunc: (err) => {
-				setError((err.message || "Error") + ": Failed to import question set.")
-			}
-		})
+	const onImportSuccess = (data) => {
+		toast(`The question set for ${inst.name} has been updated.`, true)
 	}
 
-	const updateSuccess = (msg) => {
-		setSuccess(msg)
-		setTimeout(() => {
-			setSuccess('')
-		}, 5000)
+	const onImportFailure = (err) => {
+		toast((err.message || "Error") + ": Failed to import question set.", false, true)
+	}
+
+	const onExportFailure = (err) => {
+		toast((err.message || "Error") + ": Failed to export.", false, true)
 	}
 
 	const editWidget = () => {
@@ -446,17 +413,6 @@ const MyWidgetSelectedInstance = ({
 		)
 	}
 
-	let successRender = null
-	if (success) {
-		successRender = (
-			<div className='success'>
-				{success}
-				<div className='bar'>
-				</div>
-			</div>
-		)
-	}
-
 	return (
 		<section className='page'>
 			<div className='header'>
@@ -491,12 +447,9 @@ const MyWidgetSelectedInstance = ({
 								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
 							</svg>
 							<div className={`sub-menu ${showImportOptions ? 'show' : ''}`}>
-								<div onClick={() => importClickHandler('qset')}>
+								<div onClick={() => importClickHandler()}>
 									Import Qset
 								</div>
-								{/* <div onClick={() => importClickHandler('all')}>
-									Import All
-								</div> */}
 							</div>
 						</div>
 					</div>
@@ -648,7 +601,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			{ successRender }
+			{ toastRender }
 			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>
 	)

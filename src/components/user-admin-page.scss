@@ -428,6 +428,14 @@
 				margin: 0px 5px;
 				font-size: 16px;
 				padding: 10px;
+				&.delete {
+					color: #ffffff;
+					background-image: linear-gradient(rgb(225, 0, 0), rgb(202, 0, 0));
+
+					&:hover {
+						background-image: linear-gradient(rgb(202, 0, 0)), linear-gradient(rgb(225, 0, 0));
+					}
+				}
 			}
 			button:disabled {
 				cursor: not-allowed;

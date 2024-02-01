@@ -10,6 +10,7 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
 import useCopyWidget from './hooks/useSupportCopyWidget'
+import useExportQset from './hooks/useExportQset'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
@@ -52,6 +53,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
 	const copyWidget = useCopyWidget()
+	const {exportQset} = useExportQset()
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
 		queryKey: ['instance-owner', inst.id],
@@ -92,6 +94,16 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const makeCopy = (title, copyPerms) => {
 		setShowCopy(false)
 		onCopy(updatedInst.id, title, copyPerms, updatedInst)
+	}
+
+	const exportClickHandler = () => {
+		exportQset.mutate({
+			args: updatedInst.id,
+			errorFunc: (msg) => {
+				setErrorText('Error: ' + msg)
+				setSuccessText('')
+			}
+		})
 	}
 
 	const onCopy = (instId, title, copyPerms, inst) => {
@@ -278,11 +290,14 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 					disabled={updatedInst.is_deleted}>
 						<span>Extra Attempts</span>
 				</button>
+				<button className='action_button'
+					onClick={() => exportClickHandler()}>
+						<span>Export Qset</span>
+					</button>
 				<button className='action_button delete'
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
 					<span>{updatedInst.is_deleted ? 'Undelete' : 'Delete'}</span>
 				</button>
-
 			</div>
 			</div>
 			<div className='overview'>
