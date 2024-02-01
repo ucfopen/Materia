@@ -901,9 +901,11 @@ class Api_V1
 		$offset = $items_per_page * $page_number;
 
 		// query DB for only a single page + 1 item
-		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page);
+		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page + 1);
 
-		$has_next_page = sizeof($displayable_items) > ($items_per_page - 1) ? true : false;
+		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
+
+		if ($has_next_page) array_pop($displayable_items);
 
 		foreach ($displayable_items as $key => $person)
 		{

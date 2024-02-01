@@ -26,6 +26,8 @@ class Widget_Instance_Manager
 			->from('widget_instance')
 			->where('id', 'IN', $inst_ids)
 			->and_where('is_deleted', '=', $deleted ? '1' : '0')
+			->order_by('created_at', 'desc')
+			->order_by('id', 'desc')
 			->offset("$offset")
 			->limit("$limit")
 			->execute()
@@ -85,10 +87,12 @@ class Widget_Instance_Manager
 		$offset = $items_per_page * $page_number;
 
 		// query DB for only a single page of instances + 1
-		$displayable_items = self::get_all($inst_ids, false, false, false, $offset, $items_per_page);
+		$displayable_items = self::get_all($inst_ids, false, false, false, $offset, $items_per_page + 1);
 
 		// if the returned number of instances is greater than a page, there's more pages
-		$has_next_page = sizeof($displayable_items) > ($items_per_page - 1) ? true : false;
+		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
+
+		if ($has_next_page) array_pop($displayable_items);
 
 		$data = [
 			'pagination' => $displayable_items
@@ -151,10 +155,12 @@ class Widget_Instance_Manager
 		$offset = $items_per_page * $page_number;
 
 		// query DB for only a single page of instances + 1
-		$displayable_items = self::get_widget_instance_search($input, $offset, $items_per_page);
+		$displayable_items = self::get_widget_instance_search($input, $offset, $items_per_page + 1);
 
 		// if the returned number of instances is greater than a page, there's more pages
-		$has_next_page = sizeof($displayable_items) > ($items_per_page - 1) ? true : false;
+		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
+
+		if ($has_next_page) array_pop($displayable_items);
 
 		$data = [
 			'pagination' => $displayable_items,
@@ -180,8 +186,10 @@ class Widget_Instance_Manager
 			->from('widget_instance')
 			->where('id', 'LIKE', "%$input%")
 			->or_where('name', 'LIKE', "%$input%")
-			->limit("$limit")
-			->offset("$offset")
+			->order_by('created_at', 'desc')
+			->order_by('id', 'desc')
+			->offset($offset)
+			->limit($limit)
 			->execute()
 			->as_array();
 
