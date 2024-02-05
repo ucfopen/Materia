@@ -72,19 +72,11 @@ module.exports = {
 		splitChunks: {
 			cacheGroups: {
 				commons: {
-					test:(path) => {
-						// webpack optimized bundling should ignore the -core files, since these are referenced by embedded widgets without the commons file
-						if (/\.js$/.test(path)) {
-							if ( !(
-								path.match('materia.enginecore.js') ||
-								path.match('materia.creatorcore.js') ||
-								path.match('materia.scorecore.js')
-							)) return true
-						}
-						return false
-					},
+					test: /[\\/]node_modules[\\/]/,
 					name: 'commons',
-					chunks: 'initial'
+					chunks: (chunk) => {
+						return (chunk.name !== 'materia.enginecore' && chunk.name !== 'materia.creatorcore' && chunk.name !== 'materia.scorecore')
+					},
 				}
 			}
 		}
