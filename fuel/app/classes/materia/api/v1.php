@@ -452,7 +452,7 @@ class Api_V1
 				// (TODO: Might be impossible without changing qset)
 			}
 
-			if ( ! empty($qset->data['items']) && ! self::validate_asset_urls($qset->data['items']))
+			if ( ! empty($qset->data->items) && ! self::validate_asset_urls($qset->data->items))
 			{
 				return new Msg(Msg::ERROR, 'Invalid qset');
 			}
