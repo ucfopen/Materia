@@ -42,9 +42,8 @@ return [
 	'scores/semesters?'                    => 'scores/semesters',
 	'scores/(:alnum)(/.*)?'                => 'scores/show/$1',
 
-	'widgets/export/(:alnum)'			   => 'widgets/export/$1',
-	'widgets/export/(:alnum)/media'		   => 'widgets/export/$1/media',
-	'widgets/export/(:alnum)/qset'		   => 'widgets/export/$1/qset',
+	'widgets/export/(:alnum)/all/(:alnum)'		=> 'widgets/export/$1/all/$2', // export qset + media for specific timestamp
+	'widgets/export/(:alnum)/media/(:alnum)'	=> 'widgets/export/$1/media/$2', // export media for specific timestamp
 
 	// ================================= MEDIA ======================================
 

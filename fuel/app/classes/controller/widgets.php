@@ -244,7 +244,7 @@ class Controller_Widgets extends Controller
 	 * @param string $qset_id (optional) The qset id to export
 	 * @param string $asset (optional) The asset type to export. Can be either 'all', 'qset', or 'media'
 	 */
-	public function get_export(string $inst_id, string $asset = 'all')
+	public function get_export(string $inst_id, string $asset = 'all', string $timestamp = '')
 	{
 		// check if instance exists
 		if ( ! $inst = Materia\Widget_Instance_Manager::get($inst_id)) throw new HttpNotFoundException;
@@ -256,79 +256,87 @@ class Controller_Widgets extends Controller
 
 		$filename = preg_replace('/[^a-zA-Z0-9]/', '', $inst->name);
 
-		$qset = Materia\Api_V1::question_set_get($inst_id);
+		$qset = Materia\Api_V1::question_set_get($inst_id, null, $timestamp);
 		if ($qset instanceof \Materia\Msg) return $qset;
 
+		if ($asset == 'qset')
+		{
+			// return just the JSON file
+			header('Content-Type: application/json');
+			header("Content-Disposition: attachment; filename={$filename}.json");
+			echo json_encode($qset);
+			exit;
+		}
+
+		// For all assets, we need to zip them up
 		$zip = new \ZipArchive();
 		$zip->open('assets_export', \ZipArchive::CREATE);
 
-		if ($asset == 'all' || $asset == 'qset')
+		if ($asset == 'all')
 		{
 			$zip->addFromString('qset.json', json_encode($qset));
 		}
 
-		if ($asset == 'all' || $asset == 'media')
+		$bytes = 0;
+		$asset_ids = Materia\Api_V1::assets_get_for_instance($inst_id, false, $qset->id);
+		$size = 'original';
+
+		if (count($asset_ids) == 0)
 		{
-			$bytes = 0;
-			$asset_ids = Materia\Api_V1::assets_get_for_instance($inst_id, false, $qset->id);
-			$size = 'original';
+			// $zip->addFromString('no_assets.txt', 'No assets found for this widget.');
+			$zip->setArchiveComment('zipped on '.date('Y-M-d'));
+			$zip->close();
 
-			if (count($asset_ids) == 0)
-			{
-				// $zip->addFromString('no_assets.txt', 'No assets found for this widget.');
-				$zip->setArchiveComment('zipped on '.date('Y-M-d'));
-				$zip->close();
-
-				return new Response('No assets found for this widget.', 403);
-			}
-
-			foreach ($asset_ids as $id)
-			{
-				$asset = Materia\Widget_Asset::fetch_by_id($id);
-
-				if ( ! ($asset instanceof Materia\Widget_Asset))
-				{
-					$zip->close();
-					throw new HttpNotFoundException;
-				}
-
-				try
-				{
-					// requested size doesnt exist?
-					$driver = \Config::get('materia.asset_storage_driver', 'db');
-					$_storage_driver = Materia\Widget_Asset::get_storage_driver($driver);
-					if ( ! $_storage_driver->exists($asset->id, $size))
-					{
-						// if size is original, just 404
-						if ($size === 'original') throw new \Exception("Missing asset data for asset: {$asset->id} {$size}");
-
-						// rebuild the size (hopefully - we may not )
-						$asset_path = $asset->build_size($size);
-					}
-					else
-					{
-						$asset_path = $asset->copy_asset_to_temp_file($asset->id, $size);
-					}
-				} catch (\Throwable $e)
-				{
-					$zip->close();
-					throw new \HttpNotFoundException;
-				}
-
-				// register a shutdown function that will render the image
-				// allowing all of fuel's other shutdown methods to do their jobs
-				\Event::register('fuel-shutdown', function() use($asset_path) {
-
-					if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
-					$bytes += filesize($asset_path);
-					// turn off and clean output buffer
-					while (ob_get_level() > 0) ob_end_clean();
-				});
-
-				// Add asset to zip file
-				$zip->addFromString($asset->title, file_get_contents($asset_path));
-			}
+			return new Response('No assets found for this widget.', 403);
 		}
+
+		foreach ($asset_ids as $id)
+		{
+			$asset = Materia\Widget_Asset::fetch_by_id($id);
+
+			if ( ! ($asset instanceof Materia\Widget_Asset))
+			{
+				$zip->close();
+				throw new HttpNotFoundException;
+			}
+
+			try
+			{
+				// requested size doesnt exist?
+				$driver = \Config::get('materia.asset_storage_driver', 'db');
+				$_storage_driver = Materia\Widget_Asset::get_storage_driver($driver);
+				if ( ! $_storage_driver->exists($asset->id, $size))
+				{
+					// if size is original, just 404
+					if ($size === 'original') throw new \Exception("Missing asset data for asset: {$asset->id} {$size}");
+
+					// rebuild the size (hopefully - we may not )
+					$asset_path = $asset->build_size($size);
+				}
+				else
+				{
+					$asset_path = $asset->copy_asset_to_temp_file($asset->id, $size);
+				}
+			} catch (\Throwable $e)
+			{
+				$zip->close();
+				throw new \HttpNotFoundException;
+			}
+
+			// register a shutdown function that will render the image
+			// allowing all of fuel's other shutdown methods to do their jobs
+			\Event::register('fuel-shutdown', function() use($asset_path) {
+
+				if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
+				$bytes += filesize($asset_path);
+				// turn off and clean output buffer
+				while (ob_get_level() > 0) ob_end_clean();
+			});
+
+			// Add asset to zip file
+			$zip->addFromString($asset->title, file_get_contents($asset_path));
+		}
+
 		$zip->setArchiveComment('zipped on '.date('Y-M-d'));
 		$zip->close();
 

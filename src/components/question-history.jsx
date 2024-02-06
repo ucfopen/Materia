@@ -5,7 +5,7 @@ import { apiGetQuestionSetHistory } from '../util/api'
 import './question-history.scss'
 import useImportQset from './hooks/useImportQset'
 import useToast from './hooks/useToast'
-import useExportQset from './hooks/useExportQset'
+import useExportInstance from './hooks/useExportInstance'
 
 const getInstId = () => {
 	const l = document.location.href
@@ -17,7 +17,7 @@ const QuestionHistory = () => {
 	const [saves, setSaves] = useState([])
 	const [instId, setInstId] = useState(getInstId())
 	const { importQset } = useImportQset()
-	const { exportQset } = useExportQset()
+	const exportInstance = useExportInstance()
 	const { toast, toastRender } = useToast()
 
 	const { data: qsetHistory, isLoading: loading } = useQuery({
@@ -43,8 +43,8 @@ const QuestionHistory = () => {
 		}
 	}, [qsetHistory])
 
-	const exportClickHandler = (qsetId) => {
-		exportQset.mutate({args: qsetId, errorFunc: onExportFailure})
+	const exportClickHandler = (timestamp) => {
+		exportInstance('qset', instId, onExportFailure, timestamp)
 	}
 
 	const importClickHandler = () => {
@@ -99,7 +99,7 @@ const QuestionHistory = () => {
 				<tr key={index}>
 					<td title="Select" onClick={() => loadSaveData(save.id)}>Save #{saves.length - index}</td>
 					<td title="Select" onClick={() => loadSaveData(save.id)} >{new Date(parseInt(save.created_at) * 1000).toLocaleString()}</td>
-					<td className='export' title="Export" onClick={() => exportClickHandler(save.id)}>
+					<td className='export' title="Export" onClick={() => exportClickHandler(save.created_at)}>
 						<svg className="export-icon" viewBox="0 0 490.2 490.2">
 							<path d="M341.1,34.3h90.5l-206.9,207c-6.7,6.7-6.7,17.6,0,24.3c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l207-207v90.5
 							c0,9.5,7.7,17.2,17.1,17.2c9.5,0,17.2-7.7,17.2-17.2V17.2C490.2,7.7,482.5,0,473,0H341.1c-9.5,0-17.2,7.7-17.2,17.2

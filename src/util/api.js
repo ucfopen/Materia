@@ -593,8 +593,8 @@ export const apiGetPlaySession = ({ widgetId }) => {
 		})
 }
 
-export const apiGetQuestionSet = (instId, playId = null) => {
-	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
+export const apiGetQuestionSet = ({instId, playId = null, timestamp = null}) => {
+	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId, timestamp])}` }))
 		.then(qset => qset.json())
 }
 
@@ -605,6 +605,15 @@ export const apiGetQuestionSetHistory = (instId) => {
 			return resp.json()
 		})
 }
+
+// export const apiGetExport = (instId, timestamp, all = true) => {
+// 	const body = `data=${formatFetchBody([instId, timestamp, all])}`
+// 	return fetch('/api/json/export_get/', fetchOptions({body})).then(resp => {
+// 		if (resp.status === 204 || resp.status === 502) return []
+// 		console.log(resp)
+// 		return resp.blob()
+// 	})
+// }
 
 export const apiSessionVerify = (play_id) => {
 	return fetch('/api/json/session_play_verify/', fetchOptions({ body: `data=${formatFetchBody([play_id])}` }))

@@ -128,7 +128,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
-		queryFn: () => apiGetQuestionSet(instanceId, playId),
+		queryFn: () => apiGetQuestionSet({instId: instanceId, playId: playId, timestamp: null}),
 		staleTime: Infinity,
 		placeholderData: null
 	})

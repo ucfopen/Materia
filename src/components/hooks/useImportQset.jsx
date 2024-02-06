@@ -4,6 +4,11 @@ import { apiUpdateQset } from '../../util/api'
 export default function useImportQset() {
     const importQsetMutation = useMutation(apiUpdateQset, {
         onSuccess: (inst, variables) => {
+            if (inst.type === 'error') {
+                // remove this when API error handling PR is merged
+                variables.errorFunc(inst)
+                return
+            }
             variables.successFunc(inst)
         },
         onError: (err, variables, context) => {

@@ -387,6 +387,37 @@ class Api_V1
 	}
 
 	/**
+	 * Validates media URLs in qset
+	 * @param object $data
+	 * Returns false if any URL is invalid, true otherwise
+	 */
+	static function validate_asset_urls($data)
+	{
+		foreach ($data as $key => $value)
+		{
+			if ($key === 'url' && is_string($value))
+			{
+				// Check if the key is 'url' and the value is a string
+				// media id must be 5 characters long and end with the ID
+				$url_regex = '/^https:\/\/\S+\/media\/[A-Za-z0-9]{5}$/';
+				if ( ! preg_match($url_regex, $value))
+				{
+					return false;
+				}
+			}
+			elseif (is_array($value) || is_object($value))
+			{
+				// If the value is an array, recursively validate its elements
+				if ( ! self::validate_asset_urls($value))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Replace the qset for an instance
 	 * @param int     $inst_id
 	 * @param object  $qset
@@ -398,16 +429,35 @@ class Api_V1
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
 
-		$inst = Widget_Instance_Manager::get($inst_id, true);
+		$inst = Widget_Instance_Manager::get($inst_id);
 		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
 
-		if ( ! empty($qset->data) && ! empty($qset->version))
+		// Validate every single field in the qset
+		// if any field is invalid, return an error message
+		// if all fields are valid, update the qset and return the updated instance
+		if (empty($qset->data) || empty($qset->version))
 		{
-			$inst->qset = $qset;
+			return new Msg(Msg::ERROR, 'Invalid qset');
 		}
 		else
 		{
-			return new Msg(Msg::ERROR, 'Invalid qset');
+			$questions = \Materia\Widget_Instance::find_questions($qset->data);
+			foreach ($questions as $q)
+			{
+				if ( ! $q instanceof \Materia\Widget_Question)
+				{
+					return new Msg(Msg::ERROR, 'Invalid qset');
+				}
+				// Validate whether $q->type (widget name) is same as $inst->widget->id
+				// (TODO: Might be impossible without changing qset)
+			}
+
+			if ( ! empty($qset->data['items']) && ! self::validate_asset_urls($qset->data['items']))
+			{
+				return new Msg(Msg::ERROR, 'Invalid qset');
+			}
+
+			$inst->qset = $qset;
 		}
 
 		try
@@ -1287,4 +1337,103 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		return $inst;
 	}
+
+	// static public function export_get($inst_id, $timestamp, $all = true)
+	// {
+	// 	// check if instance exists
+	// 	if ( ! $inst = Widget_Instance_Manager::get($inst_id)) throw new HttpNotFoundException;
+	// 	// check if user has permission to instance
+	// 	if ( ! Perm_Manager::user_has_any_perm_to(\Model_User::find_current_id(), $inst_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]))
+	// 	{
+	// 		return new Response('You do not have permission to access the requested content.', 403);
+	// 	}
+
+	// 	$filename = preg_replace('/[^a-zA-Z0-9]/', '', $inst->name);
+
+	// 	$qset = Api_V1::question_set_get($inst_id, null, $timestamp);
+	// 	if ($qset instanceof Msg) return $qset;
+
+	// 	// For all assets, we need to zip them up
+	// 	$zip = new \ZipArchive();
+	// 	$zip->open('assets_export', \ZipArchive::CREATE);
+
+	// 	$zip->addFromString('qset.json', json_encode($qset));
+
+	// 	$bytes = 0;
+	// 	$asset_ids = Api_V1::assets_get_for_instance($inst_id, false, $qset->id);
+	// 	$size = 'original';
+
+	// 	if (count($asset_ids) == 0)
+	// 	{
+	// 		// $zip->addFromString('no_assets.txt', 'No assets found for this widget.');
+	// 		$zip->setArchiveComment('zipped on '.date('Y-M-d'));
+	// 		$zip->close();
+
+	// 		return new \Response('No assets found for this widget.', 403);
+	// 	}
+
+	// 	foreach ($asset_ids as $id)
+	// 	{
+	// 		$asset = Widget_Asset::fetch_by_id($id);
+
+	// 		if ( ! ($asset instanceof Widget_Asset))
+	// 		{
+	// 			$zip->close();
+	// 			throw new HttpNotFoundException;
+	// 		}
+
+	// 		try
+	// 		{
+	// 			// requested size doesnt exist?
+	// 			$driver = \Config::get('materia.asset_storage_driver', 'db');
+	// 			$_storage_driver = Widget_Asset::get_storage_driver($driver);
+	// 			if ( ! $_storage_driver->exists($asset->id, $size))
+	// 			{
+	// 				// if size is original, just 404
+	// 				if ($size === 'original') throw new \Exception("Missing asset data for asset: {$asset->id} {$size}");
+
+	// 				// rebuild the size (hopefully - we may not )
+	// 				$asset_path = $asset->build_size($size);
+	// 			}
+	// 			else
+	// 			{
+	// 				$asset_path = $asset->copy_asset_to_temp_file($asset->id, $size);
+	// 			}
+	// 		} catch (\Throwable $e)
+	// 		{
+	// 			$zip->close();
+	// 			throw new \HttpNotFoundException;
+	// 		}
+
+	// 		// register a shutdown function that will render the image
+	// 		// allowing all of fuel's other shutdown methods to do their jobs
+
+	// 		\Event::register('fuel-shutdown', function() use($asset_path) {
+
+	// 			if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
+	// 			$bytes = filesize($asset_path);
+	// 			// turn off and clean output buffer
+	// 			while (ob_get_level() > 0) ob_end_clean();
+	// 		});
+
+	// 		// Add asset to zip file
+	// 		$zip->addFromString($asset->title, file_get_contents($asset_path));
+	// 	}
+
+	// 	$zip->setArchiveComment('zipped on ' . date('Y-M-d'));
+	// 	$zip->close();
+
+	// 	$fileSize = filesize('assets_export');
+
+	// 	$response = new \Response(file_get_contents('assets_export'), 200);
+
+	// 	$response->set_header('Content-Type', 'application/zip');
+	// 	$response->set_header('Content-Disposition', 'attachment; filename="assets_export.zip"');
+	// 	$response->set_header('Content-Length', $fileSize);
+
+	// 	// remove the temporary zip file
+	// 	unlink('assets_export');
+
+	// 	return $response;
+	// }
 }

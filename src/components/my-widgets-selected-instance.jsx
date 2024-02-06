@@ -11,7 +11,7 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
-import useExportQset from './hooks/useExportQset'
+import useExportInstance from './hooks/useExportInstance'
 import useImportQset from './hooks/useImportQset'
 import useToast from './hooks/useToast'
 
@@ -81,7 +81,7 @@ const MyWidgetSelectedInstance = ({
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
-	const { exportConditional } = useExportQset()
+	const exportInstance = useExportInstance()
 	const { importQset } = useImportQset()
 	const { toast, toastRender } = useToast()
 
@@ -111,10 +111,7 @@ const MyWidgetSelectedInstance = ({
 		queryFn: () => apiGetAssetIDsForInstance(inst.id, inst.qset ? inst.qset.id : null),
 		placeholderData: null,
 		enabled: !!inst.id,
-		staleTime: Infinity,
-		onSuccess: (data) => {
-			console.log(data)
-		}
+		staleTime: Infinity
 	})
 
 	// Initializes the data when widgets changes
@@ -236,12 +233,12 @@ const MyWidgetSelectedInstance = ({
 	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
 	const deleteConfirmClickHandler = () => onDelete(inst)
 
-	const exportClickHandler = (asset_type) => {
-		if (asset_type === 'media' && (!assetIDs || assetIDs.length === 0)) {
+	const exportClickHandler = (type) => {
+		if (type === 'media' && (!assetIDs || assetIDs.length === 0)) {
 			toast('No media assets to export.', false, false, true)
 			return
 		}
-		exportConditional(asset_type, inst, onExportFailure)
+		exportInstance(type, inst.id, onExportFailure)
 	}
 
 	const importClickHandler = () => {
@@ -257,7 +254,7 @@ const MyWidgetSelectedInstance = ({
 	}
 
 	const onExportFailure = (err) => {
-		toast((err.message || "Error") + ": Failed to export.", false, true)
+		toast("Error: Failed to export.", false, true)
 	}
 
 	const editWidget = () => {
@@ -437,7 +434,7 @@ const MyWidgetSelectedInstance = ({
 									Export Media
 								</div>
 								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
-									Export All
+									Export Both
 								</div>
 							</div>
 						</div>

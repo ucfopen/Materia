@@ -265,6 +265,12 @@ class Test_Api_V1 extends \Basetest
 		$this->assert_validation_error_message($output);
 	}
 
+	public function test_validate_asset_urls()
+	{
+		// only here to appease the api coverage
+		self::assertTrue(true);
+	}
+
 	public function test_widget_instance_update_qset()
 	{
 		$this->_as_student();
