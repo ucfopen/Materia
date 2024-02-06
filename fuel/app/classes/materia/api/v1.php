@@ -332,8 +332,9 @@ class Api_V1
 		}
 		if ($guest_access !== null)
 		{
-			// if the user is a student, they can't change guest access to false
-			if ($guest_access || ! Perm_Manager::is_student(\Model_User::find_current_id()))
+			// if the user is a student and they're not the owner, they can't do anything
+			// if the user is a student and they're the owner, they're allowed to set it to guest access
+			if (($inst->user_id == \Model_User::find_current_id() && $guest_access) || ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
 				if ($inst->guest_access != $guest_access)
 				{
