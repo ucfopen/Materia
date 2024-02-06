@@ -608,15 +608,6 @@ export const apiGetQuestionSetHistory = (instId) => {
 		})
 }
 
-// export const apiGetExport = (instId, timestamp, all = true) => {
-// 	const body = `data=${formatFetchBody([instId, timestamp, all])}`
-// 	return fetch('/api/json/export_get/', fetchOptions({body})).then(resp => {
-// 		if (resp.status === 204 || resp.status === 502) return []
-// 		console.log(resp)
-// 		return resp.blob()
-// 	})
-// }
-
 export const apiSessionVerify = (play_id) => {
 	return fetch('/api/json/session_play_verify/', fetchOptions({ body: `data=${formatFetchBody([play_id])}` }))
 		.then(resp => resp.json())
