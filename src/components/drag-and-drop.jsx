@@ -1,9 +1,12 @@
+import React from 'react'
+
 /**
  * It's a React component that takes in a parseMethod function and a children component, and returns a
  * div that handles the drag and drop events.
  * @param parseMethod is the method pass
  * @param idStr the id for the div component.
  */
+
 const DragAndDrop = ({ children, parseMethod, idStr }) => {
 	const handleDragEvent = (ev) => {
 		ev.preventDefault()
