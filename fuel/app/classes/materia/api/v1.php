@@ -218,7 +218,7 @@ class Api_V1
 	 * @param int     $close_at
 	 * @param int     $attempts
 	 * @param bool    $guest_access
-	 * @param bool 	  $is_student_made
+	 * @param bool 	  $is_student_made // NOT USED
 	 *
 	 * @return array An associative array with details about the save
 	 */
@@ -332,28 +332,33 @@ class Api_V1
 		}
 		if ($guest_access !== null)
 		{
-			if ($inst->guest_access != $guest_access)
+			// if the user is a student and they're not the owner, they can't do anything
+			// if the user is a student and they're the owner, they're allowed to set it to guest access
+			if (($inst->user_id == \Model_User::find_current_id() && $guest_access) || ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
-				$activity = new Session_Activity([
-					'user_id' => \Model_User::find_current_id(),
-					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
-					'item_id' => $inst_id,
-					'value_1' => 'Guest Access',
-					'value_2' => $guest_access
-				]);
-				$activity->db_store();
-			}
-			$inst->guest_access = $guest_access;
-			// when disabling guest mode on a widget, make sure no students have access to that widget
-			if ( ! $guest_access)
-			{
-				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
-				foreach ($access as $user_id => $user_perms)
+				if ($inst->guest_access != $guest_access)
 				{
-					if (Perm_Manager::is_student($user_id) && $user_id != $inst->user_id)
+					$activity = new Session_Activity([
+						'user_id' => \Model_User::find_current_id(),
+						'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+						'item_id' => $inst_id,
+						'value_1' => 'Guest Access',
+						'value_2' => $guest_access
+					]);
+					$activity->db_store();
+				}
+				$inst->guest_access = $guest_access;
+				// when disabling guest mode on a widget, make sure no students have access to that widget
+				if ( ! $guest_access)
+				{
+					$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
+					foreach ($access as $user_id => $user_perms)
 					{
-						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
-						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+						if (Perm_Manager::is_student($user_id) && $user_id != $inst->user_id)
+						{
+							\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+							Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+						}
 					}
 				}
 			}
@@ -361,7 +366,8 @@ class Api_V1
 
 		if ($embedded_only !== null)
 		{
-			if ($inst->embedded_only != $embedded_only)
+			// if current user is student, they cannot change embedded_only
+			if ($inst->embedded_only != $embedded_only && ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
 				$activity = new Session_Activity([
 					'user_id' => \Model_User::find_current_id(),
@@ -371,8 +377,9 @@ class Api_V1
 					'value_2' => $embedded_only
 				]);
 				$activity->db_store();
+
+				$inst->embedded_only = $embedded_only;
 			}
-			$inst->embedded_only = $embedded_only;
 		}
 
 		try
