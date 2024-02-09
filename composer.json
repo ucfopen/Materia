@@ -49,7 +49,7 @@
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.31",
         "eher/oauth": "1.0.7",
-        "aws/aws-sdk-php": "3.67.17",
+        "aws/aws-sdk-php": "3.288.1",
         "symfony/dotenv": "^5.1",
         "ucfopen/materia-theme-ucf": "2.0.2"
     },
