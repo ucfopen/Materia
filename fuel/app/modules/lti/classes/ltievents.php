@@ -252,13 +252,13 @@ class LtiEvents
 
 		// Do we have session vars stored by the given play_id?
 		// We only store variables by the first play ID, so this is the first attempt
-		$launch = \Session::get("lti-{$play_id}", false);
+		$launch = static::get_lti_launch($play_id);
 		if ($launch) return self::PLAY_STATE_FIRST_LAUNCH;
 
 		// Do we have variables that are *linked* to the given play_id?
 		// We only do this for replays, so this is a replay
-		$token = \Session::get("lti-link-{$play_id}", false);
-		$launch = \Session::get("lti-{$token}", false);
+		$token = static::get_lti_token($play_id);
+		$launch = static::get_lti_launch($token);
 		if ($launch) return self::PLAY_STATE_REPLAY;
 
 		// Nothing in the request, nothing in the session, assume not an LTI launch
@@ -267,11 +267,11 @@ class LtiEvents
 
 	protected static function session_get_launch($play_id)
 	{
-		$launch = \Session::get("lti-{$play_id}", false);
+		$launch = static::get_lti_launch($play_id);
 		if ($launch) return $launch;
 
-		$token = \Session::get("lti-link-{$play_id}", false);
-		return \Session::get("lti-{$token}", false);
+		$token = static::get_lti_token($play_id);
+		return static::get_lti_launch($token);
 	}
 
 	protected static function store_lti_request_into_session($token, $inst_id, $is_embedded)
@@ -344,5 +344,34 @@ class LtiEvents
 		$log_array = array_merge($args, $standard_args);
 
 		Log::profile($log_array, 'lti');
+	}
+
+	// Attempts to retrieve LTI token from session.
+	// If not present, instantiate a play with the provided ID and check its environment data for the token instead.
+	protected static function get_lti_token($play_id)
+	{
+		$token = \Session::get("lti-link-{$play_id}", false);
+
+		if ( ! $token)
+		{
+			$play = new \Materia\Session_Play();
+			$play->get_by_id($play_id);
+
+			if ($play->auth == 'lti')
+			{
+				$ev_data = json_decode(base64_decode($play->environment_data), true);
+				if (isset($ev_data['input']['token'])) $token = $ev_data['input']['token'];
+			}
+		}
+
+		return $token;
+	}
+
+	// Attempts to retrieve LTI launch data from session.
+	// TODO: future versions of Materia should consider storing and pulling launch data from the associated play's environment data instead
+	protected static function get_lti_launch($token)
+	{
+		$launch = \Session::get("lti-{$token}", false);
+		return $launch;
 	}
 }

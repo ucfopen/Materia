@@ -48,6 +48,19 @@
 		// position: relative;
 		// top: 20px;
 
+		.loading {
+			position: relative;
+			height: 40px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin: 5px 0;
+
+			.loading-text {
+				margin-left: 50px;
+			}
+		}
+
 		.top {
 			position: relative;
 			top: 0;

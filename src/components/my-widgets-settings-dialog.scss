@@ -1,9 +1,12 @@
+$mobile-width: 620px;
+
 .settings-modal {
 	display: flex;
 	flex-direction: column;
-	width: 680px;
-	max-height: 675px;
+	max-width: 680px;
+	width: 100%;
 	padding: 10px 10px 0 10px;
+	max-height: 100%;
 
 	.top-bar {
 		display: flex;
@@ -42,13 +45,22 @@
 		display: flex;
 		flex-direction: column;
 		align-items: baseline;
-		justify-content: center;
-		padding: 0;
+		// justify-content: center;
+		padding: 0 1em 0 0;
 		margin: 0 20px 0 20px;
+		max-height: 75%;
+		overflow-y: auto;
+		overflow-x: hidden;
 
 		.attempt-content {
 			display: flex;
+			flex-wrap: wrap;
 			margin-bottom: 5px;
+			width: 100%;
+
+			@media screen and (min-width: $mobile-width) {
+				flex-wrap: nowrap;
+			}
 
 			&.hide {
 				display: none;
@@ -59,13 +71,14 @@
 				width: 5.1em;
 				min-width: 5.1em;
 				max-width: 5.1em;
-				margin-right: 30px;
-				text-align: end;
+				margin-bottom: 0.5em;
+				text-align: start;
 			}
 
 			.data-holder {
 				display: flex;
 				flex-direction: column;
+				width: 100%;
 
 				.selector {
 					position: relative;
@@ -167,6 +180,16 @@
 					}
 				}
 
+				.mobile {
+					display: none;
+					margin-bottom: 1em;
+					select {
+						border: 1px solid #ccc;
+						border-radius: 5px;
+						padding: 2px;
+					}
+				}
+
 				.attempt-holder {
 					list-style-type: none;
 					display: flex;
@@ -177,6 +200,10 @@
 					margin-top: -5px;
 					position: relative;
 					color: rgba(0, 0, 0, 0.3);
+
+					@media screen and (max-width: $mobile-width) {
+						display: none;
+					}
 
 					&.disabled {
 						opacity: 0.35;
@@ -198,6 +225,10 @@
 
 						&.active {
 							color: rgba(0, 0, 0, 1);
+						}
+						&.disabled {
+							color: rgba(0,0,0,0.5);
+							cursor: default;
 						}
 					}
 
@@ -248,11 +279,27 @@
 						font-size: 13px;
 					}
 				}
+
+
+				@media screen and (max-width: $mobile-width) {
+					.mobile {
+						display: inline-block;
+					}
+					.selector:not(.mobile) {
+						display: none;
+					}
+				}
 			}
 		}
 
 		.to-from {
 			padding: 0;
+			width: 100%;
+
+			li {
+				display: flex;
+				flex-wrap: wrap;
+			}
 
 			.access {
 				margin-top: 20px;
@@ -262,8 +309,8 @@
 					width: 5.1em;
 					min-width: 5.1em;
 					max-width: 5.1em;
-					text-align: end;
-					margin: 0 30px 0 0;
+					text-align: start;
+					margin: 0 30px 0.5em 0;
 				}
 
 				.access-options {
@@ -276,15 +323,13 @@
 						}
 					}
 
-					&.limited-because-student {
+					.limited-because-student {
 
-						li.normal.show, li.guest-mode {
-							filter: blur(3px);
-							user-select: none;
-							pointer-events: none;
-						}
+						filter: blur(3px);
+						user-select: none;
+						pointer-events: none;
 
-						li.studentWarningListItem {
+						&.studentWarningListItem {
 							margin: 0 0 15px 0;
 						}
 					}
@@ -301,7 +346,7 @@
 						font-size: 13px;
 					}
 
-					.normal {
+					.normal, .embed-only {
 						display: none;
 
 						&.show {
@@ -317,17 +362,14 @@
 						margin-left: 5px;
 					}
 
-					.guest-mode {
-						&.disabled {
-							label {
-								color: #b5b3b3;
-							}
+					.disabled {
+						label {
+							color: #b5b3b3;
 						}
 					}
 				}
 
 				#embedded-only {
-					display: none;
 
 					&.show {
 						display: block;
@@ -342,7 +384,8 @@
 		list-style: none;
 		justify-content: center;
 		align-items: center;
-		margin: 4px 0 10px 0;
+		margin: 10px 0;
+		padding: 0;
 
 		.cancel_button {
 			cursor: pointer;
@@ -365,7 +408,8 @@
 		min-width: 5.1em;
 		max-width: 5.1em;
 		margin-right: 30px;
-		text-align: end;
+		text-align: start;
+		margin-bottom: 0.5em;
 	}
 
 	.date-picker {
@@ -374,7 +418,7 @@
 
 		.date-list-elem {
 			display: flex;
-			justify-content: center;
+			justify-content: start;
 			flex-wrap: nowrap;
 			align-items: center;
 		}

@@ -35,8 +35,8 @@ export const apiGetWidgetInstance = (instId, loadQset=false) => {
  * storage
  * @returns An array of objects.
  */
-export const apiGetWidgetInstances = (page_number = 0) => {
-	return fetch(`/api/json/widget_paginate_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
+export const apiGetUserWidgetInstances = (page_number = 0) => {
+	return fetch(`/api/json/widget_paginate_user_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -316,8 +316,8 @@ export const apiSetAttempts = ({ instId, attempts }) => {
 		})
 }
 
-export const apiSearchUsers = (input = '') => {
-	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input])}` }))
+export const apiSearchUsers = (input = '', page_number = 0) => {
+	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input, page_number])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
@@ -365,7 +365,10 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  */
 export const apiUpdateWidget = ({ args }) => {
 	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
-		.then(res => res.json())
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
 		.then(widget => widget)
 }
 
@@ -377,20 +380,22 @@ export const apiGetWidgetLock = (id = null) => {
 
 /**
  * It searches for widgets by name or ID
- * @param {string} input (must contain letters)
- * @returns {array} if matches were found
- * @returns {bool}  if input does not match pattern
+ * @param {string} input (letters only)
+ * @returns {array} of matches
  */
-export const apiSearchWidgets = input => {
+export const apiSearchInstances = (input, page_number) => {
 	let pattern = /[A-Za-z]+/g
-	if (!input.match(pattern).length) return false
-	input = input.replace("'","%27")
-	return fetch(`/api/admin/widget_search/${input}`)
+	let match = input.match(pattern)
+	if (!match || !match.length) input = ' '
+	return fetch(`/api/admin/instance_search/${input}/${page_number}`)
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-		.then(widgets => widgets)
+		.then(resp => {
+			writeToStorage('widgets', resp)
+			return resp
+		})
 }
 
 export const apiGetWidgetsAdmin = () => {
@@ -527,11 +532,12 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 			const scoresByUser = new Map()
 			results.pagination.forEach(log => {
 				let scoresForUser
+				if (log.user_id === null || log.user_id == undefined) log.user_id = 0
 
 				if (!scoresByUser.has(log.user_id)) {
 
 					// initialize user
-					const name = log.first === null ? 'All Guests' : `${log.first} ${log.last}`
+					const name = log.first === null || log.first === undefined ? 'All Guests' : `${log.first} ${log.last}`
 					scoresForUser = {
 						userId: log.user_id,
 						name,

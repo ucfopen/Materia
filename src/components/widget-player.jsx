@@ -104,7 +104,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const [pendingLogs, dispatchPendingLogs] = useReducer(logReducer, initLogs())
 	const [playState, setPlayState] = useState('init')
 
-	const [scoreScreenURL, setScoreScreenURL] = useState('')
 	const [readyForScoreScreen, setReadyForScoreScreen] = useState(false)
 	const [retryCount, setRetryCount] = useState(0) // retryCount's value is referenced within the function passed to setRetryCount
 	const [queueProcessing, setQueueProcessing] = useState(false)
@@ -116,6 +115,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
 	const frameRef = useRef(null)
+	const scoreScreenUrlRef = useRef(null)
 
 	/*********************** queries ***********************/
 
@@ -211,17 +211,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				height: `${inst.widget.height}px`
 			})
 
-			setScoreScreenURL(() => {
-				let _scoreScreenURL = ''
-				if (isPreview) {
-					_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
-				} else if (isEmbedded) {
-					_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
-				} else {
-					_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
-				}
-				return _scoreScreenURL
-			})
+			scoreScreenUrlRef.current = _initScoreScreenUrl()
 		}
 	}, [inst, qset])
 
@@ -236,6 +226,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			setHeartbeatActive(false)
 		}
 	},[alert])
+
 
 	// hook associated with log queue management
 	useEffect(() => {
@@ -268,8 +259,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	/******* !!!!!! this is the hook that actually navigates to the score screen !!!!! *******/
 	useEffect(() => {
-		if (playState == 'end' && readyForScoreScreen && scoreScreenURL) {
-			window.location.assign(scoreScreenURL)
+		if (playState == 'end' && readyForScoreScreen && scoreScreenUrlRef.current) {
+			window.location.assign(scoreScreenUrlRef.current)
 		}
 	}, [playState, readyForScoreScreen])
 
@@ -378,6 +369,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		savePlayLog.mutate({
 			request: logQueue[0].request,
 			successFunc: (result) => {
+
 				setRetryCount(0) // reset on success
 
 				if (result) {
@@ -388,9 +380,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 					dispatchPendingLogs({type: 'shiftPlay', payload: { ids: [...qIds]}})
 					logQueue.shift()
 
+					// score_url is sent from the server to redirect to a specific url
 					if (result.score_url) {
-						// score_url is sent from server to redirect to a specific url
-						setScoreScreenURL(result.score_url)
+						scoreScreenUrlRef.current = result.score_url
 					} else if (result.type === 'error') {
 
 						setAlert({
@@ -467,6 +459,18 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	}
 
 	/*********************** helper methods ***********************/
+
+	const _initScoreScreenUrl = () => {
+		let _scoreScreenURL = ''
+			if (isPreview) {
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
+			} else if (isEmbedded) {
+				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
+			} else {
+				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
+			}
+		return _scoreScreenURL
+	}
 
 	const _setHeight = h => {
 		const min_h = inst.widget.height

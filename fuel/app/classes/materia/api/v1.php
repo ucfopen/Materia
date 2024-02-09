@@ -64,10 +64,10 @@ class Api_V1
  *
  * @return array of objects containing total_num_pages and widget instances that are visible to the user.
  */
-	static public function widget_paginate_instances_get($page_number = 0)
+	static public function widget_paginate_user_instances_get($page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
+		$data = Widget_Instance_Manager::get_paginated_instances_for_user(\Model_User::find_current_id(), $page_number);
 		return $data;
 	}
 
@@ -218,7 +218,7 @@ class Api_V1
 	 * @param int     $close_at
 	 * @param int     $attempts
 	 * @param bool    $guest_access
-	 * @param bool 	  $is_student_made
+	 * @param bool 	  $is_student_made // NOT USED
 	 *
 	 * @return array An associative array with details about the save
 	 */
@@ -237,6 +237,10 @@ class Api_V1
 		// student made widgets are locked forever
 		if ($inst->is_student_made)
 		{
+			if ($guest_access === false)
+			{
+				return new Msg('Student-made widgets must stay in guest access mode.', 'Student Made', 'error', false);
+			}
 			$attempts = -1;
 			$guest_access = true;
 		}
@@ -328,28 +332,33 @@ class Api_V1
 		}
 		if ($guest_access !== null)
 		{
-			if ($inst->guest_access != $guest_access)
+			// if the user is a student and they're not the owner, they can't do anything
+			// if the user is a student and they're the owner, they're allowed to set it to guest access
+			if (($inst->user_id == \Model_User::find_current_id() && $guest_access) || ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
-				$activity = new Session_Activity([
-					'user_id' => \Model_User::find_current_id(),
-					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
-					'item_id' => $inst_id,
-					'value_1' => 'Guest Access',
-					'value_2' => $guest_access
-				]);
-				$activity->db_store();
-			}
-			$inst->guest_access = $guest_access;
-			// when disabling guest mode on a widget, make sure no students have access to that widget
-			if ( ! $guest_access)
-			{
-				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
-				foreach ($access as $user_id => $user_perms)
+				if ($inst->guest_access != $guest_access)
 				{
-					if (Perm_Manager::is_student($user_id))
+					$activity = new Session_Activity([
+						'user_id' => \Model_User::find_current_id(),
+						'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+						'item_id' => $inst_id,
+						'value_1' => 'Guest Access',
+						'value_2' => $guest_access
+					]);
+					$activity->db_store();
+				}
+				$inst->guest_access = $guest_access;
+				// when disabling guest mode on a widget, make sure no students have access to that widget
+				if ( ! $guest_access)
+				{
+					$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
+					foreach ($access as $user_id => $user_perms)
 					{
-						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
-						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+						if (Perm_Manager::is_student($user_id) && $user_id != $inst->user_id)
+						{
+							\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+							Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+						}
 					}
 				}
 			}
@@ -357,7 +366,8 @@ class Api_V1
 
 		if ($embedded_only !== null)
 		{
-			if ($inst->embedded_only != $embedded_only)
+			// if current user is student, they cannot change embedded_only
+			if ($inst->embedded_only != $embedded_only && ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
 				$activity = new Session_Activity([
 					'user_id' => \Model_User::find_current_id(),
@@ -367,8 +377,9 @@ class Api_V1
 					'value_2' => $embedded_only
 				]);
 				$activity->db_store();
+
+				$inst->embedded_only = $embedded_only;
 			}
-			$inst->embedded_only = $embedded_only;
 		}
 
 		try
@@ -662,11 +673,12 @@ class Api_V1
 	 */
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
 
-		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number, $is_student);
 		return $data;
 	}
 
@@ -881,23 +893,39 @@ class Api_V1
 		return Utils::get_date_ranges();
 	}
 
-	static public function users_search($search)
+	/**
+	 * Paginated search for users that match input
+	 *
+	 * @param string Search query
+	 * @param string Page number
+	 * @return array List of users
+	 */
+	static public function users_search($input, $page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-		$user_objects = \Model_User::find_by_name_search($search);
-		$user_arrays = [];
+		$items_per_page = 50;
+		$offset = $items_per_page * $page_number;
 
-		// scrub the user models with to_array
-		if (count($user_objects))
+		// query DB for only a single page + 1 item
+		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page + 1);
+
+		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
+
+		if ($has_next_page) array_pop($displayable_items);
+
+		foreach ($displayable_items as $key => $person)
 		{
-			foreach ($user_objects as $key => $person)
-			{
-				$user_arrays[$key] = $person->to_array();
-			}
+			$displayable_items[$key] = $person->to_array();
 		}
 
-		return $user_arrays;
+		$data = [
+			'pagination' => $displayable_items,
+		];
+
+		if ($has_next_page) $data['next_page'] = $page_number + 1;
+
+		return $data;
 	}
 	/**
 	 * Gets information about the current user

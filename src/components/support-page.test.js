@@ -69,10 +69,10 @@ const renderWithClient = (children) => {
 describe('SupportSearch', () => {
 	let rendered;
 	let container;
-	let mockApiSearchWidgets;
+	let mockApiSearchInstances;
 
 	beforeEach(() => {
-		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, instances));
+		mockApiSearchInstances = jest.spyOn(api, 'apiSearchInstances').mockImplementation(async input => search(input, instances));
 
 		act(() => {
 			rendered = renderWithClient(<SupportPage/>)
@@ -121,7 +121,7 @@ describe('SupportSearch', () => {
 		})
 
 		// Was the API function called?
-		expect(mockApiSearchWidgets).toHaveBeenCalledTimes(1);
+		expect(mockApiSearchInstances).toHaveBeenCalledTimes(1);
 
 
 		// jest.clearAllTimers();
@@ -180,7 +180,7 @@ describe('SupportSearch', () => {
 		})
 	})
 
-	// This does not work in the app yet because apiSearchWidgets does not search by created at
+	// This does not work in the app yet because apiSearchInstances does not search by created at
     it('searches by created_at', async () => {
 		let input1 = "3/21"
 		let input2 = "2023"
@@ -265,7 +265,7 @@ describe('SupportSearch', () => {
 describe('SupportSelectedInstance', () => {
 	let rendered;
 	let container;
-	let mockApiSearchWidgets;
+	let mockApiSearchInstances;
 	let mockApiGetUserPermsForInstance;
 	let mockApiDeleteWidget;
 	let mockApiUnDeleteWidget;
@@ -280,7 +280,7 @@ describe('SupportSelectedInstance', () => {
 	let modal = null;
 
 	beforeEach(async () => {
-		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, instances));
+		mockApiSearchInstances = jest.spyOn(api, 'apiSearchInstances').mockImplementation(async input => search(input, instances));
 		mockApiGetUserPermsForInstance = jest.spyOn(api, 'apiGetUserPermsForInstance').mockResolvedValue({
 			user_perms: {
 				5: [
@@ -408,7 +408,7 @@ describe('SupportSelectedInstance', () => {
 		// })
 
 		// // Search should return updated widgets
-		// mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, updatedInstances));
+		// mockApiSearchInstances = jest.spyOn(api, 'apiSearchInstances').mockImplementation(async input => search(input, updatedInstances));
 
 		// await waitFor(() => {
 		// 	expect(screen.getByText('Instance Admin')).not.toBeNull();
@@ -509,7 +509,7 @@ describe('SupportSelectedInstance', () => {
 		let grant_access_checkbox = screen.getByLabelText("Grant Access to Original Owner(s)");
 		userEvent.click(grant_access_checkbox);
 
-		mockApiSearchWidgets = jest.spyOn(api, 'apiSearchWidgets').mockImplementation(async input => search(input, updatedInstances));
+		mockApiSearchInstances = jest.spyOn(api, 'apiSearchInstances').mockImplementation(async input => search(input, updatedInstances));
 
 		// Closes copy dialog
 		let save_btn = screen.getByText('Copy');
@@ -517,10 +517,10 @@ describe('SupportSelectedInstance', () => {
 			userEvent.click(save_btn);
 		})
 
-		// Should call apiCopyInstance, which returns the new id, and then call mockApiSearchWidgets with the new id
+		// Should call apiCopyInstance, which returns the new id, and then call mockApiSearchInstances with the new id
 		await waitFor(() => {
 			expect(mockApiCopyWidget).toHaveBeenCalled();
-			expect(mockApiSearchWidgets).toHaveBeenCalled();
+			expect(mockApiSearchInstances).toHaveBeenCalled();
 		})
 
 		// Navigate to copied widget
