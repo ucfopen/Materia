@@ -27,16 +27,16 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const handleSearchCloseClick = () => setSearchText('')
 
 	const onClickImport = () => {
-		importInstance(selectedId, onImportSuccess, onImportFailure)
+		importInstance(onImportSuccess, onImportFailure)
 	}
 
 	const onImportSuccess = (inst) => {
-		toast('success', 'Widget imported successfully')
-		onClick(inst.id)
+		toast('Widget imported successfully', 'success')
+		onClick(inst, 0)
 	}
 
 	const onImportFailure = (err) => {
-		toast('error', 'Widget import failed')
+		toast('Widget import failed', 'error')
 	}
 
 	let widgetInstanceElementsRender = null

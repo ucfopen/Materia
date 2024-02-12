@@ -97,7 +97,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	}
 
 	const exportClickHandler = () => {
-		exportType('qset', updatedInst.id, onExportFailure)
+		exportType('instance', updatedInst.id, onExportFailure)
 	}
 
 	const onExportFailure = (err) => {
@@ -291,7 +291,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 				</button>
 				<button className='action_button'
 					onClick={() => exportClickHandler()}>
-						<span>Export Qset</span>
+						<span>Export Instance</span>
 					</button>
 				<button className='action_button delete'
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>

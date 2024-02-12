@@ -241,7 +241,7 @@ const MyWidgetSelectedInstance = ({
 		exportType(type, inst.id, onExportFailure)
 	}
 
-	const importClickHandler = () => {
+	const importQsetClickHandler = () => {
 		importQset(inst.id, onImportSuccess, onImportFailure)
 	}
 
@@ -447,7 +447,7 @@ const MyWidgetSelectedInstance = ({
 								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
 							</svg>
 							<div className={`sub-menu ${showImportOptions ? 'show' : ''}`}>
-								<div onClick={() => importClickHandler()}>
+								<div onClick={() => importQsetClickHandler()}>
 									Import Qset
 								</div>
 							</div>

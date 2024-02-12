@@ -240,9 +240,8 @@ class Controller_Widgets extends Controller
 	/**
 	 * Pass a zip file with the qset(s) and all the assets associated with it to the client
 	 * @param string $inst_id The instance id of the widget to export
-	 * @param bool $get_all_qsets (optional) Whether to get all qsets or just one
-	 * @param string $qset_id (optional) The qset id to export
 	 * @param string $asset (optional) The asset type to export. Can be either 'all', 'qset', or 'media'
+	 * @param string $timestamp (optional) The timestamp of the qset to export
 	 */
 	public function get_export(string $inst_id, string $asset = 'all', string $timestamp = '')
 	{
@@ -274,7 +273,8 @@ class Controller_Widgets extends Controller
 
 		if ($asset == 'all')
 		{
-			$zip->addFromString('qset.json', json_encode($qset));
+			$inst->qset = $qset;
+			$zip->addFromString('instance.json', json_encode($inst));
 		}
 
 		$bytes = 0;

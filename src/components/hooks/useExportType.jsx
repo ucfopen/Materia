@@ -23,7 +23,7 @@ export default function useExportType() {
 			onSuccess: (data) => {
                 const a = document.createElement('a')
                 a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: 'application/json'}))
-                a.download = 'instance.json'
+                a.download = `${data.clean_name}.json`
                 a.click()
 			},
             onError: (error, variables) => {
@@ -54,10 +54,10 @@ export default function useExportType() {
                     const apiEndpoint = asset_type === 'all' ? `/widgets/export/${inst_id}/all/${timestamp}`
                     : `/widgets/export/${inst_id}/media/${timestamp}`;
 
-                    const a = document.createElement('a');
-                    a.href = apiEndpoint;
-                    a.download = `${asset_type}.zip`;
-                    a.click();
+                    const a = document.createElement('a')
+                    a.href = apiEndpoint
+                    a.download = 'export.zip'
+                    a.click()
                 } catch (error) {
                     onError(error);
                 }
