@@ -11,7 +11,7 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
-import useExportInstance from './hooks/useExportInstance'
+import useExportType from './hooks/useExportType'
 import useImportQset from './hooks/useImportQset'
 import useToast from './hooks/useToast'
 
@@ -81,8 +81,8 @@ const MyWidgetSelectedInstance = ({
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
-	const exportInstance = useExportInstance()
-	const { importQset } = useImportQset()
+	const exportType = useExportType()
+	const importQset = useImportQset()
 	const { toast, toastRender } = useToast()
 
 	const { data: editPerms, isFetching: permsFetching} = useQuery({
@@ -238,7 +238,7 @@ const MyWidgetSelectedInstance = ({
 			toast('No media assets to export.', false, false, true)
 			return
 		}
-		exportInstance(type, inst.id, onExportFailure)
+		exportType(type, inst.id, onExportFailure)
 	}
 
 	const importClickHandler = () => {
@@ -427,6 +427,9 @@ const MyWidgetSelectedInstance = ({
 								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
 							</svg>
 							<div className={`sub-menu ${showExportOptions ? 'show' : ''}`}>
+								<div onClick={() => exportClickHandler('instance')}>
+									Export Instance
+								</div>
 								<div onClick={() => exportClickHandler('qset')}>
 									Export Qset
 								</div>
@@ -434,7 +437,7 @@ const MyWidgetSelectedInstance = ({
 									Export Media
 								</div>
 								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
-									Export Both
+									Export All
 								</div>
 							</div>
 						</div>

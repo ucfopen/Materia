@@ -1,9 +1,9 @@
 import { useMutation } from 'react-query'
-import { apiUpdateQset } from '../../util/api'
+import { apiImportInstance } from '../../util/api'
 
-export default function useImportQset() {
-    const importQsetMutation = useMutation(
-        apiUpdateQset,
+export default function useImportInstance() {
+    const importInstanceMutation = useMutation(
+        apiImportInstance,
         {
             onSuccess: (inst, variables) => {
                 if (inst.type === 'error') {
@@ -11,6 +11,7 @@ export default function useImportQset() {
                     variables.errorFunc(inst)
                     return
                 }
+                console.log(variables)
                 variables.successFunc(inst)
             },
             onError: (err, variables, context) => {
@@ -20,7 +21,7 @@ export default function useImportQset() {
         }
     )
 
-    const importQset = async (inst_id, onSuccess, onError) => {
+    const importInstance = async (inst_id, onSuccess, onError) => {
         try {
             const input = document.createElement('input')
             input.type = 'file'
@@ -29,9 +30,14 @@ export default function useImportQset() {
                 const file = e.target.files[0]
                 const reader = new FileReader()
                 reader.onload = e => {
-                    const qset = JSON.parse(e.target.result)
-                    importQsetMutation.mutate({
-                        args: [inst_id, qset],
+                    const instance = JSON.parse(e.target.result)
+                    importInstanceMutation.mutate({
+                        widget_id: instance.widget.id,
+                        name: instance.name,
+                        qset: instance.qset,
+                        is_draft: true
+                    },
+                    {
                         successFunc: onSuccess,
                         errorFunc: onError
                     })
@@ -44,5 +50,5 @@ export default function useImportQset() {
         }
     }
 
-	return importQset
+	return importInstance
 }

@@ -1,9 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import LoadingIcon from './loading-icon'
+import useImportInstance from './hooks/useImportInstance'
+import useToast from './hooks/useToast'
 
 const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMode, beards }) => {
 	const [searchText, setSearchText] = useState('')
+	const importInstance = useImportInstance()
+	const { toast, toastRender } = useToast()
 
 	const hiddenSet = useMemo(() => {
 		const result = new Set()
@@ -21,6 +25,19 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
 	const handleSearchCloseClick = () => setSearchText('')
+
+	const onClickImport = () => {
+		importInstance(selectedId, onImportSuccess, onImportFailure)
+	}
+
+	const onImportSuccess = (inst) => {
+		toast('success', 'Widget imported successfully')
+		onClick(inst.id)
+	}
+
+	const onImportFailure = (err) => {
+		toast('error', 'Widget import failed')
+	}
 
 	let widgetInstanceElementsRender = null
 	if (!isFetching || instances?.length > 0) {
@@ -40,7 +57,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 
 	let searchBoxRender = null
 	if (isFetching) {
-		searchBoxRender = 
+		searchBoxRender =
 		<div className='search loading'>
 			<LoadingIcon size='sm' width='20px' left='10px'/>
 			<span className='loading-message'>Loading Widgets...</span>
@@ -77,6 +94,11 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 			<div className='widget_list' data-container='widget-list'>
 				{widgetInstanceElementsRender}
 			</div>
+			<div className='import-button'>
+				{/* <button onClick={onClickImport}>Import Instance</button> */}
+				<p onClick={onClickImport}><span className="import-icon"></span>Import Instance</p>
+			</div>
+			{ toastRender }
 		</aside>
 	)
 }

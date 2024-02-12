@@ -177,7 +177,7 @@
 			// 	// border-top: 1px solid rgba(100, 100, 100, 0.2);
 
 			.widget_list {
-				height: calc(100% - 74px); // combined height of top and search sections
+				height: calc(100% - 128px); // combined height of top and search sections
 				overflow: auto;
 
 				.icon {
@@ -296,6 +296,37 @@
 				color: #ffffff;
 				text-shadow: #184863 1px 1px 1px;
 				font-weight: 900;
+			}
+
+			.import-button {
+				position: absolute;
+				width: 100%;
+				bottom: 0;
+				text-align: center;
+
+				p {
+					font-weight: bold;
+					transition: font-size 0.2s;
+					&:hover {
+						cursor: pointer;
+						font-size: 1.1em;
+					}
+
+					&:active {
+						font-size: 1em;
+					}
+
+					.import-icon {
+						background: url(/img/import.svg) no-repeat center bottom;
+						margin: 0;
+						width: 21px;
+						height: 21px;
+						display: inline-block;
+						vertical-align: middle;
+						margin-top: -5px;
+						margin-right: 5px;
+					}
+				}
 			}
 		}
 

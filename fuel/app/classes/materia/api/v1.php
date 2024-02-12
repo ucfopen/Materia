@@ -386,6 +386,11 @@ class Api_V1
 		}
 	}
 
+	public static function widget_instance_import($widget_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null)
+	{
+		return static::widget_instance_new($widget_id, $name, $qset, $is_draft);
+	}
+
 	/**
 	 * Validates media URLs in qset
 	 * @param object $data

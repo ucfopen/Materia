@@ -18,7 +18,7 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-export const apiGetWidgetInstance = (instId, loadQset=false) => {
+export const apiGetWidgetInstance = ({instId, loadQset=false}) => {
 	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId, false, loadQset])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -183,6 +183,13 @@ export const apiSaveWidget = (_params) => {
 			return resp.json()
 		})
 	}
+}
+
+export const apiImportInstance = async ({widget_id, name, qset, is_draft = true}) => {
+	return fetch('/api/json/widget_instance_import/', fetchOptions({ body: `data=${formatFetchBody([widget_id, name, qset, is_draft])}` }))
+		.then(resp => {
+			return resp.json()
+		})
 }
 
 export const apiGetUser = () => {
@@ -596,6 +603,7 @@ export const apiGetPlaySession = ({ widgetId }) => {
 }
 
 export const apiGetQuestionSet = ({instId, playId = null, timestamp = null}) => {
+	console.log(instId, playId, timestamp)
 	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId, timestamp])}` }))
 		.then(qset => qset.json())
 }

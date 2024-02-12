@@ -82,7 +82,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// requires: instId prop (may be null, for new widgets)
 	const { isLoading: instanceIsLoading } = useQuery({
 		queryKey: ['widget-inst', instId],
-		queryFn: () => apiGetWidgetInstance(instId),
+		queryFn: () => apiGetWidgetInstance({instId}),
 		enabled: !!instId,
 		staleTime: Infinity,
 		onSettled: (data) => {
@@ -98,7 +98,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// requires: instance.id state property to be set (widget instance query is settled)
 	const { isLoading: qSetIsLoading, data: qset } = useQuery({
 		queryKey: ['qset', instId],
-		queryFn: () => apiGetQuestionSet({instId: instId, playId: null, timestamp: null}),
+		queryFn: () => apiGetQuestionSet({instId}),
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instance.id, // requires instance state object to be prepopulated

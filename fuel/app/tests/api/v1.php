@@ -294,6 +294,29 @@ class Test_Api_V1 extends \Basetest
 		self::assertTrue(true);
 	}
 
+	public function test_widget_instance_import()
+	{
+		// AS STUDENT
+		$this->_as_student();
+
+		$widget = $this->make_disposable_widget();
+
+		// NEW DRAFT
+		$title = "My Test Widget";
+		$question = 'This is another word for test';
+		$answer = 'Assert';
+		$qset = $this->create_new_qset($question, $answer);
+
+		$inst = Api_V1::widget_instance_import($widget->id, $title, $qset, true);
+		$this->assert_is_widget_instance($inst);
+
+		// ==== AS NO-AUTHOR =====
+		$this->_as_noauth();
+
+		$output = Api_V1::widget_instance_import($widget->id, $title, $qset, true);
+		$this->assert_validation_error_message($output);
+	}
+
 	public function test_widget_instance_update_qset()
 	{
 		$this->_as_student();

@@ -121,14 +121,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const { data: inst } = useQuery({
 		queryKey: ['widget-inst', instanceId],
-		queryFn: () => apiGetWidgetInstance(instanceId),
+		queryFn: () => apiGetWidgetInstance({instId: instanceId}),
 		enabled: instanceId !== null,
 		staleTime: Infinity
 	})
 
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
-		queryFn: () => apiGetQuestionSet({instId: instanceId, playId: playId, timestamp: null}),
+		queryFn: () => apiGetQuestionSet({instId: instanceId, playId: playId}),
 		staleTime: Infinity,
 		placeholderData: null
 	})

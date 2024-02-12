@@ -10,7 +10,7 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
 import useCopyWidget from './hooks/useSupportCopyWidget'
-import useExportInstance from './hooks/useExportInstance'
+import useExportType from './hooks/useExportType'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
@@ -53,7 +53,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
 	const copyWidget = useCopyWidget()
-	const exportInstance = useExportInstance()
+	const exportType = useExportType()
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
 		queryKey: ['instance-owner', inst.id],
@@ -97,7 +97,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	}
 
 	const exportClickHandler = () => {
-		exportInstance('qset', updatedInst.id, onExportFailure)
+		exportType('qset', updatedInst.id, onExportFailure)
 	}
 
 	const onExportFailure = (err) => {

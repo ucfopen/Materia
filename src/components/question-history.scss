@@ -56,8 +56,14 @@ html {
 		.export {
 			position: relative;
 			.export-icon {
-				width: 15px;
-				height: 15px;
+				background: url('/img/export.svg') no-repeat center bottom;
+				margin: 0;
+				width: 30px;
+				height: 30px;
+				display: inline-block;
+				vertical-align: middle;
+				margin-top: -10px;
+				margin-right: 5px;
 			}
 		}
 	}

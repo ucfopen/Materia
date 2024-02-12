@@ -15,7 +15,7 @@ const SelectItem = () => {
 
 	const { data: instance } = useQuery({
 		queryKey: 'instance',
-		queryFn: () => apiGetWidgetInstance(instID),
+		queryFn: () => apiGetWidgetInstance({instID}),
 		placeholderData: {},
 		staleTime: Infinity,
 		onSuccess: (data) => {
