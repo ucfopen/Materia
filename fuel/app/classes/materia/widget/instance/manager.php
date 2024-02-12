@@ -182,7 +182,6 @@ class Widget_Instance_Manager
 	 */
 	public static function get_widget_instance_search(string $input, int $offset = 0, int $limit = 80): array
 	{
-		\Log::Error($input);
 		$results = \DB::select()
 			->from('widget_instance')
 			->where('id', 'LIKE', "%$input%")

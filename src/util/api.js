@@ -603,7 +603,6 @@ export const apiGetPlaySession = ({ widgetId }) => {
 }
 
 export const apiGetQuestionSet = ({instId, playId = null, timestamp = null}) => {
-	console.log(instId, playId, timestamp)
 	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId, timestamp])}` }))
 		.then(qset => qset.json())
 }

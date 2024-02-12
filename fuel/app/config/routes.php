@@ -52,7 +52,6 @@ return [
 	'media/(:alnum)'           => 'media/render/$1',
 	'media/(:alnum)/thumbnail' => 'media/render/$1/thumbnail',
 	'media/(:alnum)/large'     => 'media/render/$1/large',
-	'media/zip/(:alnum)'	   => 'media/zip/$1',
 
 	// ================================= USER ======================================
 
