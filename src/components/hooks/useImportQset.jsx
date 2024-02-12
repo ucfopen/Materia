@@ -29,12 +29,16 @@ export default function useImportQset() {
                 const file = e.target.files[0]
                 const reader = new FileReader()
                 reader.onload = e => {
-                    const qset = JSON.parse(e.target.result)
-                    importQsetMutation.mutate({
-                        args: [inst_id, qset],
-                        successFunc: onSuccess,
-                        errorFunc: onError
-                    })
+                    try {
+                        const qset = JSON.parse(e.target.result)
+                        importQsetMutation.mutate({
+                            args: [inst_id, qset],
+                            successFunc: onSuccess,
+                            errorFunc: onError
+                        })
+                    } catch(err) {
+                        onError(err)
+                    }
                 }
                 reader.readAsText(file)
             }

@@ -31,12 +31,12 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	}
 
 	const onImportSuccess = (inst) => {
-		toast('Widget imported successfully', 'success')
+		toast('Instance imported successfully!', true)
 		onClick(inst, 0)
 	}
 
 	const onImportFailure = (err) => {
-		toast('Widget import failed', 'error')
+		toast('Import Failed: There was an error importing the instance', false, true)
 	}
 
 	let widgetInstanceElementsRender = null

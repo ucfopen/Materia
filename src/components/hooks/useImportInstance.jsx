@@ -73,15 +73,19 @@ export default function useImportInstance() {
                 const file = e.target.files[0]
                 const reader = new FileReader()
                 reader.onload = e => {
-                    const instance = JSON.parse(e.target.result)
-                    importInstanceMutation.mutate({
-                        widget_id: instance.widget.id,
-                        name: instance.name,
-                        qset: instance.qset,
-                        is_draft: true,
-                        successFunc: onSuccess,
-                        errorFunc: onError
-                    })
+                    try {
+                        const instance = JSON.parse(e.target.result)
+                        importInstanceMutation.mutate({
+                            widget_id: instance.widget.id,
+                            name: instance.name,
+                            qset: instance.qset,
+                            is_draft: true,
+                            successFunc: onSuccess,
+                            errorFunc: onError
+                        })
+                    } catch(err) {
+                        onError(err)
+                    }
                 }
                 reader.readAsText(file)
             }
