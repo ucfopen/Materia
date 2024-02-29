@@ -13,6 +13,8 @@ $light-gray: #dadada;
 $gray: #9a9a9a;
 $extremely-dark-gray: #333;
 
+$color-background-dark: #21232a;
+
 
 body,
 html {
@@ -89,6 +91,7 @@ header {
 
 	&.logged_in {
 		background: #fff url(/img/header_border_alt.png) 0% 100% repeat-x;
+		//background: #21232a url(/img/header_border_alt.png) 0% 100% repeat-x;
 	}
 
 	ul,
@@ -245,6 +248,7 @@ header {
 		ul {
 			display: none;
 			background-color: #ffffff;
+			//background-color: #000000;
 			padding: 0;
 			position: absolute;
 			bottom: -150%;
@@ -502,7 +506,8 @@ h1.logo {
 	}
 
 	header {
-		background: #fff;
+		//background: #fff;
+		background: #000;
 		background-size: 12px 6px;
 	}
 }
