@@ -122,3 +122,7 @@ public/dist/*
 !public/dist/package.json
 !public/dist/path.js
 !public/dist/README.md
+
+**/__pycache__/**
+**/*.log
+app/materia/settings.py
