@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import DragAndDrop from './drag-and-drop'
+import LoadingIcon from './loading-icon'
 import { apiDeleteAsset, apiGetAssets, apiRestoreAsset } from '../util/api'
 import './media.scss'
-import { Base64 } from 'js-base64'
 
 const sortString = (field, a, b) => a[field].toLowerCase().localeCompare(b[field].toLowerCase())
 const sortNumber = (field, a, b) => a[field] - b[field]
@@ -17,7 +17,7 @@ const FILE_MAX_SIZE = 20000000
 const MIME_MAP = {
 	// generic types, preferred
 	image: ['image/jpg', 'image/jpeg', 'image/gif', 'image/png'],
-	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
+	audio: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3', 'audio/mp4', 'audio/x-m4a', 'audio/wave', 'audio/wav', 'audio/x-wav', 'audio/m4a'],
 	video: [], // placeholder
 	model: ['model/obj'],
 
@@ -27,6 +27,8 @@ const MIME_MAP = {
 	gif: ['image/gif'],
 	png: ['image/png'],
 	mp3: ['audio/mp3', 'audio/mpeg', 'audio/mpeg3'],
+	m4a: ['audio/mp4', 'audio/x-m4a', 'audio/m4a'],
+	wav: ['audio/wave', 'audio/wav', 'audio/x-wav'],
 	obj: ['application/octet-stream', 'model/obj'],
 }
 
@@ -50,6 +52,8 @@ const SORT_OPTIONS = [
 
 const MediaImporter = () => {
 	const queryClient = useQueryClient()
+	const [errorState, setErrorState] = useState(null)
+	const [assetLoadingProgress, setAssetLoadingProgress] = useState(0)
 	const [selectedAsset, setSelectedAsset] = useState(null)
 	const [sortAssets, setSortAssets] = useState(null) // Display assets list
 	const [sortState, setSortState] = useState({
@@ -68,7 +72,6 @@ const MediaImporter = () => {
 			if (!data || data.type == 'error') console.error(`Asset request failed with error: ${data.msg}`)
 			else {
 				const list = data.map(asset => {
-	
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
 						id: asset.id,
@@ -96,13 +99,15 @@ const MediaImporter = () => {
 	// Processes the list sequentially based on the state of each
 	useEffect(() => {
 		if (!assetList || !assetList.length) return
-		
-		// first pass: filter out deleted assets, if we're not displaying them
-		let listStageOne = assetList.filter((asset) => (!showDeletedAssets && !asset.is_deleted) || showDeletedAssets )
+
+		const allowed = _getAllowedFileTypes().map((type) => type.split('/')[1])
+
+		// first pass: filter out by allowed media types as well as deleted assets, if we're not displaying them
+		let listStageOne = assetList.filter((asset) => ((!showDeletedAssets && !asset.is_deleted) || showDeletedAssets) && allowed.indexOf(asset.type) != -1)
 
 		// second pass: filter assets based on search string, if present
 		let listStageTwo = filterSearch.length ? listStageOne.filter((asset) => asset.name.toLowerCase().match( filterSearch.toLowerCase() )) : listStageOne
-		
+
 		// third and final pass: sort assets based on the currently selected sort method and direction
 		let listStageThree = sortState.sortAsc ?
 			listStageTwo.sort(SORT_OPTIONS[sortState.sortOrder].sortMethod) :
@@ -133,10 +138,10 @@ const MediaImporter = () => {
 			case 'png': // intentional case fall-through
 			case 'gif': // intentional case fall-through
 				return `${MEDIA_URL}/${data}/thumbnail`
-	
+
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through
-			case 'ogg': // intentional case fall-through
+			case 'm4a': // intentional case fall-through
 				return '/img/audio.png'
 		}
 	}
@@ -163,95 +168,74 @@ const MediaImporter = () => {
 	}
 
 	const _uploadFile = (e) => {
+		if (assetLoadingProgress > 0 && assetLoadingProgress < 100) return false
 		const file = (e.target.files && e.target.files[0]) || (e.dataTransfer.files && e.dataTransfer.files[0])
-		if (file) _getFileData(file, _upload)
+
+		// file doesn't exist or isn't of type File
+		if (!file || !(file instanceof File)) {
+			setErrorState('The file you selected was invalid.')
+		}
+		// selected file was too big
+		else if (_getMimeType(file.type) && file.size > FILE_MAX_SIZE) {
+			setErrorState('The file you selected is too large. Maximum file size is 20MB.')
+		}
+		// selected file was not an accepted MIME type
+		else if (!_getMimeType(file.type) && file.size <= FILE_MAX_SIZE) {
+			setErrorState(`Invalid file type. Accepted media types are: ${_getAllowedFileTypes().join(', ')}`)
+		}
+		// file OK - proceed to upload
+		else {
+			_upload(file)
+		}
 	}
 
 	const _upload = (fileData) => {
+
 		const fd = new FormData()
 		fd.append('name', fileData.name)
 		fd.append('Content-Type', fileData.type)
-		fd.append('file', _dataURItoBlob(fileData.src, fileData.type), fileData.name)
+		fd.append('file', fileData, fileData.name || 'Unnamed file')
 
 		const request = new XMLHttpRequest()
 
-		request.onload = (oEvent) => {
-			const res = JSON.parse(request.response) //parse response string
-			if (res.error) {
-				alert(`Error code ${res.error.code}: ${res.error.message}`)
-				_onCancel()
-				return
+		request.upload.addEventListener('progress', (e) => {
+			if (e.lengthComputable) {
+				const progress = Math.round((e.loaded / e.total) * 100);
+				setAssetLoadingProgress(progress);
 			}
-			setSelectedAsset(res.id)
+		})
+
+		request.onreadystatechange = () => {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					const res = JSON.parse(request.response)
+					setSelectedAsset(res.id)
+				} else {
+					setErrorState('Something went wrong with uploading your file.')
+					_onCancel()
+					return
+				}
+			}
 		}
-		request.open('POST', MEDIA_UPLOAD_URL)
+
+		request.open('POST', MEDIA_UPLOAD_URL, true)
 		request.send(fd)
 	}
 
-	const _getMimeType = (dataUrl) => {
+	const _getAllowedFileTypes = () => {
 		let allowedFileExtensions = []
-	
 		REQUESTED_FILE_TYPES.forEach((type) => {
 			if (MIME_MAP[type]) {
 				allowedFileExtensions = [...allowedFileExtensions, ...MIME_MAP[type]]
 			}
 		})
-	
-		const mime = dataUrl.split(';')[0].split(':')[1]
-	
-		if (mime == null || allowedFileExtensions.indexOf(mime) === -1) {
-			alert(
-				'This widget does not support the type of file provided. ' +
-				`The allowed types are: ${REQUESTED_FILE_TYPES.join(', ')}.`
-			)
-			return null
-		}
-		return mime
+		return allowedFileExtensions
 	}
 
-	// converts image data uri to a blob for uploading
-	const _dataURItoBlob = (dataURI, mime) => {
-		// convert base64/URLEncoded data component to raw binary data held in a string
-		let byteString
-		const dataParts = dataURI.split(',')
-		if (dataParts[0].indexOf('base64') >= 0) {
-			byteString = Base64.atob(dataParts[1])
-		} else {
-			byteString = decodeURI(dataParts[1])
-		}
-
-		const intArray = new Uint8Array(byteString.length)
-		for (const i in byteString) {
-			intArray[i] = byteString.charCodeAt(i)
-		}
-		return new Blob([intArray], { type: mime })
-	}
-
-	const _getFileData = (file, callback) => {
-		const dataReader = new FileReader()
-		// File size is measured in bytes
-		if (file.size > FILE_MAX_SIZE) {
-			alert(
-				`The file being uploaded has a size greater than 20MB. Please choose a file that is no greater than 20MB.`
-			)
-			return
-		}
-	
-		dataReader.onload = (event) => {
-			const src = event.target.result
-			const mime = _getMimeType(src)
-			if (mime == null) return
-	
-			callback({
-				name: file.name,
-				mime,
-				ext: file.name.split('.').pop(),
-				size: file.size,
-				src,
-			})
-		}
-	
-		dataReader.readAsDataURL(file)
+	const _getMimeType = (mime) => {
+		const allowed = _getAllowedFileTypes()
+		if (mime == null || allowed.indexOf(mime) === -1) return null
+		else return mime
 	}
 
 	// Update the filterSearch state
@@ -262,6 +246,11 @@ const MediaImporter = () => {
 
 	const _onCancel = () => {
 		window.parent.Materia.Creator.onMediaImportComplete(null)
+	}
+
+	let uploadingRender = null
+	if (assetLoadingProgress > 0 && assetLoadingProgress < 100) {
+		uploadingRender = <div className='loading-icon-holder'><LoadingIcon size='med'/><span className='progress'>{assetLoadingProgress}%</span></div>
 	}
 
 	/****** internally defined components ******/
@@ -331,6 +320,7 @@ const MediaImporter = () => {
 						<span className="action_button select_file_button">Browse...</span>
 					</label>
 				</div>
+				{ uploadingRender }
 			</section>
 
 			<section id="right-pane">
@@ -379,6 +369,11 @@ const MediaImporter = () => {
 					{ (!sortAssets || !sortAssets.length) ? <div className="file-info">No files available!</div> : sortAssets }
 				</div>
 			</section>
+			<div className='pane-footer'>
+				<span className={`content ${errorState ? 'error-state' : ''}`}>
+					{ errorState ? errorState : `Accepted media types: ${REQUESTED_FILE_TYPES.join(', ')}`}
+				</span>
+			</div>
 		</div>
 	)
 }

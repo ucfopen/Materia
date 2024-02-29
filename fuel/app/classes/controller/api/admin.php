@@ -69,13 +69,20 @@ class Controller_Api_Admin extends Controller_Rest
 		return \Service_User::update_user($user_id, $user);
 	}
 
-	public function get_widget_search(string $input)
+	public function get_instance_search(string $input, string $page_number)
 	{
 		$input = trim($input);
 		$input = urldecode($input);
+		$page_number = (int) $page_number;
 		//no need to search if for some reason an empty string is passed
-		if ($input == '') return [];
-		return \Materia\Widget_Instance_Manager::get_search($input);
+		if ($input == '')
+		{
+			return [
+				'pagination' => [],
+				'next_page'  => $page_number
+			];
+		}
+		return \Materia\Widget_Instance_Manager::get_paginated_instance_search($input, $page_number);
 	}
 
 	public function get_extra_attempts(string $inst_id)
@@ -92,6 +99,11 @@ class Controller_Api_Admin extends Controller_Rest
 		if ( ! is_string($inst_id)) return Msg::invalid_input($inst_id);
 
 		$inst = \Materia\Widget_Instance_Manager::get($inst_id);
+
+		if ( ! $inst)
+		{
+			return $this->response('Course ID not found.', 400);
+		}
 
 		$attempts = [];
 

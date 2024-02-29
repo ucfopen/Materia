@@ -46,6 +46,10 @@
 					margin-right: 40px;
 					height: 400px;
 
+					p {
+						text-align: left;
+					}
+
 					h1 span.engage {
 						color: #0093e7;
 					}
@@ -112,6 +116,7 @@
 	padding-top: 65px;
 
 	.wrapper {
+		max-width: 1400px;
 		margin: 0 auto;
 	}
 	div {
@@ -125,16 +130,33 @@
 		text-align: center;
 		display: grid;
 
+		div.wrapper_content {
+			margin: 0 0 20px 0;
+		}
+
 		h2 {
+			margin-bottom: 6px;
 			font-size: 30px;
 			font-weight: 500;
-			//color: #000;
-			color: #fff;
+			color: #000;
+			border-bottom: dotted 1px #666;
 		}
 
 		&.wrapper_first, &.wrapper_second, &.wrapper_third {
-			margin: 0 10%;
+			margin: 0 10% 20px 10%;
 			justify-items: center;
+		}
+
+		&.wrapper_first, &.wrapper_third {
+			p {
+				margin-right: 25px;
+			}
+		}
+
+		&.wrapper_second {
+			p {
+				margin-left: 25px;
+			}
 		}
 
 		p {
@@ -144,8 +166,9 @@
 	}
 
 	img {
-		border: solid 2px #ffffff;
-		box-shadow: 1px 2px 4px #888;
+		max-width: 290px;
+		padding: 5px;
+		border: dotted 1px #666;
 		margin-top: 20px;
 	}
 	img:nth-of-type(2) {
@@ -161,8 +184,9 @@
 	}
 	.front_bottom {
 		div {
-			margin: 0px 110px 20px 50px !important;
-			text-align: left !important;
+			margin: 0 0 20px 0;
+			// margin: 0px 110px 20px 50px;
+			text-align: left;
 
 			&.wrapper_first, &.wrapper_second, &.wrapper_third {
 				display: inline-flex;
@@ -170,12 +194,11 @@
 				}
 
 			&.wrapper_second {
-				margin: 0px 50px 20px 110px !important;
+				// margin: 0px 50px 20px 110px;
 				flex-direction: row-reverse;
 
 				div {
-					text-align: right !important;
-					margin-right: 50px !important;
+					text-align: right;
 				}
 
 				img {
@@ -186,8 +209,9 @@
 	}
 }
 .p_s {
+	max-width: 1400px;
 	text-align: center;
-	margin: 30px 40px;
+	margin: 30px 10%;
 
 	h2 {
 		font-size: 30px;

@@ -60,13 +60,14 @@ const MyWidgetSelectedInstance = ({
 	onEdit,
 	beardMode,
 	beard,
-	setInvalidLogin
+	setInvalidLogin,
+	showCollab,
+	setShowCollab
 }) => {
 	const [state, setState] = useState(initState())
 	const [showEmbed, setShowEmbed] = useState(false)
 	const [showCopy, setShowCopy] = useState(false)
 	const [showLocked, setShowLocked] = useState(false)
-	const [showCollab, setShowCollab] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
@@ -79,13 +80,15 @@ const MyWidgetSelectedInstance = ({
 		enabled: !!inst.id,
 		staleTime: Infinity,
 		onSuccess: (data) => {
-			if (!data || data.type == 'error')
+			if (data && data.type == 'error')
 			{
 				console.error(`Error: ${data.msg}`);
-				if (data.title =="Invalid Login")
+				if (data.title == "Invalid Login")
 				{
 					setInvalidLogin(true)
 				}
+			} else if (!data) {
+				console.error(`Failed to fetch permissions.`);
 			}
 		}
 	})
@@ -498,7 +501,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
-			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin}/>
+			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>
 	)
 }

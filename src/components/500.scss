@@ -27,46 +27,17 @@
 			color: #5ca2cc;
 			
 		}
-	
-		h3 {
-			text-align: center;
-			border-top: 1px dashed grey;
-			padding-top: 30px;
-			padding-bottom: 50px;
-			font-size: 30px;
-			width: 50%;
-			color: #f1824c;
-			margin: 0 auto;
-		}
 
 		p {
 			font-weight: 400;
 		}
 	}
 
-	.error-support {
-		margin-top: 0px;
-	
-		span {
-			text-align: center !important;
-			display: block;
-			margin-bottom: 30px;
-			font-size: 18px !important;
-		}
-	
-		dl {
-			font-size: 16px !important;
-			width: 50% !important;
-			margin: 0 auto;
-		}
-	
-		dt {
-			font-weight: bold;
-			margin-bottom: 15px;
-		}
-	
-		dd {
-			margin-bottom: 20px;
-		}
+	#support-info-500 {
+		width: 50%;
+		max-width: 600px;
+		margin: 0 auto;
+
+		text-align: center;
 	}
 }

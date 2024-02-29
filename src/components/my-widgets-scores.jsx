@@ -4,10 +4,10 @@ import { apiGetScoreSummary } from '../util/api'
 import MyWidgetScoreSemester from './my-widgets-score-semester'
 import MyWidgetsExport from './my-widgets-export'
 import LoadingIcon from './loading-icon'
-import NoContentIcon from'./no-content-icon'
+import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst}) => {
+const MyWidgetsScores = ({inst, beardMode}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
@@ -41,21 +41,10 @@ const MyWidgetsScores = ({inst}) => {
 	}, [currScores, state.isShowingAll])
 
 	const openExport = () => {
-		if (containsData()) setState({...state, showExport: true})
+		if (!inst.is_draft) setState({...state, showExport: true})
 	}
 	const closeExport = () => {
 		setState({...state, showExport: false})
-	}
-
-	const containsData = () => {
-		let hasGraphData = false
-		for(const val of currScores) {
-			if (val.graphData) {
-				hasGraphData = true
-			}
-		}
-
-		return hasGraphData
 	}
 
 	const containsStorage = () => {
@@ -73,7 +62,7 @@ const MyWidgetsScores = ({inst}) => {
 
 	let contentRender = <LoadingIcon />
 	if (isFetched) {
-		contentRender = <NoContentIcon />
+		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
 				<MyWidgetScoreSemester key={semester.id}
@@ -110,8 +99,8 @@ const MyWidgetsScores = ({inst}) => {
 		<div className='scores'>
 			<h2>Student Activity</h2>
 			<span id='export_scores_button'
-				className={`aux_button ${containsData() ? '' : 'disabled'}`}
-				onClick={openExport}>
+			className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
+			onClick={openExport}>
 				<span className='arrow_down'></span>
 				Export Options
 			</span>

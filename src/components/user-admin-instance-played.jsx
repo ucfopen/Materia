@@ -4,6 +4,7 @@ import { iconUrl } from '../util/icon-url'
 const UserAdminInstancePlayed = ({play, index}) => {
 
 	const [instanceState, setInstanceState] = useState({expanded: false})
+	const playedDate = new Date(play.created_at*1000).toLocaleString()
 
 	return (
 		<li key={index} className={`instance ${instanceState.expanded ? 'expanded' : ''}`} onClick={() => setInstanceState(instanceState => ({...instanceState, expanded: !instanceState.expanded}))}>
@@ -11,7 +12,7 @@ const UserAdminInstancePlayed = ({play, index}) => {
 				<span className='img-holder'>
 					<img src={iconUrl('/widget/', play.widget.dir, 275)} />
 				</span>
-				<span>
+				<span className='title-holder'>
 					<div className='title'>
 						{ play.name }
 					</div>
@@ -19,13 +20,19 @@ const UserAdminInstancePlayed = ({play, index}) => {
 						{ play.widget.name }
 					</div>
 				</span>
+				<span className='incomplete-status-holder'>
+					{ parseInt(play.is_complete) ? '' : '[Incomplete]' }
+				</span>
+				<span className='date-holder'>
+					{ playedDate }
+				</span>
 			</div>
 			<div className="info-holder">
 				<div>
-					<label>Date:</label> { `${new Date(play.created_at*1000).toLocaleString()} (${play.created_at})` }
+					<label>Date:</label> { `${playedDate} (${play.created_at})` }
 				</div>
 				<div>
-					<label>Score:</label> <a target="_blank" href={ '/scores/'+play.id+'/#single-'+play.play_id }>{ play.percent }%</a>
+					<label>Score:</label> <a target="_blank" href={ `/scores/single/${play.play_id}/${play.id}` }>{ play.percent }%</a>
 				</div>
 				<div>
 					<label>Time Elapsed:</label> { play.elapsed }s
@@ -34,7 +41,7 @@ const UserAdminInstancePlayed = ({play, index}) => {
 					<label>Completed:</label> { play.is_complete == "1" ? 'Yes' : 'No' }
 				</div>
 				<div>
-					<label>Context:</label> {play.auth == 'LTI' ? 'LTI' : 'Web' }
+					<label>Context:</label> {play.auth && typeof play.auth == 'string' && play.auth.toLowerCase() == 'lti' ? 'LTI' : 'Web' }
 				</div>
 			</div>
 		</li>

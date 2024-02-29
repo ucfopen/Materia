@@ -17,28 +17,31 @@ const ScorePage = () => {
 	// this is only actually set to something when coming from the profile page
 	const play_id = window.location.hash.split('play-')[1]
 
+	const pathIsPreview = window.location.pathname.includes('/preview/')
+	const pathIsEmbedded = window.location.pathname.includes('/embed/')
+
 	const [state, setState] = useState({
 		instanceID: undefined,
 		playID: undefined,
 		singleID: undefined,
 		sendToken: undefined,
-		isEmbedded: null,
-		isPreview: null
+		isEmbedded: pathIsEmbedded,
+		isPreview: pathIsPreview
 	})
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
-		if (window.IS_EMBEDDED) document.body.classList.add('embedded')
-
 		waitForWindow()
 		.then(() => {
+			if (window.IS_EMBEDDED) document.body.classList.add('embedded')
+
 			setState({
 				instanceID: (inst_id ? inst_id : null),
 				playID: play_id ? play_id : null,
 				singleID: single_id ? single_id : null,
 				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
-				isEmbedded: window.IS_EMBEDDED ? window.IS_EMBEDDED : false,
-				isPreview: window.IS_PREVIEW ? window.IS_PREVIEW : false,
+				isEmbedded: window.IS_EMBEDDED == 'true' || window.IS_EMBEDDED == true || pathIsEmbedded ? true : false,
+				isPreview: window.IS_PREVIEW == 'true' || window.IS_PREVIEW == true || pathIsPreview ? true : false,
 			})
 		})
 	}, [])
@@ -46,7 +49,8 @@ const ScorePage = () => {
 	// Used to wait for window data to load
 	const waitForWindow = async () => {
 		while(!window.hasOwnProperty('IS_EMBEDDED')
-		&& !window.hasOwnProperty('IS_PREVIEW') && !window.hasOwnProperty('LAUNCH_TOKEN')) {
+		&& !window.hasOwnProperty('IS_PREVIEW')
+		&& !window.hasOwnProperty('LAUNCH_TOKEN')) {
 			await new Promise(resolve => setTimeout(resolve, 500))
 		}
 	}
@@ -57,15 +61,20 @@ const ScorePage = () => {
 		headerRender = <Header/>
 	}
 
+	let bodyRender = null
+	if ( state.isPreview !== undefined ) {
+		bodyRender = <Scores inst_id={state.instanceID}
+		play_id={state.playID}
+		single_id={state.singleID}
+		send_token={state.sendToken}
+		isEmbedded={state.isEmbedded}
+		isPreview={state.isPreview}/>
+	}
+
 	return (
 		<>
 			{ headerRender }
-			<Scores inst_id={state.instanceID}
-				play_id={state.playID}
-				single_id={state.singleID}
-				send_token={state.sendToken}
-				isEmbedded={state.isEmbedded}
-				isPreview={state.isPreview}/>
+			{ bodyRender }
 		</>
 	)
 }

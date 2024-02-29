@@ -33,7 +33,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		showRollbackConfirm: false,
 		saveStatus: 'idle',
 		saveMode: null,
-		previewText: 'Preview',
 		previewUrl: null,
 		saveText: 'Save Draft',
 		publishText: 'Publish...',
@@ -51,6 +50,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		enableLoginButton: false
 	})
 
+	const [sinceLastSave, setSinceLastSave] = useState({
+		lastSaved: null,
+		elapsed: 0
+	})
+	const [saveWidgetComplete, setSaveWidgetComplete] = useState(null)
 	const [widgetReady, setWidgetReady] = useState(false)
 
 	const instIdRef = useRef(instId)
@@ -97,16 +101,16 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetQuestionSet(instId),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!instance.id, // requires instance state object to be prepopulated 
+		enabled: !!instance.id, // requires instance state object to be prepopulated
 		onSettled: (data) => {
-			if ( (data != null ? data.title : undefined) === 'Permission Denied' ||data.title === 'error') {
-					setCreatorState({...creatorState, invalid: true})
-					onInitFail('Permission Denied')
-				} else {
-					setCreatorState({...creatorState, invalid: false})
-					setInstance({ ...instance, qset: data })
-				}
+			if ( (data != null ? data.title : undefined) === 'Permission Denied' || (data && data.title === 'error')) {
+				setCreatorState({...creatorState, invalid: true})
+				onInitFail('Permission Denied')
+			} else {
+				setCreatorState({...creatorState, invalid: false})
+				setInstance({ ...instance, qset: data })
 			}
+		}
 	})
 
 	// verify user can publish a given instance
@@ -153,6 +157,27 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	/* =========== hooks =========== */
 
+	// helper function to update the time elapsed since last save
+	// displayed after selecting Preview or Save Draft (both of which trigger a save)
+	const updateElapsed = () => {
+		setSinceLastSave(sinceLastSave => {
+			if (sinceLastSave.lastSave == null) return { ...sinceLastSave }
+			const duration = Math.floor((Date.now() - sinceLastSave.lastSave)/(60 * 1000))
+			return {...sinceLastSave, elapsed: duration}
+		})
+	}
+
+	// configures interval to update sinceLastSaved elapsed time
+	useEffect(() => {
+		const intervalId = setInterval(updateElapsed, 30000)
+		return () => clearInterval(intervalId)
+	},[])
+
+	// manually update elapsed time if lastSave is set to a new value
+	useEffect(() => {
+		if (creatorState.lastSave) updateElapsed()
+	},[creatorState.lastSave])
+
 	// the listener is applied (and reapplied) when the widget is ready
 	useEffect(() => {
 		// setup the postmessage listener
@@ -178,7 +203,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		} else {
 			setCreatorState({...creatorState, returnUrl: `${window.BASE_URL}widgets`, returnLocation: 'Widget Catalog'})
 		}
-		
+
 	}, [instance])
 
 	useEffect(() => {
@@ -243,6 +268,21 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 	},[creatorState.reloadWithQset])
 
+	// setting creatorState within the API response callback can result in race conditions
+	// saveWidgetComplete is set instead to defer the creatorState updates
+	useEffect(() => {
+		if (!!saveWidgetComplete) {
+			if (saveWidgetComplete == 'save') {
+				setCreatorState(creatorState => ({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle'}))
+			}
+			else if (saveWidgetComplete == 'preview') {
+				setCreatorState(creatorState => ({...creatorState, saveStatus: 'idle'}))
+			}
+			setSinceLastSave({ lastSave: Date.now(), elapsed: 0 })
+			setSaveWidgetComplete(null)
+		}
+	},[saveWidgetComplete])
+
 	/* =========== postMessage handlers =========== */
 
 	const onPostMessage = (e) => {
@@ -292,7 +332,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		console.warn(`Unknown message from creator: ${origin}`)
 	}
-	
+
 	const onCreatorReady = () => {
 		setWidgetReady(true)
 	}
@@ -306,8 +346,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					...creatorState,
 					popupState: null,
 					saveMode: mode,
-					saveStatus: 'saving',
-					previewText: 'Saving...'
+					saveStatus: 'saving'
 				})
 				break
 			case 'save':
@@ -322,8 +361,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 		sendToCreator('onRequestSave', [mode])
 	}
-
-	// console.log(instance)
 
 	const save = (instanceName, qset, version = 1) => {
 		let newWidget = {
@@ -342,7 +379,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 
 		apiSaveWidget(newWidget).then((inst) => {
-
 			if ((inst != null ? inst.msg : undefined) != null) {
 				setAlertDialog({...alertDialog, fatal: inst.halt, enabled: true})
 			} else if (inst != null && inst.id != null) {
@@ -364,11 +400,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						} else {
 							onPreviewPopupBlocked(url)
 						}
+						setSaveWidgetComplete(saveModeRef.current)
 						break
 					case 'publish':
 						window.location = getMyWidgetsUrl(inst.id)
 						break
 					case 'save':
+						setSaveWidgetComplete(saveModeRef.current)
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						sendToCreator('onSaveComplete', [
 							inst.name,
@@ -383,8 +421,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const onSaveCanceled = (msg) => {
-		console.log(msg)
-
 		if (msg != null && msg != undefined) {
 			if (msg.halt != null) {
 
@@ -396,7 +432,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					enableLoginButton: true
 				})
 
-				setCreatorState({...creatorState, hearbeatEnabled: false})
+				setCreatorState({...creatorState, heartbeatEnabled: false})
 			} else {
 				setAlertDialog({
 					enabled: true,
@@ -622,11 +658,22 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		noPermissionRender = <NoPermission />
 	}
 
+	let lastSavedRender = null
+	if (sinceLastSave.lastSave) {
+		lastSavedRender = (
+			<span className="lastSaved">
+				{sinceLastSave.elapsed < 1 ? ' Last saved < 1m ago' : `Last saved ${sinceLastSave.elapsed}m ago`}
+				<div className="dot"></div>
+			</span>
+		)
+	}
+
 	let editButtonsRender = null
 	if (creatorState.mode == 'edit' && instance.editable) {
 		editButtonsRender = (
 			<span>
-				<button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={()=>requestSave('preview')}><span>{creatorState.previewText}</span></button>
+				{lastSavedRender}
+				<button id="creatorPreviewBtn" className="edit_button orange" type="button" onClick={()=>requestSave('preview')}><span>Preview</span></button>
 				<button id="creatorSaveBtn" className={`edit_button orange ${creatorState.saveStatus}`} type="button" onClick={()=>requestSave('save')}><span>{creatorState.saveText}</span></button>
 			</span>
 		)
@@ -635,14 +682,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	let actionBarRender = null
 	if (creatorState.showActionBar) {
-		
+
 		let returnLocationUrl = creatorState.returnLocation == 'Widget Catalog' ? '/widgets' : '/my-widgets#' + instance.id
 
 		actionBarRender = (
 			<section id='action-bar'>
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
-				{ instance.id ? <a onClick={showQsetHistoryImporter}>Save History</a> : '' }
+				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
 				{ editButtonsRender }
 				<div className="dot"></div>
@@ -662,17 +709,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			<section id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
 				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
 				<button onClick={() => qsetRollbackConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
 			</section>
 		)
 	}
 
-	let popupRender = null
+	let popupRender = <div className='popup'></div>
 	switch(creatorState.popupState) {
 		case 'blocked':
 			popupRender = (
-				<div className="preview animate-show">
+				<div className="popup preview show">
 					<p>Your browser blocked the preview popup, click below to preview the widget.</p>
 					<div className="publish_container">
 						<a className="cancel_button" onClick={cancelPopup}>Close</a>
@@ -680,10 +727,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				</div>
 			)
+			break;
 		case 'update':
 			popupRender = (
-				<div className="publish animate-show">
-					<h1>Update Widget</h1>
+				<div className="popup publish show">
+					<header>Update Widget</header>
 					<p>Updating this published widget will instantly allow your students to see your changes.</p>
 
 					<div className="publish_container">
@@ -692,11 +740,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				</div>
 			)
+			break;
 		case 'publish':
 			if (canPublish) {
 				popupRender = (
-					<div className="publish animate-show">
-						<h1>Publish Widget</h1>
+					<div className="popup publish show">
+						<header>Ready to Publish?</header>
 						<p>Publishing removes the "Draft" status of a widget, which grants you the ability to use it in your course and collect student scores &amp; data.</p>
 						<div className="publish_container">
 							<a className="cancel_button" onClick={cancelPopup}>Cancel</a>
@@ -707,8 +756,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			}
 			else {
 				popupRender = (
-					<div className="publish animate-show">
-						<h1>Publish Restricted</h1>
+					<div className="popup publish show">
+						<header>Publish Restricted</header>
 						<p>Students are not allowed to publish this widget.</p>
 						<p>You can share the widget with a non-student who can publish it for you. Select "Save Draft" and add a non-student as a collaborator on the My Widgets page.</p>
 
@@ -718,6 +767,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					</div>
 				)
 			}
+			break;
 	}
 
 	return (

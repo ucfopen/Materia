@@ -39,12 +39,12 @@ const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
 
 	return (
 		<li key={index} className={`instance ${instanceState.expanded ? 'expanded' : ''}`}>
-			<div className={`clickable widget-title ${instanceState.manager ? 'hidden' : ''}`} 
+			<div className={`clickable widget-title ${instanceState.manager ? 'hidden' : ''}`}
 		onClick={() => setInstanceState(instanceState => ({...instanceState, expanded: !instanceState.expanded, manager: false}))}>
 				<span className='img-holder'>
 					<img src={iconUrl('/widget/', instance.widget.dir, 275)} />
 				</span>
-				<span>
+				<span className='title-holder'>
 					<div className='title'>
 						{ instance.name }
 					</div>
@@ -53,7 +53,7 @@ const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
 					</div>
 				</span>
 			</div>
-			{ !instanceState.manager ? 
+			{ !instanceState.manager ?
 				<div className={`info-holder`}>
 					<div>
 						<span>

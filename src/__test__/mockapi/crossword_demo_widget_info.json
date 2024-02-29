@@ -1,0 +1,41 @@
+{
+    "clean_name": "crossword",
+    "creator": "creator.html",
+    "created_at": "1656007466",
+    "dir": "1-crossword/",
+    "flash_version": "10",
+    "api_version": "2",
+    "height": "592",
+    "id": "1",
+    "is_answer_encrypted": "1",
+    "in_catalog": "1",
+    "is_editable": "1",
+    "is_playable": "1",
+    "is_qset_encrypted": "1",
+    "is_scalable": "0",
+    "is_scorable": "1",
+    "is_storage_enabled": "0",
+    "package_hash": "0c0b0b35ff3edaad4f7c08f3e3e9366c",
+    "meta_data": {
+      "features": [
+        "Customizable",
+        "Scorable",
+        "Mobile Friendly"
+      ],
+      "supported_data": [
+        "Question/Answer"
+      ],
+      "about": "I",
+      "excerpt": "A quiz tool that uses words and clues to randomly generate a crossword puzzle.",
+      "demo": "XxSgi"
+    },
+    "name": "Crossword",
+    "player": "player.html",
+    "question_types": "",
+    "restrict_publish": "0",
+    "score_module": "Crossword",
+    "score_screen": "scoreScreen.html",
+    "width": "715",
+    "creator_guide": "guides/creator.html",
+    "player_guide": "guides/player.html"
+  }

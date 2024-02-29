@@ -40,7 +40,7 @@ const CalendarContainer = ({children}) => {
 	)
 }
 
-const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) => {
+const CollaborateUserRow = ({user, perms, myPerms, isCurrentUser, onChange, readOnly}) => {
 	const [state, setState] = useState({...initRowState(), ...perms, expireDate: timestampToDisplayDate(perms.expireTime)})
 	const ref = useRef()
 
@@ -152,7 +152,7 @@ const CollaborateUserRow = ({user, perms, isCurrentUser, onChange, readOnly}) =>
 			<div className='about'>
 				<img className='avatar' src={user.avatar} />
 
-				<span className={`name ${user.is_student ? 'user-match-student' : ''}`}>
+				<span className={`name ${user.is_owner ? 'user-match-owner' : user.is_student ? 'user-match-student' : ''}`}>
 					{`${user.first} ${user.last}`}
 				</span>
 			</div>

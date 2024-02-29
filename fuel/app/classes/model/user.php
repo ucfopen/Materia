@@ -87,14 +87,14 @@ class Model_User extends Orm\Model
 			->get_one();
 	}
 
-	static public function find_by_name_search($name)
+	static public function find_by_name_search($name, $offset = 0, $limit=80)
 	{
 		$name = preg_replace('/\s+/', '', $name); // remove spaces
 
 		$user_table = \Model_User::table();
 		$matches = \DB::select()
 			->from($user_table)
-			// Do not return super users or the current user
+			// Do not return super users or the current user // << why?
 			->where($user_table.'.id', 'NOT', \DB::expr('IN('.\DB::select($user_table.'.id')
 				->from($user_table)
 				->join('perm_role_to_user', 'LEFT')
@@ -108,11 +108,19 @@ class Model_User extends Orm\Model
 				->or_where(\DB::expr('REPLACE(CONCAT(first, last), " ", "")'), 'LIKE', "%$name%")
 				->or_where('email', 'LIKE', "$name%")
 			->and_where_close()
-			->limit(50)
+			->offset($offset)
+			->limit($limit)
 			->as_object('Model_User')
 			->execute();
 
-		return $matches;
+		// convert object to array
+		$list = [];
+		foreach ($matches as $match)
+		{
+			$list[] = $match;
+		}
+
+		return $list;
 	}
 
 	public static function validate($factory)
@@ -155,11 +163,12 @@ class Model_User extends Orm\Model
 
 	public function to_array($custom = false, $recurse = false, $eav = false)
 	{
-		$avatar = \Materia\Utils::get_avatar(50, $this);
+		$avatar = \Materia\Utils::get_avatar(256, $this);
 		$array = parent::to_array($custom, $recurse, $eav);
 		$array['avatar'] = $avatar;
 		$array['is_student'] = \Materia\Perm_Manager::is_student($this->id);
-		$array['is_support_user'] = \Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SUPPORT]);
+		$array['is_support_user'] = \Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SUPPORT], $this->id);
+		if (\Materia\Perm_Manager::does_user_have_role([\Materia\Perm_Role::SU], $this->id)) $array['is_super_user'] = true;
 		return $array;
 	}
 

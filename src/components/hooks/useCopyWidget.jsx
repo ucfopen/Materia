@@ -14,9 +14,10 @@ export default function useCopyWidget() {
 		{
 			onMutate: async inst => {
 				await queryClient.cancelQueries('widgets', { exact: true, active: true, })
-				// 'getQueryData()' is a sync method
 				const previousValue = queryClient.getQueryData('widgets')
 
+				// dummy data that's appended to the query cache as an optimistic update
+				// this will be replaced with actual data returned from the API
 				const newInst = {
 					id: 'tmp',
 					widget: {
@@ -28,19 +29,39 @@ export default function useCopyWidget() {
 					is_fake: true
 				}
 
-				let updateData = previousValue
-				if (updateData) updateData.pagination?.unshift(newInst)
+				// setQueryClient must treat the query cache as immutable!!!
+				// previous will contain the cached value, the function argument creates a new object from previous
+				queryClient.setQueryData('widgets', (previous) => ({
+					...previous,
+					pages: previous.pages.map((page, index) => {
+						if (index == 0) return { ...page, pagination: [ newInst, ...page.pagination] }
+						else return page
+					}),
+					modified: Math.floor(Date.now() / 1000)
+				}))
 
-				// 'setQueryData()' is a sync method
-				queryClient.setQueryData('widgets', updateData) // can confirm 'widgets' is updating
 				return { previousValue }
 			},
 			onSuccess: (data, variables) => {
-				queryClient.invalidateQueries('widgets')
+				// update the query cache, which previously contained a dummy instance, with the real instance info
+				queryClient.setQueryData('widgets', (previous) => ({
+					...previous,
+					pages: previous.pages.map((page, index) => {
+						if (index == 0) return { ...page, pagination: page.pagination.map((inst) => {
+							if (inst.id == 'tmp') inst = data
+							return inst
+						}) }
+						else return page
+					}),
+					modified: Math.floor(Date.now() / 1000)
+				}))
 				variables.successFunc(data)
 			},
 			onError: (err, newWidget, context) => {
-				queryClient.setQueryData('widgets', context.previousValue)
+				console.error(err)
+				queryClient.setQueryData('widgets', (previous) => {
+					return context.previousValue
+				})
 			}
 		}
 	)

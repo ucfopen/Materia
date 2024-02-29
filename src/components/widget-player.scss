@@ -8,6 +8,7 @@ body {
 
 #app {
 	position: relative;
+	height: calc(100% - 42px);
 }
 
 section.widget {
@@ -41,19 +42,19 @@ section.widget {
 			content: 'Previewing';
 			background: #b944cc;
 			display: block;
-		
+
 			left: 0px;
 			top: -40px;
 			width: 160px;
 			height: 20px;
 			padding: 8px 0 12px 0;
-		
+
 			font-size: 20px;
 			font-weight: 900;
 			color: #ffffff;
 			text-align: center;
 			vertical-align: middle;
-		
+
 			border-radius: 5px 5px 0 0;
 		}
 
@@ -61,29 +62,31 @@ section.widget {
 			content: 'Scores and interactions will not be recorded while previewing.';
 			position: absolute;
 			display: block;
-		
+
 			right: 0px;
 			top: 16px;
-		
+
 			font-size: 14px;
 			font-weight: 300;
 		}
 	}
 
 	.center {
-		margin: 0 auto 38px;
-		background: white;
+		position: relative;
 		height: 100%;
 		min-height: 400px;
-	
+		margin: 0 auto;
+
+		background: #fff;
+
 		#container {
 			margin: 0 auto;
 			outline: 1px solid #999;
 			display: block;
-		
+
 			font-family: 'Lato', arial, sans-serif;
 		}
-		
+
 		#container.html {
 			border: 0;
 			height: 100%;
@@ -92,24 +95,22 @@ section.widget {
 	}
 
 	section.player-footer {
-		position: relative;
-		height: 20px;
-
-		top: -38px;
+		height: 38px;
 
 		margin: 0 auto;
-		padding: 4px 0;
+		padding: 4px 10px;
 
 		border-top: solid 2px $color-purple;
 		border-bottom-right-radius: 5px;
 		border-bottom-left-radius: 5px;
+		box-sizing: border-box;
 
 		background: #ebebeb;
 
+		display: flex;
+		justify-content: space-between;
+
 		a {
-			position: absolute;
-			top: 0px;
-			right: 15px;
 			display: block;
 
 			padding-top: 4px;
@@ -121,7 +122,6 @@ section.widget {
 			text-decoration: underline;
 
 			&.materia-logo {
-				left: 10px;
 				width: 100px;
 
 				img {

@@ -7,6 +7,7 @@ const PLAY = 'play'
 const PREVIEW = 'preview'
 const DEMO = 'demo'
 const PREVIEW_EMBED = 'preview-embed'
+const LEGACY_EMBED = 'legacy-embed'
 
 const getWidgetType = path => {
 	switch(true) {
@@ -15,6 +16,7 @@ const getWidgetType = path => {
 		case path.includes('/preview/'): return PREVIEW
 		case path.includes('/demo'): return DEMO
 		case path.includes('/preview-embed/'): return PREVIEW_EMBED
+		case path.includes('/lti/assignment'): return LEGACY_EMBED
 		default: return null
 	}
 }
@@ -31,7 +33,7 @@ const WidgetPlayerPage = () => {
 
 	// Waits for window values to load from server then sets them
 	useEffect(() => {
-		if (type == EMBED || type == PREVIEW_EMBED) document.body.classList.add('embedded')
+		if (type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED) document.body.classList.add('embedded')
 
 		waitForWindow()
 		.then(() => {
@@ -43,6 +45,16 @@ const WidgetPlayerPage = () => {
 						widgetHeight: window.WIDGET_HEIGHT,
 						widgetWidth: window.WIDGET_WIDTH,
 						widgetID: nameArr.length >= 1 ? nameArr[0] : null
+					})
+					break
+				case LEGACY_EMBED:
+					const params = window.location.search
+					const instId = new URLSearchParams(params).get('widget')
+					setState({
+						playID: window.PLAY_ID,
+						widgetHeight: window.WIDGET_HEIGHT,
+						widgetWidth: window.WIDGET_WIDTH,
+						widgetID: instId
 					})
 					break
 				case DEMO:
@@ -77,10 +89,11 @@ const WidgetPlayerPage = () => {
 
 	let headerRender = <Header />
 	// No header for embedded widgets
-	if ( type == EMBED || type == PREVIEW_EMBED ) headerRender = null
+	if ( type == EMBED || type == PREVIEW_EMBED || type == LEGACY_EMBED ) headerRender = null
 
 	let bodyRender = null
-	if( (!!state.widgetID) && state.playID !== undefined ) {
+
+	if( !!state.widgetID && state.playID !== undefined ) {
 		bodyRender = (
 			<WidgetPlayer instanceId={state.widgetID}
 				playId={state.playID}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
-import { apiGetUsers, apiSearchUsers } from '../util/api'
+import { apiGetUsers } from '../util/api'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 import Modal from './modal'
 import useDebounce from './hooks/useDebounce'
@@ -8,8 +8,10 @@ import LoadingIcon from './loading-icon'
 import NoContentIcon from './no-content-icon'
 import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
+import { access } from './materia-constants'
+import useUserList from './hooks/useUserList'
 
-const initDialogState = () => {
+const initDialogState = (state) => {
 	return ({
 		searchText: '',
 		shareNotAllowed: false,
@@ -24,52 +26,43 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const setUserPerms = setUserInstancePerms()
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
+	const userList = useUserList(debouncedSearchTerm)
+
 	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
-		queryKey: ['collab-users', inst.id],
+		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {}
 	})
-	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
-		queryKey: 'user-search',
-		enabled: !!debouncedSearchTerm,
-		queryFn: () => apiSearchUsers(debouncedSearchTerm),
-		staleTime: Infinity,
-		placeholderData: [],
-		retry: false,
-		onSuccess: (data) => {
-			if (!data || (data.type == 'error'))
-			{
-				console.error(`User search failed with error: ${data.msg}`);
-				if (data.title =="Invalid Login")
-				{
-					setInvalidLogin(true)
-				}
-			}
-		}
-	})
 
 	useEffect(() => {
-    mounted.current = true
-    return () => {
+		if (userList.error) {
+			console.error(`User search failed with error: ${data.msg}`);
+			if (userList.error.title == "Invalid Login")
+			{
+				setInvalidLogin(true)
+			}
+		}
+	}, [userList.error])
+
+	useEffect(() => {
+		mounted.current = true
+		return () => {
 			mounted.current = false
 		}
 	}, [])
 
-	// Handles the search with debounce
-	useEffect(() => {
-		if(debouncedSearchTerm === '') clearSearch()
-		else refetchSearch()
-	}, [debouncedSearchTerm])
-
 	// updatedAllUserPerms is assigned the value of otherUserPerms (a read-only prop) when the component loads
 	useEffect(() => {
-		const map = new Map(otherUserPerms)
-		map.forEach((key, pair) => {
-			key.remove = false
-		})
-		setState({...state, updatedAllUserPerms: map})
+		if (otherUserPerms != null)
+		{
+			const map = new Map([...state.updatedAllUserPerms, ...otherUserPerms])
+			map.forEach((key, pair) => {
+				key.remove = false
+			})
+			setState({...state, updatedAllUserPerms: map})
+		}
 	}, [otherUserPerms])
 
 	// Handles clicking a search result
@@ -77,7 +70,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		const tempPerms = new Map(state.updatedAllUserPerms)
 		let shareNotAllowed = false
 
-		if(!inst.guest_access && match.is_student){
+		if(!inst.guest_access && match.is_student && !match.is_support_user){
 			shareNotAllowed = true
 			setState({...state, searchText: '', updatedAllUserPerms: tempPerms, shareNotAllowed: shareNotAllowed})
 			return
@@ -89,6 +82,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			let tmpMatch = {}
 			tmpMatch[match.id] = match
 			queryClient.setQueryData(['collab-users', inst.id], old => ({...old, ...tmpMatch}))
+			if (!collabUsers[match.id])
+				collabUsers[match.id] = match
 
 			// Updateds the perms
 			tempPerms.set(
@@ -133,17 +128,42 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			delCurrUser = true
 		}
 
-		setUserPerms.mutate({
-			instId: inst.id,
-			permsObj: Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
+		let permsObj = [];
+
+		if (delCurrUser && myPerms.accessLevel != access.FULL)
+		{
+			// Only send a request to update current user perms so that it doesn't get no-perm'd by the server
+			let currentUserPerms = state.updatedAllUserPerms.get(currentUser.id);
+			permsObj.push({
+				user_id: currentUser.id,
+				expiration: currentUserPerms.expireTime,
+				perms: {[currentUserPerms.accessLevel]: !currentUserPerms.remove}
+			})
+		}
+		else
+		{
+			// else send a request to update all perms
+			permsObj = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				return {
 					user_id: userId,
 					expiration: userPerms.expireTime,
 					perms: {[userPerms.accessLevel]: !userPerms.remove}
 				}
-			}),
-			successFunc: () => {
-				if (mounted.current) {
+			})
+		}
+
+		setUserPerms.mutate({
+			instId: inst.id,
+			permsObj: permsObj,
+			successFunc: (data) => {
+				if (data && data.type == 'error')
+				{
+					if (data.title == "Share Not Allowed")
+					{
+						setState({...state, shareNotAllowed: true})
+					}
+				}
+				else if (mounted.current) {
 					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}
@@ -171,13 +191,12 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	const customClose = () => {
 		clearUsers()
-		clearSearch()
 		onClose()
 	}
 
 	const updatePerms = (userId, perms) => {
 		let newPerms = new Map(state.updatedAllUserPerms)
-		newPerms.set(userId, perms)
+		newPerms.set(parseInt(userId), perms)
 		setState({...state, updatedAllUserPerms: newPerms})
 	}
 
@@ -185,8 +204,8 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults.length && searchResults?.length !== 0) {
-			const searchResultElements = searchResults?.map(match =>
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
+			const searchResultElements = userList.users?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'
 					onClick={() => onClickMatch(match)}>
@@ -216,9 +235,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					className='user-add'
 					type='text'
 					placeholder="Enter a Materia user's name or e-mail"/>
-				<div>
-					{ searchResultsRender }
-				</div>
+				{ searchResultsRender }
 			</div>
 		)
 	}
@@ -231,13 +248,23 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			const mainContentElements = Array.from(state.updatedAllUserPerms).map(([userId, userPerms]) => {
 				if (userPerms.remove === true) return
 
-				const user = collabUsers[userId]
-				if (!user) return <div key={userId}></div>
+				let user = collabUsers[userId]
+				if (!user)
+				{
+					return <div key={userId}></div>
+				}
+
+				if (user.id == inst.user_id) {
+					user.is_owner = true;
+				} else {
+					user.is_owner = false;
+				}
 
 				return <CollaborateUserRow
 					key={user.id}
 					user={user}
 					perms={userPerms}
+					myPerms={myPerms}
 					isCurrentUser={currentUser.id === user.id}
 					onChange={(userId, perms) => updatePerms(userId, perms)}
 					readOnly={myPerms?.shareable === false}
@@ -257,9 +284,11 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	if (state.shareNotAllowed === true) {
 		noShareWarningRender = (
 			<Modal onClose={disableShareNotAllowed} smaller={true} alert={true}>
-				<span className='alert-title'>Share Not Allowed</span>
-				<p className='alert-description'>Access must be set to "Guest Mode" to collaborate with students.</p>
-				<button className='alert-btn' onClick={disableShareNotAllowed}>Okay</button>
+				<div>
+					<span className='alert-title'>Share Not Allowed</span>
+					<p className='alert-description'>Access must be set to "Guest Mode" to collaborate with students.</p>
+					<button className='action_button' onClick={disableShareNotAllowed}>Okay</button>
+				</div>
 			</Modal>
 		)
 	}
@@ -269,30 +298,28 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			ignoreClose={state.shareNotAllowed}>
 			<div className='collaborate-modal' ref={popperRef}>
 				<span className='title'>Collaborate</span>
-				<div>
-					<div id='access' className='collab-container'>
-						{ searchContainerRender }
-						<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
-							{ mainContentRender }
-						</div>
-						{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
-						<div id='calendar-portal' />
-						<p className='disclaimer'>
-							Users with full access can edit or copy this widget and can
-							add or remove people in this list.
-						</p>
-						<div className='btn-box'>
-							<a tabIndex='0'
-								className='cancel_button'
-								onClick={customClose}>
-								Cancel
-							</a>
-							<a tabIndex='0'
-								className='action_button green save_button'
-								onClick={onSave}>
-								Save
-							</a>
-						</div>
+				<div id='access' className='collab-container'>
+					{ searchContainerRender }
+					<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
+						{ mainContentRender }
+					</div>
+					{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
+					<div id='calendar-portal' />
+					<p className='disclaimer'>
+						Users with full access can edit or copy this widget and can
+						add or remove people in this list.
+					</p>
+					<div className='btn-box'>
+						<a tabIndex='0'
+							className='cancel_button'
+							onClick={customClose}>
+							Cancel
+						</a>
+						<a tabIndex='0'
+							className='action_button green save_button'
+							onClick={onSave}>
+							Save
+						</a>
 					</div>
 				</div>
 			</div>

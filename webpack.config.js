@@ -52,13 +52,17 @@ module.exports = {
 	output: {
 		path: path.join(__dirname, 'public/dist/'),
 		filename: 'js/[name].js',
-		clean: true
+		clean: {
+			keep(asset) {
+				return (asset.includes('package.json') || asset.includes('README.md') || asset.includes('path.js'))
+			}
+		}
 	},
 	module: {
 		rules: [
 			{
 				test: /\.(js|jsx)$/,
-				exclude: /node_modules/,
+				exclude: /node_modules|public\/dist/,
 				use: {
 						loader: 'babel-loader'
 					}
@@ -86,9 +90,18 @@ module.exports = {
 	],
 	resolve: {
 		extensions: ['.js', '.jsx'],
+	},
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'commons',
+					chunks: (chunk) => {
+						return (chunk.name !== 'materia.enginecore' && chunk.name !== 'materia.creatorcore' && chunk.name !== 'materia.scorecore')
+					},
+				}
+			}
+		}
 	}
-	// externals: {
-	// 	react: 'React',
-	// 	'react-dom': 'ReactDOM'
-	// }
 }

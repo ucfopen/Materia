@@ -24,6 +24,7 @@ return [
 		'no_attempts'=> [$webpack.'js/no-attempts.js'],
 		'draft_not_playable' => [$webpack.'js/draft-not-playable.js'],
 		'no_permission' => [$webpack.'js/no-permission.js'],
+		'closed'     => [$webpack.'js/closed.js'],
 		'embedded_only' => [$webpack.'js/embedded-only.js'],
 		'pre_embed'  => [$webpack.'js/pre-embed-placeholder.js'],
 		'help'       => [$webpack.'js/help.js'],
@@ -36,9 +37,8 @@ return [
 		'open_preview' => [$webpack.'js/lti-open-preview.js'],
 		'error_general' => [$webpack.'js/lti-error.js'],
 		'react'      => [
-			'//unpkg.com/react@16.13.1/umd/react.development.js',
-			'//unpkg.com/react-dom@16.13.1/umd/react-dom.development.js',
-			$webpack.'js/include.js'
+			$webpack.'js/include.js',
+			$webpack.'js/commons.js'
 		],
 		'question-importer' => [$webpack.'js/question-importer.js']
 	]

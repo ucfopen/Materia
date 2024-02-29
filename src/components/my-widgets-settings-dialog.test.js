@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider, QueryCache, useQuery } from 'react-query'
@@ -238,7 +241,7 @@ describe('MyWidgetsSettingsDialog', () => {
 		// Lifts mouse from input
 		fireEvent.mouseUp(screen.getByLabelText("attempts-input"))
 
-		// Value should be 
+		// Value should be
 		expect(screen.getByLabelText("attempts-input").value).toBe(attemptsValue)
 
 		// 15 should be the only active span

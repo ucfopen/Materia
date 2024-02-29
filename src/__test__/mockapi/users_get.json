@@ -1,0 +1,78 @@
+[
+    {
+      "id": 9,
+      "username": "test_lti_user05f2db072c",
+      "first": "Unofficial Test",
+      "last": "User 05f2db072c",
+      "group": 1,
+      "email": "test.lti.user05f2db072c@materia.com",
+      "last_login": 1679405996,
+      "profile_fields": {
+        "useGravatar": true,
+        "notify": true,
+        "created_by": "ucfopen.github.io"
+      },
+      "created_at": 1679405995,
+      "updated_at": 1679405995,
+      "avatar": "https://secure.gravatar.com/avatar/543ba2bc16bde6fcd386f38d73887dd8?s=50&d=retro",
+      "is_student": false,
+      "is_support_user": false
+    },
+    {
+      "id": 10,
+      "username": "test_lti_user34f5b1afec",
+      "first": "Unofficial Test",
+      "last": "User 34f5b1afec",
+      "group": 1,
+      "email": "test.lti.user34f5b1afec@materia.com",
+      "last_login": 1679408602,
+      "profile_fields": {
+        "useGravatar": true,
+        "notify": true,
+        "created_by": "ucfopen.github.io"
+      },
+      "created_at": 1679408602,
+      "updated_at": 1679408602,
+      "avatar": "https://secure.gravatar.com/avatar/86fa3b34700d29d39bd908e8fffd1f78?s=50&d=retro",
+      "is_student": false,
+      "is_support_user": false
+    },
+    {
+      "id": 11,
+      "username": "test_lti_user6f17ffa34b",
+      "first": "Unofficial Test",
+      "last": "User 6f17ffa34b",
+      "group": 1,
+      "email": "test.lti.user6f17ffa34b@materia.com",
+      "last_login": 1679939387,
+      "profile_fields": {
+        "useGravatar": true,
+        "notify": true,
+        "created_by": "ucfopen.github.io"
+      },
+      "created_at": 1679939387,
+      "updated_at": 1679939387,
+      "avatar": "https://secure.gravatar.com/avatar/42e64399aaa62b6fcbd2460ba411007a?s=50&d=retro",
+      "is_student": false,
+      "is_support_user": false
+    },
+    {
+      "id": 12,
+      "username": "test_lti_userf664f64d7d",
+      "first": "Unofficial Test",
+      "last": "User f664f64d7d",
+      "group": 1,
+      "email": "test.lti.userf664f64d7d@materia.com",
+      "last_login": 1679939906,
+      "profile_fields": {
+        "useGravatar": true,
+        "notify": true,
+        "created_by": "ucfopen.github.io"
+      },
+      "created_at": 1679939906,
+      "updated_at": 1679939906,
+      "avatar": "https://secure.gravatar.com/avatar/5256dbeaaad7f29317a1977eff48424e?s=50&d=retro",
+      "is_student": false,
+      "is_support_user": false
+    }
+  ]

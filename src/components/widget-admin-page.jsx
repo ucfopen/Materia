@@ -3,13 +3,13 @@ import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 
 import Header from './header'
-import WidgetInstall from './widget-install'
-import WidgetList from './widget-list'
+import WidgetInstall from './widget-admin-install'
+import WidgetList from './widget-admin-list'
 import { iconUrl } from '../util/icon-url'
 
 const WidgetAdminPage = () => {
 	const [widgets, setWidgets] = useState([])
-	
+
 	const { data, isLoading, refetch: refetchWidgets} = useQuery({
 		queryKey: ['widgets'],
 		queryFn: apiGetWidgetsAdmin,
@@ -31,7 +31,7 @@ const WidgetAdminPage = () => {
 			setWidgets(widgetData)
 		}
 	})
-	
+
 	let pageRenderContent = (
         <>
             <WidgetInstall refetchWidgets={refetchWidgets}/>
