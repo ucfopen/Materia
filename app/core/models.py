@@ -20,7 +20,6 @@ class Asset(models.Model):
     is_deleted = models.CharField(max_length=1)  # convert to boolean field
 
     class Meta:
-        managed = False
         db_table = "asset"
 
 
@@ -37,7 +36,6 @@ class AssetData(
     data = models.TextField()
 
     class Meta:
-        managed = False
         db_table = "asset_data"
         unique_together = (("id", "size"),)
 
@@ -50,7 +48,6 @@ class DateRange(models.Model):
     end_at = models.IntegerField()  # consider converting to date field
 
     class Meta:
-        managed = False
         db_table = "date_range"
         unique_together = (("semester", "year", "start_at", "end_at"),)
 
@@ -74,7 +71,6 @@ class Log(models.Model):
     ip = models.CharField(max_length=20)
 
     class Meta:
-        managed = False
         db_table = "log"
 
 
@@ -91,7 +87,6 @@ class LogActivity(models.Model):
     value_3 = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "log_activity"
 
 
@@ -117,7 +112,6 @@ class LogPlay(models.Model):
     semester = models.PositiveBigIntegerField()  # foreign key to DateRange model
 
     class Meta:
-        managed = False
         db_table = "log_play"
 
 
@@ -135,7 +129,6 @@ class LogStorage(models.Model):
     data = models.TextField()
 
     class Meta:
-        managed = False
         db_table = "log_storage"
 
 
@@ -155,7 +148,6 @@ class Lti(models.Model):
     updated_at = models.IntegerField()
 
     class Meta:
-        managed = False
         db_table = "lti"
 
 
@@ -172,7 +164,6 @@ class MapAssetToObject(models.Model):
     )  # foreign key to Asset model
 
     class Meta:
-        managed = False
         db_table = "map_asset_to_object"
         unique_together = (("object_id", "object_type", "asset_id"),)
 
@@ -184,7 +175,6 @@ class MapQuestionToQset(models.Model):
     question_id = models.PositiveBigIntegerField()  # foreign key to Question model
 
     class Meta:
-        managed = False
         db_table = "map_question_to_qset"
 
 
@@ -196,7 +186,6 @@ class Migration(models.Model):
     migration = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
         db_table = "migration"
 
 
@@ -219,7 +208,6 @@ class Notification(models.Model):
     action = models.CharField(max_length=255)
 
     class Meta:
-        managed = False
         db_table = "notification"
 
 
@@ -241,7 +229,6 @@ class PermObjectToUser(models.Model):
     )  # is Null for all records in the dev DB
 
     class Meta:
-        managed = False
         db_table = "perm_object_to_user"
         unique_together = (("object_id", "user_id", "perm", "object_type"),)
 
@@ -254,7 +241,6 @@ class PermRoleToPerm(models.Model):
     )  # 1 = VISIBLE, 30 = FULL, 85 = SUPPORTUSER, 90 = SUPERUSER
 
     class Meta:
-        managed = False
         db_table = "perm_role_to_perm"
         unique_together = (("role_id", "perm"),)
 
@@ -265,7 +251,6 @@ class PermRoleToUser(models.Model):
     role_id = models.PositiveBigIntegerField()  # foreign key to UserRole model
 
     class Meta:
-        managed = False
         db_table = "perm_role_to_user"
         unique_together = (("user_id", "role_id"),)
 
@@ -277,7 +262,6 @@ class PermRoleToUserBackup(models.Model):
     role_id = models.PositiveBigIntegerField()
 
     class Meta:
-        managed = False
         db_table = "perm_role_to_user_backup"
 
 
@@ -291,7 +275,6 @@ class Question(models.Model):
     hash = models.CharField(unique=True, max_length=32)
 
     class Meta:
-        managed = False
         db_table = "question"
 
 
@@ -305,7 +288,6 @@ class Sessions(models.Model):
     payload = models.TextField()
 
     class Meta:
-        managed = False
         db_table = "sessions"
 
 
@@ -321,7 +303,6 @@ class UserExtraAttempts(models.Model):
     semester = models.PositiveBigIntegerField()  # foreign key to DateRange model
 
     class Meta:
-        managed = False
         db_table = "user_extra_attempts"
 
 
@@ -333,7 +314,6 @@ class UserMeta(models.Model):
     value = models.TextField()
 
     class Meta:
-        managed = False
         db_table = "user_meta"
         unique_together = (("user_id", "meta"),)
 
@@ -344,7 +324,6 @@ class UserRole(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        managed = False
         db_table = "user_role"
 
 
@@ -365,7 +344,6 @@ class Users(
     group = models.IntegerField()
 
     class Meta:
-        managed = False
         db_table = "users"
 
 
@@ -401,7 +379,6 @@ class Widget(models.Model):
     player_guide = models.CharField(max_length=255)
 
     class Meta:
-        managed = False
         db_table = "widget"
 
 
@@ -429,7 +406,6 @@ class WidgetInstance(models.Model):
     )  # foreign key to Users model
 
     class Meta:
-        managed = False
         db_table = "widget_instance"
 
 
@@ -440,7 +416,6 @@ class WidgetMetadata(models.Model):
     value = models.TextField()
 
     class Meta:
-        managed = False
         db_table = "widget_metadata"
 
 
@@ -454,5 +429,4 @@ class WidgetQset(models.Model):
     version = models.CharField(max_length=10, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = "widget_qset"

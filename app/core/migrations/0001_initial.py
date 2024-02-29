@@ -32,8 +32,7 @@ class Migration(migrations.Migration):
                 ('is_deleted', models.CharField(max_length=1)),
             ],
             options={
-                'db_table': 'asset',
-                'managed': False,
+                'db_table': 'asset'
             },
         ),
         migrations.CreateModel(
@@ -49,8 +48,7 @@ class Migration(migrations.Migration):
                 ('data', models.TextField()),
             ],
             options={
-                'db_table': 'asset_data',
-                'managed': False,
+                'db_table': 'asset_data'
             },
         ),
         migrations.CreateModel(
@@ -63,8 +61,7 @@ class Migration(migrations.Migration):
                 ('end_at', models.IntegerField()),
             ],
             options={
-                'db_table': 'date_range',
-                'managed': False,
+                'db_table': 'date_range'
             },
         ),
         migrations.CreateModel(
@@ -82,8 +79,7 @@ class Migration(migrations.Migration):
                 ('ip', models.CharField(max_length=20)),
             ],
             options={
-                'db_table': 'log',
-                'managed': False,
+                'db_table': 'log'
             },
         ),
         migrations.CreateModel(
@@ -99,8 +95,7 @@ class Migration(migrations.Migration):
                 ('value_3', models.CharField(blank=True, max_length=255, null=True)),
             ],
             options={
-                'db_table': 'log_activity',
-                'managed': False,
+                'db_table': 'log_activity'
             },
         ),
         migrations.CreateModel(
@@ -125,8 +120,7 @@ class Migration(migrations.Migration):
                 ('semester', models.PositiveBigIntegerField()),
             ],
             options={
-                'db_table': 'log_play',
-                'managed': False,
+                'db_table': 'log_play'
             },
         ),
         migrations.CreateModel(
@@ -141,8 +135,7 @@ class Migration(migrations.Migration):
                 ('data', models.TextField()),
             ],
             options={
-                'db_table': 'log_storage',
-                'managed': False,
+                'db_table': 'log_storage'
             },
         ),
         migrations.CreateModel(
@@ -161,8 +154,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.IntegerField()),
             ],
             options={
-                'db_table': 'lti',
-                'managed': False,
+                'db_table': 'lti'
             },
         ),
         migrations.CreateModel(
@@ -174,8 +166,7 @@ class Migration(migrations.Migration):
                 ('asset_id', models.CharField(db_collation='utf8_bin', max_length=10)),
             ],
             options={
-                'db_table': 'map_asset_to_object',
-                'managed': False,
+                'db_table': 'map_asset_to_object'
             },
         ),
         migrations.CreateModel(
@@ -186,8 +177,7 @@ class Migration(migrations.Migration):
                 ('question_id', models.PositiveBigIntegerField()),
             ],
             options={
-                'db_table': 'map_question_to_qset',
-                'managed': False,
+                'db_table': 'map_question_to_qset'
             },
         ),
         migrations.CreateModel(
@@ -199,8 +189,7 @@ class Migration(migrations.Migration):
                 ('migration', models.CharField(max_length=100)),
             ],
             options={
-                'db_table': 'migration',
-                'managed': False,
+                'db_table': 'migration'
             },
         ),
         migrations.CreateModel(
@@ -220,8 +209,7 @@ class Migration(migrations.Migration):
                 ('action', models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'notification',
-                'managed': False,
+                'db_table': 'notification'
             },
         ),
         migrations.CreateModel(
@@ -235,8 +223,7 @@ class Migration(migrations.Migration):
                 ('expires_at', models.IntegerField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'perm_object_to_user',
-                'managed': False,
+                'db_table': 'perm_object_to_user'
             },
         ),
         migrations.CreateModel(
@@ -247,8 +234,7 @@ class Migration(migrations.Migration):
                 ('perm', models.PositiveIntegerField()),
             ],
             options={
-                'db_table': 'perm_role_to_perm',
-                'managed': False,
+                'db_table': 'perm_role_to_perm'
             },
         ),
         migrations.CreateModel(
@@ -259,8 +245,7 @@ class Migration(migrations.Migration):
                 ('role_id', models.PositiveBigIntegerField()),
             ],
             options={
-                'db_table': 'perm_role_to_user',
-                'managed': False,
+                'db_table': 'perm_role_to_user'
             },
         ),
         migrations.CreateModel(
@@ -271,8 +256,7 @@ class Migration(migrations.Migration):
                 ('role_id', models.PositiveBigIntegerField()),
             ],
             options={
-                'db_table': 'perm_role_to_user_backup',
-                'managed': False,
+                'db_table': 'perm_role_to_user_backup'
             },
         ),
         migrations.CreateModel(
@@ -287,8 +271,7 @@ class Migration(migrations.Migration):
                 ('hash', models.CharField(max_length=32, unique=True)),
             ],
             options={
-                'db_table': 'question',
-                'managed': False,
+                'db_table': 'question'
             },
         ),
         migrations.CreateModel(
@@ -303,8 +286,7 @@ class Migration(migrations.Migration):
                 ('payload', models.TextField()),
             ],
             options={
-                'db_table': 'sessions',
-                'managed': False,
+                'db_table': 'sessions'
             },
         ),
         migrations.CreateModel(
@@ -319,8 +301,7 @@ class Migration(migrations.Migration):
                 ('semester', models.PositiveBigIntegerField()),
             ],
             options={
-                'db_table': 'user_extra_attempts',
-                'managed': False,
+                'db_table': 'user_extra_attempts'
             },
         ),
         migrations.CreateModel(
@@ -331,8 +312,7 @@ class Migration(migrations.Migration):
                 ('value', models.TextField()),
             ],
             options={
-                'db_table': 'user_meta',
-                'managed': False,
+                'db_table': 'user_meta'
             },
         ),
         migrations.CreateModel(
@@ -342,8 +322,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=50)),
             ],
             options={
-                'db_table': 'user_role',
-                'managed': False,
+                'db_table': 'user_role'
             },
         ),
         migrations.CreateModel(
@@ -363,8 +342,7 @@ class Migration(migrations.Migration):
                 ('group', models.IntegerField()),
             ],
             options={
-                'db_table': 'users',
-                'managed': False,
+                'db_table': 'users'
             },
         ),
         migrations.CreateModel(
@@ -397,8 +375,7 @@ class Migration(migrations.Migration):
                 ('player_guide', models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'widget',
-                'managed': False,
+                'db_table': 'widget'
             },
         ),
         migrations.CreateModel(
@@ -423,8 +400,7 @@ class Migration(migrations.Migration):
                 ('published_by', models.PositiveBigIntegerField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'widget_instance',
-                'managed': False,
+                'db_table': 'widget_instance'
             },
         ),
         migrations.CreateModel(
@@ -436,8 +412,7 @@ class Migration(migrations.Migration):
                 ('value', models.TextField()),
             ],
             options={
-                'db_table': 'widget_metadata',
-                'managed': False,
+                'db_table': 'widget_metadata'
             },
         ),
         migrations.CreateModel(
@@ -450,8 +425,31 @@ class Migration(migrations.Migration):
                 ('version', models.CharField(blank=True, max_length=10, null=True)),
             ],
             options={
-                'db_table': 'widget_qset',
-                'managed': False,
+                'db_table': 'widget_qset'
             },
+        ),
+        migrations.AlterUniqueTogether(
+            name='daterange',
+            unique_together={('semester', 'year', 'start_at', 'end_at')},
+        ),
+        migrations.AlterUniqueTogether(
+            name='mapassettoobject',
+            unique_together={('object_id', 'object_type', 'asset_id')},
+        ),
+        migrations.AlterUniqueTogether(
+            name='permobjecttouser',
+            unique_together={('object_id', 'user_id', 'perm', 'object_type')},
+        ),
+        migrations.AlterUniqueTogether(
+            name='permroletoperm',
+            unique_together={('role_id', 'perm')},
+        ),
+        migrations.AlterUniqueTogether(
+            name='permroletouser',
+            unique_together={('user_id', 'role_id')},
+        ),
+        migrations.AlterUniqueTogether(
+            name='usermeta',
+            unique_together={('user_id', 'meta')},
         ),
     ]
