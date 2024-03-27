@@ -133,10 +133,16 @@ class Widget_Question
 			// Perm_Manager::set_user_object_perms($this->id, Perm::QUESTION, $this->user_id, [Perm::FULL => Perm::ENABLE]);
 
 			//============ MAPPING ASSETS TO QUESTION / QSET ================
+			// print entire $this object
 			if (is_array($this->assets) && count($this->assets) > 0)
 			{
 				Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QUESTION, $this->id, $this->assets);// link assets to question
 				if ($qset_id) Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $this->assets);// link assets to qset
+			}
+			elseif (is_array($this->options) && array_key_exists('asset', $this->options) && array_key_exists('id', $this->options['asset']))
+			{
+				Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QUESTION, $this->id, $this->options['asset']['id']);// link asset to question
+				if ($qset_id) Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $this->options['asset']['id']);// link asset to qset
 			}
 
 			//============ MAPPING QUESTION TO QSET ================

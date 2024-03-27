@@ -158,8 +158,8 @@ class Widget_Instance
 	/**
 	 * Load the qset for this instance
 	 *
-	 * @param int $inst_id the id of the widget to load
-	 * @param int $timestamp UnixTimestamp or false, if provided, loads the newest qset before the timestamp
+	 * @param string $inst_id the id of the widget to load
+	 * @param string $timestamp UnixTimestamp or false, if provided, loads the newest qset before the timestamp
 	 */
 	public function get_qset(string $inst_id, $timestamp=false)
 	{
@@ -365,7 +365,10 @@ class Widget_Instance
 		}
 
 		// =========================== NOW STORE THE QSET ====================
-		if ( ! empty($this->qset->data)) $success = $this->store_qset();
+		if ( ! empty($this->qset->data))
+		{
+			$success = $this->store_qset();
+		}
 
 		// =========================== SAVE ACTIVITY ====================
 		$activity = new Session_Activity([

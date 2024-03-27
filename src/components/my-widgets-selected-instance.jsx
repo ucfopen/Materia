@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
 import { useQuery } from 'react-query'
-import { apiCanEditWidgets } from '../util/api'
+import { apiCanEditWidgets, apiGetAssetIDsForInstance } from '../util/api'
 import { iconUrl } from '../util/icon-url'
 import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
@@ -11,6 +11,9 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
 import Modal from './modal'
+import useExportType from './hooks/useExportType'
+import useImportQset from './hooks/useImportQset'
+import useToast from './hooks/useToast'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -70,9 +73,18 @@ const MyWidgetSelectedInstance = ({
 	const [showLocked, setShowLocked] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
+	const [error, setError] = useState('')
+	const [success, setSuccess] = useState('')
+	const [showOptions, setShowOptions] = useState(false)
+	const [showExportOptions, setShowExportOptions] = useState(false)
+	const [showImportOptions, setShowImportOptions] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
+	const exportType = useExportType()
+	const importQset = useImportQset()
+	const { toast, toastRender } = useToast()
+
 	const { data: editPerms, isFetching: permsFetching} = useQuery({
 		queryKey: ['widget-perms', inst.id],
 		queryFn: () => apiCanEditWidgets(inst.id),
@@ -91,6 +103,15 @@ const MyWidgetSelectedInstance = ({
 				console.error(`Failed to fetch permissions.`);
 			}
 		}
+	})
+
+	// fetch asset IDs for export
+	const { data: assetIDs } = useQuery({
+		queryKey: ['widget-assets', inst.id],
+		queryFn: () => apiGetAssetIDsForInstance(inst.id, inst.qset ? inst.qset.id : null),
+		placeholderData: null,
+		enabled: !!inst.id,
+		staleTime: Infinity
 	})
 
 	// Initializes the data when widgets changes
@@ -141,6 +162,21 @@ const MyWidgetSelectedInstance = ({
 			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
 		}
 	}, [myPerms, inst])
+
+	// register click listener to listen for clicks outside of the options menu
+	useEffect(() => {
+		const clickListener = e => {
+			if (!e.target.closest('.meatballs')) {
+				setShowOptions(false)
+			}
+		}
+
+		document.addEventListener('click', clickListener)
+
+		return () => {
+			document.removeEventListener('click', clickListener)
+		}
+	}, [])
 
 	const makeCopy = useCallback((title, copyPermissions) => {
 		setShowCopy(false)
@@ -196,6 +232,30 @@ const MyWidgetSelectedInstance = ({
 	const deleteClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: !state.showDeleteDialog}))
 	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
 	const deleteConfirmClickHandler = () => onDelete(inst)
+
+	const exportClickHandler = (type) => {
+		if (type === 'media' && (!assetIDs || assetIDs.length === 0)) {
+			toast('No media assets to export.', false, false, true)
+			return
+		}
+		exportType(type, inst.id, onExportFailure)
+	}
+
+	const importQsetClickHandler = () => {
+		importQset(inst.id, onImportSuccess, onImportFailure)
+	}
+
+	const onImportSuccess = (data) => {
+		toast(`The question set for ${inst.name} has been updated.`, true)
+	}
+
+	const onImportFailure = (err) => {
+		toast((err.message || "Error") + ": Failed to import question set.", false, true)
+	}
+
+	const onExportFailure = (err) => {
+		toast("Error: Failed to export.", false, true)
+	}
 
 	const editWidget = () => {
 		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
@@ -354,6 +414,46 @@ const MyWidgetSelectedInstance = ({
 		<section className='page'>
 			<div className='header'>
 				<h1>{inst.name}</h1>
+				<div className='meatballs'>
+					<svg className='meatball_icon' viewBox='0 0 100 100' onClick={() => setShowOptions(!showOptions)}>
+						<circle cx='50' cy='10' r='10' stroke='none' fill="#333"/>
+						<circle cx='50' cy='40' r='10' stroke='none' fill="#333"/>
+						<circle cx='50' cy='70' r='10' stroke='none' fill="#333"/>
+					</svg>
+					<div className='meatball-menu'>
+						<div className={`option ${showOptions ? 'show' : ''}`} onMouseEnter={() => setShowExportOptions(true)} onMouseLeave={() => setShowExportOptions(false)}>
+							<p>Export</p>
+							<svg className='arrow' viewBox='0 0 100 100'>
+								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
+							</svg>
+							<div className={`sub-menu ${showExportOptions ? 'show' : ''}`}>
+								<div onClick={() => exportClickHandler('instance')}>
+									Export Instance
+								</div>
+								<div onClick={() => exportClickHandler('qset')}>
+									Export Qset
+								</div>
+								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('media')}>
+									Export Media
+								</div>
+								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
+									Export All
+								</div>
+							</div>
+						</div>
+						<div className={`option ${showOptions ? 'show' : ''}`} onMouseEnter={() => setShowImportOptions(true)} onMouseLeave={() => setShowImportOptions(false)}>
+							<p>Import</p>
+							<svg className='arrow' viewBox='0 0 100 100'>
+								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
+							</svg>
+							<div className={`sub-menu ${showImportOptions ? 'show' : ''}`}>
+								<div onClick={() => importQsetClickHandler()}>
+									Import Qset
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div className='overview'>
 				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >
@@ -501,6 +601,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
+			{ toastRender }
 			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>
 	)

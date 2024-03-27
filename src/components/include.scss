@@ -13,6 +13,7 @@ $light-gray: #dadada;
 $gray: #9a9a9a;
 $extremely-dark-gray: #333;
 
+$z-index-toast: 1000;
 
 body,
 html {
@@ -879,5 +880,114 @@ footer {
 		border-left-color: #b944cc;
 		border-width: 28px;
 		margin-top: -28px;
+	}
+}
+
+.toast {
+	font-weight: bold;
+	font-size: 1.2em;
+	margin: 0;
+	padding: 10px;
+
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	border-radius: 5px;
+	min-width: 300px;
+	max-width: 500px;
+	z-index: $z-index-toast;
+
+	animation: slide-up 0.5s ease-in-out;
+
+	.bar {
+		border-bottom: #8eccef 5px solid;
+		position: absolute;
+		bottom: 0;
+		height: 100%;
+		width: 100%;
+		left: 0;
+
+		animation: shrink 5s linear;
+	}
+
+	.close {
+		background-color: #fff;
+		height: 25px;
+		width: 25px;
+		position: absolute;
+		top: -10px;
+		right: -10px;
+		border-radius: 50%;
+		padding: 2px;
+		cursor: pointer;
+
+		&:hover {
+			background-color: #f2f2f2;
+		}
+	}
+
+	@keyframes slide-up {
+		0% {
+			bottom: -100px;
+		}
+		100% {
+			bottom: 50px;
+		}
+	}
+
+	@keyframes shrink {
+		0% {
+			width: 100%;
+		}
+		100% {
+			width: 0;
+		}
+	}
+
+	&.success {
+		background-color: #0093e7e8;
+		color: white;
+
+		.bar {
+			border-bottom: #8eccef 5px solid;
+		}
+		path {
+			fill: #0093e7e8;
+		}
+	}
+
+	&.error {
+		background-color: #ca3b3be8;
+		color: white;
+
+		.bar {
+			border-bottom: #ee8c8ce8 5px solid;
+		}
+		path {
+			fill: #ca3b3be8;
+		}
+	}
+
+	&.warning {
+		background-color: #fff0ace8;
+		color: #333;
+		.bar {
+			border-bottom: #ffdf64e8 5px solid;
+		}
+		path {
+			fill: #ffdf64e8;
+		}
+	}
+
+	&.info {
+		background-color: #0093e7e8;
+		color: white;
+
+		.bar {
+			border-bottom: #8eccef 5px solid;
+		}
+		path {
+			fill: #0093e7e8;
+		}
 	}
 }
