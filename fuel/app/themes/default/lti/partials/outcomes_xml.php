@@ -1,5 +1,5 @@
 <?= '<?xml version = "1.0" encoding = "UTF-8"?>' ?>
-<imsx_POXEnvelopeRequest xmlns = "http://www.imsglobal.org/lis/oms1p0/pox">
+<imsx_POXEnvelopeRequest xmlns = "https://www.imsglobal.org/lis/oms1p0/pox">
 	<imsx_POXHeader>
 		<imsx_POXRequestHeaderInfo>
 			<imsx_version>V1.0</imsx_version>
