@@ -58,8 +58,8 @@ export const apiGetWidgetInstance = (instId, loadQset=false) => {
  * storage
  * @returns An array of objects.
  */
-export const apiGetWidgetInstances = (page_number = 0) => {
-	return fetchGet(`/api/json/widget_paginate_instances_get/${page_number}`, { body: `data=${formatFetchBody([page_number])}` })
+export const apiGetUserWidgetInstances = (page_number = 0) => {
+	return fetchGet(`/api/json/widget_paginate_user_instances_get/${page_number}`, { body: `data=${formatFetchBody([page_number])}` })
 		.then(resp => {
 			writeToStorage('widgets', resp)
 			return resp
@@ -186,8 +186,8 @@ export const apiDeleteNotification = (data) => {
 	return fetchGet('/api/json/notification_delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
 }
 
-export const apiSearchUsers = (input = '') => {
-	return fetchGet('/api/json/users_search', { body: `data=${formatFetchBody([input])}` })
+export const apiSearchUsers = (input = '', page_number = 0) => {
+	return fetchGet('/api/json/users_search', { body: `data=${formatFetchBody([input, page_number])}` })
 }
 
 export const apiGetUserPermsForInstance = instId => {
@@ -222,6 +222,26 @@ export const apiUpdateWidget = ({ args }) => {
 
 export const apiGetWidgetLock = (id = null) => {
 	return fetchGet('/api/json/widget_instance_lock', { body: `data=${formatFetchBody([id])}` })
+}
+
+/**
+ * It searches for widgets by name or ID
+ * @param {string} input (letters only)
+ * @returns {array} of matches
+ */
+export const apiSearchInstances = (input, page_number) => {
+	let pattern = /[A-Za-z]+/g
+	let match = input.match(pattern)
+	if (!match || !match.length) input = ' '
+	return fetch(`/api/admin/instance_search/${input}/${page_number}`)
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+		.then(resp => {
+			writeToStorage('widgets', resp)
+			return resp
+		})
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {

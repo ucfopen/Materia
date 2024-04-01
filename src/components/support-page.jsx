@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiSearchWidgets} from '../util/api'
+import { apiGetUser, apiSearchInstances} from '../util/api'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
 import Header from './header'
@@ -26,7 +26,7 @@ const SupportPage = () => {
 
 	const { data: instFromHash } = useQuery({
 		queryKey: ['search-widgets', widgetHash],
-		queryFn: () => apiSearchWidgets(widgetHash),
+		queryFn: () => apiSearchInstances(widgetHash),
 		enabled: widgetHash != undefined && widgetHash != selectedInstance?.id,
 		staleTime: Infinity,
 		onError: (err) => {

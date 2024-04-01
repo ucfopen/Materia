@@ -1,59 +1,62 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { iconUrl } from '../util/icon-url'
-import { useQuery } from 'react-query'
-import { apiSearchWidgets } from '../util/api'
+import useSearchInstances from './hooks/useSearchInstances'
 import useDebounce from './hooks/useDebounce'
+import LoadingIcon from './loading-icon'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
 	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
-	const { data: searchedWidgets, isFetching} = useQuery({
-		queryKey: ['search-widgets', debouncedSearchTerm],
-		queryFn: () => apiSearchWidgets(debouncedSearchTerm),
-		enabled: !!debouncedSearchTerm && debouncedSearchTerm.length > 0,
-		placeholderData: null,
-		staleTime: Infinity,
-		onError: (err) => {
-			if (err.message == "Invalid Login") {
+	const instanceList = useSearchInstances(debouncedSearchTerm)
+
+	useEffect(() => {
+		if (instanceList.error) {
+			if (instanceList.error.message == "Invalid Login") {
 				window.location.href = '/login'
 			} else {
-				setError((err.message || "Error") + ": Failed to retrieve widget(s).")
+				setError((instanceList.error.message || "Error") + ": Failed to retrieve widget(s).")
 			}
 		}
-	})
+	}, [instanceList.instances])
 
 	const handleSearchChange = e => setSearchText(e.target.value)
 	const handleShowDeletedClick = () => setShowDeleted(!showDeleted)
 
-	let searchResultsRender = (
+	let loadingRender = null
+	if ((instanceList.isFetching || !instanceList.instances) && searchText.length > 0) {
+		loadingRender = (
+			<div className='loading'>
+				<LoadingIcon size="sm" width="50px"></LoadingIcon>
+				<p className="loading-text">Searching Widget Instances ...</p>
+			</div>
+		)
+	} else if (instanceList.isFetching) {
+		loadingRender = <div className="loading">
+			<LoadingIcon size="sm" width="50px"></LoadingIcon>
+			<p className="loading-text">Loading widget instances...</p>
+		</div>
+	}
+
+	let searchPromptRender = (
 		<div>
-			<p>{`${searchText.length == 0 ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
+			<p>{`${searchText.length == 0 || (instanceList.instances && instanceList.instances.length > 0) || instanceList.isFetching ? 'Search for a widget instance by entering its name or ID' : 'No widgets match your description'}`}</p>
 		</div>
 	)
-	if (error) {
-		searchResultsRender = (
-			<div className='searching'>
-				<p className='search_error'>{error}</p>
-			</div>
-		)
-	} else if ((isFetching || !searchedWidgets) && searchText.length > 0) {
-		searchResultsRender = (
-			<div className='searching'>
-				<b>Searching Widget Instances ...</b>
-			</div>
-		)
-	} else if (searchedWidgets && searchedWidgets.length !== 0) {
+
+	let searchResultsRender = null
+
+	if (instanceList.instances && instanceList.instances.length !== 0) {
 		searchResultsRender = (
 			<div className='search_list'>
-					{searchedWidgets.map((match) =>
+					{instanceList.instances.map((match) =>
 						<div
 							key={match.id}
 							className={`search_match clickable ${(match.is_deleted && !showDeleted) ? 'hidden' : ''} ${match.is_deleted ? 'deleted' : ''}`}
 							onClick={() => {onClick(match)} }>
 							<div className='img-holder'>
-								<img className='icon' src={iconUrl('/widget/', match.widget.dir, 275)} />
+								<img className='icon' src={iconUrl('/widget/', match.widget.dir, 275)} alt="widget icon" />
 							</div>
 							<div className='info-holder'>
 								<ul>
@@ -77,6 +80,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 				<h1>Instance Admin</h1>
 			</div>
 			<div className='search'>
+				{ searchPromptRender }
 				<input tabIndex='0'
 					value={searchText}
 					onChange={handleSearchChange}
@@ -85,7 +89,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 					placeholder="Enter a Materia widget instance's info"
 				/>
 				<div className='show_deleted'>
-					<input tabIndex='1'
+					<input tabIndex='0'
 						type='checkbox'
 						checked={showDeleted}
 						onChange={handleShowDeletedClick}
@@ -93,8 +97,8 @@ const SupportSearch = ({onClick = () => {}}) => {
 					<span className='deleted_label'>Show Deleted Instances?</span>
 				</div>
 			</div>
+			{ loadingRender }
 			{ searchResultsRender }
-
 		</section>
 	)
 }

@@ -467,6 +467,10 @@ class Widget_Instance
 		 // update name
 		if ( ! empty($new_name)) $duplicate->name = $new_name;
 
+		// is_embedded and embedded_only should default to false for new instances (since the new instance won't have the play history requisite for is_embedded)
+		$duplicate->is_embedded = false;
+		$duplicate->embedded_only = false;
+
 		// these values aren't saved to the db - but the frontend will make use of them
 		$duplicate->clean_name  = \Inflector::friendly_title($duplicate->name, '-', true);
 		$base_url               = "{$duplicate->id}/{$duplicate->clean_name}";

@@ -180,9 +180,32 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
-	public function test_widget_paginate_instances_get()
+	public function test_widget_paginate_user_instances_get()
 	{
+		// Create widget instance
+		$this->_as_author();
+		$title = "My Test Widget";
+		$question = 'What rhymes with harvest fests but are half as exciting (or tasty)';
+		$answer = 'Tests';
+		$qset = $this->create_new_qset($question, $answer);
+		$widget = $this->make_disposable_widget();
 
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, true);
+
+		// ----- loads author's instances --------
+		$output = Api_V1::widget_paginate_user_instances_get();
+		$this->assertIsArray($output);
+		$this->assertArrayHasKey('pagination', $output);
+		foreach ($output['pagination'] as $key => $value)
+		{
+			$this->assert_is_widget_instance($value, true);
+		}
+
+		// ======= AS NO ONE ========
+		\Auth::logout();
+		// ----- returns no login --------
+		$output = Api_V1::widget_paginate_user_instances_get();
+		$this->assert_invalid_login_message($output);
 	}
 
 	public function test_widget_instance_new()
@@ -1018,10 +1041,6 @@ class Test_Api_V1 extends \Basetest
 
 	}
 
-	public function test_paginated_play_logs_get()
-	{
-	}
-
 	public function test_score_summary_get()
 	{
 		// ======= AS NO ONE ========
@@ -1516,10 +1535,10 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::users_search('droptables');
 		$this->assertIsArray($output);
-		$this->assertCount(2, $output);
-		$this->assert_is_user_array($output[0]);
-		$this->assertFalse(array_key_exists('password', $output));
-		$this->assertFalse(array_key_exists('login_hash', $output));
+		$this->assertIsArray($output['pagination']);
+		$this->assert_is_user_array($output['pagination'][0]);
+		$this->assertFalse(array_key_exists('password', $output['pagination']));
+		$this->assertFalse(array_key_exists('login_hash', $output['pagination']));
 	}
 
 	public function test_users_search_as_author()
@@ -1532,10 +1551,10 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::users_search('droptables');
 		$this->assertIsArray($output);
-		$this->assertCount(2, $output);
-		$this->assert_is_user_array($output[0]);
-		$this->assertFalse(array_key_exists('password', $output));
-		$this->assertFalse(array_key_exists('login_hash', $output));
+		$this->assertIsArray($output['pagination']);
+		$this->assert_is_user_array($output['pagination'][0]);
+		$this->assertFalse(array_key_exists('password', $output['pagination']));
+		$this->assertFalse(array_key_exists('login_hash', $output['pagination']));
 	}
 
 	public function test_users_search_as_super_user()
@@ -1548,10 +1567,10 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::users_search('droptables');
 		$this->assertIsArray($output);
-		$this->assertCount(2, $output);
-		$this->assert_is_user_array($output[0]);
-		$this->assertFalse(array_key_exists('password', $output[0]));
-		$this->assertFalse(array_key_exists('login_hash', $output[0]));
+		$this->assertIsArray($output['pagination']);
+		$this->assert_is_user_array($output['pagination'][0]);
+		$this->assertFalse(array_key_exists('password', $output['pagination']));
+		$this->assertFalse(array_key_exists('login_hash', $output['pagination']));
 	}
 
 	protected function assert_is_semester_rage($semester)

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
-import { apiGetUsers, apiSearchUsers } from '../util/api'
+import { apiGetUsers } from '../util/api'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 import Modal from './modal'
 import useDebounce from './hooks/useDebounce'
@@ -9,6 +9,7 @@ import NoContentIcon from './no-content-icon'
 import CollaborateUserRow from './my-widgets-collaborate-user-row'
 import './my-widgets-collaborate-dialog.scss'
 import { access } from './materia-constants'
+import useUserList from './hooks/useUserList'
 
 const initDialogState = (state) => {
 	return ({
@@ -26,9 +27,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
-	const [collabUsers, setCollabUsers] = useState({})
+	const userList = useUserList(debouncedSearchTerm)
 
-	const { data, remove: clearUsers, isFetching} = useQuery({
+	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
@@ -48,22 +49,15 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		}
 	})
 
-	const { data: searchResults, remove: clearSearch, refetch: refetchSearch } = useQuery({
-		queryKey: 'user-search',
-		enabled: !!debouncedSearchTerm,
-		queryFn: () => apiSearchUsers(debouncedSearchTerm),
-		staleTime: Infinity,
-		placeholderData: [],
-		onError: (err) => {
-			if (err.message == "Invalid Login")
+	useEffect(() => {
+		if (userList.error) {
+			console.error(`User search failed with error: ${data.msg}`);
+			if (userList.error.title == "Invalid Login")
 			{
 				setInvalidLogin(true)
-				customClose()
-			} else {
-				setError("Failed to search users")
 			}
 		}
-	})
+	}, [userList.error])
 
 	useEffect(() => {
 		mounted.current = true
@@ -71,12 +65,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			mounted.current = false
 		}
 	}, [])
-
-	// Handles the search with debounce
-	useEffect(() => {
-		if(debouncedSearchTerm === '') clearSearch()
-		else refetchSearch()
-	}, [debouncedSearchTerm])
 
 	// updatedAllUserPerms is assigned the value of otherUserPerms (a read-only prop) when the component loads
 	useEffect(() => {
@@ -222,7 +210,6 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	const customClose = () => {
 		clearUsers()
-		clearSearch()
 		onClose()
 	}
 
@@ -236,12 +223,12 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	let searchContainerRender = null
 	if (myPerms?.shareable || myPerms?.isSupportUser) {
 		let searchResultsRender = null
-		if (debouncedSearchTerm !== '' && state.searchText !== '' && searchResults?.length && searchResults?.length !== 0) {
-			const searchResultElements = searchResults?.map(match =>
+		if (debouncedSearchTerm !== '' && state.searchText !== '' && userList.users?.length && userList.users?.length !== 0) {
+			const searchResultElements = userList.users?.map(match =>
 				<div key={match.id}
 					className='collab-search-match clickable'
 					onClick={() => onClickMatch(match)}>
-					<img className='collab-match-avatar' src={match.avatar} />
+					<img className='collab-match-avatar' src={match.avatar} alt="user avatar" />
 					<p className={`collab-match-name ${match.is_student ? 'collab-match-student' : ''}`}>
 						{match.first} {match.last}
 					</p>
@@ -267,9 +254,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 					className='user-add'
 					type='text'
 					placeholder="Enter a Materia user's name or e-mail"/>
-				<div>
-					{ searchResultsRender }
-				</div>
+				{ searchResultsRender }
 			</div>
 		)
 	}
@@ -341,31 +326,29 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			ignoreClose={state.shareNotAllowed}>
 			<div className='collaborate-modal' ref={popperRef}>
 				<span className='title'>Collaborate</span>
-				<div>
-					{ errorRender }
-					<div id='access' className='collab-container'>
-						{ searchContainerRender }
-						<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
-							{ mainContentRender }
-						</div>
-						{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
-						<div id='calendar-portal' />
-						<p className='disclaimer'>
-							Users with full access can edit or copy this widget and can
-							add or remove people in this list.
-						</p>
-						<div className='btn-box'>
-							<a tabIndex='0'
-								className='cancel_button'
-								onClick={customClose}>
-								Cancel
-							</a>
-							<a tabIndex='0'
-								className='action_button green save_button'
-								onClick={onSave}>
-								Save
-							</a>
-						</div>
+				{ errorRender }
+				<div id='access' className='collab-container'>
+					{ searchContainerRender }
+					<div className={`access-list ${containsUser ? '' : 'no-content'}`}>
+						{ mainContentRender }
+					</div>
+					{/* Calendar portal used to bring calendar popup out of access-list to avoid cutting off the overflow */}
+					<div id='calendar-portal' />
+					<p className='disclaimer'>
+						Users with full access can edit or copy this widget and can
+						add or remove people in this list.
+					</p>
+					<div className='btn-box'>
+						<a tabIndex='0'
+							className='cancel_button'
+							onClick={customClose}>
+							Cancel
+						</a>
+						<a tabIndex='0'
+							className='action_button green save_button'
+							onClick={onSave}>
+							Save
+						</a>
 					</div>
 				</div>
 			</div>

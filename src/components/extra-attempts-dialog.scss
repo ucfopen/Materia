@@ -42,7 +42,7 @@
 	}
 
 	.attempts_search_list {
-		width: 447px;
+		width: 449px;
 		position: absolute;
 		background-color: #ffffff;
 		border: #bfbfbf 1px solid;
@@ -50,7 +50,8 @@
 		overflow: auto;
 		z-index: 3;
 		text-align: left;
-		left: 114px;
+		left: 121px;
+		top: 111px;
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
