@@ -120,7 +120,7 @@ const MyWidgetsPage = () => {
 
 	// hook associated with updates to the selected instance and perms associated with that instance
 	useEffect(() => {
-		if (state.selectedInst && permUsers && permUsers.user_perms?.hasOwnProperty(user.id)) {
+		if (state.selectedInst && permUsers && user && permUsers.user_perms?.hasOwnProperty(user.id)) {
 			const isEditable = state.selectedInst.widget.is_editable === "1"
 			const othersPerms = new Map()
 			for (const i in permUsers.widget_user_perms) {
@@ -140,7 +140,20 @@ const MyWidgetsPage = () => {
 	// hook associated with updates to the widget list OR an update to the widget hash
 	// if there is a widget hash present AND the selected instance does not match the hash, perform an update to the selected widget state info
 	useEffect(() => {
-		if (instanceList.error) setInvalidLogin(true)
+		if (instanceList.error)
+		{
+			if (instanceList.error.message == "Invalid Login")
+				setInvalidLogin(true)
+			else
+				// other errors don't exist yet, but they might in the future
+				setAlertDialog({
+					enabled: true,
+					message: 'Failed to retrieve widget(s).',
+					title: instanceList.error.message,
+					fatal: instanceList.error.halt,
+					enableLoginButton: false
+				})
+		}
 
 		// if a widget hash exists in the URL OR a widget is already selected in state
 		if ((state.widgetHash && state.widgetHash.length > 0) || state.selectedInst) {

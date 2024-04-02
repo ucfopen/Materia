@@ -28,15 +28,16 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
 	const userList = useUserList(debouncedSearchTerm)
+	const [collabUsers, setCollabUsers] = useState({})
 
-	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
+	const { data, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {},
 		onSuccess: (data) => {
-			setCollabUsers({...collabUsers,...data})
+			setCollabUsers({...collabUsers, ...data})
 		},
 		onError: (err) => {
 			if (err.message == "Invalid Login")
@@ -51,7 +52,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 	useEffect(() => {
 		if (userList.error) {
-			console.error(`User search failed with error: ${data.msg}`);
+			setError(`User search failed with error: ${data.msg}`);
 			if (userList.error.title == "Invalid Login")
 			{
 				setInvalidLogin(true)

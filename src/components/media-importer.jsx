@@ -92,6 +92,11 @@ const MediaImporter = () => {
 		},
 		onError: (err) => {
 			console.error(`Asset request failed with error: ${err.cause}`)
+			if (err.title == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setErrorState(err.cause)
+			}
 		}
 	})
 
@@ -224,7 +229,6 @@ const MediaImporter = () => {
 					setSelectedAsset(res.id)
 				} else {
 					setErrorState('Something went wrong with uploading your file.')
-					_onCancel()
 					return
 				}
 			}
