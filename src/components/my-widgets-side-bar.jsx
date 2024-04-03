@@ -95,8 +95,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 				{widgetInstanceElementsRender}
 			</div>
 			<div className='import-button'>
-				{/* <button onClick={onClickImport}>Import Instance</button> */}
-				<p onClick={onClickImport}><span className="import-icon"></span>Import Instance</p>
+				<p onClick={onClickImport} title="Import Widget (JSON format)"><span className="import-icon"></span>Import Widget</p>
 			</div>
 			{ toastRender }
 		</aside>

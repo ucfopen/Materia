@@ -271,23 +271,27 @@ class Controller_Widgets extends Controller
 		$zip = new \ZipArchive();
 		$zip->open('assets_export', \ZipArchive::CREATE);
 
-		if ($asset == 'all')
+		if ($asset == 'instance_and_media')
 		{
 			$inst->qset = $qset;
 			$zip->addFromString('instance.json', json_encode($inst));
+		}
+		if ($asset == 'qset_and_media')
+		{
+			$zip->addFromString('qset.json', json_encode($qset));
 		}
 
 		$bytes = 0;
 		$asset_ids = Materia\Api_V1::assets_get_for_instance($inst_id, false, $qset->id);
 		$size = 'original';
 
-		if (count($asset_ids) == 0)
+		if (count($asset_ids) == 0 && $asset == 'media')
 		{
 			// $zip->addFromString('no_assets.txt', 'No assets found for this widget.');
 			$zip->setArchiveComment('zipped on '.date('Y-M-d'));
 			$zip->close();
 
-			return new Response('No assets found for this widget.', 403);
+			return new Response('No assets found for this widget.', 404);
 		}
 
 		foreach ($asset_ids as $id)

@@ -118,7 +118,7 @@ const QuestionHistory = () => {
 		<div>
 			<form id="import_form">
 				<div className="header">
-					<h1>Save History</h1>
+					<h1>Manage Saves</h1>
 					<a id="import_button" href="#" onClick={importClickHandler}>Import New</a>
 				</div>
 				<table id="qset_table" width="100%">
@@ -126,7 +126,7 @@ const QuestionHistory = () => {
 						<tr>
 							<th>Save Count</th>
 							<th>Saved At</th>
-							<th></th>
+							<th>Export</th>
 						</tr>
 					</thead>
 					<tbody>

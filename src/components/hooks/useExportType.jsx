@@ -47,13 +47,12 @@ export default function useExportType() {
                     onError: onError
                 })
                 break;
-            case 'all':
+            case 'qset_and_media':
+            case 'instance_and_media':
             case 'media':
                 // use direct download for media
                 try {
-                    const apiEndpoint = asset_type === 'all' ? `/widgets/export/${inst_id}/all/${timestamp}`
-                    : `/widgets/export/${inst_id}/media/${timestamp}`;
-
+                    const apiEndpoint = `/widgets/export/${inst_id}/${asset_type}/${timestamp}`
                     const a = document.createElement('a')
                     a.href = apiEndpoint
                     a.download = 'export.zip'

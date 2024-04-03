@@ -10,9 +10,8 @@ import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
+import MyWidgetsExportDialog from './my-widgets-export-dialog'
 import Modal from './modal'
-import useExportType from './hooks/useExportType'
-import useImportQset from './hooks/useImportQset'
 import useToast from './hooks/useToast'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
@@ -76,14 +75,11 @@ const MyWidgetSelectedInstance = ({
 	const [error, setError] = useState('')
 	const [success, setSuccess] = useState('')
 	const [showOptions, setShowOptions] = useState(false)
-	const [showExportOptions, setShowExportOptions] = useState(false)
-	const [showImportOptions, setShowImportOptions] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
-	const exportType = useExportType()
-	const importQset = useImportQset()
 	const { toast, toastRender } = useToast()
+	const [showExport, setShowExport] = useState(false)
 
 	const { data: editPerms, isFetching: permsFetching} = useQuery({
 		queryKey: ['widget-perms', inst.id],
@@ -233,16 +229,8 @@ const MyWidgetSelectedInstance = ({
 	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
 	const deleteConfirmClickHandler = () => onDelete(inst)
 
-	const exportClickHandler = (type) => {
-		if (type === 'media' && (!assetIDs || assetIDs.length === 0)) {
-			toast('No media assets to export.', false, false, true)
-			return
-		}
-		exportType(type, inst.id, onExportFailure)
-	}
-
-	const importQsetClickHandler = () => {
-		importQset(inst.id, onImportSuccess, onImportFailure)
+	const exportClickHandler = () => {
+		setShowExport(true)
 	}
 
 	const onImportSuccess = (data) => {
@@ -410,6 +398,12 @@ const MyWidgetSelectedInstance = ({
 		)
 	}
 
+	let exportDialogRender = null
+	let exportDialogOnClose = () => setShowExport(false)
+	if (showExport) {
+		exportDialogRender = <MyWidgetsExportDialog inst={inst} onClose={exportDialogOnClose} onExportFailure={onExportFailure}/>
+	}
+
 	return (
 		<section className='page'>
 			<div className='header'>
@@ -420,39 +414,6 @@ const MyWidgetSelectedInstance = ({
 						<circle cx='50' cy='40' r='10' stroke='none' fill="#333"/>
 						<circle cx='50' cy='70' r='10' stroke='none' fill="#333"/>
 					</svg>
-					<div className='meatball-menu'>
-						<div className={`option ${showOptions ? 'show' : ''}`} onMouseEnter={() => setShowExportOptions(true)} onMouseLeave={() => setShowExportOptions(false)}>
-							<p>Export</p>
-							<svg className='arrow' viewBox='0 0 100 100'>
-								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
-							</svg>
-							<div className={`sub-menu ${showExportOptions ? 'show' : ''}`}>
-								<div onClick={() => exportClickHandler('instance')}>
-									Export Instance
-								</div>
-								<div onClick={() => exportClickHandler('qset')}>
-									Export Qset
-								</div>
-								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('media')}>
-									Export Media
-								</div>
-								<div className={`export-option ${assetIDs && assetIDs.length > 0 ? 'show' : ''}`} onClick={() => exportClickHandler('all')}>
-									Export All
-								</div>
-							</div>
-						</div>
-						<div className={`option ${showOptions ? 'show' : ''}`} onMouseEnter={() => setShowImportOptions(true)} onMouseLeave={() => setShowImportOptions(false)}>
-							<p>Import</p>
-							<svg className='arrow' viewBox='0 0 100 100'>
-								<polyline points='10 10 90 50 10 90' fill='none' stroke='black' strokeWidth='5px'/>
-							</svg>
-							<div className={`sub-menu ${showImportOptions ? 'show' : ''}`}>
-								<div onClick={() => importQsetClickHandler()}>
-									Import Qset
-								</div>
-							</div>
-						</div>
-					</div>
 				</div>
 			</div>
 			<div className='overview'>
@@ -509,6 +470,14 @@ const MyWidgetSelectedInstance = ({
 								id='delete_widget_link'
 								onClick={deleteClickHandler}>
 								Delete
+							</div>
+						</li>
+						<li className={`export`}>
+							<div className={`link`}
+								id='export_widget_link'
+								onClick={exportClickHandler}
+								title="Export Widget">
+								Export
 							</div>
 						</li>
 					</ul>
@@ -601,6 +570,7 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
+			{ exportDialogRender }
 			{ toastRender }
 			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>

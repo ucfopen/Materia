@@ -10,7 +10,7 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
 import useCopyWidget from './hooks/useSupportCopyWidget'
-import useExportType from './hooks/useExportType'
+import MyWidgetsExportDialog from './my-widgets-export-dialog'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
@@ -53,7 +53,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const unDeleteWidget = useUnDeleteWidget()
 	const updateWidget = useUpdateWidget()
 	const copyWidget = useCopyWidget()
-	const exportType = useExportType()
+	const [showExport, setShowExport] = useState(false)
 
 	const { data: instOwner, isFetching: loadingInstOwner } = useQuery({
 		queryKey: ['instance-owner', inst.id],
@@ -97,7 +97,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	}
 
 	const exportClickHandler = () => {
-		exportType('instance', updatedInst.id, onExportFailure)
+		setShowExport(true)
 	}
 
 	const onExportFailure = (err) => {
@@ -220,7 +220,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	let collaborateDialogRender = null
 	if (showCollab) {
 		collaborateDialogRender = (
-			<MyWidgetsCollaborateDialog inst={inst}
+			<MyWidgetsCollaborateDialog inst={updatedInst}
 				currentUser={currentUser}
 				myPerms={allPerms.myPerms}
 				otherUserPerms={allPerms.otherUserPerms}
@@ -235,7 +235,17 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 		extraAttemptsDialogRender = (
 			<ExtraAttemptsDialog
 				onClose={() => setShowAttempts(false)}
-				inst={inst}
+				inst={updatedInst}
+			/>
+		)
+	}
+
+	let exportDialogRender = null
+	if (showExport) {
+		exportDialogRender = (
+			<MyWidgetsExportDialog inst={updatedInst}
+				onClose={() => setShowExport(false)}
+				onExportFailure={onExportFailure}
 			/>
 		)
 	}
@@ -291,7 +301,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 				</button>
 				<button className='action_button'
 					onClick={() => exportClickHandler()}>
-						<span>Export Instance</span>
+						<span>Export</span>
 					</button>
 				<button className='action_button delete'
 					onClick={() => updatedInst.is_deleted ? onUndelete(updatedInst.id) : onDelete(updatedInst.id)}>
@@ -466,6 +476,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			{ copyDialogRender }
 			{ collaborateDialogRender }
 			{ extraAttemptsDialogRender }
+			{ exportDialogRender }
 		</section>
 	)
 }
