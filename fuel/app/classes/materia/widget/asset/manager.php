@@ -214,6 +214,28 @@ class Widget_Asset_Manager
 		// return the array (making sure there are no duplicate values)
 		return array_unique($objects);
 	}
+
+	static public function get_assets_ids_by_qset($qset_id)
+	{
+		// select all assets that belong to a certain qset
+		$results = \DB::select('a.id')
+			->from(['asset',     'a'])
+			->join(['map_asset_to_object', 'm'])
+				->on('a.id', '=', 'm.asset_id')
+				->on('m.object_type', '=', \DB::expr(\Materia\Widget_Asset::MAP_TYPE_QSET))
+			->where('m.object_id', '=', $qset_id)
+			->execute();
+
+		// add these objects to an array
+		$objects = [];
+		foreach ($results as $r)
+		{
+			$objects[] = $r['id'];
+		}
+		// return the array (making sure there are no duplicate values)
+		return array_unique($objects);
+	}
+
 	/**
 	 * NEEDS DOCUMENTATION
 	 * @param unknown NEEDS DOCUMENTATION
@@ -284,7 +306,7 @@ class Widget_Asset_Manager
 	static public function register_assets_to_item($item_type, $item_id, $assets_list)
 	{
 		// asset List is an array
-		if (count($assets_list) > 0)
+		if (is_array($assets_list) && count($assets_list) > 0)
 		{
 			foreach ($assets_list as $asset)
 			{

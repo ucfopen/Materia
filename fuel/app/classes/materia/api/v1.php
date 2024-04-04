@@ -393,6 +393,97 @@ class Api_V1
 		}
 	}
 
+	public static function widget_instance_import($widget_id=null, $name=null, $qset=null, $is_draft=null, $open_at=null, $close_at=null, $attempts=null)
+	{
+		return static::widget_instance_new($widget_id, $name, $qset, $is_draft);
+	}
+
+	/**
+	 * Validates media URLs in qset
+	 * @param object $data
+	 * Returns false if any URL is invalid, true otherwise
+	 */
+	static function validate_asset_urls($data)
+	{
+		foreach ($data as $key => $value)
+		{
+			if ($key === 'url' && is_string($value))
+			{
+				// Check if the key is 'url' and the value is a string
+				// media id must be 5 characters long and end with the ID
+				$url_regex = '/^https:\/\/\S+\/media\/[A-Za-z0-9]{5}$/';
+				if ( ! preg_match($url_regex, $value))
+				{
+					return false;
+				}
+			}
+			elseif (is_array($value) || is_object($value))
+			{
+				// If the value is an array, recursively validate its elements
+				if ( ! self::validate_asset_urls($value))
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Replace the qset for an instance
+	 * @param int     $inst_id
+	 * @param object  $qset
+	 * @return array  Updated instance
+	 */
+	static public function widget_instance_update_qset($inst_id, $qset)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+
+		$inst = Widget_Instance_Manager::get($inst_id);
+		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
+
+		// Validate every single field in the qset
+		// if any field is invalid, return an error message
+		// if all fields are valid, update the qset and return the updated instance
+		if (empty($qset->data) || empty($qset->version))
+		{
+			return new Msg(Msg::ERROR, 'Invalid qset');
+		}
+		else
+		{
+			$questions = \Materia\Widget_Instance::find_questions($qset->data);
+			foreach ($questions as $q)
+			{
+				if ( ! $q instanceof \Materia\Widget_Question)
+				{
+					return new Msg(Msg::ERROR, 'Invalid qset');
+				}
+				// Validate whether $q->type (widget name) is same as $inst->widget->id
+				// (TODO: Might be impossible without changing qset)
+			}
+
+			if ( ! empty($qset->data->items) && ! self::validate_asset_urls($qset->data->items))
+			{
+				return new Msg(Msg::ERROR, 'Invalid qset');
+			}
+
+			$inst->qset = $qset;
+		}
+
+		try
+		{
+			$inst->db_store();
+			return $inst;
+		}
+		catch (\Exception $e)
+		{
+			return new Msg(Msg::ERROR, 'Widget could not be updated with new question set.');
+		}
+
+	}
+
 	/**
 	 * Lock a widget to prevent others from editing it
 	 * @return true if we have or are able to get a lock on this game
@@ -586,6 +677,33 @@ class Api_V1
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		return Widget_Asset_Manager::get_assets_by_user(\Model_User::find_current_id(), Perm::FULL);
+	}
+
+	/**
+	 * Returns asset IDs associated with a given instance or qset
+	 * @param string $inst_id The widget instance ID
+	 * @return array An array of asset IDs
+	 */
+	static public function assets_get_for_instance($inst_id, $get_all_qsets=false,$qset_id=null)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ($get_all_qsets === true)
+		{
+			$asset_ids = Widget_Asset_Manager::get_assets_ids_by_game($inst_id);
+		}
+		elseif ($qset_id !== null)
+		{
+			$asset_ids = Widget_Asset_Manager::get_assets_ids_by_qset($qset_id);
+		}
+		else
+		{
+			// get the latest qset id for this instance
+			$inst = Widget_Instance_Manager::get($inst_id, true);
+			$qset_id = $inst->qset->id;
+			$asset_ids = Widget_Asset_Manager::get_assets_ids_by_qset($qset_id);
+		}
+
+		return $asset_ids;
 	}
 
 	/**

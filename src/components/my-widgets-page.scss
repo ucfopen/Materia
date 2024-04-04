@@ -70,7 +70,7 @@
 			width: 700px;
 			min-height: 850px;
 			margin: 0 0 0 260px;
-			
+
 			background: #fff;
 		}
 
@@ -177,7 +177,7 @@
 			// 	// border-top: 1px solid rgba(100, 100, 100, 0.2);
 
 			.widget_list {
-				height: calc(100% - 74px); // combined height of top and search sections
+				height: calc(100% - 128px); // combined height of top and search sections
 				overflow: auto;
 
 				.icon {
@@ -297,6 +297,40 @@
 				text-shadow: #184863 1px 1px 1px;
 				font-weight: 900;
 			}
+
+			.import-button {
+				position: absolute;
+				width: 100%;
+				bottom: 0;
+				text-align: center;
+				background-color: #fafafa;
+				height: 54px;
+				box-sizing: border-box;
+
+				p {
+					font-weight: bold;
+					transition: font-size 0.2s;
+					&:hover {
+						cursor: pointer;
+						font-size: 1.1em;
+					}
+
+					&:active {
+						font-size: 1em;
+					}
+
+					.import-icon {
+						background: url(/img/import.svg) no-repeat center bottom;
+						margin: 0;
+						width: 21px;
+						height: 21px;
+						display: inline-block;
+						vertical-align: middle;
+						margin-top: -5px;
+						margin-right: 5px;
+					}
+				}
+			}
 		}
 
 		.description h1 {
@@ -314,6 +348,8 @@
 		.header {
 			padding: 15px 10px 0 10px;
 			margin: 0;
+			display: flex;
+			justify-content: space-between;
 
 			h1 {
 				margin: 0;
@@ -340,6 +376,94 @@
 			padding: 0 0 0 10px;
 			margin: 0;
 			font-size: 13px;
+		}
+
+		.meatball_icon {
+			width: 25px;
+			height: 25px;
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		.meatballs {
+			position: relative;
+		}
+		.meatball-menu {
+			display: flex;
+			flex-direction: column;
+			position: absolute;
+			right: 0;
+			z-index: 100;
+			background-color: #fff;
+			box-shadow:1px 3px 10px #dbdbdb;
+			border-radius: 4px;
+
+			> .option {
+				display: none;
+				height: 30px;
+				width: 105px;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-around;
+				gap: 10px;
+				position: relative;
+
+				.arrow {
+					width: 10px;
+					height: 10px;
+				}
+
+				&:hover {
+					cursor: default;
+				}
+
+				&.show {
+					display: flex;
+				}
+
+				.sub-menu {
+					display: none;
+					position: absolute;
+					left: -135px;
+					top: 0;
+					background-color:#fff;
+					width: 140px;
+					gap: 10px;
+					box-shadow:1px 3px 10px #dbdbdb;
+					border-radius: 4px;
+
+					div {
+						padding: 5px;
+						height: 30px;
+						box-sizing: border-box;
+						align-items: center;
+						display: flex;
+					}
+
+					.export-option {
+						display: none;
+
+						&.show {
+							display: flex;
+						}
+					}
+
+					> :hover {
+						background-color:#eee;
+					}
+
+					&.show {
+						display: flex;
+						flex-direction: column;
+					}
+
+					.show {
+						display: flex;
+					}
+				}
+			}
 		}
 
 		.overview {
@@ -838,6 +962,30 @@
 				}
 			}
 		}
+
+		#embed_dialog {
+			position: absolute;
+			top: -50%;
+			left: 50%;
+			margin: -250px -387px;
+			width: 675px;
+			height: 535px;
+			z-index: 2;
+			box-shadow: 0px 0px 1000px #000, 0px 0px 10px #000;
+			opacity: 0;
+			transition: all 0.3s ease;
+			background: #fff;
+			overflow-x: hidden;
+
+			&.show {
+				opacity: 1;
+				box-shadow: none;
+				text-align: left;
+				top: 50%;
+				width: 800px;
+				z-index: 10;
+			}
+		}
 	}
 
 	.hide {
@@ -855,7 +1003,7 @@
 
 		border-bottom: 1px #0093e7 solid;
 		color: #0093e7;
-		
+
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;

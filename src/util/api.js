@@ -18,7 +18,7 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-export const apiGetWidgetInstance = (instId, loadQset=false) => {
+export const apiGetWidgetInstance = ({instId, loadQset=false}) => {
 	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId, false, loadQset])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
@@ -183,6 +183,13 @@ export const apiSaveWidget = (_params) => {
 			return resp.json()
 		})
 	}
+}
+
+export const apiImportInstance = async ({widget_id, name, qset, is_draft = true}) => {
+	return fetch('/api/json/widget_instance_import/', fetchOptions({ body: `data=${formatFetchBody([widget_id, name, qset, is_draft])}` }))
+		.then(resp => {
+			return resp.json()
+		})
 }
 
 export const apiGetUser = () => {
@@ -370,6 +377,15 @@ export const apiUpdateWidget = ({ args }) => {
 			return resp.json()
 		})
 		.then(widget => widget)
+}
+
+export const apiUpdateQset = ({ args }) => {
+	return fetch('/api/json/widget_instance_update_qset', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+		.then(qset => qset)
 }
 
 export const apiGetWidgetLock = (id = null) => {
@@ -586,8 +602,8 @@ export const apiGetPlaySession = ({ widgetId }) => {
 		})
 }
 
-export const apiGetQuestionSet = (instId, playId = null) => {
-	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
+export const apiGetQuestionSet = ({instId, playId = null, timestamp = null}) => {
+	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId, timestamp])}` }))
 		.then(qset => qset.json())
 }
 
@@ -627,6 +643,14 @@ export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) 
 
 export const apiGetAssets = () => {
 	return fetch(`/api/json/assets_get`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
+		.then(resp => {
+			if (resp.status === 204 || resp.status === 502) return []
+			return resp.json()
+		})
+}
+
+export const apiGetAssetIDsForInstance = (inst_id, get_all_qsets=false, qset_id=null) => {
+	return fetch(`/api/json/assets_get_for_instance`, fetchOptions({ body: `data=${formatFetchBody([inst_id,get_all_qsets,qset_id])}` }))
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()

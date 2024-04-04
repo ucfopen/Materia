@@ -62,7 +62,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
   // No login required
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
-		queryFn: () => apiGetWidgetInstance(inst_id, true),
+		queryFn: () => apiGetWidgetInstance({instId: inst_id, loadQset: true}),
 		enabled: !!inst_id,
 		staleTime: Infinity,
 	})

@@ -110,7 +110,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
-	
+
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -121,14 +121,14 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const { data: inst } = useQuery({
 		queryKey: ['widget-inst', instanceId],
-		queryFn: () => apiGetWidgetInstance(instanceId),
+		queryFn: () => apiGetWidgetInstance({instId: instanceId}),
 		enabled: instanceId !== null,
 		staleTime: Infinity
 	})
 
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
-		queryFn: () => apiGetQuestionSet(instanceId, playId),
+		queryFn: () => apiGetQuestionSet({instId: instanceId, playId: playId}),
 		staleTime: Infinity,
 		placeholderData: null
 	})

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo} from 'react'
 import { useQuery } from 'react-query'
-import { apiCanEditWidgets } from '../util/api'
+import { apiCanEditWidgets, apiGetAssetIDsForInstance } from '../util/api'
 import { iconUrl } from '../util/icon-url'
 import parseTime from '../util/parse-time'
 import MyWidgetsScores from './my-widgets-scores'
@@ -10,7 +10,9 @@ import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsWarningDialog from './my-widgets-warning-dialog'
 import MyWidgetsSettingsDialog from './my-widgets-settings-dialog'
+import MyWidgetsExportDialog from './my-widgets-export-dialog'
 import Modal from './modal'
+import useToast from './hooks/useToast'
 
 const convertAvailibilityDates = (startDateInt, endDateInt) => {
 	let endDate, endTime, open_at, startTime
@@ -70,9 +72,15 @@ const MyWidgetSelectedInstance = ({
 	const [showLocked, setShowLocked] = useState(false)
 	const [showWarning, setShowWarning] = useState(false)
 	const [showSettings, setShowSettings] = useState(false)
+	const [error, setError] = useState('')
+	const [success, setSuccess] = useState('')
+	const [showOptions, setShowOptions] = useState(false)
 	const [collabLabel, setCollabLabel] = useState('Collaborate')
 	const attempts = parseInt(inst.attempts, 10)
 	const shareLinkRef = useRef(null)
+	const { toast, toastRender } = useToast()
+	const [showExport, setShowExport] = useState(false)
+
 	const { data: editPerms, isFetching: permsFetching} = useQuery({
 		queryKey: ['widget-perms', inst.id],
 		queryFn: () => apiCanEditWidgets(inst.id),
@@ -91,6 +99,15 @@ const MyWidgetSelectedInstance = ({
 				console.error(`Failed to fetch permissions.`);
 			}
 		}
+	})
+
+	// fetch asset IDs for export
+	const { data: assetIDs } = useQuery({
+		queryKey: ['widget-assets', inst.id],
+		queryFn: () => apiGetAssetIDsForInstance(inst.id, inst.qset ? inst.qset.id : null),
+		placeholderData: null,
+		enabled: !!inst.id,
+		staleTime: Infinity
 	})
 
 	// Initializes the data when widgets changes
@@ -141,6 +158,21 @@ const MyWidgetSelectedInstance = ({
 			setState((prevState) => ({...prevState, can: myPerms.can, perms: myPerms}))
 		}
 	}, [myPerms, inst])
+
+	// register click listener to listen for clicks outside of the options menu
+	useEffect(() => {
+		const clickListener = e => {
+			if (!e.target.closest('.meatballs')) {
+				setShowOptions(false)
+			}
+		}
+
+		document.addEventListener('click', clickListener)
+
+		return () => {
+			document.removeEventListener('click', clickListener)
+		}
+	}, [])
 
 	const makeCopy = useCallback((title, copyPermissions) => {
 		setShowCopy(false)
@@ -196,6 +228,22 @@ const MyWidgetSelectedInstance = ({
 	const deleteClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: !state.showDeleteDialog}))
 	const deleteCancelClickHandler = () => setState(prevState => ({...prevState, showDeleteDialog: false}))
 	const deleteConfirmClickHandler = () => onDelete(inst)
+
+	const exportClickHandler = () => {
+		setShowExport(true)
+	}
+
+	const onImportSuccess = (data) => {
+		toast(`The question set for ${inst.name} has been updated.`, true)
+	}
+
+	const onImportFailure = (err) => {
+		toast((err.message || "Error") + ": Failed to import question set.", false, true)
+	}
+
+	const onExportFailure = (err) => {
+		toast("Error: Failed to export.", false, true)
+	}
 
 	const editWidget = () => {
 		const editUrl = window.location.origin + `/widgets/${inst.widget.dir}create#${inst.id}`
@@ -350,6 +398,12 @@ const MyWidgetSelectedInstance = ({
 		)
 	}
 
+	let exportDialogRender = null
+	let exportDialogOnClose = () => setShowExport(false)
+	if (showExport) {
+		exportDialogRender = <MyWidgetsExportDialog inst={inst} onClose={exportDialogOnClose} onExportFailure={onExportFailure}/>
+	}
+
 	return (
 		<section className='page'>
 			<div className='header'>
@@ -409,6 +463,14 @@ const MyWidgetSelectedInstance = ({
 								id='delete_widget_link'
 								onClick={deleteClickHandler}>
 								Delete
+							</div>
+						</li>
+						<li className={`export`}>
+							<div className={`link`}
+								id='export_widget_link'
+								onClick={exportClickHandler}
+								title="Export Widget">
+								Export
 							</div>
 						</li>
 					</ul>
@@ -501,6 +563,8 @@ const MyWidgetSelectedInstance = ({
 			{ warningDialogRender }
 			{ settingsDialogRender }
 			{ lockedDialogRender }
+			{ exportDialogRender }
+			{ toastRender }
 			<MyWidgetsScores inst={inst} setInvalidLogin={setInvalidLogin} beardMode={beardMode}/>
 		</section>
 	)
