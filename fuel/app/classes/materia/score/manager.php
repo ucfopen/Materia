@@ -96,6 +96,11 @@ class Score_Manager
 			$details = $score_module->get_score_report();
 
 			$return_arr[] = $details;
+
+			// append qset to the details array
+			// required for custom score screens & contextually provided per play, since some plays may use an earlier qset version
+			$inst->get_qset($inst_id, $play->created_at);
+			$return_arr[0]['qset'] = $inst->qset;
 		}
 		return $return_arr;
 	}

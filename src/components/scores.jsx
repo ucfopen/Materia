@@ -27,7 +27,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const [attemptNum, setAttemptNum] = useState(null)
 
 	const [overview, setOverview] = useState()
-	const [details, setDetails] = useState([])
+	const [playDetails, setPlayDetails] = useState(null)
 	const [prevAttemptOpen, setprevAttemptOpen] = useState(false)
 
 	// set to one of the state constants above if an error state manifests
@@ -186,7 +186,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	// Initializes the custom score screen
 	useEffect(() => {
-		if (instance) {
+		if (instance && playDetails) {
 			let enginePath
 			const score_screen = instance.widget.score_screen
 			// custom score screen exists?
@@ -206,7 +206,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					setCustomScoreScreen({
 						...customScoreScreen,
 						htmlPath: enginePath + '?' + instance.widget.created_at,
-						qset: instance.qset,
 						scoreTable: scoreTable,
 						type: 'html',
 						loading: false,
@@ -222,7 +221,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				setCustomScoreScreen({ ...customScoreScreen, loading: false })
 			}
 		}
-	}, [instance, scoreTable])
+	}, [instance, playDetails, scoreTable])
 
 	// _displayAttempts
 	useEffect(() => {
@@ -287,7 +286,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (playScores && playScores.length > 0) {
 
 			const deets = playScores[0]
-			setDetails([...deets.details])
+			setPlayDetails({qset: { ...deets.qset }, details: [ ...deets.details ]})
 
 			let score
 
@@ -491,7 +490,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// this is only called in response from the score-core
 	// it will not be called for default score screens
 	const _sendWidgetInit = () => {
-		if (customScoreScreen.scoreTable == null || customScoreScreen.qset == null || scoreWidgetRef.current == null) {
+		if (customScoreScreen.scoreTable == null || playDetails == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
 			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
 			setShowResultsTable(true)
@@ -500,12 +499,12 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		}
 		setCustomScoreScreen({ ...customScoreScreen, ready: true })
 
-		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
+		_sendToWidget('initWidget', [playDetails.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
 	// tell the custom score screen that the selected attempt/play has changed, and pass the new scoreTable accordingly
 	const _sendWidgetUpdate = () => {
-		_sendToWidget('updateWidget', [instance.qset, scoreTable])
+		_sendToWidget('updateWidget', [playDetails.qset, scoreTable])
 	}
 
 	const _setHeight = (h) => {
@@ -672,7 +671,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			</section>
 		)
 	} else if (!errorStateRender && showResultsTable) {
-		detailsRender = <ScoreDetails details={details} complete={overview?.complete} />
+		detailsRender = <ScoreDetails details={playDetails?.details} complete={overview?.complete} />
 	}
 
 	return (
