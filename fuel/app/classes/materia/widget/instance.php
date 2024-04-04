@@ -263,6 +263,9 @@ class Widget_Instance
 					->where('id', $qset_id)
 					->execute();
 
+				// associate all of the assets with this qset
+				self::map_assets_to_qset($qset_id, $this->qset->data);
+
 				// store all the questions in the qbank
 				foreach ($questions as $q)
 				{
@@ -282,6 +285,27 @@ class Widget_Instance
 		}
 
 		return false;
+	}
+
+	// recursively search for assets in nested arrays and store them
+	public function map_assets_to_qset($qset_id, $array)
+	{
+		if ( ! $array || ! is_array($array)) return;
+
+		foreach ($array as $key => $value)
+		{
+			if (is_array($value))
+			{
+				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video')
+				{
+					if ( ! empty($value['id']))
+					{
+						Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $value['id']);
+					}
+				}
+				$this->map_assets_to_qset($qset_id, $value);
+			}
+		}
 	}
 
 	public function db_store()

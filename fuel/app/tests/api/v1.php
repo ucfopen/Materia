@@ -999,11 +999,16 @@ class Test_Api_V1 extends \Basetest
 
 		// save the asset
 		$asset->db_store();
-		// get the new asset id
-		$asset_id = $asset->id;
+		// create asset to store in qset
+		$assets = [
+			'asset' => [
+				'id' => $asset->id,
+			]
+		];
 
 		// create a new qset
-		$qset = $this->create_new_qset($question, $answer, 0, [$asset_id]);
+		$qset = $this->create_new_qset($question, $answer, 0, $assets);
+		// $this->assertTrue($qset->data['items'][0]['items'][0]['assets']['asset']['id'] == $asset_id);
 
 		// create a new instance, which should map assets to instance ID
 		$inst = Api_V1::widget_instance_new($widget->id, $title, $qset, true);

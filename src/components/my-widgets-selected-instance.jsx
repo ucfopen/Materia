@@ -408,13 +408,6 @@ const MyWidgetSelectedInstance = ({
 		<section className='page'>
 			<div className='header'>
 				<h1>{inst.name}</h1>
-				<div className='meatballs'>
-					<svg className='meatball_icon' viewBox='0 0 100 100' onClick={() => setShowOptions(!showOptions)}>
-						<circle cx='50' cy='10' r='10' stroke='none' fill="#333"/>
-						<circle cx='50' cy='40' r='10' stroke='none' fill="#333"/>
-						<circle cx='50' cy='70' r='10' stroke='none' fill="#333"/>
-					</svg>
-				</div>
 			</div>
 			<div className='overview'>
 				<div className={`icon_container med_${beardMode ? beard : ''} ${beardMode ? 'big_bearded' : ''}`} >

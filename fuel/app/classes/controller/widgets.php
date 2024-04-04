@@ -281,7 +281,6 @@ class Controller_Widgets extends Controller
 			$zip->addFromString('qset.json', json_encode($qset));
 		}
 
-		$bytes = 0;
 		$asset_ids = Materia\Api_V1::assets_get_for_instance($inst_id, false, $qset->id);
 		$size = 'original';
 
@@ -332,7 +331,6 @@ class Controller_Widgets extends Controller
 			\Event::register('fuel-shutdown', function() use($asset_path) {
 
 				if ( ! file_exists($asset_path)) throw new \HttpNotFoundException;
-				$bytes += filesize($asset_path);
 				// turn off and clean output buffer
 				while (ob_get_level() > 0) ob_end_clean();
 			});
