@@ -1019,7 +1019,7 @@ class Test_Api_V1 extends \Basetest
 		// assert asset array length
 		$this->assertCount(1, $output);
 		// assert asset ID is same as one we made
-		$this->assertEquals($asset_id, $output[0]);
+		$this->assertEquals($asset->id, $output[0]);
 
 		// ======= AS NO ONE ========
 		\Auth::logout();
