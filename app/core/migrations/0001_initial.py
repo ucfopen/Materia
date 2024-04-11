@@ -427,29 +427,5 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'widget_qset'
             },
-        ),
-        migrations.AlterUniqueTogether(
-            name='daterange',
-            unique_together={('semester', 'year', 'start_at', 'end_at')},
-        ),
-        migrations.AlterUniqueTogether(
-            name='mapassettoobject',
-            unique_together={('object_id', 'object_type', 'asset_id')},
-        ),
-        migrations.AlterUniqueTogether(
-            name='permobjecttouser',
-            unique_together={('object_id', 'user_id', 'perm', 'object_type')},
-        ),
-        migrations.AlterUniqueTogether(
-            name='permroletoperm',
-            unique_together={('role_id', 'perm')},
-        ),
-        migrations.AlterUniqueTogether(
-            name='permroletouser',
-            unique_together={('user_id', 'role_id')},
-        ),
-        migrations.AlterUniqueTogether(
-            name='usermeta',
-            unique_together={('user_id', 'meta')},
-        ),
+        )
     ]
