@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 88
+exclude = "migrations|src"
+
+[tool.isort]
+profile = "black"
+skip = "migrations, src"

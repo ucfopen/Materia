@@ -3,12 +3,13 @@
 #   * Rearrange models' order
 #   * Make sure each model has one field with primary_key=True
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
+#   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
 from datetime import datetime
 from django.contrib.auth.models import User
+
 
 class Asset(models.Model):
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
@@ -22,13 +23,13 @@ class Asset(models.Model):
     class Meta:
         db_table = "asset"
 
-# revisit this later - either it sticks in the new version or is replaced with something Django-y
-# rebuild the FuelPHP version locally using the DB storage driver for assets, see what goes in here
-# possibly come up with a process to pull binaries out of this table and write them to disk somewhere?
+
+# Revisit this later - either it sticks in the new version or is replaced with something Django-y
+# Rebuild the FuelPHP version locally using the DB storage driver for assets, see what goes in here
+# Maybe come up with a process to pull binaries out of this table and write them to disk somewhere?
 # BIG WARNING: we (UCF) do not use this, we have no idea if any of this is even viable
-class AssetData(
-    models.Model
-):  # This model is not used in the application. The table is empty.
+class AssetData(models.Model):
+    # This model is not used in the application. The table is empty.
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     type = models.CharField(max_length=10)
     status = models.CharField(max_length=20)
@@ -41,11 +42,11 @@ class AssetData(
     class Meta:
         db_table = "asset_data"
         constraints = [
-            models.UniqueConstraint(fields=['id', 'size'], name='asset_data_main'),
+            models.UniqueConstraint(fields=["id", "size"], name="asset_data_main"),
         ]
         indexes = [
-            models.Index(fields=['hash'], name='asset_data_hash'),
-            models.Index(fields=['created_at'], name='asset_data_created_at')
+            models.Index(fields=["hash"], name="asset_data_hash"),
+            models.Index(fields=["created_at"], name="asset_data_created_at"),
         ]
 
 
@@ -62,10 +63,12 @@ class DateRange(models.Model):
 
     def start_at_datetime(self):
         from datetime import datetime
+
         return datetime.fromtimestamp(self.start_at)
 
     def end_at_datetime(self):
         from datetime import datetime
+
         return datetime.fromtimestamp(self.end_at)
 
     # do this in a migration
@@ -77,56 +80,55 @@ class DateRange(models.Model):
 
     class Meta:
         db_table = "date_range"
-        #TODO see what this does - either duplicates the compound index or renames existing one?
+        # TODO see what this does - either duplicates the compound index or renames existing one?
         # or does nothing at all
         constraints = [
-            models.UniqueConstraint(fields=['semester', 'year', 'start_at', 'end_at'], name='date_range_main'),
+            models.UniqueConstraint(
+                fields=["semester", "year", "start_at", "end_at"],
+                name="date_range_main",
+            ),
         ]
         # unique_together = (("semester", "year", "start_at", "end_at"),)
 
 
 class Log(models.Model):
     LOG_TYPE_CHOICES = {
-        'BUTTON_PRESS': 'BUTTON_PRESS',
-        'ERROR_GENERAL': 'ERROR_GENERAL',
-        'ERROR_TIME_VALIDATION': 'ERROR_TIME_VALIDATION',
-        'KEY_PRESS': 'KEY_PRESS',
-        'SCORE_ACTIVITY_FROM_CLIENT': 'SCORE_ACTIVITY_FROM_CLIENT',
-        'SCORE_FINAL_FROM_CLIENT': 'SCORE_FINAL_FROM_CLIENT',
-        'SCORE_QUESTION_ANSWERED': 'SCORE_QUESTION_ANSWERED',
-        'SCORE_WIDGET_INTERACTION': 'SCORE_WIDGET_INTERACTION',
-        'SCORE_PARTICIPATION': 'SCORE_PARTICIPATION',
-        'WIDGET_CORE_INIT': 'WIDGET_CORE_INIT',
-        'WIDGET_END': 'WIDGET_END',
-        'WIDGET_LOAD_DONE': 'WIDGET_LOAD_DONE',
-        'WIDGET_LOAD_START': 'WIDGET_LOAD_START',
-        'WIDGET_LOGIN': 'WIDGET_LOGIN',
-        'WIDGET_PLAY_REQ': 'WIDGET_PLAY_REQ',
-        'WIDGET_PLAY_START': 'WIDGET_PLAY_START',
-        'WIDGET_RESTART': 'WIDGET_RESTART',
-        'WIDGET_START': 'WIDGET_START',
-        'WIDGET_STATE': 'WIDGET_STATE',
-        'DATA': 'DATA'
+        "BUTTON_PRESS": "BUTTON_PRESS",
+        "ERROR_GENERAL": "ERROR_GENERAL",
+        "ERROR_TIME_VALIDATION": "ERROR_TIME_VALIDATION",
+        "KEY_PRESS": "KEY_PRESS",
+        "SCORE_ACTIVITY_FROM_CLIENT": "SCORE_ACTIVITY_FROM_CLIENT",
+        "SCORE_FINAL_FROM_CLIENT": "SCORE_FINAL_FROM_CLIENT",
+        "SCORE_QUESTION_ANSWERED": "SCORE_QUESTION_ANSWERED",
+        "SCORE_WIDGET_INTERACTION": "SCORE_WIDGET_INTERACTION",
+        "SCORE_PARTICIPATION": "SCORE_PARTICIPATION",
+        "WIDGET_CORE_INIT": "WIDGET_CORE_INIT",
+        "WIDGET_END": "WIDGET_END",
+        "WIDGET_LOAD_DONE": "WIDGET_LOAD_DONE",
+        "WIDGET_LOAD_START": "WIDGET_LOAD_START",
+        "WIDGET_LOGIN": "WIDGET_LOGIN",
+        "WIDGET_PLAY_REQ": "WIDGET_PLAY_REQ",
+        "WIDGET_PLAY_START": "WIDGET_PLAY_START",
+        "WIDGET_RESTART": "WIDGET_RESTART",
+        "WIDGET_START": "WIDGET_START",
+        "WIDGET_STATE": "WIDGET_STATE",
+        "DATA": "DATA",
     }
 
     id = models.BigAutoField(primary_key=True)
-    play_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )  # consider converting to UUID field. Note: there appear to be some non-UUID values in the table
+    # consider converting to UUID field. Note: there appear to be some non-UUID values in the table
+    play_id = models.CharField(max_length=100, db_collation="utf8_bin")
+    # type is a "soft" reserved word in Python
     type = models.CharField(
-        max_length=26,
-        blank=True,
-        null=True,
-        choices=LOG_TYPE_CHOICES
-    )  # type is a "soft" reserved word in Python
-    item_id = models.CharField(
-        max_length=255
-    ) # typically contains internal qset IDs for questions, may contain 0, may contain nothing
+        max_length=26, blank=True, null=True, choices=LOG_TYPE_CHOICES
+    )
+    # typically contains internal qset IDs for questions, may contain 0, may contain nothing
+    item_id = models.CharField(max_length=255)
     text = models.TextField()
     value = models.CharField(max_length=255)
     created_at = models.IntegerField()  # consider converting to date field
     game_time = models.IntegerField()
-    visible = models.BooleanField() # was previously CharField, enum in DB
+    visible = models.BooleanField()  # was previously CharField, enum in DB
     ip = models.CharField(max_length=20)
 
     created_at_dt = models.DateTimeField(default=datetime.now)
@@ -134,10 +136,11 @@ class Log(models.Model):
     class Meta:
         db_table = "log"
         indexes = [
-            models.Index(fields=['play_id'], name='log_play_id'),
-            models.Index(fields=['type'], name='log_type'),
-            models.Index(fields=['created_at'], name='log_created_at')
+            models.Index(fields=["play_id"], name="log_play_id"),
+            models.Index(fields=["type"], name="log_type"),
+            models.Index(fields=["created_at"], name="log_created_at"),
         ]
+
 
 # this sucks
 # re-engineer it to be useful and sensible
@@ -147,16 +150,15 @@ class LogActivity(models.Model):
     # user_id = models.PositiveBigIntegerField()  # convert to foreign key to Users model
     user = models.ForeignKey(
         User,
-        related_name='activity_logs',
+        related_name="activity_logs",
         on_delete=models.PROTECT,
-        db_column='user_id'
+        db_column="user_id",
     )
 
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
     created_at = models.IntegerField()  # consider converting to date field
-    item_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )  # contains arbitrary values based on what 'type' of activity is being logged
+    # item_id contains arbitrary values based on what 'type' of activity is being logged
+    item_id = models.CharField(max_length=100, db_collation="utf8_bin")
     value_1 = models.CharField(max_length=255, blank=True, null=True)
     value_2 = models.CharField(max_length=255, blank=True, null=True)
     value_3 = models.CharField(max_length=255, blank=True, null=True)
@@ -166,57 +168,48 @@ class LogActivity(models.Model):
     class Meta:
         db_table = "log_activity"
         indexes = [
-            models.Index(fields=['type'], name='log_activity_type'),
-            models.Index(fields=['item_id'], name='log_activity_item_id'),
-            models.Index(fields=['created_at'], name='log_activity_created_at')
+            models.Index(fields=["type"], name="log_activity_type"),
+            models.Index(fields=["item_id"], name="log_activity_item_id"),
+            models.Index(fields=["created_at"], name="log_activity_created_at"),
         ]
 
 
 class LogPlay(models.Model):
-    AUTH_CHOICES = {
-        '': '',
-        'lti': 'lti'
-    }
+    AUTH_CHOICES = {"": "", "lti": "lti"}
 
     id = models.CharField(primary_key=True, max_length=100, db_collation="utf8_bin")
     instance = models.ForeignKey(
-        'WidgetInstance',
-        related_name='play_logs',
+        "WidgetInstance",
+        related_name="play_logs",
         on_delete=models.PROTECT,
-        db_column='inst_id'
+        db_column="inst_id",
     )
-    is_valid = models.BooleanField() # was previously CharField, enum in DB
+    is_valid = models.BooleanField()  # was previously CharField, enum in DB
     created_at = models.IntegerField()
     user = models.ForeignKey(
-        User,
-        related_name='play_logs',
-        on_delete=models.PROTECT,
-        db_column='user_id'
+        User, related_name="play_logs", on_delete=models.PROTECT, db_column="user_id"
     )
     ip = models.CharField(max_length=20)
-    is_complete = models.BooleanField() # was previously CharField, enum in DB
+    is_complete = models.BooleanField()  # was previously CharField, enum in DB
     score = models.DecimalField(max_digits=52, decimal_places=2)
     score_possible = models.IntegerField()
     percent = models.FloatField()
     elapsed = models.IntegerField()
     qset = models.ForeignKey(
-        'WidgetQset',
-        related_name='play_logs',
+        "WidgetQset",
+        related_name="play_logs",
         on_delete=models.PROTECT,
-        db_column='qset_id'
+        db_column="qset_id",
     )
     environment_data = models.TextField()
-    auth = models.CharField(
-        max_length=100,
-        choices=AUTH_CHOICES
-    )
+    auth = models.CharField(max_length=100, choices=AUTH_CHOICES)
     referrer_url = models.CharField(max_length=255)
     context_id = models.CharField(max_length=255)
     semester = models.ForeignKey(
         DateRange,
-        related_name='play_logs',
+        related_name="play_logs",
         on_delete=models.PROTECT,
-        db_column='semester_id'
+        db_column="semester_id",
     )
 
     created_at_dt = models.DateTimeField(default=datetime.now)
@@ -224,31 +217,28 @@ class LogPlay(models.Model):
     class Meta:
         db_table = "log_play"
         indexes = [
-            models.Index(fields=['created_at'], name='log_play_created_at'),
-            models.Index(fields=['is_complete'], name='log_play_is_complete'),
-            models.Index(fields=['percent'], name='log_play_percent')
+            models.Index(fields=["created_at"], name="log_play_created_at"),
+            models.Index(fields=["is_complete"], name="log_play_is_complete"),
+            models.Index(fields=["percent"], name="log_play_percent"),
         ]
 
 
 class LogStorage(models.Model):
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
-        'WidgetInstance',
-        related_name='storage_logs',
+        "WidgetInstance",
+        related_name="storage_logs",
         on_delete=models.PROTECT,
-        db_column='inst_id'
+        db_column="inst_id",
     )
     play_log = models.ForeignKey(
         LogPlay,
-        related_name='storage_logs',
+        related_name="storage_logs",
         on_delete=models.PROTECT,
-        db_column='play_id'
+        db_column="play_id",
     )
     user = models.ForeignKey(
-        User,
-        related_name='storage_logs',
-        on_delete=models.PROTECT,
-        db_column='user_id'
+        User, related_name="storage_logs", on_delete=models.PROTECT, db_column="user_id"
     )
     created_at = models.PositiveIntegerField()
     name = models.CharField(max_length=64)
@@ -259,27 +249,24 @@ class LogStorage(models.Model):
     class Meta:
         db_table = "log_storage"
         indexes = [
-            models.Index(fields=['created_at'], name='log_storage_created_at'),
-            models.Index(fields=['name'], name='log_storage_name'),
+            models.Index(fields=["created_at"], name="log_storage_created_at"),
+            models.Index(fields=["name"], name="log_storage_name"),
         ]
 
 
 class Lti(models.Model):
     id = models.BigAutoField(primary_key=True)
     widget_instance = models.ForeignKey(
-        'WidgetInstance',
-        related_name='lti_embeds',
+        "WidgetInstance",
+        related_name="lti_embeds",
         on_delete=models.PROTECT,
-        db_column='item_id'
+        db_column="item_id",
     )
     resource_link = models.CharField(max_length=255)
     consumer = models.CharField(max_length=255)
     consumer_guid = models.CharField(max_length=255)
     user = models.ForeignKey(
-        User,
-        related_name='lti_embeds',
-        on_delete=models.PROTECT,
-        db_column='user_id'
+        User, related_name="lti_embeds", on_delete=models.PROTECT, db_column="user_id"
     )
     name = models.CharField(max_length=255, blank=True, null=True)
     context_id = models.CharField(max_length=255, blank=True, null=True)
@@ -293,15 +280,17 @@ class Lti(models.Model):
     class Meta:
         db_table = "lti"
         indexes = [
-            models.Index(fields=['resource_link'], name='lti_resource_link'),
-            models.Index(fields=['consumer_guid'], name='lti_consumer_guid'),
+            models.Index(fields=["resource_link"], name="lti_resource_link"),
+            models.Index(fields=["consumer_guid"], name="lti_consumer_guid"),
         ]
+
 
 # this sucks
 # consider redoing the whole 'associate assets with questions that use them' process
 class MapAssetToObject(models.Model):
-    # table used in one function that's checking how many times an asset is used to see if it's safe to delete
-    # except the function downstream of that function, which would actually use the result, is never used
+    # table used in one function that's checking how many times an asset is used to see if it's
+    # safe to delete except the function downstream of that function, which would actually use
+    # the result, is never used
 
     # object generic model?
     # Needs primary key
@@ -318,23 +307,22 @@ class MapAssetToObject(models.Model):
     class Meta:
         db_table = "map_asset_to_object"
         constraints = [
-            models.UniqueConstraint(fields=['object_id', 'object_type', 'asset_id'], name='map_asset_to_object_main'),
+            models.UniqueConstraint(
+                fields=["object_id", "object_type", "asset_id"],
+                name="map_asset_to_object_main",
+            ),
         ]
 
 
-# Convert to be a through model for a many-to-many relationship between Question and WidgetQset models
-# ignoring related_names on foreign keys for now as it probably won't be used in this way
+# Convert to be a through model for a many-to-many relationship between Question and WidgetQset
+# models ignoring related_names on foreign keys for now as it probably won't be used in this way
 class MapQuestionToQset(models.Model):
     id = models.BigAutoField(primary_key=True)
     qset = models.ForeignKey(
-        'WidgetQset',
-        on_delete=models.PROTECT,
-        db_column='qset_id'
+        "WidgetQset", on_delete=models.PROTECT, db_column="qset_id"
     )
     question = models.ForeignKey(
-        'Question',
-        on_delete=models.PROTECT,
-        db_column='question_id'
+        "Question", on_delete=models.PROTECT, db_column="question_id"
     )
 
     class Meta:
@@ -349,16 +337,14 @@ class Notification(models.Model):
     # this refers to a widget instance ID
     # can't foreign key it properly because we can't reliably expect every value to be valid
     # potentially sanitize data and revisit
-    item_id = models.CharField(
-        max_length=100, db_collation="utf8_bin"
-    )
+    item_id = models.CharField(max_length=100, db_collation="utf8_bin")
     # is_email_sent = models.CharField(max_length=1)  # convert to boolean field
-    is_email_sent = models.BooleanField() # was previously CharField, enum in DB
+    is_email_sent = models.BooleanField()  # was previously CharField, enum in DB
     created_at = models.IntegerField()
     # is_read = models.CharField(max_length=1)  # convert to boolean field
-    is_read = models.BooleanField() # was previously CharField, enum in DB
+    is_read = models.BooleanField()  # was previously CharField, enum in DB
     subject = models.CharField(max_length=511)
-    # consider deleting this column and pulling the avatar from a relevant user metadata row just in time
+    # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
     updated_at = models.IntegerField()
     action = models.CharField(max_length=255)
@@ -369,76 +355,70 @@ class Notification(models.Model):
     class Meta:
         db_table = "notification"
         indexes = [
-            models.Index(fields=['is_email_sent'], name='notification_is_email_sent'),
-            models.Index(fields=['to_id'], name='notification_to_id'),
-            models.Index(fields=['from_id'], name='notification_from_id'),
-            models.Index(fields=['item_type'], name='notification_item_type'),
+            models.Index(fields=["is_email_sent"], name="notification_is_email_sent"),
+            models.Index(fields=["to_id"], name="notification_to_id"),
+            models.Index(fields=["from_id"], name="notification_from_id"),
+            models.Index(fields=["item_type"], name="notification_item_type"),
         ]
 
 
-# We may want to use Django's built-in permissions and roles system instead of these perm models. Will need a migration plan for them
-# potential foreign key relationship re: object_id, object_type for assets, questions, and widget instances
+# We may want to use Django's built-in permissions and roles system instead of these perm models.
+# Will need a migration plan for them potential foreign key relationship re: object_id, object_type
+# for assets, questions, and widget instances
 class PermObjectToUser(models.Model):
     PERM_CHOICES = {
-        1: 'visible/view scores',
-        30: 'full',
-        85: 'support user',
-        90: 'super user'
+        1: "visible/view scores",
+        30: "full",
+        85: "support user",
+        90: "super user",
     }
     # Needs primary key
-    id = models.BigAutoField(primary_key=True),
+    id = (models.BigAutoField(primary_key=True),)
     # appears to be a generic relationship combined with object_type
-    object_id = models.CharField(
-        max_length=10, db_collation="utf8_bin"
-    )
+    object_id = models.CharField(max_length=10, db_collation="utf8_bin")
     user = models.ForeignKey(
         User,
-        related_name='object_permissions',
+        related_name="object_permissions",
         on_delete=models.PROTECT,
-        db_column='user_id'
+        db_column="user_id",
     )
     perm = models.IntegerField(choices=PERM_CHOICES)
     # appears to be a generic relationship combined with object_type
     object_type = models.IntegerField()
     # will be auto-nulled when the expiration date elapses
-    expires_at = models.IntegerField(
-        blank=True, null=True
-    )
+    expires_at = models.IntegerField(blank=True, null=True)
 
     expires_at_dt = models.DateTimeField(default=datetime.now)
 
     class Meta:
         db_table = "perm_object_to_user"
         constraints = [
-            models.UniqueConstraint(fields=['object_id', 'user_id', 'perm', 'object_type'], name='perm_object_to_user_main'),
+            models.UniqueConstraint(
+                fields=["object_id", "user_id", "perm", "object_type"],
+                name="perm_object_to_user_main",
+            ),
         ]
 
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey(
-        User,
-        related_name='questions',
-        on_delete=models.PROTECT,
-        db_column='user_id'
+        User, related_name="questions", on_delete=models.PROTECT, db_column="user_id"
     )
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
     text = models.TextField()
     created_at = models.IntegerField()
     data = models.TextField(blank=True, null=True)
     hash = models.CharField(unique=True, max_length=32)
-    qset = models.ManyToManyField(
-        'WidgetQset',
-        through=MapQuestionToQset
-    )
+    qset = models.ManyToManyField("WidgetQset", through=MapQuestionToQset)
 
     created_at_dt = models.DateTimeField(default=datetime.now)
 
     class Meta:
         db_table = "question"
         indexes = [
-            models.Index(fields=['hash'], name='question_hash'),
-            models.Index(fields=['type'], name='question_type'),
+            models.Index(fields=["hash"], name="question_hash"),
+            models.Index(fields=["type"], name="question_type"),
         ]
 
 
@@ -456,16 +436,16 @@ class UserExtraAttempts(models.Model):
     class Meta:
         db_table = "user_extra_attempts"
         indexes = [
-            models.Index(fields=['user_id'], name='user_extra_attempts_user_id'),
-            models.Index(fields=['inst_id'], name='user_extra_attempts_inst_id')
+            models.Index(fields=["user_id"], name="user_extra_attempts_user_id"),
+            models.Index(fields=["inst_id"], name="user_extra_attempts_inst_id"),
         ]
 
 
 class Widget(models.Model):
     SCORE_TYPE_CHOICES = {
-        'SERVER': 'widget is scored on the server',
-        'CLIENT': 'widget is scored on the client',
-        'SERVER-CLIENT': 'widget is partially scored in both server and client',
+        "SERVER": "widget is scored on the server",
+        "CLIENT": "widget is scored on the client",
+        "SERVER-CLIENT": "widget is partially scored in both server and client",
     }
 
     id = models.BigAutoField(primary_key=True)
@@ -474,89 +454,86 @@ class Widget(models.Model):
     flash_version = models.PositiveIntegerField()
     height = models.PositiveSmallIntegerField()
     width = models.PositiveSmallIntegerField()
-    is_scalable = models.BooleanField() # previously varchar field, enum in db
+    is_scalable = models.BooleanField()  # previously varchar field, enum in db
     score_module = models.CharField(max_length=100)
-    score_type = models.CharField(
-        max_length=13,
-        choices=SCORE_TYPE_CHOICES
-    )
-    is_qset_encrypted = models.BooleanField() # previously varchar field, enum in db
-    is_answer_encrypted = models.BooleanField() # previously varchar field, enum in db
-    is_storage_enabled = models.BooleanField() # previously varchar field, enum in db
-    is_editable = models.BooleanField() # previously varchar field, enum in db
-    is_playable = models.BooleanField() # previously varchar field, enum in db
-    is_scorable = models.BooleanField() # previously varchar field, enum in db
-    in_catalog = models.BooleanField() # previously varchar field, enum in db
+    score_type = models.CharField(max_length=13, choices=SCORE_TYPE_CHOICES)
+    is_qset_encrypted = models.BooleanField()  # previously varchar field, enum in db
+    is_answer_encrypted = models.BooleanField()  # previously varchar field, enum in db
+    is_storage_enabled = models.BooleanField()  # previously varchar field, enum in db
+    is_editable = models.BooleanField()  # previously varchar field, enum in db
+    is_playable = models.BooleanField()  # previously varchar field, enum in db
+    is_scorable = models.BooleanField()  # previously varchar field, enum in db
+    in_catalog = models.BooleanField()  # previously varchar field, enum in db
     creator = models.CharField(max_length=255)
     clean_name = models.CharField(max_length=255)
     player = models.CharField(max_length=255)
     api_version = models.IntegerField()
     package_hash = models.CharField(max_length=32, db_collation="utf8_bin")
     score_screen = models.CharField(max_length=255)
-    restrict_publish = models.BooleanField() # previously varchar field, enum in db
+    restrict_publish = models.BooleanField()  # previously varchar field, enum in db
     creator_guide = models.CharField(max_length=255)
     player_guide = models.CharField(max_length=255)
 
     class Meta:
         db_table = "widget"
         indexes = [
-            models.Index(fields=['clean_name'], name='widget_clean_name'),
-            models.Index(fields=['in_catalog'], name='widget_in_catalog')
+            models.Index(fields=["clean_name"], name="widget_clean_name"),
+            models.Index(fields=["in_catalog"], name="widget_in_catalog"),
         ]
 
 
 class WidgetInstance(models.Model):
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     widget = models.ForeignKey(
-        'Widget',
-        related_name='instances',
+        "Widget",
+        related_name="instances",
         on_delete=models.PROTECT,
-        db_column='widget_id'
+        db_column="widget_id",
     )
     user = models.ForeignKey(
         User,
-        related_name='created_instances',
+        related_name="created_instances",
         on_delete=models.PROTECT,
-        db_column='user_id'
+        db_column="user_id",
     )
     created_at = models.IntegerField()
     name = models.CharField(max_length=100)
-    is_draft = models.BooleanField() # previously varchar field, enum in db
+    is_draft = models.BooleanField()  # previously varchar field, enum in db
     height = models.IntegerField()
     width = models.IntegerField()
     open_at = models.IntegerField()
     close_at = models.IntegerField()
     attempts = models.IntegerField()
-    is_deleted = models.BooleanField() # previously varchar field, enum in db
-    guest_access = models.BooleanField() # previously varchar field, enum in db
-    is_student_made = models.BooleanField() # previously varchar field, enum in db
+    is_deleted = models.BooleanField()  # previously varchar field, enum in db
+    guest_access = models.BooleanField()  # previously varchar field, enum in db
+    is_student_made = models.BooleanField()  # previously varchar field, enum in db
     updated_at = models.IntegerField()
-    embedded_only = models.BooleanField() # previously varchar field, enum in db
+    embedded_only = models.BooleanField()  # previously varchar field, enum in db
     published_by = models.ForeignKey(
         User,
-        related_name='published_instances',
+        related_name="published_instances",
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        db_column='published_by'
+        db_column="published_by",
     )
 
     class Meta:
         db_table = "widget_instance"
         indexes = [
-            models.Index(fields=['created_at'], name='widget_instance_created_at'),
-            models.Index(fields=['is_draft'], name='widget_instance_is_draft'),
-            models.Index(fields=['is_deleted'], name='widget_instance_is_deleted'),
+            models.Index(fields=["created_at"], name="widget_instance_created_at"),
+            models.Index(fields=["is_draft"], name="widget_instance_is_draft"),
+            models.Index(fields=["is_deleted"], name="widget_instance_is_deleted"),
         ]
 
 
 class WidgetMetadata(models.Model):
     id = models.BigAutoField(primary_key=True)
     widget = models.ForeignKey(
-        'Widget',
-        related_name='metadata',
+        "Widget",
+        related_name="metadata",
         on_delete=models.PROTECT,
-        db_column='widget_id'
+        db_column="widget_id",
     )
     name = models.CharField(max_length=255)
     value = models.TextField()
@@ -564,17 +541,19 @@ class WidgetMetadata(models.Model):
     class Meta:
         db_table = "widget_metadata"
         constraints = [
-            models.UniqueConstraint(fields=['widget_id', 'name'], name='widget_metadata_main'),
+            models.UniqueConstraint(
+                fields=["widget_id", "name"], name="widget_metadata_main"
+            ),
         ]
 
 
 class WidgetQset(models.Model):
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
-        'WidgetInstance',
-        related_name='qsets',
+        "WidgetInstance",
+        related_name="qsets",
         on_delete=models.PROTECT,
-        db_column='inst_id'
+        db_column="inst_id",
     )
     created_at = models.IntegerField()
     data = models.TextField()
@@ -590,5 +569,5 @@ class WidgetQset(models.Model):
     class Meta:
         db_table = "widget_qset"
         indexes = [
-            models.Index(fields=['created_at'], name='widget_qset_created_at'),
+            models.Index(fields=["created_at"], name="widget_qset_created_at"),
         ]
