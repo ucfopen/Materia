@@ -22,8 +22,6 @@ const QsetGenerator = () => {
             include_images: includeImages,
             num_questions: numQuestions,
             successFunc: (qset) => {
-                console.log(qset)
-                console.log(JSON.stringify(qset))
                 let created_at = new Date().toISOString()
                 window.parent.Materia.Creator.onQsetHistorySelectionComplete(JSON.stringify(qset), 1, created_at)
             }

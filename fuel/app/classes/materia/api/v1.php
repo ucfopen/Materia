@@ -860,7 +860,7 @@ class Api_V1
 		// image prompt
 		if ($include_images)
 		{
-			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total of {$num_questions} questions. In every asset, add a field titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total of {$num_questions} questions. In every asset or assets field, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
 		}
 
 		\Log::info('Prompt text: '.$text);
@@ -901,6 +901,7 @@ class Api_V1
 
 			// make sure we don't exceed the rate cap
 			$num_assets = count($assets);
+			\Log::info('Number of assets: '.$num_assets);
 			if ($num_assets > $image_rate_cap)
 			{
 				$assets = array_slice($assets, 0, $image_rate_cap);
@@ -919,7 +920,7 @@ class Api_V1
 					'model' => 'dall-e-2',
 					'prompt' => $assets_text,
 					'n' => count($assets),
-					'response_format' => 'b64_json', // urls available for only 60 minutes after
+					'response_format' => 'url', // urls available for only 60 minutes after
 					'size' => '256x256' // 256x256, 512x512, 1024x1024
 				]);
 			} catch (\Exception $e) {
@@ -978,6 +979,18 @@ class Api_V1
 						$assets[] = $value['description'];
 					}
 				}
+				if ($key == 'assets')
+				{
+					$value = (array) $value;
+					foreach ($value as $asset)
+					{
+						$asset = (array) $asset;
+						if (key_exists('description', $asset) && ! empty($asset['description']))
+						{
+							$assets[] = $asset['description'];
+						}
+					}
+				}
 				$assets = array_merge($assets, static::comb_assets($value));
 			}
 		}
@@ -1009,10 +1022,38 @@ class Api_V1
 				{
 					if ( ! empty($value['description']))
 					{
-						$base64 = $image_urls[$image_index]->b64_json;
-						$array[$key]->id = 'data:image/png;base64,'.$base64;
-						// $array[$key]->id = $image_urls[$image_index]->url;
+						// base 64
+						// $base64 = $image_urls[$image_index]->b64_json;
+						// $array[$key]->id = 'data:image/png;base64,'.$base64;
+						// $array[$key]->url = $image_urls[$image_index]->b64_json;
+
+						// url
+						$array[$key]->id = $image_urls[$image_index]->url;
+						$array[$key]->url = $image_urls[$image_index]->url;
+
 						$image_index += 1;
+					}
+				}
+				if ($key == 'assets')
+				{
+					// iterate over assets array without converting to array
+					// to avoid losing object properties
+					foreach ($value as $asset)
+					{
+						\Log::info('asset: '.print_r($asset, true));
+						if ( ! empty($asset->description))
+						{
+							// b64
+							// $base64 = $image_urls[$image_index]->b64_json;
+							// $asset->id = 'data:image/png;base64,'.$base64;
+							// $asset->url = $image_urls[$image_index]->b64_json;
+
+							// url
+							$asset->url = $image_urls[$image_index]->url;
+							$asset->id = $image_urls[$image_index]->url;
+
+							$image_index += 1;
+						}
 					}
 				}
 				$image_index = static::assign_assets($value, $image_urls, $image_index);
