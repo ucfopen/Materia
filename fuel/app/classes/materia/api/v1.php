@@ -823,6 +823,202 @@ class Api_V1
 	}
 
 	/**
+	 * Generates a question set based on a given instance ID, topic, and whether to include images.
+	 * @param object $input The input object containing the instance ID, topic, and whether to include images
+	 * @return object The generated question set
+	 */
+	static public function question_set_generate($input)
+	{
+		// validate input
+		$inst_id = $input->inst_id;
+		$topic = $input->topic;
+		$include_images = $input->include_images;
+		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
+		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		// get the widget and demo instance
+		$widget = $inst->widget;
+		$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
+		if ( ! $demo) throw new \HttpNotFoundException;
+
+		// get the data to concatenate into the prompt
+		$instance_name = $inst->name;
+		$about = $widget->meta_data['about'];
+		// get the demo.json from the demo instance
+		$demo_qset = static::question_set_get($widget->meta_data['demo']);
+		if ( ! $demo_qset) throw new \HttpNotFoundException;
+		$qset_text = json_encode($demo_qset->data);
+
+		// non-image prompt
+		$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values.  Leave the asset fields empty. Add or remove the total number of questions generated to fit within the max tokens. ID's must be random.\n{$qset_text}";
+
+		// image prompt
+		if ($include_images)
+		{
+			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Add or remove the total number of questions generated to fit within the max tokens. Replace the field values with generated values. In every asset, add a field titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+		}
+
+		\Log::info('Prompt text: '.$text);
+
+		try {
+			// to access openai, define the openai key in the environment (.env file)
+			$my_api_key = \Config::get('materia.open_ai.api_key');
+			$client = \OpenAI::client($my_api_key);
+			$result = $client->chat()->create([
+				'model' => 'gpt-3.5-turbo',
+				'response_format' => (object) ['type' => 'json_object'],
+				'messages' => [
+					['role' => 'user', 'content' => $text]
+				],
+				'max_tokens' => 2069,
+				'frequency_penalty' => 0, // 0 to 1
+				'presence_penalty' => 0, // 0 to 1
+				'temperature' => 1, // 0 to 1
+				'top_p' => 1, // 0 to 1
+
+			]);
+
+			$question_set = json_decode($result->choices[0]->message->content);
+			\Log::info('Generated question set: '.print_r(json_encode($question_set), true));
+		} catch (\Exception $e) {
+			\Log::error('Error generating question set: '.$e->getMessage());
+			return new Msg(Msg::ERROR, 'Error generating question set');
+		} finally {
+			\Log::info('Prompt tokens: '.$result->usage->promptTokens);
+			\Log::info('Completion tokens: '.$result->usage->completionTokens);
+			\Log::info('Total tokens: '.$result->usage->totalTokens);
+		}
+
+		if ($include_images)
+		{
+			$image_rate_cap = 6; // any higher and the API will return an error
+			$assets = static::comb_assets($question_set); // get a list of all the asset descriptions
+
+			// make sure we don't exceed the rate cap
+			$num_assets = count($assets);
+			if ($num_assets > $image_rate_cap)
+			{
+				$assets = array_slice($assets, 0, $image_rate_cap);
+			}
+			if ($num_assets < 1)
+			{
+				return $question_set;
+			}
+			// join assets into string
+			$assets_text = implode(', ', $assets);
+			// generate images
+			try {
+				$my_api_key = \Config::get('materia.open_ai.api_key');
+				$client = \OpenAI::client($my_api_key);
+				$dalle_result = $client->images()->create([
+					'model' => 'dall-e-2',
+					'prompt' => $assets_text,
+					'n' => count($assets),
+					'response_format' => 'b64_json', // urls available for only 60 minutes after
+					'size' => '256x256' // 256x256, 512x512, 1024x1024
+				]);
+			} catch (\Exception $e) {
+				\Log::error('Error generating images: '.$e->getMessage());
+				\Log::error('Trace: '.$e->getTraceAsString());
+				return $question_set;
+			}
+			\Log::info('Generated images: '.print_r($dalle_result, true));
+
+			// Store assets in the database (permanent storage, not just URLs)
+			// for ($i = 0; $i < count($dalle_result->data); $i++) {
+			// 	$file_data = base64_decode($dalle_result->data[$i]->b64_json);
+
+			// 	$src_area = \File::forge(['basedir' => sys_get_temp_dir()]); // restrict copying from system tmp dir
+			// 	$mock_upload_file_path = \Config::get('file.dirs.media_uploads').uniqid('sideload_') . '.png';
+			// 	\File::copy($file_data, $mock_upload_file_path, $src_area, 'media');
+
+			// 	// process the upload
+			// 	$upload_info = \File::file_info($mock_upload_file_path, 'media');
+			// 	$asset = \Materia\Widget_Asset_Manager::new_asset_from_file('Dalle asset', $upload_info);
+
+			// 	if ( ! isset($asset->id)) {
+			// 		\Log::error('Unable to create asset');
+			// 	} else {
+			// 		$asset->db_store();
+			// 		$dalle_result->data[$i]->url = $asset->id;
+			// 	}
+			// }
+
+			// assign generated images to assets in qset
+			static::assign_assets($question_set, $dalle_result->data, 0);
+		}
+
+		\Log::info('Generated question set with assets: '.print_r(json_encode($question_set), true));
+
+		return $question_set;
+	}
+
+	/**
+	 * Combines all asset descriptions in a question set into a single array
+	 * @param array $qset The question set array
+	 * @return array The array of asset descriptions
+	 */
+	static public function comb_assets($qset)
+	{
+		$assets = [];
+		foreach ($qset as $key => $value)
+		{
+			if (is_object($value) || is_array($value))
+			{
+				$value = (array) $value;
+				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video')
+				{
+					if (key_exists('description', $value) && ! empty($value['description']))
+					{
+						$assets[] = $value['description'];
+					}
+				}
+				$assets = array_merge($assets, static::comb_assets($value));
+			}
+		}
+		return $assets;
+	}
+
+	/**
+	 * Assigns generated images to assets in a question set
+	 * @param array $array The question set array
+	 * @param array $image_urls The array of image URLs
+	 * @param int $image_index The index of the current image URL
+	 * @return int The updated image index
+	 */
+	static public function assign_assets(&$array, $image_urls, $image_index)
+	{
+		if ( is_object($array) && isset($array->items)) $image_index = static::assign_assets($array->items, $image_urls, $image_index);
+		else if ( ! $array || ! is_array($array)) return $image_index;
+
+		foreach ($array as $key => $value)
+		{
+			if ($image_index >= count($image_urls))
+			{
+				return $image_index;
+			}
+			if (is_object($value) || is_array($value))
+			{
+				$value = (array) $value;
+				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video')
+				{
+					if ( ! empty($value['description']))
+					{
+						$base64 = $image_urls[$image_index]->b64_json;
+						$array[$key]->id = 'data:image/png;base64,'.$base64;
+						// $array[$key]->id = $image_urls[$image_index]->url;
+						$image_index += 1;
+					}
+				}
+				$image_index = static::assign_assets($value, $image_urls, $image_index);
+			}
+		}
+		return $image_index;
+	}
+
+	/**
 	 * Gets the question with the given QID or an array of questions
 	 * with the given ids (passed as an array)
 	 *

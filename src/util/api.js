@@ -599,6 +599,11 @@ export const apiGetQuestionSetHistory = (instId) => {
 		})
 }
 
+export const apiGenerateQset = (inst_id, topic, include_images) => {
+	return fetch('/api/json/question_set_generate/', fetchOptions({ body: `data=${formatFetchBody([inst_id, topic, include_images])}` }))
+		.then(resp => resp.json())
+}
+
 export const apiSessionVerify = (play_id) => {
 	return fetch('/api/json/session_play_verify/', fetchOptions({ body: `data=${formatFetchBody([play_id])}` }))
 		.then(resp => resp.json())

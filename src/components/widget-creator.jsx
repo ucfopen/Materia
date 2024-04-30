@@ -478,6 +478,10 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
+	const showQuestionGenerator = () => {
+		showEmbedDialog(`${window.BASE_URL}qsets/generate/?inst_id=${instance.id}`, 'embed_dialog')
+	}
+
 	// const showQsetHistoryConfirmation = () => {
 	// }
 
@@ -691,6 +695,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
+				<a id="generateLink" onClick={showQuestionGenerator}>Generate Questions...</a>
 				{ editButtonsRender }
 				<div className="dot"></div>
 				<button id="creatorPublishBtn"
@@ -782,6 +787,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						src={creatorState.creatorPath}
 						id='container'
 						className='html'
+						title='Widget Creator'
 						scrolling='yes'
 						style={{
 							minWidth: minWidth + 'px',

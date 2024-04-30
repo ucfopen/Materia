@@ -51,7 +51,8 @@
         "eher/oauth": "1.0.7",
         "aws/aws-sdk-php": "3.288.1",
         "symfony/dotenv": "^5.1",
-        "ucfopen/materia-theme-ucf": "2.0.2"
+        "ucfopen/materia-theme-ucf": "2.0.2",
+        "openai-php/client": "^0.8.5"
     },
     "suggest": {
         "ext-memcached": "*"
@@ -66,7 +67,8 @@
         "vendor-dir": "fuel/vendor",
         "optimize-autoloader": true,
         "allow-plugins": {
-            "composer/installers": true
+            "composer/installers": true,
+            "php-http/discovery": true
         }
     },
     "extra": {
