@@ -833,6 +833,9 @@ class Api_V1
 		$inst_id = $input->inst_id;
 		$topic = $input->topic;
 		$include_images = $input->include_images;
+		$num_questions = $input->num_questions;
+		\Log::info('num_questions: '.$num_questions);
+		\Log::info('num_questions to string: '.strval($num_questions));
 		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
@@ -852,12 +855,12 @@ class Api_V1
 		$qset_text = json_encode($demo_qset->data);
 
 		// non-image prompt
-		$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values.  Leave the asset fields empty. Add or remove the total number of questions generated to fit within the max tokens. ID's must be random.\n{$qset_text}";
+		$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions. Leave the asset fields empty. ID's must be random.\n{$qset_text}";
 
 		// image prompt
 		if ($include_images)
 		{
-			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Add or remove the total number of questions generated to fit within the max tokens. Replace the field values with generated values. In every asset, add a field titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total of {$num_questions} questions. In every asset, add a field titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
 		}
 
 		\Log::info('Prompt text: '.$text);
@@ -872,7 +875,7 @@ class Api_V1
 				'messages' => [
 					['role' => 'user', 'content' => $text]
 				],
-				'max_tokens' => 2069,
+				'max_tokens' => 4096,
 				'frequency_penalty' => 0, // 0 to 1
 				'presence_penalty' => 0, // 0 to 1
 				'temperature' => 1, // 0 to 1
@@ -893,7 +896,7 @@ class Api_V1
 
 		if ($include_images)
 		{
-			$image_rate_cap = 6; // any higher and the API will return an error
+			$image_rate_cap = 5; // any higher and the API will return an error
 			$assets = static::comb_assets($question_set); // get a list of all the asset descriptions
 
 			// make sure we don't exceed the rate cap

@@ -13,12 +13,14 @@ const QsetGenerator = () => {
 	const [instId, setInstId] = useState(getInstId())
     const [topic, setTopic] = useState('')
     const [includeImages, setIncludeImages] = useState(false)
+    const [numQuestions, setNumQuestions] = useState(1)
 
     const onClickGenerate = () => {
         generateQuestion.mutate({
             inst_id: instId,
             topic: topic,
             include_images: includeImages,
+            num_questions: numQuestions,
             successFunc: (qset) => {
                 console.log(qset)
                 console.log(JSON.stringify(qset))
@@ -37,6 +39,7 @@ const QsetGenerator = () => {
             <input type="text" placeholder="Enter a topic" onChange={onTopicChange}/>
             <input type="checkbox" id="include-images" name="include-images" onChange={(e) => setIncludeImages(e.target.checked)}/>
             <label htmlFor="include-images">Include images</label>
+            <input type="number" placeholder="Enter number of questions" onChange={(e) => setNumQuestions(e.target.value)}/>
             <button onClick={onClickGenerate}>Generate Qset</button>
         </div>
     )
