@@ -10,6 +10,7 @@ import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
 import useCopyWidget from './hooks/useSupportCopyWidget'
+import MyWidgetsScores from './my-widgets-scores'
 
 const addZero = i => `${i}`.padStart(2, '0')
 
@@ -39,6 +40,7 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 	const [showAttempts, setShowAttempts] = useState(false)
+	const [showScoreDetails, setShowScoreDetails] = useState(false)
 	const [availableDisabled, setAvailableDisabled] = useState(inst.open_at < 0)
 	const [availableDate, setAvailableDate] = useState(inst.open_at < 0 ? '' : objToDateString(inst.open_at))
 	const [availableTime, setAvailableTime] = useState(inst.open_at < 0 ? '' : objToTimeString(inst.open_at))
@@ -247,6 +249,11 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			</div>
 	}
 
+	let scoresContainer = null
+	if (showScoreDetails) {
+		scoresContainer = <MyWidgetsScores inst={inst} beardMode={false} />
+	}
+
 	return (
 		<section className='page inst-info'>
 			{ breadcrumbContainer }
@@ -437,7 +444,8 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 						{updatedInst.preview_url}
 					</a>
 				</div>
-				<div className='right-justify'>
+				<div className='bottom-buttons'>
+					<button className='action_button' onClick={() => setShowScoreDetails(!showScoreDetails)}>Scores</button>
 					<div className='apply-changes'>
 						<button className='action_button apply'
 							onClick={applyChanges}>
@@ -452,6 +460,10 @@ const SupportSelectedInstance = ({inst, currentUser, embed = false}) => {
 			{ copyDialogRender }
 			{ collaborateDialogRender }
 			{ extraAttemptsDialogRender }
+
+			<section>
+				{ scoresContainer }
+			</section>
 		</section>
 	)
 }
