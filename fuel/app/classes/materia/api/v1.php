@@ -42,18 +42,18 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null, bool $deleted = false, $load_qset = false)
+	static public function widget_instances_get($inst_ids = null, bool $deleted = false)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
 		{
 			if (\Service_User::verify_session() !== true) return Msg::no_login(); // shortcut to returning noting
-			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id(), $load_qset);
+			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
 		}
 
 		// get specific instances - no log in required
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
-		return Widget_Instance_Manager::get_all($inst_ids, $load_qset, false, $deleted);
+		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
 	}
 
 /**

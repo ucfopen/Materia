@@ -135,17 +135,6 @@ class Test_Api_V1 extends \Basetest
 			$this->assertNull($value->qset->version);
 		}
 
-		// ----- loads specific instance with qset --------
-		$output = Api_V1::widget_instances_get($instance->id, false, true);
-		$this->assertIsArray($output);
-		$this->assertCount(1, $output);
-		foreach ($output as $key => $value)
-		{
-			$this->assert_is_widget_instance($value, true);
-			$this->assertObjectHasAttribute('qset', $value);
-			$this->assert_is_qset($value->qset);
-		}
-
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::widget_instances_get();
