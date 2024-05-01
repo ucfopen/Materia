@@ -97,13 +97,15 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 
 	return (
 		<div className='scores'>
-			<h2>Student Activity</h2>
-			<span id='export_scores_button'
-			className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
-			onClick={openExport}>
-				<span className='arrow_down'></span>
-				Export Options
-			</span>
+			<header className='student-activity-header'>
+				<h2>Student Activity</h2>
+				<span
+					className={`action_button ${inst.is_draft ? 'disabled' : ''}`}
+					onClick={openExport}>
+					<span className='arrow_down'></span>
+					Export Options
+				</span>
+			</header>
 			{ contentRender }
 			{ exportRender }
 		</div>

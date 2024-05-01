@@ -312,7 +312,6 @@
 			&.instances {
 
 				ul {
-					width: 100%;
 					padding: 0;
 					flex-direction: row;
 					list-style-type: none;
@@ -401,6 +400,22 @@
 								border-bottom-right-radius: 3px;
 
 								line-height: 1.5em;
+
+								.inst-info {
+
+									.bottom-buttons {
+										display: flex;
+										justify-content: space-between;
+										margin-top: 20px;
+									}
+								}
+
+								.scores {
+									margin: 1em 0 0 0;
+									padding: 10px;
+									background: #fff;
+									border-radius: 5px;
+								}
 							}
 						}
 					}

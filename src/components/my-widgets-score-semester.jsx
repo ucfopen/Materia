@@ -93,12 +93,16 @@ const MyWidgetScoreSemester = ({semester, instId, hasScores}) => {
 
 	return (
 		<div className='scoreWrapper'>
-			<h3 className='view'>{semester.term} {semester.year}</h3>
-			<ul className='choices'>
-				{ standardTabElementsRender }
-				{ storageTabRender }
-			</ul>
-			{ activeTab }
+			<section className='scores-header'>
+				<h3 className='semester-label'>{semester.term} {semester.year}</h3>
+				<ul className='choices'>
+					{ standardTabElementsRender }
+					{ storageTabRender }
+				</ul>
+			</section>
+			<section className='scores-tab-content'>
+				{ activeTab }
+			</section>
 		</div>
 	)
 }
