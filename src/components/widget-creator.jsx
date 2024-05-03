@@ -97,8 +97,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// load question set (qset) for given instance id
 	// requires: instance.id state property to be set (widget instance query is settled)
 	const { isLoading: qSetIsLoading, data: qset } = useQuery({
-		queryKey: ['qset', instId],
-		queryFn: () => apiGetQuestionSet(instId),
+		queryKey: ['qset', instIdRef.current],
+		queryFn: () => apiGetQuestionSet(instIdRef.current),
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instance.id, // requires instance state object to be prepopulated
