@@ -5,7 +5,6 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -13,7 +12,173 @@ class Migration(migrations.Migration):
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
+    # find all potential foreign key relationships and scrub the data to locate and
+    #  remove any potential integrity errors
+    # e.g. the "lti" table will have a relationship with the "widget_instance" table based
+    #  on the "item_id" column, so find any situations where there is not a row in
+    #  "widget_instance" with an "id" corresponding to any "item_id" in the "lti" table
+    def cleanData(apps, schema_editor):
+        from django.contrib.auth.models import User
+        from django.db import connection
+
+        import logging
+        logger = logging.getLogger('django')
+
+        logger.info("Deleting potentially invalid rows to avoid integrity errors in foreign keys")
+        OldDateRange = apps.get_model("core", "DateRange")
+        OldLogActivity = apps.get_model("core", "LogActivity")
+        OldLogPlay = apps.get_model("core", "LogPlay")
+        # OldLogStorage = apps.get_model("core", "LogStorage")
+        OldLti = apps.get_model("core", "Lti")
+        # OldMapQuestionToQset = apps.get_model("core", "MapQuestionToQset")
+        # OldPermObjectToUser = apps.get_model("core", "PermObjectToUser")
+        OldQuestion = apps.get_model("core", "Question")
+        OldWidget = apps.get_model("core", "Widget")
+        OldWidgetInstance = apps.get_model("core", "WidgetInstance")
+        # OldWidgetMetadata = apps.get_model("core", "WidgetMetadata")
+        OldWidgetQset = apps.get_model("core", "WidgetQset")
+
+        # these three are foundational
+        all_semester_ids = OldDateRange.objects.values_list("id", flat=True)
+        all_user_ids = User.objects.values_list("id", flat=True)
+        all_widget_ids = OldWidget.objects.values_list("id", flat=True)
+
+        # Question -> User via user_id
+        invalid_question_rows = OldQuestion.objects.exclude(user_id__in=all_user_ids)
+        for invalid_question in invalid_question_rows:
+            logger.info(f"deleting Question row {invalid_question.id} without matching User {invalid_question.user_id}")
+            invalid_question.delete()
+
+        # all Question rows should be valid by now
+        all_question_ids = OldQuestion.objects.values_list("id", flat=True)
+
+        # WidgetInstance -> User via published_by
+        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(published_by__in=all_user_ids)
+        for invalid_widget_instance in invalid_widget_instance_rows:
+            logger.info(f"deleting WidgetInstance row {invalid_widget_instance.id} without matching published_by User {invalid_widget_instance.published_by}")
+            invalid_widget_instance.delete()
+
+        # WidgetInstance -> User via user_id
+        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(user_id__in=all_user_ids)
+        for invalid_widget_instance in invalid_widget_instance_rows:
+            logger.info(f"deleting WidgetInstance row {invalid_widget_instance.id} without matching user_id User {invalid_widget_instance.user_id}")
+            invalid_widget_instance.delete()
+
+        # WidgetInstance -> Widget via widget_id
+        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(widget_id__in=all_widget_ids)
+        for invalid_widget_instance in invalid_widget_instance_rows:
+            logger.info(f"deleting WidgetInstance row {invalid_widget_instance.id} without matching Widget {invalid_widget_instance.widget_id}")
+            invalid_widget_instance.delete()
+
+        # all WidgetInstance rows should be valid by now
+        all_instance_ids = OldWidgetInstance.objects.values_list("id", flat=True)
+
+        # WidgetQset -> WidgetInstance via inst_id
+        invalid_widget_qset_rows = OldWidgetQset.objects.exclude(inst_id__in=all_instance_ids)
+        for invalid_widget_qset in invalid_widget_qset_rows:
+            logger.info(f"deleting WidgetQset row {invalid_widget_qset.id} without matching WidgetInstance {invalid_widget_qset.inst_id}")
+            invalid_widget_qset.delete()
+
+        # all WidgetQset rows should be valid by now
+        all_qset_ids = OldWidgetQset.objects.values_list("id", flat=True)
+
+        # LogActivity -> User via user_id
+        invalid_log_activity_rows = OldLogActivity.objects.exclude(user_id__in=all_user_ids)
+        for invalid_log_activity in invalid_log_activity_rows:
+            logger.info(f"deleting LogActivity row {invalid_log_activity.id} without matching User {invalid_log_activity.user_id}")
+            invalid_log_activity.delete()
+
+        # LogPlay -> WidgetInstance via inst_id
+        invalid_log_play_rows = OldLogPlay.objects.exclude(inst_id__in=all_instance_ids)
+        for invalid_log_play in invalid_log_play_rows:
+            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching WidgetInstance {invalid_log_play.inst_id}")
+            invalid_log_play.delete()
+
+        # LogPlay -> WidgetQset via qset_id
+        invalid_log_play_rows = OldLogPlay.objects.exclude(qset_id__in=all_qset_ids)
+        for invalid_log_play in invalid_log_play_rows:
+            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching WidgetQset {invalid_log_play.qset_id}")
+            invalid_log_play.delete()
+
+        # LogPlay -> DateRange via semester_id
+        invalid_log_play_rows = OldLogPlay.objects.exclude(semester__in=all_semester_ids)
+        for invalid_log_play in invalid_log_play_rows:
+            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching DateRange {invalid_log_play.semester}")
+            invalid_log_play.delete()
+
+        # LogPlay -> User via user_id
+        invalid_log_play_rows = OldLogPlay.objects.exclude(user_id__in=all_user_ids)
+        for invalid_log_play in invalid_log_play_rows:
+            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching User {invalid_log_play.user_id}")
+            invalid_log_play.delete()
+
+        # Lti -> WidgetInstance via item_id
+        invalid_lti_rows = OldLti.objects.exclude(item_id__in=all_instance_ids)
+        for invalid_lti in invalid_lti_rows:
+            logger.info(f"deleting Lti row {invalid_lti.id} without matching WidgetInstance {invalid_lti.item_id}")
+            invalid_lti.delete()
+
+        # Lti -> User via user_id
+        invalid_lti_rows = OldLti.objects.exclude(user_id__in=all_user_ids)
+        for invalid_lti in invalid_lti_rows:
+            logger.info(f"deleting Lti row {invalid_lti.id} without matching User {invalid_lti.user_id}")
+            invalid_lti.delete()
+
+        # the remaining models have primary key "id" columns added to it as part of this migration,
+        #  which means the existing tables will not have a primary key and ORM lookups will throw
+        #  an OperationalError
+        # we have to perform raw SQL deletions instead
+
+        # LogStorage -> WidgetInstance via inst_id
+        logger.info("deleting all LogStorage rows without matching WidgetInstance")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM log_storage WHERE inst_id NOT IN (SELECT id FROM widget_instance)")
+            logger.info(f"deleted {cursor.rowcount} LogStorage rows without matching WidgetInstance")
+
+        # LogStorage -> LogPlay via play_id
+        logger.info("deleting all LogStorage rows without matching LogPlay")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM log_storage WHERE play_id NOT IN (SELECT id FROM log_play)")
+            logger.info(f"deleted {cursor.rowcount} LogStorage rows without matching LogPlay")
+
+        # LogStorage -> User via user_id
+        logger.info("deleting all LogStorage rows without matching User")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM log_storage WHERE user_id NOT IN (SELECT id FROM auth_user)")
+            logger.info(f"deleted {cursor.rowcount} LogStorage rows without matching User")
+
+        # MapQuestionToQset -> WidgetQset via qset_id
+        logger.info("deleting all MapQuestionToQset rows without matching WidgetQset")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM map_question_to_qset WHERE qset_id NOT IN (SELECT id FROM widget_qset)")
+            logger.info(f"deleted {cursor.rowcount} MapQuestionToQset rows without matching WidgetQset")
+
+        # MapQuestionToQset -> Question via question_id
+        logger.info("deleting all MapQuestionToQset rows without matching Question")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM map_question_to_qset WHERE question_id NOT IN (SELECT id FROM question)")
+            logger.info(f"deleted {cursor.rowcount} MapQuestionToQset rows without matching Question")
+
+        # PermObjectToUser -> User via user_id
+        logger.info("deleting all PermObjectToUser rows without matching User")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM perm_object_to_user WHERE user_id NOT IN (SELECT id FROM auth_user)")
+            logger.info(f"deleted {cursor.rowcount} PermObjectToUser rows without matching User")
+
+        # WidgetMetadata -> Widget via widget_id
+        logger.info("deleting all WidgetMetadata rows without matching Widget")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM widget_metadata WHERE widget_id NOT IN (SELECT id FROM widget)")
+            logger.info(f"deleted {cursor.rowcount} WidgetMetadata rows without matching Widget")
+
+    # no real way of restoring deleted rows, but we need something there
+    def nothing(*args, **kwargs):
+        pass
+
     operations = [
+        # because Django won't allow us to supply None as a rollback operation
+        migrations.RunPython(cleanData, nothing),
+
         migrations.DeleteModel(
             name="Migration",
         ),
