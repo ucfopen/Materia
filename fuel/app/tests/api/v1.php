@@ -1209,7 +1209,7 @@ class Test_Api_V1 extends \Basetest
 		$image_urls = [
 			'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'
 		];
-		$output = Api_V1::assign_assets($qset, $image_urls, 0);
+		$output = Api_V1::assign_assets($qset, $image_urls, 0, 0);
 		$this->assert_not_message($output);
 		$this->assertEquals($output, count($image_urls) - 1);
 	}

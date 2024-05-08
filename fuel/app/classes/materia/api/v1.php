@@ -834,6 +834,7 @@ class Api_V1
 		$topic = $input->topic;
 		$include_images = $input->include_images;
 		$num_questions = $input->num_questions;
+		$build_off_existing = $input->build_off_existing;
 		\Log::info('num_questions: '.$num_questions);
 		\Log::info('num_questions to string: '.strval($num_questions));
 		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
@@ -841,26 +842,52 @@ class Api_V1
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
 
-		// get the widget and demo instance
-		$widget = $inst->widget;
-		$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
-		if ( ! $demo) throw new \HttpNotFoundException;
-
-		// get the data to concatenate into the prompt
-		$instance_name = $inst->name;
-		$about = $widget->meta_data['about'];
-		// get the demo.json from the demo instance
-		$demo_qset = static::question_set_get($widget->meta_data['demo']);
-		if ( ! $demo_qset) throw new \HttpNotFoundException;
-		$qset_text = json_encode($demo_qset->data);
-
-		// non-image prompt
-		$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions. Leave the asset fields empty. ID's must be random.\n{$qset_text}";
-
-		// image prompt
-		if ($include_images)
+		if ($build_off_existing)
 		{
-			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total of {$num_questions} questions. Do not use real names. In every asset or assets field, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+			$qset = static::question_set_get($inst_id);
+			if ( ! $qset) return new Msg(Msg::ERROR, 'No existing question set found');
+
+			$qset_text = json_encode($qset->data);
+
+			// non-demo non-image prompt
+			$text = "Using the exact same format of the following question set without changing any field keys or data types and without changing any of the existing questions, generate {$num_questions} more questions and add them to the existing qset. The new questions must be based on this topic: '{$topic}'. Return only the JSON for the resulting question set.";
+
+			if ($include_images)
+			{
+				$text = $text."Do not use real names. In every asset or assets field in new questions, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+			}
+			else
+			{
+				$text = $text."Leave the asset fields empty. ID's must be random.\n{$qset_text}";
+			}
+		}
+		else
+		{
+			// get the widget and demo instance
+			$widget = $inst->widget;
+			$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
+			if ( ! $demo) throw new \HttpNotFoundException;
+
+			// get the data to concatenate into the prompt
+			$instance_name = $inst->name;
+			$about = $widget->meta_data['about'];
+			// get the demo.json from the demo instance
+			$demo_qset = static::question_set_get($widget->meta_data['demo']);
+			if ( ! $demo_qset) throw new \HttpNotFoundException;
+			$qset_text = json_encode($demo_qset->data);
+
+			// non-image prompt
+			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions.";
+
+			// image prompt
+			if ($include_images)
+			{
+				$text = $text."Do not use real names. In every asset or assets field, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+			}
+			else
+			{
+				$text = $text."Do not generate image-type questions/answers, only text-type questions/answers. Therefore, leave the asset fields empty for image, video, or audio questions/answers, but NOT text-type. If the 'materiaType' of an asset is 'text', create a field titled 'value' with the question/answer text insidet the asset object. ID's must be random.\n{$qset_text}";
+			}
 		}
 
 		\Log::info('Prompt text: '.$text);
@@ -901,10 +928,15 @@ class Api_V1
 
 			// make sure we don't exceed the rate cap
 			$num_assets = count($assets);
+			$start_offset = 0;
 			\Log::info('Number of assets: '.$num_assets);
 			if ($num_assets > $image_rate_cap)
 			{
-				$assets = array_slice($assets, 0, $image_rate_cap);
+				if ($build_off_existing)
+				{
+					$start_offset = $num_assets - $image_rate_cap;
+				}
+				$assets = array_slice($assets, $start_offset, $image_rate_cap);
 			}
 			if ($num_assets < 1)
 			{
@@ -951,7 +983,7 @@ class Api_V1
 			// }
 
 			// assign generated images to assets in qset
-			static::assign_assets($question_set, $dalle_result->data, 0);
+			static::assign_assets($question_set, $dalle_result->data, $start_offset, 0);
 		}
 
 		\Log::info('Generated question set with assets: '.print_r(json_encode($question_set), true));
@@ -1004,9 +1036,9 @@ class Api_V1
 	 * @param int $image_index The index of the current image URL
 	 * @return int The updated image index
 	 */
-	static public function assign_assets(&$array, $image_urls, $image_index)
+	static public function assign_assets(&$array, $image_urls, $start_offset, $image_index)
 	{
-		if ( is_object($array) && isset($array->items)) $image_index = static::assign_assets($array->items, $image_urls, $image_index);
+		if ( is_object($array) && isset($array->items)) $image_index = static::assign_assets($array->items, $image_urls, $start_offset, $image_index);
 		else if ( ! $array || ! is_array($array)) return $image_index;
 
 		foreach ($array as $key => $value)
@@ -1022,15 +1054,17 @@ class Api_V1
 				{
 					if ( ! empty($value['description']))
 					{
-						// base 64
-						// $base64 = $image_urls[$image_index]->b64_json;
-						// $array[$key]->id = 'data:image/png;base64,'.$base64;
-						// $array[$key]->url = $image_urls[$image_index]->b64_json;
+						if ($image_index >= $start_offset)
+						{
+							// b64
+							// $base64 = $image_urls[$image_index]->b64_json;
+							// $array[$key]->id = 'data:image/png;base64,'.$base64;
+							// $array[$key]->url = $image_urls[$image_index]->b64_json;
 
-						// url
-						$array[$key]->id = $image_urls[$image_index]->url;
-						$array[$key]->url = $image_urls[$image_index]->url;
-
+							// url
+							$array[$key]->url = $image_urls[$image_index]->url;
+							$array[$key]->id = $image_urls[$image_index]->url;
+						}
 						$image_index += 1;
 					}
 				}
@@ -1043,20 +1077,22 @@ class Api_V1
 						\Log::info('asset: '.print_r($asset, true));
 						if ( ! empty($asset->description))
 						{
-							// b64
-							// $base64 = $image_urls[$image_index]->b64_json;
-							// $asset->id = 'data:image/png;base64,'.$base64;
-							// $asset->url = $image_urls[$image_index]->b64_json;
+							if ($image_index >= $start_offset)
+							{
+								// b64
+								// $base64 = $image_urls[$image_index]->b64_json;
+								// $asset->id = 'data:image/png;base64,'.$base64;
+								// $asset->url = $image_urls[$image_index]->b64_json;
 
-							// url
-							$asset->url = $image_urls[$image_index]->url;
-							$asset->id = $image_urls[$image_index]->url;
-
+								// url
+								$asset->url = $image_urls[$image_index]->url;
+								$asset->id = $image_urls[$image_index]->url;
+							}
 							$image_index += 1;
 						}
 					}
 				}
-				$image_index = static::assign_assets($value, $image_urls, $image_index);
+				$image_index = static::assign_assets($value, $image_urls, $start_offset, $image_index);
 			}
 		}
 		return $image_index;
