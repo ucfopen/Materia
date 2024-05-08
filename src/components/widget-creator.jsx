@@ -101,7 +101,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetQuestionSet(instIdRef.current),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!instance.id, // requires instance state object to be prepopulated
+		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
 		onSettled: (data) => {
 			if ( (data != null ? data.title : undefined) === 'Permission Denied' || (data && data.title === 'error')) {
 				setCreatorState({...creatorState, invalid: true})
