@@ -117,12 +117,13 @@ class Api_V1
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		else if (\Service_User::verify_session() !== true) return Msg::no_login();
-		else if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id)))  throw new \HttpNotFoundException;
 
-		//msg property only set if something went wrong
-		$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
-		$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		if (static::has_perms_to_inst($inst_id, [Perm::FULL]))
+		{
+			$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
+			$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		}
 
 		return $response;
 	}
@@ -241,7 +242,7 @@ class Api_V1
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input('Instance id is invalid');
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 
 		$inst = Widget_Instance_Manager::get($inst_id, true);
 		if ( ! $inst) return Msg::failure('Widget instance could not be found.');
