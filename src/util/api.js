@@ -45,9 +45,9 @@ const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
 /** API v1 */
 
-export const apiGetWidgetInstance = (instId, loadQset=false) => {
-	return fetchGet(`/api/json/widget_instances_get/`, { body: `data=${formatFetchBody([instId, false, loadQset])}` })
-		.then(widget => {
+export const apiGetWidgetInstance = (instId) => {
+	return fetchGet(`/api/json/widget_instances_get/`, { body: `data=${formatFetchBody([instId, false])}` })
+	  .then(widget => {
 			if (widget?.length > 0) return widget[0]
 			else return {}
 		})
