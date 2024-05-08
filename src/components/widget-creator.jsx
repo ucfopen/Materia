@@ -97,8 +97,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	// load question set (qset) for given instance id
 	// requires: instance.id state property to be set (widget instance query is settled)
 	const { isLoading: qSetIsLoading, data: qset } = useQuery({
-		queryKey: ['qset', instId],
-		queryFn: () => apiGetQuestionSet(instId),
+		queryKey: ['qset', instIdRef.current],
+		queryFn: () => apiGetQuestionSet(instIdRef.current),
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instance.id, // requires instance state object to be prepopulated
@@ -228,7 +228,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			// this hook will then fire a second time when a new save postMessage is sent
 			// the second hook will initialize an existing widget with the newly provided qset data
 			// note: this condition will also apply when rolling back and applying the original cached qset
-			if (!!instId && instance.qset && creatorState.reloadWithQset) {
+			if (!!instIdRef.current && instance.qset && creatorState.reloadWithQset) {
 
 				// flip to false because creator will re-init and send start postMessage
 				setWidgetReady(false)
@@ -240,14 +240,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				// tell creator to manually reload
 				sendToCreator('reloadCreator')
 
-			} else if (!!instId && instance.qset) {
+			} else if (!!instIdRef.current && instance.qset) {
 
 				let args = [instance.name, instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
 				sendToCreator('initExistingWidget', args)
 
 				creatorShouldInitRef.current = false
 
-			} else if (!instId) {
+			} else if (!instIdRef.current) {
 
 				let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
 				sendToCreator('initNewWidget', args)
@@ -407,6 +407,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						break
 					case 'save':
 						setSaveWidgetComplete(saveModeRef.current)
+						if (!instIdRef.current) instIdRef.current = inst.id
 						setInstance(currentInstance => ({ ...currentInstance, ...inst }))
 						sendToCreator('onSaveComplete', [
 							inst.name,
