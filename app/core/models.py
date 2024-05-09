@@ -373,7 +373,7 @@ class PermObjectToUser(models.Model):
         90: "super user",
     }
     # Needs primary key
-    id = (models.BigAutoField(primary_key=True),)
+    id = models.BigAutoField(primary_key=True)
     # appears to be a generic relationship combined with object_type
     object_id = models.CharField(max_length=10, db_collation="utf8_bin")
     user = models.ForeignKey(
@@ -540,11 +540,6 @@ class WidgetMetadata(models.Model):
 
     class Meta:
         db_table = "widget_metadata"
-        constraints = [
-            models.UniqueConstraint(
-                fields=["widget_id", "name"], name="widget_metadata_main"
-            ),
-        ]
 
 
 class WidgetQset(models.Model):
