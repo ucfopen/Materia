@@ -28,14 +28,14 @@ class Migration(migrations.Migration):
         OldDateRange = apps.get_model("core", "DateRange")
         OldLogActivity = apps.get_model("core", "LogActivity")
         OldLogPlay = apps.get_model("core", "LogPlay")
-        # OldLogStorage = apps.get_model("core", "LogStorage")
+        OldLogStorage = apps.get_model("core", "LogStorage")
         OldLti = apps.get_model("core", "Lti")
-        # OldMapQuestionToQset = apps.get_model("core", "MapQuestionToQset")
-        # OldPermObjectToUser = apps.get_model("core", "PermObjectToUser")
+        OldMapQuestionToQset = apps.get_model("core", "MapQuestionToQset")
+        OldPermObjectToUser = apps.get_model("core", "PermObjectToUser")
         OldQuestion = apps.get_model("core", "Question")
         OldWidget = apps.get_model("core", "Widget")
         OldWidgetInstance = apps.get_model("core", "WidgetInstance")
-        # OldWidgetMetadata = apps.get_model("core", "WidgetMetadata")
+        OldWidgetMetadata = apps.get_model("core", "WidgetMetadata")
         OldWidgetQset = apps.get_model("core", "WidgetQset")
 
         # these three are foundational
@@ -112,6 +112,8 @@ class Migration(migrations.Migration):
             logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching User {invalid_log_play.user_id}")
             invalid_log_play.delete()
 
+        all_play_ids = OldLogPlay.objects.values_list("id", flat=True)
+
         # Lti -> WidgetInstance via item_id
         invalid_lti_rows = OldLti.objects.exclude(item_id__in=all_instance_ids)
         for invalid_lti in invalid_lti_rows:
@@ -124,52 +126,47 @@ class Migration(migrations.Migration):
             logger.info(f"deleting Lti row {invalid_lti.id} without matching User {invalid_lti.user_id}")
             invalid_lti.delete()
 
-        # the remaining models have primary key "id" columns added to it as part of this migration,
-        #  which means the existing tables will not have a primary key and ORM lookups will throw
-        #  an OperationalError
-        # we have to perform raw SQL deletions instead
-
         # LogStorage -> WidgetInstance via inst_id
-        logger.info("deleting all LogStorage rows without matching WidgetInstance")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM log_storage WHERE inst_id NOT IN (SELECT id FROM widget_instance)")
-            logger.info(f"deleted {cursor.rowcount} LogStorage rows without matching WidgetInstance")
+        invalid_logstorage_rows = OldLogStorage.objects.exclude(inst_id__in=all_instance_ids)
+        for invalid_logstorage in invalid_logstorage_rows:
+            logger.info(f"deleting LogStorage row {invalid_logstorage.id} without matching WidgetInstance {invalid_logstorage.inst_id}")
+            invalid_logstorage.delete()
 
         # LogStorage -> LogPlay via play_id
-        logger.info("deleting all LogStorage rows without matching LogPlay")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM log_storage WHERE play_id NOT IN (SELECT id FROM log_play)")
-            logger.info(f"deleted {cursor.rowcount} LogStorage rows without matching LogPlay")
+        invalid_logstorage_rows = OldLogStorage.objects.exclude(play_id__in=all_play_ids)
+        for invalid_logstorage in invalid_logstorage_rows:
+            logger.info(f"deleting LogStorage row {invalid_logstorage.id} without matching LogPlay {invalid_logstorage.play_id}")
+            invalid_logstorage.delete()
 
         # LogStorage -> User via user_id
-        logger.info("deleting all LogStorage rows without matching User")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM log_storage WHERE user_id NOT IN (SELECT id FROM auth_user)")
-            logger.info(f"deleted {cursor.rowcount} LogStorage rows without matching User")
+        invalid_logstorage_rows = OldLogStorage.objects.exclude(user_id__in=all_user_ids)
+        for invalid_logstorage in invalid_logstorage_rows:
+            logger.info(f"deleting LogStorage row {invalid_logstorage.id} without matching User {invalid_logstorage.user_id}")
+            invalid_logstorage.delete()
 
         # MapQuestionToQset -> WidgetQset via qset_id
-        logger.info("deleting all MapQuestionToQset rows without matching WidgetQset")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM map_question_to_qset WHERE qset_id NOT IN (SELECT id FROM widget_qset)")
-            logger.info(f"deleted {cursor.rowcount} MapQuestionToQset rows without matching WidgetQset")
+        invalid_mapquestiontoqset_rows = OldMapQuestionToQset.objects.exclude(qset_id__in=all_qset_ids)
+        for invalid_mapquestiontoqset in invalid_mapquestiontoqset_rows:
+            logger.info(f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching WidgetQset {invalid_mapquestiontoqset.qset_id}")
+            invalid_mapquestiontoqset.delete()
 
         # MapQuestionToQset -> Question via question_id
-        logger.info("deleting all MapQuestionToQset rows without matching Question")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM map_question_to_qset WHERE question_id NOT IN (SELECT id FROM question)")
-            logger.info(f"deleted {cursor.rowcount} MapQuestionToQset rows without matching Question")
+        invalid_mapquestiontoqset_rows = OldMapQuestionToQset.objects.exclude(question_id__in=all_question_ids)
+        for invalid_mapquestiontoqset in invalid_mapquestiontoqset_rows:
+            logger.info(f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching Question {invalid_mapquestiontoqset.question_id}")
+            invalid_mapquestiontoqset.delete()
 
         # PermObjectToUser -> User via user_id
-        logger.info("deleting all PermObjectToUser rows without matching User")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM perm_object_to_user WHERE user_id NOT IN (SELECT id FROM auth_user)")
-            logger.info(f"deleted {cursor.rowcount} PermObjectToUser rows without matching User")
+        invalid_permobjectotouser_rows = OldPermObjectToUser.objects.exclude(user_id__in=all_user_ids)
+        for invalid_permobjectotouser in invalid_permobjectotouser_rows:
+            logger.info(f"deleting PermObjectToUser row {invalid_permobjectotouser.id} without matching User {invalid_permobjectotouser.user_id}")
+            invalid_permobjectotouser.delete()
 
         # WidgetMetadata -> Widget via widget_id
-        logger.info("deleting all WidgetMetadata rows without matching Widget")
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM widget_metadata WHERE widget_id NOT IN (SELECT id FROM widget)")
-            logger.info(f"deleted {cursor.rowcount} WidgetMetadata rows without matching Widget")
+        invalid_widgetmetadata_rows = OldWidgetMetadata.objects.exclude(widget_id__in=all_widget_ids)
+        for invalid_widgetmetadata in invalid_widgetmetadata_rows:
+            logger.info(f"deleting WidgetMetadata row {invalid_widgetmetadata.id} without matching Widget {invalid_widgetmetadata.widget_id}")
+            invalid_widgetmetadata.delete()
 
     operations = [
         migrations.RunPython(cleanData),
@@ -252,11 +249,6 @@ class Migration(migrations.Migration):
             model_name="notification",
             name="updated_at_dt",
             field=models.DateTimeField(default=datetime.datetime.now),
-        ),
-        migrations.AddField(
-            model_name="permobjecttouser",
-            name="id",
-            field=models.BigAutoField(primary_key=True, serialize=False)
         ),
         migrations.AddField(
             model_name="permobjecttouser",
