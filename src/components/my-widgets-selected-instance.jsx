@@ -140,7 +140,7 @@ const MyWidgetSelectedInstance = ({
 	}, [myPerms, inst])
 
 	const onEditClick = inst => {
-		if (inst.widget.is_editable && state.perms.editable && editPerms && !permsFetching) {
+		if (inst.widget.is_editable && state.perms.editable && editPerms && editPerms.can_edit && !permsFetching) {
 			const editUrl = `${window.location.origin}/widgets/${inst.widget.dir}create#${inst.id}`
 
 			if(editPerms.is_locked){

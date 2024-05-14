@@ -109,21 +109,23 @@ class Api_V1
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */
+	
+	 // !! this endpoint should be significantly refactored or removed in the future API overhaul !!
 	static public function widget_instance_edit_perms_verify(string $inst_id)
 	{
 		$response = new \stdClass();
-		$response->is_locked = true;
+
+		$response->is_locked = false;
 		$response->can_publish = false;
+		$response->can_edit = false;
 
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		else if (\Service_User::verify_session() !== true) return Msg::no_login();
 		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id)))  throw new \HttpNotFoundException;
 
-		if (static::has_perms_to_inst($inst_id, [Perm::FULL]))
-		{
-			$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
-			$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
-		}
+		$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
+		$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		$response->can_edit = static::has_perms_to_inst($inst_id, [Perm::FULL]);
 
 		return $response;
 	}

@@ -641,12 +641,14 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertFalse($output->can_publish);
+		$this->assertTrue($output->can_edit);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertTrue($output->can_publish);
+		$this->assertTrue($output->can_edit);
 
 		// lock widget as author
 		Api_V1::widget_instance_lock($instance->id);
@@ -657,12 +659,23 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertTrue($output->is_locked);
 		$this->assertFalse($output->can_publish);
+		$this->assertTrue($output->can_edit);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertTrue($output->can_publish);
+		$this->assertTrue($output->can_edit);
+
+		//set perms to view scores
+		$accessObj->perms = [Perm::FULL => false];
+		Api_V1::permissions_set(Perm::INSTANCE, $instance->id, [$accessObj]);
+
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		$this->assertFalse($output->is_locked);
+		$this->assertTrue($output->can_publish);
+		$this->assertFalse($output->can_edit);
 	}
 
 	public function test_widget_publish_perms_verify(): void
