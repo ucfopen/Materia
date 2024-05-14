@@ -26,7 +26,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		creatorPath: null,
 		dialogPath: null,
 		dialogType: 'embed_dialog',
-		hearbeatEnabled: true,
+		heartbeatEnabled: true,
 		hasCreatorGuide: false,
 		creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide',
 		showActionBar: true,
@@ -71,10 +71,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidget(widgetId),
 		enabled: !!widgetId,
 		staleTime: Infinity,
-		onSettled: (info) => {
+		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info })
 			}
+		},
+		onError: (error) => {
+			onInitFail(error)
 		}
 	})
 
@@ -85,12 +88,15 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetInstance(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
-		onSettled: (data) => {
+		onSuccess: (data) => {
 			// this value will include a qset that's always empty
 			// it will override the instance's qset property even if it's already set
 			// remove it so the existing qset data isn't overwritten
 			if (data.qset) delete data.qset
 			setInstance({ ...instance, ...data })
+		},
+		onError: (error) => {
+			onInitFail(error)
 		}
 	})
 
@@ -102,14 +108,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
-		onSettled: (data) => {
-			if ( (data != null ? data.title : undefined) === 'Permission Denied' || (data && data.title === 'error')) {
-				setCreatorState({...creatorState, invalid: true})
-				onInitFail('Permission Denied')
-			} else {
+		onSuccess: (data) => {
+			if (data) {
 				setCreatorState({...creatorState, invalid: false})
 				setInstance({ ...instance, qset: data })
 			}
+		},
+		onError: (error) => {
+			onInitFail(error)
 		}
 	})
 
@@ -120,10 +126,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
 		enabled: instance?.widget !== null,
 		staleTime: Infinity,
-		onSettled: (success) => {
+		onSuccess: (success) => {
 			if (!success && !instance.is_draft) {
 				onInitFail('Widget type can not be edited by students after publishing.')
 			}
+		},
+		onError: (error) => {
+			onInitFail(error)
 		}
 	})
 
@@ -132,10 +141,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiAuthorVerify(),
 		staleTime: 30000,
 		refetchInterval: 30000,
-		enabled: creatorState.hearbeatEnabled,
-		onSettled: (valid) => {
-			if (!valid) {
-				setCreatorState({...creatorState, hearbeatEnabled: false})
+		enabled: creatorState.heartbeatEnabled,
+		onError: (error) => {
+			onInitFail(error)
+		},
+		onSuccess: (data) => {
+			if (!data) {
+				setCreatorState({...creatorState, invalid: true, heartbeatEnabled: false})
 				setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
 			}
 		}
@@ -148,10 +160,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
 		staleTime: Infinity,
-		onSettled: (success) => {
-				if (!success) {
-					onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
-				}
+		onSuccess: (success) => {
+			if (!success) {
+				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
+			}
+		},
+		onError: (error) => {
+			onInitFail(error)
 		}
 	})
 
@@ -379,9 +394,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 
 		apiSaveWidget(newWidget).then((inst) => {
-			if ((inst != null ? inst.msg : undefined) != null) {
-				setAlertDialog({...alertDialog, fatal: inst.halt, enabled: true})
-			} else if (inst != null && inst.id != null) {
+			if (inst != null && inst.id != null) {
 				if (String(instIdRef.current).length !== 0) {
 					window.location.hash = `#${inst.id}`
 				}
@@ -418,6 +431,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						break
 				}
 			}
+		}).catch(err => {
+			onInitFail(err)
 		})
 	}
 
@@ -613,12 +628,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		)
 	}
 
-	const onInitFail = (message) => {
-		setCreatorState({
-			...creatorState,
-			invalid: true
-		})
-		setAlertDialog({ enabled: true, title: 'Failure', message: message, fatal: true, enableLoginButton: true })
+	const onInitFail = (err) => {
+		if (err.message == "Invalid Login") {
+			setCreatorState({...creatorState, invalid: true, heartbeatEnabled: false})
+			setAlertDialog({ enabled: true, title: 'Invalid Login', message:'You are no longer logged in, please login again to continue.', fatal: true, enableLoginButton: true })
+		} else if (err.message == "Permission Denied") {
+			setCreatorState({
+				...creatorState,
+				invalid: true
+			})
+		} else {
+			setAlertDialog(
+				{ enabled: true, title: err.message, msg: err.cause, fatal: err.halt, enableLoginButton: false }
+			)
+		}
 	}
 
 	const onPublishPressed = () => {
@@ -772,29 +795,31 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	return (
-		<div>
-			<section className={`page ${widgetInfoIsLoading ? 'loading' : ''}`}>
-				{ alertDialogRender }
-				{ popupRender }
-				{ actionBarRender }
-				{ rollbackConfirmBarRender }
-				<div className="center">
-					<iframe
-						src={creatorState.creatorPath}
-						id='container'
-						className='html'
-						scrolling='yes'
-						style={{
-							minWidth: minWidth + 'px',
-							minHeight: minHeight + 'px'
-						}}
-						ref={frameRef} />
-						{ loadingRender }
-				</div>
-				<iframe src={ creatorState.dialogPath } className={ creatorState.dialogPath ? 'show' : 'hidden' } id={creatorState.dialogType} frameBorder={0} width={675} height={500}></iframe>
-			</section>
-			{ noPermissionRender }
-		</div>
+		<>
+			{ alertDialogRender }
+			{ noPermissionRender ? noPermissionRender :
+			<div>
+				<section className={`page ${widgetInfoIsLoading ? 'loading' : ''}`}>
+					{ popupRender }
+					{ actionBarRender }
+					{ rollbackConfirmBarRender }
+					<div className="center">
+						<iframe
+							src={creatorState.creatorPath}
+							id='container'
+							className='html'
+							scrolling='yes'
+							style={{
+								minWidth: minWidth + 'px',
+								minHeight: minHeight + 'px'
+							}}
+							ref={frameRef} />
+							{ loadingRender }
+					</div>
+					<iframe src={ creatorState.dialogPath } className={ creatorState.dialogPath ? 'show' : 'hidden' } id={creatorState.dialogType} frameBorder={0} width={675} height={500}></iframe>
+				</section>
+			</div>}
+		</>
 	)
 
 }

@@ -19,7 +19,7 @@ const WidgetInstall = ({refetchWidgets}) => {
             herokuWarning: window.HEROKU_WARNING
         })
     }, [window.UPLOAD_ENABLED, window.ACTION_LINK, window.HEROKU_WARNING])
-    
+
     const handleChange = async (event) => {
         const files = event.target.files
         let correctFileExtension = true;
@@ -34,19 +34,17 @@ const WidgetInstall = ({refetchWidgets}) => {
         })
         if (correctFileExtension)
             apiUploadWidgets(files)
-            .then((response) => {
-                if (response.ok && response.status !== 204 && response.status < 400) {
-                    setState({...state, uploadNotice: `Successfully uploaded '${files[0].name}'!`, isUploading: false, uploadError: false})
-                    refetchWidgets()
-                } else {
-                    setState({...state, uploadNotice: `Failed to upload '${files[0].name}'`, isUploading: false, uploadError: true})
-                }
+            .then(res => {
+                setState({...state, uploadNotice: `Successfully uploaded '${files[0].name}'!`, isUploading: false, uploadError: false})
+                refetchWidgets()
+            }).catch(err => {
+                setState({...state, uploadNotice: `Failed to upload '${files[0].name}'`, isUploading: false, uploadError: true})
             })
     }
 
     let herokuWarning = null
     if (state.herokuWarning) {
-        herokuWarning = 
+        herokuWarning =
         <p>
             <b>Note:</b> On Heroku, installing widgets must happen during the Heroku build process. Read more at
             <a href="https://ucfopen.github.io/Materia-Docs/admin/heroku.html#installing-widgets"
@@ -64,8 +62,8 @@ const WidgetInstall = ({refetchWidgets}) => {
             <form>
                 <input className="uploader" id="widget_uploader" type="file" name="file" onChange={handleChange} disabled={state.uploadEnabled ? false : true}/>
                 <label htmlFor="widget_uploader"> {state.isUploading ? 'Uploading...' : 'Upload .wigt'}</label>
-                <span className={state.uploadError ? 'failed' : 'success'}>{ state.uploadNotice }</span>
             </form>
+            <p className={state.uploadError ? 'failed' : 'success'}>{ state.uploadNotice }</p>
             <p>Browse installable widgets on <a href="https://ucfopen.github.io/materia-widget-gallery/" target="_blank" rel="noopener noreferrer">The Official Materia Widget Gallery</a></p>
             <p>Browse features and more on <a href="https://ucfopen.github.io/Materia-Docs/" target="_blank" rel="noopener noreferrer">The Official Materia Documentation Page</a></p>
         </>

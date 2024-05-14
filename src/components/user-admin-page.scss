@@ -11,6 +11,7 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 720px;
 
+
 	.page {
 
 		.loading {
@@ -123,6 +124,10 @@
 		.searching {
 			vertical-align: bottom;
 			margin-top: 10px;
+			position: relative;
+			min-height: 100px;
+			width: 100%;
+			text-align: center;
 		}
 
 		.show_deleted {
@@ -133,6 +138,12 @@
 				margin-left: 3px;
 				font-size: 0.85em;
 			}
+		}
+
+		.search_error {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 
 		.search_list {
@@ -400,6 +411,60 @@
 								border-bottom-left-radius: 3px;
 								border-bottom-right-radius: 3px;
 
+								padding: 10px;
+
+								span:not(.long),
+								label {
+									display: inline-block;
+									vertical-align: top;
+								}
+
+								label:not(.normal) {
+									width: 145px;
+								}
+
+								.normal input {
+									margin: 0;
+									padding: 0;
+								}
+							}
+							.overview {
+								padding: 10px;
+
+								div {
+									margin: 5px 0px;
+								}
+
+								label {
+									display: inline-block;
+									vertical-align: top;
+									width: 150px;
+								}
+
+								.url {
+									display: inline-block;
+									vertical-align: middle;
+									width: 500px;
+									font-size: 70%;
+									margin: 0px 0px;
+								}
+
+								.right-justify {
+									margin-top: 20px;
+									display: flex;
+									justify-content: flex-end;
+
+									.apply-changes {
+										display: flex;
+										flex-direction: column;
+										justify-content: flex-end;
+										width: 220px;
+
+										.apply {
+											padding: 6px 10px 6px 10px;
+										}
+									}
+								}
 								line-height: 1.5em;
 							}
 						}

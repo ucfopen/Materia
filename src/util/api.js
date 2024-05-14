@@ -1,31 +1,54 @@
 import { useEffect } from 'react'
-import fetchOptions from './fetch-options'
+import fetchPOSTOptions from './fetch-options'
 import { useQueryClient } from 'react-query'
 import { objectTypes } from '../components/materia-constants'
+import { error } from 'jquery'
 
 // checks response for errors and decodes json
 const handleErrors = async resp => {
-	if (!resp.ok) throw Error(resp.statusText)
+	if (!resp.ok) {
+		if (resp.status == 404) {
+			window.location = '/site/404'
+			throw new Error(resp.statusText)
+		}
+		// decode json
+		const errMsg = await resp.json().catch((err) => {
+			throw new Error(resp.statusText)
+		})
+		// check if error has message
+		if (errMsg.msg && errMsg.title) {
+			throw new Error(errMsg.title, {cause: errMsg.msg, halt: errMsg.halt, type: errMsg.type})
+		}
+		// sometimes it's in body
+		else if (errMsg.body) {
+			let body = JSON.parse(errMsg.body)
+			// check if body has error message or warning
+			if (body) {
+				throw new Error(body.title, {cause: body.msg, halt: body.halt, type: body.type})
+			}
+		}
+		throw new Error(resp.statusText)
+	}
+	// decode json
 	const data = await resp.json().catch(() => { return null })
-	if (data?.errorID) {
-		throw Error(data.message)
+	// just in case server side didn't return error status code with error
+	if (data?.type == "error") {
+		throw Error(data.title, {cause: data.msg, halt: data.halt, type: data.type})
 	}
 	return data
 }
 
-const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then(handleErrors)
+const fetchGet = (url, options = null) => fetch(url, fetchPOSTOptions(options)).then(handleErrors)
 
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
+/** API v1 */
+
 export const apiGetWidgetInstance = (instId) => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
-		.then(widget => {
-			if (widget.length > 0) return widget[0]
+	return fetchGet(`/api/json/widget_instances_get/`, { body: `data=${formatFetchBody([instId, false])}` })
+	  .then(widget => {
+			if (widget?.length > 0) return widget[0]
 			else return {}
 		})
 }
@@ -36,11 +59,7 @@ export const apiGetWidgetInstance = (instId) => {
  * @returns An array of objects.
  */
 export const apiGetUserWidgetInstances = (page_number = 0) => {
-	return fetch(`/api/json/widget_paginate_user_instances_get/${page_number}`, fetchOptions({ body: `data=${formatFetchBody([page_number])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
+	return fetchGet(`/api/json/widget_paginate_user_instances_get/${page_number}`, { body: `data=${formatFetchBody([page_number])}` })
 		.then(resp => {
 			writeToStorage('widgets', resp)
 			return resp
@@ -49,47 +68,19 @@ export const apiGetUserWidgetInstances = (page_number = 0) => {
 
 export const apiGetInstancesForUser = userId => {
 	return fetch(`/api/admin/user/${userId}`)
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
+		.then(handleErrors)
 }
 
 export const apiGetWidgetsByType = () => {
-	const options = {
-		'headers': {
-			'cache-control': 'no-cache',
-			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
-		},
-		'body': `data=${formatFetchBody(['all'])}`,
-		'method': 'POST',
-		'mode': 'cors',
-		'credentials': 'include'
-	}
-
-	return fetch('/api/json/widgets_get_by_type/', options)
-		.then(resp => resp.json())
-		.then(widgets => widgets)
+	return fetchGet('/api/json/widgets_get_by_type/', { body: `data=${formatFetchBody(['all'])}` })
 }
 
 // Gets widget info
 export const apiGetWidget = widgetId => {
-	const options = {
-		'headers': {
-			'cache-control': 'no-cache',
-			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
-		},
-		'body': `data=${formatFetchBody([[widgetId]])}`,
-		'method': 'POST',
-		'mode': 'cors',
-		'credentials': 'include'
-	}
-
-	return fetch('/api/json/widgets_get/', options)
-		.then(resp => resp.json())
-		.then(widgets => widgets.length > 0 ? widgets[0] : {})
+	return fetchGet('/api/json/widgets_get/', { body: `data=${formatFetchBody([[widgetId]])}` })
+		.then(widgets => {
+			return widgets?.length > 0 ? widgets[0] : {}
+		})
 }
 
 /**
@@ -100,9 +91,6 @@ export const apiGetWidget = widgetId => {
  */
 export const apiCopyWidget = values => {
 	return fetchGet(`/api/json/widget_instance_copy`, { body: `data=${formatFetchBody([values.instId, values.title, values.copyPermissions])}` })
-		.then(widget => {
-			return widget
-		})
 }
 
 /**
@@ -111,34 +99,7 @@ export const apiCopyWidget = values => {
  * @returns The response from the server.
  */
 export const apiDeleteWidget = ({ instId }) => {
-	return fetch('/api/json/widget_instance_delete/', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
-		.then((resp) => {
-			if (resp.status === 204 || resp.status === 502) return null
-			return resp.json()
-		})
-}
-
-/**
- * It undeletes a widget instance
- * @param {string} instID
- * @returns {boolean} operation success
- */
-export const apiUnDeleteWidget = ({ instId }) => {
-	return fetch(`/api/admin/widget_instance_undelete/${instId}`,
-		{
-			method: 'POST',
-			mode: 'cors',
-			credentials: 'include',
-			headers: {
-				pragma: 'no-cache',
-				'cache-control': 'no-cache',
-				'content-type': 'application/json; charset=UTF-8'
-			}
-		})
-		.then((resp) => {
-			if (resp.status === 204 || resp.status === 502) return false
-			return true
-		})
+	return fetchGet('/api/json/widget_instance_delete/', { body: `data=${formatFetchBody([instId])}` })
 }
 
 export const apiSaveWidget = (_params) => {
@@ -168,9 +129,7 @@ export const apiSaveWidget = (_params) => {
 			params.embedded_only,
 		]
 
-		return fetch('/api/json/widget_instance_update/', fetchOptions({ body: `data=${formatFetchBody(args)}` })).then(resp => {
-			return resp.json()
-		})
+		return fetchGet('/api/json/widget_instance_update/', { body: `data=${formatFetchBody(args)}` })
 
 	} else {
 		let args = [
@@ -179,20 +138,13 @@ export const apiSaveWidget = (_params) => {
 			params.qset,
 			params.is_draft
 		]
-		return fetch('/api/json/widget_instance_save/', fetchOptions({ body: `data=${formatFetchBody(args)}` })).then(resp => {
-			return resp.json()
-		})
+		return fetchGet('/api/json/widget_instance_save/', { body: `data=${formatFetchBody(args)}` })
 	}
 }
 
 export const apiGetUser = () => {
-
 	return fetchGet('/api/json/user_get', { body: `data=${formatFetchBody([])}` })
 		.then(user => {
-			if (user.halt) {
-				sessionStorage.clear()
-				return null
-			}
 			writeToStorage('user', user)
 			return user
 		})
@@ -210,14 +162,6 @@ export const apiGetUsers = arrayOfUserIds => {
 		})
 }
 
-export const apiGetUserActivity = ({ pageParam = 0 }) => {
-	return fetch(`/api/user/activity?start=${pageParam * 6}`)
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
-}
-
 export const apiAuthorSuper = () => {
 	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody(['super_user'])}` })
 		.then(user => user)
@@ -232,121 +176,30 @@ export const apiAuthorSupport = () => {
 
 export const apiAuthorVerify = () => {
 	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([])}` })
-		.then(user => user)
-		.catch(error => false)
-}
-
-export const apiUpdateUserSettings = (settings) => {
-	return fetch('/api/user/settings', {
-		...fetchOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json'
-		},
-		body: JSON.stringify(settings)
-	})
-		.then((resp) => resp.json())
-}
-
-export const apiUpdateUserRoles = (roles) => {
-	return fetch('/api/user/roles', {
-		...fetchOptions({}),
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json'
-		},
-		body: JSON.stringify(roles)
-	})
-		.then((resp) => resp.json())
 }
 
 export const apiGetNotifications = () => {
-	return fetch('/api/json/notifications_get/', fetchOptions({ body: `data=${formatFetchBody([])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return {}
-			return resp.json()
-		})
-		.then(notifications => notifications)
+	return fetchGet('/api/json/notifications_get/', { body: `data=${formatFetchBody([])}` })
 }
 
 export const apiDeleteNotification = (data) => {
-	return fetch('/api/json/notification_delete/', fetchOptions({ body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` }))
-		.then((resp) => resp.json())
-}
-
-export const apiGetExtraAttempts = instId => {
-	return fetch(`/api/admin/extra_attempts/${instId}`)
-		.then(resp => {
-			if (resp.status != 200) return []
-			return resp.json()
-		})
-		.then(attempts => {
-			const map = new Map()
-			for (const i in attempts) {
-				map.set(parseInt(attempts[i].id),
-					{
-						id: parseInt(attempts[i].id),
-						user_id: parseInt(attempts[i].user_id),
-						context_id: attempts[i].context_id,
-						extra_attempts: parseInt(attempts[i].extra_attempts)
-					})
-			}
-			//const userIds = Array.from(attemps, user => user.user_id)
-			return map
-		})
-}
-
-export const apiSetAttempts = ({ instId, attempts }) => {
-	return fetch(`/api/admin/extra_attempts/${instId}`,
-		{
-			method: 'POST',
-			mode: 'cors',
-			credentials: 'include',
-			headers: {
-				pragma: 'no-cache',
-				'cache-control': 'no-cache',
-				'content-type': 'application/json; charset=UTF-8'
-			},
-			body: JSON.stringify(attempts)
-		}).then (resp => {
-			if (resp.status === 204 || resp.status === 502 || resp.status == 400) return []
-			return resp.json()
-		})
+	return fetchGet('/api/json/notification_delete/', { body: `data=${formatFetchBody([data.notifId, data.deleteAll])}` })
 }
 
 export const apiSearchUsers = (input = '', page_number = 0) => {
-	return fetch('/api/json/users_search', fetchOptions({ body: `data=${formatFetchBody([input, page_number])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
-		.then(users => {
-			return users})
+	return fetchGet('/api/json/users_search', { body: `data=${formatFetchBody([input, page_number])}` })
 }
 
 export const apiGetUserPermsForInstance = instId => {
-	return fetch('/api/json/permissions_get', fetchOptions({ body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return null
-			return resp.json()
-		})
-		.then(perms => perms)
+	return fetchGet('/api/json/permissions_get', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId])}` })
 }
 
 export const apiSetUserInstancePerms = ({ instId, permsObj }) => {
-	return fetch('/api/json/permissions_set', fetchOptions({ body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` }))
-	.then(resp => {
-		if (resp.status === 204 || resp.status === 502) return null
-		return resp.json()
-	})
+	return fetchGet('/api/json/permissions_set', { body: `data=${formatFetchBody([objectTypes.WIDGET_INSTANCE, instId, permsObj])}` })
 }
 
 export const apiCanEditWidgets = arrayOfWidgetIds => {
-	return fetch('/api/json/widget_instance_edit_perms_verify', fetchOptions({ body: `data=${formatFetchBody([arrayOfWidgetIds])}` }))
-		.then(res => res.json())
-		.then(widgetInfo => widgetInfo)
+	return fetchGet('/api/json/widget_instance_edit_perms_verify', { body: `data=${formatFetchBody([arrayOfWidgetIds])}` })
 }
 
 /**
@@ -364,18 +217,11 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidget = ({ args }) => {
-	return fetch('/api/json/widget_instance_update', fetchOptions({ body: `data=${formatFetchBody(args)}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
-		.then(widget => widget)
+	return fetchGet('/api/json/widget_instance_update', { body: `data=${formatFetchBody(args)}` })
 }
 
 export const apiGetWidgetLock = (id = null) => {
-	return fetch('/api/json/widget_instance_lock', fetchOptions({ body: `data=${formatFetchBody([id])}` }))
-		.then(res => res.json())
-		.then(lock => lock)
+	return fetchGet('/api/json/widget_instance_lock', { body: `data=${formatFetchBody([id])}` })
 }
 
 /**
@@ -398,100 +244,27 @@ export const apiSearchInstances = (input, page_number) => {
 		})
 }
 
-export const apiGetWidgetsAdmin = () => {
-	return fetch(`/api/admin/widgets/`)
-	.then(resp => {
-		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-		return []
-	})
-}
-
-export const apiUpdateWidgetAdmin = widget => {
-	return fetch(`/api/admin/widget/${widget.id}`,
-	{
-		method: 'POST',
-		mode: 'cors',
-		credentials: 'include',
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
-		},
-		body: JSON.stringify(widget)
-	})
-	.then(resp => {
-		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-		return []
-	})
-}
-
-export const apiUploadWidgets = (files) => {
-	const formData = new FormData()
-
-	Array.from(files).forEach(file => {
-		formData.append('files[]', file, file.name)
-		formData.append('content-type', 'multipart/form-data')
-	})
-
-	return fetch(`/admin/upload`, {
-		method: 'POST',
-		mode: 'cors',
-		credentials: 'include',
-		headers: {
-			'pragma': 'no-cache',
-			'cache-control': 'no-cache'
-		},
-		body: formData
-	}).then(res => res)
-}
-
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, send_token])}` }))
-		.then(res => res.json())
-		.then(scores => scores)
+	return fetchGet('/api/json/widget_instance_scores_get', { body: `data=${formatFetchBody([instId, send_token])}` })
 }
 
 
 export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return fetch('/api/json/guest_widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
-		.then(res => res.json())
-		.then(scores => scores)
+	return fetchGet('/api/json/guest_widget_instance_scores_get', { body: `data=${formatFetchBody([instId, playId])}` })
 }
 
 export const apiGetWidgetInstancePlayScores = (playId, previewInstId) => {
-	return fetch('/api/json/widget_instance_play_scores_get', fetchOptions({ body: `data=${formatFetchBody([playId, previewInstId])}` }))
-		.then(res => res.json())
+	return fetchGet('/api/json/widget_instance_play_scores_get', { body: `data=${formatFetchBody([playId, previewInstId])}` })
 }
 
 export const apiGetScoreDistribution = instId => {
-	return fetch('/api/json/score_raw_distribution_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
-		.then(res => res.json())
-		.then(scores => scores)
+	return fetchGet('/api/json/score_raw_distribution_get', { body: `data=${formatFetchBody([instId])}` })
 }
 
 export const apiGetScoreSummary = instId => {
-	const options = {
-		'headers': {
-			'cache-control': 'no-cache',
-			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
-		},
-		'body': `data=${formatFetchBody([instId, true])}`,
-		'method': 'POST',
-		'mode': 'cors',
-		'credentials': 'include'
-	}
-
-	return fetch('/api/json/score_summary_get/', options)
-		.then(resp => {
-			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-			return []
-		})
+	return fetchGet('/api/json/score_summary_get/', { body: `data=${formatFetchBody([instId, true])}` })
 		.then(scores => {
-			if (!scores || scores.type == "error")
-			{
-				return []
-			}
+			if (!scores) return []
 
 			const ranges = [
 				'0-9',
@@ -516,17 +289,9 @@ export const apiGetScoreSummary = instId => {
 }
 
 export const apiGetPlayLogs = (instId, term, year, page_number) => {
-	return fetch('/api/json/play_logs_get', fetchOptions({ body: `data=${formatFetchBody([instId, term, year, page_number])}` }))
-		.then(resp => {
-			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-			return []
-		})
+	return fetchGet('/api/json/play_logs_get', { body: `data=${formatFetchBody([instId, term, year, page_number])}` })
 		.then(results => {
-			if (!results || results.type == "error")
-			{
-				return []
-			}
-
+			if (!results) return []
 			if (results.pagination.length == 0) return []
 
 			const scoresByUser = new Map()
@@ -569,69 +334,39 @@ export const apiGetPlayLogs = (instId, term, year, page_number) => {
 }
 
 export const apiGetStorageData = instId => {
-	return fetch('/api/json/play_storage_get', fetchOptions({ body: `data=${formatFetchBody([instId])}` }))
-		.then(resp => {
-			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-			return {}
-		})
-		.then(results => results)
+	return fetchGet('/api/json/play_storage_get', ({ body: `data=${formatFetchBody([instId])}` }))
 }
 
 // Widget player api calls
 export const apiGetPlaySession = ({ widgetId }) => {
-	return fetch('/api/json/session_play_create/', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
-		.then(resp => {
-			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-			return null
-		})
+	return fetchGet('/api/json/session_play_create/', ({ body: `data=${formatFetchBody([widgetId])}` }))
 }
 
 export const apiGetQuestionSet = (instId, playId = null) => {
-	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
-		.then(qset => qset.json())
-}
-
-export const apiGetQuestionSetHistory = (instId) => {
-	return fetch(`/api/instance/history?inst_id=${instId}`)
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
+	return fetchGet('/api/json/question_set_get/', ({ body: `data=${formatFetchBody([instId, playId])}` }))
 }
 
 export const apiSessionVerify = (play_id) => {
-	return fetch('/api/json/session_play_verify/', fetchOptions({ body: `data=${formatFetchBody([play_id])}` }))
-		.then(resp => resp.json())
+	return fetchGet('/api/json/session_play_verify/', ({ body: `data=${formatFetchBody([play_id])}` }))
 }
 
 export const apiSavePlayStorage = ({ play_id, logs }) => {
-	return fetch('/api/json/play_storage_data_save/', fetchOptions({ body: `data=${formatFetchBody([play_id, logs])}` }))
-		.then(resp => resp.json())
+	return fetchGet('/api/json/play_storage_data_save/', ({ body: `data=${formatFetchBody([play_id, logs])}` }))
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetch('/api/json/play_logs_save/', fetchOptions({ body: `data=${formatFetchBody(request)}` }))
-		.then(resp => {
-			if (resp.status !== 504) return resp.json()
-			return null
-		})
+	return fetchGet('/api/json/play_logs_save/', ({ body: `data=${formatFetchBody(request)}` }))
 }
 
 export const apiGetQuestionsByType = (arrayOfQuestionIds, arrayOfQuestionTypes) => {
-	return fetch('/api/json/questions_get', fetchOptions({ body: `data=${formatFetchBody([arrayOfQuestionIds, arrayOfQuestionTypes])}` }))
-		.then(resp => {
-			if (resp.status !== 200) return []
-			return resp.json()
-		})
+	return fetchGet('/api/json/questions_get', ({ body: `data=${formatFetchBody([arrayOfQuestionIds, arrayOfQuestionTypes])}` }))
 }
 
 export const apiGetAssets = () => {
-	return fetch(`/api/json/assets_get`, fetchOptions({ body: `data=${formatFetchBody([])}` }))
-		.then(resp => {
-			if (resp.status === 204 || resp.status === 502) return []
-			return resp.json()
-		})
+	return fetchGet(`/api/json/assets_get`, ({ body: `data=${formatFetchBody([])}` }))
 }
+
+/** Controller_Api_Asset */
 
 export const apiDeleteAsset = async (assetId) => {
 	const options = {
@@ -660,6 +395,185 @@ export const apiRestoreAsset = (assetId) => {
 	}
 	return fetch(`/api/asset/restore/${assetId}`, options).then(handleErrors)
 }
+
+// Returns boolean, true if the current user can publish the given widget instance, false otherwise
+export const apiCanBePublishedByCurrentUser = (widgetId) => {
+	return fetchGet('/api/json/widget_publish_perms_verify', ({ body: `data=${formatFetchBody([widgetId])}` }))
+}
+
+/** Controller_Api_User */
+
+export const apiGetUserActivity = ({ pageParam = 0 }) => {
+	return fetch(`/api/user/activity?start=${pageParam * 6}`)
+		.then(handleErrors)
+}
+
+export const apiUpdateUserSettings = (settings) => {
+	return fetch('/api/user/settings', {
+		...fetchPOSTOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json'
+		},
+		body: JSON.stringify(settings)
+	})
+		.then(handleErrors)
+}
+
+export const apiUpdateUserRoles = (roles) => {
+	return fetch('/api/user/roles', {
+		...fetchPOSTOptions({}),
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json'
+		},
+		body: JSON.stringify(roles)
+	})
+		.then(handleErrors)
+}
+
+/** Controller_Api_Instance */
+
+export const apiGetQuestionSetHistory = (instId) => {
+	return fetch(`/api/instance/history?inst_id=${instId}`)
+		.then(handleErrors)
+}
+
+// Request access to widget
+export const apiRequestAccess = (instId, ownerId) => {
+	return fetch('/api/instance/request_access',
+	{
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({
+			'inst_id': instId,
+			'owner_id': ownerId
+		})
+	})
+	.then(handleErrors)
+}
+
+/** Controller_Api_Admin **/
+
+export const apiGetExtraAttempts = instId => {
+	return fetch(`/api/admin/extra_attempts/${instId}`)
+		.then(handleErrors)
+		.then(attempts => {
+			const map = new Map()
+			for (const i in attempts) {
+				map.set(parseInt(attempts[i].id),
+					{
+						id: parseInt(attempts[i].id),
+						user_id: parseInt(attempts[i].user_id),
+						context_id: attempts[i].context_id,
+						extra_attempts: parseInt(attempts[i].extra_attempts)
+					})
+			}
+			//const userIds = Array.from(attemps, user => user.user_id)
+			return map
+		})
+}
+
+export const apiSetAttempts = ({ instId, attempts }) => {
+	return fetch(`/api/admin/extra_attempts/${instId}`,
+		{
+			method: 'POST',
+			mode: 'cors',
+			credentials: 'include',
+			headers: {
+				pragma: 'no-cache',
+				'cache-control': 'no-cache',
+				'content-type': 'application/json; charset=UTF-8'
+			},
+			body: JSON.stringify(attempts)
+		}).then(handleErrors)
+}
+
+/**
+ * It searches for widgets by name or ID
+ * @param {string} input (must contain letters)
+ * @returns {array} if matches were found
+ * @returns {bool}  if input does not match pattern
+ */
+export const apiSearchWidgets = input => {
+	let pattern = /[A-Za-z]+/g
+	if (!input.match(pattern).length) return false
+	input = input.replace("'","%27")
+	return fetch(`/api/admin/widget_search/${input}`)
+		.then(handleErrors)
+}
+
+export const apiGetWidgetsAdmin = () => {
+	return fetch(`/api/admin/widgets/`)
+		.then(handleErrors)
+}
+
+export const apiUpdateWidgetAdmin = widget => {
+	return fetch(`/api/admin/widget/${widget.id}`,
+	{
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		body: JSON.stringify(widget)
+	})
+		.then(handleErrors)
+}
+
+export const apiUploadWidgets = (files) => {
+	const formData = new FormData()
+
+	Array.from(files).forEach(file => {
+		formData.append('files[]', file, file.name)
+		formData.append('content-type', 'multipart/form-data')
+	})
+
+	return fetch(`/admin/upload`, {
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		headers: {
+			'pragma': 'no-cache',
+			'cache-control': 'no-cache'
+		},
+		body: formData
+	})
+		.then(handleErrors)
+}
+
+/**
+ * It undeletes a widget instance
+ * @param {string} instID
+ * @returns {boolean} operation success
+ */
+export const apiUnDeleteWidget = ({ instId }) => {
+	return fetch(`/api/admin/widget_instance_undelete/${instId}`,
+		{
+			method: 'POST',
+			mode: 'cors',
+			credentials: 'include',
+			headers: {
+				pragma: 'no-cache',
+				'cache-control': 'no-cache',
+				'content-type': 'application/json; charset=UTF-8'
+			}
+		})
+		.then(handleErrors)
+}
+
+/** STORAGE UTILS */
 
 // Persist to wherever using the super-secret object
 const writeToStorage = (queryKey, data) => {
@@ -694,33 +608,4 @@ export const readFromStorage = () => {
 			}
 		}
 	}, [])
-}
-
-// Returns boolean, true if the current user can publish the given widget instance, false otherwise
-export const apiCanBePublishedByCurrentUser = (widgetId) => {
-	return fetch('/api/json/widget_publish_perms_verify', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
-		.then(resp => resp.json())
-}
-
-// Request access to widget
-export const apiRequestAccess = (instId, ownerId) => {
-	return fetch('/api/instance/request_access',
-	{
-		headers: {
-			pragma: 'no-cache',
-			'cache-control': 'no-cache',
-			'content-type': 'application/json; charset=UTF-8'
-		},
-		method: 'POST',
-		mode: 'cors',
-		credentials: 'include',
-		body: JSON.stringify({
-			'inst_id': instId,
-			'owner_id': ownerId
-		})
-	})
-	.then(resp => {
-		if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
-		return null
-	})
 }

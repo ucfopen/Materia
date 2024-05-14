@@ -5,7 +5,12 @@ export default function useSetAttempts() {
 	return useMutation(
 		apiSetAttempts,
 		{
-			onError: () => console.error('failed to update extra attempts')
+			onSuccess: (data, variables) => {
+				variables.successFunc(data)
+			},
+			onError: (err, variables) => {
+				variables.errorFunc(err)
+			}
 		}
 	)
 }
