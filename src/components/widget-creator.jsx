@@ -107,7 +107,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetQuestionSet(instIdRef.current),
 		staleTime: Infinity,
 		placeholderData: null,
-		enabled: !!instance.id, // requires instance state object to be prepopulated
+		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
 		onSuccess: (data) => {
 			if (data) {
 				setCreatorState({...creatorState, invalid: false})
