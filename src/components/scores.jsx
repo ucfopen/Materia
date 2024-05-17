@@ -119,6 +119,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		staleTime: Infinity,
 		enabled: (!!playId || !!previewInstId),
 		refetchOnWindowFocus: false,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setErrorState(STATE_RESTRICTED)
