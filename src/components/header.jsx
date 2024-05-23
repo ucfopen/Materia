@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiAuthorSuper, apiAuthorSupport } from '../util/api'
+import { apiGetUser, apiAuthorVerify, apiAuthorSuper, apiAuthorSupport } from '../util/api'
 import Notifications from './notifications'
 
 const Header = ({
@@ -9,18 +9,26 @@ const Header = ({
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [optionsOpen, setOptionsOpen] = useState(false)
 
+	const { data: verified} = useQuery({
+		queryKey: 'isLoggedIn',
+		queryFn: apiAuthorVerify,
+		staleTime: Infinity
+	})
 	const { data: user, isLoading: userLoading} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		enabled: !!verified
 	})
 	const { data: isAdmin} = useQuery({
 		queryKey: 'isAdmin',
+		enabled: !!user && user.loggedIn,
 		queryFn: apiAuthorSuper,
 		staleTime: Infinity
 	})
 	const { data: isSupport} = useQuery({
 		queryKey: 'isSupport',
+		enabled: !!user && user.loggedIn,
 		queryFn: apiAuthorSupport,
 		staleTime: Infinity
 	})
