@@ -6,6 +6,7 @@
 #   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.utils.translation import gettext_lazy
 
 from datetime import datetime
 from django.contrib.auth.models import User
@@ -61,66 +62,51 @@ class DateRange(models.Model):
     start_at_dt = models.DateTimeField(default=datetime.now)
     end_at_dt = models.DateTimeField(default=datetime.now)
 
-    def start_at_datetime(self):
-        from datetime import datetime
-
-        return datetime.fromtimestamp(self.start_at)
-
-    def end_at_datetime(self):
-        from datetime import datetime
-
-        return datetime.fromtimestamp(self.end_at)
-
-    # do this in a migration
-    # def convert_all():
-    #     for dr in DateRange.objects.all():
-    #         dr.start_at_dt = dr.start_at_datetime()
-    #         dr.end_at_dt = dr.end_at_datetime()
-    #         dr.save()
-
     class Meta:
         db_table = "date_range"
-        # TODO see what this does - either duplicates the compound index or renames existing one?
-        # or does nothing at all
         constraints = [
             models.UniqueConstraint(
                 fields=["semester", "year", "start_at", "end_at"],
                 name="date_range_main",
             ),
         ]
-        # unique_together = (("semester", "year", "start_at", "end_at"),)
 
 
 class Log(models.Model):
-    LOG_TYPE_CHOICES = {
-        "BUTTON_PRESS": "BUTTON_PRESS",
-        "ERROR_GENERAL": "ERROR_GENERAL",
-        "ERROR_TIME_VALIDATION": "ERROR_TIME_VALIDATION",
-        "KEY_PRESS": "KEY_PRESS",
-        "SCORE_ACTIVITY_FROM_CLIENT": "SCORE_ACTIVITY_FROM_CLIENT",
-        "SCORE_FINAL_FROM_CLIENT": "SCORE_FINAL_FROM_CLIENT",
-        "SCORE_QUESTION_ANSWERED": "SCORE_QUESTION_ANSWERED",
-        "SCORE_WIDGET_INTERACTION": "SCORE_WIDGET_INTERACTION",
-        "SCORE_PARTICIPATION": "SCORE_PARTICIPATION",
-        "WIDGET_CORE_INIT": "WIDGET_CORE_INIT",
-        "WIDGET_END": "WIDGET_END",
-        "WIDGET_LOAD_DONE": "WIDGET_LOAD_DONE",
-        "WIDGET_LOAD_START": "WIDGET_LOAD_START",
-        "WIDGET_LOGIN": "WIDGET_LOGIN",
-        "WIDGET_PLAY_REQ": "WIDGET_PLAY_REQ",
-        "WIDGET_PLAY_START": "WIDGET_PLAY_START",
-        "WIDGET_RESTART": "WIDGET_RESTART",
-        "WIDGET_START": "WIDGET_START",
-        "WIDGET_STATE": "WIDGET_STATE",
-        "DATA": "DATA",
-    }
+    class LogType(models.TextChoices):
+        EMPTY = "", gettext_lazy("Empty")
+        BUTTON_PRESS = "BUTTON_PRESS", gettext_lazy("Button Press")
+        ERROR_GENERAL = "ERROR_GENERAL", gettext_lazy("General Error")
+        ERROR_TIME_VALIDATION = "ERROR_TIME_VALIDATION", gettext_lazy("Time Validation Error")
+        KEY_PRESS = "KEY_PRESS", gettext_lazy("Key Press")
+        SCORE_ACTIVITY_FROM_CLIENT = "SCORE_ACTIVITY_FROM_CLIENT", gettext_lazy("Client Score Activity")
+        SCORE_FINAL_FROM_CLIENT = "SCORE_FINAL_FROM_CLIENT", gettext_lazy("Final Client Score")
+        SCORE_QUESTION_ANSWERED = "SCORE_QUESTION_ANSWERED", gettext_lazy("Question Answered")
+        SCORE_WIDGET_INTERACTION = "SCORE_WIDGET_INTERACTION", gettext_lazy("Widget Score Interaction")
+        SCORE_PARTICIPATION = "SCORE_PARTICIPATION", gettext_lazy("Participation Score")
+        WIDGET_CORE_INIT = "WIDGET_CORE_INIT", gettext_lazy("Widget Initialization")
+        WIDGET_END = "WIDGET_END", gettext_lazy("Widget End")
+        WIDGET_LOAD_DONE = "WIDGET_LOAD_DONE", gettext_lazy("Finish Widget Load")
+        WIDGET_LOAD_START = "WIDGET_LOAD_START", gettext_lazy("Start Widget Load")
+        WIDGET_LOGIN = "WIDGET_LOGIN", gettext_lazy("Widget Login")
+        WIDGET_PLAY_REQ = "WIDGET_PLAY_REQ", gettext_lazy("Widget Play Request")
+        WIDGET_PLAY_START = "WIDGET_PLAY_START", gettext_lazy("Widget Play Start")
+        WIDGET_RESTART = "WIDGET_RESTART", gettext_lazy("Widget Restart")
+        WIDGET_START = "WIDGET_START", gettext_lazy("Widget Start")
+        WIDGET_STATE = "WIDGET_STATE", gettext_lazy("Widget State")
+        DATA = "DATA", gettext_lazy("Data")
 
     id = models.BigAutoField(primary_key=True)
     # consider converting to UUID field. Note: there appear to be some non-UUID values in the table
+    # TODO: should this be a foreign key to LogPlay?
     play_id = models.CharField(max_length=100, db_collation="utf8_bin")
     # type is a "soft" reserved word in Python
-    type = models.CharField(
-        max_length=26, blank=True, null=True, choices=LOG_TYPE_CHOICES
+    log_type = models.CharField(
+        max_length=26,
+        blank=True,
+        null=True,
+        choices=LogType.choices,
+        default=LogType.EMPTY
     )
     # typically contains internal qset IDs for questions, may contain 0, may contain nothing
     item_id = models.CharField(max_length=255)
@@ -137,7 +123,7 @@ class Log(models.Model):
         db_table = "log"
         indexes = [
             models.Index(fields=["play_id"], name="log_play_id"),
-            models.Index(fields=["type"], name="log_type"),
+            models.Index(fields=["log_type"], name="log_type"),
             models.Index(fields=["created_at"], name="log_created_at"),
         ]
 
@@ -147,12 +133,13 @@ class Log(models.Model):
 class LogActivity(models.Model):
     id = models.BigAutoField(primary_key=True)
 
-    # user_id = models.PositiveBigIntegerField()  # convert to foreign key to Users model
     user = models.ForeignKey(
         User,
         related_name="activity_logs",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         db_column="user_id",
+        blank=True,
+        null=True
     )
 
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
@@ -175,7 +162,10 @@ class LogActivity(models.Model):
 
 
 class LogPlay(models.Model):
-    AUTH_CHOICES = {"": "", "lti": "lti"}
+    AUTH_CHOICES = [
+        ("", ""),
+        ("lti", "lti")
+    ]
 
     id = models.CharField(primary_key=True, max_length=100, db_collation="utf8_bin")
     instance = models.ForeignKey(
@@ -187,7 +177,12 @@ class LogPlay(models.Model):
     is_valid = models.BooleanField()  # was previously CharField, enum in DB
     created_at = models.IntegerField()
     user = models.ForeignKey(
-        User, related_name="play_logs", on_delete=models.PROTECT, db_column="user_id"
+        User,
+        related_name="play_logs",
+        on_delete=models.SET_NULL,
+        db_column="user_id",
+        blank=True,
+        null=True
     )
     ip = models.CharField(max_length=20)
     is_complete = models.BooleanField()  # was previously CharField, enum in DB
@@ -202,7 +197,7 @@ class LogPlay(models.Model):
         db_column="qset_id",
     )
     environment_data = models.TextField()
-    auth = models.CharField(max_length=100, choices=AUTH_CHOICES)
+    auth = models.CharField(max_length=3, choices=AUTH_CHOICES)
     referrer_url = models.CharField(max_length=255)
     context_id = models.CharField(max_length=255)
     semester = models.ForeignKey(
@@ -238,7 +233,12 @@ class LogStorage(models.Model):
         db_column="play_id",
     )
     user = models.ForeignKey(
-        User, related_name="storage_logs", on_delete=models.PROTECT, db_column="user_id"
+        User,
+        related_name="storage_logs",
+        on_delete=models.SET_NULL,
+        db_column="user_id",
+        blank=True,
+        null=True
     )
     created_at = models.PositiveIntegerField()
     name = models.CharField(max_length=64)
@@ -266,7 +266,12 @@ class Lti(models.Model):
     consumer = models.CharField(max_length=255)
     consumer_guid = models.CharField(max_length=255)
     user = models.ForeignKey(
-        User, related_name="lti_embeds", on_delete=models.PROTECT, db_column="user_id"
+        User,
+        related_name="lti_embeds",
+        on_delete=models.SET_NULL,
+        db_column="user_id",
+        blank=True,
+        null=True
     )
     name = models.CharField(max_length=255, blank=True, null=True)
     context_id = models.CharField(max_length=255, blank=True, null=True)
@@ -331,8 +336,22 @@ class MapQuestionToQset(models.Model):
 
 class Notification(models.Model):
     id = models.BigAutoField(primary_key=True)
-    from_id = models.PositiveBigIntegerField()  # foreign key to Users model
-    to_id = models.PositiveBigIntegerField()  # foreign key to Users model
+    from_id = models.ForeignKey(
+        User,
+        related_name="notifications_from",
+        on_delete=models.SET_NULL,
+        db_column="from_id",
+        blank=True,
+        null=True
+    )
+    to_id = models.ForeignKey(
+        User,
+        related_name="notifications_to",
+        on_delete=models.SET_NULL,
+        db_column="to_id",
+        blank=True,
+        null=True
+    )
     item_type = models.IntegerField(null=True)
     # this refers to a widget instance ID
     # can't foreign key it properly because we can't reliably expect every value to be valid
@@ -366,12 +385,12 @@ class Notification(models.Model):
 # Will need a migration plan for them potential foreign key relationship re: object_id, object_type
 # for assets, questions, and widget instances
 class PermObjectToUser(models.Model):
-    PERM_CHOICES = {
-        1: "visible/view scores",
-        30: "full",
-        85: "support user",
-        90: "super user",
-    }
+    PERM_CHOICES = [
+        (1, "visible/view scores"),
+        (30, "full"),
+        (85, "support user"),
+        (90, "super user")
+    ]
     # Needs primary key
     id = models.BigAutoField(primary_key=True)
     # appears to be a generic relationship combined with object_type
@@ -379,8 +398,10 @@ class PermObjectToUser(models.Model):
     user = models.ForeignKey(
         User,
         related_name="object_permissions",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         db_column="user_id",
+        blank=True,
+        null=True
     )
     perm = models.IntegerField(choices=PERM_CHOICES)
     # appears to be a generic relationship combined with object_type
@@ -410,7 +431,11 @@ class Question(models.Model):
     created_at = models.IntegerField()
     data = models.TextField(blank=True, null=True)
     hash = models.CharField(unique=True, max_length=32)
-    qset = models.ManyToManyField("WidgetQset", through=MapQuestionToQset)
+    qset = models.ManyToManyField(
+        "WidgetQset",
+        through=MapQuestionToQset,
+        related_name='questions'
+    )
 
     created_at_dt = models.DateTimeField(default=datetime.now)
 
@@ -442,11 +467,11 @@ class UserExtraAttempts(models.Model):
 
 
 class Widget(models.Model):
-    SCORE_TYPE_CHOICES = {
-        "SERVER": "widget is scored on the server",
-        "CLIENT": "widget is scored on the client",
-        "SERVER-CLIENT": "widget is partially scored in both server and client",
-    }
+    SCORE_TYPE_CHOICES = [
+        ("SERVER", "widget is scored on the server"),
+        ("CLIENT", "widget is scored on the client"),
+        ("SERVER-CLIENT", "widget is partially scored in both server and client")
+    ]
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -518,6 +543,10 @@ class WidgetInstance(models.Model):
         db_column="published_by",
     )
 
+    @property
+    def qset(self):
+        return self.qsets.latest()
+
     class Meta:
         db_table = "widget_instance"
         indexes = [
@@ -553,13 +582,6 @@ class WidgetQset(models.Model):
     created_at = models.IntegerField()
     data = models.TextField()
     version = models.CharField(max_length=10, blank=True, null=True)
-    # HANDLE WITH CARE
-    # the many to many field on the Question model may take care of this for us
-    # questions = models.ManyToManyField(
-    #     Question,
-    #     on_delete=models.PROTECT,
-    #     through=MapQuestionToQset
-    # )
 
     class Meta:
         db_table = "widget_qset"

@@ -37,7 +37,32 @@ class Command(base.BaseCommand):
         cursor.execute(
             f"ALTER TABLE `user_meta` DROP PRIMARY KEY;"
         )
+        # the existing log table has the 'type' column set as an ENUM
+        # core migration 0001 will build this column as a varchar instead
+        # manually change it to match the migration 0001 expectation so
+        #  future migrations are operating correctly
+        cursor.execute(
+            "ALTER TABLE `log` MODIFY `log_type` VARCHAR(26) NULL DEFAULT ''"
+        )
         cursor.close()
+
+        def make_column_in_table_nullable_and_set_zero_to_null(table, column):
+            cursor = connection.cursor()
+            cursor.execute(
+                f"ALTER TABLE {table} MODIFY {column} int(11) NULL;"
+            )
+            cursor.execute(
+                f"UPDATE {table} SET {column} = null WHERE {column} = 0;"
+            )
+            cursor.close()
+
+        make_column_in_table_nullable_and_set_zero_to_null("log_activity","user_id")
+        make_column_in_table_nullable_and_set_zero_to_null("log_play","user_id")
+        make_column_in_table_nullable_and_set_zero_to_null("log_storage","user_id")
+        make_column_in_table_nullable_and_set_zero_to_null("lti","user_id")
+        make_column_in_table_nullable_and_set_zero_to_null("notification","from_id")
+        make_column_in_table_nullable_and_set_zero_to_null("notification","to_id")
+        make_column_in_table_nullable_and_set_zero_to_null("perm_object_to_user","user_id")
 
         # some tables carried over from the PHP version did not have
         #  a primary key

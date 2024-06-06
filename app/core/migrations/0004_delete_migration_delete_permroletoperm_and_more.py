@@ -17,9 +17,8 @@ class Migration(migrations.Migration):
     # e.g. the "lti" table will have a relationship with the "widget_instance" table based
     #  on the "item_id" column, so find any situations where there is not a row in
     #  "widget_instance" with an "id" corresponding to any "item_id" in the "lti" table
-    def cleanData(apps, schema_editor):
+    def clean_data(apps, schema_editor):
         from django.contrib.auth.models import User
-        from django.db import connection
 
         import logging
         logger = logging.getLogger('django')
@@ -169,7 +168,7 @@ class Migration(migrations.Migration):
             invalid_widgetmetadata.delete()
 
     operations = [
-        migrations.RunPython(cleanData),
+        migrations.RunPython(clean_data),
 
         migrations.DeleteModel(
             name="Migration",
@@ -285,7 +284,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="logplay",
             name="auth",
-            field=models.CharField(choices=[("", ""), ("lti", "lti")], max_length=100),
+            field=models.CharField(choices=[("", ""), ("lti", "lti")], max_length=3),
         ),
         migrations.AlterField(
             model_name="logplay",
