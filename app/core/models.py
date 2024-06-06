@@ -369,7 +369,7 @@ class Notification(models.Model):
     action = models.CharField(max_length=255)
 
     created_at_dt = models.DateTimeField(default=datetime.now)
-    updated_at_dt = models.DateTimeField(default=datetime.now)
+    updated_at_dt = models.DateTimeField(default=datetime.now, null=True)
 
     class Meta:
         db_table = "notification"
@@ -409,7 +409,7 @@ class PermObjectToUser(models.Model):
     # will be auto-nulled when the expiration date elapses
     expires_at = models.IntegerField(blank=True, null=True)
 
-    expires_at_dt = models.DateTimeField(default=datetime.now)
+    expires_at_dt = models.DateTimeField(default=datetime.now, null=True)
 
     class Meta:
         db_table = "perm_object_to_user"

@@ -63,6 +63,7 @@ class Command(base.BaseCommand):
         make_column_in_table_nullable_and_set_zero_to_null("notification","from_id")
         make_column_in_table_nullable_and_set_zero_to_null("notification","to_id")
         make_column_in_table_nullable_and_set_zero_to_null("perm_object_to_user","user_id")
+        make_column_in_table_nullable_and_set_zero_to_null("question","user_id")
 
         # some tables carried over from the PHP version did not have
         #  a primary key
