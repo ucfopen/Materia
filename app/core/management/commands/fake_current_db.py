@@ -42,7 +42,7 @@ class Command(base.BaseCommand):
         # manually change it to match the migration 0001 expectation so
         #  future migrations are operating correctly
         cursor.execute(
-            "ALTER TABLE `log` MODIFY `log_type` VARCHAR(26) NULL DEFAULT ''"
+            "ALTER TABLE `log` MODIFY `type` VARCHAR(26) NULL DEFAULT ''"
         )
         cursor.close()
 
