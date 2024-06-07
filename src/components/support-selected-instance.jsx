@@ -9,6 +9,7 @@ import useUpdateWidget from './hooks/useSupportUpdateWidget'
 import MyWidgetsCopyDialog from './my-widgets-copy-dialog'
 import MyWidgetsCollaborateDialog from './my-widgets-collaborate-dialog'
 import ExtraAttemptsDialog from './extra-attempts-dialog'
+import MyWidgetsScores from './my-widgets-scores'
 import Alert from './alert'
 
 const addZero = i => `${i}`.padStart(2, '0')
@@ -39,6 +40,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 	const [showCopy, setShowCopy] = useState(false)
 	const [showCollab, setShowCollab] = useState(false)
 	const [showAttempts, setShowAttempts] = useState(false)
+	const [showScoreDetails, setShowScoreDetails] = useState(false)
 	const [availableDisabled, setAvailableDisabled] = useState(inst.open_at < 0)
 	const [availableDate, setAvailableDate] = useState(inst.open_at < 0 ? '' : objToDateString(inst.open_at))
 	const [availableTime, setAvailableTime] = useState(inst.open_at < 0 ? '' : objToTimeString(inst.open_at))
@@ -301,6 +303,11 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 			</div>
 	}
 
+	let scoresContainer = null
+	if (showScoreDetails) {
+		scoresContainer = <MyWidgetsScores inst={inst} beardMode={false} />
+	}
+
 	let alertDialogRender = null
 	if (alertDialog.enabled) {
 		alertDialogRender = (
@@ -509,7 +516,8 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 							{updatedInst.preview_url}
 						</a>
 					</div>
-					<div className='right-justify'>
+					<div className='bottom-buttons'>
+						<button className='action_button' onClick={() => setShowScoreDetails(!showScoreDetails)}>Scores</button>
 						<div className='apply-changes'>
 							<button className='action_button apply'
 								onClick={applyChanges}>
@@ -522,6 +530,9 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 				{ copyDialogRender }
 				{ collaborateDialogRender }
 				{ extraAttemptsDialogRender }
+				<section>
+					{ scoresContainer }
+				</section>
 			</section>
 		</>
 	)

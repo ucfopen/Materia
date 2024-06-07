@@ -50,8 +50,8 @@ const SupportPage = () => {
 
 
 	useEffect(() => {
-		if (Array.isArray(instFromHash) && instFromHash.length > 0) {
-			setSelectedInstance(instFromHash[[0]])
+		if (instFromHash && instFromHash.pagination && instFromHash.pagination.length > 0) {
+			setSelectedInstance(instFromHash.pagination[0])
 		}
 	},[instFromHash])
 

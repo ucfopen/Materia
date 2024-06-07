@@ -271,14 +271,16 @@
 				margin: 0px 0px;
 			}
 
-			.right-justify {
-				margin-top: 20px;
+			.bottom-buttons {
 				display: flex;
-				justify-content: flex-end;
+				justify-content: space-between;
+
+				margin-top: 20px;
 
 				.apply-changes {
 					display: flex;
 					flex-direction: column;
+					justify-self: flex-end;
 					justify-content: flex-end;
 					width: 220px;
 

@@ -229,7 +229,7 @@ export const apiGetWidgetLock = (id = null) => {
  * @param {string} input (letters only)
  * @returns {array} of matches
  */
-export const apiSearchInstances = (input, page_number) => {
+export const apiSearchInstances = (input, page_number = 0) => {
 	let pattern = /[A-Za-z]+/g
 	let match = input.match(pattern)
 	if (!match || !match.length) input = ' '
