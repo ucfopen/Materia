@@ -19,16 +19,6 @@ const WidgetListCard = ({widget = null}) => {
         }})
     }, [widget])
 
-    // Timeout function for success message upon saving widget
-    useEffect(() => {
-        if (state.success)
-        {
-            setTimeout(() => {
-                setState(prevState => ({...prevState, success: false}))
-            }, 3000)
-        }
-    }, [state.success])
-
     const handleWidgetClick = () => {
         setState(prevState => ({...prevState, widget: {...prevState.widget, expanded: !prevState.widget.expanded}, success: false, errorMessage: ''}))
     }
@@ -69,6 +59,8 @@ const WidgetListCard = ({widget = null}) => {
     }
 
     const saveWidget = () => {
+        setState(prevState => ({...prevState, success: false}))
+
         const update = {
 			id: state.widget.id,
 			clean_name: state.widget.clean_name,
@@ -100,17 +92,21 @@ const WidgetListCard = ({widget = null}) => {
                 else success = true
             }
             setState(prevState => ({...prevState, errorMessage: errorMessage, success: success}))
+        }).catch(err => {
+            setState(prevState => ({...prevState, errorMessage: [err], success: false}))
         })
     }
 
     let widgetErrorsRender = null
     if (state.errorMessage) {
-        widgetErrorsRender = state.errorMessage.map((error, i) => <div key={i} className="error-holder">{error}</div>)
+        widgetErrorsRender = state.errorMessage.map((error, i) => <div key={i} className="error"><p>{error}</p></div>)
     }
 
     let widgetSuccessRender = null
     if (state.success) {
-        widgetSuccessRender = <div className="success-holder">Widget Saved!</div>
+        widgetSuccessRender = <div className="success-holder">
+            <div className='success'><p>Widget Saved!</p></div>
+        </div>
     }
 
     let featuresRender = null

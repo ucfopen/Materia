@@ -45,8 +45,10 @@ const SelectItem = () => {
 
 	const requestAccess = async (ownerID) => {
 		await apiRequestAccess(instID, ownerID).then((data) => {
-			if (data) setRequestSuccess('Request succeeded')
-			else setRequestSuccess('Request Failed')
+			setRequestSuccess('Request succeeded')
+			setRequestSuccessID(ownerID)
+		}).catch(err => {
+			setRequestSuccess('Request Failed')
 			setRequestSuccessID(ownerID)
 		})
 	}
