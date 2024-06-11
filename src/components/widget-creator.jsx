@@ -719,7 +719,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
 				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
-				<a id="generateLink" onClick={showQuestionGenerator}>Generate Questions...</a>
+				{ instId ? <a id="generateLink" onClick={showQuestionGenerator}>Generate Questions...</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>
 				<button id="creatorPublishBtn"
