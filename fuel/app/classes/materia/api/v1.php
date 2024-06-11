@@ -875,7 +875,6 @@ class Api_V1
 		$widget_name = '';
 		$start_time = microtime(true);
 		$time_elapsed_secs = 0;
-		return new Msg(Msg::ERROR, 'Error generating question set');
 
 		if ($build_off_existing)
 		{
@@ -1023,14 +1022,16 @@ class Api_V1
 
 				$file = fopen('openai_usage.txt', 'a');
 				fwrite($file, 'Error generating images: '.$e->getMessage().PHP_EOL);
-				fclose();
+				fwrite($file, PHP_EOL);
+				fclose($file);
 
 				return $question_set;
 			}
 
 			$file = fopen('openai_usage.txt', 'a');
 			fwrite($file, 'Generated images.');
-			fclose();
+			fwrite($file, PHP_EOL);
+			fclose($file);
 
 			\Log::info('Generated images: '.print_r($dalle_result, true));
 
