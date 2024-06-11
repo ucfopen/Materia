@@ -7,6 +7,9 @@ export default function useQuestionGeneration() {
         {
             onSuccess: (qset, variables) => {
                 variables.successFunc(qset)
+            },
+            onError: (error, variables, context) => {
+                variables.errorFunc(error)
             }
         }
     )

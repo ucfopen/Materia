@@ -853,12 +853,21 @@ class Api_V1
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
 
+		// count words in topic
+		$topic_words = explode(' ', $topic);
+		if (count($topic_words) < 3) return new Msg(Msg::ERROR, 'Topic must be at least 3 words long');
+
 		$include_images = $input->include_images;
+
 		$num_questions = $input->num_questions;
+		if ($num_questions < 1) $num_questions = 8;
+
 		$build_off_existing = $input->build_off_existing;
+
 		\Log::info('num_questions: '.$num_questions);
 		\Log::info('num_questions to string: '.strval($num_questions));
 		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
+
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
@@ -866,6 +875,7 @@ class Api_V1
 		$widget_name = '';
 		$start_time = microtime(true);
 		$time_elapsed_secs = 0;
+		return new Msg(Msg::ERROR, 'Error generating question set');
 
 		if ($build_off_existing)
 		{

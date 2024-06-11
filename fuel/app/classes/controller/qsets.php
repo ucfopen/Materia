@@ -43,7 +43,7 @@ class Controller_Qsets extends Controller
 		Js::push_inline('var WIDGET_URL = "'.Config::get('materia.urls.engines').'";');
 		Js::push_inline('var STATIC_CROSSDOMAIN = "'.Config::get('materia.urls.static').'";');
 
-		Css::push_group(['qset_generation']);
+		Css::push_group(['qset_generator']);
 		Js::push_group(['react', 'qset_generator']);
 
 		return Response::forge($theme->render());

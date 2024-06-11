@@ -1,0 +1,92 @@
+@import './include.scss';
+
+.generate {
+    h1 {
+        background: #f1814b;
+        padding: 6px 10px;
+        margin: 0px;
+        font-size: 1em;
+        font-weight: bold;
+        color: #ffffff;
+    }
+
+    .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 94vh;
+        background-color: rgba(0, 0, 0, 0.5);
+
+        backdrop-filter: blur(10px);
+        position: absolute;
+        top: 2em;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+
+        p {
+            margin-bottom: 150px;
+            font-size: 1.1em;
+            color: white;
+        }
+    }
+
+    #generate_form {
+        margin: 2em;
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+
+        #topic-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+
+            #topic {
+                padding: 0.5em;
+            }
+        }
+
+        #num-questions-field {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            input {
+                max-width: 100px;
+            }
+        }
+
+    }
+    .actions {
+        position: fixed;
+        width: 80px;
+        left: 50%;
+        bottom: 0px;
+        margin-left: -40px;
+        padding-bottom: 14px;
+        z-index: 10;
+
+        text-align: center;
+        font-size: 1.1em;
+
+        a {
+            color: #000000;
+        }
+    }
+
+    .error {
+        color: red;
+        font-size: 0.8em;
+    }
+
+    .invalid {
+        border: 2px solid red;
+        border-radius: 3px;
+    }
+
+    .warning {
+        color: #f1814b;
+        font-size: 0.8em;
+    }
+}
