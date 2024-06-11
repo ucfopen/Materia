@@ -109,7 +109,7 @@ class Api_V1
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */
-	
+
 	 // !! this endpoint should be significantly refactored or removed in the future API overhaul !!
 	static public function widget_instance_edit_perms_verify(string $inst_id)
 	{
@@ -849,6 +849,10 @@ class Api_V1
 		// validate input
 		$inst_id = $input->inst_id;
 		$topic = $input->topic;
+
+		// clean topic of any special characters
+		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
+
 		$include_images = $input->include_images;
 		$num_questions = $input->num_questions;
 		$build_off_existing = $input->build_off_existing;
@@ -858,6 +862,10 @@ class Api_V1
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		$widget_name = '';
+		$start_time = microtime(true);
+		$time_elapsed_secs = 0;
 
 		if ($build_off_existing)
 		{
@@ -887,6 +895,7 @@ class Api_V1
 
 			// get the data to concatenate into the prompt
 			$instance_name = $inst->name;
+			$widget_name = $widget->name;
 			$about = $widget->meta_data['about'];
 			// get the demo.json from the demo instance
 			$demo_qset = static::question_set_get($widget->meta_data['demo']);
@@ -894,16 +903,16 @@ class Api_V1
 			$qset_text = json_encode($demo_qset->data);
 
 			// non-image prompt
-			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions.";
+			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions. IDs must be random.";
 
 			// image prompt
 			if ($include_images)
 			{
-				$text = $text."Do not use real names. In every asset or assets field, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+				$text = $text."Do not use real names. Find the field storing image assets. This could be labeled as an asset, assets, image field or similar. Add a field to each asset titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system.\n{$qset_text}";
 			}
 			else
 			{
-				$text = $text."Do not generate image-type questions/answers, only text-type questions/answers. Therefore, leave the asset fields empty for image, video, or audio questions/answers, but NOT text-type. If the 'materiaType' of an asset is 'text', create a field titled 'value' with the question/answer text insidet the asset object. ID's must be random.\n{$qset_text}";
+				$text = $text."Do not generate image-type questions/answers, only text-type questions/answers. Therefore, leave the asset fields empty for image, video, or audio questions/answers, but NOT text-type. If the 'materiaType' of an asset is 'text', create a field titled 'value' with the question/answer text insidet the asset object.\n{$qset_text}";
 			}
 		}
 
@@ -929,13 +938,38 @@ class Api_V1
 
 			$question_set = json_decode($result->choices[0]->message->content);
 			\Log::info('Generated question set: '.print_r(json_encode($question_set), true));
+
+			$time_elapsed_secs = microtime(true) - $start_time;
+			$cost_input_tokens = 0.50 / 1000000; // $0.50 per 1 million tokens
+			$cost_output_tokens = 1.50 / 1000000; // $1.50 per 1 million tokens
+
+			$file = fopen('openai_usage.txt', 'a');
+			fwrite($file, PHP_EOL);
+			fwrite($file, 'Widget: '.$widget_name.PHP_EOL);
+			fwrite($file, 'Date: '.date('Y-m-d H:i:s').PHP_EOL);
+			fwrite($file, 'Time to complete (in seconds): '.$time_elapsed_secs.PHP_EOL);
+			fwrite($file, 'Number of questions asked to generate: '.$num_questions.PHP_EOL);
+			fwrite($file, 'Included images: '.$include_images.PHP_EOL);
+			fwrite($file, 'Prompt tokens: '.$result->usage->promptTokens.PHP_EOL);
+			fwrite($file, 'Completion tokens: '.$result->usage->completionTokens.PHP_EOL);
+			fwrite($file, 'Total tokens: '.$result->usage->totalTokens.PHP_EOL);
+			fwrite($file, 'Total cost (in dollars): '.$result->usage->promptTokens * $cost_input_tokens + $result->usage->completionTokens * $cost_output_tokens.PHP_EOL);
+			fclose($file);
+
 		} catch (\Exception $e) {
 			\Log::error('Error generating question set: '.$e->getMessage());
+
+			$file = fopen('openai_usage.txt', 'a');
+			fwrite($file, PHP_EOL);
+			fwrite($file, 'Widget: '.$widget_name.PHP_EOL);
+			fwrite($file, 'Date: '.date('Y-m-d H:i:s').PHP_EOL);
+			fwrite($file, 'Time to complete (in seconds): '.$time_elapsed_secs.PHP_EOL);
+			fwrite($file, 'Number of questions asked to generate: '.$num_questions.PHP_EOL);
+			fwrite($file, 'Error: '.$e->getMessage().PHP_EOL);
+
+			fclose($file);
+
 			return new Msg(Msg::ERROR, 'Error generating question set');
-		} finally {
-			\Log::info('Prompt tokens: '.$result->usage->promptTokens);
-			\Log::info('Completion tokens: '.$result->usage->completionTokens);
-			\Log::info('Total tokens: '.$result->usage->totalTokens);
 		}
 
 		if ($include_images)
@@ -972,11 +1006,22 @@ class Api_V1
 					'response_format' => 'url', // urls available for only 60 minutes after
 					'size' => '256x256' // 256x256, 512x512, 1024x1024
 				]);
+
 			} catch (\Exception $e) {
 				\Log::error('Error generating images: '.$e->getMessage());
 				\Log::error('Trace: '.$e->getTraceAsString());
+
+				$file = fopen('openai_usage.txt', 'a');
+				fwrite($file, 'Error generating images: '.$e->getMessage().PHP_EOL);
+				fclose();
+
 				return $question_set;
 			}
+
+			$file = fopen('openai_usage.txt', 'a');
+			fwrite($file, 'Generated images.');
+			fclose();
+
 			\Log::info('Generated images: '.print_r($dalle_result, true));
 
 			// Store assets in the database (permanent storage, not just URLs)
@@ -1021,7 +1066,7 @@ class Api_V1
 			if (is_object($value) || is_array($value))
 			{
 				$value = (array) $value;
-				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video')
+				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video' || $key == 'options')
 				{
 					if (key_exists('description', $value) && ! empty($value['description']))
 					{
@@ -1067,7 +1112,7 @@ class Api_V1
 			if (is_object($value) || is_array($value))
 			{
 				$value = (array) $value;
-				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video')
+				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video' || $key == 'options')
 				{
 					if ( ! empty($value['description']))
 					{
@@ -1077,10 +1122,12 @@ class Api_V1
 							// $base64 = $image_urls[$image_index]->b64_json;
 							// $array[$key]->id = 'data:image/png;base64,'.$base64;
 							// $array[$key]->url = $image_urls[$image_index]->b64_json;
+							// $array[$key]->image = $image_urls[$image_index]->b64_json;
 
 							// url
 							$array[$key]->url = $image_urls[$image_index]->url;
 							$array[$key]->id = $image_urls[$image_index]->url;
+							$array[$key]->image = $image_urls[$image_index]->url;
 						}
 						$image_index += 1;
 					}
