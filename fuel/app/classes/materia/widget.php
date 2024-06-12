@@ -20,6 +20,7 @@ class Widget
 	public $is_scalable         = 0;
 	public $is_scorable         = true;
 	public $is_storage_enabled  = false;
+	public $is_generable        = false;
 	public $package_hash        = '';
 	public $meta_data           = null;
 	public $name                = '';
@@ -109,6 +110,7 @@ class Widget
 			'score_screen'        => $w['score_screen'],
 			'restrict_publish'    => $w['restrict_publish'],
 			'is_storage_enabled'  => $w['is_storage_enabled'],
+			'is_generable'        => $w['is_generable'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
 			'creator_guide'       => $w['creator_guide'],

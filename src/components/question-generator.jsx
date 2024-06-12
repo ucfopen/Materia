@@ -82,6 +82,7 @@ const QsetGenerator = () => {
             document.getElementById('num-questions').classList.remove('invalid')
             document.getElementById('num-questions').classList.remove('warning')
             setNumberError('')
+            setWarning('')
             return true
         }
     }

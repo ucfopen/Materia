@@ -839,6 +839,54 @@ class Api_V1
 		return $inst->qset;
 	}
 
+
+	/**
+	 * Determines whether a question set can generated for a given widget using OpenAI.
+	 * @param string $inst_id The instance ID of the widget
+	 * @return bool Whether a question set can be generated
+	 */
+	static public function question_set_generable($inst_id)
+	{
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+
+		// check if the widget supports generation
+		if ( ! $inst->widget->is_generable)
+		{
+			return [
+				'msg' => 'Widget does not support generation',
+				'generable' => false
+			];
+		}
+
+		// check if API key is even valid, or exists
+		$api_key = \Config::get('materia.open_ai.api_key');
+		if (empty($api_key))
+		{
+			return [
+				'msg' => 'API key not set',
+				'generable' => false
+			];
+		}
+
+		try {
+			$client = \OpenAI::client($api_key);
+		} catch (\Exception $e) {
+			// return an error for more descriptive handling on the front-end
+			return [
+				'msg' => $e->getMessage(),
+				'generable' => false
+			];
+		}
+
+		return [
+			'msg' => 'Widget is generable',
+			'generable' => true
+		];
+	}
+
 	/**
 	 * Generates a question set based on a given instance ID, topic, and whether to include images.
 	 * @param object $input The input object containing the instance ID, topic, and whether to include images
@@ -846,33 +894,34 @@ class Api_V1
 	 */
 	static public function question_set_generate($input)
 	{
-		// validate input
 		$inst_id = $input->inst_id;
 		$topic = $input->topic;
+		$include_images = $input->include_images;
+		$num_questions = $input->num_questions;
+		$build_off_existing = $input->build_off_existing;
+
+		// validate instance
+		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+		if ( ! static::question_set_generable($inst_id)['generable']) return Msg::failure('Unable to generate question set for this widget.');
 
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
-
 		// count words in topic
 		$topic_words = explode(' ', $topic);
 		if (count($topic_words) < 3) return new Msg(Msg::ERROR, 'Topic must be at least 3 words long');
 
-		$include_images = $input->include_images;
-
-		$num_questions = $input->num_questions;
+		// validate number of questions
 		if ($num_questions < 1) $num_questions = 8;
-
-		$build_off_existing = $input->build_off_existing;
 
 		\Log::info('num_questions: '.$num_questions);
 		\Log::info('num_questions to string: '.strval($num_questions));
 		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
 
-		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-
 		$widget_name = '';
+
+		// time for logging
 		$start_time = microtime(true);
 		$time_elapsed_secs = 0;
 
@@ -888,11 +937,11 @@ class Api_V1
 
 			if ($include_images)
 			{
-				$text = $text."Do not use real names. In every asset or assets field in new questions, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be random.\n{$qset_text}";
+				$text = $text."Do not use real names. In every asset or assets field in new questions, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be NULL.\n{$qset_text}";
 			}
 			else
 			{
-				$text = $text."Leave the asset fields empty. ID's must be random.\n{$qset_text}";
+				$text = $text."Leave the asset fields empty. ID's must be NULL.\n{$qset_text}";
 			}
 		}
 		else
@@ -912,7 +961,7 @@ class Api_V1
 			$qset_text = json_encode($demo_qset->data);
 
 			// non-image prompt
-			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions. IDs must be random.";
+			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions. IDs must be NULL.";
 
 			// image prompt
 			if ($include_images)

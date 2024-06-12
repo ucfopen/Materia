@@ -1133,6 +1133,23 @@ class Test_Api_V1 extends \Basetest
 	}
 
 	// BS to pass
+	public function test_question_set_generable()
+	{
+		// ======= AS AUTHOR =======
+		$this->_as_author();
+		$widget = $this->make_disposable_widget();
+		$title = "Pixar Films";
+		$question = "What was Pixar's first film?";
+		$answer = "Toy Story";
+		$qset = $this->create_new_qset($question, $answer);
+		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
+		$inst_id = $instance->id;
+		$output = Api_V1::question_set_generable($inst_id);
+		$this->assertFalse($output['generable']);
+
+	}
+
+	// BS to pass
 	public function test_question_set_generate()
 	{
 		// ======= AS NO ONE ========

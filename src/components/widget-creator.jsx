@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiGetGenerable} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -39,7 +39,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		popupState: null,
 		returnUrl: null,
 		returnLocation: 'Widget Catalog',
-		directUploadMediaFile: null
+		directUploadMediaFile: null,
+		canGenerateQset: false
 	})
 
 	const [alertDialog, setAlertDialog] = useState({
@@ -133,6 +134,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		},
 		onError: (error) => {
 			onInitFail(error)
+		}
+	})
+
+	// verify whether a question generator can be used
+	useQuery({
+		queryKey: ['generable', instance.id],
+		queryFn: () => apiGetGenerable(instance.id),
+		enabled: !!instIdRef.current,
+		staleTime: Infinity,
+		onError: (err) => {
+			setCreatorState({...creatorState, canGenerateQset: false})
+		},
+		onSuccess: (data) => {
+			setCreatorState({...creatorState, canGenerateQset: data.generable})
 		}
 	})
 
@@ -718,8 +733,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
-				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
-				{ instance.id ? <a id="generateLink" onClick={showQuestionGenerator}>Generate Questions...</a> : <></> }
+				<a id="importLink" onClick={showQuestionImporter}>Import</a>
+				{ creatorState.canGenerateQset ? <a id="generateLink" onClick={showQuestionGenerator}>Generate</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>
 				<button id="creatorPublishBtn"

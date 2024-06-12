@@ -18,6 +18,8 @@
 		"css/qset-history.css",
 		"js/question-importer.js",
 		"css/question-importer.css",
+		"js/qset-generator.js",
+		"css/qset-generator.css",
 		"js/guides.js",
 		"css/guides.css",
 		"js/scores.js",
