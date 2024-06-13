@@ -5,6 +5,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -21,9 +22,12 @@ class Migration(migrations.Migration):
         from django.contrib.auth.models import User
 
         import logging
-        logger = logging.getLogger('django')
 
-        logger.info("Deleting potentially invalid rows to avoid integrity errors in foreign keys")
+        logger = logging.getLogger("django")
+
+        logger.info(
+            "Deleting potentially invalid rows to avoid integrity errors in foreign keys"
+        )
         OldDateRange = apps.get_model("core", "DateRange")
         OldLogActivity = apps.get_model("core", "LogActivity")
         OldLogPlay = apps.get_model("core", "LogPlay")
@@ -45,70 +49,102 @@ class Migration(migrations.Migration):
         # Question -> User via user_id
         invalid_question_rows = OldQuestion.objects.exclude(user_id__in=all_user_ids)
         for invalid_question in invalid_question_rows:
-            logger.info(f"deleting Question row {invalid_question.id} without matching User {invalid_question.user_id}")
+            logger.info(
+                f"deleting Question row {invalid_question.id} without matching User {invalid_question.user_id}"
+            )
             invalid_question.delete()
 
         # all Question rows should be valid by now
         all_question_ids = OldQuestion.objects.values_list("id", flat=True)
 
         # WidgetInstance -> User via published_by
-        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(published_by__in=all_user_ids)
+        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(
+            published_by__in=all_user_ids
+        )
         for invalid_widget_instance in invalid_widget_instance_rows:
-            logger.info(f"deleting WidgetInstance row {invalid_widget_instance.id} without matching published_by User {invalid_widget_instance.published_by}")
+            logger.info(
+                f"deleting WidgetInstance row {invalid_widget_instance.id} without matching published_by User {invalid_widget_instance.published_by}"
+            )
             invalid_widget_instance.delete()
 
         # WidgetInstance -> User via user_id
-        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(user_id__in=all_user_ids)
+        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(
+            user_id__in=all_user_ids
+        )
         for invalid_widget_instance in invalid_widget_instance_rows:
-            logger.info(f"deleting WidgetInstance row {invalid_widget_instance.id} without matching user_id User {invalid_widget_instance.user_id}")
+            logger.info(
+                f"deleting WidgetInstance row {invalid_widget_instance.id} without matching user_id User {invalid_widget_instance.user_id}"
+            )
             invalid_widget_instance.delete()
 
         # WidgetInstance -> Widget via widget_id
-        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(widget_id__in=all_widget_ids)
+        invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(
+            widget_id__in=all_widget_ids
+        )
         for invalid_widget_instance in invalid_widget_instance_rows:
-            logger.info(f"deleting WidgetInstance row {invalid_widget_instance.id} without matching Widget {invalid_widget_instance.widget_id}")
+            logger.info(
+                f"deleting WidgetInstance row {invalid_widget_instance.id} without matching Widget {invalid_widget_instance.widget_id}"
+            )
             invalid_widget_instance.delete()
 
         # all WidgetInstance rows should be valid by now
         all_instance_ids = OldWidgetInstance.objects.values_list("id", flat=True)
 
         # WidgetQset -> WidgetInstance via inst_id
-        invalid_widget_qset_rows = OldWidgetQset.objects.exclude(inst_id__in=all_instance_ids)
+        invalid_widget_qset_rows = OldWidgetQset.objects.exclude(
+            inst_id__in=all_instance_ids
+        )
         for invalid_widget_qset in invalid_widget_qset_rows:
-            logger.info(f"deleting WidgetQset row {invalid_widget_qset.id} without matching WidgetInstance {invalid_widget_qset.inst_id}")
+            logger.info(
+                f"deleting WidgetQset row {invalid_widget_qset.id} without matching WidgetInstance {invalid_widget_qset.inst_id}"
+            )
             invalid_widget_qset.delete()
 
         # all WidgetQset rows should be valid by now
         all_qset_ids = OldWidgetQset.objects.values_list("id", flat=True)
 
         # LogActivity -> User via user_id
-        invalid_log_activity_rows = OldLogActivity.objects.exclude(user_id__in=all_user_ids)
+        invalid_log_activity_rows = OldLogActivity.objects.exclude(
+            user_id__in=all_user_ids
+        )
         for invalid_log_activity in invalid_log_activity_rows:
-            logger.info(f"deleting LogActivity row {invalid_log_activity.id} without matching User {invalid_log_activity.user_id}")
+            logger.info(
+                f"deleting LogActivity row {invalid_log_activity.id} without matching User {invalid_log_activity.user_id}"
+            )
             invalid_log_activity.delete()
 
         # LogPlay -> WidgetInstance via inst_id
         invalid_log_play_rows = OldLogPlay.objects.exclude(inst_id__in=all_instance_ids)
         for invalid_log_play in invalid_log_play_rows:
-            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching WidgetInstance {invalid_log_play.inst_id}")
+            logger.info(
+                f"deleting LogPlay row {invalid_log_play.id} without matching WidgetInstance {invalid_log_play.inst_id}"
+            )
             invalid_log_play.delete()
 
         # LogPlay -> WidgetQset via qset_id
         invalid_log_play_rows = OldLogPlay.objects.exclude(qset_id__in=all_qset_ids)
         for invalid_log_play in invalid_log_play_rows:
-            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching WidgetQset {invalid_log_play.qset_id}")
+            logger.info(
+                f"deleting LogPlay row {invalid_log_play.id} without matching WidgetQset {invalid_log_play.qset_id}"
+            )
             invalid_log_play.delete()
 
         # LogPlay -> DateRange via semester_id
-        invalid_log_play_rows = OldLogPlay.objects.exclude(semester__in=all_semester_ids)
+        invalid_log_play_rows = OldLogPlay.objects.exclude(
+            semester__in=all_semester_ids
+        )
         for invalid_log_play in invalid_log_play_rows:
-            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching DateRange {invalid_log_play.semester}")
+            logger.info(
+                f"deleting LogPlay row {invalid_log_play.id} without matching DateRange {invalid_log_play.semester}"
+            )
             invalid_log_play.delete()
 
         # LogPlay -> User via user_id
         invalid_log_play_rows = OldLogPlay.objects.exclude(user_id__in=all_user_ids)
         for invalid_log_play in invalid_log_play_rows:
-            logger.info(f"deleting LogPlay row {invalid_log_play.id} without matching User {invalid_log_play.user_id}")
+            logger.info(
+                f"deleting LogPlay row {invalid_log_play.id} without matching User {invalid_log_play.user_id}"
+            )
             invalid_log_play.delete()
 
         all_play_ids = OldLogPlay.objects.values_list("id", flat=True)
@@ -116,60 +152,91 @@ class Migration(migrations.Migration):
         # Lti -> WidgetInstance via item_id
         invalid_lti_rows = OldLti.objects.exclude(item_id__in=all_instance_ids)
         for invalid_lti in invalid_lti_rows:
-            logger.info(f"deleting Lti row {invalid_lti.id} without matching WidgetInstance {invalid_lti.item_id}")
+            logger.info(
+                f"deleting Lti row {invalid_lti.id} without matching WidgetInstance {invalid_lti.item_id}"
+            )
             invalid_lti.delete()
 
         # Lti -> User via user_id
         invalid_lti_rows = OldLti.objects.exclude(user_id__in=all_user_ids)
         for invalid_lti in invalid_lti_rows:
-            logger.info(f"deleting Lti row {invalid_lti.id} without matching User {invalid_lti.user_id}")
+            logger.info(
+                f"deleting Lti row {invalid_lti.id} without matching User {invalid_lti.user_id}"
+            )
             invalid_lti.delete()
 
         # LogStorage -> WidgetInstance via inst_id
-        invalid_logstorage_rows = OldLogStorage.objects.exclude(inst_id__in=all_instance_ids)
+        invalid_logstorage_rows = OldLogStorage.objects.exclude(
+            inst_id__in=all_instance_ids
+        )
         for invalid_logstorage in invalid_logstorage_rows:
-            logger.info(f"deleting LogStorage row {invalid_logstorage.id} without matching WidgetInstance {invalid_logstorage.inst_id}")
+            logger.info(
+                f"deleting LogStorage row {invalid_logstorage.id} without matching WidgetInstance {invalid_logstorage.inst_id}"
+            )
             invalid_logstorage.delete()
 
         # LogStorage -> LogPlay via play_id
-        invalid_logstorage_rows = OldLogStorage.objects.exclude(play_id__in=all_play_ids)
+        invalid_logstorage_rows = OldLogStorage.objects.exclude(
+            play_id__in=all_play_ids
+        )
         for invalid_logstorage in invalid_logstorage_rows:
-            logger.info(f"deleting LogStorage row {invalid_logstorage.id} without matching LogPlay {invalid_logstorage.play_id}")
+            logger.info(
+                f"deleting LogStorage row {invalid_logstorage.id} without matching LogPlay {invalid_logstorage.play_id}"
+            )
             invalid_logstorage.delete()
 
         # LogStorage -> User via user_id
-        invalid_logstorage_rows = OldLogStorage.objects.exclude(user_id__in=all_user_ids)
+        invalid_logstorage_rows = OldLogStorage.objects.exclude(
+            user_id__in=all_user_ids
+        )
         for invalid_logstorage in invalid_logstorage_rows:
-            logger.info(f"deleting LogStorage row {invalid_logstorage.id} without matching User {invalid_logstorage.user_id}")
+            logger.info(
+                f"deleting LogStorage row {invalid_logstorage.id} without matching User {invalid_logstorage.user_id}"
+            )
             invalid_logstorage.delete()
 
         # MapQuestionToQset -> WidgetQset via qset_id
-        invalid_mapquestiontoqset_rows = OldMapQuestionToQset.objects.exclude(qset_id__in=all_qset_ids)
+        invalid_mapquestiontoqset_rows = OldMapQuestionToQset.objects.exclude(
+            qset_id__in=all_qset_ids
+        )
         for invalid_mapquestiontoqset in invalid_mapquestiontoqset_rows:
-            logger.info(f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching WidgetQset {invalid_mapquestiontoqset.qset_id}")
+            logger.info(
+                f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching WidgetQset {invalid_mapquestiontoqset.qset_id}"
+            )
             invalid_mapquestiontoqset.delete()
 
         # MapQuestionToQset -> Question via question_id
-        invalid_mapquestiontoqset_rows = OldMapQuestionToQset.objects.exclude(question_id__in=all_question_ids)
+        invalid_mapquestiontoqset_rows = OldMapQuestionToQset.objects.exclude(
+            question_id__in=all_question_ids
+        )
         for invalid_mapquestiontoqset in invalid_mapquestiontoqset_rows:
-            logger.info(f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching Question {invalid_mapquestiontoqset.question_id}")
+            logger.info(
+                f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching Question {invalid_mapquestiontoqset.question_id}"
+            )
             invalid_mapquestiontoqset.delete()
 
         # PermObjectToUser -> User via user_id
-        invalid_permobjectotouser_rows = OldPermObjectToUser.objects.exclude(user_id__in=all_user_ids)
+        invalid_permobjectotouser_rows = OldPermObjectToUser.objects.exclude(
+            user_id__in=all_user_ids
+        )
         for invalid_permobjectotouser in invalid_permobjectotouser_rows:
-            logger.info(f"deleting PermObjectToUser row {invalid_permobjectotouser.id} without matching User {invalid_permobjectotouser.user_id}")
+            logger.info(
+                f"deleting PermObjectToUser row {invalid_permobjectotouser.id} without matching User {invalid_permobjectotouser.user_id}"
+            )
             invalid_permobjectotouser.delete()
 
         # WidgetMetadata -> Widget via widget_id
-        invalid_widgetmetadata_rows = OldWidgetMetadata.objects.exclude(widget_id__in=all_widget_ids)
+        invalid_widgetmetadata_rows = OldWidgetMetadata.objects.exclude(
+            widget_id__in=all_widget_ids
+        )
         for invalid_widgetmetadata in invalid_widgetmetadata_rows:
-            logger.info(f"deleting WidgetMetadata row {invalid_widgetmetadata.id} without matching Widget {invalid_widgetmetadata.widget_id}")
+            logger.info(
+                f"deleting WidgetMetadata row {invalid_widgetmetadata.id} without matching Widget {invalid_widgetmetadata.widget_id}"
+            )
             invalid_widgetmetadata.delete()
 
     operations = [
         migrations.RunPython(clean_data),
-
         migrations.DeleteModel(
             name="Migration",
         ),
@@ -267,11 +334,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name="log",
-            name="visible",
-            field=models.BooleanField(),
-        ),
-        migrations.AlterField(
             model_name="logactivity",
             name="user_id",
             field=models.ForeignKey(
@@ -308,7 +370,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget_qset` MODIFY `id` bigint SIGNED AUTO_INCREMENT NOT NULL;",
-            "ALTER TABLE `widget_qset` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;"
+            "ALTER TABLE `widget_qset` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;",
         ),
         migrations.AlterField(
             model_name="logplay",
@@ -322,7 +384,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `date_range` MODIFY `id` bigint SIGNED AUTO_INCREMENT NOT NULL;",
-            "ALTER TABLE `date_range` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;"
+            "ALTER TABLE `date_range` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;",
         ),
         migrations.AlterField(
             model_name="logplay",
@@ -336,7 +398,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `log_play` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `log_play` MODIFY `user_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `log_play` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.AlterField(
             model_name="logplay",
@@ -350,7 +412,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `log_storage` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `log_storage` MODIFY `user_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `log_storage` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.AlterField(
             model_name="logstorage",
@@ -409,15 +471,15 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `map_question_to_qset` MODIFY `qset_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `map_question_to_qset` MODIFY `qset_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `map_question_to_qset` MODIFY `qset_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.RunSQL(
             "ALTER TABLE `map_question_to_qset` MODIFY `question_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `map_question_to_qset` MODIFY `question_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `map_question_to_qset` MODIFY `question_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.RunSQL(
             "ALTER TABLE `question` MODIFY `id` bigint SIGNED AUTO_INCREMENT NOT NULL;",
-            "ALTER TABLE `question` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;"
+            "ALTER TABLE `question` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;",
         ),
         migrations.AlterField(
             model_name="mapquestiontoqset",
@@ -449,11 +511,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="notification",
-            name="is_read",
-            field=models.BooleanField(),
-        ),
-        migrations.AlterField(
-            model_name="notification",
             name="item_type",
             field=models.IntegerField(null=True),
         ),
@@ -471,7 +528,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.AlterField(
             model_name="permobjecttouser",
@@ -580,19 +637,19 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget_instance` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `widget_instance` MODIFY `user_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `widget_instance` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget_instance` MODIFY `published_by` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `widget_instance` MODIFY `published_by` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `widget_instance` MODIFY `published_by` bigint UNSIGNED NOT NULL;",
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget_instance` MODIFY `widget_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `widget_instance` MODIFY `widget_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `widget_instance` MODIFY `widget_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget` MODIFY `id` bigint SIGNED AUTO_INCREMENT NOT NULL;",
-            "ALTER TABLE `widget` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;"
+            "ALTER TABLE `widget` MODIFY `id` bigint UNSIGNED AUTO_INCREMENT NOT NULL;",
         ),
         migrations.AlterField(
             model_name="widgetinstance",
@@ -628,7 +685,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget_metadata` MODIFY `widget_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `widget_metadata` MODIFY `widget_id` bigint UNSIGNED NOT NULL;"
+            "ALTER TABLE `widget_metadata` MODIFY `widget_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.AlterField(
             model_name="widgetmetadata",
