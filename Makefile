@@ -91,11 +91,14 @@ showmigrations: ## Show database migrations
 	@$(DOCKER_COMPOSE) run --rm python python manage.py showmigrations
 migrate: ## Run database migrations
 	@$(DOCKER_COMPOSE) run --rm python python manage.py migrate
-revertmigration: ## Reverts a specific migration. Example: make app=core migration=zero revertmigration
+migrate-to: ## Run migrations to a specific point. Example: make migrate-to app=core migration=zero
 	@$(DOCKER_COMPOSE) run --rm python python manage.py migrate $(app) $(migration)
 
 shell: ## Run shell in Django context
 	@$(DOCKER_COMPOSE) run --rm python python manage.py shell
+
+manage: ## Run Django management command. Example: make manage command="showmigrations"
+	@$(DOCKER_COMPOSE) run --rm python python manage.py $(command)
 
 .PHONY: help
 help:

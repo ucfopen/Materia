@@ -77,12 +77,22 @@ class Log(models.Model):
         EMPTY = "", gettext_lazy("Empty")
         BUTTON_PRESS = "BUTTON_PRESS", gettext_lazy("Button Press")
         ERROR_GENERAL = "ERROR_GENERAL", gettext_lazy("General Error")
-        ERROR_TIME_VALIDATION = "ERROR_TIME_VALIDATION", gettext_lazy("Time Validation Error")
+        ERROR_TIME_VALIDATION = "ERROR_TIME_VALIDATION", gettext_lazy(
+            "Time Validation Error"
+        )
         KEY_PRESS = "KEY_PRESS", gettext_lazy("Key Press")
-        SCORE_ACTIVITY_FROM_CLIENT = "SCORE_ACTIVITY_FROM_CLIENT", gettext_lazy("Client Score Activity")
-        SCORE_FINAL_FROM_CLIENT = "SCORE_FINAL_FROM_CLIENT", gettext_lazy("Final Client Score")
-        SCORE_QUESTION_ANSWERED = "SCORE_QUESTION_ANSWERED", gettext_lazy("Question Answered")
-        SCORE_WIDGET_INTERACTION = "SCORE_WIDGET_INTERACTION", gettext_lazy("Widget Score Interaction")
+        SCORE_ACTIVITY_FROM_CLIENT = "SCORE_ACTIVITY_FROM_CLIENT", gettext_lazy(
+            "Client Score Activity"
+        )
+        SCORE_FINAL_FROM_CLIENT = "SCORE_FINAL_FROM_CLIENT", gettext_lazy(
+            "Final Client Score"
+        )
+        SCORE_QUESTION_ANSWERED = "SCORE_QUESTION_ANSWERED", gettext_lazy(
+            "Question Answered"
+        )
+        SCORE_WIDGET_INTERACTION = "SCORE_WIDGET_INTERACTION", gettext_lazy(
+            "Widget Score Interaction"
+        )
         SCORE_PARTICIPATION = "SCORE_PARTICIPATION", gettext_lazy("Participation Score")
         WIDGET_CORE_INIT = "WIDGET_CORE_INIT", gettext_lazy("Widget Initialization")
         WIDGET_END = "WIDGET_END", gettext_lazy("Widget End")
@@ -106,7 +116,7 @@ class Log(models.Model):
         blank=True,
         null=True,
         choices=LogType.choices,
-        default=LogType.EMPTY
+        default=LogType.EMPTY,
     )
     # typically contains internal qset IDs for questions, may contain 0, may contain nothing
     item_id = models.CharField(max_length=255)
@@ -114,7 +124,6 @@ class Log(models.Model):
     value = models.CharField(max_length=255)
     created_at = models.IntegerField()  # consider converting to date field
     game_time = models.IntegerField()
-    visible = models.BooleanField()  # was previously CharField, enum in DB
     ip = models.CharField(max_length=20)
 
     created_at_dt = models.DateTimeField(default=datetime.now)
@@ -139,7 +148,7 @@ class LogActivity(models.Model):
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
 
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
@@ -162,10 +171,7 @@ class LogActivity(models.Model):
 
 
 class LogPlay(models.Model):
-    AUTH_CHOICES = [
-        ("", ""),
-        ("lti", "lti")
-    ]
+    AUTH_CHOICES = [("", ""), ("lti", "lti")]
 
     id = models.CharField(primary_key=True, max_length=100, db_collation="utf8_bin")
     instance = models.ForeignKey(
@@ -182,7 +188,7 @@ class LogPlay(models.Model):
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
     ip = models.CharField(max_length=20)
     is_complete = models.BooleanField()  # was previously CharField, enum in DB
@@ -238,7 +244,7 @@ class LogStorage(models.Model):
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
     created_at = models.PositiveIntegerField()
     name = models.CharField(max_length=64)
@@ -271,7 +277,7 @@ class Lti(models.Model):
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
     name = models.CharField(max_length=255, blank=True, null=True)
     context_id = models.CharField(max_length=255, blank=True, null=True)
@@ -342,7 +348,7 @@ class Notification(models.Model):
         on_delete=models.SET_NULL,
         db_column="from_id",
         blank=True,
-        null=True
+        null=True,
     )
     to_id = models.ForeignKey(
         User,
@@ -350,7 +356,7 @@ class Notification(models.Model):
         on_delete=models.SET_NULL,
         db_column="to_id",
         blank=True,
-        null=True
+        null=True,
     )
     item_type = models.IntegerField(null=True)
     # this refers to a widget instance ID
@@ -360,8 +366,6 @@ class Notification(models.Model):
     # is_email_sent = models.CharField(max_length=1)  # convert to boolean field
     is_email_sent = models.BooleanField()  # was previously CharField, enum in DB
     created_at = models.IntegerField()
-    # is_read = models.CharField(max_length=1)  # convert to boolean field
-    is_read = models.BooleanField()  # was previously CharField, enum in DB
     subject = models.CharField(max_length=511)
     # consider deleting this column & pulling the avatar from relevant user metadata just in time
     avatar = models.CharField(max_length=511)
@@ -389,7 +393,7 @@ class PermObjectToUser(models.Model):
         (1, "visible/view scores"),
         (30, "full"),
         (85, "support user"),
-        (90, "super user")
+        (90, "super user"),
     ]
     # Needs primary key
     id = models.BigAutoField(primary_key=True)
@@ -401,7 +405,7 @@ class PermObjectToUser(models.Model):
         on_delete=models.SET_NULL,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
     perm = models.IntegerField(choices=PERM_CHOICES)
     # appears to be a generic relationship combined with object_type
@@ -432,9 +436,7 @@ class Question(models.Model):
     data = models.TextField(blank=True, null=True)
     hash = models.CharField(unique=True, max_length=32)
     qset = models.ManyToManyField(
-        "WidgetQset",
-        through=MapQuestionToQset,
-        related_name='questions'
+        "WidgetQset", through=MapQuestionToQset, related_name="questions"
     )
 
     created_at_dt = models.DateTimeField(default=datetime.now)
@@ -470,7 +472,7 @@ class Widget(models.Model):
     SCORE_TYPE_CHOICES = [
         ("SERVER", "widget is scored on the server"),
         ("CLIENT", "widget is scored on the client"),
-        ("SERVER-CLIENT", "widget is partially scored in both server and client")
+        ("SERVER-CLIENT", "widget is partially scored in both server and client"),
     ]
 
     id = models.BigAutoField(primary_key=True)

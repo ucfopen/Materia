@@ -75,7 +75,6 @@ class Migration(migrations.Migration):
                 ('value', models.CharField(max_length=255)),
                 ('created_at', models.IntegerField()),
                 ('game_time', models.IntegerField()),
-                ('visible', models.CharField(max_length=1)),
                 ('ip', models.CharField(max_length=20)),
             ],
             options={
@@ -202,7 +201,6 @@ class Migration(migrations.Migration):
                 ('item_id', models.CharField(db_collation='utf8_bin', max_length=100)),
                 ('is_email_sent', models.CharField(max_length=1)),
                 ('created_at', models.IntegerField()),
-                ('is_read', models.CharField(max_length=1)),
                 ('subject', models.CharField(max_length=511)),
                 ('avatar', models.CharField(max_length=511)),
                 ('updated_at', models.IntegerField()),
