@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
         all_widget_ids = OldWidget.objects.values_list("id", flat=True)
 
         # Question -> User via user_id
-        invalid_question_rows = OldQuestion.objects.exclude(user_id__in=all_user_ids)
+        invalid_question_rows = OldQuestion.objects.exclude(user_id__in=all_user_ids).exclude(user_id=None)
         for invalid_question in invalid_question_rows:
             logger.info(
                 f"deleting Question row {invalid_question.id} without matching User {invalid_question.user_id}"
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
         # WidgetInstance -> User via published_by
         invalid_widget_instance_rows = OldWidgetInstance.objects.exclude(
             published_by__in=all_user_ids
-        )
+        ).exclude(published_by=None)
         for invalid_widget_instance in invalid_widget_instance_rows:
             logger.info(
                 f"deleting WidgetInstance row {invalid_widget_instance.id} without matching published_by User {invalid_widget_instance.published_by}"
@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
         # LogActivity -> User via user_id
         invalid_log_activity_rows = OldLogActivity.objects.exclude(
             user_id__in=all_user_ids
-        )
+        ).exclude(user_id=None)
         for invalid_log_activity in invalid_log_activity_rows:
             logger.info(
                 f"deleting LogActivity row {invalid_log_activity.id} without matching User {invalid_log_activity.user_id}"
@@ -140,7 +140,7 @@ class Migration(migrations.Migration):
             invalid_log_play.delete()
 
         # LogPlay -> User via user_id
-        invalid_log_play_rows = OldLogPlay.objects.exclude(user_id__in=all_user_ids)
+        invalid_log_play_rows = OldLogPlay.objects.exclude(user_id__in=all_user_ids).exclude(user_id=None)
         for invalid_log_play in invalid_log_play_rows:
             logger.info(
                 f"deleting LogPlay row {invalid_log_play.id} without matching User {invalid_log_play.user_id}"
@@ -158,7 +158,7 @@ class Migration(migrations.Migration):
             invalid_lti.delete()
 
         # Lti -> User via user_id
-        invalid_lti_rows = OldLti.objects.exclude(user_id__in=all_user_ids)
+        invalid_lti_rows = OldLti.objects.exclude(user_id__in=all_user_ids).exclude(user_id=None)
         for invalid_lti in invalid_lti_rows:
             logger.info(
                 f"deleting Lti row {invalid_lti.id} without matching User {invalid_lti.user_id}"
@@ -188,7 +188,7 @@ class Migration(migrations.Migration):
         # LogStorage -> User via user_id
         invalid_logstorage_rows = OldLogStorage.objects.exclude(
             user_id__in=all_user_ids
-        )
+        ).exclude(user_id=None)
         for invalid_logstorage in invalid_logstorage_rows:
             logger.info(
                 f"deleting LogStorage row {invalid_logstorage.id} without matching User {invalid_logstorage.user_id}"
@@ -218,7 +218,7 @@ class Migration(migrations.Migration):
         # PermObjectToUser -> User via user_id
         invalid_permobjectotouser_rows = OldPermObjectToUser.objects.exclude(
             user_id__in=all_user_ids
-        )
+        ).exclude(user_id=None)
         for invalid_permobjectotouser in invalid_permobjectotouser_rows:
             logger.info(
                 f"deleting PermObjectToUser row {invalid_permobjectotouser.id} without matching User {invalid_permobjectotouser.user_id}"
@@ -341,6 +341,8 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="activity_logs",
                 to=settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
             ),
         ),
         migrations.AlterField(
@@ -397,8 +399,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunSQL(
-            "ALTER TABLE `log_play` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `log_play` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
+            "ALTER TABLE `log_play` MODIFY `user_id` bigint SIGNED;",
+            "ALTER TABLE `log_play` MODIFY `user_id` bigint UNSIGNED;",
         ),
         migrations.AlterField(
             model_name="logplay",
@@ -408,11 +410,13 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="play_logs",
                 to=settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
             ),
         ),
         migrations.RunSQL(
-            "ALTER TABLE `log_storage` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `log_storage` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
+            "ALTER TABLE `log_storage` MODIFY `user_id` bigint SIGNED;",
+            "ALTER TABLE `log_storage` MODIFY `user_id` bigint UNSIGNED;",
         ),
         migrations.AlterField(
             model_name="logstorage",
@@ -447,6 +451,8 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="storage_logs",
                 to=settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
             ),
         ),
         migrations.AlterField(
@@ -467,6 +473,8 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="lti_embeds",
                 to=settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
             ),
         ),
         migrations.RunSQL(
@@ -527,8 +535,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunSQL(
-            "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
+            "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint SIGNED;",
+            "ALTER TABLE `perm_object_to_user` MODIFY `user_id` bigint UNSIGNED;",
         ),
         migrations.AlterField(
             model_name="permobjecttouser",
@@ -538,6 +546,8 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="object_permissions",
                 to=settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
             ),
         ),
         migrations.AlterField(
@@ -548,6 +558,8 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="questions",
                 to=settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
             ),
         ),
         migrations.AlterField(
@@ -640,8 +652,8 @@ class Migration(migrations.Migration):
             "ALTER TABLE `widget_instance` MODIFY `user_id` bigint UNSIGNED NOT NULL;",
         ),
         migrations.RunSQL(
-            "ALTER TABLE `widget_instance` MODIFY `published_by` bigint SIGNED NOT NULL;",
-            "ALTER TABLE `widget_instance` MODIFY `published_by` bigint UNSIGNED NOT NULL;",
+            "ALTER TABLE `widget_instance` MODIFY `published_by` bigint SIGNED;",
+            "ALTER TABLE `widget_instance` MODIFY `published_by` bigint UNSIGNED;",
         ),
         migrations.RunSQL(
             "ALTER TABLE `widget_instance` MODIFY `widget_id` bigint SIGNED NOT NULL;",

@@ -47,6 +47,9 @@ class Command(base.BaseCommand):
         # Look to add is_dismissed in the future
         cursor.execute("ALTER TABLE `notification` DROP COLUMN `is_read`;")
 
+        # Remove an existing unique constraint so that Django can add its own in the correct way
+        cursor.execute("ALTER TABLE `date_range` DROP INDEX `semester_year_start_at_end_at`;")
+
         cursor.close()
 
         # convert all 0/1 enums to VARCHAR

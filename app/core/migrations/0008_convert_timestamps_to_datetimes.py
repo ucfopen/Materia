@@ -21,85 +21,106 @@ class Migration(migrations.Migration):
             from django.utils.timezone import make_aware
             return make_aware(datetime.fromtimestamp(ts))
 
+        logger.info("Converting DateRange timestamps to datetimes")
         for dr in DateRange.objects.all():
             dr.start_at_dt = timestamp_to_datetime(dr.start_at)
             dr.end_at_dt = timestamp_to_datetime(dr.end_at)
             dr.save()
 
+        logger.info("Converting Log timestamps to datetimes")
         for log in Log.objects.all():
             log.created_at_dt = timestamp_to_datetime(log.created_at)
             log.save()
 
+        logger.info("Converting LogActivity timestamps to datetimes")
         for la in LogActivity.objects.all():
             la.created_at_dt = timestamp_to_datetime(la.created_at)
             la.save()
 
+        logger.info("Converting LogPlay timestamps to datetimes")
         for lp in LogPlay.objects.all():
             lp.created_at_dt = timestamp_to_datetime(lp.created_at)
             lp.save()
 
+        logger.info("Converting LogStorage timestamps to datetimes")
         for ls in LogStorage.objects.all():
             ls.created_at_dt = timestamp_to_datetime(ls.created_at)
             ls.save()
 
+        logger.info("Converting Lti timestamps to datetimes")
         for lti in Lti.objects.all():
             lti.created_at_dt = timestamp_to_datetime(lti.created_at)
             lti.updated_at_dt = timestamp_to_datetime(lti.updated_at)
             lti.save()
 
+        logger.info("Converting Notification timestamps to datetimes")
         for notification in Notification.objects.all():
             notification.created_at_dt = timestamp_to_datetime(notification.created_at)
             notification.updated_at_dt = timestamp_to_datetime(notification.updated_at)
             notification.save()
 
+        logger.info("Converting PermObjectToUser timestamps to datetimes")
         for potu in PermObjectToUser.objects.all():
             potu.expires_at_dt = timestamp_to_datetime(potu.expires_at)
             potu.save()
 
+        logger.info("Converting Question timestamps to datetimes")
         for question in Question.objects.all():
             question.created_at_dt = timestamp_to_datetime(question.created_at)
             question.save()
 
     def translate_datetimes(apps, schema_editor):
+        import logging
+        logger = logging.getLogger('django')
+
         def datetime_to_timestamp(dt):
             from datetime import datetime
             return datetime.timestamp(dt)
 
+        logger.info("Converting DateRange datetimes to timestamps")
         for dr in DateRange.objects.all():
             dr.start_at = datetime_to_timestamp(dr.start_at_dt)
             dr.end_at = datetime_to_timestamp(dr.end_at_dt)
             dr.save()
 
+        logger.info("Converting Log datetimes to timestamps")
         for log in Log.objects.all():
             log.created_at = datetime_to_timestamp(log.created_at_dt)
             log.save()
 
+        logger.info("Converting LogActivity datetimes to timestamps")
         for la in LogActivity.objects.all():
             la.created_at = datetime_to_timestamp(la.created_at_dt)
             la.save()
 
+        logger.info("Converting LogPlay datetimes to timestamps")
         for lp in LogPlay.objects.all():
             lp.created_at = datetime_to_timestamp(lp.created_at_dt)
             lp.save()
 
+        logger.info("Converting LogStorage datetimes to timestamps")
         for ls in LogStorage.objects.all():
             ls.created_at = datetime_to_timestamp(ls.created_at_dt)
             ls.save()
 
+        logger.info("Converting Lti datetimes to timestamps")
         for lti in Lti.objects.all():
             lti.created_at = datetime_to_timestamp(lti.created_at_dt)
             lti.updated_at = datetime_to_timestamp(lti.updated_at_dt)
             lti.save()
 
+        logger.info("Converting Notification datetimes to timestamps")
         for notification in Notification.objects.all():
             notification.created_at = datetime_to_timestamp(notification.created_at_dt)
             notification.updated_at = datetime_to_timestamp(notification.updated_at_dt)
             notification.save()
 
+        logger.info("Converting PermObjectToUser datetimes to timestamps")
         for potu in PermObjectToUser.objects.all():
             potu.expires_at = datetime_to_timestamp(potu.expires_at_dt)
             potu.save()
 
+        logger.info("Converting Question datetimes to timestamps")
         for question in Question.objects.all():
             question.created_at = datetime_to_timestamp(question.created_at_dt)
             question.save()
