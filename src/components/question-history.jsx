@@ -57,6 +57,7 @@ const QuestionHistory = () => {
 				if (id == save.id) {
 					return window.parent.Materia.Creator.onQsetReselectionComplete(
 						JSON.stringify(save.data),
+						false, // is generated
 						save.version,
 						save.created_at
 					)
