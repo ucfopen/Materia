@@ -347,7 +347,7 @@ export const apiGetQuestionSet = (instId, playId = null) => {
 }
 
 export const apiGetGenerable = instId => {
-	return fetchGet('/api/json/question_set_generable/', ({ body: `data=${formatFetchBody([instId])}` }))
+	return fetchGet('/api/json/question_set_is_generable/', ({ body: `data=${formatFetchBody([instId])}` }))
 }
 
 export const apiGenerateQset = (inst_id, topic, include_images, num_questions, build_off_existing) => {

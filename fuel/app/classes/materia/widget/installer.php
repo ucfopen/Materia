@@ -473,10 +473,10 @@ class Widget_Installer
 
 		// 3. make sure the general section is correct
 		$general = $manifest_data['general'];
-		static::validate_keys_exist($general, ['name', 'height', 'width', 'is_storage_enabled', 'in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'is_generable', 'api_version']);
+		static::validate_keys_exist($general, ['name', 'height', 'width', 'is_storage_enabled', 'in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'api_version']);
 
 		static::validate_numeric_values($general, ['width', 'height']);
-		static::validate_boolean_values($general, ['in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'is_storage_enabled', 'is_generable']);
+		static::validate_boolean_values($general, ['in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'is_storage_enabled']);
 		// make sure the name matches. we ignore any "_12345678" type suffix, since this would have been added
 		// by extracting the zip, assuming this widget was originally from a zip.
 		basename(preg_replace('/_[0-9]+$/', '', $dir));
@@ -547,7 +547,7 @@ class Widget_Installer
 			'is_editable'         => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_editable']),
 			'is_scorable'         => Util_Validator::cast_to_bool_enum($manifest_data['score']['is_scorable']),
 			'in_catalog'          => Util_Validator::cast_to_bool_enum($manifest_data['general']['in_catalog']),
-			'is_generable'        => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_generable']),
+			'is_generable'        => isset($manifest_data['general']['is_generable']) ? Util_Validator::cast_to_bool_enum($manifest_data['general']['is_generable']) : '0',
 			'clean_name'          => $clean_name,
 			'api_version'         => (string)(int)$manifest_data['general']['api_version'],
 			'package_hash'        => $package_hash,

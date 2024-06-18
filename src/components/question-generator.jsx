@@ -41,7 +41,7 @@ const QsetGenerator = () => {
             build_off_existing: buildOffExisting,
             successFunc: (qset) => {
                 let created_at = new Date().toISOString()
-                window.parent.Materia.Creator.onQsetHistorySelectionComplete(JSON.stringify(qset), 1, created_at)
+                window.parent.Materia.Creator.onQsetReselectionComplete(JSON.stringify(qset), 1, created_at)
                 setLoading(false)
             },
             errorFunc: (err) => {
@@ -52,7 +52,7 @@ const QsetGenerator = () => {
         })
     }
 
-	const closeDialog = () => window.parent.Materia.Creator.onQsetHistorySelectionComplete(null)
+	const closeDialog = () => window.parent.Materia.Creator.onQsetReselectionComplete(null)
 
     const validateTopic = () => {
         let words_in_topic = topic.split(' ')
@@ -109,7 +109,7 @@ const QsetGenerator = () => {
                 <div id="topic-field">
                     <label htmlFor="topic">Topic</label>
                     <span className="error">{topicError}</span>
-                    <input type="text" id="topic" placeholder="Enter a topic" onChange={onTopicChange}/>
+                    <input type="text" id="topic" placeholder="Enter a topic with more than three words" onChange={onTopicChange}/>
                 </div>
                 <div id="num-questions-field">
                     <label htmlFor="num-questions">Number of questions to generate</label>

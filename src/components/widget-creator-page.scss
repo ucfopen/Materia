@@ -52,7 +52,7 @@ a {
 	&:before {
 		content: 'Editing';
 		// background: #b944cc;
-	
+
 		position: absolute;
 		bottom: 0;
 		left: 0;
@@ -63,7 +63,7 @@ a {
 		margin: 10px 0;
 
 		// border-right: solid 1px #aaa;
-	
+
 		font-size: 24px;
 		font-weight: bold;
 		// color: #ffffff;
@@ -103,7 +103,7 @@ a {
 	}
 }
 
-#qset-rollback-confirmation-bar {
+.confirmation-bar {
 	position: relative;
 	display: flex;
 	justify-content: space-around;
@@ -132,6 +132,7 @@ a {
 		padding: 14px 0;
 
 		font-size: 0.8em;
+		white-space: break-spaces;
 
 		span {
 			font-weight: bold;
@@ -155,6 +156,10 @@ a {
 			background: linear-gradient(#ffffff, #ffe5cc);
 		}
 	}
+}
+
+#qset-generation-confirmation-bar {
+	background-color: #10a37f;
 }
 
 .dot {
@@ -184,7 +189,7 @@ a {
 		margin: 15px 0;
 
 		background: none;
-		
+
 		font-size: 21px;
 		font-weight: 700;
 		color: #000000;
@@ -221,7 +226,7 @@ a {
 }
 
 .edit_button {
-	position: relative;	
+	position: relative;
 	display: inline-block;
 	margin: 10px 0 0 6px;
 

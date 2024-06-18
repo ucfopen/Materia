@@ -845,7 +845,7 @@ class Api_V1
 	 * @param string $inst_id The instance ID of the widget
 	 * @return bool Whether a question set can be generated
 	 */
-	static public function question_set_generable($inst_id)
+	static public function question_set_is_generable($inst_id)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
@@ -904,7 +904,7 @@ class Api_V1
 		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		if ( ! static::question_set_generable($inst_id)['generable']) return Msg::failure('Unable to generate question set for this widget.');
+		if ( ! static::question_set_is_generable($inst_id)['generable']) return Msg::failure('Unable to generate question set for this widget.');
 
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
@@ -919,7 +919,15 @@ class Api_V1
 		\Log::info('num_questions to string: '.strval($num_questions));
 		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
 
-		$widget_name = '';
+		// get the widget and demo instance
+		$widget = $inst->widget;
+		$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
+		if ( ! $demo) throw new \HttpNotFoundException;
+		$instance_name = $inst->name;
+		$widget_name = $widget->name;
+		$about = $widget->meta_data['about'];
+		$custom_prompt = $widget->meta_data['generation_prompt'][0];
+		\Log::info('Custom prompt: '.print_r($custom_prompt, true));
 
 		// time for logging
 		$start_time = microtime(true);
@@ -946,15 +954,6 @@ class Api_V1
 		}
 		else
 		{
-			// get the widget and demo instance
-			$widget = $inst->widget;
-			$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
-			if ( ! $demo) throw new \HttpNotFoundException;
-
-			// get the data to concatenate into the prompt
-			$instance_name = $inst->name;
-			$widget_name = $widget->name;
-			$about = $widget->meta_data['about'];
 			// get the demo.json from the demo instance
 			$demo_qset = static::question_set_get($widget->meta_data['demo']);
 			if ( ! $demo_qset) throw new \HttpNotFoundException;
@@ -966,12 +965,20 @@ class Api_V1
 			// image prompt
 			if ($include_images)
 			{
-				$text = $text."Do not use real names. Find the field storing image assets. This could be labeled as an asset, assets, image field or similar. Add a field to each asset titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system.\n{$qset_text}";
+				$text = $text."Do not use real names. Find the field storing image assets. This could be labeled as an asset, assets, image field or similar. Add a field to each asset titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system.";
 			}
 			else
 			{
-				$text = $text."Do not generate image-type questions/answers, only text-type questions/answers. Therefore, leave the asset fields empty for image, video, or audio questions/answers, but NOT text-type. If the 'materiaType' of an asset is 'text', create a field titled 'value' with the question/answer text insidet the asset object.\n{$qset_text}";
+				// $text = $text."Do not generate image-type questions/answers, only text-type questions/answers. Therefore, leave the asset fields empty for image, video, or audio questions/answers, but NOT text-type. If the 'materiaType' of an asset is 'text', create a field titled 'value' with the question/answer text insidet the asset object.\n{$qset_text}";
+				$text = $text."Leave asset fields empty for any type of media (image, video, or audio). If the 'materiaType' of an asset is 'text', create a field titled 'value' with the text inside the asset object.";
 			}
+
+			if ($custom_prompt && ! empty($custom_prompt))
+			{
+				$text = $text."Lastly, the following instructions apply to the {$widget->name} widget specifically and should take priority over any previous instructions: {$custom_prompt}";
+			}
+
+			$text = $text."\n{$qset_text}";
 		}
 
 		\Log::info('Prompt text: '.$text);

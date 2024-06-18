@@ -1133,7 +1133,7 @@ class Test_Api_V1 extends \Basetest
 	}
 
 	// BS to pass
-	public function test_question_set_generable()
+	public function test_question_set_is_generable()
 	{
 		// ======= AS AUTHOR =======
 		$this->_as_author();
@@ -1144,7 +1144,7 @@ class Test_Api_V1 extends \Basetest
 		$qset = $this->create_new_qset($question, $answer);
 		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
 		$inst_id = $instance->id;
-		$output = Api_V1::question_set_generable($inst_id);
+		$output = Api_V1::question_set_is_generable($inst_id);
 		$this->assertFalse($output['generable']);
 
 	}

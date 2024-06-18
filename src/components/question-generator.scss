@@ -1,9 +1,12 @@
 @import './include.scss';
 
 .generate {
+    border-radius: 5px;
+    margin: 10px;
+
     h1 {
-        background: #f1814b;
-        padding: 6px 10px;
+        background: #10a37f;
+        padding: 10px;
         margin: 0px;
         font-size: 1em;
         font-weight: bold;
@@ -14,12 +17,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 94vh;
+        height: 100vh;
         background-color: rgba(0, 0, 0, 0.5);
 
         backdrop-filter: blur(10px);
         position: absolute;
-        top: 2em;
+        top: 0;
         left: 0;
         width: 100%;
         z-index: 10;
