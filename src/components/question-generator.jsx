@@ -99,12 +99,13 @@ const QsetGenerator = () => {
 
     return (
         <div>
-            <h1>Generate Questions</h1>
+            <h1>Generate Questions (Beta Feature)</h1>
             {loading && <div className="loading">
                 <LoadingIcon/>
                 <p>Generating questions. Do not close this window.</p>
             </div>}
             <div id="generate_form">
+                <span><strong>This question generator is powered by AI, so errors in the generated content can occur</strong>. There will be an option after generation is complete to keep or revert all changes.</span>
                 <span className="error">{serverError}</span>
                 <div id="topic-field">
                     <label htmlFor="topic">Topic</label>
