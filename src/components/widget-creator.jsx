@@ -617,6 +617,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				} else {
 
 					requestSave('history')
+					console.log(qset)
 
 					let parsedQsetData = JSON.parse(qset)
 

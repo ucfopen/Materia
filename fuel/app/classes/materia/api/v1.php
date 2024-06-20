@@ -926,7 +926,8 @@ class Api_V1
 		$instance_name = $inst->name;
 		$widget_name = $widget->name;
 		$about = $widget->meta_data['about'];
-		$custom_prompt = $widget->meta_data['generation_prompt'][0];
+		$qset_version = 1;
+		$custom_prompt = isset($widget->meta_data['generation_prompt']) ? $widget->meta_data['generation_prompt'][0] : null;
 		\Log::info('Custom prompt: '.print_r($custom_prompt, true));
 
 		// time for logging
@@ -937,6 +938,7 @@ class Api_V1
 		{
 			$qset = static::question_set_get($inst_id);
 			if ( ! $qset) return new Msg(Msg::ERROR, 'No existing question set found');
+			$qset_version = $qset->version;
 
 			$qset_text = json_encode($qset->data);
 
@@ -945,17 +947,25 @@ class Api_V1
 
 			if ($include_images)
 			{
-				$text = $text."Do not use real names. In every asset or assets field in new questions, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be NULL.\n{$qset_text}";
+				$text = $text."Do not use real names. In every asset or assets field in new questions, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be NULL.";
 			}
 			else
 			{
-				$text = $text."Leave the asset fields empty. ID's must be NULL.\n{$qset_text}";
+				$text = $text."Leave the asset fields empty. ID's must be NULL.";
 			}
+
+			if ($custom_prompt && ! empty($custom_prompt))
+			{
+				$text = $text."Lastly, the following instructions apply to the {$widget->name} widget specifically: {$custom_prompt}";
+			}
+
+			$text = $text."\n{$qset_text}";
 		}
 		else
 		{
 			// get the demo.json from the demo instance
 			$demo_qset = static::question_set_get($widget->meta_data['demo']);
+			$qset_version = $demo_qset->version;
 			if ( ! $demo_qset) throw new \HttpNotFoundException;
 			$qset_text = json_encode($demo_qset->data);
 
@@ -975,7 +985,7 @@ class Api_V1
 
 			if ($custom_prompt && ! empty($custom_prompt))
 			{
-				$text = $text."Lastly, the following instructions apply to the {$widget->name} widget specifically and should take priority over any previous instructions: {$custom_prompt}";
+				$text = $text."Lastly, the following instructions apply to the {$widget->name} widget specifically: {$custom_prompt}";
 			}
 
 			$text = $text."\n{$qset_text}";
@@ -1117,7 +1127,10 @@ class Api_V1
 
 		\Log::info('Generated question set with assets: '.print_r(json_encode($question_set), true));
 
-		return $question_set;
+		return [
+			'qset' => $question_set,
+			'version' => $qset_version
+		];
 	}
 
 	/**

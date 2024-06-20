@@ -39,12 +39,12 @@ const QsetGenerator = () => {
             include_images: includeImages,
             num_questions: numQuestions,
             build_off_existing: buildOffExisting,
-            successFunc: (qset) => {
+            successFunc: (result) => {
                 let created_at = new Date().toISOString()
                 window.parent.Materia.Creator.onQsetReselectionComplete(
-                    JSON.stringify(qset),
+                    JSON.stringify(result.qset),
                     true,  // is generated
-                    1,
+                    result.version,
                     created_at
                 )
                 setLoading(false)
