@@ -152,7 +152,17 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": "./logfile.log",
-        }
+        },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
     },
-    "loggers": {"django": {"handlers": ["file"], "level": "INFO", "propagate": True}},
+    "loggers": {
+        "django": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "django.db": {
+            "handlers": ["file", "console"],
+            "level": "ERROR",  # change to DEBUG to see all queries
+        },
+    },
 }

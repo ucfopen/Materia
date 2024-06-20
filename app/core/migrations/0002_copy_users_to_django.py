@@ -3,6 +3,10 @@ from datetime import datetime
 from django.db import migrations, IntegrityError, transaction
 
 from django.contrib.auth.models import User as DjangoUser
+from django.utils.timezone import make_aware
+
+import pytz
+
 
 # from core.models import Users
 
@@ -30,8 +34,8 @@ def copy_users_to_django(apps, schema_editor):
 
     for fuel_user in FuelUsers.objects.all():
         # convert created_at and last_login to datetime
-        date_joined = datetime.fromtimestamp(fuel_user.created_at)
-        last_login = datetime.fromtimestamp(fuel_user.last_login)
+        date_joined = make_aware(datetime.fromtimestamp(fuel_user.created_at), pytz.utc)
+        last_login = make_aware(datetime.fromtimestamp(fuel_user.last_login), pytz.utc)
 
         if not fuel_user.username:
             fuel_user.username = f"{fuel_user.id}{fuel_user.first}{fuel_user.last}"
