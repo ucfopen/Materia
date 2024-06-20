@@ -5,3 +5,4 @@ setuptools==69.0.3
 sqlparse==0.4.4
 uWSGI==2.0.23
 wheel==0.42.0
+pytz==2024.1
