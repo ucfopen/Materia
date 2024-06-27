@@ -112,7 +112,7 @@ return [
 				'driver_class' => '\Materia\Widget_Asset_Storage_S3',
 				'endpoint'     => $_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? '', // set to url for testing endpoint
 				'region'       => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
-				'bucket'       => $_ENV['ASSET_STORAGE_S3_BUCKET'], // bucket to store original user uploads
+				'bucket'       => $_ENV['ASSET_STORAGE_S3_BUCKET'] ?? '', // bucket to store original user uploads
 				'subdir'       => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets
 				'secret_key'   => $_ENV['AWS_SECRET_ACCESS_KEY'] ?? $_ENV['ASSET_STORAGE_S3_SECRET'] ?? 'SECRET', // aws api secret key
 				'key'          => $_ENV['AWS_ACCESS_KEY_ID'] ?? $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY', // aws api key
