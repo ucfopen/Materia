@@ -66,8 +66,7 @@
         "vendor-dir": "fuel/vendor",
         "optimize-autoloader": true,
         "allow-plugins": {
-            "composer/installers": true,
-            "php-http/discovery": true
+            "composer/installers": true
         }
     },
     "extra": {
