@@ -56,10 +56,21 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		}
 		else
 		{
-			$s3->deleteObject([
-				'Bucket' => static::$_config['bucket'],
-				'Key' => $this->get_key_name($id, $size),
-			]);
+			try {
+				$s3->deleteObject([
+					'Bucket' => static::$_config['bucket'],
+					'Key' => $this->get_key_name($id, $size),
+				]);
+			} catch (\Exception $e) {
+				$error_code = '';
+				$source = '';
+				if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+				{
+					$error_code = $e->getAwsErrorCode();
+					$source = $e->getAwsErrorMessage();
+				}
+				\Log::error("S3: Failed to delete asset {$id} {$size}. {$error_code} {$source}");
+			}
 		}
 	}
 
@@ -73,7 +84,22 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	{
 		$s3 = $this->get_s3_client();
 
-		return $s3->doesObjectExist(static::$_config['bucket'], $this->get_key_name($id, $size));
+		try {
+			return $s3->doesObjectExistV2(
+				static::$_config['bucket'],
+				$this->get_key_name($id, $size)
+			);
+		} catch (\Exception $e) {
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to check if asset {$id} {$size} exists. {$error_code} {$source}");
+			return false;
+		}
 	}
 
 	/**
@@ -98,8 +124,17 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 			]);
 		} catch (\Exception $e)
 		{
-			throw new \Exception("Missing asset data for asset: {$id} {$size}");
+			$source = '';
+			$error_code = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to retrieve asset {$key}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to retrieve asset {$key}. {$error_code} {$source}");
 		}
+
 	}
 
 	/**
@@ -115,16 +150,33 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		// Force all uploads in development to have the same bucket sub-directory
 		$key = $this->get_key_name($asset->id, $size);
 
-		$s3 = $this->get_s3_client();
+		\Log::info("Storing asset data in s3: {$key} ({$asset->get_mime_type()})");
+		\Log::info("Asset data path: {$image_path}");
+		\Log::info("Size: {$size}");
+		\Log::info('Bucket: '.static::$_config['bucket']);
+		\Log::info("Asset file_size: {$asset->file_size}");
 
-		$result = $s3->putObject([
-			'ACL'        => 'public-read',
-			'Metadata'   => ['Content-Type' => $asset->get_mime_type()],
-			'Bucket'     => static::$_config['bucket'],
-			'Key'        => $key,
-			'SourceFile' => $image_path,
-			// 'Body'       => $image_data, // use instead of SourceFile to send data
-		]);
+		try {
+			$s3 = $this->get_s3_client();
+
+			$result = $s3->putObject([
+				'Metadata'   => ['Content-Type' => $asset->get_mime_type()],
+				'Bucket'     => static::$_config['bucket'],
+				'Key'        => $key,
+				'SourceFile' => $image_path,
+				// 'Body'       => $image_data, // use instead of SourceFile to send data
+			]);
+		} catch (\Exception $e) {
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to store asset {$key}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to store asset {$key}. {$error_code} {$source}");
+		}
 	}
 
 	/**
@@ -149,22 +201,30 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		if (static::$_s3_client) return static::$_s3_client;
 
 		$config = [
-			'endpoint'    => '',
+			'endpoint'    => static::$_config['endpoint'] ?? '',
 			'region'      => static::$_config['region'],
+			'force_path_style' => static::$_config['force_path_style'] ?? false,
 			'version'     => 'latest',
 			'credentials' => [
 				'key'    => static::$_config['key'],
 				'secret' => static::$_config['secret_key'],
+				'token'  => static::$_config['token'] ?? null,
 			]
 		];
 
-		// should we use a mock endpoint for testing?
-		if (static::$_config['endpoint'] !== false)
-		{
-			$config['endpoint'] = static::$_config['endpoint'];
+		try {
+			static::$_s3_client = new \Aws\S3\S3Client($config);
+		} catch (\Exception $e) {
+			$source = '';
+			$error_code = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to create S3 client. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to create S3 client. {$error_code} {$source}");
 		}
-
-		static::$_s3_client = new \Aws\S3\S3Client($config);
 		return static::$_s3_client;
 	}
 

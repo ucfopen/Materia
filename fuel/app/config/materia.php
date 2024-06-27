@@ -96,7 +96,7 @@ return [
 	'google_tracking_id' => $_ENV['GOOGLE_ANALYTICS_ID'] ?? false,
 
 	// Asset storage configuration
-	'asset_storage_driver' => $_ENV['ASSET_STORAGE_DRIVER'] ?? 'file',
+	'asset_storage_driver' => $_ENV['ASSET_STORAGE_DRIVER'] ?? 's3',
 
 	'asset_storage' => [
 		'file' => [
@@ -110,12 +110,13 @@ return [
 			(($_ENV['ASSET_STORAGE_DRIVER'] ?? 'file') == 's3')
 			? [
 				'driver_class' => '\Materia\Widget_Asset_Storage_S3',
-				'endpoint'     =>$_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? false, // set to url for testing endpoint
+				'endpoint'     => $_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? '', // set to url for testing endpoint
 				'region'       => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
 				'bucket'       => $_ENV['ASSET_STORAGE_S3_BUCKET'], // bucket to store original user uploads
 				'subdir'       => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets
-				'secret_key'   => $_ENV['ASSET_STORAGE_S3_SECRET'], // aws api secret key
-				'key'          => $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY' // aws api key
+				'secret_key'   => $_ENV['AWS_SECRET_ACCESS_KEY'] ?? $_ENV['ASSET_STORAGE_S3_SECRET'] ?? 'SECRET', // aws api secret key
+				'key'          => $_ENV['AWS_ACCESS_KEY_ID'] ?? $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY', // aws api key
+				'token'		   => $_ENV['AWS_SESSION_TOKEN'] ?? null,	// aws session token
 			]
 			: null
 		),

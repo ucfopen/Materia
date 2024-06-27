@@ -104,7 +104,15 @@ class Controller_Media extends Controller
 		];
 
 		$name = Input::post('name', 'New Asset');
-		$asset = Widget_Asset_Manager::new_asset_from_file($name, $file_info);
+
+		try {
+			$asset = Widget_Asset_Manager::new_asset_from_file($name, $file_info);
+		}
+		catch (\Exception $e) {
+			$res->body('{"error":{"code":"15","message":"'.$e->getMessage().'"}}');
+			$res->set_status(400);
+			return $res;
+		}
 
 		if ( ! isset($asset->id))
 		{

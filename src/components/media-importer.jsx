@@ -212,7 +212,7 @@ const MediaImporter = () => {
 					setSelectedAsset(res.id)
 				} else {
 					setErrorState('Something went wrong with uploading your file.')
-					_onCancel()
+					// _onCancel() // uncomment to close the modal on error
 					return
 				}
 			}

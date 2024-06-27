@@ -49,7 +49,7 @@
         "monolog/monolog": "1.18.*",
         "phpseclib/phpseclib": "2.0.31",
         "eher/oauth": "1.0.7",
-        "aws/aws-sdk-php": "3.288.1",
+        "aws/aws-sdk-php": "^3.314",
         "symfony/dotenv": "^5.1",
         "ucfopen/materia-theme-ucf": "2.0.2"
     },
@@ -66,7 +66,8 @@
         "vendor-dir": "fuel/vendor",
         "optimize-autoloader": true,
         "allow-plugins": {
-            "composer/installers": true
+            "composer/installers": true,
+            "php-http/discovery": true
         }
     },
     "extra": {
@@ -112,5 +113,14 @@
         }
     ],
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "autoload": {
+        "psr-0": {
+            "": "*"
+        },
+        "psr-4": {
+            "S3\\": "../s3/",
+            "AwsUtilities\\": "../aws_utilities/"
+        }
+    }
 }
