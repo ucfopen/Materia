@@ -11,6 +11,8 @@ from django.utils.translation import gettext_lazy
 from datetime import datetime
 from django.contrib.auth.models import User
 
+import logging
+logger = logging.getLogger('django')
 
 class Asset(models.Model):
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
@@ -484,6 +486,22 @@ class Widget(models.Model):
     restrict_publish = models.BooleanField()  # previously varchar field, enum in db
     creator_guide = models.CharField(max_length=255)
     player_guide = models.CharField(max_length=255)
+
+    def metadata_clean(self):
+        meta_raw = self.metadata.all()
+        meta_final = {}
+        for meta in meta_raw:
+            # special checks for metadata values that need to be tracked in lists
+            if meta.name in ['features','supported_data','playdata_exporters']:
+                # initialize the list if needed
+                if meta.name not in meta_final:
+                        meta_final[meta.name] = []
+                meta_final[meta.name].append(meta.value)
+            else:
+                meta_final[meta.name] = meta.value
+        # set the 'meta_data' property of this Widget object for potential future reads
+        self.meta_data = meta_final
+        return self.meta_data
 
     class Meta:
         db_table = "widget"
