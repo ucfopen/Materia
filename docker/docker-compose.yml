@@ -54,10 +54,6 @@ services:
     networks:
       - frontend
       - backend
-    depends_on:
-      - mysql
-      - memcached
-      - fakes3
 
   mysql:
     image: mysql:5.7.34
