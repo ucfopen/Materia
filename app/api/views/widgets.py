@@ -29,5 +29,12 @@ class WidgetsApi:
             widget_dict = json.loads(serializers.serialize('json', [widget_raw]))[0]
             widget_dict['fields']['id'] = widget_dict['pk']
             widget_dict['fields']['meta_data'] = widget_raw.metadata_clean()
+            # remove this stupid hack when the frontend is willing to accept true as true instead of '1' as true
+            for field in widget_dict['fields']:
+                if field[:3] in ['is_', 'in_']:
+                    if widget_dict['fields'][field] == True: widget_dict['fields'][field] = "1"
+                    if widget_dict['fields'][field] == False: widget_dict['fields'][field] = "0"
+
             hack_return.append(widget_dict['fields'])
+
         return JsonResponse(hack_return, safe=False)

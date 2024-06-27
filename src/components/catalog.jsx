@@ -183,7 +183,7 @@ const Catalog = ({widgets = [], isLoading = true}) => {
 
 	let featuredWidgetsRender = null
 	if (!isFiltered && totalWidgets > 0 ) {
-		const featuredWidgetListRender = widgets.filter(w => w.in_catalog==='1')
+		const featuredWidgetListRender = widgets.filter(w => w.in_catalog)
 		.map(w => <CatalogCard {...w} key={w.id} />)
 		featuredWidgetsRender = (
 			<div className='widget-group'>
