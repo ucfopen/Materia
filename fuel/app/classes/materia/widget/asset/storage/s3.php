@@ -20,14 +20,117 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	}
 
 	/**
-	 * Create a lock on a specific size of an asset.
+	 * Create a lock on a specific size of an asset for a period of time
+	 * Used to prevent multiple requests from using excessive resources.
+	 * For object locking to work, the bucket must have versioning enabled
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 */
+	public function lock_for_period(string $id, string $size): void
+	{
+		$s3 = $this->get_s3_client();
+
+		try {
+			$s3->putObjectRetention([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				'Retention' => [
+					'Mode' => 'GOVERNANCE',
+					'RetainUntilDate' => new \DateTime('+1 hour'),
+				],
+				// 'VersionId' => '<string>',
+				// 'BypassGovernanceRetention' => true || false,
+				// 'ChecksumAlgorithm' => 'CRC32|CRC32C|SHA1|SHA256',
+				// 'ContentMD5' => '<string>',
+				// 'ExpectedBucketOwner' => '<string>',
+				// 'RequestPayer' => 'requester',
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to lock asset for period {$id} {$size}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to lock asset for period {$id} {$size}. {$error_code} {$source}");
+		}
+	}
+
+	/**
+	 * Get the lock status of a specific size of an asset
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 * @return bool         True if locked
+	 */
+	public function get_lock(string $id, string $size): bool
+	{
+		$s3 = $this->get_s3_client();
+
+		try {
+			$result = $s3->getObjectRetention([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				// 'VersionId' => '<string>',
+				// 'RequestPayer' => 'requester',
+			]);
+			// Result syntax:
+			// [
+			// 	'Retention' => [
+			// 		'Mode' => 'GOVERNANCE|COMPLIANCE',
+			// 		'RetainUntilDate' => <DateTime>,
+			// 	],
+			// ]
+			return $result['Retention']['Mode'] === 'GOVERNANCE'; // if it's not governance, it's not locked
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to get lock asset {$id} {$size}. {$error_code} {$source}");
+			return false;
+		}
+	}
+
+	/**
+	 * Lock a specific size of an asset
 	 * Used to prevent multiple requests from using excessive resources.
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
 	public function lock_for_processing(string $id, string $size): void
 	{
-		// @TODO
+		$s3 = $this->get_s3_client();
+
+		try {
+			$s3->putObjectLegalHold([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				'LegalHold' => [
+					'Status' => 'ON',
+				]
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to lock asset for processing {$id} {$size}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to lock asset for processing {$id} {$size}. {$error_code} {$source}");
+		}
 	}
 
 	/**
@@ -38,7 +141,28 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	 */
 	public function unlock_for_processing(string $id, string $size): void
 	{
-		// @TODO
+		$s3 = $this->get_s3_client();
+
+		try {
+			// Remove object lock
+			$s3->putObjectLegalHold([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				'LegalHold' => [
+					'Status' => 'OFF',
+				]
+			]);
+		} catch (\Exception $e) {
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to unlock asset {$id} {$size}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to unlock asset {$id} {$size}. {$error_code} {$source}");
+		}
 	}
 
 	/**
@@ -70,6 +194,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 					$source = $e->getAwsErrorMessage();
 				}
 				\Log::error("S3: Failed to delete asset {$id} {$size}. {$error_code} {$source}");
+				throw new \Exception("S3: Failed to delete asset {$id} {$size}. {$error_code} {$source}");
 			}
 		}
 	}

@@ -343,8 +343,14 @@ class Widget_Asset
 				break;
 		}
 
-		$this->_storage_driver->lock_for_processing($this->id, $size);
-
+		try {
+			// lock the original asset so we can process it
+			$this->_storage_driver->lock_for_processing($this->id, 'original');
+		} catch (\Throwable $e)
+		{
+			\LOG::error($e);
+			throw($e);
+		}
 		// get the original file
 		$original_asset_path = $this->copy_asset_to_temp_file($this->id, 'original');
 
@@ -378,10 +384,17 @@ class Widget_Asset
 			throw($e);
 		}
 
-		$this->_storage_driver->store($this, $resized_file_path, $size);
+		try {
+			// store the resized asset in s3 or wherever
+			$this->_storage_driver->store($this, $resized_file_path, $size);
 
-		// update asset_data
-		$this->_storage_driver->unlock_for_processing($this->id, $size);
+			// unlock original asset
+			$this->_storage_driver->unlock_for_processing($this->id, 'original');
+		} catch (\Throwable $e)
+		{
+			\LOG::error($e);
+			throw($e);
+		}
 
 		// close the file handles and delete temp files
 		unlink($original_asset_path);
