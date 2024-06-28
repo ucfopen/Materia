@@ -15,17 +15,17 @@
 		width: 80%;
 		height: 285px;
 		padding-top: 200px;
-		margin: 50px auto;	
-	
-		background: url('/img/kogneato_metal_detecting.png') 66% no-repeat,
-			url('/img/404_logo_balls.png') 80% no-repeat,
-			url('/img/404_beachandocean.png') 0 255px no-repeat;
+		margin: 50px auto;
+
+		background: url('/static/img/kogneato_metal_detecting.png') 66% no-repeat,
+			url('/static/img/404_logo_balls.png') 80% no-repeat,
+			url('/static/img/404_beachandocean.png') 0 255px no-repeat;
 		background-position: right center;
 
 		h1 {
 			width: 50%;
 			height: 50%;
-			background: url('/img/404_insand.png') top center no-repeat;
+			background: url('/static/img/404_insand.png') top center no-repeat;
 			background-size: contain;
 			text-indent: -9000px;
 			position: absolute;

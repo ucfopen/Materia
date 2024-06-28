@@ -142,7 +142,7 @@ const MediaImporter = () => {
 			case 'mp3': // intentional case fall-through
 			case 'wav': // intentional case fall-through
 			case 'm4a': // intentional case fall-through
-				return '/img/audio.png'
+				return '/static/img/audio.png'
 		}
 	}
 

@@ -35,7 +35,7 @@
 		z-index: 100;
 		width: 575px; /*625px*/
 		padding: 10px 60px 30px 145px;
-		background: url('/img/user_page_background.gif') 0 0 repeat-y;
+		background: url('/static/img/user_page_background.gif') 0 0 repeat-y;
 		background-color: #fff;
 		min-height: 400px;
 
@@ -119,7 +119,7 @@
 
 			a.external {
 				padding-right: 18px;
-				background: url('/img/external_link_arrow.png') right center no-repeat;
+				background: url('/static/img/external_link_arrow.png') right center no-repeat;
 			}
 		}
 

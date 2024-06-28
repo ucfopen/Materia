@@ -40,14 +40,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # apps
     "core",
-    "webpack_loader",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     # "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -125,19 +124,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "public"),
-]
+MEDIA_URL = "/media/"
 
-WEBPACK_LOADER = {
-    "DEFAULT": {
-        "CACHE": False,  # Allow for cache in prod since files won't be changing.
-        "BUNDLE_DIR_NAME": "static/",
-        "STATS_FILE": os.path.join(BASE_DIR, "webpack-stats.json"),
-    }
-}
+# figure out how to get images working
+
+STATIC_URL = '/static/'
+STATIC_ROOT = './staticfiles/'
+
+# STATIC_URL = "/"
+# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "public"),
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -1,6 +1,5 @@
 {% load static %}
 <!DOCTYPE html>
-{% load render_bundle from webpack_loader %}
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -14,10 +13,23 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		{{ css_render|safe }} {{ partials.google_analytics|default:''|safe }}
+
+		{% if css_resources %}
+			{% for css in css_resources %}
+				<link rel="stylesheet" type="text/css" href="{% static css %}">
+			{% endfor %}
+		{% endif %}
+
 	</head>
 	<body class="{{ page_type|default:'' }}">
 		<div id="app"></div>
 		<div id="modal"></div>
-		{% render_bundle bundle_name %} {% render_bundle 'commons' %}
+		{% if js_resources %}
+			{% for js in js_resources %}
+				<script type="text/javascript" src="{% static js %}"></script>
+			{% endfor %}
+		{% endif %}
+		<script type="text/javascript" src="{% static 'dist/js/commons.js' %}"></script>
+		<!-- { render_bundle bundle_name } { render_bundle 'commons' } -->
 	</body>
 </html>

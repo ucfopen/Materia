@@ -4,7 +4,16 @@ import logging
 
 
 def index(request, *args, **kwargs):
-    context = {"title": "Welcome to Materia", "bundle_name": "homepage"}
+    context = {
+        "title": "Welcome to Materia",
+        # "bundle_name": "homepage"
+        "js_resources": [
+            "dist/js/homepage.js"
+        ],
+        "css_resources": [
+            "dist/css/homepage.css"
+        ]
+    }
     return render(request, "react.html", context)
 
 

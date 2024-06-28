@@ -10,8 +10,8 @@
 		margin: 0 auto;
 
 		background: #fff;
- 		text-align: left;
-	
+		text-align: left;
+
 		.store_main {
 			position: absolute;
 			left: 0;
@@ -31,13 +31,13 @@
 				left: calc(50% - 50vw);
 				width: 98vw;
 				height: fit-content;
-			
+
 				padding: 30px 0px 100px;
 				overflow: hidden;
-			
-				background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/img/banner_final.png) no-repeat;	
+
+				background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/static/img/banner_final.png) no-repeat;
 				background-size: contain;
-			
+
 				text-align: right;
 
 				.store_content {
@@ -85,7 +85,7 @@
 					text-align: center;
 					overflow: hidden;
 					padding: 30px 0px 300px;
-	
+
 					.store_content {
 						margin: 0 40px;
 

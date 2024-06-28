@@ -540,7 +540,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	let footerRender = null
 	if (!isPreview && showFooter) {
 		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
-			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src="/img/materia-logo-thin.svg" alt="materia logo" /></a>
+			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src="/static/img/materia-logo-thin.svg" alt="materia logo" /></a>
 			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
 		</section>
 	}

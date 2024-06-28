@@ -1,19 +1,19 @@
 .my_widgets section.directions.unchosen {
 	&.bearded {
-		background: #fff url('/img/kogneato_mywidgets_bearded.svg') 50% 30%/250px auto no-repeat;
+		background: #fff url('/static/img/kogneato_mywidgets_bearded.svg') 50% 30%/250px auto no-repeat;
 		min-height: 850px;
 	}
 }
 
 .my_widgets section.page div.scores #no-score-content {
 	&.bearded {
-		background: #fff url('/img/kogneato_no_scores_bearded.svg') 10% 30%/250px auto no-repeat !important;
+		background: #fff url('/static/img/kogneato_no_scores_bearded.svg') 10% 30%/250px auto no-repeat !important;
 	}
 }
 
 .my_widgets section.page div.scores #not-scorable {
 	&.bearded {
-		background: #fff url('/img/kogneato_with_a_broom_bearded.svg') 20% 20%/auto 240px no-repeat !important;
+		background: #fff url('/static/img/kogneato_with_a_broom_bearded.svg') 20% 20%/auto 240px no-repeat !important;
 	}
 }
 
@@ -40,22 +40,22 @@
 
 /* Specific Beard Styles */
 .small_black_chops:before {
-	content: url(/img/beards/small/new/small_black_chops.png);
+	content: url(/static/img/beards/small/new/small_black_chops.png);
 	margin-left: -4px;
 }
 
 .small_dusty_full:before {
-	content: url(/img/beards/small/new/small_dusty_full.png);
+	content: url(/static/img/beards/small/new/small_dusty_full.png);
 	margin-left: -4px;
 }
 
 .small_grey_gandalf:before {
-	content: url(/img/beards/small/new/small_grey_gandalf.png);
+	content: url(/static/img/beards/small/new/small_grey_gandalf.png);
 	margin-left: -4px;
 }
 
 .small_red_soul:before {
-	content: url(/img/beards/small/new/small_red_soul.png);
+	content: url(/static/img/beards/small/new/small_red_soul.png);
 	margin-left: -8px;
 }
 
@@ -63,28 +63,28 @@
 
 .med_dusty_full:before {
 	position: absolute;
-	content: url(/img/beards/medium/new/med_dusty_full.png);
+	content: url(/static/img/beards/medium/new/med_dusty_full.png);
 	top: -10px;
 	left: -10px;
 }
 
 .med_black_chops:before {
 	position: absolute;
-	content: url(/img/beards/medium/new/med_black_chops.png);
+	content: url(/static/img/beards/medium/new/med_black_chops.png);
 	top: -10px;
 	left: -10px;
 }
 
 .med_grey_gandalf:before {
 	position: absolute;
-	content: url(/img/beards/medium/new/med_grey_gandalf.png);
+	content: url(/static/img/beards/medium/new/med_grey_gandalf.png);
 	top: -10px;
 	left: -10px;
 }
 
 .med_red_soul:before {
 	position: absolute;
-	content: url(/img/beards/medium/new/med_red_soul.png);
+	content: url(/static/img/beards/medium/new/med_red_soul.png);
 	left: -20px;
 	top: -10px;
 }

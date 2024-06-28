@@ -19,7 +19,7 @@ const Homepage = () => (
 										<a className='action_button' href='widgets'>Get Started</a>
 									</p>
 								</div>
-								<img className="mobile_spotlight_banner" src='/img/banner_final.png' alt='homepage final banner design for materia'/>
+								<img className="mobile_spotlight_banner" src='/static/img/banner_final.png' alt='homepage final banner design for materia'/>
 							</div>
 						</section>
 					</article>
@@ -27,11 +27,11 @@ const Homepage = () => (
 		</section>
 
 		<section className='get_started'>
-		<img src="/img/social-ucf-open.png"/>
+		<img src="/static/img/social-ucf-open.png"/>
 
 			<div className='get_started_content'>
 					<h1 className='subHeader'> Materia is Open Source! </h1>
-			 			<p className='desc'>
+						<p className='desc'>
 							Use Materia at your organization through UCF Open.
 						</p>
 				<p className='button_wrap'>
@@ -52,7 +52,7 @@ const Homepage = () => (
 						We aim to get out of the way so your content can engage with students as quickly and clearly as possible.
 					</p>
 				</div>
-				<img src='/img/front2.png' alt='screen shot of creating a crossword widget'/>
+				<img src='/static/img/front2.png' alt='screen shot of creating a crossword widget'/>
 			</div>
 			<div className="wrapper_second">
 				<div className='wrapper_content'>
@@ -63,7 +63,7 @@ const Homepage = () => (
 						Engage students with game mechanics like story-telling, competition, instant feedback, and instant reward systems.
 					</p>
 				</div>
-				<img src='/img/front1.png' alt='screen shot of a sort it out widget' />
+				<img src='/static/img/front1.png' alt='screen shot of a sort it out widget' />
 			</div>
 			<div className="wrapper_third">
 				<div className='wrapper_content'>
@@ -74,7 +74,7 @@ const Homepage = () => (
 						Thanks to the magic of LTI, Students are logged in automatically!
 					</p>
 				</div>
-				<img src='/img/front3.png' alt='screen shot of a widget score page'/>
+				<img src='/static/img/front3.png' alt='screen shot of a widget score page'/>
 			</div>
 			</section>
 

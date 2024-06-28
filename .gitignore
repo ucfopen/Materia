@@ -45,46 +45,10 @@ desktop.ini
 # NPM modules
 node_modules
 
-public/css/admin.css
-public/css/login.css
-public/css/media-import.css
-public/css/my-widgets.css
-public/css/scores.css
-public/css/ng-modal.css
-public/css/beard-mode.css
-public/css/core.css
-public/css/errors.css
-public/css/help.css
-public/css/my-widgets.css
-public/css/profile.css
-public/css/store_delete.css
-public/css/util-lti-picker.css
-public/css/util-media-import.css
-public/css/util-question-import.css
-public/css/util-qset-history.css
-public/css/widget-catalog.css
-public/css/widget-create.css
-public/css/widget-detail.css
-public/css/widget-embed-placeholder.css
-public/css/widget-guide.css
-public/css/widget-play.css
+public/css/**/*
+public/js/**/*
 
-
-public/js/admin.js
-public/js/author.js
-public/js/details.js
-public/js/materia.coms.json.js
-public/js/materia.creatorcore.js
-public/js/materia.enginecore.js
-public/js/materia.js
-public/js/materia.namespace.js
-public/js/materia.score.js
-public/js/materia.scorecore.js
-public/js/materia.storage.manager.js
-public/js/materia.storage.table.js
-public/js/student.js
-public/js/vendor/*
-
+webpack-stats.json
 
 # Installed Widgets
 public/widget
