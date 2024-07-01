@@ -191,7 +191,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 				$error_code = $e->getAwsErrorCode();
 				$source = $e->getAwsErrorMessage();
 			}
-			\Log::error("S3: Failed to get lock statusfor asset {$id} {$size}. {$error_code} {$source}");
+			\Log::error("S3: Failed to get lock status for asset {$id} {$size}. {$error_code} {$source}");
 			return false;
 		}
 	}

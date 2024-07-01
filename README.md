@@ -8,7 +8,7 @@ View the [Materia Docs](http://ucfopen.github.io/Materia-Docs/) for info on inst
 
 [Join UCF Open Slack Discussions](https://dl.ucf.edu/join-ucfopen/) [![Join UCF Open Slack Discussions](https://badgen.net/badge/icon/ucfopen?icon=slack&label=slack&color=e01563)](https://dl.ucf.edu/join-ucfopen/)
 
-##  Installation
+## Installation
 
 Materia is configured to use Docker containers in production environments, orchestrated through docker compose, though other orchestration frameworks could potentially be used instead. While it may be possible to deploy Materia without Docker, we **do not recommend doing so**.
 
@@ -80,6 +80,7 @@ Materia enables users to upload media assets for their widgets, including images
 ### Local Asset Storage
 
 By default, a fake `s3` server will be spun up. To test Materia with AWS S3, set the following variables in `.env.local`:
+
 1. Set `FAKES3_DISABLED` environment variable to `true`
 2. Set `ASSET_STORAGE_S3_BUCKET` to your bucket name
 3. Set `ASSET_STORAGE_S3_ENDPOINT` to your endpoint

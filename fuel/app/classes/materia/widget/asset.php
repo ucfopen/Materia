@@ -424,6 +424,14 @@ class Widget_Asset
 	}
 
 	/**
+	 * Delete an asset of a specific size
+	 */
+	public function delete_asset_data(string $size): void
+	{
+		$this->_storage_driver->delete($this->id, $size);
+	}
+
+	/**
 	 * Copy the binary of an asset of a specific size to a temp file
 	 * @param  string $id   Asset Id
 	 * @param  string $size Asset size
