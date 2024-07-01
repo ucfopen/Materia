@@ -29,6 +29,9 @@ const WidgetAdminPage = () => {
 				w.is_scalable = !!+w.is_scalable
 			})
 			setWidgets(widgetData)
+		},
+		onError: (error) => {
+			console.error('Error fetching widgets:', error)
 		}
 	})
 

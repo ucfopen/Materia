@@ -114,7 +114,7 @@ class Controller_Media extends Controller
 			return $res;
 		}
 
-		if ( ! isset($asset->id))
+		if ( ! $asset || ! isset($asset->id))
 		{
 			// error
 			trace('Unable to create asset');

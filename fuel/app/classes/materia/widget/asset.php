@@ -316,6 +316,10 @@ class Widget_Asset
 	 */
 	public static function get_type_from_mime_type(string $mime_type): string
 	{
+		if ( ! array_key_exists($mime_type, self::MIME_TYPE_TO_EXTENSION))
+		{
+			return '';
+		}
 		return self::MIME_TYPE_TO_EXTENSION[$mime_type];
 	}
 
