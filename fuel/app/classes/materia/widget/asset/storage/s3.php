@@ -66,7 +66,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	 * @param  string $size Size of asset data to lock
 	 * @return bool         True if locked
 	 */
-	public function get_lock(string $id, string $size): bool
+	public function get_lock_retention(string $id, string $size): bool
 	{
 		$s3 = $this->get_s3_client();
 
@@ -95,7 +95,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 				$error_code = $e->getAwsErrorCode();
 				$source = $e->getAwsErrorMessage();
 			}
-			\Log::error("S3: Failed to get lock asset {$id} {$size}. {$error_code} {$source}");
+			\Log::error("S3: Failed to get lock retention status for asset {$id} {$size}. {$error_code} {$source}");
 			return false;
 		}
 	}
@@ -164,6 +164,38 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 			throw new \Exception("S3: Failed to unlock asset {$id} {$size}. {$error_code} {$source}");
 		}
 	}
+
+	/**
+	 * Get the lock status of a specific size of an asset
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 * @return bool         True if locked
+	 */
+	public function get_lock(string $id, string $size): bool
+	{
+		$s3 = $this->get_s3_client();
+
+		try {
+			$result = $s3->getObjectLegalHold([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size)
+			]);
+			return $result['LegalHold']['Status'] === 'ON';
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to get lock statusfor asset {$id} {$size}. {$error_code} {$source}");
+			return false;
+		}
+	}
+
 
 	/**
 	 * Delete asset data. Set size to '*' to delete all.

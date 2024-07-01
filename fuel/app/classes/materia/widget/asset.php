@@ -343,14 +343,19 @@ class Widget_Asset
 				break;
 		}
 
-		try {
-			// lock the original asset so we can process it
-			$this->_storage_driver->lock_for_processing($this->id, 'original');
-		} catch (\Throwable $e)
+		// if we're using fakes3, can't lock the original asset
+		if ( ! \Config::get('materia.asset_storage.s3.fakes3_enabled'))
 		{
-			\LOG::error($e);
-			throw($e);
+			try {
+				// lock the original asset so we can process it
+				$this->_storage_driver->lock_for_processing($this->id, 'original');
+			} catch (\Throwable $e)
+			{
+				\LOG::error($e);
+				throw($e);
+			}
 		}
+
 		// get the original file
 		$original_asset_path = $this->copy_asset_to_temp_file($this->id, 'original');
 
@@ -389,7 +394,10 @@ class Widget_Asset
 			$this->_storage_driver->store($this, $resized_file_path, $size);
 
 			// unlock original asset
-			$this->_storage_driver->unlock_for_processing($this->id, 'original');
+			if ( ! \Config::get('materia.asset_storage.s3.fakes3_enabled'))
+			{
+				$this->_storage_driver->unlock_for_processing($this->id, 'original');
+			}
 		} catch (\Throwable $e)
 		{
 			\LOG::error($e);

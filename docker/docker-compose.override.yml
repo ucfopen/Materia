@@ -33,7 +33,7 @@ services:
 
   fakes3:
     volumes:
-      - uploaded_media:/s3mnt/fakes3_root/fakes3_uploads/media/
+      - uploaded_media:/s3mnt/fakes3_root/fake_bucket/media/
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
