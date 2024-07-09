@@ -34,7 +34,7 @@ class Controller_Api_Asset extends Controller_Rest
 			\Log::error('Error: In the deletion process');
 			\Log::error($th);
 
-			return new Msg(Msg::ERROR, 'Asset could not be deleted.');
+			return Msg::failure('Asset could not be deleted.');
 		}
 	}
 
@@ -61,7 +61,7 @@ class Controller_Api_Asset extends Controller_Rest
 			\Log::error('Error: In the deletion process');
 			\Log::error($th);
 
-			return new Msg(Msg::ERROR, 'Asset could not be restored.');
+			return Msg::failure('Asset could not be restored.');
 		}
 	}
 }

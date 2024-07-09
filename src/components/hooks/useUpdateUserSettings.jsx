@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { apiUpdateUserSettings } from '../../util/api'
 
 export default function useUpdateUserSettings() {
-	
+
 	const queryClient = useQueryClient()
 
 	return useMutation(
@@ -17,11 +17,13 @@ export default function useUpdateUserSettings() {
 
 				return { prior }
 			},
-			onSuccess: (data, newSettings, context) => {
+			onSuccess: (data, variables, context) => {
+				variables.successFunc()
 				queryClient.invalidateQueries('user')
 
 			},
-			onError: (err, newSettings, context) => {
+			onError: (err, variables, context) => {
+				variables.errorFunc(err)
 				queryClient.setQueryData('user', context.previousValue)
 			}
 		}

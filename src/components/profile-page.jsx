@@ -4,16 +4,34 @@ import LoadingIcon from './loading-icon'
 import {apiGetUser, apiGetUserActivity} from '../util/api'
 import Header from './header'
 import './profile-page.scss'
+import Alert from './alert'
 
 const ProfilePage = () => {
-
+	const [alertDialog, setAlertDialog] = useState({
+		enabled: false,
+		message: '',
+		title: 'Failure',
+		fatal: false,
+		enableLoginButton: false
+	})
 	const [activityPage, setActivityPage] = React.useState(0)
 
 	const mounted = useRef(false)
 	const { data: currentUser, isFetching} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setAlertDialog({
+					enabled: true,
+					message: 'You must be logged in to view your profile.',
+					title: 'Login Required',
+					fatal: true,
+					enableLoginButton: true
+				})
+			}
+		}
 	})
 
 	const {
@@ -28,7 +46,18 @@ const ProfilePage = () => {
 		getNextPageParam: (lastPage, pages) => {
 			return lastPage.more == true ? activityPage : undefined
 		},
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setAlertDialog({
+					enabled: true,
+					message: 'You must be logged in to view your profile.',
+					title: 'Login Required',
+					fatal: true,
+					enableLoginButton: true
+				})
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -79,8 +108,22 @@ const ProfilePage = () => {
 		})
 	})
 
+	let alertDialogRender = null
+	if (alertDialog.enabled) {
+		alertDialogRender = (
+			<Alert
+				msg={alertDialog.message}
+				title={alertDialog.title}
+				fatal={alertDialog.fatal}
+				showLoginButton={alertDialog.enableLoginButton}
+				onCloseCallback={() => {
+					setAlertDialog({...alertDialog, enabled: false})
+				}} />
+		)
+	}
+
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching && !isFetchingActivity ) {
+	if ( !isFetching && !isFetchingActivity && currentUser) {
 		mainContentRender =
 			<section className="page user">
 
@@ -127,6 +170,7 @@ const ProfilePage = () => {
 			<Header />
 			<div className='profile-page'>
 				<div className='user'>
+					{ alertDialogRender }
 					{ mainContentRender }
 				</div>
 			</div>

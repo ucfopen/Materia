@@ -11,6 +11,7 @@ const SelectItem = () => {
 	const [displayState, setDisplayState] = useState('selectInstance')
 	const fillRef = useRef(null)
 	const [progressComplete, setProgressComplete] = useState(false)
+	const [error, setError] = useState("")
 
 	const instanceList = useInstanceList()
 
@@ -34,6 +35,16 @@ const SelectItem = () => {
 
 		return result
 	}, [searchText, instanceList.instances])
+
+	useEffect(() => {
+		if (instanceList.error) {
+			if (instanceList.error.title == "Invalid Login") {
+				setError(`Error: Invalid Login).`)
+			} else {
+				setError(`Error: Failed to retrieve widget(s).`)
+			}
+		}
+	}, [instanceList.error])
 
 	const handleChange = (e) => {
 		setSearchText(e.target.value)
@@ -128,7 +139,7 @@ const SelectItem = () => {
 
 				return <li className={classList.join(' ')} key={index}>
 					<div className={`widget-info ${instance.is_draft ? 'draft' : ''} ${instance.guest_access ? 'guest' : ''}`}>
-						<img className="widget-icon" src={instance.img}/>
+						<img className="widget-icon" src={instance.img} alt="widget icon"/>
 						<h2 className="searchable">{instance.name}</h2>
 						<h3 className="searchable">{instance.widget.name}</h3>
 						{instance.guest_access ? <h3 className="guest-notice">Guest instances cannot be embedded in courses. </h3> : <></>}
@@ -152,7 +163,14 @@ const SelectItem = () => {
 
 	let noInstanceRender = null
 	let createNewInstanceLink = null
-	if (instanceList.instances && instanceList.instances.length < 1) {
+	if (error.length > 0) {
+		noInstanceRender = <div id="no-widgets-container">
+			<div id="no-instances">
+				<p>{error}</p>
+			</div>
+		</div>
+	}
+	else if (instanceList.instances && instanceList.instances.length < 1) {
 		noInstanceRender = <div id="no-widgets-container">
 			<div id="no-instances">
 				<p>You don't have any widgets yet. Click this button to create a widget, then return to this tab/window and select your new widget.</p>
@@ -224,7 +242,7 @@ const SelectItem = () => {
 		sectionRender = <section id="progress">
 			<div className="widget-info">
 				<h1>{selectedInstance.name}</h1>
-				<img className="widget-icon" src={selectedInstance.img}/>
+				<img className="widget-icon" src={selectedInstance.img} alt="widget icon"/>
 			</div>
 			<div className="progress-container">
 				<span>{!easterMode ? "Connecting your instance..." : "Reticulating splines..."}</span>

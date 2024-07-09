@@ -1,40 +1,30 @@
 import React, { useState } from 'react'
 import { iconUrl } from '../util/icon-url'
 import SupportSelectedInstance from './support-selected-instance'
-import useCopyWidget from './hooks/useCopyWidget'
 
-const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
-
-	const copyWidget = useCopyWidget()
+const UserAdminInstanceAvailable = ({instance, index, onCopySuccess, currentUser}) => {
+	const [error, setError] = useState('')
 
 	const [instanceState, setInstanceState] = useState({
 		expanded: false,
 		manager: false
 	})
 
-	const onCopy = (instId, title, copyPerms, inst) => {
-		copyWidget.mutate({
-			instId: instId,
-			title: title,
-			copyPermissions: copyPerms,
-			dir: inst.widget.dir,
-			successFunc: (copyId) => {
-				if (!copyPerms) {
-					window.location = `/my-widgets#${copyId}`
-				}
-			}
-		})
-	}
-
 	let managerRender = null
 	if (instanceState.manager) {
 		managerRender = (
 			<SupportSelectedInstance inst={instance}
 				key={instance ? instance.id : ''}
-				currentUser={currentUser} onCopy={onCopy}
+				currentUser={currentUser}
+				onCopySuccess={onCopySuccess}
 				embed={true}
 			/>
 		)
+	}
+
+	let errorRender = null
+	if (error) {
+		errorRender = <div className='error'><p>{error}</p></div>
 	}
 
 	return (
@@ -131,6 +121,7 @@ const UserAdminInstanceAvailable = ({instance, index, currentUser}) => {
 				</div>
 			:
 				<div className="info-holder">
+					{ errorRender }
 					{ managerRender }
 				</div>
 			}

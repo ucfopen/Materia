@@ -5,13 +5,11 @@ export default function usePlayLogSave() {
 	return useMutation(
 		apiSavePlayLogs,
 		{
-			onSettled: (data, error, widgetData) => {
-				if (!!data) {
-					widgetData.successFunc(data)
-				}
-				else {
-					widgetData.failureFunc()
-				}
+			onSuccess: (data, variables) => {
+				variables.successFunc(data)
+			},
+			onError: (err, variables) => {
+				variables.errorFunc(err)
 			}
 		}
 	)

@@ -8,19 +8,34 @@ import './user-admin-page.scss'
 
 const UserAdminPage = () => {
 	const [selectedUser, setSelectedUser] = useState(null)
+	const [error, setError] = useState('')
 	const [userHash, setUserHash] = useState(window.location.href.split('#')[1])
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve current user.")
+			}
+		}
 	})
 
 	const { data: userFromHash } = useQuery({
 		queryKey: ['search-users', userHash],
 		queryFn: () => apiGetUsers([userHash]),
-		enabled: userHash != undefined && userHash != undefined && userHash != selectedUser?.id,
+		enabled: userHash != undefined && userHash != selectedUser?.id,
 		placeholderData: null,
-		staleTime: Infinity
+		staleTime: Infinity,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve user(s).")
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -50,7 +65,10 @@ const UserAdminPage = () => {
 	}
 
 	let pageRenderContent = <UserAdminSearch onClick={handleUserSelect}/>
-	if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
+	if (error) {
+		pageRenderContent = <div className="error">{error}</div>
+	}
+	else if (selectedUser) pageRenderContent = <UserAdminSelected selectedUser={selectedUser} currentUser={currentUser} onReturn={() => setSelectedUser(null)}></UserAdminSelected>
 
 	return (
 		<>

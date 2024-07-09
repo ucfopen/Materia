@@ -27,7 +27,7 @@ const QuestionImporter = () => {
 	})
 
 	useEffect(() => {
-		if ( ! isLoading) {
+		if ( ! isLoading && allQuestions && allQuestions.length) {
 			// add a 'selected' property with a default value of false to each question
 			const formattedAllQuestions = allQuestions.map(q => ({...q, selected: false}))
 			setState({...state, allQuestions: formattedAllQuestions, displayQuestions: formattedAllQuestions})

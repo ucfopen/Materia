@@ -4,6 +4,12 @@
 	display: flex;
 	justify-content: center;
 
+	.error {
+		width: 80%;
+		margin: 50px auto 5px auto;
+		color: red;
+	}
+
 	.container {
 		position: relative;
 		display: flex;
@@ -70,7 +76,7 @@
 			width: 700px;
 			min-height: 850px;
 			margin: 0 0 0 260px;
-			
+
 			background: #fff;
 		}
 
@@ -855,7 +861,7 @@
 
 		border-bottom: 1px #0093e7 solid;
 		color: #0093e7;
-		
+
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;

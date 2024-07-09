@@ -177,7 +177,7 @@ describe('Widget Creator', () => {
 
         // Select a qset from save history
         act(() => {
-            window.Materia.Creator.onQsetHistorySelectionComplete(JSON.stringify(qset));
+            window.Materia.Creator.onQsetReselectionComplete(JSON.stringify(qset));
         })
 
         // Hide action bar

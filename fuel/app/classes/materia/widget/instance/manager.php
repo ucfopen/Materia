@@ -62,11 +62,11 @@ class Widget_Instance_Manager
 		return $instances;
 	}
 
-	public static function get_all_for_user($user_id, $load_qset=false)
+	public static function get_all_for_user($user_id)
 	{
 		$inst_ids = Perm_Manager::get_all_objects_for_user($user_id, Perm::INSTANCE, [Perm::FULL, Perm::VISIBLE]);
 
-		if ( ! empty($inst_ids)) return self::get_all($inst_ids, $load_qset);
+		if ( ! empty($inst_ids)) return self::get_all($inst_ids);
 		else return [];
 	}
 

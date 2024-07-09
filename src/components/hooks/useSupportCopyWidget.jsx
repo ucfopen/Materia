@@ -12,6 +12,10 @@ export default function useSupportCopyWidget() {
 				queryClient.removeQueries('search-widgets', {
 					exact: false
 				})
+			},
+			onError: (data, variables) => {
+				variables.errorFunc(data)
+				console.error('Failed to copy widget: ' + err.cause)
 			}
 		}
 	)

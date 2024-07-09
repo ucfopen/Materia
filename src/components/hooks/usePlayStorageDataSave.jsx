@@ -5,8 +5,11 @@ export default function usePlayStorageDataSave() {
 	return useMutation(
 		apiSavePlayStorage,
 		{
-			onSettled: (data, error, widgetData) => {
-				widgetData.successFunc(data)
+			onSuccess: (data, variables) => {
+				variables.successFunc(data)
+			},
+			onError: (err, variables) => {
+				variables.errorFunc(err)
 			}
 		}
 	)

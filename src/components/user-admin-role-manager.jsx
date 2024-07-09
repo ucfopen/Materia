@@ -39,6 +39,12 @@ const UserAdminRoleManager = ({currentUser, selectedUser}) => {
 					status: response.success ? 'Successful.' : 'Error.',
 					message: response.status
 				})
+			},
+			errorFunc: (err) => {
+				setUpdateStatus({
+					status: 'Error.',
+					message: err.message
+				})
 			}
 		})
 	}

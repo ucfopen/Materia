@@ -37,6 +37,7 @@ class Widget_Asset_Manager
 
 		$mime_type = mime_content_type($file_info['realpath']);
 		$extension = Widget_Asset::get_type_from_mime_type($mime_type);
+		if ( strlen($extension) == 0 ) return false;
 
 		// create and store the asset
 		$asset = new Widget_Asset([

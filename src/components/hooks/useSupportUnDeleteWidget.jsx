@@ -8,17 +8,15 @@ export default function useSupportUnDeleteWidget() {
 		apiUnDeleteWidget,
 		{
 			onSuccess: (data, variables) => {
-				if (!!data) {
-					variables.successFunc()
-					queryClient.removeQueries('search-widgets', {
-						exact: false
-					})
-				}
-				else {
-					console.error('failed to undelete widget')
-				}
+				variables.successFunc()
+				queryClient.removeQueries('search-widgets', {
+					exact: false
+				})
 			},
-			onError: () => console.error('Failed to undelete widget on backend')
+			onError: (err, variables) => {
+				variables.errorFunc(err)
+				console.error('Failed to restore widget: ' + err.cause)
+			}
 		}
 	)
 }

@@ -20,7 +20,7 @@ class Controller_Api_User extends Controller_Rest
 
 	public function post_settings()
 	{
-		if (\Service_User::verify_session() !== true) return $this->response('Not logged in', 401);
+		if (\Service_User::verify_session() !== true) return $this->response(\Materia\Msg::no_login(), 401);
 
 		$success   = false;
 		$set_meta  = [
@@ -42,9 +42,9 @@ class Controller_Api_User extends Controller_Rest
 
 	public function post_roles()
 	{
-		if (\Service_User::verify_session() !== true) return $this->response('Not logged in', 401);
+		if (\Service_User::verify_session() !== true) return $this->response(\Materia\Msg::no_login(), 401);
 		// this endpoint is only available to superusers!
-		if ( ! \Materia\Perm_Manager::is_super_user()) return $this->response('Not authorized', 403);
+		if ( ! \Materia\Perm_Manager::is_super_user()) return $this->response(\Materia\Msg::no_perm(), 403);
 
 		$success = false;
 		$user_id = Input::json('id', null);
@@ -53,7 +53,7 @@ class Controller_Api_User extends Controller_Rest
 			'support_user' => Input::json('support_user', false)
 		];
 
-		if ( ! $user_id) return $this->response('User ID not provided', 401);
+		if ( ! $user_id) return $this->response(\Materia\Msg::invalid_input('User ID not provided'), 401);
 
 		$current_roles = \Materia\Perm_Manager::get_user_roles($user_id);
 		$current_roles_condensed = array_map( fn($r) => $r->name, $current_roles);

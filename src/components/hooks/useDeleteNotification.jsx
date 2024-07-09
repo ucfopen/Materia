@@ -29,7 +29,8 @@ export default function useDeleteNotification() {
 				// queryClient.invalidateQueries('notifications')
 				if (data) variables.successFunc(data);
 			},
-			onError: (err, newWidget, context) => {
+			onError: (err, variables, context) => {
+				variables.errorFunc(err)
 				queryClient.setQueryData('notifications', context.previousValue)
 			}
 		}

@@ -84,16 +84,10 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		placeholderData: {},
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
 		staleTime: Infinity,
-		onSuccess: (data) => {
-			if (data && data.type == 'error')
-			{
-				console.error(`Error: ${data.msg}`);
-				if (data.title == "Invalid Login")
-				{
-					setInvalidLogin(true)
-				}
-			} else if (!data) {
-				console.error('Failed to fetch users.')
+		onError: (err) => {
+			console.error(`Error: ${err.message}`);
+			if (err.message == "Invalid Login") {
+				setInvalidLogin(true);
 			}
 		}
 	})
@@ -267,21 +261,14 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			mutateWidget.mutate({
 				args: args,
 				successFunc: (updatedInst) => {
-
-					if (!updatedInst || updatedInst.type == "error") {
-
-						if (updatedInst.title == "Invalid Login") {
-							setInvalidLogin(true);
-						}
-						else {
-							console.error(`Error: ${updatedInst.msg}`);
-							setState({...state, errorLabel: 'Something went wrong, and your changes were not saved.'})
-						}
+					onEdit(updatedInst)
+					if (mounted.current) onClose()
+				},
+				errorFunc: (err) => {
+					if (err.message == "Invalid Login") {
+						setInvalidLogin(true);
 					}
-					else {
-						onEdit(updatedInst)
-						if (mounted.current) onClose()
-					}
+					else setState({...state, errorLabel: 'Something went wrong, and your changes were not saved.'})
 				}
 			})
 		}
@@ -430,9 +417,9 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 	let errorLabelRender = null
 	if (state.errorLabel.length > 0) {
 		errorLabelRender = (
-			<p className='availability-error'>
-				{state.errorLabel}
-			</p>
+			<div className='error'>
+				<p>{state.errorLabel}</p>
+			</div>
 		)
 	}
 
@@ -500,9 +487,9 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 			<div className='settings-modal'>
 				<div className='top-bar'>
 					<span className='title'>Settings</span>
-					{ errorLabelRender }
 				</div>
 				{ studentLimitWarningRender }
+				{ errorLabelRender }
 				<ul className='attemptsPopup'>
 					<li className={`attempt-content ${currentUser.is_student && currentUser.id != inst.user_id ? 'hide' : ''}`}>
 						<h3>Attempts</h3>

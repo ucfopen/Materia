@@ -1,14 +1,51 @@
 import React, { useState } from 'react'
 import Modal from './modal'
 import './my-widgets-copy-dialog.scss'
+import useCopyWidget from './hooks/useCopyWidget'
 
-const MyWidgetsCopyDialog = ({onClose, onCopy, name}) => {
+const MyWidgetsCopyDialog = ({inst, name, onClose, onCopySuccess, onCopyError}) => {
 	const [newTitle, setNewTitle] = useState(`${name} (Copy)`)
 	const [copyPermissions, setCopyPermissions] = useState(false)
+	const [errorText, setErrorText] = useState('')
+	const copyWidget = useCopyWidget()
 
 	const handleTitleChange = e => setNewTitle(e.target.value)
 	const handleOwnerAccessChange = e => setCopyPermissions(e.target.checked)
-	const handleCopyClick = () => onCopy(newTitle, copyPermissions)
+	const handleCopyClick = () => onCopy(inst.id, newTitle, copyPermissions, inst)
+
+	// an instance has been copied: the mutation will optimistically update the widget list while the list is re-fetched from the server
+	const onCopy = (instId, newTitle, newPerm, inst) => {
+		setErrorText('')
+
+		copyWidget.mutate(
+			{
+				instId: instId,
+				title: newTitle,
+				copyPermissions: newPerm,
+				widgetName: inst.widget.name,
+				dir: inst.widget.dir,
+				successFunc: newInst => {
+					onCopySuccess(newInst)
+				},
+				errorFunc: (err) => {
+					setErrorText(('Error' || err.message) + ': Copy Unsuccessful')
+					if (onCopyError) onCopyError(err)
+					else if (err.message == "Invalid Login") {
+						window.location.href = '/users/login'
+						return
+					}
+					else if (err.message == "Permission Denied") {
+						setErrorText('Permission Denied')
+					}
+				}
+			}
+		)
+	}
+
+	let error = null
+	if (errorText) {
+		error = <div className='error'><p>{errorText}</p></div>
+	}
 
 	return (
 		<Modal onClose={onClose}>
@@ -16,6 +53,7 @@ const MyWidgetsCopyDialog = ({onClose, onCopy, name}) => {
 				<span className='title'>Make a Copy</span>
 				<div className=''>
 					<div className='container'>
+						{ error }
 						<div className='title_container'>
 							<label htmlFor='copy-title'>New Title:</label>
 							<input id='copy-title'

@@ -547,6 +547,7 @@ class Widget_Installer
 			'is_editable'         => Util_Validator::cast_to_bool_enum($manifest_data['general']['is_editable']),
 			'is_scorable'         => Util_Validator::cast_to_bool_enum($manifest_data['score']['is_scorable']),
 			'in_catalog'          => Util_Validator::cast_to_bool_enum($manifest_data['general']['in_catalog']),
+			'is_generable'        => isset($manifest_data['general']['is_generable']) ? Util_Validator::cast_to_bool_enum($manifest_data['general']['is_generable']) : '0',
 			'clean_name'          => $clean_name,
 			'api_version'         => (string)(int)$manifest_data['general']['api_version'],
 			'package_hash'        => $package_hash,

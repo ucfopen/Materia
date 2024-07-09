@@ -7,7 +7,7 @@ const initState = () => ({
 	clicked: false
 })
 
-const StudentSearch = ({addUser, debounceTime=300}) => {
+const StudentSearch = ({addUser, debounceTime=300, setError}) => {
 	const [state, setState] = useState(initState())
 	const debouncedSearchTerm = useDebounce(state.searchText, debounceTime)
 	const userList = useUserList(debouncedSearchTerm)
@@ -30,6 +30,7 @@ const StudentSearch = ({addUser, debounceTime=300}) => {
 				onClick={() => onClickMatch(match)}>
 					<img className='attempts_match_avatar'
 						src={match.avatar}
+						alt="user avatar"
 					/>
 					<p className={`attempts_match_name ${match.is_student ? 'attempts_match_student' : ''}`}>
 						{match.first + ' ' + match.last}

@@ -8,15 +8,13 @@ export default function useSupportDeleteWidget() {
 		apiDeleteWidget,
 		{
 			onSuccess: (data, variables) => {
-				if (!!data) {
-					variables.successFunc()
-					queryClient.invalidateQueries('widgets')
-				}
-				else {
-					console.error('failed to delete widget')
-				}
+				variables.successFunc()
+				queryClient.invalidateQueries('widgets')
 			},
-			onError: () => console.error('Failed to delete widget on backend')
+			onError: (err, variables) => {
+				variables.errorFunc(err)
+				console.error('Failed to delete widget: ' + err.cause)
+			}
 		}
 	)
 }

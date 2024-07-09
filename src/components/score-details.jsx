@@ -4,7 +4,7 @@ import ScoreGraphic from './score-graphic'
 const ScoreDetails = ({details, complete}) => {
 	
 	let detailsRender = []
-	details.forEach((detail, i) => {
+	details?.forEach((detail, i) => {
 		let detailsTableRows = []
 		let detailsHeaders = []
 		detail.table.forEach((row, j) => {

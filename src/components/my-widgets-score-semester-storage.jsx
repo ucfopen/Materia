@@ -25,16 +25,25 @@ const initState = () => ({
 
 const MAX_ROWS = 100
 
-const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
+const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 	const [state, setState] = useState(initState())
 	const [searchInput, setSearchInput] = useState('')
 	const mounted = useRef(false)
+	const [error, setError] = useState('')
 	const { data: results } = useQuery({
 		queryKey: ['score-storage', instId],
 		queryFn: () => apiGetStorageData(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
-		placeholderData: {}
+		placeholderData: {},
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setInvalidLogin(true);
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve storage data.")
+			}
+			setState({...state, isLoading: false})
+		}
 	})
 
 	useEffect(() => {
@@ -123,7 +132,14 @@ const MyWidgetScoreSemesterStorage = ({semester, instId}) => {
 			<LoadingIcon />
 		</div>
 	)
-	if (!state.isLoading) {
+	if (error) {
+		contentRender = (
+			<div className='error'>
+				{error}
+			</div>
+		)
+	}
+	else if (!state.isLoading) {
 		let tableNamesRender = ''
 		if (state.tableNames.length > 1) {
 			const tableNamesOptionElements = state.tableNames.map(name => (
