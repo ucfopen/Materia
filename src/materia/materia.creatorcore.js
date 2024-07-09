@@ -141,6 +141,10 @@ Namespace('Materia').CreatorCore = (() => {
 		clearInterval(_resizeInterval)
 	}
 
+	const submitPrompt = (text) => {
+		_sendPostMessage('submitPrompt', text)
+	}
+
 	// Public Methods
 	return {
 		start,
@@ -153,5 +157,6 @@ Namespace('Materia').CreatorCore = (() => {
 		disableResizeInterval,
 		setHeight, // allows the creator to resize its iframe container to fit the height of its contents
 		escapeScriptTags,
+		submitPrompt
 	}
 })()

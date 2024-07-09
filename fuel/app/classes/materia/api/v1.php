@@ -1133,6 +1133,38 @@ class Api_V1
 		];
 	}
 
+	static public function widget_prompt_generate($prompt)
+	{
+		try
+		{
+			$my_api_key = \Config::get('materia.open_ai.api_key');
+		
+			$client = \OpenAI::client($my_api_key);
+
+			$result = $client->chat()->create([
+				'model' => 'gpt-3.5-turbo',
+				'messages' => [
+					[
+						'role' => 'user',
+						'content' => $prompt
+					]
+				],
+				'max_tokens' => 4096,
+				'frequency_penalty' => 0, // 0 to 1
+				'presence_penalty' => 0, // 0 to 1
+				'temperature' => 1, // 0 to 1
+				'top_p' => 1, // 0 to 1
+			]);
+
+			$response = json_decode($result->choices[0]->message->content);
+			return $response;
+		}
+		catch (\Exception $e)
+		{
+			return Msg::failure($e, 'Prompt generation failure');
+		}
+	}
+
 	/**
 	 * Combines all asset descriptions in a question set into a single array
 	 * @param array $qset The question set array
