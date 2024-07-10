@@ -33,7 +33,7 @@ Keep in mind that code submitted as a pull request is not guaranteed to be merge
 
 Generally, we maintain branches as follows:
 
-#### Master
+### Master
 
 The master branch represents the most up-to-date, stable version of Materia. We do not at present maintain specific `stable` branches, but rather, commits on `master` will be tagged for release using [Semantic Versioning](https://semver.org/). A commit tagged with a version represents a production-ready release. Releases are also published on our [Releases Page](https://github.com/ucfopen/Materia/releases) as well as the [GitHub package registry](https://github.com/ucfopen/Materia/pkgs/container/materia).
 
