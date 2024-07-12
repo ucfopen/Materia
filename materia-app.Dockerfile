@@ -49,7 +49,7 @@ RUN sed -i 's/access.log = .*/access.log = \/dev\/null/' /usr/local/etc/php-fpm.
 # the base image sets this value at 5, and the default value in the override matches that
 # if an instance of Materia receives moderate traffic, this value will likely need to be raised
 # the file is renamed to zzz-materia.conf to ensure it is loaded last, a zz-docker.conf will already be present in the php-fpm.d directory
-COPY --chown=www-data:www-data ./docker/config/php/materia.www.conf /usr/local/etc/php-fpm.d/zzz-materia.conf
+COPY ./docker/config/php/materia.www.conf /usr/local/etc/php-fpm.d/zzz-materia.conf
 
 WORKDIR /var/www/html
 
