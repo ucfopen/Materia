@@ -45,11 +45,14 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 # Modify php-fpm.d/docker.conf to point access.log to /dev/null/, which effectively prevents it from being picked up by the log driver
 RUN sed -i 's/access.log = .*/access.log = \/dev\/null/' /usr/local/etc/php-fpm.d/docker.conf
 
-# adds an easily accessible override config for php-fpm's pm.max_children value
-# the base image sets this value at 5, and the default value in the override matches that
-# if an instance of Materia receives moderate traffic, this value will likely need to be raised
-# the file is renamed to zzz-materia.conf to ensure it is loaded last, a zz-docker.conf will already be present in the php-fpm.d directory
-COPY ./docker/config/php/materia.www.conf /usr/local/etc/php-fpm.d/zzz-materia.conf
+# Adds an easily accessible override config for php-fpm's pm.max_children value
+# The base image sets this value at 5, and the default value in the override matches that
+# If an instance of Materia receives moderate traffic, this value will likely need to be raised
+# The file is renamed to zzz-materia.conf to ensure it is loaded last, a zz-docker.conf will already be present in the php-fpm.d directory
+# 
+# If preferred, the configuration can be mounted via volume in your deployment's compose file instead
+#
+# COPY ./docker/config/php/materia.www.conf /usr/local/etc/php-fpm.d/zzz-materia.conf
 
 WORKDIR /var/www/html
 
