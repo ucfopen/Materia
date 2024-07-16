@@ -106,7 +106,7 @@ class Controller_Media extends Controller
 		$name = Input::post('name', 'New Asset');
 		$asset = Widget_Asset_Manager::new_asset_from_file($name, $file_info);
 
-		if ( ! isset($asset->id))
+		if ( ! $asset || ! isset($asset->id))
 		{
 			// error
 			trace('Unable to create asset');

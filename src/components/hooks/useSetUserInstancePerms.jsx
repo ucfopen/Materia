@@ -9,7 +9,9 @@ export default function setUserInstancePerms() {
 			{
 				variables.successFunc(data)
 			},
-			onError: () => console.error('failed to update user perms')
+			onError: (err, variables) => {
+				variables.errorFunc(err)
+			}
 		}
 	)
 }

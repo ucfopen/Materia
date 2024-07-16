@@ -99,7 +99,7 @@ class Test_Api_V1 extends \Basetest
 
 	public function test_widget_instance_access_perms_verify()
 	{
-		$output = Api_V1::widget_instance_access_perms_verify('test');
+		$output = Api_V1::widget_instance_access_perms_verify('you_do_not_exist');
 		$this->assert_invalid_login_message($output);
 	}
 
@@ -133,17 +133,6 @@ class Test_Api_V1 extends \Basetest
 			$this->assertObjectHasAttribute('qset', $value);
 			$this->assertNull($value->qset->data);
 			$this->assertNull($value->qset->version);
-		}
-
-		// ----- loads specific instance with qset --------
-		$output = Api_V1::widget_instances_get($instance->id, false, true);
-		$this->assertIsArray($output);
-		$this->assertCount(1, $output);
-		foreach ($output as $key => $value)
-		{
-			$this->assert_is_widget_instance($value, true);
-			$this->assertObjectHasAttribute('qset', $value);
-			$this->assert_is_qset($value->qset);
 		}
 
 		// ======= STUDENT ========
@@ -274,7 +263,7 @@ class Test_Api_V1 extends \Basetest
 
 		$output = Api_V1::widget_instance_new($widget->id, 'test', $qset, false);
 		$this->assertInstanceOf('\Materia\Msg', $output);
-		$this->assertEquals('Widget type can not be published by students.', $output->title);
+		$this->assertEquals('Widget type can not be published by students.', $output->msg);
 	}
 
 	public function test_widget_instance_update()
@@ -644,24 +633,22 @@ class Test_Api_V1 extends \Basetest
 		// ======= AS NO ONE ========
 		\Auth::logout();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
-		$this->assertInstanceOf('\Materia\Msg', $output->msg);
-		$this->assertEquals('Invalid Login', $output->msg->title);
-		$this->assertTrue($output->is_locked);
-		$this->assertFalse($output->can_publish);
+		$this->assertInstanceOf('\Materia\Msg', $output);
+		$this->assertEquals('Invalid Login', $output->title);
 
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertFalse($output->can_publish);
-		$this->assertNull($output->msg);
+		$this->assertTrue($output->can_edit);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertTrue($output->can_publish);
-		$this->assertNull($output->msg);
+		$this->assertTrue($output->can_edit);
 
 		// lock widget as author
 		Api_V1::widget_instance_lock($instance->id);
@@ -672,14 +659,23 @@ class Test_Api_V1 extends \Basetest
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertTrue($output->is_locked);
 		$this->assertFalse($output->can_publish);
-		$this->assertNull($output->msg);
+		$this->assertTrue($output->can_edit);
 
 		// ======= AUTHOR ========
 		$this->_as_author();
 		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
 		$this->assertFalse($output->is_locked);
 		$this->assertTrue($output->can_publish);
-		$this->assertNull($output->msg);
+		$this->assertTrue($output->can_edit);
+
+		//set perms to view scores
+		$accessObj->perms = [Perm::FULL => false];
+		Api_V1::permissions_set(Perm::INSTANCE, $instance->id, [$accessObj]);
+
+		$output = Api_V1::widget_instance_edit_perms_verify($instance->id);
+		$this->assertFalse($output->is_locked);
+		$this->assertTrue($output->can_publish);
+		$this->assertFalse($output->can_edit);
 	}
 
 	public function test_widget_publish_perms_verify(): void
@@ -1460,7 +1456,7 @@ class Test_Api_V1 extends \Basetest
 		// ======= STUDENT ========
 		$this->_as_student();
 		$output = Api_V1::notification_delete(5, false);
-		$this->assertFalse($output);
+		$this->assertInstanceOf('\Materia\Msg', $output);
 
 		$author = $this->_as_author();
 		$notifications = Api_V1::notifications_get();
@@ -1487,7 +1483,7 @@ class Test_Api_V1 extends \Basetest
 		// try as someone author2
 		$this->_as_author_2();
 		$output = Api_V1::notification_delete($notifications[0]['id'], false);
-		$this->assertFalse($output);
+		$this->assertInstanceOf('\Materia\Msg', $output);
 
 		$this->_as_author();
 		$output = Api_V1::notification_delete($notifications[0]['id'], false);

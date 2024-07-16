@@ -1,5 +1,5 @@
 
-const fetchOptions = ({body}) => ({
+const fetchPOSTOptions = ({body}) => ({
 	headers: {
 		pragma: 'no-cache',
 		'cache-control': 'no-cache',
@@ -11,4 +11,4 @@ const fetchOptions = ({body}) => ({
 	body
 })
 
-export default fetchOptions
+export default fetchPOSTOptions
