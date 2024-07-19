@@ -14,6 +14,7 @@ const WidgetAdminPage = () => {
 		queryKey: ['widgets'],
 		queryFn: apiGetWidgetsAdmin,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (widgetData) => {
 			widgetData.forEach((w) => {
 				w.icon = iconUrl('/widget/', w.dir, 60)
