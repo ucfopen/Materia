@@ -76,6 +76,7 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		enabled: !!inst && inst.id !== undefined,
 		placeholderData: null,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setInvalidLogin(true)
