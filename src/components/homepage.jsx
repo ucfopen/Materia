@@ -35,7 +35,7 @@ const Homepage = () => (
 							Use Materia at your organization through UCF Open.
 						</p>
 				<p className='button_wrap'>
-					<a className='action_button' href='widgets'>Get Materia</a>
+					<a className='action_button' href='https://github.com/ucfopen/Materia' target="_blank">Get Materia</a>
 				</p>
 			</div>
 		</section>
