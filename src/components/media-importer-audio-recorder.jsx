@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { fixWebmDuration } from '@fix-webm-duration/fix'
 
 const MediaImporterAudioRecorder = ({uploadFromAudioRecorder}) => {
 
@@ -11,6 +12,7 @@ const MediaImporterAudioRecorder = ({uploadFromAudioRecorder}) => {
 	const [warningMessage, setWarningMessage] = useState('')
 	const chunks = useRef(false)
 	const nameInputRef = useRef(false)
+	const durationRef = useRef(0)
 
 	useEffect(() => {
 		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -39,9 +41,15 @@ const MediaImporterAudioRecorder = ({uploadFromAudioRecorder}) => {
 			const blob = new Blob(chunks.current, { type: 'audio/webm; codecs="opus"' })
 			chunks.current = []
 
-			const clipUrl = window.URL.createObjectURL(blob)
-			setClip(clipUrl)
-			setAudioBlob(blob)
+			// fixWebmDuration is used to ensure the mediarecorder blob has the correct duration value
+			// otherwise, no duration metadata is included. This is a known chromium bug.
+			fixWebmDuration(blob, durationRef.current * 1000, {logger: false}).then((fixed) => {
+				setAudioBlob(fixed)
+				durationRef.current = 0
+
+				const clipUrl = window.URL.createObjectURL(fixed)
+				setClip(clipUrl)
+			})
 		}
 
 		if (recorder) {
@@ -60,10 +68,11 @@ const MediaImporterAudioRecorder = ({uploadFromAudioRecorder}) => {
 		let interval = null
 		if (recordingStatus === 'recording') {
 			interval = setInterval(() => {
-				setRecordingDuration(prevDuration => prevDuration + 1)
+				durationRef.current = durationRef.current + 1
+				// state update per-interval to ensure the recording duration is rerendered appropriately
+				// note the recordingDuration state object is never actually used, we're using ref instead due to references within event handlers
+				setRecordingDuration(durationRef.current)
 			}, 1000)
-		} else if (recordingStatus === 'inactive') {
-			setRecordingDuration(0)
 		}
 		return () => clearInterval(interval)
 	}, [recordingStatus])
@@ -129,7 +138,7 @@ const MediaImporterAudioRecorder = ({uploadFromAudioRecorder}) => {
 				<div className='wave'></div>
 			</div>
 			<div className={`recording-duration ${recordingStatus == 'recording' ? 'show' : ''}`}>
-				{ formatRecordingDuration(recordingDuration) }
+				{ formatRecordingDuration(durationRef.current) }
 			</div>
 		</>
 	)
