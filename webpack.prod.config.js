@@ -67,9 +67,18 @@ module.exports = {
 	],
 	resolve: {
 		extensions: ['.js', '.jsx'],
+	},
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				commons: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'commons',
+					chunks: (chunk) => {
+						return (chunk.name !== 'materia.enginecore' && chunk.name !== 'materia.creatorcore' && chunk.name !== 'materia.scorecore')
+					},
+				}
+			}
+		}
 	}
-	// externals: {
-	// 	react: 'React',
-	// 	'react-dom': 'ReactDOM'
-	// }
 }

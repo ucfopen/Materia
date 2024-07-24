@@ -40,6 +40,20 @@ RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer --ve
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+# By default the php-fpm image is including access.log in the docker stream
+# These logs aren't particularly useful and add considerable bloat to the prod logs that have to be filtered out
+# Modify php-fpm.d/docker.conf to point access.log to /dev/null/, which effectively prevents it from being picked up by the log driver
+RUN sed -i 's/access.log = .*/access.log = \/dev\/null/' /usr/local/etc/php-fpm.d/docker.conf
+
+# Adds an easily accessible override config for php-fpm's pm.max_children value
+# The base image sets this value at 5, and the default value in the override matches that
+# If an instance of Materia receives moderate traffic, this value will likely need to be raised
+# The file is renamed to zzz-materia.conf to ensure it is loaded last, a zz-docker.conf will already be present in the php-fpm.d directory
+# 
+# If preferred, the configuration can be mounted via volume in your deployment's compose file instead
+#
+# COPY ./docker/config/php/materia.www.conf /usr/local/etc/php-fpm.d/zzz-materia.conf
+
 WORKDIR /var/www/html
 
 # =====================================================================================================

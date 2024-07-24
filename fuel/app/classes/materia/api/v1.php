@@ -42,18 +42,18 @@ class Api_V1
 		return Widget_Manager::get_widgets([], $type);
 	}
 
-	static public function widget_instances_get($inst_ids = null, bool $deleted = false, $load_qset = false)
+	static public function widget_instances_get($inst_ids = null, bool $deleted = false)
 	{
 		// get all my instances - must be logged in
 		if (empty($inst_ids))
 		{
-			if (\Service_User::verify_session() !== true) return []; // shortcut to returning noting
-			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id(), $load_qset);
+			if (\Service_User::verify_session() !== true) return Msg::no_login(); // shortcut to returning noting
+			return Widget_Instance_Manager::get_all_for_user(\Model_User::find_current_id());
 		}
 
 		// get specific instances - no log in required
 		if ( ! is_array($inst_ids)) $inst_ids = [$inst_ids]; // convert string into array of items
-		return Widget_Instance_Manager::get_all($inst_ids, $load_qset, false, $deleted);
+		return Widget_Instance_Manager::get_all($inst_ids, false, false, $deleted);
 	}
 
 /**
@@ -64,10 +64,10 @@ class Api_V1
  *
  * @return array of objects containing total_num_pages and widget instances that are visible to the user.
  */
-	static public function widget_paginate_instances_get($page_number = 0)
+	static public function widget_paginate_user_instances_get($page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		$data = Widget_Instance_Manager::get_paginated_for_user(\Model_User::find_current_id(), $page_number);
+		$data = Widget_Instance_Manager::get_paginated_instances_for_user(\Model_User::find_current_id(), $page_number);
 		return $data;
 	}
 
@@ -79,38 +79,53 @@ class Api_V1
 		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) return false;
-		return $inst->db_remove();
+		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+
+		$result = $inst->db_remove();
+		if ($result)
+		{
+			return $inst_id;
+		}
+		else
+		{
+			return Msg::failure('Failed to remove widget instance from database');
+		}
 	}
 
 	static public function widget_instance_access_perms_verify($inst_id)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		return static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL]);
+
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL]))
+		{
+			return Msg::no_perm();
+		}
+		return true;
 	}
 
 	/**
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */
-	static public function widget_instance_edit_perms_verify(string $inst_id): \stdClass
+	
+	 // !! this endpoint should be significantly refactored or removed in the future API overhaul !!
+	static public function widget_instance_edit_perms_verify(string $inst_id)
 	{
 		$response = new \stdClass();
-		$response->msg = null;
-		$response->is_locked = true;
+
+		$response->is_locked = false;
 		$response->can_publish = false;
+		$response->can_edit = false;
 
-		if ( ! Util_Validator::is_valid_hash($inst_id)) $response->msg = Msg::invalid_input($inst_id);
-		else if (\Service_User::verify_session() !== true) $response->msg = Msg::no_login();
-		else if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) $response->msg = Msg::no_perm();
-		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) $response->msg = new Msg(Msg::ERROR, 'Widget instance does not exist.');
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		else if (\Service_User::verify_session() !== true) return Msg::no_login();
+		else if ( ! ($inst = Widget_Instance_Manager::get($inst_id)))  throw new \HttpNotFoundException;
 
-		//msg property only set if something went wrong
-		if ( ! $response->msg)
-		{
-			$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
-			$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
-		}
+		$response->is_locked = ! Widget_Instance_Manager::locked_by_current_user($inst_id);
+		$response->can_publish = $inst->widget->publishable_by(\Model_User::find_current_id());
+		$response->can_edit = static::has_perms_to_inst($inst_id, [Perm::FULL]);
 
 		return $response;
 	}
@@ -140,17 +155,19 @@ class Api_V1
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL]) && ! Perm_Manager::is_support_user()) return Msg::no_perm();
 		$inst = Widget_Instance_Manager::get($inst_id, true);
+		if ( ! $inst) return Msg::failure('Widget instance could not be found.');
 
 		try
 		{
 			// retain access - if true, grant access to the copy to all original owners
 			$current_user_id = \Model_User::find_current_id();
+			if ( ! $current_user_id) return Msg::failure('Could not find current user.');
 			$duplicate = $inst->duplicate($current_user_id, $new_name, $copy_existing_perms);
 			return $duplicate;
 		}
 		catch (\Exception $e)
 		{
-			return new Msg(Msg::ERROR, 'Widget instance could not be copied.');
+			return Msg::failure('Widget instance could not be copied.');
 		}
 	}
 
@@ -177,8 +194,8 @@ class Api_V1
 
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
-		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
-		if ( $is_draft && ! $widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
+		if ( ! $is_draft && ! $widget->publishable_by(\Model_User::find_current_id()) ) return Msg::no_perm('Widget type can not be published by students.');
+		if ( $is_draft && ! $widget->is_editable) return Msg::failure('Non-editable widgets can not be saved as drafts!');
 
 		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
 		$inst = new Widget_Instance([
@@ -203,7 +220,7 @@ class Api_V1
 		catch (\Exception $e)
 		{
 			trace($e);
-			return new Msg(Msg::ERROR, 'Widget instance could not be saved.');
+			return Msg::failure('Widget instance could not be saved.');
 		}
 	}
 
@@ -218,7 +235,7 @@ class Api_V1
 	 * @param int     $close_at
 	 * @param int     $attempts
 	 * @param bool    $guest_access
-	 * @param bool 	  $is_student_made
+	 * @param bool 	  $is_student_made // NOT USED
 	 *
 	 * @return array An associative array with details about the save
 	 */
@@ -226,17 +243,21 @@ class Api_V1
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return new Msg(Msg::ERROR, 'Instance id is invalid');
-		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input('Instance id is invalid');
+		if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 
 		$inst = Widget_Instance_Manager::get($inst_id, true);
-		if ( ! $inst) return new Msg(Msg::ERROR, 'Widget instance could not be found.');
-		if ( $is_draft && ! $inst->widget->is_editable) return new Msg(Msg::ERROR, 'Non-editable widgets can not be saved as drafts!');
-		if ( ! $is_draft && ! $inst->widget->publishable_by(\Model_User::find_current_id())) return new Msg(Msg::ERROR, 'Widget type can not be published by students.');
+		if ( ! $inst) return Msg::failure('Widget instance could not be found.');
+		if ( $is_draft && ! $inst->widget->is_editable) return Msg::failure('Non-editable widgets can not be saved as drafts!');
+		if ( ! $is_draft && ! $inst->widget->publishable_by(\Model_User::find_current_id())) return Msg::no_perm('Widget type can not be published by students.');
 
 		// student made widgets are locked forever
 		if ($inst->is_student_made)
 		{
+			if ($guest_access === false)
+			{
+				return new Msg('Student-made widgets must stay in guest access mode.', 'Student Made', 'error', false);
+			}
 			$attempts = -1;
 			$guest_access = true;
 		}
@@ -328,28 +349,33 @@ class Api_V1
 		}
 		if ($guest_access !== null)
 		{
-			if ($inst->guest_access != $guest_access)
+			// if the user is a student and they're not the owner, they can't do anything
+			// if the user is a student and they're the owner, they're allowed to set it to guest access
+			if (($inst->user_id == \Model_User::find_current_id() && $guest_access) || ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
-				$activity = new Session_Activity([
-					'user_id' => \Model_User::find_current_id(),
-					'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
-					'item_id' => $inst_id,
-					'value_1' => 'Guest Access',
-					'value_2' => $guest_access
-				]);
-				$activity->db_store();
-			}
-			$inst->guest_access = $guest_access;
-			// when disabling guest mode on a widget, make sure no students have access to that widget
-			if ( ! $guest_access)
-			{
-				$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
-				foreach ($access as $user_id => $user_perms)
+				if ($inst->guest_access != $guest_access)
 				{
-					if (Perm_Manager::is_student($user_id))
+					$activity = new Session_Activity([
+						'user_id' => \Model_User::find_current_id(),
+						'type'    => Session_Activity::TYPE_EDIT_WIDGET_SETTINGS,
+						'item_id' => $inst_id,
+						'value_1' => 'Guest Access',
+						'value_2' => $guest_access
+					]);
+					$activity->db_store();
+				}
+				$inst->guest_access = $guest_access;
+				// when disabling guest mode on a widget, make sure no students have access to that widget
+				if ( ! $guest_access)
+				{
+					$access = Perm_Manager::get_all_users_explicit_perms($inst_id, Perm::INSTANCE)['widget_user_perms'];
+					foreach ($access as $user_id => $user_perms)
 					{
-						\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
-						Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+						if (Perm_Manager::is_student($user_id) && $user_id != $inst->user_id)
+						{
+							\Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+							Perm_Manager::clear_user_object_perms($inst_id, Perm::INSTANCE, $user_id);
+						}
 					}
 				}
 			}
@@ -357,7 +383,8 @@ class Api_V1
 
 		if ($embedded_only !== null)
 		{
-			if ($inst->embedded_only != $embedded_only)
+			// if current user is student, they cannot change embedded_only
+			if ($inst->embedded_only != $embedded_only && ! Perm_Manager::is_student(\Model_User::find_current_id()))
 			{
 				$activity = new Session_Activity([
 					'user_id' => \Model_User::find_current_id(),
@@ -367,8 +394,9 @@ class Api_V1
 					'value_2' => $embedded_only
 				]);
 				$activity->db_store();
+
+				$inst->embedded_only = $embedded_only;
 			}
-			$inst->embedded_only = $embedded_only;
 		}
 
 		try
@@ -378,7 +406,7 @@ class Api_V1
 		}
 		catch (\Exception $e)
 		{
-			return new Msg(Msg::ERROR, 'Widget could not be created.');
+			return Msg::failure('Widget could not be created.');
 		}
 	}
 
@@ -397,7 +425,7 @@ class Api_V1
 	{
 		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
 		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		if ( $inst->is_draft == true) return new Msg(Msg::ERROR, 'Drafts Not Playable', 'Must use Preview to play a draft.');
+		if ( $inst->is_draft == true) return Msg::failure('Drafts Not Playable', 'Must use Preview to play a draft.');
 
 		$play = new Session_Play();
 		$play_id = $play->start(\Model_User::find_current_id(), $inst_id, $context_id);
@@ -433,7 +461,7 @@ class Api_V1
 	static public function session_play_verify($play_id)
 	{
 		// Standard session validation first
-		if (\Service_User::verify_session() !== true) return false;
+		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		// if $play_id is null, assume it's a preview, no need for user check
 		if ( ! $play_id) return true;
@@ -481,7 +509,7 @@ class Api_V1
 		else
 		{
 			// No user in session, just perform auth check
-			if (\Service_User::verify_session() !== true) return false;
+			if (\Service_User::verify_session() !== true) return Msg::no_login();
 		}
 
 		if ( $preview_inst_id === null && ! Util_Validator::is_valid_long_hash($play_id)) return Msg::invalid_input($play_id);
@@ -524,7 +552,7 @@ class Api_V1
 			if ($score_mod->validate_times() == false)
 			{
 				$play->invalidate();
-				return new Msg(Msg::ERROR, 'Timing validation error.', true);
+				return Msg::failure('Timing validation error.');
 			}
 
 			// if widget is not scorable, check for a participation score log
@@ -548,7 +576,7 @@ class Api_V1
 			catch (Score_Exception $e)
 			{
 				$play->invalidate();
-				return new Msg($e->message, $e->title, Msg::ERROR, true);
+				return Msg::failure($e->message, $e->title);
 			}
 
 			$return = [];
@@ -627,7 +655,9 @@ class Api_V1
 		if (Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			$inst = Widget_Instance_Manager::get($preview_mode_inst_id);
-			return Score_Manager::get_preview_logs($inst);
+			$preview_logs = Score_Manager::get_preview_logs($inst);
+			if ( ! is_array($preview_logs)) return Msg::expired();
+			else return $preview_logs;
 		}
 		else
 		{
@@ -662,11 +692,12 @@ class Api_V1
 	 */
 	static public function play_logs_get($inst_id, $semester = 'all', $year = 'all', $page_number=1)
 	{
-	if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
+		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 		if ( ! static::has_perms_to_inst($inst_id, [Perm::VISIBLE, Perm::FULL])) return Msg::no_perm();
+		$is_student = ! \Service_User::verify_session(['basic_author', 'super_user']);
 
-		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number);
+		$data = Session_Play::get_by_inst_id_paginated($inst_id, $semester, $year, $page_number, $is_student);
 		return $data;
 	}
 
@@ -743,7 +774,7 @@ class Api_V1
 		}
 		catch (\Exception $e) {
 			trace("Error loading score module for {$inst_id}");
-			return false;
+			return Msg::failure("Error loading score module for {$inst_id}");
 		}
 
 		$result = null;
@@ -881,23 +912,39 @@ class Api_V1
 		return Utils::get_date_ranges();
 	}
 
-	static public function users_search($search)
+	/**
+	 * Paginated search for users that match input
+	 *
+	 * @param string Search query
+	 * @param string Page number
+	 * @return array List of users
+	 */
+	static public function users_search($input, $page_number = 0)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
-		$user_objects = \Model_User::find_by_name_search($search);
-		$user_arrays = [];
+		$items_per_page = 50;
+		$offset = $items_per_page * $page_number;
 
-		// scrub the user models with to_array
-		if (count($user_objects))
+		// query DB for only a single page + 1 item
+		$displayable_items = \Model_User::find_by_name_search($input, $offset, $items_per_page + 1);
+
+		$has_next_page = sizeof($displayable_items) > $items_per_page ? true : false;
+
+		if ($has_next_page) array_pop($displayable_items);
+
+		foreach ($displayable_items as $key => $person)
 		{
-			foreach ($user_objects as $key => $person)
-			{
-				$user_arrays[$key] = $person->to_array();
-			}
+			$displayable_items[$key] = $person->to_array();
 		}
 
-		return $user_arrays;
+		$data = [
+			'pagination' => $displayable_items,
+		];
+
+		if ($has_next_page) $data['next_page'] = $page_number + 1;
+
+		return $data;
 	}
 	/**
 	 * Gets information about the current user
@@ -908,6 +955,7 @@ class Api_V1
 	static public function user_get($user_ids = null)
 	{
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
+		$results = [];
 
 		//no user ids provided, return current user
 		if ($user_ids === null)
@@ -1155,7 +1203,7 @@ class Api_V1
 				return true;
 			}
 		}
-		return false;
+		return Msg::failure('Failed to delete notification');
 	}
 	/**
 	 * Returns all of the semesters from the semester table

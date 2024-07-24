@@ -7,37 +7,48 @@ import LoadingIcon from './loading-icon'
 import NoScoreContent from'./no-score-content'
 import './my-widgets-scores.scss'
 
-const MyWidgetsScores = ({inst, beardMode}) => {
+const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
 	const [state, setState] = useState({
 		isShowingAll: false,
 		hasScores: false,
 		showExport: false
 	})
+	const [error, setError] = useState('')
 	const { data: currScores, isFetched } = useQuery({
 		queryKey: ['score-summary', inst.id],
 		queryFn: () => apiGetScoreSummary(inst.id),
 		enabled: !!inst && !!inst.id,
 		staleTime: Infinity,
-		placeholderData: []
+		placeholderData: [],
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setInvalidLogin(true);
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve scores.")
+			}
+		}
 	})
 
 	// Initializes the data when widget changes
 	useEffect(() => {
 		let hasScores = false
+		if (currScores) {
+			currScores.map(val => {
+				if (val.distribution) hasScores = true
+			})
 
-		currScores.map(val => {
-			if (val.distribution) hasScores = true
-		})
-
-		setState({
-			hasScores: hasScores,
-			showExport: false
-		})
+			setState({
+				hasScores: hasScores,
+				showExport: false
+			})
+		}
 	}, [JSON.stringify(currScores)])
 
 	const displayedSemesters = useMemo(() => {
 		if (currScores && (state.isShowingAll || currScores.length < 2)) return currScores // all semester being displayed
-		return currScores.slice(0,1) // show just one semester, gracefully handles empty array
+		else if (currScores) return currScores.slice(0,1) // show just one semester, gracefully handles empty array
+		else return [] // no scores yet
 	}, [currScores, state.isShowingAll])
 
 	const openExport = () => {
@@ -61,7 +72,10 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 	const handleShowOlderClick = () => setState({...state, isShowingAll: !state.isShowingAll})
 
 	let contentRender = <LoadingIcon />
-	if (isFetched) {
+	if (error) {
+		contentRender = <div className='error'>{error}</div>
+	}
+	else if (isFetched) {
 		contentRender = <NoScoreContent scorable={parseInt(inst.widget.is_scorable)} isDraft={inst.is_draft} beardMode={beardMode} />
 		if (state.hasScores || containsStorage()) {
 			const semesterElements = displayedSemesters.map(semester => (
@@ -69,6 +83,7 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 					semester={semester}
 					instId={inst.id}
 					hasScores={state.hasScores}
+					setInvalidLogin={setInvalidLogin}
 				/>
 			))
 
@@ -97,13 +112,15 @@ const MyWidgetsScores = ({inst, beardMode}) => {
 
 	return (
 		<div className='scores'>
-			<h2>Student Activity</h2>
-			<span id='export_scores_button'
-				className={`aux_button ${inst.is_draft ? 'disabled' : ''}`}
-				onClick={openExport}>
-				<span className='arrow_down'></span>
-				Export Options
-			</span>
+			<header className='student-activity-header'>
+				<h2>Student Activity</h2>
+				<span
+					className={`action_button ${inst.is_draft ? 'disabled' : ''}`}
+					onClick={openExport}>
+					<span className='arrow_down'></span>
+					Export Options
+				</span>
+			</header>
 			{ contentRender }
 			{ exportRender }
 		</div>

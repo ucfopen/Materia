@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { apiGetUser, apiSearchWidgets} from '../util/api'
+import { apiGetUser, apiSearchInstances} from '../util/api'
 import SupportSearch from './support-search'
 import SupportSelectedInstance from './support-selected-instance'
 import Header from './header'
@@ -9,18 +9,35 @@ import './support-page.scss'
 const SupportPage = () => {
 	const [selectedInstance, setSelectedInstance] = useState(null)
 	const [widgetHash, setWidgetHash] = useState(window.location.href.split('#')[1])
+	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const { data: currentUser} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve current user.")
+			}
+		}
 	})
 
 	const { data: instFromHash } = useQuery({
 		queryKey: ['search-widgets', widgetHash],
-		queryFn: () => apiSearchWidgets(widgetHash),
+		queryFn: () => apiSearchInstances(widgetHash),
 		enabled: widgetHash != undefined && widgetHash != selectedInstance?.id,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((err.message || "Error") + ": Failed to retrieve widget(s).")
+			}
+		}
 	})
 
 	useEffect(() => {
@@ -35,8 +52,8 @@ const SupportPage = () => {
 
 
 	useEffect(() => {
-		if (Array.isArray(instFromHash) && instFromHash.length > 0) {
-			setSelectedInstance(instFromHash[[0]])
+		if (instFromHash && instFromHash.pagination && instFromHash.pagination.length > 0) {
+			setSelectedInstance(instFromHash.pagination[0])
 		}
 	},[instFromHash])
 
@@ -53,14 +70,25 @@ const SupportPage = () => {
 		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
 	}
 
-	let mainContentRender = <SupportSearch onClick={handleSearchClick}/>
-	if (selectedInstance) {
+	const onCopySuccess = (inst) => {
+		setSelectedInstance(inst)
+		window.history.pushState(document.body.innerHTML, document.title, `#${inst.id}`)
+	}
+
+	let mainContentRender = null
+	if (error) {
+		mainContentRender = <div className='error'>{error}</div>
+	}
+	else if (selectedInstance) {
 		mainContentRender = (
 			<SupportSelectedInstance inst={selectedInstance}
 				key={selectedInstance ? selectedInstance.id : ''}
 				currentUser={currentUser}
+				onCopySuccess={onCopySuccess}
 			/>
 		)
+	} else {
+		mainContentRender = <SupportSearch onClick={handleSearchClick}/>
 	}
 
 	return (

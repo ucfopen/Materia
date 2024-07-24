@@ -295,7 +295,7 @@ header {
 			background-color: #ffffff;
 			padding: 0;
 			position: absolute;
-			bottom: -150%;
+			bottom: -140%;
 			left: -10px;
 			border-left: 1px solid #d3d3d3;
 			border-right: 1px solid #d3d3d3;
@@ -756,40 +756,39 @@ h1.logo {
 .page, .widget {
 	position: relative;
 	z-index: 1;
+}
 
-	.alert-wrapper {
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 9998;
-		width: 100%;
-		height: 100%;
-		background: rgba(0,0,0,0.66);
+.alert-wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9998;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.66);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-		.alert-dialog {
-			position: absolute;
-			top: 25%;
-			left: 50%;
-			width: 400px;
-			margin-left: -200px;
-			text-align: center;
-			padding: 15px;
-			background: #fff;
+	.alert-dialog {
+		width: 400px;
+		text-align: center;
+		padding: 15px;
+		background: #fff;
 
-			h3 {
-				margin: 5px 0;
-				font-size: 1.2em;
-			}
+		h3 {
+			margin: 5px 0;
+			font-size: 1.2em;
+		}
 
-			.buttons {
-				display: block;
-				width: 100%;
-				margin-top: 5px;
+		.buttons {
+			display: block;
+			width: 100%;
+			margin-top: 5px;
 
-				.action_button {
-					display: inline-block;
-					margin: 10px 0 5px 0;
-				}
+			.action_button {
+				display: inline-block;
+				margin: 10px 0 5px 0;
 			}
 		}
 	}
@@ -880,4 +879,49 @@ footer {
 		border-width: 28px;
 		margin-top: -28px;
 	}
+}
+
+
+.error {
+	p {
+		min-width: 340px;
+		padding: 6px 10px;
+		margin: 25px auto;
+		background: #ffcfcf;
+
+		color: red;
+		font-weight: 600;
+		font-size: 17px;
+		text-align: center;
+		box-sizing: border-box;
+
+	}
+}
+
+.success {
+	p {
+		min-width: 340px;
+		padding: 6px 10px;
+		margin: 25px auto;
+		background: #c4ffdf;
+
+		color: green;
+		font-weight: 600;
+		font-size: 17px;
+		text-align: center;
+		box-sizing: border-box;
+
+	}
+}
+
+.no_permission {
+	ul {
+		width: 360px;
+		margin: auto;
+		text-align: left;
+	}
+}
+
+.notif-error {
+	color: red;
 }

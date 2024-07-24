@@ -1,60 +1,46 @@
-import React from 'react'
-import { createPortal } from 'react-dom';
+import React, { useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+
 import './modal.scss'
 
-class Modal extends React.Component {
-	constructor( props ) {
-		super( props )
-		// create an element div for this modal
-		this.modalRef = React.createRef()
-		this.element = document.createElement( 'div' )
-		this.clickOutsideListener = this.clickOutsideListener.bind(this)
+const Modal = (props) => {
 
-		// We get hold of the div with the id modal that we have created in index.html
-		this.modalRoot = document.getElementById( 'modal' )
-	}
+	const innerModalRef = useRef(null)
+	const innerModalOverlayRef = useRef(null)
 
-	clickOutsideListener(event){
+	const clickOutsideListener = (event) => {
 		// Do nothing if clicking ref's element or descendent elements
-		if (!this.modalRef.current || this.modalRef.current.contains(event.target)) {
-			return
-		}
-
-		if (this.props.ignoreClose !== true) {
-			this.props.onClose()
-		}
-	};
-
-	componentDidMount() {
-		this.modalRoot.appendChild( this.element )
-		document.addEventListener('mousedown', this.clickOutsideListener)
-		document.addEventListener('touchstart', this.clickOutsideListener)
+		if (!innerModalOverlayRef.current.contains(event.target)) return
+		if (props.ignoreClose != true) props.onClose()
 	}
 
-	componentWillUnmount() {
-		this.modalRoot.removeChild( this.element )
-		document.removeEventListener('mousedown', this.clickOutsideListener)
-		document.removeEventListener('touchstart', this.clickOutsideListener)
-	}
+	useEffect(() => {
 
-	render() {
-		const stuff = (
-			<>
-				<div className={`modal-overlay ${this.props.alert ? 'alert' : ''}`} id='modal-overlay'></div>
+		document.addEventListener('mouseup', clickOutsideListener)
+		document.addEventListener('touchend', clickOutsideListener)
 
-				<div ref={this.modalRef} className={`modal ${this.props.smaller ? 'small' : ''} ${this.props.noGutter ? 'no-gutter' : ''}`} id='inner-modal'>
-					<span className='close-button'
-						id='close-button'
-						aria-label={`close${this.props.testId ? `-${this.props.testId}-` : '-'}modal`}
-						onClick={this.props.onClose}>X</span>
-					<div className={`modal-guts ${this.props.noGutter ? 'no-gutter' : ''}`}>
-						{this.props.children}
-					</div>
+		return () => {
+			document.removeEventListener('mouseup', clickOutsideListener)
+			document.removeEventListener('touchend', clickOutsideListener)
+		}
+
+	},[])
+
+	const modal =
+		(<>
+			<div ref={innerModalOverlayRef} className={`modal-overlay ${props.alert ? 'alert' : ''}`} id='modal-overlay'></div>
+			<div ref={innerModalRef} className={`modal ${props.smaller ? 'small' : ''} ${props.noGutter ? 'no-gutter' : ''}`} id='inner-modal'>
+				<span className='close-button'
+					id='close-button'
+					aria-label={`close${props.testId ? `-${props.testId}-` : '-'}modal`}
+					onClick={props.onClose}>X</span>
+				<div className={`modal-guts ${props.noGutter ? 'no-gutter' : ''}`}>
+					{props.children}
 				</div>
-			</>
-		)
-		return createPortal( stuff, this.element );
-	}
+			</div>
+		</>)
+
+	return createPortal(modal, document.getElementById('modal'))
 }
 
 export default Modal

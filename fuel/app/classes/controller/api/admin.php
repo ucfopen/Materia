@@ -69,13 +69,20 @@ class Controller_Api_Admin extends Controller_Rest
 		return \Service_User::update_user($user_id, $user);
 	}
 
-	public function get_widget_search(string $input)
+	public function get_instance_search(string $input, string $page_number)
 	{
 		$input = trim($input);
 		$input = urldecode($input);
+		$page_number = (int) $page_number;
 		//no need to search if for some reason an empty string is passed
-		if ($input == '') return [];
-		return \Materia\Widget_Instance_Manager::get_search($input);
+		if ($input == '')
+		{
+			return [
+				'pagination' => [],
+				'next_page'  => $page_number
+			];
+		}
+		return \Materia\Widget_Instance_Manager::get_paginated_instance_search($input, $page_number);
 	}
 
 	public function get_extra_attempts(string $inst_id)
@@ -118,7 +125,7 @@ class Controller_Api_Admin extends Controller_Rest
 	{
 		if ( ! \Materia\Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id, false, false, true))) return new Msg(Msg::ERROR, 'Widget instance does not exist.');
+		if ( ! ($inst = \Materia\Widget_Instance_Manager::get($inst_id, false, false, true))) return Msg::failure('Widget instance does not exist.');
 		return $inst->db_undelete();
 	}
 }

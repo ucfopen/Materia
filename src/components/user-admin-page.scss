@@ -11,7 +11,21 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 720px;
 
+
 	.page {
+
+		.loading {
+			position: relative;
+			height: 40px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin: 5px 0;
+
+			.loading-text {
+				margin-left: 50px;
+			}
+		}
 
 		#breadcrumb-container {
 			display: inline-block;
@@ -60,12 +74,12 @@
 		}
 
 		.search {
-			margin: 10px 0 10px 10px;
+			margin: 10px 0 10px 15px;
 
 			input.user_search {
 				width: 60%;
 				height: 30px;
-				margin: 10px 5px;
+				margin: 10px 0;
 				padding: 5px;
 
 				border-radius: 5px;
@@ -100,11 +114,20 @@
 					}
 				}
 			}
+
+			img {
+				width: 50px;
+				height: 50px;
+			}
 		}
 
 		.searching {
 			vertical-align: bottom;
 			margin-top: 10px;
+			position: relative;
+			min-height: 100px;
+			width: 100%;
+			text-align: center;
 		}
 
 		.show_deleted {
@@ -115,6 +138,12 @@
 				margin-left: 3px;
 				font-size: 0.85em;
 			}
+		}
+
+		.search_error {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 
 		.search_list {
@@ -209,6 +238,57 @@
 					vertical-align: top;
 					width: 160px;
 				}
+
+				.radio {
+					display: inline-block;
+					// width: 200px;
+
+					input {
+						margin: 0px 5px;
+					}
+
+					label {
+						width: auto;
+					}
+				}
+
+				.url {
+					display: inline-block;
+					vertical-align: middle;
+					// width: 500px;
+					font-size: 70%;
+					margin: 0px 0px;
+				}
+
+				.right-justify {
+					display: flex;
+					justify-content: flex-end;
+					margin-top: 20px;
+
+					.apply-changes {
+						display: flex;
+						flex-direction: column;
+						justify-content: flex-end;
+						width: 220px;
+						margin-right: 20px;
+
+						.apply {
+							padding: 6px 10px 6px 10px;
+						}
+
+						.error-text {
+							color: red;
+							font-size: 0.8em;
+							text-align: center;
+						}
+
+						.success-text {
+							color: green;
+							font-size: 0.8em;
+							text-align: center;
+						}
+					}
+				}
 			}
 
 			&.role-manager {
@@ -243,7 +323,6 @@
 			&.instances {
 
 				ul {
-					width: 100%;
 					padding: 0;
 					flex-direction: row;
 					list-style-type: none;
@@ -252,6 +331,8 @@
 						margin: 0 0 10px 0;
 
 						border-radius: 3px;
+
+						line-height: 1.5em;
 
 						.img-holder {
 							display: inline-block;
@@ -326,6 +407,10 @@
 							.info-holder {
 								position: relative;
 								display: block;
+								padding: 15px;
+								background: $very-light-gray;
+								border-bottom-left-radius: 3px;
+								border-bottom-right-radius: 3px;
 
 								padding: 10px;
 
@@ -346,6 +431,7 @@
 							}
 							.overview {
 								padding: 10px;
+								line-height: 1.25em;
 
 								div {
 									margin: 5px 0px;
@@ -379,23 +465,26 @@
 										.apply {
 											padding: 6px 10px 6px 10px;
 										}
-
-										.error-text {
-											color: red;
-											font-size: 0.8em;
-											text-align: center;
-										}
-
-										.success-text {
-											color: green;
-											font-size: 0.8em;
-											text-align: center;
-										}
 									}
 								}
 							}
-						}
 
+							.inst-info {
+
+								.scores {
+									margin: 1em 0 0 0;
+									padding: 10px;
+									background: #fff;
+									border-radius: 5px;
+								}
+
+								.bottom-buttons {
+									display: flex;
+									justify-content: space-between;
+									margin-top: 20px;
+								}
+							}
+						}
 					}
 				}
 			}

@@ -5,18 +5,38 @@ import {apiGetUser} from '../util/api'
 import useUpdateUserSettings from './hooks/useUpdateUserSettings'
 import Header from './header'
 import './profile-page.scss'
+import Alert from './alert'
 
 const SettingsPage = () => {
-
+	const [alertDialog, setAlertDialog] = useState({
+		enabled: false,
+		message: '',
+		title: 'Failure',
+		fatal: false,
+		enableLoginButton: false
+	})
+	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const { data: currentUser, isFetching} = useQuery({
 		queryKey: 'user',
 		queryFn: apiGetUser,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setAlertDialog({
+					enabled: true,
+					message: 'You must be logged in to view your settings.',
+					title: 'Login Required',
+					fatal: true,
+					enableLoginButton: true
+				})
+			}
+		}
 	})
 
 	useEffect(() => {
-		if (mounted && ! isFetching) {
+		if (mounted && ! isFetching && currentUser) {
 			mounted.current = true
 			setState({...state, notify: currentUser.profile_fields.notify, useGravatar: currentUser.profile_fields.useGravatar})
 			return () => (mounted.current = false)
@@ -39,12 +59,54 @@ const SettingsPage = () => {
 	const _submitSettings = () => {
 		mutateUserSettings.mutate({
 			notify: state.notify,
-			useGravatar: state.useGravatar
+			useGravatar: state.useGravatar,
+			successFunc: () => {},
+			errorFunc: (err) => {
+				if (err.message == "Invalid Login") {
+					setAlertDialog({
+						enabled: true,
+						message: 'You must be logged in to view your settings.',
+						title: 'Login Required',
+						fatal: true,
+						enableLoginButton: true
+					})
+				} else if (err.message == "Unauthorized") {
+					setAlertDialog({
+						enabled: true,
+						message: 'You do not have permission to view this page.',
+						title: 'Action Failed',
+						fatal: err.halt,
+						enableLoginButton: false
+					})
+				}
+				setError((err.message || "Error") + ": Failed to update settings.")
+			}
 		})
 	}
 
+	let errorRender = null
+	if (error) {
+		errorRender = (
+			<div className='error'><p>{error}</p></div>
+		)
+	}
+
+	let alertDialogRender = null
+	if (alertDialog.enabled) {
+		alertDialogRender = (
+			<Alert
+				msg={alertDialog.message}
+				title={alertDialog.title}
+				fatal={alertDialog.fatal}
+				showLoginButton={alertDialog.enableLoginButton}
+				onCloseCallback={() => {
+					setAlertDialog({...alertDialog, enabled: false})
+				}} />
+		)
+	}
+
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
-	if ( !isFetching ) {
+	if ( !isFetching && currentUser ) {
 		mainContentRender =
 			<section className='page settings'>
 				<ul className='main_navigation'>
@@ -83,6 +145,8 @@ const SettingsPage = () => {
 					</li>
 				</ul>
 
+				{ errorRender }
+
 				<button type="submit" className="action_button" onClick={_submitSettings}>Save</button>
 
 			</section>
@@ -91,6 +155,7 @@ const SettingsPage = () => {
 	return (
 		<>
 			<Header />
+			{ alertDialogRender }
 			<div className='profile-page'>
 				<div className='settings'>
 					{ mainContentRender }

@@ -48,6 +48,19 @@
 		// position: relative;
 		// top: 20px;
 
+		.loading {
+			position: relative;
+			height: 40px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			margin: 5px 0;
+
+			.loading-text {
+				margin-left: 50px;
+			}
+		}
+
 		.top {
 			position: relative;
 			top: 0;
@@ -86,6 +99,11 @@
 				margin-left: 3px;
 				font-size: 0.85em;
 			}
+		}
+		.search_error {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 
 		.search_list {
@@ -253,31 +271,21 @@
 				margin: 0px 0px;
 			}
 
-			.right-justify {
-				margin-top: 20px;
+			.bottom-buttons {
 				display: flex;
-				justify-content: flex-end;
+				justify-content: space-between;
+
+				margin-top: 20px;
 
 				.apply-changes {
 					display: flex;
 					flex-direction: column;
+					justify-self: flex-end;
 					justify-content: flex-end;
 					width: 220px;
 
 					.apply {
 						padding: 6px 10px 6px 10px;
-					}
-
-					.error-text {
-						color: red;
-						font-size: 0.8em;
-						text-align: center;
-					}
-
-					.success-text {
-						color: green;
-						font-size: 0.8em;
-						text-align: center;
 					}
 				}
 			}
@@ -377,6 +385,17 @@
 				bottom: 5px;
 			}
 		}
+
+		.failed {
+			color:rgb(202, 0, 0);
+		}
+		.success-holder {
+			margin: 5px;
+		}
+
+		.success {
+			color: green;
+		}
 	}
 }
 
@@ -428,8 +447,8 @@
 }
 
 .modal .copy-modal {
-	width: 620px;
-	height: 330px;
+	width: 100%;
+	box-sizing: border-box;
 	padding: 10px 10px 0 10px;
 
 	.title {

@@ -41,7 +41,7 @@ const UserAdminInstancePlayed = ({play, index}) => {
 					<label>Completed:</label> { play.is_complete == "1" ? 'Yes' : 'No' }
 				</div>
 				<div>
-					<label>Context:</label> {play.auth == 'LTI' ? 'LTI' : 'Web' }
+					<label>Context:</label> {play.auth && typeof play.auth == 'string' && play.auth.toLowerCase() == 'lti' ? 'LTI' : 'Web' }
 				</div>
 			</div>
 		</li>
