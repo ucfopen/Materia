@@ -61,7 +61,7 @@ class Widget_Asset_Manager
 			}
 			catch (\OutsideAreaException | InvalidPathException | \FileAccessException | \Exception $e)
 			{
-				trace($e);
+				\Log::error('Failed to store asset data: '.$e->getMessage());
 			}
 
 			// failed, remove the asset
@@ -123,13 +123,6 @@ class Widget_Asset_Manager
 		if (Widget_Asset_Manager::can_asset_be_deleted($id))
 		{
 			$asset = Widget_Asset::fetch_by_id($id);
-			// Uncomment to delete from S3
-			// try {
-			// 	$asset->delete_asset_data('original');
-			// } catch (\Exception $e) {
-			// 	trace($e);
-			// 	return false;
-			// }
 			return $asset->db_remove();
 		}
 		return false;

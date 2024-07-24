@@ -40,14 +40,19 @@ services:
     # tmpfs:
     #   - /var/lib/mysql
 
+  # fakes3, when added as a dependency in the app container above, would restart
+  # and lose its data during tests
+  # thus, fakes3_test was created. it is dropped after tests are complete
   fakes3_test:
     image: ucfopen/materia:fake-s3-dev
     build:
       context: ../
       dockerfile: materia-fake-s3.Dockerfile
     ports:
+    # use separate port to avoid conflicts with fakes3
       - "10002:10001"
     volumes:
+     # use separate volume to avoid conflicts with fakes3
       - uploaded_media_test:/s3mnt/fakes3_root/fake_bucket/media/
     networks:
       - frontend

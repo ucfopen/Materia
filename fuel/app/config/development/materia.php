@@ -23,7 +23,7 @@ return [
 
 	// Storage driver can be overridden from env here
 	// s3 uses fakes3 on dev
-	'asset_storage_driver' => $_ENV['ASSET_STORAGE_DRIVER'] ?? 's3',
+	'asset_storage_driver' => $_ENV['ASSET_STORAGE_DRIVER'] ?? 'file',
 
 	'asset_storage' => [
 		'file' => [

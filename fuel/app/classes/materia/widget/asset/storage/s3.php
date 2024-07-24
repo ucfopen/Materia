@@ -20,7 +20,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	}
 
 	/**
-	 * Create a lock on a specific size of an asset for a period of time
+	 * Create a lock on a specific size of an asset for one hour
 	 * Used to prevent multiple requests from using excessive resources.
 	 * For object locking to work, the bucket must have versioning enabled
 	 * @param  string $id   Asset Id to lock
@@ -37,13 +37,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 				'Retention' => [
 					'Mode' => 'GOVERNANCE',
 					'RetainUntilDate' => new \DateTime('+1 hour'),
-				],
-				// 'VersionId' => '<string>',
-				// 'BypassGovernanceRetention' => true || false,
-				// 'ChecksumAlgorithm' => 'CRC32|CRC32C|SHA1|SHA256',
-				// 'ContentMD5' => '<string>',
-				// 'ExpectedBucketOwner' => '<string>',
-				// 'RequestPayer' => 'requester',
+				]
 			]);
 		}
 		catch (\Exception $e)
@@ -73,17 +67,8 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		try {
 			$result = $s3->getObjectRetention([
 				'Bucket' => static::$_config['bucket'],
-				'Key' => $this->get_key_name($id, $size),
-				// 'VersionId' => '<string>',
-				// 'RequestPayer' => 'requester',
+				'Key' => $this->get_key_name($id, $size)
 			]);
-			// Result syntax:
-			// [
-			// 	'Retention' => [
-			// 		'Mode' => 'GOVERNANCE|COMPLIANCE',
-			// 		'RetainUntilDate' => <DateTime>,
-			// 	],
-			// ]
 			return $result['Retention']['Mode'] === 'GOVERNANCE'; // if it's not governance, it's not locked
 		}
 		catch (\Exception $e)
@@ -135,7 +120,6 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 
 	/**
 	 * Unlock a lock made for a specific size of an asset
-	 * Used to prevent multiple requests from using excessive resources.
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
@@ -144,7 +128,6 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		$s3 = $this->get_s3_client();
 
 		try {
-			// Remove object lock
 			$s3->putObjectLegalHold([
 				'Bucket' => static::$_config['bucket'],
 				'Key' => $this->get_key_name($id, $size),

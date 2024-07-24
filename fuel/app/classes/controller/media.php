@@ -109,7 +109,7 @@ class Controller_Media extends Controller
 			$asset = Widget_Asset_Manager::new_asset_from_file($name, $file_info);
 		}
 		catch (\Exception $e) {
-			$res->body('{"error":{"code":"15","message":"'.$e->getMessage().'"}}');
+			$res->body('{"error":{"message":"Unable to save new asset"}}');
 			$res->set_status(400);
 			return $res;
 		}
@@ -117,7 +117,7 @@ class Controller_Media extends Controller
 		if ( ! $asset || ! isset($asset->id))
 		{
 			// error
-			trace('Unable to create asset');
+			\Log::Error('Unable to create asset');
 			$res->body('{"error":{"code":"16","message":"Unable to save new asset"}}');
 			$res->set_status(400);
 			return $res;
