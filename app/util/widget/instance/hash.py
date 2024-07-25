@@ -44,7 +44,9 @@ class WidgetInstanceHash():
         from math import floor
         from sys import maxsize
         from random import randint
-        num = randint(1, maxsize)
+        # this number is big enough, whatever
+        big_number = min(2147483647, maxsize)
+        num = randint(1, big_number)
         ceil = pow(62, length)
         prime = WidgetInstanceHash.GOLDEN_PRIMES[length]
         dec = (num * prime) - floor(num * prime / ceil) * ceil

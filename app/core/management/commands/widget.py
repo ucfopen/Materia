@@ -25,23 +25,19 @@ class Command(base.BaseCommand):
         try:
             command_function()
         except Exception as e:
-            # logger.info(e)
-            logger.info('WHAT HAPPENED?')
+            logger.info(e)
             logger.exception('')
 
     def install_from_config(self):
         widgets = settings.WIDGETS
         for w in widgets:
             self.install_from_url(w['package'], w['checksum'], w['id'])
-            break # temporarily limit to a single widget until the process is finished
 
     def install_from_url(self, package_url, checksum_url, desired_id):
         local_package = self.download_package(package_url)
         local_checksum = self.download_package(checksum_url)
 
         # temporarily hard-code file paths until the process is finished
-        # local_package = '/tmp/tmpwogbbtfl/this-or-that.wigt'
-        # local_checksum = '/tmp/tmpuhsqknti/this-or-that-build-info.yml'
         valid = self.validate_checksum(local_package, local_checksum)
 
         self.replace_id = desired_id

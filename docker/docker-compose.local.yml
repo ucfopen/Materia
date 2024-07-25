@@ -10,8 +10,8 @@ services:
     ports:
       - '80:80'
     volumes:
-      - ../app:/var/www/html:ro
       - ../public:/var/www/html/staticfiles:ro
+      - uploaded_widgets:/var/www/html/staticfiles/widget/:ro
       - ./config/nginx/sites-enabled:/etc/nginx/conf.d:ro
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
@@ -42,7 +42,7 @@ services:
     volumes:
       - ../app:/var/www/html
       - ../wait_for_it.sh:/var/www/html/wait_for_it.sh
-      - ../public:/var/www/html/staticfiles
+      - uploaded_widgets:/var/www/html/staticfiles/widget/
       - ./config/uwsgi/:/etc/uwsgi
     # command: uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     command: /wait_for_it.sh mysql:3306 -t 10 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
@@ -61,14 +61,7 @@ services:
     volumes:
       - ./config/mysql/override.cnf:/etc/mysql/conf.d/override.cnf
 
-  # webpack:
-  #   build:
-  #     context: ../
-  #     dockerfile: materia-webpack.Dockerfile
-  #   volumes:
-  #     - ./src:/app/src
-  #     - ./public:/app/public
-  #     - /app/node_modules
-  #   ports:
-  #     - '8080:8080'
-  #   command: yarn run dev
+volumes:
+  # static_files: {} # compiled js/css and uploaded widgets
+  # uploaded_media: {} # uploaded media files
+  uploaded_widgets: {}

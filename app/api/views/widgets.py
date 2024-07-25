@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core import serializers
@@ -27,6 +29,7 @@ class WidgetsApi:
         #  that cleanly produces the output we need instead of doing it here
         for widget_raw in all_widgets:
             widget_dict = json.loads(serializers.serialize('json', [widget_raw]))[0]
+            widget_dict['fields']['dir'] = f'{widget_raw.id}-{widget_raw.clean_name}{os.sep}'
             widget_dict['fields']['id'] = widget_dict['pk']
             widget_dict['fields']['meta_data'] = widget_raw.metadata_clean()
             # remove this stupid hack when the frontend is willing to accept true as true instead of '1' as true

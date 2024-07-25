@@ -173,11 +173,6 @@ LOGGING = {
 
 WIDGETS = [
     {
-        'id': 7,
-        'package': 'https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that.wigt',
-        'checksum': 'https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that-build-info.yml'
-    },
-    {
         'id': 1,
         'package' : 'https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword.wigt',
         'checksum': 'https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword-build-info.yml',
