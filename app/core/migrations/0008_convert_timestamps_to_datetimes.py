@@ -4,7 +4,22 @@ from django.db import migrations, models
 
 from datetime import datetime
 
-from core.models import DateRange, Log, LogActivity, LogPlay, LogStorage, Lti, Notification, PermObjectToUser, Question
+from core.models import \
+    Asset, \
+    AssetData, \
+    DateRange, \
+    Log, \
+    LogActivity, \
+    LogPlay, \
+    LogStorage, \
+    Lti, \
+    Notification, \
+    PermObjectToUser, \
+    UserExtraAttempts, \
+    Question, \
+    Widget, \
+    WidgetInstance, \
+    WidgetQset
 
 class Migration(migrations.Migration):
 
@@ -20,6 +35,17 @@ class Migration(migrations.Migration):
             if not ts: return None
             from django.utils.timezone import make_aware
             return make_aware(datetime.fromtimestamp(ts))
+
+        logger.info("Converting Asset timestamps to datetimes")
+        for asset in Asset.objects.all():
+            asset.created_at_dt = timestamp_to_datetime(asset.created_at)
+            asset.deleted_at_dt = timestamp_to_datetime(asset.deleted_at)
+            asset.save()
+
+        logger.info("Converting AssetData timestamps to datetimes")
+        for ad in AssetData.objects.all():
+            ad.created_at_dt = timestamp_to_datetime(ad.created_at)
+            ad.save()
 
         logger.info("Converting DateRange timestamps to datetimes")
         for dr in DateRange.objects.all():
@@ -64,10 +90,30 @@ class Migration(migrations.Migration):
             potu.expires_at_dt = timestamp_to_datetime(potu.expires_at)
             potu.save()
 
+        logger.info("Converting UserExtraAttempts timestamps to datetimes")
+        for uea in UserExtraAttempts.objects.all():
+            uea.created_at_dt = timestamp_to_datetime(uea.created_at)
+            uea.save()
+
         logger.info("Converting Question timestamps to datetimes")
         for question in Question.objects.all():
             question.created_at_dt = timestamp_to_datetime(question.created_at)
             question.save()
+
+        logger.info("Converting Widget timestamps to datetimes")
+        for widget in Widget.objects.all():
+            widget.created_at_dt = timestamp_to_datetime(widget.created_at)
+            widget.save()
+
+        logger.info("Converting WidgetInstance timestamps to datetimes")
+        for wi in WidgetInstance.objects.all():
+            wi.created_at_dt = timestamp_to_datetime(wi.created_at)
+            wi.save()
+
+        logger.info("Converting WidgetQset timestamps to datetimes")
+        for wq in WidgetQset.objects.all():
+            wq.created_at_dt = timestamp_to_datetime(wq.created_at)
+            wq.save()
 
     def translate_datetimes(apps, schema_editor):
         import logging
@@ -76,6 +122,17 @@ class Migration(migrations.Migration):
         def datetime_to_timestamp(dt):
             from datetime import datetime
             return datetime.timestamp(dt)
+
+        logger.info("Converting Asset datetimes to timestamps")
+        for asset in Asset.objects.all():
+            asset.created_at = datetime_to_timestamp(asset.created_at_dt)
+            asset.deleted_at = datetime_to_timestamp(asset.deleted_at_dt)
+            asset.save()
+
+        logger.info("Converting AssetData datetimes to timestamps")
+        for ad in AssetData.objects.all():
+            ad.created_at_dt = datetime_to_timestamp(ad.created_at)
+            ad.save()
 
         logger.info("Converting DateRange datetimes to timestamps")
         for dr in DateRange.objects.all():
@@ -120,10 +177,30 @@ class Migration(migrations.Migration):
             potu.expires_at = datetime_to_timestamp(potu.expires_at_dt)
             potu.save()
 
+        logger.info("Converting UserExtraAttempts datetimes to timestamps")
+        for uea in UserExtraAttempts.objects.all():
+            uea.created_at = datetime_to_timestamp(uea.created_at_dt)
+            uea.save()
+
         logger.info("Converting Question datetimes to timestamps")
         for question in Question.objects.all():
             question.created_at = datetime_to_timestamp(question.created_at_dt)
             question.save()
+
+        logger.info("Converting Widget datetimes to timestamps")
+        for widget in Widget.objects.all():
+            widget.created_at = datetime_to_timestamp(widget.created_at_dt)
+            widget.save()
+
+        logger.info("Converting WidgetInstance datetimes to timestamps")
+        for wi in WidgetInstance.objects.all():
+            wi.created_at = datetime_to_timestamp(wi.created_at_dt)
+            wi.save()
+
+        logger.info("Converting WidgetQset datetimes to timestamps")
+        for wq in WidgetQset.objects.all():
+            wq.created_at = datetime_to_timestamp(wq.created_at_dt)
+            wq.save()
 
     operations = [
         migrations.AlterField(

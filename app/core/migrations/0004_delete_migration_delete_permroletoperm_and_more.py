@@ -277,6 +277,21 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(default=datetime.datetime.now),
         ),
         migrations.AddField(
+            model_name="asset",
+            name="created_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now),
+        ),
+        migrations.AddField(
+            model_name="asset",
+            name="deleted_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now, null=True),
+        ),
+        migrations.AddField(
+            model_name="assetdata",
+            name="created_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now),
+        ),
+        migrations.AddField(
             model_name="log",
             name="created_at_dt",
             field=models.DateTimeField(default=datetime.datetime.now),
@@ -293,6 +308,26 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="logstorage",
+            name="created_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now),
+        ),
+        migrations.AddField(
+            model_name="userextraattempts",
+            name="created_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now),
+        ),
+        migrations.AddField(
+            model_name="widget",
+            name="created_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now),
+        ),
+        migrations.AddField(
+            model_name="widgetinstance",
+            name="created_at_dt",
+            field=models.DateTimeField(default=datetime.datetime.now),
+        ),
+        migrations.AddField(
+            model_name="widgetqset",
             name="created_at_dt",
             field=models.DateTimeField(default=datetime.datetime.now),
         ),
@@ -332,6 +367,11 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 through="core.MapQuestionToQset", to="core.widgetqset"
             ),
+        ),
+        migrations.AlterField(
+            model_name='asset',
+            name='is_deleted',
+            field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
             model_name="logactivity",

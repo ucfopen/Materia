@@ -44,7 +44,7 @@ def help(request):
     return render(request, "react.html", context)
 
 
-def handler404(request):
+def handler404(request, exception):
     # Log the 404 URL
     logger = logging.getLogger(__name__)
     logger.warning("404 URL: %s", request.path)

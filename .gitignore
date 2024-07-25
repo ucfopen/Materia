@@ -93,11 +93,8 @@ app/materia/settings.py
 
 
 # django webpack
-app/package.json
+app/media/**/*
+app/media/uploads/*
 app/staticfiles/
 public/css/
 public/js/
-app/babel.config.json
-app/webpack-stats.json
-app/webpack.prod.config.js
-app/yarn.lock

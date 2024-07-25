@@ -19,6 +19,18 @@ class Migration(migrations.Migration):
         ),
 
         migrations.RemoveField(
+            model_name='asset',
+            name='created_at',
+        ),
+        migrations.RemoveField(
+            model_name='asset',
+            name='deleted_at',
+        ),
+        migrations.RemoveField(
+            model_name='assetdata',
+            name='created_at',
+        ),
+        migrations.RemoveField(
             model_name='daterange',
             name='end_at',
         ),
@@ -63,10 +75,41 @@ class Migration(migrations.Migration):
             name='expires_at',
         ),
         migrations.RemoveField(
+            model_name='userextraattempts',
+            name='created_at',
+        ),
+        migrations.RemoveField(
             model_name='question',
             name='created_at',
         ),
+        migrations.RemoveField(
+            model_name='widget',
+            name='created_at',
+        ),
+        migrations.RemoveField(
+            model_name='widgetinstance',
+            name='created_at',
+        ),
+        migrations.RemoveField(
+            model_name='widgetqset',
+            name='created_at',
+        ),
 
+        migrations.RenameField(
+            model_name='asset',
+            old_name='created_at_dt',
+            new_name='created_at'
+        ),
+        migrations.RenameField(
+            model_name='asset',
+            old_name='deleted_at_dt',
+            new_name='deleted_at'
+        ),
+        migrations.RenameField(
+            model_name='assetdata',
+            old_name='created_at_dt',
+            new_name='created_at'
+        ),
         migrations.RenameField(
             model_name='daterange',
             old_name='end_at_dt',
@@ -123,7 +166,27 @@ class Migration(migrations.Migration):
             new_name='expires_at'
         ),
         migrations.RenameField(
+            model_name='userextraattempts',
+            old_name='created_at_dt',
+            new_name='created_at'
+        ),
+        migrations.RenameField(
             model_name='question',
+            old_name='created_at_dt',
+            new_name='created_at'
+        ),
+        migrations.RenameField(
+            model_name='widget',
+            old_name='created_at_dt',
+            new_name='created_at'
+        ),
+        migrations.RenameField(
+            model_name='widgetinstance',
+            old_name='created_at_dt',
+            new_name='created_at'
+        ),
+        migrations.RenameField(
+            model_name='widgetqset',
             old_name='created_at_dt',
             new_name='created_at'
         ),

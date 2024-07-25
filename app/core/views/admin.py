@@ -10,14 +10,9 @@ import logging
 logger = logging.getLogger('django')
 
 class CatalogView(TemplateView):
-    def index(request):
+    def widget(request):
         context = {
-            "title": "Materia Widget Catalog",
-            "js_resources": [
-                "dist/js/catalog.js"
-            ],
-            "css_resources": [
-                "dist/css/catalog.css"
-            ]
+            "title": "Welcome to Materia",
+            "bundle_name": "catalog"
         }
         return render(request, "react.html", context)

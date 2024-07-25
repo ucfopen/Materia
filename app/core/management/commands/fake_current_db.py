@@ -61,6 +61,7 @@ class Command(base.BaseCommand):
             cursor.close()
 
         boolean_fields = [
+            ("asset", "is_deleted"),
             ("log_play", "is_complete"),
             ("log_play", "is_valid"),
             ("notification", "is_email_sent"),
