@@ -15,6 +15,13 @@ services:
       - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
 
   app:
+    environment:
+      # values sourced from docker/env
+      - ASSET_STORAGE_DRIVER
+      - ASSET_STORAGE_S3_BUCKET
+      - ASSET_STORAGE_S3_ENDPOINT
+      - ASSET_STORAGE_S3_KEY
+      - ASSET_STORAGE_S3_SECRET
     volumes:
       - ..:/var/www/html/
       - uploaded_widgets:/var/www/html/public/widget/
@@ -26,6 +33,7 @@ services:
 
   mysql:
     environment:
+      # values sourced from docker/env
       - MYSQL_ROOT_PASSWORD
       - MYSQL_USER
       - MYSQL_PASSWORD

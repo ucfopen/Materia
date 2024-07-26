@@ -89,13 +89,24 @@ Materia supports two forms of authentication:
 
 ## Asset Storage
 
-Materia enables users to upload media assets for their widgets, including images and audio. There are three asset storage drivers available out of the box: `s3`, `file` and `db`. `s3` is the default asset storage driver, which can be explicitly set via the `ASSET_STORAGE_DRIVER` environment variable.
+Users can upload media assets (images and audio) for use in their widgets, facilitated through a media importer that is provided by Materia itself. Asset storage drivers include:
 
-### Local Asset Storage
+- `file`: Assets are stored on the local filesystem of the application. It is recommended that assets are backed up and synced with an external storage solution (such as S3) to ensure the files persist across application instances.
+- `s3`: Files are uploaded to and requested directly from AWS S3. This is the most straightforward and recommended storage driver option. Be sure to consult the [Materia Docker Readme](docker/README.md) for additional environment variables associated with using S3.
+- `db`: This storage driver stores asset binaries directly in the database. This option allows Materia to run on cloud hosting options with very limited storage volumes. The `db` storage driver option is not recommended for general use.
 
-By default, a fake `s3` server will be spun up. To test Materia with AWS S3, set the following variables in `.env.local`:
+> [!WARNING]
+> The `db` asset storage driver option is deprecated and will be removed in the next major version of Materia.
 
-1. Set `FAKES3_DISABLED` environment variable to `true`
+The storage driver is configured via the `ASSET_STORAGE_DRIVER` environment variable.
+
+### Local Asset Storage With S3
+
+A `fakes3` container is instantiated as part of the default development stack and the `ASSET_STORAGE_DRIVER` environment variable is set to `s3` by default in the development `.env` file located in `docker/.env`. When using `fakes3`, this is all that is required to simulate S3 usage locally.
+
+To use an actual S3 bucket for local dev:
+
+1. Set `DEV_ONLY_FAKES3_DISABLED` environment variable in `docker/.env` to `true`
 2. Set `ASSET_STORAGE_S3_BUCKET` to your bucket name
 3. Set `ASSET_STORAGE_S3_ENDPOINT` to your endpoint
 4. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` in `.env.local`. (Tip: You can run `aws configure export-credentials --profile YOUR_PROFILE_NAME --format env-no-export` to get these)

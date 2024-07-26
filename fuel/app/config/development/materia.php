@@ -45,7 +45,7 @@ return [
 				'key'          		=> $_ENV['AWS_ACCESS_KEY_ID'] ?? $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY', // aws api key
 				'token'		   		=> $_ENV['AWS_SESSION_TOKEN'] ?? 'TOKEN',	// aws session token
 				'force_path_style' 	=> $_ENV['ASSET_STORAGE_S3_FORCE_PATH_STYLE'] ?? false, // needed for fakes3
-				'fakes3_enabled' 	=> $_ENV['FAKES3_DISABLED'] ?? true, // using fakes3 unless explicitly disabled
+				'fakes3_enabled' 	=> $_ENV['DEV_ONLY_FAKES3_DISABLED'] ?? true, // using fakes3 unless explicitly disabled
 			]
 			: null
 		),
