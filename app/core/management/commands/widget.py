@@ -1,37 +1,41 @@
+import logging
 import os
+from urllib import request
 
 from django.conf import settings
 from django.core.management import base, call_command
 from django.db import connection
 
-from urllib import request
 from util.widget.installer import WidgetInstaller
 
-import logging
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
+
 
 class Command(base.BaseCommand):
-    help = 'Commands for managing widgets and widget instances'
+    help = "Commands for managing widgets and widget instances"
 
     # TODO: the old Fuel commands provided a pretty helpful syntax for easily running commands
     #  with any number of options or arguments, but that seems to require a bit of effort with
     #  Django
     # figure out how to enable the old behavior, or figure out some kind of alternative
     def add_arguments(self, parser):
-        parser.add_argument('subcommand', type=str, help='Which subcommand function to run')
+        parser.add_argument(
+            "subcommand", type=str, help="Which subcommand function to run"
+        )
+
     def handle(self, *args, **kwargs):
-        subcommand = kwargs['subcommand']
+        subcommand = kwargs["subcommand"]
         command_function = getattr(self, subcommand)
         try:
             command_function()
         except Exception as e:
             logger.info(e)
-            logger.exception('')
+            logger.exception("")
 
     def install_from_config(self):
         widgets = settings.WIDGETS
         for w in widgets:
-            self.install_from_url(w['package'], w['checksum'], w['id'])
+            self.install_from_url(w["package"], w["checksum"], w["id"])
 
     def install_from_url(self, package_url, checksum_url, desired_id):
         local_package = self.download_package(package_url)
@@ -51,30 +55,30 @@ class Command(base.BaseCommand):
         logger.info(f"Downloading .wigt package {file_url}")
         download_location = f"{output_dir}{file_name}"
         with request.urlopen(file_url) as download:
-            open(download_location, 'wb').write(download.read())
+            open(download_location, "wb").write(download.read())
 
         logger.info(f"Package downloaded: {download_location}")
         return download_location
 
     def validate_checksum(self, widget_path, checksum_path):
-        from yaml import safe_load, YAMLError
+        from yaml import YAMLError, safe_load
 
         checksums = None
-        with open(checksum_path, 'rb') as checksum_file:
+        with open(checksum_path, "rb") as checksum_file:
             try:
                 checksums = safe_load(checksum_file)
             except YAMLError:
                 raise Exception("Error trying to parse YAML from checksum file!")
 
-        from hashlib import sha1, sha256, md5
+        from hashlib import md5, sha1, sha256
 
         sha1_hash = sha1()
         sha256_hash = sha256()
         md5_hash = md5()
 
-        with open(widget_path, 'rb') as widget_file:
+        with open(widget_path, "rb") as widget_file:
             while True:
-                data = widget_file.read(65536) # read the file contents 64kb at a time
+                data = widget_file.read(65536)  # read the file contents 64kb at a time
                 if not data:
                     break
                 sha1_hash.update(data)
@@ -97,7 +101,6 @@ class Command(base.BaseCommand):
         logger.info(f"Git Commit: {checksums['git_version']}")
 
         return True
-
 
     # must be passed a .wigt file reference, can use glob syntax to match multiple widgets
     def install(self, package_path):
@@ -124,10 +127,10 @@ class Command(base.BaseCommand):
         # widget_files = self.get_files_from_args(however_we_get_args())
         widget_files = [package_path]
 
-        replace_id = int(self.replace_id) # this could also possibly come from args
+        replace_id = int(self.replace_id)  # this could also possibly come from args
         # file_count = len(widget_files)
         # if not file_count:
-            # raise Exception(f"No widgets found in {','.join(however_we_get_args())}")
+        # raise Exception(f"No widgets found in {','.join(however_we_get_args())}")
         # if file_count > 1 and replace_id > 0:
         #     raise Exception("Multiple widgets can not be specified when using --replace_id option")
 
@@ -135,11 +138,11 @@ class Command(base.BaseCommand):
         # maybe just allow any activity logs for widget installation/updates done in the console
         #  to have a null user?
         for file in widget_files:
-            skip_upgrade = False # get this from the CLI options somehow?
+            skip_upgrade = False  # get this from the CLI options somehow?
             WidgetInstaller.extract_package_and_install(file, skip_upgrade, replace_id)
 
 
-'''
+"""
 class Widget extends \Basetask
 {
 
@@ -405,4 +408,4 @@ class Widget extends \Basetask
         return $qset;
     }
 }
-'''
+"""

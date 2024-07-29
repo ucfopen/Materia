@@ -1,13 +1,15 @@
+import logging
+
 from django.conf import settings
 
-import logging
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
 
-class AssetManager():
+
+class AssetManager:
     def update_asset(asset_id, properties=[]):
         pass
 
-    #TODO: re-implement this later
+    # TODO: re-implement this later
     def user_has_space_for(bytes):
         return True
 
@@ -16,8 +18,10 @@ class AssetManager():
     #  as those data points are not part of the same source, also allowing
     #  for a user to be provided if this is called from a media upload action
     def new_asset_from_file(name, file_info, file_path, user=None):
-        import magic
         import os
+
+        import magic
+
         from core.models import Asset
         from util.widget.validator import ValidatorUtil
 
@@ -56,7 +60,9 @@ class AssetManager():
             asset.db_remove()
 
         return asset
-'''
+
+
+"""
 <?php
 /**
  * The widget managers for the Materia package.
@@ -367,4 +373,4 @@ class Widget_Asset_Manager
     }
 }
 
-'''
+"""

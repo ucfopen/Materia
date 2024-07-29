@@ -1,18 +1,17 @@
+import logging
 import os
 import tempfile
 
 from django.conf import settings
 
-import logging
-logger = logging.getLogger('django')
-
-from util.unique_id import unique_id
-
-from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetQset
+logger = logging.getLogger("django")
 
 from api.views.widget_instances import WidgetInstancesApi
+from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetQset
+from util.unique_id import unique_id
 
-class WidgetInstaller():
+
+class WidgetInstaller:
 
     def get_temp_dir():
         temporary_file = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir())
@@ -21,8 +20,8 @@ class WidgetInstaller():
             temporary_file.close()
         os.mkdir(temporary_file.name)
         if os.path.isdir(temporary_file.name):
-            if temporary_file.name[-1] != '/':
-                return f'{temporary_file.name}/'
+            if temporary_file.name[-1] != "/":
+                return f"{temporary_file.name}/"
             return temporary_file.name
         return None
 
@@ -46,7 +45,7 @@ class WidgetInstaller():
         # if (isset($dir)) static::cleanup($dir);
         # return $success;
 
-    def extract_package_and_install(widget_file, skip_upgrade = False, replace_id = 0):
+    def extract_package_and_install(widget_file, skip_upgrade=False, replace_id=0):
         from core.models import LogActivity
 
         activity = LogActivity()
@@ -55,7 +54,9 @@ class WidgetInstaller():
         #  the widget admin panel, the 'current user' will be findable in order to associate this
         #  action with them
         activity.user = None
-        dir, manifest_data, clean_name = WidgetInstaller.unzip_and_read_manifest(widget_file)
+        dir, manifest_data, clean_name = WidgetInstaller.unzip_and_read_manifest(
+            widget_file
+        )
 
         # check for existing widgets
         matching_widgets = Widget.objects.filter(clean_name=clean_name)
@@ -64,7 +65,7 @@ class WidgetInstaller():
         if skip_upgrade and num_existing > 0:
             # TODO: see if it's possible to recreate this block
             # pretty much just produces special contextual output if this is running in a terminal
-            '''
+            """
             if (\Fuel::$is_cli)
             {
                 \Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
@@ -76,9 +77,11 @@ class WidgetInstaller():
                 return false;
             }
             else
-            '''
+            """
             # this would normally run in the 'else' of the block above
-            raise Exception(f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option")
+            raise Exception(
+                f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
+            )
         if num_existing > 0 and replace_id == 0:
             raise Exception(f"Multiple existing widgets share clean name {clean_name}")
         if num_existing == 1 and not skip_upgrade and replace_id == 0:
@@ -91,19 +94,19 @@ class WidgetInstaller():
 
         # NEW
         if not replace_id:
-            logger.info('Installing brand new widget')
+            logger.info("Installing brand new widget")
             id = WidgetInstaller.save_params(params)
             activity.type = LogActivity.TYPE_INSTALL_WIDGET
         # UPGRADE
         else:
-            logger.info('Upgrading existing widget')
+            logger.info("Upgrading existing widget")
             try:
                 existing_widget = Widget.objects.get(id=replace_id)
                 existing_widget_metadata = existing_widget.metadata_clean()
-                logger.info('okay what the fuck')
+                logger.info("okay what the fuck")
                 logger.info(existing_widget_metadata)
-                if 'demo' in existing_widget_metadata:
-                    existing_demo_inst_id = existing_widget_metadata['demo']
+                if "demo" in existing_widget_metadata:
+                    existing_demo_inst_id = existing_widget_metadata["demo"]
                     logger.info(f"Existing demo found: {existing_demo_inst_id}")
 
             except Widget.DoesNotExist:
@@ -114,14 +117,14 @@ class WidgetInstaller():
 
         # add the demo
         demo_id = WidgetInstaller.install_demo(id, dir, existing_demo_inst_id)
-        manifest_data['meta_data']['demo'] = demo_id
+        manifest_data["meta_data"]["demo"] = demo_id
 
-        logger.info('demo installed')
+        logger.info("demo installed")
 
         WidgetInstaller.install_widget_files(id, clean_name, dir)
 
         # save metadata
-        WidgetInstaller.save_metadata(id, manifest_data['meta_data'])
+        WidgetInstaller.save_metadata(id, manifest_data["meta_data"])
 
         logger.info(f"Widget installed: {dir}")
         success = True
@@ -131,6 +134,7 @@ class WidgetInstaller():
 
         if bool(dir):
             from shutil import rmtree
+
             rmtree(dir)
 
         return success
@@ -143,7 +147,7 @@ class WidgetInstaller():
         target_dir = WidgetInstaller.unzip_to_tmp(widget_file)
         manifest_data = WidgetInstaller.validate_widget(target_dir)
 
-        clean_name = Widget.make_clean_name(manifest_data['general']['name'])
+        clean_name = Widget.make_clean_name(manifest_data["general"]["name"])
 
         # TODO: figure out how to parse all of the play data exporter function options
         #  and add their names to the existing metadata
@@ -157,7 +161,7 @@ class WidgetInstaller():
         # loaded = Widget.load_script(playdata_path)
         # $playdata_exporter_names = array_keys(\Materia\Widget::reduce_array_to_functions($loaded));
         playdata_exporter_names = []
-        manifest_data['meta_data']['playdata_exporters'] = playdata_exporter_names
+        manifest_data["meta_data"]["playdata_exporters"] = playdata_exporter_names
 
         return target_dir, manifest_data, clean_name
 
@@ -170,13 +174,14 @@ class WidgetInstaller():
         # assume it's a zip file, attempt to extract
         try:
             logger.info(f"Extracting {file} to {extract_location}")
-            #TODO: zip extraction stuff
+            # TODO: zip extraction stuff
             with ZipFile(file) as archive:
                 archive.extractall(extract_location)
                 archive.close()
         except Exception as e:
             # clean up after ourselves by removing the extracted directory
             from shutil import rmtree
+
             rmtree(extract_location)
             raise e
 
@@ -189,65 +194,82 @@ class WidgetInstaller():
         manifest_data = WidgetInstaller.get_manifest_data(dir)
 
         # 2. Our manifest should have 'general', 'files', 'score' and 'metadata' sections at least
-        missing_sections = set(['general', 'files', 'score', 'meta_data']) - set(manifest_data.keys())
+        missing_sections = set(["general", "files", "score", "meta_data"]) - set(
+            manifest_data.keys()
+        )
         if len(missing_sections) > 0:
-            raise Exception(f"Manifest missing one or more required sections: {', '.join(missing_sections)}")
+            raise Exception(
+                f"Manifest missing one or more required sections: {', '.join(missing_sections)}"
+            )
 
         # 3. Make sure the 'general' section is correct
-        general = manifest_data['general']
+        general = manifest_data["general"]
         general_keys = [
-            'name',
-            'height',
-            'width',
-            'is_storage_enabled',
-            'in_catalog',
-            'is_editable',
-            'is_playable',
-            'is_qset_encrypted',
-            'is_answer_encrypted',
-            'api_version'
+            "name",
+            "height",
+            "width",
+            "is_storage_enabled",
+            "in_catalog",
+            "is_editable",
+            "is_playable",
+            "is_qset_encrypted",
+            "is_answer_encrypted",
+            "api_version",
         ]
         WidgetInstaller.validate_keys_exist(general, general_keys)
-        WidgetInstaller.validate_numeric_values(general, ['width', 'height'])
-        WidgetInstaller.validate_boolean_values(general, ['in_catalog', 'is_editable', 'is_playable', 'is_qset_encrypted', 'is_answer_encrypted', 'is_storage_enabled'])
+        WidgetInstaller.validate_numeric_values(general, ["width", "height"])
+        WidgetInstaller.validate_boolean_values(
+            general,
+            [
+                "in_catalog",
+                "is_editable",
+                "is_playable",
+                "is_qset_encrypted",
+                "is_answer_encrypted",
+                "is_storage_enabled",
+            ],
+        )
         # make sure the name matches - we ignore any "_12345678" type suffix, since this would have been added
         #  by extracting the zip, assuming this widget was originally from a zip.
         # doesn't look like we actually use this, though
         import re
         from pathlib import Path
-        name_pattern = re.compile(r'/_[0-9]+$/')
-        matching_name = Path(re.sub(name_pattern, '', dir)).name
+
+        name_pattern = re.compile(r"/_[0-9]+$/")
+        matching_name = Path(re.sub(name_pattern, "", dir)).name
 
         # 4. Make sure the 'files' section is correct
-        files = manifest_data['files']
-        WidgetInstaller.validate_keys_exist(files, ['player'])
-        WidgetInstaller.validate_numeric_values(files, ['flash_version'])
+        files = manifest_data["files"]
+        WidgetInstaller.validate_keys_exist(files, ["player"])
+        WidgetInstaller.validate_numeric_values(files, ["flash_version"])
 
-        player_file = os.path.join(dir, files['player'])
+        player_file = os.path.join(dir, files["player"])
         if not os.path.isfile(player_file):
             raise Exception(f"Player file missing: {player_file}")
 
-        if not 'creator' in files or files['creator'] == '':
+        if not "creator" in files or files["creator"] == "":
             raise Exception("Creator does not exist")
         else:
-            if files['creator'] != 'default':
-                creator_file = os.path.join(dir, files['creator'])
+            if files["creator"] != "default":
+                creator_file = os.path.join(dir, files["creator"])
                 if not os.path.isfile(creator_file):
                     raise Exception(f"Creator file missing: {creator_file}")
 
         # 5. Make sure the 'score' section is correct
-        score = manifest_data['score']
-        WidgetInstaller.validate_keys_exist(score, ['is_scorable', 'score_module'])
-        WidgetInstaller.validate_boolean_values(score, ['is_scorable'])
+        score = manifest_data["score"]
+        WidgetInstaller.validate_keys_exist(score, ["is_scorable", "score_module"])
+        WidgetInstaller.validate_boolean_values(score, ["is_scorable"])
 
         # 6. Make sure the 'meta_data' section is correct
-        metadata = manifest_data['meta_data']
-        WidgetInstaller.validate_keys_exist(metadata, ['about', 'excerpt'])
+        metadata = manifest_data["meta_data"]
+        WidgetInstaller.validate_keys_exist(metadata, ["about", "excerpt"])
 
         # 7. Make sure the score module and the score module test files both exist
-        if not os.path.isfile(os.path.join(dir, '_score-modules/score_module.php')):
+        if not os.path.isfile(os.path.join(dir, "_score-modules/score_module.php")):
             raise Exception("Missing score module file")
-        if not os.path.isfile(os.path.join(dir, '_score-modules/test_score_module.php')):
+        if not os.path.isfile(
+            os.path.join(dir, "_score-modules/test_score_module.php")
+        ):
             raise Exception("Missing score module tests")
 
         return manifest_data
@@ -258,9 +280,9 @@ class WidgetInstaller():
         if not os.path.isfile(manifest_file_path):
             raise Exception("Missing manifest yaml file")
 
-        from yaml import safe_load, YAMLError
+        from yaml import YAMLError, safe_load
 
-        with open(manifest_file_path, 'rb') as manifest_file:
+        with open(manifest_file_path, "rb") as manifest_file:
             try:
                 manifest_data = safe_load(manifest_file)
             except YAMLError:
@@ -271,7 +293,9 @@ class WidgetInstaller():
     def validate_keys_exist(section, required):
         missing_sections = set(required) - set(section.keys())
         if len(missing_sections) > 0:
-            raise Exception(f"Missing required attributs: {', '.join(missing_sections)}")
+            raise Exception(
+                f"Missing required attributs: {', '.join(missing_sections)}"
+            )
 
     def validate_numeric_values(section_data, attributes):
         from util.widget.validator import ValidatorUtil
@@ -281,9 +305,13 @@ class WidgetInstaller():
             val = section_data.get(attribute)
             if val:
                 values[attribute] = val
-        wrong_values = list(filter(lambda value: not ValidatorUtil.is_numeric(values[value]), values))
+        wrong_values = list(
+            filter(lambda value: not ValidatorUtil.is_numeric(values[value]), values)
+        )
         if len(wrong_values):
-            raise Exception(f"Attributes expected to be numeric: {', '.join(wrong_values)}")
+            raise Exception(
+                f"Attributes expected to be numeric: {', '.join(wrong_values)}"
+            )
 
     def validate_boolean_values(section_data, attributes):
         values = {}
@@ -291,58 +319,89 @@ class WidgetInstaller():
             val = section_data.get(attribute)
             if val:
                 values[attribute] = val
-        wrong_values = list(filter(lambda value: type(values[value]) is not bool, values))
+        wrong_values = list(
+            filter(lambda value: type(values[value]) is not bool, values)
+        )
         if len(wrong_values):
-            raise Exception(f"Attributes expected to be boolean: {', '.join(wrong_values)}")
+            raise Exception(
+                f"Attributes expected to be boolean: {', '.join(wrong_values)}"
+            )
 
     def generate_install_params(manifest_data, package_file):
-        from django.utils.timezone import make_aware
-        from hashlib import md5
         from datetime import datetime
+        from hashlib import md5
 
-        clean_name = Widget.make_clean_name(manifest_data['general']['name'])
+        from django.utils.timezone import make_aware
+
+        clean_name = Widget.make_clean_name(manifest_data["general"]["name"])
         package_hash = md5()
-        with open(package_file, 'rb') as open_file:
+        with open(package_file, "rb") as open_file:
             while True:
-                data = open_file.read(65536) # read the file contents 64kb at a time
+                data = open_file.read(65536)  # read the file contents 64kb at a time
                 if not data:
                     break
                 package_hash.update(data)
         package_hash = package_hash.hexdigest()
 
         return {
-            'name': manifest_data['general']['name'],
-            'created_at': make_aware(datetime.now()),
-            'flash_version': manifest_data['files']['flash_version'],
-            'height': manifest_data['general']['height'],
-            'width': manifest_data['general']['width'],
-            'restrict_publish': bool(manifest_data['general']['restrict_publish']) if 'restrict_publish' in manifest_data['general'] else False,
-            'is_qset_encrypted': bool(manifest_data['general']['is_qset_encrypted']),
-            'is_answer_encrypted': bool(manifest_data['general']['is_answer_encrypted']),
-            'is_storage_enabled': bool(manifest_data['general']['is_storage_enabled']),
-            'is_playable': bool(manifest_data['general']['is_playable']),
-            'is_editable': bool(manifest_data['general']['is_editable']),
-            'is_scorable': bool(manifest_data['score']['is_scorable']),
-            'in_catalog': bool(manifest_data['general']['in_catalog']),
-            'clean_name': clean_name,
-            'api_version': int(manifest_data['general']['api_version']),
-            'package_hash': package_hash,
-            'score_module': manifest_data['score']['score_module'],
-            'creator': manifest_data['files']['creator'] if 'creator' in manifest_data['files'] else '',
-            'player': manifest_data['files']['player'] if 'player' in manifest_data['files'] else '' ,
-            'score_screen': manifest_data['score']['score_screen'] if 'score_screen' in manifest_data['score'] else '',
-            'creator_guide': manifest_data['files']['creator_guide'] if 'creator_guide' in manifest_data['files'] else  '',
-            'player_guide': manifest_data['files']['player_guide'] if 'player_guide' in manifest_data['files'] else ''
+            "name": manifest_data["general"]["name"],
+            "created_at": make_aware(datetime.now()),
+            "flash_version": manifest_data["files"]["flash_version"],
+            "height": manifest_data["general"]["height"],
+            "width": manifest_data["general"]["width"],
+            "restrict_publish": (
+                bool(manifest_data["general"]["restrict_publish"])
+                if "restrict_publish" in manifest_data["general"]
+                else False
+            ),
+            "is_qset_encrypted": bool(manifest_data["general"]["is_qset_encrypted"]),
+            "is_answer_encrypted": bool(
+                manifest_data["general"]["is_answer_encrypted"]
+            ),
+            "is_storage_enabled": bool(manifest_data["general"]["is_storage_enabled"]),
+            "is_playable": bool(manifest_data["general"]["is_playable"]),
+            "is_editable": bool(manifest_data["general"]["is_editable"]),
+            "is_scorable": bool(manifest_data["score"]["is_scorable"]),
+            "in_catalog": bool(manifest_data["general"]["in_catalog"]),
+            "clean_name": clean_name,
+            "api_version": int(manifest_data["general"]["api_version"]),
+            "package_hash": package_hash,
+            "score_module": manifest_data["score"]["score_module"],
+            "creator": (
+                manifest_data["files"]["creator"]
+                if "creator" in manifest_data["files"]
+                else ""
+            ),
+            "player": (
+                manifest_data["files"]["player"]
+                if "player" in manifest_data["files"]
+                else ""
+            ),
+            "score_screen": (
+                manifest_data["score"]["score_screen"]
+                if "score_screen" in manifest_data["score"]
+                else ""
+            ),
+            "creator_guide": (
+                manifest_data["files"]["creator_guide"]
+                if "creator_guide" in manifest_data["files"]
+                else ""
+            ),
+            "player_guide": (
+                manifest_data["files"]["player_guide"]
+                if "player_guide" in manifest_data["files"]
+                else ""
+            ),
         }
 
-    def save_params(params, widget_id = None):
+    def save_params(params, widget_id=None):
         # check for existing
         widget_obj = None
         try:
             # update
             widget_obj = Widget.objects.get(id=widget_id)
             # do not overwrite the in_catalog flag for existing widgets
-            del params['in_catalog']
+            del params["in_catalog"]
             try:
                 widget_obj.update(**params)
                 widget_obj.save()
@@ -355,7 +414,7 @@ class WidgetInstaller():
                 widget_obj.save()
                 widget_id = widget_obj.id
             except Exception as e:
-                logger.info('Exception when saving widget params')
+                logger.info("Exception when saving widget params")
                 logger.info(e)
                 raise Exception(f"Failure creating new widget: {widget_id}")
 
@@ -364,65 +423,85 @@ class WidgetInstaller():
 
         return widget_id
 
-    def install_demo(widget_id, package_dir, existing_inst_id = None):
+    def install_demo(widget_id, package_dir, existing_inst_id=None):
         import json
+
         # add the demo
-        json_file = os.path.join(package_dir, 'demo.json')
+        json_file = os.path.join(package_dir, "demo.json")
         if os.path.isfile(json_file):
-            demo_file = open(json_file, 'rb')
+            demo_file = open(json_file, "rb")
             demo_data = json.load(demo_file)
             demo_text = json.dumps(demo_data)
 
             WidgetInstaller.validate_demo(demo_data)
             try:
-                demo_text = WidgetInstaller.preprocess_json_and_upload_assets(package_dir, demo_text)
+                demo_text = WidgetInstaller.preprocess_json_and_upload_assets(
+                    package_dir, demo_text
+                )
             except Exception as e:
                 logger.info(e)
-                raise Exception('Error processing demo JSON and embedding assets')
+                raise Exception("Error processing demo JSON and embedding assets")
 
             demo_data = json.loads(demo_text)
 
             qset = WidgetQset()
-            qset.version = demo_data['qset']['version']
-            qset.data = demo_data['qset']['data']
+            qset.version = demo_data["qset"]["version"]
+            qset.data = demo_data["qset"]["data"]
 
             if existing_inst_id:
                 # update the existing instance by adding a new qset
-                saved_demo = WidgetInstancesApi.update(existing_inst_id, demo_data['name'], qset, False, None, None, None, True)
+                saved_demo = WidgetInstancesApi.update(
+                    existing_inst_id,
+                    demo_data["name"],
+                    qset,
+                    False,
+                    None,
+                    None,
+                    None,
+                    True,
+                )
 
                 if not saved_demo.id:
-                    raise Exception('Error saving demo instance')
+                    raise Exception("Error saving demo instance")
             else:
                 # new instance, nothing to upgrade
-                saved_demo = WidgetInstancesApi.new(widget_id, demo_data['name'], qset, False)
+                saved_demo = WidgetInstancesApi.new(
+                    widget_id, demo_data["name"], qset, False
+                )
 
                 if not saved_demo.id:
-                    raise Exception('Error saving demo instance')
+                    raise Exception("Error saving demo instance")
 
                 # update it to make sure it allows guest access
-                WidgetInstancesApi.update(saved_demo.id, None, None, None, None, None, None, True)
+                WidgetInstancesApi.update(
+                    saved_demo.id, None, None, None, None, None, None, True
+                )
                 # make sure nobody owns the demo widget
-                access = PermObjectToUser.objects.filter(object_id=saved_demo.id, object_type=PermObjectToUser.ObjectType.INSTANCE)
+                access = PermObjectToUser.objects.filter(
+                    object_id=saved_demo.id,
+                    object_type=PermObjectToUser.ObjectType.INSTANCE,
+                )
                 for a in access:
                     a.delete()
 
-            #TODO: this was originally a static output - may have to change this, maybe not?
+            # TODO: this was originally a static output - may have to change this, maybe not?
             logger.info(f"Demo installed: {saved_demo.id}")
             return saved_demo.id
 
     def validate_demo(demo_data):
-        if not 'name' in demo_data:
-            raise Exception('Missing name in demo')
-        if not 'qset' in demo_data:
-            raise Exception('Missing qset in demo')
-        if not 'data' in demo_data['qset']:
-            raise Exception('Missing qset data in demo')
-        if not 'version' in demo_data['qset']:
-            raise Exception('Missing qset version in demo')
+        if not "name" in demo_data:
+            raise Exception("Missing name in demo")
+        if not "qset" in demo_data:
+            raise Exception("Missing qset in demo")
+        if not "data" in demo_data["qset"]:
+            raise Exception("Missing qset data in demo")
+        if not "version" in demo_data["qset"]:
+            raise Exception("Missing qset version in demo")
         return True
 
     def preprocess_json_and_upload_assets(base_dir, json_text):
         import re
+
         pattern = re.compile(r"<%\s*MEDIA\s*=\s*('|\")([^'\"]*?)\1\s*%>")
 
         preprocess_tags = []
@@ -436,7 +515,9 @@ class WidgetInstaller():
         for i in range(len(files_to_upload)):
             file = files_to_upload[i]
             if not file in files_uploaded:
-                actual_file_path = os.path.join('/',base_dir.strip('/'), file.lstrip('/'))
+                actual_file_path = os.path.join(
+                    "/", base_dir.strip("/"), file.lstrip("/")
+                )
                 sideloaded_asset = WidgetInstaller.sideload_asset(actual_file_path)
                 asset_ids[file] = sideloaded_asset.id
                 files_uploaded.append(file)
@@ -453,14 +534,20 @@ class WidgetInstaller():
 
         try:
             # copy asset to wherever files would normally be uploaded
-            mock_upload_file_path = os.path.join(settings.DIRS['media_uploads'], unique_id('sideload_'))
+            mock_upload_file_path = os.path.join(
+                settings.DIRS["media_uploads"], unique_id("sideload_")
+            )
             logger.info(f"Copying asset {file} to {mock_upload_file_path}")
             shutil.copyfile(file, mock_upload_file_path)
 
             # process the upload
             # get the file information... somehow?
             upload_info = os.stat(mock_upload_file_path)
-            asset = AssetManager.new_asset_from_file(f"Demo asset {os.path.basename(file)}", upload_info, mock_upload_file_path)
+            asset = AssetManager.new_asset_from_file(
+                f"Demo asset {os.path.basename(file)}",
+                upload_info,
+                mock_upload_file_path,
+            )
             return asset
 
         except Exception as e:
@@ -470,7 +557,7 @@ class WidgetInstaller():
     def save_metadata(widget_id, metadata):
         for meta_key in metadata:
             meta_value = metadata[meta_key]
-            #TODO: simplify this
+            # TODO: simplify this
             if isinstance(meta_value, list):
                 for meta_child_item in meta_value:
                     meta_obj = WidgetMetadata()
@@ -489,7 +576,7 @@ class WidgetInstaller():
         import shutil
 
         widget_dir = f"{id}-{clean_name}{os.sep}"
-        target_dir = os.path.join(settings.DIRS['widgets'], widget_dir)
+        target_dir = os.path.join(settings.DIRS["widgets"], widget_dir)
         if os.path.isdir(target_dir):
             shutil.rmtree(target_dir)
         shutil.copytree(source_path, target_dir)

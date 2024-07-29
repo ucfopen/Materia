@@ -1,12 +1,13 @@
+import json
+import logging
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core import serializers
-from django.http import JsonResponse, HttpResponseServerError
+from django.http import HttpResponseServerError, JsonResponse
 
-import json
+logger = logging.getLogger("django")
 
-import logging
-logger = logging.getLogger('django')
 
 class NotificationsApi:
     def get(request):

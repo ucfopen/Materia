@@ -18,9 +18,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DIRS = {
-    'media': os.path.realpath(os.path.join(APP_PATH, 'media')), # + os.sep,
-    'media_uploads': os.path.realpath(os.path.join(APP_PATH, 'media', 'uploads')), # + os.sep,
-    'widgets': os.path.realpath(os.path.join(APP_PATH, 'staticfiles', 'widget')) # + os.sep
+    "media": os.path.realpath(os.path.join(APP_PATH, "media")),  # + os.sep,
+    "media_uploads": os.path.realpath(
+        os.path.join(APP_PATH, "media", "uploads")
+    ),  # + os.sep,
+    "widgets": os.path.realpath(
+        os.path.join(APP_PATH, "staticfiles", "widget")
+    ),  # + os.sep
 }
 
 # Quick-start development settings - unsuitable for production
@@ -134,8 +138,8 @@ MEDIA_URL = "/media/"
 
 # figure out how to get images working
 
-STATIC_URL = '/static/'
-STATIC_ROOT = './staticfiles/'
+STATIC_URL = "/static/"
+STATIC_ROOT = "./staticfiles/"
 
 # STATIC_URL = "/"
 # STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -173,73 +177,73 @@ LOGGING = {
 
 WIDGETS = [
     {
-        'id': 1,
-        'package' : 'https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword.wigt',
-        'checksum': 'https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword-build-info.yml',
+        "id": 1,
+        "package": "https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword.wigt",
+        "checksum": "https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword-build-info.yml",
     },
     {
-        'id': 2,
-        'package' : 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase.wigt',
-        'checksum': 'https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase-build-info.yml',
+        "id": 2,
+        "package": "https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase.wigt",
+        "checksum": "https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase-build-info.yml",
     },
     {
-        'id': 3,
-        'package' : 'https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching.wigt',
-        'checksum': 'https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching-build-info.yml',
+        "id": 3,
+        "package": "https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching.wigt",
+        "checksum": "https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching-build-info.yml",
     },
     {
-        'id': 4,
-        'package' : 'https://github.com/ucfopen/enigma-materia-widget/releases/latest/download/enigma.wigt',
-        'checksum': 'https://github.com/ucfopen/enigma-materia-widget/releases/latest/download/enigma-build-info.yml',
+        "id": 4,
+        "package": "https://github.com/ucfopen/enigma-materia-widget/releases/latest/download/enigma.wigt",
+        "checksum": "https://github.com/ucfopen/enigma-materia-widget/releases/latest/download/enigma-build-info.yml",
     },
     {
-        'id': 5,
-        'package' : 'https://github.com/ucfopen/labeling-materia-widget/releases/latest/download/labeling.wigt',
-        'checksum': 'https://github.com/ucfopen/labeling-materia-widget/releases/latest/download/labeling-build-info.yml',
+        "id": 5,
+        "package": "https://github.com/ucfopen/labeling-materia-widget/releases/latest/download/labeling.wigt",
+        "checksum": "https://github.com/ucfopen/labeling-materia-widget/releases/latest/download/labeling-build-info.yml",
     },
     {
-        'id': 6,
-        'package': 'https://github.com/ucfopen/flash-cards-materia-widget/releases/latest/download/flash-cards.wigt',
-        'checksum': 'https://github.com/ucfopen/flash-cards-materia-widget/releases/latest/download/flash-cards-build-info.yml'
+        "id": 6,
+        "package": "https://github.com/ucfopen/flash-cards-materia-widget/releases/latest/download/flash-cards.wigt",
+        "checksum": "https://github.com/ucfopen/flash-cards-materia-widget/releases/latest/download/flash-cards-build-info.yml",
     },
     {
-        'id': 7,
-        'package': 'https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that.wigt',
-        'checksum': 'https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that-build-info.yml'
+        "id": 7,
+        "package": "https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that.wigt",
+        "checksum": "https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that-build-info.yml",
     },
     {
-        'id': 8,
-        'package': 'https://github.com/ucfopen/word-search-materia-widget/releases/latest/download/word-search.wigt',
-        'checksum': 'https://github.com/ucfopen/word-search-materia-widget/releases/latest/download/word-search-build-info.yml'
+        "id": 8,
+        "package": "https://github.com/ucfopen/word-search-materia-widget/releases/latest/download/word-search.wigt",
+        "checksum": "https://github.com/ucfopen/word-search-materia-widget/releases/latest/download/word-search-build-info.yml",
     },
     {
-        'id': 9,
-        'package': 'https://github.com/ucfopen/adventure-materia-widget/releases/latest/download/adventure.wigt',
-        'checksum': 'https://github.com/ucfopen/adventure-materia-widget/releases/latest/download/adventure-build-info.yml'
+        "id": 9,
+        "package": "https://github.com/ucfopen/adventure-materia-widget/releases/latest/download/adventure.wigt",
+        "checksum": "https://github.com/ucfopen/adventure-materia-widget/releases/latest/download/adventure-build-info.yml",
     },
     {
-        'id': 10,
-        'package': 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/latest/download/equation-sandbox.wigt',
-        'checksum': 'https://github.com/ucfopen/equation-sandbox-materia-widget/releases/latest/download/equation-sandbox-build-info.yml'
+        "id": 10,
+        "package": "https://github.com/ucfopen/equation-sandbox-materia-widget/releases/latest/download/equation-sandbox.wigt",
+        "checksum": "https://github.com/ucfopen/equation-sandbox-materia-widget/releases/latest/download/equation-sandbox-build-info.yml",
     },
     {
-        'id': 11,
-        'package': 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/latest/download/sort-it-out.wigt',
-        'checksum': 'https://github.com/ucfopen/sort-it-out-materia-widget/releases/latest/download/sort-it-out-build-info.yml'
+        "id": 11,
+        "package": "https://github.com/ucfopen/sort-it-out-materia-widget/releases/latest/download/sort-it-out.wigt",
+        "checksum": "https://github.com/ucfopen/sort-it-out-materia-widget/releases/latest/download/sort-it-out-build-info.yml",
     },
     {
-        'id': 12,
-        'package': 'https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey.wigt',
-        'checksum': 'https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey-build-info.yml'
+        "id": 12,
+        "package": "https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey.wigt",
+        "checksum": "https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey-build-info.yml",
     },
     {
-        'id': 13,
-        'package': 'https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer.wigt',
-        'checksum': 'https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer-build-info.yml'
+        "id": 13,
+        "package": "https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer.wigt",
+        "checksum": "https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer-build-info.yml",
     },
     {
-        'id': 14,
-        'package': 'https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter.wigt',
-        'checksum': 'https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter-build-info.yml'
-    }
+        "id": 14,
+        "package": "https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter.wigt",
+        "checksum": "https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter-build-info.yml",
+    },
 ]

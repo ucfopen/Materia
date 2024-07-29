@@ -13,9 +13,9 @@ class Migration(migrations.Migration):
     ]
 
     def clean_data(apps, schema_editor):
-        from django.contrib.auth.models import User
-
         import logging
+
+        from django.contrib.auth.models import User
         logger = logging.getLogger('django')
 
         OldNotification = apps.get_model("core", "Notification")

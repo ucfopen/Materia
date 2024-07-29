@@ -24,7 +24,7 @@ urlpatterns = [
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
     path("widgets/", CatalogView.index, name="widget catalog"),
-    path("api/json/", include('api.urls.json')),
+    path("api/json/", include("api.urls.json")),
 ]
 
 handler404 = "core.views.main.handler404"

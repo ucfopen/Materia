@@ -1,12 +1,9 @@
 from datetime import datetime
 
-from django.db import migrations, IntegrityError, transaction
-
-from django.contrib.auth.models import User as DjangoUser
-from django.utils.timezone import make_aware
-
 import pytz
-
+from django.contrib.auth.models import User as DjangoUser
+from django.db import IntegrityError, migrations, transaction
+from django.utils.timezone import make_aware
 
 # from core.models import Users
 

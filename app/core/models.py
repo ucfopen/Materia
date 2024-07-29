@@ -5,67 +5,72 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+import logging
 import os
-
-from django.db import models, transaction
-from django.utils.translation import gettext_lazy
-from django.utils.timezone import make_aware
-
 from datetime import datetime
+
 from django.contrib.auth.models import User
+from django.db import models, transaction
+from django.utils.timezone import make_aware
+from django.utils.translation import gettext_lazy
 
 from util.widget.validator import ValidatorUtil
 
-import logging
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
+
 
 class Asset(models.Model):
     MIME_TYPE_TO_EXTENSION = {
-        'image/png':   'png',
-        'image/gif':   'gif',
-        'image/jpeg':  'jpg',
-        'audio/mp4':   'm4a',
-        'audio/x-m4a': 'm4a',
-        'audio/mpeg':  'mp3',
-        'audio/wav':   'wav',
-        'audio/wave':  'wav',
-        'audio/x-wav': 'wav',
-        'text/plain':  'obj',
+        "image/png": "png",
+        "image/gif": "gif",
+        "image/jpeg": "jpg",
+        "audio/mp4": "m4a",
+        "audio/x-m4a": "m4a",
+        "audio/mpeg": "mp3",
+        "audio/wav": "wav",
+        "audio/wave": "wav",
+        "audio/x-wav": "wav",
+        "text/plain": "obj",
     }
 
     MIME_TYPE_FROM_EXTENSION = {
-        'png':  'image/png',
-        'gif':  'image/gif',
-        'jpg':  'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'm4a':  'audio/mp4',
-        'mp3':  'audio/mpeg',
-        'wav':  'audio/wav',
-        'obj':  'text/plain',
+        "png": "image/png",
+        "gif": "image/gif",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "m4a": "audio/mp4",
+        "mp3": "audio/mpeg",
+        "wav": "audio/wav",
+        "obj": "text/plain",
     }
 
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
-    file_type = models.CharField(max_length=10, default='')
+    file_type = models.CharField(max_length=10, default="")
     created_at = models.DateTimeField(default=datetime.now)
-    title = models.CharField(max_length=300, default='')
+    title = models.CharField(max_length=300, default="")
     file_size = models.IntegerField(default=0)
     deleted_at = models.DateTimeField(default=None, null=True)
     is_deleted = models.BooleanField(default=False)
 
     def is_valid(self):
         from util.widget.validator import ValidatorUtil
-        return ValidatorUtil.is_valid_hash(self.id) and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
+
+        return (
+            ValidatorUtil.is_valid_hash(self.id)
+            and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
+        )
 
     # Get the materia asset type based on the mime type
     # param string mime_type: string mime type to convert to materia asset type: ex 'image/png'
     def get_type_from_mime_type(mime_type):
         if not mime_type in Asset.MIME_TYPE_TO_EXTENSION.keys():
-            return ''
+            return ""
         return Asset.MIME_TYPE_TO_EXTENSION[mime_type]
 
     # Finds an available asset ID to avoid database collisions
     def get_unused_id():
         from util.widget.instance.hash import WidgetInstanceHash
+
         asset_id = None
 
         # try 10 times to get an unused asset ID
@@ -80,11 +85,13 @@ class Asset(models.Model):
 
         return asset_id
 
-    #TODO: make this more Django-y
+    # TODO: make this more Django-y
     def db_store(self, user=None):
         from django.utils.timezone import make_aware
+
         from core.models import PermObjectToUser
         from util.widget.validator import ValidatorUtil
+
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
             return False
         asset_id = Asset.get_unused_id()
@@ -106,7 +113,9 @@ class Asset(models.Model):
             return True
 
         except Exception as e:
-            logger.error("The following exception occurred while attempting to store an asset:")
+            logger.error(
+                "The following exception occurred while attempting to store an asset:"
+            )
             logger.error(e)
             return False
 
@@ -122,20 +131,25 @@ class Asset(models.Model):
                     ad_obj.delete()
                 except AssetData.DoesNotExist:
                     pass
-                for perm in PermObjectToUser.objects.filter(object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET):
+                for perm in PermObjectToUser.objects.filter(
+                    object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
+                ):
                     perm.delete()
             self = Asset()
             return True
 
         except Exception as e:
-            logger.error("The following exception occurred while attempting to remove an asset:")
+            logger.error(
+                "The following exception occurred while attempting to remove an asset:"
+            )
             logger.error(e)
             return False
 
     def upload_asset_data(self, source_asset_path):
         # TODO: come back to this later and allow for DB or S3 bucket media storage
         from storage.file import FileStorageDriver
-        FileStorageDriver.store(self, source_asset_path, 'original')
+
+        FileStorageDriver.store(self, source_asset_path, "original")
 
     class Meta:
         db_table = "asset"
@@ -182,6 +196,7 @@ class DateRange(models.Model):
                 name="date_range_main",
             ),
         ]
+
 
 class Log(models.Model):
     class LogType(models.TextChoices):
@@ -250,17 +265,17 @@ class Log(models.Model):
 # re-engineer it to be useful and sensible
 class LogActivity(models.Model):
     # Activity Types
-    TYPE_CREATE_WIDGET        = 'createdWidget'
-    TYPE_DELETE_WIDGET        = 'deletedWidget'
-    TYPE_PUBLISH_WIDGET       = 'publishedWidget'
-    TYPE_EDIT_WIDGET          = 'editedWidget'
-    TYPE_EDIT_WIDGET_SETTINGS = 'editedWidgetSettings'
-    TYPE_LOGGED_IN            = 'loggedIn'
-    TYPE_LOGGED_OUT           = 'loggedOut'
-    TYPE_INSTALL_WIDGET       = 'installWidget'
-    TYPE_UPDATE_WIDGET        = 'updateWidget'
-    TYPE_ADMIN_EDIT_WIDGET    = 'adminEditWidget'
-    TYPE_ADMIN_EDIT_USER      = 'adminEditUser'
+    TYPE_CREATE_WIDGET = "createdWidget"
+    TYPE_DELETE_WIDGET = "deletedWidget"
+    TYPE_PUBLISH_WIDGET = "publishedWidget"
+    TYPE_EDIT_WIDGET = "editedWidget"
+    TYPE_EDIT_WIDGET_SETTINGS = "editedWidgetSettings"
+    TYPE_LOGGED_IN = "loggedIn"
+    TYPE_LOGGED_OUT = "loggedOut"
+    TYPE_INSTALL_WIDGET = "installWidget"
+    TYPE_UPDATE_WIDGET = "updateWidget"
+    TYPE_ADMIN_EDIT_WIDGET = "adminEditWidget"
+    TYPE_ADMIN_EDIT_USER = "adminEditUser"
 
     id = models.BigAutoField(primary_key=True)
 
@@ -280,7 +295,6 @@ class LogActivity(models.Model):
     value_1 = models.CharField(max_length=255, blank=True, null=True)
     value_2 = models.CharField(max_length=255, blank=True, null=True)
     value_3 = models.CharField(max_length=255, blank=True, null=True)
-
 
     class Meta:
         db_table = "log_activity"
@@ -495,6 +509,7 @@ class Notification(models.Model):
             models.Index(fields=["item_type"], name="notification_item_type"),
         ]
 
+
 # We may want to use Django's built-in permissions and roles system instead of these perm models.
 # Will need a migration plan for them potential foreign key relationship re: object_id, object_type
 # for assets, questions, and widget instances
@@ -552,7 +567,7 @@ class Question(models.Model):
         on_delete=models.PROTECT,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
     type = models.CharField(max_length=255)  # type is a "soft" reserved word in Python
     text = models.TextField()
@@ -592,8 +607,8 @@ class UserExtraAttempts(models.Model):
 
 class Widget(models.Model):
     # update these to the relevant paths when those Python files exist
-    PATHS_PLAYDATA = os.path.join('_exports', 'playdata_exporters.php')
-    PATHS_SCOREMOD = os.path.join('_score-modules','score_module.php')
+    PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.php")
+    PATHS_SCOREMOD = os.path.join("_score-modules", "score_module.php")
 
     SCORE_TYPE_CHOICES = [
         ("SERVER", "widget is scored on the server"),
@@ -602,14 +617,16 @@ class Widget(models.Model):
     ]
 
     id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=255, default='')
+    name = models.CharField(max_length=255, default="")
     created_at = models.DateTimeField(default=datetime.now)
     flash_version = models.PositiveIntegerField(default=0)
     height = models.PositiveSmallIntegerField(default=0)
     width = models.PositiveSmallIntegerField(default=0)
     is_scalable = models.BooleanField(default=True)
-    score_module = models.CharField(max_length=100, default='base')
-    score_type = models.CharField(max_length=13, choices=SCORE_TYPE_CHOICES, default='SERVER')
+    score_module = models.CharField(max_length=100, default="base")
+    score_type = models.CharField(
+        max_length=13, choices=SCORE_TYPE_CHOICES, default="SERVER"
+    )
     is_qset_encrypted = models.BooleanField(default=True)
     is_answer_encrypted = models.BooleanField(default=True)
     is_storage_enabled = models.BooleanField(default=False)
@@ -617,25 +634,25 @@ class Widget(models.Model):
     is_playable = models.BooleanField(default=True)
     is_scorable = models.BooleanField(default=True)
     in_catalog = models.BooleanField(default=True)
-    creator = models.CharField(max_length=255, default='')
-    clean_name = models.CharField(max_length=255, default='')
-    player = models.CharField(max_length=255, default='')
+    creator = models.CharField(max_length=255, default="")
+    clean_name = models.CharField(max_length=255, default="")
+    player = models.CharField(max_length=255, default="")
     api_version = models.IntegerField(default=0)
-    package_hash = models.CharField(max_length=32, db_collation="utf8_bin", default='')
-    score_screen = models.CharField(max_length=255, default='')
+    package_hash = models.CharField(max_length=32, db_collation="utf8_bin", default="")
+    score_screen = models.CharField(max_length=255, default="")
     restrict_publish = models.BooleanField(default=False)
-    creator_guide = models.CharField(max_length=255, default='')
-    player_guide = models.CharField(max_length=255, default='')
+    creator_guide = models.CharField(max_length=255, default="")
+    player_guide = models.CharField(max_length=255, default="")
 
     def metadata_clean(self):
         meta_raw = self.metadata.all()
         meta_final = {}
         for meta in meta_raw:
             # special checks for metadata values that need to be tracked in lists
-            if meta.name in ['features','supported_data','playdata_exporters']:
+            if meta.name in ["features", "supported_data", "playdata_exporters"]:
                 # initialize the list if needed
                 if meta.name not in meta_final:
-                        meta_final[meta.name] = []
+                    meta_final[meta.name] = []
                 meta_final[meta.name].append(meta.value)
             else:
                 meta_final[meta.name] = meta.value
@@ -644,7 +661,7 @@ class Widget(models.Model):
         return self.meta_data
 
     def make_clean_name(name):
-        return name.replace(' ', '-').lower()
+        return name.replace(" ", "-").lower()
 
     def load_script(script_path):
         if not os.path.isfile(script_path):
@@ -656,7 +673,7 @@ class Widget(models.Model):
         #  scope in which this function is run
         #
 
-    '''
+    """
     public static function load_script(string $script_path)
     {
         // closure helps to prevent the script poluting this and isolate scope
@@ -674,7 +691,7 @@ class Widget(models.Model):
 
         return $load_safer($script_path);
     }
-    '''
+    """
 
     class Meta:
         db_table = "widget"
@@ -698,7 +715,7 @@ class WidgetInstance(models.Model):
         on_delete=models.PROTECT,
         db_column="user_id",
         blank=True,
-        null=True
+        null=True,
     )
     created_at = models.DateTimeField(default=datetime.now)
     name = models.CharField(max_length=100)
@@ -722,21 +739,18 @@ class WidgetInstance(models.Model):
         db_column="published_by",
     )
 
-    #TODO: re-evaluate this - it makes widget instance creation kind of inconvenient
+    # TODO: re-evaluate this - it makes widget instance creation kind of inconvenient
     # at least with the existing approach
     @property
     def qset(self):
         try:
-            return self.qsets.latest('id')
+            return self.qsets.latest("id")
         except WidgetQset.DoesNotExist:
-            return WidgetQset({
-                'version': None,
-                'data': None
-            })
+            return WidgetQset({"version": None, "data": None})
 
     def db_store(self):
         # check for requirements
-        #TODO: this requires a user check, revisit later
+        # TODO: this requires a user check, revisit later
         # if not self.is_draft and not self.widget.publishable_by(user):
         #     return False
         is_new = not ValidatorUtil.is_valid_hash(self.id)
@@ -752,8 +766,8 @@ class WidgetInstance(models.Model):
             while not success:
                 tries = tries - 1
                 if tries < 0:
-                    raise Exception('Unable to save new widget instance')
-                #TODO: figure users out
+                    raise Exception("Unable to save new widget instance")
+                # TODO: figure users out
                 # self.published_by = None if self.is_draft else user
 
                 try:
@@ -762,19 +776,19 @@ class WidgetInstance(models.Model):
                     self.created_at = make_aware(datetime.now())
                     self.save()
                     success = True
-                #TODO: use a more specific exception
+                # TODO: use a more specific exception
                 except Exception as e:
                     logger.info(e)
                     # try again until the retries run out
             # success must be true to get here
-            #TODO: give the current user perms to this instance, however that works
-            #Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
+            # TODO: give the current user perms to this instance, however that works
+            # Perm_Manager::set_user_object_perms($hash, Perm::INSTANCE, $this->user_id, [Perm::FULL => Perm::ENABLE]);
 
         # UPDATING AN EXISTING INSTANCE
         else:
             new_publisher = self.published_by
             if not new_publisher and not self.is_draft:
-                #TODO: figure users out
+                # TODO: figure users out
                 # new_publisher = user
                 pass
 
@@ -782,7 +796,7 @@ class WidgetInstance(models.Model):
             self.updated_at = make_aware(datetime.now())
             self.save()
 
-            #TODO: originally this was meant to check if the number of rows affected by the 'update' query
+            # TODO: originally this was meant to check if the number of rows affected by the 'update' query
             # is greater than zero - may make more sense to try/except this to check for failures?
             success = True
 
@@ -791,7 +805,7 @@ class WidgetInstance(models.Model):
         #  that we can do with as we please any more, so the qset relationship and maintenance should
         #  probably happen outside of this function
 
-        #TODO: figure users out
+        # TODO: figure users out
         # activity = LogActivity()
         # activity.user_id = user.id
         # activity.type = LogActivity.TYPE_CREATE_WIDGET if is_new else LogActivity.TYPE_EDIT_WIDGET
@@ -839,15 +853,15 @@ class WidgetQset(models.Model):
     version = models.CharField(max_length=10, blank=True, null=True)
 
     def db_store(self):
-        import json
         import base64
+        import json
 
         try:
             # preserve the qset data, save with no data to reserve an ID while we do transformation and encoding
             # this... may be unnecessary?
             save_data = self.data
             self.version = self.version if self.version else 0
-            self.data = ''
+            self.data = ""
             self.created_at = make_aware(datetime.now())
             self.save()
 
@@ -857,7 +871,9 @@ class WidgetQset(models.Model):
             # just skip it for now
             # questions = self.find_questions()
 
-            encoded = base64.b64encode(json.dumps(save_data).encode('utf-8')).decode('utf-8')
+            encoded = base64.b64encode(json.dumps(save_data).encode("utf-8")).decode(
+                "utf-8"
+            )
             self.data = encoded
             self.save()
 
@@ -868,15 +884,16 @@ class WidgetQset(models.Model):
 
             return True
         except Exception as e:
-            logger.info('Could not save qset')
-            logger.exception('')
+            logger.info("Could not save qset")
+            logger.exception("")
 
         return False
 
-    #TODO: implement this
+    # TODO: implement this
     def find_questions(self):
         pass
-    '''
+
+    """
     #TODO: find the assets!!!
     #Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
     public static function find_questions(&$source, $create_ids=false, &$questions=[])
@@ -913,7 +930,7 @@ class WidgetQset(models.Model):
         }
         return $questions;
     }
-    '''
+    """
 
     class Meta:
         db_table = "widget_qset"

@@ -1,11 +1,12 @@
+import logging
 import re
 
 from django.conf import settings
 
-import logging
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
 
-class ValidatorUtil():
+
+class ValidatorUtil:
 
     # Stand-in for PHP's is_numeric function, which accepts numbers or strings
     # 23    # True
@@ -61,9 +62,10 @@ class ValidatorUtil():
 
     # return bool True if var is a whole integer
     # return bool False if var is not a whole integer
-    def is_positive_integer_or_zero(var, allow_zero = False):
+    def is_positive_integer_or_zero(var, allow_zero=False):
         try:
-            if not ValidatorUtil.is_int(var): return False
+            if not ValidatorUtil.is_int(var):
+                return False
             if allow_zero:
                 return int(var) >= 0
             else:
@@ -76,11 +78,15 @@ class ValidatorUtil():
     # return bool True if hash is a valid string
     # return bool False if hash is an invalid string
     def is_valid_hash(hash):
-        if ValidatorUtil.is_numeric(hash) and ValidatorUtil.is_positive_integer_or_zero(hash): return True
+        if ValidatorUtil.is_numeric(hash) and ValidatorUtil.is_positive_integer_or_zero(
+            hash
+        ):
+            return True
 
         # matches any alphanumeric string between 1 and 5 characters EXCEPT 0
-        pattern = re.compile(r'^([A-Za-z0-9]{2,5}|[A-Za-z1-9]{1})')
-        if type(hash) == str and bool(re.match(pattern, hash)): return True
+        pattern = re.compile(r"^([A-Za-z0-9]{2,5}|[A-Za-z1-9]{1})")
+        if type(hash) == str and bool(re.match(pattern, hash)):
+            return True
 
         return False
 
@@ -105,18 +111,20 @@ class ValidatorUtil():
     #     return (preg_match($pattern, $long_hash, $match) === 1);
     # }
     def is_valid_long_hash(long_hash):
-        if not ValidatorUtil.is_string(long_hash): return False
-        if long_hash == '0': return False
+        if not ValidatorUtil.is_string(long_hash):
+            return False
+        if long_hash == "0":
+            return False
 
-        pattern = re.compile(r'/^[A-Za-z0-9][A-Za-z0-9-]*\z/')
+        pattern = re.compile(r"/^[A-Za-z0-9][A-Za-z0-9-]*\z/")
         return bool(re.match(pattern, long_hash))
 
     def is_md5(var):
-        pattern = re.compile(r'/^[[a-zA-Z0-9]]{32}$/i')
+        pattern = re.compile(r"/^[[a-zA-Z0-9]]{32}$/i")
         return bool(re.match(pattern, var))
 
     def is_sha5(var):
-        pattern = re.compile(r'/^[[a-zA-Z0-9]]{40}$/i')
+        pattern = re.compile(r"/^[[a-zA-Z0-9]]{40}$/i")
         return bool(re.match(pattern, var))
 
     # intentionally not recreating cast_to_bool_enum function, since
