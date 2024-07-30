@@ -351,6 +351,20 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 				'token'  => static::$_config['token'] ?? null,
 			]
 		];
+		if ($_config['credential_provider'] == 'imds')
+		{
+			$provider = \Aws\Credentials\CredentialProvider::defaultProvider();
+			$config['credentials'] = $provider;
+		}
+		elseif ($_config['credential_provider'] == 'env')
+		{
+			$config['credentials'] = [
+				'key'    => static::$_config['key'],
+				'secret' => static::$_config['secret_key'],
+				'token'  => static::$_config['token'] ?? null,
+			];
+		}
+		else throw new \Exception('S3: Failed to determine credential provider. Did you set the appropriate environment variable?');
 
 		try {
 			static::$_s3_client = new \Aws\S3\S3Client($config);

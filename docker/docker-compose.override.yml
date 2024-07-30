@@ -18,6 +18,7 @@ services:
     environment:
       # values sourced from docker/env
       - ASSET_STORAGE_DRIVER
+      - ASSET_STORAGE_S3_CREDENTIAL_PROVIDER
       - ASSET_STORAGE_S3_BUCKET
       - ASSET_STORAGE_S3_ENDPOINT
       - ASSET_STORAGE_S3_KEY
