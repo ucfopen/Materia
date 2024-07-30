@@ -2,13 +2,12 @@ import logging
 import os
 import tempfile
 
-from django.conf import settings
-
-logger = logging.getLogger("django")
-
 from api.views.widget_instances import WidgetInstancesApi
 from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetQset
+from django.conf import settings
 from util.unique_id import unique_id
+
+logger = logging.getLogger("django")
 
 
 class WidgetInstaller:
@@ -65,19 +64,18 @@ class WidgetInstaller:
         if skip_upgrade and num_existing > 0:
             # TODO: see if it's possible to recreate this block
             # pretty much just produces special contextual output if this is running in a terminal
-            """
-            if (\Fuel::$is_cli)
-            {
-                \Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
-                foreach ($matching_widgets as $i => $matching_widget)
-                {
-                    \Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
-                }
-                \Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
-                return false;
-            }
-            else
-            """
+            # if (\Fuel::$is_cli)
+            # {
+            #     \Cli::write("Multiple Existing widgets found with name $clean_name", 'red');
+            #     foreach ($matching_widgets as $i => $matching_widget)
+            #     {
+            #         \Cli::write("==> ID:{$matching_widget['id']} ({$matching_widget['name']})", 'green');
+            #     }
+            #     \Cli::write('Run install again with "--replace-id=ID" option', 'yellow');
+            #     return false;
+            # }
+            # else
+
             # this would normally run in the 'else' of the block above
             raise Exception(
                 f"Existing widgets found for {clean_name}, not upgrading due to --skip-upgrade option"
@@ -229,14 +227,6 @@ class WidgetInstaller:
                 "is_storage_enabled",
             ],
         )
-        # make sure the name matches - we ignore any "_12345678" type suffix, since this would have been added
-        #  by extracting the zip, assuming this widget was originally from a zip.
-        # doesn't look like we actually use this, though
-        import re
-        from pathlib import Path
-
-        name_pattern = re.compile(r"/_[0-9]+$/")
-        matching_name = Path(re.sub(name_pattern, "", dir)).name
 
         # 4. Make sure the 'files' section is correct
         files = manifest_data["files"]
@@ -247,7 +237,7 @@ class WidgetInstaller:
         if not os.path.isfile(player_file):
             raise Exception(f"Player file missing: {player_file}")
 
-        if not "creator" in files or files["creator"] == "":
+        if "creator" not in files or files["creator"] == "":
             raise Exception("Creator does not exist")
         else:
             if files["creator"] != "default":
@@ -405,7 +395,10 @@ class WidgetInstaller:
             try:
                 widget_obj.update(**params)
                 widget_obj.save()
-            except:
+            # TODO: narrow down which kind(s) of Exception we should expect here
+            except Exception as e:
+                logger.info("Exception when updating existing widget params")
+                logger.info(e)
                 raise Exception(f"Failure updating existing widget data: {widget_id}")
         except Widget.DoesNotExist:
             # new
@@ -413,6 +406,7 @@ class WidgetInstaller:
                 widget_obj = Widget(**params)
                 widget_obj.save()
                 widget_id = widget_obj.id
+            # TODO: narrow down which kind(s) of Exception we should expect here
             except Exception as e:
                 logger.info("Exception when saving widget params")
                 logger.info(e)
@@ -489,13 +483,13 @@ class WidgetInstaller:
             return saved_demo.id
 
     def validate_demo(demo_data):
-        if not "name" in demo_data:
+        if "name" not in demo_data:
             raise Exception("Missing name in demo")
-        if not "qset" in demo_data:
+        if "qset" not in demo_data:
             raise Exception("Missing qset in demo")
-        if not "data" in demo_data["qset"]:
+        if "data" not in demo_data["qset"]:
             raise Exception("Missing qset data in demo")
-        if not "version" in demo_data["qset"]:
+        if "version" not in demo_data["qset"]:
             raise Exception("Missing qset version in demo")
         return True
 
@@ -514,7 +508,7 @@ class WidgetInstaller:
 
         for i in range(len(files_to_upload)):
             file = files_to_upload[i]
-            if not file in files_uploaded:
+            if file not in files_uploaded:
                 actual_file_path = os.path.join(
                     "/", base_dir.strip("/"), file.lstrip("/")
                 )

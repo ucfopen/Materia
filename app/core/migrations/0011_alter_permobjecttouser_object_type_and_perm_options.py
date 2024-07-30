@@ -6,23 +6,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0010_alter_asset_and_widget_default_values'),
+        ("core", "0010_alter_asset_and_widget_default_values"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='permobjecttouser',
-            name='expires_at',
+            model_name="permobjecttouser",
+            name="expires_at",
             field=models.DateTimeField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='permobjecttouser',
-            name='object_type',
-            field=models.IntegerField(choices=[(1, 'Question'), (2, 'Media asset'), (3, 'Widget engine'), (4, 'Widget instance')]),
+            model_name="permobjecttouser",
+            name="object_type",
+            field=models.IntegerField(
+                choices=[
+                    (1, "Question"),
+                    (2, "Media asset"),
+                    (3, "Widget engine"),
+                    (4, "Widget instance"),
+                ]
+            ),
         ),
         migrations.AlterField(
-            model_name='permobjecttouser',
-            name='perm',
-            field=models.IntegerField(choices=[(1, 'Can see object and view scores'), (30, 'Full access to object')]),
+            model_name="permobjecttouser",
+            name="perm",
+            field=models.IntegerField(
+                choices=[
+                    (1, "Can see object and view scores"),
+                    (30, "Full access to object"),
+                ]
+            ),
         ),
     ]

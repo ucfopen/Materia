@@ -1,7 +1,7 @@
 import logging
 
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
-from django.shortcuts import redirect, render
+from django.http import HttpResponseNotFound
+from django.shortcuts import render
 
 
 def index(request, *args, **kwargs):
@@ -24,19 +24,12 @@ def get_theme_overrides():
 
 
 def help(request):
-    # Get the theme override, if any.
-    theme_overrides = get_theme_overrides()
-
-    # If a theme override exists, use its JS and CSS.
-    # Otherwise, use the default JS and CSS.
-    if theme_overrides:
-        js_group = ["react", theme_overrides[0][1]["js"]]
-        css_group = theme_overrides[0][1]["css"]
-    else:
-        js_group = ["react", "help"]
-        css_group = "help"
-
-    context = {"title": "Help", "bundle_name": "help", "css_group": css_group}
+    context = {
+        "title": "Help",
+        "page_type": "docs help",
+        "js_resources": ["dist/js/help.js"],
+        "css_resources": ["dist/css/help.css"],
+    }
 
     return render(request, "react.html", context)
 

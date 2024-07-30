@@ -8,69 +8,76 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0011_alter_permobjecttouser_object_type_and_perm_options'),
+        ("core", "0011_alter_permobjecttouser_object_type_and_perm_options"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='attempts',
+            model_name="widgetinstance",
+            name="attempts",
             field=models.IntegerField(default=-1),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='close_at',
+            model_name="widgetinstance",
+            name="close_at",
             field=models.IntegerField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='embedded_only',
+            model_name="widgetinstance",
+            name="embedded_only",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='guest_access',
+            model_name="widgetinstance",
+            name="guest_access",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='height',
+            model_name="widgetinstance",
+            name="height",
             field=models.IntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='is_deleted',
+            model_name="widgetinstance",
+            name="is_deleted",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='is_draft',
+            model_name="widgetinstance",
+            name="is_draft",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='is_student_made',
+            model_name="widgetinstance",
+            name="is_student_made",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='open_at',
+            model_name="widgetinstance",
+            name="open_at",
             field=models.IntegerField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='updated_at',
+            model_name="widgetinstance",
+            name="updated_at",
             field=models.IntegerField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='user',
-            field=models.ForeignKey(blank=True, db_column='user_id', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='created_instances', to=settings.AUTH_USER_MODEL),
+            model_name="widgetinstance",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="user_id",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="created_instances",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='widgetinstance',
-            name='width',
+            model_name="widgetinstance",
+            name="width",
             field=models.IntegerField(default=0),
         ),
     ]

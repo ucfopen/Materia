@@ -1,9 +1,4 @@
-import logging
 import re
-
-from django.conf import settings
-
-logger = logging.getLogger("django")
 
 
 class ValidatorUtil:
@@ -85,14 +80,14 @@ class ValidatorUtil:
 
         # matches any alphanumeric string between 1 and 5 characters EXCEPT 0
         pattern = re.compile(r"^([A-Za-z0-9]{2,5}|[A-Za-z1-9]{1})")
-        if type(hash) == str and bool(re.match(pattern, hash)):
+        if type(hash) is str and bool(re.match(pattern, hash)):
             return True
 
         return False
 
     # Convenience function to make sure a value is a non-empty string
     def is_string(var):
-        return type(var) == str and len(var) > 0
+        return type(var) is str and len(var) > 0
 
     # Ensures long_hash is a valid base64 hash and supports old play ids
     #  can't just be '0' or '-'
@@ -102,14 +97,6 @@ class ValidatorUtil:
 
     # return bool True if long_hash is a valid string
     # return bool False if long_hash is an invalid string
-
-    # public static function is_valid_long_hash($long_hash)
-    # {
-    #     if ( ! self::is_string($long_hash)) return false;
-    #     if ($long_hash === '0') return false;
-    #     $pattern = '/^[A-Za-z0-9][A-Za-z0-9-]*\z/';
-    #     return (preg_match($pattern, $long_hash, $match) === 1);
-    # }
     def is_valid_long_hash(long_hash):
         if not ValidatorUtil.is_string(long_hash):
             return False

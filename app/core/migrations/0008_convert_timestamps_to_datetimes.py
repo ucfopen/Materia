@@ -2,8 +2,6 @@
 
 from datetime import datetime
 
-from django.db import migrations, models
-
 from core.models import (
     Asset,
     AssetData,
@@ -21,21 +19,25 @@ from core.models import (
     WidgetInstance,
     WidgetQset,
 )
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0007_alter_log_log_type_alter_logactivity_user_and_more'),
+        ("core", "0007_alter_log_log_type_alter_logactivity_user_and_more"),
     ]
 
     def translate_timestamps(apps, schema_editor):
         import logging
-        logger = logging.getLogger('django')
+
+        logger = logging.getLogger("django")
 
         def timestamp_to_datetime(ts):
-            if not ts: return None
+            if not ts:
+                return None
             from django.utils.timezone import make_aware
+
             return make_aware(datetime.fromtimestamp(ts))
 
         logger.info("Converting Asset timestamps to datetimes")
@@ -119,10 +121,12 @@ class Migration(migrations.Migration):
 
     def translate_datetimes(apps, schema_editor):
         import logging
-        logger = logging.getLogger('django')
+
+        logger = logging.getLogger("django")
 
         def datetime_to_timestamp(dt):
             from datetime import datetime
+
             return datetime.timestamp(dt)
 
         logger.info("Converting Asset datetimes to timestamps")
@@ -206,14 +210,14 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='notification',
-            name='updated_at_dt',
+            model_name="notification",
+            name="updated_at_dt",
             field=models.DateTimeField(default=datetime.now, null=True),
         ),
         migrations.AlterField(
-            model_name='permobjecttouser',
-            name='expires_at_dt',
+            model_name="permobjecttouser",
+            name="expires_at_dt",
             field=models.DateTimeField(default=datetime.now, null=True),
         ),
-        migrations.RunPython(translate_timestamps, translate_datetimes)
+        migrations.RunPython(translate_timestamps, translate_datetimes),
     ]

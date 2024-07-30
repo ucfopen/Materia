@@ -27,13 +27,13 @@ class Command(base.BaseCommand):
         # existing PHP data features one table using a different storage
         #  engine for some reason, needs to be the same as everything else
         cursor = connection.cursor()
-        cursor.execute(f"ALTER TABLE `log_activity` ENGINE = InnoDB;")
+        cursor.execute("ALTER TABLE `log_activity` ENGINE = InnoDB;")
         cursor.close()
 
         # existing PHP data features one table using a compound primary key
         # only single-column primary keys are viable for the Django ORM
         cursor = connection.cursor()
-        cursor.execute(f"ALTER TABLE `user_meta` DROP PRIMARY KEY;")
+        cursor.execute("ALTER TABLE `user_meta` DROP PRIMARY KEY;")
         # the existing log table has the 'type' column set as an ENUM
         # core migration 0001 will build this column as a varchar instead
         # manually change it to match the migration 0001 expectation so

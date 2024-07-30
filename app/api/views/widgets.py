@@ -2,12 +2,9 @@ import json
 import logging
 import os
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
+from core.models import Widget
 from django.core import serializers
-from django.http import HttpResponseServerError, JsonResponse
-
-from core.models import Widget, WidgetMetadata
+from django.http import JsonResponse
 
 logger = logging.getLogger("django")
 
@@ -37,9 +34,9 @@ class WidgetsApi:
             # remove this stupid hack when the frontend is willing to accept true as true instead of '1' as true
             for field in widget_dict["fields"]:
                 if field[:3] in ["is_", "in_"]:
-                    if widget_dict["fields"][field] == True:
+                    if widget_dict["fields"][field] is True:
                         widget_dict["fields"][field] = "1"
-                    if widget_dict["fields"][field] == False:
+                    if widget_dict["fields"][field] is False:
                         widget_dict["fields"][field] = "0"
 
             hack_return.append(widget_dict["fields"])

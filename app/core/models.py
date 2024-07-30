@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
-
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
@@ -63,7 +62,7 @@ class Asset(models.Model):
     # Get the materia asset type based on the mime type
     # param string mime_type: string mime type to convert to materia asset type: ex 'image/png'
     def get_type_from_mime_type(mime_type):
-        if not mime_type in Asset.MIME_TYPE_TO_EXTENSION.keys():
+        if mime_type not in Asset.MIME_TYPE_TO_EXTENSION.keys():
             return ""
         return Asset.MIME_TYPE_TO_EXTENSION[mime_type]
 
@@ -87,9 +86,8 @@ class Asset(models.Model):
 
     # TODO: make this more Django-y
     def db_store(self, user=None):
-        from django.utils.timezone import make_aware
-
         from core.models import PermObjectToUser
+        from django.utils.timezone import make_aware
         from util.widget.validator import ValidatorUtil
 
         if ValidatorUtil.is_valid_hash(self.id) and not bool(self.file_type):
@@ -883,54 +881,52 @@ class WidgetQset(models.Model):
             #     q.db_store(self.id)
 
             return True
-        except Exception as e:
+        except Exception:
             logger.info("Could not save qset")
             logger.exception("")
 
         return False
 
-    # TODO: implement this
+    # TODO: implement this, old code below
     def find_questions(self):
         pass
 
-    """
-    #TODO: find the assets!!!
-    #Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
-    public static function find_questions(&$source, $create_ids=false, &$questions=[])
-    {
-        if (is_array($source))
-        {
-            foreach ($source as $key => &$q)
-            {
-                if (self::is_question($q))
-                {
-                    $json = json_encode($q);
+    # TODO: find the assets!!!
+    # Widget_Asset_Manager::register_assets_to_item(Widget_Asset::MAP_TYPE_QSET, $qset_id, $recursiveQGroup->assets);
+    # public static function find_questions(&$source, $create_ids=false, &$questions=[])
+    # {
+    #     if (is_array($source))
+    #     {
+    #         foreach ($source as $key => &$q)
+    #         {
+    #             if (self::is_question($q))
+    #             {
+    #                 $json = json_encode($q);
 
-                    $real_q = Widget_Question::forge()->from_json($json);
+    #                 $real_q = Widget_Question::forge()->from_json($json);
 
-                    // new question sets need ids
-                    if ($create_ids)
-                    {
-                        if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
-                        foreach ($real_q->answers as &$a)
-                        {
-                            if (empty($a['id'])) $a['id'] = \Str::random('uuid');
-                        }
-                        $source[$key] = json_decode(json_encode($real_q), true);
-                    }
-                    if ($real_q->id)	$questions[$real_q->id] = $real_q;
-                    else $questions[] = $real_q;
-                }
-                elseif (is_array($q))
-                {
-                    // INCEPTION TIME!!
-                    self::find_questions($q, $create_ids, $questions);
-                }
-            }
-        }
-        return $questions;
-    }
-    """
+    #                 // new question sets need ids
+    #                 if ($create_ids)
+    #                 {
+    #                     if (empty($real_q->id)) $real_q->id = \Str::random('uuid');
+    #                     foreach ($real_q->answers as &$a)
+    #                     {
+    #                         if (empty($a['id'])) $a['id'] = \Str::random('uuid');
+    #                     }
+    #                     $source[$key] = json_decode(json_encode($real_q), true);
+    #                 }
+    #                 if ($real_q->id)	$questions[$real_q->id] = $real_q;
+    #                 else $questions[] = $real_q;
+    #             }
+    #             elseif (is_array($q))
+    #             {
+    #                 // INCEPTION TIME!!
+    #                 self::find_questions($q, $create_ids, $questions);
+    #             }
+    #         }
+    #     }
+    #     return $questions;
+    # }
 
     class Meta:
         db_table = "widget_qset"

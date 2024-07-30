@@ -1,20 +1,13 @@
-import json
 import logging
 from datetime import datetime
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required
-from django.core import serializers
-from django.http import HttpResponseServerError, JsonResponse
-from django.utils.timezone import make_aware
-
 from core.models import (
-    LogActivity,
     PermObjectToUser,
     Widget,
     WidgetInstance,
-    WidgetQset,
 )
+from django.http import HttpResponseServerError
+from django.utils.timezone import make_aware
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
 
@@ -23,10 +16,14 @@ logger = logging.getLogger("django")
 
 class WidgetInstancesApi:
     def new(widget_id=None, name=None, qset=None, is_draft=None):
-        # ordinarily there would be several checks here requiring an active login and making sure the current user can edit the relevant widget instance
+        # ordinarily there would be several checks here requiring an active login
+        #  and making sure the current user can edit the relevant widget instance
         # since this can potentially be called by a command line process, we can't do that - because there is no user
+
         # if (\Service_User::verify_session() !== true) return Msg::no_login();
-        # if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
+        # if (\Service_User::verify_session('no_author')) {
+        #     return Msg::invalid_input('You are not able to create or edit widgets.');
+        # }
 
         # TODO: move the part of this code that actually does stuff somewhere else and call that new function from here
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
@@ -77,7 +74,7 @@ class WidgetInstancesApi:
                     raise e
 
             return instance
-        except Exception as e:
+        except Exception:
             logger.info("PROBLEM IS HERE")
             logger.exception("")
             # originally this called Msg
@@ -95,10 +92,14 @@ class WidgetInstancesApi:
         embedded_only=None,
         is_student_made=None,
     ):
-        # ordinarily there would be several checks here requiring an active login and making sure the current user can edit the relevant widget instance
+        # ordinarily there would be several checks here requiring an active login
+        #  and making sure the current user can edit the relevant widget instance
         # since this can potentially be called by a command line process, we can't do that - because there is no user
+
         # if (\Service_User::verify_session() !== true) return Msg::no_login();
-        # if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
+        # if (\Service_User::verify_session('no_author')) {
+        #     return Msg::invalid_input('You are not able to create or edit widgets.');
+        # }
         # if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 
         # TODO: move the part of this code that actually does stuff somewhere else and call that new function from here
@@ -125,7 +126,12 @@ class WidgetInstancesApi:
         # student-made widgets are locked forever
         if instance.is_student_made:
             if guest_access is False:
-                # return new Msg('Student-made widgets must stay in guest access mode.', 'Student Made', 'error', false);
+                # return new Msg(
+                #     'Student-made widgets must stay in guest access mode.',
+                #     'Student Made',
+                #     'error',
+                #     false
+                # );
                 return HttpResponseServerError(
                     "Student-made widgets must stay in guest access mode."
                 )
@@ -145,7 +151,7 @@ class WidgetInstancesApi:
             #     activity.save()
             instance.name = name
 
-        if is_draft != None:
+        if is_draft is not None:
             # this is another thing that expects a user to be logged in and performing this action somehow
             # TODO: figure out how to get relevant user data implemented here
             # if instance.is_draft != is_draft:
@@ -158,7 +164,7 @@ class WidgetInstancesApi:
             #     activity.save()
             instance.is_draft = is_draft
 
-        if open_at != None:
+        if open_at is not None:
             # this is another thing that expects a user to be logged in and performing this action somehow
             # TODO: figure out how to get relevant user data implemented here
             # if instance.open_at != open_at:
@@ -171,7 +177,7 @@ class WidgetInstancesApi:
             #     activity.save()
             instance.open_at = open_at
 
-        if close_at != None:
+        if close_at is not None:
             # this is another thing that expects a user to be logged in and performing this action somehow
             # TODO: figure out how to get relevant user data implemented here
             # if instance.close_at != close_at:
@@ -184,7 +190,7 @@ class WidgetInstancesApi:
             #     activity.save()
             instance.close_at = close_at
 
-        if attempts != None:
+        if attempts is not None:
             # this is another thing that expects a user to be logged in and performing this action somehow
             # TODO: figure out how to get relevant user data implemented here
             # if instance.attempts != attempts:
@@ -197,7 +203,7 @@ class WidgetInstancesApi:
             #     activity.save()
             instance.attempts = attempts
 
-        if guest_access != None:
+        if guest_access is not None:
             # this is another thing that expects a user to be logged in and performing this action somehow
             # TODO: figure out how to get relevant user data implemented here
 
@@ -224,10 +230,17 @@ class WidgetInstancesApi:
                         and a.user is not instance.user
                     ):
                         # TODO: implement notifications
-                        # \Model_Notification::send_item_notification(\Model_user::find_current_id(), $user_id, Perm::INSTANCE, $inst_id, 'disabled', null);
+                        # \Model_Notification::send_item_notification(
+                        #     \Model_user::find_current_id(),
+                        #     $user_id,
+                        #     Perm::INSTANCE,
+                        #     $inst_id,
+                        #     'disabled',
+                        #     null
+                        # );
                         a.delete()
 
-        if embedded_only != None:
+        if embedded_only is not None:
             # this is another thing that expects a user to be logged in and performing this action somehow
             # TODO: figure out how to get relevant user data implemented here
             # if instance.embedded_only != embedded_only:

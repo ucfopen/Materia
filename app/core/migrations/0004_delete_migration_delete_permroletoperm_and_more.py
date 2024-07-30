@@ -48,7 +48,9 @@ class Migration(migrations.Migration):
         all_widget_ids = OldWidget.objects.values_list("id", flat=True)
 
         # Question -> User via user_id
-        invalid_question_rows = OldQuestion.objects.exclude(user_id__in=all_user_ids).exclude(user_id=None)
+        invalid_question_rows = OldQuestion.objects.exclude(
+            user_id__in=all_user_ids
+        ).exclude(user_id=None)
         for invalid_question in invalid_question_rows:
             logger.info(
                 f"deleting Question row {invalid_question.id} without matching User {invalid_question.user_id}"
@@ -64,7 +66,8 @@ class Migration(migrations.Migration):
         ).exclude(published_by=None)
         for invalid_widget_instance in invalid_widget_instance_rows:
             logger.info(
-                f"deleting WidgetInstance row {invalid_widget_instance.id} without matching published_by User {invalid_widget_instance.published_by}"
+                f"deleting WidgetInstance row {invalid_widget_instance.id} \
+                without matching published_by User {invalid_widget_instance.published_by}"
             )
             invalid_widget_instance.delete()
 
@@ -74,7 +77,8 @@ class Migration(migrations.Migration):
         )
         for invalid_widget_instance in invalid_widget_instance_rows:
             logger.info(
-                f"deleting WidgetInstance row {invalid_widget_instance.id} without matching user_id User {invalid_widget_instance.user_id}"
+                f"deleting WidgetInstance row {invalid_widget_instance.id} \
+                without matching user_id User {invalid_widget_instance.user_id}"
             )
             invalid_widget_instance.delete()
 
@@ -84,7 +88,8 @@ class Migration(migrations.Migration):
         )
         for invalid_widget_instance in invalid_widget_instance_rows:
             logger.info(
-                f"deleting WidgetInstance row {invalid_widget_instance.id} without matching Widget {invalid_widget_instance.widget_id}"
+                f"deleting WidgetInstance row {invalid_widget_instance.id} \
+                without matching Widget {invalid_widget_instance.widget_id}"
             )
             invalid_widget_instance.delete()
 
@@ -97,7 +102,8 @@ class Migration(migrations.Migration):
         )
         for invalid_widget_qset in invalid_widget_qset_rows:
             logger.info(
-                f"deleting WidgetQset row {invalid_widget_qset.id} without matching WidgetInstance {invalid_widget_qset.inst_id}"
+                f"deleting WidgetQset row {invalid_widget_qset.id} \
+                without matching WidgetInstance {invalid_widget_qset.inst_id}"
             )
             invalid_widget_qset.delete()
 
@@ -110,7 +116,8 @@ class Migration(migrations.Migration):
         ).exclude(user_id=None)
         for invalid_log_activity in invalid_log_activity_rows:
             logger.info(
-                f"deleting LogActivity row {invalid_log_activity.id} without matching User {invalid_log_activity.user_id}"
+                f"deleting LogActivity row {invalid_log_activity.id} \
+                without matching User {invalid_log_activity.user_id}"
             )
             invalid_log_activity.delete()
 
@@ -141,7 +148,9 @@ class Migration(migrations.Migration):
             invalid_log_play.delete()
 
         # LogPlay -> User via user_id
-        invalid_log_play_rows = OldLogPlay.objects.exclude(user_id__in=all_user_ids).exclude(user_id=None)
+        invalid_log_play_rows = OldLogPlay.objects.exclude(
+            user_id__in=all_user_ids
+        ).exclude(user_id=None)
         for invalid_log_play in invalid_log_play_rows:
             logger.info(
                 f"deleting LogPlay row {invalid_log_play.id} without matching User {invalid_log_play.user_id}"
@@ -159,7 +168,9 @@ class Migration(migrations.Migration):
             invalid_lti.delete()
 
         # Lti -> User via user_id
-        invalid_lti_rows = OldLti.objects.exclude(user_id__in=all_user_ids).exclude(user_id=None)
+        invalid_lti_rows = OldLti.objects.exclude(user_id__in=all_user_ids).exclude(
+            user_id=None
+        )
         for invalid_lti in invalid_lti_rows:
             logger.info(
                 f"deleting Lti row {invalid_lti.id} without matching User {invalid_lti.user_id}"
@@ -172,7 +183,8 @@ class Migration(migrations.Migration):
         )
         for invalid_logstorage in invalid_logstorage_rows:
             logger.info(
-                f"deleting LogStorage row {invalid_logstorage.id} without matching WidgetInstance {invalid_logstorage.inst_id}"
+                f"deleting LogStorage row {invalid_logstorage.id} \
+                without matching WidgetInstance {invalid_logstorage.inst_id}"
             )
             invalid_logstorage.delete()
 
@@ -202,7 +214,8 @@ class Migration(migrations.Migration):
         )
         for invalid_mapquestiontoqset in invalid_mapquestiontoqset_rows:
             logger.info(
-                f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching WidgetQset {invalid_mapquestiontoqset.qset_id}"
+                f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} \
+                without matching WidgetQset {invalid_mapquestiontoqset.qset_id}"
             )
             invalid_mapquestiontoqset.delete()
 
@@ -212,7 +225,8 @@ class Migration(migrations.Migration):
         )
         for invalid_mapquestiontoqset in invalid_mapquestiontoqset_rows:
             logger.info(
-                f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} without matching Question {invalid_mapquestiontoqset.question_id}"
+                f"deleting MapQuestionToQset row {invalid_mapquestiontoqset.id} \
+                without matching Question {invalid_mapquestiontoqset.question_id}"
             )
             invalid_mapquestiontoqset.delete()
 
@@ -222,7 +236,8 @@ class Migration(migrations.Migration):
         ).exclude(user_id=None)
         for invalid_permobjectotouser in invalid_permobjectotouser_rows:
             logger.info(
-                f"deleting PermObjectToUser row {invalid_permobjectotouser.id} without matching User {invalid_permobjectotouser.user_id}"
+                f"deleting PermObjectToUser row {invalid_permobjectotouser.id} \
+                without matching User {invalid_permobjectotouser.user_id}"
             )
             invalid_permobjectotouser.delete()
 
@@ -232,7 +247,8 @@ class Migration(migrations.Migration):
         )
         for invalid_widgetmetadata in invalid_widgetmetadata_rows:
             logger.info(
-                f"deleting WidgetMetadata row {invalid_widgetmetadata.id} without matching Widget {invalid_widgetmetadata.widget_id}"
+                f"deleting WidgetMetadata row {invalid_widgetmetadata.id} \
+                without matching Widget {invalid_widgetmetadata.widget_id}"
             )
             invalid_widgetmetadata.delete()
 
@@ -370,8 +386,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name='asset',
-            name='is_deleted',
+            model_name="asset",
+            name="is_deleted",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
