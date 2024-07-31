@@ -351,12 +351,12 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 				'token'  => static::$_config['token'] ?? null,
 			]
 		];
-		if ($_config['credential_provider'] == 'imds')
+		if (static::$_config['credential_provider'] == 'imds')
 		{
 			$provider = \Aws\Credentials\CredentialProvider::defaultProvider();
 			$config['credentials'] = $provider;
 		}
-		elseif ($_config['credential_provider'] == 'env')
+		elseif (static::$_config['credential_provider'] == 'env')
 		{
 			$config['credentials'] = [
 				'key'    => static::$_config['key'],
