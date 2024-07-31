@@ -347,8 +347,9 @@ class Widget_Asset
 				break;
 		}
 
-		// if we're using fakes3, can't lock the original asset
-		if ( ! \Config::get('materia.asset_storage.s3.fakes3_enabled'))
+		// object locking is unnecessary with s3
+		$driver = \Config::get('materia.asset_storage_driver', 'db');
+		if ($driver != 's3')
 		{
 			try {
 				// lock the original asset so we can process it
@@ -398,7 +399,7 @@ class Widget_Asset
 			$this->_storage_driver->store($this, $resized_file_path, $size);
 
 			// unlock original asset
-			if ( ! \Config::get('materia.asset_storage.s3.fakes3_enabled'))
+			if ($driver != 's3')
 			{
 				$this->_storage_driver->unlock_for_processing($this->id, 'original');
 			}

@@ -351,6 +351,12 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 				'token'  => static::$_config['token'] ?? null,
 			]
 		];
+
+		// endpoint config only required for fakes3 - the param is not required for actual S3 on AWS
+		if (\Config::get('materia.asset_storage.s3.fakes3_enabled')) $config['endpoint'] = static::$_config['endpoint'] ?? '';
+
+		// configure credentials, depending on whether we're providing them from env or Amazon's IMDSv2 service
+		// imds is HIGHLY recommended for prod usage on AWS. Credentials are sourced from the EC2 instance's IAM role, and the credential provider handles rotation
 		if (static::$_config['credential_provider'] == 'imds')
 		{
 			$provider = \Aws\Credentials\CredentialProvider::defaultProvider();
