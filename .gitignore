@@ -98,3 +98,5 @@ app/media/uploads/*
 app/staticfiles/
 public/css/
 public/js/
+
+**/.python-version
