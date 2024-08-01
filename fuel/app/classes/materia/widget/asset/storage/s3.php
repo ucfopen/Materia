@@ -327,8 +327,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	 */
 	protected function get_key_name(string $id, string $size): string
 	{
-		$key = (static::$_config['subdir'] ? static::$_config['subdir'].'/' : '').$id;
-		if ($size !== 'original') $key .= "/{$size}";
+		$key = (static::$_config['subdir'] ? static::$_config['subdir'].DS : '')."{$id}_{$size}";
 		return $key;
 	}
 
@@ -341,14 +340,13 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		if (static::$_s3_client) return static::$_s3_client;
 
 		$config = [
-			'endpoint'    => static::$_config['endpoint'] ?? '',
-			'region'      => static::$_config['region'],
+			'region'           => static::$_config['region'],
 			'force_path_style' => static::$_config['force_path_style'] ?? false,
-			'version'     => 'latest',
-			'credentials' => [
-				'key'    => static::$_config['key'],
-				'secret' => static::$_config['secret_key'],
-				'token'  => static::$_config['token'] ?? null,
+			'version'          => 'latest',
+			'credentials'      => [
+				'key'          => static::$_config['key'],
+				'secret'       => static::$_config['secret_key'],
+				'token'        => static::$_config['token'] ?? null,
 			]
 		];
 
