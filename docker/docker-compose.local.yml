@@ -1,4 +1,5 @@
-name: materia-django
+# name: materia-django
+version: '3.5'
 
 networks:
   backend:
@@ -9,7 +10,8 @@ services:
     ports:
       - '80:80'
     volumes:
-      - ../app:/var/www/html:ro
+      - ../public:/var/www/html/staticfiles:ro
+      - uploaded_widgets:/var/www/html/staticfiles/widget/:ro
       - ./config/nginx/sites-enabled:/etc/nginx/conf.d:ro
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
@@ -39,10 +41,12 @@ services:
       - EMAIL_PORT=1025
     volumes:
       - ../app:/var/www/html
+      - ../wait_for_it.sh:/var/www/html/wait_for_it.sh
+      - uploaded_widgets:/var/www/html/staticfiles/widget/
       - ./config/uwsgi/:/etc/uwsgi
     # command: uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     command: /wait_for_it.sh mysql:3306 -t 10 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
-
+    # command: /bin/bash -c '/wait_for_it.sh mysql:3306 -t 10 && yarn install --silent && echo "Building frontend..." && yarn build-for-image && echo "Collecting static files..." && python manage.py collectstatic --noinput && echo "Starting Django server..." && uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2 && python manage.py runserver 0.0.0.0:8001'
   mysql:
     image: mariadb:10.6
     networks:
@@ -56,3 +60,8 @@ services:
       - MYSQL_PASSWORD=kogneato
     volumes:
       - ./config/mysql/override.cnf:/etc/mysql/conf.d/override.cnf
+
+volumes:
+  # static_files: {} # compiled js/css and uploaded widgets
+  # uploaded_media: {} # uploaded media files
+  uploaded_widgets: {}

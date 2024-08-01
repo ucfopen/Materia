@@ -8,30 +8,41 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_rename_log_log_type_remove_log_type_log_log_type_and_more'),
+        ("core", "0006_rename_log_log_type_remove_log_type_log_log_type_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     def clean_data(apps, schema_editor):
+        import logging
+
         from django.contrib.auth.models import User
 
-        import logging
-        logger = logging.getLogger('django')
+        logger = logging.getLogger("django")
 
         OldNotification = apps.get_model("core", "Notification")
 
         all_user_ids = User.objects.values_list("id", flat=True)
 
         # Notification -> User via from_id
-        invalid_notification_rows = OldNotification.objects.exclude(from_id__in=all_user_ids).exclude(from_id=None)
+        invalid_notification_rows = OldNotification.objects.exclude(
+            from_id__in=all_user_ids
+        ).exclude(from_id=None)
         for invalid_notification in invalid_notification_rows:
-            logger.info(f"deleting Notification row {invalid_notification.id} without matching From User {invalid_notification.from_id}")
+            logger.info(
+                f"deleting Notification row {invalid_notification.id} \
+                without matching From User {invalid_notification.from_id}"
+            )
             invalid_notification.delete()
 
         # Notification -> User via to_id
-        invalid_notification_rows = OldNotification.objects.exclude(to_id__in=all_user_ids).exclude(to_id=None)
+        invalid_notification_rows = OldNotification.objects.exclude(
+            to_id__in=all_user_ids
+        ).exclude(to_id=None)
         for invalid_notification in invalid_notification_rows:
-            logger.info(f"deleting Notification row {invalid_notification.id} without matching To User {invalid_notification.to_id}")
+            logger.info(
+                f"deleting Notification row {invalid_notification.id} \
+                without matching To User {invalid_notification.to_id}"
+            )
             invalid_notification.delete()
 
     def nothing(apps, schema_editor):
@@ -40,58 +51,139 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(clean_data, nothing),
         migrations.AlterField(
-            model_name='log',
-            name='log_type',
-            field=models.CharField(blank=True, choices=[('', 'Empty'), ('BUTTON_PRESS', 'Button Press'), ('ERROR_GENERAL', 'General Error'), ('ERROR_TIME_VALIDATION', 'Time Validation Error'), ('KEY_PRESS', 'Key Press'), ('SCORE_ACTIVITY_FROM_CLIENT', 'Client Score Activity'), ('SCORE_FINAL_FROM_CLIENT', 'Final Client Score'), ('SCORE_QUESTION_ANSWERED', 'Question Answered'), ('SCORE_WIDGET_INTERACTION', 'Widget Score Interaction'), ('SCORE_PARTICIPATION', 'Participation Score'), ('WIDGET_CORE_INIT', 'Widget Initialization'), ('WIDGET_END', 'Widget End'), ('WIDGET_LOAD_DONE', 'Finish Widget Load'), ('WIDGET_LOAD_START', 'Start Widget Load'), ('WIDGET_LOGIN', 'Widget Login'), ('WIDGET_PLAY_REQ', 'Widget Play Request'), ('WIDGET_PLAY_START', 'Widget Play Start'), ('WIDGET_RESTART', 'Widget Restart'), ('WIDGET_START', 'Widget Start'), ('WIDGET_STATE', 'Widget State'), ('DATA', 'Data')], default='', max_length=26, null=True),
+            model_name="log",
+            name="log_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Empty"),
+                    ("BUTTON_PRESS", "Button Press"),
+                    ("ERROR_GENERAL", "General Error"),
+                    ("ERROR_TIME_VALIDATION", "Time Validation Error"),
+                    ("KEY_PRESS", "Key Press"),
+                    ("SCORE_ACTIVITY_FROM_CLIENT", "Client Score Activity"),
+                    ("SCORE_FINAL_FROM_CLIENT", "Final Client Score"),
+                    ("SCORE_QUESTION_ANSWERED", "Question Answered"),
+                    ("SCORE_WIDGET_INTERACTION", "Widget Score Interaction"),
+                    ("SCORE_PARTICIPATION", "Participation Score"),
+                    ("WIDGET_CORE_INIT", "Widget Initialization"),
+                    ("WIDGET_END", "Widget End"),
+                    ("WIDGET_LOAD_DONE", "Finish Widget Load"),
+                    ("WIDGET_LOAD_START", "Start Widget Load"),
+                    ("WIDGET_LOGIN", "Widget Login"),
+                    ("WIDGET_PLAY_REQ", "Widget Play Request"),
+                    ("WIDGET_PLAY_START", "Widget Play Start"),
+                    ("WIDGET_RESTART", "Widget Restart"),
+                    ("WIDGET_START", "Widget Start"),
+                    ("WIDGET_STATE", "Widget State"),
+                    ("DATA", "Data"),
+                ],
+                default="",
+                max_length=26,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='logactivity',
-            name='user',
-            field=models.ForeignKey(blank=True, db_column='user_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='activity_logs', to=settings.AUTH_USER_MODEL),
+            model_name="logactivity",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="user_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="activity_logs",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='logplay',
-            name='user',
-            field=models.ForeignKey(blank=True, db_column='user_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='play_logs', to=settings.AUTH_USER_MODEL),
+            model_name="logplay",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="user_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="play_logs",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='logstorage',
-            name='user',
-            field=models.ForeignKey(blank=True, db_column='user_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='storage_logs', to=settings.AUTH_USER_MODEL),
+            model_name="logstorage",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="user_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="storage_logs",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='lti',
-            name='user',
-            field=models.ForeignKey(blank=True, db_column='user_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='lti_embeds', to=settings.AUTH_USER_MODEL),
+            model_name="lti",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="user_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="lti_embeds",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='notification',
-            name='from_id',
-            field=models.ForeignKey(blank=True, db_column='from_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='notifications_from', to=settings.AUTH_USER_MODEL),
+            model_name="notification",
+            name="from_id",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="from_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="notifications_from",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='notification',
-            name='to_id',
-            field=models.ForeignKey(blank=True, db_column='to_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='notifications_to', to=settings.AUTH_USER_MODEL),
+            model_name="notification",
+            name="to_id",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="to_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="notifications_to",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='permobjecttouser',
-            name='id',
+            model_name="permobjecttouser",
+            name="id",
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='permobjecttouser',
-            name='user',
-            field=models.ForeignKey(blank=True, db_column='user_id', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='object_permissions', to=settings.AUTH_USER_MODEL),
+            model_name="permobjecttouser",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                db_column="user_id",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="object_permissions",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='qset',
-            field=models.ManyToManyField(related_name='questions', through='core.MapQuestionToQset', to='core.widgetqset'),
+            model_name="question",
+            name="qset",
+            field=models.ManyToManyField(
+                related_name="questions",
+                through="core.MapQuestionToQset",
+                to="core.widgetqset",
+            ),
         ),
         migrations.AlterField(
-            model_name='widgetmetadata',
-            name='id',
+            model_name="widgetmetadata",
+            name="id",
             field=models.BigAutoField(primary_key=True, serialize=False),
-        )
+        ),
     ]

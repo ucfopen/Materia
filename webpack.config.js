@@ -2,6 +2,7 @@ const glob = require('glob')
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const WebpackRemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts')
+const BundleTracker = require('webpack-bundle-tracker');
 
 const jsPath = path.join(__dirname, 'src',)
 const packageJsPath = path.join(__dirname, 'fuel','packages')
@@ -83,6 +84,7 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new BundleTracker({filename: './webpack-stats.json'}),
 		new WebpackRemoveEmptyScriptsPlugin(), // webpack produces a js file for each emitted bundle no matter what. This removes leftover & unncessary js duplicates within css/
 		new MiniCssExtractPlugin({
 			filename: "css/[name].css"

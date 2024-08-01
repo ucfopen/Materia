@@ -15,7 +15,17 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+DIRS = {
+    "media": os.path.realpath(os.path.join(APP_PATH, "media")),  # + os.sep,
+    "media_uploads": os.path.realpath(
+        os.path.join(APP_PATH, "media", "uploads")
+    ),  # + os.sep,
+    "widgets": os.path.realpath(
+        os.path.join(APP_PATH, "staticfiles", "widget")
+    ),  # + os.sep
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -26,7 +36,7 @@ SECRET_KEY = "materia-local-dev-secret-key"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -46,10 +56,12 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "materia.urls"
@@ -122,7 +134,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+
+# figure out how to get images working
+
+STATIC_URL = "/static/"
+STATIC_ROOT = "./staticfiles/"
+
+# STATIC_URL = "/"
+# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "public"),
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -151,3 +174,76 @@ LOGGING = {
         },
     },
 }
+
+WIDGETS = [
+    {
+        "id": 1,
+        "package": "https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/crossword-materia-widget/releases/latest/download/crossword-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 2,
+        "package": "https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/guess-the-phrase-materia-widget/releases/latest/download/guess-the-phrase-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 3,
+        "package": "https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/matching-materia-widget/releases/latest/download/matching-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 4,
+        "package": "https://github.com/ucfopen/enigma-materia-widget/releases/latest/download/enigma.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/enigma-materia-widget/releases/latest/download/enigma-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 5,
+        "package": "https://github.com/ucfopen/labeling-materia-widget/releases/latest/download/labeling.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/labeling-materia-widget/releases/latest/download/labeling-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 6,
+        "package": "https://github.com/ucfopen/flash-cards-materia-widget/releases/latest/download/flash-cards.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/flash-cards-materia-widget/releases/latest/download/flash-cards-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 7,
+        "package": "https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/this-or-that-materia-widget/releases/latest/download/this-or-that-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 8,
+        "package": "https://github.com/ucfopen/word-search-materia-widget/releases/latest/download/word-search.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/word-search-materia-widget/releases/latest/download/word-search-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 9,
+        "package": "https://github.com/ucfopen/adventure-materia-widget/releases/latest/download/adventure.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/adventure-materia-widget/releases/latest/download/adventure-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 10,
+        "package": "https://github.com/ucfopen/equation-sandbox-materia-widget/releases/latest/download/equation-sandbox.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/equation-sandbox-materia-widget/releases/latest/download/equation-sandbox-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 11,
+        "package": "https://github.com/ucfopen/sort-it-out-materia-widget/releases/latest/download/sort-it-out.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/sort-it-out-materia-widget/releases/latest/download/sort-it-out-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 12,
+        "package": "https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/survey-materia-widget/releases/latest/download/simple-survey-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 13,
+        "package": "https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/sequencer-materia-widget/releases/latest/download/sequencer-build-info.yml",  # noqa:E501
+    },
+    {
+        "id": 14,
+        "package": "https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter.wigt",  # noqa:E501
+        "checksum": "https://github.com/ucfopen/syntax-sorter-materia-widget/releases/latest/download/syntax-sorter-build-info.yml",  # noqa:E501
+    },
+]

@@ -15,10 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from core.views import main as core_views
+from core.views.catalog import CatalogView
 from django.urls import include, path
 
-from core.views import main as core_views
-
 urlpatterns = [
-    path('', core_views.home, name='placeholder home page')
+    path("", core_views.index, name="home page"),
+    path("help/", core_views.help, name="help"),
+    path("widgets/", CatalogView.index, name="widget catalog"),
+    path("api/json/", include("api.urls.json")),
 ]
+
+handler404 = "core.views.main.handler404"
+handler500 = "core.views.main.handler500"

@@ -197,7 +197,7 @@ const Notifications = (user) => {
                     { actionButton }
                     <p className="notif-date">Sent on {createdAt.toLocaleString()}</p>
                 </div>
-                <img src="/img/icon-cancel.svg"
+                <img src="/static/img/icon-cancel.svg"
                     className={`noticeClose ${showDeleteBtn == index ? 'show' : ''}`}
                     onClick={() => {removeNotification(index)}}
                 />

@@ -27,13 +27,13 @@ class Command(base.BaseCommand):
         # existing PHP data features one table using a different storage
         #  engine for some reason, needs to be the same as everything else
         cursor = connection.cursor()
-        cursor.execute(f"ALTER TABLE `log_activity` ENGINE = InnoDB;")
+        cursor.execute("ALTER TABLE `log_activity` ENGINE = InnoDB;")
         cursor.close()
 
         # existing PHP data features one table using a compound primary key
         # only single-column primary keys are viable for the Django ORM
         cursor = connection.cursor()
-        cursor.execute(f"ALTER TABLE `user_meta` DROP PRIMARY KEY;")
+        cursor.execute("ALTER TABLE `user_meta` DROP PRIMARY KEY;")
         # the existing log table has the 'type' column set as an ENUM
         # core migration 0001 will build this column as a varchar instead
         # manually change it to match the migration 0001 expectation so
@@ -48,7 +48,9 @@ class Command(base.BaseCommand):
         cursor.execute("ALTER TABLE `notification` DROP COLUMN `is_read`;")
 
         # Remove an existing unique constraint so that Django can add its own in the correct way
-        cursor.execute("ALTER TABLE `date_range` DROP INDEX `semester_year_start_at_end_at`;")
+        cursor.execute(
+            "ALTER TABLE `date_range` DROP INDEX `semester_year_start_at_end_at`;"
+        )
 
         cursor.close()
 
@@ -61,6 +63,7 @@ class Command(base.BaseCommand):
             cursor.close()
 
         boolean_fields = [
+            ("asset", "is_deleted"),
             ("log_play", "is_complete"),
             ("log_play", "is_valid"),
             ("notification", "is_email_sent"),
