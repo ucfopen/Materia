@@ -111,7 +111,7 @@ return [
 			? [
 				'driver_class' => '\Materia\Widget_Asset_Storage_S3',
 				'credential_provider' => $_ENV['ASSET_STORAGE_S3_CREDENTIAL_PROVIDER'] ?? 'env',
-				'endpoint'            => $_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? '', // set to url for testing endpoint
+				'endpoint'            => $_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? '', // set to url for testing endpoint (Not required for S3 on AWS)
 				'region'              => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
 				'bucket'              => $_ENV['ASSET_STORAGE_S3_BUCKET'] ?? '', // bucket to store original user uploads
 				'subdir'              => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets

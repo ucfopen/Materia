@@ -108,5 +108,4 @@ To use an actual S3 bucket for local dev:
 
 1. Set `DEV_ONLY_FAKES3_DISABLED` environment variable in `docker/.env` to `true`
 2. Set `ASSET_STORAGE_S3_BUCKET` to your bucket name
-3. Set `ASSET_STORAGE_S3_ENDPOINT` to your endpoint
-4. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` in `.env.local`. (Tip: You can run `aws configure export-credentials --profile YOUR_PROFILE_NAME --format env-no-export` to get these)
+3. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` in `.env.local`. (Tip: You can run `aws configure export-credentials --profile YOUR_PROFILE_NAME --format env-no-export` to get these)
