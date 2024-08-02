@@ -48,9 +48,9 @@ cd Materia/docker
 ./run_first.sh
 ```
 
-The `run_first.sh` script only has to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker-compose down` or delete the volume manually.
+The `run_first.sh` script only has to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker compose down` or delete the volume manually.
 
-Use `docker-compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://127.0.0.1` by default.
+Use `docker compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://127.0.0.1` by default.
 
 In a separate terminal window, run `yarn dev` to enable the webpack dev server and live reloading while making changes to JS and CSS assets.
 
