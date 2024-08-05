@@ -80,6 +80,7 @@ const MyWidgetSelectedInstance = ({
 		placeholderData: null,
 		enabled: !!inst.id,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login")
 			{

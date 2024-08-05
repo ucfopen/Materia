@@ -1,7 +1,9 @@
 import React, { useState, useEffect} from 'react'
 import Summary from './widget-summary'
+import EmbedFooter from './widget-embed-footer'
 
 import './pre-embed-common-styles.scss'
+
 
 const PreEmbedPlaceholder = () => {
 
@@ -27,9 +29,10 @@ const PreEmbedPlaceholder = () => {
 			<div className="container widget">
 				<section className="page">
 					<Summary/>
-					<div className="detail icon-offset">
-						<a className="action_button" href={`/${context}/${instId}`}>Play</a>
+					<div className="detail pre-embed">
+						<a className="action_button" href={`/${context}/${instId}`}>Play Widget</a>
 					</div>
+					<EmbedFooter/>
 				</section>
 			</div>
 		)

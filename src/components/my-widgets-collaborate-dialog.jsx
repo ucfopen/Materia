@@ -36,6 +36,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
 		placeholderData: {},
+		retry: false,
 		onSuccess: (data) => {
 			setCollabUsers({...collabUsers, ...data})
 		},

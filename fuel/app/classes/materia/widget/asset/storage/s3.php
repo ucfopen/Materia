@@ -20,26 +20,165 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	}
 
 	/**
-	 * Create a lock on a specific size of an asset.
+	 * Create a lock on a specific size of an asset for one hour
+	 * Used to prevent multiple requests from using excessive resources.
+	 * For object locking to work, the bucket must have versioning enabled
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 */
+	public function lock_for_period(string $id, string $size): void
+	{
+		$s3 = $this->get_s3_client();
+
+		try {
+			$s3->putObjectRetention([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				'Retention' => [
+					'Mode' => 'GOVERNANCE',
+					'RetainUntilDate' => new \DateTime('+1 hour'),
+				]
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to lock asset for period {$id} {$size}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to lock asset for period {$id} {$size}. {$error_code} {$source}");
+		}
+	}
+
+	/**
+	 * Get the lock status of a specific size of an asset
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 * @return bool         True if locked
+	 */
+	public function get_lock_retention(string $id, string $size): bool
+	{
+		$s3 = $this->get_s3_client();
+
+		try {
+			$result = $s3->getObjectRetention([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size)
+			]);
+			return $result['Retention']['Mode'] === 'GOVERNANCE'; // if it's not governance, it's not locked
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to get lock retention status for asset {$id} {$size}. {$error_code} {$source}");
+			return false;
+		}
+	}
+
+	/**
+	 * Lock a specific size of an asset
 	 * Used to prevent multiple requests from using excessive resources.
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
 	public function lock_for_processing(string $id, string $size): void
 	{
-		// @TODO
+		$s3 = $this->get_s3_client();
+
+		try {
+			$s3->putObjectLegalHold([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				'LegalHold' => [
+					'Status' => 'ON',
+				]
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to lock asset for processing {$id} {$size}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to lock asset for processing {$id} {$size}. {$error_code} {$source}");
+		}
 	}
 
 	/**
 	 * Unlock a lock made for a specific size of an asset
-	 * Used to prevent multiple requests from using excessive resources.
 	 * @param  string $id   Asset Id to lock
 	 * @param  string $size Size of asset data to lock
 	 */
 	public function unlock_for_processing(string $id, string $size): void
 	{
-		// @TODO
+		$s3 = $this->get_s3_client();
+
+		try {
+			$s3->putObjectLegalHold([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size),
+				'LegalHold' => [
+					'Status' => 'OFF',
+				]
+			]);
+		} catch (\Exception $e) {
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to unlock asset {$id} {$size}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to unlock asset {$id} {$size}. {$error_code} {$source}");
+		}
 	}
+
+	/**
+	 * Get the lock status of a specific size of an asset
+	 * @param  string $id   Asset Id to lock
+	 * @param  string $size Size of asset data to lock
+	 * @return bool         True if locked
+	 */
+	public function get_lock(string $id, string $size): bool
+	{
+		$s3 = $this->get_s3_client();
+
+		try {
+			$result = $s3->getObjectLegalHold([
+				'Bucket' => static::$_config['bucket'],
+				'Key' => $this->get_key_name($id, $size)
+			]);
+			return $result['LegalHold']['Status'] === 'ON';
+		}
+		catch (\Exception $e)
+		{
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to get lock status for asset {$id} {$size}. {$error_code} {$source}");
+			return false;
+		}
+	}
+
 
 	/**
 	 * Delete asset data. Set size to '*' to delete all.
@@ -56,10 +195,22 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		}
 		else
 		{
-			$s3->deleteObject([
-				'Bucket' => static::$_config['bucket'],
-				'Key' => $this->get_key_name($id, $size),
-			]);
+			try {
+				$s3->deleteObject([
+					'Bucket' => static::$_config['bucket'],
+					'Key' => $this->get_key_name($id, $size),
+				]);
+			} catch (\Exception $e) {
+				$error_code = '';
+				$source = '';
+				if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+				{
+					$error_code = $e->getAwsErrorCode();
+					$source = $e->getAwsErrorMessage();
+				}
+				\Log::error("S3: Failed to delete asset {$id} {$size}. {$error_code} {$source}");
+				throw new \Exception("S3: Failed to delete asset {$id} {$size}. {$error_code} {$source}");
+			}
 		}
 	}
 
@@ -73,7 +224,22 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	{
 		$s3 = $this->get_s3_client();
 
-		return $s3->doesObjectExist(static::$_config['bucket'], $this->get_key_name($id, $size));
+		try {
+			return $s3->doesObjectExistV2(
+				static::$_config['bucket'],
+				$this->get_key_name($id, $size)
+			);
+		} catch (\Exception $e) {
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to check if asset {$id} {$size} exists. {$error_code} {$source}");
+			return false;
+		}
 	}
 
 	/**
@@ -98,8 +264,17 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 			]);
 		} catch (\Exception $e)
 		{
-			throw new \Exception("Missing asset data for asset: {$id} {$size}");
+			$source = '';
+			$error_code = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to retrieve asset {$key}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to retrieve asset {$key}. {$error_code} {$source}");
 		}
+
 	}
 
 	/**
@@ -115,16 +290,33 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		// Force all uploads in development to have the same bucket sub-directory
 		$key = $this->get_key_name($asset->id, $size);
 
-		$s3 = $this->get_s3_client();
+		\Log::info("Storing asset data in s3: {$key} ({$asset->get_mime_type()})");
+		\Log::info("Asset data path: {$image_path}");
+		\Log::info("Size: {$size}");
+		\Log::info('Bucket: '.static::$_config['bucket']);
+		\Log::info("Asset file_size: {$asset->file_size}");
 
-		$result = $s3->putObject([
-			'ACL'        => 'public-read',
-			'Metadata'   => ['Content-Type' => $asset->get_mime_type()],
-			'Bucket'     => static::$_config['bucket'],
-			'Key'        => $key,
-			'SourceFile' => $image_path,
-			// 'Body'       => $image_data, // use instead of SourceFile to send data
-		]);
+		try {
+			$s3 = $this->get_s3_client();
+
+			$result = $s3->putObject([
+				'Metadata'   => ['Content-Type' => $asset->get_mime_type()],
+				'Bucket'     => static::$_config['bucket'],
+				'Key'        => $key,
+				'SourceFile' => $image_path,
+				// 'Body'       => $image_data, // use instead of SourceFile to send data
+			]);
+		} catch (\Exception $e) {
+			$error_code = '';
+			$source = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to store asset {$key}. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to store asset {$key}. {$error_code} {$source}");
+		}
 	}
 
 	/**
@@ -135,8 +327,7 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 	 */
 	protected function get_key_name(string $id, string $size): string
 	{
-		$key = (static::$_config['subdir'] ? static::$_config['subdir'].'/' : '').$id;
-		if ($size !== 'original') $key .= "/{$size}";
+		$key = (static::$_config['subdir'] ? static::$_config['subdir'].DS : '')."{$id}_{$size}";
 		return $key;
 	}
 
@@ -149,22 +340,49 @@ class Widget_Asset_Storage_S3 implements Widget_Asset_Storage_Driver
 		if (static::$_s3_client) return static::$_s3_client;
 
 		$config = [
-			'endpoint'    => '',
-			'region'      => static::$_config['region'],
-			'version'     => 'latest',
-			'credentials' => [
-				'key'    => static::$_config['key'],
-				'secret' => static::$_config['secret_key'],
+			'region'           => static::$_config['region'],
+			'force_path_style' => static::$_config['force_path_style'] ?? false,
+			'version'          => 'latest',
+			'credentials'      => [
+				'key'          => static::$_config['key'],
+				'secret'       => static::$_config['secret_key'],
+				'token'        => static::$_config['token'] ?? null,
 			]
 		];
 
-		// should we use a mock endpoint for testing?
-		if (static::$_config['endpoint'] !== false)
-		{
-			$config['endpoint'] = static::$_config['endpoint'];
-		}
+		// endpoint config only required for fakes3 - the param is not required for actual S3 on AWS
+		if (\Config::get('materia.asset_storage.s3.fakes3_enabled')) $config['endpoint'] = static::$_config['endpoint'] ?? '';
 
-		static::$_s3_client = new \Aws\S3\S3Client($config);
+		// configure credentials, depending on whether we're providing them from env or Amazon's IMDSv2 service
+		// imds is HIGHLY recommended for prod usage on AWS. Credentials are sourced from the EC2 instance's IAM role, and the credential provider handles rotation
+		if (static::$_config['credential_provider'] == 'imds')
+		{
+			$provider = \Aws\Credentials\CredentialProvider::defaultProvider();
+			$config['credentials'] = $provider;
+		}
+		elseif (static::$_config['credential_provider'] == 'env')
+		{
+			$config['credentials'] = [
+				'key'    => static::$_config['key'],
+				'secret' => static::$_config['secret_key'],
+				'token'  => static::$_config['token'] ?? null,
+			];
+		}
+		else throw new \Exception('S3: Failed to determine credential provider. Did you set the appropriate environment variable?');
+
+		try {
+			static::$_s3_client = new \Aws\S3\S3Client($config);
+		} catch (\Exception $e) {
+			$source = '';
+			$error_code = '';
+			if (get_class($e) == 'Aws\S3\Exception\S3Exception')
+			{
+				$error_code = $e->getAwsErrorCode();
+				$source = $e->getAwsErrorMessage();
+			}
+			\Log::error("S3: Failed to create S3 client. {$error_code} {$source}");
+			throw new \Exception("S3: Failed to create S3 client. {$error_code} {$source}");
+		}
 		return static::$_s3_client;
 	}
 

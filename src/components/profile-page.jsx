@@ -21,6 +21,7 @@ const ProfilePage = () => {
 		queryKey: 'user',
 		queryFn: apiGetUser,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlertDialog({

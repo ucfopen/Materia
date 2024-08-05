@@ -20,6 +20,7 @@ const QuestionHistory = () => {
 		queryFn: () => apiGetQuestionSetHistory(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			setError("Error fetching question set history.")
 			console.error(err.cause)

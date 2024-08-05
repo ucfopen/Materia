@@ -12,7 +12,8 @@ const Header = ({
 	const { data: verified} = useQuery({
 		queryKey: 'isLoggedIn',
 		queryFn: apiAuthorVerify,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false
 	})
 	const { data: user, isLoading: userLoading} = useQuery({
 		queryKey: 'user',

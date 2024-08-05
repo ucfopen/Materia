@@ -32,7 +32,7 @@ jobs:
       - name: Build App Image
         run: |
           cd docker
-          docker-compose build --no-cache webserver app
+          docker compose build --no-cache webserver app
 
       - name: Push App Images
         run: |

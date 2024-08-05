@@ -59,13 +59,15 @@ class Widget_Asset_Manager
 				Perm_Manager::set_user_object_perms($asset->id, Perm::ASSET, \Model_User::find_current_id(), [Perm::FULL => Perm::ENABLE]);
 				return $asset;
 			}
-			catch (\OutsideAreaException | InvalidPathException | \FileAccessException $e)
+			catch (\OutsideAreaException | InvalidPathException | \FileAccessException | \Exception $e)
 			{
-				trace($e);
+				\Log::error('Failed to store asset data: '.$e->getMessage());
 			}
 
 			// failed, remove the asset
 			$asset->db_remove();
+
+			throw new \Exception('Failed to store asset data');
 		}
 
 		return $asset;

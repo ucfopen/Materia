@@ -5,7 +5,7 @@
 # Script to run the linter in docker
 #######################################################
 
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
+DCTEST="docker compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
 set -e
 set -o xtrace

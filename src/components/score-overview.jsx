@@ -12,7 +12,8 @@ const ScoreOverview = ({inst_id, single_id, overview, attemptNum, isPreview, gue
 		queryKey: ['score-summary', inst_id],
 		queryFn: () => apiGetScoreSummary(inst_id),
 		staleTime: Infinity,
-		enabled: !!inst_id && !single_id
+		enabled: !!inst_id && !single_id,
+		retry: false
 	})
 
 	let scoreGraphRender = null

@@ -76,6 +76,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
+		retry: false,
 		onSuccess: (result) => {
 			_populateScores(result.scores)
 			setAttemptsLeft(result.attempts_left)
@@ -99,6 +100,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
+		retry: false,
 		onSuccess: (result) => {
 			_populateScores(result)
 		},
@@ -138,6 +140,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetScoreDistribution(inst_id),
 		enabled: false,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (data) => {
 			_sendToWidget('scoreDistribution', [data])
 		},

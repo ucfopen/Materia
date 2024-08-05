@@ -14,6 +14,7 @@ const UserAdminSelected = ({selectedUser, currentUser, onReturn}) => {
 		queryFn: () => apiGetInstancesForUser(updatedUser.id),
 		placeholderData: null,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				window.location.href = '/login'

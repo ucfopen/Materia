@@ -24,6 +24,10 @@ services:
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
       - ./config/php/materia.test.php.ini:/usr/local/etc/php/conf.d/test.ini
       - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
+    depends_on:
+      - fakes3_test
+      - mysql
+      - memcached
 
   mysql:
     environment:
@@ -36,9 +40,23 @@ services:
     # tmpfs:
     #   - /var/lib/mysql
 
-  fakes3:
+  # fakes3, when added as a dependency in the app container above, would restart
+  # and lose its data during tests
+  # thus, fakes3_test was created. it is dropped after tests are complete
+  fakes3_test:
+    image: ucfopen/materia:fake-s3-dev
+    build:
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
+    ports:
+    # use separate port to avoid conflicts with fakes3
+      - "10002:10001"
     volumes:
-      - uploaded_media_test:/s3mnt/fakes3_root/fakes3_uploads/media/
+     # use separate volume to avoid conflicts with fakes3
+      - uploaded_media_test:/s3mnt/fakes3_root/fake_bucket/media/
+    networks:
+      - frontend
+      - backend
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets

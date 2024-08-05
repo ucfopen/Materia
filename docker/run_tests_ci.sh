@@ -11,7 +11,7 @@
 set -e
 set -o xtrace
 
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
+DCTEST="docker compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
 $DCTEST pull --ignore-pull-failures app fakes3
 

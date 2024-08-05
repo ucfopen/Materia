@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Header from './header'
 import Summary from './widget-summary'
 import './login-page.scss'
+import EmbedFooter from './widget-embed-footer'
 
 const LoginPage = () => {
 
@@ -107,6 +108,7 @@ const LoginPage = () => {
 							: '' }
 						</form>
 					</div>
+					{ state.context && state.context == 'widget' ? <EmbedFooter /> : ''}
 				</section>
 			</div>
 		</>

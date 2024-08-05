@@ -36,6 +36,7 @@ const MyWidgetScoreSemesterStorage = ({semester, instId, setInvalidLogin}) => {
 		enabled: !!instId,
 		staleTime: Infinity,
 		placeholderData: {},
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setInvalidLogin(true);
