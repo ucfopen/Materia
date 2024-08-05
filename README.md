@@ -48,11 +48,11 @@ cd Materia/docker
 ./run_first.sh
 ```
 
-The `run_first.sh` script only has to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker-compose down` or delete the volume manually.
+The `run_first.sh` script only has to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker compose down` or delete the volume manually.
 
-Use `docker-compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://127.0.0.1` by default.
+Use `docker compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://127.0.0.1` by default.
 
-In a separate terminal window, run `yarn dev` to enable the webpack dev server and live reloading while making changes to JS and CSS assets. 
+In a separate terminal window, run `yarn dev` to enable the webpack dev server and live reloading while making changes to JS and CSS assets.
 
 Note that Materia uses a self-signed certificate to facilitate https traffic locally. Your browser may require security exceptions for both `127.0.0.1:443` and `127.0.0.1:8008`.
 
@@ -89,4 +89,23 @@ Materia supports two forms of authentication:
 
 ## Asset Storage
 
-Materia enables users to upload media assets for their widgets, including images and audio. There are two asset storage drivers available out of the box: `file` and `db`. `file` is the default asset storage driver, which can be explicitly set via the `ASSET_STORAGE_DRIVER` environment variable.
+Users can upload media assets (images and audio) for use in their widgets, facilitated through a media importer that is provided by Materia itself. Asset storage drivers include:
+
+- `file`: Assets are stored on the local filesystem of the application. It is recommended that assets are backed up and synced with an external storage solution (such as S3) to ensure the files persist across application instances.
+- `s3`: Files are uploaded to and requested directly from AWS S3. This is the most straightforward and recommended storage driver option. Be sure to consult the [Materia Docker Readme](docker/README.md) for additional environment variables associated with using S3.
+- `db`: This storage driver stores asset binaries directly in the database. This option allows Materia to run on cloud hosting options with very limited storage volumes. The `db` storage driver option is not recommended for general use.
+
+> [!WARNING]
+> The `db` asset storage driver option is deprecated and will be removed in the next major version of Materia.
+
+The storage driver is configured via the `ASSET_STORAGE_DRIVER` environment variable.
+
+### Local Asset Storage With S3
+
+A `fakes3` container is instantiated as part of the default development stack and the `ASSET_STORAGE_DRIVER` environment variable is set to `s3` by default in the development `.env` file located in `docker/.env`. When using `fakes3`, this is all that is required to simulate S3 usage locally.
+
+To use an actual S3 bucket for local dev:
+
+1. Set `DEV_ONLY_FAKES3_DISABLED` environment variable in `docker/.env` to `true`
+2. Set `ASSET_STORAGE_S3_BUCKET` to your bucket name
+3. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` in `.env.local`. (Tip: You can run `aws configure export-credentials --profile YOUR_PROFILE_NAME --format env-no-export` to get these)

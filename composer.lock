@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be6957863281d2e297c8a3fbff404a13",
+    "content-hash": "31025e0ce23f42d494849c027d8effa5",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.288.1",
+            "version": "3.316.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a1dfa12c7165de0b731ae8074c4ba1f3ae733f89"
+                "reference": "e832e594b3c213760e067e15ef2739f77505e832"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a1dfa12c7165de0b731ae8074c4ba1f3ae733f89",
-                "reference": "a1dfa12c7165de0b731ae8074c4ba1f3ae733f89",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e832e594b3c213760e067e15ef2739f77505e832",
+                "reference": "e832e594b3c213760e067e15ef2739f77505e832",
                 "shasum": ""
             },
             "require": {
@@ -151,9 +151,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.288.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.316.3"
             },
-            "time": "2023-11-22T19:35:38+00:00"
+            "time": "2024-07-12T18:07:23+00:00"
         },
         {
             "name": "composer/installers",
@@ -386,12 +386,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fuel/core.git",
-                "reference": "44b276d824e3a5f48a269bfec11c5432571083d1"
+                "reference": "abf0f371710a405d03ee19a9ecf67e2e9233b2fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fuel/core/zipball/44b276d824e3a5f48a269bfec11c5432571083d1",
-                "reference": "44b276d824e3a5f48a269bfec11c5432571083d1",
+                "url": "https://api.github.com/repos/fuel/core/zipball/abf0f371710a405d03ee19a9ecf67e2e9233b2fb",
+                "reference": "abf0f371710a405d03ee19a9ecf67e2e9233b2fb",
                 "shasum": ""
             },
             "require": {
@@ -419,7 +419,7 @@
                 "issues": "https://github.com/fuel/core/issues",
                 "source": "https://github.com/fuel/core/tree/1.9/develop"
             },
-            "time": "2024-07-08T13:14:44+00:00"
+            "time": "2024-07-30T13:27:39+00:00"
         },
         {
             "name": "fuel/email",
@@ -2043,7 +2043,8 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.3.zip"
+                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.3.zip",
+                "reference": "master"
             },
             "type": "fuel-package"
         }
@@ -3921,7 +3922,8 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/ucfcdl/fuelphp-phpcs/archive/v3.0.1.zip"
+                "url": "https://github.com/ucfcdl/fuelphp-phpcs/archive/v3.0.1.zip",
+                "reference": "v3.0.1"
             },
             "type": "library"
         }
