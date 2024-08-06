@@ -123,6 +123,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		queryFn: () => apiGetWidgetInstance(instanceId),
 		enabled: instanceId !== null,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlert({
@@ -148,6 +149,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
 		placeholderData: null,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlert({
@@ -174,6 +176,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		staleTime: Infinity,
 		refetchInterval: HEARTBEAT_INTERVAL,
 		enabled: !!playId && heartbeatActive,
+		retry: 1,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlert({

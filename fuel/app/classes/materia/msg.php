@@ -80,4 +80,10 @@ class Msg
 		$msg = new Msg($msg, $title, Msg::ERROR, false, 404);
 		return $msg;
 	}
+
+	static public function expired($msg = 'The requested content has expired and is no longer available', $title = 'expired')
+	{
+		$msg = new Msg($msg, $title, Msg::ERROR, false, 410);
+		return $msg;
+	}
 }

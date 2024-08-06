@@ -152,6 +152,9 @@ class Score_Manager
 		$semesters = [];
 		foreach ($result as $log)
 		{
+			// remove any erroneous > 100% scores from the distribution graph
+			if ($log['bracket'] > 9) continue;
+
 			$key = $log['id'];
 			if ( ! isset($semesters[$key]))
 			{

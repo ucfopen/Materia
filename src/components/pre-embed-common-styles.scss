@@ -75,6 +75,17 @@ body {
 			text-align: center;
 			clear: both;
 
+			&.pre-embed {
+				padding: 2em 0;
+
+				background: #f3f3f3;
+				border-radius: 4px;
+
+				.action_button {
+					margin: 24px;
+				}
+			}
+
 			h2 {
 				font-size: 18pt;
 			}
@@ -102,11 +113,22 @@ body {
 
 		.widget_info {
 			position: relative;
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 1em;
 			min-height: 122px;
-			padding-left: 110px;
+			width: calc(100% + 20px);
 
-			list-style: none;
+			top: -15px;
+			left: -10px;
 
+			border-top-left-radius: 4px;
+			border-top-right-radius: 4px;
+			
+			background: #0093e7;
+			color: #fff;
+			
 			li {
 				display: block;
 				margin-right: 10px;
@@ -126,18 +148,7 @@ body {
 			}
 
 			.widget_icon {
-				position: absolute;
-				top: 0;
-				left: -25px;
-				background: #0093e7;
-				width: 92px;
-				height: 92px;
-				padding: 15px;
-				text-align: center;
-				color: #fff;
-				font-size: 10px;
-				line-height: 13px;
-				box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.4);
+				padding-left: 15px;
 
 				img {
 					width: 92px;
@@ -149,6 +160,7 @@ body {
 		}
 
 		ul.widget_about {
+			margin: 0;
 			padding: 0;
 			list-style-type: none;
 
@@ -166,6 +178,33 @@ body {
 
 				line-height: 37px;
 				text-align: left;
+			}
+		}
+
+		.widget-embed-footer {
+			position: absolute;
+			bottom: 5px;
+
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			width: calc(100% - 20px);
+
+			font-size: 0.7em;
+			font-weight: 400;
+
+			color: #5e5e5e;
+
+			a {
+				&.materia-logo {
+	
+					img {
+						width: auto;
+						height: 15px;
+						margin-top: 1px;
+					}
+				}
 			}
 		}
 

@@ -655,7 +655,9 @@ class Api_V1
 		if (Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			$inst = Widget_Instance_Manager::get($preview_mode_inst_id);
-			return Score_Manager::get_preview_logs($inst);
+			$preview_logs = Score_Manager::get_preview_logs($inst);
+			if ( ! is_array($preview_logs)) return Msg::expired();
+			else return $preview_logs;
 		}
 		else
 		{

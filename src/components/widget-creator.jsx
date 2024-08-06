@@ -73,6 +73,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidget(widgetId),
 		enabled: !!widgetId,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info })
@@ -90,6 +91,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetInstance(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (data) => {
 			// this value will include a qset that's always empty
 			// it will override the instance's qset property even if it's already set
@@ -110,6 +112,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
+		retry: false,
 		onSuccess: (data) => {
 			if (data) {
 				setCreatorState({...creatorState, invalid: false})
@@ -128,6 +131,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
 		enabled: instance?.widget !== null,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (success) => {
 			if (!success && !instance.is_draft) {
 				onInitFail('Widget type can not be edited by students after publishing.')
@@ -158,6 +162,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: 30000,
 		refetchInterval: 30000,
 		enabled: creatorState.heartbeatEnabled,
+		retry: 1,
 		onError: (error) => {
 			onInitFail(error)
 		},
@@ -176,6 +181,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (success) => {
 			if (!success) {
 				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
