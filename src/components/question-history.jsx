@@ -56,8 +56,9 @@ const QuestionHistory = () => {
 		if (!!saves) {
 			saves.forEach((save) => {
 				if (id == save.id) {
-					return window.parent.Materia.Creator.onQsetHistorySelectionComplete(
+					return window.parent.Materia.Creator.onQsetReselectionComplete(
 						JSON.stringify(save.data),
+						false, // is generated
 						save.version,
 						save.created_at
 					)
@@ -66,7 +67,7 @@ const QuestionHistory = () => {
 		}
 	}
 
-	const closeDialog = () => window.parent.Materia.Creator.onQsetHistorySelectionComplete(null)
+	const closeDialog = () => window.parent.Materia.Creator.onQsetReselectionComplete(null)
 
 	let savesRender = null
 	let noSavesRender = null

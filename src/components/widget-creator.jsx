@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiGetGenerable} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -31,6 +31,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide',
 		showActionBar: true,
 		showRollbackConfirm: false,
+		showGenerationConfirm: false,
 		saveStatus: 'idle',
 		saveMode: null,
 		previewUrl: null,
@@ -39,7 +40,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		popupState: null,
 		returnUrl: null,
 		returnLocation: 'Widget Catalog',
-		directUploadMediaFile: null
+		directUploadMediaFile: null,
+		canGenerateQset: false
 	})
 
 	const [alertDialog, setAlertDialog] = useState({
@@ -137,6 +139,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		},
 		onError: (error) => {
 			onInitFail(error)
+		}
+	})
+
+	// verify whether a question generator can be used
+	useQuery({
+		queryKey: ['generable', instance.id],
+		queryFn: () => apiGetGenerable(instance.id),
+		enabled: !!instIdRef.current,
+		staleTime: Infinity,
+		onError: (err) => {
+			setCreatorState({...creatorState, canGenerateQset: false})
+		},
+		onSuccess: (data) => {
+			setCreatorState({...creatorState, canGenerateQset: data.generable})
 		}
 	})
 
@@ -500,10 +516,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
-	// const showQsetHistoryConfirmation = () => {
-	// }
+	const showQuestionGenerator = () => {
+		showEmbedDialog(`${window.BASE_URL}qsets/generate/?inst_id=${instance.id}`, 'embed_dialog')
+	}
 
-	const qsetRollbackConfirm = (confirm) => {
+	const qsetConfirm = (confirm) => {
 
 		// if asked to confirm rollback, we apply the cached qset to reloadWithQset
 		// doing so will trigger the hook when reloadWithQset updates
@@ -511,20 +528,24 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		// otherwise, nothing is required except to restore the action bar
 		if (!confirm) {
+			// rollback to the cached qset
 			let qsetToApply = creatorState.cachedQset
 			setCreatorState({
 				...creatorState,
 				reloadWithQset: qsetToApply,
 				cachedQset: null,
 				showActionBar: true,
-				showRollbackConfirm: false
+				showRollbackConfirm: false,
+				showGenerationConfirm: false,
 			})
 		} else {
+			// just remove the confirmation bar and show the action bar
 			setCreatorState({
 				...creatorState,
 				cachedQset: null,
 				showActionBar: true,
-				showRollbackConfirm: false
+				showRollbackConfirm: false,
+				showGenerationConfirm: false,
 			})
 		}
 	}
@@ -588,19 +609,21 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				}
 			},
 
-			// When a qset is selected from the prior saves list
-			onQsetHistorySelectionComplete(qset, version = 1) {
+			// When a new qset is selected from the prior saves list or generated
+			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1) {
 				if (!qset) {
 					setCreatorState({
 						...creatorState,
 						dialogPath: '',
 						dialogType: 'embed_dialog',
 						showActionBar: true,
-						showRollbackConfirm: false
+						showRollbackConfirm: false,
+						showGenerationConfirm: false
 					})
 				} else {
 
 					requestSave('history')
+					console.log(qset)
 
 					let parsedQsetData = JSON.parse(qset)
 
@@ -615,7 +638,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						},
 						// cachedQset: instance.qset,
 						showActionBar: false,
-						showRollbackConfirm: true
+						showRollbackConfirm: showGenerationConfirm ? false : true,
+						showGenerationConfirm: showGenerationConfirm
 					})
 				}
 			},
@@ -720,7 +744,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
-				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
+				<a id="importLink" onClick={showQuestionImporter}>Import</a>
+				{ creatorState.canGenerateQset ? <a id="generateLink" onClick={showQuestionGenerator}>Generate</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>
 				<button id="creatorPublishBtn"
@@ -736,11 +761,23 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	let rollbackConfirmBarRender = null
 	if (creatorState.showRollbackConfirm) {
 		rollbackConfirmBarRender = (
-			<section id="qset-rollback-confirmation-bar">
+			<section className="confirmation-bar" id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
 				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-				<button onClick={() => qsetRollbackConfirm(false)}>Cancel</button>
-				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
+				<button onClick={() => qsetConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetConfirm(true)}>Keep</button>
+			</section>
+		)
+	}
+
+	let generationConfirmBarRender = null
+	if (creatorState.showGenerationConfirm) {
+		generationConfirmBarRender = (
+			<section className="confirmation-bar" id="qset-generation-confirmation-bar">
+				<h3>Previewing Generated Questions</h3>
+				<p>Select <span>Cancel</span> to undo any changes made by the question generator. Select <span>Keep</span> to commit to using this generated version.</p>
+				<button onClick={() => qsetConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetConfirm(true)}>Keep</button>
 			</section>
 		)
 	}
@@ -809,6 +846,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					{ popupRender }
 					{ actionBarRender }
 					{ rollbackConfirmBarRender }
+					{ generationConfirmBarRender }
 					<div className="center">
 						<iframe
 							src={creatorState.creatorPath}

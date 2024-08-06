@@ -122,6 +122,10 @@ return [
 			]
 			: null
 		),
+	],
+
+	'open_ai' => [
+		'api_key' => $_ENV['OPENAI_API_KEY'] ?? false,
 	]
 
 ];

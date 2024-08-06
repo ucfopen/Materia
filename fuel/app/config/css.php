@@ -38,6 +38,7 @@ return [
 		                            $webpack.'css/util-question-import.css',
 		                            $webpack.'css/question-importer.css',
 		],
+		'qset_generator'	 	=> [$webpack.'css/qset-generator.css'],
 		'questionimport'        => [$webpack.'css/question-importer.css'],
 		'qset_history'          => [$webpack.'css/qset-history.css'],
 		'rollback_dialog'       => [$webpack.'css/util-rollback-confirm.css'],
