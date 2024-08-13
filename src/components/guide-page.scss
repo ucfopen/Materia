@@ -10,7 +10,51 @@
 	font-family: 'Lato', arial, sans-serif;
 }
 
+.darkMode .page {
+	margin: 0 5%;
+	background: #21232a;
+	padding: 10px;
+	border-radius: 10px;
+	box-shadow: 1px 3px 10px #08090c;
+	color: #fff;
+
+	font-family: 'Lato', arial, sans-serif;
+}
+
 #top {
+	display: flex;
+
+	h1 {
+		flex-grow: 1;
+		margin: 10px 0 0 8px;
+	}
+
+	#guide-tabs {
+		display: flex;
+
+		&.players-guide {
+			a:first-of-type {
+				background: #1778af;
+			}
+		}
+
+		&.creators-guide {
+			a:nth-of-type(2) {
+				background: #1778af;
+			}
+		}
+
+		a {
+			padding: 8px 15px;
+			background: #004268;
+			color: white;
+			border-radius: 10px 10px 0 0;
+			margin: 15px 0 0 10px;
+		}
+	}
+}
+
+.darkMode #top {
 	display: flex;
 
 	h1 {

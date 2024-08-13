@@ -237,6 +237,7 @@ export const apiAuthorVerify = () => {
 }
 
 export const apiUpdateUserSettings = (settings) => {
+	console.log(settings);
 	return fetch('/api/user/settings', {
 		...fetchOptions({}),
 		headers: {

@@ -42,6 +42,45 @@ html {
 	}
 }
 
+.darkMode #import_form {
+	background: #21232a;
+	border: rgba(0, 0, 0, 0.11) 1px solid;
+	box-shadow: 1px 3px 10px #08090c;
+	color: #fff;
+
+	h1 {
+		background: #f1814b;
+		padding: 6px 10px;
+		margin: 0px;
+		font-size: 18px;
+		font-weight: bold;
+		color: #ffffff;
+	}
+
+	thead {
+
+		tr {
+			height: 2em;
+			padding: 6px 0px;
+			border-bottom: solid 1px #888;
+		}
+	}
+
+	tbody {
+		tr {
+			height: 2em;
+			cursor: pointer;
+
+			td {
+				text-align: center;
+			}
+			&:hover {
+				background: #295b99;
+			}
+		}
+	}
+}
+
 .no_saves {
 	width: 50%;
 	margin-left: auto;

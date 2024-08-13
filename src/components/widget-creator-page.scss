@@ -103,6 +103,72 @@ a {
 	}
 }
 
+.darkMode #action-bar {
+	position: relative;
+	z-index: 2;
+	height: 52px;
+	width: calc(100% - 20px);
+	padding-right: 20px;
+
+	text-align: right;
+	background: #1d1f25;
+	border-bottom: 4px #b944cc solid;
+	white-space: nowrap;
+
+	&:before {
+		content: 'Editing';
+		// background: #b944cc;
+	
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		// height: 53px;
+		height: 33px;
+		width: 101px;
+
+		margin: 10px 0;
+
+		// border-right: solid 1px #aaa;
+	
+		font-size: 24px;
+		font-weight: bold;
+		// color: #ffffff;
+		color: #b944cc;
+		text-align: center;
+		vertical-align: middle;
+		border-radius: 5px 0 0 0;
+		line-height: 33px;
+	}
+
+	a {
+		font-family: 'Lucida Grande', 'Verdana', sans-serif;
+		font-size: 13px;
+		text-decoration: underline;
+
+		&:after {
+			content: '|';
+			position: relative;
+			display: inline-block;
+
+			margin: 0 6px;
+
+			color: #ababab;
+		}
+	}
+
+	.lastSaved {
+		font-family: 'Lucida Grande', 'Verdana', sans-serif;
+		font-style: italic;
+		font-size: 13px;
+	}
+
+	@media (max-width: 1150px) {
+		.lastSaved {
+			display: none;
+		}
+	}
+}
+
 #qset-rollback-confirmation-bar {
 	position: relative;
 	display: flex;
@@ -220,6 +286,23 @@ a {
 	}
 }
 
+.darkMode .page {
+	margin: 0 20px;
+	padding: 0;
+	text-align: center;
+
+	border: #181920 1px solid;
+	border-radius: 5px 5px 0 0;
+	box-shadow: #08090c 1px 3px 10px 0px;
+
+	.center {
+		min-height: 600px;
+		height: calc(100vh - 185px);
+		position: relative;
+		z-index: 5;
+	}
+}
+
 .edit_button {
 	position: relative;	
 	display: inline-block;
@@ -255,6 +338,16 @@ a {
 	&:hover {
 		background: #ffce8c;
 		background-image: linear-gradient(#ff8f11, #ffbc78);
+		text-decoration: none;
+	}
+}
+.darkMode .orange {
+	background: #f79d29;
+	color: #422f15;
+
+	&:hover {
+		background: #ffce8c;
+		background-image: linear-gradient(#f79d29, #ffbc78);
 		text-decoration: none;
 	}
 }

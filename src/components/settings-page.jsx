@@ -18,12 +18,12 @@ const SettingsPage = () => {
 	useEffect(() => {
 		if (mounted && ! isFetching) {
 			mounted.current = true
-			setState({...state, notify: currentUser.profile_fields.notify, useGravatar: currentUser.profile_fields.useGravatar})
+			setState({...state, notify: currentUser.profile_fields.notify, useGravatar: currentUser.profile_fields.useGravatar, darkMode: currentUser.profile_fields.darkMode ? currentUser.profile_fields.darkMode : false})
 			return () => (mounted.current = false)
 		}
 	},[isFetching])
 
-	const [state, setState] = useState({notify: false, useGravatar: false})
+	const [state, setState] = useState({notify: false, useGravatar: false, darkMode: false})
 
 	const mutateUserSettings = useUpdateUserSettings()
 
@@ -36,10 +36,16 @@ const SettingsPage = () => {
 		setState({...state, useGravatar: pref})
 	}
 
+	const _updateDarkModePref = event => {
+		setState({...state, darkMode: !state.darkMode});
+	}
+
 	const _submitSettings = () => {
+		console.log(state.darkMode);
 		mutateUserSettings.mutate({
 			notify: state.notify,
-			useGravatar: state.useGravatar
+			useGravatar: state.useGravatar,
+			darkMode: state.darkMode
 		})
 	}
 
@@ -80,6 +86,13 @@ const SettingsPage = () => {
 					<li>
 						<input type="radio" name="avatar" id="avatar_default" checked={state.useGravatar == false} onChange={() => _updateIconPref(false)} />
 						<label>None</label>
+					</li>
+				</ul>
+				<span></span>
+				<ul>
+					<li>
+						<input type='checkbox' id='darkMode' name='darkMode' checked={state.darkMode == true} onChange={_updateDarkModePref} />
+						<label>Enable dark mode</label>
 					</li>
 				</ul>
 
