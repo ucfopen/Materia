@@ -65,7 +65,7 @@ class Widget_Question_Generator
 			$text = "{$widget->name} is a 'widget', an interactive piece of educational web content described as: '{$about}'. ".
 					'Using the exact same json format of the following question set, without changing any field keys or data types and without changing any of the existing questions, '.
 					"generate {$num_questions} more questions and add them to the existing question set. ".
-					'The name of this particular instance of {$widget->name} is {$instance_name} and the new questions must be based on this topic: '{$topic}'. '.
+					"The name of this particular instance of {$widget->name} is {$instance_name} and the new questions must be based on this topic: '{$topic}'. ".
 					'Return only the JSON for the resulting question set.';
 
 			if ($include_images)

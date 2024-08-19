@@ -25,6 +25,7 @@ services:
       - ASSET_STORAGE_S3_SECRET
       - OPENAI_API_KEY
       - OPENAI_MODEL
+      - OPENAI_LOG_STATS
       - OPENAI_ALLOW_IMAGES
     volumes:
       - ..:/var/www/html/
