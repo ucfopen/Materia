@@ -125,7 +125,10 @@ return [
 	],
 
 	'open_ai' => [
-		'api_key' => $_ENV['OPENAI_API_KEY'] ?? false,
+		'api_key'      => $_ENV['OPENAI_API_KEY'] ?? false,
+		'model'        => $_ENV['OPENAI_MODEL'] ?? 'gpt-4o-mini',
+		'allow_images' => $_ENV['OPENAI_ALLOW_IMAGES'] ?? false,
+		'log_stats'    => filter_var($_ENV['OPENAI_LOG_STATS'] ?? false, FILTER_VALIDATE_BOOLEAN)
 	]
 
 ];

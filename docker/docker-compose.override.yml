@@ -23,6 +23,9 @@ services:
       - ASSET_STORAGE_S3_ENDPOINT
       - ASSET_STORAGE_S3_KEY
       - ASSET_STORAGE_S3_SECRET
+      - OPENAI_API_KEY
+      - OPENAI_MODEL
+      - OPENAI_ALLOW_IMAGES
     volumes:
       - ..:/var/www/html/
       - uploaded_widgets:/var/www/html/public/widget/

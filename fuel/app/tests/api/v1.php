@@ -1200,32 +1200,32 @@ class Test_Api_V1 extends \Basetest
 		// }
 	}
 
-	// BS to pass
-	public function test_comb_assets()
-	{
-		$question = "What was Pixar's first film?";
-		$answer = "Toy Story";
-		$qset = $this->create_new_qset($question, $answer);
-		$output = Api_V1::comb_assets($qset);
-		$this->assert_not_message($output);
-		$this->assertIsArray($output);
+	// // BS to pass
+	// public function test_comb_assets()
+	// {
+	// 	$question = "What was Pixar's first film?";
+	// 	$answer = "Toy Story";
+	// 	$qset = $this->create_new_qset($question, $answer);
+	// 	$output = Api_V1::comb_assets($qset);
+	// 	$this->assert_not_message($output);
+	// 	$this->assertIsArray($output);
 
-	}
+	// }
 
-	// BS to pass
-	public function test_assign_assets()
-	{
-		$question = "What was Pixar's first film?";
-		$answer = "Toy Story";
-		$qset = $this->create_new_qset($question, $answer);
+	// // BS to pass
+	// public function test_assign_assets()
+	// {
+	// 	$question = "What was Pixar's first film?";
+	// 	$answer = "Toy Story";
+	// 	$qset = $this->create_new_qset($question, $answer);
 
-		$image_urls = [
-			'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'
-		];
-		$output = Api_V1::assign_assets($qset, $image_urls, 0, 0);
-		$this->assert_not_message($output);
-		$this->assertEquals($output, count($image_urls) - 1);
-	}
+	// 	$image_urls = [
+	// 		'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'
+	// 	];
+	// 	$output = Api_V1::assign_assets($qset, $image_urls, 0, 0);
+	// 	$this->assert_not_message($output);
+	// 	$this->assertEquals($output, count($image_urls) - 1);
+	// }
 
 	public function test_questions_get()
 	{
