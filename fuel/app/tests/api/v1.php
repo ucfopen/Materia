@@ -1132,22 +1132,22 @@ class Test_Api_V1 extends \Basetest
 		}
 	}
 
-	// BS to pass
-	public function test_question_set_is_generable()
-	{
-		// ======= AS AUTHOR =======
-		$this->_as_author();
-		$widget = $this->make_disposable_widget();
-		$title = "Pixar Films";
-		$question = "What was Pixar's first film?";
-		$answer = "Toy Story";
-		$qset = $this->create_new_qset($question, $answer);
-		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
-		$inst_id = $instance->id;
-		$output = Api_V1::question_set_is_generable($inst_id);
-		$this->assertFalse($output['generable']);
+	// // BS to pass
+	// public function test_question_set_is_generable()
+	// {
+	// 	// ======= AS AUTHOR =======
+	// 	$this->_as_author();
+	// 	$widget = $this->make_disposable_widget();
+	// 	$title = "Pixar Films";
+	// 	$question = "What was Pixar's first film?";
+	// 	$answer = "Toy Story";
+	// 	$qset = $this->create_new_qset($question, $answer);
+	// 	$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
+	// 	$inst_id = $instance->id;
+	// 	$output = Api_V1::question_set_is_generable($inst_id);
+	// 	$this->assertFalse($output['generable']);
 
-	}
+	// }
 
 	// BS to pass
 	public function test_question_set_generate()
@@ -1161,13 +1161,7 @@ class Test_Api_V1 extends \Basetest
 			$qset = $this->create_new_qset($question, $answer);
 			$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
 			$inst_id = $instance->id;
-			// input object takes in inst_id, topic, and whether to include images
-			$input = (object) [
-				'inst_id' => $inst_id,
-				'topic' => 'Disney Films',
-				'include_images' => false
-			];
-			$output = Api_V1::question_set_generate($input);
+			$output = Api_V1::question_set_generate($inst_id, $widget->id, 'Disney Films', true, 4, false);
 			$this->fail("Expected exception not thrown");
 		} catch ( Exception $e) {
 			$this->assertInstanceOf('Exception', $e);

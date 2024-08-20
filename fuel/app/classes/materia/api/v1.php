@@ -841,72 +841,29 @@ class Api_V1
 		return $inst->qset;
 	}
 
-
 	/**
-	 * Determines whether a question set can generated for a given widget using OpenAI.
-	 * @param string $inst_id The instance ID of the widget
-	 * @return bool Whether a question set can be generated
-	 */
-	static public function question_set_is_generable($inst_id)
-	{
-		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-
-		// check if the widget supports generation
-		if ( ! $inst->widget->is_generable)
-		{
-			return [
-				'msg' => 'Widget does not support generation',
-				'generable' => false
-			];
-		}
-
-		// check if API key is even valid, or exists
-		$api_key = \Config::get('materia.open_ai.api_key');
-		if (empty($api_key))
-		{
-			return [
-				'msg' => 'API key not set',
-				'generable' => false
-			];
-		}
-
-		try {
-			$client = \OpenAI::client($api_key);
-		} catch (\Exception $e) {
-			// return an error for more descriptive handling on the front-end
-			return [
-				'msg' => $e->getMessage(),
-				'generable' => false
-			];
-		}
-
-		return [
-			'msg' => 'Widget is generable',
-			'generable' => true
-		];
-	}
-
-	/**
-	 * Generates a question set based on a given instance ID, topic, and whether to include images.
-	 * @param object $input The input object containing the instance ID, topic, and whether to include images
+	 * Generates a question set based on a given instance ID, widget ID, topic, and whether to include images.
+	 * @param string $inst_id The instance ID, if there is an instance associated with this request. May be null.
+	 * @param string $widget_id The ID of the widget engine associated with this request. Must be set.
+	 * @param string $topic The topic for which to generate a question set
+	 * @param bool $include_images whether or not to include images in the generated qset
+	 * @param int $num_questions How many questions should be generated in the qset
+	 * @param bool $build_off_existing Whether to build from an existing qset, or generate one from scratch
 	 * @return object The generated question set
 	 */
-	static public function question_set_generate($input)
+	static public function question_set_generate($inst_id, $widget_id, $topic, $include_images, $num_questions, $build_off_existing)
 	{
-		$inst_id = $input->inst_id;
-		$topic = $input->topic;
-		$include_images = $input->include_images;
-		$num_questions = $input->num_questions;
-		$build_off_existing = $input->build_off_existing;
+		$inst = null;
 
-		// validate instance
-		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		if ( ! static::question_set_is_generable($inst_id)['generable']) return Msg::failure('Unable to generate question set for this widget.');
+		// validate instance (but only if an instance id is provided)
+		if (Util_Validator::is_valid_hash($inst_id))
+		{
+			if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+		}
+
+		$widget = new Widget();
+		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
 
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
@@ -918,7 +875,7 @@ class Api_V1
 		if ($num_questions < 1) $num_questions = 8;
 		if ($num_questions > 32) $num_questions = 32;
 
-		return Widget_Question_Generator::generate_qset($inst, $inst->widget, $topic, $include_images, $num_questions, $build_off_existing);
+		return Widget_Question_Generator::generate_qset($inst, $widget, $topic, $include_images, $num_questions, $build_off_existing);
 	}
 
 	/**
