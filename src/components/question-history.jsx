@@ -60,7 +60,7 @@ const QuestionHistory = () => {
 						JSON.stringify(save.data),
 						false, // is generated
 						save.version,
-						save.created_at
+						null
 					)
 				}
 			})

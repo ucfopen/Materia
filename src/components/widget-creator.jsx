@@ -293,6 +293,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			setInstance({
 				...instance,
 				qset: creatorState.reloadWithQset,
+				...( creatorState.reloadWithQset.title && { name: creatorState.reloadWithQset.title }), // fancy syntax to only apply the name property when reloadWithQset.title is set
 				...( ! instIdRef.current && { preSaveSpecialCondition: true }) // fancy syntax to ensure preSaveSpecialCondition is only applied when instIdRef.current is unavailable
 			})
 		}
@@ -603,7 +604,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			},
 
 			// When a new qset is selected from the prior saves list or generated
-			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1) {
+			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1, title = null) {
+				console.log(title)
 				if (!qset) {
 					setCreatorState({
 						...creatorState,
@@ -616,8 +618,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				} else {
 
 					requestSave('history')
-					console.log(qset)
-
 					let parsedQsetData = JSON.parse(qset)
 
 					setCreatorState({
@@ -628,11 +628,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 							data: parsedQsetData,
 							version: version,
 							id: parsedQsetData.id,
+							...(title && { title: title }),
 						},
-						// cachedQset: instance.qset,
 						showActionBar: false,
 						showRollbackConfirm: showGenerationConfirm ? false : true,
-						showGenerationConfirm: showGenerationConfirm
+						showGenerationConfirm: showGenerationConfirm,
 					})
 				}
 			},
