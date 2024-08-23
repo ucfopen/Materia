@@ -124,8 +124,8 @@ class Widget
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
 
-		// generable flag is a composite of the db value and materia config value
-		$this->is_generable = $this->is_generable == '1' && ! empty(\Config::get('materia.open_ai.api_key')) ? '1' : '0';
+		if ( ! \Service_User::verify_session('basic_author')) $this->is_generable = '0';
+		else $this->is_generable = $this->is_generable == '1' && ! empty(\Config::get('materia.open_ai.api_key')) ? '1' : '0';
 
 		return true;
 	}
@@ -185,7 +185,8 @@ class Widget
 
 		if ($prop == 'is_generable')
 		{
-			if (\Config::get('materia.open_ai.api_key') && strlen(\Config::get('materia.open_ai.api_key')) > 0 && $val == '1') return '1';
+			if ( ! \Service_User::verify_session('basic_author')) return '0';
+			elseif (\Config::get('materia.open_ai.api_key') && strlen(\Config::get('materia.open_ai.api_key')) > 0 && $val == '1') return '1';
 			else return '0';
 		}
 
