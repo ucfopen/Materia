@@ -86,9 +86,9 @@ const QsetGenerator = () => {
 			document.getElementById('num-questions').classList.add('invalid')
 			setNumberError('Please enter a number greater than 0')
 			return false
-		} else if (numQuestions > 8) {
+		} else if (numQuestions > 16) {
 			document.getElementById('num-questions').classList.add('warning')
-			setWarning('Note: Generating this many questions may not work, or will take a while.')
+			setWarning('Note: Generating this many questions will take a while and may not work at all.')
 			return true
 		} else {
 			document.getElementById('num-questions').classList.remove('invalid')
@@ -111,13 +111,15 @@ const QsetGenerator = () => {
 
 	return (
 		<div>
-			<h1>Generate Questions (Beta Feature)</h1>
+			<h1>Generate Questions</h1>
 			{loading && <div className="loading">
 				<LoadingIcon/>
 				<p>Generating questions. Do not close this window.</p>
 			</div>}
 			<div id="generate_form">
-				<span><strong>This question generator is powered by AI, so errors in the generated content can occur</strong>. There will be an option after generation is complete to keep or revert all changes.</span>
+				<span><strong>Question Generation is powered by AI, so errors in the generated content can occur</strong>. After generation is complete you will be prompted to keep the content or discard it. You may need
+				to make edits to the generated content before saving your widget.</span>
+				<span>Note that this feature will only create text content. Image or media generation is not currently supported.</span>
 				<span className="error">{serverError}</span>
 				<div id="topic-field">
 					<label htmlFor="topic">Topic</label>
@@ -129,10 +131,10 @@ const QsetGenerator = () => {
 					<span className="error">{numberError}</span>
 					<input id="num-questions" type="number" defaultValue="8" min="1" placeholder="Number to generate" onChange={onNumberChange}/>
 				</div>
-				<div>
+				{/* <div>
 					<input type="checkbox" id="include-images" name="include-images" onChange={(e) => setIncludeImages(e.target.checked)}/>
 					<label htmlFor="include-images">Include images</label>
-				</div>
+				</div> */}
 				<div>
 					<input type="checkbox" id="build-off-existing" name="build-off-existing" onChange={(e) => setBuildOffExisting(e.target.checked)}/>
 					<label htmlFor="build-off-existing">Keep current questions <span className="warning">(If left unselected, this will replace all existing questions)</span></label>
