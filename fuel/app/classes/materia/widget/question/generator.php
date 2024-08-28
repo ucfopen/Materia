@@ -239,7 +239,7 @@ class Widget_Question_Generator
 					.'Included images: '.$include_images.PHP_EOL
 					.'Prompt tokens: '.$result->usage->promptTokens.PHP_EOL
 					.'Completion tokens: '.$result->usage->completionTokens.PHP_EOL
-					.'Total tokens: '.$result->usage->totalTokens.PHP_EOL
+					.'Total tokens: '.$result->usage->totalTokens.PHP_EOL);
 			}
 
 		} catch (\Exception $e) {
