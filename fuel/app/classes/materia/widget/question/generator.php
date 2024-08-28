@@ -6,14 +6,107 @@ class Widget_Question_Generator
 {
 	protected static $client;
 
+	/**
+	 * Initializes and returns the OpenAI client based on current server configuration.
+	 *
+	 * @return mixed An instance of the OpenAI client.
+	 */
 	protected static function get_client()
 	{
-		if ( ! isset(self::$client))
+		if ( ! isset(self::$client) && self::is_enabled())
 		{
-			$api_key = \Config::get('materia.open_ai.api_key');
-			self::$client = \OpenAI::client($api_key);
+			if (empty(\Config::get('materia.ai_generation.provider')))
+			{
+				\Log::error('GENERATION ERROR: Question generation configs missing.');
+				return null;
+			}
+
+			if (\Config::get('materia.ai_generation.provider') == 'azure_openai')
+			{
+				$api_key = \Config::get('materia.ai_generation.api_key');
+				$endpoint = \Config::get('materia.ai_generation.endpoint');
+				$api_version = \Config::get('materia.ai_generation.api_version');
+
+				if (empty($api_key) || empty($endpoint) || empty($api_version))
+				{
+					\Log::error('GENERATION ERROR: Question generation configs missing.');
+					return null;
+				}
+
+				try {
+					self::$client = \OpenAI::factory()
+						->withBaseUri($endpoint)
+						->withHttpHeader('api-key', $api_key)
+						->withQueryParam('api-version', $api_version)
+						->make();
+				} 
+				catch (\Exception $e)
+				{
+					\Log::error('GENERATION ERROR: error in initializing openAI client');
+					\Log::error($e);
+					return null; 
+				}
+			}
+			elseif (\Config::get('materia.ai_generation.provider') == 'openai')
+			{
+				$api_key = \Config::get('materia.ai_generation.api_key');
+
+				if (empty($api_key))
+				{
+					\Log::error('Question generation configs missing.');
+					return null;
+				}
+
+				self::$client = \OpenAI::client($api_key);
+			}
+			else
+			{
+				\Log::error('GENERATION ERROR: Question generation provider config invalid.');
+				return null;
+			}
 		}
 		return self::$client;
+	}
+
+	/**
+	 * Quick reference method to determine whether question generation is enabled.
+	 *
+	 * @return bool Returns true if the widget generator is enabled, false otherwise.
+	 */
+	public static function is_enabled()
+	{
+		return ! empty(\Config::get('materia.ai_generation.enabled'));
+	}
+
+	/**
+	 * Submits a prompt to the configured question generation provider.
+	 *
+	 * @param string $prompt The prompt for the query.
+	 * @return object The result of the query.
+	 */
+	public static function query($prompt)
+	{
+		$client = static::get_client();
+		if (empty($client)) throw new \HttpNotFoundException;
+
+		$params = [
+			'response_format' => (object) ['type' => 'json_object'],
+			'messages' => [
+				['role' => 'user', 'content' => $prompt]
+			],
+			'max_tokens' => 16000,
+			'frequency_penalty' => 0, // 0 to 1
+			'presence_penalty' => 0, // 0 to 1
+			'temperature' => 1, // 0 to 1
+			'top_p' => 1, // 0 to 1
+		];
+
+		if ( ! empty(\Config::get('materia.ai_generation.model')))
+		{
+			$params['model'] = \Config::get('materia.ai_generation.model');
+		}
+
+		return $client->chat()->create($params);
 	}
 
 	/**
@@ -29,8 +122,10 @@ class Widget_Question_Generator
 	 */
 	static public function generate_qset($inst, $widget, $topic, $include_images, $num_questions, $existing)
 	{
+		if ( ! self::is_enabled()) return new Msg(Msg::ERROR, 'Question generation is not enabled.');
+
 		// 'allow images' environment variable overrides whatever the api request sends
-		if ( ! \Config::get('materia.open_ai.allow_images')) $include_images = false;
+		if ( empty(\Config::get('materia.ai_generation.allow_images'))) $include_images = false;
 
 		$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
 		if ( ! $demo) throw new \HttpNotFoundException;
@@ -124,32 +219,17 @@ class Widget_Question_Generator
 			$text = $text."\n{$qset_text}";
 		}
 
-		// send the prompt to openai
+		// send the prompt to to the generative AI provider
 		try {
-			$client = static::get_client();
-			$result = $client->chat()->create([
-				'model' => \Config::get('materia.open_ai.model'),
-				'response_format' => (object) ['type' => 'json_object'],
-				'messages' => [
-					['role' => 'user', 'content' => $text]
-				],
-				'max_tokens' => 16000,
-				'frequency_penalty' => 0, // 0 to 1
-				'presence_penalty' => 0, // 0 to 1
-				'temperature' => 1, // 0 to 1
-				'top_p' => 1, // 0 to 1
-
-			]);
+			$result = self::query($text);
 
 			// received the qset - decode the json string from the result
 			$question_set = json_decode($result->choices[0]->message->content);
 			\Log::info('Generated question set: '.print_r(json_encode($question_set), true));
 
-			if (\Config::get('materia.open_ai.log_stats'))
+			if (\Config::get('materia.ai_generation.log_stats'))
 			{
 				$time_elapsed_secs = microtime(true) - $start_time;
-				$cost_input_tokens = 0.50 / 1000000; // $0.50 per 1 million tokens
-				$cost_output_tokens = 1.50 / 1000000; // $1.50 per 1 million tokens
 
 				\Log::debug(PHP_EOL
 					.'Widget: '.$widget_name.PHP_EOL
@@ -160,7 +240,6 @@ class Widget_Question_Generator
 					.'Prompt tokens: '.$result->usage->promptTokens.PHP_EOL
 					.'Completion tokens: '.$result->usage->completionTokens.PHP_EOL
 					.'Total tokens: '.$result->usage->totalTokens.PHP_EOL
-					.'Total cost (in dollars): '.($result->usage->promptTokens * $cost_input_tokens + $result->usage->completionTokens * $cost_output_tokens).PHP_EOL);
 			}
 
 		} catch (\Exception $e) {

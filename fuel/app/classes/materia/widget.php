@@ -125,7 +125,7 @@ class Widget
 		}
 
 		if ( ! \Service_User::verify_session('basic_author')) $this->is_generable = '0';
-		else $this->is_generable = $this->is_generable == '1' && ! empty(\Config::get('materia.open_ai.api_key')) ? '1' : '0';
+		else $this->is_generable = $this->is_generable == '1' && Widget_Question_Generator::is_enabled() ? '1' : '0';
 
 		return true;
 	}
@@ -186,7 +186,7 @@ class Widget
 		if ($prop == 'is_generable')
 		{
 			if ( ! \Service_User::verify_session('basic_author')) return '0';
-			elseif (\Config::get('materia.open_ai.api_key') && strlen(\Config::get('materia.open_ai.api_key')) > 0 && $val == '1') return '1';
+			elseif ( Widget_Question_Generator::is_enabled() && $val == '1') return '1';
 			else return '0';
 		}
 

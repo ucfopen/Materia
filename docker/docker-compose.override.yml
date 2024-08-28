@@ -23,10 +23,14 @@ services:
       - ASSET_STORAGE_S3_ENDPOINT
       - ASSET_STORAGE_S3_KEY
       - ASSET_STORAGE_S3_SECRET
-      - OPENAI_API_KEY
-      - OPENAI_MODEL
-      - OPENAI_LOG_STATS
-      - OPENAI_ALLOW_IMAGES
+      - GENERATION_ENABLED
+      - GENERATION_ALLOW_IMAGES
+      - GENERATION_API_PROVIDER
+      - GENERATION_API_ENDPOINT
+      - GENERATION_API_KEY
+      - GENERATION_API_VERSION
+      - GENERATION_API_MODEL
+      - GENERATION_LOG_STATS
     volumes:
       - ..:/var/www/html/
       - uploaded_widgets:/var/www/html/public/widget/

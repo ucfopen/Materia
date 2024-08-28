@@ -124,11 +124,15 @@ return [
 		),
 	],
 
-	'open_ai' => [
-		'api_key'      => $_ENV['OPENAI_API_KEY'] ?? false,
-		'model'        => $_ENV['OPENAI_MODEL'] ?? 'gpt-4o-mini',
-		'allow_images' => $_ENV['OPENAI_ALLOW_IMAGES'] ?? false,
-		'log_stats'    => filter_var($_ENV['OPENAI_LOG_STATS'] ?? false, FILTER_VALIDATE_BOOLEAN)
+	'ai_generation' => [
+		'enabled'      => $_ENV['GENERATION_ENABLED'] ?? false,
+		'allow_images' => $_ENV['GENERATION_ALLOW_IMAGES'] ?? false,
+		'provider'     => $_ENV['GENERATION_API_PROVIDER'] ?? '',
+		'endpoint'     => $_ENV['GENERATION_API_ENDPOINT'] ?? '',
+		'api_key'      => $_ENV['GENERATION_API_KEY'] ?? false,
+		'api_version'  => $_ENV['GENERATION_API_VERSION'] ?? '',
+		'model'        => $_ENV['GENERATION_API_MODEL'] ?? '',
+		'log_stats'    => filter_var($_ENV['GENERATION_LOG_STATS'] ?? false, FILTER_VALIDATE_BOOLEAN)
 	]
 
 ];
