@@ -1,11 +1,7 @@
 import logging
 from datetime import datetime
 
-from core.models import (
-    PermObjectToUser,
-    Widget,
-    WidgetInstance,
-)
+from core.models import PermObjectToUser, Widget, WidgetInstance
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
 from util.perm_manager import PermManager

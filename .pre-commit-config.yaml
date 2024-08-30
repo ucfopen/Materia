@@ -11,3 +11,9 @@ repos:
         types: [python]
         args:
             - --check
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+    -   id: isort
+        types: [python]
+        args: ["--check-only", "--profile", "black", "--filter-files"]
