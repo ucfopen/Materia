@@ -875,10 +875,19 @@ class Api_V1
 		if ($num_questions < 1) $num_questions = 8;
 		if ($num_questions > 32) $num_questions = 32;
 
-		return [
-			...Widget_Question_Generator::generate_qset($inst, $widget, $topic, $include_images, $num_questions, $build_off_existing),
-			'title' => $topic
-		];
+		$query = Widget_Question_Generator::generate_qset($inst, $widget, $topic, $include_images, $num_questions, $build_off_existing);
+		if ( ! $query instanceof Msg && is_array($query))
+		{
+			return [
+				...$query,
+				'title' => $topic
+			];
+		}
+		else
+		{
+			\Log::error(print_r($query, true));
+			return $query;
+		}
 	}
 
 	/**

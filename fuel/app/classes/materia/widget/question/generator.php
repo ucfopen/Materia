@@ -122,13 +122,13 @@ class Widget_Question_Generator
 	 */
 	static public function generate_qset($inst, $widget, $topic, $include_images, $num_questions, $existing)
 	{
-		if ( ! self::is_enabled()) return new Msg(Msg::ERROR, 'Question generation is not enabled.');
+		if ( ! self::is_enabled()) return Msg::failure('Question generation is not enabled.');
 
 		// 'allow images' environment variable overrides whatever the api request sends
 		if ( empty(\Config::get('materia.ai_generation.allow_images'))) $include_images = false;
 
 		$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
-		if ( ! $demo) throw new \HttpNotFoundException;
+		if ( ! $demo) return Msg::not_found();
 		
 		if ($inst) $instance_name = $inst->name;
 		$widget_name = $widget->name;
@@ -151,7 +151,7 @@ class Widget_Question_Generator
 		{
 			if ( ! $inst) return Msg::invalid_input('Requires a previously saved instance to build from.');
 			$qset = Api_V1::question_set_get($inst->id);
-			if ( ! $qset) return new Msg(Msg::ERROR, 'No existing question set found');
+			if ( ! $qset) return Msg::failure('No existing question set found.');
 			$qset_version = $qset->version;
 
 			$qset_text = json_encode($qset->data);
@@ -186,7 +186,7 @@ class Widget_Question_Generator
 			// get the demo.json from the demo instance
 			$demo_qset = Api_V1::question_set_get($widget->meta_data['demo']);
 			$qset_version = $demo_qset->version;
-			if ( ! $demo_qset) throw new \HttpNotFoundException;
+			if ( ! $demo_qset) return Msg::not_found('Could not locate demo question set for widget engine.');
 			$qset_text = json_encode($demo_qset->data);
 
 			// non-image prompt
@@ -250,7 +250,7 @@ class Widget_Question_Generator
 				.'Number of questions asked to generate: '.$num_questions.PHP_EOL
 				.'Error: '.$e->getMessage().PHP_EOL);
 
-			return new Msg(Msg::ERROR, 'Error generating question set');
+			return Msg::failure('Error generating question set.');
 		}
 
 		if ($include_images) $question_set = static::generate_images($question_set, $existing);
