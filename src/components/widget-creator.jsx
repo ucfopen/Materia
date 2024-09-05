@@ -39,7 +39,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		popupState: null,
 		returnUrl: null,
 		returnLocation: 'Widget Catalog',
-		directUploadMediaFile: null
+		directUploadMediaFile: null,
+        isTimeoutRunning: false
 	})
 
 	const [alertDialog, setAlertDialog] = useState({
@@ -295,6 +296,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if (!!saveWidgetComplete) {
 			if (saveWidgetComplete == 'save') {
 				setCreatorState(creatorState => ({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle'}))
+                if(!creatorState.isTimeoutRunning) {
+                    //this line is needed again or else the text will revert to 'Save Draft' immidietly
+                    setCreatorState({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle', isTimeoutRunning: true})
+                    setTimeout( () => {
+                        setCreatorState( {...creatorState, saveText: 'Save Draft', isTimeoutRunning:false} )
+                    } , 5000) //text gets reverted after 5 seconds(format is millisecond)
+                }
 			}
 			else if (saveWidgetComplete == 'preview') {
 				setCreatorState(creatorState => ({...creatorState, saveStatus: 'idle'}))
@@ -469,6 +477,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
                 setCreatorState({ ...creatorState, saveText: 'Failed to save' })
 
 			}
+            if(!creatorState.isTimeoutRunning) {
+                setCreatorState({...creatorState, saveText: 'Failed to save', saveStatus: 'idle', isTimeoutRunning: true})
+                setTimeout( () => {
+                    setCreatorState( {...creatorState, saveText: 'Save Draft', isTimeoutRunning:false} )
+                } , 5000) //text gets reverted after 5 seconds(format is millisecond)
+            }
+
+
 		} else {
 			setAlertDialog({
 				enabled: true,
@@ -479,6 +495,14 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			})
             //also update the text on the Save Draft Button
             setCreatorState({ ...creatorState, saveText: 'Failed to save' })
+            if(!creatorState.isTimeoutRunning) {
+                setCreatorState({...creatorState, saveText: 'Failed to save', saveStatus: 'idle', isTimeoutRunning: true})
+                setTimeout( () => {
+                    setCreatorState( {...creatorState, saveText: 'Save Draft', isTimeoutRunning:false} )
+                } , 5000) //text gets reverted after 5 seconds(format is millisecond)
+            }
+
+
 
 		}
 	}
