@@ -150,11 +150,11 @@ class Widget_Question_Generator
 		if ($existing)
 		{
 			if ( ! $inst) return Msg::invalid_input('Requires a previously saved instance to build from.');
-			$qset = Api_V1::question_set_get($inst->id);
-			if ( ! $qset) return Msg::failure('No existing question set found.');
-			$qset_version = $qset->version;
+			$inst->get_qset($inst->id);
+			if ( ! $inst->qset->data) return Msg::failure('No existing question set found.');
+			if ($inst->qset->version) $qset_version = $inst->qset->version;
 
-			$qset_text = json_encode($qset->data);
+			$qset_text = json_encode($inst->qset->data);
 
 			// non-demo non-image prompt
 			$text = "{$widget->name} is a 'widget', an interactive piece of educational web content described as: '{$about}'. ".
@@ -183,11 +183,12 @@ class Widget_Question_Generator
 		}
 		else // creating a new qset based on the demo. Does not require a previously saved instance
 		{
-			// get the demo.json from the demo instance
-			$demo_qset = Api_V1::question_set_get($widget->meta_data['demo']);
-			$qset_version = $demo_qset->version;
-			if ( ! $demo_qset) return Msg::not_found('Could not locate demo question set for widget engine.');
-			$qset_text = json_encode($demo_qset->data);
+			// get the qset from the demo instance
+			if ( ! ($demo_inst = Widget_Instance_Manager::get($widget->meta_data['demo']))) return Msg::not_found('Could not locate demo instance for widget engine.');
+			$demo_inst->get_qset($demo_inst->id);
+			if ( ! $demo_inst->qset) return Msg::not_found('Could not locate demo question set for widget engine.');
+			if ($demo_inst->qset->version) $qset_version = $demo_inst->qset->version;
+			$qset_text = json_encode($demo_inst->qset->data);
 
 			// non-image prompt
 			$text = "{$widget->name} is a 'widget', an interactive piece of educational web content described as: '{$about}'. ".
