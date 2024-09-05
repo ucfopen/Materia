@@ -455,7 +455,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				})
 
 				setCreatorState({...creatorState, heartbeatEnabled: false})
-                //also update the text on the Save Draft Button
+                //also update the text on the Save Draft Buttons
                 setCreatorState({ ...creatorState, saveText: 'Failed to save' })
 			} else {
 				setAlertDialog({
