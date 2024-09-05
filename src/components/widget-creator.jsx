@@ -449,6 +449,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				})
 
 				setCreatorState({...creatorState, heartbeatEnabled: false})
+                //also update the text on the Save Draft Button
+                setCreatorState({ ...creatorState, saveText: 'Failed to save' })
 			} else {
 				setAlertDialog({
 					enabled: true,
@@ -457,6 +459,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					fatal: false,
 					enableLoginButton: false
 				})
+                //also update the text on the Save Draft Button
+                setCreatorState({ ...creatorState, saveText: 'Failed to save' })
+
 			}
 		} else {
 			setAlertDialog({
@@ -466,6 +471,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				fatal: false,
 				enableLoginButton: false
 			})
+            //also update the text on the Save Draft Button
+            setCreatorState({ ...creatorState, saveText: 'Failed to save' })
+
 		}
 	}
 
