@@ -384,6 +384,18 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const save = (instanceName, qset, version = 1) => {
+        //cancel saving of the widget if title is too long to prevent crashing
+        let titleLength = instanceName.length;
+        if(titleLength>100) {
+            setAlertDialog({
+                enabled: true,
+                title: 'Title too long', //the max length for title in my testing is 100
+                message: 'Title must be less than 100 characters',
+                fatal: false,
+                enableLoginButton: false
+            });
+            return;
+        }
 		let newWidget = {
 			widget_id: widgetId,
 			name: instanceName,
