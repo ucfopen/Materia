@@ -1,12 +1,13 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+import {createRoot} from "react-dom/client"
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
 import MediaImporter from './components/media-importer'
 
 const queryCache = new QueryCache()
 export const queryClient = new QueryClient({ queryCache })
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('app'));
+root.render(
 	<QueryClientProvider client={queryClient} contextSharing={true}>
 		<MediaImporter />
-	</QueryClientProvider>, document.getElementById('app'))
+	</QueryClientProvider>  )
