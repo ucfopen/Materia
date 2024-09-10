@@ -867,9 +867,6 @@ class Api_V1
 
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
-		// count words in topic
-		$topic_words = explode(' ', $topic);
-		if (count($topic_words) < 3) return new Msg(Msg::ERROR, 'Topic must be at least 3 words long');
 
 		// validate number of questions
 		if ($num_questions < 1) $num_questions = 8;

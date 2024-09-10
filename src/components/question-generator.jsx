@@ -1,5 +1,5 @@
 import useQuestionGeneration from "./hooks/useQuestionGeneration"
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import './question-generator.scss'
 import LoadingIcon from './loading-icon'
 
@@ -28,17 +28,25 @@ const QsetGenerator = () => {
 	const [topicError, setTopicError] = useState('')
 	const [numberError, setNumberError] = useState('')
 	const [warning, setWarning] = useState('')
-	const [loading, setLoading] = useState(false)
 	const [serverError, setServerError] = useState('')
 
+	const loading = useRef(false)
+
+	useEffect(() => {
+		if (numQuestions < 1) setNumberError('Please enter a number greater than 0')
+		else if (numQuestions > 16) setWarning('Note: Generating this many questions will take a while and may not work at all.')
+		else {
+			setNumberError('')
+			setWarning('')
+		}
+	},[numQuestions])
+
 	const onClickGenerate = () => {
-		if (loading) return
 
-		let is_valid = validateTopic()
-		let is_valid_num = validateNumQuestions()
-		if (!is_valid || !is_valid_num) return
+		// validation functions required since this is an event handler
+		if (loading.current || ! validateNumQuestions() || ! validateTopic()) return false
 
-		setLoading(true)
+		loading.current = true
 
 		generateQuestion.mutate({
 			inst_id: instId,
@@ -54,12 +62,12 @@ const QsetGenerator = () => {
 					result.version,
 					result.title
 				)
-				setLoading(false)
+				loading.current = false
 			},
 			errorFunc: (err) => {
 				console.error(err)
 				setServerError('Error generating questions. Please try again.')
-				setLoading(false)
+				loading.current = false
 			}
 		})
 	}
@@ -67,77 +75,66 @@ const QsetGenerator = () => {
 	const closeDialog = () => window.parent.Materia.Creator.onQsetReselectionComplete(null)
 
 	const validateTopic = () => {
-		let words_in_topic = topic.split(' ')
-
-		if (words_in_topic.length < 3) {
-			document.getElementById('topic').classList.add('invalid')
-			setTopicError('Please enter a topic with at least 3 words')
+		if (!topic.length) {
+			setTopicError('Don\'t forget to add a topic!')
 			return false
-		}
-		else {
-			document.getElementById('topic').classList.remove('invalid')
+		} else {
 			setTopicError('')
 			return true
 		}
 	}
 
 	const validateNumQuestions = () => {
-		if (numQuestions < 1) {
-			document.getElementById('num-questions').classList.add('invalid')
-			setNumberError('Please enter a number greater than 0')
-			return false
-		} else if (numQuestions > 16) {
-			document.getElementById('num-questions').classList.add('warning')
-			setWarning('Note: Generating this many questions will take a while and may not work at all.')
-			return true
-		} else {
-			document.getElementById('num-questions').classList.remove('invalid')
-			document.getElementById('num-questions').classList.remove('warning')
-			setNumberError('')
-			setWarning('')
-			return true
-		}
+		return numQuestions > 0
 	}
 
 	const onTopicChange = (e) => {
-		setTopic(e.target.value)
-		validateTopic()
+		if (e.target.value.length > 0) {
+			setTopic(e.target.value)
+			setTopicError('')
+		}
+		else setTopicError('Don\'t forget to add a topic!')
 	}
 
 	const onNumberChange = (e) => {
 		setNumQuestions(e.target.value)
-		validateNumQuestions()
 	}
 
 	return (
 		<div>
 			<h1>Generate Questions</h1>
-			{loading && <div className="loading">
+			{loading.current && <div className="loading">
 				<LoadingIcon/>
 				<p>Generating questions. Do not close this window.</p>
 			</div>}
 			<div id="generate_form">
-				<span><strong>Question Generation is powered by AI, so errors in the generated content can occur</strong>. After generation is complete you will be prompted to keep the content or discard it. You may need
-				to make edits to the generated content before saving your widget.</span>
-				<span>Note that this feature will only create text content. Image or media generation is not currently supported.</span>
+				<span><strong>Question Generation is powered by AI, so errors in the generated content can occur</strong>. After generation is complete you will be prompted to keep the content or discard it. <strong>You may need
+				to make edits to the generated content before saving your widget.</strong></span>
+				<span>Note that this feature will only create text content. Image or media generation is not supported.</span>
 				<span className="error">{serverError}</span>
 				<div id="topic-field">
-					<label htmlFor="topic">Topic</label>
 					<span className="error">{topicError}</span>
-					<input type="text" id="topic" placeholder="Enter a topic with more than three words" onChange={onTopicChange}/>
+					<input type="text" id="topic" className={`${topicError ? 'invalid' : ''}`} placeholder="Enter the topic for your generated widget content" onChange={onTopicChange}/>
+					<span className="description">
+						The topic should be brief, concise, and describe the desired content of the widget. You may need to
+						experiment with specificity to achieve desired results.
+					</span>
 				</div>
 				<div id="num-questions-field">
 					<label htmlFor="num-questions">Number of questions to generate</label>
 					<span className="error">{numberError}</span>
-					<input id="num-questions" type="number" defaultValue="8" min="1" placeholder="Number to generate" onChange={onNumberChange}/>
+					<input id="num-questions" className={`${numberError ? 'invalid' : ''}${warning ? 'warning' : ''}`} type="number" defaultValue="8" min="1" placeholder="Number to generate" onChange={onNumberChange}/>
 				</div>
 				{/* <div>
 					<input type="checkbox" id="include-images" name="include-images" onChange={(e) => setIncludeImages(e.target.checked)}/>
 					<label htmlFor="include-images">Include images</label>
 				</div> */}
-				<div>
+				<div id="build-off-existing-field">
+					<label htmlFor="build-off-existing">Keep current questions</label>
 					<input type="checkbox" id="build-off-existing" name="build-off-existing" onChange={(e) => setBuildOffExisting(e.target.checked)}/>
-					<label htmlFor="build-off-existing">Keep current questions <span className="warning">(If left unselected, this will replace all existing questions)</span></label>
+					<span className="description">
+						If selected, generated content will be appended to existing content. If unselected, generated content will replace existing content.
+					</span>
 				</div>
 				<span className="warning">{warning}</span>
 				<button className="action_button" onClick={onClickGenerate}>Generate Questions</button>

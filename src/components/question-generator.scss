@@ -35,10 +35,25 @@
 	}
 
 	#generate_form {
-		margin: 2em;
+		margin: 1.5em;
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: 0.75em;
+
+		label {
+			font-weight: 400;
+		}
+
+		.description {
+			display: block;
+			padding: 1em;
+			background: $very-light-gray;
+
+			font-size: 0.75em;
+			font-weight: 400;
+
+			border-radius: 10px;
+		}
 
 		#topic-field {
 			display: flex;
@@ -60,6 +75,21 @@
 			}
 		}
 
+		#build-off-existing-field {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: space-between;
+
+			#build-off-existing {
+				margin-bottom: 0.5em;
+				margin-right: 0.5em;
+			}
+
+			.description {
+				flex-basis: 100%;
+			}
+		}
 	}
 	.actions {
 		position: fixed;
@@ -79,8 +109,9 @@
 	}
 
 	.error {
-		color: red;
+		color: $color-red;
 		font-size: 0.8em;
+		font-weight: 400;
 	}
 
 	.invalid {
@@ -89,7 +120,8 @@
 	}
 
 	.warning {
-		color: #f1814b;
+		color: #d87a00;
 		font-size: 0.8em;
+		font-weight: 400;
 	}
 }
