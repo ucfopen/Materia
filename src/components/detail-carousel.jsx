@@ -248,6 +248,9 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 
 	const snapToImage = (fast=false) => {
 		const _pics = picScrollerRef.current
+		if(!_pics){
+			return; //with react 18 and using createRoot, rendering order is different so a null check is needed or else an error will happen
+		}
 		const i = selectionData.selectedImage.num
 		if (_pics.children.length && _pics.children[i]) {
 			const _offset = _pics.children[i].offsetLeft * -1
