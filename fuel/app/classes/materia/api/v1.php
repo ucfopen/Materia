@@ -853,6 +853,12 @@ class Api_V1
 	 */
 	static public function question_set_generate($inst_id, $widget_id, $topic, $include_images, $num_questions, $build_off_existing)
 	{
+		// short-circuit if generation is not available
+		if ( ! Widget_Question_Generator::is_enabled()) throw new \HttpNotFoundException;
+
+		// verify eligibility
+		if ( ! \Service_User::verify_session(['basic_author', 'super_user'])) return Msg::no_perm();
+
 		$inst = null;
 
 		// validate instance (but only if an instance id is provided)
@@ -864,6 +870,7 @@ class Api_V1
 
 		$widget = new Widget();
 		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( ! $widget->is_generable) return Msg::invalid_input('Widget engine does not support generation');
 
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
