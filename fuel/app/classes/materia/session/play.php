@@ -368,6 +368,9 @@ class Session_Play
 
 	public function set_complete($score, $possible, $percent)
 	{
+		// ensure percent is never inadvertently set to a value over 100, which will break things
+		if ($percent > 100) $percent = 100;
+
 		// set max score to the current score
 		$max_percent = $percent;
 

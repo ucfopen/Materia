@@ -1132,99 +1132,61 @@ class Test_Api_V1 extends \Basetest
 		}
 	}
 
-	// BS to pass
-	public function test_question_set_is_generable()
-	{
-		// ======= AS AUTHOR =======
-		$this->_as_author();
-		$widget = $this->make_disposable_widget();
-		$title = "Pixar Films";
-		$question = "What was Pixar's first film?";
-		$answer = "Toy Story";
-		$qset = $this->create_new_qset($question, $answer);
-		$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
-		$inst_id = $instance->id;
-		$output = Api_V1::question_set_is_generable($inst_id);
-		$this->assertFalse($output['generable']);
-
-	}
-
-	// BS to pass
 	public function test_question_set_generate()
 	{
-		// ======= AS NO ONE ========
-		try {
-			$widget = $this->make_disposable_widget();
-			$title = "Pixar Films";
-			$question = "What was Pixar's first film?";
-			$answer = "Toy Story";
-			$qset = $this->create_new_qset($question, $answer);
-			$instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
-			$inst_id = $instance->id;
-			// input object takes in inst_id, topic, and whether to include images
-			$input = (object) [
-				'inst_id' => $inst_id,
-				'topic' => 'Disney Films',
-				'include_images' => false
-			];
-			$output = Api_V1::question_set_generate($input);
-			$this->fail("Expected exception not thrown");
-		} catch ( Exception $e) {
-			$this->assertInstanceOf('Exception', $e);
+		// ======= GENERATION DISABLED ========
+		if ( ! \Materia\Widget_Question_Generator::is_enabled())
+		{
+			try
+			{
+				$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+				$this->fail('Expected exception HttpNotFoundException not thrown');
+			}
+			catch (\Exception $e)
+			{
+				$this->assertInstanceOf('HttpNotFoundException', $e);
+			}
 		}
+		else
+		{
+			// ======= AS NO ONE ========
+			try
+			{
+				$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+				$this->fail('Expected exception HttpNotFoundException not thrown');
+			}
+			catch (\Exception $e)
+			{
+				$this->assertInstanceOf('HttpNotFoundException', $e);
+			}
 
-		// ======= AS AUTHOR =======
-		// $this->_as_author();
-		// $widget = $this->make_disposable_widget();
-		// $title = "Pixar Films";
-		// $question = "What was Pixar's first film?";
-		// $answer = "Toy Story";
-		// $qset = $this->create_new_qset($question, $answer);
-		// $instance = Api_V1::widget_instance_new($widget->id, $title, $qset, false);
-		// $this->assert_is_qset($qset);
-		// $inst_id = $instance->id;
-		// // input object takes in inst_id, topic, and whether to include images
-		// $input = (object) [
-		// 	'inst_id' => $inst_id,
-		// 	'topic' => 'Disney Films',
-		// 	'include_images' => false
-		// ];
-		// $output = Api_V1::question_set_generate($input);
+			// ===== AS STUDENT =======
+			$this->_as_student();
+			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+			$this->assert_permission_denied_message($output);
 
-		// $questions = \Materia\Widget_Instance::find_questions($output);
-		// foreach ($questions as $question)
-		// {
-		// 	$this->assertInstanceOf('\Materia\Widget_Question', $question);
-		// 	if ($question instanceof \Materia\Widget_Question_Type_QA) $this->assert_question_is_qa($question);
-		// 	if ($question instanceof \Materia\Widget_Question_Type_MC) $this->assert_question_is_mc($question);
-		// }
+			// ======= AS AUTHOR =======
+			// NOTE: We're not going to perform actual question generation, since that would slow tests down considerably and incur costs
+			// Tests several error boundaries instead
+			$this->_as_author();
+			$output = Api_V1::question_set_generate(null, -1, 'Pixar Films', false, 8, false);
+			$this->assert_validation_error_message($output);
+
+			try
+			{
+				$output = Api_V1::question_set_generate('11111', -1, 'Pixar Films', false, 8, false);
+				$this->fail('Expected exception HttpNotFoundException not thrown');
+			}
+			catch (\Exception $e)
+			{
+				$this->assertInstanceOf('HttpNotFoundException', $e);
+			}
+		}
 	}
 
-	// BS to pass
-	public function test_comb_assets()
+	public function test_widget_prompt_generate()
 	{
-		$question = "What was Pixar's first film?";
-		$answer = "Toy Story";
-		$qset = $this->create_new_qset($question, $answer);
-		$output = Api_V1::comb_assets($qset);
-		$this->assert_not_message($output);
-		$this->assertIsArray($output);
-
-	}
-
-	// BS to pass
-	public function test_assign_assets()
-	{
-		$question = "What was Pixar's first film?";
-		$answer = "Toy Story";
-		$qset = $this->create_new_qset($question, $answer);
-
-		$image_urls = [
-			'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'
-		];
-		$output = Api_V1::assign_assets($qset, $image_urls, 0, 0);
-		$this->assert_not_message($output);
-		$this->assertEquals($output, count($image_urls) - 1);
+		// TODO
 	}
 
 	public function test_questions_get()

@@ -47,11 +47,12 @@
         "iturgeon/qasset": "1.0.5",
         "fuelphp/upload": "2.0.7",
         "monolog/monolog": "1.18.*",
-        "phpseclib/phpseclib": "2.0.31",
+        "phpseclib/phpseclib": "~3.0",
+		"phpseclib/phpseclib2_compat":"~1.0",
         "eher/oauth": "1.0.7",
-        "aws/aws-sdk-php": "3.288.1",
+        "aws/aws-sdk-php": "^3.314",
         "symfony/dotenv": "^5.1",
-        "ucfopen/materia-theme-ucf": "2.0.2",
+        "ucfopen/materia-theme-ucf": "2.0.3",
         "openai-php/client": "^0.8.5"
     },
     "suggest": {
@@ -99,9 +100,9 @@
             "package": {
                 "name": "ucfopen/materia-theme-ucf",
                 "type": "fuel-package",
-                "version": "2.0.2",
+                "version": "2.0.3",
                 "dist": {
-                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.2.zip",
+                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.3.zip",
                     "type": "zip"
                 },
                 "source": {
@@ -114,5 +115,14 @@
         }
     ],
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "autoload": {
+        "psr-0": {
+            "": "*"
+        },
+        "psr-4": {
+            "S3\\": "../s3/",
+            "AwsUtilities\\": "../aws_utilities/"
+        }
+    }
 }

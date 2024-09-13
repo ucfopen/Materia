@@ -346,12 +346,8 @@ export const apiGetQuestionSet = (instId, playId = null) => {
 	return fetchGet('/api/json/question_set_get/', ({ body: `data=${formatFetchBody([instId, playId])}` }))
 }
 
-export const apiGetGenerable = instId => {
-	return fetchGet('/api/json/question_set_is_generable/', ({ body: `data=${formatFetchBody([instId])}` }))
-}
-
-export const apiGenerateQset = (inst_id, topic, include_images, num_questions, build_off_existing) => {
-	return fetchGet('/api/json/question_set_generate/', ({ body: `data=${formatFetchBody([inst_id, topic, include_images, num_questions, build_off_existing])}` }))
+export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {
+	return fetchGet('/api/json/question_set_generate/', ({ body: `data=${formatFetchBody([inst_id, widget_id, topic, include_images, num_questions, build_off_existing])}` }))
 }
 
 export const apiSessionVerify = (play_id) => {

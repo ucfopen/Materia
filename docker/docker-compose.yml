@@ -22,11 +22,7 @@ services:
       dockerfile: materia-app.Dockerfile
     environment:
       # View Materia README for env settings
-      - ASSET_STORAGE_DRIVER=file
-      - ASSET_STORAGE_S3_BUCKET=fake_bucket
-      - ASSET_STORAGE_S3_ENDPOINT=http://fakes3:10001
-      - ASSET_STORAGE_S3_KEY=KEY
-      - ASSET_STORAGE_S3_SECRET=SECRET
+      - ASSET_STORAGE_DRIVER=${ASSET_STORAGE_DRIVER}
       - AUTH_DRIVERS=Materiaauth
       - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
       - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
@@ -54,10 +50,6 @@ services:
     networks:
       - frontend
       - backend
-    depends_on:
-      - mysql
-      - memcached
-      - fakes3
 
   mysql:
     image: mysql:5.7.34

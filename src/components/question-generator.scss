@@ -1,95 +1,127 @@
 @import './include.scss';
 
 .generate {
-    border-radius: 5px;
-    margin: 10px;
+	border-radius: 5px;
+	margin: 10px;
 
-    h1 {
-        background: #10a37f;
-        padding: 10px;
-        margin: 0px;
-        font-size: 1em;
-        font-weight: bold;
-        color: #ffffff;
-    }
+	h1 {
+		background: #3690E6;
+		padding: 10px;
+		margin: 0px;
+		font-size: 1em;
+		font-weight: bold;
+		color: #ffffff;
+	}
 
-    .loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
+	.loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		background-color: rgba(0, 0, 0, 0.5);
 
-        backdrop-filter: blur(10px);
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 10;
+		backdrop-filter: blur(10px);
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		z-index: 10;
 
-        p {
-            margin-bottom: 150px;
-            font-size: 1.1em;
-            color: white;
-        }
-    }
+		p {
+			margin-bottom: 150px;
+			font-size: 1.1em;
+			color: white;
+		}
+	}
 
-    #generate_form {
-        margin: 2em;
-        display: flex;
-        flex-direction: column;
-        gap: 1em;
+	#generate_form {
+		margin: 1.5em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75em;
 
-        #topic-field {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5em;
+		label {
+			font-weight: 400;
+		}
 
-            #topic {
-                padding: 0.5em;
-            }
-        }
+		.description {
+			display: block;
+			padding: 1em;
+			background: $very-light-gray;
 
-        #num-questions-field {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+			font-size: 0.85em;
+			font-weight: 400;
 
-            input {
-                max-width: 100px;
-            }
-        }
+			border-radius: 10px;
+		}
 
-    }
-    .actions {
-        position: fixed;
-        width: 80px;
-        left: 50%;
-        bottom: 0px;
-        margin-left: -40px;
-        padding-bottom: 14px;
-        z-index: 10;
+		#topic-field {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
 
-        text-align: center;
-        font-size: 1.1em;
+			#topic {
+				padding: 0.5em;
+			}
+		}
 
-        a {
-            color: #000000;
-        }
-    }
+		#num-questions-field {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
 
-    .error {
-        color: red;
-        font-size: 0.8em;
-    }
+			input {
+				max-width: 100px;
+			}
+		}
 
-    .invalid {
-        border: 2px solid red;
-        border-radius: 3px;
-    }
+		#build-off-existing-field {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: space-between;
 
-    .warning {
-        color: #f1814b;
-        font-size: 0.8em;
-    }
+			#build-off-existing {
+				margin-bottom: 0.5em;
+				margin-right: 0.5em;
+			}
+
+			.description {
+				flex-basis: 100%;
+			}
+		}
+	}
+	.actions {
+		position: fixed;
+		width: 80px;
+		left: 50%;
+		bottom: 0px;
+		margin-left: -40px;
+		padding-bottom: 14px;
+		z-index: 10;
+
+		text-align: center;
+		font-size: 1.1em;
+
+		a {
+			color: #000000;
+		}
+	}
+
+	.error {
+		color: $color-red;
+		font-size: 0.8em;
+		font-weight: 400;
+	}
+
+	.invalid {
+		border: 2px solid red;
+		border-radius: 3px;
+	}
+
+	.warning {
+		color: #d87a00;
+		font-size: 0.8em;
+		font-weight: 400;
+	}
 }

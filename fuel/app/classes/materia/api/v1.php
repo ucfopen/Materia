@@ -655,7 +655,9 @@ class Api_V1
 		if (Util_Validator::is_valid_hash($preview_mode_inst_id))
 		{
 			$inst = Widget_Instance_Manager::get($preview_mode_inst_id);
-			return Score_Manager::get_preview_logs($inst);
+			$preview_logs = Score_Manager::get_preview_logs($inst);
+			if ( ! is_array($preview_logs)) return Msg::expired();
+			else return $preview_logs;
 		}
 		else
 		{
@@ -839,439 +841,89 @@ class Api_V1
 		return $inst->qset;
 	}
 
-
 	/**
-	 * Determines whether a question set can generated for a given widget using OpenAI.
-	 * @param string $inst_id The instance ID of the widget
-	 * @return bool Whether a question set can be generated
-	 */
-	static public function question_set_is_generable($inst_id)
-	{
-		if (\Service_User::verify_session() !== true) return Msg::no_login();
-		if ( ! Util_Validator::is_valid_hash($inst_id)) return Msg::invalid_input($inst_id);
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-
-		// check if the widget supports generation
-		if ( ! $inst->widget->is_generable)
-		{
-			return [
-				'msg' => 'Widget does not support generation',
-				'generable' => false
-			];
-		}
-
-		// check if API key is even valid, or exists
-		$api_key = \Config::get('materia.open_ai.api_key');
-		if (empty($api_key))
-		{
-			return [
-				'msg' => 'API key not set',
-				'generable' => false
-			];
-		}
-
-		try {
-			$client = \OpenAI::client($api_key);
-		} catch (\Exception $e) {
-			// return an error for more descriptive handling on the front-end
-			return [
-				'msg' => $e->getMessage(),
-				'generable' => false
-			];
-		}
-
-		return [
-			'msg' => 'Widget is generable',
-			'generable' => true
-		];
-	}
-
-	/**
-	 * Generates a question set based on a given instance ID, topic, and whether to include images.
-	 * @param object $input The input object containing the instance ID, topic, and whether to include images
+	 * Generates a question set based on a given instance ID, widget ID, topic, and whether to include images.
+	 * @param string $inst_id The instance ID, if there is an instance associated with this request. May be null.
+	 * @param string $widget_id The ID of the widget engine associated with this request. Must be set.
+	 * @param string $topic The topic for which to generate a question set
+	 * @param bool $include_images whether or not to include images in the generated qset
+	 * @param int $num_questions How many questions should be generated in the qset
+	 * @param bool $build_off_existing Whether to build from an existing qset, or generate one from scratch
 	 * @return object The generated question set
 	 */
-	static public function question_set_generate($input)
+	static public function question_set_generate($inst_id, $widget_id, $topic, $include_images, $num_questions, $build_off_existing)
 	{
-		$inst_id = $input->inst_id;
-		$topic = $input->topic;
-		$include_images = $input->include_images;
-		$num_questions = $input->num_questions;
-		$build_off_existing = $input->build_off_existing;
+		// short-circuit if generation is not available
+		if ( ! Widget_Question_Generator::is_enabled()) throw new \HttpNotFoundException;
 
-		// validate instance
-		if ( ! Util_Validator::is_valid_hash($inst_id) ) return Msg::invalid_input($inst_id);
-		if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
-		if ( ! $inst->playable_by_current_user()) return Msg::no_login();
-		if ( ! static::question_set_is_generable($inst_id)['generable']) return Msg::failure('Unable to generate question set for this widget.');
+		// verify eligibility
+		if ( ! \Service_User::verify_session(['basic_author', 'super_user'])) return Msg::no_perm();
+
+		$inst = null;
+
+		// validate instance (but only if an instance id is provided)
+		if (Util_Validator::is_valid_hash($inst_id))
+		{
+			if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+		}
+
+		$widget = new Widget();
+		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( ! $widget->is_generable) return Msg::invalid_input('Widget engine does not support generation');
 
 		// clean topic of any special characters
 		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
-		// count words in topic
-		$topic_words = explode(' ', $topic);
-		if (count($topic_words) < 3) return new Msg(Msg::ERROR, 'Topic must be at least 3 words long');
 
 		// validate number of questions
 		if ($num_questions < 1) $num_questions = 8;
+		if ($num_questions > 32) $num_questions = 32;
 
-		\Log::info('num_questions: '.$num_questions);
-		\Log::info('num_questions to string: '.strval($num_questions));
-		\Log::info('Generating question set for instance '.$inst_id.' on topic '.$topic);
-
-		// get the widget and demo instance
-		$widget = $inst->widget;
-		$demo = Widget_Instance_Manager::get($widget->meta_data['demo']);
-		if ( ! $demo) throw new \HttpNotFoundException;
-		$instance_name = $inst->name;
-		$widget_name = $widget->name;
-		$about = $widget->meta_data['about'];
-		$qset_version = 1;
-		$custom_prompt = isset($widget->meta_data['generation_prompt']) ? $widget->meta_data['generation_prompt'][0] : null;
-		\Log::info('Custom prompt: '.print_r($custom_prompt, true));
-
-		// time for logging
-		$start_time = microtime(true);
-		$time_elapsed_secs = 0;
-
-		if ($build_off_existing)
+		$query = Widget_Question_Generator::generate_qset($inst, $widget, $topic, $include_images, $num_questions, $build_off_existing);
+		if ( ! $query instanceof Msg && is_array($query))
 		{
-			$qset = static::question_set_get($inst_id);
-			if ( ! $qset) return new Msg(Msg::ERROR, 'No existing question set found');
-			$qset_version = $qset->version;
-
-			$qset_text = json_encode($qset->data);
-
-			// non-demo non-image prompt
-			$text = "Using the exact same format of the following question set without changing any field keys or data types and without changing any of the existing questions, generate {$num_questions} more questions and add them to the existing qset. The new questions must be based on this topic: '{$topic}'. Return only the JSON for the resulting question set.";
-
-			if ($include_images)
-			{
-				$text = $text."Do not use real names. In every asset or assets field in new questions, add a field to each asset object titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system. ID's must be NULL.";
-			}
-			else
-			{
-				$text = $text."Leave the asset fields empty. ID's must be NULL.";
-			}
-
-			if ($custom_prompt && ! empty($custom_prompt))
-			{
-				$text = $text."Lastly, the following instructions apply to the {$widget->name} widget specifically: {$custom_prompt}";
-			}
-
-			$text = $text."\n{$qset_text}";
+			return [
+				...$query,
+				'title' => $topic
+			];
 		}
 		else
 		{
-			// get the demo.json from the demo instance
-			$demo_qset = static::question_set_get($widget->meta_data['demo']);
-			$qset_version = $demo_qset->version;
-			if ( ! $demo_qset) throw new \HttpNotFoundException;
-			$qset_text = json_encode($demo_qset->data);
-
-			// non-image prompt
-			$text = "{$instance_name} is a {$widget->name} widget, described as: '{$about}'. The following is a question set storing an example instance called {$demo->name}. Using the exact same format without changing any field keys or data types, return only the JSON for a question set based on this topic: '{$topic}'. Ignore the demo instance topic entirely. Replace the field values with generated values. Generate a total {$num_questions} of questions. IDs must be NULL.";
-
-			// image prompt
-			if ($include_images)
-			{
-				$text = $text."Do not use real names. Find the field storing image assets. This could be labeled as an asset, assets, image field or similar. Add a field to each asset titled 'description' that best describes the image within the answer or question's context. Do not generate descriptions that would violate OpenAI's image generation safety system.";
-			}
-			else
-			{
-				// $text = $text."Do not generate image-type questions/answers, only text-type questions/answers. Therefore, leave the asset fields empty for image, video, or audio questions/answers, but NOT text-type. If the 'materiaType' of an asset is 'text', create a field titled 'value' with the question/answer text insidet the asset object.\n{$qset_text}";
-				$text = $text."Leave asset fields empty for any type of media (image, video, or audio). If the 'materiaType' of an asset is 'text', create a field titled 'value' with the text inside the asset object.";
-			}
-
-			if ($custom_prompt && ! empty($custom_prompt))
-			{
-				$text = $text."Lastly, the following instructions apply to the {$widget->name} widget specifically: {$custom_prompt}";
-			}
-
-			$text = $text."\n{$qset_text}";
+			\Log::error(print_r($query, true));
+			return $query;
 		}
-
-		\Log::info('Prompt text: '.$text);
-
-		try {
-			// to access openai, define the openai key in the environment (.env file)
-			$my_api_key = \Config::get('materia.open_ai.api_key');
-			$client = \OpenAI::client($my_api_key);
-			$result = $client->chat()->create([
-				'model' => 'gpt-3.5-turbo',
-				'response_format' => (object) ['type' => 'json_object'],
-				'messages' => [
-					['role' => 'user', 'content' => $text]
-				],
-				'max_tokens' => 4096,
-				'frequency_penalty' => 0, // 0 to 1
-				'presence_penalty' => 0, // 0 to 1
-				'temperature' => 1, // 0 to 1
-				'top_p' => 1, // 0 to 1
-
-			]);
-
-			$question_set = json_decode($result->choices[0]->message->content);
-			\Log::info('Generated question set: '.print_r(json_encode($question_set), true));
-
-			$time_elapsed_secs = microtime(true) - $start_time;
-			$cost_input_tokens = 0.50 / 1000000; // $0.50 per 1 million tokens
-			$cost_output_tokens = 1.50 / 1000000; // $1.50 per 1 million tokens
-
-			$file = fopen('openai_usage.txt', 'a');
-			fwrite($file, PHP_EOL);
-			fwrite($file, 'Widget: '.$widget_name.PHP_EOL);
-			fwrite($file, 'Date: '.date('Y-m-d H:i:s').PHP_EOL);
-			fwrite($file, 'Time to complete (in seconds): '.$time_elapsed_secs.PHP_EOL);
-			fwrite($file, 'Number of questions asked to generate: '.$num_questions.PHP_EOL);
-			fwrite($file, 'Included images: '.$include_images.PHP_EOL);
-			fwrite($file, 'Prompt tokens: '.$result->usage->promptTokens.PHP_EOL);
-			fwrite($file, 'Completion tokens: '.$result->usage->completionTokens.PHP_EOL);
-			fwrite($file, 'Total tokens: '.$result->usage->totalTokens.PHP_EOL);
-			fwrite($file, 'Total cost (in dollars): '.$result->usage->promptTokens * $cost_input_tokens + $result->usage->completionTokens * $cost_output_tokens.PHP_EOL);
-			fclose($file);
-
-		} catch (\Exception $e) {
-			\Log::error('Error generating question set: '.$e->getMessage());
-
-			$file = fopen('openai_usage.txt', 'a');
-			fwrite($file, PHP_EOL);
-			fwrite($file, 'Widget: '.$widget_name.PHP_EOL);
-			fwrite($file, 'Date: '.date('Y-m-d H:i:s').PHP_EOL);
-			fwrite($file, 'Time to complete (in seconds): '.$time_elapsed_secs.PHP_EOL);
-			fwrite($file, 'Number of questions asked to generate: '.$num_questions.PHP_EOL);
-			fwrite($file, 'Error: '.$e->getMessage().PHP_EOL);
-
-			fclose($file);
-
-			return new Msg(Msg::ERROR, 'Error generating question set');
-		}
-
-		if ($include_images)
-		{
-			$image_rate_cap = 5; // any higher and the API will return an error
-			$assets = static::comb_assets($question_set); // get a list of all the asset descriptions
-
-			// make sure we don't exceed the rate cap
-			$num_assets = count($assets);
-			$start_offset = 0;
-			\Log::info('Number of assets: '.$num_assets);
-			if ($num_assets > $image_rate_cap)
-			{
-				if ($build_off_existing)
-				{
-					$start_offset = $num_assets - $image_rate_cap;
-				}
-				$assets = array_slice($assets, $start_offset, $image_rate_cap);
-			}
-			if ($num_assets < 1)
-			{
-				return $question_set;
-			}
-			// join assets into string
-			$assets_text = implode(', ', $assets);
-			// generate images
-			try {
-				$my_api_key = \Config::get('materia.open_ai.api_key');
-				$client = \OpenAI::client($my_api_key);
-				$dalle_result = $client->images()->create([
-					'model' => 'dall-e-2',
-					'prompt' => $assets_text,
-					'n' => count($assets),
-					'response_format' => 'url', // urls available for only 60 minutes after
-					'size' => '256x256' // 256x256, 512x512, 1024x1024
-				]);
-
-			} catch (\Exception $e) {
-				\Log::error('Error generating images: '.$e->getMessage());
-				\Log::error('Trace: '.$e->getTraceAsString());
-
-				$file = fopen('openai_usage.txt', 'a');
-				fwrite($file, 'Error generating images: '.$e->getMessage().PHP_EOL);
-				fwrite($file, PHP_EOL);
-				fclose($file);
-
-				return $question_set;
-			}
-
-			$file = fopen('openai_usage.txt', 'a');
-			fwrite($file, 'Generated images.');
-			fwrite($file, PHP_EOL);
-			fclose($file);
-
-			\Log::info('Generated images: '.print_r($dalle_result, true));
-
-			// Store assets in the database (permanent storage, not just URLs)
-			// for ($i = 0; $i < count($dalle_result->data); $i++) {
-			// 	$file_data = base64_decode($dalle_result->data[$i]->b64_json);
-
-			// 	$src_area = \File::forge(['basedir' => sys_get_temp_dir()]); // restrict copying from system tmp dir
-			// 	$mock_upload_file_path = \Config::get('file.dirs.media_uploads').uniqid('sideload_') . '.png';
-			// 	\File::copy($file_data, $mock_upload_file_path, $src_area, 'media');
-
-			// 	// process the upload
-			// 	$upload_info = \File::file_info($mock_upload_file_path, 'media');
-			// 	$asset = \Materia\Widget_Asset_Manager::new_asset_from_file('Dalle asset', $upload_info);
-
-			// 	if ( ! isset($asset->id)) {
-			// 		\Log::error('Unable to create asset');
-			// 	} else {
-			// 		$asset->db_store();
-			// 		$dalle_result->data[$i]->url = $asset->id;
-			// 	}
-			// }
-
-			// assign generated images to assets in qset
-			static::assign_assets($question_set, $dalle_result->data, $start_offset, 0);
-		}
-
-		\Log::info('Generated question set with assets: '.print_r(json_encode($question_set), true));
-
-		return [
-			'qset' => $question_set,
-			'version' => $qset_version
-		];
 	}
 
 	static public function widget_prompt_generate($prompt)
 	{
-		try
-		{
-			$my_api_key = \Config::get('materia.open_ai.api_key');
+		// try
+		// {
+		// 	$my_api_key = \Config::get('materia.open_ai.api_key');
 		
-			$client = \OpenAI::client($my_api_key);
+		// 	$client = \OpenAI::client($my_api_key);
 
-			$result = $client->chat()->create([
-				'model' => 'gpt-3.5-turbo',
-				'messages' => [
-					[
-						'role' => 'user',
-						'content' => $prompt
-					]
-				],
-				'max_tokens' => 4096,
-				'frequency_penalty' => 0, // 0 to 1
-				'presence_penalty' => 0, // 0 to 1
-				'temperature' => 1, // 0 to 1
-				'top_p' => 1, // 0 to 1
-			]);
+		// 	$result = $client->chat()->create([
+		// 		'model' => 'gpt-3.5-turbo',
+		// 		'messages' => [
+		// 			[
+		// 				'role' => 'user',
+		// 				'content' => $prompt
+		// 			]
+		// 		],
+		// 		'max_tokens' => 4096,
+		// 		'frequency_penalty' => 0, // 0 to 1
+		// 		'presence_penalty' => 0, // 0 to 1
+		// 		'temperature' => 1, // 0 to 1
+		// 		'top_p' => 1, // 0 to 1
+		// 	]);
 
-			$response = json_decode($result->choices[0]->message->content);
-			return $response;
-		}
-		catch (\Exception $e)
-		{
-			return Msg::failure($e, 'Prompt generation failure');
-		}
-	}
-
-	/**
-	 * Combines all asset descriptions in a question set into a single array
-	 * @param array $qset The question set array
-	 * @return array The array of asset descriptions
-	 */
-	static public function comb_assets($qset)
-	{
-		$assets = [];
-		foreach ($qset as $key => $value)
-		{
-			if (is_object($value) || is_array($value))
-			{
-				$value = (array) $value;
-				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video' || $key == 'options')
-				{
-					if (key_exists('description', $value) && ! empty($value['description']))
-					{
-						$assets[] = $value['description'];
-					}
-				}
-				if ($key == 'assets')
-				{
-					$value = (array) $value;
-					foreach ($value as $asset)
-					{
-						$asset = (array) $asset;
-						if (key_exists('description', $asset) && ! empty($asset['description']))
-						{
-							$assets[] = $asset['description'];
-						}
-					}
-				}
-				$assets = array_merge($assets, static::comb_assets($value));
-			}
-		}
-		return $assets;
-	}
-
-	/**
-	 * Assigns generated images to assets in a question set
-	 * @param array $array The question set array
-	 * @param array $image_urls The array of image URLs
-	 * @param int $image_index The index of the current image URL
-	 * @return int The updated image index
-	 */
-	static public function assign_assets(&$array, $image_urls, $start_offset, $image_index)
-	{
-		if ( is_object($array) && isset($array->items)) $image_index = static::assign_assets($array->items, $image_urls, $start_offset, $image_index);
-		else if ( ! $array || ! is_array($array)) return $image_index;
-
-		foreach ($array as $key => $value)
-		{
-			if ($image_index >= count($image_urls))
-			{
-				return $image_index;
-			}
-			if (is_object($value) || is_array($value))
-			{
-				$value = (array) $value;
-				if ($key == 'asset' || $key == 'image' || $key == 'audio' || $key == 'video' || $key == 'options')
-				{
-					if ( ! empty($value['description']))
-					{
-						if ($image_index >= $start_offset)
-						{
-							// b64
-							// $base64 = $image_urls[$image_index]->b64_json;
-							// $array[$key]->id = 'data:image/png;base64,'.$base64;
-							// $array[$key]->url = $image_urls[$image_index]->b64_json;
-							// $array[$key]->image = $image_urls[$image_index]->b64_json;
-
-							// url
-							$array[$key]->url = $image_urls[$image_index]->url;
-							$array[$key]->id = $image_urls[$image_index]->url;
-							$array[$key]->image = $image_urls[$image_index]->url;
-						}
-						$image_index += 1;
-					}
-				}
-				if ($key == 'assets')
-				{
-					// iterate over assets array without converting to array
-					// to avoid losing object properties
-					foreach ($value as $asset)
-					{
-						\Log::info('asset: '.print_r($asset, true));
-						if ( ! empty($asset->description))
-						{
-							if ($image_index >= $start_offset)
-							{
-								// b64
-								// $base64 = $image_urls[$image_index]->b64_json;
-								// $asset->id = 'data:image/png;base64,'.$base64;
-								// $asset->url = $image_urls[$image_index]->b64_json;
-
-								// url
-								$asset->url = $image_urls[$image_index]->url;
-								$asset->id = $image_urls[$image_index]->url;
-							}
-							$image_index += 1;
-						}
-					}
-				}
-				$image_index = static::assign_assets($value, $image_urls, $start_offset, $image_index);
-			}
-		}
-		return $image_index;
+		// 	$response = json_decode($result->choices[0]->message->content);
+		// 	return $response;
+		// }
+		// catch (\Exception $e)
+		// {
+		// 	return Msg::failure($e, 'Prompt generation failure');
+		// }
 	}
 
 	/**

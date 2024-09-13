@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiGetGenerable, apiWidgetPromptGenerate} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -73,9 +73,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidget(widgetId),
 		enabled: !!widgetId,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info })
+				setCreatorState({...creatorState, canGenerateQset: info.is_generable == "1"})
 			}
 		},
 		onError: (error) => {
@@ -90,6 +92,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetInstance(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (data) => {
 			// this value will include a qset that's always empty
 			// it will override the instance's qset property even if it's already set
@@ -110,6 +113,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
+		retry: false,
 		onSuccess: (data) => {
 			if (data) {
 				setCreatorState({...creatorState, invalid: false})
@@ -128,6 +132,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
 		enabled: instance?.widget !== null,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (success) => {
 			if (!success && !instance.is_draft) {
 				onInitFail('Widget type can not be edited by students after publishing.')
@@ -138,26 +143,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		}
 	})
 
-	// verify whether a question generator can be used
-	useQuery({
-		queryKey: ['generable', instance.id],
-		queryFn: () => apiGetGenerable(instance.id),
-		enabled: !!instIdRef.current,
-		staleTime: Infinity,
-		onError: (err) => {
-			setCreatorState({...creatorState, canGenerateQset: false})
-		},
-		onSuccess: (data) => {
-			setCreatorState({...creatorState, canGenerateQset: data.generable})
-		}
-	})
-
 	useQuery({
 		queryKey: 'heartbeat',
 		queryFn: () => apiAuthorVerify(),
 		staleTime: 30000,
 		refetchInterval: 30000,
 		enabled: creatorState.heartbeatEnabled,
+		retry: 1,
 		onError: (error) => {
 			onInitFail(error)
 		},
@@ -176,6 +168,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (success) => {
 			if (!success) {
 				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
@@ -259,7 +252,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			// this hook will then fire a second time when a new save postMessage is sent
 			// the second hook will initialize an existing widget with the newly provided qset data
 			// note: this condition will also apply when rolling back and applying the original cached qset
-			if (!!instIdRef.current && instance.qset && creatorState.reloadWithQset) {
+			if (((!!instIdRef.current && instance.qset) || instance.preSaveSpecialCondition) && creatorState.reloadWithQset) {
 
 				// flip to false because creator will re-init and send start postMessage
 				setWidgetReady(false)
@@ -278,6 +271,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 				creatorShouldInitRef.current = false
 
+			} else if (instance.preSaveSpecialCondition) {
+				// preSaveSpecialCondition is a flag set when generating a qset for an unsaved instance
+				let args = [instance.name ? instance.name : 'My Generated Widget', instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
+				sendToCreator('initExistingWidget', args)
+
 			} else if (!instIdRef.current) {
 
 				let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
@@ -294,7 +292,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			creatorShouldInitRef.current = true
 			setInstance({
 				...instance,
-				qset: creatorState.reloadWithQset
+				qset: creatorState.reloadWithQset,
+				...( creatorState.reloadWithQset.title && { name: creatorState.reloadWithQset.title }), // fancy syntax to only apply the name property when reloadWithQset.title is set
+				...( ! instIdRef.current && { preSaveSpecialCondition: true }) // fancy syntax to ensure preSaveSpecialCondition is only applied when instIdRef.current is unavailable
 			})
 		}
 	},[creatorState.reloadWithQset])
@@ -513,7 +513,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const showQuestionGenerator = () => {
-		showEmbedDialog(`${window.BASE_URL}qsets/generate/?inst_id=${instance.id}`, 'embed_dialog')
+		showEmbedDialog(`${window.BASE_URL}qsets/generate/?inst_id=${instance.id}&widget_id=${widgetId}`, 'embed_dialog')
 	}
 
 	const qsetConfirm = (confirm) => {
@@ -613,7 +613,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			},
 
 			// When a new qset is selected from the prior saves list or generated
-			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1) {
+			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1, title = null) {
+				console.log(title)
 				if (!qset) {
 					setCreatorState({
 						...creatorState,
@@ -626,8 +627,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				} else {
 
 					requestSave('history')
-					console.log(qset)
-
 					let parsedQsetData = JSON.parse(qset)
 
 					setCreatorState({
@@ -637,12 +636,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						reloadWithQset: {
 							data: parsedQsetData,
 							version: version,
-							id: parsedQsetData.id
+							id: parsedQsetData.id,
+							...(title && { title: title }),
 						},
-						// cachedQset: instance.qset,
 						showActionBar: false,
 						showRollbackConfirm: showGenerationConfirm ? false : true,
-						showGenerationConfirm: showGenerationConfirm
+						showGenerationConfirm: showGenerationConfirm,
 					})
 				}
 			},

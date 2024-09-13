@@ -123,6 +123,10 @@ class Widget
 		{
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
+
+		if ( ! \Service_User::verify_session('basic_author')) $this->is_generable = '0';
+		else $this->is_generable = $this->is_generable == '1' && Widget_Question_Generator::is_enabled() ? '1' : '0';
+
 		return true;
 	}
 
@@ -178,6 +182,14 @@ class Widget
 				->where('name', $prop)
 				->execute()[0]['value'];
 		}
+
+		if ($prop == 'is_generable')
+		{
+			if ( ! \Service_User::verify_session('basic_author')) return '0';
+			elseif ( Widget_Question_Generator::is_enabled() && $val == '1') return '1';
+			else return '0';
+		}
+
 		return $val;
 	}
 
