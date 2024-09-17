@@ -109,6 +109,29 @@ class Widget_Question_Generator
 		return $client->chat()->create($params);
 	}
 
+	static public function generate_from_prompt($prompt)
+	{
+		if ( ! self::is_enabled()) return Msg::failure('Question generation is not enabled.');
+
+		if (empty($prompt) || strlen($prompt) > 10000) return Msg::invalid_input('Prompt text length invalid.');
+
+		try
+		{
+			$result = self::query($prompt);
+			$response = json_decode($result->choices[0]->message->content);
+
+			return $response;
+		}
+		catch (\Exception $e)
+		{
+			\Log::error('Error generating prompt:'.PHP_EOL
+				.'Prompt: '.$prompt.PHP_EOL
+				.'Exception: '.$e->getMessage().PHP_EOL);
+
+			return Msg::failure('Error generating question set.');
+		}
+	}
+
 	/**
 	 * Generate a question set for a widget instance
 	 *

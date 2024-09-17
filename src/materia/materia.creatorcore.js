@@ -41,6 +41,13 @@ Namespace('Materia').CreatorCore = (() => {
 			case 'reloadCreator':
 				_forceCreatorReload()
 				break
+			case 'promptResponse':
+				let prompt = [msg.data[0]]
+				_tellCreator('onPromptResponse', ['success', prompt])
+				break
+			case 'promptRejection':
+				_tellCreator('onPromptResponse', ['failure', null])
+				break
 			default:
 				console.warn(`Error, unknown message sent to creator core: ${msg.type}`)
 				break

@@ -560,9 +560,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const submitPromptForCreator = (prompt) => {
-		apiWidgetPromptGenerate(prompt).then((response) => {
-			// TODO do something here
-			console.log(response)
+		apiWidgetPromptGenerate(prompt).then((result) => {
+			if (result.response && result.success) sendToCreator('promptResponse', [result.response])
+			else sendToCreator('promptRejection')
 		})
 	}
 
