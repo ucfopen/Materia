@@ -900,7 +900,7 @@ class Api_V1
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		$result = Widget_Question_Generator::generate_from_prompt($prompt);
-		if ( ! $result instanceof Msg && is_array($result))
+		if ( ! $result instanceof Msg && is_string($result))
 		{
 			return [
 				'success'  => true,

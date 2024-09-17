@@ -114,8 +114,8 @@ class Widget_Question_Generator
 
 		try
 		{
-			$result = self::query($prompt);
-			$response = json_decode($result->choices[0]->message->content);
+			$result = self::query($prompt, 'message');
+			$response = $result->choices[0]->message->content;
 
 			return $response;
 		}
