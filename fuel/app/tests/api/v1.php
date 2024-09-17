@@ -1137,28 +1137,14 @@ class Test_Api_V1 extends \Basetest
 		// ======= GENERATION DISABLED ========
 		if ( ! \Materia\Widget_Question_Generator::is_enabled())
 		{
-			try
-			{
-				$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
-				$this->fail('Expected exception HttpNotFoundException not thrown');
-			}
-			catch (\Exception $e)
-			{
-				$this->assertInstanceOf('HttpNotFoundException', $e);
-			}
+			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+			$this->assert_not_found_message($output);
 		}
 		else
 		{
 			// ======= AS NO ONE ========
-			try
-			{
-				$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
-				$this->fail('Expected exception HttpNotFoundException not thrown');
-			}
-			catch (\Exception $e)
-			{
-				$this->assertInstanceOf('HttpNotFoundException', $e);
-			}
+			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+			$this->assert_permission_denied_message($output);
 
 			// ===== AS STUDENT =======
 			$this->_as_student();
@@ -1661,6 +1647,12 @@ class Test_Api_V1 extends \Basetest
 	{
 		$this->assertInstanceOf('\Materia\Msg', $msg);
 		$this->assertEquals('Invalid Login', $msg->title);
+	}
+
+	protected function assert_not_found_message($msg)
+	{
+		$this->assertInstanceOf('\Materia\Msg', $msg);
+		$this->assertEquals('Not Found', $msg->title);
 	}
 
 	protected function assert_permission_denied_message($msg)

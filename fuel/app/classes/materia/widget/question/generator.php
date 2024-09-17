@@ -87,7 +87,7 @@ class Widget_Question_Generator
 	public static function query($prompt)
 	{
 		$client = static::get_client();
-		if (empty($client)) throw new \HttpNotFoundException;
+		if (empty($client)) return Msg::failure('Failed to initialize generation client.');
 
 		$params = [
 			'response_format' => (object) ['type' => 'json_object'],

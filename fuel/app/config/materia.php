@@ -125,11 +125,11 @@ return [
 	],
 
 	'ai_generation' => [
-		'enabled'      => $_ENV['GENERATION_ENABLED'] ?? false,
-		'allow_images' => $_ENV['GENERATION_ALLOW_IMAGES'] ?? false,
+		'enabled'      => filter_var($_ENV['GENERATION_ENABLED'] ?? false, FILTER_VALIDATE_BOOLEAN),
+		'allow_images' => filter_var($_ENV['GENERATION_ALLOW_IMAGES'] ?? false, FILTER_VALIDATE_BOOLEAN),
 		'provider'     => $_ENV['GENERATION_API_PROVIDER'] ?? '',
 		'endpoint'     => $_ENV['GENERATION_API_ENDPOINT'] ?? '',
-		'api_key'      => $_ENV['GENERATION_API_KEY'] ?? false,
+		'api_key'      => filter_var($_ENV['GENERATION_API_KEY'] ?? false, FILTER_VALIDATE_BOOLEAN),
 		'api_version'  => $_ENV['GENERATION_API_VERSION'] ?? '',
 		'model'        => $_ENV['GENERATION_API_MODEL'] ?? '',
 		'log_stats'    => filter_var($_ENV['GENERATION_LOG_STATS'] ?? false, FILTER_VALIDATE_BOOLEAN)
