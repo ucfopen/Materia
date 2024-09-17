@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "31025e0ce23f42d494849c027d8effa5",
+    "content-hash": "d18a4cbef97736f368722e209e282823",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -2035,7 +2035,7 @@
         },
         {
             "name": "ucfopen/materia-theme-ucf",
-            "version": "2.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfopen/Materia-Theme-UCF.git",
@@ -2043,8 +2043,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.3.zip",
-                "reference": "master"
+                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.4.zip"
             },
             "type": "fuel-package"
         }
