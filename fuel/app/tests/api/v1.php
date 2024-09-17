@@ -1174,28 +1174,14 @@ class Test_Api_V1 extends \Basetest
 	{
 		if ( ! \Materia\Widget_Question_Generator::is_enabled())
 		{
-			try
-			{
-				$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
-				$this->fail('Expected exception HttpNotFoundException not thrown');
-			}
-			catch (\Exception $e)
-			{
-				$this->assertInstanceOf('HttpNotFoundException', $e);
-			}
+			$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
+			$this->assert_failure_message($output);
 		}
 		else
 		{
 			// ======= AS NO ONE ========
-			try
-			{
-				$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
-				$this->fail('Expected exception HttpNotFoundException not thrown');
-			}
-			catch (\Exception $e)
-			{
-				$this->assertInstanceOf('HttpNotFoundException', $e);
-			}
+			$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
+			$this->assert_invalid_login_message($output);
 		}
 	}
 

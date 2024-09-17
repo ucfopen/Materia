@@ -896,7 +896,7 @@ class Api_V1
 
 	static public function widget_prompt_generate($prompt)
 	{
-		if ( ! Widget_Question_Generator::is_enabled()) throw new \HttpNotFoundException;
+		if ( ! Widget_Question_Generator::is_enabled()) return Msg::failure();
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
 		$result = Widget_Question_Generator::generate_from_prompt($prompt);
