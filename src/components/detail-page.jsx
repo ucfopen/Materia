@@ -3,10 +3,17 @@ import Header from './header'
 import Detail from './detail'
 import { useQuery } from 'react-query'
 import { apiGetWidget } from '../util/api'
+import LoadingIcon from './loading-icon'
 
 const DetailPage = () => {
 	const nameArr = window.location.pathname.replace('/widgets/', '').split('/')
-	const widgetID = nameArr.pop().split('-').shift()
+	let widgetID = nameArr.pop()
+	// Check if an end slash was added to the url
+	if (widgetID == '') {
+		widgetID = nameArr.pop().split('-').shift()
+	} else {
+		widgetID = widgetID.split('-').shift()
+	}
 	const { data: widget, isFetching: isFetching} = useQuery({
 		queryKey: 'widget',
 		queryFn: () => apiGetWidget(widgetID),
@@ -15,10 +22,19 @@ const DetailPage = () => {
 		staleTime: Infinity
 	})
 
-	return (
-		<>
+	let mainRender = null
+	if (!widget || isFetching) {
+		mainRender = <LoadingIcon size='lrg' />
+	} else {
+		mainRender = <>
 			<Header />
 			<Detail widget={widget} isFetching={isFetching}/>
+		</>
+	}
+
+	return (
+		<>
+			{ mainRender }
 		</>
 	)
 }

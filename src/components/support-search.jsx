@@ -6,12 +6,19 @@ import LoadingIcon from './loading-icon'
 
 const SupportSearch = ({onClick = () => {}}) => {
 	const [searchText, setSearchText] = useState('')
+	const [error, setError] = useState('')
 	const [showDeleted, setShowDeleted] = useState(false)
 	const debouncedSearchTerm = useDebounce(searchText, 500)
 	const instanceList = useSearchInstances(debouncedSearchTerm)
 
 	useEffect(() => {
-		if (instanceList.error) console.log(instanceList.error)
+		if (instanceList.error) {
+			if (instanceList.error.message == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setError((instanceList.error.message || "Error") + ": Failed to retrieve widget(s).")
+			}
+		}
 	}, [instanceList.instances])
 
 	const handleSearchChange = e => setSearchText(e.target.value)
@@ -49,7 +56,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 							className={`search_match clickable ${(match.is_deleted && !showDeleted) ? 'hidden' : ''} ${match.is_deleted ? 'deleted' : ''}`}
 							onClick={() => {onClick(match)} }>
 							<div className='img-holder'>
-								<img className='icon' src={iconUrl('/widget/', match.widget.dir, 275)} />
+								<img className='icon' src={iconUrl('/widget/', match.widget.dir, 275)} alt="widget icon" />
 							</div>
 							<div className='info-holder'>
 								<ul>
@@ -82,7 +89,7 @@ const SupportSearch = ({onClick = () => {}}) => {
 					placeholder="Enter a Materia widget instance's info"
 				/>
 				<div className='show_deleted'>
-					<input tabIndex='1'
+					<input tabIndex='0'
 						type='checkbox'
 						checked={showDeleted}
 						onChange={handleShowDeletedClick}

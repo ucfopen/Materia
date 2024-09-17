@@ -4,6 +4,12 @@
 	display: flex;
 	justify-content: center;
 
+	.error {
+		width: 80%;
+		margin: 50px auto 5px auto;
+		color: red;
+	}
+
 	.container {
 		position: relative;
 		display: flex;
@@ -71,7 +77,7 @@
 			width: 700px;
 			min-height: 850px;
 			margin: 0 0 0 260px;
-			
+
 			background: #fff;
 		}
 

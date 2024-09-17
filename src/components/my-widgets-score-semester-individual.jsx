@@ -22,9 +22,10 @@ const initState = () => ({
 	filteredLogs: []
 })
 
-const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
+const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) => {
 	const [state, setState] = useState(initState())
 	const [page, setPage] = useState(1)
+	const [error, setError] = useState('')
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const {
 		data,
@@ -50,6 +51,14 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 
 					setState({ ...state, logs: newLogs, filteredLogs: newLogs })
 				}
+			},
+			onError: (err) => {
+				if (err.message == "Invalid Login") {
+					setInvalidLogin(true);
+				} else {
+					setError((err.message || "Error") + ": Failed to retrieve individual scores.")
+				}
+				setState({ ...state, isLoading: false })
 			}
 		}
 	)
@@ -86,7 +95,10 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId }) => {
 	}, [state.searchText, state.selectedUser, state.logs])
 
 	let mainContentRender = <LoadingIcon width='570px' />
-	if (!state.isLoading) {
+	if (error) {
+		mainContentRender = <div className='error'>{error}</div>
+	}
+	else if (!state.isLoading) {
 		const userRowElements = state.filteredLogs.map(user => (
 			<tr
 				key={user.userId}

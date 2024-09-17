@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { apiUpdateUserRoles } from '../../util/api'
 
 export default function useUpdateUserRoles() {
-	
+
 	const queryClient = useQueryClient()
 
 	return useMutation(
@@ -21,9 +21,9 @@ export default function useUpdateUserRoles() {
 				queryClient.invalidateQueries('search-users')
 				variables.successFunc(data)
 			},
-			onError: (err, newRoles, context) => {
+			onError: (err, variables, context) => {
 				queryClient.setQueryData('search-users', context.previousValue)
-				return err
+				variables.errorFunc(err)
 			}
 		}
 	)
