@@ -1138,7 +1138,7 @@ class Test_Api_V1 extends \Basetest
 		if ( ! \Materia\Widget_Question_Generator::is_enabled())
 		{
 			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
-			$this->assert_not_found_message($output);
+			$this->assert_failure_message($output);
 		}
 		else
 		{
@@ -1653,6 +1653,12 @@ class Test_Api_V1 extends \Basetest
 	{
 		$this->assertInstanceOf('\Materia\Msg', $msg);
 		$this->assertEquals('Not Found', $msg->title);
+	}
+
+	protected function assert_failure_message($msg)
+	{
+		$this->assertInstanceOf('\Materia\Msg', $msg);
+		$this->assertEquals('Action Failed', $msg->title);
 	}
 
 	protected function assert_permission_denied_message($msg)
