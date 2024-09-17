@@ -481,7 +481,7 @@ $color-green: #c5dd60;
 						font-size: 14px;
 						font-weight: 300;
 						font-style: italic;
-						color: #5a5a5a;
+						color: #d8d8d8;
 
 						&.show {
 							display: block;
@@ -497,6 +497,7 @@ $color-green: #c5dd60;
 							position: relative;
 							height: 20px;
 							top: 4px;
+							fill: #fff;
 						}
 					}
 
@@ -1238,7 +1239,7 @@ a {
 	min-height: 500px;
 
 	.top {
-		background: #21232a;
+		background: #1d1f25;
 		border-radius: 4px 4px 0 0;
 		color: #fff;
 		padding: 15px 15px;
@@ -1393,7 +1394,7 @@ a {
 			flex-grow: 0;
 			flex-shrink: 0;
 			padding: 5px;
-			background: #333;
+			background: #4c4e58;
 			box-sizing: border-box;
 			border-radius: 3px;
 			position: relative;
@@ -1480,10 +1481,10 @@ a {
 		button {
 			transition: 300ms;
 			font-weight: 700;
-			box-shadow: 1px 2px 4px #888;
+			box-shadow: 1px 2px 4px #08090c;
 			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 			font-size: 22px;
-			border: 3px solid #525252;
+			border: 3px solid #181920;
 			padding: 10px 20px 10px 50px;
 			position: relative;
 			cursor: pointer;

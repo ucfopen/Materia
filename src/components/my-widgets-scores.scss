@@ -586,7 +586,7 @@
 
 	#export_scores_button.disabled,
 	#export_scores_button.disabled:hover {
-		background: #d4d4d4;
+		background: #21232a;
 		color: #545454;
 		cursor: default;
 		opacity: 0.5;
@@ -610,7 +610,7 @@
 		}
 
 		.vx-graph {
-			fill: white;
+			fill: #21232a;
 		}
 	}
 
@@ -623,7 +623,7 @@
 	}
 
 	h3 {
-		color: #000000;
+		color: #fff;
 	}
 
 	#export_scores_button {
@@ -672,11 +672,11 @@
 				padding-right: 3px;
 
 				a {
-					color: #000000;
+					color: #fff;
 					padding: 6px 10px 4px 10px;
-					border-left: solid #dbdbdb 1px;
-					border-top: solid #dbdbdb 1px;
-					border-right: solid #dbdbdb 1px;
+					border-left: solid #08090c 1px;
+					border-top: solid #08090c 1px;
+					border-right: solid #08090c 1px;
 					padding-bottom: 5px;
 					cursor: pointer;
 
@@ -687,7 +687,7 @@
 			}
 
 			li.scoreTypeSelected a {
-				background: #f3f3f3;
+				background: #4c4e58;
 			}
 		}
 
@@ -715,12 +715,13 @@
 		}
 
 		.display.graph {
-			background: #ffffff;
+			background: #21232a;
 			margin: 0;
 			padding: 20px 0 0 20px;
-			border: solid #dbdbdb 1px;
+			border: solid #08090c 1px;
 			width: 550px;
 			float: left;
+			color: #fff;
 
 			.type {
 				padding: 0;
@@ -742,10 +743,10 @@
 		}
 
 		.display.table {
-			background: #f3f3f3;
+			background: #1d1f25;
 			margin: 0;
 			padding: 20px;
-			border: solid #dbdbdb 1px;
+			border: solid #08090c 1px;
 			float: left;
 			width: 570px;
 			min-height: 300px;
@@ -765,10 +766,10 @@
 		.display.data {
 			font-family: 'Lucida Grande', sans-serif;
 			width: 638px;
-			background: #f3f3f3;
+			background: #1d1f25;
 			margin: 0;
 			padding: 20px;
-			border: solid #dbdbdb 1px;
+			border: solid #08090c 1px;
 			float: left;
 			min-height: 393px;
 			display: block;
@@ -798,7 +799,7 @@
 			}
 
 			.truncated-table {
-				background: #fff389;
+				background: #295b99;
 				padding: 10px;
 				margin-top: 20px;
 				font-size: 9pt;
@@ -825,13 +826,13 @@
 				flex-wrap: wrap;
 
 				.data_tables_info {
-					color: #333;
+					color: #d8d8d8;
 					margin-right: auto;
 					padding-bottom: 5px;
 				}
 
 				.data_tables_paginate {
-					color: #333;
+					color: #d8d8d8;
 					margin-left: auto;
 
 					.ellipsis {
@@ -848,14 +849,14 @@
 						text-decoration: none !important;
 						cursor: pointer;
 						*cursor: hand;
-						color: #333;
+						color: #d8d8d8;
 						border: 1px solid transparent;
 						border-radius: 2px;
 						opacity: 1;
 
 						&.current {
-							border: 1px solid #979797;
-							background-color: #fdfdfd;
+							border: 1px solid #08090c;
+							background-color: #1d1f25;
 						}
 
 						&:not(.current):not(.disable):hover {
@@ -900,7 +901,7 @@
 				margin-left: 20px;
 				font-size: 1em;
 				font-weight: normal;
-				color: #666;
+				color: #d8d8d8;
 			}
 
 			.score-search {
@@ -915,7 +916,7 @@
 					border-radius: 12px;
 					height: 19px;
 					//background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
-					background: #21232a url('/img/magnifyingglass.png') 5px 50% no-repeat;
+					background: #21232a url('/img/magnifyingglass_dark.png') 5px 50% no-repeat;
 					padding-left: 23px;
 					padding-right: 10px;
 					outline: none;
@@ -929,7 +930,7 @@
 				width: 40%;
 				margin-left: 20px;
 
-				background: #ffffff;
+				background: #21232a;
 				border-radius: 3px;
 
 				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
@@ -944,7 +945,7 @@
 
 						.listName {
 							&.selected {
-								background: #ffe0a5;
+								background: #295b99;
 							}
 						}
 					}
@@ -954,13 +955,13 @@
 					display: block;
 					height: 1.5em;
 					padding: 3px 0 0 5px;
-					background-color: #cdcdcd;
-					color: #000000;
+					background-color: #1d1f25;
+					color: #fff;
 					text-decoration: none;
 				}
 
 				tbody tr:hover {
-					background: #ffe0a5;
+					background: #295b99;
 					cursor: pointer;
 				}
 			}
@@ -975,7 +976,7 @@
 				margin-top: 15px;
 				padding: 10px 0 10px 0;
 
-				background: #ffffff;
+				background: #21232a;
 				border-radius: 3px;
 				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
 
@@ -1034,14 +1035,14 @@
 			li {
 				list-style: none;
 				text-align: center;
-				background: #e9edef;
+				background: #4c4e58;
 				padding: 5px;
 				margin: 0 0 10px 0;
 
 				p {
 					padding: 0;
 					margin: 0;
-					color: #0093e7;
+					color: #8EC6FA;
 					text-align: center;
 					font-size: 2em;
 					font-weight: 900;
@@ -1118,13 +1119,13 @@
 		// width: 638px;
 		margin-top: 5px;
 		border-spacing: 0;
-		border-bottom: 1px solid #111;
+		border-bottom: 1px solid #d8d8d8;
 		font-size: 13px;
 
 		thead {
 			th {
 				padding: 3px 18px 3px 10px;
-				border-bottom: 1px solid black;
+				border-bottom: 1px solid #d8d8d8;
 				font-weight: bold;
 			}
 		}

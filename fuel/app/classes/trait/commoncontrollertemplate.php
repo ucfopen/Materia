@@ -33,7 +33,8 @@ trait Trait_CommonControllerTemplate
 
 		$this->inject_common_js_constants();
 
-		if ($this->is_using_darkmode()) {
+		if ($this->is_using_darkmode())
+		{
 			$this->theme->get_template()->set('darkmode', true);
 		}
 

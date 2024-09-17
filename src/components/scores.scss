@@ -584,6 +584,183 @@ article {
 	}
 }
 
+.darkMode article {
+	header {
+		z-index: 8;
+		position: relative;
+		padding: 0px 0px 15px;
+		height: auto;
+		min-height: 50px;
+
+		margin: 0;
+
+		background: #1d1f25;
+		border-top-left-radius: 5px;
+		border-top-right-radius: 5px;
+		border-bottom: 1px $light-gray-bg solid;
+
+		&.preview {
+			margin-top: 65px;
+			border-top: 4px $preview-purple solid;
+
+			&:before {
+				position: absolute;
+				left: 0;
+				top: -40px;
+				width: 160px;
+				height: 20px;
+				padding: 8px 0 12px 0;
+
+				content: 'Previewing';
+				background: $preview-purple;
+
+				font-size: 20px;
+				font-weight: 900;
+				color: #ffffff;
+				text-align: center;
+				vertical-align: middle;
+
+				border-radius: 5px 5px 0 0;
+			}
+
+			&:after {
+				position: absolute;
+				right: 0;
+				top: -30px;
+
+				content: 'Scores and interactions will not be recorded while previewing.';
+
+				font-size: 14px;
+				font-weight: 300;
+			}
+		}
+
+		.header-element {
+			display: inline-block;
+		}
+
+		.header-element.widget-title {
+			max-width: 500px;
+			padding-bottom: 5px;
+			padding-top: 16px;
+			overflow-wrap: break-word;
+			word-wrap: break-word; // have to include word-wrap since Edge/IE11 will not support overflow-wrap
+			margin-left: -10px;
+		}
+
+		nav {
+			/** Override include.scss **/
+			visibility: visible;
+			opacity: 1;
+		}
+
+		nav.play-again {
+			margin: 12px;
+			padding: 0;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+
+			h1 {
+				margin: 0;
+				padding: 0;
+
+				#play-again span {
+					margin-left: 0.5em;
+					font-size: 12px;
+				}
+			}
+		}
+
+		nav.previous-attempts {
+			cursor: default;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			margin: 0px;
+			text-align: left;
+			user-select: none;
+
+			h1 {
+				display: inline-block;
+				padding: 10px 18px;
+				margin: 14px 0 0 10px;
+
+				font-size: 12px;
+				color: #fff;
+				background: #4c4e58;
+
+				border-radius: 15px;
+
+
+			}
+
+			&.open {
+				h1 {
+					color: #fff;
+					background: #43454e;
+				}
+
+				ul {
+					display: block !important;
+					margin-top: 10px;
+				}
+			}
+
+			ul {
+				display: none;
+				background: #21232a;
+				margin: 0;
+				z-index: 10;
+				position: relative;
+				margin-left: 6px;
+				border-radius: 15px;
+				box-shadow: 5px 5px 15px 1px #08090c;
+
+				.date {
+					margin-top: 5px;
+					color: #61a4e2;
+					font-size: 12px;
+					display: block;
+					font-weight: normal;
+				}
+
+				.score {
+					color: #d8d8d8;
+					font-weight: bold;
+					font-size: 20px;
+					padding-left: 10px;
+				}
+
+				li {
+					padding: 5px 15px;
+					list-style: none;
+					display: block;
+
+					&:hover {
+						background-color: #1b304b;
+						border-radius: 15px;
+					}
+
+					a:hover {
+						text-decoration: none;
+					}
+				}
+			}
+		}
+
+		> h1 {
+			color: #fff;
+			margin: 0px;
+			padding-top: 8px;
+		}
+	}
+
+	&.container header > h1 {
+		font-size: 24px;
+	}
+}
+
 .special_details {
 	padding-bottom: 40px;
 	position: relative;

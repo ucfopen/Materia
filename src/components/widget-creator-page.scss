@@ -269,6 +269,39 @@ a {
 	}
 }
 
+.darkMode .popup {
+	height: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.4s ease-in-out;
+
+	background: #1d1f25;
+
+	header {
+		height: auto;
+		padding: 0;
+		margin: 15px 0;
+
+		background: none;
+		
+		font-size: 21px;
+		font-weight: 700;
+		color: #fff;
+	}
+
+	p {
+		padding: 0;
+		margin: 10px 0 20px 0;
+		font-size: 14px;
+	}
+
+	&.show {
+		height: auto;
+		max-height: 200px;
+		padding: 10px 20% 22px 20%;
+	}
+}
+
 .page {
 	margin: 0 20px;
 	padding: 0;
