@@ -854,7 +854,7 @@ class Api_V1
 	static public function question_set_generate($inst_id, $widget_id, $topic, $include_images, $num_questions, $build_off_existing)
 	{
 		// short-circuit if generation is not available
-		if ( ! Widget_Question_Generator::is_enabled()) return Msg::not_found();
+		if ( ! Widget_Question_Generator::is_enabled()) return Msg::failure();
 
 		// verify eligibility
 		if ( ! \Service_User::verify_session(['basic_author', 'super_user'])) return Msg::no_perm();
