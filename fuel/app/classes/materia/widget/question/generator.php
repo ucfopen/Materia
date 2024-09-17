@@ -17,7 +17,7 @@ class Widget_Question_Generator
 		{
 			if (empty(\Config::get('materia.ai_generation.provider')))
 			{
-				\Log::error('GENERATION ERROR: Question generation configs missing.');
+				\Log::error('GENERATION ERROR: Question generation provider config missing.');
 				return null;
 			}
 
@@ -29,7 +29,7 @@ class Widget_Question_Generator
 
 				if (empty($api_key) || empty($endpoint) || empty($api_version))
 				{
-					\Log::error('GENERATION ERROR: Question generation configs missing.');
+					\Log::error('GENERATION ERROR: Azure OpenAI question generation configs missing.');
 					return null;
 				}
 
@@ -53,7 +53,7 @@ class Widget_Question_Generator
 
 				if (empty($api_key))
 				{
-					\Log::error('Question generation configs missing.');
+					\Log::error('OpenAI Platform question generation configs missing.');
 					return null;
 				}
 
@@ -84,13 +84,12 @@ class Widget_Question_Generator
 	 * @param string $prompt The prompt for the query.
 	 * @return object The result of the query.
 	 */
-	public static function query($prompt)
+	public static function query($prompt, $format='json')
 	{
 		$client = static::get_client();
 		if (empty($client)) return Msg::failure('Failed to initialize generation client.');
 
 		$params = [
-			'response_format' => (object) ['type' => 'json_object'],
 			'messages' => [
 				['role' => 'user', 'content' => $prompt]
 			],
@@ -101,10 +100,8 @@ class Widget_Question_Generator
 			'top_p' => 1, // 0 to 1
 		];
 
-		if ( ! empty(\Config::get('materia.ai_generation.model')))
-		{
-			$params['model'] = \Config::get('materia.ai_generation.model');
-		}
+		if ( ! empty(\Config::get('materia.ai_generation.model'))) $params['model'] = \Config::get('materia.ai_generation.model');
+		if ($format == 'json') $params['response_format'] = (object) ['type' => 'json_object'];
 
 		return $client->chat()->create($params);
 	}
@@ -222,7 +219,7 @@ class Widget_Question_Generator
 
 		// send the prompt to to the generative AI provider
 		try {
-			$result = self::query($text);
+			$result = self::query($text, 'json');
 
 			// received the qset - decode the json string from the result
 			$question_set = json_decode($result->choices[0]->message->content);
