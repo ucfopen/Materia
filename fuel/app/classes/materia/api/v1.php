@@ -894,11 +894,19 @@ class Api_V1
 		}
 	}
 
+	/**
+	 * Endpoint to facilitate AI text generation for widgets
+	 *
+	 * @param string $prompt The prompt to generate.
+	 * @return array An array to be passed back to the widget containing the response string
+	 */
 	static public function widget_prompt_generate($prompt)
 	{
+		// verify eligibility
 		if ( ! Widget_Question_Generator::is_enabled()) return Msg::failure();
 		if (\Service_User::verify_session() !== true) return Msg::no_login();
 
+		// prompt generation & response handling
 		$result = Widget_Question_Generator::generate_from_prompt($prompt);
 		if ( ! $result instanceof Msg && is_string($result))
 		{

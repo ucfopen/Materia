@@ -106,10 +106,15 @@ class Widget_Question_Generator
 		return $client->chat()->create($params);
 	}
 
+	/**
+	 * Generates a text response based on the provided prompt.
+	 *
+	 * @param string $prompt The prompt to send to the LLM.
+	 * @return string The generated response.
+	 */
 	static public function generate_from_prompt($prompt)
 	{
 		if ( ! self::is_enabled()) return Msg::failure('Question generation is not enabled.');
-
 		if (empty($prompt) || strlen($prompt) > 10000) return Msg::invalid_input('Prompt text length invalid.');
 
 		try
