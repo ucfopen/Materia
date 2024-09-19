@@ -108,3 +108,19 @@ html {
 		color: #000000;
 	}
 }
+
+.actions {
+	position: fixed;
+	width: 80px;
+	left: 50%;
+	bottom: 0px;
+	margin-left: -40px;
+	padding-bottom: 14px;
+
+	text-align: center;
+	font-size: 1.1em;
+
+	a {
+		color: #61a4e2;
+	}
+}

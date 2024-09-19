@@ -180,7 +180,7 @@ export const apiAuthorVerify = () => {
 		.catch(error => false)
 }
 
-export const apiUpdateUserSettings = (settings) => {
+/* export const apiUpdateUserSettings = (settings) => {
 	console.log(settings);
 	return fetch('/api/user/settings', {
 		...fetchOptions({}),
@@ -192,9 +192,9 @@ export const apiUpdateUserSettings = (settings) => {
 		body: JSON.stringify(settings)
 	})
 		.then((resp) => resp.json())
-}
+} */
 
-export const apiUpdateUserRoles = (roles) => {
+/* export const apiUpdateUserRoles = (roles) => {
 	return fetch('/api/user/roles', {
 		...fetchOptions({}),
 		headers: {
@@ -205,7 +205,7 @@ export const apiUpdateUserRoles = (roles) => {
 		body: JSON.stringify(roles)
 	})
 		.then((resp) => resp.json())
-}
+} */
 
 export const apiGetNotifications = () => {
 	return fetchGet('/api/json/notifications_get/', { body: `data=${formatFetchBody([])}` })

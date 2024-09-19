@@ -614,6 +614,29 @@
 	overflow-y: auto;
 	padding-bottom: 1em;
 
+	.student-activity-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0;
+
+		border-bottom: #08090c dotted 1px;
+	
+		.action_button {
+			
+			color: $extremely-dark-gray;
+			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+			box-shadow: 1px 2px 4px #08090c;
+
+			&.disabled, &.disabled:hover {
+				background: #d4d4d4;
+				color: #545454;
+				cursor: default;
+				opacity: 0.5;
+			}
+		}
+	}
+
 	#export_scores_button.disabled,
 	#export_scores_button.disabled:hover {
 		background: #21232a;
@@ -624,28 +647,28 @@
 
 	.graph {
 		rect.vx-bar {
-			fill: #0093e7;
+			fill: #295b99;
 
 			&:hover {
-				fill: #2aabf5;
+				fill: #3b77c0;
 			}
 		}
 
 		.vx-axis tspan {
-			fill: #666;
+			fill: #08090c;
 		}
 
 		.vx-line {
-			stroke: #a9a9a9;
+			stroke: #08090c;
 		}
 
 		.vx-graph {
-			fill: #21232a;
+			fill: #08090c;
 		}
 	}
 
 	h2 {
-		border-bottom: #999 dotted 1px;
+		/* border-bottom: #08090c dotted 1px; */
 		padding-bottom: 14px;
 		padding-top: 2px;
 		padding-bottom: 13px;
@@ -745,13 +768,13 @@
 		}
 
 		.display.graph {
-			background: #21232a;
+			background: #9696B0;
 			margin: 0;
 			padding: 20px 0 0 20px;
 			border: solid #08090c 1px;
 			width: 550px;
 			float: left;
-			color: #fff;
+			color: #000;
 
 			.type {
 				padding: 0;
@@ -942,7 +965,7 @@
 				input[type='text'] {
 					width: 190px;
 					margin: 7px 10px 0 10px;
-					border: solid 1px #b0b0b0;
+					border: solid 1px #08090c;
 					border-radius: 12px;
 					height: 19px;
 					//background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
@@ -1028,7 +1051,7 @@
 						cursor: pointer;
 
 						&:hover {
-							background: #ffe0a5;
+							background: #b4570a;
 						}
 
 						&:last-child td {
@@ -1052,7 +1075,7 @@
 			}
 
 			tbody tr.rowSelected {
-				background: #ffcb68;
+				background: #b4570a;
 			}
 		}
 
