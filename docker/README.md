@@ -122,9 +122,13 @@ If you plan on deploying a production server using these docker images, we sugge
 
 ### Dynamic Files to Backup
 
-* MySQL Database Contents
-* Uploaded Media
-* Installed Widget Engine Files
+* MySQL Database Contents: 
+* Uploaded Media (generally `$APP_DIR/media`)
+* Installed Widget Engine Files (generally `$APP_DIR/widgets`)
+
+### Environment Variables
+
+Refer to the [Server Variables](https://ucfopen.github.io/Materia-Docs/admin/server-variables.html) page on our docs site for environment variable configuration options.
 
 ### Sample Docker Compose
 
@@ -199,4 +203,3 @@ volumes:
 #### Table Not Found
 
 When running fuelphp's install, it uses fuel/app/config/development/migrations.php file to know the current state of your database. Fuel assumes this file is truth, and won't create tables even on an empty database. You probably need to delete the file and run the setup scripts again.  run_first.sh does this for you if needed.
-

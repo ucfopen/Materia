@@ -15,6 +15,7 @@ const SupportPage = () => {
 		queryKey: 'user',
 		queryFn: apiGetUser,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				window.location.href = '/login'
@@ -29,6 +30,7 @@ const SupportPage = () => {
 		queryFn: () => apiSearchInstances(widgetHash),
 		enabled: widgetHash != undefined && widgetHash != selectedInstance?.id,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				window.location.href = '/login'

@@ -347,7 +347,19 @@ class Widget_Asset
 				break;
 		}
 
-		$this->_storage_driver->lock_for_processing($this->id, $size);
+		// object locking is unnecessary with s3
+		$driver = \Config::get('materia.asset_storage_driver', 'db');
+		if ($driver != 's3')
+		{
+			try {
+				// lock the original asset so we can process it
+				$this->_storage_driver->lock_for_processing($this->id, 'original');
+			} catch (\Throwable $e)
+			{
+				\LOG::error($e);
+				throw($e);
+			}
+		}
 
 		// get the original file
 		$original_asset_path = $this->copy_asset_to_temp_file($this->id, 'original');
@@ -382,10 +394,20 @@ class Widget_Asset
 			throw($e);
 		}
 
-		$this->_storage_driver->store($this, $resized_file_path, $size);
+		try {
+			// store the resized asset in s3 or wherever
+			$this->_storage_driver->store($this, $resized_file_path, $size);
 
-		// update asset_data
-		$this->_storage_driver->unlock_for_processing($this->id, $size);
+			// unlock original asset
+			if ($driver != 's3')
+			{
+				$this->_storage_driver->unlock_for_processing($this->id, 'original');
+			}
+		} catch (\Throwable $e)
+		{
+			\LOG::error($e);
+			throw($e);
+		}
 
 		// close the file handles and delete temp files
 		unlink($original_asset_path);
@@ -400,6 +422,14 @@ class Widget_Asset
 	public function upload_asset_data(string $source_asset_path): void
 	{
 		$this->_storage_driver->store($this, $source_asset_path, 'original');
+	}
+
+	/**
+	 * Delete an asset of a specific size
+	 */
+	public function delete_asset_data(string $size): void
+	{
+		$this->_storage_driver->delete($this->id, $size);
 	}
 
 	/**
