@@ -40,7 +40,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		returnUrl: null,
 		returnLocation: 'Widget Catalog',
 		directUploadMediaFile: null,
-        isTimeoutRunning: false
+		isTimeoutRunning: false
 	})
 
 	const [alertDialog, setAlertDialog] = useState({
@@ -296,13 +296,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if (!!saveWidgetComplete) {
 			if (saveWidgetComplete == 'save') {
 				setCreatorState(creatorState => ({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle'}))
-                if(!creatorState.isTimeoutRunning) {
-                    //this line is needed again or else the text will revert to 'Save Draft' immidietly
-                    setCreatorState({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle', isTimeoutRunning: true})
-                    setTimeout( () => {
-                        setCreatorState( {...creatorState, saveText: 'Save Draft', isTimeoutRunning:false} )
-                    } , 5000) //text gets reverted after 5 seconds(format is millisecond)
-                }
+				if(!creatorState.isTimeoutRunning) {
+					setCreatorState({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle', isTimeoutRunning: true});
+				}
 			}
 			else if (saveWidgetComplete == 'preview') {
 				setCreatorState(creatorState => ({...creatorState, saveStatus: 'idle'}))
@@ -311,6 +307,21 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			setSaveWidgetComplete(null)
 		}
 	},[saveWidgetComplete])
+
+	useEffect( () => {
+		if(creatorState.isTimeoutRunning) {
+			const timeoutID = setTimeout( () => {
+				setCreatorState( prevState => ({
+					...prevState,
+					saveText: 'Save Draft',
+					isTimeoutRunning: false
+				}));
+			}, 5000);
+
+			return () => clearTimeout(timeoutID);
+		}
+
+	}, [creatorState.isTimeoutRunning]);
 
 	/* =========== postMessage handlers =========== */
 
@@ -462,9 +473,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					enableLoginButton: true
 				})
 
-				setCreatorState({...creatorState, heartbeatEnabled: false})
-                //also update the text on the Save Draft Buttons
-                setCreatorState({ ...creatorState, saveText: 'Failed to save' })
+				setCreatorState({
+					...creatorState,
+					heartbeatEnabled: false,
+					saveText: 'Failed to save',
+					saveStatus: 'idle',
+					isTimeoutRunning: true
+				});
 			} else {
 				setAlertDialog({
 					enabled: true,
@@ -473,17 +488,15 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					fatal: false,
 					enableLoginButton: false
 				})
-                //also update the text on the Save Draft Button
-                setCreatorState({ ...creatorState, saveText: 'Failed to save' })
+				//also update the text on the Save Draft Button
+				setCreatorState({
+					...creatorState,
+					saveText: 'Failed to save',
+					saveStatus: 'idle',
+					isTimeoutRunning: true
+				});
 
 			}
-            if(!creatorState.isTimeoutRunning) {
-                setCreatorState({...creatorState, saveText: 'Failed to save', saveStatus: 'idle', isTimeoutRunning: true})
-                setTimeout( () => {
-                    setCreatorState( {...creatorState, saveText: 'Save Draft', isTimeoutRunning:false} )
-                } , 5000) //text gets reverted after 5 seconds(format is millisecond)
-            }
-
 
 		} else {
 			setAlertDialog({
@@ -493,16 +506,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				fatal: false,
 				enableLoginButton: false
 			})
-            //also update the text on the Save Draft Button
-            setCreatorState({ ...creatorState, saveText: 'Failed to save' })
-            if(!creatorState.isTimeoutRunning) {
-                setCreatorState({...creatorState, saveText: 'Failed to save', saveStatus: 'idle', isTimeoutRunning: true})
-                setTimeout( () => {
-                    setCreatorState( {...creatorState, saveText: 'Save Draft', isTimeoutRunning:false} )
-                } , 5000) //text gets reverted after 5 seconds(format is millisecond)
-            }
-
-
+			setCreatorState({
+				...creatorState,
+				saveText: 'Failed to save',
+				saveStatus: 'idle',
+				isTimeoutRunning: true
+			});
 
 		}
 	}
