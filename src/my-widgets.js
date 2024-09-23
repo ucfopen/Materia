@@ -1,7 +1,7 @@
 import React from 'react'
 import {createRoot} from "react-dom/client"
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
-import { ReactQueryDevtools } from "react-query/devtools";
+import { ReactQueryDevtools } from 'react-query/devtools';
 import MyWidgetsPage from './components/my-widgets-page'
 import { onError } from './util/global-cache-options'
 

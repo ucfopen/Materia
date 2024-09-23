@@ -1,7 +1,7 @@
 import React from 'react'
 import {createRoot} from "react-dom/client"
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
-import { ReactQueryDevtools } from "react-query/devtools";
+import { ReactQueryDevtools } from 'react-query/devtools';
 import Action404 from './components/404'
 
 const queryCache = new QueryCache()
