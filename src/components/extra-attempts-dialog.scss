@@ -251,224 +251,48 @@
 }
 
 .darkMode .modal .extraAttemptsModal {
-	min-width: 580px;
 
 	.title {
-		margin: 0;
-		padding: 0;
-		font-size: 1.3em;
 		color: #555;
 		border-bottom: #999 dotted 1px;
-		padding-bottom: 20px;
-		margin-bottom: 20px;
-		position: relative;
-		text-align: left;
-		display: block;
-		font-weight: bold;
-	}
-
-	.search-container {
-		display: flex;
-		align-items: center;
-
-		span {
-			margin: 0 auto;
-		}
-
-		input {
-			margin: 0 auto;
-		}
 	}
 
 	.attempts-input {
-		width: 445px;
-		height: 30px;
-		z-index: 2;
 		border: solid 1px #c9c9c9;
-		font-size: 16px;
 	}
 
 	.attempts_search_list {
-		width: 449px;
-		position: absolute;
 		background-color: #21232a;
 		border: #bfbfbf 1px solid;
-		padding-bottom: 5px;
-		overflow: auto;
-		z-index: 3;
-		text-align: left;
-		left: 121px;
-		top: 111px;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-start;
 
 		.attempts_search_match {
-			width: 200px;
-			height: 56px;
-			margin: 5px 5px 0 5px;
-			padding: 0 5px 5px 0;
-			border-radius: 3px;
-			display: inline-block;
 			background-color:  #21232a;
-
-			.attempts_match_avatar {
-				width: 50px;
-				height: 50px;
-				-moz-border-radius: 3px;
-				border-radius: 3px;
-				display: inline-block;
-				float: left;
-				margin-right: 10px;
-				margin: 5px;
-			}
-
-			.attempts_match_name {
-				font-size: 14px;
-				text-align: left;
-				height: 40px;
-				// font-family: 'Lucida Grande', sans-serif;
-				overflow: auto;
-			}
-		}
-
-		.attempts_match_student {
-			position: relative;
-		}
-		.attempts_match_student:after {
-			content: 'Student';
-			position: absolute;
-			bottom: 5px;
-			right: 0;
-			font-size: 10px;
 		}
 
 		.attempts_search_match:hover {
 			background-color: #c5e7fa;
-			cursor: pointer;
 		}
 	}
 
 	.attempts_list_container {
-		margin: 15px 0px;
 		background-color: #f2f2f2;
-		height: 250px;
-		border-radius: 5px;
-		// padding: 0 30px;
-		// text-align: right;
-		// overflow: auto;
-		position: relative;
 
 		.headers {
 			background: #555555;
-			height: 30px;
 			color: white;
-			display: flex;
-			align-items: center;
-			border-top-left-radius: 5px;
-			border-top-right-radius: 5px;
-			text-align: center;
-			padding: 0 2%;
-
-			.user-header {
-				width: 50%;
-			}
-			.context-header {
-				width: 25%;
-			}
-			.attempts-header {
-				width: 25%;
-			}
 		}
 
 		.attempts_list {
-			overflow: scroll;
-			height: 220px;
-
-			&.no-content {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
-
-			.disabled {
-				display: none !important;
-			}
 
 			.extra_attempt {
-				display: flex;
-				align-items: center;
-				position: relative;
-				margin: 2%;
 
 				.remove {
-					display: block;
 					color: #bfbfbf;
-					text-decoration: none;
-					font-size: 15px;
-					text-align: center;
-					padding: 0.5em;
-					margin: 0.5em;
-					user-select: none;
-					border: none;
 					background: transparent;
 
 					&:hover {
 						color: black;
 						background: white;
-						border-radius: 5px;
-						cursor: pointer;
-					}
-				}
-
-				.user_holder {
-					display: flex;
-					align-items: center;
-					width: 50%;
-				}
-
-				.user {
-					display: flex;
-					align-items: center;
-					width: 250px;
-
-					.avatar {
-						vertical-align: middle;
-						display: inline-block;
-						height: 40px;
-						width: 40px;
-						margin-right: 10px;
-						border-radius: 5px;
-					}
-
-					.user_name {
-						font-size: 14px;
-						text-align: left;
-						position: relative;
-						overflow-wrap: break-word;
-						word-wrap: break-word;
-						hyphens: auto;
-						max-width: 60%;
-					}
-				}
-
-				.context {
-					width: 25%;
-					text-align: center;
-
-					input {
-						width: 60%;
-						text-align: center;
-					}
-				}
-
-				.num_attempts {
-					width: 25%;
-					text-align: center;
-
-					input {
-						width: 60%;
-						text-align: center;
 					}
 				}
 			}
@@ -476,23 +300,8 @@
 	}
 
 	.save-error {
-		height: 20px;
-
 		p {
 			color: red;
-			font-size: 0.8em;
-			margin: 0px 15px;
 		}
-	}
-
-	.button-holder {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-bottom: 5px;
-	}
-
-	.cancel_button:hover {
-		cursor: pointer;
 	}
 }
