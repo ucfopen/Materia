@@ -1,26 +1,56 @@
 import React, { useState, useMemo } from 'react'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import LoadingIcon from './loading-icon'
+import CheckboxButton from './checkbox-button'
 
 const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMode, beards }) => {
 	const [searchText, setSearchText] = useState('')
+	const [filterDrafts, setFilterDrafts] = useState(false);
+	const [filterPublished, setFilterPublished] = useState(false);
+	const [filterHasScore, setFilterHasScore] = useState(false);
+	const [resetFilters, setResetFilters] = useState(false);
 
 	const hiddenSet = useMemo(() => {
 		const result = new Set()
-		if (searchText == '') return result
+		//this will not allow the buttons to filter unless there is one chracter in the search bar
+		// if (searchText == '') return result
 
 		const re = RegExp(searchText, 'i')
 		instances.forEach(i => {
-			if (!re.test(`${i.name} ${i.widget.name} ${i.id}`)) {
+			const matchesSearch = re.test(`${i.name} ${i.widget.name} ${i.id}`)
+
+			const matchesDrafts = filterDrafts ? i.is_draft : true
+			//the published_by returns null in local host docker instance
+			// const matchesPublished = filterPublished ? i.published_by !== null : true
+			const matchesPublished = filterPublished ? !i.is_draft : true
+			//in localhost docker this is always -1 even when i see scores on this
+			//this will always filter out everything since every instance is -1
+			const matchesHasScore = filterHasScore ? i.attempts > 0 : true
+
+			if (!matchesSearch || !matchesDrafts || !matchesPublished || !matchesHasScore) {
 				result.add(i.id)
 			}
 		})
 
 		return result
-	}, [instances, searchText])
+	}, [instances, searchText, filterDrafts, filterPublished, filterHasScore])
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
-	const handleSearchCloseClick = () => setSearchText('')
+
+	const handleSearchCloseClick = () => {
+		setSearchText('');
+		setFilterDrafts(false);
+		setFilterPublished(false);
+		setFilterHasScore(false);
+		setResetFilters(true);
+		// setResetFilters(prevState => !prevState);
+		// need to set a timeout so it can rerender on the x for our divs
+		setTimeout(() => setResetFilters(false), 0); // Clear reset after it propagates
+	};
+
+	const handleDraftsChange = (isChecked) => setFilterDrafts(isChecked);
+	const handlePublishedChange = (isChecked) => setFilterPublished(isChecked);
+	const handleHasScoreChange = (isChecked) => setFilterHasScore(isChecked);
 
 	let widgetInstanceElementsRender = null
 	if (!isFetching || instances?.length > 0) {
@@ -49,35 +79,52 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		searchBoxRender =
 			<div className='searchContainer'>
 				<div className='search'>
-			<div className="textbox-background">
-				{/* Search Icon */}
-				<div className="search-icon">
-					<svg viewBox="0 0 250.313 250.313">
-						<path d="m244.19 214.6l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 10.7-16.231 16.945-35.66 16.945-56.554 0-56.837-46.075-102.91-102.91-102.91s-102.91 46.075-102.91 102.91c0 56.835 46.074 102.91 102.91 102.91 20.895 0 40.323-6.245 56.554-16.945 0.269 0.301 0.47 0.64 0.759 0.929l54.38 54.38c8.169 8.168 21.413 8.168 29.583 0 8.168-8.169 8.168-21.413 0-29.582zm-141.28-44.458c-37.134 0-67.236-30.102-67.236-67.235 0-37.134 30.103-67.236 67.236-67.236 37.132 0 67.235 30.103 67.235 67.236s-30.103 67.235-67.235 67.235z"
-						clipRule="evenodd"
-						fillRule="evenodd"/>
-					</svg>
-				</div>
+					<div className="textbox-background">
+						{/* Search Icon */}
+						<div className="search-icon">
+							<svg viewBox="0 0 250.313 250.313">
+								<path d="m244.19 214.6l-54.379-54.378c-0.289-0.289-0.628-0.491-0.93-0.76 10.7-16.231 16.945-35.66 16.945-56.554 0-56.837-46.075-102.91-102.91-102.91s-102.91 46.075-102.91 102.91c0 56.835 46.074 102.91 102.91 102.91 20.895 0 40.323-6.245 56.554-16.945 0.269 0.301 0.47 0.64 0.759 0.929l54.38 54.38c8.169 8.168 21.413 8.168 29.583 0 8.168-8.169 8.168-21.413 0-29.582zm-141.28-44.458c-37.134 0-67.236-30.102-67.236-67.235 0-37.134 30.103-67.236 67.236-67.236 37.132 0 67.235 30.103 67.235 67.236s-30.103 67.235-67.235 67.235z"
+								clipRule="evenodd"
+								fillRule="evenodd"/>
+							</svg>
+						</div>
 
-				{/* Search Input */}
-				<input
-					className="textbox"
-					type="text"
-					value={searchText}
-					onChange={handleSearchInputChange}
-				/>
+						{/* Search Input */}
+						<input
+							className="textbox"
+							type="text"
+							value={searchText}
+							onChange={handleSearchInputChange}
+						/>
 
-				{/* Search Close */}
-				<div className="search-close" onClick={handleSearchCloseClick}>
-					x
-				</div>
+						{/* Search Close */}
+						<div className="search-close" onClick={handleSearchCloseClick}>
+							x
+						</div>
 
-				</div>
+					</div>
 
 				</div>
 
 				<div className='filtersGroup' >
-					<button className='filterButton'>Has Score</button>
+						<CheckboxButton
+							labelOn="Drafts: On"
+							labelOff="Drafts: Off"
+							onChange={handleDraftsChange}
+							reset={resetFilters}
+						/>
+						<CheckboxButton
+							labelOn="Published: On"
+							labelOff="Published: Off"
+							onChange={handlePublishedChange}
+							reset={resetFilters}
+						/>
+						<CheckboxButton
+							labelOn="Has Score: On"
+							labelOff="Has Score: Off"
+							onChange={handleHasScoreChange}
+							reset={resetFilters}
+						/>
 				</div>
 
 			</div>

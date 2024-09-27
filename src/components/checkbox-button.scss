@@ -1,0 +1,44 @@
+.CheckboxButton {
+  padding: 1.5px;
+  cursor: pointer;
+  background-color: lightgray;
+  color: black;
+  text-align: center;
+  border-radius: 4px;
+  // min-width: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  outline: none;
+}
+
+.CheckboxButton label {
+  font-size: 0.7rem;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.CheckboxButton input {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.CheckboxButton.on {
+  background-color: #d9a0ff;
+  color: black;
+}
+
+.CheckboxButton.off {
+  background-color: #5e5c5c;
+  color: white;
+}
+
+.CheckboxButton.focused {
+  outline: 3px solid #3b82f6;
+  // outline-offset: 2px;
+}

@@ -116,6 +116,13 @@
 				align-items: center;
 			}
 
+			.filtersGroup {
+				display: flex;
+                gap: 5px;
+				padding-bottom: 0.5rem;
+				padding-top: 0.1rem;
+			}
+
 
 			.search {
 				// position: relative;
@@ -176,7 +183,7 @@
 
 				.textbox-background {
 					// position: absolute;
-                    display: flex;
+					display: flex;
 					width: 205px;
 					height: 20px;
 					left: 9px;
