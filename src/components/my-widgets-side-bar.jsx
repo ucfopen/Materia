@@ -1,7 +1,10 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useQuery } from 'react-query'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import LoadingIcon from './loading-icon'
 import CheckboxButton from './checkbox-button'
+import { apiGetScoreSummary } from '../util/api'
+
 
 const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMode, beards }) => {
 	const [searchText, setSearchText] = useState('')
@@ -9,6 +12,26 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const [filterPublished, setFilterPublished] = useState(false);
 	const [filterHasScore, setFilterHasScore] = useState(false);
 	const [resetFilters, setResetFilters] = useState(false);
+	const [instanceScores, setInstanceScores] = useState({});
+
+	//api call to fetch scores with promise
+	useEffect(() => {
+		const fetchAllScores = async () => {
+			const scoresPromises = instances.map(instance =>
+				apiGetScoreSummary(instance.id).catch(() => [])
+			);
+			const scores = await Promise.all(scoresPromises);
+			const scoresMap = instances.reduce((accumalator, instance, index) => {
+				accumalator[instance.id] = scores[index];
+				return accumalator;
+			}, {});
+			setInstanceScores(scoresMap);
+		};
+
+		if (instances.length > 0) {
+			fetchAllScores();
+		}
+	}, [instances]);
 
 	const hiddenSet = useMemo(() => {
 		const result = new Set()
@@ -23,9 +46,9 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 			//the published_by returns null in local host docker instance
 			// const matchesPublished = filterPublished ? i.published_by !== null : true
 			const matchesPublished = filterPublished ? !i.is_draft : true
-			//in localhost docker this is always -1 even when i see scores on this
-			//this will always filter out everything since every instance is -1
-			const matchesHasScore = filterHasScore ? i.attempts > 0 : true
+			//must call api to get scores, not attempts property of i
+			const scores = instanceScores[i.id] || [];
+			const matchesHasScore = filterHasScore ? scores.length > 0 : true;
 
 			if (!matchesSearch || !matchesDrafts || !matchesPublished || !matchesHasScore) {
 				result.add(i.id)
@@ -33,7 +56,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		})
 
 		return result
-	}, [instances, searchText, filterDrafts, filterPublished, filterHasScore])
+	}, [instances, searchText, filterDrafts, filterPublished, filterHasScore, instanceScores])
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
 
