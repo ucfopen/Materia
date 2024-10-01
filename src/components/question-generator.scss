@@ -38,7 +38,7 @@
 		margin: 1.5em;
 		display: flex;
 		flex-direction: column;
-		gap: 0.75em;
+		gap: 0.35em;
 
 		label {
 			font-weight: 400;
@@ -66,20 +66,56 @@
 		}
 
 		#num-questions-field {
+			position: relative;
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
+			margin-top: 0.5em;
 
 			input {
 				max-width: 100px;
 			}
+
+			label {
+				background: #fff;
+				padding-right: 0.5em;
+			}
+
+			&:after {
+				position: absolute;
+				top: 0.65em;
+				left: 0;
+				z-index: -1;
+				content: '';
+				display: block;
+				width: calc(100% - 120px);
+				border-bottom: solid 1px #bbb;
+			}
 		}
 
 		#build-off-existing-field {
+			position: relative;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
 			justify-content: space-between;
+			margin: 0.5em 0;
+			
+			&:after {
+				position: absolute;
+				top: 0.65em;
+				left: 0;
+				z-index: -1;
+				content: '';
+				display: block;
+				width: calc(100% - 30px);
+				border-bottom: solid 1px #bbb;
+			}
+
+			label {
+				background: #fff;
+				padding-right: 0.5em;
+			}
 
 			#build-off-existing {
 				margin-bottom: 0.5em;
