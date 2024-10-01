@@ -2,7 +2,7 @@
 
 namespace Materia;
 
-class Widget_Qcuestion
+class Widget_Question
 {
 	protected $_question_properties = ['text', 'assets'];
 	protected $_answer_properties   = ['id', 'text', 'value', 'options', 'assets'];
