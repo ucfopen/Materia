@@ -20,6 +20,7 @@ class Widget
 	public $is_scalable         = 0;
 	public $is_scorable         = true;
 	public $is_storage_enabled  = false;
+	public $is_generable        = false;
 	public $package_hash        = '';
 	public $meta_data           = null;
 	public $name                = '';
@@ -109,6 +110,7 @@ class Widget
 			'score_screen'        => $w['score_screen'],
 			'restrict_publish'    => $w['restrict_publish'],
 			'is_storage_enabled'  => $w['is_storage_enabled'],
+			'is_generable'        => $w['is_generable'],
 			'package_hash'        => $w['package_hash'],
 			'width'               => $w['width'],
 			'creator_guide'       => $w['creator_guide'],
@@ -121,6 +123,10 @@ class Widget
 		{
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
+
+		if ( ! \Service_User::verify_session('basic_author')) $this->is_generable = '0';
+		else $this->is_generable = $this->is_generable == '1' && Widget_Question_Generator::is_enabled() ? '1' : '0';
+
 		return true;
 	}
 
@@ -143,6 +149,7 @@ class Widget
 				# multiple items with these keys will be placed in an array
 				case 'features':
 				case 'supported_data':
+				case 'generation_prompt':
 				case 'playdata_exporters':
 					if ( ! isset($meta_data[$name])) $meta_data[$name] = []; // initialize if needed
 					$meta_data[$name][] = $value;
@@ -175,6 +182,14 @@ class Widget
 				->where('name', $prop)
 				->execute()[0]['value'];
 		}
+
+		if ($prop == 'is_generable')
+		{
+			if ( ! \Service_User::verify_session('basic_author')) return '0';
+			elseif ( Widget_Question_Generator::is_enabled() && $val == '1') return '1';
+			else return '0';
+		}
+
 		return $val;
 	}
 

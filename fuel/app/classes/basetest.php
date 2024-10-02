@@ -102,6 +102,7 @@ class Basetest extends TestCase
 				'is_playable' => true,
 				'is_editable' => true,
 				'in_catalog' => true,
+				'is_generable' => false,
 				'restrict_publish' => $restrict_publish,
 				'api_version' => 2,
 			],
