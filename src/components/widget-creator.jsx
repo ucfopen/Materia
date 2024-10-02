@@ -616,7 +616,6 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 			// When a new qset is selected from the prior saves list or generated
 			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1, title = null) {
-				console.log(title)
 				if (!qset) {
 					setCreatorState({
 						...creatorState,
