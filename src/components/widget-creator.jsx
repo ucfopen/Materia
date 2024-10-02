@@ -39,7 +39,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		popupState: null,
 		returnUrl: null,
 		returnLocation: 'Widget Catalog',
-		directUploadMediaFile: null
+		directUploadMediaFile: null,
+		isTimeoutRunning: false
 	})
 
 	const [alertDialog, setAlertDialog] = useState({
@@ -295,6 +296,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if (!!saveWidgetComplete) {
 			if (saveWidgetComplete == 'save') {
 				setCreatorState(creatorState => ({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle'}))
+				if(!creatorState.isTimeoutRunning) {
+					setCreatorState({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle', isTimeoutRunning: true});
+				}
 			}
 			else if (saveWidgetComplete == 'preview') {
 				setCreatorState(creatorState => ({...creatorState, saveStatus: 'idle'}))
@@ -303,6 +307,21 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			setSaveWidgetComplete(null)
 		}
 	},[saveWidgetComplete])
+
+	useEffect( () => {
+		if(creatorState.isTimeoutRunning) {
+			const timeoutID = setTimeout( () => {
+				setCreatorState( prevState => ({
+					...prevState,
+					saveText: 'Save Draft',
+					isTimeoutRunning: false
+				}));
+			}, 5000);
+
+			return () => clearTimeout(timeoutID);
+		}
+
+	}, [creatorState.isTimeoutRunning]);
 
 	/* =========== postMessage handlers =========== */
 
@@ -465,7 +484,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					enableLoginButton: true
 				})
 
-				setCreatorState({...creatorState, heartbeatEnabled: false})
+				setCreatorState({
+					...creatorState,
+					heartbeatEnabled: false,
+					saveText: 'Failed to save',
+					saveStatus: 'idle',
+					isTimeoutRunning: true
+				});
 			} else {
 				setAlertDialog({
 					enabled: true,
@@ -474,7 +499,16 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					fatal: false,
 					enableLoginButton: false
 				})
+				//also update the text on the Save Draft Button
+				setCreatorState({
+					...creatorState,
+					saveText: 'Failed to save',
+					saveStatus: 'idle',
+					isTimeoutRunning: true
+				});
+
 			}
+
 		} else {
 			setAlertDialog({
 				enabled: true,
@@ -483,6 +517,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				fatal: false,
 				enableLoginButton: false
 			})
+			setCreatorState({
+				...creatorState,
+				saveText: 'Failed to save',
+				saveStatus: 'idle',
+				isTimeoutRunning: true
+			});
+
 		}
 	}
 
