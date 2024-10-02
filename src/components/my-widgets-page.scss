@@ -108,9 +108,39 @@
 				// background: linear-gradient(#83caf3 16%, #37a9e6 89%);
 			}
 
+			.searchContainer {
+				//maybe some display flex
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.filtersGroup {
+				display: flex;
+				overflow: hidden;
+				max-height: 0;
+				opacity: 0;
+				transition: max-height 0.5s ease, opacity 0.3s ease;
+				gap: 5px;
+				padding-bottom: 0.5rem;
+				padding-top: 0.1rem;
+
+				&.show {
+					max-height: 500px;
+					opacity: 1;
+				}
+			}
+
+			.searchBarGroup{
+				display: flex;
+				align-items: center;
+			}
+
+
 			.search {
-				position: relative;
-				padding: 10px 0 30px 0;
+				// position: relative;
+				padding: 10px 0 0 0;
 
 				background: #ebebeb;
 
@@ -130,7 +160,7 @@
 				}
 
 				.search-icon {
-					position: absolute;
+					// position: absolute;
 					top: 12px;
 					left: 13px;
 					height: 14px;
@@ -143,16 +173,16 @@
 				}
 
 				.search-close {
-					position: absolute;
-					top: 8px;
-					right: 40px;
-					margin-top: 1px;
+					// position: absolute;
+					// top: 8px;
+					// right: 40px;
+					margin-top: -1px;
 					color: rgb(221, 221, 221);
 					cursor: pointer;
 				}
 
 				.textbox {
-					position: absolute;
+					// position: absolute;
 					border: none;
 					outline: none;
 					width: 165px;
@@ -166,7 +196,8 @@
 				}
 
 				.textbox-background {
-					position: absolute;
+					// position: absolute;
+					display: flex;
 					width: 205px;
 					height: 20px;
 					left: 9px;
@@ -174,6 +205,7 @@
 					border: solid 1px #b0b0b0;
 					border-radius: 12px;
 				}
+
 			}
 
 			// .courses {
