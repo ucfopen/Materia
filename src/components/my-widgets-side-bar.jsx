@@ -9,6 +9,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const [searchText, setSearchText] = useState('')
 	const [filterDrafts, setFilterDrafts] = useState(false);
 	const [filterPublished, setFilterPublished] = useState(false);
+	const [filterAttempts, setFilterAttempts] = useState(false);
 	const [resetFilters, setResetFilters] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
 
@@ -21,17 +22,17 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		const re = RegExp(searchText, 'i')
 		instances.forEach(i => {
 			const matchesSearch = re.test(`${i.name} ${i.widget.name} ${i.id}`)
-
 			const matchesDrafts = filterDrafts ? i.is_draft : true
 			const matchesPublished = filterPublished ? !i.is_draft : true
+			const hasAttempts = filterAttempts ? i.attempts !== -1 : true;
 
-			if (!matchesSearch || !matchesDrafts || !matchesPublished) {
+			if (!matchesSearch || !matchesDrafts || !matchesPublished || !hasAttempts) {
 				result.add(i.id)
 			}
 		})
 
 		return result
-	}, [instances, searchText, filterDrafts, filterPublished])
+	}, [instances, searchText, filterDrafts, filterPublished, filterAttempts])
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
 
@@ -47,6 +48,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 
 	const handleDraftsChange = (isChecked) => setFilterDrafts(isChecked);
 	const handlePublishedChange = (isChecked) => setFilterPublished(isChecked);
+	const handleAttemptsChange = (isChecked) => setFilterAttempts(isChecked);
 
 	let widgetInstanceElementsRender = null
 	if (!isFetching || instances?.length > 0) {
@@ -113,7 +115,6 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 				/>
 
 			</div>
-				{/* I want the details to show/hide in this div */}
 				<div className={`filtersGroup ${showFilters ? 'show' : ''}`}>
 						<CheckboxButton
 							labelOn="Drafts: On"
@@ -125,6 +126,12 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 							labelOn="Published: On"
 							labelOff="Published: Off"
 							onChange={handlePublishedChange}
+							reset={resetFilters}
+						/>
+						<CheckboxButton
+							labelOn="Limited Attemps: On"
+							labelOff="Limited Attemps: Off"
+							onChange={handleAttemptsChange}
 							reset={resetFilters}
 						/>
 				</div>
