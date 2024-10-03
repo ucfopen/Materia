@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './checkbox-button.scss';
 
-const CheckboxButton = ({ labelOn, labelOff, onChange, reset, customStyle, fontSize }) => {
+const CheckboxButton = ({ labelOn, labelOff, onChange, reset, customStyle, fontSize,ID }) => {
 	const [isChecked, setIsChecked] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 
@@ -52,12 +52,13 @@ const CheckboxButton = ({ labelOn, labelOff, onChange, reset, customStyle, fontS
 		style={customStyle}
 		fontSize={fontSize}
 	>
-	<label style={{fontSize: fontSize || '0.7rem'}}>{isChecked ? labelOn : labelOff}</label>
+	<label style={{fontSize: fontSize || '0.7rem'}} /*for={ID} */ >{isChecked ? labelOn : labelOff}</label>
 		<input
 			type="checkbox"
 			checked={isChecked}
 			onChange={() => {}}
 			tabIndex="0"
+			id={ID}
 		/>
 	</div>
   );
