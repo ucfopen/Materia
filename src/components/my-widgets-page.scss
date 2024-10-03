@@ -3,6 +3,7 @@
 .my_widgets {
 	display: flex;
 	justify-content: center;
+	margin-bottom: 100px;
 
 	.error {
 		width: 80%;
@@ -14,7 +15,7 @@
 		position: relative;
 		display: flex;
 		align-items: flex-start;
-		margin: 0 auto 100px auto;
+		// margin: 0 auto 100px auto;
 		// width: 970px;
 		overflow-x: visible;
 
@@ -75,7 +76,7 @@
 			z-index: 100;
 			width: 700px;
 			min-height: 850px;
-			margin: 0 0 0 260px;
+			// margin: 0 0 0 260px;
 
 			background: #fff;
 		}
@@ -84,12 +85,12 @@
 			// background: #fff;
 			// border: rgba(0, 0, 0, 0.11) 1px solid;
 			// box-shadow: 1px 3px 10px #888;
-			width: 250px;
+			min-width: 250px;
 			height: 100%;
 			margin: 0;
 			// padding: 0 20px 0 0;
-			position: absolute;
-			top: 0;
+			// position: absolute;
+			// top: 0;
 			// left: 5px;
 			z-index: 80;
 			// border-top-left-radius: 10px;
@@ -117,8 +118,10 @@
 			}
 
 			.filtersGroup {
+				// display: none;
 				display: flex;
 				overflow: hidden;
+				width: 0;
 				max-height: 0;
 				opacity: 0;
 				transition: max-height 0.5s ease, opacity 0.3s ease;
@@ -127,8 +130,10 @@
 				padding-top: 0.1rem;
 
 				&.show {
+					// display: flex;
 					max-height: 500px;
 					opacity: 1;
+					width: 100%;
 				}
 			}
 

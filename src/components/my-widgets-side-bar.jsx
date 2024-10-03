@@ -11,6 +11,8 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const [filterPublished, setFilterPublished] = useState(false);
 	const [filterAttempts, setFilterAttempts] = useState(false);
 	const [filterGuestAccess, setFilterGuestAccess] = useState(false);
+	const [filterOpen, setFilterOpen] = useState(false); // Separate filter for open widgets
+	const [filterExpired, setFilterExpired] = useState(false);
 	const [resetFilters, setResetFilters] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
 
@@ -21,20 +23,28 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const hiddenSet = useMemo(() => {
 		const result = new Set()
 		const re = RegExp(searchText, 'i')
+		const currentTime = Math.floor(Date.now()/1000);
 		instances.forEach(i => {
 			const matchesSearch = re.test(`${i.name} ${i.widget.name} ${i.id}`)
 			const matchesDrafts = filterDrafts ? i.is_draft : true
 			const matchesPublished = filterPublished ? !i.is_draft : true
 			const hasAttempts = filterAttempts ? i.attempts !== -1 : true;
 			const hasGuestAccess = filterGuestAccess ? i.guest_access : true;
+			//filtering open widgets
+			const isOpen = i.open_at <= currentTime && (i.close_at === -1 || i.close_at > currentTime);
+			const matchesOpen = filterOpen ? isOpen : true;
+			//filtering expired widgets
+			const isExpired = i.close_at !== -1 && i.close_at < currentTime;
+			const matchesExpired = filterExpired ? isExpired : true;
 
-			if (!matchesSearch || !matchesDrafts || !matchesPublished || !hasAttempts || !hasGuestAccess) {
+			if (!matchesSearch || !matchesDrafts || !matchesPublished ||
+				!hasAttempts || !hasGuestAccess || !matchesOpen || !matchesExpired) {
 				result.add(i.id)
 			}
 		})
 
 		return result
-	}, [instances, searchText, filterDrafts, filterPublished, filterAttempts, filterGuestAccess])
+	}, [instances, searchText, filterDrafts, filterPublished, filterAttempts, filterGuestAccess, filterOpen, filterExpired])
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
 
@@ -44,6 +54,8 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		setFilterPublished(false);
 		setFilterAttempts(false);
 		setFilterGuestAccess(false);
+		setFilterOpen(false);
+		setFilterExpired(false);
 		setResetFilters(true);
 		// setResetFilters(prevState => !prevState);
 		// need to set a timeout so it can rerender on the x for our divs
@@ -54,6 +66,8 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const handlePublishedChange = (isChecked) => setFilterPublished(isChecked);
 	const handleAttemptsChange = (isChecked) => setFilterAttempts(isChecked);
 	const handleGuestAccessChange = (isChecked) => setFilterGuestAccess(isChecked);
+	const handleOpenChange = isChecked => setFilterOpen(isChecked);
+	const handleExpiredChange = isChecked => setFilterExpired(isChecked);
 
 	let widgetInstanceElementsRender = null
 	if (!isFetching || instances?.length > 0) {
@@ -144,6 +158,18 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 							labelOn="Guest Access: On"
 							labelOff="Guest Access: Off"
 							onChange={handleGuestAccessChange}
+							reset={resetFilters}
+						/>
+						<CheckboxButton
+							labelOn="Open: On"
+							labelOff="Open: Off"
+							onChange={handleOpenChange}
+							reset={resetFilters}
+						/>
+						<CheckboxButton
+							labelOn="Expired: On"
+							labelOff="Expired: Off"
+							onChange={handleExpiredChange}
 							reset={resetFilters}
 						/>
 				</div>
