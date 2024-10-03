@@ -10,6 +10,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const [filterDrafts, setFilterDrafts] = useState(false);
 	const [filterPublished, setFilterPublished] = useState(false);
 	const [filterAttempts, setFilterAttempts] = useState(false);
+	const [filterGuestAccess, setFilterGuestAccess] = useState(false);
 	const [resetFilters, setResetFilters] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
 
@@ -25,14 +26,15 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 			const matchesDrafts = filterDrafts ? i.is_draft : true
 			const matchesPublished = filterPublished ? !i.is_draft : true
 			const hasAttempts = filterAttempts ? i.attempts !== -1 : true;
+			const hasGuestAccess = filterGuestAccess ? i.guest_access : true;
 
-			if (!matchesSearch || !matchesDrafts || !matchesPublished || !hasAttempts) {
+			if (!matchesSearch || !matchesDrafts || !matchesPublished || !hasAttempts || !hasGuestAccess) {
 				result.add(i.id)
 			}
 		})
 
 		return result
-	}, [instances, searchText, filterDrafts, filterPublished, filterAttempts])
+	}, [instances, searchText, filterDrafts, filterPublished, filterAttempts, filterGuestAccess])
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
 
@@ -40,6 +42,8 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		setSearchText('');
 		setFilterDrafts(false);
 		setFilterPublished(false);
+		setFilterAttempts(false);
+		setFilterGuestAccess(false);
 		setResetFilters(true);
 		// setResetFilters(prevState => !prevState);
 		// need to set a timeout so it can rerender on the x for our divs
@@ -49,6 +53,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const handleDraftsChange = (isChecked) => setFilterDrafts(isChecked);
 	const handlePublishedChange = (isChecked) => setFilterPublished(isChecked);
 	const handleAttemptsChange = (isChecked) => setFilterAttempts(isChecked);
+	const handleGuestAccessChange = (isChecked) => setFilterGuestAccess(isChecked);
 
 	let widgetInstanceElementsRender = null
 	if (!isFetching || instances?.length > 0) {
@@ -111,7 +116,8 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 					labelOff='&#9654;'
 					onChange={handleToggleFilters}
 					reset={resetFilters}
-					customStyle={{ maxHeight: '17px', marginTop: '10px'}}
+					customStyle={{ maxHeight: '17px', marginTop: '10px', fontSize: '0.57rem' }}
+					fontSize={'0.57rem'}
 				/>
 
 			</div>
@@ -132,6 +138,12 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 							labelOn="Limited Attemps: On"
 							labelOff="Limited Attemps: Off"
 							onChange={handleAttemptsChange}
+							reset={resetFilters}
+						/>
+						<CheckboxButton
+							labelOn="Guest Access: On"
+							labelOff="Guest Access: Off"
+							onChange={handleGuestAccessChange}
 							reset={resetFilters}
 						/>
 				</div>

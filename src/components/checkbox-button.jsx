@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './checkbox-button.scss';
 
-const CheckboxButton = ({ labelOn, labelOff, onChange, reset, customStyle }) => {
+const CheckboxButton = ({ labelOn, labelOff, onChange, reset, customStyle, fontSize }) => {
 	const [isChecked, setIsChecked] = useState(false);
 	const [isFocused, setIsFocused] = useState(false);
 
@@ -50,9 +50,9 @@ const CheckboxButton = ({ labelOn, labelOff, onChange, reset, customStyle }) => 
 		onFocus={handleFocus}
 		onBlur={handleBlur}
 		style={customStyle}
-
+		fontSize={fontSize}
 	>
-	<label>{isChecked ? labelOn : labelOff}</label>
+	<label style={{fontSize: fontSize || '0.7rem'}}>{isChecked ? labelOn : labelOff}</label>
 		<input
 			type="checkbox"
 			checked={isChecked}
