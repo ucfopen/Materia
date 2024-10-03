@@ -13,6 +13,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const [filterGuestAccess, setFilterGuestAccess] = useState(false);
 	const [filterOpen, setFilterOpen] = useState(false); // Separate filter for open widgets
 	const [filterExpired, setFilterExpired] = useState(false);
+	const [filterEmbedded, setFilterEmbedded] = useState(false);
 	const [resetFilters, setResetFilters] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
 
@@ -36,16 +37,18 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 			//filtering expired widgets
 			const isExpired = i.close_at !== -1 && i.close_at < currentTime;
 			const matchesExpired = filterExpired ? isExpired : true;
+			//filtering for embedded widgets
+			const isEmbedded = filterEmbedded ? i.is_embedded : true;
 
 			if (!matchesSearch || !matchesDrafts || !matchesPublished ||
-				!hasAttempts || !hasGuestAccess || !matchesOpen || !matchesExpired) {
+				!hasAttempts || !hasGuestAccess || !matchesOpen || !matchesExpired || !isEmbedded) {
 				result.add(i.id)
 			}
 		})
 
 		return result
 	}, [instances, searchText, filterDrafts, filterPublished, filterAttempts, filterGuestAccess,
-		filterOpen, filterExpired])
+		filterOpen, filterExpired, filterEmbedded])
 
 	const handleSearchInputChange = e => setSearchText(e.target.value)
 
@@ -57,8 +60,8 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		setFilterGuestAccess(false);
 		setFilterOpen(false);
 		setFilterExpired(false);
+		setFilterEmbedded(false);
 		setResetFilters(true);
-		// setResetFilters(prevState => !prevState);
 		// need to set a timeout so it can rerender on the x for our divs
 		setTimeout(() => setResetFilters(false), 0); // Clear reset after it propagates
 	};
@@ -69,6 +72,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const handleGuestAccessChange = (isChecked) => setFilterGuestAccess(isChecked);
 	const handleOpenChange = isChecked => setFilterOpen(isChecked);
 	const handleExpiredChange = isChecked => setFilterExpired(isChecked);
+	const handleEmbeddedChange = isChecked => setFilterEmbedded(isChecked);
 
 	let widgetInstanceElementsRender = null
 	if (!isFetching || instances?.length > 0) {
@@ -176,6 +180,13 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 							labelOn="Expired: On"
 							labelOff="Expired: Off"
 							onChange={handleExpiredChange}
+							reset={resetFilters}
+							ID="focus111111"
+						/>
+						<CheckboxButton
+							labelOn="Embedded: On"
+							labelOff="Embedded: Off"
+							onChange={handleEmbeddedChange}
 							reset={resetFilters}
 							ID="focus111111"
 						/>

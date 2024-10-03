@@ -120,7 +120,10 @@
 			.filtersGroup {
 				// display: none;
 				display: grid;
-				grid-template-columns: 1fr 1fr;
+				//make the grid span out for 4 columsn but have the elements take up 2 spaces
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+				// grid-template-columns: repeat(auto-fit, 50%);
+				justify-content: center;
 				overflow: hidden;
 				width: 0;
 				max-height: 0;
@@ -129,6 +132,18 @@
 				gap: 5px;
 				padding-bottom: 0.5rem;
 				padding-top: 0.1rem;
+
+				div {
+					grid-column: span 2;
+				}
+
+				//this is to style the last item in the grid so its centered
+				div:last-child:nth-child(odd) {
+					grid-column: span 4; /* If last item is by itself, span across 4 columns to center */
+					grid-column-end: 5;
+					justify-self: center;
+					min-width: 122.5px;
+				}
 
 				&.show {
 					// display: flex;
