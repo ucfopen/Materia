@@ -135,6 +135,7 @@
 
 				div {
 					grid-column: span 2;
+					margin: 2px;
 				}
 
 				//this is to style the last item in the grid so its centered
@@ -150,12 +151,15 @@
 					max-height: 500px;
 					opacity: 1;
 					width: 100%;
+					padding: 5px;
+					box-sizing: border-box;
 				}
 			}
 
 			.searchBarGroup{
 				display: flex;
 				align-items: center;
+				gap: 0.1rem;
 			}
 
 

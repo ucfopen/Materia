@@ -152,42 +152,42 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 							labelOff="Published: Off"
 							onChange={handlePublishedChange}
 							reset={resetFilters}
-							ID="focus11"
+							ID="focus2"
 						/>
 						<CheckboxButton
 							labelOn="Limited Attemps: On"
 							labelOff="Limited Attemps: Off"
 							onChange={handleAttemptsChange}
 							reset={resetFilters}
-							ID="focus111"
+							ID="focus3"
 						/>
 						<CheckboxButton
 							labelOn="Guest Access: On"
 							labelOff="Guest Access: Off"
 							onChange={handleGuestAccessChange}
 							reset={resetFilters}
-							ID="focus1111"
+							ID="focus4"
 						/>
 						<CheckboxButton
 							labelOn="Open: On"
 							labelOff="Open: Off"
 							onChange={handleOpenChange}
 							reset={resetFilters}
-							ID="focus11111"
+							ID="focus5"
 						/>
 						<CheckboxButton
 							labelOn="Expired: On"
 							labelOff="Expired: Off"
 							onChange={handleExpiredChange}
 							reset={resetFilters}
-							ID="focus111111"
+							ID="focus6"
 						/>
 						<CheckboxButton
 							labelOn="Embedded: On"
 							labelOff="Embedded: Off"
 							onChange={handleEmbeddedChange}
 							reset={resetFilters}
-							ID="focus1111111"
+							ID="focus7"
 						/>
 				</div>
 
