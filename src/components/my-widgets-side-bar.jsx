@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react'
-import { useQuery } from 'react-query'
+// import { useQuery } from 'react-query'
 import MyWidgetsInstanceCard from './my-widgets-instance-card'
 import LoadingIcon from './loading-icon'
 import CheckboxButton from './checkbox-button'
+import { apiGetScoreSummaryBatch } from '../util/api';
 
 
 const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMode, beards }) => {
@@ -16,7 +17,6 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 	const [filterEmbedded, setFilterEmbedded] = useState(false);
 	const [resetFilters, setResetFilters] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
-
 	const handleToggleFilters = (isChecked) => {
 		setShowFilters(isChecked);
 	};
@@ -41,7 +41,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 			const isEmbedded = filterEmbedded ? i.is_embedded : true;
 
 			if (!matchesSearch || !matchesDrafts || !matchesPublished ||
-				!hasAttempts || !hasGuestAccess || !matchesOpen || !matchesExpired || !isEmbedded) {
+				!hasAttempts || !hasGuestAccess || !matchesOpen || !matchesExpired || !isEmbedded ) {
 				result.add(i.id)
 			}
 		})
@@ -62,7 +62,6 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 		setFilterExpired(false);
 		setFilterEmbedded(false);
 		setResetFilters(true);
-		// need to set a timeout so it can rerender on the x for our divs
 		setTimeout(() => setResetFilters(false), 0); // Clear reset after it propagates
 	};
 
@@ -188,7 +187,7 @@ const MyWidgetsSideBar = ({ instances, isFetching, selectedId, onClick, beardMod
 							labelOff="Embedded: Off"
 							onChange={handleEmbeddedChange}
 							reset={resetFilters}
-							ID="focus111111"
+							ID="focus1111111"
 						/>
 				</div>
 
