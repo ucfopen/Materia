@@ -207,6 +207,7 @@ return array(
 		'secure'      => $_SERVER['HTTPS'] ?? false,
 		// Only transmit cookies over HTTP, disabling Javascript access
 		// 'http_only'   => false,
+		// Samesite restrictions on cookie, options include Lax, Strict or None.
 		'same_site' => 'None',
 	),
 
