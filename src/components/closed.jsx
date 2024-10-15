@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from './header'
 import Summary from './widget-summary'
 import './login-page.scss'
+import EmbedFooter from './widget-embed-footer';
 
 const Closed = () => {
 
@@ -45,6 +46,7 @@ const Closed = () => {
 					<Summary />
 					<h3>{ state.summary }</h3>
 					<p>{ state.description }</p>
+					<EmbedFooter/>
 				</section>
 			</div>
 		</>

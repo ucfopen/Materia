@@ -24,6 +24,7 @@ class Test_Widget_Installer extends \Basetest
 				'is_playable'         => '0',
 				'is_editable'         => 'true',
 				'in_catalog'          => 'false',
+				'is_generable'        => '0',
 				'api_version'         => '2',
 			],
 			'score' => [
@@ -46,6 +47,7 @@ class Test_Widget_Installer extends \Basetest
 			'is_qset_encrypted' => '0',
 			'is_answer_encrypted' => '1',
 			'is_storage_enabled' => '1',
+			'is_generable' => '0',
 			'is_playable' => '0',
 			'is_editable' => '0',
 			'is_scorable' => '1',

@@ -84,6 +84,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		placeholderData: {},
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			console.error(`Error: ${err.message}`);
 			if (err.message == "Invalid Login") {

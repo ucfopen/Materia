@@ -109,7 +109,7 @@ class Api_V1
 	 * @return object, contains properties indicating whether the current
 	 * user can edit the widget and a message object describing why, if not
 	 */
-	
+
 	 // !! this endpoint should be significantly refactored or removed in the future API overhaul !!
 	static public function widget_instance_edit_perms_verify(string $inst_id)
 	{
@@ -839,6 +839,59 @@ class Api_V1
 		$inst->get_qset($inst_id, $timestamp);
 
 		return $inst->qset;
+	}
+
+	/**
+	 * Generates a question set based on a given instance ID, widget ID, topic, and whether to include images.
+	 * @param string $inst_id The instance ID, if there is an instance associated with this request. May be null.
+	 * @param string $widget_id The ID of the widget engine associated with this request. Must be set.
+	 * @param string $topic The topic for which to generate a question set
+	 * @param bool $include_images whether or not to include images in the generated qset
+	 * @param int $num_questions How many questions should be generated in the qset
+	 * @param bool $build_off_existing Whether to build from an existing qset, or generate one from scratch
+	 * @return object The generated question set
+	 */
+	static public function question_set_generate($inst_id, $widget_id, $topic, $include_images, $num_questions, $build_off_existing)
+	{
+		// short-circuit if generation is not available
+		if ( ! Widget_Question_Generator::is_enabled()) return Msg::failure();
+
+		// verify eligibility
+		if ( ! \Service_User::verify_session(['basic_author', 'super_user'])) return Msg::no_perm();
+
+		$inst = null;
+
+		// validate instance (but only if an instance id is provided)
+		if (Util_Validator::is_valid_hash($inst_id))
+		{
+			if ( ! ($inst = Widget_Instance_Manager::get($inst_id))) throw new \HttpNotFoundException;
+			if ( ! $inst->playable_by_current_user()) return Msg::no_login();
+		}
+
+		$widget = new Widget();
+		if ( $widget->get($widget_id) == false) return Msg::invalid_input('Invalid widget type');
+		if ( ! $widget->is_generable) return Msg::invalid_input('Widget engine does not support generation');
+
+		// clean topic of any special characters
+		$topic = preg_replace('/[^a-zA-Z0-9\s]/', '', $topic);
+
+		// validate number of questions
+		if ($num_questions < 1) $num_questions = 8;
+		if ($num_questions > 32) $num_questions = 32;
+
+		$query = Widget_Question_Generator::generate_qset($inst, $widget, $topic, $include_images, $num_questions, $build_off_existing);
+		if ( ! $query instanceof Msg && is_array($query))
+		{
+			return [
+				...$query,
+				'title' => $topic
+			];
+		}
+		else
+		{
+			\Log::error(print_r($query, true));
+			return $query;
+		}
 	}
 
 	/**

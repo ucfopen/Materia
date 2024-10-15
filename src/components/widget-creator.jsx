@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiIsGenerable} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -31,6 +31,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/creators-guide',
 		showActionBar: true,
 		showRollbackConfirm: false,
+		showGenerationConfirm: false,
 		saveStatus: 'idle',
 		saveMode: null,
 		previewUrl: null,
@@ -39,7 +40,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		popupState: null,
 		returnUrl: null,
 		returnLocation: 'Widget Catalog',
-		directUploadMediaFile: null
+		directUploadMediaFile: null,
+		canGenerateQset: false,
+		isTimeoutRunning: false
 	})
 
 	const [alertDialog, setAlertDialog] = useState({
@@ -71,9 +74,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidget(widgetId),
 		enabled: !!widgetId,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (info) => {
 			if (info) {
 				setInstance({ ...instance, widget: info })
+				setCreatorState({...creatorState, canGenerateQset: info.is_generable == "1"})
 			}
 		},
 		onError: (error) => {
@@ -88,6 +93,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetInstance(instId),
 		enabled: !!instId,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (data) => {
 			// this value will include a qset that's always empty
 			// it will override the instance's qset property even if it's already set
@@ -108,6 +114,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: Infinity,
 		placeholderData: null,
 		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
+		retry: false,
 		onSuccess: (data) => {
 			if (data) {
 				setCreatorState({...creatorState, invalid: false})
@@ -126,6 +133,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiCanBePublishedByCurrentUser(instance.widget?.id),
 		enabled: instance?.widget !== null,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (success) => {
 			if (!success && !instance.is_draft) {
 				onInitFail('Widget type can not be edited by students after publishing.')
@@ -142,6 +150,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		staleTime: 30000,
 		refetchInterval: 30000,
 		enabled: creatorState.heartbeatEnabled,
+		retry: 1,
 		onError: (error) => {
 			onInitFail(error)
 		},
@@ -160,6 +169,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
 		staleTime: Infinity,
+		retry: false,
 		onSuccess: (success) => {
 			if (!success) {
 				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
@@ -243,7 +253,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			// this hook will then fire a second time when a new save postMessage is sent
 			// the second hook will initialize an existing widget with the newly provided qset data
 			// note: this condition will also apply when rolling back and applying the original cached qset
-			if (!!instIdRef.current && instance.qset && creatorState.reloadWithQset) {
+			if (((!!instIdRef.current && instance.qset) || instance.preSaveSpecialCondition) && creatorState.reloadWithQset) {
 
 				// flip to false because creator will re-init and send start postMessage
 				setWidgetReady(false)
@@ -262,6 +272,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 				creatorShouldInitRef.current = false
 
+			} else if (instance.preSaveSpecialCondition) {
+				// preSaveSpecialCondition is a flag set when generating a qset for an unsaved instance
+				let args = [instance.name ? instance.name : 'My Generated Widget', instance, instance.qset.data, instance.qset.version, window.BASE_URL, window.MEDIA_URL]
+				sendToCreator('initExistingWidget', args)
+
 			} else if (!instIdRef.current) {
 
 				let args = [instance.widget, window.BASE_URL, window.MEDIA_URL]
@@ -278,7 +293,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			creatorShouldInitRef.current = true
 			setInstance({
 				...instance,
-				qset: creatorState.reloadWithQset
+				qset: creatorState.reloadWithQset,
+				...( creatorState.reloadWithQset.title && { name: creatorState.reloadWithQset.title }), // fancy syntax to only apply the name property when reloadWithQset.title is set
+				...( ! instIdRef.current && { preSaveSpecialCondition: true }) // fancy syntax to ensure preSaveSpecialCondition is only applied when instIdRef.current is unavailable
 			})
 		}
 	},[creatorState.reloadWithQset])
@@ -289,6 +306,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		if (!!saveWidgetComplete) {
 			if (saveWidgetComplete == 'save') {
 				setCreatorState(creatorState => ({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle'}))
+				if(!creatorState.isTimeoutRunning) {
+					setCreatorState({...creatorState, saveText: 'Draft Saved', saveStatus: 'idle', isTimeoutRunning: true});
+				}
 			}
 			else if (saveWidgetComplete == 'preview') {
 				setCreatorState(creatorState => ({...creatorState, saveStatus: 'idle'}))
@@ -297,6 +317,21 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			setSaveWidgetComplete(null)
 		}
 	},[saveWidgetComplete])
+
+	useEffect( () => {
+		if(creatorState.isTimeoutRunning) {
+			const timeoutID = setTimeout( () => {
+				setCreatorState( prevState => ({
+					...prevState,
+					saveText: 'Save Draft',
+					isTimeoutRunning: false
+				}));
+			}, 5000);
+
+			return () => clearTimeout(timeoutID);
+		}
+
+	}, [creatorState.isTimeoutRunning]);
 
 	/* =========== postMessage handlers =========== */
 
@@ -378,6 +413,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	}
 
 	const save = (instanceName, qset, version = 1) => {
+		//cancel saving of the widget if title is too long to prevent crashing
+		if(instanceName.length>100) {
+			setAlertDialog({
+				enabled: true,
+				title: 'Title too long', //the max length for title in my testing is 100
+				message: 'Title must be less than 100 characters',
+				fatal: false,
+				enableLoginButton: false
+			});
+			return false;
+		}
 		let newWidget = {
 			widget_id: widgetId,
 			name: instanceName,
@@ -448,7 +494,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					enableLoginButton: true
 				})
 
-				setCreatorState({...creatorState, heartbeatEnabled: false})
+				setCreatorState({
+					...creatorState,
+					heartbeatEnabled: false,
+					saveText: 'Failed to save',
+					saveStatus: 'idle',
+					isTimeoutRunning: true
+				});
 			} else {
 				setAlertDialog({
 					enabled: true,
@@ -457,7 +509,16 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					fatal: false,
 					enableLoginButton: false
 				})
+				//also update the text on the Save Draft Button
+				setCreatorState({
+					...creatorState,
+					saveText: 'Failed to save',
+					saveStatus: 'idle',
+					isTimeoutRunning: true
+				});
+
 			}
+
 		} else {
 			setAlertDialog({
 				enabled: true,
@@ -466,6 +527,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				fatal: false,
 				enableLoginButton: false
 			})
+			setCreatorState({
+				...creatorState,
+				saveText: 'Failed to save',
+				saveStatus: 'idle',
+				isTimeoutRunning: true
+			});
+
 		}
 	}
 
@@ -494,10 +562,11 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		showEmbedDialog(`${window.BASE_URL}qsets/import/?inst_id=${instance.id}`, 'embed_dialog')
 	}
 
-	// const showQsetHistoryConfirmation = () => {
-	// }
+	const showQuestionGenerator = () => {
+		showEmbedDialog(`${window.BASE_URL}qsets/generate/?inst_id=${instance.id}&widget_id=${widgetId}`, 'embed_dialog')
+	}
 
-	const qsetRollbackConfirm = (confirm) => {
+	const qsetConfirm = (confirm) => {
 
 		// if asked to confirm rollback, we apply the cached qset to reloadWithQset
 		// doing so will trigger the hook when reloadWithQset updates
@@ -505,20 +574,24 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 		// otherwise, nothing is required except to restore the action bar
 		if (!confirm) {
+			// rollback to the cached qset
 			let qsetToApply = creatorState.cachedQset
 			setCreatorState({
 				...creatorState,
 				reloadWithQset: qsetToApply,
 				cachedQset: null,
 				showActionBar: true,
-				showRollbackConfirm: false
+				showRollbackConfirm: false,
+				showGenerationConfirm: false,
 			})
 		} else {
+			// just remove the confirmation bar and show the action bar
 			setCreatorState({
 				...creatorState,
 				cachedQset: null,
 				showActionBar: true,
-				showRollbackConfirm: false
+				showRollbackConfirm: false,
+				showGenerationConfirm: false,
 			})
 		}
 	}
@@ -582,20 +655,20 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				}
 			},
 
-			// When a qset is selected from the prior saves list
-			onQsetHistorySelectionComplete(qset, version = 1) {
+			// When a new qset is selected from the prior saves list or generated
+			onQsetReselectionComplete(qset, showGenerationConfirm = false, version = 1, title = null) {
 				if (!qset) {
 					setCreatorState({
 						...creatorState,
 						dialogPath: '',
 						dialogType: 'embed_dialog',
 						showActionBar: true,
-						showRollbackConfirm: false
+						showRollbackConfirm: false,
+						showGenerationConfirm: false
 					})
 				} else {
 
 					requestSave('history')
-
 					let parsedQsetData = JSON.parse(qset)
 
 					setCreatorState({
@@ -605,11 +678,12 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 						reloadWithQset: {
 							data: parsedQsetData,
 							version: version,
-							id: parsedQsetData.id
+							id: parsedQsetData.id,
+							...(title && { title: title }),
 						},
-						// cachedQset: instance.qset,
 						showActionBar: false,
-						showRollbackConfirm: true
+						showRollbackConfirm: showGenerationConfirm ? false : true,
+						showGenerationConfirm: showGenerationConfirm,
 					})
 				}
 			},
@@ -714,7 +788,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 				<a id="returnLink" href={returnLocationUrl}>&larr;Return to {creatorState.returnLocation}</a>
 				{ creatorState.hasCreatorGuide ? <a id="creatorGuideLink" href={creatorState.creatorGuideUrl} target="_blank">Creator's Guide</a> : '' }
 				{ instance.id ? <a id="saveHistoryLink" onClick={showQsetHistoryImporter}>Save History</a> : '' }
-				<a id="importLink" onClick={showQuestionImporter}>Import Questions...</a>
+				<a id="importLink" onClick={showQuestionImporter}>Import</a>
+				{ creatorState.canGenerateQset ? <a id="generateLink" onClick={showQuestionGenerator}>Generate</a> : <></> }
 				{ editButtonsRender }
 				<div className="dot"></div>
 				<button id="creatorPublishBtn"
@@ -730,11 +805,23 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 	let rollbackConfirmBarRender = null
 	if (creatorState.showRollbackConfirm) {
 		rollbackConfirmBarRender = (
-			<section id="qset-rollback-confirmation-bar">
+			<section className="confirmation-bar" id="qset-rollback-confirmation-bar">
 				<h3>Previewing Prior Save</h3>
 				<p>Select <span>Cancel</span> to go back to the version you were working on. Select <span>Keep</span> to commit to using this version.</p>
-				<button onClick={() => qsetRollbackConfirm(false)}>Cancel</button>
-				<button onClick={() => qsetRollbackConfirm(true)}>Keep</button>
+				<button onClick={() => qsetConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetConfirm(true)}>Keep</button>
+			</section>
+		)
+	}
+
+	let generationConfirmBarRender = null
+	if (creatorState.showGenerationConfirm) {
+		generationConfirmBarRender = (
+			<section className="confirmation-bar" id="qset-generation-confirmation-bar">
+				<h3>Previewing Generated Questions</h3>
+				<p>Select <span>Cancel</span> to undo any changes made by the question generator. Select <span>Keep</span> to commit to using this generated version.</p>
+				<button onClick={() => qsetConfirm(false)}>Cancel</button>
+				<button onClick={() => qsetConfirm(true)}>Keep</button>
 			</section>
 		)
 	}
@@ -803,6 +890,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 					{ popupRender }
 					{ actionBarRender }
 					{ rollbackConfirmBarRender }
+					{ generationConfirmBarRender }
 					<div className="center">
 						<iframe
 							src={creatorState.creatorPath}

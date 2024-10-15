@@ -29,10 +29,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Create .env.local to satisfy build requirements
+        run: |
+          cd docker
+          if [ ! -f .env.local ]; then
+            touch .env.local
+          fi
+
       - name: Build App Image
         run: |
           cd docker
-          docker-compose build --no-cache webserver app
+          docker compose build --no-cache webserver app
 
       - name: Push App Images
         run: |
