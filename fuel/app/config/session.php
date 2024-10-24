@@ -13,9 +13,5 @@ return [
 			]
 		],
 		'expiration_time' => $_ENV['SESSION_EXPIRATION'] ?? null,
-		'cookie_same_site' => (
-			// Assume true if 'true', unset, or any other input. Only assume false if specifically set to 'false'
-			(filter_var($_ENV['IS_SERVER_HTTPS'] ?? true, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true)
-			? 'None' : 'Strict'
-		)
+		'cookie_same_site' => 'None',
 ];
