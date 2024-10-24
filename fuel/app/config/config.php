@@ -204,11 +204,9 @@ return array(
 		// Restrict the domain that the cookie is available to
 		// 'domain'      => null,
 		// Only transmit cookies over secure connections
-		'secure'      => $_SERVER['HTTPS'] ?? false,
+		'secure'      => filter_var($_ENV['IS_SERVER_HTTPS'] ?? true, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true,
 		// Only transmit cookies over HTTP, disabling Javascript access
 		// 'http_only'   => false,
-		// Samesite restrictions on cookie, options include Lax, Strict or None.
-		'same_site'   => (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS']) ? 'None' : 'Strict',
 	),
 
 	/**
