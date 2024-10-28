@@ -4,34 +4,35 @@ namespace Materia;
 
 class Widget
 {
-	public $clean_name          = '';
-	public $creator             = '';
-	public $created_at          = 0;
-	public $dir                 = '';
-	public $flash_version       = 0;
-	public $api_version         = 0;
-	public $height              = 0;
-	public $id                  = 0;
-	public $is_answer_encrypted = true;
-	public $in_catalog          = true;
-	public $is_editable         = true;
-	public $is_playable         = true;
-	public $is_qset_encrypted   = true;
-	public $is_scalable         = 0;
-	public $is_scorable         = true;
-	public $is_storage_enabled  = false;
-	public $is_generable        = false;
-	public $package_hash        = '';
-	public $meta_data           = null;
-	public $name                = '';
-	public $player              = '';
-	public $question_types      = '';
-	public $restrict_publish    = false;
-	public $score_module        = 'base';
-	public $score_screen        = '';
-	public $width               = 0;
-	public $creator_guide	    = '';
-	public $player_guide        = '';
+	public $clean_name             = '';
+	public $creator                = '';
+	public $created_at             = 0;
+	public $dir                    = '';
+	public $flash_version          = 0;
+	public $api_version            = 0;
+	public $height                 = 0;
+	public $id                     = 0;
+	public $is_answer_encrypted    = true;
+	public $in_catalog             = true;
+	public $is_editable            = true;
+	public $is_playable            = true;
+	public $is_qset_encrypted      = true;
+	public $is_scalable            = 0;
+	public $is_scorable            = true;
+	public $is_storage_enabled     = false;
+	public $is_generable           = false;
+	public $uses_prompt_generation = false;
+	public $package_hash           = '';
+	public $meta_data              = null;
+	public $name                   = '';
+	public $player                 = '';
+	public $question_types         = '';
+	public $restrict_publish       = false;
+	public $score_module           = 'base';
+	public $score_screen           = '';
+	public $width                  = 0;
+	public $creator_guide	       = '';
+	public $player_guide           = '';
 
 	public const PATHS_PLAYDATA = '_exports'.DS.'playdata_exporters.php';
 	public const PATHS_SCOREMOD = '_score-modules'.DS.'score_module.php';
@@ -90,32 +91,33 @@ class Widget
 
 		// -------------- INIT OBJECT ---------------
 		$this->__construct([
-			'clean_name'          => $w['clean_name'],
-			'created_at'          => $w['created_at'],
-			'creator'             => $w['creator'],
-			'is_answer_encrypted' => $w['is_answer_encrypted'],
-			'is_qset_encrypted'   => $w['is_qset_encrypted'],
-			'flash_version'       => $w['flash_version'],
-			'api_version'         => $w['api_version'],
-			'height'              => $w['height'],
-			'id'                  => $w['id'],
-			'in_catalog'          => $w['in_catalog'],
-			'is_editable'         => $w['is_editable'],
-			'name'                => $w['name'],
-			'is_playable'         => $w['is_playable'],
-			'player'              => $w['player'],
-			'is_scorable'         => $w['is_scorable'],
-			'is_scalable'         => $w['is_scalable'],
-			'score_module'        => $w['score_module'],
-			'score_screen'        => $w['score_screen'],
-			'restrict_publish'    => $w['restrict_publish'],
-			'is_storage_enabled'  => $w['is_storage_enabled'],
-			'is_generable'        => $w['is_generable'],
-			'package_hash'        => $w['package_hash'],
-			'width'               => $w['width'],
-			'creator_guide'       => $w['creator_guide'],
-			'player_guide'        => $w['player_guide'],
-			'meta_data'           => static::db_get_metadata($w['id']),
+			'clean_name'             => $w['clean_name'],
+			'created_at'             => $w['created_at'],
+			'creator'                => $w['creator'],
+			'is_answer_encrypted'    => $w['is_answer_encrypted'],
+			'is_qset_encrypted'      => $w['is_qset_encrypted'],
+			'flash_version'          => $w['flash_version'],
+			'api_version'            => $w['api_version'],
+			'height'                 => $w['height'],
+			'id'                     => $w['id'],
+			'in_catalog'             => $w['in_catalog'],
+			'is_editable'            => $w['is_editable'],
+			'name'                   => $w['name'],
+			'is_playable'            => $w['is_playable'],
+			'player'                 => $w['player'],
+			'is_scorable'            => $w['is_scorable'],
+			'is_scalable'            => $w['is_scalable'],
+			'score_module'           => $w['score_module'],
+			'score_screen'           => $w['score_screen'],
+			'restrict_publish'       => $w['restrict_publish'],
+			'is_storage_enabled'     => $w['is_storage_enabled'],
+			'is_generable'           => $w['is_generable'],
+			'uses_prompt_generation' => $w['uses_prompt_generation'],
+			'package_hash'           => $w['package_hash'],
+			'width'                  => $w['width'],
+			'creator_guide'          => $w['creator_guide'],
+			'player_guide'           => $w['player_guide'],
+			'meta_data'              => static::db_get_metadata($w['id']),
 		]);
 
 		// if creator is empty or set to 'default', use the default creator
@@ -124,8 +126,17 @@ class Widget
 			$this->creator = \Config::get('materia.urls.static').'default-creator/creator.html';
 		}
 
-		if ( ! \Service_User::verify_session('basic_author')) $this->is_generable = '0';
-		else $this->is_generable = $this->is_generable == '1' && Widget_Question_Generator::is_enabled() ? '1' : '0';
+		// check if ai generation is available and adjust appropriate fields
+		if ( ! \Service_User::verify_session('basic_author'))
+		{
+			$this->is_generable = '0';
+			$this->uses_prompt_generation = '0';
+		}
+		else
+		{
+			$this->is_generable = $this->is_generable == '1' && Widget_Question_Generator::is_enabled() ? '1' : '0';
+			$this->uses_prompt_generation = $this->uses_prompt_generation == '1' && Widget_Question_Generator::is_enabled() ? '1' : '0';
+		}
 
 		return true;
 	}
@@ -183,7 +194,7 @@ class Widget
 				->execute()[0]['value'];
 		}
 
-		if ($prop == 'is_generable')
+		if ($prop == 'is_generable' || $prop == 'uses_prompt_generation')
 		{
 			if ( ! \Service_User::verify_session('basic_author')) return '0';
 			elseif ( Widget_Question_Generator::is_enabled() && $val == '1') return '1';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query'
 import LoadingIcon from './loading-icon';
-import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiIsGenerable} from '../util/api'
+import { apiGetWidgetInstance, apiGetQuestionSet, apiCanBePublishedByCurrentUser, apiSaveWidget, apiGetWidgetLock, apiGetWidget, apiAuthorVerify, apiIsGenerable, apiWidgetPromptGenerate} from '../util/api'
 import NoPermission from './no-permission'
 import Alert from './alert'
 import { creator } from './materia-constants';
@@ -370,6 +370,8 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 							return showMediaImporter(msg.data)
 						case 'directUploadMedia': // the creator is requesting to directly upload a media file, bypassing user input
 							return directUploadMedia(msg.data)
+						case 'submitPrompt':
+							return submitPromptForCreator(msg.data)
 						case 'setHeight': // the height of the creator has changed
 							return setHeight(`${msg.data[0]}px`)
 						case 'alert':
@@ -606,6 +608,13 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			...creatorState,
 			dialogPath: `${window.BASE_URL}media/import#${['jpg', 'gif', 'png', 'mp3'].join(',')}`,
 			directUploadMedia: media
+		})
+	}
+
+	const submitPromptForCreator = (prompt) => {
+		apiWidgetPromptGenerate(prompt).then((result) => {
+			if (result.response && result.success) sendToCreator('promptResponse', [result.response])
+			else sendToCreator('promptRejection')
 		})
 	}
 

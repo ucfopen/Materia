@@ -1170,6 +1170,21 @@ class Test_Api_V1 extends \Basetest
 		}
 	}
 
+	public function test_widget_prompt_generate()
+	{
+		if ( ! \Materia\Widget_Question_Generator::is_enabled())
+		{
+			$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
+			$this->assert_failure_message($output);
+		}
+		else
+		{
+			// ======= AS NO ONE ========
+			$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
+			$this->assert_invalid_login_message($output);
+		}
+	}
+
 	public function test_questions_get()
 	{
 		// ======= AS NO ONE ========
