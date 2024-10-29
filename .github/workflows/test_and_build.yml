@@ -39,30 +39,29 @@ jobs:
       - name: Build App and Webserver Images
         run: |
           cd docker
-          docker compose build --no-cache webserver app
+          docker compose build --no-cache webserver app fakes3
 
       - name: Push Dev App and Webserver Images
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (contains(github.ref, '-alpha') || contains(github.ref, '-rc')) }}
         run: |
-          docker tag ucfopen/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-dev
-          docker tag ucfopen/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-dev
           docker push ghcr.io/${{ github.repository_owner }}/materia:app-dev
           docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-dev
+          docker push ghcr.io/${{ github.repository_owner }}/materia:fake-s3-dev
 
       - name: Push Stable App and Webserver Images
         if: ${{ startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-alpha') && !contains(github.ref, '-rc') }}
         run: |
-          docker tag ucfopen/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-stable
-          docker tag ucfopen/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-stable
-          docker push ghcr.io/${{ github.repository_owner }}/materia:app-dev
-          docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-dev
+          docker tag ghcr.io/${{ github.repository_owner }}/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-stable
+          docker tag ghcr.io/${{ github.repository_owner }}/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-stable
+          docker push ghcr.io/${{ github.repository_owner }}/materia:app-stable
+          docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-stable
 
       - name: Push Versioned App and Webserver Images
         run: |
-          docker tag ucfopen/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-${{ github.sha }}
-          docker tag ucfopen/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
-          docker tag ucfopen/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ github.sha }}
-          docker tag ucfopen/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ steps.tag_name.outputs.GIT_TAG }}
+          docker tag ghcr.io/${{ github.repository_owner }}/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-${{ github.sha }}
+          docker tag ghcr.io/${{ github.repository_owner }}/materia:app-dev ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
+          docker tag ghcr.io/${{ github.repository_owner }}/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ github.sha }}
+          docker tag ghcr.io/${{ github.repository_owner }}/materia:webserver-dev ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ steps.tag_name.outputs.GIT_TAG }}
           docker push ghcr.io/${{ github.repository_owner }}/materia:app-${{ github.sha }}
           docker push ghcr.io/${{ github.repository_owner }}/materia:app-${{ steps.tag_name.outputs.GIT_TAG }}
           docker push ghcr.io/${{ github.repository_owner }}/materia:webserver-${{ github.sha }}
