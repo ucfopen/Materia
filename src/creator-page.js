@@ -1,5 +1,5 @@
 import React from 'react'
-import {createRoot} from "react-dom/client"
+import {createRoot} from 'react-dom/client'
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
 import WidgetCreatorPage from './components/widget-creator-page'
 

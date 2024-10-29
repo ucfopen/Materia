@@ -1,7 +1,6 @@
 import React from 'react'
-import {createRoot} from "react-dom/client"
+import {createRoot} from 'react-dom/client'
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools';
 import WidgetAdminPage from './components/widget-admin-page'
 
 const queryCache = new QueryCache()
@@ -12,6 +11,5 @@ const root = createRoot(document.getElementById('app'));
 root.render(
 	<QueryClientProvider client={queryClient} contextSharing={true}>
 		<WidgetAdminPage />
-		<ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
 )

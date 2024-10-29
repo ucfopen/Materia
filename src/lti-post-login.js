@@ -1,5 +1,5 @@
 import React from 'react'
-import {createRoot} from "react-dom/client"
+import {createRoot} from 'react-dom/client'
 import { QueryClient, QueryClientProvider, QueryCache } from 'react-query'
 import PostLogin from './components/lti/post-login'
 
