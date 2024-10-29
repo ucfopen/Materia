@@ -52,7 +52,8 @@
         "eher/oauth": "1.0.7",
         "aws/aws-sdk-php": "^3.314",
         "symfony/dotenv": "^5.1",
-        "ucfopen/materia-theme-ucf": "2.0.3"
+        "ucfopen/materia-theme-ucf": "2.0.4",
+        "openai-php/client": "^0.8.5"
     },
     "suggest": {
         "ext-memcached": "*"
@@ -99,9 +100,9 @@
             "package": {
                 "name": "ucfopen/materia-theme-ucf",
                 "type": "fuel-package",
-                "version": "2.0.3",
+                "version": "2.0.4",
                 "dist": {
-                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.3.zip",
+                    "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.4.zip",
                     "type": "zip"
                 },
                 "source": {

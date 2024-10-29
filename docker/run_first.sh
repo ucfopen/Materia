@@ -23,11 +23,27 @@ rm -rf ./config/nginx/cert.pem
 # generate a self-signed ssl cert
 openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout ./config/nginx/key.pem -out ./config/nginx/cert.pem -days 365
 
-# quietly pull any docker images we can
-docker compose pull --ignore-pull-failures
+echo "To setup Materia locally, you can choose to pull pre-packaged images or build from source"
+echo "1. Pull app and webserver images (recommended if you just want to run Materia locally with no dev)"
+echo "2. Build images from source (recommended if you're actively developing Materia)"
+read -p "Enter an option (1 or 2): " choice
 
-# install php composer deps
-docker compose run --rm --no-deps app composer install --ignore-platform-reqs
+if [ "$choice" == "1" ]; then
+	echo "Pulling containers..."
+	# quietly pull any docker images we can
+	docker compose pull
+
+
+elif [ "$choice" == "2" ]; then
+	echo "Building containers. This will take a few minutes..."
+	docker compose build app webserver fakes3
+
+	# install php composer deps
+	docker compose run --rm --no-deps app composer install --ignore-platform-reqs
+else
+	echo "Invalid choice. Try again."
+	exit 1
+fi
 
 # run migrations and seed any db data needed for a new install
 docker compose run --rm app /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
@@ -38,12 +54,10 @@ docker compose run --rm app bash -c 'php oil r widget:install_from_config'
 # Install any widgets in the tmp dir
 source run_widgets_install.sh '*.wigt'
 
-# build all the js/css assets
-source run_build_assets.sh
-
 # create a dev user based on your current shell user (password will be 'kogneato') MATERIA_DEV_PASS=whatever can be used to set a custom pw
 source run_create_me.sh
 
 echo -e "Materia will be hosted on \033[32m$DOCKER_IP\033[0m"
-echo -e "\033[1mRun an oil comand:\033[0m ./run.sh php oil r  widget:show_engines"
-echo -e "\033[1mRun the web app:\033[0m docker compose up"
+echo -e '\033[1mRun an oil comand:\033[0m ./run.sh php oil r  widget:show_engines'
+echo -e '\033[1mRun the web app:\033[0m docker compose up'
+echo -e 'Doing local dev? Be sure to \033[1myarn install\033[0m and \033[1myarn dev\033[0m to run the local webpack dev server'

@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   webserver:
-    image: ucfopen/materia:webserver-dev
+    image: ghcr.io/ucfopen/materia:webserver-dev
     build:
       context: ../
       dockerfile: materia-webserver.Dockerfile
@@ -16,7 +16,7 @@ services:
       - app
 
   app:
-    image: ucfopen/materia:app-dev
+    image: ghcr.io/ucfopen/materia:app-dev
     build:
       context: ../
       dockerfile: materia-app.Dockerfile
@@ -52,7 +52,7 @@ services:
       - backend
 
   mysql:
-    image: mysql:5.7.34
+    image: mysql:8.0.32
     platform: linux/amd64
     ports:
       - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
@@ -67,7 +67,7 @@ services:
       - backend
 
   fakes3:
-    image: ucfopen/materia:fake-s3-dev
+    image: ghcr.io/ucfopen/materia:fake-s3-dev
     build:
       context: ../
       dockerfile: materia-fake-s3.Dockerfile

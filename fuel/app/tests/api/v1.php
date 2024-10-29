@@ -1132,6 +1132,59 @@ class Test_Api_V1 extends \Basetest
 		}
 	}
 
+	public function test_question_set_generate()
+	{
+		// ======= GENERATION DISABLED ========
+		if ( ! \Materia\Widget_Question_Generator::is_enabled())
+		{
+			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+			$this->assert_failure_message($output);
+		}
+		else
+		{
+			// ======= AS NO ONE ========
+			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+			$this->assert_permission_denied_message($output);
+
+			// ===== AS STUDENT =======
+			$this->_as_student();
+			$output = Api_V1::question_set_generate(null, 1, 'Pixar Films', false, 8, false);
+			$this->assert_permission_denied_message($output);
+
+			// ======= AS AUTHOR =======
+			// NOTE: We're not going to perform actual question generation, since that would slow tests down considerably and incur costs
+			// Tests several error boundaries instead
+			$this->_as_author();
+			$output = Api_V1::question_set_generate(null, -1, 'Pixar Films', false, 8, false);
+			$this->assert_validation_error_message($output);
+
+			try
+			{
+				$output = Api_V1::question_set_generate('11111', -1, 'Pixar Films', false, 8, false);
+				$this->fail('Expected exception HttpNotFoundException not thrown');
+			}
+			catch (\Exception $e)
+			{
+				$this->assertInstanceOf('HttpNotFoundException', $e);
+			}
+		}
+	}
+
+	public function test_widget_prompt_generate()
+	{
+		if ( ! \Materia\Widget_Question_Generator::is_enabled())
+		{
+			$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
+			$this->assert_failure_message($output);
+		}
+		else
+		{
+			// ======= AS NO ONE ========
+			$output = Api_V1::widget_prompt_generate('Provide a background story for Kogneato, the robot mascot of Materia, a platform for educational tools and games.');
+			$this->assert_invalid_login_message($output);
+		}
+	}
+
 	public function test_questions_get()
 	{
 		// ======= AS NO ONE ========
@@ -1609,6 +1662,18 @@ class Test_Api_V1 extends \Basetest
 	{
 		$this->assertInstanceOf('\Materia\Msg', $msg);
 		$this->assertEquals('Invalid Login', $msg->title);
+	}
+
+	protected function assert_not_found_message($msg)
+	{
+		$this->assertInstanceOf('\Materia\Msg', $msg);
+		$this->assertEquals('Not Found', $msg->title);
+	}
+
+	protected function assert_failure_message($msg)
+	{
+		$this->assertInstanceOf('\Materia\Msg', $msg);
+		$this->assertEquals('Action Failed', $msg->title);
 	}
 
 	protected function assert_permission_denied_message($msg)

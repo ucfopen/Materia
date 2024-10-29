@@ -15,14 +15,9 @@ services:
       - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
 
   app:
-    environment:
-      # values sourced from docker/env
-      - ASSET_STORAGE_DRIVER
-      - ASSET_STORAGE_S3_CREDENTIAL_PROVIDER
-      - ASSET_STORAGE_S3_BUCKET
-      - ASSET_STORAGE_S3_ENDPOINT
-      - ASSET_STORAGE_S3_KEY
-      - ASSET_STORAGE_S3_SECRET
+    env_file:
+      - .env
+      - .env.local
     volumes:
       - ..:/var/www/html/
       - uploaded_widgets:/var/www/html/public/widget/
