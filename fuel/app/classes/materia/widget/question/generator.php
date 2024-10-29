@@ -107,6 +107,34 @@ class Widget_Question_Generator
 	}
 
 	/**
+	 * Generates a text response based on the provided prompt.
+	 *
+	 * @param string $prompt The prompt to send to the LLM.
+	 * @return string The generated response.
+	 */
+	static public function generate_from_prompt($prompt)
+	{
+		if ( ! self::is_enabled()) return Msg::failure('Question generation is not enabled.');
+		if (empty($prompt) || strlen($prompt) > 10000) return Msg::invalid_input('Prompt text length invalid.');
+
+		try
+		{
+			$result = self::query($prompt, 'message');
+			$response = $result->choices[0]->message->content;
+
+			return $response;
+		}
+		catch (\Exception $e)
+		{
+			\Log::error('Error generating prompt:'.PHP_EOL
+				.'Prompt: '.$prompt.PHP_EOL
+				.'Exception: '.$e->getMessage().PHP_EOL);
+
+			return Msg::failure('Error generating question set.');
+		}
+	}
+
+	/**
 	 * Generate a question set for a widget instance
 	 *
 	 * @param Widget_Instance $inst the instance associated with this request (if present)

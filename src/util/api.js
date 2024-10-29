@@ -577,6 +577,10 @@ export const apiUnDeleteWidget = ({ instId }) => {
 		.then(handleErrors)
 }
 
+export const apiWidgetPromptGenerate = (prompt) => {
+	return fetchGet(`/api/json/widget_prompt_generate/`, { body: `data=${formatFetchBody([prompt])}` })
+}
+
 /** STORAGE UTILS */
 
 // Persist to wherever using the super-secret object
