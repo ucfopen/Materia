@@ -23,6 +23,14 @@ rm -rf ./config/nginx/cert.pem
 # generate a self-signed ssl cert
 openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout ./config/nginx/key.pem -out ./config/nginx/cert.pem -days 365
 
+echo "
+ __    __     ______     ______   ______     ______     __     ______    
+/\ \-./  \   /\  __ \   /\__  _\ /\  ___\   /\  == \   /\ \   /\  __ \   
+\ \ \-./\ \  \ \  __ \  \/_/\ \/ \ \  __\   \ \  __<   \ \ \  \ \  __ \  
+ \ \_\ \ \_\  \ \_\ \_\    \ \_\  \ \_____\  \ \_\ \_\  \ \_\  \ \_\ \_\ 
+  \/_/  \/_/   \/_/\/_/     \/_/   \/_____/   \/_/ /_/   \/_/   \/_/\/_/ 
+"
+
 echo "To setup Materia locally, you can choose to pull pre-packaged images or build from source"
 echo "1. Pull app and webserver images (recommended if you just want to run Materia locally with no dev)"
 echo "2. Build images from source (recommended if you're actively developing Materia)"
