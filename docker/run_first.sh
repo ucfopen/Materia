@@ -20,6 +20,10 @@ rm -f ../fuel/app/config/**/migrations.php
 rm -rf ./config/nginx/key.pem
 rm -rf ./config/nginx/cert.pem
 
+if [ ! -f .env.local ]; then
+	touch .env.local
+fi
+
 # generate a self-signed ssl cert
 openssl req -subj '/CN=localhost' -x509 -newkey rsa:4096 -nodes -keyout ./config/nginx/key.pem -out ./config/nginx/cert.pem -days 365
 
