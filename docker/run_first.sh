@@ -50,12 +50,16 @@ elif [ "$choice" == "2" ]; then
 	echo "Building containers. This will take a few minutes..."
 	docker compose build app webserver fakes3
 
-	# install php composer deps
-	docker compose run --rm --no-deps app composer install --ignore-platform-reqs
 else
 	echo "Invalid choice. Try again."
 	exit 1
 fi
+
+# Install php composer deps
+# Even though these are present on the images already, the assets don't exist locally
+# When docker compose volume mounts the project, the local filesystem takes precedence
+# As such it's required to rerun this process to bring the host machine into parity
+docker compose run --rm --no-deps app composer install --ignore-platform-reqs
 
 # run migrations and seed any db data needed for a new install
 docker compose run --rm app /wait-for-it.sh mysql:3306 --timeout=120 --strict -- composer oil-install-quiet
@@ -65,6 +69,9 @@ docker compose run --rm app bash -c 'php oil r widget:install_from_config'
 
 # Install any widgets in the tmp dir
 source run_widgets_install.sh '*.wigt'
+
+# Same deal as composer: the assets are available in the images but not locally
+source run_build_assets.sh
 
 # create a dev user based on your current shell user (password will be 'kogneato') MATERIA_DEV_PASS=whatever can be used to set a custom pw
 source run_create_me.sh
