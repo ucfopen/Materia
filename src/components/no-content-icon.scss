@@ -35,32 +35,15 @@ div#no-score-content, div#not-scorable {
 }
 
 .darkMode div#no-score-content, div#not-scorable {
-	display: flex;
-	flex-direction: column;
-	width: 40%;
-	height: 225px;
-	padding-top: 25px;
-	padding-left: 40%;
-	margin: 25px auto 0 auto;
-	
 	&#no-score-content {
-		//background: #fff url('/img/kogneato_no_scores.svg') 10% 30%/250px auto no-repeat;
 		background: #21232a url('/img/kogneato_no_scores_dark.svg') 10% 30%/250px auto no-repeat;
 	}
 
 	&#not-scorable {
-		//background: #fff url('/img/kogneato_with_a_broom.svg') 20% 20%/auto 240px no-repeat;
 		background: #21232a url('/img/kogneato_with_a_broom_dark.svg') 20% 20%/auto 240px no-repeat;
 	}
 
 	p {
-		//color: #2e2e2e;
 		color: #fff;
-		font-size: 14px;
-		margin: 5px 0;
-
-		&:first-child {
-			font-weight: bold;
-		}
 	}
 }

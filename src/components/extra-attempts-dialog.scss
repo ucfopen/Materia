@@ -253,12 +253,14 @@
 .darkMode .modal .extraAttemptsModal {
 
 	.title {
-		color: #555;
-		border-bottom: #999 dotted 1px;
+		color: #d8d8d8;
+		border-bottom: #d8d8d8 dotted 1px;
 	}
 
 	.attempts-input {
-		border: solid 1px #c9c9c9;
+		border: solid 1px #08090c;
+		background-color: #1d1f25;
+		color: #fff;
 	}
 
 	.attempts_search_list {
@@ -270,15 +272,15 @@
 		}
 
 		.attempts_search_match:hover {
-			background-color: #c5e7fa;
+			background-color: #295b99;
 		}
 	}
 
 	.attempts_list_container {
-		background-color: #f2f2f2;
+		background-color: #24262e;
 
 		.headers {
-			background: #555555;
+			background: #4c4e58;
 			color: white;
 		}
 
@@ -291,8 +293,8 @@
 					background: transparent;
 
 					&:hover {
-						color: black;
-						background: white;
+						color: #fff;
+						background: #21232a;
 					}
 				}
 			}

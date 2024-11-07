@@ -11,14 +11,9 @@
 }
 
 .darkMode .page {
-	margin: 0 5%;
 	background: #fff;
-	padding: 10px;
-	border-radius: 10px;
 	box-shadow: 1px 3px 10px #08090c;
 	color: #5e5e5e;
-
-	font-family: 'Lato', arial, sans-serif;
 }
 
 #top {
@@ -55,16 +50,7 @@
 }
 
 .darkMode #top {
-	display: flex;
-
-	h1 {
-		flex-grow: 1;
-		margin: 10px 0 0 8px;
-	}
-
 	#guide-tabs {
-		display: flex;
-
 		&.players-guide {
 			a:first-of-type {
 				background: #1778af;
@@ -78,11 +64,8 @@
 		}
 
 		a {
-			padding: 8px 15px;
 			background: #004268;
 			color: white;
-			border-radius: 10px 10px 0 0;
-			margin: 15px 0 0 10px;
 		}
 	}
 }

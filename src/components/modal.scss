@@ -42,50 +42,12 @@
 		text-align: center;
 	}
 }
+
 .darkMode .modal {
-	/* This way it could be display flex or grid or whatever also. */
-	display: flex;
-
-	width: 100%;
-	max-width: 600px;
-	max-height: 95%;
-	min-height: 300px;
-
-	@media screen and (min-width: 620px) {
-		min-width: 620px;
-	}
-
-	position: fixed;
-
-	z-index: 1001;
-
-	left: 50%;
-	top: 50%;
-
-	/* Use this for centering if unknown width/height */
-	transform: translate(-50%, -50%);
-
-	/* If known, negative margins are probably better (less chance of blurry text). */
-	/* margin: -200px 0 0 -200px; */
-
 	background: #21232a;
-	border-radius: 3px;
 	border: #181920 3px solid;
-	box-shadow: none !important;
-	font-family: Lato, arial, serif;
-
-	&.no-gutter {
-		border: 0;
-	}
-
-	&.small {
-		z-index: 1003;
-		width: 540px;
-		min-height: 200px;
-
-		text-align: center;
-	}
 }
+
 .closed {
 	display: none;
 }
@@ -104,6 +66,7 @@
 
 	background: rgba(0, 0, 0, 0.5);
 }
+
 .modal-guts {
 	position: relative;
 	top: 0;
@@ -136,22 +99,8 @@
 	border: 0;
 	color: black;
 }
+
 .darkMode .modal .close-button {
-	position: absolute;
-	font-weight: bold;
-	font-family: Arial, sans-serif;
-	cursor: pointer;
-	font-size: 120%;
-
-	/* don't need to go crazy with z-index here, just sits over .modal-guts */
-	z-index: 1;
-
-	top: 10px;
-
-	/* needs to look OK with or without scrollbar */
-	right: 20px;
-
-	border: 0;
 	color: white;
 }
 

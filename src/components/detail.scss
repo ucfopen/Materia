@@ -826,14 +826,12 @@ a {
 }
 
 .darkMode {
-
 	#breadcrumb-container {
 
 		background: #1d1f25;
 		border: 1px solid #181920;
 	
 		.breadcrumb {
-	
 			a {
 				color: #91c8fc;
 			}
@@ -845,20 +843,15 @@ a {
 	}
 
 	.feature-list {
-
 		&.accessibility-options {
 			.list-holder {
-	
 				ul {
-	
 					li {
-	
 						&.accessibility-description {
 							color: #d8d8d8;
 						}
 	
 						.icon-spacer {
-	
 							svg {
 								fill: #fff;
 							}
@@ -873,7 +866,6 @@ a {
 		}
 	
 		.feature {
-	
 			.guide-link {
 				background: #555;
 				color: #fff;
@@ -899,7 +891,7 @@ a {
 			.feature-description {
 				color: #fff;
 				background: $color-features-active;
-				box-shadow: 1px 2px 5px #888;
+				box-shadow: 1px 2px 5px #08090c;
 			}
 		}
 	}
@@ -918,23 +910,11 @@ a {
 			button.pic-arrow {
 				fill: #fff;
 				background: #000;
-				border-radius: 100%;
-				opacity: 0.5;
-	
-				&:hover {
-					opacity: 0.7; // likely not required for darkmode?
-				}
-	
-				&:focus {
-					opacity: 1; // likely not required for darkmode?
-				}
 			}
 	
 			button.demo-dot {
-				background-color: #c0c0c0;
+				background-color: #4c4e58;
 				color: white;
-				border: none;
-				box-shadow: none;
 	
 				&:before {
 					border-top: 5px solid transparent;
@@ -944,25 +924,23 @@ a {
 	
 				&:hover,
 				&:focus {
-					background-color: #777;
+					background-color: #686a74;
 					outline: none;
 					color: white;
 				}
 	
 				&.selected {
-					background-color: #555;
+					background-color: #565964;
 					color: white;
 				}
 			}
 	
 			button.pic-dot {
-	
 				&:before {
 					background-color: #fff;
 					opacity: 0.25;
 				}
-	
-				// opacity likely not required for darkmode?
+
 				&:hover:before {
 					opacity: 0.5;
 				}
@@ -978,7 +956,6 @@ a {
 		}
 	
 		#pics-scroller {
-	
 			> div {
 				background: #4c4e58;
 	
@@ -1000,15 +977,10 @@ a {
 		#demo-cover {
 			&.hidden,
 			&.loading {
-	
 				button {
 					&:after {
 						background-color: #535353;
 					}
-				}
-	
-				#demo-cover-background {
-					opacity: 0.5;
 				}
 			}
 	
