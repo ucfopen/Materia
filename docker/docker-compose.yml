@@ -1,8 +1,6 @@
-version: '3.5'
-
 services:
   webserver:
-    image: ucfopen/materia:webserver-dev
+    image: ghcr.io/ucfopen/materia:webserver-dev
     build:
       context: ../
       dockerfile: materia-webserver.Dockerfile
@@ -16,63 +14,23 @@ services:
       - app
 
   app:
-    image: ucfopen/materia:app-dev
+    image: ghcr.io/ucfopen/materia:app-dev
     build:
       context: ../
       dockerfile: materia-app.Dockerfile
     environment:
       # View Materia README for env settings
-      - ASSET_STORAGE_DRIVER=${ASSET_STORAGE_DRIVER}
-      - AUTH_DRIVERS=Materiaauth
       - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
       - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
       - BOOL_LTI_LOG_FOR_DEBUGGING=true
-      - CACHE_DRIVER=memcached
       - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
       - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
       - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
       - CRYPTO_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
       - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/${MYSQL_DATABASE}
-      - FUEL_ENV=development
-      - FUEL_LOG_THRESHOLD=100
-      - LOG_HANDLER=STDOUT
-      - LTI_KEY=materia-lti-key
-      - LTI_SECRET=materia-lti-secret
-      - MEMCACHED_HOST=memcached
-      - SESSION_DRIVER=memcached
-      - SYSTEM_EMAIL=noReply@materia.edu
-      - THEME_PACKAGE=materia-theme-ucf
-      - URLS_ENGINES=https://localhost:8008/widget/
-      - URLS_STATIC=https://localhost:8008/
       - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
-    networks:
-      - frontend
-      - backend
-
-  mysql:
-    image: mysql:5.7.34
-    platform: linux/amd64
-    ports:
-      - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
-    networks:
-      - backend
-    volumes:
-      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
-
-  memcached:
-    image: memcached:1.6.6-alpine
-    networks:
-      - backend
-
-  fakes3:
-    image: ucfopen/materia:fake-s3-dev
-    build:
-      context: ../
-      dockerfile: materia-fake-s3.Dockerfile
-    ports:
-      - "10001:10001"
     networks:
       - frontend
       - backend

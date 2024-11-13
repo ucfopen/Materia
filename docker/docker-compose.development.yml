@@ -1,9 +1,6 @@
-version: '3.5'
-# loaded by default unless you use docker-compose -f flag
-# this is needed because we want test to mount throw-away file storage that doesn't affect your dev environment
-# docker-compose won't let an override file define the same mount point.
-# since this file is loaded by default except when using -f to load a different override, that avoids
-# the problem of multiple mounts at the same point
+# this compose file serves as the template for a docker-compose.override.yml file
+# the override file is generated when either the run_first_for_dev or run_first_for_nondev scripts are run
+# for dev, this file is used as-is. For non-dev, this file is modified based on responses to the nondev script
 
 services:
   webserver:
@@ -28,16 +25,38 @@ services:
       - memcached
 
   mysql:
+    image: mysql:8.0.32
+    platform: linux/amd64
     environment:
       # values sourced from docker/env
       - MYSQL_ROOT_PASSWORD
       - MYSQL_USER
       - MYSQL_PASSWORD
       - MYSQL_DATABASE
+    ports:
+      - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
+    networks:
+      - backend
+    volumes:
+      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
 
   fakes3:
+    image: ghcr.io/ucfopen/materia:fake-s3-dev
+    build:
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
     volumes:
       - uploaded_media:/s3mnt/fakes3_root/fake_bucket/media/
+    ports:
+      - "10001:10001"
+    networks:
+      - frontend
+      - backend
+
+  memcached:
+    image: memcached:1.6.6-alpine
+    networks:
+      - backend
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
