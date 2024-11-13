@@ -55,7 +55,7 @@ services:
   # and lose its data during tests
   # thus, fakes3_test was created. it is dropped after tests are complete
   fakes3_test:
-    image: ucfopen/materia:fake-s3-dev
+    image: ghcr.io/ucfopen/materia:fake-s3-dev
     build:
       context: ../
       dockerfile: materia-fake-s3.Dockerfile
