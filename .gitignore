@@ -124,5 +124,8 @@ public/dist/*
 !public/dist/path.js
 !public/dist/README.md
 
+public/js
+public/css
+
 # docker override is now untracked as of v10.3.0
 docker/docker-compose.override.yml
