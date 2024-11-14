@@ -27,8 +27,6 @@ fi
 
 set -e
 
-DOCKER_IP="localhost"
-
 cp docker-compose.development.yml docker-compose.override.yml
 
 # Clean migration files in every environment so they can run again
@@ -43,6 +41,7 @@ if [ ! -f .env.local ]; then
 	touch .env.local
 else
 	cp .env.local .env.local.bak
+	> .env.local
 fi
 
 # set fuel env to production, since this is explicitly non-dev
@@ -71,6 +70,22 @@ yq e 'del(.services.app.volumes)' docker-compose.override.yml > temp.yml && mv t
 
 # Update nginx config to use non-dev configuration
 yq e '(.services.webserver.volumes[] | select(contains("nginx-dev.conf"))) |= sub("nginx-dev.conf", "nginx-nondev.conf")' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+
+echo ""
+echo "What local IP will you be using to connect to your docker instance?"
+echo "The default is localhost"
+read -p "Provide your local docker address or press enter to use localhost:" docker_ip
+
+if [ "$docker_ip" == "" ]; then
+	docker_ip="localhost"
+fi
+
+echo ""
+echo "docker ip set to $docker_ip: writing URLS_STATIC and URLS_ENGINES to local env"
+
+# update the url env variables
+echo "URLS_STATIC=https://$docker_ip/" >> .env.local
+echo "URLS_ENGINES=https://$docker_ip/widget/" >> .env.local
 
 echo ""
 echo "Do you want to:"
@@ -218,7 +233,7 @@ ln -s ../public/dist/js ../public/js
 ln -s ../public/dist/css ../public/css
 
 echo ""
-echo -e "Materia will be hosted on \033[32m$DOCKER_IP\033[0m"
+echo -e "Materia will be hosted on \033[32m$docker_ip\033[0m"
 echo -e "A default superuser was created using your shell user \033[32m$USER\033[0m with password \033[32mkogneato\033[0m"
 echo "Next steps:"
 
@@ -232,6 +247,6 @@ fi
 echo -e '\033[1mInitialize Materia:\033[0m docker compose up'
 echo ""
 echo "Note: this process initializes Materia with a self-signed cert. You will receive a browser warning"
-echo "when you visit $DOCKER_IP. You must add certificate exceptions for $DOCKER_IP ports 443 and 8008".
+echo "when you visit $docker_ip. You must add certificate exceptions for $docker_ip port 443.".
 echo "A production instance will require a valid certificate and additional webserver configurations."
 echo "Consult docker/README.md or our docs site at https://ucfopen.github.io/Materia-Docs/ for more info."
