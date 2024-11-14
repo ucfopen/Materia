@@ -67,6 +67,7 @@ docker compose pull app webserver
 
 # Remove the unnecessary volume mounts for the app service
 yq e 'del(.services.app.volumes)' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+yq e '.services.app.volumes += ["uploaded_widgets:/var/www/html/public/widget/"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
 
 # Update nginx config to use non-dev configuration
 yq e '(.services.webserver.volumes[] | select(contains("nginx-dev.conf"))) |= sub("nginx-dev.conf", "nginx-nondev.conf")' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
