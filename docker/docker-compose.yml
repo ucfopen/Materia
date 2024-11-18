@@ -7,7 +7,6 @@ services:
     ports:
       - "80:80" # main materia
       - "443:443" # main materia
-      - "8008:8008" # static files (simulates a different domain sandbox & cdn)
     networks:
       - frontend
     depends_on:

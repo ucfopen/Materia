@@ -4,9 +4,13 @@
 
 services:
   webserver:
+    ports:
+      - "80:80" # main materia
+      - "443:443" # main materia
+      - "8008:8008" # static files (simulates a different domain sandbox & cdn)
     volumes:
       - ../public:/var/www/html/public:ro
-      - uploaded_widgets:/var/www/html/public/widget/:ro
+      - ../public/widget:/var/www/html/public/widget/:ro
       - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
       - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
       - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
@@ -17,7 +21,7 @@ services:
       - .env.local
     volumes:
       - ..:/var/www/html/
-      - uploaded_widgets:/var/www/html/public/widget/
+      - ../public/widget:/var/www/html/public/widget/:rw
       - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
     depends_on:
       - fakes3
@@ -59,6 +63,4 @@ services:
       - backend
 
 volumes:
-  # static_files: {} # compiled js/css and uploaded widgets
   uploaded_media: {} # uploaded media files
-  uploaded_widgets: {}

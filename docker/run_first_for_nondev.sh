@@ -65,9 +65,23 @@ echo ""
 
 docker compose pull app webserver
 
-# Remove the unnecessary volume mounts for the app service
+# Remove the fakes3 service from the docker-compose override
+yq e 'del(.services.fakes3)' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+yq e 'del(.services.app.depends_on[] | select(. == "fakes3"))' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Clean volume mounts from the app service
 yq e 'del(.services.app.volumes)' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
-yq e '.services.app.volumes += ["uploaded_widgets:/var/www/html/public/widget/"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Re-apply the widgets volume to the app service
+yq e '.services.app.volumes += ["../public/widget/:/var/www/html/public/widget/:rw"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Add an additional compiled_assets volume definition
+yq e '.volumes.compiled_assets = {}' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Add compiled_assets volume to the app service
+yq e '.services.app.volumes += ["compiled_assets:/var/www/html/public"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Remove the host machine public mount from the webserver definition
+yq e 'del(.services.webserver.volumes[] | select(. == "../public:/var/www/html/public:ro"))' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Remove port 8008 from the port mounts on the webserver service
+yq e 'del(.services.webserver.ports[] | select(. == "8008:8008"))' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+# Add compiled_assets volume to the webserver service
+yq e '.services.webserver.volumes += ["compiled_assets:/var/www/html/public"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
 
 # Update nginx config to use non-dev configuration
 yq e '(.services.webserver.volumes[] | select(contains("nginx-dev.conf"))) |= sub("nginx-dev.conf", "nginx-nondev.conf")' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
@@ -167,28 +181,20 @@ fi
 
 echo ""
 echo "Finally, let's select the asset storage driver: where user-uploaded media will be stored."
-echo "1. s3 (default for local dev, which uses fakes3. Addl configs required for production)"
-echo "2. file"
-echo "3. db (not recommended at scale)"
-read -p "Enter an option (1, 2, or 3): " asset_driver_choice
+echo "1. file"
+echo "2. db (not recommended at scale)"
+read -p "Enter an option (1 or 2): " asset_driver_choice
 
 if [ "$asset_driver_choice" == "1" ]; then
-	echo "Setting ASSET_STORAGE_DRIVER env variable to s3"
-	docker compose pull fakes3
-elif [ "$asset_driver_choice" == "2" ]; then
 	echo "Setting ASSET_STORAGE_DRIVER env variable to file"
 	echo "ASSET_STORAGE_DRIVER=file" >> .env.local
 
-	# Remove the fakes3 service from the docker-compose override
-	yq e 'del(.services.fakes3)' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
-	yq e 'del(.services.app.depends_on[] | select(. == "fakes3"))' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
-elif [ "$asset_driver_choice" == "3" ]; then
+	yq e '.services.app.volumes += ["../fuel/app/media/:/var/www/html/fuel/app/media/:rw"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+
+elif [ "$asset_driver_choice" == "2" ]; then
 	echo "Setting ASSET_STORAGE_DRIVER env variable to db"
 	echo "ASSET_STORAGE_DRIVER=db" >> .env.local
 
-	# Remove the fakes3 service from the docker-compose override
-	yq e 'del(.services.fakes3)' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
-	yq e 'del(.services.app.depends_on[] | select(. == "fakes3"))' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
 else
 	echo "Invalid choice."
 	exit 1
@@ -224,14 +230,6 @@ if [ "$db_choice" == "1" ]; then
 else
 	echo "Skipping widget installation: note that this requires a functional DB configuration. If needed, the widget install process can be performed after the db is configured."
 fi
-
-# assets must be build using a node container so they can be mounted to the webserver filesystem
-# this will make the assets available in public/dist
-source run_build_assets.sh
-
-# symlink the assets from public/dist to public/ - since we're using the prod configuration, assets will be served from public/
-ln -s ../public/dist/js ../public/js
-ln -s ../public/dist/css ../public/css
 
 echo ""
 echo -e "Materia will be hosted on \033[32m$docker_ip\033[0m"
