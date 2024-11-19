@@ -14,6 +14,7 @@ nbproject/
 
 # custom config
 .env.local
+.env.local.mysql
 
 # hidden files created by Windows
 Thumbs.db

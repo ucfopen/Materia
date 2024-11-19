@@ -117,6 +117,51 @@ if [ "$db_choice" == "1" ]; then
 	yq e '.services.app.volumes = (.services.app.volumes // [])' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
 	yq e '.services.app.volumes += ["./dockerfiles/wait-for-it.sh:/wait-for-it.sh"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
 
+	echo ""
+	echo "Do you want to configure custom passwords for the ROOT and MATERIA user?"
+	echo "This is HIGHLY recommended for any situation where your application is available to the public"
+	echo "1. Configure passwords"
+	echo "2. Use default dev password"
+	read -p "Enter an option (1 or 2): " db_credential_choice
+
+	if [ "$db_credential_choice" == "1" ]; then
+
+		if [ -f .env.local.mysql ]; then
+			> .env.local.mysql
+		fi
+
+		echo ""
+		read -p "Enter ROOT user password: " db_root_pw_credential
+
+		echo "MYSQL_ROOT_PASSWORD=$db_root_pw_credential" >> .env.local.mysql
+
+		echo ""
+		read -p "Enter MATERIA USER password: " db_materia_pw_credential
+		
+		echo "MYSQL_PASSWORD=$db_materia_pw_credential" >> .env.local.mysql
+
+		# Grab the value of MYSQL_USER from .env
+		mysql_user=$(grep -E '^MYSQL_USER=' .env | cut -d '=' -f 2)
+		echo "MYSQL_USER=$mysql_user" >> .env.local.mysql
+
+		mysql_db=$(grep -E '^MYSQL_DATABASE=' .env | cut -d '=' -f 2)
+		echo "MYSQL_DATABASE=$mysql_db" >> .env.local.mysql
+
+		echo "DATABASE_URL=mysql://$mysql_user:$db_materia_pw_credential@mysql/$mysql_db" >> .env.local
+
+		# Remove the environment section from the mysql service definition
+		yq e 'del(.services.mysql.environment)' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+		# Add .env.local.mysql to the env_file definition in the mysql service
+		yq e '.services.mysql.env_file = [".env.local.mysql"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
+
+	elif [ "$db_credential_choice" == "2"]; then
+
+		echo ""
+		echo "Using default password values"
+
+	fi
+
+
 elif [ "$db_choice" == "2" ]; then
 	echo "You'll need to update your db config in Materia to use an external db."
 	echo "Guidance will be provided at the end of this process."
