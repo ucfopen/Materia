@@ -120,6 +120,40 @@ In `docker/`:
 ./run.sh php oil r migrate
 ```
 
+## Using Materia in Production
+
+While the nondev startup script can assist with creating a compose file and configuring certain environment variables, a true production instance of Materia does not need the repository present on the host machine or instance.
+
+_At minimum_, the host machine will require the following:
+
+1. Environment variable configurations written to a `.env` file
+2. A `docker-compose.yml` file or combination `docker-compose.yml` and `docker-compose.override.yml` files
+3. An NGINX configuration, whether that is the pre-supplied `docker/config/nginx/nginx-nondev.conf` or a custom version
+4. A valid key and cert to provide to NGINX
+5. A `media` directory with proper write permissions
+6. A `widget` directory with proper write permissions
+
+Based on the above, additional modifications to the docker compose file(s) should include:
+
+1. Importing the correct environment variables by ensuring the correct file is selected in a `env_file:` directive _or_ variables are individually imported via a `environment:` directive
+2. Ensuring the local paths for volume mounts for the `widget` and `media` directories are updated and correct
+3. Ensuring the local paths for volume mounts for the NGINX configuration and key/cert pairs in the `webserver` service definition are updated and correct
+4. Selecting the preferred versions of the `app` and `webserver` images. For production, we recommend either the `app-stable` and `webserver-stable` tags, or version-specific tags (e.g., `app-v10.3.0` and `webserver-v10.3.0`)
+5. Any additional configurations for the `webserver` service definition to support listening and response to external traffic
+
+Once configured, starting Materia on the host machine is as simple as:
+
+```
+docker compose pull
+docker compose up -d
+```
+
+The `-d` flag for compose runs the containers in a detached state, so a terminal session for the compose process doe not need to persist.
+
+## Configuring Authentication
+
+@TODO talk about authentication options
+
 ## Commands and Utilities
 
 ### Common Dev Commands

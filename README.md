@@ -44,6 +44,9 @@ Materia provides a pair of setup scripts for out-of-the-box deployment based on 
 1. `run_first_for_dev.sh` sets up and configures your local instance of Materia for development. This includes additional volume mounts for project files and makes use of additional containers for mysql, s3, and memcached.
 2. `run_first_for_nondev.sh` is ideal for users who just want to explore Materia locally and potentially transition to a production instance. The script dynamically configures the override compose file based on selections you make in the script.
 
+> [!NOTE]
+> `yq` is required for the nondev script. This may come preinstalled in some OS distributions but you should ensure the correct version is installed. Consult the [yq installation guide](https://github.com/mikefarah/yq?tab=readme-ov-file#install) for more info.
+
 In either case, first-time setup involves the following:
 
 ```
