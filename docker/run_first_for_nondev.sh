@@ -154,7 +154,7 @@ if [ "$db_choice" == "1" ]; then
 		# Add .env.local.mysql to the env_file definition in the mysql service
 		yq e '.services.mysql.env_file = [".env.local.mysql"]' docker-compose.override.yml > temp.yml && mv temp.yml docker-compose.override.yml
 
-	elif [ "$db_credential_choice" == "2"]; then
+	elif [ "$db_credential_choice" == "2" ]; then
 
 		echo ""
 		echo "Using default password values"
