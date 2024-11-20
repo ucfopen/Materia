@@ -52,7 +52,7 @@ a {
 	&:before {
 		content: 'Editing';
 		// background: #b944cc;
-	
+
 		position: absolute;
 		bottom: 0;
 		left: 0;
@@ -63,7 +63,7 @@ a {
 		margin: 10px 0;
 
 		// border-right: solid 1px #aaa;
-	
+
 		font-size: 24px;
 		font-weight: bold;
 		// color: #ffffff;
@@ -104,72 +104,10 @@ a {
 }
 
 .darkMode #action-bar {
-	position: relative;
-	z-index: 2;
-	height: 52px;
-	width: calc(100% - 20px);
-	padding-right: 20px;
-
-	text-align: right;
 	background: #1d1f25;
-	border-bottom: 4px #b944cc solid;
-	white-space: nowrap;
-
-	&:before {
-		content: 'Editing';
-		// background: #b944cc;
-	
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		// height: 53px;
-		height: 33px;
-		width: 101px;
-
-		margin: 10px 0;
-
-		// border-right: solid 1px #aaa;
-	
-		font-size: 24px;
-		font-weight: bold;
-		// color: #ffffff;
-		color: #b944cc;
-		text-align: center;
-		vertical-align: middle;
-		border-radius: 5px 0 0 0;
-		line-height: 33px;
-	}
-
-	a {
-		font-family: 'Lucida Grande', 'Verdana', sans-serif;
-		font-size: 13px;
-		text-decoration: underline;
-
-		&:after {
-			content: '|';
-			position: relative;
-			display: inline-block;
-
-			margin: 0 6px;
-
-			color: #ababab;
-		}
-	}
-
-	.lastSaved {
-		font-family: 'Lucida Grande', 'Verdana', sans-serif;
-		font-style: italic;
-		font-size: 13px;
-	}
-
-	@media (max-width: 1150px) {
-		.lastSaved {
-			display: none;
-		}
-	}
 }
 
-#qset-rollback-confirmation-bar {
+.confirmation-bar {
 	position: relative;
 	display: flex;
 	justify-content: space-around;
@@ -198,6 +136,7 @@ a {
 		padding: 14px 0;
 
 		font-size: 0.8em;
+		white-space: break-spaces;
 
 		span {
 			font-weight: bold;
@@ -219,6 +158,14 @@ a {
 
 		&:hover {
 			background: linear-gradient(#ffffff, #ffe5cc);
+		}
+	}
+
+	&#qset-generation-confirmation-bar {
+		background-color: #3690E6;
+	
+		button:hover {
+			background: linear-gradient(#ffffff, #bbdeff);
 		}
 	}
 }
@@ -250,7 +197,7 @@ a {
 		margin: 15px 0;
 
 		background: none;
-		
+
 		font-size: 21px;
 		font-weight: 700;
 		color: #000000;
@@ -337,7 +284,7 @@ a {
 }
 
 .edit_button {
-	position: relative;	
+	position: relative;
 	display: inline-block;
 	margin: 10px 0 0 6px;
 

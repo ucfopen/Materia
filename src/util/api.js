@@ -375,6 +375,10 @@ export const apiGetQuestionSet = (instId, playId = null) => {
 	return fetchGet('/api/json/question_set_get/', ({ body: `data=${formatFetchBody([instId, playId])}` }))
 }
 
+export const apiGenerateQset = ({inst_id, widget_id, topic, include_images, num_questions, build_off_existing}) => {
+	return fetchGet('/api/json/question_set_generate/', ({ body: `data=${formatFetchBody([inst_id, widget_id, topic, include_images, num_questions, build_off_existing])}` }))
+}
+
 export const apiSessionVerify = (play_id) => {
 	return fetchGet('/api/json/session_play_verify/', ({ body: `data=${formatFetchBody([play_id])}` }))
 }
@@ -600,6 +604,10 @@ export const apiUnDeleteWidget = ({ instId }) => {
 			}
 		})
 		.then(handleErrors)
+}
+
+export const apiWidgetPromptGenerate = (prompt) => {
+	return fetchGet(`/api/json/widget_prompt_generate/`, { body: `data=${formatFetchBody([prompt])}` })
 }
 
 /** STORAGE UTILS */

@@ -32,6 +32,7 @@ return [
 		'500'        => [$webpack.'js/500.js'],
 		'media'      => [$webpack.'js/media.js'],
 		'qset_history' => [$webpack.'js/qset-history.js'],
+		'qset_generator' => [$webpack.'js/qset-generator.js'],
 		'post_login' => [$webpack.'js/lti-post-login.js'],
 		'select_item' => [$webpack.'js/lti-select-item.js'],
 		'open_preview' => [$webpack.'js/lti-open-preview.js'],
