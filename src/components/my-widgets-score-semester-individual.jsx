@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect, useCallback, useRef, useId} from 'react'
+import React, { useState, useEffect, useCallback, useRef, useId } from 'react'
 import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
