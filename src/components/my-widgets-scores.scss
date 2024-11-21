@@ -445,67 +445,27 @@
 						tr:last-child td {
 							border-bottom: none;
 						}
-					}
-				}
-			}
 
-			.scoreTableContainer {
-				position: relative;
-				z-index: 1;
-				float: left;
-				width: 55%;
-				right: 5px;
+						td button {
+							display: flex;
+							border: none;
+							background: transparent;
+							padding: 4px;
+							border-radius: 3px;
+							transition: background-color 0.1s;
 
-				margin-top: 15px;
-				padding: 10px 0 10px 0;
+							img {
+								width: 16px;
+								height: 16px;
+							}
 
-				background: #ffffff;
-				border-radius: 3px;
-				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
-
-				.scoreTable {
-					width: 95%;
-					margin-left: 10px;
-					border-collapse: collapse;
-
-					.elapsed {
-						text-align: right;
-					}
-
-					td {
-						border: none;
-						border-bottom: solid #dbdbdb 1px;
-					}
-
-					tr {
-						cursor: pointer;
-
-						&:hover {
-							background: #ffe0a5;
-						}
-
-						&:last-child td {
-							border-bottom: none;
+							&:hover {
+								cursor: pointer;
+								background-color: #00000011;
+							}
 						}
 					}
 				}
-			}
-
-			.scoreTableTitle {
-				height: 1.5em;
-			}
-
-			thead tr {
-				background: #cdcdcd;
-			}
-
-			td {
-				height: 1.5em;
-				padding: 6px 3px;
-			}
-
-			tbody tr.rowSelected {
-				background: #ffcb68;
 			}
 		}
 	}
