@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, {useState, useEffect, useCallback, useRef, useId} from 'react'
 import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
@@ -96,6 +96,8 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 	}, [state.searchText, state.selectedUser, state.logs])
 
 	let mainContentRender = <LoadingIcon width='570px' />
+	const studentScoresHeaderId = useId()
+
 	if (error) {
 		mainContentRender = <div className='error'>{error}</div>
 	}
@@ -141,8 +143,8 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 				{/* User selected, display score table */}
 				{state.selectedUser.userId && (
 					<>
-						<h3>{`${state.selectedUser.name}'s scores`}</h3>
-						<table>
+						<h3 id={studentScoresHeaderId}>{`${state.selectedUser.name}'s scores`}</h3>
+						<table aria-labelledby={studentScoresHeaderId}>
 							<tbody>
 							<tr>
 								<th>Date</th>
