@@ -59,11 +59,11 @@ User media storage will depend on your `ASSET_STORAGE_DRIVER` configuration. If 
 
 Use `./run_first_for_dev.sh` in the `docker/` directory to initialize the application for development. Environment configurations specific to development include:
 
-1. Use of `memcached` for cache and session storage
-2. Use of `fakes3` for asset storage
-3. Use of a local `mysql` database on a dedicated `mysql` container
-4. Volume mounting the entire project directory into the application container, so that modifications of server files on the host machine are reflected in the running application
-5. Configuration of an additional port (`8008`) to simulate serving static assets from a second domain
+1. Use of `memcached` for cache and session storage.
+2. Use of `fakes3` for asset storage.
+3. Use of a local `mysql` database on a dedicated `mysql` container.
+4. Volume mounting the entire project directory into the application container, so that modifications of server files on the host machine are reflected in the running application.
+5. Configuration of an additional port (`8008`) to simulate serving static assets from a second domain.
 
 ### Setup: Non-Development Environment
 
@@ -71,11 +71,11 @@ The non-dev configuration is ideal for those looking to play around with Materia
 
 The nondev startup script walks you through a series of configuration decisions to dynamically write the `docker-compose.override.yml` file. These include:
 
-1. The IP you use to access docker on your host machine (usually `localhost`)
-2. The use of a local database in a dedicated `mysql` container
-3. The cache driver configuration (`memcached` or `file`)
-4. The session driver configuration (`memcached`, `file`, or `db`)
-5. The asset storage driver configuration (`file` or `db`)
+1. The IP you use to access docker on your host machine (usually `localhost`).
+2. The use of a local database in a dedicated `mysql` container.
+3. The cache driver configuration (`memcached` or `file`).
+4. The session driver configuration (`memcached`, `file`, or `db`).
+5. The asset storage driver configuration (`file` or `db`).
 
 Additionally, the script will explicitly ask whether or not you want to install the default set of widgets. While this is required for fresh instances, if using an existing database, this may not be desired.
 
@@ -120,26 +120,33 @@ In `docker/`:
 ./run.sh php oil r migrate
 ```
 
+Note that running oil commands in production may require shell access to the `app` container if the Materia repository (and `docker/` directory with its utility scripts) are not present.
+
 ## Using Materia in Production
 
 While the nondev startup script can assist with creating a compose file and configuring certain environment variables, a true production instance of Materia does not need the repository present on the host machine or instance.
 
 _At minimum_, the host machine will require the following:
 
-1. Environment variable configurations written to a `.env` file
-2. A `docker-compose.yml` file or combination `docker-compose.yml` and `docker-compose.override.yml` files
-3. An NGINX configuration, whether that is the pre-supplied `docker/config/nginx/nginx-nondev.conf` or a custom version
-4. A valid key and cert to provide to NGINX
-5. A `media` directory with proper write permissions
-6. A `widget` directory with proper write permissions
+1. Environment variable configurations written to a `.env` file.
+2. A `docker-compose.yml` file or combination `docker-compose.yml` and `docker-compose.override.yml` files.
+3. An NGINX configuration _*see note below._
+4. A valid key and cert to provide to NGINX _*see note below._
+5. A `media` directory with proper write permissions.
+6. A `widget` directory with proper write permissions.
+
+> [!NOTE]
+> Two important considerations with NGINX:
+> 1. The webserver container comes pre-supplied with the `docker/nginx-production.conf` file copied to `/etc/nginx/nginx.conf`. You can use volume mounts to override this, as seen in `docker-compose.development.yml` or the override compose file, if a different configuration is needed.
+> 2. Whether the webserver includes a volume-mounted key and cert depends on where SSL terminates relative to the host machine. For example, if your Materia instance is located behind a load balancer, it may be sufficient to only listen for traffic on port 80. If your webserver is listening on ports 80 and 443, the webserver will require an NGINX configuration that includes references to a key and cert that are volume mounted from the host machine.
 
 Based on the above, additional modifications to the docker compose file(s) should include:
 
 1. Importing the correct environment variables by ensuring the correct file is selected in a `env_file:` directive _or_ variables are individually imported via a `environment:` directive
 2. Ensuring the local paths for volume mounts for the `widget` and `media` directories are updated and correct
-3. Ensuring the local paths for volume mounts for the NGINX configuration and key/cert pairs in the `webserver` service definition are updated and correct
+3. Ensuring the local paths for volume mounts for the NGINX configuration and key/cert pairs in the `webserver` service definition are updated and correct (if included)
 4. Selecting the preferred versions of the `app` and `webserver` images. For production, we recommend either the `app-stable` and `webserver-stable` tags, or version-specific tags (e.g., `app-v10.3.0` and `webserver-v10.3.0`)
-5. Any additional configurations for the `webserver` service definition to support listening and response to external traffic
+5. Any additional configurations for the `webserver` service definition as far as port assignments or considerations for network traffic reaching the host machine
 
 Once configured, starting Materia on the host machine is as simple as:
 
@@ -150,9 +157,44 @@ docker compose up -d
 
 The `-d` flag for compose runs the containers in a detached state, so a terminal session for the compose process doe not need to persist.
 
+## Upgrading Materia in Production
+
+Upgrading to newer versions of Materia is a straightforward process under most circumstances, though specific upgrades may require configuration changes or database migrations. These requirements are specified in each release. This upgrade process makes several basic assumptions about your production setup:
+
+* No direct changes have been made to files on the container fileystems (`app` and `webserver`), such as modifications to PHP files. These changes are inherently ephemeral and will be lost as soon as the container is stopped or restarted.
+* The database is not hosted directly within the `mysql` container on a virtual volume. One exception is if the database itself (not the mysql process) is located on the host machine and volume mounted into the `mysql` container, in which case the database will persist across containers.
+* Environment variables, configs and credentials (such as NGINX), widget engine files, and user media files (if applicable) are volume mounted from the host machine.
+
+The upgrade process involves the following:
+
+1. Stop the running containers (`ctrl + c` the running process or `docker compose stop app` if running in detached mode). At minimum, `app` and `webserver` should be stopped.
+2. Remove the stopped containers via `docker compose rm app`.
+3. Modify your `docker-compose.yml`, `docker-compose.override.yml`, or whatever other compose file you have configured that includes `image:` definitions for the `app` and `webserver` containers. If using the `-stable` tag, this will not be necessary. If using version tags, specify the new version:
+
+```
+services:
+  app:
+    image: ghcr.io/ucfopen/materia:app-v10.3.0 # use the semver value for the new version if using version tags
+
+  ...additional app definitions...
+
+  webserver:
+    image: ghcr.io/ucfopen/materia:webserver-v10.3.0 # use the semver value for the new version if using version tags
+
+	...additional webserver definitions...
+```
+
+4. Run `docker compose up` or `docker compose up -d` to run the containers in detached mode
+5. If a database migration is required, perform the migration by first getting shell access to the `app` container and then running the migrate command:
+
+```
+<host machine shell>  $ docker exec -it <app container id> sh
+<app container shell> $ php oil r migrate
+```
+
 ## Configuring Authentication
 
-@TODO talk about authentication options
+Refer to the [Authentication section](https://github.com/ucfopen/Materia/blob/master/README.md#authentication) of the base Materia README for an explanation of the authentication options available.
 
 ## Commands and Utilities
 
