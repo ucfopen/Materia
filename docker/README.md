@@ -142,7 +142,7 @@ _At minimum_, the host machine will require the following:
 
 Based on the above, additional modifications to the docker compose file(s) should include:
 
-1. Importing the correct environment variables by ensuring the correct file is selected in a `env_file:` directive _or_ variables are individually imported via a `environment:` directive.
+1. Importing the correct environment variables by ensuring the correct file is selected in a `env_file:` directive _or_ variables are individually imported via a `environment:` directive. You can use the root `.env` as a template: just be sure to update the `env_file:` path for services accordingly.
 2. Ensuring the local paths for volume mounts for the `widget` and `media` directories are updated and correct.
 3. Ensuring the local paths for volume mounts for the NGINX configuration and key/cert pairs in the `webserver` service definition are updated and correct (if included).
 4. Selecting the preferred versions of the `app` and `webserver` images. For production, we recommend either the `app-stable` and `webserver-stable` tags, or version-specific tags (e.g., `app-v10.3.0` and `webserver-v10.3.0`).

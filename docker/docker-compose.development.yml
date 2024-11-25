@@ -19,6 +19,18 @@ services:
     env_file:
       - .env
       - .env.local
+    environment:
+      # In a production instance, these values should be unique and sourced from the .env file
+      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
+      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - BOOL_LTI_LOG_FOR_DEBUGGING=true
+      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
     volumes:
       - ..:/var/www/html/
       - ../public/widget:/var/www/html/public/widget/:rw

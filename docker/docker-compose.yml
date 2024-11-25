@@ -17,18 +17,8 @@ services:
     build:
       context: ../
       dockerfile: materia-app.Dockerfile
-    environment:
-      # View Materia README for env settings
-      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
-      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
-      - BOOL_LTI_LOG_FOR_DEBUGGING=true
-      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
-      - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
-      - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
-      - CRYPTO_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
-      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
-      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
-      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+    env_file:
+      .env
     networks:
       - frontend
       - backend
