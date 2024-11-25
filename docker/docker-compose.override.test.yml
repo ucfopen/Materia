@@ -14,6 +14,15 @@ services:
       - .env.local
     environment:
       # View Materia README for env settings
+      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
+      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
       - FUEL_ENV=test
       - FUEL_LOG_THRESHOLD=300
@@ -56,9 +65,6 @@ services:
   # thus, fakes3_test was created. it is dropped after tests are complete
   fakes3_test:
     image: ghcr.io/ucfopen/materia:fake-s3-dev
-    build:
-      context: ../
-      dockerfile: materia-fake-s3.Dockerfile
     ports:
     # use separate port to avoid conflicts with fakes3
       - "10002:10001"
@@ -75,6 +81,5 @@ services:
       - backend
 
 volumes:
-  # static_files: {} # compiled js/css and uploaded widgets
   static_widget_files_test: {} # contain widgets installed in tests
   uploaded_media_test: {} # contain files uploaded in tests
