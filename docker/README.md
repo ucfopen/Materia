@@ -86,7 +86,7 @@ The `docker/` directory contains two `env` files:
 1. `.env` contains default dev-specific default values. This file is tracked, and changes to it are not generally recommended
 2. `.env.local` is created by either of the `run_first` scripts. It contains environment configuration overrides and should be considered the authoritative source for environment variables.
 
-If a different `env` file is desired, make sure to update your `docker-compose.override.yml` file with changes to the `env_file` parameter in the `app` service definition.
+If a different `env` file is desired, make sure to update your `docker-compose.override.yml` file with changes to the `env_file` parameter in the associated service definition (typically `app`, potentially `mysql`).
 
 The Materia application will defer to environment variables to populate many configuration options. Storing these in environment variables that are loaded via docker compose ensure configurations will persist across container instances.
 
@@ -103,7 +103,7 @@ In a production instance, we recommend locking images to a specific version in y
 ```
 services:
   app:
-    image: ghcr.io/ucfopen/materia:app-v10.3.0
+	image: ghcr.io/ucfopen/materia:app-v10.3.0
 ```
 
 By default, the base `docker-compose.yml` file will contain the `image` definitions for the `app` and `webserver` services. These can be overridden in the override compose file or applied to a standalone compose file depending on your preferred compose configuration.
@@ -142,11 +142,18 @@ _At minimum_, the host machine will require the following:
 
 Based on the above, additional modifications to the docker compose file(s) should include:
 
-1. Importing the correct environment variables by ensuring the correct file is selected in a `env_file:` directive _or_ variables are individually imported via a `environment:` directive
-2. Ensuring the local paths for volume mounts for the `widget` and `media` directories are updated and correct
-3. Ensuring the local paths for volume mounts for the NGINX configuration and key/cert pairs in the `webserver` service definition are updated and correct (if included)
-4. Selecting the preferred versions of the `app` and `webserver` images. For production, we recommend either the `app-stable` and `webserver-stable` tags, or version-specific tags (e.g., `app-v10.3.0` and `webserver-v10.3.0`)
-5. Any additional configurations for the `webserver` service definition as far as port assignments or considerations for network traffic reaching the host machine
+1. Importing the correct environment variables by ensuring the correct file is selected in a `env_file:` directive _or_ variables are individually imported via a `environment:` directive.
+2. Ensuring the local paths for volume mounts for the `widget` and `media` directories are updated and correct.
+3. Ensuring the local paths for volume mounts for the NGINX configuration and key/cert pairs in the `webserver` service definition are updated and correct (if included).
+4. Selecting the preferred versions of the `app` and `webserver` images. For production, we recommend either the `app-stable` and `webserver-stable` tags, or version-specific tags (e.g., `app-v10.3.0` and `webserver-v10.3.0`).
+5. Any additional configurations for the `webserver` service definition as far as port assignments or considerations for network traffic reaching the host machine.
+
+> [!IMPORTANT]
+> Several environment variable configurations **must** be set or updated in a production instance. These inlude:
+> * `FUEL_ENV=production`
+> * `LTI_KEY`, `LTI_SECRET`, `LTI_GUID`, and `LTI_TOOL_ID` must be set if you intend to use Materia with an LMS.
+> * `AUTH_SALT`, `AUTH_SIMPLEAUTH_SALT, and `CIPHER_KEY`: _see the commands section below for generating a unique salt hash for these values._
+> * `CRYPTO_IV`, `CRYPTO_HMAC`, and `CRYPTO_KEY` are legacy encryption keys. They are not required for new copies of Materia, but can be set using unique salt hashes in the same way as `CIPHER_KEY`.
 
 Once configured, starting Materia on the host machine is as simple as:
 
@@ -174,12 +181,12 @@ The upgrade process involves the following:
 ```
 services:
   app:
-    image: ghcr.io/ucfopen/materia:app-v10.3.0 # use the semver value for the new version if using version tags
+	image: ghcr.io/ucfopen/materia:app-v10.3.0 # use the semver value for the new version if using version tags
 
   ...additional app definitions...
 
   webserver:
-    image: ghcr.io/ucfopen/materia:webserver-v10.3.0 # use the semver value for the new version if using version tags
+	image: ghcr.io/ucfopen/materia:webserver-v10.3.0 # use the semver value for the new version if using version tags
 
 	...additional webserver definitions...
 ```
@@ -201,64 +208,60 @@ Refer to the [Authentication section](https://github.com/ucfopen/Materia/blob/ma
 ### Common Dev Commands
 
 * Run commands on the app container (like php, composer, or fuelphp oil commands)
-    ```
-    ./run.sh php -i
-    ./run.sh php oil r admin:help
-    ./run.sh composer run --list
-    ```
+	```
+	./run.sh php -i
+	./run.sh php oil r admin:help
+	./run.sh composer run --list
+	```
 
 * Stop containers (db data is retained)
-    ```
-    docker compose stop
-    ```
+	```
+	docker compose stop
+	```
 * Stop and destroy the containers (deletes database data!, first_run.sh required after)
-    ```
-    docker compose down
-    ```
+	```
+	docker compose down
+	```
 * Install composer libraries on the app container
-    ```
-    ./run.sh composer install
-    ```
+	```
+	./run.sh composer install
+	```
 * Install all Widgets in fuel/app/tmp/widget_packages/*.wigt
-    ```
-    ./run_widgets_install.sh '*.wigt'
-    ```
+	```
+	./run_widgets_install.sh '*.wigt'
+	```
 * Run Tests for development
-     ```
-    ./run_tests.sh
-    ```
+	 ```
+	./run_tests.sh
+	```
 * Run Tests with code coverage
-     ```
-    ./run_tests_coverage.sh
-    ```
+	 ```
+	./run_tests_coverage.sh
+	```
 * Create a user based on your docker host machine's current user
-     ```
-    $ max_power@ucf: ./run_create_me.sh
-    User Created: max_power password: kogneato
-    max_power now in role: super_user
-    max_power now in role: basic_author
-    ```
+	 ```
+	$ max_power@ucf: ./run_create_me.sh
+	User Created: max_power password: kogneato
+	max_power now in role: super_user
+	max_power now in role: basic_author
+	```
 * Create a user manually
 	```
 	./run.sh php oil r admin:new_user username firstname mi lastname email password
 	```
 * Installing widgets: Copy the widget file you want to install into **app/fuel/app/tmp/widget\_packages/** and then run **install_widget.sh** passing the name of the widget file to install. Example:
 
-    ```
-    cp my_widget.wigt ~/my_projects/materia_docker/app/fuel/app/tmp
-    cd ~/my_projects/materia_docker
-    ./run_widgets_install.sh my_widget.wigt
-    ```
+	```
+	cp my_widget.wigt ~/my_projects/materia_docker/app/fuel/app/tmp
+	cd ~/my_projects/materia_docker
+	./run_widgets_install.sh my_widget.wigt
+	```
+* Generate a unique salt hash for auth, cipher, and crypto configuration values:
+
+	```
+	docker compose run --rm app php -r "echo(sodium_bin2hex(random_bytes(SODIUM_CRYPTO_STREAM_KEYBYTES)));"
+	```
 
 ### Default User Accounts
 
 If you wish to log into Materia, there are [3 default accounts created for you based on the config](https://github.com/ucfopen/Materia/blob/master/fuel/app/config/materia.php#L56-L78). If you're on OSX or Linux, you'll also get a user based on the username you use on the host machine.
-
-### Updating a container
-
-If you're wanting to update a php or mysql version, this can be done locally for testing before updating the global image.
-
-1. finish your edits.
-2. Execute `docker compose build` to rebuild any images.
-4. Removing any existing running container using that image: `docker compose stop app` and `docker compose rm app`
-5. Start the desired container: `docker compose up app`
