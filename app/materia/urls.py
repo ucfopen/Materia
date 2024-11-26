@@ -17,6 +17,7 @@ Including another URLconf
 
 from core.views import main as core_views
 from core.views.catalog import CatalogView
+from core.views import profile as profile_views
 from django.urls import include, path
 
 urlpatterns = [
@@ -24,7 +25,7 @@ urlpatterns = [
     path("help/", core_views.help, name="help"),
     path("widgets/", CatalogView.index, name="widget catalog"),
     path("api/json/", include("api.urls.json")),
-    path("profile/", core_views.profile, name="profile"),
+    path("profile/", profile_views.profile, name="profile"),
 ]
 
 handler404 = "core.views.main.handler404"

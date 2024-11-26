@@ -9,6 +9,7 @@ from django.urls import path
 urlpatterns = [
     path("widgets_get_by_type/", WidgetsApi.by_type),
     path("user_get", UsersApi.get),
+    path("user_get", UsersApi.activity),
     path("session_author_verify/", SessionsApi.author_verify),
     path("notifications_get/", NotificationsApi.get),
 ]
