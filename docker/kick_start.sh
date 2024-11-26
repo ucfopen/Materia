@@ -1,1 +1,1 @@
-docker exec "${PWD##*/}_python_1" touch /var/www/html/materia.wsgi
+docker exec "${PWD##*/}-python-1" touch /var/www/html/materia.wsgi

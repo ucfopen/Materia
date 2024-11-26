@@ -1,3 +1,3 @@
 FULLPATH=${PWD##*/}
-CONTAINER="${FULLPATH}_python_1"
+CONTAINER="${FULLPATH}-python-1"
 docker exec -it $CONTAINER "$@"
