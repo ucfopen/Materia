@@ -8,7 +8,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run Tests
-      run: cd docker && ./run_tests_ci.sh
+      run: cd docker && touch .env.local && ./run_tests_ci.sh
 
   docker_images_and_release_zip:
     needs: ci_tests
@@ -39,7 +39,8 @@ jobs:
       - name: Build App and Webserver Images
         run: |
           cd docker
-          docker compose build --no-cache webserver app fakes3
+          docker compose build --no-cache webserver app
+          docker compose -f docker-compose.yml -f docker-compose.development.yml build --no-cache fakes3
 
       - name: Push Dev App and Webserver Images
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (contains(github.ref, '-alpha') || contains(github.ref, '-rc')) }}

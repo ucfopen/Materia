@@ -9,7 +9,7 @@ fuel/app/vendor
 fuel/public/widget/*
 fuel/vendor
 fuel/app/logs
-fuel/app/cache
+fuel/app/cache/*
 fuel/app/tmp
 development
 .github
