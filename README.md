@@ -26,16 +26,13 @@ Materia is configured to use Docker containers in production environments, orche
 
 ### Docker Deployment
 
-We publish production-ready application and webserver images in the [Materia Docker repository](https://github.com/orgs/ucfopen/packages/container/package/materia), which can be used with docker compose as part of a production application instance.
-
-The default compose file includes some minimum requirements for a local application. A production instance may require changes to the base compose file or composite additions via a `docker-compose.override.yml` file based on various needs. Note that the startup scripts mentioned below will create an override compose file for you.
+Refer to the [Materia Docker Readme](docker/README.md) for a full breakdown of Materia's docker configuration and deployment in both development and production.
 
 ### Configuration
 
-> [!NOTE]
-> Due to the ephemeral nature of docker containers, it is recommended you manage application configurations via a `.env` file on the host machine. Docker compose can import these environment variables into the application container.
+Materia uses environment variables to facilitate application and webserver configuration. These are typically sourced from `.env` or `.env.local` files on the host machine that are volume mounted into their associated containers.
 
-Visit the [Server Variables](https://ucfopen.github.io/Materia-Docs/admin/server-variables.html) page on our docs site for information about configuration through environment variables.
+Visit docker README as well as the [Server Variables](https://ucfopen.github.io/Materia-Docs/admin/server-variables.html) page on our docs site for information about configuration through environment variables. The [root env file](.env) serves as a configuration template for production instances of Materia.
 
 ## Setup
 
