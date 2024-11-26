@@ -159,7 +159,7 @@ Based on the above, additional modifications to the docker compose file(s) shoul
 > Several environment variable configurations **must** be set or updated in a production instance. These inlude:
 > * `FUEL_ENV=production`
 > * `LTI_KEY`, `LTI_SECRET`, `LTI_GUID`, and `LTI_TOOL_ID` must be set if you intend to use Materia with an LMS.
-> * `AUTH_SALT`, `AUTH_SIMPLEAUTH_SALT, and `CIPHER_KEY`: _see the commands section below for generating a unique salt hash for these values._
+> * `AUTH_SALT`, `AUTH_SIMPLEAUTH_SALT`, and `CIPHER_KEY`: _see the commands section below for generating a unique salt hash for these values._
 > * `CRYPTO_IV`, `CRYPTO_HMAC`, and `CRYPTO_KEY` are legacy encryption keys. They are not required for new copies of Materia, but can be set using unique salt hashes in the same way as `CIPHER_KEY`.
 >
 > For easy reference, use the `.env` in the root project directory as a template for your production configurations.
@@ -192,7 +192,7 @@ services:
   app:
 	image: ghcr.io/ucfopen/materia:app-v10.3.0 # use the semver value for the new version if using version tags
 
-  ...additional app definitions...
+	...additional app definitions...
 
   webserver:
 	image: ghcr.io/ucfopen/materia:webserver-v10.3.0 # use the semver value for the new version if using version tags
