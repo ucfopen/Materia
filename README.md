@@ -26,37 +26,54 @@ Materia is configured to use Docker containers in production environments, orche
 
 ### Docker Deployment
 
-We publish production ready docker and nginx containers in the [Materia Docker repository](https://github.com/orgs/ucfopen/packages/container/package/materia).  For more info on using Docker in Production, read the [Materia Docker Readme](docker/README.md)
+Refer to the [Materia Docker Readme](docker/README.md) for a full breakdown of Materia's docker configuration and deployment in both development and production.
 
 ### Configuration
 
-Visit the [Server Variables](https://ucfopen.github.io/Materia-Docs/admin/server-variables.html) page on our docs site for information about configuration through environment variables.
+Materia uses environment variables to facilitate application and webserver configuration. These are typically sourced from `.env` or `.env.local` files on the host machine that are volume mounted into their associated containers.
 
-## Development
+Visit docker README as well as the [Server Variables](https://ucfopen.github.io/Materia-Docs/admin/server-variables.html) page on our docs site for information about configuration through environment variables. The [root env file](.env) serves as a configuration template for production instances of Materia.
 
-Code contributors should review the [CONTRIBUTING](CONTRIBUTING.md) document before proceeding.
+## Setup
 
-### Local Dev with Docker
+Materia provides a pair of setup scripts for out-of-the-box deployment based on two different use cases:
 
-Get started with a local dev server:
+1. `run_first_for_dev.sh` sets up and configures your local instance of Materia for development. This includes additional volume mounts for project files and makes use of additional containers for mysql, s3, and memcached.
+2. `run_first_for_nondev.sh` is ideal for users who just want to explore Materia locally and potentially transition to a production instance. The script dynamically configures the override compose file based on selections you make in the script.
+
+> [!NOTE]
+> `yq` is required for the nondev script. This may come preinstalled in some OS distributions but you should ensure the correct version is installed. Consult the [yq installation guide](https://github.com/mikefarah/yq?tab=readme-ov-file#install) for more info.
+
+In either case, first-time setup involves the following:
 
 ```
 git clone https://github.com/ucfopen/Materia.git
-
 cd Materia/docker
-
-./run_first.sh
 ```
 
-The `run_first.sh` script only has to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker compose down` or delete the volume manually.
+Followed by either:
+```
+./run_first_for_dev.sh
+```
+For local development or 
 
-Use `docker compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://127.0.0.1` by default.
+```
+./run_first_for_nondev.sh
+```
+For creating a local instance where development is not desired.
 
-In a separate terminal window, run `yarn dev` to enable the webpack dev server and live reloading while making changes to JS and CSS assets.
+The `run_first` scripts only have to be run once for initial setup. Afterwards, your local copy will persist in a docker volume unless you explicitly use `docker compose down` or delete the volumes manually.
 
-Note that Materia uses a self-signed certificate to facilitate https traffic locally. Your browser may require security exceptions for both `127.0.0.1:443` and `127.0.0.1:8008`.
+Use `docker compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://localhost` by default.
 
-More info about Materia Docker can be found in the [Materia Docker Readme](docker/README.md)
+Note that Materia uses a self-signed certificate to facilitate https traffic locally. Your browser may require security exceptions for your application on ports `443` and `8008` (if setup for local development).
+
+> [!NOTE]
+> If local development of static assets (JS and CSS) is desired, run `yarn dev` in a separate terminal window to enable the webpack dev server and live reloading. This requires node and yarn to be installed on the host machine.
+
+## Transitioning to Production
+
+More information about creating a production-capable Materia instance can be found in the [Materia Docker Readme](docker/README.md).
 
 ### Creating additional users
 
@@ -66,19 +83,13 @@ See the wiki page for [Creating a local user](https://github.com/ucfopen/Materia
 
 Tests run in the docker environment to maintain consistency. View the `run_tests_*.sh` scripts in the docker directory for options.
 
-#### Running A Single Test Group
-
-Inspect the actual test command in `/.run_tests.sh` for guidance, but as of the time of writing this, you can run a subset of the tests in the docker environment to save time.
-
-The following command will run just the **Oauth** tests rather quickly:
-
-```
-./run_tests.sh --group=Oauth
-```
-
 ### Git Hooks
 
 There is a pre-commit hook available to ensure your code follows our linting standards. Check out the comments contained inside the hook files (in the githooks directory) to install it, you may need a few dependencies installed to get linting working.
+
+## Contributing
+
+Code contributors should review the [CONTRIBUTING](CONTRIBUTING.md) document before proceeding.
 
 ## Authentication
 
@@ -109,3 +120,33 @@ To use an actual S3 bucket for local dev:
 1. Set `DEV_ONLY_FAKES3_DISABLED` environment variable in `docker/.env` to `true`
 2. Set `ASSET_STORAGE_S3_BUCKET` to your bucket name
 3. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` in `.env.local`. (Tip: You can run `aws configure export-credentials --profile YOUR_PROFILE_NAME --format env-no-export` to get these)
+
+> [!NOTE]
+> Note that `fakes3` asset storage is disabled when `FUEL_ENV` is set to `production`.
+
+## Widget Management
+
+A default list of widgets will be installed as part of the first-time setup process, but the widget ecosystem has many more! Peruse the [Materia Widget Gallery](https://ucfopen.github.io/materia-widget-gallery/) to view additional widgets to install.
+
+### Installing Widgets
+
+Widgets can be installed in one of two ways:
+
+1. A user with the `super_user` role can visit the Widget Admin panel by navigating to `your.materia.url/admin/widget` or by selecting the orange "Admin" button at the top. Select a `.wigt` file from the file upload dialog to install it.
+2. Widgets can be installed from the cli on the application container once running:
+
+```
+$ docker exec -it <container name or id> sh
+$ wget url/for/materia/widget.wigt
+$ php oil r widget:install widget.wigt
+```
+
+The `.wigt` files do not need to be retained once a widget is installed.
+
+## Theming
+
+Theme overrides are facilitated through FuelPHP packages, installed via composer. Materia ships with `Materia-Theme-UCF` by default.
+
+Review the [repository README](https://github.com/ucfopen/Materia-Theme-UCF) for `Materia-Theme-UCF` for a breakdown of using theme overrides in Materia 10.x and later.
+
+

@@ -1,9 +1,16 @@
-# use with dockercompose -f docker-compose.yml -f docker-compose.overide.test.yml
+# this compose file serves as the template for a docker-compose.override.yml file
+# the override file is generated when either the run_first_for_dev or run_first_for_nondev scripts are run
+# for dev, this file is used as-is. For non-dev, this file is modified based on responses to the nondev script
+
 services:
   webserver:
+    ports:
+      - "80:80" # main materia
+      - "443:443" # main materia
+      - "8008:8008" # static files (simulates a different domain sandbox & cdn)
     volumes:
       - ../public:/var/www/html/public:ro
-      - static_widget_files_test:/var/www/html/public/widget/:ro
+      - ../public/widget:/var/www/html/public/widget/:ro
       - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
       - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
       - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
@@ -13,9 +20,10 @@ services:
       - .env
       - .env.local
     environment:
-      # View Materia README for env settings
+      # In a production instance, these values should be unique and sourced from the .env file
       - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
       - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - BOOL_LTI_LOG_FOR_DEBUGGING=true
       - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
       - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
       - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
@@ -23,20 +31,12 @@ services:
       - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
-      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
-      - FUEL_ENV=test
-      - FUEL_LOG_THRESHOLD=300
-      - LOG_HANDLER=DEFAULT
     volumes:
       - ..:/var/www/html/
-      # isolate test widget files just for test
-      - static_widget_files_test:/var/www/html/public/widget
-      # isolate test media just for test
-      - uploaded_media_test:/var/www/html/fuel/packages/materia/media
-      - ./config/php/materia.test.php.ini:/usr/local/etc/php/conf.d/test.ini
+      - ../public/widget:/var/www/html/public/widget/:rw
       - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
     depends_on:
-      - fakes3_test
+      - fakes3
       - mysql
       - memcached
 
@@ -55,31 +55,24 @@ services:
       - backend
     volumes:
       - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
-    # this makes the unit tests much faster but it's a little weird jumping
-    # back and forth between running the server and testing
-    # tmpfs:
-    #   - /var/lib/mysql
 
-  # fakes3, when added as a dependency in the app container above, would restart
-  # and lose its data during tests
-  # thus, fakes3_test was created. it is dropped after tests are complete
-  fakes3_test:
+  fakes3:
     image: ghcr.io/ucfopen/materia:fake-s3-dev
-    ports:
-    # use separate port to avoid conflicts with fakes3
-      - "10002:10001"
+    build:
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
     volumes:
-     # use separate volume to avoid conflicts with fakes3
-      - uploaded_media_test:/s3mnt/fakes3_root/fake_bucket/media/
+      - uploaded_media:/s3mnt/fakes3_root/fake_bucket/media/
+    ports:
+      - "10001:10001"
     networks:
       - frontend
       - backend
-  
+
   memcached:
     image: memcached:1.6.6-alpine
     networks:
       - backend
 
 volumes:
-  static_widget_files_test: {} # contain widgets installed in tests
-  uploaded_media_test: {} # contain files uploaded in tests
+  uploaded_media: {} # uploaded media files

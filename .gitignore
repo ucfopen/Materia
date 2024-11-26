@@ -14,6 +14,7 @@ nbproject/
 
 # custom config
 .env.local
+.env.local.mysql
 
 # hidden files created by Windows
 Thumbs.db
@@ -123,3 +124,9 @@ public/dist/*
 !public/dist/package.json
 !public/dist/path.js
 !public/dist/README.md
+
+public/js
+public/css
+
+# docker override is now untracked as of v10.3.0
+docker/docker-compose.override.yml
