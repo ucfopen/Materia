@@ -17,9 +17,9 @@
 		padding: 0;
 
 		border-bottom: #999 dotted 1px;
-	
+
 		.action_button {
-			
+
 			color: $extremely-dark-gray;
 			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
 			box-shadow: 1px 2px 4px #ececec;
@@ -64,7 +64,7 @@
 		color: #000000;
 	}
 
-	
+
 
 	.scoreWrapper {
 		display: flex;
@@ -92,12 +92,12 @@
 				margin: 15px 0 0 0;
 				padding: 0;
 				height: 23px;
-	
+
 				li {
 					list-style: none;
 					display: inline-block;
 					padding-right: 3px;
-	
+
 					a {
 						color: #000000;
 						padding: 6px 10px 4px 10px;
@@ -106,13 +106,13 @@
 						border-right: solid #dbdbdb 1px;
 						padding-bottom: 5px;
 						cursor: pointer;
-	
+
 						&:hover {
 							text-decoration: none;
 						}
 					}
 				}
-	
+
 				li.scoreTypeSelected a {
 					background: #f3f3f3;
 				}
@@ -128,7 +128,7 @@
 				width: 105px;
 				margin: 0;
 				padding: 0;
-	
+
 				li {
 					padding: 5px;
 					margin: 0 0 10px 0;
@@ -138,7 +138,7 @@
 					text-align: center;
 					background: #e9edef;
 					border-radius: 5px;
-	
+
 					p {
 						padding: 0;
 						margin: 0;
@@ -148,7 +148,7 @@
 						font-weight: 900;
 						font-family: 'Kameron', Georgia, 'Times New Roman', Times, serif;
 					}
-	
+
 					h4 {
 						padding: 0;
 						margin: 0;
@@ -202,15 +202,10 @@
 		}
 
 		.display.table {
+			display: flex;
 			background: #f3f3f3;
-			margin: 0;
-			padding: 20px;
-			border: solid #dbdbdb 1px;
-			float: left;
 			width: 570px;
 			min-height: 300px;
-			padding: 0 0 25px 0;
-			display: block;
 
 			&.loading {
 				display: flex;
@@ -356,130 +351,124 @@
 		.table {
 			h3 {
 				font-family: 'Lucida Grande', sans-serif;
-				margin-top: 10px;
-				margin-left: 20px;
 				font-size: 1em;
 				font-weight: normal;
 				color: #666;
-			}
-
-			.score-search {
-				background: rgba(0, 0, 0, 0.05);
-				padding: 6px 10px 10px 10px;
-
-				input[type='text'] {
-					width: 190px;
-					margin: 7px 10px 0 10px;
-					border: solid 1px #b0b0b0;
-					border-radius: 12px;
-					height: 19px;
-					background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
-					padding-left: 23px;
-					padding-right: 10px;
-					outline: none;
-				}
+				margin: 0;
+				text-align: center;
 			}
 
 			.scoreListContainer {
-				position: relative;
-				z-index: 3;
-				float: left;
-				width: 40%;
-				margin-left: 20px;
+				display: flex;
+				width: 100%;
+				max-height: 300px;
 
-				background: #ffffff;
-				border-radius: 3px;
-
-				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
-
-				.scoreListScrollContainer {
-					max-height: 550px;
+				.centeredText {
+					display: flex;
 					width: 100%;
-					overflow: auto;
+					height: 100%;
+					justify-content: center;
+					align-items: center;
+					text-align: center;
+				}
 
-					.scoreListTable {
+				.scoreListStudentSelector {
+					display: flex;
+					flex-direction: column;
+					background: rgba(0, 0, 0, 0.05);
+					padding: 10px 10px;
+					gap: 10px;
+					width: 35%;
+					overflow-y: auto;
+
+					input[type='text'] {
+						border: solid 1px #b0b0b0;
+						border-radius: 12px;
+						height: 19px;
+						background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
+						padding-left: 23px;
+						padding-right: 10px;
+						outline: none;
+					}
+
+					ul {
+						display: flex;
+						flex-direction: column;
+						list-style-type: none;
+						padding: 0;
+						margin: 0;
+						gap: 5px;
+					}
+
+					button {
+						border: solid 1px #b0b0b0;
+						border-radius: 1000px;
 						width: 100%;
+						padding: 5px 10px;
+						background-color: white;
+						transition: background-color 0.1s;
 
-						.listName {
-							&.selected {
-								background: #ffe0a5;
+						&:hover {
+							cursor: pointer;
+							background-color: #d0eeff;
+							border-color: #9eb5c2
+						}
+					}
+
+					.buttonSelected {
+						background-color: #86d3ff;
+						border-color: #578ba9
+					}
+				}
+
+				.scoreListStudentScoreTable {
+					display: flex;
+					flex: 1;
+					flex-direction: column;
+					gap: 10px;
+					padding: 10px;
+					overflow-y: auto;
+
+					table {
+						width: 100%;
+						border-collapse: collapse;
+
+						th, td {
+							border-top: solid 1px #bbb;
+							border-bottom: solid 1px #bbb;
+							text-align: start;
+							padding: 6px 6px;
+							height: unset;
+						}
+
+						tr:first-child th {
+							border-top: none;
+						}
+
+						tr:last-child td {
+							border-bottom: none;
+						}
+
+						td button {
+							display: flex;
+							border: none;
+							background: transparent;
+							padding: 4px;
+							border-radius: 3px;
+							transition: background-color 0.1s;
+
+							img {
+								width: 16px;
+								height: 16px;
+							}
+
+							&:hover {
+								cursor: pointer;
+								background-color: #00000011;
 							}
 						}
 					}
 				}
-
-				.scoreListHead {
-					display: block;
-					height: 1.5em;
-					padding: 3px 0 0 5px;
-					background-color: #cdcdcd;
-					color: #000000;
-					text-decoration: none;
-				}
-
-				tbody tr:hover {
-					background: #ffe0a5;
-					cursor: pointer;
-				}
-			}
-
-			.scoreTableContainer {
-				position: relative;
-				z-index: 1;
-				float: left;
-				width: 55%;
-				right: 5px;
-
-				margin-top: 15px;
-				padding: 10px 0 10px 0;
-
-				background: #ffffff;
-				border-radius: 3px;
-				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
-
-				.scoreTable {
-					width: 95%;
-					margin-left: 10px;
-					border-collapse: collapse;
-
-					.elapsed {
-						text-align: right;
-					}
-
-					td {
-						border: none;
-						border-bottom: solid #dbdbdb 1px;
-					}
-
-					tr {
-						cursor: pointer;
-
-						&:hover {
-							background: #ffe0a5;
-						}
-
-						&:last-child td {
-							border-bottom: none;
-						}
-					}
-				}
-			}
-
-			.scoreTableTitle {
-				height: 1.5em;
-			}
-
-			thead tr {
-				background: #cdcdcd;
-			}
-
-			td {
-				height: 1.5em;
-				padding: 6px 3px;
-			}
-
-			tbody tr.rowSelected {
-				background: #ffcb68;
 			}
 		}
 	}
