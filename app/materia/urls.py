@@ -19,12 +19,14 @@ from core.views import main as core_views
 from core.views.catalog import CatalogView
 from core.views import profile as profile_views
 from django.urls import include, path
+from api.views.users import UsersApi
 
 urlpatterns = [
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
     path("widgets/", CatalogView.index, name="widget catalog"),
     path("api/json/", include("api.urls.json")),
+    path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
 ]
 
