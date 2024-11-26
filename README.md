@@ -69,9 +69,10 @@ The `run_first` scripts only have to be run once for initial setup. Afterwards, 
 
 Use `docker compose up` to run your local instance. The compose process must persist to keep the application alive. Materia is configured to run at `https://localhost` by default.
 
-In a separate terminal window, run `yarn dev` to enable the webpack dev server and live reloading while making changes to JS and CSS assets. This requires node and yarn to be installed on the host machine.
-
 Note that Materia uses a self-signed certificate to facilitate https traffic locally. Your browser may require security exceptions for your application on ports `443` and `8008` (if setup for local development).
+
+> [!NOTE]
+> If local development of static assets (JS and CSS) is desired, run `yarn dev` in a separate terminal window to enable the webpack dev server and live reloading. This requires node and yarn to be installed on the host machine.
 
 ## Transitioning to Production
 
@@ -84,16 +85,6 @@ See the wiki page for [Creating a local user](https://github.com/ucfopen/Materia
 ### Running Tests
 
 Tests run in the docker environment to maintain consistency. View the `run_tests_*.sh` scripts in the docker directory for options.
-
-#### Running A Single Test Group
-
-Inspect the actual test command in `/.run_tests.sh` for guidance, but as of the time of writing this, you can run a subset of the tests in the docker environment to save time.
-
-The following command will run just the **Oauth** tests rather quickly:
-
-```
-./run_tests.sh --group=Oauth
-```
 
 ### Git Hooks
 
@@ -154,5 +145,11 @@ $ php oil r widget:install widget.wigt
 ```
 
 The `.wigt` files do not need to be retained once a widget is installed.
+
+## Theming
+
+Theme overrides are facilitated through FuelPHP packages, installed via composer. Materia ships with `Materia-Theme-UCF` by default.
+
+Review the [repository README](https://github.com/ucfopen/Materia-Theme-UCF) for `Materia-Theme-UCF` for a breakdown of using theme overrides in Materia 10.x and later.
 
 
