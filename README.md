@@ -22,11 +22,11 @@ While casual references to _Materia_ typically involve both the platform and its
 
 ## Installation
 
-Materia is configured to use Docker containers in production environments, orchestrated through docker compose, though other orchestration frameworks could potentially be used instead. While it may be possible to deploy Materia without Docker, we **do not recommend doing so**.
+Materia is configured to use docker containers in production environments, orchestrated through docker compose, though other orchestration frameworks could potentially be used instead. While it may be possible to deploy Materia without docker, we **do not recommend doing so**.
 
 ### Docker Deployment
 
-Refer to the [Materia Docker Readme](docker/README.md) for a full breakdown of Materia's docker configuration and deployment in both development and production.
+Refer to the [Materia docker readme](docker/README.md) for a full breakdown of Materia's docker configuration and deployment in both development and production.
 
 ### Configuration
 
@@ -70,10 +70,6 @@ Note that Materia uses a self-signed certificate to facilitate https traffic loc
 
 > [!NOTE]
 > If local development of static assets (JS and CSS) is desired, run `yarn dev` in a separate terminal window to enable the webpack dev server and live reloading. This requires node and yarn to be installed on the host machine.
-
-## Transitioning to Production
-
-More information about creating a production-capable Materia instance can be found in the [Materia Docker Readme](docker/README.md).
 
 ### Creating additional users
 
@@ -148,5 +144,9 @@ The `.wigt` files do not need to be retained once a widget is installed.
 Theme overrides are facilitated through FuelPHP packages, installed via composer. Materia ships with `Materia-Theme-UCF` by default.
 
 Review the [repository README](https://github.com/ucfopen/Materia-Theme-UCF) for `Materia-Theme-UCF` for a breakdown of using theme overrides in Materia 10.x and later.
+
+## Transitioning to Production
+
+More information about creating a production-capable Materia instance can be found in the [Materia Docker Readme](docker/README.md).
 
 

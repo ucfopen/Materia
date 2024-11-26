@@ -156,7 +156,7 @@ Based on the above, additional modifications to the docker compose file(s) shoul
 5. Any additional configurations for the `webserver` service definition as far as port assignments or considerations for network traffic reaching the host machine.
 
 > [!IMPORTANT]
-> Several environment variable configurations **must** be set or updated in a production instance. These inlude:
+> Several environment variable configurations **must** be set or updated in a production instance. These include:
 > * `FUEL_ENV=production`
 > * `LTI_KEY`, `LTI_SECRET`, `LTI_GUID`, and `LTI_TOOL_ID` must be set if you intend to use Materia with an LMS.
 > * `AUTH_SALT`, `AUTH_SIMPLEAUTH_SALT`, and `CIPHER_KEY`: _see the commands section below for generating a unique salt hash for these values._
@@ -171,7 +171,7 @@ docker compose pull
 docker compose up -d
 ```
 
-The `-d` flag for compose runs the containers in a detached state, so a terminal session for the compose process doe not need to persist.
+The `-d` flag for compose runs the containers in a detached state, so a terminal session for the compose process does not need to persist.
 
 ## Upgrading Materia in Production
 
