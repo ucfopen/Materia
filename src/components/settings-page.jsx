@@ -61,12 +61,16 @@ const SettingsPage = () => {
 	}
 
 	const _submitSettings = () => {
-		console.log(state.darkMode);
 		mutateUserSettings.mutate({
 			notify: state.notify,
 			useGravatar: state.useGravatar,
 			darkMode: state.darkMode,
-			successFunc: () => {},
+			successFunc: () => {
+				// immediately apply/revoke darkmode to body tag. This will be automatically applied
+				// on subsequent page views across the application
+				if (state.darkMode) document.body.classList.add('darkMode')
+				else document.body.classList.remove('darkMode')
+			},
 			errorFunc: (err) => {
 				if (err.message == 'Invalid Login') {
 					setAlertDialog({

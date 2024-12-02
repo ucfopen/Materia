@@ -40,19 +40,25 @@
 		margin-bottom: 0;
 		background: #f2f2f2;
 		border-radius: 5px;
-		margin: 0.5em 1em 1em;
+		margin-top: 0.5em;
 	}
 
-	.title_container label {
-		margin: 0 25px 0 0;
+	.title_container {
+		display: flex;
+		align-items: center;
+		label {
+			margin: 0 25px 0 0;
+		}
 	}
 
 	.new-title {
-		width: 345px;
-		height: 30px;
-		padding-left: 10px;
 		position: relative;
 		z-index: 2;
+		flex-grow: 2;
+		height: 30px;
+		margin-left: 0.5em;
+		padding-left: 0.5em;
+		font-size: 16px;
 	}
 
 	.options_container {
@@ -86,6 +92,12 @@
 	.title {
 		color: #d8d8d8;
 		border-bottom: #4c4e58 dotted 1px;
+	}
+
+	input {
+		background: $color-input-box-bg-dark;
+		border: solid 1px $color-input-box-border-dark;
+		color: #fff;
 	}
 
 	.input_desc {

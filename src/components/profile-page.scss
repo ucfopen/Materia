@@ -241,8 +241,13 @@
 				}
 			}
 
-			&.incomplete .score {
-				background: #ccc;
+			&.incomplete {
+				.score {
+					background: #ccc;
+				}
+				a.score-link {
+					cursor: auto;
+				}
 			}
 
 			&.perfect_score .score {
@@ -309,7 +314,7 @@
 				position: absolute;
 				top: 12px;
 				right: 1px;
-				color: #7b7b7b;
+				color: rgba(200,200,200,0.5);
 				font-size: 30px;
 			}
 		}
@@ -400,102 +405,9 @@
 				font-size: 14px;
 			}
 
-			.checkbox-wrapper {
-				display: flex;
-				align-items: center;
-				margin-bottom: 1rem;
-				cursor: pointer;
-
-				input {
-					position: absolute;
-					opacity: 0;
-					cursor: pointer;
-				}
-
-				input:checked + .custom-checkbox {
-					background-color: #007bff;
-					border-color: #007bff;
-				}
-
-				input:checked + .custom-checkbox::after {
-					display: block;
-				}
-			}
-
-			.custom-checkbox {
-				position: relative;
-				display: inline-block;
-				width: 16px;
-				height: 16px;
+			.custom-checkbox, .custom-radio {
 				margin: 0 0.5em 0 0;
 				padding: 0;
-
-				background-color: #fff;
-				border: 2px solid #7e7e7e;
-				border-radius: 4px;
-				
-				transition: all 0.3s;
-
-				&:after {
-					content: '✓';
-					position: absolute;
-					display: none;
-					left: 50%;
-					top: 50%;
-					transform: translate(-50%, -50%);
-					color: #fff;
-					font-size: 14px;
-				}
-			}
-
-			.radio-wrapper {
-				display: flex;
-				align-items: center;
-				margin-bottom: 0.5rem;
-				cursor: pointer;
-
-				input {
-					position: absolute;
-					opacity: 0;
-					cursor: pointer;
-				}
-
-				input:checked + .custom-radio {
-					background-color: #007bff;
-					border-color: #007bff;
-				}
-
-				input:checked + .custom-radio::after {
-					display: block;
-				}
-			}
-
-			.custom-radio {
-				position: relative;
-				display: inline-block;
-				width: 16px;
-				height: 16px;
-				margin: 0 0.5em 0 0;
-				padding: 0;
-
-				background-color: #fff;
-				border: 2px solid #7e7e7e;
-				border-radius: 50%;
-				
-				transition: all 0.3s;
-
-				&:after {
-					content: '';
-					position: absolute;
-					display: none;
-					left: 50%;
-					top: 50%;
-					width: 8px;
-					height: 8px;
-					border-radius: 50%;
-					background-color: #fff;
-					transform: translate(-50%, -50%);
-				}
 			}
 
 			label {
@@ -662,7 +574,7 @@
 			}
 
 			.status {
-				color: #eee;
+				color: rgba(75,75,75,0.5);
 			}
 		}
 

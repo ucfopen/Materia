@@ -937,8 +937,8 @@
 				}
 
 				.textbox-background {
-					background: #21232a;
-					border: solid 1px #1d1f25;
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
 				}
 			}
 
@@ -959,7 +959,7 @@
 					}
 
 					&.selected:not(:hover) {
-						background: #295b99;
+						background: #13335b;
 					}
 
 					&.is_draft ul li.score {
@@ -1180,7 +1180,8 @@
 			}
 
 			.play_link {
-				background-color: #1d1f25;
+				background-color: $color-input-box-bg-dark;
+				border: solid 1px $color-input-box-border-dark;
 				color: #d8d8d8;
 
 				&:disabled {
@@ -1197,6 +1198,10 @@
 					border-color: #181920;
 				}
 			}
+		}
+
+		.student-activity-header {
+			background: none;
 		}
 	}
 

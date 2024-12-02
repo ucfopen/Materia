@@ -1,3 +1,5 @@
+@import 'include.scss';
+
 // Collaborate dialog
 .modal .collaborate-modal {
 	width: 100%;
@@ -36,9 +38,11 @@
 	}
 
 	.user-add {
-		width: 445px;
-		height: 30px;
 		z-index: 2;
+		flex-grow: 2;
+		height: 30px;
+		margin-left: 1em;
+		padding-left: 0.5em;
 		border: solid 1px #c9c9c9;
 		font-size: 16px;
 	}
@@ -315,9 +319,12 @@
 				text-align: left;
 
 				select {
-					cursor: pointer;
 					display: inline-block;
+					padding: 0.25em;
 					margin-bottom: 5px;
+					cursor: pointer;
+
+					border-width: 1px;
 				}
 
 				.expires {
@@ -412,8 +419,8 @@
 	}
 
 	.user-add {
-		border: solid 1px #181920;
-		background-color: #1d1f25;
+		border: solid 1px $color-input-box-border-dark;
+		background-color: $color-input-box-bg-dark;
 		color: #fff;
 	}
 
@@ -501,9 +508,9 @@
 			.options {
 
 				select {
-					background-color: #21232a;
+					background-color: $color-input-box-bg-dark;
 					color: #fff;
-					border-color: #08090c;
+					border-color: $color-input-box-border-dark;
 				}
 
 				.expires {

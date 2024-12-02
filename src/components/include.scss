@@ -23,6 +23,9 @@ $color-features-dark: #295b99;
 $color-blue-hover-dark: #1b304b;
 $color-link-dark: #61a4e2;
 
+$color-input-box-bg-dark: #30323b;
+$color-input-box-border-dark: #13151a;
+
 
 body,
 html {
@@ -191,7 +194,7 @@ header {
 
 		a {
 			font-size: 14px;
-			font-weight: 300;
+			font-weight: 400;
 			color: #4c4c4c;
 			white-space: nowrap;
 			overflow: hidden;
@@ -235,7 +238,7 @@ header {
 
 				a {
 					font-size: 14px;
-					font-weight: 100;
+					font-weight: 400;
 					margin: 0;
 					padding: 0;
 					color: #4c4c4c;
@@ -296,7 +299,7 @@ header {
 
 				a {
 					font-size: 14px;
-					font-weight: 300;
+					font-weight: 400;
 					margin: 0;
 					padding: 0;
 				}
@@ -493,6 +496,104 @@ header {
 		align-self: end;
 		&:hover {
 			color: red;
+		}
+	}
+}
+
+.checkbox-wrapper {
+	display: flex;
+	align-items: center;
+	margin-bottom: 1rem;
+	cursor: pointer;
+
+	input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	input:checked + .custom-checkbox {
+		background-color: #007bff;
+		border-color: #007bff;
+	}
+
+	input:checked + .custom-checkbox::after {
+		display: block;
+	}
+
+	.custom-checkbox {
+		position: relative;
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		margin: 0 0.5em 0 0;
+		padding: 0;
+	
+		background-color: #fff;
+		border: 2px solid #7e7e7e;
+		border-radius: 4px;
+		
+		transition: all 0.3s;
+	
+		&:after {
+			content: '✓';
+			position: absolute;
+			display: none;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			color: #fff;
+			font-size: 14px;
+		}
+	}
+}
+
+.radio-wrapper {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	cursor: pointer;
+
+	input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	input:checked + .custom-radio {
+		background-color: #007bff;
+		border-color: #007bff;
+	}
+
+	input:checked + .custom-radio::after {
+		display: block;
+	}
+
+	.custom-radio {
+		position: relative;
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		margin: 0 0.5em 0 0;
+		padding: 0;
+	
+		background-color: #fff;
+		border: 2px solid #7e7e7e;
+		border-radius: 50%;
+		
+		transition: all 0.3s;
+	
+		&:after {
+			content: '';
+			position: absolute;
+			display: none;
+			left: 50%;
+			top: 50%;
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background-color: #fff;
+			transform: translate(-50%, -50%);
 		}
 	}
 }
@@ -767,7 +868,7 @@ header {
 
 					a {
 						font-size: 14px;
-						font-weight: 300;
+						font-weight: 400;
 						margin: 0;
 						padding: 0;
 					}
@@ -1006,6 +1107,7 @@ footer {
 	color: #555;
 	text-decoration: underline;
 	margin: 10px 15px;
+	font-weight: 400;
 }
 
 .popup h2,
