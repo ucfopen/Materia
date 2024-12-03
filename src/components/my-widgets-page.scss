@@ -573,7 +573,7 @@
 					float: left;
 					margin: 0 10px 0 0;
 					width: 33px;
-					font-weight: bold;
+					font-weight: 700;
 				}
 
 				&.disabled dt {
@@ -581,7 +581,7 @@
 					float: left;
 					margin: 0 10px 0 0;
 					width: 33px;
-					font-weight: bold;
+					font-weight: 700;
 				}
 
 				&.disabled dd {
@@ -594,6 +594,7 @@
 					margin: 0 0 10px 0;
 					padding-left: 88px;
 					cursor: pointer;
+					font-weight: 400;
 
 					.available-after {
 						margin-left: -5px;
@@ -699,17 +700,13 @@
 		}
 
 		.share-widget-container {
-			// border-top: 1px solid rgba(0, 0, 0, 0.3);
 			display: inline-block;
 			padding: 22px 20px 4px 20px;
 			width: 100%;
 			font-size: 10pt;
 			margin: 0;
-			// padding-left: 100px;
 			position: relative;
 			box-sizing: border-box;
-			// background: #fff url(/img/widget_link_icon.png) no-repeat 20px
-			// 	20px;
 
 			.share-widget-options-first {
 				padding-left: 10px;
@@ -754,6 +751,7 @@
 
 			p {
 				margin-top: 6px;
+				font-weight: 400;
 			}
 
 			h3 {

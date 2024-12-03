@@ -178,8 +178,6 @@
 			margin: 0;
 			padding: 20px 0 0 20px;
 			border: solid #dbdbdb 1px;
-			// width: 550px;
-			// float: left;
 
 			.type {
 				padding: 0;
@@ -192,11 +190,23 @@
 				}
 			}
 
-			.chart {
-				width: 475px;
-				height: 300px;
-				float: left;
-				margin: 0 10px 15px 10px;
+			svg {
+				g {
+					stroke: $gray;
+
+					g {
+						color: $gray;
+					}
+
+					text {
+						stroke: $extremely-dark-gray;
+						stroke-width: 0.5px;
+					}
+
+					rect {
+						stroke: none;
+					}
+				}
 			}
 		}
 
@@ -372,6 +382,7 @@
 				}
 
 				.scoreListStudentSelector {
+					position: relative;
 					display: flex;
 					flex-direction: column;
 					background: rgba(0, 0, 0, 0.05);
@@ -380,11 +391,23 @@
 					width: 35%;
 					overflow-y: auto;
 
+					.search-icon {
+						position: absolute;
+						top: 12px;
+						left: 13px;
+						height: 14px;
+						width: 18px;
+						fill: #9a9a9a;
+						svg {
+							height: 100%;
+							width: 100%;
+						}
+					}
+
 					input[type='text'] {
 						border: solid 1px #b0b0b0;
 						border-radius: 12px;
 						height: 19px;
-						background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
 						padding-left: 23px;
 						padding-right: 10px;
 						outline: none;
@@ -450,16 +473,19 @@
 
 						td button {
 							display: flex;
+							width: 24px;
+							height: 24px;
 							border: none;
-							background: transparent;
-							padding: 4px;
+							padding: 0;
+							background: transparent url('/img/arrow_right_with_stem.svg') no-repeat center;
+							background-size: 16px 16px;
 							border-radius: 3px;
 							transition: background-color 0.1s;
 
-							img {
-								width: 16px;
-								height: 16px;
-							}
+							// img {
+							// 	width: 16px;
+							// 	height: 16px;
+							// }
 
 							&:hover {
 								cursor: pointer;
@@ -654,9 +680,56 @@
 		}
 
 		.display.graph {
-			background: #9696B0;
-			border: solid #08090c 1px;
-			color: #000;
+			background: $color-input-box-bg-dark;
+			border: solid 1px $color-input-box-border-dark;
+
+			svg {
+				g {
+					stroke: $light-gray;
+
+					text {
+						stroke: #fff;
+						stroke-width: 1px;
+					}
+
+					g {
+						color: $light-gray !important;
+					}
+
+					rect {
+						stroke: none;
+					}
+				}
+			}
+		}
+
+		.scoreListContainer {
+			.scoreListStudentSelector {
+				input[type='text'] {
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+					color: #fff;
+				}
+
+				button {
+					background: $color-background-dark-gray;
+					color: #fff;
+
+					&:hover {
+						background: $color-features-dark;
+					}
+
+					&.buttonSelected {
+						background: $color-blue-hover-dark;
+					}
+				}
+			}
+
+			.scoreListStudentScoreTable {
+				td button {
+					filter: invert(1);
+				}
+			}
 		}
 
 		.display.table {
@@ -726,11 +799,6 @@
 
 		.table {
 			h3 {
-				font-family: 'Lucida Grande', sans-serif;
-				margin-top: 10px;
-				margin-left: 20px;
-				font-size: 1em;
-				font-weight: normal;
 				color: #d8d8d8;
 			}
 
@@ -796,9 +864,9 @@
 
 		.numeric {
 			li {
-				background: #4c4e58;
+				background: $color-input-box-bg-dark;
 				p {
-					color: #8EC6FA;
+					color: $color-features;
 				}
 			}
 		}

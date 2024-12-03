@@ -150,7 +150,7 @@ const SettingsPage = () => {
 					<li>
 						<label className='radio-wrapper'>
 							<input type='radio' name='avatar' id='avatar_gravatar' checked={state.useGravatar == true} onChange={() => _updateIconPref(true)}/>
-							<span class='custom-radio'></span>
+							<span className='custom-radio'></span>
 							Use Gravatar
 							<a className='external tiny' href='https://en.gravatar.com/' target='_blank'> (Upload or change your icon at gravatar.com)</a>
 						</label>
@@ -158,7 +158,7 @@ const SettingsPage = () => {
 					<li>
 						<label className='radio-wrapper'>
 							<input type='radio' name='avatar' id='avatar_default' checked={state.useGravatar == false} onChange={() => _updateIconPref(false)} />
-							<span class='custom-radio'></span>
+							<span className='custom-radio'></span>
 							None
 						</label>
 					</li>
@@ -168,7 +168,7 @@ const SettingsPage = () => {
 					<li>
 						<label className='checkbox-wrapper'>
 							<input type='checkbox' id='darkMode' name='darkMode' checked={state.darkMode == true} onChange={_updateDarkModePref} />
-							<span class='custom-checkbox'></span>
+							<span className='custom-checkbox'></span>
 							Use Dark Mode
 						</label>
 						<p className='exp'>Note: This does not influence widgets.</p>

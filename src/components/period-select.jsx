@@ -104,20 +104,26 @@ const PeriodSelect = ({availInfo, index, formData, setFormData}) => {
 			<h3>{availInfo.header}</h3>
 			<ul className='date-picker'>
 				<li>
-					<input type='radio'
-						aria-label={`anytime-input-${index}`}
-						value={'anytime'}
-						checked={formData.changes.radios[index]}
-						onChange={() => {availChange(index, true)}}/>
-					<label>{availInfo.anytimeLabel}</label>
+					<label className='radio-wrapper'>
+						<input type='radio'
+							aria-label={`anytime-input-${index}`}
+							value={'anytime'}
+							checked={formData.changes.radios[index]}
+							onChange={() => {availChange(index, true)}}/>
+						<span className='custom-radio'></span>
+						{availInfo.anytimeLabel}
+					</label>
 				</li>
 				<li className='date-list-elem'>
-					<input type='radio'
-						aria-label={`on-input-${index}`}
-						value={'specify'}
-						checked={!formData.changes.radios[index]}
-						onChange={() => {availChange(index, false)}}/>
-					<label>On</label>
+					<label className='radio-wrapper'>
+						<input type='radio'
+							aria-label={`on-input-${index}`}
+							value={'specify'}
+							checked={!formData.changes.radios[index]}
+							onChange={() => {availChange(index, false)}}/>
+						<span className='custom-radio'></span>
+						On
+					</label>
 					<DatePicker
 						selected={formData.changes.dates[index]}
 						className={`date ${formData.errors.date[index] ? 'error' : ''}`}

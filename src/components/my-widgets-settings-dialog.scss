@@ -1,3 +1,5 @@
+@import 'include.scss';
+
 $mobile-width: 620px;
 
 .settings-modal {
@@ -9,13 +11,18 @@ $mobile-width: 620px;
 	max-height: 100%;
 
 	.top-bar {
+		position: relative;
+		left: -20px;
 		display: flex;
 		flex-direction: row;
+		width: calc(100% + 20px);
 		border-bottom: #999 dotted 1px;
-		padding-bottom: 20px;
+		padding-bottom: 10px;
+		margin-bottom: 10px;
 		align-items: center;
 
 		.title {
+			margin-left: 20px;
 			font-size: 1.3em;
 			color: #555;
 			font-weight: bold;
@@ -40,13 +47,23 @@ $mobile-width: 620px;
 		border-radius: 5px;
 	}
 
+	div.error {
+		position: relative;
+		left: -20px;
+		width: calc(100% + 20px);
+
+		p {
+			margin: 0.5em 0;
+		}
+	}
+
 	.attemptsPopup {
 		display: flex;
 		flex-direction: column;
 		align-items: baseline;
 		// justify-content: center;
+		margin: 0 0.5em;
 		padding: 0 1em 0 0;
-		margin: 0 20px 0 20px;
 		max-height: 75%;
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -317,6 +334,11 @@ $mobile-width: 620px;
 					padding: 0;
 					list-style: none;
 
+					.radio-wrapper {
+						margin: 0 0 0 5px;
+						font-weight: 400;
+					}
+
 					&.embedded {
 						.input-desc {
 							font-size: 0.8em;
@@ -418,6 +440,10 @@ $mobile-width: 620px;
 		.attempt-content {
 			.data-holder {
 				.selector {
+					input {
+						background: none;
+					}
+
 					input[type='range']::-webkit-slider-runnable-track {
 						border: 1px solid #181920;
 						background: #d8d8d8;
@@ -488,7 +514,7 @@ $mobile-width: 620px;
 
 				.data-explanation {
 					.input-desc {
-						background-color: #4c4e58;
+						background-color: $color-input-desc-dark;
 					}
 				}
 			}
@@ -498,7 +524,7 @@ $mobile-width: 620px;
 			.access {
 				.access-options {
 					.input-desc {
-						background: #4c4e58;
+						background-color: $color-input-desc-dark;
 					}
 					.disabled {
 						label {
@@ -546,6 +572,19 @@ $mobile-width: 620px;
 	.date-picker {
 		list-style: none;
 		padding: 0;
+		font-weight: 400;
+
+		li {
+			margin-bottom: 0.5em;
+		}
+
+		.custom-radio {
+			margin: 0 0.5em 0 0;
+		}
+
+		.radio-wrapper {
+			margin: 0;
+		}
 
 		.date-list-elem {
 			display: flex;
@@ -555,7 +594,7 @@ $mobile-width: 620px;
 		}
 
 		label {
-			margin-left: 5px;
+			margin: 0 0.5em;
 		}
 
 		input[type='radio'] {
@@ -606,12 +645,26 @@ $mobile-width: 620px;
 	}
 }
 
+.darkMode {
+	div.error {
+		position: relative;
+		left: -20px;
+		width: calc(100% + 20px);
+
+		p {
+			margin: 0.5em 0;
+			color: #fff;
+			background-color: rgba(255, 0, 0, 0.5);
+		}
+	}
+}
+
 .darkMode .from-picker {
 	.date-picker {
 		input[type='text'] {
-			background-color: #1d1f25;
+			background-color: $color-input-box-bg-dark;
 			color: #fff;
-			border: 1px solid rgba(255, 255, 255, 0.5);
+			border: solid 1px $color-input-box-border-dark;
 
 			&.error {
 				background-color: rgba(255, 0, 0, 0.5);

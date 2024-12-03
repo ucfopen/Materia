@@ -5,6 +5,8 @@
 	box-sizing: border-box;
 	padding: 10px 10px 0 10px;
 
+	font-weight: 400;
+
 	.title {
 		margin: 0;
 		padding: 0;
@@ -36,11 +38,12 @@
 	}
 
 	.input_desc {
-		padding: 10px;
-		margin-bottom: 0;
+		margin: 0.5em 0 0 0;
+		padding: 1.5em;
+
 		background: #f2f2f2;
 		border-radius: 5px;
-		margin-top: 0.5em;
+		font-size: 0.9em;
 	}
 
 	.title_container {
