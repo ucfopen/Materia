@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useId } from 'react'
 import { useQueryClient, useQuery } from 'react-query'
 import { apiGetPlayLogs } from '../util/api'
 import MyWidgetScoreSemesterSummary from './my-widgets-score-semester-summary'
@@ -96,73 +96,98 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 	}, [state.searchText, state.selectedUser, state.logs])
 
 	let mainContentRender = <LoadingIcon width='570px' />
+	const studentScoresHeaderId = useId()
+
 	if (error) {
 		mainContentRender = <div className='error'>{error}</div>
 	}
 	else if (!state.isLoading) {
-		const userRowElements = state.filteredLogs.map(user => (
-			<tr
-				key={user.userId}
-				title={`View all scores for ${user.name}`}
-				onClick={() => { setState({ ...state, selectedUser: user }) }}
-				className={{ rowSelected: state.selectedUser.userId === user.userId }}
-			>
-				<td className={`listName ${state.selectedUser.userId === user.userId ? 'selected' : ''}`}>
-					{user.name}
-				</td>
-			</tr>
-		))
+		const studentSearch = (
+			<>
+				<input
+					type='text'
+					value={state.searchText}
+					onChange={(e) => setState({...state, searchText: e.target.value})}
+					placeholder='Search Students'
+				/>
+				{state.filteredLogs.length === 0 && (
+					<h3 style={{ paddingTop: '5px' }}>No users match that search.</h3>
+				)}
+			</>
+		)
 
-		let selectedUserRender = null
-		if (state.selectedUser.userId != undefined) {
-			const selectedUserScoreRows = state.selectedUser.scores.map(score => (
-				<tr
-					key={score.playId}
-					title='View Detailed Scores for this Play'
-					onClick={() => { showScore(instId, score.playId) }}
-				>
-					<td>{timestampToDateDisplay(score.created_at)}</td>
-					<td>{score.score}</td>
-					<td>{score.elapsed}</td>
-				</tr>
-			))
+		const studentList = (
+			<ul aria-label="Students">
+				{state.filteredLogs.map(user => (
+					<li key={user.id}>
+						<button
+							className={state.selectedUser.userId === user.userId ? 'buttonSelected' : ''}
+							onClick={() => {
+								setState({...state, selectedUser: user})
+							}}
+						>
+							{user.name}
+						</button>
+					</li>
+				))}
+			</ul>
+		)
 
-			selectedUserRender = (
-				<div className='scoreTableContainer'>
-					<table className='scoreTable'>
-						<tbody>
-							{selectedUserScoreRows}
-						</tbody>
-					</table>
-				</div>
-			)
-		}
+		const selectedStudentScores = (
+			<>
+				{/* No user selected */}
+				{!state.selectedUser.userId && (
+					<h3 className="centeredText">Select a student to view their scores.</h3>
+				)}
 
-		else if (state.filteredLogs.length == 0) {
-			selectedUserRender = <p className='no-user-search-results'>No users match that search.</p>
-		}
+				{/* User selected, display score table */}
+				{state.selectedUser.userId && (
+					<>
+						<h3 id={studentScoresHeaderId}>{`${state.selectedUser.name}'s scores`}</h3>
+						<table aria-labelledby={studentScoresHeaderId}>
+							<tbody>
+							<tr>
+								<th>Date</th>
+								<th>Score</th>
+								<th>Duration</th>
+								<th aria-label="View Details Button"></th>
+							</tr>
+							{state.selectedUser.scores.map(score => (
+								<tr key={score.playId}>
+									<td>{timestampToDateDisplay(score.created_at)}</td>
+									<td>{score.score}</td>
+									<td>{score.elapsed}</td>
+									<td>
+										<button
+											onClick={() => showScore(instId, score.playId)}
+											title="View Detailed Scores for this Play"
+										>
+											<img src="/img/arrow_right_with_stem.svg" />
+										</button>
+									</td>
+								</tr>
+							))}
+							</tbody>
+						</table>
+					</>
+				)}
+			</>
+		)
 
 		mainContentRender = (
 			<>
-				<div className='score-search'>
-					<input type='text'
-						value={state.searchText}
-						onChange={(e) => setState({...state, searchText: e.target.value})}
-						placeholder='Search Students'
-					/>
-				</div>
-
-				<h3>Select a student to view their scores.</h3>
 				<div className='scoreListContainer'>
-					<div className='scoreListScrollContainer'>
-						<table className='scoreListTable'>
-							<tbody>
-								{userRowElements}
-							</tbody>
-						</table>
+					{/* List of students */}
+					<div className='scoreListStudentSelector'>
+						{studentSearch}
+						{studentList}
+					</div>
+
+					{/* Selected student scores */}
+					<div className='scoreListStudentScoreTable'>
+						{selectedStudentScores}
 					</div>
 				</div>
-				{selectedUserRender}
 			</>
 		)
 	}
@@ -170,7 +195,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 	return (
 		<>
 			<div className={`display table ${state.isLoading === true ? 'loading' : ''}`}
-				id={`table_${semester.id}`} >
+					 id={`table_${semester.id}`}>
 				{mainContentRender}
 			</div>
 			<MyWidgetScoreSemesterSummary {...semester} />
