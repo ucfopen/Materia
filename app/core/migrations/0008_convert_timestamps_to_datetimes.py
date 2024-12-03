@@ -2,25 +2,153 @@
 
 from datetime import datetime
 
-from core.models import (
-    Asset,
-    AssetData,
-    DateRange,
-    Log,
-    LogActivity,
-    LogPlay,
-    LogStorage,
-    Lti,
-    Notification,
-    PermObjectToUser,
-    Question,
-    UserExtraAttempts,
-    Widget,
-    WidgetInstance,
-    WidgetQset,
-)
 from django.db import migrations, models
 
+# These following models are 'temporary' models that represent the database
+# in the current state, between all of these migrations. The real models
+# are inaccurate because many of the created_at, deleted_at, etc. fields are
+# still in their int timestamp form, rather than their DateTime form.
+class AssetInMigration(models.Model):
+    id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+    deleted_at_dt = models.DateTimeField(default=None, null=True)
+    deleted_at_ts = models.IntegerField(default=0, null=True, db_column="deleted_at")
+
+    class Meta:
+        managed = False
+        db_table = "asset"
+
+class AssetDataInMigration(models.Model):
+    id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "asset_data"
+
+class DateRangeInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    start_at_dt = models.DateTimeField(default=datetime.now)
+    start_at_ts = models.IntegerField(default=0, db_column="start_at")
+    end_at_dt = models.DateTimeField(default=datetime.now)
+    end_at_ts = models.IntegerField(default=0, db_column="end_at")
+
+    class Meta:
+        managed = False
+        db_table = "date_range"
+
+class LogInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "log"
+
+class LogActivityInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "log_activity"
+
+class LogPlayInMigration(models.Model):
+    id = models.CharField(primary_key=True, max_length=100, db_collation="utf8_bin")
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "log_play"
+
+class LogStorageInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "log_storage"
+
+class LtiInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+    updated_at_dt = models.DateTimeField(default=datetime.now)
+    updated_at_ts = models.IntegerField(default=0, db_column="updated_at")
+
+    class Meta:
+        managed = False
+        db_table = "lti"
+
+class NotificationInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+    updated_at_dt = models.DateTimeField(default=datetime.now, null=True)
+    updated_at_ts = models.IntegerField(default=0, null=True, db_column="updated_at")
+
+    class Meta:
+        managed = False
+        db_table = "notification"
+
+class PermObjectToUserInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    expires_at_dt = models.DateTimeField(default=None, null=True)
+    expires_at_ts = models.IntegerField(default=None, null=True, db_column="expires_at")
+
+    class Meta:
+        managed = False
+        db_table = "perm_object_to_user"
+
+class UserExtraAttemptsInMigration(models.Model):
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "user_extra_attempts"
+
+class QuestionInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "question"
+
+class WidgetInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "widget"
+
+class WidgetInstanceInMigration(models.Model):
+    id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "widget_instance"
+
+class WidgetQsetInMigration(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created_at_dt = models.DateTimeField(default=datetime.now)
+    created_at_ts = models.IntegerField(default=0, db_column="created_at")
+
+    class Meta:
+        managed = False
+        db_table = "widget_qset"
 
 class Migration(migrations.Migration):
 
@@ -34,89 +162,89 @@ class Migration(migrations.Migration):
         logger = logging.getLogger("django")
 
         def timestamp_to_datetime(ts):
-            if not ts:
+            if ts is None:
                 return None
             from django.utils.timezone import make_aware
 
             return make_aware(datetime.fromtimestamp(ts))
 
         logger.info("Converting Asset timestamps to datetimes")
-        for asset in Asset.objects.all():
-            asset.created_at_dt = timestamp_to_datetime(asset.created_at)
-            asset.deleted_at_dt = timestamp_to_datetime(asset.deleted_at)
+        for asset in AssetInMigration.objects.all():
+            asset.created_at_dt = timestamp_to_datetime(asset.created_at_ts)
+            asset.deleted_at_dt = timestamp_to_datetime(asset.deleted_at_ts)
             asset.save()
 
         logger.info("Converting AssetData timestamps to datetimes")
-        for ad in AssetData.objects.all():
-            ad.created_at_dt = timestamp_to_datetime(ad.created_at)
+        for ad in AssetDataInMigration.objects.all():
+            ad.created_at_dt = timestamp_to_datetime(ad.created_at_ts)
             ad.save()
 
         logger.info("Converting DateRange timestamps to datetimes")
-        for dr in DateRange.objects.all():
-            dr.start_at_dt = timestamp_to_datetime(dr.start_at)
-            dr.end_at_dt = timestamp_to_datetime(dr.end_at)
+        for dr in DateRangeInMigration.objects.all():
+            dr.start_at_dt = timestamp_to_datetime(dr.start_at_ts)
+            dr.end_at_dt = timestamp_to_datetime(dr.end_at_ts)
             dr.save()
 
         logger.info("Converting Log timestamps to datetimes")
-        for log in Log.objects.all():
-            log.created_at_dt = timestamp_to_datetime(log.created_at)
+        for log in LogInMigration.objects.all():
+            log.created_at_dt = timestamp_to_datetime(log.created_at_ts)
             log.save()
 
         logger.info("Converting LogActivity timestamps to datetimes")
-        for la in LogActivity.objects.all():
-            la.created_at_dt = timestamp_to_datetime(la.created_at)
+        for la in LogActivityInMigration.objects.all():
+            la.created_at_dt = timestamp_to_datetime(la.created_at_ts)
             la.save()
 
         logger.info("Converting LogPlay timestamps to datetimes")
-        for lp in LogPlay.objects.all():
-            lp.created_at_dt = timestamp_to_datetime(lp.created_at)
+        for lp in LogPlayInMigration.objects.all():
+            lp.created_at_dt = timestamp_to_datetime(lp.created_at_ts)
             lp.save()
 
         logger.info("Converting LogStorage timestamps to datetimes")
-        for ls in LogStorage.objects.all():
-            ls.created_at_dt = timestamp_to_datetime(ls.created_at)
+        for ls in LogStorageInMigration.objects.all():
+            ls.created_at_dt = timestamp_to_datetime(ls.created_at_ts)
             ls.save()
 
         logger.info("Converting Lti timestamps to datetimes")
-        for lti in Lti.objects.all():
-            lti.created_at_dt = timestamp_to_datetime(lti.created_at)
-            lti.updated_at_dt = timestamp_to_datetime(lti.updated_at)
+        for lti in LtiInMigration.objects.all():
+            lti.created_at_dt = timestamp_to_datetime(lti.created_at_ts)
+            lti.updated_at_dt = timestamp_to_datetime(lti.updated_at_ts)
             lti.save()
 
         logger.info("Converting Notification timestamps to datetimes")
-        for notification in Notification.objects.all():
-            notification.created_at_dt = timestamp_to_datetime(notification.created_at)
-            notification.updated_at_dt = timestamp_to_datetime(notification.updated_at)
+        for notification in NotificationInMigration.objects.all():
+            notification.created_at_dt = timestamp_to_datetime(notification.created_at_ts)
+            notification.updated_at_dt = timestamp_to_datetime(notification.updated_at_ts)
             notification.save()
 
         logger.info("Converting PermObjectToUser timestamps to datetimes")
-        for potu in PermObjectToUser.objects.all():
-            potu.expires_at_dt = timestamp_to_datetime(potu.expires_at)
+        for potu in PermObjectToUserInMigration.objects.all():
+            potu.expires_at_dt = timestamp_to_datetime(potu.expires_at_ts)
             potu.save()
 
         logger.info("Converting UserExtraAttempts timestamps to datetimes")
-        for uea in UserExtraAttempts.objects.all():
-            uea.created_at_dt = timestamp_to_datetime(uea.created_at)
+        for uea in UserExtraAttemptsInMigration.objects.all():
+            uea.created_at_dt = timestamp_to_datetime(uea.created_at_ts)
             uea.save()
 
         logger.info("Converting Question timestamps to datetimes")
-        for question in Question.objects.all():
-            question.created_at_dt = timestamp_to_datetime(question.created_at)
+        for question in QuestionInMigration.objects.all():
+            question.created_at_dt = timestamp_to_datetime(question.created_at_ts)
             question.save()
 
         logger.info("Converting Widget timestamps to datetimes")
-        for widget in Widget.objects.all():
-            widget.created_at_dt = timestamp_to_datetime(widget.created_at)
+        for widget in WidgetInMigration.objects.all():
+            widget.created_at_dt = timestamp_to_datetime(widget.created_at_ts)
             widget.save()
 
         logger.info("Converting WidgetInstance timestamps to datetimes")
-        for wi in WidgetInstance.objects.all():
-            wi.created_at_dt = timestamp_to_datetime(wi.created_at)
+        for wi in WidgetInstanceInMigration.objects.all():
+            wi.created_at_dt = timestamp_to_datetime(wi.created_at_ts)
             wi.save()
 
         logger.info("Converting WidgetQset timestamps to datetimes")
-        for wq in WidgetQset.objects.all():
-            wq.created_at_dt = timestamp_to_datetime(wq.created_at)
+        for wq in WidgetQsetInMigration.objects.all():
+            wq.created_at_dt = timestamp_to_datetime(wq.created_at_ts)
             wq.save()
 
     def translate_datetimes(apps, schema_editor):
@@ -125,90 +253,217 @@ class Migration(migrations.Migration):
         logger = logging.getLogger("django")
 
         def datetime_to_timestamp(dt):
+            if dt is None:
+                return None
             from datetime import datetime
 
             return datetime.timestamp(dt)
 
         logger.info("Converting Asset datetimes to timestamps")
-        for asset in Asset.objects.all():
-            asset.created_at = datetime_to_timestamp(asset.created_at_dt)
-            asset.deleted_at = datetime_to_timestamp(asset.deleted_at_dt)
+        for asset in AssetInMigration.objects.all():
+            asset.created_at_ts = datetime_to_timestamp(asset.created_at_dt)
+            asset.deleted_at_ts = datetime_to_timestamp(asset.deleted_at_dt)
             asset.save()
 
         logger.info("Converting AssetData datetimes to timestamps")
-        for ad in AssetData.objects.all():
-            ad.created_at_dt = datetime_to_timestamp(ad.created_at)
+        for ad in AssetDataInMigration.objects.all():
+            ad.created_at_ts = datetime_to_timestamp(ad.created_at_dt)
             ad.save()
 
         logger.info("Converting DateRange datetimes to timestamps")
-        for dr in DateRange.objects.all():
-            dr.start_at = datetime_to_timestamp(dr.start_at_dt)
-            dr.end_at = datetime_to_timestamp(dr.end_at_dt)
+        for dr in DateRangeInMigration.objects.all():
+            dr.start_at_ts = datetime_to_timestamp(dr.start_at_dt)
+            dr.end_at_ts = datetime_to_timestamp(dr.end_at_dt)
             dr.save()
 
         logger.info("Converting Log datetimes to timestamps")
-        for log in Log.objects.all():
-            log.created_at = datetime_to_timestamp(log.created_at_dt)
+        for log in LogInMigration.objects.all():
+            log.created_at_ts = datetime_to_timestamp(log.created_at_dt)
             log.save()
 
         logger.info("Converting LogActivity datetimes to timestamps")
-        for la in LogActivity.objects.all():
-            la.created_at = datetime_to_timestamp(la.created_at_dt)
+        for la in LogActivityInMigration.objects.all():
+            la.created_at_ts = datetime_to_timestamp(la.created_at_dt)
             la.save()
 
         logger.info("Converting LogPlay datetimes to timestamps")
-        for lp in LogPlay.objects.all():
-            lp.created_at = datetime_to_timestamp(lp.created_at_dt)
+        for lp in LogPlayInMigration.objects.all():
+            lp.created_at_ts = datetime_to_timestamp(lp.created_at_dt)
             lp.save()
 
         logger.info("Converting LogStorage datetimes to timestamps")
-        for ls in LogStorage.objects.all():
-            ls.created_at = datetime_to_timestamp(ls.created_at_dt)
+        for ls in LogStorageInMigration.objects.all():
+            ls.created_at_ts = datetime_to_timestamp(ls.created_at_dt)
             ls.save()
 
         logger.info("Converting Lti datetimes to timestamps")
-        for lti in Lti.objects.all():
-            lti.created_at = datetime_to_timestamp(lti.created_at_dt)
-            lti.updated_at = datetime_to_timestamp(lti.updated_at_dt)
+        for lti in LtiInMigration.objects.all():
+            lti.created_at_ts = datetime_to_timestamp(lti.created_at_dt)
+            lti.updated_at_ts = datetime_to_timestamp(lti.updated_at_dt)
             lti.save()
 
         logger.info("Converting Notification datetimes to timestamps")
-        for notification in Notification.objects.all():
-            notification.created_at = datetime_to_timestamp(notification.created_at_dt)
-            notification.updated_at = datetime_to_timestamp(notification.updated_at_dt)
+        for notification in NotificationInMigration.objects.all():
+            notification.created_at_ts = datetime_to_timestamp(notification.created_at_dt)
+            notification.updated_at_ts = datetime_to_timestamp(notification.updated_at_dt)
             notification.save()
 
         logger.info("Converting PermObjectToUser datetimes to timestamps")
-        for potu in PermObjectToUser.objects.all():
-            potu.expires_at = datetime_to_timestamp(potu.expires_at_dt)
+        for potu in PermObjectToUserInMigration.objects.all():
+            potu.expires_at_ts = datetime_to_timestamp(potu.expires_at_dt)
             potu.save()
 
         logger.info("Converting UserExtraAttempts datetimes to timestamps")
-        for uea in UserExtraAttempts.objects.all():
-            uea.created_at = datetime_to_timestamp(uea.created_at_dt)
+        for uea in UserExtraAttemptsInMigration.objects.all():
+            uea.created_at_ts = datetime_to_timestamp(uea.created_at_dt)
             uea.save()
 
         logger.info("Converting Question datetimes to timestamps")
-        for question in Question.objects.all():
-            question.created_at = datetime_to_timestamp(question.created_at_dt)
+        for question in QuestionInMigration.objects.all():
+            question.created_at_ts = datetime_to_timestamp(question.created_at_dt)
             question.save()
 
         logger.info("Converting Widget datetimes to timestamps")
-        for widget in Widget.objects.all():
-            widget.created_at = datetime_to_timestamp(widget.created_at_dt)
+        for widget in WidgetInMigration.objects.all():
+            widget.created_at_ts = datetime_to_timestamp(widget.created_at_dt)
             widget.save()
 
         logger.info("Converting WidgetInstance datetimes to timestamps")
-        for wi in WidgetInstance.objects.all():
-            wi.created_at = datetime_to_timestamp(wi.created_at_dt)
+        for wi in WidgetInstanceInMigration.objects.all():
+            wi.created_at_ts = datetime_to_timestamp(wi.created_at_dt)
             wi.save()
 
         logger.info("Converting WidgetQset datetimes to timestamps")
-        for wq in WidgetQset.objects.all():
-            wq.created_at = datetime_to_timestamp(wq.created_at_dt)
+        for wq in WidgetQsetInMigration.objects.all():
+            wq.created_at_ts = datetime_to_timestamp(wq.created_at_dt)
             wq.save()
 
     operations = [
+        # The following CreateModel()s are here to make sure Django doesn't complain about
+        # the temporary models not having migrations. Because the models have manage=False,
+        # these operations do not perform any actual SQL (you can verify this by running
+        # manage.py sqlmigrate core 0008).
+        migrations.CreateModel(
+            name='AssetDataInMigration',
+            fields=[],
+            options={
+                'db_table': 'asset_data',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='AssetInMigration',
+            fields=[],
+            options={
+                'db_table': 'asset',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='DateRangeInMigration',
+            fields=[],
+            options={
+                'db_table': 'date_range',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='LogActivityInMigration',
+            fields=[],
+            options={
+                'db_table': 'log_activity',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='LogInMigration',
+            fields=[],
+            options={
+                'db_table': 'log',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='LogPlayInMigration',
+            fields=[],
+            options={
+                'db_table': 'log_play',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='LogStorageInMigration',
+            fields=[],
+            options={
+                'db_table': 'log_storage',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='LtiInMigration',
+            fields=[],
+            options={
+                'db_table': 'lti',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='NotificationInMigration',
+            fields=[],
+            options={
+                'db_table': 'notification',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='PermObjectToUserInMigration',
+            fields=[],
+            options={
+                'db_table': 'perm_object_to_user',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='QuestionInMigration',
+            fields=[],
+            options={
+                'db_table': 'question',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='UserExtraAttemptsInMigration',
+            fields=[],
+            options={
+                'db_table': 'user_extra_attempts',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='WidgetInMigration',
+            fields=[],
+            options={
+                'db_table': 'widget',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='WidgetInstanceInMigration',
+            fields=[],
+            options={
+                'db_table': 'widget_instance',
+                'managed': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='WidgetQsetInMigration',
+            fields=[],
+            options={
+                'db_table': 'widget_qset',
+                'managed': False,
+            },
+        ),
+
         migrations.AlterField(
             model_name="notification",
             name="updated_at_dt",

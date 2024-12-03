@@ -60,6 +60,7 @@ services:
       - MYSQL_PASSWORD=kogneato
     volumes:
       - ./config/mysql/override.cnf:/etc/mysql/conf.d/override.cnf
+      - ./backup.sql:/backup.sql
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets
