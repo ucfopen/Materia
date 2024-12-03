@@ -334,7 +334,9 @@
 
 		.search {
 			input.instance_search {
-				border: solid 1px #1d1f25;
+				color: #fff;
+				background: $color-input-box-bg-dark;
+				border: solid 1px $color-input-box-border-dark;
 			}
 		}
 		.search_error {
@@ -342,6 +344,12 @@
 		}
 
 		.search_list {
+
+			.search_match {
+				background: $color-header-dark;
+				border: solid 1px $color-border-dark;
+			}
+
 			.search_match.deleted {
 				background-color: rgba(0, 0, 0, 0.2);
 			}
@@ -358,8 +366,14 @@
 			background: #1d1f25;
 
 			.header {
-				background: #4c4e58;
+				background: $color-input-desc-dark;
 				border: solid 1px #1d1f25;
+
+				input {
+					color: #fff;
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+				}
 			}
 
 			.inst-action-buttons {

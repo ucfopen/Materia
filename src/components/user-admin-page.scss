@@ -569,7 +569,9 @@
 
 		.search {
 			input.user_search {
-				border: solid 1px #181920;
+				color: #fff;
+				background-color: $color-input-box-border-dark;
+				border: solid 1px $color-input-box-border-dark;
 			}
 		}
 

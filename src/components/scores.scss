@@ -73,7 +73,7 @@ $preview-purple: #b944cc;
 }
 
 .darkMode .container {
-	background: $score-screen-bg;
+	background: $color-input-desc-dark;
 	box-shadow: #08090c 1px 3px 10px 0px;
 
 	&.loading {
@@ -239,33 +239,33 @@ $preview-purple: #b944cc;
 	#overview-score {
 		.overall_score {
 			color: #fff;
-			background-color: #4c4e58;
+			background-color: $color-input-desc-dark;
 		}
 
 		h1 {
-			color: darken(#fff, 40%);
+			color: darken(#fff, 20%);
 		}
 	}
 
 
 	#overview-table {
-		background-color: $light-gray-bg;
+		background-color: $color-background-dark-gray;
 		
 		table {
-			color: #555;
+			font-weight: 400;
+			color: #ccc;
 
 			tr:last-child td {
-				color: black;
+				color: #fff;
 				border-top: 1px solid #aaa;
-				color: #222;
 			}
 
 			.negative {
-				color: #b24a2d;
+				color: #ff7c90;
 			}
 
 			.positive {
-				color: green;
+				color: rgb(106, 189, 106);
 			}
 		}
 	}

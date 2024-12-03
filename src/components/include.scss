@@ -134,7 +134,6 @@ header {
 
 	&.logged_in {
 		background: #fff url(/img/header_border_alt.png) 0% 100% repeat-x;
-		//background: #21232a url(/img/header_border_alt.png) 0% 100% repeat-x;
 	}
 
 	ul,
@@ -156,9 +155,8 @@ header {
 			height: 0;
 			padding: 60px 0 0 10px;
 			margin: 10px 0 0 10px;
-			background: url(/img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
-			//background: url(/img/retina/materia_tmp_logo_dark.png) 0% 0% no-repeat;
-			background-size: 160px 68px;
+			background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+			background-size: 80px auto;
 		}
 	}
 
@@ -340,7 +338,6 @@ header {
 		ul {
 			display: none;
 			background-color: #ffffff;
-			//background-color: #000000;
 			padding: 0;
 			position: absolute;
 			bottom: -140%;
@@ -504,7 +501,7 @@ header {
 .checkbox-wrapper {
 	display: flex;
 	align-items: center;
-	margin-bottom: 1rem;
+	margin-bottom: 0.25rem;
 	cursor: pointer;
 
 	input {
@@ -606,8 +603,8 @@ header {
 
 	h1.logo {
 		a {
-			background: #1d1f25 url(/img/retina/materia_tmp_logo_dark@2x.png) 0% 0% no-repeat;
-			background-size: 160px 68px;
+			background: #1d1f25 url('/img/materia-logo-default-darkmode.svg') 50% 100% no-repeat;
+			background-size: 80px auto;
 		}
 	}
 
@@ -971,23 +968,23 @@ h1.logo {
 		height: 0;
 		padding: 60px 0 0 10px;
 		margin: 10px 0 0 10px;
-		//background: url(/img/materia_tmp_logo_dark.png) 0% 0% no-repeat;
-		background: url(/img/materia_tmp_logo.png) 0% 0% no-repeat;
+		background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+		background-size: 80px auto;
 	}
 }
 
 .darkMode h1.logo {
 	a {
-		background: url(/img/materia_tmp_logo.png) 0% 0% no-repeat;
+		background: url('/img/materia-logo-default-darkmode.svg') 0% 0% no-repeat;
+		background-size: 80px auto;
 	}
 }
 
 @media only screen and (min-device-pixel-ratio: 2),
 	only screen and (-webkit-min-device-pixel-ratio: 2) {
 	h1.logo a {
-		background: url(/img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
-		//background: url(/img/retina/materia_tmp_logo_dark.png) 0% 0% no-repeat;
-		background-size: 160px 68px;
+		background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+		background-size: 80px auto;
 	}
 
 	header {
@@ -995,9 +992,8 @@ h1.logo {
 		background-size: 12px 6px;
 	}
 	.darkMode h1.logo a {
-		background: url(/img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
-		//background: url(/img/retina/materia_tmp_logo_dark.png) 0% 0% no-repeat;
-		background-size: 160px 68px;
+		background: url('/img/materia-logo-default-darkmode.svg') 50% 100% no-repeat;
+		background-size: 80px auto;
 	}
 
 	.darkMode header {
