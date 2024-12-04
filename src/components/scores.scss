@@ -223,7 +223,7 @@ $preview-purple: #b944cc;
 }
 
 .darkMode .overview {
-	background: #21232a;
+	background: $color-background-dark-gray;
 	border: solid 1px #181920;
 
 	&.incomplete {
@@ -239,17 +239,17 @@ $preview-purple: #b944cc;
 	#overview-score {
 		.overall_score {
 			color: #fff;
-			background-color: $color-input-desc-dark;
+			background-color: $color-background-dark;
 		}
 
 		h1 {
-			color: darken(#fff, 20%);
+			color: darken(#fff, 10%);
 		}
 	}
 
 
 	#overview-table {
-		background-color: $color-background-dark-gray;
+		background-color: $color-background-dark;
 		
 		table {
 			font-weight: 400;

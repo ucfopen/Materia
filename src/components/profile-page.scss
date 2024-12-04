@@ -248,6 +248,9 @@
 				a.score-link {
 					cursor: auto;
 				}
+				.title {
+					color: $extremely-dark-gray;
+				}
 			}
 
 			&.perfect_score .score {
@@ -556,8 +559,15 @@
 				}
 			}
 
-			&.incomplete .score {
-				background: #4c4e58;
+			&.incomplete {
+
+				.title {
+					color: $gray;
+				}
+
+				.score {
+					background: #4c4e58;
+				}
 			}
 
 			.score {
