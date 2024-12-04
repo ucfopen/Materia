@@ -393,10 +393,17 @@
 			}
 		}
 	}
+
 	.page > ul {
 		> li {
-			background-color: #eee;
-			border: 1px solid #ccc;
+			background: none;
+			border: none;
+
+			.widget-title {
+				color: #fff;
+				background-color: $color-background-dark-gray;
+				border: $color-input-box-border-dark;
+			}
 		}
 	}
 }

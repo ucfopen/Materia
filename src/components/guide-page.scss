@@ -10,12 +10,6 @@
 	font-family: 'Lato', arial, sans-serif;
 }
 
-.darkMode .page {
-	background: #fff;
-	box-shadow: 1px 3px 10px #08090c;
-	color: #5e5e5e;
-}
-
 #top {
 	display: flex;
 
@@ -78,6 +72,16 @@
 		border-radius: 3px 0 3px 3px;
 		border: 8px solid #1778af;
 	}
+}
+
+.darkMode .page {
+	background: $color-background-dark;
+	box-shadow: 1px 3px 10px #08090c;
+	color: #c7c7c7;
+}
+
+.darkMode #guide-container {
+	background: #fff;
 }
 
 // mobile

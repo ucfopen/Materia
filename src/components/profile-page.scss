@@ -249,7 +249,7 @@
 					cursor: auto;
 				}
 				.title {
-					color: $extremely-dark-gray;
+					color: $gray;
 				}
 			}
 
@@ -317,7 +317,7 @@
 				position: absolute;
 				top: 12px;
 				right: 1px;
-				color: rgba(200,200,200,0.5);
+				color: $very-light-gray;
 				font-size: 30px;
 			}
 		}

@@ -89,12 +89,15 @@ const SupportSearch = ({onClick = () => {}}) => {
 					placeholder="Enter a Materia widget instance's info"
 				/>
 				<div className='show_deleted'>
-					<input tabIndex='0'
-						type='checkbox'
-						checked={showDeleted}
-						onChange={handleShowDeletedClick}
-					/>
-					<span className='deleted_label'>Show Deleted Instances?</span>
+					<label className='checkbox-wrapper'>
+						<input tabIndex='0'
+							type='checkbox'
+							checked={showDeleted}
+							onChange={handleShowDeletedClick}
+						/>
+						<span className='custom-checkbox'></span>
+						Show Deleted Instances?
+					</label>
 				</div>
 			</div>
 			{ loadingRender }
