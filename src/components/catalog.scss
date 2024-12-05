@@ -363,7 +363,7 @@
 						font-size: 14px;
 						font-weight: bold;
 						margin: 0;
-						padding: 6px 10px;
+						padding: 3px 12px 9px 8px;
 						background: #bfe5ff;
 						border-radius: 0 5px 0 0;
 						position: absolute;
@@ -373,7 +373,7 @@
 						svg {
 							position: relative;
 							top: 4px;
-							fill: #fff;
+							fill: #000;
 						}
 					}
 				}
@@ -473,7 +473,7 @@
 							color: white;
 
 							&.accessibility-status svg {
-								fill: #fff;
+								fill: #000;
 							}
 						}
 
@@ -482,7 +482,7 @@
 								width: 12px;
 								height: auto;
 								margin-right: 6px;
-								fill: #fff;
+								fill: #000;
 							}
 						}
 					}
