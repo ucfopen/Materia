@@ -12,6 +12,8 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 700px;
 
+	font-weight: 400;
+
 	#breadcrumb-container {
 		display: inline-block;
 		position: absolute;
@@ -21,7 +23,7 @@
 		padding: 5px 10px;
 		background: #eee;
 		border-radius: 3px;
-		font-size: 12px;
+		font-size: 14px;
 		border: 1px solid #ccc;
 
 		.breadcrumb {
@@ -416,7 +418,7 @@
 			background-color: #ddd;
 			margin: 0;
 			padding: 10px 10px 7px;
-			border-radius: 10px;
+			border-radius: 3px;
 			border-bottom: 1px solid #ccc;
 
 			.img-holder {

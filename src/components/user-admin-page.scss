@@ -11,6 +11,7 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 720px;
 
+	font-weight: 400;
 
 	.page {
 
@@ -237,6 +238,11 @@
 					display: inline-block;
 					vertical-align: top;
 					width: 160px;
+				}
+
+				input {
+					width: 50%;
+					padding: 0.5em;
 				}
 
 				.radio {
@@ -600,6 +606,13 @@
 
 		.admin-subsection {
 			&.overview {
+
+				input {
+					color: #fff;
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+				}
+
 				.right-justify {
 					.apply-changes {
 						.error-text {

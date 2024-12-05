@@ -393,6 +393,12 @@
 					margin-left: 135px;
 					margin-right: 8px;
 					font-size: 0.88em;
+					font-weight: 400;
+
+					.blurb {
+						color: $extremely-dark-gray;
+						margin-bottom: 1em;
+					}
 
 					.accessibility-holder {
 						height: 25px;
@@ -636,6 +642,10 @@
 				}
 
 				.widget-info {
+
+					.blurb {
+						color: $light-gray;
+					}
 
 					.accessibility-holder {
 
