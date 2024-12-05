@@ -65,7 +65,6 @@
 	}
 
 
-
 	.scoreWrapper {
 		display: flex;
 		justify-content: flex-start;
@@ -179,8 +178,6 @@
 			margin: 0;
 			padding: 20px 0 0 20px;
 			border: solid #dbdbdb 1px;
-			// width: 550px;
-			// float: left;
 
 			.type {
 				padding: 0;
@@ -193,11 +190,23 @@
 				}
 			}
 
-			.chart {
-				width: 475px;
-				height: 300px;
-				float: left;
-				margin: 0 10px 15px 10px;
+			svg {
+				g {
+					stroke: $gray;
+
+					g {
+						color: $gray;
+					}
+
+					text {
+						stroke: $extremely-dark-gray;
+						stroke-width: 0.5px;
+					}
+
+					rect {
+						stroke: none;
+					}
+				}
 			}
 		}
 
@@ -373,6 +382,7 @@
 				}
 
 				.scoreListStudentSelector {
+					position: relative;
 					display: flex;
 					flex-direction: column;
 					background: rgba(0, 0, 0, 0.05);
@@ -381,11 +391,23 @@
 					width: 35%;
 					overflow-y: auto;
 
+					.search-icon {
+						position: absolute;
+						top: 12px;
+						left: 13px;
+						height: 14px;
+						width: 18px;
+						fill: #9a9a9a;
+						svg {
+							height: 100%;
+							width: 100%;
+						}
+					}
+
 					input[type='text'] {
 						border: solid 1px #b0b0b0;
 						border-radius: 12px;
 						height: 19px;
-						background: #fff url('/img/magnifyingglass.png') 5px 50% no-repeat;
 						padding-left: 23px;
 						padding-right: 10px;
 						outline: none;
@@ -451,16 +473,19 @@
 
 						td button {
 							display: flex;
+							width: 24px;
+							height: 24px;
 							border: none;
-							background: transparent;
-							padding: 4px;
+							padding: 0;
+							background: transparent url('/img/arrow_right_with_stem.svg') no-repeat center;
+							background-size: 16px 16px;
 							border-radius: 3px;
 							transition: background-color 0.1s;
 
-							img {
-								width: 16px;
-								height: 16px;
-							}
+							// img {
+							// 	width: 16px;
+							// 	height: 16px;
+							// }
 
 							&:hover {
 								cursor: pointer;
@@ -560,6 +585,313 @@
 				padding: 5px 10px;
 				margin: 0;
 				position: relative;
+			}
+		}
+	}
+}
+
+.darkMode .scores {
+	.student-activity-header {
+		border-bottom: #08090c dotted 1px;
+	
+		.action_button {
+			color: $extremely-dark-gray;
+			text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+			box-shadow: 1px 2px 4px #08090c;
+
+			&.disabled, &.disabled:hover {
+				background: #d4d4d4;
+				color: #545454;
+			}
+		}
+	}
+
+	#export_scores_button.disabled,
+	#export_scores_button.disabled:hover {
+		background: #21232a;
+		color: #545454;
+	}
+
+	.graph {
+		rect.vx-bar {
+			fill: #295b99;
+
+			&:hover {
+				fill: #3b77c0;
+			}
+		}
+
+		.vx-axis tspan {
+			fill: #08090c;
+		}
+
+		.vx-line {
+			stroke: #08090c;
+		}
+
+		.vx-graph {
+			fill: #08090c;
+		}
+	}
+
+	h3 {
+		color: #fff;
+	}
+
+	#export_scores_button {
+		background-color: $color-yellow;
+		color: $extremely-dark-gray;
+		text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+		box-shadow: 1px 2px 4px #08090c;
+
+		&:hover:not(.disabled) {
+			background: $color-yellow-hover;
+		}
+
+		&.disabled {
+			color: #545454;
+		}
+	}
+
+	.scoreWrapper {
+		ul.choices {
+			li {
+				a {
+					color: #fff;
+					border-left: solid #08090c 1px;
+					border-top: solid #08090c 1px;
+					border-right: solid #08090c 1px;
+				}
+			}
+
+			li.scoreTypeSelected a {
+				background: #4c4e58;
+			}
+		}
+
+		.storage {
+			border-bottom: 1px #1778af solid;
+			color: #1778af;
+
+			&:hover {
+				color: #0093e7;
+				border-bottom: 1px #0093e7 solid;
+			}
+		}
+
+		.display.graph {
+			background: $color-input-box-bg-dark;
+			border: solid 1px $color-input-box-border-dark;
+
+			svg {
+				g {
+					stroke: $light-gray;
+
+					text {
+						stroke: #fff;
+						stroke-width: 1px;
+					}
+
+					g {
+						color: $light-gray !important;
+					}
+
+					rect {
+						stroke: none;
+					}
+				}
+			}
+		}
+
+		.scoreListContainer {
+			.scoreListStudentSelector {
+				input[type='text'] {
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+					color: #fff;
+				}
+
+				button {
+					background: $color-background-dark-gray;
+					color: #fff;
+
+					&:hover {
+						background: $color-features-dark;
+					}
+
+					&.buttonSelected {
+						background: $color-blue-hover-dark;
+					}
+				}
+			}
+
+			.scoreListStudentScoreTable {
+				td button {
+					filter: invert(1);
+				}
+			}
+		}
+
+		.display.table {
+			background: #1d1f25;
+			border: solid #08090c 1px;
+		}
+
+		.display.data {
+			background: #1d1f25;
+			border: solid #08090c 1px;
+
+			.truncated-table {
+				background: #295b99;
+				border: 1px solid rgba(0, 0, 0, 0.2);
+			}
+
+			.data_tables_info_holder {
+				.data_tables_info {
+					color: #d8d8d8;
+				}
+
+				.data_tables_paginate {
+					color: #d8d8d8;
+
+					.paginate_button {
+						color: #d8d8d8;
+
+						&.current {
+							border: 1px solid #08090c;
+							background-color: #1d1f25;
+						}
+
+						&:not(.current):not(.disable):hover {
+							color: white;
+							border: 1px solid #111;
+							background-color: #353535;
+						}
+
+						&.disable {
+							color: #555;
+							opacity: 0.5;
+						}
+					}
+				}
+			}
+
+			.null {
+				color: #bbb;
+			}
+
+			.table-label {
+				border-bottom: 1px solid #bbb;
+				margin-top: 0;
+				padding-bottom: 1em;
+				margin-bottom: 1em;
+
+				h4 {
+					display: inline;
+					margin-right: 0.5em;
+				}
+
+				select {
+					font-size: 14pt;
+				}
+			}
+		}
+
+		.table {
+			h3 {
+				color: #d8d8d8;
+			}
+
+			.score-search {
+				background: rgba(0, 0, 0, 0.05);
+
+				input[type='text'] {
+					border: solid 1px #08090c;
+					background: #21232a url('/img/magnifyingglass_dark.png') 5px 50% no-repeat;
+					color: #fff;
+				}
+			}
+
+			.scoreListContainer {
+				background: #21232a;
+				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+
+				.scoreListScrollContainer {
+					.scoreListTable {
+						.listName {
+							&.selected {
+								background: #295b99;
+							}
+						}
+					}
+				}
+
+				.scoreListHead {
+					background-color: #1d1f25;
+					color: #fff;
+				}
+
+				tbody tr:hover {
+					background: #295b99;
+				}
+			}
+
+			.scoreTableContainer {
+				background: #21232a;
+				box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+
+				.scoreTable {
+					td {
+						border-bottom: solid #dbdbdb 1px;
+					}
+
+					tr {
+						&:hover {
+							background: #b4570a;
+						}
+					}
+				}
+			}
+
+			thead tr {
+				background: #cdcdcd;
+			}
+
+			tbody tr.rowSelected {
+				background: #b4570a;
+			}
+		}
+
+		.numeric {
+			li {
+				background: $color-input-box-bg-dark;
+				p {
+					color: $color-features;
+				}
+			}
+		}
+	}
+
+	.show-older-scores-button {
+		background: #4c4e58;
+		border: 1px solid #181920;
+	}
+
+	table.storage_table {
+		border-bottom: 1px solid #d8d8d8;
+
+		thead {
+			th {
+				border-bottom: 1px solid #d8d8d8;
+			}
+		}
+		tbody {
+			tr:nth-child(odd) {
+				background-color: #eee;
+			}
+			tr {
+				background-color: white;
+				text-align: left;
 			}
 		}
 	}

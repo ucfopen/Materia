@@ -26,6 +26,7 @@ class Controller_Api_User extends Controller_Rest
 		$set_meta  = [
 			'useGravatar' => Input::json('useGravatar', null),
 			'notify'      => Input::json('notify', null),
+			'darkMode'	  => Input::json('darkMode', null)
 		];
 
 		$success = Materia\Api::user_update_meta($set_meta);

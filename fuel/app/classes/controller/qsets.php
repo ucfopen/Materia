@@ -6,6 +6,7 @@
 
 class Controller_Qsets extends Controller
 {
+	use Trait_CommonControllerTemplate;
 
 	public function action_import()
 	{

@@ -249,3 +249,61 @@
 		cursor: pointer;
 	}
 }
+
+.darkMode .modal .extraAttemptsModal {
+
+	.title {
+		color: #d8d8d8;
+		border-bottom: #d8d8d8 dotted 1px;
+	}
+
+	.attempts-input {
+		border: solid 1px #08090c;
+		background-color: #1d1f25;
+		color: #fff;
+	}
+
+	.attempts_search_list {
+		background-color: #21232a;
+		border: #bfbfbf 1px solid;
+
+		.attempts_search_match {
+			background-color:  #21232a;
+		}
+
+		.attempts_search_match:hover {
+			background-color: #295b99;
+		}
+	}
+
+	.attempts_list_container {
+		background-color: #24262e;
+
+		.headers {
+			background: #4c4e58;
+			color: white;
+		}
+
+		.attempts_list {
+
+			.extra_attempt {
+
+				.remove {
+					color: #bfbfbf;
+					background: transparent;
+
+					&:hover {
+						color: #fff;
+						background: #21232a;
+					}
+				}
+			}
+		}
+	}
+
+	.save-error {
+		p {
+			color: red;
+		}
+	}
+}

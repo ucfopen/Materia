@@ -125,6 +125,43 @@
 		}
 	}
 }
+
+.darkMode .export-modal {
+	.top-bar {
+		.content {
+			.title {
+				color: #d8d8d8;
+			}
+
+			.semester-btn {
+				color: white;
+				background-color: #da6125;
+			}
+		}
+
+		.underline {
+			border-bottom: #999 dotted 2px;
+		}
+	}
+
+	.semester-content {
+		h3 {
+			color: #61a4e2;
+		}
+
+		.score-table {
+			background: #1d1f25;
+			border: 1px solid #181920;
+
+			#export-scores-description {
+				.highlight {
+					color: #61a4e2;
+				}
+			}
+		}
+	}
+}
+
 .download-options {
 	display: none;
 	background: #f1824c;
@@ -186,5 +223,16 @@
 
 	&.active {
 		display: inline-block;
+	}
+}
+
+.darkMode .download-options {
+	background: #da6125;
+	color: white;
+
+	li {
+		&:first-of-type {
+			border-bottom: 1px #d6d6d6 solid;
+		}
 	}
 }

@@ -28,7 +28,7 @@
 
 			&.unchosen {
 				&:not(.bearded) {
-					background: #fff url('/img/kogneato_mywidgets.svg') 50% 30%/250px auto no-repeat;
+					background: #ffffff url('/img/kogneato_mywidgets.svg') 50% 30%/250px auto no-repeat;
 				}
 				min-height: 850px;
 			}
@@ -280,9 +280,10 @@
 						}
 
 						&.type {
+							margin-top: 0.25em;
 							color: #444;
-							font-size: 0.7em;
-							font-size: 11px;
+							font-size: 0.75em;
+							font-weight: 400;
 						}
 
 						&.score {
@@ -573,7 +574,7 @@
 					float: left;
 					margin: 0 10px 0 0;
 					width: 33px;
-					font-weight: bold;
+					font-weight: 700;
 				}
 
 				&.disabled dt {
@@ -581,7 +582,7 @@
 					float: left;
 					margin: 0 10px 0 0;
 					width: 33px;
-					font-weight: bold;
+					font-weight: 700;
 				}
 
 				&.disabled dd {
@@ -594,6 +595,7 @@
 					margin: 0 0 10px 0;
 					padding-left: 88px;
 					cursor: pointer;
+					font-weight: 400;
 
 					.available-after {
 						margin-left: -5px;
@@ -699,17 +701,13 @@
 		}
 
 		.share-widget-container {
-			// border-top: 1px solid rgba(0, 0, 0, 0.3);
 			display: inline-block;
 			padding: 22px 20px 4px 20px;
 			width: 100%;
 			font-size: 10pt;
 			margin: 0;
-			// padding-left: 100px;
 			position: relative;
 			box-sizing: border-box;
-			// background: #fff url(/img/widget_link_icon.png) no-repeat 20px
-			// 	20px;
 
 			.share-widget-options-first {
 				padding-left: 10px;
@@ -754,6 +752,7 @@
 
 			p {
 				margin-top: 6px;
+				font-weight: 400;
 			}
 
 			h3 {
@@ -777,7 +776,7 @@
 			.link {
 				cursor: pointer;
 				// color: #1778af;
-				color: #0093e7;
+				color: #91c8fc;
 				// text-decoration: underline;
 				font-weight: 400;
 
@@ -859,9 +858,9 @@
 		margin: 0 10px;
 		padding: 0 0 2px 0;
 
-		border-bottom: 1px #0093e7 solid;
-		color: #0093e7;
-
+		border-bottom: 1px #61a4e2 solid;
+		color: #61a4e2;
+		
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
@@ -885,6 +884,334 @@
 	.qtip.nowidgets {
 		top: 110px;
 		left: 74px;
+	}
+}
+
+.darkMode .my_widgets {
+	.container {
+		.container_main-content {
+			box-shadow: 1px 3px 10px #000;
+		}
+
+		section.directions {
+			&.unchosen {
+				&:not(.bearded) {
+					background: #21232a url('/img/kogneato_mywidgets_dark.svg') 50% 30%/250px auto no-repeat;
+				}
+			}
+		}
+
+		section.page {
+			background: #21232a;
+		}
+
+		aside {
+			background: #1d1f25;
+
+			.top {
+				color: #d8d8d8;
+				background: #295b99;
+			}
+
+			.search {
+				background: #1d1f25;
+
+				transition: background 1s;
+
+				&.loading {
+					background: #1d1f25;
+				}
+
+				.search-icon {
+					fill: #9a9a9a;
+				}
+
+				.search-close {
+					color: rgb(221, 221, 221);
+				}
+
+				.textbox {
+					background: transparent;
+					color: #fff;
+				}
+
+				.textbox-background {
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+				}
+			}
+
+			.widget_list {
+				.widget {
+					&:hover {
+						background: #1b304b;
+					}
+
+					.highlighted {
+						background-color: #ffd800;
+					}
+				}
+
+				.my-widgets-instance-card {
+					&:nth-child(odd):not(:hover) {
+						background: #21232a;
+					}
+
+					&.selected:not(:hover) {
+						background: #13335b;
+					}
+
+					&.is_draft ul li.score {
+						color: #ffffff !important;
+						background: #6c2677;
+					}
+				}
+
+				h2 {
+					background-color: #21232a;
+					border-bottom: 1px #aaa solid;
+					border-top: 1px #ccc solid;
+					color: #2a2a2a;
+				}
+
+				ul {
+					li {
+						&.type {
+							color: #fff;
+						}
+
+						&.score {
+							color: #fff;
+						}
+					}
+				}
+			}
+
+			h1 {
+				color: #ffffff;
+				text-shadow: #184863 1px 1px 1px;
+			}
+		}
+
+		.description h1 {
+			color: #ffffff;
+			text-shadow: #184863 1px 1px 1px;
+		}
+	}
+
+	// Selected instance page
+	.page {
+		.header {
+			h2 {
+				color: #999999;
+			}
+		}
+
+		.overview {
+			.controls {
+				.preview-svg {
+					-webkit-filter: drop-shadow(1px 2px 4px #08090c);
+					filter: drop-shadow(1px 2px 4px #08090c);
+				}
+
+				.button-list {
+					.action-button {
+						background: $color-yellow;
+						color: $extremely-dark-gray;
+						text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+						box-shadow: 1px 2px 4px #08090c;
+
+						&:hover:not(.disabled) {
+							background: $color-yellow-hover;
+						}
+
+						&.disabled {
+							background: #4c4e58;
+							color: #d8d8d8;
+						}
+
+						&.green {
+							background: none;
+							color: $extremely-dark-gray;
+							fill: #c4dd61;
+							box-shadow: none;
+
+							&:hover {
+								fill: #a2c129;
+								background: none;
+							}
+						}
+					}
+
+					span.pencil {
+						background: url(/img/pencil.svg) no-repeat center bottom;
+					}
+				}
+
+				ul {
+					&.options {
+						li a {
+							border-bottom: 1px #61a4e2 solid;
+							color: #61a4e2;
+
+							&:hover:not(.disabled) {
+								color: #61a4e2;
+								border-bottom: 1px #61a4e2 solid;
+							}
+						}
+
+						li {
+							.disabled,
+							.disabled:hover {
+								background: none;
+								color: #c5c5c5;
+							}
+						}
+					}
+				}
+
+				a.disabled,
+				a.disabled:hover {
+					background: #d4d4d4;
+					border-color: #747474;
+					color: #545454;
+					opacity: 0.5;
+				}
+			}
+		}
+
+		.controls .delete_dialogue {
+			background: #21232a;
+			box-shadow: 3px 1px 6px rgba(0, 0, 0, 0.3);
+
+			// css triangle arrow to point at delete link
+			&:before {
+				border: 20px solid transparent;
+				border-bottom-color: #21232a;
+			}
+
+			.red {
+				background: #ca0000;
+				background-image: linear-gradient(#e10000, #ca0000);
+				border-color: #747474;
+				color: #ffffff;
+			}
+
+			.red:hover {
+				background: #ca0000;
+				background-image: linear-gradient(#ca0000, #e10000);
+			}
+
+			.gray:hover {
+				background: #a2c129;
+				background-image: linear-gradient(#b8b8b8, #e4e4e4);
+			}
+		}
+
+		.controls div.additional_options {
+			border-top: #8e8e8e dotted 1px;
+
+			.attempts_parent {
+				&.disabled dt {
+					color: #c5c5c5;
+				}
+
+				&.disabled dd {
+					color: #c5c5c5;
+				}
+
+				dd {
+					&:hover {
+						color: #0093e7;
+					}
+
+					&.disabled {
+						color: #c5c5c5;
+					}
+
+					&.disabled:hover {
+						color: #c5c5c5;
+					}
+				}
+			}
+
+			.attempts_parent.disabled {
+				background: none;
+			}
+
+			#edit-availability-button {
+				color: #61a4e2;
+
+				&:hover {
+					color: #61a4e2;
+				}
+
+				&.disabled {
+					background: none;
+					color: #c5c5c5;
+				}
+
+				&.disabled:hover {
+					color: #c5c5c5;
+				}
+			}
+		}
+
+		.controls h3 {
+			color: #b7b7b7;
+		}
+
+		.share-widget-container {
+			.share-widget-options-first {
+				border-left: 8px solid rgba(239, 129, 82, 0.5);
+			}
+
+			.share-widget-options-second {
+				border-left: 8px solid rgba(117, 191, 91, 0.5);
+			}
+
+			.share-widget-options-third {
+				border-left: 8px solid rgba(93, 163, 203, 0.5);
+			}
+
+			.link {
+				color: #61a4e2;
+			}
+
+			.play_link {
+				background-color: $color-input-box-bg-dark;
+				border: solid 1px $color-input-box-border-dark;
+				color: #d8d8d8;
+
+				&:disabled {
+					color: #ababab;
+				}
+			}
+
+			.embed-options {
+				color: white;
+
+				#embed_link {
+					background-color: #1d1f25;
+					color: #fff;
+					border-color: #181920;
+				}
+			}
+		}
+
+		.student-activity-header {
+			background: none;
+		}
+	}
+
+	div.link {
+		border-bottom: 1px #61a4e2 solid;
+		color: #61a4e2;
+	}
+
+	// Shown when there are no widgets
+	.qtip-wrapper {
+		box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
 	}
 }
 

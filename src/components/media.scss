@@ -128,6 +128,46 @@ body.import {
 	}
 }
 
+.darkMode .media-importer {
+	> section {
+		&:first-child {
+			&:before {
+				color: #dadada;
+			}
+
+			&:after {
+				border-left: thin solid #dadada;
+			}
+		}
+
+		.loading-icon-holder {
+			background: rgba(33,35,45,0.95);
+		}
+	}
+
+	.pane-header {
+		&.darker {
+			color: #484848;
+		}
+
+		.close-button {
+			&:after {
+				color: #fff;
+			}
+		}
+	}
+
+	.pane-footer {
+		span.content {
+			background: rgba(255,255,255,0.95);
+
+			&.error-state {
+				color: #730000;
+			}
+		}
+	}
+}
+
 #drag-wrapper {
 	position: relative;
 	height: 333px;

@@ -65,11 +65,12 @@ const MyWidgetsCopyDialog = ({inst, name, onClose, onCopySuccess, onCopyError}) 
 							/>
 						</div>
 						<div className='options_container'>
-							<label>
+							<label className='checkbox-wrapper'>
 								<input type='checkbox'
 									checked={copyPermissions}
 									onChange={handleOwnerAccessChange}
 								/>
+								<span className='custom-checkbox'></span>
 								Grant Access to Original Owner(s)
 							</label>
 							<p className='input_desc'>

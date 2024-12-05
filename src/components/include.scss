@@ -13,6 +13,20 @@ $light-gray: #dadada;
 $gray: #9a9a9a;
 $extremely-dark-gray: #333;
 
+$color-background-dark: #21232a;
+$color-header-dark: #1d1f25;
+$color-background-dark-gray: #4c4e58;
+$color-border-dark: #181920;
+$color-box-shadow-dark: #08090c;
+$color-text-light-gray: #d8d8d8;
+$color-features-dark: #295b99;
+$color-blue-hover-dark: #1b304b;
+$color-link-dark: #61a4e2;
+
+$color-input-desc-dark: #111317;
+$color-input-box-bg-dark: #30323b;
+$color-input-box-border-dark: #13151a;
+
 
 body,
 html {
@@ -25,6 +39,13 @@ body {
 	font-family: 'Lato', arial, sans-serif;
 	font-weight: 300;
 	overflow: auto;
+	color: #333;
+	background-color: #fff;
+}
+
+body.darkMode {
+	color: #fff;
+	background-color: $color-background-dark;
 }
 
 .action_button {
@@ -64,6 +85,26 @@ body {
 	}
 }
 
+.darkMode .action_button {
+	background-color: $color-yellow;
+	color: $extremely-dark-gray;
+
+	&.green {
+		background: #c4dd61;
+		color: #525252;
+
+		&:hover {
+			background: #d5ea7f;
+		}
+	}
+
+	&:hover {
+		background-color: #ffc904;
+		color: #000;
+		box-shadow: 0px 1px 3px #08090c;
+	}
+}
+
 a {
 	color: #0093e7;
 	text-decoration: none;
@@ -75,6 +116,10 @@ a {
 	img {
 		border: none;
 	}
+}
+
+.darkMode a {
+	color: #61a4e2;
 }
 
 header {
@@ -110,8 +155,8 @@ header {
 			height: 0;
 			padding: 60px 0 0 10px;
 			margin: 10px 0 0 10px;
-			background: url(/img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
-			background-size: 160px 68px;
+			background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+			background-size: 80px auto;
 		}
 	}
 
@@ -148,7 +193,7 @@ header {
 
 		a {
 			font-size: 14px;
-			font-weight: 300;
+			font-weight: 400;
 			color: #4c4c4c;
 			white-space: nowrap;
 			overflow: hidden;
@@ -192,7 +237,7 @@ header {
 
 				a {
 					font-size: 14px;
-					font-weight: 100;
+					font-weight: 400;
 					margin: 0;
 					padding: 0;
 					color: #4c4c4c;
@@ -253,7 +298,7 @@ header {
 
 				a {
 					font-size: 14px;
-					font-weight: 300;
+					font-weight: 400;
 					margin: 0;
 					padding: 0;
 				}
@@ -262,7 +307,7 @@ header {
 	}
 
 	a {
-		color: #0093e7;
+		color: #0093e7; 
 		text-decoration: none;
 
 		&:hover {
@@ -453,6 +498,216 @@ header {
 	}
 }
 
+.checkbox-wrapper {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.25rem;
+	cursor: pointer;
+
+	input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	input:checked + .custom-checkbox {
+		background-color: #007bff;
+		border-color: #007bff;
+	}
+
+	input:checked + .custom-checkbox::after {
+		display: block;
+	}
+
+	.custom-checkbox {
+		position: relative;
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		margin: 0 0.5em 0 0;
+		padding: 0;
+	
+		background-color: #fff;
+		border: 2px solid #7e7e7e;
+		border-radius: 4px;
+		
+		transition: all 0.3s;
+	
+		&:after {
+			content: '✓';
+			position: absolute;
+			display: none;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			color: #fff;
+			font-size: 14px;
+		}
+	}
+}
+
+.radio-wrapper {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	cursor: pointer;
+
+	input {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	input:checked + .custom-radio {
+		background-color: #007bff;
+		border-color: #007bff;
+	}
+
+	input:checked + .custom-radio::after {
+		display: block;
+	}
+
+	.custom-radio {
+		position: relative;
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		margin: 0 0.5em 0 0;
+		padding: 0;
+	
+		background-color: #fff;
+		border: 2px solid #7e7e7e;
+		border-radius: 50%;
+		
+		transition: all 0.3s;
+	
+		&:after {
+			content: '';
+			position: absolute;
+			display: none;
+			left: 50%;
+			top: 50%;
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background-color: #fff;
+			transform: translate(-50%, -50%);
+		}
+	}
+}
+
+.darkMode header {
+	&.logged_in {
+		background: #1d1f25 url(/img/header_border_alt.png) 0% 100% repeat-x;
+	}
+
+	h1.logo {
+		a {
+			background: #1d1f25 url('/img/materia-logo-default-darkmode.svg') 50% 100% no-repeat;
+			background-size: 80px auto;
+		}
+	}
+
+	.profile-bar
+	{
+		a {
+			color: $color-text-light-gray;
+		}
+	}
+
+	// Not being used but kept just in case
+	.profile-menu
+	{
+		background-color: white;
+		box-shadow: 1px 10px 10px 1px rgba(0,0,0,0.1);
+		border: 1px solid white;
+
+		ul {
+			li {
+				a {
+					color: $color-text-light-gray;
+				}
+
+				a:hover {
+					border-bottom: 2px solid #0093E7;
+				}
+			}
+		}
+
+		.arrow-top {
+			border-left: 15px solid transparent;
+			border-right: 15px solid transparent;
+			border-bottom: 15px solid white;
+		}
+	}
+
+	.elevated {
+		color: #ffa52b;
+	}
+
+	.nav_expandable {
+		color: #0093e7;
+
+		ul {
+			background-color: $color-header-dark;
+			border-left: 1px solid $color-border-dark;
+			border-right: 1px solid $color-border-dark;
+			border-bottom: 1px solid $color-border-dark;
+		}
+	}
+
+	#notices {
+		box-shadow: 1px 10px 10px 1px $color-box-shadow-dark;
+		background-color: $color-background-dark;
+
+		h2
+		{
+			color: #d8d8d8;
+		}
+	}
+
+	.notice {
+		&:hover{
+			background-color: $color-features-dark;
+		}
+	}
+
+	.notice.deleted {
+		background-color:red !important
+	}
+
+	#notifications_link {
+		background:url(../../../img/envelope.svg) 0% 0% no-repeat;
+		&:hover {
+			box-shadow: 0px 0px 5px 0px $color-box-shadow-dark;
+		}
+	}
+
+	#notifications_link.notEmpty:after {
+		border: 1px solid red;
+		color: white;
+		background-color: red;
+	}
+
+	.grantAccessTitle
+	{
+		border-top: 1px solid #d8d8d8;
+	}
+
+	.notif-date
+	{
+		color: #d8d8d8;
+	}
+
+	#removeAllNotifications
+	{
+		color: #d8d8d8;
+		&:hover {
+			color: red;
+		}
+	}
+}
+
 // mobile header
 @media (max-width: 720px) {
 	header {
@@ -611,7 +866,7 @@ header {
 
 					a {
 						font-size: 14px;
-						font-weight: 300;
+						font-weight: 400;
 						margin: 0;
 						padding: 0;
 					}
@@ -685,6 +940,21 @@ nav {
 	}
 }
 
+.darkMode nav {
+	ul {
+		li {
+			a {
+				color: #d8d8d8;
+			}
+
+			a:hover {
+				border-bottom: 2px solid #0093E7;
+				color: #fff;
+			}
+		}
+	}
+}
+
 h1.logo {
 	position: absolute;
 	left: 0;
@@ -698,19 +968,36 @@ h1.logo {
 		height: 0;
 		padding: 60px 0 0 10px;
 		margin: 10px 0 0 10px;
-		background: url(/img/materia_tmp_logo.png) 0% 0% no-repeat;
+		background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+		background-size: 80px auto;
+	}
+}
+
+.darkMode h1.logo {
+	a {
+		background: url('/img/materia-logo-default-darkmode.svg') 0% 0% no-repeat;
+		background-size: 80px auto;
 	}
 }
 
 @media only screen and (min-device-pixel-ratio: 2),
 	only screen and (-webkit-min-device-pixel-ratio: 2) {
 	h1.logo a {
-		background: url(/img/retina/materia_tmp_logo@2x.png) 0% 0% no-repeat;
-		background-size: 160px 68px;
+		background: url('/img/materia-logo-default-lightmode.svg') 50% 100% no-repeat;
+		background-size: 80px auto;
 	}
 
 	header {
 		background: #fff;
+		background-size: 12px 6px;
+	}
+	.darkMode h1.logo a {
+		background: url('/img/materia-logo-default-darkmode.svg') 50% 100% no-repeat;
+		background-size: 80px auto;
+	}
+
+	.darkMode header {
+		background: #1d1f25;
 		background-size: 12px 6px;
 	}
 }
@@ -794,6 +1081,16 @@ h1.logo {
 	}
 }
 
+.darkMode .page, .widget {
+	.alert-wrapper {
+		background: rgba(0,0,0,0.66);
+
+		.alert-dialog {
+			background: #21232a;
+		}
+	}
+}
+
 section,
 header,
 nav,
@@ -807,6 +1104,7 @@ footer {
 	color: #555;
 	text-decoration: underline;
 	margin: 10px 15px;
+	font-weight: 400;
 }
 
 .popup h2,
@@ -817,6 +1115,13 @@ footer {
 	margin: 10px auto;
 	padding: 0;
 	// text-shadow: 0px 1px 0px #ccc;
+}
+
+.darkMode
+.popup h2,
+.darkMode
+.detail h2 {
+	color: #fff;
 }
 
 .error-support span.subtitle {

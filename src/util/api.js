@@ -176,6 +176,8 @@ export const apiAuthorSupport = () => {
 
 export const apiAuthorVerify = () => {
 	return fetchGet('/api/json/session_author_verify/', { body: `data=${formatFetchBody([])}` })
+		.then(user => user)
+		.catch(error => false)
 }
 
 export const apiGetNotifications = () => {

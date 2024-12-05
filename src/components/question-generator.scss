@@ -169,3 +169,38 @@
 		font-weight: 400;
 	}
 }
+
+.darkMode.generate {
+	#generate_form {
+
+		input[type='text'] {
+			color: #fff;
+			background-color: $color-input-box-bg-dark;
+			border: solid 1px $color-input-box-border-dark;
+		}
+
+		input[type='number'] {
+			color: #fff;
+			background-color: $color-input-box-bg-dark;
+			border: solid 1px $color-input-box-border-dark;
+		}
+
+		#num-questions-field label {
+			background: $color-background-dark;
+		}
+
+		#build-off-existing-field label {
+			background: $color-background-dark;
+		}
+
+		.description {
+			background-color: $color-input-desc-dark;
+		}
+	}
+
+	.actions a {
+		font-weight: 400;
+		text-decoration: underline;
+		color: $color-link-dark;
+	}
+}

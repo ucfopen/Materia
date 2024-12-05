@@ -7,6 +7,7 @@
 		position: relative;
 
 		font-family: 'Lato', arial, serif;
+		font-weight: 400;
 
 		.page {
 			z-index: 100;
@@ -102,7 +103,7 @@
 		h3 {
 			margin: 30px 0 0 0;
 
-			font-size: 16px;
+			font-size: 18px;
 		}
 
 		h3 + p {
@@ -124,13 +125,51 @@
 		dl {
 			dt {
 				font-weight: bold;
-				font-size: 14px;
+				font-size: 15px;
 			}
 
 			dd {
+				line-height: 1.4em;
 				margin: 0.5em 0 0 0;
 				padding-bottom: 10px;
 			}
+		}
+	}
+}
+
+.darkMode.docs {
+	.container {
+		.page {
+			border: #181920 1px solid;
+			
+			box-shadow: 1px 3px 10px #08090c;
+			background-color: #21232a;
+
+			color: $very-light-gray;
+
+			a {
+				color: #61a4e2;
+			}
+
+			.content {
+				nav {
+					border-right: solid 0.5px $color-background-dark-gray;
+
+					ul {
+						li {
+							border-bottom: solid 0.5px $color-background-dark-gray;
+
+							a {
+								color: #61a4e2;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		h1 {
+			border-bottom: solid #dcdcdc .5px;
 		}
 	}
 }

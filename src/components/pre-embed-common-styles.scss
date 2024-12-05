@@ -1,5 +1,7 @@
 /* pre-embed view */
 
+@import './include.scss';
+
 html,
 body {
 	height: 100%;
@@ -201,7 +203,7 @@ body {
 	
 					img {
 						width: auto;
-						height: 15px;
+						height: 18px;
 						margin-top: 1px;
 					}
 				}
@@ -306,6 +308,55 @@ body {
 	}
 }
 
+.darkMode .container {
+	&.preview {
+		section.page {
+			border-top: 4px #b944cc solid;
+
+			&:before {
+				background: #b944cc;
+				color: #ffffff;
+			}
+		}
+	}
+
+	section.page {
+		background: #21232a;
+		border: #181920 1px solid;
+		box-shadow: 1px 3px 10px #08090c;
+
+		div.detail {
+
+			&.pre-embed {
+				background: $color-background-dark-gray;
+			}
+		}
+
+		div#form {
+			ul {
+				li {
+					label, input[type='text'], input[type='password'] {
+						border: solid 1.5px #181920;
+						background: #1d1f25;
+						color: #fff;
+					}
+				}
+			}
+		}
+
+		.error {
+			p {
+				background: #700404;
+				color: #dd9696;
+			}
+		}
+
+		.widget-embed-footer {
+			color: #ddd;
+		}
+	}
+}
+
 @media (max-width: 720px) {
 	.container {
 		margin: 10% auto 0 auto;
@@ -317,46 +368,3 @@ body {
 		}
 	}
 }
-
-// @media (max-width: 720px) {
-
-// 	.container {
-// 		margin: 10% auto 0px auto !important;
-// 		align-items: center;
-// 	}
-// }
-
-
-/* login styles */
-
-// @media (max-width: 720px) {
-// 	.widget .container {
-// 		margin: 10% auto 0px auto !important;
-// 		align-items: center;
-// 	}
-
-// 	.widget section.page,
-// 	.widget aside {
-// 		border: none !important;
-// 		box-shadow: none !important;
-// 	}
-
-// 	.widget .form-content ul {
-// 		width: 0px !important;
-// 		margin: 0 !important;
-// 	}
-
-// 	.widget ul.help_links {
-// 		width: 100% !important;
-// 	}
-
-// 	.widget .form-content ul li input[type='text'],
-// 	.widget .form-content ul li input[type='password'] {
-// 		width: 300px !important;
-// 	}
-
-// 	.widget .error p {
-// 		width: 307px !important;
-// 	}
-
-// }
