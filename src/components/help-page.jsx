@@ -4,15 +4,16 @@ import Header from './header'
 import HelpHome from './help-home'
 import HelpForStudents from './help-for-students'
 import HelpForInstructors from './help-for-instructors'
+import HelpAccessibility from './help-accessibility'
 
 import './help-page.scss';
 
 const HelpPage = () => {
 
-	const [page, setPage] = useState(window.location.hash.match(/#(home|students|instructors){1}$/)?.[1])
+	const [page, setPage] = useState(window.location.hash.match(/#(home|students|instructors|accessibility){1}$/)?.[1])
 
 	const listenToHashChange = () => {
-		const match = window.location.hash.match(/#(home|students|instructors){1}$/)
+		const match = window.location.hash.match(/#(home|students|instructors|accessibility){1}$/)
 		if (match != null && match[1] != null) setPage(match[1])
 		else setPage('home')
 	}
@@ -33,6 +34,10 @@ const HelpPage = () => {
 		case 'instructors':
 			helpContentRender = <HelpForInstructors />
 			break
+		case 'accessibility':
+			console.log('accessibility yes')
+			helpContentRender = <HelpAccessibility />
+			break
 		default:
 			helpContentRender = <HelpHome />
 	}
@@ -49,6 +54,7 @@ const HelpPage = () => {
 								<li><a href='#home'>Help Home</a></li>
 								<li><a href='#students'>For Students</a></li>
 								<li><a href='#instructors'>For Instructors</a></li>
+								<li><a href='#accessibility'>Accessibility</a></li>
 							</ul>
 						</nav>
 						<main>

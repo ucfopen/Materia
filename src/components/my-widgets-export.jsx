@@ -107,14 +107,18 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 
 	const semesterOptionElements = scores.map((val, index) => (
 		<li key={index}>
-			<input type='checkbox'
-				id={val.id}
-				className='semester'
-				name={val.id}
-				disabled={scores.length === 1}
-				checked={state.semesterOptions[index] || false} // makes sure it will never be null
-				onChange={() => {semesterCheck(index)}}></input>
-				<label htmlFor={val.id}>{val.year + ' ' + val.term}</label>
+			<label className='checkbox-wrapper' htmlFor={val.id}>
+				<input type='checkbox'
+					id={val.id}
+					className='semester'
+					name={val.id}
+					disabled={scores.length === 1}
+					checked={state.semesterOptions[index] || false} // makes sure it will never be null
+					onChange={() => {semesterCheck(index)}}></input>
+				<span className='custom-checkbox'></span>
+				{val.year + ' ' + val.term}
+			</label>
+			
 		</li>
 	))
 
@@ -172,11 +176,15 @@ const MyWidgetsExport = ({onClose, inst, scores}) => {
 				</p>
 				<ul>
 					<li className={`${scores.length > 1 ? 'active' : ''}`}>
-						<input type='checkbox'
-							id='checkall'
-							checked={state.checkAll}
-							onChange={checkAllVals}/>
-						<label htmlFor='checkall'> - Check all</label>
+						<label className='checkbox-wrapper' htmlFor='checkall'>
+							<input type='checkbox'
+								id='checkall'
+								checked={state.checkAll}
+								onChange={checkAllVals}/>
+							<span className='custom-checkbox'></span>
+							- Check all
+						</label>
+						
 					</li>
 					{ semesterOptionElements }
 				</ul>
