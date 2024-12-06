@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d18a4cbef97736f368722e209e282823",
+    "content-hash": "cc5b6953ad974e6ce527a75fbe9ab08f",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1243,7 +1243,7 @@
                 ],
                 "psr-4": {
                     "OpenAI\\": "src/"
-				}
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1251,7 +1251,7 @@
             ],
             "authors": [
                 {
-					"name": "Nuno Maduro",
+                    "name": "Nuno Maduro",
                     "email": "enunomaduro@gmail.com"
                 },
                 {
@@ -1291,8 +1291,8 @@
                 }
             ],
             "time": "2024-04-15T19:11:23+00:00"
-		},
-		{
+        },
+        {
             "name": "paragonie/constant_time_encoding",
             "version": "v3.0.0",
             "source": {
@@ -2262,7 +2262,7 @@
         },
         {
             "name": "ucfopen/materia-theme-ucf",
-            "version": "2.0.4",
+            "version": "2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ucfopen/Materia-Theme-UCF.git",
@@ -2270,7 +2270,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.4.zip"
+                "url": "https://github.com/ucfopen/Materia-Theme-UCF/archive/refs/tags/v2.0.5.zip"
             },
             "type": "fuel-package"
         }
