@@ -776,7 +776,7 @@
 			.link {
 				cursor: pointer;
 				// color: #1778af;
-				color: #91c8fc;
+				color: #0093e7;
 				// text-decoration: underline;
 				font-weight: 400;
 
@@ -786,11 +786,11 @@
 			}
 
 			.play_link {
-				width: 100%;
+				width: calc(100% - 1em);
 				margin: 0;
 				height: 1.5em;
 				font-size: 1.1em;
-				padding-left: 3px;
+				padding: 0.25em;
 				cursor: text;
 
 				&::-ms-clear {
@@ -858,8 +858,8 @@
 		margin: 0 10px;
 		padding: 0 0 2px 0;
 
-		border-bottom: 1px #61a4e2 solid;
-		color: #61a4e2;
+		border-bottom: 1px #0093e7 solid;
+		color: #0093e7;
 		
 		font-size: 14px;
 		font-weight: 700;
@@ -1175,16 +1175,16 @@
 			}
 
 			.link {
-				color: #61a4e2;
+				color: $color-link-dark;
 			}
 
 			.play_link {
 				background-color: $color-input-box-bg-dark;
 				border: solid 1px $color-input-box-border-dark;
-				color: #d8d8d8;
+				color: #fff;
 
 				&:disabled {
-					color: #ababab;
+					color: $gray;
 				}
 			}
 
@@ -1205,8 +1205,8 @@
 	}
 
 	div.link {
-		border-bottom: 1px #61a4e2 solid;
-		color: #61a4e2;
+		border-bottom: 1px $color-link-dark solid;
+		color: $color-link-dark;
 	}
 
 	// Shown when there are no widgets

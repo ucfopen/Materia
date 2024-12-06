@@ -499,17 +499,20 @@
 	}
 
 	.show-older-scores-button {
-		border-radius: 2px;
-		background: #f3f3f3;
-		border: 1px solid #dbdbdb;
 		display: inline-block;
-		padding: 4px 10px 4px 10px;
-		font-size: 10pt;
-		text-decoration: underline;
 		width: 654px;
-		text-align: center;
 		margin-top: 1em;
+		padding: 4px 10px 4px 10px;
+
+		border-bottom: 1px solid #dbdbdb;
+
+		background: none;
+		
+		font-size: 10pt;
 		font-weight: bold;
+		text-decoration: underline;	
+		text-align: center;
+		
 		cursor: pointer;
 
 		&.hide {
@@ -873,8 +876,7 @@
 	}
 
 	.show-older-scores-button {
-		background: #4c4e58;
-		border: 1px solid #181920;
+		border-bottom: 1px solid $extremely-dark-gray;
 	}
 
 	table.storage_table {
