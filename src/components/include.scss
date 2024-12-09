@@ -395,8 +395,9 @@ header {
 		padding: 10px;
 		display: flex;
 		flex-direction: row;
-		// align-items: center;
 		gap: 10px;
+
+		font-weight: 400;
 
 		&:hover{
 			background-color: rgb(250,250,250);
@@ -667,6 +668,16 @@ header {
 	}
 
 	.notice {
+
+		.noticeClose {
+			filter: invert(1);
+
+			&:hover {
+				cursor: pointer;
+				filter: invert(-0.5) sepia(1) saturate(80) hue-rotate(340deg);
+			}
+		}
+
 		&:hover{
 			background-color: $color-features-dark;
 		}
