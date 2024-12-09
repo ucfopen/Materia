@@ -615,7 +615,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			<nav
 				className={`header-element previous-attempts ${prevAttemptOpen ? 'open' : ''}`}
 				onMouseOver={() =>!prevAttemptOpen && setprevAttemptOpen(true)}
-				onMouseOut={() => prevAttemptOpen && setprevAttemptOpen(false)}
+				onMouseLeave={() => prevAttemptOpen && setprevAttemptOpen(false)}
 			>
 				<h1 onClick={() => !prevAttemptOpen && setprevAttemptOpen(true)}>
 					Prev. Attempts
