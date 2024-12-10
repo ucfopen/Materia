@@ -10,6 +10,7 @@ class Controller_Media extends Controller
 {
 
 	use Trait_CommonControllerTemplate;
+	use Trait_DarkMode;
 
 	// overrides Trait_CommonControllerTemplate->before()
 	public function before()
@@ -53,6 +54,11 @@ class Controller_Media extends Controller
 
 		Css::push_group(['media_import']);
 		Js::push_group(['react', 'media']);
+
+		if ($this->is_using_darkmode())
+		{
+			$theme->get_template()->set('darkmode', true);
+		}
 
 		return Response::forge($theme->render());
 	}
