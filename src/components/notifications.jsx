@@ -5,17 +5,17 @@ import useDeleteNotification from './hooks/useDeleteNotification'
 import setUserInstancePerms from './hooks/useSetUserInstancePerms'
 
 const Notifications = (user) => {
-	const [navOpen, setNavOpen] = useState(false);
-	const [showDeleteBtn, setShowDeleteBtn] = useState(-1);
+	const [navOpen, setNavOpen] = useState(false)
+	const [showDeleteBtn, setShowDeleteBtn] = useState(-1)
 	const deleteNotification = useDeleteNotification()
 	const queryClient = useQueryClient()
 	const setUserPerms = setUserInstancePerms()
-	const numNotifications = useRef(0);
+	const numNotifications = useRef(0)
 	const [errorMsg, setErrorMsg] = useState({
 		notif_id: '',
 		msg: ''
-	});
-	let modalRef = useRef();
+	})
+	let modalRef = useRef()
 
 	const { data: notifications} = useQuery({
 		queryKey: 'notifications',
@@ -27,10 +27,10 @@ const Notifications = (user) => {
 		staleTime: Infinity,
 		retry: false,
 		onSuccess: (data) => {
-			numNotifications.current = 0;
+			numNotifications.current = 0
 			if (data && data.length > 0) data.forEach(element => {
-				if (!element.remove) numNotifications.current++;
-			});
+				if (!element.remove) numNotifications.current++
+			})
 		},
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
@@ -48,36 +48,37 @@ const Notifications = (user) => {
 			const checkIfClickedOutsideModal = e => {
 				if (modalRef.current && !modalRef.current.contains(e.target) && !e.target.className.includes("noticeClose"))
 				{
-					setNavOpen(false);
+					setNavOpen(false)
 				}
 			}
-			document.addEventListener("click", checkIfClickedOutsideModal);
+			document.addEventListener("click", checkIfClickedOutsideModal)
 
 			return () => {
-				document.removeEventListener("click", checkIfClickedOutsideModal);
+				document.removeEventListener("click", checkIfClickedOutsideModal)
 			}
 		}
 	}, [navOpen])
 
-	const toggleNavOpen = () =>
+	const toggleNavOpen = (event) =>
 	{
-		setNavOpen(!navOpen);
+		event.stopPropagation()
+		setNavOpen(!navOpen)
 	}
 	// Sets the index of the hovered notification
 	// Shows delete button on hover
 	const showDeleteButton = (index) =>
 	{
-		setShowDeleteBtn(index);
+		setShowDeleteBtn(index)
 	}
 	const hideDeleteButton = () =>
 	{
-		setShowDeleteBtn(-1);
+		setShowDeleteBtn(-1)
 	}
 
 	const removeNotification = (index, id = null) => {
-		let notif = null;
-		if (index >= 0) notif = notifications[index];
-		if (id == null) id = notif.id;
+		let notif = null
+		if (index >= 0) notif = notifications[index]
+		if (id == null) id = notif.id
 
 		deleteNotification.mutate({
 			notifId: id,
@@ -86,16 +87,16 @@ const Notifications = (user) => {
 				Object.keys(notifications).forEach((key, index) => {
 					if (notifications[key].id == id)
 					{
-						notifications[key].remove = true;
-						numNotifications.current--;
-						return;
+						notifications[key].remove = true
+						numNotifications.current--
+						return
 					}
 				})
 			},
 			errorFunc: (err) => {
-				setErrorMsg({notif_id: id, msg: 'Action failed.'});
+				setErrorMsg({notif_id: id, msg: 'Action failed.'})
 			}
-		});
+		})
 	}
 
 	const removeAllNotifications = () => {
@@ -104,25 +105,25 @@ const Notifications = (user) => {
 			deleteAll: true,
 			successFunc: () => {},
 			errorFunc: (err) => {}
-		});
+		})
 	}
 
 	const onChangeAccessLevel = (notif, access) => {
 		if (access != "")
 		{
-			document.getElementById(notif.id + '_action_button').className = "action_button notification_action enabled";
+			document.getElementById(notif.id + '_action_button').className = "action_button notification_action enabled"
 		}
 	}
 
 	const onClickGrantAccess = (notif) => {
-		let accessLevel = document.getElementById(notif.id + '-access-level').value;
+		let accessLevel = document.getElementById(notif.id + '-access-level').value
 
 		if (accessLevel == "")
 		{
-			return;
+			return
 		}
 
-		const expireTime = null;
+		const expireTime = null
 
 		const userPerms = [{
 			user_id: notif.from_id,
@@ -140,18 +141,18 @@ const Notifications = (user) => {
 				{
 					// No idea why this works
 					// But setting hash after setting pathname would set the hash first and then the pathname in URL
-					window.location.hash = notif.item_id + '-collab';
+					window.location.hash = notif.item_id + '-collab'
 					window.location.pathname = '/my-widgets'
 				}
 				else
 				{
 					queryClient.invalidateQueries(['user-perms', notif.item_id])
-					window.location.hash = notif.item_id + '-collab';
+					window.location.hash = notif.item_id + '-collab'
 				}
 
-				setErrorMsg({notif_id: notif.id, msg: ''});
+				setErrorMsg({notif_id: notif.id, msg: ''})
 
-				removeNotification(-1, notif.id);
+				removeNotification(-1, notif.id)
 
 				// Close notifications
 				setNavOpen(false)
@@ -161,23 +162,22 @@ const Notifications = (user) => {
 			}
 		})
 
-
 	}
 
-	let render = null;
-	let notificationElements = null;
-	let notificationIcon = null;
+	let render = null
+	let notificationElements = null
+	let notificationIcon = null
 
 	if (notifications?.length > 0) {
 		notificationElements = []
 		for (let index = notifications.length - 1; index >= 0; index--)
 		{
-			const notification = notifications[index];
+			const notification = notifications[index]
 			// If notification was deleted don't show
 			if (notification.remove) continue;
 
-			let actionButton = null;
-			let grantAccessDropdown = null;
+			let actionButton = null
+			let grantAccessDropdown = null
 			if (notification.action == "access_request")
 			{
 				grantAccessDropdown = <div>
@@ -190,7 +190,7 @@ const Notifications = (user) => {
 				</div>
 				actionButton =  <button className="action_button notification_action" id={notification.id + "_action_button"} onClick={() => onClickGrantAccess(notification)}>Grant Access</button>
 			}
-			let createdAt = new Date(0);
+			let createdAt = new Date(0)
 			createdAt.setUTCSeconds(notification.created_at)
 			let notifRow = <div className={`notice${notification.deleted ? 'deleted' : ''}`}
 				key={notification.id}
@@ -214,7 +214,7 @@ const Notifications = (user) => {
 			notificationIcon =
 			<button id='notifications_link' className='notEmpty'
 				data-notifications={numNotifications.current}
-				onClick={() => toggleNavOpen()}></button>
+				onClick={toggleNavOpen}></button>
 
 			notificationElements.push(notifRow)
 		}
@@ -248,7 +248,7 @@ const Notifications = (user) => {
 			onClick={() => toggleNavOpen()}></button>
 	}
 
-	return render;
+	return render
 }
 
 export default Notifications

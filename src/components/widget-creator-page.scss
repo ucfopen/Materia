@@ -356,28 +356,9 @@ a {
 	}
 }
 
-#embed_dialog {
-	position: absolute;
-	top: -50%;
-	left: 50%;
-	margin: -250px -387px;
-	width: 675px;
-	height: 535px;
-	z-index: 2;
-	box-shadow: 0px 0px 1000px #000, 0px 0px 10px #000;
-	opacity: 0;
-	transition: all 0.3s ease;
-	background: #21232a;
-	overflow-x: hidden;
-
-	&.show {
-		opacity: 1;
-		box-shadow: none;
-		text-align: left;
-		top: 50%;
-		width: 800px;
-		z-index: 10;
-	}
+.darkMode #embed_dialog {
+	color: #fff;
+	background: $color-background-dark;
 }
 
 #confirm_dialog {

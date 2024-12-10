@@ -126,7 +126,7 @@ const MyWidgetScoreSemesterIndividual = ({ semester, instId, setInvalidLogin }) 
 		const studentList = (
 			<ul aria-label="Students">
 				{state.filteredLogs.map(user => (
-					<li key={user.id}>
+					<li key={user.userId}>
 						<button
 							className={state.selectedUser.userId === user.userId ? 'buttonSelected' : ''}
 							onClick={() => {
