@@ -503,7 +503,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 							<ul className={`access-options ${inst.is_embedded ? 'embedded' : ''}`}>
 								{currentUser.is_student && !inst.is_student_made ? <li className='studentWarningListItem student-role-notice'>Access settings are currently limited because of your student status.</li> : ''}
 								<li className={`normal ${!canViewNormal ? '' : 'show'} ${!canEditNormal ? ' limited-because-student' : ''}`} aria-hidden={!canViewNormal}>
-									<label className='radio-wrapper'>
+									<label className='radio-wrapper' htmlFor='normal-radio'>
 										<input type='radio'
 											name='access'
 											id='normal-radio'
@@ -522,7 +522,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 									</div>
 								</li>
 								<li className={`guest-mode ${!canEditGuest ? 'disabled' : ''} ${!canViewGuest ? ' limited-because-student ' : ''} `} aria-hidden={!canViewGuest}>
-									<label className='radio-wrapper'>
+									<label className='radio-wrapper' htmlFor='guest-radio'>
 										<input type='radio'
 											name='access'
 											id='guest-radio'
@@ -544,14 +544,18 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 								</li>
 								<li id='embedded-only'
 								className={`embed-only ${canViewEmbedded ? ' show' : ''} ${!canEditEmbedded ? ' limited-because-student disabled' : ''}`} aria-hidden={!canViewEmbedded}>
-									<input type='radio'
-										id='embed-radio'
-										value='embed'
-										disabled={!canEditEmbedded}
-										checked={state.formData.changes.access === 'embed'}
-										onChange={() => {accessChange('embed')}}
-									/>
-									<label htmlFor='embed-radio'>Embedded Only</label>
+									<label className='radio-wrapper' htmlFor='embed-radio'>
+										<input type='radio'
+											name='access'
+											id='embed-radio'
+											value='embed'
+											disabled={!canEditEmbedded}
+											checked={state.formData.changes.access === 'embed'}
+											onChange={() => {accessChange('embed')}}
+										/>
+										<span className='custom-radio'></span>
+										Embedded Only
+									</label>
 									<div className='input-desc'>
 										This widget will not be playable outside of the classes
 										it is embedded within.

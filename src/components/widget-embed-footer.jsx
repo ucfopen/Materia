@@ -1,17 +1,17 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const EmbedFooter = () => {
 
-	const darkModeRef = useRef(false)
+	const [isDarkMode, setDarkMode] = useState(false)
 
 	useEffect(() => {
 		const bodyRef = document.body
 		if (bodyRef && bodyRef.classList.contains('darkMode')) {
-			darkModeRef.current = true
+			setDarkMode(true)
 		}
 	},[])
 
-	const logoRef = darkModeRef.current ? "/img/materia-logo-thin-darkmode.svg" : "/img/materia-logo-thin.svg"
+	let logoRef = isDarkMode ? "/img/materia-logo-thin-darkmode.svg" : "/img/materia-logo-thin.svg"
 
 	return (
 		<section className='widget-embed-footer'>
