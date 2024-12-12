@@ -14,6 +14,7 @@ const UserAdminPage = () => {
 		queryKey: 'user',
 		queryFn: apiGetUser,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				window.location.href = '/login'
@@ -29,6 +30,7 @@ const UserAdminPage = () => {
 		enabled: userHash != undefined && userHash != selectedUser?.id,
 		placeholderData: null,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				window.location.href = '/login'

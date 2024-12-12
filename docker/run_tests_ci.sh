@@ -11,12 +11,14 @@
 set -e
 set -o xtrace
 
-DCTEST="docker-compose -f docker-compose.yml -f docker-compose.override.test.yml"
+DCTEST="docker compose -f docker-compose.yml -f docker-compose.override.test.yml"
 
-$DCTEST pull --ignore-pull-failures app fakes3
+$DCTEST pull --ignore-pull-failures app fakes3_test
 
 # annoying workaround to get host mounted file ownership mapped to the user inside the container
-docker run --rm -v $(pwd)/../:/source alpine:latest chown -R 1000 /source
+docker run --rm \
+  --mount type=bind,source="$(pwd)/../",target=/source,bind-nonrecursive=true \
+  alpine:latest find /source -path /source/.git -prune -o -exec chown 1000 {} +
 
 # install php deps
 $DCTEST run -T --rm --no-deps app composer install --no-progress

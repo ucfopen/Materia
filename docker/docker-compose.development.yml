@@ -1,0 +1,78 @@
+# this compose file serves as the template for a docker-compose.override.yml file
+# the override file is generated when either the run_first_for_dev or run_first_for_nondev scripts are run
+# for dev, this file is used as-is. For non-dev, this file is modified based on responses to the nondev script
+
+services:
+  webserver:
+    ports:
+      - "80:80" # main materia
+      - "443:443" # main materia
+      - "8008:8008" # static files (simulates a different domain sandbox & cdn)
+    volumes:
+      - ../public:/var/www/html/public:ro
+      - ../public/widget:/var/www/html/public/widget/:ro
+      - ./config/nginx/key.pem:/etc/nginx/conf.d/key.pem:ro
+      - ./config/nginx/cert.pem:/etc/nginx/conf.d/cert.pem:ro
+      - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
+
+  app:
+    env_file:
+      - .env
+      - .env.local
+    environment:
+      # In a production instance, these values should be unique and sourced from the .env file
+      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
+      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - BOOL_LTI_LOG_FOR_DEBUGGING=true
+      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+    volumes:
+      - ..:/var/www/html/
+      - ../public/widget:/var/www/html/public/widget/:rw
+      - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
+    depends_on:
+      - fakes3
+      - mysql
+      - memcached
+
+  mysql:
+    image: mysql:8.0.32
+    platform: linux/amd64
+    environment:
+      # values sourced from docker/env
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+    ports:
+      - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
+    networks:
+      - backend
+    volumes:
+      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
+
+  fakes3:
+    image: ghcr.io/ucfopen/materia:fake-s3-dev
+    build:
+      context: ../
+      dockerfile: materia-fake-s3.Dockerfile
+    volumes:
+      - uploaded_media:/s3mnt/fakes3_root/fake_bucket/media/
+    ports:
+      - "10001:10001"
+    networks:
+      - frontend
+      - backend
+
+  memcached:
+    image: memcached:1.6.6-alpine
+    networks:
+      - backend
+
+volumes:
+  uploaded_media: {} # uploaded media files

@@ -29,7 +29,7 @@ const ScoreGraphic = ({type, width, height, set, number, percent, greyMode}) => 
 							? '#C3C5C8'
 							: parseInt(percent, 10) !== 1
 							? '#e2dcdf'
-							: 'rgba(106, 148, 81, .2)'
+							: 'rgba(225, 234, 221, 1)'
 
 					context.strokeStyle = greyMode === true ? '#B3B5B8' : '#db8081'
 					context.beginPath()

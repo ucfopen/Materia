@@ -20,6 +20,7 @@ const MyWidgetsScores = ({inst, beardMode, setInvalidLogin}) => {
 		enabled: !!inst && !!inst.id,
 		staleTime: Infinity,
 		placeholderData: [],
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setInvalidLogin(true);

@@ -2,6 +2,8 @@
 
 .spotlight {
 
+	font-weight: 400;
+
 	.main_container {
 		position: relative;
 		// width: 100vw;
@@ -61,6 +63,7 @@
 	}
 
 	h1 {
+		color: #000;
 		font-weight: 500;
 		font-size: calc(35px + (40 - 35) * ((100vw - 300px) / (1600 - 300)));
 		margin: 0;
@@ -104,6 +107,34 @@
 	}
 }
 
+.darkMode .spotlight {
+
+	.main_container {
+		background: #21232a;
+	
+		.store_main {
+			p {
+				color: #fff;
+			}
+
+			section {
+				background: linear-gradient(to right, rgba(33, 35, 42, 0), rgba(33, 35, 42, 1) 55%), url(/img/banner_dark.png) no-repeat;	
+				background-size: contain;
+
+				.store_content {
+					h1 span.engage {
+						color: #61a4e2;
+					}
+				}
+			}
+		}
+	}
+
+	h1 {
+		color: #fff;
+	}
+}
+
 .front_bottom {
 	display: grid;
 	width: 100%;
@@ -116,7 +147,7 @@
 		margin: 0 auto;
 	}
 	div {
-		font-weight: 300;
+		font-weight: 400;
 		font-size: 14px;
 		color: #000;
 
@@ -170,6 +201,23 @@
 		float: left;
 	}
 }
+
+.darkMode .front_bottom {
+	background-color: #21232a;
+
+	div {
+		color: #fff;
+
+		h2 {
+			color: #fff;
+			border-bottom: dotted 1px #666;
+		}
+	}
+
+	img {
+		border: dotted 1px #666;
+	}
+}
 @media only screen and (min-width: 900px) {
 
 	.p_s {
@@ -218,6 +266,7 @@
 		line-height: 150%;
 		font-weight: 300;
 		font-size: 16px;
+		font-weight: 400;
 		text-align: center;
 
 		&.copyright {
@@ -227,6 +276,16 @@
 		}
 	}
 }
+
+.darkMode .p_s {
+	h2 {
+		color: #fff;
+	}
+	p {
+		color: #fff;
+	}
+}
+
 @media (max-width: 700px) {
 	.get_started {
 		height: 280px !important;
@@ -269,6 +328,10 @@
 	width: 100%;
 	height: 240px;
 	background-image: linear-gradient(115deg, #3690E6 60%, #37A9E6 40%);
+	//background-image: linear-gradient(115deg, #227ace 60%, #1d8fcc 40%);
+	.darkMode {
+		background-image: linear-gradient(115deg, #28445a 60%, #3a5766 40%);
+	}
 
 	img {
 		width: 30%;
@@ -318,4 +381,23 @@
 			font-weight: 700;
 		}
 	}
+}
+
+.darkMode .get_started {
+	color: #474747;
+	background-image: linear-gradient(115deg, #295b99 60%, #3e74b6 40%);
+	h1 {
+		&.subHeader {
+			color: #ffffff;
+		}
+	}
+	p {
+		&.desc {
+			color: #ffffff;
+		}
+	}
+}
+
+body .darkMode {
+	background-color: #21232a;
 }

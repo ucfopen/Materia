@@ -3,7 +3,7 @@ import { axisBottom, axisLeft, scaleBand, scaleLinear, select } from 'd3'
 
 const BarGraph = ({ data, width, height, rowLabel = `Y Axis`, colLabel = `X Axis`, graphTitle = 'Title' }) => {
 
-	const linesColor = { color: `#a9a9a9` }
+	const linesColor = { color: `#333333` }
 	const margin = { top: 50, bottom: 25, left: 25, right: 25 }
 	const graphWidth = width - margin.left - margin.right
 	const graphHeight = height - margin.top - margin.bottom
@@ -75,7 +75,7 @@ const BarGraph = ({ data, width, height, rowLabel = `Y Axis`, colLabel = `X Axis
 					y={yAxis(value)}
 					width={xAxis.bandwidth()}
 					height={height - yAxis(value)}
-					fill={`#0093e7`}
+					fill={`#0077e7`}
 				/>
 			))}
 		</>)

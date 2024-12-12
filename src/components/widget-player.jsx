@@ -115,6 +115,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const centerRef = useRef(null)
 	const frameRef = useRef(null)
 	const scoreScreenUrlRef = useRef(null)
+	const darkModeRef = useRef(false)
 
 	/*********************** queries ***********************/
 
@@ -123,6 +124,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		queryFn: () => apiGetWidgetInstance(instanceId),
 		enabled: instanceId !== null,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlert({
@@ -148,6 +150,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		queryFn: () => apiGetQuestionSet(instanceId, playId),
 		staleTime: Infinity,
 		placeholderData: null,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlert({
@@ -174,6 +177,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		staleTime: Infinity,
 		refetchInterval: HEARTBEAT_INTERVAL,
 		enabled: !!playId && heartbeatActive,
+		retry: 1,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setAlert({
@@ -220,6 +224,13 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	}, [attributes, alert, playState, pendingLogs])
 
 	/*********************** hooks ***********************/
+
+	useEffect(() => {
+		const bodyRef = document.body
+		if (bodyRef && bodyRef.classList.contains('darkMode')) {
+			darkModeRef.current = true
+		}
+	},[])
 
 	// Starts the widget player once the instance and qset have loaded
 	useEffect(() => {
@@ -588,8 +599,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	let footerRender = null
 	if (!isPreview && showFooter) {
+		const logoPath = darkModeRef.current ? "/img/materia-logo-thin-darkmode.svg" : "/img/materia-logo-thin.svg"
 		footerRender = <section className='player-footer' style={{ width: attributes.width !== '0px' ? attributes.width : 'auto' }}>
-			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src="/img/materia-logo-thin.svg" alt="materia logo" /></a>
+			<a className="materia-logo" href={window.BASE_URL} target="_blank"><img src={logoPath} alt="materia logo" /></a>
 			{ inst?.widget?.player_guide ? <a href={`${window.BASE_URL}widgets/${inst.widget.dir}players-guide`} target="_blank">Player Guide</a> : null }
 		</section>
 	}

@@ -84,6 +84,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 		placeholderData: {},
 		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys())?.length > 0,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			console.error(`Error: ${err.message}`);
 			if (err.message == "Invalid Login") {
@@ -502,13 +503,18 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 							<ul className={`access-options ${inst.is_embedded ? 'embedded' : ''}`}>
 								{currentUser.is_student && !inst.is_student_made ? <li className='studentWarningListItem student-role-notice'>Access settings are currently limited because of your student status.</li> : ''}
 								<li className={`normal ${!canViewNormal ? '' : 'show'} ${!canEditNormal ? ' limited-because-student' : ''}`} aria-hidden={!canViewNormal}>
-									<input type='radio'
-										id='normal-radio'
-										value='normal'
-										disabled={!canEditNormal}
-										checked={state.formData.changes.access === 'normal'}
-										onChange={() => accessChange('normal')} />
-									<label htmlFor='normal-radio'>Normal</label>
+									<label className='radio-wrapper' htmlFor='normal-radio'>
+										<input type='radio'
+											name='access'
+											id='normal-radio'
+											value='normal'
+											disabled={!canEditNormal}
+											checked={state.formData.changes.access === 'normal'}
+											onChange={() => accessChange('normal')} />
+										<span className='custom-radio'></span>
+										Normal
+									</label>
+									
 									<div className='input-desc'>
 										Only students and users who can log into Materia can access this widget.
 										If the widget collects scores, those scores will be associated with the user.
@@ -516,13 +522,17 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 									</div>
 								</li>
 								<li className={`guest-mode ${!canEditGuest ? 'disabled' : ''} ${!canViewGuest ? ' limited-because-student ' : ''} `} aria-hidden={!canViewGuest}>
-									<input type='radio'
-										id='guest-radio'
-										value='guest'
-										disabled={!canEditGuest}
-										checked={state.formData.changes.access === 'guest'}
-										onChange={() => accessChange('guest')} />
-									<label htmlFor='guest-radio'>Guest Mode</label>
+									<label className='radio-wrapper' htmlFor='guest-radio'>
+										<input type='radio'
+											name='access'
+											id='guest-radio'
+											value='guest'
+											disabled={!canEditGuest}
+											checked={state.formData.changes.access === 'guest'}
+											onChange={() => accessChange('guest')} />
+										<span className='custom-radio'></span>
+										Guest Mode
+									</label>
 									<div className='input-desc'>
 										Anyone with a link can play this widget without logging in.
 										All recorded scores will be anonymous. Can't use in an
@@ -534,14 +544,18 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 								</li>
 								<li id='embedded-only'
 								className={`embed-only ${canViewEmbedded ? ' show' : ''} ${!canEditEmbedded ? ' limited-because-student disabled' : ''}`} aria-hidden={!canViewEmbedded}>
-									<input type='radio'
-										id='embed-radio'
-										value='embed'
-										disabled={!canEditEmbedded}
-										checked={state.formData.changes.access === 'embed'}
-										onChange={() => {accessChange('embed')}}
-									/>
-									<label htmlFor='embed-radio'>Embedded Only</label>
+									<label className='radio-wrapper' htmlFor='embed-radio'>
+										<input type='radio'
+											name='access'
+											id='embed-radio'
+											value='embed'
+											disabled={!canEditEmbedded}
+											checked={state.formData.changes.access === 'embed'}
+											onChange={() => {accessChange('embed')}}
+										/>
+										<span className='custom-radio'></span>
+										Embedded Only
+									</label>
 									<div className='input-desc'>
 										This widget will not be playable outside of the classes
 										it is embedded within.

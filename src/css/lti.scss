@@ -21,6 +21,8 @@ html {
 		min-width: 600px;
 		height: 100%;
 
+		font-weight: 400;
+
 		header {
 			padding: 0;
 			margin: 0 0 2em 0;
@@ -46,7 +48,7 @@ html {
 				position: absolute;
 				top: 0;
 				left: 30px;
-				background: #fff url(/img/materia-logo-default.svg) no-repeat;
+				background: #fff url(/img/materia-logo-default-lightmode.svg) no-repeat;
 				background-size: 80px auto;
 				background-position: top 8px left 18px;
 			}
@@ -690,6 +692,49 @@ html {
 			margin: 0 auto;
 			width: 500px;
 		}
+		&.darkMode {
+
+			#lti-login-section {
+				color: #fff;
+				background: $color-background-dark;
+			}
+
+			#select-widget section.top-options .search-container {
+				input.textbox {
+					color: #fff;
+				}
+				.textbox-background {
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+	
+				}
+			}
+
+			#progress .progress-container {
+				background: $color-input-desc-dark;
+				color: $light-gray;
+				border: solid 1px $extremely-dark-gray;
+			}
+
+			header #logo {
+				background: #1d1f25 url('/img/materia-logo-default-darkmode.svg') 50% 50% no-repeat;
+				background-size: 80px auto;
+
+				border: none;
+				box-shadow: 2px 2px 2px rgba(33,33,33,0.33);
+			}
+
+			#select-widget #list-container ul li {
+				
+				h3 {
+					color: $light-gray;
+				}
+
+				&:hover {
+					background: $color-blue-hover-dark;
+				}
+			}
+		}
 	}
 
 	#error-container {
@@ -718,18 +763,3 @@ html {
 		}
 	}
 }
-
-/*
-.arrow {
-  animation: bounce-horizontal 1s ease-in-out infinite;
-}
-
-@keyframes bounce-horizontal {
-  0%, 100% {
-	transform: translateX(0);
-  }
-  50% {
-	transform: translateX(20px);
-  }
-}
-*/

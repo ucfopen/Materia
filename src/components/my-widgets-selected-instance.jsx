@@ -80,6 +80,7 @@ const MyWidgetSelectedInstance = ({
 		placeholderData: null,
 		enabled: !!inst.id,
 		staleTime: Infinity,
+		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login")
 			{
@@ -460,7 +461,7 @@ const MyWidgetSelectedInstance = ({
 						className={!state.can.share || inst.is_draft ? 'disabled' : ''}
 						disabled={!state.can.share || inst.is_draft}
 						onClick={onPopup}>
-						Edit settings
+						{inst.is_draft ? 'Publish to Edit Settings' : 'Edit Settings'}
 					</a>
 				</div>
 			</div>

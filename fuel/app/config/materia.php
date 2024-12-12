@@ -110,15 +110,29 @@ return [
 			(($_ENV['ASSET_STORAGE_DRIVER'] ?? 'file') == 's3')
 			? [
 				'driver_class' => '\Materia\Widget_Asset_Storage_S3',
-				'endpoint'     =>$_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? false, // set to url for testing endpoint
-				'region'       => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
-				'bucket'       => $_ENV['ASSET_STORAGE_S3_BUCKET'], // bucket to store original user uploads
-				'subdir'       => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets
-				'secret_key'   => $_ENV['ASSET_STORAGE_S3_SECRET'], // aws api secret key
-				'key'          => $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY' // aws api key
+				'credential_provider' => $_ENV['ASSET_STORAGE_S3_CREDENTIAL_PROVIDER'] ?? 'env',
+				'endpoint'            => $_ENV['ASSET_STORAGE_S3_ENDPOINT'] ?? '', // set to url for testing endpoint (Not required for S3 on AWS)
+				'region'              => $_ENV['ASSET_STORAGE_S3_REGION'] ?? 'us-east-1', // aws region for bucket
+				'bucket'              => $_ENV['ASSET_STORAGE_S3_BUCKET'] ?? '', // bucket to store original user uploads
+				'subdir'              => $_ENV['ASSET_STORAGE_S3_BASEPATH'] ?? 'media', // OPTIONAL - directory to store original and resized assets
+				'secret_key'          => $_ENV['AWS_SECRET_ACCESS_KEY'] ?? $_ENV['ASSET_STORAGE_S3_SECRET'] ?? 'SECRET', // aws api secret key
+				'key'                 => $_ENV['AWS_ACCESS_KEY_ID'] ?? $_ENV['ASSET_STORAGE_S3_KEY'] ?? 'KEY', // aws api key
+				'token'               => $_ENV['AWS_SESSION_TOKEN'] ?? null,	// aws session token
+				'fakes3_enabled'      => false, // using fakes3
 			]
 			: null
 		),
+	],
+
+	'ai_generation' => [
+		'enabled'      => filter_var($_ENV['GENERATION_ENABLED'] ?? false, FILTER_VALIDATE_BOOLEAN),
+		'allow_images' => filter_var($_ENV['GENERATION_ALLOW_IMAGES'] ?? false, FILTER_VALIDATE_BOOLEAN),
+		'provider'     => $_ENV['GENERATION_API_PROVIDER'] ?? '',
+		'endpoint'     => $_ENV['GENERATION_API_ENDPOINT'] ?? '',
+		'api_key'      => $_ENV['GENERATION_API_KEY'] ?? '',
+		'api_version'  => $_ENV['GENERATION_API_VERSION'] ?? '',
+		'model'        => $_ENV['GENERATION_API_MODEL'] ?? '',
+		'log_stats'    => filter_var($_ENV['GENERATION_LOG_STATS'] ?? false, FILTER_VALIDATE_BOOLEAN)
 	]
 
 ];

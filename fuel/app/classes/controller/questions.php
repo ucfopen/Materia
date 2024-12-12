@@ -6,6 +6,8 @@
 
 class Controller_Questions extends Controller
 {
+	use Trait_CommonControllerTemplate;
+	
 	public function get_import()
 	{
 		// Validate Logged in

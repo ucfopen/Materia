@@ -52,7 +52,7 @@ a {
 	&:before {
 		content: 'Editing';
 		// background: #b944cc;
-	
+
 		position: absolute;
 		bottom: 0;
 		left: 0;
@@ -63,7 +63,7 @@ a {
 		margin: 10px 0;
 
 		// border-right: solid 1px #aaa;
-	
+
 		font-size: 24px;
 		font-weight: bold;
 		// color: #ffffff;
@@ -103,7 +103,11 @@ a {
 	}
 }
 
-#qset-rollback-confirmation-bar {
+.darkMode #action-bar {
+	background: #1d1f25;
+}
+
+.confirmation-bar {
 	position: relative;
 	display: flex;
 	justify-content: space-around;
@@ -132,6 +136,7 @@ a {
 		padding: 14px 0;
 
 		font-size: 0.8em;
+		white-space: break-spaces;
 
 		span {
 			font-weight: bold;
@@ -153,6 +158,14 @@ a {
 
 		&:hover {
 			background: linear-gradient(#ffffff, #ffe5cc);
+		}
+	}
+
+	&#qset-generation-confirmation-bar {
+		background-color: #3690E6;
+	
+		button:hover {
+			background: linear-gradient(#ffffff, #bbdeff);
 		}
 	}
 }
@@ -184,10 +197,43 @@ a {
 		margin: 15px 0;
 
 		background: none;
-		
+
 		font-size: 21px;
 		font-weight: 700;
 		color: #000000;
+	}
+
+	p {
+		padding: 0;
+		margin: 10px 0 20px 0;
+		font-size: 14px;
+	}
+
+	&.show {
+		height: auto;
+		max-height: 200px;
+		padding: 10px 20% 22px 20%;
+	}
+}
+
+.darkMode .popup {
+	height: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.4s ease-in-out;
+
+	background: #1d1f25;
+
+	header {
+		height: auto;
+		padding: 0;
+		margin: 15px 0;
+
+		background: none;
+		
+		font-size: 21px;
+		font-weight: 700;
+		color: #fff;
 	}
 
 	p {
@@ -220,8 +266,25 @@ a {
 	}
 }
 
+.darkMode .page {
+	margin: 0 20px;
+	padding: 0;
+	text-align: center;
+
+	border: #181920 1px solid;
+	border-radius: 5px 5px 0 0;
+	box-shadow: #08090c 1px 3px 10px 0px;
+
+	.center {
+		min-height: 600px;
+		height: calc(100vh - 185px);
+		position: relative;
+		z-index: 5;
+	}
+}
+
 .edit_button {
-	position: relative;	
+	position: relative;
 	display: inline-block;
 	margin: 10px 0 0 6px;
 
@@ -258,6 +321,16 @@ a {
 		text-decoration: none;
 	}
 }
+.darkMode .orange {
+	background: #f79d29;
+	color: #422f15;
+
+	&:hover {
+		background: #ffce8c;
+		background-image: linear-gradient(#f79d29, #ffbc78);
+		text-decoration: none;
+	}
+}
 
 #embed_dialog {
 	position: absolute;
@@ -282,6 +355,12 @@ a {
 		z-index: 10;
 	}
 }
+
+.darkMode #embed_dialog {
+	color: #fff;
+	background: $color-background-dark;
+}
+
 #confirm_dialog {
 	position: absolute;
 	top: -50%;

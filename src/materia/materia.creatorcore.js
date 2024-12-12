@@ -41,6 +41,13 @@ Namespace('Materia').CreatorCore = (() => {
 			case 'reloadCreator':
 				_forceCreatorReload()
 				break
+			case 'promptResponse':
+				let prompt = [msg.data[0]]
+				_tellCreator('onPromptResponse', ['success', prompt])
+				break
+			case 'promptRejection':
+				_tellCreator('onPromptResponse', ['failure', null])
+				break
 			default:
 				console.warn(`Error, unknown message sent to creator core: ${msg.type}`)
 				break
@@ -92,7 +99,17 @@ Namespace('Materia').CreatorCore = (() => {
 		_sendPostMessage('alert', { msg, title, fatal })
 	}
 
-	const getMediaUrl = (mediaId) => `${_mediaUrl}/${mediaId}`
+	const getMediaUrl = (mediaId) => {
+		// check if the mediaId is a URL
+		if (mediaId.startsWith('http')) {
+			return mediaId
+		}
+		// check if the mediaId is a base64 string
+		if (mediaId.startsWith('data:')) {
+			return mediaId
+		}
+		return `${_mediaUrl}/${mediaId}`
+	}
 
 	const showMediaImporter = (types) => {
 		if (types == null) {
@@ -131,6 +148,10 @@ Namespace('Materia').CreatorCore = (() => {
 		clearInterval(_resizeInterval)
 	}
 
+	const submitPrompt = (text) => {
+		_sendPostMessage('submitPrompt', text)
+	}
+
 	// Public Methods
 	return {
 		start,
@@ -143,5 +164,6 @@ Namespace('Materia').CreatorCore = (() => {
 		disableResizeInterval,
 		setHeight, // allows the creator to resize its iframe container to fit the height of its contents
 		escapeScriptTags,
+		submitPrompt
 	}
 })()

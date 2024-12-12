@@ -1,4 +1,3 @@
-version: '3.5'
 # use with dockercompose -f docker-compose.yml -f docker-compose.overide.test.yml
 services:
   webserver:
@@ -10,8 +9,20 @@ services:
       - ./config/nginx/nginx-dev.conf:/etc/nginx/nginx.conf:ro
 
   app:
+    env_file:
+      - .env
+      - .env.local
     environment:
       # View Materia README for env settings
+      - AUTH_SALT=${DEV_ONLY_AUTH_SALT}
+      - AUTH_SIMPLEAUTH_SALT=${DEV_ONLY_AUTH_SIMPLEAUTH_SALT}
+      - CIPHER_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_HMAC=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_IV=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - CRYPTO_KEY=${DEV_ONLY_SECRET_CIPHER_KEY}
+      - USER_INSTRUCTOR_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_STUDENT_PASSWORD=${DEV_ONLY_USER_PASSWORD}
+      - USER_SYSTEM_PASSWORD=${DEV_ONLY_USER_PASSWORD}
       - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/test
       - FUEL_ENV=test
       - FUEL_LOG_THRESHOLD=300
@@ -24,23 +35,51 @@ services:
       - uploaded_media_test:/var/www/html/fuel/packages/materia/media
       - ./config/php/materia.test.php.ini:/usr/local/etc/php/conf.d/test.ini
       - ./dockerfiles/wait-for-it.sh:/wait-for-it.sh
+    depends_on:
+      - fakes3_test
+      - mysql
+      - memcached
 
   mysql:
+    image: mysql:8.0.32
+    platform: linux/amd64
     environment:
+      # values sourced from docker/env
       - MYSQL_ROOT_PASSWORD
       - MYSQL_USER
       - MYSQL_PASSWORD
       - MYSQL_DATABASE
+    ports:
+      - "3306:3306" # allow mysql access from the host - use /etc/hosts to set mysql to your docker-machine ip
+    networks:
+      - backend
+    volumes:
+      - "./config/mysql/01_create_test.sql:/docker-entrypoint-initdb.d/01_create_test.sql"
     # this makes the unit tests much faster but it's a little weird jumping
     # back and forth between running the server and testing
     # tmpfs:
     #   - /var/lib/mysql
 
-  fakes3:
+  # fakes3, when added as a dependency in the app container above, would restart
+  # and lose its data during tests
+  # thus, fakes3_test was created. it is dropped after tests are complete
+  fakes3_test:
+    image: ghcr.io/ucfopen/materia:fake-s3-dev
+    ports:
+    # use separate port to avoid conflicts with fakes3
+      - "10002:10001"
     volumes:
-      - uploaded_media_test:/s3mnt/fakes3_root/fakes3_uploads/media/
+     # use separate volume to avoid conflicts with fakes3
+      - uploaded_media_test:/s3mnt/fakes3_root/fake_bucket/media/
+    networks:
+      - frontend
+      - backend
+  
+  memcached:
+    image: memcached:1.6.6-alpine
+    networks:
+      - backend
 
 volumes:
-  # static_files: {} # compiled js/css and uploaded widgets
   static_widget_files_test: {} # contain widgets installed in tests
   uploaded_media_test: {} # contain files uploaded in tests

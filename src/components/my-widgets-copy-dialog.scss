@@ -5,6 +5,8 @@
 	box-sizing: border-box;
 	padding: 10px 10px 0 10px;
 
+	font-weight: 400;
+
 	.title {
 		margin: 0;
 		padding: 0;
@@ -36,23 +38,30 @@
 	}
 
 	.input_desc {
-		padding: 10px;
-		margin-bottom: 0;
+		margin: 0.5em 0 0 0;
+		padding: 1.5em;
+
 		background: #f2f2f2;
 		border-radius: 5px;
-		margin: 0.5em 1em 1em;
+		font-size: 0.9em;
 	}
 
-	.title_container label {
-		margin: 0 25px 0 0;
+	.title_container {
+		display: flex;
+		align-items: center;
+		label {
+			margin: 0 25px 0 0;
+		}
 	}
 
 	.new-title {
-		width: 345px;
-		height: 30px;
-		padding-left: 10px;
 		position: relative;
 		z-index: 2;
+		flex-grow: 2;
+		height: 30px;
+		margin-left: 0.5em;
+		padding-left: 0.5em;
+		font-size: 16px;
 	}
 
 	.options_container {
@@ -80,5 +89,21 @@
 		.cancel_button {
 			cursor: pointer;
 		}
+	}
+}
+.darkMode .modal .copy-modal {
+	.title {
+		color: #d8d8d8;
+		border-bottom: #4c4e58 dotted 1px;
+	}
+
+	input {
+		background: $color-input-box-bg-dark;
+		border: solid 1px $color-input-box-border-dark;
+		color: #fff;
+	}
+
+	.input_desc {
+		background: #1d1f25;
 	}
 }
