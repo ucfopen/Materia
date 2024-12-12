@@ -407,9 +407,6 @@ const MyWidgetsPage = () => {
         {alertDialogRender}
 
 				<div className='container'>
-					<div className="container_main-content">
-						{mainContentRender()}
-					</div>
 					<MyWidgetsSideBar
 						key='widget-side-bar'
 						isFetching={instanceList.isFetching}
@@ -419,6 +416,9 @@ const MyWidgetsPage = () => {
 						beardMode={beardMode}
 						beards={beards}
 					/>
+					<div className="container_main-content">
+						{mainContentRender()}
+					</div>
 				</div>
 			</div>
 		</>

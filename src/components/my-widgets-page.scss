@@ -3,6 +3,7 @@
 .my_widgets {
 	display: flex;
 	justify-content: center;
+	margin-bottom: 100px;
 
 	.error {
 		width: 80%;
@@ -14,7 +15,7 @@
 		position: relative;
 		display: flex;
 		align-items: flex-start;
-		margin: 0 auto 100px auto;
+		// margin: 0 auto 100px auto;
 		// width: 970px;
 		overflow-x: visible;
 
@@ -75,7 +76,7 @@
 			z-index: 100;
 			width: 700px;
 			min-height: 850px;
-			margin: 0 0 0 260px;
+			// margin: 0 0 0 260px;
 
 			background: #fff;
 		}
@@ -84,12 +85,12 @@
 			// background: #fff;
 			// border: rgba(0, 0, 0, 0.11) 1px solid;
 			// box-shadow: 1px 3px 10px #888;
-			width: 250px;
+			min-width: 250px;
 			height: 100%;
 			margin: 0;
 			// padding: 0 20px 0 0;
-			position: absolute;
-			top: 0;
+			// position: absolute;
+			// top: 0;
 			// left: 5px;
 			z-index: 80;
 			// border-top-left-radius: 10px;
@@ -108,9 +109,63 @@
 				// background: linear-gradient(#83caf3 16%, #37a9e6 89%);
 			}
 
+			.searchContainer {
+				//maybe some display flex
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.filtersGroup {
+				// display: none;
+				display: grid;
+				//make the grid span out for 4 columsn but have the elements take up 2 spaces
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+				// grid-template-columns: repeat(auto-fit, 50%);
+				justify-content: center;
+				overflow: hidden;
+				width: 0;
+				max-height: 0;
+				opacity: 0;
+				transition: max-height 0.3s ease, opacity 0.3s ease;
+				gap: 5px;
+				padding-bottom: 0.5rem;
+				padding-top: 0.1rem;
+
+				div {
+					grid-column: span 2;
+					margin: 2px;
+				}
+
+				//this is to style the last item in the grid so its centered
+				div:last-child:nth-child(odd) {
+					grid-column: span 4; /* If last item is by itself, span across 4 columns to center */
+					grid-column-end: 5;
+					justify-self: center;
+					min-width: 122.5px;
+				}
+
+				&.show {
+					// display: flex;
+					max-height: 500px;
+					opacity: 1;
+					width: 100%;
+					padding: 5px;
+					box-sizing: border-box;
+				}
+			}
+
+			.searchBarGroup{
+				display: flex;
+				align-items: center;
+				gap: 0.1rem;
+			}
+
+
 			.search {
-				position: relative;
-				padding: 10px 0 30px 0;
+				// position: relative;
+				padding: 10px 0 0 0;
 
 				background: #ebebeb;
 
@@ -130,7 +185,7 @@
 				}
 
 				.search-icon {
-					position: absolute;
+					// position: absolute;
 					top: 12px;
 					left: 13px;
 					height: 14px;
@@ -143,16 +198,16 @@
 				}
 
 				.search-close {
-					position: absolute;
-					top: 8px;
-					right: 40px;
-					margin-top: 1px;
+					// position: absolute;
+					// top: 8px;
+					// right: 40px;
+					margin-top: -1px;
 					color: rgb(221, 221, 221);
 					cursor: pointer;
 				}
 
 				.textbox {
-					position: absolute;
+					// position: absolute;
 					border: none;
 					outline: none;
 					width: 165px;
@@ -166,7 +221,8 @@
 				}
 
 				.textbox-background {
-					position: absolute;
+					// position: absolute;
+					display: flex;
 					width: 205px;
 					height: 20px;
 					left: 9px;
@@ -174,6 +230,7 @@
 					border: solid 1px #b0b0b0;
 					border-radius: 12px;
 				}
+
 			}
 
 			// .courses {
