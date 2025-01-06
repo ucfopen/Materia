@@ -454,7 +454,15 @@ class Controller_Widgets extends Controller
 					->set('page_type', 'login');
 
 				Css::push_group(['login']);
-				Js::push_group(['react', 'login']);
+
+				if (\Config::get('auth.restrict_logins_to_lti_single_sign_on', false))
+				{
+					Js::push_group(['react', 'restricted']);
+				}
+				else
+				{
+					Js::push_group(['react', 'login']);
+				}
 			}
 
 			Js::push_inline('var EMBEDDED = '.($is_embedded ? 'true' : 'false').';');
