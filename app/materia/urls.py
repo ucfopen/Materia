@@ -17,12 +17,14 @@ Including another URLconf
 
 from core.views import main as core_views
 from core.views.catalog import CatalogView
+from core.views.widget import WidgetDetailView
 from django.urls import include, path
 
 urlpatterns = [
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
     path("widgets/", CatalogView.index, name="widget catalog"),
+    path("widgets/<slug:widget_slug>", WidgetDetailView.index, name="widget detail"),
     path("api/json/", include("api.urls.json")),
 ]
 
