@@ -55,14 +55,14 @@ export const apiGetInstancesForUser = userId => {
 		})
 }
 
-export const apiGetWidgetsByType = () => {
+export const apiGetWidgetsByType = (type = "default") => {
 	const options = {
 		'headers': {
 			'cache-control': 'no-cache',
 			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8'
 		},
-		'body': `data=${formatFetchBody(['all'])}`,
+		'body': JSON.stringify({ widgetType: type }),
 		'method': 'POST',
 		'mode': 'cors',
 		'credentials': 'include'
@@ -79,9 +79,9 @@ export const apiGetWidget = widgetId => {
 		'headers': {
 			'cache-control': 'no-cache',
 			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8'
 		},
-		'body': `data=${formatFetchBody([[widgetId]])}`,
+		'body': JSON.stringify({ widgetIds: [widgetId] }),
 		'method': 'POST',
 		'mode': 'cors',
 		'credentials': 'include'

@@ -9,17 +9,17 @@ from django.http import JsonResponse
 logger = logging.getLogger("django")
 
 def by_id(request):
-    widget_ids = request.GET.get("widgets") or []
+    widget_ids = json.loads(request.body)['widgetIds'] or []
     all_widgets = Widget.objects.all().order_by("name")
 
     # Filter out widgets based on ID. Treat empty lists as 'all widgets'.
     if widget_ids:
-        all_widgets.filter(id__in=widget_ids)
+        all_widgets = all_widgets.filter(id__in=widget_ids)
 
     return _hack_return(all_widgets)
 
 def by_type(request):
-    widget_type = request.GET.get("type") or "default"
+    widget_type = json.loads(request.body)['widgetType'] or "default"
     all_widgets = Widget.objects.all().order_by("name")
 
     # Filter out all widgets based on type
