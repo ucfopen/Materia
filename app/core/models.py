@@ -746,6 +746,9 @@ class WidgetInstance(models.Model):
         except WidgetQset.DoesNotExist:
             return WidgetQset({"version": None, "data": None})
 
+    def playable_by_current_user(self):
+        return self.guest_access # TODO: || ServiceUser::verify_session();
+
     def db_store(self):
         # check for requirements
         # TODO: this requires a user check, revisit later

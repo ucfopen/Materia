@@ -19,14 +19,23 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
 export const apiGetWidgetInstance = (instId, loadQset=false) => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId, false, loadQset])}` }))
+	return fetch(`/api/json/widget_instances_get/`, {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include',
+		'body': JSON.stringify({ instanceIds: [instId], includeDeleted: false, loadQset })
+	}) // TODO: fix fetch formatting
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-		.then(widget => {
-			if (widget.length > 0) return widget[0]
-			else return {}
+		.then(widgets => {
+			return widgets['instances']?.[0] ?? {}
 		})
 }
 
@@ -579,16 +588,37 @@ export const apiGetStorageData = instId => {
 
 // Widget player api calls
 export const apiGetPlaySession = ({ widgetId }) => {
-	return fetch('/api/json/session_play_create/', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
+	return fetch('/api/json/session_play_create/', { // TODO
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({ instanceId: widgetId })
+	})
 		.then(resp => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return null
 		})
 }
 
-export const apiGetQuestionSet = (instId, playId = null) => {
-	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
-		.then(qset => qset.json())
+export const apiGetQuestionSet = (instanceId, playId = null) => {
+	return fetch('/api/json/question_set_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ instanceId, playId }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
+		.then(resp => resp.json())
+		.then(respJson => respJson["qset"])
 }
 
 export const apiGetQuestionSetHistory = (instId) => {

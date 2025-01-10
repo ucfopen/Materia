@@ -110,7 +110,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
-	
+
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -125,6 +125,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		enabled: instanceId !== null,
 		staleTime: Infinity
 	})
+	console.log("INST")
+	console.log(inst)
 
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
@@ -132,6 +134,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		staleTime: Infinity,
 		placeholderData: null
 	})
+	console.log("QSET")
+	console.log(qset)
 
 	const { data: heartbeat } = useQuery({
 		queryKey: ['heartbeat', playId],
@@ -199,6 +203,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				enginePath = inst.widget.player
 			} else {
 				// link to the static widget
+				console.log("ELSE " + window.WIDGET_URL + ", " + inst.widget.dir + inst.widget.player)
 				enginePath = window.WIDGET_URL + inst.widget.dir + inst.widget.player
 			}
 
@@ -276,6 +281,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
+		console.log("RECEIVED POST MESSAGE")
+		console.log(e)
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)

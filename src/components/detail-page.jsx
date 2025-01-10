@@ -14,7 +14,6 @@ const DetailPage = () => {
 		placeholderData: {},
 		staleTime: Infinity
 	})
-	console.log(widget)
 
 	return (
 		<>

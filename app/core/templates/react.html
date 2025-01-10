@@ -30,6 +30,13 @@
 			{% endfor %}
 		{% endif %}
 		<script type="text/javascript" src="{% static 'dist/js/commons.js' %}"></script>
+		{% if js_global_variables %}
+			<script>
+				{% for key, value in js_global_variables.items %}
+					var {{key}} = '{{value}}';
+				{% endfor %}
+			</script>
+		{% endif %}
 		<!-- { render_bundle bundle_name } { render_bundle 'commons' } -->
 	</body>
 </html>
