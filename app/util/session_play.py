@@ -7,7 +7,7 @@ from django.utils.timezone import make_aware
 from core.models import WidgetInstance, LogPlay, DateRange, WidgetQset
 
 
-class SessionPlay():
+class SessionPlay:
 
     def __init__(self):
         self.id: str | None = None
@@ -22,9 +22,8 @@ class SessionPlay():
         self.referrer_url: str | None = None
         self.semester: DateRange | None = None
 
-    def start(self, user_id: int = 0, inst_id: int = 0, context_id: str = '', is_preview: bool = False) -> str | None:
+    def start(self, instance: WidgetInstance, user_id: int = 0, context_id: str = '', is_preview: bool = False) -> str | None:
         # TODO: if inst_id is not valid hash, return None (do we need this?)
-        instance = WidgetInstance.objects.get(pk=inst_id)
 
         self.created_at = make_aware(datetime.now())
         self.user = None if instance.guest_access else None # TODO

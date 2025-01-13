@@ -287,7 +287,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 			})
 		}
 		else {
-			window.location = document.location.pathname + '/demo'
+			window.location = document.location.pathname + 'demo'
 		}
 	}
 

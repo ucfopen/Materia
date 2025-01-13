@@ -23,8 +23,7 @@ def play_create(request):
 
     # Create and start play session
     session_play = SessionPlay()
-    play_id = session_play.start(0,instance_id)
-    print("PLAY ID " + play_id)
+    play_id = session_play.start(instance, 0)
     return JsonResponse({ 'playId': play_id })
 
 
