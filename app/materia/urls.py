@@ -20,6 +20,7 @@ from core.views.catalog import CatalogView
 from core.views import profile as profile_views
 from django.urls import include, path
 from api.views.users import UsersApi
+from django.contrib import admin
 
 urlpatterns = [
     path("", core_views.index, name="home page"),
@@ -28,6 +29,7 @@ urlpatterns = [
     path("api/json/", include("api.urls.json")),
     path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
+    path("admin/", admin.site.urls),
 ]
 
 handler404 = "core.views.main.handler404"

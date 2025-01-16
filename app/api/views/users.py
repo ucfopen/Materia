@@ -1,9 +1,10 @@
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 import datetime
 
 class UsersApi:
-    def get(request):
-        #my user works here, should get it from db(not possible atm) or create it.
+    def get(request, user_id):
+        #my user works here, should get it from db
         user_data = {
             "profile_fields": {
                 "useGravatar": True,
@@ -23,6 +24,20 @@ class UsersApi:
             "is_support_user": False
         }
         return JsonResponse(user_data)
+        # try:
+        #     user = User.objects.get(id=user_id)
+        #     settings = user.settings.profile_fields
+        #     user_data = {
+        #         "id": user.id,
+        #         "username": user.username,
+        #         "first": user.first_name,
+        #         "last": user.last_name,
+        #         "email": user.email,
+        #         "profile_fields": settings,
+        #     }
+        #     return JsonResponse(user_data)
+        # except User.DoesNotExist:
+        #     return JsonResponse({"error": "User not found"}, status=404)
 
     def activity(request):
         #some dummy data, should get it from db somehow.
