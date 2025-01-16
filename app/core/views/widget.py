@@ -1,9 +1,8 @@
 from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import render
 from django.views.generic import TemplateView
-
 from core.models import WidgetInstance, Widget
-from util.session_play import SessionPlay
+from util.logging.session_play import SessionPlay
 
 
 class WidgetDetailView(TemplateView):

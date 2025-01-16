@@ -125,8 +125,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		enabled: instanceId !== null,
 		staleTime: Infinity
 	})
-	console.log("INST")
-	console.log(inst)
 
 	const { data: qset } = useQuery({
 		queryKey: ['qset', instanceId],
@@ -134,8 +132,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		staleTime: Infinity,
 		placeholderData: null
 	})
-	console.log("QSET")
-	console.log(qset)
 
 	const { data: heartbeat } = useQuery({
 		queryKey: ['heartbeat', playId],
@@ -203,7 +199,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				enginePath = inst.widget.player
 			} else {
 				// link to the static widget
-				console.log("ELSE " + window.WIDGET_URL + ", " + inst.widget.dir + inst.widget.player)
 				enginePath = window.WIDGET_URL + inst.widget.dir + inst.widget.player
 			}
 
@@ -232,7 +227,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	},[alert])
 
-
 	// hook associated with log queue management
 	useEffect(() => {
 
@@ -241,9 +235,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 			// PLAY logs
 			if (pendingLogs.play && pendingLogs.play.length > 0) {
-				const args = [playId, pendingLogs.play]
+				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
-					args.push(inst.id)
+					args['previewInstanceId'] = (inst.id)
 				}
 				_pushPendingLogs([{ request: args }])
 			}
@@ -369,7 +363,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		setQueueProcessing(true)
 
 		// create an array of the queue ids we can pass to the reducer to remove those logs from the pendingLogs state object
-		let qIds = logQueue[0].request[1]?.map((log) => {
+		let qIds = logQueue[0].request['logs']?.map((log) => {
 			return log.queueId
 		})
 
@@ -472,9 +466,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			if (isPreview) {
 				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
 			} else if (isEmbedded) {
-				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
 			} else {
-				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
 			}
 		return _scoreScreenURL
 	}

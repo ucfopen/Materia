@@ -455,14 +455,34 @@ export const apiUploadWidgets = (files) => {
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, send_token])}` }))
+	return fetch('/api/json/widget_instance_scores_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ instanceId: instId, token: send_token }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(res => res.json())
 		.then(scores => scores)
 }
 
 
 export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return fetch('/api/json/guest_widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
+	return fetch('/api/json/guest_widget_instance_scores_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ instanceId: instId, playId: playId }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(res => res.json())
 		.then(scores => scores)
 }
@@ -640,7 +660,17 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetch('/api/json/play_logs_save/', fetchOptions({ body: `data=${formatFetchBody(request)}` }))
+	return fetch('/api/json/play_logs_save/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify(request),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(resp => {
 			if (resp.status !== 504) return resp.json()
 			return null

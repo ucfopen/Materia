@@ -1,13 +1,17 @@
 import json
+from http.client import HTTPResponse
 
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, HttpResponse
 
 from core.models import WidgetInstance
-from util.session_play import SessionPlay
+from util.logging.session_logger import SessionLogger
+from util.logging.session_play import SessionPlay
+from util.widget.validator import ValidatorUtil
 
 
 def author_verify(request):
     return JsonResponse({})
+
 
 def play_create(request):
     # Verify request params
@@ -24,6 +28,83 @@ def play_create(request):
     # Create and start play session
     session_play = SessionPlay()
     play_id = session_play.start(instance, 0)
-    return JsonResponse({ 'playId': play_id })
+    return JsonResponse({ "playId": play_id })
 
 
+# Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
+def play_save(request):
+    # Get all request params
+    request_body = json.loads(request.body)
+    play_id = request_body.get("playId")
+    logs = request_body.get("logs")
+    preview_instance_id = request_body.get("previewInstanceId")
+
+    # Validate request params
+    if not play_id or (not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id)):
+        # TODO better error reporting, was originally Msg:invalid_input(play_id)
+        return HttpResponseBadRequest()
+
+    if not logs or not isinstance(logs, list):
+        # TODO: better error reporting, was originally Msg::invalid_input('missing log array')
+        return HttpResponseBadRequest()
+
+    # Save logs
+    if preview_instance_id:
+        ##### PREVIEW MODE #####
+        # Confirm user session for preview
+        # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
+
+        if ValidatorUtil.is_valid_hash(preview_instance_id):
+            pass
+            # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
+
+        return HttpResponse() # TODO return true, look at PHP
+    else:
+        ##### PLAYING FOR KEEPS #####
+        # Grab session play
+        session_play = _get_session_play_or_none(play_id)
+        if not session_play:
+            return HttpResponseNotFound() # TODO: better error reporting
+
+        # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
+        # Confirm user session for real play
+        instance = session_play.data.instance
+        if not instance.playable_by_current_user():
+            return HttpResponseForbidden() # TODO was Msg::no_login
+        # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
+        #     return Msg::no_login();
+
+        # Validate session play
+        is_valid = _validate_session_play(session_play)
+        if not is_valid:
+            return HttpResponseNotFound() # TODO: was Msg::invalid_input('invalid play session')
+
+        # Store
+        SessionLogger.store_log_array(session_play, logs)
+
+        # Handle scoring
+        # TODO: complicated scoring logic that we'll get to another time lol
+
+        return JsonResponse({ # TODO
+            "score": 75.0
+        })
+
+
+# Ensures that this session play is playable by the current user and updated time elapsed
+def _validate_session_play(session_play: SessionPlay) -> bool:
+    if session_play.data.instance.playable_by_current_user():
+        if session_play.data.is_valid:
+            session_play.update_elapsed()
+            return True
+    else: # Invalidate the play
+        session_play.invalidate()
+
+    return False
+
+
+def _get_session_play_or_none(play_id: str) -> SessionPlay | None:
+    try:
+        session_play = SessionPlay(play_id=play_id)
+        return session_play
+    except Exception:
+        return None
