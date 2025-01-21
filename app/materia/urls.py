@@ -17,7 +17,12 @@ Including another URLconf
 
 from core.views import main as core_views
 from core.views.catalog import CatalogView
+
 from core.views import profile as profile_views
+
+from core.views.scores import ScoresView
+from core.views.widget import *
+
 from django.urls import include, path
 from api.views.users import UsersApi
 from django.contrib import admin
@@ -25,7 +30,18 @@ from django.contrib import admin
 urlpatterns = [
     path("", core_views.index, name="home page"),
     path("help/", core_views.help, name="help"),
+
+    # Widgets
     path("widgets/", CatalogView.index, name="widget catalog"),
+    path("widgets/<slug:widget_slug>/", WidgetDetailView.as_view(), name="widget detail"),
+    path("widgets/<slug:widget_slug>/demo", WidgetDemoView.as_view(), name="widget demo"),
+    path("play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"),
+    path("play/<slug:widget_instance_id>/<str:instance_name>/", WidgetPlayView.as_view(), name="widget play"),
+
+    # Scores
+    path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
+
+    # API
     path("api/json/", include("api.urls.json")),
     path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),

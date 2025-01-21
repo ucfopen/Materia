@@ -90,7 +90,7 @@ public/dist/*
 **/__pycache__/**
 **/*.log
 app/materia/settings.py
-
+**/venv
 
 # django webpack
 app/media/**/*

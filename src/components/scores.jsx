@@ -79,8 +79,8 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		onSettled: (result) => {
 			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
 			else {
-				_populateScores(result.scores)
-				setAttemptsLeft(result.attempts_left)
+				_populateScores(result['scores'])
+				setAttemptsLeft(result['attemptsLeft'])
 			}
 		}
 	})
@@ -98,7 +98,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		refetchOnWindowFocus: false,
 		onSettled: (result) => {
 			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
-			else _populateScores(result)
+			else _populateScores(result['scores'])
 		}
 	})
 

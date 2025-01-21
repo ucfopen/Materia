@@ -7,7 +7,7 @@ import Catalog from './catalog'
 const CatalogPage = () => {
 	const { data: widgets, isLoading} = useQuery({
 		queryKey: 'catalog-widgets',
-		queryFn: apiGetWidgetsByType,
+		queryFn: () => apiGetWidgetsByType(),
 		staleTime: Infinity
 	})
 

@@ -16,6 +16,7 @@ class ValidatorUtil:
 
     # return bool True if var is a number
     # return bool False if var is not a number
+    @staticmethod
     def is_numeric(var):
         try:
             var = float(var)
@@ -36,6 +37,7 @@ class ValidatorUtil:
 
     # return bool True if var is a whole integer
     # return bool False if var is not a whole integer
+    @staticmethod
     def is_int(var):
         try:
             var = float(var)
@@ -57,6 +59,7 @@ class ValidatorUtil:
 
     # return bool True if var is a whole integer
     # return bool False if var is not a whole integer
+    @staticmethod
     def is_positive_integer_or_zero(var, allow_zero=False):
         try:
             if not ValidatorUtil.is_int(var):
@@ -72,6 +75,7 @@ class ValidatorUtil:
 
     # return bool True if hash is a valid string
     # return bool False if hash is an invalid string
+    @staticmethod
     def is_valid_hash(hash):
         if ValidatorUtil.is_numeric(hash) and ValidatorUtil.is_positive_integer_or_zero(
             hash
@@ -97,13 +101,14 @@ class ValidatorUtil:
 
     # return bool True if long_hash is a valid string
     # return bool False if long_hash is an invalid string
+    @staticmethod
     def is_valid_long_hash(long_hash):
         if not ValidatorUtil.is_string(long_hash):
             return False
         if long_hash == "0":
             return False
 
-        pattern = re.compile(r"/^[A-Za-z0-9][A-Za-z0-9-]*\z/")
+        pattern = re.compile(r"^[A-Za-z0-9][A-Za-z0-9-]*\Z")
         return bool(re.match(pattern, long_hash))
 
     def is_md5(var):

@@ -19,14 +19,23 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
 export const apiGetWidgetInstance = (instId, loadQset=false) => {
-	return fetch(`/api/json/widget_instances_get/`, fetchOptions({ body: `data=${formatFetchBody([instId, false, loadQset])}` }))
+	return fetch(`/api/json/widget_instances_get/`, {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include',
+		'body': JSON.stringify({ instanceIds: [instId], includeDeleted: false, loadQset })
+	}) // TODO: fix fetch formatting
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []
 			return resp.json()
 		})
-		.then(widget => {
-			if (widget.length > 0) return widget[0]
-			else return {}
+		.then(widgets => {
+			return widgets['instances']?.[0] ?? {}
 		})
 }
 
@@ -55,14 +64,14 @@ export const apiGetInstancesForUser = userId => {
 		})
 }
 
-export const apiGetWidgetsByType = () => {
+export const apiGetWidgetsByType = (type = "default") => {
 	const options = {
 		'headers': {
 			'cache-control': 'no-cache',
 			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8'
 		},
-		'body': `data=${formatFetchBody(['all'])}`,
+		'body': JSON.stringify({ widgetType: type }),
 		'method': 'POST',
 		'mode': 'cors',
 		'credentials': 'include'
@@ -79,9 +88,9 @@ export const apiGetWidget = widgetId => {
 		'headers': {
 			'cache-control': 'no-cache',
 			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8'
 		},
-		'body': `data=${formatFetchBody([[widgetId]])}`,
+		'body': JSON.stringify({ widgetIds: [widgetId] }),
 		'method': 'POST',
 		'mode': 'cors',
 		'credentials': 'include'
@@ -446,14 +455,34 @@ export const apiUploadWidgets = (files) => {
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return fetch('/api/json/widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, send_token])}` }))
+	return fetch('/api/json/widget_instance_scores_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ instanceId: instId, token: send_token }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(res => res.json())
 		.then(scores => scores)
 }
 
 
 export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return fetch('/api/json/guest_widget_instance_scores_get', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
+	return fetch('/api/json/guest_widget_instance_scores_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ instanceId: instId, playId: playId }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(res => res.json())
 		.then(scores => scores)
 }
@@ -579,16 +608,37 @@ export const apiGetStorageData = instId => {
 
 // Widget player api calls
 export const apiGetPlaySession = ({ widgetId }) => {
-	return fetch('/api/json/session_play_create/', fetchOptions({ body: `data=${formatFetchBody([widgetId])}` }))
+	return fetch('/api/json/session_play_create/', { // TODO
+		headers: {
+			pragma: 'no-cache',
+			'cache-control': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		method: 'POST',
+		mode: 'cors',
+		credentials: 'include',
+		body: JSON.stringify({ instanceId: widgetId })
+	})
 		.then(resp => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return null
 		})
 }
 
-export const apiGetQuestionSet = (instId, playId = null) => {
-	return fetch('/api/json/question_set_get/', fetchOptions({ body: `data=${formatFetchBody([instId, playId])}` }))
-		.then(qset => qset.json())
+export const apiGetQuestionSet = (instanceId, playId = null) => {
+	return fetch('/api/json/question_set_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ instanceId, playId }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
+		.then(resp => resp.json())
+		.then(respJson => respJson["qset"])
 }
 
 export const apiGetQuestionSetHistory = (instId) => {
@@ -610,7 +660,17 @@ export const apiSavePlayStorage = ({ play_id, logs }) => {
 }
 
 export const apiSavePlayLogs = ({ request }) => {
-	return fetch('/api/json/play_logs_save/', fetchOptions({ body: `data=${formatFetchBody(request)}` }))
+	return fetch('/api/json/play_logs_save/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify(request),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(resp => {
 			if (resp.status !== 504) return resp.json()
 			return null

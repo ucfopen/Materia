@@ -110,7 +110,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
-	
+
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -227,7 +227,6 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		}
 	},[alert])
 
-
 	// hook associated with log queue management
 	useEffect(() => {
 
@@ -236,9 +235,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 			// PLAY logs
 			if (pendingLogs.play && pendingLogs.play.length > 0) {
-				const args = [playId, pendingLogs.play]
+				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
-					args.push(inst.id)
+					args['previewInstanceId'] = (inst.id)
 				}
 				_pushPendingLogs([{ request: args }])
 			}
@@ -276,6 +275,8 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	// Receives messages from widget player
 	const _onPostMessage = e => {
+		console.log("RECEIVED POST MESSAGE")
+		console.log(e)
 		const origin = `${e.origin}/`
 		if (origin === window.STATIC_CROSSDOMAIN || origin === window.BASE_URL) {
 			const msg = JSON.parse(e.data)
@@ -362,7 +363,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 		setQueueProcessing(true)
 
 		// create an array of the queue ids we can pass to the reducer to remove those logs from the pendingLogs state object
-		let qIds = logQueue[0].request[1]?.map((log) => {
+		let qIds = logQueue[0].request['logs']?.map((log) => {
 			return log.queueId
 		})
 
@@ -465,9 +466,9 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 			if (isPreview) {
 				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
 			} else if (isEmbedded) {
-				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
 			} else {
-				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}#play-${playId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/${instanceId}/${playId}`
 			}
 		return _scoreScreenURL
 	}
