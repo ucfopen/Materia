@@ -12,10 +12,13 @@ const ScorePage = () => {
 	// This is a cheap way to hide the button:
 	const hidePlayAgain = document.URL.indexOf('details=1') > -1
 	// get widget id from url like https://my-server.com:8080/scores/nLAmG#play-NbmVXrZe9Wzb
-	const inst_id = document.URL.match(/^.+\/([a-z0-9]+)/i)[1]
+	const split_url = document.URL.match(/^.+\/([a-z0-9]+)\/([a-z0-9-]+)/i)
+
+	const inst_id = split_url[1]
+	const play_id = split_url[2] // TODO This might be wrong, look bellow (django rewrite)
 
 	// this is only actually set to something when coming from the profile page
-	const play_id = window.location.hash.split('play-')[1]
+	//const play_id = window.location.hash.split('play-')[1]
 
 	const pathIsPreview = window.location.pathname.includes('/preview/')
 	const pathIsEmbedded = window.location.pathname.includes('/embed/')

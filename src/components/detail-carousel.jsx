@@ -277,17 +277,17 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 
 			createPlaySession.mutate({
 				widgetId: widget.meta_data.demo,
-				successFunc: (idVal) => setDemoData({
+				successFunc: (data) => setDemoData({
 					demoLoading: true,
 					showDemoCover: false,
 					demoHeight: _height,
 					demoWidth: _width,
-					playId: idVal
+					playId: data.playId
 				})
 			})
 		}
 		else {
-			window.location = document.location.pathname + '/demo'
+			window.location = document.location.pathname + 'demo'
 		}
 	}
 

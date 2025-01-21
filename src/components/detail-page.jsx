@@ -5,7 +5,7 @@ import { useQuery } from 'react-query'
 import { apiGetWidget } from '../util/api'
 
 const DetailPage = () => {
-	const nameArr = window.location.pathname.replace('/widgets/', '').split('/')
+	const nameArr = window.location.pathname.replace('/widgets/', '').replace(/\/$/, "").split('/')
 	const widgetID = nameArr.pop().split('-').shift()
 	const { data: widget, isFetching: isFetching} = useQuery({
 		queryKey: 'widget',

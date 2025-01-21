@@ -71,8 +71,6 @@ class WidgetInstancesApi:
 
             return instance
         except Exception:
-            logger.info("PROBLEM IS HERE")
-            logger.exception("")
             # originally this called Msg
             return HttpResponseServerError("Widget instance could not be saved")
 
