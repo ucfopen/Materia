@@ -19,7 +19,7 @@ RUN mkdir /var/www/site/learn
 RUN ln -s /var/www/html /var/www/site/learn
 
 # Add the wait for it script.
-COPY docker/dockerfiles/wait_for_it.sh /wait_for_it.sh
+COPY docker-django/dockerfiles/wait_for_it.sh /wait_for_it.sh
 RUN chmod +x /wait_for_it.sh
 
 COPY ./app/ /var/www/html

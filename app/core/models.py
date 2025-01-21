@@ -936,3 +936,13 @@ class WidgetQset(models.Model):
         indexes = [
             models.Index(fields=["created_at"], name="widget_qset_created_at"),
         ]
+
+
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="settings")
+    profile_fields = models.JSONField(default=dict, blank=True)
+    settings = models.TextField()
+
+    def __str__(self):
+        return self.user.username
