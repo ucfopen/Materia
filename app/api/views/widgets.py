@@ -94,16 +94,7 @@ def get_qset(request):
 
     # TODO check preview mode, see php
 
-    # Get qset and serialize it properly
-    # TODO make custom serializer in model
-    raw_json_qset = json.loads(serializers.serialize("json", [instance.qset]))[0]
-    json_qset = raw_json_qset["fields"]
-
-    decoded_qset_data = base64.b64decode(json_qset["data"][2:-1]).decode("utf-8") # Slicing removes the b' ... '
-    json_qset["data"] = json.loads(decoded_qset_data)
-    json_qset["id"] = raw_json_qset["pk"]
-
-    return JsonResponse({"qset": json_qset})
+    return JsonResponse({"qset": instance.qset.as_json()})
 
 
 def _hack_return(raw_widgets: QuerySet) -> list:

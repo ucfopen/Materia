@@ -26,6 +26,8 @@ urlpatterns = [
     path("session_author_verify/", sessions_api.author_verify),
 
     # Scores
-    path("widget_instance_scores_get/", ScoresApi.get_scores_by_instance),
-    path("guest_widget_instance_scores_get/", ScoresApi.get_scores_by_guest_instance),
+    path("widget_instance_scores_get/", ScoresApi.widget_instance_scores_get),
+    path("guest_widget_instance_scores_get/", ScoresApi.guest_widget_instance_scores_get),
+    path("widget_instance_play_scores_get/", ScoresApi.widget_instance_play_scores_get),
+    path("score_summary_get/", ScoresApi.score_summary_get),
 ]

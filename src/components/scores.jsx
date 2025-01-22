@@ -284,10 +284,11 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	useEffect(() => {
 
-		if (playScores && playScores.length > 0) {
+		if (playScores != null) {
 
-			const deets = playScores[0]
+			const deets = playScores
 			setDetails([...deets.details])
+			console.log(deets.details)
 
 			let score
 

@@ -62,7 +62,7 @@ def play_save(request):
     else:
         ##### PLAYING FOR KEEPS #####
         # Grab session play
-        session_play = _get_session_play_or_none(play_id)
+        session_play = get_session_play_or_none(play_id)
         if not session_play:
             return HttpResponseNotFound() # TODO: better error reporting
 
@@ -85,8 +85,10 @@ def play_save(request):
         # Handle scoring
         # TODO: complicated scoring logic that we'll get to another time lol
 
+        session_play.set_complete(150, 200, 75.0)
+
         return JsonResponse({ # TODO
-            "score": 75.0
+            "score": 150,
         })
 
 
@@ -102,7 +104,7 @@ def _validate_session_play(session_play: SessionPlay) -> bool:
     return False
 
 
-def _get_session_play_or_none(play_id: str) -> SessionPlay | None:
+def get_session_play_or_none(play_id: str) -> SessionPlay | None:
     try:
         session_play = SessionPlay(play_id=play_id)
         return session_play

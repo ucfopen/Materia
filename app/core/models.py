@@ -5,14 +5,19 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+import base64
+import json
 import logging
 import os
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.core import serializers
 from django.db import models, transaction
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy
+
+from util.serialization import SerializableModel
 from util.widget.validator import ValidatorUtil
 
 logger = logging.getLogger("django")
@@ -841,7 +846,7 @@ class WidgetMetadata(models.Model):
         db_table = "widget_metadata"
 
 
-class WidgetQset(models.Model):
+class WidgetQset(SerializableModel):
     id = models.BigAutoField(primary_key=True)
     instance = models.ForeignKey(
         "WidgetInstance",
@@ -889,6 +894,12 @@ class WidgetQset(models.Model):
             logger.exception("")
 
         return False
+
+    def as_json(self, *select_fields):
+        json_qset = super().as_json(*select_fields)
+        decoded_qset_data = base64.b64decode(json_qset["data"][2:-1]).decode("utf-8")  # Slicing removes the b' ... '
+        json_qset["data"] = json.loads(decoded_qset_data)
+        return json_qset
 
     # TODO: implement this, old code below
     def find_questions(self):

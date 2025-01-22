@@ -488,7 +488,17 @@ export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
 }
 
 export const apiGetWidgetInstancePlayScores = (playId, previewInstId) => {
-	return fetch('/api/json/widget_instance_play_scores_get', fetchOptions({ body: `data=${formatFetchBody([playId, previewInstId])}` }))
+	return fetch('/api/json/widget_instance_play_scores_get/', {
+		'headers': {
+			'cache-control': 'no-cache',
+			'pragma': 'no-cache',
+			'content-type': 'application/json; charset=UTF-8'
+		},
+		'body': JSON.stringify({ playId, previewInstId }),
+		'method': 'POST',
+		'mode': 'cors',
+		'credentials': 'include'
+	})
 		.then(res => res.json())
 }
 
@@ -503,9 +513,9 @@ export const apiGetScoreSummary = instId => {
 		'headers': {
 			'cache-control': 'no-cache',
 			'pragma': 'no-cache',
-			'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			'content-type': 'application/json; charset=UTF-8'
 		},
-		'body': `data=${formatFetchBody([instId, true])}`,
+		'body': JSON.stringify({ instanceId: instId, includeStorageData: true }),
 		'method': 'POST',
 		'mode': 'cors',
 		'credentials': 'include'
@@ -516,7 +526,8 @@ export const apiGetScoreSummary = instId => {
 			if (resp.ok && resp.status !== 204 && resp.status !== 502) return resp.json()
 			return []
 		})
-		.then(scores => {
+		.then(resp => {
+			const scores = resp['summaries']
 			if (!scores || scores.type == "error")
 			{
 				return []
