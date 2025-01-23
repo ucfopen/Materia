@@ -102,5 +102,7 @@ public/js/
 
 **/.python-version
 
+**/venv
+
 # docker override is now untracked as of v10.3.0
 docker/docker-compose.override.yml
