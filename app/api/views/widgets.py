@@ -11,7 +11,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFou
 
 logger = logging.getLogger("django")
 
-def by_id(request):
+def widgets_get(request):
     widget_ids = json.loads(request.body).get("widgetIds") or []
     all_widgets = Widget.objects.all().order_by("name")
 
@@ -22,7 +22,7 @@ def by_id(request):
     return JsonResponse(_hack_return(all_widgets), safe=False)
 
 
-def by_type(request):
+def widgets_get_by_type(request):
     widget_type = json.loads(request.body).get("widgetType") or "default"
     all_widgets = Widget.objects.all().order_by("name")
 
@@ -38,11 +38,10 @@ def by_type(request):
     return JsonResponse(_hack_return(all_widgets), safe=False)
 
 
-def get_instances(request):
+def widget_instances_get(request):
     json_data = json.loads(request.body)
-    instance_ids = json_data.get("instanceIds") or []
-    include_deleted = json_data.get("includeDeleted") or False
-    load_qset = json_data.get("loadQset") or False
+    instance_ids = json_data.get("instanceIds", [])
+    get_deleted = json_data.get("getDeleted", False)
 
     # Treat empty id list as 'all my widgets' - must be logged in
     if not instance_ids:
@@ -52,15 +51,11 @@ def get_instances(request):
     # Get specific set of widget instances
     instances = (WidgetInstance.objects
                  .filter(pk__in=instance_ids)
-                 .filter(is_deleted=include_deleted)
+                 .filter(is_deleted=get_deleted)
                  .order_by("-created_at", "-id"))
     # TODO: ^ make this functionality into its own 'manager' class like the php code?
 
     instances = instances[:80] # TODO: add way to control limit?
-
-    if load_qset:
-        # TODO implement this
-        pass
 
     raw_json_instances = json.loads(serializers.serialize("json", instances))
     json_instances = []
@@ -75,7 +70,7 @@ def get_instances(request):
     return JsonResponse({"instances": json_instances})
 
 
-def get_qset(request):
+def question_set_get(request):
     json_data = json.loads(request.body)
     instance_id = json_data.get("instanceId")
     play_id = json_data.get("playId")

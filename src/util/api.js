@@ -18,7 +18,7 @@ const fetchGet = (url, options = null) => fetch(url, fetchOptions(options)).then
 // Helper function to simplify encoding fetch body values
 const formatFetchBody = body => encodeURIComponent(JSON.stringify(body))
 
-export const apiGetWidgetInstance = (instId, loadQset=false) => {
+export const apiGetWidgetInstance = (instId, getDeleted=false) => {
 	return fetch(`/api/json/widget_instances_get/`, {
 		'headers': {
 			'cache-control': 'no-cache',
@@ -28,7 +28,7 @@ export const apiGetWidgetInstance = (instId, loadQset=false) => {
 		'method': 'POST',
 		'mode': 'cors',
 		'credentials': 'include',
-		'body': JSON.stringify({ instanceIds: [instId], includeDeleted: false, loadQset })
+		'body': JSON.stringify({ instanceIds: [instId], getDeleted })
 	}) // TODO: fix fetch formatting
 		.then(resp => {
 			if (resp.status === 204 || resp.status === 502) return []

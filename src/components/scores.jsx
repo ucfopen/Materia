@@ -62,7 +62,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
   // No login required
 	const { isLoading: instanceIsLoading, data: instance } = useQuery({
 		queryKey: ['widget-inst', inst_id],
-		queryFn: () => apiGetWidgetInstance(inst_id, true),
+		queryFn: () => apiGetWidgetInstance(inst_id), // TODO: this call also had a second parameter 'true', which i think would be the 'getDeleted' param? but that doesnt make sense in this case, and it's the only place where an additional 'true' was present on this call
 		enabled: !!inst_id,
 		staleTime: Infinity,
 	})
@@ -206,7 +206,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					setCustomScoreScreen({
 						...customScoreScreen,
 						htmlPath: enginePath + '?' + instance.widget.created_at,
-						qset: instance.qset,
+						qset: { data: null, version: null }, //instance.qset,
 						scoreTable: scoreTable,
 						type: 'html',
 						loading: false,
@@ -221,6 +221,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			} else if (instance.widget && scoreTable) {
 				setCustomScoreScreen({ ...customScoreScreen, loading: false })
 			}
+
 		}
 	}, [instance, scoreTable])
 
@@ -288,7 +289,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 			const deets = playScores
 			setDetails([...deets.details])
-			console.log(deets.details)
 
 			let score
 
@@ -492,7 +492,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// this is only called in response from the score-core
 	// it will not be called for default score screens
 	const _sendWidgetInit = () => {
-		if (customScoreScreen.scoreTable == null || customScoreScreen.qset == null || scoreWidgetRef.current == null) {
+		if (customScoreScreen.scoreTable == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
 			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
 			setShowResultsTable(true)
@@ -655,7 +655,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	}
 
 	let customScoreScreenRender = null
-	if (!errorState && customScoreScreen.show) {
+	//if (!errorState && customScoreScreen.show) {
 		customScoreScreenRender = (
 			<iframe ref={scoreWidgetRef}
 				id="container"
@@ -663,7 +663,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				src={customScoreScreen.htmlPath}>
 			</iframe>
 		)
-	}
+	//}
 
 	let detailsRender = null
 	if (!errorStateRender && customScoreScreen.show && !customScoreScreen.ready) {

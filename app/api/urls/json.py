@@ -11,10 +11,10 @@ from django.urls import path
 
 urlpatterns = [
     # Widgets
-    path("widgets_get_by_type/",  widgets_api.by_type),
-    path("widgets_get/", widgets_api.by_id),
-    path("widget_instances_get/", widgets_api.get_instances),
-    path("question_set_get/", widgets_api.get_qset),
+    path("widgets_get_by_type/", widgets_api.widgets_get_by_type),
+    path("widgets_get/", widgets_api.widgets_get),
+    path("widget_instances_get/", widgets_api.widget_instances_get),
+    path("question_set_get/", widgets_api.question_set_get),
 
     # Users
     path("user_get", UsersApi.get),
