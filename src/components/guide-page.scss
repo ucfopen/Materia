@@ -43,6 +43,27 @@
 	}
 }
 
+.darkMode #top {
+	#guide-tabs {
+		&.players-guide {
+			a:first-of-type {
+				background: #1778af;
+			}
+		}
+
+		&.creators-guide {
+			a:nth-of-type(2) {
+				background: #1778af;
+			}
+		}
+
+		a {
+			background: #004268;
+			color: white;
+		}
+	}
+}
+
 #guide-container {
 	.guide {
 		height: calc(100vh - 200px);
@@ -51,6 +72,16 @@
 		border-radius: 3px 0 3px 3px;
 		border: 8px solid #1778af;
 	}
+}
+
+.darkMode .page {
+	background: $color-background-dark;
+	box-shadow: 1px 3px 10px #08090c;
+	color: #c7c7c7;
+}
+
+.darkMode #guide-container {
+	background: #fff;
 }
 
 // mobile

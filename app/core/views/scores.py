@@ -26,13 +26,15 @@ class ScoresView(TemplateView):
 
         # Set up context and return
         js_globals = {
+            "BASE_URL": "http://localhost/", # TODO: make these config variables, and export these to somewhere where it can be reused easily
+            "WIDGET_URL": "http://localhost/widget/",
+            "STATIC_CROSSDOMAIN": "http://localhost/",
             "IS_EMBEDDED": is_embedded,
             "IS_PREVIEW": is_preview,
         }
 
         if token:
             js_globals["LAUNCH_TOKEN"] = token
-
 
         # TODO: insert support inline info - see php
 

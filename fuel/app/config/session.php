@@ -13,4 +13,5 @@ return [
 			]
 		],
 		'expiration_time' => $_ENV['SESSION_EXPIRATION'] ?? null,
+		'cookie_same_site' => 'None',
 ];

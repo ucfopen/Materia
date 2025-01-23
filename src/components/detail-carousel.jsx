@@ -55,6 +55,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 	const picScrollerRef = useRef(null)
 	const [windowWidth] = windowSize()
 	const createPlaySession = useCreatePlaySession()
+	const [error, setError] = useState(null)
 
 	// Automatically adjusts screenshots based on window resize
 	useEffect(() => {
@@ -247,6 +248,7 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 
 	const snapToImage = (fast=false) => {
 		const _pics = picScrollerRef.current
+		if(!_pics) return false //with react 18 rendering order is different, null check needed
 		const i = selectionData.selectedImage.num
 		if (_pics.children.length && _pics.children[i]) {
 			const _offset = _pics.children[i].offsetLeft * -1
@@ -283,7 +285,10 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 					demoHeight: _height,
 					demoWidth: _width,
 					playId: data.playId
-				})
+				}),
+				errorFunc: (err) => {
+					setError("Failed to create play session. Please try again later.")
+				}
 			})
 		}
 		else {
@@ -335,7 +340,15 @@ const DetailCarousel = ({widget, widgetHeight=''}) => {
 		)
 
 		if (demoData.showDemoCover) {
-			demoRender = (
+			if (error) {
+				demoRender = (
+					<div id='demo-cover'
+						className='error'>
+						<p>{error}</p>
+					</div>
+				)
+			}
+			else demoRender = (
 				<>
 					<img style={{minHeight: demoData.demoHeight}} src={screenshotData.screenshots[0]?.full}/>
 					<div id='demo-cover'

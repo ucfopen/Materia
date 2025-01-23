@@ -24,21 +24,36 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 	const debouncedSearchTerm = useDebounce(state.searchText, 250)
 	const queryClient = useQueryClient()
 	const setUserPerms = setUserInstancePerms()
+	const [error, setError] = useState('')
 	const mounted = useRef(false)
 	const popperRef = useRef(null)
 	const userList = useUserList(debouncedSearchTerm)
+	const [collabUsers, setCollabUsers] = useState({})
 
-	const { data: collabUsers, remove: clearUsers, isFetching} = useQuery({
+	const { data, remove: clearUsers, isFetching} = useQuery({
 		queryKey: ['collab-users', inst.id, (otherUserPerms != null ? Array.from(otherUserPerms.keys()) : otherUserPerms)], // check for changes in otherUserPerms
-		enabled: !!otherUserPerms,
+		enabled: !!otherUserPerms && Array.from(otherUserPerms.keys()).length > 0,
 		queryFn: () => apiGetUsers(Array.from(otherUserPerms.keys())),
 		staleTime: Infinity,
-		placeholderData: {}
+		placeholderData: {},
+		retry: false,
+		onSuccess: (data) => {
+			setCollabUsers({...collabUsers, ...data})
+		},
+		onError: (err) => {
+			if (err.message == "Invalid Login")
+			{
+				setInvalidLogin(true)
+				customClose()
+			} else {
+				setError("Failed to load users")
+			}
+		}
 	})
 
 	useEffect(() => {
 		if (userList.error) {
-			console.error(`User search failed with error: ${data.msg}`);
+			setError(`User search failed with error: ${data.msg}`);
 			if (userList.error.title == "Invalid Login")
 			{
 				setInvalidLogin(true)
@@ -83,7 +98,9 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			tmpMatch[match.id] = match
 			queryClient.setQueryData(['collab-users', inst.id], old => ({...old, ...tmpMatch}))
 			if (!collabUsers[match.id])
-				collabUsers[match.id] = match
+			{
+				setCollabUsers({...collabUsers, [match.id]: match})
+			}
 
 			// Updateds the perms
 			tempPerms.set(
@@ -156,14 +173,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 			instId: inst.id,
 			permsObj: permsObj,
 			successFunc: (data) => {
-				if (data && data.type == 'error')
-				{
-					if (data.title == "Share Not Allowed")
-					{
-						setState({...state, shareNotAllowed: true})
-					}
-				}
-				else if (mounted.current) {
+				if (mounted.current) {
 					if (delCurrUser) {
 						queryClient.invalidateQueries('widgets')
 					}
@@ -174,6 +184,17 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 
 					setOtherUserPerms(state.updatedAllUserPerms)
 					customClose()
+				}
+			},
+			errorFunc: (err) => {
+				if (err.message == "Share Not Allowed")
+				{
+					setState({...state, shareNotAllowed: true})
+				} else if (err.message == "Invalid Login")
+				{
+					setInvalidLogin(true)
+				} else {
+					setError((err.message || "Error") + ": Failed to save permissions.")
 				}
 			}
 		})
@@ -209,7 +230,7 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 				<div key={match.id}
 					className='collab-search-match clickable'
 					onClick={() => onClickMatch(match)}>
-					<img className='collab-match-avatar' src={match.avatar} />
+					<img className='collab-match-avatar' src={match.avatar} alt="user avatar" />
 					<p className={`collab-match-name ${match.is_student ? 'collab-match-student' : ''}`}>
 						{match.first} {match.last}
 					</p>
@@ -293,11 +314,21 @@ const MyWidgetsCollaborateDialog = ({onClose, inst, myPerms, otherUserPerms, set
 		)
 	}
 
+	let errorRender = null
+	if (error) {
+		errorRender = (
+			<div className='error'>
+				<p>{error}</p>
+			</div>
+		)
+	}
+
 	return (
 		<Modal onClose={customClose}
 			ignoreClose={state.shareNotAllowed}>
 			<div className='collaborate-modal' ref={popperRef}>
 				<span className='title'>Collaborate</span>
+				{ errorRender }
 				<div id='access' className='collab-container'>
 					{ searchContainerRender }
 					<div className={`access-list ${containsUser ? '' : 'no-content'}`}>

@@ -4,6 +4,7 @@ from datetime import datetime
 from django.utils.timezone import make_aware
 
 from core.models import WidgetInstance, LogPlay, DateRange, WidgetQset
+from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
 # This class should be how the app interacts with play sessions. It's capable of both real play sessions and preview
@@ -97,6 +98,34 @@ class SessionPlay:
 
         self.data.elapsed = (make_aware(datetime.now()) - self.data.created_at).total_seconds()
         self.data.save()
+
+
+    def set_complete(self, score, possible, percent):
+        # Ensure percent can never exceed 100%
+        percent = 100 if percent > 100 else percent
+
+        max_percent = percent
+
+        if not self.is_preview:
+            self.invalidate()
+            semester = DateRange.objects.get(pk=5) # TODO fix
+
+            # TODO: caching stuff, look at PHP
+
+            # Update session play
+            self.data.is_complete = True
+            self.data.score = score
+            self.data.score_possible = possible
+            self.data.percent = percent
+            self.data.save()
+
+            # Determine the highest score of this user's history
+            score_history = ScoringUtil.get_instance_score_history(self.data.instance, self.data.context_id) # TODO: this is a 'private' field - maybe figure out a better solution
+            for score_history_item in score_history:
+                max_percent = max(max_percent, score_history_item.percent)
+
+        # Notify plugins that the score has been saved
+        # TODO Event::trigger('score_updated', ... see php
 
 
     def invalidate(self):
