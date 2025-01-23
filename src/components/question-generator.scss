@@ -1,0 +1,206 @@
+@import './include.scss';
+
+.generate {
+	border-radius: 5px;
+	margin: 10px;
+
+	h1 {
+		background: #3690E6;
+		padding: 10px;
+		margin: 0px;
+		font-size: 1em;
+		font-weight: bold;
+		color: #ffffff;
+	}
+
+	.loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		background-color: rgba(0, 0, 0, 0.5);
+
+		backdrop-filter: blur(10px);
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		z-index: 10;
+
+		p {
+			margin-bottom: 150px;
+			font-size: 1.1em;
+			color: white;
+		}
+	}
+
+	#generate_form {
+		margin: 1.5em;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35em;
+
+		label {
+			font-weight: 400;
+		}
+
+		input {
+			border: solid 1.5px #3690E6;
+			border-radius: 3px;
+
+			&.invalid {
+				border: 1.5px solid red;
+			}
+
+			&.warning {
+				border: 1.5px solid #d87a00;
+			}
+		}
+
+		.description {
+			display: block;
+			padding: 1em;
+			background: $very-light-gray;
+
+			font-size: 0.85em;
+			font-weight: 400;
+
+			border-radius: 10px;
+		}
+
+		#topic-field {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5em;
+
+			#topic {
+				padding: 0.5em;
+			}
+		}
+
+		#num-questions-field {
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			margin-top: 0.5em;
+
+			input {
+				max-width: 100px;
+			}
+
+			label {
+				background: #fff;
+				padding-right: 0.5em;
+			}
+
+			&:after {
+				position: absolute;
+				top: 0.65em;
+				left: 0;
+				z-index: -1;
+				content: '';
+				display: block;
+				width: calc(100% - 120px);
+				border-bottom: solid 1px #bbb;
+			}
+		}
+
+		#build-off-existing-field {
+			position: relative;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: space-between;
+			margin: 0.5em 0;
+			
+			&:after {
+				position: absolute;
+				top: 0.65em;
+				left: 0;
+				z-index: -1;
+				content: '';
+				display: block;
+				width: calc(100% - 30px);
+				border-bottom: solid 1px #bbb;
+			}
+
+			label {
+				background: #fff;
+				padding-right: 0.5em;
+			}
+
+			#build-off-existing {
+				margin-bottom: 0.5em;
+				margin-right: 0.5em;
+			}
+
+			.description {
+				flex-basis: 100%;
+			}
+		}
+	}
+	.actions {
+		position: fixed;
+		width: 80px;
+		left: 50%;
+		bottom: 0px;
+		margin-left: -40px;
+		padding-bottom: 14px;
+		z-index: 10;
+
+		text-align: center;
+		font-size: 1.1em;
+
+		a {
+			color: #000000;
+		}
+	}
+
+	.error {
+		color: $color-red;
+		font-size: 0.8em;
+		font-weight: 400;
+	}
+
+	.warning {
+		color: #d87a00;
+		font-size: 0.8em;
+		font-weight: 400;
+	}
+}
+
+.darkMode.generate {
+	#generate_form {
+
+		input[type='text'] {
+			color: #fff;
+			background-color: $color-input-box-bg-dark;
+			border: solid 1px $color-input-box-border-dark;
+		}
+
+		input[type='number'] {
+			color: #fff;
+			background-color: $color-input-box-bg-dark;
+			border: solid 1px $color-input-box-border-dark;
+		}
+
+		#num-questions-field label {
+			background: $color-background-dark;
+		}
+
+		#build-off-existing-field label {
+			background: $color-background-dark;
+		}
+
+		.description {
+			background-color: $color-input-desc-dark;
+		}
+	}
+
+	.actions a {
+		font-weight: 400;
+		text-decoration: underline;
+		color: $color-link-dark;
+	}
+}

@@ -12,6 +12,8 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 700px;
 
+	font-weight: 400;
+
 	#breadcrumb-container {
 		display: inline-block;
 		position: absolute;
@@ -21,7 +23,7 @@
 		padding: 5px 10px;
 		background: #eee;
 		border-radius: 3px;
-		font-size: 12px;
+		font-size: 14px;
 		border: 1px solid #ccc;
 
 		.breadcrumb {
@@ -99,6 +101,11 @@
 				margin-left: 3px;
 				font-size: 0.85em;
 			}
+		}
+		.search_error {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 
 		.search_list {
@@ -266,31 +273,21 @@
 				margin: 0px 0px;
 			}
 
-			.right-justify {
-				margin-top: 20px;
+			.bottom-buttons {
 				display: flex;
-				justify-content: flex-end;
+				justify-content: space-between;
+
+				margin-top: 20px;
 
 				.apply-changes {
 					display: flex;
 					flex-direction: column;
+					justify-self: flex-end;
 					justify-content: flex-end;
 					width: 220px;
 
 					.apply {
 						padding: 6px 10px 6px 10px;
-					}
-
-					.error-text {
-						color: red;
-						font-size: 0.8em;
-						text-align: center;
-					}
-
-					.success-text {
-						color: green;
-						font-size: 0.8em;
-						text-align: center;
 					}
 				}
 			}
@@ -312,6 +309,107 @@
 	}
 }
 
+.darkMode .support-page, .darkMode .widget-admin-page {
+	background-color: #21232a;
+	border: 1px solid #1d1f25;
+	box-shadow: 0 0 10px #08090c;
+
+	#breadcrumb-container {
+		background: #21232a;
+		border: 1px solid #1d1f25;
+
+		.breadcrumb {
+			a {
+				color: #91c8fc;
+			}
+		}
+		svg {
+			fill: #d8d8d8;
+		}
+	}
+
+	.page {
+		.top {
+			color: #ffffff;
+			background: #1d1f25;
+		}
+
+		.search {
+			input.instance_search {
+				color: #fff;
+				background: $color-input-box-bg-dark;
+				border: solid 1px $color-input-box-border-dark;
+			}
+		}
+		.search_error {
+			color: red;
+		}
+
+		.search_list {
+
+			.search_match {
+				background: $color-header-dark;
+				border: solid 1px $color-border-dark;
+			}
+
+			.search_match.deleted {
+				background-color: rgba(0, 0, 0, 0.2);
+			}
+			ul li.type {
+				color: #d8d8d8;
+			}
+
+			ul li.deleted {
+				color: red;
+			}
+		}
+
+		.instance-management {
+			background: #1d1f25;
+
+			.header {
+				background: $color-input-desc-dark;
+				border: solid 1px #1d1f25;
+
+				input {
+					color: #fff;
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+				}
+			}
+
+			.inst-action-buttons {
+				button {
+					&.delete {
+						color: #ffffff;
+						background-image: linear-gradient(rgb(225, 0, 0), rgb(202, 0, 0));
+
+						&:hover {
+							background-image: linear-gradient(rgb(202, 0, 0)), linear-gradient(rgb(225, 0, 0));
+						}
+					}
+				}
+				button:disabled {
+					background: #ffba5d7a;
+				}
+			}
+		}
+	}
+
+	.page > ul {
+		> li {
+			background: none;
+			border: none;
+
+			.widget-title {
+				color: #fff;
+				background-color: $color-background-dark-gray;
+				border: $color-input-box-border-dark;
+			}
+		}
+	}
+}
+
 .widget-admin-page {
 
 	.page {
@@ -320,7 +418,7 @@
 			background-color: #ddd;
 			margin: 0;
 			padding: 10px 10px 7px;
-			border-radius: 10px;
+			border-radius: 3px;
 			border-bottom: 1px solid #ccc;
 
 			.img-holder {
@@ -390,6 +488,17 @@
 				bottom: 5px;
 			}
 		}
+
+		.failed {
+			color:rgb(202, 0, 0);
+		}
+		.success-holder {
+			margin: 5px;
+		}
+
+		.success {
+			color: green;
+		}
 	}
 }
 
@@ -441,8 +550,8 @@
 }
 
 .modal .copy-modal {
-	width: 620px;
-	height: 330px;
+	width: 100%;
+	box-sizing: border-box;
 	padding: 10px 10px 0 10px;
 
 	.title {

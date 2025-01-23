@@ -14,7 +14,7 @@ const UserAdminSearch = ({onClick = () => {}}) => {
 				className="search_match clickable" key={index}
 				onClick={() => onClick(user)}>
 				<div className="img-holder">
-					<img src={user.avatar} />
+					<img src={user.avatar} alt="user avatar"/>
 				</div>
 				<div className="info-holder">
 					{user.first} {user.last}

@@ -27,7 +27,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	const [attemptNum, setAttemptNum] = useState(null)
 
 	const [overview, setOverview] = useState()
-	const [details, setDetails] = useState([])
+	const [playDetails, setPlayDetails] = useState(null)
 	const [prevAttemptOpen, setprevAttemptOpen] = useState(false)
 
 	// set to one of the state constants above if an error state manifests
@@ -76,11 +76,16 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
 		refetchOnWindowFocus: false,
-		onSettled: (result) => {
-			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
-			else {
-				_populateScores(result.scores)
-				setAttemptsLeft(result.attempts_left)
+		retry: false,
+		onSuccess: (result) => {
+			_populateScores(result.scores)
+			setAttemptsLeft(result.attempts_left)
+		},
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
 			}
 		}
 	})
@@ -94,11 +99,17 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetGuestWidgetInstanceScores(inst_id, guestPlayId),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
-		retry: false,
 		refetchOnWindowFocus: false,
-		onSettled: (result) => {
-			if (result && result.type == 'error') setErrorState(STATE_RESTRICTED)
-			else _populateScores(result)
+		retry: false,
+		onSuccess: (result) => {
+			_populateScores(result)
+		},
+		onError: (error) => {
+			if (error.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
+			}
 		}
 	})
 
@@ -109,13 +120,15 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
 		staleTime: Infinity,
 		enabled: (!!playId || !!previewInstId),
-		retry: false,
 		refetchOnWindowFocus: false,
-		onSettled: (result) => {
-			if (isPreview && (!result || result.length < 1)) {
+		retry: false,
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else if (isPreview) {
 				setAttributes({...attributes, href: `/preview/${inst_id}/${instance?.clean_name}`})
 				setErrorState(STATE_EXPIRED)
-			} else if (!result || result.length < 1) {
+			} else {
 				setErrorState(STATE_INVALID)
 			}
 		}
@@ -127,8 +140,16 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		queryFn: () => apiGetScoreDistribution(inst_id),
 		enabled: false,
 		staleTime: Infinity,
-		onSettled: (data) => {
+		retry: false,
+		onSuccess: (data) => {
 			_sendToWidget('scoreDistribution', [data])
+		},
+		onError: (err) => {
+			if (err.message == "Invalid Login") {
+				setErrorState(STATE_RESTRICTED)
+			} else {
+				setErrorState(STATE_INVALID)
+			}
 		}
 	})
 
@@ -186,7 +207,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 
 	// Initializes the custom score screen
 	useEffect(() => {
-		if (instance) {
+		if (instance && playDetails) {
 			let enginePath
 			const score_screen = instance.widget.score_screen
 			// custom score screen exists?
@@ -206,7 +227,6 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 					setCustomScoreScreen({
 						...customScoreScreen,
 						htmlPath: enginePath + '?' + instance.widget.created_at,
-						qset: instance.qset,
 						scoreTable: scoreTable,
 						type: 'html',
 						loading: false,
@@ -222,7 +242,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 				setCustomScoreScreen({ ...customScoreScreen, loading: false })
 			}
 		}
-	}, [instance, scoreTable])
+	}, [instance, playDetails, scoreTable])
 
 	// _displayAttempts
 	useEffect(() => {
@@ -287,7 +307,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		if (playScores && playScores.length > 0) {
 
 			const deets = playScores[0]
-			setDetails([...deets.details])
+			setPlayDetails({qset: { ...deets.qset }, details: [ ...deets.details ]})
 
 			let score
 
@@ -491,7 +511,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 	// this is only called in response from the score-core
 	// it will not be called for default score screens
 	const _sendWidgetInit = () => {
-		if (customScoreScreen.scoreTable == null || customScoreScreen.qset == null || scoreWidgetRef.current == null) {
+		if (customScoreScreen.scoreTable == null || playDetails == null || scoreWidgetRef.current == null) {
 			// Custom score screen failed to load, load default overview instead
 			setCustomScoreScreen({ ...customScoreScreen, loading: true, show: false })
 			setShowResultsTable(true)
@@ -500,12 +520,12 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 		}
 		setCustomScoreScreen({ ...customScoreScreen, ready: true })
 
-		_sendToWidget('initWidget', [customScoreScreen.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
+		_sendToWidget('initWidget', [playDetails.qset, customScoreScreen.scoreTable, instance, isPreview, window.MEDIA_URL])
 	}
 
 	// tell the custom score screen that the selected attempt/play has changed, and pass the new scoreTable accordingly
 	const _sendWidgetUpdate = () => {
-		_sendToWidget('updateWidget', [instance.qset, scoreTable])
+		_sendToWidget('updateWidget', [playDetails.qset, scoreTable])
 	}
 
 	const _setHeight = (h) => {
@@ -595,7 +615,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			<nav
 				className={`header-element previous-attempts ${prevAttemptOpen ? 'open' : ''}`}
 				onMouseOver={() =>!prevAttemptOpen && setprevAttemptOpen(true)}
-				onMouseOut={() => prevAttemptOpen && setprevAttemptOpen(false)}
+				onMouseLeave={() => prevAttemptOpen && setprevAttemptOpen(false)}
 			>
 				<h1 onClick={() => !prevAttemptOpen && setprevAttemptOpen(true)}>
 					Prev. Attempts
@@ -672,7 +692,7 @@ const Scores = ({ inst_id, play_id, single_id, send_token, isEmbedded, isPreview
 			</section>
 		)
 	} else if (!errorStateRender && showResultsTable) {
-		detailsRender = <ScoreDetails details={details} complete={overview?.complete} />
+		detailsRender = <ScoreDetails details={playDetails?.details} complete={overview?.complete} />
 	}
 
 	return (

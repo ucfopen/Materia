@@ -168,3 +168,20 @@ h3 {
 	font-size: 1.1em;
 	font-weight: 700;
 }
+
+.darkMode section.widget {
+	.center {
+		#container {
+			outline: 1px solid $extremely-dark-gray;
+		}
+	}
+
+	section.player-footer {
+		color: #fff;
+		background: $extremely-dark-gray;
+
+		a {
+			color: $color-link-dark;
+		}
+	}
+}

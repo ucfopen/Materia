@@ -42,6 +42,12 @@
 		text-align: center;
 	}
 }
+
+.darkMode .modal {
+	background: #21232a;
+	border: #181920 3px solid;
+}
+
 .closed {
 	display: none;
 }
@@ -60,6 +66,7 @@
 
 	background: rgba(0, 0, 0, 0.5);
 }
+
 .modal-guts {
 	position: relative;
 	top: 0;
@@ -91,6 +98,10 @@
 
 	border: 0;
 	color: black;
+}
+
+.darkMode .modal .close-button {
+	color: white;
 }
 
 .open-button {

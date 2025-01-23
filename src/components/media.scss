@@ -17,6 +17,8 @@ body.import {
 	flex-flow: row nowrap;
 	width: 800px;
 
+	font-weight: 400;
+
 	> section {
 		position: relative;
 		height: calc(100vh - 35px);
@@ -290,6 +292,96 @@ body.import {
 		.action_button {
 			padding: 6px 12px;
 			font-size: 12px;
+		}
+	}
+}
+
+.darkMode .media-importer {
+
+	color: #fff;
+	background: $color-background-dark;
+
+	> section {
+		&:first-child {
+			&:before {
+				color: #dadada;
+			}
+
+			&:after {
+				border-left: thin solid #dadada;
+			}
+		}
+
+		.loading-icon-holder {
+			background: rgba(33,35,45,0.95);
+		}
+	}
+
+	#drag-wrapper {
+		border-color: $color-background-dark-gray;
+		background: $color-input-box-bg-dark;
+	}
+
+	#sort-bar {
+		#sort-options .sort-asc:after {
+			border-bottom: $arrow_size solid #fff;
+		}
+	}
+
+	.sort-bar {
+		input {
+			color: #fff;
+			border: solid 1px $color-input-box-border-dark;
+			background: $color-input-box-bg-dark;
+		}
+	}
+
+	#file-display {
+		.file-info {
+			
+			color: #fff;
+
+			&:hover {
+				background: $color-blue-hover-dark;
+			}
+			
+			&:nth-child(odd) {
+				background: $color-background-dark-gray;
+
+				&:hover {
+					background: $color-blue-hover-dark;
+				}
+			}
+
+			.file-name {
+				color: $color-text-light-gray;
+
+				.file-type {
+					color: $very-light-gray;
+				}
+			}
+		}
+	}
+
+	.pane-header {
+		&.darker {
+			color: $gray;
+		}
+
+		.close-button {
+			&:after {
+				color: #fff;
+			}
+		}
+	}
+
+	.pane-footer {
+		span.content {
+			background: none;
+
+			&.error-state {
+				color: #730000;
+			}
 		}
 	}
 }

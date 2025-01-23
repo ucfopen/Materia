@@ -43,14 +43,48 @@ class Controller_Api extends Controller_Rest
 		parent::before();
 	}
 
+	/**
+	 * Recursively search for the status code in execution result
+	 * @param Array
+	 * @return Integer
+	 */
+	public function get_status($data)
+	{
+		if (is_array($data) || is_object($data))
+		{
+			foreach ($data as $key => $value)
+			{
+				if ($key === 'status')
+				{
+					return $value;
+				}
+				elseif (is_array($key) || is_object($key))
+				{
+					$result = $this->get_status($key);
+					if ($result !== null)
+					{
+						return $result;
+					}
+				}
+			}
+		}
+	}
+
 	public function post_call($version, $format, $method)
 	{
 		$input = json_decode(Input::post('data', []));
 
 		$result = $this->execute($version, $method, $input);
 
+		$status = $this->get_status($result);
+
+		if ( ! $status)
+		{
+			$status = 200;
+		}
+
 		$this->no_cache();
-		$this->response($result, 200);
+		$this->response($result, $status);
 	}
 
 	public function get_call($version, $format, $method)
@@ -58,8 +92,15 @@ class Controller_Api extends Controller_Rest
 		$data   = array_slice($this->request->route->method_params, 3);
 		$result = $this->execute($version, $method, $data);
 
+		$status = $this->get_status($result);
+
+		if ( ! $status)
+		{
+			$status = 200;
+		}
+
 		$this->no_cache();
-		$this->response($result, 200);
+		$this->response($result, $status);
 	}
 
 	protected function execute($version, $method, $args)
@@ -77,6 +118,14 @@ class Controller_Api extends Controller_Rest
 		{
 			Materia\Log::profile([get_class($e), get_class($api), $method, json_encode($args)], 'exception');
 			trace($e);
+			if ($e instanceof \HttpNotFoundException)
+			{
+				return Materia\Msg::not_found();
+			}
+			else
+			{
+				throw new HttpServerErrorException;
+			}
 		}
 	}
 }

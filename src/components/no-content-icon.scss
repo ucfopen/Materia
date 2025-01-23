@@ -32,3 +32,17 @@ div#no-score-content, div#not-scorable {
 		}
 	}
 }
+
+.darkMode div#no-score-content, .darkMode div#not-scorable {
+	&#no-score-content {
+		background: #21232a url('/img/kogneato_no_scores_dark.svg') 10% 30%/250px auto no-repeat;
+	}
+
+	&#not-scorable {
+		background: #21232a url('/img/kogneato_with_a_broom_dark.svg') 20% 20%/auto 240px no-repeat;
+	}
+
+	p {
+		color: #fff;
+	}
+}

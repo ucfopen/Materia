@@ -1,7 +1,9 @@
+@import 'include.scss';
+
 // Collaborate dialog
 .modal .collaborate-modal {
-	width: 620px;
-	height: 500px;
+	width: 100%;
+	box-sizing: border-box;
 
 	font-family: 'Lato', arial, serif;
 
@@ -36,9 +38,11 @@
 	}
 
 	.user-add {
-		width: 445px;
-		height: 30px;
 		z-index: 2;
+		flex-grow: 2;
+		height: 30px;
+		margin-left: 1em;
+		padding-left: 0.5em;
 		border: solid 1px #c9c9c9;
 		font-size: 16px;
 	}
@@ -315,9 +319,12 @@
 				text-align: left;
 
 				select {
-					cursor: pointer;
 					display: inline-block;
+					padding: 0.25em;
 					margin-bottom: 5px;
+					cursor: pointer;
+
+					border-width: 1px;
 				}
 
 				.expires {
@@ -396,6 +403,144 @@
 
 							&:hover {
 								background: #43a2d7;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+.darkMode .modal .collaborate-modal {
+	.title {
+		color: #fff;
+		border-bottom: #4c4e58 dotted 1px;
+	}
+
+	.user-add {
+		border: solid 1px $color-input-box-border-dark;
+		background-color: $color-input-box-bg-dark;
+		color: #fff;
+	}
+
+	.shareNotAllowed {
+		p {
+			color: red;
+		}
+	}
+
+	.collab-search-list {
+		background-color: #21232a;
+		border: #181920 1px solid;
+
+		.collab-search-match {
+			background-color: #21232a;
+		}
+
+		.collab-search-match:hover {
+			background-color: #1b304b;
+		}
+	}
+
+	.collab-container {
+
+		.access-list {
+			background-color: #1d1f25;
+		}
+	}
+
+	.disclaimer {
+		color: #d8d8d8;
+	}
+
+	.access-list {
+		.user-perm {
+			&::after {
+				border-bottom: 1px solid #181920;
+			}
+
+			.demote-dialog {
+				box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
+				color: black;
+				background: #fcdbdb;
+
+				.arrow {
+					background: url(/img/pink-arrow-left.png) no-repeat 0 center;
+				}
+
+				.no-button {
+					color: #555;
+				}
+
+				.yes-button {
+					background: #e10000;
+					border-color: #747474;
+					color: #ffffff;
+				}
+
+				.yes-button:hover {
+					background: #ca0000;
+				}
+			}
+
+			.remove {
+				color: #bfbfbf;
+
+				&:hover:enabled {
+					color: white;
+					background: #21232a;
+				}
+			}
+
+			.about {
+				.name {
+					&.user-match-student:after {
+						color: #d8d8d8;
+					}
+
+					&.user-match-owner:after {
+						color: #d8d8d8;
+					}
+				}
+			}
+
+			.options {
+
+				select {
+					background-color: $color-input-box-bg-dark;
+					color: #fff;
+					border-color: $color-input-box-border-dark;
+				}
+
+				.expires {
+					.expire-open-button {
+						color: #61a4e2;
+
+						&:hover {
+							/* border-bottom: 1px #1778af solid; */
+							color: #94c8fa;
+						}
+					}
+					.expire-open-button-disabled {
+						color: #d8d8d8;
+					}
+					.expire-date-container {
+						background: #21232a;
+
+						.remove {
+							color: #d8d8d8;
+							&:hover {
+								color: #fff;
+							}
+						}
+
+						.date-finish {
+							background: #295b99;
+							color: white;
+
+							&:hover {
+								background: #366cad;
 							}
 						}
 					}

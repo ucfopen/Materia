@@ -5,7 +5,8 @@ class Model_User extends Orm\Model
 
 	protected static $_default_profile_fields = [
 		'useGravatar' => true,
-		'notify'      => true
+		'notify'      => true,
+		'darkMode'	  => false
 	];
 
 	protected static $_properties = [
