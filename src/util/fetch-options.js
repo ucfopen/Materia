@@ -1,14 +1,14 @@
 
-const fetchOptions = ({body}) => ({
-	headers: {
-		pragma: 'no-cache',
+const fetchPOSTOptions = ({body}) => ({
+	'headers': {
 		'cache-control': 'no-cache',
-		'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+		'pragma': 'no-cache',
+		'content-type': 'application/json; charset=UTF-8'
 	},
-	method: 'POST',
-	mode: 'cors',
-	credentials: 'include',
-	body
+	'method': 'POST',
+	'mode': 'cors',
+	'credentials': 'include',
+	body: JSON.stringify(body),
 })
 
-export default fetchOptions
+export default fetchPOSTOptions

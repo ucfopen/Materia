@@ -22,6 +22,7 @@
 	}
 
 	section.page, aside {
+		/* The background for the sidebar (containing the profile and settings navigation) is styled in the section below using a repeating image */
 		background: #fff;
 		border-radius: 4px;
 		border: #e4e4e4 1px solid;
@@ -38,6 +39,8 @@
 		background: url('/static/img/user_page_background.gif') 0 0 repeat-y;
 		background-color: #fff;
 		min-height: 400px;
+
+		font-weight: 400;
 
 		.loading-icon-holder {
 			position: absolute;
@@ -63,18 +66,17 @@
 			text-transform: uppercase;
 			color: #b2b2b2;
 			display: block;
-			margin-top: 20px;
+			margin: 1em 0 0.5em 0;
 		}
 
 		ul {
-			font-weight: 100;
+			font-weight: 400;
 			font-size: 16px;
 			list-style-type: none;
 			padding-left: 0px;
 
 			&.email_exp_addr {
 				font-weight: 300;
-				margin: 0;
 			}
 		}
 
@@ -118,8 +120,7 @@
 			}
 
 			a.external {
-				padding-right: 18px;
-				background: url('/static/img/external_link_arrow.png') right center no-repeat;
+				margin-left: 0.5em;
 			}
 		}
 
@@ -240,8 +241,16 @@
 				}
 			}
 
-			&.incomplete .score {
-				background: #ccc;
+			&.incomplete {
+				.score {
+					background: #ccc;
+				}
+				a.score-link {
+					cursor: auto;
+				}
+				.title {
+					color: $gray;
+				}
 			}
 
 			&.perfect_score .score {
@@ -308,7 +317,7 @@
 				position: absolute;
 				top: 12px;
 				right: 1px;
-				color: #eee;
+				color: $very-light-gray;
 				font-size: 30px;
 			}
 		}
@@ -399,6 +408,19 @@
 				font-size: 14px;
 			}
 
+			.custom-checkbox, .custom-radio {
+				margin: 0 0.5em 0 0;
+				padding: 0;
+			}
+
+			label {
+				user-select: none;
+			}
+
+			a.external {
+				margin-left: 0.5em;
+			}
+
 			ul {
 				font-size: 14px;
 				list-style-type: none;
@@ -430,14 +452,15 @@
 				}
 			}
 
-			.email_exp {
+			.exp {
 				color: #7f7f7f;
 				font-size: 12px;
-				font-weight: 300;
 				margin: 10px 0 0 0;
 
 				.email_exp_addr {
+					display: inline-block;
 					color: #3f3f3f;
+					text-transform: none;
 				}
 			}
 		} // end settings
@@ -450,4 +473,165 @@
 		margin: 0;
 		padding: 0 0 0 20px;
 	}
+}
+
+.darkMode .user, .darkMode .settings {
+	section.page, aside {
+		background: #21232a;
+		border: #181920 1px solid;
+		box-shadow: 1px 3px 10px #08090c;
+	}
+
+	section.page {
+		background: #21232a url('/img/user_page_background_dark.gif') 0 0 repeat-y;
+
+		h2 {
+			border-bottom: solid #dcdcdc .5px;
+		}
+
+		span {
+			color: #b2b2b2;
+		}
+
+		h3 {
+			color: #000;
+		}
+
+		.avatar_big {
+			color: #fff;
+
+			a:link,
+			a:visited,
+			a:active {
+				color: #fff;
+			}
+
+			a:hover {
+				color: #fff;
+			}
+		}
+
+		// TODO remove?
+		.rank {
+			color: #61a4e2;
+
+			a {
+				color: #d8d8d8;
+
+				&:hover {
+					color: #d8d8d8;
+				}
+			}
+		}
+
+		.user_type {
+			background: #21232a;
+			color: #fff;
+
+			&.staff {
+				background: #ef0223;
+				color: #ffc4cc;
+			}
+
+			&.support {
+				background: #0093e7;
+				color:#f3f3f3;
+			}
+		}
+
+		.activity {
+			.loading-icon-holder {
+				&.loading {
+					background: #21232a;
+					color: #fff;
+				}
+			}
+		}
+
+		.activity_log {
+			.score-link {
+				border-bottom: #d8d8d8 1px solid;
+			}
+
+			&.complete {
+				.score-link:hover {
+					background: #1b304b;
+				}
+			}
+
+			&.incomplete {
+
+				.title {
+					color: $gray;
+				}
+
+				.score {
+					background: #4c4e58;
+				}
+			}
+
+			.score {
+				background: #295b99;
+				color: #fff;
+			}
+
+			.date {
+				color: #d8d8d8;
+			}
+
+			.widget {
+				color: #d8d8d8;
+			}
+
+			.status {
+				color: rgba(75,75,75,0.5);
+			}
+		}
+
+		.no_logs {
+			background: #4c4e58;
+			color: #fff;
+		}
+
+		.show_more_activity {
+			span {
+				color: $extremely-dark-gray;
+			}
+		}
+
+		.main_navigation {
+			li {
+				a {
+					color: #fff;
+				}
+
+				&.selected {
+					a {
+						background: #21232a;
+						color: #fff;
+					}
+				}
+			}
+		}
+
+		&.settings {
+			.action_button {
+				&.disabled {
+					background: #aeaeae;
+					background-image: linear-gradient(#e4e4e4, #b8b8b8);
+					border-color: #747474;
+					color: #545454;
+				}
+			}
+
+			.exp {
+				color: #c9c9c9;
+
+				.email_exp_addr {
+					color: #f5f5f5;
+					font-weight: 700;
+				}
+			}
+		} // end settings
+	} // end section.page
 }

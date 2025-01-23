@@ -14,7 +14,7 @@
 		<?= Css::render() ?>
 		<?=  $partials['google_analytics'] ?? '' ?>
 	</head>
-	<body class="<?= (isset($page_type) ? $page_type : '') ?>">
+	<body class="<?= (isset($page_type) ? $page_type : '') ?> <?= (isset($darkmode) ? 'darkMode' : '') ?>">
 		<div id="app"></div>
 		<div id="modal"></div>
 		<?= Js::render() ?>

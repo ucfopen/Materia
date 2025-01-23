@@ -7,6 +7,8 @@ $color-green: #c5dd60;
 .page {
 	margin: 0 auto 20px;
 	max-width: 950px;
+
+	font-weight: 400;
 }
 
 #breadcrumb-container {
@@ -17,7 +19,7 @@ $color-green: #c5dd60;
 	padding: 5px 10px;
 	background: #eee;
 	border-radius: 3px;
-	font-size: 12px;
+	font-size: 14px;
 	border: 1px solid #ccc;
 
 	.breadcrumb {
@@ -822,6 +824,213 @@ a {
 
 	.loading-icon-holder {
 		margin: 3.5em 0;
+	}
+}
+
+.darkMode {
+	#breadcrumb-container {
+
+		background: #1d1f25;
+		border: 1px solid #181920;
+	
+		.breadcrumb {
+			a {
+				color: #91c8fc;
+			}
+		}
+	
+		svg {
+			fill: #fff;
+		}
+	}
+
+	.feature-list {
+		&.accessibility-options {
+			.list-holder {
+				ul {
+					li {
+						&.accessibility-description {
+							color: #d8d8d8;
+						}
+	
+						.icon-spacer {
+							svg {
+								fill: #fff;
+							}
+						}
+	
+						span {
+							color: #fff;
+						}
+					}
+				}
+			}
+		}
+	
+		.feature {
+			.guide-link {
+				background: #555;
+				color: #fff;
+	
+				&:hover {
+					background-color: #000;
+				}
+			}
+	
+			.feature-name {
+				background: #295b99;
+				color: #fff;
+	
+				&:hover {
+					background: $color-features-active;
+	
+					&:after {
+						border-top: 6px solid $color-features-active;
+					}
+				}
+			}
+	
+			.feature-description {
+				color: #fff;
+				background: $color-features-active;
+				box-shadow: 1px 2px 5px #08090c;
+			}
+		}
+	}
+
+	.widget_detail {
+		background: #21232a;
+		border: #181920 1px solid;
+		box-shadow: 1px 3px 10px #08090c;
+	
+		.top {
+			background: #1d1f25;
+			color: #fff;
+		}
+	
+		.pics {
+			button.pic-arrow {
+				fill: #333;
+				background: #fff;
+			}
+	
+			button.demo-dot {
+				background-color: #4c4e58;
+				color: white;
+	
+				&:before {
+					border-top: 5px solid transparent;
+					border-bottom: 5px solid transparent;
+					border-left: 8px solid white;
+				}
+	
+				&:hover,
+				&:focus {
+					background-color: #686a74;
+					outline: none;
+					color: white;
+				}
+	
+				&.selected {
+					background-color: #565964;
+					color: white;
+				}
+			}
+	
+			button.pic-dot {
+				&:before {
+					background-color: #fff;
+					opacity: 0.25;
+				}
+
+				&:hover:before {
+					opacity: 0.5;
+				}
+	
+				&:focus:before {
+					opacity: 0.5;
+				}
+	
+				&.selected:before {
+					opacity: 1;
+				}
+			}
+		}
+	
+		#pics-scroller {
+			> div {
+				background: #4c4e58;
+	
+				&.playing,
+				&.loading {
+					background: #b944cc;
+				}
+	
+				&:active {
+					cursor: grabbing;
+				}
+	
+				h3 {
+					color: #fff;
+				}
+			}
+		}
+	
+		#demo-cover {
+			&.hidden,
+			&.loading {
+				button {
+					&:after {
+						background-color: #535353;
+					}
+				}
+			}
+	
+			button {
+				box-shadow: 1px 2px 4px #08090c;
+				text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+				border: 3px solid #181920;
+	
+				&:hover {
+					+ #demo-cover-background {
+						opacity: 0.7;
+					}
+				}
+	
+				svg {
+					fill: #535353;
+				}
+			}
+		}
+	
+		#demo-cover-background {
+			background: radial-gradient(
+					ellipse farthest-corner at center center,
+					rgba(33, 35, 42, 0.85) 20%,
+					rgba(29, 31, 37, 0.97) 100%
+				)
+				repeat scroll 0% 0%;
+		}
+	
+		.bottom {	
+			.widget-action-buttons {
+	
+				h4 {
+					color: #fff;
+				}
+			}
+	
+			#createLink {
+	
+				svg {
+					fill: #535353;
+				}
+			}
+	
+			#last-updated {
+				color: #b5b5b5;
+			}
+		}
 	}
 }
 

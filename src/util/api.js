@@ -246,16 +246,16 @@ export const apiSearchInstances = (input, page_number = 0) => {
 }
 
 export const apiGetWidgetInstanceScores = (instId, send_token) => {
-	return fetchGet('/api/json/widget_instance_scores_get', { body: { instanceId: instId, token: send_token  })
+	return fetchGet('/api/json/widget_instance_scores_get/', { body: { instanceId: instId, token: send_token } })
 }
 
 
 export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
-	return fetchGet('/api/json/guest_widget_instance_scores_get', { body: { instanceId: instId, playId: playId } })
+	return fetchGet('/api/json/guest_widget_instance_scores_get/', { body: { instanceId: instId, playId: playId } })
 }
 
 export const apiGetWidgetInstancePlayScores = (playId, previewInstId) => {
-	return fetchGet('/api/json/widget_instance_play_scores_get', { body: { playId, previewInstId } })
+	return fetchGet('/api/json/widget_instance_play_scores_get/', { body: { playId, previewInstId } })
 }
 
 export const apiGetScoreDistribution = instId => {
@@ -263,7 +263,7 @@ export const apiGetScoreDistribution = instId => {
 }
 
 export const apiGetScoreSummary = instId => {
-	return fetchGet('/api/json/score_summary_get/', { body:({ instanceId: instId, includeStorageData: true } })
+	return fetchGet('/api/json/score_summary_get/', { body: { instanceId: instId, includeStorageData: true } })
 		.then(resp => {
       const scores = resp['summaries']
 			if (!scores) return []

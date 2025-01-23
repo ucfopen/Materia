@@ -42,6 +42,32 @@ html {
 	}
 }
 
+.darkMode #import_form {
+	background: #21232a;
+	border: rgba(0, 0, 0, 0.11) 1px solid;
+	box-shadow: 1px 3px 10px #08090c;
+	color: #fff;
+
+	h1 {
+		background: #f1814b;
+		color: #ffffff;
+	}
+
+	thead {
+		tr {
+			border-bottom: solid 1px #888;
+		}
+	}
+
+	tbody {
+		tr {
+			&:hover {
+				background: #295b99;
+			}
+		}
+	}
+}
+
 .no_saves {
 	width: 50%;
 	margin-left: auto;
@@ -67,5 +93,11 @@ html {
 
 	a {
 		color: #000000;
+	}
+}
+
+.darkMode .actions {
+	a {
+		color: #61a4e2;
 	}
 }

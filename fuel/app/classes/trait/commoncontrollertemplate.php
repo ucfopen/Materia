@@ -7,6 +7,7 @@
 trait Trait_CommonControllerTemplate
 {
 	use Trait_Analytics;
+	use Trait_DarkMode;
 
 	protected $_disable_browser_cache = false;
 
@@ -31,6 +32,11 @@ trait Trait_CommonControllerTemplate
 		}
 
 		$this->inject_common_js_constants();
+
+		if ($this->is_using_darkmode())
+		{
+			$this->theme->get_template()->set('darkmode', true);
+		}
 
 		return parent::after($response);
 	}

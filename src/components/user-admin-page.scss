@@ -11,6 +11,8 @@
 	box-shadow: 0 0 10px #aaa;
 	width: 720px;
 
+	font-weight: 400;
+
 	.page {
 
 		.loading {
@@ -123,6 +125,10 @@
 		.searching {
 			vertical-align: bottom;
 			margin-top: 10px;
+			position: relative;
+			min-height: 100px;
+			width: 100%;
+			text-align: center;
 		}
 
 		.show_deleted {
@@ -133,6 +139,12 @@
 				margin-left: 3px;
 				font-size: 0.85em;
 			}
+		}
+
+		.search_error {
+			color: red;
+			font-size: 0.8em;
+			margin: 0px 15px;
 		}
 
 		.search_list {
@@ -228,6 +240,11 @@
 					width: 160px;
 				}
 
+				input {
+					width: 50%;
+					padding: 0.5em;
+				}
+
 				.radio {
 					display: inline-block;
 					// width: 200px;
@@ -312,7 +329,6 @@
 			&.instances {
 
 				ul {
-					width: 100%;
 					padding: 0;
 					flex-direction: row;
 					list-style-type: none;
@@ -321,6 +337,8 @@
 						margin: 0 0 10px 0;
 
 						border-radius: 3px;
+
+						line-height: 1.5em;
 
 						.img-holder {
 							display: inline-block;
@@ -400,7 +418,77 @@
 								border-bottom-left-radius: 3px;
 								border-bottom-right-radius: 3px;
 
-								line-height: 1.5em;
+								padding: 10px;
+
+								span:not(.long),
+								label {
+									display: inline-block;
+									vertical-align: top;
+								}
+
+								label:not(.normal) {
+									width: 145px;
+								}
+
+								.normal input {
+									margin: 0;
+									padding: 0;
+								}
+							}
+							.overview {
+								padding: 10px;
+								line-height: 1.25em;
+
+								div {
+									margin: 5px 0px;
+								}
+
+								label {
+									display: inline-block;
+									vertical-align: top;
+									width: 150px;
+								}
+
+								.url {
+									display: inline-block;
+									vertical-align: middle;
+									width: 500px;
+									font-size: 70%;
+									margin: 0px 0px;
+								}
+
+								.right-justify {
+									margin-top: 20px;
+									display: flex;
+									justify-content: flex-end;
+
+									.apply-changes {
+										display: flex;
+										flex-direction: column;
+										justify-content: flex-end;
+										width: 220px;
+
+										.apply {
+											padding: 6px 10px 6px 10px;
+										}
+									}
+								}
+							}
+
+							.inst-info {
+
+								.scores {
+									margin: 1em 0 0 0;
+									padding: 10px;
+									background: #fff;
+									border-radius: 5px;
+								}
+
+								.bottom-buttons {
+									display: flex;
+									justify-content: space-between;
+									margin-top: 20px;
+								}
 							}
 						}
 					}
@@ -455,6 +543,132 @@
 			margin: 0 0 5px 0;
 			border: 1px solid #ccc;
 			border-radius: 10px;
+		}
+	}
+}
+
+.darkMode .support-page {
+	background-color: #21232a;
+	border: 1px solid #181920;
+	box-shadow: 0 0 10px #08090c;
+
+	.page {
+		#breadcrumb-container {
+			background: #21232a;
+			border: 1px solid #181920;
+
+			.breadcrumb {
+				a {
+					color: #91c8fc;
+				}
+			}
+
+			svg {
+				fill: #d8d8d8;
+			}
+		}
+
+		.top {
+			color: #ffffff;
+			background: #1d1f25;
+		}
+
+		.search {
+			input.user_search {
+				color: #fff;
+				background-color: $color-input-box-border-dark;
+				border: solid 1px $color-input-box-border-dark;
+			}
+		}
+
+		.search_match {
+			background: #1d1f25;
+			border: 1px solid #181920;
+		}
+
+		.search_error {
+			color: red;
+		}
+
+		.search_list {
+			.search_match.deleted {
+				background-color: rgba(0, 0, 0, 0.2);
+			}
+
+			ul li.type {
+				color: #d8d8d8;
+			}
+
+			ul li.deleted {
+				color: red;
+			}
+		}
+
+		.admin-subsection {
+			&.overview {
+
+				input {
+					color: #fff;
+					background: $color-input-box-bg-dark;
+					border: solid 1px $color-input-box-border-dark;
+				}
+
+				.right-justify {
+					.apply-changes {
+						.error-text {
+							color: red;
+						}
+
+						.success-text {
+							color: green;
+						}
+					}
+				}
+			}
+
+			&.instances {
+				ul {
+					li.instance {
+						div.widget-title {
+							background: #4c4e58;
+
+							span.incomplete-status-holder {
+								color: #555;
+							}
+						}
+
+						&.expanded {
+							div.widget-title {
+								background: #295b99;
+							}
+
+							.info-holder {
+								background: #1b304b;
+							}
+
+							.inst-info {
+								.scores {
+									background: #21232a;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.inst-action-buttons {
+			button:disabled {
+				background: #ffba5d7a;
+			}
+		}
+
+	}
+
+	.page > ul {
+		> li {
+			background-color: #21232a;
+			border: 1px solid #181920;
 		}
 	}
 }

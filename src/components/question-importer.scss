@@ -18,7 +18,7 @@
 			font-size: 18px;
 			font-weight: 550;
 			text-shadow: 0 1px #fbfbfb;
-			color: #a6a6a6;
+			color: #666;
 			margin: 0;
 			padding: 0;
 		}
@@ -92,6 +92,57 @@
 			cursor: pointer;
 			margin-right: 15px;
 			text-decoration: underline;
+		}
+	}
+}
+
+.darkMode #question-importer {
+	background: #21232a;
+
+	.header {
+		background: #1d1f25;
+
+		h1 {
+			text-shadow: 0 1px #08090c;
+			color: #fff;
+		}
+
+		.showing-text {
+			color: #d8d8d8;
+		}
+	}
+
+	.table-container {
+
+		table {
+			th, td {
+				background: #21232a;
+			}
+
+			thead tr th {
+				color: #fff;
+				border-bottom: 1px solid #ddd;
+
+				.sort-asc,
+				.sort-desc {
+					border-left: 5px solid transparent;
+					border-right: 5px solid transparent;
+				}
+				.sort-asc {
+					border-bottom: 5px solid #ddd;
+				}
+				.sort-desc {
+					border-top: 5px solid #ddd;
+				}
+			}
+		}
+	}
+
+	.actions {
+		border-top: 1px solid #ddd;
+
+		#cancel-button {
+			color: #61a4e2;
 		}
 	}
 }

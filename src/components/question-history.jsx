@@ -12,17 +12,23 @@ const getInstId = () => {
 
 const QuestionHistory = () => {
 	const [saves, setSaves] = useState([])
+	const [error, setError] = useState('')
 	const [instId, setInstId] = useState(getInstId())
 
 	const { data: qsetHistory, isLoading: loading } = useQuery({
 		queryKey: ['questions', instId],
 		queryFn: () => apiGetQuestionSetHistory(instId),
 		enabled: !!instId,
-		staleTime: Infinity
+		staleTime: Infinity,
+		retry: false,
+		onError: (err) => {
+			setError("Error fetching question set history.")
+			console.error(err.cause)
+		}
 	})
 
 	useEffect(() => {
-		if (qsetHistory && qsetHistory.type != 'error')
+		if (qsetHistory)
 		{
 			qsetHistory.map((qset) => {
 				return {
@@ -38,8 +44,10 @@ const QuestionHistory = () => {
 	}, [qsetHistory])
 
 	const readQuestionCount = (qset) => {
-		let items = qset.items
-		if (items.items) items = items.items
+		let items = qset
+		// recursively get qset.items
+		if (items.items)
+			return readQuestionCount(items.items)
 
 		return items.length
 	}
@@ -48,21 +56,36 @@ const QuestionHistory = () => {
 		if (!!saves) {
 			saves.forEach((save) => {
 				if (id == save.id) {
-					return window.parent.Materia.Creator.onQsetHistorySelectionComplete(
+					return window.parent.Materia.Creator.onQsetReselectionComplete(
 						JSON.stringify(save.data),
+						false, // is generated
 						save.version,
-						save.created_at
+						null
 					)
 				}
 			})
 		}
 	}
 
-	const closeDialog = () => window.parent.Materia.Creator.onQsetHistorySelectionComplete(null)
+	const closeDialog = () => window.parent.Materia.Creator.onQsetReselectionComplete(null)
 
 	let savesRender = null
 	let noSavesRender = null
-	if (!!saves && saves.length > 0) {
+	if (loading) {
+		noSavesRender = (
+			<div className="no_saves">
+				<h3>Loading...</h3>
+			</div>
+		)
+	}
+	else if (error) {
+		noSavesRender = (
+			<div className="no_saves">
+				<h3><i>{error}</i></h3>
+			</div>
+		)
+	}
+	else if (!!saves && saves.length > 0) {
 		savesRender = saves.map((save, index) => {
 			return (
 				<tr onClick={() => loadSaveData(save.id)} key={index}>

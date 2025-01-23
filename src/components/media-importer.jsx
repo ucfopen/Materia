@@ -68,9 +68,8 @@ const MediaImporter = () => {
 		queryKey: ['media-assets', selectedAsset],
 		queryFn: () => apiGetAssets(),
 		staleTime: Infinity,
-		onSettled: (data) => {
-			if (!data || data.type == 'error') console.error(`Asset request failed with error: ${data.msg}`)
-			else {
+		onSuccess: (data) => {
+			if (data) {
 				const list = data.map(asset => {
 					const creationDate = new Date(asset.created_at * 1000)
 					return {
@@ -89,6 +88,14 @@ const MediaImporter = () => {
 				})
 
 				setAssetList(list)
+			}
+		},
+		onError: (err) => {
+			console.error(`Asset request failed with error: ${err.cause}`)
+			if (err.title == "Invalid Login") {
+				window.location.href = '/login'
+			} else {
+				setErrorState(err.cause)
 			}
 		}
 	})
@@ -153,10 +160,20 @@ const MediaImporter = () => {
 	const _updateDeleteStatus = (asset) => {
 		if (!asset.is_deleted) {
 			asset.is_deleted = 1
-			apiDeleteAsset(asset.id)
+			apiDeleteAsset(asset.id).then(() => {
+				queryClient.invalidateQueries('media-assets')
+			})
+			.catch((err) => {
+				setErrorState(err.message)
+			})
 		} else {
 			asset.is_deleted = 0
-			apiRestoreAsset(asset.id)
+			apiRestoreAsset(asset.id).then(() => {
+				queryClient.invalidateQueries('media-assets')
+			})
+			.catch((err) => {
+				setErrorState(err.message)
+			})
 		}
 
 		let list = assetList.map((item) => {
@@ -212,7 +229,7 @@ const MediaImporter = () => {
 					setSelectedAsset(res.id)
 				} else {
 					setErrorState('Something went wrong with uploading your file.')
-					_onCancel()
+					// _onCancel() // uncomment to close the modal on error
 					return
 				}
 			}

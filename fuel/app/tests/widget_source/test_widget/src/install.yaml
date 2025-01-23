@@ -9,6 +9,8 @@ general:
   is_storage_enabled: No
   is_qset_encrypted: No
   is_answer_encrypted: No
+  is_generable: No
+  uses_prompt_generation: No
   api_version: 2
 files:
   player: player.html
