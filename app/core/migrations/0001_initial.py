@@ -424,6 +424,8 @@ class Migration(migrations.Migration):
                 ("is_editable", models.CharField(max_length=1)),
                 ("is_playable", models.CharField(max_length=1)),
                 ("is_scorable", models.CharField(max_length=1)),
+                ("is_generable", models.CharField(max_length=1)),
+                ("uses_prompt_generation", models.CharField(max_length=1)),
                 ("in_catalog", models.CharField(max_length=1)),
                 ("creator", models.CharField(max_length=255)),
                 ("clean_name", models.CharField(max_length=255)),
