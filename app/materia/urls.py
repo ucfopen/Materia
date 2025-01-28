@@ -19,6 +19,7 @@ from core.views import main as core_views
 from core.views.catalog import CatalogView
 
 from core.views import profile as profile_views
+from core.views import login as login_views
 
 from core.views.scores import ScoresView
 from core.views.widget import *
@@ -45,6 +46,7 @@ urlpatterns = [
     path("api/json/", include("api.urls.json")),
     path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
+    path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
 ]
 

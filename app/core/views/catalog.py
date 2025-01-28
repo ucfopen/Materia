@@ -9,4 +9,5 @@ class CatalogView(TemplateView):
             "js_resources": ["dist/js/catalog.js"],
             "css_resources": ["dist/css/catalog.css"],
         }
+
         return render(request, "react.html", context)

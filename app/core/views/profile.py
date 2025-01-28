@@ -8,3 +8,5 @@ def profile(request):
     }
     return render(request, "react.html", context)
 
+
+
