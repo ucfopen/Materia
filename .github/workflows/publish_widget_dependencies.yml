@@ -10,13 +10,8 @@ jobs:
         with:
           node-version: '18.13.0'
           registry-url: 'https://registry.npmjs.org'
-      - run: yarn install
-      - run: yarn build
-      - run: |
-          cat > .yarnrc.yml << EOL
-          npmRegistryServer: 'https://registry.npmjs.org'
-          npmAuthToken: \${{ secrets.NPM_TOKEN }}
-          EOL
-      - run: yarn publish public/dist
+      - run: npm install
+      - run: npm run build
+      - run: npm publish public/dist
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
