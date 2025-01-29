@@ -7,11 +7,11 @@ from util.logging.session_logger import SessionLogger
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
 
+
 class SessionsApi:
     @staticmethod
     def author_verify(request):
         return JsonResponse({})
-
 
     @staticmethod
     def play_create(request):
@@ -22,15 +22,17 @@ class SessionsApi:
 
         # Get and verify widget
         instance = WidgetInstance.objects.get(pk=instance_id)
-        if instance is None: return HttpResponseNotFound()
-        if not instance.playable_by_current_user: return HttpResponseForbidden() # TODO: return no login message instead, refer to php code
-        if instance.is_draft: return HttpResponseForbidden() # TODO: return message instead, see php code
+        if instance is None:
+            return HttpResponseNotFound()
+        if not instance.playable_by_current_user:
+            return HttpResponseForbidden()  # TODO: return no login message instead, refer to php code
+        if instance.is_draft:
+            return HttpResponseForbidden()  # TODO: return message instead, see php code
 
         # Create and start play session
         session_play = SessionPlay()
         play_id = session_play.start(instance, 0)
-        return JsonResponse({ "playId": play_id })
-
+        return JsonResponse({"playId": play_id})
 
     @staticmethod
     # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
@@ -60,26 +62,26 @@ class SessionsApi:
                 pass
                 # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
 
-            return HttpResponse() # TODO return true, look at PHP
+            return HttpResponse()  # TODO return true, look at PHP
         else:
             ##### PLAYING FOR KEEPS #####
             # Grab session play
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
-                return HttpResponseNotFound() # TODO: better error reporting
+                return HttpResponseNotFound()  # TODO: better error reporting
 
             # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
             # Confirm user session for real play
             instance = session_play.data.instance
             if not instance.playable_by_current_user():
-                return HttpResponseForbidden() # TODO was Msg::no_login
+                return HttpResponseForbidden()  # TODO was Msg::no_login
             # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
             #     return Msg::no_login();
 
             # Validate session play
             is_valid = session_play.validate()
             if not is_valid:
-                return HttpResponseNotFound() # TODO: was Msg::invalid_input('invalid play session')
+                return HttpResponseNotFound()  # TODO: was Msg::invalid_input('invalid play session')
 
             # Store
             SessionLogger.store_log_array(session_play, logs)
@@ -89,6 +91,6 @@ class SessionsApi:
 
             session_play.set_complete(150, 200, 75.0)
 
-            return JsonResponse({ # TODO
+            return JsonResponse({  # TODO
                 "score": 150,
             })

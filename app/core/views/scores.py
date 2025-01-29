@@ -9,7 +9,7 @@ class ScoresView(TemplateView):
 
     def get_context_data(self, widget_instance_id, play_id):
         is_embedded = self.kwargs.get('is_embedded', False)
-        is_preview = False # TODO see php
+        is_preview = False  # TODO see php
         token = self.kwargs.get('token')
 
         # Get widget instance
@@ -26,7 +26,7 @@ class ScoresView(TemplateView):
 
         # Set up context and return
         js_globals = {
-            "BASE_URL": "http://localhost/", # TODO: make these config variables, and export these to somewhere where it can be reused easily
+            "BASE_URL": "http://localhost/",  # TODO: make these config variables, and export these to somewhere where it can be reused easily
             "WIDGET_URL": "http://localhost/widget/",
             "STATIC_CROSSDOMAIN": "http://localhost/",
             "IS_EMBEDDED": is_embedded,

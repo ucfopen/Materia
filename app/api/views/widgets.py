@@ -9,6 +9,7 @@ from util.widget.widget_util import WidgetUtil
 
 logger = logging.getLogger("django")
 
+
 class WidgetsApi:
     @staticmethod
     def widgets_get(request):
@@ -20,7 +21,6 @@ class WidgetsApi:
             all_widgets = all_widgets.filter(id__in=widget_ids)
 
         return JsonResponse(WidgetUtil.hack_return(all_widgets), safe=False)
-
 
     @staticmethod
     def widgets_get_by_type(request):
@@ -37,7 +37,6 @@ class WidgetsApi:
             all_widgets = all_widgets.filter(in_catalog=True, is_playable=True)
 
         return JsonResponse(WidgetUtil.hack_return(all_widgets), safe=False)
-
 
     @staticmethod
     def widget_instances_get(request):
@@ -57,7 +56,7 @@ class WidgetsApi:
                      .order_by("-created_at", "-id"))
         # TODO: ^ make this functionality into its own 'manager' class like the php code?
 
-        instances = instances[:80] # TODO: add way to control limit?
+        instances = instances[:80]  # TODO: add way to control limit?
 
         raw_json_instances = json.loads(serializers.serialize("json", instances))
         json_instances = []
@@ -70,7 +69,6 @@ class WidgetsApi:
             # TODO fix serialization
 
         return JsonResponse({"instances": json_instances})
-
 
     @staticmethod
     def question_set_get(request):
@@ -86,7 +84,7 @@ class WidgetsApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden() # TODO: return message instead, see php
+            return HttpResponseForbidden()  # TODO: return message instead, see php
 
         # TODO check play_id, see php
 

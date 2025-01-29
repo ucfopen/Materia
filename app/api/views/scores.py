@@ -23,27 +23,27 @@ class ScoresApi:
 
         # Verify body params
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound() # TODO: was Msg::invalid_input(instance_id)
+            return HttpResponseNotFound()  # TODO: was Msg::invalid_input(instance_id)
 
         # Grab context ID
         context_id = None
         if token:
-            result = "" # TODO: \Event::trigger('before_score_display', $token)
+            result = ""  # TODO: \Event::trigger('before_score_display', $token)
             if len(result) > 0:
                 context_id = result
         else:
-            session_context_id = False # TODO: \Session::get('context_id', false))
+            session_context_id = False  # TODO: \Session::get('context_id', false))
             if session_context_id:
                 context_id = session_context_id
 
-        semester = DateRange.objects.get(pk=5) # TODO
+        semester = DateRange.objects.get(pk=5)  # TODO
 
         # Get instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden() # TODO: was Msg::no_login()
+            return HttpResponseForbidden()  # TODO: was Msg::no_login()
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
@@ -57,7 +57,6 @@ class ScoresApi:
             'attemptsLeft': attempts_left,
         })
 
-
     @staticmethod
     def guest_widget_instance_scores_get(request):
         # Get and validate body
@@ -66,14 +65,14 @@ class ScoresApi:
         play_id = json_body.get("playId")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound() # TODO: Was Msg::invalid_input(instance_id)
+            return HttpResponseNotFound()  # TODO: Was Msg::invalid_input(instance_id)
 
         # Get widget instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden() # TODO: was Msg::no_login
+            return HttpResponseForbidden()  # TODO: was Msg::no_login
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
         # TODO: better serializing
@@ -86,7 +85,6 @@ class ScoresApi:
             "scores": fixed_json_scores
         })
 
-
     @staticmethod
     def widget_instance_play_scores_get(request):
         # Get body params
@@ -98,21 +96,20 @@ class ScoresApi:
         if preview_inst_id:
             # Check if preview is valid and user has access
             if not ValidatorUtil.is_valid_hash(preview_inst_id):
-                return HttpResponseBadRequest # TODO: better error reporting
+                return HttpResponseBadRequest  # TODO: better error reporting
             if False:  # TODO: \Service_User::verify_session() !== true
-                return HttpResponseForbidden() # TODO was Msg::no_login()
+                return HttpResponseForbidden()  # TODO was Msg::no_login()
 
             # TODO: look at php
         else:
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
-                return HttpResponseNotFound() # TODO better error reporting
+                return HttpResponseNotFound()  # TODO better error reporting
             if not session_play.data.instance.playable_by_current_user():
-                return HttpResponseForbidden() # TODO was Msg::no_login()
+                return HttpResponseForbidden()  # TODO was Msg::no_login()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
-
 
     # Gets score distributions (total and by semester) for a widget instance.
     @staticmethod
@@ -122,7 +119,7 @@ class ScoresApi:
         instance_id = json_body.get("instanceId")
         include_storage_data = json_body.get("includeStorageData", False)
         if not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound() # TODO: was msg::invalid_input
+            return HttpResponseNotFound()  # TODO: was msg::invalid_input
 
         # Get widget instance and verify playable by user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
