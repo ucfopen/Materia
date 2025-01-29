@@ -12,6 +12,11 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install
       - run: yarn build
+      - run: |
+          cat > .yarnrc.yml << EOL
+          npmRegistryServer: 'https://registry.npmjs.org'
+          npmAuthToken: \${{ secrets.NPM_TOKEN }}
+          EOL
       - run: yarn publish public/dist
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
