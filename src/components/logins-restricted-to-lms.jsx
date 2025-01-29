@@ -35,6 +35,7 @@ const LoginsRestrictedToLMS = () => {
 					<div className="detail icon-offset">
 						<h2 className="unavailable-text">Login from your LMS</h2>
 						<span className="unavailable-subtext">You must access Materia from a course in your LMS.</span>
+						{ state.context && state.context != 'widget' ? <p>For additional help and support, visit our <a href="/help#students">support page</a>.</p> : '' }
 					</div>
 
 					{ state.context && state.context == 'widget' ?  <EmbedFooter/> : '' }
