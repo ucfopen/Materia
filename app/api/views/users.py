@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import datetime
 
 class UsersApi:
+    @staticmethod
     def get(request, user_id):
         #my user works here, should get it from db
         user_data = {
@@ -39,6 +40,8 @@ class UsersApi:
         # except User.DoesNotExist:
         #     return JsonResponse({"error": "User not found"}, status=404)
 
+
+    @staticmethod
     def activity(request):
         #some dummy data, should get it from db somehow.
         activity_data = {

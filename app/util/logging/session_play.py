@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Self
 
 from django.utils.timezone import make_aware
 
@@ -12,6 +13,14 @@ from util.widget.validator import ValidatorUtil
 # Analogous to MateriaPHP's Session_Play class
 
 class SessionPlay:
+    @classmethod
+    def get_or_none(cls, play_id: str) -> Self | None:
+        try:
+            session_play = cls(play_id=play_id)
+            return session_play
+        except Exception:
+            return None
+
 
     def __init__(self, play_id: str | None = None):
         self.data: LogPlay = LogPlay()
@@ -128,7 +137,18 @@ class SessionPlay:
         # TODO Event::trigger('score_updated', ... see php
 
 
-    def invalidate(self):
+    # Ensures that this session play is playable by the current user and updated time elapsed
+    def validate(self) -> bool:
+        if self.data.instance.playable_by_current_user():
+            if self.data.is_valid:
+                self.update_elapsed()
+                return True
+        else:  # Invalidate the play
+            self._invalidate()
+
+        return False
+
+    def _invalidate(self):
         if ValidatorUtil.is_valid_hash(self.data.id): # Destroy preview
             # TODO see php
             pass

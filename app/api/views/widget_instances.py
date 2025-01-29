@@ -11,6 +11,7 @@ logger = logging.getLogger("django")
 
 
 class WidgetInstancesApi:
+    @staticmethod
     def new(widget_id=None, name=None, qset=None, is_draft=None):
         # ordinarily there would be several checks here requiring an active login
         #  and making sure the current user can edit the relevant widget instance
@@ -74,6 +75,7 @@ class WidgetInstancesApi:
             # originally this called Msg
             return HttpResponseServerError("Widget instance could not be saved")
 
+    @staticmethod
     def update(
         inst_id=None,
         name=None,
