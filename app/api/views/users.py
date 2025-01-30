@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+import json
 import datetime
 
 class UsersApi:
@@ -39,6 +41,7 @@ class UsersApi:
         # except User.DoesNotExist:
         #     return JsonResponse({"error": "User not found"}, status=404)
 
+
     def activity(request):
         #some dummy data, should get it from db somehow.
         activity_data = {
@@ -57,3 +60,22 @@ class UsersApi:
             "more": False,
         }
         return JsonResponse(activity_data)
+
+
+    def service_user_login(request):
+        if request.method == "POST":
+            try:
+                data = json.loads(request.body)
+                username = data.get("username")
+                password = data.get("password")
+
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    return JsonResponse({"isAuthenticated": True}, status=200)
+                else:
+                    return JsonResponse({"isAuthenticated": False}, status=401)
+
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+            return JsonResponse({"error": "Invalid request method"}, status=405)

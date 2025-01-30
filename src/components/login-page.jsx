@@ -11,70 +11,88 @@ const LoginPage = () => {
 		loginUser: '',
 		loginPw: '',
 		actionLogin: '',
-		actionRedirect: '',
+		actionRedirect: '/profile/',
 		bypass: false,
 		loginLinks: '',
 		errContent: '',
-		noticeContent: ''
+		noticeContent: '',
+		errContent: '',
+		context: 'login',
 	})
 
 	useEffect(() => {
-		waitForWindow()
-		.then(() => {
-			let links = decodeURIComponent(window.LOGIN_LINKS).split('@@@').map((link, index) => {
-				let vals = link.split('***')
-				return <li key={index}><a href={`${vals[0]}`}>{`${vals[1]?.replace('+',' ')}`}</a></li>
-			})
+		const storedUsername = localStorage.getItem('username') || ''
+		const storedRedirect = sessionStorage.getItem('redirect') || '/profile/'
 
-			let actionRedirect = window.location.search && window.location.search.split("?redirect=").length > 1 ? window.location.search.split("?redirect=")[1] : ''
-
-			// If there is no redirect query in the url but there is a hash, it will redirect to my-widgets#hash
-			// Otherwise, it adds it onto the end of the redirect query
-			actionRedirect += (window.location.hash ? window.location.hash : '') 
-
-			setState({
-				loginUser: window.LOGIN_USER,
-				loginPw: window.LOGIN_PW,
-				actionLogin: window.ACTION_LOGIN,
-				actionRedirect: actionRedirect.length > 0 ? actionRedirect : window.ACTION_REDIRECT,
-				is_embedded: window.EMBEDDED != undefined ? window.EMBEDDED : false,
-				bypass: window.BYPASS,
-				context: window.CONTEXT,
-				instName: window.NAME != undefined ? window.INST_NAME : null,
-				widgetName: window.WIDGET_NAME != undefined ? window.WIDGET_NAME : null,
-				isPreview: window.IS_PREVIEW != undefined ? window.IS_PREVIEW : null,
-				loginLinks: links,
-				errContent: window.ERR_LOGIN != undefined ? <div className='error'><p>{`${window.ERR_LOGIN}`}</p></div> : '',
-				noticeContent: window.NOTICE_LOGIN != undefined ? <div className='error'><p>{`${window.NOTICE_LOGIN}`}</p></div> : ''
-			})
-		})
+		setState(prevState => ({
+			...prevState,
+			loginUser: storedUsername,
+			actionRedirect: storedRedirect,
+		}))
 	}, [])
 
-	const waitForWindow = async () => {
-		while(!window.hasOwnProperty('LOGIN_USER')
-		&& !window.hasOwnProperty('LOGIN_PW')
-		&& !window.hasOwnProperty('ACTION_LOGIN')
-		&& !window.hasOwnProperty('ACTION_REDIRECT')
-		&& !window.hasOwnProperty('BYPASS')
-		&& !window.hasOwnProperty('LOGIN_LINKS')
-		&& !window.hasOwnProperty('CONTEXT')) {
-			await new Promise(resolve => setTimeout(resolve, 500))
-		}
-	}
 
 	let detailContent = <></>
 	if (!state.context || state.context == 'login') {
-		detailContent = 
+		detailContent =
 		<div className="login_context detail">
 			<h2 className="context-header">Log In to Your Account</h2>
 			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
 		</div>
 	} else if (state.context && state.context == 'widget') {
-		detailContent = 
+		detailContent =
 		<div className="login_context detail">
 			<h2 className="context-header">Log in to play this widget</h2>
 			<span className="subtitle">{`Using your ${state.loginUser} and ${state.loginPw} to access your Widgets.`}</span>
 		</div>
+	}
+
+	const getCSRFToken = () => {
+		const cookies = document.cookie.split(';')
+		for(let cookie of cookies) {
+			if(cookie.startsWith('csrftoken=')) {
+				return cookie.split('=')[1]
+			}
+		}
+		return ''
+	}
+
+	const handleLogin = async (e) => {
+		e.preventDefault()
+		const username = document.getElementById('username').value
+		const password = document.getElementById('password').value
+		const csrfToken = getCSRFToken()
+		const response = await fetch('/api/json/auth/login/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrfToken,
+			},
+			// body: JSON.stringify({
+			// 	username: state.loginUser,
+			// 	password: state.loginPw,
+			// }),
+			body: JSON.stringify({ username, password }),
+		})
+
+		const data = await response.json()
+		if (response.ok) {
+			localStorage.setItem('username', state.loginUser)
+			window.location.href = state.actionRedirect
+		} else {
+			setState(prevState => ({
+				...prevState,
+				errContent: data.error,
+			}))
+		}
+	}
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target
+		setState(prevState => ({
+			...prevState,
+			[name]: value
+		}))
 	}
 
 	return (
@@ -88,19 +106,19 @@ const LoginPage = () => {
 					<div id="form">
 						{ state.errContent }
 						{ state.noticeContent }
-						<form method="post" action={`${state.actionLogin}?redirect=${state.actionRedirect}`} className='form-content'>
+						<form onSubmit={handleLogin} className='form-content'>
 							<ul>
 								<li>
-									<input type="text" name="username" id="username" placeholder={state.loginUser} tabIndex="1" autoComplete="username" />
+									<input type="text" name="username" id="username" placeholder={state.loginUser} tabIndex="1" autoComplete="username" onChange={handleInputChange}/>
 								</li>
 								<li>
-									<input type="password" name="password" id="password" placeholder={state.loginPw} tabIndex="2" autoComplete="current-password" />
+									<input type="password" name="password" id="password" placeholder={state.loginPw} tabIndex="2" autoComplete="current-password" onChange={handleInputChange}/>
 								</li>
 								<li className="submit_button">
 									<button type="submit" tabIndex="3" className="action_button">Login</button>
 								</li>
 							</ul>
-							{ state.bypass ?  
+							{ state.bypass ?
 								<ul className="help_links">
 									{ state.loginLinks }
 									<li><a href="/help">Help</a></li>
