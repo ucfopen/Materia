@@ -1,14 +1,9 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-import hashlib
 import json
 import datetime
 
-def get_gravatar(email):
-    clean_email = email.strip().lower().encode('utf-8')
-    hash_email = hashlib.md5(clean_email).hexdigest()
-    return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
 
 class UsersApi:
     @staticmethod
@@ -16,20 +11,16 @@ class UsersApi:
         if not request.user.is_authenticated:
             return JsonResponse({"error": "Not authenticated"}, status=403)
 
-        is_student = request.user.groups.filter(name="Student").exists()
-        is_support_user = request.user.groups.filter(name="Support").exists()
-        avatar_url = get_gravatar(request.user.email)
         user = request.user
-
         user_data = {
             "id": user.id,
             "username": user.username,
             "first": user.first_name,
             "last": user.last_name,
             "email": user.email,
-            "is_student": False,
+            "is_student": false,
             "is_support_user": user.is_staff,
-            "avatar": avatar_url,
+            "avatar": user.avatar,
         }
         return JsonResponse(user_data)
         # # my user works here, should get it from db
@@ -106,7 +97,3 @@ class UsersApi:
                 return JsonResponse({"error": "Invalid JSON"}, status=400)
 
             return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-
-
