@@ -14,21 +14,21 @@ class SessionLogger:
     def store_log_array(play_session: SessionPlay, logs: list[dict]):
         # Validate play_session
         if play_session.is_preview or not ValidatorUtil.is_valid_long_hash(play_session.data.id):
-            print("Incorrect play_id") # TODO: better logging
+            print("Incorrect play_id")  # TODO: better logging
             return
 
         # Validate logs
         if not isinstance(logs, list) or len(logs) == 0:
-            print("No logs sent") # TODO: better logging
+            print("No logs sent")  # TODO: better logging
             return
 
         # Process and save each log
         for log in logs:
             log_type = default_if_none(log.get("type"), 0)
             item_id = default_if_none(log.get("item_id"), "")
-            text =  default_if_none(log.get("text"), "")
-            value =  default_if_none(log.get("value"), "")
-            game_time =  default_if_none(log.get("game_time"), 0)
+            text = default_if_none(log.get("text"), "")
+            value = default_if_none(log.get("value"), "")
+            game_time = default_if_none(log.get("game_time"), 0)
             created_at = make_aware(datetime.now())
 
             SessionLogger.add_log(
@@ -36,28 +36,26 @@ class SessionLogger:
                 value, game_time, created_at, play_session
             )
 
-
     # Shortcut for adding a single log
     @staticmethod
     def add_log(
-        log_type: str, item_id: str, text: str, value: str, game_time: int,
-        created_at: datetime, play_id: SessionPlay
+            log_type: str, item_id: str, text: str, value: str, game_time: int,
+            created_at: datetime, play_id: SessionPlay
     ) -> Log:
         log = Log(
-            play_id = play_id.data.id, # TODO change this if we end up making it a foreign key field
-            log_type = log_type,
-            item_id = item_id,
-            text = text,
-            value = value,
-            game_time = game_time,
-            created_at = created_at,
+            play_id=play_id.data.id,  # TODO change this if we end up making it a foreign key field
+            log_type=log_type,
+            item_id=item_id,
+            text=text,
+            value=value,
+            game_time=game_time,
+            created_at=created_at,
         )
 
         if not play_id.is_preview:
             log.save()
 
         return log
-
 
     @staticmethod
     def get_log_type(log_type_id: int) -> str:

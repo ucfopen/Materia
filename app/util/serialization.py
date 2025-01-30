@@ -28,7 +28,6 @@ class SerializationUtil:
         SerializationUtil.convert_booleans(result)
         return result
 
-
     @staticmethod
     def serialize_set(source: QuerySet) -> list[dict]:
         # Set is made up of dicts rather than models (as is done when .values() is used)
@@ -48,7 +47,6 @@ class SerializationUtil:
 
         return results
 
-
     # Converts all booleans in a dict from their string 1/0 representation to True or False.
     # Replaces values in-place, and does not return a new dict.
     @staticmethod
@@ -59,7 +57,6 @@ class SerializationUtil:
                     fields[field] = "1"
                 if fields[field] is False:
                     fields[field] = "0"
-
 
     # Filters a dict to only include the fields specified. Analogous to performing
     # a SELECT operation on a database query.
