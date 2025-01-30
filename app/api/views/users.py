@@ -5,7 +5,7 @@ import datetime
 
 class UsersApi:
     @staticmethod
-    def get(request, user_id):
+    def get(request):
         # my user works here, should get it from db
         user_data = {
             "profile_fields": {

@@ -4,7 +4,7 @@ from typing import Self
 
 from django.utils.timezone import make_aware
 
-from core.models import WidgetInstance, LogPlay, DateRange, WidgetQset
+from core.models import WidgetInstance, LogPlay, DateRange
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
@@ -115,7 +115,7 @@ class SessionPlay:
         max_percent = percent
 
         if not self.is_preview:
-            self.invalidate()
+            self._invalidate()
             semester = DateRange.objects.get(pk=5)  # TODO fix
 
             # TODO: caching stuff, look at PHP
@@ -128,8 +128,8 @@ class SessionPlay:
             self.data.save()
 
             # Determine the highest score of this user's history
-            score_history = ScoringUtil.get_instance_score_history(self.data.instance,
-                                                                   self.data.context_id)  # TODO: this is a 'private' field - maybe figure out a better solution
+            score_history = ScoringUtil.get_instance_score_history(self.data.instance, self.data.context_id)  # TODO: this is a 'private' field - maybe figure out a better solution
+
             for score_history_item in score_history:
                 max_percent = max(max_percent, score_history_item.percent)
 

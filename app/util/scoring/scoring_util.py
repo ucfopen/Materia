@@ -1,10 +1,10 @@
+import json
 import math
 
 from django.db.models import Case, When, F, Count, Avg
 from django.db.models.functions import Round
 
 from core.models import WidgetInstance, DateRange, LogPlay, UserExtraAttempts
-from util.logging.session_play import SessionPlay
 
 
 class ScoringUtil:
@@ -47,7 +47,7 @@ class ScoringUtil:
 
     # Get score and play details for a SessionPlay
     @staticmethod
-    def get_play_details(session_play: SessionPlay):
+    def get_play_details(session_play: "util.logging.session_play.SessionPlay"):  # Avoids circular dependency
         # TODO get user, see php
         instance = session_play.data.instance
 
