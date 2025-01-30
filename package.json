@@ -28,7 +28,7 @@
     "js-base64": "^3.7.2",
     "react-datepicker": "^5.0.0",
     "react-overlays": "^5.2.1",
-    "react-query": "^3.39.2",
+    "react-query": "^3.39.3",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -36,10 +36,10 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
 	"@cfaester/enzyme-adapter-react-18": "^0.8.0",
-    "@testing-library/dom": "7.31.2",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "11.2.7",
-    "@testing-library/user-event": "^13.1.9",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "autoprefixer": "^9.8.5",
     "babel-jest": "^29.3.1",
     "babel-loader": "^9.1.2",
