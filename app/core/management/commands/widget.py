@@ -20,7 +20,7 @@ class Command(base.BaseCommand):
         parser.add_argument(
             "subcommand", type=str, help="Which subcommand function to run"
         )
-        parser.add_argument( # this works for now (in regard to above comment)
+        parser.add_argument(  # this works for now (in regard to above comment)
             "arguments", nargs="+", type=str
         )
 

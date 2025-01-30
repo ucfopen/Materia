@@ -60,18 +60,20 @@ class Asset(models.Model):
         from util.widget.validator import ValidatorUtil
 
         return (
-            ValidatorUtil.is_valid_hash(self.id)
-            and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
+                ValidatorUtil.is_valid_hash(self.id)
+                and self.file_type in Asset.MIME_TYPE_FROM_EXTENSION.keys()
         )
 
     # Get the materia asset type based on the mime type
     # param string mime_type: string mime type to convert to materia asset type: ex 'image/png'
+    @staticmethod
     def get_type_from_mime_type(mime_type):
         if mime_type not in Asset.MIME_TYPE_TO_EXTENSION.keys():
             return ""
         return Asset.MIME_TYPE_TO_EXTENSION[mime_type]
 
     # Finds an available asset ID to avoid database collisions
+    @staticmethod
     def get_unused_id():
         from util.widget.instance.hash import WidgetInstanceHash
 
@@ -135,7 +137,7 @@ class Asset(models.Model):
                 except AssetData.DoesNotExist:
                     pass
                 for perm in PermObjectToUser.objects.filter(
-                    object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
+                        object_id=self.id, object_type=PermObjectToUser.ObjectType.ASSET
                 ):
                     perm.delete()
             self = Asset()
@@ -665,9 +667,11 @@ class Widget(models.Model):
         self.meta_data = meta_final
         return self.meta_data
 
+    @staticmethod
     def make_clean_name(name):
         return name.replace(" ", "-").lower()
 
+    @staticmethod
     def load_script(script_path):
         if not os.path.isfile(script_path):
             raise Exception(f"Script not found: {script_path}")
@@ -754,7 +758,7 @@ class WidgetInstance(models.Model):
             return WidgetQset({"version": None, "data": None})
 
     def playable_by_current_user(self):
-        return self.guest_access # TODO: || ServiceUser::verify_session();
+        return self.guest_access  # TODO: || ServiceUser::verify_session();
 
     def db_store(self):
         # check for requirements
@@ -949,7 +953,6 @@ class WidgetQset(SerializableModel):
         indexes = [
             models.Index(fields=["created_at"], name="widget_qset_created_at"),
         ]
-
 
 
 class UserSettings(models.Model):

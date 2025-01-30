@@ -4,9 +4,11 @@ from django.contrib.auth import authenticate, login
 import json
 import datetime
 
+
 class UsersApi:
-    def get(request, user_id):
-        #my user works here, should get it from db
+    @staticmethod
+    def get(request):
+        # my user works here, should get it from db
         user_data = {
             "profile_fields": {
                 "useGravatar": True,
@@ -41,9 +43,9 @@ class UsersApi:
         # except User.DoesNotExist:
         #     return JsonResponse({"error": "User not found"}, status=404)
 
-
+    @staticmethod
     def activity(request):
-        #some dummy data, should get it from db somehow.
+        # some dummy data, should get it from db somehow.
         activity_data = {
             "activity": [
                 {
