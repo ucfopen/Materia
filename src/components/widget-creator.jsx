@@ -169,7 +169,9 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
 		staleTime: 2 * (60 * 1000),//2mins
-		cacheTime: 3 * (60 * 1000), // 3mins
+		cacheTime: 3 * (60 * 1000),
+		refetchInterval: 2 * (60 * 1000),
+		refetchIntervalInBackground: true,
 		retry: false,
 		onSuccess: (success) => {
 			if (!success) {
