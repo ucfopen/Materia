@@ -168,11 +168,16 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		queryKey: ['widget-lock', instance.id],
 		queryFn: () => apiGetWidgetLock(instance.id),
 		enabled: !!instance.id,
-		staleTime: Infinity,
+		staleTime: 2 * (60 * 1000),//2mins
+		cacheTime: 3 * (60 * 1000),
+		refetchInterval: 2 * (60 * 1000),
+		refetchIntervalInBackground: true,
 		retry: false,
 		onSuccess: (success) => {
 			if (!success) {
-				onInitFail('Someone else is editing this widget, you will be able to edit after they finish.')
+				onInitFail({
+					message: 'locked',
+				});
 			}
 		},
 		onError: (error) => {
@@ -719,6 +724,17 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 			setCreatorState({
 				...creatorState,
 				invalid: true
+			})
+		} else if (err.message == "locked") {
+			setCreatorState({
+				...creatorState,
+				invalid: true
+			})
+			setAlertDialog({ enabled: true,
+				title: 'Widget Locked',
+				message:'This widget is locked and cannot be modified until another collaborator is finished editing the widget. Please check again after a couple of minutes when the other collaborator has finished editing.',
+				fatal: true,
+				enableLoginButton: false
 			})
 		} else {
 			setAlertDialog(

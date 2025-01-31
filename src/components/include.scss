@@ -307,7 +307,7 @@ header {
 	}
 
 	a {
-		color: #0093e7; 
+		color: #0093e7;
 		text-decoration: none;
 
 		&:hover {
@@ -527,13 +527,13 @@ header {
 		height: 16px;
 		margin: 0 0.5em 0 0;
 		padding: 0;
-	
+
 		background-color: #fff;
 		border: 2px solid #7e7e7e;
 		border-radius: 4px;
-		
+
 		transition: all 0.3s;
-	
+
 		&:after {
 			content: '✓';
 			position: absolute;
@@ -575,13 +575,13 @@ header {
 		height: 16px;
 		margin: 0 0.5em 0 0;
 		padding: 0;
-	
+
 		background-color: #fff;
 		border: 2px solid #7e7e7e;
 		border-radius: 50%;
-		
+
 		transition: all 0.3s;
-	
+
 		&:after {
 			content: '';
 			position: absolute;
@@ -1092,7 +1092,7 @@ h1.logo {
 	}
 }
 
-.darkMode .page, .widget {
+.darkMode .page, .darkMode .widget {
 	.alert-wrapper {
 		background: rgba(0,0,0,0.66);
 
