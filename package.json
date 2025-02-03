@@ -23,6 +23,7 @@
     "prettier:detectchanges": "git diff --exit-code ./src || (echo '!! Prettier created files that need to be manually added.'; exit 1;)"
   },
   "dependencies": {
+    "@mdx-js/loader": "^3.1.0",
     "d3": "^7.2.0",
     "fs-extra": "^8.0.1",
     "js-base64": "^3.7.2",

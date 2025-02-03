@@ -182,6 +182,5 @@ def _get_id_from_slug(widget_slug: str) -> int | None:
         except Exception:
             pass
 
-    print(
-        f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'")  # TODO: proper logging (or maybe this one is just unnecessary)
+    print(f"Failed to get id from widget slug, likely an invalid slug: '{widget_slug}'")  # TODO: proper logging (or maybe this one is just unnecessary)
     return None
