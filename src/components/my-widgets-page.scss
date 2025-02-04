@@ -798,21 +798,20 @@
 				}
 
 				&:disabled {
+					border: solid 1px $gray;
+					border-radius: 2px;
+					background: $light-gray;
+
 					cursor: default;
 					user-select: none;
 				}
 			}
 
-			.draft {
-				padding-bottom: 46px;
+			&.draft {
 				cursor: default;
 
-				opacity: 0.5;
+				opacity: 0.75;
 				user-select: none;
-
-				p {
-					display: none;
-				}
 			}
 
 			.embed-options {
@@ -1162,6 +1161,7 @@
 		}
 
 		.share-widget-container {
+			
 			.share-widget-options-first {
 				border-left: 8px solid rgba(239, 129, 82, 0.5);
 			}
