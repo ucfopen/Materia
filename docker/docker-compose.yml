@@ -1,5 +1,4 @@
-# name: materia-django
-version: '3.5'
+name: materia-django
 
 networks:
   backend:
@@ -28,7 +27,7 @@ services:
     ports:
       - '8001:8001'
     depends_on:
-      - mysql-django
+      - mysql
     environment:
       - DJANGO_ENV=dev
       - MYSQL_ROOT_PASSWORD=root
@@ -36,18 +35,17 @@ services:
       - MYSQL_USER=materia_user
       - MYSQL_PASSWORD=kogneato
       - MYSQL_HOST=mysql
-      - MYSQL_PORT=3309
+      - MYSQL_PORT=3306
       - EMAIL_HOST=host.docker.internal
       - EMAIL_PORT=1025
     volumes:
       - ../app:/var/www/html
-      - ../wait_for_it.sh:/var/www/html/wait_for_it.sh
       - uploaded_widgets_django:/var/www/html/staticfiles/widget/
       - ./config/uwsgi/:/etc/uwsgi
     # command: uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
-    command: /wait_for_it.sh mysql:3306 -t 10 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
+    command: /wait_for_it.sh mysql:3306 -t 15 -- uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2
     # command: /bin/bash -c '/wait_for_it.sh mysql:3306 -t 10 && yarn install --silent && echo "Building frontend..." && yarn build-for-image && echo "Collecting static files..." && python manage.py collectstatic --noinput && echo "Starting Django server..." && uwsgi --ini=/etc/uwsgi/uwsgi.ini --py-autoreload=2 && python manage.py runserver 0.0.0.0:8001'
-  mysql-django:
+  mysql:
     image: mariadb:10.6
     networks:
       - backend
@@ -60,7 +58,6 @@ services:
       - MYSQL_PASSWORD=kogneato
     volumes:
       - ./config/mysql/override.cnf:/etc/mysql/conf.d/override.cnf
-      - ./backup.sql:/backup.sql
 
 volumes:
   # static_files: {} # compiled js/css and uploaded widgets

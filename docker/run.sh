@@ -13,4 +13,4 @@
 
 set -e
 
-docker compose run --rm app /wait-for-it.sh mysql:3306 -t 20 -- "$@"
+docker compose run --rm python /wait_for_it.sh mysql:3306 -t 20 -- "$@"
