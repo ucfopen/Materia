@@ -357,6 +357,16 @@ class WidgetInstaller:
             "api_version": int(manifest_data["general"]["api_version"]),
             "package_hash": package_hash,
             "score_module": manifest_data["score"]["score_module"],
+            "is_generable": (
+                bool(manifest_data["general"]["is_generable"])
+                if "is_generable" in manifest_data["general"]
+                else False
+            ),
+            "uses_prompt_generation": (
+                bool(manifest_data["general"]["uses_prompt_generation"])
+                if "uses_prompt_generation" in manifest_data["general"]
+                else False
+            ),
             "creator": (
                 manifest_data["files"]["creator"]
                 if "creator" in manifest_data["files"]

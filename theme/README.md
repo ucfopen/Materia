@@ -20,7 +20,7 @@ The following methods for theming Materia are listed from _simplest_ to _most po
 ## 1. Common links, emails, etc. (Highly recommended)
 
 Items such as specific emails, links, phone numbers for your institution can be listed in many areas on Materia's
-webpages. To easily modify these, check out `theme/common.json`. This file will be present with a set of placeholders (TODO: actually make this)
+webpages. To easily modify these, check out `theme/common.json`. This file will be present with a set of placeholders.
 
 ## 2. Logos and other images
 
@@ -31,7 +31,7 @@ Certain institution-specific logos and images may appear on various pages in Mat
 
 TODO this is prolly a different process if you're hosting images and what not on a CDN
 
-For this customization, any changes you make are applied immediately. No need to restart the server, or rebuild the
+For this customization, any changes you make are applied immediately. No need to restart the server or rebuild the
 frontend.
 
 ## 3. Paragraphs, wording, and other blurbs of text
