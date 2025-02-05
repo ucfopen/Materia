@@ -102,6 +102,7 @@ module.exports = {
 		alias: {
 			'@': [path.resolve(__dirname, 'theme/src'), path.resolve(__dirname, 'src')],
 			'MateriaText': [path.resolve(__dirname, 'theme/text'), path.resolve(__dirname, 'src/text')],
+			'MateriaCommon': [path.resolve(__dirname, 'theme/common.json'), path.resolve(__dirname, 'src/common.json')],
 		},
 	},
 	optimization: {

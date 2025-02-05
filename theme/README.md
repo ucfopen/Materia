@@ -3,7 +3,7 @@
 Materia provides plenty of ways to tailor the web app to your institution's needs. Theming ranges from simple
 adjustments of links, emails, and images, to overriding entire pages and React components.
 
-All theming will be done within the `theme` folder of your Materia install (where this README is located). Any changes
+All theming will be done within the `theme` folder of your Materia install (where this README is located). Most changes
 to the theme also will require you to rebuild the frontend using webpack. Instructions to do so are located
 [below](#once-finished-test-and-deploy)
 
@@ -22,12 +22,15 @@ The following methods for theming Materia are listed from _simplest_ to _most po
 Items such as specific emails, links, phone numbers for your institution can be listed in many areas on Materia's
 webpages. To easily modify these, check out `theme/common.json`. This file will be present with a set of placeholders.
 
+Once done, [test and rebuild your frontend](#once-finished-test-and-deploy).
+
 ## 2. Logos and other images
 
 Certain institution-specific logos and images may appear on various pages in Materia.
 
 1. Find the image you'd like to replace in `public/img/`. Take note of its name and location.
-2. Create an image of the same name and folder structure in `theme/img/`
+2. Create an image of the same name and folder structure in `theme/img/`. For example, if you'd like to override
+the file located at `public/img/logos/my_logo.png`, then create your custom image at `theme/img/logos/my_logo.png`.
 
 TODO this is prolly a different process if you're hosting images and what not on a CDN
 
@@ -57,14 +60,15 @@ the original file.
 > links, emails, and related, as specified [above](#1-common-links-emails-etc-highly-recommended). You may choose
 > to continue using these imports, or hard-code all info yourself.
 
+Once done, [test and rebuild your frontend](#once-finished-test-and-deploy).
+
 ## 4. Custom React components and CSS
 
 Offering the deepest level of customizability, you may choose to override any React component or CSS stylesheet.
 Materia's frontend is written using Javascript, React, and SCSS.
 
-1. In a similar fashion to modifying paragraphs as listed [above](#3-paragraphs-wording-and-other-blurbs-of-text), you
-should first find which component or stylesheet you'd like to modify in the `src/` folder. Take note of the file's name
-and location.
+1. You should first find which component or stylesheet you'd like to modify in the `src/` folder. Take note of the 
+file's name and location.
 
 2. Then, create a file of the same name and folder structure in the `theme/src/` folder. For example, if you'd like to
 create a custom component that overrides `src/components/header.jsx`, then create the file
@@ -82,8 +86,13 @@ as expected (where applicable).
 > in your `theme/text/` folder first, then falls back to the original `src/text/` folder.
 > Read [above](#3-paragraphs-wording-and-other-blurbs-of-text) to learn more about these files.
 > 
+> The same applies with the `MateriaCommon` import alias - which points to the first available common.json file
+> described [above](#1-common-links-emails-etc-highly-recommended)
+> 
 > Please make sure to use these aliases. If you have a completely new component that doesn't exist in the source Materia
 > code, then you are fine to use relative imports in your `theme/src/` folder.
+
+Once done, [test and rebuild your frontend](#once-finished-test-and-deploy).
 
 ---
 
