@@ -10,3 +10,14 @@ def profile(request):
 
 
 
+def settings(request):
+    context = {
+        "title": "Settings",
+        "js_resources": ["dist/js/settings.js"],
+        "css_resources": ["dist/css/settings.css"],
+    }
+    return render(request, "react.html", context)
+
+
+
+
