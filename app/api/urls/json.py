@@ -13,18 +13,21 @@ urlpatterns = [
     path("widget_instances_get/", WidgetsApi.widget_instances_get),
     path("question_set_get/", WidgetsApi.question_set_get),
 
+    # Creator
+    path("widget_publish_perms_verify/", WidgetsApi.widget_publish_perms_verify),
+    path("widget_instance_save/", WidgetsApi.widget_instance_save),
+
     # Users
     path("user_get", UsersApi.get),
     path("auth/login/", UsersApi.service_user_login, name="service_user_login"),
 
     path("user/activity", UsersApi.activity),
-    path("session_author_verify/", SessionsApi.author_verify),
     path("notifications_get/", NotificationsApi.get),
 
     # Sessions
-    path("session_play_create/", SessionsApi.play_create),
-    path("play_logs_save/", SessionsApi.play_save),
-    path("session_author_verify/", SessionsApi.author_verify),
+    path("session_play_create/", SessionsApi.session_play_create),
+    path("play_logs_save/", SessionsApi.play_logs_save),
+    path("session_author_verify/", SessionsApi.session_author_verify),
 
     # Scores
     path("widget_instance_scores_get/", ScoresApi.widget_instance_scores_get),

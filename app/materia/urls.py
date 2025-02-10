@@ -39,7 +39,12 @@ urlpatterns = [
     path("play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"),
     path("play/<slug:widget_instance_id>/<str:instance_name>/", WidgetPlayView.as_view(), name="widget play"),
 
+    # Creator
+    path("widgets/<slug:widget_slug>/create", WidgetCreatorView.as_view(), name="widget creator"),
+    path("preview/<slug:widget_instance_id>", WidgetPreviewView.as_view(), name="widget preview"),
+
     # Scores
+    path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),
     path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
 
     # API

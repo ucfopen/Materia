@@ -10,11 +10,11 @@ from util.widget.validator import ValidatorUtil
 
 class SessionsApi:
     @staticmethod
-    def author_verify(request):
+    def session_author_verify(request):
         return JsonResponse({})
 
     @staticmethod
-    def play_create(request):
+    def session_play_create(request):
         # Verify request params
         instance_id = json.loads(request.body)["instanceId"]
         if instance_id is None:
@@ -36,7 +36,7 @@ class SessionsApi:
 
     @staticmethod
     # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
-    def play_save(request):
+    def play_logs_save(request):
         # Get all request params
         request_body = json.loads(request.body)
         play_id = request_body.get("playId")
@@ -44,8 +44,8 @@ class SessionsApi:
         preview_instance_id = request_body.get("previewInstanceId")
 
         # Validate request params
-        if not play_id or (not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id)):
-            # TODO better error reporting, was originally Msg:invalid_input(play_id)
+        if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
+            # TODO better error reporting, was originally Msg:invalid_input(playId)
             return HttpResponseBadRequest()
 
         if not logs or not isinstance(logs, list):
@@ -53,16 +53,12 @@ class SessionsApi:
             return HttpResponseBadRequest()
 
         # Save logs
-        if preview_instance_id:
+        if ValidatorUtil.is_valid_hash(preview_instance_id):
             ##### PREVIEW MODE #####
             # Confirm user session for preview
             # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
-
-            if ValidatorUtil.is_valid_hash(preview_instance_id):
-                pass
-                # TODO: Score_Manager::save_preview_logs($preview_inst_id, $logs);
-
-            return HttpResponse()  # TODO return true, look at PHP
+            SessionLogger.save_preview_logs(preview_instance_id, logs)
+            return JsonResponse({"success": True})  # TODO return true, look at PHP
         else:
             ##### PLAYING FOR KEEPS #####
             # Grab session play
@@ -75,7 +71,7 @@ class SessionsApi:
             instance = session_play.data.instance
             if not instance.playable_by_current_user():
                 return HttpResponseForbidden()  # TODO was Msg::no_login
-            # if not instance.guest_access and TODO: self::session_play_verify($play_id) !== true
+            # if not instance.guest_access and TODO: self::session_play_verify($playId) !== true
             #     return Msg::no_login();
 
             # Validate session play

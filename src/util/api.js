@@ -104,17 +104,17 @@ export const apiDeleteWidget = ({ instId }) => {
 export const apiSaveWidget = (_params) => {
 	const defaults = {
 		qset: null,
-		is_draft: null,
-		open_at: null,
-		close_at: null,
+		isDraft: null,
+		openAt: null,
+		closeAt: null,
 		attempts: null,
-		guest_access: null,
-		embedded_only: null,
+		guestAccess: null,
+		embeddedOnly: null,
 	}
 
-	let params = Object.assign({}, defaults, _params)
+	const params = Object.assign({}, defaults, _params)
 
-	if (params.inst_id != null) {
+	if (params.instId != null) {
 		// limit args to the the following params
 		let args = [
 			params.inst_id,
@@ -131,13 +131,13 @@ export const apiSaveWidget = (_params) => {
 		return fetchGet('/api/json/widget_instance_update/', { body: `data=${formatFetchBody(args)}` })
 
 	} else {
-		let args = [
-			params.widget_id,
-			params.name,
-			params.qset,
-			params.is_draft
-		]
-		return fetchGet('/api/json/widget_instance_save/', { body: `data=${formatFetchBody(args)}` })
+		const body = {
+			widgetId: params.widgetId,
+			name: params.name,
+			qset: params.qset,
+			isDraft: params.isDraft,
+		}
+		return fetchGet('/api/json/widget_instance_save/', { body })
 	}
 }
 
@@ -405,7 +405,8 @@ export const apiRestoreAsset = (assetId) => {
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
-	return fetchGet('/api/json/widget_publish_perms_verify', ({ body: `data=${formatFetchBody([widgetId])}` }))
+	return fetchGet('/api/json/widget_publish_perms_verify/', { body: { widgetId } })
+		.then((json) => json['publishPermsValid'])
 }
 
 /** Controller_Api_User */

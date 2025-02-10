@@ -60,7 +60,7 @@ class ValidatorUtil:
     # return bool True if var is a whole integer
     # return bool False if var is not a whole integer
     @staticmethod
-    def is_positive_integer_or_zero(var, allow_zero=False):
+    def is_positive_integer_or_zero(var, allow_zero=False) -> bool:
         try:
             if not ValidatorUtil.is_int(var):
                 return False

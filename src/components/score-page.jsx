@@ -3,7 +3,7 @@ import Header from './header'
 import Scores from './scores'
 
 const ScorePage = () => {
-	// get the play_id from the url if using /scores/single/:play_id/:inst_id url
+	// get the playId from the url if using /scores/single/:playId/:instId url
 	const res = window.location.pathname.match(/\/scores\/single\/([a-z0-9\-_]+)/i)
 	const single_id = (res && res[1]) || null
 
@@ -14,13 +14,20 @@ const ScorePage = () => {
 	// get widget id from url like https://my-server.com:8080/scores/nLAmG#play-NbmVXrZe9Wzb
 	const split_url = document.URL.match(/^.+\/([a-z0-9]+)\/([a-z0-9-]+)/i)
 
-	const inst_id = split_url[1]
-	const play_id = split_url[2] // TODO This might be wrong, look bellow (django rewrite)
+	let pathIsPreview = false
+	let instId = null
+	let playId = null
+	if (split_url[1] === 'preview') {
+		pathIsPreview = true
+		instId = split_url[2]
+	} else {
+		instId = split_url[1]
+		playId = split_url[2]
+	} // TODO This might be wrong (django rewrite)
 
 	// this is only actually set to something when coming from the profile page
-	//const play_id = window.location.hash.split('play-')[1]
+	//const playId = window.location.hash.split('play-')[1]
 
-	const pathIsPreview = window.location.pathname.includes('/preview/')
 	const pathIsEmbedded = window.location.pathname.includes('/embed/')
 
 	const [state, setState] = useState({
@@ -39,10 +46,10 @@ const ScorePage = () => {
 			if (window.IS_EMBEDDED) document.body.classList.add('embedded')
 
 			setState({
-				instanceID: (inst_id ? inst_id : null),
-				playID: play_id ? play_id : null,
+				instanceID: (instId ? instId : null),
+				playID: playId ? playId : null,
 				singleID: single_id ? single_id : null,
-				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : play_id,
+				sendToken: typeof window.LAUNCH_TOKEN !== 'undefined' && window.LAUNCH_TOKEN !== null ? window.LAUNCH_TOKEN : playId,
 				isEmbedded: window.IS_EMBEDDED == 'true' || window.IS_EMBEDDED == true || pathIsEmbedded ? true : false,
 				isPreview: window.IS_PREVIEW == 'true' || window.IS_PREVIEW == true || pathIsPreview ? true : false,
 			})
@@ -66,8 +73,8 @@ const ScorePage = () => {
 
 	let bodyRender = null
 	if ( state.isPreview !== undefined ) {
-		bodyRender = <Scores inst_id={state.instanceID}
-		play_id={state.playID}
+		bodyRender = <Scores instId={state.instanceID}
+		playId={state.playID}
 		single_id={state.singleID}
 		send_token={state.sendToken}
 		isEmbedded={state.isEmbedded}

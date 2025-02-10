@@ -96,7 +96,7 @@ class WidgetInstancesApi:
         # if (\Service_User::verify_session('no_author')) {
         #     return Msg::invalid_input('You are not able to create or edit widgets.');
         # }
-        # if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
+        # if ( ! static::has_perms_to_inst($instId, [Perm::FULL])) return Msg::no_perm();
 
         # TODO: move the part of this code that actually does stuff somewhere else and call that new function from here
         if not ValidatorUtil.is_valid_hash(inst_id):
@@ -141,7 +141,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Name'
             #     activity.value_2 = name
             #     activity.save()
@@ -154,7 +154,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Is Draft'
             #     activity.value_2 = is_draft
             #     activity.save()
@@ -167,7 +167,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Open At'
             #     activity.value_2 = open_at
             #     activity.save()
@@ -180,7 +180,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Close At'
             #     activity.value_2 = close_at
             #     activity.save()
@@ -193,7 +193,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Attempts'
             #     activity.value_2 = attempts
             #     activity.save()
@@ -210,7 +210,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Is Draft'
             #     activity.value_2 = guest_access
             #     activity.save()
@@ -230,7 +230,7 @@ class WidgetInstancesApi:
                         #     \Model_user::find_current_id(),
                         #     $user_id,
                         #     Perm::INSTANCE,
-                        #     $inst_id,
+                        #     $instId,
                         #     'disabled',
                         #     null
                         # );
@@ -243,7 +243,7 @@ class WidgetInstancesApi:
             #     activity = LogActivity()
             #     activity.user = user.id
             #     activity.type = LogActivity.TYPE_EDIT_WIDGET_SETTINGS
-            #     activity.item_id = inst_id
+            #     activity.item_id = instId
             #     activity.value_1 = 'Embedded Only'
             #     activity.value_2 = embedded_only
             #     activity.save()

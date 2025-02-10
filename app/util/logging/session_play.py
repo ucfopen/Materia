@@ -177,6 +177,15 @@ class SessionPlay:
 
         return False
 
+    # Util function for getting the SessionPlay for that play_Id and running its validate function.
+    @staticmethod
+    def validate_by_play_id(play_id: str) -> bool:
+        session_play = SessionPlay.get_or_none(play_id)
+        if not session_play:
+            return False
+
+        return session_play.validate()
+
     # def create_log_play(self, id: str):
     # log_play = LogPlay(
     #     id=id,

@@ -96,7 +96,7 @@ class ScoresApi:
         if preview_inst_id:
             # Check if preview is valid and user has access
             if not ValidatorUtil.is_valid_hash(preview_inst_id):
-                return HttpResponseBadRequest  # TODO: better error reporting
+                return HttpResponseBadRequest()  # TODO: better error reporting
             if False:  # TODO: \Service_User::verify_session() !== true
                 return HttpResponseForbidden()  # TODO was Msg::no_login()
 

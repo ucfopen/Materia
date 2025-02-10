@@ -8,10 +8,20 @@ from django.db.models import QuerySet, Model
 # A model containing an as_json function that will return a
 # proper JSON representation of itself.
 class SerializableModel(models.Model):
-    def as_json(self, *select_fields):
+    def as_dict(self, select_fields: list[str] = None, serialize_fks: list[str] = None) -> dict:
+        if not select_fields:
+            select_fields = []
+        if not serialize_fks:
+            serialize_fks = []
+
         result = SerializationUtil.serialize(self)
+
         if len(select_fields) >= 1:
             result = SerializationUtil.select(result, *select_fields)
+
+        for foreign_key in serialize_fks:
+            serialized_fk = getattr(self, foreign_key).as_dict()
+            result[foreign_key] = serialized_fk
 
         return result
 
@@ -22,10 +32,12 @@ class SerializableModel(models.Model):
 class SerializationUtil:
     @staticmethod
     def serialize(source: Model) -> dict:
+        # TODO serialize the foreign keys
         unprocessed_json = json.loads(serializers.serialize("json", [source]))[0]
         result = unprocessed_json["fields"]
         result["id"] = unprocessed_json["pk"]
         SerializationUtil.convert_booleans(result)
+
         return result
 
     @staticmethod

@@ -53,7 +53,7 @@ class ScoringUtil:
 
         # TODO
         # if session_play.data.user != cur_user and not instance.guest_access:
-        #     if ( ! Perm_Manager::user_has_any_perm_to($curr_user_id, $play->inst_id, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]))
+        #     if ( ! Perm_Manager::user_has_any_perm_to($curr_user_id, $play->instId, Perm::INSTANCE, [Perm::VISIBLE, Perm::FULL]))
         # 					return new \Materia\Msg('permissionDenied','Permission Denied','You do not own the score data you are attempting to access.');
 
         # TODO
@@ -76,7 +76,7 @@ class ScoringUtil:
 
         # Append qset to details
         # Required for custom score screens & contextually provided per play, since some plays may use an earlier qset verison
-        result["qset"] = instance.qset.as_json()
+        result["qset"] = instance.qset.as_dict()
 
         return result  # TODO dunno if we need to do this as a list - the original function in php is never called with more than one play_id
 

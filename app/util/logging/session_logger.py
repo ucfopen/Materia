@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.utils.timezone import make_aware
 
-from core.models import Log
+from core.models import Log, WidgetInstance
 from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
 
@@ -24,26 +24,17 @@ class SessionLogger:
 
         # Process and save each log
         for log in logs:
-            log_type = default_if_none(log.get("type"), 0)
-            item_id = default_if_none(log.get("item_id"), "")
-            text = default_if_none(log.get("text"), "")
-            value = default_if_none(log.get("value"), "")
-            game_time = default_if_none(log.get("game_time"), 0)
-            created_at = make_aware(datetime.now())
-
-            SessionLogger.add_log(
-                SessionLogger.get_log_type(log_type), item_id, text,
-                value, game_time, created_at, play_session
-            )
+            SessionLogger._validate_and_store_log(log, play_session)
 
     # Shortcut for adding a single log
     @staticmethod
     def add_log(
             log_type: str, item_id: str, text: str, value: str, game_time: int,
-            created_at: datetime, play_id: SessionPlay
+            created_at: datetime, session_play: SessionPlay | None
     ) -> Log:
+        play_id = -1 if session_play is None else session_play.data.id
         log = Log(
-            play_id=play_id.data.id,  # TODO change this if we end up making it a foreign key field
+            play_id=play_id,
             log_type=log_type,
             item_id=item_id,
             text=text,
@@ -52,10 +43,24 @@ class SessionLogger:
             created_at=created_at,
         )
 
-        if not play_id.is_preview:
+        # Only save to DB if not a preview
+        if session_play and not session_play.is_preview:
             log.save()
 
         return log
+
+    # Create an array of logs and store their references in the current session as preview logs
+    # Because they are preview logs, they will not be saved to the DB
+    @staticmethod
+    def save_preview_logs(widget_instance_id: str, raw_logs: list[dict]):
+        # Append to any previously stored logs
+        # TODO $logs = \Session::get('previewPlayLogs.'.$instId, []);
+
+        for raw_log in raw_logs:
+            log = SessionLogger._validate_and_store_log(raw_log, None)
+            # TODO logs.append(log)
+
+        # TODO \Sesssion::set('previewPlayLogs.'.$instId, $logs);
 
     @staticmethod
     def get_log_type(log_type_id: int) -> str:
@@ -137,6 +142,20 @@ class SessionLogger:
 
             case _:
                 return Log.LogType.EMPTY
+
+    @staticmethod
+    def _validate_and_store_log(raw_log: dict, session_play: SessionPlay | None) -> Log:
+        log_type = default_if_none(raw_log.get("type"), 0)
+        item_id = default_if_none(raw_log.get("item_id"), "")
+        text = default_if_none(raw_log.get("text"), "")
+        value = default_if_none(raw_log.get("value"), "")
+        game_time = default_if_none(raw_log.get("game_time"), 0)
+        created_at = make_aware(datetime.now())
+
+        return SessionLogger.add_log(
+            SessionLogger.get_log_type(log_type), item_id, text,
+            value, game_time, created_at, session_play
+        )
 
 
 # TODO maybe move this into a util class?

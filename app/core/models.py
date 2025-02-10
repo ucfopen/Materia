@@ -374,7 +374,7 @@ class LogStorage(models.Model):
         LogPlay,
         related_name="storage_logs",
         on_delete=models.PROTECT,
-        db_column="play_id",
+        db_column="play_d",
     )
     user = models.ForeignKey(
         User,
@@ -610,7 +610,7 @@ class UserExtraAttempts(models.Model):
         ]
 
 
-class Widget(models.Model):
+class Widget(SerializableModel):
     # update these to the relevant paths when those Python files exist
     PATHS_PLAYDATA = os.path.join("_exports", "playdata_exporters.php")
     PATHS_SCOREMOD = os.path.join("_score-modules", "score_module.php")
@@ -667,6 +667,12 @@ class Widget(models.Model):
         self.meta_data = meta_final
         return self.meta_data
 
+    def publishable_by(self, user_id: int) -> bool:
+        if not self.restrict_publish:
+            return True
+        return True  # TODO: return ! Perm_Manager::is_student($user_id);
+
+
     @staticmethod
     def make_clean_name(name):
         return name.replace(" ", "-").lower()
@@ -710,7 +716,7 @@ class Widget(models.Model):
         ]
 
 
-class WidgetInstance(models.Model):
+class WidgetInstance(SerializableModel):
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     widget = models.ForeignKey(
         "Widget",
@@ -731,8 +737,8 @@ class WidgetInstance(models.Model):
     is_draft = models.BooleanField(default=False)
     height = models.IntegerField(default=0)
     width = models.IntegerField(default=0)
-    open_at = models.IntegerField(default=None, null=True)
-    close_at = models.IntegerField(default=None, null=True)
+    open_at = models.DateTimeField(default=None, null=True)
+    close_at = models.DateTimeField(default=None, null=True)
     attempts = models.IntegerField(default=-1)
     is_deleted = models.BooleanField(default=False)
     guest_access = models.BooleanField(default=False)
@@ -755,12 +761,12 @@ class WidgetInstance(models.Model):
         try:
             return self.qsets.latest("id")
         except WidgetQset.DoesNotExist:
-            return WidgetQset({"version": None, "data": None})
+            return WidgetQset(version=None, data=None, instance=self)
 
     def playable_by_current_user(self):
         return self.guest_access  # TODO: || ServiceUser::verify_session();
 
-    def db_store(self):
+    def save(self, *args, **kwargs):
         # check for requirements
         # TODO: this requires a user check, revisit later
         # if not self.is_draft and not self.widget.publishable_by(user):
@@ -786,7 +792,7 @@ class WidgetInstance(models.Model):
                     hash = WidgetInstanceHash.generate_key_hash()
                     self.id = hash
                     self.created_at = make_aware(datetime.now())
-                    self.save()
+                    super().save(*args, **kwargs)
                     success = True
                 # TODO: use a more specific exception
                 except Exception as e:
@@ -806,7 +812,7 @@ class WidgetInstance(models.Model):
 
             self.published_by = new_publisher
             self.updated_at = make_aware(datetime.now())
-            self.save()
+            super().save(*args, **kwargs)
 
             # TODO: originally this was meant to check if the number of rows affected by the 'update' query
             # is greater than zero - may make more sense to try/except this to check for failures?
@@ -901,10 +907,13 @@ class WidgetQset(SerializableModel):
 
         return False
 
-    def as_json(self, *select_fields):
-        json_qset = super().as_json(*select_fields)
-        decoded_qset_data = base64.b64decode(json_qset["data"][2:-1]).decode("utf-8")  # Slicing removes the b' ... '
-        json_qset["data"] = json.loads(decoded_qset_data)
+    def as_dict(self, *select_fields):
+        json_qset = super().as_dict(*select_fields)
+        if json_qset["data"]:
+            decoded_qset_data = base64.b64decode(json_qset["data"][2:-1]).decode("utf-8")  # Slicing removes the b' ... '
+            json_qset["data"] = json.loads(decoded_qset_data)
+        else:
+            json_qset["data"] = {}
         return json_qset
 
     # TODO: implement this, old code below
