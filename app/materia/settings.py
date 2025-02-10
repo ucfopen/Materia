@@ -175,6 +175,23 @@ LOGGING = {
     },
 }
 
+SEMESTERS = [
+	{
+		"spring": {
+			"month": 1,
+			"day": 1
+		},
+		"summer": {
+			"month": 5,
+			"day": 3
+		},
+		"fall": {
+			"month": 8,
+			"day": 7
+		}
+	}
+]
+
 WIDGETS = [
     {
         "id": 1,

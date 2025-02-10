@@ -13,6 +13,7 @@ mimetypes-magic==0.4.30
 mysqlclient==2.2.4
 pycparser==2.22
 PyJWT==2.10.1
+python-dateutil==2.9.0
 pytz==2024.1
 PyYAML==6.0.1
 requests==2.32.3

@@ -21,7 +21,7 @@ class Command(base.BaseCommand):
             "subcommand", type=str, help="Which subcommand function to run"
         )
         parser.add_argument(  # this works for now (in regard to above comment)
-            "arguments", nargs="+", type=str
+            "arguments", nargs="*", type=str
         )
 
     def handle(self, *args, **kwargs):
