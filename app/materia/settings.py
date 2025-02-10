@@ -147,6 +147,12 @@ STATIC_ROOT = "./staticfiles/"
 #     os.path.join(BASE_DIR, "public"),
 # ]
 
+URLS = {
+    "BASE_URL": "http://localhost:420/",
+    "WIDGET_URL": "http://localhost:420/widget/",
+    "STATIC_CROSSDOMAIN": "http://localhost:420/",
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -176,20 +182,20 @@ LOGGING = {
 }
 
 SEMESTERS = [
-	{
-		"spring": {
-			"month": 1,
-			"day": 1
-		},
-		"summer": {
-			"month": 5,
-			"day": 3
-		},
-		"fall": {
-			"month": 8,
-			"day": 7
-		}
-	}
+    {
+        "spring": {
+            "month": 1,
+            "day": 1
+        },
+        "summer": {
+            "month": 5,
+            "day": 3
+        },
+        "fall": {
+            "month": 8,
+            "day": 7
+        }
+    }
 ]
 
 WIDGETS = [

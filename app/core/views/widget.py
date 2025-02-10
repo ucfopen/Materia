@@ -1,4 +1,5 @@
 from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from core.models import WidgetInstance, Widget
@@ -15,9 +16,9 @@ class WidgetDetailView(TemplateView):
             "css_resources": ["dist/css/detail.css"],
             "js_global_variables": {
                 # TODO: make these config variables, and export these to somewhere where it can be reused easily
-                "BASE_URL": "http://localhost/",
-                "WIDGET_URL": "http://localhost/widget/",
-                "STATIC_CROSSDOMAIN": "http://localhost/",
+                "BASE_URL": settings.URLS["BASE_URL"],
+                "WIDGET_URL": settings.URLS["WIDGET_URL"],
+                "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"]
             }
         }
         return context
@@ -89,9 +90,9 @@ def _create_player_page(
         "css_resources": ["dist/css/player-page.css"],
         "js_global_variables": {
             # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "BASE_URL": "http://localhost/",
-            "WIDGET_URL": "http://localhost/widget/",
-            "STATIC_CROSSDOMAIN": "http://localhost/",
+            "BASE_URL": settings.URLS["BASE_URL"],
+            "WIDGET_URL": settings.URLS["WIDGET_URL"],
+            "STATIC_CROSSDOMAIN": settings.URLS["STATIC_CROSSDOMAIN"],
             "PLAY_ID": play_id,
             "DEMO_ID": instance.id,
             "WIDGET_WIDTH": instance.widget.width,
