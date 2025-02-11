@@ -19,12 +19,12 @@ const WidgetCreatorPage = () => {
   const type = getWidgetType(window.location.pathname)
   const pathParams = window.location.pathname.split('/');
   const widgetID = pathParams[pathParams.length - 2].split('-')[0];
-  const instanceID = window.location.hash.substr(1)
+  const instanceID = window.location.hash.substring(1)
   const [state, setState] = useState({
     widgetHeight: 0,
     widgetWidth: 0,
-    widgetID: undefined,
-    instanceID: undefined
+    widgetID: widgetID ?? undefined,
+    instanceID: instanceID ?? undefined
   })
 
   // Waits for window values to load from server then sets them
@@ -34,10 +34,9 @@ const WidgetCreatorPage = () => {
     waitForWindow()
     .then(() => {
       setState({
+		...state,
         widgetHeight: window.WIDGET_HEIGHT,
-        widgetWidth: window.WIDGET_WIDTH,
-        widgetID: widgetID ? widgetID : null,
-        instanceID: instanceID ? instanceID : null
+        widgetWidth: window.WIDGET_WIDTH
       })
     })
   }, [])
