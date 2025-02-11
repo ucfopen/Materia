@@ -16,6 +16,7 @@ urlpatterns = [
     # Users
     path("user_get", UsersApi.get),
     path("auth/login/", UsersApi.service_user_login, name="service_user_login"),
+    path("user/settings", UsersApi.update_settings),
 
     path("user/activity", UsersApi.activity),
     path("session_author_verify/", SessionsApi.author_verify),

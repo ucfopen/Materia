@@ -21,7 +21,8 @@
 		{% endif %}
 
 	</head>
-	<body class="{{ page_type|default:'' }}">
+	<body class="{{ page_type|default:'' }} {% if darkMode %}darkMode{% endif %}">
+
 		<div id="app"></div>
 		<div id="modal"></div>
 		{% if js_resources %}
