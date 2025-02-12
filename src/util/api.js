@@ -115,20 +115,20 @@ export const apiSaveWidget = (_params) => {
 	const params = Object.assign({}, defaults, _params)
 
 	if (params.instId != null) {
-		// limit args to the the following params
-		let args = [
-			params.inst_id,
-			params.name,
-			params.qset,
-			params.is_draft,
-			params.open_at,
-			params.close_at,
-			params.attempts,
-			params.guest_access,
-			params.embedded_only,
-		]
+		// limit args to the following params
+		const body = {
+			instId: params.instId,
+			name: params.name,
+			qset: params.qset,
+			isDraft: params.is_draft,
+			openAt: params.open_at,
+			closeAt: params.close_at,
+			attempts: params.attempts,
+			guestAccess: params.guest_access,
+			embeddedOnly: params.embedded_only,
+		}
 
-		return fetchGet('/api/json/widget_instance_update/', { body: `data=${formatFetchBody(args)}` })
+		return fetchGet('/api/widget_instance/update/', { body })
 
 	} else {
 		const body = {
@@ -137,7 +137,7 @@ export const apiSaveWidget = (_params) => {
 			qset: params.qset,
 			isDraft: params.isDraft,
 		}
-		return fetchGet('/api/json/widget_instance_save/', { body })
+		return fetchGet('/api/widget_instance/save/', { body })
 	}
 }
 
@@ -218,11 +218,11 @@ export const apiCanEditWidgets = arrayOfWidgetIds => {
  * @returns {object} updated instance
  */
 export const apiUpdateWidget = ({ args }) => {
-	return fetchGet('/api/json/widget_instance_update', { body: `data=${formatFetchBody(args)}` })
+	return fetchGet('/api/widget_instance/update/', { body: args })
 }
 
 export const apiGetWidgetLock = (id = null) => {
-	return fetchGet('/api/json/widget_instance_lock', { body: `data=${formatFetchBody([id])}` })
+	return fetchGet('/api/widget_instance/lock/', { body: { id } })
 }
 
 /**
@@ -405,7 +405,7 @@ export const apiRestoreAsset = (assetId) => {
 
 // Returns boolean, true if the current user can publish the given widget instance, false otherwise
 export const apiCanBePublishedByCurrentUser = (widgetId) => {
-	return fetchGet('/api/json/widget_publish_perms_verify/', { body: { widgetId } })
+	return fetchGet('/api/widget_instance/publish_perms_verify/', { body: { widgetId } })
 		.then((json) => json['publishPermsValid'])
 }
 

@@ -247,17 +247,17 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 
 		// Submits the form if there are no errors
 		if (errMsg.length === 0) {
-			let args = [
-				form.inst_id,
-				undefined,
-				null,
-				null,
-				form.open_at,
-				form.close_at,
-				form.attempts,
-				form.guest_access,
-				form.embedded_only,
-			]
+			let args = {
+				instId: form.inst_id,
+				name: undefined,
+				qset: null,
+				isDraft: null,
+				openAt: form.open_at,
+				closeAt: form.close_at,
+				attempts: form.attempts,
+				guestAccess: form.guest_access,
+				embeddedOnly: form.embedded_only,
+			}
 
 			mutateWidget.mutate({
 				args: args,
@@ -514,7 +514,7 @@ const MyWidgetsSettingsDialog = ({ onClose, inst, currentUser, otherUserPerms, o
 										<span className='custom-radio'></span>
 										Normal
 									</label>
-									
+
 									<div className='input-desc'>
 										Only students and users who can log into Materia can access this widget.
 										If the widget collects scores, those scores will be associated with the user.

@@ -77,6 +77,9 @@ class ValidatorUtil:
     # return bool False if hash is an invalid string
     @staticmethod
     def is_valid_hash(hash):
+        if hash is None:
+            return False
+
         if ValidatorUtil.is_numeric(hash) and ValidatorUtil.is_positive_integer_or_zero(
             hash
         ):

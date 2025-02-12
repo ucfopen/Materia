@@ -57,8 +57,8 @@ class SessionsApi:
             ##### PREVIEW MODE #####
             # Confirm user session for preview
             # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
-            SessionLogger.save_preview_logs(preview_instance_id, logs)
-            return JsonResponse({"success": True})  # TODO return true, look at PHP
+            SessionLogger.save_preview_logs(request.session, preview_instance_id, logs)
+            return JsonResponse({"success": True})
         else:
             ##### PLAYING FOR KEEPS #####
             # Grab session play
@@ -88,5 +88,6 @@ class SessionsApi:
             session_play.set_complete(150, 200, 75.0)
 
             return JsonResponse({  # TODO
+                "success": True,
                 "score": 150,
             })

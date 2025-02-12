@@ -426,7 +426,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 				setRetryCount(0) // reset on success
 
-				if (result) {
+				if (result?.success) {
 					// this removes all the currently queued logs from the pendingLogs state object, by way of the reducer
 					// leverages React's built-in state management to prevent race conditions with log processing
 					// when a function is passed to useState, the results of the function are passed to each subsequent call of useState

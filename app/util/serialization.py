@@ -9,15 +9,13 @@ from django.db.models import QuerySet, Model
 # proper JSON representation of itself.
 class SerializableModel(models.Model):
     def as_dict(self, select_fields: list[str] = None, serialize_fks: list[str] = None) -> dict:
-        if not select_fields:
-            select_fields = []
-        if not serialize_fks:
+        if serialize_fks is None:
             serialize_fks = []
 
-        result = SerializationUtil.serialize(self)
+        result = SerializationUtil.serialize(self, select_fields)
 
-        if len(select_fields) >= 1:
-            result = SerializationUtil.select(result, *select_fields)
+        # if len(select_fields) >= 1:
+        #     result = SerializationUtil.select(result, *select_fields)
 
         for foreign_key in serialize_fks:
             serialized_fk = getattr(self, foreign_key).as_dict()
@@ -31,9 +29,12 @@ class SerializableModel(models.Model):
 
 class SerializationUtil:
     @staticmethod
-    def serialize(source: Model) -> dict:
+    def serialize(source: Model, select: list[str] | None = None) -> dict:
         # TODO serialize the foreign keys
-        unprocessed_json = json.loads(serializers.serialize("json", [source]))[0]
+        if select is None:
+            unprocessed_json = json.loads(serializers.serialize("json", [source]))[0]
+        else:
+            unprocessed_json = json.loads(serializers.serialize("json", [source], fields=select))[0]
         result = unprocessed_json["fields"]
         result["id"] = unprocessed_json["pk"]
         SerializationUtil.convert_booleans(result)

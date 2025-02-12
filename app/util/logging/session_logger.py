@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.sessions.backends.base import SessionBase
 from django.utils.timezone import make_aware
 
 from core.models import Log, WidgetInstance
@@ -7,6 +8,8 @@ from util.logging.session_play import SessionPlay
 from util.widget.validator import ValidatorUtil
 
 
+# Util for adding logs for play sessions
+# TODO look into maybe merging in as class methods of SessionPlay, it seems like these would make sense to belong there. only issue really is preview mode
 class SessionLogger:
 
     # Takes a list of logs and saves all of them
@@ -52,15 +55,17 @@ class SessionLogger:
     # Create an array of logs and store their references in the current session as preview logs
     # Because they are preview logs, they will not be saved to the DB
     @staticmethod
-    def save_preview_logs(widget_instance_id: str, raw_logs: list[dict]):
+    def save_preview_logs(session: SessionBase, widget_instance_id: str, raw_logs: list[dict]):
         # Append to any previously stored logs
-        # TODO $logs = \Session::get('previewPlayLogs.'.$instId, []);
+        session_key = f"preview_play_logs_{widget_instance_id}"
+        logs = session.get(session_key, [])
 
         for raw_log in raw_logs:
             log = SessionLogger._validate_and_store_log(raw_log, None)
-            # TODO logs.append(log)
+            logs.append(log.as_dict())
 
         # TODO \Sesssion::set('previewPlayLogs.'.$instId, $logs);
+        session[session_key] = logs
 
     @staticmethod
     def get_log_type(log_type_id: int) -> str:

@@ -206,17 +206,17 @@ const SupportSelectedInstance = ({inst, currentUser, onCopySuccess, embed = fals
 		}
 
 
-		const args = [
-			u.id,
-			u.name,
-			null,
-			null,
-			u.open_at,
-			u.close_at,
-			u.attempts,
-			u.guest_access,
-			u.embedded_only,
-		]
+		const args = {
+			instId: u.id,
+			name: u.name,
+			qset: null,
+			isDraft: null,
+			openAt: u.open_at,
+			closeAt: u.close_at,
+			attempts: u.attempts,
+			guestAccess: u.guest_access,
+			embeddedOnly: u.embedded_only,
+		}
 
 		updateWidget.mutate({
 			args: args,

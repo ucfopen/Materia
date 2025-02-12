@@ -93,14 +93,20 @@ class ScoresApi:
         preview_inst_id = json_body.get("previewInstId")
 
         # Grab play details
-        if preview_inst_id:
+        if ValidatorUtil.is_valid_hash(preview_inst_id):
             # Check if preview is valid and user has access
-            if not ValidatorUtil.is_valid_hash(preview_inst_id):
-                return HttpResponseBadRequest()  # TODO: better error reporting
             if False:  # TODO: \Service_User::verify_session() !== true
                 return HttpResponseForbidden()  # TODO was Msg::no_login()
 
-            # TODO: look at php
+            # Get widget instance and play details
+            widget_instance = WidgetInstance.objects.filter(pk=preview_inst_id).first()
+            if not widget_instance:
+                return HttpResponseNotFound()
+            play_details = ScoringUtil.get_preview_play_details(request.session, widget_instance)
+            if not play_details:
+                return HttpResponseNotFound()  # TODO: was Msg::expired()
+
+            return JsonResponse(play_details)
         else:
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)

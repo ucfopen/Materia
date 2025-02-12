@@ -48,7 +48,7 @@ urlpatterns = [
     path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
 
     # API
-    path("api/json/", include("api.urls.json")),
+    path("api/", include("api.urls.api_urls")),
     path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("login/", login_views.login, name="login"),
