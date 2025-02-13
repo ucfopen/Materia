@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from core.models import UserSettings
+from util.perm_manager import PermManager
+
 import hashlib
 import json
 import datetime
@@ -31,7 +33,7 @@ class UsersApi:
             "first": user.first_name,
             "last": user.last_name,
             "email": user.email,
-            "is_student": False,
+            "is_student": PermManager.user_is_student(user),
             "is_support_user": user.is_staff,
             "avatar": avatar_url,
             "profile_fields": user_profile.get_profile_fields()
