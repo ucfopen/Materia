@@ -117,14 +117,18 @@ const SettingsPage = () => {
 
 	let mainContentRender = <section className='page'><div className='loading-icon-holder'><LoadingIcon /></div></section>
 	if ( !isFetching && currentUser ) {
-		mainContentRender =
-			<section className='page settings'>
-				<ul className='main_navigation'>
-					<li className='profile'><a href='/profile'>Profile</a></li>
-					<li className='selected settings'><a href='/settings'>Settings</a></li>
+		mainContentRender = (
+			<section className="page settings">
+				<ul className="main_navigation">
+					<li className="profile">
+						<a href="/profile">Profile</a>
+					</li>
+					<li className="selected settings">
+						<a href="/settings">Settings</a>
+					</li>
 				</ul>
 
-				<div className='avatar_big'>
+				<div className="avatar_big">
 					<img src={currentUser.avatar} />
 				</div>
 
@@ -136,29 +140,52 @@ const SettingsPage = () => {
 				<span>Notifications</span>
 				<ul>
 					<li>
-						
-						<label className='checkbox-wrapper'>
-							<input type='checkbox' id='notify' name='notify' checked={state.notify == true} onChange={_updateEmailPref} />
-							<span className='custom-checkbox'></span>
+						<label className="checkbox-wrapper">
+							<input
+								type="checkbox"
+								id="notify"
+								name="notify"
+								checked={state.notify == true}
+								onChange={_updateEmailPref}
+							/>
+							<span className="custom-checkbox"></span>
 							Send me an email when a widget has been shared with me.
 						</label>
-						<p className='exp'>Email notifications will be sent to <span className='email_exp_addr'>{currentUser.email}</span>.</p>
+						<p className="exp">
+							Email notifications will be sent to{' '}
+							<span className="email_exp_addr">{currentUser.email}</span>.
+						</p>
 					</li>
 				</ul>
 				<span>User Icon</span>
 				<ul>
 					<li>
-						<label className='radio-wrapper'>
-							<input type='radio' name='avatar' id='avatar_gravatar' checked={state.useGravatar == true} onChange={() => _updateIconPref(true)}/>
-							<span className='custom-radio'></span>
+						<label className="radio-wrapper">
+							<input
+								type="radio"
+								name="avatar"
+								id="avatar_gravatar"
+								checked={state.useGravatar == true}
+								onChange={() => _updateIconPref(true)}
+							/>
+							<span className="custom-radio"></span>
 							Use Gravatar
-							<a className='external tiny' href='https://en.gravatar.com/' target='_blank'> (Upload or change your icon at gravatar.com)</a>
 						</label>
+						<a className="external tiny" href="https://en.gravatar.com/" target="_blank">
+							{' '}
+							(Upload or change your icon at gravatar.com)
+						</a>
 					</li>
 					<li>
-						<label className='radio-wrapper'>
-							<input type='radio' name='avatar' id='avatar_default' checked={state.useGravatar == false} onChange={() => _updateIconPref(false)} />
-							<span className='custom-radio'></span>
+						<label className="radio-wrapper">
+							<input
+								type="radio"
+								name="avatar"
+								id="avatar_default"
+								checked={state.useGravatar == false}
+								onChange={() => _updateIconPref(false)}
+							/>
+							<span className="custom-radio"></span>
 							None
 						</label>
 					</li>
@@ -166,20 +193,28 @@ const SettingsPage = () => {
 				<span>Dark Mode</span>
 				<ul>
 					<li>
-						<label className='checkbox-wrapper'>
-							<input type='checkbox' id='darkMode' name='darkMode' checked={state.darkMode == true} onChange={_updateDarkModePref} />
-							<span className='custom-checkbox'></span>
+						<label className="checkbox-wrapper">
+							<input
+								type="checkbox"
+								id="darkMode"
+								name="darkMode"
+								checked={state.darkMode == true}
+								onChange={_updateDarkModePref}
+							/>
+							<span className="custom-checkbox"></span>
 							Use Dark Mode
 						</label>
-						<p className='exp'>Note: This does not influence widgets.</p>
+						<p className="exp">Note: This does not influence widgets.</p>
 					</li>
 				</ul>
 
-				{ errorRender }
+				{errorRender}
 
-				<button type='submit' className='action_button' onClick={_submitSettings}>Save</button>
-
+				<button type="submit" className="action_button" onClick={_submitSettings}>
+					Save
+				</button>
 			</section>
+		)
 	}
 
 	return (

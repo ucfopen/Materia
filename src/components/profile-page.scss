@@ -634,4 +634,24 @@
 			}
 		} // end settings
 	} // end section.page
+
+
 }
+	@media (max-width: 500px) {
+		.user {
+			section.page {
+				overflow: hidden;
+				.no_logs {
+					width: 25%;
+
+				}
+				.settings {
+					.exp {
+						.email_exp_addr {
+							font-size: 15px;
+						}
+					}
+				}
+			}
+		}
+	}

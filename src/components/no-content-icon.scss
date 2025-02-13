@@ -13,7 +13,7 @@ div#no-score-content, div#not-scorable {
 	padding-top: 25px;
 	padding-left: 40%;
 	margin: 25px auto 0 auto;
-	
+
 	&#no-score-content {
 		background: #fff url('/img/kogneato_no_scores.svg') 10% 30%/250px auto no-repeat;
 	}
@@ -44,5 +44,19 @@ div#no-score-content, div#not-scorable {
 
 	p {
 		color: #fff;
+	}
+}
+@media (max-width: 500px)
+{
+	div#no-score-content
+	{
+		width: 100%;
+		justify-content: flex-end;
+		padding-top: 20%;
+		padding-left: 0%;
+
+		&#no-score-content {
+		background: #fff url('/img/kogneato_no_scores.svg') 20% 30%/215px auto no-repeat;
+	}
 	}
 }

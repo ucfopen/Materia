@@ -1,7 +1,7 @@
 @import 'include.scss';
 
 .my_widgets {
-	display: flex;
+	display: grid;
 	justify-content: center;
 
 	.error {
@@ -15,7 +15,7 @@
 		display: flex;
 		align-items: flex-start;
 		margin: 0 auto 100px auto;
-		// width: 970px;
+		width: 970px;
 		overflow-x: visible;
 
 		.container_main-content {
@@ -712,22 +712,25 @@
 			.share-widget-options-first {
 				padding-left: 10px;
 				border-left: 8px solid rgba(239, 129, 82, 0.5);
+
 			}
 
 			.share-widget-options-second {
 				padding-left: 10px;
 				border-left: 8px solid rgba(117, 191, 91, 0.5);
+
 			}
 
 			.share-widget-options-third {
 				padding-left: 10px;
 				border-left: 8px solid rgba(93, 163, 203, 0.5);
+				
 			}
 
 			.view-more {
 				margin-top: 20px;
 			}
-				//
+
 				// #first-share-widget-option {
 				// 	border-left: 8px solid #EF8152;
 				// }
@@ -860,7 +863,7 @@
 
 		border-bottom: 1px #0093e7 solid;
 		color: #0093e7;
-		
+
 		font-size: 14px;
 		font-weight: 700;
 		cursor: pointer;
@@ -1232,4 +1235,124 @@
 		margin-top: auto;
 		width: fit-content;
 	}
+}
+
+@media (max-width: 500px) {
+.my_widgets {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+
+		overflow: hidden;
+
+		section.directions {
+			&.unchosen {
+				&:not(.bearded) {
+					background: #ffffff url('/img/kogneato_mywidgets.svg') 60% 30%/250px auto no-repeat;
+				}
+
+			}
+
+
+		}
+
+		.container_main-content {
+			box-shadow: none;
+			padding-left: 0%;
+		}
+
+		section.page {
+			display: grid;
+			margin: 0;
+			width: 120%;
+
+		}
+
+		aside {
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+			position: relative;
+			margin: 0;
+
+		}
+
+		.page {
+			.overview {
+				display: grid;
+				margin: 0px;
+				width: 100px;
+
+
+			}
+		}
+	}
+
+	.page
+	{
+		.header {
+
+			h1 {
+				display: grid;
+				padding-left: 36%;
+			}
+
+		}
+		width: 100%;
+		.overview {
+				.icon_container {
+					padding-left: 50px;
+				}
+		}
+
+	}
+}
+
+.scores {
+
+	.student-activity-header {
+		flex-direction: column;
+		display: none;
+		.action_button {
+    		margin-bottom: 20px;
+		}
+	}
+}
+
+
+.modal {
+	.collaborate-modal {
+		.user-add {
+			font-size: 13px;
+		}
+	}
+}
+
+.warning-modal {
+	display: grid;
+	width: 100%;
+	.title {
+		margin-bottom: -10px;
+		font-size: 20px;
+	}
+
+	.buttons {
+		margin: 0;
+	}
+    .content {
+		margin: 0;
+    	width: 350px;
+    	display: grid;
+		h3
+		{
+			margin-bottom: -10px;
+		}
+	}
+	.close-button {
+		top: 16px;
+	}
+}
 }
