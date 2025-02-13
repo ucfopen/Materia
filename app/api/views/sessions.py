@@ -42,6 +42,7 @@ class SessionsApi:
         play_id = request_body.get("playId")
         logs = request_body.get("logs")
         preview_instance_id = request_body.get("previewInstanceId")
+        preview_play_id = request_body.get("previewPlayId")
 
         # Validate request params
         if not preview_instance_id and not ValidatorUtil.is_valid_long_hash(play_id):
@@ -55,9 +56,12 @@ class SessionsApi:
         # Save logs
         if ValidatorUtil.is_valid_hash(preview_instance_id):
             ##### PREVIEW MODE #####
+            # Confirm preview_play_id is present
+            if preview_play_id is None:
+                return HttpResponseBadRequest()  # TODO better error reporting
             # Confirm user session for preview
             # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
-            SessionLogger.save_preview_logs(request.session, preview_instance_id, logs)
+            SessionLogger.save_preview_logs(request.session, preview_instance_id, preview_play_id, logs)
             return JsonResponse({"success": True})
         else:
             ##### PLAYING FOR KEEPS #####

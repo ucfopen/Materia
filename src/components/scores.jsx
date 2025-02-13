@@ -12,7 +12,7 @@ const STATE_RESTRICTED = 'restricted'
 const STATE_INVALID = 'invalid'
 const STATE_EXPIRED = 'expired'
 
-const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded, isPreview }) => {
+const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded, isPreview, previewPlayId }) => {
 
 	const [playId, setPlayId] = useState(null)
 	const [previewInstId, setPreviewInstId] = useState(null)
@@ -71,7 +71,7 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 	// Because of how we handle the results object, we can't follow-up via useEffect targeting instanceScores
 	// As a result, instanceScores is never read.
 	const { isLoading: scoresAreLoading, data: instanceScores, refetch: loadInstanceScores } = useQuery({
-		queryKey: ['inst-scores', instId, send_token],
+		queryKey: ['inst-scores', instId, send_token, previewPlayId],
 		queryFn: () => apiGetWidgetInstanceScores(instId, send_token),
 		enabled: false, // enabled is set to false so the query can be manually called with the refetch function
 		staleTime: Infinity,
@@ -116,17 +116,17 @@ const Scores = ({ instId, playId: playIdProp, single_id, send_token, isEmbedded,
 	// Gets widget instance play scores when playId
 	// or previewInstId are changed
 	const { data: playScores } = useQuery({
-		queryKey: ['play-scores', playId, previewInstId],
-		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId),
+		queryKey: ['play-scores', playId, previewInstId, previewPlayId],
+		queryFn: () => apiGetWidgetInstancePlayScores(playId, previewInstId, previewPlayId),
 		staleTime: Infinity,
-		enabled: (!!playId || !!previewInstId),
+		enabled: (!!playId || (!!previewInstId && !!previewPlayId)),
 		refetchOnWindowFocus: false,
 		retry: false,
 		onError: (err) => {
 			if (err.message == "Invalid Login") {
 				setErrorState(STATE_RESTRICTED)
 			} else if (isPreview) {
-				setAttributes({...attributes, href: `/preview/${instId}/${instance?.clean_name}`})
+				setAttributes({...attributes, href: `/preview/${instId}/${instance?.clean_name}?previewId=${previewPlayId}`})
 				setErrorState(STATE_EXPIRED)
 			} else {
 				setErrorState(STATE_INVALID)

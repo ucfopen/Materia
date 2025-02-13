@@ -254,8 +254,8 @@ export const apiGetGuestWidgetInstanceScores = (instId, playId) => {
 	return fetchGet('/api/json/guest_widget_instance_scores_get/', { body: { instanceId: instId, playId: playId } })
 }
 
-export const apiGetWidgetInstancePlayScores = (playId, previewInstId) => {
-	return fetchGet('/api/json/widget_instance_play_scores_get/', { body: { playId, previewInstId } })
+export const apiGetWidgetInstancePlayScores = (playId, previewInstId, previewPlayId) => {
+	return fetchGet('/api/json/widget_instance_play_scores_get/', { body: { playId, previewInstId, previewPlayId } })
 }
 
 export const apiGetScoreDistribution = instId => {

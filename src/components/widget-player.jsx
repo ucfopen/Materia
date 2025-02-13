@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useReducer } from 'react'
+import React, {useState, useEffect, useRef, useReducer, useMemo} from 'react'
 import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid';
 import { apiGetWidgetInstance, apiGetQuestionSet, apiSessionVerify } from '../util/api'
@@ -110,6 +110,11 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 
 	const savePlayLog = usePlayLogSave()
 	const saveStorage = usePlayStorageDataSave()
+
+	const previewPlayId = useMemo(() => {
+		if (!isPreview) return null
+		return crypto.randomUUID().substring(0, 5) // Generate a random preview play ID
+	}, [])
 
 	// refs are used instead of state when value updates do not require a component rerender
 	const centerRef = useRef(null)
@@ -291,6 +296,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 				const args = { playId, logs: pendingLogs.play }
 				if (isPreview) {
 					args['previewInstanceId'] = (inst.id)
+					args['previewPlayId'] = previewPlayId
 				}
 				_pushPendingLogs([{ request: args }])
 			}
@@ -523,7 +529,7 @@ const WidgetPlayer = ({instanceId, playId, minHeight='', minWidth='',showFooter=
 	const _initScoreScreenUrl = () => {
 		let _scoreScreenURL = ''
 			if (isPreview) {
-				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}`
+				_scoreScreenURL = `${window.BASE_URL}scores/preview/${instanceId}?previewId=${previewPlayId}`
 			} else if (isEmbedded) {
 				_scoreScreenURL = `${window.BASE_URL}scores/embed/${instanceId}/${playId}`
 			} else {

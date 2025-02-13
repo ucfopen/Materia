@@ -140,10 +140,10 @@ class ScoringUtil:
 
     # WAS: get_preview_logs()
     @staticmethod
-    def get_preview_play_details(session: SessionBase, widget_instance: WidgetInstance) -> dict | None:
+    def get_preview_play_details(session: SessionBase, widget_instance: WidgetInstance, preview_id: str) -> dict | None:
         # TODO scoring stuff todo
         # Get and clear the preview log session
-        session_key = f"preview_play_logs_{widget_instance.id}"
+        session_key = f"preview_play_logs_{widget_instance.id}_{preview_id}"
         play_logs = session.get(session_key, None)
         # TODO NOTE play_logs is a list of dicts, not Log objects. this allows it to be serialized for use with sessions. just a note for whenever we end up using it for scoring logic here
         if play_logs is None:

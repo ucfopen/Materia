@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react'
+import React, {useState, useEffect, useMemo} from 'react'
 import Header from './header'
 import Scores from './scores'
 
@@ -24,6 +24,11 @@ const ScorePage = () => {
 		instId = split_url[1]
 		playId = split_url[2]
 	} // TODO This might be wrong (django rewrite)
+
+	const previewPlayId = useMemo(() => {
+		let params = new URLSearchParams(document.location.search);
+		return params.get("previewId")
+	}, [])
 
 	// this is only actually set to something when coming from the profile page
 	//const playId = window.location.hash.split('play-')[1]
@@ -78,7 +83,8 @@ const ScorePage = () => {
 		single_id={state.singleID}
 		send_token={state.sendToken}
 		isEmbedded={state.isEmbedded}
-		isPreview={state.isPreview}/>
+		isPreview={state.isPreview}
+	  previewPlayId={previewPlayId}/>
 	}
 
 	return (

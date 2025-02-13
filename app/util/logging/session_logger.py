@@ -55,9 +55,9 @@ class SessionLogger:
     # Create an array of logs and store their references in the current session as preview logs
     # Because they are preview logs, they will not be saved to the DB
     @staticmethod
-    def save_preview_logs(session: SessionBase, widget_instance_id: str, raw_logs: list[dict]):
+    def save_preview_logs(session: SessionBase, widget_instance_id: str, preview_id: str, raw_logs: list[dict]):
         # Append to any previously stored logs
-        session_key = f"preview_play_logs_{widget_instance_id}"
+        session_key = f"preview_play_logs_{widget_instance_id}_{preview_id}"
         logs = session.get(session_key, [])
 
         for raw_log in raw_logs:
