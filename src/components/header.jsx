@@ -148,7 +148,7 @@ const Header = ({
 
 		} else {
 			if (allowLogins) {
-				loginRender = <a href='/users/login' id="loginLink">Login</a>
+				loginRender = <a href='/login' id="loginLink">Login</a>
 			}
 		}
 
