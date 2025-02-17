@@ -4,6 +4,8 @@ from datetime import datetime
 from core.models import PermObjectToUser, Widget, WidgetInstance
 from django.http import HttpResponseServerError
 from django.utils.timezone import make_aware
+
+from util.message_util import MsgUtil
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
 
@@ -24,8 +26,7 @@ class WidgetInstancesApi:
 
         # TODO: move the part of this code that actually does stuff somewhere else and call that new function from here
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            # originally this called Msg::invalid_input
-            return HttpResponseServerError("Invalid widget engine ID provided")
+            return MsgUtil.create_invalid_input_msg(msg="Invalid widget engine ID provided")
         if type(is_draft) is not bool:
             is_draft = True
 
@@ -33,8 +34,7 @@ class WidgetInstancesApi:
         try:
             widget = Widget.objects.get(id=widget_id)
         except Widget.DoesNotExist:
-            # originally this called Msg::invalid_input
-            return HttpResponseServerError("Invalid widget engine ID provided")
+            return MsgUtil.create_invalid_input_msg(msg="Invalid widget engine ID provided")
 
         # TODO: implement this when we can get user data in here somehow
         # if not is_draft and not widget.publishable_by(user):
@@ -42,10 +42,7 @@ class WidgetInstancesApi:
         #     return HttpResponseServerError('Widget type can not be published by the current user')
 
         if is_draft and not widget.is_editable:
-            # originally this called Msg
-            return HttpResponseServerError(
-                "Non-editable widgets can not be saved as drafts!"
-            )
+            return MsgUtil.create_failure_msg(msg="Non-editable widgets can not be saved as drafts!")
         # TODO: implement when users are a thing etc.
         # is_student = PermManager.user_is_student(user)
         is_student = False
@@ -100,8 +97,7 @@ class WidgetInstancesApi:
 
         # TODO: move the part of this code that actually does stuff somewhere else and call that new function from here
         if not ValidatorUtil.is_valid_hash(inst_id):
-            # originally this was calling Msg::invalid_input
-            return HttpResponseServerError("Instance ID is invalid")
+            return MsgUtil.create_invalid_input_msg(msg="Instance ID is invalid")
         try:
             instance = WidgetInstance.objects.get(id=inst_id)
             widget = instance.widget
@@ -111,13 +107,11 @@ class WidgetInstancesApi:
 
         if is_draft and not widget.is_editable:
             # originally this was calling Msg::failure
-            return HttpResponseServerError(
-                "Non-editable widgets can not be saved as drafts!"
-            )
+            return MsgUtil.create_failure_msg(msg="Non-editable widgets can not be saved as drafts!")
         # TODO: rewrite this when we have a way of implementing users, see above
         # if not is_draft and not widget.publishable_by(current_user):
         #     # originally this was calling Msg::no_perm
-        #     return HttpResponseServerError('Widget type can not be published by students.')
+        #     return MsgUtil.create_no_perm_msg(msg="Widget type can not be published by students.")
 
         # student-made widgets are locked forever
         if instance.is_student_made:

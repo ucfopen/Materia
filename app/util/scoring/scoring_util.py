@@ -34,6 +34,8 @@ class ScoringUtil:
             # TODO: user_id =
         ).first()
 
+        ScoringUtil.get_instance_score_history()
+
         return result.extra_attempts if result else 0
 
     @staticmethod
