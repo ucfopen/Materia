@@ -51,6 +51,7 @@ urlpatterns = [
     path("api/", include("api.urls.api_urls")),
     path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
+    path("settings/", profile_views.settings, name="settings"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
 ]

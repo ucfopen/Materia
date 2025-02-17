@@ -1,7 +1,27 @@
 import logging
-
-from django.http import HttpResponseNotFound
+import json
+from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
+from api.views.users import UsersApi
+
+
+def get_dark_mode(request):
+    """
+    Function to get if a user has dark mode enabled
+    """
+    user_settings = {"darkMode": False}  # Default settings
+
+    try:
+        user_data = UsersApi.get(request)  # Call API to fetch user settings
+        if isinstance(user_data, JsonResponse):
+            user_json = user_data.content.decode("utf-8")
+            user_profile = json.loads(user_json)
+            user_settings["darkMode"] = user_profile.get("profile_fields", {}).get("darkMode", False)
+
+    except Exception as e:
+        logging.error(f"Error fetching user settings: {e}")
+
+    return user_settings
 
 
 def index(request, *args, **kwargs):
@@ -10,7 +30,9 @@ def index(request, *args, **kwargs):
         # "bundle_name": "homepage"
         "js_resources": ["dist/js/homepage.js"],
         "css_resources": ["dist/css/homepage.css"],
+        **get_dark_mode(request),
     }
+
     return render(request, "react.html", context)
 
 
@@ -29,6 +51,7 @@ def help(request):
         "page_type": "docs help",
         "js_resources": ["dist/js/help.js"],
         "css_resources": ["dist/css/help.css"],
+        **get_dark_mode(request),
     }
 
     return render(request, "react.html", context)

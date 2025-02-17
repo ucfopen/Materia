@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from core.models import UserSettings
 import hashlib
 import json
 import datetime
@@ -9,6 +10,7 @@ def get_gravatar(email):
     clean_email = email.strip().lower().encode('utf-8')
     hash_email = hashlib.md5(clean_email).hexdigest()
     return f"https://www.gravatar.com/avatar/{hash_email}?d=retro&s=256"
+
 
 class UsersApi:
     @staticmethod
@@ -20,6 +22,8 @@ class UsersApi:
         is_support_user = request.user.groups.filter(name="Support").exists()
         avatar_url = get_gravatar(request.user.email)
         user = request.user
+        #we only care about the profile, normally it returns a tuple
+        user_profile, _= UserSettings.objects.get_or_create(user=user)
 
         user_data = {
             "id": user.id,
@@ -30,46 +34,15 @@ class UsersApi:
             "is_student": False,
             "is_support_user": user.is_staff,
             "avatar": avatar_url,
+            "profile_fields": user_profile.get_profile_fields()
+
         }
         return JsonResponse(user_data)
-        # # my user works here, should get it from db
-        # user_data = {
-        #     "profile_fields": {
-        #         "useGravatar": True,
-        #         "notify": True
-        #     },
-        #     "id": 153565,
-        #     "username": "5299729",
-        #     "first": "Christopher",
-        #     "last": "Solanilla",
-        #     "email": "ch862076@ucf.edu",
-        #     "group": 1,
-        #     "last_login": 1733146261,
-        #     "created_at": 1717441736,
-        #     "updated_at": 1717441736,
-        #     "avatar": "https://secure.gravatar.com/avatar/36ad3cc772e5967214841b49ee6b57f8?s=256&d=retro",
-        #     "is_student": False,
-        #     "is_support_user": False
-        # }
-        # return JsonResponse(user_data)
-        # try:
-        #     user = User.objects.get(id=user_id)
-        #     settings = user.settings.profile_fields
-        #     user_data = {
-        #         "id": user.id,
-        #         "username": user.username,
-        #         "first": user.first_name,
-        #         "last": user.last_name,
-        #         "email": user.email,
-        #         "profile_fields": settings,
-        #     }
-        #     return JsonResponse(user_data)
-        # except User.DoesNotExist:
-        #     return JsonResponse({"error": "User not found"}, status=404)
+
 
     @staticmethod
     def activity(request):
-        # some dummy data, should get it from db somehow.
+        #TODO: get actual activity data instead of dummy data
         activity_data = {
             "activity": [
                 {
@@ -108,5 +81,28 @@ class UsersApi:
             return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
+    def update_settings(request):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Not authenticated"}, status=403)
 
+        try:
+            data = json.loads(request.body)
+            user_profile, _ = UserSettings.objects.get_or_create(user=request.user)
+            profile_fields = user_profile.get_profile_fields()
+
+            for key, value in data.items():
+                profile_fields[key] = value
+
+            user_profile.profile_fields = profile_fields
+            user_profile.save()
+
+            return JsonResponse({"success": True, "profile_fields": user_profile.profile_fields})
+
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 
