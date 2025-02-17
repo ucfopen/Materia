@@ -24,7 +24,7 @@ from core.views import login as login_views
 from core.views.scores import ScoresView
 from core.views.widget import *
 
-from django.urls import include, path
+from django.urls import include, path, re_path
 from api.views.users import UsersApi
 from django.contrib import admin
 
@@ -36,12 +36,14 @@ urlpatterns = [
     path("widgets/", CatalogView.index, name="widget catalog"),
     path("widgets/<slug:widget_slug>/", WidgetDetailView.as_view(), name="widget detail"),
     path("widgets/<slug:widget_slug>/demo", WidgetDemoView.as_view(), name="widget demo"),
+    re_path(r"^widgets/(?P<widget_slug>[\w-]+)/(?P<guide_type>(creators|players))-guide/$", WidgetGuideView.as_view(),
+            name="widget guide view"),
     path("play/<slug:widget_instance_id>/", WidgetPlayView.as_view(), name="widget play"),
     path("play/<slug:widget_instance_id>/<str:instance_name>/", WidgetPlayView.as_view(), name="widget play"),
 
     # Creator
-    path("widgets/<slug:widget_slug>/create", WidgetCreatorView.as_view(), name="widget creator"),
-    path("preview/<slug:widget_instance_id>", WidgetPreviewView.as_view(), name="widget preview"),
+    path("widgets/<slug:widget_slug>/create/", WidgetCreatorView.as_view(), name="widget creator"),
+    path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
 
     # Scores
     path("scores/preview/<slug:widget_instance_id>/", ScoresView.as_view(is_preview=True), name="preview scores"),

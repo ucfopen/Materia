@@ -104,6 +104,47 @@ class WidgetPreviewView(TemplateView):
         return _display_widget(instance=widget_instance, play_id=None, is_embedded=True)
 
 
+class WidgetGuideView(TemplateView):
+    template_name = "react.html"
+
+    def get_context_data(self, widget_slug, guide_type):
+        # Get widget
+        widget = Widget.objects.filter(pk=_get_id_from_slug(widget_slug)).first()
+        if widget is None:
+            return HttpResponseNotFound()
+
+        # Build page title
+        title = widget.name
+        guide = ""
+        match guide_type:
+            case "creators":
+                title += " Creator's Guide"
+                guide = widget.creator_guide
+            case "players":
+                title += " Player's Guide"
+                guide = widget.player_guide
+            case _:
+                return HttpResponseNotFound()
+
+        return {
+            "title": title,
+            "js_resources": ["dist/js/guides.js"],
+            "css_resources": ["dist/css/guides.css"],
+            "page_type": "guide",
+            "js_global_variables": {
+                # TODO: make these config variables, and export these to somewhere where it can be reused easily
+                "BASE_URL": "http://localhost/",
+                "WIDGET_URL": "http://localhost/widget/",
+                "STATIC_CROSSDOMAIN": "http://localhost/",
+                "NAME": widget.name,
+                "TYPE": guide_type,
+                "HAS_PLAYER_GUIDE": True if widget.player_guide else False,
+                "HAS_CREATOR_GUIDE": True if widget.creator_guide else False,
+                "DOC_PATH": "http://localhost/widget/" + str(widget.id) + "-" + widget.clean_name + "/" + guide  # TODO Config::get('materia.urls.engines').$widget->dir.$guide
+            }
+        }
+
+
 # View page creation methods
 
 # Creates a player page for a real, logged play session

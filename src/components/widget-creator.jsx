@@ -28,7 +28,7 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 		dialogType: 'embed_dialog',
 		heartbeatEnabled: true,
 		hasCreatorGuide: false,
-		creatorGuideUrl: window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + 'creators-guide',
+		creatorGuideUrl: window.location.pathname.replace('create/', '') + 'creators-guide/',
 		showActionBar: true,
 		showRollbackConfirm: false,
 		showGenerationConfirm: false,
