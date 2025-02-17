@@ -120,7 +120,7 @@ export const apiSaveWidget = (_params) => {
 			instId: params.instId,
 			name: params.name,
 			qset: params.qset,
-			isDraft: params.is_draft,
+			isDraft: params.isDraft,
 			openAt: params.open_at,
 			closeAt: params.close_at,
 			attempts: params.attempts,

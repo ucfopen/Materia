@@ -59,15 +59,9 @@ class WidgetsApi:
 
         instances = instances[:80]  # TODO: add way to control limit?
 
-        raw_json_instances = json.loads(serializers.serialize("json", instances))
         json_instances = []
-        for raw_json_instance in raw_json_instances:
-            fields = raw_json_instance["fields"]
-            WidgetUtil.convert_booleans(fields)
-            fields["widget"] = WidgetUtil.hack_return(Widget.objects.filter(pk=fields["widget"]))[0]
-            fields["id"] = raw_json_instance["pk"]
-            json_instances.append(fields)
-            # TODO fix serialization
+        for raw_instance in instances:
+            json_instances.append(raw_instance.as_dict(serialize_fks=["widget"]))
 
         return JsonResponse({"instances": json_instances})
 

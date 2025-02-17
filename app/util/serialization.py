@@ -66,10 +66,10 @@ class SerializationUtil:
     def convert_booleans(fields: dict):
         for field in fields:
             if field[:3] in ["is_", "in_"]:
-                if fields[field] is True:
-                    fields[field] = "1"
-                if fields[field] is False:
-                    fields[field] = "0"
+                if fields[field] == "1":
+                    fields[field] = True
+                if fields[field] is "0":
+                    fields[field] = False
 
     # Filters a dict to only include the fields specified. Analogous to performing
     # a SELECT operation on a database query.
