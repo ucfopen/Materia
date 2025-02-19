@@ -13,7 +13,7 @@
 
 		background: #fff;
  		text-align: left;
-	
+
 		.store_main {
 			position: absolute;
 			left: 0;
@@ -33,13 +33,13 @@
 				left: calc(50% - 50vw);
 				width: 98vw;
 				height: fit-content;
-			
+
 				padding: 30px 0px 100px;
 				overflow: hidden;
-			
-				background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/img/banner_final.png) no-repeat;	
+
+				background: linear-gradient(to right, rgba(255,255,255, 0), rgba(255, 255, 255,1) 55%), url(/img/banner_final.png) no-repeat;
 				background-size: contain;
-			
+
 				text-align: right;
 
 				.store_content {
@@ -88,7 +88,7 @@
 					text-align: center;
 					overflow: hidden;
 					padding: 30px 0px 300px;
-	
+
 					.store_content {
 						margin: 0 40px;
 
@@ -111,14 +111,14 @@
 
 	.main_container {
 		background: #21232a;
-	
+
 		.store_main {
 			p {
 				color: #fff;
 			}
 
 			section {
-				background: linear-gradient(to right, rgba(33, 35, 42, 0), rgba(33, 35, 42, 1) 55%), url(/img/banner_dark.png) no-repeat;	
+				background: linear-gradient(to right, rgba(33, 35, 42, 0), rgba(33, 35, 42, 1) 55%), url(/img/banner_dark.png) no-repeat;
 				background-size: contain;
 
 				.store_content {
@@ -401,3 +401,4 @@
 body .darkMode {
 	background-color: #21232a;
 }
+
