@@ -24,7 +24,7 @@ const WidgetCreatorPage = () => {
 		widgetHeight: 0,
 		widgetWidth: 0,
 		widgetID: widgetID ?? undefined,
-		instanceID: instanceID ?? undefined
+		instanceID: !!instanceID ? instanceID : undefined
 	})
 
 	// Waits for window values to load from server then sets them
