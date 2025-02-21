@@ -2,6 +2,10 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from core.models import UserSettings
+from util.perm_manager import PermManager
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
 import hashlib
 import json
 import datetime
@@ -31,7 +35,7 @@ class UsersApi:
             "first": user.first_name,
             "last": user.last_name,
             "email": user.email,
-            "is_student": False,
+            "is_student": PermManager.user_is_student(user),
             "is_support_user": user.is_staff,
             "avatar": avatar_url,
             "profile_fields": user_profile.get_profile_fields()
@@ -105,4 +109,9 @@ class UsersApi:
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+
+    def logout(request):
+        logout(request)
+        return redirect('/')
 
