@@ -654,6 +654,12 @@ class Widget(SerializableModel):
     creator_guide = models.CharField(max_length=255, default="")
     player_guide = models.CharField(max_length=255, default="")
 
+    def as_dict(self, select_fields: list[str] = None, serialize_fks: list[str] = None):
+        result = super().as_dict(select_fields, serialize_fks)
+        result["dir"] = f"{self.id}-{self.clean_name}{os.sep}"
+        result["meta_data"] = self.metadata_clean()
+        return result
+
     def metadata_clean(self):
         meta_raw = self.metadata.all()
         meta_final = {}

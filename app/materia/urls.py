@@ -43,6 +43,8 @@ urlpatterns = [
 
     # Creator
     path("widgets/<slug:widget_slug>/create/", WidgetCreatorView.as_view(), name="widget creator"),
+    path("widgets/<slug:widget_slug>/create/<str:instance_id>", WidgetCreatorView.as_view(),
+         name="widget creator existing instance"),
     path("preview/<slug:widget_instance_id>/", WidgetPreviewView.as_view(), name="widget preview"),
 
     # Scores

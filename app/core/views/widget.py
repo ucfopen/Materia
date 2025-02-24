@@ -56,7 +56,7 @@ class WidgetPlayView(TemplateView):
 class WidgetCreatorView(TemplateView):
     template_name = "react.html"
 
-    def get_context_data(self, widget_slug):
+    def get_context_data(self, widget_slug, instance_id=None):
         # Check if player user session is valid
         # TODO if (\Service_User::verify_session() !== true)
 		# {
