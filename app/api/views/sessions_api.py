@@ -92,6 +92,7 @@ class SessionsApi:
             # Handle scoring
             # TODO: complicated scoring logic that we'll get to another time lol
 
+            # TODO: if score_mod.finished:
             session_play.set_complete(150, 200, 75.0)
 
             return JsonResponse({  # TODO
