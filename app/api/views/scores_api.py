@@ -11,11 +11,12 @@ from util.widget.validator import ValidatorUtil
 
 class ScoresApi:
 
-    # Returns all scores for the given widget instance recorded by the current user, and attempts
+    # WAS widget_instance_scores_get
+    # Returns all scores (SessionPlays) for the given widget instance recorded by the current user, and attempts
     # remaining in the current context. If no launch token is supplied, the current semester will
     # be used as the current context.
     @staticmethod
-    def widget_instance_scores_get(request):
+    def get_for_widget_instance(request):
         # Get body params
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
@@ -57,8 +58,9 @@ class ScoresApi:
             'attemptsLeft': attempts_left,
         })
 
+    # WAS guest_widget_instance_scores_get
     @staticmethod
-    def guest_widget_instance_scores_get(request):
+    def get_for_widget_instance_guest(request):
         # Get and validate body
         json_body = json.loads(request.body)
         instance_id = json_body.get("instanceId")
@@ -85,8 +87,10 @@ class ScoresApi:
             "scores": fixed_json_scores
         })
 
+    # WAS widget_instance_play_scores_get
+    # Gets play details (from Log table, containing player's answers and actions) for a play_id
     @staticmethod
-    def widget_instance_play_scores_get(request):
+    def get_play_details(request):
         # Get body params
         json_body = json.loads(request.body)
         play_id = json_body.get("playId")
@@ -95,6 +99,7 @@ class ScoresApi:
 
         # Grab play details
         if ValidatorUtil.is_valid_hash(preview_inst_id):
+            # Get preview play details
             if preview_play_id is None:
                 # TODO better error reporting
                 return HttpResponseBadRequest()
@@ -113,6 +118,7 @@ class ScoresApi:
 
             return JsonResponse(play_details)
         else:
+            # Get real play details
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:

@@ -25,7 +25,7 @@ from core.views.scores import ScoresView
 from core.views.widget import *
 
 from django.urls import include, path, re_path
-from api.views.users import UsersApi
+from api.views.users_api import UsersApi
 from django.contrib import admin
 
 urlpatterns = [
@@ -53,7 +53,6 @@ urlpatterns = [
 
     # API
     path("api/", include("api.urls.api_urls")),
-    path("api/user/activity", UsersApi.activity),
     path("profile/", profile_views.profile, name="profile"),
     path("settings/", profile_views.settings, name="settings"),
     path("login/", login_views.login, name="login"),

@@ -62,7 +62,7 @@ const LoginPage = () => {
 		const username = document.getElementById('username').value
 		const password = document.getElementById('password').value
 		const csrfToken = getCSRFToken()
-		const response = await fetch('/api/json/auth/login/', {
+		const response = await fetch('/api/user/login/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',

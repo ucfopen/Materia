@@ -2,7 +2,7 @@ import logging
 import json
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
-from api.views.users import UsersApi
+from api.views.users_api import UsersApi
 
 
 def get_dark_mode(request):

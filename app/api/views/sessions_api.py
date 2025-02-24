@@ -9,12 +9,14 @@ from util.widget.validator import ValidatorUtil
 
 
 class SessionsApi:
+    # WAS session_author_verify
     @staticmethod
-    def session_author_verify(request):
+    def author_verify(request):
         return JsonResponse({})
 
+    # WAS session_play_create
     @staticmethod
-    def session_play_create(request):
+    def play_start(request):
         # Verify request params
         instance_id = json.loads(request.body)["instanceId"]
         if instance_id is None:
@@ -34,9 +36,10 @@ class SessionsApi:
         play_id = session_play.start(instance, 0)
         return JsonResponse({"playId": play_id})
 
+    # WAS play_logs_save
     @staticmethod
     # Gets called when a game ends with the play data. Scores the game, saves results, and submits score to LTI
-    def play_logs_save(request):
+    def play_save(request):
         # Get all request params
         request_body = json.loads(request.body)
         play_id = request_body.get("playId")

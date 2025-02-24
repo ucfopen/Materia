@@ -728,7 +728,7 @@ class Widget(SerializableModel):
 class WidgetInstance(SerializableModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._qset = None
+        self._qset: WidgetQset | None = None
 
     id = models.CharField(primary_key=True, max_length=10, db_collation="utf8_bin")
     widget = models.ForeignKey(
@@ -770,7 +770,7 @@ class WidgetInstance(SerializableModel):
     # TODO: re-evaluate this - it makes widget instance creation kind of inconvenient
     # at least with the existing approach
     @property
-    def qset(self):
+    def qset(self) -> "WidgetQset":  # not defined until later, must use type as string
         if self._qset is None:
             try:
                 self._qset = WidgetQset.objects.filter(instance=self).latest("created_at")
@@ -779,7 +779,8 @@ class WidgetInstance(SerializableModel):
         return self._qset
 
     @qset.setter
-    def qset(self, new_qset):
+    def qset(self, new_qset: dict):
+        # TODO: when using this setter, we might want to create a whole new WidgetQset for history
         if "data" in new_qset:
             self.qset.data = new_qset["data"]
         if "version" in new_qset:

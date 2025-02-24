@@ -2,10 +2,10 @@ import logging
 import os
 import tempfile
 
-from api.views.widget_instances import WidgetInstancesApi
 from core.models import PermObjectToUser, Widget, WidgetMetadata, WidgetQset
 from django.conf import settings
 from util.unique_id import unique_id
+from util.widget.instance.instance_util import WidgetInstanceUtil
 
 logger = logging.getLogger("django")
 
@@ -438,37 +438,30 @@ class WidgetInstaller:
 
             demo_data = json.loads(demo_text)
 
-            qset = WidgetQset()
-            qset.version = demo_data["qset"]["version"]
-            qset.data = demo_data["qset"]["data"]
-
             if existing_inst_id:
                 # update the existing instance by adding a new qset
-                saved_demo = WidgetInstancesApi.update(
-                    existing_inst_id,
-                    demo_data["name"],
-                    qset,
-                    False,
-                    None,
-                    None,
-                    None,
-                    True,
+                saved_demo = WidgetInstanceUtil.update(
+                    widget_instance_id=existing_inst_id,
+                    name=demo_data["name"],
+                    qset=qset,
+                    is_draft=False,
+                    guest_access=True,
                 )
 
                 if not saved_demo.id:
                     raise Exception("Error saving demo instance")
             else:
                 # new instance, nothing to upgrade
-                saved_demo = WidgetInstancesApi.new(
-                    widget_id, demo_data["name"], qset, False
+                saved_demo = WidgetInstanceUtil.save(
+                    widget_id, demo_data["name"], demo_data["qset"], False
                 )
 
                 if not saved_demo.id:
                     raise Exception("Error saving demo instance")
 
                 # update it to make sure it allows guest access
-                WidgetInstancesApi.update(
-                    saved_demo.id, None, None, None, None, None, None, True
+                WidgetInstanceUtil.update(
+                    widget_instance_id=saved_demo.id, guest_access=True
                 )
                 # make sure nobody owns the demo widget
                 access = PermObjectToUser.objects.filter(
