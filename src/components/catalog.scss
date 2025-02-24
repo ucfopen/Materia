@@ -155,7 +155,7 @@
 		cursor: pointer;
 	}
 
-	#filters-container {
+	.filters-container {
 		z-index: 1;
 		display: flex;
 		justify-content: space-between;
@@ -236,7 +236,7 @@
 						width: 16px;
 						height: auto;
 						margin-right: 6px;
-						fill: #fff;
+						fill: #000;
 					}
 				}
 			}
@@ -549,7 +549,7 @@
 		color: #3690e6;
 	}
 
-	#filters-container {
+	.filters-container {
 
 		.filter-labels-container {
 
@@ -693,7 +693,7 @@
 
 @media (max-width: 960px) {
 	.catalog {
-		#filters-container {
+		.filters-container {
 			text-align: center;
 			margin: auto 0;
 
@@ -849,7 +849,7 @@
 			}
 		}
 
-		#filters-container {
+		.filters-container {
 			display: none;
 		}
 
