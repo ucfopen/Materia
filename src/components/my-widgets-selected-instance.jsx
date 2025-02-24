@@ -481,11 +481,15 @@ const MyWidgetSelectedInstance = ({
 					<p>
 						Provides a snippet of HTML to embed your widget directly in a webpage. Widgets
 						embedded in such a way do not synchronize scores or other data.
-						<span
-							className='show-embed link'
-							onClick={toggleShowEmbed}>
-							&nbsp;Show the embed code
-						</span>.
+						{
+							! inst.is_draft ?
+							<span
+								className='show-embed link'
+								onClick={toggleShowEmbed}>
+								&nbsp;Show the embed code.
+							</span>
+							: ' Publish your widget to access the embed code.'
+						}
 					</p>
 
 				{ embedInfoRender }
@@ -499,7 +503,7 @@ const MyWidgetSelectedInstance = ({
 							type='text'
 							readOnly
 							disabled={inst.is_draft}
-							value={state.playUrl}
+							value={inst.is_draft ? 'Play URL only available for published widgets.' : state.playUrl}
 						/>
 					</div>
 				</div>

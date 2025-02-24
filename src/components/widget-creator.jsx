@@ -108,23 +108,25 @@ const WidgetCreator = ({instId, widgetId, minHeight='', minWidth=''}) => {
 
 	// load question set (qset) for given instance id
 	// requires: instance.id state property to be set (widget instance query is settled)
-	const { isLoading: qSetIsLoading, data: qset } = useQuery({
+	const qsetQuery = useQuery({
 		queryKey: ['qset', instIdRef.current],
 		queryFn: () => apiGetQuestionSet(instIdRef.current),
 		staleTime: Infinity,
-		placeholderData: null,
 		enabled: !!instIdRef.current, // requires instance state object to be prepopulated
-		retry: false,
-		onSuccess: (data) => {
-			if (data) {
-				setCreatorState({...creatorState, invalid: false})
-				setInstance({ ...instance, qset: data })
-			}
-		},
-		onError: (error) => {
-			onInitFail(error)
-		}
+		retry: false
 	})
+
+	useEffect(() => {
+		if ( !qsetQuery.isLoading && qsetQuery.data != null ) {
+			if (qsetQuery.isSuccess && qsetQuery.data != undefined) {
+				setCreatorState({...creatorState, invalid: false})
+				setInstance({ ...instance, qset: qsetQuery.data })
+			} else {
+				onInitFail(qsetQuery.error)
+			}
+		}
+
+	},[qsetQuery.isLoading])
 
 	// verify user can publish a given instance
 	// requires: instance.widget is set (value is determined by widget type and user perms)
