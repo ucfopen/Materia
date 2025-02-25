@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound, HttpResponseForbidden
 from django.views.generic import TemplateView
 
 from core.models import WidgetInstance
+from util.context_util import ContextUtil
 
 
 class ScoresView(TemplateView):
@@ -27,9 +28,6 @@ class ScoresView(TemplateView):
 
         # Set up context and return
         js_globals = {
-            "BASE_URL": "http://localhost/",  # TODO: make these config variables, and export these to somewhere where it can be reused easily
-            "WIDGET_URL": "http://localhost/widget/",
-            "STATIC_CROSSDOMAIN": "http://localhost/",
             "IS_EMBEDDED": is_embedded,
             "IS_PREVIEW": self.is_preview,
         }
@@ -39,9 +37,10 @@ class ScoresView(TemplateView):
 
         # TODO: insert support inline info - see php
 
-        return {
-            "title": "Score Results",
-            "js_resources": ["dist/js/scores.js"],
-            "css_resources": ["dist/css/scores.css"],
-            "js_global_variables": js_globals
-        }
+        return ContextUtil.create(
+            title="Score Results",
+            js_resources="dist/js/scores.js",
+            css_resources="dist/css/scores.css",
+            js_globals=js_globals,
+            request=self.request,
+        )

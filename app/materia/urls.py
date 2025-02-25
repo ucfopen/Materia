@@ -25,7 +25,6 @@ from core.views.scores import ScoresView
 from core.views.widget import *
 
 from django.urls import include, path, re_path
-from api.views.users_api import UsersApi
 from django.contrib import admin
 
 urlpatterns = [

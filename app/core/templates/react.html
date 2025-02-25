@@ -1,4 +1,5 @@
 {% load static %}
+{% load get_type %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -34,7 +35,15 @@
 		{% if js_global_variables %}
 			<script>
 				{% for key, value in js_global_variables.items %}
-					var {{key}} = '{{value}}';
+					{% if value|get_type == "str" %}
+						var {{key}} = '{{value}}';
+					{% elif value|get_type == "bool" and value %}
+						var {{key}} = true;
+					{% elif value|get_type == "bool" and not value %}
+						var {{key}} = false;
+					{% else %}
+						var {{key}} = {{value}};
+					{% endif %}
 				{% endfor %}
 			</script>
 		{% endif %}
