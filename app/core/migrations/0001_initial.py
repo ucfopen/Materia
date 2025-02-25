@@ -359,7 +359,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("instId", models.CharField(db_collation="utf8_bin", max_length=100)),
+                ("inst_id", models.CharField(db_collation="utf8_bin", max_length=100)),
                 ("user_id", models.PositiveBigIntegerField()),
                 ("created_at", models.IntegerField()),
                 ("extra_attempts", models.IntegerField()),
