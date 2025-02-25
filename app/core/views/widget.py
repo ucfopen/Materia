@@ -13,7 +13,8 @@ class WidgetDetailView(TemplateView):
         context = {
             "title": "Materia Widget Catalog",
             "js_resources": ["dist/js/detail.js"],
-            "css_resources": ["dist/css/detail.css"],
+            "css_resources": settings.CSS_GROUPS["detail"],
+            "fonts": settings.FONTS_DEFAULT,
             "js_global_variables": {
                 # TODO: make these config variables, and export these to somewhere where it can be reused easily
                 "BASE_URL": settings.URLS["BASE_URL"],
@@ -87,7 +88,8 @@ def _create_player_page(
     return {
         "title": f"{instance.name} - {instance.widget.name}",
         "js_resources": ["dist/js/player-page.js"],
-        "css_resources": ["dist/css/player-page.css"],
+        "css_resources": settings.CSS_GROUPS["player"],
+        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             # TODO: make these config variables, and export these to somewhere where it can be reused easily
             "BASE_URL": settings.URLS["BASE_URL"],
@@ -150,7 +152,8 @@ def _create_draft_not_playable_page():
     return {
         "title": "Draft Not Playable",
         "js_resources": ["dist/js/draft-not-playable.js"],
-        "css_resources": ["dist/css/login.css"],
+        "css_resources": settings.CSS_GROUPS["login"],
+        "fonts": settings.FONTS_DEFAULT
     }
 
 
@@ -158,7 +161,8 @@ def _create_widget_retired_page(is_embedded: bool = False):
     return {
         "title": "Retired Widget",
         "js_resources": ["dist/js/retired.js"],
-        "css_resources": ["dist/css/login.css"],
+        "css_resources": settings.CSS_GROUPS["login"],
+        "fonts": settings.FONTS_DEFAULT,
         "js_global_variables": {
             "IS_EMBEDDED": is_embedded,
         }

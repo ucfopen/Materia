@@ -903,7 +903,7 @@ class WidgetQset(SerializableModel):
 
     def as_json(self, *select_fields):
         json_qset = super().as_json(*select_fields)
-        decoded_qset_data = base64.b64decode(json_qset["data"][2:-1]).decode("utf-8")  # Slicing removes the b' ... '
+        decoded_qset_data = base64.b64decode(json_qset["data"]).decode("utf-8")  # Slicing removes the b' ... '
         json_qset["data"] = json.loads(decoded_qset_data)
         return json_qset
 

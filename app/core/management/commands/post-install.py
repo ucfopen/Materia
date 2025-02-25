@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management import base, call_command
+from django.contrib.auth.models import Group, Permission
 from django.db import connection
 
 import logging
@@ -26,8 +27,19 @@ class Command(base.BaseCommand):
         try:
             command_function(*kwargs["arguments"])
         except Exception as e:
-                logger.info(e)
-                logger.exception("")
+            logger.info(e)
+            logger.exception("")
+
+    def populate_default_groups(self):
+        support_group, created_support_group = Group.objects.get_or_create(name='support_user')
+        if created_support_group:
+            logger.info("support_user group created")
+
+        author_group, created_author_group = Group.objects.get_or_create(name='basic_author')
+        if created_author_group:
+            logger.info("basic_author group created")
+
+        # TODO add perms to both groups
 
     def populate_dateranges(self, start_year, end_year):
 

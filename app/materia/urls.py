@@ -18,7 +18,7 @@ Including another URLconf
 from core.views import main as core_views
 from core.views.catalog import CatalogView
 
-from core.views import profile as profile_views
+from core.views.profile import ProfileView
 from core.views import login as login_views
 
 from core.views.scores import ScoresView
@@ -42,11 +42,12 @@ urlpatterns = [
     # Scores
     path("scores/<slug:widget_instance_id>/<slug:play_id>/", ScoresView.as_view(), name="scores"),
 
-    # API
+    # API (TODO: improve API routing, retire api/json)
     path("api/json/", include("api.urls.json")),
     path("api/user/activity", UsersApi.activity),
-    path("profile/", profile_views.profile, name="profile"),
-    path("settings/", profile_views.settings, name="settings"),
+    path("profile/", ProfileView.profile, name="profile"),
+    path("settings/", ProfileView.settings, name="settings"),
+	path("users/login", login_views.login, name="login"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
 ]
