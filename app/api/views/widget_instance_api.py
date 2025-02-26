@@ -1,14 +1,11 @@
 import json
 import logging
-from datetime import datetime
 
-from django.http import JsonResponse, HttpResponseServerError, HttpResponseNotFound, HttpResponseForbidden, \
-    HttpResponseBadRequest
-from django.utils.timezone import make_aware
+from django.http import JsonResponse, HttpResponseNotFound
 
-from core.models import PermObjectToUser, WidgetInstance, Widget
+from core.models import WidgetInstance, Widget
+from util.message_util import MsgUtil, MsgType
 from util.logging.session_play import SessionPlay
-from util.perm_manager import PermManager
 from util.widget.instance.instance_util import WidgetInstanceUtil
 from util.widget.validator import ValidatorUtil
 
@@ -56,11 +53,11 @@ class WidgetInstanceAPI:
 
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return HttpResponseBadRequest()  # TODO was return Msg::invalid_input($widget_id);
+            return MsgUtil.create_invalid_input_msg(msg=widget_id)
 
         widget = Widget.objects.filter(pk=widget_id).first()
         if not widget:
-            return HttpResponseNotFound()  # TODO was Msg::invalid_input('Invalid widget type');
+            return MsgUtil.create_invalid_input_msg("Invalid widget type")
 
         return JsonResponse({
             "publishPermsValid": widget.publishable_by(-0)  # TODO
@@ -75,6 +72,24 @@ class WidgetInstanceAPI:
         name = json_data.get("name")
         qset = json_data.get("qset")
         is_draft = json_data.get("isDraft", True)
+
+        # Verify user session
+        # TODO if (\Service_User::verify_session() !== true) return Msg::no_login();
+        # TODO if (\Service_User::verify_session('no_author')) return Msg::invalid_input('You are not able to create or edit widgets.');
+
+        # Get and validate widget
+        if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
+            return MsgUtil.create_invalid_input_msg(msg=widget_id)
+        widget_id = int(widget_id)
+
+        widget = Widget.objects.filter(pk=widget_id).first()
+
+        if not widget:
+            return MsgUtil.create_invalid_input_msg("Invalid widget type")
+        if not is_draft and not widget.publishable_by(-0):  # TODO Model_User::find_current_id()
+            return MsgUtil.create_no_perm_msg("Widget type can not be published by students.")
+        if is_draft and not widget.is_editable:
+            return MsgUtil.create_failure_msg("Non-editable widgets can not be saved as drafts!")
 
         widget_instance = WidgetInstanceUtil.save(widget_id, name, qset, is_draft)
 
@@ -121,18 +136,18 @@ class WidgetInstanceAPI:
         play_id = json_data.get("playId")  # Empty if in preview mode
         timestamp = json_data.get("timestamp")
         if not instance_id:
-            return HttpResponseBadRequest()
+            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
 
         # Grab widget instance, verify it exists
         instance = WidgetInstance.objects.get(pk=instance_id)
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO: return message instead, see php
+            return MsgUtil.create_no_login_msg()
 
         # Validate play ID
         if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id):
-            return HttpResponseForbidden()  # TODO was Msg::no_login();
+            return MsgUtil.create_no_login_msg()
 
         # TODO check preview mode, see php
 

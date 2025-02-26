@@ -57,6 +57,7 @@ urlpatterns = [
     path("settings/", profile_views.settings, name="settings"),
     path("login/", login_views.login, name="login"),
     path("admin/", admin.site.urls),
+    path("users/logout/", UsersApi.logout, name="logout"),
 ]
 
 handler404 = "core.views.main.handler404"
