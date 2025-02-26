@@ -5,6 +5,7 @@ from django.http import HttpResponseNotFound, HttpResponseForbidden, JsonRespons
 
 from core.models import DateRange, WidgetInstance
 from util.logging.session_play import SessionPlay
+from util.message_util import MsgUtil
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
@@ -23,7 +24,7 @@ class ScoresApi:
 
         # Verify body params
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound()  # TODO: was Msg::invalid_input(instance_id)
+            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
         # Grab context ID
         context_id = None
@@ -43,7 +44,7 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO: was Msg::no_login()
+            return MsgUtil.create_no_login_msg()
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
@@ -65,14 +66,14 @@ class ScoresApi:
         play_id = json_body.get("playId")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound()  # TODO: Was Msg::invalid_input(instance_id)
+            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
         # Get widget instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO: was Msg::no_login
+            return MsgUtil.create_no_login_msg()
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
         # TODO: better serializing
@@ -98,7 +99,7 @@ class ScoresApi:
             if not ValidatorUtil.is_valid_hash(preview_inst_id):
                 return HttpResponseBadRequest  # TODO: better error reporting
             if False:  # TODO: \Service_User::verify_session() !== true
-                return HttpResponseForbidden()  # TODO was Msg::no_login()
+                return MsgUtil.create_no_login_msg()
 
             # TODO: look at php
         else:
@@ -107,7 +108,7 @@ class ScoresApi:
             if not session_play:
                 return HttpResponseNotFound()  # TODO better error reporting
             if not session_play.data.instance.playable_by_current_user():
-                return HttpResponseForbidden()  # TODO was Msg::no_login()
+                return MsgUtil.create_no_login_msg()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
@@ -119,14 +120,14 @@ class ScoresApi:
         instance_id = json_body.get("instanceId")
         include_storage_data = json_body.get("includeStorageData", False)
         if not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound()  # TODO: was msg::invalid_input
+            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
         # Get widget instance and verify playable by user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO was msg::no_login
+            return MsgUtil.create_no_login_msg()
 
         # Get the score distributions and summaries per semester
         # TODO: these 2 queries seem to be slow (up to 3sec in php!) - maybe they'll perform faster in

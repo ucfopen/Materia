@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from core.models import WidgetInstance, Widget
+from core.views.main import get_dark_mode
 from util.logging.session_play import SessionPlay
 
 
@@ -18,7 +19,8 @@ class WidgetDetailView(TemplateView):
                 "BASE_URL": "http://localhost/",
                 "WIDGET_URL": "http://localhost/widget/",
                 "STATIC_CROSSDOMAIN": "http://localhost/",
-            }
+            },
+            **get_dark_mode(self.request),
         }
         return context
 
