@@ -6,6 +6,7 @@ from django.core import serializers
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
 
 from util.logging.session_play import SessionPlay
+from util.message_util import MsgUtil
 from util.widget.widget_util import WidgetUtil
 
 logger = logging.getLogger("django")
@@ -72,18 +73,18 @@ class WidgetsApi:
         play_id = json_data.get("playId")  # Empty if in preview mode
         timestamp = json_data.get("timestamp")
         if not instance_id:
-            return HttpResponseBadRequest()
+            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
 
         # Grab widget instance, verify it exists
         instance = WidgetInstance.objects.get(pk=instance_id)
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO: return message instead, see php
+            return MsgUtil.create_no_login_msg()
 
         # Validate play ID
         if play_id and not timestamp and not SessionPlay.validate_by_play_id(play_id):
-            return HttpResponseForbidden()  # TODO was Msg::no_login();
+            return MsgUtil.create_no_login_msg()
 
         # TODO check preview mode, see php
 

@@ -19,16 +19,16 @@ class SessionsApi:
         # Verify request params
         instance_id = json.loads(request.body)["instanceId"]
         if instance_id is None:
-            return HttpResponseBadRequest()
+            return MsgUtil.create_invalid_input_msg(msg="Missing instance ID")
 
         # Get and verify widget
         instance = WidgetInstance.objects.get(pk=instance_id)
         if instance is None:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user:
-            return HttpResponseForbidden()  # TODO: return no login message instead, refer to php code
+            return MsgUtil.create_no_login_msg()
         if instance.is_draft:
-            return HttpResponseForbidden()  # TODO: return message instead, see php code
+            return MsgUtil.create_failure_msg("Drafts Not Playable", "Must use Preview mode to play a draft")
 
         # Create and start play session
         session_play = SessionPlay()
@@ -57,7 +57,7 @@ class SessionsApi:
             ##### PREVIEW MODE #####
             # Confirm preview_play_id is present
             if preview_play_id is None:
-                return HttpResponseBadRequest()  # TODO better error reporting
+                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
             # Confirm user session for preview
             # TODO: if (\Service_User::verify_session() !== true) return Msg::no_login();
             SessionLogger.save_preview_logs(request.session, preview_instance_id, preview_play_id, logs)
@@ -67,7 +67,7 @@ class SessionsApi:
             # Grab session play
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
-                return HttpResponseNotFound()  # TODO: better error reporting
+                return HttpResponseNotFound()
 
             # TODO: the double verification of user session then session play seems like it might be redundant, take a look at later again
             # Confirm user session for real play

@@ -29,11 +29,11 @@ class WidgetInstanceAPI:
 
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return HttpResponseBadRequest()  # TODO was return Msg::invalid_input($widget_id);
+            return MsgUtil.create_invalid_input_msg(msg=widget_id)
 
         widget = Widget.objects.filter(pk=widget_id).first()
         if not widget:
-            return HttpResponseNotFound()  # TODO was Msg::invalid_input('Invalid widget type');
+            return MsgUtil.create_invalid_input_msg("Invalid widget type")
 
         return JsonResponse({
             "publishPermsValid": widget.publishable_by(-0)  # TODO
@@ -55,7 +55,7 @@ class WidgetInstanceAPI:
 
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return HttpResponseBadRequest()  # TODO was Msg::invalid_input($widget_id);
+            return MsgUtil.create_invalid_input_msg(msg=widget_id)
         widget_id = int(widget_id)
 
         widget = Widget.objects.filter(pk=widget_id).first()
@@ -260,8 +260,7 @@ class WidgetInstanceAPI:
         except Exception as e:
             logger.info("WHAT THE FUCK")
             logger.exception(e)
-            # originally this was calling Msg::failure
-            return HttpResponseServerError("Widget instance could not be created.")
+            return MsgUtil.create_failure_msg(msg="Widget instance could not be created")
 
     @staticmethod
     def widget_instance_lock(request):
