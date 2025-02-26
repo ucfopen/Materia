@@ -1,10 +1,12 @@
 import logging
 from datetime import datetime
 
-from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden, HttpResponseServerError, \
+    JsonResponse
 from django.utils.timezone import make_aware
 
 from core.models import WidgetInstance, Widget, PermObjectToUser
+from util.message_util import MsgUtil, MsgType
 from util.perm_manager import PermManager
 from util.widget.validator import ValidatorUtil
 
@@ -13,20 +15,20 @@ logger = logging.getLogger("django")
 
 class WidgetInstanceUtil:
     @staticmethod
-    def save(widget_id: int = None, name: str = None, qset=None, is_draft: bool = None) -> WidgetInstance:  # TODO or Msg
+    def save(widget_id: int = None, name: str = None, qset=None, is_draft: bool = None) -> WidgetInstance | JsonResponse:
         # Get and validate widget
         if not ValidatorUtil.is_positive_integer_or_zero(widget_id):
-            return HttpResponseBadRequest()  # TODO was Msg::invalid_input($widget_id);
+            return MsgUtil.create_invalid_input_msg(msg=f"Widget ID '{widget_id}' invalid")
         widget_id = int(widget_id)
 
         widget = Widget.objects.filter(pk=widget_id).first()
 
         if not widget:
-            return HttpResponseNotFound()  # TODO was Msg::invalid_input('Invalid widget type');
+            return MsgUtil.create_invalid_input_msg(msg="Invalid widget type")
         if not is_draft and not widget.publishable_by(-0):  # TODO Model_User::find_current_id()
-            return HttpResponseForbidden()  # TODO was Msg::no_perm('Widget type can not be published by students.');
+            return MsgUtil.create_no_perm_msg(msg="Widget type can not be published by students")
         if is_draft and not widget.is_editable:
-            return HttpResponseForbidden()  # TODO was Msg::failure('Non-editable widgets can not be saved as drafts!');
+            return MsgUtil.create_failure_msg(msg="Non-editable widgets can not be saved as drafts!")
 
         is_student = False  # TODO was \Service_User::verify_session(['basic_author', 'super_user']);
 
@@ -52,8 +54,7 @@ class WidgetInstanceUtil:
         except Exception as e:
             logger.error("Failed to save widget instance:")
             logger.error(e)
-            return HttpResponseBadRequest()
-            # TODO was Msg::failure('Widget instance could not be saved.');
+            return MsgUtil.create_failure_msg(msg="Widget instance could not be saved")
 
     @staticmethod
     def update(
@@ -67,7 +68,7 @@ class WidgetInstanceUtil:
         guest_access: bool = None,
         embedded_only: bool = None,
         is_student_made: bool = None,
-    ) -> WidgetInstance:  # TODO or Msg
+    ) -> WidgetInstance | JsonResponse:
         # Verify user is logged in
         # TODO
         # if (\Service_User::verify_session() !== true) return Msg::no_login();
@@ -75,21 +76,26 @@ class WidgetInstanceUtil:
 
         # Get and validate widget instance
         if not ValidatorUtil.is_valid_hash(widget_instance_id):
-            return HttpResponseBadRequest()  # TODO was Msg::invalid_input('Instance id is invalid');
+            return MsgUtil.create_invalid_input_msg(msg=f"Instance ID '{widget_instance_id}' is invalid")
         # TODO if ( ! static::has_perms_to_inst($inst_id, [Perm::FULL])) return Msg::no_perm();
 
         widget_instance = WidgetInstance.objects.filter(pk=widget_instance_id).first()
         if not widget_instance:
-            return HttpResponseNotFound()  # TODO return Msg::failure('Widget instance could not be found.');
+            return MsgUtil.create_failure_msg(msg=f"Widget instance '{widget_instance_id}' could not be found")
         if is_draft and not widget_instance.widget.is_editable:
-            return HttpResponseForbidden()  # TODO Msg::failure('Non-editable widgets can not be saved as drafts!');
+            return MsgUtil.create_failure_msg(msg="Non-editable widgets can not be saved as drafts!")
         if not is_draft and not widget_instance.widget.publishable_by(-0):  # TODO \Model_User::find_current_id()
-            return HttpResponseForbidden()  # TODO Msg::no_perm('Widget type can not be published by students.');
+            return MsgUtil.create_no_perm_msg(msg="Widget type can not be published by students")
 
         # Check if student-made, ensure guest access remains enabled
         if widget_instance.is_student_made:
             if not guest_access:
-                return HttpResponseForbidden()  # TODO Msg('Student-made widgets must stay in guest access mode.', 'Student Made', 'error', false);
+                return MsgUtil.create(
+                    title="Student Made",
+                    msg="Student-made widgets must stay in guest access mode",
+                    msg_type=MsgType.ERROR,
+                    halt=False,
+                )
             attempts = -1
             guest_access = True
 
@@ -211,5 +217,4 @@ class WidgetInstanceUtil:
         except Exception as e:
             logger.info("WHAT THE FUCK")
             logger.exception(e)
-            # originally this was calling Msg::failure
-            return HttpResponseServerError("Widget instance could not be created.")
+            return MsgUtil.create_failure_msg(msg="Widget instance could not be created.")

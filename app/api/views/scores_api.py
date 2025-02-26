@@ -5,6 +5,7 @@ from django.http import HttpResponseNotFound, HttpResponseForbidden, JsonRespons
 
 from core.models import DateRange, WidgetInstance
 from util.logging.session_play import SessionPlay
+from util.message_util import MsgUtil
 from util.scoring.scoring_util import ScoringUtil
 from util.widget.validator import ValidatorUtil
 
@@ -24,7 +25,7 @@ class ScoresApi:
 
         # Verify body params
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound()  # TODO: was Msg::invalid_input(instance_id)
+            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
         # Grab context ID
         context_id = None
@@ -44,7 +45,7 @@ class ScoresApi:
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO: was Msg::no_login()
+            return MsgUtil.create_no_login_msg()
 
         # Get scores and return
         scores = ScoringUtil.get_instance_score_history(instance, context_id)
@@ -67,14 +68,14 @@ class ScoresApi:
         play_id = json_body.get("playId")
 
         if not instance_id or not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound()  # TODO: Was Msg::invalid_input(instance_id)
+            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
         # Get widget instance and validate user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO: was Msg::no_login
+            return MsgUtil.create_no_login_msg()
 
         scores = ScoringUtil.get_guest_instance_score_history(instance, play_id)
         # TODO: better serializing
@@ -101,11 +102,10 @@ class ScoresApi:
         if ValidatorUtil.is_valid_hash(preview_inst_id):
             # Get preview play details
             if preview_play_id is None:
-                # TODO better error reporting
-                return HttpResponseBadRequest()
+                return MsgUtil.create_invalid_input_msg(msg="Missing preview play ID")
             # Check if preview is valid and user has access
             if False:  # TODO: \Service_User::verify_session() !== true
-                return HttpResponseForbidden()  # TODO was Msg::no_login()
+                return MsgUtil.create_no_login_msg()
 
             # Get widget instance and play details
             widget_instance = WidgetInstance.objects.filter(pk=preview_inst_id).first()
@@ -114,7 +114,7 @@ class ScoresApi:
 
             play_details = ScoringUtil.get_preview_play_details(request.session, widget_instance, preview_play_id)
             if not play_details:
-                return HttpResponseNotFound()  # TODO: was Msg::expired()
+                return MsgUtil.create_expired_msg()
 
             return JsonResponse(play_details)
         else:
@@ -122,9 +122,9 @@ class ScoresApi:
             # Check if session play is valid and user has access
             session_play = SessionPlay.get_or_none(play_id)
             if not session_play:
-                return HttpResponseNotFound()  # TODO better error reporting
+                return HttpResponseNotFound()
             if not session_play.data.instance.playable_by_current_user():
-                return HttpResponseForbidden()  # TODO was Msg::no_login()
+                return MsgUtil.create_no_login_msg()
 
             return JsonResponse(ScoringUtil.get_play_details(session_play))
 
@@ -136,14 +136,14 @@ class ScoresApi:
         instance_id = json_body.get("instanceId")
         include_storage_data = json_body.get("includeStorageData", False)
         if not ValidatorUtil.is_valid_hash(instance_id):
-            return HttpResponseNotFound()  # TODO: was msg::invalid_input
+            return MsgUtil.create_invalid_input_msg(msg=str(instance_id))
 
         # Get widget instance and verify playable by user
         instance = WidgetInstance.objects.filter(pk=instance_id).first()
         if not instance:
             return HttpResponseNotFound()
         if not instance.playable_by_current_user():
-            return HttpResponseForbidden()  # TODO was msg::no_login
+            return MsgUtil.create_no_login_msg()
 
         # Get the score distributions and summaries per semester
         # TODO: these 2 queries seem to be slow (up to 3sec in php!) - maybe they'll perform faster in

@@ -1,11 +1,9 @@
 import json
 import logging
 
-from core.models import Widget, WidgetInstance
-from django.core import serializers
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
+from core.models import Widget
+from django.http import JsonResponse
 
-from util.logging.session_play import SessionPlay
 from util.widget.widget_util import WidgetUtil
 
 logger = logging.getLogger("django")
